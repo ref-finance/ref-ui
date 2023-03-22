@@ -27,8 +27,7 @@ import {
   CrossIconFull,
 } from '../components/icon/FarmBoost';
 import { useIntl } from 'react-intl';
-const { REF_UNI_V3_SWAP_CONTRACT_ID, boostBlackList, switch_on_dcl_farms } =
-  getConfig();
+const { REF_UNI_V3_SWAP_CONTRACT_ID, boostBlackList } = getConfig();
 
 /**
  * caculate price by point
@@ -589,9 +588,6 @@ export function allocation_rule_liquidities({
   const matched_liquidities = list.filter((liquidity: UserLiquidityInfo) => {
     if (liquidity.pool_id == pool_id) return true;
   });
-  if (switch_on_dcl_farms == 'off') {
-    return [[], matched_liquidities, []];
-  }
   const temp_farming: UserLiquidityInfo[] = [];
   let temp_free: UserLiquidityInfo[] = [];
   const temp_unavailable: UserLiquidityInfo[] = [];
@@ -704,9 +700,6 @@ export function get_matched_seeds_for_dcl_pool({
   pool_id: string;
   sort?: string;
 }) {
-  if (switch_on_dcl_farms == 'off') {
-    return [];
-  }
   const activeSeeds = seeds.filter((seed: Seed) => {
     const { seed_id, farmList } = seed;
     const [contractId, mft_id] = seed_id.split('@');

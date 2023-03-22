@@ -19,7 +19,7 @@ import {
 } from '../../utils/wallets-integration';
 import getConfig from '../../services/config';
 import { ArrowUpIcon } from '../../components/icon/Portfolio';
-const { XREF_TOKEN_ID, switch_on_dcl_farms } = getConfig();
+const { XREF_TOKEN_ID } = getConfig();
 import {
   ArrowJump,
   display_percentage,
@@ -282,9 +282,7 @@ function AssetPc() {
           }}
         >
           <div
-            className={`flex items-center text-farmText text-xs mt-1 bg-cardBg rounded-md px-2 py-1 ${
-              switch_on_dcl_farms == 'off' ? 'hidden' : ''
-            }`}
+            className={`flex items-center text-farmText text-xs mt-1 bg-cardBg rounded-md px-2 py-1`}
           >
             {percent_in_dcl_farms}{' '}
             <span
@@ -406,9 +404,7 @@ function AssetMobile() {
           className="border-r border-cardBg px-5 w-1 flex-grow py-4"
         >
           <div
-            className={`flex items-center text-farmText text-xs mt-1 bg-cardBg rounded-md px-2 py-1 ${
-              switch_on_dcl_farms == 'off' ? 'hidden' : ''
-            }`}
+            className={`flex items-center text-farmText text-xs mt-1 bg-cardBg rounded-md px-2 py-1`}
           >
             {percent_in_dcl_farms}{' '}
             <span

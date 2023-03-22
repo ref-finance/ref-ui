@@ -112,7 +112,6 @@ const {
   FARM_BLACK_LIST_V2,
   boostBlackList,
   REF_UNI_V3_SWAP_CONTRACT_ID,
-  switch_on_dcl_farms,
 } = getConfig();
 export default function FarmsHome(props: any) {
   const {
@@ -177,11 +176,6 @@ export default function FarmsHome(props: any) {
   const [boostInstructions, setBoostInstructions] = useState<boolean>(false);
   const [maxLoveShareAmount, setMaxLoveShareAmount] = useState<string>('0');
   const local_storage_tab = localStorage.getItem('BOOST_FARM_RAB');
-  const default_farm_tab =
-    !local_storage_tab ||
-    (local_storage_tab == 'dcl' && switch_on_dcl_farms == 'off')
-      ? 'classic'
-      : local_storage_tab;
   const history = useHistory();
   const [farmTypeList, setFarmTypeList] = useState([
     { id: 'all', label: 'all' },

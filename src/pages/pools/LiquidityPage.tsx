@@ -153,7 +153,6 @@ const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 const REF_FI_FARM_ONLY = 'REF_FI_FARM_ONLY';
 
 const REF_POOL_ID_SEARCHING_KEY = 'REF_POOL_ID_SEARCHING_KEY';
-const { switch_on_dcl_farms } = getConfig();
 
 export function getPoolFeeApr(
   dayVolume: string,
@@ -3025,10 +3024,6 @@ export function LiquidityPage() {
     Record<string, Seed>
   >({});
   useEffect(() => {
-    if (switch_on_dcl_farms == 'off') {
-      set_do_farms_v2_poos({});
-      return;
-    }
     get_all_seeds().then((seeds: Seed[]) => {
       const activeSeeds = seeds.filter((seed: Seed) => {
         const { farmList, seed_id } = seed;
