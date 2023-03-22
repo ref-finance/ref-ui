@@ -1052,5 +1052,15 @@ const uk_UA = {
   unstaked_2: 'Unstaked',
   unstaked_positions: ' Unstaked Positions',
   price_range_overlap_ratio: ' Price Range Overlap Ratio',
+  overview: 'Overview',
+  positions_2: 'Positions',
+  'deposit_near_tip_0.5': 'To deposit, keep at least 0.5 NEAR to cover gas fee',
+  trade: 'Trade',
+  earn_2: 'Earn',
+  portfolio: 'Portfolio',
+  more_2: 'More',
+  liquidity_pools_2: 'Liquidity Pools',
+  business_inquiries: 'Business Inquiries',
+  orderbook_mobile: 'Orderbook',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);
