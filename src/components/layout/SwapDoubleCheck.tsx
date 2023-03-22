@@ -21,14 +21,13 @@ import ReactModal from 'react-modal';
 import Modal from 'react-modal';
 import { Card } from '../../components/card/Card';
 import { HeavyWarning, ModalClose } from '../../components/icon';
-import { Icon, PoolInfo } from './SwapRoutes';
+import { Icon } from './SwapRoutes';
 import { ArrowRight } from '../icon/swapV3';
 
 import { EstimateSwapView, PoolMode, swap } from '~services/swap';
 import BigNumber from 'bignumber.js';
 import Big from 'big.js';
-import { PoolInfo, PoolInfo, PoolInfo } from '~services/swapV3';
-import { PoolInfoV3, get_pool_from_cache } from '../../services/swapV3';
+import { PoolInfo, get_pool_from_cache } from '../../services/swapV3';
 import { TOKEN_LIST_FOR_RATE } from '../../services/commonV3';
 
 export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
@@ -309,7 +308,7 @@ export function DoubleCheckModalLimit(
 
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
 
-  const [poolDetail, setPoolDetail] = useState<PoolInfoV3>();
+  const [poolDetail, setPoolDetail] = useState<PoolInfo>();
 
   useEffect(() => {
     get_pool_from_cache(selectedPool).then((pool) => {

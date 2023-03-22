@@ -59,9 +59,9 @@ import { WalletContext } from '../../utils/wallets-integration';
 import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import { REF_TOKEN_ID } from '../../services/near';
 import { useAllPoolsV2 } from '../../state/swapV3';
-import { Images, Symbols } from '~components/stableswap/CommonComp';
+import { Images, Symbols } from '../../components/stableswap/CommonComp';
 import { IconLeftV3 } from '../tokens/Icon';
-import { PoolInfo } from '~services/swapV3';
+import { PoolInfo } from '../../services/swapV3';
 import { sort_tokens_by_base } from '../../services/commonV3';
 
 export const USER_COMMON_TOKEN_LIST = 'USER_COMMON_TOKEN_LIST';
