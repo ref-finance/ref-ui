@@ -474,7 +474,7 @@ function HistoryLine({
 
   const actions = (
     <div className=" col-span-1  text-primaryText  text-xs flex flex-col items-end justify-self-end p-1.5">
-      <span className="flex items-center whitespace-nowrap">
+      <span className="flex text-sm text-white items-center whitespace-nowrap">
         {ONLY_ZEROS.test(order.cancel_amount) ? (
           <FormattedMessage id="filled" defaultMessage={'Filled'} />
         ) : new Big(order.cancel_amount).eq(order.original_deposit_amount) ? (
@@ -892,7 +892,7 @@ function HistorySwapInfoLine({
 
   const actions = (
     <div className=" col-span-1  text-primaryText  text-xs flex flex-col items-end justify-self-end p-1.5">
-      <span className="flex items-center whitespace-nowrap">
+      <span className="flex items-center text-sm text-white whitespace-nowrap">
         {<FormattedMessage id="swapped" defaultMessage={'Swapped'} />}
       </span>
 
