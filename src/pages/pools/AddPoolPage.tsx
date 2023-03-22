@@ -1,21 +1,24 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Card } from '~components/card/Card';
-import { useWhitelistTokens, useTokenBalances } from '~state/token';
-import Loading from '~components/layout/Loading';
-import SelectToken from '~components/forms/SelectToken';
-import { TokenMetadata } from '~services/ft-contract';
-import { toRoundedReadableNumber } from '~utils/numbers';
-import { ArrowDownGreen, ArrowDownWhite } from '~components/icon';
-import Icon from '~components/tokens/Icon';
-import { ButtonTextWrapper, ConnectToNearBtn } from '~components/button/Button';
-import { wallet } from '~services/near';
-import { addSimpleLiquidityPool } from '~services/pool';
-import { Toggle } from '~components/toggle';
-import Alert from '~components/alert/Alert';
+import { Card } from '../../components/card/Card';
+import { useWhitelistTokens, useTokenBalances } from '../../state/token';
+import Loading from '../../components/layout/Loading';
+import SelectToken from '../../components/forms/SelectToken';
+import { TokenMetadata } from '../../services/ft-contract';
+import { toRoundedReadableNumber } from '../../utils/numbers';
+import { ArrowDownGreen, ArrowDownWhite } from '../../components/icon';
+import Icon from '../../components/tokens/Icon';
+import {
+  ButtonTextWrapper,
+  ConnectToNearBtn,
+} from '../../components/button/Button';
+import { wallet } from '../../services/near';
+import { addSimpleLiquidityPool } from '../../services/pool';
+import { Toggle } from '../../components/toggle';
+import Alert from '../../components/alert/Alert';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { toRealSymbol } from '~utils/token';
+import { toRealSymbol } from '../../utils/token';
 import BigNumber from 'bignumber.js';
-import QuestionMark from '~components/farm/QuestionMark';
+import QuestionMark from '../../components/farm/QuestionMark';
 import Modal from 'react-modal';
 import ReactTooltip from 'react-tooltip';
 import {
@@ -75,18 +78,18 @@ export function AddPoolModal(
       v: intl.formatMessage({ id: 'lp_fee' }),
       percent: '80',
     },
-    protocol_fee: {
-      v: intl.formatMessage({ id: 'protocol_fee' }),
-      percent: '16',
+    protocol_fee_and_referral_fee: {
+      v: intl.formatMessage({ id: 'protocol_fee_referral_fee' }),
+      percent: '20',
     },
-    referral_fee: {
-      v: intl.formatMessage({ id: 'referral_fee' }),
-      percent: '4',
-    },
+    // referral_fee: {
+    //   v: intl.formatMessage({ id: 'referral_fee' }),
+    //   percent: '4',
+    // },
   };
 
   const isMobile = useClientMobile();
-  const cardWidth = isMobile ? '90vw' : '450px';
+  const cardWidth = isMobile ? '98vw' : '450px';
 
   if (!tokens || !balances) return <Loading />;
   if (!props.isOpen) return null;
@@ -179,7 +182,7 @@ export function AddPoolModal(
           width: cardWidth,
         }}
       >
-        <Card width="w-full" bgcolor="bg-cardBg">
+        <Card width="w-full" bgcolor="bg-cardBg" padding="xs:p-4 md:p-4 p-6">
           <div className="text-white flex items-center justify-between text-xl pb-6">
             <FormattedMessage
               id="Create_New_Pool"
@@ -292,7 +295,7 @@ export function AddPoolModal(
                   key={item.v + 1}
                 >
                   <label className="text-sm text-primaryText">{item.v}</label>
-                  <label className="text-sm text-white">
+                  <label className="text-sm text-white whitespace-nowrap ml-3">
                     {getCurFee(item)}
                   </label>
                 </div>

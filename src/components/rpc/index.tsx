@@ -315,6 +315,10 @@ const displayCurrentRpc = (
     );
   }
 };
+const specialRpcs: string[] = [
+  'https://near-mainnet.infura.io/v3',
+  'https://gynn.io',
+];
 const ModalAddCustomNetWork = (props: any) => {
   const { rpclist, currentEndPoint, responseTimeList, onRequestClose, isOpen } =
     props;
@@ -349,7 +353,7 @@ const ModalAddCustomNetWork = (props: any) => {
     // check network
     let responseTime;
     // special check
-    if (customRpUrl.indexOf('https://near-mainnet.infura.io/v3') > -1) {
+    if (checkContain(customRpUrl)) {
       const { status, responseTime: responseTime_gas } = await ping_gas(
         customRpUrl
       );
@@ -400,6 +404,12 @@ const ModalAddCustomNetWork = (props: any) => {
       responseTime,
     });
     setCustomShow(false);
+  }
+  function checkContain(url: string) {
+    const res = specialRpcs.find((rpc: string) => {
+      if (url.indexOf(rpc) > -1) return true;
+    });
+    return !!res;
   }
   function changeNetName(v: string) {
     setNameError(false);
@@ -647,7 +657,7 @@ const ModalAddCustomNetWork = (props: any) => {
                   <div className={'flex items-center'}>
                     <AddButtonIcon
                       style={{ zoom: 1.35 }}
-                      className="mr-1"
+                      className="mr-1 text-white"
                     ></AddButtonIcon>
                     <FormattedMessage id="add" />
                   </div>

@@ -17,15 +17,25 @@ import {
 import BigNumber from 'bignumber.js';
 import { isMobile } from '~utils/device';
 import { FaExchangeAlt } from 'react-icons/fa';
-import { toReadableNumber, toPrecision, niceDecimals } from '~utils/numbers';
+import {
+  toReadableNumber,
+  toPrecision,
+  niceDecimals,
+  formatWithCommas,
+} from '~utils/numbers';
 import getConfig from '~services/config';
-import { ftGetBalance, ftGetTokenMetadata } from '~services/ft-contract';
+import {
+  ftGetBalance,
+  ftGetTokenMetadata,
+  TokenMetadata,
+} from '~services/ft-contract';
 import {
   metadata,
   getPrice,
   stake,
   unstake,
   XREF_TOKEN_DECIMALS,
+  XrefMetaData,
 } from '~services/xref';
 import { wallet } from '~services/near';
 import QuestionMark from '~components/farm/QuestionMark';
@@ -44,14 +54,6 @@ const {
 } = getConfig();
 const DECIMALS_XREF_REF_TRANSTER = 8;
 
-const displayBalance = (max: string) => {
-  const formattedMax = new BigNumber(max);
-  if (formattedMax.isEqualTo('0')) {
-    return '0';
-  } else {
-    return toPrecision(max, 3, true);
-  }
-};
 function XrefPage() {
   const [tab, setTab] = useState(0);
   const [apr, setApr] = useState('');
@@ -59,10 +61,22 @@ function XrefPage() {
   const [xrefBalance, setXrefBalance] = useState(null);
   const [rate, setRate] = useState(null);
   const [totalDataArray, setTotalDataArray] = useState([]);
+  const [refToken, setRefToken] = useState<TokenMetadata>();
+  const [xrefMetaData, setXrefMetaData] = useState<XrefMetaData>();
   const intl = useIntl();
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+  const displayBalance = (max: string) => {
+    const formattedMax = new BigNumber(max);
+    if (!isSignedIn) {
+      return '-';
+    } else if (formattedMax.isEqualTo('0')) {
+      return '0';
+    } else {
+      return toPrecision(max, 3, true);
+    }
+  };
 
   useEffect(() => {
     ftGetBalance(XREF_TOKEN_ID).then(async (data: any) => {
@@ -79,6 +93,7 @@ function XrefPage() {
         supply,
         account_number,
       } = data;
+      setXrefMetaData(data);
       if (new BigNumber(locked_token_amount).isGreaterThan('0')) {
         const apr =
           (1 / locked_token_amount) *
@@ -87,6 +102,7 @@ function XrefPage() {
       }
       ftGetBalance(REF_TOKEN_ID).then(async (data: any) => {
         const token = await ftGetTokenMetadata(REF_TOKEN_ID);
+        setRefToken(token);
         const { decimals } = token;
         const balance = toReadableNumber(decimals, data);
         setRefBalance(balance);
@@ -179,14 +195,73 @@ function XrefPage() {
     const bigAmount = new BigNumber(xrefBalance || '0');
     let receive;
     receive = bigAmount.multipliedBy(rate);
-    if (receive.isEqualTo(0)) {
+    if (!isSignedIn) {
+      return '-';
+    } else if (receive.isEqualTo(0)) {
       return 0;
     } else if (receive.isLessThan(0.001)) {
       return '<0.001';
     } else {
-      return `≈ ${toPrecision(receive.valueOf(), 3, true)}`;
+      return (
+        <>
+          <label className="font-sans mr-0.5">≈</label>
+          {toPrecision(receive.valueOf(), 3, true)}
+        </>
+      );
     }
   };
+  function getXrefAprTip() {
+    if (refToken && xrefMetaData) {
+      const reward_per_sec = xrefMetaData.reward_per_sec;
+      const week_rewards = new BigNumber(reward_per_sec)
+        .multipliedBy(7 * 24 * 60 * 60)
+        .toFixed(0);
+      const amount = toReadableNumber(refToken.decimals, week_rewards);
+      const displayAmount = formatWithCommas(toPrecision(amount, 2));
+      const content = intl.formatMessage({ id: 'total_ref_week' });
+      return `<div class="flex flex-col">
+          <span class="text-xs text-navHighLightText">${content}</span>
+          <div class="flex items-center justify-between mt-3">
+            <image class="w-5 h-5 rounded-full mr-7" src="${refToken.icon}"/>
+            <label class="text-xs text-navHighLightText">${displayAmount}</label>
+          </div>
+      </div>`;
+    }
+  }
+  function getYourRewardsTip() {
+    if (refToken && xrefMetaData) {
+      const { locked_token_amount, reward_per_sec } = xrefMetaData;
+      const bigAmount = new BigNumber(xrefBalance || '0');
+      const userReceiveRef = bigAmount.multipliedBy(rate);
+      const totalRef = toReadableNumber(refToken.decimals, locked_token_amount);
+      const percent = new BigNumber(userReceiveRef).dividedBy(totalRef);
+      const week_rewards = new BigNumber(reward_per_sec)
+        .multipliedBy(7 * 24 * 60 * 60)
+        .toFixed();
+      const week_rewards_amount = toReadableNumber(
+        refToken.decimals,
+        week_rewards
+      );
+      const user_get_rewards_per_week =
+        percent.multipliedBy(week_rewards_amount);
+      let displayAmount = '';
+      if (user_get_rewards_per_week.isEqualTo(0)) {
+        displayAmount = '0';
+      } else if (user_get_rewards_per_week.isLessThan('0.001')) {
+        displayAmount = '<0.001';
+      } else {
+        displayAmount = formatWithCommas(user_get_rewards_per_week.toFixed(2));
+      }
+      const content = intl.formatMessage({ id: 'ref_week_you_will_get' });
+      return `<div class="flex flex-col">
+          <span class="text-xs text-navHighLightText">${content}</span>
+          <div class="flex items-center justify-between mt-3">
+            <image class="w-5 h-5 rounded-full mr-7" src="${refToken.icon}"/>
+            <label class="text-xs text-navHighLightText">${displayAmount}</label>
+          </div>
+      </div>`;
+    }
+  }
   if (!(refBalance && xrefBalance)) return <Loading></Loading>;
   return (
     <div className="flex flex-col mx-auto items-center -mt-5 xs:px-4 md:px-4 lg:w-3/5 xl:w-3/6 2xl:w-2/5">
@@ -212,9 +287,27 @@ function XrefPage() {
             <p className="text-base text-primaryText">
               <FormattedMessage id="staking_apr"></FormattedMessage>
             </p>
-            <p className="text-2xl text-white" title={apr.toString() + '%'}>
-              {displayApr() + '%'}
-            </p>
+            <div className="flex">
+              <div
+                className="text-white text-left"
+                data-class="reactTip"
+                data-for={'xrefAprId'}
+                data-place="top"
+                data-html={true}
+                data-tip={getXrefAprTip()}
+              >
+                <span className="text-2xl text-white">
+                  {displayApr() + '%'}
+                </span>
+                <ReactTooltip
+                  id={'xrefAprId'}
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  effect="solid"
+                />
+              </div>
+            </div>
           </div>
           <div className="rounded-2xl bg-cardBg py-5 px-6 xs:py-3 md:py-3">
             {/* pc */}
@@ -239,9 +332,25 @@ function XrefPage() {
                     </p>
                   </div>
                 </div>
-                <div className="whitespace-nowrap ml-8 text-white text-sm text-right font-sans">
-                  {displayTotalREF()}{' '}
-                  <FormattedMessage id="ref"></FormattedMessage>
+                <div className="whitespace-nowrap ml-8 text-white text-sm text-right">
+                  <div
+                    className="text-white text-left"
+                    data-class="reactTip"
+                    data-for={'youGetId'}
+                    data-place="top"
+                    data-html={true}
+                    data-tip={getYourRewardsTip()}
+                  >
+                    {displayTotalREF()}{' '}
+                    <FormattedMessage id="ref"></FormattedMessage>
+                    <ReactTooltip
+                      id={'youGetId'}
+                      backgroundColor="#1D2932"
+                      border
+                      borderColor="#7e8a93"
+                      effect="solid"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -260,9 +369,25 @@ function XrefPage() {
               </div>
               <div className="flex flex-col items-end text-xl xs:text-base md:text-base text-white relative top-3">
                 <label>{displayBalance(xrefBalance)}</label>
-                <div className="whitespace-nowrap text-white text-sm font-sans">
-                  {displayTotalREF()}{' '}
-                  <FormattedMessage id="ref"></FormattedMessage>
+                <div className="whitespace-nowrap text-white text-sm">
+                  <div
+                    className="text-white text-left"
+                    data-class="reactTip"
+                    data-for={'youGetMId'}
+                    data-place="top"
+                    data-html={true}
+                    data-tip={getYourRewardsTip()}
+                  >
+                    {displayTotalREF()}{' '}
+                    <FormattedMessage id="ref"></FormattedMessage>
+                    <ReactTooltip
+                      id={'youGetMId'}
+                      backgroundColor="#1D2932"
+                      border
+                      borderColor="#7e8a93"
+                      effect="solid"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -364,7 +489,12 @@ function InputView(props: any) {
     } else if (receive.isLessThan(0.001)) {
       return '<0.001';
     } else {
-      return `≈ ${receive.toFixed(3, 1)}`;
+      return (
+        <>
+          <label className="font-sans mr-0.5">≈</label>
+          {receive.toFixed(3, 1)}
+        </>
+      );
     }
   };
   const rateDisplay = (tab: number) => {
@@ -405,6 +535,16 @@ function InputView(props: any) {
           <FormattedMessage id="ref"></FormattedMessage>
         </>
       );
+    }
+  };
+  const displayBalance = (max: string) => {
+    const formattedMax = new BigNumber(max);
+    if (!isSignedIn) {
+      return '-';
+    } else if (formattedMax.isEqualTo('0')) {
+      return '0';
+    } else {
+      return toPrecision(max, 3, true);
     }
   };
   return (
@@ -471,10 +611,7 @@ function InputView(props: any) {
           </label>
         )}
 
-        <label className="text-sm text-white font-sans">
-          {' '}
-          {exchangeDisplay()}
-        </label>
+        <label className="text-sm text-white"> {exchangeDisplay()}</label>
       </div>
       {isSignedIn ? (
         <GradientButton

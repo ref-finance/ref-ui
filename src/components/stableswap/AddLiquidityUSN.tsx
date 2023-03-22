@@ -44,6 +44,8 @@ import { getURLInfo, checkAccountTip } from '../layout/transactionTipPopUp';
 import { getStablePoolDecimal } from '../../pages/stable/StableSwapEntry';
 import { STABLE_LP_TOKEN_DECIMALS } from './AddLiquidity';
 import { getMax } from '../../utils/numbers';
+import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
+import { toRealSymbol } from '../../utils/token';
 
 const getSwapSlippageKey = (id: string | number) =>
   `REF_FI_STABLE_SWAP_ADD_LIQUIDITY_SLIPPAGE_VALUE_${id}`;
@@ -232,7 +234,25 @@ export default function AddLiquidityComponentUSN(props: {
       }
     }
   };
+  const firstTokenBalanceBN =
+    tokens[0] && balances
+      ? new BigNumber(
+          getMax(
+            tokens[0].id,
+            toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
+          )
+        )
+      : new BigNumber(0);
 
+  const secondTokenBalanceBN =
+    tokens[1] && balances
+      ? new BigNumber(
+          getMax(
+            tokens[1].id,
+            toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
+          )
+        )
+      : new BigNumber(0);
   function validate({
     firstAmount,
     secondAmount,
@@ -242,19 +262,8 @@ export default function AddLiquidityComponentUSN(props: {
     tokens: TokenMetadata[];
   }) {
     const firstTokenAmountBN = new BigNumber(firstAmount.toString());
-    const firstTokenBalanceBN = new BigNumber(
-      getMax(
-        tokens[0].id,
-        toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
-      )
-    );
+
     const secondTokenAmountBN = new BigNumber(secondAmount.toString());
-    const secondTokenBalanceBN = new BigNumber(
-      getMax(
-        tokens[1].id,
-        toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
-      )
-    );
 
     setCanAddLP(true);
     setCanDeposit(false);
@@ -356,6 +365,7 @@ export default function AddLiquidityComponentUSN(props: {
           onChange={changeAction}
           radios={DEFAULT_ACTIONS}
           currentChoose={'add_liquidity'}
+          poolId={pool.id}
         />
 
         <StableTokenListUSN
@@ -417,8 +427,19 @@ export default function AddLiquidityComponentUSN(props: {
                   <WarnTriangle />
                 </label>
                 <label className="ml-2.5 text-base text-warnColor xs:text-sm md:text-sm">
-                  <FormattedMessage id="you_do_not_have_enough" />{' '}
-                  {modal?.token?.symbol}！
+                  {modal?.token?.id === WRAP_NEAR_CONTRACT_ID &&
+                  (tokens[0].id === WRAP_NEAR_CONTRACT_ID
+                    ? Number(firstTokenBalanceBN) - Number(firstTokenAmount) <
+                      0.5
+                    : Number(secondTokenBalanceBN) - Number(secondTokenAmount) <
+                      0.5) ? (
+                    <FormattedMessage id="near_validation_error" />
+                  ) : (
+                    <>
+                      <FormattedMessage id="you_do_not_have_enough" />{' '}
+                      {toRealSymbol(modal?.token?.symbol)}.
+                    </>
+                  )}
                 </label>
               </div>
             </div>

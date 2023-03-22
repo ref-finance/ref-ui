@@ -330,8 +330,8 @@ export const RewardCard = ({
 
                 <span className="text-sm">
                   {Object.keys(rewardList).length > length_at_once ? (
-                    <div className="flex items-center ">
-                      <label className="mr-1 ">
+                    <div className="flex items-center">
+                      <label className="mr-1 whitespace-nowrap">
                         <FormattedMessage id="all_4_v2" />
                       </label>
                       <QuestionTip id="over_tip" color="bright" />
@@ -528,13 +528,13 @@ export const LockPopUp = ({
   if (!config) return null;
 
   const Durations = () => (
-    <div className="w-full flex items-center pt-1.5 ">
+    <div className="w-full flex items-center pt-1.5 xsm:justify-between ">
       {candidateDurations.map((d) => {
         const base = 2592000;
         return (
           <button
             key={d}
-            className={`rounded-lg text-center xsm:mr-7  mr-2.5 hover:bg-gradientFrom  ${
+            className={`rounded-lg text-center  mr-2.5 hover:bg-gradientFrom  ${
               duration === d
                 ? 'text-chartBg bg-gradientFrom'
                 : 'text-farmText bg-black bg-opacity-20'
@@ -728,7 +728,7 @@ export const LockPopUp = ({
                   data-class="reactTip"
                   data-html={true}
                   data-tip={`
-              <div className="text-xs">
+              <div class="text-xs">
                 <div 
                   style="max-width: 250px;font-weight:400",
                 >
@@ -803,7 +803,7 @@ export const LockPopUp = ({
                   data-class="reactTip"
                   data-html={true}
                   data-tip={`
-              <div className="text-xs">
+              <div class="text-xs">
                 <div 
                   style="max-width: 250px;font-weight:400",
                 >
@@ -1178,7 +1178,7 @@ const UnLockPopUp = ({
                   data-class="reactTip"
                   data-html={true}
                   data-tip={`
-              <div className="text-xs">
+              <div class="text-xs">
  
                 <div 
                   style="max-width: 250px;font-weight:400",
@@ -1260,7 +1260,7 @@ const UnLockPopUp = ({
                   data-class="reactTip"
                   data-html={true}
                   data-tip={`
-              <div className="text-xs">
+              <div class="text-xs">
 
                 <div 
                   style="max-width: 250px;font-weight:400",
@@ -1491,7 +1491,7 @@ const VotingPowerCard = ({
                   data-class="reactTip"
                   data-html={true}
                   data-tip={`
-              <div className="text-xs">
+              <div class="text-xs">
 
                 <div 
                   style="max-width: 250px;font-weight:400",
@@ -1502,7 +1502,7 @@ const VotingPowerCard = ({
             `}
                   data-for="tipId_ve_post_card"
                 >
-                  <QuestionMark color="dark" colorHex="#000000" />
+                  <QuestionMark color="dark" colorhex="#000000" />
                   <ReactTooltip
                     className="w-20"
                     id="tipId_ve_post_card"
@@ -1601,7 +1601,7 @@ const FarmBoosterCard = ({
                   data-class="reactTip"
                   data-html={true}
                   data-tip={`
-              <div className="text-xs">
+              <div class="text-xs">
   
                 <div 
                   style="max-width: ${
@@ -1707,7 +1707,8 @@ export const FarmStakeTip = ({
             } else window.open(`/v2farms/${getVEPoolId()}-r`, '_blank');
           }}
         >
-          <FormattedMessage id="farm" defaultMessage={'farm'} /> {`V${version}`}
+          <FormattedMessage id="farm" defaultMessage={'farm'} />{' '}
+          {`${version === 1 ? 'Legacy' : 'Classic'}`}
         </span>
       </span>
     </div>
@@ -1743,7 +1744,9 @@ export const FarmStakeTipHomePage = ({
         >
           <span className="underline mr-1 ">
             <FormattedMessage id="farm" defaultMessage={'farm'} />{' '}
-            <span className="text-xs">{`V${version}`}</span>
+            <span className="text-xs">{`${
+              version === 1 ? 'Legacy' : 'Classic'
+            }`}</span>
           </span>
           <span className="relative top-1.5">
             <VEARROW />
@@ -2006,7 +2009,7 @@ const UserReferendumCard = ({
             <ConnectToNearBtnVotingMobile />
           ) : (
             <button
-              className={`flex items-center cursor-pointer border w-40 border-white px-2 justify-center rounded-full text-center bg-opacity-50 py-1  text-sm`}
+              className={`flex items-center cursor-pointer border w-auto border-white px-2 justify-center rounded-full text-center bg-opacity-50 py-1  text-sm`}
               onClick={() => {
                 setShowMobileLocker(!showMobileLocker);
               }}
@@ -2194,7 +2197,7 @@ const UserReferendumCard = ({
                     </span>
                   </span>
                 }
-                className="rounded-lg w-full h-full"
+                className="rounded-lg w-full h-full xsm:text-xs"
                 padding="p-0"
                 width="w-1/2 ml-2 h-11 xsm:h-8"
               />

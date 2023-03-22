@@ -13,6 +13,7 @@ import { useClientMobile } from '../../../utils/device';
 import { ACCOUNT_ID_KEY } from '../../WalletSelectorContext';
 import { walletIcons } from '../../walletIcons';
 import { walletsRejectError } from '../../../utils/wallets-integration';
+import { Checkbox, CheckboxSelected } from '../../../components/icon';
 
 const walletOfficialUrl = {
   'NEAR Wallet': 'wallet.near.org',
@@ -24,6 +25,7 @@ const walletOfficialUrl = {
   WalletConnect: 'walletconnect.com',
   MyNearWallet: 'mynearwallet.com',
   'Meteor Wallet': 'wallet.meteorwallet.app',
+  'NETH Account': 'neth.app',
 };
 
 const SelectedIcon = () => {
@@ -40,8 +42,8 @@ const SelectedIcon = () => {
         <path
           d="M6 10.5L8.66667 13L14 8"
           stroke="white"
-          stroke-width="2"
-          stroke-linecap="round"
+          strokeWidth="2"
+          strokeLinecap="round"
         />
       </svg>
     </div>
@@ -90,7 +92,7 @@ interface WalletOptionsProps {
   onWalletNotInstalled: (module: ModuleState) => void;
   onConnectHardwareWallet: () => void;
   onConnected: () => void;
-  onConnecting: (wallet: Wallet) => void;
+  onConnecting: (wallet?: Wallet) => void;
   onError: (error: Error) => void;
 }
 export const WalletSelectorFooter = () => {
@@ -132,7 +134,11 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
   onConnecting,
   onConnected,
 }) => {
+  const { selectedWalletId } = selector.store.getState();
   const [modules, setModules] = useState<Array<ModuleState>>([]);
+  const [checkedStatus, setCheckedStatus] = useState<boolean>(
+    selectedWalletId ? true : false
+  );
 
   useEffect(() => {
     const subscription = selector.store.observable.subscribe((state) => {
@@ -147,14 +153,7 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
     try {
       const currentWallet = await window.selector.wallet();
 
-      if (
-        currentWallet.type === 'browser' ||
-        module.type === 'hardware' ||
-        currentWallet.id === 'sender' ||
-        currentWallet.id === 'meteor-wallet'
-      ) {
-        await currentWallet.signOut();
-      }
+      await currentWallet.signOut();
     } catch (error) {
       console.log(error.message);
 
@@ -168,9 +167,17 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
     try {
       const { available } = module.metadata;
 
+      if (module.id === 'neth' && isMobile && !available) {
+        // open neth tip
+        onConnecting();
+
+        return;
+      }
+
       if (module.type === 'injected' && !available) {
         return onWalletNotInstalled(module);
       }
+
       const wallet = await module.wallet();
 
       onConnecting(wallet);
@@ -184,10 +191,27 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
         methodNames: options.methodNames,
       });
 
+      if (
+        wallet.id === 'neth' &&
+        !(await wallet.getAccounts())[0].accountId &&
+        available
+      ) {
+        return onConnecting();
+      }
+
       if (wallet.type !== 'browser') {
         onConnected();
       }
     } catch (err) {
+      if (module.id === 'neth' && isMobile && module.metadata.available) {
+        // open neth tip
+        onConnecting();
+
+        return;
+      }
+
+      console.log(err);
+
       onError(err);
     }
   };
@@ -195,21 +219,24 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
   const isMobile = useClientMobile();
 
   const [hoverOption, setHoverOption] = useState<number>(-1);
-
   return (
     <Fragment>
-      <div className="wallet-options-wrapper">
+      <div
+        className={`wallet-options-wrapper ${!checkedStatus ? 'hidden' : ''}`}
+      >
         <ul className={'options-list'}>
           {modules.reduce<Array<JSX.Element>>(
             (result, module, currentIndex) => {
-              const { selectedWalletId } = selector.store.getState();
+              // const { selectedWalletId } = selector.store.getState();
               const { name, description, iconUrl, deprecated } =
                 module.metadata;
               const selected = module.id === selectedWalletId;
               if (
                 isMobile &&
                 module.type !== 'browser' &&
-                module.id !== 'meteor-wallet'
+                module.id !== 'meteor-wallet' &&
+                module.id !== 'neth' &&
+                module.id !== 'here-wallet'
               ) {
                 return result;
               }
@@ -217,7 +244,8 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
               const installed =
                 module.type === 'injected' &&
                 module.metadata.available &&
-                module.id !== 'meteor-wallet';
+                module.id !== 'meteor-wallet' &&
+                module.id !== 'here-wallet';
 
               const isBeta = module.metadata.name === 'MyNearWallet';
 
@@ -226,9 +254,11 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
                   key={module.id}
                   id={module.id}
                   onClick={selected ? undefined : handleWalletClick(module)}
-                  className={`px-5 py-3 relative ${
+                  className={`px-5 py-3 relative  bg-black  bg-opacity-20 ${
                     hoverOption === currentIndex ? 'bottom-1' : ''
-                  } ${!selected && installed ? 'overflow-hidden' : ''}`}
+                  } ${!selected && installed ? 'overflow-hidden' : ''} ${
+                    !isMobile ? 'hover:bg-opacity-30' : ''
+                  }`}
                   onMouseEnter={() => setHoverOption(currentIndex)}
                   onMouseLeave={() => setHoverOption(-1)}
                 >
@@ -276,7 +306,11 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
       </div>
 
       {isMobile && (
-        <div className="flex flex-col items-center mt-7">
+        <div
+          className={`flex flex-col items-center mt-7 ${
+            !checkedStatus ? 'hidden' : ''
+          }`}
+        >
           <div className="text-xs mb-4">
             <FormattedMessage
               id="wallets_below_supports_on_PC"
@@ -291,8 +325,45 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
           </div>
         </div>
       )}
+      {selectedWalletId ? null : (
+        <CheckBoxForRisk setCheckedStatus={setCheckedStatus} />
+      )}
 
       <WalletSelectorFooter />
     </Fragment>
+  );
+};
+
+export const CheckBoxForRisk = (props: any) => {
+  const { setCheckedStatus } = props;
+  // <FormattedMessage id="login_risk_tip"></FormattedMessage>
+  const intl = useIntl();
+  const login_tip = intl.formatMessage({ id: 'login_risk_tip' });
+  const [checkBoxStatus, setCheckBoxStatus] = useState(false);
+  function switchCheckBox() {
+    const newStatus = !checkBoxStatus;
+    setCheckBoxStatus(newStatus);
+    setCheckedStatus(newStatus);
+  }
+  return (
+    <div
+      className={`flex items-start ${checkBoxStatus ? 'my-4' : 'mb-4 mt-1'}`}
+    >
+      {checkBoxStatus ? (
+        <CheckboxSelected
+          className="relative flex-shrink-0 mr-3 top-1 cursor-pointer"
+          onClick={switchCheckBox}
+        ></CheckboxSelected>
+      ) : (
+        <Checkbox
+          className="relative flex-shrink-0 mr-3 top-1 cursor-pointer"
+          onClick={switchCheckBox}
+        ></Checkbox>
+      )}
+      <span
+        className="text-sm text-v3SwapGray"
+        dangerouslySetInnerHTML={{ __html: login_tip }}
+      ></span>
+    </div>
   );
 };

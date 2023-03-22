@@ -5,6 +5,7 @@ import {
   useState,
   useMemo,
   useContext,
+  createContext,
 } from 'react';
 
 import {
@@ -36,6 +37,7 @@ import { nearMetadata, WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
 import { Pool } from '../services/pool';
 import {
   getBatchTokenNearAcounts,
+  getTriTokenIdsOnRef,
   useTriTokenIdsOnRef,
 } from '../services/aurora/aurora';
 import { AllStableTokenIds, getAccountNearBalance } from '../services/near';
@@ -91,7 +93,7 @@ export const useTokens = (ids: string[] = [], curTokens?: TokenMetadata[]) => {
   const [tokens, setTokens] = useState<TokenMetadata[]>();
 
   useEffect(() => {
-    if (curTokens) {
+    if (curTokens?.length > 0) {
       setTokens(curTokens);
       return;
     }
@@ -103,7 +105,7 @@ export const useTokens = (ids: string[] = [], curTokens?: TokenMetadata[]) => {
   return tokens;
 };
 
-export const useTriTokens = () => {
+export const useTriTokens = (stopOn?: boolean) => {
   const [triTokens, setTriTokens] = useState<TokenMetadata[]>();
   const auroraTokens = defaultTokenList.tokens;
   const allSupportPairs = getAuroraConfig().Pairs;
@@ -124,6 +126,7 @@ export const useTriTokens = () => {
     })
     .flat();
   useEffect(() => {
+    if (stopOn) return;
     getBatchTokenNearAcounts(tokenIds).then((res) => {
       const allIds = res.concat(['aurora']);
 
@@ -136,8 +139,8 @@ export const useTriTokens = () => {
         )
       ).then(setTriTokens);
     });
-  }, []);
-  return triTokens?.filter((token) => token.id);
+  }, [stopOn]);
+  return !!stopOn ? [] : triTokens?.filter((token) => token.id);
 };
 
 export const useRainbowWhitelistTokens = () => {
@@ -230,19 +233,14 @@ export const useUserRegisteredTokens = () => {
 
   return tokens;
 };
-export const useUserRegisteredTokensAllAndNearBalance = (
-  isSignedIn?: boolean
-) => {
+export const useUserRegisteredTokensAllAndNearBalance = () => {
   const [tokens, setTokens] = useState<any[]>();
 
-  const triTokenIds = useTriTokenIdsOnRef() as string[];
-
-  const triTokenIdsMemo = [...new Set(triTokenIds || [])];
-
   useEffect(() => {
-    if (!isSignedIn) return;
     getWhitelistedTokensAndNearTokens()
-      .then((tokenList) => {
+      .then(async (tokenList) => {
+        const triTokenIds = await getTriTokenIdsOnRef();
+
         const newList = [...new Set((triTokenIds || []).concat(tokenList))];
 
         const walletBalancePromise = Promise.all(
@@ -264,7 +262,7 @@ export const useUserRegisteredTokensAllAndNearBalance = (
         });
         setTokens(arr);
       });
-  }, [isSignedIn, triTokenIdsMemo.join('-')]);
+  }, []);
 
   return tokens;
 };
@@ -272,9 +270,8 @@ export const useUserRegisteredTokensAllAndNearBalance = (
 export const useTokenBalances = () => {
   const [balances, setBalances] = useState<TokenBalancesView>();
   const { accountId } = useWalletSelector();
-  const { globalState } = useContext(WalletContext);
 
-  const isSignedIn = globalState.isSignedIn;
+  const isSignedIn = !!accountId;
 
   useEffect(() => {
     if (!isSignedIn) return;
@@ -292,6 +289,8 @@ export const useWalletTokenBalances = (tokenIds: string[] = []) => {
   const near = useDepositableBalance('NEAR');
 
   useEffect(() => {
+    if (tokenIds.some((id) => !id)) return;
+
     Promise.all<string>(tokenIds.map((id) => ftGetBalance(id))).then((res) => {
       let balances = {};
       res.map((item, index) => {
@@ -312,8 +311,6 @@ export const getDepositableBalance = async (
   tokenId: string,
   decimals?: number
 ) => {
-  const { wallet } = getCurrentWallet();
-
   if (tokenId === 'NEAR') {
     if (getCurrentWallet()?.wallet?.isSignedIn()) {
       return getAccountNearBalance(
@@ -341,12 +338,16 @@ export const useTokenPriceList = () => {
   useEffect(() => {
     getTokenPriceList().then(setTokenPriceList);
   }, []);
+
+  tokenPriceList['NEAR'] = tokenPriceList?.[WRAP_NEAR_CONTRACT_ID];
+
   return tokenPriceList;
 };
 
 export const useTokensData = (
   tokens: TokenMetadata[],
-  balances?: TokenBalancesView
+  balances?: TokenBalancesView,
+  visible?: boolean
 ) => {
   const [count, setCount] = useState(0);
   const [result, setResult] = useState<TokenMetadata[]>([]);
@@ -360,57 +361,57 @@ export const useTokensData = (
     setCount((c) => c + 1);
   };
 
-  const { globalState } = useContext(WalletContext);
-
-  const isSignedIn = globalState.isSignedIn;
-
-  const triggerBalances = balances || {};
+  const { accountId } = useWalletSelector();
 
   const trigger = useCallback(() => {
-    if (!!triggerBalances) {
-      setCount(0);
-      setResult([]);
-      const currentFetchId = fetchIdRef.current;
-      for (let i = 0; i < tokens.length; i++) {
-        const index = i;
-        const item = tokens[index];
-        getDepositableBalance(
-          item.id === WRAP_NEAR_CONTRACT_ID ? 'NEAR' : item.id,
-          item.decimals
-        )
-          .then((max: string) => {
-            if (currentFetchId !== fetchIdRef.current) {
-              throw new Error();
-            }
-            return max;
-          })
-          .then((max: string) => {
-            const nearCount = isSignedIn ? toPrecision(max, 3) || '0' : '0';
-            const refCount = toRoundedReadableNumber({
-              decimals: item.decimals,
-              number: balances ? balances[item.id] : '0',
-            });
-            return {
-              ...item,
-              asset: toRealSymbol(item.symbol),
-              near: Number(nearCount.replace(/[\,]+/g, '')),
-              ref: Number(toPrecision(refCount, 3).replace(/[\,]+/g, '')),
-              total:
-                Number(nearCount.replace(/[\,]+/g, '')) +
-                Number(toPrecision(refCount, 3).replace(/[\,]+/g, '')),
-            };
-          })
-          .then((d: TokenMetadata) => setResultAtIndex(d, index))
-          .catch((err) => {
-            console.log(err);
+    // if (!!triggerBalances) {
+    setCount(0);
+    setResult([]);
+    const currentFetchId = fetchIdRef.current;
+    for (let i = 0; i < tokens.length; i++) {
+      const index = i;
+      const item = tokens[index];
+      getDepositableBalance(
+        item.id === WRAP_NEAR_CONTRACT_ID && item.symbol == 'NEAR'
+          ? 'NEAR'
+          : item.id,
+        item.decimals
+      )
+        .then((max: string) => {
+          if (currentFetchId !== fetchIdRef.current) {
+            throw new Error();
+          }
+          return max;
+        })
+        .then((max: string) => {
+          const nearCount = !!accountId ? toPrecision(max, 3) || '0' : '0';
+          const refCount = toRoundedReadableNumber({
+            decimals: item.decimals,
+            number: balances ? balances[item.id] : '0',
           });
-      }
+          return {
+            ...item,
+            asset: toRealSymbol(item.symbol),
+            near: Number(nearCount.replace(/[\,]+/g, '')),
+            ref: Number(toPrecision(refCount, 3).replace(/[\,]+/g, '')),
+            total:
+              Number(nearCount.replace(/[\,]+/g, '')) +
+              Number(toPrecision(refCount, 3).replace(/[\,]+/g, '')),
+          };
+        })
+        .then((d: TokenMetadata) => setResultAtIndex(d, index))
+        .catch((err) => {
+          console.log(err);
+        });
     }
-  }, [balances, tokens?.length, isSignedIn]);
+  }, [tokens?.length]);
 
   useEffect(() => {
-    trigger();
-  }, [tokens?.map((t) => t.id).join('-'), tokens?.length, tokens]);
+    // if (!visible) return;
+    if (visible && count < tokens?.length) {
+      trigger();
+    }
+  }, [tokens?.map((t) => t.id).join('-'), visible]);
 
   return {
     trigger,

@@ -1,5 +1,5 @@
-import React, { useContext, useState } from 'react';
-import { toRealSymbol } from '~utils/token';
+import React, { useContext, useEffect, useState } from 'react';
+import { toRealSymbol } from '../../utils/token';
 import { TokenMetadata } from '../../services/ft-contract';
 import { FormattedMessage } from 'react-intl';
 import { WNEARExchngeIcon } from '../../components/icon/Common';
@@ -11,10 +11,17 @@ import {
   getCurrentWallet,
 } from '../../utils/wallets-integration';
 import { tokenPrice, SingleToken } from '../forms/SelectToken';
+import { CommonCloseButton } from '../../components/icon/Common';
+import {
+  localTokens,
+  USER_COMMON_TOKEN_LIST,
+} from '../../components/forms/SelectToken';
+import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 interface CommonBassesProps {
-  tokens: TokenMetadata[];
   onClick: (token: TokenMetadata) => void;
   tokenPriceList: Record<string, any>;
+  allowWNEAR: boolean;
+  handleClose: any;
 }
 const COMMON_BASSES = [
   'USN',
@@ -23,47 +30,46 @@ const COMMON_BASSES = [
   'SKYWARD',
   'OCT',
   'STNEAR',
-  'USDT',
+  'USDT.e',
+  'USDt',
   'USDC',
   'ETH',
   'DAI',
   'WBTC',
-  // 'FLX',
+  'AURORA',
+  'SWEAT',
 ];
 
 export default function CommonBasses({
-  tokens,
   onClick,
   tokenPriceList,
+  allowWNEAR,
+  handleClose,
 }: CommonBassesProps) {
-  const commonBassesTokens = tokens
-    .filter((item) => {
-      return COMMON_BASSES.indexOf(item?.symbol) > -1;
-    })
-    .sort((a, b) => (a.symbol === 'USN' ? -1 : 1))
-    .sort((a, b) => (a.symbol === 'wNEAR' ? -1 : 1))
-    .sort((a, b) => (a.symbol === 'REF' ? -1 : 1));
-
+  const { commonBassesTokens } = useContext(localTokens);
   return (
-    <section className="px-6">
-      <div className="text-sm font-bold py-2 pl-2">
-        <FormattedMessage id="popular_tokens" defaultMessage="Common Tokens" />
-      </div>
+    <section className="px-6 xsm:px-3 pt-2">
       <div className="w-full flex flex-wrap items-center text-sm xs:text-xs text-left">
-        <Wnear />
-        {commonBassesTokens.map((token) => {
+        {commonBassesTokens.map((token: TokenMetadata) => {
           const price = tokenPriceList[token.id]?.price;
 
           return (
             <div
-              className="w-1/3 mt-3 hover:bg-black hover:bg-opacity-10 rounded-full pr-3 pl-1 py-1 cursor-pointer flex items-center"
-              key={token.id}
-              onClick={() => onClick && onClick(token)}
-              style={{
-                height: '36px',
+              key={token.id + token.symbol}
+              onClick={() => {
+                if (
+                  !(
+                    token.id == WRAP_NEAR_CONTRACT_ID &&
+                    token.symbol == 'wNEAR' &&
+                    !allowWNEAR
+                  )
+                ) {
+                  onClick && onClick(token);
+                }
+                handleClose();
               }}
             >
-              <SingleToken token={token} price={price} />
+              <Token token={token} price={price} />
             </div>
           );
         })}
@@ -71,42 +77,57 @@ export default function CommonBasses({
     </section>
   );
 }
-
-const Wnear = () => {
-  const [showWrapNear, setShowWrapNear] = useState(false);
-
-  const { globalState } = useContext(WalletContext);
-  const isSignedIn = globalState.isSignedIn;
-
+function Token({ token, price }: { token: TokenMetadata; price: string }) {
+  const { getLatestCommonBassesTokens, getLatestCommonBassesTokenIds } =
+    useContext(localTokens);
+  const local_user_list = getLatestCommonBassesTokenIds();
+  const arr = new Set(local_user_list);
+  const [hover, setHover] = useState(false);
+  function removeToken(token: TokenMetadata) {
+    if (token.id == WRAP_NEAR_CONTRACT_ID && token.symbol == 'NEAR') {
+      arr.delete('near');
+    } else {
+      arr.delete(token.id);
+    }
+    localStorage.setItem(
+      USER_COMMON_TOKEN_LIST,
+      JSON.stringify(Array.from(arr))
+    );
+    getLatestCommonBassesTokens();
+  }
   return (
-    <>
-      {isSignedIn && (
-        <div className="w-1/3 text-white pt-2 cursor-pointer">
-          <div
-            className="cursor-pointer items-center flex"
-            onClick={() => setShowWrapNear(true)}
-          >
-            <WNEARExchngeIcon width="75" height="32" />
-          </div>
-          <WrapNear
-            isOpen={showWrapNear}
-            onRequestClose={() => setShowWrapNear(false)}
-            style={{
-              overlay: {
-                backdropFilter: 'blur(15px)',
-                WebkitBackdropFilter: 'blur(15px)',
-                zIndex: 1000,
-              },
-              content: {
-                outline: 'none',
-                position: 'fixed',
-                width: isMobile() ? '90%' : '550px',
-                bottom: '50%',
-              },
-            }}
-          />
-        </div>
+    <div
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      className={`relative flex cursor-pointer items-center border border-commonTokenBorderColor rounded-lg px-2 py-1 mr-1.5 mb-2.5 ${
+        hover ? 'bg-commonTokenBorderColor' : ''
+      }`}
+      style={{ minWidth: '90px' }}
+    >
+      {token.icon ? (
+        <img
+          src={token.icon}
+          alt={toRealSymbol(token.symbol)}
+          className="w-7 h-7 inline-block mr-2 border rounded-full border-greenLight"
+        />
+      ) : (
+        <div className="w-7 h-7 inline-block mr-2 border rounded-full border-greenLight"></div>
       )}
-    </>
+      <CommonCloseButton
+        onClick={(e: any) => {
+          e.stopPropagation();
+          if (!isMobile()) {
+            removeToken(token);
+          }
+        }}
+        className={`cursor-pointer absolute -top-1.5 -right-1.5 text-commonCloseColor hover:text-black ${
+          hover ? 'xsm:hidden' : 'hidden'
+        }`}
+      ></CommonCloseButton>
+      <div className="flex flex-col justify-between">
+        <span className="text-sm text-white">{toRealSymbol(token.symbol)}</span>
+        <span className="text-xs text-primaryText">{tokenPrice(price)}</span>
+      </div>
+    </div>
   );
-};
+}

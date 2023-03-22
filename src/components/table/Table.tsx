@@ -6,6 +6,7 @@ import { toReadableNumber } from '../../utils/numbers';
 import Token from '../../components/tokens/Token';
 import { FormattedMessage } from 'react-intl';
 import { SmallWallet } from '../icon/SmallWallet';
+import { PinEmpty, PinSolid } from '../icon/Common';
 
 interface TokenListProps {
   tokens: TokenMetadata[];
@@ -30,14 +31,15 @@ export default function Table({
 }: TokenListProps) {
   return (
     tokens.length > 0 && (
-      <table className="text-left w-full text-sm text-gray-400 mt-10 table-auto">
+      <table className="text-left w-full text-sm text-gray-400 mt-5 table-auto">
+        {/* sticky */}
         <div
-          className="sticky -top-6 z-30 text-primaryText"
+          className="-top-6 z-30 text-primaryText"
           style={{ background: 'rgb(29, 41, 50)' }}
         >
           <tr className="font-normal border-b border-gray-500 border-opacity-30">
             <th
-              className={`font-normal w-2/5 pb-2 pl-8  ${
+              className={`font-normal w-2/5 pb-2 pl-8 xsm:pl-5  ${
                 sortBy === 'asset' ? 'text-greenLight' : ''
               }`}
             >
@@ -51,9 +53,7 @@ export default function Table({
             </th>
             <th
               className={
-                !forCross
-                  ? 'hidden'
-                  : 'pb-2 w-1/5 font-normal relative lg:right-4'
+                !forCross ? 'hidden' : 'pb-2 w-1/5 font-normal relative right-6'
               }
             >
               <span>
@@ -61,7 +61,7 @@ export default function Table({
               </span>
             </th>
 
-            <th className={`font-normal pb-2 pr-9 w-1/5 `}>
+            <th className={`font-normal pb-2 pr-6 w-1/5 `}>
               <span
                 className="cursor-pointer flex justify-end items-center whitespace-nowrap"
                 onClick={() => onSortChange('near')}
@@ -86,7 +86,7 @@ export default function Table({
             .map((token, index) => (
               <Token
                 index={index}
-                key={token.id}
+                key={token.id + token.symbol}
                 onClick={onClick}
                 token={token}
                 price={tokenPriceList?.[token.id]?.price}

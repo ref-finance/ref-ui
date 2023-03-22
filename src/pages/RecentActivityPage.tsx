@@ -39,11 +39,11 @@ export function RecentActivityPage() {
   const history = useHistory();
 
   const senderLoginRes = getSenderLoginRes();
-
-  if (!isSignedIn) {
-    history.push('/');
-    return null;
-  }
+  // todo
+  // if (!isSignedIn) {
+  //   history.push('/');
+  //   return null;
+  // }
 
   const actions = useLastActions();
   const ref = useRef<ActionSheetRef>();
@@ -85,7 +85,7 @@ export function RecentActivityPage() {
                 <div className="flex items-center justify-between">
                   {icon}
                   <span className="text-xs font-semibold text-white">
-                    {action.data.Action}
+                    {action.data?.Action}
                   </span>
                 </div>
                 <div className="text-gray-400 text-xs">

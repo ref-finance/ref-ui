@@ -6,12 +6,15 @@ import type { ModalRoute } from './Modal.types';
 import { WalletNetworkChanged } from './WalletNetworkChanged';
 import { WalletOptions } from './WalletOptions';
 import { AlertMessage } from './AlertMessage';
-import { CloseButton } from './CloseButton';
+import { CloseButton, CloseButtonWallet } from './CloseButton';
 import { DerivationPath, HardwareRoutes } from './DerivationPath';
 import { WalletConnecting } from './WalletConnecting';
 import { WalletNotInstalled } from './WalletNotInstalled';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { Context } from '../../../components/wrapper';
+import { RouterArrowLeft } from '../../../components/icon/Arrows';
+import { MetaMaskTip } from './MetaMaskTip';
+import { isClientMobie } from '../../../utils/device';
 
 interface ModalProps {
   selector: WalletSelector;
@@ -37,7 +40,9 @@ export const Modal: React.FC<ModalProps> = ({
   visible,
   hide,
 }) => {
-  const [route, setRoute] = useState<ModalRoute>({
+  const [route, setRoute] = useState<
+    ModalRoute | { name: 'MetaMaskTip'; inMeta?: boolean }
+  >({
     name: 'WalletOptions',
   });
 
@@ -102,11 +107,7 @@ export const Modal: React.FC<ModalProps> = ({
   }
 
   return (
-    <div
-      className={` nws-modal-wrapper ${getThemeClass(options?.theme)} ${
-        visible ? 'open' : ''
-      }`}
-    >
+    <div className={` nws-modal-wrapper  ${visible ? 'open' : ''}`}>
       <div className="modal-overlay" onClick={handleDismissClick} />
       <div className="modal">
         <div className="modal-header">
@@ -126,11 +127,15 @@ export const Modal: React.FC<ModalProps> = ({
                 });
               }}
             >
-              {'<'}
+              <RouterArrowLeft color="#7E8A93" />
             </button>
           )}
-
-          <CloseButton onClick={handleDismissClick} />
+          <div
+            onClick={handleDismissClick}
+            className="cursor-pointer pl-1 pb-1"
+          >
+            <CloseButtonWallet />
+          </div>
         </div>
         <div className="modal-body">
           {route.name === 'WalletOptions' && (
@@ -153,6 +158,15 @@ export const Modal: React.FC<ModalProps> = ({
                 });
               }}
               onConnecting={(wallet) => {
+                if (!wallet && isClientMobie()) {
+                  setRoute({
+                    name: 'MetaMaskTip',
+                    inMeta: !!window.ethereum,
+                  });
+
+                  return;
+                }
+
                 setRoute({
                   name: 'WalletConnecting',
                   params: { wallet: wallet },
@@ -218,6 +232,9 @@ export const Modal: React.FC<ModalProps> = ({
                 setRoute({ name: 'WalletOptions' });
               }}
             />
+          )}
+          {route.name === 'MetaMaskTip' && (
+            <MetaMaskTip inMeta={route.inMeta} />
           )}
         </div>
       </div>

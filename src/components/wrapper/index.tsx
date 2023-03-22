@@ -7,6 +7,7 @@ import uk from '../../locales/uk_UA';
 import ru from '../../locales/ru';
 import ja from '../../locales/ja';
 import ko from '../../locales/ko';
+import es from '../../locales/es';
 import { useEffect } from 'react';
 
 export const Context = React.createContext(null);
@@ -35,6 +36,9 @@ const switchLanguage = (local: string) => {
       break;
     case 'ko':
       lang = ko;
+      break;
+    case 'es':
+      lang = es;
       break;
     default:
       lang = en_US;

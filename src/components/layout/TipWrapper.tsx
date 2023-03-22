@@ -13,8 +13,10 @@ export function QuestionTip({
   defaultMessage,
   dataPlace,
   uniquenessId,
-  colorHex,
+  colorhex,
   opacity,
+  style,
+  textC,
 }: {
   id: string;
   color?: 'bright' | 'dark';
@@ -22,8 +24,10 @@ export function QuestionTip({
   defaultMessage?: string;
   dataPlace?: string;
   uniquenessId?: string;
-  colorHex?: string;
+  colorhex?: string;
   opacity?: string;
+  style?: any;
+  textC?: string;
 }) {
   const intl = useIntl();
 
@@ -32,9 +36,9 @@ export function QuestionTip({
       id,
       defaultMessage,
     });
-    let result: string = `<div class="text-navHighLightText whitespace-normal text-xs text-left ${
-      width ? width : ''
-    }"
+    let result: string = `<div class="${
+      textC || 'text-navHighLightText'
+    }   whitespace-normal text-xs text-left ${width ? width : ''}"
       style="max-width: 200px; ">${tip}</div>`;
     return result;
   };
@@ -48,9 +52,10 @@ export function QuestionTip({
       data-html={true}
       data-tip={getValue()}
       data-multiline={true}
+      style={style}
     >
       <span className={`${opacity}`}>
-        <QuestionMark colorHex={colorHex} color={color}></QuestionMark>
+        <QuestionMark colorhex={colorhex} color={color}></QuestionMark>
       </span>
       <ReactTooltip
         id={uniquenessId || 'auto_router'}
@@ -71,7 +76,7 @@ export function ExclamationTip({
   defaultMessage,
   dataPlace,
   uniquenessId,
-  colorHex,
+  colorhex,
   className,
 }: {
   id: string;
@@ -80,7 +85,7 @@ export function ExclamationTip({
   defaultMessage?: string;
   dataPlace?: string;
   uniquenessId?: string;
-  colorHex?: string;
+  colorhex?: string;
   className?: string;
 }) {
   const intl = useIntl();
@@ -90,17 +95,19 @@ export function ExclamationTip({
       id,
       defaultMessage,
     });
-    let result: string = `<div class="text-navHighLightText whitespace-normal text-xs text-left ${
+    let result: string = `<div class="text-primaryText  border-black border-opacity-20 xsm:w-36 whitespace-normal text-sm text-left ${
       width ? width : ''
     }"
       style="max-width: 200px; ">${tip}</div>`;
     return result;
   };
 
+  const [light, setLight] = React.useState(false);
+
   return (
     <div
       className={`${className} pl-1 text-white text-base`}
-      data-for={uniquenessId || 'auto_router'}
+      data-for={uniquenessId || 'exclaimaton_tip' + 'id'}
       data-class="reactTip"
       data-html={true}
       data-tip={getValue()}
@@ -108,19 +115,25 @@ export function ExclamationTip({
     >
       <div
         style={{
-          color: colorHex,
+          color: light ? 'white' : colorhex,
+        }}
+        onMouseOver={() => {
+          setLight(true);
+        }}
+        onMouseLeave={() => {
+          setLight(false);
         }}
       >
         <VETip />
       </div>
       <ReactTooltip
-        id={uniquenessId || 'auto_router'}
+        id={uniquenessId || 'exclaimaton_tip' + 'id'}
         backgroundColor="#1D2932"
         border
-        place={'bottom'}
+        place={'right'}
         borderColor="#7e8a93"
         effect="solid"
-        textColor="#C6D1DA"
+        textColor="#1D2932"
       />
     </div>
   );

@@ -12,7 +12,7 @@ import {
 } from '../../state/token';
 import anime from 'animejs';
 import { TokenMetadata } from '~services/ft-contract';
-import { useLocation } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import { toRealSymbol } from '~utils/token';
 import { toPrecision, formatWithCommas } from '~utils/numbers';
 export default function Marquee() {
@@ -103,17 +103,18 @@ export default function Marquee() {
     setTokenHistoryList(result.concat(result));
   }
   if (tokenHistoryList.length == 0) return null;
+  const hiddenRouters = ['/risks', '/portfolio', '/orderbook'];
   return (
     <div
-      className={`transform relative h-8 xs:-mt-6 md:-mt-6 xs:mb-6 md:mb-6 ${
-        location.pathname.indexOf('risks') > -1 ? 'hidden' : ''
+      className={`transform relative z-10 h-8 xs:-mt-6 md:-mt-6 xs:mb-6 md:mb-6 ${
+        hiddenRouters.indexOf(location.pathname) > -1 ? 'hidden' : ''
       }`}
     >
       <div
         onClick={switchStatus}
         className={`flex items-center absolute right-0 w-28 xs:w-auto md:w-auto h-8 bg-priceBoardColor rounded-l-full px-1.5 cursor-pointer text-primaryText hover:text-greenColor z-10`}
       >
-        <span className="flex items-center justify-center w-6 h-6 bg-black bg-opacity-30 rounded-full">
+        <span className="flex items-center justify-center w-6 h-6 bg-black bg-opacity-30 rounded-full flex-shrink-0">
           {showMarquee ? (
             <CloseRadiusIcon></CloseRadiusIcon>
           ) : (

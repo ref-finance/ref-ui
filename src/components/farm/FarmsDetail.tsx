@@ -89,8 +89,15 @@ import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import { VEARROW } from '../icon/Referendum';
 import { isStablePool } from '../../services/near';
 import moment from 'moment';
+import { getEffectiveFarmList, sort_tokens_by_base } from '~services/commonV3';
+
 const ONLY_ZEROS = /^0*\.?0*$/;
-const { STABLE_POOL_IDS, FARM_LOCK_SWITCH, REF_VE_CONTRACT_ID } = getConfig();
+const {
+  STABLE_POOL_IDS,
+  FARM_LOCK_SWITCH,
+  REF_VE_CONTRACT_ID,
+  FARM_BLACK_LIST_V2,
+} = getConfig();
 export default function FarmsDetail(props: {
   detailData: Seed;
   emptyDetailData: Function;
@@ -120,14 +127,23 @@ export default function FarmsDetail(props: {
   const intl = useIntl();
   const pool = detailData.pool;
   const { token_account_ids } = pool;
-  const tokens = useTokens(token_account_ids) || [];
+  const tokens = sortTokens(useTokens(token_account_ids) || []);
+  function sortTokens(tokens: TokenMetadata[]) {
+    tokens.sort((a: TokenMetadata, b: TokenMetadata) => {
+      if (a.symbol === 'NEAR') return 1;
+      if (b.symbol === 'NEAR') return -1;
+      return 0;
+    });
+    return tokens;
+  }
   const goBacktoFarms = () => {
     history.replace('/v2farms');
     emptyDetailData();
   };
   const displaySymbols = () => {
     let result = '';
-    pool.tokens_meta_data.forEach((token: TokenMetadata, index: number) => {
+    const tokens_sort = sort_tokens_by_base(pool.tokens_meta_data);
+    tokens_sort.forEach((token: TokenMetadata, index: number) => {
       const symbol = toRealSymbol(token.symbol);
       if (index == pool.tokens_meta_data.length - 1) {
         result += symbol;
@@ -139,7 +155,8 @@ export default function FarmsDetail(props: {
   };
   const displayImgs = () => {
     const tokenList: any[] = [];
-    (tokens || []).forEach((token: TokenMetadata) => {
+    const tokens_sort = sort_tokens_by_base(tokens || []);
+    tokens_sort.forEach((token: TokenMetadata) => {
       tokenList.push(
         <label
           key={token.id}
@@ -221,6 +238,8 @@ export default function FarmsDetail(props: {
     }
   }
   const radio = getBoostMutil();
+  const needForbidden =
+    (FARM_BLACK_LIST_V2 || []).indexOf(pool.id.toString()) > -1;
   return (
     <div className={`m-auto lg:w-580px md:w-5/6 xs:w-11/12  xs:-mt-4 md:-mt-4`}>
       <div className="breadCrumbs flex items-center text-farmText text-base hover:text-white">
@@ -231,7 +250,7 @@ export default function FarmsDetail(props: {
       </div>
       <div
         className={`flex justify-between items-center mt-7 flex-wrap ${
-          isEnded() ? 'farmEnded' : ''
+          isEnded() || needForbidden ? 'farmEnded' : ''
         }`}
       >
         <div className="left flex items-center h-11 ml-3">
@@ -333,10 +352,14 @@ function StakeContainer(props: {
     const farms = detailData.farmList;
     const rewardTokenIconMap = {};
     let totalPrice = 0;
+    const effectiveFarms = getEffectiveFarmList(farms);
     farms.forEach((farm: FarmBoost) => {
-      const { id, decimals, icon } = farm.token_meta_data;
-      const { daily_reward } = farm.terms;
+      const { id, icon } = farm.token_meta_data;
       rewardTokenIconMap[id] = icon;
+    });
+    effectiveFarms.forEach((farm: FarmBoost) => {
+      const { id, decimals } = farm.token_meta_data;
+      const { daily_reward } = farm.terms;
       const tokenPrice = tokenPriceList[id]?.price;
       if (tokenPrice && tokenPrice != 'N/A') {
         const tokenAmount = toReadableNumber(decimals, daily_reward);
@@ -446,6 +469,16 @@ function StakeContainer(props: {
         });
       });
     }
+    function display_number(value: string | number) {
+      if (!value) return value;
+      const [whole, decimals] = value.toString().split('.');
+      const whole_format = formatWithCommas(whole);
+      if (+whole < 1 && decimals) {
+        return whole_format + '.' + decimals;
+      } else {
+        return whole_format;
+      }
+    }
     // show last display string
     const rewards_week_txt = intl.formatMessage({ id: 'rewards_week' });
     let result: string = `<div class="text-sm text-farmText pt-1">${rewards_week_txt}</div>`;
@@ -464,20 +497,25 @@ function StakeContainer(props: {
                       <div class="flex justify-between items-center w-full"><image class="w-5 h-5 rounded-full mr-7" style="filter: grayscale(100%)" src="${
                         token.icon
                       }"/>
-                      <label class="text-xs text-farmText">${formatWithCommas(
+                      <label class="text-xs text-farmText">${display_number(
                         commonRewardTotalRewardsPerWeek
                       )}</label>
                       </div>
-                      <label class="text-xs text-farmText mt-0.5">${txt}: ${moment
+                      <label class="text-xs text-farmText mt-0.5 ${
+                        +startTime == 0 ? 'hidden' : ''
+                      }">${txt}: ${moment
           .unix(startTime)
           .format('YYYY-MM-DD')}</label>
+                      <label class="text-xs text-farmText mt-0.5 ${
+                        +startTime == 0 ? '' : 'hidden'
+                      }">Pending</label>
                     </div>`;
       } else {
         itemHtml = `<div class="flex justify-between items-center h-8 my-2">
                       <image class="w-5 h-5 rounded-full mr-7" src="${
                         token.icon
                       }"/>
-                      <label class="text-xs text-navHighLightText">${formatWithCommas(
+                      <label class="text-xs text-navHighLightText">${display_number(
                         commonRewardTotalRewardsPerWeek
                       )}</label>
                     </div>`;
@@ -546,21 +584,25 @@ function StakeContainer(props: {
       day24Volume = +getPoolFeeApr(dayVolume);
     }
     let apr = getActualTotalApr();
-    if (apr == 0 && day24Volume == 0) {
+    if (new BigNumber(apr).isEqualTo(0) && day24Volume == 0) {
       return '-';
     } else {
-      apr = +new BigNumber(apr).multipliedBy(100).plus(day24Volume).toFixed();
-      return toPrecision(apr.toString(), 2) + '%';
+      const temp = new BigNumber(apr).multipliedBy(100).plus(day24Volume);
+      if (temp.isLessThan(0.01)) {
+        return '<0.01%';
+      } else {
+        return toPrecision(temp.toFixed(), 2) + '%';
+      }
     }
   }
   function getActualTotalApr() {
     const farms = detailData.farmList;
-    let apr = 0;
+    let apr = '0';
     const allPendingFarms = isPending();
     farms.forEach(function (item: FarmBoost) {
       const pendingFarm = item.status == 'Created' || item.status == 'Pending';
       if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
-        apr = +new BigNumber(apr).plus(item.apr).toFixed();
+        apr = new BigNumber(apr).plus(item.apr).toFixed();
       }
     });
     return apr;
@@ -584,7 +626,8 @@ function StakeContainer(props: {
       const revenu24h = (total_fee / 10000) * 0.8 * Number(dayVolume);
       if (tvl > 0 && revenu24h > 0) {
         const annualisedFeesPrct = ((revenu24h * 365) / tvl) * 100;
-        result = toPrecision(annualisedFeesPrct.toString(), 2);
+        const half_annualisedFeesPrct = annualisedFeesPrct / 2;
+        result = toPrecision(half_annualisedFeesPrct.toString(), 2);
       }
     }
     return result;
@@ -667,7 +710,16 @@ function StakeContainer(props: {
       }"/></span>)
     </div>`;
     }
-
+    function display_apr(apr: string) {
+      const apr_big = new BigNumber(apr || 0);
+      if (apr_big.isEqualTo(0)) {
+        return '-';
+      } else if (apr_big.isLessThan(0.01)) {
+        return '<0.01%';
+      } else {
+        return formatWithCommas(toPrecision(apr, 2)) + '%';
+      }
+    }
     lastList.forEach((item: any) => {
       const { rewardToken, apr: baseApr, pending, startTime } = item;
       const token = rewardToken;
@@ -684,18 +736,21 @@ function StakeContainer(props: {
             token.icon
           }"/>
           <div class="flex flex-col items-end">
-            <label class="text-xs text-farmText">${
-              (apr == 0 ? '-' : formatWithCommas(toPrecision(apr, 2))) + '%'
-            }</label>
-            <label class="text-xs text-farmText">${txt}: ${startDate}</label>
+            <label class="text-xs text-farmText">${display_apr(apr)}</label>
+            <label class="text-xs text-farmText ${
+              +startTime == 0 ? 'hidden' : ''
+            }">${txt}: ${startDate}</label>
+            <label class="text-xs text-farmText mt-0.5 ${
+              +startTime == 0 ? '' : 'hidden'
+            }">Pending</label>
           </div>
       </div>`;
       } else {
         itemHtml = `<div class="flex justify-between items-center h-8">
           <image class="w-5 h-5 rounded-full mr-7" src="${token.icon}"/>
-          <label class="text-xs text-navHighLightText">${
-            (apr == 0 ? '-' : formatWithCommas(toPrecision(apr, 2))) + '%'
-          }</label>
+          <label class="text-xs text-navHighLightText">${display_apr(
+            apr
+          )}</label>
       </div>`;
       }
       result += itemHtml;
@@ -758,7 +813,7 @@ function StakeContainer(props: {
       boostApr = new BigNumber(apr).multipliedBy(rate);
     }
     if (boostApr && +boostApr > 0) {
-      const r = +new BigNumber(boostApr).multipliedBy(100).toFixed();
+      const r = new BigNumber(boostApr).multipliedBy(100).toFixed();
       return (
         <span>
           <label className="mx-0.5">～</label>
@@ -824,11 +879,14 @@ function StakeContainer(props: {
   }
   const aprUpLimit = getAprUpperLimit();
   const mobile = isMobile();
+  const needForbidden =
+    (FARM_BLACK_LIST_V2 || []).indexOf(pool.id.toString()) > -1;
+
   return (
     <div className="mt-5">
       <div
         className={`poolbaseInfo flex items-center xs:flex-col md:flex-col justify-between ${
-          isEnded() ? 'farmEnded' : ''
+          isEnded() || needForbidden ? 'farmEnded' : ''
         }`}
       >
         <div
@@ -1124,6 +1182,7 @@ function AddLiquidityEntryBar(props: {
   const poolId = poolA.id;
   const { pool } = usePool(poolId);
   const tokens = useTokens(pool?.tokenIds);
+
   const history = useHistory();
   let addLiquidityButtonLoading;
   function openAddLiquidityModal() {
@@ -1144,7 +1203,9 @@ function AddLiquidityEntryBar(props: {
   } else {
     addLiquidityButtonLoading = false;
   }
-  if (!showAddLiquidityEntry) return null;
+  const needForbidden =
+    (FARM_BLACK_LIST_V2 || []).indexOf(poolId.toString()) > -1;
+  if (!showAddLiquidityEntry || needForbidden) return null;
   return (
     <div
       className="rounded-lg overflow-hidden mt-8"
@@ -1189,6 +1250,7 @@ function AddLiquidityEntryBar(props: {
 }
 function AddLiquidityModal(props: any) {
   const { pool, tokens } = props;
+
   return (
     <CommonModal {...props}>
       <AddLiquidity pool={pool} tokens={tokens} />
@@ -1292,12 +1354,20 @@ function DetailSymbol({
 }
 
 function PoolDetailCard({
-  tokens,
+  tokens_o,
   pool,
 }: {
-  tokens: TokenMetadata[];
+  tokens_o: TokenMetadata[];
   pool: Pool;
 }) {
+  const tokens: TokenMetadata[] = tokens_o
+    ? JSON.parse(JSON.stringify(tokens_o))
+    : [];
+  tokens?.sort((a, b) => {
+    if (a.symbol === 'NEAR') return 1;
+    if (b.symbol === 'NEAR') return -1;
+    return 0;
+  });
   const [showDetail, setShowDetail] = useState(false);
 
   const [poolTVL, setPoolTVl] = useState<string>('');
@@ -1537,6 +1607,33 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
     }
   };
 
+  const getMax = function (id: string, amount: string) {
+    return id !== WRAP_NEAR_CONTRACT_ID
+      ? amount
+      : Number(amount) <= 0.5
+      ? '0'
+      : String(Number(amount) - 0.5);
+  };
+
+  const firstTokenBalanceBN =
+    tokens[0] && balances
+      ? new BigNumber(
+          getMax(
+            tokens[0].id,
+            toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
+          )
+        )
+      : new BigNumber(0);
+
+  const secondTokenBalanceBN =
+    tokens[1] && balances
+      ? new BigNumber(
+          getMax(
+            tokens[1].id,
+            toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
+          )
+        )
+      : new BigNumber(0);
   function validate({
     firstAmount,
     secondAmount,
@@ -1545,19 +1642,8 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
     secondAmount: string;
   }) {
     const firstTokenAmountBN = new BigNumber(firstAmount.toString());
-    const firstTokenBalanceBN = new BigNumber(
-      getMax(
-        tokens[0].id,
-        toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
-      )
-    );
+
     const secondTokenAmountBN = new BigNumber(secondAmount.toString());
-    const secondTokenBalanceBN = new BigNumber(
-      getMax(
-        tokens[1].id,
-        toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
-      )
-    );
 
     setCanSubmit(false);
     setCanDeposit(false);
@@ -1713,13 +1799,6 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
     };
   };
 
-  const getMax = function (id: string, amount: string) {
-    return id !== WRAP_NEAR_CONTRACT_ID
-      ? amount
-      : Number(amount) <= 0.5
-      ? '0'
-      : String(Number(amount) - 0.5);
-  };
   const shareMessage = shareDisplay();
 
   return (
@@ -1818,8 +1897,18 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
               <FormattedMessage id="oops" defaultMessage="Oops" />!
             </label>
             <label className="ml-2.5 text-warnColor ">
-              <FormattedMessage id="you_do_not_have_enough" />{' '}
-              {toRealSymbol(modal?.token?.symbol)}.
+              {modal?.token?.id === WRAP_NEAR_CONTRACT_ID &&
+              (tokens?.[0].id === WRAP_NEAR_CONTRACT_ID
+                ? Number(firstTokenBalanceBN) - Number(firstTokenAmount) < 0.5
+                : Number(secondTokenBalanceBN) - Number(secondTokenAmount) <
+                  0.5) ? (
+                <FormattedMessage id="near_validation_error" />
+              ) : (
+                <>
+                  <FormattedMessage id="you_do_not_have_enough" />{' '}
+                  {toRealSymbol(modal?.token?.symbol)}.
+                </>
+              )}
             </label>
           </div>
         ) : null}
@@ -1833,7 +1922,7 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
           height: '300px',
         }}
       >
-        <PoolDetailCard tokens={tokens} pool={pool} />
+        <PoolDetailCard tokens_o={tokens} pool={pool} />
       </div>
     </>
   );
@@ -1864,9 +1953,9 @@ function UserTotalUnClaimBlock(props: {
     if (claimLoading) return;
     setClaimLoading(true);
     claimRewardBySeed_boost(detailData.seed_id)
-      .then(() => {
-        window.location.reload();
-      })
+      // .then(() => {
+      //   window.location.reload();
+      // })
       .catch((error) => {
         setClaimLoading(false);
         // setError(error);
@@ -2462,6 +2551,8 @@ function UserStakeBlock(props: {
     return '';
   }
   const isEnded = detailData.farmList[0].status == 'Ended';
+  const needForbidden =
+    (FARM_BLACK_LIST_V2 || []).indexOf(pool.id.toString()) > -1;
   return (
     <div className="bg-cardBg rounded-2xl p-5 mt-5">
       <div className="flex justify-between items-center text-sm text-primaryText">
@@ -2542,9 +2633,11 @@ function UserStakeBlock(props: {
                     openStakeModalVisible('free');
                   }}
                   color="#fff"
+                  disabled={needForbidden ? true : false}
+                  btnClassName={needForbidden ? 'cursor-not-allowed' : ''}
                   className={`w-36 h-8 text-center text-sm text-white focus:outline-none mr-3 ${
-                    isEnded ? 'hidden' : ''
-                  }`}
+                    needForbidden ? 'opacity-40' : ''
+                  } ${isEnded ? 'hidden' : ''}`}
                 >
                   <FormattedMessage id="stake"></FormattedMessage>
                 </GradientButton>
@@ -2816,7 +2909,7 @@ function UserStakeBlock(props: {
     </div>
   );
 }
-function StakeModal(props: {
+export function StakeModal(props: {
   title: string;
   isOpen: boolean;
   detailData: Seed;
@@ -2935,7 +3028,8 @@ function StakeModal(props: {
   }, [amount, selectedLockData]);
   const displaySymbols = () => {
     let result = '';
-    pool.tokens_meta_data.forEach((token: TokenMetadata, index: number) => {
+    const tokens = sort_tokens_by_base(pool.tokens_meta_data);
+    tokens.forEach((token: TokenMetadata, index: number) => {
       const symbol = toRealSymbol(token.symbol);
       if (index == pool.tokens_meta_data.length - 1) {
         result += symbol;
@@ -2947,20 +3041,19 @@ function StakeModal(props: {
   };
   const displayImgs = () => {
     const tokenList: any[] = [];
-    (pool.tokens_meta_data || []).forEach(
-      (token: TokenMetadata, index: number) => {
-        tokenList.push(
-          <label
-            key={token.id}
-            className={`h-8 w-8 rounded-full overflow-hidden border border-gradientFromHover bg-cardBg ${
-              index != 0 ? '-ml-1.5' : ''
-            }`}
-          >
-            <img src={token.icon} className="w-full h-full"></img>
-          </label>
-        );
-      }
-    );
+    const tokens = sort_tokens_by_base(pool.tokens_meta_data);
+    (tokens || []).forEach((token: TokenMetadata, index: number) => {
+      tokenList.push(
+        <label
+          key={token.id}
+          className={`h-8 w-8 rounded-full overflow-hidden border border-gradientFromHover bg-cardBg ${
+            index != 0 ? '-ml-1.5' : ''
+          }`}
+        >
+          <img src={token.icon} className="w-full h-full"></img>
+        </label>
+      );
+    });
     return tokenList;
   };
   function getSelectedLockRewardsData() {
@@ -3206,6 +3299,7 @@ function StakeModal(props: {
       <div className="flex justify-between items-center h-14 px-3 mt-4 bg-black bg-opacity-20 rounded-lg">
         <input
           type="number"
+          inputMode="decimal"
           placeholder="0.0"
           value={amount}
           onChange={({ target }) => changeAmount(target.value)}
@@ -3554,7 +3648,7 @@ function StakeModal(props: {
   );
 }
 
-function UnStakeModal(props: {
+export function UnStakeModal(props: {
   title: string;
   isOpen: boolean;
   detailData: Seed;
@@ -3704,6 +3798,7 @@ function UnStakeModal(props: {
           <input
             type="number"
             placeholder="0.0"
+            inputMode="decimal"
             value={amount}
             onChange={({ target }) => changeAmount(target.value)}
             className="text-white text-lg focus:outline-non appearance-none leading-tight"

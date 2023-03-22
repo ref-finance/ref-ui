@@ -5,7 +5,6 @@ import { getLiquidity } from '../utils/pool';
 
 import {
   ONLY_ZEROS,
-  percentLess,
   scientificNotationToString,
   toNonDivisibleNumber,
   toPrecision,
@@ -100,6 +99,8 @@ import {
   nearWithdrawTransaction,
 } from './wrap-near';
 import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
+import { percentLess } from '../utils/numbers';
+import getConfig from './config';
 export const REF_FI_SWAP_SIGNAL = 'REF_FI_SWAP_SIGNAL_KEY';
 
 // Big.strict = false;
@@ -125,6 +126,7 @@ interface EstimateSwapOptions {
   swapPro?: boolean;
   setSwapsToDoTri?: (todos: EstimateSwapView[]) => void;
   setSwapsToDoRef?: (todos: EstimateSwapView[]) => void;
+  proGetCachePool?: boolean;
 }
 
 export interface ReservesMap {
@@ -323,8 +325,14 @@ export const estimateSwap = async ({
   swapPro,
   setSwapsToDoRef,
   setSwapsToDoTri,
-}: EstimateSwapOptions): Promise<EstimateSwapView[]> => {
+  proGetCachePool,
+}: EstimateSwapOptions): Promise<{
+  estimates: EstimateSwapView[];
+  tag: string;
+}> => {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
+
+  const tag = `${tokenIn.id}-${parsedAmountIn}-${tokenOut.id}`;
 
   if (ONLY_ZEROS.test(parsedAmountIn))
     throw new Error(
@@ -335,7 +343,7 @@ export const estimateSwap = async ({
     throw new Error(
       `${intl.formatMessage({
         id: 'no_pool_available_to_make_a_swap_from',
-      })} ${tokenIn.symbol} -> ${tokenOut.symbol} ${intl.formatMessage({
+      })} ${tokenIn?.symbol} -> ${tokenOut?.symbol} ${intl.formatMessage({
         id: 'for_the_amount',
       })} ${amountIn} ${intl.formatMessage({
         id: 'no_pool_eng_for_chinese',
@@ -351,6 +359,9 @@ export const estimateSwap = async ({
       setLoadingData,
       loadingTrigger,
       crossSwap: swapPro,
+      tokenIn,
+      tokenOut,
+      proGetCachePool,
     })
   ).filter((p) => {
     return getLiquidity(p, tokenIn, tokenOut) > 0;
@@ -372,11 +383,11 @@ export const estimateSwap = async ({
 
   if (supportLedger) {
     if (swapPro) {
-      setSwapsToDoRef(refTodos);
       setSwapsToDoTri(triTodos);
+      setSwapsToDoRef(refTodos);
     }
 
-    return supportLedgerRes;
+    return { estimates: supportLedgerRes, tag };
   }
 
   const orpools = await getRefPoolsByToken1ORToken2(tokenIn.id, tokenOut.id);
@@ -434,20 +445,20 @@ export const estimateSwap = async ({
     if (!supportLedgerRes && !res.length) throwNoPoolError();
 
     // if not both none, we could return res
-    setSwapsToDoRef(res);
     setSwapsToDoTri(triTodos);
+    setSwapsToDoRef(res);
 
     const refSmartRes = await getExpectedOutputFromActions(res, tokenOut.id, 0);
     const triRes = await getExpectedOutputFromActions(triTodos, tokenOut.id, 0);
 
     if (new Big(refSmartRes || '0').gt(new Big(triRes || '0'))) {
-      return res;
+      return { estimates: res, tag };
     } else {
-      return triTodos;
+      return { estimates: triTodos, tag };
     }
   }
 
-  return res;
+  return { estimates: res, tag };
 };
 
 export const getOneSwapActionResult = async (
@@ -585,53 +596,53 @@ export const getOneSwapActionResult = async (
             outputToken: tokenOut.id,
           },
         ];
-        const refPools = pools.filter((p) => p.Dex !== 'tri');
+      }
+      const refPools = pools.filter((p) => p.Dex !== 'tri');
 
-        const refPoolThisPair =
-          refPools.length === 1
-            ? refPools[0]
-            : _.maxBy(refPools, (p) => {
-                if (isStablePool(p.id)) {
-                  return Number(
-                    getStablePoolEstimate({
-                      tokenIn,
-                      tokenOut,
-                      stablePoolInfo: allStablePoolsById[p.id][1],
-                      stablePool: allStablePoolsById[p.id][0],
-                      amountIn,
-                    }).estimate
-                  );
-                } else
-                  return Number(
-                    getSinglePoolEstimate(tokenIn, tokenOut, p, parsedAmountIn)
-                      .estimate
-                  );
-              });
+      const refPoolThisPair =
+        refPools.length === 1
+          ? refPools[0]
+          : _.maxBy(refPools, (p) => {
+              if (isStablePool(p.id)) {
+                return Number(
+                  getStablePoolEstimate({
+                    tokenIn,
+                    tokenOut,
+                    stablePoolInfo: allStablePoolsById[p.id][1],
+                    stablePool: allStablePoolsById[p.id][0],
+                    amountIn,
+                  }).estimate
+                );
+              } else
+                return Number(
+                  getSinglePoolEstimate(tokenIn, tokenOut, p, parsedAmountIn)
+                    .estimate
+                );
+            });
 
-        if (refPoolThisPair) {
-          const refPoolEstimateRes = await getPoolEstimate({
-            tokenIn,
-            tokenOut,
-            amountIn: parsedAmountIn,
-            Pool: refPoolThisPair,
-          });
+      if (refPoolThisPair) {
+        const refPoolEstimateRes = await getPoolEstimate({
+          tokenIn,
+          tokenOut,
+          amountIn: parsedAmountIn,
+          Pool: refPoolThisPair,
+        });
 
-          refTodos = [
-            {
-              ...refPoolEstimateRes,
-              status: PoolMode.PARALLEL,
-              routeInputToken: tokenIn.id,
-              totalInputAmount: parsedAmountIn,
-              pool: {
-                ...refPoolThisPair,
-                partialAmountIn: parsedAmountIn,
-              },
-              tokens: [tokenIn, tokenOut],
-              inputToken: tokenIn.id,
-              outputToken: tokenOut.id,
+        refTodos = [
+          {
+            ...refPoolEstimateRes,
+            status: PoolMode.PARALLEL,
+            routeInputToken: tokenIn.id,
+            totalInputAmount: parsedAmountIn,
+            pool: {
+              ...refPoolThisPair,
+              partialAmountIn: parsedAmountIn,
             },
-          ];
-        }
+            tokens: [tokenIn, tokenOut],
+            inputToken: tokenIn.id,
+            outputToken: tokenOut.id,
+          },
+        ];
       }
     }
   }
@@ -900,6 +911,8 @@ export async function getHybridStableSmart(
         Pool: bestPool,
       });
 
+      estimate.pool.partialAmountIn = parsedAmountIn;
+
       return {
         actions: [
           {
@@ -939,6 +952,8 @@ export async function getHybridStableSmart(
       inputToken: tokenIn.id,
       outputToken: tokenMidMeta.id,
     };
+
+    estimate1.pool.partialAmountIn = parsedAmountIn;
 
     const estimate2 = {
       ...(isStablePool(pool2.id)
@@ -1064,6 +1079,10 @@ SwapOptions) => {
     }
   };
 
+  if (tokenOut.id !== swapsToDo[swapsToDo.length - 1].outputToken) {
+    return window.location.reload();
+  }
+
   const isParallelSwap = swapsToDo.every(
     (estimate) => estimate.status === PoolMode.PARALLEL
   );
@@ -1127,6 +1146,7 @@ SwapOptions) => {
         .times(new Big(10).pow(tokenIn.decimals))
         .toString();
       let swap1 = swapsToDo[0];
+
       actionsList.push({
         pool_id: swap1.pool.id,
         token_in: swap1.inputToken,
@@ -1171,6 +1191,7 @@ SwapOptions) => {
       await registerToken(tokenOut);
       var actionsList = [];
       let allSwapsTokens = swapsToDo.map((s) => [s.inputToken, s.outputToken]); // to get the hop tokens
+
       for (var i in allSwapsTokens) {
         let swapTokens = allSwapsTokens[i];
         if (swapTokens[0] == tokenIn.id && swapTokens[1] == tokenOut.id) {
@@ -1236,10 +1257,7 @@ SwapOptions) => {
       });
     }
 
-    if (tokenOut.id !== swapsToDo[swapsToDo.length - 1].outputToken) {
-      return window.location.reload();
-    }
-    if (tokenIn.id === WRAP_NEAR_CONTRACT_ID) {
+    if (tokenIn.id === WRAP_NEAR_CONTRACT_ID && tokenIn?.symbol == 'NEAR') {
       transactions.unshift(nearDepositTransaction(amountIn));
     }
     if (tokenOut.id === WRAP_NEAR_CONTRACT_ID) {
@@ -1247,17 +1265,24 @@ SwapOptions) => {
       const routes = separateRoutes(swapsToDo, tokenOut.id);
 
       const bigEstimate = routes.reduce((acc, cur) => {
-        const curEstimate = cur[cur.length - 1].estimate;
+        const curEstimate = round(
+          24,
+          toNonDivisibleNumber(
+            24,
+            percentLess(slippageTolerance, cur[cur.length - 1].estimate)
+          )
+        );
         return acc.plus(curEstimate);
       }, outEstimate);
 
-      const minAmountOut = percentLess(
-        slippageTolerance,
-
+      const minAmountOut = toReadableNumber(
+        24,
         scientificNotationToString(bigEstimate.toString())
       );
 
-      transactions.push(nearWithdrawTransaction(minAmountOut));
+      if (tokenOut.symbol == 'NEAR') {
+        transactions.push(nearWithdrawTransaction(minAmountOut));
+      }
     }
 
     if (tokenIn.id === WRAP_NEAR_CONTRACT_ID) {
@@ -1403,7 +1428,7 @@ export const crossInstantSwap = async ({
         curTransactions.forEach((t) => transactions.push(t));
       }
     }
-    if (tokenIn.id === WRAP_NEAR_CONTRACT_ID) {
+    if (tokenIn.id === WRAP_NEAR_CONTRACT_ID && tokenIn.symbol == 'NEAR') {
       transactions.unshift(nearDepositTransaction(amountIn));
     }
     if (tokenOut.id === WRAP_NEAR_CONTRACT_ID) {
@@ -1420,8 +1445,9 @@ export const crossInstantSwap = async ({
 
         scientificNotationToString(bigEstimate.toString())
       );
-
-      transactions.push(nearWithdrawTransaction(minAmountOut));
+      if (tokenOut.symbol == 'NEAR') {
+        transactions.push(nearWithdrawTransaction(minAmountOut));
+      }
     }
     if (tokenIn.id === WRAP_NEAR_CONTRACT_ID) {
       const registered = await ftGetStorageBalance(WRAP_NEAR_CONTRACT_ID);

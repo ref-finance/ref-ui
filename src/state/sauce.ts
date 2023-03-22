@@ -7,6 +7,7 @@ import { formatePoolData } from '../pages/stable/StableSwapEntry';
 import { TokenMetadata, ftGetTokenMetadata } from '../services/ft-contract';
 
 import { getPool } from '../services/indexer';
+import { ALL_STABLE_POOL_IDS, NEARX_POOL_ID } from '../services/near';
 
 export interface PoolData {
   pool: Pool;
@@ -71,4 +72,12 @@ export const useStabelPoolData = (pool_id: string | number) => {
   }, [pool, tokens, shares, farmStake, poolTVL]);
 
   return { poolData };
+};
+
+export const useAllStablePoolData = () => {
+  const allData = ALL_STABLE_POOL_IDS.filter((id) => id !== NEARX_POOL_ID).map(
+    (id) => useStabelPoolData(id)
+  );
+
+  return allData?.map((d) => d.poolData);
 };

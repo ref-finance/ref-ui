@@ -4,6 +4,7 @@ import { BeatLoader } from 'react-spinners';
 import { FormattedMessage } from 'react-intl';
 import { GradientWrapper } from './BorderWrapper';
 import { useClientMobile } from '../../../utils/device';
+import { BeatLoading } from 'respinner';
 
 interface WalletConnectingProps {
   wallet: Wallet | undefined;
@@ -25,20 +26,20 @@ const REF_ICON = () => {
         fill="#00C6A2"
       />
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M18.8925 18.4545C18.7451 18.4545 18.5986 18.4507 18.4531 18.4432V11.8427L25.6314 5.17717C26.6434 6.55848 27.241 8.26248 27.241 10.1061C27.241 14.7168 23.5033 18.4545 18.8925 18.4545ZM23.7567 3.32025L18.4531 8.24504V1.76894C18.5986 1.7614 18.7451 1.75758 18.8925 1.75758C20.7074 1.75758 22.3871 2.33671 23.7567 3.32025Z"
         fill="white"
       />
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M17.5771 1.75758H9.66797V9.55996L13.2171 13.1091L17.5771 9.06056V1.75758ZM17.5771 12.6583L13.1493 16.7697L9.66797 13.2883V29H17.5771V12.6583Z"
         fill="white"
       />
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M8.78788 1.75758H0V13.0753L6.59101 6.4843L8.78788 8.68117V1.75758ZM8.78788 12.4096L6.59101 10.2127L0 16.8037V29H8.78788V12.4096Z"
         fill="white"
       />
@@ -59,46 +60,25 @@ export const WalletConnecting: React.FC<WalletConnectingProps> = ({
         minWidth: !clientMobie ? '300px' : '',
       }}
     >
-      <GradientWrapper className="rounded-full p-2  inline-flex">
-        <div
-          className=" rounded-full flex items-center justify-center"
-          style={{
-            backgroundColor: '#1D2932',
-          }}
-        >
-          <GradientWrapper className="rounded-full" reverse>
-            <div
-              className="rounded-full  w-14 h-14 flex items-center justify-center"
-              style={{
-                backgroundColor: '#212734',
-              }}
-            >
-              <REF_ICON />
-            </div>
-          </GradientWrapper>
-
-          <span className="mx-4">
-            <BeatLoader margin={6} size={5} color="#00C6A2" />
-          </span>
-          <GradientWrapper className="rounded-full" reverse>
-            <div
-              className="rounded-full w-14 h-14 items-center justify-center flex "
-              style={{
-                backgroundColor: '#212734',
-              }}
-            >
-              <img
-                // className="rounded-full"
-                src={wallet?.metadata.iconUrl}
-                alt=""
-                style={{
-                  maxWidth: '36px',
-                }}
-              />
-            </div>
-          </GradientWrapper>
+      <div className=" rounded-full flex items-center justify-center">
+        <div className="rounded-2xl  w-14 bg-black bg-opacity-20 h-14 flex items-center justify-center">
+          <REF_ICON />
         </div>
-      </GradientWrapper>
+
+        <span className="mx-4">
+          <BeatLoading count={6} size={5} fill="#00C6A2" />
+        </span>
+        <div className="rounded-2xl w-14 h-14 bg-black bg-opacity-20 items-center justify-center flex ">
+          <img
+            // className="rounded-full"
+            src={wallet?.metadata.iconUrl}
+            alt=""
+            style={{
+              width: '32px',
+            }}
+          />
+        </div>
+      </div>
 
       <div className="text-center pt-5 pb-10 text-xl font-bold">
         <FormattedMessage id="connecting" defaultMessage={'Connecting'} />

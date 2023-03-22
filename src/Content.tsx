@@ -11,6 +11,11 @@ import { ReferendumPage } from '~pages/ReferendumPage';
 
 import FarmsMigrate from '~pages/farms/FarmsMigrate';
 import FarmsBoosterPage from '~pages/farms/FarmsBoostPage';
+import YourLiquidityPageV3 from './pages/poolsV3/YourLiquidityPageV3';
+import AddYourLiquidityPageV3 from './pages/poolsV3/AddYourLiquidityPageV3';
+import YourLiquidityDetailV3 from './pages/poolsV3/YourLiquidityDetailV3';
+import PoolDetailV3 from './pages/poolsV3/PoolDetailV3';
+import MyOrderPage from '~pages/MyOrder';
 
 import {
   BrowserRouter as Router,
@@ -26,7 +31,6 @@ import SwapPage from './pages/SwapPage';
 import { AccountPage } from './pages/AccountPage';
 import { RecentActivityPage } from './pages/RecentActivityPage';
 import { LiquidityPage } from './pages/pools/LiquidityPage';
-import { YourLiquidityPage } from './pages/pools/YourLiquidityPage';
 import { AddTokenPage } from './pages/pools/AddTokenPage';
 import AdboardPage from './pages/Adboard/AdboardPage';
 import NavigationBar from './components/layout/NavigationBar';
@@ -36,6 +40,7 @@ import StableSwapPage from './pages/stable/StableSwapPage';
 import XrefPage from './pages/xref/XrefPage';
 import RiskPage from './pages/RiskPage';
 import USNPage from './pages/USNPage';
+import Portfolio from './pages/Portfolio';
 import {
   auroraAddr,
   getAuroraPool,
@@ -48,44 +53,16 @@ import {
   BgShapeCenterSmall,
 } from './components/icon';
 import Modal from 'react-modal';
+import AllOrders from './pages/Orderly/components/AllOrders';
 
 import './global.css';
 import 'react-toastify/dist/ReactToastify.css';
 import { FarmsPage } from '~pages/farms/FarmsPage';
 import { AirdropPage } from '~pages/AirdropPage';
-import PopUpSwiper from '~components/layout/PopUp';
-import SwapGuide from '~components/layout/SwapGuide';
-import { isMobile } from '~utils/device';
-import {
-  wallet as webWallet,
-  REF_FARM_CONTRACT_ID,
-  STABLE_POOL_ID,
-  STABLE_POOL_USN_ID,
-  BTC_POOL_ID,
-} from './services/near';
-import {
-  getSenderWallet,
-  WALLET_TYPE,
-  getCurrentWallet,
-} from './utils/wallets-integration';
-import {
-  getURLInfo,
-  failToast,
-  usnBuyAndSellToast,
-} from './components/layout/transactionTipPopUp';
-import { StableSwapPageEntry } from '~pages/stable/StableSwapEntry';
-import { senderSignedInToast } from '~components/layout/senderSignInPopUp';
-import { getAllTriPools } from './services/aurora/aurora';
 
-import {
-  getSenderLoginRes,
-  LOCK_INTERVAL,
-  saveSenderLoginRes,
-} from './utils/wallets-integration';
-import {
-  senderWallet,
-  SENDER_WALLET_SIGNEDIN_STATE_KEY,
-} from './utils/wallets-integration';
+import { isMobile } from '~utils/device';
+
+import { StableSwapPageEntry } from '~pages/stable/StableSwapEntry';
 
 import {
   WalletContext,
@@ -106,6 +83,15 @@ import { AccountView } from 'near-api-js/lib/providers/provider';
 import { InjectedWallet } from '@near-wallet-selector/core';
 import { REF_FARM_BOOST_CONTRACT_ID, wallet } from './services/near';
 import { LedgerTransactionModal } from './context/modal-ui/modal';
+import View from './pages/Orderly/OrderlyTradingBoard';
+import OrderlyContextProvider, {
+  OrderlyContext,
+} from '~pages/Orderly/orderly/OrderlyContext';
+import { list_seeds_info } from './services/farm';
+import {
+  get_orderly_public_key_path,
+  generateTradingKeyPair,
+} from './pages/Orderly/orderly/utils';
 
 export type Account = AccountView & {
   account_id: string;
@@ -120,6 +106,7 @@ Modal.defaultStyles = {
     bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
     zIndex: 100,
+    outline: 'none',
   },
   content: {
     position: 'absolute',
@@ -129,6 +116,7 @@ Modal.defaultStyles = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -65%)',
+    outline: 'none',
   },
 };
 
@@ -210,41 +198,74 @@ export function Content() {
 
   useGlobalPopUp(globalState);
 
+  React.useEffect(() => {
+    const pubkey = localStorage.getItem(get_orderly_public_key_path());
+
+    if (!pubkey && accountId) {
+      generateTradingKeyPair();
+    }
+  }, [accountId]);
+
   return (
     <WalletContext.Provider value={{ globalState, globalStatedispatch }}>
       <NavigationBar />
       <ToastContainer
+        newestOnTop={window.location.pathname === '/orderbook' ? true : false}
         style={{
           marginTop: isMobile() ? 'none' : '44px',
         }}
       />
-      <Switch>
-        <Route path="/account" component={AccountPage} />
-        <Route path="/recent" component={RecentActivityPage} />
-        <Route
-          path="/more_pools/:tokenIds"
-          component={AutoHeight(MorePoolsPage)}
-        />
-        <Route path="/pool/:id" component={AutoHeight(PoolDetailsPage)} />
-        <Route path="/pools/add-token" component={AutoHeight(AddTokenPage)} />
-        <Route path="/pools/yours" component={AutoHeight(YourLiquidityPage)} />
-        <Route path="/pools" component={AutoHeight(LiquidityPage)} />
-        <Route path="/airdrop" component={AutoHeight(AirdropPage)} />
-        <Route path="/farms" component={AutoHeight(FarmsPage)} />
-        <Route path={`/sauce/:id`} component={AutoHeight(StableSwapRouter)} />
+      <OrderlyContextProvider>
+        <Switch>
+          <Route path="/account" component={AccountPage} />
+          <Route path="/recent" component={RecentActivityPage} />
+          <Route
+            path="/more_pools/:tokenIds"
+            component={AutoHeight(MorePoolsPage)}
+          />
+          <Route path="/pool/:id" component={AutoHeight(PoolDetailsPage)} />
+          <Route path="/pools/add-token" component={AutoHeight(AddTokenPage)} />
+          <Route path="/pools" component={AutoHeight(LiquidityPage)} />
+          <Route path="/airdrop" component={AutoHeight(AirdropPage)} />
+          <Route path="/farms" component={AutoHeight(FarmsPage)} />
+          <Route path={`/sauce/:id`} component={AutoHeight(StableSwapRouter)} />
+          <Route path={'/myOrder'} component={AutoHeight(MyOrderPage)} />
 
-        <Route path="/sauce" component={AutoHeight(StableSwapPageEntry)} />
+          <Route path={'/orderly/all-orders'} component={AllOrders} />
 
-        <Route path="/xref" component={AutoHeight(XrefPage)} />
-        <Route path="/risks" component={AutoHeight(RiskPage)} />
-        {!!getConfig().REF_VE_CONTRACT_ID ? (
-          <Route path="/referendum" component={AutoHeight(ReferendumPage)} />
-        ) : null}
+          <Route
+            path="/yourliquidity"
+            component={AutoHeight(YourLiquidityPageV3)}
+          />
+          <Route
+            path="/yoursLiquidityDetailV2/:id/:status?"
+            component={AutoHeight(YourLiquidityDetailV3)}
+          />
 
-        <Route path="/v2farms/:id?" component={AutoHeight(FarmsBoosterPage)} />
-        <Route path="/farmsMigrate" component={AutoHeight(FarmsMigrate)} />
-        <Route path="/" component={AutoHeight(SwapPage)} />
-      </Switch>
+          <Route path="/orderbook" component={View} />
+          <Route
+            path="/addLiquidityV2"
+            component={AutoHeight(AddYourLiquidityPageV3)}
+          />
+
+          <Route path="/sauce" component={AutoHeight(StableSwapPageEntry)} />
+
+          <Route path="/xref" component={AutoHeight(XrefPage)} />
+          <Route path="/risks" component={AutoHeight(RiskPage)} />
+          {!!getConfig().REF_VE_CONTRACT_ID ? (
+            <Route path="/referendum" component={AutoHeight(ReferendumPage)} />
+          ) : null}
+
+          <Route
+            path="/v2farms/:id?"
+            component={AutoHeight(FarmsBoosterPage)}
+          />
+          <Route path="/farmsMigrate" component={AutoHeight(FarmsMigrate)} />
+          <Route path="/poolV2/:id" component={AutoHeight(PoolDetailV3)} />
+          <Route path="/portfolio" component={AutoHeight(Portfolio)} />
+          <Route path="/" component={AutoHeight(SwapPage)} />
+        </Switch>
+      </OrderlyContextProvider>
     </WalletContext.Provider>
   );
 }

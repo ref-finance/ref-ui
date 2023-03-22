@@ -24,6 +24,8 @@ import {
   MoreMenuIcon,
   NavLogo,
   NavLogoSimple,
+  AuroraIconSwapNav,
+  NavLogoIcon,
 } from '~components/icon';
 import { SmallWallet } from '~components/icon/SmallWallet';
 import {
@@ -34,15 +36,20 @@ import {
   WNEARExchngeIcon,
 } from '~components/icon/Common';
 import { Link, useLocation, useHistory } from 'react-router-dom';
-import { wallet } from '~services/near';
+import { NEARXIDS, wallet } from '~services/near';
 import { Card } from '~components/card/Card';
 
-import { FormattedMessage, useIntl } from 'react-intl';
+import { FormattedMessage, useIntl, FormattedRelativeTime } from 'react-intl';
 import { HiOutlineExternalLink } from 'react-icons/hi';
 import { IoChevronBack, IoClose } from 'react-icons/io5';
 
 import { FiChevronDown, FiChevronRight } from 'react-icons/fi';
-import { useMenuItems } from '~utils/menu';
+import {
+  useMenuItems,
+  useLanguageItems,
+  useMenus,
+  menuItemType,
+} from '~utils/menu';
 import { MobileNavBar } from './MobileNav';
 import WrapNear from '~components/forms/WrapNear';
 import { WrapNearIcon } from './WrapNear';
@@ -53,10 +60,7 @@ import {
   getCurrentWallet,
 } from '../../utils/wallets-integration';
 import { WalletSelectorModal } from './WalletSelector';
-import {
-  WalletContext,
-  getSenderWallet,
-} from '../../utils/wallets-integration';
+import { WalletContext } from '../../utils/wallets-integration';
 import {
   getAccountName,
   saveSenderLoginRes,
@@ -81,34 +85,47 @@ import {
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { isMobile, useMobile, useClientMobile } from '../../utils/device';
 import { getAuroraConfig } from '../../services/aurora/config';
-import {
-  ETH_DECIMAL,
-  withdrawBalanceAfterTransaction,
-} from '../../services/aurora/aurora';
-import {
-  useAuroraBalances,
-  // withdrawBalanceAfterTransaction,
-} from '../../services/aurora/aurora';
+import { ETH_DECIMAL } from '../../services/aurora/aurora';
+import { useAuroraBalances } from '../../services/aurora/aurora';
 import { getURLInfo } from './transactionTipPopUp';
 import USNBuyComponent from '~components/forms/USNBuyComponent';
 import USNPage, { BorrowLinkCard } from '~components/usn/USNPage';
-import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from '../../pages/SwapPage';
-import Marquee from '~components/layout/Marquee';
 import {
-  REF_FARM_CONTRACT_ID,
-  REF_FARM_BOOST_CONTRACT_ID,
-} from '../../services/near';
+  REF_FI_SWAP_SWAPPAGE_TAB_KEY,
+  SWAP_MODE_KEY,
+} from '../../pages/SwapPage';
+import Marquee from '~components/layout/Marquee';
+
 import {
   useWalletSelector,
   ACCOUNT_ID_KEY,
-} from '../../context/WalletSelectorContext';
-import { Modal } from '~context/modal-ui/components/Modal';
+} from '~context/WalletSelectorContext';
+
+import { SWAP_MODE } from '../../pages/SwapPage';
+import { useDCLAccountBalance } from '../../services/aurora/aurora';
+import { BuyNearButton } from '../button/Button';
+import {
+  get_orderly_public_key_path,
+  get_orderly_private_key_path,
+} from '../../pages/Orderly/orderly/utils';
+import { REF_ORDERLY_ACCOUNT_VALID } from '../../pages/Orderly/components/UserBoard/index';
+import { tradingKeyMap } from '../../pages/Orderly/orderly/utils';
+import {
+  MoreIcon,
+  ArrowDownIcon,
+  DownTriangleIcon,
+} from '~components/icon/Nav';
 
 const config = getConfig();
 
 export function AccountTipDownByAccountID({ show }: { show: boolean }) {
   return (
-    <div className={`account-tip-popup ${show ? 'block' : 'hidden'} text-xs`}>
+    <div
+      className={`account-tip-popup  ${show ? 'block' : 'hidden'} text-xs`}
+      style={{
+        zIndex: 120,
+      }}
+    >
       <span>
         <em></em>
       </span>
@@ -126,20 +143,103 @@ function Anchor({
   name,
   className,
   newFuntion,
+  subMenu,
 }: {
-  to: string;
+  to?: string;
   pattern: string;
   name: string;
   className?: string;
   newFuntion?: boolean;
+  subMenu?: {
+    name: string;
+    display?: string | JSX.Element;
+    path?: string;
+    click: (e?: any) => void;
+    chosen?: boolean;
+  }[];
 }) {
   const location = useLocation();
   let isSelected;
+
+  const [hover, setHover] = useState<boolean>(false);
+
+  const defaultChosed = subMenu?.find((m) => !!m.chosen)?.name;
+
+  const { pathname } = useLocation();
+
+  const isSwap =
+    pathname === '/' || pathname === '/swap' || pathname === '/myOrder';
+
+  const [chosenSub, setChosenSub] = useState<string>(
+    isSwap ? defaultChosed : null
+  );
+
+  useEffect(() => {
+    if (!isSwap) {
+      setChosenSub(null);
+    }
+  }, [isSwap, pathname]);
+
+  useEffect(() => {
+    if (!isSwap) return;
+
+    if (pathname === '/myOrder') {
+      setChosenSub('limit');
+    }
+
+    window.addEventListener('setItemEvent', (e: any) => {
+      const storageSwapTab = localStorage
+        .getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY)
+        ?.toString();
+
+      const storageSwapMode = localStorage.getItem(SWAP_MODE_KEY)?.toString();
+      if (typeof e?.[SWAP_MODE_KEY] === 'string') {
+        const curMode = e?.[SWAP_MODE_KEY];
+
+        if (curMode == SWAP_MODE.NORMAL && storageSwapTab === 'normal') {
+          setChosenSub('swap');
+        } else if (
+          e[SWAP_MODE_KEY] == SWAP_MODE.STABLE &&
+          storageSwapTab === 'normal'
+        ) {
+          setChosenSub('stable');
+        } else if (
+          e[SWAP_MODE_KEY] == SWAP_MODE.LIMIT &&
+          storageSwapTab === 'normal'
+        ) {
+          setChosenSub('limit');
+        }
+      }
+      if (typeof e?.[REF_FI_SWAP_SWAPPAGE_TAB_KEY] === 'string') {
+        const curTab = e?.[REF_FI_SWAP_SWAPPAGE_TAB_KEY];
+
+        console.log(e);
+
+        if (curTab === 'normal') {
+          setChosenSub(storageSwapMode);
+        } else {
+          setChosenSub('pro');
+        }
+      }
+    });
+  }, [isSwap]);
+
   if (pattern == '/pools') {
     isSelected =
       location.pathname.startsWith('/pools') ||
       location.pathname.startsWith('/pool') ||
-      location.pathname.startsWith('/more_pools');
+      location.pathname.startsWith('/more_pools') ||
+      location.pathname.startsWith('/yourliquidity') ||
+      location.pathname.startsWith('/addLiquidityV2') ||
+      location.pathname.startsWith('/yoursLiquidityDetailV2');
+  } else if (pattern == '/') {
+    isSelected = location.pathname === '/' || location.pathname === '/swap';
+  } else if (pattern === '/sauce' || pattern === '/v2farms') {
+    isSelected = matchPath(location.pathname, {
+      path: pattern,
+      exact: false,
+      strict: false,
+    });
   } else {
     isSelected = matchPath(location.pathname, {
       path: pattern,
@@ -147,26 +247,70 @@ function Anchor({
       strict: false,
     });
   }
+
   return (
-    <Link
-      to={to}
-      className={`relative flex items-center justify-center h-full border-t-4 mx-4 border-greenColor ${
-        isSelected ? 'border-opacity-100' : 'border-opacity-0'
-      }`}
-    >
-      <h2
-        className={`link hover:text-white text-base font-normal py-4 cursor-pointer relative z-10 ${className} ${
-          isSelected ? 'text-greenColor' : 'text-gray-400'
-        }`}
+    <>
+      <Link
+        to={to}
+        className={`relative flex items-center justify-center h-full  mx-4 `}
+        onMouseLeave={() => setHover(false)}
+        onMouseEnter={() => setHover(true)}
       >
-        <FormattedMessage id={name} defaultMessage={name} />
-        {newFuntion ? (
-          <span className="absolute top-5 right-2">
-            <IconAirDropGreenTip />
+        <span
+          className={`link hover:text-white text-base font-bold py-4 cursor-pointer relative z-10 ${className} ${
+            isSelected ? 'text-white' : 'text-gray-400'
+          }`}
+        >
+          <FormattedMessage id={name} defaultMessage={name} />
+          {newFuntion ? (
+            <span className="absolute top-5 right-2">
+              <IconAirDropGreenTip />
+            </span>
+          ) : null}
+        </span>
+
+        {!!subMenu && hover && (
+          <span
+            className="top-10 pt-2 absolute"
+            style={{
+              zIndex: 9999,
+            }}
+          >
+            <div
+              className="py-2  px-1.5 rounded-xl min-w-28 flex flex-col"
+              style={{
+                background: 'rgba(23,32,38)',
+                border: '1px solid #415462',
+              }}
+            >
+              {subMenu.map((m) => {
+                return (
+                  <span
+                    className={`${
+                      (chosenSub === m.name && isSwap) ||
+                      pathname.toLocaleLowerCase().indexOf(m.path) > -1
+                        ? 'bg-primaryText bg-opacity-30 text-white'
+                        : 'text-primaryText'
+                    } hover:bg-primaryText hover:bg-opacity-30 items-center
+                    flex justify-center py-0.5 h-11 mb-0.5 hover:text-white rounded-lg 
+                   text-center text-base cursor-pointer my-auto whitespace-nowrap px-2`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      m.click();
+                      setChosenSub(m.name);
+                      setHover(false);
+                    }}
+                  >
+                    {m.display || <FormattedMessage id={m.name} />}
+                  </span>
+                );
+              })}
+            </div>
           </span>
-        ) : null}
-      </h2>
-    </Link>
+        )}
+      </Link>
+    </>
   );
 }
 
@@ -226,7 +370,21 @@ function AccountEntry({
 
     localStorage.removeItem(ACCOUNT_ID_KEY);
 
-    window.location.assign('/');
+    const priKeyPath = get_orderly_private_key_path();
+
+    const pubKeyPath = get_orderly_public_key_path();
+
+    tradingKeyMap.clear();
+    localStorage.removeItem(priKeyPath);
+    localStorage.removeItem(pubKeyPath);
+
+    localStorage.removeItem(REF_ORDERLY_ACCOUNT_VALID);
+
+    if (window.location.pathname === '/orderbook') {
+      window.location.assign('/orderbook');
+    } else {
+      window.location.assign('/');
+    }
   };
 
   const accountList = [
@@ -237,7 +395,7 @@ function AccountEntry({
       click: () => {
         if (location.pathname == '/account') {
           localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
-          window.location.reload();
+          window.location.href = '/account?tab=ref';
         } else {
           history.push('/account?tab=ref');
         }
@@ -256,7 +414,12 @@ function AccountEntry({
       textId: 'go_to_near_wallet',
       // subIcon: <HiOutlineExternalLink />,
       click: () => {
-        window.open(config.walletUrl, '_blank');
+        window.open(
+          selector.store.getState().selectedWalletId === 'my-near-wallet'
+            ? config.myNearWalletUrl
+            : config.walletUrl,
+          '_blank'
+        );
       },
     },
   ];
@@ -264,7 +427,12 @@ function AccountEntry({
   const isMobile = useClientMobile();
 
   return (
-    <div className="bubble-box relative user text-xs text-center justify-end z-40 mx-3.5">
+    <div
+      className="bubble-box relative user text-xs text-center justify-end z-40"
+      style={{
+        zIndex: 51,
+      }}
+    >
       {showAccountTip ? (
         <AccountTipDownByAccountID show={showAccountTip} />
       ) : null}
@@ -279,44 +447,67 @@ function AccountEntry({
         }}
       >
         <div
-          className={`inline-flex px-1 py-0.5 items-center justify-center rounded-full border border-gray-700 ${
-            hover ? 'border-gradientFrom bg-opacity-0' : ''
-          } ${
+          className={`flex items-center justify-center rounded-xl ${
             isSignedIn
-              ? 'bg-gray-700 text-white'
-              : 'border border-gradientFrom text-gradientFrom'
-          } pl-3 pr-3`}
+              ? hover
+                ? 'py-1.5 text-white text-opacity-50 px-3 bg-accountHoverBgColor'
+                : 'py-1.5 text-white text-opacity-50 px-3 bg-accountBgColor'
+              : hover
+              ? 'py-2 text-white px-5 bg-buttonGradientBg'
+              : 'py-2 text-white px-5 bg-unLoginButtonBgColor'
+          }`}
         >
           <div className="pr-1">
-            <Near color={isSignedIn ? 'white' : '#00c6a2'} />
+            <Near
+              color={
+                isSignedIn
+                  ? hover
+                    ? '#fff'
+                    : 'rgba(255,255,255,0.5)'
+                  : hover
+                  ? '#fff'
+                  : '#00C6A2'
+              }
+            />
           </div>
           <div className="overflow-ellipsis overflow-hidden whitespace-nowrap account-name">
             {isSignedIn ? (
-              <span className="flex ml-1 items-center">
+              <span
+                className={`flex ml-1 items-center text-sm ${
+                  hover ? 'text-white text-opacity-100' : ''
+                }`}
+              >
                 {getAccountName(wallet.getAccountId())}
                 {hasBalanceOnRefAccount ? (
                   <span className="ml-1.5">
                     <FarmDot inFarm={hasBalanceOnRefAccount} />
                   </span>
                 ) : null}
-                <FiChevronDown className="text-base ml-1" />
+                <ArrowDownIcon
+                  className={`flex-shrink-0 ml-2 text-white ${
+                    hover ? '' : 'text-opacity-50'
+                  }`}
+                />
               </span>
             ) : (
               <button
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  // setShowWalletSelector(true);
                   modal.show();
 
                   setHover(false);
                 }}
                 type="button"
               >
-                <span className="ml-1 text-xs">
+                <span
+                  className={`ml-1 text-xs gotham_bold ${
+                    hover ? 'text-white' : 'text-greenColor'
+                  }`}
+                >
                   <FormattedMessage
-                    id="connect_to_near"
-                    defaultMessage="Connect to NEAR"
+                    id="connect_to_wallet"
+                    defaultMessage="Connect Wallet"
                   />
                 </span>
               </button>
@@ -533,16 +724,14 @@ export function AuroraEntry({
         }
       }}
     >
-      <div className="flex items-center">
-        <div
-          className={`flex items-center rounded-2xl  ${
-            hover ? 'bg-auroraGreen' : 'bg-gray-700'
-          } px-2 py-1 ml-px relative `}
-        >
-          <AuroraIcon hover={hover} />
+      <div
+        className={`flex items-center rounded-lg px-2 py-2 ml-px relative ${
+          hover ? 'bg-auroraGreen' : 'bg-white bg-opacity-20'
+        }`}
+      >
+        <AuroraIcon hover={hover} />
 
-          {hasBalanceOnAurora ? <HasBalance hover={hover} /> : null}
-        </div>
+        {hasBalanceOnAurora ? <HasBalance hover={hover} /> : null}
       </div>
       {hover ? (
         <div
@@ -642,166 +831,36 @@ function Xref() {
   };
   return (
     <div
-      className={`h-full flex items-center justify-center relative py-4 mx-4 cursor-pointer hover:opacity-100 border-t-4 border-greenColor ${
-        location.pathname == '/xref'
-          ? 'opacity-100 border-opacity-100'
-          : 'opacity-60 border-opacity-0'
+      className={`h-full flex items-center justify-center z-20 relative py-4 mx-4 cursor-pointer hover:opacity-100 ${
+        location.pathname == '/xref' ? 'opacity-100' : 'opacity-60'
       }`}
       onClick={goXrefPage}
     >
-      <XrefIcon className="cursor-pointer"></XrefIcon>
+      <XrefIcon className="relative -top-px cursor-pointer"></XrefIcon>
       {/* <GreenArrow hover={hover}></GreenArrow> */}
-    </div>
-  );
-}
-function GreenArrow(props: any) {
-  const { hover } = props;
-  return (
-    <div
-      className={`flex absolute w-full h-full left-0 top-0 justify-between items-center ${
-        hover ? 'opacity-100' : 'opacity-0'
-      }`}
-    >
-      <span>
-        <GreenArrowIcon></GreenArrowIcon>
-      </span>
-      <span style={{ transform: 'rotateY(180deg)' }}>
-        <GreenArrowIcon></GreenArrowIcon>
-      </span>
-    </div>
-  );
-}
-function PoolsMenu() {
-  const location = useLocation();
-  const isSelected =
-    location.pathname.startsWith('/pools') ||
-    location.pathname.startsWith('/pool') ||
-    location.pathname.startsWith('/more_pools');
-  const [hover, setHover] = useState(false);
-  const history = useHistory();
-
-  const { globalState } = useContext(WalletContext);
-  const isSignedIn = globalState.isSignedIn;
-
-  const links = [
-    {
-      label: <FormattedMessage id="view_pools" defaultMessage="View Pools" />,
-      path: '/pools',
-      logo: <IconPools />,
-    },
-    {
-      label: (
-        <FormattedMessage
-          id="Create_New_Pool"
-          defaultMessage="Create New Pool"
-        />
-      ),
-      path: '/pools/add',
-      logo: <IconCreateNew />,
-    },
-  ];
-
-  if (isSignedIn) {
-    links.push({
-      label: (
-        <FormattedMessage id="Your_Liquidity" defaultMessage="Your Liquidity" />
-      ),
-      path: '/pools/yours',
-      logo: <IconMyLiquidity />,
-    });
-  }
-
-  return (
-    <div
-      className="relative"
-      onMouseOver={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-    >
-      <div
-        className={`flex items-center justify-center ${
-          isSelected || hover ? 'text-greenColor' : 'text-gray-400'
-        }`}
-      >
-        <div className="relative">
-          <h2
-            className={`flex items-center link hover:text-greenColor text-lg font-bold p-4 cursor-pointer`}
-          >
-            <FormattedMessage id="pools" defaultMessage="Pools" />
-            <label className="text-xl ml-1">
-              <FiChevronDown />
-            </label>
-          </h2>
-          <GreenArrow hover={hover}></GreenArrow>
-        </div>
-      </div>
-      <div
-        className={`${
-          hover ? 'block' : 'hidden'
-        } absolute top-12 -left-20 rounded-md`}
-        style={{
-          zIndex: 999,
-        }}
-      >
-        <Card
-          width="w-64"
-          padding="py-4"
-          rounded="rounded-md"
-          className="border border-primaryText shadow-4xl z-40"
-        >
-          {links.map((link) => {
-            let isSelected = link.path === location.pathname;
-            if (
-              location.pathname.startsWith('/pool/') ||
-              location.pathname.startsWith('/more_pools/')
-            ) {
-              if (link.path === '/pools') {
-                isSelected = true;
-              }
-            }
-
-            return (
-              <div
-                key={link.path}
-                className={`flex justify-start items-center hover:bg-navHighLightBg text-sm font-semibold z-40  hover:text-white cursor-pointer py-4 pl-7 ${
-                  isSelected
-                    ? 'text-white bg-navHighLightBg'
-                    : 'text-primaryText'
-                }`}
-                onClick={() => history.push(link.path)}
-              >
-                <span className="inline-block mr-3">{link.logo}</span>
-                {link.label}
-              </div>
-            );
-          })}
-        </Card>
-      </div>
     </div>
   );
 }
 
 function MoreMenu() {
+  const [showWrapNear, setShowWrapNear] = useState(false);
   const [hover, setHover] = useState(false);
+  const [sauceHover, setSauceHover] = useState(false);
   const [parentLabel, setParentLabel] = useState('');
   const { menuData } = useMenuItems();
   const [curMenuItems, setCurMenuItems] = useState(menuData);
-  const context = useContext(Context);
-  const currentLocal = localStorage.getItem('local');
   const location = useLocation();
   const history = useHistory();
+  const { globalState } = useContext(WalletContext);
   const onClickMenuItem = (items: any[], label: string) => {
     setCurMenuItems(items);
     setParentLabel(label);
-  };
-  const switchLanuage = (label: string) => {
-    context.selectLanguage(label);
   };
   const handleMoreMenuClick = (
     url: string,
     isExternal: boolean,
     label: string,
-    children?: any,
-    language?: string
+    children?: any
   ) => {
     if (url) {
       if (isExternal) {
@@ -811,206 +870,95 @@ function MoreMenu() {
       }
     } else if (children) {
       onClickMenuItem?.(children, label);
-    } else {
-      switchLanuage(language);
     }
   };
   const hasSubMenu = curMenuItems.some(({ children }) => !!children?.length);
   return (
-    <div
-      className="relative z-30"
-      onMouseOver={() => setHover(true)}
-      onMouseLeave={() => {
-        setHover(false);
-        onClickMenuItem?.(menuData, '');
-      }}
-    >
-      <div className="text-primaryText hover:text-greenColor cursor-pointer py-5">
-        <MoreMenuIcon></MoreMenuIcon>
-      </div>
-      <div
-        className={`${
-          hover ? 'block' : 'hidden'
-        } absolute top-14 pt-2 -right-4 rounded-md`}
-      >
-        <Card
-          width="w-64"
-          padding="py-4"
-          rounded="rounded-md"
-          className="shadow-4xl border border-primaryText"
-        >
-          {!hasSubMenu && parentLabel && (
-            <div
-              className="whitespace-nowrap hover:text-white text-left items-center flex justify-start text-sm font-semibold text-primaryText cursor-pointer py-4 pl-4"
-              onClick={() => onClickMenuItem?.(menuData, '')}
-            >
-              <IoChevronBack className="text-xl " />
-              <span className=" ml-8">{parentLabel}</span>
-            </div>
-          )}
-          {curMenuItems.map(
-            ({
-              id,
-              url,
-              children,
-              label,
-              icon,
-              logo,
-              isExternal,
-              language,
-            }) => {
-              const isSelected =
-                url &&
-                !isExternal &&
-                matchPath(location.pathname, {
-                  path: url,
-                  exact: true,
-                  strict: false,
-                });
-
-              return (
-                <div
-                  key={id}
-                  className={`whitespace-nowrap text-left items-center flex justify-start hover:bg-navHighLightBg text-sm font-semibold hover:text-white
-                 ${
-                   (language && currentLocal === language) || isSelected
-                     ? 'bg-navHighLightBg text-white'
-                     : 'text-primaryText'
-                 }
-                 cursor-pointer py-4 pl-7 ${parentLabel ? 'pl-14' : ''}`}
-                  onClick={() =>
-                    handleMoreMenuClick(
-                      url,
-                      isExternal,
-                      label,
-                      children,
-                      language
-                    )
-                  }
-                >
-                  {logo && (
-                    <span
-                      className={`text-xl w-8 text-left flex justify-center mr-2`}
-                    >
-                      {logo}
-                    </span>
-                  )}
-                  {label}
-                  <span className="ml-4 text-xl">{icon}</span>
-                  {children && (
-                    <span className="text-xl absolute right-4">
-                      <FiChevronRight />
-                    </span>
-                  )}
-                </div>
-              );
-            }
-          )}
-        </Card>
-      </div>
-    </div>
-  );
-}
-
-function USNButton() {
-  const [USNButtonHover, setUSNButtonHover] = useState<boolean>(false);
-  const [showUSN, setShowUSN] = useState<boolean>(false);
-
-  const [showeBorrowCard, setShowBorrowCard] = useState(false);
-
-  return (
     <>
       <div
-        onMouseEnter={() => setUSNButtonHover(true)}
-        onMouseLeave={() => setUSNButtonHover(false)}
-        className="relative lg:py-5 z-50"
+        className="relative z-30"
+        onMouseOver={() => setHover(true)}
+        onMouseLeave={() => {
+          setHover(false);
+          onClickMenuItem?.(menuData, '');
+        }}
+        style={{ zIndex: 599 }}
       >
-        <div className="mr-3">
-          <USNBuyComponent hover={USNButtonHover} />
+        <div
+          className={`rounded-xl p-3 mx-4 cursor-pointer xsm:bg-transparent ${
+            hover ? 'text-white bg-menuMoreBgColor' : 'text-primaryText'
+          }`}
+        >
+          <MoreIcon></MoreIcon>
         </div>
-
-        {USNButtonHover ? (
-          <div className=" absolute pt-2 right-0 lg:top-14 xs:top-8 md:top-8 ">
-            <div
-              style={{
-                border: '1px solid #415462',
-                backdropFilter: 'blur(25px)',
-                WebkitBackdropFilter: 'blur(25px)',
-                background: '#323E46',
-              }}
-              className="py-2.5 px-1.5 text-sm  flex flex-col items-center rounded-xl z-50 text-primaryText "
-            >
+        <div
+          className={`${
+            hover ? 'block' : 'block'
+          } absolute top-7 pt-3 -right-20 rounded-md`}
+        >
+          <Card
+            rounded="rounded-md"
+            className="p-2.5 w-full rounded-2xl border border-menuMoreBoxBorderColor bg-priceBoardColor"
+          >
+            {!hasSubMenu && parentLabel && (
               <div
-                className="whitespace-nowrap px-4 py-2 hover:bg-black hover:bg-opacity-20 rounded-lg hover:text-white w-full cursor-pointer"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowUSN(true);
-                  setUSNButtonHover(false);
-                }}
+                className="whitespace-nowrap hover:text-white text-left items-center flex justify-start text-sm font-semibold text-primaryText cursor-pointer pt-4 pb-2"
+                onClick={() => onClickMenuItem?.(menuData, '')}
               >
-                <FormattedMessage id="buy" defaultMessage="Buy" />
+                <IoChevronBack className="text-xl " />
+                <span className="ml-3">{parentLabel}</span>
               </div>
-
-              <div
-                className="whitespace-nowrap flex items-center px-4 py-2 hover:bg-black hover:bg-opacity-20 rounded-lg hover:text-white w-full cursor-pointer"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowBorrowCard(true);
-                  setUSNButtonHover(false);
-                }}
-              >
-                <span className="mr-1">
-                  <FormattedMessage id="borrow" defaultMessage="Borrow" />
-                </span>
-                <span>
-                  <HiOutlineExternalLink />
-                </span>
-              </div>
-            </div>
-          </div>
-        ) : null}
+            )}
+            {curMenuItems.map(
+              ({ url, children, label, icon, logo, isExternal }, index) => {
+                const isSelected =
+                  url &&
+                  !isExternal &&
+                  matchPath(location.pathname, {
+                    path: url,
+                    exact: true,
+                    strict: false,
+                  });
+                return (
+                  <div
+                    key={index}
+                    className={`flex items-center rounded-xl whitespace-nowrap hover:bg-menuMoreBgColor hover:text-white text-sm font-semibold py-3 my-1.5 cursor-pointer ${
+                      !hasSubMenu && parentLabel ? 'px-5' : 'px-2'
+                    }
+                    ${
+                      isSelected
+                        ? 'bg-menuMoreBgColor text-white'
+                        : 'text-primaryText'
+                    }`}
+                    onClick={() =>
+                      handleMoreMenuClick(url, isExternal, label, children)
+                    }
+                  >
+                    {logo && (
+                      <span
+                        className={`text-xl w-8 text-left flex justify-center mr-2`}
+                      >
+                        {logo}
+                      </span>
+                    )}
+                    {label}
+                    <span className="ml-4 text-xl">{icon}</span>
+                    {children && (
+                      <span className="text-xl">
+                        <FiChevronRight />
+                      </span>
+                    )}
+                  </div>
+                );
+              }
+            )}
+          </Card>
+        </div>
       </div>
-      <USNPage
-        isOpen={showUSN}
-        onRequestClose={(e) => {
-          setShowUSN(false);
-        }}
-        style={{
-          overlay: {
-            backdropFilter: 'blur(15px)',
-            WebkitBackdropFilter: 'blur(15px)',
-          },
-          content: {
-            outline: 'none',
-            position: 'fixed',
-            bottom: '50%',
-          },
-        }}
-      ></USNPage>
-      <BorrowLinkCard
-        isOpen={showeBorrowCard}
-        onRequestClose={(e) => {
-          setShowBorrowCard(false);
-        }}
-        style={{
-          overlay: {
-            backdropFilter: 'blur(15px)',
-            WebkitBackdropFilter: 'blur(15px)',
-          },
-          content: {
-            outline: 'none',
-            position: 'fixed',
-            width: isMobile() ? '98%' : 550,
-            bottom: '50%',
-          },
-        }}
-      />
     </>
   );
 }
-
 function NavigationBar() {
-  const [showWrapNear, setShowWrapNear] = useState(false);
   const { globalState } = useContext(WalletContext);
 
   const isSignedIn = globalState.isSignedIn;
@@ -1116,25 +1064,33 @@ function NavigationBar() {
 
   const refAccountBalances = useTokenBalances();
 
-  useEffect(() => {
-    if (!refAccountBalances) return;
+  const dclAccountBalances = useDCLAccountBalance(isSignedIn);
 
-    const ids = Object.keys(refAccountBalances);
+  const historyInit = useHistory();
+
+  useEffect(() => {
+    if (!refAccountBalances || !dclAccountBalances) return;
+
+    const ids = Object.keys(refAccountBalances).concat(
+      Object.keys(dclAccountBalances)
+    );
 
     ftGetTokensMetadata(ids).then(setTokensMeta);
   }, [
     Object.values(refAccountBalances || {}).join('-'),
+    Object.values(dclAccountBalances || {}).join('-'),
     refAccountBalances,
     isSignedIn,
   ]);
 
   useEffect(() => {
-    if (!refAccountBalances || !tokensMeta) {
+    if (!refAccountBalances || !tokensMeta || !dclAccountBalances) {
       setHasBalanceOnRefAccount(false);
       return;
     }
     const hasRefBalanceOver = Object.entries(refAccountBalances).some(
       ([id, balance]) => {
+        if (id === NEARXIDS[0]) return false;
         return (
           Number(
             toReadableNumber(tokensMeta?.[id]?.decimals || 24, balance) || '0'
@@ -1143,22 +1099,41 @@ function NavigationBar() {
       }
     );
 
-    setHasBalanceOnRefAccount(hasRefBalanceOver);
+    const hasDCLBalanceOver = Object.entries(dclAccountBalances).some(
+      ([id, balance]) => {
+        return (
+          Number(
+            toReadableNumber(
+              tokensMeta?.[id]?.decimals || 24,
+              balance as string
+            ) || '0'
+          ) > 0
+        );
+      }
+    );
+
+    setHasBalanceOnRefAccount(hasRefBalanceOver || hasDCLBalanceOver);
   }, [
     refAccountBalances,
+    dclAccountBalances,
     Object.values(refAccountBalances || {}).join('-'),
+    Object.values(dclAccountBalances || {}).join('-'),
     tokensMeta,
     isSignedIn,
   ]);
+
   return (
     <>
-      <div className="nav-wrap md:hidden xs:hidden text-center relative">
+      <div
+        className="nav-wrap md:hidden xs:hidden text-center relative"
+        style={{ zIndex: '91' }}
+      >
         <div
-          className={`${
+          className={`relative z-10 ${
             hasBalanceOnRefAccount && pathnameState ? 'block' : 'hidden'
           } text-xs py-1.5`}
           style={{
-            backgroundColor: '#CFCEFE',
+            backgroundColor: '#FFC940',
           }}
         >
           👀 &nbsp;
@@ -1189,87 +1164,40 @@ function NavigationBar() {
           .
         </div>
         <nav
-          className="flex items-center justify-between px-9 col-span-8"
+          className="flex items-center justify-between px-9 border-b border-cardBg"
           style={{
-            borderBottom: '2px solid rgba(8, 97, 81, 0.39)',
-            height: '70px',
+            height: '55px',
           }}
         >
           <div className="flex items-center h-full">
-            <div className="relative -top-0.5 flex-1 xs:hidden md:hidden">
-              <NavLogoSimple
-                className="mr-12 cursor-pointer"
+            <div className="xsm:hidden transform mr-14 relative z-10">
+              <NavLogoIcon
+                className="cursor-pointer"
                 onClick={() => {
                   window.open('https://www.ref.finance/');
                 }}
               />
             </div>
             <div className="flex items-center h-full">
-              <Anchor to="/" pattern="/" name="swap_capital" />
-              <Anchor to="/sauce" pattern="/sauce" name="sauce_capital" />
-              {isSignedIn ? (
-                <Anchor to="/pools/yours" pattern="/pools" name="POOL" />
-              ) : (
-                <Anchor to="/pools" pattern="/pools" name="POOL" />
-              )}
-              <Anchor to="/v2farms" pattern="/v2farms" name="farm_capital" />
-              <Xref></Xref>
-              {!!getConfig().REF_VE_CONTRACT_ID ? (
-                <Anchor
-                  to="/referendum"
-                  pattern="/referendum"
-                  name="vote_capital"
-                />
-              ) : null}
-
-              <Anchor to="/risks" pattern="/risks" name="risks_capital" />
+              <MenuBar></MenuBar>
             </div>
           </div>
-          <div className="flex items-center justify-end flex-1">
-            <USNButton />
-            {isSignedIn && (
-              <div className="flex items-center text-white">
-                <div
-                  className=" py-1 cursor-pointer items-center flex"
-                  onClick={() => setShowWrapNear(true)}
-                >
-                  <WNEARExchngeIcon />
-                </div>
-                <WrapNear
-                  isOpen={showWrapNear}
-                  onRequestClose={() => setShowWrapNear(false)}
-                  style={{
-                    overlay: {
-                      backdropFilter: 'blur(15px)',
-                      WebkitBackdropFilter: 'blur(15px)',
-                    },
-                    content: {
-                      outline: 'none',
-                      position: 'fixed',
-                      width: 550,
-                      bottom: '50%',
-                    },
-                  }}
-                />
+          <div className="flex items-center justify-end">
+            {isMobile() ? null : <BuyNearButton />}
+
+            <div className="flex items-center mx-3">
+              <AccountEntry
+                hasBalanceOnRefAccount={hasBalanceOnRefAccount}
+                setShowWalletSelector={setShowWalletSelector}
+                showWalletSelector={showWalletSelector}
+              />
+              <div className={isSignedIn ? 'flex items-center' : 'hidden'}>
+                <ConnectDot />
+                <ConnectDot />
+                <AuroraEntry hasBalanceOnAurora={hasAuroraBalance} />
               </div>
-            )}
-            <AccountEntry
-              hasBalanceOnRefAccount={hasBalanceOnRefAccount}
-              setShowWalletSelector={setShowWalletSelector}
-              showWalletSelector={showWalletSelector}
-            />
-            <div
-              className={
-                isSignedIn ? ' relative right-3 flex items-center' : 'hidden'
-              }
-            >
-              <ConnectDot />
-              <ConnectDot />
-
-              <AuroraEntry hasBalanceOnAurora={hasAuroraBalance} />
             </div>
-
-            <MoreMenu />
+            <Language></Language>
           </div>
         </nav>
         {isMobile ? null : <Marquee></Marquee>}
@@ -1290,6 +1218,99 @@ function NavigationBar() {
         }}
       />
     </>
+  );
+}
+export const commonLangKey = [
+  'en',
+  'zh-CN',
+  'vi',
+  'uk',
+  'ru',
+  'ja',
+  'ko',
+  'es',
+];
+export function formatItem(local: string) {
+  if (commonLangKey.indexOf(local) > -1) {
+    return local;
+  } else {
+    return 'en';
+  }
+}
+function Language() {
+  const context = useContext(Context);
+  const [hover, setHover] = useState(false);
+  const lans = useLanguageItems();
+  const currentLocal = formatItem(localStorage.getItem('local'));
+  const switchLanuage = (language: string) => {
+    context.selectLanguage(language);
+  };
+  const displayLanguage = () => {
+    if (commonLangKey.indexOf(currentLocal) > -1) {
+      if (currentLocal == 'zh-CN') {
+        return '中';
+      } else {
+        return currentLocal?.toUpperCase();
+      }
+    } else {
+      return 'EN';
+    }
+  };
+  return (
+    <div
+      className="relative z-30"
+      onMouseOver={() => setHover(true)}
+      onMouseLeave={() => {
+        setHover(false);
+      }}
+      style={{ zIndex: '99' }}
+    >
+      <span
+        className={`flex items-center justify-center w-7 h-7 text-xs rounded-lg text-primaryText cursor-pointer ${
+          hover
+            ? 'border border-transparent bg-menuMoreBgColor'
+            : 'border border-laguageBorderColor bg-transparent'
+        }`}
+      >
+        {displayLanguage()}
+      </span>
+      <div
+        className={`${
+          hover ? 'block' : 'hidden'
+        } absolute top-5 pt-5 right-0 rounded-md`}
+        style={{ minWidth: '180px' }}
+      >
+        <Card
+          rounded="rounded-md"
+          className="p-2.5 w-full rounded-2xl border border-menuMoreBoxBorderColor bg-priceBoardColor"
+        >
+          {lans.map(({ label, language, logo }, index) => {
+            return (
+              <div
+                key={index}
+                className={`rounded-xl whitespace-nowrap text-left items-center flex justify-start hover:bg-menuMoreBgColor hover:text-white text-sm font-semibold py-3 my-1.5 cursor-pointer px-2 ${
+                  currentLocal === language
+                    ? 'bg-navHighLightBg text-white'
+                    : 'text-primaryText'
+                }`}
+                onClick={() => {
+                  switchLanuage(language);
+                }}
+              >
+                {logo && (
+                  <span
+                    className={`text-xl w-8 text-left flex justify-center mr-2`}
+                  >
+                    {logo}
+                  </span>
+                )}
+                {label}
+              </div>
+            );
+          })}
+        </Card>
+      </div>
+    </div>
   );
 }
 export default NavigationBar;
@@ -1351,5 +1372,209 @@ export function USNCard({
         }}
       />
     </>
+  );
+}
+function MenuBar() {
+  const menus_temp = useMenus();
+  const menus = useMemo(() => {
+    if (menus_temp) {
+      const menus_final = menus_temp.filter((m: menuItemType) => {
+        return !m.hidden;
+      });
+      return menus_final;
+    }
+  }, [menus_temp]);
+  const history = useHistory();
+  const [hover_two_level_items, set_hover_two_level_items] = useState<
+    menuItemType[]
+  >([]);
+  const [hover_one_level_id, set_hover_one_level_id] = useState<string>();
+  const [back_one_level_item, set_back_one_level_item] =
+    useState<JSX.Element>();
+  const [one_level_selected, set_one_level_selected] = useState<string>('');
+  const [two_level_selected, set_two_level_selected] = useState<string>('');
+  useEffect(() => {
+    const pathname = '/' + location.pathname.split('/')[1];
+    let one_level_selected_id = '';
+    let two_level_selected_id = '';
+    const swap_mode_in_localstorage =
+      localStorage.getItem('SWAP_MODE_VALUE') || 'normal';
+    if (menus) {
+      const one_level_menu = menus.find((item: menuItemType) => {
+        const { links } = item;
+        return links?.indexOf(pathname) > -1;
+      });
+      if (one_level_menu) {
+        const { id, children } = one_level_menu;
+        one_level_selected_id = id;
+        let second_children: any = children;
+        if (second_children) {
+          const two_level_menu = second_children.find((item: menuItemType) => {
+            const { links, swap_mode } = item;
+            if (pathname == '/' || pathname == '/swap') {
+              return swap_mode_in_localstorage == swap_mode;
+            } else {
+              return links?.indexOf(pathname) > -1;
+            }
+          });
+          if (two_level_menu) {
+            two_level_selected_id = two_level_menu.id;
+          }
+        }
+      }
+      // if (!one_level_selected_id) {
+      //   // no matched router than redirect to swap page
+      //   const { id, children } = menus[0];
+      //   const second_children_temp: any = children;
+      //   if (second_children_temp) {
+      //     const two_level_menu = second_children_temp.find(
+      //       (item: menuItemType) => {
+      //         const { swap_mode } = item;
+      //         return swap_mode_in_localstorage == swap_mode;
+      //       }
+      //     );
+      //     if (two_level_menu) {
+      //       two_level_selected_id = two_level_menu.id;
+      //     }
+      //   }
+      //   one_level_selected_id = id;
+      // }
+      set_one_level_selected(one_level_selected_id);
+      set_two_level_selected(two_level_selected_id);
+    }
+  }, [location.pathname, menus]);
+  function hover_on_one_level_item(item: menuItemType) {
+    const { children, id } = item;
+    if (children) {
+      set_hover_two_level_items(children);
+    }
+    set_hover_one_level_id(id);
+  }
+  function hover_off_one_level_item() {
+    set_hover_two_level_items([]);
+    set_back_one_level_item(null);
+    set_hover_one_level_id('');
+  }
+  function click_one_level_item(item: menuItemType) {
+    const { clickEvent, url, isExternal } = item;
+    if (clickEvent) {
+      clickEvent();
+    } else if (url) {
+      if (isExternal) {
+        window.open(url);
+      } else {
+        history.push(url);
+      }
+    }
+    if (clickEvent && url) {
+      hover_off_one_level_item();
+    }
+  }
+  function click_two_level_item(item: menuItemType) {
+    const { children, label, clickEvent, url, isExternal } = item;
+    if (children) {
+      set_hover_two_level_items(children);
+      set_back_one_level_item(label);
+    } else {
+      if (clickEvent) {
+        clickEvent();
+      } else if (url) {
+        if (isExternal) {
+          window.open(url);
+        } else {
+          history.push(url);
+        }
+      }
+      hover_off_one_level_item();
+    }
+  }
+  function click_three_level_title_to_back(menuItem: menuItemType) {
+    const { children } = menuItem;
+    set_hover_two_level_items(children);
+    set_back_one_level_item(null);
+  }
+
+  return (
+    <div className="flex items-center h-full z-50">
+      {menus?.map((menuItem: menuItemType, indexP) => {
+        const { label, logo, children, id } = menuItem;
+        return (
+          <div
+            key={indexP}
+            className="relative flex items-center justify-center cursor-pointer h-full z-50"
+            onMouseEnter={() => hover_on_one_level_item(menuItem)}
+            onMouseLeave={() => hover_off_one_level_item()}
+          >
+            {/* one-level */}
+            <div
+              onClick={() => {
+                click_one_level_item(menuItem);
+              }}
+              className={`flex items-center h-full  ${
+                indexP != menus.length - 1 ? 'mr-10' : ''
+              } ${
+                one_level_selected == id || hover_one_level_id == id
+                  ? 'text-white'
+                  : 'text-primaryText'
+              }`}
+            >
+              {logo ? <span className="mr-1">{logo}</span> : null}
+              <div className={`text-base`}>{label}</div>
+              {children ? (
+                <DownTriangleIcon className="ml-1 mt-1"></DownTriangleIcon>
+              ) : null}
+            </div>
+            {/* two-level */}
+            <div
+              className={`absolute rounded-2xl border border-menuMoreBoxBorderColor bg-priceBoardColor top-12 cursor-pointer px-2.5 py-1 ${
+                hover_one_level_id == id &&
+                children &&
+                hover_two_level_items.length > 0
+                  ? ''
+                  : 'hidden'
+              }`}
+              style={{ minWidth: '220px' }}
+            >
+              {back_one_level_item && (
+                <div
+                  className="whitespace-nowrap hover:text-white text-left items-center flex justify-start text-sm  text-primaryText cursor-pointer pt-4 pb-2"
+                  onClick={() => {
+                    click_three_level_title_to_back(menuItem);
+                  }}
+                >
+                  <IoChevronBack className="text-xl " />
+                  <span className="ml-3">{back_one_level_item}</span>
+                </div>
+              )}
+              {hover_two_level_items?.map((item: menuItemType, indexC) => {
+                const { label, logo, children, id, icon } = item;
+                return (
+                  <div
+                    key={indexC}
+                    onClick={() => {
+                      click_two_level_item(item);
+                    }}
+                    className={`flex items-center rounded-xl whitespace-nowrap hover:bg-menuMoreBgColor hover:text-white text-sm py-3 my-1.5 px-2 cursor-pointer ${
+                      two_level_selected == id
+                        ? 'bg-menuMoreBgColor text-white'
+                        : 'text-primaryText'
+                    }`}
+                  >
+                    {logo ? <div className="w-8 mr-2">{logo}</div> : null}
+                    <div className="text-base">{label}</div>
+                    {children ? (
+                      <span className="text-xl ml-2">
+                        <FiChevronRight />
+                      </span>
+                    ) : null}
+                    {icon ? <span className="ml-4 text-xl">{icon}</span> : null}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 }

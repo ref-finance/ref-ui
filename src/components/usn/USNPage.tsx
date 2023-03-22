@@ -105,6 +105,7 @@ function USNPage(props: ReactModal.Props) {
     .minus(cutAmount)
     .toFixed();
   const canSubmit =
+    tokenIn?.id === tokens[1].id &&
     +tokenInAmount > 0 &&
     new BigNumber(tokenInAmount).isLessThanOrEqualTo(tokenInMax) &&
     tokenIn &&
@@ -118,7 +119,7 @@ function USNPage(props: ReactModal.Props) {
               height: isMobile() ? '510px' : '',
               overflow: isMobile() ? 'auto' : '',
             }}
-            className={`overflow-y-visible bg-secondary shadow-2xl rounded-2xl p-7 bg-dark xs:rounded-lg md:rounded-lg overflow-x-visible border-gradientFrom border border-opacity-50`}
+            className={`overflow-y-visible bg-secondary shadow-2xl rounded-2xl p-7 xs:px-3.5 md:px-3.5 bg-dark xs:rounded-lg md:rounded-lg overflow-x-visible border-gradientFrom border border-opacity-50`}
           >
             <h2 className="formTitle flex justify-between items-center font-bold text-xl text-white text-left pb-8">
               <div className="flex items-center text-2xl text-white">

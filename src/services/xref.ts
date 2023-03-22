@@ -27,6 +27,8 @@ export const metadata = async () => {
 export const getPrice = async () => {
   return await refContractViewFunction({
     methodName: 'get_virtual_price',
+  }).catch(() => {
+    return '0';
   });
 };
 
@@ -133,3 +135,17 @@ export const unstake = async ({ amount, msg = '' }: UnstakeOptions) => {
 
   return executeMultipleTransactions(transactions);
 };
+export interface XrefMetaData {
+  version: string;
+  owner_id: string;
+  locked_token: string;
+  undistributed_reward: string;
+  locked_token_amount: string;
+  cur_undistributed_reward: string;
+  cur_locked_token_amount: string;
+  supply: string;
+  prev_distribution_time_in_sec: number;
+  reward_genesis_time_in_sec: number;
+  reward_per_sec: string;
+  account_number: number;
+}

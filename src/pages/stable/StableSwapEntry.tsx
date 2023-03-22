@@ -5,25 +5,11 @@ import TokenReserves, {
 } from '../../components/stableswap/TokenReserves';
 import { StableSwapLogo } from '../../components/icon/StableSwap';
 import { Link, useHistory } from 'react-router-dom';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { Pool } from '../../services/pool';
 import { Card } from '../../components/card/Card';
 import { TokenMetadata, ftGetTokenMetadata } from '../../services/ft-contract';
-import {
-  STABLE_POOL_USN_ID,
-  STABLE_POOL_ID,
-  AllStableTokenIds,
-  BTC_STABLE_POOL_ID,
-  BTCIDS,
-  STNEARIDS,
-  STNEAR_POOL_ID,
-  CUSDIDS,
-  CUSD_STABLE_POOL_ID,
-  LINEAR_POOL_ID,
-  LINEARIDS,
-  NEAX_POOL_ID,
-  NEARXIDS,
-} from '../../services/near';
+import { AllStableTokenIds, NEARX_POOL_ID } from '../../services/near';
 import BigNumber from 'bignumber.js';
 import { toReadableNumber, percent } from '../../utils/numbers';
 import { ShareInFarm } from '../../components/layout/ShareInFarm';
@@ -44,7 +30,11 @@ import {
   getCurrentWallet,
   WalletContext,
 } from '../../utils/wallets-integration';
-import { useStabelPoolData, PoolData } from '../../state/sauce';
+import {
+  useStabelPoolData,
+  PoolData,
+  useAllStablePoolData,
+} from '../../state/sauce';
 import { useYourliquidity } from '../../state/pool';
 import { useCanFarmV1, useCanFarmV2 } from '../../state/farm';
 import {
@@ -52,15 +42,27 @@ import {
   isStablePool,
   isRatedPool,
 } from '../../services/near';
-import { STABLE_TOKEN_IDS, STABLE_TOKEN_USN_IDS } from '../../services/near';
+import {
+  STABLE_TOKEN_IDS,
+  STABLE_TOKEN_USN_IDS,
+  USD_CLASS_STABLE_POOL_IDS,
+  BTC_CLASS_STABLE_POOL_IDS,
+  NEAR_CLASS_STABLE_POOL_IDS,
+} from '../../services/near';
 import { useClientMobile } from '~utils/device';
+import ReactTooltip from 'react-tooltip';
+import { REF_FI_POOL_ACTIVE_TAB } from '../pools/LiquidityPage';
+import {
+  ForbiddenIcon,
+  ForbiddenIconLarge,
+} from '../../components/icon/FarmBoost';
 
 export const getStablePoolDecimal = (id: string | number) => {
   if (isRatedPool(id)) return RATED_POOL_LP_TOKEN_DECIMALS;
   else if (isStablePool(id)) return STABLE_LP_TOKEN_DECIMALS;
 };
 
-const RenderDisplayTokensAmounts = ({
+export const RenderDisplayTokensAmounts = ({
   tokens,
   coinsAmounts,
 }: {
@@ -74,7 +76,7 @@ const RenderDisplayTokensAmounts = ({
           <span className="flex" key={token.id}>
             {i ? <span className="mx-3 text-white">+</span> : null}
             <span className="flex items-center">
-              <span className="mr-1.5">
+              <span className="mr-1.5 flex-shrink-0">
                 <img
                   src={token.icon}
                   alt=""
@@ -86,7 +88,7 @@ const RenderDisplayTokensAmounts = ({
                 className="text-white text-sm"
                 title={toPrecision(
                   scientificNotationToString(coinsAmounts[token.id].toString()),
-                  2
+                  0
                 )}
               >
                 {toInternationalCurrencySystem(
@@ -151,6 +153,7 @@ export function formatePoolData({
     displaySharePercent,
     shares,
     TVLtitle,
+    pool,
   };
 }
 
@@ -205,14 +208,33 @@ function StablePoolCard({
 
   const onlyEndedFarmsV2 = endedFarmCountV2 === countV2;
 
+  const needForbidden = Number(stablePool.id) === Number(NEARX_POOL_ID);
+
+  const intl = useIntl();
+
+  function getForbiddenTip() {
+    const tip = intl.formatMessage({
+      id: 'pool_stop_tip',
+      defaultMessage: 'This pool has been stopped.',
+    });
+    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+    return result;
+  }
+
   return (
     <div
       className={`w-full flex flex-col relative overflow-hidden rounded-2xl mb-4
+
+      ${needForbidden ? 'stablePoolEnd' : ''}
+
       ${
         chosenState === index
-          ? 'border border-gradientFrom'
+          ? needForbidden
+            ? 'border border-primaryText'
+            : 'border border-gradientFrom'
           : 'border border-transparent'
       }
+
       `}
       onTouchEnd={() => {
         if (chosenState !== index) setChosesState(index);
@@ -220,7 +242,7 @@ function StablePoolCard({
     >
       <Card
         width="w-full"
-        padding="px-6 pt-8 pb-4"
+        padding="px-6 pt-8 pb-4 xs:px-4 md:px-4"
         rounded="rounded-2xl"
         className={`flex flex-col`}
         onMouseEnter={() => setChosesState(index)}
@@ -229,7 +251,9 @@ function StablePoolCard({
         <span
           className={`${
             !haveFarm ? 'hidden' : ''
-          } pl-3 absolute -right-5 -top-8 pr-8 pt-8   rounded-2xl text-black text-xs bg-gradientFrom `}
+          } pl-3 absolute -right-5 -top-8 pr-8 pt-8   rounded-2xl text-black text-xs ${
+            needForbidden ? 'bg-primaryText' : 'bg-gradientFrom'
+          }   `}
         >
           <Link
             to={
@@ -254,17 +278,46 @@ function StablePoolCard({
 
         <div className="flex items-center justify-between pb-6">
           <Images tokens={tokens} />
-          <Link
-            to={{
-              pathname: `/sauce/${stablePool.id}`,
-              state: {
-                shares,
-                pool: stablePool,
-              },
-            }}
+          <div
+            className=" text-white"
+            data-type="info"
+            data-place="top"
+            data-multiline={true}
+            data-tip={getForbiddenTip()}
+            data-html={true}
+            data-for={'forbiddenTip' + 'sauce_' + stablePool.id}
+            data-class="reactTip"
           >
-            <Symbols withArrow tokens={tokens} />
-          </Link>
+            <Link
+              to={{
+                pathname: `/sauce/${stablePool.id}`,
+                state: {
+                  shares,
+                  pool: stablePool,
+                },
+              }}
+              onClick={(e) => {
+                if (needForbidden) {
+                  e.preventDefault();
+                }
+              }}
+              className="inline-flex items-center"
+            >
+              <Symbols withArrow={!needForbidden} tokens={tokens} />
+              <span className="ml-2">
+                {needForbidden ? <ForbiddenIconLarge /> : null}
+              </span>
+            </Link>
+            {needForbidden ? (
+              <ReactTooltip
+                id={'forbiddenTip' + 'sauce_' + stablePool.id}
+                backgroundColor="#1D2932"
+                border
+                borderColor="#7e8a93"
+                effect="solid"
+              />
+            ) : null}
+          </div>
         </div>
 
         <div className="grid grid-cols-10 xs:flex xs:flex-col">
@@ -295,7 +348,7 @@ function StablePoolCard({
               <span className="text-sm text-farmText md:pl-2 lg:pl-2 xs:relative xs:top-1">
                 <FormattedMessage id="my_shares" defaultMessage="Shares" />
               </span>
-              <div className="flex flex-col xs:flex-row">
+              <div className="flex flex-col xs:flex-row xsm:flex-wrap xsm:justify-end">
                 <span className="flex items-center pl-2 md:py-2 lg:py-2 xs:pb-2 xs:pr-2">
                   <span className="text-lg text-white ">
                     {poolData.displayMyShareAmount}
@@ -342,7 +395,12 @@ function StablePoolCard({
           }`}
         >
           <SolidButton
-            className="w-full text-center flex items-center justify-center py-3 mr-2 text-sm"
+            className={`w-full text-center  flex items-center justify-center py-3 mr-2 text-sm`}
+            disabled={stablePool.id === Number(NEARX_POOL_ID)}
+            style={{
+              color: needForbidden ? 'rbga(255,255,255,0.2)' : '',
+              background: needForbidden ? '#314351' : '',
+            }}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -352,7 +410,6 @@ function StablePoolCard({
                 pool: stablePool,
               });
             }}
-            disabled={stablePool.id === Number(NEAX_POOL_ID)}
           >
             <FormattedMessage
               id="add_liquidity"
@@ -361,7 +418,6 @@ function StablePoolCard({
           </SolidButton>
           <OutlineButton
             className="w-full py-3 ml-2 text-sm h-11"
-            disabled={stablePool.id === Number(NEAX_POOL_ID)}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -431,17 +487,13 @@ export function StableSwapPageEntry() {
       localStorage.getItem(REF_SAUCE_PAGE_STABLE_CLASS_KEY)?.toString()
     ] || STABLE_POOL_TYPE.USD
   );
-  const { poolData: pool3tokenData } = useStabelPoolData(STABLE_POOL_ID);
-  const { poolData: USNPoolData } = useStabelPoolData(STABLE_POOL_USN_ID);
 
-  const { poolData: BTCPoolData } = useStabelPoolData(BTC_STABLE_POOL_ID);
+  const history = useHistory();
 
-  const { poolData: STNEARPoolData } = useStabelPoolData(STNEAR_POOL_ID);
-  const { poolData: CUSDPoolData } = useStabelPoolData(CUSD_STABLE_POOL_ID);
+  localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'stable');
+  history.push('/pools');
 
-  const { poolData: LINEARPoolData } = useStabelPoolData(LINEAR_POOL_ID);
-
-  const { poolData: NEAXPoolData } = useStabelPoolData(NEAX_POOL_ID);
+  const allStablePoolData = useAllStablePoolData();
 
   const [chosenState, setChosesState] = useState<number>();
 
@@ -461,41 +513,41 @@ export function StableSwapPageEntry() {
   }, [reserveType]);
 
   if (
-    !pool3tokenData ||
-    !USNPoolData ||
-    !BTCPoolData ||
-    !CUSDPoolData ||
-    !STNEARPoolData ||
-    !LINEARPoolData ||
-    !NEAXPoolData ||
-    !allStableTokens
+    !allStableTokens ||
+    !allStablePoolData ||
+    allStablePoolData.some((pd) => !pd)
   )
     return <Loading />;
 
-  const formatedPool3tokenData = formatePoolData(pool3tokenData);
-  const formatedUSNPoolData = formatePoolData(USNPoolData);
-  const formatedBTCPoolData = formatePoolData(BTCPoolData);
-  const formatedCUSDPoolData = formatePoolData(CUSDPoolData);
-
-  const formatedSTNEARPoolData = formatePoolData(STNEARPoolData);
-
-  const formatedLINEARPoolData = formatePoolData(LINEARPoolData);
-
-  const formatedNEAXPoolData = formatePoolData(NEAXPoolData);
+  const formattedPools = allStablePoolData.map((pd) => formatePoolData(pd));
 
   const displayPoolData =
     reserveType === STABLE_POOL_TYPE.USD
-      ? [formatedPool3tokenData, formatedUSNPoolData, formatedCUSDPoolData]
+      ? formattedPools.filter((pd) =>
+          USD_CLASS_STABLE_POOL_IDS.includes(pd.pool.id.toString())
+        )
       : reserveType === STABLE_POOL_TYPE.BTC
-      ? [formatedBTCPoolData]
-      : [formatedSTNEARPoolData, formatedLINEARPoolData, formatedNEAXPoolData];
+      ? formattedPools.filter((pd) =>
+          BTC_CLASS_STABLE_POOL_IDS.includes(pd.pool.id.toString())
+        )
+      : formattedPools.filter((pd) =>
+          NEAR_CLASS_STABLE_POOL_IDS.includes(pd.pool.id.toString())
+        );
 
   const displayPools =
     reserveType === STABLE_POOL_TYPE.USD
-      ? [pool3tokenData, USNPoolData, CUSDPoolData]
+      ? allStablePoolData.filter((pd) =>
+          USD_CLASS_STABLE_POOL_IDS.includes(pd.pool.id.toString())
+        )
       : reserveType === STABLE_POOL_TYPE.BTC
-      ? [BTCPoolData]
-      : [STNEARPoolData, LINEARPoolData, NEAXPoolData];
+      ? allStablePoolData.filter((pd) =>
+          BTC_CLASS_STABLE_POOL_IDS.includes(pd.pool.id.toString())
+        )
+      : allStablePoolData.filter((pd) =>
+          NEAR_CLASS_STABLE_POOL_IDS.includes(pd.pool.id.toString())
+        );
+
+  const displayPoolRaw = displayPools.map((pd) => pd.pool);
 
   return (
     <div className="m-auto lg:w-580px md:w-5/6 xs:w-full xs:p-2 flex flex-col">
@@ -529,28 +581,8 @@ export function StableSwapPageEntry() {
       })}
 
       <TokenReserves
-        tokens={allStableTokens.filter((token) => {
-          switch (reserveType) {
-            case 'BTC':
-              return BTCIDS.includes(token.id);
-            case 'USD':
-              return STABLE_TOKEN_IDS.concat(STABLE_TOKEN_USN_IDS)
-                .concat(CUSDIDS)
-                .map((id) => id.toString())
-                .includes(token.id);
-            case 'NEAR':
-              return STNEARIDS.concat(LINEARIDS)
-                .concat(NEARXIDS)
-                .includes(token.id);
-          }
-        })}
-        pools={
-          reserveType === STABLE_POOL_TYPE.BTC
-            ? [BTCPoolData.pool]
-            : reserveType === STABLE_POOL_TYPE.NEAR
-            ? [STNEARPoolData.pool, LINEARPoolData.pool, NEAXPoolData.pool]
-            : [USNPoolData.pool, pool3tokenData.pool, CUSDPoolData.pool]
-        }
+        tokens={allStableTokens}
+        pools={displayPoolRaw}
         hiddenMag={true}
         className="pt-6"
         type={reserveType}

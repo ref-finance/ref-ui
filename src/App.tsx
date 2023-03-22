@@ -27,6 +27,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { FarmsPage } from '~pages/farms/FarmsPage';
 import { AirdropPage } from '~pages/AirdropPage';
 import PopUpSwiper from '~components/layout/PopUp';
+import ExternalPopUp from '~components/layout/ExternalPopUp';
 
 import {
   WalletSelectorContextProvider,
@@ -35,21 +36,22 @@ import {
 
 import { Content } from '~Content';
 import { LedgerTransactionModal } from './context/modal-ui/modal';
+import { XmasActivityContextProvider } from './context/XmasActivity';
 
 function App() {
   return (
     <Router>
-      <div className="relative min-h-screen pb-24 overflow-x-hidden xs:flex xs:flex-col md:flex md:flex-col">
-        <BgShapeLeftTop />
-        <BgShapeCenterSmall />
+      <WalletSelectorContextProvider>
+        <XmasActivityContextProvider>
+          <div className="page-container relative min-h-screen pb-24 overflow-x-hidden xs:flex xs:flex-col md:flex md:flex-col">
+            <Content />
 
-        <WalletSelectorContextProvider>
-          <Content />
-        </WalletSelectorContextProvider>
-
-        <Footer />
-        <PopUpSwiper></PopUpSwiper>
-      </div>
+            <Footer />
+            {/* <PopUpSwiper></PopUpSwiper> */}
+            <ExternalPopUp></ExternalPopUp>
+          </div>
+        </XmasActivityContextProvider>
+      </WalletSelectorContextProvider>
 
       <LedgerTransactionModal />
     </Router>

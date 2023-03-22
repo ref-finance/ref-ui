@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
 import InputAmount from '../../components/forms/InputAmount';
 import { TokenMetadata } from '../../services/ft-contract';
@@ -12,6 +12,8 @@ import { toRealSymbol } from '../../utils/token';
 import { RefIcon } from '../../components/icon/Common';
 import { SmallWallet } from '../icon/SmallWallet';
 import { getMax } from '../../utils/numbers';
+import { NEARXIDS } from '../../services/near';
+import { WalletContext } from '../../utils/wallets-integration';
 
 export function Icon(props: {
   icon?: string;
@@ -51,7 +53,8 @@ export default function StableTokenListUSN(props: {
   } = props;
 
   if (tokens.length < 1) return null;
-
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   return (
     <div className="mt-4 px-8">
       <div className="flex justify-end items-center text-xs text-right mb-1 text-farmText">
@@ -60,11 +63,13 @@ export default function StableTokenListUSN(props: {
         <span
           title={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
         >
-          {toPrecision(
-            toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
-            3,
-            true
-          )}
+          {isSignedIn
+            ? toPrecision(
+                toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
+                3,
+                true
+              )
+            : '-'}
         </span>
       </div>
       <div className="flex items-center ">
@@ -96,11 +101,13 @@ export default function StableTokenListUSN(props: {
           <span
             title={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
           >
-            {toPrecision(
-              toReadableNumber(tokens[1].decimals, balances[tokens[1].id]),
-              3,
-              true
-            )}
+            {isSignedIn
+              ? toPrecision(
+                  toReadableNumber(tokens[1].decimals, balances[tokens[1].id]),
+                  3,
+                  true
+                )
+              : '-'}
           </span>
         </div>
         <div className="flex items-center">
@@ -147,8 +154,18 @@ export function StableTokensSymbolUSN(props: {
   };
 
   return (
-    <div className="flex mb-6 w-3/5 mx-auto items-center justify-between xs:items-start md:items-start">
-      <div className="flex xs:flex-col md:flex-col xs:items-center md:items-center">
+    <div
+      className={`flex mb-6 w-3/5 mx-auto items-center ${
+        tokens.some((t) => t.id == NEARXIDS[0])
+          ? 'justify-center'
+          : 'justify-between'
+      }  xs:items-start md:items-start`}
+    >
+      <div
+        className={`flex xs:flex-col ${
+          tokens[0].id === NEARXIDS[0] ? 'hidden' : ''
+        } md:flex-col xs:items-center md:items-center`}
+      >
         <Icon
           icon={tokens[0].icon}
           className="inline-block h-9 w-9 xs:h-7 xs:w-7 md:h-7 md:w-7 mr-2 xs:mr-0.5 md:mr-0.5"
@@ -162,8 +179,19 @@ export function StableTokensSymbolUSN(props: {
           </div>
         </div>
       </div>
-      <div className="xs:mt-1.5 md:mt-1.5"> + </div>
-      <div className="flex xs:flex-col md:flex-col xs:items-center md:items-center">
+      <div
+        className={`xs:mt-1.5 md:mt-1.5 ${
+          tokens.some((t) => t.id == NEARXIDS[0]) ? 'hidden' : ''
+        } `}
+      >
+        {' '}
+        +{' '}
+      </div>
+      <div
+        className={`flex xs:flex-col ${
+          tokens[1].id === NEARXIDS[0] ? 'hidden' : ''
+        } md:flex-col xs:items-center md:items-center`}
+      >
         <Icon
           icon={tokens[1].icon}
           className="inline-block h-9 w-9 xs:h-7 xs:w-7 md:h-7 md:w-7 mr-2 xs:mr-0.5 md:mr-0.5"

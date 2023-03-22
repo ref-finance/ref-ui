@@ -14,7 +14,7 @@ import { parseAction } from '../services/transaction';
 import { volumeType, TVLType } from '~state/pool';
 import db from '../store/RefDatabase';
 import { getCurrentWallet } from '../utils/wallets-integration';
-import { getPoolsByTokens } from './pool';
+import { getPoolsByTokens, getAllPools, parsePool } from './pool';
 import {
   filterBlackListPools,
   ALL_STABLE_POOL_IDS,
@@ -81,6 +81,22 @@ export const get24hVolume = async (pool_id: string): Promise<string> => {
     });
 };
 
+export const get24hVolumes = async (
+  pool_ids: (string | number)[]
+): Promise<string[]> => {
+  return await fetch(
+    config.sodakiApiUrl +
+      `/poollist/${pool_ids.join('|')}/rolling24hvolume/sum`,
+    {
+      method: 'GET',
+    }
+  )
+    .then((res) => res.json())
+    .then((res) => {
+      return res.map((r: any) => r.toString());
+    });
+};
+
 const parseActionView = async (action: any) => {
   const data = await parseAction(action[3], action[4], action[2]);
   return {
@@ -105,6 +121,17 @@ export const getYourPools = async (): Promise<PoolRPCView[]> => {
     .then((res) => res.json())
     .then((pools) => {
       return pools;
+    });
+};
+
+export const getTopPoolsIndexer = async () => {
+  return await fetch(config.indexerUrl + '/list-top-pools', {
+    method: 'GET',
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  })
+    .then((res) => res.json())
+    .then((poolList) => {
+      return poolList.map((p: any) => parsePool(p));
     });
 };
 
@@ -133,12 +160,11 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
             const ids = pool.tokenIds;
 
             const twoTokenStablePoolIds = (
-              await getPoolsByTokens({
-                tokenInId: ids[0],
-                tokenOutId: ids[1],
-                loadingTrigger: false,
+              await getPoolsByTokensIndexer({
+                token0: ids[0],
+                token1: ids[1],
               })
-            ).map((p) => p.id.toString());
+            ).map((p: any) => p.id.toString());
 
             const twoTokenStablePools = await getPoolsByIds({
               pool_ids: twoTokenStablePoolIds,
@@ -173,6 +199,18 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
     console.log(error);
     return [];
   }
+};
+
+export const getAllPoolsIndexer = async (amountThresh?: string) => {
+  const rawRes = await fetch(
+    config.indexerUrl +
+      `/list-pools?${amountThresh ? `amounts=${amountThresh}` : ''}`,
+    {
+      method: 'GET',
+    }
+  ).then((res) => res.json());
+
+  return rawRes.map((r: any) => parsePool(r));
 };
 
 export const getPool = async (pool_id: string): Promise<PoolRPCView> => {
@@ -252,12 +290,12 @@ export const _search = (args: any, pools: PoolRPCView[]) => {
   return _.filter(pools, (pool: PoolRPCView) => {
     return (
       _.includes(
-        pool.token_symbols[0].toLowerCase(),
-        args.tokenName.toLowerCase()
+        pool.token_symbols[0]?.toLowerCase(),
+        args.tokenName?.toLowerCase()
       ) ||
       _.includes(
-        pool.token_symbols[1].toLowerCase(),
-        args.tokenName.toLowerCase()
+        pool.token_symbols[1]?.toLowerCase(),
+        args.tokenName?.toLowerCase()
       )
     );
   });
@@ -305,6 +343,125 @@ export const getListHistoryTokenPriceByIds = async (
 ): Promise<any[]> => {
   return await fetch(
     config.indexerUrl + '/list-history-token-price-by-ids?ids=' + tokenIds,
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  )
+    .then((res) => res.json())
+    .then((list) => {
+      return list;
+    })
+    .catch(() => {
+      return [];
+    });
+};
+
+export const getV3PoolVolumeById = async (pool_id: string): Promise<any[]> => {
+  return await fetch(
+    config.indexerUrl + '/get-dcl-pools-volume?pool_id=' + pool_id,
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  )
+    .then((res) => res.json())
+    .then((list) => {
+      return list.slice(0, 60);
+    })
+    .catch(() => {
+      return [];
+    });
+};
+export const getV3poolTvlById = async (pool_id: string): Promise<any[]> => {
+  return await fetch(
+    config.indexerUrl + '/get-dcl-pools-tvl-list?pool_id=' + pool_id,
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  )
+    .then((res) => res.json())
+    .then((list) => {
+      return list.slice(0, 60);
+    })
+    .catch(() => {
+      return [];
+    });
+};
+
+export const getV3Pool24VolumeById = async (pool_id: string): Promise<any> => {
+  return await fetch(
+    config.indexerUrl + '/get-24h-volume-by-id?pool_id=' + pool_id,
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  )
+    .then((res) => res.json())
+    .then((value) => {
+      return value;
+    })
+    .catch(() => {
+      return 0;
+    });
+};
+export const getAllV3Pool24Volume = async (): Promise<any[]> => {
+  return await fetch(config.indexerUrl + '/get-24h-volume-list', {
+    method: 'GET',
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  })
+    .then((res) => res.json())
+    .then((list) => {
+      return list;
+    })
+    .catch(() => {
+      return [];
+    });
+};
+
+export const getAllTvl = async () => {
+  return await fetch(config.sodakiApiUrl + '/historical-tvl?period=1', {
+    method: 'GET',
+  })
+    .then((res) => res.json())
+    .then((res) => {
+      return res?.historicalTVL?.at(-1)?.totalUsdTvl;
+    });
+};
+
+export const getAllVolume24h = async () => {
+  return await fetch(config.sodakiApiUrl + '/volume24h?period=1', {
+    method: 'GET',
+  })
+    .then((res) => res.json())
+    .then((res) => {
+      return res?.[0]?.volume;
+    });
+};
+
+export const getAssets = async (dateType: 'M' | 'W' | 'H' | 'ALL' = 'H') => {
+  const accountId = getCurrentWallet()?.wallet?.getAccountId();
+  return await fetch(
+    config.indexerUrl +
+      '/get-assets-by-account?' +
+      `account_id=${accountId}&dimension=${dateType}`,
+    {
+      method: 'GET',
+    }
+  )
+    .then((res) => res.json())
+    .then((res) => {
+      return res;
+    })
+    .catch(() => {
+      return [];
+    });
+};
+export const getLimitOrderLogsByAccount = async (): Promise<any[]> => {
+  return await fetch(
+    config.indexerUrl +
+      `/get-limit-order-log-by-account/${getCurrentWallet()?.wallet?.getAccountId()}`,
     {
       method: 'GET',
       headers: { 'Content-type': 'application/json; charset=UTF-8' },

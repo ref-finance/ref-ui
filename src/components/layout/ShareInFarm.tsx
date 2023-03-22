@@ -141,18 +141,14 @@ export const ShareInFarmV2 = ({
           }
           target="_blank"
           className="flex items-center cursor-pointer justify-end"
-          style={{
-            width: '70px',
-          }}
         >
-          <span className="text-gradientFrom mr-1">
-            <FormattedMessage id="farm" defaultMessage="farm" />
-          </span>
           {version && (
-            <span className="mr-1 text-gradientFrom w-4 text-left">
-              {version}
-            </span>
+            <span className="mr-1 text-gradientFrom  text-left">{version}</span>
           )}
+          <span className="text-gradientFrom mr-1">
+            <FormattedMessage id="farms" defaultMessage="Farms" />
+          </span>
+
           <span className="text-right">
             <HiOutlineExternalLink color="#00c6a2" />
           </span>

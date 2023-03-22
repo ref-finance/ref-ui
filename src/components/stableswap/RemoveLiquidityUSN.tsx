@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js';
 import React, { useEffect, useState, useRef, useContext } from 'react';
 import ReactTooltip from 'react-tooltip';
-import { wallet } from '~services/near';
+import { NEARX_POOL_ID, wallet } from '../../services/near';
 import { FaRegQuestionCircle, FaSearch } from 'react-icons/fa';
 import { FormattedMessage, useIntl } from 'react-intl';
 import Alert from '../../components/alert/Alert';
@@ -250,6 +250,7 @@ export function RemoveLiquidityComponentUSN(props: {
         onChange={changeAction}
         radios={DEFAULT_ACTIONS}
         currentChoose={'remove_liquidity'}
+        poolId={pool.id}
       />
 
       <div className="flex bg-inputDarkBg rounded text-white mx-8 xs:mx-5 md:mx-5 p-1.5 mb-8">
@@ -264,10 +265,17 @@ export function RemoveLiquidityComponentUSN(props: {
         </div>
 
         <div
-          className={`flex justify-center items-center w-2/4 rounded cursor-pointer ${
+          className={`flex justify-center ${
+            Number(pool.id) === Number(NEARX_POOL_ID)
+              ? 'cursor-not-allowed'
+              : ''
+          } items-center w-2/4 rounded cursor-pointer ${
             !isPercentage ? 'bg-stableTab' : ''
           }  h-9 xs:h-7 md:h-7`}
-          onClick={() => setIsPercentage(false)}
+          onClick={() => {
+            if (Number(pool.id) === Number(NEARX_POOL_ID)) return;
+            setIsPercentage(false);
+          }}
         >
           <FormattedMessage id="by_token" defaultMessage="By Token" />
 
@@ -335,6 +343,7 @@ export function RemoveLiquidityComponentUSN(props: {
                 min="0"
                 max="100"
                 step="any"
+                inputMode="decimal"
               />
             </div>
           </div>

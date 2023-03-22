@@ -5,6 +5,7 @@ import { isMobile } from '../../utils/device';
 import { IoCloseOutline, IoWarning } from 'react-icons/io5';
 import { QuestionTip } from '../../components/layout/TipWrapper';
 import { SUPPORT_LEDGER_KEY } from '../swap/SwapCard';
+import { SWAP_MODE } from '../../pages/SwapPage';
 
 export function CustomSwitch({
   isOpen,
@@ -48,29 +49,67 @@ export function CustomSwitch({
   );
 }
 
-export default function SlippageSelectorForStable({
+function CustomSwitchSwap({
+  isOpen,
+  setIsOpen,
+  storageKey,
+}: {
+  isOpen: boolean;
+  setIsOpen: (e?: any) => void;
+  storageKey?: string;
+}) {
+  return (
+    <div
+      className={`ml-3 cursor-pointer ${
+        isOpen ? 'bg-gradientFrom' : 'bg-black bg-opacity-20'
+      }  p-0.5 flex items-center`}
+      style={{
+        height: '16px',
+        width: '29px',
+        borderRadius: '20px',
+      }}
+      onClick={() => {
+        if (isOpen) {
+          setIsOpen(false);
+          localStorage.removeItem(storageKey || SUPPORT_LEDGER_KEY);
+        } else {
+          setIsOpen(true);
+          localStorage.setItem(storageKey || SUPPORT_LEDGER_KEY, '1');
+        }
+      }}
+    >
+      <div
+        className={`rounded-full bg-white transition-all ${
+          isOpen ? 'transform translate-x-3 relative left-px' : ''
+        }`}
+        style={{
+          width: '12px',
+          height: '12px',
+        }}
+      ></div>
+    </div>
+  );
+}
+
+export default function SlippageSelector({
   slippageTolerance,
   onChange,
-  bindUseBalance,
-  useNearBalance,
   validSlippageList,
   supportLedger,
   setSupportLedger,
   hideLedger,
+  swapMode,
 }: {
   slippageTolerance: number;
   onChange: (slippage: number) => void;
-  bindUseBalance: (useNearBalance: boolean) => void;
-  useNearBalance: string;
   validSlippageList?: number[];
   supportLedger?: boolean;
   setSupportLedger?: (e?: any) => void;
   hideLedger?: boolean;
+  swapMode?: SWAP_MODE;
 }) {
   const ref = useRef<HTMLInputElement>();
-  const field = useRef<HTMLFieldSetElement>();
   const validSlippages = validSlippageList || [0.1, 0.5, 1.0];
-  const intl = useIntl();
   const slippageCopyId = isMobile() ? 'slippageCopyForMobile' : 'slippageCopy';
   const [showSlip, setShowSlip] = useState(false);
   const [invalid, setInvalid] = useState(false);
@@ -94,7 +133,7 @@ export default function SlippageSelectorForStable({
       setInvalid(true);
       setWarn(false);
     }
-    ref.current.value = amount;
+    // ref.current.value = amount;
   };
 
   const closeToolTip = (e: any) => {
@@ -106,10 +145,6 @@ export default function SlippageSelectorForStable({
     setWarn(false);
     onChange(slippage);
     ref.current.value = slippage.toString();
-  };
-
-  const handleBalanceOption = (useBalance: string) => {
-    bindUseBalance(useBalance === 'wallet');
   };
 
   useEffect(() => {
@@ -136,28 +171,38 @@ export default function SlippageSelectorForStable({
       setInvalid(true);
       setWarn(false);
     }
-  }, []);
+  }, [swapMode]);
+
+  const [hoverSlider, setHoverSlider] = useState(false);
 
   return (
-    <div className="relative z-10 font-normal">
+    <div className="relative z-50 font-normal">
       <div
-        className="w-6 text-2xl text-white cursor-pointer"
+        className="p-1 w-8 h-8 hover:bg-black flex items-center justify-center hover:bg-opacity-20 border border-opacity-20 border-primaryText rounded-xl text-2xl text-white cursor-pointer"
         onClick={(e) => openToolTip(e)}
+        onMouseEnter={() => setHoverSlider(true)}
+        onMouseLeave={() => setHoverSlider(false)}
       >
-        <Slider showSlip={showSlip} />
+        <Slider shrink showSlip={showSlip || hoverSlider} />
       </div>
       {showSlip && (
         <div
-          className={`xs:fixed xs:z-10 xs:top-0 xs:left-0 xs:backdrop-filter xs:right-0 xs:bottom-0 xs:bg-black xs:bg-opacity-60`}
+          className={`xs:fixed xs:z-50 xs:top-0 xs:left-0 xs:backdrop-filter xs:right-0 xs:bottom-0 xs:bg-black xs:bg-opacity-60`}
         >
           <fieldset
-            className="absolute top-5 right-0 xs:relative xs:mx-5 xs:top-40 xs:right-0 px-4 py-6 bg-cardBg border shadow-4xl border-greenLight border-opacity-30 rounded-lg flex flex-col mb-4"
+            className="absolute top-10 text-newSlippageColor -right-32 xs:relative xs:mx-5 xs:top-40 xs:right-0 px-4 py-6 bg-cardBg rounded-lg flex flex-col mb-4"
+            style={{
+              background: '#2E3D47',
+              border: '1px solid rgba(126, 138, 147, 0.2)',
+              boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.25)',
+              borderRadius: '12px',
+            }}
             onClick={(e) => {
               openToolTip(e);
             }}
           >
-            <div>
-              <label className=" text-base text-center text-white">
+            <div className="text-newSlippageColor">
+              <label className=" text-base font-bold text-center ">
                 <FormattedMessage
                   id="slippage_title"
                   defaultMessage="Transaction Settings"
@@ -165,7 +210,7 @@ export default function SlippageSelectorForStable({
               </label>
             </div>
             <div className="flex items-center">
-              <label className="text-sm py-5 text-center text-white">
+              <label className="text-sm py-5 text-center ">
                 <FormattedMessage
                   id="slippage"
                   defaultMessage="Slippage tolerance"
@@ -178,12 +223,12 @@ export default function SlippageSelectorForStable({
               />
             </div>
 
-            <div className="flex text-white items-center">
-              <div className="w-48 flex justify-between bg-slipBg bg-opacity-40 rounded">
+            <div className="flex text-newSlippageColor items-center">
+              <div className="w-48 flex p-0.5 justify-between bg-black  bg-opacity-20 rounded-lg">
                 {validSlippages.map((slippage) => (
                   <button
                     key={slippage}
-                    className={` w-14 h-7 text-center focus:outline-none text-sm hover:bg-gradientFrom rounded ${
+                    className={` w-14 h-6 text-center focus:outline-none text-sm hover:bg-gradientFrom hover:text-chartBg rounded-lg ${
                       slippage === slippageTolerance
                         ? 'text-chartBg bg-gradientFrom'
                         : ''
@@ -195,18 +240,12 @@ export default function SlippageSelectorForStable({
                   </button>
                 ))}
               </div>
-              <input
-                ref={ref}
-                max={99.99999}
-                min={0.000001}
-                defaultValue={slippageTolerance ? slippageTolerance : 0.5}
-                onWheel={() => ref.current.blur()}
-                step="any"
+              <div
                 className={`${
                   slippageTolerance && !invalid && !warn
-                    ? 'border border-gradientFrom normal-input text-gradientFrom bg-opacity-0'
+                    ? 'border border-primaryText border-opacity-20 normal-input text-gradientFrom bg-opacity-0'
                     : ''
-                } focus:text-gradientFrom focus:bg-opacity-0 w-14 h-7 text-center text-sm rounded mx-2 bg-gray-500 ${
+                }   flex   px-2 items-center bg-black bg-opacity-20 rounded-lg text-newSlippageColor h-7 text-center  text-sm  ml-2  ${
                   invalid && !warn
                     ? 'border border-error text-error bg-opacity-0 invalid-input'
                     : ''
@@ -215,33 +254,51 @@ export default function SlippageSelectorForStable({
                     ? 'border border-warn text-warn bg-opacity-0 warn-input'
                     : ''
                 }`}
-                type="number"
-                required={true}
-                placeholder=""
-                onChange={({ target }) => handleChange(target.value)}
-                onKeyDown={(e) =>
-                  symbolsArr.includes(e.key) && e.preventDefault()
-                }
-              />
-              %
+              >
+                <input
+                  ref={ref}
+                  max={99.99999}
+                  min={0}
+                  inputMode="decimal"
+                  defaultValue={slippageTolerance ? slippageTolerance : 0.5}
+                  onWheel={() => ref.current.blur()}
+                  step="any"
+                  type="number"
+                  required={true}
+                  placeholder=""
+                  className="w-6"
+                  onChange={({ target }) => handleChange(target.value)}
+                  onKeyDown={(e) =>
+                    symbolsArr.includes(e.key) && e.preventDefault()
+                  }
+                />
+                <span className="ml-2">%</span>
+              </div>
             </div>
             {hideLedger ? null : (
-              <div className={'flex items-center mt-6 text-sm'}>
-                <label>
-                  <FormattedMessage
-                    id="support_ledger"
-                    defaultMessage={'Support Ledger'}
-                  />
-                </label>
+              <div
+                className={
+                  'flex items-center text-newSlippageColor mt-6 justify-between text-sm'
+                }
+              >
+                <div className="flex items-center">
+                  <label>
+                    <FormattedMessage
+                      id="support_ledger"
+                      defaultMessage={'Support Ledger'}
+                    />
+                  </label>
 
-                <QuestionTip
-                  id="support_ledger_tip"
-                  defaultMessage="By design, Ledger cannot handle large transactions (i.e. Auto Router: trade across multiple pools at once) because of its memory limitation. When activated, the 'Support Ledger' option will limit transactions to their simplest form (to the detriment of better prices), so transactions of a reasonable size can be signed."
-                  dataPlace="bottom"
-                  uniquenessId="supportId"
-                  width="w-60"
-                />
-                <CustomSwitch
+                  <QuestionTip
+                    id="support_ledger_tip"
+                    defaultMessage="By design, Ledger cannot handle large transactions (i.e. Auto Router: trade across multiple pools at once) because of its memory limitation. When activated, the 'Support Ledger' option will limit transactions to their simplest form (to the detriment of better prices), so transactions of a reasonable size can be signed."
+                    dataPlace="bottom"
+                    uniquenessId="supportId"
+                    width="w-60"
+                  />
+                </div>
+
+                <CustomSwitchSwap
                   isOpen={supportLedger}
                   setIsOpen={setSupportLedger}
                 />
@@ -268,12 +325,6 @@ export default function SlippageSelectorForStable({
               )}
             </div>
           </fieldset>
-          {showSlip && (
-            <IoCloseOutline
-              className="absolute top-12 xs:top-48 xs:right-10 right-3 text-primaryText cursor-pointer"
-              onClick={(e) => closeToolTip(e)}
-            />
-          )}
         </div>
       )}
     </div>
@@ -295,13 +346,13 @@ export function PoolSlippageSelector({
     <>
       <fieldset className="flex lg:items-center md:flex-col xs:flex-col justify-between mb-4 pt-2">
         <div className="flex items-center md:mb-4 xs:mb-4">
-          <label className="text-sm text-center text-white">
+          <label className="text-sm text-center text-primaryText">
             <FormattedMessage
               id="slippage"
               defaultMessage="Slippage tolerance"
             />
           </label>
-          <div className="text-gray-400">
+          <div className="text-primaryText">
             <QuestionTip
               id={slippageCopyId}
               width="w-60"
@@ -324,6 +375,55 @@ export function PoolSlippageSelector({
             >
               {slippage}%
             </button>
+          ))}
+        </div>
+      </fieldset>
+    </>
+  );
+}
+export function PoolSlippageSelectorV3({
+  slippageTolerance,
+  onChange,
+}: {
+  slippageTolerance: number;
+  onChange: (slippage: number) => void;
+}) {
+  const validSlippages = [0.1, 0.5, 1.0];
+  const intl = useIntl();
+  const slippageCopyId = isMobile() ? 'slippageCopyForMobile' : 'slippageCopy';
+
+  return (
+    <>
+      <fieldset className="flex lg:items-center flex-wrap justify-between mb-4 pt-2">
+        <div className="flex items-center md:mb-4 xs:mb-4">
+          <label className="text-sm text-center text-primaryText">
+            <FormattedMessage
+              id="slippage"
+              defaultMessage="Slippage tolerance"
+            />
+          </label>
+          <div className="text-primaryText">
+            <QuestionTip
+              id={slippageCopyId}
+              width="w-60"
+              uniquenessId="slippageId"
+            />
+          </div>
+        </div>
+
+        <div className="flex text-white items-center">
+          {validSlippages.map((slippage) => (
+            <div
+              key={slippage}
+              className={`flex items-center justify-center cursor-pointer w-12 rounded-lg text-xs border  hover:border-gradientFromHover  py-1 px-2 mx-1 ${
+                slippage === slippageTolerance
+                  ? 'text-black bg-gradientFromHover border-gradientFromHover hover:text-black'
+                  : 'text-farmText border-maxBorderColor hover:text-gradientFromHover'
+              }`}
+              onClick={() => onChange(slippage)}
+            >
+              {slippage}%
+            </div>
           ))}
         </div>
       </fieldset>
@@ -363,7 +463,7 @@ export function StableSlipSelecter({
       setInvalid(true);
       setWarn(false);
     }
-    ref.current.value = amount;
+    // ref.current.value = amount;
   };
 
   const closeToolTip = (e: any) => {
@@ -393,7 +493,7 @@ export function StableSlipSelecter({
   }, []);
 
   return (
-    <div className="relative z-10">
+    <div className="relative z-50">
       <div className="flex justify-between xs:flex-col md:flex-col lg:flex-row">
         <div className="flex items-center text-primaryText">
           <label className="text-xs text-center xs:py-2 md:py-2 lg:py-5">
@@ -418,7 +518,7 @@ export function StableSlipSelecter({
                 className={` w-12 h-6 text-center focus:outline-none text-xs hover:bg-gradientFrom rounded ${
                   slippage === slippageTolerance
                     ? 'text-chartBg bg-gradientFrom'
-                    : 'text-gray-400'
+                    : 'text-primaryText'
                 }`}
                 type="button"
                 onClick={() => handleBtnChange(slippage)}
@@ -430,7 +530,7 @@ export function StableSlipSelecter({
           <input
             ref={ref}
             max={99.99999}
-            min={0.000001}
+            min={0}
             defaultValue={slippageTolerance ? slippageTolerance : 0.1}
             onWheel={() => ref.current.blur()}
             step="any"
@@ -446,6 +546,7 @@ export function StableSlipSelecter({
               warn ? 'border border-warn text-warn bg-opacity-0 warn-input' : ''
             }`}
             type="number"
+            inputMode="decimal"
             required={true}
             placeholder=""
             onChange={({ target }) => handleChange(target.value)}

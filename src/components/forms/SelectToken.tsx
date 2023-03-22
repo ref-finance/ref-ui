@@ -1,14 +1,21 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  createContext,
+  useContext,
+  useMemo,
+} from 'react';
 import MicroModal from 'react-micro-modal';
 import { TokenMetadata } from '../../services/ft-contract';
 import { ArrowDownGreen, ArrowDownWhite } from '../icon';
 import { isMobile, getExplorer } from '../../utils/device';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { TokenBalancesView } from '../../services/token';
+import { TokenBalancesView, getGlobalWhitelist } from '../../services/token';
 import { IoCloseOutline } from 'react-icons/io5';
 import CommonBasses from '../../components/tokens/CommonBasses';
 import Table from '../../components/table/Table';
-import { useTokensData } from '../../state/token';
+import { useTokensData, useGlobalWhitelistTokens } from '../../state/token';
 import { toRealSymbol } from '../../utils/token';
 import { FaSearch } from 'react-icons/fa';
 import AddToken from './AddToken';
@@ -21,14 +28,43 @@ import {
 } from '../../utils/numbers';
 import {
   BTCIDS,
+  BTC_CLASS_STABLE_TOKEN_IDS,
   CUSDIDS,
   LINEARIDS,
   NEARXIDS,
+  NEAR_CLASS_STABLE_TOKEN_IDS,
   STABLE_TOKEN_USN_IDS,
   STNEARIDS,
+  TOKEN_BLACK_LIST,
+  USD_CLASS_STABLE_TOKEN_IDS,
 } from '../../services/near';
-import { STABLE_TOKEN_IDS, STABLE_POOL_TYPE } from '../../services/near';
-import _ from 'lodash';
+import {
+  STABLE_TOKEN_IDS,
+  STABLE_POOL_TYPE,
+  USD_CLASS_STABLE_POOL_IDS,
+} from '../../services/near';
+import { TokenLinks } from '../../components/tokens/Token';
+import {
+  OutLinkIcon,
+  DefaultTokenImg,
+  SelectTokenCloseButton,
+} from '../../components/icon/Common';
+import _, { trimEnd } from 'lodash';
+import {
+  GradientButton,
+  ButtonTextWrapper,
+} from '../../components/button/Button';
+import { registerTokenAndExchange } from '../../services/token';
+import { WalletContext } from '../../utils/wallets-integration';
+import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
+import { REF_TOKEN_ID } from '../../services/near';
+import { useAllPoolsV2 } from '../../state/swapV3';
+import { Images, Symbols } from '../../components/stableswap/CommonComp';
+import { IconLeftV3 } from '../tokens/Icon';
+import { PoolInfo } from '../../services/swapV3';
+import { sort_tokens_by_base } from '../../services/commonV3';
+
+export const USER_COMMON_TOKEN_LIST = 'USER_COMMON_TOKEN_LIST';
 
 function sort(a: any, b: any) {
   if (typeof a === 'string' && typeof b === 'string') {
@@ -64,39 +100,33 @@ export function SingleToken({
         <img
           src={token.icon}
           alt={toRealSymbol(token.symbol)}
-          style={{
-            width: '25px',
-            height: '25px',
-          }}
-          className="inline-block mr-2 border rounded-full border-greenLight"
+          className="w-9 h-9 inline-block mr-2 border rounded-full border-greenLight"
         />
       ) : (
-        <div
-          className="inline-block mr-2 border rounded-full border-greenLight"
-          style={{
-            width: '25px',
-            height: '25px',
-          }}
-        ></div>
+        <div className="w-9 h-9 inline-block mr-2 border rounded-full border-greenLight"></div>
+        // <DefaultTokenImg className="mr-2"></DefaultTokenImg>
       )}
-      <span className="text-white">
-        <div
-          style={{
-            position: 'relative',
-            top: `${price ? '2px' : ''}`,
-          }}
-        >
-          {toRealSymbol(token.symbol)}
+      <div className="flex flex-col justify-between">
+        <div className={`flex items-center`}>
+          <span className="text-sm text-white">
+            {toRealSymbol(token.symbol)}
+          </span>
+          {TokenLinks[token.symbol] ? (
+            <a
+              className="ml-1.5"
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open(TokenLinks[token.symbol]);
+              }}
+            >
+              <OutLinkIcon className="text-primaryText hover:text-white cursor-pointer"></OutLinkIcon>
+            </a>
+          ) : null}
         </div>
-        <span
-          style={{
-            position: 'relative',
-            bottom: `${price ? '2px' : ''}`,
-          }}
-        >
+        <span className="text-xs text-primaryText">
           {price ? tokenPrice(price) : null}
         </span>
-      </span>
+      </div>
     </>
   );
 }
@@ -108,6 +138,7 @@ export const StableSelectToken = ({
   preSelected,
   postSelected,
   onSelectPost,
+  customWidth,
 }: {
   tokens: TokenMetadata[];
   onSelect?: (token: TokenMetadata) => void;
@@ -115,16 +146,12 @@ export const StableSelectToken = ({
   preSelected?: TokenMetadata;
   postSelected?: TokenMetadata;
   onSelectPost?: (t: TokenMetadata) => void;
+  customWidth?: boolean;
 }) => {
-  const USDTokenList = new Array(
-    ...new Set(STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS).concat(CUSDIDS))
-  );
+  const USDTokenList = USD_CLASS_STABLE_TOKEN_IDS;
+  const BTCTokenList = BTC_CLASS_STABLE_TOKEN_IDS;
 
-  const BTCTokenList = BTCIDS.map((id) => id);
-
-  const NEARTokenList = new Array(
-    ...new Set(STNEARIDS.concat(LINEARIDS).concat(NEARXIDS))
-  ).map((id) => id);
+  const NEARTokenList = NEAR_CLASS_STABLE_TOKEN_IDS;
 
   const [stableCoinType, setStableCoinType] = useState<STABLE_POOL_TYPE>(
     STABLE_POOL_TYPE.USD
@@ -204,10 +231,23 @@ export const StableSelectToken = ({
     }
   };
 
-  const displayList = getDisplayList(stableCoinType);
+  const displayList = getDisplayList(stableCoinType).filter(
+    (t) => TOKEN_BLACK_LIST.indexOf(t.id) === -1
+  );
+
+  const maxList =
+    NEARtokens > (USDtokens.length > BTCtokens.length ? USDtokens : BTCtokens)
+      ? NEARtokens
+      : USDtokens.length > BTCtokens.length
+      ? USDtokens
+      : BTCtokens;
 
   return (
-    <div className="w-2/5 outline-none my-auto relative overflow-visible">
+    <div
+      className={`${
+        customWidth ? '' : 'w-2/5'
+      }  outline-none my-auto relative overflow-visible`}
+    >
       <div
         className={`w-full relative `}
         onClick={(e) => {
@@ -237,7 +277,6 @@ export const StableSelectToken = ({
           WebkitBackdropFilter: 'blur(15px)',
           border: '1px solid #415462',
           zIndex: 999,
-          right: 0,
         }}
       >
         <div
@@ -301,7 +340,7 @@ export const StableSelectToken = ({
         <div
           className={`flex flex-col`}
           style={{
-            height: '270px',
+            height: `${maxList.length * 50 + 20}px`,
           }}
         >
           {displayList.map((token) => {
@@ -347,7 +386,7 @@ export const StableSelectToken = ({
     </div>
   );
 };
-
+export const localTokens = createContext(null);
 export default function SelectToken({
   tokens,
   selected,
@@ -358,6 +397,9 @@ export default function SelectToken({
   balances,
   tokenPriceList,
   forCross,
+  customWidth,
+  allowWNEAR,
+  className,
 }: {
   tokens: TokenMetadata[];
   selected: string | React.ReactElement;
@@ -369,13 +411,23 @@ export default function SelectToken({
   balances?: TokenBalancesView;
   tokenPriceList?: Record<string, any>;
   forCross?: boolean;
+  customWidth?: boolean;
+  allowWNEAR?: boolean;
+  className?: string;
 }) {
   const [visible, setVisible] = useState(false);
   const [listData, setListData] = useState<TokenMetadata[]>([]);
   const [currentSort, setSort] = useState<string>('down');
   const [sortBy, setSortBy] = useState<string>('near');
   const [showCommonBasses, setShowCommonBasses] = useState<boolean>(true);
+  const [commonBassesTokens, setCommonBassesTokens] = useState([]);
+  const [searchNoData, setSearchNoData] = useState(false);
+  const [addTokenLoading, setAddTokenLoading] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
+  const [addTokenError, setAddTokenError] = useState(false);
   const addToken = () => <AddToken />;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   if (!onSelect) {
     return (
@@ -384,22 +436,26 @@ export default function SelectToken({
       </button>
     );
   }
-  const dialogWidth = isMobile() ? '75%' : forCross ? '25%' : '20%';
+  const dialogWidth = isMobile() ? '95%' : forCross ? '25%' : '420px';
   const dialogMinwidth = isMobile() ? 340 : 380;
-  const dialogHidth = isMobile() ? '95%' : '57%';
+  const dialogHeight = isMobile() ? '95%' : '57%';
+  const dialogMinHeight = isMobile() ? '95%' : '540px';
   const intl = useIntl();
+  const searchRef = useRef(null);
   const {
     tokensData,
     loading: loadingTokensData,
     trigger,
-  } = useTokensData(tokens, balances);
-  useEffect(() => {
-    trigger();
-  }, [trigger]);
+  } = useTokensData(
+    tokens.filter((t) => TOKEN_BLACK_LIST.indexOf(t.id) === -1),
+    balances,
+    visible
+  );
 
   useEffect(() => {
     if (!loadingTokensData) {
       const sortedData = [...tokensData].sort(sortTypes[currentSort].fn);
+      sortedData.sort(sortBySymbol);
       setListData(sortedData);
     }
   }, [loadingTokensData, tokensData]);
@@ -407,9 +463,13 @@ export default function SelectToken({
   useEffect(() => {
     if (!!tokensData) {
       const sortedData = [...tokensData].sort(sortTypes[currentSort].fn);
+      sortedData.sort(sortBySymbol);
       setListData(sortedData);
     }
   }, [currentSort, sortBy]);
+  useEffect(() => {
+    getLatestCommonBassesTokens();
+  }, [tokensData]);
 
   const sortTypes: { [key: string]: any } = {
     up: {
@@ -425,6 +485,13 @@ export default function SelectToken({
       fn: (a: any, b: any) => a,
     },
   };
+  const sortBySymbol = (a: TokenMetadata, b: TokenMetadata) => {
+    if (+a.near == 0 && +b.near == 0) {
+      const a_symbol = toRealSymbol(a.symbol).toLocaleLowerCase();
+      const b_symbol = toRealSymbol(b.symbol).toLocaleLowerCase();
+      return a_symbol.localeCompare(b_symbol);
+    }
+  };
 
   const onSortChange = (params: string) => {
     if (params === sortBy) {
@@ -439,26 +506,87 @@ export default function SelectToken({
   };
 
   const onSearch = (value: string) => {
+    setAddTokenError(false);
+    setAddTokenLoading(false);
+    setSearchValue(value);
     setShowCommonBasses(value.length === 0);
-
     const result = tokensData.filter((token) => {
       const symbol = token?.symbol === 'NEAR' ? 'wNEAR' : token?.symbol;
       if (!symbol) return false;
-      return toRealSymbol(symbol)
+      const condition1 = toRealSymbol(symbol)
         .toLocaleUpperCase()
         .includes(value.toLocaleUpperCase());
+      const condition2 =
+        token.id.toLocaleLowerCase() == value.toLocaleLowerCase();
+      return condition1 || condition2;
     });
+    result.sort(sortBySymbol);
     setListData(result);
+    if (!loadingTokensData && value.length > 0 && result.length == 0) {
+      setSearchNoData(true);
+    } else {
+      setSearchNoData(false);
+    }
   };
 
   const debounceSearch = _.debounce(onSearch, 300);
 
   const handleClose = () => {
     const sortedData = [...tokensData].sort(sortTypes[currentSort].fn);
-    setListData(sortedData);
+    if (tokensData.length > 0) {
+      sortedData.sort(sortBySymbol);
+      setListData(sortedData);
+    }
     setVisible(false);
     setShowCommonBasses(true);
   };
+  function getLatestCommonBassesTokens() {
+    const local_user_list = getLatestCommonBassesTokenIds();
+    const temp_tokens: TokenMetadata[] = [];
+    local_user_list.forEach((id: string) => {
+      const t = tokens.find((token: TokenMetadata) => {
+        if (id == 'near') {
+          if (token.id == WRAP_NEAR_CONTRACT_ID && token.symbol == 'NEAR')
+            return true;
+        } else if (id == WRAP_NEAR_CONTRACT_ID) {
+          if (token.id == WRAP_NEAR_CONTRACT_ID && token.symbol == 'wNEAR')
+            return true;
+        } else {
+          if (token.id == id) return true;
+        }
+      });
+      if (t) {
+        temp_tokens.push(t);
+      }
+    });
+    setCommonBassesTokens(temp_tokens);
+  }
+  function getLatestCommonBassesTokenIds() {
+    const cur_status = localStorage.getItem(USER_COMMON_TOKEN_LIST);
+    if (!cur_status) {
+      const init = ['near', REF_TOKEN_ID];
+      localStorage.setItem(USER_COMMON_TOKEN_LIST, JSON.stringify(init));
+    }
+    const local_user_list_str =
+      localStorage.getItem(USER_COMMON_TOKEN_LIST) || '[]';
+    const local_user_list = JSON.parse(local_user_list_str);
+    return local_user_list;
+  }
+  function addTokenSubmit() {
+    setAddTokenError(false);
+    setAddTokenLoading(true);
+    registerTokenAndExchange(searchValue)
+      .then()
+      .catch((error) => {
+        setAddTokenError(true);
+        setAddTokenLoading(false);
+      });
+  }
+  function clear() {
+    setSearchValue('');
+    searchRef.current.value = '';
+    onSearch('');
+  }
 
   return (
     <MicroModal
@@ -466,8 +594,8 @@ export default function SelectToken({
       handleClose={handleClose}
       trigger={() => (
         <div
-          className={`focus:outline-none my-auto  ${
-            standalone ? 'w-full' : 'w-2/5'
+          className={`focus:outline-none my-auto flex-shrink-0  ${
+            !customWidth ? (standalone ? 'w-full' : className || 'w-2/5') : ''
           }`}
           onClick={() => setVisible(true)}
         >
@@ -507,16 +635,19 @@ export default function SelectToken({
             border: '1px solid rgba(0, 198, 162, 0.5)',
             padding: '1.5rem 0',
             background: '#1D2932',
-            height: dialogHidth,
+            height: dialogHeight,
+            minHeight: dialogMinHeight,
             zIndex: 100,
+            overflow: 'hidden',
+            position: 'relative',
           },
         },
       }}
     >
       {() => (
         <section className="text-white">
-          <div className="flex items-center justify-between pb-5 px-8 relative">
-            <h2 className="text-sm font-bold text-center">
+          <div className="flex items-center justify-between pb-5 px-8 xsm:px-5 relative">
+            <h2 className="text-center gotham_bold text-lg">
               <FormattedMessage
                 id="select_token"
                 defaultMessage="Select Token"
@@ -527,45 +658,317 @@ export default function SelectToken({
               className="absolute text-gray-400 text-2xl right-6 cursor-pointer"
             />
           </div>
-          <div className="flex justify-between items-center mb-5 mx-8">
-            <div className="flex-auto rounded text-gray-400 flex items-center pr-2 mr-4 bg-inputDarkBg">
+          <div className="flex flex-col  mb-5 mx-6 xsm:mx-3">
+            <div className="relative flex items-center h-11 rounded-lg text-gray-400 searchBoxGradientBorder px-3">
+              <FaSearch
+                className={`mr-2 ${
+                  searchValue ? 'text-greenColor' : 'text-farmText'
+                }`}
+              />
               <input
-                className={`text-sm outline-none rounded w-full py-2 px-1`}
-                placeholder={intl.formatMessage({ id: 'search_token' })}
+                ref={searchRef}
+                className={`text-base text-white outline-none rounded w-full py-2 pl-1 mr-6`}
+                placeholder={intl.formatMessage({
+                  id: 'search_name_or_address',
+                })}
                 onChange={(evt) => debounceSearch(evt.target.value)}
               />
-              <FaSearch />
+              <SelectTokenCloseButton
+                onClick={clear}
+                className={`absolute right-3 cursor-pointer ${
+                  searchValue ? '' : 'hidden'
+                }`}
+              ></SelectTokenCloseButton>
             </div>
-            {!forCross && addToken()}
+            {addTokenError ? (
+              <div className="text-redwarningColor text-sm mt-2">
+                <FormattedMessage id="token_address_invalid"></FormattedMessage>
+              </div>
+            ) : null}
           </div>
-          {showCommonBasses && !forCross && (
-            <CommonBasses
-              tokens={tokensData}
-              onClick={(token) => {
-                onSelect && onSelect(token);
-                handleClose();
+          <div
+            className="overflow-auto absolute w-full"
+            style={{ height: 'calc(100% - 150px)' }}
+          >
+            <localTokens.Provider
+              value={{
+                commonBassesTokens,
+                getLatestCommonBassesTokens,
+                getLatestCommonBassesTokenIds,
               }}
-              tokenPriceList={tokenPriceList}
-            />
-          )}
-          <Table
-            sortBy={sortBy}
-            tokenPriceList={tokenPriceList}
-            currentSort={currentSort}
-            onSortChange={onSortChange}
-            tokens={listData}
-            onClick={(token) => {
-              if (token.id != NEARXIDS[0]) {
-                onSelect && onSelect(token);
-              }
-              handleClose();
-            }}
-            balances={balances}
-            forCross={forCross}
-          />
+            >
+              {showCommonBasses && (
+                <CommonBasses
+                  onClick={(token) => {
+                    onSelect && onSelect(token);
+                  }}
+                  tokenPriceList={tokenPriceList}
+                  allowWNEAR={allowWNEAR}
+                  handleClose={handleClose}
+                />
+              )}
+              <Table
+                sortBy={sortBy}
+                tokenPriceList={tokenPriceList}
+                currentSort={currentSort}
+                onSortChange={onSortChange}
+                tokens={listData}
+                onClick={(token) => {
+                  if (token.id != NEARXIDS[0]) {
+                    if (
+                      !(
+                        token.id == WRAP_NEAR_CONTRACT_ID &&
+                        token.symbol == 'wNEAR' &&
+                        !allowWNEAR
+                      )
+                    ) {
+                      onSelect && onSelect(token);
+                    }
+                  }
+                  handleClose();
+                }}
+                balances={balances}
+                forCross={forCross}
+              />
+            </localTokens.Provider>
+          </div>
+          {searchNoData ? (
+            <div className="flex flex-col  items-center justify-center mt-12">
+              <div className="text-sm text-farmText">
+                <FormattedMessage id="no_token_found"></FormattedMessage>
+              </div>
+              {isSignedIn && !forCross ? (
+                <GradientButton
+                  onClick={addTokenSubmit}
+                  color="#fff"
+                  loading={addTokenLoading}
+                  className={`h-9 mt-5 px-6 xsm:px-3.5 text-center text-sm text-white focus:outline-none`}
+                >
+                  <ButtonTextWrapper
+                    loading={addTokenLoading}
+                    Text={() => (
+                      <FormattedMessage
+                        id="add_token"
+                        defaultMessage="Add token"
+                      />
+                    )}
+                  />
+                </GradientButton>
+              ) : null}
+            </div>
+          ) : null}
         </section>
       )}
     </MicroModal>
+  );
+}
+
+export function SelectTokenDCL({
+  selectTokenIn,
+  selectTokenOut,
+  selectedToken,
+  onSelect,
+  selected,
+  className,
+}: {
+  selectTokenIn?: (token: TokenMetadata) => void;
+  selectTokenOut?: (token: TokenMetadata) => void;
+  onSelect?: (token: TokenMetadata) => void;
+  selectedToken?: TokenMetadata;
+  selected?: JSX.Element;
+  className?: string;
+}) {
+  const allPools = useAllPoolsV2();
+
+  const [hoverSelectToken, setHoverSelectToken] = useState<boolean>(false);
+
+  const intl = useIntl();
+
+  const mobileDevice = isMobile();
+
+  const globalWhiteList = useGlobalWhitelistTokens();
+
+  const displayPools = allPools?.reduce((acc, cur, i) => {
+    const id = [cur.token_x, cur.token_y].sort().join('|');
+    if (!acc[id]) {
+      acc[id] = cur;
+    }
+    return acc;
+  }, {} as Record<string, PoolInfo>);
+
+  const handleSelect = (p: PoolInfo) => {
+    // select token in
+    const { token_x_metadata, token_y_metadata } = p;
+    const tokens = sort_tokens_by_base([token_x_metadata, token_y_metadata]);
+
+    if (!selectedToken) {
+      selectTokenIn(tokens[0]);
+      selectTokenOut(tokens[1]);
+
+      return;
+    }
+
+    if (!!selectTokenOut) {
+      if (selectedToken?.id === tokens[0].id) {
+        selectTokenOut(tokens[1]);
+      } else if (selectedToken?.id === tokens[1].id) {
+        selectTokenOut(tokens[0]);
+      } else {
+        onSelect(tokens[0]);
+        selectTokenOut(tokens[1]);
+      }
+
+      return;
+    }
+
+    if (!!selectTokenIn) {
+      if (selectedToken?.id === tokens[0].id) {
+        selectTokenIn(tokens[1]);
+      } else if (selectedToken?.id === tokens[1].id) {
+        selectTokenIn(tokens[0]);
+      } else {
+        onSelect(tokens[1]);
+        selectTokenIn(tokens[0]);
+      }
+      return;
+    }
+  };
+
+  const renderPools = useMemo(
+    () =>
+      Object.values(displayPools || {})?.filter((p) => {
+        const { token_x_metadata, token_y_metadata } = p;
+        return (
+          !!globalWhiteList.find((t) => t.id === token_x_metadata.id) &&
+          !!globalWhiteList.find((t) => t.id === token_y_metadata.id)
+        );
+      }),
+    [globalWhiteList]
+  );
+
+  const renderList = renderPools?.map((p) => {
+    const { token_x_metadata, token_y_metadata } = p;
+    const tokens = sort_tokens_by_base([token_x_metadata, token_y_metadata]);
+    return (
+      <div
+        key={p.pool_id}
+        className="flex items-center text-sm xs:text-base min-w-max px-1.5 bg-opacity-90 py-3 rounded-lg hover:bg-dclSelectTokenHover cursor-pointer"
+        onClick={() => {
+          handleSelect(p);
+          setHoverSelectToken(false);
+        }}
+      >
+        <Images tokens={tokens} size="5" className="mr-2 ml-1" />
+
+        <Symbols tokens={tokens} seperator="-" />
+      </div>
+    );
+  });
+
+  // fetch all dcl pools
+
+  useEffect(() => {
+    if (hoverSelectToken && mobileDevice) {
+      document.documentElement.style.overflow = 'hidden';
+    } else {
+      document.documentElement.style.overflow = 'auto';
+    }
+  }, [hoverSelectToken]);
+
+  return (
+    <div
+      className="outline-none relative my-auto flex-shrink-0"
+      onMouseLeave={() => {
+        if (!mobileDevice) {
+          setHoverSelectToken(false);
+        }
+      }}
+      onBlur={() => {
+        if (mobileDevice) {
+          setHoverSelectToken(false);
+        }
+      }}
+    >
+      {(selected || selectedToken) && (
+        <div
+          className="flex items-center relative justify-end font-semibold"
+          onMouseEnter={() => {
+            if (!mobileDevice) {
+              setHoverSelectToken(true);
+            }
+          }}
+          onClick={() => {
+            if (mobileDevice) {
+              setHoverSelectToken(!hoverSelectToken);
+            }
+          }}
+          style={{
+            zIndex: !!selectTokenOut ? 80 : 70,
+          }}
+        >
+          {selected || (
+            <IconLeftV3
+              size={'7'}
+              token={selectedToken}
+              hover={hoverSelectToken}
+              className={'p-1'}
+            />
+          )}
+        </div>
+      )}
+
+      {hoverSelectToken && renderList?.length > 0 && (
+        <div
+          className={`${
+            className ||
+            'pt-2  absolute top-8 outline-none xs:text-white xs:font-bold xs:fixed xs:bottom-0 xs:w-full  right-0'
+          }    `}
+          onMouseLeave={() => {
+            if (!mobileDevice) {
+              setHoverSelectToken(false);
+            }
+          }}
+          onBlur={() => {
+            if (mobileDevice) {
+              setHoverSelectToken(false);
+            }
+          }}
+          style={{
+            zIndex: mobileDevice ? 80 : !!selectTokenOut ? 80 : 70,
+          }}
+        >
+          {mobileDevice && (
+            <div
+              className="fixed w-screen h-screen top-0"
+              style={{
+                zIndex: 150,
+                background: 'rgba(0, 19, 32, 0.8)',
+                position: 'fixed',
+              }}
+              onClick={() => {
+                setHoverSelectToken(false);
+              }}
+            ></div>
+          )}
+          <div
+            className="border border-menuMoreBoxBorderColor overflow-auto xs:absolute xs:w-full xs:bottom-0 xs:pb-8 xs:rounded-2xl rounded-lg bg-selectBoxBgColor px-2 py-3 "
+            style={{
+              zIndex: mobileDevice ? 300 : '',
+              maxHeight: mobileDevice ? `${48 * 10 + 78}px` : '',
+              minHeight: mobileDevice ? `${48 * 5 + 78}px` : '',
+            }}
+          >
+            <div className="text-sm text-primaryText xs:text-white xs:text-base  ml-1.5   pb-2">
+              {intl.formatMessage({
+                id: 'instrument',
+                defaultMessage: 'Instrument',
+              })}
+            </div>
+            {renderList}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 

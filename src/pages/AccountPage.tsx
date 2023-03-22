@@ -15,7 +15,11 @@ import {
   useUserRegisteredTokensAllAndNearBalance,
 } from '../state/token';
 import Loading from '../components/layout/Loading';
-import { wallet as webWallet } from '../services/near';
+import {
+  NEARXIDS,
+  wallet as webWallet,
+  TOKEN_BLACK_LIST,
+} from '../services/near';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
   NearIcon,
@@ -28,14 +32,21 @@ import {
   toReadableNumber,
   toInternationalCurrencySystemNature,
   toPrecision,
+  toInternationalCurrencySystem,
+  scientificNotationToString,
 } from '../utils/numbers';
 import BigNumber from 'bignumber.js';
 import OldInputAmount from '../components/forms/OldInputAmount';
-import { deposit, withdraw, batchWithdraw } from '../services/token';
+import {
+  deposit,
+  withdraw,
+  batchWithdraw,
+  batchWithdrawDCL,
+} from '../services/token';
 import { nearMetadata, wrapNear } from '../services/wrap-near';
 import { BeatLoading } from '../components/layout/Loading';
 import { STORAGE_PER_TOKEN } from '../services/creators/storage';
-import { IoCloseOutline } from 'react-icons/io5';
+import { IoCloseOutline, IoFlower } from 'react-icons/io5';
 import ReactTooltip from 'react-tooltip';
 import QuestionMark from '../components/farm/QuestionMark';
 import { useHistory, useLocation, useParams } from 'react-router';
@@ -65,10 +76,27 @@ import {
 } from '../services/aurora/aurora';
 import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from './SwapPage';
 import { useWalletSelector } from '../context/WalletSelectorContext';
+import {
+  NewProIcon,
+  NewPro,
+  ProIconClick,
+  ProIconHover,
+} from '../components/icon/swapV3';
+import { useTokenPriceList } from '../state/token';
+import {
+  useDCLAccountBalance,
+  useTriTokenIdsOnRef,
+} from '../services/aurora/aurora';
+import Big from 'big.js';
 
 const ACCOUNT_PAGE_AURORA_SHOW = REF_FI_SWAP_SWAPPAGE_TAB_KEY;
 const REF_ACCOUNT_WITHDRAW_TIP = 'REF_ACCOUNT_WITHDRAW_TIP';
 const AURORA_ACCOUNT_WITHDRAW_TIP = 'AURORA_ACCOUNT_WITHDRAW_TIP';
+
+const ACCOUNTTAB_KEY = 'REF_FI_ACCOUNT_TAB_KEY';
+
+const ACCOUNTTAB_KEY_AURORA = 'REF_FI_ACCOUNT_TAB_AURORA_KEY';
+
 interface ParamTypes {
   tab: string;
 }
@@ -147,27 +175,34 @@ const accountSortFun = (
   const sortDirection = currentSort.split('-')[1] == 'down' ? 'up' : 'down';
 
   userTokens.sort((token1: TokenMetadata, token2: TokenMetadata) => {
-    const { near: near1, ref: ref1, aurora: aurora1 } = token1;
-    const { near: near2, ref: ref2, aurora: aurora2 } = token2;
+    const { near: near1, ref: ref1, aurora: aurora1, dcl: dcl1 } = token1;
+    const { near: near2, ref: ref2, aurora: aurora2, dcl: dcl2 } = token2;
     const near1Balance = new BigNumber(near1);
     const ref1Balance = new BigNumber(ref1);
-
     const aurora1Balance = new BigNumber(aurora1);
+    const dcl1Balance = new BigNumber(dcl1);
+
     const near2Balance = new BigNumber(near2);
     const ref2Balance = new BigNumber(ref2);
     const aurora2Balance = new BigNumber(aurora2);
+
+    const dcl2Balance = new BigNumber(dcl2);
 
     const a =
       sortBy == 'near'
         ? near1Balance
         : sortBy === 'ref'
         ? ref1Balance
+        : sortBy == 'dcl'
+        ? dcl1Balance
         : aurora1Balance;
     const b =
       sortBy == 'near'
         ? near2Balance
         : sortBy === 'ref'
         ? ref2Balance
+        : sortBy == 'dcl'
+        ? dcl2Balance
         : aurora2Balance;
 
     if (sortDirection == 'down') {
@@ -204,6 +239,19 @@ const getRefBalance = (item: TokenMetadata) => {
     return toInternationalCurrencySystemNature(bigRef.toString());
   }
 };
+
+const getDCLBalance = (item: TokenMetadata) => {
+  const { dcl } = item;
+  const bigDCL = new BigNumber(dcl);
+  if (bigDCL.isEqualTo('0')) {
+    return '-';
+  } else if (bigDCL.isLessThan(0.01)) {
+    return '<0.01';
+  } else {
+    return toInternationalCurrencySystemNature(bigDCL.toString());
+  }
+};
+
 const getAuroraBalance = (item: TokenMetadata) => {
   const { aurora } = item;
   const bigAurora = new BigNumber(aurora);
@@ -228,9 +276,12 @@ const getWalletBalance = (item: TokenMetadata) => {
     return toInternationalCurrencySystemNature(near.toString());
   }
 };
-const NearTip = () => {
+export const NearTip = () => {
   const intl = useIntl();
-  const tip = intl.formatMessage({ id: 'deposit_near_tip' });
+  const tip = intl.formatMessage({
+    id: 'deposit_near_tip_0.5',
+    defaultMessage: 'To deposit, keep at least 0.5 NEAR to cover gas fee',
+  });
   const result: string = `<div class="text-navHighLightText text-xs text-left font-normal">${tip}</div>`;
   return (
     <div
@@ -281,15 +332,20 @@ const WithdrawTip = () => {
     </div>
   );
 };
+
 function AccountTable(props: any) {
   const {
     userTokens,
     showCrossBalance,
     hasRefBalanceOver,
     hasMapBalanceOver,
+    hasDCLBalanceOver,
     refAccountTokenNumber,
     mapAccountTokenNumber,
+    DCLAccountTokenNumber,
+    defaultTab,
   } = props;
+
   const [tokensSort, setTokensSort] = useState(userTokens);
   let [currentSort, setCurrentSort] = useState('');
   const [checkedMap, setCheckedMap] = useState({});
@@ -297,16 +353,78 @@ function AccountTable(props: any) {
   const [checkedAuroraMap, setCheckedAuroraMap] = useState({});
   const [checkAuroraAll, setCheckAuroraALl] = useState(false);
 
+  const tokenPriceList = useTokenPriceList();
+
+  const storageTab = localStorage.getItem(
+    showCrossBalance ? ACCOUNTTAB_KEY_AURORA : ACCOUNTTAB_KEY
+  );
+
+  const [accountTab, setAccountTab] = useState<
+    'near' | 'ref' | 'dcl' | 'aurora'
+  >(defaultTab || storageTab || 'near');
+
+  useEffect(() => {
+    if (showCrossBalance) return;
+    setCheckALl(false);
+    setCheckedMap({});
+  }, [accountTab, showCrossBalance]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      showCrossBalance ? ACCOUNTTAB_KEY_AURORA : ACCOUNTTAB_KEY,
+      accountTab
+    );
+  }, [accountTab]);
+
+  useEffect(() => {
+    if (accountTab === 'ref' && refAccountTokenNumber == 0) {
+      localStorage.setItem(
+        showCrossBalance ? ACCOUNTTAB_KEY_AURORA : ACCOUNTTAB_KEY,
+        'near'
+      );
+      setAccountTab('near');
+    }
+    if (accountTab === 'dcl' && DCLAccountTokenNumber == 0) {
+      localStorage.setItem(
+        showCrossBalance ? ACCOUNTTAB_KEY_AURORA : ACCOUNTTAB_KEY,
+        'near'
+      );
+      setAccountTab('near');
+    }
+    if (accountTab === 'aurora' && mapAccountTokenNumber == 0) {
+      localStorage.setItem(
+        showCrossBalance ? ACCOUNTTAB_KEY_AURORA : ACCOUNTTAB_KEY,
+        'near'
+      );
+      setAccountTab('near');
+    }
+  }, [
+    refAccountTokenNumber,
+    mapAccountTokenNumber,
+    DCLAccountTokenNumber,
+    accountTab,
+  ]);
+
   const [withdrawLoading, setWithdrawLoading] = useState<boolean>(false);
   useEffect(() => {
-    if (showCrossBalance && hasMapBalanceOver) {
+    if (accountTab === 'aurora') {
       sort(null, 'aurora');
-    } else if (!showCrossBalance && hasRefBalanceOver) {
+    } else if (accountTab === 'ref') {
       sort(null, 'ref');
+    } else if (accountTab === 'dcl') {
+      sort(null, 'dcl');
     } else {
       sort(null, 'near');
     }
-  }, [hasRefBalanceOver, hasMapBalanceOver, showCrossBalance]);
+  }, [accountTab]);
+
+  useEffect(() => {
+    if (showCrossBalance) {
+      if (mapAccountTokenNumber > 0) {
+        setAccountTab('aurora');
+      } else setAccountTab('near');
+    }
+  }, [showCrossBalance, mapAccountTokenNumber]);
 
   const sort = (e?: any, by?: string) => {
     const sortBy = by || e?.currentTarget.dataset.sort || 'near';
@@ -325,19 +443,36 @@ function AccountTable(props: any) {
     const newStatus = showCrossBalance ? !checkAuroraAll : !checkAll;
     let newCheckedMap = {};
     let count = 0;
+
     if (newStatus) {
       for (let i = 0; i < tokensSort.length; i++) {
-        const { id, ref, aurora, decimals } = tokensSort[i];
+        const { id, ref, aurora, decimals, dcl } = tokensSort[i];
+
+        if (
+          (accountTab === 'ref' && Number(ref) == 0) ||
+          (accountTab === 'dcl' && Number(dcl) == 0) ||
+          (accountTab === 'aurora' && Number(aurora) == 0)
+        ) {
+          continue;
+        }
+
         if (count >= withdraw_number_at_once) {
           break;
-        } else if (!showCrossBalance && Number(ref) > 0) {
+        } else if (accountTab === 'ref') {
           ++count;
           newCheckedMap[id] = {
             id,
             decimals,
             amount: ref,
           };
-        } else if (showCrossBalance && Number(aurora) > 0) {
+        } else if (accountTab === 'dcl') {
+          ++count;
+          newCheckedMap[id] = {
+            id,
+            decimals,
+            amount: dcl,
+          };
+        } else if (accountTab === 'aurora') {
           ++count;
           newCheckedMap[id] = {
             id,
@@ -349,6 +484,7 @@ function AccountTable(props: any) {
     } else {
       newCheckedMap = {};
     }
+
     if (showCrossBalance) {
       setCheckAuroraALl(newStatus);
       setCheckedAuroraMap(newCheckedMap);
@@ -359,24 +495,49 @@ function AccountTable(props: any) {
   }
   function clickCheckbox(token: TokenMetadata) {
     if (!showCrossBalance) {
-      const { id, ref, decimals } = token;
-      if (checkedMap[id] || Number(ref) == 0) {
-        delete checkedMap[id];
-      } else if (Object.keys(checkedMap).length < withdraw_number_at_once) {
-        checkedMap[id] = {
-          id,
-          decimals,
-          amount: ref,
-        };
+      const { id, ref, dcl, decimals } = token;
+      if (accountTab === 'ref') {
+        if (checkedMap[id] || Number(ref) == 0) {
+          delete checkedMap[id];
+        } else if (Object.keys(checkedMap).length < withdraw_number_at_once) {
+          checkedMap[id] = {
+            id,
+            decimals,
+            amount: ref,
+          };
+        }
+
+        if (
+          Object.keys(checkedMap).length ==
+          Math.min(withdraw_number_at_once, refAccountTokenNumber)
+        ) {
+          setCheckALl(true);
+        } else {
+          setCheckALl(false);
+        }
       }
-      if (
-        Object.keys(checkedMap).length ==
-        Math.min(withdraw_number_at_once, refAccountTokenNumber)
-      ) {
-        setCheckALl(true);
-      } else {
-        setCheckALl(false);
+
+      if (accountTab === 'dcl') {
+        if (checkedMap[id] || Number(dcl) == 0) {
+          delete checkedMap[id];
+        } else if (Object.keys(checkedMap).length < withdraw_number_at_once) {
+          checkedMap[id] = {
+            id,
+            decimals,
+            amount: dcl,
+          };
+        }
+
+        if (
+          Object.keys(checkedMap).length ==
+          Math.min(withdraw_number_at_once, DCLAccountTokenNumber)
+        ) {
+          setCheckALl(true);
+        } else {
+          setCheckALl(false);
+        }
       }
+
       setCheckedMap(Object.assign({}, checkedMap));
     } else {
       const { id, aurora, decimals } = token;
@@ -405,310 +566,472 @@ function AccountTable(props: any) {
   function doWithDraw() {
     setWithdrawLoading(true);
     if (showCrossBalance) batchWithdrawFromAurora(checkedAuroraMap);
-    else batchWithdraw(checkedMap);
+    else if (accountTab === 'ref') batchWithdraw(checkedMap);
+    else if (accountTab === 'dcl') {
+      batchWithdrawDCL(checkedMap);
+    }
   }
-  return (
-    <table className="w-full text-sm text-gray-400 mt-2 table-auto">
-      <thead>
-        <tr className="h-9">
-          <th className="pl-6 text-left">
-            <FormattedMessage id="tokens"></FormattedMessage>
-          </th>
-          <th
-            className={`text-right ${
-              (refAccountTokenNumber && !showCrossBalance) ||
-              (mapAccountTokenNumber && showCrossBalance)
-                ? ''
-                : 'pr-36'
-            }`}
-          >
-            <span
-              onClick={(e) => sort(e)}
-              data-sort="near"
-              className={`flex items-center w-full justify-end ${
-                currentSort.indexOf('near') > -1 ? 'text-greenColor' : ''
-              }`}
-            >
-              <WalletIcon />
-              <label className="mx-1 cursor-pointer">NEAR</label>
-              <TiArrowSortedUp
-                className={`cursor-pointer ${
-                  currentSort == 'near-down' ? 'transform rotate-180' : ''
-                }`}
-              />
-            </span>
-          </th>
-          <th
-            className={`text-right pl-5 ${
-              !showCrossBalance && refAccountTokenNumber ? '' : 'hidden'
-            }`}
-          >
-            <span
-              onClick={(e) => sort(e)}
-              data-sort="ref"
-              className={`flex items-center w-full justify-end ${
-                currentSort.indexOf('ref') > -1 ? 'text-greenColor' : ''
-              }`}
-            >
-              <RefIcon />
-              <label className="mx-1 cursor-pointer">REF</label>
-              <TiArrowSortedUp
-                className={`cursor-pointer ${
-                  currentSort == 'ref-down' ? 'transform rotate-180' : ''
-                }`}
-              />
-            </span>
-          </th>
-          <th
-            className={`text-right pl-5 ${
-              showCrossBalance && mapAccountTokenNumber ? '' : 'hidden'
-            }`}
-          >
-            <span
-              onClick={(e) => sort(e)}
-              data-sort="aurora"
-              className={`flex items-center w-full justify-end ${
-                currentSort.indexOf('aurora') > -1 ? 'text-greenColor' : ''
-              }`}
-            >
-              <MappingAccountIcon />
-              <label className="mx-1 cursor-pointer">Mapping</label>
-              <TiArrowSortedUp
-                className={`cursor-pointer ${
-                  currentSort == 'aurora-down' ? 'transform rotate-180' : ''
-                }`}
-              />
-            </span>
-          </th>
-          <th
-            className={`pl-8 ${
-              (mapAccountTokenNumber && showCrossBalance) ||
-              (refAccountTokenNumber && !showCrossBalance)
-                ? ''
-                : 'hidden'
-            }`}
-          >
-            {showCrossBalance ? (
-              <span className="flex items-center">
-                <label className="cursor-pointer" onClick={clickAllCheckbox}>
-                  {checkAuroraAll ? (
-                    <CheckboxSelected></CheckboxSelected>
-                  ) : (
-                    <Checkbox></Checkbox>
-                  )}
-                </label>
-                <WithdrawTip />
-              </span>
-            ) : (
-              <span className="flex items-center">
-                <label className="cursor-pointer" onClick={clickAllCheckbox}>
-                  {checkAll ? (
-                    <CheckboxSelected></CheckboxSelected>
-                  ) : (
-                    <Checkbox></Checkbox>
-                  )}
-                </label>
-                <WithdrawTip />
-              </span>
-            )}
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {tokensSort.map((item: TokenMetadata & { aurora: string }) => {
-          return (
-            <tr
-              className={`h-16 border-t border-borderColor border-opacity-30 hover:bg-chartBg hover:bg-opacity-20 ${
-                new BigNumber(item.near).isEqualTo('0') &&
-                ((showCrossBalance &&
-                  new BigNumber(item.aurora).isEqualTo('0')) ||
-                  (!showCrossBalance && new BigNumber(item.ref).isEqualTo('0')))
-                  ? 'hidden'
-                  : ''
-              }`}
-              key={item.id}
-            >
-              <td className="pl-6">
-                <div className="flex items-center">
-                  <div className="h-10 w-10 rounded-full border border-gradientFromHover mr-2.5 overflow-hidden flex-shrink-0">
-                    <img src={item.icon} className="w-full h-full"></img>
-                  </div>
-                  <div className="flex flex-col">
-                    <div className="flex items-center">
-                      <label className="text-white text-lg font-semibold">
-                        {item.symbol}
-                      </label>
-                      {item.symbol == 'NEAR' ? <NearTip /> : null}
-                    </div>
-                    <label className="text-xs text-primaryText break-all">
-                      {item.id}
-                    </label>
-                  </div>
-                </div>
-              </td>
-              <td
-                width="15%"
-                className={`text-right text-white font-semibold text-base ${
-                  (refAccountTokenNumber && !showCrossBalance) ||
-                  (mapAccountTokenNumber && showCrossBalance)
-                    ? ''
-                    : 'pr-36'
-                }`}
-              >
-                <span title={item.near.toString()}>
-                  {getWalletBalance(item)}
-                </span>
-              </td>
-              <td
-                width="130px"
-                className={`text-right text-white font-semibold text-base ${
-                  !showCrossBalance && refAccountTokenNumber ? '' : 'hidden'
-                }`}
-              >
-                <span title={item.ref.toString()}>{getRefBalance(item)}</span>
-              </td>
-              <td
-                width="130px"
-                className={`text-right text-white font-semibold text-base ${
-                  showCrossBalance && mapAccountTokenNumber ? '' : 'hidden'
-                }`}
-              >
-                <span title={item.aurora.toString()}>
-                  {getAuroraBalance(item)}
-                </span>
-              </td>
 
-              <td
-                width="15%"
-                className={`pl-8 ${
-                  (mapAccountTokenNumber && showCrossBalance) ||
-                  (refAccountTokenNumber && !showCrossBalance)
-                    ? ''
-                    : 'hidden'
-                }`}
-              >
-                {showCrossBalance ? (
-                  <label
-                    className={`${
-                      Number(item.aurora) > 0
-                        ? 'cursor-pointer'
-                        : 'cursor-not-allowed'
-                    } `}
-                    onClick={() => {
-                      clickCheckbox(item);
-                    }}
-                  >
-                    {checkedAuroraMap[item.id]?.amount ? (
-                      <CheckboxSelected></CheckboxSelected>
-                    ) : (
-                      <Checkbox></Checkbox>
-                    )}
-                  </label>
-                ) : (
-                  <label
-                    className={`${
-                      Number(item.ref) > 0
-                        ? 'cursor-pointer'
-                        : 'cursor-not-allowed'
-                    } `}
-                    onClick={() => {
-                      clickCheckbox(item);
-                    }}
-                  >
-                    {checkedMap[item.id]?.amount ? (
-                      <CheckboxSelected></CheckboxSelected>
-                    ) : (
-                      <Checkbox></Checkbox>
-                    )}
-                  </label>
-                )}
-              </td>
-            </tr>
-          );
-        })}
-        <tr
-          className={`h-20 border-t border-borderColor border-opacity-30 ${
-            (refAccountTokenNumber && !showCrossBalance) ||
-            (mapAccountTokenNumber && showCrossBalance)
-              ? ''
-              : 'hidden'
+  return (
+    <>
+      <div
+        className={`rounded-lg text-sm border ${
+          (
+            showCrossBalance
+              ? !mapAccountTokenNumber
+              : !refAccountTokenNumber && !DCLAccountTokenNumber
+          )
+            ? 'hidden'
+            : ''
+        } border-v3SwapGray inline-flex items-center border-opacity-20 p-0.5 mt-4 ml-6 text-primaryText`}
+      >
+        <button
+          className={`h-7 rounded-md w-32 flex items-center justify-center ${
+            accountTab === 'near'
+              ? 'text-white bg-navHighLightBg bg-opacity-50'
+              : ''
           }`}
+          onClick={() => {
+            setAccountTab('near');
+          }}
         >
-          <td></td>
-          <td></td>
-          <td colSpan={3}>
-            <div className="flex justify-center">
+          NEAR
+        </button>
+
+        <button
+          className={`h-7 ${
+            refAccountTokenNumber > 0 && !showCrossBalance ? 'flex' : 'hidden'
+          } rounded-md w-32 flex items-center justify-center ${
+            accountTab === 'ref'
+              ? 'text-white bg-navHighLightBg bg-opacity-50'
+              : ''
+          }`}
+          onClick={() => {
+            setAccountTab('ref');
+          }}
+        >
+          REF(Classic)
+          {hasRefBalanceOver ? (
+            <div
+              className="w-1.5 h-1.5 relative left-1 bottom-1 rounded-full "
+              style={{
+                background: '#ff3e83',
+              }}
+            ></div>
+          ) : null}
+        </button>
+        <button
+          className={`h-7 rounded-md ${
+            DCLAccountTokenNumber > 0 && !showCrossBalance ? 'flex' : 'hidden'
+          } w-32 flex items-center justify-center ${
+            accountTab === 'dcl'
+              ? 'text-white bg-navHighLightBg bg-opacity-50'
+              : ''
+          }`}
+          onClick={() => {
+            setAccountTab('dcl');
+          }}
+        >
+          REF(DCL)
+          {hasDCLBalanceOver ? (
+            <div
+              className="w-1.5 h-1.5 relative left-1 bottom-1 rounded-full "
+              style={{
+                background: '#ff3e83',
+              }}
+            ></div>
+          ) : null}
+        </button>
+
+        <button
+          className={`h-7 rounded-md ${
+            mapAccountTokenNumber > 0 && showCrossBalance ? 'flex' : 'hidden'
+          } w-32 flex items-center justify-center ${
+            accountTab === 'aurora'
+              ? 'text-white bg-navHighLightBg bg-opacity-50'
+              : ''
+          }`}
+          onClick={() => {
+            setAccountTab('aurora');
+          }}
+        >
+          Aurora
+          {hasMapBalanceOver ? (
+            <div
+              className="w-1.5 h-1.5 relative left-1 bottom-1 rounded-full "
+              style={{
+                background: '#ff3e83',
+              }}
+            ></div>
+          ) : null}
+        </button>
+      </div>
+
+      <table className="w-full text-sm text-gray-400 mt-2 table-auto">
+        <thead>
+          <tr className="h-9">
+            <th className="pl-6 text-left">
+              <FormattedMessage id="tokens"></FormattedMessage>
+            </th>
+            {/* near head */}
+            <th
+              className={`text-right ${
+                accountTab !== 'near' ? 'hidden' : 'pr-6'
+              } `}
+            >
+              <span
+                onClick={(e) => sort(e)}
+                data-sort="near"
+                className={`flex items-center w-full justify-end  `}
+              >
+                <WalletIcon />
+                <label className="mx-1 cursor-pointer">NEAR</label>
+                <TiArrowSortedUp
+                  className={`cursor-pointer ${
+                    currentSort == 'near-down' ? 'transform rotate-180' : ''
+                  }`}
+                />
+              </span>
+            </th>
+            {/* ref v1 head */}
+            <th
+              className={`text-right ${
+                accountTab !== 'ref' ? 'hidden' : 'pl-5'
+              }  `}
+            >
+              <span
+                onClick={(e) => sort(e)}
+                data-sort="ref"
+                className={`flex items-center w-full justify-end `}
+              >
+                <RefIcon />
+                <label className="mx-1 cursor-pointer">REF(Classic)</label>
+                <TiArrowSortedUp
+                  className={`cursor-pointer ${
+                    currentSort == 'ref-down' ? 'transform rotate-180' : ''
+                  }`}
+                />
+              </span>
+            </th>
+
+            {/* ref v2 head */}
+            <th
+              className={`text-right ${
+                accountTab !== 'dcl' ? 'hidden' : 'pl-5'
+              }  `}
+            >
+              <span
+                onClick={(e) => sort(e)}
+                data-sort="dcl"
+                className={`flex items-center w-full justify-end `}
+              >
+                <RefIcon />
+                <label className="mx-1 cursor-pointer">REF(DCL)</label>
+                <TiArrowSortedUp
+                  className={`cursor-pointer ${
+                    currentSort == 'dcl-down' ? 'transform rotate-180' : ''
+                  }`}
+                />
+              </span>
+            </th>
+
+            {/*  aurora balance */}
+            <th
+              className={`text-right pl-5 ${
+                accountTab === 'aurora' ? '' : 'hidden'
+              }`}
+            >
+              <span
+                onClick={(e) => sort(e)}
+                data-sort="aurora"
+                className={`flex items-center w-full justify-end `}
+              >
+                <MappingAccountIcon />
+                <label className="mx-1 cursor-pointer">Mapping</label>
+                <TiArrowSortedUp
+                  className={`cursor-pointer ${
+                    currentSort == 'aurora-down' ? 'transform rotate-180' : ''
+                  }`}
+                />
+              </span>
+            </th>
+            <th className={`pl-8 ${accountTab === 'near' ? 'hidden' : ''}`}>
               {showCrossBalance ? (
-                <GradientButton
-                  color="#fff"
-                  className={`w-36 h-9 text-center text-base text-white mt-4 focus:outline-none font-semibold ${
-                    Object.keys(checkedAuroraMap).length == 0
-                      ? 'opacity-40'
-                      : ''
-                  }`}
-                  onClick={doWithDraw}
-                  disabled={
-                    Object.keys(checkedAuroraMap).length == 0 || withdrawLoading
-                  }
-                  btnClassName={
-                    Object.keys(checkedAuroraMap).length == 0
-                      ? 'cursor-not-allowed'
-                      : ''
-                  }
-                  loading={withdrawLoading}
-                >
-                  <div>
-                    <ButtonTextWrapper
-                      loading={withdrawLoading}
-                      Text={() => (
-                        <FormattedMessage
-                          id="withdraw"
-                          defaultMessage="Withdraw"
-                        />
-                      )}
-                    />
-                  </div>
-                </GradientButton>
+                <span className="flex items-center">
+                  <label className="cursor-pointer" onClick={clickAllCheckbox}>
+                    {checkAuroraAll ? (
+                      <CheckboxSelected></CheckboxSelected>
+                    ) : (
+                      <Checkbox></Checkbox>
+                    )}
+                  </label>
+                  <WithdrawTip />
+                </span>
               ) : (
-                <GradientButton
-                  color="#fff"
-                  className={`w-36 h-9 text-center text-base text-white mt-4 focus:outline-none font-semibold ${
-                    Object.keys(checkedMap).length == 0 ? 'opacity-40' : ''
-                  }`}
-                  onClick={doWithDraw}
-                  disabled={
-                    Object.keys(checkedMap).length == 0 || withdrawLoading
-                  }
-                  btnClassName={
-                    Object.keys(checkedMap).length == 0
-                      ? 'cursor-not-allowed'
-                      : ''
-                  }
-                  loading={withdrawLoading}
-                >
-                  <div>
-                    <ButtonTextWrapper
-                      loading={withdrawLoading}
-                      Text={() => (
-                        <FormattedMessage
-                          id="withdraw"
-                          defaultMessage="Withdraw"
-                        />
-                      )}
-                    />
-                  </div>
-                </GradientButton>
+                <span className="flex items-center">
+                  <label className="cursor-pointer" onClick={clickAllCheckbox}>
+                    {checkAll ? (
+                      <CheckboxSelected></CheckboxSelected>
+                    ) : (
+                      <Checkbox></Checkbox>
+                    )}
+                  </label>
+                  <WithdrawTip />
+                </span>
               )}
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {tokensSort.map((item: TokenMetadata & { aurora: string }) => {
+            return (
+              <tr
+                className={`h-16 border-t border-borderColor border-opacity-30 hover:bg-chartBg hover:bg-opacity-20 ${
+                  Number(item[accountTab] == 0) ? 'hidden' : ''
+                }`}
+                key={item.id}
+              >
+                {/* token info */}
+                <td className="pl-6">
+                  <div className="flex items-center">
+                    <div className="h-10 w-10 rounded-full border border-gradientFromHover mr-2.5 overflow-hidden flex-shrink-0">
+                      <img src={item.icon} className="w-full h-full"></img>
+                    </div>
+                    <div className="flex flex-col">
+                      <div className="flex items-center">
+                        <label className="text-white text-lg font-semibold">
+                          {item.symbol}
+                        </label>
+                        {item.symbol == 'NEAR' ? <NearTip /> : null}
+                      </div>
+                      <label className="text-xs text-primaryText break-all">
+                        {item.id}
+                      </label>
+                    </div>
+                  </div>
+                </td>
+                {/* near balance */}
+                <td
+                  width="15%"
+                  className={`text-right text-white font-semibold text-base ${
+                    accountTab === 'near' ? 'pr-6' : 'hidden'
+                  }`}
+                >
+                  <span title={item.near.toString()}>
+                    {getWalletBalance(item)}
+                  </span>
+                  <div className="text-xs text-primaryText">
+                    {!tokenPriceList?.[item.id]?.price
+                      ? '$-'
+                      : `~$${toInternationalCurrencySystem(
+                          scientificNotationToString(
+                            new Big(tokenPriceList?.[item.id]?.price || '0')
+                              .times(new Big(item.near || '0'))
+                              .toString()
+                          ),
+                          3
+                        )}`}
+                  </div>
+                </td>
+                {/* ref balance */}
+                <td
+                  width="130px"
+                  className={`text-right text-white font-semibold text-base ${
+                    accountTab === 'ref' ? '' : 'hidden'
+                  }`}
+                >
+                  <span title={item.ref.toString()}>{getRefBalance(item)}</span>
+                  <div className="text-xs text-primaryText">
+                    {!tokenPriceList?.[item.id]?.price
+                      ? '$-'
+                      : `~$${toInternationalCurrencySystem(
+                          scientificNotationToString(
+                            new Big(tokenPriceList?.[item.id]?.price || '0')
+                              .times(new Big(item.ref || '0'))
+                              .toString()
+                          ),
+                          3
+                        )}`}
+                  </div>
+                </td>
+
+                {/* dcl balance */}
+                <td
+                  width="130px"
+                  className={`text-right text-white font-semibold text-base ${
+                    accountTab === 'dcl' ? '' : 'hidden'
+                  }`}
+                >
+                  <span title={item.dcl.toString()}>{getDCLBalance(item)}</span>
+                  <div className="text-xs text-primaryText">
+                    {!tokenPriceList?.[item.id]?.price
+                      ? '$-'
+                      : `~$${toInternationalCurrencySystem(
+                          scientificNotationToString(
+                            new Big(tokenPriceList?.[item.id]?.price || '0')
+                              .times(new Big(item.dcl || '0'))
+                              .toString()
+                          ),
+                          3
+                        )}`}
+                  </div>
+                </td>
+
+                {/* aurora balance */}
+                <td
+                  width="130px"
+                  className={`text-right text-white font-semibold text-base ${
+                    accountTab === 'aurora' ? '' : 'hidden'
+                  }`}
+                >
+                  <span title={item.aurora.toString()}>
+                    {getAuroraBalance(item)}
+                  </span>
+                  <div className="text-xs text-primaryText">
+                    {!tokenPriceList?.[item.id]?.price
+                      ? '$-'
+                      : `~$${toInternationalCurrencySystem(
+                          scientificNotationToString(
+                            new Big(tokenPriceList?.[item.id]?.price || '0')
+                              .times(new Big(item.aurora || '0'))
+                              .toString()
+                          ),
+                          3
+                        )}`}
+                  </div>
+                </td>
+                {/* check box */}
+                <td
+                  width="15%"
+                  className={`pl-8 ${accountTab === 'near' ? 'hidden' : ''}`}
+                >
+                  {showCrossBalance ? (
+                    <label
+                      className={`${
+                        Number(item.aurora) > 0
+                          ? 'cursor-pointer'
+                          : 'cursor-not-allowed'
+                      } `}
+                      onClick={() => {
+                        clickCheckbox(item);
+                      }}
+                    >
+                      {checkedAuroraMap[item.id]?.amount ? (
+                        <CheckboxSelected></CheckboxSelected>
+                      ) : (
+                        <Checkbox></Checkbox>
+                      )}
+                    </label>
+                  ) : (
+                    <label
+                      className={`${
+                        (Number(item.ref) && accountTab === 'ref') ||
+                        (Number(item.dcl) && accountTab === 'dcl')
+                          ? 'cursor-pointer'
+                          : 'cursor-not-allowed'
+                      } `}
+                      onClick={() => {
+                        clickCheckbox(item);
+                      }}
+                    >
+                      {checkedMap[item.id]?.amount ? (
+                        <CheckboxSelected></CheckboxSelected>
+                      ) : (
+                        <Checkbox></Checkbox>
+                      )}
+                    </label>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
+          <tr
+            className={`h-20 border-t border-borderColor border-opacity-30 ${
+              accountTab !== 'near' ? '' : 'hidden'
+            }`}
+          >
+            <td></td>
+            <td colSpan={3}>
+              <div className="flex justify-center">
+                {showCrossBalance ? (
+                  <GradientButton
+                    color="#fff"
+                    className={`w-36 h-9 text-center text-base text-white mt-4 focus:outline-none font-semibold ${
+                      Object.keys(checkedAuroraMap).length == 0
+                        ? 'opacity-40'
+                        : ''
+                    }`}
+                    onClick={doWithDraw}
+                    disabled={
+                      Object.keys(checkedAuroraMap).length == 0 ||
+                      withdrawLoading
+                    }
+                    btnClassName={
+                      Object.keys(checkedAuroraMap).length == 0
+                        ? 'cursor-not-allowed'
+                        : ''
+                    }
+                    loading={withdrawLoading}
+                  >
+                    <div>
+                      <ButtonTextWrapper
+                        loading={withdrawLoading}
+                        Text={() => (
+                          <FormattedMessage
+                            id="withdraw"
+                            defaultMessage="Withdraw"
+                          />
+                        )}
+                      />
+                    </div>
+                  </GradientButton>
+                ) : (
+                  <GradientButton
+                    color="#fff"
+                    className={`w-36 h-9 text-center text-base text-white mt-4 focus:outline-none font-semibold ${
+                      Object.keys(checkedMap).length == 0 ? 'opacity-40' : ''
+                    }`}
+                    onClick={doWithDraw}
+                    disabled={
+                      Object.keys(checkedMap).length == 0 || withdrawLoading
+                    }
+                    btnClassName={
+                      Object.keys(checkedMap).length == 0
+                        ? 'cursor-not-allowed'
+                        : ''
+                    }
+                    loading={withdrawLoading}
+                  >
+                    <div>
+                      <ButtonTextWrapper
+                        loading={withdrawLoading}
+                        Text={() => (
+                          <FormattedMessage
+                            id="withdraw"
+                            defaultMessage="Withdraw"
+                          />
+                        )}
+                      />
+                    </div>
+                  </GradientButton>
+                )}
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </>
   );
 }
 function MobileAccountTable(props: any) {
-  const { userTokens, type, refAccountTokenNumber, mapAccountTokenNumber } =
-    props;
+  const {
+    userTokens,
+    type,
+    refAccountTokenNumber,
+    mapAccountTokenNumber,
+    DCLAccountTokenNumber,
+    showCrossBalance,
+  } = props;
   const [tokensSort, setTokensSort] = useState(userTokens);
   const [currentSort, setCurrentSort] = useState('');
   const [checkedMap, setCheckedMap] = useState({});
@@ -716,6 +1039,9 @@ function MobileAccountTable(props: any) {
   const [checkAll, setCheckALl] = useState(false);
   const [checkAuroraAll, setCheckAuroraALl] = useState(false);
   const [withdrawLoading, setWithdrawLoading] = useState<boolean>(false);
+
+  const tokenPriceList = useTokenPriceList();
+
   useEffect(() => {
     sort(`${type} + '-up'`);
   }, [type]);
@@ -728,30 +1054,60 @@ function MobileAccountTable(props: any) {
     setTokensSort(Array.from(sortUserTokens));
     setCurrentSort(curSort);
   };
+
+  useEffect(() => {
+    if (showCrossBalance) return;
+    setCheckALl(false);
+    setCheckedMap({});
+  }, [type, showCrossBalance]);
+
   function clickAllCheckbox() {
-    const newStatus = type == 'ref' ? !checkAll : !checkAuroraAll;
+    const newStatus = !showCrossBalance ? !checkAll : !checkAuroraAll;
     let newCheckedMap = {};
     let count = 0;
+
     if (newStatus) {
       for (let i = 0; i < tokensSort.length; i++) {
-        const { id, ref, decimals, aurora } = tokensSort[i];
+        const { id, ref, decimals, aurora, dcl } = tokensSort[i];
+
+        if (
+          (type === 'ref' && Number(ref) == 0) ||
+          (type === 'dcl' && Number(dcl) == 0) ||
+          (type === 'aurora' && Number(aurora) == 0)
+        ) {
+          continue;
+        }
+
         if (count >= withdraw_number_at_once) {
           break;
-        }
-        const amount = type == 'ref' ? ref : aurora;
-        if (amount > 0) {
+        } else if (type === 'ref') {
           ++count;
           newCheckedMap[id] = {
             id,
             decimals,
-            amount,
+            amount: ref,
+          };
+        } else if (type === 'dcl') {
+          ++count;
+          newCheckedMap[id] = {
+            id,
+            decimals,
+            amount: dcl,
+          };
+        } else if (type === 'aurora') {
+          ++count;
+          newCheckedMap[id] = {
+            id,
+            decimals,
+            amount: aurora,
           };
         }
       }
     } else {
       newCheckedMap = {};
     }
-    if (type == 'ref') {
+
+    if (!showCrossBalance) {
       setCheckALl(newStatus);
       setCheckedMap(newCheckedMap);
     } else {
@@ -759,28 +1115,54 @@ function MobileAccountTable(props: any) {
       setCheckedAuroraMap(newCheckedMap);
     }
   }
-  function clickCheckbox(token: TokenMetadata & { aurora: string }) {
-    const { id, ref, aurora, decimals } = token;
-    if (type == 'ref') {
-      if (checkedMap[id] || Number(ref) == 0) {
-        delete checkedMap[id];
-      } else if (Object.keys(checkedMap).length < withdraw_number_at_once) {
-        checkedMap[id] = {
-          id,
-          decimals,
-          amount: ref,
-        };
+  function clickCheckbox(token: TokenMetadata) {
+    if (!showCrossBalance) {
+      const { id, ref, dcl, decimals } = token;
+      if (type === 'ref') {
+        if (checkedMap[id] || Number(ref) == 0) {
+          delete checkedMap[id];
+        } else if (Object.keys(checkedMap).length < withdraw_number_at_once) {
+          checkedMap[id] = {
+            id,
+            decimals,
+            amount: ref,
+          };
+        }
+
+        if (
+          Object.keys(checkedMap).length ==
+          Math.min(withdraw_number_at_once, refAccountTokenNumber)
+        ) {
+          setCheckALl(true);
+        } else {
+          setCheckALl(false);
+        }
       }
-      if (
-        Object.keys(checkedMap).length ==
-        Math.min(withdraw_number_at_once, refAccountTokenNumber)
-      ) {
-        setCheckALl(true);
-      } else {
-        setCheckALl(false);
+
+      if (type === 'dcl') {
+        if (checkedMap[id] || Number(dcl) == 0) {
+          delete checkedMap[id];
+        } else if (Object.keys(checkedMap).length < withdraw_number_at_once) {
+          checkedMap[id] = {
+            id,
+            decimals,
+            amount: dcl,
+          };
+        }
+
+        if (
+          Object.keys(checkedMap).length ==
+          Math.min(withdraw_number_at_once, DCLAccountTokenNumber)
+        ) {
+          setCheckALl(true);
+        } else {
+          setCheckALl(false);
+        }
       }
-      setCheckedMap(JSON.parse(JSON.stringify(checkedMap)));
-    } else if (type == 'map') {
+
+      setCheckedMap(Object.assign({}, checkedMap));
+    } else {
+      const { id, aurora, decimals } = token;
       if (checkedAuroraMap[id] || Number(aurora) == 0) {
         delete checkedAuroraMap[id];
       } else if (
@@ -800,17 +1182,18 @@ function MobileAccountTable(props: any) {
       } else {
         setCheckAuroraALl(false);
       }
-      setCheckedAuroraMap(JSON.parse(JSON.stringify(checkedAuroraMap)));
+      setCheckedAuroraMap(Object.assign({}, checkedAuroraMap));
     }
   }
   function doWithDraw() {
     setWithdrawLoading(true);
-    if (type == 'ref') {
-      batchWithdraw(checkedMap);
-    } else if (type == 'map') {
-      batchWithdrawFromAurora(checkedAuroraMap);
+    if (showCrossBalance) batchWithdrawFromAurora(checkedAuroraMap);
+    else if (type === 'ref') batchWithdraw(checkedMap);
+    else if (type === 'dcl') {
+      batchWithdrawDCL(checkedMap);
     }
   }
+
   return (
     <table className="text-left w-full text-sm text-gray-400 mt-8 table-auto">
       <thead>
@@ -844,7 +1227,7 @@ function MobileAccountTable(props: any) {
               className={`flex items-center w-full justify-end`}
             >
               <RefIcon />
-              <label className="mx-1 cursor-pointer">REF</label>
+              <label className="mx-1 cursor-pointer">REF(Classic)</label>
               <TiArrowSortedUp
                 className={`cursor-pointer ${
                   currentSort == 'ref-down' ? 'transform rotate-180' : ''
@@ -852,26 +1235,44 @@ function MobileAccountTable(props: any) {
               />
             </span>
           </th>
-          <th className={`pr-4 ${type == 'map' ? '' : 'hidden'}`}>
+
+          <th className={`pr-4 ${type == 'dcl' ? '' : 'hidden'}`}>
             <span
               onClick={() => {
                 sort();
               }}
-              data-sort="map"
+              data-sort="dcl"
+              className={`flex items-center w-full justify-end`}
+            >
+              <RefIcon />
+              <label className="mx-1 cursor-pointer">REF(DCL)</label>
+              <TiArrowSortedUp
+                className={`cursor-pointer ${
+                  currentSort == 'dcl-down' ? 'transform rotate-180' : ''
+                }`}
+              />
+            </span>
+          </th>
+          <th className={`pr-4 ${type == 'aurora' ? '' : 'hidden'}`}>
+            <span
+              onClick={() => {
+                sort();
+              }}
+              data-sort="aurora"
               className={`flex items-center w-full justify-end`}
             >
               <MappingAccountIcon />
               <label className="mx-1 cursor-pointer">Mapping</label>
               <TiArrowSortedUp
                 className={`cursor-pointer ${
-                  currentSort == 'map-down' ? 'transform rotate-180' : ''
+                  currentSort == 'aurora-down' ? 'transform rotate-180' : ''
                 }`}
               />
             </span>
           </th>
           <th className={`pr-2 ${type == 'near' ? 'hidden' : ''}`}>
             <label className="cursor-pointer" onClick={clickAllCheckbox}>
-              {type == 'ref' ? (
+              {!showCrossBalance ? (
                 <>
                   {checkAll ? (
                     <CheckboxSelected></CheckboxSelected>
@@ -897,7 +1298,8 @@ function MobileAccountTable(props: any) {
           if (
             (type == 'ref' && new BigNumber(item.ref).isEqualTo(0)) ||
             (type == 'near' && new BigNumber(item.near).isEqualTo(0)) ||
-            (type == 'map' && new BigNumber(item.aurora).isEqualTo(0))
+            (type == 'aurora' && new BigNumber(item.aurora).isEqualTo(0)) ||
+            (type == 'dcl' && new BigNumber(item.dcl).isEqualTo(0))
           ) {
             return null;
           } else
@@ -930,20 +1332,80 @@ function MobileAccountTable(props: any) {
                     <label className="text-white font-semibold text-lg mb-1">
                       {getWalletBalance(item)}
                     </label>
+                    <div className="text-xs text-primaryText">
+                      {!tokenPriceList?.[item.id]?.price
+                        ? '$-'
+                        : `~$${toInternationalCurrencySystem(
+                            scientificNotationToString(
+                              new Big(tokenPriceList?.[item.id]?.price || '0')
+                                .times(new Big(item.near || '0'))
+                                .toString()
+                            ),
+                            3
+                          )}`}
+                    </div>
                   </div>
                 </td>
+
+                <td className={`pr-4 ${type == 'dcl' ? '' : 'hidden'}`}>
+                  <div className="flex flex-col items-end py-4">
+                    <label className="text-white font-semibold text-lg mb-1">
+                      {getDCLBalance(item)}
+                    </label>
+
+                    <div className="text-xs text-primaryText">
+                      {!tokenPriceList?.[item.id]?.price
+                        ? '$-'
+                        : `~$${toInternationalCurrencySystem(
+                            scientificNotationToString(
+                              new Big(tokenPriceList?.[item.id]?.price || '0')
+                                .times(new Big(item.dcl || '0'))
+                                .toString()
+                            ),
+                            3
+                          )}`}
+                    </div>
+                  </div>
+                </td>
+
                 <td className={`pr-4 ${type == 'ref' ? '' : 'hidden'}`}>
                   <div className="flex flex-col items-end py-4">
                     <label className="text-white font-semibold text-lg mb-1">
                       {getRefBalance(item)}
                     </label>
+
+                    <div className="text-xs text-primaryText">
+                      {!tokenPriceList?.[item.id]?.price
+                        ? '$-'
+                        : `~$${toInternationalCurrencySystem(
+                            scientificNotationToString(
+                              new Big(tokenPriceList?.[item.id]?.price || '0')
+                                .times(new Big(item.ref || '0'))
+                                .toString()
+                            ),
+                            3
+                          )}`}
+                    </div>
                   </div>
                 </td>
-                <td className={`pr-4 ${type == 'map' ? '' : 'hidden'}`}>
+                <td className={`pr-4 ${type == 'aurora' ? '' : 'hidden'}`}>
                   <div className="flex flex-col items-end py-4">
                     <label className="text-white font-semibold text-lg mb-1">
                       {getAuroraBalance(item)}
                     </label>
+
+                    <div className="text-xs text-primaryText">
+                      {!tokenPriceList?.[item.id]?.price
+                        ? '$-'
+                        : `~$${toInternationalCurrencySystem(
+                            scientificNotationToString(
+                              new Big(tokenPriceList?.[item.id]?.price || '0')
+                                .times(new Big(item.aurora || '0'))
+                                .toString()
+                            ),
+                            3
+                          )}`}
+                    </div>
                   </div>
                 </td>
                 <td className={`pr-2 ${type == 'near' ? 'hidden' : ''}`}>
@@ -953,7 +1415,7 @@ function MobileAccountTable(props: any) {
                       clickCheckbox(item);
                     }}
                   >
-                    {type == 'ref' ? (
+                    {!showCrossBalance ? (
                       <>
                         {checkedMap[item.id]?.amount ? (
                           <CheckboxSelected></CheckboxSelected>
@@ -981,8 +1443,8 @@ function MobileAccountTable(props: any) {
           }`}
         >
           <td colSpan={5}>
-            {type == 'ref' ? (
-              <div className="flex flex-col justify-center items-center">
+            {!showCrossBalance ? (
+              <div className="flex flex-col justify-center items-center mb-4">
                 <div
                   className={`border border-primaryText p-2.5 text-xs text-navHighLightText text-left rounded-md m-3 mt-4 ${
                     Object.keys(checkedMap).length >= withdraw_number_at_once
@@ -1022,7 +1484,7 @@ function MobileAccountTable(props: any) {
                 </GradientButton>
               </div>
             ) : (
-              <div className="flex flex-col justify-center items-center">
+              <div className="flex flex-col justify-center items-center mb-4">
                 <div
                   className={`border border-primaryText p-2.5 text-xs text-navHighLightText text-left rounded-md m-3 mt-4 ${
                     Object.keys(checkedAuroraMap).length >=
@@ -1078,8 +1540,13 @@ function Account(props: any) {
 
   const [hasRefBalanceOver, setHasRefBalanceOver] = useState<boolean>(false);
   const [hasMapBalanceOver, setHasMapBalanceOver] = useState<boolean>(false);
+
+  const [hasDCLBalanceOver, setHasDCLBalanceOver] = useState<boolean>(false);
+
   const [refAccountTokenNumber, setRefAccountTokenNumber] = useState();
   const [mapAccountTokenNumber, setMapAccountTokenNumber] = useState();
+
+  const [DCLAccountTokenNumber, setDCLAccountTokenNumber] = useState();
 
   useEffect(() => {
     const hasRefBalanceOver = userTokens.some((token: TokenMetadata) => {
@@ -1090,6 +1557,13 @@ function Account(props: any) {
         return Number(token.aurora) > 0;
       }
     );
+
+    const hasDCLBalanceOver = userTokens.some(
+      (token: TokenMetadata & { dcl: string }) => {
+        return Number(token.dcl) > 0;
+      }
+    );
+
     const refAccountHasToken = userTokens.filter((token: TokenMetadata) => {
       const { ref } = token;
       if (Number(ref) > 0) return true;
@@ -1101,10 +1575,20 @@ function Account(props: any) {
         return Number(aurora) > 0;
       }
     );
+
+    const DCLAccountHasToken = userTokens.filter(
+      (token: TokenMetadata & { dcl: string }) => {
+        const { dcl } = token;
+        return Number(dcl) > 0;
+      }
+    );
+
+    setDCLAccountTokenNumber(DCLAccountHasToken.length);
     setRefAccountTokenNumber(refAccountHasToken.length);
     setMapAccountTokenNumber(mapAccountHasToken.length);
     setHasRefBalanceOver(hasRefBalanceOver);
     setHasMapBalanceOver(hasMapBalanceOver);
+    setHasDCLBalanceOver(hasDCLBalanceOver);
 
     setVisible(
       hasRefBalanceOver &&
@@ -1149,11 +1633,6 @@ function Account(props: any) {
     if (tab === 'ref') {
       localStorage.setItem(ACCOUNT_PAGE_AURORA_SHOW, 'normal');
     }
-    window.history.replaceState(
-      {},
-      '',
-      window.location.origin + window.location.pathname
-    );
   }, [tab]);
 
   const [auroraAccountHover, setAuroraAccountHover] = useState(false);
@@ -1232,8 +1711,21 @@ function Account(props: any) {
     </div>
   );
 
+  if (
+    refAccountTokenNumber === undefined ||
+    mapAccountTokenNumber === undefined ||
+    DCLAccountTokenNumber === undefined
+  )
+    return <Loading />;
+
+  window.history.replaceState(
+    {},
+    '',
+    window.location.origin + window.location.pathname
+  );
+
   return (
-    <div className="justify-center relative w-1/2 m-auto mt-16 xs:hidden md:hidden pb-5 flex flex-col">
+    <div className="justify-center relative w-560px m-auto mt-16 xs:hidden md:hidden pb-5 flex flex-col">
       {showCrossBalance ? (
         <>
           {visibleMap ? (
@@ -1250,10 +1742,10 @@ function Account(props: any) {
 
       <div className="flex items-center justify-between ">
         <div
-          className="relative flex items-center font-semibold bg-cardBg rounded-t-lg text-white"
+          className="relative flex items-center font-semibold bg-cardBg rounded-t-xl text-white"
           style={{
-            height: '66px',
-            width: 'calc(100% - 8.25rem)',
+            height: '50px',
+            width: '100%',
           }}
         >
           <div className="relative top-2 left-8 flex items-center w-full">
@@ -1265,7 +1757,7 @@ function Account(props: any) {
         </div>
 
         <div
-          className="pb-4 pl-5 accountPage-pc-top-right relative cursor-pointer"
+          className="pb-2 pl-3 accountPage-pc-top-right relative cursor-pointer"
           onClick={() => {
             const newCross = !showCrossBalance;
             localStorage.setItem(
@@ -1275,7 +1767,7 @@ function Account(props: any) {
             setShowCrossBalance(newCross);
           }}
         >
-          <SwapCross ifCross={showCrossBalance} />
+          <NewProIcon colorLight={showCrossBalance ? 'white' : ''} />
         </div>
       </div>
 
@@ -1287,6 +1779,9 @@ function Account(props: any) {
           refAccountTokenNumber={refAccountTokenNumber}
           mapAccountTokenNumber={mapAccountTokenNumber}
           showCrossBalance={showCrossBalance}
+          hasDCLBalanceOver={hasDCLBalanceOver}
+          DCLAccountTokenNumber={DCLAccountTokenNumber}
+          defaultTab={tab === 'ref' ? (hasRefBalanceOver ? 'ref' : 'dcl') : tab}
         />
       </Card>
     </div>
@@ -1294,8 +1789,7 @@ function Account(props: any) {
 }
 function MobileAccount(props: any) {
   const { userTokens } = props;
-  const [modal, setModal] = useState(null);
-  const [visible, setVisible] = useState(false);
+
   const [activeTab, setActiveTab] = useState('');
   const [showTip, setShowTip] = useState(false);
   const { globalState } = useContext(WalletContext);
@@ -1307,6 +1801,9 @@ function MobileAccount(props: any) {
   const [mapAccountTokenNumber, setMapAccountTokenNumber] = useState();
   const [hasRefBalanceOver, setHasRefBalanceOver] = useState(false);
   const [hasMapBalanceOver, setHasMapBalanceOver] = useState(false);
+
+  const [DCLAccountTokenNumber, setDCLAccountTokenNumber] = useState();
+  const [hasDCLBalanceOver, setHasDCLBalanceOver] = useState<boolean>(false);
 
   const displayAddr = `${auroraAddress?.substring(
     0,
@@ -1322,7 +1819,6 @@ function MobileAccount(props: any) {
       ? `${nearAddress.substring(0, 10)}...`
       : nearAddress;
 
-  const { wallet } = getCurrentWallet();
   const tab = new URLSearchParams(window.location.search).get('tab');
 
   const crossStatus = localStorage.getItem(ACCOUNT_PAGE_AURORA_SHOW);
@@ -1337,11 +1833,6 @@ function MobileAccount(props: any) {
     if (tab === 'ref') {
       localStorage.setItem(ACCOUNT_PAGE_AURORA_SHOW, 'normal');
     }
-    window.history.replaceState(
-      {},
-      '',
-      window.location.origin + window.location.pathname
-    );
   }, [tab]);
   useEffect(() => {
     const refAccountHasToken = userTokens.filter((token: TokenMetadata) => {
@@ -1354,6 +1845,14 @@ function MobileAccount(props: any) {
         if (Number(aurora) > 0) return true;
       }
     );
+
+    const DCLAccountHasToken = userTokens.filter(
+      (token: TokenMetadata & { dcl: string }) => {
+        const { dcl } = token;
+        return Number(dcl) > 0;
+      }
+    );
+
     const hasRefBalanceOver = userTokens.some((token: TokenMetadata) => {
       return Number(token.ref) > 0.001;
     });
@@ -1362,11 +1861,26 @@ function MobileAccount(props: any) {
         return Number(token.aurora) > 0;
       }
     );
+
+    const hasDCLBalanceOver = userTokens.some(
+      (token: TokenMetadata & { dcl: string }) => {
+        return Number(token.dcl) > 0;
+      }
+    );
+
     setHasRefBalanceOver(hasRefBalanceOver);
     setHasMapBalanceOver(hasMapBalanceOver);
     setRefAccountTokenNumber(refAccountHasToken.length);
     setMapAccountTokenNumber(mapAccountHasToken.length);
-    switchCross({ refOver: hasRefBalanceOver, mapOver: hasMapBalanceOver });
+
+    setHasDCLBalanceOver(hasDCLBalanceOver);
+    setDCLAccountTokenNumber(DCLAccountHasToken.length);
+
+    switchCross({
+      refOver: hasRefBalanceOver,
+      dclOver: hasDCLBalanceOver,
+      mapOver: hasMapBalanceOver,
+    });
   }, []);
 
   const [copyIconHover, setCopyIconHover] = useState<boolean>(false);
@@ -1407,10 +1921,13 @@ function MobileAccount(props: any) {
     let newCross = !showCrossBalance;
     let refOver = hasRefBalanceOver;
     let mapOver = hasMapBalanceOver;
+
+    let dclOver = hasDCLBalanceOver;
     if (initData) {
       newCross = showCrossBalance;
       refOver = initData.refOver;
       mapOver = initData.mapOver;
+      dclOver = initData.dclOver;
     } else {
       // new cross
       setShowCrossBalance(newCross);
@@ -1422,10 +1939,14 @@ function MobileAccount(props: any) {
     // seleced tab
     setActiveTab('near');
     if (newCross && mapOver) {
-      setActiveTab('map');
+      setActiveTab('aurora');
     }
     if (!newCross && refOver) {
       setActiveTab('ref');
+    }
+
+    if (!newCross && dclOver) {
+      setActiveTab('dcl');
     }
     // show tip
     const ref_account_withdraw_tip = localStorage.getItem(
@@ -1436,7 +1957,8 @@ function MobileAccount(props: any) {
     );
     const showWithDrawTipBox =
       (newCross && mapOver && aurora_account_withdraw_tip != '1') ||
-      (!newCross && refOver && ref_account_withdraw_tip != '1');
+      (!newCross && refOver && ref_account_withdraw_tip != '1') ||
+      (!newCross && dclOver && ref_account_withdraw_tip != '1');
     setShowTip(showWithDrawTipBox);
   };
   const closeAccountWithdrawTip = () => {
@@ -1455,10 +1977,10 @@ function MobileAccount(props: any) {
       >
         <div className="flex items-center justify-between">
           <div
-            className="relative flex items-center  justify-center font-semibold bg-cardBg rounded-t-2xl text-white w-full"
+            className="relative flex items-center  justify-center font-semibold bg-cardBg rounded-t-xl text-white w-full"
             style={{
-              height: '66px',
-              width: 'calc(100% - 8.25rem)',
+              height: '50px',
+              width: 'calc(100% - 1rem)',
             }}
           >
             <div className="flex items-center justify-center w-full">
@@ -1469,59 +1991,116 @@ function MobileAccount(props: any) {
             </div>
           </div>
           <div
-            className="pb-4 pl-5 accountPage-pc-top-right relative cursor-pointer"
+            className="pb-1 relative bottom-1 pl-3 accountPage-pc-top-right  cursor-pointer"
             onClick={() => {
               switchCross();
             }}
           >
-            <SwapCross ifCross={showCrossBalance} />
+            {showCrossBalance ? <ProIconClick /> : <ProIconHover />}
           </div>
         </div>
         <div className="bg-cardBg rounded-lg rounded-tl-none pt-3">
           <div className="px-3">
-            <div className="flex items-center bg-acccountTab rounded-lg p-1">
+            <div
+              className={`flex items-center bg-acccountTab
+              ${
+                (
+                  showCrossBalance
+                    ? !mapAccountTokenNumber
+                    : !refAccountTokenNumber && !DCLAccountTokenNumber
+                )
+                  ? 'hidden'
+                  : ''
+              }
+            
+            rounded-lg p-1`}
+            >
               <label
                 onClick={() => {
                   switchTab('near');
                 }}
                 className={`flex items-center justify-center ${
-                  mapAccountTokenNumber || refAccountTokenNumber
+                  mapAccountTokenNumber ||
+                  refAccountTokenNumber ||
+                  DCLAccountTokenNumber
                     ? 'w-1/2'
                     : 'w-full'
                 } h-10 flex-grow text-base rounded-md  ${
                   activeTab == 'near'
                     ? 'text-white bg-acccountBlock'
                     : 'text-primaryText'
-                }`}
+                }
+             
+                
+                `}
               >
-                <FormattedMessage id="near_wallet"></FormattedMessage>
+                NEAR
               </label>
               {showCrossBalance ? (
                 <label
                   onClick={() => {
-                    switchTab('map');
+                    switchTab('aurora');
                   }}
                   className={`flex w-1/2 items-center justify-center h-10 text-center flex-grow text-base rounded-md ${
-                    activeTab == 'map'
+                    activeTab == 'aurora'
                       ? 'text-white bg-acccountBlock'
                       : 'text-primaryText'
                   } ${mapAccountTokenNumber ? '' : 'hidden'}`}
                 >
-                  <FormattedMessage id="mapping_account"></FormattedMessage>
+                  Aurora
+                  {hasMapBalanceOver ? (
+                    <div
+                      className="w-1.5 h-1.5 relative left-1 bottom-1 rounded-full "
+                      style={{
+                        background: '#ff3e83',
+                      }}
+                    ></div>
+                  ) : null}
                 </label>
               ) : (
-                <label
-                  onClick={() => {
-                    switchTab('ref');
-                  }}
-                  className={`flex w-1/2 items-center justify-center text-center h-10 flex-grow text-base rounded-md ${
-                    activeTab == 'ref'
-                      ? 'text-white bg-acccountBlock'
-                      : 'text-primaryText'
-                  } ${refAccountTokenNumber ? '' : 'hidden'}`}
-                >
-                  <FormattedMessage id="ref_account"></FormattedMessage>
-                </label>
+                <>
+                  <label
+                    onClick={() => {
+                      switchTab('ref');
+                    }}
+                    className={`flex w-1/2 items-center justify-center text-center h-10 flex-grow text-base rounded-md ${
+                      activeTab == 'ref'
+                        ? 'text-white bg-acccountBlock'
+                        : 'text-primaryText'
+                    } ${refAccountTokenNumber ? '' : 'hidden'}`}
+                  >
+                    REF(Classic)
+                    {hasRefBalanceOver ? (
+                      <div
+                        className="w-1.5 h-1.5 relative left-1 bottom-1 rounded-full "
+                        style={{
+                          background: '#ff3e83',
+                        }}
+                      ></div>
+                    ) : null}
+                  </label>
+
+                  <label
+                    onClick={() => {
+                      switchTab('dcl');
+                    }}
+                    className={`flex w-1/2 items-center justify-center text-center h-10 flex-grow text-base rounded-md ${
+                      activeTab == 'dcl'
+                        ? 'text-white bg-acccountBlock'
+                        : 'text-primaryText'
+                    } ${DCLAccountTokenNumber ? '' : 'hidden'}`}
+                  >
+                    REF(DCL)
+                    {hasDCLBalanceOver ? (
+                      <div
+                        className="w-1.5 h-1.5 relative left-1 bottom-1 rounded-full "
+                        style={{
+                          background: '#ff3e83',
+                        }}
+                      ></div>
+                    ) : null}
+                  </label>
+                </>
               )}
             </div>
           </div>
@@ -1530,7 +2109,9 @@ function MobileAccount(props: any) {
             userTokens={userTokens}
             refAccountTokenNumber={refAccountTokenNumber}
             mapAccountTokenNumber={mapAccountTokenNumber}
-          ></MobileAccountTable>
+            showCrossBalance={showCrossBalance}
+            DCLAccountTokenNumber={DCLAccountTokenNumber}
+          />
           {showTip ? (
             <div
               style={{
@@ -1711,27 +2292,43 @@ export function AccountPage() {
     getCurrentWallet()?.wallet?.getAccountId() || ''
   );
 
-  const userTokens = useUserRegisteredTokensAllAndNearBalance(isSignedIn);
+  const userTokens = useUserRegisteredTokensAllAndNearBalance();
 
   const balances = useTokenBalances(); // inner account balance
 
   const auroaBalances = useAuroraBalancesNearMapping(auroraAddress);
 
-  if (!userTokens || !balances || !auroaBalances) return <Loading />;
+  const DCLAccountBalance = useDCLAccountBalance(!!accountId);
+
+  if (!userTokens || !balances || !auroaBalances || !DCLAccountBalance)
+    return <Loading />;
 
   userTokens.forEach((token: TokenMetadata) => {
     const { decimals, id, nearNonVisible, symbol } = token;
-    token.ref = toReadableNumber(decimals, balances[id] || '0');
+    token.ref =
+      id === NEARXIDS[0]
+        ? '0'
+        : toReadableNumber(decimals, balances[id] || '0');
     token.near = toReadableNumber(decimals, (nearNonVisible || '0').toString());
+    token.dcl = toReadableNumber(decimals, DCLAccountBalance[id] || '0');
     token.aurora = toReadableNumber(
       decimals,
       auroaBalances[id] || '0'
     ).toString();
   });
+
   return (
     <>
-      <Account userTokens={userTokens} />
-      <MobileAccount userTokens={userTokens} />
+      <Account
+        userTokens={userTokens.filter(
+          (t) => TOKEN_BLACK_LIST.indexOf(t.id) === -1
+        )}
+      />
+      <MobileAccount
+        userTokens={userTokens.filter(
+          (t) => TOKEN_BLACK_LIST.indexOf(t.id) === -1
+        )}
+      />
     </>
   );
 }

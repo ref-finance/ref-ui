@@ -1,14 +1,22 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { toRealSymbol } from '~utils/token';
 import { TokenMetadata } from '../../services/ft-contract';
 import { toInternationalCurrencySystem } from '~utils/numbers';
 import { toPrecision } from '../../utils/numbers';
 import { SingleToken } from '../forms/SelectToken';
-import { OutLinkIcon } from '../../components/icon/Common';
 import { RefIcon } from '../../components/icon/DexIcon';
 import { TriIcon } from '../icon/DexIcon';
-import { getCurrentWallet } from '../../utils/wallets-integration';
-
+import {
+  getCurrentWallet,
+  WalletContext,
+} from '../../utils/wallets-integration';
+import { PinEmpty, PinSolid } from '../../components/icon/Common';
+import {
+  localTokens,
+  USER_COMMON_TOKEN_LIST,
+} from '../../components/forms/SelectToken';
+import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
+import { isClientMobie } from '../../utils/device';
 interface TokenProps {
   token: TokenMetadata;
   onClick: (token: TokenMetadata) => void;
@@ -28,18 +36,61 @@ export default function Token({
   forCross,
 }: TokenProps) {
   const { icon, symbol, id, near, ref, total, onRef, onTri } = token;
-
-  const displayBalance =
-    0 < Number(near) && Number(near) < 0.001
+  const {
+    commonBassesTokens,
+    getLatestCommonBassesTokens,
+    getLatestCommonBassesTokenIds,
+  } = useContext(localTokens);
+  const local_user_list = getLatestCommonBassesTokenIds();
+  const arr = new Set(local_user_list);
+  const [hasPin, setHasPin] = useState<boolean>();
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
+  useEffect(() => {
+    const t = commonBassesTokens.find((token: TokenMetadata) => {
+      if (token.id == id && token.symbol == symbol) return true;
+    });
+    if (t) {
+      setHasPin(true);
+    } else {
+      setHasPin(false);
+    }
+  }, [commonBassesTokens]);
+  const displayBalance = isSignedIn
+    ? 0 < Number(near) && Number(near) < 0.001
       ? '< 0.001'
-      : toPrecision(String(near), 3);
+      : toPrecision(String(near), 3)
+    : '-';
 
   const [hover, setHover] = useState(false);
-
+  function pinToken(token: TokenMetadata) {
+    if (token.id == WRAP_NEAR_CONTRACT_ID && token.symbol == 'NEAR') {
+      arr.add('near');
+    } else {
+      arr.add(token.id);
+    }
+    localStorage.setItem(
+      USER_COMMON_TOKEN_LIST,
+      JSON.stringify(Array.from(arr))
+    );
+    getLatestCommonBassesTokens();
+  }
+  function removeToken(token: TokenMetadata) {
+    if (token.id == WRAP_NEAR_CONTRACT_ID && token.symbol == 'NEAR') {
+      arr.delete('near');
+    } else {
+      arr.delete(token.id);
+    }
+    localStorage.setItem(
+      USER_COMMON_TOKEN_LIST,
+      JSON.stringify(Array.from(arr))
+    );
+    getLatestCommonBassesTokens();
+  }
   return (
     <div
-      key={id}
-      className="hover:bg-black hover:bg-opacity-10 flex items-center justify-between w-full relative"
+      key={id + symbol}
+      className="flex items-center justify-between w-full  hover:bg-black hover:bg-opacity-10 relative"
       onClick={() => onClick && onClick(token)}
       style={{
         height: '56px',
@@ -48,22 +99,16 @@ export default function Token({
       onMouseLeave={() => setHover(false)}
     >
       <div
-        className={`xs:text-xs text-sm pl-8 ${
-          index === 0
-            ? !price
-              ? 'pt-6 pb-4'
-              : 'pt-4 pb-2'
-            : !price
-            ? 'py-4'
-            : 'py-2'
-        }  cursor-pointer flex w-34 items-center`}
+        className={`flex items-center cursor-pointer pl-8 xsm:pl-5 xs:text-xs text-sm  ${
+          index === 0 ? 'pt-4 pb-2' : 'py-2'
+        }`}
       >
         <SingleToken token={token} price={price} />
       </div>
       <div
         className={!forCross ? 'hidden' : 'w-12 flex justify-start  absolute '}
         style={{
-          left: '45%',
+          left: '43%',
         }}
       >
         {onRef || onTri ? <RefIcon lightTrigger={hover} /> : null}
@@ -77,19 +122,29 @@ export default function Token({
           sortBy === 'near' ? 'text-white' : ''
         }`}
       >
-        <div className="relative flex items-center justify-end pr-12">
-          {displayBalance}
-          {TokenLinks[symbol] ? (
-            <a
-              className="absolute right-5"
-              onClick={(e) => {
-                e.stopPropagation();
-                window.open(TokenLinks[symbol]);
-              }}
-            >
-              <OutLinkIcon className="text-primaryText hover:text-greenColor cursor-pointer"></OutLinkIcon>
-            </a>
-          ) : null}
+        <div className="flex items-center justify-end pr-6">
+          <span className="text-sm text-white mr-3">{displayBalance}</span>
+          {
+            <>
+              {hasPin ? (
+                <PinSolid
+                  onClick={(e: any) => {
+                    e.stopPropagation();
+                    removeToken(token);
+                  }}
+                  className="text-primaryText hover:text-pinEmptyHoverColor cursor-pointer"
+                ></PinSolid>
+              ) : (
+                <PinEmpty
+                  onClick={(e: any) => {
+                    e.stopPropagation();
+                    pinToken(token);
+                  }}
+                  className="text-primaryText hover:text-pinEmptyHoverColor cursor-pointer"
+                ></PinEmpty>
+              )}
+            </>
+          }
         </div>
       </div>
     </div>

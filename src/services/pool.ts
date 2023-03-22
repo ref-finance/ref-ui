@@ -18,7 +18,7 @@ import {
   storageDepositAction,
   storageDepositForFTAction,
 } from './creators/storage';
-import { getTopPools } from '../services/indexer';
+import { getTopPools, getTopPoolsIndexer } from '../services/indexer';
 import { PoolRPCView } from './api';
 import {
   checkTokenNeedsStorageDeposit,
@@ -48,8 +48,11 @@ import {
 } from './wrap-near';
 import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity';
 import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
+import { getAllPoolsIndexer } from './indexer';
+import { getExtendConfig } from './config';
+import { cacheAllDCLPools } from './swapV3';
 const explorerType = getExplorer();
-export const DEFAULT_PAGE_LIMIT = 100;
+export const DEFAULT_PAGE_LIMIT = 500;
 const getStablePoolKey = (id: string) => `STABLE_POOL_VALUE_${id}`;
 
 export const getStablePoolInfoKey = (id: string) =>
@@ -67,6 +70,11 @@ export interface Pool {
   Dex?: string;
   rates?: {
     [id: string]: string;
+  };
+  pool_kind?: string;
+  pairAdd?: string;
+  metas?: {
+    [id: string]: TokenMetadata;
   };
 }
 
@@ -100,6 +108,7 @@ export const parsePool = (pool: PoolRPCView, id?: number): Pool => ({
   shareSupply: pool.shares_total_supply,
   tvl: pool.tvl,
   token0_ref_price: pool.token0_ref_price,
+  pool_kind: pool?.pool_kind,
 });
 
 export const getPools = async ({
@@ -155,10 +164,6 @@ export const getPoolsFromCache = async ({
     tvl: 0,
     token0_ref_price: '0',
   }));
-};
-
-export const getAllPoolsFromDb = async () => {
-  return await db.allPools().toArray();
 };
 
 export const getAllWatchListFromDb = async ({
@@ -265,11 +270,16 @@ interface GetPoolOptions {
   setLoadingData?: (loading: boolean) => void;
   loadingTrigger: boolean;
   crossSwap?: boolean;
+  tokenIn?: TokenMetadata;
+  tokenOut?: TokenMetadata;
+  proGetCachePool?: boolean;
 }
 
 export const isNotStablePool = (pool: Pool) => {
   return !isStablePool(pool.id);
 };
+
+const REF_FI_ACTIVE_TRI_POOL = 'REF_FI_ACTIVE_TRI_POOL_VALUE';
 
 export const getPoolsByTokens = async ({
   tokenInId,
@@ -277,6 +287,9 @@ export const getPoolsByTokens = async ({
   setLoadingData,
   loadingTrigger,
   crossSwap,
+  proGetCachePool,
+  tokenIn,
+  tokenOut,
 }: GetPoolOptions): Promise<Pool[]> => {
   let filtered_pools;
   const [cacheForPair, cacheTimeLimit] = await db.checkPoolsByTokens(
@@ -284,35 +297,102 @@ export const getPoolsByTokens = async ({
     tokenOutId
   );
 
+  const PAIR_NAME = [
+    !tokenIn || tokenIn.id === WRAP_NEAR_CONTRACT_ID ? 'wNEAR' : tokenIn.symbol,
+    !tokenOut || tokenOut.id === WRAP_NEAR_CONTRACT_ID
+      ? 'wNEAR'
+      : tokenOut.symbol,
+  ].join('-');
+
   if ((!loadingTrigger && cacheTimeLimit) || !cacheForPair) {
     filtered_pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
-  }
-  if (loadingTrigger || (!cacheTimeLimit && cacheForPair)) {
-    setLoadingData && setLoadingData(true);
-    const totalPools = await getTotalPools();
-    const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
-    const pools = (
-      await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
-    )
-      .flat()
-      .map((p) => ({ ...p, Dex: 'ref' }));
 
     let triPools;
     if (crossSwap) {
-      triPools = await getAllTriPools();
+      triPools = sessionStorage.getItem(`REF_FI_TRI_POOL_` + PAIR_NAME);
+      if (triPools) {
+        triPools = JSON.parse(triPools);
+      } else {
+        triPools = await getAllTriPools(
+          tokenIn && tokenOut
+            ? [
+                tokenIn.id === WRAP_NEAR_CONTRACT_ID ? 'wNEAR' : tokenIn.symbol,
+                tokenOut.id === WRAP_NEAR_CONTRACT_ID
+                  ? 'wNEAR'
+                  : tokenOut.symbol,
+              ]
+            : null
+        );
+      }
+      filtered_pools = filtered_pools.concat(triPools || []);
+    }
+  }
+  if (
+    (crossSwap && proGetCachePool) ||
+    loadingTrigger ||
+    (!cacheTimeLimit && cacheForPair)
+  ) {
+    setLoadingData && setLoadingData(true);
+
+    const isCacheFromIndexer =
+      getExtendConfig().pool_protocol &&
+      getExtendConfig().pool_protocol === 'indexer';
+
+    const isCacheFromRPC = !isCacheFromIndexer;
+
+    let pools;
+
+    if (isCacheFromIndexer) {
+      pools = (await getTopPoolsIndexer()).map((p: any) => ({
+        ...p,
+        Dex: 'ref',
+      }));
+    } else if (isCacheFromRPC) {
+      const totalPools = await getTotalPools();
+      const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
+
+      pools = (
+        await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
+      )
+        .flat()
+        .map((p) => ({ ...p, Dex: 'ref' }));
+    }
+
+    // const totalPools = await getTotalPools();
+    // const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
+
+    let triPools;
+    if (crossSwap) {
+      triPools = await getAllTriPools(
+        tokenIn && tokenOut
+          ? [
+              tokenIn.id === WRAP_NEAR_CONTRACT_ID ? 'wNEAR' : tokenIn.symbol,
+              tokenOut.id === WRAP_NEAR_CONTRACT_ID ? 'wNEAR' : tokenOut.symbol,
+            ]
+          : null
+      );
+    }
+
+    if (triPools && triPools.length > 0) {
+      sessionStorage.setItem(
+        `REF_FI_TRI_POOL_` + PAIR_NAME,
+        JSON.stringify(triPools)
+      );
     }
 
     filtered_pools = pools
-      .concat(triPools || [])
+      // .concat(triPools || [])
       .filter(isNotStablePool)
       .filter(filterBlackListPools);
 
     await db.cachePoolsByTokens(filtered_pools);
-    filtered_pools = filtered_pools.filter(
-      (p) => p.supplies[tokenInId] && p.supplies[tokenOutId]
-    );
+    filtered_pools = filtered_pools
+      .concat(triPools || [])
+      .filter((p: any) => p.supplies[tokenInId] && p.supplies[tokenOutId]);
     await getAllStablePoolsFromCache();
+    await cacheAllDCLPools();
   }
+
   setLoadingData && setLoadingData(false);
 
   // @ts-ignore
@@ -385,8 +465,18 @@ export const getEndedFarmsCount = (poolId: string | number, farms: any) => {
   const count = farms.reduce((pre: number, cur: any) => {
     if (
       Number(cur.pool_id) === Number(poolId) &&
-      (cur.status === 'Ended' || cur.status === 'Created')
+      // (cur.status === 'Ended' || cur.status === 'Created')
+      cur.status === 'Ended'
     )
+      return pre + 1;
+    return pre;
+  }, 0);
+
+  return count;
+};
+export const getRealEndedFarmsCount = (poolId: string | number, farms: any) => {
+  const count = farms.reduce((pre: number, cur: any) => {
+    if (Number(cur.pool_id) === Number(poolId) && cur.status === 'Ended')
       return pre + 1;
     return pre;
   }, 0);

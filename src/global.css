@@ -2,6 +2,15 @@
   font-family: 'gotham';
   src: url('./assets/Gotham-Book.ttf');
 }
+@font-face {
+  font-family: 'gothamBold';
+  src: url('./assets/Gotham-Bold.otf');
+}
+@font-face {
+  font-family: 'arial';
+  src: url('./assets/Arial.ttf');
+}
+
 * {
   box-sizing: border-box;
 }
@@ -25,7 +34,12 @@ html {
 .gotham_font {
   font-family: 'gotham';
 }
-
+.gotham_bold {
+  font-family: 'gothamBold';
+}
+.arial_font {
+  font-family: 'arial';
+}
 body {
   margin: 0;
   background: #001220;
@@ -97,7 +111,7 @@ input[type='number'] {
 }
 
 .user .account-name {
-  max-width: 150px;
+  max-width: 180px;
 }
 
 .balances .token:first-child {
@@ -180,7 +194,9 @@ input[type='number'] {
 .hide-scrollbar::-webkit-scrollbar-thum {
   background: transparent;
 }
-
+.search-pool-pc::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
 .status-bar {
   font-size: 14px;
   line-height: 32px;
@@ -274,6 +290,10 @@ input[type='number'] {
 .__react_component_tooltip::after {
   content: none !important;
 }
+.__react_component_tooltip {
+  z-index: 99999 !important;
+}
+
 .farmChartScreenWidth {
   width: 100vw !important;
 }
@@ -389,6 +409,15 @@ input[type='range']::-webkit-slider-thumb {
   cursor: pointer;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
 }
+input.pause::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  background-color: #00c6a2;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  cursor: not-allowed;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
+}
 
 input[type='range']::-webkit-slider-runnable-track {
   -webkit-appearance: none;
@@ -397,11 +426,34 @@ input[type='range']::-webkit-slider-runnable-track {
   background: transparent;
 }
 
+.stablePoolEnd .text-white {
+  color: #73818b;
+}
+.stablePoolEnd img {
+  filter: grayscale(100%);
+}
+.stablePoolEnd .bg-deepBlue.text-white {
+  color: #fff;
+}
+.stablePoolEnd .active .text-navHighLightText {
+  color: #fff;
+}
+.stablePoolEnd .active img {
+  filter: initial;
+}
+
 .farmEnded .border-gradientFromHover {
   border-color: #73818b;
 }
+.farmEnded .border-gradientFrom {
+  border-color: #73818b;
+}
+
 .farmEnded .text-white {
   color: #73818b;
+}
+.farmEnded .dclIcon.text-white {
+  color: #fff;
 }
 .farmEnded img {
   filter: grayscale(100%);
@@ -454,9 +506,10 @@ input[type='range']::-webkit-slider-runnable-track {
 }
 .swiper-container {
   width: 292px;
-  /* height: 182px; */
+  height: 140px;
 }
 .swiper-wrapper {
+  position: relative;
   width: 100%;
   height: 100%;
 }
@@ -596,6 +649,12 @@ input[type='range']::-webkit-slider-runnable-track {
   -webkit-text-fill-color: transparent;
 }
 
+.valueStyleYellow {
+  background-image: -webkit-linear-gradient(left, #ffd278, #ffd278, #ff9900);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 .valueStyleVE {
   background-image: -webkit-linear-gradient(180deg, #7f43ff 0%, #00c6a2 97.06%);
   -webkit-background-clip: text;
@@ -641,7 +700,7 @@ input[type='range']::-webkit-slider-runnable-track {
     bottom: -190px;
   }
   to {
-    bottom: 0px;
+    bottom: 5px;
   }
 }
 @keyframes showfrombottomMobile {
@@ -649,7 +708,7 @@ input[type='range']::-webkit-slider-runnable-track {
     bottom: -190px;
   }
   to {
-    bottom: 10px;
+    bottom: 20px;
   }
 }
 @keyframes pushLeftanimation {
@@ -676,8 +735,66 @@ input[type='range']::-webkit-slider-runnable-track {
 }
 
 @media screen and (max-width: 1023px) {
+  .ReactModal__Body--open {
+    overflow: hidden !important;
+  }
+
   .account-tip-popup {
     right: 50px;
+  }
+  .gradientBorderWrapper:before {
+    content: '';
+    /* z-index: -1; */
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(135deg, #00ffd1 0%, #933eff 100%);
+    filter: blur(15px) !important;
+    opacity: 0.5;
+    transition: opacity 0.3s;
+    border-radius: inherit;
+  }
+  .gradientBorderWrapperNoShadow {
+    border: solid 1.5px transparent !important;
+    background-image: linear-gradient(#1d2932, #1d2932),
+      linear-gradient(
+        135deg,
+        rgba(0, 255, 209, 1) 0%,
+        rgba(91, 62, 255, 1) 100%
+      );
+    background-origin: border-box;
+    background-clip: content-box, border-box;
+    border-radius: 12px !important;
+  }
+
+  .gradientBorderWrapperNoShadowOrderly {
+    /* border-top: solid 1.5px transparent !important; */
+    background-image: linear-gradient(#1d2932, #1d2932),
+      linear-gradient(
+        135deg,
+        rgba(0, 255, 209, 1) 0%,
+        rgba(91, 62, 255, 1) 100%
+      );
+    background-origin: border-box;
+    background-clip: content-box, border-box;
+    border-radius: 16px !important;
+  }
+
+  .gradientBorderWrapperNoShadowOrderly:before {
+    content: '';
+    z-index: -1;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(135deg, #00ffd1 0%, #933eff 100%);
+    filter: blur(20px) !important;
+    opacity: 0.5;
+    transition: opacity 0.3s;
+    border-radius: inherit;
   }
 }
 
@@ -993,4 +1110,151 @@ input[type='range']::-webkit-slider-runnable-track {
   border-radius: 8px !important;
   margin-left: 2px;
   margin-right: 2px;
+}
+
+.gradientBorderWrapper {
+  border: solid 1px transparent;
+  background-image: linear-gradient(#1d2932, #1d2932),
+    linear-gradient(135deg, rgba(0, 255, 209, 1) 0%, rgba(91, 62, 255, 1) 100%);
+  background-origin: border-box;
+  background-clip: content-box, border-box;
+  border-radius: 16px;
+}
+
+.gradientBorderWrapperNoShadow {
+  border: solid 2px transparent;
+  background-image: linear-gradient(#1d2932, #1d2932),
+    linear-gradient(135deg, rgba(0, 255, 209, 1) 0%, rgba(91, 62, 255, 1) 100%);
+  background-origin: border-box;
+  background-clip: content-box, border-box;
+  border-radius: 16px;
+}
+
+.gradientBorderWrapperNoShadowTransparent {
+  border: solid 2px transparent;
+  background-image: linear-gradient(rgba(1, 16, 24, 1), rgba(1, 16, 24, 1)),
+    linear-gradient(135deg, rgba(0, 255, 209, 1) 0%, rgba(91, 62, 255, 1) 100%);
+  background-origin: border-box;
+  background-clip: content-box, border-box;
+  border-radius: 16px;
+}
+
+.gradientBorderWrapperZ {
+  border: solid 1px transparent;
+  background-image: linear-gradient(#1d2932, #1d2932),
+    linear-gradient(
+      135deg,
+      rgba(0, 255, 209, 0.5) 0%,
+      rgba(91, 62, 255, 0.5) 100%
+    );
+  background-origin: border-box;
+  background-clip: content-box, border-box;
+  border-radius: 16px;
+}
+
+.gradientBorderWrapperZ:before {
+  content: '';
+  z-index: -1;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 255, 209, 0.8) 0%,
+    rgba(91, 62, 255, 0.8) 100%
+  );
+  filter: blur(30px);
+  opacity: 0.4;
+  transition: opacity 0.3s;
+  border-radius: inherit;
+}
+
+.gradientBorderWrapperZ::after {
+  content: '';
+  z-index: -1;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: inherit;
+  border-radius: inherit;
+}
+
+.gradientBorderWrapper:before {
+  content: '';
+  /* z-index: -1; */
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(135deg, #00ffd1 0%, #933eff 100%);
+  filter: blur(30px);
+  opacity: 0.5;
+  transition: opacity 0.3s;
+  border-radius: inherit;
+}
+
+.gradientBorderWrapper::after {
+  content: '';
+  z-index: -1;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: inherit;
+  border-radius: inherit;
+}
+.rotateInfinite {
+  animation: spin 1s linear infinite;
+  transform-origin: center;
+}
+.transak_modal {
+  z-index: 99999 !important;
+}
+@media screen and (min-width: 1024px) and (max-width: 1100px) {
+  .pool_width_adaptive {
+    width: 98%;
+  }
+}
+@media screen and (min-width: 1101px) and (max-width: 1280px) {
+  .pool_width_adaptive {
+    width: 90%;
+  }
+}
+@media screen and (min-width: 1281px) and (max-width: 1480px) {
+  .pool_width_adaptive {
+    width: 83%;
+  }
+}
+@media screen and (min-width: 1481px) {
+  .pool_width_adaptive {
+    width: 75%;
+  }
+}
+
+.searchBoxGradientBorder {
+  border: 1px solid transparent;
+  background-image: linear-gradient(0deg, #192127, #192127),
+    linear-gradient(180deg, #172327 0%, #304352 100%);
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+}
+.feeBoxGradientBorder {
+  border: 1px solid transparent;
+  background-image: linear-gradient(180deg, #222f37 0%, #192229 100%),
+    linear-gradient(139.75deg, #00ffd1 1.14%, #5b40ff 98.02%);
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+}
+.taphight {
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+}
+
+.recharts-tooltip-wrapper {
+  outline: none;
 }
