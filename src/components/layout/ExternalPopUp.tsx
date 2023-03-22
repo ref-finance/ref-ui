@@ -35,8 +35,9 @@ export default function ExternalPopUp() {
       style={{
         width: '300px',
         height: '100px',
+        zIndex: 92,
       }}
-      className="rounded-lg fixed xsm:left-1/2 xsm:transform xsm:-translate-x-1/2 z-50 lg:right-8 bottom-8 overflow-hidden"
+      className="rounded-lg fixed xsm:left-1/2 xsm:transform xsm:-translate-x-1/2 lg:right-8 bottom-8 overflow-hidden"
     ></div>
   );
 }
