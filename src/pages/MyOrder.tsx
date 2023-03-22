@@ -859,21 +859,21 @@ function HistorySwapInfoLine({
       <div>
         <div className="flex items-center xs:justify-end">
           <img
-            src={buyToken.icon}
+            src={sellToken.icon}
             className="border border-gradientFrom rounded-full w-4 h-4"
             alt=""
           />
           <span
             className="text-white text-sm mx-1"
-            title={toReadableNumber(buyToken.decimals, amount_out || '0')}
+            title={toReadableNumber(sellToken.decimals, amount_in || '0')}
           >
-            {Number(toReadableNumber(buyToken.decimals, amount_out || '0')) >
+            {Number(toReadableNumber(sellToken.decimals, amount_in || '0')) >
               0 &&
-            Number(toReadableNumber(buyToken.decimals, amount_out || '0')) <
+            Number(toReadableNumber(sellToken.decimals, amount_in || '0')) <
               0.001
               ? '< 0.001'
               : toPrecision(
-                  toReadableNumber(buyToken.decimals, amount_out || '0'),
+                  toReadableNumber(sellToken.decimals, amount_in || '0'),
                   3
                 )}
           </span>
