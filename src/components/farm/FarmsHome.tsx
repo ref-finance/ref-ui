@@ -767,7 +767,7 @@ export default function FarmsHome(props: any) {
         if (isNotNear && isNotEth && isNotStable) {
           condition1 = true;
         } else {
-          condition1 = !isEnd;
+          condition1 = false;
         }
       } else if (filter_type_selectedId == 'new') {
         if (!is_dcl_farm) {
