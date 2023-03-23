@@ -1,15 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { FormattedMessage } from 'react-intl';
-import { useHistory } from 'react-router-dom';
-import { isMobile } from '~utils/device';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/swiper.min.css';
 import SwiperCore, { Autoplay } from 'swiper';
 SwiperCore.use([Autoplay]);
 
 export default function AdSwiper() {
-  const history = useHistory();
-  const mobile = isMobile();
   return (
     <div>
       <Swiper
@@ -29,7 +24,7 @@ export default function AdSwiper() {
                 location.href = '/orderbook';
               }}
               className="flex items-center justify-center absolute bg-black bg-opacity-50 rounded-2xl h-5
-             text-xs text-white cursor-pointer pl-2.5 pr-1.5 left-5 bottom-3"
+             text-xs text-white cursor-pointer pl-2.5 pr-1.5 left-5 bottom-3 xsm:bottom-1 xsm:left-4"
             >
               Place Order
               <ArrowRightIcon className="ml-1"></ArrowRightIcon>
@@ -44,7 +39,7 @@ export default function AdSwiper() {
                 location.href = '/portfolio';
               }}
               className="flex items-center justify-center absolute bg-black bg-opacity-50 rounded-2xl h-5
-             text-xs text-white cursor-pointer pl-2.5 pr-1.5 left-5 bottom-3"
+             text-xs text-white cursor-pointer pl-2.5 pr-1.5 left-5 bottom-3 xsm:bottom-1 xsm:left-4"
             >
               Check your portfolio
               <ArrowRightIcon className="ml-1"></ArrowRightIcon>

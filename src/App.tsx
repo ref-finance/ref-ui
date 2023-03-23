@@ -28,6 +28,7 @@ import { FarmsPage } from '~pages/farms/FarmsPage';
 import { AirdropPage } from '~pages/AirdropPage';
 import PopUpSwiper from '~components/layout/PopUp';
 import ExternalPopUp from '~components/layout/ExternalPopUp';
+import Guider from '~components/layout/Guider';
 
 import {
   WalletSelectorContextProvider,
@@ -47,8 +48,8 @@ function App() {
             <Content />
 
             <Footer />
-            {/* <PopUpSwiper></PopUpSwiper> */}
             {/* <ExternalPopUp></ExternalPopUp> */}
+            <Guider></Guider>
           </div>
         </XmasActivityContextProvider>
       </WalletSelectorContextProvider>
