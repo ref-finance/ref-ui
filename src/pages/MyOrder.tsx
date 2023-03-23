@@ -3202,12 +3202,9 @@ function MyOrderPage() {
   const minOrderTime =
     _.minBy(historyOrder, (o) => o.created_at)?.created_at || 0;
 
-  const maxOrderTime =
-    _.maxBy(historyOrder, (o) => o.created_at)?.created_at || 0;
-
   const historySwapInfo = useHistoryOrderSwapInfo({
     start_at: Number(minOrderTime),
-    end_at: Number(maxOrderTime),
+    end_at: Date.now() * 1000,
   });
 
   const tokenPriceList = useTokenPriceList();
