@@ -1018,7 +1018,7 @@ const vi = {
   your_farms_2: 'Your Farms',
   dcl_farms: 'DCL Farms',
   farm_type: 'Farm type',
-  farm_2: 'farm',
+  farm_2: 'Farm',
   to_claim: 'To Claim',
   liquidity_staked: 'Liquidity staked',
   dcl_pool_detail: 'DCL Pool Detail',
