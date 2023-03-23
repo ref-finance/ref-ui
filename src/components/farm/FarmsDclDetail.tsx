@@ -65,6 +65,7 @@ import {
   get_intersection_radio,
   get_intersection_icon_by_radio,
   getEffectiveFarmList,
+  sort_tokens_by_base,
 } from '~services/commonV3';
 import { list_liquidities, dcl_mft_balance_of } from '../../services/swapV3';
 import { AddNewPoolV3 } from '~components/pool/AddNewPoolV3';
@@ -356,11 +357,14 @@ export default function FarmsDclDetail(props: {
               detailData.seed_id
             );
             const inRange = right_point > left_point;
+            const { amount, mft_id } = liquidity;
+            const amount_is_little = new BigNumber(amount).isLessThan(1000000);
             if (
               !(
                 liquidity.status_in_other_seed == 'staked' ||
                 liquidity.less_than_min_deposit ||
-                !inRange
+                !inRange ||
+                (!mft_id && amount_is_little)
               )
             )
               return true;
@@ -395,22 +399,22 @@ export default function FarmsDclDetail(props: {
     emptyDetailData();
   };
   const displaySymbols = () => {
+    const tokens_sort = sort_tokens_by_base(detailData.pool.tokens_meta_data);
     let result = '';
-    detailData.pool.tokens_meta_data.forEach(
-      (token: TokenMetadata, index: number) => {
-        const symbol = toRealSymbol(token.symbol);
-        if (index == detailData.pool.tokens_meta_data.length - 1) {
-          result += symbol;
-        } else {
-          result += symbol + '-';
-        }
+    tokens_sort.forEach((token: TokenMetadata, index: number) => {
+      const symbol = toRealSymbol(token.symbol);
+      if (index == detailData.pool.tokens_meta_data.length - 1) {
+        result += symbol;
+      } else {
+        result += symbol + '-';
       }
-    );
+    });
     return result;
   };
   const displayImgs = () => {
     const tokenList: any[] = [];
-    (tokens || []).forEach((token: TokenMetadata) => {
+    const tokens_sort = sort_tokens_by_base(tokens || []);
+    tokens_sort.forEach((token: TokenMetadata) => {
       tokenList.push(
         <label
           key={token.id}
@@ -874,8 +878,7 @@ export default function FarmsDclDetail(props: {
       });
   }
   function rewardRangeTip() {
-    // const tip = intl.formatMessage({ id: 'over_tip' });
-    const tip = 'Farm reward within this range';
+    const tip = intl.formatMessage({ id: 'reward_range_tip' });
     let result: string = `<div class="text-farmText text-xs text-left">${tip}</div>`;
     return result;
   }
@@ -884,16 +887,15 @@ export default function FarmsDclDetail(props: {
   }
   function getBetterSeedSymbols() {
     let result = '';
-    detailData.pool.tokens_meta_data.forEach(
-      (token: TokenMetadata, index: number) => {
-        const symbol = toRealSymbol(token.symbol);
-        if (index == detailData.pool.tokens_meta_data.length - 1) {
-          result += symbol;
-        } else {
-          result += symbol + '-';
-        }
+    const tokens = sort_tokens_by_base(detailData.pool.tokens_meta_data);
+    tokens.forEach((token: TokenMetadata, index: number) => {
+      const symbol = toRealSymbol(token.symbol);
+      if (index == detailData.pool.tokens_meta_data.length - 1) {
+        result += symbol;
+      } else {
+        result += symbol + '-';
       }
-    );
+    });
     return result;
   }
   function goBetterSeed() {
@@ -921,7 +923,9 @@ export default function FarmsDclDetail(props: {
           className="flex items-center text-farmText hover:text-framBorder lg:hidden"
           onClick={goPoolPage}
         >
-          <label className="mx-2 text-sm cursor-pointer">V2 Pool Detail</label>
+          <label className="mx-2 text-sm cursor-pointer">
+            <FormattedMessage id="dcl_pool_detail" />
+          </label>
           <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
         </div>
       </div>
@@ -945,7 +949,10 @@ export default function FarmsDclDetail(props: {
                   {getFee()}
                 </span>
               </div>
-              <DclFarmIcon className="xsm:ml-2"></DclFarmIcon>
+              <div className="flex items-center bg-dclIconBgColor rounded-md xsm:ml-2 px-1 py-0.5">
+                <DclFarmIcon></DclFarmIcon>
+                <label className="text-xs text-white ml-1 dclIcon">DCL</label>
+              </div>
               {isEnded ? (
                 <span className="text-farmText text-sm ml-2 relative top-0.5 xs:top-0 md:xs-0">
                   <FormattedMessage id="ended_search"></FormattedMessage>
@@ -983,7 +990,9 @@ export default function FarmsDclDetail(props: {
           className="flex items-center text-farmText hover:text-framBorder xsm:hidden"
           onClick={goPoolPage}
         >
-          <label className="mx-2 text-sm cursor-pointer">V2 Pool Detail</label>
+          <label className="mx-2 text-sm cursor-pointer">
+            <FormattedMessage id="dcl_pool_detail" />
+          </label>
           <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
         </div>
       </div>
@@ -992,15 +1001,21 @@ export default function FarmsDclDetail(props: {
         <div className="flex items-center justify-center bg-dclBannerColor rounded-xl text-sm text-white px-4 py-1 mt-4 mb-3">
           <div className="flex items-center flex-wrap">
             <span>
-              {isEnded ? 'This farm has ended.' : 'This farm will end soon.'}
+              {isEnded ? (
+                <FormattedMessage id="farm_ended_tip" />
+              ) : (
+                <FormattedMessage id="farm_will_ended_tip" />
+              )}
             </span>
             <a
               onClick={goBetterSeed}
               className="underline gotham_bold cursor-pointer mx-2 xsm:ml-0"
             >
-              {getBetterSeedSymbols()} New Farm
+              {getBetterSeedSymbols()} <FormattedMessage id="new_farm" />
             </a>
-            <span>is coming!</span>
+            <span>
+              <FormattedMessage id="is_coming" />!
+            </span>
           </div>
           <NewTag className="ml-1.5"></NewTag>
         </div>
@@ -1041,7 +1056,9 @@ export default function FarmsDclDetail(props: {
           </div>
           <div className="flex flex-col items-end justify-between">
             <div className="flex items-center text-sm text-farmText">
-              <span>Farm Reward Range</span>
+              <span>
+                <FormattedMessage id="reward_range" />
+              </span>
               <div
                 className="text-white text-right ml-1"
                 data-class="reactTip"
@@ -1120,7 +1137,9 @@ export default function FarmsDclDetail(props: {
         <div className="border-b border-dclLineColor py-3">
           <div className="relative flex items-start justify-end">
             <div className="flex items-center absolute left-0">
-              <span className="text-sm text-farmText">Farm Reward Range</span>
+              <span className="text-sm text-farmText">
+                <FormattedMessage id="reward_range" />
+              </span>
               <div
                 className="text-white text-right ml-1"
                 data-class="reactTip"
@@ -1372,7 +1391,7 @@ export default function FarmsDclDetail(props: {
             }`}
           >
             <AddButtonIcon className="mr-1.5"></AddButtonIcon>
-            Add Position
+            <FormattedMessage id="add_position" />
           </div>
         </div>
         {listLiquidities.length == 0 && !listLiquiditiesLoading && !isEnded ? (
@@ -1380,8 +1399,7 @@ export default function FarmsDclDetail(props: {
             <div className="w-full bg-gradientFrom h-1.5"></div>
             <div className="flex items-center justify-between p-3 xsm:flex-col">
               <span className="text-sm text-white">
-                You don't have any V2 Liquidity position for now, click 'Add
-                Position' to start farming.
+                <FormattedMessage id="no_dcl_position_tip" />
               </span>
               <GradientButton
                 onClick={() => {
@@ -1391,7 +1409,7 @@ export default function FarmsDclDetail(props: {
                 borderRadius="8px"
                 className={`flex-shrink-0 px-4 h-10  text-center text-sm text-white ml-2 xsm:w-full xsm:ml-0 xsm:mt-2.5`}
               >
-                Add Position
+                <FormattedMessage id="add_position" />
               </GradientButton>
             </div>
           </div>
@@ -1406,12 +1424,13 @@ export default function FarmsDclDetail(props: {
             all_seeds,
             isPending,
             isEnded,
+            rangeSort,
           }}
         >
           {listLiquidities_inFarimg.length > 0 ? (
             <>
               <div className="text-sm text-primaryText mb-5 pl-3">
-                Faming Positions
+                <FormattedMessage id="faming_positions" />
               </div>
               {listLiquidities_inFarimg.map((liquidity: UserLiquidityInfo) => {
                 return (
@@ -1428,7 +1447,7 @@ export default function FarmsDclDetail(props: {
           {listLiquidities_unFarimg.length > 0 ? (
             <>
               <div className="text-sm text-primaryText mb-5 mt-7 pl-3">
-                Unstaked Positions
+                <FormattedMessage id="unstaked_positions" />
               </div>
               {listLiquidities_unFarimg.map((liquidity: UserLiquidityInfo) => {
                 return (
@@ -1456,9 +1475,13 @@ export default function FarmsDclDetail(props: {
                 }}
               >
                 <span className="underline mr-1">
-                  {show_unavailable_positions ? 'Hide' : 'Show'}
+                  {show_unavailable_positions ? (
+                    <FormattedMessage id="hide" />
+                  ) : (
+                    <FormattedMessage id="show"></FormattedMessage>
+                  )}
                 </span>
-                unavailable positions
+                <FormattedMessage id="unavailable_positions" />
               </div>
               <div className={show_unavailable_positions ? '' : 'hidden'}>
                 {listLiquidities_unavailable.map(
@@ -1536,6 +1559,7 @@ function LiquidityLine(props: {
     all_seeds,
     isPending,
     isEnded,
+    rangeSort,
   } = useContext(FarmContext);
   const [nft_stake_loading, set_nft_stake_loading] = useState(false);
   const [nft_unStake_loading, set_nft_unStake_loading] = useState(false);
@@ -1562,12 +1586,24 @@ function LiquidityLine(props: {
     let operation: string[] = [];
     let stakeButtonStatus = '';
     if (liquidity_status_string == 'farming') {
-      status = <span className="text-sm, text-dclFarmGreenColor">Farming</span>;
+      status = (
+        <span className="text-sm, text-dclFarmGreenColor">
+          <FormattedMessage id="farming" />
+        </span>
+      );
       operation = ['unstake'];
     } else if (liquidity_status_string == 'unavailable') {
-      status = <span className="text-sm, text-primaryText">Unavailable</span>;
+      status = (
+        <span className="text-sm, text-primaryText">
+          <FormattedMessage id="unavailable" />
+        </span>
+      );
     } else if (liquidity_status_string == 'unfarming') {
-      status = <span className="text-sm, text-primaryText">Unstaked</span>;
+      status = (
+        <span className="text-sm, text-primaryText">
+          <FormattedMessage id="unstaked" />
+        </span>
+      );
       operation = ['stake'];
     } else {
       const part_farm_ratio_big = new BigNumber(part_farm_ratio);
@@ -1627,7 +1663,7 @@ function LiquidityLine(props: {
       return `$${formatWithCommas(toPrecision(v.toString(), 2))}`;
     }
   }
-  function get_your_range(liquidity: UserLiquidityInfo, site?: string) {
+  function get_your_range(liquidity: UserLiquidityInfo) {
     const { left_point, right_point } = liquidity;
     const [token_x_metadata, token_y_metadata] =
       detailData.pool.tokens_meta_data;
@@ -1648,7 +1684,7 @@ function LiquidityLine(props: {
       Math.pow(10, token_y_metadata.decimals);
     let left_price = getPriceByPoint(+left_point, decimalRate);
     let right_price = getPriceByPoint(+right_point, decimalRate);
-    if (rate_need_to_reverse_display) {
+    if (!rangeSort) {
       const temp = left_price;
       left_price = new BigNumber(1).dividedBy(right_price).toFixed();
       right_price = new BigNumber(1).dividedBy(temp).toFixed();
@@ -2012,9 +2048,9 @@ function LiquidityLine(props: {
     const [left_point, right_point] = get_valid_range(liquidity, seed_id);
     const inrange = +right_point > +left_point;
     if (!inrange) {
-      tip = 'Your price range is out of reward range';
+      tip = intl.formatMessage({ id: 'your_price_range_tip' });
     } else if (liquidity.status_in_other_seed == 'staked') {
-      tip = 'This position has been staked in another farm';
+      tip = intl.formatMessage({ id: 'position_has_staked_tip' });
     } else {
       const v_liquidity = mint_liquidity(liquidity, seed_id);
       const rate = new BigNumber(min_deposit).dividedBy(v_liquidity);
@@ -2022,7 +2058,13 @@ function LiquidityLine(props: {
       if (rate.isGreaterThan(rate_display)) {
         rate_display = new BigNumber(rate_display).plus(0.1).toFixed();
       }
-      tip = `The minimum staking amount is ${rate_display}x your liquidity `;
+      // your liquidity
+      tip =
+        intl.formatMessage({ id: 'minimum_tip' }) +
+        ' ' +
+        `${rate_display}x` +
+        ' ' +
+        intl.formatMessage({ id: 'your_liquidity_3' });
     }
     return tip;
   }
@@ -2032,7 +2074,7 @@ function LiquidityLine(props: {
     const [left_point, right_point] = get_valid_range(liquidity, seed_id);
     const inrange = +right_point > +left_point;
     if (!inrange) {
-      tip = 'Your price range is out of reward range';
+      tip = intl.formatMessage({ id: 'your_price_range_tip' });
     } else if (liquidity.status_in_other_seed == 'staked') {
       const { mft_id } = liquidity;
       const link: string = get_target_seed_url_link({
@@ -2041,14 +2083,16 @@ function LiquidityLine(props: {
       });
       tip = (
         <>
-          This position has been staked in{' '}
+          <FormattedMessage id="position_has_staked_pre" />{' '}
           <div
             className="flex items-center cursor-pointer"
             onClick={() => {
               window.open(link);
             }}
           >
-            <span className="underline ml-1 mr-0.5">another farm</span>
+            <span className="underline ml-1 mr-0.5">
+              <FormattedMessage id="another_farm" />
+            </span>
             <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
           </div>
         </>
@@ -2060,7 +2104,12 @@ function LiquidityLine(props: {
       if (rate.isGreaterThan(rate_display)) {
         rate_display = new BigNumber(rate_display).plus(0.1).toFixed();
       }
-      tip = `The minimum staking amount is ${rate_display}x your liquidity `;
+      tip =
+        intl.formatMessage({ id: 'minimum_tip' }) +
+        ' ' +
+        `${rate_display}x` +
+        ' ' +
+        intl.formatMessage({ id: 'your_liquidity_3' });
     }
     return tip;
   }
@@ -2092,9 +2141,9 @@ function LiquidityLine(props: {
       liquidity_status_string == 'farming' ||
       liquidity_status_string == 'partialfarming'
     ) {
-      return 'Your APR';
+      return <FormattedMessage id="your_apr" />;
     } else {
-      return 'Est. APR';
+      return <FormattedMessage id="est_apr" />;
     }
   }
   const showStakeButton =
@@ -2119,10 +2168,12 @@ function LiquidityLine(props: {
         <div className="bg-v3HoverDarkBgColor rounded-xl mb-5 overflow-hidden">
           <div
             onMouseOver={() => setHover(true)}
-            className="grid grid-cols-5 pt-7 pb-3.5 px-6"
+            className="flex items-stretch justify-between pt-7 pb-3.5 px-6"
           >
             <div className="flex flex-col justify-between col-span-1 items-start">
-              <span className="text-sm text-primaryText">Your Liquidity</span>
+              <span className="text-sm text-primaryText">
+                <FormattedMessage id="your_liquidity" />
+              </span>
               <span
                 className={`text-sm mt-2.5 ${
                   liquidity_status_string == 'unavailable'
@@ -2134,7 +2185,9 @@ function LiquidityLine(props: {
               </span>
             </div>
             <div className="flex flex-col justify-between  col-span-2">
-              <span className="text-sm text-primaryText">Your Price Range</span>
+              <span className="text-sm text-primaryText">
+                <FormattedMessage id="your_price_range" />
+              </span>
               <span
                 className={`text-sm ${
                   liquidity_status_string == 'unavailable'
@@ -2142,7 +2195,7 @@ function LiquidityLine(props: {
                     : 'text-white'
                 }`}
               >
-                {get_your_range(liquidity, 'pc')}
+                {get_your_range(liquidity)}
               </span>
             </div>
             <div className="flex flex-col justify-between col-span-1">
@@ -2184,7 +2237,9 @@ function LiquidityLine(props: {
               </div>
             </div>
             <div className="flex flex-col justify-between items-end col-span-1">
-              <span className="text-sm text-primaryText">State</span>
+              <span className="text-sm text-primaryText">
+                <FormattedMessage id="state_2" />
+              </span>
               <div className={`flex items-center text-sm`}>
                 {liquidity_status_display}
               </div>
@@ -2201,7 +2256,9 @@ function LiquidityLine(props: {
               }}
               className="flex items-center text-sm text-primaryText hover:text-white cursor-pointer"
             >
-              <span className="mr-2">Liquidity Detail</span>
+              <span className="mr-2">
+                <FormattedMessage id="liquidity_detail" />
+              </span>
               <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
             </div>
             {liquidity_status_string == 'unavailable' ? (
@@ -2305,7 +2362,9 @@ function LiquidityLine(props: {
         </div>
         <div className="bg-v3HoverDarkBgColor rounded-t-xl px-4 py-3 w-full">
           <div className="flex items-center justify-between mt-4">
-            <span className="text-sm text-primaryText">Your Liquidity</span>
+            <span className="text-sm text-primaryText">
+              <FormattedMessage id="your_liquidity" />
+            </span>
             <span
               className={`text-sm ${
                 liquidity_status_string == 'unavailable'
@@ -2317,7 +2376,9 @@ function LiquidityLine(props: {
             </span>
           </div>
           <div className="flex items-center justify-between mt-4">
-            <span className="text-sm text-primaryText">Your Price Range</span>
+            <span className="text-sm text-primaryText">
+              <FormattedMessage id="your_price_range" />
+            </span>
             <span
               className={`text-sm ${
                 liquidity_status_string == 'unavailable'
@@ -2325,7 +2386,7 @@ function LiquidityLine(props: {
                   : 'text-white'
               }`}
             >
-              {get_your_range(liquidity, 'mobile')}
+              {get_your_range(liquidity)}
             </span>
           </div>
           <div className="flex items-center justify-between mt-4">
@@ -2350,7 +2411,9 @@ function LiquidityLine(props: {
             </span>
           </div>
           <div className="flex items-center justify-between mt-4">
-            <span className="text-sm text-primaryText">State</span>
+            <span className="text-sm text-primaryText">
+              <FormattedMessage id="state_2"></FormattedMessage>
+            </span>
             <div className="flex items-center text-sm text-white">
               {liquidity_status_display}
             </div>
@@ -2443,7 +2506,9 @@ function LiquidityLine(props: {
             }}
             className="flex items-center text-sm text-primaryText hover:text-white cursor-pointer mt-4"
           >
-            <span className="mr-2">Liquidity Detail</span>
+            <span className="mr-2">
+              <FormattedMessage id="liquidity_detail" />
+            </span>
             <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
           </div>
         </div>

@@ -1092,10 +1092,10 @@ export const LockInIcon = (props: any) => {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <rect x="0.5" y="6.5" width="9" height="6" rx="1.5" stroke="#7E8A93" />
+      <rect x="0.5" y="6.5" width="9" height="6" rx="1.5" stroke="#00FFD1" />
       <path
         d="M2.00001 6.08245C2.00001 6.08245 2 4.16815 2 3.69451C2 2.20637 3.34314 1 5 1C6.65685 1 8 2.20637 8 3.69451C8 4.13484 8 6 8 6"
-        stroke="#7E8A93"
+        stroke="#00FFD1"
       />
     </svg>
   );

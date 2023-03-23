@@ -22,7 +22,11 @@ import {
   toReadableNumber,
   toNonDivisibleNumber,
 } from '~utils/numbers';
-import { CONSTANT_D, UserLiquidityInfo } from '../../services/commonV3';
+import {
+  CONSTANT_D,
+  UserLiquidityInfo,
+  sort_tokens_by_base,
+} from '../../services/commonV3';
 import {
   PoolInfo,
   add_liquidity,
@@ -265,6 +269,7 @@ export const AddPoolV3 = (props: any) => {
   }
   const { status: isAddLiquidityDisabled, not_enough_token } =
     getButtonStatus();
+  const tokens = sort_tokens_by_base(tokenMetadata_x_y);
   return (
     <Modal {...restProps}>
       <Card
@@ -284,17 +289,16 @@ export const AddPoolV3 = (props: any) => {
             <div className="flex items-center">
               <div className="flex items-center">
                 <img
-                  src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
+                  src={tokens[0]?.icon}
                   className="w-8 h-8 border border-greenColor rounded-full"
                 ></img>
                 <img
-                  src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
+                  src={tokens[1]?.icon}
                   className="relative w-8 h-8 border border-greenColor rounded-full -ml-1.5"
                 ></img>
               </div>
               <span className="text-white text-base font-bold ml-2.5">
-                {tokenMetadata_x_y && tokenMetadata_x_y[0].symbol}/
-                {tokenMetadata_x_y && tokenMetadata_x_y[1].symbol}
+                {tokens[0]?.symbol}/{tokens[1]?.symbol}
               </span>
             </div>
           </div>

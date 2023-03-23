@@ -93,7 +93,7 @@ export const useTokens = (ids: string[] = [], curTokens?: TokenMetadata[]) => {
   const [tokens, setTokens] = useState<TokenMetadata[]>();
 
   useEffect(() => {
-    if (curTokens) {
+    if (curTokens?.length > 0) {
       setTokens(curTokens);
       return;
     }

@@ -60,11 +60,15 @@ import {
 import _ from 'lodash';
 import { BlueCircleLoading } from '../../components/layout/Loading';
 import getConfig from '../../services/config';
-import { allocation_rule_liquidities } from '~services/commonV3';
+import {
+  allocation_rule_liquidities,
+  sort_tokens_by_base,
+} from '~services/commonV3';
 import { LinkArrowIcon } from '~components/icon/FarmBoost';
 import { get_detail_the_liquidity_refer_to_seed } from './YourLiquidityPageV3';
 const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
 import ReactTooltip from 'react-tooltip';
+import { isMobile } from '~utils/device';
 export default function YourLiquidityDetail(props: any) {
   const [poolDetail, setPoolDetail] = useState<PoolInfo>();
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>();
@@ -80,6 +84,8 @@ export default function YourLiquidityDetail(props: any) {
   const [listLiquidities, setListLiquidities] = useState<UserLiquidityInfo[]>(
     []
   );
+  const [listLiquiditiesDone, setListLiquiditiesDone] =
+    useState<Boolean>(false);
   const [is_in_farming, set_is_in_farming] = useState<boolean>(true);
   const [is_in_farming_done, set_is_in_farming_done] = useState<boolean>(false);
   const [related_farms, set_related_farms] = useState<FarmBoost[]>([]);
@@ -196,6 +202,7 @@ export default function YourLiquidityDetail(props: any) {
       }
 
       setListLiquidities(list);
+      setListLiquiditiesDone(true);
     }
   }
   async function get_pool_related_farms() {
@@ -505,6 +512,8 @@ export default function YourLiquidityDetail(props: any) {
     inRange: liquidity_inRange,
     status: liquidity_staked_farm_status,
   } = related_seed_info;
+  const tokens = sort_tokens_by_base(tokenMetadata_x_y);
+  const is_mobile = isMobile();
   return (
     <div
       className={`m-auto lg:w-3/5 2xl:w-2/5 md:w-11/12 xs:w-11/12  xs:-mt-4 md:-mt-4`}
@@ -526,17 +535,16 @@ export default function YourLiquidityDetail(props: any) {
             <div className="flex items-center">
               <div className="flex items-center mr-2 flex-shrink-0">
                 <img
-                  src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
+                  src={tokens[0]?.icon}
                   className="w-8 h-8 border border-greenColor rounded-full"
                 ></img>
                 <img
-                  src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
+                  src={tokens[1]?.icon}
                   className="relative w-8 h-8 border border-greenColor rounded-full -ml-1.5"
                 ></img>
               </div>
               <span className="text-lg text-white">
-                {tokenMetadata_x_y && tokenMetadata_x_y[0].symbol}/
-                {tokenMetadata_x_y && tokenMetadata_x_y[1].symbol}
+                {tokens[0]?.symbol}-{tokens[1]?.symbol}
               </span>
             </div>
             <div
@@ -592,7 +600,9 @@ export default function YourLiquidityDetail(props: any) {
                     liquidity_link ? 'cursor-pointer' : ''
                   } ${is_in_farming || liquidity_inRange ? '' : 'opacity-40'}`}
                 >
-                  <span className="text-xs text-greenColor mr-1">Farm</span>{' '}
+                  <span className="text-xs text-greenColor mr-1">
+                    <FormattedMessage id="farm" />
+                  </span>{' '}
                   <Liquidity_icon num={Math.random()}></Liquidity_icon>
                 </div>
               ) : null}
@@ -610,6 +620,7 @@ export default function YourLiquidityDetail(props: any) {
         </div>
       </div>
       {!is_old_dcl &&
+      listLiquiditiesDone &&
       liquidity_your_apr &&
       (!is_in_farming || liquidity_staked_farm_status == 'end') ? (
         <div
@@ -619,9 +630,11 @@ export default function YourLiquidityDetail(props: any) {
           <TipIon className="mr-2 relative top-1 flex-shrink-0"></TipIon>
           <div className="flex items-center flex-wrap">
             <span className="text-sm text-white mr-1">
-              {liquidity_staked_farm_status == 'end'
-                ? 'Your current staked farm ended, and new farm is coming, est. APR is'
-                : 'You can earn rewards by farming, est. APR is'}{' '}
+              {liquidity_staked_farm_status == 'end' ? (
+                <FormattedMessage id="you_can_earn_current_tip" />
+              ) : (
+                <FormattedMessage id="you_can_earn_tip" />
+              )}{' '}
               {liquidity_your_apr}.
             </span>
             <div
@@ -631,9 +644,11 @@ export default function YourLiquidityDetail(props: any) {
               }}
             >
               <a className="text-sm text-white mr-1 underline">
-                {liquidity_staked_farm_status == 'end'
-                  ? 'Go New Farm'
-                  : 'Go Farm'}
+                {liquidity_staked_farm_status == 'end' ? (
+                  <FormattedMessage id="go_new_farm" />
+                ) : (
+                  <FormattedMessage id="go_farm" />
+                )}
               </a>
               <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
             </div>
@@ -642,11 +657,14 @@ export default function YourLiquidityDetail(props: any) {
       ) : null}
       <div className="flex justify-between mt-8 items-stretch xs:flex-col md:flex-col xs:mt-5 md:mt-5">
         <div className="bg-cardBg rounded-xl p-5 w-1 flex-grow mr-3 xs:w-full md:w-full xs:mr-0 md:mr-0 xs:p-3 md:p-3">
-          <div className="flex justify-between xs:w-full md:w-full">
-            <div className="text-white text-base">
+          <div className="flex  items-start justify-between xs:w-full md:w-full">
+            <div className="flex items-start flex-col text-white text-base">
               <FormattedMessage id="your_liquidity" />
+              <span className="text-xs text-farmText">
+                <FormattedMessage id="estimation" />
+              </span>
             </div>
-            <div className="text-white text-base">~{getLiquidityPrice()}</div>
+            <div className="text-white text-base">{getLiquidityPrice()}</div>
           </div>
           <div className={`flex items-center justify-between mt-5`}>
             <div className="flex items-center">
@@ -726,15 +744,17 @@ export default function YourLiquidityDetail(props: any) {
           </div>
           {is_in_farming_done && is_in_farming ? (
             <div className="flex whitespace-nowrap items-center justify-center text-sm text-primaryText mt-4">
-              This NFT has been staked
+              <FormattedMessage id="this_staked_tip" />
               <div
                 className="flex items-center text-sm text-greenColor cursor-pointer"
                 onClick={go_farm}
               >
                 <span className="underline mx-1">
-                  {liquidity_staked_farm_status == 'end'
-                    ? 'in ended farm'
-                    : 'in farm'}
+                  {liquidity_staked_farm_status == 'end' ? (
+                    <FormattedMessage id="in_ended_farm" />
+                  ) : (
+                    <FormattedMessage id="in_farm_3" />
+                  )}
                 </span>
                 <LinkArrowIcon></LinkArrowIcon>
               </div>
@@ -742,10 +762,15 @@ export default function YourLiquidityDetail(props: any) {
           ) : null}
         </div>
         <div className="bg-cardBg rounded-xl p-5 w-1 flex-grow xs:w-full md:w-full xs:mt-3 md:mt-3 xs:p-3 md:p-3">
-          <div className="flex items-center justify-between text-white text-base flex-wrap">
-            <span>
-              <FormattedMessage id="unclaimed_fees" />
-            </span>
+          <div className="flex items-start justify-between text-white text-base flex-wrap">
+            <div className="flex items-start flex-col">
+              <span>
+                <FormattedMessage id="unclaimed_fees" />
+              </span>
+              <span className="text-xs text-farmText">
+                <FormattedMessage id="estimation" />
+              </span>
+            </div>
             <span className="text-white text-base">
               {getTokenFeeAmount('p') || '$-'}
             </span>
@@ -795,7 +820,7 @@ export default function YourLiquidityDetail(props: any) {
             data-for="pause_v2_tip_3"
             data-place="top"
             data-html={true}
-            data-tip={is_old_dcl ? pause_old_dcl_claim_tip() : ''}
+            data-tip={is_old_dcl && !is_mobile ? pause_old_dcl_claim_tip() : ''}
           >
             <ButtonTextWrapper
               loading={claimLoading}

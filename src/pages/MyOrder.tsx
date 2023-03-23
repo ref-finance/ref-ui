@@ -2693,8 +2693,12 @@ function OrderCardOld({
         <WarningTip />
 
         <span className="text-base xs:mb-2  lg:ml-2 text-legacyYellowColor gotham_bold">
-          A new contract has been deployed! Please cancel your order from the
-          old contract
+          <FormattedMessage
+            id="new_contract_deploy_tip"
+            defaultMessage={
+              'A new contract has been deployed! Please remove your liquidity from the old contract'
+            }
+          />
         </span>
         {isMobile() && (
           <span

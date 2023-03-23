@@ -87,6 +87,7 @@ import QuestionMark from '../../components/farm/QuestionMark';
 const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
 
 import Big from 'big.js';
+import { SelectTokenDCL } from '../../components/forms/SelectToken';
 
 export default function AddYourLiquidityPageV3() {
   const [tokenX, setTokenX] = useState<TokenMetadata>(null);
@@ -682,9 +683,9 @@ export default function AddYourLiquidityPageV3() {
             filter: 'blur(50px)',
           }}
         ></div>
-        <div className="relative rounded-2xl z-10 border-4 gradientBorderWrapper overflow-hidden">
+        <div className="relative rounded-2xl z-10 border-4 gradientBorderWrapper ">
           <div
-            className="relative z-10 py-5 px-7 xs:px-3 md:px-3"
+            className="relative z-10 py-5 px-7 xs:px-3 md:px-3 rounded-2xl"
             style={{
               background: 'linear-gradient(180deg, #222F37 0%, #192229 100%)',
             }}
@@ -707,7 +708,7 @@ export default function AddYourLiquidityPageV3() {
                 className="flex-shrink-0 xs:w-full md:w-full"
               >
                 <div className="flex items-center justify-between">
-                  <div
+                  {/* <div
                     className="relative ml-3"
                     tabIndex={-1}
                     onMouseEnter={() => {
@@ -737,8 +738,8 @@ export default function AddYourLiquidityPageV3() {
                       }`}
                     >
                       <FormattedMessage
-                        id="select_tokens"
-                        defaultMessage="Select Tokens"
+                        id="select_instrument"
+                        defaultMessage="Select Instrument"
                       />
                       <ArrowDownV3 className="ml-3"></ArrowDownV3>
                     </div>
@@ -766,7 +767,54 @@ export default function AddYourLiquidityPageV3() {
                         ...
                       </div>
                     </div>
-                  </div>
+                  </div> */}
+
+                  <SelectTokenDCL
+                    selectTokenIn={(token) => {
+                      if (tokenY && tokenY.id == token.id) return;
+                      setTokenX(token);
+                      setTokenXBalanceFromNear(token?.near?.toString());
+                    }}
+                    selectTokenOut={(token: TokenMetadata) => {
+                      if (tokenX && tokenX.id == token.id) return;
+                      setTokenY(token);
+                      setTokenYBalanceFromNear(token?.near?.toString());
+                    }}
+                    className="pt-0  absolute top-8 outline-none   left-0    xs:text-white xs:font-bold xs:fixed xs:bottom-0 xs:w-full "
+                    selected={
+                      <div
+                        className={`flex items-center text-sm cursor-pointer pb-3 ${
+                          selectHover ? 'text-white' : 'text-primaryText'
+                        }`}
+                        onMouseEnter={() => {
+                          if (!mobileDevice) {
+                            setSelectHover(true);
+                          }
+                        }}
+                        onMouseLeave={() => {
+                          if (!mobileDevice) {
+                            setSelectHover(false);
+                          }
+                        }}
+                        onClick={() => {
+                          if (mobileDevice) {
+                            setSelectHover(!selectHover);
+                          }
+                        }}
+                        onBlur={() => {
+                          if (mobileDevice) {
+                            setSelectHover(false);
+                          }
+                        }}
+                      >
+                        <FormattedMessage
+                          id="select_instrument"
+                          defaultMessage="Select Instrument"
+                        />
+                        <ArrowDownV3 className="ml-3"></ArrowDownV3>
+                      </div>
+                    }
+                  />
                   <div
                     onMouseEnter={() => {
                       setViewPoolHover(true);
@@ -1801,7 +1849,7 @@ function AddLiquidityComponent({
     return txt;
   }
   function getPriceTip() {
-    const tip = 'The price should be in one slot nearby';
+    const tip = intl.formatMessage({ id: 'price_on_slot_tip' });
     let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
     return result;
   }
@@ -1883,8 +1931,7 @@ function AddLiquidityComponent({
     );
   }
   function rewardRangeTip() {
-    // const tip = intl.formatMessage({ id: 'over_tip' });
-    const tip = 'Farm reward within this range';
+    const tip = intl.formatMessage({ id: 'reward_range_tip' });
     let result: string = `<div class="text-farmText text-xs text-left">${tip}</div>`;
     return result;
   }
@@ -2073,7 +2120,7 @@ function AddLiquidityComponent({
                   : 'border-v3GreyColor text-v3LightGreyColor'
               }`}
             >
-              Full Range
+              <FormattedMessage id="full_range" />
             </div>
           </div>
           {seeds.length ? (
@@ -2081,7 +2128,7 @@ function AddLiquidityComponent({
               className={`relative flex items-start justify-between xsm:justify-end mt-3.5 mb-1`}
             >
               <div className="flex items-center text-sm text-primaryText mr-3 xsm:absolute xsm:left-0">
-                Farm Reward Range
+                <FormattedMessage id="farm_reward_range" />
                 <div
                   className="text-white text-right ml-1"
                   data-class="reactTip"
@@ -2246,7 +2293,7 @@ function NoDataComponent(props: any) {
               className="flex items-center justify-center rounded-lg h-6 py-0.5 xs:px-1 md:px-1  lg:px-1.5 box-content font-sans text-v3LightGreyColor text-sm whitespace-nowrap"
               style={{ border: '1px solid rgba(126, 138, 147, 0.2)' }}
             >
-              Full Range
+              <FormattedMessage id="full_range" />
             </div>
           </div>
         </div>
@@ -2468,18 +2515,6 @@ function InputAmount({
                 {getBalance()}
               </span>
             </span>
-            {/* <span
-              onClick={() => {
-                changeAmount(maxBalance);
-              }}
-              className={`ml-2.5 text-xs text-farmText px-1.5 py-0.5 rounded-lg border cursor-pointer hover:text-greenColor hover:border-greenColor ${
-                amount == maxBalance
-                  ? 'bg-black bg-opacity-20 border-black border-opacity-20'
-                  : 'border-maxBorderColor'
-              }`}
-            >
-              Max
-            </span> */}
           </div>
         </div>
       </div>

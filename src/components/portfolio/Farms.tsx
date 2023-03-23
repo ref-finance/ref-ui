@@ -54,8 +54,7 @@ import {
 import { NFTIdIcon } from '~components/icon/FarmBoost';
 import { PortfolioData } from '../../pages/Portfolio';
 import { BlueCircleLoading } from '../../components/layout/Loading';
-const { REF_VE_CONTRACT_ID, REF_UNI_V3_SWAP_CONTRACT_ID, switch_on_dcl_farms } =
-  getConfig();
+const { REF_VE_CONTRACT_ID, REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
 import {
   display_value,
   UpDownButton,
@@ -90,6 +89,7 @@ export default function Farms(props: any) {
     activeTab,
     setActiveTab,
   } = useContext(PortfolioData);
+  const intl = useIntl();
   const [classicSeeds, setClassicSeeds] = useState<Seed[]>([]);
   const [dclSeeds, setDclSeeds] = useState<Seed[]>([]);
   let [user_seeds_map, set_user_seeds_map] = useState<
@@ -211,7 +211,7 @@ export default function Farms(props: any) {
       if (userStaked) {
         const commonSeedFarmList = commonSeedFarms[seed_id] || [];
         if (!(commonSeedFarmList.length == 2 && isEnd)) {
-          if (is_dcl_seed && switch_on_dcl_farms == 'on') {
+          if (is_dcl_seed) {
             your_dcl_seeds.push(seed);
           }
           if (!is_dcl_seed) {
@@ -316,7 +316,9 @@ export default function Farms(props: any) {
           ) : null}
           {/* for mobile no data */}
           {noData_status && is_mobile && activeTab == '3' ? (
-            <NoDataCard text="Your yield farming will appear here." />
+            <NoDataCard
+              text={intl.formatMessage({ id: 'yield_farming_appear_here_tip' })}
+            />
           ) : null}
           {/* farm list */}
           <div className={`${activeTab == '3' ? '' : 'hidden'}`}>
@@ -333,7 +335,9 @@ export default function Farms(props: any) {
         ) : null}
         {/* pc no data */}
         {noData_status && !is_mobile ? (
-          <NoDataCard text="Your yield farming will appear here."></NoDataCard>
+          <NoDataCard
+            text={intl.formatMessage({ id: 'yield_farming_appear_here_tip' })}
+          ></NoDataCard>
         ) : null}
       </FarmCommonDatas.Provider>
     </>

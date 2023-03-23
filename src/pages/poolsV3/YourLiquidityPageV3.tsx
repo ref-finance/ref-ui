@@ -44,6 +44,7 @@ import {
   get_total_value_by_liquidity_amount_dcl,
   pause_old_dcl_claim_tip,
   getEffectiveFarmList,
+  sort_tokens_by_base,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import { FarmBoost, getBoostTokenPrices, Seed } from '../../services/farm';
@@ -78,6 +79,7 @@ import { checkTransactionStatus } from '../../services/swap';
 import { REF_POOL_NAV_TAB_KEY } from '../../components/pool/PoolTabV3';
 import { NFTIdIcon } from '~components/icon/FarmBoost';
 import { YourLiquidityV2 } from '~components/pool/YourLiquidityV2';
+import { isMobile } from '~utils/device';
 
 export default function YourLiquidityPageV3() {
   const clearState = () => {
@@ -98,13 +100,19 @@ export default function YourLiquidityPageV3() {
   const intl = useIntl();
   const [listLiquidities_old_version, setListLiquidities_old_version] =
     useState<UserLiquidityInfo[]>([]);
-  const liquidityStatusList = ['all', 'DCL', 'Classic'];
+  const liquidityStatusList = [
+    { id: 'all', label: 'all' },
+    { id: 'DCL', name: 'DCL' },
+    { id: 'Classic', label: 'classic' },
+  ];
   const [addliquidityList, setAddliquidityList] = useState<any[]>([
     {
+      label: 'dcl_liquidity',
       text: 'DCL Liquidity',
       url: '/addLiquidityV2',
     },
     {
+      label: 'classic_liquidity',
       text: 'Classic Liquidity',
       url: '/pools',
     },
@@ -178,7 +186,10 @@ export default function YourLiquidityPageV3() {
     setCheckedStatus(type);
   }
   function getTipForV2Pool() {
-    const n = intl.formatMessage({ id: 'v2PoolTip' });
+    const n = intl.formatMessage({
+      id: 'v2PoolTip2',
+      defaultMessage: 'You can have up to 16 positions in DCL pools',
+    });
     const result: string = `<div class="text-navHighLightText text-xs text-left">${n}</div>`;
     return result;
   }
@@ -268,27 +279,21 @@ export default function YourLiquidityPageV3() {
         <div className="flex items-start justify-between lg:mt-4">
           <div className="flex items-center">
             <div className="flex items-center text-sm text-primaryText border border-selectBorder p-0.5 rounded-lg bg-v3LiquidityTabBgColor">
-              {liquidityStatusList.map((item: string, index: number) => {
+              {liquidityStatusList.map((item: any, index: number) => {
+                const { id, name, label } = item;
                 return (
                   <span
                     key={index}
                     onClick={() => {
-                      switchButton(item);
+                      switchButton(id);
                     }}
                     className={`flex items-center justify-center h-6 py-px px-3.5 box-content w-auto rounded-md cursor-pointer gotham_bold ${
-                      checkedStatus == item
+                      checkedStatus == id
                         ? 'bg-primaryGradient text-white'
                         : 'text-primaryText'
                     }`}
                   >
-                    {item == 'all' ? (
-                      <FormattedMessage
-                        id={item}
-                        defaultMessage={item}
-                      ></FormattedMessage>
-                    ) : (
-                      item
-                    )}
+                    {name || <FormattedMessage id={label}></FormattedMessage>}
                   </span>
                 );
               })}
@@ -341,7 +346,7 @@ export default function YourLiquidityPageV3() {
                       }}
                       className={`whitespace-nowrap hover:bg-primaryText hover:bg-opacity-30 items-center flex justify-center px-5 py-0.5 h-10 hover:text-white rounded-lg text-primaryText text-center text-sm cursor-pointer my-auto`}
                     >
-                      {item.text}
+                      <FormattedMessage id={item.label} />
                     </span>
                   );
                 })}
@@ -350,7 +355,10 @@ export default function YourLiquidityPageV3() {
           </div>
         </div>
         {!isSignedIn || showCommonEmptyBar ? (
-          <NoLiquidity className="mt-10"></NoLiquidity>
+          <NoLiquidity
+            text={intl.formatMessage({ id: 'will_appear_here_tip' })}
+            className="mt-10"
+          ></NoLiquidity>
         ) : (
           <>
             {/* your v2 liquidity */}
@@ -375,7 +383,7 @@ export default function YourLiquidityPageV3() {
                       className="text-white text-right ml-1"
                       data-class="reactTip"
                       data-for={'v2PoolNumberTip'}
-                      data-place="top"
+                      data-place="right"
                       data-html={true}
                       data-tip={getTipForV2Pool()}
                     >
@@ -394,7 +402,11 @@ export default function YourLiquidityPageV3() {
                   </p>
                 </div>
               ) : null}
-              {showV2EmptyBar ? <NoLiquidity text="DCL"></NoLiquidity> : null}
+              {showV2EmptyBar ? (
+                <NoLiquidity
+                  text={intl.formatMessage({ id: 'dcl_will_appear_here_tip' })}
+                ></NoLiquidity>
+              ) : null}
               <YourLiquidityV2
                 setYourLpValueV2={setYourLpValueV2}
                 setLpValueV2Done={setLpValueV2Done}
@@ -408,7 +420,7 @@ export default function YourLiquidityPageV3() {
               {!v1LiquidityLoadingDone ? (
                 <div className="mt-10">
                   <div className="text-white text-base gotham_bold mb-3">
-                    Classic (0)
+                    <FormattedMessage id="classic" /> (0)
                   </div>
                   <div className="flex items-center justify-center">
                     <BlueCircleLoading />
@@ -418,7 +430,7 @@ export default function YourLiquidityPageV3() {
               {+v1LiquidityQuantity > 0 || showV1EmptyBar ? (
                 <div className="mt-10 mb-3 xsm:-mb-1">
                   <span className="text-white text-base gotham_bold">
-                    Classic ({v1LiquidityQuantity})
+                    <FormattedMessage id="classic" /> ({v1LiquidityQuantity})
                   </span>
                   <p className="text-sm text-farmText">
                     <FormattedMessage id="v1_your_pool_introduction"></FormattedMessage>
@@ -426,7 +438,11 @@ export default function YourLiquidityPageV3() {
                 </div>
               ) : null}
               {showV1EmptyBar ? (
-                <NoLiquidity text="Classic"></NoLiquidity>
+                <NoLiquidity
+                  text={intl.formatMessage({
+                    id: 'classic_will_appear_here_tip',
+                  })}
+                ></NoLiquidity>
               ) : null}
               <YourLiquidityV1
                 setLpValueV1Done={setLpValueV1Done}
@@ -542,7 +558,7 @@ export function get_detail_the_liquidity_refer_to_seed({
   related_farms: FarmBoost[];
   tokenPriceList: Record<string, any>;
 }) {
-  const { mft_id, left_point, right_point } = liquidity;
+  const { mft_id, left_point, right_point, amount } = liquidity;
   let Icon;
   let your_apr;
   let link;
@@ -568,7 +584,10 @@ export function get_detail_the_liquidity_refer_to_seed({
       min_deposit
     );
     const condition2 = +radio > 0;
-    if (condition1 && condition2) return true;
+    const condition3 =
+      mft_id ||
+      (!mft_id && new BigNumber(amount).isGreaterThanOrEqualTo(1000000));
+    if (condition1 && condition2 && condition3) return true;
   });
   const targetSeed = canFarmSeed || active_seeds[0];
   if (targetSeed) {
@@ -595,10 +614,12 @@ export function get_detail_the_liquidity_refer_to_seed({
     const actives = related_farms.filter((farm: FarmBoost) => {
       return farm.status != 'Ended';
     });
-    if (actives.length > 0) {
-      status = 'run';
-    } else {
-      status = 'end';
+    if (related_farms.length > 0) {
+      if (actives.length > 0) {
+        status = 'run';
+      } else {
+        status = 'end';
+      }
     }
   }
   return {
@@ -632,9 +653,7 @@ export function NoLiquidity({
           <MyOrderCircle />
         </span>
 
-        <span className="text-white text-base">
-          Your {text} liquidity positions will appear here.
-        </span>
+        <span className="text-white text-base">{text}</span>
         {isSignedIn ? null : (
           <div className="mt-5 w-72">
             <ConnectToNearBtnSwap />
@@ -656,11 +675,21 @@ function UserLegacyLiqudities(props: any) {
         <WarningTip className="mr-1.5 xsm:hidden"></WarningTip>
         <MobileWarningTip className="mb-1.5 lg:hidden"></MobileWarningTip>
         <span className="text-base text-legacyYellowColor gotham_bold xsm:text-center">
-          A new contract has been deployed! Please remove your liquidity from
-          the old contract
+          <FormattedMessage
+            id="new_contract_deploy_tip"
+            defaultMessage={
+              'A new contract has been deployed! Please remove your liquidity from the old contract'
+            }
+          />
         </span>
         <span className="text-sm text-v3LightGreyColor text-center lg:hidden my-1.5">
-          *Removing will automatically claim your unclaimed fees.
+          *
+          <FormattedMessage
+            id="remove_will_automatically_claim"
+            defaultMessage={
+              'Removing will automatically claim your unclaimed fees.'
+            }
+          ></FormattedMessage>
         </span>
       </div>
       {listLiquidities_old_version.length > 0 ? (
@@ -991,6 +1020,7 @@ function UserLiquidityLine_old({
       }
     }
   }
+  const tokens = sort_tokens_by_base(tokenMetadata_x_y);
   return (
     <div
       className="mt-3.5"
@@ -1016,17 +1046,16 @@ function UserLiquidityLine_old({
               <div className="flex items-center">
                 <div className="flex items-center flex-shrink-0">
                   <img
-                    src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
+                    src={tokens[0]?.icon}
                     className="w-7 h-7 border border-greenColor rounded-full"
                   ></img>
                   <img
-                    src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
+                    src={tokens[1]?.icon}
                     className="relative -ml-1.5 w-7 h-7 border border-greenColor rounded-full"
                   ></img>
                 </div>
                 <span className="text-white font-bold mx-2.5 text-sm gotham_bold">
-                  {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}-
-                  {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
+                  {tokens[0]?.['symbol']}-{tokens[1]?.['symbol']}
                 </span>
                 <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5">
                   <span className="text-xs text-v3SwapGray whitespace-nowrap mr-1.5">
@@ -1198,17 +1227,16 @@ function UserLiquidityLine_old({
               <div className="flex items-center">
                 <div className="flex items-center flex-shrink-0">
                   <img
-                    src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
+                    src={tokens[0]?.icon}
                     className="w-7 h-7 border border-greenColor rounded-full"
                   ></img>
                   <img
-                    src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
+                    src={tokens[1]?.icon}
                     className="relative -ml-1.5 w-7 h-7 border border-greenColor rounded-full"
                   ></img>
                 </div>
                 <span className="text-white text-sm ml-1.5">
-                  {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}-
-                  {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
+                  {tokens[0]?.['symbol']}-{tokens[1]?.['symbol']}
                 </span>
               </div>
               <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5">
@@ -1283,35 +1311,35 @@ function UserLiquidityLine_old({
                   </span>
                 </div>
                 <div className="flex items-center justify-end mt-2">
-                  <div
+                  {/* <div
                     className="text-white text-right"
                     data-class="reactTip"
                     data-for={`mobile_pause_dcl_tip_claim_${liquidity.lpt_id}`}
                     data-place="top"
                     data-html={true}
                     data-tip={isLegacy ? pause_old_dcl_claim_tip() : ''}
+                  > */}
+                  <div
+                    className={`flex items-center justify-center  rounded-lg text-sm px-2 py-1 ${
+                      !canClaim() || isLegacy
+                        ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
+                        : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
+                    }`}
+                    onClick={claimRewards}
                   >
-                    <div
-                      className={`flex items-center justify-center  rounded-lg text-sm px-2 py-1 ${
-                        !canClaim() || isLegacy
-                          ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
-                          : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
-                      }`}
-                      onClick={claimRewards}
-                    >
-                      <ButtonTextWrapper
-                        loading={claimLoading}
-                        Text={() => <FormattedMessage id="claim" />}
-                      />
-                    </div>
-                    <ReactTooltip
+                    <ButtonTextWrapper
+                      loading={claimLoading}
+                      Text={() => <FormattedMessage id="claim" />}
+                    />
+                  </div>
+                  {/* <ReactTooltip
                       id={`mobile_pause_dcl_tip_claim_${liquidity.lpt_id}`}
                       backgroundColor="#1D2932"
                       border
                       borderColor="#7e8a93"
                       effect="solid"
                     />
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>

@@ -45,6 +45,7 @@ import {
   get_all_seeds,
   displayNumberToAppropriateDecimals,
   getEffectiveFarmList,
+  sort_tokens_by_base,
 } from '~services/commonV3';
 import { ftGetTokensMetadata } from '../../services/ft-contract';
 import {
@@ -294,6 +295,10 @@ export default function PoolDetailV3() {
   }
   if (!poolDetail) return <Loading></Loading>;
   const isMobile = isClientMobie();
+  const tokens = sort_tokens_by_base([
+    poolDetail.token_x_metadata,
+    poolDetail.token_y_metadata,
+  ]);
   return (
     <>
       <div className="md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-1050px m-auto">
@@ -311,12 +316,12 @@ export default function PoolDetailV3() {
           <div className="relative flex items-center xsm:w-full">
             <div className="flex items-center mr-2.5">
               <img
-                src={poolDetail.token_x_metadata.icon}
+                src={tokens[0]?.icon}
                 className="w-10 h-10 rounded-full bg-cardBg"
                 style={{ border: '4px solid rgb(61, 68, 81)' }}
               ></img>
               <img
-                src={poolDetail.token_y_metadata.icon}
+                src={tokens[1]?.icon}
                 className="w-10 h-10 rounded-full bg-cardBg -ml-1"
                 style={{ border: '4px solid rgb(61, 68, 81)' }}
               ></img>
@@ -324,8 +329,7 @@ export default function PoolDetailV3() {
             <div className="flex flex-col justify-between">
               <div className="flex items-center">
                 <span className="text-lg text-white mr-3.5">
-                  {poolDetail.token_x_metadata.symbol}/
-                  {poolDetail.token_y_metadata.symbol}
+                  {tokens[0]?.symbol}-{tokens[1]?.symbol}
                 </span>
                 <span
                   className="flex items-center justify-center rounded-lg cursor-pointer  xsm:absolute xsm:right-0"
@@ -710,7 +714,7 @@ function YourLiquidityBox(props: {
     } else if (total < 0.01) {
       return '<$0.01';
     } else {
-      return '~$' + formatWithCommas(toPrecision(total.toString(), 2));
+      return '$' + formatWithCommas(toPrecision(total.toString(), 2));
     }
   }
   function getTotalTokenAmount() {
@@ -752,10 +756,15 @@ function YourLiquidityBox(props: {
   }
   return (
     <div className="p-5 bg-cardBg rounded-xl xsm:p-0">
-      <div className="flex items-center justify-between xsm:hidden">
-        <span className="text-white text-base">
-          <FormattedMessage id="your_liquidity"></FormattedMessage>
-        </span>
+      <div className="flex items-start justify-between xsm:hidden">
+        <div className="flex flex-col items-start">
+          <span className="text-white text-base">
+            <FormattedMessage id="your_liquidity"></FormattedMessage>
+          </span>
+          <span className="text-xs text-farmText">
+            <FormattedMessage id="estimation" />
+          </span>
+        </div>
         {liquidities?.length > 1 ? (
           <span className="text-gradientFromHover text-xs bg-black bg-opacity-25 border border-greenColor rounded-3xl px-2">
             {liquidities.length} NFTs
@@ -884,7 +893,7 @@ function UnclaimedFeesBox(props: any) {
     } else if (total_tvl < 0.01) {
       return '<$0.01';
     } else {
-      return '~$' + formatWithCommas(toPrecision(total_tvl.toString(), 2));
+      return '$' + formatWithCommas(toPrecision(total_tvl.toString(), 2));
     }
   }
   function getTotalFeeAmount() {
@@ -934,10 +943,15 @@ function UnclaimedFeesBox(props: any) {
     getTotalFeeAmount();
   return (
     <div className="p-5 bg-cardBg rounded-xl mt-3.5 xsm:p-0">
-      <div className="flex items-center justify-between xsm:hidden">
-        <span className="text-white text-base">
-          <FormattedMessage id="unclaimed_fees" />
-        </span>
+      <div className="flex items-start justify-between xsm:hidden">
+        <div className="flex items-start flex-col">
+          <span className="text-white text-base">
+            <FormattedMessage id="unclaimed_fees" />
+          </span>
+          <span className="text-xs text-farmText">
+            <FormattedMessage id="estimation" />
+          </span>
+        </div>
         {liquidities?.length > 1 ? (
           <span className="text-gradientFromHover text-xs bg-black bg-opacity-25 border border-greenColor rounded-3xl px-2">
             {liquidities.length} NFTs
@@ -1189,7 +1203,7 @@ function SelectLiquidityBox(props: any) {
     } else if (total < 0.01) {
       return '<$0.01';
     } else {
-      return '~$' + formatWithCommas(toPrecision(total.toString(), 2));
+      return '$' + formatWithCommas(toPrecision(total.toString(), 2));
     }
   }
   function displayLiqudityFee(liquidityDetail: UserLiquidityDetail) {
@@ -1199,7 +1213,7 @@ function SelectLiquidityBox(props: any) {
     } else if (total < 0.01) {
       return '<$0.01';
     } else {
-      return '~$' + formatWithCommas(toPrecision(total.toString(), 2));
+      return '$' + formatWithCommas(toPrecision(total.toString(), 2));
     }
   }
   function displayRange(liquidityDetail: UserLiquidityDetail) {
@@ -1243,9 +1257,17 @@ function SelectLiquidityBox(props: any) {
     const is_in_farming =
       liquidity.part_farm_ratio && +liquidity.part_farm_ratio > 0;
     if (is_in_farming) {
-      return <label className="text-sm text-white">Farming</label>;
+      return (
+        <label className="text-sm text-white">
+          <FormattedMessage id="farming" />
+        </label>
+      );
     } else {
-      return <label className="text-sm text-primaryText">Unstaked</label>;
+      return (
+        <label className="text-sm text-primaryText">
+          <FormattedMessage id="unstaked_2" />
+        </label>
+      );
     }
   }
   function go_farm(liquidity: UserLiquidityInfo) {
@@ -1339,7 +1361,9 @@ function SelectLiquidityBox(props: any) {
                         has_no_related_seed ? 'hidden' : ''
                       }`}
                     >
-                      <span className="text-sm text-farmText">Farm State</span>
+                      <span className="text-sm text-farmText">
+                        <FormattedMessage id="farm_state" />
+                      </span>
                       <span className="text-sm text-white">
                         {displayFarmStatus(user_liquidities[index])}
                       </span>
@@ -1358,7 +1382,7 @@ function SelectLiquidityBox(props: any) {
                           className={`px-2 text-sm text-greenColor border-opacity-50 h-9 focus:outline-none`}
                         >
                           <div className="flex items-center justify-center cursor-pointer">
-                            Farm Detail
+                            <FormattedMessage id="farm_detail" />
                             <JumpLinkIcon className="ml-1"></JumpLinkIcon>
                           </div>
                         </BorderButton>
@@ -1420,7 +1444,9 @@ function SelectLiquidityBox(props: any) {
                 <FormattedMessage id="unclaimed_fee" />
               </span>
               {has_no_related_seed ? null : (
-                <span className={`col-span-2`}>Farm State</span>
+                <span className={`col-span-2`}>
+                  <FormattedMessage id="farm_state" />
+                </span>
               )}
               <span className="col-span-2"></span>
             </div>
@@ -1477,7 +1503,7 @@ function SelectLiquidityBox(props: any) {
                             }`}
                           >
                             <div className="flex items-center justify-center cursor-pointer whitespace-nowrap">
-                              Farm Detail
+                              <FormattedMessage id="farm_detail" />
                               <JumpLinkIcon className="ml-1 flex-shrink-0"></JumpLinkIcon>
                             </div>
                           </BorderButton>
@@ -1536,7 +1562,7 @@ function SelectLiquidityBox(props: any) {
               color="#fff"
               className={`flex items-center justify-center w-full h-10 mx-6 border border-dashed border-dclBorderColor rounded-lg text-sm  text-primaryText cursor-pointer hover:bg-dclButtonBgColor hover:text-white focus:outline-none mt-7 xsm:mt-4`}
             >
-              + Add Position
+              + <FormattedMessage id="add_position" />
             </div>
           </div>
         ) : null}

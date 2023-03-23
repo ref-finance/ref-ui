@@ -26,8 +26,8 @@ import {
   CrossIconLarge,
   CrossIconFull,
 } from '../components/icon/FarmBoost';
-const { REF_UNI_V3_SWAP_CONTRACT_ID, boostBlackList, switch_on_dcl_farms } =
-  getConfig();
+import { useIntl } from 'react-intl';
+const { REF_UNI_V3_SWAP_CONTRACT_ID, boostBlackList } = getConfig();
 
 /**
  * caculate price by point
@@ -588,25 +588,23 @@ export function allocation_rule_liquidities({
   const matched_liquidities = list.filter((liquidity: UserLiquidityInfo) => {
     if (liquidity.pool_id == pool_id) return true;
   });
-  if (switch_on_dcl_farms == 'off') {
-    return [[], matched_liquidities, []];
-  }
   const temp_farming: UserLiquidityInfo[] = [];
   let temp_free: UserLiquidityInfo[] = [];
   const temp_unavailable: UserLiquidityInfo[] = [];
   matched_liquidities.forEach((liquidity: UserLiquidityInfo) => {
     const [left_point, right_point] = get_valid_range(liquidity, seed_id);
-    const { mft_id } = liquidity;
+    const { mft_id, amount } = liquidity;
     const inRange = right_point > left_point;
     const [fixRange_l, pool_id_l, left_point_l, right_point_l] =
       mft_id.split('&');
+    const amount_is_little = new BigNumber(amount).isLessThan(1000000);
     if (inRange && mft_id) {
       if (left_point_l != left_point_s || right_point_l != right_point_s) {
         temp_unavailable.push(liquidity);
       } else {
         temp_farming.push(liquidity);
       }
-    } else if (!inRange) {
+    } else if (!inRange || (!mft_id && amount_is_little)) {
       temp_unavailable.push(liquidity);
     } else {
       temp_free.push(liquidity);
@@ -702,9 +700,6 @@ export function get_matched_seeds_for_dcl_pool({
   pool_id: string;
   sort?: string;
 }) {
-  if (switch_on_dcl_farms == 'off') {
-    return [];
-  }
   const activeSeeds = seeds.filter((seed: Seed) => {
     const { seed_id, farmList } = seed;
     const [contractId, mft_id] = seed_id.split('@');
@@ -1049,19 +1044,34 @@ export function getEffectiveFarmList(farmList: FarmBoost[]) {
   });
   return targetList;
 }
-export const TOKEN_LIST_FOR_RATE = ['USDC.e', 'USDC', 'USDT.e', 'USDT'];
+export const TOKEN_LIST_FOR_RATE = ['USDC.e', 'USDC', 'USDT.e', 'USDT', 'DAI'];
 
 export const PAUSE_DCL = true;
 
 export function pause_v2_tip() {
-  const tip = 'REF V2 has been paused for maintenance';
+  const tip = 'REF DCL has been paused for maintenance';
   let result: string = `<div class="opacity-50 text-xs text-left xsm:w-40">${tip}</div>`;
   return result;
 }
 export function pause_old_dcl_claim_tip() {
-  const tip = 'Removing will automatically<br/> claim your unclaimed fees.';
-  let result: string = `<div class="opacity-50 text-xs text-left">${tip}</div>`;
+  const intl = useIntl();
+
+  const tip = intl.formatMessage({
+    id: 'remove_will_automatically_claim',
+    defaultMessage: 'Removing will automatically claim your unclaimed fees.',
+  });
+
+  let result: string = `<div class="opacity-50 w-p200 text-xs text-left">${tip}</div>`;
   return result;
+}
+export function sort_tokens_by_base(tokens: TokenMetadata[]) {
+  const tokens_temp = JSON.parse(JSON.stringify(tokens || []));
+  tokens_temp.sort((item2: TokenMetadata, item1: TokenMetadata) => {
+    if (TOKEN_LIST_FOR_RATE.indexOf(item2.symbol) > -1) return 1;
+    if (TOKEN_LIST_FOR_RATE.indexOf(item1.symbol) > -1) return -1;
+    return 0;
+  });
+  return tokens_temp;
 }
 export function get_liquidity_value({
   liquidity,

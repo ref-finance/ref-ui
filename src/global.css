@@ -291,7 +291,7 @@ input[type='number'] {
   content: none !important;
 }
 .__react_component_tooltip {
-  z-index: 99999;
+  z-index: 99999 !important;
 }
 
 .farmChartScreenWidth {
@@ -451,6 +451,9 @@ input[type='range']::-webkit-slider-runnable-track {
 
 .farmEnded .text-white {
   color: #73818b;
+}
+.farmEnded .dclIcon.text-white {
+  color: #fff;
 }
 .farmEnded img {
   filter: grayscale(100%);
@@ -1247,6 +1250,9 @@ input[type='range']::-webkit-slider-runnable-track {
     linear-gradient(139.75deg, #00ffd1 1.14%, #5b40ff 98.02%);
   background-clip: padding-box, border-box;
   background-origin: padding-box, border-box;
+}
+.taphight {
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
 }
 
 .recharts-tooltip-wrapper {

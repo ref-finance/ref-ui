@@ -139,10 +139,10 @@ import {
   get_all_seeds,
   getLatestStartTime,
   isPending,
+  sort_tokens_by_base,
 } from '../../services/commonV3';
 
 import { AiFillStar } from 'react-icons/ai';
-import { PAUSE_DCL } from '../../services/commonV3';
 import { useTokenPriceList } from '../../state/token';
 import { useSeedFarmsByPools } from '../../state/pool';
 
@@ -313,11 +313,7 @@ function MobilePoolRow({
 
   if (!curRowTokens) return <></>;
 
-  tokens = curRowTokens.sort((a, b) => {
-    if (a.symbol === 'NEAR') return 1;
-    if (b.symbol === 'NEAR') return -1;
-    return 0;
-  });
+  tokens = sort_tokens_by_base(tokens);
 
   const showSortedValue = ({
     sortBy,
@@ -400,9 +396,9 @@ function MobilePoolRow({
                 }}
               >
                 <img
-                  key={tokens[0].id.substring(0, 12).substring(0, 12)}
+                  key={curRowTokens?.[0]?.id.substring(0, 12).substring(0, 12)}
                   className="rounded-full w-full"
-                  src={tokens[0].icon}
+                  src={curRowTokens?.[0]?.icon}
                 />
               </div>
 
@@ -414,12 +410,12 @@ function MobilePoolRow({
                 }}
               >
                 <img
-                  key={tokens[1].id}
+                  key={curRowTokens?.[1].id}
                   className="w-full rounded-full"
-                  src={tokens[1].icon}
+                  src={curRowTokens?.[1].icon}
                 />
               </div>
-              {tokens[2] ? (
+              {curRowTokens?.[2] ? (
                 <div
                   className="h-6 w-6 z-30 border border-watchMarkBackgroundColor rounded-full -ml-1.5 "
                   style={{
@@ -428,9 +424,9 @@ function MobilePoolRow({
                   }}
                 >
                   <img
-                    key={tokens[2].id}
+                    key={curRowTokens[2].id}
                     className="w-full rounded-full"
-                    src={tokens[2].icon}
+                    src={curRowTokens[2].icon}
                   />
                 </div>
               ) : null}
@@ -439,10 +435,10 @@ function MobilePoolRow({
               <div className="flex items-center justify-start">
                 <div className="flex items-center flex-wrap">
                   <div className="text-sm ml-2 font-semibold whitespace-nowrap mb-0.5">
-                    {tokens[0].symbol +
+                    {curRowTokens[0].symbol +
                       '-' +
-                      tokens[1].symbol +
-                      `${tokens[2] ? '-' + tokens[2].symbol : ''}`}
+                      curRowTokens[1].symbol +
+                      `${curRowTokens[2] ? '-' + curRowTokens[2].symbol : ''}`}
                   </div>
                 </div>
                 {watched && !watchPool && (
@@ -518,11 +514,7 @@ function MobilePoolRowV2({
   const history = useHistory();
 
   if (!curRowTokens) return <></>;
-  tokens = curRowTokens.sort((a, b) => {
-    if (a.symbol === 'NEAR') return 1;
-    if (b.symbol === 'NEAR') return -1;
-    return a.symbol > b.symbol ? 1 : -1;
-  });
+  tokens = sort_tokens_by_base(tokens);
 
   const showSortedValue = ({
     sortBy,
@@ -587,28 +579,32 @@ function MobilePoolRowV2({
               ) : null}
             </div>
             <div className="flex flex-col flex-wrap">
-              <div className="text-sm ml-2 font-semibold whitespace-nowrap mb-0.5">
-                {tokens[0].symbol +
-                  '-' +
-                  tokens[1].symbol +
-                  `${tokens[2] ? '-' + tokens[2].symbol : ''}`}
+              <div className="flex items-center">
+                <div className="text-sm ml-2 font-semibold whitespace-nowrap mb-0.5">
+                  {tokens[0].symbol +
+                    '-' +
+                    tokens[1].symbol +
+                    `${tokens[2] ? '-' + tokens[2].symbol : ''}`}
+                </div>
+                {watched && (
+                  <div className="ml-2">
+                    <WatchListStartFull />
+                  </div>
+                )}
               </div>
-              {mark ? (
-                <span className="max-w-min  whitespace-nowrap text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2 mb-0.5">
-                  DCL
-                </span>
-              ) : null}
+              <div className="flex items-center">
+                {mark ? (
+                  <span className="max-w-min  whitespace-nowrap text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2 mb-0.5">
+                    DCL
+                  </span>
+                ) : null}
+                {relatedSeed && (
+                  <div className="mr-2">
+                    <FarmStampNew multi={relatedSeed.farmList?.length > 1} />
+                  </div>
+                )}
+              </div>
             </div>
-            {watched && (
-              <div className="ml-2">
-                <WatchListStartFull />
-              </div>
-            )}
-            {relatedSeed && (
-              <div className="mr-2">
-                <FarmStampNew multi={relatedSeed.farmList?.length > 1} />
-              </div>
-            )}
           </div>
           <div>{showSortedValue({ sortBy, value: pool[sortBy] })}</div>
         </div>
@@ -1590,11 +1586,7 @@ function PoolRow({
 
   if (!curRowTokens) return <></>;
 
-  tokens = curRowTokens.sort((a, b) => {
-    if (a.symbol === 'NEAR') return 1;
-    if (b.symbol === 'NEAR') return -1;
-    return 0;
-  });
+  tokens = sort_tokens_by_base(curRowTokens);
 
   return (
     <div className="w-full hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20">
@@ -1746,12 +1738,7 @@ function PoolRowV2({
   const history = useHistory();
 
   if (!curRowTokens) return <></>;
-
-  tokens = curRowTokens.sort((a, b) => {
-    if (a.symbol === 'NEAR') return 1;
-    if (b.symbol === 'NEAR') return -1;
-    return a.symbol > b.symbol ? 1 : -1;
-  });
+  tokens = sort_tokens_by_base(tokens);
   function goDetailV2() {
     const url_pool_id = pool.pool_id.replace(/\|/g, '@');
     history.push(`/poolV2/${url_pool_id}`);
@@ -3033,17 +3020,13 @@ export function LiquidityPage() {
     canFarms({
       pool_ids,
     }).then(setFarmCounts);
-  }, [pools]);
+  }, [pools, watchPools?.map((p) => p.id).join('|')]);
 
   const clientMobileDevice = useClientMobile();
   const [do_farms_v2_poos, set_do_farms_v2_poos] = useState<
     Record<string, Seed>
   >({});
   useEffect(() => {
-    if (switch_on_dcl_farms == 'off') {
-      set_do_farms_v2_poos({});
-      return;
-    }
     get_all_seeds().then((seeds: Seed[]) => {
       const activeSeeds = seeds.filter((seed: Seed) => {
         const { farmList, seed_id } = seed;
@@ -3516,7 +3499,7 @@ const RenderDisplayTokensAmounts = ({
                   : 'text-primaryText'
               }`}
             >
-              <span className="mr-1.5">
+              <span className="mr-1.5 flex-shrink-0">
                 <img
                   src={token.icon}
                   alt=""

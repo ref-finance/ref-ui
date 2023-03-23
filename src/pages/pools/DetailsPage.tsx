@@ -171,7 +171,7 @@ import { NoLiquidityDetailPageIcon } from '../../components/icon/Pool';
 import { useFarmStake } from '../../state/farm';
 import { VEARROW } from '../../components/icon/Referendum';
 import Big from 'big.js';
-import { getEffectiveFarmList } from '~services/commonV3';
+import { getEffectiveFarmList, sort_tokens_by_base } from '~services/commonV3';
 
 interface ParamTypes {
   id: string;
@@ -1992,8 +1992,8 @@ export function PoolDetailsPage() {
     const farms = seedFarms;
 
     let totalReward = 0;
-
-    farms.forEach((farm: any) => {
+    const effectiveFarms = getEffectiveFarmList(farms);
+    effectiveFarms.forEach((farm: any) => {
       const reward_token_price = Number(
         tokenPriceList?.[farm.token_meta_data.id]?.price || 0
       );
@@ -2131,12 +2131,16 @@ export function PoolDetailsPage() {
         />
 
         <div className="flex items-center w-full relative mb-4 ml-2">
-          <Images borderStyle="4px solid #3D4451" size="9" tokens={tokens} />
+          <Images
+            borderStyle="4px solid #3D4451"
+            size="9"
+            tokens={sort_tokens_by_base(tokens)}
+          />
 
           <div className="flex flex-col">
             <div className="flex items-center">
               <div className="ml-2">
-                <Symbols size="text-lg" tokens={tokens} />
+                <Symbols size="text-lg" tokens={sort_tokens_by_base(tokens)} />
               </div>
               {!backToFarmsButton || isClientMobie() ? null : (
                 <Link
@@ -2574,12 +2578,23 @@ export function PoolDetailsPage() {
                     />
                   </div>
 
-                  <div className="w-full text-right text-sm text-v3SwapGray">
-                    {!isSignedIn
-                      ? '-'
-                      : usdValue === '-'
-                      ? '-'
-                      : `~${usdValue}`}
+                  <div className="w-full text-right text-sm text-primaryText ">
+                    {!isSignedIn ? (
+                      '-'
+                    ) : usdValue === '-' ? (
+                      '-'
+                    ) : (
+                      <div className="flex items-center relative top-1.5 justify-between">
+                        <span className="whitespace-nowrap ">
+                          <FormattedMessage
+                            id="estimate_value"
+                            defaultMessage={'Estimate Value'}
+                          ></FormattedMessage>
+                        </span>
+
+                        <span className="text-white font-bold">{usdValue}</span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex flex-col text-center text-base  pt-4">

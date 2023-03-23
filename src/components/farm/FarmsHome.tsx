@@ -1,27 +1,20 @@
 import React, { useEffect, useRef, useState, useContext, useMemo } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import SelectUi from '../../components/farm/SelectUi';
+import SelectBox from '../../components/farm/SelectBox';
 import {
   CalcIcon,
-  UpArrowIcon,
   ArrowDownIcon,
   SearchIcon,
   BoostOptIcon,
   NearOptIcon,
   EthOptIcon,
   OthersOptIcon,
-  YoursOptIcon,
-  BannerBgLeft,
-  BannerBgRight,
-  BoostBannerLogo,
   Flight,
   LoveIcon,
   LoveTokenIcon,
   BoostRightArrowIcon,
   DirectionButton,
   BoostLoveIcon,
-  MigrateIconSmall,
-  MigrateIconMiddle,
   WarningIcon,
   LightningBase64,
   LightningBase64Grey,
@@ -37,13 +30,11 @@ import {
   GradientButton,
   ButtonTextWrapper,
   GreenConnectToNearBtn,
-  BlacklightConnectToNearBtn,
 } from '../../components/button/Button';
 import {
   Checkbox,
   CheckboxSelected,
   NoDataIcon,
-  ArrowDown,
   SortIcon,
 } from '../../components/icon';
 import QuestionMark from '../../components/farm/QuestionMark';
@@ -52,7 +43,7 @@ import CalcModelBooster from '../../components/farm/CalcModelBooster';
 import CalcModelDcl from '../../components/farm/CalcModelDcl';
 import {
   classificationOfCoins_key,
-  farmClassification,
+  getFarmClassification,
   list_farmer_seeds,
   get_unclaimed_rewards,
   get_unWithDraw_rewards,
@@ -73,23 +64,15 @@ import {
   list_seeds_info,
 } from '../../services/farm';
 import { getLoveAmount } from '../../services/referendum';
-import {
-  getCurrentWallet,
-  WalletContext,
-} from '../../utils/wallets-integration';
+import { WalletContext } from '../../utils/wallets-integration';
 import getConfig from '../../services/config';
 import { PoolRPCView } from '../../services/api';
-import {
-  LP_TOKEN_DECIMALS,
-  LP_STABLE_TOKEN_DECIMALS,
-} from '../../services/m-token';
 import {
   toPrecision,
   toReadableNumber,
   toNonDivisibleNumber,
   toInternationalCurrencySystem,
   formatWithCommas,
-  niceDecimalsExtreme,
 } from '../../utils/numbers';
 import { ftGetTokenMetadata } from '../../services/ft-contract';
 import { BigNumber } from 'bignumber.js';
@@ -102,19 +85,9 @@ import Alert from '../../components/alert/Alert';
 import Loading, { BeatLoading } from '../../components/layout/Loading';
 import { TokenMetadata, REF_META_DATA } from '../../services/ft-contract';
 import { get24hVolume, getPoolsByIds } from '../../services/indexer';
-import {
-  getURLInfo,
-  usnBuyAndSellToast,
-  swapToast,
-} from '../layout/transactionTipPopUp';
-import { checkTransaction } from '../../services/stable-swap';
 import Modal from 'react-modal';
 import { ModalClose } from '../../components/icon';
-import {
-  LockPopUp,
-  getVEPoolId,
-  AccountInfo,
-} from '../../pages/ReferendumPage';
+import { LockPopUp, getVEPoolId } from '../../pages/ReferendumPage';
 import { wnearMetadata, unwrapedNear } from '../../services/wrap-near';
 import { usePoolShare, useYourliquidity } from '../../state/pool';
 import { useAccountInfo, LOVE_TOKEN_DECIMAL } from '../../state/referendum';
@@ -123,7 +96,6 @@ import Countdown, { zeroPad } from 'react-countdown';
 import { MoreButtonIcon } from '../../components/icon/Common';
 
 import _ from 'lodash';
-import { NEAR_WITHDRAW_KEY } from '../forms/WrapNear';
 import { PoolInfo } from '~services/swapV3';
 import {
   getPriceByPoint,
@@ -132,6 +104,7 @@ import {
   TOKEN_LIST_FOR_RATE,
   displayNumberToAppropriateDecimals,
   getEffectiveFarmList,
+  sort_tokens_by_base,
 } from '../../services/commonV3';
 
 const {
@@ -139,7 +112,6 @@ const {
   FARM_BLACK_LIST_V2,
   boostBlackList,
   REF_UNI_V3_SWAP_CONTRACT_ID,
-  switch_on_dcl_farms,
 } = getConfig();
 export default function FarmsHome(props: any) {
   const {
@@ -173,25 +145,15 @@ export default function FarmsHome(props: any) {
   const searchRef = useRef(null);
   const refreshTime = 300000;
   const sortList = {
-    tvl: intl.formatMessage({ id: 'tvl' }),
-    apr: intl.formatMessage({ id: 'apr' }),
-  };
-  const status_fronts = {
-    live: {
-      txt: intl.formatMessage({ id: 'all' }),
-    },
+    // tvl: intl.formatMessage({ id: 'tvl' }),
+    // apr: intl.formatMessage({ id: 'apr' }),
+    tvl: 'TVL',
+    apr: 'APR',
   };
   const coinList = { all: intl.formatMessage({ id: 'allOption' }) };
   classificationOfCoins_key.forEach((key) => {
     coinList[key] = intl.formatMessage({ id: key });
   });
-  const farmV2Status: string = localStorage.getItem('farmV2Status');
-  let [sort, setSort] = useState('tvl');
-  let [status, setStatus] = useState(
-    !isSignedIn && farmV2Status == 'my' ? 'live' : farmV2Status || 'live'
-  );
-  const [keyWords, setKeyWords] = useState('');
-  const searchData = { sort, status, keyWords };
   const [loveTokenBalance, setLoveTokenBalance] = useState<string>('0');
   const [loveTokeStaked, setLoveTokeStaked] = useState('0');
   let [loveSeed, setLoveSeed] = useState<Seed>(null);
@@ -214,52 +176,37 @@ export default function FarmsHome(props: any) {
   const [boostInstructions, setBoostInstructions] = useState<boolean>(false);
   const [maxLoveShareAmount, setMaxLoveShareAmount] = useState<string>('0');
   const local_storage_tab = localStorage.getItem('BOOST_FARM_RAB');
-  const default_farm_tab =
-    !local_storage_tab ||
-    (local_storage_tab == 'dcl' && switch_on_dcl_farms == 'off')
-      ? 'classic'
-      : local_storage_tab;
-  let [farmTab, setFarmTab] = useState(default_farm_tab); // dcl、normal,legacy
   const history = useHistory();
-  const statusList = {
-    live: {
-      txt: intl.formatMessage({ id: 'all' }),
-    },
-    boost: {
-      txt: intl.formatMessage({ id: 'boost' }),
+  const [farmTypeList, setFarmTypeList] = useState([
+    { id: 'all', label: 'all' },
+    { id: 'dcl', label: 'dcl_farms' },
+    { id: 'classic', label: 'classic_farms' },
+  ]);
+  const [filterTypeList, setFilterTypeList] = useState([
+    { id: 'all', label: 'all' },
+    {
+      id: 'boost',
+      name: 'Boost',
       icon: <BoostOptIcon></BoostOptIcon>,
-      hidden: REF_VE_CONTRACT_ID && farmTab == 'normal' ? false : true,
+      hidden: REF_VE_CONTRACT_ID ? false : true,
     },
-    near: {
-      txt: intl.formatMessage({ id: 'near' }),
-      icon: <NearOptIcon></NearOptIcon>,
-      hidden: farmTab == 'dcl' ? true : false,
-    },
-    eth: {
-      txt: intl.formatMessage({ id: 'eth' }),
-      icon: <EthOptIcon></EthOptIcon>,
-      hidden: farmTab == 'dcl' ? true : false,
-    },
-    stable: {
-      txt: intl.formatMessage({ id: 'stablecoin' }),
-      icon: <StableOption></StableOption>,
-      hidden: farmTab == 'dcl' ? true : false,
-    },
-    new: {
-      txt: intl.formatMessage({ id: 'newText' }),
-      icon: <NewIcon></NewIcon>,
-      hidden: farmTab == 'dcl' ? true : false,
-    },
-    others: {
-      txt: intl.formatMessage({ id: 'others' }),
-      icon: <OthersOptIcon></OthersOptIcon>,
-      hidden: farmTab == 'dcl' ? true : false,
-    },
-    my: {
-      txt: intl.formatMessage({ id: 'yours' }),
-      icon: <YoursOptIcon></YoursOptIcon>,
-    },
-  };
+    { id: 'near', name: 'NEAR', icon: <NearOptIcon></NearOptIcon> },
+    { id: 'stable', name: 'Stable', icon: <StableOption></StableOption> },
+    { id: 'eth', name: 'ETH', icon: <EthOptIcon></EthOptIcon> },
+    { id: 'new', name: 'New', icon: <NewIcon></NewIcon> },
+    { id: 'others', name: 'Others', icon: <OthersOptIcon></OthersOptIcon> },
+  ]);
+  const [sort, setSort] = useState('apr');
+  const [keyWords, setKeyWords] = useState('');
+  const [farmTab, setFarmTab] = useState(
+    localStorage.getItem('BOOST_FARM_TAB') || 'all'
+  ); // all、yours
+  const [farm_type_selectedId, set_farm_type_selectedId] = useState('all');
+  const [filter_type_selectedId, set_filter_type_selectedId] = useState('all');
+  const [has_dcl_farms_in_display_list, set_has_dcl_farms_in_display_list] =
+    useState(true);
+  const [your_seeds_quantity, set_your_seeds_quantity] = useState('-');
+
   /** search area options end **/
   useEffect(() => {
     init();
@@ -281,6 +228,17 @@ export default function FarmsHome(props: any) {
       clearInterval(intervalId);
     };
   }, [count]);
+  useEffect(() => {
+    searchByCondition();
+  }, [farm_type_selectedId, filter_type_selectedId, keyWords, farmTab]);
+  useEffect(() => {
+    sortFarms();
+  }, [sort]);
+  useEffect(() => {
+    if (farm_display_List?.length > 0) {
+      getYourFarmsQuantity();
+    }
+  }, [farm_display_List]);
   async function get_ve_seed_share() {
     const result = await getVeSeedShare();
     const maxShareObj = result?.accounts?.accounts[0] || {};
@@ -682,16 +640,31 @@ export default function FarmsHome(props: any) {
     }
   }
   function changeSort(sortKey: any) {
-    searchData.sort = sortKey;
     setSort(sortKey);
-    searchByCondition();
   }
-  // todo
-  function changeStatus(statusSelectOption: string) {
-    localStorage.setItem('farmV2Status', statusSelectOption);
-    setStatus(statusSelectOption);
-    searchData.status = statusSelectOption;
-    searchByCondition();
+  function getYourFarmsQuantity() {
+    const yourSeeds: Seed[] = [];
+    // filter out yours
+    farm_display_List.forEach((seed: Seed) => {
+      const { seed_id, farmList } = seed;
+      const isEnd = farmList[0].status == 'Ended';
+      const user_seed = user_seeds_map[seed_id];
+      const userStaked = Object.keys(user_seed || {}).length > 0;
+      let condition;
+      const commonSeedFarms = mergeCommonSeedsFarms();
+      if (userStaked) {
+        const commonSeedFarmList = commonSeedFarms[seed_id] || [];
+        if (commonSeedFarmList.length == 2 && isEnd) {
+          condition = false;
+        } else {
+          condition = true;
+        }
+      }
+      if (condition) {
+        yourSeeds.push(seed);
+      }
+    });
+    set_your_seeds_quantity(yourSeeds.length.toString());
   }
   function searchByCondition(from?: string) {
     farm_display_List = farm_display_List.sort();
@@ -699,7 +672,7 @@ export default function FarmsHome(props: any) {
     let noDataEnd = true,
       noDataLive = true;
     const commonSeedFarms = mergeCommonSeedsFarms();
-    const { status, keyWords, sort } = searchData;
+    const farmClassification = getFarmClassification();
     // filter
     farm_display_List.forEach((seed: Seed) => {
       const { pool, seed_id, farmList } = seed;
@@ -711,106 +684,117 @@ export default function FarmsHome(props: any) {
       tokens_meta_data.forEach((token: TokenMetadata) => {
         token_symbols.push(token.symbol);
       });
-      const [contractId, temp_mft_id] = seed_id.split('@');
-      let condition1, condition2, condition3;
-      if (farmTab == 'dcl') {
-        if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) {
+      const [contractId] = seed_id.split('@');
+      let condition1, condition2, condition3, condition4;
+      const is_dcl_farm = contractId == REF_UNI_V3_SWAP_CONTRACT_ID;
+      // farm status
+      if (isEnd) {
+        condition4 = false;
+      } else {
+        condition4 = true;
+      }
+      // farm_type
+      if (farmTab == 'yours') {
+        condition3 = true;
+        condition4 = true;
+      } else if (farm_type_selectedId == 'all') {
+        condition3 = true;
+      } else if (farm_type_selectedId == 'dcl') {
+        if (is_dcl_farm) {
           condition3 = true;
         } else {
           condition3 = false;
         }
-      } else {
-        if (contractId != REF_UNI_V3_SWAP_CONTRACT_ID) {
+      } else if (farm_type_selectedId == 'classic') {
+        if (!is_dcl_farm) {
           condition3 = true;
         } else {
           condition3 = false;
         }
       }
-      if (farmTab == 'dcl') {
-        if (status == 'my') {
-          if (userStaked) {
-            const commonSeedFarmList = commonSeedFarms[seed_id] || [];
-            if (commonSeedFarmList.length == 2 && isEnd) {
-              condition1 = false;
-            } else {
-              condition1 = true;
-            }
+      // filter_type
+      if (farmTab == 'yours') {
+        if (userStaked) {
+          const commonSeedFarmList = commonSeedFarms[seed_id] || [];
+          if (commonSeedFarmList.length == 2 && isEnd) {
+            condition1 = false;
+          } else {
+            condition1 = true;
           }
-        } else {
-          condition1 = !isEnd;
         }
-      } else {
-        if (status == 'my') {
-          if (userStaked) {
-            const commonSeedFarmList = commonSeedFarms[seed_id] || [];
-            if (commonSeedFarmList.length == 2 && isEnd) {
-              condition1 = false;
-            } else {
-              condition1 = true;
-            }
-          }
-        } else if (status == 'live') {
-          condition1 = !isEnd;
-        } else if (status == 'boost' && boostConfig) {
-          const affected_seeds_keys = Object.keys(boostConfig.affected_seeds);
-          if (affected_seeds_keys.indexOf(seed_id) > -1 && !isEnd) {
-            condition1 = true;
-          } else {
-            condition1 = false;
-          }
-        } else if (status == 'near') {
-          if (
-            farmClassification['near'].indexOf(+getPoolIdBySeedId(seed_id)) >
-              -1 &&
-            !isEnd
-          ) {
-            condition1 = true;
-          } else {
-            condition1 = false;
-          }
-        } else if (status == 'eth') {
-          if (
-            farmClassification['eth'].indexOf(+getPoolIdBySeedId(seed_id)) >
-              -1 &&
-            !isEnd
-          ) {
-            condition1 = true;
-          } else {
-            condition1 = false;
-          }
-        } else if (status == 'stable') {
-          if (
-            farmClassification['stable'].indexOf(+getPoolIdBySeedId(seed_id)) >
-              -1 &&
-            !isEnd
-          ) {
-            condition1 = true;
-          } else {
-            condition1 = false;
-          }
-        } else if (status == 'others') {
-          // others
-          const isNotNear =
-            farmClassification['near'].indexOf(+getPoolIdBySeedId(seed_id)) ==
-            -1;
-          const isNotEth =
-            farmClassification['eth'].indexOf(+getPoolIdBySeedId(seed_id)) ==
-            -1;
-          if (isNotNear && isNotEth && !isEnd) {
-            condition1 = true;
-          } else {
-            condition1 = false;
-          }
-        } else if (status == 'new') {
+      } else if (filter_type_selectedId == 'all') {
+        condition1 = true;
+      } else if (filter_type_selectedId == 'boost' && boostConfig) {
+        const affected_seeds_keys = Object.keys(boostConfig.affected_seeds);
+        if (affected_seeds_keys.indexOf(seed_id) > -1) {
+          condition1 = true;
+        } else {
+          condition1 = false;
+        }
+      } else if (filter_type_selectedId == 'near') {
+        if (
+          farmClassification['near'].indexOf(getPoolIdBySeedId(seed_id)) > -1
+        ) {
+          condition1 = true;
+        } else {
+          condition1 = false;
+        }
+      } else if (filter_type_selectedId == 'eth') {
+        if (
+          farmClassification['eth'].indexOf(getPoolIdBySeedId(seed_id)) > -1
+        ) {
+          condition1 = true;
+        } else {
+          condition3 = false;
+        }
+      } else if (filter_type_selectedId == 'stable') {
+        if (
+          farmClassification['stable'].indexOf(getPoolIdBySeedId(seed_id)) > -1
+        ) {
+          condition1 = true;
+        } else {
+          condition3 = false;
+        }
+      } else if (filter_type_selectedId == 'others') {
+        // others
+        const isNotNear =
+          farmClassification['near'].indexOf(getPoolIdBySeedId(seed_id)) == -1;
+        const isNotEth =
+          farmClassification['eth'].indexOf(getPoolIdBySeedId(seed_id)) == -1;
+        const isNotStable =
+          farmClassification['stable'].indexOf(getPoolIdBySeedId(seed_id)) ==
+          -1;
+        if (isNotNear && isNotEth && isNotStable) {
+          condition1 = true;
+        } else {
+          condition1 = false;
+        }
+      } else if (filter_type_selectedId == 'new') {
+        if (!is_dcl_farm) {
+          // in month
           const m = isInMonth(seed);
           if (m) {
             condition1 = true;
           } else {
             condition1 = false;
           }
+        } else {
+          // new dcl
+          condition1 = false;
+          const matched_seeds = get_matched_seeds_for_dcl_pool({
+            seeds: farm_display_List,
+            pool_id: pool.pool_id,
+            sort: 'new',
+          });
+          if (matched_seeds.length > 1) {
+            const latestSeed = matched_seeds[0];
+            if (latestSeed.seed_id == seed.seed_id) {
+              condition1 = true;
+            }
+          }
         }
       }
-
+      // key words
       if (keyWords) {
         for (let i = 0; i < token_symbols.length; i++) {
           if (
@@ -825,7 +809,7 @@ export default function FarmsHome(props: any) {
       } else {
         condition2 = true;
       }
-      if (condition1 && condition2 && condition3) {
+      if (condition1 && condition2 && condition3 && condition4) {
         seed.hidden = false;
         noDataLive = false;
       } else {
@@ -839,53 +823,69 @@ export default function FarmsHome(props: any) {
       tokens_meta_data.forEach((token: TokenMetadata) => {
         token_symbols.push(token.symbol);
       });
-      const [contractId, temp_mft_id] = seed_id.split('@');
+      const [contractId] = seed_id.split('@');
+      const is_dcl_farm = contractId == REF_UNI_V3_SWAP_CONTRACT_ID;
       let condition1, condition3;
       let condition2 = true;
-      if (farmTab == 'dcl') {
-        if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) {
+      // farm_type
+      if (farm_type_selectedId == 'all') {
+        condition3 = true;
+      } else if (farm_type_selectedId == 'dcl') {
+        if (is_dcl_farm) {
           condition3 = true;
         } else {
           condition3 = false;
         }
-      } else {
-        if (contractId != REF_UNI_V3_SWAP_CONTRACT_ID) {
+      } else if (farm_type_selectedId == 'classic') {
+        if (!is_dcl_farm) {
           condition3 = true;
         } else {
           condition3 = false;
         }
       }
-      if (farmTab == 'dcl' || status == 'live') {
+      // filter_type
+      if (filter_type_selectedId == 'all') {
         condition1 = true;
-      } else if (status == 'boost' && boostConfig) {
+      } else if (filter_type_selectedId == 'boost' && boostConfig) {
         const affected_seeds_keys = Object.keys(boostConfig.affected_seeds);
         if (affected_seeds_keys.indexOf(seed_id) > -1) {
           condition1 = true;
         } else {
           condition1 = false;
         }
-      } else if (status == 'near') {
+      } else if (filter_type_selectedId == 'near') {
         if (
-          farmClassification['near'].indexOf(+getPoolIdBySeedId(seed_id)) > -1
+          farmClassification['near'].indexOf(getPoolIdBySeedId(seed_id)) > -1
         ) {
           condition1 = true;
         } else {
           condition1 = false;
         }
-      } else if (status == 'eth') {
+      } else if (filter_type_selectedId == 'eth') {
         if (
-          farmClassification['eth'].indexOf(+getPoolIdBySeedId(seed_id)) > -1
+          farmClassification['eth'].indexOf(getPoolIdBySeedId(seed_id)) > -1
         ) {
           condition1 = true;
         } else {
           condition1 = false;
         }
-      } else if (status == 'others') {
+      } else if (filter_type_selectedId == 'stable') {
+        if (
+          farmClassification['stable'].indexOf(getPoolIdBySeedId(seed_id)) > -1
+        ) {
+          condition1 = true;
+        } else {
+          condition1 = false;
+        }
+      } else if (filter_type_selectedId == 'others') {
         const isNotNear =
-          farmClassification['near'].indexOf(+getPoolIdBySeedId(seed_id)) == -1;
+          farmClassification['near'].indexOf(getPoolIdBySeedId(seed_id)) == -1;
         const isNotEth =
-          farmClassification['eth'].indexOf(+getPoolIdBySeedId(seed_id)) == -1;
-        if (isNotNear && isNotEth) {
+          farmClassification['eth'].indexOf(getPoolIdBySeedId(seed_id)) == -1;
+        const isNotStable =
+          farmClassification['stable'].indexOf(getPoolIdBySeedId(seed_id)) ==
+          -1;
+        if (isNotNear && isNotEth && isNotStable) {
           condition1 = true;
         } else {
           condition1 = false;
@@ -904,62 +904,21 @@ export default function FarmsHome(props: any) {
           }
         }
       }
-      if (condition2 && condition1 && condition3) {
+      if (condition1 && condition2 && condition3) {
         seed.hidden = false;
         noDataEnd = false;
       } else {
         seed.hidden = true;
       }
     });
-    // sort
-    if (sort == 'apr' || farmTab == 'dcl') {
-      farm_display_List.sort((item1: Seed, item2: Seed) => {
-        const item1PoolId = item1.pool.id;
-        const item2PoolId = item2.pool.id;
-        const item1Front = frontConfigBoost[item1PoolId];
-        const item2Front = frontConfigBoost[item2PoolId];
-        if (item1Front || item2Front) {
-          return Number(item2Front || 0) - Number(item1Front || 0);
-        }
-        const item1Apr = getTotalAprForSeed(JSON.parse(JSON.stringify(item1)));
-        const item2Apr = getTotalAprForSeed(JSON.parse(JSON.stringify(item2)));
-        return Number(item2Apr) - Number(item1Apr);
-      });
-      farm_display_ended_List.sort((item1: Seed, item2: Seed) => {
-        const item1PoolId = item1.pool.id;
-        const item2PoolId = item2.pool.id;
-        const item1Front = frontConfigBoost[item1PoolId];
-        const item2Front = frontConfigBoost[item2PoolId];
-        if (item1Front || item2Front) {
-          return Number(item2Front || 0) - Number(item1Front || 0);
-        }
-        const item1Apr = getTotalAprForSeed(JSON.parse(JSON.stringify(item1)));
-        const item2Apr = getTotalAprForSeed(JSON.parse(JSON.stringify(item2)));
-        return Number(item2Apr) - Number(item1Apr);
-      });
-    } else if (sort == 'tvl') {
-      farm_display_List.sort((item1: Seed, item2: Seed) => {
-        const item1PoolId = item1.pool.id;
-        const item2PoolId = item2.pool.id;
-        const item1Front = frontConfigBoost[item1PoolId];
-        const item2Front = frontConfigBoost[item2PoolId];
-        if (item1Front || item2Front) {
-          return Number(item2Front || 0) - Number(item1Front || 0);
-        }
-        return Number(item2.seedTvl) - Number(item1.seedTvl);
-      });
-      farm_display_ended_List.sort((item1: Seed, item2: Seed) => {
-        const item1PoolId = item1.pool.id;
-        const item2PoolId = item2.pool.id;
-        const item1Front = frontConfigBoost[item1PoolId];
-        const item2Front = frontConfigBoost[item2PoolId];
-        if (item1Front || item2Front) {
-          return Number(item2Front || 0) - Number(item1Front || 0);
-        }
-        return Number(item2.seedTvl) - Number(item1.seedTvl);
-      });
-    }
-    if (status == 'my') {
+    // displayed dcl farms
+    const dcl_farms = farm_display_List.filter((seed: Seed) => {
+      const { seed_id, hidden } = seed;
+      const [contractId] = seed_id.split('@');
+      const is_dcl_farm = contractId == REF_UNI_V3_SWAP_CONTRACT_ID;
+      return is_dcl_farm && !hidden;
+    });
+    if (farmTab == 'yours') {
       setNoData(noDataLive);
     } else {
       setNoData(noDataEnd && noDataLive);
@@ -967,8 +926,15 @@ export default function FarmsHome(props: any) {
     if (from == 'main') {
       setHomePageLoading(false);
     }
-    set_farm_display_List(farm_display_List);
-    set_farm_display_ended_List(Array.from(farm_display_ended_List));
+    // sort
+    if (dcl_farms.length > 0) {
+      set_has_dcl_farms_in_display_list(true);
+      sortFarms('apr');
+      setSort('apr');
+    } else {
+      sortFarms(sort);
+      set_has_dcl_farms_in_display_list(false);
+    }
     if (keyWords) {
       setShowEndedFarmList(true);
     } else {
@@ -976,6 +942,58 @@ export default function FarmsHome(props: any) {
         localStorage.getItem('endedfarmShow') == '1' ? true : false
       );
     }
+  }
+  function sortFarms(s?: string) {
+    const sort_v = s || sort;
+    if (sort_v == 'apr') {
+      farm_display_List.sort((item1: Seed, item2: Seed) => {
+        const item1PoolId = item1.pool.id;
+        const item2PoolId = item2.pool.id;
+        const item1Front = frontConfigBoost[item1PoolId];
+        const item2Front = frontConfigBoost[item2PoolId];
+        if (item1Front || item2Front) {
+          return Number(item2Front || 0) - Number(item1Front || 0);
+        }
+        const item1Apr = getTotalAprForSeed(JSON.parse(JSON.stringify(item1)));
+        const item2Apr = getTotalAprForSeed(JSON.parse(JSON.stringify(item2)));
+        return Number(item2Apr) - Number(item1Apr);
+      });
+      farm_display_ended_List.sort((item1: Seed, item2: Seed) => {
+        const item1PoolId = item1.pool.id;
+        const item2PoolId = item2.pool.id;
+        const item1Front = frontConfigBoost[item1PoolId];
+        const item2Front = frontConfigBoost[item2PoolId];
+        if (item1Front || item2Front) {
+          return Number(item2Front || 0) - Number(item1Front || 0);
+        }
+        const item1Apr = getTotalAprForSeed(JSON.parse(JSON.stringify(item1)));
+        const item2Apr = getTotalAprForSeed(JSON.parse(JSON.stringify(item2)));
+        return Number(item2Apr) - Number(item1Apr);
+      });
+    } else if (sort_v == 'tvl') {
+      farm_display_List.sort((item1: Seed, item2: Seed) => {
+        const item1PoolId = item1.pool.id;
+        const item2PoolId = item2.pool.id;
+        const item1Front = frontConfigBoost[item1PoolId];
+        const item2Front = frontConfigBoost[item2PoolId];
+        if (item1Front || item2Front) {
+          return Number(item2Front || 0) - Number(item1Front || 0);
+        }
+        return Number(item2.seedTvl) - Number(item1.seedTvl);
+      });
+      farm_display_ended_List.sort((item1: Seed, item2: Seed) => {
+        const item1PoolId = item1.pool.id;
+        const item2PoolId = item2.pool.id;
+        const item1Front = frontConfigBoost[item1PoolId];
+        const item2Front = frontConfigBoost[item2PoolId];
+        if (item1Front || item2Front) {
+          return Number(item2Front || 0) - Number(item1Front || 0);
+        }
+        return Number(item2.seedTvl) - Number(item1.seedTvl);
+      });
+    }
+    set_farm_display_List(farm_display_List);
+    set_farm_display_ended_List(Array.from(farm_display_ended_List));
   }
   function isEnded(seed: Seed) {
     const farms = seed.farmList;
@@ -1062,8 +1080,6 @@ export default function FarmsHome(props: any) {
   }
   function searchByKeyWords(value: string) {
     setKeyWords(value);
-    searchData.keyWords = value;
-    searchByCondition();
   }
   function getFarmVisibleLength() {
     const list = farm_display_ended_List.filter((seed: Seed) => {
@@ -1102,9 +1118,6 @@ export default function FarmsHome(props: any) {
   }
   function switchStatus() {
     setBoostInstructions(!boostInstructions);
-  }
-  function goMigrate() {
-    history.push('/farmsMigrate?from=v2');
   }
   function LoveBox(props: any) {
     const { inside } = props;
@@ -1207,26 +1220,19 @@ export default function FarmsHome(props: any) {
       </div>
     );
   }
-  function goLearMore() {
-    window.open(
-      'https://ref-finance.medium.com/ref-tokenomics-2-0-vetokenomics-on-testnet-c2b6ea0e4f96'
-    );
-  }
   const endFarmLength = useMemo(() => {
     return getFarmVisibleLength();
   }, [farm_display_ended_List]);
   function switchFarmTab(tab: string) {
     setFarmTab(tab);
-    farmTab = tab;
-    localStorage.setItem('BOOST_FARM_RAB', tab);
-    if (!(status == 'my' || status == 'live')) {
-      setStatus('live');
-      localStorage.setItem('farmV2Status', 'live');
+    localStorage.setItem('BOOST_FARM_TAB', tab);
+    if (tab == 'yours') {
+      set_farm_type_selectedId('all');
+      set_filter_type_selectedId('all');
     }
-    searchByCondition();
   }
-  const isMobileSite = isMobile();
   const showMigrateEntry = !seed_loading && user_migrate_seeds.length > 0;
+  const isMobileSite = isMobile();
   return (
     <div className={`lg:-mt-6 ${getUrlParams() ? 'hidden' : ''}`}>
       <div
@@ -1238,111 +1244,75 @@ export default function FarmsHome(props: any) {
             : 'linear-gradient(180deg, #001320 0%, #0C2427 100%)',
         }}
       >
-        {/* {showMigrateEntry ? (
-          <div className="relative bg-veGradient px-7 pb-4 pt-0  mb-4 lg:hidden">
-            <span className="flex items-center justify-start text-white text-lg font-bold my-2">
-              <FormattedMessage id="v2_new_farms" />
-            </span>
-            <p
-              className="text-white text-sm"
-              dangerouslySetInnerHTML={{
-                __html: intl.formatMessage({
-                  id: REF_VE_CONTRACT_ID ? 'v2_boost_tip' : 'v2_boost_no_tip',
-                }),
-              }}
-            ></p>
-            <MigrateIconSmall className="absolute -bottom-3 left-0"></MigrateIconSmall>
-            <div className="flex justify-end">
-              {isSignedIn ? (
-                <div
-                  onClick={goMigrate}
-                  className="flex items-center h-8 w-2/3 justify-center bg-otherGreenColor  hover:bg-black hover:text-greenColor rounded-lg text-black text-sm cursor-pointer mt-6 mb-3"
-                >
-                  <FormattedMessage id="migrate_now" />
-                </div>
-              ) : (
-                <BlacklightConnectToNearBtn className="h-8 w-3/4 mt-6 mb-5" />
-              )}
-            </div>
-          </div>
-        ) : null} */}
-
         <div className="relative h-full  flex justify-between items-start lg:w-5/6 xl:w-2/3 xs:w-full md:w-full pt-5 pb-3 xs:pb-0 md:pb-0">
           <div className="lg:w-2/5 md:w-1/2 xs:w-full xs:px-3 md:px-3 xs:pt-2 md:pt-2">
-            <div className="title flex justify-between items-center text-3xl text-white xs:-mt-4 md:-mt-4 pl-2">
+            <div className="title flex justify-between items-center text-3xl text-white xs:-mt-4 md:-mt-4 pl-2 mb-4">
               <FormattedMessage id="farms"></FormattedMessage>
-              <div className="flex items-center justify-between h-7 rounded-lg bg-farmSbg p-0.5">
-                <span
-                  onClick={() => {
-                    switchFarmTab('dcl');
-                  }}
-                  className={`flex items-center justify-center text-sm rounded-md cursor-pointer px-3 h-full ${
-                    switch_on_dcl_farms == 'on' ? '' : 'hidden'
-                  } ${
-                    farmTab == 'dcl'
-                      ? 'text-chartBg bg-farmSearch'
-                      : 'text-farmText'
-                  }`}
-                >
-                  DCL Farms
-                </span>
-                <span
-                  onClick={() => {
-                    history.push('/farms');
-                  }}
-                  className={`flex items-center justify-center text-sm rounded-md cursor-pointer px-3 h-full ${
-                    switch_on_dcl_farms == 'on' ? 'hidden' : ''
-                  } ${
-                    farmTab == 'legacy'
-                      ? 'text-chartBg bg-farmSearch'
-                      : 'text-farmText'
-                  }`}
-                >
-                  Legacy Farms
-                </span>
-                <span
-                  onClick={() => {
-                    switchFarmTab('classic');
-                  }}
-                  className={`flex items-center justify-center text-sm rounded-md cursor-pointer px-3 h-full ${
-                    farmTab == 'classic'
-                      ? 'text-chartBg bg-farmSearch'
-                      : 'text-farmText'
-                  }`}
-                >
-                  Classic Farms
-                </span>
-              </div>
-            </div>
-            <div className="text-sm text-farmText my-4 pl-2">
-              <FormattedMessage id="v2_boost_tip2" />{' '}
-              <a
-                className="hover:text-white underline cursor-pointer"
-                onClick={goLearMore}
-              >
-                <FormattedMessage id="learn_more" />
-              </a>
             </div>
             <WithDrawBox
               userRewardList={user_unWithdraw_rewards}
               tokenPriceList={tokenPriceList}
               farmDisplayList={farm_display_List}
             ></WithDrawBox>
-            {Object.keys(user_claimed_rewards).length > 0 ? (
+            {Object.keys(user_claimed_rewards).length > 0 ||
+            showMigrateEntry ? (
               <div className="flex items-center justify-start text-sm text-primaryText mt-3 xs:mt-0 md:mt-0 xs:mb-2 md:mb-2">
                 <WarningIcon className="mr-1.5 flex-shrink-0" />
-                <span
+                {/* <span
                   dangerouslySetInnerHTML={{
                     __html: intl.formatMessage({ id: 'has_rewards_tip_in_v2' }),
                   }}
-                ></span>
+                ></span> */}
+                <span>
+                  <FormattedMessage id="legacy_tip" />{' '}
+                  <a
+                    onClick={() => {
+                      window.open('/farms');
+                    }}
+                    className="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"
+                  >
+                    {' '}
+                    <FormattedMessage id="legacy_farms" />
+                  </a>
+                  .
+                </span>
               </div>
             ) : null}
+            <div className="lg:absolute lg:bottom-5 flex items-center xsm:mb-1">
+              <div
+                className={`text-white text-lg gotham_bold ml-2 mr-16 xsm:mr-10 cursor-pointer ${
+                  farmTab == 'all' ? '' : 'text-opacity-50'
+                }`}
+                onClick={() => {
+                  switchFarmTab('all');
+                }}
+              >
+                <FormattedMessage id="all_farms" />
+              </div>
+              <div
+                onClick={() => {
+                  switchFarmTab('yours');
+                }}
+                className={`flex items-center text-white text-lg gotham_bold cursor-pointer ${
+                  farmTab == 'yours' ? '' : 'text-opacity-50'
+                }`}
+              >
+                <FormattedMessage id="your_farms_2" />
+                <span
+                  className={`flex items-center justify-center h-5 px-2 rounded-t-lg rounded-br-lg bg-senderHot text-black text-sm gotham_bold ml-1.5 ${
+                    farmTab == 'yours' ? '' : 'opacity-30'
+                  }`}
+                >
+                  {isSignedIn ? your_seeds_quantity : '-'}
+                </span>
+              </div>
+            </div>
           </div>
           <div className="absolute right-0 -bottom-2 xs:hidden md:hidden">
             <BoostFarmBannerImg style={{ width: '517px' }}></BoostFarmBannerImg>
           </div>
         </div>
+        {/* for mobile search area */}
         <div className="flex items-center justify-between w-full mt-2 lg:hidden px-3 mb-3">
           <div
             className={`flex items-center justify-between px-4 h-9 py-1 xsm:w-full bg-farmSbg rounded-lg bg-opacity-50 ${
@@ -1365,25 +1335,25 @@ export default function FarmsHome(props: any) {
               <SearchIcon></SearchIcon>
             </span>
           </div>
-          <div
-            className={`flex items-center ${farmTab == 'dcl' ? 'hidden' : ''}`}
-          >
+          <div className={`flex items-center ml-3`}>
             <label className="text-farmText text-xs mr-2 whitespace-nowrap xs:hidden md:hidden">
               <FormattedMessage id="sort_by" defaultMessage="Sort by" />
             </label>
-            <span className="text-farmText mr-1">
+            <span className="text-farmText">
               <SortIcon></SortIcon>
             </span>
             <div className="flex items-center rounded-lg p-1 h-9">
               {Object.keys(sortList).map((item, index) => {
                 const value = sortList[item];
+                const disabled = has_dcl_farms_in_display_list && item == 'tvl';
                 return (
                   <div
-                    className={`flex items-center justify-between rounded-lg px-1 h-full py-0.5 cursor-pointer text-xs ${
+                    className={`flex items-center justify-between rounded-lg px-1.5 h-full py-0.5 cursor-pointer text-xs ${
                       sort == item ? 'text-white' : 'text-farmText'
-                    }`}
+                    } ${disabled ? 'text-opacity-50' : ''}`}
                     key={index}
                     onClick={() => {
+                      if (disabled) return;
                       changeSort(item);
                     }}
                   >
@@ -1395,64 +1365,57 @@ export default function FarmsHome(props: any) {
           </div>
         </div>
       </div>
-      {/* {showMigrateEntry ? (
-        <div className="relative migrateArea m-auto lg:w-5/6 xl:w-2/3 xs:w-full md:w-full bg-veGradient rounded-2xl p-4 mb-4 pr-6 xs:hidden md:hidden">
-          <MigrateIconMiddle className="absolute left-0 -top-5"></MigrateIconMiddle>
-          <div className="flex justify-between items-end ml-32">
-            <div className="w-3/4 mr-5">
-              <p className="text-white text-lg font-black mb-3">
-                <FormattedMessage id="v2_new_farms" />
-              </p>
-              <p
-                className="text-sm text-white"
-                dangerouslySetInnerHTML={{
-                  __html: intl.formatMessage({
-                    id: REF_VE_CONTRACT_ID ? 'v2_boost_tip' : 'v2_boost_no_tip',
-                  }),
-                }}
-              ></p>
-            </div>
-            {isSignedIn ? (
-              <div
-                onClick={goMigrate}
-                className="flex items-center h-8 justify-center bg-otherGreenColor hover:bg-black hover:text-greenColor rounded-lg text-black text-sm cursor-pointer px-5 whitespace-nowrap mb-2"
-              >
-                <FormattedMessage id="migrate_now" />
-              </div>
-            ) : (
-              <BlacklightConnectToNearBtn className="h-8 w-52 mb-2" />
-            )}
-          </div>
-        </div>
-      ) : null} */}
       <div>
         <div className="searchArea m-auto lg:w-5/6 xl:w-2/3 xs:w-full md:w-full flex justify-between flex-wrap items-center mb-6 xs:mb-4 md:mb-4 xs:flex-col md:flex-col xs:px-3 md:px-3">
-          <div className="flex justify-between items-center flex-wrap mb-5 xs:mb-3 md:mb-3 xs:w-full md:w-full xs:justify-start md:justify-start">
-            {Object.keys(statusList).map((item: string) => {
-              if (statusList[item].hidden) return null;
-              return (
-                <span
-                  onClick={() => {
-                    changeStatus(item);
-                  }}
-                  key={item}
-                  className={`flex  justify-center mx-1 items-center h-9 px-2 xs:px-1.5 md:px-1.5 xs:mr-1.5 xs:ml-0 md:mr-1.5 md:ml-0 xs:mb-2 md:mb-2 rounded-lg text-sm hover:bg-cardBg cursor-pointer ${
-                    status == item ? 'bg-cardBg text-white' : 'text-farmText'
-                  }`}
-                >
-                  <label
-                    className={`mr-1 ${status == item ? '' : 'opacity-40'}`}
-                  >
-                    {statusList[item].icon}
-                  </label>
-                  {statusList[item].txt}
-                </span>
-              );
-            })}
+          <div className="flex items-center xsm:justify-between xsm:w-full xsm:mb-6">
+            <SelectBox
+              list={farmTypeList}
+              width={isMobileSite ? 'w-44' : 'w-56'}
+              disabled={farmTab == 'yours'}
+              containerClass="lg:mr-2.5 xsm:mr-1"
+              type={`${isMobileSite ? 'farm_2' : 'farm_type'}`}
+              selectedId={farm_type_selectedId}
+              setSelectedId={set_farm_type_selectedId}
+            ></SelectBox>
+            <SelectBox
+              list={filterTypeList}
+              width={isMobileSite ? 'w-40' : 'w-44'}
+              type="filter"
+              disabled={farmTab == 'yours'}
+              selectedId={filter_type_selectedId}
+              setSelectedId={set_filter_type_selectedId}
+            ></SelectBox>
           </div>
           <div className="flex items-center  justify-between mb-5 xs:hidden md:hidden">
+            <div className={`flex items-center mr-2.5`}>
+              <label className="text-farmText text-xs mr-1 whitespace-nowrap">
+                <FormattedMessage id="sort_by" defaultMessage="Sort by" />:
+              </label>
+              {Object.keys(sortList).map((item, index) => {
+                const value = sortList[item];
+                const disabled = has_dcl_farms_in_display_list && item == 'tvl';
+                return (
+                  <div
+                    className={`flex items-center justify-between rounded-lg h-9  px-3 py-0.5 ml-1 text-xs ${
+                      sort == item ? 'bg-cardBg text-white' : 'text-farmText'
+                    } ${
+                      disabled
+                        ? 'text-opacity-50 cursor-not-allowed'
+                        : 'hover:bg-cardBg cursor-pointer'
+                    }`}
+                    key={index}
+                    onClick={() => {
+                      if (disabled) return;
+                      changeSort(item);
+                    }}
+                  >
+                    {value}
+                  </div>
+                );
+              })}
+            </div>
             <div
-              className={`flex items-center justify-between px-4 h-9 py-1 bg-searchBgColor rounded-lg mr-5 ${
+              className={`flex items-center justify-between px-4 h-9 py-1 bg-searchBgColor rounded-lg ${
                 keyWords ? 'border border-borderLightBlueColor' : ''
               }`}
             >
@@ -1474,31 +1437,6 @@ export default function FarmsHome(props: any) {
                 <SearchIcon></SearchIcon>
               </span>
             </div>
-            <div
-              className={`flex items-center ${
-                farmTab == 'dcl' ? 'hidden' : ''
-              }`}
-            >
-              <label className="text-farmText text-xs mr-2 whitespace-nowrap">
-                <FormattedMessage id="sort_by" defaultMessage="Sort by" />
-              </label>
-              {Object.keys(sortList).map((item, index) => {
-                const value = sortList[item];
-                return (
-                  <div
-                    className={`flex items-center justify-between rounded-lg h-9  px-3 py-0.5 ml-2 cursor-pointer hover:bg-cardBg text-xs ${
-                      sort == item ? 'bg-cardBg text-white' : 'text-farmText'
-                    }`}
-                    key={index}
-                    onClick={() => {
-                      changeSort(item);
-                    }}
-                  >
-                    {value}
-                  </div>
-                );
-              })}
-            </div>
           </div>
         </div>
         {homePageLoading && getUrlParams() ? null : homePageLoading ? (
@@ -1509,9 +1447,10 @@ export default function FarmsHome(props: any) {
               <div className="flex flex-col w-full justify-center items-center mt-20 xs:mt-8 md:mt-8">
                 <NoDataIcon />
                 <span className="text-farmText text-base mt-4 text-center w-48">
-                  {((status == 'boost' || status == 'others') &&
+                  {((filter_type_selectedId == 'boost' ||
+                    filter_type_selectedId == 'others') &&
                     globalConfigLoading) ||
-                  (status == 'my' && isSignedIn && userDataLoading) ? (
+                  (farmTab == 'yours' && isSignedIn && userDataLoading) ? (
                     'Loading ...'
                   ) : (
                     <FormattedMessage id="no_result"></FormattedMessage>
@@ -1523,7 +1462,7 @@ export default function FarmsHome(props: any) {
             {!loveSeed ? null : (
               <div
                 className={`grid grid-cols-2 xs:grid-cols-1 md:grid-cols-1 2xl:grid-cols-3 gap-x-5 gap-y-9 xs:gap-x-0 md:gap-x-0  m-auto lg:w-5/6 xl:w-2/3 xs:w-full md:w-full xs:px-3 md:px-3 mb-9 ${
-                  status != 'boost' || noData ? 'hidden' : ''
+                  filter_type_selectedId != 'boost' || noData ? 'hidden' : ''
                 }`}
               >
                 <div className="col-span-2 xs:col-span-1 md:col-span-1">
@@ -1656,7 +1595,6 @@ export default function FarmsHome(props: any) {
                 user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
               ></LoveUnStakeModal>
             ) : null}
-
             {/* boost end */}
             <div className="farmListArea grid grid-cols-2 xs:grid-cols-1 md:grid-cols-1 2xl:grid-cols-3 gap-x-5 gap-y-9 m-auto lg:w-5/6 xl:w-2/3 xs:px-3 md:px-3 xs:w-full md:w-full">
               {farm_display_List.map((seed: Seed, index: number) => {
@@ -1686,7 +1624,7 @@ export default function FarmsHome(props: any) {
             </div>
             <div
               className={`${
-                endFarmLength > 0 && status != 'my' ? '' : 'hidden'
+                endFarmLength > 0 && farmTab != 'yours' ? '' : 'hidden'
               }`}
             >
               <div
@@ -2868,7 +2806,9 @@ function FarmView(props: {
       return (
         <span>
           <label className="mx-0.5">~</label>
-          {toPrecision(r.toString(), 2) + '%'}
+          <label className="gotham_bold">
+            {toPrecision(r.toString(), 2) + '%'}
+          </label>
         </span>
       );
     }
@@ -2965,11 +2905,6 @@ function FarmView(props: {
   function status_is_new_or_will_end() {
     let status = '';
     if (is_dcl_pool && !isEnded()) {
-      if (
-        seed.seed_id ==
-        'dclv1-dev.ref-dev.testnet@{"FixRange":{"left_point":-320000,"right_point":-310000}}&paras.fakes.testnet|usdc.fakes.testnet|2000&-320000&-310000'
-      ) {
-      }
       const matched_seeds = get_matched_seeds_for_dcl_pool({
         seeds: all_seeds,
         pool_id: pool.pool_id,
@@ -2989,45 +2924,6 @@ function FarmView(props: {
   function showNewTag() {
     if (is_dcl_pool) return status_is_new_or_will_end() == 'new';
     return isInMonth();
-  }
-  function switchLp(e: any) {
-    e.stopPropagation();
-    if (+lpSwitchStatus == 1) {
-      setLpSwitchStatus('2');
-    } else {
-      setLpSwitchStatus('1');
-    }
-  }
-  function getBoostValue() {
-    if (REF_VE_CONTRACT_ID && !boostConfig) return '';
-    const { affected_seeds = {} } = boostConfig || {};
-    const { seed_id } = seed;
-    const user_seed = user_seeds_map[seed_id] || {};
-    const love_user_seed = user_seeds_map[REF_VE_CONTRACT_ID];
-    const base = affected_seeds[seed_id];
-    const hasUserStaked = Object.keys(user_seed).length;
-    if (base && loveSeed) {
-      const { free_amount = 0, locked_amount = 0 } = love_user_seed || {};
-      const totalStakeLoveAmount = toReadableNumber(
-        LOVE_TOKEN_DECIMAL,
-        new BigNumber(free_amount).plus(locked_amount).toFixed()
-      );
-      if (+totalStakeLoveAmount > 0) {
-        let result;
-        if (+totalStakeLoveAmount < 1) {
-          result = 1;
-        } else {
-          result = new BigNumber(1)
-            .plus(Math.log(+totalStakeLoveAmount) / Math.log(base))
-            .toFixed(2);
-        }
-        if (hasUserStaked) return toPrecision(result.toString(), 2);
-        return 1;
-      } else {
-        return 1;
-      }
-    }
-    return '';
   }
   function getForbiddenTip() {
     const tip = intl.formatMessage({ id: 'farm_stop_tip' });
@@ -3076,19 +2972,21 @@ function FarmView(props: {
     (FARM_BLACK_LIST_V2 || []).indexOf(
       pool.id?.toString() || pool.pool_id?.toString()
     ) > -1;
+  const tokens_sort: TokenMetadata[] = sort_tokens_by_base(tokens);
+  const is_mobile = isMobile();
   return (
     <>
       <div
         onClick={() => {
           goFarmDetailPage(seed);
         }}
-        className={`relative rounded-2xl cursor-pointer bg-cardBg hover:shadow-blue ${
-          isEnded() || needForbidden ? 'farmEnded' : ''
-        }
+        className={`relative rounded-2xl cursor-pointer bg-cardBg ${
+          is_mobile ? 'outline-none taphight' : 'hover:shadow-blue'
+        } ${isEnded() || needForbidden ? 'farmEnded' : ''}
       `}
       >
         <div className="flex absolute -top-5 z-10 justify-center w-full">
-          {tokens.map((token, index) => {
+          {tokens_sort.map((token, index) => {
             return (
               <label
                 key={token.id}
@@ -3108,13 +3006,11 @@ function FarmView(props: {
         <div className="boxInfo">
           <div className="relative flex flex-col items-center  px-5 rounded-t-2xl overflow-hidden bg-boostUpBoxBg">
             <div
-              className={`flex items-center cursor-pointer text-white font-bold text-xl ${
-                is_dcl_pool ? 'mt-8' : 'mt-12'
-              }`}
+              className={`flex items-center cursor-pointer text-white font-bold text-xl mt-8`}
             >
               {/* link for looking into */}
               <a href={`javascript:void(${'/pool/' + pool.id})`}>
-                {tokens.map((token, index) => {
+                {tokens_sort.map((token, index) => {
                   const hLine = index === tokens.length - 1 ? '' : '-';
                   return `${toRealSymbol(token.symbol)}${hLine}`;
                 })}
@@ -3172,7 +3068,7 @@ function FarmView(props: {
               {showNewTag() ? <NewTag></NewTag> : null}
               {status_is_new_or_will_end() == 'will end' ? (
                 <span className="text-xs text-redwarningColor bg-lightReBgColor rounded-3xl px-1.5 py-1">
-                  Ending soon
+                  <FormattedMessage id="ending_soon" />
                 </span>
               ) : null}
             </div>
@@ -3203,12 +3099,14 @@ function FarmView(props: {
           {is_dcl_pool ? (
             <div className="flex flex-col items-center justify-between px-5 py-3 h-28">
               <div className="flex items-center justify-between w-full">
-                <span className="text-sm text-farmText">Range</span>
+                <span className="text-sm text-farmText">
+                  <FormattedMessage id="range" />
+                </span>
                 <span>{getRange()}</span>
               </div>
               <div className="flex items-center justify-between w-full">
                 <div className="flex items-center text-sm text-farmText">
-                  APR
+                  <FormattedMessage id="apr" />
                 </div>
                 <div className="flex items-center">
                   <div
@@ -3247,7 +3145,9 @@ function FarmView(props: {
                 </div>
               </div>
               <div className="flex items-center justify-between w-full">
-                <span className="text-sm text-farmText">To Claim</span>
+                <span className="text-sm text-farmText">
+                  <FormattedMessage id="to_claim" />
+                </span>
                 {isHaveUnclaimedReward ? (
                   <div className="flex flex-col items-center flex-shrink-0">
                     <div
@@ -3289,36 +3189,37 @@ function FarmView(props: {
             </div>
           ) : null}
           {!is_dcl_pool ? (
-            <div className="flex items-center justify-between px-5 py-4 h-24">
-              <div className="flex flex-col items-center flex-shrink-0">
-                <label
-                  className="text-farmText text-sm"
-                  style={{ maxWidth: '130px' }}
-                >
+            <div className="flex flex-col items-center justify-between px-5 py-3 h-28">
+              <div className="flex items-center justify-between w-full">
+                <span className="text-sm text-farmText">
                   <FormattedMessage id="total_staked"></FormattedMessage>
-                </label>
-
-                <label className="text-white text-base mt-1.5">
+                </span>
+                <span className="text-white">
                   {Number(seed.seedTvl) == 0
                     ? '-'
                     : `$${toInternationalCurrencySystem(seed.seedTvl, 2)}`}
-                </label>
+                </span>
               </div>
-              <div
-                className={`flex flex-col ${
-                  isHaveUnclaimedReward ? 'items-center' : 'items-end'
-                } justify-center`}
-              >
-                <span className="flex items-center">
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center text-sm text-farmText">
                   {yourApr ? (
-                    <>
+                    <div
+                      data-type="info"
+                      data-place="right"
+                      data-multiline={true}
+                      // data-tip={isMobile() ? '': getRangeAprTip()}
+                      data-tip={''}
+                      data-html={true}
+                      data-for={'aprRangeId' + seed.farmList[0].farm_id}
+                      data-class="reactTip"
+                    >
                       <label
                         onClick={switchApr}
                         className={`text-sm cursor-pointer ${
                           +aprSwitchStatus == 1 ? 'text-white' : 'text-farmText'
                         }`}
                       >
-                        Yours
+                        <FormattedMessage id="your" />
                       </label>
                       <label className="text-farmText text-sm">/</label>
                       <label
@@ -3327,14 +3228,59 @@ function FarmView(props: {
                           +aprSwitchStatus == 1 ? 'text-farmText' : 'text-white'
                         }`}
                       >
-                        APR
+                        <FormattedMessage id="max_apr" />
                       </label>
-                    </>
+                      <ReactTooltip
+                        id={'aprRangeId' + seed.farmList[0].farm_id}
+                        backgroundColor="#1D2932"
+                        border
+                        borderColor="#7e8a93"
+                        effect="solid"
+                      />
+                    </div>
                   ) : (
                     <label className="text-farmText text-sm cursor-pointer">
-                      APR
+                      <FormattedMessage id="apr" />
                     </label>
                   )}
+                </div>
+                <div className="flex items-center">
+                  <div
+                    className="text-xl text-white"
+                    data-type="info"
+                    data-place="top"
+                    data-multiline={true}
+                    data-tip={getAprTip()}
+                    data-html={true}
+                    data-for={'aprId' + seed.farmList[0].farm_id}
+                    data-class="reactTip"
+                  >
+                    <span
+                      className={`flex items-center flex-wrap justify-center text-white text-base`}
+                    >
+                      {yourApr && +aprSwitchStatus == 1 ? (
+                        <label className="text-sm gotham_bold">{yourApr}</label>
+                      ) : (
+                        <>
+                          <label
+                            className={`gotham_bold ${
+                              aprUpLimit ? 'text-xs' : 'text-sm'
+                            }`}
+                          >
+                            {getTotalApr()}
+                          </label>
+                          {aprUpLimit}
+                        </>
+                      )}
+                    </span>
+                    <ReactTooltip
+                      id={'aprId' + seed.farmList[0].farm_id}
+                      backgroundColor="#1D2932"
+                      border
+                      borderColor="#7e8a93"
+                      effect="solid"
+                    />
+                  </div>
                   <CalcIcon
                     onClick={(e: any) => {
                       e.stopPropagation();
@@ -3342,70 +3288,25 @@ function FarmView(props: {
                     }}
                     className="text-farmText ml-1.5 cursor-pointer hover:text-greenColor"
                   />
-                </span>
-                <div
-                  className="text-xl text-white"
-                  data-type="info"
-                  data-place="top"
-                  data-multiline={true}
-                  data-tip={getAprTip()}
-                  data-html={true}
-                  data-for={'aprId' + seed.farmList[0].farm_id}
-                  data-class="reactTip"
-                >
-                  <span
-                    className={`flex items-center flex-wrap justify-center text-white text-base mt-1.5 ${
-                      isHaveUnclaimedReward ? 'text-center mx-2' : 'text-right'
-                    }`}
-                  >
-                    {yourApr && +aprSwitchStatus == 1 ? (
-                      <label className="text-base">{yourApr}</label>
-                    ) : (
-                      <>
-                        <label
-                          className={`${aprUpLimit ? 'text-xs' : 'text-base'}`}
-                        >
-                          {getTotalApr()}
-                        </label>
-                        {aprUpLimit}
-                      </>
-                    )}
-                  </span>
-                  <ReactTooltip
-                    id={'aprId' + seed.farmList[0].farm_id}
-                    backgroundColor="#1D2932"
-                    border
-                    borderColor="#7e8a93"
-                    effect="solid"
-                  />
                 </div>
               </div>
-              {isHaveUnclaimedReward ? (
-                <div className="flex flex-col items-center flex-shrink-0">
-                  <div
-                    className="text-xl text-white"
-                    data-type="info"
-                    data-place="top"
-                    data-multiline={true}
-                    data-tip={getUnClaimTip()}
-                    data-html={true}
-                    data-for={'unclaimedId' + seed.farmList[0].farm_id}
-                    data-class="reactTip"
-                  >
-                    <div className="bg-black bg-opacity-20 rounded-lg p-1">
-                      <div>
-                        <span className="flex items-center text-sm text-white py-1 justify-center">
-                          {getTotalUnclaimedRewards()}
-                        </span>
-                        <ReactTooltip
-                          id={'unclaimedId' + seed.farmList[0].farm_id}
-                          backgroundColor="#1D2932"
-                          border
-                          borderColor="#7e8a93"
-                          effect="solid"
-                        />
-                      </div>
-                      <span
+              <div className="flex items-center justify-between w-full">
+                <span className="text-sm text-farmText">
+                  <FormattedMessage id="to_claim" />
+                </span>
+                {isHaveUnclaimedReward ? (
+                  <div className="flex flex-col items-center flex-shrink-0">
+                    <div
+                      className="text-xl text-white"
+                      data-type="info"
+                      data-place="top"
+                      data-multiline={true}
+                      data-tip={getUnClaimTip()}
+                      data-html={true}
+                      data-for={'unclaimedId' + seed.farmList[0].farm_id}
+                      data-class="reactTip"
+                    >
+                      <div
                         className="flex items-center justify-center bg-deepBlue hover:bg-deepBlueHover rounded-lg text-sm text-white h-7 cursor-pointer"
                         style={{ width: '4.6rem' }}
                         onClick={(e) => {
@@ -3415,13 +3316,22 @@ function FarmView(props: {
                       >
                         <ButtonTextWrapper
                           loading={claimLoading}
-                          Text={() => <FormattedMessage id={'claim'} />}
+                          Text={() => <>{getTotalUnclaimedRewards()}</>}
                         />
-                      </span>
+                      </div>
+                      <ReactTooltip
+                        id={'unclaimedId' + seed.farmList[0].farm_id}
+                        backgroundColor="#1D2932"
+                        border
+                        borderColor="#7e8a93"
+                        effect="solid"
+                      />
                     </div>
                   </div>
-                </div>
-              ) : null}
+                ) : (
+                  <span className="text-sm text-farmText">-</span>
+                )}
+              </div>
             </div>
           ) : null}
         </div>
@@ -3564,7 +3474,6 @@ function WithDrawBox(props: {
       className={`relative rounded-2xl mb-3.5 z-50 ${
         isOpen ? 'shadow-withDrawColor' : ''
       }`}
-      // style={{ height: Object.values(rewardList).length > 0 ? '92px' : '72px' }}
       onMouseOver={() => {
         if (isMobile()) return;
         setIsOpen(true);
