@@ -33,9 +33,10 @@ export default function ExternalPopUp() {
     <div
       id="ref-mainnet"
       style={{
-        width: '310px',
-        height: '100px',
+        maxWidth: '310px',
+        maxHeight: '100px',
         zIndex: 100,
+        paddingRight: '10px',
         paddingTop: '10px',
       }}
       className="rounded-lg fixed xsm:left-1/2 xsm:transform xsm:-translate-x-1/2 lg:right-8 bottom-8 overflow-hidden"
