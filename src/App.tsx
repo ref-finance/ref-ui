@@ -47,8 +47,8 @@ function App() {
             <Content />
 
             <Footer />
-            <PopUpSwiper></PopUpSwiper>
-            {/* <ExternalPopUp></ExternalPopUp> */}
+            {/* <PopUpSwiper></PopUpSwiper> */}
+            <ExternalPopUp></ExternalPopUp>
           </div>
         </XmasActivityContextProvider>
       </WalletSelectorContextProvider>
