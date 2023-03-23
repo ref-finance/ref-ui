@@ -579,11 +579,18 @@ function MobilePoolRowV2({
               ) : null}
             </div>
             <div className="flex flex-col flex-wrap">
-              <div className="text-sm ml-2 font-semibold whitespace-nowrap mb-0.5">
-                {tokens[0].symbol +
-                  '-' +
-                  tokens[1].symbol +
-                  `${tokens[2] ? '-' + tokens[2].symbol : ''}`}
+              <div className="flex items-center">
+                <div className="text-sm ml-2 font-semibold whitespace-nowrap mb-0.5">
+                  {tokens[0].symbol +
+                    '-' +
+                    tokens[1].symbol +
+                    `${tokens[2] ? '-' + tokens[2].symbol : ''}`}
+                </div>
+                {watched && (
+                  <div className="ml-2">
+                    <WatchListStartFull />
+                  </div>
+                )}
               </div>
               <div className="flex items-center">
                 {mark ? (
@@ -598,16 +605,6 @@ function MobilePoolRowV2({
                 )}
               </div>
             </div>
-            {watched && (
-              <div className="ml-2">
-                <WatchListStartFull />
-              </div>
-            )}
-            {relatedSeed && (
-              <div className="mr-2">
-                <FarmStampNew multi={relatedSeed.farmList?.length > 1} />
-              </div>
-            )}
           </div>
           <div>{showSortedValue({ sortBy, value: pool[sortBy] })}</div>
         </div>

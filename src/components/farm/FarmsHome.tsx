@@ -767,7 +767,11 @@ export default function FarmsHome(props: any) {
         if (isNotNear && isNotEth && isNotStable) {
           condition1 = true;
         } else {
+<<<<<<< HEAD
           condition1 = !isEnd;
+=======
+          condition1 = false;
+>>>>>>> origin/main
         }
       } else if (filter_type_selectedId == 'new') {
         if (!is_dcl_farm) {
@@ -854,6 +858,10 @@ export default function FarmsHome(props: any) {
           condition1 = false;
         }
       } else if (filter_type_selectedId == 'near') {
+<<<<<<< HEAD
+        if (
+          farmClassification['near'].indexOf(getPoolIdBySeedId(seed_id)) > -1
+=======
         if (
           farmClassification['near'].indexOf(getPoolIdBySeedId(seed_id)) > -1
         ) {
@@ -864,11 +872,27 @@ export default function FarmsHome(props: any) {
       } else if (filter_type_selectedId == 'eth') {
         if (
           farmClassification['eth'].indexOf(getPoolIdBySeedId(seed_id)) > -1
+>>>>>>> origin/main
         ) {
           condition1 = true;
         } else {
           condition1 = false;
         }
+<<<<<<< HEAD
+      } else if (filter_type_selectedId == 'eth') {
+        if (
+          farmClassification['eth'].indexOf(getPoolIdBySeedId(seed_id)) > -1
+=======
+      } else if (filter_type_selectedId == 'stable') {
+        if (
+          farmClassification['stable'].indexOf(getPoolIdBySeedId(seed_id)) > -1
+>>>>>>> origin/main
+        ) {
+          condition1 = true;
+        } else {
+          condition1 = false;
+        }
+<<<<<<< HEAD
       } else if (filter_type_selectedId == 'stable') {
         if (
           farmClassification['stable'].indexOf(getPoolIdBySeedId(seed_id)) > -1
@@ -877,6 +901,8 @@ export default function FarmsHome(props: any) {
         } else {
           condition1 = false;
         }
+=======
+>>>>>>> origin/main
       } else if (filter_type_selectedId == 'others') {
         const isNotNear =
           farmClassification['near'].indexOf(getPoolIdBySeedId(seed_id)) == -1;
@@ -3319,6 +3345,16 @@ function FarmView(props: {
                           Text={() => <>{getTotalUnclaimedRewards()}</>}
                         />
                       </div>
+<<<<<<< HEAD
+=======
+                      <ReactTooltip
+                        id={'unclaimedId' + seed.farmList[0].farm_id}
+                        backgroundColor="#1D2932"
+                        border
+                        borderColor="#7e8a93"
+                        effect="solid"
+                      />
+>>>>>>> origin/main
                     </div>
                   </div>
                 ) : (
