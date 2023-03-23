@@ -497,7 +497,7 @@ function HistoryLine({
           href={`${getConfig().explorerUrl}/txns/${orderTx}`}
           target="_blank"
         >
-          Txid
+          Tx
           <span className="ml-1.5">
             <HiOutlineExternalLink></HiOutlineExternalLink>
           </span>
@@ -893,7 +893,7 @@ function HistorySwapInfoLine({
   const actions = (
     <div className=" col-span-1  text-primaryText  text-xs flex flex-col items-end justify-self-end p-1.5">
       <span className="flex items-center text-sm text-white whitespace-nowrap">
-        {<FormattedMessage id="swapped" defaultMessage={'Swapped'} />}
+        {<FormattedMessage id="executed" defaultMessage={'Executed'} />}
       </span>
 
       {!!orderTx && (
@@ -902,7 +902,7 @@ function HistorySwapInfoLine({
           href={`${getConfig().explorerUrl}/txns/${orderTx}`}
           target="_blank"
         >
-          Txid
+          Tx
           <span className="ml-1.5">
             <HiOutlineExternalLink></HiOutlineExternalLink>
           </span>
@@ -2196,7 +2196,7 @@ function OrderCard({
             <span className="ml-1">
               {intl.formatMessage({
                 id: 'swapped_history',
-                defaultMessage: 'Swapped History',
+                defaultMessage: 'swap history',
               })}
             </span>
           </div>

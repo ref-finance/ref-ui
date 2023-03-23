@@ -1175,6 +1175,6 @@ const zh_CN = {
   unstaked_positions: '未质押仓位',
   price_range_overlap_ratio: '价格区间重叠率',
   dcl_pool_are_not_available_to_be_created_yet: 'DCL 池暂不支持创建',
-  swapped_history: 'Swapped History',
+  swapped_history: '交易历史',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

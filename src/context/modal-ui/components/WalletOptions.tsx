@@ -109,6 +109,8 @@ const notSupportingIcons = [
   // walletIcons['math-wallet'],
   // walletIcons['nightly'],
   walletIcons['ledger'],
+  walletIcons['neth'],
+
   // walletIcons['nightly-connect'],
   // walletIcons['wallet-connect'],
 ];

@@ -1077,6 +1077,6 @@ const ja = {
   unstaked_2: 'Unstaked',
   unstaked_positions: ' Unstaked Positions',
   price_range_overlap_ratio: ' Price Range Overlap Ratio',
-  swapped_history: 'Swapped History',
+  swapped_history: 'swap history',
 };
 export default Object.assign(ja, ja_in_risks_page);
