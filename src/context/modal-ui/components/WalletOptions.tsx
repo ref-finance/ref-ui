@@ -301,8 +301,6 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
                       <SelectedIcon />
                     ) : installed ? (
                       <Installed />
-                    ) : isBeta ? (
-                      <Beta />
                     ) : null}
                   </div>
 
