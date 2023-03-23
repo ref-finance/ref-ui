@@ -48,11 +48,7 @@ function App() {
 
             <Footer />
             {/* <PopUpSwiper></PopUpSwiper> */}
-<<<<<<< HEAD
-            <ExternalPopUp></ExternalPopUp>
-=======
             {/* <ExternalPopUp></ExternalPopUp> */}
->>>>>>> origin/main
           </div>
         </XmasActivityContextProvider>
       </WalletSelectorContextProvider>
