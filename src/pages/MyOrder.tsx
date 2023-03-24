@@ -627,7 +627,7 @@ function HistoryLine({
     return (
       <div className="flex mb-4 items-center justify-between whitespace-nowrap">
         <span className="text-xs text-v3SwapGray">{text}</span>
-        <span className="text-white text-sm">{value}</span>
+        <span className="text-white font-bold text-sm">{value}</span>
       </div>
     );
   };
@@ -678,8 +678,24 @@ function HistoryLine({
               : 'partially_filled'
           }
         />
+
         {/* title */}
-        <div className="rounded-t-xl bg-orderMobileTop px-3 pt-3">
+        <div className="rounded-t-xl relative bg-orderMobileTop px-3 pt-3">
+          <div className="absolute right-4 bottom-0.5 z-50  text-xs">
+            {!!orderTx && (
+              <a
+                className="flex items-center bg-black text-primaryText px-1.5  bg-opacity-20 rounded "
+                href={`${getConfig().explorerUrl}/txns/${orderTx}`}
+                target="_blank"
+              >
+                <span className="mr-1.5">
+                  <HiOutlineExternalLink></HiOutlineExternalLink>
+                </span>
+                Tx
+              </a>
+            )}
+          </div>
+
           <div className="flex items-center relative justify-between">
             {sellTokenAmount}
             <MyOrderMobileArrow />
@@ -926,7 +942,7 @@ function HistorySwapInfoLine({
     return (
       <div className="flex mb-4 items-center justify-between whitespace-nowrap">
         <span className="text-xs text-v3SwapGray">{text}</span>
-        <span className="text-white text-sm">{value}</span>
+        <span className="text-white text-sm font-bold">{value}</span>
       </div>
     );
   };
@@ -967,8 +983,10 @@ function HistorySwapInfoLine({
           zIndex: 20 - index,
         }}
       >
+        <MobileHistoryOrderStamp state={'swapped'}></MobileHistoryOrderStamp>
+
         {/* title */}
-        <div className="rounded-t-xl bg-orderMobileTop px-3 pt-3">
+        <div className="rounded-t-xl relative bg-orderMobileTop px-3 pt-3">
           <div className="flex items-center relative justify-between">
             {sellTokenAmount}
             <MyOrderMobileArrow />
@@ -976,9 +994,24 @@ function HistorySwapInfoLine({
           </div>
 
           {created}
+
+          <div className="absolute right-4 bottom-0.5 z-50  text-xs">
+            {!!orderTx && (
+              <a
+                className="flex items-center bg-black text-primaryText px-1.5  bg-opacity-20 rounded "
+                href={`${getConfig().explorerUrl}/txns/${orderTx}`}
+                target="_blank"
+              >
+                <span className="mr-1.5">
+                  <HiOutlineExternalLink></HiOutlineExternalLink>
+                </span>
+                Tx
+              </a>
+            )}
+          </div>
         </div>
         {/*  content */}
-        <div className="rounded-b-xl p-3 bg-cardBg">
+        <div className="rounded-b-xl p-3 pb-1 bg-cardBg">
           <MobileInfoBanner
             text={
               <FormattedMessage id="fee_tiers" defaultMessage={'Fee Tiers'} />
@@ -995,7 +1028,7 @@ function HistorySwapInfoLine({
 
           <MobileInfoBanner
             text={
-              <FormattedMessage defaultMessage={'Claimed'} id="claimed_upper" />
+              <FormattedMessage defaultMessage={'executed'} id="Executed" />
             }
             value={claimed}
           />
@@ -1778,7 +1811,7 @@ function OrderCard({
   const intl = useIntl();
 
   const [showHistoryInfo, setShowHistoryInfo] = useState<boolean>(
-    !!!sessionStorage.getItem(REF_FI_MY_ORDER_SHOW_HISTORY_SWAP_INFO) || true
+    !!!sessionStorage.getItem(REF_FI_MY_ORDER_SHOW_HISTORY_SWAP_INFO) || false
   );
 
   const handleShowHistoryInfo = () => {
@@ -1955,6 +1988,19 @@ function OrderCard({
         : Number(unclaimA) - Number(unclaimB);
     }
   };
+
+  function getRealTimeOrderTip() {
+    const intl = useIntl();
+    return `<div class=" rounded-md w-p200 text-primaryOrderly  text-xs  text-left">
+  
+      ${intl.formatMessage({
+        id: 'tip_post_only',
+        defaultMessage:
+          'Post Only ensures that traders can only place an order if it would be posted to the orderbook as a Maker order. An order which would be posted as a Taker order will be cancelled.',
+      })}
+  
+    </div>`;
+  }
 
   return (
     <div className="flex flex-col">
@@ -2173,11 +2219,16 @@ function OrderCard({
       {orderType === 'history' &&
         historySwapInfo &&
         historySwapInfo.length > 0 && (
-          <div className="flex items-center ml-4 text-primaryText mt-7  mb-3">
+          <div
+            className="inline-flex max-w-max items-center ml-4 text-primaryText mt-7  mb-3"
+            data-class="reactTip"
+            data-for={'real_time_order_tip'}
+            data-html={true}
+            data-place={'right'}
+            data-tip={getRealTimeOrderTip()}
+          >
             <span
-              className={`underline cursor-pointer ${
-                showHistoryInfo ? '' : 'text-white'
-              }`}
+              className={`underline cursor-pointer ${'hover:text-white'}`}
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -2195,33 +2246,44 @@ function OrderCard({
 
             <span className="ml-1">
               {intl.formatMessage({
-                id: 'swapped_history',
-                defaultMessage: 'swap history',
+                id: 'real_time_executed_orders',
+                defaultMessage: 'real-time executed orders',
               })}
             </span>
+            <ReactTooltip
+              id={'real_time_order_tip'}
+              backgroundColor="#1D2932"
+              place="right"
+              border
+              borderColor="#7e8a93"
+              textColor="#C6D1DA"
+              effect="solid"
+            />
           </div>
         )}
       {orderType === 'history' &&
         showHistoryInfo &&
         historySwapInfo &&
         historySwapInfo.length > 0 &&
-        historySwapInfo.map((sf, i) => {
-          return (
-            <HistorySwapInfoLine
-              index={i}
-              tokensMap={tokensMap}
-              key={sf.tx_id}
-              token_in={sf.token_in}
-              token_out={sf.token_out}
-              amount_in={sf.amount_in}
-              amount_out={sf.amount_out}
-              orderTx={sf.tx_id}
-              timestamp={sf.timestamp}
-              point={sf.point}
-              pool_id={sf.pool_id}
-            />
-          );
-        })}
+        historySwapInfo
+          .sort((a, b) => Number(b.timestamp) - Number(a.timestamp))
+          .map((sf, i) => {
+            return (
+              <HistorySwapInfoLine
+                index={i}
+                tokensMap={tokensMap}
+                key={sf.tx_id}
+                token_in={sf.token_in}
+                token_out={sf.token_out}
+                amount_in={sf.amount_in}
+                amount_out={sf.amount_out}
+                orderTx={sf.tx_id}
+                timestamp={sf.timestamp}
+                point={sf.point}
+                pool_id={sf.pool_id}
+              />
+            );
+          })}
     </div>
   );
 }
@@ -3201,7 +3263,6 @@ function MyOrderPage() {
 
   const minOrderTime =
     _.minBy(historyOrder, (o) => o.created_at)?.created_at || 0;
-
 
   const historySwapInfo = useHistoryOrderSwapInfo({
     start_at: Number(minOrderTime),

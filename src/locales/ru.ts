@@ -1092,5 +1092,8 @@ const ru = {
   liquidity_pools_2: 'Liquidity Pools',
   business_inquiries: 'Business Inquiries',
   orderbook_mobile: 'Orderbook',
+  real_time_executed_orders: 'real-time executed orders',
+  real_time_executed_orders_tip:
+    'Real-time executed orders are orders placed using limit order function.  Here, you can check real-time executed orders that have been executed between the earliest displayed limit order in History up to the present time.',
 };
 export default Object.assign(ru, ru_in_risks_page);

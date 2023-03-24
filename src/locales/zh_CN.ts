@@ -1176,5 +1176,8 @@ const zh_CN = {
   price_range_overlap_ratio: '价格区间重叠率',
   dcl_pool_are_not_available_to_be_created_yet: 'DCL 池暂不支持创建',
   swapped_history: '交易历史',
+  real_time_executed_orders: '实时成交的订单',
+  real_time_executed_orders_tip:
+    '实时成交的订单是使用限价订单功能下达的订单。在这里，您可以检查从历史上最早显示的限价单到当前时间之间已经实时成交的订单。',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);
