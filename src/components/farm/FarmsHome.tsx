@@ -791,8 +791,7 @@ export default function FarmsHome(props: any) {
             if (latestSeed.seed_id == seed.seed_id) {
               condition1 = true;
             }
-          }
-          if (!condition1) {
+          } else if (!condition1) {
             // in month
             const m = isInMonth(seed);
             if (m) {
