@@ -1176,9 +1176,9 @@ const zh_CN = {
   price_range_overlap_ratio: '价格区间重叠率',
   dcl_pool_are_not_available_to_be_created_yet: 'DCL 池暂不支持创建',
   swapped_history: '交易历史',
-  real_time_executed_orders: '实时成交的订单',
+  real_time_executed_orders: '实时成交订单',
   real_time_executed_orders_tip:
-    '实时成交的订单是使用限价订单功能下达的订单。在这里，您可以检查从历史上最早显示的限价单到当前时间之间已经实时成交的订单。',
+    '当用户在限价单功能中下达一个高于市场价格的卖单或低于市场价格的买单时，Ref会首先尝试执行swap-with-stop-point操作。如果执行完毕，订单数量仍有剩余，则会为剩余部分创建限价单。<br> 实时成交订单指使用限价单功能下单但通过swap完成的订单。在“历史”中，你可以查看自最早展示的限价单记录至今的实时成交订单。',
 
   swapped_history_order: '已成交',
 };

@@ -1066,6 +1066,6 @@ const uk_UA = {
   orderbook_mobile: 'Orderbook',
   real_time_executed_orders: 'real-time executed orders',
   real_time_executed_orders_tip:
-    'Real-time executed orders are orders placed using limit order function.  Here, you can check real-time executed orders that have been executed between the earliest displayed limit order in History up to the present time.',
+    'When placing a sell order above market price or a buy order below market price using limit order function, Ref will attempt to execute a swap-with-stop-point action first, and if there is any remaining amount, a limit order will be created to fill the rest.<br> Real-time executed orders refer to orders placed using the limit order function but executed through swapping. In the "History" section, you can view real-time executed orders between the earliest displayed limit order in History up to the present time.',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);
