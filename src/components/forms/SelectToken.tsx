@@ -540,6 +540,7 @@ export default function SelectToken({
     setShowCommonBasses(true);
     setSearchNoData(false);
     setAddTokenError(false);
+    clear();
   };
   function getLatestCommonBassesTokens() {
     const local_user_list = getLatestCommonBassesTokenIds();
