@@ -792,6 +792,15 @@ export default function FarmsHome(props: any) {
               condition1 = true;
             }
           }
+          if (!condition1) {
+            // in month
+            const m = isInMonth(seed);
+            if (m) {
+              condition1 = true;
+            } else {
+              condition1 = false;
+            }
+          }
         }
       }
       // key words
@@ -2922,8 +2931,14 @@ function FarmView(props: {
     return status;
   }
   function showNewTag() {
-    if (is_dcl_pool) return status_is_new_or_will_end() == 'new';
-    return isInMonth();
+    if (is_dcl_pool) {
+      const status = status_is_new_or_will_end();
+      if (status == 'new' || (!status && isInMonth())) {
+        return true;
+      }
+    } else {
+      return isInMonth();
+    }
   }
   function getForbiddenTip() {
     const tip = intl.formatMessage({ id: 'farm_stop_tip' });
