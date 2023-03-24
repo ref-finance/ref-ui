@@ -1991,7 +1991,7 @@ function OrderCard({
 
   function getRealTimeOrderTip() {
     const intl = useIntl();
-    return `<div class=" rounded-md w-p200 text-primaryOrderly  text-xs  text-left">
+    return `<div class=" rounded-md lg:w-p200 xs:w-44 text-primaryOrderly  text-xs  text-left">
   
       ${intl.formatMessage({
         id: 'real_time_executed_orders_tip',
