@@ -1179,5 +1179,7 @@ const zh_CN = {
   real_time_executed_orders: '实时成交的订单',
   real_time_executed_orders_tip:
     '实时成交的订单是使用限价订单功能下达的订单。在这里，您可以检查从历史上最早显示的限价单到当前时间之间已经实时成交的订单。',
+
+  swapped_history_order: '已成交',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

@@ -1079,6 +1079,8 @@ const ja = {
   price_range_overlap_ratio: ' Price Range Overlap Ratio',
   swapped_history: 'swap history',
   overview: 'Overview',
+  swapped_history_order: 'Swapped',
+
   positions_2: 'Positions',
   'deposit_near_tip_0.5': 'To deposit, keep at least 0.5 NEAR to cover gas fee',
   trade: 'Trade',

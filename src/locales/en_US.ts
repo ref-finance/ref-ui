@@ -1232,5 +1232,7 @@ const en_US = {
   real_time_executed_orders: 'real-time executed orders',
   real_time_executed_orders_tip:
     'Real-time executed orders are orders placed using limit order function.  Here, you can check real-time executed orders that have been executed between the earliest displayed limit order in History up to the present time.',
+
+  swapped_history_order: 'Swapped',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

@@ -1003,7 +1003,7 @@ export const MobileHistoryOrderStampText = ({
         transform: 'rotate(-20deg)',
       }}
     >
-      <FormattedMessage id={text} />
+      <FormattedMessage id={text} defaultMessage={text} />
     </div>
   );
 };
@@ -1025,7 +1025,10 @@ export const MobileHistoryOrderStamp = ({
         <MobileHistoryOrderStampText text="partially_filled" color="#DEA550" />
       )}
       {state === 'swapped' && (
-        <MobileHistoryOrderStampText text="swapped" color="#1AA189" />
+        <MobileHistoryOrderStampText
+          text="swapped_history_order"
+          color="#1AA189"
+        />
       )}
     </div>
   );

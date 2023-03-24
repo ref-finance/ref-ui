@@ -1070,6 +1070,7 @@ const ko = {
   unstaked_positions: ' Unstaked Positions',
   price_range_overlap_ratio: ' Price Range Overlap Ratio',
   swapped_history: 'swap history',
+  swapped_history_order: 'Swapped',
   overview: 'Overview',
   positions_2: 'Positions',
   'deposit_near_tip_0.5': 'To deposit, keep at least 0.5 NEAR to cover gas fee',

@@ -875,21 +875,21 @@ function HistorySwapInfoLine({
       <div>
         <div className="flex items-center xs:justify-end">
           <img
-            src={sellToken.icon}
+            src={buyToken.icon}
             className="border border-gradientFrom rounded-full w-4 h-4"
             alt=""
           />
           <span
             className="text-white text-sm mx-1"
-            title={toReadableNumber(sellToken.decimals, amount_in || '0')}
+            title={toReadableNumber(buyToken.decimals, amount_out || '0')}
           >
-            {Number(toReadableNumber(sellToken.decimals, amount_in || '0')) >
+            {Number(toReadableNumber(buyToken.decimals, amount_out || '0')) >
               0 &&
-            Number(toReadableNumber(sellToken.decimals, amount_in || '0')) <
+            Number(toReadableNumber(buyToken.decimals, amount_out || '0')) <
               0.001
               ? '< 0.001'
               : toPrecision(
-                  toReadableNumber(sellToken.decimals, amount_in || '0'),
+                  toReadableNumber(buyToken.decimals, amount_out || '0'),
                   3
                 )}
           </span>
@@ -2224,11 +2224,11 @@ function OrderCard({
             data-class="reactTip"
             data-for={'real_time_order_tip'}
             data-html={true}
-            data-place={'right'}
+            data-place={'top'}
             data-tip={getRealTimeOrderTip()}
           >
             <span
-              className={`underline cursor-pointer ${'hover:text-white'}`}
+              className={`underline cursor-pointer ${'lg:hover:text-white'} `}
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -2253,7 +2253,7 @@ function OrderCard({
             <ReactTooltip
               id={'real_time_order_tip'}
               backgroundColor="#1D2932"
-              place="right"
+              place="top"
               border
               borderColor="#7e8a93"
               textColor="#C6D1DA"
