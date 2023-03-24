@@ -1994,9 +1994,9 @@ function OrderCard({
     return `<div class=" rounded-md w-p200 text-primaryOrderly  text-xs  text-left">
   
       ${intl.formatMessage({
-        id: 'tip_post_only',
+        id: 'real_time_executed_orders_tip',
         defaultMessage:
-          'Post Only ensures that traders can only place an order if it would be posted to the orderbook as a Maker order. An order which would be posted as a Taker order will be cancelled.',
+          'Real-time executed orders are orders placed using limit order function.  Here, you can check real-time executed orders that have been executed between the earliest displayed limit order in History up to the present time.',
       })}
   
     </div>`;
