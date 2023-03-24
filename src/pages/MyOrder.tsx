@@ -1028,7 +1028,7 @@ function HistorySwapInfoLine({
 
           <MobileInfoBanner
             text={
-              <FormattedMessage defaultMessage={'executed'} id="Executed" />
+              <FormattedMessage defaultMessage={'Executed'} id="executed" />
             }
             value={claimed}
           />
@@ -1811,7 +1811,7 @@ function OrderCard({
   const intl = useIntl();
 
   const [showHistoryInfo, setShowHistoryInfo] = useState<boolean>(
-    !!!sessionStorage.getItem(REF_FI_MY_ORDER_SHOW_HISTORY_SWAP_INFO) || false
+    !!sessionStorage.getItem(REF_FI_MY_ORDER_SHOW_HISTORY_SWAP_INFO) || false
   );
 
   const handleShowHistoryInfo = () => {
