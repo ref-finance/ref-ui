@@ -408,11 +408,10 @@ export const useTokensData = (
 
   useEffect(() => {
     // if (!visible) return;
-    if (visible && count < tokens?.length) {
+    if (visible) {
       trigger();
     }
   }, [tokens?.map((t) => t.id).join('-'), visible]);
-
   return {
     trigger,
     loading: count < tokens?.length,

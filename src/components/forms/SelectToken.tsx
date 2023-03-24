@@ -451,7 +451,6 @@ export default function SelectToken({
     balances,
     visible
   );
-
   useEffect(() => {
     if (!loadingTokensData) {
       const sortedData = [...tokensData].sort(sortTypes[currentSort].fn);
@@ -539,6 +538,8 @@ export default function SelectToken({
     }
     setVisible(false);
     setShowCommonBasses(true);
+    setSearchNoData(false);
+    setAddTokenError(false);
   };
   function getLatestCommonBassesTokens() {
     const local_user_list = getLatestCommonBassesTokenIds();
@@ -587,7 +588,6 @@ export default function SelectToken({
     searchRef.current.value = '';
     onSearch('');
   }
-
   return (
     <MicroModal
       open={visible}
