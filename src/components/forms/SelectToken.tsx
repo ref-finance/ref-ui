@@ -451,7 +451,6 @@ export default function SelectToken({
     balances,
     visible
   );
-
   useEffect(() => {
     if (!loadingTokensData) {
       const sortedData = [...tokensData].sort(sortTypes[currentSort].fn);
@@ -539,6 +538,9 @@ export default function SelectToken({
     }
     setVisible(false);
     setShowCommonBasses(true);
+    setSearchNoData(false);
+    setAddTokenError(false);
+    clear();
   };
   function getLatestCommonBassesTokens() {
     const local_user_list = getLatestCommonBassesTokenIds();
@@ -587,7 +589,6 @@ export default function SelectToken({
     searchRef.current.value = '';
     onSearch('');
   }
-
   return (
     <MicroModal
       open={visible}
@@ -733,7 +734,7 @@ export default function SelectToken({
             </localTokens.Provider>
           </div>
           {searchNoData ? (
-            <div className="flex flex-col  items-center justify-center mt-12">
+            <div className="flex flex-col  items-center justify-center mt-12 relative z-10">
               <div className="text-sm text-farmText">
                 <FormattedMessage id="no_token_found"></FormattedMessage>
               </div>
