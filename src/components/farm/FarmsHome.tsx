@@ -3006,7 +3006,7 @@ function FarmView(props: {
         <div className="boxInfo">
           <div className="relative flex flex-col items-center  px-5 rounded-t-2xl overflow-hidden bg-boostUpBoxBg">
             <div
-              className={`flex items-center cursor-pointer text-white font-bold text-xl mt-8`}
+              className={`flex items-center cursor-pointer text-white font-bold text-xl mt-9`}
             >
               {/* link for looking into */}
               <a href={`javascript:void(${'/pool/' + pool.id})`}>
