@@ -2377,7 +2377,7 @@
     "@near-wallet-selector/wallet-utils" "7.9.0"
     is-mobile "^3.1.1"
 
-"@near-wallet-selector/meteor-wallet@^7.0.0":
+"@near-wallet-selector/meteor-wallet@^7.9.0":
   version "7.9.1"
   resolved "https://registry.yarnpkg.com/@near-wallet-selector/meteor-wallet/-/meteor-wallet-7.9.1.tgz#a3c462a87b097c27977a546327354bf6ce2e4f89"
   integrity sha512-oDP1K65XkSi/2zXuSMhFPcMIuTSYRKX7fsEAV4e6MrW42QFoXgsA64Z8y/JYoITzP6WMRHn6TbdTyw2WZOHgoQ==
