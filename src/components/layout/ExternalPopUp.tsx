@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 
 export default function ExternalPopUp() {
+  const env = process.env.NEAR_ENV || '';
+  const is_test_env = (env == 'testnet' || env == 'pub-testnet');
+  const dom_id = is_test_env ? 'pr3sence': 'ref-mainnet';
   useEffect(() => {
     let walletId = '';
     let zone_id = '';
     let storage = Object.entries(localStorage);
     let found = storage.find(([key]) => /wallet_auth_key*/.test(key));
-    const env = process.env.NEAR_ENV || '';
     const env_map = {
       testnet: ['testnet', 'pub-testnet'],
       near: ['', 'production', 'mainnet'],
@@ -19,22 +21,26 @@ export default function ExternalPopUp() {
         walletId = '';
       }
     }
-    if (env == 'testnet' || env == 'pub-testnet') {
+    if (is_test_env) {
       zone_id = '5';
     } else {
       zone_id = '7';
     }
     let script = document.createElement('script');
-    script.src = `https://api.pr3sence.xyz/request/content?zone_id=7&walletId=&type=js`;
+    script.src = `https://api.pr3sence.xyz/request/content?zone_id=7&walletId=${walletId}&type=js`;
     document.head.appendChild(script);
+    // click event
+    document.getElementById(dom_id).addEventListener('click', function() {
+      document.getElementById(dom_id).style.display = 'none';
+  });
   }, []);
 
   return (
     <div
-      id="ref-mainnet"
+      id={dom_id}
       style={{
-        maxWidth: '310px',
-        maxHeight: '100px',
+        width: '310px',
+        height: '110px',
         zIndex: 100,
         paddingRight: '10px',
         paddingTop: '10px',
