@@ -33,14 +33,6 @@ const walletOfficialUrl = {
   'NETH Account': 'neth.app',
 };
 const walletOfficialMark = {
-  'NEAR Wallet': {
-    mark: true,
-    link: '',
-  },
-  MyNearWallet: {
-    mark: true,
-    link: '',
-  },
   Sender: {
     mark: true,
     link: 'https://senderwallet.io/securityreport',
