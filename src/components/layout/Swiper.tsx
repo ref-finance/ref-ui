@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/swiper.min.css';
 import SwiperCore, { Autoplay } from 'swiper';
-import { isMobile } from '~utils/device';
+import { isMobile } from '../../utils/device';
 SwiperCore.use([Autoplay]);
 
 export default function AdSwiper() {
