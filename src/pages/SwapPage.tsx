@@ -37,6 +37,7 @@ import {
 } from '../services/wrap-near';
 import { SnowBar, XmasGift, XmasSmallTree } from '../components/icon/Common';
 import { useXmasActivity } from '../context/XmasActivity';
+import AdSwiper from '../components/layout/Swiper';
 
 export const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';
 
@@ -311,6 +312,9 @@ function SwapPage() {
           />
         )}
       </section>
+      <div className="lg:w-480px xsm:mx-3  m-auto relative text-white mt-5">
+        <AdSwiper></AdSwiper>
+      </div>
     </div>
   );
 }

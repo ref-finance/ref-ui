@@ -791,6 +791,14 @@ export default function FarmsHome(props: any) {
             if (latestSeed.seed_id == seed.seed_id) {
               condition1 = true;
             }
+          } else if (!condition1) {
+            // in month
+            const m = isInMonth(seed);
+            if (m) {
+              condition1 = true;
+            } else {
+              condition1 = false;
+            }
           }
         }
       }
@@ -1007,7 +1015,7 @@ export default function FarmsHome(props: any) {
     const result = farmList.find((farm: FarmBoost) => {
       const start_at = farm?.terms?.start_at;
       if (start_at == 0) return true;
-      const one_month_seconds = 30 * 24 * 60 * 60;
+      const one_month_seconds = 15 * 24 * 60 * 60;
       const currentA = new Date().getTime();
       const compareB = new BigNumber(start_at)
         .plus(one_month_seconds)
@@ -2889,7 +2897,7 @@ function FarmView(props: {
     const result = farmList.find((farm: FarmBoost) => {
       const start_at = farm?.terms?.start_at;
       if (start_at == 0) return true;
-      const one_month_seconds = 30 * 24 * 60 * 60;
+      const one_month_seconds = 15 * 24 * 60 * 60;
       const currentA = new Date().getTime();
       const compareB = new BigNumber(start_at)
         .plus(one_month_seconds)
@@ -2922,8 +2930,14 @@ function FarmView(props: {
     return status;
   }
   function showNewTag() {
-    if (is_dcl_pool) return status_is_new_or_will_end() == 'new';
-    return isInMonth();
+    if (is_dcl_pool) {
+      const status = status_is_new_or_will_end();
+      if (status == 'new' || (!status && isInMonth())) {
+        return true;
+      }
+    } else {
+      return isInMonth();
+    }
   }
   function getForbiddenTip() {
     const tip = intl.formatMessage({ id: 'farm_stop_tip' });
@@ -3006,7 +3020,7 @@ function FarmView(props: {
         <div className="boxInfo">
           <div className="relative flex flex-col items-center  px-5 rounded-t-2xl overflow-hidden bg-boostUpBoxBg">
             <div
-              className={`flex items-center cursor-pointer text-white font-bold text-xl mt-8`}
+              className={`flex items-center cursor-pointer text-white font-bold text-xl mt-9`}
             >
               {/* link for looking into */}
               <a href={`javascript:void(${'/pool/' + pool.id})`}>

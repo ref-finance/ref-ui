@@ -1500,6 +1500,7 @@ function MenuBar() {
         const { label, logo, children, id } = menuItem;
         return (
           <div
+            id={`menu-${id}`}
             key={indexP}
             className="relative flex items-center justify-center cursor-pointer h-full z-50"
             onMouseEnter={() => hover_on_one_level_item(menuItem)}

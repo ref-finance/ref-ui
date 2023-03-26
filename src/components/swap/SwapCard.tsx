@@ -835,7 +835,6 @@ function DetailViewLimit({
     const id = poolId ? poolId : getV3PoolId(tokenIn.id, tokenOut.id, fee);
 
     const [PoolDetails, setPoolDetails] = useState<PoolInfo>();
-    console.log('PoolDetails: ', PoolDetails);
 
     useEffect(() => {
       get_pool_from_cache(id).then(setPoolDetails);
