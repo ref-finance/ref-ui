@@ -76,14 +76,27 @@ export const getSelectedWalletId = () => {
   return window.selector.store.getState().selectedWalletId;
 };
 
-const getSenderAccessKey = () => {
-  // @ts-ignore
+export const REF_FI_SENDER_WALLET_ACCESS_KEY =
+  'REF_FI_SENDER_WALLET_ACCESS_KEY';
 
-  const keyStoreSender = window?.near?.authData?.accessKey;
+const getSenderAccessKey = () => {
+  const storedKey = localStorage.getItem(REF_FI_SENDER_WALLET_ACCESS_KEY);
+
+  if (storedKey) {
+    return JSON.parse(storedKey)?.accessKey;
+  }
+
+  // @ts-ignore
+  const keyStoreSender = window?.near?.authData;
 
   if (!keyStoreSender) alert('no accessKey found in sender');
 
-  return keyStoreSender;
+  localStorage.setItem(
+    REF_FI_SENDER_WALLET_ACCESS_KEY,
+    JSON.stringify(keyStoreSender)
+  );
+
+  return keyStoreSender.accessKey;
 };
 
 export const getPublicKey = async (accountId: string) => {
