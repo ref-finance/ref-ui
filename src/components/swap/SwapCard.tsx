@@ -2418,6 +2418,7 @@ export default function SwapCard(props: {
             )}
 
         {poolError &&
+        !wrapOperation &&
         swapMode === SWAP_MODE.NORMAL &&
         Number(tokenInAmount || '0') > 0 ? (
           <div className="pb-2 relative ">
