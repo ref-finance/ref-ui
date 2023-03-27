@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 
 export default function ExternalPopUp() {
   const env = process.env.NEAR_ENV || '';
-  const is_test_env = (env == 'testnet' || env == 'pub-testnet');
-  const dom_id = is_test_env ? 'pr3sence': 'ref-mainnet';
+  const is_test_env = env == 'testnet' || env == 'pub-testnet';
+  const dom_id = is_test_env ? 'pr3sence' : 'ref-mainnet';
   useEffect(() => {
     let walletId = '';
     let zone_id = '';
@@ -30,9 +30,9 @@ export default function ExternalPopUp() {
     script.src = `https://api.pr3sence.xyz/request/content?zone_id=7&walletId=${walletId}&type=js`;
     document.head.appendChild(script);
     // click event
-    document.getElementById(dom_id).addEventListener('click', function() {
-      document.getElementById(dom_id).style.display = 'none';
-  });
+    // document.getElementById(dom_id).addEventListener('click', function () {
+    //   document.getElementById(dom_id).style.display = 'none';
+    // });
   }, []);
 
   return (
