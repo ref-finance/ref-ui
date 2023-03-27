@@ -15,7 +15,9 @@ import { isMobile } from '~utils/device';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage } from 'react-intl';
 import { ButtonTextWrapper, GradientButton } from '~components/button/Button';
-import { IoCloseOutline } from 'react-icons/io5';
+
+import { IoCloseOutline } from '@react-icons/all-files/io5/IoCloseOutline';
+
 import BigNumber from 'bignumber.js';
 
 export function WithdrawModal(props: ReactModal.Props) {

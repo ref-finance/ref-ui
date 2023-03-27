@@ -37,21 +37,18 @@ import {
 
 import { Content } from '~Content';
 import { LedgerTransactionModal } from './context/modal-ui/modal';
-import { XmasActivityContextProvider } from './context/XmasActivity';
 
 function App() {
   return (
     <Router>
       <WalletSelectorContextProvider>
-        <XmasActivityContextProvider>
-          <div className="page-container relative min-h-screen pb-24 overflow-x-hidden xs:flex xs:flex-col md:flex md:flex-col">
-            <Content />
+        <div className="page-container relative min-h-screen pb-24 overflow-x-hidden xs:flex xs:flex-col md:flex md:flex-col">
+          <Content />
 
-            <Footer />
-            {/* <ExternalPopUp></ExternalPopUp> */}
-            <Guider></Guider>
-          </div>
-        </XmasActivityContextProvider>
+          <Footer />
+          {/* <ExternalPopUp></ExternalPopUp> */}
+          <Guider></Guider>
+        </div>
       </WalletSelectorContextProvider>
 
       <LedgerTransactionModal />

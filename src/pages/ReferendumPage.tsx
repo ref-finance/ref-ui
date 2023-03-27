@@ -96,7 +96,10 @@ import {
   UnLockExpiredIcon,
 } from '../components/icon/Referendum';
 import { toRealSymbol } from '../utils/token';
-import { FaAngleUp, FaAngleDown } from 'react-icons/fa';
+
+import { FaAngleUp } from '@react-icons/all-files/fa/FaAngleUp';
+import { FaAngleDown } from '@react-icons/all-files/fa/FaAngleDown';
+
 import {
   ConnectToNearBtnGradient,
   ConnectToNearBtnVotingMobile,

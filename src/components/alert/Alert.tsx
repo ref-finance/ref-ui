@@ -1,5 +1,6 @@
 import React from 'react';
-import { FaExclamationTriangle } from 'react-icons/fa';
+
+import { FaExclamationTriangle } from '@react-icons/all-files/fa/FaExclamationTriangle';
 
 export default function Alert({
   level,

@@ -46,7 +46,11 @@ import SubmitButton, { InsufficientButton } from '../forms/SubmitButton';
 import Alert from '../alert/Alert';
 import { toRealSymbol } from '../../utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
+
+import { FaExchangeAlt } from '@react-icons/all-files/fa/FaExchangeAlt';
+import { FaAngleUp } from '@react-icons/all-files/fa/FaAngleUp';
+import { FaAngleDown } from '@react-icons/all-files/fa/FaAngleDown';
+
 import db from '../../store/RefDatabase';
 import { ConnectToNearBtnSwap } from '../../components/button/Button';
 
@@ -159,15 +163,10 @@ import {
   BTC_CLASS_STABLE_TOKEN_IDS,
 } from '../../services/near';
 
-import { TiRefresh } from 'react-icons/ti';
-
 import { MdOutlineRefresh } from 'react-icons/md';
+
 import { getMax } from '../../utils/numbers';
-import { RefreshIcon } from '../icon/swapV3';
-import { useWalletTokenBalances } from '../../state/token';
-import { TokenBalancesView } from '../../services/token';
-import { Images } from '../stableswap/CommonComp';
-import { ArrowRight } from '../layout/SwapRoutes';
+
 import { YellowTipIcon, RedTipIcon, SelectedIcon } from '../icon/swapV3';
 import * as math from 'mathjs';
 import { NEAR_WITHDRAW_KEY } from '../forms/WrapNear';

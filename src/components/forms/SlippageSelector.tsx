@@ -2,7 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Slider } from '../icon/Info';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { isMobile } from '../../utils/device';
-import { IoCloseOutline, IoWarning } from 'react-icons/io5';
+
+import { IoWarning } from '@react-icons/all-files/io5/IoWarning';
+
 import { QuestionTip } from '../../components/layout/TipWrapper';
 import { SUPPORT_LEDGER_KEY } from '../swap/SwapCard';
 import { SWAP_MODE } from '../../pages/SwapPage';

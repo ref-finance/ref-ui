@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { TiArrowSortedUp } from 'react-icons/ti';
+
+import { TiArrowSortedUp } from '@react-icons/all-files/ti/TiArrowSortedUp';
 import { TokenMetadata } from '../../services/ft-contract';
 import { TokenBalancesView } from '~services/token';
 import { toReadableNumber } from '../../utils/numbers';

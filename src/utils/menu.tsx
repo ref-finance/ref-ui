@@ -1,21 +1,13 @@
 import React, { ReactNode, useContext } from 'react';
-import { AiOutlineMedium } from 'react-icons/ai';
-import { FaDiscord, FaTelegramPlane, FaTwitter } from 'react-icons/fa';
+
 import { HiOutlineExternalLink } from 'react-icons/hi';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
   IconAirDrop,
-  IconCommunity,
-  IconCreateNew,
   IconDocs,
   IconEn,
-  IconForum,
-  IconLanguage,
-  IconPools,
-  IconRainbow,
   IconZh,
   IconVi,
-  IconBridge,
   IconEthereum,
   IconAurora,
   IconSolana,
@@ -25,14 +17,9 @@ import {
   RuIcon,
   JaIcon,
   KoIcon,
-  IconRisk,
-  AuroraIconSwapNav,
-  MobileYourLiqudityIcon,
-  MobilePoolsIcon,
   BridgeIcon,
   RisksIcon,
   EsIcon,
-  WrapNearIcon,
   MobileBridgeIcon,
   InquiriesIcon,
   SwapIcon,
@@ -44,8 +31,6 @@ import {
   FarmsIcon,
   XrefEarnIcon,
   XrefIcon,
-  REFSmallIcon,
-  PurpleCircleIcon,
 } from '~components/icon/Nav';
 // import { XrefIcon } from '~components/icon/Xref';
 import getConfig from '../services/config';

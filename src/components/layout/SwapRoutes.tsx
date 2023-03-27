@@ -18,7 +18,11 @@ import {
   convertToPercentDecimal,
 } from '../../utils/numbers';
 import { Pool } from '../../services/pool';
-import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
+
+import { FaAngleUp } from '@react-icons/all-files/fa/FaAngleUp';
+
+import { FaAngleDown } from '@react-icons/all-files/fa/FaAngleDown';
+
 import { Card } from '../card/Card';
 import { ArrowDownWhite } from '../icon/Arrows';
 import { RefSwapPro } from '../icon/CrossSwapIcons';

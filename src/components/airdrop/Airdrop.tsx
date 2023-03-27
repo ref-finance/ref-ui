@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { FaExclamationCircle, FaRegQuestionCircle } from 'react-icons/fa';
+
+import { FaExclamationCircle } from '@react-icons/all-files/fa/FaExclamationCircle';
+
+import { FaRegQuestionCircle } from '@react-icons/all-files/fa/FaRegQuestionCircle';
+
 import { wallet } from '~services/near';
 import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 import Loading from '~components/layout/Loading';

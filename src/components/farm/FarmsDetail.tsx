@@ -80,7 +80,10 @@ import { CalcEle } from '~components/farm/CalcModelBooster';
 import ReactTooltip from 'react-tooltip';
 import QuestionMark from '~components/farm/QuestionMark';
 import { ExternalLinkIcon } from '~components/icon/Risk';
-import { FaAngleUp, FaAngleDown } from 'react-icons/fa';
+
+import { FaAngleUp } from '@react-icons/all-files/fa/FaAngleUp';
+import { FaAngleDown } from '@react-icons/all-files/fa/FaAngleDown';
+
 import { useDayVolume } from '../../state/pool';
 import { getPool } from '~services/indexer';
 import CalcModelBooster from '~components/farm/CalcModelBooster';

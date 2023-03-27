@@ -2,9 +2,9 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import { SlArrowUp } from 'react-icons/sl';
 
-import { IoIosClose } from 'react-icons/io';
+import { IoIosClose } from '@react-icons/all-files/io/IoIosClose';
 
-import { IoClose } from 'react-icons/io5';
+import { IoClose } from '@react-icons/all-files/io5/IoClose';
 
 import { FlexRow, FlexRowBetween } from '../Common';
 import { parseSymbol } from '../RecentTrade';
@@ -12,7 +12,9 @@ import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { MdArrowDropDown, MdArrowDropUp } from 'react-icons/md';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { RiArrowDownSFill } from 'react-icons/ri';
+
+import { RiArrowDownSFill } from '@react-icons/all-files/ri/RiArrowDownSFill';
+
 import {
   MyOrder,
   EditOrderlyOrder,
@@ -39,7 +41,9 @@ import { formatTimeDate } from '../OrderBoard';
 
 import { Selector } from '../OrderBoard';
 
-import { AiOutlineClose, AiOutlineCheck } from 'react-icons/ai';
+import { AiOutlineClose } from '@react-icons/all-files/ai/AiOutlineClose';
+import { AiOutlineCheck } from '@react-icons/all-files/ai/AiOutlineCheck';
+
 import {
   FlexRowStart,
   CheckBox,
@@ -57,7 +61,6 @@ import { useAllSymbolInfo, useOrderBook, useCurHoldings } from './state';
 import { useBatchTokenMetaFromSymbols } from '../ChartHeader/state';
 import Modal from 'react-modal';
 
-import { IoChevronBackOutline } from 'react-icons/io5';
 import { useHistory } from 'react-router-dom';
 import { useWalletSelector } from '../../../../context/WalletSelectorContext';
 import {

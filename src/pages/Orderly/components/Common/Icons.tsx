@@ -1237,3 +1237,22 @@ export function TipIconAsset() {
     </svg>
   );
 }
+
+export function CopyAsset(props: any) {
+  return (
+    <svg
+      {...props}
+      width="11"
+      height="12"
+      viewBox="0 0 11 12"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <rect x="1" y="3" width="7" height="8" rx="2" stroke="#5285DF" />
+      <path
+        d="M2.72852 3.27246L2.72852 3C2.72852 1.89543 3.62395 1 4.72852 1H8.00038C9.10495 1 10.0004 1.89543 10.0004 3V7.36288C10.0004 8.36692 9.18645 9.18085 8.18242 9.18085V9.18085"
+        stroke="#5285DF"
+      />
+    </svg>
+  );
+}

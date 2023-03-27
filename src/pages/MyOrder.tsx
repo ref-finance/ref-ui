@@ -30,7 +30,7 @@ import {
 } from '../components/icon/swapV3';
 import { calculateFeePercent, ONLY_ZEROS, toPrecision } from '~utils/numbers';
 
-import { BsCheckCircle } from 'react-icons/bs';
+import { BsCheckCircle } from '@react-icons/all-files/bs/BsCheckCircle';
 
 import {
   toReadableNumber,

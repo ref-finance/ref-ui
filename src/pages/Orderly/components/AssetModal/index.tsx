@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 
 import Modal from 'react-modal';
 
-import { IoClose } from 'react-icons/io5';
+import { IoClose } from '@react-icons/all-files/io5/IoClose';
+
 import { useTokenInfo } from '../../orderly/state';
 import {
   NearIcon,
@@ -44,11 +45,10 @@ import { formatTimeDate } from '../OrderBoard/index';
 import { getAssetHistory } from '../../orderly/off-chain-api';
 import getConfig from '../../config';
 
-import { TbCopy } from 'react-icons/tb';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { NearTip } from '../../../../pages/AccountPage';
 import { isClientMobie, useClientMobile } from '../../../../utils/device';
-import { TipIconAsset } from '../Common/Icons';
+import { TipIconAsset, CopyAsset } from '../Common/Icons';
 import ReactTooltip from 'react-tooltip';
 import { FormattedMessage, useIntl } from 'react-intl';
 
@@ -236,7 +236,7 @@ function RecordLine(
             {parseTxDisplay(props.tx_id)}
           </a>
           <CopyToClipboard text={props.tx_id}>
-            <TbCopy className="ml-1 transform hover:opacity-80 cursor-pointer text-txBlue rotate-270" />
+            <CopyAsset className="ml-1 hover:opacity-80"></CopyAsset>
           </CopyToClipboard>
         </div>
 

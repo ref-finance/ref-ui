@@ -10,23 +10,7 @@ import { matchPath } from 'react-router';
 import { Context } from '~components/wrapper';
 import getConfig from '~services/config';
 import ReactTooltip from 'react-tooltip';
-import {
-  Logo,
-  Near,
-  IconBubble,
-  IconMyLiquidity,
-  IconCreateNew,
-  IconPools,
-  IconAirDropGreenTip,
-  WrapNearEnter,
-  WrapNearIconDark,
-  GreenArrowIcon,
-  MoreMenuIcon,
-  NavLogo,
-  NavLogoSimple,
-  AuroraIconSwapNav,
-  NavLogoIcon,
-} from '~components/icon';
+import { Near, IconAirDropGreenTip, NavLogoIcon } from '~components/icon';
 import { SmallWallet } from '~components/icon/SmallWallet';
 import {
   AccountIcon,
@@ -40,7 +24,8 @@ import { Card } from '~components/card/Card';
 
 import { FormattedMessage, useIntl, FormattedRelativeTime } from 'react-intl';
 import { HiOutlineExternalLink } from 'react-icons/hi';
-import { IoChevronBack, IoClose } from 'react-icons/io5';
+
+import { IoChevronBack } from '@react-icons/all-files/io5/IoChevronBack';
 
 import { FiChevronDown, FiChevronRight } from 'react-icons/fi';
 import {
@@ -87,8 +72,6 @@ import { getAuroraConfig } from '../../services/aurora/config';
 import { ETH_DECIMAL } from '../../services/aurora/aurora';
 import { useAuroraBalances } from '../../services/aurora/aurora';
 import { getURLInfo } from './transactionTipPopUp';
-import USNBuyComponent from '~components/forms/USNBuyComponent';
-import USNPage, { BorrowLinkCard } from '~components/usn/USNPage';
 import {
   REF_FI_SWAP_SWAPPAGE_TAB_KEY,
   SWAP_MODE_KEY,
@@ -1314,65 +1297,6 @@ function Language() {
 }
 export default NavigationBar;
 
-export function USNCard({
-  showUSN,
-  setShowUSN,
-  showeBorrowCard,
-  setShowBorrowCard,
-}: {
-  showUSN: boolean;
-  setShowUSN: (e: boolean) => void;
-  showeBorrowCard: boolean;
-  setShowBorrowCard: (e: boolean) => void;
-}) {
-  return (
-    <>
-      <USNPage
-        isOpen={showUSN}
-        onRequestClose={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          setShowUSN(false);
-          setShowBorrowCard(false);
-        }}
-        style={{
-          overlay: {
-            backdropFilter: 'blur(15px)',
-            WebkitBackdropFilter: 'blur(15px)',
-          },
-          content: {
-            outline: 'none',
-            position: 'fixed',
-            width: isMobile() ? '98%' : 550,
-            bottom: '50%',
-            left: '1%',
-            transform: null,
-          },
-        }}
-      ></USNPage>
-
-      <BorrowLinkCard
-        isOpen={showeBorrowCard}
-        onRequestClose={(e) => {
-          setShowBorrowCard(false);
-        }}
-        style={{
-          overlay: {
-            backdropFilter: 'blur(15px)',
-            WebkitBackdropFilter: 'blur(15px)',
-          },
-          content: {
-            outline: 'none',
-            position: 'fixed',
-            width: isMobile() ? '98%' : 550,
-
-            bottom: '50%',
-          },
-        }}
-      />
-    </>
-  );
-}
 function MenuBar() {
   const menus_temp = useMenus();
   const menus = useMemo(() => {

@@ -37,16 +37,18 @@ import {
 } from '../../orderly/type';
 import { BuyButton, SellButton } from './Button';
 import './index.css';
-import { FaMinus, FaPlus } from 'react-icons/fa';
+
 import Modal from 'react-modal';
 import Big from 'big.js';
-import { IoClose } from 'react-icons/io5';
+
+import { IoClose } from '@react-icons/all-files/io5/IoClose';
+
 import { MdArrowDropDown } from 'react-icons/md';
-import {
-  IoIosArrowForward,
-  IoIosArrowDown,
-  IoIosArrowUp,
-} from 'react-icons/io';
+
+import { IoIosArrowUp } from '@react-icons/all-files/io/IoIosArrowUp';
+
+import { IoIosArrowDown } from '@react-icons/all-files/io/IoIosArrowDown';
+
 import {
   CheckBox,
   ConnectWallet,

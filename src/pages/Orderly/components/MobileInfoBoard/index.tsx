@@ -57,21 +57,14 @@ import {
   TokenInfo,
   TokenMetadata,
 } from '../../orderly/type';
-import { FaMinus, FaPlus } from 'react-icons/fa';
+
 import Modal from 'react-modal';
 import Big from 'big.js';
-import { IoClose } from 'react-icons/io5';
-import { MdArrowDropDown } from 'react-icons/md';
-import {
-  IoIosArrowForward,
-  IoIosArrowDown,
-  IoIosArrowUp,
-} from 'react-icons/io';
+
 import { CheckBox, ConnectWallet, ErrorTip, RegisterButton } from '../Common';
 
 import { ConfirmButton, QuestionMark } from '../Common/index';
 
-import { FiSearch } from 'react-icons/fi';
 import {
   OrderlyNetworkIcon,
   OutLinkIcon,

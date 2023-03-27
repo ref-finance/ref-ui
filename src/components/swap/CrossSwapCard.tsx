@@ -54,7 +54,8 @@ import SubmitButton from '../forms/SubmitButton';
 import Alert from '../alert/Alert';
 import { toRealSymbol } from '../../utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
+
+import { FaExchangeAlt } from '@react-icons/all-files/fa/FaExchangeAlt';
 
 import { WarnTriangle, ErrorTriangle } from '../../components/icon/SwapRefresh';
 

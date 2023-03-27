@@ -2,7 +2,6 @@ import BigNumber from 'bignumber.js';
 import React, { useEffect, useState, useRef, useContext } from 'react';
 import ReactTooltip from 'react-tooltip';
 import { NEARX_POOL_ID, wallet } from '../../services/near';
-import { FaRegQuestionCircle, FaSearch } from 'react-icons/fa';
 import { FormattedMessage, useIntl } from 'react-intl';
 import Alert from '../../components/alert/Alert';
 import {

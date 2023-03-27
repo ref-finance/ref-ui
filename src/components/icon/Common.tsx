@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import { WrapNearDefault, WrapNearHover, WrapNearMobile } from './Nav';
-import { isClientMobie, useClientMobile, isMobile } from '../../utils/device';
 
 const AccountIcon = () => {
   return (

@@ -11,7 +11,8 @@ import {
 } from '../../utiles';
 import { MdArrowDropDown, MdArrowDropUp } from 'react-icons/md';
 import { Selector } from '../OrderBoard';
-import { IoArrowUpOutline } from 'react-icons/io5';
+import { IoArrowUpOutline } from '@react-icons/all-files/io5/IoArrowUpOutline';
+
 import Big from 'big.js';
 import { TextWrapper } from '../UserBoard/index';
 import { OrderlyLoading } from '../Common/Icons';

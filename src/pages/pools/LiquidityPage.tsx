@@ -6,7 +6,6 @@ import React, {
   useMemo,
   useContext,
 } from 'react';
-import { FaRegQuestionCircle, FaSearch } from 'react-icons/fa';
 
 import db from '../../store/RefDatabase';
 
@@ -134,7 +133,7 @@ import { FarmStampNew } from '../../components/icon/FarmStamp';
 import { ALL_STABLE_POOL_IDS } from '../../services/near';
 import { BoostSeeds, WatchList } from '../../store/RefDatabase';
 import { REF_FI_CONTRACT_ID } from '../../services/near';
-import { AiOutlineStar } from 'react-icons/ai';
+
 import {
   get_all_seeds,
   getLatestStartTime,
@@ -142,11 +141,12 @@ import {
   sort_tokens_by_base,
 } from '../../services/commonV3';
 
-import { AiFillStar } from 'react-icons/ai';
+import { AiFillStar } from '@react-icons/all-files/ai/AiFillStar';
+
 import { useTokenPriceList } from '../../state/token';
 import { useSeedFarmsByPools } from '../../state/pool';
 
-import { RiArrowRightSLine } from 'react-icons/ri';
+import { RiArrowRightSLine } from '@react-icons/all-files/ri/RiArrowRightSLine';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 

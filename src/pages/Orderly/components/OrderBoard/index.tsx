@@ -18,7 +18,9 @@ import Big from 'big.js';
 
 import moment from 'moment';
 
-import { AiOutlineClose, AiOutlineCheck } from 'react-icons/ai';
+import { AiOutlineClose } from '@react-icons/all-files/ai/AiOutlineClose';
+import { AiOutlineCheck } from '@react-icons/all-files/ai/AiOutlineCheck';
+
 import { FlexRowStart } from '../Common/index';
 import {
   cancelOrder,

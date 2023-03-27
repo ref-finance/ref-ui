@@ -4,13 +4,14 @@ import Modal from 'react-modal';
 import { parseSymbol } from '../RecentTrade';
 import { nearMetadata, getFTmetadata, toPrecision } from '../../near';
 
-import {
-  IoArrowDownOutline,
-  IoArrowUpOutline,
-  IoCloseSharp,
-} from 'react-icons/io5';
+import { IoArrowDownOutline } from '@react-icons/all-files/io5/IoArrowDownOutline';
 
-import { IoMdArrowDropdown } from 'react-icons/io';
+import { IoArrowUpOutline } from '@react-icons/all-files/io5/IoArrowUpOutline';
+
+import { IoCloseSharp } from '@react-icons/all-files/io5/IoCloseSharp';
+
+import { IoMdArrowDropdown } from '@react-icons/all-files/io/IoMdArrowDropdown';
+
 import { useTokenMetaFromSymbol } from './state';
 import { Ticker, TokenInfo } from '../../orderly/type';
 import { TokenIcon } from '../Common';

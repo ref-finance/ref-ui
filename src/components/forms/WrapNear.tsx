@@ -5,7 +5,9 @@ import React, {
   FormEventHandler,
   useContext,
 } from 'react';
-import { IoClose } from 'react-icons/io5';
+
+import { IoClose } from '@react-icons/all-files/io5/IoClose';
+
 import { FormattedMessage, useIntl } from 'react-intl';
 import Modal from 'react-modal';
 import { WrapNearEnter } from '~components/icon/Near';

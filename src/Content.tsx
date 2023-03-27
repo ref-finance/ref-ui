@@ -39,7 +39,6 @@ import { MorePoolsPage } from '~pages/pools/MorePoolsPage';
 import StableSwapPage from './pages/stable/StableSwapPage';
 import XrefPage from './pages/xref/XrefPage';
 import RiskPage from './pages/RiskPage';
-import USNPage from './pages/USNPage';
 import Portfolio from './pages/Portfolio';
 import {
   auroraAddr,

@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { AiOutlineMedium } from 'react-icons/ai';
-import { FaDiscord, FaTelegramPlane, FaTwitter } from 'react-icons/fa';
+
+import { AiOutlineMedium } from '@react-icons/all-files/ai/AiOutlineMedium';
+
+import { FaDiscord } from '@react-icons/all-files/fa/FaDiscord';
+import { FaTelegramPlane } from '@react-icons/all-files/fa/FaTelegramPlane';
+import { FaTwitter } from '@react-icons/all-files/fa/FaTwitter';
+
 import { FooterLogo, FooterLogoREF } from '~components/icon/FooterLogo';
 import { RefAnalytics, RefAnalyticsGary } from '~components/icon/RefAnalytics';
 import { useRefPrice } from '~state/account';
@@ -13,22 +18,22 @@ const CommunityLinks = [
   {
     label: 'Discord',
     url: 'https://discord.gg/SJBGcfMxJz',
-    icon: <FaDiscord />,
+    icon: <FaDiscord></FaDiscord>,
   },
   {
     label: 'Twitter',
     url: 'https://twitter.com/finance_ref',
-    icon: <FaTwitter />,
+    icon: <FaTwitter></FaTwitter>,
   },
   {
     label: 'Telegram',
     url: 'https://t.me/ref_finance',
-    icon: <FaTelegramPlane />,
+    icon: <FaTelegramPlane></FaTelegramPlane>,
   },
   {
     label: 'Medium',
     url: 'https://ref-finance.medium.com/',
-    icon: <AiOutlineMedium />,
+    icon: <AiOutlineMedium></AiOutlineMedium>,
   },
   {
     label: 'Forum',
@@ -79,28 +84,6 @@ function Footer() {
                   />
                 )}
               </div>
-              {/* <div
-                className={`text-white text-right`}
-                data-class="reactTip"
-                data-for={'mailBoxId'}
-                data-place="right"
-                data-html={true}
-                data-tip={`<div class="opacity-50 text-xs text-left">Business Inquiries</div>`}
-              >
-                <MailBoxIcon
-                  className="relative cursor-pointer ml-5 -mt-1"
-                  onClick={() => {
-                    window.open('https://form.typeform.com/to/onOPhJ6Y');
-                  }}
-                ></MailBoxIcon>
-                <ReactTooltip
-                  id={'mailBoxId'}
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                />
-              </div> */}
             </div>
           </div>
           <div className="flex w-72 justify-between md:justify-around xs:justify-around">

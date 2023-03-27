@@ -16,13 +16,7 @@ import { WalletSelectorModal } from '../layout/WalletSelector';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { CheckedTick, UnCheckedBoxVE } from '../icon/CheckBox';
 import { isClientMobie, useClientMobile } from '../../utils/device';
-import {
-  BuyNearHover,
-  BuyNearDefault,
-  BuyNearMobile,
-  BuyNearIcon,
-  BuyNearHoverIcon,
-} from '../icon/Nav';
+import { BuyNearIcon, BuyNearHoverIcon } from '../icon/Nav';
 import { openTransak } from '../alert/Transak';
 import { getCurrentWallet } from '../../utils/wallets-integration';
 

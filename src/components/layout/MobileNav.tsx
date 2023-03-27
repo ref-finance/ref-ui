@@ -14,8 +14,6 @@ import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { HiOutlineExternalLink } from 'react-icons/hi';
 
-import { FiChevronUp, FiChevronDown } from 'react-icons/fi';
-import { RiLogoutCircleRLine } from 'react-icons/ri';
 import { useRefPrice } from '~state/account';
 import { toPrecision } from '~utils/numbers';
 import { moreLinks, useMenusMobile, menuItemType } from '~utils/menu';
@@ -53,9 +51,6 @@ import { openTransak } from '../alert/Transak';
 import { BuyNearButton } from '../button/Button';
 import { RefIcon, MailBoxIcon } from '../icon/Nav';
 import {
-  MoreIcon,
-  SauceIcon,
-  SauceText,
   OutLinkIcon,
   ArrowLeftIcon,
   ArrowDownIcon,
@@ -71,43 +66,6 @@ import {
   get_orderly_public_key_path,
 } from '../../pages/Orderly/orderly/utils';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../../pages/Orderly/components/UserBoard/index';
-
-export function Logout() {
-  const { wallet } = getCurrentWallet();
-
-  return (
-    wallet.isSignedIn() && (
-      <div
-        className={
-          'whitespace-nowrap flex text-lg text-left p-4 text-primaryText bg-cardBg'
-        }
-        onClick={async () => {
-          (await wallet.wallet()).signOut();
-          localStorage.removeItem(ACCOUNT_ID_KEY);
-
-          const priKeyPath = get_orderly_private_key_path();
-
-          const pubKeyPath = get_orderly_public_key_path();
-
-          tradingKeyMap.clear();
-          localStorage.removeItem(priKeyPath);
-          localStorage.removeItem(pubKeyPath);
-
-          localStorage.removeItem(REF_ORDERLY_ACCOUNT_VALID);
-
-          if (window.location.pathname === '/orderbook') {
-            window.location.assign('/orderbook');
-          } else {
-            window.location.assign('/');
-          }
-        }}
-      >
-        <RiLogoutCircleRLine className="text-2xl text-primaryText mr-3" />
-        <FormattedMessage id="sign_out" defaultMessage="Sign out" />
-      </div>
-    )
-  );
-}
 
 export function AccountModel(props: any) {
   const history = useHistory();
