@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-import {
-  NearIconDirectly,
-  SwitchIcon,
-  LiquidityIcon,
-  SureIcon,
-} from '~components/icon/Common';
+import { SureIcon } from '~components/icon/Common';
 import { isMobile } from '~utils/device';
 import Modal from 'react-modal';
 

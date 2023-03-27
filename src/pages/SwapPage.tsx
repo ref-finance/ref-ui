@@ -35,8 +35,7 @@ import {
   WRAP_NEAR_CONTRACT_ID,
   wnearMetadata,
 } from '../services/wrap-near';
-import { SnowBar, XmasGift, XmasSmallTree } from '../components/icon/Common';
-import { useXmasActivity } from '../context/XmasActivity';
+
 import AdSwiper from '../components/layout/Swiper';
 
 export const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';
@@ -213,8 +212,6 @@ function SwapPage() {
     STABLE_POOL_TYPE[localStorage.getItem(reserveTypeStorageKey)] ||
       STABLE_POOL_TYPE.USD
   );
-
-  const { setXmasModalOpen, xmasModalOpen } = useXmasActivity();
 
   if (
     !refTokens ||

@@ -46,7 +46,6 @@ import {
 import { TokenLinks } from '../../components/tokens/Token';
 import {
   OutLinkIcon,
-  DefaultTokenImg,
   SelectTokenCloseButton,
 } from '../../components/icon/Common';
 import _, { trimEnd } from 'lodash';

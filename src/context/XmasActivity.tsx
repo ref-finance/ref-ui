@@ -8,7 +8,6 @@ import { REF_FI_POOL_ACTIVE_TAB } from '../pages/pools/LiquidityPage';
 import {
   AddV2liquidityBannerXmax,
   XmasGiftReadyBanner,
-  XmasTree,
   XmasTreeWithText,
 } from '../components/icon/Common';
 import { isMobile } from '../utils/device';
@@ -176,13 +175,3 @@ export const XmasActivityContextProvider: React.FC = ({ children }) => {
     </XmasActivityContext.Provider>
   );
 };
-
-export function useXmasActivity() {
-  const context = React.useContext(XmasActivityContext);
-  if (context === undefined) {
-    throw new Error(
-      'useXmasActivity must be used within a XmasActivityContextProvider'
-    );
-  }
-  return context;
-}

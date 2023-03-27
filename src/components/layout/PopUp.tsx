@@ -1,20 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useHistory } from 'react-router-dom';
-import {
-  Learn_more,
-  CloseBtn,
-  Learn_more_m,
-  CloseBtn_white,
-  CircleCloseBtn,
-  PopupCloseButton,
-} from '~components/icon/Common';
+import { PopupCloseButton } from '~components/icon/Common';
 import { isMobile } from '~utils/device';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import getConfig from '../../services/config';
 import 'swiper/swiper.min.css';
 import SwiperCore, { Autoplay } from 'swiper';
-import { useXmasActivity } from '../../context/XmasActivity';
 const { REF_VE_CONTRACT_ID } = getConfig();
 SwiperCore.use([Autoplay]);
 

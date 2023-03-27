@@ -33,7 +33,6 @@ import {
   ActivityIcon,
   WalletIcon,
   SignoutIcon,
-  WNEARExchngeIcon,
 } from '~components/icon/Common';
 import { Link, useLocation, useHistory } from 'react-router-dom';
 import { NEARXIDS, wallet } from '~services/near';
