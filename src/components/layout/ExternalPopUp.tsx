@@ -27,11 +27,13 @@ export default function ExternalPopUp() {
       zone_id = '7';
     }
     let script = document.createElement('script');
-    script.src = `https://api.pr3sence.xyz/request/content?zone_id=7&walletId=${walletId}&type=js`;
+    script.src = `https://api.pr3sence.xyz/request/content?zone_id=${zone_id}&walletId=${walletId}&type=js`;
     document.head.appendChild(script);
     // click event
-    // document.getElementById(dom_id).addEventListener('click', function () {
-    //   document.getElementById(dom_id).style.display = 'none';
+    // document.getElementById(dom_id).addEventListener('click', function (e:any) {
+    //   if (e.target.closest('#close-button')) {
+    //     document.getElementById(dom_id).style.display = 'none';
+    //   }
     // });
   }, []);
 
@@ -39,13 +41,13 @@ export default function ExternalPopUp() {
     <div
       id={dom_id}
       style={{
-        width: '310px',
-        height: '110px',
+        maxWidth: '310px',
+        maxHeight: '110px',
         zIndex: 100,
         paddingRight: '10px',
         paddingTop: '10px',
       }}
-      className="rounded-lg fixed xsm:left-1/2 xsm:transform xsm:-translate-x-1/2 lg:right-8 bottom-8 overflow-hidden"
+      className="fixed xsm:left-1/2 xsm:transform xsm:-translate-x-1/2 lg:right-8 bottom-8 overflow-hidden"
     ></div>
   );
 }
