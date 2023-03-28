@@ -43,8 +43,6 @@ import Big from 'big.js';
 
 import { IoClose } from '@react-icons/all-files/io5/IoClose';
 
-import { MdArrowDropDown } from 'react-icons/md';
-
 import { IoIosArrowUp } from '@react-icons/all-files/io/IoIosArrowUp';
 
 import { IoIosArrowDown } from '@react-icons/all-files/io/IoIosArrowDown';
@@ -70,7 +68,8 @@ import {
   numberWithCommas,
 } from '../../utiles';
 
-import { FiSearch } from 'react-icons/fi';
+import { FiSearch } from '@react-icons/all-files/fi/FiSearch';
+
 import {
   NearIConSelectModal,
   OrderlyNetworkIcon,
@@ -80,9 +79,9 @@ import {
   Agree,
   OrderlyLoading,
   OrderlyIconBalance,
+  ArrowDownAsset,
 } from '../Common/Icons';
 
-import { MdKeyboardArrowDown } from 'react-icons/md';
 import {
   is_orderly_key_announced,
   is_trading_key_set,
@@ -96,7 +95,7 @@ import { FlexRow, orderEditPopUpFailure } from '../Common/index';
 import { useAllSymbolInfo } from '../AllOrders/state';
 import { ONLY_ZEROS } from '../../../../utils/numbers';
 import * as math from 'mathjs';
-import { NearWalletIcon } from '../Common/Icons';
+import { NearWalletIcon, ArrowDownIcon } from '../Common/Icons';
 import {
   getSelectedWalletId,
   generateTradingKeyPair,
@@ -2142,7 +2141,7 @@ export function AssetManagerModal(
                 <span className="text-white font-bold text-base">
                   {tokenMeta.symbol}
                 </span>
-                <MdKeyboardArrowDown size={20} />
+                <ArrowDownAsset></ArrowDownAsset>
               </div>
             </div>
 
@@ -3507,9 +3506,8 @@ function SelectTokenModal(
                 })}
               </span>
 
-              <MdArrowDropDown
-                size={22}
-                className={`${
+              <ArrowDownIcon
+                className={`ml-1.5 ${
                   sortByBalance === 'wallet' && sortNearBalance === 'asc'
                     ? 'transform rotate-180 '
                     : ''
@@ -3518,7 +3516,7 @@ function SelectTokenModal(
                     ? 'text-white'
                     : ''
                 } cursor-pointer`}
-              />
+              ></ArrowDownIcon>
             </div>
 
             <div
@@ -3544,9 +3542,8 @@ function SelectTokenModal(
                 })}
               </span>
 
-              <MdArrowDropDown
-                size={22}
-                className={`${
+              <ArrowDownIcon
+                className={`ml-1.5 ${
                   sortByBalance === 'orderly' && sortOrderlyAccount === 'asc'
                     ? 'transform rotate-180 '
                     : ''
@@ -3556,7 +3553,7 @@ function SelectTokenModal(
                     ? 'text-white'
                     : ''
                 }`}
-              />
+              ></ArrowDownIcon>
             </div>
           </div>
 

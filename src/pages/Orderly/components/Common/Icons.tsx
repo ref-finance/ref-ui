@@ -1261,6 +1261,7 @@ export const ArrowDownIcon = (props: any) => {
   return (
     <svg
       {...props}
+      className={` ${props.className}`}
       width="10"
       height="6"
       viewBox="0 0 10 6"
@@ -1270,6 +1271,26 @@ export const ArrowDownIcon = (props: any) => {
       <path
         d="M5.38406 5.53907C5.18417 5.77894 4.81574 5.77894 4.61584 5.53907L0.683363 0.82009C0.411977 0.494427 0.643556 -8.17966e-07 1.06747 -7.80906e-07L8.93243 -9.33297e-08C9.35635 -5.62695e-08 9.58793 0.494429 9.31654 0.820092L5.38406 5.53907Z"
         fill="currentColor"
+      />
+    </svg>
+  );
+};
+
+export const ArrowDownAsset = () => {
+  return (
+    <svg
+      width="11"
+      height="7"
+      className="ml-2"
+      viewBox="0 0 11 7"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M1 1L5.401 5L9.57143 1"
+        stroke="#7E8A93"
+        stroke-width="2"
+        stroke-linecap="round"
       />
     </svg>
   );

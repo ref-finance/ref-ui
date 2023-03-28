@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { FiChevronDown } from 'react-icons/fi';
+
+import { FiChevronDown } from '@react-icons/all-files/fi/FiChevronDown';
+
 import {
   CircleIcon,
   AddButtonIcon,

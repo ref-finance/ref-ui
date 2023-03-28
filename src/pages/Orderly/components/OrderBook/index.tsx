@@ -9,7 +9,6 @@ import {
   numberWithCommas,
   numberWithCommasPadding,
 } from '../../utiles';
-import { MdArrowDropDown } from 'react-icons/md';
 import { Selector } from '../OrderBoard';
 import { IoArrowUpOutline } from '@react-icons/all-files/io5/IoArrowUpOutline';
 
@@ -23,6 +22,7 @@ import {
 } from '../../../../utils/numbers';
 import { useInView } from 'react-intersection-observer';
 import { useIntl } from 'react-intl';
+import { ArrowDownIcon } from '../../../../components/icon/Nav';
 
 function parseSymbol(fullName: string) {
   return {
@@ -457,10 +457,7 @@ function OrderBook() {
               </>
             )}
             {!isMobile && (
-              <MdArrowDropDown
-                size={22}
-                className="text-primaryOrderly absolute right-0 justify-self-end"
-              ></MdArrowDropDown>
+              <ArrowDownIcon className="text-primaryOrderly absolute right-0 justify-self-end"></ArrowDownIcon>
             )}
 
             {showPrecisionSelector && (

@@ -20,7 +20,6 @@ import {
 
 import InfiniteScroll from 'react-infinite-scroll-component';
 
-import { MdArrowDropDown } from 'react-icons/md';
 import { OrderAsset, useOrderAssets } from './state';
 import {
   FlexRow,
@@ -582,7 +581,9 @@ export function AssetModal(props: Modal.Props) {
                     orderBy === 'asc' && sortBy === 'near'
                       ? 'transform rotate-180'
                       : ''
-                  } ${sortBy === 'near' ? 'text-white' : 'text-primaryText'}`}
+                  } ml-1.5 ${
+                    sortBy === 'near' ? 'text-white' : 'text-primaryText'
+                  }`}
                 ></ArrowDownIcon>
               </div>
 
@@ -609,15 +610,15 @@ export function AssetModal(props: Modal.Props) {
                   })}
                 </span>
 
-                <MdArrowDropDown
-                  size={22}
-                  color={sortBy === 'in-order' ? 'white' : '#7E8A93'}
-                  className={`${
+                <ArrowDownIcon
+                  className={`ml-1.5 ${
                     orderBy === 'asc' && sortBy === 'in-order'
                       ? 'transform rotate-180'
                       : ''
-                  } `}
-                ></MdArrowDropDown>
+                  } ${
+                    sortBy === 'in-order' ? 'text-white' : 'text-primaryText'
+                  }`}
+                ></ArrowDownIcon>
               </div>
 
               <div
@@ -638,15 +639,15 @@ export function AssetModal(props: Modal.Props) {
                   })}
                 </span>
 
-                <MdArrowDropDown
-                  size={22}
-                  color={sortBy === 'available' ? 'white' : '#7E8A93'}
-                  className={`${
+                <ArrowDownIcon
+                  className={`ml-1.5 ${
                     orderBy === 'asc' && sortBy === 'available'
                       ? 'transform rotate-180'
                       : ''
-                  } `}
-                ></MdArrowDropDown>
+                  } ${
+                    sortBy === 'available' ? 'text-white' : 'text-primaryText'
+                  }`}
+                ></ArrowDownIcon>
               </div>
 
               <div className="col-span-2 xs:hidden justify-self-center xs:justify-self-end flex items-center justify-center">

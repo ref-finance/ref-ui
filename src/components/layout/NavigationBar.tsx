@@ -27,7 +27,8 @@ import { HiOutlineExternalLink } from 'react-icons/hi';
 
 import { IoChevronBack } from '@react-icons/all-files/io5/IoChevronBack';
 
-import { FiChevronDown, FiChevronRight } from 'react-icons/fi';
+import { FiChevronRight } from '@react-icons/all-files/fi/FiChevronRight';
+
 import {
   useMenuItems,
   useLanguageItems,

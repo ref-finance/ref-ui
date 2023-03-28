@@ -72,7 +72,8 @@ import {
 } from '~services/pool';
 import ReactTooltip from 'react-tooltip';
 import { TokenLinks } from '~components/tokens/Token';
-import { FiArrowUpRight } from 'react-icons/fi';
+import { FiArrowUpRight } from '@react-icons/all-files/fi/FiArrowUpRight';
+
 import {
   VolumeChart,
   TVLChart,

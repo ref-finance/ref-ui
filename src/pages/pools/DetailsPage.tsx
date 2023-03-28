@@ -169,7 +169,8 @@ import {
   QuestionTip,
 } from '../../components/layout/TipWrapper';
 
-import { FiArrowUpRight } from 'react-icons/fi';
+import { FiArrowUpRight } from '@react-icons/all-files/fi/FiArrowUpRight';
+
 import { NoLiquidityDetailPageIcon } from '../../components/icon/Pool';
 import { useFarmStake } from '../../state/farm';
 import { VEARROW } from '../../components/icon/Referendum';
