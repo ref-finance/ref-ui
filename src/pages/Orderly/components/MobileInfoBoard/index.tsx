@@ -73,7 +73,6 @@ import {
   Agree,
 } from '../Common/Icons';
 
-import { MdKeyboardArrowDown } from 'react-icons/md';
 import {
   is_orderly_key_announced,
   is_trading_key_set,

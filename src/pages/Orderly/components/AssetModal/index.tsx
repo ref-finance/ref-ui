@@ -20,7 +20,7 @@ import {
 
 import InfiniteScroll from 'react-infinite-scroll-component';
 
-import { MdArrowDropDown, MdArrowDropUp } from 'react-icons/md';
+import { MdArrowDropDown } from 'react-icons/md';
 import { OrderAsset, useOrderAssets } from './state';
 import {
   FlexRow,
@@ -48,7 +48,7 @@ import getConfig from '../../config';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { NearTip } from '../../../../pages/AccountPage';
 import { isClientMobie, useClientMobile } from '../../../../utils/device';
-import { TipIconAsset, CopyAsset } from '../Common/Icons';
+import { TipIconAsset, CopyAsset, ArrowDownIcon } from '../Common/Icons';
 import ReactTooltip from 'react-tooltip';
 import { FormattedMessage, useIntl } from 'react-intl';
 
@@ -577,15 +577,13 @@ export function AssetModal(props: Modal.Props) {
                     : 'NEAR'}{' '}
                 </span>
 
-                <MdArrowDropDown
-                  size={22}
-                  color={sortBy === 'near' ? 'white' : '#7E8A93'}
+                <ArrowDownIcon
                   className={`${
                     orderBy === 'asc' && sortBy === 'near'
                       ? 'transform rotate-180'
                       : ''
-                  } `}
-                ></MdArrowDropDown>
+                  } ${sortBy === 'near' ? 'text-white' : 'text-primaryText'}`}
+                ></ArrowDownIcon>
               </div>
 
               <div

@@ -163,8 +163,6 @@ import {
   BTC_CLASS_STABLE_TOKEN_IDS,
 } from '../../services/near';
 
-import { MdOutlineRefresh } from 'react-icons/md';
-
 import { getMax } from '../../utils/numbers';
 
 import { YellowTipIcon, RedTipIcon, SelectedIcon } from '../icon/swapV3';
@@ -172,6 +170,7 @@ import * as math from 'mathjs';
 import { NEAR_WITHDRAW_KEY } from '../forms/WrapNear';
 import { PoolInfo, get_pool, get_pool_from_cache } from '../../services/swapV3';
 import { nearMetadata } from '../../services/wrap-near';
+import { SwapOutLineRefresh } from '../icon/SwapRefresh';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -2330,8 +2329,7 @@ export default function SwapCard(props: {
             marketPriceLimitOrder={!curOrderPrice ? null : curOrderPrice}
             ExtraElement={
               swapMode == SWAP_MODE.LIMIT && limitAmountOut ? (
-                <MdOutlineRefresh
-                  size={18}
+                <SwapOutLineRefresh
                   className={`text-primaryText cursor-pointer  ${
                     !quoteDoneLimit ? 'rotateInfinite' : ''
                   } `}

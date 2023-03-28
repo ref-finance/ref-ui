@@ -9,7 +9,7 @@ import {
   numberWithCommas,
   numberWithCommasPadding,
 } from '../../utiles';
-import { MdArrowDropDown, MdArrowDropUp } from 'react-icons/md';
+import { MdArrowDropDown } from 'react-icons/md';
 import { Selector } from '../OrderBoard';
 import { IoArrowUpOutline } from '@react-icons/all-files/io5/IoArrowUpOutline';
 

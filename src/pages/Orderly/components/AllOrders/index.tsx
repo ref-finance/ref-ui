@@ -10,7 +10,7 @@ import { FlexRow, FlexRowBetween } from '../Common';
 import { parseSymbol } from '../RecentTrade';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-import { MdArrowDropDown, MdArrowDropUp } from 'react-icons/md';
+import { MdArrowDropDown } from 'react-icons/md';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
 import { RiArrowDownSFill } from '@react-icons/all-files/ri/RiArrowDownSFill';
@@ -25,6 +25,7 @@ import {
 } from '../../orderly/type';
 import {
   AllMarketIcon,
+  ArrowDownIcon,
   ArrowParallel,
   CancelStamp,
   CheckSelectorWhite,
@@ -1604,15 +1605,15 @@ function HistoryOrderLine({
                   }}
                 >
                   <div className="transform scale-95">
-                    <MdArrowDropDown
-                      size={22}
-                      color={
-                        openFilledDetail ? '#FFFFFF' : '#limitOrderInputColor'
-                      }
+                    <ArrowDownIcon
                       className={`${
                         openFilledDetail ? 'transform rotate-180' : ''
-                      } `}
-                    ></MdArrowDropDown>
+                      } ${
+                        openFilledDetail
+                          ? 'text-white'
+                          : 'text-limitOrderInputColor'
+                      }`}
+                    ></ArrowDownIcon>
                   </div>
                 </div>
               )}
@@ -2875,10 +2876,11 @@ function OpenOrders({
                     )}
                   </span>
 
-                  <MdArrowDropDown
-                    size={22}
-                    color={showMarketSelector ? 'white' : '#7E8A93'}
-                  />
+                  <ArrowDownIcon
+                    className={`${
+                      showMarketSelector ? 'text-white' : '#7E8A93'
+                    }`}
+                  ></ArrowDownIcon>
                 </div>
 
                 {showMarketSelector && (
@@ -2922,10 +2924,9 @@ function OpenOrders({
                         })}
                   </span>
 
-                  <MdArrowDropDown
-                    size={22}
-                    color={showSideSelector ? 'white' : '#7E8A93'}
-                  />
+                  <ArrowDownIcon
+                    className={`${showSideSelector ? 'text-white' : '#7E8A93'}`}
+                  ></ArrowDownIcon>
                 </div>
 
                 {showSideSelector && (
@@ -3051,15 +3052,14 @@ function OpenOrders({
                     defaultMessage: 'Time',
                   })}
                 </span>
-                {
-                  <MdArrowDropDown
-                    className={
-                      timeSorting === 'asc' ? 'transform rotate-180' : ''
-                    }
-                    size={22}
-                    color={'#7e8a93'}
-                  />
-                }
+
+                <ArrowDownIcon
+                  className={
+                    timeSorting === 'asc'
+                      ? 'transform rotate-180 text-primaryText'
+                      : 'text-primaryText'
+                  }
+                ></ArrowDownIcon>
               </div>
             </th>
             <th align="right">

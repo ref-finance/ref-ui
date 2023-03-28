@@ -4,7 +4,7 @@ import { FlexRow, FlexRowBetween } from '../Common';
 import { parseSymbol } from '../RecentTrade';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-import { MdArrowDropDown, MdArrowDropUp } from 'react-icons/md';
+import { MdArrowDropDown } from 'react-icons/md';
 import {
   MyOrder,
   EditOrderlyOrder,
