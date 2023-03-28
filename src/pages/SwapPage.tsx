@@ -197,6 +197,14 @@ function SwapPage() {
     storageMode || SWAP_MODE.NORMAL
   );
 
+  const history = useHistory();
+
+  useEffect(() => {
+    if (swapMode === SWAP_MODE.LIMIT) {
+      setLimitTokenTrigger(!limitTokenTrigger ? true : false);
+    }
+  }, [swapMode]);
+
   const stablePools = useAllStablePools();
 
   useEffect(() => {

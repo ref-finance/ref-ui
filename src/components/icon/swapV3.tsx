@@ -1003,7 +1003,7 @@ export const MobileHistoryOrderStampText = ({
         transform: 'rotate(-20deg)',
       }}
     >
-      <FormattedMessage id={text} />
+      <FormattedMessage id={text} defaultMessage={text} />
     </div>
   );
 };
@@ -1011,7 +1011,7 @@ export const MobileHistoryOrderStampText = ({
 export const MobileHistoryOrderStamp = ({
   state,
 }: {
-  state: 'filled' | 'cancel' | 'partially_filled';
+  state: 'filled' | 'cancel' | 'partially_filled' | 'swapped';
 }) => {
   return (
     <div className="absolute top-20 left-1/2 transform -translate-x-1/2 ">
@@ -1023,6 +1023,12 @@ export const MobileHistoryOrderStamp = ({
       )}
       {state === 'partially_filled' && (
         <MobileHistoryOrderStampText text="partially_filled" color="#DEA550" />
+      )}
+      {state === 'swapped' && (
+        <MobileHistoryOrderStampText
+          text="swapped_history_order"
+          color="#1AA189"
+        />
       )}
     </div>
   );

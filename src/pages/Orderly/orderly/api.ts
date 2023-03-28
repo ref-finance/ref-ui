@@ -57,6 +57,8 @@ const announceLedgerAccessKey = async (accountId: string) => {
     await ledgerTipTrigger(window.selector);
   }
 
+  keyStore.setKey(getConfig().networkId, accountId, keyPairLedger);
+
   const addKeyRes = await wallet.signAndSendTransaction({
     signerId: accountId,
     receiverId: accountId,
@@ -83,8 +85,6 @@ const announceLedgerAccessKey = async (accountId: string) => {
       },
     ],
   });
-
-  keyStore.setKey(getConfig().networkId, accountId, keyPairLedger);
 
   // localStorage.setItem()
 
