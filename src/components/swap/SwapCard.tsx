@@ -2418,7 +2418,8 @@ export default function SwapCard(props: {
             )}
 
         {poolError &&
-        swapMode !== SWAP_MODE.LIMIT &&
+        !wrapOperation &&
+        swapMode === SWAP_MODE.NORMAL &&
         Number(tokenInAmount || '0') > 0 ? (
           <div className="pb-2 relative ">
             <Alert level="warn" message={poolError} />

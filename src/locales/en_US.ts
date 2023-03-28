@@ -1228,5 +1228,11 @@ const en_US = {
   unstaked_2: 'Unstaked',
   unstaked_positions: ' Unstaked Positions',
   price_range_overlap_ratio: ' Price Range Overlap Ratio',
+  swapped_history: 'swap history',
+  real_time_executed_orders: 'real-time executed orders',
+  real_time_executed_orders_tip:
+    'When placing a sell order above market price or a buy order below market price using limit order function, Ref will attempt to execute a swap-with-stop-point action first, and if there is any remaining amount, a limit order will be created to fill the rest.<br> Real-time executed orders refer to orders placed using the limit order function but executed through swapping. In the "History" section, you can view real-time executed orders between the earliest displayed limit order in History up to the present time.',
+
+  swapped_history_order: 'Swapped',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

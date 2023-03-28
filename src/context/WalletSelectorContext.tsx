@@ -36,6 +36,7 @@ import { walletIcons } from './walletIcons';
 import { getOrderlyConfig } from '../pages/Orderly/config';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../pages/Orderly/components/UserBoard/index';
 import {
+  REF_FI_SENDER_WALLET_ACCESS_KEY,
   REF_ORDERLY_NORMALIZED_KEY,
   generateTradingKeyPair,
 } from '../pages/Orderly/orderly/utils';
@@ -112,6 +113,9 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         }),
         setupSender({
           iconUrl: walletIcons['sender'],
+        }),
+        setupMeteorWallet({
+          iconUrl: walletIcons['meteor-wallet'],
         }),
         setupNeth({
           iconUrl: walletIcons['neth'],
@@ -215,6 +219,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
     localStorage.removeItem(get_orderly_public_key_path());
     localStorage.removeItem(REF_ORDERLY_ACCOUNT_VALID);
     localStorage.removeItem(REF_ORDERLY_NORMALIZED_KEY);
+    localStorage.removeItem(REF_FI_SENDER_WALLET_ACCESS_KEY);
   });
 
   return (
