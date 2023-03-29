@@ -17,7 +17,7 @@ export default function ExternalPopUp() {
       walletId = JSON.parse(found[1]).accountId;
       const account_suffix = walletId.split('.')[1];
       const env_keys = env_map[account_suffix];
-      if (env_keys.indexOf(env) == -1) {
+      if (env_keys?.indexOf(env) == -1) {
         walletId = '';
       }
     }
