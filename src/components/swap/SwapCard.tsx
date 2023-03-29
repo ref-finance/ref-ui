@@ -7,6 +7,9 @@ import React, {
   useContext,
   createContext,
 } from 'react';
+
+import { useWalletSelector } from '~context/WalletSelectorContext';
+
 import { useLocation, useHistory } from 'react-router-dom';
 import {
   ftGetBalance,
@@ -1147,15 +1150,23 @@ export default function SwapCard(props: {
   const [doubleCheckOpenLimit, setDoubleCheckOpenLimit] =
     useState<boolean>(false);
 
+  const { isLedger } = useWalletSelector();
+
+  const [supportLedger, setSupportLedger] = useState(
+    isLedger || localStorage.getItem(SUPPORT_LEDGER_KEY) ? true : false
+  );
+
   const [curOrderPrice, setCurOrderPrice] = useState<string>('');
+
+  useEffect(() => {
+    if (swapMode === SWAP_MODE.NORMAL && isLedger) {
+      setSupportLedger(true);
+    }
+  }, [swapMode]);
 
   const [LimitAmountOutRate, setLimitAmountOutRate] = useState<string>('');
 
   const [limitAmountOut, setLimitAmountOut] = useState<string>('');
-
-  const [supportLedger, setSupportLedger] = useState(
-    localStorage.getItem(SUPPORT_LEDGER_KEY) ? true : false
-  );
 
   const [useNearBalance, setUseNearBalance] = useState<boolean>(true);
 

@@ -300,14 +300,15 @@ export default function CrossSwapCard(props: {
   const [loadingData, setLoadingData] = useState<boolean>(false);
   const [loadingTrigger, setLoadingTrigger] = useState<boolean>(true);
   const [loadingPause, setLoadingPause] = useState<boolean>(false);
-  const [supportLedger, setSupportLedger] = useState(
-    localStorage.getItem(SUPPORT_LEDGER_KEY) ? true : false
-  );
 
   const [useNearBalance, setUseNearBalance] = useState<boolean>(true);
   const history = useHistory();
 
-  const { accountId } = useWalletSelector();
+  const { accountId, isLedger } = useWalletSelector();
+
+  const [supportLedger, setSupportLedger] = useState(
+    isLedger || localStorage.getItem(SUPPORT_LEDGER_KEY) ? true : false
+  );
 
   const [balanceInDone, setBalanceInDone] = useState<boolean>(false);
   const [balanceOutDone, setBalanceOutDone] = useState<boolean>(false);
