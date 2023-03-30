@@ -306,7 +306,7 @@ function RecordLine(
               rel="noreferrer"
             >
               {/* {parseTxDisplay(props.tx_id)} */}
-              <span className="text-primaryText">Txid</span>
+              <span className="text-primaryText">Tx</span>
 
               <span className="text-primaryText ml-2">
                 <OutLinkIcon></OutLinkIcon>
@@ -691,7 +691,7 @@ export function AssetModal(props: Modal.Props) {
               </div>
 
               <div className={` flex items-center relative  justify-center`}>
-                <span>TxID</span>
+                <span>Tx</span>
               </div>
 
               <div className="flex items-center relative right-2  justify-self-end justify-center">

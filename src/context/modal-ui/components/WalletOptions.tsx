@@ -13,7 +13,12 @@ import { useClientMobile } from '../../../utils/device';
 import { ACCOUNT_ID_KEY } from '../../WalletSelectorContext';
 import { walletIcons } from '../../walletIcons';
 import { walletsRejectError } from '../../../utils/wallets-integration';
-import { Checkbox, CheckboxSelected } from '../../../components/icon';
+import {
+  Checkbox,
+  CheckboxSelected,
+  AuthenticationIcon,
+} from '../../../components/icon';
+import ReactTooltip from 'react-tooltip';
 
 const walletOfficialUrl = {
   'NEAR Wallet': 'wallet.near.org',
@@ -26,6 +31,20 @@ const walletOfficialUrl = {
   MyNearWallet: 'mynearwallet.com',
   'Meteor Wallet': 'wallet.meteorwallet.app',
   'NETH Account': 'neth.app',
+};
+const walletOfficialMark = {
+  Sender: {
+    mark: true,
+    link: 'https://senderwallet.io/securityreport',
+  },
+  'NETH Account': {
+    mark: true,
+    link: 'https://github.com/NearDeFi/neth/blob/main/audit/near-eth-audit-public.pdf',
+  },
+  'Here Wallet': {
+    mark: true,
+    link: 'https://docs.herewallet.app/technology-description/readme/security-audit',
+  },
 };
 
 const SelectedIcon = () => {
@@ -82,6 +101,8 @@ const notSupportingIcons = [
   // walletIcons['math-wallet'],
   // walletIcons['nightly'],
   walletIcons['ledger'],
+  walletIcons['neth'],
+
   // walletIcons['nightly-connect'],
   // walletIcons['wallet-connect'],
 ];
@@ -134,6 +155,7 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
   onConnecting,
   onConnected,
 }) => {
+  const intl = useIntl();
   const { selectedWalletId } = selector.store.getState();
   const [modules, setModules] = useState<Array<ModuleState>>([]);
   const [checkedStatus, setCheckedStatus] = useState<boolean>(
@@ -219,6 +241,12 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
   const isMobile = useClientMobile();
 
   const [hoverOption, setHoverOption] = useState<number>(-1);
+  function getTip() {
+    // const tip = intl.formatMessage({ id: 'your_investment_tip' });
+    const tip = 'Check Audit Report';
+    let result: string = `<div class="text-farmText text-xs text-center whitespace-nowrap">${tip}</div>`;
+    return result;
+  }
   return (
     <Fragment>
       <div
@@ -267,8 +295,6 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
                       <SelectedIcon />
                     ) : installed ? (
                       <Installed />
-                    ) : isBeta ? (
-                      <Beta />
                     ) : null}
                   </div>
 
@@ -286,9 +312,41 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
                       />
                     </div>
                     <div className="flex items-start flex-col text-sm">
-                      <span className="">
+                      <div className="flex items-start">
                         {name === 'NEAR Wallet' ? 'NEAR' : name}
-                      </span>
+                        {/* todo wallet */}
+                        {walletOfficialMark[name]?.mark ? (
+                          <div
+                            className="text-white text-right ml-1"
+                            data-class="reactTip"
+                            data-for={`walletOptionId_${module.id}`}
+                            data-place="top"
+                            data-html={true}
+                            data-tip={
+                              walletOfficialMark[name]?.link ? getTip() : ''
+                            }
+                          >
+                            <AuthenticationIcon
+                              className={`relative`}
+                              style={{ width: '10px', top: '3px' }}
+                              onClick={(e: any) => {
+                                const { link } = walletOfficialMark[name];
+                                if (link) {
+                                  e.stopPropagation();
+                                  window.open(link);
+                                }
+                              }}
+                            ></AuthenticationIcon>
+                            <ReactTooltip
+                              id={`walletOptionId_${module.id}`}
+                              backgroundColor="#1D2932"
+                              border
+                              borderColor="#7e8a93"
+                              effect="solid"
+                            />
+                          </div>
+                        ) : null}
+                      </div>
 
                       <span className="text-xs text-primaryText official-url">
                         {walletOfficialUrl[name]}

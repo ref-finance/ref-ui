@@ -103,6 +103,7 @@ import {
 import { useClientMobile, isMobile } from '../../../../utils/device';
 import { QuestionTip } from '../../../../components/layout/TipWrapper';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { REF_FI_SENDER_WALLET_ACCESS_KEY } from '../../orderly/utils';
 
 function getTipFOK() {
   const intl = useIntl();
@@ -142,10 +143,14 @@ function validContract() {
   const selectedWalletId = getSelectedWalletId();
 
   if (selectedWalletId === 'sender') {
-    //@ts-ignore
-    return !!window?.near?.authData?.allKeys?.[
-      getConfig().ORDERLY_ASSET_MANAGER
-    ];
+    const storedKey = localStorage.getItem(REF_FI_SENDER_WALLET_ACCESS_KEY);
+
+    return (
+      //@ts-ignore
+      !!window?.near?.authData?.allKeys?.[getConfig().ORDERLY_ASSET_MANAGER] ||
+      (storedKey &&
+        JSON.parse(storedKey)?.allKeys?.[getConfig().ORDERLY_ASSET_MANAGER])
+    );
   }
 
   if (selectedWalletId === 'neth') return true;

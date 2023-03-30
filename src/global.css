@@ -1258,3 +1258,7 @@ input[type='range']::-webkit-slider-runnable-track {
 .recharts-tooltip-wrapper {
   outline: none;
 }
+
+#pr3sence-adItemImage {
+  border-radius: 0.5rem;
+}

@@ -2322,13 +2322,13 @@
   resolved "https://registry.yarnpkg.com/@metamask/detect-provider/-/detect-provider-2.0.0.tgz#4bc2795e5e6f7d8b84b2e845058d2f222c99917d"
   integrity sha512-sFpN+TX13E9fdBDh9lvQeZdJn4qYoRb/6QF2oZZK/Pn559IhCFacPMU1rMuqyXoFQF3JSJfii2l98B87QDPeCQ==
 
-"@meteorwallet/sdk@0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@meteorwallet/sdk/-/sdk-0.3.0.tgz#d8f17d780c646caa3b96d08142705160dcaa29b2"
-  integrity sha512-eoMcLItP7pabA7E5tNY265fypQAwcjn/Ev6l/8Ag3hyJ5L8rkS5A+WPCVnWZCaE5HmXZyuiXhp5HTtjlR8u8mg==
+"@meteorwallet/sdk@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@meteorwallet/sdk/-/sdk-0.6.0.tgz#006b77410a7874f0c9bfc0d693f199b561f39d19"
+  integrity sha512-oriaQ1gk1hpQx6V6BxsvUthDd0Bpmv3ho5Ap5pm9P0euEosWtFUVF1dTYndJE10qBG8yLW+EOOX1LZ8taXCiRA==
   dependencies:
-    is-mobile "^3.1.1"
-    near-api-js "^0.44.2"
+    nanoid "3.3.4"
+    query-string "^7.1.1"
 
 "@mrmlnc/readdir-enhanced@^2.2.1":
   version "2.2.1"
@@ -2338,17 +2338,17 @@
     call-me-maybe "^1.0.1"
     glob-to-regexp "^0.3.0"
 
-"@near-wallet-selector/core@6.0.1":
-  version "6.0.1"
-  resolved "https://registry.yarnpkg.com/@near-wallet-selector/core/-/core-6.0.1.tgz#6e3bbbfc90be07be495b15b4d565fba01cf36101"
-  integrity sha512-MXxu3KA8tCoZ9ws48cN3iykFB8lbLMGW4Juy9TpgGcMZKNg6M0cAxD0fztpzYbpwj3+7m6/uxUv+5fyr19ED+g==
-  dependencies:
-    rxjs "^7.5.5"
-
 "@near-wallet-selector/core@7.9.0", "@near-wallet-selector/core@^7.0.0":
   version "7.9.0"
   resolved "https://registry.yarnpkg.com/@near-wallet-selector/core/-/core-7.9.0.tgz#33dcfa589983d5aa10f0590e181e2f1e538c044d"
   integrity sha512-VbHNdO1yRILsgjrX3Qxg5C3oJZpC3f1PjHLY0h37FXRBTIyVEycMl+8qVaBHck5j8FIOJMfyS9d6tC+TKRp7Og==
+  dependencies:
+    rxjs "^7.8.0"
+
+"@near-wallet-selector/core@7.9.1":
+  version "7.9.1"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/core/-/core-7.9.1.tgz#d13d20724bd105e85b141bb2c7f35f4c07a37cad"
+  integrity sha512-BJGsTK0snZAU1Je+W9TFJG5KW+jk+Ots9LuxsALZ/wZpqSeGT+w4xw36TZt3QsEm+I84im1+L+PIIW/bM2A9rQ==
   dependencies:
     rxjs "^7.8.0"
 
@@ -2382,14 +2382,14 @@
     "@near-wallet-selector/wallet-utils" "7.9.0"
     is-mobile "^3.1.1"
 
-"@near-wallet-selector/meteor-wallet@^6.0.0":
-  version "6.0.1"
-  resolved "https://registry.yarnpkg.com/@near-wallet-selector/meteor-wallet/-/meteor-wallet-6.0.1.tgz#e062286bafc6dbfeac2c8936c693d37dd8ce9f45"
-  integrity sha512-LzwB3tGhA4pQOjFoHgtdlS0VtsKPv5dP5EhZzfXs81M1+3PPYGj//y1nmovVFB9qA2bGW3rZCqbu0MLqbTb90w==
+"@near-wallet-selector/meteor-wallet@^7.9.0":
+  version "7.9.1"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/meteor-wallet/-/meteor-wallet-7.9.1.tgz#a3c462a87b097c27977a546327354bf6ce2e4f89"
+  integrity sha512-oDP1K65XkSi/2zXuSMhFPcMIuTSYRKX7fsEAV4e6MrW42QFoXgsA64Z8y/JYoITzP6WMRHn6TbdTyw2WZOHgoQ==
   dependencies:
-    "@meteorwallet/sdk" "0.3.0"
-    "@near-wallet-selector/core" "6.0.1"
-    "@near-wallet-selector/wallet-utils" "6.0.1"
+    "@meteorwallet/sdk" "^0.6.0"
+    "@near-wallet-selector/core" "7.9.1"
+    "@near-wallet-selector/wallet-utils" "7.9.1"
 
 "@near-wallet-selector/modal-ui@^7.0.2":
   version "7.9.0"
@@ -2448,20 +2448,20 @@
     "@walletconnect/qrcode-modal" "2.0.0-alpha.20"
     "@walletconnect/sign-client" "2.1.4"
 
-"@near-wallet-selector/wallet-utils@6.0.1":
-  version "6.0.1"
-  resolved "https://registry.yarnpkg.com/@near-wallet-selector/wallet-utils/-/wallet-utils-6.0.1.tgz#fbf5f7e3b96454c3423f7914b681ca3498a90cbb"
-  integrity sha512-kSRhA4bcc8cSo4KxxdMgrvGIPhYKUYhTwww5NdOPa4qwuRBr5a8CVyIwRbZ8JH0OEMefPrMjOLv4vAJ4YQrwfg==
-  dependencies:
-    "@near-wallet-selector/core" "6.0.1"
-    bn.js "^5.2.0"
-
 "@near-wallet-selector/wallet-utils@7.9.0":
   version "7.9.0"
   resolved "https://registry.yarnpkg.com/@near-wallet-selector/wallet-utils/-/wallet-utils-7.9.0.tgz#a2f8f3ce8c942cecda68e8b1a73d997794d088a1"
   integrity sha512-vJW2TzkyRmgVRbT6U7FWzJOboNT1r9EqmKgXVsjpTYu0JgMhAyFwGAI51+jOYY/mjmkUW+tdrdJV/tGz9j91wg==
   dependencies:
     "@near-wallet-selector/core" "7.9.0"
+    bn.js "^5.2.0"
+
+"@near-wallet-selector/wallet-utils@7.9.1":
+  version "7.9.1"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/wallet-utils/-/wallet-utils-7.9.1.tgz#f6cb831ec9db0b25c9ee2a031eafb27e1b46f99e"
+  integrity sha512-8bO0z7VQH26a5suS0g7XiBUsEZEBduJBY+WWybPJNtYbQUDWkIT9/Jz0rCAIgqqrtJxNufFKYimqY0Upt5Um8Q==
+  dependencies:
+    "@near-wallet-selector/core" "7.9.1"
     bn.js "^5.2.0"
 
 "@nicolo-ribaudo/eslint-scope-5-internals@5.1.1-v1":
@@ -6825,7 +6825,7 @@ decimal.js@^10.0.0, decimal.js@^10.2.1, decimal.js@^10.3.1:
   resolved "https://registry.yarnpkg.com/decimal.js/-/decimal.js-10.4.3.tgz#1044092884d245d1b7f65725fa4ad4c6f781cc23"
   integrity sha512-VBBaLc1MgL5XpzgIP7ny5Z6Nx3UrRkIViUkPUdtl9aya5amy3De1gsUUSB1g3+3sExYNjCAsAznmukyxCb1GRA==
 
-decode-uri-component@^0.2.0:
+decode-uri-component@^0.2.0, decode-uri-component@^0.2.2:
   version "0.2.2"
   resolved "https://registry.yarnpkg.com/decode-uri-component/-/decode-uri-component-0.2.2.tgz#e69dbe25d37941171dd540e024c444cd5188e1e9"
   integrity sha512-FqUYQ+8o158GyGTrMFJms9qh3CqTKvAqgqsTnkLI8sKu0028orqBhxNMFkFen0zGyg6epACD32pjVk58ngIErQ==
@@ -11515,7 +11515,7 @@ nanoid@3.3.3:
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.3.tgz#fd8e8b7aa761fe807dba2d1b98fb7241bb724a25"
   integrity sha512-p1sjXuopFs0xg+fPASzQ28agW1oHD7xDsd9Xkf3T15H3c/cifrFHVwrh74PdoklAPi+i7MdRsE47vm2r6JoB+w==
 
-nanoid@^3.3.4:
+nanoid@3.3.4, nanoid@^3.3.4:
   version "3.3.4"
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.4.tgz#730b67e3cd09e2deacf03c027c81c9d9dbc5e8ab"
   integrity sha512-MqBkQh/OHTS2egovRtLk45wEyNXwF+cokD+1YPf9u5VfJiRdAiRwB2froX5Co9Rh20xs4siNPm8naNotSD6RBw==
@@ -11547,7 +11547,7 @@ natural-compare@^1.4.0:
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
   integrity sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==
 
-near-api-js@0.44.2, near-api-js@^0.44.2:
+near-api-js@0.44.2:
   version "0.44.2"
   resolved "https://registry.yarnpkg.com/near-api-js/-/near-api-js-0.44.2.tgz#e451f68f2c56bd885c7b918db5818a3e6e9423d0"
   integrity sha512-eMnc4V+geggapEUa3nU2p8HSHn/njtloI4P2mceHQWO8vDE1NGpnAw8FuTBrLmXSgIv9m6oocgFc9t3VNf5zwg==
@@ -13639,6 +13639,16 @@ query-string@^6.12.1:
   integrity sha512-XDxAeVmpfu1/6IjyT/gXHOl+S0vQ9owggJ30hhWKdHAsNPOcasn5o9BW0eejZqL2e4vMjhAxoW3jVHcD6mbcYw==
   dependencies:
     decode-uri-component "^0.2.0"
+    filter-obj "^1.1.0"
+    split-on-first "^1.0.0"
+    strict-uri-encode "^2.0.0"
+
+query-string@^7.1.1:
+  version "7.1.3"
+  resolved "https://registry.yarnpkg.com/query-string/-/query-string-7.1.3.tgz#a1cf90e994abb113a325804a972d98276fe02328"
+  integrity sha512-hh2WYhq4fi8+b+/2Kg9CEge4fDPvHS534aOOvOZeQ3+Vf2mCFsaFBYj0i+iXcAq6I9Vzp5fjMFBlONvayDC1qg==
+  dependencies:
+    decode-uri-component "^0.2.2"
     filter-obj "^1.1.0"
     split-on-first "^1.0.0"
     strict-uri-encode "^2.0.0"
