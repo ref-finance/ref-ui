@@ -91,6 +91,7 @@ export interface TokenMetadata {
   amount?: number;
   dcl?: number | string;
   nearNonVisible?: number | string;
+  t_value?: string;
 }
 export const ftGetTokenMetadata = async (
   id: string,

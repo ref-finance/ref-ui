@@ -48,7 +48,7 @@ export default function CommonBasses({
 }: CommonBassesProps) {
   const { commonBassesTokens } = useContext(localTokens);
   return (
-    <section className="px-6 xsm:px-3">
+    <section className="px-6 xsm:px-3 pt-2">
       <div className="w-full flex flex-wrap items-center text-sm xs:text-xs text-left">
         {commonBassesTokens.map((token: TokenMetadata) => {
           const price = tokenPriceList[token.id]?.price;

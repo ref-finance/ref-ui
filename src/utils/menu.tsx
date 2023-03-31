@@ -35,8 +35,19 @@ import {
   WrapNearIcon,
   MobileBridgeIcon,
   InquiriesIcon,
+  SwapIcon,
+  XswapIcon,
+  LimitOrderIcon,
+  OrderBookIcon,
+  PoolsIcon,
+  YourliquidityIcon,
+  FarmsIcon,
+  XrefEarnIcon,
+  XrefIcon,
+  REFSmallIcon,
+  PurpleCircleIcon,
 } from '~components/icon/Nav';
-import { XrefIcon } from '~components/icon/Xref';
+// import { XrefIcon } from '~components/icon/Xref';
 import getConfig from '../services/config';
 import { MobileNavLimitOrder } from '../components/icon/Nav';
 import {
@@ -50,6 +61,8 @@ import {
   MobileNavSwapPro,
 } from '../components/icon/Nav';
 import { WalletContext } from '../utils/wallets-integration';
+import { useHistory } from 'react-router';
+import { jsx } from '@emotion/react';
 
 export type MenuItem = {
   id: number;
@@ -211,6 +224,556 @@ export type MobileMenuItem = {
   specialMenuKey?: string;
   defaultClick?: (e?: any) => void;
 };
+export const useMenus = () => {
+  const history = useHistory();
+  const intl = useIntl();
+  const menuData = [
+    {
+      id: '1',
+      label: (
+        <>
+          <FormattedMessage id="trade" />
+        </>
+      ),
+      links: ['/', '/orderbook', '/myOrder', '/swap'],
+      children: [
+        {
+          id: '1-1',
+          label: <>Swap</>,
+          logo: <SwapIcon />,
+          url: '/',
+          isExternal: false,
+          swap_mode: 'normal',
+          clickEvent: () => {
+            history.push('/');
+            localStorage.setItem('SWAP_MODE_VALUE', 'normal');
+          },
+          links: ['/', '/swap'],
+        },
+        {
+          id: '1-2',
+          label: <>xSwap</>,
+          logo: <XswapIcon />,
+          url: '/',
+          isExternal: false,
+          swap_mode: 'xSwap',
+          clickEvent: () => {
+            history.push('/');
+            localStorage.setItem('SWAP_MODE_VALUE', 'xSwap');
+          },
+          links: ['/', '/swap'],
+        },
+        {
+          id: '1-3',
+          label: (
+            <>
+              <FormattedMessage id="limit_order" />
+            </>
+          ),
+          logo: <LimitOrderIcon />,
+          url: '/',
+          isExternal: false,
+          swap_mode: 'limit',
+          clickEvent: () => {
+            history.push('/');
+            localStorage.setItem('SWAP_MODE_VALUE', 'limit');
+          },
+          links: ['/', '/myOrder', '/swap'],
+        },
+        {
+          id: '1-4',
+          label: (
+            <>
+              <FormattedMessage id="orderbook_mobile"></FormattedMessage>
+            </>
+          ),
+          logo: <OrderBookIcon />,
+          url: '/orderbook',
+          isExternal: false,
+          links: ['/orderbook'],
+        },
+      ],
+    },
+    {
+      id: '2',
+      label: (
+        <>
+          <FormattedMessage id="earn_2" />
+        </>
+      ),
+      links: [
+        '/pools',
+        '/pool',
+        '/poolV2',
+        '/sauce',
+        '/more_pools',
+        '/yourliquidity',
+        '/farms',
+        '/xref',
+        '/v2farms',
+        '/yoursLiquidityDetailV2',
+      ],
+      children: [
+        {
+          id: '2-1',
+          label: (
+            <>
+              <FormattedMessage id="liquidity_pools_2" />
+            </>
+          ),
+          logo: <PoolsIcon />,
+          url: '/pools',
+          isExternal: false,
+          links: ['/pools', '/pool', '/poolV2', '/sauce', '/more_pools'],
+        },
+        {
+          id: '2-2',
+          label: (
+            <>
+              <FormattedMessage id="your_liquidity" />
+            </>
+          ),
+          logo: <YourliquidityIcon />,
+          url: '/yourliquidity',
+          isExternal: false,
+          clickEvent: () => {
+            sessionStorage.setItem('REF_POOL_NAV_TAB_VALUE', '/yourliquidity');
+            history.push('/yourliquidity');
+          },
+          links: ['/yourliquidity', '/yoursLiquidityDetailV2'],
+        },
+        {
+          id: '2-3',
+          label: (
+            <>
+              <FormattedMessage id="farms" />
+            </>
+          ),
+          logo: <FarmsIcon />,
+          url: '/v2farms',
+          isExternal: false,
+          links: ['/v2farms', '/farms'],
+        },
+        {
+          id: '2-4',
+          label: (
+            <>
+              <XrefIcon />
+            </>
+          ),
+          logo: <XrefEarnIcon />,
+          url: '/xref',
+          isExternal: false,
+          links: ['/xref'],
+        },
+      ],
+    },
+    {
+      id: '3',
+      label: (
+        <>
+          <FormattedMessage id="portfolio" />
+        </>
+      ),
+      url: '/portfolio',
+      isExternal: false,
+      links: ['/portfolio'],
+    },
+    // {
+    //   id: '4',
+    //   logo: (
+    //     <>
+    //       <REFSmallIcon className="mt-0.5"></REFSmallIcon>
+    //     </>
+    //   ),
+    //   label: <>Anylatics</>,
+    //   url: '',
+    //   isExternal: false,
+    // },
+    {
+      id: '6',
+      label: (
+        <>
+          <FormattedMessage id="vote" />
+        </>
+      ),
+      url: '/referendum',
+      isExternal: false,
+      hidden: !getConfig().REF_VE_CONTRACT_ID,
+      links: ['/referendum'],
+    },
+    {
+      id: '5',
+      label: (
+        <>
+          <FormattedMessage id="more_2" />
+        </>
+      ),
+      links: ['/risks', '/airdrop'],
+      children: [
+        {
+          id: '5-1',
+          label: <>{intl.formatMessage({ id: 'bridge' })}</>,
+          logo: <BridgeIcon />,
+          children: [
+            {
+              label: <>{intl.formatMessage({ id: 'from_ethereum' })}</>,
+              url: 'https://rainbowbridge.app/transfer',
+              isExternal: true,
+              icon: <HiOutlineExternalLink />,
+              id: '5-1-1',
+              logo: <IconEthereum />,
+            },
+            {
+              label: <>{intl.formatMessage({ id: 'from_aurora' })}</>,
+              url: 'https://rainbowbridge.app/transfer',
+              isExternal: true,
+              icon: <HiOutlineExternalLink />,
+              id: '5-1-2',
+              logo: <IconAurora />,
+            },
+            {
+              label: <>{intl.formatMessage({ id: 'from_solana' })}</>,
+              url: 'https://app.allbridge.io/bridge?from=SOL&to=NEAR',
+              isExternal: true,
+              icon: <HiOutlineExternalLink />,
+              id: '5-1-3',
+              logo: <IconSolana />,
+            },
+            {
+              label: <>{intl.formatMessage({ id: 'from_terra' })}</>,
+              url: 'https://app.allbridge.io/bridge?from=TRA&to=NEAR',
+              isExternal: true,
+              icon: <HiOutlineExternalLink />,
+              id: '5-1-4',
+              logo: <IconTerra />,
+            },
+            {
+              label: <>{intl.formatMessage({ id: 'from_celo' })}</>,
+              url: 'https://app.allbridge.io/bridge?from=CELO&to=NEAR',
+              isExternal: true,
+              icon: <HiOutlineExternalLink />,
+              id: '5-1-5',
+              logo: <IconCelo />,
+            },
+          ],
+        },
+        {
+          id: '5-2',
+          label: <>{intl.formatMessage({ id: 'docs' })}</>,
+          url: 'https://guide.ref.finance',
+          isExternal: true,
+          logo: <IconDocs />,
+        },
+        {
+          id: '5-3',
+          label: <>{intl.formatMessage({ id: 'risks' })}</>,
+          url: '/risks',
+          isExternal: false,
+          logo: <RisksIcon />,
+          links: ['/risks'],
+        },
+        {
+          id: '5-4',
+          label: (
+            <>{<FormattedMessage id="airdrop" defaultMessage="Airdrop" />}</>
+          ),
+          url: '/airdrop',
+          isExternal: false,
+          logo: <IconAirDrop />,
+          links: ['/airdrop'],
+        },
+        {
+          id: '5-5',
+          label: (
+            <>
+              <FormattedMessage id="business_inquiries" />
+            </>
+          ),
+          url: 'https://form.typeform.com/to/onOPhJ6Y',
+          isExternal: true,
+          logo: <InquiriesIcon />,
+        },
+      ],
+    },
+  ];
+  return menuData;
+};
+export const useMenusMobile = () => {
+  const history = useHistory();
+  const intl = useIntl();
+  const menuData = [
+    {
+      id: '1',
+      label: (
+        <>
+          <FormattedMessage id="trade" />
+        </>
+      ),
+      links: ['/', '/orderbook', '/myOrder', '/swap'],
+      children: [
+        {
+          id: '1-1',
+          label: <>Swap</>,
+          logo: <SwapIcon />,
+          url: '/',
+          isExternal: false,
+          swap_mode: 'normal',
+          clickEvent: () => {
+            history.push('/');
+            localStorage.setItem('SWAP_MODE_VALUE', 'normal');
+          },
+          links: ['/', '/swap'],
+        },
+        {
+          id: '1-2',
+          label: <>xSwap</>,
+          logo: <XswapIcon />,
+          url: '/',
+          isExternal: false,
+          swap_mode: 'xSwap',
+          clickEvent: () => {
+            history.push('/');
+            localStorage.setItem('SWAP_MODE_VALUE', 'xSwap');
+          },
+          links: ['/', '/swap'],
+        },
+        {
+          id: '1-3',
+          label: (
+            <>
+              <FormattedMessage id="limit_order" />
+            </>
+          ),
+          logo: <LimitOrderIcon />,
+          url: '/',
+          isExternal: false,
+          swap_mode: 'limit',
+          clickEvent: () => {
+            history.push('/');
+            localStorage.setItem('SWAP_MODE_VALUE', 'limit');
+          },
+          links: ['/', '/myOrder', '/swap'],
+        },
+        {
+          id: '1-4',
+          label: (
+            <>
+              <FormattedMessage id="orderbook_mobile"></FormattedMessage>
+            </>
+          ),
+          logo: <OrderBookIcon />,
+          url: '/orderbook',
+          isExternal: false,
+          links: ['/orderbook'],
+        },
+      ],
+    },
+    {
+      id: '2',
+      label: (
+        <>
+          <FormattedMessage id="earn_2" />
+        </>
+      ),
+      links: [
+        '/pools',
+        '/pool',
+        '/poolV2',
+        '/sauce',
+        '/more_pools',
+        '/yourliquidity',
+        '/farms',
+        '/xref',
+        '/v2farms',
+        '/yoursLiquidityDetailV2',
+      ],
+      children: [
+        {
+          id: '2-1',
+          label: (
+            <>
+              <FormattedMessage id="liquidity_pools_2" />
+            </>
+          ),
+          logo: <PoolsIcon />,
+          url: '/pools',
+          isExternal: false,
+          links: ['/pools', '/pool', '/poolV2', '/sauce', '/more_pools'],
+        },
+        {
+          id: '2-2',
+          label: (
+            <>
+              <FormattedMessage id="your_liquidity" />
+            </>
+          ),
+          logo: <YourliquidityIcon />,
+          url: '/yourliquidity',
+          isExternal: false,
+          clickEvent: () => {
+            sessionStorage.setItem('REF_POOL_NAV_TAB_VALUE', '/yourliquidity');
+            history.push('/yourliquidity');
+          },
+          links: ['/yourliquidity', '/yoursLiquidityDetailV2'],
+        },
+        {
+          id: '2-3',
+          label: (
+            <>
+              <FormattedMessage id="farms" />
+            </>
+          ),
+          logo: <FarmsIcon />,
+          url: '/v2farms',
+          isExternal: false,
+          links: ['/v2farms', '/farms'],
+        },
+        {
+          id: '2-4',
+          label: (
+            <>
+              <XrefIcon />
+            </>
+          ),
+          logo: <XrefEarnIcon />,
+          url: '/xref',
+          isExternal: false,
+          links: ['/xref'],
+        },
+      ],
+    },
+    {
+      id: '3',
+      label: (
+        <>
+          <FormattedMessage id="portfolio" />
+        </>
+      ),
+      url: '/portfolio',
+      isExternal: false,
+      links: ['/portfolio'],
+    },
+    // {
+    //   id: '4',
+    //   logo: (
+    //     <>
+    //       <REFSmallIcon className="mt-0.5"></REFSmallIcon>
+    //     </>
+    //   ),
+    //   label: <>Anylatics</>,
+    //   url: '',
+    //   isExternal: false,
+    // },
+    {
+      id: '6',
+      label: (
+        <>
+          <FormattedMessage id="vote" />
+        </>
+      ),
+      url: '/referendum',
+      isExternal: false,
+      hidden: !getConfig().REF_VE_CONTRACT_ID,
+      links: ['/referendum'],
+    },
+    {
+      id: '5',
+      label: (
+        <>
+          <FormattedMessage id="more_2" />
+        </>
+      ),
+      links: ['/risks', '/airdrop'],
+      children: [
+        {
+          id: '5-1',
+          label: <>{intl.formatMessage({ id: 'bridge' })}</>,
+          logo: <BridgeIcon />,
+          children: [
+            {
+              label: <>{intl.formatMessage({ id: 'from_ethereum' })}</>,
+              url: 'https://rainbowbridge.app/transfer',
+              isExternal: true,
+              icon: <HiOutlineExternalLink />,
+              id: '5-1-1',
+              logo: <IconEthereum />,
+            },
+            {
+              label: <>{intl.formatMessage({ id: 'from_aurora' })}</>,
+              url: 'https://rainbowbridge.app/transfer',
+              isExternal: true,
+              icon: <HiOutlineExternalLink />,
+              id: '5-1-2',
+              logo: <IconAurora />,
+            },
+            {
+              label: <>{intl.formatMessage({ id: 'from_solana' })}</>,
+              url: 'https://app.allbridge.io/bridge?from=SOL&to=NEAR',
+              isExternal: true,
+              icon: <HiOutlineExternalLink />,
+              id: '5-1-3',
+              logo: <IconSolana />,
+            },
+            {
+              label: <>{intl.formatMessage({ id: 'from_terra' })}</>,
+              url: 'https://app.allbridge.io/bridge?from=TRA&to=NEAR',
+              isExternal: true,
+              icon: <HiOutlineExternalLink />,
+              id: '5-1-4',
+              logo: <IconTerra />,
+            },
+            {
+              label: <>{intl.formatMessage({ id: 'from_celo' })}</>,
+              url: 'https://app.allbridge.io/bridge?from=CELO&to=NEAR',
+              isExternal: true,
+              icon: <HiOutlineExternalLink />,
+              id: '5-1-5',
+              logo: <IconCelo />,
+            },
+          ],
+        },
+        {
+          id: '5-2',
+          label: <>{intl.formatMessage({ id: 'docs' })}</>,
+          url: 'https://guide.ref.finance',
+          isExternal: true,
+          logo: <IconDocs />,
+        },
+        {
+          id: '5-3',
+          label: <>{intl.formatMessage({ id: 'risks' })}</>,
+          url: '/risks',
+          isExternal: false,
+          logo: <RisksIcon />,
+          links: ['/risks'],
+        },
+        {
+          id: '5-4',
+          label: (
+            <>{<FormattedMessage id="airdrop" defaultMessage="Airdrop" />}</>
+          ),
+          url: '/airdrop',
+          isExternal: false,
+          logo: <IconAirDrop />,
+          links: ['/airdrop'],
+        },
+        {
+          id: '5-5',
+          label: (
+            <>
+              <FormattedMessage id="business_inquiries" />
+            </>
+          ),
+          url: 'https://form.typeform.com/to/onOPhJ6Y',
+          isExternal: true,
+          logo: <InquiriesIcon />,
+        },
+      ],
+    },
+  ];
+  return menuData;
+};
 export const moreLinks: MobileMenuItem[] = [
   {
     id: 'trade_capital',
@@ -257,13 +820,6 @@ export const moreLinks: MobileMenuItem[] = [
     isExternal: false,
     subRoute: ['/airdrop', '/risks', '/sauce'],
     children: [
-      // {
-      //   id: 'stable_pool',
-      //   label: 'Stable Pool',
-      //   pattern: '/sauce',
-      //   specialMenuKey: 'sauce',
-      //   url: '/sauce',
-      // },
       {
         id: 'bridge',
         label: 'bridge',
@@ -341,182 +897,17 @@ export const moreLinks: MobileMenuItem[] = [
     ],
   },
 ];
-export const moreLinksOld: MobileMenuItem[] = [
-  {
-    id: 'trade_capital',
-    label: 'TRADE',
-    pattern: '/',
-    url: '/',
-    isExternal: false,
-  },
-  {
-    id: 'liquidity',
-    label: 'Liquidity',
-    url: '',
-    isExternal: false,
-    children: [
-      {
-        id: 'your_liquidity',
-        label: 'Your Liquidity',
-        url: '/yourliquidity',
-        isExternal: false,
-        logo: <MobileYourLiqudityIcon />,
-        defaultClick: () => {
-          window.open('/yourliquidity', '_self');
-        },
-      },
-      {
-        id: 'pools',
-        label: 'Pools',
-        url: '/pools',
-        isExternal: false,
-        logo: <MobilePoolsIcon />,
-        defaultClick: () => {
-          window.open('/pools', '_self');
-        },
-      },
-    ],
-  },
-  {
-    id: 'sauce_capital',
-    label: 'Sauce',
-    pattern: '/sauce',
-    url: '/sauce',
-    isExternal: false,
-  },
-  {
-    id: 'Farms',
-    label: 'Farms',
-    pattern: '/v2farms',
-    url: '/v2farms',
-    isExternal: false,
-  },
-  {
-    id: 'xref',
-    label: 'xREF',
-    pattern: '/xref',
-    url: '/xref',
-    isExternal: false,
-    showIcon: true,
-    iconElement: <XrefIcon></XrefIcon>,
-  },
-  {
-    id: 'vote_capital',
-    label: 'VOTE!',
-    pattern: '/referendum',
-    url: '/referendum',
-    isExternal: false,
-    hidden: !getConfig().REF_VE_CONTRACT_ID,
-  },
-  {
-    id: 'bridge',
-    label: 'bridge',
-    url: '',
-    isExternal: false,
-    children: [
-      {
-        id: 'from_ethereum',
-        label: 'From Ethereum',
-        url: 'https://rainbowbridge.app/transfer',
-        isExternal: true,
-        logo: <IconEthereum />,
-      },
-      {
-        id: 'from_aurora',
-        label: 'From Aurora',
-        url: 'https://rainbowbridge.app/transfer',
-        isExternal: true,
-        logo: <IconAurora />,
-      },
-      {
-        id: 'from_solana',
-        label: 'From Solana',
-        url: 'https://app.allbridge.io/bridge?from=SOL&to=NEAR',
-        isExternal: true,
-        logo: <IconSolana />,
-      },
-      {
-        id: 'from_terra',
-        label: 'From Terra',
-        url: 'https://app.allbridge.io/bridge?from=TRA&to=NEAR',
-        isExternal: true,
-        logo: <IconTerra />,
-      },
-      {
-        id: 'from_celo',
-        label: 'From Celo',
-        url: 'https://app.allbridge.io/bridge?from=CELO&to=NEAR',
-        isExternal: true,
-        logo: <IconCelo />,
-      },
-    ],
-  },
-  {
-    id: 'more',
-    label: 'More',
-    url: '',
-    isExternal: false,
-    subRoute: ['/airdrop', '/risks'],
-    children: [
-      {
-        id: 'airdrop',
-        label: 'Airdrop',
-        url: '/airdrop',
-        pattern: '/airdrop',
-        isExternal: false,
-        logo: <IconAirDrop />,
-      },
-      {
-        id: 'docs',
-        label: 'docs',
-        url: 'https://guide.ref.finance',
-        isExternal: true,
-        logo: <IconDocs />,
-      },
-      {
-        label: 'Risks',
-        id: 'risks',
-        pattern: '/risks',
-        url: '/risks',
-        isExternal: false,
-        logo: <RisksIcon />,
-      },
-    ],
-  },
-  // {
-  //   id: 'community',
-  //   label: 'Community',
-  //   url: '',
-  //   isExternal: false,
-  //   children: [
-  //     {
-  //       logo: <FaDiscord />,
-  //       label: 'Discord',
-  //       id: 'Discord',
-  //       url: 'https://discord.gg/SJBGcfMxJz',
-  //       isExternal: true,
-  //     },
-  //     {
-  //       logo: <FaTelegramPlane />,
-  //       label: 'Telegram',
-  //       id: 'Telegram',
-  //       url: 'https://t.me/ref_finance',
-  //       isExternal: true,
-  //     },
-  //     {
-  //       logo: <FaTwitter />,
-  //       id: 'Twitter',
-  //       label: 'Twitter',
-  //       url: 'https://twitter.com/finance_ref',
-  //       isExternal: true,
-  //     },
-  //     {
-  //       logo: <AiOutlineMedium />,
-  //       id: 'Medium',
-  //       label: 'Medium',
-  //       url: 'https://ref-finance.medium.com/',
-  //       isExternal: true,
-  //     },
-  //   ],
-  // },
-];
+
+export interface menuItemType {
+  id?: string;
+  label: JSX.Element;
+  logo?: JSX.Element;
+  url?: string;
+  isExternal?: boolean;
+  children?: menuItemType[];
+  clickEvent?: () => void;
+  links?: string[];
+  swap_mode?: string;
+  icon?: JSX.Element;
+  hidden?: boolean;
+}

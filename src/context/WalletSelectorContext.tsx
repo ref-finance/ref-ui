@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { map, distinctUntilChanged } from 'rxjs';
+import { map, distinctUntilChanged, windowWhen } from 'rxjs';
 
 import {
   NetworkId,
@@ -16,6 +16,7 @@ import { setupSender } from '@near-wallet-selector/sender';
 import { setupMathWallet } from '@near-wallet-selector/math-wallet';
 import { setupLedger } from '@near-wallet-selector/ledger';
 
+import { setupHereWallet } from '@near-wallet-selector/here-wallet';
 import { setupNeth } from '@near-wallet-selector/neth';
 
 import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet';
@@ -30,6 +31,19 @@ import './modal-ui/components/styles.css';
 import { REF_FARM_BOOST_CONTRACT_ID } from '../services/near';
 import { walletIcons } from './walletIcons';
 import { getWSNetworkConfig } from '../services/config';
+import { getOrderlyConfig } from '../pages/Orderly/config';
+import { REF_ORDERLY_ACCOUNT_VALID } from '../pages/Orderly/components/UserBoard/index';
+import {
+  REF_FI_SENDER_WALLET_ACCESS_KEY,
+  REF_ORDERLY_NORMALIZED_KEY,
+  generateTradingKeyPair,
+} from '../pages/Orderly/orderly/utils';
+import {
+  get_orderly_private_key_path,
+  get_orderly_public_key_path,
+} from '../pages/Orderly/orderly/utils';
+
+const CONTRACT_ID = getOrderlyConfig().ORDERLY_ASSET_MANAGER;
 
 export const ACCOUNT_ID_KEY = 'REF_FI_STATE_SYNC_ACCOUNT_ID';
 
@@ -39,6 +53,7 @@ declare global {
       getAccountId?: () => string;
     };
     modal: WalletSelectorModal;
+    selectorAccountId?: string | null;
   }
 }
 
@@ -100,6 +115,9 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         setupLedger({
           iconUrl: walletIcons['ledger'],
         }),
+        setupMeteorWallet({
+          iconUrl: walletIcons['meteor-wallet'],
+        }),
         setupNeth({
           iconUrl: walletIcons['neth'],
           gas: '300000000000000',
@@ -127,6 +145,8 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         // setupNightly({
         //   iconUrl: walletIcons['nightly'],
         // }),
+
+        setupHereWallet(),
         // setupNightlyConnect({
         //   url: 'wss://ncproxy.nightly.app/app',
         //   appMetadata: {
@@ -140,7 +160,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
       ],
     });
     const _modal = setupModal(_selector, {
-      contractId: REF_FARM_BOOST_CONTRACT_ID,
+      contractId: CONTRACT_ID,
     });
 
     const state = _selector.store.getState();
@@ -192,6 +212,16 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
   if (!selector || !modal) {
     return null;
   }
+
+  window.selectorAccountId = accountId;
+
+  selector.on('signedOut', () => {
+    localStorage.removeItem(get_orderly_private_key_path());
+    localStorage.removeItem(get_orderly_public_key_path());
+    localStorage.removeItem(REF_ORDERLY_ACCOUNT_VALID);
+    localStorage.removeItem(REF_ORDERLY_NORMALIZED_KEY);
+    localStorage.removeItem(REF_FI_SENDER_WALLET_ACCESS_KEY);
+  });
 
   return (
     <WalletSelectorContext.Provider

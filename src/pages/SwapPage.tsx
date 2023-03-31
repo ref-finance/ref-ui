@@ -35,6 +35,7 @@ import {
 } from '../services/wrap-near';
 import { SnowBar, XmasGift, XmasSmallTree } from '../components/icon/Common';
 import { useXmasActivity } from '../context/XmasActivity';
+import AdSwiper from '../components/layout/Swiper';
 
 export const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';
 
@@ -58,9 +59,13 @@ export const REF_FI_SWAP_SWAPPAGE_TAB_KEY = 'REF_FI_SWAP_SWAPPAGE_TAB_VALUE';
 const ChangeSwapMode = ({
   swapMode,
   setSwapMode,
+  setLimitTokenTrigger,
+  limitTokenTrigger,
 }: {
   swapMode: SWAP_MODE;
   setSwapMode: (e?: any) => void;
+  setLimitTokenTrigger: (e?: boolean) => void;
+  limitTokenTrigger: boolean;
 }) => {
   const [hoverXswap, setHoverXswap] = useState(false);
 
@@ -140,13 +145,13 @@ const ChangeSwapMode = ({
         onClick={() => {
           setSwapMode(SWAP_MODE.LIMIT);
           localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.LIMIT);
+          setLimitTokenTrigger(!limitTokenTrigger ? true : false);
         }}
         style={{
           fontSize: '15px',
         }}
       >
-        {/* <FormattedMessage id="limit_order" defaultMessage="Limit Order" /> */}
-        Limit Order
+        <FormattedMessage id="limit_order" defaultMessage="Limit Order" />
       </span>
     </div>
   );
@@ -176,6 +181,8 @@ function SwapPage() {
 
   const triTokens = useTriTokens();
 
+  const [limitTokenTrigger, setLimitTokenTrigger] = useState<boolean>();
+
   const storageTab = localStorage
     .getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY)
     ?.toString();
@@ -189,6 +196,14 @@ function SwapPage() {
   const [swapMode, setSwapMode] = useState<SWAP_MODE>(
     storageMode || SWAP_MODE.NORMAL
   );
+
+  const history = useHistory();
+
+  useEffect(() => {
+    if (swapMode === SWAP_MODE.LIMIT) {
+      setLimitTokenTrigger(!limitTokenTrigger ? true : false);
+    }
+  }, [swapMode]);
 
   const stablePools = useAllStablePools();
 
@@ -252,9 +267,15 @@ function SwapPage() {
             tokenInAmount={tokenInAmount}
             setTokenInAmount={setTokenInAmount}
             swapTab={
-              <ChangeSwapMode swapMode={swapMode} setSwapMode={setSwapMode} />
+              <ChangeSwapMode
+                swapMode={swapMode}
+                setSwapMode={setSwapMode}
+                setLimitTokenTrigger={setLimitTokenTrigger}
+                limitTokenTrigger={limitTokenTrigger}
+              />
             }
             globalWhiteListTokens={globalWhiteListTokens}
+            limitTokenTrigger={limitTokenTrigger}
           />
         ) : (
           <SwapCard
@@ -265,8 +286,14 @@ function SwapPage() {
             setTokenInAmount={setTokenInAmount}
             reservesType={reservesType}
             setReservesType={setReservesType}
+            limitTokenTrigger={limitTokenTrigger}
             swapTab={
-              <ChangeSwapMode swapMode={swapMode} setSwapMode={setSwapMode} />
+              <ChangeSwapMode
+                setLimitTokenTrigger={setLimitTokenTrigger}
+                limitTokenTrigger={limitTokenTrigger}
+                swapMode={swapMode}
+                setSwapMode={setSwapMode}
+              />
             }
             stableReserves={
               swapMode === SWAP_MODE.STABLE ? (
@@ -285,6 +312,9 @@ function SwapPage() {
           />
         )}
       </section>
+      <div className="lg:w-480px xsm:mx-3  m-auto relative text-white mt-5">
+        <AdSwiper></AdSwiper>
+      </div>
     </div>
   );
 }

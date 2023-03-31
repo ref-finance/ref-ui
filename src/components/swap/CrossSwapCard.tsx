@@ -112,7 +112,6 @@ import { unWrapTokenId, wrapTokenId, DetailView_near_wnear } from './SwapCard';
 import getConfig, { getExtraStablePoolConfig } from '../../services/config';
 import { SWAP_MODE } from '../../pages/SwapPage';
 import Big from 'big.js';
-import { PoolInfoV3, quote } from '../../services/swapV3';
 import { getMax } from '../../utils/numbers';
 import { SkyWardModal } from '../layout/SwapDoubleCheck';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
@@ -279,6 +278,7 @@ export default function CrossSwapCard(props: {
   setTokenInAmount: (amount: string) => void;
   globalWhiteListTokens: TokenMetadata[];
   swapTab?: JSX.Element;
+  limitTokenTrigger?: boolean;
 }) {
   const { NEARXIDS, STNEARIDS } = getExtraStablePoolConfig();
   const { REF_TOKEN_ID } = getConfig();
@@ -288,6 +288,7 @@ export default function CrossSwapCard(props: {
     swapTab,
     setTokenInAmount,
     globalWhiteListTokens,
+    limitTokenTrigger,
   } = props;
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
@@ -924,6 +925,8 @@ export default function CrossSwapCard(props: {
           tokenOut={tokenOut}
           selectedToken={tokenOut}
           forCross
+          isOut
+          swapMode={SWAP_MODE.X_SWAP}
           onSelectToken={(token) => {
             setQuoteDoneV3(false);
             setCrossQuoteDone(false);

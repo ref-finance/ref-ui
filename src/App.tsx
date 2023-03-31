@@ -27,6 +27,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import { FarmsPage } from '~pages/farms/FarmsPage';
 import { AirdropPage } from '~pages/AirdropPage';
 import PopUpSwiper from '~components/layout/PopUp';
+import ExternalPopUp from '~components/layout/ExternalPopUp';
+import Guider from '~components/layout/Guider';
 
 import {
   WalletSelectorContextProvider,
@@ -42,11 +44,12 @@ function App() {
     <Router>
       <WalletSelectorContextProvider>
         <XmasActivityContextProvider>
-          <div className="relative min-h-screen pb-24 overflow-x-hidden xs:flex xs:flex-col md:flex md:flex-col">
+          <div className="page-container relative min-h-screen pb-24 overflow-x-hidden xs:flex xs:flex-col md:flex md:flex-col">
             <Content />
 
             <Footer />
-            <PopUpSwiper></PopUpSwiper>
+            <ExternalPopUp></ExternalPopUp>
+            <Guider></Guider>
           </div>
         </XmasActivityContextProvider>
       </WalletSelectorContextProvider>
