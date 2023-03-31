@@ -112,7 +112,11 @@ export let contract;
 const announceKey = async (accountId: string) => {
   const wallet = await window.selector.wallet();
 
-  if (wallet.id === 'ledger' || wallet.id === 'here-wallet') {
+  if (
+    wallet.id === 'ledger' ||
+    wallet.id === 'here-wallet' ||
+    wallet.id === 'wallet-connect'
+  ) {
     await announceLedgerAccessKey(accountId);
 
     // const account = await near.account(ORDERLY_ASSET_MANAGER);
@@ -167,7 +171,11 @@ const announceKey = async (accountId: string) => {
 const setTradingKey = async (accountId: string) => {
   const wallet = await window.selector.wallet();
 
-  if (wallet.id === 'ledger' || wallet.id === 'here-wallet') {
+  if (
+    wallet.id === 'ledger' ||
+    wallet.id === 'here-wallet' ||
+    wallet.id === 'wallet-connect'
+  ) {
     // @ts-ignore
     if (!contract) {
       return;
