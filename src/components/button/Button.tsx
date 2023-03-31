@@ -407,7 +407,7 @@ export function GradientButton(
         loading ? 'opacity-40' : ''
       } bg-gradient-to-b from-gradientFrom to-gradientTo hover:from-gradientFromHover to:from-gradientToHover`}
       style={{
-        borderRadius: borderRadius || '5px',
+        borderRadius: borderRadius || '8px',
         color: color || '',
         backgroundImage: backgroundImage || '',
         minWidth: minWidth || '',
@@ -463,11 +463,13 @@ export const FarmButton = ({ farmCount }: { farmCount: Number }) => {
 export function ButtonTextWrapper({
   Text,
   loading,
+  loadingColor,
 }: {
   Text: () => JSX.Element;
   loading: boolean;
+  loadingColor?: string;
 }) {
-  return <>{loading ? <BeatLoading /> : <Text />}</>;
+  return <>{loading ? <BeatLoading color={loadingColor} /> : <Text />}</>;
 }
 
 export function BorderButtonHover(
@@ -515,6 +517,7 @@ export function OprationButton(props: any) {
     btnClassName,
     onClick,
     minWidth,
+    borderRadius,
     ...reset
   } = props;
   return (
@@ -522,7 +525,7 @@ export function OprationButton(props: any) {
       {...reset}
       className={`${className ? className : ''} ${loading ? 'opacity-40' : ''}`}
       style={{
-        borderRadius: '8px',
+        borderRadius: borderRadius || '8px',
         minWidth: minWidth || '',
         color: color || '',
       }}

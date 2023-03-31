@@ -108,7 +108,7 @@ import {
 } from '../../utils/numbers';
 import { DoubleCheckModal } from '../../components/layout/SwapDoubleCheck';
 import { getTokenPriceList } from '../../services/indexer';
-import { SWAP_MODE } from '../../pages/SwapPage';
+import { SWAP_MODE, SWAP_MODE_KEY } from '../../pages/SwapPage';
 import {
   isStableToken,
   STABLE_TOKEN_USN_IDS,
@@ -172,6 +172,7 @@ import { YellowTipIcon, RedTipIcon, SelectedIcon } from '../icon/swapV3';
 import * as math from 'mathjs';
 import { NEAR_WITHDRAW_KEY } from '../forms/WrapNear';
 import { PoolInfo, get_pool, get_pool_from_cache } from '../../services/swapV3';
+import { nearMetadata } from '../../services/wrap-near';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -508,7 +509,7 @@ export function DetailView_near_wnear({
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
   return (
-    <div className="mt-4">
+    <div className="my-4">
       <div className="flex justify-center">
         <div
           className="flex items-center text-white cursor-pointer"
@@ -811,7 +812,7 @@ function DetailViewLimit({
           {!tokenPriceList
             ? '-'
             : !count
-            ? ''
+            ? '-'
             : `${poolPercents?.[id] || '0'}%`}
         </span>
         {!count ? (
@@ -851,17 +852,16 @@ function DetailViewLimit({
         return `$${toInternationalCurrencySystem(tvl.toString(), 0)}`;
       }
     }
+
     function displayTvlAndNoPool() {
       if (everyPoolTvl?.[id] == null) {
         return <span>No pool</span>;
       } else {
-        return PoolDetails && PoolDetails?.state !== 'Paused' ? (
+        return (
           <>
             <span className="mr-1.5 xsm:mr-0 xsm:hidden">TVL</span>
             {displayTvl()}
           </>
-        ) : (
-          <>-</>
         );
       }
     }
@@ -1115,6 +1115,7 @@ export default function SwapCard(props: {
   setReservesType: (value: STABLE_POOL_TYPE) => void;
   stableReserves?: JSX.Element;
   globalWhiteListTokens: TokenMetadata[];
+  limitTokenTrigger?: boolean;
 }) {
   const { NEARXIDS, STNEARIDS } = getExtraStablePoolConfig();
   const { REF_TOKEN_ID } = getConfig();
@@ -1137,6 +1138,7 @@ export default function SwapCard(props: {
     setReservesType,
     stableReserves,
     globalWhiteListTokens,
+    limitTokenTrigger,
   } = props;
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
@@ -1223,6 +1225,11 @@ export default function SwapCard(props: {
     getConfig().networkId === 'mainnet'
       ? 'token.skyward.near'
       : 'skyward.fakes.testnet';
+
+  const usdcId =
+    getConfig().networkId === 'mainnet'
+      ? 'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near'
+      : 'usdc.fakes.testnet';
 
   useEffect(() => {
     if (!tokenIn || !tokenOut) return;
@@ -1404,6 +1411,17 @@ export default function SwapCard(props: {
     urlTokenIn,
     urlTokenOut,
   ]);
+
+  useEffect(() => {
+    if (limitTokenTrigger === undefined || swapMode !== SWAP_MODE.LIMIT) return;
+
+    setTokenIn({
+      ...nearMetadata,
+      id: WRAP_NEAR_CONTRACT_ID,
+    });
+
+    setTokenOut(allTokens.find((token) => token.id === usdcId));
+  }, [limitTokenTrigger, swapMode]);
 
   useEffect(() => {
     if (tokenIn) {
@@ -2249,6 +2267,7 @@ export default function SwapCard(props: {
         >
           <TokenAmountV3
             forSwap
+            isOut
             swapMode={swapMode}
             amount={
               swapMode === SWAP_MODE.LIMIT
@@ -2261,6 +2280,7 @@ export default function SwapCard(props: {
             tokens={allTokens}
             selectedToken={tokenOut}
             preSelected={tokenIn}
+            onSelectPre={(token: TokenMetadata) => setTokenIn(token)}
             onChangeAmount={
               swapMode === SWAP_MODE.LIMIT && mostPoolDetail
                 ? LimitChangeAmountOut
@@ -2398,7 +2418,8 @@ export default function SwapCard(props: {
             )}
 
         {poolError &&
-        swapMode !== SWAP_MODE.LIMIT &&
+        !wrapOperation &&
+        swapMode === SWAP_MODE.NORMAL &&
         Number(tokenInAmount || '0') > 0 ? (
           <div className="pb-2 relative ">
             <Alert level="warn" message={poolError} />
@@ -2424,6 +2445,7 @@ export default function SwapCard(props: {
           setDoubleCheckOpenLimit(false);
           window.location.reload(); // todo x
         }}
+        selectedPool={selectedV3LimitPool}
         tokenIn={tokenIn}
         tokenOut={tokenOut}
         tokenInAmount={tokenInAmount}

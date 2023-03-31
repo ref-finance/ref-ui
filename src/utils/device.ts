@@ -8,8 +8,25 @@ export const isPC = (): Boolean => {
   return window.screen.width > 1023;
 };
 
+export const isLargeScreen = (): Boolean => {
+  return document.documentElement.clientWidth > 2000;
+};
+
 export const isClientMobie = (): Boolean => {
   return document.documentElement.clientWidth <= 1023;
+};
+
+export const useLargeScreen = () => {
+  const [largeWindow, setLargeWindow] = useState<Boolean>(isLargeScreen());
+
+  const handleResize = () => setLargeWindow(isLargeScreen());
+
+  useEffect(() => {
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return largeWindow;
 };
 
 export const useMobile = () => {

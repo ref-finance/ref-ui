@@ -731,20 +731,22 @@ export function FarmsPage() {
       <div className="grid grid-cols-farmContainerOther 2xl:grid-cols-farmContainer grid-flow-col xs:grid-cols-1 xs:grid-flow-row md:grid-cols-1 md:grid-flow-row">
         <div className="text-white pl-12 xs:px-5 md:px-5">
           <div className="flex items-center justify-between -mt-3">
-            <div className="flex items-center text-white text-2xl h-12">
+            <div className="flex items-center text-white text-2xl h-12 mr-2">
               <FormattedMessage id="farms" defaultMessage="Farms" />
             </div>
             <div className="flex items-center justify-between h-7 rounded-2xl bg-farmSbg p-0.5">
-              <span className="flex items-center justify-center text-sm  text-chartBg cursor-pointer px-2 h-full  rounded-2xl bg-farmSearch">
-                <FormattedMessage id="v1Legacy" />
+              <span className="flex items-center justify-center text-sm whitespace-nowrap  text-chartBg cursor-pointer px-2 h-full  rounded-2xl bg-farmSearch">
+                {/* <FormattedMessage id="v1Legacy" /> */}
+                Legacy Farms
               </span>
               <span
                 onClick={() => {
                   history.push('/v2farms');
                 }}
-                className="flex items-center justify-center rounded-2xl text-sm  text-farmText cursor-pointer px-3 h-full"
+                className="flex items-center justify-center rounded-2xl whitespace-nowrap text-sm  text-farmText cursor-pointer px-3 h-full"
               >
-                <FormattedMessage id="v2New" />
+                {/* <FormattedMessage id="v2New" /> */}
+                Classic Farms
               </span>
             </div>
           </div>

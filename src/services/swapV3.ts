@@ -74,22 +74,6 @@ export interface UserOrderInfo {
   unclaimed_amount: string; // claim will push it to inner account
   bought_amount: string; // accumalated amount into inner account
 }
-
-export interface PoolInfoV3 {
-  pool_id: string;
-  token_x: string;
-  token_y: string;
-  fee: number;
-  point_delta: number;
-  current_point: number;
-  state: string; // running or paused
-  total_liquidity: string;
-  total_x: string;
-  total_y: string;
-  total_fee_x_charged: string;
-  total_fee_y_charged: string;
-}
-
 export const quote = async ({
   pool_ids,
   input_amount,
@@ -509,21 +493,29 @@ export const cancel_order = ({
   undecimal_amount,
 }: {
   order_id: string;
-  undecimal_amount: string;
+  undecimal_amount?: string;
 }) => {
+  const cancelCall = !!undecimal_amount
+    ? {
+        methodName: 'cancel_order',
+        args: {
+          order_id,
+          amount: undecimal_amount,
+        },
+        gas: '180000000000000',
+      }
+    : {
+        methodName: 'cancel_order',
+        args: {
+          order_id,
+        },
+        gas: '180000000000000',
+      };
+
   const transactions: Transaction[] = [
     {
       receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
-      functionCalls: [
-        {
-          methodName: 'cancel_order',
-          args: {
-            order_id,
-            // amount: undecimal_amount,
-          },
-          gas: '180000000000000',
-        },
-      ],
+      functionCalls: [cancelCall],
     },
   ];
 
@@ -565,7 +557,7 @@ export const get_pool = async (pool_id: string, token0?: string) => {
     args: {
       pool_id: new_pool_id,
     },
-  }) as Promise<PoolInfoV3>;
+  }) as Promise<PoolInfo>;
 };
 export const get_pool_old_version = async (
   pool_id: string,
@@ -582,7 +574,7 @@ export const get_pool_old_version = async (
     args: {
       pool_id: new_pool_id,
     },
-  }) as Promise<PoolInfoV3>;
+  }) as Promise<PoolInfo>;
 };
 
 export const get_pool_from_cache = async (pool_id: string, token0?: string) => {
@@ -607,7 +599,7 @@ export const get_pool_from_cache = async (pool_id: string, token0?: string) => {
     args: {
       pool_id: new_pool_id,
     },
-  }) as Promise<PoolInfoV3>;
+  }) as Promise<PoolInfo>;
 };
 
 export const get_pointorder_range = ({
@@ -838,33 +830,44 @@ export const add_liquidity = async ({
 };
 export const append_liquidity = async ({
   lpt_id,
+  mft_id,
   amount_x,
   amount_y,
   token_x,
   token_y,
 }: {
   lpt_id: string;
+  mft_id: string;
   amount_x: string;
   amount_y: string;
   token_x: TokenMetadata;
   token_y: TokenMetadata;
 }) => {
+  const functionCallsV3: any = [];
+  if (mft_id) {
+    functionCallsV3.push({
+      methodName: 'burn_v_liquidity',
+      args: {
+        lpt_id,
+      },
+      gas: '100000000000000',
+    });
+  }
+  functionCallsV3.push({
+    methodName: 'append_liquidity',
+    args: {
+      lpt_id,
+      amount_x,
+      amount_y,
+      min_amount_x: '0',
+      min_amount_y: '0',
+    },
+    gas: '150000000000000',
+  });
   const transactions: Transaction[] = [
     {
       receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
-      functionCalls: [
-        {
-          methodName: 'append_liquidity',
-          args: {
-            lpt_id,
-            amount_x,
-            amount_y,
-            min_amount_x: '0',
-            min_amount_y: '0',
-          },
-          gas: '150000000000000',
-        },
-      ],
+      functionCalls: functionCallsV3,
     },
   ];
   if (+amount_x > 0) {
@@ -966,6 +969,7 @@ export const remove_liquidity = async ({
   token_x,
   token_y,
   lpt_id,
+  mft_id,
   amount,
   min_amount_x,
   min_amount_y,
@@ -974,28 +978,38 @@ export const remove_liquidity = async ({
   token_x: TokenMetadata;
   token_y: TokenMetadata;
   lpt_id: string;
+  mft_id?: string;
   amount: string;
   min_amount_x: string;
   min_amount_y: string;
   isLegacy?: boolean;
 }) => {
+  const functionCallsV3: any = [];
+  if (mft_id) {
+    functionCallsV3.push({
+      methodName: 'burn_v_liquidity',
+      args: {
+        lpt_id,
+      },
+      gas: '100000000000000',
+    });
+  }
+  functionCallsV3.push({
+    methodName: 'remove_liquidity',
+    args: {
+      lpt_id,
+      amount,
+      min_amount_x,
+      min_amount_y,
+    },
+    gas: '150000000000000',
+  });
   const transactions: Transaction[] = [
     {
       receiverId: isLegacy
         ? REF_UNI_SWAP_CONTRACT_ID
         : REF_UNI_V3_SWAP_CONTRACT_ID,
-      functionCalls: [
-        {
-          methodName: 'remove_liquidity',
-          args: {
-            lpt_id,
-            amount,
-            min_amount_x,
-            min_amount_y,
-          },
-          gas: '150000000000000',
-        },
-      ],
+      functionCalls: functionCallsV3,
     },
   ];
 
@@ -1210,6 +1224,16 @@ export const get_metadata = () => {
   });
 };
 
+export const dcl_mft_balance_of = (token_id: string) => {
+  return refSwapV3ViewFunction({
+    methodName: 'mft_balance_of',
+    args: {
+      token_id,
+      account_id: getCurrentWallet()?.wallet?.getAccountId(),
+    },
+  });
+};
+
 export interface PoolInfo {
   pool_id?: string;
   token_x?: string;
@@ -1217,7 +1241,8 @@ export interface PoolInfo {
   fee: number;
   point_delta?: number;
   current_point?: number;
-  state?: string;
+  state?: string; // running or paused
+  total_liquidity?: string;
   liquidity?: string;
   liquidity_x?: string;
   max_liquidity_per_point?: string;

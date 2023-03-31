@@ -68,6 +68,43 @@ export const getPoolMonthTVL = async (pool_id: string): Promise<TVLType[]> => {
     });
 };
 
+export interface OrderTxType {
+  order_id: string;
+  tx_id: string | null;
+}
+
+export const getHistoryOrder = async (
+  account_id: string
+): Promise<OrderTxType[]> => {
+  return await fetch(
+    config.indexerUrl + `/get-limit-order-log-by-account/${account_id}`,
+    {
+      method: 'GET',
+    }
+  ).then((res) => res.json());
+};
+export interface HistoryOrderSwapInfo {
+  tx_id: string;
+  token_in: string;
+  token_out: string;
+  pool_id: string;
+  point: string;
+  amount_in: string;
+  amount_out: string;
+  timestamp: string;
+}
+
+export const getHistoryOrderSwapInfo = async (
+  account_id: string
+): Promise<HistoryOrderSwapInfo[]> => {
+  return await fetch(
+    config.indexerUrl + `/get-limit-order-swap-by-account/${account_id}`,
+    {
+      method: 'GET',
+    }
+  ).then((res) => res.json());
+};
+
 export const get24hVolume = async (pool_id: string): Promise<string> => {
   return await fetch(
     config.sodakiApiUrl + `/pool/${pool_id}/rolling24hvolume/sum`,
@@ -437,5 +474,41 @@ export const getAllVolume24h = async () => {
     .then((res) => res.json())
     .then((res) => {
       return res?.[0]?.volume;
+    });
+};
+
+export const getAssets = async (dateType: 'M' | 'W' | 'H' | 'ALL' = 'H') => {
+  const accountId = getCurrentWallet()?.wallet?.getAccountId();
+  return await fetch(
+    config.indexerUrl +
+      '/get-assets-by-account?' +
+      `account_id=${accountId}&dimension=${dateType}`,
+    {
+      method: 'GET',
+    }
+  )
+    .then((res) => res.json())
+    .then((res) => {
+      return res;
+    })
+    .catch(() => {
+      return [];
+    });
+};
+export const getLimitOrderLogsByAccount = async (): Promise<any[]> => {
+  return await fetch(
+    config.indexerUrl +
+      `/get-limit-order-log-by-account/${getCurrentWallet()?.wallet?.getAccountId()}`,
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  )
+    .then((res) => res.json())
+    .then((list) => {
+      return list;
+    })
+    .catch(() => {
+      return [];
     });
 };

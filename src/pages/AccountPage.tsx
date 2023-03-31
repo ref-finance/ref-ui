@@ -32,7 +32,7 @@ import {
   toReadableNumber,
   toInternationalCurrencySystemNature,
   toPrecision,
-  toInternationalCurrencySystemLongString,
+  toInternationalCurrencySystem,
   scientificNotationToString,
 } from '../utils/numbers';
 import BigNumber from 'bignumber.js';
@@ -276,9 +276,12 @@ const getWalletBalance = (item: TokenMetadata) => {
     return toInternationalCurrencySystemNature(near.toString());
   }
 };
-const NearTip = () => {
+export const NearTip = () => {
   const intl = useIntl();
-  const tip = intl.formatMessage({ id: 'deposit_near_tip' });
+  const tip = intl.formatMessage({
+    id: 'deposit_near_tip_0.5',
+    defaultMessage: 'To deposit, keep at least 0.5 NEAR to cover gas fee',
+  });
   const result: string = `<div class="text-navHighLightText text-xs text-left font-normal">${tip}</div>`;
   return (
     <div
@@ -607,7 +610,7 @@ function AccountTable(props: any) {
             setAccountTab('ref');
           }}
         >
-          REF(V1)
+          REF(Classic)
           {hasRefBalanceOver ? (
             <div
               className="w-1.5 h-1.5 relative left-1 bottom-1 rounded-full "
@@ -629,7 +632,7 @@ function AccountTable(props: any) {
             setAccountTab('dcl');
           }}
         >
-          REF(V2)
+          REF(DCL)
           {hasDCLBalanceOver ? (
             <div
               className="w-1.5 h-1.5 relative left-1 bottom-1 rounded-full "
@@ -702,7 +705,7 @@ function AccountTable(props: any) {
                 className={`flex items-center w-full justify-end `}
               >
                 <RefIcon />
-                <label className="mx-1 cursor-pointer">REF(V1)</label>
+                <label className="mx-1 cursor-pointer">REF(Classic)</label>
                 <TiArrowSortedUp
                   className={`cursor-pointer ${
                     currentSort == 'ref-down' ? 'transform rotate-180' : ''
@@ -723,7 +726,7 @@ function AccountTable(props: any) {
                 className={`flex items-center w-full justify-end `}
               >
                 <RefIcon />
-                <label className="mx-1 cursor-pointer">REF(V2)</label>
+                <label className="mx-1 cursor-pointer">REF(DCL)</label>
                 <TiArrowSortedUp
                   className={`cursor-pointer ${
                     currentSort == 'dcl-down' ? 'transform rotate-180' : ''
@@ -820,7 +823,7 @@ function AccountTable(props: any) {
                   <div className="text-xs text-primaryText">
                     {!tokenPriceList?.[item.id]?.price
                       ? '$-'
-                      : `~$${toInternationalCurrencySystemLongString(
+                      : `~$${toInternationalCurrencySystem(
                           scientificNotationToString(
                             new Big(tokenPriceList?.[item.id]?.price || '0')
                               .times(new Big(item.near || '0'))
@@ -841,7 +844,7 @@ function AccountTable(props: any) {
                   <div className="text-xs text-primaryText">
                     {!tokenPriceList?.[item.id]?.price
                       ? '$-'
-                      : `~$${toInternationalCurrencySystemLongString(
+                      : `~$${toInternationalCurrencySystem(
                           scientificNotationToString(
                             new Big(tokenPriceList?.[item.id]?.price || '0')
                               .times(new Big(item.ref || '0'))
@@ -863,7 +866,7 @@ function AccountTable(props: any) {
                   <div className="text-xs text-primaryText">
                     {!tokenPriceList?.[item.id]?.price
                       ? '$-'
-                      : `~$${toInternationalCurrencySystemLongString(
+                      : `~$${toInternationalCurrencySystem(
                           scientificNotationToString(
                             new Big(tokenPriceList?.[item.id]?.price || '0')
                               .times(new Big(item.dcl || '0'))
@@ -887,7 +890,7 @@ function AccountTable(props: any) {
                   <div className="text-xs text-primaryText">
                     {!tokenPriceList?.[item.id]?.price
                       ? '$-'
-                      : `~$${toInternationalCurrencySystemLongString(
+                      : `~$${toInternationalCurrencySystem(
                           scientificNotationToString(
                             new Big(tokenPriceList?.[item.id]?.price || '0')
                               .times(new Big(item.aurora || '0'))
@@ -1224,7 +1227,7 @@ function MobileAccountTable(props: any) {
               className={`flex items-center w-full justify-end`}
             >
               <RefIcon />
-              <label className="mx-1 cursor-pointer">REF(V1)</label>
+              <label className="mx-1 cursor-pointer">REF(Classic)</label>
               <TiArrowSortedUp
                 className={`cursor-pointer ${
                   currentSort == 'ref-down' ? 'transform rotate-180' : ''
@@ -1242,7 +1245,7 @@ function MobileAccountTable(props: any) {
               className={`flex items-center w-full justify-end`}
             >
               <RefIcon />
-              <label className="mx-1 cursor-pointer">REF(V2)</label>
+              <label className="mx-1 cursor-pointer">REF(DCL)</label>
               <TiArrowSortedUp
                 className={`cursor-pointer ${
                   currentSort == 'dcl-down' ? 'transform rotate-180' : ''
@@ -1332,7 +1335,7 @@ function MobileAccountTable(props: any) {
                     <div className="text-xs text-primaryText">
                       {!tokenPriceList?.[item.id]?.price
                         ? '$-'
-                        : `~$${toInternationalCurrencySystemLongString(
+                        : `~$${toInternationalCurrencySystem(
                             scientificNotationToString(
                               new Big(tokenPriceList?.[item.id]?.price || '0')
                                 .times(new Big(item.near || '0'))
@@ -1353,7 +1356,7 @@ function MobileAccountTable(props: any) {
                     <div className="text-xs text-primaryText">
                       {!tokenPriceList?.[item.id]?.price
                         ? '$-'
-                        : `~$${toInternationalCurrencySystemLongString(
+                        : `~$${toInternationalCurrencySystem(
                             scientificNotationToString(
                               new Big(tokenPriceList?.[item.id]?.price || '0')
                                 .times(new Big(item.dcl || '0'))
@@ -1374,7 +1377,7 @@ function MobileAccountTable(props: any) {
                     <div className="text-xs text-primaryText">
                       {!tokenPriceList?.[item.id]?.price
                         ? '$-'
-                        : `~$${toInternationalCurrencySystemLongString(
+                        : `~$${toInternationalCurrencySystem(
                             scientificNotationToString(
                               new Big(tokenPriceList?.[item.id]?.price || '0')
                                 .times(new Big(item.ref || '0'))
@@ -1394,7 +1397,7 @@ function MobileAccountTable(props: any) {
                     <div className="text-xs text-primaryText">
                       {!tokenPriceList?.[item.id]?.price
                         ? '$-'
-                        : `~$${toInternationalCurrencySystemLongString(
+                        : `~$${toInternationalCurrencySystem(
                             scientificNotationToString(
                               new Big(tokenPriceList?.[item.id]?.price || '0')
                                 .times(new Big(item.aurora || '0'))
@@ -2066,7 +2069,7 @@ function MobileAccount(props: any) {
                         : 'text-primaryText'
                     } ${refAccountTokenNumber ? '' : 'hidden'}`}
                   >
-                    REF(V1)
+                    REF(Classic)
                     {hasRefBalanceOver ? (
                       <div
                         className="w-1.5 h-1.5 relative left-1 bottom-1 rounded-full "
@@ -2087,7 +2090,7 @@ function MobileAccount(props: any) {
                         : 'text-primaryText'
                     } ${DCLAccountTokenNumber ? '' : 'hidden'}`}
                   >
-                    REF(V2)
+                    REF(DCL)
                     {hasDCLBalanceOver ? (
                       <div
                         className="w-1.5 h-1.5 relative left-1 bottom-1 rounded-full "

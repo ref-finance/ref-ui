@@ -9,7 +9,7 @@ package-lock.json
 .cache
 .parcel-cache
 
-dist/
+/dist
 
 #keys
 /neardev
