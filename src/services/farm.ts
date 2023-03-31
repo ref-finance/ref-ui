@@ -55,9 +55,11 @@ import db, { TokenPrice, BoostSeeds, FarmDexie } from '../store/RefDatabase';
 import { getMftTokenId } from '../utils/token';
 import { useEffect, useContext, useState } from 'react';
 import { getPoolIdBySeedId } from '../components/farm/FarmsHome';
+import { listPools, PoolInfo } from './swapV3';
+import { mint_liquidity, UserLiquidityInfo } from './commonV3';
 
 const config = getConfig();
-const { REF_VE_CONTRACT_ID } = config;
+const { REF_VE_CONTRACT_ID, REF_UNI_V3_SWAP_CONTRACT_ID } = config;
 export const DEFAULT_PAGE_LIMIT = 300;
 const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
 const STABLE_POOL_IDS = getConfig().STABLE_POOL_IDS;
@@ -132,7 +134,6 @@ export const getStakedListByAccountId = async ({
       return res;
     }),
   ]);
-
   const finalStakeSeedList = new Array(
     ...new Set(Object.keys(stakedList).concat(Object.keys(v2StakedList)))
   );
@@ -723,26 +724,6 @@ export const withdrawAllReward_boost = async (
   }
   return executeFarmMultipleTransactions(transactions);
 };
-// todo
-// export const claimRewardBySeed_boost = async (
-//   seed_id: string
-// ): Promise<any> => {
-//   // const transactions: Transaction[] = [];
-//   // transactions.push({
-//   //   receiverId: REF_FARM_BOOST_CONTRACT_ID,
-//   //   functionCalls: [
-//   //     {
-//   //       methodName: 'claim_reward_by_seed',
-//   //       args: { seed_id: seed_id },
-//   //     },
-//   //   ],
-//   // });
-//   // return executeFarmMultipleTransactions(transactions);
-//   refFarmBoostFunctionCall({
-//     methodName: 'claim_reward_by_seed',
-//     args: { seed_id: seed_id },
-//   });
-// };
 export const claimRewardBySeed_boost = async (
   seed_id: string
 ): Promise<any> => {
@@ -876,18 +857,23 @@ export const getBoostTokenPricesFromServer = async (): Promise<
 export const getBoostSeeds = async (): Promise<{
   seeds: Seed[];
   farms: FarmBoost[][];
-  pools: PoolRPCView[];
+  pools: PoolRPCView[] & PoolInfo[];
 }> => {
   try {
     const seeds: Seed[] = [];
     const farms: FarmBoost[][] = [];
-    const pools: PoolRPCView[] = [];
+    const pools: PoolRPCView[] & PoolInfo[] = [];
     const cacheData = await db.checkBoostSeeds();
     if (cacheData) {
       const list: BoostSeeds[] = await db.queryBoostSeeds();
       list.forEach((s: BoostSeeds) => {
         const { id, update_time, ...info } = s;
         const { seed, farmList, pool } = info;
+        // ////// for test test test start todo
+        // const { seed_id } = seed;
+        // const contractId = seed_id.split('@')[0];
+        // if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) return;
+        // ////// for test test test end todo
         seeds.push(seed);
         farms.push(farmList);
         if (pool) {
@@ -908,7 +894,7 @@ export const getBoostSeeds = async (): Promise<{
 export const getBoostSeedsFromServer = async (): Promise<{
   seeds: Seed[];
   farms: FarmBoost[][];
-  pools: PoolRPCView[];
+  pools: PoolRPCView[] & PoolInfo[];
 }> => {
   try {
     // get all seeds
@@ -916,20 +902,31 @@ export const getBoostSeedsFromServer = async (): Promise<{
     // get all farms
     const farmsPromiseList: Promise<any>[] = [];
     const poolIds = new Set<string>();
-    let pools: PoolRPCView[] = [];
-    // filter v2 pool seeds TODO
-    list_seeds = list_seeds.filter((seed: Seed) => {
-      if (
-        seed.seed_id.indexOf(config.REF_UNI_V3_SWAP_CONTRACT_ID) == -1 &&
-        seed.seed_id.indexOf(config.REF_UNI_SWAP_CONTRACT_ID) == -1
-      )
-        return true;
-    });
+    const dcl_poolIds = new Set<string>();
+    // get all dcl pools
+    const dcl_all_pools: PoolInfo[] = await listPools();
+    let pools: any[] = [];
+    const both_normalPools_dclPools: any[] = [];
+    //  ////// for test test test start todo
+    //  const no_dcl_seeds:Seed[] = [];
+    //  list_seeds.forEach((seed:Seed) => {
+    //   const { seed_id } = seed;
+    //   const contractId = seed_id.split('@')[0];
+    //   if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) return;
+    //   no_dcl_seeds.push(seed);
+    //  })
+    //  list_seeds = no_dcl_seeds;
+    //  ////// for test test test end todo
     list_seeds.forEach((seed: Seed) => {
       const { seed_id } = seed;
-      if (seed_id.indexOf('@') > -1) {
-        const poolId = seed_id.substring(seed_id.indexOf('@') + 1);
-        poolIds.add(poolId);
+      // seed type: [commonSeed, loveSeed, dclSeed]
+      const [contractId, tempPoolId] = seed_id.split('@');
+      if (tempPoolId && contractId !== REF_UNI_V3_SWAP_CONTRACT_ID) {
+        poolIds.add(tempPoolId);
+      } else if (tempPoolId && contractId == REF_UNI_V3_SWAP_CONTRACT_ID) {
+        const [fixRange, dcl_pool_id, left_point, right_point] =
+          tempPoolId.split('&');
+        dcl_poolIds.add(dcl_pool_id);
       }
       farmsPromiseList.push(list_seed_farms(seed_id));
     });
@@ -942,12 +939,21 @@ export const getBoostSeedsFromServer = async (): Promise<{
     // cache seeds farms pools
     const cacheSeedsFarmsPools: any[] = [];
     list_seeds.forEach((seed: Seed, index: number) => {
-      let pool: PoolRPCView = null;
-      if (seed.seed_id.indexOf('@') > -1) {
-        const id = seed.seed_id.substring(seed.seed_id.indexOf('@') + 1);
-        pool = pools.find((p: PoolRPCView) => {
-          if (+p.id == +id) return true;
-        });
+      let pool: any = null;
+      const [contractId, tempPoolId] = seed.seed_id.split('@');
+      if (tempPoolId) {
+        if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) {
+          const [fixRange, dcl_pool_id, left_point, right_point] =
+            tempPoolId.split('&');
+          pool = dcl_all_pools.find((p: PoolInfo) => {
+            if (p.pool_id == dcl_pool_id) return true;
+          });
+        } else {
+          const id = tempPoolId;
+          pool = pools.find((p: any) => {
+            if (+p.id == +id) return true;
+          });
+        }
       }
       cacheSeedsFarmsPools.push({
         id: seed.seed_id,
@@ -955,9 +961,16 @@ export const getBoostSeedsFromServer = async (): Promise<{
         farmList: list_farms[index],
         pool,
       });
+      if (pool) {
+        both_normalPools_dclPools.push(pool);
+      }
     });
     db.cacheBoostSeeds(cacheSeedsFarmsPools);
-    return { seeds: list_seeds, farms: list_farms, pools };
+    return {
+      seeds: list_seeds,
+      farms: list_farms,
+      pools: both_normalPools_dclPools,
+    };
   } catch (error) {
     console.log(error);
     return null;
@@ -990,7 +1003,7 @@ export interface Seed {
   total_seed_amount: string;
   total_seed_power: string;
   farmList?: FarmBoost[];
-  pool?: PoolRPCView;
+  pool?: PoolRPCView & PoolInfo;
   seedTvl?: string;
   hidden?: boolean;
   endedFarmsIsSplit?: boolean;
@@ -1013,6 +1026,7 @@ export interface FarmBoost {
   token_meta_data?: TokenMetadata;
   apr?: string;
   baseApr?: string;
+  yourNFTApr?: string;
 }
 interface StakeOptions {
   token_id?: string;
@@ -1024,6 +1038,19 @@ interface UnStakeOptions {
   unlock_amount: string;
   withdraw_amount: string;
 }
+interface NFTUnStakeOptions {
+  lpt_id: string;
+  seed_id: string;
+  withdraw_amount: string;
+}
+interface NFTStakeOptions {
+  liquidity: UserLiquidityInfo;
+  seed_id: string;
+  stakeAmount: string;
+  needUnstake: boolean;
+  withdraw_amount: string;
+}
+
 export interface UserSeedInfo {
   boost_ratios: any;
   duration_sec: number;
@@ -1169,6 +1196,158 @@ export function useMigrate_user_data() {
     rewards_loading,
   };
 }
+export const stake_boost_nft = async ({
+  liquidity,
+  seed_id,
+  stakeAmount = '',
+  withdraw_amount = '',
+  needUnstake,
+}: NFTStakeOptions) => {
+  const [contractId, temp_pool_id] = seed_id.split('@');
+  const [fixRange, dcl_pool_id, left_point, right_point] =
+    temp_pool_id.split('&');
+  const transactions: Transaction[] = [];
+  const functionCalls = [];
+  const { lpt_id, mft_id } = liquidity;
+  if (needUnstake) {
+    const v_liquidity = mint_liquidity(liquidity, seed_id);
+    if (+withdraw_amount > 0) {
+      transactions.push({
+        receiverId: REF_FARM_BOOST_CONTRACT_ID,
+        functionCalls: [
+          {
+            methodName: 'unlock_and_withdraw_seed',
+            args: {
+              seed_id: seed_id,
+              unlock_amount: '0',
+              withdraw_amount,
+            },
+            amount: ONE_YOCTO_NEAR,
+            gas: '200000000000000',
+          },
+        ],
+      });
+    }
+    functionCalls.push({
+      methodName: 'mft_transfer_call',
+      args: {
+        receiver_id: REF_FARM_BOOST_CONTRACT_ID,
+        token_id: `:${temp_pool_id}`,
+        amount: v_liquidity,
+        msg: JSON.stringify('Free'),
+      },
+      amount: ONE_YOCTO_NEAR,
+      gas: '180000000000000',
+    });
+  } else {
+    if (!mft_id) {
+      functionCalls.push({
+        methodName: 'mint_v_liquidity',
+        args: {
+          lpt_id,
+          dcl_farming_type: JSON.parse(fixRange),
+        },
+        gas: '60000000000000',
+      });
+    } else {
+      const [contractId, temp_pool_id] = seed_id.split('@');
+      const [fixRange_s, pool_id_s, left_point_s, right_point_s] =
+        temp_pool_id.split('&');
+      const [fixRange_l, pool_id_l, left_point_l, right_point_l] =
+        mft_id.split('&');
+      const is_in_other_seed =
+        left_point_s != left_point_l || right_point_s != right_point_l;
+      if (is_in_other_seed) {
+        functionCalls.push(
+          {
+            methodName: 'burn_v_liquidity',
+            args: {
+              lpt_id,
+            },
+            gas: '60000000000000',
+          },
+          {
+            methodName: 'mint_v_liquidity',
+            args: {
+              lpt_id,
+              dcl_farming_type: JSON.parse(fixRange),
+            },
+            gas: '60000000000000',
+          }
+        );
+      }
+    }
+    functionCalls.push({
+      methodName: 'mft_transfer_call',
+      args: {
+        receiver_id: REF_FARM_BOOST_CONTRACT_ID,
+        token_id: `:${temp_pool_id}`,
+        amount: stakeAmount,
+        msg: JSON.stringify('Free'),
+      },
+      amount: ONE_YOCTO_NEAR,
+      gas: '180000000000000',
+    });
+  }
+  transactions.push({
+    receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+    functionCalls,
+  });
+  const neededStorage = await checkTokenNeedsStorageDeposit_boost();
+  if (neededStorage) {
+    transactions.unshift({
+      receiverId: REF_FARM_BOOST_CONTRACT_ID,
+      functionCalls: [storageDepositAction({ amount: neededStorage })],
+    });
+  }
+
+  return executeFarmMultipleTransactions(transactions);
+};
+export const unStake_boost_nft = async ({
+  lpt_id,
+  seed_id,
+  withdraw_amount,
+}: NFTUnStakeOptions) => {
+  const transactions: Transaction[] = [];
+  if (new BigNumber(withdraw_amount).isGreaterThan('0')) {
+    transactions.push({
+      receiverId: REF_FARM_BOOST_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'unlock_and_withdraw_seed',
+          args: {
+            seed_id: seed_id,
+            unlock_amount: '0',
+            withdraw_amount,
+          },
+          amount: ONE_YOCTO_NEAR,
+          gas: '200000000000000',
+        },
+      ],
+    });
+  }
+  transactions.push({
+    receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+    functionCalls: [
+      {
+        methodName: 'burn_v_liquidity',
+        args: {
+          lpt_id,
+        },
+        gas: '200000000000000',
+      },
+    ],
+  });
+  const neededStorage = await checkTokenNeedsStorageDeposit_boost();
+  if (neededStorage) {
+    transactions.unshift({
+      receiverId: REF_FARM_BOOST_CONTRACT_ID,
+      functionCalls: [storageDepositAction({ amount: neededStorage })],
+    });
+  }
+
+  return executeFarmMultipleTransactions(transactions);
+};
 export interface MigrateSeed {
   seed_id: string;
   amount: string;
@@ -1269,7 +1448,7 @@ export const frontConfig = {
   '3433': '99',
   '79': '98',
 };
-export const farmClassification = {
+export const farmClassification: any = {
   near: [
     0, 1207, 1371, 1395, 2330, 2448, 2799, 3, 3019, 3097, 3474, 3514, 3515,
     3519, 377, 4, 974, 1195, 1923, 3448, 553, 79, 2691, 2800, 3020, 3433, 3612,
@@ -1284,3 +1463,95 @@ export const farmClassification = {
 export const frontConfigBoost = {
   '79': '100',
 };
+
+export function getFarmClassification(): any {
+  const env: string = process.env.NEAR_ENV;
+  if (env == 'pub-testnet') {
+    return {
+      near: [
+        'usdt.fakes.testnet|wrap.testnet|2000',
+        'usdt.fakes.testnet|wrap.testnet|100',
+        '465',
+      ],
+      eth: ['phoenix-bonds.testnet|wrap.testnet|2000', '604'],
+      stable: ['79'],
+    };
+  } else if (env == 'testnet') {
+    return {
+      near: [
+        'usdt.fakes.testnet|wrap.testnet|2000',
+        'usdt.fakes.testnet|wrap.testnet|100',
+        '465',
+      ],
+      eth: ['phoenix-bonds.testnet|wrap.testnet|2000', '604'],
+      stable: ['79'],
+    };
+  } else {
+    return {
+      near: [
+        '0',
+        '1207',
+        '1371',
+        '1395',
+        '2330',
+        '2448',
+        '2799',
+        '3',
+        '3019',
+        '3097',
+        '3474',
+        '3514',
+        '3515',
+        '3519',
+        '377',
+        '4',
+        '974',
+        '1195',
+        '1923',
+        '3448',
+        '553',
+        '79',
+        '2691',
+        '2800',
+        '3020',
+        '3433',
+        '3612',
+        '2769',
+        '2973',
+        '3667',
+        '3688',
+        '3699',
+        '3714',
+        '3471',
+        '3449',
+        '3819',
+        '3804',
+        '3815',
+        'phoenix-bonds.near|wrap.near|2000',
+      ],
+      eth: [
+        '605',
+        '1207',
+        '2734',
+        '1395',
+        '1910',
+        '2330',
+        '2657',
+        '2691',
+        '2799',
+        '2800',
+        '3',
+        '3020',
+        '3433',
+        '4',
+        '974',
+        '3097',
+        '3636',
+        '3815',
+        '3804',
+        '3471',
+      ],
+      stable: ['1910', '3020', '3433', '3514', '3515', '3688', '3689', '3699'],
+    };
+  }
+}

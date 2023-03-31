@@ -1,0 +1,81 @@
+@import url('https://fonts.cdnfonts.com/css/gotham');
+
+.App {
+  text-align: center;
+  font-family: 'Gotham', sans-serif;
+  font-weight: 400;
+  background: rgb(19, 33, 42) !important;
+}
+
+/* html {
+  background: rgb(19, 33, 42) !important;
+} */
+
+::-webkit-scrollbar {
+  width: 9px;
+  /* height: 4px; */
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0);
+  background: rgb(25, 34, 41);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(38, 46, 53);
+  border-radius: 2px;
+}
+
+.App-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 0;
+  background-color: #222;
+  color: #fff;
+}
+
+.App-tv-logo {
+  height: 45px;
+}
+
+.App-react-logo {
+  display: block;
+  height: 62px;
+}
+
+.App-title {
+  display: block;
+  font-size: 1.5em;
+}
+
+.__react_component_tooltip::before,
+.__react_component_tooltip::after {
+  content: none !important;
+}
+.__react_component_tooltip {
+  z-index: 99999;
+}
+
+.reactTip {
+  border-radius: 0.375rem !important;
+  padding: 0.44rem 0.75rem !important;
+  min-width: 7rem !important;
+  opacity: 1 !important;
+}
+
+th {
+  font-weight: normal;
+}
+
+.Toastify__toast-container--bottom-right {
+  z-index: 9999999 !important;
+}
+
+@media screen and (max-width: 1023px) {
+  .Toastify__toast-container--bottom-right {
+    z-index: 9999 !important;
+  }
+}

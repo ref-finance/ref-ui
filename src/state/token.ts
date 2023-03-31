@@ -93,7 +93,7 @@ export const useTokens = (ids: string[] = [], curTokens?: TokenMetadata[]) => {
   const [tokens, setTokens] = useState<TokenMetadata[]>();
 
   useEffect(() => {
-    if (curTokens) {
+    if (curTokens?.length > 0) {
       setTokens(curTokens);
       return;
     }
@@ -364,7 +364,6 @@ export const useTokensData = (
   const { accountId } = useWalletSelector();
 
   const trigger = useCallback(() => {
-    // if (!!triggerBalances) {
     setCount(0);
     setResult([]);
     const currentFetchId = fetchIdRef.current;
@@ -407,12 +406,10 @@ export const useTokensData = (
   }, [tokens?.length]);
 
   useEffect(() => {
-    // if (!visible) return;
-    if (visible && count < tokens?.length) {
+    if (visible && tokens?.length > 0) {
       trigger();
     }
   }, [tokens?.map((t) => t.id).join('-'), visible]);
-
   return {
     trigger,
     loading: count < tokens?.length,

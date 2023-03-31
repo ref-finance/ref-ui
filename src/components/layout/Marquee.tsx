@@ -12,7 +12,7 @@ import {
 } from '../../state/token';
 import anime from 'animejs';
 import { TokenMetadata } from '~services/ft-contract';
-import { useLocation } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import { toRealSymbol } from '~utils/token';
 import { toPrecision, formatWithCommas } from '~utils/numbers';
 export default function Marquee() {
@@ -103,10 +103,11 @@ export default function Marquee() {
     setTokenHistoryList(result.concat(result));
   }
   if (tokenHistoryList.length == 0) return null;
+  const hiddenRouters = ['/risks', '/portfolio', '/orderbook'];
   return (
     <div
       className={`transform relative z-10 h-8 xs:-mt-6 md:-mt-6 xs:mb-6 md:mb-6 ${
-        location.pathname.indexOf('risks') > -1 ? 'hidden' : ''
+        hiddenRouters.indexOf(location.pathname) > -1 ? 'hidden' : ''
       }`}
     >
       <div

@@ -2,6 +2,7 @@ import React, {
   createContext,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -17,7 +18,7 @@ import { FiChevronUp, FiChevronDown } from 'react-icons/fi';
 import { RiLogoutCircleRLine } from 'react-icons/ri';
 import { useRefPrice } from '~state/account';
 import { toPrecision } from '~utils/numbers';
-import { moreLinks } from '~utils/menu';
+import { moreLinks, useMenusMobile, menuItemType } from '~utils/menu';
 import getConfig from '~services/config';
 import {
   AccountIcon,
@@ -30,7 +31,6 @@ import { WalletContext } from '../../utils/wallets-integration';
 
 const config = getConfig();
 import { isMobile } from '~utils/device';
-import { MobileMenuItem } from '~utils/menu';
 import {
   getCurrentWallet,
   getAccountName,
@@ -65,6 +65,12 @@ import {
 import { RefAnalytics, RefAnalyticsGary } from '~components/icon/RefAnalytics';
 import { useLanguageItems } from '~utils/menu';
 import { commonLangKey, formatItem } from './NavigationBar';
+import {
+  tradingKeyMap,
+  get_orderly_private_key_path,
+  get_orderly_public_key_path,
+} from '../../pages/Orderly/orderly/utils';
+import { REF_ORDERLY_ACCOUNT_VALID } from '../../pages/Orderly/components/UserBoard/index';
 
 export function Logout() {
   const { wallet } = getCurrentWallet();
@@ -79,7 +85,21 @@ export function Logout() {
           (await wallet.wallet()).signOut();
           localStorage.removeItem(ACCOUNT_ID_KEY);
 
-          window.location.assign('/');
+          const priKeyPath = get_orderly_private_key_path();
+
+          const pubKeyPath = get_orderly_public_key_path();
+
+          tradingKeyMap.clear();
+          localStorage.removeItem(priKeyPath);
+          localStorage.removeItem(pubKeyPath);
+
+          localStorage.removeItem(REF_ORDERLY_ACCOUNT_VALID);
+
+          if (window.location.pathname === '/orderbook') {
+            window.location.assign('/orderbook');
+          } else {
+            window.location.assign('/');
+          }
         }}
       >
         <RiLogoutCircleRLine className="text-2xl text-primaryText mr-3" />
@@ -144,8 +164,11 @@ export function AccountModel(props: any) {
     await curWallet.signOut();
 
     localStorage.removeItem(ACCOUNT_ID_KEY);
-
-    window.location.assign('/');
+    if (window.location.pathname === '/orderbook') {
+      window.location.assign('/orderbook');
+    } else {
+      window.location.assign('/');
+    }
   };
 
   useEffect(() => {
@@ -327,9 +350,11 @@ export function MobileNavBar(props: any) {
   } = props;
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
-
+  const menusMobile_temp = useMenusMobile();
   const [showTip, setShowTip] = useState<boolean>(false);
   const [showLanguage, setShowLanguage] = useState<boolean>(false);
+  const [one_level_selected, set_one_level_selected] = useState<string>('');
+  const [two_level_selected, set_two_level_selected] = useState<string>('');
   const displayLanguage = () => {
     const currentLocal = localStorage.getItem('local');
     if (commonLangKey.indexOf(currentLocal) > -1) {
@@ -342,6 +367,66 @@ export function MobileNavBar(props: any) {
       return 'EN';
     }
   };
+  const menusMobile = useMemo(() => {
+    if (menusMobile_temp) {
+      const menus_final = menusMobile_temp.filter((m: menuItemType) => {
+        return !m.hidden;
+      });
+      return menus_final;
+    }
+  }, [menusMobile_temp]);
+  useEffect(() => {
+    const pathname = '/' + location.pathname.split('/')[1];
+    let one_level_selected_id = '';
+    let two_level_selected_id = '';
+    const swap_mode_in_localstorage =
+      localStorage.getItem('SWAP_MODE_VALUE') || 'normal';
+    if (menusMobile) {
+      const one_level_menu = menusMobile.find((item: menuItemType) => {
+        const { links } = item;
+        return links?.indexOf(pathname) > -1;
+      });
+      if (one_level_menu) {
+        const { id, children } = one_level_menu;
+        one_level_selected_id = id;
+        let second_children: any = children;
+        if (second_children) {
+          const two_level_menu = second_children.find((item: menuItemType) => {
+            const { links, swap_mode } = item;
+            if (pathname == '/' || pathname == '/swap') {
+              return swap_mode_in_localstorage == swap_mode;
+            } else {
+              return links?.indexOf(pathname) > -1;
+            }
+          });
+          setOpenMenu(id);
+          if (two_level_menu) {
+            two_level_selected_id = two_level_menu.id;
+          }
+        }
+      }
+      // if (!one_level_selected_id) {
+      //   // no matched router than redirect to swap page
+      //   const { id, children } = menusMobile[0];
+      //   const second_children_temp: any = children;
+      //   if (second_children_temp) {
+      //     const two_level_menu = second_children_temp.find(
+      //       (item: menuItemType) => {
+      //         const { swap_mode } = item;
+      //         return swap_mode_in_localstorage == swap_mode;
+      //       }
+      //     );
+      //     if (two_level_menu) {
+      //       two_level_selected_id = two_level_menu.id;
+      //     }
+      //   }
+      //   one_level_selected_id = id;
+      //   setOpenMenu(id);
+      // }
+      set_one_level_selected(one_level_selected_id);
+      set_two_level_selected(two_level_selected_id);
+    }
+  }, [menusMobile?.length, show]);
   useEffect(() => {
     setShowTip(hasBalanceOnRefAccount);
   }, [hasBalanceOnRefAccount]);
@@ -409,39 +494,52 @@ export function MobileNavBar(props: any) {
       document.body.style.overflow = 'auto';
     }
   }, [show]);
-  useEffect(() => {
-    const target = moreLinks.find((link: MobileMenuItem) => {
-      if (link.subRoute?.includes(pathname)) return true;
-    });
-    if (target) {
-      setOpenMenu(target.id);
-    }
-  }, [pathname]);
 
   function close() {
     setShow(false);
   }
-  function handleMenuClick(linkInfo: MobileMenuItem) {
-    const { url, children, id, isExternal } = linkInfo;
-    if (url) {
-      isExternal ? window.open(url) : window.open(url, '_self');
-      close();
+  function handleMenuClick(linkInfo: menuItemType) {
+    const { children, clickEvent, url, isExternal, id } = linkInfo;
+    if (clickEvent) {
+      clickEvent();
+      set_one_level_selected(id);
+    } else if (url) {
+      if (isExternal) {
+        window.open(url);
+      } else {
+        window.open(url, '_self');
+      }
     }
-    if (!url && children) {
+    if (clickEvent || url) {
+      close();
+    } else if (children) {
       if (openMenu == id) {
         setOpenMenu('');
       } else {
         setOpenMenu(id);
+        setOpenChildMenu('');
       }
     }
   }
-  function handleChildMenuClick(linkInfo: MobileMenuItem) {
-    const { url, children, id, isExternal } = linkInfo;
-    if (url) {
-      isExternal ? window.open(url) : window.open(url, '_self');
-      close();
+  function handleChildMenuClick(
+    linkInfo_parent: menuItemType,
+    linkInfo: menuItemType
+  ) {
+    const { children, clickEvent, url, isExternal, id } = linkInfo;
+    if (clickEvent) {
+      clickEvent();
+      set_one_level_selected(linkInfo_parent.id);
+      set_two_level_selected(id);
+    } else if (url) {
+      if (isExternal) {
+        window.open(url);
+      } else {
+        window.open(url, '_self');
+      }
     }
-    if (!url && children) {
+    if (clickEvent || url) {
+      close();
+    } else if (children) {
       if (openChildMenu == id) {
         setOpenChildMenu('');
       } else {
@@ -449,10 +547,18 @@ export function MobileNavBar(props: any) {
       }
     }
   }
-  function handleGrandsonMenuClick(linkInfo: MobileMenuItem) {
-    const { url, isExternal } = linkInfo;
-    if (url) {
-      isExternal ? window.open(url) : window.open(url, '_self');
+  function handleGrandsonMenuClick(linkInfo: menuItemType) {
+    const { children, clickEvent, url, isExternal, id } = linkInfo;
+    if (clickEvent) {
+      clickEvent();
+    } else if (url) {
+      if (isExternal) {
+        window.open(url);
+      } else {
+        window.open(url, '_self');
+      }
+    }
+    if (clickEvent || url) {
       close();
     }
   }
@@ -565,15 +671,15 @@ export function MobileNavBar(props: any) {
             show ? 'block' : 'hidden'
           }`}
           style={{
-            zIndex: '80',
+            zIndex: '300',
           }}
         >
           <div
             ref={popupRef}
-            className="h-full overflow-y-scroll w-4/6 float-right bg-cardBg shadow-4xl z-30"
+            className="h-full w-4/6 float-right bg-cardBg shadow-4xl z-30 overflow-y-auto"
           >
             <div className={`${showLanguage ? 'hidden' : ''}`}>
-              <div className="flex text-white items-center justify-between p-4">
+              <div className="flex text-white items-center justify-between p-4 border-b border-menuBorderColor">
                 <div className="transform scale-90 origin-left">
                   <NavLogoSimple
                     onClick={() => {
@@ -591,72 +697,22 @@ export function MobileNavBar(props: any) {
                   </div>
                 </div>
               </div>
-              <div className="text-primaryText gotham_bold px-4 pb-24">
-                {moreLinks.map((linkInfo: MobileMenuItem) => {
-                  const {
-                    id,
-                    label,
-                    subRoute,
-                    pattern,
-                    children,
-                    showIcon,
-                    iconElement,
-                    hidden,
-                  } = linkInfo;
-                  if (hidden) return null;
-                  const isSwap =
-                    pathname === '/' ||
-                    pathname === '/swap' ||
-                    pathname === '/myOrder';
-                  let location = useLocation();
-                  let isSelected = subRoute
-                    ? subRoute.includes(location.pathname)
-                    : matchPath(location.pathname, {
-                        path: pattern,
-                        exact: true,
-                        strict: false,
-                      });
-                  if (
-                    location.pathname.startsWith('/pools') ||
-                    location.pathname.startsWith('/pool') ||
-                    location.pathname.startsWith('/more_pools') ||
-                    location.pathname.startsWith('/yourliquidity') ||
-                    location.pathname.startsWith('/addLiquidityV2') ||
-                    location.pathname.startsWith('/yoursLiquidityDetailV2')
-                  ) {
-                    if (id == 'POOL') {
-                      isSelected = true;
-                    }
-                  }
-
-                  if (isSwap) {
-                    if (id === 'trade_capital') {
-                      isSelected = true;
-                    }
-                  }
+              <div className="text-primaryText gotham_bold pb-24">
+                {menusMobile?.map((linkInfo: menuItemType) => {
+                  const { id, label, children } = linkInfo;
+                  const isSelected = one_level_selected == id;
                   return (
-                    <div key={id} className="my-2">
+                    <div key={id} className="border-b border-menuBorderColor">
+                      {/* one level menu */}
                       <div
-                        className={`flex pl-4 pr-2 py-3 items-center text-base justify-between rounded-lg ${
+                        className={`flex px-4 py-3.5 items-center text-base justify-between ${
                           isSelected
-                            ? 'bg-buttonGradientBg text-white'
+                            ? 'bg-one_level_menu_color text-white'
                             : 'text-primaryText'
                         }`}
                         onClick={() => handleMenuClick(linkInfo)}
                       >
-                        {showIcon ? (
-                          <span
-                            className={`py-2 ${
-                              isSelected ? 'opacity-100' : 'opacity-50'
-                            }`}
-                          >
-                            {iconElement}
-                          </span>
-                        ) : (
-                          <span>
-                            <FormattedMessage id={id} defaultMessage={label} />
-                          </span>
-                        )}
+                        {label}
                         {children && (
                           <span className="ml-1">
                             {openMenu == id ? (
@@ -671,60 +727,41 @@ export function MobileNavBar(props: any) {
                           </span>
                         )}
                       </div>
+                      {/* two level menu */}
                       {children && (
                         <div
                           className={`${openMenu === id ? 'block' : 'hidden'}`}
                         >
-                          {children?.map((link: MobileMenuItem) => {
-                            const {
-                              id,
-                              logo,
-                              url,
-                              isExternal,
-                              label,
-                              children,
-                              specialMenuKey,
-                            } = link;
-                            let isSubMenuSelected: any = matchPath(
-                              location.pathname,
-                              {
-                                path: link.pattern,
-                                exact: true,
-                                strict: false,
-                              }
-                            );
+                          {children?.map((link: menuItemType) => {
+                            const { id, label, logo, children } = link;
+                            const isSubMenuSelected = two_level_selected == id;
                             return (
-                              <div className="my-2" key={id}>
+                              <div
+                                className={`py-0.5 ${
+                                  isSubMenuSelected
+                                    ? 'bg-two_level_menu_color'
+                                    : ''
+                                }`}
+                                key={id}
+                              >
                                 <div
-                                  className={`flex justify-between text-left items-center pl-3 pr-2 py-3   ${
+                                  className={`flex justify-between text-left items-center pl-3 pr-4 py-3 ${
                                     isSubMenuSelected
-                                      ? 'text-white bg-menuMoreBgColor rounded-xl'
+                                      ? 'text-white'
                                       : 'text-primaryText'
                                   }`}
                                   onClick={() => {
-                                    handleChildMenuClick(link);
+                                    handleChildMenuClick(linkInfo, link);
                                   }}
                                 >
-                                  {specialMenuKey == 'sauce' ? (
-                                    <SauceMenu
-                                      isSelected={isSubMenuSelected}
-                                      label={label}
-                                    ></SauceMenu>
-                                  ) : (
-                                    <div className="flex items-center">
-                                      {logo && (
-                                        <span className="text-xl text-left w-8 flex justify-center mr-2">
-                                          {logo}
-                                        </span>
-                                      )}
-                                      {id && (
-                                        <FormattedMessage
-                                          id={id}
-                                          defaultMessage={label}
-                                        />
-                                      )}
-                                    </div>
-                                  )}
+                                  <div className="flex items-center whitespace-nowrap">
+                                    {logo && (
+                                      <span className="text-xl text-left w-8 flex justify-center mr-2">
+                                        {logo}
+                                      </span>
+                                    )}
+                                    {label}
+                                  </div>
 
                                   {children && (
                                     <span className="ml-1">
@@ -736,49 +773,41 @@ export function MobileNavBar(props: any) {
                                     </span>
                                   )}
                                 </div>
+                                {/* three level menu */}
                                 {children ? (
                                   <div
                                     className={`${
                                       openChildMenu == id ? 'block' : 'hidden'
                                     }`}
                                   >
-                                    {children.map(
-                                      (grandson: MobileMenuItem) => {
-                                        const {
-                                          id,
-                                          logo,
-                                          label,
-                                          url,
-                                          isExternal,
-                                        } = grandson;
-                                        return (
-                                          <div
-                                            key={id}
-                                            className={`flex items-center justify-between pl-12 pr-2 py-3 my-2 w-full`}
-                                            onClick={() => {
-                                              handleGrandsonMenuClick(grandson);
-                                            }}
-                                          >
-                                            <div className="flex items-center">
-                                              {logo && (
-                                                <span className="text-xl mr-2">
-                                                  {logo}
-                                                </span>
-                                              )}
-                                              {id && (
-                                                <FormattedMessage
-                                                  id={id}
-                                                  defaultMessage={label}
-                                                />
-                                              )}
-                                            </div>
-                                            {url && isExternal && (
-                                              <OutLinkIcon />
+                                    {children.map((grandson: menuItemType) => {
+                                      const {
+                                        id,
+                                        label,
+                                        logo,
+                                        url,
+                                        isExternal,
+                                      } = grandson;
+                                      return (
+                                        <div
+                                          key={id}
+                                          className={`flex items-center justify-between pl-12 pr-4 py-3 my-2 w-full`}
+                                          onClick={() => {
+                                            handleGrandsonMenuClick(grandson);
+                                          }}
+                                        >
+                                          <div className="flex items-center">
+                                            {logo && (
+                                              <span className="text-xl mr-2">
+                                                {logo}
+                                              </span>
                                             )}
+                                            {label}
                                           </div>
-                                        );
-                                      }
-                                    )}
+                                          {url && isExternal && <OutLinkIcon />}
+                                        </div>
+                                      );
+                                    })}
                                   </div>
                                 ) : null}
                               </div>
@@ -798,12 +827,6 @@ export function MobileNavBar(props: any) {
                   >
                     <RefAnalyticsGary />
                   </div>
-                  {/* <MailBoxIcon
-                    className="relative cursor-pointer -ml-4 -mt-1"
-                    onClick={() => {
-                      window.open('https://form.typeform.com/to/onOPhJ6Y');
-                    }}
-                  ></MailBoxIcon> */}
                 </div>
                 <div
                   onClick={() => {
@@ -838,23 +861,6 @@ export function MobileNavBar(props: any) {
       </div>
       {isMobile ? <Marquee></Marquee> : null}
     </>
-  );
-}
-
-function SauceMenu(props: any) {
-  const { isSelected, label } = props;
-  return (
-    <div
-      className={`flex items-end rounded-xl whitespace-nowrap text-xs cursor-pointer pl-1 py-0.5`}
-    >
-      <div className="flex items-center mr-1.5">
-        <SauceIcon
-          className={`${isSelected ? 'text-greenColor' : 'text-primaryText'}`}
-        ></SauceIcon>
-        <SauceText className="ml-2.5"></SauceText>
-      </div>
-      <span className="text-xs">{label}</span>
-    </div>
   );
 }
 function MobileLanguage(props: any) {

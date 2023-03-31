@@ -9,7 +9,7 @@ import { TokenMetadata } from '../../services/ft-contract';
 import { TokenBalancesView } from '../../services/token';
 import Icon from '../tokens/Icon';
 import InputAmount from './InputAmount';
-import { tokenPrice } from './SelectToken';
+import { SelectTokenDCL, tokenPrice } from './SelectToken';
 import {
   toInternationalCurrencySystem,
   toInternationalCurrencySystemLongString,
@@ -69,6 +69,7 @@ interface TokenAmountProps {
   preSelected?: TokenMetadata;
   postSelected?: TokenMetadata;
   onSelectPost?: (token: TokenMetadata) => void;
+  onSelectPre?: (token: TokenMetadata) => void;
   forWrap?: boolean;
   showQuickButton?: Boolean;
   ExtraElement?: JSX.Element;
@@ -85,6 +86,7 @@ interface TokenAmountProps {
   allowWNEAR?: boolean;
   forCross?: boolean;
   nearErrorTip?: JSX.Element;
+  isOut?: boolean;
 }
 
 export function getTextWidth(str: string, fontSize: string) {
@@ -231,11 +233,7 @@ export function QuickAmountLimitOrder({
         -
       </span>
       <span className="mr-2 md:hidden lg:hidden">
-        <QuestionTip
-          id="the_price_should_be_in_one_slot_nearby"
-          defaultMessage="The price should be in one slot nearby"
-          dataPlace="bottom"
-        />
+        <QuestionTip id="price_on_slot_tip" dataPlace="bottom" />
       </span>
       <span
         className={`px-2 py-1 mr-2 xs:hidden flex items-center justify-center w-5 h-5 cursor-pointer rounded-md  ${'text-primaryText border border-primaryText border-opacity-20 hover:border hover:border-transparent hover:text-gradientFrom hover:border-gradientFrom'} text-lg`}
@@ -272,11 +270,7 @@ export function QuickAmountLimitOrder({
         +10%
       </span>
       <span className="mr-2 xs:hidden">
-        <QuestionTip
-          id="the_price_should_be_in_one_slot_nearby"
-          defaultMessage="The price should be in one slot nearby"
-          dataPlace="bottom"
-        />
+        <QuestionTip id="price_on_slot_tip" dataPlace="bottom" />
       </span>
       <span
         className={`text-xs px-2 py-1 rounded-xl whitespace-nowrap h-5 cursor-pointer flex items-center
@@ -513,6 +507,7 @@ export function TokenAmountV3({
   preSelected,
   postSelected,
   onSelectPost,
+  onSelectPre,
   forWrap,
   ExtraElement,
   marketPriceLimitOrder,
@@ -522,6 +517,7 @@ export function TokenAmountV3({
   limitFee,
   setDiff,
   allowWNEAR,
+  isOut,
   nearErrorTip,
 }: TokenAmountProps) {
   const { globalState } = useContext(WalletContext);
@@ -712,7 +708,11 @@ export function TokenAmountV3({
   }
   return (
     <div
-      className={`flex flex-col text-xs bg-opacity-20 bg-black rounded-2xl px-3 xsm:px-2 pt-1 pb-2.5 border border-inputV3BorderColor hover:border-inputV3BorderHoverColor`}
+      className={`flex flex-col text-xs bg-opacity-20 ${
+        isOut && swapMode !== SWAP_MODE.LIMIT
+          ? 'bg-cardBg border-inputV3BorderHoverColor'
+          : 'bg-black'
+      } bg-black rounded-2xl px-3 xsm:px-2 pt-1 pb-2.5 border border-inputV3BorderColor hover:border-inputV3BorderHoverColor`}
     >
       {text ? (
         <div className="text-limitOrderInputColor text-xs pt-1.5">{text}</div>
@@ -727,7 +727,11 @@ export function TokenAmountV3({
           value={limitOrderDisable ? '' : amount}
           onChangeAmount={onChangeAmount}
           forLimitOrder={limitOrderDisable}
-          disabled={disabled || limitOrderDisable}
+          disabled={
+            disabled ||
+            limitOrderDisable ||
+            (isOut && swapMode !== SWAP_MODE.LIMIT)
+          }
           forSwap={!!forSwap}
           nearValidation={tokenIn && tokenIn.id === WRAP_NEAR_CONTRACT_ID}
           onBlur={(e) => {
@@ -752,8 +756,15 @@ export function TokenAmountV3({
             ) : null
           }
         />
-        {showSelectToken &&
-          (!swapMode || swapMode !== SWAP_MODE.STABLE ? (
+        {swapMode === SWAP_MODE.LIMIT ? (
+          <SelectTokenDCL
+            onSelect={onSelectToken}
+            selectedToken={selectedToken}
+            selectTokenIn={onSelectPre}
+            selectTokenOut={onSelectPost}
+          />
+        ) : (
+          showSelectToken && (
             <SelectToken
               tokenPriceList={tokenPriceList}
               tokens={tokens}
@@ -780,31 +791,8 @@ export function TokenAmountV3({
               balances={balances}
               allowWNEAR={allowWNEAR}
             />
-          ) : (
-            <StableSelectToken
-              selected={
-                selectedToken && (
-                  <div
-                    className="flex items-center justify-end font-semibold "
-                    onMouseEnter={() => setHoverSelectToken(true)}
-                    onMouseLeave={() => setHoverSelectToken(false)}
-                  >
-                    <IconLeftV3
-                      size={'7'}
-                      token={selectedToken}
-                      hover={hoverSelectToken}
-                    />
-                  </div>
-                )
-              }
-              customWidth
-              tokens={tokens}
-              onSelect={onSelectToken}
-              preSelected={preSelected}
-              postSelected={postSelected}
-              onSelectPost={onSelectPost}
-            />
-          ))}
+          )
+        )}
       </fieldset>
       {ExtraElement ? <RateDiffDOM_newline over={isOverOneLine} /> : null}
       <div className="flex items-center justify-between h-6">
