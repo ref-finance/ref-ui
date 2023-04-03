@@ -42,7 +42,9 @@ export const useHistoryOrderSwapInfo = ({
     });
   }, [accountId]);
 
-  return swapInfo.filter(
-    (s) => Number(s.timestamp) >= start_at && Number(s.timestamp) <= end_at
+  return (
+    swapInfo?.filter(
+      (s) => Number(s.timestamp) >= start_at && Number(s.timestamp) <= end_at
+    ) || []
   );
 };
