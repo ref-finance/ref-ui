@@ -48,6 +48,7 @@
     "jest": "^26.6.3",
     "jest-environment-node": "~26.6.2",
     "parcel": "2.8.0",
+    "parcel-reporter-static-files-copy": "^1.5.0",
     "parcel-resolver-tspaths": "^0.0.9",
     "postcss": "^8",
     "postcss-modules": "^4.0.0",
@@ -120,6 +121,8 @@
     "near-api-js": "0.44.2",
     "near-seed-phrase": "^0.2.0",
     "neth": "7.1.2",
+    "parcel-plugin-custom-dist-structure": "^1.1.18",
+    "parcel-plugin-static-files-copy": "^2.6.0",
     "react": "^16.0.0 || ^17.0.0",
     "react-burger-menu": "^3.0.6",
     "react-circular-progressbar": "^2.1.0",
@@ -161,5 +164,9 @@
       "ecmaVersion": 2020,
       "sourceType": "module"
     }
+  },
+  "staticFiles": {
+    "staticPath": "public",
+    "watcherGlob": "**"
   }
 }
