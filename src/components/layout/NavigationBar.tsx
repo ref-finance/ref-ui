@@ -109,7 +109,11 @@ import {
   get_orderly_private_key_path,
 } from '../../pages/Orderly/orderly/utils';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../../pages/Orderly/components/UserBoard/index';
-import { tradingKeyMap } from '../../pages/Orderly/orderly/utils';
+import {
+  tradingKeyMap,
+  REF_FI_SENDER_WALLET_ACCESS_KEY,
+} from '../../pages/Orderly/orderly/utils';
+import { ORDERLY_ASSET_MANAGER } from '../../pages/Orderly/near';
 import {
   MoreIcon,
   ArrowDownIcon,
@@ -366,7 +370,27 @@ function AccountEntry({
   const signOut = async () => {
     const curWallet = await wallet.wallet();
 
-    await curWallet.signOut();
+    if (curWallet.id === 'sender') {
+      try {
+        const senderAccessKey = localStorage.getItem(
+          REF_FI_SENDER_WALLET_ACCESS_KEY
+        );
+
+        const allKeys = Object.keys(JSON.parse(senderAccessKey)['allKeys']);
+
+        //@ts-ignore
+
+        await window.near.signOut({
+          contractId: allKeys.includes(ORDERLY_ASSET_MANAGER)
+            ? ORDERLY_ASSET_MANAGER
+            : allKeys[0],
+        });
+      } catch (error) {
+        await window.near.signOut();
+      }
+    } else {
+      await curWallet.signOut();
+    }
 
     localStorage.removeItem(ACCOUNT_ID_KEY);
 

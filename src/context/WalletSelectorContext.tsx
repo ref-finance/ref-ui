@@ -222,6 +222,21 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
     localStorage.removeItem(REF_FI_SENDER_WALLET_ACCESS_KEY);
   });
 
+  window.near.on('signOut', () => {
+    localStorage.removeItem(get_orderly_private_key_path());
+    localStorage.removeItem(get_orderly_public_key_path());
+    localStorage.removeItem(REF_ORDERLY_ACCOUNT_VALID);
+    localStorage.removeItem(REF_ORDERLY_NORMALIZED_KEY);
+    localStorage.removeItem(REF_FI_SENDER_WALLET_ACCESS_KEY);
+  });
+
+  // window.near.signOut = () => {
+  //   // @ts-ignore
+  //   return window.near.signOut({
+  //     contractId: CONTRACT_ID,
+  //   });
+  // };
+
   return (
     <WalletSelectorContext.Provider
       value={{
