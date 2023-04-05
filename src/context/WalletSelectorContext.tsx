@@ -230,6 +230,18 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
     localStorage.removeItem(REF_FI_SENDER_WALLET_ACCESS_KEY);
   });
 
+  window.near.on('signIn', () => {
+    //@ts-ignore
+    const keyStoreSender = window?.near?.authData;
+
+    if (keyStoreSender) {
+      localStorage.setItem(
+        REF_FI_SENDER_WALLET_ACCESS_KEY,
+        JSON.stringify(keyStoreSender)
+      );
+    }
+  });
+
   // window.near.signOut = () => {
   //   // @ts-ignore
   //   return window.near.signOut({
