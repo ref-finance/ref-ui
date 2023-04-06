@@ -24,18 +24,34 @@ import {
   isLargeScreen,
   useLargeScreen,
   useClientMobile,
+  isMobile,
 } from '../../utils/device';
 import { useHistory } from 'react-router-dom';
 
 import MobileInfoBoard from './components/MobileInfoBoard';
-import { generateTradingKeyPair } from './orderly/utils';
-import { useOrderlyContext } from './orderly/OrderlyContext';
+
+import { OrderlyUnderMaintainIcon } from './components/Common/Icons';
+import { getOrderlySystemInfo } from './orderly/off-chain-api';
 
 function TradingBoard() {
   const isLarge = useLargeScreen();
 
+  const [maintenance, setMaintenance] = React.useState<boolean>(
+    !!localStorage.getItem('orderly-maintenance') || false
+  );
+
+  React.useEffect(() => {
+    getOrderlySystemInfo().then((res) => {
+      if (res.data.status === 2) {
+        setMaintenance(true);
+      }
+    });
+  }, []);
+
   return (
-    <div className="w-full flex  pl-4 xs:hidden md:hidden">
+    <div className="w-full flex  pl-4 xs:hidden md:hidden relative">
+      {maintenance && <OrderlyUnderMaintain></OrderlyUnderMaintain>}
+
       <div className="w-full flex flex-col" id="trading-orderly-board">
         <div
           className="w-full flex"
@@ -74,15 +90,39 @@ function TradingBoard() {
           width: '340px',
         }}
       >
-        <UserBoard />
+        <UserBoard maintenance={maintenance} />
       </div>
     </div>
   );
 }
 
 function MobileTradingBoard() {
+  const [maintenance, setMaintenance] = React.useState<boolean>(
+    !!localStorage.getItem('orderly-maintenance') || false
+  );
+
+  React.useEffect(() => {
+    getOrderlySystemInfo().then((res) => {
+      if (res.data.status === 2) {
+        setMaintenance(true);
+      }
+    });
+  }, []);
+
+  React.useEffect(() => {
+    if (maintenance) {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+      document.documentElement.style.overflow = 'auto';
+    }
+  }, [maintenance]);
+
   return (
-    <>
+    <div>
+      {maintenance && <OrderlyUnderMaintain></OrderlyUnderMaintain>}
+
       <div className="w-95vw  mx-auto flex flex-col lg:hidden">
         <ChartHeader></ChartHeader>
 
@@ -96,7 +136,22 @@ function MobileTradingBoard() {
       <div className="w-full flex flex-col lg:hidden">
         <AllOrderBoard />
       </div>
-    </>
+    </div>
+  );
+}
+
+function OrderlyUnderMaintain() {
+  return (
+    <div
+      className="absolute xs:fixed w-screen h-full  left-0 flex items-center justify-center"
+      style={{
+        background: 'rgba(0, 19, 32, 0.6)',
+        zIndex: 90,
+        backdropFilter: isMobile() ? 'blur(5px)' : '',
+      }}
+    >
+      <OrderlyUnderMaintainIcon></OrderlyUnderMaintainIcon>
+    </div>
   );
 }
 

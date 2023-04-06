@@ -590,7 +590,7 @@ export function MobileNavBar(props: any) {
       <div
         className="nav-wrap lg:hidden md:show relative xs:mb-6 md:mb-6"
         style={{
-          zIndex: show ? 200 : 51,
+          zIndex: show ? 200 : 91,
         }}
       >
         {showTip ? <AccountTipDownByAccountID show={showTip} /> : null}

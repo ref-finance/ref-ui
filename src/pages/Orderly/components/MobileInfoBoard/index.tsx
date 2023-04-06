@@ -833,7 +833,7 @@ function UserBoardWrapper() {
             : 'w-screen left-0 rounded-t-2xl bg-boxBorder gradientBorderWrapperNoShadowOrderly fixed  bottom-0'
         }
         style={{
-          zIndex: 99,
+          zIndex: 89,
         }}
       >
         <div className="flex items-center px-4 rounded-t-2xl bg-boxBorder pb-12 pt-5 w-full justify-center  ">
