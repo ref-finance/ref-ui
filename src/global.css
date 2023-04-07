@@ -1262,3 +1262,15 @@ input[type='range']::-webkit-slider-runnable-track {
 #pr3sence-adItemImage {
   border-radius: 0.5rem;
 }
+#sitegpt-chat-bubble {
+  background-color: #00c6a2 !important;
+}
+@media (max-width: 1023px) {
+  #sitegpt-chat-bubble {
+    width: 30px !important;
+    height: 30px !important;
+  }
+  #sitegpt-chat-bubble img {
+    width: 20px !important;
+  }
+}
