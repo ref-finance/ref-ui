@@ -44,7 +44,7 @@ import {
   get_orderly_private_key_path,
   get_orderly_public_key_path,
 } from '../pages/Orderly/orderly/utils';
-import { isMobile } from '~utils/device';
+import { isMobile } from '../utils/device';
 
 const CONTRACT_ID = getOrderlyConfig().ORDERLY_ASSET_MANAGER;
 
