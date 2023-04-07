@@ -424,6 +424,10 @@ function AccountTable(props: any) {
         setAccountTab('aurora');
       } else setAccountTab('near');
     }
+    if (accountTab === 'aurora' && !showCrossBalance) {
+      localStorage.setItem(ACCOUNTTAB_KEY, 'near');
+      setAccountTab('near');
+    }
   }, [showCrossBalance, mapAccountTokenNumber]);
 
   const sort = (e?: any, by?: string) => {
