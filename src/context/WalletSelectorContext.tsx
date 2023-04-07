@@ -44,6 +44,7 @@ import {
   get_orderly_private_key_path,
   get_orderly_public_key_path,
 } from '../pages/Orderly/orderly/utils';
+import { isMobile } from '~utils/device';
 
 const CONTRACT_ID = getOrderlyConfig().ORDERLY_ASSET_MANAGER;
 
@@ -222,32 +223,27 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
     localStorage.removeItem(REF_FI_SENDER_WALLET_ACCESS_KEY);
   });
 
-  window.near.on('signOut', () => {
-    localStorage.removeItem(get_orderly_private_key_path());
-    localStorage.removeItem(get_orderly_public_key_path());
-    localStorage.removeItem(REF_ORDERLY_ACCOUNT_VALID);
-    localStorage.removeItem(REF_ORDERLY_NORMALIZED_KEY);
-    localStorage.removeItem(REF_FI_SENDER_WALLET_ACCESS_KEY);
-  });
+  if (!isMobile() && !!window.near) {
+    window.near.on('signOut', () => {
+      localStorage.removeItem(get_orderly_private_key_path());
+      localStorage.removeItem(get_orderly_public_key_path());
+      localStorage.removeItem(REF_ORDERLY_ACCOUNT_VALID);
+      localStorage.removeItem(REF_ORDERLY_NORMALIZED_KEY);
+      localStorage.removeItem(REF_FI_SENDER_WALLET_ACCESS_KEY);
+    });
 
-  window.near.on('signIn', () => {
-    //@ts-ignore
-    const keyStoreSender = window?.near?.authData;
+    window.near.on('signIn', () => {
+      //@ts-ignore
+      const keyStoreSender = window?.near?.authData;
 
-    if (keyStoreSender) {
-      localStorage.setItem(
-        REF_FI_SENDER_WALLET_ACCESS_KEY,
-        JSON.stringify(keyStoreSender)
-      );
-    }
-  });
-
-  // window.near.signOut = () => {
-  //   // @ts-ignore
-  //   return window.near.signOut({
-  //     contractId: CONTRACT_ID,
-  //   });
-  // };
+      if (keyStoreSender) {
+        localStorage.setItem(
+          REF_FI_SENDER_WALLET_ACCESS_KEY,
+          JSON.stringify(keyStoreSender)
+        );
+      }
+    });
+  }
 
   return (
     <WalletSelectorContext.Provider
