@@ -1020,8 +1020,6 @@ export const useLimitOrder = ({
         setPoolToOrderCounts(toCounts);
       })
       .catch((e) => {
-        console.log(e);
-
         const allPoolsForThisPair = V3_POOL_FEE_LIST.map((fee) =>
           getV3PoolId(tokenIn.id, tokenOut.id, fee)
         );
