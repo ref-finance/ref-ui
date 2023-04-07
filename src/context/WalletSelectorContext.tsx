@@ -236,7 +236,11 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
       //@ts-ignore
       const keyStoreSender = window?.near?.authData;
 
-      if (keyStoreSender) {
+      if (
+        keyStoreSender &&
+        !!keyStoreSender?.['accountId'] &&
+        !!keyStoreSender?.['accessKey']
+      ) {
         localStorage.setItem(
           REF_FI_SENDER_WALLET_ACCESS_KEY,
           JSON.stringify(keyStoreSender)
