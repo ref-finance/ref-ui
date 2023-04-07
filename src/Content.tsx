@@ -88,6 +88,7 @@ import OrderlyContextProvider, {
   OrderlyContext,
 } from '~pages/Orderly/orderly/OrderlyContext';
 import { list_seeds_info } from './services/farm';
+import { ORDERLY_ASSET_MANAGER } from './pages/Orderly/near';
 import {
   get_orderly_public_key_path,
   generateTradingKeyPair,
@@ -189,7 +190,7 @@ export function Content() {
       const senderWallet = (await senderModule.wallet()) as InjectedWallet;
 
       await senderWallet.signIn({
-        contractId: REF_FARM_BOOST_CONTRACT_ID,
+        contractId: ORDERLY_ASSET_MANAGER,
       });
 
       window.location.reload();
