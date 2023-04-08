@@ -6,6 +6,8 @@ import { IoCloseOutline, IoWarning } from 'react-icons/io5';
 import { QuestionTip } from '../../components/layout/TipWrapper';
 import { SUPPORT_LEDGER_KEY } from '../swap/SwapCard';
 import { SWAP_MODE } from '../../pages/SwapPage';
+import { SupportLedgerGuide } from '~components/layout/SupportLedgerGuide';
+import { useWalletSelector } from '~context/WalletSelectorContext';
 
 export function CustomSwitch({
   isOpen,
@@ -116,6 +118,27 @@ export default function SlippageSelector({
   const [warn, setWarn] = useState(false);
   const [symbolsArr] = useState(['e', 'E', '+', '-']);
 
+  const { isLedger } = useWalletSelector();
+
+  const [ledgerGuide, setLedgerGuide] = useState<boolean>(false);
+
+  console.log('supportLedger: ', supportLedger);
+
+  useEffect(() => {
+    let timer: any;
+
+    if (isLedger && !supportLedger) {
+      setShowSlip(true);
+      setLedgerGuide(true);
+      localStorage.setItem(SUPPORT_LEDGER_KEY, 'true');
+
+      timer = setTimeout(() => {
+        setSupportLedger(true);
+      }, 500);
+    }
+    return () => clearTimeout(timer);
+  }, [isLedger]);
+
   const openToolTip = (e: any) => {
     e.nativeEvent.stopImmediatePropagation();
     setShowSlip(true);
@@ -137,7 +160,10 @@ export default function SlippageSelector({
   };
 
   const closeToolTip = (e: any) => {
-    if (!invalid) setShowSlip(false);
+    if (!invalid) {
+      setLedgerGuide(false);
+      setShowSlip(false);
+    }
   };
 
   const handleBtnChange = (slippage: number) => {
@@ -278,9 +304,17 @@ export default function SlippageSelector({
             {hideLedger ? null : (
               <div
                 className={
-                  'flex items-center text-newSlippageColor mt-6 justify-between text-sm'
+                  'flex relative items-center text-newSlippageColor mt-6 justify-between text-sm'
                 }
               >
+                {ledgerGuide && (
+                  <SupportLedgerGuide
+                    handleClose={() => {
+                      setLedgerGuide(false);
+                    }}
+                  />
+                )}
+
                 <div className="flex items-center">
                   <label>
                     <FormattedMessage

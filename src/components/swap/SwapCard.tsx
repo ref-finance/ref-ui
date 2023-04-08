@@ -1150,19 +1150,17 @@ export default function SwapCard(props: {
   const [doubleCheckOpenLimit, setDoubleCheckOpenLimit] =
     useState<boolean>(false);
 
-  const { isLedger } = useWalletSelector();
-
   const [supportLedger, setSupportLedger] = useState(
-    isLedger || localStorage.getItem(SUPPORT_LEDGER_KEY) ? true : false
+    localStorage.getItem(SUPPORT_LEDGER_KEY) ? true : false
   );
 
   const [curOrderPrice, setCurOrderPrice] = useState<string>('');
 
-  useEffect(() => {
-    if (swapMode === SWAP_MODE.NORMAL && isLedger) {
-      setSupportLedger(true);
-    }
-  }, [swapMode]);
+  // useEffect(() => {
+  //   if (swapMode === SWAP_MODE.NORMAL && isLedger) {
+  //     setSupportLedger(true);
+  //   }
+  // }, [swapMode]);
 
   const [LimitAmountOutRate, setLimitAmountOutRate] = useState<string>('');
 

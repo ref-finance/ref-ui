@@ -1181,5 +1181,8 @@ const zh_CN = {
     '当用户在限价单功能中下达一个高于市场价格的卖单或低于市场价格的买单时，Ref会首先尝试执行swap-with-stop-point操作。如果执行完毕，订单数量仍有剩余，则会为剩余部分创建限价单。<br> 实时成交订单指使用限价单功能下单但通过swap完成的订单。在“历史”中，你可以查看自最早展示的限价单记录至今的实时成交订单。',
 
   swapped_history_order: '已成交',
+
+  ledger_guide_tip_zh:
+    '为保障交易完成，已为您打开support ledger功能。受ledger功能所限，当前价格可能不是最佳价格。',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

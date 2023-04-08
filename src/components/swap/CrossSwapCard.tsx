@@ -307,7 +307,7 @@ export default function CrossSwapCard(props: {
   const { accountId, isLedger } = useWalletSelector();
 
   const [supportLedger, setSupportLedger] = useState(
-    isLedger || localStorage.getItem(SUPPORT_LEDGER_KEY) ? true : false
+    localStorage.getItem(SUPPORT_LEDGER_KEY) ? true : false
   );
 
   const [balanceInDone, setBalanceInDone] = useState<boolean>(false);
