@@ -637,29 +637,33 @@ export default function FarmsHome(props: any) {
       const pathArr = location.pathname.split('/');
       const layer1 = decodeURIComponent(pathArr[2] || '');
       if (layer1) {
-        if (layer1.indexOf('<>') == -1) {
-          const [tokena_id, tokenb_id, fee_p_s] = layer1.split('|');
-          const [fee_p, status] = fee_p_s.split('-');
-          const [fee, lp, rp] = fee_p.split('&');
-          const replace_str = `${get_pool_name(
-            `${tokena_id}|${tokenb_id}|${fee}`
-          )}[${lp}|${rp}]-${status}`;
-          location.replace(`/v2farms/${replace_str}`);
+        if (layer1.indexOf('<>') > -1 || layer1.indexOf('|') > -1) {
+          if (layer1.indexOf('<>') == -1) {
+            const [tokena_id, tokenb_id, fee_p_s] = layer1.split('|');
+            const [fee_p, status] = fee_p_s.split('-');
+            const [fee, lp, rp] = fee_p.split('&');
+            const replace_str = `${get_pool_name(
+              `${tokena_id}|${tokenb_id}|${fee}`
+            )}[${lp}|${rp}]-${status}`;
+            location.replace(`/v2farms/${replace_str}`);
+            return layer1;
+          }
+          const layer2 = decodeURIComponent(location.hash);
+          const layer3_0 = layer2.slice(0, layer2.length - 2);
+          const layer3_1 = layer2.slice(layer2.length - 1);
+          const layer3_0_arr = layer3_0?.split('[');
+          const fee_str = layer3_0_arr[0];
+          const point_str = layer3_0_arr[1]?.slice(
+            0,
+            layer3_0_arr[1]?.length - 1
+          );
+          const pool_id = get_pool_id(`${layer1}${fee_str}`);
+          const p_arr = point_str.split('|');
+          const [lp, rp] = p_arr;
+          return `${pool_id}&${lp}&${rp}-${layer3_1}`;
+        } else {
           return layer1;
         }
-        const layer2 = decodeURIComponent(location.hash);
-        const layer3_0 = layer2.slice(0, layer2.length - 2);
-        const layer3_1 = layer2.slice(layer2.length - 1);
-        const layer3_0_arr = layer3_0?.split('[');
-        const fee_str = layer3_0_arr[0];
-        const point_str = layer3_0_arr[1]?.slice(
-          0,
-          layer3_0_arr[1]?.length - 1
-        );
-        const pool_id = get_pool_id(`${layer1}${fee_str}`);
-        const p_arr = point_str.split('|');
-        const [lp, rp] = p_arr;
-        return `${pool_id}&${lp}&${rp}-${layer3_1}`;
       }
     } catch (error) {
       return '';

@@ -1094,7 +1094,9 @@ function RelatedFarmsBox(props: any) {
     const [contractId, temp_pool_id] = seed_id.split('@');
     const [fixRange, pool_id, left_point, right_point] =
       temp_pool_id.split('&');
-    const link_params = `${pool_id}&${left_point}&${right_point}`;
+    const link_params = `${get_pool_name(
+      pool_id
+    )}[${left_point}|${right_point}]`;
     window.open(`/v2farms/${link_params}-r`);
   }
   if (farm_loading) return null;
