@@ -140,6 +140,7 @@ import {
   getLatestStartTime,
   isPending,
   sort_tokens_by_base,
+  get_pool_name,
 } from '../../services/commonV3';
 
 import { AiFillStar } from 'react-icons/ai';
@@ -531,7 +532,7 @@ function MobilePoolRowV2({
     } else return '/';
   };
   function goDetailV2() {
-    const url_pool_id = pool.pool_id.replace(/\|/g, '@');
+    const url_pool_id = get_pool_name(pool.pool_id);
     history.push(`/poolV2/${url_pool_id}`);
   }
   function geth24volume() {
@@ -1740,7 +1741,7 @@ function PoolRowV2({
   if (!curRowTokens) return <></>;
   tokens = sort_tokens_by_base(tokens);
   function goDetailV2() {
-    const url_pool_id = pool.pool_id.replace(/\|/g, '@');
+    const url_pool_id = get_pool_name(pool.pool_id);
     history.push(`/poolV2/${url_pool_id}`);
   }
   function geth24volume() {

@@ -63,15 +63,13 @@ export default function AdSwiper() {
             {is_mobile ? (
               <DCLPNearMobile
                 onClick={() => {
-                  location.href =
-                    '/v2farms/phoenix-bonds.near%7Cwrap.near%7C2000&2760&3720-r';
+                  location.href = '/v2farms/pNEAR<>NEAR#3[2760|3720]-r';
                 }}
               ></DCLPNearMobile>
             ) : (
               <DCLPNear
                 onClick={() => {
-                  location.href =
-                    '/v2farms/phoenix-bonds.near%7Cwrap.near%7C2000&2760&3720-r';
+                  location.href = '/v2farms/pNEAR<>NEAR#3[2760|3720]-r';
                 }}
               ></DCLPNear>
             )}

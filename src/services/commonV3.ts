@@ -156,12 +156,14 @@ export function useAddAndRemoveUrlHandle() {
           const { lpt_id } = parmas;
           const [tokenX, tokenY, id] = lpt_id.split('|');
           const [fee, hashId] = id.split('#');
-          const paramsId = `${tokenX}@${tokenY}@${fee}@${hashId}`;
+          const pool_name = get_pool_name(`${tokenX}|${tokenY}|${fee}`);
+          const paramsId = `${pool_name}@${hashId}`;
           history.replace('/yoursLiquidityDetailV2/' + `${paramsId}`);
         } else if (methodName == 'add_liquidity' && returnValue) {
           const [tokenX, tokenY, id] = returnValue.split('|');
           const [fee, hashId] = id.split('#');
-          const paramsId = `${tokenX}@${tokenY}@${fee}@${hashId}`;
+          const pool_name = get_pool_name(`${tokenX}|${tokenY}|${fee}`);
+          const paramsId = `${pool_name}@${hashId}`;
           history.replace('/yoursLiquidityDetailV2/' + `${paramsId}`);
         } else if (methodName == 'remove_liquidity' && argsValue) {
           const parmas = JSON.parse(argsValue);

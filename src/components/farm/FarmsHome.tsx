@@ -105,6 +105,10 @@ import {
   displayNumberToAppropriateDecimals,
   getEffectiveFarmList,
   sort_tokens_by_base,
+  get_farm_id,
+  get_farm_name,
+  get_pool_id,
+  get_pool_name,
 } from '../../services/commonV3';
 
 const {
@@ -629,9 +633,39 @@ export default function FarmsHome(props: any) {
     return JSON.parse(JSON.stringify(allEndedFarms));
   }
   function getUrlParams() {
-    const pathArr = window.location.pathname.split('/');
-    const id = pathArr[2] || '';
-    return id;
+    try {
+      const pathArr = location.pathname.split('/');
+      const layer1 = decodeURIComponent(pathArr[2] || '');
+      if (layer1) {
+        if (layer1.indexOf('<>') == -1) {
+          const [tokena_id, tokenb_id, fee_p_s] = layer1.split('|');
+          const [fee_p, status] = fee_p_s.split('-');
+          const [fee, lp, rp] = fee_p.split('&');
+          const replace_str = `${get_pool_name(
+            `${tokena_id}|${tokenb_id}|${fee}`
+          )}[${lp}|${rp}]-${status}`;
+          location.replace(`/v2farms/${replace_str}`);
+          return layer1;
+        }
+        const layer2 = decodeURIComponent(location.hash);
+        const layer3_0 = layer2.slice(0, layer2.length - 2);
+        const layer3_1 = layer2.slice(layer2.length - 1);
+        const layer3_0_arr = layer3_0?.split('[');
+        const fee_str = layer3_0_arr[0];
+        const point_str = layer3_0_arr[1]?.slice(
+          0,
+          layer3_0_arr[1]?.length - 1
+        );
+        const pool_id = get_pool_id(`${layer1}${fee_str}`);
+        const p_arr = point_str.split('|');
+        const [lp, rp] = p_arr;
+        return `${pool_id}&${lp}&${rp}-${layer3_1}`;
+      }
+    } catch (error) {
+      return '';
+    }
+
+    return '';
   }
   async function get_user_unWithDraw_rewards() {
     if (isSignedIn) {
@@ -2710,7 +2744,7 @@ function FarmView(props: {
       const [contractId, temp_pool_id] = seed.seed_id.split('@');
       const [fixRange, pool_id, left_point, right_point] =
         temp_pool_id.split('&');
-      mft_id = `${pool_id}&${left_point}&${right_point}`;
+      mft_id = `${get_pool_name(pool_id)}[${left_point}|${right_point}]`;
     }
     history.replace(`/v2farms/${mft_id}-${status}`);
   }
