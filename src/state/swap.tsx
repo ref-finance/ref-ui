@@ -91,6 +91,7 @@ import { useTokenPriceList } from './token';
 import Big from 'big.js';
 import BigNumber from 'bignumber.js';
 import { parsedTransactionSuccessValue } from '../components/layout/transactionTipPopUp';
+import { SUPPORT_LEDGER_KEY } from '../components/swap/SwapCard';
 import {
   calcStableSwapPriceImpact,
   calculateSmartRoutesV2PriceImpact,
@@ -481,7 +482,10 @@ export const useSwap = ({
       })
         .then(async ({ estimates, tag }) => {
           if (!estimates) throw '';
-          if (supportLedger && estimates?.length > 1) {
+          if (
+            localStorage.getItem(SUPPORT_LEDGER_KEY) &&
+            estimates?.length > 1
+          ) {
             return;
           }
 
