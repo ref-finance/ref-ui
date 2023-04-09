@@ -1296,6 +1296,9 @@ export const useCrossSwap = ({
       setSwapsToDoTri,
     })
       .then(({ estimates }) => {
+        if (localStorage.getItem(SUPPORT_LEDGER_KEY) && estimates?.length > 1) {
+          return;
+        }
         if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
           setAverageFee(estimates);
 
