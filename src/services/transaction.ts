@@ -605,34 +605,34 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
     let actions = [];
     try {
       actions = JSON.parse(msg.replace(/\\"/g, '"')).actions || [];
+      let amountOut = '0';
+      let poolIdArr: (string | number)[] = [];
+      const l = actions[0];
+      const in_token = await ftGetTokenMetadata(actions[0].token_in);
+      const out_token = await ftGetTokenMetadata(
+        actions[actions.length - 1].token_out
+      );
+      actions.forEach((action: any) => {
+        const { min_amount_out, pool_id } = action;
+        poolIdArr.push(pool_id);
+        amountOut = new BigNumber(min_amount_out || '0')
+          .plus(amountOut)
+          .toFixed();
+      });
+      return {
+        Action,
+        'Pool Id': poolIdArr.join(','),
+        'Amount In': (Amount = toReadableNumber(in_token.decimals, amount)),
+        'Min Amount Out': toReadableNumber(out_token.decimals, amountOut),
+        'Token In': in_token.symbol,
+        'Token Out': out_token.symbol,
+        'Receiver ID': receiver_id,
+      };
     } catch (error) {
       return {
         Action,
       };
     }
-    let amountOut = '0';
-    let poolIdArr: (string | number)[] = [];
-    const l = actions[0];
-    const in_token = await ftGetTokenMetadata(actions[0].token_in);
-    const out_token = await ftGetTokenMetadata(
-      actions[actions.length - 1].token_out
-    );
-    actions.forEach((action: any) => {
-      const { min_amount_out, pool_id } = action;
-      poolIdArr.push(pool_id);
-      amountOut = new BigNumber(min_amount_out || '0')
-        .plus(amountOut)
-        .toFixed();
-    });
-    return {
-      Action,
-      'Pool Id': poolIdArr.join(','),
-      'Amount In': (Amount = toReadableNumber(in_token.decimals, amount)),
-      'Min Amount Out': toReadableNumber(out_token.decimals, amountOut),
-      'Token In': in_token.symbol,
-      'Token Out': out_token.symbol,
-      'Receiver ID': receiver_id,
-    };
   } else {
     Action = receiver_id == config.USN_ID ? 'Buy USN' : 'Deposit';
     const token = await ftGetTokenMetadata(tokenId);
