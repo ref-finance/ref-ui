@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { CloseIconBold } from '~components/icon/Actions';
-import { isMobile } from '~utils/device';
+import { CloseIconBold } from '../../components/icon/Actions';
+import { isMobile } from '../../utils/device';
 
 export function AnchorDot() {
   return (

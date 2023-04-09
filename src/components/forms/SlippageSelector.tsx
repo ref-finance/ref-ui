@@ -6,8 +6,8 @@ import { IoCloseOutline, IoWarning } from 'react-icons/io5';
 import { QuestionTip } from '../../components/layout/TipWrapper';
 import { SUPPORT_LEDGER_KEY } from '../swap/SwapCard';
 import { SWAP_MODE } from '../../pages/SwapPage';
-import { SupportLedgerGuide } from '~components/layout/SupportLedgerGuide';
-import { useWalletSelector } from '~context/WalletSelectorContext';
+import { SupportLedgerGuide } from '../../components/layout/SupportLedgerGuide';
+import { useWalletSelector } from '../../context/WalletSelectorContext';
 
 export function CustomSwitch({
   isOpen,
