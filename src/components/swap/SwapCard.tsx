@@ -2082,17 +2082,7 @@ export default function SwapCard(props: {
       return nearWithdraw(tokenInAmount);
     }
   };
-  const NoPoolError = () => {
-    return new Error(
-      `${intl.formatMessage({
-        id: 'no_pool_available_to_make_a_swap_from',
-      })} ${tokenIn?.symbol} -> ${tokenOut?.symbol} ${intl.formatMessage({
-        id: 'for_the_amount',
-      })} ${tokenInAmount} ${intl.formatMessage({
-        id: 'no_pool_eng_for_chinese',
-      })}`
-    );
-  };
+
   function judgeBalance() {
     const condition1 = tokenIn && balanceInDone && balanceOutDone;
     return (
@@ -2130,6 +2120,7 @@ export default function SwapCard(props: {
         slippageTolerance={slippageTolerance}
         onChange={onChangeSlippage}
         showElseView={wrapOperation}
+        setReEstimateTrigger={setReEstimateTrigger}
         elseView={
           <div className="flex justify-center">
             {isSignedIn ? (

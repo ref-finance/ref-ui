@@ -481,6 +481,9 @@ export const useSwap = ({
       })
         .then(async ({ estimates, tag }) => {
           if (!estimates) throw '';
+          if (supportLedger && estimates?.length > 1) {
+            return;
+          }
 
           if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
             setAverageFee(estimates);

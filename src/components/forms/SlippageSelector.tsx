@@ -101,6 +101,7 @@ export default function SlippageSelector({
   setSupportLedger,
   hideLedger,
   swapMode,
+  setReEstimateTrigger,
 }: {
   slippageTolerance: number;
   onChange: (slippage: number) => void;
@@ -109,6 +110,7 @@ export default function SlippageSelector({
   setSupportLedger?: (e?: any) => void;
   hideLedger?: boolean;
   swapMode?: SWAP_MODE;
+  setReEstimateTrigger?: (e?: any) => void;
 }) {
   const ref = useRef<HTMLInputElement>();
   const validSlippages = validSlippageList || [0.1, 0.5, 1.0];
@@ -122,18 +124,17 @@ export default function SlippageSelector({
 
   const [ledgerGuide, setLedgerGuide] = useState<boolean>(false);
 
-  console.log('supportLedger: ', supportLedger);
-
   useEffect(() => {
     let timer: any;
 
     if (isLedger && !supportLedger) {
       setShowSlip(true);
       setLedgerGuide(true);
-      localStorage.setItem(SUPPORT_LEDGER_KEY, 'true');
+      localStorage.setItem(SUPPORT_LEDGER_KEY, '1');
 
       timer = setTimeout(() => {
         setSupportLedger(true);
+        setReEstimateTrigger(true);
       }, 500);
     }
     return () => clearTimeout(timer);
