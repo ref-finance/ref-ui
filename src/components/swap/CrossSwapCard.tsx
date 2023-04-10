@@ -945,7 +945,8 @@ export default function CrossSwapCard(props: {
               : !!selectReceive &&
                 tokenIn &&
                 tokenOut &&
-                tokenIn.id !== tokenOut.id
+                tokenIn.id !== tokenOut.id &&
+                !poolError
               ? toPrecision(selectReceive, 8)
               : ''
           }
@@ -965,7 +966,7 @@ export default function CrossSwapCard(props: {
 
         {poolError && tokenIn?.id !== tokenOut?.id ? (
           <div className="pb-2 relative -mb-5">
-            <Alert level="warn" message={poolError} />
+            <Alert level="warn" message={NoPoolError().message} />
           </div>
         ) : null}
       </CrossSwapFormWrap>
