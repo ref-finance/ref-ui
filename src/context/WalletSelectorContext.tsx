@@ -233,7 +233,6 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
 
   useEffect(() => {
     if (!accountId || !selector) return;
-    console.log('accountId: ', accountId);
 
     getAllKeys(accountId);
   }, [accountId, selector]);

@@ -205,8 +205,6 @@ export const generateOrderSignature = (message: string) => {
 
   const keyPair = EC.keyFromPrivate(priKey, 'hex');
 
-  // console.log(pubKey, keyPair.getPublic().encode('hex', false));
-
   const signature = keyPair.sign(msgHash, 'hex', { canonical: true });
 
   const finalSignature =

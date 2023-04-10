@@ -217,8 +217,6 @@ function Anchor({
       if (typeof e?.[REF_FI_SWAP_SWAPPAGE_TAB_KEY] === 'string') {
         const curTab = e?.[REF_FI_SWAP_SWAPPAGE_TAB_KEY];
 
-        console.log(e);
-
         if (curTab === 'normal') {
           setChosenSub(storageSwapMode);
         } else {
