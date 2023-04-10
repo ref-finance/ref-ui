@@ -101,6 +101,7 @@ import {
 import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
 import { percentLess } from '../utils/numbers';
 import getConfig from './config';
+import { SUPPORT_LEDGER_KEY } from '../components/swap/CrossSwapCard';
 export const REF_FI_SWAP_SIGNAL = 'REF_FI_SWAP_SIGNAL_KEY';
 
 // Big.strict = false;
@@ -445,8 +446,15 @@ export const estimateSwap = async ({
     if (!supportLedgerRes && !res.length) throwNoPoolError();
 
     // if not both none, we could return res
+
     setSwapsToDoTri(triTodos);
-    setSwapsToDoRef(res);
+
+    if (localStorage.getItem(SUPPORT_LEDGER_KEY) && res?.length > 1) {
+      setSwapsToDoRef([]);
+
+    } else {
+      setSwapsToDoRef(res);
+    }
 
     const refSmartRes = await getExpectedOutputFromActions(res, tokenOut.id, 0);
     const triRes = await getExpectedOutputFromActions(triTodos, tokenOut.id, 0);

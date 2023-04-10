@@ -783,6 +783,7 @@ export default function CrossSwapCard(props: {
     tokenOutAmountV3,
     canSwapV3,
     canSwap,
+    supportLedger,
   ]);
 
   useEffect(() => {
