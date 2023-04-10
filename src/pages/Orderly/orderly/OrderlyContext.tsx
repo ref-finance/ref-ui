@@ -45,6 +45,7 @@ interface OrderlyContextValue {
   ordersUpdate: Orders | undefined;
   userExist: undefined | boolean;
   availableSymbols: SymbolInfo[];
+  getAmountByAsksAndBids: (side: 'BUY' | 'SELL', amount: number) => number;
 }
 
 export const REF_ORDERLY_SYMBOL_KEY = 'REF_ORDERLY_SYMBOL_KEY';
@@ -83,6 +84,33 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
   //   validAccountSig,
   // });
 
+  const getAmountByAsksAndBids = (side: 'BUY' | 'SELL', amount: number) => {
+    const asksRaw =
+      (side === 'BUY' ? value?.orders?.asks : value?.orders.bids) || [];
+
+    const asks = asksRaw.sort((a, b) => a[0] - b[0]);
+
+    if (asks.length == 0) return null;
+
+    let totalPrice = 0;
+    let totalAmount = 0;
+
+    for (let i = 0; i < asks.length; i++) {
+      const [price, quantity] = asks[i];
+      if (totalAmount + quantity <= amount) {
+        totalPrice += price * quantity;
+        totalAmount += quantity;
+      } else {
+        const remainingQuantity = amount - totalAmount;
+        totalPrice += price * remainingQuantity;
+        totalAmount += remainingQuantity;
+        break;
+      }
+    }
+
+    return totalPrice / totalAmount;
+  };
+
   const availableSymbols = useAllSymbolInfo();
 
   const allOrdersSymbol = useAllOrdersSymbol({
@@ -120,6 +148,7 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
       value={{
         ...value,
         ...privateValue,
+        getAmountByAsksAndBids,
         symbol,
         setSymbol: (symbol: string) => {
           setSymbol(symbol);

@@ -711,10 +711,7 @@ export default function CrossSwapCard(props: {
       crossQuoteDone &&
       !wrapOperation &&
       // !loadingTrigger &&
-      todosValidator &&
-      (localStorage.getItem(SUPPORT_LEDGER_KEY)
-        ? swapsToDoRefV3?.length < 2
-        : true)
+      todosValidator
     ) {
       if (!canSwap && !canSwapV3) {
         setCrossAllResults(null);
@@ -786,7 +783,6 @@ export default function CrossSwapCard(props: {
     tokenOutAmountV3,
     canSwapV3,
     canSwap,
-    supportLedger,
   ]);
 
   useEffect(() => {

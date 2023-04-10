@@ -382,7 +382,7 @@ export const estimateSwap = async ({
   );
   // ref smart routing
 
-  if (supportLedger) {
+  if (supportLedger || localStorage.getItem(SUPPORT_LEDGER_KEY)) {
     if (swapPro) {
       setSwapsToDoTri(triTodos);
       setSwapsToDoRef(refTodos);
