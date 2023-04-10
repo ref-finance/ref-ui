@@ -711,7 +711,10 @@ export default function CrossSwapCard(props: {
       crossQuoteDone &&
       !wrapOperation &&
       // !loadingTrigger &&
-      todosValidator
+      todosValidator &&
+      (localStorage.getItem(SUPPORT_LEDGER_KEY)
+        ? swapsToDoRefV3?.length < 2
+        : true)
     ) {
       if (!canSwap && !canSwapV3) {
         setCrossAllResults(null);

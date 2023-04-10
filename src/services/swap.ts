@@ -449,12 +449,7 @@ export const estimateSwap = async ({
 
     setSwapsToDoTri(triTodos);
 
-    if (localStorage.getItem(SUPPORT_LEDGER_KEY) && res?.length > 1) {
-      setSwapsToDoRef([]);
-
-    } else {
-      setSwapsToDoRef(res);
-    }
+    setSwapsToDoRef(res);
 
     const refSmartRes = await getExpectedOutputFromActions(res, tokenOut.id, 0);
     const triRes = await getExpectedOutputFromActions(triTodos, tokenOut.id, 0);
