@@ -7,6 +7,9 @@ import React, {
   useContext,
   createContext,
 } from 'react';
+
+import { useWalletSelector } from '~context/WalletSelectorContext';
+
 import { useLocation, useHistory } from 'react-router-dom';
 import {
   ftGetBalance,
@@ -1147,15 +1150,21 @@ export default function SwapCard(props: {
   const [doubleCheckOpenLimit, setDoubleCheckOpenLimit] =
     useState<boolean>(false);
 
+  const [supportLedger, setSupportLedger] = useState(
+    localStorage.getItem(SUPPORT_LEDGER_KEY) ? true : false
+  );
+
   const [curOrderPrice, setCurOrderPrice] = useState<string>('');
+
+  // useEffect(() => {
+  //   if (swapMode === SWAP_MODE.NORMAL && isLedger) {
+  //     setSupportLedger(true);
+  //   }
+  // }, [swapMode]);
 
   const [LimitAmountOutRate, setLimitAmountOutRate] = useState<string>('');
 
   const [limitAmountOut, setLimitAmountOut] = useState<string>('');
-
-  const [supportLedger, setSupportLedger] = useState(
-    localStorage.getItem(SUPPORT_LEDGER_KEY) ? true : false
-  );
 
   const [useNearBalance, setUseNearBalance] = useState<boolean>(true);
 
@@ -2073,17 +2082,7 @@ export default function SwapCard(props: {
       return nearWithdraw(tokenInAmount);
     }
   };
-  const NoPoolError = () => {
-    return new Error(
-      `${intl.formatMessage({
-        id: 'no_pool_available_to_make_a_swap_from',
-      })} ${tokenIn?.symbol} -> ${tokenOut?.symbol} ${intl.formatMessage({
-        id: 'for_the_amount',
-      })} ${tokenInAmount} ${intl.formatMessage({
-        id: 'no_pool_eng_for_chinese',
-      })}`
-    );
-  };
+
   function judgeBalance() {
     const condition1 = tokenIn && balanceInDone && balanceOutDone;
     return (
@@ -2121,6 +2120,7 @@ export default function SwapCard(props: {
         slippageTolerance={slippageTolerance}
         onChange={onChangeSlippage}
         showElseView={wrapOperation}
+        setReEstimateTrigger={setReEstimateTrigger}
         elseView={
           <div className="flex justify-center">
             {isSignedIn ? (

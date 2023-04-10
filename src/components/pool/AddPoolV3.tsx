@@ -457,7 +457,7 @@ function InputAmount({
           <span title={balance}>
             <FormattedMessage id="balance" />:{' '}
             <span
-              className="hover:text-white cursor-pointer"
+              className="hover:text-white cursor-pointer underline"
               onClick={() => {
                 changeAmount(maxBalance);
               }}

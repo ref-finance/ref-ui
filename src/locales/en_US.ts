@@ -1234,5 +1234,18 @@ const en_US = {
     'When placing a sell order above market price or a buy order below market price using limit order function, Ref will attempt to execute a swap-with-stop-point action first, and if there is any remaining amount, a limit order will be created to fill the rest.<br> Real-time executed orders refer to orders placed using the limit order function but executed through swapping. In the "History" section, you can view real-time executed orders between the earliest displayed limit order in History up to the present time.',
 
   swapped_history_order: 'Swapped',
+  ledger_guide_tip_1:
+    'To successfully use your Ledger wallet for transactions, the ',
+
+  ledger_guide_tip_2: 'feature has been automatically activated.',
+  ledger_guide_tip_3: 'Please be aware',
+  ledger_guide_tip_quote: '"',
+
+  support_ledger_tip_new: 'Support Ledger',
+
+  ledger_guide_tip_4:
+    'that due to Ledger wallet constraints, the current rate provided by the swap function',
+  ledger_guide_tip_5: 'may not be the best price',
+  ledger_guide_tip_6: '.',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

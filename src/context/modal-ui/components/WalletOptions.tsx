@@ -19,6 +19,8 @@ import {
   AuthenticationIcon,
 } from '../../../components/icon';
 import ReactTooltip from 'react-tooltip';
+import { REF_FI_SENDER_WALLET_ACCESS_KEY } from '../../../pages/Orderly/orderly/utils';
+import { ORDERLY_ASSET_MANAGER } from '../../../pages/Orderly/near';
 
 const walletOfficialUrl = {
   'NEAR Wallet': 'wallet.near.org',
@@ -176,6 +178,28 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
       const currentWallet = await window.selector.wallet();
 
       await currentWallet.signOut();
+
+      if (currentWallet.id === 'sender') {
+        try {
+          const senderAccessKey = localStorage.getItem(
+            REF_FI_SENDER_WALLET_ACCESS_KEY
+          );
+
+          const allKeys = Object.keys(JSON.parse(senderAccessKey)['allKeys']);
+
+          //@ts-ignore
+
+          await window.near.signOut({
+            contractId: allKeys.includes(ORDERLY_ASSET_MANAGER)
+              ? ORDERLY_ASSET_MANAGER
+              : allKeys[0],
+          });
+        } catch (error) {
+          await window.near.signOut();
+        }
+      } else {
+        await currentWallet.signOut();
+      }
     } catch (error) {
       if (walletsRejectError.includes(error.message)) {
         // window.location.reload();

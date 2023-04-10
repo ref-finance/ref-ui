@@ -807,7 +807,7 @@ export function TokenAmountV3({
           <span
             className={`${
               !!onChangeAmount && !forLimitOrder
-                ? 'hover:text-white cursor-pointer'
+                ? 'hover:text-white cursor-pointer underline'
                 : ''
             } `}
             onClick={() => {
