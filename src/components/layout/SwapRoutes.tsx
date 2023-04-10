@@ -50,6 +50,7 @@ import { getAuroraConfig } from '../../services/aurora/config';
 import { isMobile, useClientMobile } from '../../utils/device';
 import { getV3PoolId } from '../../services/swapV3';
 import { nearMetadata, WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
+import { get_pool_name } from '~services/commonV3';
 
 export const RouterIcon = () => {
   return (
@@ -857,7 +858,7 @@ export function RouteDCLDetail({
   const [hover, setHover] = useState(false);
   const isMobile = useClientMobile();
   const pool_id = getV3PoolId(tokenIn.id, tokenOut.id, bestFee * 100);
-  const pool_id_url_params = pool_id.replace(/\|/g, '@');
+  const pool_id_url_params = get_pool_name(pool_id);
 
   return (
     <section
