@@ -246,12 +246,10 @@ export const useOrderlyMarketData = ({ symbol }: { symbol: string }) => {
       setOrdersUpdate(lastJsonMessage?.['data']);
     }
 
-    // process orderbook update
     if (
       lastJsonMessage?.['topic'] === `${symbol}@orderbookupdate` &&
       !!orders
     ) {
-      // setOrders(lastJsonMessage.data);
       setOrdersUpdate(lastJsonMessage?.['data']);
 
       let asks = orders.asks;

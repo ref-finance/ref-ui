@@ -31,6 +31,7 @@ import {
   REF_FARM_CONTRACT_ID,
   wallet,
   REF_FARM_BOOST_CONTRACT_ID,
+  near,
 } from '../services/near';
 import { walletIcons } from './walletIcons';
 import { getOrderlyConfig } from '../pages/Orderly/config';
@@ -66,6 +67,7 @@ interface WalletSelectorContextValue {
   accounts: Array<AccountState>;
   accountId: string | null;
   setAccountId: (accountId: string) => void;
+  isLedger: boolean;
 }
 
 const WalletSelectorContext =
@@ -76,6 +78,8 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
   const [modal, setModal] = useState<WalletSelectorModal | null>(null);
   const [accountId, setAccountId] = useState<string | null>(null);
   const [accounts, setAccounts] = useState<Array<AccountState>>([]);
+
+  const [isLedger, setIsLedger] = useState<boolean>(undefined);
 
   const syncAccountState = (
     currentAccountId: string | null,
@@ -176,8 +180,6 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
   useEffect(() => {
     init()
       .catch((err) => {
-        console.error(err);
-        console.log(err);
         alert('Failed to initialise wallet selector');
       })
       .then(() => {
@@ -209,7 +211,33 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
     return () => subscription.unsubscribe();
   }, [selector, accountId]);
 
-  if (!selector || !modal) {
+  const getAllKeys = async (accountId: string) => {
+    const account = await near.account(accountId);
+
+    const allKeys = await account.getAccessKeys();
+
+    const isWalletMeta = allKeys.some((k) => {
+      if (k.access_key.permission === 'FullAccess') return false;
+      const meta =
+        k.access_key.permission.FunctionCall.method_names.includes(
+          '__wallet__metadata'
+        );
+      return meta;
+    });
+
+    const isSelectLedger =
+      selector.store.getState().selectedWalletId === 'ledger';
+
+    setIsLedger(isSelectLedger || isWalletMeta);
+  };
+
+  useEffect(() => {
+    if (!accountId || !selector) return;
+
+    getAllKeys(accountId);
+  }, [accountId, selector]);
+
+  if (!selector || !modal || (!!accountId && isLedger === undefined)) {
     return null;
   }
 
@@ -257,6 +285,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         accounts,
         accountId,
         setAccountId,
+        isLedger,
       }}
     >
       {children}

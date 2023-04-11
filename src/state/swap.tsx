@@ -91,6 +91,7 @@ import { useTokenPriceList } from './token';
 import Big from 'big.js';
 import BigNumber from 'bignumber.js';
 import { parsedTransactionSuccessValue } from '../components/layout/transactionTipPopUp';
+import { SUPPORT_LEDGER_KEY } from '../components/swap/SwapCard';
 import {
   calcStableSwapPriceImpact,
   calculateSmartRoutesV2PriceImpact,
@@ -481,6 +482,12 @@ export const useSwap = ({
       })
         .then(async ({ estimates, tag }) => {
           if (!estimates) throw '';
+          if (
+            localStorage.getItem(SUPPORT_LEDGER_KEY) &&
+            estimates?.length > 1
+          ) {
+            return;
+          }
 
           if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
             setAverageFee(estimates);
@@ -1020,8 +1027,6 @@ export const useLimitOrder = ({
         setPoolToOrderCounts(toCounts);
       })
       .catch((e) => {
-        console.log(e);
-
         const allPoolsForThisPair = V3_POOL_FEE_LIST.map((fee) =>
           getV3PoolId(tokenIn.id, tokenOut.id, fee)
         );
@@ -1289,6 +1294,9 @@ export const useCrossSwap = ({
       setSwapsToDoTri,
     })
       .then(({ estimates }) => {
+        if (localStorage.getItem(SUPPORT_LEDGER_KEY) && estimates?.length > 1) {
+          return;
+        }
         if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
           setAverageFee(estimates);
 

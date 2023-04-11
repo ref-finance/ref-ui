@@ -399,9 +399,7 @@ export const useTokensData = (
           };
         })
         .then((d: TokenMetadata) => setResultAtIndex(d, index))
-        .catch((err) => {
-          console.log(err);
-        });
+        .catch((err) => {});
     }
   }, [tokens?.length]);
 

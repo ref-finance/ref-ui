@@ -115,7 +115,7 @@ export class TVChartContainer extends React.PureComponent<
   }
 }
 
-export function ChartContainer() {
+export function ChartContainer({ maintenance }: { maintenance: boolean }) {
   const { symbol } = useOrderlyContext();
 
   const [tvWidget, setTvWidget] = React.useState<IChartingLibraryWidget>();
@@ -157,10 +157,12 @@ export function ChartContainer() {
   };
 
   React.useEffect(() => {
+    if (maintenance) return;
+
     const tvWidget = new widget(widgetOptions);
 
     setTvWidget(tvWidget);
-  }, []);
+  }, [maintenance]);
 
   React.useEffect(() => {
     if (!tvWidget) return;

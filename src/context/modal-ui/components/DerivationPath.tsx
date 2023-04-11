@@ -255,8 +255,6 @@ export const DerivationPath: React.FC<DerivationPathProps> = ({
       })
       .then(() => onConnected())
       .catch((err) => {
-        console.log(err);
-
         setError(`Error: ${err.message}`);
         setRoute('ErrorRoute');
       });
