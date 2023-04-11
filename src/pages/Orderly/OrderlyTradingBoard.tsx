@@ -60,7 +60,7 @@ function TradingBoard() {
           }}
         >
           <div className="w-full border p-4   border-boxBorder rounded-2xl bg-black bg-opacity-10">
-            <ChartHeader></ChartHeader>
+            <ChartHeader maintenance={maintenance}></ChartHeader>
             <ChartContainer />
           </div>
           {!isLarge && (
@@ -124,7 +124,7 @@ function MobileTradingBoard() {
       {maintenance && <OrderlyUnderMaintain></OrderlyUnderMaintain>}
 
       <div className="w-95vw  mx-auto flex flex-col lg:hidden">
-        <ChartHeader></ChartHeader>
+        <ChartHeader maintenance={maintenance}></ChartHeader>
 
         {/* info board */}
 
