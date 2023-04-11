@@ -130,16 +130,18 @@ export const Symbols = ({
   size,
   seperator,
   fontSize,
+  className,
 }: {
   withArrow?: boolean;
   tokens: TokenMetadata[];
   size?: string;
   seperator?: string;
   fontSize?: string;
+  className?: string;
 }) => {
   return (
     <div
-      className={`text-white ${fontSize || 'font-bold'}  ${
+      className={`${className} text-white ${fontSize || 'font-bold'}  ${
         withArrow ? 'cursor-pointer' : null
       } ${size}`}
     >

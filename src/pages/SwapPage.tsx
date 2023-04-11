@@ -22,6 +22,7 @@ import {
 
 import AdSwiper from '../components/layout/Swiper';
 import LimitOrderCard from '~components/swap/LimitOrderCard';
+import SwapRateChart from '~components/swap/SwapRateChart';
 
 export const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';
 
@@ -164,7 +165,9 @@ function SwapPage() {
 
   return (
     <div className="frsc ">
-      <div className="w-700px"></div>
+      <div className="w-700px">
+        <SwapRateChart tokenIn={tokenIn} tokenOut={tokenOut} />
+      </div>
 
       <div className="swapContainer">
         <section className={`lg:w-480px xsm:mx-3  m-auto relative`}>

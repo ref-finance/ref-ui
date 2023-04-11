@@ -81,7 +81,6 @@ import { getMax } from '../../utils/numbers';
 import { YellowTipIcon, RedTipIcon, SelectedIcon } from '../icon/swapV3';
 import * as math from 'mathjs';
 import { NEAR_WITHDRAW_KEY } from '../forms/WrapNear';
-import { nearMetadata } from '../../services/wrap-near';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -232,7 +231,6 @@ export function SwapRate({
         return math.floor(result, 4);
       }
     } catch (error) {}
-    // return calculateExchangeRate(fee, fromNow, toNow, 6);
   }, [isRevert, to]);
 
   function switchSwapRate(e: React.MouseEvent<HTMLDivElement>) {
@@ -545,13 +543,11 @@ function DetailViewV2({
           color="text-white"
         />
 
-        {
-          <SmartRoutesV2Detail
-            swapsTodo={swapsTodo}
-            tokenIn={tokenIn}
-            tokenOut={tokenOut}
-          />
-        }
+        <SmartRoutesV2Detail
+          swapsTodo={swapsTodo}
+          tokenIn={tokenIn}
+          tokenOut={tokenOut}
+        />
       </div>
       {Number(priceImpact) > 2 ? (
         <div className="flex items-center justify-between xsm:flex-col bg-lightReBgColor border border-warnRedColor  mb-4 rounded-xl p-3  text-sm text-redwarningColor">
@@ -763,11 +759,6 @@ export default function SwapCard(props: {
     getConfig().networkId === 'mainnet'
       ? 'token.skyward.near'
       : 'skyward.fakes.testnet';
-
-  const usdcId =
-    getConfig().networkId === 'mainnet'
-      ? 'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near'
-      : 'usdc.fakes.testnet';
 
   useEffect(() => {
     if (!tokenIn || !tokenOut) return;
@@ -1022,9 +1013,7 @@ export default function SwapCard(props: {
   });
 
   const bestSwap =
-    swapMode === SWAP_MODE.NORMAL &&
-    new Big(tokenOutAmountV3 || '0').gte(tokenOutAmount || '0') &&
-    canSwapV3
+    new Big(tokenOutAmountV3 || '0').gte(tokenOutAmount || '0') && canSwapV3
       ? 'v3'
       : 'v2';
 
@@ -1198,7 +1187,7 @@ export default function SwapCard(props: {
             >
               {getPriceImpactTipType(displayPriceImpact)}
               <span className="text-xs text-primaryText mx-1.5">
-                <FormattedMessage id="details"></FormattedMessage>
+                <FormattedMessage id="details" />
               </span>
               <span>
                 {showDetails ? (

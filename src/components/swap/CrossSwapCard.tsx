@@ -108,7 +108,7 @@ import {
   nearDeposit,
   nearWithdraw,
 } from '../../services/wrap-near';
-import { unWrapTokenId, wrapTokenId, DetailView_near_wnear } from './SwapCard';
+import { unWrapTokenId, wrapTokenId } from './SwapCard';
 import getConfig, { getExtraStablePoolConfig } from '../../services/config';
 import { SWAP_MODE } from '../../pages/SwapPage';
 import Big from 'big.js';

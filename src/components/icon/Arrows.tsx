@@ -454,6 +454,72 @@ export function SwapExchangeV1({ onChange }: { onChange: (e?: any) => void }) {
   );
 }
 
+export function SwapRateExchange({
+  onChange,
+}: {
+  onChange: (e?: any) => void;
+}) {
+  const [hover, setHover] = useState<boolean>(false);
+  const upRow = useRef(null);
+  const downRow = useRef(null);
+
+  const mobileDevice = isMobile();
+
+  const [mobileAnimation, setMobileAnimation] = useState<boolean>(false);
+
+  const runSwapAnimation = function () {
+    upRow.current.style.animation = 'arrowRight 0.5s 0s ease-out 1';
+    downRow.current.style.animation = 'arrowLeft 0.5s 0s ease-out 1';
+    setMobileAnimation(true);
+
+    upRow.current.addEventListener('animationend', function () {
+      upRow.current.style.animation = '';
+      setMobileAnimation(false);
+    });
+    downRow.current.addEventListener('animationend', function () {
+      downRow.current.style.animation = '';
+      setMobileAnimation(false);
+    });
+  };
+
+  return (
+    <div
+      className="relative transform scale-75 rotate-90 flex items-center justify-center w-7 h-7 border-2 border-switchIconBorderColor rounded-lg cursor-pointer bg-switchIconBgColor"
+      onClick={() => {
+        onChange();
+        mobileDevice && runSwapAnimation();
+      }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      <div className="flex items-center">
+        <span
+          className={`transition-transform transform ${
+            hover ? 'lg:-translate-y-0.5' : ''
+          }`}
+          ref={upRow}
+        >
+          <SwapArrowUp
+            width="5"
+            light={mobileDevice ? mobileAnimation : hover}
+          />
+        </span>
+        <span
+          className={`transition-transform transform ${
+            hover ? 'lg:translate-y-1 ' : ''
+          }`}
+          ref={downRow}
+        >
+          <SwapArrowDown
+            width="5"
+            light={mobileDevice ? mobileAnimation : hover}
+          />
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export const RouterArrowLeft = ({ color }: { color?: string }) => {
   return (
     <svg
