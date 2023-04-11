@@ -51,11 +51,10 @@ import {
 
 import { EstimateSwapView, PoolMode, swap } from '../../services/swap';
 import { QuestionTip } from '../layout/TipWrapper';
-import { senderWallet, WalletContext } from '../../utils/wallets-integration';
+import { WalletContext } from '../../utils/wallets-integration';
 import { SwapExchangeV1 } from '../icon/Arrows';
 import { getPoolAllocationPercents } from '../../utils/numbers';
 import { DoubleCheckModal } from '../layout/SwapDoubleCheck';
-import { getTokenPriceList } from '../../services/indexer';
 import { SWAP_MODE, SWAP_MODE_KEY } from '../../pages/SwapPage';
 import { USD_CLASS_STABLE_TOKEN_IDS } from '../../services/near';
 import {
@@ -90,8 +89,6 @@ const SWAP_IN_KEY_SYMBOL = 'REF_FI_SWAP_IN_SYMBOL';
 const SWAP_OUT_KEY_SYMBOL = 'REF_FI_SWAP_OUT_SYMBOL';
 
 const SWAP_SLIPPAGE_KEY = 'REF_FI_SLIPPAGE_VALUE';
-
-const SWAP_SLIPPAGE_KEY_LIMIT = 'REF_FI_SLIPPAGE_VALUE_LIMIT';
 
 export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 const TOKEN_URL_SEPARATOR = '|';
@@ -753,9 +750,6 @@ export default function SwapCard(props: {
         0.5
     );
 
-  const [slippageToleranceLimit, setSlippageToleranceLimit] = useState<number>(
-    Number(localStorage.getItem(SWAP_SLIPPAGE_KEY_LIMIT)) || 0.5
-  );
   const [showDetails, setShowDetails] = useState<boolean>(false);
 
   const tokenPriceList = useTokenPriceList();
@@ -1308,7 +1302,6 @@ export default function SwapCard(props: {
       hideCondition5;
     return !hideConditionFinall;
   }
-  // const canSubmit = (swapMode !== SWAP_MODE.LIMIT ? (canSwap || canSwapV3) && (tokenInMax != '0' || !useNearBalance) && quoteDone && quoteDoneV3 : !!mostPoolDetail && !ONLY_ZEROS.test(limitAmountOut)) && new Big(tokenInAmount || '0').lte(tokenInMax || '0') && !ONLY_ZEROS.test(tokenInMax || '0');
 
   const canSubmit = satisfyCondition1() && satisfyCondition2();
 
@@ -1496,10 +1489,8 @@ export default function SwapCard(props: {
           useNearBalance={useNearBalance}
           onSelectToken={(token) => {
             localStorage.setItem(SWAP_OUT_KEY, token.id);
-
             setTokenOut(token);
             setCanSwap(false);
-
             if (token.id === skywardId) {
               setShowSkywardTip(true);
             }
@@ -1522,13 +1513,10 @@ export default function SwapCard(props: {
             minAmountOut={tokenInAmount}
             from={tokenInAmount}
             to={tokenInAmount}
-          ></DetailView_near_wnear>
+          />
         ) : null}
 
-        {poolError &&
-        !wrapOperation &&
-        swapMode === SWAP_MODE.NORMAL &&
-        Number(tokenInAmount || '0') > 0 ? (
+        {poolError && !wrapOperation && Number(tokenInAmount || '0') > 0 ? (
           <div className="pb-2 relative ">
             <Alert level="warn" message={poolError} />
           </div>
