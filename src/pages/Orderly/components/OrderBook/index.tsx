@@ -553,45 +553,47 @@ function OrderBook({ maintenance }: { maintenance: boolean }) {
               maxHeight: 'calc(50% - 50px)',
             }}
           >
-            {asks?.map((order, i) => {
-              return (
-                <OrderLine
-                  type="ask"
-                  setBridgePrice={setBridgePrice}
-                  order={order}
-                  i={i}
-                  pendingOrders={pendingOrders}
-                  groupMyPendingOrders={groupMyPendingOrders}
-                  totalSize={asktotalSize}
-                  zIndex={31}
-                  inViewCount={inViewAsk}
-                  setInViewCOunt={setInViewAsk}
-                  decimalLength={getDecimalPlaceByNumber(precision)}
-                  symbolInfo={symbolInfo}
-                />
-              );
-            })}
+            {!maintenance &&
+              asks?.map((order, i) => {
+                return (
+                  <OrderLine
+                    type="ask"
+                    setBridgePrice={setBridgePrice}
+                    order={order}
+                    i={i}
+                    pendingOrders={pendingOrders}
+                    groupMyPendingOrders={groupMyPendingOrders}
+                    totalSize={asktotalSize}
+                    zIndex={31}
+                    inViewCount={inViewAsk}
+                    setInViewCOunt={setInViewAsk}
+                    decimalLength={getDecimalPlaceByNumber(precision)}
+                    symbolInfo={symbolInfo}
+                  />
+                );
+              })}
           </section>
 
           {/* market trade */}
+          {!maintenance && (
+            <div
+              className={`text-center font-nunito flex items-center py-1 justify-center ${
+                diff > 0
+                  ? 'text-buyGreen'
+                  : diff < 0
+                  ? 'text-sellRed'
+                  : 'text-primaryText'
+              } text-lg`}
+            >
+              {orders && recentTrades?.length > 0 && marketTradeDisplay}
 
-          <div
-            className={`text-center font-nunito flex items-center py-1 justify-center ${
-              diff > 0
-                ? 'text-buyGreen'
-                : diff < 0
-                ? 'text-sellRed'
-                : 'text-primaryText'
-            } text-lg`}
-          >
-            {orders && recentTrades?.length > 0 && marketTradeDisplay}
-
-            {orders && recentTrades?.length > 0 && diff !== 0 && (
-              <IoArrowUpOutline
-                className={diff < 0 ? 'transform rotate-180' : ''}
-              />
-            )}
-          </div>
+              {orders && recentTrades?.length > 0 && diff !== 0 && (
+                <IoArrowUpOutline
+                  className={diff < 0 ? 'transform rotate-180' : ''}
+                />
+              )}
+            </div>
+          )}
 
           {/* buy */}
 
@@ -599,24 +601,25 @@ function OrderBook({ maintenance }: { maintenance: boolean }) {
             className="text-xs flex-row  overflow-auto  overflow-x-visible text-white"
             id="buy-order-book-panel"
           >
-            {bids?.map((order, i) => {
-              return (
-                <OrderLine
-                  type="bid"
-                  setBridgePrice={setBridgePrice}
-                  order={order}
-                  i={i}
-                  pendingOrders={pendingOrders}
-                  groupMyPendingOrders={groupMyPendingOrders}
-                  totalSize={bidtotalSize}
-                  zIndex={30}
-                  inViewCount={inViewBid}
-                  setInViewCOunt={setInViewBid}
-                  decimalLength={getDecimalPlaceByNumber(precision)}
-                  symbolInfo={symbolInfo}
-                />
-              );
-            })}
+            {!maintenance &&
+              bids?.map((order, i) => {
+                return (
+                  <OrderLine
+                    type="bid"
+                    setBridgePrice={setBridgePrice}
+                    order={order}
+                    i={i}
+                    pendingOrders={pendingOrders}
+                    groupMyPendingOrders={groupMyPendingOrders}
+                    totalSize={bidtotalSize}
+                    zIndex={30}
+                    inViewCount={inViewBid}
+                    setInViewCOunt={setInViewBid}
+                    decimalLength={getDecimalPlaceByNumber(precision)}
+                    symbolInfo={symbolInfo}
+                  />
+                );
+              })}
           </section>
         </>
       )}
