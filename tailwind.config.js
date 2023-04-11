@@ -1,9 +1,34 @@
 const colors = require('tailwindcss/colors');
 const defaultTheme = require('tailwindcss/defaultTheme');
 
+const plugin = require('tailwindcss/plugin');
+
 module.exports = {
   purge: false,
   darkMode: false, // or 'media' or 'class'
+  plugins: [
+    plugin(function ({ addUtilities }) {
+      addUtilities({
+        '.frcc': {
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
+        '.frcs': {
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+        },
+        '.frsc': {
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'center',
+          alignItems: 'start',
+        },
+      });
+    }),
+  ],
   theme: {
     screens: {
       xs: { min: '300px', max: '600px' },
@@ -339,7 +364,7 @@ module.exports = {
         light_green_text_color: '#82D266',
         light_red_color: 'rgba(255, 106, 142, 0.15)',
         menuBorderColor: '#27343E',
-        guideBgColor:'rgba(0, 19, 32, 0.8)',
+        guideBgColor: 'rgba(0, 19, 32, 0.8)',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

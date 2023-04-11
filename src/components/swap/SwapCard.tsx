@@ -680,7 +680,10 @@ export default function SwapCard(props: {
   setTokenInAmount: (value: string) => void;
   swapTab?: JSX.Element;
   globalWhiteListTokens: TokenMetadata[];
-  limitTokenTrigger?: boolean;
+  setTokenIn: (value: TokenMetadata) => void;
+  tokenIn: TokenMetadata;
+  setTokenOut: (value: TokenMetadata) => void;
+  tokenOut: TokenMetadata;
 }) {
   const { NEARXIDS, STNEARIDS } = getExtraStablePoolConfig();
   const { REF_TOKEN_ID } = getConfig();
@@ -688,15 +691,17 @@ export default function SwapCard(props: {
 
   const {
     allTokens,
+    tokenIn,
+    tokenOut,
+    setTokenIn,
+    setTokenOut,
     swapMode,
     tokenInAmount,
     setTokenInAmount,
     swapTab,
     globalWhiteListTokens,
-    limitTokenTrigger,
   } = props;
-  const [tokenIn, setTokenIn] = useState<TokenMetadata>();
-  const [tokenOut, setTokenOut] = useState<TokenMetadata>();
+
   const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
 
   const [supportLedger, setSupportLedger] = useState(
@@ -857,17 +862,6 @@ export default function SwapCard(props: {
     urlTokenIn,
     urlTokenOut,
   ]);
-
-  useEffect(() => {
-    if (limitTokenTrigger === undefined || swapMode !== SWAP_MODE.LIMIT) return;
-
-    setTokenIn({
-      ...nearMetadata,
-      id: WRAP_NEAR_CONTRACT_ID,
-    });
-
-    setTokenOut(allTokens.find((token) => token.id === usdcId));
-  }, [limitTokenTrigger, swapMode]);
 
   useEffect(() => {
     if (tokenIn) {

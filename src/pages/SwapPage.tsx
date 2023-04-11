@@ -38,6 +38,11 @@ export enum SWAP_MODE {
   LIMIT = 'limit',
 }
 
+export enum SWAP_TYPE {
+  LITE = 'Lite',
+  Pro = 'Pro',
+}
+
 const ChangeSwapMode = ({
   swapMode,
   setSwapMode,
@@ -50,7 +55,7 @@ const ChangeSwapMode = ({
   limitTokenTrigger: boolean;
 }) => {
   return (
-    <div className="rounded-2xl font-bold xs:relative xs:top-1  w-full text-limitOrderInputColor text-sm flex py-2 xs:pt-0 xs:pb-2 items-start mx-auto  ">
+    <div className="rounded-2xl font-bold xs:relative xs:top-1  w-full text-limitOrderInputColor   text-sm flex py-2 xs:pt-0 xs:pb-2 items-start mx-auto  ">
       <span
         className={`mr-3 xs:mr-2 gotham_bold text-center px-2.5  xsm:px-2 py-1.5 rounded-xl lg:hover:text-gradientFrom  lg:hover:bg-opacity-10  flex flex-col cursor-pointer whitespace-nowrap ${
           swapMode === SWAP_MODE.NORMAL ? ' text-white  ' : ''
@@ -108,7 +113,8 @@ function getAllTokens(refTokens: TokenMetadata[], triTokens: TokenMetadata[]) {
 
 function SwapPage() {
   const [tokenInAmount, setTokenInAmount] = useState<string>('1');
-
+  const [tokenIn, setTokenIn] = useState<TokenMetadata>();
+  const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const triTokenIds = useTriTokenIdsOnRef();
 
   const refTokens = useWhitelistTokens((triTokenIds || []).concat(['aurora']));
@@ -157,47 +163,54 @@ function SwapPage() {
   );
 
   return (
-    <div className="swap">
-      <section className={`lg:w-480px xsm:mx-3  m-auto relative  `}>
-        {swapMode === SWAP_MODE.NORMAL && (
-          <SwapCard
-            allTokens={crossSwapTokens}
-            swapMode={swapMode}
-            tokenInAmount={tokenInAmount}
-            setTokenInAmount={setTokenInAmount}
-            limitTokenTrigger={limitTokenTrigger}
-            swapTab={
-              <ChangeSwapMode
-                setLimitTokenTrigger={setLimitTokenTrigger}
-                limitTokenTrigger={limitTokenTrigger}
-                swapMode={swapMode}
-                setSwapMode={setSwapMode}
-              />
-            }
-            globalWhiteListTokens={globalWhiteListTokens}
-          />
-        )}
-        {swapMode === SWAP_MODE.LIMIT && (
-          <LimitOrderCard
-            allTokens={crossSwapTokens}
-            swapMode={swapMode}
-            tokenInAmount={tokenInAmount}
-            setTokenInAmount={setTokenInAmount}
-            limitTokenTrigger={limitTokenTrigger}
-            swapTab={
-              <ChangeSwapMode
-                setLimitTokenTrigger={setLimitTokenTrigger}
-                limitTokenTrigger={limitTokenTrigger}
-                swapMode={swapMode}
-                setSwapMode={setSwapMode}
-              />
-            }
-            globalWhiteListTokens={globalWhiteListTokens}
-          />
-        )}
-      </section>
-      <div className="lg:w-480px xsm:mx-3  m-auto relative text-white mt-5">
-        <AdSwiper />
+    <div className="frsc ">
+      <div className="w-700px"></div>
+
+      <div className="swapContainer">
+        <section className={`lg:w-480px xsm:mx-3  m-auto relative`}>
+          {swapMode === SWAP_MODE.NORMAL && (
+            <SwapCard
+              allTokens={crossSwapTokens}
+              swapMode={swapMode}
+              tokenIn={tokenIn}
+              setTokenIn={setTokenIn}
+              tokenOut={tokenOut}
+              setTokenOut={setTokenOut}
+              tokenInAmount={tokenInAmount}
+              setTokenInAmount={setTokenInAmount}
+              swapTab={
+                <ChangeSwapMode
+                  setLimitTokenTrigger={setLimitTokenTrigger}
+                  limitTokenTrigger={limitTokenTrigger}
+                  swapMode={swapMode}
+                  setSwapMode={setSwapMode}
+                />
+              }
+              globalWhiteListTokens={globalWhiteListTokens}
+            />
+          )}
+          {swapMode === SWAP_MODE.LIMIT && (
+            <LimitOrderCard
+              allTokens={crossSwapTokens}
+              swapMode={swapMode}
+              tokenInAmount={tokenInAmount}
+              setTokenInAmount={setTokenInAmount}
+              limitTokenTrigger={limitTokenTrigger}
+              swapTab={
+                <ChangeSwapMode
+                  setLimitTokenTrigger={setLimitTokenTrigger}
+                  limitTokenTrigger={limitTokenTrigger}
+                  swapMode={swapMode}
+                  setSwapMode={setSwapMode}
+                />
+              }
+              globalWhiteListTokens={globalWhiteListTokens}
+            />
+          )}
+        </section>
+        <div className="lg:w-480px xsm:mx-3  m-auto relative text-white mt-5">
+          <AdSwiper />
+        </div>
       </div>
     </div>
   );

@@ -843,9 +843,7 @@ export const useSwapV3 = ({
   }
   return {
     makeSwap,
-    // canSwap:
-    //   (quoteDone &&  tagValidator(bestEstimate, tokenIn, tokenInAmount)) ||
-    //   swapMode !== SWAP_MODE.NORMAL,
+
     canSwap: getCanSwapCondition(),
     tokenOutAmount,
     canSwapPro: quoteDone && tagValidator(bestEstimate, tokenIn, tokenInAmount),

@@ -23,6 +23,7 @@ import {
 
 import { getPool as getPoolRPC } from '../services/pool';
 import { BLACKLIST_POOL_IDS } from './near';
+import { TokenMetadata } from './ft-contract';
 
 const config = getConfig();
 
@@ -510,5 +511,44 @@ export const getLimitOrderLogsByAccount = async (): Promise<any[]> => {
     })
     .catch(() => {
       return [];
+    });
+};
+
+export interface TokenPairRate {
+  symbol: string;
+  contract_address: string;
+  price_list: PriceList[];
+}
+
+interface PriceList {
+  price: number;
+  date_time: string;
+}
+
+export const getTokenPairRate = async ({
+  token,
+  base_token,
+  dimension,
+}: {
+  token: TokenMetadata;
+  base_token: TokenMetadata;
+  dimension: 'Y' | 'M' | 'W' | 'D';
+}): Promise<TokenPairRate> => {
+  return await fetch(
+    config.indexerUrl +
+      `/token-last-price-report?token=${token.id}&base_token=${base_token.id}&dimension=${dimension}`,
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  )
+    .then((res) => res.json())
+
+    .catch(() => {
+      return {
+        symbol: token.symbol,
+        contract_address: token.id,
+        price_list: [],
+      };
     });
 };
