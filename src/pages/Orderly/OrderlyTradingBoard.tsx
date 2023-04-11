@@ -36,17 +36,19 @@ import { getOrderlySystemInfo } from './orderly/off-chain-api';
 function TradingBoard() {
   const isLarge = useLargeScreen();
 
-  const [maintenance, setMaintenance] = React.useState<boolean>(
-    !!localStorage.getItem('orderly-maintenance') || false
-  );
+  const [maintenance, setMaintenance] = React.useState<boolean>(undefined);
 
   React.useEffect(() => {
     getOrderlySystemInfo().then((res) => {
       if (res.data.status === 2) {
         setMaintenance(true);
+      } else {
+        setMaintenance(false);
       }
     });
   }, []);
+
+  if (maintenance === undefined) return null;
 
   return (
     <div className="w-full flex  pl-4 xs:hidden md:hidden relative">
@@ -97,14 +99,14 @@ function TradingBoard() {
 }
 
 function MobileTradingBoard() {
-  const [maintenance, setMaintenance] = React.useState<boolean>(
-    !!localStorage.getItem('orderly-maintenance') || false
-  );
+  const [maintenance, setMaintenance] = React.useState<boolean>(undefined);
 
   React.useEffect(() => {
     getOrderlySystemInfo().then((res) => {
       if (res.data.status === 2) {
         setMaintenance(true);
+      } else {
+        setMaintenance(false);
       }
     });
   }, []);
@@ -118,6 +120,8 @@ function MobileTradingBoard() {
       document.documentElement.style.overflow = 'auto';
     }
   }, [maintenance]);
+
+  if (maintenance === undefined) return null;
 
   return (
     <div>
