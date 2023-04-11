@@ -1156,7 +1156,6 @@ export default function SwapCard(props: {
 
   const [curOrderPrice, setCurOrderPrice] = useState<string>('');
 
-
   const [LimitAmountOutRate, setLimitAmountOutRate] = useState<string>('');
 
   const [limitAmountOut, setLimitAmountOut] = useState<string>('');
