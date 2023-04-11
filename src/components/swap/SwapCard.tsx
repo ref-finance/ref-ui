@@ -1156,11 +1156,6 @@ export default function SwapCard(props: {
 
   const [curOrderPrice, setCurOrderPrice] = useState<string>('');
 
-  // useEffect(() => {
-  //   if (swapMode === SWAP_MODE.NORMAL && isLedger) {
-  //     setSupportLedger(true);
-  //   }
-  // }, [swapMode]);
 
   const [LimitAmountOutRate, setLimitAmountOutRate] = useState<string>('');
 
