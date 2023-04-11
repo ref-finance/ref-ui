@@ -63,7 +63,7 @@ function TradingBoard() {
         >
           <div className="w-full border p-4   border-boxBorder rounded-2xl bg-black bg-opacity-10">
             <ChartHeader maintenance={maintenance}></ChartHeader>
-            <ChartContainer />
+            <ChartContainer maintenance={maintenance} />
           </div>
           {!isLarge && (
             <div className="w-80 flex-shrink-0 mx-3">

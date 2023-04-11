@@ -104,7 +104,7 @@ export const MOBILE_TAB = 'REF_ORDERLY_MOBILE_TAB';
 
 export const MOBILE_DISPLAY = 'REF_ORDERLY_MOBILE_DISPLAY';
 
-function ChartBoard() {
+function ChartBoard({ maintenance }: { maintenance: boolean }) {
   const { validAccountSig, ticker } = useOrderlyContext();
   const intl = useIntl();
   return (
@@ -139,7 +139,7 @@ function ChartBoard() {
           </div>
         </div>
       )}
-      <ChartContainer />
+      <ChartContainer maintenance={maintenance} />
     </div>
   );
 }
@@ -922,7 +922,7 @@ export default function ({ maintenance }: { maintenance: boolean }) {
       </div>
 
       <div className={tab === 'chart' && showDisplay ? '' : 'hidden'}>
-        <ChartBoard></ChartBoard>
+        <ChartBoard maintenance={maintenance}></ChartBoard>
       </div>
 
       <div className={tab === 'book' && showDisplay ? '' : 'hidden'}>
