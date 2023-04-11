@@ -152,6 +152,7 @@ function OrderlyUnderMaintain() {
         background: 'rgba(0, 19, 32, 0.6)',
         zIndex: 90,
         backdropFilter: isMobile() ? 'blur(5px)' : '',
+        WebkitBackdropFilter: isMobile() ? 'blur(5px)' : '',
       }}
     >
       <OrderlyUnderMaintainIcon></OrderlyUnderMaintainIcon>
