@@ -926,7 +926,7 @@ export default function CrossSwapCard(props: {
           selectedToken={tokenOut}
           forCross
           isOut
-          swapMode={SWAP_MODE.X_SWAP}
+          swapMode={SWAP_MODE.NORMAL}
           onSelectToken={(token) => {
             setQuoteDoneV3(false);
             setCrossQuoteDone(false);

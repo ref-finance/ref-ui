@@ -431,7 +431,7 @@ export function PoolSlippageSelectorV3({
   );
 }
 
-export function StableSlipSelecter({
+export function StableSlipSelector({
   slippageTolerance,
   onChange,
   setInvalid,

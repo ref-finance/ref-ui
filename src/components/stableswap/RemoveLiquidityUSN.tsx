@@ -14,10 +14,7 @@ import { Card } from '../../components/card/Card';
 import InputAmount from '../../components/forms/InputAmount';
 import QuestionMark from '~components/farm/QuestionMark';
 
-import {
-  PoolSlippageSelector,
-  StableSlipSelecter,
-} from '../../components/forms/SlippageSelector';
+import { StableSlipSelecter } from '../../components/forms/SlippageSelector';
 import { TokenMetadata } from '~services/ft-contract';
 import {
   Pool,

@@ -14,8 +14,17 @@ import {
   REF_META_DATA,
 } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
-import { useDepositableBalance, useTokenPriceList } from '../../state/token';
-import { useSwap, useSwapV3, useSwapPopUp } from '../../state/swap';
+import {
+  useTokenBalances,
+  useDepositableBalance,
+  useTokenPriceList,
+} from '../../state/token';
+import {
+  useSwap,
+  useSwapV3,
+  useLimitOrder,
+  useSwapPopUp,
+} from '../../state/swap';
 import {
   calculateExchangeRate,
   calculateFeeCharge,
@@ -31,20 +40,54 @@ import {
   separateRoutes,
   calcStableSwapPriceImpact,
 } from '../../utils/numbers';
+import ReactDOMServer from 'react-dom/server';
+import TokenAmount from '../forms/TokenAmount';
 import SubmitButton, { InsufficientButton } from '../forms/SubmitButton';
 import Alert from '../alert/Alert';
 import { toRealSymbol } from '../../utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
+import db from '../../store/RefDatabase';
 import { ConnectToNearBtnSwap } from '../button/Button';
 
+import {
+  AllStableTokenIds,
+  BTCIDS,
+  BTC_STABLE_POOL_ID,
+  CUSDIDS,
+  LINEARIDS,
+  LINEAR_POOL_ID,
+  NEARXIDS,
+  NEARX_POOL_ID,
+  STABLE_POOL_TYPE,
+  STABLE_TOKEN_IDS,
+  STNEARIDS,
+  STNEAR_POOL_ID,
+  wallet,
+} from '../../services/near';
 import SwapFormWrap from '../forms/SwapFormWrap';
-import { CountdownTimer } from '../icon/SwapRefresh';
-import { useMobile } from '../../utils/device';
+import SwapTip from '../forms/SwapTip';
+import {
+  WarnTriangle,
+  ErrorTriangle,
+  CountdownTimer,
+} from '../icon/SwapRefresh';
+import ReactModal from 'react-modal';
+import Modal from 'react-modal';
+import { Card } from '../card/Card';
+import {
+  isMobile,
+  useClientMobile,
+  useMobile,
+  isClientMobie,
+} from '../../utils/device';
+import { ModalClose } from '../icon';
 import BigNumber from 'bignumber.js';
 import {
   AutoRouterText,
+  OneParallelRoute,
   RouterIcon,
+  SmartRouteV2,
   NormalSwapRoute,
   RouteDCLDetail,
 } from '../layout/SwapRoutes';
@@ -52,12 +95,26 @@ import {
 import { EstimateSwapView, PoolMode, swap } from '../../services/swap';
 import { QuestionTip } from '../layout/TipWrapper';
 import { senderWallet, WalletContext } from '../../utils/wallets-integration';
-import { SwapExchangeV1 } from '../icon/Arrows';
-import { getPoolAllocationPercents } from '../../utils/numbers';
+import {
+  SwapArrow,
+  SwapExchange,
+  SwapExchangeV1,
+  SwapExchangeV3,
+} from '../icon/Arrows';
+import {
+  getPoolAllocationPercents,
+  percentLess,
+  toNonDivisibleNumber,
+} from '../../utils/numbers';
 import { DoubleCheckModal } from '../layout/SwapDoubleCheck';
 import { getTokenPriceList } from '../../services/indexer';
 import { SWAP_MODE, SWAP_MODE_KEY } from '../../pages/SwapPage';
-import { USD_CLASS_STABLE_TOKEN_IDS } from '../../services/near';
+import {
+  isStableToken,
+  STABLE_TOKEN_USN_IDS,
+  USD_CLASS_STABLE_TOKEN_IDS,
+} from '../../services/near';
+import TokenReserves from '../stableswap/TokenReserves';
 import {
   WRAP_NEAR_CONTRACT_ID,
   unwrapedNear,
@@ -66,22 +123,55 @@ import {
   wnearMetadata,
 } from '../../services/wrap-near';
 import getConfig, { getExtraStablePoolConfig } from '../../services/config';
-import { TokenAmountV3 } from '../forms/TokenAmount';
+import { SwapMinReceiveCheck, LimitOrderMask } from '../icon/swapV3';
+import {
+  TokenAmountV3,
+  TokenCardIn,
+  LimitOrderRateSetBox,
+} from '../forms/TokenAmount';
 import Big from 'big.js';
-
-import { toInternationalCurrencySystemLongString } from '../../utils/numbers';
-
+import { Slider } from '../icon/Info';
+import {
+  regularizedPoint,
+  regularizedPrice,
+  feeToPointDelta,
+} from '../../services/swapV3';
+import { DoubleCheckModalLimit } from '../layout/SwapDoubleCheck';
+import {
+  toInternationalCurrencySystemLongString,
+  toRoundedReadableNumber,
+  toInternationalCurrencySystem,
+} from '../../utils/numbers';
+import {
+  pointToPrice,
+  priceToPoint,
+  v3Swap,
+  create_pool,
+} from '../../services/swapV3';
+import {
+  V3_POOL_FEE_LIST,
+  getV3PoolId,
+  V3_POOL_SPLITER,
+} from '../../services/swapV3';
 import { SkyWardModal } from '../layout/SwapDoubleCheck';
 import {
   NEAR_CLASS_STABLE_TOKEN_IDS,
   BTC_CLASS_STABLE_TOKEN_IDS,
 } from '../../services/near';
 
-import { getMax } from '../../utils/numbers';
+import { TiRefresh } from 'react-icons/ti';
 
+import { MdOutlineRefresh } from 'react-icons/md';
+import { getMax } from '../../utils/numbers';
+import { RefreshIcon } from '../icon/swapV3';
+import { useWalletTokenBalances } from '../../state/token';
+import { TokenBalancesView } from '../../services/token';
+import { Images } from '../stableswap/CommonComp';
+import { ArrowRight } from '../layout/SwapRoutes';
 import { YellowTipIcon, RedTipIcon, SelectedIcon } from '../icon/swapV3';
 import * as math from 'mathjs';
 import { NEAR_WITHDRAW_KEY } from '../forms/WrapNear';
+import { PoolInfo, get_pool, get_pool_from_cache } from '../../services/swapV3';
 import { nearMetadata } from '../../services/wrap-near';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
@@ -91,7 +181,11 @@ const SWAP_OUT_KEY_SYMBOL = 'REF_FI_SWAP_OUT_SYMBOL';
 
 const SWAP_SLIPPAGE_KEY = 'REF_FI_SLIPPAGE_VALUE';
 
+const SWAP_SLIPPAGE_KEY_STABLE = 'REF_FI_SLIPPAGE_VALUE_STABLE';
+
 const SWAP_SLIPPAGE_KEY_LIMIT = 'REF_FI_SLIPPAGE_VALUE_LIMIT';
+
+const storageShoDetail = 'REF_FI_STORAGE_SHOW_DETAIL';
 
 export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 const TOKEN_URL_SEPARATOR = '|';
@@ -466,7 +560,6 @@ function DetailViewV2({
   fee,
   swapsTodo,
   priceImpact,
-  showDetails,
 }: {
   pools: Pool[];
   tokenIn: TokenMetadata;
@@ -479,10 +572,11 @@ function DetailViewV2({
   swapsTodo?: EstimateSwapView[];
   priceImpact?: string;
   tokenInAmount?: string;
-  showDetails?: boolean;
 }) {
   const intl = useIntl();
   const isMobile = useMobile();
+  const { detail } = useContext(LimitOrderTriggerContext);
+  const { showDetails } = detail;
   const minAmountOutValue = useMemo(() => {
     if (!minAmountOut) return '0';
     else return toPrecision(minAmountOut, 8, true);
@@ -581,7 +675,6 @@ function DetailViewV3({
   minAmountOut,
   fee,
   priceImpact,
-  showDetails,
 }: {
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
@@ -590,9 +683,10 @@ function DetailViewV3({
   minAmountOut: string;
   fee?: number;
   priceImpact?: string;
-  showDetails: boolean;
 }) {
   const intl = useIntl();
+  const { detail } = useContext(LimitOrderTriggerContext);
+  const { showDetails } = detail;
   const minAmountOutValue = useMemo(() => {
     if (!minAmountOut) return '0';
     else return toPrecision(minAmountOut, 8, true);
@@ -676,12 +770,350 @@ function DetailViewV3({
   );
 }
 
+function DetailViewLimit({
+  setV3Pool,
+  v3Pool,
+  poolPercents,
+  tokenIn,
+  tokenOut,
+  tokenPriceList,
+  setFeeTiersShowFull,
+  feeTiersShowFull,
+  everyPoolTvl,
+}: {
+  v3Pool: string;
+  setV3Pool: (p: string) => void;
+  poolPercents: {
+    [key: string]: string;
+  };
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+  tokenPriceList: Record<string, any>;
+  setFeeTiersShowFull: (v: boolean) => void;
+  feeTiersShowFull: boolean;
+  everyPoolTvl: {
+    [key: string]: string;
+  };
+}) {
+  const isMobile = useClientMobile();
+  const [hoverSlider, setHoverSlider] = useState(false);
+  const [mobileShowFees, setMobileShowFees] = useState(false);
+  function SelectPercent({ fee, poolId }: { fee?: number; poolId?: string }) {
+    const id = poolId ? poolId : getV3PoolId(tokenIn.id, tokenOut.id, fee);
+    const count = poolPercents?.[id];
+    return (
+      <span
+        className="py-1 xs:py-0 xs:px-0.5 px-2.5 text-v3SwapGray bg-black bg-opacity-20 text-xs inline-flex items-center rounded-xl whitespace-nowrap"
+        style={{
+          fontSize: isClientMobie() ? '11px' : '',
+        }}
+      >
+        <span className="mr-1">
+          {!tokenPriceList
+            ? '-'
+            : !count
+            ? '-'
+            : `${poolPercents?.[id] || '0'}%`}
+        </span>
+        {!count ? (
+          <FormattedMessage id="no_pool" defaultMessage={'No Pool'} />
+        ) : (
+          <FormattedMessage id="select" defaultMessage={'select'} />
+        )}
+      </span>
+    );
+  }
+  function SelectTvl({
+    fee,
+    poolId,
+    className,
+  }: {
+    fee?: number;
+    poolId?: string;
+    className?: string;
+  }) {
+    const id = poolId ? poolId : getV3PoolId(tokenIn.id, tokenOut.id, fee);
+
+    const [PoolDetails, setPoolDetails] = useState<PoolInfo>();
+
+    useEffect(() => {
+      get_pool_from_cache(id).then(setPoolDetails);
+    }, []);
+
+    function displayTvl() {
+      const tvl = everyPoolTvl?.[id] || '0';
+      if (!tokenPriceList) {
+        return '-';
+      } else if (!tvl || +tvl == 0) {
+        return '$0';
+      } else if (+tvl < 1) {
+        return '<$1';
+      } else {
+        return `$${toInternationalCurrencySystem(tvl.toString(), 0)}`;
+      }
+    }
+
+    function displayTvlAndNoPool() {
+      if (everyPoolTvl?.[id] == null) {
+        return <span>No pool</span>;
+      } else {
+        return (
+          <>
+            <span className="mr-1.5 xsm:mr-0 xsm:hidden">TVL</span>
+            {displayTvl()}
+          </>
+        );
+      }
+    }
+    return (
+      <div
+        className={`transform scale-90 inline-flex items-center text-xs whitespace-nowrap ${className}`}
+      >
+        {displayTvlAndNoPool()}
+      </div>
+    );
+  }
+  function isAllFeesNoPools() {
+    const target = V3_POOL_FEE_LIST.find((fee) => {
+      const pool_id = getV3PoolId(tokenIn.id, tokenOut.id, fee);
+      if (everyPoolTvl?.[pool_id] !== null) return true;
+    });
+    if (target) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+  if (!(tokenIn && tokenOut)) return null;
+  return (
+    <>
+      <div
+        className={`relative border border-limitOrderFeeTiersBorderColor flex flex-col rounded-xl p-2.5 xs:p-2 xs:px-1 ${
+          feeTiersShowFull ? 'w-full' : ''
+        } ${mobileShowFees ? 'feeBoxGradientBorder' : ''}`}
+        onMouseLeave={() => {
+          if (!isMobile) {
+            setHoverSlider(false);
+            setFeeTiersShowFull(false);
+          }
+        }}
+      >
+        <div className="">
+          <div className="flex items-center justify-between ">
+            <span className="text-xs text-primaryText whitespace-nowrap mr-1.5">
+              <FormattedMessage id="fee_tiers" defaultMessage={'Fee Tiers'} />
+            </span>
+            <button
+              onMouseEnter={(e) => {
+                if (!isMobile) {
+                  setHoverSlider(true);
+                  setFeeTiersShowFull(true);
+                }
+              }}
+              className={`p-0.5 rounded-md ${
+                feeTiersShowFull || hoverSlider || mobileShowFees
+                  ? 'bg-selectTokenV3BgColor'
+                  : ''
+              }`}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (isMobile) {
+                  setMobileShowFees(!mobileShowFees);
+                }
+              }}
+            >
+              <Slider shrink showSlip={feeTiersShowFull || hoverSlider} />
+            </button>
+          </div>
+          <div
+            className={`flex items-center mt-2 ${
+              feeTiersShowFull ? 'hidden' : ''
+            }`}
+          >
+            {isAllFeesNoPools() ? (
+              <span className="text-sm text-limitOrderInputColor">
+                Unavailable
+              </span>
+            ) : (
+              <>
+                <span className="whitespace-nowrap text-sm text-primaryText mr-1">
+                  {toPrecision(
+                    calculateFeePercent(
+                      Number(v3Pool?.split(V3_POOL_SPLITER)[2] || 2000) / 100
+                    ).toString(),
+                    2
+                  )}
+                  %
+                </span>
+                <SelectTvl
+                  poolId={v3Pool}
+                  className="text-limitOrderInputColor"
+                />
+              </>
+            )}
+          </div>
+        </div>
+
+        {!feeTiersShowFull ? null : (
+          <div className="w-full grid grid-cols-4 gap-x-1 mt-1.5">
+            {V3_POOL_FEE_LIST.map((fee, i) => {
+              const pool_id = getV3PoolId(tokenIn.id, tokenOut.id, fee);
+              const feePercent = toPrecision(
+                calculateFeePercent(fee / 100).toString(),
+                2
+              );
+              const isNoPool = everyPoolTvl?.[pool_id] == null;
+              return (
+                <button
+                  className={`relative rounded-xl ${
+                    v3Pool === pool_id && !isNoPool
+                      ? 'bg-feeBoxSelectedBg'
+                      : isNoPool
+                      ? 'border border-commonTokenBorderColor cursor-not-allowed'
+                      : 'bg-selectTokenV3BgColor'
+                  }`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (!isNoPool) {
+                      setV3Pool(pool_id);
+                      setHoverSlider(false);
+                      setFeeTiersShowFull(false);
+                    }
+                  }}
+                >
+                  <div
+                    key={i + '-' + pool_id}
+                    className={`flex-col flex items-start p-2`}
+                  >
+                    <span
+                      className={`text-sm ${
+                        isNoPool
+                          ? 'text-primaryText text-opacity-60'
+                          : 'text-white'
+                      }`}
+                    >
+                      {feePercent}%
+                    </span>
+                    <SelectTvl
+                      fee={fee}
+                      className={`text-primaryText ${
+                        isNoPool ? 'text-opacity-60' : ''
+                      } `}
+                    />
+                  </div>
+                  {v3Pool === pool_id && !isNoPool ? (
+                    <SelectedIcon className="absolute right-0 top-0"></SelectedIcon>
+                  ) : null}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+      <div
+        className={`absolute z-10 w-full grid grid-cols-4 gap-x-1  rounded-lg text-white mt-1.5 p-1.5 border border-v3GreyColor  bg-feeBoxBgColor lg:hidden ${
+          mobileShowFees ? '' : 'hidden'
+        }`}
+        style={{ boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.25)', top: '71px' }}
+      >
+        <ArrowToIcon
+          className="absolute right-12"
+          style={{ top: '-7px' }}
+        ></ArrowToIcon>
+        {V3_POOL_FEE_LIST.map((fee, i) => {
+          const pool_id = getV3PoolId(tokenIn.id, tokenOut.id, fee);
+          const feePercent = toPrecision(
+            calculateFeePercent(fee / 100).toString(),
+            2
+          );
+          const isNoPool = everyPoolTvl?.[pool_id] == null;
+          return (
+            <button
+              className={`relative bg-feeSubBoxBgColor rounded-xl ${
+                v3Pool === pool_id && !isNoPool
+                  ? 'bg-opacity-100'
+                  : isNoPool
+                  ? 'border border-commonTokenBorderColor cursor-not-allowed bg-opacity-0'
+                  : 'bg-opacity-30'
+              }`}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (!isNoPool) {
+                  setV3Pool(pool_id);
+                  setMobileShowFees(false);
+                }
+              }}
+            >
+              <div
+                key={i + '-' + pool_id}
+                className={`flex-col flex items-start p-1`}
+              >
+                <span
+                  className={`text-sm ${
+                    isNoPool ? 'text-primaryText text-opacity-60' : 'text-white'
+                  }`}
+                >
+                  {feePercent}%
+                </span>
+                <SelectTvl
+                  fee={fee}
+                  className={`text-primaryText ${
+                    isNoPool ? 'text-opacity-60' : ''
+                  } `}
+                />
+              </div>
+              {v3Pool === pool_id && !isNoPool ? (
+                <SelectedIcon className="absolute right-0 top-0"></SelectedIcon>
+              ) : null}
+            </button>
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
+function ArrowToIcon(props: any) {
+  return (
+    <img
+      {...props}
+      src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAHCAYAAAA8sqwkAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyVpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTQ4IDc5LjE2NDAzNiwgMjAxOS8wOC8xMy0wMTowNjo1NyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDIxLjAgKE1hY2ludG9zaCkiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6OTg4MkE0RkQ2ODI5MTFFREE3MkJEQzEyMDI5MUE2OEUiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6OTg4MkE0RkU2ODI5MTFFREE3MkJEQzEyMDI5MUE2OEUiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo5ODgyQTRGQjY4MjkxMUVEQTcyQkRDMTIwMjkxQTY4RSIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo5ODgyQTRGQzY4MjkxMUVEQTcyQkRDMTIwMjkxQTY4RSIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PmhvIccAAAD+SURBVHjaYmRgYOAGYkYRERHGN2/eMIAAkM3w9+9fpvfv3/9ngIB/QAxmMwExi4CAAAtQMQuIDcSsXIKCory8IsIgNhAzg2igGjCbEUiAJBh5eHiYvnz5wmDp4V/CwsJWCjLtz59fPcd3bOyGmg7GIN38IJ2/fv1isXD3KwUqLvny5SsDkM/AwcFhJaWkwvzk7s1TUJuYQIQQyCnmbr5FrKzshSDF//79Y/j//z/D799/gJo4LSXllZme3rt1GmgAM7OoqLSinq1TOSsrWyZMMQzANHFycVpIKigx/fn67SajrU/of2CIMHz79h1FMTJgYmIC2sTOwMbGxgAQYADlWluUPx6KyQAAAABJRU5ErkJggg=="
+    ></img>
+  );
+}
+function NoLimitPoolCard() {
+  return (
+    <div className="relative  text-sm mt-6 xsm:mt-8 text-center text-warn z-50">
+      <span className="self-center">
+        <label className="">
+          <FormattedMessage id="oops" defaultMessage="Oops" />!
+        </label>
+      </span>
+
+      <span className="self-center ml-1">
+        <FormattedMessage
+          id="the_pool_not_exist"
+          defaultMessage={'The pool does not exist'}
+        />
+        .
+      </span>
+    </div>
+  );
+}
+
 export default function SwapCard(props: {
   allTokens: TokenMetadata[];
   swapMode: SWAP_MODE;
+  stablePools: Pool[];
   tokenInAmount: string;
   setTokenInAmount: (value: string) => void;
   swapTab?: JSX.Element;
+  reservesType: STABLE_POOL_TYPE;
+  setReservesType: (value: STABLE_POOL_TYPE) => void;
+  stableReserves?: JSX.Element;
   globalWhiteListTokens: TokenMetadata[];
   limitTokenTrigger?: boolean;
 }) {
@@ -689,18 +1121,37 @@ export default function SwapCard(props: {
   const { REF_TOKEN_ID } = getConfig();
   const [poolError, setPoolError] = useState<string>(null);
 
+  const [diff, setDiff] = useState<string>('');
+
+  const [selectedV3LimitPool, setSelectedV3LimitPool] = useState<string>('');
+
+  const reserveTypeStorageKey = 'REF_FI_RESERVE_TYPE';
+
   const {
     allTokens,
     swapMode,
+    stablePools,
     tokenInAmount,
     setTokenInAmount,
     swapTab,
+    reservesType,
+    setReservesType,
+    stableReserves,
     globalWhiteListTokens,
     limitTokenTrigger,
   } = props;
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
+
+  const [doubleCheckOpenLimit, setDoubleCheckOpenLimit] =
+    useState<boolean>(false);
+
+  const [curOrderPrice, setCurOrderPrice] = useState<string>('');
+
+  const [LimitAmountOutRate, setLimitAmountOutRate] = useState<string>('');
+
+  const [limitAmountOut, setLimitAmountOut] = useState<string>('');
 
   const [supportLedger, setSupportLedger] = useState(
     localStorage.getItem(SUPPORT_LEDGER_KEY) ? true : false
@@ -723,12 +1174,15 @@ export default function SwapCard(props: {
   const [loadingPause, setLoadingPause] = useState<boolean>(false);
   const [showSwapLoading, setShowSwapLoading] = useState<boolean>(false);
 
+  const [limitSwapTrigger, setLimiSwapTrigger] = useState<boolean>(false);
   const [showSkywardTip, setShowSkywardTip] = useState<boolean>(false);
   const [wrapOperation, setWrapOperation] = useState<boolean>(false);
   const [wrapLoading, setWrapLoading] = useState<boolean>(false);
 
   const [balanceInDone, setBalanceInDone] = useState<boolean>(false);
   const [balanceOutDone, setBalanceOutDone] = useState<boolean>(false);
+  const [limitLockedTokenOutTrigger, setLimitLockedTokenOutTrigger] =
+    useState<boolean>(false);
 
   const intl = useIntl();
   const location = useLocation();
@@ -753,9 +1207,16 @@ export default function SwapCard(props: {
         0.5
     );
 
+  const [slippageToleranceStable, setSlippageToleranceStable] =
+    useState<number>(
+      Number(localStorage.getItem(SWAP_SLIPPAGE_KEY_STABLE)) || 0.5
+    );
+
   const [slippageToleranceLimit, setSlippageToleranceLimit] = useState<number>(
     Number(localStorage.getItem(SWAP_SLIPPAGE_KEY_LIMIT)) || 0.5
   );
+  const [feeTiersShowFull, setFeeTiersShowFull] = useState<boolean>(false);
+  const [hasLockedRate, setHasLockedRate] = useState(false);
   const [showDetails, setShowDetails] = useState<boolean>(false);
 
   const tokenPriceList = useTokenPriceList();
@@ -772,7 +1233,22 @@ export default function SwapCard(props: {
 
   useEffect(() => {
     if (!tokenIn || !tokenOut) return;
-
+    if (
+      BTC_CLASS_STABLE_TOKEN_IDS.includes(tokenIn.id) &&
+      BTC_CLASS_STABLE_TOKEN_IDS.includes(tokenOut.id)
+    ) {
+      setReservesType(STABLE_POOL_TYPE.BTC);
+      localStorage.setItem(reserveTypeStorageKey, STABLE_POOL_TYPE.BTC);
+    } else if (
+      NEAR_CLASS_STABLE_TOKEN_IDS.includes(tokenIn.id) &&
+      NEAR_CLASS_STABLE_TOKEN_IDS.includes(tokenOut.id)
+    ) {
+      setReservesType(STABLE_POOL_TYPE.NEAR);
+      localStorage.setItem(reserveTypeStorageKey, STABLE_POOL_TYPE.NEAR);
+    } else {
+      setReservesType(STABLE_POOL_TYPE.USD);
+      localStorage.setItem(reserveTypeStorageKey, STABLE_POOL_TYPE.USD);
+    }
     history.replace(
       `#${unWrapTokenId(tokenIn)}${TOKEN_URL_SEPARATOR}${unWrapTokenId(
         tokenOut
@@ -808,54 +1284,126 @@ export default function SwapCard(props: {
       let rememberedIn = wrapTokenId(urlTokenInId) || in_id;
       let rememberedOut = wrapTokenId(urlTokenOutId) || out_id;
 
-      if (rememberedIn == NEARXIDS[0]) {
-        rememberedIn = REF_TOKEN_ID;
-      }
-      if (rememberedOut == NEARXIDS[0]) {
-        rememberedOut = REF_TOKEN_ID;
-      }
-      let candTokenIn;
-      if (urlTokenIn == 'near' || urlTokenIn == 'NEAR') {
-        candTokenIn = unwrapedNear;
-      } else if (urlTokenIn == WRAP_NEAR_CONTRACT_ID || urlTokenIn == 'wNEAR') {
-        candTokenIn = wnearMetadata;
-      } else if (rememberedIn == 'near') {
-        candTokenIn = unwrapedNear;
-      } else if (rememberedIn == WRAP_NEAR_CONTRACT_ID) {
-        candTokenIn = wnearMetadata;
-      } else {
-        candTokenIn =
-          allTokens.find((token) => {
-            return token.id === rememberedIn;
-          }) || unwrapedNear;
-      }
-      let candTokenOut;
-      if (urlTokenOut == 'near' || urlTokenOut == 'NEAR') {
-        candTokenOut = unwrapedNear;
-      } else if (
-        urlTokenOut == WRAP_NEAR_CONTRACT_ID ||
-        urlTokenOut == 'wNEAR'
-      ) {
-        candTokenOut = wnearMetadata;
-      } else if (rememberedOut == 'near') {
-        candTokenOut = unwrapedNear;
-      } else if (rememberedOut == WRAP_NEAR_CONTRACT_ID) {
-        candTokenOut = wnearMetadata;
-      } else {
-        candTokenOut =
-          allTokens.find((token) => {
-            return token.id === rememberedOut;
-          }) || REF_META_DATA;
-      }
-      if (candTokenIn.id === skywardId || candTokenOut.id === skywardId) {
-        setShowSkywardTip(true);
-      }
+      if (swapMode !== SWAP_MODE.STABLE) {
+        if (rememberedIn == NEARXIDS[0]) {
+          rememberedIn = REF_TOKEN_ID;
+        }
+        if (rememberedOut == NEARXIDS[0]) {
+          rememberedOut = REF_TOKEN_ID;
+        }
+        let candTokenIn;
+        if (urlTokenIn == 'near' || urlTokenIn == 'NEAR') {
+          candTokenIn = unwrapedNear;
+        } else if (
+          urlTokenIn == WRAP_NEAR_CONTRACT_ID ||
+          urlTokenIn == 'wNEAR'
+        ) {
+          if (swapMode == SWAP_MODE.LIMIT) {
+            candTokenIn = unwrapedNear;
+          } else {
+            candTokenIn = wnearMetadata;
+          }
+        } else if (rememberedIn == 'near') {
+          candTokenIn = unwrapedNear;
+        } else if (rememberedIn == WRAP_NEAR_CONTRACT_ID) {
+          if (swapMode == SWAP_MODE.LIMIT) {
+            candTokenIn = unwrapedNear;
+          } else {
+            candTokenIn = wnearMetadata;
+          }
+        } else {
+          candTokenIn =
+            allTokens.find((token) => {
+              return token.id === rememberedIn;
+            }) || unwrapedNear;
+        }
+        let candTokenOut;
+        if (urlTokenOut == 'near' || urlTokenOut == 'NEAR') {
+          candTokenOut = unwrapedNear;
+        } else if (
+          urlTokenOut == WRAP_NEAR_CONTRACT_ID ||
+          urlTokenOut == 'wNEAR'
+        ) {
+          if (swapMode == SWAP_MODE.LIMIT) {
+            candTokenOut = unwrapedNear;
+          } else {
+            candTokenOut = wnearMetadata;
+          }
+        } else if (rememberedOut == 'near') {
+          candTokenOut = unwrapedNear;
+        } else if (rememberedOut == WRAP_NEAR_CONTRACT_ID) {
+          if (swapMode == SWAP_MODE.LIMIT) {
+            candTokenOut = unwrapedNear;
+          } else {
+            candTokenOut = wnearMetadata;
+          }
+        } else {
+          candTokenOut =
+            allTokens.find((token) => {
+              return token.id === rememberedOut;
+            }) || REF_META_DATA;
+        }
+        if (candTokenIn.id === skywardId || candTokenOut.id === skywardId) {
+          setShowSkywardTip(true);
+        }
 
-      setTokenIn(candTokenIn);
-      setTokenOut(candTokenOut);
+        setTokenIn(candTokenIn);
+        setTokenOut(candTokenOut);
 
-      if (tokenOut?.id === candTokenOut?.id && tokenIn?.id === candTokenIn?.id)
-        setReEstimateTrigger(!reEstimateTrigger);
+        if (
+          tokenOut?.id === candTokenOut?.id &&
+          tokenIn?.id === candTokenIn?.id
+        )
+          setReEstimateTrigger(!reEstimateTrigger);
+      } else if (swapMode === SWAP_MODE.STABLE) {
+        let candTokenIn: TokenMetadata;
+        let candTokenOut: TokenMetadata;
+        if (rememberedIn == 'near') {
+          rememberedIn = WRAP_NEAR_CONTRACT_ID;
+        }
+        if (rememberedOut == 'near') {
+          rememberedOut = WRAP_NEAR_CONTRACT_ID;
+        }
+        if (rememberedIn == NEARXIDS[0]) {
+          rememberedIn = STNEARIDS[0];
+        }
+        if (rememberedOut == NEARXIDS[0]) {
+          rememberedOut = STNEARIDS[0];
+        }
+        if (
+          rememberedIn &&
+          rememberedOut &&
+          isSameStableClass(rememberedIn, rememberedOut)
+        ) {
+          candTokenIn = allTokens.find((token) => token.id === rememberedIn);
+          candTokenOut = allTokens.find((token) => token.id === rememberedOut);
+        } else {
+          const USDTokenList = new Array(
+            ...new Set(
+              STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS).concat(CUSDIDS)
+            )
+          );
+
+          candTokenIn = allTokens.find((token) => token.id === USDTokenList[0]);
+          candTokenOut = allTokens.find(
+            (token) => token.id === USDTokenList[1]
+          );
+          setTokenInAmount('1');
+        }
+
+        setTokenIn(candTokenIn);
+
+        setTokenOut(candTokenOut);
+        if (candTokenIn.id === skywardId || candTokenOut.id === skywardId) {
+          setShowSkywardTip(true);
+        }
+
+        if (
+          tokenOut?.id === candTokenOut?.id &&
+          tokenIn?.id === candTokenIn?.id
+        )
+          setReEstimateTrigger(!reEstimateTrigger);
+      }
     }
   }, [
     allTokens?.map((t) => t.id).join('-'),
@@ -957,13 +1505,24 @@ export default function SwapCard(props: {
   }
   const getSlippageTolerance = (swapMode: SWAP_MODE) => {
     switch (swapMode) {
+      case SWAP_MODE.STABLE:
+        return {
+          slippageValue: slippageToleranceStable,
+          setSlippageValue: setSlippageToleranceStable,
+          slippageKey: SWAP_SLIPPAGE_KEY_STABLE,
+        };
       case SWAP_MODE.NORMAL:
         return {
           slippageValue: slippageToleranceNormal,
           setSlippageValue: setSlippageToleranceNormal,
           slippageKey: SWAP_SLIPPAGE_KEY,
         };
-
+      case SWAP_MODE.LIMIT:
+        return {
+          slippageValue: slippageToleranceLimit,
+          setSlippageValue: setSlippageToleranceLimit,
+          slippageKey: SWAP_SLIPPAGE_KEY_LIMIT,
+        };
       default:
         return {
           slippageValue: slippageToleranceNormal,
@@ -1031,6 +1590,22 @@ export default function SwapCard(props: {
     loadingTrigger,
     swapError,
     setLoadingTrigger,
+  });
+
+  const {
+    poolPercents,
+    fee: mostPoolFeeLimit,
+    mostPoolDetail,
+    quoteDone: quoteDoneLimit,
+    everyPoolTvl,
+  } = useLimitOrder({
+    tokenIn,
+    tokenOut,
+    swapMode,
+    selectedV3LimitPool,
+    setSelectedV3LimitPool,
+    loadingTrigger: limitSwapTrigger,
+    tokenPriceList,
   });
 
   const bestSwap =
@@ -1107,6 +1682,135 @@ export default function SwapCard(props: {
     }
   }, [tokenOutAmount, swapsToDo]);
 
+  useEffect(() => {
+    if (!mostPoolDetail) setCurOrderPrice(null);
+    if (!mostPoolDetail || !tokenIn || !tokenOut || !quoteDoneLimit) {
+      return;
+    }
+    const { token_x, token_y } = mostPoolDetail;
+    if (
+      (token_x !== tokenIn.id && token_x !== tokenOut.id) ||
+      (token_y !== tokenIn.id && token_y !== tokenOut.id)
+    ) {
+      return;
+    }
+    const curPoint =
+      tokenIn.id === mostPoolDetail.token_x
+        ? mostPoolDetail.current_point
+        : mostPoolDetail.current_point * -1;
+
+    const reguPoint = regularizedPoint(curPoint, mostPoolDetail.fee);
+
+    const price = pointToPrice({
+      tokenA: tokenIn,
+      tokenB: tokenOut,
+      point:
+        curPoint === reguPoint
+          ? reguPoint
+          : reguPoint + feeToPointDelta(mostPoolDetail.fee),
+    });
+    const priceKeep = toPrecision(price, 8) === curOrderPrice;
+
+    const regularizedRate = toPrecision(
+      regularizedPrice(
+        LimitAmountOutRate,
+        tokenIn,
+        tokenOut,
+        mostPoolDetail.fee
+      ),
+      8,
+      false,
+      false
+    );
+
+    const displayRate = ONLY_ZEROS.test(regularizedRate) ? '' : regularizedRate;
+
+    setLimitAmountOutRate(
+      priceKeep ? displayRate || toPrecision(price, 8) : toPrecision(price, 8)
+    );
+
+    setCurOrderPrice(
+      priceKeep ? curOrderPrice || toPrecision(price, 8) : toPrecision(price, 8)
+    );
+
+    const amountOut_original = scientificNotationToString(
+      new Big(priceKeep ? displayRate || price || 0 : price)
+        .times(tokenInAmount || 0)
+        .toString()
+    );
+    let amountOut;
+    const minValue = '0.00000001';
+    if (new BigNumber(amountOut_original).isGreaterThanOrEqualTo(minValue)) {
+      amountOut = toPrecision(amountOut_original, 8, false, false);
+    } else {
+      amountOut = amountOut_original;
+    }
+    // let amountOut = toPrecision(
+    //   scientificNotationToString(
+    //     new Big(priceKeep ? displayRate || price || 0 : price)
+    //       .times(tokenInAmount || 0)
+    //       .toString()
+    //   ),
+    //   18,
+    //   false,
+    //   false
+    // );
+    if (!limitLockedTokenOutTrigger) {
+      setLimitAmountOut(ONLY_ZEROS.test(amountOut) ? '' : amountOut);
+    }
+  }, [mostPoolDetail, tokenIn, tokenOut, tokenInAmount, quoteDoneLimit]);
+
+  const LimitChangeAmountOut = (
+    amount: string,
+    noNeedChangeInputAmount?: boolean
+  ) => {
+    const curAmount = toPrecision(amount, 8, false, false);
+    // !limitAmountOut || limitAmountOut.indexOf('.') === -1
+    //   ? amount
+    //   : toPrecision(amount, 8, false, false);
+    if (hasLockedRate && !noNeedChangeInputAmount) {
+      if (LimitAmountOutRate) {
+        const inValue = new Big(curAmount || '0')
+          .div(LimitAmountOutRate)
+          .toString();
+        setTokenInAmount(toPrecision(inValue, 8, false, false));
+        setLimitLockedTokenOutTrigger(true);
+      }
+    } else {
+      if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
+        setLimitAmountOutRate(
+          toPrecision(
+            scientificNotationToString(
+              new Big(curAmount || '0').div(tokenInAmount || 1).toString()
+            ),
+            8
+          )
+        );
+      }
+    }
+    setLimitAmountOut(curAmount);
+  };
+  const onChangeLimitRate = (r: string) => {
+    const curR = toPrecision(r, 8, false, false);
+    // !LimitAmountOutRate || LimitAmountOutRate.indexOf('.') === -1
+    //   ? r
+    //   : toPrecision(r, 8, false, false);
+
+    const displayCurR = curR;
+
+    setLimitAmountOutRate(displayCurR);
+
+    const curAmountOut = scientificNotationToString(
+      new Big(displayCurR || 0).times(tokenInAmount || 0).toString()
+    );
+
+    setLimitAmountOut(
+      ONLY_ZEROS.test(curAmountOut)
+        ? ''
+        : toPrecision(curAmountOut, 8, false, false)
+    );
+  };
+
   let PriceImpactValue: string = '0';
 
   try {
@@ -1162,6 +1866,18 @@ export default function SwapCard(props: {
       makeSwap(useNearBalance);
     }
   };
+  const limitSwap = () =>
+    v3Swap({
+      swapInfo: {
+        tokenA: tokenIn,
+        tokenB: tokenOut,
+        amountA: tokenInAmount,
+        amountB: limitAmountOut,
+      },
+      LimitOrderWithSwap: {
+        pool_id: selectedV3LimitPool,
+      },
+    });
 
   const DetailView = useMemo(() => {
     if (!quoteDone || !quoteDoneV3) return null;
@@ -1234,7 +1950,6 @@ export default function SwapCard(props: {
             fee={avgFee}
             swapsTodo={swapsToDo}
             priceImpact={displayPriceImpact}
-            showDetails={showDetails}
           />
         ) : (
           <DetailViewV3
@@ -1245,7 +1960,6 @@ export default function SwapCard(props: {
             minAmountOut={minAmountOutV3}
             fee={bestFee / 100}
             priceImpact={displayPriceImpact}
-            showDetails={showDetails}
           />
         )}
       </>
@@ -1253,6 +1967,8 @@ export default function SwapCard(props: {
   }, [
     displayTokenOutAmount,
     swapMode,
+    selectedV3LimitPool,
+    poolPercents,
     tokenIn,
     tokenOut,
     slippageTolerance,
@@ -1273,17 +1989,30 @@ export default function SwapCard(props: {
   ]);
 
   useEffect(() => {
-    if (quoteDone && quoteDoneV3) {
+    if ((quoteDone && quoteDoneV3) || quoteDoneLimit) {
       setDisplayDetailView(DetailView);
     }
-  }, [quoteDone, quoteDoneV3, DetailView]);
+  }, [quoteDone, quoteDoneV3, quoteDoneLimit, DetailView]);
 
   const tokenInMax = tokenInBalanceFromNear || '0';
 
   const tokenOutTotal = tokenOutBalanceFromNear || '0';
+  const isInValidLimitIn =
+    tokenIn &&
+    Number(tokenInAmount) > 0 &&
+    swapMode === SWAP_MODE.LIMIT &&
+    ONLY_ZEROS.test(toNonDivisibleNumber(tokenIn.decimals, tokenInAmount));
 
   function satisfyCondition1() {
-    return quoteDone && quoteDoneV3 && (canSwap || canSwapV3);
+    if (swapMode == SWAP_MODE.LIMIT) {
+      return (
+        !!mostPoolDetail &&
+        !ONLY_ZEROS.test(limitAmountOut) &&
+        !isInValidLimitIn
+      );
+    } else {
+      return quoteDone && quoteDoneV3 && (canSwap || canSwapV3);
+    }
   }
   function satisfyCondition2() {
     return (
@@ -1319,13 +2048,17 @@ export default function SwapCard(props: {
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    const ifDoubleCheck =
-      new BigNumber(tokenInAmount || 0).isLessThanOrEqualTo(
-        new BigNumber(tokenInMax || 0)
-      ) && Number(displayPriceImpact) > 2;
+    if (swapMode === SWAP_MODE.LIMIT) {
+      setDoubleCheckOpenLimit(true);
+    } else {
+      const ifDoubleCheck =
+        new BigNumber(tokenInAmount || 0).isLessThanOrEqualTo(
+          new BigNumber(tokenInMax || 0)
+        ) && Number(displayPriceImpact) > 2;
 
-    if (ifDoubleCheck) setDoubleCheckOpen(true);
-    else makeBestSwap();
+      if (ifDoubleCheck) setDoubleCheckOpen(true);
+      else makeBestSwap();
+    }
   };
   const handleSubmit_wrap = (e: any) => {
     e.preventDefault();
@@ -1340,7 +2073,17 @@ export default function SwapCard(props: {
       return nearWithdraw(tokenInAmount);
     }
   };
-
+  const NoPoolError = () => {
+    return new Error(
+      `${intl.formatMessage({
+        id: 'no_pool_available_to_make_a_swap_from',
+      })} ${tokenIn?.symbol} -> ${tokenOut?.symbol} ${intl.formatMessage({
+        id: 'for_the_amount',
+      })} ${tokenInAmount} ${intl.formatMessage({
+        id: 'no_pool_eng_for_chinese',
+      })}`
+    );
+  };
   function judgeBalance() {
     const condition1 = tokenIn && balanceInDone && balanceOutDone;
     return (
@@ -1367,11 +2110,14 @@ export default function SwapCard(props: {
   return (
     <>
       <SwapFormWrap
+        quoteDoneLimit={quoteDoneLimit}
         supportLedger={supportLedger}
+        reserves={stableReserves}
         setSupportLedger={setSupportLedger}
         useNearBalance={useNearBalance.toString()}
         canSubmit={canSubmit}
         swapTab={swapTab}
+        mostPoolDetail={mostPoolDetail}
         slippageTolerance={slippageTolerance}
         onChange={onChangeSlippage}
         showElseView={wrapOperation}
@@ -1420,6 +2166,9 @@ export default function SwapCard(props: {
           tokenIn={tokenIn}
           tokenOut={tokenOut}
           selectedToken={tokenIn}
+          limitOrderDisable={
+            swapMode === SWAP_MODE.LIMIT && (!mostPoolDetail || !quoteDoneLimit)
+          }
           onSelectToken={(token) => {
             localStorage.setItem(SWAP_IN_KEY, token.id);
             setTokenIn(token);
@@ -1436,6 +2185,7 @@ export default function SwapCard(props: {
           }
           useNearBalance={useNearBalance}
           onChangeAmount={(v) => {
+            setLimitLockedTokenOutTrigger(false);
             setTokenInAmount(v);
           }}
           tokenPriceList={tokenPriceList}
@@ -1446,6 +2196,9 @@ export default function SwapCard(props: {
           }}
           allowWNEAR={swapMode === SWAP_MODE.LIMIT ? false : true}
           nearErrorTip={
+            (swapMode === SWAP_MODE.LIMIT
+              ? !!curOrderPrice && quoteDoneLimit
+              : true) &&
             balanceInDone &&
             balanceOutDone &&
             tokenIn &&
@@ -1467,53 +2220,175 @@ export default function SwapCard(props: {
           }
         />
         <div className={`flex items-center -my-2.5 justify-center`}>
-          <SwapExchangeV1
-            onChange={() => {
-              setTokenIn(tokenOut);
-              localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
-              setTokenOut(tokenIn);
-              localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
+          {swapMode === SWAP_MODE.LIMIT ? (
+            <SwapExchangeV3
+              tokenIn={tokenIn}
+              tokenOut={tokenOut}
+              rate={LimitAmountOutRate}
+              fee={mostPoolDetail?.fee}
+              onChange={() => {
+                setTokenIn(tokenOut);
+                localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
+                setTokenOut(tokenIn);
+                localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
 
-              setTokenInAmount(toPrecision('1', 6));
-              localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
-              localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
-            }}
-          />
+                setTokenInAmount(toPrecision('1', 6));
+                localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
+                localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
+              }}
+              triggerFetch={() => setLimiSwapTrigger(!limitSwapTrigger)}
+              curPrice={curOrderPrice}
+              setRate={onChangeLimitRate}
+            />
+          ) : (
+            <SwapExchangeV1
+              onChange={() => {
+                setTokenIn(tokenOut);
+                localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
+                setTokenOut(tokenIn);
+                localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
+
+                setTokenInAmount(toPrecision('1', 6));
+                localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
+                localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
+              }}
+            />
+          )}
         </div>
-
-        <TokenAmountV3
-          forSwap
-          isOut
-          swapMode={swapMode}
-          amount={wrapOperation ? tokenInAmount : displayTokenOutAmount}
-          total={tokenOutTotal}
-          tokens={allTokens}
-          selectedToken={tokenOut}
-          preSelected={tokenIn}
-          onSelectPre={(token: TokenMetadata) => setTokenIn(token)}
-          tokenIn={tokenIn}
-          tokenOut={tokenOut}
-          useNearBalance={useNearBalance}
-          onSelectToken={(token) => {
-            localStorage.setItem(SWAP_OUT_KEY, token.id);
-
-            setTokenOut(token);
-            setCanSwap(false);
-
-            if (token.id === skywardId) {
-              setShowSkywardTip(true);
-            }
+        <LimitOrderTriggerContext.Provider
+          value={{
+            triggerFetch: () => {
+              setLimiSwapTrigger(!limitSwapTrigger);
+            },
+            detail: {
+              showDetails,
+            },
           }}
-          isError={tokenIn?.id === tokenOut?.id}
-          tokenPriceList={tokenPriceList}
-          allowWNEAR={swapMode === SWAP_MODE.LIMIT ? false : true}
-        />
+        >
+          <TokenAmountV3
+            forSwap
+            isOut
+            swapMode={swapMode}
+            amount={
+              swapMode === SWAP_MODE.LIMIT
+                ? limitAmountOut
+                : wrapOperation
+                ? tokenInAmount
+                : displayTokenOutAmount
+            }
+            total={tokenOutTotal}
+            tokens={allTokens}
+            selectedToken={tokenOut}
+            preSelected={tokenIn}
+            onSelectPre={(token: TokenMetadata) => setTokenIn(token)}
+            onChangeAmount={
+              swapMode === SWAP_MODE.LIMIT && mostPoolDetail
+                ? LimitChangeAmountOut
+                : null
+            }
+            onBlur={
+              swapMode === SWAP_MODE.LIMIT
+                ? (newRate: string) => {
+                    const newAmountOut = new Big(newRate)
+                      .times(tokenInAmount || 0)
+                      .toString();
+                    LimitChangeAmountOut(
+                      scientificNotationToString(newAmountOut),
+                      true
+                    );
+                  }
+                : null
+            }
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+            limitFee={mostPoolDetail?.fee}
+            limitOrderDisable={
+              swapMode === SWAP_MODE.LIMIT &&
+              (!mostPoolDetail || !quoteDoneLimit || isInValidLimitIn)
+            }
+            setDiff={setDiff}
+            forLimitOrder
+            text={
+              swapMode === SWAP_MODE.LIMIT
+                ? intl.formatMessage({ id: 'buy' })
+                : ''
+            }
+            useNearBalance={useNearBalance}
+            onSelectToken={(token) => {
+              localStorage.setItem(SWAP_OUT_KEY, token.id);
 
-        {canShowDetailView ? (
-          <div className="mt-4">{displayDetailView}</div>
-        ) : (
-          <div className="mt-4"></div>
-        )}
+              setTokenOut(token);
+              setCanSwap(false);
+
+              if (token.id === skywardId) {
+                setShowSkywardTip(true);
+              }
+            }}
+            isError={tokenIn?.id === tokenOut?.id}
+            tokenPriceList={tokenPriceList}
+            curRate={LimitAmountOutRate}
+            onChangeRate={onChangeLimitRate}
+            marketPriceLimitOrder={!curOrderPrice ? null : curOrderPrice}
+            ExtraElement={
+              swapMode == SWAP_MODE.LIMIT && limitAmountOut ? (
+                <MdOutlineRefresh
+                  size={18}
+                  className={`text-primaryText cursor-pointer  ${
+                    !quoteDoneLimit ? 'rotateInfinite' : ''
+                  } `}
+                  onClick={() => {
+                    setLimiSwapTrigger(!limitSwapTrigger);
+                  }}
+                />
+              ) : null
+            }
+            allowWNEAR={swapMode === SWAP_MODE.LIMIT ? false : true}
+          />
+          {swapMode === SWAP_MODE.LIMIT ? (
+            <>
+              <div
+                className="relative flex items-stretch justify-between mt-2.5"
+                style={{ zIndex: '60' }}
+              >
+                <LimitOrderRateSetBox
+                  tokenIn={tokenIn}
+                  tokenOut={tokenOut}
+                  limitFee={mostPoolDetail?.fee}
+                  setDiff={setDiff}
+                  curRate={LimitAmountOutRate}
+                  onChangeRate={onChangeLimitRate}
+                  marketPriceLimitOrder={!curOrderPrice ? null : curOrderPrice}
+                  fee={mostPoolDetail?.fee}
+                  triggerFetch={() => setLimiSwapTrigger(!limitSwapTrigger)}
+                  curPrice={isInValidLimitIn ? '' : curOrderPrice}
+                  setRate={onChangeLimitRate}
+                  hidden={feeTiersShowFull ? true : false}
+                  hasLockedRate={hasLockedRate}
+                  setHasLockedRate={setHasLockedRate}
+                />
+                <DetailViewLimit
+                  tokenIn={tokenIn}
+                  tokenOut={tokenOut}
+                  poolPercents={poolPercents}
+                  everyPoolTvl={everyPoolTvl}
+                  v3Pool={selectedV3LimitPool}
+                  setV3Pool={setSelectedV3LimitPool}
+                  tokenPriceList={tokenPriceList}
+                  setFeeTiersShowFull={setFeeTiersShowFull}
+                  feeTiersShowFull={feeTiersShowFull}
+                />
+              </div>
+              <div className="text-sm text-limitOrderInputColor mt-2.5 px-3">
+                <FormattedMessage id="limitTip"></FormattedMessage>
+              </div>
+            </>
+          ) : null}
+          {canShowDetailView ? (
+            <div className="mt-4">{displayDetailView}</div>
+          ) : (
+            <div className="mt-4"></div>
+          )}
+        </LimitOrderTriggerContext.Provider>
 
         {wrapOperation ? (
           <DetailView_near_wnear
@@ -1524,6 +2399,23 @@ export default function SwapCard(props: {
             to={tokenInAmount}
           ></DetailView_near_wnear>
         ) : null}
+
+        {swapMode === SWAP_MODE.LIMIT && quoteDoneLimit && !mostPoolDetail && (
+          <NoLimitPoolCard />
+        )}
+
+        {swapMode === SWAP_MODE.LIMIT && quoteDoneLimit && !mostPoolDetail
+          ? null
+          : isInValidLimitIn && (
+              <div className="pb-2 relative ">
+                <Alert
+                  level="warn"
+                  message={`${tokenInAmount} ${intl.formatMessage({
+                    id: 'is_not_a_valid_swap_amount',
+                  })}`}
+                />
+              </div>
+            )}
 
         {poolError &&
         !wrapOperation &&
@@ -1547,6 +2439,33 @@ export default function SwapCard(props: {
         onSwap={() => makeBestSwap()}
         priceImpactValue={displayPriceImpact || '0'}
       />
+      <DoubleCheckModalLimit
+        isOpen={doubleCheckOpenLimit}
+        onRequestClose={() => {
+          setDoubleCheckOpenLimit(false);
+          window.location.reload(); // todo x
+        }}
+        selectedPool={selectedV3LimitPool}
+        tokenIn={tokenIn}
+        tokenOut={tokenOut}
+        tokenInAmount={tokenInAmount}
+        tokenOutAmount={limitAmountOut}
+        rate={LimitAmountOutRate}
+        from={tokenInAmount}
+        onSwap={() => limitSwap()}
+        rateDiff={diff}
+      ></DoubleCheckModalLimit>
+      {swapMode === SWAP_MODE.STABLE ? (
+        <TokenReserves
+          tokens={AllStableTokenIds.map((id) =>
+            allTokens.find((token) => token.id === id)
+          ).filter((token) => isStableToken(token.id))}
+          pools={stablePools}
+          type={reservesType}
+          setType={setReservesType}
+          swapPage
+        />
+      ) : null}
 
       <SkyWardModal
         onRequestClose={() => {

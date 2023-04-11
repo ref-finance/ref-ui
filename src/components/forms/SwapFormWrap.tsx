@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import Alert from '../alert/Alert';
 import SubmitButton, { InsufficientButton } from './SubmitButton';
 import { FormattedMessage, useIntl } from 'react-intl';
-import SlippageSelector, { StableSlipSelecter } from './SlippageSelector';
+import SlippageSelector from './SlippageSelector';
 import { SwapRefresh, CountdownTimer } from '../../components/icon';
 import { wallet } from '~services/near';
 import {
@@ -66,24 +66,21 @@ export default function SwapFormWrap({
   canSubmit = true,
   onSubmit,
   info,
-  crossSwap,
   showElseView,
   elseView,
   onChange,
   swapTab,
   loading,
-  useNearBalance,
   swapMode,
   supportLedger,
   setSupportLedger,
   quoteDoneLimit,
-  reserves,
   isInsufficient,
   mostPoolDetail,
 }: React.PropsWithChildren<SwapFormWrapProps>) {
   const [error, setError] = useState<Error>();
 
-  const { activeOrder, historyOrder } = useMyOrders();
+  const { activeOrder } = useMyOrders();
   const [viewPoolHover, setViewPoolHover] = useState(false);
 
   const history = useHistory();
@@ -146,8 +143,6 @@ export default function SwapFormWrap({
     }
   }
 
-  const intl = useIntl();
-
   return (
     <form
       className={`overflow-y-visible  relative bg-swapCardGradient shadow-2xl rounded-2xl px-4 pt-6 pb-7 xsm:py-4 xsm:px-2.5 bg-dark  overflow-x-visible`}
@@ -158,15 +153,13 @@ export default function SwapFormWrap({
         <>
           <h2 className="formTitle relative bottom-1 z-50 flex items-center xs:justify-end justify-between font-bold text-xl text-white text-left pb-4 xs:pb-2">
             {swapTab}
-            {swapMode !== SWAP_MODE.LIMIT && (
+            {swapMode === SWAP_MODE.NORMAL && (
               <SlippageSelector
                 slippageTolerance={slippageTolerance}
                 onChange={onChange}
                 supportLedger={supportLedger}
                 setSupportLedger={setSupportLedger}
-                validSlippageList={
-                  swapMode === SWAP_MODE.NORMAL ? null : [0.05, 0.1, 0.2]
-                }
+                validSlippageList={null}
                 swapMode={swapMode}
               />
             )}
@@ -186,7 +179,7 @@ export default function SwapFormWrap({
                 <span className="text-xs whitespace-nowrap xsm:hidden">
                   <FormattedMessage
                     id={`${mostPoolDetail?.pool_id ? 'view_pool' : 'v2_pools'}`}
-                  ></FormattedMessage>
+                  />
                 </span>
                 <span className="text-xs whitespace-nowrap lg:hidden">
                   {mostPoolDetail?.pool_id ? 'Detail' : 'Pools'}
@@ -208,25 +201,6 @@ export default function SwapFormWrap({
               className={`ml-1 text-xs w-full ${
                 swapMode === SWAP_MODE.LIMIT ? 'mt-6' : ''
               }  `}
-              data-type="info"
-              data-place="top"
-              data-multiline={true}
-              data-class="reactTip"
-              data-html={true}
-              data-tip={`
-              <div class="text-xs opacity-50">
-                <div 
-                  style="font-weight:400",
-                >
-                ${intl.formatMessage({
-                  id: 'v2_paused',
-
-                  defaultMessage: 'REF V2 has been paused for maintenance',
-                })}
-                </div>
-              </div>
-            `}
-              data-for="v2_paused_pool_tip"
             >
               <SubmitButton
                 disabled={
@@ -235,10 +209,6 @@ export default function SwapFormWrap({
                     ? !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
                     : showSwapLoading)
                 }
-                // disabled={
-                //   !canSubmit ||
-                //   (swapMode === SWAP_MODE.LIMIT ? true : showSwapLoading)
-                // }
                 label={buttonText || title}
                 info={info}
                 className={`h-12 ${
@@ -250,17 +220,6 @@ export default function SwapFormWrap({
                     : !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
                 }
               />
-              {/* {swapMode === SWAP_MODE.LIMIT && (
-                <ReactTooltip
-                  className="w-20"
-                  id="v2_paused_pool_tip"
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  textColor="#C6D1DA"
-                  effect="solid"
-                />
-              )} */}
             </div>
           ) : (
             <InsufficientButton divClassName="h-12 mt-6 w-full"></InsufficientButton>
@@ -268,7 +227,6 @@ export default function SwapFormWrap({
           {OrderButton}
         </div>
       )}
-      {reserves}
     </form>
   );
 }
