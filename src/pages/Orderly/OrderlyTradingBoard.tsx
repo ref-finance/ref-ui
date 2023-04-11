@@ -65,12 +65,12 @@ function TradingBoard() {
           </div>
           {!isLarge && (
             <div className="w-80 flex-shrink-0 mx-3">
-              <OrderBook />
+              <OrderBook maintenance={maintenance} />
             </div>
           )}
         </div>
         <div className={`${isLarge ? '' : 'mr-3'} mt-3 h-full`}>
-          <AllOrderBoard></AllOrderBoard>
+          <AllOrderBoard maintenance={maintenance}></AllOrderBoard>
         </div>
       </div>
 
@@ -81,7 +81,7 @@ function TradingBoard() {
             height: 'calc(100vh - 100px)',
           }}
         >
-          <OrderBook />
+          <OrderBook maintenance={maintenance} />
         </div>
       )}
       <div
@@ -128,13 +128,13 @@ function MobileTradingBoard() {
 
         {/* info board */}
 
-        <MobileInfoBoard />
+        <MobileInfoBoard maintenance={maintenance} />
 
         {/* operation board */}
       </div>
 
       <div className="w-full flex flex-col lg:hidden">
-        <AllOrderBoard />
+        <AllOrderBoard maintenance={maintenance} />
       </div>
     </div>
   );

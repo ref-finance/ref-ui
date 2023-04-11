@@ -77,11 +77,6 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
 
   const privateValue = useOrderlyPrivateData({ validAccountSig });
 
-  // const pendingOrders = usePendingOrders({
-  //   symbol,
-  //   refreshingTag: myPendingOrdersRefreshing,
-  //   validAccountSig,
-  // });
 
   const availableSymbols = useAllSymbolInfo();
 
@@ -91,10 +86,7 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
     validAccountSig,
   });
 
-  // const { trades: recentTrades, setTrades } = useMarketTrades({
-  //   symbol,
-  //   limit: 50,
-  // });
+
 
   const [recentTrades, setTrades] = useState<Trade[]>();
 

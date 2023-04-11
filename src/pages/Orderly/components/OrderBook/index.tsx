@@ -208,16 +208,6 @@ function OrderLine({
   decimalLength: number;
   symbolInfo: SymbolInfo;
 }) {
-  const { inView, ref } = useInView();
-
-  useEffect(() => {
-    if (inView) {
-      setInViewCOunt(inViewCount + 1);
-    } else {
-      setInViewCOunt(inViewCount - 1);
-    }
-  }, [inView]);
-
   let quantityDecimal =
     Math.log10(symbolInfo.base_tick) > 0
       ? 0
@@ -233,7 +223,6 @@ function OrderLine({
       className={
         'relative font-nunito grid pl-5 pr-4 cursor-pointer hover:bg-symbolHover grid-cols-3 lg:mr-2 py-1 justify-items-end'
       }
-      ref={ref}
       id={`order-id-${order[0]}`}
       key={`orderbook-${type}-` + i}
       onClick={(e) => {
@@ -281,7 +270,7 @@ function OrderLine({
   );
 }
 
-function OrderBook() {
+function OrderBook({ maintenance }: { maintenance: boolean }) {
   const {
     orders,
     symbol,
@@ -293,7 +282,19 @@ function OrderBook() {
     availableSymbols,
   } = useOrderlyContext();
 
-  const symbolInfo = availableSymbols?.find((s) => s.symbol === symbol);
+  const symbolInfo = availableSymbols?.find((s) => s.symbol === symbol) || {
+    created_time: 1575441595650, // Unix epoch time in milliseconds
+    updated_time: 1575441595650, // Unix epoch time in milliseconds
+    symbol: 'SPOT_BTC_USDT',
+    quote_min: 100,
+    quote_max: 100000,
+    quote_tick: 0.01,
+    base_min: 0.0001,
+    base_max: 20,
+    base_tick: 0.0001,
+    min_notional: 0.02,
+    price_range: 0.99,
+  };
 
   const storedPrecision = sessionStorage.getItem(REF_ORDERLY_PRECISION);
 
@@ -365,7 +366,10 @@ function OrderBook() {
     if (!!orders && symbolInfo) {
       setLoading(false);
     }
-  }, [!!orders, availableSymbols]);
+    if (maintenance) {
+      setLoading(false);
+    }
+  }, [!!orders, availableSymbols, maintenance]);
 
   const marketTradeDisplay = numberWithCommas(
     recentTrades?.at(0)?.executed_price || 0

@@ -420,7 +420,7 @@ function CurAsset() {
   );
 }
 
-function BookBoard() {
+function BookBoard({ maintenance }: { maintenance: boolean }) {
   return (
     <div
       className="w-full "
@@ -428,7 +428,7 @@ function BookBoard() {
         height: 'calc(52vh + 16px)',
       }}
     >
-      <OrderBook />
+      <OrderBook maintenance={maintenance} />
     </div>
   );
 }
@@ -888,7 +888,7 @@ function UserBoardWrapper() {
   );
 }
 
-export default function () {
+export default function ({ maintenance }: { maintenance: boolean }) {
   const storedTab = sessionStorage.getItem(MOBILE_TAB) as any;
 
   const [tab, setTab] = useState<'balance' | 'chart' | 'book'>(
@@ -926,7 +926,7 @@ export default function () {
       </div>
 
       <div className={tab === 'book' && showDisplay ? '' : 'hidden'}>
-        <BookBoard></BookBoard>
+        <BookBoard maintenance={maintenance}></BookBoard>
       </div>
 
       <div className="w-full mx-auto flex mt-2 h-9 items-center">
