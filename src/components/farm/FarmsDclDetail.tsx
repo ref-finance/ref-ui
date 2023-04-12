@@ -904,7 +904,7 @@ export default function FarmsDclDetail(props: {
     const [contractId, temp_pool_id] = betterSeed.seed_id.split('@');
     const [fixRange, pool_id, left_point, right_point] =
       temp_pool_id.split('&');
-    const mft_id = `${get_pool_name(pool_id)}[${left_point}|${right_point}]`;
+    const mft_id = `${get_pool_name(pool_id)}[${left_point}-${right_point}]`;
     window.open(`/v2farms/${mft_id}-r`);
   }
   function getFee() {
@@ -2138,7 +2138,7 @@ function LiquidityLine(props: {
     const target = temps[0];
     const [fixRange, pool_id, left_point, right_point] = mft_id.split('&');
     const status = target?.farmList[0].status == 'Ended' ? 'e' : 'r';
-    const params = `${get_pool_name(pool_id)}[${left_point}|${right_point}]`;
+    const params = `${get_pool_name(pool_id)}[${left_point}-${right_point}]`;
     const link = `/v2farms/${params}-${status}`;
     return link;
   }

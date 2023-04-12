@@ -632,7 +632,7 @@ export default function FarmsHome(props: any) {
   }
   function getUrlParams() {
     try {
-      // http://localhost:1234/v2farms/USDC<>NEAR@2000[406600|408600]-r new link
+      // http://localhost:1234/v2farms/USDC<>NEAR@2000[406600-408600]-r new link
       // phoenix-bonds.near|wrap.near|2000&3080&4040-r
       const pathArr = location.pathname.split('/');
       const layer1 = decodeURIComponent(pathArr[2] || '');
@@ -647,7 +647,7 @@ export default function FarmsHome(props: any) {
             const [fee, lp, rp] = fee_p.split('&');
             const replace_str = `${get_pool_name(
               `${tokena_id}|${tokenb_id}|${fee}`
-            )}[${lp}|${rp}]-${status}`;
+            )}[${lp}-${rp}]-${status}`;
             location.replace(`/v2farms/${replace_str}`);
             return layer1;
           }
@@ -655,7 +655,7 @@ export default function FarmsHome(props: any) {
           const pool_id = get_pool_id(layer2[0]);
           const point_str = layer2[1].substring(0, layer2[1].length - 3);
           const status = layer2[1].substring(layer2[1].length - 1);
-          const p_arr = point_str.split('|');
+          const p_arr = point_str.split('-');
           const [lp, rp] = p_arr;
           return `${pool_id}&${lp}&${rp}-${status}`;
         } else {
@@ -2746,7 +2746,7 @@ function FarmView(props: {
       const [contractId, temp_pool_id] = seed.seed_id.split('@');
       const [fixRange, pool_id, left_point, right_point] =
         temp_pool_id.split('&');
-      mft_id = `${get_pool_name(pool_id)}[${left_point}|${right_point}]`;
+      mft_id = `${get_pool_name(pool_id)}[${left_point}-${right_point}]`;
     }
     history.replace(`/v2farms/${mft_id}-${status}`);
   }

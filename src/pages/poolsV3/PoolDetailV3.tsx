@@ -1098,7 +1098,7 @@ function RelatedFarmsBox(props: any) {
       temp_pool_id.split('&');
     const link_params = `${get_pool_name(
       pool_id
-    )}[${left_point}|${right_point}]`;
+    )}[${left_point}-${right_point}]`;
     window.open(`/v2farms/${link_params}-r`);
   }
   if (farm_loading) return null;
@@ -1288,7 +1288,7 @@ function SelectLiquidityBox(props: any) {
     const [fixRange, pool_id, left_point, right_point] = mft_id.split('&');
     const link_params = `${get_pool_name(
       pool_id
-    )}[${left_point}|${right_point}]`;
+    )}[${left_point}-${right_point}]`;
     const seed_id = REF_UNI_V3_SWAP_CONTRACT_ID + '@' + mft_id.slice(1);
     const temp_seeds = (matched_seeds || []).filter((seed: Seed) => {
       return seed_id == seed.seed_id;

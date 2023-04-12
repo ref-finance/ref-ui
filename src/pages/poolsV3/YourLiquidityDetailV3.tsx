@@ -511,7 +511,7 @@ export default function YourLiquidityDetail(props: any) {
       userLiquidity.mft_id.split('&');
     const link_params = `${get_pool_name(
       pool_id
-    )}[${left_point}|${right_point}]`;
+    )}[${left_point}-${right_point}]`;
     const actives = related_farms.filter((farm: FarmBoost) => {
       return farm.status != 'Ended';
     });

@@ -1143,7 +1143,7 @@ export function get_farm_name(farm_id: string) {
   const left_point = layer1_parts[2];
   const right_point = layer1_parts[3];
   const pool_name = get_pool_name(pool_id);
-  return `F:${pool_name}[${left_point}|${right_point}]`;
+  return `F:${pool_name}[${left_point}-${right_point}]`;
 }
 export function get_farm_id(farm_name: string) {
   const layer0_parts = farm_name.split(':');

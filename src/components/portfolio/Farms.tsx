@@ -1793,7 +1793,7 @@ function goFarmDetailPage(seed: Seed) {
   if (is_dcl_pool) {
     const [fixRange, pool_id, left_point, right_point] =
       temp_pool_id.split('&');
-    mft_id = `${get_pool_name(pool_id)}[${left_point}|${right_point}]`;
+    mft_id = `${get_pool_name(pool_id)}[${left_point}-${right_point}]`;
   }
   window.open(`/v2farms/${mft_id}-${status}`);
 }
