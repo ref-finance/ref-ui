@@ -101,6 +101,7 @@ import {
 import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
 import { percentLess } from '../utils/numbers';
 import getConfig from './config';
+import { SUPPORT_LEDGER_KEY } from '../components/swap/CrossSwapCard';
 export const REF_FI_SWAP_SIGNAL = 'REF_FI_SWAP_SIGNAL_KEY';
 
 // Big.strict = false;
@@ -381,7 +382,7 @@ export const estimateSwap = async ({
   );
   // ref smart routing
 
-  if (supportLedger) {
+  if (supportLedger || localStorage.getItem(SUPPORT_LEDGER_KEY)) {
     if (swapPro) {
       setSwapsToDoTri(triTodos);
       setSwapsToDoRef(refTodos);
@@ -445,7 +446,9 @@ export const estimateSwap = async ({
     if (!supportLedgerRes && !res.length) throwNoPoolError();
 
     // if not both none, we could return res
+
     setSwapsToDoTri(triTodos);
+
     setSwapsToDoRef(res);
 
     const refSmartRes = await getExpectedOutputFromActions(res, tokenOut.id, 0);

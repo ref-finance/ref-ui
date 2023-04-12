@@ -300,14 +300,15 @@ export default function CrossSwapCard(props: {
   const [loadingData, setLoadingData] = useState<boolean>(false);
   const [loadingTrigger, setLoadingTrigger] = useState<boolean>(true);
   const [loadingPause, setLoadingPause] = useState<boolean>(false);
-  const [supportLedger, setSupportLedger] = useState(
-    localStorage.getItem(SUPPORT_LEDGER_KEY) ? true : false
-  );
 
   const [useNearBalance, setUseNearBalance] = useState<boolean>(true);
   const history = useHistory();
 
-  const { accountId } = useWalletSelector();
+  const { accountId, isLedger } = useWalletSelector();
+
+  const [supportLedger, setSupportLedger] = useState(
+    localStorage.getItem(SUPPORT_LEDGER_KEY) ? true : false
+  );
 
   const [balanceInDone, setBalanceInDone] = useState<boolean>(false);
   const [balanceOutDone, setBalanceOutDone] = useState<boolean>(false);
@@ -944,7 +945,8 @@ export default function CrossSwapCard(props: {
               : !!selectReceive &&
                 tokenIn &&
                 tokenOut &&
-                tokenIn.id !== tokenOut.id
+                tokenIn.id !== tokenOut.id &&
+                !poolError
               ? toPrecision(selectReceive, 8)
               : ''
           }
@@ -964,7 +966,7 @@ export default function CrossSwapCard(props: {
 
         {poolError && tokenIn?.id !== tokenOut?.id ? (
           <div className="pb-2 relative -mb-5">
-            <Alert level="warn" message={poolError} />
+            <Alert level="warn" message={NoPoolError().message} />
           </div>
         ) : null}
       </CrossSwapFormWrap>

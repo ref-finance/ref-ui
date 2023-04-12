@@ -201,8 +201,6 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
         await currentWallet.signOut();
       }
     } catch (error) {
-      console.log(error.message);
-
       if (walletsRejectError.includes(error.message)) {
         // window.location.reload();
         onError(error.message);
@@ -255,8 +253,6 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
 
         return;
       }
-
-      console.log(err);
 
       onError(err);
     }

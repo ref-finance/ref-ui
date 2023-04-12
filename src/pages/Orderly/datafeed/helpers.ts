@@ -27,8 +27,6 @@ export function generateSymbol(
 }
 
 export function parseFullSymbol(fullSymbol: string) {
-  console.log('fullSymbol: ', fullSymbol);
-
   const symbolName = fullSymbol.split(':')[1];
 
   return {

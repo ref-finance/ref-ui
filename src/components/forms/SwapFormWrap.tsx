@@ -38,6 +38,7 @@ interface SwapFormWrapProps {
   onChange: (slippage: number) => void;
   quoteDoneLimit?: boolean;
   selectTodos?: EstimateSwapView[];
+  setReEstimateTrigger?: (e?: any) => void;
   loading?: {
     loadingData: boolean;
     setLoadingData: (loading: boolean) => void;
@@ -75,6 +76,7 @@ export default function SwapFormWrap({
   loading,
   useNearBalance,
   swapMode,
+  setReEstimateTrigger,
   supportLedger,
   setSupportLedger,
   quoteDoneLimit,
@@ -168,6 +170,7 @@ export default function SwapFormWrap({
                 validSlippageList={
                   swapMode === SWAP_MODE.NORMAL ? null : [0.05, 0.1, 0.2]
                 }
+                setReEstimateTrigger={setReEstimateTrigger}
                 swapMode={swapMode}
               />
             )}

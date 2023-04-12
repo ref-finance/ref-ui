@@ -233,7 +233,6 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
       })
       .filter(filterBlackListPools);
   } catch (error) {
-    console.log(error);
     return [];
   }
 };

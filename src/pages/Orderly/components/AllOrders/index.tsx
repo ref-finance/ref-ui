@@ -3932,7 +3932,7 @@ function HistoryOrders({
   );
 }
 
-function AllOrderBoard() {
+function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
   const {
     symbol,
     myPendingOrdersRefreshing,
@@ -3975,7 +3975,8 @@ function AllOrderBoard() {
     typeof allOrders === 'undefined' &&
     !!accountId &&
     storageEnough &&
-    !!localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
+    !!localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID) &&
+    !maintenance;
 
   const [tab, setTab] = useState<'open' | 'history'>('open');
 

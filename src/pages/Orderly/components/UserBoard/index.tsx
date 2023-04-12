@@ -441,7 +441,7 @@ export const REF_ORDERLY_ACCOUNT_VALID = 'REF_ORDERLY_ACCOUNT_VALID';
 
 const REF_ORDERLY_LIMIT_ORDER_ADVANCE = 'REF_ORDERLY_LIMIT_ORDER_ADVANCE';
 
-export default function UserBoard() {
+export default function UserBoard({ maintenance }: { maintenance: boolean }) {
   const {
     symbol,
     orders,
@@ -1009,7 +1009,8 @@ export default function UserBoard() {
     !storageEnough ||
     !tradingKeySet ||
     !keyAnnounced ||
-    !validContract();
+    !validContract() ||
+    maintenance;
 
   const intl = useIntl();
 
@@ -1022,8 +1023,18 @@ export default function UserBoard() {
       }}
     >
       {/* not signed in wrapper */}
+      {maintenance && (
+        <div
+          className="absolute  flex flex-col justify-center items-center h-full w-full top-0 left-0 "
+          style={{
+            background: 'rgba(0, 19, 32, 0.8)',
+            backdropFilter: 'blur(5px)',
+            zIndex: 90,
+          }}
+        ></div>
+      )}
 
-      {loading && (
+      {loading && !maintenance && (
         <div
           className="absolute  flex flex-col justify-center items-center h-full w-full top-0 left-0 "
           style={{
@@ -1036,7 +1047,7 @@ export default function UserBoard() {
         </div>
       )}
 
-      {validator && !loading && (
+      {validator && !loading && !maintenance && (
         <div
           className="absolute  flex flex-col justify-center items-center h-full w-full top-0 left-0 "
           style={{
