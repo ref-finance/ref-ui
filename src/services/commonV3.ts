@@ -1126,15 +1126,15 @@ export function get_pool_name(pool_id: string) {
   const parts = pool_id.split('|');
   const token_a = TOKENS[parts[0]];
   const token_b = TOKENS[parts[1]];
-  const fee = locate_fee(Number(parts[2]));
-  return `${token_a}<>${token_b}#${fee}`;
+  const fee = parts[2];
+  return `${token_a}<>${token_b}@${fee}`;
 }
 export function get_pool_id(pool_name: string) {
-  const layer1_parts = pool_name.split('#');
+  const layer1_parts = pool_name.split('@');
   const layer2_parts = layer1_parts[0].split('<>');
   const token_a = locate_token_id(layer2_parts[0]);
   const token_b = locate_token_id(layer2_parts[1]);
-  const fee = FEE_TIER[Number(layer1_parts[1]) - 1];
+  const fee = layer1_parts[1];
   return `${token_a}|${token_b}|${fee}`;
 }
 export function get_farm_name(farm_id: string) {

@@ -99,19 +99,19 @@ export default function YourLiquidityDetail(props: any) {
   let tokenXId, tokenYId, feeV, lId;
   const paramsId = id || '';
   if (paramsId.indexOf('<>') > -1) {
+    // new link
     try {
-      const hash = location.hash;
-      const layer1 = hash.split('@');
-      const pool_id = get_pool_id(`${paramsId}${layer1[0]}`);
-      const layer2 = layer1[1].split('/');
+      const layer1 = paramsId.split('@');
+      const pool_id = get_pool_id(`${layer1[0]}@${layer1[1]}`);
       const layer3 = pool_id.split('|');
       tokenXId = layer3[0];
       tokenYId = layer3[1];
       feeV = layer3[2];
-      lId = layer2[0];
-      is_old_dcl = layer2[1] == '1';
+      lId = layer1[2];
+      is_old_dcl = status == '1';
     } catch (error) {}
   } else {
+    // old link
     is_old_dcl = status == '1';
     [tokenXId, tokenYId, feeV, lId] = paramsId.split('@');
   }

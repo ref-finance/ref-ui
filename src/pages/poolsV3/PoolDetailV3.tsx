@@ -121,8 +121,10 @@ export default function PoolDetailV3() {
   let pool_id_from_url: string;
   const params_str = decodeURIComponent(id);
   if (params_str.indexOf('<>') > -1) {
-    pool_id_from_url = get_pool_id(`${params_str}${location.hash}`);
+    // new link
+    pool_id_from_url = get_pool_id(params_str);
   } else {
+    // old link
     pool_id_from_url = id.replace(/@/g, '|');
   }
   const [poolDetail, setPoolDetail] = useState<PoolInfo>(null);

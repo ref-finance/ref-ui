@@ -250,8 +250,10 @@ export default function AddYourLiquidityPageV3() {
     let tokenx_id, tokeny_id, pool_fee;
     const hash = decodeURIComponent(location.hash);
     if (hash.indexOf('<>') > -1) {
+      // new link
       [tokenx_id, tokeny_id, pool_fee] = get_pool_id(hash.slice(1)).split('|');
     } else {
+      // old link
       [tokenx_id, tokeny_id, pool_fee] = hash.slice(1).split('|');
     }
     if (tokenx_id && tokeny_id && pool_fee) {

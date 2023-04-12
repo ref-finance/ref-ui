@@ -105,8 +105,6 @@ import {
   displayNumberToAppropriateDecimals,
   getEffectiveFarmList,
   sort_tokens_by_base,
-  get_farm_id,
-  get_farm_name,
   get_pool_id,
   get_pool_name,
 } from '../../services/commonV3';
@@ -634,11 +632,16 @@ export default function FarmsHome(props: any) {
   }
   function getUrlParams() {
     try {
+      // http://localhost:1234/v2farms/USDC<>NEAR@2000[406600|408600]-r new link
+      // phoenix-bonds.near|wrap.near|2000&3080&4040-r
       const pathArr = location.pathname.split('/');
       const layer1 = decodeURIComponent(pathArr[2] || '');
+      debugger;
       if (layer1) {
         if (layer1.indexOf('<>') > -1 || layer1.indexOf('|') > -1) {
+          // dcl link
           if (layer1.indexOf('<>') == -1) {
+            // compatible with old link
             const [tokena_id, tokenb_id, fee_p_s] = layer1.split('|');
             const [fee_p, status] = fee_p_s.split('-');
             const [fee, lp, rp] = fee_p.split('&');
@@ -648,20 +651,15 @@ export default function FarmsHome(props: any) {
             location.replace(`/v2farms/${replace_str}`);
             return layer1;
           }
-          const layer2 = decodeURIComponent(location.hash);
-          const layer3_0 = layer2.slice(0, layer2.length - 2);
-          const layer3_1 = layer2.slice(layer2.length - 1);
-          const layer3_0_arr = layer3_0?.split('[');
-          const fee_str = layer3_0_arr[0];
-          const point_str = layer3_0_arr[1]?.slice(
-            0,
-            layer3_0_arr[1]?.length - 1
-          );
-          const pool_id = get_pool_id(`${layer1}${fee_str}`);
+          const layer2 = layer1.split('[');
+          const pool_id = get_pool_id(layer2[0]);
+          const point_str = layer2[1].substring(0, layer2[1].length - 3);
+          const status = layer2[1].substring(layer2[1].length - 1);
           const p_arr = point_str.split('|');
           const [lp, rp] = p_arr;
-          return `${pool_id}&${lp}&${rp}-${layer3_1}`;
+          return `${pool_id}&${lp}&${rp}-${status}`;
         } else {
+          // classic link
           return layer1;
         }
       }
