@@ -128,14 +128,14 @@ export const Symbols = ({
   withArrow,
   tokens,
   size,
-  seperator,
+  separator,
   fontSize,
   className,
 }: {
   withArrow?: boolean;
   tokens: TokenMetadata[];
   size?: string;
-  seperator?: string;
+  separator?: string;
   fontSize?: string;
   className?: string;
 }) => {
@@ -147,7 +147,7 @@ export const Symbols = ({
     >
       {tokens?.map((token, index) => (
         <span key={token?.id || index}>
-          {index ? seperator || '-' : ''}
+          {index ? separator || '-' : ''}
           {toRealSymbol(token?.symbol || '')}
         </span>
       ))}

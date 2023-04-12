@@ -14,7 +14,7 @@ import { parseAction } from '../services/transaction';
 import { volumeType, TVLType } from '~state/pool';
 import db from '../store/RefDatabase';
 import { getCurrentWallet } from '../utils/wallets-integration';
-import { getPoolsByTokens, getAllPools, parsePool } from './pool';
+import { parsePool } from './pool';
 import {
   filterBlackListPools,
   ALL_STABLE_POOL_IDS,
@@ -532,7 +532,7 @@ export const getTokenPairRate = async ({
 }: {
   token: TokenMetadata;
   base_token: TokenMetadata;
-  dimension: 'Y' | 'M' | 'W' | 'D';
+  dimension: 'Y' | 'M' | 'W' | 'D' | 'All';
 }): Promise<TokenPairRate> => {
   return await fetch(
     config.indexerUrl +

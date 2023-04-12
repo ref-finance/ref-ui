@@ -33,6 +33,13 @@ module.exports = {
           justifyContent: 'space-between',
           alignItems: 'center',
         },
+
+        '.fccc': {
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
       });
     }),
   ],
@@ -96,7 +103,6 @@ module.exports = {
         boostUpBoxBg: 'linear-gradient(0deg, #273A46 0%, #15232D 100%)',
         bgGreyDefault: 'linear-gradient(180deg, #C0B1A3 0%, #92877D 100%)',
         bgGreyHover: 'linear-gradient(180deg, #E6D6C7 0%, #92877D 100%)',
-        swapCardGradient: 'linear-gradient(180deg, #222F37 0%, #192229 100%)',
         orderMobileTop: 'linear-gradient(180deg, #1D2933 0%, #283A46 100%)',
         switchIconBgColor: 'linear-gradient(180deg, #222F37 0%, #192229 100%)',
         unLoginButtonBgColor:
@@ -107,6 +113,7 @@ module.exports = {
           'linear-gradient(90deg, #00C6A2 2.54%, rgba(91, 64, 255, 0.5) 70%, rgba(91, 64, 255, 0) 100%)',
         dclIconBgColor: 'linear-gradient(180deg, #00C6A2 0%, #5B40FF 100%)',
         sellGradientRed: 'linear-gradient(180deg, #944A8C 0%, #D26060 100%)',
+        swapCardGradient: 'linear-gradient(180deg, #213441 0%, #15242F 100%)',
         sellGradientRedReverse:
           'linear-gradient(180deg, #944A8C 0%, #D26060 100%);',
         buyGradientGreen: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
@@ -143,6 +150,7 @@ module.exports = {
         inputText: '#374151',
         hoverGray: '#F3F4F6',
         buttonBg: '#10B981',
+        swapCardBorder: 'rgba(151, 151, 151, 0.2)',
         buttonText: '#F9FAFB',
         greenLight: '#00C08B',
         greenOpacity100: 'rgba(2, 109, 97, 1)',
@@ -389,6 +397,7 @@ module.exports = {
         p400: '400px',
         '95vw': '95vw',
         p410: '410px',
+        p450: '450px',
         p460: '460px',
         '580px': '580px',
         '580px': '580px',

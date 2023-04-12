@@ -8,17 +8,13 @@ import React, {
   createContext,
 } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
+import { SwapExchangeV3 } from '~components/icon';
 import {
   ftGetBalance,
   TokenMetadata,
   REF_META_DATA,
 } from '../../services/ft-contract';
-import { Pool } from '../../services/pool';
-import {
-  useTokenBalances,
-  useDepositableBalance,
-  useTokenPriceList,
-} from '../../state/token';
+import { useDepositableBalance, useTokenPriceList } from '../../state/token';
 import {
   useSwap,
   useSwapV3,
@@ -32,17 +28,11 @@ import {
   toPrecision,
   toReadableNumber,
   ONLY_ZEROS,
-  multiply,
-  divide,
   scientificNotationToString,
-  calculateSmartRoutesV2PriceImpact,
-  separateRoutes,
-  calcStableSwapPriceImpact,
 } from '../../utils/numbers';
 
-import SubmitButton, { InsufficientButton } from '../forms/SubmitButton';
+import { InsufficientButton } from '../forms/SubmitButton';
 import Alert from '../alert/Alert';
-import { toRealSymbol } from '../../utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import { ConnectToNearBtnSwap } from '../button/Button';
@@ -55,26 +45,9 @@ import {
   useMobile,
   isClientMobie,
 } from '../../utils/device';
-import { ModalClose } from '../icon';
 import BigNumber from 'bignumber.js';
-import {
-  AutoRouterText,
-  OneParallelRoute,
-  RouterIcon,
-  SmartRouteV2,
-  NormalSwapRoute,
-  RouteDCLDetail,
-} from '../layout/SwapRoutes';
 
-import { EstimateSwapView, PoolMode, swap } from '../../services/swap';
-import { QuestionTip } from '../layout/TipWrapper';
-import { senderWallet, WalletContext } from '../../utils/wallets-integration';
-import { SwapExchangeV3 } from '../icon/Arrows';
-import {
-  getPoolAllocationPercents,
-  percentLess,
-  toNonDivisibleNumber,
-} from '../../utils/numbers';
+import { toNonDivisibleNumber } from '../../utils/numbers';
 
 import { SWAP_MODE, SWAP_MODE_KEY } from '../../pages/SwapPage';
 import { USD_CLASS_STABLE_TOKEN_IDS } from '../../services/near';
@@ -110,19 +83,15 @@ import {
   V3_POOL_SPLITER,
 } from '../../services/swapV3';
 import { SkyWardModal } from '../layout/SwapDoubleCheck';
-import {
-  NEAR_CLASS_STABLE_TOKEN_IDS,
-  BTC_CLASS_STABLE_TOKEN_IDS,
-} from '../../services/near';
 
 import { MdOutlineRefresh } from 'react-icons/md';
 import { getMax } from '../../utils/numbers';
 
-import { YellowTipIcon, RedTipIcon, SelectedIcon } from '../icon/swapV3';
-import * as math from 'mathjs';
-import { NEAR_WITHDRAW_KEY } from '../forms/WrapNear';
-import { PoolInfo, get_pool, get_pool_from_cache } from '../../services/swapV3';
+import { SelectedIcon } from '../icon/swapV3';
+
+import { PoolInfo, get_pool_from_cache } from '../../services/swapV3';
 import { nearMetadata } from '../../services/wrap-near';
+import { useWalletSelector } from '~context/WalletSelectorContext';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -490,9 +459,12 @@ export default function LimitOrderCard(props: {
   tokenInAmount: string;
   setTokenInAmount: (value: string) => void;
   swapTab?: JSX.Element;
-  stableReserves?: JSX.Element;
   globalWhiteListTokens: TokenMetadata[];
   limitTokenTrigger?: boolean;
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+  setTokenIn: (value: TokenMetadata) => void;
+  setTokenOut: (value: TokenMetadata) => void;
 }) {
   const { NEARXIDS, STNEARIDS } = getExtraStablePoolConfig();
   const { REF_TOKEN_ID } = getConfig();
@@ -507,12 +479,13 @@ export default function LimitOrderCard(props: {
     tokenInAmount,
     setTokenInAmount,
     swapTab,
-    stableReserves,
+    tokenIn,
+    tokenOut,
+    setTokenIn,
+    setTokenOut,
     globalWhiteListTokens,
     limitTokenTrigger,
   } = props;
-  const [tokenIn, setTokenIn] = useState<TokenMetadata>();
-  const [tokenOut, setTokenOut] = useState<TokenMetadata>();
 
   const [doubleCheckOpenLimit, setDoubleCheckOpenLimit] =
     useState<boolean>(false);
@@ -525,8 +498,8 @@ export default function LimitOrderCard(props: {
 
   const useNearBalance = true;
 
-  const { globalState } = useContext(WalletContext);
-  const isSignedIn = globalState.isSignedIn;
+  const { accountId } = useWalletSelector();
+  const isSignedIn = !!accountId;
 
   const [tokenInBalanceFromNear, setTokenInBalanceFromNear] =
     useState<string>();

@@ -102,8 +102,7 @@ class RefDatabase extends Dexie {
   public constructor() {
     super('RefDatabase');
 
-    this.version(5.5).stores({
-      pools: 'id, token1Id, token2Id, token1Supply, token2Supply, fee, shares',
+    this.version(5.6).stores({
       tokens: 'id, name, symbol, decimals, icon',
       farms: 'id, pool_id, status',
       pools_tokens:
@@ -245,12 +244,58 @@ class RefDatabase extends Dexie {
       )
     );
   }
-  public async checkPoolsByTokens(tokenInId: string, tokenOutId: string) {
-    const itemsTimeLimit = await this.queryPoolsByTokensTimeLimit(
+
+  public async cachePoolsByTokensAurora(pools: any) {
+    const filtered_pools = pools.filter(function (pool: PoolDetails) {
+      return pool.tokenIds.length < 3;
+    });
+    await this.poolsTokens.bulkPut(
+      filtered_pools.map(
+        (pool: {
+          id: number;
+          tokenIds: string[];
+          supplies: any[];
+          fee: number;
+          shareSupply: string;
+          token0_ref_price: string;
+          Dex: string;
+          pairAdd: string;
+        }) => ({
+          id: pool.id,
+          token1Id: pool.tokenIds[0],
+          token2Id: pool.tokenIds[1],
+          token1Supply: pool.supplies[pool.tokenIds[0]],
+          token2Supply: pool.supplies[pool.tokenIds[1]],
+          fee: pool.fee,
+          shares: pool.shareSupply,
+          update_time: moment().unix(),
+          token0_price: pool.token0_ref_price || '0',
+          Dex: pool.Dex,
+          pairAdd: pool?.pairAdd,
+        })
+      )
+    );
+  }
+
+  public async checkPoolsByTokens(
+    tokenInId: string,
+    tokenOutId: string,
+    forAurora?: boolean
+  ) {
+    let itemsTimeLimit = await this.queryPoolsByTokensTimeLimit(
       tokenInId,
       tokenOutId
     );
-    const items = await this.queryPoolsByTokens(tokenInId, tokenOutId);
+
+    if (forAurora) {
+      itemsTimeLimit = itemsTimeLimit.filter((p) => p?.Dex === 'tri');
+    }
+
+    let items = await this.queryPoolsByTokens(tokenInId, tokenOutId);
+
+    if (forAurora) {
+      items = items.filter((p) => p?.Dex === 'tri');
+    }
 
     return [items.length > 0, itemsTimeLimit.length > 0];
   }
@@ -271,8 +316,16 @@ class RefDatabase extends Dexie {
     }));
   }
 
-  public async getPoolsByTokens(tokenInId: string, tokenOutId: string) {
+  public async getPoolsByTokens(
+    tokenInId: string,
+    tokenOutId: string,
+    forAurora?: boolean
+  ) {
     let items = await this.queryPoolsByTokens(tokenInId, tokenOutId);
+
+    if (forAurora) {
+      items = items.filter((p) => p?.Dex === 'tri');
+    }
 
     return items.map((item) => ({
       id: item.id,

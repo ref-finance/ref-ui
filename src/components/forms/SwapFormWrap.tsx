@@ -3,15 +3,9 @@ import Alert from '../alert/Alert';
 import SubmitButton, { InsufficientButton } from './SubmitButton';
 import { FormattedMessage, useIntl } from 'react-intl';
 import SlippageSelector from './SlippageSelector';
-import { SwapRefresh, CountdownTimer } from '../../components/icon';
-import { wallet } from '~services/near';
-import {
-  getCurrentWallet,
-  WalletContext,
-} from '../../utils/wallets-integration';
-import { RequestingSmile } from '../icon/CrossSwapIcons';
+
+import { WalletContext } from '../../utils/wallets-integration';
 import { SWAP_MODE } from '../../pages/SwapPage';
-import SlippageSelectorForStable from './SlippageSelector';
 import { useMyOrders } from '../../state/swapV3';
 import { useHistory } from 'react-router-dom';
 import { OrderIcon } from '../icon/V3';
@@ -19,7 +13,6 @@ import { EstimateSwapView } from '../../services/swap';
 import { PoolInfo } from '~services/swapV3';
 import { OutLinkIcon } from '../../components/icon/Common';
 import { REF_FI_POOL_ACTIVE_TAB } from '../../pages/pools/LiquidityPage';
-import ReactTooltip from 'react-tooltip';
 
 interface SwapFormWrapProps {
   title?: string;
@@ -145,7 +138,7 @@ export default function SwapFormWrap({
 
   return (
     <form
-      className={`overflow-y-visible  relative bg-swapCardGradient shadow-2xl rounded-2xl px-4 pt-6 pb-7 xsm:py-4 xsm:px-2.5 bg-dark  overflow-x-visible`}
+      className={`overflow-y-visible  relative bg-swapCardGradient shadow-2xl rounded-2xl px-4 pt-4 pb-7 xsm:py-4 xsm:px-2.5  overflow-x-visible`}
       onSubmit={handleSubmit}
       noValidate
     >

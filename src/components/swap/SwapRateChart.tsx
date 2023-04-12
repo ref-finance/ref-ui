@@ -19,11 +19,15 @@ import {
   Area,
   AreaChart,
   ComposedChart,
+  CartesianGrid,
 } from 'recharts';
 
 import { IoArrowUpOutline } from '@react-icons/all-files/io5/IoArrowUpOutline';
 import { displayNumberToAppropriateDecimals } from '~services/commonV3';
 import moment from 'moment';
+import { ChartNoData } from '~components/icon/ChartNoData';
+import { FormattedMessage } from 'react-intl';
+import { OrderlyLoading } from '~pages/Orderly/components/Common/Icons';
 export interface SwapRateChartProps {
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
@@ -39,6 +43,8 @@ export default function SwapRateChart(props: SwapRateChartProps) {
   const dimensionList = ['24H', '7D', '1M', '1Y', 'All'] as Dimensions[];
 
   const [priceList, setPriceList] = useState<TokenPairRate>();
+
+  const [loadingPriceList, setLoadingPriceList] = useState<boolean>(false);
 
   const [reverseToken, setReverseToken] = useState<boolean>(false);
 
@@ -79,17 +85,21 @@ export default function SwapRateChart(props: SwapRateChartProps) {
     if (raw === '7D') return 'W';
     if (raw === '1M') return 'M';
     if (raw === '1Y') return 'Y';
-    if (raw === 'All') return 'Y';
+    if (raw === 'All') return 'All';
   };
 
   useEffect(() => {
     if (!displayTokenIn || !displayTokenOut) return;
-
+    setLoadingPriceList(true);
     getTokenPairRate({
       token: displayTokenIn,
       base_token: displayTokenOut,
       dimension: getDimension(displayDimension),
-    }).then(setPriceList);
+    })
+      .then(setPriceList)
+      .finally(() => {
+        setLoadingPriceList(false);
+      });
   }, [displayTokenIn?.id, displayTokenOut?.id, displayDimension]);
 
   if (!displayTokenIn || !displayTokenOut) return null;
@@ -101,14 +111,12 @@ export default function SwapRateChart(props: SwapRateChartProps) {
 
     x =
       index === 0
-        ? x + 10
+        ? x + 0
         : value ===
           priceList.price_list[priceList.price_list.length - 1].date_time
         ? x - 10
         : x;
     const date = moment(value, 'YYYY-MM-DD HH:mm:ss');
-
-    if (index === 0) return null;
 
     if (displayDimension === '7D' || displayDimension === '24H') {
       return (
@@ -158,17 +166,17 @@ export default function SwapRateChart(props: SwapRateChartProps) {
   };
 
   const CustomTooltip = ({ active, payload, label }: any) => {
-    if (!active || !payload || !payload?.[0]) return null;
+    if (!active || !payload || !payload?.[1]) return null;
     return (
       <div className=" border px-2 py-1.5 rounded-md  bg-toolTipBoxBgColor border-toolTipBoxBorderColor min-w-max">
         <div className="text-xs text-primaryText">
-          {moment(payload[0].payload.date_time, 'YYYY-MM-DD HH:mm:ss').format(
+          {moment(payload[1].payload.date_time, 'YYYY-MM-DD HH:mm:ss').format(
             'HH:mm MMMM DD, YYYY'
           )}
         </div>
 
         <div className="text-white text-sm">
-          {displayNumberToAppropriateDecimals(payload[0].payload.price)}
+          {displayNumberToAppropriateDecimals(payload[1].payload.price)}
         </div>
       </div>
     );
@@ -176,7 +184,6 @@ export default function SwapRateChart(props: SwapRateChartProps) {
 
   const CustomizedDot = (props: any) => {
     const { cx, cy, stroke, payload, value } = props;
-    console.log('props: ', props);
 
     if (
       payload.price ===
@@ -207,7 +214,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
 
   return (
     <div className="w-full gotham_font">
-      <div className="frcb">
+      <div className="frcb ml-4">
         <div className="frcs">
           <Images
             borderStyle="1px solid #00D6AF"
@@ -218,7 +225,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
           <Symbols
             className="mx-2"
             tokens={[displayTokenIn, displayTokenOut]}
-            seperator="/"
+            separator="/"
           />
 
           <SwapRateExchange
@@ -228,7 +235,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
           />
         </div>
 
-        <div className="frcs">
+        <div className="frcs mr-8">
           {dimensionList.map((d) => {
             return (
               <div
@@ -250,9 +257,12 @@ export default function SwapRateChart(props: SwapRateChartProps) {
           })}
         </div>
       </div>
-      <div className="frcs">
-        <span className="text-white text-xl mr-1">
-          {diff && displayNumberToAppropriateDecimals(diff.curPrice)}
+      <div className="frcs ml-4">
+        <span className="text-white text-2xl mt-1 mr-1">
+          {diff
+            ? diff?.curPrice &&
+              displayNumberToAppropriateDecimals(diff.curPrice)
+            : '-'}
         </span>
         {diff && (
           <span
@@ -275,9 +285,48 @@ export default function SwapRateChart(props: SwapRateChartProps) {
           </span>
         )}
       </div>
-      {priceList && priceList.price_list.length > 0 && (
-        <ResponsiveContainer width={700} height={300}>
-          <ComposedChart data={priceList.price_list}>
+
+      {loadingPriceList && (
+        <div
+          className="flex flex-col relative items-center justify-center"
+          style={{
+            width: '100%',
+            height: '300px',
+          }}
+        >
+          <OrderlyLoading></OrderlyLoading>
+        </div>
+      )}
+
+      {!loadingPriceList && priceList && priceList.price_list.length === 0 && (
+        <div
+          className="flex flex-col items-center justify-center"
+          style={{
+            width: '100%',
+            height: '300px',
+          }}
+        >
+          <ChartNoData></ChartNoData>
+
+          <div className="text-limitOrderInputColor text-sm mt-5">
+            <FormattedMessage
+              id="swap_chart_no_data"
+              defaultMessage={'Chart is unavailable right now'}
+            />
+          </div>
+        </div>
+      )}
+      {!loadingPriceList && priceList && priceList.price_list.length > 0 && (
+        <ResponsiveContainer width={'100%'} height={300}>
+          <ComposedChart
+            data={priceList.price_list.map((p) => {
+              return {
+                ...p,
+                stickLast:
+                  priceList.price_list[priceList.price_list.length - 1].price,
+              };
+            })}
+          >
             <defs>
               <linearGradient
                 id="colorGradient_token_rate"
@@ -312,6 +361,17 @@ export default function SwapRateChart(props: SwapRateChartProps) {
               tick={<RenderYTick />}
             />
 
+            <YAxis
+              dataKey="price"
+              scale={'linear'}
+              yAxisId={'left'}
+              tickLine={false}
+              tickCount={0}
+              axisLine={false}
+              tick={null}
+              width={15}
+            />
+
             <Tooltip
               cursor={{
                 opacity: '0.3',
@@ -320,7 +380,23 @@ export default function SwapRateChart(props: SwapRateChartProps) {
               }}
               content={<CustomTooltip />}
             />
+            <Line
+              dataKey="stickLast"
+              stroke="#00C6A2"
+              opacity={0.3}
+              strokeDasharray={'2, 2'}
+              dot={false}
+              activeDot={false}
+            />
 
+            {/* <Line
+              dataKey="curPrice"
+              stroke="#00C6A2"
+              opacity={0.3}
+              strokeDasharray={'2, 2'}
+              dot={false}
+              activeDot={false}
+            /> */}
             <Area
               dataKey="price"
               dot={<CustomizedDot />}

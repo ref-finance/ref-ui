@@ -40,6 +40,8 @@ export const useTokenRate24h = ({
           direction: diff > 0 ? 'up' : 'down',
           curPrice: curPrice,
         });
+      } else {
+        setDiff(undefined);
       }
     });
   };

@@ -46,6 +46,7 @@ import {
   StablePool,
   getRefPoolsByToken1ORToken2,
   getStablePoolFromCache,
+  getPoolsByTokensAurora,
 } from './pool';
 import {
   checkTokenNeedsStorageDeposit,
@@ -320,11 +321,7 @@ export const estimateSwap = async ({
   intl,
   setLoadingData,
   loadingTrigger,
-  swapMode,
   supportLedger,
-  swapPro,
-  setSwapsToDoRef,
-  setSwapsToDoTri,
   proGetCachePool,
 }: EstimateSwapOptions): Promise<{
   estimates: EstimateSwapView[];
@@ -358,7 +355,6 @@ export const estimateSwap = async ({
       amountIn: parsedAmountIn,
       setLoadingData,
       loadingTrigger,
-      crossSwap: swapPro,
       tokenIn,
       tokenOut,
       proGetCachePool,
@@ -367,26 +363,18 @@ export const estimateSwap = async ({
     return getLiquidity(p, tokenIn, tokenOut) > 0;
   });
 
-  let { supportLedgerRes, triTodos, refTodos } = await getOneSwapActionResult(
-    swapPro,
+  const { supportLedgerRes } = await getOneSwapActionResult(
     pools,
     loadingTrigger,
     tokenIn,
     tokenOut,
     supportLedger,
-    swapMode,
     throwNoPoolError,
     amountIn,
     parsedAmountIn
   );
-  // ref smart routing
 
   if (supportLedger) {
-    if (swapPro) {
-      setSwapsToDoTri(triTodos);
-      setSwapsToDoRef(refTodos);
-    }
-
     return { estimates: supportLedgerRes, tag };
   }
 
@@ -413,67 +401,152 @@ export const estimateSwap = async ({
       tokenIn,
       tokenOut,
       amountIn,
-      loadingTrigger,
-      swapMode
+      loadingTrigger
     );
 
     let hybridStableSmartOutputEstimate = hybridStableSmart.estimate.toString();
 
     if (
-      swapMode === SWAP_MODE.STABLE ||
       new Big(
         hybridStableSmartOutputEstimate === 'NaN'
           ? '0'
           : hybridStableSmartOutputEstimate
       ).gt(new Big(smartRouteV2OutputEstimate))
     ) {
-      // then hybrid route gave better answer. Use it!
-
       res = hybridStableSmart.actions;
     } else {
-      // smart route v2 gave better answer. use it!
-
       res = stableSmartActionsV2;
     }
   }
 
-  if (!swapPro && !res?.length) {
+  if (!res?.length) {
     throwNoPoolError();
-  }
-
-  if (swapPro) {
-    if (!supportLedgerRes && !res.length) throwNoPoolError();
-
-    // if not both none, we could return res
-    setSwapsToDoTri(triTodos);
-    setSwapsToDoRef(res);
-
-    const refSmartRes = await getExpectedOutputFromActions(res, tokenOut.id, 0);
-    const triRes = await getExpectedOutputFromActions(triTodos, tokenOut.id, 0);
-
-    if (new Big(refSmartRes || '0').gt(new Big(triRes || '0'))) {
-      return { estimates: res, tag };
-    } else {
-      return { estimates: triTodos, tag };
-    }
   }
 
   return { estimates: res, tag };
 };
 
+export const estimateSwapAurora = async ({
+  tokenIn,
+  tokenOut,
+  amountIn,
+  intl,
+  setLoadingData,
+  loadingTrigger,
+  swapPro,
+  proGetCachePool,
+}: EstimateSwapOptions): Promise<{
+  estimates: EstimateSwapView[];
+}> => {
+  const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
+
+  if (ONLY_ZEROS.test(parsedAmountIn))
+    throw new Error(
+      `${amountIn} ${intl.formatMessage({ id: 'is_not_a_valid_swap_amount' })}`
+    );
+
+  const throwNoPoolError = () => {
+    throw new Error(
+      `${intl.formatMessage({
+        id: 'no_pool_available_to_make_a_swap_from',
+      })} ${tokenIn?.symbol} -> ${tokenOut?.symbol} ${intl.formatMessage({
+        id: 'for_the_amount',
+      })} ${amountIn} ${intl.formatMessage({
+        id: 'no_pool_eng_for_chinese',
+      })}`
+    );
+  };
+
+  let pools = (
+    await getPoolsByTokensAurora({
+      tokenInId: tokenIn.id,
+      tokenOutId: tokenOut.id,
+      amountIn: parsedAmountIn,
+      setLoadingData,
+      loadingTrigger,
+      crossSwap: swapPro,
+      tokenIn,
+      tokenOut,
+      proGetCachePool,
+    })
+  ).filter((p) => {
+    return getLiquidity(p, tokenIn, tokenOut) > 0;
+  });
+
+  let { triTodos } = await getOneSwapActionResultAurora(
+    pools,
+    tokenIn,
+    tokenOut,
+    throwNoPoolError,
+    parsedAmountIn
+  );
+
+  return { estimates: triTodos };
+};
+
+export const getOneSwapActionResultAurora = async (
+  poolsOneSwap: Pool[],
+  tokenIn: TokenMetadata,
+  tokenOut: TokenMetadata,
+  throwNoPoolError: (p?: any) => void,
+  parsedAmountIn: string
+) => {
+  let triTodos;
+  let pools: Pool[] = poolsOneSwap;
+
+  const triPoolThisPair = pools.find(
+    (p) =>
+      p.Dex === 'tri' &&
+      p.tokenIds &&
+      p.tokenIds.includes(tokenIn.id) &&
+      p.tokenIds.includes(tokenOut.id)
+  );
+
+  if (!triPoolThisPair || !pools || pools.length === 0) {
+    throwNoPoolError();
+  }
+
+  if (triPoolThisPair) {
+    const triPoolEstimateRes = getSinglePoolEstimate(
+      tokenIn,
+      tokenOut,
+      triPoolThisPair,
+      parsedAmountIn
+    );
+
+    triTodos = [
+      {
+        ...triPoolEstimateRes,
+        status: PoolMode.PARALLEL,
+        routeInputToken: tokenIn.id,
+        totalInputAmount: parsedAmountIn,
+        pool: {
+          ...triPoolThisPair,
+          partialAmountIn: parsedAmountIn,
+        },
+        tokens: [tokenIn, tokenOut],
+        inputToken: tokenIn.id,
+        outputToken: tokenOut.id,
+      },
+    ];
+  }
+
+  return {
+    triTodos,
+  };
+};
+
 export const getOneSwapActionResult = async (
-  swapPro: boolean,
   poolsOneSwap: Pool[],
   loadingTrigger: boolean,
   tokenIn: TokenMetadata,
   tokenOut: TokenMetadata,
   supportLedger: boolean,
-  swapMode: SWAP_MODE,
   throwNoPoolError: (p?: any) => void,
   amountIn: string,
   parsedAmountIn: string
 ) => {
-  const { allStablePoolsById, allStablePools, allStablePoolsInfo } =
+  const { allStablePoolsById, allStablePools } =
     await getAllStablePoolsFromCache(loadingTrigger);
 
   let supportLedgerRes;
@@ -484,8 +557,6 @@ export const getOneSwapActionResult = async (
    *
    */
 
-  let triTodos;
-  let refTodos;
   let pools: Pool[] = poolsOneSwap;
 
   if (isStableToken(tokenIn.id) && isStableToken(tokenOut.id)) {
@@ -502,14 +573,7 @@ export const getOneSwapActionResult = async (
    *  single swap action estimate for support ledger and swap pro mode
    *
    */
-  if (supportLedger || swapPro) {
-    if (swapMode === SWAP_MODE.STABLE) {
-      pools = getStablePoolThisPair({
-        tokenInId: tokenIn.id,
-        tokenOutId: tokenOut.id,
-        stablePools: allStablePools,
-      });
-    }
+  if (supportLedger) {
     if (pools.length === 0 && supportLedger) {
       throwNoPoolError();
     }
@@ -563,94 +627,10 @@ export const getOneSwapActionResult = async (
     }
 
     // get result on tri pools but just one swap action
-    if (swapPro) {
-      // find tri pool for this pair
-      const triPoolThisPair = pools.find(
-        (p) =>
-          p.Dex === 'tri' &&
-          p.tokenIds &&
-          p.tokenIds.includes(tokenIn.id) &&
-          p.tokenIds.includes(tokenOut.id)
-      );
-
-      if (triPoolThisPair) {
-        const triPoolEstimateRes = getSinglePoolEstimate(
-          tokenIn,
-          tokenOut,
-          triPoolThisPair,
-          parsedAmountIn
-        );
-
-        triTodos = [
-          {
-            ...triPoolEstimateRes,
-            status: PoolMode.PARALLEL,
-            routeInputToken: tokenIn.id,
-            totalInputAmount: parsedAmountIn,
-            pool: {
-              ...triPoolThisPair,
-              partialAmountIn: parsedAmountIn,
-            },
-            tokens: [tokenIn, tokenOut],
-            inputToken: tokenIn.id,
-            outputToken: tokenOut.id,
-          },
-        ];
-      }
-      const refPools = pools.filter((p) => p.Dex !== 'tri');
-
-      const refPoolThisPair =
-        refPools.length === 1
-          ? refPools[0]
-          : _.maxBy(refPools, (p) => {
-              if (isStablePool(p.id)) {
-                return Number(
-                  getStablePoolEstimate({
-                    tokenIn,
-                    tokenOut,
-                    stablePoolInfo: allStablePoolsById[p.id][1],
-                    stablePool: allStablePoolsById[p.id][0],
-                    amountIn,
-                  }).estimate
-                );
-              } else
-                return Number(
-                  getSinglePoolEstimate(tokenIn, tokenOut, p, parsedAmountIn)
-                    .estimate
-                );
-            });
-
-      if (refPoolThisPair) {
-        const refPoolEstimateRes = await getPoolEstimate({
-          tokenIn,
-          tokenOut,
-          amountIn: parsedAmountIn,
-          Pool: refPoolThisPair,
-        });
-
-        refTodos = [
-          {
-            ...refPoolEstimateRes,
-            status: PoolMode.PARALLEL,
-            routeInputToken: tokenIn.id,
-            totalInputAmount: parsedAmountIn,
-            pool: {
-              ...refPoolThisPair,
-              partialAmountIn: parsedAmountIn,
-            },
-            tokens: [tokenIn, tokenOut],
-            inputToken: tokenIn.id,
-            outputToken: tokenOut.id,
-          },
-        ];
-      }
-    }
   }
 
   return {
     supportLedgerRes,
-    triTodos,
-    refTodos,
   };
 };
 
@@ -659,8 +639,7 @@ export async function getHybridStableSmart(
   tokenIn: TokenMetadata,
   tokenOut: TokenMetadata,
   amountIn: string,
-  loadingTrigger: boolean,
-  swapMode: SWAP_MODE
+  loadingTrigger: boolean
 ) {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
 
@@ -705,10 +684,7 @@ export async function getHybridStableSmart(
         amountIn: parsedAmountIn,
         loadingTrigger: false,
       });
-      const tobeAddedPools =
-        swapMode === SWAP_MODE.STABLE
-          ? stablePools
-          : tmpPools.concat(stablePools);
+      const tobeAddedPools = tmpPools.concat(stablePools);
       pools2.push(
         ...tobeAddedPools.filter((p) => {
           const supplies = Object.values(p.supplies);
@@ -741,10 +717,7 @@ export async function getHybridStableSmart(
         loadingTrigger: false,
       });
 
-      const tobeAddedPools =
-        swapMode === SWAP_MODE.STABLE
-          ? stablePools
-          : tmpPools.concat(stablePools);
+      const tobeAddedPools = tmpPools.concat(stablePools);
 
       pools1Right.push(
         ...tobeAddedPools.filter((p) => {
@@ -993,7 +966,6 @@ interface SwapOptions {
 }
 
 export const swap = async ({
-  useNearBalance,
   tokenIn,
   tokenOut,
   swapsToDo,
@@ -1001,15 +973,13 @@ export const swap = async ({
   amountIn,
 }: SwapOptions) => {
   if (swapsToDo) {
-    if (useNearBalance) {
-      await instantSwap({
-        tokenIn,
-        tokenOut,
-        amountIn,
-        swapsToDo,
-        slippageTolerance,
-      });
-    }
+    await instantSwap({
+      tokenIn,
+      tokenOut,
+      amountIn,
+      swapsToDo,
+      slippageTolerance,
+    });
   }
 };
 
@@ -1460,155 +1430,6 @@ export const crossInstantSwap = async ({
     }
 
     return executeMultipleTransactions(transactions);
-  }
-};
-
-export const depositSwap = async ({
-  tokenIn,
-  tokenOut,
-  amountIn,
-  slippageTolerance,
-  swapsToDo,
-}: // minAmountOut,
-SwapOptions) => {
-  const isParallelSwap = swapsToDo.every(
-    (estimate) => estimate.status === PoolMode.PARALLEL
-  );
-
-  if (isParallelSwap) {
-    const swapActions = swapsToDo.map((s2d) => {
-      let dx_float = Number(s2d.pool.partialAmountIn);
-      let fpool = formatPoolNew(s2d.pool, tokenIn.id, tokenOut.id);
-      let dy_float = calculate_dy_float(
-        dx_float,
-        fpool,
-        tokenIn.id,
-        tokenOut.id
-      );
-      let tokenOutAmount = toReadableNumber(
-        tokenOut.decimals,
-        scientificNotationToString(dy_float.toString())
-      );
-
-      s2d.estimate = tokenOutAmount;
-      let minTokenOutAmount = tokenOutAmount
-        ? percentLess(slippageTolerance, tokenOutAmount)
-        : '0';
-      let allocation = toReadableNumber(
-        tokenIn.decimals,
-        scientificNotationToString(s2d.pool.partialAmountIn)
-      );
-
-      return {
-        pool_id: s2d.pool.id,
-        token_in: tokenIn.id,
-        token_out: tokenOut.id,
-        amount_in: round(
-          tokenIn.decimals,
-          toNonDivisibleNumber(tokenIn.decimals, allocation)
-        ),
-        min_amount_out: round(
-          tokenOut.decimals,
-          toNonDivisibleNumber(tokenOut.decimals, minTokenOutAmount)
-        ),
-      };
-    });
-
-    const actions: RefFiFunctionCallOptions[] = [
-      {
-        methodName: 'swap',
-        args: { actions: swapActions },
-        amount: ONE_YOCTO_NEAR,
-      },
-    ];
-
-    const whitelist = await getWhitelistedTokens();
-    if (!whitelist.includes(tokenOut.id)) {
-      actions.unshift(registerTokenAction(tokenOut.id));
-    }
-
-    const neededStorage = await checkTokenNeedsStorageDeposit();
-    if (neededStorage) {
-      actions.unshift(storageDepositAction({ amount: neededStorage }));
-    }
-
-    return refFiManyFunctionCalls(actions);
-  } else {
-    const whitelist = await getWhitelistedTokens();
-    // need to add in condition if smart route solves for direct hop as optimal solution and there is no tokenMid:
-
-    // need to do a more robust check on swapsToDo. For each of these, if inputToken and outputToken for swapsToDo[i] match
-    // overall inputToken/outputToken, then that is a single-hop / parallel swap.
-    // otherwise, if the inputToken for swapsToDo[i] matches overall inputToken, then it is a first hop. Can probably assume
-    // that swapsToDo[i+1] will be the corresponding second hop. But need to check this to make sure.
-    // Need to build up full actions list.
-    var actionsList = [];
-    let allSwapsTokens = swapsToDo.map((s) => [s.inputToken, s.outputToken]); // to get the hop tokens
-    for (var i in allSwapsTokens) {
-      let swapTokens = allSwapsTokens[i];
-      if (swapTokens[0] == tokenIn.id && swapTokens[1] == tokenOut.id) {
-        // parallel, direct hop route.
-        actionsList.push({
-          pool_id: swapsToDo[i].pool.id,
-          token_in: tokenIn.id,
-          token_out: tokenOut.id,
-          amount_in: swapsToDo[i].pool.partialAmountIn,
-          min_amount_out: round(
-            tokenOut.decimals,
-            toNonDivisibleNumber(
-              tokenOut.decimals,
-              percentLess(slippageTolerance, swapsToDo[i].estimate)
-            )
-          ),
-        });
-      } else if (swapTokens[0] == tokenIn.id) {
-        // first hop in double hop route
-        //TODO -- put in a check to make sure this first hop matches with the next (i+1) hop as a second hop.
-        actionsList.push({
-          pool_id: swapsToDo[i].pool.id,
-          token_in: swapTokens[0],
-          token_out: swapTokens[1],
-          amount_in: swapsToDo[i].pool.partialAmountIn,
-          min_amount_out: '0',
-        });
-      } else {
-        // second hop in double hop route.
-        //TODO -- put in a check to make sure this second hop matches with the previous (i-1) hop as a first hop.
-        actionsList.push({
-          pool_id: swapsToDo[i].pool.id,
-          token_in: swapTokens[0],
-          token_out: swapTokens[1],
-          min_amount_out: round(
-            tokenOut.decimals,
-            toNonDivisibleNumber(
-              tokenOut.decimals,
-              percentLess(slippageTolerance, swapsToDo[i].estimate)
-            )
-          ),
-        });
-      }
-    }
-
-    var actions: RefFiFunctionCallOptions[] = [
-      {
-        methodName: 'swap',
-        amount: ONE_YOCTO_NEAR,
-        args: {
-          actions: actionsList,
-        },
-      },
-    ];
-
-    if (!whitelist.includes(tokenOut.id)) {
-      actions.unshift(registerTokenAction(tokenOut.id));
-    }
-
-    const neededStorage = await checkTokenNeedsStorageDeposit();
-    if (neededStorage) {
-      actions.unshift(storageDepositAction({ amount: neededStorage }));
-    }
-
-    return refFiManyFunctionCalls(actions);
   }
 };
 

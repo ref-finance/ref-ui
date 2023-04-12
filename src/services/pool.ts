@@ -279,8 +279,6 @@ export const isNotStablePool = (pool: Pool) => {
   return !isStablePool(pool.id);
 };
 
-const REF_FI_ACTIVE_TRI_POOL = 'REF_FI_ACTIVE_TRI_POOL_VALUE';
-
 export const getPoolsByTokens = async ({
   tokenInId,
   tokenOutId,
@@ -397,6 +395,85 @@ export const getPoolsByTokens = async ({
 
   // @ts-ignore
   return filtered_pools.filter((p) => crossSwap || !p?.Dex || p.Dex !== 'tri');
+};
+
+export const getPoolsByTokensAurora = async ({
+  tokenInId,
+  tokenOutId,
+  setLoadingData,
+  loadingTrigger,
+  crossSwap,
+  proGetCachePool,
+  tokenIn,
+  tokenOut,
+}: GetPoolOptions): Promise<Pool[]> => {
+  let filtered_pools;
+  const [cacheForPair, cacheTimeLimit] = await db.checkPoolsByTokens(
+    tokenInId,
+    tokenOutId,
+    true
+  );
+
+  const PAIR_NAME = [
+    !tokenIn || tokenIn.id === WRAP_NEAR_CONTRACT_ID ? 'wNEAR' : tokenIn.symbol,
+    !tokenOut || tokenOut.id === WRAP_NEAR_CONTRACT_ID
+      ? 'wNEAR'
+      : tokenOut.symbol,
+  ].join('-');
+
+  if ((!loadingTrigger && cacheTimeLimit) || !cacheForPair) {
+    filtered_pools = await db.getPoolsByTokens(tokenInId, tokenOutId, true);
+
+    let triPools: any = sessionStorage.getItem(`REF_FI_TRI_POOL_` + PAIR_NAME);
+    if (triPools) {
+      triPools = JSON.parse(triPools);
+    } else {
+      triPools = await getAllTriPools(
+        tokenIn && tokenOut
+          ? [
+              tokenIn.id === WRAP_NEAR_CONTRACT_ID ? 'wNEAR' : tokenIn.symbol,
+              tokenOut.id === WRAP_NEAR_CONTRACT_ID ? 'wNEAR' : tokenOut.symbol,
+            ]
+          : null
+      );
+    }
+    filtered_pools = filtered_pools.concat(triPools || []);
+  }
+  if (
+    (crossSwap && proGetCachePool) ||
+    loadingTrigger ||
+    (!cacheTimeLimit && cacheForPair)
+  ) {
+    setLoadingData && setLoadingData(true);
+
+    let triPools = await getAllTriPools(
+      tokenIn && tokenOut
+        ? [
+            tokenIn.id === WRAP_NEAR_CONTRACT_ID ? 'wNEAR' : tokenIn.symbol,
+            tokenOut.id === WRAP_NEAR_CONTRACT_ID ? 'wNEAR' : tokenOut.symbol,
+          ]
+        : null
+    );
+
+    if (triPools && triPools.length > 0) {
+      sessionStorage.setItem(
+        `REF_FI_TRI_POOL_` + PAIR_NAME,
+        JSON.stringify(triPools)
+      );
+    }
+
+    filtered_pools = triPools;
+
+    await db.cachePoolsByTokensAurora(filtered_pools);
+    filtered_pools = filtered_pools.filter(
+      (p: any) => p.supplies[tokenInId] && p.supplies[tokenOutId]
+    );
+  }
+
+  setLoadingData && setLoadingData(false);
+
+  // @ts-ignore
+  return filtered_pools;
 };
 
 export const getRefPoolsByToken1ORToken2 = async (

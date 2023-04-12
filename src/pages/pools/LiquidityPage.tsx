@@ -998,7 +998,7 @@ function MobileLiquidityPage({
                   <Images tokens={tokensStar} size="6" className="mr-2.5" />
                   <Symbols
                     tokens={tokensStar}
-                    seperator="-"
+                    separator="-"
                     fontSize="text-sm"
                   ></Symbols>
                 </button>
@@ -2233,7 +2233,7 @@ function LiquidityPage_({
                     <Images tokens={tokensStar} size="8" className="mr-7" />
                     <Symbols
                       tokens={tokensStar}
-                      seperator="-"
+                      separator="-"
                       fontSize="text-sm"
                     ></Symbols>
                   </div>
@@ -3605,7 +3605,7 @@ function StablePoolCard({
               <Symbols
                 fontSize="xs:text-sm md:text-sm lg:text-lg lg:font-bold "
                 tokens={poolData.tokens}
-                seperator="-"
+                separator="-"
               />
               {watched && (
                 <div className="ml-2">

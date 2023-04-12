@@ -15,7 +15,12 @@ import {
 } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
 import { useDepositableBalance, useTokenPriceList } from '../../state/token';
-import { useSwap, useSwapV3, useSwapPopUp } from '../../state/swap';
+import {
+  useSwap,
+  useSwapV3,
+  useSwapPopUp,
+  useRefSwapPro,
+} from '../../state/swap';
 import {
   calculateExchangeRate,
   calculateFeeCharge,
@@ -55,7 +60,7 @@ import { WalletContext } from '../../utils/wallets-integration';
 import { SwapExchangeV1 } from '../icon/Arrows';
 import { getPoolAllocationPercents } from '../../utils/numbers';
 import { DoubleCheckModal } from '../layout/SwapDoubleCheck';
-import { SWAP_MODE, SWAP_MODE_KEY } from '../../pages/SwapPage';
+import { SWAP_MODE, SWAP_MODE_KEY, SwapProContext } from '../../pages/SwapPage';
 import { USD_CLASS_STABLE_TOKEN_IDS } from '../../services/near';
 import {
   WRAP_NEAR_CONTRACT_ID,
@@ -81,6 +86,7 @@ import { getMax } from '../../utils/numbers';
 import { YellowTipIcon, RedTipIcon, SelectedIcon } from '../icon/swapV3';
 import * as math from 'mathjs';
 import { NEAR_WITHDRAW_KEY } from '../forms/WrapNear';
+import { useWalletSelector } from '~context/WalletSelectorContext';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -271,10 +277,6 @@ export function SmartRoutesV2Detail({
   tokenIn?: TokenMetadata;
   tokenOut?: TokenMetadata;
 }) {
-  const tokensPerRoute = swapsTodo
-    .filter((swap) => swap.inputToken == swap.routeInputToken)
-    .map((swap) => swap.tokens);
-
   const identicalRoutes = separateRoutes(
     swapsTodo,
     swapsTodo[swapsTodo.length - 1].outputToken
@@ -477,7 +479,6 @@ function DetailViewV2({
   showDetails?: boolean;
 }) {
   const intl = useIntl();
-  const isMobile = useMobile();
   const minAmountOutValue = useMemo(() => {
     if (!minAmountOut) return '0';
     else return toPrecision(minAmountOut, 8, true);
@@ -512,26 +513,24 @@ function DetailViewV2({
           showDetails ? '' : 'hidden'
         }`}
       >
-        <div className="">
-          <SwapDetail
-            title={intl.formatMessage({ id: 'price_impact' })}
-            value={
-              !to || to === '0' ? (
-                '-'
-              ) : (
-                <>
-                  {priceImpactDisplay}
-                  <span
-                    className="text-primaryText"
-                    style={{ marginLeft: '3px' }}
-                  >
-                    {tokenIn.symbol}
-                  </span>
-                </>
-              )
-            }
-          />
-        </div>
+        <SwapDetail
+          title={intl.formatMessage({ id: 'price_impact' })}
+          value={
+            !to || to === '0' ? (
+              '-'
+            ) : (
+              <>
+                {priceImpactDisplay}
+                <span
+                  className="text-primaryText"
+                  style={{ marginLeft: '3px' }}
+                >
+                  {tokenIn.symbol}
+                </span>
+              </>
+            )
+          }
+        />
         <SwapDetail
           title={intl.formatMessage({ id: 'pool_fee' })}
           value={poolFeeDisplay}
@@ -683,7 +682,6 @@ export default function SwapCard(props: {
 }) {
   const { NEARXIDS, STNEARIDS } = getExtraStablePoolConfig();
   const { REF_TOKEN_ID } = getConfig();
-  const [poolError, setPoolError] = useState<string>(null);
 
   const {
     allTokens,
@@ -704,10 +702,11 @@ export default function SwapCard(props: {
     localStorage.getItem(SUPPORT_LEDGER_KEY) ? true : false
   );
 
-  const [useNearBalance, setUseNearBalance] = useState<boolean>(true);
+  const [useNearBalance] = useState<boolean>(true);
 
-  const { globalState } = useContext(WalletContext);
-  const isSignedIn = globalState.isSignedIn;
+  const { accountId } = useWalletSelector();
+
+  const isSignedIn = !!accountId;
 
   const [tokenInBalanceFromNear, setTokenInBalanceFromNear] =
     useState<string>();
@@ -732,10 +731,9 @@ export default function SwapCard(props: {
   const location = useLocation();
   const history = useHistory();
 
-  const [displayTokenOutAmount, setDisplayTokenOutAmount] =
-    useState<string>('');
+  const { selectMarket, trades } = useContext(SwapProContext);
 
-  const [displayPriceImpact, setDisplayPriceImpact] = useState<string>('');
+  const selectTrade = trades[selectMarket];
 
   const [displayDetailView, setDisplayDetailView] = useState<JSX.Element>();
 
@@ -953,11 +951,8 @@ export default function SwapCard(props: {
   };
 
   const onChangeSlippage = (slippage: number) => {
-    const { slippageValue, setSlippageValue, slippageKey } =
-      getSlippageTolerance(swapMode);
-
+    const { setSlippageValue, slippageKey } = getSlippageTolerance(swapMode);
     setSlippageValue(slippage);
-
     localStorage.setItem(slippageKey, slippage.toString());
   };
 
@@ -965,139 +960,27 @@ export default function SwapCard(props: {
 
   useSwapPopUp();
 
-  const {
-    canSwap,
-    tokenOutAmount,
-    minAmountOut,
-    pools,
-    swapError,
-    makeSwap,
-    avgFee,
-    isParallelSwap,
-    swapsToDo,
-    setCanSwap,
-    quoteDone,
-  } = useSwap({
-    tokenIn: tokenIn,
+  useRefSwapPro({
+    tokenIn,
     tokenInAmount,
-    tokenOut: tokenOut,
+    tokenOut,
     slippageTolerance,
     setLoadingData,
     loadingTrigger,
     setLoadingTrigger,
-    loadingData,
     loadingPause,
-    swapMode,
     reEstimateTrigger,
     supportLedger,
+    loadingData,
+    wrapOperation,
   });
 
-  const {
-    makeSwap: makeSwapV3,
-    tokenOutAmount: tokenOutAmountV3,
-    minAmountOut: minAmountOutV3,
-    bestFee,
-    priceImpact: priceImpactV3,
-    quoteDone: quoteDoneV3,
-    canSwap: canSwapV3,
-    swapErrorV3,
-  } = useSwapV3({
-    tokenIn,
-    tokenOut,
-    tokenInAmount,
-    slippageTolerance,
-    swapMode,
-    loadingTrigger,
-    swapError,
-    setLoadingTrigger,
-  });
-
-  const bestSwap =
-    new Big(tokenOutAmountV3 || '0').gte(tokenOutAmount || '0') && canSwapV3
-      ? 'v3'
-      : 'v2';
-
-  useEffect(() => {
-    if (quoteDone && quoteDoneV3) {
-      if (poolError) {
-        setDisplayTokenOutAmount('');
-        return;
-      }
-
-      const displayTokenOutAmount =
-        swapMode === SWAP_MODE.NORMAL &&
-        new Big(tokenOutAmountV3 || '0').gte(tokenOutAmount || '0') &&
-        canSwapV3
-          ? tokenOutAmountV3
-          : tokenOutAmount;
-
-      setDisplayTokenOutAmount(toPrecision(displayTokenOutAmount, 8));
-    }
-  }, [
-    quoteDone,
-    quoteDoneV3,
-    tokenOutAmountV3,
-    tokenOutAmount,
-    poolError,
-    swapMode,
-  ]);
   useEffect(() => {
     if (swapMode == 'normal') {
       setLoadingTrigger(true);
     }
   }, [swapMode]);
-  const priceImpactValueSmartRouting = useMemo(() => {
-    try {
-      if (swapsToDo?.length === 2 && swapsToDo[0].status === PoolMode.SMART) {
-        return calculateSmartRoutingPriceImpact(
-          tokenInAmount,
-          swapsToDo,
-          tokenIn,
-          swapsToDo[1].token,
-          tokenOut
-        );
-      } else if (
-        swapsToDo?.length === 1 &&
-        swapsToDo[0].status === PoolMode.STABLE
-      ) {
-        return calcStableSwapPriceImpact(
-          toReadableNumber(tokenIn.decimals, swapsToDo[0].totalInputAmount),
-          swapsToDo[0].noFeeAmountOut,
-          (
-            Number(swapsToDo[0].pool.rates[tokenOut.id]) /
-            Number(swapsToDo[0].pool.rates[tokenIn.id])
-          ).toString()
-        );
-      } else return '0';
-    } catch {
-      return '0';
-    }
-  }, [tokenOutAmount, swapsToDo]);
 
-  const priceImpactValueSmartRoutingV2 = useMemo(() => {
-    try {
-      const pi = calculateSmartRoutesV2PriceImpact(swapsToDo, tokenOut.id);
-
-      return pi;
-    } catch {
-      return '0';
-    }
-  }, [tokenOutAmount, swapsToDo]);
-
-  let PriceImpactValue: string = '0';
-
-  try {
-    if (
-      swapsToDo[0].status === PoolMode.SMART ||
-      swapsToDo[0].status === PoolMode.STABLE
-    ) {
-      PriceImpactValue = priceImpactValueSmartRouting;
-    } else {
-      PriceImpactValue = priceImpactValueSmartRoutingV2;
-    }
-  } catch (error) {
-    PriceImpactValue = '0';
-  }
   function wrapButtonCheck() {
     if (!wrapOperation) return false;
     if (
@@ -1116,151 +999,12 @@ export default function SwapCard(props: {
     return true;
   }
 
-  useEffect(() => {
-    if (quoteDone && quoteDoneV3) {
-      const bestSwapPriceImpact =
-        bestSwap === 'v3' && canSwapV3 ? priceImpactV3 : PriceImpactValue;
-
-      setDisplayPriceImpact(bestSwapPriceImpact);
-    }
-  }, [
-    priceImpactV3,
-    PriceImpactValue,
-    quoteDone,
-    quoteDoneV3,
-    bestSwap,
-    canSwapV3,
-  ]);
-
-  const makeBestSwap = () => {
-    if (bestSwap === 'v3') {
-      makeSwapV3();
-    } else {
-      makeSwap(useNearBalance);
-    }
-  };
-
-  const DetailView = useMemo(() => {
-    if (!quoteDone || !quoteDoneV3) return null;
-
-    return (
-      <>
-        <div className="mt-3 mb-3">
-          <div className="flex flex-wrap items-center justify-between text-white ">
-            <div className="flex items-center mb-1">
-              <div
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-
-                  if (loadingPause) {
-                    setLoadingPause(false);
-                    setLoadingTrigger(true);
-                    setLoadingData(true);
-                  } else {
-                    setLoadingPause(true);
-                    setLoadingTrigger(false);
-                  }
-                }}
-                className="mr-2 cursor-pointer"
-              >
-                <CountdownTimer
-                  loadingTrigger={loadingTrigger}
-                  loadingPause={loadingPause}
-                />
-              </div>
-              <SwapRate
-                from={tokenInAmount}
-                to={bestSwap === 'v2' ? tokenOutAmount : tokenOutAmountV3}
-                tokenIn={tokenIn}
-                tokenOut={tokenOut}
-                fee={bestSwap === 'v2' ? avgFee : bestFee / 100}
-                tokenPriceList={tokenPriceList}
-              />
-            </div>
-
-            <div
-              className="text-sm flex items-center cursor-pointer mb-1"
-              onClick={() => {
-                setShowDetails(!showDetails);
-              }}
-            >
-              {getPriceImpactTipType(displayPriceImpact)}
-              <span className="text-xs text-primaryText mx-1.5">
-                <FormattedMessage id="details" />
-              </span>
-              <span>
-                {showDetails ? (
-                  <FaAngleUp color="#ffffff" size={16} />
-                ) : (
-                  <FaAngleDown color="#7E8A93" size={16} />
-                )}
-              </span>
-            </div>
-          </div>
-        </div>
-        {bestSwap === 'v2' ? (
-          <DetailViewV2
-            pools={pools}
-            tokenIn={tokenIn}
-            tokenOut={tokenOut}
-            from={tokenInAmount}
-            to={tokenOutAmount}
-            minAmountOut={minAmountOut}
-            isParallelSwap={isParallelSwap}
-            fee={avgFee}
-            swapsTodo={swapsToDo}
-            priceImpact={displayPriceImpact}
-            showDetails={showDetails}
-          />
-        ) : (
-          <DetailViewV3
-            tokenIn={tokenIn}
-            tokenOut={tokenOut}
-            from={tokenInAmount}
-            to={tokenOutAmountV3}
-            minAmountOut={minAmountOutV3}
-            fee={bestFee / 100}
-            priceImpact={displayPriceImpact}
-            showDetails={showDetails}
-          />
-        )}
-      </>
-    );
-  }, [
-    displayTokenOutAmount,
-    swapMode,
-    tokenIn,
-    tokenOut,
-    slippageTolerance,
-    minAmountOut,
-    minAmountOutV3,
-    swapsToDo,
-    displayPriceImpact,
-    bestFee,
-    avgFee,
-    tokenOutAmount,
-    tokenOutAmountV3,
-    tokenPriceList,
-    loadingTrigger,
-    loadingPause,
-    showDetails,
-    quoteDone,
-    quoteDoneV3,
-  ]);
-
-  useEffect(() => {
-    if (quoteDone && quoteDoneV3) {
-      setDisplayDetailView(DetailView);
-    }
-  }, [quoteDone, quoteDoneV3, DetailView]);
-
   const tokenInMax = tokenInBalanceFromNear || '0';
 
   const tokenOutTotal = tokenOutBalanceFromNear || '0';
 
   function satisfyCondition1() {
-    return quoteDone && quoteDoneV3 && (canSwap || canSwapV3);
+    return selectTrade.quoteDone && selectTrade.canSwap;
   }
   function satisfyCondition2() {
     return (
@@ -1271,19 +1015,13 @@ export default function SwapCard(props: {
   }
 
   function satisfyShowDetailViewCondition() {
-    const hideCondition1 = swapMode == SWAP_MODE.LIMIT;
-    // const hideCondition2 = swapMode !== SWAP_MODE.LIMIT && !(canSwap || canSwapV3);
-    const hideCondition2 = swapMode !== SWAP_MODE.LIMIT && poolError;
+    const hideCondition2 = !selectTrade || selectTrade?.swapError;
     const hideCondition3 = wrapOperation;
     const hideCondition4 = new Big(tokenInAmount || '0').lte('0');
     const hideCondition5 = tokenIn?.id == tokenOut?.id;
-    const hideConditionFinall =
-      hideCondition1 ||
-      hideCondition2 ||
-      hideCondition3 ||
-      hideCondition4 ||
-      hideCondition5;
-    return !hideConditionFinall;
+    const hideConditionFinal =
+      hideCondition2 || hideCondition3 || hideCondition4 || hideCondition5;
+    return !hideConditionFinal;
   }
 
   const canSubmit = satisfyCondition1() && satisfyCondition2();
@@ -1298,10 +1036,10 @@ export default function SwapCard(props: {
     const ifDoubleCheck =
       new BigNumber(tokenInAmount || 0).isLessThanOrEqualTo(
         new BigNumber(tokenInMax || 0)
-      ) && Number(displayPriceImpact) > 2;
+      ) && Number(selectTrade?.priceImpact || 0) > 2;
 
     if (ifDoubleCheck) setDoubleCheckOpen(true);
-    else makeBestSwap();
+    else selectTrade && selectTrade.makeSwap();
   };
   const handleSubmit_wrap = (e: any) => {
     e.preventDefault();
@@ -1328,18 +1066,7 @@ export default function SwapCard(props: {
     );
   }
   const isInsufficientBalance = judgeBalance();
-  useEffect(() => {
-    if (!quoteDone || !quoteDoneV3) {
-      return;
-    }
-    if (swapError && swapErrorV3) {
-      setPoolError(
-        swapError?.message ? swapError?.message : swapErrorV3?.message
-      );
-    } else {
-      setPoolError(null);
-    }
-  }, [quoteDone, quoteDoneV3, swapError, swapErrorV3]);
+
   return (
     <>
       <SwapFormWrap
@@ -1352,7 +1079,7 @@ export default function SwapCard(props: {
         onChange={onChangeSlippage}
         showElseView={wrapOperation}
         elseView={
-          <div className="flex justify-center">
+          <div className="frsc">
             {isSignedIn ? (
               !isInsufficientBalance ? (
                 <SubmitButton
@@ -1399,7 +1126,6 @@ export default function SwapCard(props: {
           onSelectToken={(token) => {
             localStorage.setItem(SWAP_IN_KEY, token.id);
             setTokenIn(token);
-            setCanSwap(false);
 
             if (token.id === skywardId) {
               setShowSkywardTip(true);
@@ -1442,26 +1168,23 @@ export default function SwapCard(props: {
             )
           }
         />
-        <div className={`flex items-center -my-2.5 justify-center`}>
-          <SwapExchangeV1
-            onChange={() => {
-              setTokenIn(tokenOut);
-              localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
-              setTokenOut(tokenIn);
-              localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
-
-              setTokenInAmount(toPrecision('1', 6));
-              localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
-              localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
-            }}
-          />
-        </div>
+        <SwapExchangeV1
+          onChange={() => {
+            setTokenIn(tokenOut);
+            localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
+            setTokenOut(tokenIn);
+            localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
+            setTokenInAmount(toPrecision('1', 6));
+            localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
+            localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
+          }}
+        />
 
         <TokenAmountV3
           forSwap
           isOut
           swapMode={swapMode}
-          amount={wrapOperation ? tokenInAmount : displayTokenOutAmount}
+          amount={wrapOperation ? tokenInAmount : selectTrade?.tokenOutAmount}
           total={tokenOutTotal}
           tokens={allTokens}
           selectedToken={tokenOut}
@@ -1473,14 +1196,13 @@ export default function SwapCard(props: {
           onSelectToken={(token) => {
             localStorage.setItem(SWAP_OUT_KEY, token.id);
             setTokenOut(token);
-            setCanSwap(false);
             if (token.id === skywardId) {
               setShowSkywardTip(true);
             }
           }}
           isError={tokenIn?.id === tokenOut?.id}
           tokenPriceList={tokenPriceList}
-          allowWNEAR={swapMode === SWAP_MODE.LIMIT ? false : true}
+          allowWNEAR={true}
         />
 
         {canShowDetailView ? (
@@ -1499,9 +1221,11 @@ export default function SwapCard(props: {
           />
         ) : null}
 
-        {poolError && !wrapOperation && Number(tokenInAmount || '0') > 0 ? (
+        {selectTrade?.swapError &&
+        !wrapOperation &&
+        Number(tokenInAmount || '0') > 0 ? (
           <div className="pb-2 relative ">
-            <Alert level="warn" message={poolError} />
+            <Alert level="warn" message={selectTrade?.swapError.message} />
           </div>
         ) : null}
       </SwapFormWrap>
@@ -1515,8 +1239,8 @@ export default function SwapCard(props: {
         tokenIn={tokenIn}
         tokenOut={tokenOut}
         from={tokenInAmount}
-        onSwap={() => makeBestSwap()}
-        priceImpactValue={displayPriceImpact || '0'}
+        onSwap={() => selectTrade && selectTrade.makeSwap()}
+        priceImpactValue={selectTrade?.priceImpact || '0'}
       />
 
       <SkyWardModal

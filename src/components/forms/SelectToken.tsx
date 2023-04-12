@@ -861,7 +861,7 @@ export function SelectTokenDCL({
       >
         <Images tokens={tokens} size="5" className="mr-2 ml-1" />
 
-        <Symbols tokens={tokens} seperator="-" />
+        <Symbols tokens={tokens} separator="-" />
       </div>
     );
   });

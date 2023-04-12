@@ -1827,7 +1827,7 @@ const UserReferendumCard = ({
           <span className="mx-1"></span>
           <Symbols
             tokens={tokens}
-            seperator="-"
+            separator="-"
             size="text-lg"
             fontSize="font-normal"
           />

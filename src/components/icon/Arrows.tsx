@@ -417,38 +417,40 @@ export function SwapExchangeV1({ onChange }: { onChange: (e?: any) => void }) {
   };
 
   return (
-    <div
-      className="relative flex items-center justify-center w-7 h-7 border-2 border-switchIconBorderColor rounded-lg cursor-pointer bg-switchIconBgColor"
-      onClick={() => {
-        onChange();
-        mobileDevice && runSwapAnimation();
-      }}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-    >
-      <div className="flex items-center">
-        <span
-          className={`transition-transform transform ${
-            hover ? 'lg:-translate-y-0.5' : ''
-          }`}
-          ref={upRow}
-        >
-          <SwapArrowUp
-            width="5"
-            light={mobileDevice ? mobileAnimation : hover}
-          />
-        </span>
-        <span
-          className={`transition-transform transform ${
-            hover ? 'lg:translate-y-1 ' : ''
-          }`}
-          ref={downRow}
-        >
-          <SwapArrowDown
-            width="5"
-            light={mobileDevice ? mobileAnimation : hover}
-          />
-        </span>
+    <div className="flex items-center -my-2.5 justify-center">
+      <div
+        className="relative  flex items-center justify-center w-7 h-7 border-2 border-switchIconBorderColor rounded-lg cursor-pointer bg-switchIconBgColor"
+        onClick={() => {
+          onChange();
+          mobileDevice && runSwapAnimation();
+        }}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+      >
+        <div className="flex items-center">
+          <span
+            className={`transition-transform transform ${
+              hover ? 'lg:-translate-y-0.5' : ''
+            }`}
+            ref={upRow}
+          >
+            <SwapArrowUp
+              width="5"
+              light={mobileDevice ? mobileAnimation : hover}
+            />
+          </span>
+          <span
+            className={`transition-transform transform ${
+              hover ? 'lg:translate-y-1 ' : ''
+            }`}
+            ref={downRow}
+          >
+            <SwapArrowDown
+              width="5"
+              light={mobileDevice ? mobileAnimation : hover}
+            />
+          </span>
+        </div>
       </div>
     </div>
   );

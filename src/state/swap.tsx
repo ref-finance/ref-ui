@@ -21,6 +21,7 @@ import {
 import {
   checkTransaction,
   estimateSwap,
+  estimateSwapAurora,
   PoolMode,
   swap,
 } from '../services/swap';
@@ -49,7 +50,13 @@ import {
   getURLInfo,
   swapToast,
 } from '../components/layout/transactionTipPopUp';
-import { SWAP_MODE } from '../pages/SwapPage';
+import {
+  ExchangeEstimate,
+  SWAP_MODE,
+  SwapMarket,
+  SwapProContext,
+  TradeEstimates,
+} from '../pages/SwapPage';
 import {
   getErrorMessage,
   parsedArgs,
@@ -405,11 +412,9 @@ export const useSwap = ({
   tokenOut,
   slippageTolerance,
   setLoadingData,
-  loadingData,
   loadingTrigger,
   setLoadingTrigger,
   loadingPause,
-  swapMode,
   reEstimateTrigger,
   supportLedger,
 }: SwapOptions) => {
@@ -426,9 +431,6 @@ export const useSwap = ({
 
   const [estimating, setEstimating] = useState<boolean>(false);
 
-  const { pathname, txHash, errorType } = getURLInfo();
-
-  const history = useHistory();
   const [count, setCount] = useState<number>(0);
 
   let minAmountOut = tokenOutAmount
@@ -476,10 +478,9 @@ export const useSwap = ({
         intl,
         setLoadingData,
         loadingTrigger: loadingTrigger && !loadingPause,
-        swapMode,
         supportLedger,
       })
-        .then(async ({ estimates, tag }) => {
+        .then(async ({ estimates }) => {
           if (!estimates) throw '';
 
           if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
@@ -572,7 +573,6 @@ export const useSwap = ({
   }, [estimating]);
 
   useEffect(() => {
-    // setEstimating(false);
     setForceEstimate(true);
   }, [
     tokenIn?.id,
@@ -580,7 +580,6 @@ export const useSwap = ({
     tokenIn?.symbol,
     tokenOut?.symbol,
     supportLedger,
-    swapMode,
   ]);
 
   useEffect(() => {
@@ -598,16 +597,24 @@ export const useSwap = ({
     };
   }, [count, loadingTrigger, loadingPause]);
 
-  const makeSwap = (useNearBalance: boolean) => {
+  const makeSwap = () => {
     swap({
       slippageTolerance,
       swapsToDo,
       tokenIn,
       amountIn: tokenInAmount,
       tokenOut,
-      useNearBalance,
     }).catch(setSwapError);
   };
+
+  const priceImpactValue = usePriceImpact({
+    swapsToDo: swapsToDo,
+    tokenIn,
+    tokenOut,
+    tokenInAmount,
+    tokenOutAmount: tokenOutAmount,
+  });
+
   return {
     canSwap,
     tokenOutAmount,
@@ -620,8 +627,8 @@ export const useSwap = ({
     pools: swapsToDo?.map((estimate) => estimate.pool),
     swapsToDo,
     isParallelSwap: swapsToDo?.every((e) => e.status === PoolMode.PARALLEL),
-    isSmartRouteV2Swap: swapsToDo?.every((e) => e.status !== PoolMode.SMART),
     quoteDone,
+    priceImpactValue,
   };
 };
 export const useSwapV3 = ({
@@ -701,8 +708,6 @@ export const useSwapV3 = ({
     if (!validator) return null;
 
     if (foundPool && foundPool.state === 'Paused') return null;
-
-    // return null;
 
     return quote({
       pool_ids: [pool_id],
@@ -819,6 +824,7 @@ export const useSwapV3 = ({
       return '0';
     }
   }, [tokenOutAmount, bestPool, tokenIn, tokenOut, estimates]);
+
   useEffect(() => {
     if (!quoteDone) return;
     setDisplayPriceImpact(priceImpact || '0');
@@ -841,9 +847,22 @@ export const useSwapV3 = ({
     const condition2 = swapMode !== SWAP_MODE.NORMAL;
     return condition1 || condition2;
   }
+
+  const swapsToDoV2: EstimateSwapView[] = [
+    {
+      estimate: tokenOutAmount,
+      pool: null,
+      routeInputToken: tokenIn?.id,
+      inputToken: tokenIn?.id,
+      outputToken: tokenOut?.id,
+      token: tokenIn,
+      tokens: [tokenIn, tokenOut],
+      totalInputAmount: toNonDivisibleNumber(tokenIn?.decimals, tokenInAmount),
+    },
+  ];
+
   return {
     makeSwap,
-
     canSwap: getCanSwapCondition(),
     tokenOutAmount,
     canSwapPro: quoteDone && tagValidator(bestEstimate, tokenIn, tokenInAmount),
@@ -851,11 +870,13 @@ export const useSwapV3 = ({
     minAmountOut: tokenOutAmount
       ? percentLess(slippageTolerance, tokenOutAmount)
       : null,
+    swapsToDoV2,
     quoteDone:
       quoteDone &&
       (tagValidator(bestEstimate, tokenIn, tokenInAmount) ||
         estimates?.every((e) => !e || e?.tag === null)),
-    bestFee,
+    bestFee: bestFee === null ? null : bestFee / 100,
+    fee: bestFee === null ? null : bestFee / 100,
     bestPool,
     setQuoteDone,
     swapErrorV3: (
@@ -1066,165 +1087,24 @@ export const useLimitOrder = ({
   };
 };
 
-export const useStableSwap = ({
-  tokenIn,
-  tokenInAmount,
-  tokenOut,
-  slippageTolerance,
-  loadingTrigger,
-  setLoadingTrigger,
-  stablePool,
-}: SwapOptions) => {
-  const [pool, setPool] = useState<Pool>();
-  const [canSwap, setCanSwap] = useState<boolean>();
-  const [tokenOutAmount, setTokenOutAmount] = useState<string>('');
-  const [swapError, setSwapError] = useState<Error>();
-  const [noFeeAmount, setNoFeeAmount] = useState<string>('');
-  const [tokenInAmountMemo, setTokenInAmountMemo] = useState<string>('');
-  const history = useHistory();
-
-  const { txHash, pathname, errorType } = getURLInfo();
-
-  const minAmountOut = tokenOutAmount
-    ? percentLess(slippageTolerance, tokenOutAmount)
-    : null;
-
-  const intl = useIntl();
-
-  const getEstimate = () => {
-    setCanSwap(false);
-    if (tokenIn && tokenOut && tokenIn.id !== tokenOut.id) {
-      setSwapError(null);
-
-      estimateStableSwap({
-        tokenIn,
-        tokenOut,
-        amountIn: tokenInAmount,
-        intl,
-        loadingTrigger,
-        setLoadingTrigger,
-        StablePoolInfo: stablePool,
-        setCanSwap,
-      })
-        .then(({ estimate, pool, dy }) => {
-          if (!estimate || !pool) throw '';
-          if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
-            setCanSwap(true);
-            if (!loadingTrigger) {
-              setNoFeeAmount(dy);
-              setTokenOutAmount(estimate);
-            }
-            setPool(pool);
-          }
-        })
-        .catch((err) => {
-          setCanSwap(false);
-          setTokenOutAmount('');
-          setNoFeeAmount('');
-          setSwapError(err);
-        });
-    } else if (
-      tokenIn &&
-      tokenOut &&
-      !tokenInAmount &&
-      ONLY_ZEROS.test(tokenInAmount) &&
-      tokenIn.id !== tokenOut.id
-    ) {
-      setTokenOutAmount('0');
-    }
-  };
-
-  useEffect(() => {
-    if (txHash && getCurrentWallet()?.wallet?.isSignedIn()) {
-      checkTransaction(txHash)
-        .then((res: any) => {
-          const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;
-
-          const isSlippageError = res.receipts_outcome.some((outcome: any) => {
-            return slippageErrorPattern.test(
-              outcome?.outcome?.status?.Failure?.ActionError?.kind
-                ?.FunctionCallError?.ExecutionError
-            );
-          });
-
-          const transaction = res.transaction;
-          return {
-            isSwap:
-              transaction?.actions[1]?.['FunctionCall']?.method_name ===
-                'ft_transfer_call' ||
-              transaction?.actions[0]?.['FunctionCall']?.method_name ===
-                'ft_transfer_call' ||
-              transaction?.actions[0]?.['FunctionCall']?.method_name === 'swap',
-            isSlippageError,
-          };
-        })
-        .then(({ isSwap, isSlippageError }) => {
-          if (isSwap) {
-            !isSlippageError && !errorType && swapToast(txHash);
-            isSlippageError && failToast(txHash, 'Slippage Violation');
-          }
-          history.replace(pathname);
-        });
-    }
-  }, [txHash]);
-
-  useEffect(() => {
-    setTokenInAmountMemo(tokenInAmount);
-    if (loadingTrigger && !ONLY_ZEROS.test(tokenInAmountMemo)) return;
-
-    getEstimate();
-  }, [tokenIn, tokenOut, tokenInAmount]);
-
-  useEffect(() => {
-    getEstimate();
-  }, [loadingTrigger]);
-
-  const makeSwap = (useNearBalance: boolean) => {
-    stableSwap({
-      pool,
-      tokenIn,
-      amountIn: tokenInAmount,
-      tokenOut,
-      minAmountOut,
-      useNearBalance,
-    }).catch(setSwapError);
-  };
-
-  return {
-    canSwap,
-    tokenOutAmount,
-    minAmountOut,
-    pool,
-    swapError,
-    makeSwap,
-    noFeeAmount,
-  };
-};
-
 export const useCrossSwap = ({
   tokenIn,
   tokenInAmount,
   tokenOut,
   slippageTolerance,
-  supportLedger,
   loadingTrigger,
   setLoadingTrigger,
   loadingPause,
   wrapOperation,
-}: SwapOptions) => {
-  const [pool, setPool] = useState<Pool>();
+}: SwapOptions): ExchangeEstimate => {
+  const { enableTri } = useContext(SwapProContext);
+
   const [canSwap, setCanSwap] = useState<boolean>();
   const [tokenOutAmount, setTokenOutAmount] = useState<string>('');
   const [swapError, setSwapError] = useState<Error>();
   const [swapsToDo, setSwapsToDo] = useState<EstimateSwapView[]>();
 
   const [crossQuoteDone, setCrossQuoteDone] = useState<boolean>(false);
-
-  const [swapsToDoRef, setSwapsToDoRef] = useState<EstimateSwapView[]>();
-
-  const [swapsToDoTri, setSwapsToDoTri] = useState<EstimateSwapView[]>();
-
-  const [avgFee, setAvgFee] = useState<number>(0);
 
   const [count, setCount] = useState<number>(0);
   const refreshTime = Number(POOL_TOKEN_REFRESH_INTERVAL) * 1000;
@@ -1239,31 +1119,10 @@ export const useCrossSwap = ({
     let avgFee: number = 0;
 
     try {
-      const estimate = estimates[0];
-      if (estimates.length === 1) {
-        avgFee = estimates[0].pool.fee;
-      } else if (
-        estimate.status === PoolMode.SMART ||
-        estimate.status === PoolMode.STABLE
-      ) {
-        avgFee = estimates.reduce((pre, cur) => pre + cur.pool.fee, 0);
-      } else {
-        avgFee = getAverageFeeForRoutes(
-          estimate.allRoutes,
-          estimate.allNodeRoutes,
-          estimate.totalInputAmount
-        );
-      }
+      avgFee = estimates[0].pool.fee;
     } catch (error) {}
 
     return avgFee;
-  };
-
-  const setAverageFee = (estimates: EstimateSwapView[]) => {
-    if (!estimates || estimates.length === 0) return;
-
-    const avgFee = getAvgFee(estimates);
-    setAvgFee(avgFee);
   };
 
   const getEstimateCrossSwap = (proGetCachePool?: boolean) => {
@@ -1274,27 +1133,21 @@ export const useCrossSwap = ({
     }
     if (!tokenIn || !tokenOut || tokenIn?.id === tokenOut?.id) return;
 
-    estimateSwap({
+    estimateSwapAurora({
       tokenIn,
       tokenOut,
       amountIn: tokenInAmount,
       intl,
       loadingTrigger: loadingTrigger && !loadingPause,
       proGetCachePool,
-      supportLedger,
       swapPro: true,
-      setSwapsToDoRef,
-      setSwapsToDoTri,
     })
       .then(({ estimates }) => {
         if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
-          setAverageFee(estimates);
-
           setSwapsToDo(estimates);
           setCanSwap(true);
         }
 
-        setPool(estimates[0].pool);
         setCrossQuoteDone(true);
         setLoadingTrigger(false);
       })
@@ -1304,8 +1157,6 @@ export const useCrossSwap = ({
         setSwapError(err);
         setCrossQuoteDone(true);
         setLoadingTrigger(false);
-        // setSwapsToDoRef([]);
-        // setSwapsToDoTri([])
       })
       .finally(() => {
         setLoadingTrigger(false);
@@ -1332,11 +1183,7 @@ export const useCrossSwap = ({
     setCrossQuoteDone(false);
 
     getEstimateCrossSwap(true);
-  }, [
-    [tokenIn?.id, tokenOut?.id].sort().join('-'),
-    // tokenIn,
-    // tokenOut,
-  ]);
+  }, [[tokenIn?.id, tokenOut?.id].sort().join('-')]);
 
   useEffect(() => {
     if (ONLY_ZEROS.test(tokenInAmount)) {
@@ -1349,11 +1196,7 @@ export const useCrossSwap = ({
     setCrossQuoteDone(false);
 
     getEstimateCrossSwap(loadingTrigger);
-  }, [
-    loadingTrigger,
-    // tokenIn,
-    // tokenOut,
-  ]);
+  }, [loadingTrigger]);
 
   useEffect(() => {
     if (ONLY_ZEROS.test(tokenInAmount)) {
@@ -1365,7 +1208,7 @@ export const useCrossSwap = ({
 
     setCrossQuoteDone(false);
     getEstimateCrossSwap(false);
-  }, [supportLedger, tokenInAmount, [tokenIn?.id, tokenOut?.id].join('-')]);
+  }, [tokenInAmount, [tokenIn?.id, tokenOut?.id].join('-')]);
 
   useEffect(() => {
     let id: any = null;
@@ -1382,27 +1225,24 @@ export const useCrossSwap = ({
     };
   }, [count, loadingTrigger, loadingPause]);
 
+  const priceImpact = usePriceImpact({
+    swapsToDo: swapsToDo,
+    tokenIn,
+    tokenOut,
+    tokenInAmount,
+    tokenOutAmount: swapsToDo?.[0]?.estimate || '0',
+  });
+
   return {
     canSwap,
     tokenOutAmount,
     minAmountOut,
-    pool,
-    setCanSwap,
+    priceImpact,
     swapError,
-    avgFee,
-    pools: swapsToDo?.map((estimate) => estimate.pool),
-    swapsToDo,
-    setSwapError,
-    swapsToDoRef,
-    swapsToDoTri,
-    crossQuoteDone,
-    refAmountOut:
-      tokenOut && swapsToDoRef && !wrapOperation
-        ? getExpectedOutputFromActionsORIG(swapsToDoRef, tokenOut.id)
-        : '',
-    refAvgFee: swapsToDoRef && !wrapOperation ? getAvgFee(swapsToDoRef) : 0,
-    triAvgFee: swapsToDoTri && !wrapOperation ? getAvgFee(swapsToDoTri) : 0,
-    setCrossQuoteDone,
+    estimates: swapsToDo,
+    quoteDone: crossQuoteDone,
+    fee: swapsToDo && !wrapOperation ? getAvgFee(swapsToDo) : 0,
+    availableRoute: enableTri,
   };
 };
 
@@ -1473,4 +1313,168 @@ export const usePriceImpact = ({
   }
 
   return PriceImpactValue;
+};
+
+export const useRefSwap = ({
+  tokenIn,
+  tokenInAmount,
+  tokenOut,
+  slippageTolerance,
+  setLoadingData,
+  loadingTrigger,
+  setLoadingTrigger,
+  loadingPause,
+  swapMode,
+  reEstimateTrigger,
+  supportLedger,
+  loadingData,
+}: SwapOptions): ExchangeEstimate => {
+  const {
+    canSwap,
+    tokenOutAmount,
+    minAmountOut,
+    swapError,
+    makeSwap: makeSwapV1,
+    avgFee: fee,
+    swapsToDo,
+    quoteDone,
+    priceImpactValue,
+  } = useSwap({
+    tokenIn: tokenIn,
+    tokenInAmount,
+    tokenOut: tokenOut,
+    slippageTolerance,
+    setLoadingData,
+    loadingTrigger,
+    setLoadingTrigger,
+    loadingData,
+    loadingPause,
+    swapMode,
+    reEstimateTrigger,
+    supportLedger,
+  });
+
+  const {
+    makeSwap: makeSwapV2,
+    tokenOutAmount: tokenOutAmountV2,
+    minAmountOut: minAmountOutV2,
+    fee: feeV2,
+    swapsToDoV2,
+    priceImpact: priceImpactV2,
+    quoteDone: quoteDoneV2,
+    canSwap: canSwapV2,
+    swapErrorV3: swapErrorV2,
+  } = useSwapV3({
+    tokenIn,
+    tokenOut,
+    tokenInAmount,
+    slippageTolerance,
+    swapMode,
+    loadingTrigger,
+    swapError,
+    setLoadingTrigger,
+  });
+  const quoteDoneRef = quoteDoneV2 && quoteDone;
+
+  if (!quoteDoneRef)
+    return {
+      quoteDone: false,
+      canSwap: false,
+    };
+
+  const bestSwap =
+    new Big(tokenOutAmountV2 || '0').gte(tokenOutAmount || '0') && canSwapV2
+      ? 'v2'
+      : 'v1';
+
+  if (bestSwap === 'v1') {
+    return {
+      quoteDone: true,
+      canSwap: canSwap,
+      makeSwap: makeSwapV1,
+      estimates: swapsToDo,
+      tokenOutAmount,
+      minAmountOut: minAmountOut,
+      fee: fee,
+      priceImpact: priceImpactValue,
+      swapError,
+      availableRoute: true,
+    };
+  }
+  if (bestSwap === 'v2') {
+    return {
+      quoteDone: true,
+      canSwap: canSwapV2,
+      makeSwap: makeSwapV2,
+      estimates: swapsToDoV2,
+      tokenOutAmount: tokenOutAmountV2,
+      minAmountOut: minAmountOutV2,
+      fee: feeV2,
+      priceImpact: priceImpactV2,
+      swapError: swapErrorV2,
+      availableRoute: true,
+    };
+  }
+};
+
+export const useRefSwapPro = ({
+  tokenIn,
+  tokenInAmount,
+  tokenOut,
+  slippageTolerance,
+  setLoadingData,
+  loadingTrigger,
+  setLoadingTrigger,
+  loadingPause,
+  reEstimateTrigger,
+  supportLedger,
+  loadingData,
+  wrapOperation,
+}: SwapOptions) => {
+  const { setTrades, enableTri, setSelectMarket, selectMarket } =
+    useContext(SwapProContext);
+
+  const resRef = useRefSwap({
+    tokenIn,
+    tokenInAmount,
+    tokenOut,
+    slippageTolerance,
+    setLoadingData,
+    loadingTrigger,
+    setLoadingTrigger,
+    loadingPause,
+    reEstimateTrigger,
+    supportLedger,
+    loadingData,
+  });
+
+  const resAurora = useCrossSwap({
+    tokenIn,
+    tokenInAmount,
+    tokenOut,
+    slippageTolerance,
+    loadingTrigger,
+    setLoadingTrigger,
+    loadingPause,
+    wrapOperation,
+  });
+
+  if (resRef.quoteDone && (!enableTri || resAurora.quoteDone)) {
+    const trades = {
+      ['ref']: resRef,
+      ['tri']: resAurora,
+    };
+    if (selectMarket === undefined) {
+      const bestMarket = Object.keys(trades).reduce((a, b) =>
+        new Big(trades[a].tokenOutAmount || '0').gt(
+          trades[b].tokenOutAmount || '0'
+        )
+          ? a
+          : b
+      );
+      setSelectMarket(bestMarket as SwapMarket);
+    }
+
+    setTrades(trades);
+  }
 };

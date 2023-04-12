@@ -20,16 +20,9 @@ import {
 import AllOrderBoard from './components/AllOrders';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { REF_ORDERLY_ACCOUNT_VALID } from './components/UserBoard/index';
-import {
-  isLargeScreen,
-  useLargeScreen,
-  useClientMobile,
-} from '../../utils/device';
-import { useHistory } from 'react-router-dom';
+import { useLargeScreen, useClientMobile } from '../../utils/device';
 
 import MobileInfoBoard from './components/MobileInfoBoard';
-import { generateTradingKeyPair } from './orderly/utils';
-import { useOrderlyContext } from './orderly/OrderlyContext';
 
 function TradingBoard() {
   const isLarge = useLargeScreen();
