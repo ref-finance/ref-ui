@@ -636,7 +636,6 @@ export default function FarmsHome(props: any) {
       // phoenix-bonds.near|wrap.near|2000&3080&4040-r
       const pathArr = location.pathname.split('/');
       const layer1 = decodeURIComponent(pathArr[2] || '');
-      debugger;
       if (layer1) {
         if (layer1.indexOf('<>') > -1 || layer1.indexOf('|') > -1) {
           // dcl link
