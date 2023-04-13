@@ -309,7 +309,7 @@ export default function SlippageSelector({
 
             <div className="frcb w-full my-2 text-sm">
               <div className="frcs">
-                <TriAndAurora></TriAndAurora>
+                <TriAndAurora />
 
                 <span className="ml-2 text-white text-sm">Trisolaris</span>
               </div>

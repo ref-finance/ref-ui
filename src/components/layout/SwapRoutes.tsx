@@ -1,27 +1,29 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { TokenMetadata, ftGetTokenMetadata } from '../../services/ft-contract';
+
+import { FaAngleRight } from 'react-icons/fa';
+
 import {
   calculateFeePercent,
   toPrecision,
-  divide,
   calculateExchangeRate,
   calculateFeeCharge,
   toInternationalCurrencySystemLongString,
 } from '../../utils/numbers';
 import { toRealSymbol } from '../../utils/token';
 import { EstimateSwapView } from '../../services/stable-swap';
-import {
-  getPoolAllocationPercents,
-  percent,
-  percentOf,
-  convertToPercentDecimal,
-} from '../../utils/numbers';
+import { getPoolAllocationPercents, percent } from '../../utils/numbers';
 import { Pool } from '../../services/pool';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import { Card } from '../card/Card';
 import { ArrowDownWhite } from '../icon/Arrows';
-import { RefSwapPro } from '../icon/CrossSwapIcons';
+import {
+  OrderlyOrderBookIcon,
+  RefIconNew,
+  RefSwapPro,
+  TriAndAurora,
+} from '../icon/CrossSwapIcons';
 import _, { result } from 'lodash';
 //@ts-ignore
 import { getExpectedOutputFromActionsORIG } from '../../services/smartRouteLogic';
@@ -42,7 +44,7 @@ import Big from 'big.js';
 import { useTokenPriceList } from '../../state/token';
 import { GetPriceImpact } from '../swap/CrossSwapCard';
 import { PopUpContainer, PopUpContainerMulti } from '../icon/Info';
-import { percentLess, multiply } from '../../utils/numbers';
+import { percentLess, multiply, divide } from '../../utils/numbers';
 import { QuestionTip } from './TipWrapper';
 import { HiOutlineExternalLink } from 'react-icons/hi';
 import { Images } from '../stableswap/CommonComp';
@@ -50,6 +52,11 @@ import { getAuroraConfig } from '../../services/aurora/config';
 import { isMobile, useClientMobile } from '../../utils/device';
 import { getV3PoolId } from '../../services/swapV3';
 import { nearMetadata, WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
+import { SwapContractType, SwapMarket } from '~pages/SwapPage';
+import { ExchangeEstimate } from '../../pages/SwapPage';
+import { DisplayIcon } from '~components/tokens/Icon';
+import Modal from 'react-modal';
+import { ModalWrapper } from '../../pages/ReferendumPage';
 
 export const RouterIcon = () => {
   return (
@@ -346,23 +353,6 @@ export const PoolName = ({
   );
 };
 
-const ExchangeIcon = () => {
-  return (
-    <svg
-      width="10"
-      height="8"
-      viewBox="0 0 10 8"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M4.28537 7.33333V8L2.85339 6.66667L4.28537 5.33333V6H6.42799C6.87702 6.0001 7.31474 5.86851 7.67931 5.62382C8.04389 5.37914 8.31689 5.03372 8.45976 4.63636C8.60263 4.239 8.60815 3.80978 8.47554 3.40933C8.34293 3.00889 8.07888 2.65745 7.7207 2.40467L7.72856 2.39533L8.73559 1.45533C9.29415 1.89649 9.69406 2.48715 9.88121 3.1474C10.0684 3.80766 10.0337 4.50565 9.78196 5.14692C9.5302 5.7882 9.0735 6.34181 8.47362 6.73286C7.87375 7.12391 7.15967 7.33352 6.42799 7.33333L4.28466 7.334L4.28537 7.33333ZM5.71378 0.666667V0L7.17576 1.33333L5.71378 2.66667V2H3.57117C3.12207 2 2.68433 2.13171 2.31979 2.37654C1.95525 2.62136 1.68234 2.96692 1.53961 3.36438C1.39689 3.76185 1.39157 4.19112 1.5244 4.59157C1.65723 4.99201 1.92151 5.34337 2.27988 5.596L1.26357 6.544C0.705275 6.10279 0.305614 5.51218 0.118631 4.85204C-0.0683515 4.1919 -0.0336347 3.49409 0.218087 2.85296C0.469808 2.21184 0.926389 1.65835 1.52608 1.26733C2.12578 0.876314 2.83965 0.666641 3.57117 0.666667H5.71378Z"
-        fill="#7E8A93"
-      />
-    </svg>
-  );
-};
-
 const BestIcon = () => {
   return (
     <svg
@@ -642,205 +632,59 @@ export const CrossSwapRoute = ({
     </div>
   );
 };
-export const NormalSwapRoute = ({
+
+export const getDexIcon = (market: SwapMarket) => {
+  if (market === 'ref') return <RefIconNew></RefIconNew>;
+  if (market === 'orderly')
+    return <OrderlyOrderBookIcon></OrderlyOrderBookIcon>;
+  if (market === 'tri') return <TriAndAurora></TriAndAurora>;
+};
+
+export const SwapRoute = ({
   route,
   p,
-  tokenIn,
-  tokenOut,
+  market,
 }: {
   route: EstimateSwapView[];
   p: string;
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
+  market: SwapMarket;
 }) => {
-  const [hover, setHover] = useState(false);
-  const [hove2, setHover2] = useState(false);
-  const isMobile = useClientMobile();
+  const tokens = route[0].tokens;
+
   return (
-    <>
-      {route.length === 1 ? (
-        <div
-          className={`relative z-0 ml-20 xsm:ml-0  mb-1.5 flex items-center justify-between`}
-        >
-          <span
-            className="flex items-center  rounded-md p-1 py-0.5"
-            style={{
-              background: '#24333D',
-            }}
-          >
-            <Icon
-              token={tokenIn || route[0].tokens[0]}
-              size={isMobile ? '3' : '3.5'}
-            />
-            <span className="text-right mx-0.5">{p}%</span>
-          </span>
+    <div className="frcs">
+      <div
+        style={{
+          height: '13px',
+          width: '13px',
+        }}
+        className="frcc mr-1.5"
+      >
+        {getDexIcon(market)}
+      </div>
 
-          <div
-            className="w-full absolute bottom-3"
-            style={{
-              border: '1px dashed #304352',
-              zIndex: -1,
-            }}
-          ></div>
+      <div
+        className="bg-limitOrderInputColor mr-1"
+        style={{
+          height: '10px',
+          width: '1px',
+        }}
+      ></div>
+      <div className="frcs">
+        {tokens &&
+          tokens.map((t, i) => {
+            return (
+              <div className="text-xs ml-0.5 text-primaryText frcs">
+                {i > 0 && <FaAngleRight />}
 
-          <div
-            style={{
-              background: '#24333D',
-            }}
-            onMouseEnter={() => {
-              setHover(true);
-            }}
-            onMouseLeave={() => {
-              setHover(false);
-            }}
-            onClick={() => {
-              window.open(`/pool/${route[0].pool.id}`);
-            }}
-            className="py-1 px-1 flex items-center rounded-md cursor-pointer"
-          >
-            <span className="flex items-center mx-1">
-              <Images
-                border
-                borderStyle="1px solid #00C6A2"
-                size={isMobile ? '3' : '3.5'}
-                tokens={[
-                  tokenIn?.id == WRAP_NEAR_CONTRACT_ID ? nearMetadata : tokenIn,
-                  route[0]?.tokens[1]?.id == WRAP_NEAR_CONTRACT_ID
-                    ? nearMetadata
-                    : route[0].tokens[1],
-                ]}
-              />
-              <span className="text-farmText ml-1">{`#${route[0].pool.id}`}</span>
-            </span>
-
-            <span
-              className={`flex items-center cursor-pointer justify-center text-farmText ${
-                hover ? 'text-senderHot' : ''
-              }`}
-            >
-              <HiOutlineExternalLink />
-            </span>
-          </div>
-
-          <div className="flex-shrink-0">
-            <Icon
-              token={tokenOut || route[0].tokens[1]}
-              size={isMobile ? '3' : '3.5'}
-            />
-          </div>
-        </div>
-      ) : (
-        <div
-          className={`relative z-0 ml-10 xsm:ml-0 mb-1.5 flex items-center justify-between`}
-        >
-          <span
-            className="flex items-center rounded-md p-1 py-0.5"
-            style={{
-              background: '#24333D',
-            }}
-          >
-            <Icon
-              token={tokenIn || route[0].tokens[0]}
-              size={isMobile ? '3' : '3.5'}
-            />
-            <span className="text-right mx-0.5">{p}%</span>
-          </span>
-
-          <div
-            className="w-full absolute bottom-3"
-            style={{
-              border: '1px dashed #304352',
-              zIndex: -1,
-            }}
-          ></div>
-
-          <div
-            style={{
-              background: '#24333D',
-            }}
-            onMouseEnter={() => {
-              setHover(true);
-            }}
-            onMouseLeave={() => {
-              setHover(false);
-            }}
-            onClick={() => {
-              window.open(`/pool/${route[0].pool.id}`);
-            }}
-            className="py-1 px-1 flex items-center rounded-md cursor-pointer"
-          >
-            <span className="flex items-center mx-1">
-              <Images
-                border
-                borderStyle="1px solid #00C6A2"
-                size={isMobile ? '3' : '3.5'}
-                tokens={[
-                  tokenIn?.id == WRAP_NEAR_CONTRACT_ID ? nearMetadata : tokenIn,
-                  route[0]?.tokens[1]?.id == WRAP_NEAR_CONTRACT_ID
-                    ? nearMetadata
-                    : route[0]?.tokens[1],
-                ]}
-              />
-
-              <span className="text-farmText ml-1">{`#${route[0].pool.id}`}</span>
-            </span>
-
-            <span
-              className={`flex items-center cursor-pointer justify-center text-farmText ${
-                hover ? 'text-senderHot' : ''
-              }`}
-            >
-              <HiOutlineExternalLink />
-            </span>
-          </div>
-
-          <div
-            style={{
-              background: '#24333D',
-            }}
-            onMouseEnter={() => {
-              setHover2(true);
-            }}
-            onMouseLeave={() => {
-              setHover2(false);
-            }}
-            onClick={() => {
-              window.open(`/pool/${route[1].pool.id}`);
-            }}
-            className="py-1  px-1 flex items-center rounded-md cursor-pointer"
-          >
-            <span className="flex items-center mx-1">
-              <Images
-                border
-                borderStyle="1px solid #00C6A2"
-                size={isMobile ? '3' : '3.5'}
-                tokens={[
-                  route[1]?.tokens[1]?.id == WRAP_NEAR_CONTRACT_ID
-                    ? nearMetadata
-                    : route[1]?.tokens[1],
-                  tokenOut.id == WRAP_NEAR_CONTRACT_ID
-                    ? nearMetadata
-                    : tokenOut,
-                ]}
-              />
-
-              <span className="text-farmText ml-1">{`#${route[1].pool.id}`}</span>
-            </span>
-
-            <span
-              className={`flex items-center cursor-pointer justify-center text-farmText ${
-                hove2 ? 'text-senderHot' : ''
-              }`}
-            >
-              <HiOutlineExternalLink />
-            </span>
-          </div>
-          {/* <div className="flex-shrink-0">
-            <Icon token={tokenOut} size={'5'} />
-          </div> */}
-        </div>
-      )}
-    </>
+                {toRealSymbol(t.symbol)}
+              </div>
+            );
+          })}
+      </div>
+    </div>
   );
 };
 export function RouteDCLDetail({
@@ -1630,5 +1474,162 @@ export const CrossSwapAllResult = ({
         </div>
       ) : null}
     </section>
+  );
+};
+
+const PolygonArrow = () => {
+  return (
+    <svg
+      width="6"
+      height="10"
+      viewBox="0 0 6 10"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M6 5L-4.07833e-07 9.33013L-2.92811e-08 0.669872L6 5Z"
+        fill="#00FFD1"
+      />
+    </svg>
+  );
+};
+
+export const TradeRouteHub = ({
+  token,
+  contract,
+}: {
+  token: TokenMetadata;
+  contract: SwapContractType;
+}) => {
+  const contractToMarket = (): SwapMarket => {
+    if (contract.toLowerCase().includes('ref')) return 'ref';
+    if (contract.toLowerCase().includes('orderly')) return 'orderly';
+    if (contract.toLowerCase().includes('trisolaris')) return 'tri';
+  };
+
+  return (
+    <div className="frcs relative z-10 text-primaryText text-xs rounded-md px-1.5 py-1 border border-swapCardBorder bg-swapCardGradient">
+      <DisplayIcon token={token} height="14px" width="14px" />
+      <span className="ml-1.5 mr-4">{toRealSymbol(token.symbol)}</span>
+
+      <div
+        className="w-full frcs p-1 rounded-md"
+        style={{
+          background: '#2F3E48',
+        }}
+      >
+        <div
+          style={{
+            height: '13px',
+            width: '13px',
+          }}
+          className="frcc"
+        >
+          {getDexIcon(contractToMarket())}
+        </div>
+
+        <span className="ml-1.5 mr-2.5">{contract}</span>
+
+        <span>100%</span>
+      </div>
+    </div>
+  );
+};
+
+export const RightBracket = ({ size }: { size: number }) => {
+  return (
+    <div
+      className="w-4 mr-3 opacity-30 rounded-full relative z-10 border border-primaryText "
+      style={{
+        height: `${size * 28}px`,
+        clipPath: `polygon(50% 0, 100% 0,100% 100%, 50%  100%)`,
+      }}
+    ></div>
+  );
+};
+
+export const LeftBracket = ({ size }: { size: number }) => {
+  return (
+    <div
+      className="w-4 ml-3 opacity-30 rounded-full relative z-10 border border-primaryText  transform rotate-180"
+      style={{
+        height: `${size * 28}px`,
+        clipPath: `polygon(50% 0, 100% 0,100% 100%, 50%  100%)`,
+      }}
+    ></div>
+  );
+};
+
+export const TradeRoute = ({ trade }: { trade: ExchangeEstimate }) => {
+  const { estimates, tokenIn, tokenOut, market } = trade;
+
+  const identicalRoutes = separateRoutes(
+    estimates,
+    estimates[estimates.length - 1].outputToken
+  );
+
+  const pools = identicalRoutes.map((r) => r[0]).map((hub) => hub.pool);
+
+  const percents = useMemo(() => {
+    return getPoolAllocationPercents(pools);
+  }, [identicalRoutes, pools]);
+
+  return (
+    <div className="frcb ">
+      <DisplayIcon token={tokenIn} height="26px" width="26px" />
+      <LeftBracket size={identicalRoutes.length} />
+      <div className="w-full mx-3 relative">
+        {identicalRoutes.map((route, i) => {
+          return (
+            <div className="relative frcb my-1 h-8">
+              <span className="text-xs text-senderHot">{percents[i]}%</span>
+              <div
+                className="border border-dashed absolute left-5 opacity-30 border-primaryText w-full px-3"
+                style={{
+                  width: 'calc(100% - 32px)',
+                }}
+              ></div>
+              {route[0].tokens
+                .slice(1, route[0].tokens.length - 1)
+                .map((t, i) => {
+                  return (
+                    <>
+                      <TradeRouteHub token={t} contract={route[i].contract} />
+                    </>
+                  );
+                })}
+
+              <PolygonArrow />
+            </div>
+          );
+        })}
+      </div>
+      <RightBracket size={identicalRoutes.length} />
+
+      <DisplayIcon token={tokenOut} height="26px" width="26px" />
+    </div>
+  );
+};
+
+export const TradeRouteModal = (
+  props: Modal.Props & {
+    trade: ExchangeEstimate;
+  }
+) => {
+  return (
+    <ModalWrapper
+      title={
+        <FormattedMessage
+          id="your_trade_route"
+          defaultMessage={`Your trade route`}
+        />
+      }
+      {...props}
+      customWidth="700px"
+    >
+      <div className="w-full mt-7">
+        <TradeRoute trade={props.trade} />
+      </div>
+    </ModalWrapper>
   );
 };

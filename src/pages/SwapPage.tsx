@@ -23,6 +23,7 @@ import AdSwiper from '../components/layout/Swiper';
 import LimitOrderCard from '~components/swap/LimitOrderCard';
 import SwapRateChart from '~components/swap/SwapRateChart';
 import { EstimateSwapView } from '../services/swap';
+import { TradeRoute } from '~components/layout/SwapRoutes';
 
 export const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';
 
@@ -48,6 +49,10 @@ export enum SWAP_TYPE {
   Pro = 'Pro',
 }
 
+export type SwapMarket = 'ref' | 'tri' | 'orderly' | undefined;
+
+export type SwapContractType = 'Ref_V1' | 'Ref_DCL' | 'Orderly' | 'Trisolaris';
+
 export interface ExchangeEstimate {
   estimates?: EstimateSwapView[];
   fee?: number;
@@ -62,9 +67,8 @@ export interface ExchangeEstimate {
   tokenInAmount: string;
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
+  market: SwapMarket;
 }
-
-export type SwapMarket = 'ref' | 'tri' | 'orderly' | undefined;
 
 export interface TradeEstimates {
   [dex: string]: ExchangeEstimate;
@@ -287,8 +291,18 @@ function SwapPage() {
     >
       <div className="frsc ">
         {swapType === SWAP_TYPE.Pro && (
-          <div className="w-700px">
+          <div className="w-700px mr-8">
             <SwapRateChart tokenIn={tokenIn} tokenOut={tokenOut} />
+            <div className="text-primaryText mt-8 mb-4 font-gothamBold">
+              <FormattedMessage
+                id="your_trade_route"
+                defaultMessage={`Your trade route`}
+              />
+            </div>
+
+            {trades?.[selectMarket] && (
+              <TradeRoute trade={trades[selectMarket]} />
+            )}
           </div>
         )}
 

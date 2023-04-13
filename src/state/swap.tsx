@@ -935,8 +935,6 @@ export const useLimitOrder = ({
         setMostPoolDetail(res);
       })
       .catch((e) => {
-        console.error('fetch pool error', e);
-
         setMostPoolDetail(null);
       })
       .finally(() => {
@@ -1239,13 +1237,14 @@ export const useCrossSwap = ({
     minAmountOut,
     priceImpact,
     swapError,
-    estimates: swapsToDo,
+    estimates: swapsToDo?.map((s) => ({ ...s, contract: 'Trisolaris' })),
     quoteDone: crossQuoteDone,
     fee: swapsToDo && !wrapOperation ? getAvgFee(swapsToDo) : 0,
     availableRoute: enableTri,
     tokenInAmount,
     tokenIn,
     tokenOut,
+    market: 'tri',
   };
 };
 
@@ -1386,6 +1385,7 @@ export const useRefSwap = ({
       tokenInAmount,
       tokenIn,
       tokenOut,
+      market: 'tri',
     };
 
   const bestSwap =
@@ -1398,7 +1398,7 @@ export const useRefSwap = ({
       quoteDone: true,
       canSwap: canSwap,
       makeSwap: makeSwapV1,
-      estimates: swapsToDo,
+      estimates: swapsToDo?.map((s) => ({ ...s, contract: 'Ref_V1' })),
       tokenOutAmount: toPrecision(
         tokenOutAmount || '0',
         Math.min(8, tokenOut?.decimals || 8)
@@ -1411,6 +1411,7 @@ export const useRefSwap = ({
       tokenInAmount,
       tokenIn,
       tokenOut,
+      market: 'ref',
     };
   }
   if (bestSwap === 'v2') {
@@ -1418,7 +1419,8 @@ export const useRefSwap = ({
       quoteDone: true,
       canSwap: canSwapV2,
       makeSwap: makeSwapV2,
-      estimates: swapsToDoV2,
+      estimates: swapsToDoV2?.map((s) => ({ ...s, contract: 'Ref_DCL' })),
+
       tokenOutAmount: toPrecision(
         tokenOutAmountV2 || '0',
         Math.min(8, tokenOut?.decimals || 8)
@@ -1431,6 +1433,7 @@ export const useRefSwap = ({
       availableRoute: true,
       tokenIn,
       tokenOut,
+      market: 'ref',
     };
   }
 };

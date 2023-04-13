@@ -49,13 +49,12 @@ import BigNumber from 'bignumber.js';
 import {
   AutoRouterText,
   RouterIcon,
-  NormalSwapRoute,
-  RouteDCLDetail,
+  SwapRoute,
+  TradeRouteModal,
 } from '../layout/SwapRoutes';
 
-import { EstimateSwapView } from '../../services/swap';
 import { QuestionTip } from '../layout/TipWrapper';
-import { SwapExchangeV1 } from '../icon/Arrows';
+import { SwapExchange } from '../icon/Arrows';
 import { getPoolAllocationPercents } from '../../utils/numbers';
 import { DoubleCheckModal } from '../layout/SwapDoubleCheck';
 import {
@@ -271,18 +270,12 @@ export function SwapRate({
   );
 }
 
-export function SmartRoutesV2Detail({
-  swapsTodo,
-  tokenIn,
-  tokenOut,
-}: {
-  swapsTodo: EstimateSwapView[];
-  tokenIn?: TokenMetadata;
-  tokenOut?: TokenMetadata;
-}) {
+export function AutoRouter({ trade }: { trade: ExchangeEstimate }) {
+  const { estimates, tokenIn, tokenOut, market } = trade;
+
   const identicalRoutes = separateRoutes(
-    swapsTodo,
-    swapsTodo[swapsTodo.length - 1].outputToken
+    estimates,
+    estimates[estimates.length - 1].outputToken
   );
 
   const pools = identicalRoutes.map((r) => r[0]).map((hub) => hub.pool);
@@ -291,14 +284,16 @@ export function SmartRoutesV2Detail({
     return getPoolAllocationPercents(pools);
   }, [identicalRoutes, pools]);
 
+  const [showRouteDetail, setShowRouteDetail] = useState<boolean>(false);
+
   return (
-    <section className="flex justify-between py-1 text-xs items-center rounded-xl xsm:flex-col xsm:items-start">
-      <div className="text-primaryText relative lg:top-1 text-left self-start">
-        <div className="flex items-center">
+    <section className="frcb py-1 w-full text-xs  rounded-xl xsm:flex-col xsm:items-start">
+      <div className="text-primaryText relative  text-left self-start">
+        <div className="frcs">
           <span className="xsm:hidden">
             <RouterIcon />
           </span>
-          <div className="flex items-center">
+          <div className="frcs">
             <AutoRouterText />
             <QuestionTip
               style={{ maxWidth: '14rem' }}
@@ -308,18 +303,30 @@ export function SmartRoutesV2Detail({
         </div>
       </div>
 
-      <div className="text-right text-white flex-grow xsm:mt-2.5 xsm:w-full">
+      <div
+        className=" text-white cursor-pointer xsm:mt-2.5 xsm:w-full"
+        onClick={() => {
+          setShowRouteDetail(true);
+        }}
+      >
         {identicalRoutes.map((route, index) => (
-          <div key={index}>
-            <NormalSwapRoute
-              tokenIn={tokenIn}
-              tokenOut={tokenOut}
-              route={route}
-              p={percents[index]}
-            />
-          </div>
+          <SwapRoute
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+            route={route}
+            p={percents[index]}
+            market={market}
+            key={index}
+          />
         ))}
       </div>
+      <TradeRouteModal
+        trade={trade}
+        isOpen={showRouteDetail}
+        onRequestClose={() => {
+          setShowRouteDetail(false);
+        }}
+      />
     </section>
   );
 }
@@ -537,11 +544,7 @@ function DetailView({ trade }: { trade: ExchangeEstimate }) {
           color="text-white"
         />
 
-        {/* <SmartRoutesV2Detail
-          swapsTodo={swapsTodo}
-          tokenIn={tokenIn}
-          tokenOut={tokenOut}
-        /> */}
+        <AutoRouter trade={trade} />
       </div>
       {Number(trade.priceImpact) > 2 ? (
         <div className="flex items-center justify-between xsm:flex-col bg-lightReBgColor border border-warnRedColor  mb-4 rounded-xl p-3  text-sm text-redwarningColor">
@@ -621,7 +624,7 @@ export default function SwapCard(props: {
   const location = useLocation();
   const history = useHistory();
 
-  const { selectMarket, trades } = useContext(SwapProContext);
+  const { selectMarket, trades, enableTri } = useContext(SwapProContext);
 
   const selectTrade = trades?.[selectMarket];
 
@@ -988,7 +991,7 @@ export default function SwapCard(props: {
                   loading={wrapLoading}
                 />
               ) : (
-                <InsufficientButton divClassName="h-12 mt-6 w-full"></InsufficientButton>
+                <InsufficientButton divClassName="h-12 mt-2 w-full"></InsufficientButton>
               )
             ) : (
               <div className="mt-4 w-full">
@@ -1015,6 +1018,7 @@ export default function SwapCard(props: {
       >
         <TokenAmountV3
           forSwap
+          forCross={enableTri}
           swapMode={swapMode}
           amount={tokenInAmount}
           total={tokenInMax}
@@ -1031,11 +1035,6 @@ export default function SwapCard(props: {
               setShowSkywardTip(true);
             }
           }}
-          text={
-            swapMode === SWAP_MODE.LIMIT
-              ? intl.formatMessage({ id: 'sell' })
-              : ''
-          }
           useNearBalance={useNearBalance}
           onChangeAmount={(v) => {
             setTokenInAmount(v);
@@ -1046,7 +1045,7 @@ export default function SwapCard(props: {
           onSelectPost={(token) => {
             setTokenOut(token);
           }}
-          allowWNEAR={swapMode === SWAP_MODE.LIMIT ? false : true}
+          allowWNEAR={true}
           nearErrorTip={
             balanceInDone &&
             balanceOutDone &&
@@ -1068,7 +1067,7 @@ export default function SwapCard(props: {
             )
           }
         />
-        <SwapExchangeV1
+        <SwapExchange
           onChange={() => {
             setTokenIn(tokenOut);
             localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
@@ -1087,6 +1086,7 @@ export default function SwapCard(props: {
           amount={
             wrapOperation ? tokenInAmount : selectTrade?.tokenOutAmount || ''
           }
+          forCross={enableTri}
           total={tokenOutTotal}
           tokens={allTokens}
           selectedToken={tokenOut}

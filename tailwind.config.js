@@ -458,6 +458,8 @@ module.exports = {
 
       fontFamily: {
         nunito: "'Nunito', sans-serif",
+        gotham: "'gotham', sans-serif",
+        gothamBold: "'gothamBold', sans-serif",
       },
     },
     plugins: [],

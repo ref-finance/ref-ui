@@ -142,3 +142,36 @@ function SelectArrowIcon(props: any) {
     </svg>
   );
 }
+
+export function DisplayIcon({
+  token,
+  height,
+  width,
+}: {
+  height: string;
+  width: string;
+  token: TokenMetadata;
+}) {
+  const style = {
+    height: height,
+    width: width,
+  };
+
+  if (!token.icon) {
+    return (
+      <div
+        className="rounded-full border border-gradientFromHover"
+        style={style}
+      ></div>
+    );
+  } else {
+    return (
+      <img
+        src={token.icon}
+        className="rounded-full border border-gradientFromHover"
+        style={style}
+        alt=""
+      />
+    );
+  }
+}

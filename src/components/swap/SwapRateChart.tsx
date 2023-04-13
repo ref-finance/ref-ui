@@ -235,7 +235,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
           />
         </div>
 
-        <div className="frcs mr-8">
+        <div className="frcs ">
           {dimensionList.map((d) => {
             return (
               <div
