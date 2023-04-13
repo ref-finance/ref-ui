@@ -169,7 +169,7 @@ export function getPoolFeeApr(
 
     const revenu24h = (fee / 10000) * 0.8 * Number(dayVolume);
     if (newTvl > 0 && revenu24h > 0) {
-      const annualisedFeesPrct = ((revenu24h * 365) / newTvl / 2) * 100;
+      const annualisedFeesPrct = ((revenu24h * 365) / newTvl) * 100;
       result = toPrecision(
         scientificNotationToString(annualisedFeesPrct.toString()),
         2
@@ -191,7 +191,7 @@ export function getPoolFeeAprTitle(
 
     const revenu24h = (fee / 10000) * 0.8 * Number(dayVolume);
     if (newTvl > 0 && revenu24h > 0) {
-      const annualisedFeesPrct = ((revenu24h * 365) / newTvl / 2) * 100;
+      const annualisedFeesPrct = ((revenu24h * 365) / newTvl) * 100;
       result = annualisedFeesPrct.toString();
     }
   }
