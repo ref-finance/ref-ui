@@ -626,7 +626,7 @@ function StakeContainer(props: {
       const revenu24h = (total_fee / 10000) * 0.8 * Number(dayVolume);
       if (tvl > 0 && revenu24h > 0) {
         const annualisedFeesPrct = ((revenu24h * 365) / tvl) * 100;
-        const half_annualisedFeesPrct = annualisedFeesPrct / 2;
+        const half_annualisedFeesPrct = annualisedFeesPrct;
         result = toPrecision(half_annualisedFeesPrct.toString(), 2);
       }
     }
