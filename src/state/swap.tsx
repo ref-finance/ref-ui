@@ -1183,7 +1183,7 @@ export const useCrossSwap = ({
     setCrossQuoteDone(false);
 
     getEstimateCrossSwap(true);
-  }, [[tokenIn?.id, tokenOut?.id].sort().join('-')]);
+  }, [[tokenIn?.id, tokenOut?.id].sort().join('-'), enableTri]);
 
   useEffect(() => {
     if (ONLY_ZEROS.test(tokenInAmount)) {
@@ -1196,7 +1196,7 @@ export const useCrossSwap = ({
     setCrossQuoteDone(false);
 
     getEstimateCrossSwap(loadingTrigger);
-  }, [loadingTrigger]);
+  }, [loadingTrigger, enableTri]);
 
   useEffect(() => {
     if (ONLY_ZEROS.test(tokenInAmount)) {
@@ -1208,7 +1208,7 @@ export const useCrossSwap = ({
 
     setCrossQuoteDone(false);
     getEstimateCrossSwap(false);
-  }, [tokenInAmount, [tokenIn?.id, tokenOut?.id].join('-')]);
+  }, [tokenInAmount, [tokenIn?.id, tokenOut?.id].join('-'), enableTri]);
 
   useEffect(() => {
     let id: any = null;
@@ -1243,6 +1243,9 @@ export const useCrossSwap = ({
     quoteDone: crossQuoteDone,
     fee: swapsToDo && !wrapOperation ? getAvgFee(swapsToDo) : 0,
     availableRoute: enableTri,
+    tokenInAmount,
+    tokenIn,
+    tokenOut,
   };
 };
 
@@ -1380,6 +1383,9 @@ export const useRefSwap = ({
     return {
       quoteDone: false,
       canSwap: false,
+      tokenInAmount,
+      tokenIn,
+      tokenOut,
     };
 
   const bestSwap =
@@ -1393,12 +1399,18 @@ export const useRefSwap = ({
       canSwap: canSwap,
       makeSwap: makeSwapV1,
       estimates: swapsToDo,
-      tokenOutAmount,
+      tokenOutAmount: toPrecision(
+        tokenOutAmount || '0',
+        Math.min(8, tokenOut?.decimals || 8)
+      ),
       minAmountOut: minAmountOut,
       fee: fee,
       priceImpact: priceImpactValue,
       swapError,
       availableRoute: true,
+      tokenInAmount,
+      tokenIn,
+      tokenOut,
     };
   }
   if (bestSwap === 'v2') {
@@ -1407,12 +1419,18 @@ export const useRefSwap = ({
       canSwap: canSwapV2,
       makeSwap: makeSwapV2,
       estimates: swapsToDoV2,
-      tokenOutAmount: tokenOutAmountV2,
+      tokenOutAmount: toPrecision(
+        tokenOutAmountV2 || '0',
+        Math.min(8, tokenOut?.decimals || 8)
+      ),
+      tokenInAmount,
       minAmountOut: minAmountOutV2,
       fee: feeV2,
       priceImpact: priceImpactV2,
       swapError: swapErrorV2,
       availableRoute: true,
+      tokenIn,
+      tokenOut,
     };
   }
 };
@@ -1459,22 +1477,25 @@ export const useRefSwapPro = ({
     wrapOperation,
   });
 
-  if (resRef.quoteDone && (!enableTri || resAurora.quoteDone)) {
-    const trades = {
-      ['ref']: resRef,
-      ['tri']: resAurora,
-    };
-    if (selectMarket === undefined) {
-      const bestMarket = Object.keys(trades).reduce((a, b) =>
-        new Big(trades[a].tokenOutAmount || '0').gt(
-          trades[b].tokenOutAmount || '0'
-        )
-          ? a
-          : b
-      );
-      setSelectMarket(bestMarket as SwapMarket);
-    }
+  useEffect(() => {
+    if (resRef.quoteDone && (!enableTri || resAurora.quoteDone)) {
+      const trades = {
+        ['ref']: resRef,
+        ['tri']: resAurora,
+      };
+      if (selectMarket === undefined) {
+        const bestMarket = Object.keys(trades).reduce((a, b) =>
+          new Big(trades[a].tokenOutAmount || '0').gt(
+            trades[b].tokenOutAmount || '0'
+          )
+            ? a
+            : b
+        );
+        setSelectMarket(bestMarket as SwapMarket);
+      }
+      console.log('trades: ', trades);
 
-    setTrades(trades);
-  }
+      setTrades(trades);
+    }
+  }, [resRef.quoteDone, enableTri, resAurora.quoteDone]);
 };

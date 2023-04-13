@@ -44,8 +44,7 @@ import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import { ConnectToNearBtnSwap } from '../button/Button';
 
 import SwapFormWrap from '../forms/SwapFormWrap';
-import { CountdownTimer } from '../icon/SwapRefresh';
-import { useMobile } from '../../utils/device';
+
 import BigNumber from 'bignumber.js';
 import {
   AutoRouterText,
@@ -54,13 +53,16 @@ import {
   RouteDCLDetail,
 } from '../layout/SwapRoutes';
 
-import { EstimateSwapView, PoolMode, swap } from '../../services/swap';
+import { EstimateSwapView } from '../../services/swap';
 import { QuestionTip } from '../layout/TipWrapper';
-import { WalletContext } from '../../utils/wallets-integration';
 import { SwapExchangeV1 } from '../icon/Arrows';
 import { getPoolAllocationPercents } from '../../utils/numbers';
 import { DoubleCheckModal } from '../layout/SwapDoubleCheck';
-import { SWAP_MODE, SWAP_MODE_KEY, SwapProContext } from '../../pages/SwapPage';
+import {
+  ExchangeEstimate,
+  SWAP_MODE,
+  SwapProContext,
+} from '../../pages/SwapPage';
 import { USD_CLASS_STABLE_TOKEN_IDS } from '../../services/near';
 import {
   WRAP_NEAR_CONTRACT_ID,
@@ -87,6 +89,7 @@ import { YellowTipIcon, RedTipIcon, SelectedIcon } from '../icon/swapV3';
 import * as math from 'mathjs';
 import { NEAR_WITHDRAW_KEY } from '../forms/WrapNear';
 import { useWalletSelector } from '~context/WalletSelectorContext';
+import { CountdownTimer } from '~components/icon';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -323,7 +326,6 @@ export function SmartRoutesV2Detail({
 
 export const GetPriceImpact = (
   value: string,
-  tokenIn?: TokenMetadata,
   tokenInAmount?: string,
   infoStyle?: string
 ) => {
@@ -453,70 +455,63 @@ export function DetailView_near_wnear({
     </div>
   );
 }
-function DetailViewV2({
-  pools,
-  tokenIn,
-  tokenOut,
-  from,
-  to,
-  minAmountOut,
-  fee,
-  swapsTodo,
-  priceImpact,
-  showDetails,
-}: {
-  pools: Pool[];
-  tokenIn: TokenMetadata;
-  tokenOut: TokenMetadata;
-  from: string;
-  to: string;
-  minAmountOut: string;
-  isParallelSwap?: boolean;
-  fee?: number;
-  swapsTodo?: EstimateSwapView[];
-  priceImpact?: string;
-  tokenInAmount?: string;
-  showDetails?: boolean;
-}) {
+function DetailView({ trade }: { trade: ExchangeEstimate }) {
   const intl = useIntl();
   const minAmountOutValue = useMemo(() => {
-    if (!minAmountOut) return '0';
-    else return toPrecision(minAmountOut, 8, true);
-  }, [minAmountOut]);
+    try {
+      return toPrecision(trade.minAmountOut, 8, true);
+    } catch (error) {
+      return '0';
+    }
+  }, [trade]);
   const priceImpactDisplay = useMemo(() => {
-    if (!priceImpact || !tokenIn || !from) return null;
-    return GetPriceImpact(priceImpact, tokenIn, from);
-  }, [to, priceImpact]);
+    try {
+      return GetPriceImpact(trade.priceImpact, trade.tokenInAmount);
+    } catch (error) {
+      return null;
+    }
+  }, [trade]);
 
   const priceImpactDisplayFun = useCallback(
     (infoStyle?: string) => {
-      if (!priceImpact || !tokenIn || !from) return null;
-      return GetPriceImpact(priceImpact, tokenIn, from, infoStyle);
+      try {
+        return GetPriceImpact(
+          trade.priceImpact,
+          trade.tokenInAmount,
+          infoStyle
+        );
+      } catch (error) {
+        return null;
+      }
     },
-    [[to, priceImpact]]
+    [trade]
   );
 
   const poolFeeDisplay = useMemo(() => {
-    if (!fee || !from || !tokenIn) return null;
+    try {
+      return `${toPrecision(
+        calculateFeePercent(trade.fee).toString(),
+        2
+      )}% / ${calculateFeeCharge(
+        trade.fee,
+        trade.tokenInAmount
+      )} ${toRealSymbol(trade.tokenIn.symbol)}`;
+    } catch (error) {
+      return null;
+    }
+  }, [trade]);
 
-    return `${toPrecision(
-      calculateFeePercent(fee).toString(),
-      2
-    )}% / ${calculateFeeCharge(fee, from)} ${toRealSymbol(tokenIn.symbol)}`;
-  }, [to]);
-  if (!pools || ONLY_ZEROS.test(from) || !to || tokenIn.id === tokenOut.id)
-    return null;
+  if (!trade) return null;
+
   return (
-    <div>
+    <>
       <div
-        className={`border border-menuMoreBoxBorderColor rounded-xl px-2.5 py-3 mb-3 ${
-          showDetails ? '' : 'hidden'
-        }`}
+        className={`border border-menuMoreBoxBorderColor rounded-xl px-2.5 py-3 mb-3 `}
       >
         <SwapDetail
           title={intl.formatMessage({ id: 'price_impact' })}
           value={
-            !to || to === '0' ? (
+            !trade.tokenOutAmount || trade.tokenOutAmount === '0' ? (
               '-'
             ) : (
               <>
@@ -525,7 +520,7 @@ function DetailViewV2({
                   className="text-primaryText"
                   style={{ marginLeft: '3px' }}
                 >
-                  {tokenIn.symbol}
+                  {trade.tokenIn.symbol}
                 </span>
               </>
             )
@@ -542,129 +537,24 @@ function DetailViewV2({
           color="text-white"
         />
 
-        <SmartRoutesV2Detail
+        {/* <SmartRoutesV2Detail
           swapsTodo={swapsTodo}
           tokenIn={tokenIn}
           tokenOut={tokenOut}
-        />
+        /> */}
       </div>
-      {Number(priceImpact) > 2 ? (
+      {Number(trade.priceImpact) > 2 ? (
         <div className="flex items-center justify-between xsm:flex-col bg-lightReBgColor border border-warnRedColor  mb-4 rounded-xl p-3  text-sm text-redwarningColor">
           <span className="xsm:mb-0.5">
             <FormattedMessage id="price_impact_warning"></FormattedMessage>
           </span>
           <div className="flex items-center">
-            <span>
-              {!to || to === '0' ? '-' : priceImpactDisplayFun('gotham_bold')}
-            </span>
-            <span className="ml-1">{tokenIn.symbol}</span>
+            <span>{priceImpactDisplayFun('gotham_bold')}</span>
+            <span className="ml-1">{trade.tokenIn.symbol}</span>
           </div>
         </div>
       ) : null}
-    </div>
-  );
-}
-
-function DetailViewV3({
-  tokenIn,
-  tokenOut,
-  from,
-  to,
-  minAmountOut,
-  fee,
-  priceImpact,
-  showDetails,
-}: {
-  tokenIn: TokenMetadata;
-  tokenOut: TokenMetadata;
-  from: string;
-  to: string;
-  minAmountOut: string;
-  fee?: number;
-  priceImpact?: string;
-  showDetails: boolean;
-}) {
-  const intl = useIntl();
-  const minAmountOutValue = useMemo(() => {
-    if (!minAmountOut) return '0';
-    else return toPrecision(minAmountOut, 8, true);
-  }, [minAmountOut]);
-  const priceImpactDisplay = useMemo(() => {
-    if (!priceImpact || !tokenIn || !from) return null;
-    return GetPriceImpact(priceImpact, tokenIn, from);
-  }, [priceImpact]);
-  const priceImpactDisplayFun = useCallback(
-    (infoStyle?: string) => {
-      if (!priceImpact || !tokenIn || !from) return null;
-      return GetPriceImpact(priceImpact, tokenIn, from, infoStyle);
-    },
-    [[priceImpact]]
-  );
-
-  const poolFeeDisplay = useMemo(() => {
-    if (!fee || !from || !tokenIn) return null;
-
-    return `${toPrecision(
-      calculateFeePercent(fee).toString(),
-      2
-    )}% / ${calculateFeeCharge(fee, from)} ${toRealSymbol(tokenIn.symbol)}`;
-  }, [to]);
-
-  if (ONLY_ZEROS.test(from) || !to || tokenIn.id === tokenOut.id) return null;
-
-  return (
-    <div>
-      <div
-        className={`border border-menuMoreBoxBorderColor rounded-xl px-2.5 py-3 mb-3 ${
-          showDetails ? '' : 'hidden'
-        }`}
-      >
-        <div className="">
-          <SwapDetail
-            title={intl.formatMessage({ id: 'price_impact' })}
-            value={
-              !to || to === '0' ? (
-                '-'
-              ) : (
-                <>
-                  {priceImpactDisplay}
-                  <span
-                    className="text-primaryText"
-                    style={{ marginLeft: '3px' }}
-                  >
-                    {tokenIn.symbol}
-                  </span>
-                </>
-              )
-            }
-          />
-        </div>
-        <SwapDetail
-          title={intl.formatMessage({ id: 'pool_fee' })}
-          value={poolFeeDisplay}
-        />
-
-        <SwapDetail
-          title={intl.formatMessage({ id: 'minimum_received' })}
-          value={<span>{toPrecision(minAmountOutValue, 6)}</span>}
-          color="text-white"
-        />
-        <RouteDCLDetail bestFee={fee} tokenIn={tokenIn} tokenOut={tokenOut} />
-      </div>
-      {Number(priceImpact) > 2 ? (
-        <div className="flex items-center xsm:flex-col justify-between border bg-bg-lightReBgColor border-warnRedColor mb-4  rounded-xl p-3 text-sm text-redwarningColor">
-          <span className="mb-0.5">
-            <FormattedMessage id="price_impact_warning"></FormattedMessage>
-          </span>
-          <div className="flex items-center">
-            <span>
-              {!to || to === '0' ? '-' : priceImpactDisplayFun('gotham_bold')}
-            </span>
-            <span className="ml-1">{tokenIn.symbol}</span>
-          </div>
-        </div>
-      ) : null}
-    </div>
+    </>
   );
 }
 
@@ -733,9 +623,7 @@ export default function SwapCard(props: {
 
   const { selectMarket, trades } = useContext(SwapProContext);
 
-  const selectTrade = trades[selectMarket];
-
-  const [displayDetailView, setDisplayDetailView] = useState<JSX.Element>();
+  const selectTrade = trades?.[selectMarket];
 
   const [urlTokenIn, urlTokenOut, urlSlippageTolerance] = decodeURIComponent(
     location.hash.slice(1)
@@ -1004,7 +892,7 @@ export default function SwapCard(props: {
   const tokenOutTotal = tokenOutBalanceFromNear || '0';
 
   function satisfyCondition1() {
-    return selectTrade.quoteDone && selectTrade.canSwap;
+    return selectTrade && selectTrade.quoteDone && selectTrade.canSwap;
   }
   function satisfyCondition2() {
     return (
@@ -1014,17 +902,29 @@ export default function SwapCard(props: {
     );
   }
 
+  function satisfyCondition3() {
+    return selectTrade && !selectTrade.swapError;
+  }
+
   function satisfyShowDetailViewCondition() {
+    const hideCondition1 = !showDetails;
+
     const hideCondition2 = !selectTrade || selectTrade?.swapError;
     const hideCondition3 = wrapOperation;
     const hideCondition4 = new Big(tokenInAmount || '0').lte('0');
     const hideCondition5 = tokenIn?.id == tokenOut?.id;
     const hideConditionFinal =
-      hideCondition2 || hideCondition3 || hideCondition4 || hideCondition5;
+      hideCondition1 ||
+      hideCondition2 ||
+      hideCondition3 ||
+      hideCondition4 ||
+      hideCondition5;
+
     return !hideConditionFinal;
   }
 
-  const canSubmit = satisfyCondition1() && satisfyCondition2();
+  const canSubmit =
+    satisfyCondition1() && satisfyCondition2() && satisfyCondition3();
 
   const canWrap = wrapButtonCheck();
 
@@ -1184,7 +1084,9 @@ export default function SwapCard(props: {
           forSwap
           isOut
           swapMode={swapMode}
-          amount={wrapOperation ? tokenInAmount : selectTrade?.tokenOutAmount}
+          amount={
+            wrapOperation ? tokenInAmount : selectTrade?.tokenOutAmount || ''
+          }
           total={tokenOutTotal}
           tokens={allTokens}
           selectedToken={tokenOut}
@@ -1204,11 +1106,67 @@ export default function SwapCard(props: {
           tokenPriceList={tokenPriceList}
           allowWNEAR={true}
         />
+        {selectTrade && !selectTrade.swapError && (
+          <div className="frcb text-white mt-4">
+            <div className="flex items-center mb-1">
+              <div
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+
+                  if (loadingPause) {
+                    setLoadingPause(false);
+                    setLoadingTrigger(true);
+                    setLoadingData(true);
+                  } else {
+                    setLoadingPause(true);
+                    setLoadingTrigger(false);
+                  }
+                }}
+                className="mr-2 cursor-pointer"
+              >
+                <CountdownTimer
+                  loadingTrigger={loadingTrigger}
+                  loadingPause={loadingPause}
+                />
+              </div>
+              <SwapRate
+                from={tokenInAmount}
+                to={selectTrade?.tokenOutAmount || ''}
+                tokenIn={tokenIn}
+                tokenOut={tokenOut}
+                fee={selectTrade?.fee || 0}
+                tokenPriceList={tokenPriceList}
+              />
+            </div>
+
+            <div
+              className="text-sm flex items-center cursor-pointer mb-1"
+              onClick={() => {
+                setShowDetails(!showDetails);
+              }}
+            >
+              {getPriceImpactTipType(selectTrade.priceImpact)}
+              <span className="text-xs text-primaryText mx-1.5">
+                <FormattedMessage id="details" />
+              </span>
+              <span>
+                {showDetails ? (
+                  <FaAngleUp color="#ffffff" size={16} />
+                ) : (
+                  <FaAngleDown color="#7E8A93" size={16} />
+                )}
+              </span>
+            </div>
+          </div>
+        )}
 
         {canShowDetailView ? (
-          <div className="mt-4">{displayDetailView}</div>
+          <div className="mt-4">
+            <DetailView trade={selectTrade} />
+          </div>
         ) : (
-          <div className="mt-4"></div>
+          <div className="mt-4" />
         )}
 
         {wrapOperation ? (

@@ -50,7 +50,7 @@ export enum SWAP_TYPE {
 
 export interface ExchangeEstimate {
   estimates?: EstimateSwapView[];
-  fee?: number | JSX.Element;
+  fee?: number;
   priceImpact?: string;
   minAmountOut?: string;
   makeSwap?: () => void;
@@ -59,6 +59,9 @@ export interface ExchangeEstimate {
   tokenOutAmount?: string;
   swapError?: Error;
   availableRoute?: boolean;
+  tokenInAmount: string;
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
 }
 
 export type SwapMarket = 'ref' | 'tri' | 'orderly' | undefined;
