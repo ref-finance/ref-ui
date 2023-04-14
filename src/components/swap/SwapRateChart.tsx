@@ -185,10 +185,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
   const CustomizedDot = (props: any) => {
     const { cx, cy, stroke, payload, value } = props;
 
-    if (
-      payload.price ===
-      priceList?.price_list?.[priceList.price_list.length - 1]?.price
-    ) {
+    if (props.index === priceList.price_list.length - 1) {
       return (
         <svg
           x={cx}
@@ -203,7 +200,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
             d="M6.45039 0.677939C6.83007 0.246948 7.37673 0 7.95111 0H35C36.1046 0 37 0.895431 37 2V14C37 15.1046 36.1046 16 35 16H7.9511C7.37672 16 6.83007 15.7531 6.45039 15.3221L1.16467 9.32206C0.498964 8.56639 0.498964 7.43361 1.16467 6.67794L6.45039 0.677939Z"
             fill="#00C6A2"
           />
-          <text x="6" y="12" fontSize={10} fill="#1D2932">
+          <text x="8" y="12" fontSize={10} fill="#1D2932">
             {displayNumberToAppropriateDecimals(payload.price)}
           </text>
         </svg>

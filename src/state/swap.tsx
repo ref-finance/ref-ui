@@ -1478,6 +1478,8 @@ export const useOrderlySwap = ({
     orders,
   } = useOrderlyContext();
 
+  const [userInfo, setUserInfo] = useState<ClientInfo>();
+
   const calculatePrice = (
     side: 'SELL' | 'BUY',
     orders: Orders,
@@ -1605,7 +1607,7 @@ export const useOrderlySwap = ({
       if (calcRes > 0) {
         setEstimate(
           scientificNotationToString(
-            scientificNotationToString(calcRes.toString())
+            percentLess(calcRes, userInfo?.taker_fee_rate || 10).toString()
           )
         );
         setOrderlyQuoteDone(true);
@@ -1615,8 +1617,6 @@ export const useOrderlySwap = ({
     }
   };
 
-  const [userInfo, setUserInfo] = useState<ClientInfo>();
-
   useEffect(() => {
     if (!side || !requestOrders) return;
     if (!tokenIn || !tokenOut) return;
@@ -1624,7 +1624,11 @@ export const useOrderlySwap = ({
     const calcRes = calculatePrice(side, requestOrders, tokenInAmount);
 
     if (calcRes > 0) {
-      setEstimate(scientificNotationToString(calcRes.toString()));
+      setEstimate(
+        scientificNotationToString(
+          percentLess(calcRes, userInfo?.taker_fee_rate || 10).toString()
+        )
+      );
       setOrderlyQuoteDone(true);
       setCanSwap(true);
     }
@@ -1685,7 +1689,7 @@ export const useOrderlySwap = ({
     market: 'orderly',
     availableRoute: systemAvailable,
     swapError: null,
-    tokenOutAmount: estimate,
+    tokenOutAmount: toPrecision(estimate, Math.min(8, tokenOut?.decimals || 8)),
   };
 };
 
@@ -1750,7 +1754,10 @@ export const useRefSwapPro = ({
         ['tri']: resAurora,
         ['orderly']: resOrderly,
       };
-      if (selectMarket === undefined) {
+      if (
+        selectMarket === undefined ||
+        trades[selectMarket].availableRoute === false
+      ) {
         const bestMarket = Object.keys(trades).reduce((a, b) =>
           new Big(trades[a].tokenOutAmount || '0').gt(
             trades[b].tokenOutAmount || '0'
