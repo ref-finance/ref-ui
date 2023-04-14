@@ -179,10 +179,18 @@ export const initDataFlow = ({ symbol }: { symbol: string }) => {
 
 const preSubScription = new Map<string, OrderlyWSConnection>();
 
-export const useOrderlyMarketData = ({ symbol }: { symbol: string }) => {
+export const useOrderlyMarketData = ({
+  symbol,
+  requestSymbol,
+}: {
+  symbol: string;
+  requestSymbol: string;
+}) => {
   const { lastJsonMessage, sendMessage, connectionStatus } = useOrderlyWS();
 
   const [orders, setOrders] = useState<Orders>();
+
+  const [requestOrders, setRequestOrders] = useState<Orders>();
 
   const [ticker, setTicker] = useState<Ticker>();
 
@@ -336,6 +344,35 @@ export const useOrderlyMarketData = ({ symbol }: { symbol: string }) => {
     }
   }, [lastJsonMessage, symbol, connectionStatus]);
 
+  useEffect(() => {
+    if (connectionStatus !== 'Open' || !requestSymbol) return;
+    const mySymbol = requestSymbol.split('|')[0];
+
+    sendMessage(
+      JSON.stringify({
+        id: `request-order-${mySymbol}`,
+        event: 'request',
+        params: {
+          symbol: mySymbol,
+          type: 'orderbook',
+        },
+      })
+    );
+  }, [requestSymbol, connectionStatus]);
+
+  useEffect(() => {
+    if (connectionStatus !== 'Open' || !requestSymbol) return;
+
+    const mySymbol = requestSymbol.split('|')[0];
+
+    if (
+      lastJsonMessage?.['id'] === `request-order-${mySymbol}` &&
+      lastJsonMessage?.['event'] === 'request'
+    ) {
+      setRequestOrders(lastJsonMessage?.['data']);
+    }
+  }, [lastJsonMessage, requestSymbol, connectionStatus]);
+
   return {
     lastJsonMessage,
     marketTrade,
@@ -344,6 +381,7 @@ export const useOrderlyMarketData = ({ symbol }: { symbol: string }) => {
     markPrices,
     allTickers,
     ordersUpdate,
+    requestOrders,
   };
 };
 

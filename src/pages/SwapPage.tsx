@@ -68,6 +68,8 @@ export interface ExchangeEstimate {
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
   market: SwapMarket;
+  maker_fee?: number;
+  taker_fee?: number;
 }
 
 export interface TradeEstimates {

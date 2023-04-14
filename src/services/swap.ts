@@ -156,7 +156,7 @@ export interface RoutePool {
 
 export interface EstimateSwapView {
   estimate: string;
-  pool: Pool;
+  pool: Pool | null;
   intl?: any;
   dy?: string;
   status?: PoolMode;

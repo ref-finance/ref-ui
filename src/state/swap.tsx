@@ -6,7 +6,13 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { getPool, Pool, StablePool, getStablePool } from '../services/pool';
+import {
+  getPool,
+  Pool,
+  StablePool,
+  getStablePool,
+  addLiquidityToPool,
+} from '../services/pool';
 import { estimateSwap as estimateStableSwap } from '../services/stable-swap';
 
 import { TokenMetadata, ftGetTokenMetadata } from '../services/ft-contract';
@@ -102,6 +108,14 @@ import {
   calcStableSwapPriceImpact,
   calculateSmartRoutesV2PriceImpact,
 } from '../utils/numbers';
+import {
+  OrderlyContext,
+  useOrderlyContext,
+} from '~pages/Orderly/orderly/OrderlyContext';
+import { useWalletSelector } from '~context/WalletSelectorContext';
+import { getAccountInformation } from '~pages/Orderly/orderly/off-chain-api';
+import { ClientInfo, Orders } from '~pages/Orderly/orderly/type';
+import { parseSymbol } from '~pages/Orderly/components/RecentTrade';
 const ONLY_ZEROS = /^0*\.?0*$/;
 
 export const REF_DCL_POOL_CACHE_KEY = 'REF_DCL_POOL_CACHE_VALUE';
@@ -358,7 +372,7 @@ export const useSwapPopUp = (stopOnCross?: boolean) => {
 };
 
 export const useCrossSwapPopUp = (bestSwap: 'v2' | 'v3') => {
-  const { txHash, pathname, errorType, txHashes } = getURLInfo();
+  const { pathname, txHashes } = getURLInfo();
   const history = useHistory();
 
   const { globalState } = useContext(WalletContext);
@@ -1438,6 +1452,243 @@ export const useRefSwap = ({
   }
 };
 
+export const useOrderlySwap = ({
+  tokenIn,
+  tokenOut,
+  tokenInAmount,
+  loadingTrigger,
+}: SwapOptions): ExchangeEstimate => {
+  const [estimate, setEstimate] = useState<string>();
+
+  const [orderlyQuoteDone, setOrderlyQuoteDone] = useState<boolean>(false);
+
+  const [reEstimate, setReEstimate] = useState<boolean>(false);
+
+  const { accountId } = useWalletSelector();
+
+  const [side, setCurSide] = useState<'SELL' | 'BUY'>();
+
+  const {
+    tokenInfo,
+    availableSymbols,
+    systemAvailable,
+    requestOrders,
+    setRequestSymbol,
+    symbol,
+    orders,
+  } = useOrderlyContext();
+
+  const calculatePrice = (
+    side: 'SELL' | 'BUY',
+    orders: Orders,
+    tokenInAmount: string | number
+  ) => {
+    const asksRaw = (side === 'BUY' ? orders?.asks : orders?.bids) || [];
+
+    const asks = asksRaw.sort((a, b) =>
+      side === 'BUY' ? a[0] - b[0] : b[0] - a[0]
+    );
+
+    if (asks.length == 0) {
+      setCanSwap(false);
+      setEstimate('');
+      setOrderlyQuoteDone(true);
+      return 0;
+    }
+
+    let totalPrice = 0;
+    let totalAmount = 0;
+
+    if (side === 'SELL') {
+      for (let i = 0; i < asks.length; i++) {
+        const [price, quantity] = asks[i];
+        if (totalAmount + quantity <= Number(tokenInAmount)) {
+          totalPrice += price * quantity;
+          totalAmount += quantity;
+        } else {
+          const remainingQuantity = Number(tokenInAmount) - totalAmount;
+          totalPrice += price * remainingQuantity;
+          totalAmount += remainingQuantity;
+          break;
+        }
+      }
+    }
+
+    if (side === 'BUY') {
+      for (let i = 0; i < asks.length; i++) {
+        const [price, quantity] = asks[i];
+        if (totalAmount + price * quantity <= Number(tokenInAmount)) {
+          totalPrice += quantity;
+          totalAmount += price * quantity;
+        } else {
+          const remainingQuantity = Number(tokenInAmount) - totalAmount;
+          totalPrice += remainingQuantity / price;
+          totalAmount += remainingQuantity;
+          break;
+        }
+      }
+    }
+
+    return totalPrice;
+  };
+
+  const getAmountByAsksAndBids = async (
+    amount: number,
+    tokenInProp: TokenMetadata,
+    tokenOutProp: TokenMetadata,
+    loadingTrigger?: boolean
+  ) => {
+    const tokenIn =
+      tokenInProp.symbol === 'NEAR'
+        ? {
+            ...tokenInProp,
+            id: 'near',
+          }
+        : tokenInProp;
+
+    const tokenOut =
+      tokenOutProp.symbol === 'NEAR'
+        ? {
+            ...tokenOutProp,
+            id: 'near',
+          }
+        : tokenOutProp;
+
+    const availableSymbolsWithTokens = availableSymbols?.map((symbol) => {
+      const { symbolFrom, symbolTo } = parseSymbol(symbol.symbol);
+
+      return {
+        ...symbol,
+        token_ids: [
+          tokenInfo?.find((token) => token.token === symbolFrom)
+            ?.token_account_id,
+          tokenInfo?.find((token) => token.token === symbolTo)
+            ?.token_account_id,
+        ],
+      };
+    });
+
+    const canSwapSymbol = availableSymbolsWithTokens?.find((symbol) => {
+      return (
+        symbol.token_ids.includes(tokenIn.id) &&
+        symbol.token_ids.includes(tokenOut.id)
+      );
+    });
+
+    const side =
+      canSwapSymbol?.token_ids[0] === tokenIn.id
+        ? 'SELL'
+        : ('BUY' as 'SELL' | 'BUY');
+
+    if (!availableSymbols || !canSwapSymbol || !canSwapSymbol?.token_ids) {
+      setCanSwap(false);
+      caches;
+      setEstimate('0');
+      setOrderlyQuoteDone(true);
+      setCurSide(side);
+
+      return;
+    }
+
+    if (canSwapSymbol.symbol !== symbol) {
+      setRequestSymbol(canSwapSymbol.symbol + '|' + loadingTrigger?.toString());
+      setReEstimate(!reEstimate);
+      setCurSide(side);
+      setCanSwap(false);
+
+      return;
+    }
+
+    if (canSwapSymbol.symbol === symbol) {
+      const calcRes = calculatePrice(side, orders, tokenInAmount);
+
+      if (calcRes > 0) {
+        setEstimate(
+          scientificNotationToString(
+            scientificNotationToString(calcRes.toString())
+          )
+        );
+        setOrderlyQuoteDone(true);
+        setCurSide(side);
+        setCanSwap(true);
+      }
+    }
+  };
+
+  const [userInfo, setUserInfo] = useState<ClientInfo>();
+
+  useEffect(() => {
+    if (!side || !requestOrders) return;
+    if (!tokenIn || !tokenOut) return;
+
+    const calcRes = calculatePrice(side, requestOrders, tokenInAmount);
+
+    if (calcRes > 0) {
+      setEstimate(scientificNotationToString(calcRes.toString()));
+      setOrderlyQuoteDone(true);
+      setCanSwap(true);
+    }
+  }, [requestOrders, side, reEstimate]);
+
+  useEffect(() => {
+    if (!accountId) return;
+
+    getAccountInformation({ accountId }).then((res) => {
+      setUserInfo(res);
+    });
+  }, [accountId]);
+
+  const history = useHistory();
+
+  const [canSwap, setCanSwap] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!tokenIn || !tokenOut) return;
+    setOrderlyQuoteDone(false);
+    setCanSwap(false);
+
+    getAmountByAsksAndBids(Number(tokenInAmount), tokenIn, tokenOut);
+  }, [
+    loadingTrigger,
+    JSON.stringify(tokenInfo || ''),
+    JSON.stringify(availableSymbols || ''),
+    tokenIn?.id,
+    tokenOut?.id,
+    tokenInAmount,
+  ]);
+
+  const makeSwap = () => {
+    history.push('/orderbook');
+  };
+
+  return {
+    maker_fee: userInfo?.maker_fee_rate || 10,
+    taker_fee: userInfo?.taker_fee_rate || 10,
+    estimates: !estimate
+      ? null
+      : [
+          {
+            contract: 'Orderly',
+            estimate: estimate,
+            tokens: [tokenIn, tokenOut],
+            outputToken: tokenOut?.id,
+            inputToken: tokenIn?.id,
+            pool: null,
+          },
+        ],
+    makeSwap,
+    quoteDone: orderlyQuoteDone,
+    canSwap,
+    tokenInAmount,
+    tokenIn,
+    tokenOut,
+    market: 'orderly',
+    availableRoute: systemAvailable,
+    swapError: null,
+    tokenOutAmount: estimate,
+  };
+};
+
 export const useRefSwapPro = ({
   tokenIn,
   tokenInAmount,
@@ -1480,11 +1731,24 @@ export const useRefSwapPro = ({
     wrapOperation,
   });
 
+  const resOrderly = useOrderlySwap({
+    tokenIn,
+    tokenInAmount,
+    tokenOut,
+    loadingTrigger,
+    slippageTolerance,
+  });
+
   useEffect(() => {
-    if (resRef.quoteDone && (!enableTri || resAurora.quoteDone)) {
+    if (
+      resRef.quoteDone &&
+      (!enableTri || resAurora.quoteDone) &&
+      resOrderly.quoteDone
+    ) {
       const trades = {
         ['ref']: resRef,
         ['tri']: resAurora,
+        ['orderly']: resOrderly,
       };
       if (selectMarket === undefined) {
         const bestMarket = Object.keys(trades).reduce((a, b) =>
@@ -1496,9 +1760,9 @@ export const useRefSwapPro = ({
         );
         setSelectMarket(bestMarket as SwapMarket);
       }
-      console.log('trades: ', trades);
 
       setTrades(trades);
+      console.log('trades: ', trades);
     }
-  }, [resRef.quoteDone, enableTri, resAurora.quoteDone]);
+  }, [resRef.quoteDone, enableTri, resAurora.quoteDone, resOrderly.quoteDone]);
 };

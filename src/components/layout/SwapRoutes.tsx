@@ -1510,7 +1510,7 @@ export const TradeRouteHub = ({
   return (
     <div className="frcs relative z-10 text-primaryText text-xs rounded-md px-1.5 py-1 border border-swapCardBorder bg-swapCardGradient">
       <DisplayIcon token={token} height="14px" width="14px" />
-      <span className="ml-1.5 mr-4">{toRealSymbol(token.symbol)}</span>
+      <span className="ml-1.5 w-10 mr-4">{toRealSymbol(token.symbol)}</span>
 
       <div
         className="w-full frcs p-1 rounded-md"
