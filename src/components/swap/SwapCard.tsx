@@ -987,7 +987,8 @@ export default function SwapCard(props: {
   }
 
   const canSubmit =
-    satisfyCondition1() && satisfyCondition2() && satisfyCondition3();
+    selectMarket === 'orderly' ||
+    (satisfyCondition1() && satisfyCondition2() && satisfyCondition3());
 
   const canWrap = wrapButtonCheck();
 

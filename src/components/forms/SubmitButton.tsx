@@ -2,6 +2,8 @@ import React, { useContext } from 'react';
 import { Near } from '../icon';
 import { REF_FARM_CONTRACT_ID, wallet } from '../../services/near';
 import { FormattedMessage } from 'react-intl';
+
+import { BsArrowRight } from '@react-icons/all-files/bs/BsArrowRight';
 import {
   GradientButton,
   ConnectToNearBtn,
@@ -92,6 +94,47 @@ function SubmitButton({
     </>
   );
 }
+
+export function GoOrderBookButton({
+  label,
+  className,
+  signedInConfig,
+}: SubmitButtonProps) {
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
+  const isSignedIn = !!accountId;
+
+  return (
+    <>
+      {isSignedIn || signedInConfig ? (
+        <button
+          type={'submit'}
+          className={`flex flex-row w-full items-center text-white justify-center px-5 py-2   mx-auto   ${className} bg-buttonGradientBgOpacity  `}
+          style={{
+            borderRadius: '5px',
+          }}
+        >
+          <h1 className="text-base font-inter frcc gotham_bold text-white">
+            <span className="mr-1">
+              <FormattedMessage
+                id="go_to_orderbook"
+                defaultMessage={'Go to Orderbook'}
+              ></FormattedMessage>
+            </span>
+            <span>
+              <BsArrowRight size={20} strokeWidth={1} />
+            </span>
+          </h1>
+        </button>
+      ) : (
+        <div className={`mt-4 w-full ${className}`}>
+          <ConnectToNearBtnSwap />
+        </div>
+      )}
+    </>
+  );
+}
+
 export function InsufficientButton(props: any) {
   const { divClassName, spanClassName } = props;
   return (

@@ -1,11 +1,14 @@
 import React, { useEffect, useState, useContext } from 'react';
 import Alert from '../alert/Alert';
-import SubmitButton, { InsufficientButton } from './SubmitButton';
+import SubmitButton, {
+  InsufficientButton,
+  GoOrderBookButton,
+} from './SubmitButton';
 import { FormattedMessage, useIntl } from 'react-intl';
 import SlippageSelector from './SlippageSelector';
 
 import { WalletContext } from '../../utils/wallets-integration';
-import { SWAP_MODE } from '../../pages/SwapPage';
+import { SWAP_MODE, SwapProContext } from '../../pages/SwapPage';
 import { useMyOrders } from '../../state/swapV3';
 import { useHistory } from 'react-router-dom';
 import { OrderIcon } from '../icon/V3';
@@ -77,6 +80,8 @@ export default function SwapFormWrap({
   const [viewPoolHover, setViewPoolHover] = useState(false);
 
   const history = useHistory();
+
+  const { selectMarket } = useContext(SwapProContext);
 
   const OrderButton = swapMode === SWAP_MODE.LIMIT && activeOrder && (
     <button
@@ -195,24 +200,35 @@ export default function SwapFormWrap({
                 swapMode === SWAP_MODE.LIMIT ? 'mt-6' : ''
               }  `}
             >
-              <SubmitButton
-                disabled={
-                  !canSubmit ||
-                  (swapMode === SWAP_MODE.LIMIT
-                    ? !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
-                    : showSwapLoading)
-                }
-                label={buttonText || title}
-                info={info}
-                className={`h-12 ${
-                  swapMode == SWAP_MODE.NORMAL ? '-mt-0' : ''
-                }`}
-                loading={
-                  swapMode !== SWAP_MODE.LIMIT
-                    ? showSwapLoading
-                    : !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
-                }
-              />
+              {' '}
+              {selectMarket === 'orderly' && swapMode === SWAP_MODE.NORMAL ? (
+                <GoOrderBookButton
+                  disabled={!canSubmit || showSwapLoading}
+                  label={buttonText || title}
+                  info={info}
+                  className={`h-12 ${'-mt-0'}`}
+                  loading={showSwapLoading}
+                />
+              ) : (
+                <SubmitButton
+                  disabled={
+                    !canSubmit ||
+                    (swapMode === SWAP_MODE.LIMIT
+                      ? !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
+                      : showSwapLoading)
+                  }
+                  label={buttonText || title}
+                  info={info}
+                  className={`h-12 ${
+                    swapMode == SWAP_MODE.NORMAL ? '-mt-0' : ''
+                  }`}
+                  loading={
+                    swapMode !== SWAP_MODE.LIMIT
+                      ? showSwapLoading
+                      : !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
+                  }
+                />
+              )}
             </div>
           ) : (
             <InsufficientButton divClassName="h-12 mt-6 w-full"></InsufficientButton>

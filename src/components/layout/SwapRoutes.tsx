@@ -1659,8 +1659,6 @@ export const MarketList = ({
   allTrades: TradeEstimates;
   selectMarket: SwapMarket;
 }) => {
-  // sort allTrades by tokenOutAmount, and add diff attribute to every trade
-
   const { setSelectMarket } = useContext(SwapProContext);
 
   const sortedTradesList = Object.values(allTrades)

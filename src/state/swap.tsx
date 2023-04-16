@@ -1507,6 +1507,8 @@ export const useOrderlySwap = ({
 
   const [userInfo, setUserInfo] = useState<ClientInfo>();
 
+  const [pairExist, setPairExist] = useState<boolean>(true);
+
   const calculatePrice = (
     side: 'SELL' | 'BUY',
     orders: Orders,
@@ -1610,6 +1612,7 @@ export const useOrderlySwap = ({
       setEstimate('0');
       setOrderlyQuoteDone(true);
       setCurSide(side);
+      setPairExist(false);
 
       return;
     }
@@ -1619,7 +1622,6 @@ export const useOrderlySwap = ({
       setReEstimate(!reEstimate);
       setCurSide(side);
       setCanSwap(false);
-
       return;
     }
 
@@ -1639,6 +1641,7 @@ export const useOrderlySwap = ({
         setOrderlyQuoteDone(true);
         setCurSide(side);
         setCanSwap(true);
+        setPairExist(true);
       }
     }
   };
@@ -1661,6 +1664,7 @@ export const useOrderlySwap = ({
       );
       setOrderlyQuoteDone(true);
       setCanSwap(true);
+      setPairExist(true);
     }
   }, [requestOrders, side, reEstimate]);
 
@@ -1717,7 +1721,7 @@ export const useOrderlySwap = ({
     tokenIn,
     tokenOut,
     market: 'orderly',
-    availableRoute: systemAvailable,
+    availableRoute: systemAvailable && pairExist,
     swapError: null,
     tokenOutAmount: toPrecision(estimate, Math.min(8, tokenOut?.decimals || 8)),
     exchange_name: <div className="text-white">Orderbook</div>,
