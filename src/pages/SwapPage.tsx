@@ -24,6 +24,7 @@ import LimitOrderCard from '~components/swap/LimitOrderCard';
 import SwapRateChart from '~components/swap/SwapRateChart';
 import { EstimateSwapView } from '../services/swap';
 import { TradeRoute } from '~components/layout/SwapRoutes';
+import { MarketList } from '../components/layout/SwapRoutes';
 
 export const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';
 
@@ -70,6 +71,7 @@ export interface ExchangeEstimate {
   market: SwapMarket;
   maker_fee?: number;
   taker_fee?: number;
+  exchange_name?: JSX.Element;
 }
 
 export interface TradeEstimates {
@@ -304,6 +306,14 @@ function SwapPage() {
 
             {trades?.[selectMarket] && (
               <TradeRoute trade={trades[selectMarket]} />
+            )}
+
+            {trades && trades?.[selectMarket] && (
+              <MarketList
+                trade={trades[selectMarket]}
+                allTrades={trades}
+                selectMarket={selectMarket}
+              />
             )}
           </div>
         )}

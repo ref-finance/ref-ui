@@ -95,6 +95,58 @@ export interface HistoryOrderSwapInfo {
   timestamp: string;
 }
 
+interface TokenFlow {
+  token_pair: string;
+  grade: string;
+  pool_ids: string;
+  token_in: string;
+  revolve_token_one: string;
+  revolve_token_two: string;
+  token_out: string;
+  token_in_symbol: string;
+  revolve_token_one_symbol: string;
+  revolve_token_two_symbol: string;
+  token_out_symbol: string;
+  token_in_amount: string;
+  token_out_amount: string;
+  revolve_one_out_amount: string;
+  revolve_one_in_amount: string;
+  revolve_two_out_amount: string;
+  revolve_two_in_amount: string;
+  token_pair_ratio: string;
+  revolve_token_one_ratio: string;
+  revolve_token_two_ratio: string;
+  final_ratio: string;
+  pool_fee: number;
+  revolve_one_pool_fee: number;
+  revolve_two_pool_fee: number;
+  amount: number;
+  swap_amount: string;
+  timestamp: number;
+}
+
+export const getTokenFlow = async ({
+  tokenInAmount,
+  tokenInId,
+  tokenOutId,
+}: {
+  tokenInId: string;
+  tokenOutId: string;
+  tokenInAmount: string;
+}): Promise<TokenFlow> => {
+  const token_pair: string = tokenInId + '->' + tokenOutId;
+
+  const swap_amount: string = tokenInAmount;
+
+  return await fetch(
+    config.indexerUrl +
+      `/get-token-flow?token_pair=${token_pair}&swap_amount=${swap_amount}`,
+    {
+      method: 'GET',
+    }
+  ).then((res) => res.json());
+};
+
 export const getHistoryOrderSwapInfo = async (
   account_id: string
 ): Promise<HistoryOrderSwapInfo[]> => {

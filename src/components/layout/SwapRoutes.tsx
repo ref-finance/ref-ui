@@ -19,6 +19,8 @@ import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import { Card } from '../card/Card';
 import { ArrowDownWhite } from '../icon/Arrows';
 import {
+  FlashAction,
+  OrderlyActions,
   OrderlyOrderBookIcon,
   RefIconNew,
   RefSwapPro,
@@ -52,11 +54,13 @@ import { getAuroraConfig } from '../../services/aurora/config';
 import { isMobile, useClientMobile } from '../../utils/device';
 import { getV3PoolId } from '../../services/swapV3';
 import { nearMetadata, WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
-import { SwapContractType, SwapMarket } from '~pages/SwapPage';
-import { ExchangeEstimate } from '../../pages/SwapPage';
+import { SwapContractType, SwapMarket, SwapProContext } from '~pages/SwapPage';
+import { ExchangeEstimate, TradeEstimates } from '../../pages/SwapPage';
 import { DisplayIcon } from '~components/tokens/Icon';
 import Modal from 'react-modal';
 import { ModalWrapper } from '../../pages/ReferendumPage';
+import { displayNumberToAppropriateDecimals } from '~services/commonV3';
+import { numberWithCommas } from '../../pages/Orderly/utiles';
 
 export const RouterIcon = () => {
   return (
@@ -638,6 +642,14 @@ export const getDexIcon = (market: SwapMarket) => {
   if (market === 'orderly')
     return <OrderlyOrderBookIcon></OrderlyOrderBookIcon>;
   if (market === 'tri') return <TriAndAurora></TriAndAurora>;
+};
+
+export const getDexAction = (market: SwapMarket) => {
+  if (market === 'ref') return <FlashAction></FlashAction>;
+
+  if (market === 'orderly') return <OrderlyActions></OrderlyActions>;
+
+  if (market === 'tri') return <FlashAction></FlashAction>;
 };
 
 export const SwapRoute = ({
@@ -1508,16 +1520,20 @@ export const TradeRouteHub = ({
   };
 
   return (
-    <div className="frcs relative z-10 text-primaryText text-xs rounded-md px-1.5 py-1 border border-swapCardBorder bg-swapCardGradient">
-      <DisplayIcon token={token} height="14px" width="14px" />
-      <span className="ml-1.5 w-10 mr-4">{toRealSymbol(token.symbol)}</span>
+    <div
+      className="flex flex-col justify-center  relative z-10 text-primaryText text-xs rounded-md px-2.5 py-1 border border-swapCardBorder bg-swapCardGradient"
+      style={{
+        height: '60px',
+      }}
+    >
+      <div className="border-b pb-1 frcs border-primaryText border-opacity-30">
+        <DisplayIcon token={token} height="14px" width="14px" />
+        <span className="ml-1 text-white text-xs w-10 mr-4">
+          {toRealSymbol(token.symbol)}
+        </span>
+      </div>
 
-      <div
-        className="w-full frcs p-1 rounded-md"
-        style={{
-          background: '#2F3E48',
-        }}
-      >
+      <div className="w-full frcs pt-1 relative top-0.5 rounded-md">
         <div
           style={{
             height: '13px',
@@ -1528,7 +1544,7 @@ export const TradeRouteHub = ({
           {getDexIcon(contractToMarket())}
         </div>
 
-        <span className="ml-1.5 mr-2.5">{contract}</span>
+        <span className="ml-1 mr-2.5">{contract}</span>
 
         <span>100%</span>
       </div>
@@ -1541,7 +1557,7 @@ export const RightBracket = ({ size }: { size: number }) => {
     <div
       className="w-4 mr-3 opacity-30 rounded-full relative z-10 border border-primaryText "
       style={{
-        height: `${size * 28}px`,
+        height: `${size * 35}px`,
         clipPath: `polygon(50% 0, 100% 0,100% 100%, 50%  100%)`,
       }}
     ></div>
@@ -1553,7 +1569,7 @@ export const LeftBracket = ({ size }: { size: number }) => {
     <div
       className="w-4 ml-3 opacity-30 rounded-full relative z-10 border border-primaryText  transform rotate-180"
       style={{
-        height: `${size * 28}px`,
+        height: `${size * 35}px`,
         clipPath: `polygon(50% 0, 100% 0,100% 100%, 50%  100%)`,
       }}
     ></div>
@@ -1575,13 +1591,13 @@ export const TradeRoute = ({ trade }: { trade: ExchangeEstimate }) => {
   }, [identicalRoutes, pools]);
 
   return (
-    <div className="frcb ">
+    <div className="frcb">
       <DisplayIcon token={tokenIn} height="26px" width="26px" />
       <LeftBracket size={identicalRoutes.length} />
-      <div className="w-full mx-3 relative">
+      <div className="w-full mx-2 relative">
         {identicalRoutes.map((route, i) => {
           return (
-            <div className="relative frcb my-1 h-8">
+            <div className="relative frcb my-3 ">
               <span className="text-xs text-senderHot">{percents[i]}%</span>
               <div
                 className="border border-dashed absolute left-5 opacity-30 border-primaryText w-full px-3"
@@ -1590,7 +1606,7 @@ export const TradeRoute = ({ trade }: { trade: ExchangeEstimate }) => {
                 }}
               ></div>
               {route[0].tokens
-                .slice(1, route[0].tokens.length - 1)
+                .slice(0, route[0].tokens.length - 1)
                 .map((t, i) => {
                   return (
                     <>
@@ -1631,5 +1647,193 @@ export const TradeRouteModal = (
         <TradeRoute trade={props.trade} />
       </div>
     </ModalWrapper>
+  );
+};
+
+export const MarketList = ({
+  trade,
+  allTrades,
+  selectMarket,
+}: {
+  trade: ExchangeEstimate;
+  allTrades: TradeEstimates;
+  selectMarket: SwapMarket;
+}) => {
+  // sort allTrades by tokenOutAmount, and add diff attribute to every trade
+
+  const { setSelectMarket } = useContext(SwapProContext);
+
+  const sortedTradesList = Object.values(allTrades)
+    .filter((t) => !!t.availableRoute)
+    .sort((a, b) => {
+      return new Big(a.tokenOutAmount || '0').gt(
+        new Big(b.tokenOutAmount || '0')
+      )
+        ? -1
+        : 1;
+    });
+
+  const bestAmount = sortedTradesList[0].tokenOutAmount;
+
+  const displayList = sortedTradesList.map((t) => {
+    const rawRate = scientificNotationToString(
+      new Big(t.tokenOutAmount || '0').div(t.tokenInAmount || '1').toString()
+    );
+    return {
+      ...t,
+      marketIcon: getDexIcon(t.market),
+      diff:
+        t.tokenOutAmount === bestAmount
+          ? 'best'
+          : new Big(t.tokenOutAmount || '0')
+              .div(bestAmount || '1')
+              .minus(1)
+              .times(100)
+              .toFixed(2),
+      rate: displayNumberToAppropriateDecimals(rawRate),
+      selected: selectMarket === t.market,
+      output: numberWithCommas(
+        displayNumberToAppropriateDecimals(t.tokenOutAmount)
+      ),
+      action: getDexAction(t.market),
+    };
+  });
+
+  return (
+    <>
+      <div className="pb-4 max-w-max mt-6 flex flex-col">
+        <span className="pb-1.5 text-white">
+          <FormattedMessage
+            id="markets"
+            defaultMessage={'Markets'}
+          ></FormattedMessage>
+        </span>
+
+        <div
+          className="w-full rounded-md bg-senderHot"
+          style={{
+            height: '3px',
+          }}
+        ></div>
+      </div>
+      <table
+        className="w-full table relative right-3 border-separate"
+        style={{
+          borderSpacing: 0,
+        }}
+      >
+        <tr
+          className="text-primaryText"
+          style={{
+            fontSize: '13px',
+          }}
+        >
+          <th align="left" className="pb-2 pl-3">
+            <FormattedMessage id="exchanges" defaultMessage={'Exchanges'} />
+          </th>
+
+          <th align="left">
+            {<FormattedMessage id="price" defaultMessage={'Price'} />}
+            <span className="ml-1">
+              {`(${toRealSymbol(trade.tokenOut.symbol)}/${toRealSymbol(
+                trade.tokenIn.symbol
+              )})`}
+            </span>
+          </th>
+
+          <th align="left">
+            <FormattedMessage id="output_est" defaultMessage={'Output(est.)'} />
+          </th>
+
+          <th align="left">
+            <FormattedMessage id="diff" defaultMessage={'Diff'} />
+          </th>
+
+          <th align="left">
+            <FormattedMessage id="actions" defaultMessage={'Actions'} />
+          </th>
+
+          <th align="left"></th>
+        </tr>
+        {displayList.map((t) => {
+          return (
+            <>
+              <tr
+                className={`text-white rounded-xl text-sm p-2 
+              hover:bg-inputV3BorderColor hover:bg-opacity-40
+              ${t.selected ? 'bg-inputV3BorderColor bg-opacity-40' : ''}
+            
+            `}
+                onClick={() => {
+                  setSelectMarket(t.market);
+                }}
+              >
+                <td className="rounded-l-xl">
+                  <div className="frcs pl-3">
+                    <div
+                      className="frcc "
+                      style={{
+                        height: '25px',
+                        width: '25px',
+                      }}
+                    >
+                      {t.marketIcon}
+                    </div>
+
+                    <div className="ml-2 frcc">{t?.exchange_name}</div>
+                  </div>
+                </td>
+
+                <td>{t.rate}</td>
+
+                <td>{t.output}</td>
+
+                <td>
+                  {t.diff === 'best' ? (
+                    <span className="text-black text-xs my-2 max-w-max rounded-2xl bg-senderHot px-2.5 py-0.5 frcc ">
+                      <FormattedMessage
+                        id="best"
+                        defaultMessage={'Best'}
+                      ></FormattedMessage>
+                    </span>
+                  ) : (
+                    <span className="bg-sellRed my-2  text-xs max-w-max bg-opacity-10 text-sellRed rounded-2xl px-2.5 py-0.5 frcc">
+                      {t.diff}%
+                    </span>
+                  )}
+                </td>
+
+                <td>{t.action}</td>
+
+                <td className="rounded-r-xl">
+                  <div
+                    className="w-4  h-4 rounded-full  frcc"
+                    style={{
+                      border: '1px solid #223846',
+                    }}
+                  >
+                    {t.selected && (
+                      <div
+                        className="rounded-full bg-senderHot"
+                        style={{
+                          height: '9px',
+                          width: '9px',
+                        }}
+                      ></div>
+                    )}
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td>
+                  <div className="my-1"></div>
+                </td>
+              </tr>
+            </>
+          );
+        })}
+      </table>
+    </>
   );
 };

@@ -1247,7 +1247,9 @@ export const useCrossSwap = ({
 
   return {
     canSwap,
-    tokenOutAmount,
+    tokenOutAmount: !!tokenOutAmount
+      ? toPrecision(tokenOutAmount || '0', Math.min(tokenOut.decimals, 8))
+      : '',
     minAmountOut,
     priceImpact,
     swapError,
@@ -1259,6 +1261,29 @@ export const useCrossSwap = ({
     tokenIn,
     tokenOut,
     market: 'tri',
+    exchange_name: (
+      <div className="text-white flex flex-col items-start">
+        <span
+          style={{
+            position: 'relative',
+            top: '3px',
+          }}
+        >
+          Trisolaris
+        </span>
+
+        <span
+          style={{
+            fontSize: '13px',
+            position: 'relative',
+            bottom: '3px',
+          }}
+          className="text-primaryText"
+        >
+          Aurora
+        </span>
+      </div>
+    ),
   };
 };
 
@@ -1426,6 +1451,7 @@ export const useRefSwap = ({
       tokenIn,
       tokenOut,
       market: 'ref',
+      exchange_name: <div className="text-white">Ref</div>,
     };
   }
   if (bestSwap === 'v2') {
@@ -1448,6 +1474,7 @@ export const useRefSwap = ({
       tokenIn,
       tokenOut,
       market: 'ref',
+      exchange_name: <div className="text-white">Ref</div>,
     };
   }
 };
@@ -1485,11 +1512,7 @@ export const useOrderlySwap = ({
     orders: Orders,
     tokenInAmount: string | number
   ) => {
-    const asksRaw = (side === 'BUY' ? orders?.asks : orders?.bids) || [];
-
-    const asks = asksRaw.sort((a, b) =>
-      side === 'BUY' ? a[0] - b[0] : b[0] - a[0]
-    );
+    const asks = (side === 'BUY' ? orders?.asks : orders?.bids) || [];
 
     if (asks.length == 0) {
       setCanSwap(false);
@@ -1510,6 +1533,7 @@ export const useOrderlySwap = ({
         } else {
           const remainingQuantity = Number(tokenInAmount) - totalAmount;
           totalPrice += price * remainingQuantity;
+          console.log('totalPrice: ', totalPrice);
           totalAmount += remainingQuantity;
           break;
         }
@@ -1577,14 +1601,12 @@ export const useOrderlySwap = ({
       );
     });
 
-    const side =
-      canSwapSymbol?.token_ids[0] === tokenIn.id
-        ? 'SELL'
-        : ('BUY' as 'SELL' | 'BUY');
+    const side = (
+      canSwapSymbol?.token_ids[0] === tokenIn.id ? 'SELL' : 'BUY'
+    ) as 'SELL' | 'BUY';
 
     if (!availableSymbols || !canSwapSymbol || !canSwapSymbol?.token_ids) {
       setCanSwap(false);
-      caches;
       setEstimate('0');
       setOrderlyQuoteDone(true);
       setCurSide(side);
@@ -1592,7 +1614,7 @@ export const useOrderlySwap = ({
       return;
     }
 
-    if (canSwapSymbol.symbol !== symbol) {
+    if (canSwapSymbol.symbol !== symbol || !orders) {
       setRequestSymbol(canSwapSymbol.symbol + '|' + loadingTrigger?.toString());
       setReEstimate(!reEstimate);
       setCurSide(side);
@@ -1607,7 +1629,11 @@ export const useOrderlySwap = ({
       if (calcRes > 0) {
         setEstimate(
           scientificNotationToString(
-            percentLess(calcRes, userInfo?.taker_fee_rate || 10).toString()
+            percentLess(
+              (userInfo?.taker_fee_rate || 10) / 100,
+
+              calcRes
+            ).toString()
           )
         );
         setOrderlyQuoteDone(true);
@@ -1626,7 +1652,11 @@ export const useOrderlySwap = ({
     if (calcRes > 0) {
       setEstimate(
         scientificNotationToString(
-          percentLess(calcRes, userInfo?.taker_fee_rate || 10).toString()
+          percentLess(
+            (userInfo?.taker_fee_rate || 10) / 100,
+
+            calcRes
+          ).toString()
         )
       );
       setOrderlyQuoteDone(true);
@@ -1690,6 +1720,7 @@ export const useOrderlySwap = ({
     availableRoute: systemAvailable,
     swapError: null,
     tokenOutAmount: toPrecision(estimate, Math.min(8, tokenOut?.decimals || 8)),
+    exchange_name: <div className="text-white">Orderbook</div>,
   };
 };
 

@@ -89,6 +89,7 @@ import * as math from 'mathjs';
 import { NEAR_WITHDRAW_KEY } from '../forms/WrapNear';
 import { useWalletSelector } from '~context/WalletSelectorContext';
 import { CountdownTimer } from '~components/icon';
+import { TextWrapper } from '~pages/Orderly/components/UserBoard';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -509,6 +510,65 @@ function DetailView({ trade }: { trade: ExchangeEstimate }) {
   }, [trade]);
 
   if (!trade) return null;
+
+  if (trade.market === 'orderly') {
+    return (
+      <>
+        <div className="border border-menuMoreBoxBorderColor rounded-xl px-2.5 py-3 mb-3  frcb">
+          <span className="text-primaryText text-xs">
+            {intl.formatMessage({
+              id: 'Fees',
+              defaultMessage: 'Fees',
+            })}
+          </span>
+
+          <div className="frcs">
+            <span className="flex items-center mr-1.5">
+              <span className=" mr-2 text-xs text-white">
+                {Number((trade.taker_fee || 0) / 100).toFixed(2)}%
+              </span>
+              <TextWrapper
+                textC="text-primaryText "
+                className="text-xs py-0 px-1"
+                value={intl.formatMessage({
+                  id: 'Taker',
+                  defaultMessage: 'Taker',
+                })}
+              />
+            </span>
+
+            <span className="flex items-center">
+              <span className=" text-xs mr-2 text-white">
+                {Number((trade?.maker_fee || 0) / 100).toFixed(2)}%
+              </span>
+              <TextWrapper
+                textC="text-primaryText"
+                value={intl.formatMessage({
+                  id: 'Maker',
+                  defaultMessage: 'Maker',
+                })}
+                className="text-xs py-0 px-1"
+              />
+            </span>
+          </div>
+        </div>
+        <div
+          style={{
+            fontSize: '15px',
+          }}
+          className="text-white mb-2 text-center"
+        >
+          <FormattedMessage
+            id="your_trade_will_goes_to"
+            defaultMessage={'Your trade route will goes to '}
+          />
+          <span className="font-gothamBold">
+            <FormattedMessage id="orderbook" defaultMessage={'orderbook'} />.
+          </span>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
