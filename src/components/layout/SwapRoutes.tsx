@@ -50,7 +50,7 @@ import { getAuroraConfig } from '../../services/aurora/config';
 import { isMobile, useClientMobile } from '../../utils/device';
 import { getV3PoolId } from '../../services/swapV3';
 import { nearMetadata, WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
-import { get_pool_name } from '~services/commonV3';
+import { get_pool_name } from '../../services/commonV3';
 
 export const RouterIcon = () => {
   return (

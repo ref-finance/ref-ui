@@ -3,7 +3,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/swiper.min.css';
 import SwiperCore, { Autoplay } from 'swiper';
 import { isMobile } from '../../utils/device';
-import { SwiperCloseButton } from '~components/icon/Common';
+import { SwiperCloseButton } from '../../components/icon/Common';
 
 SwiperCore.use([Autoplay]);
 
