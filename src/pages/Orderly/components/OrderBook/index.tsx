@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import RecentTrade from '../RecentTrade';
 
@@ -254,7 +254,6 @@ function OrderLine({
       <div
         className="absolute left-0 top-1 z-40"
         style={{
-          // zIndex: Math.max(200, asks.length - 40 + 1) + i,
           zIndex,
         }}
       >
@@ -370,6 +369,30 @@ function OrderBook({ maintenance }: { maintenance: boolean }) {
       setLoading(false);
     }
   }, [!!orders, availableSymbols, maintenance]);
+
+  // find median between recentTrades?.at(0)?.executed_price || 0 and asks[0][0] and bids[0][0]
+
+  // const [preMedian, setPreMedian] = useState<number>();
+
+  // const [curMedian, setCurMedian] = useState<number>();
+
+  // const newMedian = useMemo(() => {
+  //   const recentTradePrice = recentTrades?.at(0)?.executed_price || 0;
+  //   const askPrice = asks?.[0]?.[0] || 0;
+  //   const bidPrice = bids?.[0]?.[0] || 0;
+  //   const median = [recentTradePrice, askPrice, bidPrice].sort()[1];
+  //   return median;
+  // }, [asks, bids, recentTrades]);
+
+  // useEffect(() => {
+  //   if (newMedian === 0) return;
+  //   setPreMedian(curMedian);
+  //   setCurMedian(newMedian);
+  // }, [newMedian]);
+
+  // const displayMedian = numberWithCommas(curMedian || 0);
+
+  // const diff = preMedian === undefined ? 0 : curMedian - preMedian || 0;
 
   const marketTradeDisplay = numberWithCommas(
     recentTrades?.at(0)?.executed_price || 0
@@ -585,6 +608,11 @@ function OrderBook({ maintenance }: { maintenance: boolean }) {
                   : 'text-primaryText'
               } text-lg`}
             >
+              {/* {orders &&
+                recentTrades?.length > 0 &&
+                curMedian !== undefined &&
+                displayMedian} */}
+
               {orders && recentTrades?.length > 0 && marketTradeDisplay}
 
               {orders && recentTrades?.length > 0 && diff !== 0 && (

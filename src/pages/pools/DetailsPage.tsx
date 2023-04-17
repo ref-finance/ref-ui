@@ -205,7 +205,7 @@ export function getPoolFee24h(dayVolume: string, pool: Pool) {
   if (dayVolume) {
     const { fee } = pool;
 
-    const revenu24h = (fee / 10000) * 0.5 * Number(dayVolume) * 0.8;
+    const revenu24h = (fee / 10000) * Number(dayVolume) * 0.8;
 
     result = revenu24h;
   }

@@ -467,12 +467,12 @@ export const getAllTvl = async () => {
 };
 
 export const getAllVolume24h = async () => {
-  return await fetch(config.sodakiApiUrl + '/volume24h?period=1', {
+  return await fetch(config.sodakiApiUrl + '/24h-volume-variation', {
     method: 'GET',
   })
     .then((res) => res.json())
     .then((res) => {
-      return res?.[0]?.volume;
+      return res?.lastVolumeUSD;
     });
 };
 

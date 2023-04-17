@@ -47,6 +47,8 @@ import {
   pause_old_dcl_claim_tip,
   get_all_seeds,
   displayNumberToAppropriateDecimals,
+  get_pool_id,
+  get_pool_name,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import {
@@ -93,9 +95,26 @@ export default function YourLiquidityDetail(props: any) {
   // callBack handle
   useAddAndRemoveUrlHandle();
   const { id, status } = props.match.params || {};
+  let is_old_dcl: boolean;
+  let tokenXId, tokenYId, feeV, lId;
   const paramsId = id || '';
-  const is_old_dcl = status == '1';
-  const [tokenXId, tokenYId, feeV, lId] = paramsId.split('@');
+  if (paramsId.indexOf('<>') > -1) {
+    // new link
+    try {
+      const layer1 = paramsId.split('@');
+      const pool_id = get_pool_id(`${layer1[0]}@${layer1[1]}`);
+      const layer3 = pool_id.split('|');
+      tokenXId = layer3[0];
+      tokenYId = layer3[1];
+      feeV = layer3[2];
+      lId = layer1[2];
+      is_old_dcl = status == '1';
+    } catch (error) {}
+  } else {
+    // old link
+    is_old_dcl = status == '1';
+    [tokenXId, tokenYId, feeV, lId] = paramsId.split('@');
+  }
   const hashId = lId;
   const poolId = `${tokenXId}|${tokenYId}|${feeV}`;
   const [token_x, token_y, fee] = poolId.split('|');
@@ -490,7 +509,9 @@ export default function YourLiquidityDetail(props: any) {
   function go_farm() {
     const [fixRange, pool_id, left_point, right_point] =
       userLiquidity.mft_id.split('&');
-    const link_params = `${pool_id}&${left_point}&${right_point}`;
+    const link_params = `${get_pool_name(
+      pool_id
+    )}[${left_point}-${right_point}]`;
     const actives = related_farms.filter((farm: FarmBoost) => {
       return farm.status != 'Ended';
     });
@@ -503,7 +524,8 @@ export default function YourLiquidityDetail(props: any) {
     window.open(url);
   }
   const goPoolPage = () => {
-    window.open(`/poolV2/${poolId}`);
+    const params_str = get_pool_name(poolId);
+    window.open(`/poolV2/${params_str}`);
   };
   const {
     Icon: Liquidity_icon,

@@ -140,6 +140,7 @@ import {
   getLatestStartTime,
   isPending,
   sort_tokens_by_base,
+  get_pool_name,
 } from '../../services/commonV3';
 
 import { AiFillStar } from 'react-icons/ai';
@@ -168,7 +169,7 @@ export function getPoolFeeApr(
 
     const revenu24h = (fee / 10000) * 0.8 * Number(dayVolume);
     if (newTvl > 0 && revenu24h > 0) {
-      const annualisedFeesPrct = ((revenu24h * 365) / newTvl / 2) * 100;
+      const annualisedFeesPrct = ((revenu24h * 365) / newTvl) * 100;
       result = toPrecision(
         scientificNotationToString(annualisedFeesPrct.toString()),
         2
@@ -190,7 +191,7 @@ export function getPoolFeeAprTitle(
 
     const revenu24h = (fee / 10000) * 0.8 * Number(dayVolume);
     if (newTvl > 0 && revenu24h > 0) {
-      const annualisedFeesPrct = ((revenu24h * 365) / newTvl / 2) * 100;
+      const annualisedFeesPrct = ((revenu24h * 365) / newTvl) * 100;
       result = annualisedFeesPrct.toString();
     }
   }
@@ -531,7 +532,7 @@ function MobilePoolRowV2({
     } else return '/';
   };
   function goDetailV2() {
-    const url_pool_id = pool.pool_id.replace(/\|/g, '@');
+    const url_pool_id = get_pool_name(pool.pool_id);
     history.push(`/poolV2/${url_pool_id}`);
   }
   function geth24volume() {
@@ -1740,7 +1741,7 @@ function PoolRowV2({
   if (!curRowTokens) return <></>;
   tokens = sort_tokens_by_base(tokens);
   function goDetailV2() {
-    const url_pool_id = pool.pool_id.replace(/\|/g, '@');
+    const url_pool_id = get_pool_name(pool.pool_id);
     history.push(`/poolV2/${url_pool_id}`);
   }
   function geth24volume() {

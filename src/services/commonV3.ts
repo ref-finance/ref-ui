@@ -27,6 +27,7 @@ import {
   CrossIconFull,
 } from '../components/icon/FarmBoost';
 import { useIntl } from 'react-intl';
+import { getTokens } from './tokens_static';
 const { REF_UNI_V3_SWAP_CONTRACT_ID, boostBlackList } = getConfig();
 
 /**
@@ -155,12 +156,14 @@ export function useAddAndRemoveUrlHandle() {
           const { lpt_id } = parmas;
           const [tokenX, tokenY, id] = lpt_id.split('|');
           const [fee, hashId] = id.split('#');
-          const paramsId = `${tokenX}@${tokenY}@${fee}@${hashId}`;
+          const pool_name = get_pool_name(`${tokenX}|${tokenY}|${fee}`);
+          const paramsId = `${pool_name}@${hashId}`;
           history.replace('/yoursLiquidityDetailV2/' + `${paramsId}`);
         } else if (methodName == 'add_liquidity' && returnValue) {
           const [tokenX, tokenY, id] = returnValue.split('|');
           const [fee, hashId] = id.split('#');
-          const paramsId = `${tokenX}@${tokenY}@${fee}@${hashId}`;
+          const pool_name = get_pool_name(`${tokenX}|${tokenY}|${fee}`);
+          const paramsId = `${pool_name}@${hashId}`;
           history.replace('/yoursLiquidityDetailV2/' + `${paramsId}`);
         } else if (methodName == 'remove_liquidity' && argsValue) {
           const parmas = JSON.parse(argsValue);
@@ -1101,4 +1104,61 @@ export function get_liquidity_value({
     },
   });
   return v;
+}
+// processing of pool id and farm id
+const FEE_TIER = [100, 400, 2000, 10000];
+const TOKENS = getTokens();
+function locate_fee(fee_tier: number) {
+  for (let i = 0; i < FEE_TIER.length; i++) {
+    if (FEE_TIER[i] == fee_tier) return i + 1;
+  }
+  return 0;
+}
+function locate_token_id(token_name: string) {
+  const arr = Object.entries(TOKENS);
+  for (let i = 0; i < arr.length; i++) {
+    const [id, name] = arr[i];
+    if (name == token_name) return id;
+  }
+  return 'n/a';
+}
+export function get_pool_name(pool_id: string) {
+  const parts = pool_id.split('|');
+  const token_a = TOKENS[parts[0]];
+  const token_b = TOKENS[parts[1]];
+  const fee = parts[2];
+  return `${token_a}<>${token_b}@${fee}`;
+}
+export function get_pool_id(pool_name: string) {
+  const layer1_parts = pool_name.split('@');
+  const layer2_parts = layer1_parts[0].split('<>');
+  const token_a = locate_token_id(layer2_parts[0]);
+  const token_b = locate_token_id(layer2_parts[1]);
+  const fee = layer1_parts[1];
+  return `${token_a}|${token_b}|${fee}`;
+}
+export function get_farm_name(farm_id: string) {
+  const layer1_parts = farm_id.split('&');
+  const pool_id = layer1_parts[1];
+  const left_point = layer1_parts[2];
+  const right_point = layer1_parts[3];
+  const pool_name = get_pool_name(pool_id);
+  return `F:${pool_name}[${left_point}-${right_point}]`;
+}
+export function get_farm_id(farm_name: string) {
+  const layer0_parts = farm_name.split(':');
+  let farm_type = '';
+  if (layer0_parts[0] == 'F') {
+    farm_type = 'FixRange';
+  } else {
+    farm_type = 'N/A';
+  }
+  const layer1_parts = layer0_parts[1].split('[');
+  const pool_id = get_pool_id(layer1_parts[0]);
+  const layer2_parts = layer1_parts[1]
+    .slice(0, layer1_parts[1].length - 1)
+    .split('|');
+  const lp = layer2_parts[0];
+  const rp = layer2_parts[1];
+  return `${REF_UNI_V3_SWAP_CONTRACT_ID}@{"FixRange":{"left_point":${lp},"right_point":${rp}}}&${pool_id}&${lp}&${rp}`;
 }

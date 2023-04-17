@@ -38,6 +38,7 @@ import {
   get_all_seeds,
   get_liquidity_value,
   allocation_rule_liquidities,
+  get_pool_name,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import {
@@ -486,15 +487,19 @@ function UserLiquidityLine({
     });
   }
   function goYourLiquidityDetailPage(goType?: string) {
-    const id = lpt_id.replace(/\|/g, '@').replace('#', '@');
+    const pool_id = lpt_id.split('#')[0];
+    const lptId = lpt_id.split('#')[1];
+    const pool_name = get_pool_name(pool_id);
+    const link = `${pool_name}@${lptId}`;
     if (goType == 'new window') {
-      window.open(`/yoursLiquidityDetailV2/${id}`);
+      window.open(`/yoursLiquidityDetailV2/${link}`);
     } else {
-      history.push(`/yoursLiquidityDetailV2/${id}`);
+      history.push(`/yoursLiquidityDetailV2/${link}`);
     }
   }
   function goPoolDetailPage() {
-    window.open(`/poolV2/${liquidity.pool_id}`);
+    const params_str = get_pool_name(liquidity.pool_id);
+    window.open(`/poolV2/${params_str}`);
   }
   function getTokenFeeAmount(p: string) {
     if (liquidityDetail && tokenMetadata_x_y && tokenPriceList) {
@@ -582,7 +587,9 @@ function UserLiquidityLine({
   function go_farm() {
     const [fixRange, pool_id, left_point, right_point] =
       liquidity.mft_id.split('&');
-    const link_params = `${pool_id}&${left_point}&${right_point}`;
+    const link_params = `${get_pool_name(
+      pool_id
+    )}[${left_point}-${right_point}]`;
     const actives = related_farms.filter((farm: FarmBoost) => {
       return farm.status != 'Ended';
     });

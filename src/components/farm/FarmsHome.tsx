@@ -105,6 +105,8 @@ import {
   displayNumberToAppropriateDecimals,
   getEffectiveFarmList,
   sort_tokens_by_base,
+  get_pool_id,
+  get_pool_name,
 } from '../../services/commonV3';
 
 const {
@@ -629,9 +631,42 @@ export default function FarmsHome(props: any) {
     return JSON.parse(JSON.stringify(allEndedFarms));
   }
   function getUrlParams() {
-    const pathArr = window.location.pathname.split('/');
-    const id = pathArr[2] || '';
-    return id;
+    try {
+      // http://localhost:1234/v2farms/USDC<>NEAR@2000[406600-408600]-r new link
+      // phoenix-bonds.near|wrap.near|2000&3080&4040-r
+      const pathArr = location.pathname.split('/');
+      const layer1 = decodeURIComponent(pathArr[2] || '');
+      if (layer1) {
+        if (layer1.indexOf('<>') > -1 || layer1.indexOf('|') > -1) {
+          // dcl link
+          if (layer1.indexOf('<>') == -1) {
+            // compatible with old link
+            const [tokena_id, tokenb_id, fee_p_s] = layer1.split('|');
+            const [fee_p, status] = fee_p_s.split('-');
+            const [fee, lp, rp] = fee_p.split('&');
+            const replace_str = `${get_pool_name(
+              `${tokena_id}|${tokenb_id}|${fee}`
+            )}[${lp}-${rp}]-${status}`;
+            location.replace(`/v2farms/${replace_str}`);
+            return layer1;
+          }
+          const layer2 = layer1.split('[');
+          const pool_id = get_pool_id(layer2[0]);
+          const point_str = layer2[1].substring(0, layer2[1].length - 3);
+          const status = layer2[1].substring(layer2[1].length - 1);
+          const p_arr = point_str.split('-');
+          const [lp, rp] = p_arr;
+          return `${pool_id}&${lp}&${rp}-${status}`;
+        } else {
+          // classic link
+          return layer1;
+        }
+      }
+    } catch (error) {
+      return '';
+    }
+
+    return '';
   }
   async function get_user_unWithDraw_rewards() {
     if (isSignedIn) {
@@ -1054,7 +1089,7 @@ export default function FarmsHome(props: any) {
       const revenu24h = (total_fee / 10000) * 0.8 * Number(dayVolume);
       if (tvl > 0 && revenu24h > 0) {
         const annualisedFeesPrct = ((revenu24h * 365) / tvl) * 100;
-        const half_annualisedFeesPrct = annualisedFeesPrct / 2;
+        const half_annualisedFeesPrct = annualisedFeesPrct;
         result = toPrecision(half_annualisedFeesPrct.toString(), 2);
       }
     }
@@ -2511,7 +2546,7 @@ function FarmView(props: {
       const revenu24h = (total_fee / 10000) * 0.8 * Number(dayVolume);
       if (tvl > 0 && revenu24h > 0) {
         const annualisedFeesPrct = ((revenu24h * 365) / tvl) * 100;
-        const half_annualisedFeesPrct = annualisedFeesPrct / 2;
+        const half_annualisedFeesPrct = annualisedFeesPrct;
         result = toPrecision(half_annualisedFeesPrct.toString(), 2);
       }
     }
@@ -2710,7 +2745,7 @@ function FarmView(props: {
       const [contractId, temp_pool_id] = seed.seed_id.split('@');
       const [fixRange, pool_id, left_point, right_point] =
         temp_pool_id.split('&');
-      mft_id = `${pool_id}&${left_point}&${right_point}`;
+      mft_id = `${get_pool_name(pool_id)}[${left_point}-${right_point}]`;
     }
     history.replace(`/v2farms/${mft_id}-${status}`);
   }

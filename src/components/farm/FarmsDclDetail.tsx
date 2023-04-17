@@ -66,6 +66,7 @@ import {
   get_intersection_icon_by_radio,
   getEffectiveFarmList,
   sort_tokens_by_base,
+  get_pool_name,
 } from '~services/commonV3';
 import { list_liquidities, dcl_mft_balance_of } from '../../services/swapV3';
 import { AddNewPoolV3 } from '~components/pool/AddNewPoolV3';
@@ -428,7 +429,8 @@ export default function FarmsDclDetail(props: {
   };
   const goPoolPage = () => {
     const poolId = detailData.pool.pool_id;
-    window.open(`/poolV2/${poolId}`);
+    const params_str = get_pool_name(poolId);
+    window.open(`/poolV2/${params_str}`);
   };
   function getBoostMutil() {
     if (REF_VE_CONTRACT_ID && !boostConfig) return '';
@@ -902,7 +904,7 @@ export default function FarmsDclDetail(props: {
     const [contractId, temp_pool_id] = betterSeed.seed_id.split('@');
     const [fixRange, pool_id, left_point, right_point] =
       temp_pool_id.split('&');
-    const mft_id = `${pool_id}&${left_point}&${right_point}`;
+    const mft_id = `${get_pool_name(pool_id)}[${left_point}-${right_point}]`;
     window.open(`/v2farms/${mft_id}-r`);
   }
   function getFee() {
@@ -2034,8 +2036,12 @@ function LiquidityLine(props: {
     });
   }
   function goYourLiquidityDetail(liquidity: UserLiquidityInfo) {
-    const url_params = liquidity.lpt_id.replace(/\|/g, '@').replace(/#/g, '@');
-    window.open(`/yoursLiquidityDetailV2/${url_params}`);
+    liquidity.lpt_id.split('#')[0];
+    const pool_id = liquidity.lpt_id.split('#')[0];
+    const lpt_index = liquidity.lpt_id.split('#')[1];
+    window.open(
+      `/yoursLiquidityDetailV2/${get_pool_name(pool_id)}@${lpt_index}`
+    );
   }
   function unavailableTip() {
     const tip = unavailableText();
@@ -2131,8 +2137,8 @@ function LiquidityLine(props: {
     });
     const target = temps[0];
     const [fixRange, pool_id, left_point, right_point] = mft_id.split('&');
-    const params = `${pool_id}&${left_point}&${right_point}`;
     const status = target?.farmList[0].status == 'Ended' ? 'e' : 'r';
+    const params = `${get_pool_name(pool_id)}[${left_point}-${right_point}]`;
     const link = `/v2farms/${params}-${status}`;
     return link;
   }

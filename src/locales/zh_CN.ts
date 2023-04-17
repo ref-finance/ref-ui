@@ -986,7 +986,7 @@ const zh_CN = {
     '* 此订单簿页面是基于Orderly Network 的图形用户界面，旨在为 Ref Finance 的用户提供便利。',
   learn_more_orderly: '了解更多',
   more_order_book_page_detail:
-    '此订单簿页面是基于Orderly Network 的图形用户界面，旨在为 Ref Finance 的用户提供便利。 Orderly Network 对其系统、智能合约以及存入或发送到这些系统和合约的资金安全负全部责任。强烈建议您在连接钱包和/或下任何订单之前对相应内容进行研究。',
+    '此订单簿页面由Orderly Network提供支持。用户在连接其钱包和/或下订单之前，应自己进行调查。{br}Ref Finance不提供有关该系统、智能合约以及通过该系统和合约存入或传输的资金安全性的任何保证。{br}Ref Finance和Orderly Network都不对用户通过此订单簿页面进行的任何投资的盈亏负责。',
   no_orders_found: '没有找到订单',
   learn_more_about: '了解有关',
   learn_more_about_zh: ' 的更多信息。',
