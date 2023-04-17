@@ -1589,7 +1589,12 @@ export const TradeRoute = ({ trade }: { trade: ExchangeEstimate }) => {
   const pools = identicalRoutes.map((r) => r[0]).map((hub) => hub.pool);
 
   const percents = useMemo(() => {
-    return getPoolAllocationPercents(pools);
+    try {
+      return getPoolAllocationPercents(pools);
+    } catch (error) {
+      if (identicalRoutes.length === 0) return ['100'];
+      else return identicalRoutes.map((r) => r[0].percent);
+    }
   }, [identicalRoutes, pools]);
 
   return (
@@ -1680,7 +1685,9 @@ export const MarketList = ({
         : 1;
     });
 
-  const bestAmount = sortedTradesList[0].tokenOutAmount;
+  const bestAmount = sortedTradesList?.[0]?.tokenOutAmount;
+
+  if (!bestAmount) return null;
 
   const displayList = sortedTradesList.map((t) => {
     const rawRate = scientificNotationToString(

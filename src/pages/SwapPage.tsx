@@ -304,9 +304,10 @@ function SwapPage() {
               />
             </div>
 
-            {trades?.[selectMarket] && (
-              <TradeRoute trade={trades[selectMarket]} />
-            )}
+            {trades?.[selectMarket] &&
+              trades?.[selectMarket]?.availableRoute && (
+                <TradeRoute trade={trades[selectMarket]} />
+              )}
 
             {trades && trades?.[selectMarket] && (
               <MarketList

@@ -280,7 +280,12 @@ export function AutoRouter({ trade }: { trade: ExchangeEstimate }) {
   const pools = identicalRoutes.map((r) => r[0]).map((hub) => hub.pool);
 
   const percents = useMemo(() => {
-    return getPoolAllocationPercents(pools);
+    try {
+      return getPoolAllocationPercents(pools);
+    } catch (error) {
+      if (identicalRoutes.length === 0) return ['100'];
+      else return identicalRoutes.map((r) => r[0].percent);
+    }
   }, [identicalRoutes, pools]);
 
   const [showRouteDetail, setShowRouteDetail] = useState<boolean>(false);
@@ -960,18 +965,13 @@ export default function SwapCard(props: {
   }
 
   function satisfyShowDetailViewCondition() {
-    const hideCondition1 = !showDetails;
-
-    const hideCondition2 = !selectTrade || selectTrade?.swapError;
+    const hideCondition2 =
+      !selectTrade || selectTrade?.swapError || !selectTrade.availableRoute;
     const hideCondition3 = wrapOperation;
     const hideCondition4 = new Big(tokenInAmount || '0').lte('0');
     const hideCondition5 = tokenIn?.id == tokenOut?.id;
     const hideConditionFinal =
-      hideCondition1 ||
-      hideCondition2 ||
-      hideCondition3 ||
-      hideCondition4 ||
-      hideCondition5;
+      hideCondition2 || hideCondition3 || hideCondition4 || hideCondition5;
 
     return !hideConditionFinal;
   }
@@ -1157,7 +1157,7 @@ export default function SwapCard(props: {
           tokenPriceList={tokenPriceList}
           allowWNEAR={true}
         />
-        {selectTrade && !selectTrade.swapError && (
+        {canShowDetailView && (
           <div className="frcb text-white mt-4">
             <div className="flex items-center mb-1">
               <div
@@ -1212,7 +1212,7 @@ export default function SwapCard(props: {
           </div>
         )}
 
-        {canShowDetailView ? (
+        {canShowDetailView && showDetails ? (
           <div className="mt-4">
             <DetailView trade={selectTrade} />
           </div>

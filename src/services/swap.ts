@@ -87,7 +87,7 @@ import {
   nearWithdrawTransaction,
 } from './wrap-near';
 import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
-import { percentLess } from '../utils/numbers';
+import { percentLess, percent } from '../utils/numbers';
 import { getTokenFlow } from './indexer';
 export const REF_FI_SWAP_SIGNAL = 'REF_FI_SWAP_SIGNAL_KEY';
 
@@ -162,6 +162,7 @@ export interface EstimateSwapView {
   totalInputAmount?: string;
   overallPriceImpact?: string;
   contract?: SwapContractType;
+  percent?: string;
 }
 
 const getStablePoolEstimate = ({
@@ -338,14 +339,15 @@ export const estimateSwapFlow = async ({
     ledger: supportLedger,
   });
 
-  if (tokenFlow === null) throwNoPoolError();
+  //@ts-ignore
+  if (tokenFlow?.data === null || tokenFlow === null) throwNoPoolError();
 
   const res = await Promise.all(
     tokenFlow
       .map((flow) => {
         return flow.pool_ids.map(async (pool_id, i) => {
           const pool = isStablePool(pool_id)
-            ? getStablePoolFromCache(pool_id.toString())
+            ? (await getStablePoolFromCache(pool_id.toString()))[0]
             : await db
                 .queryTopPoolsByIds({
                   poolIds: [pool_id],
@@ -362,6 +364,7 @@ export const estimateSwapFlow = async ({
             tokens: await Promise.all(
               flow.all_tokens.map((t) => ftGetTokenMetadata(t))
             ),
+            percent: flow.swap_ratio.toString(),
             partialAmountIn:
               i === 0
                 ? new Big(parsedAmountIn)

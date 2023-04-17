@@ -1047,8 +1047,6 @@ export const useSeedFarmsByPools = (pools: Pool[]) => {
             };
           }, {});
 
-          // console.log('returnAPRs: ', returnAPRs);
-
           setFarmAprById(returnAPRs);
 
           return returnAPRs;

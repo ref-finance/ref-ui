@@ -285,6 +285,7 @@ const cacheTokenPrices = async (): Promise<any> => {
   const tempMap = await getXrefPrice(tokenPriceList);
   db.cacheTokenPrices(tempMap);
 };
+
 /***boost end***/
 run();
 

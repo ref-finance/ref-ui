@@ -128,7 +128,7 @@ export const getTokenFlow = async ({
   return await fetch(
     config.indexerUrl +
       `/get-token-flow?token_pair=${token_pair}&swap_amount=${swap_amount}&ledger=${
-        ledger ? 'all' : 'one'
+        ledger ? 'one' : 'all'
       }`,
     {
       method: 'GET',
@@ -212,6 +212,13 @@ export const getTopPoolsIndexer = async () => {
     .then((poolList) => {
       return poolList.map((p: any) => parsePool(p));
     });
+};
+
+export const getTopPoolsIndexerRaw = async () => {
+  return await fetch(config.indexerUrl + '/list-top-pools', {
+    method: 'GET',
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  }).then((res) => res.json());
 };
 
 export const getTopPools = async (): Promise<PoolRPCView[]> => {
