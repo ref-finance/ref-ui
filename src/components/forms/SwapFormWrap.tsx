@@ -231,7 +231,7 @@ export default function SwapFormWrap({
               )}
             </div>
           ) : (
-            <InsufficientButton divClassName="h-12 mt-6 w-full"></InsufficientButton>
+            <InsufficientButton divClassName="h-12 mt-2 w-full"></InsufficientButton>
           )}
           {OrderButton}
         </div>

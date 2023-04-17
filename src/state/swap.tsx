@@ -371,7 +371,7 @@ export const useSwapPopUp = (stopOnCross?: boolean) => {
   }, [txHash, stopOnCross]);
 };
 
-export const useCrossSwapPopUp = (bestSwap: 'v2' | 'v3') => {
+export const useCrossSwapPopUp = (swapMarket: SwapMarket) => {
   const { pathname, txHashes } = getURLInfo();
   const history = useHistory();
 
@@ -379,10 +379,10 @@ export const useCrossSwapPopUp = (bestSwap: 'v2' | 'v3') => {
 
   const isSignedIn = globalState.isSignedIn;
 
-  useSwapPopUp(bestSwap === 'v2');
+  useSwapPopUp(swapMarket === 'tri');
 
   useEffect(() => {
-    if (txHashes && txHashes.length > 0 && isSignedIn && bestSwap === 'v2') {
+    if (txHashes && txHashes.length > 0 && isSignedIn && swapMarket === 'tri') {
       checkCrossSwapTransactions(txHashes).then(
         async (res: { status: boolean; hash: string; errorType?: string }) => {
           const { status, hash, errorType } = res;
@@ -396,7 +396,7 @@ export const useCrossSwapPopUp = (bestSwap: 'v2' | 'v3') => {
       );
       history.replace(pathname);
     }
-  }, [txHashes, bestSwap]);
+  }, [txHashes, swapMarket]);
 };
 export const estimateValidator = (
   swapTodos: EstimateSwapView[],
@@ -618,6 +618,7 @@ export const useSwap = ({
       tokenIn,
       amountIn: tokenInAmount,
       tokenOut,
+      swapMarket: 'ref',
     }).catch(setSwapError);
   };
 
@@ -858,8 +859,7 @@ export const useSwapV3 = ({
       bestEstimate &&
       !ONLY_ZEROS.test(bestEstimate.amount) &&
       tagValidator(bestEstimate, tokenIn, tokenInAmount);
-    const condition2 = swapMode !== SWAP_MODE.NORMAL;
-    return condition1 || condition2;
+    return condition1;
   }
 
   const swapsToDoV2: EstimateSwapView[] = [
@@ -1051,8 +1051,6 @@ export const useLimitOrder = ({
         setPoolToOrderCounts(toCounts);
       })
       .catch((e) => {
-        console.log(e);
-
         const allPoolsForThisPair = V3_POOL_FEE_LIST.map((fee) =>
           getV3PoolId(tokenIn.id, tokenOut.id, fee)
         );
@@ -1245,6 +1243,17 @@ export const useCrossSwap = ({
     tokenOutAmount: swapsToDo?.[0]?.estimate || '0',
   });
 
+  const makeSwap = () => {
+    swap({
+      slippageTolerance,
+      swapsToDo,
+      tokenIn,
+      amountIn: tokenInAmount,
+      tokenOut,
+      swapMarket: 'tri',
+    }).catch(setSwapError);
+  };
+
   return {
     canSwap,
     tokenOutAmount: !!tokenOutAmount
@@ -1253,10 +1262,15 @@ export const useCrossSwap = ({
     minAmountOut,
     priceImpact,
     swapError,
-    estimates: swapsToDo?.map((s) => ({ ...s, contract: 'Trisolaris' })),
+    makeSwap,
+    estimates: swapsToDo?.map((s) => ({
+      ...s,
+      contract: 'Trisolaris',
+      partialAmountIn: toNonDivisibleNumber(tokenOut.decimals, tokenInAmount),
+    })),
     quoteDone: crossQuoteDone,
     fee: swapsToDo && !wrapOperation ? getAvgFee(swapsToDo) : 0,
-    availableRoute: enableTri,
+    availableRoute: enableTri && !swapError,
     tokenInAmount,
     tokenIn,
     tokenOut,
@@ -1424,11 +1438,13 @@ export const useRefSwap = ({
       tokenInAmount,
       tokenIn,
       tokenOut,
-      market: 'tri',
+      market: 'ref',
     };
 
   const bestSwap =
-    new Big(tokenOutAmountV2 || '0').gte(tokenOutAmount || '0') && canSwapV2
+    new Big(tokenOutAmountV2 || '0').gte(tokenOutAmount || '0') &&
+    canSwapV2 &&
+    !swapErrorV2
       ? 'v2'
       : 'v1';
 
@@ -1438,10 +1454,13 @@ export const useRefSwap = ({
       canSwap: canSwap,
       makeSwap: makeSwapV1,
       estimates: swapsToDo?.map((s) => ({ ...s, contract: 'Ref_V1' })),
-      tokenOutAmount: toPrecision(
-        tokenOutAmount || '0',
-        Math.min(8, tokenOut?.decimals || 8)
-      ),
+      tokenOutAmount:
+        !tokenOutAmount || swapError
+          ? ''
+          : toPrecision(
+              tokenOutAmount || '0',
+              Math.min(8, tokenOut?.decimals || 8)
+            ),
       minAmountOut: minAmountOut,
       fee: fee,
       priceImpact: priceImpactValue,
@@ -1459,12 +1478,18 @@ export const useRefSwap = ({
       quoteDone: true,
       canSwap: canSwapV2,
       makeSwap: makeSwapV2,
-      estimates: swapsToDoV2?.map((s) => ({ ...s, contract: 'Ref_DCL' })),
+      estimates: swapsToDoV2?.map((s) => ({
+        ...s,
+        contract: 'Ref_DCL',
+      })),
 
-      tokenOutAmount: toPrecision(
-        tokenOutAmountV2 || '0',
-        Math.min(8, tokenOut?.decimals || 8)
-      ),
+      tokenOutAmount:
+        !tokenOutAmountV2 || swapErrorV2
+          ? ''
+          : toPrecision(
+              tokenOutAmount || '0',
+              Math.min(8, tokenOut?.decimals || 8)
+            ),
       tokenInAmount,
       minAmountOut: minAmountOutV2,
       fee: feeV2,
@@ -1507,8 +1532,6 @@ export const useOrderlySwap = ({
 
   const [userInfo, setUserInfo] = useState<ClientInfo>();
 
-  const [pairExist, setPairExist] = useState<boolean>(true);
-
   const calculatePrice = (
     side: 'SELL' | 'BUY',
     orders: Orders,
@@ -1535,7 +1558,6 @@ export const useOrderlySwap = ({
         } else {
           const remainingQuantity = Number(tokenInAmount) - totalAmount;
           totalPrice += price * remainingQuantity;
-          console.log('totalPrice: ', totalPrice);
           totalAmount += remainingQuantity;
           break;
         }
@@ -1610,9 +1632,9 @@ export const useOrderlySwap = ({
     if (!availableSymbols || !canSwapSymbol || !canSwapSymbol?.token_ids) {
       setCanSwap(false);
       setEstimate('0');
+
       setOrderlyQuoteDone(true);
       setCurSide(side);
-      setPairExist(false);
 
       return;
     }
@@ -1638,10 +1660,10 @@ export const useOrderlySwap = ({
             ).toString()
           )
         );
+
         setOrderlyQuoteDone(true);
         setCurSide(side);
         setCanSwap(true);
-        setPairExist(true);
       }
     }
   };
@@ -1657,14 +1679,13 @@ export const useOrderlySwap = ({
         scientificNotationToString(
           percentLess(
             (userInfo?.taker_fee_rate || 10) / 100,
-
             calcRes
           ).toString()
         )
       );
+
       setOrderlyQuoteDone(true);
       setCanSwap(true);
-      setPairExist(true);
     }
   }, [requestOrders, side, reEstimate]);
 
@@ -1682,6 +1703,7 @@ export const useOrderlySwap = ({
 
   useEffect(() => {
     if (!tokenIn || !tokenOut) return;
+
     setOrderlyQuoteDone(false);
     setCanSwap(false);
 
@@ -1698,6 +1720,21 @@ export const useOrderlySwap = ({
   const makeSwap = () => {
     history.push('/orderbook');
   };
+
+  const pairExist =
+    tokenIn &&
+    tokenOut &&
+    tokenIn.id !== tokenOut.id &&
+    !!tokenInfo.find(
+      (token) =>
+        token.token_account_id ===
+        (tokenIn.symbol === 'NEAR' ? 'near' : tokenIn?.id)
+    ) &&
+    !!tokenInfo.find(
+      (token) =>
+        token.token_account_id ===
+        (tokenOut.symbol === 'NEAR' ? 'near' : tokenOut?.id)
+    );
 
   return {
     maker_fee: userInfo?.maker_fee_rate || 10,

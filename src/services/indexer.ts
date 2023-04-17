@@ -98,49 +98,38 @@ export interface HistoryOrderSwapInfo {
 interface TokenFlow {
   token_pair: string;
   grade: string;
-  pool_ids: string;
+  pool_ids: string[];
   token_in: string;
-  revolve_token_one: string;
-  revolve_token_two: string;
   token_out: string;
-  token_in_symbol: string;
-  revolve_token_one_symbol: string;
-  revolve_token_two_symbol: string;
-  token_out_symbol: string;
-  token_in_amount: string;
-  token_out_amount: string;
-  revolve_one_out_amount: string;
-  revolve_one_in_amount: string;
-  revolve_two_out_amount: string;
-  revolve_two_in_amount: string;
-  token_pair_ratio: string;
-  revolve_token_one_ratio: string;
-  revolve_token_two_ratio: string;
-  final_ratio: string;
-  pool_fee: number;
-  revolve_one_pool_fee: number;
-  revolve_two_pool_fee: number;
+  final_ratio: number;
   amount: number;
-  swap_amount: string;
-  timestamp: number;
+  swap_amount: number;
+  all_tokens: string[];
+  all_pool_fees: number[];
+  swap_ratio: number;
+  timestamp: string;
 }
 
 export const getTokenFlow = async ({
   tokenInAmount,
   tokenInId,
   tokenOutId,
+  ledger,
 }: {
   tokenInId: string;
   tokenOutId: string;
   tokenInAmount: string;
-}): Promise<TokenFlow> => {
+  ledger: boolean;
+}): Promise<TokenFlow[]> => {
   const token_pair: string = tokenInId + '->' + tokenOutId;
 
   const swap_amount: string = tokenInAmount;
 
   return await fetch(
     config.indexerUrl +
-      `/get-token-flow?token_pair=${token_pair}&swap_amount=${swap_amount}`,
+      `/get-token-flow?token_pair=${token_pair}&swap_amount=${swap_amount}&ledger=${
+        ledger ? 'all' : 'one'
+      }`,
     {
       method: 'GET',
     }

@@ -13,13 +13,11 @@ import {
   TokenMetadata,
   REF_META_DATA,
 } from '../../services/ft-contract';
-import { Pool } from '../../services/pool';
 import { useDepositableBalance, useTokenPriceList } from '../../state/token';
 import {
-  useSwap,
-  useSwapV3,
   useSwapPopUp,
   useRefSwapPro,
+  useCrossSwapPopUp,
 } from '../../state/swap';
 import {
   calculateExchangeRate,
@@ -90,6 +88,7 @@ import { NEAR_WITHDRAW_KEY } from '../forms/WrapNear';
 import { useWalletSelector } from '~context/WalletSelectorContext';
 import { CountdownTimer } from '~components/icon';
 import { TextWrapper } from '~pages/Orderly/components/UserBoard';
+import { SwapMarket } from '../../pages/SwapPage';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -883,33 +882,25 @@ export default function SwapCard(props: {
     }
     return result;
   }
-  const getSlippageTolerance = (swapMode: SWAP_MODE) => {
-    switch (swapMode) {
-      case SWAP_MODE.NORMAL:
-        return {
-          slippageValue: slippageToleranceNormal,
-          setSlippageValue: setSlippageToleranceNormal,
-          slippageKey: SWAP_SLIPPAGE_KEY,
-        };
-
-      default:
-        return {
-          slippageValue: slippageToleranceNormal,
-          setSlippageValue: setSlippageToleranceNormal,
-          slippageKey: SWAP_SLIPPAGE_KEY,
-        };
-    }
+  const getSlippageTolerance = () => {
+    return {
+      slippageValue: slippageToleranceNormal,
+      setSlippageValue: setSlippageToleranceNormal,
+      slippageKey: SWAP_SLIPPAGE_KEY,
+    };
   };
 
   const onChangeSlippage = (slippage: number) => {
-    const { setSlippageValue, slippageKey } = getSlippageTolerance(swapMode);
+    const { setSlippageValue, slippageKey } = getSlippageTolerance();
     setSlippageValue(slippage);
     localStorage.setItem(slippageKey, slippage.toString());
   };
 
-  const slippageTolerance = getSlippageTolerance(swapMode).slippageValue;
+  const slippageTolerance = getSlippageTolerance().slippageValue;
 
   useSwapPopUp();
+
+  useCrossSwapPopUp(selectMarket);
 
   useRefSwapPro({
     tokenIn,

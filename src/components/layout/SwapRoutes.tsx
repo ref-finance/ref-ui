@@ -12,7 +12,9 @@ import {
   toInternationalCurrencySystemLongString,
 } from '../../utils/numbers';
 import { toRealSymbol } from '../../utils/token';
-import { EstimateSwapView } from '../../services/stable-swap';
+
+import { EstimateSwapView } from '~services/swap';
+
 import { getPoolAllocationPercents, percent } from '../../utils/numbers';
 import { Pool } from '../../services/pool';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
@@ -1605,15 +1607,22 @@ export const TradeRoute = ({ trade }: { trade: ExchangeEstimate }) => {
                   width: 'calc(100% - 32px)',
                 }}
               ></div>
-              {route[0].tokens
-                .slice(0, route[0].tokens.length - 1)
-                .map((t, i) => {
-                  return (
-                    <>
-                      <TradeRouteHub token={t} contract={route[i].contract} />
-                    </>
-                  );
-                })}
+              <div className="frcs">
+                {route[0].tokens
+                  .slice(1, route[0].tokens.length - 1)
+                  .map((t, i) => {
+                    return (
+                      <>
+                        <TradeRouteHub token={t} contract={route[i].contract} />
+                        {t.id !== route[0].tokens.at(-2)?.id && (
+                          <div className="mx-3">
+                            <PolygonArrow />
+                          </div>
+                        )}
+                      </>
+                    );
+                  })}
+              </div>
 
               <PolygonArrow />
             </div>

@@ -484,6 +484,7 @@ class RefDatabase extends Dexie {
     await this.topPools.bulkPut(
       pools.map((topPool: TopPool) => ({
         ...topPool,
+        id: topPool.id.toString(),
         update_time: moment().unix(),
         token1Id: topPool.token_account_ids[0],
         token2Id: topPool.token_account_ids[1],
@@ -506,6 +507,17 @@ class RefDatabase extends Dexie {
 
   public async queryTopPools() {
     const pools = await this.topPools.toArray();
+
+    return pools.map((pool) => {
+      const { update_time, ...poolInfo } = pool;
+      return poolInfo;
+    });
+  }
+
+  public async queryTopPoolsByIds({ poolIds }: { poolIds: string[] }) {
+    const pools = (await this.topPools.toArray()).filter((pool) =>
+      poolIds.includes(pool.id)
+    );
 
     return pools.map((pool) => {
       const { update_time, ...poolInfo } = pool;
@@ -604,19 +616,6 @@ class RefDatabase extends Dexie {
       }))
     );
   }
-  /***boost end****/
-
-  // public async queryPoolsByToken1ORToken2(token1Id: string, token2Id: string) {
-  //   let res1 = await this.queryPoolsBytoken(token1Id);
-  //   let res2 = await this.queryPoolsBytoken(token2Id);
-  //   let dup = [...res1, ...res2];
-  //   let result = dup;
-  //   console.log(result);
-  //   // let result = [...new Set(dup.map(JSON.stringify))]
-  //   //   .map(JSON.parse)
-  //   //   .sort((a, b) => a['id'] - b['id']);
-  //   return result;
-  // }
 }
 
 export default new RefDatabase();
