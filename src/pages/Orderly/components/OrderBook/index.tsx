@@ -372,27 +372,35 @@ function OrderBook({ maintenance }: { maintenance: boolean }) {
 
   // find median between recentTrades?.at(0)?.executed_price || 0 and asks[0][0] and bids[0][0]
 
-  const [preMedian, setPreMedian] = useState<number>();
+  // const [preMedian, setPreMedian] = useState<number>();
 
-  const [curMedian, setCurMedian] = useState<number>();
+  // const [curMedian, setCurMedian] = useState<number>();
 
-  const newMedian = useMemo(() => {
-    const recentTradePrice = recentTrades?.at(0)?.executed_price || 0;
-    const askPrice = asks?.[0]?.[0] || 0;
-    const bidPrice = bids?.[0]?.[0] || 0;
-    const median = [recentTradePrice, askPrice, bidPrice].sort()[1];
-    return median;
-  }, [asks, bids, recentTrades]);
+  // const newMedian = useMemo(() => {
+  //   const recentTradePrice = recentTrades?.at(0)?.executed_price || 0;
+  //   const askPrice = asks?.[0]?.[0] || 0;
+  //   const bidPrice = bids?.[0]?.[0] || 0;
+  //   const median = [recentTradePrice, askPrice, bidPrice].sort()[1];
+  //   return median;
+  // }, [asks, bids, recentTrades]);
 
-  useEffect(() => {
-    if (newMedian === 0) return;
-    setPreMedian(curMedian);
-    setCurMedian(newMedian);
-  }, [newMedian]);
+  // useEffect(() => {
+  //   if (newMedian === 0) return;
+  //   setPreMedian(curMedian);
+  //   setCurMedian(newMedian);
+  // }, [newMedian]);
 
-  const displayMedian = numberWithCommas(curMedian || 0);
+  // const displayMedian = numberWithCommas(curMedian || 0);
 
-  const diff = preMedian === undefined ? 0 : curMedian - preMedian || 0;
+  // const diff = preMedian === undefined ? 0 : curMedian - preMedian || 0;
+
+  const marketTradeDisplay = numberWithCommas(
+    recentTrades?.at(0)?.executed_price || 0
+  );
+
+  const diff =
+    (recentTrades?.at(0)?.executed_price || 0) -
+    (recentTrades?.at(1)?.executed_price || 0);
 
   const intl = useIntl();
 
@@ -600,10 +608,12 @@ function OrderBook({ maintenance }: { maintenance: boolean }) {
                   : 'text-primaryText'
               } text-lg`}
             >
-              {orders &&
+              {/* {orders &&
                 recentTrades?.length > 0 &&
                 curMedian !== undefined &&
-                displayMedian}
+                displayMedian} */}
+
+              {orders && recentTrades?.length > 0 && marketTradeDisplay}
 
               {orders && recentTrades?.length > 0 && diff !== 0 && (
                 <IoArrowUpOutline
