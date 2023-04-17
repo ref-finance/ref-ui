@@ -1,7 +1,7 @@
 import Dexie from 'dexie';
 import _ from 'lodash';
 import moment from 'moment';
-import { isNotStablePool, PoolDetails } from '~services/pool';
+import { isNotStablePool, parsePool, PoolDetails } from '~services/pool';
 import getConfig from '../services/config';
 import { PoolRPCView } from '~services/api';
 import { Seed, FarmBoost } from '~services/farm';
@@ -521,7 +521,18 @@ class RefDatabase extends Dexie {
 
     return pools.map((pool) => {
       const { update_time, ...poolInfo } = pool;
-      return poolInfo;
+
+      const res = parsePool({
+        ...poolInfo,
+        id: Number(poolInfo.id),
+        share: '',
+        tvl: Number(poolInfo.tvl),
+      } as PoolRPCView);
+
+      return {
+        ...res,
+        dex: 'ref',
+      };
     });
   }
 

@@ -28,6 +28,7 @@ import {
   checkTransaction,
   estimateSwap,
   estimateSwapAurora,
+  estimateSwapFlow,
   PoolMode,
   swap,
 } from '../services/swap';
@@ -412,9 +413,9 @@ export const estimateValidator = (
   if (
     tokenInId !== tokenIn.id ||
     tokenOutId !== tokenOut.id ||
-    !BigNumber.sum(
-      ...swapTodos.map((st) => st.pool.partialAmountIn || 0)
-    ).isEqualTo(parsedAmountIn)
+    !BigNumber.sum(...swapTodos.map((st) => st.partialAmountIn || 0)).isEqualTo(
+      parsedAmountIn
+    )
   ) {
     return false;
   }
@@ -485,13 +486,11 @@ export const useSwap = ({
         return;
       }
       setEstimating(true);
-      estimateSwap({
+      estimateSwapFlow({
         tokenIn,
         tokenOut,
         amountIn: tokenInAmount,
         intl,
-        setLoadingData,
-        loadingTrigger: loadingTrigger && !loadingPause,
         supportLedger,
       })
         .then(async ({ estimates }) => {

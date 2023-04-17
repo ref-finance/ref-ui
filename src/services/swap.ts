@@ -39,13 +39,8 @@ import {
 } from './ft-contract';
 import {
   getPoolsByTokens,
-  getPoolByToken,
-  parsePool,
-  getPool,
-  getStablePool,
   StablePool,
   getRefPoolsByToken1ORToken2,
-  getStablePoolFromCache,
   getPoolsByTokensAurora,
 } from './pool';
 import {
@@ -60,19 +55,9 @@ import {
 } from './creators/storage';
 import { registerTokenAction, registerAccountOnToken } from './creators/token';
 import { BigNumber } from 'bignumber.js';
-import _, {
-  filter,
-  MemoVoidIteratorCapped,
-  split,
-  StringNullableChain,
-} from 'lodash';
+import _ from 'lodash';
 import { getSwappedAmount, restShare } from './stable-swap';
-import {
-  isStablePool,
-  ALL_STABLE_POOL_IDS,
-  STABLE_POOL_ID,
-  isStableToken,
-} from './near';
+import { isStablePool, isStableToken } from './near';
 import { SWAP_MODE, SwapContractType, SwapMarket } from '../pages/SwapPage';
 import { STABLE_TOKEN_USN_IDS, STABLE_POOL_USN_ID } from './near';
 import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity';
@@ -89,9 +74,11 @@ import {
   toRoundedReadableNumber,
 } from '../utils/numbers';
 import { auroraSwapTransactions } from './aurora/aurora';
-import { PoolSlippageSelector } from '../components/forms/SlippageSelector';
-import { getAllStablePoolsFromCache, Pool } from './pool';
-import { PoolInfo } from '../components/layout/SwapRoutes';
+import {
+  getAllStablePoolsFromCache,
+  Pool,
+  getStablePoolFromCache,
+} from './pool';
 import {
   WRAP_NEAR_CONTRACT_ID,
   nearWithdraw,
@@ -101,7 +88,6 @@ import {
 } from './wrap-near';
 import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
 import { percentLess } from '../utils/numbers';
-import getConfig from './config';
 import { getTokenFlow } from './indexer';
 export const REF_FI_SWAP_SIGNAL = 'REF_FI_SWAP_SIGNAL_KEY';
 
@@ -317,7 +303,7 @@ export const getStablePoolInfoThisPair = ({
   );
 };
 
-export const estimateSwap = async ({
+export const estimateSwapFlow = async ({
   tokenIn,
   tokenOut,
   amountIn,
@@ -358,13 +344,21 @@ export const estimateSwap = async ({
     tokenFlow
       .map((flow) => {
         return flow.pool_ids.map(async (pool_id, i) => {
+          const pool = isStablePool(pool_id)
+            ? getStablePoolFromCache(pool_id.toString())
+            : await db
+                .queryTopPoolsByIds({
+                  poolIds: [pool_id],
+                })
+                .then((pools) => pools?.[0]);
+
           return {
             estimate:
               i === flow.pool_ids.length - 1
                 ? new Big(flow.amount).toFixed(tokenOut.decimals)
                 : '',
-            inputToken: tokenIn.id,
-            outputToken: tokenOut.id,
+            inputToken: flow.all_tokens[i],
+            outputToken: flow.all_tokens[i + 1],
             tokens: await Promise.all(
               flow.all_tokens.map((t) => ftGetTokenMetadata(t))
             ),
@@ -375,11 +369,7 @@ export const estimateSwap = async ({
                     .div(100)
                     .toFixed(0, 0)
                 : '',
-            pool: await db
-              .queryTopPoolsByIds({
-                poolIds: [pool_id],
-              })
-              .then((pools) => pools?.[0]),
+            pool: pool,
           } as EstimateSwapView;
         });
       })
@@ -388,7 +378,7 @@ export const estimateSwap = async ({
 
   return { estimates: res };
 };
-export const estimateSwapFlow = async ({
+export const estimateSwap = async ({
   tokenIn,
   tokenOut,
   amountIn,

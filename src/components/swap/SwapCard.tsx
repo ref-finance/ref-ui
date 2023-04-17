@@ -30,7 +30,6 @@ import {
   multiply,
   divide,
   scientificNotationToString,
-  calculateSmartRoutesV2PriceImpact,
   separateRoutes,
   calcStableSwapPriceImpact,
 } from '../../utils/numbers';
