@@ -5,7 +5,7 @@ import { isMobile } from '../../utils/device';
 import { IoCloseOutline, IoWarning } from 'react-icons/io5';
 import { QuestionTip } from '../../components/layout/TipWrapper';
 import { SUPPORT_LEDGER_KEY } from '../swap/SwapCard';
-import { SWAP_MODE, SwapProContext } from '../../pages/SwapPage';
+import { SWAP_MODE, SWAP_TYPE, SwapProContext } from '../../pages/SwapPage';
 import {
   Inch1IconAndAurora,
   TriAndAurora,
@@ -119,6 +119,8 @@ export default function SlippageSelector({
   setSupportLedger?: (e?: any) => void;
   swapMode?: SWAP_MODE;
 }) {
+  const { swapType } = useContext(SwapProContext);
+
   const ref = useRef<HTMLInputElement>();
   const validSlippages = validSlippageList || [0.1, 0.5, 1.0];
   const slippageCopyId = isMobile() ? 'slippageCopyForMobile' : 'slippageCopy';
@@ -294,38 +296,46 @@ export default function SlippageSelector({
             </div>
 
             {/* support ledger button */}
+            {swapType === SWAP_TYPE.Pro && (
+              <>
+                <div
+                  className="text-sm mt-3"
+                  style={{
+                    color: '#AABAC7',
+                  }}
+                >
+                  <FormattedMessage
+                    id="cross_chain_options"
+                    defaultMessage={'Cross chain options'}
+                  ></FormattedMessage>
+                </div>
 
-            <div
-              className="text-sm mt-3"
-              style={{
-                color: '#AABAC7',
-              }}
-            >
-              <FormattedMessage
-                id="cross_chain_options"
-                defaultMessage={'Cross chain options'}
-              ></FormattedMessage>
-            </div>
+                <div className="frcb w-full my-2 text-sm">
+                  <div className="frcs">
+                    <TriAndAurora />
 
-            <div className="frcb w-full my-2 text-sm">
-              <div className="frcs">
-                <TriAndAurora />
+                    <span className="ml-2 text-white text-sm">Trisolaris</span>
+                  </div>
 
-                <span className="ml-2 text-white text-sm">Trisolaris</span>
-              </div>
+                  <CustomSwitchSwap
+                    isOpen={enableTri}
+                    setIsOpen={setEnableTri}
+                  />
+                </div>
 
-              <CustomSwitchSwap isOpen={enableTri} setIsOpen={setEnableTri} />
-            </div>
+                <div className="frcb w-full  text-sm">
+                  <div className="frcs">
+                    <Inch1IconAndAurora></Inch1IconAndAurora>
 
-            <div className="frcb w-full  text-sm">
-              <div className="frcs">
-                <Inch1IconAndAurora></Inch1IconAndAurora>
+                    <span className="ml-2 text-primaryText text-sm">
+                      1 inch
+                    </span>
+                  </div>
 
-                <span className="ml-2 text-primaryText text-sm">1 inch</span>
-              </div>
-
-              <CustomSwitchSwap isOpen={false} />
-            </div>
+                  <CustomSwitchSwap isOpen={false} />
+                </div>
+              </>
+            )}
 
             <div
               className={

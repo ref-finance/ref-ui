@@ -88,6 +88,7 @@ import { useWalletSelector } from '~context/WalletSelectorContext';
 import { CountdownTimer } from '~components/icon';
 import { TextWrapper } from '~pages/Orderly/components/UserBoard';
 import { SwapMarket } from '../../pages/SwapPage';
+import { REF_FI_SWAP_SIGNAL } from '~services/swap';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -904,7 +905,7 @@ export default function SwapCard(props: {
 
   useSwapPopUp();
 
-  useCrossSwapPopUp(selectMarket);
+  useCrossSwapPopUp();
 
   useRefSwapPro({
     tokenIn,
@@ -948,9 +949,15 @@ export default function SwapCard(props: {
   const tokenInMax = tokenInBalanceFromNear || '0';
 
   const tokenOutTotal = tokenOutBalanceFromNear || '0';
+  console.log('selectTrade: ', selectTrade);
 
   function satisfyCondition1() {
-    return selectTrade && selectTrade.quoteDone && selectTrade.canSwap;
+    return (
+      selectTrade &&
+      selectTrade.quoteDone &&
+      selectTrade.canSwap &&
+      !loadingTrigger
+    );
   }
   function satisfyCondition2() {
     return (

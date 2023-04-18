@@ -366,7 +366,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
               tickCount={0}
               axisLine={false}
               tick={null}
-              width={15}
+              width={20}
             />
 
             <Tooltip

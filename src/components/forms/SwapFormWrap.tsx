@@ -59,7 +59,7 @@ export default function SwapFormWrap({
   title,
   buttonText,
   slippageTolerance,
-  canSubmit = true,
+  canSubmit,
   onSubmit,
   info,
   showElseView,

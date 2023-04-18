@@ -559,6 +559,7 @@ export default function CrossSwapCard(props: {
     tokenOut,
     tokenInAmount,
     tokenOutAmount: swapsToDoTri?.[0]?.estimate || '0',
+    tokenPriceList,
   });
 
   const bestSwapPriceImpact =
