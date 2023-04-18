@@ -374,16 +374,15 @@ function OrderBook({ maintenance }: { maintenance: boolean }) {
 
   const [curMedian, setCurMedian] = useState<number>();
 
-  const recentTradePrice = recentTrades?.at(0)?.executed_price;
+  const recentTradePrice = recentTrades?.at(0)?.executed_price || 0;
 
   const ask_0 = asks?.[0]?.[0] || 0;
 
   const bid_0 = bids?.[0]?.[0] || 0;
 
   useEffect(() => {
-    console.log('rec');
 
-    const newMedian = [recentTradePrice, ask_0, bid_0].sort()[1];
+    const newMedian = [recentTradePrice, ask_0, bid_0].sort((a, b) => a - b)[1];
     if (newMedian === 0) return;
 
     setPreMedian(curMedian);
