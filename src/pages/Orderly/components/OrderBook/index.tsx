@@ -376,9 +376,9 @@ function OrderBook({ maintenance }: { maintenance: boolean }) {
 
   const recentTradePrice = recentTrades?.at(0)?.executed_price || 0;
 
-  const ask_0 = asks?.[0]?.[0] || 0;
+  const ask_0 = orders?.asks?.[0]?.[0] || 0;
 
-  const bid_0 = bids?.[0]?.[0] || 0;
+  const bid_0 = orders?.bids?.[0]?.[0] || 0;
 
   useEffect(() => {
     const newMedian = [recentTradePrice, ask_0, bid_0].sort((a, b) => a - b)[1];
