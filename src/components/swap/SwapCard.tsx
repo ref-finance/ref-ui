@@ -895,6 +895,8 @@ export default function SwapCard(props: {
     };
   };
 
+  const [quoting, setQuoting] = useState<boolean>(true);
+
   const onChangeSlippage = (slippage: number) => {
     const { setSlippageValue, slippageKey } = getSlippageTolerance();
     setSlippageValue(slippage);
@@ -920,6 +922,7 @@ export default function SwapCard(props: {
     supportLedger,
     loadingData,
     wrapOperation,
+    setQuoting,
   });
 
   useEffect(() => {
@@ -956,7 +959,8 @@ export default function SwapCard(props: {
       selectTrade &&
       selectTrade.quoteDone &&
       selectTrade.canSwap &&
-      !loadingTrigger
+      !loadingTrigger &&
+      !quoting
     );
   }
   function satisfyCondition2() {
@@ -968,7 +972,13 @@ export default function SwapCard(props: {
   }
 
   function satisfyCondition3() {
-    return selectTrade && !selectTrade.swapError;
+    return (
+      selectTrade &&
+      !selectTrade.swapError &&
+      tokenIn &&
+      tokenOut &&
+      tokenIn.id !== tokenOut.id
+    );
   }
 
   function satisfyShowDetailViewCondition() {
@@ -1142,7 +1152,11 @@ export default function SwapCard(props: {
           isOut
           swapMode={swapMode}
           amount={
-            wrapOperation ? tokenInAmount : selectTrade?.tokenOutAmount || ''
+            wrapOperation
+              ? tokenInAmount
+              : tokenIn?.id === tokenOut?.id
+              ? ''
+              : selectTrade?.tokenOutAmount || ''
           }
           forCross={enableTri}
           total={tokenOutTotal}

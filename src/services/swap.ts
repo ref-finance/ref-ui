@@ -396,6 +396,9 @@ export const estimateSwap = async ({
 }> => {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
 
+  console.log('loadingTrigger: ', loadingTrigger);
+
+
   const tag = `${tokenIn.id}-${parsedAmountIn}-${tokenOut.id}`;
 
   if (ONLY_ZEROS.test(parsedAmountIn))
@@ -429,6 +432,10 @@ export const estimateSwap = async ({
   ).filter((p) => {
     return getLiquidity(p, tokenIn, tokenOut) > 0;
   });
+
+
+  console.log('pools: ', pools);
+
 
   const { supportLedgerRes } = await getOneSwapActionResult(
     pools,

@@ -52,7 +52,11 @@ export enum SWAP_TYPE {
 
 export type SwapMarket = 'ref' | 'tri' | 'orderly' | undefined;
 
-export type SwapContractType = 'Ref_V1' | 'Ref_DCL' | 'Orderly' | 'Trisolaris';
+export type SwapContractType =
+  | 'Ref_Classic'
+  | 'Ref_DCL'
+  | 'Orderly'
+  | 'Trisolaris';
 
 export interface ExchangeEstimate {
   estimates?: EstimateSwapView[];

@@ -738,7 +738,7 @@ export default function SelectToken({
               <div className="text-sm text-farmText">
                 <FormattedMessage id="no_token_found"></FormattedMessage>
               </div>
-              {isSignedIn && !forCross ? (
+              {isSignedIn ? (
                 <GradientButton
                   onClick={addTokenSubmit}
                   color="#fff"

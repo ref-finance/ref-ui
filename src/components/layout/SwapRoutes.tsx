@@ -1614,12 +1614,12 @@ export const TradeRoute = ({ trade }: { trade: ExchangeEstimate }) => {
               ></div>
               <div className="frcs">
                 {route[0].tokens
-                  .slice(1, route[0].tokens.length - 1)
+                  .slice(1, route[0].tokens.length)
                   .map((t, i) => {
                     return (
                       <>
                         <TradeRouteHub token={t} contract={route[i].contract} />
-                        {t.id !== route[0].tokens.at(-2)?.id && (
+                        {t.id !== route[0].tokens.at(-1)?.id && (
                           <div className="mx-3">
                             <PolygonArrow />
                           </div>
