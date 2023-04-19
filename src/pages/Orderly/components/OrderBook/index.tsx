@@ -381,13 +381,12 @@ function OrderBook({ maintenance }: { maintenance: boolean }) {
   const bid_0 = bids?.[0]?.[0] || 0;
 
   useEffect(() => {
-
     const newMedian = [recentTradePrice, ask_0, bid_0].sort((a, b) => a - b)[1];
     if (newMedian === 0) return;
 
     setPreMedian(curMedian);
     setCurMedian(newMedian);
-  }, [recentTradePrice, ask_0, bid_0]);
+  }, [recentTrades, ask_0, bid_0]);
 
   const displayMedian = numberWithCommas(curMedian || 0);
 
