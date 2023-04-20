@@ -398,7 +398,6 @@ export const estimateSwap = async ({
 
   console.log('loadingTrigger: ', loadingTrigger);
 
-
   const tag = `${tokenIn.id}-${parsedAmountIn}-${tokenOut.id}`;
 
   if (ONLY_ZEROS.test(parsedAmountIn))
@@ -433,22 +432,20 @@ export const estimateSwap = async ({
     return getLiquidity(p, tokenIn, tokenOut) > 0;
   });
 
-
   console.log('pools: ', pools);
 
-
-  const { supportLedgerRes } = await getOneSwapActionResult(
-    pools,
-    loadingTrigger,
-    tokenIn,
-    tokenOut,
-    supportLedger,
-    throwNoPoolError,
-    amountIn,
-    parsedAmountIn
-  );
-
   if (supportLedger) {
+    const { supportLedgerRes } = await getOneSwapActionResult(
+      pools,
+      loadingTrigger,
+      tokenIn,
+      tokenOut,
+      supportLedger,
+      throwNoPoolError,
+      amountIn,
+      parsedAmountIn
+    );
+
     return { estimates: supportLedgerRes, tag };
   }
 
@@ -460,6 +457,8 @@ export const estimateSwap = async ({
     tokenOut.id,
     parsedAmountIn
   );
+
+  console.log('stableSmartActionsV2: ', stableSmartActionsV2);
 
   let res = stableSmartActionsV2;
 
@@ -727,6 +726,7 @@ export async function getHybridStableSmart(
 
   const { allStablePools, allStablePoolsById, allStablePoolsInfo } =
     await getAllStablePoolsFromCache(loadingTrigger);
+  console.log('allStablePools: ', allStablePools);
 
   let candidatePools: Pool[][] = [];
 
@@ -859,6 +859,7 @@ export async function getHybridStableSmart(
     const tokensMedata = await ftGetTokensMetadata(
       candidatePools.map((cp) => cp.map((p) => p.tokenIds).flat()).flat()
     );
+    console.log('candidatePools: ', candidatePools);
 
     const BestPoolPair =
       candidatePools.length === 1

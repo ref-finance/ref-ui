@@ -220,16 +220,18 @@ export default function SlippageSelector({
               openToolTip(e);
             }}
           >
-            <div className="text-newSlippageColor">
+            <div
+              className="text-newSlippageColor"
+              style={{
+                color: '',
+              }}
+            >
               <label className=" text-base font-bold text-center ">
-                <FormattedMessage
-                  id="slippage_title"
-                  defaultMessage="Transaction Settings"
-                />
+                <FormattedMessage id="settings" defaultMessage="Settings" />
               </label>
             </div>
             <div className="flex items-center">
-              <label className="text-sm py-5 text-center ">
+              <label className="text-sm py-5 text-text-newSlippageColor text-center ">
                 <FormattedMessage
                   id="slippage"
                   defaultMessage="Slippage tolerance"
@@ -298,12 +300,7 @@ export default function SlippageSelector({
             {/* support ledger button */}
             {swapType === SWAP_TYPE.Pro && (
               <>
-                <div
-                  className="text-sm mt-3"
-                  style={{
-                    color: '#AABAC7',
-                  }}
-                >
+                <div className="text-sm mt-3 text-newSlippageColor">
                   <FormattedMessage
                     id="cross_chain_options"
                     defaultMessage={'Cross chain options'}
@@ -342,7 +339,7 @@ export default function SlippageSelector({
                 'flex items-center text-newSlippageColor mt-6 justify-between text-sm'
               }
             >
-              <div className="flex items-center">
+              <div className="flex  items-center">
                 <label>
                   <FormattedMessage
                     id="support_ledger"

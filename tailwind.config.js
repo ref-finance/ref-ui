@@ -170,6 +170,7 @@ module.exports = {
         gradientToHover: '#00967B',
         poolRowHover: '#001320',
         primaryText: '#7E8A93',
+        newSlippageColor: '#AABAC7',
         inputDarkBg: 'rgba(15, 13, 13, 0.2)',
         navHighLightBg: '#304452',
         navHighLightText: '#C6D1DA',

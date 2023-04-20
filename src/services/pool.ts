@@ -18,7 +18,11 @@ import {
   storageDepositAction,
   storageDepositForFTAction,
 } from './creators/storage';
-import { getTopPools, getTopPoolsIndexer } from '../services/indexer';
+import {
+  getTopPools,
+  getTopPoolsIndexer,
+  getTopPoolsIndexerRaw,
+} from '../services/indexer';
 import { PoolRPCView } from './api';
 import {
   checkTokenNeedsStorageDeposit,
@@ -284,118 +288,156 @@ export const getPoolsByTokens = async ({
   tokenOutId,
   setLoadingData,
   loadingTrigger,
-  crossSwap,
   proGetCachePool,
   tokenIn,
   tokenOut,
 }: GetPoolOptions): Promise<Pool[]> => {
-  let filtered_pools;
-  const [cacheForPair, cacheTimeLimit] = await db.checkPoolsByTokens(
-    tokenInId,
-    tokenOutId
-  );
+  let pools;
 
-  const PAIR_NAME = [
-    !tokenIn || tokenIn.id === WRAP_NEAR_CONTRACT_ID ? 'wNEAR' : tokenIn.symbol,
-    !tokenOut || tokenOut.id === WRAP_NEAR_CONTRACT_ID
-      ? 'wNEAR'
-      : tokenOut.symbol,
-  ].join('-');
+  const cachePools = async (pools: any) => {
+    await db.cachePoolsByTokens(
+      pools.filter(filterBlackListPools).filter((p: any) => isNotStablePool(p))
+    );
+  };
 
-  if ((!loadingTrigger && cacheTimeLimit) || !cacheForPair) {
-    filtered_pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
+  if (loadingTrigger) {
+    const poolsRaw = await getTopPoolsIndexerRaw();
 
-    let triPools;
-    if (crossSwap) {
-      triPools = sessionStorage.getItem(`REF_FI_TRI_POOL_` + PAIR_NAME);
-      if (triPools) {
-        triPools = JSON.parse(triPools);
-      } else {
-        triPools = await getAllTriPools(
-          tokenIn && tokenOut
-            ? [
-                tokenIn.id === WRAP_NEAR_CONTRACT_ID ? 'wNEAR' : tokenIn.symbol,
-                tokenOut.id === WRAP_NEAR_CONTRACT_ID
-                  ? 'wNEAR'
-                  : tokenOut.symbol,
-              ]
-            : null
-        );
-      }
-      filtered_pools = filtered_pools.concat(triPools || []);
-    }
-  }
-  if (
-    (crossSwap && proGetCachePool) ||
-    loadingTrigger ||
-    (!cacheTimeLimit && cacheForPair)
-  ) {
-    setLoadingData && setLoadingData(true);
+    await db.cacheTopPools(poolsRaw);
 
-    const isCacheFromIndexer =
-      getExtendConfig().pool_protocol &&
-      getExtendConfig().pool_protocol === 'indexer';
-
-    const isCacheFromRPC = !isCacheFromIndexer;
-
-    let pools;
-
-    if (isCacheFromIndexer) {
-      pools = (await getTopPoolsIndexer()).map((p: any) => ({
-        ...p,
+    pools = poolsRaw.map((p: any) => {
+      return {
+        ...parsePool(p),
         Dex: 'ref',
-      }));
-    } else if (isCacheFromRPC) {
-      const totalPools = await getTotalPools();
-      const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
+      };
+    });
 
-      pools = (
-        await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
-      )
-        .flat()
-        .map((p) => ({ ...p, Dex: 'ref' }));
+    await cachePools(pools);
+  } else {
+    const poolsRaw = await db.queryTopPools();
+
+    if (poolsRaw) {
+      pools = poolsRaw.map((p) => {
+        const parsedP = parsePool({
+          ...p,
+          share: p.shares_total_supply,
+          id: Number(p.id),
+          tvl: Number(p.tvl),
+        });
+
+        return {
+          ...parsedP,
+          Dex: 'ref',
+        };
+      });
+    } else {
+      const poolsRaw = await getTopPoolsIndexerRaw();
+
+      await db.cacheTopPools(poolsRaw);
+
+      pools = poolsRaw.map((p: any) => {
+        return {
+          ...parsePool(p),
+          Dex: 'ref',
+        };
+      });
+
+      await cachePools(pools);
     }
-
-    // const totalPools = await getTotalPools();
-    // const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
-
-    let triPools;
-    if (crossSwap) {
-      triPools = await getAllTriPools(
-        tokenIn && tokenOut
-          ? [
-              tokenIn.id === WRAP_NEAR_CONTRACT_ID ? 'wNEAR' : tokenIn.symbol,
-              tokenOut.id === WRAP_NEAR_CONTRACT_ID ? 'wNEAR' : tokenOut.symbol,
-            ]
-          : null
-      );
-    }
-
-    if (triPools && triPools.length > 0) {
-      sessionStorage.setItem(
-        `REF_FI_TRI_POOL_` + PAIR_NAME,
-        JSON.stringify(triPools)
-      );
-    }
-
-    filtered_pools = pools
-      // .concat(triPools || [])
-      .filter(isNotStablePool)
-      .filter(filterBlackListPools);
-
-    await db.cachePoolsByTokens(filtered_pools);
-    filtered_pools = filtered_pools
-      .concat(triPools || [])
-      .filter((p: any) => p.supplies[tokenInId] && p.supplies[tokenOutId]);
-    await getAllStablePoolsFromCache();
-    await cacheAllDCLPools();
   }
 
-  setLoadingData && setLoadingData(false);
+  const filteredPools = pools
+    .filter(filterBlackListPools)
+    .filter((pool: any) => {
+      return (
+        pool.tokenIds.includes(tokenInId) &&
+        pool.tokenIds.includes(tokenOutId) &&
+        isNotStablePool(pool)
+      );
+    });
 
-  // @ts-ignore
-  return filtered_pools.filter((p) => crossSwap || !p?.Dex || p.Dex !== 'tri');
+  return filteredPools;
 };
+// }
+// if (
+//   (crossSwap && proGetCachePool) ||
+//   loadingTrigger ||
+//   (!cacheTimeLimit && cacheForPair)
+// ) {
+//   setLoadingData && setLoadingData(true);
+// }
+// }
+// if (
+//   (crossSwap && proGetCachePool) ||
+//   loadingTrigger ||
+//   (!cacheTimeLimit && cacheForPair)
+// ) {
+//   setLoadingData && setLoadingData(true);
+
+// let filtered_pools;
+// const [cacheForPair, cacheTimeLimit] = await db.checkPoolsByTokens(
+//   tokenInId,
+//   tokenOutId
+// );
+
+// console.log('loadingTrigger: ', loadingTrigger);
+
+// if ((!loadingTrigger && cacheTimeLimit) || !cacheForPair) {
+//   filtered_pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
+// }
+// if (
+//   loadingTrigger ||
+//   (!cacheTimeLimit && cacheForPair) ||
+//   !filtered_pools ||
+//   filtered_pools?.length === 0
+// ) {
+//   setLoadingData && setLoadingData(true);
+
+//   const isCacheFromIndexer =
+//     getExtendConfig().pool_protocol &&
+//     getExtendConfig().pool_protocol === 'indexer';
+
+//   const isCacheFromRPC = !isCacheFromIndexer;
+
+//   let pools;
+
+//   if (isCacheFromIndexer) {
+//     pools = (await getTopPoolsIndexer()).map((p: any) => ({
+//       ...p,
+//       Dex: 'ref',
+//     }));
+//   } else if (isCacheFromRPC) {
+//     const totalPools = await getTotalPools();
+//     const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
+
+//     pools = (
+//       await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
+//     )
+//       .flat()
+//       .map((p) => ({ ...p, Dex: 'ref' }));
+//   }
+
+//   // const totalPools = await getTotalPools();
+//   // const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
+
+//   filtered_pools = pools
+//     // .concat(triPools || [])
+//     .filter(isNotStablePool)
+//     .filter(filterBlackListPools);
+
+//   await db.cachePoolsByTokens(filtered_pools);
+//   filtered_pools = filtered_pools.filter(
+//     (p: any) => p.supplies[tokenInId] && p.supplies[tokenOutId]
+//   );
+//   await getAllStablePoolsFromCache();
+//   await cacheAllDCLPools();
+// }
+
+// setLoadingData && setLoadingData(false);
+
+// // @ts-ignore
+// return filtered_pools.filter((p) => !p?.Dex || p.Dex !== 'tri');
+// };
 
 export const getPoolsByTokensAurora = async ({
   tokenInId,
