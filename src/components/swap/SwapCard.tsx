@@ -1083,7 +1083,7 @@ export default function SwapCard(props: {
           showSwapLoading,
           setShowSwapLoading,
         }}
-        isInsufficient={isInsufficientBalance}
+        isInsufficient={isInsufficientBalance && selectMarket !== 'orderly'}
       >
         <TokenAmountV3
           forSwap

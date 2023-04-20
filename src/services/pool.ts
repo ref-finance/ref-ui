@@ -55,6 +55,7 @@ import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
 import { getAllPoolsIndexer } from './indexer';
 import { getExtendConfig } from './config';
 import { cacheAllDCLPools } from './swapV3';
+import { REF_DCL_POOL_CACHE_KEY } from '~state/swap';
 const explorerType = getExplorer();
 export const DEFAULT_PAGE_LIMIT = 500;
 const getStablePoolKey = (id: string) => `STABLE_POOL_VALUE_${id}`;
@@ -313,8 +314,14 @@ export const getPoolsByTokens = async ({
     });
 
     await cachePools(pools);
+
+    await cacheAllDCLPools();
   } else {
     const poolsRaw = await db.queryTopPools();
+    
+    if(!localStorage.getItem(REF_DCL_POOL_CACHE_KEY)){
+      await cacheAllDCLPools();
+    }
 
     if (poolsRaw && poolsRaw?.length > 0) {
       pools = poolsRaw.map((p) => {

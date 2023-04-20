@@ -88,6 +88,7 @@ import {
   v3Swap,
   V3_POOL_FEE_LIST,
   V3_POOL_SPLITER,
+  cacheAllDCLPools,
 } from '../services/swapV3';
 import {
   pointToPrice,
@@ -151,6 +152,7 @@ interface SwapOptions {
   requestingTrigger?: boolean;
   setRequestingTrigger?: (requestingTrigger?: boolean) => void;
   wrapOperation?: boolean;
+  reEstimatingPro?: boolean;
 }
 
 interface SwapV3Options {
@@ -167,6 +169,7 @@ interface SwapV3Options {
   swapMode?: SWAP_MODE;
   wrapOperation?: boolean;
   swapError?: Error;
+  reEstimatingPro?: boolean;
 }
 
 export const useSwapPopUp = () => {
@@ -716,6 +719,7 @@ export const useSwapV3 = ({
   setLoadingTrigger,
 }: SwapV3Options) => {
   const [tokenOutAmount, setTokenOutAmount] = useState<string>('');
+  console.log('tokenOutAmountv2v2: ', tokenOutAmount);
 
   const [bestPool, setBestPool] = useState<PoolInfo>();
 
@@ -811,6 +815,8 @@ export const useSwapV3 = ({
 
     setQuoteDone(false);
 
+    console.log('tokenintrigger');
+
     const storedPools = localStorage.getItem(REF_DCL_POOL_CACHE_KEY);
 
     if (!storedPools) {
@@ -826,26 +832,31 @@ export const useSwapV3 = ({
       fees.map((fee) => getQuote(fee, tokenIn, tokenOut, allDCLPools))
     )
       .then((res) => {
-        if (!loadingTrigger || swapError?.message) {
-          setEstimates(res);
+        setEstimates(res);
 
-          const bestEstimate =
-            res && res?.some((e) => !!e)
-              ? _.maxBy(res, (e) => Number(!e?.tag ? -1 : e.amount))
-              : null;
+        const bestEstimate =
+          res && res?.some((e) => !!e)
+            ? _.maxBy(res, (e) => Number(!e?.tag ? -1 : e.amount))
+            : null;
 
-          setBestEstimate(bestEstimate);
+        console.log(
+          'bestEstimate: ',
+          bestEstimate,
+          tagValidator(bestEstimate, tokenIn, tokenInAmount)
+        );
 
-          if (
-            bestEstimate &&
-            !loadingTrigger &&
-            (tagValidator(bestEstimate, tokenIn, tokenInAmount) ||
-              res?.every((e) => !e || e?.tag === null))
-          ) {
-            setTokenOutAmount(
-              toReadableNumber(tokenOut?.decimals || 24, bestEstimate.amount)
-            );
-          }
+        setBestEstimate(bestEstimate);
+
+        if (
+          bestEstimate &&
+          (tagValidator(bestEstimate, tokenIn, tokenInAmount) ||
+            res?.every((e) => !e || e?.tag === null))
+        ) {
+          setTokenOutAmount(
+            toReadableNumber(tokenOut?.decimals || 24, bestEstimate.amount)
+          );
+
+          return;
         }
       })
       .catch((e) => {})
@@ -930,6 +941,8 @@ export const useSwapV3 = ({
       totalInputAmount: toNonDivisibleNumber(tokenIn?.decimals, tokenInAmount),
     },
   ];
+
+  console.log(tokenInAmount, 'tokenInAmount 111', swapsToDoV2);
 
   return {
     makeSwap,
@@ -1217,6 +1230,7 @@ export const useCrossSwap = ({
         const estimates = estimatesRes.map((e) => ({
           ...e,
           partialAmountIn: e.pool.partialAmountIn,
+          totalInputAmount: e.pool.partialAmountIn,
         }));
         if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
           setTokenOutAmount(estimates[0].estimate);
@@ -1463,6 +1477,7 @@ export const useRefSwap = ({
   reEstimateTrigger,
   supportLedger,
   loadingData,
+  reEstimatingPro,
 }: SwapOptions): ExchangeEstimate => {
   const {
     canSwap,
@@ -1522,38 +1537,40 @@ export const useRefSwap = ({
       market: 'ref',
     };
 
-  const bestSwap =
-    new Big(tokenOutAmountV2 || '0').gte(tokenOutAmount || '0') &&
-    canSwapV2 &&
-    !swapErrorV2
-      ? 'v2'
-      : 'v1';
+  // const bestSwap =
+  //   new Big(tokenOutAmountV2 || '0').gte(tokenOutAmount || '0') &&
+  //   canSwapV2 &&
+  //   !swapErrorV2
+  //     ? 'v2'
+  //     : 'v1';
 
-  if (bestSwap === 'v1') {
-    return {
-      quoteDone: true,
-      canSwap: canSwap,
-      makeSwap: makeSwapV1,
-      estimates: swapsToDo?.map((s) => ({ ...s, contract: 'Ref_Classic' })),
-      tokenOutAmount:
-        !tokenOutAmount || swapError
-          ? ''
-          : toPrecision(
-              tokenOutAmount || '0',
-              Math.min(8, tokenOut?.decimals || 8)
-            ),
-      minAmountOut: minAmountOut,
-      fee: fee,
-      priceImpact: priceImpactValue,
-      swapError,
-      availableRoute: !swapError,
-      tokenInAmount,
-      tokenIn,
-      tokenOut,
-      market: 'ref',
-      exchange_name: <div className="text-white">Ref</div>,
-    };
-  }
+  const bestSwap = 'v2';
+
+  // if (bestSwap === 'v1') {
+  //   return {
+  //     quoteDone: true,
+  //     canSwap: canSwap,
+  //     makeSwap: makeSwapV1,
+  //     estimates: swapsToDo?.map((s) => ({ ...s, contract: 'Ref_Classic' })),
+  //     tokenOutAmount:
+  //       !tokenOutAmount || swapError
+  //         ? ''
+  //         : toPrecision(
+  //             tokenOutAmount || '0',
+  //             Math.min(8, tokenOut?.decimals || 8)
+  //           ),
+  //     minAmountOut: minAmountOut,
+  //     fee: fee,
+  //     priceImpact: priceImpactValue,
+  //     swapError,
+  //     availableRoute: !swapError,
+  //     tokenInAmount,
+  //     tokenIn,
+  //     tokenOut,
+  //     market: 'ref',
+  //     exchange_name: <div className="text-white">Ref</div>,
+  //   };
+  // }
   if (bestSwap === 'v2') {
     return {
       quoteDone: true,
@@ -1890,6 +1907,8 @@ export const useRefSwapPro = ({
     swapType,
   } = useContext(SwapProContext);
 
+  const [changeString, setChangeString] = useState<string>();
+
   const resRef = useRefSwap({
     tokenIn,
     tokenInAmount,
@@ -1938,6 +1957,27 @@ export const useRefSwapPro = ({
       setTrades(trades);
       console.log('trades: ', trades);
 
+      if (
+        toNonDivisibleNumber(tokenIn.decimals, tokenInAmount) !==
+        resRef.estimates[0].totalInputAmount
+      )
+        alert(
+          'tokenInAmount: ' +
+            tokenInAmount +
+            ' estimates: ' +
+            resRef.estimates[0].totalInputAmount
+        );
+
+      const curString = `${tokenIn.id}-${tokenOut.id}-${tokenInAmount}-${swapType}-${supportLedger}`;
+
+      if (changeString === curString) {
+        setQuoting(false);
+
+        return;
+      } else {
+        setChangeString(curString);
+      }
+
       const bestMarket = Object.keys(trades).reduce((a, b) =>
         new Big(
           trades[a].availableRoute ? trades[a].tokenOutAmount || '0' : '0'
@@ -1964,5 +2004,8 @@ export const useRefSwapPro = ({
     slippageTolerance,
     swapType,
     supportLedger,
+    tokenInAmount,
+    resRef?.tokenOutAmount,
+    resAurora?.tokenOutAmount,
   ]);
 };
