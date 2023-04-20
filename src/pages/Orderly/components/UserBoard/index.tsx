@@ -3457,9 +3457,9 @@ function SelectTokenModal(
           isMobile
             ? 'rounded-t-2xl fixed w-screen bottom-0 left-0'
             : 'rounded-2xl gradientBorderWrapperNoShadowForOrderly border'
-        }  lg:w-p400  lg:h-p560   bg-boxBorder text-sm text-primaryOrderly  `}
+        }     bg-boxBorder text-sm text-primaryOrderly  `}
       >
-        <div className=" py-6 text-primaryOrderly text-sm flex flex-col ">
+        <div className=" py-6 text-primaryOrderly text-sm flex flex-col  lg:w-p400  lg:h-p560">
           <div className="flex px-4 items-center pb-6 justify-between">
             <span className="text-white text-lg font-bold">
               {intl.formatMessage({
