@@ -316,7 +316,7 @@ export const getPoolsByTokens = async ({
   } else {
     const poolsRaw = await db.queryTopPools();
 
-    if (poolsRaw) {
+    if (poolsRaw && poolsRaw?.length > 0) {
       pools = poolsRaw.map((p) => {
         const parsedP = parsePool({
           ...p,
@@ -1283,28 +1283,22 @@ export const getStablePoolFromCache = async (
     Number(stablePoolInfoCache.update_time) >
       Number(moment().unix() - Number(POOL_TOKEN_REFRESH_INTERVAL));
 
-  const loadingTriggerSig =
-    typeof loadingTrigger === 'undefined' ||
-    (typeof loadingTrigger !== 'undefined' && loadingTrigger);
+  const stablePool = isStablePoolCached
+    ? stablePoolCache
+    : await getPool(Number(stable_pool_id));
 
-  const stablePool =
-    isStablePoolCached || !loadingTriggerSig
-      ? stablePoolCache
-      : await getPool(Number(stable_pool_id));
+  const stablePoolInfo = isStablePoolInfoCached
+    ? stablePoolInfoCache
+    : await getStablePool(Number(stable_pool_id));
 
-  const stablePoolInfo =
-    isStablePoolInfoCached || !loadingTriggerSig
-      ? stablePoolInfoCache
-      : await getStablePool(Number(stable_pool_id));
-
-  if (!isStablePoolCached && loadingTriggerSig) {
+  if (!isStablePoolCached) {
     localStorage.setItem(
       pool_key,
       JSON.stringify({ ...stablePool, update_time: moment().unix() })
     );
   }
 
-  if (!isStablePoolInfoCached && loadingTriggerSig) {
+  if (!isStablePoolInfoCached) {
     localStorage.setItem(
       info,
       JSON.stringify({ ...stablePoolInfo, update_time: moment().unix() })

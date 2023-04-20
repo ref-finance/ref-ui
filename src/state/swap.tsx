@@ -455,7 +455,7 @@ export const useSwap = ({
   const [swapsToDo, setSwapsToDo] = useState<EstimateSwapView[]>();
   const [quoteDone, setQuoteDone] = useState<boolean>(false);
 
-  const tokenPriceList = useTokenPriceList();
+  const tokenPriceList = useTokenPriceList(loadingTrigger);
 
   const [forceEstimate, setForceEstimate] = useState<boolean>(false);
 
@@ -1170,7 +1170,7 @@ export const useCrossSwap = ({
   const [tokenOutAmount, setTokenOutAmount] = useState<string>('');
   const [swapError, setSwapError] = useState<Error>();
   const [swapsToDo, setSwapsToDo] = useState<EstimateSwapView[]>();
-  const tokenPriceList = useTokenPriceList();
+  const tokenPriceList = useTokenPriceList(loadingTrigger);
   const [crossQuoteDone, setCrossQuoteDone] = useState<boolean>(false);
 
   const [priceImpact, setPriceImpact] = useState<string>('0');
@@ -1599,7 +1599,7 @@ export const useOrderlySwap = ({
 
   const { accountId } = useWalletSelector();
 
-  const [side, setCurSide] = useState<'SELL' | 'BUY'>();
+  const [side, setCurSide] = useState<'Sell' | 'Buy'>();
 
   const {
     tokenInfo,
@@ -1613,11 +1613,11 @@ export const useOrderlySwap = ({
   const [userInfo, setUserInfo] = useState<ClientInfo>();
 
   const calculatePrice = (
-    side: 'SELL' | 'BUY',
+    side: 'Sell' | 'Buy',
     orders: Orders,
     tokenInAmount: string | number
   ) => {
-    const asks = (side === 'BUY' ? orders?.asks : orders?.bids) || [];
+    const asks = (side === 'Buy' ? orders?.asks : orders?.bids) || [];
 
     if (asks.length == 0) {
       setCanSwap(false);
@@ -1629,7 +1629,7 @@ export const useOrderlySwap = ({
     let totalPrice = 0;
     let totalAmount = 0;
 
-    if (side === 'SELL') {
+    if (side === 'Sell') {
       for (let i = 0; i < asks.length; i++) {
         const [price, quantity] = asks[i];
         if (totalAmount + quantity <= Number(tokenInAmount)) {
@@ -1644,7 +1644,7 @@ export const useOrderlySwap = ({
       }
     }
 
-    if (side === 'BUY') {
+    if (side === 'Buy') {
       for (let i = 0; i < asks.length; i++) {
         const [price, quantity] = asks[i];
         if (totalAmount + price * quantity <= Number(tokenInAmount)) {
@@ -1706,8 +1706,8 @@ export const useOrderlySwap = ({
     });
 
     const side = (
-      canSwapSymbol?.token_ids[0] === tokenIn.id ? 'SELL' : 'BUY'
-    ) as 'SELL' | 'BUY';
+      canSwapSymbol?.token_ids[0] === tokenIn.id ? 'Sell' : 'Buy'
+    ) as 'Sell' | 'Buy';
 
     if (!availableSymbols || !canSwapSymbol || !canSwapSymbol?.token_ids) {
       setCanSwap(false);
@@ -1823,7 +1823,10 @@ export const useOrderlySwap = ({
   ]);
 
   const makeSwap = () => {
-    history.push('/orderbook');
+    history.push('/orderbook', {
+      side,
+      orderType: 'Market',
+    });
   };
 
   console.log('orderly quote done', !pairExist || orderlyQuoteDone);
