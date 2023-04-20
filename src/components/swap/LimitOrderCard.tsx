@@ -1059,7 +1059,7 @@ export default function LimitOrderCard(props: {
             forSwap
             isOut
             swapMode={swapMode}
-            amount={limitAmountOut}
+            amount={!limitAmountOut ? '0' : limitAmountOut}
             total={tokenOutTotal}
             tokens={allTokens}
             selectedToken={tokenOut}
