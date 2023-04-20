@@ -1537,40 +1537,38 @@ export const useRefSwap = ({
       market: 'ref',
     };
 
-  // const bestSwap =
-  //   new Big(tokenOutAmountV2 || '0').gte(tokenOutAmount || '0') &&
-  //   canSwapV2 &&
-  //   !swapErrorV2
-  //     ? 'v2'
-  //     : 'v1';
+  const bestSwap =
+    new Big(tokenOutAmountV2 || '0').gte(tokenOutAmount || '0') &&
+    canSwapV2 &&
+    !swapErrorV2
+      ? 'v2'
+      : 'v1';
 
-  const bestSwap = 'v2';
-
-  // if (bestSwap === 'v1') {
-  //   return {
-  //     quoteDone: true,
-  //     canSwap: canSwap,
-  //     makeSwap: makeSwapV1,
-  //     estimates: swapsToDo?.map((s) => ({ ...s, contract: 'Ref_Classic' })),
-  //     tokenOutAmount:
-  //       !tokenOutAmount || swapError
-  //         ? ''
-  //         : toPrecision(
-  //             tokenOutAmount || '0',
-  //             Math.min(8, tokenOut?.decimals || 8)
-  //           ),
-  //     minAmountOut: minAmountOut,
-  //     fee: fee,
-  //     priceImpact: priceImpactValue,
-  //     swapError,
-  //     availableRoute: !swapError,
-  //     tokenInAmount,
-  //     tokenIn,
-  //     tokenOut,
-  //     market: 'ref',
-  //     exchange_name: <div className="text-white">Ref</div>,
-  //   };
-  // }
+  if (bestSwap === 'v1') {
+    return {
+      quoteDone: true,
+      canSwap: canSwap,
+      makeSwap: makeSwapV1,
+      estimates: swapsToDo?.map((s) => ({ ...s, contract: 'Ref_Classic' })),
+      tokenOutAmount:
+        !tokenOutAmount || swapError
+          ? ''
+          : toPrecision(
+              tokenOutAmount || '0',
+              Math.min(8, tokenOut?.decimals || 8)
+            ),
+      minAmountOut: minAmountOut,
+      fee: fee,
+      priceImpact: priceImpactValue,
+      swapError,
+      availableRoute: !swapError,
+      tokenInAmount,
+      tokenIn,
+      tokenOut,
+      market: 'ref',
+      exchange_name: <div className="text-white">Ref</div>,
+    };
+  }
   if (bestSwap === 'v2') {
     return {
       quoteDone: true,
