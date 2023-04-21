@@ -102,6 +102,8 @@ export default function SwapRateChart(props: SwapRateChartProps) {
       });
   }, [displayTokenIn?.id, displayTokenOut?.id, displayDimension]);
 
+  const loading = loadingPriceList;
+
   if (!displayTokenIn || !displayTokenOut) return null;
 
   const RenderTick = (tickProps: any) => {
@@ -184,8 +186,12 @@ export default function SwapRateChart(props: SwapRateChartProps) {
 
   const CustomizedDot = (props: any) => {
     const { cx, cy, stroke, payload, value } = props;
+    console.log('payload: ', payload, priceList);
 
-    if (props.index === priceList.price_list.length - 1) {
+    if (
+      payload?.date_time ===
+      priceList?.price_list?.[priceList?.price_list?.length - 1]?.date_time
+    ) {
       return (
         <svg
           x={cx}
@@ -196,16 +202,39 @@ export default function SwapRateChart(props: SwapRateChartProps) {
           viewBox="0 0 37 16"
           fill="none"
         >
-          <path
+          <foreignObject
+            overflow={'visible'}
+            height={16}
+            width={200}
+            x={0}
+            y={2}
+          >
+            <div className="frcs relative ">
+              <div className="rounded bg-gradientFromHover h-3 w-3 transform rotate-45"></div>
+
+              <div
+                className="rounded-r  bg-gradientFromHover frcs pr-2 pl-0 h-4 relative right-1.5"
+                style={{
+                  fontSize: '10px',
+                  color: '#1D2932',
+                  height: '14px',
+                }}
+              >
+                {displayNumberToAppropriateDecimals(payload.price)}
+              </div>
+            </div>
+          </foreignObject>
+
+          {/* <path
             d="M6.45039 0.677939C6.83007 0.246948 7.37673 0 7.95111 0H35C36.1046 0 37 0.895431 37 2V14C37 15.1046 36.1046 16 35 16H7.9511C7.37672 16 6.83007 15.7531 6.45039 15.3221L1.16467 9.32206C0.498964 8.56639 0.498964 7.43361 1.16467 6.67794L6.45039 0.677939Z"
             fill="#00C6A2"
           />
           <text x="8" y="12" fontSize={10} fill="#1D2932">
-            {displayNumberToAppropriateDecimals(payload.price)}
-          </text>
+          </text> */}
         </svg>
       );
     }
+
     return null;
   };
 
@@ -283,7 +312,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
         )}
       </div>
 
-      {loadingPriceList && (
+      {loading && (
         <div
           className="flex flex-col relative items-center justify-center"
           style={{
@@ -295,7 +324,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
         </div>
       )}
 
-      {!loadingPriceList && priceList && priceList.price_list.length === 0 && (
+      {!loading && priceList && priceList.price_list.length === 0 && (
         <div
           className="flex flex-col items-center justify-center"
           style={{
@@ -313,10 +342,10 @@ export default function SwapRateChart(props: SwapRateChartProps) {
           </div>
         </div>
       )}
-      {!loadingPriceList && priceList && priceList.price_list.length > 0 && (
+      {!loading && priceList && priceList.price_list.length > 0 && (
         <ResponsiveContainer width={'100%'} height={300}>
           <ComposedChart
-            data={priceList.price_list.map((p) => {
+            data={priceList.price_list.map((p: any) => {
               return {
                 ...p,
                 stickLast:
@@ -413,6 +442,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
                 fill: '#00FFD1',
                 r: 5,
               }}
+              isAnimationActive={false}
             />
           </ComposedChart>
         </ResponsiveContainer>
