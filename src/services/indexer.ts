@@ -570,7 +570,7 @@ export interface TokenPairRate {
 
 interface PriceList {
   price: number;
-  date_time: string;
+  date_time: number;
 }
 
 export const getTokenPairRate = async ({
@@ -584,13 +584,22 @@ export const getTokenPairRate = async ({
 }): Promise<TokenPairRate> => {
   return await fetch(
     config.indexerUrl +
-      `/token-last-price-report?token=${token.id}&base_token=${base_token.id}&dimension=${dimension}`,
+      `/token-price-report?token=${token.id}&base_token=${base_token.id}&dimension=${dimension}`,
     {
       method: 'GET',
       headers: { 'Content-type': 'application/json; charset=UTF-8' },
     }
   )
-    .then((res) => res.json())
+    .then(async (res) => {
+      const data = await res.json();
+      return {
+        ...data,
+        price_list: data.price_list.map((item: any) => ({
+          price: item.price,
+          date_time: item.date_time * 1000,
+        })),
+      };
+    })
 
     .catch(() => {
       return {

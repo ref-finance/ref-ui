@@ -116,9 +116,9 @@ export default function SwapRateChart(props: SwapRateChartProps) {
           priceList.price_list[priceList.price_list.length - 1].date_time
         ? x - 10
         : x;
-    const date = moment(value, 'YYYY-MM-DD HH:mm:ss');
+    const date = moment(value);
 
-    if (displayDimension === '7D' || displayDimension === '24H') {
+    if (displayDimension === '24H') {
       return (
         <text
           fontSize={'10px'}
@@ -167,12 +167,12 @@ export default function SwapRateChart(props: SwapRateChartProps) {
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (!active || !payload || !payload?.[1]) return null;
+
+    console.log(payload[1].payload.date_time, 'dasdad');
     return (
       <div className=" border px-2 py-1.5 rounded-md  bg-toolTipBoxBgColor border-toolTipBoxBorderColor min-w-max">
         <div className="text-xs text-primaryText">
-          {moment(payload[1].payload.date_time, 'YYYY-MM-DD HH:mm:ss').format(
-            'HH:mm MMMM DD, YYYY'
-          )}
+          {moment(payload[1].payload.date_time).format('HH:mm MMMM DD, YYYY')}
         </div>
 
         <div className="text-white text-sm">
@@ -346,7 +346,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
               tickLine={false}
               axisLine={false}
               tick={<RenderTick />}
-              interval={3}
+              interval={Math.floor(priceList.price_list.length / 20) * 3}
             />
 
             <YAxis

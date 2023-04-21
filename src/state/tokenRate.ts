@@ -24,9 +24,7 @@ export const useTokenRate24h = ({
       dimension: 'D',
     }).then((res) => {
       const priceList = res.price_list.sort(
-        (a, b) =>
-          moment(b.date_time, 'YYYY-MM-DD HH:mm:ss').unix() -
-          moment(a.date_time, 'YYYY-MM-DD HH:mm:ss').unix()
+        (a, b) => moment(b.date_time).unix() - moment(a.date_time).unix()
       );
 
       const curPrice = priceList?.[0]?.price;
