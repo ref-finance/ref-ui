@@ -89,6 +89,7 @@ import { CountdownTimer } from '~components/icon';
 import { TextWrapper } from '~pages/Orderly/components/UserBoard';
 import { SwapMarket } from '../../pages/SwapPage';
 import { REF_FI_SWAP_SIGNAL } from '~services/swap';
+import { numberWithCommas } from '~pages/Orderly/utiles';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -236,7 +237,7 @@ export function SwapRate({
       if (new BigNumber(result).isLessThan('0.0001')) {
         return '<0.0001';
       } else {
-        return math.floor(result, 4);
+        return numberWithCommas(math.floor(result, 4).toString());
       }
     } catch (error) {}
   }, [isRevert, to]);

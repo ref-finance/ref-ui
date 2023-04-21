@@ -1917,8 +1917,15 @@ export const useRefSwapPro = ({
 }: SwapOptions & {
   setQuoting: (quoting: boolean) => void;
 }) => {
-  const { setTrades, enableTri, setSelectMarket, selectMarket, swapType } =
-    useContext(SwapProContext);
+  const {
+    setTrades,
+    enableTri,
+    setSelectMarket,
+    forceEstimate,
+    setForceEstimate,
+    selectMarket,
+    swapType,
+  } = useContext(SwapProContext);
 
   const resRef = useRefSwap({
     tokenIn,
@@ -1968,7 +1975,8 @@ export const useRefSwapPro = ({
 
       if (
         sessionStorage.getItem('loadingTrigger') === 'true' &&
-        sessionStorage.getItem('enableTri') === enableTri.toString()
+        sessionStorage.getItem('enableTri') === enableTri.toString() &&
+        !forceEstimate
       ) {
         setQuoting(false);
 
@@ -1993,6 +2001,7 @@ export const useRefSwapPro = ({
       setQuoting(false);
     } else {
       setQuoting(true);
+      setForceEstimate(false);
     }
   }, [
     resRef.quoteDone,
@@ -2007,5 +2016,6 @@ export const useRefSwapPro = ({
     JSON.stringify(resAurora?.tokenOutAmount || {}),
     JSON.stringify(resRef?.estimates || {}),
     JSON.stringify(resAurora?.estimates || {}),
+    forceEstimate,
   ]);
 };

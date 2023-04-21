@@ -92,6 +92,8 @@ interface SwapProContextValue {
   swapType: SWAP_TYPE;
   changeSwapType: (e?: SWAP_TYPE) => void;
   swapMode: SWAP_MODE;
+  forceEstimate?: boolean;
+  setForceEstimate?: (e?: boolean) => void;
 }
 
 export const SwapProContext = createContext<SwapProContextValue>(null);
@@ -215,9 +217,12 @@ function SwapPage() {
     storedType || SWAP_TYPE.LITE
   );
 
+  const [forceEstimate, setForceEstimate] = useState<boolean>(false);
+
   const changeSwapType = (type: SWAP_TYPE) => {
     setSwapType(type);
     sessionStorage.setItem(SWAP_TYPE_KEY, type);
+    setForceEstimate(true);
   };
 
   const changeEnableTri = (e: boolean) => {
@@ -295,6 +300,8 @@ function SwapPage() {
         swapType,
         selectMarket,
         setSelectMarket,
+        forceEstimate,
+        setForceEstimate,
       }}
     >
       <div className="frsc ">

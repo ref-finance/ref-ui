@@ -153,7 +153,6 @@ export default function SwapRateChart(props: SwapRateChartProps) {
 
   const RenderYTick = (tickProps: any) => {
     let { x, y, payload, index } = tickProps;
-    console.log('tickProps: ', tickProps);
 
     const { value, offset } = payload;
 
@@ -175,7 +174,6 @@ export default function SwapRateChart(props: SwapRateChartProps) {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (!active || !payload || !payload?.[1]) return null;
 
-    console.log(payload[1].payload.date_time, 'dasdad');
     return (
       <div className=" border px-2 py-1.5 rounded-md  bg-toolTipBoxBgColor border-toolTipBoxBorderColor min-w-max">
         <div className="text-xs text-primaryText">
@@ -193,12 +191,9 @@ export default function SwapRateChart(props: SwapRateChartProps) {
 
   const CustomizedDot = (props: any) => {
     const { cx, cy, stroke, payload, value } = props;
-    console.log('payload: ', payload, priceList);
+    console.log('payload: ', payload, value, props);
 
-    if (
-      payload?.date_time ===
-      priceList?.price_list?.[priceList?.price_list?.length - 1]?.date_time
-    ) {
+    if (props.index === priceList?.price_list?.length - 1) {
       return (
         <svg
           x={cx}

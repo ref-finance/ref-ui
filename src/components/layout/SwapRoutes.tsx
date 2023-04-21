@@ -1704,7 +1704,7 @@ export const MarketList = ({
               .minus(1)
               .times(100)
               .toFixed(2),
-      rate: displayNumberToAppropriateDecimals(rawRate),
+      rate: numberWithCommas(displayNumberToAppropriateDecimals(rawRate)),
       selected: selectMarket === t.market,
       output: numberWithCommas(
         displayNumberToAppropriateDecimals(t.tokenOutAmount)
