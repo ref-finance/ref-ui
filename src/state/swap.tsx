@@ -698,6 +698,7 @@ export const useSwap = ({
     swapError,
     makeSwap,
     avgFee,
+    tokenInAmount,
     pools: swapsToDo?.map((estimate) => estimate.pool),
     swapsToDo,
     isParallelSwap: swapsToDo?.every((e) => e.status === PoolMode.PARALLEL),
@@ -719,7 +720,8 @@ export const useSwapV3 = ({
   setLoadingTrigger,
 }: SwapV3Options) => {
   const [tokenOutAmount, setTokenOutAmount] = useState<string>('');
-  console.log('tokenOutAmountv2v2: ', tokenOutAmount);
+
+  const [tag, setTag] = useState<any>();
 
   const [bestPool, setBestPool] = useState<PoolInfo>();
 
@@ -856,6 +858,8 @@ export const useSwapV3 = ({
             toReadableNumber(tokenOut?.decimals || 24, bestEstimate.amount)
           );
 
+          setTag(bestEstimate.tag);
+
           return;
         }
       })
@@ -927,7 +931,7 @@ export const useSwapV3 = ({
     } catch (error) {
       return '0';
     }
-  }, [quoteDone]);
+  }, [quoteDone, tokenOutAmount]);
 
   const swapsToDoV2: EstimateSwapView[] = [
     {
@@ -948,6 +952,7 @@ export const useSwapV3 = ({
     makeSwap,
     canSwap: getCanSwapCondition(),
     tokenOutAmount,
+    tokenInAmount,
     canSwapPro: quoteDone && tagValidator(bestEstimate, tokenIn, tokenInAmount),
     priceImpact: priceImpact,
     minAmountOut: tokenOutAmount
@@ -963,6 +968,7 @@ export const useSwapV3 = ({
     fee: bestFee === null ? null : bestFee / 100,
     bestPool,
     setQuoteDone,
+    tag,
     swapErrorV3: (
       quoteDone && !bestEstimate
         ? true
@@ -1489,6 +1495,7 @@ export const useRefSwap = ({
     swapsToDo,
     quoteDone,
     priceImpactValue,
+    tokenInAmount: tokenInAmountV1,
   } = useSwap({
     tokenIn,
     tokenInAmount,
@@ -1514,6 +1521,8 @@ export const useRefSwap = ({
     quoteDone: quoteDoneV2,
     canSwap: canSwapV2,
     swapErrorV3: swapErrorV2,
+    tokenInAmount: tokenInAmountV2,
+    tag: tagV2,
   } = useSwapV3({
     tokenIn,
     tokenOut,
@@ -1535,6 +1544,7 @@ export const useRefSwap = ({
       tokenIn,
       tokenOut,
       market: 'ref',
+      tokenOutAmount: '0',
     };
 
   const bestSwap =
@@ -1562,7 +1572,7 @@ export const useRefSwap = ({
       priceImpact: priceImpactValue,
       swapError,
       availableRoute: !swapError,
-      tokenInAmount,
+      tokenInAmount: tokenInAmountV1,
       tokenIn,
       tokenOut,
       market: 'ref',
@@ -1586,7 +1596,7 @@ export const useRefSwap = ({
               tokenOutAmountV2 || '0',
               Math.min(8, tokenOut?.decimals || 8)
             ),
-      tokenInAmount,
+      tokenInAmount: tokenInAmountV2,
       minAmountOut: minAmountOutV2,
       fee: feeV2,
       priceImpact: priceImpactV2,
@@ -1838,10 +1848,7 @@ export const useOrderlySwap = ({
   ]);
 
   const makeSwap = () => {
-    history.push('/orderbook', {
-      side,
-      orderType: 'Market',
-    });
+    window.open(`/orderbook?side=${side}&orderType=Market`);
   };
 
   console.log('orderly quote done', !pairExist || orderlyQuoteDone);
@@ -1896,16 +1903,8 @@ export const useRefSwapPro = ({
 }: SwapOptions & {
   setQuoting: (quoting: boolean) => void;
 }) => {
-  const {
-    setTrades,
-    enableTri,
-    trades,
-    setSelectMarket,
-    selectMarket,
-    swapType,
-  } = useContext(SwapProContext);
-
-  const [changeString, setChangeString] = useState<string>();
+  const { setTrades, enableTri, setSelectMarket, selectMarket, swapType } =
+    useContext(SwapProContext);
 
   const resRef = useRefSwap({
     tokenIn,
@@ -1951,38 +1950,21 @@ export const useRefSwapPro = ({
         ['tri']: resAurora,
         ['orderly']: resOrderly,
       };
-
       setTrades(trades);
-      console.log('trades: ', trades);
 
-      if (
-        toNonDivisibleNumber(tokenIn.decimals, tokenInAmount) !==
-        resRef.estimates[0].totalInputAmount
-      )
-        alert(
-          'tokenInAmount: ' +
-            tokenInAmount +
-            ' estimates: ' +
-            resRef.estimates[0].totalInputAmount
-        );
-
-      const curString = `${tokenIn.id}-${tokenOut.id}-${tokenInAmount}-${swapType}-${supportLedger}`;
-
-      if (changeString === curString) {
+      if (sessionStorage.getItem('loadingTrigger') === 'true') {
         setQuoting(false);
 
         return;
-      } else {
-        setChangeString(curString);
       }
 
-      const bestMarket = Object.keys(trades).reduce((a, b) =>
-        new Big(
+      const bestMarket = Object.keys(trades).reduce((a, b) => {
+        return new Big(
           trades[a].availableRoute ? trades[a].tokenOutAmount || '0' : '0'
         ).gt(trades[b].availableRoute ? trades[b].tokenOutAmount || '0' : '0')
           ? a
-          : b
-      );
+          : b;
+      });
 
       if (trades[bestMarket].availableRoute === true) {
         setSelectMarket(bestMarket as SwapMarket);
@@ -2003,7 +1985,9 @@ export const useRefSwapPro = ({
     swapType,
     supportLedger,
     tokenInAmount,
-    resRef?.tokenOutAmount,
-    resAurora?.tokenOutAmount,
+    JSON.stringify(resRef?.tokenOutAmount || {}),
+    JSON.stringify(resAurora?.tokenOutAmount || {}),
+    JSON.stringify(resRef?.estimates || {}),
+    JSON.stringify(resAurora?.estimates || {}),
   ]);
 };

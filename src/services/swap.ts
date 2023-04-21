@@ -398,6 +398,8 @@ export const estimateSwap = async ({
 
   console.log('loadingTrigger: ', loadingTrigger);
 
+  sessionStorage.setItem('loadingTrigger', loadingTrigger.toString());
+
   const tag = `${tokenIn.id}-${parsedAmountIn}-${tokenOut.id}`;
 
   if (ONLY_ZEROS.test(parsedAmountIn))
