@@ -460,6 +460,8 @@ export const useSwap = ({
 
   const tokenPriceList = useTokenPriceList(loadingTrigger);
 
+  const { enableTri } = useContext(SwapProContext);
+
   const [forceEstimate, setForceEstimate] = useState<boolean>(false);
 
   const [priceImpactValue, setPriceImpactValue] = useState<string>('0');
@@ -631,7 +633,7 @@ export const useSwap = ({
     tokenOut,
     tokenInAmount,
     reEstimateTrigger,
-
+    enableTri,
     forceEstimate,
   ]);
 
@@ -768,6 +770,8 @@ export const useSwapV3 = ({
     );
   };
 
+  const { enableTri } = useContext(SwapProContext);
+
   const getQuote = async (
     fee: number,
     tokenIn: TokenMetadata,
@@ -869,7 +873,14 @@ export const useSwapV3 = ({
         setPoolReFetch(!poolReFetch);
         setLoadingTrigger && setLoadingTrigger(false);
       });
-  }, [tokenIn, tokenOut, tokenInAmount, loadingTrigger, swapError?.message]);
+  }, [
+    tokenIn,
+    tokenOut,
+    tokenInAmount,
+    loadingTrigger,
+    swapError?.message,
+    enableTri,
+  ]);
 
   const makeSwap = () => {
     if (!tagValidator(bestEstimate, tokenIn, tokenInAmount)) return;
@@ -1221,8 +1232,6 @@ export const useCrossSwap = ({
     }
     if (!tokenIn || !tokenOut || tokenIn?.id === tokenOut?.id) return;
 
-    console.log('real estimate aurora');
-
     estimateSwapAurora({
       tokenIn,
       tokenOut,
@@ -1281,7 +1290,7 @@ export const useCrossSwap = ({
     setCrossQuoteDone(false);
 
     getEstimateCrossSwap(true);
-  }, [[tokenIn?.id, tokenOut?.id].sort().join('-'), enableTri]);
+  }, [[tokenIn?.id, tokenOut?.id].sort().join('-')]);
 
   useEffect(() => {
     if (ONLY_ZEROS.test(tokenInAmount)) {
@@ -1294,7 +1303,7 @@ export const useCrossSwap = ({
     setCrossQuoteDone(false);
 
     getEstimateCrossSwap(loadingTrigger);
-  }, [loadingTrigger, enableTri]);
+  }, [loadingTrigger]);
 
   useEffect(() => {
     if (ONLY_ZEROS.test(tokenInAmount)) {
@@ -1351,7 +1360,12 @@ export const useCrossSwap = ({
       ...s,
       contract: 'Trisolaris',
     })),
-    quoteDone: crossQuoteDone,
+    quoteDone:
+      crossQuoteDone &&
+      (swapsToDo
+        ? toNonDivisibleNumber(tokenIn.decimals, tokenInAmount) ===
+          swapsToDo?.[0].totalInputAmount
+        : true),
     fee: swapsToDo && !wrapOperation ? getAvgFee(swapsToDo) : 0,
     availableRoute: enableTri && !swapError && swapType === SWAP_TYPE.Pro,
     tokenInAmount,
@@ -1952,11 +1966,15 @@ export const useRefSwapPro = ({
       };
       setTrades(trades);
 
-      if (sessionStorage.getItem('loadingTrigger') === 'true') {
+      if (
+        sessionStorage.getItem('loadingTrigger') === 'true' &&
+        sessionStorage.getItem('enableTri') === enableTri.toString()
+      ) {
         setQuoting(false);
 
         return;
       }
+      sessionStorage.setItem('enableTri', 'true');
 
       const bestMarket = Object.keys(trades).reduce((a, b) => {
         return new Big(

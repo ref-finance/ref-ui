@@ -29,6 +29,7 @@ import moment from 'moment';
 import { ChartNoData } from '~components/icon/ChartNoData';
 import { FormattedMessage } from 'react-intl';
 import { OrderlyLoading } from '~pages/Orderly/components/Common/Icons';
+import { numberWithCommas } from '~pages/Orderly/utiles';
 export interface SwapRateChartProps {
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
@@ -119,6 +120,8 @@ export default function SwapRateChart(props: SwapRateChartProps) {
           priceList.price_list[priceList.price_list.length - 1].date_time
         ? x - 10
         : x;
+
+    y = y + 4;
     const date = moment(value);
 
     if (displayDimension === '24H') {
@@ -127,7 +130,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
           fontSize={'10px'}
           fill="#7E8A93"
           x={x}
-          y={y - 4}
+          y={y - 1}
           textAnchor="middle"
         >
           {date.format('HH:mm')}
@@ -139,7 +142,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
           fontSize={'10px'}
           fill="#7E8A93"
           x={x}
-          y={y - 4}
+          y={y - 1}
           textAnchor="middle"
         >
           {date.format('MMMM DD')}
@@ -164,7 +167,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
         y={y}
         textAnchor="middle"
       >
-        {displayNumberToAppropriateDecimals(value)}
+        {numberWithCommas(displayNumberToAppropriateDecimals(value))}
       </text>
     );
   };
@@ -180,7 +183,9 @@ export default function SwapRateChart(props: SwapRateChartProps) {
         </div>
 
         <div className="text-white text-sm">
-          {displayNumberToAppropriateDecimals(payload[1].payload.price)}
+          {numberWithCommas(
+            displayNumberToAppropriateDecimals(payload[1].payload.price)
+          )}
         </div>
       </div>
     );
@@ -222,7 +227,9 @@ export default function SwapRateChart(props: SwapRateChartProps) {
                   height: '14px',
                 }}
               >
-                {displayNumberToAppropriateDecimals(payload.price)}
+                {numberWithCommas(
+                  displayNumberToAppropriateDecimals(payload.price)
+                )}
               </div>
             </div>
           </foreignObject>
@@ -287,7 +294,11 @@ export default function SwapRateChart(props: SwapRateChartProps) {
       </div>
       <div className="frcs ml-4">
         <span className="text-white text-2xl mt-1 mr-1">
-          {diff ? displayNumberToAppropriateDecimals(diff.curPrice) : '-'}
+          {diff
+            ? numberWithCommas(
+                displayNumberToAppropriateDecimals(diff.curPrice)
+              )
+            : '-'}
         </span>
         {diff && (
           <span

@@ -689,7 +689,6 @@ export default function SwapCard(props: {
   const history = useHistory();
 
   const { selectMarket, trades, enableTri } = useContext(SwapProContext);
-  console.log('selectMarket-swap: ', selectMarket);
 
   const selectTrade = trades?.[selectMarket];
 
