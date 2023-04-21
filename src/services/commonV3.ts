@@ -27,6 +27,7 @@ import {
   CrossIconFull,
 } from '../components/icon/FarmBoost';
 import { useIntl } from 'react-intl';
+import { scientificNotationToString } from '~pages/Orderly/near';
 const { REF_UNI_V3_SWAP_CONTRACT_ID, boostBlackList } = getConfig();
 
 /**
@@ -967,13 +968,13 @@ export function displayNumberToAppropriateDecimals(num: string | number) {
   const numBig = new BigNumber(num);
   if (numBig.isEqualTo(0)) return 0;
   if (numBig.isLessThan(0.01)) {
-    return toPrecision(num.toString(), 5);
+    return toPrecision(scientificNotationToString(num.toString()), 5);
   } else if (numBig.isGreaterThanOrEqualTo(0.01) && numBig.isLessThan(1)) {
-    return toPrecision(num.toString(), 3);
+    return toPrecision(scientificNotationToString(num.toString()), 3);
   } else if (numBig.isGreaterThanOrEqualTo(1) && numBig.isLessThan(10000)) {
-    return toPrecision(num.toString(), 2);
+    return toPrecision(scientificNotationToString(num.toString()), 2);
   } else {
-    return toPrecision(num.toString(), 0);
+    return toPrecision(scientificNotationToString(num.toString()), 0);
   }
 }
 

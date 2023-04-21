@@ -595,7 +595,7 @@ export const getTokenPairRate = async ({
       return {
         ...data,
         price_list: data.price_list.map((item: any) => ({
-          price: item.price,
+          price: Number(item.price),
           date_time: item.date_time * 1000,
         })),
       };

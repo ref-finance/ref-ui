@@ -13,7 +13,7 @@ export const useTokenRate24h = ({
 }) => {
   const [diff, setDiff] = useState<{
     percent: string;
-    direction: 'down' | 'up';
+    direction: 'down' | 'up' | 'unChange';
     curPrice: number;
   }>();
 
@@ -30,12 +30,12 @@ export const useTokenRate24h = ({
       const curPrice = priceList?.[0]?.price;
 
       const last24Price = priceList?.[priceList.length - 1]?.price;
-      if (curPrice && last24Price) {
-        const diff = (curPrice - last24Price) / last24Price;
+      if (typeof curPrice === 'number' && typeof last24Price === 'number') {
+        const diff = (curPrice - last24Price) / (last24Price || 1);
         const displayDiff = (Math.abs(diff) * 100).toFixed(2) + '%';
         setDiff({
           percent: displayDiff,
-          direction: diff > 0 ? 'up' : 'down',
+          direction: diff > 0 ? 'up' : diff < 0 ? 'down' : 'unChange',
           curPrice: curPrice,
         });
       } else {

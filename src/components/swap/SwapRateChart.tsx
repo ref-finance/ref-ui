@@ -4,6 +4,7 @@ import { TokenMetadata } from '~services/ft-contract';
 import { TokenPairRate, getTokenPairRate } from '~services/indexer';
 import { SwapRateExchange } from '../icon/Arrows';
 import { useTokenRate24h } from '~state/tokenRate';
+import { maxBy, minBy } from 'lodash';
 
 import {
   ResponsiveContainer,
@@ -149,6 +150,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
 
   const RenderYTick = (tickProps: any) => {
     let { x, y, payload, index } = tickProps;
+    console.log('tickProps: ', tickProps);
 
     const { value, offset } = payload;
 
@@ -285,10 +287,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
       </div>
       <div className="frcs ml-4">
         <span className="text-white text-2xl mt-1 mr-1">
-          {diff
-            ? diff?.curPrice &&
-              displayNumberToAppropriateDecimals(diff.curPrice)
-            : '-'}
+          {diff ? displayNumberToAppropriateDecimals(diff.curPrice) : '-'}
         </span>
         {diff && (
           <span
@@ -296,16 +295,20 @@ export default function SwapRateChart(props: SwapRateChartProps) {
           ${
             diff.direction === 'up'
               ? 'text-gradientFromHover bg-gradientFromHover bg-opacity-20'
-              : 'text-sellRed bg-opacity-20 bg-sellRed'
+              : diff.direction === 'down'
+              ? 'text-sellRed bg-opacity-20 bg-sellRed'
+              : 'bg-primaryText bg-opacity-20 text-primaryText'
           }
           
           `}
           >
-            <IoArrowUpOutline
-              className={`${
-                diff.direction === 'down' ? 'transform  rotate-180  ' : ''
-              } `}
-            />
+            {diff.direction !== 'unChange' && (
+              <IoArrowUpOutline
+                className={`${
+                  diff.direction === 'down' ? 'transform  rotate-180  ' : ''
+                } `}
+              />
+            )}
 
             {diff.percent}
           </span>
@@ -343,85 +346,91 @@ export default function SwapRateChart(props: SwapRateChartProps) {
         </div>
       )}
       {!loading && priceList && priceList.price_list.length > 0 && (
-        <ResponsiveContainer width={'100%'} height={300}>
-          <ComposedChart
-            data={priceList.price_list.map((p: any) => {
-              return {
-                ...p,
-                stickLast:
-                  priceList.price_list[priceList.price_list.length - 1].price,
-              };
-            })}
-          >
-            <defs>
-              <linearGradient
-                id="colorGradient_token_rate"
-                x1="0"
-                y1="0"
-                x2="0"
-                y2="1"
-              >
-                <stop offset="0%" stopColor="#00c6a2" stopOpacity={0.1} />
-                <stop
-                  offset="100%"
-                  stopColor="rgba(0, 214, 175, 0)"
-                  stopOpacity={0}
-                />
-              </linearGradient>
-            </defs>
+        <div className="w-full " style={{ height: '300px' }}>
+          <ResponsiveContainer width={'100%'} height={'100%'}>
+            <ComposedChart
+              data={priceList.price_list.map((p) => {
+                return {
+                  ...p,
+                  price: Number(p.price),
+                  stickLast:
+                    priceList.price_list[priceList.price_list.length - 1].price,
+                };
+              })}
+            >
+              <defs>
+                <linearGradient
+                  id="colorGradient_token_rate"
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
+                  <stop offset="0%" stopColor="#00c6a2" stopOpacity={0.1} />
+                  <stop
+                    offset="100%"
+                    stopColor="rgba(0, 214, 175, 0)"
+                    stopOpacity={0}
+                  />
+                </linearGradient>
+              </defs>
 
-            <XAxis
-              dataKey="date_time"
-              tickLine={false}
-              axisLine={false}
-              tick={<RenderTick />}
-              interval={
-                priceList.price_list.length < 10
-                  ? 1
-                  : priceList.price_list.length > 18
-                  ? Math.ceil(priceList.price_list.length / 20) * 3
-                  : 2
-              }
-            />
+              <XAxis
+                dataKey="date_time"
+                tickLine={false}
+                axisLine={false}
+                tick={<RenderTick />}
+                interval={
+                  priceList.price_list.length < 10
+                    ? 1
+                    : priceList.price_list.length > 18
+                    ? Math.ceil(priceList.price_list.length / 20) * 3
+                    : 2
+                }
+              />
 
-            <YAxis
-              dataKey="price"
-              tickLine={false}
-              tickCount={6}
-              axisLine={false}
-              orientation="right"
-              tick={<RenderYTick />}
-            />
+              <YAxis
+                dataKey="price"
+                tickLine={false}
+                tickCount={6}
+                axisLine={false}
+                orientation="right"
+                type="number"
+                tick={<RenderYTick />}
+                height={300}
+              />
 
-            <YAxis
-              dataKey="price"
-              scale={'linear'}
-              yAxisId={'left'}
-              tickLine={false}
-              tickCount={0}
-              axisLine={false}
-              tick={null}
-              width={20}
-            />
+              {/* <YAxis
+                dataKey="price"
+                scale={'linear'}
+                yAxisId={'left'}
+                tickLine={false}
+                tickCount={0}
+                axisLine={false}
+                tick={null}
+                width={20}
+                height={300}
+                max={maxBy(priceList.price_list, (p) => p.price)?.price}
+              /> */}
 
-            <Tooltip
-              cursor={{
-                opacity: '0.3',
-                fill: '#00C6A2',
-                strokeDasharray: '2, 2',
-              }}
-              content={<CustomTooltip />}
-            />
-            <Line
-              dataKey="stickLast"
-              stroke="#00C6A2"
-              opacity={0.3}
-              strokeDasharray={'2, 2'}
-              dot={false}
-              activeDot={false}
-            />
+              <Tooltip
+                cursor={{
+                  opacity: '0.3',
+                  fill: '#00C6A2',
+                  strokeDasharray: '2, 2',
+                }}
+                content={<CustomTooltip />}
+              />
+              <Line
+                dataKey="stickLast"
+                stroke="#00C6A2"
+                opacity={0.3}
+                strokeDasharray={'2, 2'}
+                dot={false}
+                activeDot={false}
+              />
 
-            {/* <Line
+              {/* <Line
               dataKey="curPrice"
               stroke="#00C6A2"
               opacity={0.3}
@@ -429,23 +438,25 @@ export default function SwapRateChart(props: SwapRateChartProps) {
               dot={false}
               activeDot={false}
             /> */}
-            <Area
-              dataKey="price"
-              dot={<CustomizedDot />}
-              stroke="#00c6a2"
-              strokeWidth={3}
-              fillOpacity={1}
-              fill="url(#colorGradient_token_rate)"
-              activeDot={{
-                stroke: '#0D1A23',
-                strokeWidth: 2,
-                fill: '#00FFD1',
-                r: 5,
-              }}
-              isAnimationActive={false}
-            />
-          </ComposedChart>
-        </ResponsiveContainer>
+              <Area
+                dataKey="price"
+                dot={<CustomizedDot />}
+                stroke="#00c6a2"
+                strokeWidth={3}
+                fillOpacity={1}
+                height={300}
+                fill="url(#colorGradient_token_rate)"
+                activeDot={{
+                  stroke: '#0D1A23',
+                  strokeWidth: 2,
+                  fill: '#00FFD1',
+                  r: 5,
+                }}
+                isAnimationActive={false}
+              />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
       )}
     </div>
   );
