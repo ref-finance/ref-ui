@@ -1271,3 +1271,6 @@ input[type='range']::-webkit-slider-runnable-track {
     height: 36px !important;
   }
 }
+.recharts-wrapper svg {
+  overflow: inherit !important;
+}

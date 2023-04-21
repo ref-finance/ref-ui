@@ -346,7 +346,13 @@ export default function SwapRateChart(props: SwapRateChartProps) {
               tickLine={false}
               axisLine={false}
               tick={<RenderTick />}
-              interval={Math.floor(priceList.price_list.length / 20) * 3}
+              interval={
+                priceList.price_list.length < 10
+                  ? 1
+                  : priceList.price_list.length > 18
+                  ? Math.ceil(priceList.price_list.length / 20) * 3
+                  : 2
+              }
             />
 
             <YAxis
