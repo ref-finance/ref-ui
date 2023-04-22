@@ -113,25 +113,20 @@ const ru_in_risks_page = {
   Locked_paragraph_6:
     'Если в учетной записи контракта зарегистрирован хотя бы один ключ полного доступа, контракт считается не заблокированным.',
   audited_first_sentence:
-    'Смарт-контракты Ref Finance прошли <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://guide.ref.finance/developers/audits')" +
-    '>аудит</label>.',
+    'Смарт-контракты Ref Finance прошли <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://guide.ref.finance/developers/audits"' +
+    '>аудит</a>.',
   admin_first_sentence:
-    'Ref Finance управляется <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-    '>Ref Finance Sputnik DAO</label>. Существуют <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://gov.ref.finance/t/introducing-the-guardians/253')" +
-    '>Хранители</label>— это  определенные адреса NEAR, которые могут приостановить контракт. Только DAO может в любой момент возобновить контракт.',
+    'Ref Finance управляется <a crel="noopener noreferrer nofollow" target="_blank" lass="underline cursor-pointer text-riskTextColor hover:text-white" href="https://app.astrodao.com/dao/ref-finance.sputnik-dao.near"' +
+    '>Ref Finance Sputnik DAO</a>. Существуют <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://gov.ref.finance/t/introducing-the-guardians/253"' +
+    '>Хранители</a>— это  определенные адреса NEAR, которые могут приостановить контракт. Только DAO может в любой момент возобновить контракт.',
   risks_of_using_ref_finance:
     '<label class="text-greenColor">Риски</label> использования Ref. finance',
   admin_sentence_1:
-    'Ref Finance управляется <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-    '>DAO Ref Finance Sputnik</label> и в ближайшее время перейдет к полноценному децентрализованному DAO.',
+    'Ref Finance управляется <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://app.astrodao.com/dao/ref-finance.sputnik-dao.near"' +
+    '>DAO Ref Finance Sputnik</a> и в ближайшее время перейдет к полноценному децентрализованному DAO.',
   admin_sentence_2:
-    'Для получения дополнительной информации, касающейся контрактов и адресов, которые непосредственно управляли или в настоящее время управляют делами Ref Finance, пожалуйста, ознакомьтесь с нашей <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://guide.ref.finance/developers/contracts')" +
-    '>Документацией</label>.',
+    'Для получения дополнительной информации, касающейся контрактов и адресов, которые непосредственно управляли или в настоящее время управляют делами Ref Finance, пожалуйста, ознакомьтесь с нашей <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://guide.ref.finance/developers/contracts"' +
+    '>Документацией</a>.',
 };
 const ru = {
   deposit: 'Депозит',
@@ -606,12 +601,12 @@ const ru = {
   no_farm_need_to_migrate: 'Не требуется перенос фермы',
   v1_farms: 'Classic Фермы',
   has_rewards_tip:
-    'У вас еще есть награды, которые вы должны вывести из <a class="text-greenColor text-base cursor-pointer underline hover:text-senderHot"  href="/farms" >Legacy Ферм</a>. Эти награды никуда не денутся, вы можете снять их в любой момент.</div>',
+    'У вас еще есть награды, которые вы должны вывести из <a rel="noopener noreferrer nofollow" class="text-greenColor text-base cursor-pointer underline hover:text-senderHot"  href="/farms" >Legacy Ферм</a>. Эти награды никуда не денутся, вы можете снять их в любой момент.</div>',
   love: 'LOVE',
   Available_to_stake: 'Доступно для стейкинга',
   you_staked: 'Вы застейкали',
   has_rewards_tip_in_v2:
-    'Ваши обычные награды, которые вы заберете из <a href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> Legacy Ферм</a>.',
+    'Ваши обычные награды, которые вы заберете из <a rel="noopener noreferrer nofollow" href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> Legacy Ферм</a>.',
   how_to_get: 'Как получить?',
   get_booster: 'Получите бустер',
   ended_farms: 'завершенные фермы',
@@ -946,8 +941,7 @@ const ru = {
   range: 'Диапазон',
   unclaimed_fee: 'Невостребованная комиссия',
   login_risk_tip:
-    'By checking this box and moving forward, you confirm that you fully understand the <a class="text-greenColor text-sm font-bold cursor-pointer hover:underline" onclick="window.open(' +
-    "'/risks'" +
+    'By checking this box and moving forward, you confirm that you fully understand the <a class="text-greenColor text-sm font-bold cursor-pointer hover:underline" href="/risks"' +
     ')">risks</a> of using Ref Finance.',
   no_pool_tip: 'Oops! The pool does not exist.',
   total_ref_week: 'Total REF/week',

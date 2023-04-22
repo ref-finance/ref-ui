@@ -12,6 +12,7 @@ import {
   XmasTreeWithText,
 } from '../components/icon/Common';
 import { isMobile } from '../utils/device';
+import { openUrl } from '../services/commonV3';
 
 function XmaxPopUP({
   xmasModalOpen,
@@ -112,7 +113,7 @@ function XmaxPopUP({
             <AddV2liquidityBannerXmax
               onClick={() => {
                 localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'v2');
-                window.open('/pools');
+                openUrl('/pools');
               }}
               className="cursor-pointer"
             ></AddV2liquidityBannerXmax>
@@ -135,7 +136,7 @@ function XmaxPopUP({
           <span
             className="underline relative cursor-pointer z-50"
             onClick={() => {
-              window.open(
+              openUrl(
                 'https://twitter.com/finance_ref/status/1604878692702113792'
               );
             }}

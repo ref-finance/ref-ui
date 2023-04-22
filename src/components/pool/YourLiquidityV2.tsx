@@ -39,6 +39,7 @@ import {
   get_liquidity_value,
   allocation_rule_liquidities,
   get_pool_name,
+  openUrl,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import {
@@ -492,14 +493,14 @@ function UserLiquidityLine({
     const pool_name = get_pool_name(pool_id);
     const link = `${pool_name}@${lptId}`;
     if (goType == 'new window') {
-      window.open(`/yoursLiquidityDetailV2/${link}`);
+      openUrl(`/yoursLiquidityDetailV2/${link}`);
     } else {
       history.push(`/yoursLiquidityDetailV2/${link}`);
     }
   }
   function goPoolDetailPage() {
     const params_str = get_pool_name(liquidity.pool_id);
-    window.open(`/poolV2/${params_str}`);
+    openUrl(`/poolV2/${params_str}`);
   }
   function getTokenFeeAmount(p: string) {
     if (liquidityDetail && tokenMetadata_x_y && tokenPriceList) {
@@ -599,7 +600,7 @@ function UserLiquidityLine({
     } else {
       url = `/v2farms/${link_params}-r`;
     }
-    window.open(url);
+    openUrl(url);
   }
   const {
     Icon: Liquidity_icon,
@@ -736,7 +737,7 @@ function UserLiquidityLineStyle1() {
                     onClick={(e) => {
                       e.stopPropagation();
                       if (liquidity_link) {
-                        window.open(liquidity_link);
+                        openUrl(liquidity_link);
                       }
                     }}
                     className={`flex items-center justify-center border border-greenColor rounded-lg px-1 ml-2 ${
@@ -823,7 +824,7 @@ function UserLiquidityLineStyle1() {
                 <div
                   className="flex items-center justify-center absolute right-4 text-white cursor-pointer"
                   onClick={() => {
-                    window.open(liquidity_link);
+                    openUrl(liquidity_link);
                   }}
                 >
                   <a className="text-sm text-white mr-1 underline">
@@ -970,7 +971,7 @@ function UserLiquidityLineStyle1() {
                     onClick={(e) => {
                       e.stopPropagation();
                       if (liquidity_link) {
-                        window.open(liquidity_link);
+                        openUrl(liquidity_link);
                       }
                     }}
                     className={`flex items-center justify-center border border-greenColor rounded-lg px-1 ml-2 ${
@@ -1143,7 +1144,7 @@ function UserLiquidityLineStyle1() {
                     <div
                       className="flex items-center"
                       onClick={() => {
-                        window.open(liquidity_link);
+                        openUrl(liquidity_link);
                       }}
                     >
                       <span className="underline ml-1 mr-0.5">
@@ -1173,7 +1174,7 @@ function UserLiquidityLineStyle1() {
                   <div
                     className="flex items-center"
                     onClick={() => {
-                      window.open(liquidity_link);
+                      openUrl(liquidity_link);
                     }}
                   >
                     <span className="underline ml-1 mr-0.5">
@@ -1276,7 +1277,7 @@ function UserLiquidityLineStyle2() {
           <LinkIcon
             onClick={(e: any) => {
               e.stopPropagation();
-              window.open(liquidity_link);
+              openUrl(liquidity_link);
             }}
             className="text-primaryText hover:text-white cursor-pointer ml-1.5"
           ></LinkIcon>

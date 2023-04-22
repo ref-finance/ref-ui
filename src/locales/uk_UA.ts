@@ -112,15 +112,12 @@ const uk_UA_in_risks_page = {
   Locked_paragraph_6:
     'Якщо на обліковому записі контракта зареєстровано, хоча б один ключ повного доступу, контракт не блокується.',
   audited_first_sentence:
-    'Розумні контракти Ref Finance пройшли <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://guide.ref.finance/developers/audits')" +
-    '>аудит</label>.',
+    'Розумні контракти Ref Finance пройшли <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://guide.ref.finance/developers/audits" ' +
+    '>аудит</a>.',
   admin_first_sentence:
-    'Управління Ref Finance здійснюється<label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-    '> Ref Finance Sputnik DAO</label>. Існують <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://gov.ref.finance/t/introducing-the-guardians/253')" +
-    '>Guardians</label>, конкретні адреси NEAR, які можуть призупинити контракт. Тільки DAO може відновити контракт у будь-який час.',
+    'Управління Ref Finance здійснюється<a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://app.astrodao.com/dao/ref-finance.sputnik-dao.near"' +
+    '> Ref Finance Sputnik DAO</a>. Існують <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    '>Guardians</a>, конкретні адреси NEAR, які можуть призупинити контракт. Тільки DAO може відновити контракт у будь-який час.',
   risks_of_using_ref_finance:
     '<label class="text-greenColor">Risks</label> Використання Ref. finance',
 };
@@ -514,13 +511,11 @@ const uk_UA = {
   mapping_account: 'Картографічний обліковий запис',
   mapping_account_tip: 'У вас є маркери в картографічному обліковому записі',
   admin_sentence_1:
-    'Ref Finance керується  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-    '>Ref Finance Sputnik DAO</label> і незабаром перейде до повністю децентралізованої DAO.',
+    'Ref Finance керується  <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://app.astrodao.com/dao/ref-finance.sputnik-dao.near"' +
+    '>Ref Finance Sputnik DAO</a> і незабаром перейде до повністю децентралізованої DAO.',
   admin_sentence_2:
-    'Для отримання додаткової інформації щодо контрактів та адрес, які безпосередньо керували або зараз керують справами Ref Finance, будь ласка, ознайомтесь з нашою  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://guide.ref.finance/developers/contracts')" +
-    '>Документацією.</label>.',
+    'Для отримання додаткової інформації щодо контрактів та адрес, які безпосередньо керували або зараз керують справами Ref Finance, будь ласка, ознайомтесь з нашою  <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://guide.ref.finance/developers/contracts"' +
+    '>Документацією.</a>.',
   cumulative_ref_buyback: 'Cumulative REF Buyback',
   yearly_revenue_booster: 'Yearly Revenue Booster',
   Confirm: 'Підтвердьте',
@@ -757,12 +752,12 @@ const uk_UA = {
   no_farm_need_to_migrate: 'Немає ферм для переносу',
   v1_farms: 'Classic Ферми',
   has_rewards_tip:
-    'Вам все ще потрібно отримати винагороди в  <a class="text-greenColor text-base cursor-pointer underline hover:text-senderHot"  href="/farms" >Legacy Farms</a>. The rewards are not going anywhere, you can withdraw anytime.</div>',
+    'Вам все ще потрібно отримати винагороди в  <a rel="noopener noreferrer nofollow" class="text-greenColor text-base cursor-pointer underline hover:text-senderHot"  href="/farms" >Legacy Farms</a>. The rewards are not going anywhere, you can withdraw anytime.</div>',
   love: 'LOVE',
   Available_to_stake: 'Доступно для Стейкінгу',
   you_staked: 'Застейкано',
   has_rewards_tip_in_v2:
-    'Legacy rewards to be withdraw in <a href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> Legacy Farms</a>.',
+    'Legacy rewards to be withdraw in <a rel="noopener noreferrer nofollow" href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> Legacy Farms</a>.',
   how_to_get: 'Як отримати?',
   get_booster: 'отримати Booster',
   ended_farms: 'Закінчені ферми',
@@ -917,8 +912,7 @@ const uk_UA = {
   maket_price_outside_single_only_tip:
     'Ринкова ціна знаходиться за межами вашого цінового діапазону. Внесіть тільки один актив.',
   login_risk_tip:
-    'By checking this box and moving forward, you confirm that you fully understand the <a class="text-greenColor text-sm font-bold cursor-pointer hover:underline" onclick="window.open(' +
-    "'/risks'" +
+    'By checking this box and moving forward, you confirm that you fully understand the <a class="text-greenColor text-sm font-bold cursor-pointer hover:underline" href="/risks" ' +
     ')">risks</a> of using Ref Finance.',
   no_pool_tip: 'Oops! The pool does not exist.',
   total_ref_week: 'Total REF/week',

@@ -1162,3 +1162,9 @@ export function get_farm_id(farm_name: string) {
   const rp = layer2_parts[1];
   return `${REF_UNI_V3_SWAP_CONTRACT_ID}@{"FixRange":{"left_point":${lp},"right_point":${rp}}}&${pool_id}&${lp}&${rp}`;
 }
+
+export function openUrl(url: string) {
+  var newTab = window.open();
+  newTab.opener = null;
+  newTab.location = url;
+}

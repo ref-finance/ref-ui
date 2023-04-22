@@ -16,7 +16,7 @@ import { useMyOrders } from '../../state/swapV3';
 import { useHistory } from 'react-router-dom';
 import { OrderIcon } from '../icon/V3';
 import { EstimateSwapView } from '../../services/swap';
-import { get_pool_name } from '../../services/commonV3';
+import { get_pool_name, openUrl } from '../../services/commonV3';
 import { PoolInfo } from '~services/swapV3';
 import { OutLinkIcon } from '../../components/icon/Common';
 import { REF_FI_POOL_ACTIVE_TAB } from '../../pages/pools/LiquidityPage';
@@ -142,10 +142,10 @@ export default function SwapFormWrap({
     const poolId = mostPoolDetail?.pool_id;
     if (poolId) {
       const newPoolId = get_pool_name(poolId);
-      window.open(`/poolV2/${newPoolId}`);
+      openUrl(`/poolV2/${newPoolId}`);
     } else {
       localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'v2');
-      window.open('/pools');
+      openUrl('/pools');
     }
   }
 

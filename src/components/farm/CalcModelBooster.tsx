@@ -47,6 +47,7 @@ import { getLoveAmount } from '../../services/referendum';
 import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import { VEARROW } from '../icon/Referendum';
 import ReactTooltip from 'react-tooltip';
+import { openUrl } from '../../services/commonV3';
 
 const config = getConfig();
 const { STABLE_POOL_IDS, FARM_LOCK_SWITCH, REF_VE_CONTRACT_ID } = config;
@@ -183,7 +184,7 @@ export default function CalcModelBooster(
   function goPool() {
     const poolId = seed.pool.id;
     if (poolId) {
-      window.open(`/pool/${poolId}`);
+      openUrl(`/pool/${poolId}`);
     }
   }
   return (
