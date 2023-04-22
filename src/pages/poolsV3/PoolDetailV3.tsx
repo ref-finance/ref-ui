@@ -1920,6 +1920,7 @@ function TablePool(props: any) {
                 </div>
                 <a
                   target="_blank"
+                  rel="noopener noreferrer nofollow"
                   href={`/swap/#${tokens[0].meta.id}|${tokens[1].meta.id}`}
                   className="text-xs text-primaryText xsm:hidden"
                   title={token.meta.id}

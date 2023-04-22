@@ -1363,6 +1363,7 @@ function PoolRow(props: {
                 pathname: '/farms',
               }}
               target="_blank"
+              rel="noopener noreferrer nofollow"
               onClick={(e) => {
                 e.stopPropagation();
               }}
@@ -1398,6 +1399,7 @@ function PoolRow(props: {
                 }`,
               }}
               target="_blank"
+              rel="noopener noreferrer nofollow"
               onClick={(e) => {
                 e.stopPropagation();
               }}
@@ -1641,6 +1643,7 @@ function PoolRow(props: {
                     pathname: '/farms',
                   }}
                   target="_blank"
+                  rel="noopener noreferrer nofollow"
                   onClick={(e) => {
                     e.stopPropagation();
                   }}
@@ -1676,6 +1679,7 @@ function PoolRow(props: {
                     }`,
                   }}
                   target="_blank"
+                  rel="noopener noreferrer nofollow"
                   onClick={(e) => {
                     e.stopPropagation();
                   }}
@@ -2737,6 +2741,7 @@ export function YourLiquidityAddLiquidityModal(
                   className="mt-2.5 inline-flex absolute right-0 items-center justify-end text-right text-sm text-primaryText hover:text-gradientFrom"
                   href={`/more_pools/${tokens[0].id},${tokens[1].id}`}
                   target="_blank"
+                  rel="noopener noreferrer nofollow"
                 >
                   <span className="mr-1 underline">
                     <FormattedMessage

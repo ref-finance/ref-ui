@@ -167,6 +167,7 @@ export const DerivationPath: React.FC<DerivationPathProps> = ({
                   : 'app'
               }.mynearwallet.com/create`}
               target="_blank"
+              rel="noopener noreferrer nofollow"
               style={{
                 color: 'rgba(0, 148, 255, 1)',
               }}

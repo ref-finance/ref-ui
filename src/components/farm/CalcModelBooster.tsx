@@ -730,6 +730,7 @@ export function LinkPool(props: { pooId: number }) {
           state: { backToFarms: true },
         }}
         target="_blank"
+        rel="noopener noreferrer nofollow"
         className="flex items-center"
       >
         <HandIcon></HandIcon>

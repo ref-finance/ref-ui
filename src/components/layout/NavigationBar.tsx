@@ -826,6 +826,7 @@ export function AuroraEntry({
               }}
               onClick={(e) => e.stopPropagation()}
               target="_blank"
+              rel="noopener noreferrer nofollow"
               className={`w-full px-3 py-1 text-xs bg-auroraGreen text-chartBg flex items-center justify-center cursor-pointer ${
                 hasBalanceOnAurora ? 'block' : 'hidden'
               }`}

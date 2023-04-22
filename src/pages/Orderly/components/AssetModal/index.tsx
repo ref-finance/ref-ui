@@ -230,6 +230,7 @@ function RecordLine(
           <a
             href={`${getConfig().explorerUrl}/txns/${props.tx_id}`}
             target="_blank"
+            rel="noopener noreferrer nofollow"
             className="justify-center flex items-center justify-self-end whitespace-nowrap hover:underline text-txBlue"
             rel="noreferrer"
           >
@@ -303,6 +304,7 @@ function RecordLine(
             <a
               href={`${getConfig().explorerUrl}/txns/${props.tx_id}`}
               target="_blank"
+              rel="noopener noreferrer nofollow"
               className="justify-center flex items-center justify-self-end whitespace-nowrap hover:underline text-txBlue"
               rel="noreferrer"
             >

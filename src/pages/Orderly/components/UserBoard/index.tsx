@@ -233,6 +233,7 @@ function RegisterModal(
               className="underline text-primary ml-1"
               href="https://orderly.network/"
               target="_blank"
+              rel="noopener noreferrer nofollow"
             >
               Orderly Network
             </a>
@@ -298,6 +299,7 @@ function LearnMoreBox() {
         <a
           href="https://orderly.network/"
           target="_blank"
+          rel="noopener noreferrer nofollow"
           className="inline underline cursor-pointer text-white ml-1"
         >
           Orderly Network
@@ -3623,6 +3625,7 @@ function SelectTokenModal(
                           }}
                           href={TokenLinks[b.name]}
                           target="_blank"
+                          rel="noopener noreferrer nofollow"
                         >
                           <OutLinkIcon className="text-primaryOrderly hover:text-white cursor-pointer"></OutLinkIcon>
                         </a>

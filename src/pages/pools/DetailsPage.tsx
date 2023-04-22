@@ -1091,6 +1091,7 @@ export function RemoveLiquidityModal(
                 pathname: '/farms',
               }}
               target="_blank"
+              rel="noopener noreferrer nofollow"
               onClick={(e) => {
                 e.stopPropagation();
               }}
@@ -1129,6 +1130,7 @@ export function RemoveLiquidityModal(
                 }`,
               }}
               target="_blank"
+              rel="noopener noreferrer nofollow"
               onClick={(e) => {
                 e.stopPropagation();
               }}
@@ -2149,6 +2151,7 @@ export function PoolDetailsPage() {
                       farmVersion === 'V1' ? '/farms' : `/v2farms/${id}-r`,
                   }}
                   target="_blank"
+                  rel="noopener noreferrer nofollow"
                 >
                   <FarmStampNew multi={farmCount > 1} />
                 </Link>
@@ -2266,6 +2269,7 @@ export function PoolDetailsPage() {
                       farmVersion === 'V1' ? '/farms' : `/v2farms/${id}-r`,
                   }}
                   target="_blank"
+                  rel="noopener noreferrer nofollow"
                 >
                   <FarmStampNew multi={farmCount > 1} />
                 </Link>
@@ -2500,6 +2504,7 @@ export function PoolDetailsPage() {
                         </div>
                         <a
                           target="_blank"
+                          rel="noopener noreferrer nofollow"
                           href={`/swap/#${
                             tokens[0].id == WRAP_NEAR_CONTRACT_ID
                               ? 'near'
