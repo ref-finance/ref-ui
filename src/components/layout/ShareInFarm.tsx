@@ -140,6 +140,7 @@ export const ShareInFarmV2 = ({
               : '/farms'
           }
           target="_blank"
+          rel="noopener noreferrer nofollow"
           className="flex items-center cursor-pointer justify-end"
         >
           {version && (

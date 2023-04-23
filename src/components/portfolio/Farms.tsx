@@ -51,6 +51,7 @@ import {
   get_liquidity_value,
   get_all_seeds,
   get_pool_name,
+  openUrl,
 } from '~services/commonV3';
 import { NFTIdIcon } from '~components/icon/FarmBoost';
 import { PortfolioData } from '../../pages/Portfolio';
@@ -1100,9 +1101,7 @@ function LiquidityLine(props: {
   function goYourLiquidityDetail(liquidity: UserLiquidityInfo) {
     const pool_id = liquidity.lpt_id.split('#')[0];
     const lpt_index = liquidity.lpt_id.split('#')[1];
-    window.open(
-      `/yoursLiquidityDetailV2/${get_pool_name(pool_id)}@${lpt_index}`
-    );
+    openUrl(`/yoursLiquidityDetailV2/${get_pool_name(pool_id)}@${lpt_index}`);
   }
   return (
     <>
@@ -1795,7 +1794,7 @@ function goFarmDetailPage(seed: Seed) {
       temp_pool_id.split('&');
     mft_id = `${get_pool_name(pool_id)}[${left_point}-${right_point}]`;
   }
-  window.open(`/v2farms/${mft_id}-${status}`);
+  openUrl(`/v2farms/${mft_id}-${status}`);
 }
 function getPoolIdBySeedId(seed_id: string) {
   const [contractId, temp_pool_id] = seed_id.split('@');

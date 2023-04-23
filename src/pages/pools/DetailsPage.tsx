@@ -172,6 +172,7 @@ import { useFarmStake } from '../../state/farm';
 import { VEARROW } from '../../components/icon/Referendum';
 import Big from 'big.js';
 import { getEffectiveFarmList, sort_tokens_by_base } from '~services/commonV3';
+import { openUrl } from '../../services/commonV3';
 
 interface ParamTypes {
   id: string;
@@ -309,7 +310,7 @@ function DetailSymbol({
 
       <span
         className="cursor-pointer pl-2 py-0.5 text-gradientFrom"
-        onClick={() => window.open(`/pool/${id}`, '_blank')}
+        onClick={() => openUrl(`/pool/${id}`)}
       >
         <ExternalLinkIcon />
       </span>
@@ -1091,6 +1092,7 @@ export function RemoveLiquidityModal(
                 pathname: '/farms',
               }}
               target="_blank"
+              rel="noopener noreferrer nofollow"
               onClick={(e) => {
                 e.stopPropagation();
               }}
@@ -1129,6 +1131,7 @@ export function RemoveLiquidityModal(
                 }`,
               }}
               target="_blank"
+              rel="noopener noreferrer nofollow"
               onClick={(e) => {
                 e.stopPropagation();
               }}
@@ -1166,7 +1169,7 @@ export function RemoveLiquidityModal(
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
-                window.open('/referendum');
+                openUrl('/referendum');
               }}
               className="hover:text-gradientFrom mb-1.5 cursor-pointer flex rounded-lg py-1.5 px-2 bg-black bg-opacity-20"
             >
@@ -2149,6 +2152,7 @@ export function PoolDetailsPage() {
                       farmVersion === 'V1' ? '/farms' : `/v2farms/${id}-r`,
                   }}
                   target="_blank"
+                  rel="noopener noreferrer nofollow"
                 >
                   <FarmStampNew multi={farmCount > 1} />
                 </Link>
@@ -2266,6 +2270,7 @@ export function PoolDetailsPage() {
                       farmVersion === 'V1' ? '/farms' : `/v2farms/${id}-r`,
                   }}
                   target="_blank"
+                  rel="noopener noreferrer nofollow"
                 >
                   <FarmStampNew multi={farmCount > 1} />
                 </Link>
@@ -2483,7 +2488,7 @@ export function PoolDetailsPage() {
                                 className=""
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  window.open(TokenLinks[token.symbol]);
+                                  openUrl(TokenLinks[token.symbol]);
                                 }}
                               >
                                 <FiArrowUpRight className="text-primaryText hover:text-greenColor cursor-pointer" />
@@ -2500,6 +2505,7 @@ export function PoolDetailsPage() {
                         </div>
                         <a
                           target="_blank"
+                          rel="noopener noreferrer nofollow"
                           href={`/swap/#${
                             tokens[0].id == WRAP_NEAR_CONTRACT_ID
                               ? 'near'
@@ -2767,7 +2773,7 @@ export function PoolDetailsPage() {
                   <SolidButton
                     className="py-1.5 pb-1.5 px-4 flex rounded-lg items-center justify-center"
                     onClick={() => {
-                      window.open(`/v2farms/${id}-r`, '_blank');
+                      openUrl(`/v2farms/${id}-r`);
                     }}
                   >
                     <FormattedMessage

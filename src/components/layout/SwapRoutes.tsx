@@ -50,7 +50,7 @@ import { getAuroraConfig } from '../../services/aurora/config';
 import { isMobile, useClientMobile } from '../../utils/device';
 import { getV3PoolId } from '../../services/swapV3';
 import { nearMetadata, WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
-import { get_pool_name } from '../../services/commonV3';
+import { get_pool_name, openUrl } from '../../services/commonV3';
 
 export const RouterIcon = () => {
   return (
@@ -502,9 +502,9 @@ export const CrossSwapRoute = ({
             className="py-1 px-1 flex items-center rounded-md hover:text-gray-400 cursor-pointer text-primaryText"
             onClick={() => {
               if (route[0].pool?.Dex === 'ref') {
-                window.open(`/pool/${route[0].pool.id}`);
+                openUrl(`/pool/${route[0].pool.id}`);
               } else
-                window.open(
+                openUrl(
                   `${getAuroraConfig().explorer}/address/${
                     route[0].pool?.pairAdd
                   }`
@@ -579,7 +579,7 @@ export const CrossSwapRoute = ({
             }}
             className="py-1 absolute  px-1 flex items-center rounded-md hover:text-gray-400 cursor-pointer text-primaryText"
             onClick={() => {
-              window.open(`/pool/${route[0].pool.id}`);
+              openUrl(`/pool/${route[0].pool.id}`);
             }}
             onMouseEnter={() => setHoverRouter1(true)}
             onMouseLeave={() => setHoverRouter1(false)}
@@ -612,7 +612,7 @@ export const CrossSwapRoute = ({
             }}
             className="py-1  px-1 flex items-center rounded-md hover:text-gray-400 cursor-pointer text-primaryText"
             onClick={() => {
-              window.open(`/pool/${route[1].pool.id}`);
+              openUrl(`/pool/${route[1].pool.id}`);
             }}
             onMouseEnter={() => setHoverRouter2(true)}
             onMouseLeave={() => setHoverRouter2(false)}
@@ -695,7 +695,7 @@ export const NormalSwapRoute = ({
               setHover(false);
             }}
             onClick={() => {
-              window.open(`/pool/${route[0].pool.id}`);
+              openUrl(`/pool/${route[0].pool.id}`);
             }}
             className="py-1 px-1 flex items-center rounded-md cursor-pointer"
           >
@@ -766,7 +766,7 @@ export const NormalSwapRoute = ({
               setHover(false);
             }}
             onClick={() => {
-              window.open(`/pool/${route[0].pool.id}`);
+              openUrl(`/pool/${route[0].pool.id}`);
             }}
             className="py-1 px-1 flex items-center rounded-md cursor-pointer"
           >
@@ -806,7 +806,7 @@ export const NormalSwapRoute = ({
               setHover2(false);
             }}
             onClick={() => {
-              window.open(`/pool/${route[1].pool.id}`);
+              openUrl(`/pool/${route[1].pool.id}`);
             }}
             className="py-1  px-1 flex items-center rounded-md cursor-pointer"
           >
@@ -910,7 +910,7 @@ export function RouteDCLDetail({
           onClick={(e) => {
             e.stopPropagation();
             e.preventDefault();
-            window.open(`/poolV2/${pool_id_url_params}`);
+            openUrl(`/poolV2/${pool_id_url_params}`);
           }}
         >
           <span className="font-bold mr-1 ">DCL</span>

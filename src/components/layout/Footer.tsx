@@ -36,6 +36,13 @@ const CommunityLinks = [
     icon: <IconForum />,
   },
 ];
+
+function openUrl(url: string) {
+  var newTab = window.open();
+  newTab.opener = null;
+  newTab.location = url;
+}
+
 function Footer() {
   const { data } = useRefPrice('Footer');
   const [hoverLogo, setHoverLogo] = useState(false);
@@ -109,7 +116,7 @@ function Footer() {
                 <div
                   key={link.url}
                   className={`text-2xl font-semibold text-gray-600 cursor-pointer pb-2 last:pb-0 hover:text-greenColor`}
-                  onClick={() => window.open(link.url)}
+                  onClick={() => openUrl(link.url)}
                 >
                   {link.icon}
                 </div>

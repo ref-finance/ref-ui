@@ -62,6 +62,7 @@ import {
   displayNumberToAppropriateDecimals,
   get_pool_id,
   get_pool_name,
+  openUrl,
 } from '../../services/commonV3';
 import {
   formatWithCommas,
@@ -649,10 +650,10 @@ export default function AddYourLiquidityPageV3() {
     const poolId = currentSelectedPool?.pool_id;
     if (poolId) {
       const newPoolId = get_pool_name(poolId);
-      window.open(`/poolV2/${newPoolId}`);
+      openUrl(`/poolV2/${newPoolId}`);
     } else {
       localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'v2');
-      window.open('/pools');
+      openUrl('/pools');
     }
   }
   const tokenSort = tokenX?.id == currentSelectedPool?.token_x;

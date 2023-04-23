@@ -106,6 +106,7 @@ import {
   display_value,
 } from '../portfolio/Tool';
 import { PortfolioData } from '~pages/Portfolio';
+import { openUrl } from '../../services/commonV3';
 const is_mobile = isMobile();
 export const StakeListContext = createContext(null);
 export function YourLiquidityV1(props: any) {
@@ -841,7 +842,7 @@ function YourClassicLiquidityLineMobile() {
         <div className={`flex justify-between`}>
           <span
             onClick={() => {
-              window.open(`/pool/${pool.id}`);
+              openUrl(`/pool/${pool.id}`);
             }}
             className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md cursor-pointer whitespace-nowrap py-0.5 px-1.5"
           >
@@ -893,7 +894,7 @@ function YourClassicLiquidityLineMobile() {
               <span
                 className="flex items-center"
                 onClick={() => {
-                  window.open(`/v2farms/${pool.id}-${seed_status}`);
+                  openUrl(`/v2farms/${pool.id}-${seed_status}`);
                 }}
               >
                 <label className="underline cursor-pointer mx-1">
@@ -912,7 +913,7 @@ function YourClassicLiquidityLineMobile() {
               <span
                 className="flex items-center"
                 onClick={() => {
-                  window.open('/referendum');
+                  openUrl('/referendum');
                 }}
               >
                 <label className="underline cursor-pointer mx-1">
@@ -967,7 +968,7 @@ function YourClassicLiquidityLinePc() {
           <span
             className="flex items-center justify-center h-5 w-5 rounded-md bg-selectTokenV3BgColor cursor-pointer text-primaryText hover:text-white"
             onClick={() => {
-              window.open(`/pool/${pool.id}`);
+              openUrl(`/pool/${pool.id}`);
             }}
           >
             <LinkIcon></LinkIcon>
@@ -1021,7 +1022,7 @@ function YourClassicLiquidityLinePc() {
                 <span
                   className="flex items-center"
                   onClick={() => {
-                    window.open(`/v2farms/${pool.id}-${seed_status}`);
+                    openUrl(`/v2farms/${pool.id}-${seed_status}`);
                   }}
                 >
                   <label className="underline cursor-pointer mx-1">
@@ -1040,7 +1041,7 @@ function YourClassicLiquidityLinePc() {
                 <span
                   className="flex items-center"
                   onClick={() => {
-                    window.open('/referendum');
+                    openUrl('/referendum');
                   }}
                 >
                   <label className="underline cursor-pointer mx-1">
@@ -1363,6 +1364,7 @@ function PoolRow(props: {
                 pathname: '/farms',
               }}
               target="_blank"
+              rel="noopener noreferrer nofollow"
               onClick={(e) => {
                 e.stopPropagation();
               }}
@@ -1398,6 +1400,7 @@ function PoolRow(props: {
                 }`,
               }}
               target="_blank"
+              rel="noopener noreferrer nofollow"
               onClick={(e) => {
                 e.stopPropagation();
               }}
@@ -1432,7 +1435,7 @@ function PoolRow(props: {
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
-                window.open('/referendum');
+                openUrl('/referendum');
               }}
               className="text-primaryText mb-1.5 flex whitespace-nowrap items-center"
             >
@@ -1641,6 +1644,7 @@ function PoolRow(props: {
                     pathname: '/farms',
                   }}
                   target="_blank"
+                  rel="noopener noreferrer nofollow"
                   onClick={(e) => {
                     e.stopPropagation();
                   }}
@@ -1676,6 +1680,7 @@ function PoolRow(props: {
                     }`,
                   }}
                   target="_blank"
+                  rel="noopener noreferrer nofollow"
                   onClick={(e) => {
                     e.stopPropagation();
                   }}
@@ -1707,7 +1712,7 @@ function PoolRow(props: {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    window.open('/referendum');
+                    openUrl('/referendum');
                   }}
                   className="text-primaryText flex items-center mb-1.5 text-xs"
                 >
@@ -2690,7 +2695,7 @@ export function YourLiquidityAddLiquidityModal(
                         getStablePoolIdByTokens()
                       );
                       localStorage.setItem(saucePageTabKey, 'add_liquidity');
-                      window.open(`/sauce/${getStablePoolIdByTokens()}`);
+                      openUrl(`/sauce/${getStablePoolIdByTokens()}`);
                     }}
                   >
                     <FormattedMessage
@@ -2737,6 +2742,7 @@ export function YourLiquidityAddLiquidityModal(
                   className="mt-2.5 inline-flex absolute right-0 items-center justify-end text-right text-sm text-primaryText hover:text-gradientFrom"
                   href={`/more_pools/${tokens[0].id},${tokens[1].id}`}
                   target="_blank"
+                  rel="noopener noreferrer nofollow"
                 >
                   <span className="mr-1 underline">
                     <FormattedMessage

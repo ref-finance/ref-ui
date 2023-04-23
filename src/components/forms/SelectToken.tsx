@@ -62,7 +62,7 @@ import { useAllPoolsV2 } from '../../state/swapV3';
 import { Images, Symbols } from '../../components/stableswap/CommonComp';
 import { IconLeftV3 } from '../tokens/Icon';
 import { PoolInfo } from '../../services/swapV3';
-import { sort_tokens_by_base } from '../../services/commonV3';
+import { sort_tokens_by_base, openUrl } from '../../services/commonV3';
 
 export const USER_COMMON_TOKEN_LIST = 'USER_COMMON_TOKEN_LIST';
 
@@ -116,7 +116,7 @@ export function SingleToken({
               className="ml-1.5"
               onClick={(e) => {
                 e.stopPropagation();
-                window.open(TokenLinks[token.symbol]);
+                openUrl(TokenLinks[token.symbol]);
               }}
             >
               <OutLinkIcon className="text-primaryText hover:text-white cursor-pointer"></OutLinkIcon>

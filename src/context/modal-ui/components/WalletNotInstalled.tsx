@@ -2,6 +2,7 @@ import React from 'react';
 import { ModuleState } from '@near-wallet-selector/core';
 import { FormattedMessage } from 'react-intl';
 import { WalletSelectorFooter } from './WalletOptions';
+import { openUrl } from '../../../services/commonV3';
 
 interface WalletNotInstalledProps {
   module: ModuleState & {
@@ -59,7 +60,7 @@ export const WalletNotInstalled: React.FC<WalletNotInstalledProps> = ({
           marginBottom: '5px',
         }}
         onClick={() => {
-          window.open(getDownloadUrl(module), '_blank');
+          openUrl(getDownloadUrl(module));
         }}
       >
         <span>
@@ -80,7 +81,7 @@ export const WalletNotInstalled: React.FC<WalletNotInstalledProps> = ({
               return;
             }
 
-            window.open(module.metadata.downloadUrl, '_blank');
+            openUrl(module.metadata.downloadUrl, '_blank');
           }}
         >
           {`Open ${module.metadata.name}`}

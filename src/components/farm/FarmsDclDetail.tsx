@@ -67,6 +67,7 @@ import {
   getEffectiveFarmList,
   sort_tokens_by_base,
   get_pool_name,
+  openUrl,
 } from '~services/commonV3';
 import { list_liquidities, dcl_mft_balance_of } from '../../services/swapV3';
 import { AddNewPoolV3 } from '~components/pool/AddNewPoolV3';
@@ -430,7 +431,7 @@ export default function FarmsDclDetail(props: {
   const goPoolPage = () => {
     const poolId = detailData.pool.pool_id;
     const params_str = get_pool_name(poolId);
-    window.open(`/poolV2/${params_str}`);
+    openUrl(`/poolV2/${params_str}`);
   };
   function getBoostMutil() {
     if (REF_VE_CONTRACT_ID && !boostConfig) return '';
@@ -905,7 +906,7 @@ export default function FarmsDclDetail(props: {
     const [fixRange, pool_id, left_point, right_point] =
       temp_pool_id.split('&');
     const mft_id = `${get_pool_name(pool_id)}[${left_point}-${right_point}]`;
-    window.open(`/v2farms/${mft_id}-r`);
+    openUrl(`/v2farms/${mft_id}-r`);
   }
   function getFee() {
     const [tokenx, tokeny, fee] = detailData?.pool?.pool_id?.split('|') || '';
@@ -2039,9 +2040,7 @@ function LiquidityLine(props: {
     liquidity.lpt_id.split('#')[0];
     const pool_id = liquidity.lpt_id.split('#')[0];
     const lpt_index = liquidity.lpt_id.split('#')[1];
-    window.open(
-      `/yoursLiquidityDetailV2/${get_pool_name(pool_id)}@${lpt_index}`
-    );
+    openUrl(`/yoursLiquidityDetailV2/${get_pool_name(pool_id)}@${lpt_index}`);
   }
   function unavailableTip() {
     const tip = unavailableText();
@@ -2093,7 +2092,7 @@ function LiquidityLine(props: {
           <div
             className="flex items-center cursor-pointer"
             onClick={() => {
-              window.open(link);
+              openUrl(link);
             }}
           >
             <span className="underline ml-1 mr-0.5">
