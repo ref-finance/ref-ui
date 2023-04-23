@@ -111,25 +111,20 @@ const ja_in_risks_page = {
   Locked_paragraph_6:
     'コントラクトアカウントに少なくとも1つのフルアクセスキーが登録されている場合、コントラクトはロックされません。',
   audited_first_sentence:
-    'Ref Financeのスマートコントラクトは<label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://guide.ref.finance/developers/audits')" +
-    '>監査</label>されています。',
+    'Ref Financeのスマートコントラクトは<a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://guide.ref.finance/developers/audits"' +
+    '>監査</a>されています。',
   admin_first_sentence:
-    'Ref Financeによる <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-    '>Ref Finance Sputnik DAO</label> マネジメントを行う必要があります<label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://gov.ref.finance/t/introducing-the-guardians/253')" +
-    '>ガーディアンズ</label>，特定のNEARアドレスはコントラクトを停止することができます。DAOだけが、いつでもコントラクトを再開することができます。',
+    'Ref Financeによる <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://app.astrodao.com/dao/ref-finance.sputnik-dao.near"' +
+    '>Ref Finance Sputnik DAO</a> マネジメントを行う必要があります<a crel="noopener noreferrer nofollow" target="_blank" lass="underline cursor-pointer text-riskTextColor hover:text-white" href="https://gov.ref.finance/t/introducing-the-guardians/253" ' +
+    '>ガーディアンズ</a>，特定のNEARアドレスはコントラクトを停止することができます。DAOだけが、いつでもコントラクトを再開することができます。',
   risks_of_using_ref_finance:
     'Ref. financeの利用<label class="text-greenColor">リスク</label>',
   admin_sentence_1:
-    'Ref Financeは、<label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-    '>Ref Finance Sputnik DAO</label> によって管理されており、完全な分散型DAOに移行する予定です。',
+    'Ref Financeは、<a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://app.astrodao.com/dao/ref-finance.sputnik-dao.near"' +
+    '>Ref Finance Sputnik DAO</a> によって管理されており、完全な分散型DAOに移行する予定です。',
   admin_sentence_2:
-    'Ref Financeの業務を直接管理している、または現在管理している契約および住所の詳細については、 <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://guide.ref.finance/developers/contracts')" +
-    '>ドキュメント</label> を確認してください。',
+    'Ref Financeの業務を直接管理している、または現在管理している契約および住所の詳細については、 <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://guide.ref.finance/developers/contracts"' +
+    '>ドキュメント</a> を確認してください。',
 };
 const ja = {
   deposit: 'デポジット',
@@ -797,12 +792,12 @@ const ja = {
   no_farm_need_to_migrate: 'No Farm need to Migrate',
   v1_farms: 'Legacy Farms',
   has_rewards_tip:
-    'You have claimed rewards in <a class="text-greenColor text-base cursor-pointer underline hover:text-senderHot"  href="/farms" >Legacy Farms</a>. You can withdraw them at any time.</div>',
+    'You have claimed rewards in <a rel="noopener noreferrer nofollow" class="text-greenColor text-base cursor-pointer underline hover:text-senderHot"  href="/farms" >Legacy Farms</a>. You can withdraw them at any time.</div>',
   love: 'LOVE',
   Available_to_stake: 'Available to stake',
   you_staked: 'You staked',
   has_rewards_tip_in_v2:
-    'Withdraw legacy rewards from <a href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> Legacy Farms</a>.',
+    'Withdraw legacy rewards from <a rel="noopener noreferrer nofollow" href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> Legacy Farms</a>.',
   how_to_get: 'How to get?',
   get_booster: 'Get Booster',
   ended_farms: 'ended farms',
@@ -943,8 +938,7 @@ const ja = {
   value_must_be_less_than_or_equal_to: 'Value must be less than or equal to',
   out_of: 'out of',
   login_risk_tip:
-    'By checking this box and moving forward, you confirm that you fully understand the <a class="text-greenColor text-sm font-bold cursor-pointer hover:underline" onclick="window.open(' +
-    "'/risks'" +
+    'By checking this box and moving forward, you confirm that you fully understand the <a rel="noopener noreferrer nofollow" target="_blank" class="text-greenColor text-sm font-bold cursor-pointer hover:underline" href="/risks" ' +
     ')">risks</a> of using Ref Finance.',
   no_pool_tip: 'Oops! The pool does not exist.',
   total_ref_week: 'Total REF/week',

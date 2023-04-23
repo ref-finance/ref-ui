@@ -29,6 +29,7 @@ import {
 import { getTokenPriceList } from '../../services/indexer';
 import BigNumber from 'bignumber.js';
 import { GradientButton, ButtonTextWrapper } from '~components/button/Button';
+import { openUrl } from '../../services/commonV3';
 
 function USNPage(props: ReactModal.Props) {
   const intl = useIntl();
@@ -260,7 +261,7 @@ export function BorrowLinkCard(props: ReactModal.Props) {
             <SolidButton
               className="flex items-center justify-center  text-xl py-3 w-4/5"
               onClick={(e) => {
-                window.open('https://app.burrow.cash/', '_blank');
+                openUrl('https://app.burrow.cash/');
               }}
             >
               <span>

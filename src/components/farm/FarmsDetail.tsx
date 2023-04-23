@@ -89,7 +89,11 @@ import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import { VEARROW } from '../icon/Referendum';
 import { isStablePool } from '../../services/near';
 import moment from 'moment';
-import { getEffectiveFarmList, sort_tokens_by_base } from '~services/commonV3';
+import {
+  getEffectiveFarmList,
+  sort_tokens_by_base,
+  openUrl,
+} from '~services/commonV3';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 const {
@@ -170,7 +174,7 @@ export default function FarmsDetail(props: {
   };
   const goPoolPage = () => {
     const poolId = pool.id;
-    window.open(`/pool/${poolId}`);
+    openUrl(`/pool/${poolId}`);
   };
   function isEnded() {
     const farms = detailData.farmList;
@@ -1345,7 +1349,7 @@ function DetailSymbol({
 
       <span
         className="cursor-pointer pl-2 py-0.5 text-gradientFrom"
-        onClick={() => window.open(`/pool/${id}`, '_blank')}
+        onClick={() => openUrl(`/pool/${id}`)}
       >
         <ExternalLinkIcon />
       </span>

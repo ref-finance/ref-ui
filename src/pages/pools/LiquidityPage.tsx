@@ -141,6 +141,7 @@ import {
   isPending,
   sort_tokens_by_base,
   get_pool_name,
+  openUrl,
 } from '../../services/commonV3';
 
 import { AiFillStar } from 'react-icons/ai';
@@ -463,7 +464,7 @@ function MobilePoolRow({
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    window.open(`/v2farms/${pool.id}-r`, '_blank');
+                    openUrl(`/v2farms/${pool.id}-r`);
                   }}
                 >
                   {supportFarm && <FarmStampNew multi={farmCount > 1} />}
@@ -923,7 +924,7 @@ function MobileLiquidityPage({
     if (Number(id) >= allPools) {
       setShowPoolIDTip(true);
     } else if (id && id.length > 0 && !id.includes('.')) {
-      window.open(`/pool/${id}`, '_blank');
+      openUrl(`/pool/${id}`);
     }
   };
 
@@ -993,7 +994,7 @@ function MobileLiquidityPage({
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
-                    window.open(`/pool/${getVEPoolId()}`);
+                    openUrl(`/pool/${getVEPoolId()}`);
                   }}
                 >
                   <Images tokens={tokensStar} size="6" className="mr-2.5" />
@@ -2112,7 +2113,7 @@ function LiquidityPage_({
     if (Number(id) >= allPools) {
       setShowPoolIDTip(true);
     } else if (id && id.length > 0 && !id.includes('.')) {
-      window.open(`/pool/${id}`, '_blank');
+      openUrl(`/pool/${id}`);
     }
   };
 
@@ -2222,7 +2223,7 @@ function LiquidityPage_({
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
-                window.open(`/pool/${getVEPoolId()}`);
+                openUrl(`/pool/${getVEPoolId()}`);
               }}
             >
               <div className="absolute left-3 top-0 ">
@@ -2248,7 +2249,7 @@ function LiquidityPage_({
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
-                    window.open('/referendum');
+                    openUrl('/referendum');
                   }}
                 >
                   <span className="text-white">
@@ -3620,11 +3621,8 @@ function StablePoolCard({
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
-                window.open(
-                  `/v2farms/${poolData.pool.id}-${
-                    onlyEndedFarmsV2 ? 'e' : 'r'
-                  }`,
-                  '_blank'
+                openUrl(
+                  `/v2farms/${poolData.pool.id}-${onlyEndedFarmsV2 ? 'e' : 'r'}`
                 );
               }}
             >
@@ -3742,9 +3740,8 @@ function StablePoolCard({
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
-              window.open(
-                `/v2farms/${poolData.pool.id}-${onlyEndedFarmsV2 ? 'e' : 'r'}`,
-                '_blank'
+              openUrl(
+                `/v2farms/${poolData.pool.id}-${onlyEndedFarmsV2 ? 'e' : 'r'}`
               );
             }}
           >

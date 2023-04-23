@@ -48,6 +48,7 @@ import {
   sort_tokens_by_base,
   get_pool_id,
   get_pool_name,
+  openUrl,
 } from '~services/commonV3';
 import { ftGetTokensMetadata } from '../../services/ft-contract';
 import {
@@ -1099,7 +1100,7 @@ function RelatedFarmsBox(props: any) {
     const link_params = `${get_pool_name(
       pool_id
     )}[${left_point}-${right_point}]`;
-    window.open(`/v2farms/${link_params}-r`);
+    openUrl(`/v2farms/${link_params}-r`);
   }
   if (farm_loading) return null;
   if (!related_seed) return null;
@@ -1307,7 +1308,7 @@ function SelectLiquidityBox(props: any) {
     } else {
       url = `/v2farms/${link_params}-e`;
     }
-    window.open(url);
+    openUrl(url);
   }
   function is_in_farming(liquidity: UserLiquidityInfo) {
     const is_in_farming =
@@ -1903,7 +1904,7 @@ function TablePool(props: any) {
                         className=""
                         onClick={(e) => {
                           e.stopPropagation();
-                          window.open(TokenLinks[token.meta.symbol]);
+                          openUrl(TokenLinks[token.meta.symbol]);
                         }}
                       >
                         <FiArrowUpRight className="text-primaryText hover:text-greenColor cursor-pointer" />
@@ -1920,6 +1921,7 @@ function TablePool(props: any) {
                 </div>
                 <a
                   target="_blank"
+                  rel="noopener noreferrer nofollow"
                   href={`/swap/#${tokens[0].meta.id}|${tokens[1].meta.id}`}
                   className="text-xs text-primaryText xsm:hidden"
                   title={token.meta.id}

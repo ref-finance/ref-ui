@@ -7,6 +7,7 @@ import {
   ExternalLinkIcon,
   ShapeTitleIcon,
 } from '~components/icon/Risk';
+import { openUrl } from '../services/commonV3';
 
 export default function RiskPage() {
   const intl = useIntl();
@@ -52,7 +53,7 @@ export default function RiskPage() {
       <div className="flex justify-center items-center mt-5 flex-wrap">
         <div
           onClick={() => {
-            window.open(
+            openUrl(
               'https://form.typeform.com/to/EPmUetxU?typeform-source=mzko2gfnij6.typeform.com'
             );
           }}
@@ -63,7 +64,7 @@ export default function RiskPage() {
         </div>
         <div
           onClick={() => {
-            window.open('https://uniswap.org/whitepaper.pdf');
+            openUrl('https://uniswap.org/whitepaper.pdf');
           }}
           className="flex justify-between items-center whitespace-nowrap bg-cardBg rounded-lg px-2.5 py-1.5 text-sm text-riskTextColor cursor-pointer hover:text-white mx-1 mb-2"
         >
@@ -122,7 +123,7 @@ export default function RiskPage() {
             <p
               className="flex items-center text-sm text-riskTextColor mb-4 cursor-pointer float-left hover:text-white"
               onClick={() => {
-                window.open(
+                openUrl(
                   'https://pintail.medium.com/uniswap-a-good-deal-for-liquidity-providers-104c0b6816f2'
                 );
               }}
@@ -179,7 +180,7 @@ export default function RiskPage() {
           <div className="overflow-hidden">
             <p
               onClick={() => {
-                window.open(
+                openUrl(
                   'https://www.theguardian.com/technology/2022/jan/15/trading-is-gambling-no-doubt-about-it-how-cryptocurrency-dealing-fuels-addiction'
                 );
               }}
@@ -192,7 +193,7 @@ export default function RiskPage() {
           <div className="overflow-hidden">
             <p
               onClick={() => {
-                window.open(
+                openUrl(
                   'https://www.vice.com/en/article/bvzz9a/i-lost-half-a-million-pounds-bitcoin'
                 );
               }}
@@ -205,7 +206,7 @@ export default function RiskPage() {
           <div className="overflow-hidden">
             <p
               onClick={() => {
-                window.open(
+                openUrl(
                   'https://www.vice.com/en/article/8xe8jv/cryptocurrency-trading-addiction-gambling-castle-craig'
                 );
               }}
@@ -218,7 +219,7 @@ export default function RiskPage() {
           <div className="overflow-hidden">
             <p
               onClick={() => {
-                window.open('https://www.bbc.co.uk/news/uk-scotland-57268024');
+                openUrl('https://www.bbc.co.uk/news/uk-scotland-57268024');
               }}
               className="flex items-center cursor-pointer text-sm text-riskTextColor float-left hover:text-white"
             >

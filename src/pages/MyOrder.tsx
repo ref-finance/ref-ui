@@ -496,6 +496,7 @@ function HistoryLine({
           className="flex items-center hover:text-white"
           href={`${getConfig().explorerUrl}/txns/${orderTx}`}
           target="_blank"
+          rel="noopener noreferrer nofollow"
         >
           Tx
           <span className="ml-1.5">
@@ -687,6 +688,7 @@ function HistoryLine({
                 className="flex items-center bg-black text-primaryText px-1.5  bg-opacity-20 rounded "
                 href={`${getConfig().explorerUrl}/txns/${orderTx}`}
                 target="_blank"
+                rel="noopener noreferrer nofollow"
               >
                 <span className="mr-1.5">
                   <HiOutlineExternalLink></HiOutlineExternalLink>
@@ -917,6 +919,7 @@ function HistorySwapInfoLine({
           className="flex items-center hover:text-white"
           href={`${getConfig().explorerUrl}/txns/${orderTx}`}
           target="_blank"
+          rel="noopener noreferrer nofollow"
         >
           Tx
           <span className="ml-1.5">
@@ -1001,6 +1004,7 @@ function HistorySwapInfoLine({
                 className="flex items-center bg-black text-primaryText px-1.5  bg-opacity-20 rounded "
                 href={`${getConfig().explorerUrl}/txns/${orderTx}`}
                 target="_blank"
+                rel="noopener noreferrer nofollow"
               >
                 <span className="mr-1.5">
                   <HiOutlineExternalLink></HiOutlineExternalLink>

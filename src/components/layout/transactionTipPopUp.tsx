@@ -97,6 +97,7 @@ export const swapToast = (txHash: string) => {
       className="text-white w-full h-full pl-1.5 text-sm flex flex-wrap items-center"
       href={`${getConfig().explorerUrl}/txns/${txHash}`}
       target="_blank"
+      rel="noopener noreferrer nofollow"
       style={{
         lineHeight: '40px',
       }}
@@ -144,6 +145,7 @@ export const failToast = (txHash: string, errorType?: string) => {
       className="text-error w-full h-full pl-1.5 py-1 flex flex-col text-sm"
       href={`${getConfig().explorerUrl}/txns/${txHash}`}
       target="_blank"
+      rel="noopener noreferrer nofollow"
       style={{
         lineHeight: '20px',
       }}
@@ -203,6 +205,7 @@ export const failToastAccount = (errorMsg?: string) => {
         getConfig().explorerUrl
       }/address/${getCurrentWallet()?.wallet?.getAccountId()}`}
       target="_blank"
+      rel="noopener noreferrer nofollow"
       style={{
         lineHeight: '20px',
       }}
@@ -438,6 +441,7 @@ export const usnBuyAndSellToast = (txHash: string) => {
       className="text-white w-full h-full pl-1.5 flex flex-wrap items-center text-sm"
       href={`${getConfig().explorerUrl}/txns/${txHash}`}
       target="_blank"
+      rel="noopener noreferrer nofollow"
       style={{
         lineHeight: '40px',
       }}
@@ -641,6 +645,7 @@ export const LimitOrderPopUp = ({
       className="text-white w-full h-full pl-1.5 text-sm flex flex-col "
       href={`${getConfig().explorerUrl}/txns/${txHash}`}
       target="_blank"
+      rel="noopener noreferrer nofollow"
       style={{
         lineHeight: '25px',
       }}
@@ -710,6 +715,7 @@ export const LimitOrderFailPopUp = (txHash: string) => {
       className="text-error w-full h-full pl-1.5 py-1 flex flex-col text-sm"
       href={`${getConfig().explorerUrl}/txns/${txHash}`}
       target="_blank"
+      rel="noopener noreferrer nofollow"
       style={{
         lineHeight: '20px',
       }}

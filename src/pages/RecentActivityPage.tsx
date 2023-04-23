@@ -15,6 +15,7 @@ const config = getConfig();
 import { useHistory } from 'react-router';
 import { getCurrentWallet, WalletContext } from '../utils/wallets-integration';
 import { getSenderLoginRes } from '../utils/wallets-integration';
+import { openUrl } from '../services/commonV3';
 
 function useLastActions() {
   const [actions, setActions] = useState<ActionData[]>(null);
@@ -103,7 +104,7 @@ export function RecentActivityPage() {
                 config.explorerUrl +
                 '/address/' +
                 getCurrentWallet()?.wallet?.getAccountId();
-              window.open(url, '_blank');
+              openUrl(url);
             }}
           >
             <FormattedMessage id="view_all" defaultMessage="View All" />
@@ -141,7 +142,7 @@ export function RecentActivityPage() {
                   <GrayButton className="text-white text-xs w-full justify-center py-2 mt-4">
                     <div
                       onClick={() => {
-                        window.open(detail.txUrl, '_blank');
+                        openUrl(detail.txUrl);
                       }}
                     >
                       View on Explorer
@@ -198,7 +199,7 @@ export function RecentActivityPage() {
                   <GradientButton className="inline-block w-36 text-white text-xs py-2 mt-4">
                     <div
                       onClick={() => {
-                        window.open(detail.txUrl, '_blank');
+                        openUrl(detail.txUrl);
                       }}
                     >
                       View on Explorer

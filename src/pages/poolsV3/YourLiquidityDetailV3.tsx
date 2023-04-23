@@ -49,6 +49,7 @@ import {
   displayNumberToAppropriateDecimals,
   get_pool_id,
   get_pool_name,
+  openUrl,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import {
@@ -521,11 +522,11 @@ export default function YourLiquidityDetail(props: any) {
     } else {
       url = `/v2farms/${link_params}-r`;
     }
-    window.open(url);
+    openUrl(url);
   }
   const goPoolPage = () => {
     const params_str = get_pool_name(poolId);
-    window.open(`/poolV2/${params_str}`);
+    openUrl(`/poolV2/${params_str}`);
   };
   const {
     Icon: Liquidity_icon,
@@ -615,7 +616,7 @@ export default function YourLiquidityDetail(props: any) {
                   onClick={(e) => {
                     e.stopPropagation();
                     if (liquidity_link) {
-                      window.open(liquidity_link);
+                      openUrl(liquidity_link);
                     }
                   }}
                   className={`flex items-center justify-center border border-greenColor rounded-lg px-1 ml-2 ${
@@ -662,7 +663,7 @@ export default function YourLiquidityDetail(props: any) {
             <div
               className="flex items-center justify-center text-white cursor-pointer"
               onClick={() => {
-                window.open(liquidity_link);
+                openUrl(liquidity_link);
               }}
             >
               <a className="text-sm text-white mr-1 underline">

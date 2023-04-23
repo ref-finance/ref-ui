@@ -150,6 +150,8 @@ import {
 import ReactTooltip from 'react-tooltip';
 import { DownArrowLightMobile } from '../icon/Arrows';
 import { getProposalHashes, ProposalHash } from '../../services/indexer';
+import { openUrl } from '../../services/commonV3';
+
 const VotedOnlyKey = 'REF_FI_GOV_PROPOSAL_VOTED_ONLY';
 const BonusOnlyKey = 'REF_FI_GOV_PROPOSAL_BONUS_ONLY';
 
@@ -1595,7 +1597,7 @@ export const PreviewPopUp = (
             <BorderGradientButton
               className="flex items-center justify-center h-full"
               onClick={() => {
-                window.open(displayLink, '_blank');
+                openUrl(displayLink);
               }}
               text={
                 <span className="flex items-center">
@@ -1715,7 +1717,7 @@ export const PreviewPopUp = (
                   !link ? 'cursor-not-allowed' : ''
                 } `}
                 onClick={() => {
-                  link && window.open(displayLink, '_blank');
+                  link && openUrl(displayLink);
                 }}
               >
                 <span>
@@ -2604,9 +2606,7 @@ const GovItemDetail = ({
               !transaction_hash ? 'hidden' : ''
             } text-gradientFrom hover:text-senderHot`}
             onClick={() => {
-              window.open(
-                `${getConfig().explorerUrl}/txns/${transaction_hash}`
-              );
+              openUrl(`${getConfig().explorerUrl}/txns/${transaction_hash}`);
             }}
           >
             <span className="text-primaryText">
@@ -2824,7 +2824,7 @@ const GovItemDetail = ({
           <BorderGradientButton
             className="flex items-center justify-center h-full "
             onClick={() => {
-              window.open(displayLink, '_blank');
+              openUrl(displayLink);
             }}
             text={
               <span className="flex items-center">
@@ -2850,7 +2850,7 @@ const GovItemDetail = ({
         <BorderGradientButton
           className="flex items-center justify-center h-full"
           onClick={() => {
-            window.open(displayLink, '_blank');
+            openUrl(displayLink);
           }}
           text={
             <span className="flex items-center">

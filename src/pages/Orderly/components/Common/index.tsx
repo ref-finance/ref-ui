@@ -162,7 +162,7 @@ export function ConnectWallet({ onClick }: { onClick: () => void }) {
   return (
     <button
       className="text-base min-w-fit py-3 px-10 relative w-p240 xs:w-full xs:py-2 bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center
-      
+
     "
       onClick={(e) => {
         e.preventDefault();
@@ -187,7 +187,7 @@ export function ConfirmButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       className="text-base min-w-fit py-3 px-10 relative w-p240 xs:w-full xs:py-2 bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center
-      
+
     "
       onClick={(e) => {
         e.preventDefault();
@@ -299,6 +299,7 @@ export function RegisterButton({
                 className="underline text-primary ml-1"
                 href="https://orderly.network/"
                 target="_blank"
+                rel="noopener noreferrer nofollow"
               >
                 Orderly Network
               </a>

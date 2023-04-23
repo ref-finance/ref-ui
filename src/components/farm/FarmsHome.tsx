@@ -107,6 +107,7 @@ import {
   sort_tokens_by_base,
   get_pool_id,
   get_pool_name,
+  openUrl,
 } from '../../services/commonV3';
 
 const {
@@ -1310,7 +1311,7 @@ export default function FarmsHome(props: any) {
                   <FormattedMessage id="legacy_tip" />{' '}
                   <a
                     onClick={() => {
-                      window.open('/farms');
+                      openUrl('/farms');
                     }}
                     className="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"
                   >
