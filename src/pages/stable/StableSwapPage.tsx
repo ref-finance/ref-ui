@@ -94,6 +94,16 @@ function StableSwapPage({ pool }: { pool: Pool }) {
   )
     return <Loading />;
 
+  console.log(
+    allTokens,
+    pool,
+    shares,
+    stablePool,
+    nearBalances,
+    actionName,
+    'log stable'
+  );
+
   const renderModule = (tab: string) => {
     switch (tab) {
       case DEFAULT_ACTIONS[0]:
