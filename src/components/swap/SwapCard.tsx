@@ -276,6 +276,8 @@ export function SwapRate({
 export function AutoRouter({ trade }: { trade: ExchangeEstimate }) {
   const { estimates, tokenIn, tokenOut, market } = trade;
 
+  if (!estimates) return null;
+
   const identicalRoutes = separateRoutes(
     estimates,
     estimates[estimates.length - 1].outputToken
@@ -470,7 +472,17 @@ export function DetailView_near_wnear({
     </div>
   );
 }
-function DetailView({ trade }: { trade: ExchangeEstimate }) {
+function DetailView({
+  trade,
+  show,
+  tokenIn,
+  tokenOut,
+}: {
+  trade: ExchangeEstimate;
+  show: boolean;
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+}) {
   const intl = useIntl();
   const minAmountOutValue = useMemo(() => {
     try {
@@ -559,20 +571,6 @@ function DetailView({ trade }: { trade: ExchangeEstimate }) {
             </span>
           </div>
         </div>
-        <div
-          style={{
-            fontSize: '15px',
-          }}
-          className="text-white mb-2 text-center"
-        >
-          <FormattedMessage
-            id="your_trade_will_goes_to"
-            defaultMessage={'Your trade route will goes to '}
-          />
-          <span className="font-gothamBold">
-            <FormattedMessage id="orderbook" defaultMessage={'orderbook'} />.
-          </span>
-        </div>
       </>
     );
   }
@@ -580,7 +578,9 @@ function DetailView({ trade }: { trade: ExchangeEstimate }) {
   return (
     <>
       <div
-        className={`border border-menuMoreBoxBorderColor rounded-xl px-2.5 py-3 mb-3 `}
+        className={`${
+          !show ? 'hidden' : ''
+        } border border-menuMoreBoxBorderColor rounded-xl px-2.5 py-3 mb-3 `}
       >
         <SwapDetail
           title={intl.formatMessage({ id: 'price_impact' })}
@@ -613,7 +613,9 @@ function DetailView({ trade }: { trade: ExchangeEstimate }) {
 
         <AutoRouter trade={trade} />
       </div>
-      {Number(trade.priceImpact) > 2 ? (
+      {Number(trade.priceImpact) > 2 &&
+      !trade?.swapError &&
+      tokenIn?.id !== tokenOut?.id ? (
         <div className="flex items-center justify-between xsm:flex-col bg-lightReBgColor border border-warnRedColor  mb-4 rounded-xl p-3  text-sm text-redwarningColor">
           <span className="xsm:mb-0.5">
             <FormattedMessage id="price_impact_warning"></FormattedMessage>
@@ -1012,6 +1014,8 @@ export default function SwapCard(props: {
         new BigNumber(tokenInMax || 0)
       ) && Number(selectTrade?.priceImpact || 0) > 2;
 
+    console.log('adasda');
+
     if (ifDoubleCheck) setDoubleCheckOpen(true);
     else selectTrade && selectTrade.makeSwap();
   };
@@ -1237,13 +1241,14 @@ export default function SwapCard(props: {
           </div>
         )}
 
-        {canShowDetailView && showDetails ? (
-          <div className="mt-4">
-            <DetailView trade={selectTrade} />
-          </div>
-        ) : (
-          <div className="mt-4" />
-        )}
+        <div className="mt-4">
+          <DetailView
+            show={canShowDetailView && showDetails}
+            trade={selectTrade}
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+          />
+        </div>
 
         {wrapOperation ? (
           <DetailView_near_wnear
@@ -1257,7 +1262,8 @@ export default function SwapCard(props: {
 
         {selectTrade?.swapError &&
         !wrapOperation &&
-        Number(tokenInAmount || '0') > 0 ? (
+        Number(tokenInAmount || '0') > 0 &&
+        tokenIn?.id !== tokenOut?.id ? (
           <div className="pb-2 relative ">
             <Alert level="warn" message={selectTrade?.swapError.message} />
           </div>

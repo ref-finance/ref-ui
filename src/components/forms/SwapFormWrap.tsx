@@ -8,7 +8,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import SlippageSelector from './SlippageSelector';
 
 import { WalletContext } from '../../utils/wallets-integration';
-import { SWAP_MODE, SwapProContext } from '../../pages/SwapPage';
+import { SWAP_MODE, SWAP_TYPE, SwapProContext } from '../../pages/SwapPage';
 import { useMyOrders } from '../../state/swapV3';
 import { useHistory } from 'react-router-dom';
 import { OrderIcon } from '../icon/V3';
@@ -121,9 +121,10 @@ export default function SwapFormWrap({
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    event.stopPropagation();
     setError(null);
 
-    if (isSignedIn) {
+    if (isSignedIn || selectMarket === 'orderly') {
       try {
         setShowSwapLoading && setShowSwapLoading(true);
         setShowSwapLoading && setLoadingPause(true);
@@ -199,7 +200,7 @@ export default function SwapFormWrap({
         <div className="flex flex-col items-center xsm:flex-row-reverse">
           {!isInsufficient ? (
             <div
-              className={`ml-1 text-xs w-full ${
+              className={`ml-1 text-xs relative w-full ${
                 swapMode === SWAP_MODE.LIMIT ? 'mt-6' : ''
               }  `}
             >

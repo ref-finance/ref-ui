@@ -214,7 +214,7 @@ function SwapPage() {
   const storedType = sessionStorage.getItem(SWAP_TYPE_KEY) as SWAP_TYPE | null;
 
   const [swapType, setSwapType] = useState<SWAP_TYPE>(
-    storedType || SWAP_TYPE.LITE
+    storedType || SWAP_TYPE.Pro
   );
 
   const [forceEstimate, setForceEstimate] = useState<boolean>(false);
@@ -315,16 +315,19 @@ function SwapPage() {
               />
             </div>
 
-            {trades?.[selectMarket] &&
-              trades?.[selectMarket]?.availableRoute && (
-                <TradeRoute trade={trades[selectMarket]} />
-              )}
+            <TradeRoute
+              trade={trades?.[selectMarket]}
+              tokenIn={tokenIn}
+              tokenOut={tokenOut}
+            />
 
             {trades && trades?.[selectMarket] && (
               <MarketList
                 trade={trades[selectMarket]}
                 allTrades={trades}
                 selectMarket={selectMarket}
+                tokenIn={tokenIn}
+                tokenOut={tokenOut}
               />
             )}
           </div>

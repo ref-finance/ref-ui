@@ -130,6 +130,7 @@ import { ClientInfo, Orders } from '~pages/Orderly/orderly/type';
 import { parseSymbol } from '~pages/Orderly/components/RecentTrade';
 import { getTopPoolsIndexer, getTopPoolsIndexerRaw } from '../services/indexer';
 import { SUPPORT_LEDGER_KEY } from '../components/swap/SwapCard';
+import { openUrl } from '../services/commonV3';
 const ONLY_ZEROS = /^0*\.?0*$/;
 
 export const REF_DCL_POOL_CACHE_KEY = 'REF_DCL_POOL_CACHE_VALUE';
@@ -1262,15 +1263,23 @@ export const useCrossSwap = ({
           setCanSwap(true);
 
           const priceImpact = getPriceImpact({
-            swapsToDo: swapsToDo,
+            swapsToDo: estimates,
             tokenIn,
             tokenOut,
             tokenInAmount,
-            tokenOutAmount: swapsToDo?.[0]?.estimate || '0',
+            tokenOutAmount: estimates?.[0]?.estimate || '0',
             tokenPriceList,
           });
 
-          setPriceImpact(priceImpact);
+          const fee = getAvgFee(estimates);
+
+          setPriceImpact(
+            scientificNotationToString(
+              new Big(priceImpact || 0)
+                .minus(new Big(fee || 0).div(100))
+                .toString()
+            )
+          );
         }
 
         setCrossQuoteDone(true);
@@ -1358,11 +1367,7 @@ export const useCrossSwap = ({
       ? toPrecision(tokenOutAmount || '0', Math.min(tokenOut.decimals, 8))
       : '',
     minAmountOut,
-    priceImpact: scientificNotationToString(
-      new Big(priceImpact || 0)
-        .minus(new Big(getAvgFee(swapsToDo || [])).div(100))
-        .toString()
-    ),
+    priceImpact,
     swapError,
     makeSwap,
     estimates: swapsToDo?.map((s) => ({
@@ -1871,10 +1876,8 @@ export const useOrderlySwap = ({
   ]);
 
   const makeSwap = () => {
-    window.open(`/orderbook?side=${side}&orderType=Market`);
+    openUrl(`/orderbook?side=${side}&orderType=Market`);
   };
-
-  console.log('orderly quote done', !pairExist || orderlyQuoteDone);
 
   return {
     maker_fee: userInfo?.maker_fee_rate || 10,

@@ -404,20 +404,8 @@ export default function SwapRateChart(props: SwapRateChartProps) {
                 type="number"
                 tick={<RenderYTick />}
                 height={300}
+                domain={['dataMin', 'dataMax']}
               />
-
-              {/* <YAxis
-                dataKey="price"
-                scale={'linear'}
-                yAxisId={'left'}
-                tickLine={false}
-                tickCount={0}
-                axisLine={false}
-                tick={null}
-                width={20}
-                height={300}
-                max={maxBy(priceList.price_list, (p) => p.price)?.price}
-              /> */}
 
               <Tooltip
                 cursor={{

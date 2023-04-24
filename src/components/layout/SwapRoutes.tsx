@@ -1492,7 +1492,7 @@ export const CrossSwapAllResult = ({
   );
 };
 
-const PolygonArrow = () => {
+const PolygonArrow = ({ color }: { color?: string }) => {
   return (
     <svg
       width="6"
@@ -1503,7 +1503,7 @@ const PolygonArrow = () => {
     >
       <path
         d="M6 5L-4.07833e-07 9.33013L-2.92811e-08 0.669872L6 5Z"
-        fill="#00FFD1"
+        fill={color || '#00FFD1'}
       />
     </svg>
   );
@@ -1579,8 +1579,50 @@ export const LeftBracket = ({ size }: { size: number }) => {
   );
 };
 
-export const TradeRoute = ({ trade }: { trade: ExchangeEstimate }) => {
-  const { estimates, tokenIn, tokenOut, market } = trade;
+export const TradeRoute = ({
+  trade,
+  tokenIn,
+  tokenOut,
+}: {
+  trade: ExchangeEstimate;
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+}) => {
+  if (!tokenIn || !tokenOut) return null;
+
+  if (!trade || !trade?.availableRoute || tokenIn?.id === tokenOut?.id) {
+    return (
+      <div className="frcb relative">
+        <DisplayIcon token={tokenIn} height="26px" width="26px" />
+        <div className="w-full frcc mx-2 relative">
+          <div
+            className="border border-dashed absolute left-5 opacity-30 border-primaryText w-full px-3"
+            style={{
+              width: 'calc(100% - 32px)',
+            }}
+          ></div>
+
+          <div
+            className="relative z-50 text-primaryText text-opacity-30"
+            style={{
+              background: '#001220',
+            }}
+          >
+            {'/  /'}
+          </div>
+        </div>
+        <div className="absolute right-8">
+          <PolygonArrow color="#303E48" />
+        </div>
+
+        <DisplayIcon token={tokenOut} height="26px" width="26px" />
+      </div>
+    );
+  }
+
+  const { estimates } = trade;
+
+  const { market } = trade;
 
   const identicalRoutes = separateRoutes(
     estimates,
@@ -1659,7 +1701,11 @@ export const TradeRouteModal = (
       customWidth="700px"
     >
       <div className="w-full mt-7">
-        <TradeRoute trade={props.trade} />
+        <TradeRoute
+          trade={props.trade}
+          tokenIn={props.trade.tokenIn}
+          tokenOut={props.trade.tokenOut}
+        />
       </div>
     </ModalWrapper>
   );
@@ -1669,10 +1715,14 @@ export const MarketList = ({
   trade,
   allTrades,
   selectMarket,
+  tokenIn,
+  tokenOut,
 }: {
   trade: ExchangeEstimate;
   allTrades: TradeEstimates;
   selectMarket: SwapMarket;
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
 }) => {
   const { setSelectMarket } = useContext(SwapProContext);
 
@@ -1688,7 +1738,74 @@ export const MarketList = ({
 
   const bestAmount = sortedTradesList?.[0]?.tokenOutAmount;
 
-  if (!bestAmount) return null;
+  if (!bestAmount || tokenIn?.id === tokenOut?.id)
+    return (
+      <>
+        <div className="pb-4 max-w-max mt-6 flex flex-col">
+          <span className="pb-1.5 text-white">
+            <FormattedMessage
+              id="markets"
+              defaultMessage={'Markets'}
+            ></FormattedMessage>
+          </span>
+        </div>
+        <table
+          className="w-full table relative right-3 border-separate"
+          style={{
+            borderSpacing: 0,
+          }}
+        >
+          <tr
+            className="text-primaryText"
+            style={{
+              fontSize: '13px',
+            }}
+          >
+            <th align="left" className="pb-2 pl-3">
+              <FormattedMessage id="exchanges" defaultMessage={'Exchanges'} />
+            </th>
+
+            <th align="left">
+              {<FormattedMessage id="price" defaultMessage={'Price'} />}
+              <span className="ml-1">
+                {`(${toRealSymbol(trade.tokenOut.symbol)}/${toRealSymbol(
+                  trade.tokenIn.symbol
+                )})`}
+              </span>
+            </th>
+
+            <th align="left">
+              <FormattedMessage
+                id="output_est"
+                defaultMessage={'Output(est.)'}
+              />
+            </th>
+
+            <th align="left">
+              <FormattedMessage id="diff" defaultMessage={'Diff'} />
+            </th>
+
+            <th align="left">
+              <FormattedMessage id="actions" defaultMessage={'Actions'} />
+            </th>
+
+            <th align="left"></th>
+          </tr>
+        </table>
+
+        <div
+          className="text-center mt-10 text-sm"
+          style={{
+            color: '#566069',
+          }}
+        >
+          <FormattedMessage
+            id="no_trade_routes"
+            defaultMessage={'No trade routes.'}
+          />
+        </div>
+      </>
+    );
 
   const displayList = sortedTradesList.map((t) => {
     const rawRate = scientificNotationToString(

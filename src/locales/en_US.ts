@@ -1241,5 +1241,7 @@ const en_US = {
     'that due to Ledger wallet constraints, the current rate provided by the swap function',
   ledger_guide_tip_5: 'may not be the best price',
   ledger_guide_tip_6: '.',
+  go_to_orderbook_tip:
+    'This price is for reference only. {br} Please proceed to <strong>Orderbook</strong> to place the order.',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

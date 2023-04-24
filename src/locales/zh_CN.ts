@@ -1178,5 +1178,8 @@ const zh_CN = {
 
   ledger_guide_tip_zh:
     '为保障交易完成，已为你打开support ledger功能。受ledger功能所限，当前价格可能不是最佳价格。',
+
+  go_to_orderbook_tip:
+    '该价格仅供参考。{br} 请至<strong>订单簿</strong>页面下单。',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);
