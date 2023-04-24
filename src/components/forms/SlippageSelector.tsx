@@ -123,8 +123,6 @@ export default function SlippageSelector({
   swapMode?: SWAP_MODE;
   setReEstimateTrigger?: (e?: any) => void;
 }) {
-  const { swapType } = useContext(SwapProContext);
-
   const ref = useRef<HTMLInputElement>();
   const validSlippages = validSlippageList || [0.1, 0.5, 1.0];
   const slippageCopyId = isMobile() ? 'slippageCopyForMobile' : 'slippageCopy';
@@ -133,7 +131,7 @@ export default function SlippageSelector({
   const [warn, setWarn] = useState(false);
   const [symbolsArr] = useState(['e', 'E', '+', '-']);
 
-  const { enableTri, setEnableTri } = useContext(SwapProContext);
+  const { enableTri, setEnableTri, swapType } = useContext(SwapProContext);
   const { isLedger } = useWalletSelector();
 
   const [ledgerGuide, setLedgerGuide] = useState<boolean>(false);
@@ -152,7 +150,7 @@ export default function SlippageSelector({
       }, 500);
     }
     return () => clearTimeout(timer);
-  }, [isLedger]);
+  }, [isLedger, swapType]);
 
   const openToolTip = (e: any) => {
     e.nativeEvent.stopImmediatePropagation();
@@ -361,7 +359,7 @@ export default function SlippageSelector({
 
             <div
               className={
-                'flex items-center text-newSlippageColor mt-6 justify-between text-sm'
+                'flex items-center relative text-newSlippageColor mt-6 justify-between text-sm'
               }
             >
               {ledgerGuide && (
