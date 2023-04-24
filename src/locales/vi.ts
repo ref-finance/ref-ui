@@ -1100,5 +1100,6 @@ const vi = {
   ledger_guide_tip_4:
     'that due to Ledger wallet constraints, the current rate provided by the swap function',
   ledger_guide_tip_5: 'may not be the best price.',
+  view_dcl_pool: 'View DCL Pool',
 };
 export default Object.assign(vi, vi_in_risks_page);

@@ -86,22 +86,31 @@ export default function SwapFormWrap({
 
   const { selectMarket } = useContext(SwapProContext);
 
-  const OrderButton = swapMode === SWAP_MODE.LIMIT && activeOrder && (
-    <button
-      onClick={(e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        history.push('/myOrder');
+  const viewPool = swapMode === SWAP_MODE.LIMIT && (
+    <div
+      onMouseEnter={() => {
+        setViewPoolHover(true);
       }}
-      className="w-full h-12 flex items-center justify-center bg-switchIconBgColor hover:bg-limitOrderButtonHover border border-limitOrderBorderColor hover:border-0 mt-4 rounded-lg text-greenColor text-base gotham_bold xsm:mr-1.5 xsm:mt-6"
+      onMouseLeave={() => {
+        setViewPoolHover(false);
+      }}
+      onClick={goPoolsPage}
+      className={`flex  relative top-3 items-center text-xs justify-center rounded-md px-3.5 xsm:px-2 py-1 cursor-pointer ${
+        viewPoolHover ? 'text-white' : 'text-primaryText'
+      }`}
     >
-      <OrderIcon />
-      <span className="mx-2 xs:mx-1 md:mx-1">
-        {activeOrder.length > 0 ? activeOrder.length : null}
+      <span className=" whitespace-nowrap xsm:hidden">
+        <FormattedMessage
+          id={`${mostPoolDetail?.pool_id ? 'view_pool' : 'v2_pools'}`}
+          defaultMessage={`${mostPoolDetail?.pool_id ? 'View Pool' : 'Pools'}`}
+        />
       </span>
-
-      {<FormattedMessage id="orders" defaultMessage={'Orders'} />}
-    </button>
+      <span className=" whitespace-nowrap lg:hidden">
+        &nbsp;
+        {mostPoolDetail?.pool_id ? 'Detail' : 'Pools'}
+      </span>
+      <OutLinkIcon className="ml-2 xsm:ml-1.5"></OutLinkIcon>
+    </div>
   );
 
   const {
@@ -165,30 +174,6 @@ export default function SwapFormWrap({
                 swapMode={swapMode}
               />
             )}
-            {swapMode == SWAP_MODE.LIMIT && (
-              <div
-                onMouseEnter={() => {
-                  setViewPoolHover(true);
-                }}
-                onMouseLeave={() => {
-                  setViewPoolHover(false);
-                }}
-                onClick={goPoolsPage}
-                className={`flex items-center justify-center bg-viewPoolBgColor rounded-md px-3.5 xsm:px-2 py-1 cursor-pointer ${
-                  viewPoolHover ? 'text-white' : 'text-primaryText'
-                }`}
-              >
-                <span className="text-xs whitespace-nowrap xsm:hidden">
-                  <FormattedMessage
-                    id={`${mostPoolDetail?.pool_id ? 'view_pool' : 'v2_pools'}`}
-                  />
-                </span>
-                <span className="text-xs whitespace-nowrap lg:hidden">
-                  {mostPoolDetail?.pool_id ? 'Detail' : 'Pools'}
-                </span>
-                <OutLinkIcon className="ml-2 xsm:ml-1.5"></OutLinkIcon>
-              </div>
-            )}
           </h2>
         </>
       )}
@@ -237,7 +222,7 @@ export default function SwapFormWrap({
           ) : (
             <InsufficientButton divClassName="h-12 mt-2 w-full"></InsufficientButton>
           )}
-          {OrderButton}
+          {viewPool}
         </div>
       )}
     </form>
