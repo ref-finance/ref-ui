@@ -3560,14 +3560,14 @@ function MyOrderComponent({
           tokensMap={tokensMap}
           activeOrder={activeOrder?.filter(filter)}
           historyOrder={historyOrder?.filter(filter)}
-          // historySwapInfo={historySwapInfo?.filter((hs) => {
-          //   tokenIn &&
-          //     tokenOut &&
-          //     hs.token_in === tokenIn?.id &&
-          //     hs.token_out === tokenOut?.id;
-          // })}
+          historySwapInfo={historySwapInfo?.filter((hs) => {
+            tokenIn &&
+              tokenOut &&
+              hs.token_in === tokenIn?.id &&
+              hs.token_out === tokenOut?.id;
+          })}
 
-          historySwapInfo={historySwapInfo}
+          // historySwapInfo={historySwapInfo}
         />
       </PriceContext.Provider>
     </div>
