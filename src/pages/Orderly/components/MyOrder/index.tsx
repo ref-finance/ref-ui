@@ -589,7 +589,7 @@ function HistoryLine({
     <>
       <td
         colSpan={8}
-        className="rounded-b-xl  w-full relative bottom-1.5 bg-portfolioBgColor"
+        className=" rounded-b-xl  w-full relative bottom-1.5 bg-portfolioBgColor"
       >
         <div className="flex items-center p-4 pt-6 justify-between ">
           <span className="flex items-center">
@@ -764,8 +764,10 @@ function HistoryLine({
         </td>
       </tr>
       <tr
-        className={`mb-4 overflow-visible   xs:hidden px-4 py-3 text-sm   z-20   relative  w-full rounded-t-xl items-center   ${
-          hoverOn === index ? 'bg-portfolioBarBgColor' : 'bg-portfolioBgColor'
+        className={`mb-4 overflow-visible   xs:hidden px-4 py-3 text-sm   z-20   relative  w-full  items-center   ${
+          hoverOn === index
+            ? 'bg-portfolioBarBgColor rounded-t-xl'
+            : 'bg-portfolioBgColor rounded-xl'
         }`}
         onMouseEnter={() => {
           setHoverOn(index);
@@ -774,7 +776,9 @@ function HistoryLine({
           zIndex: 21,
         }}
       >
-        <td className="rounded-tl-xl">{sellTokenAmount}</td>
+        <td className={hoverOn === index ? ' rounded-tl-xl' : ' rounded-l-xl'}>
+          {sellTokenAmount}
+        </td>
 
         <td>
           <span className="text-white text-lg frcs w-7 xs:hidden ">
@@ -791,7 +795,9 @@ function HistoryLine({
         <td>{created}</td>
 
         <td className="">{claimed}</td>
-        <td className="rounded-tr-xl">{actions}</td>
+        <td className={hoverOn === index ? ' rounded-tr-xl' : ' rounded-r-xl'}>
+          {actions}
+        </td>
 
         {/* {actions} */}
       </tr>
@@ -954,15 +960,14 @@ function HistorySwapInfoLine({
       {`${toPrecision(calculateFeePercent(fee / 100).toString(), 2)}% `}
     </span>
   );
-
   const sort =
     TOKEN_LIST_FOR_RATE.indexOf(sellToken?.symbol) > -1 && +price !== 0;
-  const orderRate = sort ? (
-    new BigNumber(1).dividedBy(price).toFixed()
-  ) : (
+  const calcPrice = sort ? new BigNumber(1).dividedBy(price).toFixed() : price;
+
+  const orderRate = (
     <span className="whitespace-nowrap col-span-1 flex items-start xs:flex-row xs:items-center flex-col relative  xs:right-0">
-      <span className="mr-1 text-white text-sm" title={price}>
-        {toPrecision(price, 2)}
+      <span className="mr-1 text-white text-sm" title={calcPrice}>
+        {toPrecision(calcPrice, 2)}
       </span>
       <span className="text-v3SwapGray text-xs xs:hidden">
         {`${toRealSymbol(
@@ -1843,7 +1848,9 @@ function ActiveLine({
           zIndex: 21,
         }}
       >
-        <td className="rounded-tl-xl">{sellTokenAmount}</td>
+        <td className={hoverOn === index ? ' rounded-tl-xl' : ' rounded-l-xl'}>
+          {sellTokenAmount}
+        </td>
 
         <td>
           <span className="text-white text-lg frcs w-7 xs:hidden ">
@@ -1863,7 +1870,9 @@ function ActiveLine({
 
         <td>{created}</td>
 
-        <td className="rounded-tr-xl">{unclaim}</td>
+        <td className={hoverOn === index ? ' rounded-tr-xl' : ' rounded-r-xl'}>
+          {unclaim}
+        </td>
 
         {/* {actions} */}
       </tr>
@@ -2169,6 +2178,10 @@ function OrderCard({
         style={{
           borderSpacing: 0,
         }}
+        onMouseLeave={() => {
+          setActiveOrderHoverOn(-1);
+          setHistoryOrderHoverOn(-1);
+        }}
       >
         {orderType === 'active' && (
           <>
@@ -2176,6 +2189,10 @@ function OrderCard({
               className={`mb-2.5 px-4 xs:hidden ${
                 !activeOrder || activeOrder.length === 0 ? 'hidden' : ''
               } text-v3SwapGray text-sm  grid-cols-7 whitespace-nowrap`}
+              onMouseEnter={() => {
+                setActiveOrderHoverOn(-1);
+                setHistoryOrderHoverOn(-1);
+              }}
             >
               <th className="col-span-1 pl-3 text-left">
                 <FormattedMessage id="you_sell" defaultMessage={'You Sell'} />
@@ -2267,6 +2284,10 @@ function OrderCard({
               className={`mb-2.5 px-4 xs:hidden ${
                 !historyOrder || historyOrder.length === 0 ? 'hidden' : ''
               } text-v3SwapGray text-sm  whitespace-nowrap`}
+              onMouseEnter={() => {
+                setActiveOrderHoverOn(-1);
+                setHistoryOrderHoverOn(-1);
+              }}
             >
               <th className="pl-3 text-left">
                 <FormattedMessage id="you_sell" defaultMessage={'You Sell'} />
@@ -2407,7 +2428,12 @@ function OrderCard({
         {orderType === 'history' &&
           historySwapInfo &&
           historySwapInfo.length > 0 && (
-            <tr>
+            <tr
+              onMouseEnter={() => {
+                setActiveOrderHoverOn(-1);
+                setHistoryOrderHoverOn(-1);
+              }}
+            >
               <td colSpan={8}>
                 <div
                   className="inline-flex max-w-max items-center ml-4 text-primaryText mt-7  mb-3"
@@ -3534,12 +3560,14 @@ function MyOrderComponent({
           tokensMap={tokensMap}
           activeOrder={activeOrder?.filter(filter)}
           historyOrder={historyOrder?.filter(filter)}
-          historySwapInfo={historySwapInfo?.filter((hs) => {
-            tokenIn &&
-              tokenOut &&
-              hs.token_in === tokenIn?.id &&
-              hs.token_out === tokenOut?.id;
-          })}
+          // historySwapInfo={historySwapInfo?.filter((hs) => {
+          //   tokenIn &&
+          //     tokenOut &&
+          //     hs.token_in === tokenIn?.id &&
+          //     hs.token_out === tokenOut?.id;
+          // })}
+
+          historySwapInfo={historySwapInfo}
         />
       </PriceContext.Provider>
     </div>
