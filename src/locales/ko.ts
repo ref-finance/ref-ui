@@ -107,25 +107,20 @@ const ko_in_risks_page = {
   Locked_paragraph_6:
     '만약 하나라도 풀 액세스 키가 계약 계정에 등록되어 있는 경우, 그 계약은 잠기지 않습니다. ',
   audited_first_sentence:
-    'Ref Finance 스마트 계약은 <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://guide.ref.finance/developers/audits')" +
-    '>감사</label> 되었습니다.',
+    'Ref Finance 스마트 계약은 <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://guide.ref.finance/developers/audits"' +
+    '>감사</a> 되었습니다.',
   admin_first_sentence:
-    'Ref Finance 는 이 사람들이 관리합니다 <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-    '>Ref Finance Sputnik DAO</label>. Ref에는 <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://gov.ref.finance/t/introducing-the-guardians/253')" +
-    '>가디언</label>,이라는게 있으며, 이 특정 NEAR 주소들(=가디언)들은 계약을 멈추는게 가능합니다. 이렇게 멈춘 계약은 DAO에 의해서만, 시간에 구애받지 않고 재개 될 수 있습니다. ',
+    'Ref Finance 는 이 사람들이 관리합니다 <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://app.astrodao.com/dao/ref-finance.sputnik-dao.near"' +
+    '>Ref Finance Sputnik DAO</a>. Ref에는 <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://gov.ref.finance/t/introducing-the-guardians/253"' +
+    '>가디언</a>,이라는게 있으며, 이 특정 NEAR 주소들(=가디언)들은 계약을 멈추는게 가능합니다. 이렇게 멈춘 계약은 DAO에 의해서만, 시간에 구애받지 않고 재개 될 수 있습니다. ',
   risks_of_using_ref_finance:
     '<label class="text-greenColor">리스크</label> , Ref. finance 사용시의',
   admin_sentence_1:
-    'Ref Finance는 <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-    '>Ref Finance Sputnik DAO</label> 가 운영합니다. 우리 DAO는 완전 탈중앙화 DAO로 전환할 예정입니다.',
+    'Ref Finance는 <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://app.astrodao.com/dao/ref-finance.sputnik-dao.near"' +
+    '>Ref Finance Sputnik DAO</a> 가 운영합니다. 우리 DAO는 완전 탈중앙화 DAO로 전환할 예정입니다.',
   admin_sentence_2:
-    'Ref Finance의 전/현 담당자들의 계약 및 연락 정보를 알고 싶으시다면, <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://guide.ref.finance/developers/contracts')" +
-    '>문서</label> 쪽에서 확인해 주세요.',
+    'Ref Finance의 전/현 담당자들의 계약 및 연락 정보를 알고 싶으시다면, <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://guide.ref.finance/developers/contracts"' +
+    '>문서</a> 쪽에서 확인해 주세요.',
 };
 const ko = {
   deposit: '입금',
@@ -775,12 +770,12 @@ const ko = {
   no_farm_need_to_migrate: '이주해야하는 농장은 없습니다.',
   v1_farms: 'Classic 농장',
   has_rewards_tip:
-    '출금할 리워드가 다음 농장들에 남아있습니다: <a class="text-greenColor text-base cursor-pointer underline hover:text-senderHot"  href="/farms" >Legacy Farms</a>. 보상이 사라지진 않습니다. 언제든 출금할 수 있습니다.</div>',
+    '출금할 리워드가 다음 농장들에 남아있습니다: <a rel="noopener noreferrer nofollow" class="text-greenColor text-base cursor-pointer underline hover:text-senderHot"  href="/farms" >Legacy Farms</a>. 보상이 사라지진 않습니다. 언제든 출금할 수 있습니다.</div>',
   love: 'LOVE',
   Available_to_stake: '스테이킹 가능한 양은:',
   you_staked: '당신이 스테이킹한 양은:',
   has_rewards_tip_in_v2:
-    '출금가능한 레거시 보상들이 기다립니다 <a href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> Legacy Farms</a>.',
+    '출금가능한 레거시 보상들이 기다립니다 <a rel="noopener noreferrer nofollow"  href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> Legacy Farms</a>.',
   how_to_get: '어떻게 받나요?',
   get_booster: '부스터 받기',
   ended_farms: '부스팅 종료된 농장',
@@ -934,8 +929,7 @@ const ko = {
   out_of: 'out of',
   value_must_be_less_than_or_equal_to: 'Value must be less than or equal to',
   login_risk_tip:
-    'By checking this box and moving forward, you confirm that you fully understand the <a class="text-greenColor text-sm font-bold cursor-pointer hover:underline" onclick="window.open(' +
-    "'/risks'" +
+    'By checking this box and moving forward, you confirm that you fully understand the <a rel="noopener noreferrer nofollow" target="_blank" class="text-greenColor text-sm font-bold cursor-pointer hover:underline" href="/risks"' +
     ')">risks</a> of using Ref Finance.',
   no_pool_tip: 'Oops! The pool does not exist.',
   total_ref_week: 'Total REF/week',
@@ -1084,5 +1078,15 @@ const ko = {
   real_time_executed_orders: 'real-time executed orders',
   real_time_executed_orders_tip:
     'When placing a sell order above market price or a buy order below market price using limit order function, Ref will attempt to execute a swap-with-stop-point action first, and if there is any remaining amount, a limit order will be created to fill the rest.<br> Real-time executed orders refer to orders placed using the limit order function but executed through swapping. In the "History" section, you can view real-time executed orders between the earliest displayed limit order in History up to the present time.',
+  ledger_guide_tip_1:
+    'To successfully use your Ledger wallet for transactions, the ',
+
+  ledger_guide_tip_2: 'feature has been automatically activated.',
+  ledger_guide_tip_3: 'Please be aware',
+  support_ledger_tip_new: '"Support Ledger"',
+
+  ledger_guide_tip_4:
+    'that due to Ledger wallet constraints, the current rate provided by the swap function',
+  ledger_guide_tip_5: 'may not be the best price.',
 };
 export default Object.assign(ko, ko_in_risks_page);

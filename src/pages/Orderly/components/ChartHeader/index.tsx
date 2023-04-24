@@ -348,7 +348,7 @@ export function SymbolSelectorMobileModal(
   );
 }
 
-function ChartHeader() {
+function ChartHeader({ maintenance }: { maintenance: boolean }) {
   const { symbol, setSymbol, tokenInfo, ticker } = useOrderlyContext();
 
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
@@ -465,7 +465,7 @@ function ChartHeader() {
         />
       )}
 
-      {ticker && (
+      {ticker && !maintenance && (
         <div
           className={`flex  items-center  mr-2 max-w-full w-p460
             justify-between xs:justify-end md:justify-end  text-primaryOrderly`}

@@ -14,7 +14,7 @@ export default function FarmsBoosterPage(props: any) {
   const [dayVolumeMap, setDayVolumeMap] = useState({});
   const [all_seeds, set_all_seeds] = useState<Seed[]>([]);
   const paramId = decodeURIComponent(props.match.params.id || '');
-  const paramIdArr = paramId.split('|');
+  const is_dcl = paramId.indexOf('<>') > -1 || paramId.indexOf('|') > -1;
   const getDetailData_user_data = (data: {
     user_seeds_map: Record<string, UserSeedInfo>;
     user_unclaimed_token_meta_map: Record<string, any>;
@@ -58,8 +58,8 @@ export default function FarmsBoosterPage(props: any) {
     detailData &&
     tokenPriceList &&
     Object.keys(tokenPriceList).length > 0;
-  const showDetailPage = baseCondition && paramIdArr.length == 1;
-  const showDclDetailPage = baseCondition && paramIdArr.length == 3;
+  const showDetailPage = baseCondition && !is_dcl;
+  const showDclDetailPage = baseCondition && is_dcl;
   const showLoading = paramId && !showDetailPage && !showDclDetailPage;
   return (
     <>

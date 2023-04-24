@@ -71,6 +71,7 @@ import {
   get_orderly_public_key_path,
 } from '../../pages/Orderly/orderly/utils';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../../pages/Orderly/components/UserBoard/index';
+import { openUrl } from '../../services/commonV3';
 
 export function Logout() {
   const { wallet } = getCurrentWallet();
@@ -145,11 +146,10 @@ export function AccountModel(props: any) {
       textId: 'go_to_near_wallet',
       subIcon: <HiOutlineExternalLink />,
       click: () => {
-        window.open(
+        openUrl(
           selector.store.getState().selectedWalletId === 'my-near-wallet'
             ? config.myNearWalletUrl
-            : config.walletUrl,
-          '_blank'
+            : config.walletUrl
         );
       },
     },
@@ -245,7 +245,7 @@ export function AccountModel(props: any) {
             <button
               className="hover:text-gradientFrom text-primaryText w-6 h-6 flex items-center justify-center ml-2 p-0.5 rounded-xl bg-black bg-opacity-30"
               onClick={() => {
-                window.open(
+                openUrl(
                   `https://${
                     getConfig().networkId === 'testnet' ? 'testnet.' : ''
                   }nearblocks.io/address/${wallet.getAccountId()}#transaction`
@@ -505,9 +505,9 @@ export function MobileNavBar(props: any) {
       set_one_level_selected(id);
     } else if (url) {
       if (isExternal) {
-        window.open(url);
+        openUrl(url);
       } else {
-        window.open(url, '_self');
+        openUrl(url);
       }
     }
     if (clickEvent || url) {
@@ -532,9 +532,9 @@ export function MobileNavBar(props: any) {
       set_two_level_selected(id);
     } else if (url) {
       if (isExternal) {
-        window.open(url);
+        openUrl(url);
       } else {
-        window.open(url, '_self');
+        openUrl(url);
       }
     }
     if (clickEvent || url) {
@@ -553,9 +553,9 @@ export function MobileNavBar(props: any) {
       clickEvent();
     } else if (url) {
       if (isExternal) {
-        window.open(url);
+        openUrl(url);
       } else {
-        window.open(url, '_self');
+        openUrl(url);
       }
     }
     if (clickEvent || url) {
@@ -581,7 +581,7 @@ export function MobileNavBar(props: any) {
         {` `}
         <span
           className={`font-bold underline cursor-pointer mx-1`}
-          onClick={() => window.open('/account?tab=ref', '_blank')}
+          onClick={() => openUrl('/account?tab=ref')}
         >
           <FormattedMessage id="click" defaultMessage="Click" />
         </span>
@@ -590,14 +590,14 @@ export function MobileNavBar(props: any) {
       <div
         className="nav-wrap lg:hidden md:show relative xs:mb-6 md:mb-6"
         style={{
-          zIndex: show ? 200 : 81,
+          zIndex: show ? 200 : 91,
         }}
       >
         {showTip ? <AccountTipDownByAccountID show={showTip} /> : null}
         <div className="flex items-center text-2xl text-white justify-between p-4">
           <NavLogoSimple
             onClick={() => {
-              window.open('https://www.ref.finance/');
+              openUrl('https://www.ref.finance/');
             }}
           />
           <div className="flex items-center">
@@ -683,7 +683,7 @@ export function MobileNavBar(props: any) {
                 <div className="transform scale-90 origin-left">
                   <NavLogoSimple
                     onClick={() => {
-                      window.open('https://www.ref.finance/');
+                      openUrl('https://www.ref.finance/');
                     }}
                   />
                 </div>
@@ -823,7 +823,7 @@ export function MobileNavBar(props: any) {
                 <div className="flex items-center">
                   <div
                     className=" transform scale-75 origin-left"
-                    onClick={() => window.open('https://stats.ref.finance/')}
+                    onClick={() => openUrl('https://stats.ref.finance/')}
                   >
                     <RefAnalyticsGary />
                   </div>

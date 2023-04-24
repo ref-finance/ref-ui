@@ -506,12 +506,16 @@ input[type='range']::-webkit-slider-runnable-track {
 }
 .swiper-container {
   width: 100%;
-  height: 90px;
+  height: 98px;
 }
 .swiper-wrapper {
   position: relative;
   width: 100%;
   height: 100%;
+}
+.swiper-slide {
+  position: relative;
+  padding-top: 10px;
 }
 
 @keyframes rotation1 {

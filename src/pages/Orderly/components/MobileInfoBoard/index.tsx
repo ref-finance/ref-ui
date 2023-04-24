@@ -104,7 +104,7 @@ export const MOBILE_TAB = 'REF_ORDERLY_MOBILE_TAB';
 
 export const MOBILE_DISPLAY = 'REF_ORDERLY_MOBILE_DISPLAY';
 
-function ChartBoard() {
+function ChartBoard({ maintenance }: { maintenance: boolean }) {
   const { validAccountSig, ticker } = useOrderlyContext();
   const intl = useIntl();
   return (
@@ -139,7 +139,7 @@ function ChartBoard() {
           </div>
         </div>
       )}
-      <ChartContainer />
+      <ChartContainer maintenance={maintenance} />
     </div>
   );
 }
@@ -420,7 +420,7 @@ function CurAsset() {
   );
 }
 
-function BookBoard() {
+function BookBoard({ maintenance }: { maintenance: boolean }) {
   return (
     <div
       className="w-full "
@@ -428,7 +428,7 @@ function BookBoard() {
         height: 'calc(52vh + 16px)',
       }}
     >
-      <OrderBook />
+      <OrderBook maintenance={maintenance} />
     </div>
   );
 }
@@ -833,7 +833,7 @@ function UserBoardWrapper() {
             : 'w-screen left-0 rounded-t-2xl bg-boxBorder gradientBorderWrapperNoShadowOrderly fixed  bottom-0'
         }
         style={{
-          zIndex: 99,
+          zIndex: 89,
         }}
       >
         <div className="flex items-center px-4 rounded-t-2xl bg-boxBorder pb-12 pt-5 w-full justify-center  ">
@@ -888,7 +888,7 @@ function UserBoardWrapper() {
   );
 }
 
-export default function () {
+export default function ({ maintenance }: { maintenance: boolean }) {
   const storedTab = sessionStorage.getItem(MOBILE_TAB) as any;
 
   const [tab, setTab] = useState<'balance' | 'chart' | 'book'>(
@@ -922,11 +922,11 @@ export default function () {
       </div>
 
       <div className={tab === 'chart' && showDisplay ? '' : 'hidden'}>
-        <ChartBoard></ChartBoard>
+        <ChartBoard maintenance={maintenance}></ChartBoard>
       </div>
 
       <div className={tab === 'book' && showDisplay ? '' : 'hidden'}>
-        <BookBoard></BookBoard>
+        <BookBoard maintenance={maintenance}></BookBoard>
       </div>
 
       <div className="w-full mx-auto flex mt-2 h-9 items-center">

@@ -75,6 +75,7 @@ export default function Deposit({ tokens }: { tokens: TokenMetadata[] }) {
               className="text-secondaryScale-600 underline"
               href="https://docs.near.org/docs/concepts/storage-staking"
               target="_blank"
+              rel="noopener noreferrer nofollow"
             >
               account storage.
             </a>

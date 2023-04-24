@@ -21,6 +21,7 @@ import {
 import ReactTooltip from 'react-tooltip';
 import { REF_FI_SENDER_WALLET_ACCESS_KEY } from '../../../pages/Orderly/orderly/utils';
 import { ORDERLY_ASSET_MANAGER } from '../../../pages/Orderly/near';
+import { openUrl } from '../../../services/commonV3';
 
 const walletOfficialUrl = {
   'NEAR Wallet': 'wallet.near.org',
@@ -133,7 +134,7 @@ export const WalletSelectorFooter = () => {
       <div
         className="ml-2 cursor-pointer hover:underline font-bold"
         onClick={() => {
-          window.open('https://ref.finance', '_blank');
+          openUrl('https://ref.finance');
         }}
         style={{
           textDecorationThickness: '0.5px',
@@ -201,8 +202,6 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
         await currentWallet.signOut();
       }
     } catch (error) {
-      console.log(error.message);
-
       if (walletsRejectError.includes(error.message)) {
         // window.location.reload();
         onError(error.message);
@@ -255,8 +254,6 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
 
         return;
       }
-
-      console.log(err);
 
       onError(err);
     }
@@ -357,7 +354,7 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
                                 const { link } = walletOfficialMark[name];
                                 if (link) {
                                   e.stopPropagation();
-                                  window.open(link);
+                                  openUrl(link);
                                 }
                               }}
                             ></AuthenticationIcon>

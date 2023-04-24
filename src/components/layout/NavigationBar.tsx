@@ -119,6 +119,7 @@ import {
   ArrowDownIcon,
   DownTriangleIcon,
 } from '~components/icon/Nav';
+import { openUrl } from '../../services/commonV3';
 
 const config = getConfig();
 
@@ -216,8 +217,6 @@ function Anchor({
       }
       if (typeof e?.[REF_FI_SWAP_SWAPPAGE_TAB_KEY] === 'string') {
         const curTab = e?.[REF_FI_SWAP_SWAPPAGE_TAB_KEY];
-
-        console.log(e);
 
         if (curTab === 'normal') {
           setChosenSub(storageSwapMode);
@@ -438,11 +437,10 @@ function AccountEntry({
       textId: 'go_to_near_wallet',
       // subIcon: <HiOutlineExternalLink />,
       click: () => {
-        window.open(
+        openUrl(
           selector.store.getState().selectedWalletId === 'my-near-wallet'
             ? config.myNearWalletUrl
-            : config.walletUrl,
-          '_blank'
+            : config.walletUrl
         );
       },
     },
@@ -599,7 +597,7 @@ function AccountEntry({
                   <button
                     className="hover:text-gradientFrom text-primaryText ml-2"
                     onClick={() => {
-                      window.open(
+                      openUrl(
                         `https://${
                           getConfig().networkId === 'testnet' ? 'testnet.' : ''
                         }nearblocks.io/address/${wallet.getAccountId()}#transaction`
@@ -736,12 +734,12 @@ export function AuroraEntry({
         e.preventDefault();
         extraClick && extraClick();
         if (!isMobile) {
-          window.open('/account?tab=aurora', '_blank');
+          openUrl('/account?tab=aurora');
           return;
         }
         if (isMobile) {
           if (!hasBalanceOnAurora) {
-            window.open('/account?tab=aurora', '_blank');
+            openUrl('/account?tab=aurora');
           } else {
             setHover(!hover);
           }
@@ -761,7 +759,7 @@ export function AuroraEntry({
         <div
           className=" absolute pt-2 right-0 lg:top-14 xs:top-8 md:top-8"
           onClick={(e) => {
-            window.open('/account?tab=aurora', '_blank');
+            openUrl('/account?tab=aurora');
             e.stopPropagation();
           }}
         >
@@ -828,6 +826,7 @@ export function AuroraEntry({
               }}
               onClick={(e) => e.stopPropagation()}
               target="_blank"
+              rel="noopener noreferrer nofollow"
               className={`w-full px-3 py-1 text-xs bg-auroraGreen text-chartBg flex items-center justify-center cursor-pointer ${
                 hasBalanceOnAurora ? 'block' : 'hidden'
               }`}
@@ -888,7 +887,7 @@ function MoreMenu() {
   ) => {
     if (url) {
       if (isExternal) {
-        window.open(url);
+        openUrl(url);
       } else {
         history.push(url);
       }
@@ -1175,7 +1174,7 @@ function NavigationBar() {
             className={`${
               hoverClick ? 'font-bold' : 'font-normal'
             } underline cursor-pointer mx-1`}
-            onClick={() => window.open('/account?tab=ref', '_blank')}
+            onClick={() => openUrl('/account?tab=ref')}
             onMouseEnter={() => setHoverClick(true)}
             onMouseLeave={() => setHoverClick(false)}
           >
@@ -1198,7 +1197,7 @@ function NavigationBar() {
               <NavLogoIcon
                 className="cursor-pointer"
                 onClick={() => {
-                  window.open('https://www.ref.finance/');
+                  openUrl('https://www.ref.finance/');
                 }}
               />
             </div>
@@ -1485,7 +1484,7 @@ function MenuBar() {
       clickEvent();
     } else if (url) {
       if (isExternal) {
-        window.open(url);
+        openUrl(url);
       } else {
         history.push(url);
       }
@@ -1504,7 +1503,7 @@ function MenuBar() {
         clickEvent();
       } else if (url) {
         if (isExternal) {
-          window.open(url);
+          openUrl(url);
         } else {
           history.push(url);
         }

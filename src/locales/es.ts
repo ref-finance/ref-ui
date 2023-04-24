@@ -117,26 +117,21 @@ const es_in_risks_page = {
   Locked_paragraph_6:
     'Si hay al menos una clave de acceso completo registrada en la cuenta del contrato, el contrato no está bloqueado.',
   audited_first_sentence:
-    'Los contratos inteligentes de Ref Finance son etiquetados como <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://guide.ref.finance/developers/audits')" +
-    '>audited</label>.',
+    'Los contratos inteligentes de Ref Finance son etiquetados como <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://guide.ref.finance/developers/audits"' +
+    '>audited</a>.',
 
   admin_first_sentence:
-    'Ref Finance es gestionado por la etiqueta  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-    '>Ref Finance Sputnik DAO</label>. There are <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://gov.ref.finance/t/introducing-the-guardians/253')" +
-    '>Guardians</label>, son las direcciones específicas de NEAR specific NEAR, que son capaces de pausar el contrato. Solo el DAO puede reanudar el contrato, en cualquier momento.',
+    'Ref Finance es gestionado por la etiqueta  <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://app.astrodao.com/dao/ref-finance.sputnik-dao.near"' +
+    '>Ref Finance Sputnik DAO</a>. There are <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://gov.ref.finance/t/introducing-the-guardians/253"' +
+    '>Guardians</a>, son las direcciones específicas de NEAR specific NEAR, que son capaces de pausar el contrato. Solo el DAO puede reanudar el contrato, en cualquier momento.',
   risks_of_using_ref_finance:
     '<label class="text-greenColor">Riesgos</label> de Usar Ref.finance',
   admin_sentence_1:
-    'Ref Finance es gestionado por la etiqueta  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-    '>Ref Finance Sputnik DAO</label> y hará la transición a un DAO completamente descentralizado.',
+    'Ref Finance es gestionado por la etiqueta  <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://app.astrodao.com/dao/ref-finance.sputnik-dao.near"' +
+    '>Ref Finance Sputnik DAO</a> y hará la transición a un DAO completamente descentralizado.',
   admin_sentence_2:
-    'Para obtener más información relacionada con los contratos y las direcciones que han gestionado directamente o gestionan actualmente los asuntos de Ref Finance, consulte nuestro <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://guide.ref.finance/developers/contracts')" +
-    '>Documentation</label>.',
+    'Para obtener más información relacionada con los contratos y las direcciones que han gestionado directamente o gestionan actualmente los asuntos de Ref Finance, consulte nuestro <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://guide.ref.finance/developers/contracts"' +
+    '>Documentation</a>.',
 };
 // Main-page
 const es = {
@@ -801,12 +796,12 @@ const es = {
   no_farm_need_to_migrate: 'Ninguna farms necesita migrar',
   v1_farms: 'Legacy Farms',
   has_rewards_tip:
-    'Has reclamado recompensas en <a class="text-green Color text-based cursor-pointer underline hover:text-sender Hot" href="/farms" >Legacy Farms</a>. Puede retirarlos en cualquier momento.</div>',
+    'Has reclamado recompensas en <a rel="noopener noreferrer nofollow" class="text-green Color text-based cursor-pointer underline hover:text-sender Hot" href="/farms" >Legacy Farms</a>. Puede retirarlos en cualquier momento.</div>',
   love: 'LOVE',
   Available_to_stake: 'Disponibe para hacer stake',
   you_staked: 'Ha hecho un stake',
   has_rewards_tip_in_v2:
-    'Retire las recompensas heredadas de <a href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> Legacy Farms</a>.',
+    'Retire las recompensas heredadas de <a rel="noopener noreferrer nofollow"  href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> Legacy Farms</a>.',
   how_to_get: 'Cómo obtener?',
   get_booster: 'Obtener Booster',
   ended_farms: 'Farms finalizadas',
@@ -974,8 +969,7 @@ const es = {
   range: 'Rango',
   unclaimed_fee: 'Tarifa no reclamada',
   login_risk_tip:
-    'By checking this box and moving forward, you confirm that you fully understand the <a class="text-greenColor text-sm font-bold cursor-pointer hover:underline" onclick="window.open(' +
-    "'/risks'" +
+    'By checking this box and moving forward, you confirm that you fully understand the <a rel="noopener noreferrer nofollow" target="_blank" class="text-greenColor text-sm font-bold cursor-pointer hover:underline" href="/risks" ' +
     ')">risks</a> of using Ref Finance.',
   no_pool_tip: 'Oops! The pool does not exist.',
   total_ref_week: 'Total REF/week',
@@ -1125,5 +1119,16 @@ const es = {
   real_time_executed_orders: 'real-time executed orders',
   real_time_executed_orders_tip:
     'When placing a sell order above market price or a buy order below market price using limit order function, Ref will attempt to execute a swap-with-stop-point action first, and if there is any remaining amount, a limit order will be created to fill the rest.<br> Real-time executed orders refer to orders placed using the limit order function but executed through swapping. In the "History" section, you can view real-time executed orders between the earliest displayed limit order in History up to the present time.',
+
+  ledger_guide_tip_1:
+    'To successfully use your Ledger wallet for transactions, the ',
+
+  ledger_guide_tip_2: 'feature has been automatically activated.',
+  ledger_guide_tip_3: 'Please be aware',
+  support_ledger_tip_new: '"Support Ledger"',
+
+  ledger_guide_tip_4:
+    'that due to Ledger wallet constraints, the current rate provided by the swap function',
+  ledger_guide_tip_5: 'may not be the best price.',
 };
 export default Object.assign(es, es_in_risks_page);

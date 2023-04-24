@@ -10,6 +10,8 @@ import {
   Inch1IconAndAurora,
   TriAndAurora,
 } from '~components/icon/CrossSwapIcons';
+import { useWalletSelector } from '~context/WalletSelectorContext';
+import { SupportLedgerGuide } from '~components/layout/SupportLedgerGuide';
 
 export function CustomSwitch({
   isOpen,
@@ -111,6 +113,7 @@ export default function SlippageSelector({
   supportLedger,
   setSupportLedger,
   swapMode,
+  setReEstimateTrigger,
 }: {
   slippageTolerance: number;
   onChange: (slippage: number) => void;
@@ -118,6 +121,7 @@ export default function SlippageSelector({
   supportLedger?: boolean;
   setSupportLedger?: (e?: any) => void;
   swapMode?: SWAP_MODE;
+  setReEstimateTrigger?: (e?: any) => void;
 }) {
   const { swapType } = useContext(SwapProContext);
 
@@ -130,6 +134,25 @@ export default function SlippageSelector({
   const [symbolsArr] = useState(['e', 'E', '+', '-']);
 
   const { enableTri, setEnableTri } = useContext(SwapProContext);
+  const { isLedger } = useWalletSelector();
+
+  const [ledgerGuide, setLedgerGuide] = useState<boolean>(false);
+
+  useEffect(() => {
+    let timer: any;
+
+    if (isLedger && !supportLedger) {
+      setShowSlip(true);
+      setLedgerGuide(true);
+      localStorage.setItem(SUPPORT_LEDGER_KEY, '1');
+
+      timer = setTimeout(() => {
+        setSupportLedger(true);
+        setReEstimateTrigger(true);
+      }, 500);
+    }
+    return () => clearTimeout(timer);
+  }, [isLedger]);
 
   const openToolTip = (e: any) => {
     e.nativeEvent.stopImmediatePropagation();
@@ -152,7 +175,10 @@ export default function SlippageSelector({
   };
 
   const closeToolTip = (e: any) => {
-    if (!invalid) setShowSlip(false);
+    if (!invalid) {
+      setLedgerGuide(false);
+      setShowSlip(false);
+    }
   };
 
   const handleBtnChange = (slippage: number) => {
@@ -297,7 +323,6 @@ export default function SlippageSelector({
               </div>
             </div>
 
-            {/* support ledger button */}
             {swapType === SWAP_TYPE.Pro && (
               <>
                 <div className="text-sm mt-3 text-newSlippageColor">
@@ -339,7 +364,14 @@ export default function SlippageSelector({
                 'flex items-center text-newSlippageColor mt-6 justify-between text-sm'
               }
             >
-              <div className="flex  items-center">
+              {ledgerGuide && (
+                <SupportLedgerGuide
+                  handleClose={() => {
+                    setLedgerGuide(false);
+                  }}
+                />
+              )}
+              <div className="flex items-center">
                 <label>
                   <FormattedMessage
                     id="support_ledger"

@@ -205,11 +205,15 @@ function RegisterModal(
             </span>
           </div>
           <div>
-            {intl.formatMessage({
-              id: 'more_order_book_page_detail',
-              defaultMessage:
-                'This Orderbook page is a graphical user interface for trading on Orderly Network, and is provided as a convenience to users of Ref Finance. Orderly Network is fully responsible for the security of their systems, smart contracts, and any funds deposited or sent to those systems and contracts. Users are strongly encouraged to do their own research before connecting their wallet and/or placing any orders.',
-            })}
+            <FormattedMessage
+              id="more_order_book_page_detail"
+              values={{
+                br: <br />,
+              }}
+              defaultMessage={
+                'This Orderbook page is powered by Orderly Network, users are strongly encouraged to do their own research before connecting their wallet and/or placing any orders.{br} Ref Finance does not guarantee the security of the systems, smart contracts, and any funds deposited or sent to those systems and contracts.{br} Neither Ref Finance nor Orderly Network is responsible for any profit or loss of investment users made through this Orderbook page.'
+              }
+            />
           </div>
 
           <div className="py-5">
@@ -230,6 +234,7 @@ function RegisterModal(
               className="underline text-primary ml-1"
               href="https://orderly.network/"
               target="_blank"
+              rel="noopener noreferrer nofollow"
             >
               Orderly Network
             </a>
@@ -276,11 +281,16 @@ function LearnMoreBox() {
   return (
     <div className="absolute bottom-0 pb-6 right-28 cursor-default w-full">
       <div className="bg-cardBg  rounded-md text-primaryText border text-xs border-primaryText py-3 px-2.5">
-        {intl.formatMessage({
-          id: 'more_order_book_page_detail',
-          defaultMessage:
-            'This Orderbook page is a graphical user interface for trading on Orderly Network, and is provided as a convenience to users of Ref Finance. Orderly Network is fully responsible for the security of their systems, smart contracts, and any funds deposited or sent to those systems and contracts. Users are strongly encouraged to do their own research before connecting their wallet and/or placing any orders.',
-        })}
+        <FormattedMessage
+          id="more_order_book_page_detail"
+          values={{
+            br: <br />,
+          }}
+          defaultMessage={
+            'This Orderbook page is powered by Orderly Network, users are strongly encouraged to do their own research before connecting their wallet and/or placing any orders.{br} Ref Finance does not guarantee the security of the systems, smart contracts, and any funds deposited or sent to those systems and contracts.{br} Neither Ref Finance nor Orderly Network is responsible for any profit or loss of investment users made through this Orderbook page.'
+          }
+        />
+
         <br />
 
         {intl.formatMessage({
@@ -290,6 +300,7 @@ function LearnMoreBox() {
         <a
           href="https://orderly.network/"
           target="_blank"
+          rel="noopener noreferrer nofollow"
           className="inline underline cursor-pointer text-white ml-1"
         >
           Orderly Network
@@ -442,7 +453,7 @@ export const REF_ORDERLY_ACCOUNT_VALID = 'REF_ORDERLY_ACCOUNT_VALID';
 
 const REF_ORDERLY_LIMIT_ORDER_ADVANCE = 'REF_ORDERLY_LIMIT_ORDER_ADVANCE';
 
-export default function UserBoard() {
+export default function UserBoard({ maintenance }: { maintenance: boolean }) {
   const {
     symbol,
     orders,
@@ -1026,7 +1037,8 @@ export default function UserBoard() {
     !storageEnough ||
     !tradingKeySet ||
     !keyAnnounced ||
-    !validContract();
+    !validContract() ||
+    maintenance;
 
   const intl = useIntl();
 
@@ -1039,8 +1051,18 @@ export default function UserBoard() {
       }}
     >
       {/* not signed in wrapper */}
+      {maintenance && (
+        <div
+          className="absolute  flex flex-col justify-center items-center h-full w-full top-0 left-0 "
+          style={{
+            background: 'rgba(0, 19, 32, 0.8)',
+            backdropFilter: 'blur(5px)',
+            zIndex: 90,
+          }}
+        ></div>
+      )}
 
-      {loading && (
+      {loading && !maintenance && (
         <div
           className="absolute  flex flex-col justify-center items-center h-full w-full top-0 left-0 "
           style={{
@@ -1053,7 +1075,7 @@ export default function UserBoard() {
         </div>
       )}
 
-      {validator && !loading && (
+      {validator && !loading && !maintenance && (
         <div
           className="absolute  flex flex-col justify-center items-center h-full w-full top-0 left-0 "
           style={{
@@ -3454,9 +3476,9 @@ function SelectTokenModal(
           isMobile
             ? 'rounded-t-2xl fixed w-screen bottom-0 left-0'
             : 'rounded-2xl gradientBorderWrapperNoShadowForOrderly border'
-        }  lg:w-p400  lg:h-p560   bg-boxBorder text-sm text-primaryOrderly  `}
+        }     bg-boxBorder text-sm text-primaryOrderly  `}
       >
-        <div className=" py-6 text-primaryOrderly text-sm flex flex-col ">
+        <div className=" py-6 text-primaryOrderly text-sm flex flex-col  lg:w-p400  lg:h-p560">
           <div className="flex px-4 items-center pb-6 justify-between">
             <span className="text-white text-lg font-bold">
               {intl.formatMessage({
@@ -3620,6 +3642,7 @@ function SelectTokenModal(
                           }}
                           href={TokenLinks[b.name]}
                           target="_blank"
+                          rel="noopener noreferrer nofollow"
                         >
                           <OutLinkIcon className="text-primaryOrderly hover:text-white cursor-pointer"></OutLinkIcon>
                         </a>

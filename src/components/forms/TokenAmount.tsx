@@ -664,14 +664,7 @@ export function TokenAmountV3({
       const divWidth = document.getElementById('rateDiffDiv')?.offsetWidth || 0;
       const inputAreaWidth = Math.min(w, inputWidth);
       const isOver = inputAreaWidth + spanWidth > divWidth;
-      // console.log(
-      //   '7777777777 w, inputWidth, spanWidth, divWidth, isOver',
-      //   w,
-      //   inputWidth,
-      //   spanWidth,
-      //   divWidth,
-      //   isOver
-      // );
+
       setLeft(inputAreaWidth);
       setOver(isOver);
     }, [amount, showRateDiff]);

@@ -534,6 +534,12 @@ export const useSwap = ({
           }));
 
           if (!estimates) throw '';
+          if (
+            localStorage.getItem(SUPPORT_LEDGER_KEY) &&
+            estimates?.length > 1
+          ) {
+            return;
+          }
 
           if (
             localStorage.getItem(SUPPORT_LEDGER_KEY) &&
@@ -1247,6 +1253,9 @@ export const useCrossSwap = ({
           partialAmountIn: e.pool.partialAmountIn,
           totalInputAmount: e.pool.partialAmountIn,
         }));
+        if (localStorage.getItem(SUPPORT_LEDGER_KEY) && estimates?.length > 1) {
+          return;
+        }
         if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
           setTokenOutAmount(estimates[0].estimate);
           setSwapsToDo(estimates);

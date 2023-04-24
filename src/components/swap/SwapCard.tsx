@@ -7,6 +7,9 @@ import React, {
   useContext,
   createContext,
 } from 'react';
+
+import { useWalletSelector } from '~context/WalletSelectorContext';
+
 import { useLocation, useHistory } from 'react-router-dom';
 import {
   ftGetBalance,
@@ -84,7 +87,6 @@ import { getMax } from '../../utils/numbers';
 import { YellowTipIcon, RedTipIcon, SelectedIcon } from '../icon/swapV3';
 import * as math from 'mathjs';
 import { NEAR_WITHDRAW_KEY } from '../forms/WrapNear';
-import { useWalletSelector } from '~context/WalletSelectorContext';
 import { CountdownTimer } from '~components/icon';
 import { TextWrapper } from '~pages/Orderly/components/UserBoard';
 import { SwapMarket } from '../../pages/SwapPage';
@@ -1050,6 +1052,7 @@ export default function SwapCard(props: {
         slippageTolerance={slippageTolerance}
         onChange={onChangeSlippage}
         showElseView={wrapOperation}
+        setReEstimateTrigger={setReEstimateTrigger}
         elseView={
           <div className="frsc">
             {isSignedIn ? (

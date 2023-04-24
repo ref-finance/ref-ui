@@ -60,6 +60,9 @@ import {
   get_matched_seeds_for_dcl_pool,
   get_all_seeds,
   displayNumberToAppropriateDecimals,
+  get_pool_id,
+  get_pool_name,
+  openUrl,
 } from '../../services/commonV3';
 import {
   formatWithCommas,
@@ -174,7 +177,8 @@ export default function AddYourLiquidityPageV3() {
   useEffect(() => {
     if (currentSelectedPool && tokenX && tokenY) {
       const { fee } = currentSelectedPool;
-      history.replace(`#${tokenX.id}|${tokenY.id}|${fee}`);
+      const link = get_pool_name(`${tokenX.id}|${tokenY.id}|${fee}`);
+      history.replace(`#${link}`);
       if (seed_list && currentSelectedPool.pool_id) {
         get_optional_seeds();
       }
@@ -244,10 +248,15 @@ export default function AddYourLiquidityPageV3() {
     }
   }
   async function get_init_pool() {
-    const hash = location.hash;
-    const [tokenx_id, tokeny_id, pool_fee] = decodeURIComponent(
-      hash.slice(1)
-    ).split('|');
+    let tokenx_id, tokeny_id, pool_fee;
+    const hash = decodeURIComponent(location.hash);
+    if (hash.indexOf('<>') > -1) {
+      // new link
+      [tokenx_id, tokeny_id, pool_fee] = get_pool_id(hash.slice(1)).split('|');
+    } else {
+      // old link
+      [tokenx_id, tokeny_id, pool_fee] = hash.slice(1).split('|');
+    }
     if (tokenx_id && tokeny_id && pool_fee) {
       const tokenx = await ftGetTokenMetadata(tokenx_id);
       const tokeny = await ftGetTokenMetadata(tokeny_id);
@@ -269,8 +278,13 @@ export default function AddYourLiquidityPageV3() {
     }
   }
   function searchPools() {
-    const hash = location.hash;
-    const url_fee = +decodeURIComponent(hash.slice(1)).split('|')[2];
+    const hash = decodeURIComponent(location.hash);
+    let url_fee;
+    if (hash.indexOf('<>') > -1) {
+      url_fee = +get_pool_id(hash.slice(1)).split('|')[2];
+    } else {
+      url_fee = +hash.slice(1).split('|')[2];
+    }
     const currentPoolsMap = {};
     if (listPool.length > 0 && tokenX && tokenY) {
       const availablePools: PoolInfo[] = listPool.filter((pool: PoolInfo) => {
@@ -632,28 +646,14 @@ export default function AddYourLiquidityPageV3() {
       return `$${toInternationalCurrencySystem(tvl.toString(), 0)}`;
     }
   }
-  function changePairs(item: PoolInfo) {
-    setSelectHover(false);
-    if (listPool.length > 0) {
-      const { token_x_metadata, pool_id } = item;
-      const [token_x, token_y, fee] = pool_id.split('|');
-      let url_hash = item.pool_id;
-      if (TOKEN_LIST_FOR_RATE.indexOf(token_x_metadata.symbol) > -1) {
-        url_hash = `${token_y}|${token_x}|${fee}`;
-      }
-      history.replace(`#${url_hash}`);
-      get_init_pool();
-      setCurrentSelectedPool(null);
-    }
-  }
   function goPoolsPage() {
     const poolId = currentSelectedPool?.pool_id;
     if (poolId) {
-      const newPoolId = poolId.replace(/\|/g, '@');
-      window.open(`/poolV2/${newPoolId}`);
+      const newPoolId = get_pool_name(poolId);
+      openUrl(`/poolV2/${newPoolId}`);
     } else {
       localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'v2');
-      window.open('/pools');
+      openUrl('/pools');
     }
   }
   const tokenSort = tokenX?.id == currentSelectedPool?.token_x;
@@ -708,67 +708,6 @@ export default function AddYourLiquidityPageV3() {
                 className="flex-shrink-0 xs:w-full md:w-full"
               >
                 <div className="flex items-center justify-between">
-                  {/* <div
-                    className="relative ml-3"
-                    tabIndex={-1}
-                    onMouseEnter={() => {
-                      if (!mobileDevice) {
-                        setSelectHover(true);
-                      }
-                    }}
-                    onMouseLeave={() => {
-                      if (!mobileDevice) {
-                        setSelectHover(false);
-                      }
-                    }}
-                    onClick={() => {
-                      if (mobileDevice) {
-                        setSelectHover(!selectHover);
-                      }
-                    }}
-                    onBlur={() => {
-                      if (mobileDevice) {
-                        setSelectHover(false);
-                      }
-                    }}
-                  >
-                    <div
-                      className={`flex items-center text-sm cursor-pointer pb-3 ${
-                        selectHover ? 'text-white' : 'text-primaryText'
-                      }`}
-                    >
-                      <FormattedMessage
-                        id="select_instrument"
-                        defaultMessage="Select Instrument"
-                      />
-                      <ArrowDownV3 className="ml-3"></ArrowDownV3>
-                    </div>
-                    <div
-                      className={`absolute top-7 -left-3 bg-selectBoxBgColor border border-selectBorder rounded-xl p-1.5 text-sm text-primaryText z-50 ${
-                        selectHover ? '' : 'hidden'
-                      }`}
-                    >
-                      {topPairs.map((item: PoolInfo, i: number) => {
-                        return (
-                          <div
-                            key={i}
-                            onClick={() => {
-                              changePairs(item);
-                            }}
-                            style={{ minWidth: '128px' }}
-                            className="flex items-center h-8 rounded-lg hover:bg-selectBoxEleColor hover:text-white px-3 my-1 cursor-pointer"
-                          >
-                            {item.token_x_metadata.symbol}/
-                            {item.token_y_metadata.symbol}
-                          </div>
-                        );
-                      })}
-                      <div className="flex items-center justify-center text-sm text-primaryText relative -top-1">
-                        ...
-                      </div>
-                    </div>
-                  </div> */}
-
                   <SelectTokenDCL
                     selectTokenIn={(token) => {
                       if (tokenY && tokenY.id == token.id) return;

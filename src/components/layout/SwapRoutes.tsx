@@ -63,6 +63,7 @@ import Modal from 'react-modal';
 import { ModalWrapper } from '../../pages/ReferendumPage';
 import { displayNumberToAppropriateDecimals } from '~services/commonV3';
 import { numberWithCommas } from '../../pages/Orderly/utiles';
+import { get_pool_name, openUrl } from '../../services/commonV3';
 
 export const RouterIcon = () => {
   return (
@@ -497,9 +498,9 @@ export const CrossSwapRoute = ({
             className="py-1 px-1 flex items-center rounded-md hover:text-gray-400 cursor-pointer text-primaryText"
             onClick={() => {
               if (route[0].pool?.Dex === 'ref') {
-                window.open(`/pool/${route[0].pool.id}`);
+                openUrl(`/pool/${route[0].pool.id}`);
               } else
-                window.open(
+                openUrl(
                   `${getAuroraConfig().explorer}/address/${
                     route[0].pool?.pairAdd
                   }`
@@ -574,7 +575,7 @@ export const CrossSwapRoute = ({
             }}
             className="py-1 absolute  px-1 flex items-center rounded-md hover:text-gray-400 cursor-pointer text-primaryText"
             onClick={() => {
-              window.open(`/pool/${route[0].pool.id}`);
+              openUrl(`/pool/${route[0].pool.id}`);
             }}
             onMouseEnter={() => setHoverRouter1(true)}
             onMouseLeave={() => setHoverRouter1(false)}
@@ -607,7 +608,7 @@ export const CrossSwapRoute = ({
             }}
             className="py-1  px-1 flex items-center rounded-md hover:text-gray-400 cursor-pointer text-primaryText"
             onClick={() => {
-              window.open(`/pool/${route[1].pool.id}`);
+              openUrl(`/pool/${route[1].pool.id}`);
             }}
             onMouseEnter={() => setHoverRouter2(true)}
             onMouseLeave={() => setHoverRouter2(false)}
@@ -715,7 +716,7 @@ export function RouteDCLDetail({
   const [hover, setHover] = useState(false);
   const isMobile = useClientMobile();
   const pool_id = getV3PoolId(tokenIn.id, tokenOut.id, bestFee * 100);
-  const pool_id_url_params = pool_id.replace(/\|/g, '@');
+  const pool_id_url_params = get_pool_name(pool_id);
 
   return (
     <section
@@ -767,7 +768,7 @@ export function RouteDCLDetail({
           onClick={(e) => {
             e.stopPropagation();
             e.preventDefault();
-            window.open(`/poolV2/${pool_id_url_params}`);
+            openUrl(`/poolV2/${pool_id_url_params}`);
           }}
         >
           <span className="font-bold mr-1 ">DCL</span>

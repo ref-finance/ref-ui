@@ -13,6 +13,7 @@ import { useMyOrders } from '../../state/swapV3';
 import { useHistory } from 'react-router-dom';
 import { OrderIcon } from '../icon/V3';
 import { EstimateSwapView } from '../../services/swap';
+import { get_pool_name, openUrl } from '../../services/commonV3';
 import { PoolInfo } from '~services/swapV3';
 import { OutLinkIcon } from '../../components/icon/Common';
 import { REF_FI_POOL_ACTIVE_TAB } from '../../pages/pools/LiquidityPage';
@@ -33,6 +34,7 @@ interface SwapFormWrapProps {
   onChange: (slippage: number) => void;
   quoteDoneLimit?: boolean;
   selectTodos?: EstimateSwapView[];
+  setReEstimateTrigger?: (e?: any) => void;
   loading?: {
     loadingData: boolean;
     setLoadingData: (loading: boolean) => void;
@@ -68,6 +70,7 @@ export default function SwapFormWrap({
   swapTab,
   loading,
   swapMode,
+  setReEstimateTrigger,
   supportLedger,
   setSupportLedger,
   quoteDoneLimit,
@@ -133,11 +136,11 @@ export default function SwapFormWrap({
   function goPoolsPage() {
     const poolId = mostPoolDetail?.pool_id;
     if (poolId) {
-      const newPoolId = poolId.replace(/\|/g, '@');
-      window.open(`/poolV2/${newPoolId}`);
+      const newPoolId = get_pool_name(poolId);
+      openUrl(`/poolV2/${newPoolId}`);
     } else {
       localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'v2');
-      window.open('/pools');
+      openUrl('/pools');
     }
   }
 

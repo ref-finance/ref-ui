@@ -28,6 +28,8 @@ import {
   get_intersection_radio,
   get_intersection_icon_by_radio,
   getEffectiveFarmList,
+  get_pool_name,
+  openUrl,
 } from '../../services/commonV3';
 
 const config = getConfig();
@@ -131,7 +133,8 @@ function SeedInfo() {
 
   function goPoolPage() {
     const poolId = seed.pool.pool_id;
-    window.open(`/poolV2/${poolId}`);
+    const params_str = get_pool_name(poolId);
+    openUrl(`/poolV2/${params_str}`);
   }
   function getRange() {
     const { seed_id, pool } = seed;
