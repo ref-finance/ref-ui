@@ -3436,7 +3436,13 @@ function OrderCardOld({
   );
 }
 
-function MyOrderComponent() {
+function MyOrderComponent({
+  tokenIn,
+  tokenOut,
+}: {
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+}) {
   const { activeOrder, historyOrder } = useMyOrders();
 
   const [oldOrders, setOldOrders] = useState<UserOrderInfo[]>();
@@ -3509,6 +3515,10 @@ function MyOrderComponent() {
       [cur.id]: cur,
     };
   }, {});
+
+  const filter = (order: UserOrderInfo) => {
+    return order.sell_token === tokenIn?.id && order.buy_token === tokenOut?.id;
+  };
   // function getTipForOrders() {
   //   const n = intl.formatMessage({ id: 'orderTip' });
   //   const result: string = `<div class="text-navHighLightText text-xs text-left xsm:w-40 whitespace-normal" >${n}</div>`;
@@ -3522,9 +3532,14 @@ function MyOrderComponent() {
 
         <OrderCard
           tokensMap={tokensMap}
-          activeOrder={activeOrder}
-          historyOrder={historyOrder}
-          historySwapInfo={historySwapInfo}
+          activeOrder={activeOrder?.filter(filter)}
+          historyOrder={historyOrder?.filter(filter)}
+          historySwapInfo={historySwapInfo?.filter((hs) => {
+            tokenIn &&
+              tokenOut &&
+              hs.token_in === tokenIn?.id &&
+              hs.token_out === tokenOut?.id;
+          })}
         />
       </PriceContext.Provider>
     </div>

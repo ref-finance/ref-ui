@@ -27,6 +27,7 @@ import { TradeRoute } from '~components/layout/SwapRoutes';
 import { MarketList } from '../components/layout/SwapRoutes';
 import MyOrderPage from './MyOrder';
 import MyOrderComponent from './Orderly/components/MyOrder';
+import { useWalletSelector } from '~context/WalletSelectorContext';
 
 export const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';
 
@@ -260,6 +261,10 @@ function SwapPage() {
 
   const storageMode = localStorage.getItem(SWAP_MODE_KEY) as SWAP_MODE | null;
 
+  const { accountId } = useWalletSelector();
+
+  const isSignedIn = accountId;
+
   const globalWhiteListTokens = useGlobalWhitelistTokens();
 
   const [swapMode, setSwapMode] = useState<SWAP_MODE>(
@@ -378,7 +383,13 @@ function SwapPage() {
                 />
               )}
 
-            {swapMode === SWAP_MODE.LIMIT && <MyOrderComponent />}
+            {isSignedIn &&
+              swapMode === SWAP_MODE.LIMIT &&
+              tokenIn &&
+              tokenOut &&
+              tokenIn.id !== tokenOut.id && (
+                <MyOrderComponent tokenIn={tokenIn} tokenOut={tokenOut} />
+              )}
           </div>
         )}
 
