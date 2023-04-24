@@ -101,7 +101,7 @@ export default function SwapFormWrap({
     >
       <span className=" whitespace-nowrap xsm:hidden">
         <FormattedMessage
-          id={`${mostPoolDetail?.pool_id ? 'view_pool' : 'v2_pools'}`}
+          id={`${mostPoolDetail?.pool_id ? 'view_dcl_pool' : 'v2_pools'}`}
           defaultMessage={`${mostPoolDetail?.pool_id ? 'View Pool' : 'Pools'}`}
         />
       </span>
