@@ -59,6 +59,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
   );
 
   const [displayTokenIn, setDisplayTokenIn] = useState<TokenMetadata>(tokenIn);
+  console.log('displayTokenIn: ', displayTokenIn);
   const [displayTokenOut, setDisplayTokenOut] =
     useState<TokenMetadata>(tokenOut);
 
@@ -191,7 +192,6 @@ export default function SwapRateChart(props: SwapRateChartProps) {
 
   const CustomizedDot = (props: any) => {
     const { cx, cy, stroke, payload, value } = props;
-    console.log('payload: ', payload, value, props);
 
     if (props.index === priceList?.price_list?.length - 1) {
       return (
@@ -212,10 +212,20 @@ export default function SwapRateChart(props: SwapRateChartProps) {
             y={2}
           >
             <div className="frcs relative ">
-              <div className="rounded bg-gradientFromHover h-3 w-3 transform rotate-45"></div>
+              <div
+                className={`rounded ${
+                  diff.direction === 'down'
+                    ? 'bg-sellColorNew'
+                    : 'bg-gradientFromHover'
+                }  h-3 w-3 transform rotate-45`}
+              ></div>
 
               <div
-                className="rounded-r  bg-gradientFromHover frcs pr-2 pl-0 h-4 relative right-1.5"
+                className={`rounded-r  ${
+                  diff.direction === 'down'
+                    ? 'bg-sellColorNew'
+                    : 'bg-gradientFromHover'
+                } frcs pr-2 pl-0 h-4 relative right-1.5`}
                 style={{
                   fontSize: '10px',
                   color: '#1D2932',
@@ -346,13 +356,16 @@ export default function SwapRateChart(props: SwapRateChartProps) {
           <div className="text-limitOrderInputColor text-sm mt-5">
             <FormattedMessage
               id="swap_chart_no_data"
-              defaultMessage={'Chart is unavailable right now'}
+              defaultMessage={'Not enough data for the chart right now.'}
             />
           </div>
         </div>
       )}
-      {!loading && priceList && priceList.price_list.length > 0 && (
-        <div className="w-full " style={{ height: '300px' }}>
+      {!loading && priceList && priceList.price_list.length > 0 && diff && (
+        <div
+          className="w-full "
+          style={{ height: '300px', width: 'calc(100% + 35px)' }}
+        >
           <ResponsiveContainer width={'100%'} height={'100%'}>
             <ComposedChart
               data={priceList.price_list.map((p) => {
@@ -372,10 +385,20 @@ export default function SwapRateChart(props: SwapRateChartProps) {
                   x2="0"
                   y2="1"
                 >
-                  <stop offset="0%" stopColor="#00c6a2" stopOpacity={0.1} />
+                  <stop
+                    offset="0%"
+                    stopColor={
+                      diff && diff.direction === 'down' ? '#FF6A8E' : '#00c6a2'
+                    }
+                    stopOpacity={0.1}
+                  />
                   <stop
                     offset="100%"
-                    stopColor="rgba(0, 214, 175, 0)"
+                    stopColor={
+                      diff && diff.direction === 'down'
+                        ? 'rgba(255, 106, 142, 0) '
+                        : 'rgba(0, 214, 175, 0)'
+                    }
                     stopOpacity={0}
                   />
                 </linearGradient>
@@ -404,46 +427,41 @@ export default function SwapRateChart(props: SwapRateChartProps) {
                 type="number"
                 tick={<RenderYTick />}
                 height={300}
-                domain={['dataMin', 'dataMax']}
+                domain={[(dataMin: any) => dataMin * 0.8, 'dataMax']}
               />
 
               <Tooltip
                 cursor={{
                   opacity: '0.3',
-                  fill: '#00C6A2',
+                  fill: diff.direction === 'down' ? '#FF6A8e' : '#00c6a2',
                   strokeDasharray: '2, 2',
                 }}
                 content={<CustomTooltip />}
               />
               <Line
                 dataKey="stickLast"
-                stroke="#00C6A2"
+                stroke={diff.direction === 'down' ? '#FF6A8e' : '#00c6a2'}
                 opacity={0.3}
                 strokeDasharray={'2, 2'}
                 dot={false}
                 activeDot={false}
               />
 
-              {/* <Line
-              dataKey="curPrice"
-              stroke="#00C6A2"
-              opacity={0.3}
-              strokeDasharray={'2, 2'}
-              dot={false}
-              activeDot={false}
-            /> */}
               <Area
                 dataKey="price"
+                type={'monotone'}
                 dot={<CustomizedDot />}
-                stroke="#00c6a2"
-                strokeWidth={3}
+                stroke={diff.direction === 'down' ? '#FF6A8e' : '#00c6a2'}
+                strokeWidth={2}
+                strokeLinejoin="round"
                 fillOpacity={1}
                 height={300}
+                strokeLinecap="round"
                 fill="url(#colorGradient_token_rate)"
                 activeDot={{
                   stroke: '#0D1A23',
                   strokeWidth: 2,
-                  fill: '#00FFD1',
+                  fill: diff.direction === 'down' ? '#FF6A8e' : '#00FFD1',
                   r: 5,
                 }}
                 isAnimationActive={false}

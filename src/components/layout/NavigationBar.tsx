@@ -10,24 +10,7 @@ import { matchPath } from 'react-router';
 import { Context } from '~components/wrapper';
 import getConfig from '~services/config';
 import ReactTooltip from 'react-tooltip';
-import {
-  Logo,
-  Near,
-  IconBubble,
-  IconMyLiquidity,
-  IconCreateNew,
-  IconPools,
-  IconAirDropGreenTip,
-  WrapNearEnter,
-  WrapNearIconDark,
-  GreenArrowIcon,
-  MoreMenuIcon,
-  NavLogo,
-  NavLogoSimple,
-  AuroraIconSwapNav,
-  NavLogoIcon,
-} from '~components/icon';
-import { SmallWallet } from '~components/icon/SmallWallet';
+import { Logo, Near, IconAirDropGreenTip, NavLogoIcon } from '~components/icon';
 import {
   AccountIcon,
   ActivityIcon,

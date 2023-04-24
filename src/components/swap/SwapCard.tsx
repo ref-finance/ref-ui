@@ -533,7 +533,7 @@ function DetailView({
   if (trade.market === 'orderly') {
     return (
       <>
-        <div className="border border-menuMoreBoxBorderColor rounded-xl px-2.5 py-3 mb-3  frcb">
+        <div className=" border-menuMoreBoxBorderColor rounded-xl px-2.5 py-3 mb-3  frcb">
           <span className="text-primaryText text-xs">
             {intl.formatMessage({
               id: 'Fees',
@@ -957,7 +957,6 @@ export default function SwapCard(props: {
   const tokenInMax = tokenInBalanceFromNear || '0';
 
   const tokenOutTotal = tokenOutBalanceFromNear || '0';
-  console.log('selectTrade: ', selectTrade);
 
   function satisfyCondition1() {
     return (
@@ -1013,8 +1012,6 @@ export default function SwapCard(props: {
       new BigNumber(tokenInAmount || 0).isLessThanOrEqualTo(
         new BigNumber(tokenInMax || 0)
       ) && Number(selectTrade?.priceImpact || 0) > 2;
-
-    console.log('adasda');
 
     if (ifDoubleCheck) setDoubleCheckOpen(true);
     else selectTrade && selectTrade.makeSwap();
@@ -1220,24 +1217,26 @@ export default function SwapCard(props: {
               />
             </div>
 
-            <div
-              className="text-sm flex items-center cursor-pointer mb-1"
-              onClick={() => {
-                setShowDetails(!showDetails);
-              }}
-            >
-              {getPriceImpactTipType(selectTrade.priceImpact)}
-              <span className="text-xs text-primaryText mx-1.5">
-                <FormattedMessage id="details" />
-              </span>
-              <span>
-                {showDetails ? (
-                  <FaAngleUp color="#ffffff" size={16} />
-                ) : (
-                  <FaAngleDown color="#7E8A93" size={16} />
-                )}
-              </span>
-            </div>
+            {selectMarket !== 'orderly' && (
+              <div
+                className="text-sm flex items-center cursor-pointer mb-1"
+                onClick={() => {
+                  setShowDetails(!showDetails);
+                }}
+              >
+                {getPriceImpactTipType(selectTrade.priceImpact)}
+                <span className="text-xs text-primaryText mx-1.5">
+                  <FormattedMessage id="details" />
+                </span>
+                <span>
+                  {showDetails ? (
+                    <FaAngleUp color="#ffffff" size={16} />
+                  ) : (
+                    <FaAngleDown color="#7E8A93" size={16} />
+                  )}
+                </span>
+              </div>
+            )}
           </div>
         )}
 

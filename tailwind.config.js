@@ -445,6 +445,7 @@ module.exports = {
         '420px': '420px',
         p240: '240px',
         p90: '90px',
+        p300: '300px',
       },
 
       fontSize: {

@@ -246,14 +246,7 @@ export const useMenus = () => {
           isExternal: false,
           swap_mode: 'normal',
           clickEvent: () => {
-            if (
-              window.location.pathname === '/' ||
-              window.location.pathname === '/swap'
-            ) {
-              return;
-            } else {
-              sessionStorage.setItem(SWAP_TYPE_KEY, 'Pro');
-            }
+            sessionStorage.setItem(SWAP_TYPE_KEY, 'Pro');
             localStorage.setItem('SWAP_MODE_VALUE', 'normal');
 
             history.push('/');
@@ -272,6 +265,8 @@ export const useMenus = () => {
           isExternal: false,
           swap_mode: 'limit',
           clickEvent: () => {
+            sessionStorage.setItem(SWAP_TYPE_KEY, 'Pro');
+
             history.push('/');
             localStorage.setItem('SWAP_MODE_VALUE', 'limit');
           },

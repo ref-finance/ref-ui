@@ -25,6 +25,8 @@ import SwapRateChart from '~components/swap/SwapRateChart';
 import { EstimateSwapView } from '../services/swap';
 import { TradeRoute } from '~components/layout/SwapRoutes';
 import { MarketList } from '../components/layout/SwapRoutes';
+import MyOrderPage from './MyOrder';
+import MyOrderComponent from './Orderly/components/MyOrder';
 
 export const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';
 
@@ -32,8 +34,8 @@ export const SWAP_TYPE_KEY = 'SWAP_TYPE_VALUE';
 
 export const SWAP_ENABLE_TRI = 'SWAP_ENABLE_TRI_VALUE';
 
-const originalSetItem = localStorage.setItem;
-localStorage.setItem = function (key, newValue) {
+const originalSetItem = sessionStorage.setItem;
+sessionStorage.setItem = function (key, newValue) {
   const setItemEvent = new Event('setItemEvent');
   setItemEvent[key] = newValue;
   window.dispatchEvent(setItemEvent);
@@ -147,6 +149,7 @@ const ChangeSwapMode = ({
             setSwapMode(SWAP_MODE.LIMIT);
             localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.LIMIT);
             setLimitTokenTrigger(!limitTokenTrigger ? true : false);
+            changeSwapType(SWAP_TYPE.Pro);
           }}
           style={{
             fontSize: '15px',
@@ -224,6 +227,23 @@ function SwapPage() {
     sessionStorage.setItem(SWAP_TYPE_KEY, type);
     setForceEstimate(true);
   };
+
+  useEffect(() => {
+    const changeWindowCommonMenuCollapsed = (e: any) => {
+      console.log(e);
+      if (e?.[SWAP_TYPE_KEY]) {
+        setSwapType(e?.[SWAP_TYPE_KEY]);
+      }
+    };
+
+    window.addEventListener('setItemEvent', changeWindowCommonMenuCollapsed);
+    return () => {
+      window.removeEventListener(
+        'setItemEvent',
+        changeWindowCommonMenuCollapsed
+      );
+    };
+  }, []);
 
   const changeEnableTri = (e: boolean) => {
     setEnableTri(e);
@@ -306,30 +326,59 @@ function SwapPage() {
     >
       <div className="frsc ">
         {swapType === SWAP_TYPE.Pro && (
-          <div className="w-700px mr-8">
+          <div
+            className="w-full mr-8"
+            style={{
+              maxWidth: '850px',
+            }}
+          >
             <SwapRateChart tokenIn={tokenIn} tokenOut={tokenOut} />
-            <div className="text-primaryText mt-8 mb-4 font-gothamBold">
-              <FormattedMessage
-                id="your_trade_route"
-                defaultMessage={`Your trade route`}
-              />
-            </div>
+            {swapMode === SWAP_MODE.NORMAL ? (
+              <>
+                <div className="text-primaryText mt-8 mb-4 font-gothamBold">
+                  <FormattedMessage
+                    id="your_trade_route"
+                    defaultMessage={`Your trade route`}
+                  />
+                </div>
 
-            <TradeRoute
-              trade={trades?.[selectMarket]}
-              tokenIn={tokenIn}
-              tokenOut={tokenOut}
-            />
+                <TradeRoute
+                  trade={trades?.[selectMarket]}
+                  tokenIn={tokenIn}
+                  tokenOut={tokenOut}
+                />
+              </>
+            ) : (
+              <div
+                className="bg-portfolioBgColor my-5 py-2 px-4 rounded-xl text-v3SwapGray"
+                style={{
+                  border: '1px solid #00463A',
 
-            {trades && trades?.[selectMarket] && (
-              <MarketList
-                trade={trades[selectMarket]}
-                allTrades={trades}
-                selectMarket={selectMarket}
-                tokenIn={tokenIn}
-                tokenOut={tokenOut}
-              />
+                  fontSize: '13px',
+                }}
+              >
+                <FormattedMessage
+                  id="new_swap_order_tip"
+                  defaultMessage={
+                    'The price is from the Ref AMM offer and for reference only. There is no guarente that your limit order will be immediately filled. '
+                  }
+                />
+              </div>
             )}
+
+            {swapMode === SWAP_MODE.NORMAL &&
+              trades &&
+              trades?.[selectMarket] && (
+                <MarketList
+                  trade={trades[selectMarket]}
+                  allTrades={trades}
+                  selectMarket={selectMarket}
+                  tokenIn={tokenIn}
+                  tokenOut={tokenOut}
+                />
+              )}
+
+            {swapMode === SWAP_MODE.LIMIT && <MyOrderComponent />}
           </div>
         )}
 

@@ -1238,7 +1238,7 @@ export const useCrossSwap = ({
       return;
     }
     if (!tokenIn || !tokenOut || tokenIn?.id === tokenOut?.id) return;
-
+    setSwapError(null);
     estimateSwapAurora({
       tokenIn,
       tokenOut,
@@ -1282,7 +1282,6 @@ export const useCrossSwap = ({
           );
         }
 
-        setCrossQuoteDone(true);
         setLoadingTrigger(false);
       })
       .catch((err) => {
@@ -1293,6 +1292,8 @@ export const useCrossSwap = ({
         setLoadingTrigger(false);
       })
       .finally(() => {
+        setCrossQuoteDone(true);
+
         setLoadingTrigger(false);
       });
   };
@@ -1375,11 +1376,12 @@ export const useCrossSwap = ({
       contract: 'Trisolaris',
     })),
     quoteDone:
-      crossQuoteDone &&
-      (swapsToDo
-        ? toNonDivisibleNumber(tokenIn.decimals, tokenInAmount) ===
-          swapsToDo?.[0].totalInputAmount
-        : true),
+      !!swapError ||
+      (crossQuoteDone &&
+        (swapsToDo
+          ? toNonDivisibleNumber(tokenIn.decimals, tokenInAmount) ===
+            swapsToDo?.[0].totalInputAmount
+          : true)),
     fee: swapsToDo && !wrapOperation ? getAvgFee(swapsToDo) : 0,
     availableRoute: enableTri && !swapError && swapType === SWAP_TYPE.Pro,
     tokenInAmount,
@@ -1908,7 +1910,7 @@ export const useOrderlySwap = ({
       !!canSwap,
     swapError: null,
     tokenOutAmount: toPrecision(estimate, Math.min(8, tokenOut?.decimals || 8)),
-    exchange_name: <div className="text-white">Orderbook</div>,
+    exchange_name: <div className="text-white">Orderly</div>,
   };
 };
 
@@ -1973,6 +1975,17 @@ export const useRefSwapPro = ({
   });
 
   useEffect(() => {
+    if (tokenIn && tokenOut && tokenIn.id === tokenOut.id) {
+      setSelectMarket('ref');
+    }
+  }, [tokenIn, tokenOut]);
+
+  console.log('resRef: ', resRef);
+  console.log('resAurora: ', resAurora);
+
+  console.log('resOrderly: ', resOrderly);
+
+  useEffect(() => {
     if (
       resRef.quoteDone &&
       (!enableTri || resAurora.quoteDone) &&
@@ -1984,6 +1997,7 @@ export const useRefSwapPro = ({
         ['orderly']: resOrderly,
       };
       setTrades(trades);
+      console.log('trades: ', trades);
 
       if (
         sessionStorage.getItem('loadingTrigger') === 'true' &&

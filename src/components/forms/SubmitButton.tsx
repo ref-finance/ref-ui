@@ -17,7 +17,10 @@ import {
   getCurrentWallet,
   WalletContext,
 } from '../../utils/wallets-integration';
-import { GoToOrderbookTip } from '~pages/Orderly/components/Common/Icons';
+import {
+  GoToOrderbookTip,
+  OrderBookArrowRight,
+} from '~pages/Orderly/components/Common/Icons';
 
 interface SubmitButtonProps {
   text?: string;
@@ -146,7 +149,7 @@ export function GoOrderBookButton({
 
           <button
             type={'submit'}
-            className={`flex relative flex-row w-full items-center text-white justify-center px-5 py-2   mx-auto   ${className} bg-buttonGradientBgOpacity  `}
+            className={`flex relative flex-row w-full items-center text-white justify-center px-5 py-2   mx-auto   ${className} bg-buttonGradientBgOpacity  hover:bg-buttonGradientBg `}
             style={{
               borderRadius: '5px',
             }}
@@ -159,7 +162,7 @@ export function GoOrderBookButton({
                 ></FormattedMessage>
               </span>
               <span>
-                <BsArrowRight size={20} strokeWidth={1} />
+                <OrderBookArrowRight />
               </span>
             </h1>
           </button>

@@ -1785,10 +1785,6 @@ export const MarketList = ({
               <FormattedMessage id="diff" defaultMessage={'Diff'} />
             </th>
 
-            <th align="left">
-              <FormattedMessage id="actions" defaultMessage={'Actions'} />
-            </th>
-
             <th align="left"></th>
           </tr>
         </table>
@@ -1809,7 +1805,9 @@ export const MarketList = ({
 
   const displayList = sortedTradesList.map((t) => {
     const rawRate = scientificNotationToString(
-      new Big(t.tokenOutAmount || '0').div(t.tokenInAmount || '1').toString()
+      new Big(t.tokenOutAmount || '0')
+        .div(ONLY_ZEROS.test(t.tokenInAmount || '0') ? '1' : t.tokenInAmount)
+        .toString()
     );
     return {
       ...t,
@@ -1881,10 +1879,6 @@ export const MarketList = ({
             <FormattedMessage id="diff" defaultMessage={'Diff'} />
           </th>
 
-          <th align="left">
-            <FormattedMessage id="actions" defaultMessage={'Actions'} />
-          </th>
-
           <th align="left"></th>
         </tr>
         {displayList.map((t) => {
@@ -1934,8 +1928,6 @@ export const MarketList = ({
                     </span>
                   )}
                 </td>
-
-                <td>{t.action}</td>
 
                 <td className="rounded-r-xl">
                   <div

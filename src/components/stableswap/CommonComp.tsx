@@ -146,7 +146,7 @@ export const Symbols = ({
       } ${size}`}
     >
       {tokens?.map((token, index) => (
-        <span key={token?.id || index}>
+        <span key={token?.id + '-' + index}>
           {index ? separator || '-' : ''}
           {toRealSymbol(token?.symbol || '')}
         </span>
