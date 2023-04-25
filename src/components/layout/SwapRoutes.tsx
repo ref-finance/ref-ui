@@ -57,7 +57,11 @@ import { isMobile, useClientMobile } from '../../utils/device';
 import { getV3PoolId } from '../../services/swapV3';
 import { nearMetadata, WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import { SwapContractType, SwapMarket, SwapProContext } from '~pages/SwapPage';
-import { ExchangeEstimate, TradeEstimates } from '../../pages/SwapPage';
+import {
+  ExchangeEstimate,
+  TradeEstimates,
+  SWAP_TYPE,
+} from '../../pages/SwapPage';
 import { DisplayIcon } from '~components/tokens/Icon';
 import Modal from 'react-modal';
 import { ModalWrapper } from '../../pages/ReferendumPage';
@@ -669,6 +673,8 @@ export const SwapRoute = ({
 }) => {
   const tokens = route[0].tokens;
 
+  const { swapType } = useContext(SwapProContext);
+
   return (
     <div className="frcs">
       <div
@@ -682,6 +688,7 @@ export const SwapRoute = ({
       </div>
 
       {isMobile() &&
+        swapType === SWAP_TYPE.Pro &&
         sessionStorage.getItem(REF_FI_BEST_MARKET_ROUTE) ===
           market.toString() && (
           <div className="px-1 mr-1 rounded-2xl text-10px bg-gradientFromHover text-black">
@@ -722,6 +729,7 @@ export const SwapRouteMoreThan2 = ({
   market: SwapMarket;
   trade: ExchangeEstimate;
 }) => {
+  const { swapType } = useContext(SwapProContext);
   return (
     <div className="frcs">
       <div
@@ -735,6 +743,7 @@ export const SwapRouteMoreThan2 = ({
       </div>
 
       {isMobile() &&
+        swapType === SWAP_TYPE.Pro &&
         sessionStorage.getItem(REF_FI_BEST_MARKET_ROUTE) ===
           market.toString() && (
           <div className="px-1 mr-1 rounded-2xl text-10px bg-gradientFromHover text-black">
@@ -1705,7 +1714,7 @@ export const TradeRoute = ({
     <div className="frcb">
       <DisplayIcon token={tokenIn} height="26px" width="26px" />
       <LeftBracket size={identicalRoutes.length} />
-      <div className="w-full min-w-p300 mx-2 xsm:overflow-x-auto hideScroll relative">
+      <div className="w-full  mx-2 xsm:overflow-x-auto hideScroll relative">
         {identicalRoutes.map((route, i) => {
           return (
             <div
@@ -1764,7 +1773,7 @@ export const TradeRouteModal = (
         />
       }
       {...props}
-      customWidth="700px"
+      customWidth={isMobile() ? '95vw' : '700px'}
     >
       <div className="w-full mt-7">
         <TradeRoute
