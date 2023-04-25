@@ -64,6 +64,7 @@ import { ModalWrapper } from '../../pages/ReferendumPage';
 import { displayNumberToAppropriateDecimals } from '~services/commonV3';
 import { numberWithCommas } from '../../pages/Orderly/utiles';
 import { get_pool_name, openUrl } from '../../services/commonV3';
+import { REF_FI_BEST_MARKET_ROUTE } from '~state/swap';
 
 export const RouterIcon = () => {
   return (
@@ -680,6 +681,17 @@ export const SwapRoute = ({
         {getDexIcon(market)}
       </div>
 
+      {isMobile() &&
+        sessionStorage.getItem(REF_FI_BEST_MARKET_ROUTE) ===
+          market.toString() && (
+          <div className="px-1 mr-1 rounded-2xl text-10px bg-gradientFromHover text-black">
+            <FormattedMessage
+              id="best"
+              defaultMessage={'Best'}
+            ></FormattedMessage>
+          </div>
+        )}
+
       <div
         className="bg-limitOrderInputColor mr-1"
         style={{
@@ -698,6 +710,55 @@ export const SwapRoute = ({
               </div>
             );
           })}
+      </div>
+    </div>
+  );
+};
+
+export const SwapRouteMoreThan2 = ({
+  market,
+  trade,
+}: {
+  market: SwapMarket;
+  trade: ExchangeEstimate;
+}) => {
+  return (
+    <div className="frcs">
+      <div
+        style={{
+          height: '13px',
+          width: '13px',
+        }}
+        className="frcc mr-1.5"
+      >
+        {getDexIcon(market)}
+      </div>
+
+      {isMobile() &&
+        sessionStorage.getItem(REF_FI_BEST_MARKET_ROUTE) ===
+          market.toString() && (
+          <div className="px-1 mr-1 rounded-2xl text-10px bg-gradientFromHover text-black">
+            <FormattedMessage
+              id="best"
+              defaultMessage={'Best'}
+            ></FormattedMessage>
+          </div>
+        )}
+
+      <div
+        className="bg-limitOrderInputColor mr-1"
+        style={{
+          height: '10px',
+          width: '1px',
+        }}
+      ></div>
+      <div className="frcs text-primaryText">
+        <span className="mr-1">{trade.estimates.length}</span>
+
+        <FormattedMessage
+          id="steps_in_the_route"
+          defaultMessage={'steps in the route'}
+        ></FormattedMessage>
       </div>
     </div>
   );
@@ -1644,10 +1705,15 @@ export const TradeRoute = ({
     <div className="frcb">
       <DisplayIcon token={tokenIn} height="26px" width="26px" />
       <LeftBracket size={identicalRoutes.length} />
-      <div className="w-full mx-2 relative">
+      <div className="w-full min-w-p300 mx-2 xsm:overflow-x-auto hideScroll relative">
         {identicalRoutes.map((route, i) => {
           return (
-            <div className="relative frcb my-3 ">
+            <div
+              className="relative frcb my-3 "
+              style={{
+                width: isMobile() ? '460px' : '',
+              }}
+            >
               <span className="text-xs text-senderHot">{percents[i]}%</span>
               <div
                 className="border border-dashed absolute left-5 opacity-30 border-primaryText w-full px-3"
@@ -1749,45 +1815,47 @@ export const MarketList = ({
             ></FormattedMessage>
           </span>
         </div>
-        <table
-          className="w-full table relative right-3 border-separate"
-          style={{
-            borderSpacing: 0,
-          }}
-        >
-          <tr
-            className="text-primaryText"
+        {!isMobile() && (
+          <table
+            className="w-full table relative right-3 border-separate"
             style={{
-              fontSize: '13px',
+              borderSpacing: 0,
             }}
           >
-            <th align="left" className="pb-2 pl-3">
-              <FormattedMessage id="exchanges" defaultMessage={'Exchanges'} />
-            </th>
+            <tr
+              className="text-primaryText"
+              style={{
+                fontSize: '13px',
+              }}
+            >
+              <th align="left" className="pb-2 pl-3">
+                <FormattedMessage id="exchanges" defaultMessage={'Exchanges'} />
+              </th>
 
-            <th align="left">
-              {<FormattedMessage id="price" defaultMessage={'Price'} />}
-              <span className="ml-1">
-                {`(${toRealSymbol(trade.tokenOut.symbol)}/${toRealSymbol(
-                  trade.tokenIn.symbol
-                )})`}
-              </span>
-            </th>
+              <th align="left">
+                {<FormattedMessage id="price" defaultMessage={'Price'} />}
+                <span className="ml-1">
+                  {`(${toRealSymbol(trade.tokenOut.symbol)}/${toRealSymbol(
+                    trade.tokenIn.symbol
+                  )})`}
+                </span>
+              </th>
 
-            <th align="left">
-              <FormattedMessage
-                id="output_est"
-                defaultMessage={'Output(est.)'}
-              />
-            </th>
+              <th align="left">
+                <FormattedMessage
+                  id="output_est"
+                  defaultMessage={'Output(est.)'}
+                />
+              </th>
 
-            <th align="left">
-              <FormattedMessage id="diff" defaultMessage={'Diff'} />
-            </th>
+              <th align="left">
+                <FormattedMessage id="diff" defaultMessage={'Diff'} />
+              </th>
 
-            <th align="left"></th>
-          </tr>
-        </table>
+              <th align="left"></th>
+            </tr>
+          </table>
+        )}
 
         <div
           className="text-center mt-10 text-sm"
@@ -1840,124 +1908,219 @@ export const MarketList = ({
         </span>
 
         <div
-          className="w-full rounded-md bg-senderHot"
+          className="w-full xsm:hidden rounded-md bg-senderHot"
           style={{
             height: '3px',
           }}
         ></div>
       </div>
-      <table
-        className="w-full table relative right-3 border-separate"
-        style={{
-          borderSpacing: 0,
-        }}
-      >
-        <tr
-          className="text-primaryText"
+
+      {!isMobile() && (
+        <table
+          className="w-full table relative right-3 border-separate"
           style={{
-            fontSize: '13px',
+            borderSpacing: 0,
           }}
         >
-          <th align="left" className="pb-2 pl-3">
-            <FormattedMessage id="exchanges" defaultMessage={'Exchanges'} />
-          </th>
+          <tr
+            className="text-primaryText"
+            style={{
+              fontSize: '13px',
+            }}
+          >
+            <th align="left" className="pb-2 pl-3">
+              <FormattedMessage id="exchanges" defaultMessage={'Exchanges'} />
+            </th>
 
-          <th align="left">
-            {<FormattedMessage id="price" defaultMessage={'Price'} />}
-            <span className="ml-1">
-              {`(${toRealSymbol(trade.tokenOut.symbol)}/${toRealSymbol(
-                trade.tokenIn.symbol
-              )})`}
-            </span>
-          </th>
+            <th align="left">
+              {<FormattedMessage id="price" defaultMessage={'Price'} />}
+              <span className="ml-1">
+                {`(${toRealSymbol(trade.tokenOut.symbol)}/${toRealSymbol(
+                  trade.tokenIn.symbol
+                )})`}
+              </span>
+            </th>
 
-          <th align="left">
-            <FormattedMessage id="output_est" defaultMessage={'Output(est.)'} />
-          </th>
+            <th align="left">
+              <FormattedMessage
+                id="output_est"
+                defaultMessage={'Output(est.)'}
+              />
+            </th>
 
-          <th align="left">
-            <FormattedMessage id="diff" defaultMessage={'Diff'} />
-          </th>
+            <th align="left">
+              <FormattedMessage id="diff" defaultMessage={'Diff'} />
+            </th>
 
-          <th align="left"></th>
-        </tr>
-        {displayList.map((t) => {
-          return (
-            <>
-              <tr
-                className={`text-white rounded-xl text-sm p-2 
+            <th align="left"></th>
+          </tr>
+          {displayList.map((t) => {
+            return (
+              <>
+                <tr
+                  className={`text-white rounded-xl text-sm p-2 
               hover:bg-inputV3BorderColor hover:bg-opacity-40
               ${t.selected ? 'bg-inputV3BorderColor bg-opacity-40' : ''}
             
             `}
-                onClick={() => {
-                  setSelectMarket(t.market);
-                }}
-              >
-                <td className="rounded-l-xl">
-                  <div className="frcs pl-3">
+                  onClick={() => {
+                    setSelectMarket(t.market);
+                  }}
+                >
+                  <td className="rounded-l-xl">
+                    <div className="frcs pl-3">
+                      <div
+                        className="frcc "
+                        style={{
+                          height: '25px',
+                          width: '25px',
+                        }}
+                      >
+                        {t.marketIcon}
+                      </div>
+
+                      <div className="ml-2 frcc">{t?.exchange_name}</div>
+                    </div>
+                  </td>
+
+                  <td>{t.rate}</td>
+
+                  <td>{t.output}</td>
+
+                  <td>
+                    {t.diff === 'best' ? (
+                      <span className="text-black text-xs my-2 max-w-max rounded-2xl bg-senderHot px-2.5 py-0.5 frcc ">
+                        <FormattedMessage
+                          id="best"
+                          defaultMessage={'Best'}
+                        ></FormattedMessage>
+                      </span>
+                    ) : (
+                      <span className="bg-sellRed my-2  text-xs max-w-max bg-opacity-10 text-sellRed rounded-2xl px-2.5 py-0.5 frcc">
+                        {t.diff}%
+                      </span>
+                    )}
+                  </td>
+
+                  <td className="rounded-r-xl">
                     <div
-                      className="frcc "
+                      className="w-4  h-4 rounded-full  frcc"
                       style={{
-                        height: '25px',
-                        width: '25px',
+                        border: '1px solid #223846',
                       }}
                     >
-                      {t.marketIcon}
+                      {t.selected && (
+                        <div
+                          className="rounded-full bg-senderHot"
+                          style={{
+                            height: '9px',
+                            width: '9px',
+                          }}
+                        ></div>
+                      )}
                     </div>
+                  </td>
+                </tr>
 
-                    <div className="ml-2 frcc">{t?.exchange_name}</div>
-                  </div>
-                </td>
+                <tr>
+                  <td>
+                    <div className="my-1"></div>
+                  </td>
+                </tr>
+              </>
+            );
+          })}
+        </table>
+      )}
 
-                <td>{t.rate}</td>
-
-                <td>{t.output}</td>
-
-                <td>
-                  {t.diff === 'best' ? (
-                    <span className="text-black text-xs my-2 max-w-max rounded-2xl bg-senderHot px-2.5 py-0.5 frcc ">
-                      <FormattedMessage
-                        id="best"
-                        defaultMessage={'Best'}
-                      ></FormattedMessage>
-                    </span>
-                  ) : (
-                    <span className="bg-sellRed my-2  text-xs max-w-max bg-opacity-10 text-sellRed rounded-2xl px-2.5 py-0.5 frcc">
-                      {t.diff}%
-                    </span>
-                  )}
-                </td>
-
-                <td className="rounded-r-xl">
+      {isMobile() &&
+        displayList.map((t, i) => {
+          return (
+            <div
+              className={`${
+                t.selected ? 'border border-gradientFromHover' : ''
+              } bg-menuMoreBgColor rounded-xl
+            
+              p-2.5 mb-3
+            `}
+              onClick={() => {
+                setSelectMarket(t.market);
+              }}
+            >
+              <div className="frcb ">
+                <div className="frcs">
                   <div
-                    className="w-4  h-4 rounded-full  frcc"
+                    className="frcc "
                     style={{
-                      border: '1px solid #223846',
+                      height: '25px',
+                      width: '25px',
                     }}
                   >
-                    {t.selected && (
-                      <div
-                        className="rounded-full bg-senderHot"
-                        style={{
-                          height: '9px',
-                          width: '9px',
-                        }}
-                      ></div>
+                    {t.marketIcon}
+                  </div>
+
+                  <div className="mx-2 frcc">{t?.exchange_name}</div>
+
+                  <div>
+                    {t.diff === 'best' ? (
+                      <span className="text-black text-xs my-2 max-w-max rounded-2xl bg-senderHot px-2.5 py-0.5 frcc ">
+                        <FormattedMessage
+                          id="best"
+                          defaultMessage={'Best'}
+                        ></FormattedMessage>
+                      </span>
+                    ) : (
+                      <span className="bg-sellRed my-2  text-xs max-w-max bg-opacity-10 text-sellRed rounded-2xl px-2.5 py-0.5 frcc">
+                        {t.diff}%
+                      </span>
                     )}
                   </div>
-                </td>
-              </tr>
+                </div>
 
-              <tr>
-                <td>
-                  <div className="my-1"></div>
-                </td>
-              </tr>
-            </>
+                <div
+                  className="w-4  h-4 rounded-full  frcc"
+                  style={{
+                    border: '1px solid #223846',
+                  }}
+                >
+                  {t.selected && (
+                    <div
+                      className="rounded-full bg-senderHot"
+                      style={{
+                        height: '9px',
+                        width: '9px',
+                      }}
+                    ></div>
+                  )}
+                </div>
+              </div>
+
+              <div className="frcb py-3 text-13px">
+                <div className=" text-primaryText">
+                  {<FormattedMessage id="price" defaultMessage={'Price'} />}
+                  <span className="ml-1">
+                    {`(${toRealSymbol(trade.tokenOut.symbol)}/${toRealSymbol(
+                      trade.tokenIn.symbol
+                    )})`}
+                  </span>
+                </div>
+
+                <div className="text-white">{t.rate}</div>
+              </div>
+
+              <div className="frcb text-13px">
+                <div className=" text-primaryText">
+                  <FormattedMessage
+                    id="output_est"
+                    defaultMessage={'Output(est.)'}
+                  />
+                </div>
+
+                <div className="text-white">{t.output}</div>
+              </div>
+            </div>
           );
         })}
-      </table>
     </>
   );
 };

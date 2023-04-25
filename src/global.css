@@ -1278,3 +1278,7 @@ input[type='range']::-webkit-slider-runnable-track {
 .recharts-wrapper svg {
   overflow: inherit !important;
 }
+
+.hideScroll::-webkit-scrollbar {
+  display: none;
+}

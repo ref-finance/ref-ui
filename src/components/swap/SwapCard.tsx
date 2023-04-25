@@ -50,6 +50,7 @@ import {
   AutoRouterText,
   RouterIcon,
   SwapRoute,
+  SwapRouteMoreThan2,
   TradeRouteModal,
 } from '../layout/SwapRoutes';
 
@@ -60,6 +61,7 @@ import { DoubleCheckModal } from '../layout/SwapDoubleCheck';
 import {
   ExchangeEstimate,
   SWAP_MODE,
+  SWAP_TYPE,
   SwapProContext,
 } from '../../pages/SwapPage';
 import { USD_CLASS_STABLE_TOKEN_IDS } from '../../services/near';
@@ -92,6 +94,7 @@ import { TextWrapper } from '~pages/Orderly/components/UserBoard';
 import { SwapMarket } from '../../pages/SwapPage';
 import { REF_FI_SWAP_SIGNAL } from '~services/swap';
 import { numberWithCommas } from '~pages/Orderly/utiles';
+import { isMobile } from '~utils/device';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -276,6 +279,8 @@ export function SwapRate({
 export function AutoRouter({ trade }: { trade: ExchangeEstimate }) {
   const { estimates, tokenIn, tokenOut, market } = trade;
 
+  const { swapType } = useContext(SwapProContext);
+
   if (!estimates) return null;
 
   const identicalRoutes = separateRoutes(
@@ -297,38 +302,61 @@ export function AutoRouter({ trade }: { trade: ExchangeEstimate }) {
   const [showRouteDetail, setShowRouteDetail] = useState<boolean>(false);
 
   return (
-    <section className="frcb py-1 w-full text-xs  rounded-xl xsm:flex-col xsm:items-start">
-      <div className="text-primaryText relative  text-left self-start">
-        <div className="frcs">
-          <span className="xsm:hidden">
-            <RouterIcon />
-          </span>
+    <section className="frcb py-1 w-full text-xs  rounded-xl ">
+      {swapType === SWAP_TYPE.LITE ? (
+        <div className="text-primaryText  relative  text-left self-start">
           <div className="frcs">
-            <AutoRouterText />
-            <QuestionTip
-              style={{ maxWidth: '14rem' }}
-              id="optimal_path_found_by_our_solution"
-            />
+            <span className="xsm:hidden">
+              <RouterIcon />
+            </span>
+            <div className="frcs">
+              <AutoRouterText />
+              <QuestionTip
+                style={{ maxWidth: '14rem' }}
+                id="optimal_path_found_by_our_solution"
+              />
+            </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="text-xs text-primaryText self-start">
+          <FormattedMessage
+            id="your_trade_route"
+            defaultMessage={'Your trade route'}
+          ></FormattedMessage>
+        </div>
+      )}
 
       <div
-        className=" text-white cursor-pointer xsm:mt-2.5 xsm:w-full"
+        className=" text-white cursor-pointer "
         onClick={() => {
-          setShowRouteDetail(true);
+          if (isMobile()) {
+            if (swapType === SWAP_TYPE.LITE) {
+              setShowRouteDetail(true);
+            } else {
+              document
+                .querySelector('#swap_pro_trade_route')
+                .scrollIntoView(true);
+            }
+          } else {
+            setShowRouteDetail(true);
+          }
         }}
       >
-        {identicalRoutes.map((route, index) => (
-          <SwapRoute
-            tokenIn={tokenIn}
-            tokenOut={tokenOut}
-            route={route}
-            p={percents[index]}
-            market={market}
-            key={index}
-          />
-        ))}
+        {trade.estimates.length > 2 ? (
+          <SwapRouteMoreThan2 trade={trade} market={market} />
+        ) : (
+          identicalRoutes.map((route, index) => (
+            <SwapRoute
+              tokenIn={tokenIn}
+              tokenOut={tokenOut}
+              route={route}
+              p={percents[index]}
+              market={market}
+              key={index}
+            />
+          ))
+        )}
       </div>
       <TradeRouteModal
         trade={trade}

@@ -28,6 +28,7 @@ import { MarketList } from '../components/layout/SwapRoutes';
 import MyOrderPage from './MyOrder';
 import MyOrderComponent from './Orderly/components/MyOrder';
 import { useWalletSelector } from '~context/WalletSelectorContext';
+import { useClientMobile } from '~utils/device';
 
 export const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';
 
@@ -263,6 +264,8 @@ function SwapPage() {
 
   const { accountId } = useWalletSelector();
 
+  const isMobile = useClientMobile();
+
   const isSignedIn = accountId;
 
   const globalWhiteListTokens = useGlobalWhitelistTokens();
@@ -329,10 +332,10 @@ function SwapPage() {
         setForceEstimatePro,
       }}
     >
-      <div className="frsc ">
+      <div className="frsc xsm:flex   xsm:flex-col-reverse">
         {swapType === SWAP_TYPE.Pro && (
           <div
-            className="w-full mr-8"
+            className="lg:w-full  mr-8 xsm:w-95vw xsm:mx-auto "
             style={{
               maxWidth: '850px',
             }}
@@ -340,7 +343,10 @@ function SwapPage() {
             <SwapRateChart tokenIn={tokenIn} tokenOut={tokenOut} />
             {swapMode === SWAP_MODE.NORMAL ? (
               <>
-                <div className="text-primaryText mt-8 mb-4 font-gothamBold">
+                <div
+                  className="text-primaryText xsm:text-white xsm:text-base mt-8 mb-4 font-gothamBold"
+                  id="swap_pro_trade_route"
+                >
                   <FormattedMessage
                     id="your_trade_route"
                     defaultMessage={`Your trade route`}
@@ -355,9 +361,9 @@ function SwapPage() {
               </>
             ) : (
               <div
-                className="bg-portfolioBgColor my-5 py-2 px-4 rounded-xl text-v3SwapGray"
+                className="lg:bg-portfolioBgColor  my-5 py-2 px-4 rounded-xl text-v3SwapGray xsm:text-limitOrderInputColor"
                 style={{
-                  border: '1px solid #00463A',
+                  border: isMobile ? '' : '1px solid #00463A',
 
                   fontSize: '13px',
                 }}
@@ -387,8 +393,8 @@ function SwapPage() {
           </div>
         )}
 
-        <div className="swapContainer">
-          <section className={`lg:w-480px xsm:mx-3  m-auto relative`}>
+        <div className="swapContainer xsm:w-95vw xsm:mx-auto">
+          <section className={`lg:w-480px  relative`}>
             {swapMode === SWAP_MODE.NORMAL && (
               <SwapCard
                 allTokens={crossSwapTokens}
@@ -419,11 +425,19 @@ function SwapPage() {
               />
             )}
           </section>
-          <div className="lg:w-p450 xsm:mx-3  m-auto relative text-white mt-5">
-            <AdSwiper />
-          </div>
+          {swapType === SWAP_TYPE.LITE && (
+            <div className="lg:w-p450  text-white mt-5">
+              <AdSwiper />
+            </div>
+          )}
         </div>
       </div>
+
+      {swapType === SWAP_TYPE.Pro && (
+        <div className="lg:w-p450 xsm:mx-3  m-auto relative text-white mt-5">
+          <AdSwiper />
+        </div>
+      )}
     </SwapProContext.Provider>
   );
 }

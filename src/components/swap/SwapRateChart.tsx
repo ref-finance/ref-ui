@@ -30,6 +30,7 @@ import { ChartNoData } from '~components/icon/ChartNoData';
 import { FormattedMessage } from 'react-intl';
 import { OrderlyLoading } from '~pages/Orderly/components/Common/Icons';
 import { numberWithCommas } from '~pages/Orderly/utiles';
+import { useClientMobile } from '~utils/device';
 export interface SwapRateChartProps {
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
@@ -43,6 +44,8 @@ export default function SwapRateChart(props: SwapRateChartProps) {
   const { tokenIn, tokenOut } = props;
 
   const dimensionList = ['24H', '7D', '1M', '1Y', 'All'] as Dimensions[];
+
+  const isMobile = useClientMobile();
 
   const [priceList, setPriceList] = useState<TokenPairRate>();
 
@@ -116,7 +119,9 @@ export default function SwapRateChart(props: SwapRateChartProps) {
 
     x =
       index === 0
-        ? x + 0
+        ? x + isMobile
+          ? 15
+          : 0
         : value ===
           priceList.price_list[priceList.price_list.length - 1].date_time
         ? x - 10
@@ -253,8 +258,8 @@ export default function SwapRateChart(props: SwapRateChartProps) {
   };
 
   return (
-    <div className="w-full gotham_font">
-      <div className="frcb ml-4">
+    <div className="w-full gotham_font xsm:mt-5">
+      <div className="frcb ml-4 xsm:ml-1">
         <div className="frcs">
           <Images
             borderStyle="1px solid #00D6AF"
@@ -262,6 +267,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
             tokens={[displayTokenIn, displayTokenOut]}
             uId="swap-chart-header"
             allowSameToken
+            className="xsm:text-sm"
           />
 
           <Symbols
@@ -281,7 +287,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
           {dimensionList.map((d) => {
             return (
               <div
-                className={`text-xs mx-1 p-1 cursor-pointer ${
+                className={`text-xs mx-1 xsm:mx-0.5 p-1 cursor-pointer ${
                   d === displayDimension
                     ? 'text-white rounded-md bg-limitOrderFeeTiersBorderColor'
                     : 'text-primaryText'
@@ -299,8 +305,8 @@ export default function SwapRateChart(props: SwapRateChartProps) {
           })}
         </div>
       </div>
-      <div className="frcs ml-4">
-        <span className="text-white text-2xl mt-1 mr-1">
+      <div className="frcs ml-4  xsm:ml-0">
+        <span className="text-white text-2xl  mr-1">
           {diff
             ? numberWithCommas(
                 displayNumberToAppropriateDecimals(diff.curPrice)

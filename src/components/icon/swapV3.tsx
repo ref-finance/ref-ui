@@ -1014,7 +1014,7 @@ export const MobileHistoryOrderStamp = ({
   state: 'filled' | 'cancel' | 'partially_filled' | 'swapped';
 }) => {
   return (
-    <div className="absolute top-20 left-1/2 transform -translate-x-1/2 ">
+    <div className="absolute top-32 left-1/2 transform -translate-x-1/2 ">
       {state === 'cancel' && (
         <MobileHistoryOrderStampText text="canceled" color="#DEA550" />
       )}

@@ -81,6 +81,20 @@ import { HistoryOrderSwapInfo } from '../../../../services/indexer';
 
 const ORDER_TYPE_KEY = 'REF_FI_ORDER_TYPE_VALUE';
 
+const MobileInfoBanner = ({
+  text,
+  value,
+}: {
+  text: string | JSX.Element;
+  value: string | JSX.Element;
+}) => {
+  return (
+    <div className="flex mb-4 items-center justify-between whitespace-nowrap">
+      <span className="text-xs text-v3SwapGray">{text}</span>
+      <span className="text-white text-sm">{value}</span>
+    </div>
+  );
+};
 function WarningTip() {
   if (isMobile()) {
     return (
@@ -395,11 +409,10 @@ function HistoryLine({
   const fee = Number(order.pool_id.split(V3_POOL_SPLITER)[2]);
 
   const feeTier = (
-    <span className="rounded-lg relative right-1 text-left  text-primaryText p-1 bg-menuMoreBgColor xs:text-white">
+    <span className="rounded-lg relative xsm:right-0 xsm:bg-none right-3 text-left  text-primaryText p-1 lg:bg-menuMoreBgColor xs:text-white">
       {`${toPrecision(calculateFeePercent(fee / 100).toString(), 2)}% `}
     </span>
   );
-
   const sort =
     TOKEN_LIST_FOR_RATE.indexOf(sellToken?.symbol) > -1 && +price !== 0;
   const orderRate = useMemo(() => {
@@ -505,25 +518,25 @@ function HistoryLine({
   );
 
   const created = (
-    <span
-      style={{
-        width: '100px',
-      }}
-      className=" relative  whitespace-nowrap    text-primaryText xs:text-xs flex flex-col   text-left xs:opacity-50"
-    >
-      <span>
+    <span className=" relative  whitespace-nowrap    text-primaryText xs:text-xs flex flex-col   xsm:justify-center  text-left xs:opacity-50">
+      <span className="xsm:hidden">
         {moment(
           Math.floor(Number(order.created_at) / TIMESTAMP_DIVISOR) * 1000
         ).format('YYYY-MM-DD')}
       </span>
-      <span>
+      <span className="xsm:hidden">
         {moment(
           Math.floor(Number(order.created_at) / TIMESTAMP_DIVISOR) * 1000
         ).format('HH:mm')}
       </span>
+
+      <span className="lg:hidden text-center relative bottom-2">
+        {moment(
+          Math.floor(Number(order.created_at) / TIMESTAMP_DIVISOR) * 1000
+        ).format('YYYY-MM-DD HH:mm')}
+      </span>
     </span>
   );
-
   const actions = (
     <div className=" col-span-1  text-primaryText  text-xs flex flex-col items-end justify-self-end p-1.5 pr-4">
       <span className="flex text-sm text-white items-center whitespace-nowrap">
@@ -753,20 +766,7 @@ function HistoryLine({
       </td>
     </>
   );
-  const MobileInfoBanner = ({
-    text,
-    value,
-  }: {
-    text: string | JSX.Element;
-    value: string | JSX.Element;
-  }) => {
-    return (
-      <div className="flex mb-4 items-center justify-between whitespace-nowrap">
-        <span className="text-xs text-v3SwapGray">{text}</span>
-        <span className="text-white font-bold text-sm">{value}</span>
-      </div>
-    );
-  };
+
   return (
     <Fragment>
       <tr>
@@ -848,13 +848,39 @@ function HistoryLine({
       {/* {hover && !ONLY_ZEROS.test(swapIn || '0') ? swapBanner : null} */}
 
       <div
-        className="w-full mb-4 md:hidden lg:hidden"
+        className="w-full relative mb-4 md:hidden lg:hidden"
         style={{
           zIndex: 20 - index,
         }}
       >
+        <MobileHistoryOrderStamp
+          state={
+            ONLY_ZEROS.test(order.cancel_amount)
+              ? 'filled'
+              : new Big(order.original_deposit_amount).eq(order.cancel_amount)
+              ? 'cancel'
+              : 'partially_filled'
+          }
+        />
+
         {/* title */}
-        <div className="rounded-t-xl bg-orderMobileTop px-3 pt-3">
+        <div className="rounded-t-xl relative bg-orderMobileTop px-3 pt-3">
+          <div className="absolute right-4 bottom-0.5 z-50  text-xs">
+            {!!orderTx && (
+              <a
+                className="flex items-center bg-black text-primaryText px-1.5  bg-opacity-20 rounded "
+                href={`${getConfig().explorerUrl}/txns/${orderTx}`}
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+              >
+                <span className="mr-1.5">
+                  <HiOutlineExternalLink></HiOutlineExternalLink>
+                </span>
+                Tx
+              </a>
+            )}
+          </div>
+
           <div className="flex items-center relative justify-between">
             {sellTokenAmount}
             <MyOrderMobileArrow />
@@ -874,14 +900,19 @@ function HistoryLine({
 
           <MobileInfoBanner
             text={`1 ${toRealSymbol(
-              sort ? buyToken.symbol : tokensMap[order.sell_token].symbol
+              sort ? buyToken?.symbol : tokensMap[order.sell_token].symbol
             )} Price`}
             value={orderRate}
           />
 
-          <div className="flex items-center w-full xs:mt-2">
-            {/* {actions} */}
-          </div>
+          <MobileInfoBanner
+            text={
+              <FormattedMessage defaultMessage={'Claimed'} id="claimed_upper" />
+            }
+            value={claimed}
+          />
+
+          {claimTip}
         </div>
 
         {/* swap banner */}
@@ -991,7 +1022,7 @@ function HistorySwapInfoLine({
   const fee = Number(pool_id.split(V3_POOL_SPLITER)[2]);
 
   const feeTier = (
-    <span className="rounded-lg relative right-1 text-left  text-primaryText p-1 bg-menuMoreBgColor xs:text-white">
+    <span className="rounded-lg relative xsm:right-0 xsm:bg-none right-3 text-left  text-primaryText p-1 lg:bg-menuMoreBgColor xs:text-white">
       {`${toPrecision(calculateFeePercent(fee / 100).toString(), 2)}% `}
     </span>
   );
@@ -1087,40 +1118,101 @@ function HistorySwapInfoLine({
   const tokenPrice = useContext(PriceContext);
 
   return (
-    <Fragment>
-      <tr>
-        <td>
-          <div className="pb-2.5"></div>
-        </td>
-      </tr>
-      <tr
-        className={`mb-4 overflow-visible   xs:hidden px-4 py-3 text-sm   z-20   relative  w-full rounded-xl items-center   hover:bg-portfolioBarBgColor bg-portfolioBgColor `}
+    <>
+      <Fragment>
+        <tr>
+          <td>
+            <div className="pb-2.5"></div>
+          </td>
+        </tr>
+        <tr
+          className={`mb-4 overflow-visible   xs:hidden px-4 py-3 text-sm   z-20   relative  w-full rounded-xl items-center   hover:bg-portfolioBarBgColor bg-portfolioBgColor `}
+          style={{
+            zIndex: 21,
+          }}
+        >
+          <td className="rounded-l-xl">{sellTokenAmount}</td>
+
+          <td>
+            <span className="text-white text-lg frcs w-7 xs:hidden ">
+              <MyOrderInstantSwapArrowRight />
+            </span>
+          </td>
+
+          <td>{buyTokenAmount}</td>
+
+          <td>{feeTier}</td>
+
+          <td>{orderRate}</td>
+
+          <td>{created}</td>
+
+          <td className=""></td>
+          <td className="rounded-r-xl">{actions}</td>
+        </tr>
+
+        {/* {hover && !ONLY_ZEROS.test(swapIn || '0') ? swapBanner : null} */}
+      </Fragment>
+
+      <div
+        className="w-full relative mb-4 md:hidden lg:hidden"
         style={{
-          zIndex: 21,
+          zIndex: 20 - index,
         }}
       >
-        <td className="rounded-l-xl">{sellTokenAmount}</td>
+        <MobileHistoryOrderStamp state={'swapped'}></MobileHistoryOrderStamp>
 
-        <td>
-          <span className="text-white text-lg frcs w-7 xs:hidden ">
-            <MyOrderInstantSwapArrowRight />
-          </span>
-        </td>
+        {/* title */}
+        <div className="rounded-t-xl relative bg-orderMobileTop px-3 pt-3">
+          <div className="flex items-center relative justify-between">
+            {sellTokenAmount}
+            <MyOrderMobileArrow />
+            {buyTokenAmount}
+          </div>
 
-        <td>{buyTokenAmount}</td>
+          {created}
 
-        <td>{feeTier}</td>
+          <div className="absolute right-4 bottom-0.5 z-50  text-xs">
+            {!!orderTx && (
+              <a
+                className="flex items-center bg-black text-primaryText px-1.5  bg-opacity-20 rounded "
+                href={`${getConfig().explorerUrl}/txns/${orderTx}`}
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+              >
+                <span className="mr-1.5">
+                  <HiOutlineExternalLink></HiOutlineExternalLink>
+                </span>
+                Tx
+              </a>
+            )}
+          </div>
+        </div>
+        {/*  content */}
+        <div className="rounded-b-xl p-3 pb-1 bg-cardBg">
+          <MobileInfoBanner
+            text={
+              <FormattedMessage id="fee_tiers" defaultMessage={'Fee Tiers'} />
+            }
+            value={feeTier}
+          />
 
-        <td>{orderRate}</td>
+          <MobileInfoBanner
+            text={`1 ${toRealSymbol(
+              sort ? buyToken?.symbol : tokensMap[token_in].symbol
+            )} Price`}
+            value={orderRate}
+          />
 
-        <td>{created}</td>
-
-        <td className=""></td>
-        <td className="rounded-r-xl">{actions}</td>
-      </tr>
-
-      {/* {hover && !ONLY_ZEROS.test(swapIn || '0') ? swapBanner : null} */}
-    </Fragment>
+          <MobileInfoBanner
+            text={
+              <FormattedMessage defaultMessage={'Executed'} id="executed" />
+            }
+            value={claimed}
+          />
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -1432,7 +1524,7 @@ function ActiveLine({
   const fee = Number(order.pool_id.split(V3_POOL_SPLITER)[2]);
 
   const feeTier = (
-    <span className="rounded-lg relative right-3 text-left  text-primaryText p-1 bg-menuMoreBgColor xs:text-white">
+    <span className="rounded-lg relative xsm:right-0 xsm:bg-none right-3 text-left  text-primaryText p-1 lg:bg-menuMoreBgColor xs:text-white">
       {`${toPrecision(calculateFeePercent(fee / 100).toString(), 2)}% `}
     </span>
   );
@@ -1532,6 +1624,9 @@ function ActiveLine({
           undecimal_amount: '0',
         });
       }}
+      style={{
+        height: '38px',
+      }}
     >
       <ButtonTextWrapper
         Text={() => <FormattedMessage id="claim" defaultMessage={'Claim'} />}
@@ -1578,16 +1673,22 @@ function ActiveLine({
   );
 
   const created = (
-    <span className=" relative  whitespace-nowrap    text-primaryText xs:text-xs flex flex-col   text-left xs:opacity-50">
-      <span>
+    <span className=" relative  whitespace-nowrap    text-primaryText xs:text-xs flex flex-col   xsm:justify-center  text-left xs:opacity-50">
+      <span className="xsm:hidden">
         {moment(
           Math.floor(Number(order.created_at) / TIMESTAMP_DIVISOR) * 1000
         ).format('YYYY-MM-DD')}
       </span>
-      <span>
+      <span className="xsm:hidden">
         {moment(
           Math.floor(Number(order.created_at) / TIMESTAMP_DIVISOR) * 1000
         ).format('HH:mm')}
+      </span>
+
+      <span className="lg:hidden text-center relative bottom-2">
+        {moment(
+          Math.floor(Number(order.created_at) / TIMESTAMP_DIVISOR) * 1000
+        ).format('YYYY-MM-DD HH:mm')}
       </span>
     </span>
   );
@@ -1642,21 +1743,21 @@ function ActiveLine({
     return result;
   }
   const swapBanner = (
-    <>
-      <td
-        colSpan={8}
-        className="  w-full relative bottom-1.5 pt-6 bg-portfolioBgColor"
-      >
-        {new Big(order.original_deposit_amount || '0')
-          .minus(order.original_amount || '0')
-          .gt(0) && (
-          <>
-            <div className="flex items-center px-4 pb-4  justify-between ">
-              <span className="flex items-center">
-                <FormattedMessage
-                  id="initial_order"
-                  defaultMessage={'Initial Order'}
-                />
+    <td
+      colSpan={8}
+      className="xsm:block xsm:rounded-xl xs:text-xs text-v3SwapGray w-full relative lg:bottom-1.5 lg:pt-6 xsm:pt-4 bg-portfolioBgColor"
+    >
+      {new Big(order.original_deposit_amount || '0')
+        .minus(order.original_amount || '0')
+        .gt(0) && (
+        <>
+          <div className="flex items-center px-4 pb-4  justify-between ">
+            <span className="flex items-center">
+              <FormattedMessage
+                id="initial_order"
+                defaultMessage={'Initial Order'}
+              />
+              {!isMobile() && (
                 <ExclamationTip
                   id="this_order_has_been_partially_filled"
                   defaultMessage="This order has been partially filled "
@@ -1666,43 +1767,44 @@ function ActiveLine({
                     'this_order_has_been_partially_filled' + order.order_id
                   }
                 />
+              )}
+            </span>
+
+            <span className="flex items-center text-xs">
+              <span title={totalIn} className="text-v3SwapGray">
+                {Number(totalIn) > 0 && Number(totalIn) < 0.01
+                  ? '< 0.01'
+                  : toPrecision(totalIn, 2)}
               </span>
 
-              <span className="flex items-center">
-                <span title={totalIn} className="text-v3SwapGray">
-                  {Number(totalIn) > 0 && Number(totalIn) < 0.01
-                    ? '< 0.01'
-                    : toPrecision(totalIn, 2)}
-                </span>
-
-                <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
-                <span className="mx-6 xs:mx-2 text-white xs:text-v3SwapGray">
-                  {isClientMobie() ? (
-                    <MyOrderInstantSwapArrowRight />
-                  ) : (
-                    <MyOrderInstantSwapArrowRight />
-                  )}
-                </span>
-                <span
-                  title={toPrecision(totalOut, buyToken.decimals)}
-                  className="text-v3SwapGray"
-                >
-                  {Number(totalOut) > 0 && Number(totalOut) < 0.01
-                    ? '< 0.01'
-                    : toPrecision(totalOut, 2)}
-                </span>
-
-                <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
+              <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
+              <span className="mx-6 xs:mx-2 text-white xs:text-v3SwapGray">
+                {isClientMobie() ? (
+                  <MyOrderInstantSwapArrowRight />
+                ) : (
+                  <MyOrderInstantSwapArrowRight />
+                )}
               </span>
-            </div>
+              <span
+                title={toPrecision(totalOut, buyToken.decimals)}
+                className="text-v3SwapGray"
+              >
+                {Number(totalOut) > 0 && Number(totalOut) < 0.01
+                  ? '< 0.01'
+                  : toPrecision(totalOut, 2)}
+              </span>
 
-            <div className="frcb px-4 pb-4">
-              <span className="flex items-center ">
-                <FormattedMessage
-                  id="instants_swap"
-                  defaultMessage={'Instant Swap'}
-                />
+              <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
+            </span>
+          </div>
 
+          <div className="frcb px-4 pb-4">
+            <span className="flex items-center ">
+              <FormattedMessage
+                id={isMobile() ? 'filled_via_swap' : 'instants_swap'}
+                defaultMessage={isMobile() ? 'Filled via swap' : 'Instant Swap'}
+              />
+              {!isMobile() && (
                 <ExclamationTip
                   colorhex="#7E8A93"
                   id={instant_swap_tip()}
@@ -1710,85 +1812,29 @@ function ActiveLine({
                   dataPlace="bottom"
                   uniquenessId={'instant_swap_tip' + order.order_id}
                 />
-              </span>
+              )}
+            </span>
 
-              <span className="frcb min-w-p300">
-                <div className="frcs text-xs w pr-2 text-v3SwapGray">
-                  <BsCheckCircle
-                    className="mr-1.5"
-                    fill="#42bb17"
-                    stroke="#42BB17"
-                  />
-
+            <span className="frcb xsm:justify-start lg:min-w-p300">
+              <div className="frcs text-xs  pr-2 text-v3SwapGray">
+                <BsCheckCircle
+                  className="mr-1.5"
+                  fill="#42bb17"
+                  stroke="#42BB17"
+                />
+                <span className="xsm:hidden">
                   <FormattedMessage
                     id="swappped"
                     defaultMessage={'Swapped'}
                   ></FormattedMessage>
-                </div>
-
-                <div className="flex items-center justify-end">
-                  <span title={swapIn} className="text-v3SwapGray">
-                    {Number(swapIn) > 0 && Number(swapIn) < 0.01
-                      ? '< 0.01'
-                      : toPrecision(swapIn, 2)}
-                  </span>
-
-                  <span className="ml-1.5">
-                    {toRealSymbol(sellToken.symbol)}
-                  </span>
-                  <span className="mx-6 xs:mx-2 text-v3SwapGray">
-                    {isClientMobie() ? (
-                      <MyOrderInstantSwapArrowRight />
-                    ) : (
-                      <MyOrderInstantSwapArrowRight />
-                    )}
-                  </span>
-                  <span title={swapOut} className="text-v3SwapGray">
-                    {Number(swapOut) > 0 && Number(swapOut) < 0.01
-                      ? '< 0.01'
-                      : toPrecision(swapOut, 2)}
-                  </span>
-
-                  <span className="ml-1.5">
-                    {toRealSymbol(buyToken.symbol)}
-                  </span>
-                </div>
-              </span>
-            </div>
-          </>
-        )}
-
-        <div className="flex items-start justify-between px-4 pb-4">
-          <span>
-            <FormattedMessage
-              id="executing_capital"
-              defaultMessage={'Executing'}
-            />
-          </span>
-
-          <div className="flex flex-col items-end">
-            <span className="frcb min-w-p300">
-              <div className="frcs text-xs pr-2 text-v3SwapGray">
-                <BsCheckCircle
-                  className="mr-1.5"
-                  fill="#00D6AF"
-                  stroke="#00D6AF"
-                />
-
-                <FormattedMessage
-                  id="claimed"
-                  defaultMessage={'Claimed'}
-                ></FormattedMessage>
+                </span>
               </div>
 
               <div className="flex items-center justify-end">
-                <span
-                  title={toPrecision(claimedAmountIn, sellToken.decimals)}
-                  className="text-v3SwapGray"
-                >
-                  {Number(claimedAmountIn) > 0 && Number(claimedAmountIn) < 0.01
+                <span title={swapIn} className="text-v3SwapGray">
+                  {Number(swapIn) > 0 && Number(swapIn) < 0.01
                     ? '< 0.01'
-                    : toPrecision(claimedAmountIn, 2)}
+                    : toPrecision(swapIn, 2)}
                 </span>
 
                 <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
@@ -1799,79 +1845,155 @@ function ActiveLine({
                     <MyOrderInstantSwapArrowRight />
                   )}
                 </span>
-                <span title={claimedAmount} className="text-v3SwapGray">
-                  {Number(claimedAmount) > 0 && Number(claimedAmount) < 0.01
+                <span title={swapOut} className="text-v3SwapGray">
+                  {Number(swapOut) > 0 && Number(swapOut) < 0.01
                     ? '< 0.01'
-                    : toPrecision(claimedAmount, 2)}
-                </span>
-
-                <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
-              </div>
-            </span>
-
-            <span className=" pt-4  frcb min-w-p300">
-              <div className="frcs text-xs pr-2 text-v3SwapGray">
-                <span className="mr-1.5">
-                  <FilledEllipse></FilledEllipse>
-                </span>
-
-                <FormattedMessage
-                  id="filled"
-                  defaultMessage={'Filled'}
-                ></FormattedMessage>
-              </div>
-
-              <div className="flex items-center justify-end">
-                <span
-                  title={toPrecision(unClaimedAmountIn, sellToken.decimals)}
-                  className="text-white font-gothamBold"
-                >
-                  {Number(unClaimedAmountIn) > 0 &&
-                  Number(unClaimedAmountIn) < 0.01
-                    ? '< 0.01'
-                    : toPrecision(unClaimedAmountIn, 2)}
-                </span>
-
-                <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
-                <span className="mx-6 xs:mx-2 text-v3SwapGray">
-                  {isClientMobie() ? (
-                    <MyOrderInstantSwapArrowRight />
-                  ) : (
-                    <MyOrderInstantSwapArrowRight />
-                  )}
-                </span>
-                <span
-                  title={unClaimedAmount}
-                  className="text-white font-gothamBold"
-                >
-                  {Number(unClaimedAmount) > 0 && Number(unClaimedAmount) < 0.01
-                    ? '< 0.01'
-                    : toPrecision(unClaimedAmount, 2)}
+                    : toPrecision(swapOut, 2)}
                 </span>
 
                 <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
               </div>
             </span>
           </div>
-        </div>
-      </td>
-    </>
-  );
+        </>
+      )}
 
-  const MobileInfoBanner = ({
-    text,
-    value,
-  }: {
-    text: string | JSX.Element;
-    value: string | JSX.Element;
-  }) => {
-    return (
-      <div className="flex mb-4 items-center justify-between whitespace-nowrap">
-        <span className="text-xs text-v3SwapGray">{text}</span>
-        <span className="text-white text-sm">{value}</span>
+      <div className="flex items-start xsm:hidden justify-between px-4 pb-4">
+        <span className="xsm:text-v3SwapGray">
+          <FormattedMessage
+            id="executing_capital"
+            defaultMessage={'Executing'}
+          />
+        </span>
+
+        <div className="flex flex-col items-end">
+          <span className="frcb min-w-p300">
+            <div className="frcs text-xs pr-2 text-v3SwapGray">
+              <BsCheckCircle
+                className="mr-1.5"
+                fill="#00D6AF"
+                stroke="#00D6AF"
+              />
+
+              <FormattedMessage
+                id="claimed"
+                defaultMessage={'Claimed'}
+              ></FormattedMessage>
+            </div>
+
+            <div className="flex items-center justify-end">
+              <span
+                title={toPrecision(claimedAmountIn, sellToken.decimals)}
+                className="text-v3SwapGray"
+              >
+                {Number(claimedAmountIn) > 0 && Number(claimedAmountIn) < 0.01
+                  ? '< 0.01'
+                  : toPrecision(claimedAmountIn, 2)}
+              </span>
+
+              <span className="ml-1.5 xsm:text-v3SwapGray">
+                {toRealSymbol(sellToken.symbol)}
+              </span>
+              <span className="mx-6 xs:mx-2 text-v3SwapGray">
+                {isClientMobie() ? (
+                  <MyOrderInstantSwapArrowRight />
+                ) : (
+                  <MyOrderInstantSwapArrowRight />
+                )}
+              </span>
+              <span title={claimedAmount} className="text-v3SwapGray">
+                {Number(claimedAmount) > 0 && Number(claimedAmount) < 0.01
+                  ? '< 0.01'
+                  : toPrecision(claimedAmount, 2)}
+              </span>
+
+              <span className="ml-1.5 xsm:text-v3SwapGray">
+                {toRealSymbol(buyToken.symbol)}
+              </span>
+            </div>
+          </span>
+
+          <span className=" pt-4  frcb min-w-p300">
+            <div className="frcs text-xs pr-2 text-v3SwapGray">
+              <span className="mr-1.5">
+                <FilledEllipse></FilledEllipse>
+              </span>
+
+              <FormattedMessage
+                id="filled"
+                defaultMessage={'Filled'}
+              ></FormattedMessage>
+            </div>
+
+            <div className="flex items-center justify-end">
+              <span
+                title={toPrecision(unClaimedAmountIn, sellToken.decimals)}
+                className="text-white font-gothamBold"
+              >
+                {Number(unClaimedAmountIn) > 0 &&
+                Number(unClaimedAmountIn) < 0.01
+                  ? '< 0.01'
+                  : toPrecision(unClaimedAmountIn, 2)}
+              </span>
+
+              <span className="ml-1.5 xsm:text-v3SwapGray">
+                {toRealSymbol(sellToken.symbol)}
+              </span>
+              <span className="mx-6 xs:mx-2 text-v3SwapGray">
+                {isClientMobie() ? (
+                  <MyOrderInstantSwapArrowRight />
+                ) : (
+                  <MyOrderInstantSwapArrowRight />
+                )}
+              </span>
+              <span
+                title={unClaimedAmount}
+                className="text-white font-gothamBold"
+              >
+                {Number(unClaimedAmount) > 0 && Number(unClaimedAmount) < 0.01
+                  ? '< 0.01'
+                  : toPrecision(unClaimedAmount, 2)}
+              </span>
+
+              <span className="ml-1.5 xsm:text-v3SwapGray">
+                {toRealSymbol(buyToken.symbol)}
+              </span>
+            </div>
+          </span>
+        </div>
       </div>
-    );
-  };
+
+      <div className="lg:hidden flex items-center justify-end pr-4 pb-2">
+        <div className="flex  max-w-max text-primaryText bg-black bg-opacity-20 rounded-md px-2 py-1 items-center justify-end lg:hidden">
+          <span title={swapIn} className="">
+            1
+          </span>
+
+          <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
+
+          {tokenPrice?.[sellToken?.id]?.price && (
+            <span className="ml-1">{`($${
+              tokenPrice?.[sellToken?.id].price
+            })`}</span>
+          )}
+
+          <span className="mx-6 xs:mx-2 ">=</span>
+          <span title={swapOut} className="">
+            {toPrecision(
+              scientificNotationToString(
+                new Big(swapOut || 0)
+                  .div(Number(swapIn) === 0 ? 1 : swapIn)
+                  .toString()
+              ),
+              3
+            )}
+          </span>
+
+          <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
+        </div>
+      </div>
+    </td>
+  );
 
   return (
     <Fragment>
@@ -1998,7 +2120,7 @@ function ActiveLine({
 
           <MobileInfoBanner
             text={
-              <FormattedMessage defaultMessage={'Claimed'} id="claimed_upper" />
+              <FormattedMessage defaultMessage={'Executed'} id="executed" />
             }
             value={unclaim}
           />
@@ -2006,13 +2128,17 @@ function ActiveLine({
           {unclaimTip}
 
           <div className="flex items-center w-full xs:mt-2">
-            {/* {actions} */}
+            {actions}
             {claimButton}
           </div>
         </div>
 
         {/* swap banner */}
-        {!ONLY_ZEROS.test(swapIn || '0') ? swapBanner : null}
+        {new Big(order.original_deposit_amount || '0')
+          .minus(order.original_amount || '0')
+          .gt(0)
+          ? swapBanner
+          : null}
       </div>
     </Fragment>
   );
@@ -2079,8 +2205,72 @@ function OrderCard({
   );
 
   function OrderTab() {
+    if (isMobile()) {
+      return (
+        <div className="frcb">
+          <div className="text-white font-gothamBold">
+            <FormattedMessage
+              id="your_orders"
+              defaultMessage={'Your orders'}
+            ></FormattedMessage>
+          </div>
+
+          <div
+            className="flex text-13px p-1 rounded-xl text-white "
+            style={{
+              border: '1.5px solid rgba(145, 162, 174, 0.2)',
+            }}
+          >
+            <button
+              className={`px-3 rounded-lg py-1 ${
+                orderType === 'active' ? 'text-white' : 'text-primaryText'
+              } `}
+              style={{
+                background: orderType === 'active' ? '#324451' : '',
+              }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                sessionStorage.setItem(ORDER_TYPE_KEY, 'active');
+                setOrderType('active');
+              }}
+            >
+              <span className="frcs">
+                <FormattedMessage id="active" defaultMessage={'Active'} />
+                {activeOrder && activeOrder.length > 0
+                  ? ` (${activeOrder.length})`
+                  : null}
+              </span>
+            </button>
+
+            <button
+              className={`px-3 py-1 ${
+                orderType === 'history' ? 'text-white' : 'text-primaryText'
+              } `}
+              style={{
+                background: orderType === 'history' ? '#324451' : '',
+              }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setOrderType('history');
+                sessionStorage.setItem(ORDER_TYPE_KEY, 'history');
+              }}
+            >
+              <span className="frcs">
+                <FormattedMessage id="history" defaultMessage={'History'} />
+                {historyOrder && historyOrder.length > 0
+                  ? ` (${historyOrder.length})`
+                  : null}
+              </span>
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     return (
-      <div className="flex whitespace-nowrap xs:justify-center text-white mb-4">
+      <div className="flex whitespace-nowrap  text-white mb-4">
         <button
           className={`mr-7 ${
             orderType === 'active' ? 'text-white' : 'text-primaryText'
@@ -2225,7 +2415,7 @@ function OrderCard({
       {OrderTab()}
 
       <table
-        className="border-separate"
+        className="border-separate xsm:block"
         style={{
           borderSpacing: 0,
         }}
@@ -3016,6 +3206,9 @@ function OrderCardOld({
               undecimal_amount: '0',
             });
           }}
+          style={{
+            height: '38px',
+          }}
         >
           <ButtonTextWrapper
             Text={() => (
@@ -3260,21 +3453,6 @@ function OrderCardOld({
         </div>
       </div>
     );
-
-    const MobileInfoBanner = ({
-      text,
-      value,
-    }: {
-      text: string | JSX.Element;
-      value: string | JSX.Element;
-    }) => {
-      return (
-        <div className="flex mb-4 items-center justify-between whitespace-nowrap">
-          <span className="text-xs text-v3SwapGray">{text}</span>
-          <span className="text-white text-sm">{value}</span>
-        </div>
-      );
-    };
 
     return (
       <>
@@ -3594,7 +3772,7 @@ function MyOrderComponent() {
   // }
 
   return (
-    <div className="max-w-7xl mx-auto flex flex-col xs:w-11/12 md:5/6 lg:w-full">
+    <div className="max-w-7xl mx-auto flex flex-col xs:w-full md:5/6 lg:w-full">
       <PriceContext.Provider value={tokenPriceList}>
         {/* <OrderCardOld tokensMap={tokensMap} activeOrder={oldOrders} /> */}
 

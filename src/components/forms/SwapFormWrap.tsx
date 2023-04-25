@@ -182,7 +182,7 @@ export default function SwapFormWrap({
       {showElseView && elseView ? (
         elseView
       ) : (
-        <div className="flex flex-col items-center xsm:flex-row-reverse">
+        <div className="flex flex-col items-center">
           {!isInsufficient ? (
             <div
               className={`ml-1 text-xs relative w-full ${

@@ -1928,6 +1928,8 @@ export const useOrderlySwap = ({
   };
 };
 
+export const REF_FI_BEST_MARKET_ROUTE = 'REF_FI_BEST_MARKET_ROUTE';
+
 export const useRefSwapPro = ({
   tokenIn,
   tokenInAmount,
@@ -2047,14 +2049,25 @@ export const useRefSwapPro = ({
               Math.min(tokenOut.decimals, 8)
             ));
 
-      console.log('resValid: ', resValid, tradeList, tokenInAmount);
-
       if (!resValid) {
         setReEstimateTrigger(!reEstimateTrigger);
         return;
       }
 
       setTrades(trades);
+
+      const bestMarket = Object.keys(trades).reduce((a, b) => {
+        return new Big(
+          trades[a].availableRoute ? trades[a].tokenOutAmount || '0' : '0'
+        ).gt(trades[b].availableRoute ? trades[b].tokenOutAmount || '0' : '0')
+          ? a
+          : b;
+      });
+
+      sessionStorage.setItem(
+        REF_FI_BEST_MARKET_ROUTE,
+        trades[bestMarket].availableRoute === true ? bestMarket : 'ref'
+      );
 
       if (
         sessionStorage.getItem('loadingTrigger') === 'true' &&
@@ -2066,14 +2079,6 @@ export const useRefSwapPro = ({
         return;
       }
       sessionStorage.setItem('enableTri', 'true');
-
-      const bestMarket = Object.keys(trades).reduce((a, b) => {
-        return new Big(
-          trades[a].availableRoute ? trades[a].tokenOutAmount || '0' : '0'
-        ).gt(trades[b].availableRoute ? trades[b].tokenOutAmount || '0' : '0')
-          ? a
-          : b;
-      });
 
       if (trades[bestMarket].availableRoute === true) {
         setSelectMarket(bestMarket as SwapMarket);

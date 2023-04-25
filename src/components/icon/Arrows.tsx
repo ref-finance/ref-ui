@@ -431,7 +431,7 @@ export function SwapRateExchange({
 
   return (
     <div
-      className="relative transform scale-75 rotate-90 flex items-center justify-center w-7 h-7 border-2 border-switchIconBorderColor rounded-lg cursor-pointer bg-switchIconBgColor"
+      className="relative flex-shrink-0 transform scale-75 rotate-90 flex items-center justify-center w-7 h-7 border-2 border-switchIconBorderColor rounded-lg cursor-pointer bg-switchIconBgColor"
       onClick={() => {
         onChange();
         mobileDevice && runSwapAnimation();
