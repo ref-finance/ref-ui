@@ -8,6 +8,7 @@ export default function ExternalPopUp() {
   const dom_id = is_test_env ? 'pr3sence' : 'ref-mainnet';
   const is_mobile = isMobile();
   const is_swap_page = location.pathname == '/' || location.pathname == '/swap';
+  const is_order = location.pathname == '/myOrder';
   useEffect(() => {
     let walletId = '';
     let zone_id = '';
@@ -34,7 +35,7 @@ export default function ExternalPopUp() {
     script.src = `https://api.pr3sence.xyz/request/content?zone_id=${zone_id}&walletId=${walletId}&type=js`;
     document.head.appendChild(script);
   }, []);
-  const hiddenPopup = is_swap_page || is_mobile;
+  const hiddenPopup = is_swap_page || is_order || is_mobile;
   return (
     <div
       id={dom_id}
