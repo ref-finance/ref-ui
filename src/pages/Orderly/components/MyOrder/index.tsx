@@ -589,156 +589,167 @@ function HistoryLine({
     <>
       <td
         colSpan={8}
-        className=" rounded-b-xl  w-full relative bottom-1.5 bg-portfolioBgColor"
+        className=" rounded-b-xl  w-full relative bottom-1.5 pt-6 bg-portfolioBgColor"
       >
-        <div className="flex items-center p-4 pt-6 justify-between ">
-          <span className="flex items-center">
-            <FormattedMessage
-              id="initial_order"
-              defaultMessage={'Initial Order'}
-            />
-            <ExclamationTip
-              id="this_order_has_been_partially_filled"
-              defaultMessage="This order has been partially filled "
-              dataPlace="bottom"
-              colorhex="#7E8A93"
-              uniquenessId={
-                'this_order_has_been_partially_filled' + order.order_id
-              }
-            />
-          </span>
+        {new Big(order.original_deposit_amount || '0')
+          .minus(order.original_amount || '0')
+          .gt(0) && (
+          <>
+            <div className="flex items-center px-4 pb-4 justify-between ">
+              <span className="flex items-center">
+                <FormattedMessage
+                  id="initial_order"
+                  defaultMessage={'Initial Order'}
+                />
+                <ExclamationTip
+                  id="this_order_has_been_partially_filled"
+                  defaultMessage="This order has been partially filled "
+                  dataPlace="bottom"
+                  colorhex="#7E8A93"
+                  uniquenessId={
+                    'this_order_has_been_partially_filled' + order.order_id
+                  }
+                />
+              </span>
 
-          <span className="flex items-center">
-            <span title={totalIn} className="text-v3SwapGray">
-              {Number(totalIn) > 0 && Number(totalIn) < 0.01
-                ? '< 0.01'
-                : toPrecision(totalIn, 2)}
+              <span className="flex items-center">
+                <span title={totalIn} className="text-v3SwapGray">
+                  {Number(totalIn) > 0 && Number(totalIn) < 0.01
+                    ? '< 0.01'
+                    : toPrecision(totalIn, 2)}
+                </span>
+
+                <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
+                <span className="mx-6 xs:mx-2 text-white xs:text-v3SwapGray">
+                  {isClientMobie() ? (
+                    <MyOrderInstantSwapArrowRight />
+                  ) : (
+                    <MyOrderInstantSwapArrowRight />
+                  )}
+                </span>
+                <span
+                  title={toPrecision(totalOut, buyToken.decimals)}
+                  className="text-v3SwapGray"
+                >
+                  {Number(totalOut) > 0 && Number(totalOut) < 0.01
+                    ? '< 0.01'
+                    : toPrecision(totalOut, 2)}
+                </span>
+
+                <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
+              </span>
+            </div>
+
+            <div className="frcb px-4 pb-4">
+              <span className="flex items-center ">
+                <FormattedMessage
+                  id="instants_swap"
+                  defaultMessage={'Instant Swap'}
+                />
+
+                <ExclamationTip
+                  colorhex="#7E8A93"
+                  id={instant_swap_tip()}
+                  defaultMessage={instant_swap_tip()}
+                  dataPlace="bottom"
+                  uniquenessId={'instant_swap_tip' + order.order_id}
+                />
+              </span>
+
+              <span className="frcb min-w-p300">
+                <div className="frcs text-xs w pr-2 text-v3SwapGray">
+                  <BsCheckCircle
+                    className="mr-1.5"
+                    fill="#42bb17"
+                    stroke="#42BB17"
+                  />
+
+                  <FormattedMessage
+                    id="swappped"
+                    defaultMessage={'Swapped'}
+                  ></FormattedMessage>
+                </div>
+
+                <div className="flex items-center justify-end">
+                  <span title={swapIn} className="text-v3SwapGray">
+                    {Number(swapIn) > 0 && Number(swapIn) < 0.01
+                      ? '< 0.01'
+                      : toPrecision(swapIn, 2)}
+                  </span>
+
+                  <span className="ml-1.5">
+                    {toRealSymbol(sellToken.symbol)}
+                  </span>
+                  <span className="mx-6 xs:mx-2 text-v3SwapGray">
+                    {isClientMobie() ? (
+                      <MyOrderInstantSwapArrowRight />
+                    ) : (
+                      <MyOrderInstantSwapArrowRight />
+                    )}
+                  </span>
+                  <span title={swapOut} className="text-v3SwapGray">
+                    {Number(swapOut) > 0 && Number(swapOut) < 0.01
+                      ? '< 0.01'
+                      : toPrecision(swapOut, 2)}
+                  </span>
+
+                  <span className="ml-1.5">
+                    {toRealSymbol(buyToken.symbol)}
+                  </span>
+                </div>
+              </span>
+            </div>
+          </>
+        )}
+        {Number(claimedAmountIn) > 0 && (
+          <div className="frcb px-4 pb-4">
+            <span>
+              <FormattedMessage id="executed" defaultMessage={'Executed'} />
             </span>
 
-            <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
-            <span className="mx-6 xs:mx-2 text-white xs:text-v3SwapGray">
-              {isClientMobie() ? (
-                <MyOrderInstantSwapArrowRight />
-              ) : (
-                <MyOrderInstantSwapArrowRight />
-              )}
+            <span className="frcb min-w-p300">
+              <div className="frcs text-xs pr-2 text-v3SwapGray">
+                <BsCheckCircle
+                  className="mr-1.5"
+                  fill="#00D6AF"
+                  stroke="#00D6AF"
+                />
+
+                <FormattedMessage
+                  id="claimed"
+                  defaultMessage={'Claimed'}
+                ></FormattedMessage>
+              </div>
+
+              <div className="flex items-center justify-end">
+                <span
+                  title={toPrecision(claimedAmountIn, sellToken.decimals)}
+                  className="text-v3SwapGray"
+                >
+                  {Number(claimedAmountIn) > 0 && Number(claimedAmountIn) < 0.01
+                    ? '< 0.01'
+                    : toPrecision(claimedAmountIn, 2)}
+                </span>
+
+                <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
+                <span className="mx-6 xs:mx-2 text-v3SwapGray">
+                  {isClientMobie() ? (
+                    <MyOrderInstantSwapArrowRight />
+                  ) : (
+                    <MyOrderInstantSwapArrowRight />
+                  )}
+                </span>
+                <span title={claimedAmount} className="text-v3SwapGray">
+                  {Number(claimedAmount) > 0 && Number(claimedAmount) < 0.01
+                    ? '< 0.01'
+                    : toPrecision(claimedAmount, 2)}
+                </span>
+
+                <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
+              </div>
             </span>
-            <span
-              title={toPrecision(totalOut, buyToken.decimals)}
-              className="text-v3SwapGray"
-            >
-              {Number(totalOut) > 0 && Number(totalOut) < 0.01
-                ? '< 0.01'
-                : toPrecision(totalOut, 2)}
-            </span>
-
-            <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
-          </span>
-        </div>
-
-        <div className="frcb px-4 pb-4">
-          <span className="flex items-center ">
-            <FormattedMessage
-              id="instants_swap"
-              defaultMessage={'Instant Swap'}
-            />
-
-            <ExclamationTip
-              colorhex="#7E8A93"
-              id={instant_swap_tip()}
-              defaultMessage={instant_swap_tip()}
-              dataPlace="bottom"
-              uniquenessId={'instant_swap_tip' + order.order_id}
-            />
-          </span>
-
-          <span className="frcb min-w-p300">
-            <div className="frcs text-xs w pr-2 text-v3SwapGray">
-              <BsCheckCircle
-                className="mr-1.5"
-                fill="#42bb17"
-                stroke="#42BB17"
-              />
-
-              <FormattedMessage
-                id="swappped"
-                defaultMessage={'Swapped'}
-              ></FormattedMessage>
-            </div>
-
-            <div className="flex items-center justify-end">
-              <span title={swapIn} className="text-v3SwapGray">
-                {Number(swapIn) > 0 && Number(swapIn) < 0.01
-                  ? '< 0.01'
-                  : toPrecision(swapIn, 2)}
-              </span>
-
-              <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
-              <span className="mx-6 xs:mx-2 text-v3SwapGray">
-                {isClientMobie() ? (
-                  <MyOrderInstantSwapArrowRight />
-                ) : (
-                  <MyOrderInstantSwapArrowRight />
-                )}
-              </span>
-              <span title={swapOut} className="text-v3SwapGray">
-                {Number(swapOut) > 0 && Number(swapOut) < 0.01
-                  ? '< 0.01'
-                  : toPrecision(swapOut, 2)}
-              </span>
-
-              <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
-            </div>
-          </span>
-        </div>
-
-        <div className="frcb px-4 pb-4">
-          <span>
-            <FormattedMessage id="executed" defaultMessage={'Executed'} />
-          </span>
-
-          <span className="frcb min-w-p300">
-            <div className="frcs text-xs pr-2 text-v3SwapGray">
-              <BsCheckCircle
-                className="mr-1.5"
-                fill="#00D6AF"
-                stroke="#00D6AF"
-              />
-
-              <FormattedMessage
-                id="claimed"
-                defaultMessage={'Claimed'}
-              ></FormattedMessage>
-            </div>
-
-            <div className="flex items-center justify-end">
-              <span
-                title={toPrecision(claimedAmountIn, sellToken.decimals)}
-                className="text-v3SwapGray"
-              >
-                {Number(claimedAmountIn) > 0 && Number(claimedAmountIn) < 0.01
-                  ? '< 0.01'
-                  : toPrecision(claimedAmountIn, 2)}
-              </span>
-
-              <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
-              <span className="mx-6 xs:mx-2 text-v3SwapGray">
-                {isClientMobie() ? (
-                  <MyOrderInstantSwapArrowRight />
-                ) : (
-                  <MyOrderInstantSwapArrowRight />
-                )}
-              </span>
-              <span title={claimedAmount} className="text-v3SwapGray">
-                {Number(claimedAmount) > 0 && Number(claimedAmount) < 0.01
-                  ? '< 0.01'
-                  : toPrecision(claimedAmount, 2)}
-              </span>
-
-              <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
-            </div>
-          </span>
-        </div>
+          </div>
+        )}
       </td>
     </>
   );
@@ -776,7 +787,17 @@ function HistoryLine({
           zIndex: 21,
         }}
       >
-        <td className={hoverOn === index ? ' rounded-tl-xl' : ' rounded-l-xl'}>
+        <td
+          className={
+            hoverOn === index &&
+            (new Big(order.original_deposit_amount || '0')
+              .minus(order.original_amount || '0')
+              .gt(0) ||
+              Number(claimedAmountIn) > 0)
+              ? ' rounded-tl-xl'
+              : ' rounded-l-xl'
+          }
+        >
           {sellTokenAmount}
         </td>
 
@@ -795,20 +816,34 @@ function HistoryLine({
         <td>{created}</td>
 
         <td className="">{claimed}</td>
-        <td className={hoverOn === index ? ' rounded-tr-xl' : ' rounded-r-xl'}>
+        <td
+          className={
+            hoverOn === index &&
+            (new Big(order.original_deposit_amount || '0')
+              .minus(order.original_amount || '0')
+              .gt(0) ||
+              Number(claimedAmountIn) > 0)
+              ? ' rounded-tr-xl'
+              : ' rounded-r-xl'
+          }
+        >
           {actions}
         </td>
 
         {/* {actions} */}
       </tr>
 
-      {hoverOn === index && (
-        <>
-          <tr className="xs:flex z-20 relative  xs:flex-col whitespace-nowrap xs:bg-cardBg xs:bg-opacity-50  bottom-2 xs:bottom-0 w-full text-sm text-v3SwapGray bg-cardBg rounded-xl px-5 pb-5 pt-10 xs:px-3 xs:py-4 xs:text-xs">
-            {swapBanner}
-          </tr>
-        </>
-      )}
+      {hoverOn === index &&
+        (new Big(order.original_deposit_amount || '0')
+          .minus(order.original_amount || '0')
+          .gt(0) ||
+          Number(claimedAmountIn) > 0) && (
+          <>
+            <tr className="xs:flex z-20 relative  xs:flex-col whitespace-nowrap xs:bg-cardBg xs:bg-opacity-50  bottom-2 xs:bottom-0 w-full text-sm text-v3SwapGray bg-cardBg rounded-xl px-5 pb-5 pt-10 xs:px-3 xs:py-4 xs:text-xs">
+              {swapBanner}
+            </tr>
+          </>
+        )}
 
       {/* {hover && !ONLY_ZEROS.test(swapIn || '0') ? swapBanner : null} */}
 
@@ -1610,108 +1645,118 @@ function ActiveLine({
     <>
       <td
         colSpan={8}
-        className="  w-full relative bottom-1.5 bg-portfolioBgColor"
+        className="  w-full relative bottom-1.5 pt-6 bg-portfolioBgColor"
       >
-        <div className="flex items-center p-4 pt-6 justify-between ">
-          <span className="flex items-center">
-            <FormattedMessage
-              id="initial_order"
-              defaultMessage={'Initial Order'}
-            />
-            <ExclamationTip
-              id="this_order_has_been_partially_filled"
-              defaultMessage="This order has been partially filled "
-              dataPlace="bottom"
-              colorhex="#7E8A93"
-              uniquenessId={
-                'this_order_has_been_partially_filled' + order.order_id
-              }
-            />
-          </span>
+        {new Big(order.original_deposit_amount || '0')
+          .minus(order.original_amount || '0')
+          .gt(0) && (
+          <>
+            <div className="flex items-center px-4 pb-4  justify-between ">
+              <span className="flex items-center">
+                <FormattedMessage
+                  id="initial_order"
+                  defaultMessage={'Initial Order'}
+                />
+                <ExclamationTip
+                  id="this_order_has_been_partially_filled"
+                  defaultMessage="This order has been partially filled "
+                  dataPlace="bottom"
+                  colorhex="#7E8A93"
+                  uniquenessId={
+                    'this_order_has_been_partially_filled' + order.order_id
+                  }
+                />
+              </span>
 
-          <span className="flex items-center">
-            <span title={totalIn} className="text-v3SwapGray">
-              {Number(totalIn) > 0 && Number(totalIn) < 0.01
-                ? '< 0.01'
-                : toPrecision(totalIn, 2)}
-            </span>
+              <span className="flex items-center">
+                <span title={totalIn} className="text-v3SwapGray">
+                  {Number(totalIn) > 0 && Number(totalIn) < 0.01
+                    ? '< 0.01'
+                    : toPrecision(totalIn, 2)}
+                </span>
 
-            <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
-            <span className="mx-6 xs:mx-2 text-white xs:text-v3SwapGray">
-              {isClientMobie() ? (
-                <MyOrderInstantSwapArrowRight />
-              ) : (
-                <MyOrderInstantSwapArrowRight />
-              )}
-            </span>
-            <span
-              title={toPrecision(totalOut, buyToken.decimals)}
-              className="text-v3SwapGray"
-            >
-              {Number(totalOut) > 0 && Number(totalOut) < 0.01
-                ? '< 0.01'
-                : toPrecision(totalOut, 2)}
-            </span>
+                <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
+                <span className="mx-6 xs:mx-2 text-white xs:text-v3SwapGray">
+                  {isClientMobie() ? (
+                    <MyOrderInstantSwapArrowRight />
+                  ) : (
+                    <MyOrderInstantSwapArrowRight />
+                  )}
+                </span>
+                <span
+                  title={toPrecision(totalOut, buyToken.decimals)}
+                  className="text-v3SwapGray"
+                >
+                  {Number(totalOut) > 0 && Number(totalOut) < 0.01
+                    ? '< 0.01'
+                    : toPrecision(totalOut, 2)}
+                </span>
 
-            <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
-          </span>
-        </div>
-
-        <div className="frcb px-4 pb-4">
-          <span className="flex items-center ">
-            <FormattedMessage
-              id="instants_swap"
-              defaultMessage={'Instant Swap'}
-            />
-
-            <ExclamationTip
-              colorhex="#7E8A93"
-              id={instant_swap_tip()}
-              defaultMessage={instant_swap_tip()}
-              dataPlace="bottom"
-              uniquenessId={'instant_swap_tip' + order.order_id}
-            />
-          </span>
-
-          <span className="frcb min-w-p300">
-            <div className="frcs text-xs w pr-2 text-v3SwapGray">
-              <BsCheckCircle
-                className="mr-1.5"
-                fill="#42bb17"
-                stroke="#42BB17"
-              />
-
-              <FormattedMessage
-                id="swappped"
-                defaultMessage={'Swapped'}
-              ></FormattedMessage>
+                <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
+              </span>
             </div>
 
-            <div className="flex items-center justify-end">
-              <span title={swapIn} className="text-v3SwapGray">
-                {Number(swapIn) > 0 && Number(swapIn) < 0.01
-                  ? '< 0.01'
-                  : toPrecision(swapIn, 2)}
+            <div className="frcb px-4 pb-4">
+              <span className="flex items-center ">
+                <FormattedMessage
+                  id="instants_swap"
+                  defaultMessage={'Instant Swap'}
+                />
+
+                <ExclamationTip
+                  colorhex="#7E8A93"
+                  id={instant_swap_tip()}
+                  defaultMessage={instant_swap_tip()}
+                  dataPlace="bottom"
+                  uniquenessId={'instant_swap_tip' + order.order_id}
+                />
               </span>
 
-              <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
-              <span className="mx-6 xs:mx-2 text-v3SwapGray">
-                {isClientMobie() ? (
-                  <MyOrderInstantSwapArrowRight />
-                ) : (
-                  <MyOrderInstantSwapArrowRight />
-                )}
-              </span>
-              <span title={swapOut} className="text-v3SwapGray">
-                {Number(swapOut) > 0 && Number(swapOut) < 0.01
-                  ? '< 0.01'
-                  : toPrecision(swapOut, 2)}
-              </span>
+              <span className="frcb min-w-p300">
+                <div className="frcs text-xs w pr-2 text-v3SwapGray">
+                  <BsCheckCircle
+                    className="mr-1.5"
+                    fill="#42bb17"
+                    stroke="#42BB17"
+                  />
 
-              <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
+                  <FormattedMessage
+                    id="swappped"
+                    defaultMessage={'Swapped'}
+                  ></FormattedMessage>
+                </div>
+
+                <div className="flex items-center justify-end">
+                  <span title={swapIn} className="text-v3SwapGray">
+                    {Number(swapIn) > 0 && Number(swapIn) < 0.01
+                      ? '< 0.01'
+                      : toPrecision(swapIn, 2)}
+                  </span>
+
+                  <span className="ml-1.5">
+                    {toRealSymbol(sellToken.symbol)}
+                  </span>
+                  <span className="mx-6 xs:mx-2 text-v3SwapGray">
+                    {isClientMobie() ? (
+                      <MyOrderInstantSwapArrowRight />
+                    ) : (
+                      <MyOrderInstantSwapArrowRight />
+                    )}
+                  </span>
+                  <span title={swapOut} className="text-v3SwapGray">
+                    {Number(swapOut) > 0 && Number(swapOut) < 0.01
+                      ? '< 0.01'
+                      : toPrecision(swapOut, 2)}
+                  </span>
+
+                  <span className="ml-1.5">
+                    {toRealSymbol(buyToken.symbol)}
+                  </span>
+                </div>
+              </span>
             </div>
-          </span>
-        </div>
+          </>
+        )}
 
         <div className="flex items-start justify-between px-4 pb-4">
           <span>
@@ -2048,7 +2093,10 @@ function OrderCard({
           }}
         >
           <span>
-            <FormattedMessage id="active" defaultMessage={'Active'} />
+            <FormattedMessage
+              id="active_orders"
+              defaultMessage={'Active Orders'}
+            />
             {activeOrder && activeOrder.length > 0
               ? ` (${activeOrder.length})`
               : null}
@@ -2077,7 +2125,10 @@ function OrderCard({
           }}
         >
           <span>
-            <FormattedMessage id="history" defaultMessage={'History'} />
+            <FormattedMessage
+              id="history_orders"
+              defaultMessage={'History Orders'}
+            />
             {historyOrder && historyOrder.length > 0
               ? ` (${historyOrder.length})`
               : null}
@@ -3462,13 +3513,7 @@ function OrderCardOld({
   );
 }
 
-function MyOrderComponent({
-  tokenIn,
-  tokenOut,
-}: {
-  tokenIn: TokenMetadata;
-  tokenOut: TokenMetadata;
-}) {
+function MyOrderComponent() {
   const { activeOrder, historyOrder } = useMyOrders();
 
   const [oldOrders, setOldOrders] = useState<UserOrderInfo[]>();
@@ -3542,9 +3587,6 @@ function MyOrderComponent({
     };
   }, {});
 
-  const filter = (order: UserOrderInfo) => {
-    return order.sell_token === tokenIn?.id && order.buy_token === tokenOut?.id;
-  };
   // function getTipForOrders() {
   //   const n = intl.formatMessage({ id: 'orderTip' });
   //   const result: string = `<div class="text-navHighLightText text-xs text-left xsm:w-40 whitespace-normal" >${n}</div>`;
@@ -3558,14 +3600,9 @@ function MyOrderComponent({
 
         <OrderCard
           tokensMap={tokensMap}
-          activeOrder={activeOrder?.filter(filter)}
-          historyOrder={historyOrder?.filter(filter)}
-          historySwapInfo={historySwapInfo?.filter((hs) => {
-            tokenIn &&
-              tokenOut &&
-              hs.token_in === tokenIn?.id &&
-              hs.token_out === tokenOut?.id;
-          })}
+          activeOrder={activeOrder}
+          historyOrder={historyOrder}
+          historySwapInfo={historySwapInfo}
 
           // historySwapInfo={historySwapInfo}
         />

@@ -928,6 +928,8 @@ export default function SwapCard(props: {
     loadingData,
     wrapOperation,
     setQuoting,
+    setReEstimateTrigger,
+    quoting,
   });
 
   useEffect(() => {

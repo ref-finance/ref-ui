@@ -149,6 +149,7 @@ interface SwapOptions {
   setLoadingPause?: (pause: boolean) => void;
   swapMode?: SWAP_MODE;
   reEstimateTrigger?: boolean;
+  setReEstimateTrigger?: (reEstimateTrigger: boolean) => void;
   supportLedger?: boolean;
   requestingTrigger?: boolean;
   setRequestingTrigger?: (requestingTrigger?: boolean) => void;
@@ -171,6 +172,7 @@ interface SwapV3Options {
   wrapOperation?: boolean;
   swapError?: Error;
   reEstimatingPro?: boolean;
+  reEstimateTrigger?: boolean;
 }
 
 export const useSwapPopUp = () => {
@@ -444,7 +446,6 @@ export const useSwap = ({
   tokenInAmount,
   tokenOut,
   slippageTolerance,
-  setLoadingData,
   loadingTrigger,
   setLoadingTrigger,
   loadingPause,
@@ -517,8 +518,6 @@ export const useSwap = ({
         return;
       }
       setEstimating(true);
-
-      console.log('real estimate ');
 
       estimateSwap({
         tokenIn,
@@ -697,6 +696,7 @@ export const useSwap = ({
       swapMarket: 'ref',
     }).catch(setSwapError);
   };
+  console.log('swapsToDo: ', swapsToDo);
 
   return {
     canSwap,
@@ -726,6 +726,7 @@ export const useSwapV3 = ({
   loadingTrigger,
   wrapOperation,
   swapError,
+  reEstimateTrigger,
   setLoadingTrigger,
 }: SwapV3Options) => {
   const [tokenOutAmount, setTokenOutAmount] = useState<string>('');
@@ -887,6 +888,7 @@ export const useSwapV3 = ({
     loadingTrigger,
     swapError?.message,
     enableTri,
+    reEstimateTrigger,
   ]);
 
   const makeSwap = () => {
@@ -1200,6 +1202,7 @@ export const useCrossSwap = ({
   setLoadingTrigger,
   loadingPause,
   wrapOperation,
+  reEstimateTrigger,
 }: SwapOptions): ExchangeEstimate => {
   const { enableTri, swapType } = useContext(SwapProContext);
 
@@ -1334,7 +1337,12 @@ export const useCrossSwap = ({
 
     setCrossQuoteDone(false);
     getEstimateCrossSwap(false);
-  }, [tokenInAmount, [tokenIn?.id, tokenOut?.id].join('-'), enableTri]);
+  }, [
+    tokenInAmount,
+    [tokenIn?.id, tokenOut?.id].join('-'),
+    enableTri,
+    reEstimateTrigger,
+  ]);
 
   useEffect(() => {
     let id: any = null;
@@ -1513,7 +1521,6 @@ export const useRefSwap = ({
   reEstimateTrigger,
   supportLedger,
   loadingData,
-  reEstimatingPro,
 }: SwapOptions): ExchangeEstimate => {
   const {
     canSwap,
@@ -1562,6 +1569,7 @@ export const useRefSwap = ({
     loadingTrigger,
     swapError,
     setLoadingTrigger,
+    reEstimateTrigger,
   });
 
   const quoteDoneRef = quoteDoneV2 && quoteDone;
@@ -1645,6 +1653,7 @@ export const useOrderlySwap = ({
   tokenOut,
   tokenInAmount,
   loadingTrigger,
+  reEstimateTrigger,
 }: SwapOptions): ExchangeEstimate => {
   const [estimate, setEstimate] = useState<string>();
 
@@ -1875,6 +1884,7 @@ export const useOrderlySwap = ({
     tokenOut?.id,
     tokenInAmount,
     pairExist,
+    reEstimateTrigger,
   ]);
 
   const makeSwap = () => {
@@ -1894,6 +1904,10 @@ export const useOrderlySwap = ({
             outputToken: tokenOut?.id,
             inputToken: tokenIn?.id,
             pool: null,
+            totalInputAmount: toNonDivisibleNumber(
+              tokenIn?.decimals || 24,
+              tokenInAmount
+            ),
           },
         ],
     makeSwap,
@@ -1927,16 +1941,19 @@ export const useRefSwapPro = ({
   supportLedger,
   loadingData,
   wrapOperation,
+  setReEstimateTrigger,
   setQuoting,
+  quoting,
 }: SwapOptions & {
   setQuoting: (quoting: boolean) => void;
+  quoting: boolean;
 }) => {
   const {
     setTrades,
     enableTri,
     setSelectMarket,
-    forceEstimate,
-    setForceEstimate,
+    forceEstimatePro,
+    setForceEstimatePro,
     selectMarket,
     swapType,
   } = useContext(SwapProContext);
@@ -1964,6 +1981,7 @@ export const useRefSwapPro = ({
     setLoadingTrigger,
     loadingPause,
     wrapOperation,
+    reEstimateTrigger,
   });
 
   const resOrderly = useOrderlySwap({
@@ -1972,6 +1990,7 @@ export const useRefSwapPro = ({
     tokenOut,
     loadingTrigger,
     slippageTolerance,
+    reEstimateTrigger,
   });
 
   useEffect(() => {
@@ -1996,13 +2015,51 @@ export const useRefSwapPro = ({
         ['tri']: resAurora,
         ['orderly']: resOrderly,
       };
+
+      const tradeList = [resRef, resAurora];
+
+      //  reValidate trades
+
+      let resValid = true;
+
+      resValid =
+        resValid &&
+        tokenIn?.id === localStorage.getItem('REF_FI_SWAP_IN') &&
+        tokenOut?.id === localStorage.getItem('REF_FI_SWAP_OUT');
+
+      resValid =
+        resValid &&
+        tradeList.every((t) => {
+          return (
+            !t?.availableRoute ||
+            !t?.estimates ||
+            t?.estimates?.[0]?.totalInputAmount ===
+              toNonDivisibleNumber(tokenIn.decimals, tokenInAmount)
+          );
+        });
+
+      resValid =
+        resValid &&
+        (!resAurora?.availableRoute ||
+          resAurora.tokenOutAmount ===
+            toPrecision(
+              resAurora.tokenOutAmount || '0',
+              Math.min(tokenOut.decimals, 8)
+            ));
+
+      console.log('resValid: ', resValid, tradeList, tokenInAmount);
+
+      if (!resValid) {
+        setReEstimateTrigger(!reEstimateTrigger);
+        return;
+      }
+
       setTrades(trades);
-      console.log('trades: ', trades);
 
       if (
         sessionStorage.getItem('loadingTrigger') === 'true' &&
         sessionStorage.getItem('enableTri') === enableTri.toString() &&
-        !forceEstimate
+        !forceEstimatePro
       ) {
         setQuoting(false);
 
@@ -2027,7 +2084,7 @@ export const useRefSwapPro = ({
       setQuoting(false);
     } else {
       setQuoting(true);
-      setForceEstimate(false);
+      setForceEstimatePro(false);
     }
   }, [
     resRef.quoteDone,
@@ -2038,10 +2095,11 @@ export const useRefSwapPro = ({
     swapType,
     supportLedger,
     tokenInAmount,
+    quoting,
     JSON.stringify(resRef?.tokenOutAmount || {}),
     JSON.stringify(resAurora?.tokenOutAmount || {}),
     JSON.stringify(resRef?.estimates || {}),
     JSON.stringify(resAurora?.estimates || {}),
-    forceEstimate,
+    forceEstimatePro,
   ]);
 };

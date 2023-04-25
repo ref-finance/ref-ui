@@ -58,6 +58,8 @@ export const Images = ({
   borderStyle,
   isRewardDisplay,
   border,
+  uId,
+  allowSameToken,
 }: {
   tokens: TokenMetadata[];
   size?: string;
@@ -66,10 +68,14 @@ export const Images = ({
   borderStyle?: string;
   isRewardDisplay?: boolean;
   border?: boolean;
+  uId?: string;
+  allowSameToken?: boolean;
 }) => {
-  const displayTokens = [...new Set<string>(tokens?.map((t) => t?.id))].map(
-    (id) => tokens.find((t) => t?.id === id)
-  );
+  const displayTokens = allowSameToken
+    ? tokens
+    : [...new Set<string>(tokens?.map((t) => t?.id))].map((id) =>
+        tokens.find((t) => t?.id === id)
+      );
 
   return (
     <div className={`${className} flex items-center flex-shrink-0`}>
@@ -82,7 +88,7 @@ export const Images = ({
             if (icon)
               return (
                 <img
-                  key={id || 0 + index}
+                  key={id || 0 + index + '-' + token?.id + '-' + uId}
                   className={`inline-block flex-shrink-0 h-${size || 10} w-${
                     size || 10
                   } rounded-full border ${

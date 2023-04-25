@@ -398,8 +398,6 @@ export const estimateSwap = async ({
 }> => {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
 
-  console.log('loadingTrigger: ', loadingTrigger);
-
   sessionStorage.setItem('loadingTrigger', loadingTrigger.toString());
 
   const tag = `${tokenIn.id}-${parsedAmountIn}-${tokenOut.id}`;
@@ -435,8 +433,6 @@ export const estimateSwap = async ({
   ).filter((p) => {
     return getLiquidity(p, tokenIn, tokenOut) > 0;
   });
-
-  console.log('pools: ', pools);
 
   if (supportLedger) {
     const { supportLedgerRes } = await getOneSwapActionResult(
@@ -1003,6 +999,7 @@ export async function getHybridStableSmart(
       tokens: [tokenIn, tokenMidMeta, tokenOut],
       inputToken: tokenIn.id,
       outputToken: tokenMidMeta.id,
+      totalInputAmount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
     };
 
     estimate1.pool.partialAmountIn = parsedAmountIn;
@@ -1027,6 +1024,7 @@ export async function getHybridStableSmart(
       tokens: [tokenIn, tokenMidMeta, tokenOut],
       inputToken: tokenMidMeta.id,
       outputToken: tokenOut.id,
+      totalInputAmount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
     };
 
     return { actions: [estimate1, estimate2], estimate: estimate2.estimate };

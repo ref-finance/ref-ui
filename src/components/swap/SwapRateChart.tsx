@@ -260,6 +260,8 @@ export default function SwapRateChart(props: SwapRateChartProps) {
             borderStyle="1px solid #00D6AF"
             size="6"
             tokens={[displayTokenIn, displayTokenOut]}
+            uId="swap-chart-header"
+            allowSameToken
           />
 
           <Symbols

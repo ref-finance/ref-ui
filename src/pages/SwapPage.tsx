@@ -95,8 +95,8 @@ interface SwapProContextValue {
   swapType: SWAP_TYPE;
   changeSwapType: (e?: SWAP_TYPE) => void;
   swapMode: SWAP_MODE;
-  forceEstimate?: boolean;
-  setForceEstimate?: (e?: boolean) => void;
+  forceEstimatePro?: boolean;
+  setForceEstimatePro?: (e?: boolean) => void;
 }
 
 export const SwapProContext = createContext<SwapProContextValue>(null);
@@ -221,12 +221,12 @@ function SwapPage() {
     storedType || SWAP_TYPE.Pro
   );
 
-  const [forceEstimate, setForceEstimate] = useState<boolean>(false);
+  const [forceEstimatePro, setForceEstimatePro] = useState<boolean>(false);
 
   const changeSwapType = (type: SWAP_TYPE) => {
     setSwapType(type);
     sessionStorage.setItem(SWAP_TYPE_KEY, type);
-    setForceEstimate(true);
+    setForceEstimatePro(true);
   };
 
   useEffect(() => {
@@ -325,8 +325,8 @@ function SwapPage() {
         swapType,
         selectMarket,
         setSelectMarket,
-        forceEstimate,
-        setForceEstimate,
+        forceEstimatePro,
+        setForceEstimatePro,
       }}
     >
       <div className="frsc ">
@@ -383,13 +383,7 @@ function SwapPage() {
                 />
               )}
 
-            {isSignedIn &&
-              swapMode === SWAP_MODE.LIMIT &&
-              tokenIn &&
-              tokenOut &&
-              tokenIn.id !== tokenOut.id && (
-                <MyOrderComponent tokenIn={tokenIn} tokenOut={tokenOut} />
-              )}
+            {isSignedIn && swapMode === SWAP_MODE.LIMIT && <MyOrderComponent />}
           </div>
         )}
 
