@@ -99,16 +99,13 @@ export default function SwapFormWrap({
         viewPoolHover ? 'text-white' : 'text-primaryText'
       }`}
     >
-      <span className=" whitespace-nowrap xsm:hidden">
+      <span className=" whitespace-nowrap ">
         <FormattedMessage
           id={`${mostPoolDetail?.pool_id ? 'view_dcl_pool' : 'v2_pools'}`}
           defaultMessage={`${mostPoolDetail?.pool_id ? 'View Pool' : 'Pools'}`}
         />
       </span>
-      <span className=" whitespace-nowrap lg:hidden">
-        &nbsp;
-        {mostPoolDetail?.pool_id ? 'Detail' : 'Pools'}
-      </span>
+
       <OutLinkIcon className="ml-2 xsm:ml-1.5"></OutLinkIcon>
     </div>
   );

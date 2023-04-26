@@ -21,6 +21,8 @@ import {
   GoToOrderbookTip,
   OrderBookArrowRight,
 } from '~pages/Orderly/components/Common/Icons';
+import { isMobile } from '~utils/device';
+import { GoToOrderbookTipMobile } from '../../pages/Orderly/components/Common/Icons';
 
 interface SubmitButtonProps {
   text?: string;
@@ -108,7 +110,7 @@ export function GoOrderBookButton({
     useWalletSelector();
   const isSignedIn = !!accountId;
 
-  const storedShowTip = sessionStorage.getItem('orderbook_tip');
+  const storedShowTip = localStorage.getItem('orderbook_tip');
 
   const [showTip, setShowTip] = useState<boolean>(true);
 
@@ -138,13 +140,22 @@ export function GoOrderBookButton({
             />
           </div>
 
-          {showTip && !storedShowTip && (
+          {showTip && !storedShowTip && !isMobile() && (
             <GoToOrderbookTip
               onClick={(e: any) => {
                 setShowTip(false);
-                sessionStorage.setItem('orderbook_tip', '1');
+                localStorage.setItem('orderbook_tip', '1');
               }}
             ></GoToOrderbookTip>
+          )}
+
+          {showTip && !storedShowTip && isMobile() && (
+            <GoToOrderbookTipMobile
+              onClick={(e: any) => {
+                setShowTip(false);
+                localStorage.setItem('orderbook_tip', '1');
+              }}
+            ></GoToOrderbookTipMobile>
           )}
 
           <button

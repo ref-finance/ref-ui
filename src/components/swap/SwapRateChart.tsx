@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Images, Symbols } from '~components/stableswap/CommonComp';
 import { TokenMetadata } from '~services/ft-contract';
 import { TokenPairRate, getTokenPairRate } from '~services/indexer';
@@ -31,6 +31,7 @@ import { FormattedMessage } from 'react-intl';
 import { OrderlyLoading } from '~pages/Orderly/components/Common/Icons';
 import { numberWithCommas } from '~pages/Orderly/utiles';
 import { useClientMobile } from '~utils/device';
+import { SwapProContext } from '~pages/SwapPage';
 export interface SwapRateChartProps {
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
@@ -44,6 +45,8 @@ export default function SwapRateChart(props: SwapRateChartProps) {
   const { tokenIn, tokenOut } = props;
 
   const dimensionList = ['24H', '7D', '1M', '1Y', 'All'] as Dimensions[];
+
+  const { swapMode, swapType } = useContext(SwapProContext);
 
   const isMobile = useClientMobile();
 
@@ -151,7 +154,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
           y={y - 1}
           textAnchor="middle"
         >
-          {date.format('MMMM DD')}
+          {isMobile ? date.format('MMM DD') : date.format('MMMM DD')}
         </text>
       );
     }
@@ -197,6 +200,8 @@ export default function SwapRateChart(props: SwapRateChartProps) {
 
   const CustomizedDot = (props: any) => {
     const { cx, cy, stroke, payload, value } = props;
+
+    if (isMobile) return null;
 
     if (props.index === priceList?.price_list?.length - 1) {
       return (
@@ -265,7 +270,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
             borderStyle="1px solid #00D6AF"
             size="6"
             tokens={[displayTokenIn, displayTokenOut]}
-            uId="swap-chart-header"
+            uId={'swap-chart-header' + swapMode + '-' + swapType}
             allowSameToken
             className="xsm:text-sm"
           />
@@ -283,7 +288,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
           />
         </div>
 
-        <div className="frcs ">
+        <div className="frcs xsm:hidden">
           {dimensionList.map((d) => {
             return (
               <div
@@ -305,17 +310,19 @@ export default function SwapRateChart(props: SwapRateChartProps) {
           })}
         </div>
       </div>
-      <div className="frcs ml-4  xsm:ml-0">
-        <span className="text-white text-2xl  mr-1">
-          {diff
-            ? numberWithCommas(
-                displayNumberToAppropriateDecimals(diff.curPrice)
-              )
-            : '-'}
-        </span>
-        {diff && (
-          <span
-            className={`frcs text-xs rounded-md px-1 py-0.5
+
+      <div className="frcb">
+        <div className="frcs ml-4  xsm:ml-0">
+          <span className="text-white text-2xl  mr-1">
+            {diff
+              ? numberWithCommas(
+                  displayNumberToAppropriateDecimals(diff.curPrice)
+                )
+              : '-'}
+          </span>
+          {diff && (
+            <span
+              className={`frcs text-xs rounded-md px-1 py-0.5
           ${
             diff.direction === 'up'
               ? 'text-gradientFromHover bg-gradientFromHover bg-opacity-20'
@@ -325,18 +332,40 @@ export default function SwapRateChart(props: SwapRateChartProps) {
           }
           
           `}
-          >
-            {diff.direction !== 'unChange' && (
-              <IoArrowUpOutline
-                className={`${
-                  diff.direction === 'down' ? 'transform  rotate-180  ' : ''
-                } `}
-              />
-            )}
+            >
+              {diff.direction !== 'unChange' && (
+                <IoArrowUpOutline
+                  className={`${
+                    diff.direction === 'down' ? 'transform  rotate-180  ' : ''
+                  } `}
+                />
+              )}
 
-            {diff.percent}
-          </span>
-        )}
+              {diff.percent}
+            </span>
+          )}
+        </div>
+        <div className="frcs lg:hidden">
+          {dimensionList.map((d) => {
+            return (
+              <div
+                className={`text-xs mx-1 xsm:mx-0.5 p-1 cursor-pointer ${
+                  d === displayDimension
+                    ? 'text-white rounded-md bg-limitOrderFeeTiersBorderColor'
+                    : 'text-primaryText'
+                }`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+
+                  changeDisplayDimension(d);
+                }}
+              >
+                {d}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {loading && (

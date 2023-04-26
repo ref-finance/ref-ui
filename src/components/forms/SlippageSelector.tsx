@@ -12,6 +12,7 @@ import {
 } from '~components/icon/CrossSwapIcons';
 import { useWalletSelector } from '~context/WalletSelectorContext';
 import { SupportLedgerGuide } from '~components/layout/SupportLedgerGuide';
+import { TriAndAuroraLedger } from '../icon/CrossSwapIcons';
 
 export function CustomSwitch({
   isOpen,
@@ -217,7 +218,7 @@ export default function SlippageSelector({
   return (
     <div className="relative z-50 font-normal">
       <div
-        className="p-1  hover:bg-v3SwapGray flex items-center justify-center hover:bg-opacity-10  rounded-lg text-2xl text-white cursor-pointer"
+        className="p-1  xsm:border xsm:rounded-lg xsm:border-limitOrderFeeTiersBorderColor hover:bg-v3SwapGray flex items-center justify-center hover:bg-opacity-10  rounded-lg text-2xl text-white cursor-pointer"
         onClick={(e) => openToolTip(e)}
         onMouseEnter={() => setHoverSlider(true)}
         onMouseLeave={() => setHoverSlider(false)}
@@ -332,7 +333,7 @@ export default function SlippageSelector({
 
                 <div className="frcb w-full my-2 text-sm">
                   <div className="frcs">
-                    <TriAndAurora />
+                    <TriAndAuroraLedger />
 
                     <span className="ml-2 text-white text-sm">Trisolaris</span>
                   </div>

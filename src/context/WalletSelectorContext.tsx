@@ -229,6 +229,8 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
       selector.store.getState().selectedWalletId === 'ledger';
 
     setIsLedger(isSelectLedger || isWalletMeta);
+
+
   };
 
   useEffect(() => {

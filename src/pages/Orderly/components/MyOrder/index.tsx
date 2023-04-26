@@ -136,12 +136,7 @@ function WarningTip() {
 
 function NoOrderCard({ text }: { text: 'active' | 'history' }) {
   return (
-    <div
-      className="w-full rounded-xl overflow-hidden h-48 relative text-white font-normal  flex items-center justify-center"
-      style={{
-        background: 'rgb(26,36,43)',
-      }}
-    >
+    <div className="w-full rounded-xl overflow-hidden h-48 relative text-white font-normal  flex items-center justify-center">
       <div className="flex items-center flex-col relative text-center z-50 mx-auto">
         <span className="mb-4">
           <MyOrderCircle />
@@ -155,9 +150,6 @@ function NoOrderCard({ text }: { text: 'active' | 'history' }) {
           .
         </span>
       </div>
-
-      <MyOrderMask />
-      <MyOrderMask2 />
     </div>
   );
 }
@@ -602,7 +594,7 @@ function HistoryLine({
     <>
       <td
         colSpan={8}
-        className=" rounded-b-xl  w-full relative bottom-1.5 pt-6 bg-portfolioBgColor"
+        className=" rounded-b-xl xsm:hidden  w-full relative bottom-1.5 pt-6 bg-portfolioBgColor"
       >
         {new Big(order.original_deposit_amount || '0')
           .minus(order.original_amount || '0')
@@ -865,7 +857,7 @@ function HistoryLine({
 
         {/* title */}
         <div className="rounded-t-xl relative bg-orderMobileTop px-3 pt-3">
-          <div className="absolute right-4 bottom-0.5 z-50  text-xs">
+          <div className="absolute right-4 bottom-2.5 z-50  text-xs">
             {!!orderTx && (
               <a
                 className="flex items-center bg-black text-primaryText px-1.5  bg-opacity-20 rounded "
@@ -1075,21 +1067,22 @@ function HistorySwapInfoLine({
   );
 
   const created = (
-    <span
-      style={{
-        width: '100px',
-      }}
-      className=" relative  whitespace-nowrap    text-primaryText xs:text-xs flex flex-col   text-left xs:opacity-50"
-    >
-      <span>
+    <span className=" relative  whitespace-nowrap    text-primaryText xs:text-xs flex flex-col   xsm:justify-center  text-left xs:opacity-50">
+      <span className="xsm:hidden">
         {moment(
           Math.floor(Number(timestamp) / TIMESTAMP_DIVISOR) * 1000
         ).format('YYYY-MM-DD')}
       </span>
-      <span>
+      <span className="xsm:hidden">
         {moment(
           Math.floor(Number(timestamp) / TIMESTAMP_DIVISOR) * 1000
         ).format('HH:mm')}
+      </span>
+
+      <span className="lg:hidden text-center relative bottom-2">
+        {moment(
+          Math.floor(Number(timestamp) / TIMESTAMP_DIVISOR) * 1000
+        ).format('YYYY-MM-DD HH:mm')}
       </span>
     </span>
   );
@@ -1172,7 +1165,7 @@ function HistorySwapInfoLine({
 
           {created}
 
-          <div className="absolute right-4 bottom-0.5 z-50  text-xs">
+          <div className="absolute right-4 bottom-2.5 z-50  text-xs">
             {!!orderTx && (
               <a
                 className="flex items-center bg-black text-primaryText px-1.5  bg-opacity-20 rounded "
@@ -1965,31 +1958,39 @@ function ActiveLine({
 
       <div className="lg:hidden flex items-center justify-end pr-4 pb-2">
         <div className="flex  max-w-max text-primaryText bg-black bg-opacity-20 rounded-md px-2 py-1 items-center justify-end lg:hidden">
-          <span title={swapIn} className="">
-            1
+          <span className="">1</span>
+
+          <span className="ml-1.5">
+            {toRealSymbol(sort ? buyToken.symbol : sellToken.symbol)}
           </span>
 
-          <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
-
-          {tokenPrice?.[sellToken?.id]?.price && (
+          {tokenPrice?.[sort ? buyToken?.id : sellToken?.id]?.price && (
             <span className="ml-1">{`($${
-              tokenPrice?.[sellToken?.id].price
+              tokenPrice?.[sort ? buyToken?.id : sellToken?.id].price
             })`}</span>
           )}
 
           <span className="mx-6 xs:mx-2 ">=</span>
-          <span title={swapOut} className="">
+          <span className="">
             {toPrecision(
               scientificNotationToString(
-                new Big(swapOut || 0)
-                  .div(Number(swapIn) === 0 ? 1 : swapIn)
+                new Big(sort ? swapIn || 0 : swapOut || 0)
+                  .div(
+                    Number(sort ? swapOut : swapIn) === 0
+                      ? 1
+                      : sort
+                      ? swapOut
+                      : swapIn
+                  )
                   .toString()
               ),
               3
             )}
           </span>
 
-          <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
+          <span className="ml-1.5">
+            {toRealSymbol(sort ? sellToken.symbol : buyToken.symbol)}
+          </span>
         </div>
       </div>
     </td>
@@ -2244,7 +2245,7 @@ function OrderCard({
             </button>
 
             <button
-              className={`px-3 py-1 ${
+              className={`px-3 py-1 rounded-lg ${
                 orderType === 'history' ? 'text-white' : 'text-primaryText'
               } `}
               style={{
@@ -2315,10 +2316,7 @@ function OrderCard({
           }}
         >
           <span>
-            <FormattedMessage
-              id="history_orders"
-              defaultMessage={'History Orders'}
-            />
+            <FormattedMessage id="history" defaultMessage={'History'} />
             {historyOrder && historyOrder.length > 0
               ? ` (${historyOrder.length})`
               : null}

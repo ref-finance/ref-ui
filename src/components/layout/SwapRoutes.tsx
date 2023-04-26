@@ -69,6 +69,7 @@ import { displayNumberToAppropriateDecimals } from '~services/commonV3';
 import { numberWithCommas } from '../../pages/Orderly/utiles';
 import { get_pool_name, openUrl } from '../../services/commonV3';
 import { REF_FI_BEST_MARKET_ROUTE } from '~state/swap';
+import { PolygonRight } from '~pages/Orderly/components/Common/Icons';
 
 export const RouterIcon = () => {
   return (
@@ -717,6 +718,10 @@ export const SwapRoute = ({
               </div>
             );
           })}
+
+        <span className="lg:hidden ml-1.5">
+          <PolygonRight></PolygonRight>
+        </span>
       </div>
     </div>
   );
@@ -768,6 +773,10 @@ export const SwapRouteMoreThan2 = ({
           id="steps_in_the_route"
           defaultMessage={'steps in the route'}
         ></FormattedMessage>
+
+        <span className="lg:hidden ml-1.5">
+          <PolygonRight></PolygonRight>
+        </span>
       </div>
     </div>
   );
@@ -1768,8 +1777,8 @@ export const TradeRouteModal = (
     <ModalWrapper
       title={
         <FormattedMessage
-          id="your_trade_route"
-          defaultMessage={`Your trade route`}
+          id="your_trade_route_capital"
+          defaultMessage={`Your Trade Route`}
         />
       }
       {...props}

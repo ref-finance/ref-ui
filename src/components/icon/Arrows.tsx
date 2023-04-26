@@ -446,10 +446,7 @@ export function SwapRateExchange({
           }`}
           ref={upRow}
         >
-          <SwapArrowUp
-            width="5"
-            light={mobileDevice ? mobileAnimation : hover}
-          />
+          <SwapArrowUp width="5" light={mobileDevice ? false : hover} />
         </span>
         <span
           className={`transition-transform transform ${
@@ -457,10 +454,7 @@ export function SwapRateExchange({
           }`}
           ref={downRow}
         >
-          <SwapArrowDown
-            width="5"
-            light={mobileDevice ? mobileAnimation : hover}
-          />
+          <SwapArrowDown width="5" light={mobileDevice ? false : hover} />
         </span>
       </div>
     </div>

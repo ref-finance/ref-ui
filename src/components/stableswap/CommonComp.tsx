@@ -88,7 +88,16 @@ export const Images = ({
             if (icon)
               return (
                 <img
-                  key={id || 0 + index + '-' + token?.id + '-' + uId}
+                  key={
+                    (id || 0) +
+                    '-' +
+                    index +
+                    '-' +
+                    token?.id +
+                    '-' +
+                    uId +
+                    Date.now()
+                  }
                   className={`inline-block flex-shrink-0 h-${size || 10} w-${
                     size || 10
                   } rounded-full border ${

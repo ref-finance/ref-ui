@@ -10,4 +10,6 @@ ReactDOM.render(
   document.querySelector('#root')
 );
 
+console.log('worker.ts');
+
 new Worker('./worker.ts');

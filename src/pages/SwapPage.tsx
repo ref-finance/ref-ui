@@ -361,7 +361,7 @@ function SwapPage() {
               </>
             ) : (
               <div
-                className="lg:bg-portfolioBgColor  my-5 py-2 px-4 rounded-xl text-v3SwapGray xsm:text-limitOrderInputColor"
+                className="lg:bg-portfolioBgColor  my-5 py-2 xsm:px-0 px-4 rounded-xl text-v3SwapGray xsm:text-limitOrderInputColor"
                 style={{
                   border: isMobile ? '' : '1px solid #00463A',
 
@@ -425,15 +425,16 @@ function SwapPage() {
               />
             )}
           </section>
-          {swapType === SWAP_TYPE.LITE && (
-            <div className="lg:w-p450  text-white mt-5">
-              <AdSwiper />
-            </div>
-          )}
+          {swapType === SWAP_TYPE.LITE ||
+            (!isMobile && (
+              <div className="lg:w-p450  text-white mt-5">
+                <AdSwiper />
+              </div>
+            ))}
         </div>
       </div>
 
-      {swapType === SWAP_TYPE.Pro && (
+      {swapType === SWAP_TYPE.Pro && isMobile && (
         <div className="lg:w-p450 xsm:mx-3  m-auto relative text-white mt-5">
           <AdSwiper />
         </div>

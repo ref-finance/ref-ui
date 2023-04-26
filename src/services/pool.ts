@@ -662,6 +662,13 @@ export const canFarms = async ({
     boostFarms = await db.queryBoostFarms();
   }
 
+
+  console.log('farms: ', farms);
+
+  console.log('boostFarms: ', boostFarms);
+
+
+
   const getCounts = (pool_id: number) => {
     const countV1 = farms.reduce((pre: any, cur: any) => {
       if (Number(cur.pool_id) === pool_id) return pre + 1;

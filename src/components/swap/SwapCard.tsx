@@ -95,6 +95,7 @@ import { SwapMarket } from '../../pages/SwapPage';
 import { REF_FI_SWAP_SIGNAL } from '~services/swap';
 import { numberWithCommas } from '~pages/Orderly/utiles';
 import { isMobile } from '~utils/device';
+import { RateExchangeMobile } from '~components/icon/Common';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -146,7 +147,7 @@ export function SwapDetail({
 }) {
   return (
     <section
-      className={`flex items-center justify-between pt-1 pb-2 text-xs ${
+      className={`flex items-center justify-between pt-1 pb-2 text-13px ${
         color || 'text-primaryText'
       }`}
     >
@@ -254,7 +255,7 @@ export function SwapRate({
   }
 
   return (
-    <section className=" py-1 text-xs flex items-center">
+    <section className=" py-1 text-13px flex items-center">
       <p
         className="flex items-center text-white cursor-pointer text-right mr-1"
         onClick={switchSwapRate}
@@ -270,6 +271,10 @@ export function SwapRate({
           <span className={`mx-1 text-primaryText`}>{displayPrice}</span>
           <label className="arial_font">≈</label> {exchangeRageValue}&nbsp;
           {toRealSymbol(isRevert ? tokenOut.symbol : tokenIn.symbol)}
+        </span>
+
+        <span className="lg:hidden ml-2">
+          <RateExchangeMobile></RateExchangeMobile>
         </span>
       </p>
     </section>
@@ -302,7 +307,7 @@ export function AutoRouter({ trade }: { trade: ExchangeEstimate }) {
   const [showRouteDetail, setShowRouteDetail] = useState<boolean>(false);
 
   return (
-    <section className="frcb py-1 w-full text-xs  rounded-xl ">
+    <section className="frcb py-1 w-full text-13px  rounded-xl ">
       {swapType === SWAP_TYPE.LITE ? (
         <div className="text-primaryText  relative  text-left self-start">
           <div className="frcs">
@@ -319,16 +324,16 @@ export function AutoRouter({ trade }: { trade: ExchangeEstimate }) {
           </div>
         </div>
       ) : (
-        <div className="text-xs text-primaryText self-start">
+        <div className="text-13px text-primaryText self-start">
           <FormattedMessage
-            id="your_trade_route"
-            defaultMessage={'Your trade route'}
+            id="trade_route"
+            defaultMessage={'Trade route'}
           ></FormattedMessage>
         </div>
       )}
 
       <div
-        className=" text-white cursor-pointer "
+        className=" text-white cursor-pointer text-13px"
         onClick={() => {
           if (isMobile()) {
             if (swapType === SWAP_TYPE.LITE) {
@@ -558,46 +563,49 @@ function DetailView({
 
   if (!trade) return null;
 
-  if (trade.market === 'orderly') {
+  if (trade.market === 'orderly' && (isMobile() ? show : true)) {
     return (
       <>
-        <div className=" border-menuMoreBoxBorderColor rounded-xl px-2.5 py-3 mb-3  frcb">
-          <span className="text-primaryText text-xs">
-            {intl.formatMessage({
-              id: 'Fees',
-              defaultMessage: 'Fees',
-            })}
-          </span>
-
-          <div className="frcs">
-            <span className="flex items-center mr-1.5">
-              <span className=" mr-2 text-xs text-white">
-                {Number((trade.taker_fee || 0) / 100).toFixed(2)}%
-              </span>
-              <TextWrapper
-                textC="text-primaryText "
-                className="text-xs py-0 px-1"
-                value={intl.formatMessage({
-                  id: 'Taker',
-                  defaultMessage: 'Taker',
-                })}
-              />
+        <div className=" border-menuMoreBoxBorderColor rounded-xl xsm:border  px-2.5 py-3 mb-3">
+          <div className="frcb xsm:pb-4">
+            <span className="text-primaryText text-13px">
+              {intl.formatMessage({
+                id: 'Fees',
+                defaultMessage: 'Fees',
+              })}
             </span>
 
-            <span className="flex items-center">
-              <span className=" text-xs mr-2 text-white">
-                {Number((trade?.maker_fee || 0) / 100).toFixed(2)}%
+            <div className="frcs">
+              <span className="flex items-center mr-1.5">
+                <span className=" mr-2 text-13px text-white xsm:text-primaryText">
+                  {Number((trade.taker_fee || 0) / 100).toFixed(2)}%
+                </span>
+                <TextWrapper
+                  textC="text-primaryText  "
+                  className="text-10px py-0 px-1"
+                  value={intl.formatMessage({
+                    id: 'Taker',
+                    defaultMessage: 'Taker',
+                  })}
+                />
               </span>
-              <TextWrapper
-                textC="text-primaryText"
-                value={intl.formatMessage({
-                  id: 'Maker',
-                  defaultMessage: 'Maker',
-                })}
-                className="text-xs py-0 px-1"
-              />
-            </span>
+
+              <span className="flex items-center">
+                <span className="text-13px mr-2 text-white xsm:text-primaryText">
+                  {Number((trade?.maker_fee || 0) / 100).toFixed(2)}%
+                </span>
+                <TextWrapper
+                  textC="text-primaryText"
+                  value={intl.formatMessage({
+                    id: 'Maker',
+                    defaultMessage: 'Maker',
+                  })}
+                  className="text-10px py-0 px-1"
+                />
+              </span>
+            </div>
           </div>
+          {isMobile() && <AutoRouter trade={trade}></AutoRouter>}
         </div>
       </>
     );
@@ -1247,15 +1255,21 @@ export default function SwapCard(props: {
               />
             </div>
 
-            {selectMarket !== 'orderly' && (
+            {selectMarket === 'orderly' && !isMobile() ? null : (
               <div
-                className="text-sm flex items-center cursor-pointer mb-1"
+                className="text-13px flex items-center cursor-pointer mb-1"
                 onClick={() => {
                   setShowDetails(!showDetails);
                 }}
               >
                 {getPriceImpactTipType(selectTrade.priceImpact)}
-                <span className="text-xs text-primaryText mx-1.5">
+                <span
+                  className={`  ${
+                    isMobile() && showDetails
+                      ? 'text-white'
+                      : 'text-primaryText'
+                  } mx-1.5`}
+                >
                   <FormattedMessage id="details" />
                 </span>
                 <span>

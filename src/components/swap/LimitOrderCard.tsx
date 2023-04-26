@@ -1144,7 +1144,7 @@ export default function LimitOrderCard(props: {
               feeTiersShowFull={feeTiersShowFull}
             />
           </div>
-          <div className="text-sm text-limitOrderInputColor mt-2.5 px-3">
+          <div className="text-sm text-limitOrderInputColor text-center mt-2.5 px-3">
             <FormattedMessage id="limitTip"></FormattedMessage>
           </div>
         </LimitOrderTriggerContext.Provider>
