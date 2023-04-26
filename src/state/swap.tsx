@@ -2047,7 +2047,10 @@ export const useRefSwapPro = ({
             toPrecision(
               resAurora.tokenOutAmount || '0',
               Math.min(tokenOut.decimals, 8)
-            ));
+            )) &&
+        (!resRef?.availableRoute ||
+          resRef.estimates?.[0]?.tokens?.at(-1)?.id ===
+            localStorage.getItem('REF_FI_SWAP_OUT'));
 
       if (!resValid) {
         setReEstimateTrigger(!reEstimateTrigger);
