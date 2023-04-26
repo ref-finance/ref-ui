@@ -24,6 +24,7 @@ import {
   FlashAction,
   OrderlyActions,
   OrderlyOrderBookIcon,
+  OrderlyOrderBookIconMobile,
   RefIconNew,
   RefSwapPro,
   TriAndAurora,
@@ -649,7 +650,11 @@ export const CrossSwapRoute = ({
 export const getDexIcon = (market: SwapMarket) => {
   if (market === 'ref') return <RefIconNew></RefIconNew>;
   if (market === 'orderly')
-    return <OrderlyOrderBookIcon></OrderlyOrderBookIcon>;
+    return isMobile() ? (
+      <OrderlyOrderBookIconMobile></OrderlyOrderBookIconMobile>
+    ) : (
+      <OrderlyOrderBookIcon></OrderlyOrderBookIcon>
+    );
   if (market === 'tri') return <TriAndAurora></TriAndAurora>;
 };
 
