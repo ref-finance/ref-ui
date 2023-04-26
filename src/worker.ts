@@ -39,7 +39,7 @@ const farmView = ({
       method_name: methodName,
       args_base64: Buffer.from(JSON.stringify(args)).toString('base64'),
     })
-    .then(({ result }: any) => JSON.parse(Buffer.from(result).toString()));
+    .then(({ result }) => JSON.parse(Buffer.from(result).toString()));
 };
 const getTokens = async () => {
   return await fetch(config.indexerUrl + '/list-token', {
@@ -84,7 +84,6 @@ const cacheTokens = async () => {
 
 const cacheFarmPools = async () => {
   const farms: Farm[] = await getFarms(1);
-  console.log('farms raw: ', farms);
   const farmsArr = Object.keys(farms).map((key) => ({
     id: key,
     pool_id: farms[Number(key)].farm_id.slice(
@@ -286,7 +285,6 @@ const cacheTokenPrices = async (): Promise<any> => {
   const tempMap = await getXrefPrice(tokenPriceList);
   db.cacheTokenPrices(tempMap);
 };
-
 /***boost end***/
 run();
 

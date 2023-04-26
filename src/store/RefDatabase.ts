@@ -514,27 +514,27 @@ class RefDatabase extends Dexie {
     });
   }
 
-  public async queryTopPoolsByIds({ poolIds }: { poolIds: string[] }) {
-    const pools = (await this.topPools.toArray()).filter((pool) =>
-      poolIds.includes(pool.id)
-    );
+  // public async queryTopPoolsByIds({ poolIds }: { poolIds: string[] }) {
+  //   const pools = (await this.topPools.toArray()).filter((pool) =>
+  //     poolIds.includes(pool.id)
+  //   );
 
-    return pools.map((pool) => {
-      const { update_time, ...poolInfo } = pool;
+  //   return pools.map((pool) => {
+  //     const { update_time, ...poolInfo } = pool;
 
-      const res = parsePool({
-        ...poolInfo,
-        id: Number(poolInfo.id),
-        share: '',
-        tvl: Number(poolInfo.tvl),
-      } as PoolRPCView);
+  //     const res = parsePool({
+  //       ...poolInfo,
+  //       id: Number(poolInfo.id),
+  //       share: '',
+  //       tvl: Number(poolInfo.tvl),
+  //     } as PoolRPCView);
 
-      return {
-        ...res,
-        dex: 'ref',
-      };
-    });
-  }
+  //     return {
+  //       ...res,
+  //       dex: 'ref',
+  //     };
+  //   });
+  // }
 
   public async queryPoolsBytoken(tokenId: string) {
     let normalItems = await this.poolsTokens
