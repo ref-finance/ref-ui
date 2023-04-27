@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from 'react';
-
+import { isMobile } from '~utils/device';
+import { useHistory, useLocation } from 'react-router-dom';
 export default function ExternalPopUp() {
+  const location = useLocation();
   const env = process.env.NEAR_ENV || '';
   const is_test_env = env == 'testnet' || env == 'pub-testnet';
   const dom_id = is_test_env ? 'pr3sence' : 'ref-mainnet';
+  const is_mobile = isMobile();
+  const is_swap_page = location.pathname == '/' || location.pathname == '/swap';
+  const is_order = location.pathname == '/myOrder';
   useEffect(() => {
     let walletId = '';
     let zone_id = '';
@@ -29,14 +34,8 @@ export default function ExternalPopUp() {
     let script = document.createElement('script');
     script.src = `https://api.pr3sence.xyz/request/content?zone_id=${zone_id}&walletId=${walletId}&type=js`;
     document.head.appendChild(script);
-    // click event
-    // document.getElementById(dom_id).addEventListener('click', function (e:any) {
-    //   if (e.target.closest('#close-button')) {
-    //     document.getElementById(dom_id).style.display = 'none';
-    //   }
-    // });
   }, []);
-
+  const hiddenPopup = is_swap_page || is_order || is_mobile;
   return (
     <div
       id={dom_id}
@@ -46,6 +45,7 @@ export default function ExternalPopUp() {
         zIndex: 100,
         paddingRight: '10px',
         paddingTop: '10px',
+        display: hiddenPopup ? 'none' : 'block',
       }}
       className="fixed xsm:left-1/2 xsm:transform xsm:-translate-x-1/2 lg:right-8 bottom-8 overflow-hidden"
     ></div>
