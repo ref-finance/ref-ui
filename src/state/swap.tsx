@@ -711,6 +711,8 @@ export const useSwapV3 = ({
 
     // return null;
 
+    if (getConfig().DCL_POOL_BLACK_LIST.includes(pool_id)) return null;
+
     return quote({
       pool_ids: [pool_id],
       input_token: tokenIn,
