@@ -42,6 +42,8 @@ export const getPoolsByTokensIndexer = async ({
     }
   ).then((res) => res.json());
 
+  if (res1?.code === -1 && res1?.data === null) return [];
+
   return res1.filter(
     (p: any) => !isStablePool(p.id) && !BLACKLIST_POOL_IDS.includes(p.id)
   );
