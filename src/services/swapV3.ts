@@ -34,6 +34,7 @@ import { getPointByPrice } from './commonV3';
 import { toPrecision } from '../utils/numbers';
 import { REF_DCL_POOL_CACHE_KEY } from '../state/swap';
 import { REF_UNI_SWAP_CONTRACT_ID } from './near';
+import getConfig from './config';
 const LOG_BASE = 1.0001;
 
 export const V3_POOL_FEE_LIST = [100, 400, 2000, 10000];
@@ -552,12 +553,18 @@ export const get_pool = async (pool_id: string, token0?: string) => {
 
   const new_pool_id = `${token_seq}|${fee}`;
 
-  return refSwapV3ViewFunction({
+  const res = (await refSwapV3ViewFunction({
     methodName: 'get_pool',
     args: {
       pool_id: new_pool_id,
     },
-  }) as Promise<PoolInfo>;
+  })) as PoolInfo;
+
+  if (getConfig().BLACKLIST_POOL_IDS.includes(res?.pool_id)) {
+    return null;
+  }
+
+  return res;
 };
 export const get_pool_old_version = async (
   pool_id: string,
@@ -594,12 +601,18 @@ export const get_pool_from_cache = async (pool_id: string, token0?: string) => {
     return foundPool;
   }
 
-  return refSwapV3ViewFunction({
+  const res = (await refSwapV3ViewFunction({
     methodName: 'get_pool',
     args: {
       pool_id: new_pool_id,
     },
-  }) as Promise<PoolInfo>;
+  })) as PoolInfo;
+
+  if (getConfig().DCL_POOL_BLACK_LIST.includes(res?.pool_id)) {
+    return null;
+  }
+
+  return res;
 };
 
 export const get_pointorder_range = ({
@@ -691,10 +704,14 @@ export const create_pool = async ({
   });
   return executeMultipleTransactions(transactions);
 };
-export const list_pools = () => {
-  return refSwapV3ViewFunction({
+export const list_pools = async () => {
+  const res = await refSwapV3ViewFunction({
     methodName: 'list_pools',
   });
+
+  return res.filter(
+    (p: any) => !getConfig().DCL_POOL_BLACK_LIST.includes(p?.pool_id)
+  );
 };
 export const add_liquidity = async ({
   pool_id,
@@ -1206,10 +1223,14 @@ export const get_pool_marketdepth_old_version = async (pool_id: string) => {
   });
 };
 
-export const listPools = () => {
-  return refSwapV3ViewFunction({
+export const listPools = async () => {
+  const res = await refSwapV3ViewFunction({
     methodName: 'list_pools',
   });
+
+  return res.filter(
+    (p: any) => !getConfig().DCL_POOL_BLACK_LIST.includes(p?.pool_id)
+  );
 };
 
 export const cacheAllDCLPools = async () => {

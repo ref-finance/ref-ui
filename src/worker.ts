@@ -14,6 +14,7 @@ const {
   XREF_TOKEN_ID,
   REF_FARM_BOOST_CONTRACT_ID,
   REF_UNI_V3_SWAP_CONTRACT_ID,
+  DCL_POOL_BLACK_LIST,
 } = getConfig();
 
 const MAX_PER_PAGE = 100;
@@ -128,10 +129,12 @@ const get_list_seeds_info = async () => {
 };
 
 const listPools = async () => {
-  return contractView({
+  const res = await contractView({
     methodName: 'list_pools',
     contract: REF_UNI_V3_SWAP_CONTRACT_ID,
   });
+
+  return res.filter((p: any) => !DCL_POOL_BLACK_LIST.includes(p.pool_id));
 };
 
 const getPrice = async () => {
