@@ -1159,12 +1159,16 @@ export const checkTokenNeedsStorageDeposit_v3_old_version = async () => {
   return storageNeeded;
 };
 export const list_liquidities = async () => {
-  return refSwapV3ViewFunction({
+  const res = await refSwapV3ViewFunction({
     methodName: 'list_liquidities',
     args: {
       account_id: getCurrentWallet()?.wallet?.getAccountId(),
     },
   });
+
+  return res.filter(
+    (item: any) => !getConfig().DCL_POOL_BLACK_LIST.includes(item.pool_id)
+  );
 };
 export const list_liquidities_old_version = async () => {
   return refSwapV3OldVersionViewFunction({
