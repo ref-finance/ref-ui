@@ -32,12 +32,24 @@ import { OrderlyLoading } from '~pages/Orderly/components/Common/Icons';
 import { numberWithCommas } from '~pages/Orderly/utiles';
 import { useClientMobile } from '~utils/device';
 import { SwapProContext } from '~pages/SwapPage';
+import { scientificNotationToString, toPrecision } from '~utils/numbers';
+import Big from 'big.js';
 export interface SwapRateChartProps {
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
 }
 
 type Dimensions = '24H' | '7D' | '1M' | '1Y' | 'All';
+
+const priceFormatter = (price: string | number) => {
+  return numberWithCommas(
+    Number(price) === 0
+      ? 0
+      : Number(price) <= 0.01 && Number(price) > 0
+      ? toPrecision(scientificNotationToString(price.toString()), 6)
+      : new Big(scientificNotationToString(price.toString())).toFixed(4)
+  );
+};
 
 const REF_FI_SWAP_RATE_DIMENSIONS = 'REF_FI_SWAP_RATE_DIMENSIONS';
 
@@ -165,6 +177,33 @@ export default function SwapRateChart(props: SwapRateChartProps) {
 
     const { value, offset } = payload;
 
+    let decimals = 0;
+
+    const max = maxBy(priceList.price_list, (item) => item.price)?.price || 0;
+    const min = minBy(priceList.price_list, (item) => item.price)?.price || 0;
+
+    const a = max - min;
+
+    if (a > 0 && a <= 0.01) {
+      decimals = 6;
+    } else if (a > 0.01 && a <= 1) {
+      decimals = 4;
+    } else if (a > 1 && a <= 100) {
+      decimals = 2;
+    } else if (a > 100 && a <= 10000) {
+      decimals = 0;
+    }
+
+    let displayY = new Big(
+      scientificNotationToString(value.toString())
+    ).toFixed(decimals);
+
+    if (Number(a) > 10000) {
+      displayY = scientificNotationToString(
+        (Math.floor(Number(value) / 100) * 100).toString()
+      );
+    }
+
     if (index === 0 || index === 5) return null;
 
     return (
@@ -175,13 +214,15 @@ export default function SwapRateChart(props: SwapRateChartProps) {
         y={y}
         textAnchor="middle"
       >
-        {numberWithCommas(displayNumberToAppropriateDecimals(value))}
+        {displayY}
       </text>
     );
   };
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (!active || !payload || !payload?.[1]) return null;
+
+    const price = payload[1].payload.price;
 
     return (
       <div className=" border px-2 py-1.5 rounded-md  bg-toolTipBoxBgColor border-toolTipBoxBorderColor min-w-max">
@@ -191,7 +232,11 @@ export default function SwapRateChart(props: SwapRateChartProps) {
 
         <div className="text-white text-sm">
           {numberWithCommas(
-            displayNumberToAppropriateDecimals(payload[1].payload.price)
+            Number(price) === 0
+              ? 0
+              : Number(price) <= 0.01 && Number(price) > 0
+              ? toPrecision(scientificNotationToString(price.toString()), 6)
+              : new Big(scientificNotationToString(price.toString())).toFixed(4)
           )}
         </div>
       </div>
@@ -202,6 +247,8 @@ export default function SwapRateChart(props: SwapRateChartProps) {
     const { cx, cy, stroke, payload, value } = props;
 
     if (isMobile) return null;
+
+    const price = payload.price;
 
     if (props.index === priceList?.price_list?.length - 1) {
       return (
@@ -242,9 +289,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
                   height: '14px',
                 }}
               >
-                {numberWithCommas(
-                  displayNumberToAppropriateDecimals(payload.price)
-                )}
+                {priceFormatter(price)}
               </div>
             </div>
           </foreignObject>
@@ -264,7 +309,29 @@ export default function SwapRateChart(props: SwapRateChartProps) {
 
   return (
     <div className="w-full gotham_font xsm:mt-5">
-      <div className="frcb ml-4 xsm:ml-1">
+      <div className="frcs mb-4 lg:hidden">
+        {dimensionList.map((d) => {
+          return (
+            <div
+              className={`text-xs mx-1 xsm:mx-0.5 p-1 cursor-pointer ${
+                d === displayDimension
+                  ? 'text-white rounded-md bg-limitOrderFeeTiersBorderColor'
+                  : 'text-primaryText'
+              }`}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                changeDisplayDimension(d);
+              }}
+            >
+              {d}
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="frcb ml-4 xsm:ml-1 xsm:mb-2">
         <div className="frcs">
           <Images
             borderStyle="1px solid #00D6AF"
@@ -311,14 +378,10 @@ export default function SwapRateChart(props: SwapRateChartProps) {
         </div>
       </div>
 
-      <div className="frcb">
+      <div className="frcs xs:flex xs:items-center xs:justify-between">
         <div className="frcs ml-4  xsm:ml-0">
           <span className="text-white text-2xl  mr-1">
-            {diff
-              ? numberWithCommas(
-                  displayNumberToAppropriateDecimals(diff.curPrice)
-                )
-              : '-'}
+            {diff ? priceFormatter(diff.curPrice) : '-'}
           </span>
           {diff && (
             <span
@@ -345,28 +408,90 @@ export default function SwapRateChart(props: SwapRateChartProps) {
             </span>
           )}
         </div>
-        <div className="frcs lg:hidden">
-          {dimensionList.map((d) => {
-            return (
-              <div
-                className={`text-xs mx-1 xsm:mx-0.5 p-1 cursor-pointer ${
-                  d === displayDimension
-                    ? 'text-white rounded-md bg-limitOrderFeeTiersBorderColor'
-                    : 'text-primaryText'
-                }`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
 
-                  changeDisplayDimension(d);
-                }}
-              >
-                {d}
-              </div>
-            );
-          })}
-        </div>
+        {diff && (
+          <div className=" lg:hidden text-primaryText ml-4 flex flex-col items-end text-10px ">
+            <FormattedMessage
+              id="last_updated"
+              defaultMessage={'Last Updated'}
+            ></FormattedMessage>
+            <br />
+
+            <span className="ml-1">{diff.lastUpdate}</span>
+          </div>
+        )}
+
+        {diff && (
+          <>
+            <div className="xsm:hidden text-primaryText frcs ml-8 text-sm">
+              <span>
+                <FormattedMessage
+                  id="low_24h"
+                  defaultMessage={'Low(24h)'}
+                ></FormattedMessage>
+              </span>
+
+              <span className="font-gothamBold ml-1.5 text-white">
+                {priceFormatter(diff.h24Low)}
+              </span>
+            </div>
+
+            <div className="frcs xsm:hidden ml-7 text-primaryText text-sm">
+              <span>
+                <FormattedMessage
+                  id="high_24h"
+                  defaultMessage={'High(24h)'}
+                ></FormattedMessage>
+              </span>
+
+              <span className="font-gothamBold ml-1.5 text-white">
+                {priceFormatter(diff.h24Hight)}
+              </span>
+            </div>
+          </>
+        )}
       </div>
+
+      {diff && (
+        <div className="frcs">
+          <div className="lg:hidden text-primaryText frcs  text-sm">
+            <span>
+              <FormattedMessage
+                id="low_24h"
+                defaultMessage={'Low(24h)'}
+              ></FormattedMessage>
+            </span>
+
+            <span className="font-gothamBold ml-1.5 text-white">
+              {priceFormatter(diff.h24Low)}
+            </span>
+          </div>
+
+          <div className="frcs lg:hidden ml-7 text-primaryText text-sm">
+            <span>
+              <FormattedMessage
+                id="high_24h"
+                defaultMessage={'High(24h)'}
+              ></FormattedMessage>
+            </span>
+
+            <span className="font-gothamBold ml-1.5 text-white">
+              {priceFormatter(diff.h24Hight)}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {diff && (
+        <div className="mt-2 xsm:hidden text-primaryText ml-4 text-10px ">
+          <FormattedMessage
+            id="last_updated"
+            defaultMessage={'Last Updated'}
+          ></FormattedMessage>
+
+          <span className="ml-1">{diff.lastUpdate}</span>
+        </div>
+      )}
 
       {loading && (
         <div
@@ -464,7 +589,10 @@ export default function SwapRateChart(props: SwapRateChartProps) {
                 type="number"
                 tick={<RenderYTick />}
                 height={300}
-                domain={[(dataMin: any) => dataMin * 0.8, 'dataMax']}
+                domain={([dataMin, dataMax]: any) => [
+                  dataMin - (dataMin + dataMax) * 0.05,
+                  dataMax + (dataMin + dataMax) * 0.05,
+                ]}
               />
 
               <Tooltip

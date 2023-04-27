@@ -712,14 +712,32 @@ export const SwapRoute = ({
           width: '1px',
         }}
       ></div>
-      <div className="frcs">
+      <div
+        className="frcs"
+        style={{
+          maxWidth: isMobile() ? '180px' : '',
+        }}
+      >
         {tokens &&
           tokens.map((t, i) => {
             return (
-              <div className="text-xs ml-0.5 text-primaryText frcs">
+              <div
+                className={`text-xs ${
+                  tokens.length === 3 && toRealSymbol(t.symbol).length > 7
+                    ? 'xsm:overflow-hidden'
+                    : ''
+                }  ml-0.5 text-primaryText frcs`}
+              >
                 {i > 0 && <FaAngleRight />}
-
-                {toRealSymbol(t.symbol)}
+                <span
+                  className={
+                    tokens.length === 3 && toRealSymbol(t.symbol).length > 7
+                      ? 'overflow-hidden overflow-ellipsis'
+                      : ''
+                  }
+                >
+                  {toRealSymbol(t.symbol)}
+                </span>
               </div>
             );
           })}
@@ -1596,9 +1614,11 @@ const PolygonArrow = ({ color }: { color?: string }) => {
 export const TradeRouteHub = ({
   token,
   contract,
+  poolId,
 }: {
   token: TokenMetadata;
   contract: SwapContractType;
+  poolId?: string | number;
 }) => {
   const contractToMarket = (): SwapMarket => {
     if (contract.toLowerCase().includes('ref')) return 'ref';
@@ -1631,7 +1651,24 @@ export const TradeRouteHub = ({
           {getDexIcon(contractToMarket())}
         </div>
 
-        <span className="ml-1 mr-2.5">{contract}</span>
+        <span className="ml-1 mr-1">{contract}</span>
+
+        <span
+          className="cursor-pointer block mr-1.5"
+          onClick={() => {
+            if (typeof poolId === 'undefined' || poolId === null) return;
+
+            openUrl(
+              typeof poolId === 'number'
+                ? `/pool/${poolId}`
+                : `/poolV2/${get_pool_name(poolId)}`
+            );
+          }}
+        >
+          {!(typeof poolId === 'undefined' || poolId === null) && (
+            <HiOutlineExternalLink className="hover:text-white"></HiOutlineExternalLink>
+          )}
+        </span>
 
         <span>100%</span>
       </div>
@@ -1729,7 +1766,7 @@ export const TradeRoute = ({
       <DisplayIcon token={tokenIn} height="26px" width="26px" />
       <LeftBracket size={identicalRoutes.length} />
       <div className="w-full  mx-2 xsm:overflow-x-auto hideScroll relative">
-        {identicalRoutes.map((route, i) => {
+        {identicalRoutes.map((route, j) => {
           return (
             <div
               className="relative frcb my-3 "
@@ -1737,7 +1774,7 @@ export const TradeRoute = ({
                 width: isMobile() ? '460px' : '',
               }}
             >
-              <span className="text-xs text-senderHot">{percents[i]}%</span>
+              <span className="text-xs text-senderHot">{percents[j]}%</span>
               <div
                 className="border border-dashed absolute left-5 opacity-30 border-primaryText w-full px-3"
                 style={{
@@ -1750,7 +1787,21 @@ export const TradeRoute = ({
                   .map((t, i) => {
                     return (
                       <>
-                        <TradeRouteHub token={t} contract={route[i].contract} />
+                        <TradeRouteHub
+                          poolId={
+                            route[i].contract === 'Ref_DCL'
+                              ? getV3PoolId(
+                                  tokenIn.id,
+                                  tokenOut.id,
+                                  trade.fee * 100
+                                )
+                              : route[i].contract === 'Ref_Classic'
+                              ? Number(route[i].pool.id)
+                              : null
+                          }
+                          token={t}
+                          contract={route[i].contract}
+                        />
                         {t.id !== route[0].tokens.at(-1)?.id && (
                           <div className="mx-3">
                             <PolygonArrow />
@@ -1867,7 +1918,7 @@ export const MarketList = ({
               <th align="left">
                 <FormattedMessage
                   id="output_est"
-                  defaultMessage={'Output(est.)'}
+                  defaultMessage={'Output (est.)'}
                 />
               </th>
 
@@ -1967,7 +2018,7 @@ export const MarketList = ({
             <th align="left">
               <FormattedMessage
                 id="output_est"
-                defaultMessage={'Output(est.)'}
+                defaultMessage={'Output (est.)'}
               />
             </th>
 
@@ -2135,7 +2186,7 @@ export const MarketList = ({
                 <div className=" text-primaryText">
                   <FormattedMessage
                     id="output_est"
-                    defaultMessage={'Output(est.)'}
+                    defaultMessage={'Output (est.)'}
                   />
                 </div>
 

@@ -421,6 +421,8 @@ module.exports = {
         '200px': '200px',
         24: '6rem',
         28: '7rem',
+        p150: '150px',
+        p212: '212px',
       },
       height: {
         vh90: '90vh',
@@ -434,7 +436,6 @@ module.exports = {
       },
       minWidth: {
         p72: '72px',
-
         20: '5rem',
         28: '7rem',
         72: '18rem',

@@ -4,6 +4,15 @@ import { getTokenPairRate } from '~services/indexer';
 import useInterval from 'react-useinterval';
 import moment from 'moment';
 
+interface Diff {
+  percent: string;
+  direction: 'down' | 'up' | 'unChange';
+  curPrice: number;
+  h24Hight: number;
+  h24Low: number;
+  lastUpdate: string;
+}
+
 export const useTokenRate24h = ({
   token,
   base_token,
@@ -11,11 +20,7 @@ export const useTokenRate24h = ({
   token: TokenMetadata;
   base_token: TokenMetadata;
 }) => {
-  const [diff, setDiff] = useState<{
-    percent: string;
-    direction: 'down' | 'up' | 'unChange';
-    curPrice: number;
-  }>();
+  const [diff, setDiff] = useState<Diff>();
 
   const func = () => {
     return getTokenPairRate({
@@ -37,6 +42,11 @@ export const useTokenRate24h = ({
           percent: displayDiff,
           direction: diff > 0 ? 'up' : diff < 0 ? 'down' : 'unChange',
           curPrice: curPrice,
+          h24Hight: Math.max(...priceList.map((item) => item.price)),
+          h24Low: Math.min(...priceList.map((item) => item.price)),
+          lastUpdate: moment(priceList?.[0]?.date_time).format(
+            'YYYY/MM/DD HH:mm'
+          ),
         });
       } else {
         setDiff(undefined);

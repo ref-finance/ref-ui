@@ -257,7 +257,7 @@ export function SwapRate({
   return (
     <section className=" py-1 text-13px flex items-center">
       <p
-        className="flex items-center text-white cursor-pointer text-right mr-1"
+        className="flex items-center whitespace-nowrap text-white cursor-pointer text-right mr-1"
         onClick={switchSwapRate}
         onMouseEnter={() => {
           setHover(true);
@@ -267,12 +267,19 @@ export function SwapRate({
         }}
       >
         <span
-          className={`text-white frcs ${hover ? 'opacity-100' : 'opacity-60'}`}
+          className={`text-white xsm:max-w-p212 frcs ${
+            hover ? 'opacity-100' : 'opacity-60'
+          }`}
         >
-          {`1 ${toRealSymbol(isRevert ? tokenIn.symbol : tokenOut.symbol)}`}
+          {`1`}&nbsp;
+          <span className="whitespace-nowrap overflow-hidden overflow-ellipsis">
+            {toRealSymbol(isRevert ? tokenIn.symbol : tokenOut.symbol)}
+          </span>
           <span className={`mx-1 text-primaryText`}>{displayPrice}</span>
           <label className="arial_font">≈</label> {exchangeRageValue}&nbsp;
-          {toRealSymbol(isRevert ? tokenOut.symbol : tokenIn.symbol)}
+          <span className="whitespace-nowrap overflow-hidden overflow-ellipsis">
+            {toRealSymbol(isRevert ? tokenOut.symbol : tokenIn.symbol)}
+          </span>
         </span>
 
         <span className="lg:hidden ml-2">
@@ -326,7 +333,7 @@ export function AutoRouter({ trade }: { trade: ExchangeEstimate }) {
           </div>
         </div>
       ) : (
-        <div className="text-13px text-primaryText self-start">
+        <div className="text-13px text-primaryText flex-shrink-0 self-start">
           <FormattedMessage
             id="trade_route"
             defaultMessage={'Trade route'}

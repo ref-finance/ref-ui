@@ -133,7 +133,10 @@ export default function SwapFormWrap({
     if (isSignedIn || selectMarket === 'orderly') {
       try {
         setShowSwapLoading && setShowSwapLoading(true);
-        setShowSwapLoading && setLoadingPause(true);
+
+        selectMarket !== 'orderly' &&
+          setShowSwapLoading &&
+          setLoadingPause(true);
         onSubmit(event);
       } catch (err) {
         setError(err);
