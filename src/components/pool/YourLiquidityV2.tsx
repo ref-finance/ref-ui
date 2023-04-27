@@ -690,6 +690,7 @@ function UserLiquidityLineStyle1() {
     liquidityDetail,
     showAddBox,
   } = useContext(LiquidityContext);
+  const tokens = sort_tokens_by_base(tokenMetadata_x_y);
   return (
     <div
       className="mt-3.5"
@@ -715,17 +716,16 @@ function UserLiquidityLineStyle1() {
               <div className="flex items-center">
                 <div className="flex items-center flex-shrink-0">
                   <img
-                    src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
+                    src={tokens[0]?.icon}
                     className="w-7 h-7 border border-greenColor rounded-full"
                   ></img>
                   <img
-                    src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
+                    src={tokens[1]?.icon}
                     className="relative -ml-1.5 w-7 h-7 border border-greenColor rounded-full"
                   ></img>
                 </div>
                 <span className="text-white font-bold ml-9 mr-2.5 text-sm gotham_bold">
-                  {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}-
-                  {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
+                  {tokens[0]?.['symbol']}-{tokens[1]?.['symbol']}
                 </span>
                 <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5">
                   <span className="text-xs text-v3SwapGray whitespace-nowrap mr-1.5">
@@ -955,17 +955,16 @@ function UserLiquidityLineStyle1() {
               <div className="flex items-center flex-shrink-0">
                 <div className="flex items-center flex-shrink-0">
                   <img
-                    src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
+                    src={tokens[0]?.icon}
                     className="w-7 h-7 border border-greenColor rounded-full"
                   ></img>
                   <img
-                    src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
+                    src={tokens[1]?.icon}
                     className="relative -ml-1.5 w-7 h-7 border border-greenColor rounded-full"
                   ></img>
                 </div>
                 <span className="text-white text-sm ml-1.5">
-                  {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}-
-                  {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
+                  {tokens[0]?.['symbol']}-{tokens[1]?.['symbol']}
                 </span>
                 {Liquidity_icon ? (
                   <div
