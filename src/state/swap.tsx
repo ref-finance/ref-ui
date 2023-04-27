@@ -28,7 +28,7 @@ import {
 import { swap as stableSwap } from '../services/stable-swap';
 
 import { useHistory, useLocation } from 'react-router';
-import getConfig from '~services/config';
+import getConfig from '../services/config';
 import { FormattedMessage, useIntl } from 'react-intl';
 
 import { getCurrentWallet, WalletContext } from '../utils/wallets-integration';
@@ -914,8 +914,6 @@ export const useLimitOrder = ({
   const [everyPoolTvl, setEveryPoolTvl] =
     useState<{ [key: string]: string | null }>();
 
-  console.log('everyPoolTvl: ', everyPoolTvl);
-
   useEffect(() => {
     if (!selectedV3LimitPool) return;
     setQuoteDone(false);
@@ -947,7 +945,6 @@ export const useLimitOrder = ({
       )
     )
       .then((res) => {
-        console.log('res pool list: ', res);
         setPools(res);
 
         const counts = res?.map((r: PoolInfo) => {
@@ -1026,7 +1023,6 @@ export const useLimitOrder = ({
         )
           return;
         const temp = {};
-        console.log('temp: ', temp);
         Object.keys(toCounts).forEach((pool_id: string, index) => {
           temp[pool_id] = toCounts[pool_id] ? counts[index] : null;
         });
