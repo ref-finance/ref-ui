@@ -913,6 +913,9 @@ export const useLimitOrder = ({
   }>();
   const [everyPoolTvl, setEveryPoolTvl] =
     useState<{ [key: string]: string | null }>();
+
+  console.log('everyPoolTvl: ', everyPoolTvl);
+
   useEffect(() => {
     if (!selectedV3LimitPool) return;
     setQuoteDone(false);
@@ -944,6 +947,7 @@ export const useLimitOrder = ({
       )
     )
       .then((res) => {
+        console.log('res pool list: ', res);
         setPools(res);
 
         const counts = res?.map((r: PoolInfo) => {
@@ -1022,6 +1026,7 @@ export const useLimitOrder = ({
         )
           return;
         const temp = {};
+        console.log('temp: ', temp);
         Object.keys(toCounts).forEach((pool_id: string, index) => {
           temp[pool_id] = toCounts[pool_id] ? counts[index] : null;
         });

@@ -560,7 +560,7 @@ export const get_pool = async (pool_id: string, token0?: string) => {
     },
   })) as PoolInfo;
 
-  if (getConfig().BLACKLIST_POOL_IDS.includes(res?.pool_id)) {
+  if (getConfig().DCL_POOL_BLACK_LIST.includes(res?.pool_id)) {
     return null;
   }
 
