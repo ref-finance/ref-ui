@@ -171,7 +171,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           '3612#0',
           '3612#1',
         ],
-        DCL_POOL_BLACK_LIST: [] as string[],
+        DCL_POOL_BLACK_LIST: ['usdt.tether-token.near|wrap.near|2000'],
         REF_UNI_V3_SWAP_CONTRACT_ID:
           process.env.REF_UNI_V3_SWAP_CONTRACT_ID || 'dclv2.ref-labs.near',
         REF_UNI_SWAP_CONTRACT_ID:
@@ -405,7 +405,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         REF_UNI_SWAP_CONTRACT_ID:
           process.env.REF_UNI_SWAP_CONTRACT_ID || 'dcl.ref-labs.near',
         switch_on_dcl_farms: 'off',
-        DCL_POOL_BLACK_LIST: [] as string[],
+        DCL_POOL_BLACK_LIST: ['usdt.tether-token.near|wrap.near|2000'],
       };
   }
 }
