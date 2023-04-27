@@ -40,6 +40,7 @@ import {
   allocation_rule_liquidities,
   get_pool_name,
   openUrl,
+  sort_tokens_by_base,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import {
@@ -1332,6 +1333,7 @@ function UserLiquidityLineStyle2Mobile({
     your_liquidity,
     getTokenFeeAmount,
   } = useContext(LiquidityContext);
+  const tokens = sort_tokens_by_base(tokenMetadata_x_y);
   return (
     <div
       className={`rounded-xl mb-3 mx-4 ${
@@ -1345,17 +1347,16 @@ function UserLiquidityLineStyle2Mobile({
           <div className="flex items-center">
             <div className="flex items-center flex-shrink-0 mr-1.5">
               <img
-                src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
+                src={tokens[0]?.icon}
                 className="w-6 h-6 border border-greenColor rounded-full"
               ></img>
               <img
-                src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
+                src={tokens[1]?.icon}
                 className="relative -ml-1.5 w-6 h-6 border border-greenColor rounded-full"
               ></img>
             </div>
             <span className="text-white font-bold text-sm gotham_bold whitespace-nowrap">
-              {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}-
-              {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
+              {tokens[0]?.['symbol']}-{tokens[1]?.['symbol']}
             </span>
           </div>
           <span className="text-white text-sm gotham_bold">
@@ -1498,6 +1499,7 @@ function UserLiquidityLineStyle2Pc({
     your_liquidity,
     getTokenFeeAmount,
   } = useContext(LiquidityContext);
+  const tokens = sort_tokens_by_base(tokenMetadata_x_y);
   return (
     <div
       className={`rounded-xl mt-3 bg-portfolioBgColor px-5 ${
@@ -1508,17 +1510,16 @@ function UserLiquidityLineStyle2Pc({
         <div className="flex items-center">
           <div className="flex items-center flex-shrink-0 mr-2.5">
             <img
-              src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
+              src={tokens[0]?.icon}
               className="w-7 h-7 border border-greenColor rounded-full"
             ></img>
             <img
-              src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
+              src={tokens[1]?.icon}
               className="relative -ml-1.5 w-7 h-7 border border-greenColor rounded-full"
             ></img>
           </div>
           <span className="text-white font-bold text-sm gotham_bold">
-            {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}-
-            {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
+            {tokens[0]?.['symbol']}-{tokens[1]?.['symbol']}
           </span>
           <span className="flex items-center justify-center text-xs text-v3SwapGray bg-portfolioFeeBgColor rounded-md px-1.5 mx-1.5 py-0.5">
             {+fee / 10000}%

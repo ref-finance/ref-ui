@@ -318,8 +318,8 @@ export const getPoolsByTokens = async ({
     await cacheAllDCLPools();
   } else {
     const poolsRaw = await db.queryTopPools();
-    
-    if(!localStorage.getItem(REF_DCL_POOL_CACHE_KEY)){
+
+    if (!localStorage.getItem(REF_DCL_POOL_CACHE_KEY)) {
       await cacheAllDCLPools();
     }
 
@@ -662,12 +662,9 @@ export const canFarms = async ({
     boostFarms = await db.queryBoostFarms();
   }
 
-
   console.log('farms: ', farms);
 
   console.log('boostFarms: ', boostFarms);
-
-
 
   const getCounts = (pool_id: number) => {
     const countV1 = farms.reduce((pre: any, cur: any) => {
