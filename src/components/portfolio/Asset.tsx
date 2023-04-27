@@ -288,8 +288,7 @@ function AssetPc() {
             {percent_in_dcl_farms}{' '}
             <span
               onClick={() => {
-                localStorage.setItem('farmV2Status', 'my');
-                localStorage.setItem('BOOST_FARM_RAB', 'dcl');
+                localStorage.setItem('BOOST_FARM_TAB', 'yours');
                 openUrl('/v2farms');
               }}
               className="ml-1.5 text-limitOrderInputColor underline hover:text-primaryText cursor-pointer"
@@ -310,8 +309,7 @@ function AssetPc() {
             {percent_in_classic_farms}{' '}
             <span
               onClick={() => {
-                localStorage.setItem('farmV2Status', 'my');
-                localStorage.setItem('BOOST_FARM_RAB', 'classic');
+                localStorage.setItem('BOOST_FARM_TAB', 'yours');
                 openUrl('/v2farms');
               }}
               className="ml-1.5 text-limitOrderInputColor underline hover:text-primaryText cursor-pointer"
@@ -410,8 +408,7 @@ function AssetMobile() {
             {percent_in_dcl_farms}{' '}
             <span
               onClick={() => {
-                localStorage.setItem('farmV2Status', 'my');
-                localStorage.setItem('BOOST_FARM_RAB', 'dcl');
+                localStorage.setItem('BOOST_FARM_TAB', 'yours');
                 openUrl('/v2farms');
               }}
               className="ml-1.5 text-limitOrderInputColor underline hover:text-primaryText cursor-pointer"
@@ -433,8 +430,7 @@ function AssetMobile() {
             {percent_in_classic_farms}{' '}
             <span
               onClick={() => {
-                localStorage.setItem('farmV2Status', 'my');
-                localStorage.setItem('BOOST_FARM_RAB', 'classic');
+                localStorage.setItem('BOOST_FARM_TAB', 'yours');
                 openUrl('/v2farms');
               }}
               className="ml-1.5 text-limitOrderInputColor underline hover:text-primaryText cursor-pointer"

@@ -44,10 +44,10 @@ const walletOfficialMark = {
     mark: true,
     link: 'https://github.com/NearDeFi/neth/blob/main/audit/near-eth-audit-public.pdf',
   },
-  'Here Wallet': {
-    mark: true,
-    link: 'https://docs.herewallet.app/technology-description/readme/security-audit',
-  },
+  // 'Here Wallet': {
+  //   mark: true,
+  //   link: 'https://docs.herewallet.app/technology-description/readme/security-audit',
+  // },
 };
 
 const SelectedIcon = () => {
