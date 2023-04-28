@@ -40,7 +40,7 @@ import {
 import { swap as stableSwap } from '../services/stable-swap';
 
 import { useHistory, useLocation } from 'react-router';
-import getConfig from '~services/config';
+import getConfig from '../services/config';
 import { FormattedMessage, useIntl } from 'react-intl';
 
 import { getCurrentWallet, WalletContext } from '../utils/wallets-integration';
@@ -798,6 +798,10 @@ export const useSwapV3 = ({
 
     if (foundPool && foundPool.state === 'Paused') return null;
 
+    // return null;
+
+    if (getConfig().DCL_POOL_BLACK_LIST.includes(pool_id)) return null;
+
     return quote({
       pool_ids: [pool_id],
       input_token: tokenIn,
@@ -1033,6 +1037,7 @@ export const useLimitOrder = ({
   }>();
   const [everyPoolTvl, setEveryPoolTvl] =
     useState<{ [key: string]: string | null }>();
+
   useEffect(() => {
     if (!selectedV3LimitPool) return;
     setQuoteDone(false);

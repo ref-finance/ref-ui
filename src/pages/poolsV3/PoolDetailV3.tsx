@@ -115,8 +115,7 @@ import _ from 'lodash';
 import { PoolRPCView } from '../../services/api';
 import { FarmStampNew } from '../../components/icon/FarmStamp';
 
-const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
-
+const { REF_UNI_V3_SWAP_CONTRACT_ID, DCL_POOL_BLACK_LIST } = getConfig();
 export default function PoolDetailV3() {
   const { id } = useParams<ParamTypes>();
   let pool_id_from_url: string;
@@ -127,6 +126,11 @@ export default function PoolDetailV3() {
   } else {
     // old link
     pool_id_from_url = id.replace(/@/g, '|');
+  }
+  const history = useHistory();
+  if (DCL_POOL_BLACK_LIST.includes(pool_id_from_url)) {
+    history.push('/pools');
+    return null;
   }
   const [poolDetail, setPoolDetail] = useState<PoolInfo>(null);
   const [user_liquidities, set_user_liquidities] =
