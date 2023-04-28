@@ -1247,7 +1247,7 @@ const en_US = {
   output_est: 'Output (est.)',
   go_to_orderbook: 'Go to Orderbook',
   new_swap_order_tip:
-    'The price is from the Ref AMM offer and for reference only. There is no guarente that your limit order will be immediately filled. ',
+    'The price is from the Ref AMM and for reference only. There is no guarente that your limit order will be immediately filled. ',
   instants_swap: 'Instant Swap',
   swappped: 'Swapped',
   claimed: 'Claimed',
@@ -1261,5 +1261,6 @@ const en_US = {
   swap_chart_no_data: 'Not enough data for the chart right now.',
   go_to_orderbook_tip:
     'This price is for reference only. {br} Please proceed to <strong>Orderbook</strong> to place the order.',
+  last_updated: 'Last Updated',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

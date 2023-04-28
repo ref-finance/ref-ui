@@ -251,6 +251,35 @@ export default function SwapRateChart(props: SwapRateChartProps) {
     const price = payload.price;
 
     if (props.index === priceList?.price_list?.length - 1) {
+      let decimals = 0;
+
+      const max = maxBy(priceList.price_list, (item) => item.price)?.price || 0;
+      const min = minBy(priceList.price_list, (item) => item.price)?.price || 0;
+
+      const a = max - min;
+
+      if (a > 0 && a <= 0.01) {
+        decimals = 6;
+      } else if (a > 0.01 && a <= 1) {
+        decimals = 4;
+      } else if (a > 1 && a <= 100) {
+        decimals = 2;
+      } else if (a > 100 && a <= 10000) {
+        decimals = 0;
+      }
+
+      let displayY = new Big(
+        scientificNotationToString(!price ? '0' : price.toString())
+      ).toFixed(decimals);
+
+      if (Number(a) > 10000) {
+        displayY = scientificNotationToString(
+          (Math.floor(Number(price) / 100) * 100).toString()
+        );
+      }
+
+      console.log(displayY, 'displayY', price);
+
       return (
         <svg
           x={cx}
@@ -265,24 +294,16 @@ export default function SwapRateChart(props: SwapRateChartProps) {
             overflow={'visible'}
             height={16}
             width={200}
-            x={0}
+            x={displayY.length * 5 - priceFormatter(price).length * 5}
             y={2}
           >
             <div className="frcs relative ">
               <div
-                className={`rounded ${
+                className={`rounded  ${
                   diff.direction === 'down'
                     ? 'bg-sellColorNew'
                     : 'bg-gradientFromHover'
-                }  h-3 w-3 transform rotate-45`}
-              ></div>
-
-              <div
-                className={`rounded-r  ${
-                  diff.direction === 'down'
-                    ? 'bg-sellColorNew'
-                    : 'bg-gradientFromHover'
-                } frcs pr-2 pl-0 h-4 relative right-1.5`}
+                } frcs px-1 h-4 relative right-1.5`}
                 style={{
                   fontSize: '10px',
                   color: '#1D2932',

@@ -1188,7 +1188,7 @@ const zh_CN = {
   output_est: '预计获得',
   go_to_orderbook: '跳转到订单簿',
   new_swap_order_tip:
-    'The price is from the Ref AMM offer and for reference only. There is no guarente that your limit order will be immediately filled. ',
+    '价格来自于REF AMM，仅供参考，不保证限价单能以某特定价格立即成交。',
   instants_swap: '即时成交',
   swappped: '已成交',
   claimed: '已领取',
@@ -1198,7 +1198,9 @@ const zh_CN = {
   settings: '设置',
   cross_chain_options: '跨链选项',
   no_trade_routes: '无交易路径',
-  steps_in_the_route: '个路径中的交易步骤',
+  steps_in_the_route_zh: '交易路径中共',
+  steps_in_the_route: '步',
   swap_chart_no_data: '目前该图表没有数据。',
+  last_updated: '上次更新于',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);
