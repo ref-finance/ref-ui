@@ -555,7 +555,7 @@ function HistoryLine({
           target="_blank"
           rel="noopener noreferrer nofollow"
         >
-          Record
+          Tx
           <span className="ml-1.5">
             <HiOutlineExternalLink></HiOutlineExternalLink>
           </span>
@@ -1099,7 +1099,7 @@ function HistorySwapInfoLine({
           target="_blank"
           rel="noopener noreferrer nofollow"
         >
-          Record
+          Tx
           <span className="ml-1.5">
             <HiOutlineExternalLink></HiOutlineExternalLink>
           </span>
@@ -2062,11 +2062,7 @@ function ActiveLine({
                       target="_blank"
                       rel="noopener noreferrer nofollow"
                     >
-                      <FormattedMessage
-                        id="record"
-                        defaultMessage={'Record'}
-                      ></FormattedMessage>
-
+                      Tx
                       <span className="ml-1.5">
                         <HiOutlineExternalLink></HiOutlineExternalLink>
                       </span>
