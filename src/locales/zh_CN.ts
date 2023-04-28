@@ -1181,5 +1181,23 @@ const zh_CN = {
   view_dcl_pool: '查看流动池',
   go_to_orderbook_tip:
     '该价格仅供参考。{br} 请至<strong>订单簿</strong>页面下单。',
+
+  your_trade_route: '你的交易路径',
+  markets: '市场',
+  exchanges: '交易所',
+  output_est: '预计获得',
+  go_to_orderbook: '跳转到订单簿',
+  new_swap_order_tip:
+    'The price is from the Ref AMM offer and for reference only. There is no guarente that your limit order will be immediately filled. ',
+  instants_swap: '即时成交',
+  swappped: '已成交',
+  claimed: '已领取',
+  executing_capital: '执行中',
+  record: '记录',
+  trade_route: '交易路径',
+  settings: '设置',
+  cross_chain_options: '跨链选项',
+  no_trade_routes: '无交易路径',
+  steps_in_the_route: '个路径中的交易步骤',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

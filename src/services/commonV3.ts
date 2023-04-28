@@ -1048,7 +1048,14 @@ export function getEffectiveFarmList(farmList: FarmBoost[]) {
   });
   return targetList;
 }
-export const TOKEN_LIST_FOR_RATE = ['USDC.e', 'USDC', 'USDT.e', 'USDT', 'DAI'];
+export const TOKEN_LIST_FOR_RATE = [
+  'USDC.e',
+  'USDC',
+  'USDT.e',
+  'USDT',
+  'DAI',
+  'USDt',
+];
 
 export const PAUSE_DCL = true;
 

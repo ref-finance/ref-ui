@@ -309,28 +309,6 @@ export default function SwapRateChart(props: SwapRateChartProps) {
 
   return (
     <div className="w-full gotham_font xsm:mt-5">
-      <div className="frcs mb-4 lg:hidden">
-        {dimensionList.map((d) => {
-          return (
-            <div
-              className={`text-xs mx-1 xsm:mx-0.5 p-1 cursor-pointer ${
-                d === displayDimension
-                  ? 'text-white rounded-md bg-limitOrderFeeTiersBorderColor'
-                  : 'text-primaryText'
-              }`}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-
-                changeDisplayDimension(d);
-              }}
-            >
-              {d}
-            </div>
-          );
-        })}
-      </div>
-
       <div className="frcb ml-4 xsm:ml-1 xsm:mb-2">
         <div className="frcs">
           <Images
@@ -378,7 +356,29 @@ export default function SwapRateChart(props: SwapRateChartProps) {
         </div>
       </div>
 
-      <div className="frcs xs:flex xs:items-center xs:justify-between">
+      <div className="frcs mb-2 lg:hidden">
+        {dimensionList.map((d) => {
+          return (
+            <div
+              className={`text-xs mx-1 xsm:mx-0.5 p-1 cursor-pointer ${
+                d === displayDimension
+                  ? 'text-white rounded-md bg-limitOrderFeeTiersBorderColor'
+                  : 'text-primaryText'
+              }`}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                changeDisplayDimension(d);
+              }}
+            >
+              {d}
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="frcs xs:flex xs:items-center xs:mb-2 xs:justify-between">
         <div className="frcs ml-4  xsm:ml-0">
           <span className="text-white text-2xl  mr-1">
             {diff ? priceFormatter(diff.curPrice) : '-'}
@@ -426,26 +426,34 @@ export default function SwapRateChart(props: SwapRateChartProps) {
             <div className="xsm:hidden text-primaryText frcs ml-8 text-sm">
               <span>
                 <FormattedMessage
-                  id="low_24h"
-                  defaultMessage={'Low(24h)'}
+                  id="low"
+                  defaultMessage={'Low'}
                 ></FormattedMessage>
+                {`(${displayDimension})`}
               </span>
 
               <span className="font-gothamBold ml-1.5 text-white">
-                {priceFormatter(diff.h24Low)}
+                {priceList &&
+                  priceFormatter(
+                    minBy(priceList.price_list, (p) => p.price)?.price || 0
+                  )}
               </span>
             </div>
 
             <div className="frcs xsm:hidden ml-7 text-primaryText text-sm">
               <span>
                 <FormattedMessage
-                  id="high_24h"
-                  defaultMessage={'High(24h)'}
+                  id="high"
+                  defaultMessage={'High'}
                 ></FormattedMessage>
+                {`(${displayDimension})`}
               </span>
 
               <span className="font-gothamBold ml-1.5 text-white">
-                {priceFormatter(diff.h24Hight)}
+                {priceList &&
+                  priceFormatter(
+                    maxBy(priceList.price_list, (p) => p.price)?.price || 0
+                  )}
               </span>
             </div>
           </>
@@ -457,26 +465,34 @@ export default function SwapRateChart(props: SwapRateChartProps) {
           <div className="lg:hidden text-primaryText frcs  text-sm">
             <span>
               <FormattedMessage
-                id="low_24h"
-                defaultMessage={'Low(24h)'}
+                id="low"
+                defaultMessage={'Low'}
               ></FormattedMessage>
+              {`(${displayDimension})`}
             </span>
 
             <span className="font-gothamBold ml-1.5 text-white">
-              {priceFormatter(diff.h24Low)}
+              {priceList &&
+                priceFormatter(
+                  minBy(priceList.price_list, (p) => p.price)?.price || 0
+                )}
             </span>
           </div>
 
           <div className="frcs lg:hidden ml-7 text-primaryText text-sm">
             <span>
               <FormattedMessage
-                id="high_24h"
-                defaultMessage={'High(24h)'}
+                id="high"
+                defaultMessage={'High'}
               ></FormattedMessage>
+              {`(${displayDimension})`}
             </span>
 
             <span className="font-gothamBold ml-1.5 text-white">
-              {priceFormatter(diff.h24Hight)}
+              {priceList &&
+                priceFormatter(
+                  maxBy(priceList.price_list, (p) => p.price)?.price || 0
+                )}
             </span>
           </div>
         </div>
@@ -590,8 +606,8 @@ export default function SwapRateChart(props: SwapRateChartProps) {
                 tick={<RenderYTick />}
                 height={300}
                 domain={([dataMin, dataMax]: any) => [
-                  dataMin - (dataMin + dataMax) * 0.05,
-                  dataMax + (dataMin + dataMax) * 0.05,
+                  dataMin - (dataMin + dataMax) * 0.025,
+                  dataMax + (dataMin + dataMax) * 0.025,
                 ]}
               />
 

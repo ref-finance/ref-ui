@@ -95,7 +95,7 @@ import {
   get_pointorder_range,
   find_order,
 } from '../services/swapV3';
-import _, { toArray } from 'lodash';
+import _, { orderBy, toArray } from 'lodash';
 import {
   getV3PoolId,
   get_pool_from_cache,
@@ -2099,6 +2099,7 @@ export const useRefSwapPro = ({
     enableTri,
     resAurora.quoteDone,
     resOrderly.quoteDone,
+
     slippageTolerance,
     swapType,
     supportLedger,
@@ -2106,6 +2107,8 @@ export const useRefSwapPro = ({
     quoting,
     JSON.stringify(resRef?.tokenOutAmount || {}),
     JSON.stringify(resAurora?.tokenOutAmount || {}),
+    JSON.stringify(resOrderly?.tokenOutAmount || {}),
+
     JSON.stringify(resRef?.estimates || {}),
     JSON.stringify(resAurora?.estimates || {}),
     forceEstimatePro,
