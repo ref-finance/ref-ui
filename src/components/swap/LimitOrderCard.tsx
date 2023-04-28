@@ -8,7 +8,7 @@ import React, {
   createContext,
 } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
-import { SwapExchangeV3 } from '~components/icon';
+import { SwapExchangeV3 } from '../../components/icon';
 import {
   ftGetBalance,
   TokenMetadata,
@@ -91,7 +91,7 @@ import { SelectedIcon } from '../icon/swapV3';
 
 import { PoolInfo, get_pool_from_cache } from '../../services/swapV3';
 import { nearMetadata } from '../../services/wrap-near';
-import { useWalletSelector } from '~context/WalletSelectorContext';
+import { useWalletSelector } from '../../context/WalletSelectorContext';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';

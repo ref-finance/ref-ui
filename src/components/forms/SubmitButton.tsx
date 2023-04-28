@@ -1,27 +1,16 @@
 import React, { useContext, useState } from 'react';
-import { Near } from '../icon';
-import { REF_FARM_CONTRACT_ID, wallet } from '../../services/near';
 import { FormattedMessage } from 'react-intl';
 
-import { BsArrowRight } from '@react-icons/all-files/bs/BsArrowRight';
-import {
-  GradientButton,
-  ConnectToNearBtn,
-  ButtonTextWrapper,
-} from '../../components/button/Button';
+import { ButtonTextWrapper } from '../../components/button/Button';
 
-import { BeatLoading } from '~components/layout/Loading';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { ConnectToNearBtnSwap } from '../button/Button';
-import {
-  getCurrentWallet,
-  WalletContext,
-} from '../../utils/wallets-integration';
+
 import {
   GoToOrderbookTip,
   OrderBookArrowRight,
-} from '~pages/Orderly/components/Common/Icons';
-import { isMobile } from '~utils/device';
+} from '../../pages/Orderly/components/Common/Icons';
+import { isMobile } from '../../utils/device';
 import { GoToOrderbookTipMobile } from '../../pages/Orderly/components/Common/Icons';
 
 interface SubmitButtonProps {

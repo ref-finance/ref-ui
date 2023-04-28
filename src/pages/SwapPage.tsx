@@ -20,15 +20,15 @@ import {
 } from '../services/wrap-near';
 
 import AdSwiper from '../components/layout/Swiper';
-import LimitOrderCard from '~components/swap/LimitOrderCard';
-import SwapRateChart from '~components/swap/SwapRateChart';
+import LimitOrderCard from '../components/swap/LimitOrderCard';
+import SwapRateChart from '../components/swap/SwapRateChart';
 import { EstimateSwapView } from '../services/swap';
-import { TradeRoute } from '~components/layout/SwapRoutes';
+import { TradeRoute } from '../components/layout/SwapRoutes';
 import { MarketList } from '../components/layout/SwapRoutes';
 import MyOrderPage from './MyOrder';
 import MyOrderComponent from './Orderly/components/MyOrder';
-import { useWalletSelector } from '~context/WalletSelectorContext';
-import { useClientMobile } from '~utils/device';
+import { useWalletSelector } from '../context/WalletSelectorContext';
+import { useClientMobile } from '../utils/device';
 
 export const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';
 

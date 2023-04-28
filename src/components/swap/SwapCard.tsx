@@ -8,7 +8,7 @@ import React, {
   createContext,
 } from 'react';
 
-import { useWalletSelector } from '~context/WalletSelectorContext';
+import { useWalletSelector } from '../../context/WalletSelectorContext';
 
 import { useLocation, useHistory } from 'react-router-dom';
 import {
@@ -26,7 +26,6 @@ import {
   calculateExchangeRate,
   calculateFeeCharge,
   calculateFeePercent,
-  calculateSmartRoutingPriceImpact,
   toPrecision,
   toReadableNumber,
   ONLY_ZEROS,
@@ -34,7 +33,6 @@ import {
   divide,
   scientificNotationToString,
   separateRoutes,
-  calcStableSwapPriceImpact,
 } from '../../utils/numbers';
 import SubmitButton, { InsufficientButton } from '../forms/SubmitButton';
 import Alert from '../alert/Alert';
