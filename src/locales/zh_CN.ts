@@ -1199,5 +1199,6 @@ const zh_CN = {
   cross_chain_options: '跨链选项',
   no_trade_routes: '无交易路径',
   steps_in_the_route: '个路径中的交易步骤',
+  swap_chart_no_data: '目前该图表没有数据。',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

@@ -1089,5 +1089,6 @@ const uk_UA = {
   cross_chain_options: 'Cross-chain Options',
   no_trade_routes: 'No Trade Routes',
   steps_in_the_route: 'Steps in the Route',
+  swap_chart_no_data: 'Not enough data for the chart right now.',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);
