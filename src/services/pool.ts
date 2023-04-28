@@ -365,86 +365,6 @@ export const getPoolsByTokens = async ({
 
   return filteredPools;
 };
-// }
-// if (
-//   (crossSwap && proGetCachePool) ||
-//   loadingTrigger ||
-//   (!cacheTimeLimit && cacheForPair)
-// ) {
-//   setLoadingData && setLoadingData(true);
-// }
-// }
-// if (
-//   (crossSwap && proGetCachePool) ||
-//   loadingTrigger ||
-//   (!cacheTimeLimit && cacheForPair)
-// ) {
-//   setLoadingData && setLoadingData(true);
-
-// let filtered_pools;
-// const [cacheForPair, cacheTimeLimit] = await db.checkPoolsByTokens(
-//   tokenInId,
-//   tokenOutId
-// );
-
-// console.log('loadingTrigger: ', loadingTrigger);
-
-// if ((!loadingTrigger && cacheTimeLimit) || !cacheForPair) {
-//   filtered_pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
-// }
-// if (
-//   loadingTrigger ||
-//   (!cacheTimeLimit && cacheForPair) ||
-//   !filtered_pools ||
-//   filtered_pools?.length === 0
-// ) {
-//   setLoadingData && setLoadingData(true);
-
-//   const isCacheFromIndexer =
-//     getExtendConfig().pool_protocol &&
-//     getExtendConfig().pool_protocol === 'indexer';
-
-//   const isCacheFromRPC = !isCacheFromIndexer;
-
-//   let pools;
-
-//   if (isCacheFromIndexer) {
-//     pools = (await getTopPoolsIndexer()).map((p: any) => ({
-//       ...p,
-//       Dex: 'ref',
-//     }));
-//   } else if (isCacheFromRPC) {
-//     const totalPools = await getTotalPools();
-//     const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
-
-//     pools = (
-//       await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
-//     )
-//       .flat()
-//       .map((p) => ({ ...p, Dex: 'ref' }));
-//   }
-
-//   // const totalPools = await getTotalPools();
-//   // const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
-
-//   filtered_pools = pools
-//     // .concat(triPools || [])
-//     .filter(isNotStablePool)
-//     .filter(filterBlackListPools);
-
-//   await db.cachePoolsByTokens(filtered_pools);
-//   filtered_pools = filtered_pools.filter(
-//     (p: any) => p.supplies[tokenInId] && p.supplies[tokenOutId]
-//   );
-//   await getAllStablePoolsFromCache();
-//   await cacheAllDCLPools();
-// }
-
-// setLoadingData && setLoadingData(false);
-
-// // @ts-ignore
-// return filtered_pools.filter((p) => !p?.Dex || p.Dex !== 'tri');
-// };
 
 export const getPoolsByTokensAurora = async ({
   tokenInId,
@@ -661,10 +581,6 @@ export const canFarms = async ({
     farms = await db.queryFarms();
     boostFarms = await db.queryBoostFarms();
   }
-
-  console.log('farms: ', farms);
-
-  console.log('boostFarms: ', boostFarms);
 
   const getCounts = (pool_id: number) => {
     const countV1 = farms.reduce((pre: any, cur: any) => {

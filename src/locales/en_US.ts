@@ -1262,5 +1262,6 @@ const en_US = {
   go_to_orderbook_tip:
     'This price is for reference only. {br} Please proceed to <strong>Orderbook</strong> to place the order.',
   last_updated: 'Last Updated',
+  steps_in_the_route_zh: '',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

@@ -252,7 +252,6 @@ export const usePools = (props: {
   const [loading, setLoading] = useState(true);
 
   const [requestPoolList, setRequestPoolList] = useState<string[]>();
-  console.log('requestPoolList: ', requestPoolList);
 
   useEffect(() => {
     if (!loading) {

@@ -77,7 +77,6 @@ export default function SwapRateChart(props: SwapRateChartProps) {
   );
 
   const [displayTokenIn, setDisplayTokenIn] = useState<TokenMetadata>(tokenIn);
-  console.log('displayTokenIn: ', displayTokenIn);
   const [displayTokenOut, setDisplayTokenOut] =
     useState<TokenMetadata>(tokenOut);
 
@@ -277,8 +276,6 @@ export default function SwapRateChart(props: SwapRateChartProps) {
           (Math.floor(Number(price) / 100) * 100).toString()
         );
       }
-
-      console.log(displayY, 'displayY', price);
 
       return (
         <svg

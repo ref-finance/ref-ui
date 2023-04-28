@@ -232,7 +232,6 @@ function SwapPage() {
 
   useEffect(() => {
     const changeWindowCommonMenuCollapsed = (e: any) => {
-      console.log(e);
       if (e?.[SWAP_TYPE_KEY]) {
         setSwapType(e?.[SWAP_TYPE_KEY]);
       }

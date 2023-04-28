@@ -757,6 +757,8 @@ export const SwapRouteMoreThan2 = ({
   market: SwapMarket;
   trade: ExchangeEstimate;
 }) => {
+  const intl = useIntl();
+
   const { swapType } = useContext(SwapProContext);
   return (
     <div className="frcs">
@@ -790,11 +792,13 @@ export const SwapRouteMoreThan2 = ({
         }}
       ></div>
       <div className="frcs text-primaryText">
-        <FormattedMessage
-          id="steps_in_the_route_zh"
-          defaultMessage={''}
-        ></FormattedMessage>
-        <span className="">{trade.estimates.length}</span>
+        {intl.locale === 'zh-CN' &&
+          intl.formatMessage({
+            id: 'steps_in_the_route_zh',
+          })}
+        <span className={intl.locale === 'zh-CN' ? 'mr-0' : 'mr-1'}>
+          {trade.estimates.length}
+        </span>
 
         <FormattedMessage
           id="steps_in_the_route"

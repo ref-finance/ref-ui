@@ -458,8 +458,6 @@ export const estimateSwap = async ({
     parsedAmountIn
   );
 
-  console.log('stableSmartActionsV2: ', stableSmartActionsV2);
-
   let res = stableSmartActionsV2;
 
   let smartRouteV2OutputEstimate = stableSmartActionsV2
@@ -726,7 +724,6 @@ export async function getHybridStableSmart(
 
   const { allStablePools, allStablePoolsById, allStablePoolsInfo } =
     await getAllStablePoolsFromCache(loadingTrigger);
-  console.log('allStablePools: ', allStablePools);
 
   let candidatePools: Pool[][] = [];
 
@@ -859,7 +856,6 @@ export async function getHybridStableSmart(
     const tokensMedata = await ftGetTokensMetadata(
       candidatePools.map((cp) => cp.map((p) => p.tokenIds).flat()).flat()
     );
-    console.log('candidatePools: ', candidatePools);
 
     const BestPoolPair =
       candidatePools.length === 1

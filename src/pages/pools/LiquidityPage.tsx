@@ -3015,12 +3015,10 @@ export function LiquidityPage() {
   };
 
   const [farmCounts, setFarmCounts] = useState<Record<string, number>>({});
-  console.log('farmCounts: ', farmCounts);
   useEffect(() => {
     const pool_ids_v1 = pools.map((p) => p.id);
     const pool_ids_watchPools = watchPools.map((p: Pool) => p.id);
     const pool_ids = pool_ids_v1.concat(pool_ids_watchPools);
-    console.log('pool_ids: ', pool_ids);
     canFarms({
       pool_ids,
     }).then(setFarmCounts);

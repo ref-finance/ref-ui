@@ -586,7 +586,6 @@ export const useSwap = ({
           setPool(estimates[0].pool);
         })
         .catch((err) => {
-          console.log('error1111: ', err);
           // if (!loadingTrigger) {
           setCanSwap(false);
           setTokenOutAmount('');
@@ -625,7 +624,6 @@ export const useSwap = ({
       );
 
     if (estimating && swapsToDo && !forceEstimate) return;
-    console.log('valRes: ', valRes);
 
     if (valRes && !loadingTrigger && !forceEstimate) {
       return;
@@ -696,7 +694,6 @@ export const useSwap = ({
       swapMarket: 'ref',
     }).catch(setSwapError);
   };
-  console.log('swapsToDo: ', swapsToDo);
 
   return {
     canSwap,
@@ -833,8 +830,6 @@ export const useSwapV3 = ({
 
     setQuoteDone(false);
 
-    console.log('tokenintrigger');
-
     const storedPools = localStorage.getItem(REF_DCL_POOL_CACHE_KEY);
 
     if (!storedPools) {
@@ -856,12 +851,6 @@ export const useSwapV3 = ({
           res && res?.some((e) => !!e)
             ? _.maxBy(res, (e) => Number(!e?.tag ? -1 : e.amount))
             : null;
-
-        console.log(
-          'bestEstimate: ',
-          bestEstimate,
-          tagValidator(bestEstimate, tokenIn, tokenInAmount)
-        );
 
         setBestEstimate(bestEstimate);
 
@@ -969,8 +958,6 @@ export const useSwapV3 = ({
       totalInputAmount: toNonDivisibleNumber(tokenIn?.decimals, tokenInAmount),
     },
   ];
-
-  console.log(tokenInAmount, 'tokenInAmount 111', swapsToDoV2);
 
   return {
     makeSwap,
@@ -1456,13 +1443,7 @@ export const getPriceImpact = ({
 
       if (!!priceIn && !!priceOut) {
         oldPrice = new Big(priceOut).div(new Big(priceIn));
-        console.log(
-          'oldPrice: ',
-          oldPrice.toString(),
-          newPrice.toString(),
-          priceOut,
-          priceIn
-        );
+
         return newPrice.lt(oldPrice)
           ? '0'
           : newPrice.minus(oldPrice).div(newPrice).times(100).abs().toFixed();
@@ -1492,8 +1473,6 @@ export const getPriceImpact = ({
         ? '0'
         : newPrice.minus(oldPrice).div(newPrice).times(100).abs().toFixed();
     });
-
-    console.log('priceImpactForRoutes: ', priceImpactForRoutes);
 
     const rawRes = priceImpactForRoutes.reduce(
       (pre, cur, i) => {
@@ -2005,11 +1984,6 @@ export const useRefSwapPro = ({
       setSelectMarket('ref');
     }
   }, [tokenIn, tokenOut]);
-
-  console.log('resRef: ', resRef);
-  console.log('resAurora: ', resAurora);
-
-  console.log('resOrderly: ', resOrderly);
 
   useEffect(() => {
     if (
