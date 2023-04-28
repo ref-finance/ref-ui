@@ -202,8 +202,13 @@ export default function SwapRateChart(props: SwapRateChartProps) {
         (Math.floor(Number(value) / 100) * 100).toString()
       );
     }
+    const isAllSamePrice = priceList.price_list.every(
+      (item) => item.price === priceList.price_list[0].price
+    );
 
     if (index === 0 || index === 5) return null;
+
+    if (isAllSamePrice && (index === 1 || index == 4)) return null;
 
     return (
       <text
