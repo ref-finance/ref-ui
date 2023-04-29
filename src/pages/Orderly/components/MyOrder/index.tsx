@@ -34,7 +34,11 @@ import {
   MyOrderMask,
   MyOrderMask2,
 } from '../../../../components/icon/swapV3';
-import { calculateFeePercent, ONLY_ZEROS, toPrecision } from '../../../../utils/numbers';
+import {
+  calculateFeePercent,
+  ONLY_ZEROS,
+  toPrecision,
+} from '../../../../utils/numbers';
 
 import { BsCheckCircle } from 'react-icons/bs';
 
