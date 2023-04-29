@@ -90,7 +90,6 @@ import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
 import { percentLess, percent } from '../utils/numbers';
 import { getTokenFlow } from './indexer';
 import getConfig from './config';
-import { SUPPORT_LEDGER_KEY } from '../components/swap/CrossSwapCard';
 export const REF_FI_SWAP_SIGNAL = 'REF_FI_SWAP_SIGNAL_KEY';
 
 // Big.strict = false;
