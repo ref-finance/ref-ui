@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { TokenMetadata } from '~services/ft-contract';
-import { getTokenPairRate } from '~services/indexer';
+import { TokenMetadata } from '../services/ft-contract';
+import { getTokenPairRate } from '../services/indexer';
 import useInterval from 'react-useinterval';
 import moment from 'moment';
 

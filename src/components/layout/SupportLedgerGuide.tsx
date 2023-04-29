@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { CloseIconBold } from '../../components/icon/Actions';
 import { isMobile } from '../../utils/device';
-import { SWAP_TYPE, SwapProContext } from '~pages/SwapPage';
+import { SWAP_TYPE, SwapProContext } from '../../pages/SwapPage';
 
 export function AnchorDot() {
   return (

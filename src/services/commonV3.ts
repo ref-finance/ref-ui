@@ -27,7 +27,9 @@ import {
   CrossIconFull,
 } from '../components/icon/FarmBoost';
 import { useIntl } from 'react-intl';
-import { scientificNotationToString } from '~pages/Orderly/near';
+
+import { scientificNotationToString } from '../utils/numbers';
+
 import { getTokens } from './tokens_static';
 const { REF_UNI_V3_SWAP_CONTRACT_ID, boostBlackList } = getConfig();
 

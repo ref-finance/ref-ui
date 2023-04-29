@@ -9,9 +9,9 @@ import { SWAP_MODE, SWAP_TYPE, SwapProContext } from '../../pages/SwapPage';
 import {
   Inch1IconAndAurora,
   TriAndAurora,
-} from '~components/icon/CrossSwapIcons';
-import { useWalletSelector } from '~context/WalletSelectorContext';
-import { SupportLedgerGuide } from '~components/layout/SupportLedgerGuide';
+} from '../../components/icon/CrossSwapIcons';
+import { useWalletSelector } from '../../context/WalletSelectorContext';
+import { SupportLedgerGuide } from '../../components/layout/SupportLedgerGuide';
 import { TriAndAuroraLedger } from '../icon/CrossSwapIcons';
 
 export function CustomSwitch({

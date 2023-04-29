@@ -6,21 +6,11 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import {
-  getPool,
-  Pool,
-  StablePool,
-  getStablePool,
-  addLiquidityToPool,
-} from '../services/pool';
-import { estimateSwap as estimateStableSwap } from '../services/stable-swap';
-
-import db from '../store/RefDatabase';
+import { Pool, StablePool } from '../services/pool';
 
 import { TokenMetadata, ftGetTokenMetadata } from '../services/ft-contract';
 import {
   calculateMarketPrice,
-  calculateSmartRoutingPriceImpact,
   percentLess,
   scientificNotationToString,
   separateRoutes,
@@ -37,26 +27,13 @@ import {
   REF_FI_SWAP_SIGNAL,
 } from '../services/swap';
 
-import { swap as stableSwap } from '../services/stable-swap';
-
 import { useHistory, useLocation } from 'react-router';
 import getConfig from '../services/config';
 import { FormattedMessage, useIntl } from 'react-intl';
 
 import { getCurrentWallet, WalletContext } from '../utils/wallets-integration';
-import {
-  POOL_TOKEN_REFRESH_INTERVAL,
-  STABLE_TOKEN_IDS,
-  STABLE_POOL_ID,
-  isStablePool,
-} from '../services/near';
+import { POOL_TOKEN_REFRESH_INTERVAL, isStablePool } from '../services/near';
 
-import {
-  getExpectedOutputFromActions,
-  getAverageFeeForRoutes,
-  getExpectedOutputFromActionsORIG,
-  //@ts-ignore
-} from '../services/smartRouteLogic';
 import {
   failToast,
   getURLInfo,
@@ -116,18 +93,12 @@ import { useTokenPriceList } from './token';
 import Big from 'big.js';
 import BigNumber from 'bignumber.js';
 import { parsedTransactionSuccessValue } from '../components/layout/transactionTipPopUp';
-import {
-  calcStableSwapPriceImpact,
-  calculateSmartRoutesV2PriceImpact,
-} from '../utils/numbers';
-import {
-  OrderlyContext,
-  useOrderlyContext,
-} from '~pages/Orderly/orderly/OrderlyContext';
-import { useWalletSelector } from '~context/WalletSelectorContext';
-import { getAccountInformation } from '~pages/Orderly/orderly/off-chain-api';
-import { ClientInfo, Orders } from '~pages/Orderly/orderly/type';
-import { parseSymbol } from '~pages/Orderly/components/RecentTrade';
+
+import { useOrderlyContext } from '../pages/Orderly/orderly/OrderlyContext';
+import { useWalletSelector } from '../context/WalletSelectorContext';
+import { getAccountInformation } from '../pages/Orderly/orderly/off-chain-api';
+import { ClientInfo, Orders } from '../pages/Orderly/orderly/type';
+import { parseSymbol } from '../pages/Orderly/components/RecentTrade';
 import { getTopPoolsIndexer, getTopPoolsIndexerRaw } from '../services/indexer';
 import { SUPPORT_LEDGER_KEY } from '../components/swap/SwapCard';
 import { openUrl } from '../services/commonV3';

@@ -52,10 +52,9 @@ import {
 } from './wrap-near';
 import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity';
 import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
-import { getAllPoolsIndexer } from './indexer';
-import { getExtendConfig } from './config';
+
 import { cacheAllDCLPools } from './swapV3';
-import { REF_DCL_POOL_CACHE_KEY } from '~state/swap';
+import { REF_DCL_POOL_CACHE_KEY } from '../state/swap';
 const explorerType = getExplorer();
 export const DEFAULT_PAGE_LIMIT = 500;
 const getStablePoolKey = (id: string) => `STABLE_POOL_VALUE_${id}`;

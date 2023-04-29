@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useHistory } from 'react-router-dom';
-import { isClientMobie, useClientMobile } from '~utils/device';
+import { isClientMobie, useClientMobile } from '../../../../utils/device';
 import {
   SolidButton,
   ButtonTextWrapper,
@@ -26,11 +26,7 @@ import {
   useTokens,
   useTokenPriceList,
 } from '../../../../state/token';
-import {
-  SWAP_MODE,
-  SWAP_MODE_KEY,
-  REF_FI_SWAP_SWAPPAGE_TAB_KEY,
-} from '../../../SwapPage';
+
 import {
   FilledEllipse,
   MobileHistoryOrderStamp,
@@ -38,7 +34,7 @@ import {
   MyOrderMask,
   MyOrderMask2,
 } from '../../../../components/icon/swapV3';
-import { calculateFeePercent, ONLY_ZEROS, toPrecision } from '~utils/numbers';
+import { calculateFeePercent, ONLY_ZEROS, toPrecision } from '../../../../utils/numbers';
 
 import { BsCheckCircle } from 'react-icons/bs';
 
@@ -53,7 +49,7 @@ import { cancel_order, cancel_order_old } from '../../../../services/swapV3';
 import { TIMESTAMP_DIVISOR } from '../../../../components/layout/Proposal';
 import moment from 'moment';
 import { DownArrowVE, UpArrowVE } from '../../../../components/icon/Referendum';
-import { Loading } from '~components/icon/Loading';
+import { Loading } from '../../../../components/icon/Loading';
 import {
   RouterArrowLeft,
   MyOrderMobileArrow,
@@ -75,7 +71,7 @@ import {
   useHistoryOrderSwapInfo,
 } from '../../../../state/myOrder';
 import { HiOutlineExternalLink } from 'react-icons/hi';
-import getConfig from '~services/config';
+import getConfig from '../../../../services/config';
 import _ from 'lodash';
 import { HistoryOrderSwapInfo } from '../../../../services/indexer';
 

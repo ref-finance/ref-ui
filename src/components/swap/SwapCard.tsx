@@ -87,13 +87,11 @@ import { getMax } from '../../utils/numbers';
 import { YellowTipIcon, RedTipIcon, SelectedIcon } from '../icon/swapV3';
 import * as math from 'mathjs';
 import { NEAR_WITHDRAW_KEY } from '../forms/WrapNear';
-import { CountdownTimer } from '~components/icon';
-import { TextWrapper } from '~pages/Orderly/components/UserBoard';
-import { SwapMarket } from '../../pages/SwapPage';
-import { REF_FI_SWAP_SIGNAL } from '~services/swap';
-import { numberWithCommas } from '~pages/Orderly/utiles';
-import { isMobile } from '~utils/device';
-import { RateExchangeMobile } from '~components/icon/Common';
+import { CountdownTimer } from '../../components/icon';
+import { TextWrapper } from '../../pages/Orderly/components/UserBoard';
+import { numberWithCommas } from '../../pages/Orderly/utiles';
+import { isMobile } from '../../utils/device';
+import { RateExchangeMobile } from '../../components/icon/Common';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';

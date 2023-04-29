@@ -19,7 +19,6 @@ import { getPoolAllocationPercents, percent } from '../../utils/numbers';
 import { Pool } from '../../services/pool';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import { Card } from '../card/Card';
-import { ArrowDownWhite } from '../icon/Arrows';
 import {
   FlashAction,
   OrderlyActions,
@@ -47,7 +46,6 @@ import {
 } from '../../utils/numbers';
 import Big from 'big.js';
 import { useTokenPriceList } from '../../state/token';
-import { GetPriceImpact } from '../swap/CrossSwapCard';
 import { PopUpContainer, PopUpContainerMulti } from '../icon/Info';
 import { percentLess, multiply, divide } from '../../utils/numbers';
 import { QuestionTip } from './TipWrapper';
@@ -57,20 +55,70 @@ import { getAuroraConfig } from '../../services/aurora/config';
 import { isMobile, useClientMobile } from '../../utils/device';
 import { getV3PoolId } from '../../services/swapV3';
 import { nearMetadata, WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
-import { SwapContractType, SwapMarket, SwapProContext } from '~pages/SwapPage';
+import {
+  SwapContractType,
+  SwapMarket,
+  SwapProContext,
+} from '../../pages/SwapPage';
 import {
   ExchangeEstimate,
   TradeEstimates,
   SWAP_TYPE,
 } from '../../pages/SwapPage';
-import { DisplayIcon } from '~components/tokens/Icon';
+import { DisplayIcon } from '../../components/tokens/Icon';
 import Modal from 'react-modal';
 import { ModalWrapper } from '../../pages/ReferendumPage';
-import { displayNumberToAppropriateDecimals } from '~services/commonV3';
+import { displayNumberToAppropriateDecimals } from '../../services/commonV3';
 import { numberWithCommas } from '../../pages/Orderly/utiles';
 import { get_pool_name, openUrl } from '../../services/commonV3';
-import { REF_FI_BEST_MARKET_ROUTE } from '~state/swap';
-import { PolygonRight } from '~pages/Orderly/components/Common/Icons';
+import { REF_FI_BEST_MARKET_ROUTE } from '../../state/swap';
+import { PolygonRight } from '../../pages/Orderly/components/Common/Icons';
+
+export const GetPriceImpact = (
+  value: string,
+  tokenIn?: TokenMetadata,
+  tokenInAmount?: string
+) => {
+  const textColor =
+    Number(value) <= 1
+      ? 'text-white xs:text-primaryText'
+      : 1 < Number(value) && Number(value) <= 2
+      ? 'text-warn'
+      : 'text-error';
+
+  const displayValue = scientificNotationToString(
+    multiply(tokenInAmount, divide(value, '100'))
+  );
+  const tokenInInfo =
+    Number(displayValue) <= 0
+      ? ` / 0 ${toRealSymbol(tokenIn?.symbol)}`
+      : ` / -${toInternationalCurrencySystemLongString(displayValue, 3)} ${
+          tokenIn?.symbol
+        }`;
+
+  if (Number(value) < 0.01)
+    return (
+      <span className="text-white xs:text-primaryText">
+        {`< -0.01%`}
+        {tokenInInfo}
+      </span>
+    );
+
+  if (Number(value) > 1000)
+    return (
+      <span className="text-error">
+        {`< -1000%`}
+        {tokenInInfo}
+      </span>
+    );
+
+  return (
+    <span className={`${textColor} `}>
+      {`-${toPrecision(value || '0', 2)}%`}
+      {tokenInInfo}
+    </span>
+  );
+};
 
 export const RouterIcon = () => {
   return (

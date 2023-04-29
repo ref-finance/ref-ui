@@ -1,9 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Images, Symbols } from '~components/stableswap/CommonComp';
-import { TokenMetadata } from '~services/ft-contract';
-import { TokenPairRate, getTokenPairRate } from '~services/indexer';
+import { Images, Symbols } from '../../components/stableswap/CommonComp';
+import { TokenMetadata } from '../../services/ft-contract';
+import { TokenPairRate, getTokenPairRate } from '../../services/indexer';
 import { SwapRateExchange } from '../icon/Arrows';
-import { useTokenRate24h } from '~state/tokenRate';
+import { useTokenRate24h } from '../../state/tokenRate';
 import { maxBy, minBy } from 'lodash';
 
 import {
@@ -26,13 +26,13 @@ import {
 import { IoArrowUpOutline } from '@react-icons/all-files/io5/IoArrowUpOutline';
 import { displayNumberToAppropriateDecimals } from '~services/commonV3';
 import moment from 'moment';
-import { ChartNoData } from '~components/icon/ChartNoData';
+import { ChartNoData } from '../../components/icon/ChartNoData';
 import { FormattedMessage } from 'react-intl';
-import { OrderlyLoading } from '~pages/Orderly/components/Common/Icons';
-import { numberWithCommas } from '~pages/Orderly/utiles';
-import { useClientMobile } from '~utils/device';
-import { SwapProContext } from '~pages/SwapPage';
-import { scientificNotationToString, toPrecision } from '~utils/numbers';
+import { OrderlyLoading } from '../../pages/Orderly/components/Common/Icons';
+import { numberWithCommas } from '../../pages/Orderly/utiles';
+import { useClientMobile } from '../../utils/device';
+import { SwapProContext } from '../../pages/SwapPage';
+import { scientificNotationToString, toPrecision } from '../../utils/numbers';
 import Big from 'big.js';
 export interface SwapRateChartProps {
   tokenIn: TokenMetadata;
