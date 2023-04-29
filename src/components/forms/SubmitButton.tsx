@@ -1,20 +1,17 @@
-import React, { useContext } from 'react';
-import { Near } from '../icon';
-import { REF_FARM_CONTRACT_ID, wallet } from '../../services/near';
+import React, { useContext, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-import {
-  GradientButton,
-  ConnectToNearBtn,
-  ButtonTextWrapper,
-} from '../../components/button/Button';
 
-import { BeatLoading } from '~components/layout/Loading';
+import { ButtonTextWrapper } from '../../components/button/Button';
+
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { ConnectToNearBtnSwap } from '../button/Button';
+
 import {
-  getCurrentWallet,
-  WalletContext,
-} from '../../utils/wallets-integration';
+  GoToOrderbookTip,
+  OrderBookArrowRight,
+} from '../../pages/Orderly/components/Common/Icons';
+import { isMobile } from '../../utils/device';
+import { GoToOrderbookTipMobile } from '../../pages/Orderly/components/Common/Icons';
 
 interface SubmitButtonProps {
   text?: string;
@@ -92,6 +89,93 @@ function SubmitButton({
     </>
   );
 }
+
+export function GoOrderBookButton({
+  label,
+  className,
+  signedInConfig,
+}: SubmitButtonProps) {
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
+  const isSignedIn = !!accountId;
+
+  const storedShowTip = localStorage.getItem('orderbook_tip');
+
+  const [showTip, setShowTip] = useState<boolean>(true);
+
+  return (
+    <>
+      {isSignedIn ? (
+        <>
+          <div
+            className="text-center text-white mb-4"
+            style={{
+              fontSize: '15px',
+              lineHeight: '150%',
+            }}
+          >
+            <FormattedMessage
+              id="go_to_orderbook_tip"
+              values={{
+                br: <br />,
+                // @ts-ignore
+                strong: (...chunks) => (
+                  <span className="font-gothamBold">{chunks}</span>
+                ),
+              }}
+              defaultMessage={
+                'This price is for reference only. {br} Please proceed to <strong>Orderbook</strong> to place the order.'
+              }
+            />
+          </div>
+
+          {showTip && !storedShowTip && !isMobile() && (
+            <GoToOrderbookTip
+              onClick={(e: any) => {
+                setShowTip(false);
+                localStorage.setItem('orderbook_tip', '1');
+              }}
+            ></GoToOrderbookTip>
+          )}
+
+          {showTip && !storedShowTip && isMobile() && (
+            <GoToOrderbookTipMobile
+              onClick={(e: any) => {
+                setShowTip(false);
+                localStorage.setItem('orderbook_tip', '1');
+              }}
+            ></GoToOrderbookTipMobile>
+          )}
+
+          <button
+            type={'submit'}
+            className={`flex relative flex-row w-full items-center text-white justify-center px-5 py-2   mx-auto   ${className} bg-buttonGradientBgOpacity  hover:bg-buttonGradientBg `}
+            style={{
+              borderRadius: '5px',
+            }}
+          >
+            <h1 className="text-base font-inter frcc gotham_bold text-white">
+              <span className="mr-1">
+                <FormattedMessage
+                  id="go_to_orderbook"
+                  defaultMessage={'Go to Orderbook'}
+                ></FormattedMessage>
+              </span>
+              <span>
+                <OrderBookArrowRight />
+              </span>
+            </h1>
+          </button>
+        </>
+      ) : (
+        <div className={`mt-4 w-full ${className}`}>
+          <ConnectToNearBtnSwap />
+        </div>
+      )}
+    </>
+  );
+}
+
 export function InsufficientButton(props: any) {
   const { divClassName, spanClassName } = props;
   return (

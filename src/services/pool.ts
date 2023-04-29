@@ -18,7 +18,11 @@ import {
   storageDepositAction,
   storageDepositForFTAction,
 } from './creators/storage';
-import { getTopPools, getTopPoolsIndexer } from '../services/indexer';
+import {
+  getTopPools,
+  getTopPoolsIndexer,
+  getTopPoolsIndexerRaw,
+} from '../services/indexer';
 import { PoolRPCView } from './api';
 import {
   checkTokenNeedsStorageDeposit,
@@ -48,9 +52,9 @@ import {
 } from './wrap-near';
 import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity';
 import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
-import { getAllPoolsIndexer } from './indexer';
-import { getExtendConfig } from './config';
+
 import { cacheAllDCLPools } from './swapV3';
+import { REF_DCL_POOL_CACHE_KEY } from '../state/swap';
 const explorerType = getExplorer();
 export const DEFAULT_PAGE_LIMIT = 500;
 const getStablePoolKey = (id: string) => `STABLE_POOL_VALUE_${id}`;
@@ -279,9 +283,89 @@ export const isNotStablePool = (pool: Pool) => {
   return !isStablePool(pool.id);
 };
 
-const REF_FI_ACTIVE_TRI_POOL = 'REF_FI_ACTIVE_TRI_POOL_VALUE';
-
 export const getPoolsByTokens = async ({
+  tokenInId,
+  tokenOutId,
+  setLoadingData,
+  loadingTrigger,
+  proGetCachePool,
+  tokenIn,
+  tokenOut,
+}: GetPoolOptions): Promise<Pool[]> => {
+  let pools;
+
+  const cachePools = async (pools: any) => {
+    await db.cachePoolsByTokens(
+      pools.filter(filterBlackListPools).filter((p: any) => isNotStablePool(p))
+    );
+  };
+
+  if (loadingTrigger) {
+    const poolsRaw = await getTopPoolsIndexerRaw();
+
+    await db.cacheTopPools(poolsRaw);
+
+    pools = poolsRaw.map((p: any) => {
+      return {
+        ...parsePool(p),
+        Dex: 'ref',
+      };
+    });
+
+    await cachePools(pools);
+
+    await cacheAllDCLPools();
+  } else {
+    const poolsRaw = await db.queryTopPools();
+
+    if (!localStorage.getItem(REF_DCL_POOL_CACHE_KEY)) {
+      await cacheAllDCLPools();
+    }
+
+    if (poolsRaw && poolsRaw?.length > 0) {
+      pools = poolsRaw.map((p) => {
+        const parsedP = parsePool({
+          ...p,
+          share: p.shares_total_supply,
+          id: Number(p.id),
+          tvl: Number(p.tvl),
+        });
+
+        return {
+          ...parsedP,
+          Dex: 'ref',
+        };
+      });
+    } else {
+      const poolsRaw = await getTopPoolsIndexerRaw();
+
+      await db.cacheTopPools(poolsRaw);
+
+      pools = poolsRaw.map((p: any) => {
+        return {
+          ...parsePool(p),
+          Dex: 'ref',
+        };
+      });
+
+      await cachePools(pools);
+    }
+  }
+
+  const filteredPools = pools
+    .filter(filterBlackListPools)
+    .filter((pool: any) => {
+      return (
+        pool.tokenIds.includes(tokenInId) &&
+        pool.tokenIds.includes(tokenOutId) &&
+        isNotStablePool(pool)
+      );
+    });
+
+  return filteredPools;
+};
+
+export const getPoolsByTokensAurora = async ({
   tokenInId,
   tokenOutId,
   setLoadingData,
@@ -294,7 +378,8 @@ export const getPoolsByTokens = async ({
   let filtered_pools;
   const [cacheForPair, cacheTimeLimit] = await db.checkPoolsByTokens(
     tokenInId,
-    tokenOutId
+    tokenOutId,
+    true
   );
 
   const PAIR_NAME = [
@@ -305,64 +390,12 @@ export const getPoolsByTokens = async ({
   ].join('-');
 
   if ((!loadingTrigger && cacheTimeLimit) || !cacheForPair) {
-    filtered_pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
+    filtered_pools = await db.getPoolsByTokens(tokenInId, tokenOutId, true);
 
-    let triPools;
-    if (crossSwap) {
-      triPools = sessionStorage.getItem(`REF_FI_TRI_POOL_` + PAIR_NAME);
-      if (triPools) {
-        triPools = JSON.parse(triPools);
-      } else {
-        triPools = await getAllTriPools(
-          tokenIn && tokenOut
-            ? [
-                tokenIn.id === WRAP_NEAR_CONTRACT_ID ? 'wNEAR' : tokenIn.symbol,
-                tokenOut.id === WRAP_NEAR_CONTRACT_ID
-                  ? 'wNEAR'
-                  : tokenOut.symbol,
-              ]
-            : null
-        );
-      }
-      filtered_pools = filtered_pools.concat(triPools || []);
-    }
-  }
-  if (
-    (crossSwap && proGetCachePool) ||
-    loadingTrigger ||
-    (!cacheTimeLimit && cacheForPair)
-  ) {
-    setLoadingData && setLoadingData(true);
-
-    const isCacheFromIndexer =
-      getExtendConfig().pool_protocol &&
-      getExtendConfig().pool_protocol === 'indexer';
-
-    const isCacheFromRPC = !isCacheFromIndexer;
-
-    let pools;
-
-    if (isCacheFromIndexer) {
-      pools = (await getTopPoolsIndexer()).map((p: any) => ({
-        ...p,
-        Dex: 'ref',
-      }));
-    } else if (isCacheFromRPC) {
-      const totalPools = await getTotalPools();
-      const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
-
-      pools = (
-        await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
-      )
-        .flat()
-        .map((p) => ({ ...p, Dex: 'ref' }));
-    }
-
-    // const totalPools = await getTotalPools();
-    // const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
-
-    let triPools;
-    if (crossSwap) {
+    let triPools: any = sessionStorage.getItem(`REF_FI_TRI_POOL_` + PAIR_NAME);
+    if (triPools) {
+      triPools = JSON.parse(triPools);
+    } else {
       triPools = await getAllTriPools(
         tokenIn && tokenOut
           ? [
@@ -372,6 +405,23 @@ export const getPoolsByTokens = async ({
           : null
       );
     }
+    filtered_pools = filtered_pools.concat(triPools || []);
+  }
+  if (
+    (crossSwap && proGetCachePool) ||
+    loadingTrigger ||
+    (!cacheTimeLimit && cacheForPair)
+  ) {
+    setLoadingData && setLoadingData(true);
+
+    let triPools = await getAllTriPools(
+      tokenIn && tokenOut
+        ? [
+            tokenIn.id === WRAP_NEAR_CONTRACT_ID ? 'wNEAR' : tokenIn.symbol,
+            tokenOut.id === WRAP_NEAR_CONTRACT_ID ? 'wNEAR' : tokenOut.symbol,
+          ]
+        : null
+    );
 
     if (triPools && triPools.length > 0) {
       sessionStorage.setItem(
@@ -380,23 +430,18 @@ export const getPoolsByTokens = async ({
       );
     }
 
-    filtered_pools = pools
-      // .concat(triPools || [])
-      .filter(isNotStablePool)
-      .filter(filterBlackListPools);
+    filtered_pools = triPools;
 
-    await db.cachePoolsByTokens(filtered_pools);
-    filtered_pools = filtered_pools
-      .concat(triPools || [])
-      .filter((p: any) => p.supplies[tokenInId] && p.supplies[tokenOutId]);
-    await getAllStablePoolsFromCache();
-    await cacheAllDCLPools();
+    await db.cachePoolsByTokensAurora(filtered_pools);
+    filtered_pools = filtered_pools.filter(
+      (p: any) => p.supplies[tokenInId] && p.supplies[tokenOutId]
+    );
   }
 
   setLoadingData && setLoadingData(false);
 
   // @ts-ignore
-  return filtered_pools.filter((p) => crossSwap || !p?.Dex || p.Dex !== 'tri');
+  return filtered_pools;
 };
 
 export const getRefPoolsByToken1ORToken2 = async (
@@ -1164,28 +1209,22 @@ export const getStablePoolFromCache = async (
     Number(stablePoolInfoCache.update_time) >
       Number(moment().unix() - Number(POOL_TOKEN_REFRESH_INTERVAL));
 
-  const loadingTriggerSig =
-    typeof loadingTrigger === 'undefined' ||
-    (typeof loadingTrigger !== 'undefined' && loadingTrigger);
+  const stablePool = isStablePoolCached
+    ? stablePoolCache
+    : await getPool(Number(stable_pool_id));
 
-  const stablePool =
-    isStablePoolCached || !loadingTriggerSig
-      ? stablePoolCache
-      : await getPool(Number(stable_pool_id));
+  const stablePoolInfo = isStablePoolInfoCached
+    ? stablePoolInfoCache
+    : await getStablePool(Number(stable_pool_id));
 
-  const stablePoolInfo =
-    isStablePoolInfoCached || !loadingTriggerSig
-      ? stablePoolInfoCache
-      : await getStablePool(Number(stable_pool_id));
-
-  if (!isStablePoolCached && loadingTriggerSig) {
+  if (!isStablePoolCached) {
     localStorage.setItem(
       pool_key,
       JSON.stringify({ ...stablePool, update_time: moment().unix() })
     );
   }
 
-  if (!isStablePoolInfoCached && loadingTriggerSig) {
+  if (!isStablePoolInfoCached) {
     localStorage.setItem(
       info,
       JSON.stringify({ ...stablePoolInfo, update_time: moment().unix() })

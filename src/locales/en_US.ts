@@ -877,8 +877,8 @@ const en_US = {
   your_orders: 'Your Orders',
   active: 'Active',
   history: 'History',
-  you_sell: 'You sell',
-  you_buy: 'You buy',
+  you_sell: 'You Sell',
+  you_buy: 'You Buy',
   fee_tiers: 'Fee tiers',
   order_rates: 'Order rates',
   created: 'Created',
@@ -1236,10 +1236,32 @@ const en_US = {
   ledger_guide_tip_quote: '"',
 
   support_ledger_tip_new: 'Support Ledger',
-
   ledger_guide_tip_4:
     'that due to Ledger wallet constraints, the current rate provided by the swap function',
   ledger_guide_tip_5: 'may not be the best price',
   ledger_guide_tip_6: '.',
+  view_dcl_pool: 'View DCL Pool',
+  your_trade_route: 'Your Trade Route',
+  markets: 'Markets',
+  exchanges: 'Exchanges',
+  output_est: 'Output (est.)',
+  go_to_orderbook: 'Go to Orderbook',
+  new_swap_order_tip:
+    'The price is from the Ref AMM and for reference only. There is no guarente that your limit order will be immediately filled. ',
+  instants_swap: 'Instant Swap',
+  swappped: 'Swapped',
+  claimed: 'Claimed',
+  executing_capital: 'Executing',
+  record: 'Record',
+  trade_route: 'Trade Route',
+  settings: 'Settings',
+  cross_chain_options: 'Cross-chain Options',
+  no_trade_routes: 'No Trade Routes',
+  steps_in_the_route: 'Steps in the Route',
+  swap_chart_no_data: 'Not enough data for the chart right now.',
+  go_to_orderbook_tip:
+    'This price is for reference only. {br} Please proceed to <strong>Orderbook</strong> to place the order.',
+  last_updated: 'Last Updated',
+  steps_in_the_route_zh: '',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

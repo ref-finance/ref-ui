@@ -10,7 +10,8 @@ import {
   SolidButton,
 } from '../button/Button';
 import { Card } from '../card/Card';
-import { StableSlipSelecter } from '../forms/SlippageSelector';
+import { StableSlipSelector } from '../forms/SlippageSelector';
+
 import { TokenMetadata } from '../../services/ft-contract';
 import { STABLE_POOL_ID, wallet } from '../../services/near';
 import {
@@ -442,7 +443,7 @@ export default function AddLiquidityComponent(props: {
         <ChooseAddType addType={addType} setAddType={setAddType} />
 
         <div className="text-xs px-8 pt-2 mt-6 border-t border-primaryText border-opacity-30">
-          <StableSlipSelecter
+          <StableSlipSelector
             slippageTolerance={slippageTolerance}
             onChange={(slippage) => {
               setSlippageTolerance(slippage);

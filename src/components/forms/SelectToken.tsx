@@ -738,7 +738,7 @@ export default function SelectToken({
               <div className="text-sm text-farmText">
                 <FormattedMessage id="no_token_found"></FormattedMessage>
               </div>
-              {isSignedIn && !forCross ? (
+              {isSignedIn ? (
                 <GradientButton
                   onClick={addTokenSubmit}
                   color="#fff"
@@ -861,7 +861,7 @@ export function SelectTokenDCL({
       >
         <Images tokens={tokens} size="5" className="mr-2 ml-1" />
 
-        <Symbols tokens={tokens} seperator="-" />
+        <Symbols tokens={tokens} separator="-" />
       </div>
     );
   });

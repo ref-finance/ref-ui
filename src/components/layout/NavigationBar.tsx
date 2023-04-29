@@ -10,24 +10,7 @@ import { matchPath } from 'react-router';
 import { Context } from '~components/wrapper';
 import getConfig from '~services/config';
 import ReactTooltip from 'react-tooltip';
-import {
-  Logo,
-  Near,
-  IconBubble,
-  IconMyLiquidity,
-  IconCreateNew,
-  IconPools,
-  IconAirDropGreenTip,
-  WrapNearEnter,
-  WrapNearIconDark,
-  GreenArrowIcon,
-  MoreMenuIcon,
-  NavLogo,
-  NavLogoSimple,
-  AuroraIconSwapNav,
-  NavLogoIcon,
-} from '~components/icon';
-import { SmallWallet } from '~components/icon/SmallWallet';
+import { Logo, Near, IconAirDropGreenTip, NavLogoIcon } from '~components/icon';
 import {
   AccountIcon,
   ActivityIcon,
@@ -1089,8 +1072,6 @@ function NavigationBar() {
 
   const dclAccountBalances = useDCLAccountBalance(isSignedIn);
 
-  const historyInit = useHistory();
-
   useEffect(() => {
     if (!refAccountBalances || !dclAccountBalances) return;
 
@@ -1445,23 +1426,7 @@ function MenuBar() {
           }
         }
       }
-      // if (!one_level_selected_id) {
-      //   // no matched router than redirect to swap page
-      //   const { id, children } = menus[0];
-      //   const second_children_temp: any = children;
-      //   if (second_children_temp) {
-      //     const two_level_menu = second_children_temp.find(
-      //       (item: menuItemType) => {
-      //         const { swap_mode } = item;
-      //         return swap_mode_in_localstorage == swap_mode;
-      //       }
-      //     );
-      //     if (two_level_menu) {
-      //       two_level_selected_id = two_level_menu.id;
-      //     }
-      //   }
-      //   one_level_selected_id = id;
-      // }
+
       set_one_level_selected(one_level_selected_id);
       set_two_level_selected(two_level_selected_id);
     }

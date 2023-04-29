@@ -103,6 +103,7 @@ import { useClientMobile, isMobile } from '../../../../utils/device';
 import { QuestionTip } from '../../../../components/layout/TipWrapper';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { REF_FI_SENDER_WALLET_ACCESS_KEY } from '../../orderly/utils';
+import { useHistory } from 'react-router-dom';
 
 function getTipFOK() {
   const intl = useIntl();
@@ -505,9 +506,25 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
 
-  const [side, setSide] = useState<'Buy' | 'Sell'>('Buy');
+  const sideUrl = new URLSearchParams(window.location.search).get('side');
 
-  const [orderType, setOrderType] = useState<'Market' | 'Limit'>('Limit');
+  const orderTypeUrl = new URLSearchParams(window.location.search).get(
+    'orderType'
+  );
+
+  const [side, setSide] = useState<'Buy' | 'Sell'>(
+    (sideUrl as 'Buy' | 'Sell') || 'Buy'
+  );
+
+  const [orderType, setOrderType] = useState<'Market' | 'Limit'>(
+    (orderTypeUrl as 'Market' | 'Limit') || 'Limit'
+  );
+
+  const history = useHistory();
+
+  useEffect(() => {
+    history.push('/orderbook');
+  }, [sideUrl, orderTypeUrl]);
 
   const [holdings, setHoldings] = useState<Holding[]>();
 

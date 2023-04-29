@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { CloseIconBold } from '../../components/icon/Actions';
 import { isMobile } from '../../utils/device';
+import { SWAP_TYPE, SwapProContext } from '../../pages/SwapPage';
 
 export function AnchorDot() {
   return (
@@ -80,18 +81,22 @@ export function SupportLedgerGuide({
 }: {
   handleClose?: () => any;
 }) {
+  const { swapType } = useContext(SwapProContext);
+
   return (
     <div
-      className="flex xs:items-end xs:flex-col left-0 xs:right-0 xs:top-8 top-0 absolute flex-row "
+      className={`flex xs:items-end xs:flex-col xs:right-0 xs:top-8 top-0 absolute ${
+        swapType === SWAP_TYPE.Pro ? 'flex-row' : 'flex-row-reverse'
+      } `}
       style={{
-        left: isMobile() ? '' : '270px',
+        right: swapType === SWAP_TYPE.Pro ? '265px' : '',
+        left: swapType === SWAP_TYPE.LITE ? '265px' : '',
       }}
     >
-      <AnchorDot />
-
+      <AnchorText handleClose={handleClose} />
       <AnchorDash />
 
-      <AnchorText handleClose={handleClose} />
+      <AnchorDot />
     </div>
   );
 }
