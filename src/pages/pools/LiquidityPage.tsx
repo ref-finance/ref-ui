@@ -140,6 +140,8 @@ import {
   getLatestStartTime,
   isPending,
   sort_tokens_by_base,
+  get_pool_name,
+  openUrl,
 } from '../../services/commonV3';
 
 import { AiFillStar } from 'react-icons/ai';
@@ -168,7 +170,7 @@ export function getPoolFeeApr(
 
     const revenu24h = (fee / 10000) * 0.8 * Number(dayVolume);
     if (newTvl > 0 && revenu24h > 0) {
-      const annualisedFeesPrct = ((revenu24h * 365) / newTvl / 2) * 100;
+      const annualisedFeesPrct = ((revenu24h * 365) / newTvl) * 100;
       result = toPrecision(
         scientificNotationToString(annualisedFeesPrct.toString()),
         2
@@ -190,7 +192,7 @@ export function getPoolFeeAprTitle(
 
     const revenu24h = (fee / 10000) * 0.8 * Number(dayVolume);
     if (newTvl > 0 && revenu24h > 0) {
-      const annualisedFeesPrct = ((revenu24h * 365) / newTvl / 2) * 100;
+      const annualisedFeesPrct = ((revenu24h * 365) / newTvl) * 100;
       result = annualisedFeesPrct.toString();
     }
   }
@@ -462,7 +464,7 @@ function MobilePoolRow({
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    window.open(`/v2farms/${pool.id}-r`, '_blank');
+                    openUrl(`/v2farms/${pool.id}-r`);
                   }}
                 >
                   {supportFarm && <FarmStampNew multi={farmCount > 1} />}
@@ -531,7 +533,7 @@ function MobilePoolRowV2({
     } else return '/';
   };
   function goDetailV2() {
-    const url_pool_id = pool.pool_id.replace(/\|/g, '@');
+    const url_pool_id = get_pool_name(pool.pool_id);
     history.push(`/poolV2/${url_pool_id}`);
   }
   function geth24volume() {
@@ -922,7 +924,7 @@ function MobileLiquidityPage({
     if (Number(id) >= allPools) {
       setShowPoolIDTip(true);
     } else if (id && id.length > 0 && !id.includes('.')) {
-      window.open(`/pool/${id}`, '_blank');
+      openUrl(`/pool/${id}`);
     }
   };
 
@@ -992,13 +994,13 @@ function MobileLiquidityPage({
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
-                    window.open(`/pool/${getVEPoolId()}`);
+                    openUrl(`/pool/${getVEPoolId()}`);
                   }}
                 >
                   <Images tokens={tokensStar} size="6" className="mr-2.5" />
                   <Symbols
                     tokens={tokensStar}
-                    seperator="-"
+                    separator="-"
                     fontSize="text-sm"
                   ></Symbols>
                 </button>
@@ -1740,7 +1742,7 @@ function PoolRowV2({
   if (!curRowTokens) return <></>;
   tokens = sort_tokens_by_base(tokens);
   function goDetailV2() {
-    const url_pool_id = pool.pool_id.replace(/\|/g, '@');
+    const url_pool_id = get_pool_name(pool.pool_id);
     history.push(`/poolV2/${url_pool_id}`);
   }
   function geth24volume() {
@@ -2078,7 +2080,7 @@ function LiquidityPage_({
   const isSignedIn = globalState.isSignedIn;
 
   const [supportFarmStar, setSupportFarmStar] = useState<Boolean>(false);
-  const [farmCountStar, setFarmCountStar] = useState<Number>(1);
+  const [farmCountStar, setFarmCountStar] = useState<number>(1);
 
   const [showAddPoolModal, setShowAddPoolModal] = useState<boolean>(false);
 
@@ -2111,7 +2113,7 @@ function LiquidityPage_({
     if (Number(id) >= allPools) {
       setShowPoolIDTip(true);
     } else if (id && id.length > 0 && !id.includes('.')) {
-      window.open(`/pool/${id}`, '_blank');
+      openUrl(`/pool/${id}`);
     }
   };
 
@@ -2221,7 +2223,7 @@ function LiquidityPage_({
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
-                window.open(`/pool/${getVEPoolId()}`);
+                openUrl(`/pool/${getVEPoolId()}`);
               }}
             >
               <div className="absolute left-3 top-0 ">
@@ -2233,7 +2235,7 @@ function LiquidityPage_({
                     <Images tokens={tokensStar} size="8" className="mr-7" />
                     <Symbols
                       tokens={tokensStar}
-                      seperator="-"
+                      separator="-"
                       fontSize="text-sm"
                     ></Symbols>
                   </div>
@@ -2247,7 +2249,7 @@ function LiquidityPage_({
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
-                    window.open('/referendum');
+                    openUrl('/referendum');
                   }}
                 >
                   <span className="text-white">
@@ -3605,7 +3607,7 @@ function StablePoolCard({
               <Symbols
                 fontSize="xs:text-sm md:text-sm lg:text-lg lg:font-bold "
                 tokens={poolData.tokens}
-                seperator="-"
+                separator="-"
               />
               {watched && (
                 <div className="ml-2">
@@ -3619,11 +3621,8 @@ function StablePoolCard({
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
-                window.open(
-                  `/v2farms/${poolData.pool.id}-${
-                    onlyEndedFarmsV2 ? 'e' : 'r'
-                  }`,
-                  '_blank'
+                openUrl(
+                  `/v2farms/${poolData.pool.id}-${onlyEndedFarmsV2 ? 'e' : 'r'}`
                 );
               }}
             >
@@ -3741,9 +3740,8 @@ function StablePoolCard({
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
-              window.open(
-                `/v2farms/${poolData.pool.id}-${onlyEndedFarmsV2 ? 'e' : 'r'}`,
-                '_blank'
+              openUrl(
+                `/v2farms/${poolData.pool.id}-${onlyEndedFarmsV2 ? 'e' : 'r'}`
               );
             }}
           >

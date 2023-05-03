@@ -82,7 +82,7 @@ export const REF_FI_SENDER_WALLET_ACCESS_KEY =
 const getSenderAccessKey = () => {
   const storedKey = localStorage.getItem(REF_FI_SENDER_WALLET_ACCESS_KEY);
 
-  if (storedKey) {
+  if (storedKey && !!JSON.parse(storedKey)?.accessKey) {
     return JSON.parse(storedKey)?.accessKey;
   }
 
@@ -204,8 +204,6 @@ export const generateOrderSignature = (message: string) => {
   const EC = new ec('secp256k1');
 
   const keyPair = EC.keyFromPrivate(priKey, 'hex');
-
-  // console.log(pubKey, keyPair.getPublic().encode('hex', false));
 
   const signature = keyPair.sign(msgHash, 'hex', { canonical: true });
 

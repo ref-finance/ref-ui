@@ -332,12 +332,20 @@ export const getDepositableBalance = async (
   }
 };
 
-export const useTokenPriceList = () => {
+export const useTokenPriceList = (dep?: any) => {
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
+
+  const [tokenListTrigger, setTokenListTrigger] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (dep) {
+      setTokenListTrigger(!tokenListTrigger);
+    }
+  }, [dep]);
 
   useEffect(() => {
     getTokenPriceList().then(setTokenPriceList);
-  }, []);
+  }, [tokenListTrigger]);
 
   tokenPriceList['NEAR'] = tokenPriceList?.[WRAP_NEAR_CONTRACT_ID];
 
@@ -399,9 +407,7 @@ export const useTokensData = (
           };
         })
         .then((d: TokenMetadata) => setResultAtIndex(d, index))
-        .catch((err) => {
-          console.log(err);
-        });
+        .catch((err) => {});
     }
   }, [tokens?.length]);
 

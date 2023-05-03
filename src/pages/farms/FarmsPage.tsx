@@ -1833,6 +1833,7 @@ function FarmView({
                     state: { backToFarms: true },
                   }}
                   target="_blank"
+                  rel="noopener noreferrer nofollow"
                   className="text-lg xs:text-sm text-white"
                 >
                   {symbols}
@@ -1849,6 +1850,7 @@ function FarmView({
             title={intl.formatMessage({ id: 'view_pool' })}
             to={{ pathname: `/pool/${PoolId}`, state: { backToFarms: true } }}
             target="_blank"
+            rel="noopener noreferrer nofollow"
           >
             <span
               className="text-xs text-framBorder border border-framBorder rounded w-10 text-center box-content px-1"

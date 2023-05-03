@@ -115,6 +115,7 @@ import { createContext } from 'react';
 import { VETip } from '../components/icon/Referendum';
 import { durationFomatter } from '../components/layout/Proposal';
 import BigNumber from 'bignumber.js';
+import { openUrl } from '../services/commonV3';
 
 export interface AccountInfo {
   duration_sec: number;
@@ -586,7 +587,7 @@ export const LockPopUp = ({
               className={`hover:text-senderHot ${
                 ONLY_ZEROS.test(lpShare) ? 'hidden' : ''
               } text-gradientFrom pl-1 py-1`}
-              onClick={() => window.open(`/pool/${getVEPoolId()}`, '_blank')}
+              onClick={() => openUrl(`/pool/${getVEPoolId()}`)}
             >
               <VEARROW />
             </button>
@@ -597,7 +598,7 @@ export const LockPopUp = ({
             ) : (
               <button
                 className="text-gradientFrom hover:text-senderHot flex items-center text-xs "
-                onClick={() => window.open(`/pool/${getVEPoolId()}`, '_blank')}
+                onClick={() => openUrl(`/pool/${getVEPoolId()}`)}
               >
                 <span>
                   <FormattedMessage
@@ -1649,7 +1650,7 @@ const FarmBoosterCard = ({
             : '',
         }}
         onClick={() => {
-          window.open('/v2farms', '_blank');
+          openUrl('/v2farms');
         }}
       >
         <span>
@@ -1703,8 +1704,8 @@ export const FarmStakeTip = ({
           className="text-gradientFrom hover:text-senderHot ml-1 cursor-pointer underline"
           onClick={() => {
             if (version === 1) {
-              window.open('farms', '_blank');
-            } else window.open(`/v2farms/${getVEPoolId()}-r`, '_blank');
+              openUrl('farms');
+            } else openUrl(`/v2farms/${getVEPoolId()}-r`);
           }}
         >
           <FormattedMessage id="farm" defaultMessage={'farm'} />{' '}
@@ -1738,8 +1739,8 @@ export const FarmStakeTipHomePage = ({
           className=" ml-1 flex cursor-pointer hover:text-gradientFrom "
           onClick={() => {
             if (version === 1) {
-              window.open('farms', '_blank');
-            } else window.open(`/v2farms/${getVEPoolId()}-r`, '_blank');
+              openUrl('farms');
+            } else openUrl(`/v2farms/${getVEPoolId()}-r`);
           }}
         >
           <span className="underline mr-1 ">
@@ -1827,13 +1828,13 @@ const UserReferendumCard = ({
           <span className="mx-1"></span>
           <Symbols
             tokens={tokens}
-            seperator="-"
+            separator="-"
             size="text-lg"
             fontSize="font-normal"
           />
           <button
             className={`hover:text-senderHot text-gradientFrom pl-1 py-1`}
-            onClick={() => window.open(`/pool/${getVEPoolId()}`, '_blank')}
+            onClick={() => openUrl(`/pool/${getVEPoolId()}`)}
           >
             <VEARROW />
           </button>
@@ -2390,9 +2391,9 @@ export const ProposalThumbnail = ({ proposal }: { proposal: Proposal }) => {
         <button
           onClick={() => {
             if (isFarmProposal) {
-              window.open('/referendum?tab=farm');
+              openUrl('/referendum?tab=farm');
             } else {
-              window.open('/referendum/' + proposal.id);
+              openUrl('/referendum/' + proposal.id);
             }
           }}
         >

@@ -109,26 +109,21 @@ const en_US_in_risks_page = {
   Locked_paragraph_6:
     'If there is at least one full-access key registered on the contract account, the contract is not locked.',
   audited_first_sentence:
-    'Ref Finance smart contracts have been <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://guide.ref.finance/developers/audits')" +
-    '>audited</label>.',
+    'Ref Finance smart contracts have been <a rel="noopener noreferrer nofollow" target="_blank" href="https://guide.ref.finance/developers/audits" class="underline cursor-pointer text-riskTextColor hover:text-white"' +
+    '>audited</a>.',
 
   admin_first_sentence:
-    'Ref Finance is managed by the <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-    '>Ref Finance Sputnik DAO</label>. There are <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://gov.ref.finance/t/introducing-the-guardians/253')" +
-    '>Guardians</label>, specific NEAR addresses, which are able to pause the contract. Only the DAO can resume the contract, at any time.',
+    'Ref Finance is managed by the <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://app.astrodao.com/dao/ref-finance.sputnik-dao.near"' +
+    '>Ref Finance Sputnik DAO</a>. There are <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://gov.ref.finance/t/introducing-the-guardians/253"' +
+    '>Guardians</a>, specific NEAR addresses, which are able to pause the contract. Only the DAO can resume the contract, at any time.',
   risks_of_using_ref_finance:
     '<label class="text-greenColor">Risks</label> of Using Ref. finance',
   admin_sentence_1:
-    'Ref Finance is managed by the  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-    '>Ref Finance Sputnik DAO</label> and will be transitioning to a fully decentralized DAO.',
+    'Ref Finance is managed by the  <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://app.astrodao.com/dao/ref-finance.sputnik-dao.near"' +
+    '>Ref Finance Sputnik DAO</a> and will be transitioning to a fully decentralized DAO.',
   admin_sentence_2:
-    'For more information relating to the contracts and addresses that have directly managed or currently manage the affairs of Ref Finance, please check our <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://guide.ref.finance/developers/contracts')" +
-    '>Documentation</label>.',
+    'For more information relating to the contracts and addresses that have directly managed or currently manage the affairs of Ref Finance, please check our <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://guide.ref.finance/developers/contracts"' +
+    '>Documentation</a>.',
 };
 const en_US = {
   deposit: 'Deposit',
@@ -765,12 +760,12 @@ const en_US = {
   no_farm_need_to_migrate: 'No Farm need to Migrate',
   v1_farms: 'Legacy Farms',
   has_rewards_tip:
-    'You have claimed rewards in <a class="text-greenColor text-base cursor-pointer underline hover:text-senderHot"  href="/farms" >Legacy Farms</a>. You can withdraw them at any time.</div>',
+    'You have claimed rewards in <a rel="noopener noreferrer nofollow" class="text-greenColor text-base cursor-pointer underline hover:text-senderHot"  href="/farms" >Legacy Farms</a>. You can withdraw them at any time.</div>',
   love: 'LOVE',
   Available_to_stake: 'Available to stake',
   you_staked: 'You staked',
   has_rewards_tip_in_v2:
-    'Withdraw legacy rewards from <a href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> Legacy Farms</a>.',
+    'Withdraw legacy rewards from <a rel="noopener noreferrer nofollow" href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> Legacy Farms</a>.',
   how_to_get: 'How to get?',
   get_booster: 'Get Booster',
   ended_farms: 'ended farms',
@@ -882,8 +877,8 @@ const en_US = {
   your_orders: 'Your Orders',
   active: 'Active',
   history: 'History',
-  you_sell: 'You sell',
-  you_buy: 'You buy',
+  you_sell: 'You Sell',
+  you_buy: 'You Buy',
   fee_tiers: 'Fee tiers',
   order_rates: 'Order rates',
   created: 'Created',
@@ -936,8 +931,7 @@ const en_US = {
   range: 'Range',
   unclaimed_fee: 'Unclaimed Fee',
   login_risk_tip:
-    'By checking this box and moving forward, you confirm that you fully understand the <a class="text-greenColor text-sm font-bold cursor-pointer hover:underline" onclick="window.open(' +
-    "'/risks'" +
+    'By checking this box and moving forward, you confirm that you fully understand the <a rel="noopener noreferrer nofollow" target="_blank" class="text-greenColor text-sm font-bold cursor-pointer hover:underline" href="/risks"' +
     ')">risks</a> of using Ref Finance.',
   no_pool_tip: 'Oops! The pool does not exist.',
   total_ref_week: 'Total REF/week',
@@ -1035,7 +1029,7 @@ const en_US = {
     '* This Orderbook page is a graphical user interface for trading on Orderly Network, and is provided as a convenience to users of Ref Finance.',
   learn_more_orderly: 'Learn more',
   more_order_book_page_detail:
-    'This Orderbook page is a graphical user interface for trading on Orderly Network, and is provided as a convenience to users of Ref Finance. Orderly Network is fully responsible for the security of their systems, smart contracts, and any funds deposited or sent to those systems and contracts. Users are strongly encouraged to do their own research before connecting their wallet and/or placing any orders.',
+    'This Orderbook page is powered by Orderly Network, users are strongly encouraged to do their own research before connecting their wallet and/or placing any orders.{br} Ref Finance does not guarantee the security of the systems, smart contracts, and any funds deposited or sent to those systems and contracts.{br} Neither Ref Finance nor Orderly Network is responsible for any profit or loss of investment users made through this Orderbook page.',
   learn_more_about: 'Learn more about',
   by_click_confirm:
     'By clicking "Confirm", you confirm that you have comprehensively reviewed and comprehended the contents aforementioned',
@@ -1234,5 +1228,40 @@ const en_US = {
     'When placing a sell order above market price or a buy order below market price using limit order function, Ref will attempt to execute a swap-with-stop-point action first, and if there is any remaining amount, a limit order will be created to fill the rest.<br> Real-time executed orders refer to orders placed using the limit order function but executed through swapping. In the "History" section, you can view real-time executed orders between the earliest displayed limit order in History up to the present time.',
 
   swapped_history_order: 'Swapped',
+  ledger_guide_tip_1:
+    'To successfully use your Ledger wallet for transactions, the ',
+
+  ledger_guide_tip_2: 'feature has been automatically activated.',
+  ledger_guide_tip_3: 'Please be aware',
+  ledger_guide_tip_quote: '"',
+
+  support_ledger_tip_new: 'Support Ledger',
+  ledger_guide_tip_4:
+    'that due to Ledger wallet constraints, the current rate provided by the swap function',
+  ledger_guide_tip_5: 'may not be the best price',
+  ledger_guide_tip_6: '.',
+  view_dcl_pool: 'View DCL Pool',
+  your_trade_route: 'Your Trade Route',
+  markets: 'Markets',
+  exchanges: 'Exchanges',
+  output_est: 'Output (est.)',
+  go_to_orderbook: 'Go to Orderbook',
+  new_swap_order_tip:
+    'The price is from the Ref AMM and for reference only. There is no guarente that your limit order will be immediately filled. ',
+  instants_swap: 'Instant Swap',
+  swappped: 'Swapped',
+  claimed: 'Claimed',
+  executing_capital: 'Executing',
+  record: 'Record',
+  trade_route: 'Trade Route',
+  settings: 'Settings',
+  cross_chain_options: 'Cross-chain Options',
+  no_trade_routes: 'No Trade Routes',
+  steps_in_the_route: 'Steps in the Route',
+  swap_chart_no_data: 'Not enough data for the chart right now.',
+  go_to_orderbook_tip:
+    'This price is for reference only. {br} Please proceed to <strong>Orderbook</strong> to place the order.',
+  last_updated: 'Last Updated',
+  steps_in_the_route_zh: '',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

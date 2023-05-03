@@ -1,27 +1,33 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { TokenMetadata, ftGetTokenMetadata } from '../../services/ft-contract';
+
+import { FaAngleRight } from 'react-icons/fa';
+
 import {
   calculateFeePercent,
   toPrecision,
-  divide,
   calculateExchangeRate,
   calculateFeeCharge,
   toInternationalCurrencySystemLongString,
 } from '../../utils/numbers';
 import { toRealSymbol } from '../../utils/token';
-import { EstimateSwapView } from '../../services/stable-swap';
-import {
-  getPoolAllocationPercents,
-  percent,
-  percentOf,
-  convertToPercentDecimal,
-} from '../../utils/numbers';
+
+import { EstimateSwapView } from '~services/swap';
+
+import { getPoolAllocationPercents, percent } from '../../utils/numbers';
 import { Pool } from '../../services/pool';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import { Card } from '../card/Card';
-import { ArrowDownWhite } from '../icon/Arrows';
-import { RefSwapPro } from '../icon/CrossSwapIcons';
+import {
+  FlashAction,
+  OrderlyActions,
+  OrderlyOrderBookIcon,
+  OrderlyOrderBookIconMobile,
+  RefIconNew,
+  RefSwapPro,
+  TriAndAurora,
+} from '../icon/CrossSwapIcons';
 import _, { result } from 'lodash';
 //@ts-ignore
 import { getExpectedOutputFromActionsORIG } from '../../services/smartRouteLogic';
@@ -40,9 +46,8 @@ import {
 } from '../../utils/numbers';
 import Big from 'big.js';
 import { useTokenPriceList } from '../../state/token';
-import { GetPriceImpact } from '../swap/CrossSwapCard';
 import { PopUpContainer, PopUpContainerMulti } from '../icon/Info';
-import { percentLess, multiply } from '../../utils/numbers';
+import { percentLess, multiply, divide } from '../../utils/numbers';
 import { QuestionTip } from './TipWrapper';
 import { HiOutlineExternalLink } from 'react-icons/hi';
 import { Images } from '../stableswap/CommonComp';
@@ -50,6 +55,70 @@ import { getAuroraConfig } from '../../services/aurora/config';
 import { isMobile, useClientMobile } from '../../utils/device';
 import { getV3PoolId } from '../../services/swapV3';
 import { nearMetadata, WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
+import {
+  SwapContractType,
+  SwapMarket,
+  SwapProContext,
+} from '../../pages/SwapPage';
+import {
+  ExchangeEstimate,
+  TradeEstimates,
+  SWAP_TYPE,
+} from '../../pages/SwapPage';
+import { DisplayIcon } from '../../components/tokens/Icon';
+import Modal from 'react-modal';
+import { ModalWrapper } from '../../pages/ReferendumPage';
+import { displayNumberToAppropriateDecimals } from '../../services/commonV3';
+import { numberWithCommas } from '../../pages/Orderly/utiles';
+import { get_pool_name, openUrl } from '../../services/commonV3';
+import { REF_FI_BEST_MARKET_ROUTE } from '../../state/swap';
+import { PolygonRight } from '../../pages/Orderly/components/Common/Icons';
+
+export const GetPriceImpact = (
+  value: string,
+  tokenIn?: TokenMetadata,
+  tokenInAmount?: string
+) => {
+  const textColor =
+    Number(value) <= 1
+      ? 'text-white xs:text-primaryText'
+      : 1 < Number(value) && Number(value) <= 2
+      ? 'text-warn'
+      : 'text-error';
+
+  const displayValue = scientificNotationToString(
+    multiply(tokenInAmount, divide(value, '100'))
+  );
+  const tokenInInfo =
+    Number(displayValue) <= 0
+      ? ` / 0 ${toRealSymbol(tokenIn?.symbol)}`
+      : ` / -${toInternationalCurrencySystemLongString(displayValue, 3)} ${
+          tokenIn?.symbol
+        }`;
+
+  if (Number(value) < 0.01)
+    return (
+      <span className="text-white xs:text-primaryText">
+        {`< -0.01%`}
+        {tokenInInfo}
+      </span>
+    );
+
+  if (Number(value) > 1000)
+    return (
+      <span className="text-error">
+        {`< -1000%`}
+        {tokenInInfo}
+      </span>
+    );
+
+  return (
+    <span className={`${textColor} `}>
+      {`-${toPrecision(value || '0', 2)}%`}
+      {tokenInInfo}
+    </span>
+  );
+};
 
 export const RouterIcon = () => {
   return (
@@ -346,23 +415,6 @@ export const PoolName = ({
   );
 };
 
-const ExchangeIcon = () => {
-  return (
-    <svg
-      width="10"
-      height="8"
-      viewBox="0 0 10 8"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M4.28537 7.33333V8L2.85339 6.66667L4.28537 5.33333V6H6.42799C6.87702 6.0001 7.31474 5.86851 7.67931 5.62382C8.04389 5.37914 8.31689 5.03372 8.45976 4.63636C8.60263 4.239 8.60815 3.80978 8.47554 3.40933C8.34293 3.00889 8.07888 2.65745 7.7207 2.40467L7.72856 2.39533L8.73559 1.45533C9.29415 1.89649 9.69406 2.48715 9.88121 3.1474C10.0684 3.80766 10.0337 4.50565 9.78196 5.14692C9.5302 5.7882 9.0735 6.34181 8.47362 6.73286C7.87375 7.12391 7.15967 7.33352 6.42799 7.33333L4.28466 7.334L4.28537 7.33333ZM5.71378 0.666667V0L7.17576 1.33333L5.71378 2.66667V2H3.57117C3.12207 2 2.68433 2.13171 2.31979 2.37654C1.95525 2.62136 1.68234 2.96692 1.53961 3.36438C1.39689 3.76185 1.39157 4.19112 1.5244 4.59157C1.65723 4.99201 1.92151 5.34337 2.27988 5.596L1.26357 6.544C0.705275 6.10279 0.305614 5.51218 0.118631 4.85204C-0.0683515 4.1919 -0.0336347 3.49409 0.218087 2.85296C0.469808 2.21184 0.926389 1.65835 1.52608 1.26733C2.12578 0.876314 2.83965 0.666641 3.57117 0.666667H5.71378Z"
-        fill="#7E8A93"
-      />
-    </svg>
-  );
-};
-
 const BestIcon = () => {
   return (
     <svg
@@ -501,9 +553,9 @@ export const CrossSwapRoute = ({
             className="py-1 px-1 flex items-center rounded-md hover:text-gray-400 cursor-pointer text-primaryText"
             onClick={() => {
               if (route[0].pool?.Dex === 'ref') {
-                window.open(`/pool/${route[0].pool.id}`);
+                openUrl(`/pool/${route[0].pool.id}`);
               } else
-                window.open(
+                openUrl(
                   `${getAuroraConfig().explorer}/address/${
                     route[0].pool?.pairAdd
                   }`
@@ -578,7 +630,7 @@ export const CrossSwapRoute = ({
             }}
             className="py-1 absolute  px-1 flex items-center rounded-md hover:text-gray-400 cursor-pointer text-primaryText"
             onClick={() => {
-              window.open(`/pool/${route[0].pool.id}`);
+              openUrl(`/pool/${route[0].pool.id}`);
             }}
             onMouseEnter={() => setHoverRouter1(true)}
             onMouseLeave={() => setHoverRouter1(false)}
@@ -611,7 +663,7 @@ export const CrossSwapRoute = ({
             }}
             className="py-1  px-1 flex items-center rounded-md hover:text-gray-400 cursor-pointer text-primaryText"
             onClick={() => {
-              window.open(`/pool/${route[1].pool.id}`);
+              openUrl(`/pool/${route[1].pool.id}`);
             }}
             onMouseEnter={() => setHoverRouter2(true)}
             onMouseLeave={() => setHoverRouter2(false)}
@@ -642,205 +694,170 @@ export const CrossSwapRoute = ({
     </div>
   );
 };
-export const NormalSwapRoute = ({
+
+export const getDexIcon = (market: SwapMarket) => {
+  if (market === 'ref') return <RefIconNew></RefIconNew>;
+  if (market === 'orderly')
+    return isMobile() ? (
+      <OrderlyOrderBookIconMobile></OrderlyOrderBookIconMobile>
+    ) : (
+      <OrderlyOrderBookIcon></OrderlyOrderBookIcon>
+    );
+  if (market === 'tri') return <TriAndAurora></TriAndAurora>;
+};
+
+export const getDexAction = (market: SwapMarket) => {
+  if (market === 'ref') return <FlashAction></FlashAction>;
+
+  if (market === 'orderly') return <OrderlyActions></OrderlyActions>;
+
+  if (market === 'tri') return <FlashAction></FlashAction>;
+};
+
+export const SwapRoute = ({
   route,
   p,
-  tokenIn,
-  tokenOut,
+  market,
 }: {
   route: EstimateSwapView[];
   p: string;
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
+  market: SwapMarket;
 }) => {
-  const [hover, setHover] = useState(false);
-  const [hove2, setHover2] = useState(false);
-  const isMobile = useClientMobile();
+  const tokens = route[0].tokens;
+
+  const { swapType } = useContext(SwapProContext);
+
   return (
-    <>
-      {route.length === 1 ? (
-        <div
-          className={`relative z-0 ml-20 xsm:ml-0  mb-1.5 flex items-center justify-between`}
-        >
-          <span
-            className="flex items-center  rounded-md p-1 py-0.5"
-            style={{
-              background: '#24333D',
-            }}
-          >
-            <Icon
-              token={tokenIn || route[0].tokens[0]}
-              size={isMobile ? '3' : '3.5'}
-            />
-            <span className="text-right mx-0.5">{p}%</span>
-          </span>
+    <div className="frcs">
+      <div
+        style={{
+          height: '13px',
+          width: '13px',
+        }}
+        className="frcc mr-1.5"
+      >
+        {getDexIcon(market)}
+      </div>
 
-          <div
-            className="w-full absolute bottom-3"
-            style={{
-              border: '1px dashed #304352',
-              zIndex: -1,
-            }}
-          ></div>
-
-          <div
-            style={{
-              background: '#24333D',
-            }}
-            onMouseEnter={() => {
-              setHover(true);
-            }}
-            onMouseLeave={() => {
-              setHover(false);
-            }}
-            onClick={() => {
-              window.open(`/pool/${route[0].pool.id}`);
-            }}
-            className="py-1 px-1 flex items-center rounded-md cursor-pointer"
-          >
-            <span className="flex items-center mx-1">
-              <Images
-                border
-                borderStyle="1px solid #00C6A2"
-                size={isMobile ? '3' : '3.5'}
-                tokens={[
-                  tokenIn?.id == WRAP_NEAR_CONTRACT_ID ? nearMetadata : tokenIn,
-                  route[0]?.tokens[1]?.id == WRAP_NEAR_CONTRACT_ID
-                    ? nearMetadata
-                    : route[0].tokens[1],
-                ]}
-              />
-              <span className="text-farmText ml-1">{`#${route[0].pool.id}`}</span>
-            </span>
-
-            <span
-              className={`flex items-center cursor-pointer justify-center text-farmText ${
-                hover ? 'text-senderHot' : ''
-              }`}
-            >
-              <HiOutlineExternalLink />
-            </span>
+      {isMobile() &&
+        swapType === SWAP_TYPE.Pro &&
+        sessionStorage.getItem(REF_FI_BEST_MARKET_ROUTE) ===
+          market.toString() && (
+          <div className="px-1 mr-1 rounded-2xl text-10px bg-gradientFromHover text-black">
+            <FormattedMessage
+              id="best"
+              defaultMessage={'Best'}
+            ></FormattedMessage>
           </div>
+        )}
 
-          <div className="flex-shrink-0">
-            <Icon
-              token={tokenOut || route[0].tokens[1]}
-              size={isMobile ? '3' : '3.5'}
-            />
+      <div
+        className="bg-limitOrderInputColor mr-1"
+        style={{
+          height: '10px',
+          width: '1px',
+        }}
+      ></div>
+      <div
+        className="frcs"
+        style={{
+          maxWidth: isMobile() ? '180px' : '',
+        }}
+      >
+        {tokens &&
+          tokens.map((t, i) => {
+            return (
+              <div
+                className={`text-xs ${
+                  tokens.length === 3 && toRealSymbol(t.symbol).length > 7
+                    ? 'xsm:overflow-hidden'
+                    : ''
+                }  ml-0.5 text-primaryText frcs`}
+              >
+                {i > 0 && <FaAngleRight />}
+                <span
+                  className={
+                    tokens.length === 3 && toRealSymbol(t.symbol).length > 7
+                      ? 'overflow-hidden overflow-ellipsis'
+                      : ''
+                  }
+                >
+                  {toRealSymbol(t.symbol)}
+                </span>
+              </div>
+            );
+          })}
+
+        <span className="lg:hidden ml-1.5">
+          <PolygonRight></PolygonRight>
+        </span>
+      </div>
+    </div>
+  );
+};
+
+export const SwapRouteMoreThan2 = ({
+  market,
+  trade,
+}: {
+  market: SwapMarket;
+  trade: ExchangeEstimate;
+}) => {
+  const intl = useIntl();
+
+  const { swapType } = useContext(SwapProContext);
+  return (
+    <div className="frcs">
+      <div
+        style={{
+          height: '13px',
+          width: '13px',
+        }}
+        className="frcc mr-1.5"
+      >
+        {getDexIcon(market)}
+      </div>
+
+      {isMobile() &&
+        swapType === SWAP_TYPE.Pro &&
+        sessionStorage.getItem(REF_FI_BEST_MARKET_ROUTE) ===
+          market.toString() && (
+          <div className="px-1 mr-1 rounded-2xl text-10px bg-gradientFromHover text-black">
+            <FormattedMessage
+              id="best"
+              defaultMessage={'Best'}
+            ></FormattedMessage>
           </div>
-        </div>
-      ) : (
-        <div
-          className={`relative z-0 ml-10 xsm:ml-0 mb-1.5 flex items-center justify-between`}
-        >
-          <span
-            className="flex items-center rounded-md p-1 py-0.5"
-            style={{
-              background: '#24333D',
-            }}
-          >
-            <Icon
-              token={tokenIn || route[0].tokens[0]}
-              size={isMobile ? '3' : '3.5'}
-            />
-            <span className="text-right mx-0.5">{p}%</span>
-          </span>
+        )}
 
-          <div
-            className="w-full absolute bottom-3"
-            style={{
-              border: '1px dashed #304352',
-              zIndex: -1,
-            }}
-          ></div>
+      <div
+        className="bg-limitOrderInputColor mr-1"
+        style={{
+          height: '10px',
+          width: '1px',
+        }}
+      ></div>
+      <div className="frcs text-primaryText">
+        {intl.locale === 'zh-CN' &&
+          intl.formatMessage({
+            id: 'steps_in_the_route_zh',
+          })}
+        <span className={intl.locale === 'zh-CN' ? 'mr-0' : 'mr-1'}>
+          {trade.estimates.length}
+        </span>
 
-          <div
-            style={{
-              background: '#24333D',
-            }}
-            onMouseEnter={() => {
-              setHover(true);
-            }}
-            onMouseLeave={() => {
-              setHover(false);
-            }}
-            onClick={() => {
-              window.open(`/pool/${route[0].pool.id}`);
-            }}
-            className="py-1 px-1 flex items-center rounded-md cursor-pointer"
-          >
-            <span className="flex items-center mx-1">
-              <Images
-                border
-                borderStyle="1px solid #00C6A2"
-                size={isMobile ? '3' : '3.5'}
-                tokens={[
-                  tokenIn?.id == WRAP_NEAR_CONTRACT_ID ? nearMetadata : tokenIn,
-                  route[0]?.tokens[1]?.id == WRAP_NEAR_CONTRACT_ID
-                    ? nearMetadata
-                    : route[0]?.tokens[1],
-                ]}
-              />
+        <FormattedMessage
+          id="steps_in_the_route"
+          defaultMessage={'steps in the route'}
+        ></FormattedMessage>
 
-              <span className="text-farmText ml-1">{`#${route[0].pool.id}`}</span>
-            </span>
-
-            <span
-              className={`flex items-center cursor-pointer justify-center text-farmText ${
-                hover ? 'text-senderHot' : ''
-              }`}
-            >
-              <HiOutlineExternalLink />
-            </span>
-          </div>
-
-          <div
-            style={{
-              background: '#24333D',
-            }}
-            onMouseEnter={() => {
-              setHover2(true);
-            }}
-            onMouseLeave={() => {
-              setHover2(false);
-            }}
-            onClick={() => {
-              window.open(`/pool/${route[1].pool.id}`);
-            }}
-            className="py-1  px-1 flex items-center rounded-md cursor-pointer"
-          >
-            <span className="flex items-center mx-1">
-              <Images
-                border
-                borderStyle="1px solid #00C6A2"
-                size={isMobile ? '3' : '3.5'}
-                tokens={[
-                  route[1]?.tokens[1]?.id == WRAP_NEAR_CONTRACT_ID
-                    ? nearMetadata
-                    : route[1]?.tokens[1],
-                  tokenOut.id == WRAP_NEAR_CONTRACT_ID
-                    ? nearMetadata
-                    : tokenOut,
-                ]}
-              />
-
-              <span className="text-farmText ml-1">{`#${route[1].pool.id}`}</span>
-            </span>
-
-            <span
-              className={`flex items-center cursor-pointer justify-center text-farmText ${
-                hove2 ? 'text-senderHot' : ''
-              }`}
-            >
-              <HiOutlineExternalLink />
-            </span>
-          </div>
-          {/* <div className="flex-shrink-0">
-            <Icon token={tokenOut} size={'5'} />
-          </div> */}
-        </div>
-      )}
-    </>
+        <span className="lg:hidden ml-1.5">
+          <PolygonRight></PolygonRight>
+        </span>
+      </div>
+    </div>
   );
 };
 export function RouteDCLDetail({
@@ -857,7 +874,7 @@ export function RouteDCLDetail({
   const [hover, setHover] = useState(false);
   const isMobile = useClientMobile();
   const pool_id = getV3PoolId(tokenIn.id, tokenOut.id, bestFee * 100);
-  const pool_id_url_params = pool_id.replace(/\|/g, '@');
+  const pool_id_url_params = get_pool_name(pool_id);
 
   return (
     <section
@@ -909,7 +926,7 @@ export function RouteDCLDetail({
           onClick={(e) => {
             e.stopPropagation();
             e.preventDefault();
-            window.open(`/poolV2/${pool_id_url_params}`);
+            openUrl(`/poolV2/${pool_id_url_params}`);
           }}
         >
           <span className="font-bold mr-1 ">DCL</span>
@@ -1630,5 +1647,610 @@ export const CrossSwapAllResult = ({
         </div>
       ) : null}
     </section>
+  );
+};
+
+const PolygonArrow = ({ color }: { color?: string }) => {
+  return (
+    <svg
+      width="6"
+      height="10"
+      viewBox="0 0 6 10"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M6 5L-4.07833e-07 9.33013L-2.92811e-08 0.669872L6 5Z"
+        fill={color || '#00FFD1'}
+      />
+    </svg>
+  );
+};
+
+export const TradeRouteHub = ({
+  token,
+  contract,
+  poolId,
+}: {
+  token: TokenMetadata;
+  contract: SwapContractType;
+  poolId?: string | number;
+}) => {
+  const contractToMarket = (): SwapMarket => {
+    if (contract.toLowerCase().includes('ref')) return 'ref';
+    if (contract.toLowerCase().includes('orderly')) return 'orderly';
+    if (contract.toLowerCase().includes('trisolaris')) return 'tri';
+  };
+
+  return (
+    <div
+      className="flex flex-col justify-center  relative z-10 text-primaryText text-xs rounded-md px-2.5 py-1 border border-swapCardBorder bg-swapCardGradient"
+      style={{
+        height: '60px',
+      }}
+    >
+      <div className="border-b pb-1 frcs border-primaryText border-opacity-30">
+        <DisplayIcon token={token} height="14px" width="14px" />
+        <span className="ml-1 text-white text-xs w-10 mr-4">
+          {toRealSymbol(token.symbol)}
+        </span>
+      </div>
+
+      <div className="w-full frcs pt-1 relative top-0.5 rounded-md">
+        <div
+          style={{
+            height: '13px',
+            width: '13px',
+          }}
+          className="frcc"
+        >
+          {getDexIcon(contractToMarket())}
+        </div>
+
+        <span className="ml-1 mr-1">{contract}</span>
+
+        <span
+          className="cursor-pointer block mr-1.5"
+          onClick={() => {
+            if (typeof poolId === 'undefined' || poolId === null) return;
+
+            openUrl(
+              typeof poolId === 'number'
+                ? `/pool/${poolId}`
+                : `/poolV2/${get_pool_name(poolId)}`
+            );
+          }}
+        >
+          {!(typeof poolId === 'undefined' || poolId === null) && (
+            <HiOutlineExternalLink className="hover:text-white"></HiOutlineExternalLink>
+          )}
+        </span>
+
+        <span>100%</span>
+      </div>
+    </div>
+  );
+};
+
+export const RightBracket = ({ size }: { size: number }) => {
+  return (
+    <div
+      className="w-4 mr-3 opacity-30 rounded-full relative z-10 border border-primaryText "
+      style={{
+        height: `${size * 35}px`,
+        clipPath: `polygon(50% 0, 100% 0,100% 100%, 50%  100%)`,
+      }}
+    ></div>
+  );
+};
+
+export const LeftBracket = ({ size }: { size: number }) => {
+  return (
+    <div
+      className="w-4 ml-3 opacity-30 rounded-full relative z-10 border border-primaryText  transform rotate-180"
+      style={{
+        height: `${size * 35}px`,
+        clipPath: `polygon(50% 0, 100% 0,100% 100%, 50%  100%)`,
+      }}
+    ></div>
+  );
+};
+
+export const TradeRoute = ({
+  trade,
+  tokenIn,
+  tokenOut,
+}: {
+  trade: ExchangeEstimate;
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+}) => {
+  if (!tokenIn || !tokenOut) return null;
+
+  if (!trade || !trade?.availableRoute || tokenIn?.id === tokenOut?.id) {
+    return (
+      <div className="frcb relative">
+        <DisplayIcon token={tokenIn} height="26px" width="26px" />
+        <div className="w-full frcc mx-2 relative">
+          <div
+            className="border border-dashed absolute left-5 opacity-30 border-primaryText w-full px-3"
+            style={{
+              width: 'calc(100% - 32px)',
+            }}
+          ></div>
+
+          <div
+            className="relative z-50 text-primaryText text-opacity-30"
+            style={{
+              background: '#001220',
+            }}
+          >
+            {'/  /'}
+          </div>
+        </div>
+        <div className="absolute right-8">
+          <PolygonArrow color="#303E48" />
+        </div>
+
+        <DisplayIcon token={tokenOut} height="26px" width="26px" />
+      </div>
+    );
+  }
+
+  const { estimates } = trade;
+
+  const { market } = trade;
+
+  const identicalRoutes = separateRoutes(
+    estimates,
+    estimates[estimates.length - 1].outputToken
+  );
+
+  const pools = identicalRoutes.map((r) => r[0]).map((hub) => hub.pool);
+
+  const percents = useMemo(() => {
+    try {
+      return getPoolAllocationPercents(pools);
+    } catch (error) {
+      if (identicalRoutes.length === 0) return ['100'];
+      else return identicalRoutes.map((r) => r[0].percent);
+    }
+  }, [identicalRoutes, pools]);
+
+  return (
+    <div className="frcb">
+      <DisplayIcon token={tokenIn} height="26px" width="26px" />
+      <LeftBracket size={identicalRoutes.length} />
+      <div className="w-full  mx-2 xsm:overflow-x-auto hideScroll relative">
+        {identicalRoutes.map((route, j) => {
+          return (
+            <div
+              className="relative frcb my-3 "
+              style={{
+                width: isMobile() ? '460px' : '',
+              }}
+            >
+              <span className="text-xs text-senderHot">{percents[j]}%</span>
+              <div
+                className="border border-dashed absolute left-5 opacity-30 border-primaryText w-full px-3"
+                style={{
+                  width: 'calc(100% - 32px)',
+                }}
+              ></div>
+              <div className="frcs">
+                {route[0].tokens
+                  .slice(1, route[0].tokens.length)
+                  .map((t, i) => {
+                    return (
+                      <>
+                        <TradeRouteHub
+                          poolId={
+                            route[i].contract === 'Ref_DCL'
+                              ? getV3PoolId(
+                                  tokenIn.id,
+                                  tokenOut.id,
+                                  trade.fee * 100
+                                )
+                              : route[i].contract === 'Ref_Classic'
+                              ? Number(route[i].pool.id)
+                              : null
+                          }
+                          token={t}
+                          contract={route[i].contract}
+                        />
+                        {t.id !== route[0].tokens.at(-1)?.id && (
+                          <div className="mx-3">
+                            <PolygonArrow />
+                          </div>
+                        )}
+                      </>
+                    );
+                  })}
+              </div>
+
+              <PolygonArrow />
+            </div>
+          );
+        })}
+      </div>
+      <RightBracket size={identicalRoutes.length} />
+
+      <DisplayIcon token={tokenOut} height="26px" width="26px" />
+    </div>
+  );
+};
+
+export const TradeRouteModal = (
+  props: Modal.Props & {
+    trade: ExchangeEstimate;
+  }
+) => {
+  return (
+    <ModalWrapper
+      title={
+        <FormattedMessage
+          id="your_trade_route_capital"
+          defaultMessage={`Your Trade Route`}
+        />
+      }
+      {...props}
+      customWidth={isMobile() ? '95vw' : '700px'}
+    >
+      <div className="w-full mt-7">
+        <TradeRoute
+          trade={props.trade}
+          tokenIn={props.trade.tokenIn}
+          tokenOut={props.trade.tokenOut}
+        />
+      </div>
+    </ModalWrapper>
+  );
+};
+
+export const MarketList = ({
+  trade,
+  allTrades,
+  selectMarket,
+  tokenIn,
+  tokenOut,
+}: {
+  trade: ExchangeEstimate;
+  allTrades: TradeEstimates;
+  selectMarket: SwapMarket;
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+}) => {
+  const { setSelectMarket } = useContext(SwapProContext);
+
+  const sortedTradesList = Object.values(allTrades)
+    .filter((t) => !!t.availableRoute)
+    .sort((a, b) => {
+      return new Big(a.tokenOutAmount || '0').gt(
+        new Big(b.tokenOutAmount || '0')
+      )
+        ? -1
+        : 1;
+    });
+
+  const bestAmount = sortedTradesList?.[0]?.tokenOutAmount;
+
+  if (!bestAmount || tokenIn?.id === tokenOut?.id)
+    return (
+      <>
+        <div className="pb-4 max-w-max mt-6 flex flex-col">
+          <span className="pb-1.5 text-white">
+            <FormattedMessage
+              id="markets"
+              defaultMessage={'Markets'}
+            ></FormattedMessage>
+          </span>
+        </div>
+        {!isMobile() && (
+          <table
+            className="w-full table relative right-3 border-separate"
+            style={{
+              borderSpacing: 0,
+            }}
+          >
+            <tr
+              className="text-primaryText"
+              style={{
+                fontSize: '13px',
+              }}
+            >
+              <th align="left" className="pb-2 pl-3">
+                <FormattedMessage id="exchanges" defaultMessage={'Exchanges'} />
+              </th>
+
+              <th align="left">
+                {<FormattedMessage id="price" defaultMessage={'Price'} />}
+                <span className="ml-1">
+                  {`(${toRealSymbol(trade.tokenOut.symbol)}/${toRealSymbol(
+                    trade.tokenIn.symbol
+                  )})`}
+                </span>
+              </th>
+
+              <th align="left">
+                <FormattedMessage
+                  id="output_est"
+                  defaultMessage={'Output (est.)'}
+                />
+              </th>
+
+              <th align="left">
+                <FormattedMessage id="diff" defaultMessage={'Diff'} />
+              </th>
+
+              <th align="left"></th>
+            </tr>
+          </table>
+        )}
+
+        <div
+          className="text-center mt-10 text-sm"
+          style={{
+            color: '#566069',
+          }}
+        >
+          <FormattedMessage
+            id="no_trade_routes"
+            defaultMessage={'No trade routes.'}
+          />
+        </div>
+      </>
+    );
+
+  const displayList = sortedTradesList.map((t) => {
+    const rawRate = scientificNotationToString(
+      new Big(t.tokenOutAmount || '0')
+        .div(ONLY_ZEROS.test(t.tokenInAmount || '0') ? '1' : t.tokenInAmount)
+        .toString()
+    );
+    return {
+      ...t,
+      marketIcon: getDexIcon(t.market),
+      diff:
+        t.tokenOutAmount === bestAmount
+          ? 'best'
+          : new Big(t.tokenOutAmount || '0')
+              .div(bestAmount || '1')
+              .minus(1)
+              .times(100)
+              .toFixed(2),
+      rate: numberWithCommas(displayNumberToAppropriateDecimals(rawRate)),
+      selected: selectMarket === t.market,
+      output: numberWithCommas(
+        displayNumberToAppropriateDecimals(t.tokenOutAmount)
+      ),
+      action: getDexAction(t.market),
+    };
+  });
+
+  return (
+    <>
+      <div className="pb-4 max-w-max mt-6 flex flex-col">
+        <span className="pb-1.5 text-white">
+          <FormattedMessage
+            id="markets"
+            defaultMessage={'Markets'}
+          ></FormattedMessage>
+        </span>
+
+        <div
+          className="w-full xsm:hidden rounded-md bg-senderHot"
+          style={{
+            height: '3px',
+          }}
+        ></div>
+      </div>
+
+      {!isMobile() && (
+        <table
+          className="w-full table relative right-3 border-separate"
+          style={{
+            borderSpacing: 0,
+          }}
+        >
+          <tr
+            className="text-primaryText"
+            style={{
+              fontSize: '13px',
+            }}
+          >
+            <th align="left" className="pb-2 pl-3">
+              <FormattedMessage id="exchanges" defaultMessage={'Exchanges'} />
+            </th>
+
+            <th align="left">
+              {<FormattedMessage id="price" defaultMessage={'Price'} />}
+              <span className="ml-1">
+                {`(${toRealSymbol(trade.tokenOut.symbol)}/${toRealSymbol(
+                  trade.tokenIn.symbol
+                )})`}
+              </span>
+            </th>
+
+            <th align="left">
+              <FormattedMessage
+                id="output_est"
+                defaultMessage={'Output (est.)'}
+              />
+            </th>
+
+            <th align="left">
+              <FormattedMessage id="diff" defaultMessage={'Diff'} />
+            </th>
+
+            <th align="left"></th>
+          </tr>
+          {displayList.map((t) => {
+            return (
+              <>
+                <tr
+                  className={`text-white rounded-xl text-sm p-2 
+              hover:bg-inputV3BorderColor hover:bg-opacity-40
+              ${t.selected ? 'bg-inputV3BorderColor bg-opacity-40' : ''}
+            
+            `}
+                  onClick={() => {
+                    setSelectMarket(t.market);
+                  }}
+                >
+                  <td className="rounded-l-xl">
+                    <div className="frcs pl-3">
+                      <div
+                        className="frcc "
+                        style={{
+                          height: '25px',
+                          width: '25px',
+                        }}
+                      >
+                        {t.marketIcon}
+                      </div>
+
+                      <div className="ml-2 frcc">{t?.exchange_name}</div>
+                    </div>
+                  </td>
+
+                  <td>{t.rate}</td>
+
+                  <td>{t.output}</td>
+
+                  <td>
+                    {t.diff === 'best' ? (
+                      <span className="text-black text-xs my-2 max-w-max rounded-2xl bg-senderHot px-2.5 py-0.5 frcc ">
+                        <FormattedMessage
+                          id="best"
+                          defaultMessage={'Best'}
+                        ></FormattedMessage>
+                      </span>
+                    ) : (
+                      <span className="bg-sellRed my-2  text-xs max-w-max bg-opacity-10 text-sellRed rounded-2xl px-2.5 py-0.5 frcc">
+                        {t.diff}%
+                      </span>
+                    )}
+                  </td>
+
+                  <td className="rounded-r-xl">
+                    <div
+                      className="w-4  h-4 rounded-full  frcc"
+                      style={{
+                        border: '1px solid #223846',
+                      }}
+                    >
+                      {t.selected && (
+                        <div
+                          className="rounded-full bg-senderHot"
+                          style={{
+                            height: '9px',
+                            width: '9px',
+                          }}
+                        ></div>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div className="my-1"></div>
+                  </td>
+                </tr>
+              </>
+            );
+          })}
+        </table>
+      )}
+
+      {isMobile() &&
+        displayList.map((t, i) => {
+          return (
+            <div
+              className={`${
+                t.selected ? 'border border-gradientFromHover' : ''
+              } bg-menuMoreBgColor rounded-xl
+            
+              p-2.5 mb-3
+            `}
+              onClick={() => {
+                setSelectMarket(t.market);
+              }}
+            >
+              <div className="frcb ">
+                <div className="frcs">
+                  <div
+                    className="frcc "
+                    style={{
+                      height: '25px',
+                      width: '25px',
+                    }}
+                  >
+                    {t.marketIcon}
+                  </div>
+
+                  <div className="mx-2 frcc">{t?.exchange_name}</div>
+
+                  <div>
+                    {t.diff === 'best' ? (
+                      <span className="text-black text-xs my-2 max-w-max rounded-2xl bg-senderHot px-2.5 py-0.5 frcc ">
+                        <FormattedMessage
+                          id="best"
+                          defaultMessage={'Best'}
+                        ></FormattedMessage>
+                      </span>
+                    ) : (
+                      <span className="bg-sellRed my-2  text-xs max-w-max bg-opacity-10 text-sellRed rounded-2xl px-2.5 py-0.5 frcc">
+                        {t.diff}%
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div
+                  className="w-4  h-4 rounded-full  frcc"
+                  style={{
+                    border: '1px solid #223846',
+                  }}
+                >
+                  {t.selected && (
+                    <div
+                      className="rounded-full bg-senderHot"
+                      style={{
+                        height: '9px',
+                        width: '9px',
+                      }}
+                    ></div>
+                  )}
+                </div>
+              </div>
+
+              <div className="frcb py-3 text-13px">
+                <div className=" text-primaryText">
+                  {<FormattedMessage id="price" defaultMessage={'Price'} />}
+                  <span className="ml-1">
+                    {`(${toRealSymbol(trade.tokenOut.symbol)}/${toRealSymbol(
+                      trade.tokenIn.symbol
+                    )})`}
+                  </span>
+                </div>
+
+                <div className="text-white">{t.rate}</div>
+              </div>
+
+              <div className="frcb text-13px">
+                <div className=" text-primaryText">
+                  <FormattedMessage
+                    id="output_est"
+                    defaultMessage={'Output (est.)'}
+                  />
+                </div>
+
+                <div className="text-white">{t.output}</div>
+              </div>
+            </div>
+          );
+        })}
+    </>
   );
 };

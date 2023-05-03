@@ -46,6 +46,9 @@ import {
   displayNumberToAppropriateDecimals,
   getEffectiveFarmList,
   sort_tokens_by_base,
+  get_pool_id,
+  get_pool_name,
+  openUrl,
 } from '~services/commonV3';
 import { ftGetTokensMetadata } from '../../services/ft-contract';
 import {
@@ -112,11 +115,23 @@ import _ from 'lodash';
 import { PoolRPCView } from '../../services/api';
 import { FarmStampNew } from '../../components/icon/FarmStamp';
 
-const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
-
+const { REF_UNI_V3_SWAP_CONTRACT_ID, DCL_POOL_BLACK_LIST } = getConfig();
 export default function PoolDetailV3() {
   const { id } = useParams<ParamTypes>();
-  const pool_id_from_url = id.replace(/@/g, '|');
+  let pool_id_from_url: string;
+  const params_str = decodeURIComponent(id);
+  if (params_str.indexOf('<>') > -1) {
+    // new link
+    pool_id_from_url = get_pool_id(params_str);
+  } else {
+    // old link
+    pool_id_from_url = id.replace(/@/g, '|');
+  }
+  const history = useHistory();
+  if (DCL_POOL_BLACK_LIST.includes(pool_id_from_url)) {
+    history.push('/pools');
+    return null;
+  }
   const [poolDetail, setPoolDetail] = useState<PoolInfo>(null);
   const [user_liquidities, set_user_liquidities] =
     useState<UserLiquidityInfo[]>();
@@ -1086,8 +1101,10 @@ function RelatedFarmsBox(props: any) {
     const [contractId, temp_pool_id] = seed_id.split('@');
     const [fixRange, pool_id, left_point, right_point] =
       temp_pool_id.split('&');
-    const link_params = `${pool_id}&${left_point}&${right_point}`;
-    window.open(`/v2farms/${link_params}-r`);
+    const link_params = `${get_pool_name(
+      pool_id
+    )}[${left_point}-${right_point}]`;
+    openUrl(`/v2farms/${link_params}-r`);
   }
   if (farm_loading) return null;
   if (!related_seed) return null;
@@ -1156,7 +1173,8 @@ function NoYourLiquditiesBox(props: any) {
     if (TOKEN_LIST_FOR_RATE.indexOf(token_x_metadata?.symbol) > -1) {
       url_hash = `${token_y}|${token_x}|${fee}`;
     }
-    history.push(`/addLiquidityV2#${url_hash}`);
+    const pool_name = get_pool_name(url_hash);
+    history.push(`/addLiquidityV2#${pool_name}`);
   }
   return (
     <div className="flex flex-col items-center px-10 py-6 bg-cardBg rounded-xl">
@@ -1273,7 +1291,9 @@ function SelectLiquidityBox(props: any) {
   function go_farm(liquidity: UserLiquidityInfo) {
     const { mft_id } = liquidity;
     const [fixRange, pool_id, left_point, right_point] = mft_id.split('&');
-    const link_params = `${pool_id}&${left_point}&${right_point}`;
+    const link_params = `${get_pool_name(
+      pool_id
+    )}[${left_point}-${right_point}]`;
     const seed_id = REF_UNI_V3_SWAP_CONTRACT_ID + '@' + mft_id.slice(1);
     const temp_seeds = (matched_seeds || []).filter((seed: Seed) => {
       return seed_id == seed.seed_id;
@@ -1292,7 +1312,7 @@ function SelectLiquidityBox(props: any) {
     } else {
       url = `/v2farms/${link_params}-e`;
     }
-    window.open(url);
+    openUrl(url);
   }
   function is_in_farming(liquidity: UserLiquidityInfo) {
     const is_in_farming =
@@ -1888,7 +1908,7 @@ function TablePool(props: any) {
                         className=""
                         onClick={(e) => {
                           e.stopPropagation();
-                          window.open(TokenLinks[token.meta.symbol]);
+                          openUrl(TokenLinks[token.meta.symbol]);
                         }}
                       >
                         <FiArrowUpRight className="text-primaryText hover:text-greenColor cursor-pointer" />
@@ -1905,6 +1925,7 @@ function TablePool(props: any) {
                 </div>
                 <a
                   target="_blank"
+                  rel="noopener noreferrer nofollow"
                   href={`/swap/#${tokens[0].meta.id}|${tokens[1].meta.id}`}
                   className="text-xs text-primaryText xsm:hidden"
                   title={token.meta.id}

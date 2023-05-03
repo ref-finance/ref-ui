@@ -4,31 +4,41 @@ import React, {
   useContext,
   createContext,
   useMemo,
+  Fragment,
 } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useHistory } from 'react-router-dom';
-import { isClientMobie, useClientMobile } from '~utils/device';
-import { SolidButton, ButtonTextWrapper } from '../components/button/Button';
-import { useMyOrders } from '../state/swapV3';
-import { refSwapV3OldVersionViewFunction } from '../services/near';
+import { isClientMobie, useClientMobile } from '../../../../utils/device';
+import {
+  SolidButton,
+  ButtonTextWrapper,
+} from '../../../../components/button/Button';
+
+import { useMyOrders } from '../../../../state/swapV3';
+import { refSwapV3OldVersionViewFunction } from '../../../../services/near';
 import {
   UserOrderInfo,
   V3_POOL_SPLITER,
   pointToPrice,
-} from '../services/swapV3';
-import { useToken, useTokens, useTokenPriceList } from '../state/token';
+} from '../../../../services/swapV3';
 import {
-  SWAP_MODE,
-  SWAP_MODE_KEY,
-  REF_FI_SWAP_SWAPPAGE_TAB_KEY,
-} from './SwapPage';
+  useToken,
+  useTokens,
+  useTokenPriceList,
+} from '../../../../state/token';
+
 import {
+  FilledEllipse,
   MobileHistoryOrderStamp,
   MyOrderCircle,
   MyOrderMask,
   MyOrderMask2,
-} from '../components/icon/swapV3';
-import { calculateFeePercent, ONLY_ZEROS, toPrecision } from '~utils/numbers';
+} from '../../../../components/icon/swapV3';
+import {
+  calculateFeePercent,
+  ONLY_ZEROS,
+  toPrecision,
+} from '../../../../utils/numbers';
 
 import { BsCheckCircle } from 'react-icons/bs';
 
@@ -36,33 +46,55 @@ import {
   toReadableNumber,
   scientificNotationToString,
   checkAllocations,
-} from '../utils/numbers';
-import { TokenMetadata } from '../services/ft-contract';
+} from '../../../../utils/numbers';
+import { TokenMetadata } from '../../../../services/ft-contract';
 import Big from 'big.js';
-import { cancel_order, cancel_order_old } from '../services/swapV3';
-import { TIMESTAMP_DIVISOR } from '../components/layout/Proposal';
+import { cancel_order, cancel_order_old } from '../../../../services/swapV3';
+import { TIMESTAMP_DIVISOR } from '../../../../components/layout/Proposal';
 import moment from 'moment';
-import { DownArrowVE, UpArrowVE } from '../components/icon/Referendum';
-import { Loading } from '~components/icon/Loading';
-import { RouterArrowLeft, MyOrderMobileArrow } from '../components/icon/Arrows';
-import QuestionMark from '../components/farm/QuestionMark';
+import { DownArrowVE, UpArrowVE } from '../../../../components/icon/Referendum';
+import { Loading } from '../../../../components/icon/Loading';
+import {
+  RouterArrowLeft,
+  MyOrderMobileArrow,
+} from '../../../../components/icon/Arrows';
+import QuestionMark from '../../../../components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
-import { toRealSymbol } from '../utils/token';
-import { QuestionTip, ExclamationTip } from '../components/layout/TipWrapper';
-import { MyOrderInstantSwapArrowRight } from '../components/icon/swapV3';
-import { TOKEN_LIST_FOR_RATE } from '../services/commonV3';
+import { toRealSymbol } from '../../../../utils/token';
+import {
+  QuestionTip,
+  ExclamationTip,
+} from '../../../../components/layout/TipWrapper';
+import { MyOrderInstantSwapArrowRight } from '../../../../components/icon/swapV3';
+import { TOKEN_LIST_FOR_RATE } from '../../../../services/commonV3';
 import BigNumber from 'bignumber.js';
-import { isMobile } from '../utils/device';
-import { refSwapV3ViewFunction } from '../services/near';
-import { useWalletSelector } from '../context/WalletSelectorContext';
-import { useHistoryOrderTx, useHistoryOrderSwapInfo } from '../state/myOrder';
+import { isMobile } from '../../../../utils/device';
+import { useWalletSelector } from '../../../../context/WalletSelectorContext';
+import {
+  useHistoryOrderTx,
+  useHistoryOrderSwapInfo,
+} from '../../../../state/myOrder';
 import { HiOutlineExternalLink } from 'react-icons/hi';
-import getConfig from '~services/config';
+import getConfig from '../../../../services/config';
 import _ from 'lodash';
-import { HistoryOrderSwapInfo } from '../services/indexer';
+import { HistoryOrderSwapInfo } from '../../../../services/indexer';
 
 const ORDER_TYPE_KEY = 'REF_FI_ORDER_TYPE_VALUE';
 
+const MobileInfoBanner = ({
+  text,
+  value,
+}: {
+  text: string | JSX.Element;
+  value: string | JSX.Element;
+}) => {
+  return (
+    <div className="flex mb-4 items-center justify-between whitespace-nowrap">
+      <span className="text-xs text-v3SwapGray">{text}</span>
+      <span className="text-white text-sm">{value}</span>
+    </div>
+  );
+};
 function WarningTip() {
   if (isMobile()) {
     return (
@@ -104,12 +136,7 @@ function WarningTip() {
 
 function NoOrderCard({ text }: { text: 'active' | 'history' }) {
   return (
-    <div
-      className="w-full rounded-xl overflow-hidden h-48 relative text-white font-normal  flex items-center justify-center"
-      style={{
-        background: 'rgb(26,36,43)',
-      }}
-    >
+    <div className="w-full rounded-xl overflow-hidden h-48 relative text-white font-normal  flex items-center justify-center">
       <div className="flex items-center flex-col relative text-center z-50 mx-auto">
         <span className="mb-4">
           <MyOrderCircle />
@@ -123,9 +150,6 @@ function NoOrderCard({ text }: { text: 'active' | 'history' }) {
           .
         </span>
       </div>
-
-      <MyOrderMask />
-      <MyOrderMask2 />
     </div>
   );
 }
@@ -138,15 +162,17 @@ function HistoryLine({
   tokensMap,
   sellAmountToBuyAmount,
   orderTx,
+  hoverOn,
+  setHoverOn,
 }: {
   order: UserOrderInfo;
   index: number;
   tokensMap: { [key: string]: TokenMetadata };
   sellAmountToBuyAmount: any;
   orderTx: string;
+  hoverOn: number;
+  setHoverOn: React.Dispatch<React.SetStateAction<number>>;
 }) {
-  const [hover, setHover] = useState<boolean>(false);
-
   const intl = useIntl();
 
   const buyToken = tokensMap[order.buy_token];
@@ -209,6 +235,32 @@ function HistoryLine({
   const claimedAmount = toReadableNumber(
     buyToken.decimals,
     order.bought_amount || '0'
+  );
+
+  const buyAmountToSellAmount = (
+    undecimaled_amount: string,
+    order: UserOrderInfo,
+    price: string
+  ) => {
+    const sell_amount = new Big(
+      toReadableNumber(
+        tokensMap[order.buy_token].decimals,
+        undecimaled_amount || '0'
+      )
+    )
+      .div(price)
+      .toString();
+    return scientificNotationToString(sell_amount);
+  };
+
+  const claimedAmountIn = buyAmountToSellAmount(
+    scientificNotationToString(
+      new Big(order.bought_amount || '0')
+        .minus(order.unclaimed_amount || '0')
+        .toString()
+    ),
+    order,
+    price
   );
 
   const cancelAmount = sellAmountToBuyAmount(order.cancel_amount, order, price);
@@ -300,35 +352,29 @@ function HistoryLine({
   };
 
   const sellTokenAmount = (
-    <div className="flex items-center whitespace-nowrap w-28 justify-between">
-      <span className="flex flex-shrink-0 items-center col-span-1">
-        <img
-          src={sellToken.icon}
-          className="border border-gradientFrom rounded-full w-7 h-7"
-          alt=""
-        />
+    <span className="flex py-4 pl-3  flex-shrink-0 items-center">
+      <img
+        src={sellToken.icon}
+        className="border border-gradientFrom rounded-full w-7 h-7"
+        alt=""
+      />
 
-        <div className="flex   xs:flex-row flex-col ml-2">
-          <span className="text-white text-sm mr-2" title={orderIn}>
-            {Number(orderIn) > 0 && Number(orderIn) < 0.01
-              ? '< 0.01'
-              : toPrecision(orderIn, 2)}
-          </span>
+      <div className="flex   xs:flex-row flex-col ml-2">
+        <span className="text-white text-sm mr-2" title={orderIn}>
+          {Number(orderIn) > 0 && Number(orderIn) < 0.01
+            ? '< 0.01'
+            : toPrecision(orderIn, 2)}
+        </span>
 
-          <span className="text-v3SwapGray text-xs xs:relative xs:top-0.5">
-            {toRealSymbol(sellToken.symbol)}
-          </span>
-        </div>
-      </span>
-
-      <span className="text-white text-lg xs:hidden pl-2  pr-1">
-        <MyOrderInstantSwapArrowRight />
-      </span>
-    </div>
+        <span className="text-v3SwapGray text-xs xs:relative xs:top-0.5">
+          {toRealSymbol(sellToken.symbol)}
+        </span>
+      </div>
+    </span>
   );
 
   const buyTokenAmount = (
-    <span className="flex items-center col-span-1 ml-8">
+    <span className="flex items-center col-span-1 ">
       <img
         src={buyToken.icon}
         className="border flex-shrink-0 border-gradientFrom rounded-full w-7 h-7"
@@ -355,11 +401,10 @@ function HistoryLine({
   const fee = Number(order.pool_id.split(V3_POOL_SPLITER)[2]);
 
   const feeTier = (
-    <span className="col-span-2 ml-10 xs:ml-0  text-v3Blue xs:text-white">
+    <span className="rounded-lg relative xsm:right-0 xsm:bg-none right-3 text-left  text-primaryText p-1 lg:bg-menuMoreBgColor xs:text-white">
       {`${toPrecision(calculateFeePercent(fee / 100).toString(), 2)}% `}
     </span>
   );
-
   const sort =
     TOKEN_LIST_FOR_RATE.indexOf(sellToken?.symbol) > -1 && +price !== 0;
   const orderRate = useMemo(() => {
@@ -368,7 +413,7 @@ function HistoryLine({
       p = new BigNumber(1).dividedBy(price).toFixed();
     }
     return (
-      <span className="whitespace-nowrap col-span-1 flex items-end xs:flex-row xs:items-center flex-col relative right-4 xs:right-0">
+      <span className="whitespace-nowrap col-span-1 flex items-start xs:flex-row xs:items-center flex-col relative xs:right-0">
         <span className="mr-1 text-white text-sm" title={p}>
           {toPrecision(p, 2)}
         </span>
@@ -428,7 +473,7 @@ function HistoryLine({
   );
 
   const claimed = (
-    <span className="whitespace-nowrap col-span-2 xs:flex-col flex items-center ml-12">
+    <span className="whitespace-nowrap  xs:flex-col flex items-center ">
       <div>
         <div className="flex items-center xs:justify-end">
           <img
@@ -465,15 +510,27 @@ function HistoryLine({
   );
 
   const created = (
-    <span className="col-span-2 relative xs:opacity-50 xs:flex xs:items-center xs:justify-center whitespace-nowrap right-12 xs:right-0  text-white xs:text-xs xs:text-primaryText text-right">
-      {moment(
-        Math.floor(Number(order.created_at) / TIMESTAMP_DIVISOR) * 1000
-      ).format('YYYY-MM-DD HH:mm')}
+    <span className=" relative  whitespace-nowrap    text-primaryText xs:text-xs flex flex-col   xsm:justify-center  text-left xs:opacity-50">
+      <span className="xsm:hidden">
+        {moment(
+          Math.floor(Number(order.created_at) / TIMESTAMP_DIVISOR) * 1000
+        ).format('YYYY-MM-DD')}
+      </span>
+      <span className="xsm:hidden">
+        {moment(
+          Math.floor(Number(order.created_at) / TIMESTAMP_DIVISOR) * 1000
+        ).format('HH:mm')}
+      </span>
+
+      <span className="lg:hidden text-center relative bottom-2">
+        {moment(
+          Math.floor(Number(order.created_at) / TIMESTAMP_DIVISOR) * 1000
+        ).format('YYYY-MM-DD HH:mm')}
+      </span>
     </span>
   );
-
   const actions = (
-    <div className=" col-span-1  text-primaryText  text-xs flex flex-col items-end justify-self-end p-1.5">
+    <div className=" col-span-1  text-primaryText  text-xs flex flex-col items-end justify-self-end p-1.5 pr-4">
       <span className="flex text-sm text-white items-center whitespace-nowrap">
         {ONLY_ZEROS.test(order.cancel_amount) ? (
           <FormattedMessage id="filled" defaultMessage={'Filled'} />
@@ -493,7 +550,7 @@ function HistoryLine({
 
       {!!orderTx && (
         <a
-          className="flex items-center hover:text-white"
+          className="flex items-center text-v3SwapGray"
           href={`${getConfig().explorerUrl}/txns/${orderTx}`}
           target="_blank"
           rel="noopener noreferrer nofollow"
@@ -534,135 +591,253 @@ function HistoryLine({
     return result;
   }
   const swapBanner = (
-    <div className="xs:flex xs:flex-col whitespace-nowrap xs:bg-cardBg xs:bg-opacity-50 relative z-10 bottom-4 xs:bottom-0 w-full text-sm text-v3SwapGray bg-cardBg rounded-xl px-5 pb-5 pt-10 xs:px-3 xs:py-4 xs:text-xs">
-      <div className="flex items-center justify-between mb-7 xs:mb-7">
-        <span className="flex items-center">
-          <FormattedMessage
-            id="initial_order"
-            defaultMessage={'Initial Order'}
-          />
-          <ExclamationTip
-            id="this_order_has_been_partially_filled"
-            defaultMessage="This order has been partially filled "
-            dataPlace="right"
-            colorhex="#7E8A93"
-          />
-        </span>
-
-        <span className="flex items-center">
-          <span title={totalIn} className="text-white xs:text-v3SwapGray">
-            {Number(totalIn) > 0 && Number(totalIn) < 0.01
-              ? '< 0.01'
-              : toPrecision(totalIn, 2)}
-          </span>
-
-          <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
-          <span className="mx-6 xs:mx-2 text-white xs:text-v3SwapGray">
-            {isClientMobie() ? (
-              <MyOrderInstantSwapArrowRight />
-            ) : (
-              <MyOrderInstantSwapArrowRight />
-            )}
-          </span>
-          <span
-            title={toPrecision(totalOut, buyToken.decimals)}
-            className="text-white xs:text-v3SwapGray"
-          >
-            {Number(totalOut) > 0 && Number(totalOut) < 0.01
-              ? '< 0.01'
-              : toPrecision(totalOut, 2)}
-          </span>
-
-          <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
-        </span>
-      </div>
-
-      <div className="flex items-center justify-between ">
-        <span className="flex items-center ">
-          <FormattedMessage
-            id="filled_via_swap"
-            defaultMessage={'Filled via Swap'}
-          />
-
-          <ExclamationTip
-            colorhex="#7E8A93"
-            id={instant_swap_tip()}
-            defaultMessage={instant_swap_tip()}
-          />
-        </span>
-
-        <span className="flex items-center">
-          <BsCheckCircle className="mr-1.5" fill="#42bb17" stroke="#42BB17" />
-          <span title={swapIn} className="text-v3SwapGray">
-            {Number(swapIn) > 0 && Number(swapIn) < 0.01
-              ? '< 0.01'
-              : toPrecision(swapIn, 2)}
-          </span>
-
-          <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
-          <span className="mx-6 xs:mx-2 text-v3SwapGray">
-            {isClientMobie() ? (
-              <MyOrderInstantSwapArrowRight />
-            ) : (
-              <MyOrderInstantSwapArrowRight />
-            )}
-          </span>
-          <span title={swapOut} className="text-v3SwapGray">
-            {Number(swapOut) > 0 && Number(swapOut) < 0.01
-              ? '< 0.01'
-              : toPrecision(swapOut, 2)}
-          </span>
-
-          <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
-        </span>
-      </div>
-    </div>
-  );
-  const MobileInfoBanner = ({
-    text,
-    value,
-  }: {
-    text: string | JSX.Element;
-    value: string | JSX.Element;
-  }) => {
-    return (
-      <div className="flex mb-4 items-center justify-between whitespace-nowrap">
-        <span className="text-xs text-v3SwapGray">{text}</span>
-        <span className="text-white font-bold text-sm">{value}</span>
-      </div>
-    );
-  };
-  return (
     <>
-      <div
-        className="mb-4 w-full xs:hidden"
-        onMouseLeave={() => {
-          setHover(false);
+      <td
+        colSpan={8}
+        className=" rounded-b-xl xsm:hidden  w-full relative bottom-1.5 pt-6 bg-portfolioBgColor"
+      >
+        {new Big(order.original_deposit_amount || '0')
+          .minus(order.original_amount || '0')
+          .gt(0) && (
+          <>
+            <div className="flex items-center px-4 pb-4 justify-between ">
+              <span className="flex items-center">
+                <FormattedMessage
+                  id="initial_order"
+                  defaultMessage={'Initial Order'}
+                />
+                <ExclamationTip
+                  id="this_order_has_been_partially_filled"
+                  defaultMessage="This order has been partially filled "
+                  dataPlace="bottom"
+                  colorhex="#7E8A93"
+                  uniquenessId={
+                    'this_order_has_been_partially_filled' + order.order_id
+                  }
+                />
+              </span>
+
+              <span className="flex items-center">
+                <span title={totalIn} className="text-v3SwapGray">
+                  {Number(totalIn) > 0 && Number(totalIn) < 0.01
+                    ? '< 0.01'
+                    : toPrecision(totalIn, 2)}
+                </span>
+
+                <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
+                <span className="mx-6 xs:mx-2 text-white xs:text-v3SwapGray">
+                  {isClientMobie() ? (
+                    <MyOrderInstantSwapArrowRight />
+                  ) : (
+                    <MyOrderInstantSwapArrowRight />
+                  )}
+                </span>
+                <span
+                  title={toPrecision(totalOut, buyToken.decimals)}
+                  className="text-v3SwapGray"
+                >
+                  {Number(totalOut) > 0 && Number(totalOut) < 0.01
+                    ? '< 0.01'
+                    : toPrecision(totalOut, 2)}
+                </span>
+
+                <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
+              </span>
+            </div>
+
+            <div className="frcb px-4 pb-4">
+              <span className="flex items-center ">
+                <FormattedMessage
+                  id="instants_swap"
+                  defaultMessage={'Instant Swap'}
+                />
+
+                <ExclamationTip
+                  colorhex="#7E8A93"
+                  id={instant_swap_tip()}
+                  defaultMessage={instant_swap_tip()}
+                  dataPlace="bottom"
+                  uniquenessId={'instant_swap_tip' + order.order_id}
+                />
+              </span>
+
+              <span className="frcb min-w-p300">
+                <div className="frcs text-xs w pr-2 text-v3SwapGray">
+                  <BsCheckCircle
+                    className="mr-1.5"
+                    fill="#42bb17"
+                    stroke="#42BB17"
+                  />
+
+                  <FormattedMessage
+                    id="swappped"
+                    defaultMessage={'Swapped'}
+                  ></FormattedMessage>
+                </div>
+
+                <div className="flex items-center justify-end">
+                  <span title={swapIn} className="text-v3SwapGray">
+                    {Number(swapIn) > 0 && Number(swapIn) < 0.01
+                      ? '< 0.01'
+                      : toPrecision(swapIn, 2)}
+                  </span>
+
+                  <span className="ml-1.5">
+                    {toRealSymbol(sellToken.symbol)}
+                  </span>
+                  <span className="mx-6 xs:mx-2 text-v3SwapGray">
+                    {isClientMobie() ? (
+                      <MyOrderInstantSwapArrowRight />
+                    ) : (
+                      <MyOrderInstantSwapArrowRight />
+                    )}
+                  </span>
+                  <span title={swapOut} className="text-v3SwapGray">
+                    {Number(swapOut) > 0 && Number(swapOut) < 0.01
+                      ? '< 0.01'
+                      : toPrecision(swapOut, 2)}
+                  </span>
+
+                  <span className="ml-1.5">
+                    {toRealSymbol(buyToken.symbol)}
+                  </span>
+                </div>
+              </span>
+            </div>
+          </>
+        )}
+        {Number(claimedAmountIn) > 0 && (
+          <div className="frcb px-4 pb-4">
+            <span>
+              <FormattedMessage id="executed" defaultMessage={'Executed'} />
+            </span>
+
+            <span className="frcb min-w-p300">
+              <div className="frcs text-xs pr-2 text-v3SwapGray">
+                <BsCheckCircle
+                  className="mr-1.5"
+                  fill="#00D6AF"
+                  stroke="#00D6AF"
+                />
+
+                <FormattedMessage
+                  id="claimed"
+                  defaultMessage={'Claimed'}
+                ></FormattedMessage>
+              </div>
+
+              <div className="flex items-center justify-end">
+                <span
+                  title={toPrecision(claimedAmountIn, sellToken.decimals)}
+                  className="text-v3SwapGray"
+                >
+                  {Number(claimedAmountIn) > 0 && Number(claimedAmountIn) < 0.01
+                    ? '< 0.01'
+                    : toPrecision(claimedAmountIn, 2)}
+                </span>
+
+                <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
+                <span className="mx-6 xs:mx-2 text-v3SwapGray">
+                  {isClientMobie() ? (
+                    <MyOrderInstantSwapArrowRight />
+                  ) : (
+                    <MyOrderInstantSwapArrowRight />
+                  )}
+                </span>
+                <span title={claimedAmount} className="text-v3SwapGray">
+                  {Number(claimedAmount) > 0 && Number(claimedAmount) < 0.01
+                    ? '< 0.01'
+                    : toPrecision(claimedAmount, 2)}
+                </span>
+
+                <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
+              </div>
+            </span>
+          </div>
+        )}
+      </td>
+    </>
+  );
+
+  return (
+    <Fragment>
+      <tr>
+        <td>
+          <div className="pb-2.5"></div>
+        </td>
+      </tr>
+      <tr
+        className={`mb-4 overflow-visible   xs:hidden px-4 py-3 text-sm   z-20   relative  w-full  items-center   ${
+          hoverOn === index
+            ? 'bg-portfolioBarBgColor rounded-t-xl'
+            : 'bg-portfolioBgColor rounded-xl'
+        }`}
+        onMouseEnter={() => {
+          setHoverOn(index);
         }}
         style={{
-          zIndex: 20 - index,
+          zIndex: 21,
         }}
       >
-        <div
-          className={`px-4 py-3 text-sm   z-20 grid grid-cols-10 relative  w-full rounded-xl items-center  bg-cardBg ${
-            hover ? 'bg-v3HoverDarkBgColor' : 'bg-cardBg'
-          }`}
-          onMouseEnter={() => {
-            setHover(true);
-          }}
+        <td
+          className={
+            hoverOn === index &&
+            (new Big(order.original_deposit_amount || '0')
+              .minus(order.original_amount || '0')
+              .gt(0) ||
+              Number(claimedAmountIn) > 0)
+              ? ' rounded-tl-xl'
+              : ' rounded-l-xl'
+          }
         >
           {sellTokenAmount}
-          {buyTokenAmount}
-          {feeTier}
-          {orderRate}
-          {created}
+        </td>
 
-          {claimed}
+        <td>
+          <span className="text-white text-lg frcs w-7 xs:hidden ">
+            <MyOrderInstantSwapArrowRight />
+          </span>
+        </td>
 
+        <td>{buyTokenAmount}</td>
+
+        <td>{feeTier}</td>
+
+        <td>{orderRate}</td>
+
+        <td>{created}</td>
+
+        <td className="">{claimed}</td>
+        <td
+          className={
+            hoverOn === index &&
+            (new Big(order.original_deposit_amount || '0')
+              .minus(order.original_amount || '0')
+              .gt(0) ||
+              Number(claimedAmountIn) > 0)
+              ? ' rounded-tr-xl'
+              : ' rounded-r-xl'
+          }
+        >
           {actions}
-        </div>
-        {hover && !ONLY_ZEROS.test(swapIn || '0') ? swapBanner : null}
-      </div>
+        </td>
+
+        {/* {actions} */}
+      </tr>
+
+      {hoverOn === index &&
+        (new Big(order.original_deposit_amount || '0')
+          .minus(order.original_amount || '0')
+          .gt(0) ||
+          Number(claimedAmountIn) > 0) && (
+          <>
+            <tr className="xs:flex z-20 relative  xs:flex-col whitespace-nowrap xs:bg-cardBg xs:bg-opacity-50  bottom-2 xs:bottom-0 w-full text-sm text-v3SwapGray bg-cardBg rounded-xl px-5 pb-5 pt-10 xs:px-3 xs:py-4 xs:text-xs">
+              {swapBanner}
+            </tr>
+          </>
+        )}
+
+      {/* {hover && !ONLY_ZEROS.test(swapIn || '0') ? swapBanner : null} */}
 
       <div
         className="w-full relative mb-4 md:hidden lg:hidden"
@@ -682,7 +857,7 @@ function HistoryLine({
 
         {/* title */}
         <div className="rounded-t-xl relative bg-orderMobileTop px-3 pt-3">
-          <div className="absolute right-4 bottom-0.5 z-50  text-xs">
+          <div className="absolute right-4 bottom-2.5 z-50  text-xs">
             {!!orderTx && (
               <a
                 className="flex items-center bg-black text-primaryText px-1.5  bg-opacity-20 rounded "
@@ -735,7 +910,7 @@ function HistoryLine({
         {/* swap banner */}
         {!ONLY_ZEROS.test(swapIn || '0') ? swapBanner : null}
       </div>
-    </>
+    </Fragment>
   );
 }
 
@@ -761,14 +936,16 @@ function HistorySwapInfoLine({
   amount_in: string;
   amount_out: string;
   timestamp: string;
+  hoverOn: number;
+  setHoverOn: React.Dispatch<React.SetStateAction<number>>;
 }) {
-  const [hover, setHover] = useState<boolean>(false);
-
   const intl = useIntl();
 
   const buyToken = tokensMap[token_out];
 
   const sellToken = tokensMap[token_in];
+
+  const [hover, setHover] = useState<boolean>(false);
 
   if (!buyToken || !sellToken) return null;
 
@@ -788,35 +965,29 @@ function HistorySwapInfoLine({
   const buyAmount = toReadableNumber(buyToken.decimals, amount_out || '0');
 
   const sellTokenAmount = (
-    <div className="flex items-center whitespace-nowrap w-28 justify-between">
-      <span className="flex flex-shrink-0 items-center col-span-1">
-        <img
-          src={sellToken.icon}
-          className="border border-gradientFrom rounded-full w-7 h-7"
-          alt=""
-        />
+    <span className="flex py-4 pl-3  flex-shrink-0 items-center">
+      <img
+        src={sellToken.icon}
+        className="border border-gradientFrom rounded-full w-7 h-7"
+        alt=""
+      />
 
-        <div className="flex   xs:flex-row flex-col ml-2">
-          <span className="text-white text-sm mr-2" title={orderIn}>
-            {Number(orderIn) > 0 && Number(orderIn) < 0.01
-              ? '< 0.01'
-              : toPrecision(orderIn, 2)}
-          </span>
+      <div className="flex   xs:flex-row flex-col ml-2">
+        <span className="text-white text-sm mr-2" title={orderIn}>
+          {Number(orderIn) > 0 && Number(orderIn) < 0.01
+            ? '< 0.01'
+            : toPrecision(orderIn, 2)}
+        </span>
 
-          <span className="text-v3SwapGray text-xs xs:relative xs:top-0.5">
-            {toRealSymbol(sellToken.symbol)}
-          </span>
-        </div>
-      </span>
-
-      <span className="text-white text-lg xs:hidden pl-2  pr-1">
-        <MyOrderInstantSwapArrowRight />
-      </span>
-    </div>
+        <span className="text-v3SwapGray text-xs xs:relative xs:top-0.5">
+          {toRealSymbol(sellToken.symbol)}
+        </span>
+      </div>
+    </span>
   );
 
   const buyTokenAmount = (
-    <span className="flex items-center col-span-1 ml-8">
+    <span className="flex items-center col-span-1 ">
       <img
         src={buyToken.icon}
         className="border flex-shrink-0 border-gradientFrom rounded-full w-7 h-7"
@@ -843,34 +1014,29 @@ function HistorySwapInfoLine({
   const fee = Number(pool_id.split(V3_POOL_SPLITER)[2]);
 
   const feeTier = (
-    <span className="col-span-2 ml-10 xs:ml-0  text-v3Blue xs:text-white">
+    <span className="rounded-lg relative xsm:right-0 xsm:bg-none right-3 text-left  text-primaryText p-1 lg:bg-menuMoreBgColor xs:text-white">
       {`${toPrecision(calculateFeePercent(fee / 100).toString(), 2)}% `}
     </span>
   );
-
   const sort =
     TOKEN_LIST_FOR_RATE.indexOf(sellToken?.symbol) > -1 && +price !== 0;
-  const orderRate = useMemo(() => {
-    let p = price;
-    if (sort) {
-      p = new BigNumber(1).dividedBy(price).toFixed();
-    }
-    return (
-      <span className="whitespace-nowrap col-span-1 flex items-end xs:flex-row xs:items-center flex-col relative right-4 xs:right-0">
-        <span className="mr-1 text-white text-sm" title={p}>
-          {toPrecision(p, 2)}
-        </span>
-        <span className="text-v3SwapGray text-xs xs:hidden">
-          {`${toRealSymbol(
-            sort ? sellToken.symbol : buyToken.symbol
-          )}/${toRealSymbol(sort ? buyToken.symbol : sellToken.symbol)}`}
-        </span>
-        <span className="text-white text-sm lg:hidden md:hidden">
-          {`${toRealSymbol(sort ? sellToken.symbol : buyToken.symbol)}`}
-        </span>
+  const calcPrice = sort ? new BigNumber(1).dividedBy(price).toFixed() : price;
+
+  const orderRate = (
+    <span className="whitespace-nowrap col-span-1 flex items-start xs:flex-row xs:items-center flex-col relative  xs:right-0">
+      <span className="mr-1 text-white text-sm" title={calcPrice}>
+        {toPrecision(calcPrice, 2)}
       </span>
-    );
-  }, [price, buyToken, sellToken]);
+      <span className="text-v3SwapGray text-xs xs:hidden">
+        {`${toRealSymbol(
+          sort ? sellToken.symbol : buyToken.symbol
+        )}/${toRealSymbol(sort ? buyToken.symbol : sellToken.symbol)}`}
+      </span>
+      <span className="text-white text-sm lg:hidden md:hidden">
+        {`${toRealSymbol(sort ? sellToken.symbol : buyToken.symbol)}`}
+      </span>
+    </span>
+  );
 
   const claimed = (
     <span className="whitespace-nowrap col-span-2 xs:flex-col flex items-center ml-12">
@@ -901,22 +1067,34 @@ function HistorySwapInfoLine({
   );
 
   const created = (
-    <span className="col-span-2 relative xs:opacity-50 xs:flex xs:items-center xs:justify-center whitespace-nowrap right-12 xs:right-0  text-white xs:text-xs xs:text-primaryText text-right">
-      {moment(Math.floor(Number(timestamp) / TIMESTAMP_DIVISOR) * 1000).format(
-        'YYYY-MM-DD HH:mm'
-      )}
+    <span className=" relative  whitespace-nowrap    text-primaryText xs:text-xs flex flex-col   xsm:justify-center  text-left xs:opacity-50">
+      <span className="xsm:hidden">
+        {moment(
+          Math.floor(Number(timestamp) / TIMESTAMP_DIVISOR) * 1000
+        ).format('YYYY-MM-DD')}
+      </span>
+      <span className="xsm:hidden">
+        {moment(
+          Math.floor(Number(timestamp) / TIMESTAMP_DIVISOR) * 1000
+        ).format('HH:mm')}
+      </span>
+
+      <span className="lg:hidden text-center relative bottom-2">
+        {moment(
+          Math.floor(Number(timestamp) / TIMESTAMP_DIVISOR) * 1000
+        ).format('YYYY-MM-DD HH:mm')}
+      </span>
     </span>
   );
 
   const actions = (
-    <div className=" col-span-1  text-primaryText  text-xs flex flex-col items-end justify-self-end p-1.5">
+    <div className=" col-span-1 pr-4  text-primaryText  text-xs flex flex-col items-end justify-self-end p-1.5">
       <span className="flex items-center text-sm text-white whitespace-nowrap">
         {<FormattedMessage id="executed" defaultMessage={'Executed'} />}
       </span>
-
       {!!orderTx && (
         <a
-          className="flex items-center hover:text-white"
+          className="flex items-center text-v3SwapGray"
           href={`${getConfig().explorerUrl}/txns/${orderTx}`}
           target="_blank"
           rel="noopener noreferrer nofollow"
@@ -932,53 +1110,42 @@ function HistorySwapInfoLine({
 
   const tokenPrice = useContext(PriceContext);
 
-  const sellTokenPrice = tokenPrice?.[sellToken.id]?.price || null;
-  const buyTokenPrice = tokenPrice?.[buyToken.id]?.price || null;
-
-  const MobileInfoBanner = ({
-    text,
-    value,
-  }: {
-    text: string | JSX.Element;
-    value: string | JSX.Element;
-  }) => {
-    return (
-      <div className="flex mb-4 items-center justify-between whitespace-nowrap">
-        <span className="text-xs text-v3SwapGray">{text}</span>
-        <span className="text-white text-sm font-bold">{value}</span>
-      </div>
-    );
-  };
   return (
     <>
-      <div
-        className="mb-4 w-full xs:hidden"
-        onMouseLeave={() => {
-          setHover(false);
-        }}
-        style={{
-          zIndex: 20 - index,
-        }}
-      >
-        <div
-          className={`px-4 py-3 text-sm   z-20 grid grid-cols-10 relative  w-full rounded-xl items-center  bg-cardBg ${
-            hover ? 'bg-v3HoverDarkBgColor' : 'bg-cardBg'
-          }`}
-          onMouseEnter={() => {
-            setHover(true);
+      <Fragment>
+        <tr>
+          <td>
+            <div className="pb-2.5"></div>
+          </td>
+        </tr>
+        <tr
+          className={`mb-4 overflow-visible   xs:hidden px-4 py-3 text-sm   z-20   relative  w-full rounded-xl items-center   hover:bg-portfolioBarBgColor bg-portfolioBgColor `}
+          style={{
+            zIndex: 21,
           }}
         >
-          {sellTokenAmount}
-          {buyTokenAmount}
-          {feeTier}
-          {orderRate}
-          {created}
+          <td className="rounded-l-xl">{sellTokenAmount}</td>
 
-          {claimed}
+          <td>
+            <span className="text-white text-lg frcs w-7 xs:hidden ">
+              <MyOrderInstantSwapArrowRight />
+            </span>
+          </td>
 
-          {actions}
-        </div>
-      </div>
+          <td>{buyTokenAmount}</td>
+
+          <td>{feeTier}</td>
+
+          <td>{orderRate}</td>
+
+          <td>{created}</td>
+
+          <td className=""></td>
+          <td className="rounded-r-xl">{actions}</td>
+        </tr>
+
+        {/* {hover && !ONLY_ZEROS.test(swapIn || '0') ? swapBanner : null} */}
+      </Fragment>
 
       <div
         className="w-full relative mb-4 md:hidden lg:hidden"
@@ -998,7 +1165,7 @@ function HistorySwapInfoLine({
 
           {created}
 
-          <div className="absolute right-4 bottom-0.5 z-50  text-xs">
+          <div className="absolute right-4 bottom-2.5 z-50  text-xs">
             {!!orderTx && (
               <a
                 className="flex items-center bg-black text-primaryText px-1.5  bg-opacity-20 rounded "
@@ -1047,18 +1214,22 @@ function ActiveLine({
   order,
   index,
   sellAmountToBuyAmount,
+  orderTx,
+  hoverOn,
+  setHoverOn,
 }: {
   order: UserOrderInfo;
   index: number;
   sellAmountToBuyAmount: any;
   tokensMap: { [key: string]: TokenMetadata };
+  orderTx: string;
+  hoverOn: number;
+  setHoverOn: React.Dispatch<React.SetStateAction<number>>;
 }) {
   const [claimLoading, setClaimLoading] = useState<boolean>(false);
   const intl = useIntl();
 
   const [cancelLoading, setCancelLoading] = useState<boolean>(false);
-
-  const [hover, setHover] = useState<boolean>(false);
 
   const buyToken = tokensMap[order.buy_token];
 
@@ -1113,6 +1284,38 @@ function ActiveLine({
         .minus(order.unclaimed_amount || '0')
         .toString()
     )
+  );
+
+  const buyAmountToSellAmount = (
+    undecimaled_amount: string,
+    order: UserOrderInfo,
+    price: string
+  ) => {
+    const sell_amount = new Big(
+      toReadableNumber(
+        tokensMap[order.buy_token].decimals,
+        undecimaled_amount || '0'
+      )
+    )
+      .div(price)
+      .toString();
+    return scientificNotationToString(sell_amount);
+  };
+
+  const unClaimedAmountIn = buyAmountToSellAmount(
+    order.unclaimed_amount || '0',
+    order,
+    price
+  );
+
+  const claimedAmountIn = buyAmountToSellAmount(
+    scientificNotationToString(
+      new Big(order.bought_amount || '0')
+        .minus(order.unclaimed_amount || '0')
+        .toString()
+    ),
+    order,
+    price
   );
 
   const buyAmountRaw = sellAmountToBuyAmount(
@@ -1176,7 +1379,7 @@ function ActiveLine({
   const getUnclaimAmountTip = () => {
     return `
       <div 
-        class="flex flex-col text-xs min-w-36 text-farmText z-50"
+        class="flex flex-col relative text-xs min-w-36 text-farmText z-50"
       >
       ${
         ONLY_ZEROS.test(claimedAmount)
@@ -1265,35 +1468,29 @@ function ActiveLine({
   };
 
   const sellTokenAmount = (
-    <div className="flex items-center whitespace-nowrap w-28 justify-between">
-      <span className="flex flex-shrink-0 items-center col-span-1">
-        <img
-          src={sellToken.icon}
-          className="border border-gradientFrom rounded-full w-7 h-7"
-          alt=""
-        />
+    <span className="flex py-4 pl-3  flex-shrink-0 items-center">
+      <img
+        src={sellToken.icon}
+        className="border border-gradientFrom rounded-full w-7 h-7"
+        alt=""
+      />
 
-        <div className="flex   xs:flex-row flex-col ml-2">
-          <span className="text-white text-sm mr-2" title={orderIn}>
-            {Number(orderIn) > 0 && Number(orderIn) < 0.01
-              ? '< 0.01'
-              : toPrecision(orderIn, 2)}
-          </span>
+      <div className="flex   xs:flex-row flex-col ml-2">
+        <span className="text-white text-sm mr-2" title={orderIn}>
+          {Number(orderIn) > 0 && Number(orderIn) < 0.01
+            ? '< 0.01'
+            : toPrecision(orderIn, 2)}
+        </span>
 
-          <span className="text-v3SwapGray text-xs xs:relative xs:top-0.5">
-            {toRealSymbol(sellToken.symbol)}
-          </span>
-        </div>
-      </span>
-
-      <span className="text-white text-lg xs:hidden pl-2  pr-1">
-        <MyOrderInstantSwapArrowRight />
-      </span>
-    </div>
+        <span className="text-v3SwapGray text-xs xs:relative xs:top-0.5">
+          {toRealSymbol(sellToken.symbol)}
+        </span>
+      </div>
+    </span>
   );
 
   const buyTokenAmount = (
-    <span className="flex items-center col-span-1 ml-8">
+    <span className="flex items-center ">
       <img
         src={buyToken.icon}
         className="border flex-shrink-0 border-gradientFrom rounded-full w-7 h-7"
@@ -1320,25 +1517,11 @@ function ActiveLine({
   const fee = Number(order.pool_id.split(V3_POOL_SPLITER)[2]);
 
   const feeTier = (
-    <span className="col-span-2 ml-10 xs:ml-0  text-v3Blue xs:text-white">
+    <span className="rounded-lg relative xsm:right-0 xsm:bg-none right-3 text-left  text-primaryText p-1 lg:bg-menuMoreBgColor xs:text-white">
       {`${toPrecision(calculateFeePercent(fee / 100).toString(), 2)}% `}
     </span>
   );
 
-  // const orderRate = (
-  //   <span className="whitespace-nowrap col-span-1 flex items-end xs:flex-row xs:items-center flex-col relative right-4 xs:right-0">
-  //     <span className="mr-1 text-white text-sm" title={price}>
-  //       {toPrecision(price, 2)}
-  //     </span>
-  //     <span className="text-v3SwapGray text-xs xs:hidden">
-  //       {`${toRealSymbol(buyToken.symbol)}/${toRealSymbol(sellToken.symbol)}`}
-  //     </span>
-
-  //     <span className="text-white text-sm lg:hidden md:hidden">
-  //       {`${toRealSymbol(buyToken.symbol)}`}
-  //     </span>
-  //   </span>
-  // );
   const sort =
     TOKEN_LIST_FOR_RATE.indexOf(sellToken?.symbol) > -1 && +price !== 0;
   const orderRate = useMemo(() => {
@@ -1347,7 +1530,7 @@ function ActiveLine({
       p = new BigNumber(1).dividedBy(price).toFixed();
     }
     return (
-      <span className="whitespace-nowrap col-span-1 flex items-end xs:flex-row xs:items-center flex-col relative right-4 xs:right-0">
+      <span className="whitespace-nowrap  col-span-1 flex items-start xs:flex-row xs:items-center flex-col relative  xs:right-0">
         <span className="mr-1 text-white text-sm" title={p}>
           {toPrecision(p, 2)}
         </span>
@@ -1412,71 +1595,41 @@ function ActiveLine({
   );
 
   const claimButton = (
-    <div
-      data-type="info"
-      data-place="top"
-      data-multiline={true}
-      data-class="reactTip"
-      className="xs:w-1/2"
-      data-html={true}
-      data-tip={`
-            <div class="text-xs opacity-50">
-              <div 
-                style="font-weight:400",
-              >
-              ${intl.formatMessage({
-                id: 'v2_paused',
+    <button
+      className={`rounded-lg text-xs xs:text-sm xs:w-full ml-1.5 mr-2 py-2 px-9 ${
+        ONLY_ZEROS.test(unClaimedAmount)
+          ? 'text-v3SwapGray cursor-not-allowe bg-black opacity-20 cursor-not-allowed'
+          : `text-white bg-deepBlue hover:text-white hover:bg-deepBlueHover ${
+              claimLoading ? ' text-white bg-deepBlueHover ' : ''
+            }`
+      }`}
+      type="button"
+      disabled={ONLY_ZEROS.test(unClaimedAmount)}
+      // disabled
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
 
-                defaultMessage: 'REF V2 has been paused for maintenance',
-              })}
-              </div>
-            </div>
-          `}
-      data-for="v2_paused_pool_tip_claim"
+        setClaimLoading(true);
+
+        cancel_order({
+          order_id: order.order_id,
+          undecimal_amount: '0',
+        });
+      }}
+      style={{
+        height: '38px',
+      }}
     >
-      <button
-        className={`rounded-lg    text-xs xs:text-sm xs:w-full ml-1.5 p-1.5 ${
-          ONLY_ZEROS.test(unClaimedAmount)
-            ? 'text-v3SwapGray cursor-not-allowe bg-black opacity-20 cursor-not-allowed'
-            : `text-white bg-deepBlue hover:text-white hover:bg-deepBlueHover ${
-                claimLoading ? ' text-white bg-deepBlueHover ' : ''
-              }`
-        }`}
-        type="button"
-        disabled={ONLY_ZEROS.test(unClaimedAmount)}
-        // disabled
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-
-          setClaimLoading(true);
-
-          cancel_order({
-            order_id: order.order_id,
-            undecimal_amount: '0',
-          });
-        }}
-      >
-        <ButtonTextWrapper
-          Text={() => <FormattedMessage id="claim" defaultMessage={'Claim'} />}
-          loading={claimLoading}
-        ></ButtonTextWrapper>
-      </button>
-
-      {/* <ReactTooltip
-        className="w-20"
-        id="v2_paused_pool_tip_claim"
-        backgroundColor="#1D2932"
-        border
-        borderColor="#7e8a93"
-        textColor="#C6D1DA"
-        effect="solid"
-      /> */}
-    </div>
+      <ButtonTextWrapper
+        Text={() => <FormattedMessage id="claim" defaultMessage={'Claim'} />}
+        loading={claimLoading}
+      ></ButtonTextWrapper>
+    </button>
   );
 
   const unclaim = (
-    <span className="whitespace-nowrap col-span-2 flex xs:flex-col items-center ml-16">
+    <span className="whitespace-nowrap col-span-2 flex xs:flex-col items-center ">
       <div>
         <div className="flex items-center xs:justify-end">
           <img
@@ -1509,80 +1662,51 @@ function ActiveLine({
         </div>
         <div className="xs:hidden">{unclaimTip}</div>
       </div>
-      <span className="xs:hidden">{claimButton}</span>
     </span>
   );
 
   const created = (
-    <span className="col-span-2 relative xs:flex xs:items-center xs:justify-center whitespace-nowrap right-4 xs:right-0  text-white xs:text-xs xs:text-primaryText text-right xs:opacity-50">
-      {moment(
-        Math.floor(Number(order.created_at) / TIMESTAMP_DIVISOR) * 1000
-      ).format('YYYY-MM-DD HH:mm')}
+    <span className=" relative  whitespace-nowrap    text-primaryText xs:text-xs flex flex-col   xsm:justify-center  text-left xs:opacity-50">
+      <span className="xsm:hidden">
+        {moment(
+          Math.floor(Number(order.created_at) / TIMESTAMP_DIVISOR) * 1000
+        ).format('YYYY-MM-DD')}
+      </span>
+      <span className="xsm:hidden">
+        {moment(
+          Math.floor(Number(order.created_at) / TIMESTAMP_DIVISOR) * 1000
+        ).format('HH:mm')}
+      </span>
+
+      <span className="lg:hidden text-center relative bottom-2">
+        {moment(
+          Math.floor(Number(order.created_at) / TIMESTAMP_DIVISOR) * 1000
+        ).format('YYYY-MM-DD HH:mm')}
+      </span>
     </span>
   );
 
   const actions = (
-    <div
-      data-type="info"
-      className="justify-self-end xs:w-1/2"
-      data-multiline={true}
-      data-class="reactTip"
-      data-html={true}
-      data-tip={`
-          <div class="text-xs opacity-50">
-            <div 
-              style="font-weight:400",
-            >
-            ${intl.formatMessage({
-              id: 'v2_paused',
-
-              defaultMessage: 'REF V2 has been paused for maintenance',
-            })}
-            </div>
-          </div>
-        `}
-      data-for="v2_paused_pool_tip_cancel"
+    <button
+      className={`border col-span-1 rounded-lg xs:text-sm xs:w-full text-xs justify-self-end py-2 px-9 ${
+        cancelLoading ? 'border border-transparent text-black bg-warn ' : ''
+      }  border-warn border-opacity-20 text-warn  ${'hover:border hover:border-transparent hover:text-black hover:bg-warn'}`}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setCancelLoading(true);
+        cancel_order({
+          order_id: order.order_id,
+        });
+      }}
+      // disabled={ONLY_ZEROS.test(order.remain_amount)}
+      // disabled
     >
-      <button
-        className={`border col-span-1 rounded-lg xs:text-sm xs:w-full text-xs justify-self-end p-1.5 ${
-          cancelLoading ? 'border border-transparent text-black bg-warn ' : ''
-        }  border-warn border-opacity-20 text-warn  ${
-          // ONLY_ZEROS.test(order.remain_amount)
-          //   ? 'opacity-30 cursor-not-allowed'
-          //   :
-
-          'hover:border hover:border-transparent hover:text-black hover:bg-warn'
-        }`}
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          setCancelLoading(true);
-          cancel_order({
-            order_id: order.order_id,
-          });
-        }}
-        // disabled={ONLY_ZEROS.test(order.remain_amount)}
-        // disabled
-      >
-        <ButtonTextWrapper
-          Text={() => (
-            <FormattedMessage id="cancel" defaultMessage={'Cancel'} />
-          )}
-          loading={cancelLoading}
-        />
-      </button>
-
-      {/* <ReactTooltip
-        className="w-20"
-        id="v2_paused_pool_tip_cancel"
-        backgroundColor="#1D2932"
-        border
-        borderColor="#7e8a93"
-        textColor="#C6D1DA"
-        effect="solid"
-        place={isMobile() ? 'right' : 'top'}
-      /> */}
-    </div>
+      <ButtonTextWrapper
+        Text={() => <FormattedMessage id="cancel" defaultMessage={'Cancel'} />}
+        loading={cancelLoading}
+      />
+    </button>
   );
 
   const tokenPrice = useContext(PriceContext);
@@ -1612,137 +1736,352 @@ function ActiveLine({
     return result;
   }
   const swapBanner = (
-    <div className="xs:flex xs:flex-col whitespace-nowrap xs:bg-cardBg xs:bg-opacity-50 relative z-10 bottom-4 xs:bottom-0 w-full text-sm text-v3SwapGray bg-cardBg rounded-xl px-5 pb-5 pt-10 xs:px-3 xs:py-4 xs:text-xs">
-      <div className="flex items-center justify-between mb-7 xs:mb-7">
-        <span className="flex items-center">
+    <td
+      colSpan={8}
+      className="xsm:block xsm:rounded-xl xs:text-xs text-v3SwapGray w-full relative lg:bottom-1.5 lg:pt-6 xsm:pt-4 bg-portfolioBgColor"
+    >
+      {new Big(order.original_deposit_amount || '0')
+        .minus(order.original_amount || '0')
+        .gt(0) && (
+        <>
+          <div className="flex items-center px-4 pb-4  justify-between ">
+            <span className="flex items-center">
+              <FormattedMessage
+                id="initial_order"
+                defaultMessage={'Initial Order'}
+              />
+              {!isMobile() && (
+                <ExclamationTip
+                  id="this_order_has_been_partially_filled"
+                  defaultMessage="This order has been partially filled "
+                  dataPlace="bottom"
+                  colorhex="#7E8A93"
+                  uniquenessId={
+                    'this_order_has_been_partially_filled' + order.order_id
+                  }
+                />
+              )}
+            </span>
+
+            <span className="flex items-center text-xs">
+              <span title={totalIn} className="text-v3SwapGray">
+                {Number(totalIn) > 0 && Number(totalIn) < 0.01
+                  ? '< 0.01'
+                  : toPrecision(totalIn, 2)}
+              </span>
+
+              <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
+              <span className="mx-6 xs:mx-2 text-white xs:text-v3SwapGray">
+                {isClientMobie() ? (
+                  <MyOrderInstantSwapArrowRight />
+                ) : (
+                  <MyOrderInstantSwapArrowRight />
+                )}
+              </span>
+              <span
+                title={toPrecision(totalOut, buyToken.decimals)}
+                className="text-v3SwapGray"
+              >
+                {Number(totalOut) > 0 && Number(totalOut) < 0.01
+                  ? '< 0.01'
+                  : toPrecision(totalOut, 2)}
+              </span>
+
+              <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
+            </span>
+          </div>
+
+          <div className="frcb px-4 pb-4">
+            <span className="flex items-center ">
+              <FormattedMessage
+                id={isMobile() ? 'filled_via_swap' : 'instants_swap'}
+                defaultMessage={isMobile() ? 'Filled via swap' : 'Instant Swap'}
+              />
+              {!isMobile() && (
+                <ExclamationTip
+                  colorhex="#7E8A93"
+                  id={instant_swap_tip()}
+                  defaultMessage={instant_swap_tip()}
+                  dataPlace="bottom"
+                  uniquenessId={'instant_swap_tip' + order.order_id}
+                />
+              )}
+            </span>
+
+            <span className="frcb xsm:justify-start lg:min-w-p300">
+              <div className="frcs text-xs  pr-2 text-v3SwapGray">
+                <BsCheckCircle
+                  className="mr-1.5"
+                  fill="#42bb17"
+                  stroke="#42BB17"
+                />
+                <span className="xsm:hidden">
+                  <FormattedMessage
+                    id="swappped"
+                    defaultMessage={'Swapped'}
+                  ></FormattedMessage>
+                </span>
+              </div>
+
+              <div className="flex items-center justify-end">
+                <span title={swapIn} className="text-v3SwapGray">
+                  {Number(swapIn) > 0 && Number(swapIn) < 0.01
+                    ? '< 0.01'
+                    : toPrecision(swapIn, 2)}
+                </span>
+
+                <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
+                <span className="mx-6 xs:mx-2 text-v3SwapGray">
+                  {isClientMobie() ? (
+                    <MyOrderInstantSwapArrowRight />
+                  ) : (
+                    <MyOrderInstantSwapArrowRight />
+                  )}
+                </span>
+                <span title={swapOut} className="text-v3SwapGray">
+                  {Number(swapOut) > 0 && Number(swapOut) < 0.01
+                    ? '< 0.01'
+                    : toPrecision(swapOut, 2)}
+                </span>
+
+                <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
+              </div>
+            </span>
+          </div>
+        </>
+      )}
+
+      <div className="flex items-start xsm:hidden justify-between px-4 pb-4">
+        <span className="xsm:text-v3SwapGray">
           <FormattedMessage
-            id="initial_order"
-            defaultMessage={'Initial Order'}
-          />
-          <ExclamationTip
-            id="this_order_has_been_partially_filled"
-            defaultMessage="This order has been partially filled "
-            dataPlace="right"
-            colorhex="#7E8A93"
+            id="executing_capital"
+            defaultMessage={'Executing'}
           />
         </span>
 
-        <span className="flex items-center">
-          <span title={totalIn} className="text-white xs:text-v3SwapGray">
-            {Number(totalIn) > 0 && Number(totalIn) < 0.01
-              ? '< 0.01'
-              : toPrecision(totalIn, 2)}
+        <div className="flex flex-col items-end">
+          <span className="frcb min-w-p300">
+            <div className="frcs text-xs pr-2 text-v3SwapGray">
+              <BsCheckCircle
+                className="mr-1.5"
+                fill="#00D6AF"
+                stroke="#00D6AF"
+              />
+
+              <FormattedMessage
+                id="claimed"
+                defaultMessage={'Claimed'}
+              ></FormattedMessage>
+            </div>
+
+            <div className="flex items-center justify-end">
+              <span
+                title={toPrecision(claimedAmountIn, sellToken.decimals)}
+                className="text-v3SwapGray"
+              >
+                {Number(claimedAmountIn) > 0 && Number(claimedAmountIn) < 0.01
+                  ? '< 0.01'
+                  : toPrecision(claimedAmountIn, 2)}
+              </span>
+
+              <span className="ml-1.5 xsm:text-v3SwapGray">
+                {toRealSymbol(sellToken.symbol)}
+              </span>
+              <span className="mx-6 xs:mx-2 text-v3SwapGray">
+                {isClientMobie() ? (
+                  <MyOrderInstantSwapArrowRight />
+                ) : (
+                  <MyOrderInstantSwapArrowRight />
+                )}
+              </span>
+              <span title={claimedAmount} className="text-v3SwapGray">
+                {Number(claimedAmount) > 0 && Number(claimedAmount) < 0.01
+                  ? '< 0.01'
+                  : toPrecision(claimedAmount, 2)}
+              </span>
+
+              <span className="ml-1.5 xsm:text-v3SwapGray">
+                {toRealSymbol(buyToken.symbol)}
+              </span>
+            </div>
           </span>
 
-          <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
-          <span className="mx-6 xs:mx-2 text-white xs:text-v3SwapGray">
-            {isClientMobie() ? (
-              <MyOrderInstantSwapArrowRight />
-            ) : (
-              <MyOrderInstantSwapArrowRight />
-            )}
-          </span>
-          <span
-            title={toPrecision(totalOut, buyToken.decimals)}
-            className="text-white xs:text-v3SwapGray"
-          >
-            {Number(totalOut) > 0 && Number(totalOut) < 0.01
-              ? '< 0.01'
-              : toPrecision(totalOut, 2)}
-          </span>
+          <span className=" pt-4  frcb min-w-p300">
+            <div className="frcs text-xs pr-2 text-v3SwapGray">
+              <span className="mr-1.5">
+                <FilledEllipse></FilledEllipse>
+              </span>
 
-          <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
-        </span>
+              <FormattedMessage
+                id="filled"
+                defaultMessage={'Filled'}
+              ></FormattedMessage>
+            </div>
+
+            <div className="flex items-center justify-end">
+              <span
+                title={toPrecision(unClaimedAmountIn, sellToken.decimals)}
+                className="text-white font-gothamBold"
+              >
+                {Number(unClaimedAmountIn) > 0 &&
+                Number(unClaimedAmountIn) < 0.01
+                  ? '< 0.01'
+                  : toPrecision(unClaimedAmountIn, 2)}
+              </span>
+
+              <span className="ml-1.5 xsm:text-v3SwapGray">
+                {toRealSymbol(sellToken.symbol)}
+              </span>
+              <span className="mx-6 xs:mx-2 text-v3SwapGray">
+                {isClientMobie() ? (
+                  <MyOrderInstantSwapArrowRight />
+                ) : (
+                  <MyOrderInstantSwapArrowRight />
+                )}
+              </span>
+              <span
+                title={unClaimedAmount}
+                className="text-white font-gothamBold"
+              >
+                {Number(unClaimedAmount) > 0 && Number(unClaimedAmount) < 0.01
+                  ? '< 0.01'
+                  : toPrecision(unClaimedAmount, 2)}
+              </span>
+
+              <span className="ml-1.5 xsm:text-v3SwapGray">
+                {toRealSymbol(buyToken.symbol)}
+              </span>
+            </div>
+          </span>
+        </div>
       </div>
 
-      <div className="flex items-center justify-between ">
-        <span className="flex items-center ">
-          <FormattedMessage
-            id="filled_via_swap"
-            defaultMessage={'Filled via Swap'}
-          />
+      <div className="lg:hidden flex items-center justify-end pr-4 pb-2">
+        <div className="flex  max-w-max text-primaryText bg-black bg-opacity-20 rounded-md px-2 py-1 items-center justify-end lg:hidden">
+          <span className="">1</span>
 
-          <ExclamationTip
-            colorhex="#7E8A93"
-            id={instant_swap_tip()}
-            defaultMessage={instant_swap_tip()}
-          />
-        </span>
-
-        <span className="flex items-center">
-          <BsCheckCircle className="mr-1.5" fill="#42bb17" stroke="#42BB17" />
-          <span title={swapIn} className="text-v3SwapGray">
-            {Number(swapIn) > 0 && Number(swapIn) < 0.01
-              ? '< 0.01'
-              : toPrecision(swapIn, 2)}
+          <span className="ml-1.5">
+            {toRealSymbol(sort ? buyToken.symbol : sellToken.symbol)}
           </span>
 
-          <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
-          <span className="mx-6 xs:mx-2 text-v3SwapGray">
-            {isClientMobie() ? (
-              <MyOrderInstantSwapArrowRight />
-            ) : (
-              <MyOrderInstantSwapArrowRight />
+          {tokenPrice?.[sort ? buyToken?.id : sellToken?.id]?.price && (
+            <span className="ml-1">{`($${
+              tokenPrice?.[sort ? buyToken?.id : sellToken?.id].price
+            })`}</span>
+          )}
+
+          <span className="mx-6 xs:mx-2 ">=</span>
+          <span className="">
+            {toPrecision(
+              scientificNotationToString(
+                new Big(sort ? swapIn || 0 : swapOut || 0)
+                  .div(
+                    Number(sort ? swapOut : swapIn) === 0
+                      ? 1
+                      : sort
+                      ? swapOut
+                      : swapIn
+                  )
+                  .toString()
+              ),
+              3
             )}
           </span>
-          <span title={swapOut} className="text-v3SwapGray">
-            {Number(swapOut) > 0 && Number(swapOut) < 0.01
-              ? '< 0.01'
-              : toPrecision(swapOut, 2)}
-          </span>
 
-          <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
-        </span>
+          <span className="ml-1.5">
+            {toRealSymbol(sort ? sellToken.symbol : buyToken.symbol)}
+          </span>
+        </div>
       </div>
-    </div>
+    </td>
   );
 
-  const MobileInfoBanner = ({
-    text,
-    value,
-  }: {
-    text: string | JSX.Element;
-    value: string | JSX.Element;
-  }) => {
-    return (
-      <div className="flex mb-4 items-center justify-between whitespace-nowrap">
-        <span className="text-xs text-v3SwapGray">{text}</span>
-        <span className="text-white text-sm">{value}</span>
-      </div>
-    );
-  };
-
   return (
-    <>
-      <div
-        className="mb-4 w-full xs:hidden"
-        onMouseLeave={() => {
-          setHover(false);
+    <Fragment>
+      <tr>
+        <td colSpan={9}>
+          <div className="pb-2.5"></div>
+        </td>
+      </tr>
+      <tr
+        className={`mb-4 overflow-visible   xs:hidden px-4 py-3 text-sm   z-20   relative  w-full  items-center   ${
+          hoverOn === index
+            ? 'bg-portfolioBarBgColor rounded-t-xl'
+            : 'bg-portfolioBgColor rounded-xl'
+        }`}
+        onMouseEnter={() => {
+          setHoverOn(index);
         }}
         style={{
-          zIndex: 20 - index,
+          zIndex: 21,
         }}
       >
-        <div
-          className={`px-4 py-3 text-sm   z-20 grid grid-cols-10 relative  w-full rounded-xl items-center  bg-cardBg ${
-            hover ? 'bg-v3HoverDarkBgColor' : 'bg-cardBg'
-          }`}
-          onMouseEnter={() => {
-            setHover(true);
-          }}
-        >
+        <td className={hoverOn === index ? ' rounded-tl-xl' : ' rounded-l-xl'}>
           {sellTokenAmount}
-          {buyTokenAmount}
-          {feeTier}
-          {orderRate}
-          {created}
+        </td>
 
+        <td>
+          <span className="text-white text-lg frcs w-7 xs:hidden ">
+            <MyOrderInstantSwapArrowRight />
+          </span>
+        </td>
+
+        <td>{buyTokenAmount}</td>
+
+        <td>{feeTier}</td>
+
+        <td>
+          <div className="w-14"></div>
+        </td>
+
+        <td>{orderRate}</td>
+
+        <td>{created}</td>
+
+        <td className={hoverOn === index ? ' rounded-tr-xl' : ' rounded-r-xl'}>
           {unclaim}
+        </td>
 
-          {actions}
-        </div>
-        {hover && !ONLY_ZEROS.test(swapIn || '0') ? swapBanner : null}
-      </div>
+        {/* {actions} */}
+      </tr>
+
+      {hoverOn === index && (
+        <>
+          <tr className="xs:flex z-20 relative  xs:flex-col whitespace-nowrap xs:bg-cardBg xs:bg-opacity-50  bottom-2 xs:bottom-0 w-full text-sm text-v3SwapGray bg-cardBg rounded-xl px-5 pb-5 pt-10 xs:px-3 xs:py-4 xs:text-xs">
+            {swapBanner}
+          </tr>
+
+          <tr className="relative bottom-6 rounded-b-xl bg-portfolioBarBgColor">
+            <td colSpan={8} className="rounded-b-xl">
+              <div className="frcb pb-3 py-6 px-4 text-xs">
+                <div className="frcs">
+                  {!!orderTx && (
+                    <a
+                      className="flex items-center text-v3SwapGray"
+                      href={`${getConfig().explorerUrl}/txns/${orderTx}`}
+                      target="_blank"
+                      rel="noopener noreferrer nofollow"
+                    >
+                      Tx
+                      <span className="ml-1.5">
+                        <HiOutlineExternalLink></HiOutlineExternalLink>
+                      </span>
+                    </a>
+                  )}
+                </div>
+
+                <div className="frcs">
+                  {claimButton}
+
+                  {actions}
+                </div>
+              </div>
+            </td>
+          </tr>
+        </>
+      )}
+
+      {/* {hover && !ONLY_ZEROS.test(swapIn || '0') ? swapBanner : null} */}
 
       <div
         className="w-full mb-4 md:hidden lg:hidden"
@@ -1778,7 +2117,7 @@ function ActiveLine({
 
           <MobileInfoBanner
             text={
-              <FormattedMessage defaultMessage={'Claimed'} id="claimed_upper" />
+              <FormattedMessage defaultMessage={'Executed'} id="executed" />
             }
             value={unclaim}
           />
@@ -1792,9 +2131,13 @@ function ActiveLine({
         </div>
 
         {/* swap banner */}
-        {!ONLY_ZEROS.test(swapIn || '0') ? swapBanner : null}
+        {new Big(order.original_deposit_amount || '0')
+          .minus(order.original_amount || '0')
+          .gt(0)
+          ? swapBanner
+          : null}
       </div>
-    </>
+    </Fragment>
   );
 }
 
@@ -1842,6 +2185,12 @@ function OrderCard({
     'created'
   );
 
+  const [activeOrderHoverOn, setActiveOrderHoverOn] = useState<number>(-1);
+
+  const [historyOrderHoverOn, setHistoryOrderHoverOn] = useState<number>(-1);
+  const [historyInfoOrderHoverOn, setHistoryInfoOrderHoverOn] =
+    useState<number>(-1);
+
   const [sortOrderActive, setSorOrderActive] = useState<'asc' | 'desc'>('desc');
 
   const [sortOrderHistory, setSorOrderHistory] = useState<'asc' | 'desc'>(
@@ -1853,8 +2202,72 @@ function OrderCard({
   );
 
   function OrderTab() {
+    if (isMobile()) {
+      return (
+        <div className="frcb">
+          <div className="text-white font-gothamBold">
+            <FormattedMessage
+              id="your_orders"
+              defaultMessage={'Your orders'}
+            ></FormattedMessage>
+          </div>
+
+          <div
+            className="flex text-13px p-1 rounded-xl text-white "
+            style={{
+              border: '1.5px solid rgba(145, 162, 174, 0.2)',
+            }}
+          >
+            <button
+              className={`px-3 rounded-lg py-1 ${
+                orderType === 'active' ? 'text-white' : 'text-primaryText'
+              } `}
+              style={{
+                background: orderType === 'active' ? '#324451' : '',
+              }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                sessionStorage.setItem(ORDER_TYPE_KEY, 'active');
+                setOrderType('active');
+              }}
+            >
+              <span className="frcs">
+                <FormattedMessage id="active" defaultMessage={'Active'} />
+                {activeOrder && activeOrder.length > 0
+                  ? ` (${activeOrder.length})`
+                  : null}
+              </span>
+            </button>
+
+            <button
+              className={`px-3 py-1 rounded-lg ${
+                orderType === 'history' ? 'text-white' : 'text-primaryText'
+              } `}
+              style={{
+                background: orderType === 'history' ? '#324451' : '',
+              }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setOrderType('history');
+                sessionStorage.setItem(ORDER_TYPE_KEY, 'history');
+              }}
+            >
+              <span className="frcs">
+                <FormattedMessage id="history" defaultMessage={'History'} />
+                {historyOrder && historyOrder.length > 0
+                  ? ` (${historyOrder.length})`
+                  : null}
+              </span>
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     return (
-      <div className="flex whitespace-nowrap xs:justify-center text-white mb-4">
+      <div className="flex whitespace-nowrap  text-white mb-4">
         <button
           className={`mr-7 ${
             orderType === 'active' ? 'text-white' : 'text-primaryText'
@@ -1867,7 +2280,10 @@ function OrderCard({
           }}
         >
           <span>
-            <FormattedMessage id="active" defaultMessage={'Active'} />
+            <FormattedMessage
+              id="active_orders"
+              defaultMessage={'Active Orders'}
+            />
             {activeOrder && activeOrder.length > 0
               ? ` (${activeOrder.length})`
               : null}
@@ -1875,9 +2291,8 @@ function OrderCard({
 
           {orderType === 'active' && (
             <div
-              className="w-full mt-2"
+              className="w-full mt-2 bg-senderHot"
               style={{
-                background: 'linear-gradient(90deg, #04F7D4 0%, #5846FE 100%)',
                 borderRadius: '3px',
                 height: '3px',
               }}
@@ -1905,9 +2320,8 @@ function OrderCard({
 
           {orderType === 'history' && (
             <div
-              className="w-full mt-2"
+              className="w-full mt-2 bg-senderHot"
               style={{
-                background: 'linear-gradient(90deg, #04F7D4 0%, #5846FE 100%)',
                 borderRadius: '3px',
                 height: '3px',
               }}
@@ -1933,22 +2347,6 @@ function OrderCard({
       .toFixed(tokensMap[order.sell_token].decimals);
 
     return scientificNotationToString(buy_amount);
-  };
-
-  const buyAmountToSellAmount = (
-    undecimaled_amount: string,
-    order: UserOrderInfo,
-    price: string
-  ) => {
-    const sell_amount = new Big(
-      toReadableNumber(
-        tokensMap[order.buy_token].decimals,
-        undecimaled_amount || '0'
-      )
-    )
-      .div(price)
-      .toString();
-    return scientificNotationToString(sell_amount);
   };
 
   const historyOrderSorting = (a: UserOrderInfo, b: UserOrderInfo) => {
@@ -2009,285 +2407,339 @@ function OrderCard({
   return (
     <div className="flex flex-col">
       {OrderTab()}
-      {orderType === 'active' && (
-        <div
-          className={`mb-2.5 px-4 xs:hidden ${
-            !activeOrder || activeOrder.length === 0 ? 'hidden' : ''
-          } text-v3SwapGray text-sm grid grid-cols-10 whitespace-nowrap`}
-        >
-          <span className="col-span-1 text-left">
-            <FormattedMessage id="you_sell" defaultMessage={'You Sell'} />
-          </span>
 
-          <span className="col-span-1 ml-8">
-            <FormattedMessage id="you_buy" defaultMessage={'You Buy'} />
-          </span>
-
-          <span className="col-span-2 ml-10">
-            <FormattedMessage id="fee_tiers" defaultMessage={'Fee Tiers'} />
-          </span>
-
-          <span className="col-span-1">
-            <FormattedMessage id="order_rates" defaultMessage={'Order Rates'} />
-          </span>
-
-          <button
-            className="col-span-2 flex items-center ml-28"
-            onClick={() => {
-              setActiveSortBy('created');
-              if (activeSortBy === 'created') {
-                if (sortOrderActive === 'asc') {
-                  setSorOrderActive('desc');
-                } else {
-                  setSorOrderActive('asc');
-                }
-              } else {
-                setSorOrderActive('desc');
-              }
-            }}
-          >
-            <FormattedMessage id="created" defaultMessage={'Created'} />
-
-            <span
-              className={`ml-0.5 ${
-                activeSortBy === 'created' ? 'text-gradientFrom' : ''
-              }`}
-            >
-              {activeSortBy === 'created' && sortOrderActive === 'asc' ? (
-                <UpArrowVE />
-              ) : (
-                <DownArrowVE />
-              )}
-            </span>
-          </button>
-
-          <button
-            className="col-span-2 flex items-center ml-16 text-right"
-            onClick={() => {
-              setActiveSortBy('unclaim');
-              if (activeSortBy === 'unclaim') {
-                if (sortOrderActive === 'asc') {
-                  setSorOrderActive('desc');
-                } else {
-                  setSorOrderActive('asc');
-                }
-              } else {
-                setSorOrderActive('desc');
-              }
-            }}
-          >
-            <FormattedMessage id="executed" defaultMessage={'Executed'} />
-            <span
-              className={`ml-0.5 ${
-                activeSortBy === 'unclaim' ? 'text-gradientFrom' : ''
-              }`}
-            >
-              {activeSortBy === 'unclaim' && sortOrderActive === 'asc' ? (
-                <UpArrowVE />
-              ) : (
-                <DownArrowVE />
-              )}
-            </span>
-          </button>
-
-          <span className="col-span-1 text-right">
-            <FormattedMessage id="actions" defaultMessage={'Actions'} />
-          </span>
-        </div>
-      )}
-
-      {orderType === 'history' && (
-        <div
-          className={`mb-2.5 px-4 xs:hidden ${
-            !historyOrder || historyOrder.length === 0 ? 'hidden' : ''
-          } text-v3SwapGray text-sm grid grid-cols-10 whitespace-nowrap`}
-        >
-          <span className="col-span-1 text-left">
-            <FormattedMessage id="you_sell" defaultMessage={'You Sell'} />
-          </span>
-
-          <span className="col-span-1 ml-8">
-            <FormattedMessage id="you_buy" defaultMessage={'You Buy'} />
-          </span>
-
-          <span className="col-span-2 ml-10">
-            <FormattedMessage id="fee_tiers" defaultMessage={'Fee Tiers'} />
-          </span>
-
-          <span className="col-span-1">
-            <FormattedMessage id="order_rates" defaultMessage={'Order Rates'} />
-          </span>
-
-          <button
-            className="col-span-2 flex items-center ml-20"
-            onClick={() => {
-              setHistorySortBy('created');
-              if (historySortBy === 'created') {
-                if (sortOrderHistory === 'asc') {
-                  setSorOrderHistory('desc');
-                } else {
-                  setSorOrderHistory('asc');
-                }
-              } else {
-                setSorOrderHistory('desc');
-              }
-            }}
-          >
-            <FormattedMessage id="created" defaultMessage={'Created'} />
-
-            <span
-              className={`ml-0.5 ${
-                historySortBy === 'created' ? 'text-gradientFrom' : ''
-              }`}
-            >
-              {historySortBy === 'created' && sortOrderHistory === 'asc' ? (
-                <UpArrowVE />
-              ) : (
-                <DownArrowVE />
-              )}
-            </span>
-          </button>
-
-          <button
-            className="col-span-2 flex items-center ml-12 text-right"
-            onClick={() => {
-              setHistorySortBy('claimed');
-              if (historySortBy === 'claimed') {
-                if (sortOrderHistory === 'asc') {
-                  setSorOrderHistory('desc');
-                } else {
-                  setSorOrderHistory('asc');
-                }
-              } else {
-                setSorOrderHistory('desc');
-              }
-            }}
-          >
-            <FormattedMessage id="executed" defaultMessage={'Executed'} />
-            <span
-              className={`ml-0.5 ${
-                historySortBy === 'claimed' ? 'text-gradientFrom' : ''
-              }`}
-            >
-              {historySortBy === 'claimed' && sortOrderHistory === 'asc' ? (
-                <UpArrowVE />
-              ) : (
-                <DownArrowVE />
-              )}
-            </span>
-          </button>
-
-          <span className="col-span-1 text-right">
-            <FormattedMessage id="state" defaultMessage={'State'} />
-          </span>
-        </div>
-      )}
-      {orderType === 'history' &&
-        (!historyOrder || historyOrder.length === 0) && (
-          <NoOrderCard text="history" />
-        )}
-      {orderType === 'active' && (!activeOrder || activeOrder.length === 0) && (
-        <NoOrderCard text="active" />
-      )}
-
-      {orderType === 'active' &&
-        activeOrder &&
-        activeOrder.sort(activeOrderSorting).map((order, index) => {
-          return (
-            <ActiveLine
-              tokensMap={tokensMap}
-              sellAmountToBuyAmount={sellAmountToBuyAmount}
-              index={index}
-              key={order.order_id}
-              order={order}
-            />
-          );
-        })}
-      {orderType === 'history' &&
-        historyOrder &&
-        historyOrder.sort(historyOrderSorting).map((order, index) => {
-          return (
-            <HistoryLine
-              index={index}
-              key={order.order_id}
-              order={order}
-              tokensMap={tokensMap}
-              sellAmountToBuyAmount={sellAmountToBuyAmount}
-              orderTx={
-                orderTxs?.find((t) => t.order_id === order.order_id)?.tx_id ||
-                ''
-              }
-            />
-          );
-        })}
-      {orderType === 'history' &&
-        historySwapInfo &&
-        historySwapInfo.length > 0 && (
-          <div
-            className="inline-flex max-w-max items-center ml-4 text-primaryText mt-7  mb-3"
-            data-class="reactTip"
-            data-for={'real_time_order_tip'}
-            data-html={true}
-            data-place={'top'}
-            data-tip={getRealTimeOrderTip()}
-          >
-            <span
-              className={`underline cursor-pointer ${'lg:hover:text-white'} `}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handleShowHistoryInfo();
-              }}
-              style={{
-                textDecorationThickness: '1px',
+      <table
+        className="border-separate xsm:block"
+        style={{
+          borderSpacing: 0,
+        }}
+        onMouseLeave={() => {
+          setActiveOrderHoverOn(-1);
+          setHistoryOrderHoverOn(-1);
+        }}
+      >
+        {orderType === 'active' && (
+          <>
+            <tr
+              className={`mb-2.5 px-4 xs:hidden ${
+                !activeOrder || activeOrder.length === 0 ? 'hidden' : ''
+              } text-v3SwapGray text-sm  grid-cols-7 whitespace-nowrap`}
+              onMouseEnter={() => {
+                setActiveOrderHoverOn(-1);
+                setHistoryOrderHoverOn(-1);
               }}
             >
-              {intl.formatMessage({
-                id: showHistoryInfo ? 'hide' : 'show',
-                defaultMessage: showHistoryInfo ? 'Hide' : 'Show',
-              })}
-            </span>
+              <th className="col-span-1 pl-3 text-left">
+                <FormattedMessage id="you_sell" defaultMessage={'You Sell'} />
+              </th>
 
-            <span className="ml-1">
-              {intl.formatMessage({
-                id: 'real_time_executed_orders',
-                defaultMessage: 'real-time executed orders',
-              })}
-            </span>
-            <ReactTooltip
-              id={'real_time_order_tip'}
-              backgroundColor="#1D2932"
-              place="top"
-              border
-              borderColor="#7e8a93"
-              textColor="#C6D1DA"
-              effect="solid"
-            />
-          </div>
+              <th></th>
+
+              <th className="col-span-1 text-left">
+                <FormattedMessage id="you_buy" defaultMessage={'You Buy'} />
+              </th>
+
+              <th className=""></th>
+
+              <th className=""></th>
+
+              <th className="col-span-1 text-left">
+                <FormattedMessage id="@price" defaultMessage={'@Price'} />
+              </th>
+
+              <th>
+                <button
+                  className="col-span-1 flex items-center "
+                  onClick={() => {
+                    setActiveSortBy('created');
+                    if (activeSortBy === 'created') {
+                      if (sortOrderActive === 'asc') {
+                        setSorOrderActive('desc');
+                      } else {
+                        setSorOrderActive('asc');
+                      }
+                    } else {
+                      setSorOrderActive('desc');
+                    }
+                  }}
+                >
+                  <FormattedMessage id="created" defaultMessage={'Created'} />
+
+                  <span
+                    className={`ml-0.5 ${
+                      activeSortBy === 'created' ? 'text-gradientFrom' : ''
+                    }`}
+                  >
+                    {activeSortBy === 'created' && sortOrderActive === 'asc' ? (
+                      <UpArrowVE />
+                    ) : (
+                      <DownArrowVE />
+                    )}
+                  </span>
+                </button>
+              </th>
+
+              <th>
+                <button
+                  className="col-span-1 flex items-center  text-right"
+                  onClick={() => {
+                    setActiveSortBy('unclaim');
+                    if (activeSortBy === 'unclaim') {
+                      if (sortOrderActive === 'asc') {
+                        setSorOrderActive('desc');
+                      } else {
+                        setSorOrderActive('asc');
+                      }
+                    } else {
+                      setSorOrderActive('desc');
+                    }
+                  }}
+                >
+                  <FormattedMessage id="executed" defaultMessage={'Executed'} />
+                  <span
+                    className={`ml-0.5 ${
+                      activeSortBy === 'unclaim' ? 'text-gradientFrom' : ''
+                    }`}
+                  >
+                    {activeSortBy === 'unclaim' && sortOrderActive === 'asc' ? (
+                      <UpArrowVE />
+                    ) : (
+                      <DownArrowVE />
+                    )}
+                  </span>
+                </button>
+              </th>
+            </tr>
+          </>
         )}
-      {orderType === 'history' &&
-        showHistoryInfo &&
-        historySwapInfo &&
-        historySwapInfo.length > 0 &&
-        historySwapInfo
-          .sort((a, b) => Number(b.timestamp) - Number(a.timestamp))
-          .map((sf, i) => {
+
+        {orderType === 'history' && (
+          <>
+            <tr
+              className={`mb-2.5 px-4 xs:hidden ${
+                !historyOrder || historyOrder.length === 0 ? 'hidden' : ''
+              } text-v3SwapGray text-sm  whitespace-nowrap`}
+              onMouseEnter={() => {
+                setActiveOrderHoverOn(-1);
+                setHistoryOrderHoverOn(-1);
+              }}
+            >
+              <th className="pl-3 text-left">
+                <FormattedMessage id="you_sell" defaultMessage={'You Sell'} />
+              </th>
+
+              <th></th>
+
+              <th className="text-left">
+                <FormattedMessage id="you_buy" defaultMessage={'You Buy'} />
+              </th>
+
+              <th className=""></th>
+
+              <th className="col-span-1 text-left">
+                <FormattedMessage id="@price" defaultMessage={'@Price'} />
+              </th>
+
+              <th>
+                <button
+                  className=" flex items-center"
+                  onClick={() => {
+                    setHistorySortBy('created');
+                    if (historySortBy === 'created') {
+                      if (sortOrderHistory === 'asc') {
+                        setSorOrderHistory('desc');
+                      } else {
+                        setSorOrderHistory('asc');
+                      }
+                    } else {
+                      setSorOrderHistory('desc');
+                    }
+                  }}
+                >
+                  <FormattedMessage id="created" defaultMessage={'Created'} />
+
+                  <span
+                    className={`ml-0.5 ${
+                      historySortBy === 'created' ? 'text-gradientFrom' : ''
+                    }`}
+                  >
+                    {historySortBy === 'created' &&
+                    sortOrderHistory === 'asc' ? (
+                      <UpArrowVE />
+                    ) : (
+                      <DownArrowVE />
+                    )}
+                  </span>
+                </button>
+              </th>
+
+              <th>
+                <button
+                  className="col-span-2 flex items-center text-right"
+                  onClick={() => {
+                    setHistorySortBy('claimed');
+                    if (historySortBy === 'claimed') {
+                      if (sortOrderHistory === 'asc') {
+                        setSorOrderHistory('desc');
+                      } else {
+                        setSorOrderHistory('asc');
+                      }
+                    } else {
+                      setSorOrderHistory('desc');
+                    }
+                  }}
+                >
+                  <FormattedMessage id="executed" defaultMessage={'Executed'} />
+                  <span
+                    className={`ml-0.5 ${
+                      historySortBy === 'claimed' ? 'text-gradientFrom' : ''
+                    }`}
+                  >
+                    {historySortBy === 'claimed' &&
+                    sortOrderHistory === 'asc' ? (
+                      <UpArrowVE />
+                    ) : (
+                      <DownArrowVE />
+                    )}
+                  </span>
+                </button>
+              </th>
+
+              <th className="col-span-1 text-right">
+                <span className="pr-4">
+                  <FormattedMessage id="status" defaultMessage={'Status'} />
+                </span>
+              </th>
+            </tr>
+          </>
+        )}
+        {orderType === 'history' &&
+          (!historyOrder || historyOrder.length === 0) && (
+            <NoOrderCard text="history" />
+          )}
+        {orderType === 'active' &&
+          (!activeOrder || activeOrder.length === 0) && (
+            <NoOrderCard text="active" />
+          )}
+
+        {orderType === 'active' &&
+          activeOrder &&
+          activeOrder.sort(activeOrderSorting).map((order, index) => {
             return (
-              <HistorySwapInfoLine
-                index={i}
+              <ActiveLine
                 tokensMap={tokensMap}
-                key={sf.tx_id}
-                token_in={sf.token_in}
-                token_out={sf.token_out}
-                amount_in={sf.amount_in}
-                amount_out={sf.amount_out}
-                orderTx={sf.tx_id}
-                timestamp={sf.timestamp}
-                point={sf.point}
-                pool_id={sf.pool_id}
+                hoverOn={activeOrderHoverOn}
+                setHoverOn={setActiveOrderHoverOn}
+                sellAmountToBuyAmount={sellAmountToBuyAmount}
+                index={index}
+                key={order.order_id}
+                order={order}
+                orderTx={
+                  orderTxs?.find((t) => t.order_id === order.order_id)?.tx_id ||
+                  ''
+                }
               />
             );
           })}
+        {orderType === 'history' &&
+          historyOrder &&
+          historyOrder.sort(historyOrderSorting).map((order, index) => {
+            return (
+              <HistoryLine
+                index={index}
+                key={order.order_id}
+                order={order}
+                tokensMap={tokensMap}
+                sellAmountToBuyAmount={sellAmountToBuyAmount}
+                orderTx={
+                  orderTxs?.find((t) => t.order_id === order.order_id)?.tx_id ||
+                  ''
+                }
+                setHoverOn={setHistoryOrderHoverOn}
+                hoverOn={historyOrderHoverOn}
+              />
+            );
+          })}
+        {orderType === 'history' &&
+          historySwapInfo &&
+          historySwapInfo.length > 0 && (
+            <tr
+              onMouseEnter={() => {
+                setActiveOrderHoverOn(-1);
+                setHistoryOrderHoverOn(-1);
+              }}
+            >
+              <td colSpan={8}>
+                <div
+                  className="inline-flex max-w-max items-center ml-4 text-primaryText mt-7  mb-3"
+                  data-class="reactTip"
+                  data-for={'real_time_order_tip'}
+                  data-html={true}
+                  data-place={'top'}
+                  data-tip={getRealTimeOrderTip()}
+                >
+                  <span
+                    className={`underline cursor-pointer ${'lg:hover:text-white'} `}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleShowHistoryInfo();
+                    }}
+                    style={{
+                      textDecorationThickness: '1px',
+                    }}
+                  >
+                    {intl.formatMessage({
+                      id: showHistoryInfo ? 'hide' : 'show',
+                      defaultMessage: showHistoryInfo ? 'Hide' : 'Show',
+                    })}
+                  </span>
+
+                  <span className="ml-1">
+                    {intl.formatMessage({
+                      id: 'real_time_executed_orders',
+                      defaultMessage: 'real-time executed orders',
+                    })}
+                  </span>
+                  <ReactTooltip
+                    id={'real_time_order_tip'}
+                    backgroundColor="#1D2932"
+                    place="top"
+                    border
+                    borderColor="#7e8a93"
+                    textColor="#C6D1DA"
+                    effect="solid"
+                  />
+                </div>
+              </td>
+            </tr>
+          )}
+        {orderType === 'history' &&
+          showHistoryInfo &&
+          historySwapInfo &&
+          historySwapInfo.length > 0 &&
+          historySwapInfo
+            .sort((a, b) => Number(b.timestamp) - Number(a.timestamp))
+            .map((sf, i) => {
+              return (
+                <HistorySwapInfoLine
+                  index={i}
+                  tokensMap={tokensMap}
+                  key={sf.tx_id}
+                  token_in={sf.token_in}
+                  token_out={sf.token_out}
+                  amount_in={sf.amount_in}
+                  amount_out={sf.amount_out}
+                  orderTx={sf.tx_id}
+                  timestamp={sf.timestamp}
+                  point={sf.point}
+                  pool_id={sf.pool_id}
+                  hoverOn={historyInfoOrderHoverOn}
+                  setHoverOn={setHistoryInfoOrderHoverOn}
+                />
+              );
+            })}
+      </table>
     </div>
   );
 }
@@ -2748,6 +3200,9 @@ function OrderCardOld({
               undecimal_amount: '0',
             });
           }}
+          style={{
+            height: '38px',
+          }}
         >
           <ButtonTextWrapper
             Text={() => (
@@ -2993,21 +3448,6 @@ function OrderCardOld({
       </div>
     );
 
-    const MobileInfoBanner = ({
-      text,
-      value,
-    }: {
-      text: string | JSX.Element;
-      value: string | JSX.Element;
-    }) => {
-      return (
-        <div className="flex mb-4 items-center justify-between whitespace-nowrap">
-          <span className="text-xs text-v3SwapGray">{text}</span>
-          <span className="text-white text-sm">{value}</span>
-        </div>
-      );
-    };
-
     return (
       <>
         <div
@@ -3245,7 +3685,7 @@ function OrderCardOld({
   );
 }
 
-function MyOrderPage() {
+function MyOrderComponent() {
   const { activeOrder, historyOrder } = useMyOrders();
 
   const [oldOrders, setOldOrders] = useState<UserOrderInfo[]>();
@@ -3262,8 +3702,6 @@ function MyOrderPage() {
       setOldOrders(res);
     });
   }, [accountId]);
-
-  const history = useHistory();
 
   const minOrderTime =
     _.minBy(historyOrder, (o) => o.created_at)?.created_at || 0;
@@ -3302,7 +3740,8 @@ function MyOrderPage() {
         ];
 
   const tokens = useTokens(tokenIds || []);
-  const intl = useIntl();
+
+  if (!accountId) return null;
 
   if (
     !tokenIds ||
@@ -3319,115 +3758,29 @@ function MyOrderPage() {
       [cur.id]: cur,
     };
   }, {});
-  function getTipForOrders() {
-    const n = intl.formatMessage({ id: 'orderTip' });
-    const result: string = `<div class="text-navHighLightText text-xs text-left xsm:w-40 whitespace-normal" >${n}</div>`;
-    return result;
-  }
+
+  // function getTipForOrders() {
+  //   const n = intl.formatMessage({ id: 'orderTip' });
+  //   const result: string = `<div class="text-navHighLightText text-xs text-left xsm:w-40 whitespace-normal" >${n}</div>`;
+  //   return result;
+  // }
 
   return (
-    <div className="max-w-7xl mx-auto flex flex-col xs:w-11/12 md:5/6 lg:w-1000px">
-      <div className="flex items-center justify-between text-white mb-7">
-        <button
-          className="whitespace-nowrap flex items-center "
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            history.push('/swap');
-            localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.LIMIT);
-            localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
-          }}
-        >
-          <span className="text-xl font-bold mr-3">
-            <RouterArrowLeft />
-          </span>
-          <div className="flex items-center">
-            <FormattedMessage id="your_orders" defaultMessage={'Your Orders'} />
-            <div
-              className="text-white text-right ml-1"
-              data-class="reactTip"
-              data-for={'orderNumberTip'}
-              data-place="top"
-              data-html={true}
-              data-tip={getTipForOrders()}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-              }}
-            >
-              <QuestionMark></QuestionMark>
-              <ReactTooltip
-                id={'orderNumberTip'}
-                backgroundColor="#1D2932"
-                border
-                borderColor="#7e8a93"
-                effect="solid"
-              />
-            </div>
-          </div>
-        </button>
-
-        <div
-          data-type="info"
-          data-place="top"
-          data-multiline={true}
-          data-class="reactTip"
-          data-html={true}
-          data-tip={`
-              <div class="text-xs opacity-50">
-                <div 
-                  style="font-weight:400",
-                >
-                ${intl.formatMessage({
-                  id: 'v2_paused',
-
-                  defaultMessage: 'REF V2 has been paused for maintenance',
-                })}
-                </div>
-              </div>
-            `}
-          data-for="v2_paused_pool_tip"
-        >
-          <SolidButton
-            padding="px-4 py-2"
-            className="rounded-lg"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              history.push('/swap');
-              localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.LIMIT);
-              localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
-            }}
-            // disabled
-          >
-            <FormattedMessage
-              id="create_order"
-              defaultMessage={'Create Order'}
-            />
-          </SolidButton>
-          {/* <ReactTooltip
-            className="w-20"
-            id="v2_paused_pool_tip"
-            backgroundColor="#1D2932"
-            border
-            borderColor="#7e8a93"
-            textColor="#C6D1DA"
-            effect="solid"
-          /> */}
-        </div>
-      </div>
+    <div className="max-w-7xl mx-auto flex flex-col xs:w-full md:5/6 lg:w-full">
       <PriceContext.Provider value={tokenPriceList}>
-        <OrderCardOld tokensMap={tokensMap} activeOrder={oldOrders} />
+        {/* <OrderCardOld tokensMap={tokensMap} activeOrder={oldOrders} /> */}
 
         <OrderCard
           tokensMap={tokensMap}
           activeOrder={activeOrder}
           historyOrder={historyOrder}
           historySwapInfo={historySwapInfo}
+
+          // historySwapInfo={historySwapInfo}
         />
       </PriceContext.Provider>
     </div>
   );
 }
 
-export default MyOrderPage;
+export default MyOrderComponent;

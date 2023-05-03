@@ -111,7 +111,6 @@ export default function USNFormWrap({
           <SlippageSelector
             slippageTolerance={slippageTolerance}
             onChange={onChange}
-            hideLedger={true}
           />
           <IoClose
             onClick={closeFun}

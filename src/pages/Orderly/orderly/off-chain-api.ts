@@ -607,6 +607,21 @@ export const getOrderlyPublic = async (url?: string) => {
     });
 };
 
+export interface OrderlySystemInfo {
+  success: boolean;
+  data: Data;
+  timestamp: number;
+}
+
+interface Data {
+  status: number;
+  msg: string;
+}
+
+export const getOrderlySystemInfo = async (): Promise<OrderlySystemInfo> => {
+  return await getOrderlyPublic('/v1/public/system_info');
+};
+
 export const getMarketTrades = async ({
   symbol,
   limit,
