@@ -153,6 +153,7 @@ export function QuestionMarkStaticForParaSwap(props: {
           <a
             href="https://ref-finance.medium.com/introducing-parallel-swap-bad9c69bf206"
             target="_blank"
+            rel="noopener noreferrer nofollow"
             className="text-blueTip flex items-center inline ml-1"
           >
             {intl.formatMessage({ id: 'introducing_parallel_swap' })}

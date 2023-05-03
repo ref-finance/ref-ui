@@ -77,39 +77,6 @@ export const PoolTabV3 = ({
     getAllTvl().then(setAllTVL);
     getAllVolume24h().then(setAllVolume24h);
   }, []);
-  const allPoolsV2 = useAllPoolsV2();
-
-  const [tvlV2, setTvlV2] = useState<string>();
-
-  useEffect(() => {
-    if (
-      typeof allPoolsV2 === 'undefined' ||
-      allPoolsV2.length === 0 ||
-      allPoolsV2.every((p) => !p?.tvl)
-    )
-      return;
-
-    const tvl = allPoolsV2.reduce(
-      (a, b) => new Big(a || '0').plus(new Big(b.tvl || '0')),
-      new Big(0)
-    );
-
-    setTvlV2(scientificNotationToString(tvl.toString()));
-  }, [allPoolsV2]);
-
-  const v3PoolVolumes = useV3VolumesPools();
-  const [h24VolumeV2, setH24VolumeV2] = useState<string>();
-
-  useEffect(() => {
-    if (Object.keys(v3PoolVolumes).length > 0) {
-      const h24Volume = Object.values(v3PoolVolumes).reduce(
-        (a, b) => new Big(a || '0').plus(new Big(b || '0')),
-        new Big(0)
-      );
-
-      setH24VolumeV2(scientificNotationToString(h24Volume.toString()));
-    }
-  }, [v3PoolVolumes]);
 
   const isMobile = useClientMobile();
 
@@ -231,11 +198,11 @@ export const PoolTabV3 = ({
                   {!yourLPpage && (
                     <div className="flex flex-col ml-8 mr-12">
                       <span className="text-white text-xl  gotham_bold">
-                        {!allTVL || typeof tvlV2 === 'undefined'
+                        {!allTVL
                           ? '-'
                           : `$` +
                             toInternationalCurrencySystem(
-                              new Big(allTVL || '0').plus(tvlV2).toFixed(3),
+                              new Big(allTVL || '0').toFixed(3),
                               2
                             )}
                       </span>
@@ -251,13 +218,11 @@ export const PoolTabV3 = ({
                   {!yourLPpage && (
                     <div className="flex flex-col">
                       <span className="text-white text-xl  gotham_bold">
-                        {!allVolume24h || typeof h24VolumeV2 === 'undefined'
+                        {!allVolume24h
                           ? '-'
                           : `$` +
                             toInternationalCurrencySystem(
-                              new Big(allVolume24h)
-                                .plus(h24VolumeV2)
-                                .toFixed(3),
+                              new Big(allVolume24h).toFixed(3),
                               2
                             )}
                       </span>

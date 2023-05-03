@@ -7,6 +7,8 @@ import {
   toPrecision,
   toReadableNumber,
 } from '../utils/numbers';
+
+import { EstimateSwapView } from './swap';
 import {
   executeMultipleTransactions,
   near,
@@ -91,25 +93,6 @@ export interface RoutePool {
   tokenIds?: string[];
   x?: string;
   y?: string;
-}
-
-export interface EstimateSwapView {
-  estimate: string;
-  pool: Pool;
-  intl?: any;
-  dy?: string;
-  status?: PoolMode;
-  token?: TokenMetadata;
-  noFeeAmountOut?: string;
-  inputToken?: string;
-  outputToken?: string;
-  nodeRoute?: string[];
-  tokens?: TokenMetadata[];
-  routeInputToken?: string;
-  route?: RoutePool[];
-  allRoutes?: RoutePool[][];
-  allNodeRoutes?: string[][];
-  totalInputAmount?: string;
 }
 
 export const estimateSwap = async ({

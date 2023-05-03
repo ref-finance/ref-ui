@@ -6,7 +6,7 @@ import React, {
   createContext,
 } from 'react';
 import BigNumber from 'bignumber.js';
-import { UserLiquidityInfo } from '../../services/commonV3';
+import { UserLiquidityInfo, openUrl } from '../../services/commonV3';
 import { toReadableNumber } from '~utils/numbers';
 import QuestionMark from '../../components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
@@ -205,7 +205,7 @@ function AssetProfitPc() {
           <ArrowJump
             clickEvent={() => {
               sessionStorage.setItem(REF_POOL_NAV_TAB_KEY, '/yourliquidity');
-              window.open('/yourliquidity');
+              openUrl('/yourliquidity');
             }}
             extraClass="ml-3"
           ></ArrowJump>
@@ -220,7 +220,7 @@ function AssetProfitPc() {
           <ArrowJump
             clickEvent={() => {
               localStorage.setItem('farmV2Status', 'my');
-              window.open('/v2farms');
+              openUrl('/v2farms');
             }}
             extraClass="ml-1"
           ></ArrowJump>
@@ -275,7 +275,7 @@ function AssetProfitMobile() {
             <ArrowJump
               clickEvent={() => {
                 sessionStorage.setItem(REF_POOL_NAV_TAB_KEY, '/yourliquidity');
-                window.open('/yourliquidity');
+                openUrl('/yourliquidity');
               }}
               extraClass="ml-3 flex-shrink-0 xsm:relative xsm:top-0.5"
             ></ArrowJump>
@@ -290,7 +290,7 @@ function AssetProfitMobile() {
             <ArrowJump
               clickEvent={() => {
                 localStorage.setItem('farmV2Status', 'my');
-                window.open('/v2farms');
+                openUrl('/v2farms');
               }}
               extraClass="ml-0.5 flex-shrink-0 xsm:relative xsm:top-0.5"
             ></ArrowJump>

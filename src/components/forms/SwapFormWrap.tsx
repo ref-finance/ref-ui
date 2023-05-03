@@ -1,25 +1,22 @@
 import React, { useEffect, useState, useContext } from 'react';
 import Alert from '../alert/Alert';
-import SubmitButton, { InsufficientButton } from './SubmitButton';
+import SubmitButton, {
+  InsufficientButton,
+  GoOrderBookButton,
+} from './SubmitButton';
 import { FormattedMessage, useIntl } from 'react-intl';
-import SlippageSelector, { StableSlipSelecter } from './SlippageSelector';
-import { SwapRefresh, CountdownTimer } from '../../components/icon';
-import { wallet } from '~services/near';
-import {
-  getCurrentWallet,
-  WalletContext,
-} from '../../utils/wallets-integration';
-import { RequestingSmile } from '../icon/CrossSwapIcons';
-import { SWAP_MODE } from '../../pages/SwapPage';
-import SlippageSelectorForStable from './SlippageSelector';
+import SlippageSelector from './SlippageSelector';
+
+import { WalletContext } from '../../utils/wallets-integration';
+import { SWAP_MODE, SWAP_TYPE, SwapProContext } from '../../pages/SwapPage';
 import { useMyOrders } from '../../state/swapV3';
 import { useHistory } from 'react-router-dom';
 import { OrderIcon } from '../icon/V3';
 import { EstimateSwapView } from '../../services/swap';
+import { get_pool_name, openUrl } from '../../services/commonV3';
 import { PoolInfo } from '~services/swapV3';
 import { OutLinkIcon } from '../../components/icon/Common';
 import { REF_FI_POOL_ACTIVE_TAB } from '../../pages/pools/LiquidityPage';
-import ReactTooltip from 'react-tooltip';
 
 interface SwapFormWrapProps {
   title?: string;
@@ -37,6 +34,7 @@ interface SwapFormWrapProps {
   onChange: (slippage: number) => void;
   quoteDoneLimit?: boolean;
   selectTodos?: EstimateSwapView[];
+  setReEstimateTrigger?: (e?: any) => void;
   loading?: {
     loadingData: boolean;
     setLoadingData: (loading: boolean) => void;
@@ -63,47 +61,53 @@ export default function SwapFormWrap({
   title,
   buttonText,
   slippageTolerance,
-  canSubmit = true,
+  canSubmit,
   onSubmit,
   info,
-  crossSwap,
   showElseView,
   elseView,
   onChange,
   swapTab,
   loading,
-  useNearBalance,
   swapMode,
+  setReEstimateTrigger,
   supportLedger,
   setSupportLedger,
   quoteDoneLimit,
-  reserves,
   isInsufficient,
   mostPoolDetail,
 }: React.PropsWithChildren<SwapFormWrapProps>) {
   const [error, setError] = useState<Error>();
 
-  const { activeOrder, historyOrder } = useMyOrders();
+  const { activeOrder } = useMyOrders();
   const [viewPoolHover, setViewPoolHover] = useState(false);
 
   const history = useHistory();
 
-  const OrderButton = swapMode === SWAP_MODE.LIMIT && activeOrder && (
-    <button
-      onClick={(e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        history.push('/myOrder');
+  const { selectMarket } = useContext(SwapProContext);
+
+  const viewPool = swapMode === SWAP_MODE.LIMIT && (
+    <div
+      onMouseEnter={() => {
+        setViewPoolHover(true);
       }}
-      className="w-full h-12 flex items-center justify-center bg-switchIconBgColor hover:bg-limitOrderButtonHover border border-limitOrderBorderColor hover:border-0 mt-4 rounded-lg text-greenColor text-base gotham_bold xsm:mr-1.5 xsm:mt-6"
+      onMouseLeave={() => {
+        setViewPoolHover(false);
+      }}
+      onClick={goPoolsPage}
+      className={`flex  relative top-3 items-center text-xs justify-center rounded-md px-3.5 xsm:px-2 py-1 cursor-pointer ${
+        viewPoolHover ? 'text-white' : 'text-primaryText'
+      }`}
     >
-      <OrderIcon />
-      <span className="mx-2 xs:mx-1 md:mx-1">
-        {activeOrder.length > 0 ? activeOrder.length : null}
+      <span className=" whitespace-nowrap ">
+        <FormattedMessage
+          id={`${mostPoolDetail?.pool_id ? 'view_dcl_pool' : 'v2_pools'}`}
+          defaultMessage={`${mostPoolDetail?.pool_id ? 'View Pool' : 'Pools'}`}
+        />
       </span>
 
-      {<FormattedMessage id="orders" defaultMessage={'Orders'} />}
-    </button>
+      <OutLinkIcon className="ml-2 xsm:ml-1.5"></OutLinkIcon>
+    </div>
   );
 
   const {
@@ -123,12 +127,18 @@ export default function SwapFormWrap({
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    event.stopPropagation();
     setError(null);
 
-    if (isSignedIn) {
+    if (isSignedIn || selectMarket === 'orderly') {
       try {
-        setShowSwapLoading && setShowSwapLoading(true);
-        setShowSwapLoading && setLoadingPause(true);
+        selectMarket !== 'orderly' &&
+          setShowSwapLoading &&
+          setShowSwapLoading(true);
+
+        selectMarket !== 'orderly' &&
+          setShowSwapLoading &&
+          setLoadingPause(true);
         onSubmit(event);
       } catch (err) {
         setError(err);
@@ -138,19 +148,17 @@ export default function SwapFormWrap({
   function goPoolsPage() {
     const poolId = mostPoolDetail?.pool_id;
     if (poolId) {
-      const newPoolId = poolId.replace(/\|/g, '@');
-      window.open(`/poolV2/${newPoolId}`);
+      const newPoolId = get_pool_name(poolId);
+      openUrl(`/poolV2/${newPoolId}`);
     } else {
       localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'v2');
-      window.open('/pools');
+      openUrl('/pools');
     }
   }
 
-  const intl = useIntl();
-
   return (
     <form
-      className={`overflow-y-visible  relative bg-swapCardGradient shadow-2xl rounded-2xl px-4 pt-6 pb-7 xsm:py-4 xsm:px-2.5 bg-dark  overflow-x-visible`}
+      className={`overflow-y-visible  relative bg-swapCardGradient shadow-2xl rounded-2xl px-4 pt-4 pb-7 xsm:py-4 xsm:px-2.5  overflow-x-visible`}
       onSubmit={handleSubmit}
       noValidate
     >
@@ -158,41 +166,15 @@ export default function SwapFormWrap({
         <>
           <h2 className="formTitle relative bottom-1 z-50 flex items-center xs:justify-end justify-between font-bold text-xl text-white text-left pb-4 xs:pb-2">
             {swapTab}
-            {swapMode !== SWAP_MODE.LIMIT && (
+            {swapMode === SWAP_MODE.NORMAL && (
               <SlippageSelector
                 slippageTolerance={slippageTolerance}
                 onChange={onChange}
                 supportLedger={supportLedger}
                 setSupportLedger={setSupportLedger}
-                validSlippageList={
-                  swapMode === SWAP_MODE.NORMAL ? null : [0.05, 0.1, 0.2]
-                }
+                validSlippageList={null}
                 swapMode={swapMode}
               />
-            )}
-            {swapMode == SWAP_MODE.LIMIT && (
-              <div
-                onMouseEnter={() => {
-                  setViewPoolHover(true);
-                }}
-                onMouseLeave={() => {
-                  setViewPoolHover(false);
-                }}
-                onClick={goPoolsPage}
-                className={`flex items-center justify-center bg-viewPoolBgColor rounded-md px-3.5 xsm:px-2 py-1 cursor-pointer ${
-                  viewPoolHover ? 'text-white' : 'text-primaryText'
-                }`}
-              >
-                <span className="text-xs whitespace-nowrap xsm:hidden">
-                  <FormattedMessage
-                    id={`${mostPoolDetail?.pool_id ? 'view_pool' : 'v2_pools'}`}
-                  ></FormattedMessage>
-                </span>
-                <span className="text-xs whitespace-nowrap lg:hidden">
-                  {mostPoolDetail?.pool_id ? 'Detail' : 'Pools'}
-                </span>
-                <OutLinkIcon className="ml-2 xsm:ml-1.5"></OutLinkIcon>
-              </div>
             )}
           </h2>
         </>
@@ -202,73 +184,49 @@ export default function SwapFormWrap({
       {showElseView && elseView ? (
         elseView
       ) : (
-        <div className="flex flex-col items-center xsm:flex-row-reverse">
+        <div className="flex flex-col items-center">
           {!isInsufficient ? (
             <div
-              className={`ml-1 text-xs w-full ${
+              className={`ml-1 text-xs relative w-full ${
                 swapMode === SWAP_MODE.LIMIT ? 'mt-6' : ''
               }  `}
-              data-type="info"
-              data-place="top"
-              data-multiline={true}
-              data-class="reactTip"
-              data-html={true}
-              data-tip={`
-              <div class="text-xs opacity-50">
-                <div 
-                  style="font-weight:400",
-                >
-                ${intl.formatMessage({
-                  id: 'v2_paused',
-
-                  defaultMessage: 'REF V2 has been paused for maintenance',
-                })}
-                </div>
-              </div>
-            `}
-              data-for="v2_paused_pool_tip"
             >
-              <SubmitButton
-                disabled={
-                  !canSubmit ||
-                  (swapMode === SWAP_MODE.LIMIT
-                    ? !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
-                    : showSwapLoading)
-                }
-                // disabled={
-                //   !canSubmit ||
-                //   (swapMode === SWAP_MODE.LIMIT ? true : showSwapLoading)
-                // }
-                label={buttonText || title}
-                info={info}
-                className={`h-12 ${
-                  swapMode == SWAP_MODE.NORMAL ? '-mt-0' : ''
-                }`}
-                loading={
-                  swapMode !== SWAP_MODE.LIMIT
-                    ? showSwapLoading
-                    : !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
-                }
-              />
-              {/* {swapMode === SWAP_MODE.LIMIT && (
-                <ReactTooltip
-                  className="w-20"
-                  id="v2_paused_pool_tip"
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  textColor="#C6D1DA"
-                  effect="solid"
+              {' '}
+              {selectMarket === 'orderly' && swapMode === SWAP_MODE.NORMAL ? (
+                <GoOrderBookButton
+                  disabled={!canSubmit || showSwapLoading}
+                  label={buttonText || title}
+                  info={info}
+                  className={`h-12 ${'-mt-0'}`}
+                  loading={showSwapLoading}
                 />
-              )} */}
+              ) : (
+                <SubmitButton
+                  disabled={
+                    !canSubmit ||
+                    (swapMode === SWAP_MODE.LIMIT
+                      ? !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
+                      : showSwapLoading)
+                  }
+                  label={buttonText || title}
+                  info={info}
+                  className={`h-12 ${
+                    swapMode == SWAP_MODE.NORMAL ? '-mt-0' : ''
+                  }`}
+                  loading={
+                    swapMode !== SWAP_MODE.LIMIT
+                      ? showSwapLoading
+                      : !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
+                  }
+                />
+              )}
             </div>
           ) : (
-            <InsufficientButton divClassName="h-12 mt-6 w-full"></InsufficientButton>
+            <InsufficientButton divClassName="h-12 mt-2 w-full"></InsufficientButton>
           )}
-          {OrderButton}
+          {viewPool}
         </div>
       )}
-      {reserves}
     </form>
   );
 }

@@ -837,7 +837,6 @@ export const getBoostTokenPrices = async (): Promise<
     }
     return tokenPrices;
   } catch (error) {
-    console.log(error);
     return {};
   }
 };
@@ -849,7 +848,6 @@ export const getBoostTokenPricesFromServer = async (): Promise<
     await db.cacheTokenPrices(tokenPrices);
     return tokenPrices;
   } catch (error) {
-    console.log(error);
     return {};
   }
 };
@@ -887,7 +885,6 @@ export const getBoostSeeds = async (): Promise<{
       return result;
     }
   } catch (error) {
-    console.log(error);
     return null;
   }
 };
@@ -972,7 +969,6 @@ export const getBoostSeedsFromServer = async (): Promise<{
       pools: both_normalPools_dclPools,
     };
   } catch (error) {
-    console.log(error);
     return null;
   }
 };

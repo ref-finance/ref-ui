@@ -16,7 +16,9 @@ export const useHistoryOrderTx = () => {
     if (!accountId) return;
 
     getHistoryOrder(accountId).then((res) => {
-      setTxIds(res);
+      //@ts-ignore
+
+      setTxIds(res?.data === null ? [] : res);
     });
   }, [accountId]);
 
@@ -38,11 +40,14 @@ export const useHistoryOrderSwapInfo = ({
     if (!accountId) return;
 
     getHistoryOrderSwapInfo(accountId).then((res) => {
-      setSwapInfo(res);
+      //@ts-ignore
+      setSwapInfo(res?.data === null ? [] : res);
     });
   }, [accountId]);
 
-  return swapInfo.filter(
-    (s) => Number(s.timestamp) >= start_at && Number(s.timestamp) <= end_at
+  return (
+    swapInfo?.filter(
+      (s) => Number(s.timestamp) >= start_at && Number(s.timestamp) <= end_at
+    ) || []
   );
 };

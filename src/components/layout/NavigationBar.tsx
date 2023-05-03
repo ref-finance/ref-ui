@@ -10,24 +10,7 @@ import { matchPath } from 'react-router';
 import { Context } from '~components/wrapper';
 import getConfig from '~services/config';
 import ReactTooltip from 'react-tooltip';
-import {
-  Logo,
-  Near,
-  IconBubble,
-  IconMyLiquidity,
-  IconCreateNew,
-  IconPools,
-  IconAirDropGreenTip,
-  WrapNearEnter,
-  WrapNearIconDark,
-  GreenArrowIcon,
-  MoreMenuIcon,
-  NavLogo,
-  NavLogoSimple,
-  AuroraIconSwapNav,
-  NavLogoIcon,
-} from '~components/icon';
-import { SmallWallet } from '~components/icon/SmallWallet';
+import { Logo, Near, IconAirDropGreenTip, NavLogoIcon } from '~components/icon';
 import {
   AccountIcon,
   ActivityIcon,
@@ -109,12 +92,17 @@ import {
   get_orderly_private_key_path,
 } from '../../pages/Orderly/orderly/utils';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../../pages/Orderly/components/UserBoard/index';
-import { tradingKeyMap } from '../../pages/Orderly/orderly/utils';
+import {
+  tradingKeyMap,
+  REF_FI_SENDER_WALLET_ACCESS_KEY,
+} from '../../pages/Orderly/orderly/utils';
+import { ORDERLY_ASSET_MANAGER } from '../../pages/Orderly/near';
 import {
   MoreIcon,
   ArrowDownIcon,
   DownTriangleIcon,
 } from '~components/icon/Nav';
+import { openUrl } from '../../services/commonV3';
 
 const config = getConfig();
 
@@ -212,8 +200,6 @@ function Anchor({
       }
       if (typeof e?.[REF_FI_SWAP_SWAPPAGE_TAB_KEY] === 'string') {
         const curTab = e?.[REF_FI_SWAP_SWAPPAGE_TAB_KEY];
-
-        console.log(e);
 
         if (curTab === 'normal') {
           setChosenSub(storageSwapMode);
@@ -366,7 +352,27 @@ function AccountEntry({
   const signOut = async () => {
     const curWallet = await wallet.wallet();
 
-    await curWallet.signOut();
+    if (curWallet.id === 'sender') {
+      try {
+        const senderAccessKey = localStorage.getItem(
+          REF_FI_SENDER_WALLET_ACCESS_KEY
+        );
+
+        const allKeys = Object.keys(JSON.parse(senderAccessKey)['allKeys']);
+
+        //@ts-ignore
+
+        await window.near.signOut({
+          contractId: allKeys.includes(ORDERLY_ASSET_MANAGER)
+            ? ORDERLY_ASSET_MANAGER
+            : allKeys[0],
+        });
+      } catch (error) {
+        await window.near.signOut();
+      }
+    } else {
+      await curWallet.signOut();
+    }
 
     localStorage.removeItem(ACCOUNT_ID_KEY);
 
@@ -414,11 +420,10 @@ function AccountEntry({
       textId: 'go_to_near_wallet',
       // subIcon: <HiOutlineExternalLink />,
       click: () => {
-        window.open(
+        openUrl(
           selector.store.getState().selectedWalletId === 'my-near-wallet'
             ? config.myNearWalletUrl
-            : config.walletUrl,
-          '_blank'
+            : config.walletUrl
         );
       },
     },
@@ -575,7 +580,7 @@ function AccountEntry({
                   <button
                     className="hover:text-gradientFrom text-primaryText ml-2"
                     onClick={() => {
-                      window.open(
+                      openUrl(
                         `https://${
                           getConfig().networkId === 'testnet' ? 'testnet.' : ''
                         }nearblocks.io/address/${wallet.getAccountId()}#transaction`
@@ -712,12 +717,12 @@ export function AuroraEntry({
         e.preventDefault();
         extraClick && extraClick();
         if (!isMobile) {
-          window.open('/account?tab=aurora', '_blank');
+          openUrl('/account?tab=aurora');
           return;
         }
         if (isMobile) {
           if (!hasBalanceOnAurora) {
-            window.open('/account?tab=aurora', '_blank');
+            openUrl('/account?tab=aurora');
           } else {
             setHover(!hover);
           }
@@ -737,7 +742,7 @@ export function AuroraEntry({
         <div
           className=" absolute pt-2 right-0 lg:top-14 xs:top-8 md:top-8"
           onClick={(e) => {
-            window.open('/account?tab=aurora', '_blank');
+            openUrl('/account?tab=aurora');
             e.stopPropagation();
           }}
         >
@@ -804,6 +809,7 @@ export function AuroraEntry({
               }}
               onClick={(e) => e.stopPropagation()}
               target="_blank"
+              rel="noopener noreferrer nofollow"
               className={`w-full px-3 py-1 text-xs bg-auroraGreen text-chartBg flex items-center justify-center cursor-pointer ${
                 hasBalanceOnAurora ? 'block' : 'hidden'
               }`}
@@ -864,7 +870,7 @@ function MoreMenu() {
   ) => {
     if (url) {
       if (isExternal) {
-        window.open(url);
+        openUrl(url);
       } else {
         history.push(url);
       }
@@ -1066,8 +1072,6 @@ function NavigationBar() {
 
   const dclAccountBalances = useDCLAccountBalance(isSignedIn);
 
-  const historyInit = useHistory();
-
   useEffect(() => {
     if (!refAccountBalances || !dclAccountBalances) return;
 
@@ -1151,7 +1155,7 @@ function NavigationBar() {
             className={`${
               hoverClick ? 'font-bold' : 'font-normal'
             } underline cursor-pointer mx-1`}
-            onClick={() => window.open('/account?tab=ref', '_blank')}
+            onClick={() => openUrl('/account?tab=ref')}
             onMouseEnter={() => setHoverClick(true)}
             onMouseLeave={() => setHoverClick(false)}
           >
@@ -1174,7 +1178,7 @@ function NavigationBar() {
               <NavLogoIcon
                 className="cursor-pointer"
                 onClick={() => {
-                  window.open('https://www.ref.finance/');
+                  openUrl('https://www.ref.finance/');
                 }}
               />
             </div>
@@ -1422,23 +1426,7 @@ function MenuBar() {
           }
         }
       }
-      // if (!one_level_selected_id) {
-      //   // no matched router than redirect to swap page
-      //   const { id, children } = menus[0];
-      //   const second_children_temp: any = children;
-      //   if (second_children_temp) {
-      //     const two_level_menu = second_children_temp.find(
-      //       (item: menuItemType) => {
-      //         const { swap_mode } = item;
-      //         return swap_mode_in_localstorage == swap_mode;
-      //       }
-      //     );
-      //     if (two_level_menu) {
-      //       two_level_selected_id = two_level_menu.id;
-      //     }
-      //   }
-      //   one_level_selected_id = id;
-      // }
+
       set_one_level_selected(one_level_selected_id);
       set_two_level_selected(two_level_selected_id);
     }
@@ -1461,7 +1449,7 @@ function MenuBar() {
       clickEvent();
     } else if (url) {
       if (isExternal) {
-        window.open(url);
+        openUrl(url);
       } else {
         history.push(url);
       }
@@ -1480,7 +1468,7 @@ function MenuBar() {
         clickEvent();
       } else if (url) {
         if (isExternal) {
-          window.open(url);
+          openUrl(url);
         } else {
           history.push(url);
         }

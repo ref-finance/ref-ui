@@ -1,5 +1,5 @@
-import BN from 'bn.js';
 import Big from 'big.js';
+import db from '../store/RefDatabase';
 
 import { getLiquidity } from '../utils/pool';
 
@@ -39,13 +39,9 @@ import {
 } from './ft-contract';
 import {
   getPoolsByTokens,
-  getPoolByToken,
-  parsePool,
-  getPool,
-  getStablePool,
   StablePool,
   getRefPoolsByToken1ORToken2,
-  getStablePoolFromCache,
+  getPoolsByTokensAurora,
 } from './pool';
 import {
   checkTokenNeedsStorageDeposit,
@@ -59,20 +55,10 @@ import {
 } from './creators/storage';
 import { registerTokenAction, registerAccountOnToken } from './creators/token';
 import { BigNumber } from 'bignumber.js';
-import _, {
-  filter,
-  MemoVoidIteratorCapped,
-  split,
-  StringNullableChain,
-} from 'lodash';
-import { getSwappedAmount } from './stable-swap';
-import {
-  isStablePool,
-  ALL_STABLE_POOL_IDS,
-  STABLE_POOL_ID,
-  isStableToken,
-} from './near';
-import { SWAP_MODE } from '../pages/SwapPage';
+import _ from 'lodash';
+import { getSwappedAmount, restShare } from './stable-swap';
+import { isStablePool, isStableToken } from './near';
+import { SWAP_MODE, SwapContractType, SwapMarket } from '../pages/SwapPage';
 import { STABLE_TOKEN_USN_IDS, STABLE_POOL_USN_ID } from './near';
 import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity';
 import {
@@ -88,9 +74,11 @@ import {
   toRoundedReadableNumber,
 } from '../utils/numbers';
 import { auroraSwapTransactions } from './aurora/aurora';
-import { PoolSlippageSelector } from '../components/forms/SlippageSelector';
-import { getAllStablePoolsFromCache, Pool } from './pool';
-import { PoolInfo } from '../components/layout/SwapRoutes';
+import {
+  getAllStablePoolsFromCache,
+  Pool,
+  getStablePoolFromCache,
+} from './pool';
 import {
   WRAP_NEAR_CONTRACT_ID,
   nearWithdraw,
@@ -99,7 +87,8 @@ import {
   nearWithdrawTransaction,
 } from './wrap-near';
 import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
-import { percentLess } from '../utils/numbers';
+import { percentLess, percent } from '../utils/numbers';
+import { getTokenFlow } from './indexer';
 import getConfig from './config';
 export const REF_FI_SWAP_SIGNAL = 'REF_FI_SWAP_SIGNAL_KEY';
 
@@ -155,8 +144,9 @@ export interface RoutePool {
 
 export interface EstimateSwapView {
   estimate: string;
-  pool: Pool;
+  pool: Pool | null;
   intl?: any;
+  partialAmountIn?: string;
   dy?: string;
   status?: PoolMode;
   token?: TokenMetadata;
@@ -172,6 +162,8 @@ export interface EstimateSwapView {
   allNodeRoutes?: string[][];
   totalInputAmount?: string;
   overallPriceImpact?: string;
+  contract?: SwapContractType;
+  percent?: string;
 }
 
 const getStablePoolEstimate = ({
@@ -315,6 +307,83 @@ export const getStablePoolInfoThisPair = ({
   );
 };
 
+export const estimateSwapFlow = async ({
+  tokenIn,
+  tokenOut,
+  amountIn,
+  intl,
+  supportLedger,
+}: EstimateSwapOptions): Promise<{
+  estimates: EstimateSwapView[];
+}> => {
+  const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
+
+  if (ONLY_ZEROS.test(parsedAmountIn))
+    throw new Error(
+      `${amountIn} ${intl.formatMessage({ id: 'is_not_a_valid_swap_amount' })}`
+    );
+
+  const throwNoPoolError = () => {
+    throw new Error(
+      `${intl.formatMessage({
+        id: 'no_pool_available_to_make_a_swap_from',
+      })} ${tokenIn?.symbol} -> ${tokenOut?.symbol} ${intl.formatMessage({
+        id: 'for_the_amount',
+      })} ${amountIn} ${intl.formatMessage({
+        id: 'no_pool_eng_for_chinese',
+      })}`
+    );
+  };
+
+  const tokenFlow = await getTokenFlow({
+    tokenInAmount: amountIn,
+    tokenInId: tokenIn.id,
+    tokenOutId: tokenOut.id,
+    ledger: supportLedger,
+  });
+
+  //@ts-ignore
+  if (tokenFlow?.data === null || tokenFlow === null) throwNoPoolError();
+
+  // const res = await Promise.all(
+  //   tokenFlow
+  //     .map((flow) => {
+  //       return flow.pool_ids.map(async (pool_id, i) => {
+  //         const pool = isStablePool(pool_id)
+  //           ? (await getStablePoolFromCache(pool_id.toString()))[0]
+  //           : await db
+  //               .queryTopPoolsByIds({
+  //                 poolIds: [pool_id],
+  //               })
+  //               .then((pools) => pools?.[0]);
+
+  //         return {
+  //           estimate:
+  //             i === flow.pool_ids.length - 1
+  //               ? new Big(flow.amount).toFixed(tokenOut.decimals)
+  //               : '',
+  //           inputToken: flow.all_tokens[i],
+  //           outputToken: flow.all_tokens[i + 1],
+  //           tokens: await Promise.all(
+  //             flow.all_tokens.map((t) => ftGetTokenMetadata(t))
+  //           ),
+  //           percent: flow.swap_ratio.toString(),
+  //           partialAmountIn:
+  //             i === 0
+  //               ? new Big(parsedAmountIn)
+  //                   .mul(new Big(flow.swap_ratio))
+  //                   .div(100)
+  //                   .toFixed(0, 0)
+  //               : '',
+  //           pool: pool,
+  //         } as EstimateSwapView;
+  //       });
+  //     })
+  //     .flat()
+  // );
+
+  return { estimates: [] };
+};
 export const estimateSwap = async ({
   tokenIn,
   tokenOut,
@@ -322,17 +391,15 @@ export const estimateSwap = async ({
   intl,
   setLoadingData,
   loadingTrigger,
-  swapMode,
   supportLedger,
-  swapPro,
-  setSwapsToDoRef,
-  setSwapsToDoTri,
   proGetCachePool,
 }: EstimateSwapOptions): Promise<{
   estimates: EstimateSwapView[];
   tag: string;
 }> => {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
+
+  sessionStorage.setItem('loadingTrigger', loadingTrigger.toString());
 
   const tag = `${tokenIn.id}-${parsedAmountIn}-${tokenOut.id}`;
 
@@ -360,7 +427,6 @@ export const estimateSwap = async ({
       amountIn: parsedAmountIn,
       setLoadingData,
       loadingTrigger,
-      crossSwap: swapPro,
       tokenIn,
       tokenOut,
       proGetCachePool,
@@ -369,25 +435,17 @@ export const estimateSwap = async ({
     return getLiquidity(p, tokenIn, tokenOut) > 0;
   });
 
-  let { supportLedgerRes, triTodos, refTodos } = await getOneSwapActionResult(
-    swapPro,
-    pools,
-    loadingTrigger,
-    tokenIn,
-    tokenOut,
-    supportLedger,
-    swapMode,
-    throwNoPoolError,
-    amountIn,
-    parsedAmountIn
-  );
-  // ref smart routing
-
   if (supportLedger) {
-    if (swapPro) {
-      setSwapsToDoTri(triTodos);
-      setSwapsToDoRef(refTodos);
-    }
+    const { supportLedgerRes } = await getOneSwapActionResult(
+      pools,
+      loadingTrigger,
+      tokenIn,
+      tokenOut,
+      supportLedger,
+      throwNoPoolError,
+      amountIn,
+      parsedAmountIn
+    );
 
     return { estimates: supportLedgerRes, tag };
   }
@@ -417,67 +475,152 @@ export const estimateSwap = async ({
       tokenIn,
       tokenOut,
       amountIn,
-      loadingTrigger,
-      swapMode
+      loadingTrigger
     );
 
     let hybridStableSmartOutputEstimate = hybridStableSmart.estimate.toString();
 
     if (
-      swapMode === SWAP_MODE.STABLE ||
       new Big(
         hybridStableSmartOutputEstimate === 'NaN'
           ? '0'
           : hybridStableSmartOutputEstimate
       ).gt(new Big(smartRouteV2OutputEstimate))
     ) {
-      // then hybrid route gave better answer. Use it!
-
       res = hybridStableSmart.actions;
     } else {
-      // smart route v2 gave better answer. use it!
-
       res = stableSmartActionsV2;
     }
   }
 
-  if (!swapPro && !res?.length) {
+  if (!res?.length) {
     throwNoPoolError();
-  }
-
-  if (swapPro) {
-    if (!supportLedgerRes && !res.length) throwNoPoolError();
-
-    // if not both none, we could return res
-    setSwapsToDoTri(triTodos);
-    setSwapsToDoRef(res);
-
-    const refSmartRes = await getExpectedOutputFromActions(res, tokenOut.id, 0);
-    const triRes = await getExpectedOutputFromActions(triTodos, tokenOut.id, 0);
-
-    if (new Big(refSmartRes || '0').gt(new Big(triRes || '0'))) {
-      return { estimates: res, tag };
-    } else {
-      return { estimates: triTodos, tag };
-    }
   }
 
   return { estimates: res, tag };
 };
 
+export const estimateSwapAurora = async ({
+  tokenIn,
+  tokenOut,
+  amountIn,
+  intl,
+  setLoadingData,
+  loadingTrigger,
+  swapPro,
+  proGetCachePool,
+}: EstimateSwapOptions): Promise<{
+  estimates: EstimateSwapView[];
+}> => {
+  const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
+
+  if (ONLY_ZEROS.test(parsedAmountIn))
+    throw new Error(
+      `${amountIn} ${intl.formatMessage({ id: 'is_not_a_valid_swap_amount' })}`
+    );
+
+  const throwNoPoolError = () => {
+    throw new Error(
+      `${intl.formatMessage({
+        id: 'no_pool_available_to_make_a_swap_from',
+      })} ${tokenIn?.symbol} -> ${tokenOut?.symbol} ${intl.formatMessage({
+        id: 'for_the_amount',
+      })} ${amountIn} ${intl.formatMessage({
+        id: 'no_pool_eng_for_chinese',
+      })}`
+    );
+  };
+
+  let pools = (
+    await getPoolsByTokensAurora({
+      tokenInId: tokenIn.id,
+      tokenOutId: tokenOut.id,
+      amountIn: parsedAmountIn,
+      setLoadingData,
+      loadingTrigger,
+      crossSwap: swapPro,
+      tokenIn,
+      tokenOut,
+      proGetCachePool,
+    })
+  ).filter((p) => {
+    return getLiquidity(p, tokenIn, tokenOut) > 0;
+  });
+
+  let { triTodos } = await getOneSwapActionResultAurora(
+    pools,
+    tokenIn,
+    tokenOut,
+    throwNoPoolError,
+    parsedAmountIn
+  );
+
+  return { estimates: triTodos };
+};
+
+export const getOneSwapActionResultAurora = async (
+  poolsOneSwap: Pool[],
+  tokenIn: TokenMetadata,
+  tokenOut: TokenMetadata,
+  throwNoPoolError: (p?: any) => void,
+  parsedAmountIn: string
+) => {
+  let triTodos;
+  let pools: Pool[] = poolsOneSwap;
+
+  const triPoolThisPair = pools.find(
+    (p) =>
+      p.Dex === 'tri' &&
+      p.tokenIds &&
+      p.tokenIds.includes(tokenIn.id) &&
+      p.tokenIds.includes(tokenOut.id)
+  );
+
+  if (!triPoolThisPair || !pools || pools.length === 0) {
+    throwNoPoolError();
+  }
+
+  if (triPoolThisPair) {
+    const triPoolEstimateRes = getSinglePoolEstimate(
+      tokenIn,
+      tokenOut,
+      triPoolThisPair,
+      parsedAmountIn
+    );
+
+    triTodos = [
+      {
+        ...triPoolEstimateRes,
+        status: PoolMode.PARALLEL,
+        routeInputToken: tokenIn.id,
+        totalInputAmount: parsedAmountIn,
+        pool: {
+          ...triPoolThisPair,
+          partialAmountIn: parsedAmountIn,
+        },
+        tokens: [tokenIn, tokenOut],
+        inputToken: tokenIn.id,
+        outputToken: tokenOut.id,
+      },
+    ];
+  }
+
+  return {
+    triTodos,
+  };
+};
+
 export const getOneSwapActionResult = async (
-  swapPro: boolean,
   poolsOneSwap: Pool[],
   loadingTrigger: boolean,
   tokenIn: TokenMetadata,
   tokenOut: TokenMetadata,
   supportLedger: boolean,
-  swapMode: SWAP_MODE,
   throwNoPoolError: (p?: any) => void,
   amountIn: string,
   parsedAmountIn: string
 ) => {
-  const { allStablePoolsById, allStablePools, allStablePoolsInfo } =
+  const { allStablePoolsById, allStablePools } =
     await getAllStablePoolsFromCache(loadingTrigger);
 
   let supportLedgerRes;
@@ -488,8 +631,6 @@ export const getOneSwapActionResult = async (
    *
    */
 
-  let triTodos;
-  let refTodos;
   let pools: Pool[] = poolsOneSwap;
 
   if (isStableToken(tokenIn.id) && isStableToken(tokenOut.id)) {
@@ -506,14 +647,7 @@ export const getOneSwapActionResult = async (
    *  single swap action estimate for support ledger and swap pro mode
    *
    */
-  if (supportLedger || swapPro) {
-    if (swapMode === SWAP_MODE.STABLE) {
-      pools = getStablePoolThisPair({
-        tokenInId: tokenIn.id,
-        tokenOutId: tokenOut.id,
-        stablePools: allStablePools,
-      });
-    }
+  if (supportLedger) {
     if (pools.length === 0 && supportLedger) {
       throwNoPoolError();
     }
@@ -567,94 +701,10 @@ export const getOneSwapActionResult = async (
     }
 
     // get result on tri pools but just one swap action
-    if (swapPro) {
-      // find tri pool for this pair
-      const triPoolThisPair = pools.find(
-        (p) =>
-          p.Dex === 'tri' &&
-          p.tokenIds &&
-          p.tokenIds.includes(tokenIn.id) &&
-          p.tokenIds.includes(tokenOut.id)
-      );
-
-      if (triPoolThisPair) {
-        const triPoolEstimateRes = getSinglePoolEstimate(
-          tokenIn,
-          tokenOut,
-          triPoolThisPair,
-          parsedAmountIn
-        );
-
-        triTodos = [
-          {
-            ...triPoolEstimateRes,
-            status: PoolMode.PARALLEL,
-            routeInputToken: tokenIn.id,
-            totalInputAmount: parsedAmountIn,
-            pool: {
-              ...triPoolThisPair,
-              partialAmountIn: parsedAmountIn,
-            },
-            tokens: [tokenIn, tokenOut],
-            inputToken: tokenIn.id,
-            outputToken: tokenOut.id,
-          },
-        ];
-      }
-      const refPools = pools.filter((p) => p.Dex !== 'tri');
-
-      const refPoolThisPair =
-        refPools.length === 1
-          ? refPools[0]
-          : _.maxBy(refPools, (p) => {
-              if (isStablePool(p.id)) {
-                return Number(
-                  getStablePoolEstimate({
-                    tokenIn,
-                    tokenOut,
-                    stablePoolInfo: allStablePoolsById[p.id][1],
-                    stablePool: allStablePoolsById[p.id][0],
-                    amountIn,
-                  }).estimate
-                );
-              } else
-                return Number(
-                  getSinglePoolEstimate(tokenIn, tokenOut, p, parsedAmountIn)
-                    .estimate
-                );
-            });
-
-      if (refPoolThisPair) {
-        const refPoolEstimateRes = await getPoolEstimate({
-          tokenIn,
-          tokenOut,
-          amountIn: parsedAmountIn,
-          Pool: refPoolThisPair,
-        });
-
-        refTodos = [
-          {
-            ...refPoolEstimateRes,
-            status: PoolMode.PARALLEL,
-            routeInputToken: tokenIn.id,
-            totalInputAmount: parsedAmountIn,
-            pool: {
-              ...refPoolThisPair,
-              partialAmountIn: parsedAmountIn,
-            },
-            tokens: [tokenIn, tokenOut],
-            inputToken: tokenIn.id,
-            outputToken: tokenOut.id,
-          },
-        ];
-      }
-    }
   }
 
   return {
     supportLedgerRes,
-    triTodos,
-    refTodos,
   };
 };
 
@@ -663,8 +713,7 @@ export async function getHybridStableSmart(
   tokenIn: TokenMetadata,
   tokenOut: TokenMetadata,
   amountIn: string,
-  loadingTrigger: boolean,
-  swapMode: SWAP_MODE
+  loadingTrigger: boolean
 ) {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
 
@@ -709,10 +758,7 @@ export async function getHybridStableSmart(
         amountIn: parsedAmountIn,
         loadingTrigger: false,
       });
-      const tobeAddedPools =
-        swapMode === SWAP_MODE.STABLE
-          ? stablePools
-          : tmpPools.concat(stablePools);
+      const tobeAddedPools = tmpPools.concat(stablePools);
       pools2.push(
         ...tobeAddedPools.filter((p) => {
           const supplies = Object.values(p.supplies);
@@ -745,10 +791,7 @@ export async function getHybridStableSmart(
         loadingTrigger: false,
       });
 
-      const tobeAddedPools =
-        swapMode === SWAP_MODE.STABLE
-          ? stablePools
-          : tmpPools.concat(stablePools);
+      const tobeAddedPools = tmpPools.concat(stablePools);
 
       pools1Right.push(
         ...tobeAddedPools.filter((p) => {
@@ -955,6 +998,7 @@ export async function getHybridStableSmart(
       tokens: [tokenIn, tokenMidMeta, tokenOut],
       inputToken: tokenIn.id,
       outputToken: tokenMidMeta.id,
+      totalInputAmount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
     };
 
     estimate1.pool.partialAmountIn = parsedAmountIn;
@@ -979,6 +1023,7 @@ export async function getHybridStableSmart(
       tokens: [tokenIn, tokenMidMeta, tokenOut],
       inputToken: tokenMidMeta.id,
       outputToken: tokenOut.id,
+      totalInputAmount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
     };
 
     console.log('series estimates are...', [estimate1, estimate2]);
@@ -996,26 +1041,26 @@ interface SwapOptions {
   tokenOut: TokenMetadata;
   amountIn: string;
   slippageTolerance: number;
+  swapMarket?: SwapMarket;
 }
 
 export const swap = async ({
-  useNearBalance,
   tokenIn,
   tokenOut,
   swapsToDo,
   slippageTolerance,
   amountIn,
+  swapMarket,
 }: SwapOptions) => {
   if (swapsToDo) {
-    if (useNearBalance) {
-      await instantSwap({
-        tokenIn,
-        tokenOut,
-        amountIn,
-        swapsToDo,
-        slippageTolerance,
-      });
-    }
+    await instantSwap({
+      tokenIn,
+      tokenOut,
+      amountIn,
+      swapsToDo,
+      slippageTolerance,
+      swapMarket,
+    });
   }
 };
 
@@ -1025,8 +1070,9 @@ export const instantSwap = async ({
   amountIn,
   swapsToDo,
   slippageTolerance,
+  swapMarket,
 }: SwapOptions) => {
-  if (swapsToDo.every((todo) => todo.pool.Dex !== 'tri')) {
+  if (swapMarket === 'ref') {
     localStorage.setItem(REF_FI_SWAP_SIGNAL, 'ref');
     return nearInstantSwap({
       tokenIn,
@@ -1035,9 +1081,8 @@ export const instantSwap = async ({
       swapsToDo,
       slippageTolerance,
     });
-  } else {
+  } else if (swapMarket === 'tri') {
     localStorage.setItem(REF_FI_SWAP_SIGNAL, 'tri');
-
     return crossInstantSwap({
       tokenIn,
       tokenOut,
@@ -1057,10 +1102,7 @@ export const nearInstantSwap = async ({
 }: // minAmountOut,
 SwapOptions) => {
   const transactions: Transaction[] = [];
-  const tokenInActions: RefFiFunctionCallOptions[] = [];
   const tokenOutActions: RefFiFunctionCallOptions[] = [];
-
-  const { wallet } = getCurrentWallet();
 
   const registerToken = async (token: TokenMetadata) => {
     const tokenRegistered = await ftGetStorageBalance(token.id).catch(() => {
@@ -1089,220 +1131,120 @@ SwapOptions) => {
     return window.location.reload();
   }
 
-  const isParallelSwap = swapsToDo.every(
-    (estimate) => estimate.status === PoolMode.PARALLEL
-  );
-  const isSmartRouteV1Swap = swapsToDo.every(
-    (estimate) => estimate.status === PoolMode.SMART
-  );
+  //making sure all actions get included.
+  await registerToken(tokenOut);
+  const actionsList = [];
+  const allSwapsTokens = swapsToDo.map((s) => [s.inputToken, s.outputToken]); // to get the hop tokens
 
-  if (wallet.isSignedIn()) {
-    if (isParallelSwap) {
-      const swapActions = swapsToDo.map((s2d) => {
-        let minTokenOutAmount = s2d.estimate
-          ? percentLess(slippageTolerance, s2d.estimate)
-          : '0';
-        let allocation = toReadableNumber(
-          tokenIn.decimals,
-          scientificNotationToString(s2d.pool.partialAmountIn)
-        );
-
-        return {
-          pool_id: s2d.pool.id,
-          token_in: tokenIn.id,
-          token_out: tokenOut.id,
-          amount_in: round(
-            tokenIn.decimals,
-            toNonDivisibleNumber(tokenIn.decimals, allocation)
-          ),
-          min_amount_out: round(
+  for (let i in allSwapsTokens) {
+    const swapTokens = allSwapsTokens[i];
+    if (swapTokens[0] == tokenIn.id && swapTokens[1] == tokenOut.id) {
+      // direct pool
+      actionsList.push({
+        pool_id: swapsToDo[i].pool.id,
+        token_in: tokenIn.id,
+        token_out: tokenOut.id,
+        amount_in: swapsToDo[i].partialAmountIn,
+        min_amount_out: round(
+          tokenOut.decimals,
+          toNonDivisibleNumber(
             tokenOut.decimals,
-            toNonDivisibleNumber(tokenOut.decimals, minTokenOutAmount)
-          ),
-        };
+            percentLess(slippageTolerance, swapsToDo[i].estimate)
+          )
+        ),
       });
+    } else if (swapTokens[1] == tokenOut.id) {
+      // other hops
+      actionsList.push({
+        pool_id: swapsToDo[i].pool.id,
+        token_in: swapTokens[0],
+        token_out: swapTokens[1],
+        min_amount_out: round(
+          tokenOut.decimals,
+          toNonDivisibleNumber(
+            tokenOut.decimals,
+            percentLess(slippageTolerance, swapsToDo[i].estimate)
+          )
+        ),
+      });
+    } else if (swapTokens[0] === tokenIn.id) {
+      // first hop
+      actionsList.push({
+        pool_id: swapsToDo[i].pool.id,
+        token_in: swapTokens[0],
+        token_out: swapTokens[1],
+        amount_in: swapsToDo[i].partialAmountIn,
+        min_amount_out: '0',
+      });
+    } else {
+      // middle hop
+      actionsList.push({
+        pool_id: swapsToDo[i].pool.id,
+        token_in: swapTokens[0],
+        token_out: swapTokens[1],
+        min_amount_out: '0',
+      });
+    }
+  }
 
-      await registerToken(tokenOut);
-
-      tokenInActions.push({
+  transactions.push({
+    receiverId: tokenIn.id,
+    functionCalls: [
+      {
         methodName: 'ft_transfer_call',
         args: {
           receiver_id: REF_FI_CONTRACT_ID,
           amount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
           msg: JSON.stringify({
             force: 0,
-            actions: swapActions,
+            actions: actionsList,
           }),
         },
         gas: '180000000000000',
         amount: ONE_YOCTO_NEAR,
-        // deposit: '1',
-      });
+      },
+    ],
+  });
 
-      transactions.push({
-        receiverId: tokenIn.id,
-        functionCalls: tokenInActions,
-      });
-    } else if (isSmartRouteV1Swap) {
-      //making sure all actions get included for hybrid stable smart.
-      await registerToken(tokenOut);
-      var actionsList = [];
-      // let allSwapsTokens = swapsToDo.map((s) => [s.inputToken, s.outputToken]); // to get the hop tokens
-      let amountInInt = new Big(amountIn)
-        .times(new Big(10).pow(tokenIn.decimals))
-        .toString();
-      let swap1 = swapsToDo[0];
-
-      actionsList.push({
-        pool_id: swap1.pool.id,
-        token_in: swap1.inputToken,
-        token_out: swap1.outputToken,
-        amount_in: amountInInt,
-        min_amount_out: '0',
-      });
-      let swap2 = swapsToDo[1];
-      actionsList.push({
-        pool_id: swap2.pool.id,
-        token_in: swap2.inputToken,
-        token_out: swap2.outputToken,
-        min_amount_out: round(
-          tokenOut.decimals,
-          toNonDivisibleNumber(
-            tokenOut.decimals,
-            percentLess(slippageTolerance, swapsToDo[1].estimate)
-          )
-        ),
-      });
-
-      transactions.push({
-        receiverId: tokenIn.id,
-        functionCalls: [
-          {
-            methodName: 'ft_transfer_call',
-            args: {
-              receiver_id: REF_FI_CONTRACT_ID,
-              amount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
-              msg: JSON.stringify({
-                force: 0,
-                actions: actionsList,
-              }),
-            },
-            gas: '180000000000000',
-            amount: ONE_YOCTO_NEAR,
-          },
-        ],
-      });
-    } else {
-      //making sure all actions get included.
-      await registerToken(tokenOut);
-      var actionsList = [];
-      let allSwapsTokens = swapsToDo.map((s) => [s.inputToken, s.outputToken]); // to get the hop tokens
-
-      for (var i in allSwapsTokens) {
-        let swapTokens = allSwapsTokens[i];
-        if (swapTokens[0] == tokenIn.id && swapTokens[1] == tokenOut.id) {
-          // parallel, direct hop route.
-          actionsList.push({
-            pool_id: swapsToDo[i].pool.id,
-            token_in: tokenIn.id,
-            token_out: tokenOut.id,
-            amount_in: swapsToDo[i].pool.partialAmountIn,
-            min_amount_out: round(
-              tokenOut.decimals,
-              toNonDivisibleNumber(
-                tokenOut.decimals,
-                percentLess(slippageTolerance, swapsToDo[i].estimate)
-              )
-            ),
-          });
-        } else if (swapTokens[0] == tokenIn.id) {
-          // first hop in double hop route
-          //TODO -- put in a check to make sure this first hop matches with the next (i+1) hop as a second hop.
-          actionsList.push({
-            pool_id: swapsToDo[i].pool.id,
-            token_in: swapTokens[0],
-            token_out: swapTokens[1],
-            amount_in: swapsToDo[i].pool.partialAmountIn,
-            min_amount_out: '0',
-          });
-        } else {
-          // second hop in double hop route.
-          //TODO -- put in a check to make sure this second hop matches with the previous (i-1) hop as a first hop.
-          actionsList.push({
-            pool_id: swapsToDo[i].pool.id,
-            token_in: swapTokens[0],
-            token_out: swapTokens[1],
-            min_amount_out: round(
-              tokenOut.decimals,
-              toNonDivisibleNumber(
-                tokenOut.decimals,
-                percentLess(slippageTolerance, swapsToDo[i].estimate)
-              )
-            ),
-          });
-        }
-      }
-
-      transactions.push({
-        receiverId: tokenIn.id,
-        functionCalls: [
-          {
-            methodName: 'ft_transfer_call',
-            args: {
-              receiver_id: REF_FI_CONTRACT_ID,
-              amount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
-              msg: JSON.stringify({
-                force: 0,
-                actions: actionsList,
-              }),
-            },
-            gas: '180000000000000',
-            amount: ONE_YOCTO_NEAR,
-          },
-        ],
-      });
-    }
-
-    if (tokenIn.id === WRAP_NEAR_CONTRACT_ID && tokenIn?.symbol == 'NEAR') {
-      transactions.unshift(nearDepositTransaction(amountIn));
-    }
-    if (tokenOut.id === WRAP_NEAR_CONTRACT_ID) {
-      let outEstimate = new Big(0);
-      const routes = separateRoutes(swapsToDo, tokenOut.id);
-
-      const bigEstimate = routes.reduce((acc, cur) => {
-        const curEstimate = round(
-          24,
-          toNonDivisibleNumber(
-            24,
-            percentLess(slippageTolerance, cur[cur.length - 1].estimate)
-          )
-        );
-        return acc.plus(curEstimate);
-      }, outEstimate);
-
-      const minAmountOut = toReadableNumber(
-        24,
-        scientificNotationToString(bigEstimate.toString())
-      );
-
-      if (tokenOut.symbol == 'NEAR') {
-        transactions.push(nearWithdrawTransaction(minAmountOut));
-      }
-    }
-
-    if (tokenIn.id === WRAP_NEAR_CONTRACT_ID) {
-      const registered = await ftGetStorageBalance(WRAP_NEAR_CONTRACT_ID);
-      if (registered === null) {
-        transactions.unshift({
-          receiverId: WRAP_NEAR_CONTRACT_ID,
-          functionCalls: [registerAccountOnToken()],
-        });
-      }
-    }
-
-    return executeMultipleTransactions(transactions);
+  if (tokenIn.id === WRAP_NEAR_CONTRACT_ID && tokenIn?.symbol == 'NEAR') {
+    transactions.unshift(nearDepositTransaction(amountIn));
   }
+  if (tokenOut.id === WRAP_NEAR_CONTRACT_ID) {
+    let outEstimate = new Big(0);
+    const routes = separateRoutes(swapsToDo, tokenOut.id);
+
+    const bigEstimate = routes.reduce((acc, cur) => {
+      const curEstimate = round(
+        24,
+        toNonDivisibleNumber(
+          24,
+          percentLess(slippageTolerance, cur[cur.length - 1].estimate)
+        )
+      );
+      return acc.plus(curEstimate);
+    }, outEstimate);
+
+    const minAmountOut = toReadableNumber(
+      24,
+      scientificNotationToString(bigEstimate.toString())
+    );
+
+    if (tokenOut.symbol == 'NEAR') {
+      transactions.push(nearWithdrawTransaction(minAmountOut));
+    }
+  }
+
+  if (tokenIn.id === WRAP_NEAR_CONTRACT_ID) {
+    const registered = await ftGetStorageBalance(WRAP_NEAR_CONTRACT_ID);
+    if (registered === null) {
+      transactions.unshift({
+        receiverId: WRAP_NEAR_CONTRACT_ID,
+        functionCalls: [registerAccountOnToken()],
+      });
+    }
+  }
+
+  return executeMultipleTransactions(transactions);
 };
 
 export const crossInstantSwap = async ({
@@ -1408,10 +1350,7 @@ export const crossInstantSwap = async ({
         const curTransactions = await parallelSwapCase({
           tokenIn,
           tokenOut,
-          amountIn: toReadableNumber(
-            tokenIn.decimals,
-            todosThisRoute[0].pool.partialAmountIn
-          ),
+          amountIn,
           swapsToDo: todosThisRoute,
           slippageTolerance,
         });
@@ -1469,155 +1408,6 @@ export const crossInstantSwap = async ({
   }
 };
 
-export const depositSwap = async ({
-  tokenIn,
-  tokenOut,
-  amountIn,
-  slippageTolerance,
-  swapsToDo,
-}: // minAmountOut,
-SwapOptions) => {
-  const isParallelSwap = swapsToDo.every(
-    (estimate) => estimate.status === PoolMode.PARALLEL
-  );
-
-  if (isParallelSwap) {
-    const swapActions = swapsToDo.map((s2d) => {
-      let dx_float = Number(s2d.pool.partialAmountIn);
-      let fpool = formatPoolNew(s2d.pool, tokenIn.id, tokenOut.id);
-      let dy_float = calculate_dy_float(
-        dx_float,
-        fpool,
-        tokenIn.id,
-        tokenOut.id
-      );
-      let tokenOutAmount = toReadableNumber(
-        tokenOut.decimals,
-        scientificNotationToString(dy_float.toString())
-      );
-
-      s2d.estimate = tokenOutAmount;
-      let minTokenOutAmount = tokenOutAmount
-        ? percentLess(slippageTolerance, tokenOutAmount)
-        : '0';
-      let allocation = toReadableNumber(
-        tokenIn.decimals,
-        scientificNotationToString(s2d.pool.partialAmountIn)
-      );
-
-      return {
-        pool_id: s2d.pool.id,
-        token_in: tokenIn.id,
-        token_out: tokenOut.id,
-        amount_in: round(
-          tokenIn.decimals,
-          toNonDivisibleNumber(tokenIn.decimals, allocation)
-        ),
-        min_amount_out: round(
-          tokenOut.decimals,
-          toNonDivisibleNumber(tokenOut.decimals, minTokenOutAmount)
-        ),
-      };
-    });
-
-    const actions: RefFiFunctionCallOptions[] = [
-      {
-        methodName: 'swap',
-        args: { actions: swapActions },
-        amount: ONE_YOCTO_NEAR,
-      },
-    ];
-
-    const whitelist = await getWhitelistedTokens();
-    if (!whitelist.includes(tokenOut.id)) {
-      actions.unshift(registerTokenAction(tokenOut.id));
-    }
-
-    const neededStorage = await checkTokenNeedsStorageDeposit();
-    if (neededStorage) {
-      actions.unshift(storageDepositAction({ amount: neededStorage }));
-    }
-
-    return refFiManyFunctionCalls(actions);
-  } else {
-    const whitelist = await getWhitelistedTokens();
-    // need to add in condition if smart route solves for direct hop as optimal solution and there is no tokenMid:
-
-    // need to do a more robust check on swapsToDo. For each of these, if inputToken and outputToken for swapsToDo[i] match
-    // overall inputToken/outputToken, then that is a single-hop / parallel swap.
-    // otherwise, if the inputToken for swapsToDo[i] matches overall inputToken, then it is a first hop. Can probably assume
-    // that swapsToDo[i+1] will be the corresponding second hop. But need to check this to make sure.
-    // Need to build up full actions list.
-    var actionsList = [];
-    let allSwapsTokens = swapsToDo.map((s) => [s.inputToken, s.outputToken]); // to get the hop tokens
-    for (var i in allSwapsTokens) {
-      let swapTokens = allSwapsTokens[i];
-      if (swapTokens[0] == tokenIn.id && swapTokens[1] == tokenOut.id) {
-        // parallel, direct hop route.
-        actionsList.push({
-          pool_id: swapsToDo[i].pool.id,
-          token_in: tokenIn.id,
-          token_out: tokenOut.id,
-          amount_in: swapsToDo[i].pool.partialAmountIn,
-          min_amount_out: round(
-            tokenOut.decimals,
-            toNonDivisibleNumber(
-              tokenOut.decimals,
-              percentLess(slippageTolerance, swapsToDo[i].estimate)
-            )
-          ),
-        });
-      } else if (swapTokens[0] == tokenIn.id) {
-        // first hop in double hop route
-        //TODO -- put in a check to make sure this first hop matches with the next (i+1) hop as a second hop.
-        actionsList.push({
-          pool_id: swapsToDo[i].pool.id,
-          token_in: swapTokens[0],
-          token_out: swapTokens[1],
-          amount_in: swapsToDo[i].pool.partialAmountIn,
-          min_amount_out: '0',
-        });
-      } else {
-        // second hop in double hop route.
-        //TODO -- put in a check to make sure this second hop matches with the previous (i-1) hop as a first hop.
-        actionsList.push({
-          pool_id: swapsToDo[i].pool.id,
-          token_in: swapTokens[0],
-          token_out: swapTokens[1],
-          min_amount_out: round(
-            tokenOut.decimals,
-            toNonDivisibleNumber(
-              tokenOut.decimals,
-              percentLess(slippageTolerance, swapsToDo[i].estimate)
-            )
-          ),
-        });
-      }
-    }
-
-    var actions: RefFiFunctionCallOptions[] = [
-      {
-        methodName: 'swap',
-        amount: ONE_YOCTO_NEAR,
-        args: {
-          actions: actionsList,
-        },
-      },
-    ];
-
-    if (!whitelist.includes(tokenOut.id)) {
-      actions.unshift(registerTokenAction(tokenOut.id));
-    }
-
-    const neededStorage = await checkTokenNeedsStorageDeposit();
-    if (neededStorage) {
-      actions.unshift(storageDepositAction({ amount: neededStorage }));
-    }
-
-    return refFiManyFunctionCalls(actions);
-  }
-};
-
 export const checkTransaction = (txHash: string) => {
   return (near.connection.provider as JsonRpcProvider).sendJsonRpc(
     'EXPERIMENTAL_tx_status',
@@ -1658,14 +1448,7 @@ export const parallelSwapCase = async ({
       tokenIn_id: tokenIn.id,
       tokenOut_id: tokenOut.id,
       swapTodos: triSwapTodos,
-      readableAmountIn: toReadableNumber(
-        tokenIn.decimals,
-        scientificNotationToString(
-          BigNumber.sum(
-            ...triSwapTodos.map((todo) => todo.pool.partialAmountIn)
-          ).toString()
-        )
-      ),
+      readableAmountIn: amountIn,
       decimalIn: tokenIn.decimals,
       decimalOut: tokenOut.decimals,
       slippageTolerance,

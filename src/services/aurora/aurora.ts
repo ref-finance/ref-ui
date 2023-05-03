@@ -960,10 +960,7 @@ export const auroraSwapTransactions = async ({
             to: tokenOut_id,
             decimalIn,
             decimalOut,
-            readableAmountIn: toReadableNumber(
-              decimalIn,
-              todo.pool.partialAmountIn
-            ),
+            readableAmountIn: toReadableNumber(decimalIn, todo.partialAmountIn),
             readableAmountOut: percentLess(slippageTolerance, todo.estimate),
             address,
           });

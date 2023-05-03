@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import RecentTrade from '../RecentTrade';
 
@@ -208,16 +208,6 @@ function OrderLine({
   decimalLength: number;
   symbolInfo: SymbolInfo;
 }) {
-  const { inView, ref } = useInView();
-
-  useEffect(() => {
-    if (inView) {
-      setInViewCOunt(inViewCount + 1);
-    } else {
-      setInViewCOunt(inViewCount - 1);
-    }
-  }, [inView]);
-
   let quantityDecimal =
     Math.log10(symbolInfo.base_tick) > 0
       ? 0
@@ -233,7 +223,6 @@ function OrderLine({
       className={
         'relative font-nunito grid pl-5 pr-4 cursor-pointer hover:bg-symbolHover grid-cols-3 lg:mr-2 py-1 justify-items-end'
       }
-      ref={ref}
       id={`order-id-${order[0]}`}
       key={`orderbook-${type}-` + i}
       onClick={(e) => {
@@ -265,7 +254,6 @@ function OrderLine({
       <div
         className="absolute left-0 top-1 z-40"
         style={{
-          // zIndex: Math.max(200, asks.length - 40 + 1) + i,
           zIndex,
         }}
       >
@@ -281,7 +269,7 @@ function OrderLine({
   );
 }
 
-function OrderBook() {
+function OrderBook({ maintenance }: { maintenance: boolean }) {
   const {
     orders,
     symbol,
@@ -293,7 +281,19 @@ function OrderBook() {
     availableSymbols,
   } = useOrderlyContext();
 
-  const symbolInfo = availableSymbols?.find((s) => s.symbol === symbol);
+  const symbolInfo = availableSymbols?.find((s) => s.symbol === symbol) || {
+    created_time: 1575441595650, // Unix epoch time in milliseconds
+    updated_time: 1575441595650, // Unix epoch time in milliseconds
+    symbol: 'SPOT_BTC_USDT',
+    quote_min: 100,
+    quote_max: 100000,
+    quote_tick: 0.01,
+    base_min: 0.0001,
+    base_max: 20,
+    base_tick: 0.0001,
+    min_notional: 0.02,
+    price_range: 0.99,
+  };
 
   const storedPrecision = sessionStorage.getItem(REF_ORDERLY_PRECISION);
 
@@ -365,15 +365,32 @@ function OrderBook() {
     if (!!orders && symbolInfo) {
       setLoading(false);
     }
-  }, [!!orders, availableSymbols]);
+    if (maintenance) {
+      setLoading(false);
+    }
+  }, [!!orders, availableSymbols, maintenance]);
 
-  const marketTradeDisplay = numberWithCommas(
-    recentTrades?.at(0)?.executed_price || 0
-  );
+  const [preMedian, setPreMedian] = useState<number>();
 
-  const diff =
-    (recentTrades?.at(0)?.executed_price || 0) -
-    (recentTrades?.at(1)?.executed_price || 0);
+  const [curMedian, setCurMedian] = useState<number>();
+
+  const recentTradePrice = recentTrades?.at(0)?.executed_price || 0;
+
+  const ask_0 = orders?.asks?.[0]?.[0] || 0;
+
+  const bid_0 = orders?.bids?.[0]?.[0] || 0;
+
+  useEffect(() => {
+    const newMedian = [recentTradePrice, ask_0, bid_0].sort((a, b) => a - b)[1];
+    if (newMedian === 0) return;
+
+    setPreMedian(curMedian);
+    setCurMedian(newMedian);
+  }, [recentTrades, ask_0, bid_0]);
+
+  const displayMedian = numberWithCommas(curMedian || 0);
+
+  const diff = preMedian === undefined ? 0 : curMedian - preMedian || 0;
 
   const intl = useIntl();
 
@@ -549,45 +566,50 @@ function OrderBook() {
               maxHeight: 'calc(50% - 50px)',
             }}
           >
-            {asks?.map((order, i) => {
-              return (
-                <OrderLine
-                  type="ask"
-                  setBridgePrice={setBridgePrice}
-                  order={order}
-                  i={i}
-                  pendingOrders={pendingOrders}
-                  groupMyPendingOrders={groupMyPendingOrders}
-                  totalSize={asktotalSize}
-                  zIndex={31}
-                  inViewCount={inViewAsk}
-                  setInViewCOunt={setInViewAsk}
-                  decimalLength={getDecimalPlaceByNumber(precision)}
-                  symbolInfo={symbolInfo}
-                />
-              );
-            })}
+            {!maintenance &&
+              asks?.map((order, i) => {
+                return (
+                  <OrderLine
+                    type="ask"
+                    setBridgePrice={setBridgePrice}
+                    order={order}
+                    i={i}
+                    pendingOrders={pendingOrders}
+                    groupMyPendingOrders={groupMyPendingOrders}
+                    totalSize={asktotalSize}
+                    zIndex={31}
+                    inViewCount={inViewAsk}
+                    setInViewCOunt={setInViewAsk}
+                    decimalLength={getDecimalPlaceByNumber(precision)}
+                    symbolInfo={symbolInfo}
+                  />
+                );
+              })}
           </section>
 
           {/* market trade */}
+          {!maintenance && (
+            <div
+              className={`text-center font-nunito flex items-center py-1 justify-center ${
+                diff > 0
+                  ? 'text-buyGreen'
+                  : diff < 0
+                  ? 'text-sellRed'
+                  : 'text-primaryText'
+              } text-lg`}
+            >
+              {orders &&
+                recentTrades?.length > 0 &&
+                curMedian !== undefined &&
+                displayMedian}
 
-          <div
-            className={`text-center font-nunito flex items-center py-1 justify-center ${
-              diff > 0
-                ? 'text-buyGreen'
-                : diff < 0
-                ? 'text-sellRed'
-                : 'text-primaryText'
-            } text-lg`}
-          >
-            {orders && recentTrades?.length > 0 && marketTradeDisplay}
-
-            {orders && recentTrades?.length > 0 && diff !== 0 && (
-              <IoArrowUpOutline
-                className={diff < 0 ? 'transform rotate-180' : ''}
-              />
-            )}
-          </div>
+              {orders && recentTrades?.length > 0 && diff !== 0 && (
+                <IoArrowUpOutline
+                  className={diff < 0 ? 'transform rotate-180' : ''}
+                />
+              )}
+            </div>
+          )}
 
           {/* buy */}
 
@@ -595,24 +617,25 @@ function OrderBook() {
             className="text-xs flex-row  overflow-auto  overflow-x-visible text-white"
             id="buy-order-book-panel"
           >
-            {bids?.map((order, i) => {
-              return (
-                <OrderLine
-                  type="bid"
-                  setBridgePrice={setBridgePrice}
-                  order={order}
-                  i={i}
-                  pendingOrders={pendingOrders}
-                  groupMyPendingOrders={groupMyPendingOrders}
-                  totalSize={bidtotalSize}
-                  zIndex={30}
-                  inViewCount={inViewBid}
-                  setInViewCOunt={setInViewBid}
-                  decimalLength={getDecimalPlaceByNumber(precision)}
-                  symbolInfo={symbolInfo}
-                />
-              );
-            })}
+            {!maintenance &&
+              bids?.map((order, i) => {
+                return (
+                  <OrderLine
+                    type="bid"
+                    setBridgePrice={setBridgePrice}
+                    order={order}
+                    i={i}
+                    pendingOrders={pendingOrders}
+                    groupMyPendingOrders={groupMyPendingOrders}
+                    totalSize={bidtotalSize}
+                    zIndex={30}
+                    inViewCount={inViewBid}
+                    setInViewCOunt={setInViewBid}
+                    decimalLength={getDecimalPlaceByNumber(precision)}
+                    symbolInfo={symbolInfo}
+                  />
+                );
+              })}
           </section>
         </>
       )}

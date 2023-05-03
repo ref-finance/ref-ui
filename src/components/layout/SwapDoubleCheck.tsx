@@ -24,7 +24,6 @@ import { HeavyWarning, ModalClose } from '../../components/icon';
 import { Icon } from './SwapRoutes';
 import { ArrowRight } from '../icon/swapV3';
 
-import { EstimateSwapView, PoolMode, swap } from '~services/swap';
 import BigNumber from 'bignumber.js';
 import Big from 'big.js';
 import { PoolInfo, get_pool_from_cache } from '../../services/swapV3';

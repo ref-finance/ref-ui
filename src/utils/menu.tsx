@@ -54,6 +54,7 @@ import {
   SWAP_MODE_KEY,
   SWAP_MODE,
   REF_FI_SWAP_SWAPPAGE_TAB_KEY,
+  SWAP_TYPE_KEY,
 } from '../pages/SwapPage';
 import {
   MobileNavSwap,
@@ -245,26 +246,15 @@ export const useMenus = () => {
           isExternal: false,
           swap_mode: 'normal',
           clickEvent: () => {
-            history.push('/');
+            sessionStorage.setItem(SWAP_TYPE_KEY, 'Pro');
             localStorage.setItem('SWAP_MODE_VALUE', 'normal');
+
+            history.push('/');
           },
           links: ['/', '/swap'],
         },
         {
           id: '1-2',
-          label: <>xSwap</>,
-          logo: <XswapIcon />,
-          url: '/',
-          isExternal: false,
-          swap_mode: 'xSwap',
-          clickEvent: () => {
-            history.push('/');
-            localStorage.setItem('SWAP_MODE_VALUE', 'xSwap');
-          },
-          links: ['/', '/swap'],
-        },
-        {
-          id: '1-3',
           label: (
             <>
               <FormattedMessage id="limit_order" />
@@ -275,13 +265,15 @@ export const useMenus = () => {
           isExternal: false,
           swap_mode: 'limit',
           clickEvent: () => {
+            sessionStorage.setItem(SWAP_TYPE_KEY, 'Pro');
+
             history.push('/');
             localStorage.setItem('SWAP_MODE_VALUE', 'limit');
           },
           links: ['/', '/myOrder', '/swap'],
         },
         {
-          id: '1-4',
+          id: '1-3',
           label: (
             <>
               <FormattedMessage id="orderbook_mobile"></FormattedMessage>
@@ -522,24 +514,14 @@ export const useMenusMobile = () => {
           clickEvent: () => {
             history.push('/');
             localStorage.setItem('SWAP_MODE_VALUE', 'normal');
+
+            sessionStorage.setItem(SWAP_TYPE_KEY, 'Pro');
           },
           links: ['/', '/swap'],
         },
+
         {
           id: '1-2',
-          label: <>xSwap</>,
-          logo: <XswapIcon />,
-          url: '/',
-          isExternal: false,
-          swap_mode: 'xSwap',
-          clickEvent: () => {
-            history.push('/');
-            localStorage.setItem('SWAP_MODE_VALUE', 'xSwap');
-          },
-          links: ['/', '/swap'],
-        },
-        {
-          id: '1-3',
           label: (
             <>
               <FormattedMessage id="limit_order" />
@@ -552,11 +534,12 @@ export const useMenusMobile = () => {
           clickEvent: () => {
             history.push('/');
             localStorage.setItem('SWAP_MODE_VALUE', 'limit');
+            sessionStorage.setItem(SWAP_TYPE_KEY, 'Pro');
           },
           links: ['/', '/myOrder', '/swap'],
         },
         {
-          id: '1-4',
+          id: '1-3',
           label: (
             <>
               <FormattedMessage id="orderbook_mobile"></FormattedMessage>

@@ -97,7 +97,7 @@ export function IconLeftV3({
 }) {
   return (
     <div
-      className={`${className} flex items-center bg-primaryText text-white text-lg  rounded-full flex-shrink-0 pr-4 cursor-pointer  ${
+      className={`${className} flex max-w-p150 items-center bg-primaryText text-white text-lg  rounded-full flex-shrink-0 pr-4 cursor-pointer  ${
         hover ? 'bg-opacity-30' : 'bg-opacity-10'
       }`}
       style={{ lineHeight: 'unset' }}
@@ -108,7 +108,7 @@ export function IconLeftV3({
         src={token.icon}
       />
       {label && (
-        <p className="block text-base font-bold">
+        <p className="block text-base overflow-ellipsis overflow-hidden font-bold">
           {toRealSymbol(token.symbol)}
         </p>
       )}
@@ -141,4 +141,37 @@ function SelectArrowIcon(props: any) {
       />
     </svg>
   );
+}
+
+export function DisplayIcon({
+  token,
+  height,
+  width,
+}: {
+  height: string;
+  width: string;
+  token: TokenMetadata;
+}) {
+  const style = {
+    height: height,
+    width: width,
+  };
+
+  if (!token.icon) {
+    return (
+      <div
+        className="rounded-full border border-gradientFromHover"
+        style={style}
+      ></div>
+    );
+  } else {
+    return (
+      <img
+        src={token.icon}
+        className="rounded-full border border-gradientFromHover"
+        style={style}
+        alt=""
+      />
+    );
+  }
 }

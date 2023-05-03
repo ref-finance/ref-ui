@@ -111,15 +111,12 @@ const vi_in_risks_page = {
   Locked_paragraph_6:
     'Nếu có ít nhất một khóa toàn quyền truy cập được đăng ký trên tài khoản hợp đồng, hợp đồng sẽ không bị khóa.',
   audited_first_sentence:
-    'Các hợp đồng thông minh của Ref Finance đã được <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://guide.ref.finance/developers/audits')" +
-    '>kiểm toán</label>.',
+    'Các hợp đồng thông minh của Ref Finance đã được <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://guide.ref.finance/developers/audits"' +
+    '>kiểm toán</a>.',
   admin_first_sentence:
-    'Ref finance được quản trị bởi <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-    '>Ref Finance Sputnik DAO.</label> Thêm vào đó, sẽ có những địa chỉ ví NEAR nhất định <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://gov.ref.finance/t/introducing-the-guardians/253')" +
-    '>(được gọi là Guardians)</label>có khả năng dừng contract của Ref.finance lại. Trong trường họp contract bị ngưng lại, chỉ có Ref.finance DAO mới có khả năng mở lại contract.',
+    'Ref finance được quản trị bởi <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://app.astrodao.com/dao/ref-finance.sputnik-dao.near"' +
+    '>Ref Finance Sputnik DAO.</a> Thêm vào đó, sẽ có những địa chỉ ví NEAR nhất định <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://gov.ref.finance/t/introducing-the-guardians/253"' +
+    '>(được gọi là Guardians)</a>có khả năng dừng contract của Ref.finance lại. Trong trường họp contract bị ngưng lại, chỉ có Ref.finance DAO mới có khả năng mở lại contract.',
   risks_of_using_ref_finance:
     '<label class="text-greenColor">Rủi ro</label> khi sử dụng Ref Finance',
 };
@@ -537,13 +534,11 @@ const vi = {
   mapping_account: 'Lập bản đồ tài khoản',
   mapping_account_tip: 'Bạn có (các) token trong Tài khoản Bản đồ',
   admin_sentence_1:
-    'Ref Finance được quản lí bởi  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-    '>Ref Finance Sputnik DAO</label> và dần dần sẽ chuyển đổi thành một DAO phi tập chung toàn phần.',
+    'Ref Finance được quản lí bởi  <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://app.astrodao.com/dao/ref-finance.sputnik-dao.near"' +
+    '>Ref Finance Sputnik DAO</a> và dần dần sẽ chuyển đổi thành một DAO phi tập chung toàn phần.',
   admin_sentence_2:
-    'Để biết thêm thông tin liên quan đến các hợp đồng và địa chỉ đã trực tiếp quản lý hoặc hiện đang quản lý các công việc của Ref Finance, vui lòng kiểm tra <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://guide.ref.finance/developers/contracts')" +
-    '>Tài liệu</label> của chúng tôi.',
+    'Để biết thêm thông tin liên quan đến các hợp đồng và địa chỉ đã trực tiếp quản lý hoặc hiện đang quản lý các công việc của Ref Finance, vui lòng kiểm tra <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://guide.ref.finance/developers/contracts"' +
+    '>Tài liệu</a> của chúng tôi.',
   cumulative_ref_buyback: 'Cumulative REF Buyback',
   yearly_revenue_booster: 'Yearly Revenue Booster',
   Confirm: 'Xác nhận',
@@ -784,12 +779,12 @@ const vi = {
   no_farm_need_to_migrate: 'Không có farm nào cần Migrate',
   v1_farms: 'Legacy Farms',
   has_rewards_tip:
-    'Bạn vẫn có phần thưởng đã nhận để rút trong <a class="text-greenColor text-base cursor-pointer underline hover:text-senderHot"  href="/farms" >Legacy Farms</a>. Phần thuowgnr của bạn sẽ không biến mất, bạn có thể rút bất kì lúc nào.</div>',
+    'Bạn vẫn có phần thưởng đã nhận để rút trong <a rel="noopener noreferrer nofollow" class="text-greenColor text-base cursor-pointer underline hover:text-senderHot"  href="/farms" >Legacy Farms</a>. Phần thuowgnr của bạn sẽ không biến mất, bạn có thể rút bất kì lúc nào.</div>',
   love: 'LOVE',
   Available_to_stake: 'Stake khả dụng',
   you_staked: 'Bạn đã stake',
   has_rewards_tip_in_v2:
-    'Tải sản là phần thưởng sẽ được rút trong <a href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> Legacy Farms</a>.',
+    'Tải sản là phần thưởng sẽ được rút trong <a rel="noopener noreferrer nofollow" href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> Legacy Farms</a>.',
   how_to_get: 'Làm sao để nhận?',
   get_booster: 'Nhận Booster',
   ended_farms: 'kết thúc farms',
@@ -946,8 +941,7 @@ const vi = {
   out_of: 'out of',
   value_must_be_less_than_or_equal_to: 'Value must be less than or equal to',
   login_risk_tip:
-    'By checking this box and moving forward, you confirm that you fully understand the <a class="text-greenColor text-sm font-bold cursor-pointer hover:underline" onclick="window.open(' +
-    "'/risks'" +
+    'By checking this box and moving forward, you confirm that you fully understand the <a rel="noopener noreferrer nofollow" target="_blank" class="text-greenColor text-sm font-bold cursor-pointer hover:underline" href="/risks"' +
     ')">risks</a> of using Ref Finance.',
   no_pool_tip: 'Oops! The pool does not exist.',
   total_ref_week: 'Total REF/week',
@@ -1096,5 +1090,36 @@ const vi = {
   real_time_executed_orders: 'real-time executed orders',
   real_time_executed_orders_tip:
     'When placing a sell order above market price or a buy order below market price using limit order function, Ref will attempt to execute a swap-with-stop-point action first, and if there is any remaining amount, a limit order will be created to fill the rest.<br> Real-time executed orders refer to orders placed using the limit order function but executed through swapping. In the "History" section, you can view real-time executed orders between the earliest displayed limit order in History up to the present time.',
+  ledger_guide_tip_1:
+    'To successfully use your Ledger wallet for transactions, the ',
+
+  ledger_guide_tip_2: 'feature has been automatically activated.',
+  ledger_guide_tip_3: 'Please be aware',
+  support_ledger_tip_new: '"Support Ledger"',
+
+  ledger_guide_tip_4:
+    'that due to Ledger wallet constraints, the current rate provided by the swap function',
+  ledger_guide_tip_5: 'may not be the best price.',
+  view_dcl_pool: 'View DCL Pool',
+  your_trade_route: 'Your Trade Route',
+  markets: 'Markets',
+  exchanges: 'Exchanges',
+  output_est: 'Output (est.)',
+  go_to_orderbook: 'Go to Orderbook',
+  new_swap_order_tip:
+    'The price is from the Ref AMM offer and for reference only. There is no guarente that your limit order will be immediately filled. ',
+  instants_swap: 'Instant Swap',
+  swappped: 'Swapped',
+  claimed: 'Claimed',
+  executing_capital: 'Executing',
+  record: 'Record',
+  trade_route: 'Trade Route',
+  settings: 'Settings',
+  cross_chain_options: 'Cross-chain Options',
+  no_trade_routes: 'No Trade Routes',
+  steps_in_the_route: 'Steps in the Route',
+  swap_chart_no_data: 'Not enough data for the chart right now.',
+  last_updated: 'Last Updated',
+  steps_in_the_route_zh: '',
 };
 export default Object.assign(vi, vi_in_risks_page);

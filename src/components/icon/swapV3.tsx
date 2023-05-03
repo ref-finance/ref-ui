@@ -1014,7 +1014,7 @@ export const MobileHistoryOrderStamp = ({
   state: 'filled' | 'cancel' | 'partially_filled' | 'swapped';
 }) => {
   return (
-    <div className="absolute top-20 left-1/2 transform -translate-x-1/2 ">
+    <div className="absolute top-32 left-1/2 transform -translate-x-1/2 ">
       {state === 'cancel' && (
         <MobileHistoryOrderStampText text="canceled" color="#DEA550" />
       )}
@@ -1259,6 +1259,26 @@ export const ArrowDownV3 = (props: any) => {
         stroke="currentColor"
         stroke-width="2"
         stroke-linecap="round"
+      />
+    </svg>
+  );
+};
+
+export const FilledEllipse = () => {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 14 14"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M1 7C1 6.24503 1.13944 5.52263 1.39397 4.85714M7 1C10.3137 1 13 3.68629 13 7C13 10.3137 10.3137 13 7 13C4.48017 13 2.32315 11.4467 1.43424 9.2453M4.42857 1.5774C3.78605 1.88263 3.20639 2.29869 2.71429 2.80087"
+        stroke="#647DFF"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
       />
     </svg>
   );

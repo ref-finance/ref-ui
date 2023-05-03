@@ -249,11 +249,19 @@ export const usePools = (props: {
   const [hasMore, setHasMore] = useState<boolean>(false);
   const [pools, setPools] = useState<Pool[]>([]);
   const [rawPools, setRawPools] = useState<PoolRPCView[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const volumes = useDayVolumesPools(
-    rawPools.map((pool) => pool.id.toString()).concat(ALL_STABLE_POOL_IDS)
-  );
+  const [requestPoolList, setRequestPoolList] = useState<string[]>();
+
+  useEffect(() => {
+    if (!loading) {
+      setRequestPoolList(
+        rawPools.map((pool) => pool.id.toString()).concat(ALL_STABLE_POOL_IDS)
+      );
+    }
+  }, [loading, rawPools.length]);
+
+  const volumes = useDayVolumesPools(requestPoolList);
 
   const nextPage = () => setPage((page) => page + 1);
 
@@ -826,7 +834,7 @@ export const useDayVolumesPools = (pool_ids: (string | number)[]) => {
   const [volumes, setVolumes] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if (!pool_ids || pool_ids.length === 0) return;
+    if (!pool_ids || pool_ids?.length === 0) return;
 
     get24hVolumes(pool_ids).then((res) => {
       const volumes = res.reduce((acc, cur, i) => {
@@ -835,7 +843,7 @@ export const useDayVolumesPools = (pool_ids: (string | number)[]) => {
 
       setVolumes(volumes);
     });
-  }, [pool_ids.join('-')]);
+  }, [pool_ids?.join('-')]);
 
   return volumes;
 };
@@ -1046,8 +1054,6 @@ export const useSeedFarmsByPools = (pools: Pool[]) => {
               [Object.keys(seedFarmsById)[i].split('@')[1]]: cur,
             };
           }, {});
-
-          // console.log('returnAPRs: ', returnAPRs);
 
           setFarmAprById(returnAPRs);
 

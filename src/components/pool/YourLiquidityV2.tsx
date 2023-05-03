@@ -38,6 +38,9 @@ import {
   get_all_seeds,
   get_liquidity_value,
   allocation_rule_liquidities,
+  get_pool_name,
+  openUrl,
+  sort_tokens_by_base,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import {
@@ -486,15 +489,19 @@ function UserLiquidityLine({
     });
   }
   function goYourLiquidityDetailPage(goType?: string) {
-    const id = lpt_id.replace(/\|/g, '@').replace('#', '@');
+    const pool_id = lpt_id.split('#')[0];
+    const lptId = lpt_id.split('#')[1];
+    const pool_name = get_pool_name(pool_id);
+    const link = `${pool_name}@${lptId}`;
     if (goType == 'new window') {
-      window.open(`/yoursLiquidityDetailV2/${id}`);
+      openUrl(`/yoursLiquidityDetailV2/${link}`);
     } else {
-      history.push(`/yoursLiquidityDetailV2/${id}`);
+      history.push(`/yoursLiquidityDetailV2/${link}`);
     }
   }
   function goPoolDetailPage() {
-    window.open(`/poolV2/${liquidity.pool_id}`);
+    const params_str = get_pool_name(liquidity.pool_id);
+    openUrl(`/poolV2/${params_str}`);
   }
   function getTokenFeeAmount(p: string) {
     if (liquidityDetail && tokenMetadata_x_y && tokenPriceList) {
@@ -582,7 +589,9 @@ function UserLiquidityLine({
   function go_farm() {
     const [fixRange, pool_id, left_point, right_point] =
       liquidity.mft_id.split('&');
-    const link_params = `${pool_id}&${left_point}&${right_point}`;
+    const link_params = `${get_pool_name(
+      pool_id
+    )}[${left_point}-${right_point}]`;
     const actives = related_farms.filter((farm: FarmBoost) => {
       return farm.status != 'Ended';
     });
@@ -592,7 +601,7 @@ function UserLiquidityLine({
     } else {
       url = `/v2farms/${link_params}-r`;
     }
-    window.open(url);
+    openUrl(url);
   }
   const {
     Icon: Liquidity_icon,
@@ -681,6 +690,7 @@ function UserLiquidityLineStyle1() {
     liquidityDetail,
     showAddBox,
   } = useContext(LiquidityContext);
+  const tokens = sort_tokens_by_base(tokenMetadata_x_y);
   return (
     <div
       className="mt-3.5"
@@ -706,17 +716,16 @@ function UserLiquidityLineStyle1() {
               <div className="flex items-center">
                 <div className="flex items-center flex-shrink-0">
                   <img
-                    src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
+                    src={tokens[0]?.icon}
                     className="w-7 h-7 border border-greenColor rounded-full"
                   ></img>
                   <img
-                    src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
+                    src={tokens[1]?.icon}
                     className="relative -ml-1.5 w-7 h-7 border border-greenColor rounded-full"
                   ></img>
                 </div>
                 <span className="text-white font-bold ml-9 mr-2.5 text-sm gotham_bold">
-                  {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}-
-                  {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
+                  {tokens[0]?.['symbol']}-{tokens[1]?.['symbol']}
                 </span>
                 <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5">
                   <span className="text-xs text-v3SwapGray whitespace-nowrap mr-1.5">
@@ -729,7 +738,7 @@ function UserLiquidityLineStyle1() {
                     onClick={(e) => {
                       e.stopPropagation();
                       if (liquidity_link) {
-                        window.open(liquidity_link);
+                        openUrl(liquidity_link);
                       }
                     }}
                     className={`flex items-center justify-center border border-greenColor rounded-lg px-1 ml-2 ${
@@ -816,7 +825,7 @@ function UserLiquidityLineStyle1() {
                 <div
                   className="flex items-center justify-center absolute right-4 text-white cursor-pointer"
                   onClick={() => {
-                    window.open(liquidity_link);
+                    openUrl(liquidity_link);
                   }}
                 >
                   <a className="text-sm text-white mr-1 underline">
@@ -946,24 +955,23 @@ function UserLiquidityLineStyle1() {
               <div className="flex items-center flex-shrink-0">
                 <div className="flex items-center flex-shrink-0">
                   <img
-                    src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
+                    src={tokens[0]?.icon}
                     className="w-7 h-7 border border-greenColor rounded-full"
                   ></img>
                   <img
-                    src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
+                    src={tokens[1]?.icon}
                     className="relative -ml-1.5 w-7 h-7 border border-greenColor rounded-full"
                   ></img>
                 </div>
                 <span className="text-white text-sm ml-1.5">
-                  {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}-
-                  {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
+                  {tokens[0]?.['symbol']}-{tokens[1]?.['symbol']}
                 </span>
                 {Liquidity_icon ? (
                   <div
                     onClick={(e) => {
                       e.stopPropagation();
                       if (liquidity_link) {
-                        window.open(liquidity_link);
+                        openUrl(liquidity_link);
                       }
                     }}
                     className={`flex items-center justify-center border border-greenColor rounded-lg px-1 ml-2 ${
@@ -1136,7 +1144,7 @@ function UserLiquidityLineStyle1() {
                     <div
                       className="flex items-center"
                       onClick={() => {
-                        window.open(liquidity_link);
+                        openUrl(liquidity_link);
                       }}
                     >
                       <span className="underline ml-1 mr-0.5">
@@ -1166,7 +1174,7 @@ function UserLiquidityLineStyle1() {
                   <div
                     className="flex items-center"
                     onClick={() => {
-                      window.open(liquidity_link);
+                      openUrl(liquidity_link);
                     }}
                   >
                     <span className="underline ml-1 mr-0.5">
@@ -1269,7 +1277,7 @@ function UserLiquidityLineStyle2() {
           <LinkIcon
             onClick={(e: any) => {
               e.stopPropagation();
-              window.open(liquidity_link);
+              openUrl(liquidity_link);
             }}
             className="text-primaryText hover:text-white cursor-pointer ml-1.5"
           ></LinkIcon>
@@ -1324,6 +1332,7 @@ function UserLiquidityLineStyle2Mobile({
     your_liquidity,
     getTokenFeeAmount,
   } = useContext(LiquidityContext);
+  const tokens = sort_tokens_by_base(tokenMetadata_x_y);
   return (
     <div
       className={`rounded-xl mb-3 mx-4 ${
@@ -1337,17 +1346,16 @@ function UserLiquidityLineStyle2Mobile({
           <div className="flex items-center">
             <div className="flex items-center flex-shrink-0 mr-1.5">
               <img
-                src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
+                src={tokens[0]?.icon}
                 className="w-6 h-6 border border-greenColor rounded-full"
               ></img>
               <img
-                src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
+                src={tokens[1]?.icon}
                 className="relative -ml-1.5 w-6 h-6 border border-greenColor rounded-full"
               ></img>
             </div>
             <span className="text-white font-bold text-sm gotham_bold whitespace-nowrap">
-              {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}-
-              {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
+              {tokens[0]?.['symbol']}-{tokens[1]?.['symbol']}
             </span>
           </div>
           <span className="text-white text-sm gotham_bold">
@@ -1490,6 +1498,7 @@ function UserLiquidityLineStyle2Pc({
     your_liquidity,
     getTokenFeeAmount,
   } = useContext(LiquidityContext);
+  const tokens = sort_tokens_by_base(tokenMetadata_x_y);
   return (
     <div
       className={`rounded-xl mt-3 bg-portfolioBgColor px-5 ${
@@ -1500,17 +1509,16 @@ function UserLiquidityLineStyle2Pc({
         <div className="flex items-center">
           <div className="flex items-center flex-shrink-0 mr-2.5">
             <img
-              src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
+              src={tokens[0]?.icon}
               className="w-7 h-7 border border-greenColor rounded-full"
             ></img>
             <img
-              src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
+              src={tokens[1]?.icon}
               className="relative -ml-1.5 w-7 h-7 border border-greenColor rounded-full"
             ></img>
           </div>
           <span className="text-white font-bold text-sm gotham_bold">
-            {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}-
-            {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
+            {tokens[0]?.['symbol']}-{tokens[1]?.['symbol']}
           </span>
           <span className="flex items-center justify-center text-xs text-v3SwapGray bg-portfolioFeeBgColor rounded-md px-1.5 mx-1.5 py-0.5">
             {+fee / 10000}%

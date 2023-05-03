@@ -1,9 +1,48 @@
 const colors = require('tailwindcss/colors');
 const defaultTheme = require('tailwindcss/defaultTheme');
 
+const plugin = require('tailwindcss/plugin');
+
 module.exports = {
   purge: false,
   darkMode: false, // or 'media' or 'class'
+  plugins: [
+    plugin(function ({ addUtilities }) {
+      addUtilities({
+        '.frcc': {
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
+        '.frcs': {
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+        },
+        '.frsc': {
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'center',
+          alignItems: 'start',
+        },
+
+        '.frcb': {
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        },
+
+        '.fccc': {
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
+      });
+    }),
+  ],
   theme: {
     screens: {
       xs: { min: '300px', max: '600px' },
@@ -64,7 +103,6 @@ module.exports = {
         boostUpBoxBg: 'linear-gradient(0deg, #273A46 0%, #15232D 100%)',
         bgGreyDefault: 'linear-gradient(180deg, #C0B1A3 0%, #92877D 100%)',
         bgGreyHover: 'linear-gradient(180deg, #E6D6C7 0%, #92877D 100%)',
-        swapCardGradient: 'linear-gradient(180deg, #222F37 0%, #192229 100%)',
         orderMobileTop: 'linear-gradient(180deg, #1D2933 0%, #283A46 100%)',
         switchIconBgColor: 'linear-gradient(180deg, #222F37 0%, #192229 100%)',
         unLoginButtonBgColor:
@@ -75,6 +113,7 @@ module.exports = {
           'linear-gradient(90deg, #00C6A2 2.54%, rgba(91, 64, 255, 0.5) 70%, rgba(91, 64, 255, 0) 100%)',
         dclIconBgColor: 'linear-gradient(180deg, #00C6A2 0%, #5B40FF 100%)',
         sellGradientRed: 'linear-gradient(180deg, #944A8C 0%, #D26060 100%)',
+        swapCardGradient: 'linear-gradient(180deg, #213441 0%, #15242F 100%)',
         sellGradientRedReverse:
           'linear-gradient(180deg, #944A8C 0%, #D26060 100%);',
         buyGradientGreen: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
@@ -111,6 +150,7 @@ module.exports = {
         inputText: '#374151',
         hoverGray: '#F3F4F6',
         buttonBg: '#10B981',
+        swapCardBorder: 'rgba(151, 151, 151, 0.2)',
         buttonText: '#F9FAFB',
         greenLight: '#00C08B',
         greenOpacity100: 'rgba(2, 109, 97, 1)',
@@ -130,6 +170,7 @@ module.exports = {
         gradientToHover: '#00967B',
         poolRowHover: '#001320',
         primaryText: '#7E8A93',
+        newSlippageColor: '#AABAC7',
         inputDarkBg: 'rgba(15, 13, 13, 0.2)',
         navHighLightBg: '#304452',
         navHighLightText: '#C6D1DA',
@@ -339,7 +380,7 @@ module.exports = {
         light_green_text_color: '#82D266',
         light_red_color: 'rgba(255, 106, 142, 0.15)',
         menuBorderColor: '#27343E',
-        guideBgColor:'rgba(0, 19, 32, 0.8)',
+        guideBgColor: 'rgba(0, 19, 32, 0.8)',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
@@ -357,6 +398,7 @@ module.exports = {
         p400: '400px',
         '95vw': '95vw',
         p410: '410px',
+        p450: '450px',
         p460: '460px',
         '580px': '580px',
         '580px': '580px',
@@ -379,6 +421,8 @@ module.exports = {
         '200px': '200px',
         24: '6rem',
         28: '7rem',
+        p150: '150px',
+        p212: '212px',
       },
       height: {
         vh90: '90vh',
@@ -392,7 +436,6 @@ module.exports = {
       },
       minWidth: {
         p72: '72px',
-
         20: '5rem',
         28: '7rem',
         72: '18rem',
@@ -403,6 +446,7 @@ module.exports = {
         '420px': '420px',
         p240: '240px',
         p90: '90px',
+        p300: '300px',
       },
 
       fontSize: {
@@ -417,6 +461,8 @@ module.exports = {
 
       fontFamily: {
         nunito: "'Nunito', sans-serif",
+        gotham: "'gotham', sans-serif",
+        gothamBold: "'gothamBold', sans-serif",
       },
     },
     plugins: [],

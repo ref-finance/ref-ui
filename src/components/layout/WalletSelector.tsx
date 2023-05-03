@@ -30,6 +30,7 @@ import {
 import { getExplorer } from '../../utils/device';
 import { BeatLoader } from 'react-spinners';
 import { FormattedMessage } from 'react-intl';
+import { openUrl } from '../../services/commonV3';
 
 export const WalletTitle = ({
   ifBack,
@@ -225,7 +226,7 @@ const SenderNotInstalledModal = (
             marginBottom: '5px',
           }}
           onClick={() => {
-            window.open('https://sender.org/?origin=ref', '_blank');
+            openUrl('https://sender.org/?origin=ref');
           }}
         >
           <span>
@@ -245,7 +246,7 @@ const SenderNotInstalledModal = (
           }
           tip={<FormattedMessage id="learn_more" defaultMessage="Learn more" />}
           callback={() => {
-            window.open('https://ref.finance', '_blank');
+            openUrl('https://ref.finance');
           }}
         />
       </Card>
@@ -473,7 +474,7 @@ export const WalletSelectorModal = (
               <FormattedMessage id="learn_more" defaultMessage="Learn more" />
             }
             callback={() => {
-              window.open('https://ref.finance', '_blank');
+              openUrl('https://ref.finance');
             }}
           />
         </Card>

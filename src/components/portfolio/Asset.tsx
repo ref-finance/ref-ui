@@ -29,6 +29,7 @@ import {
 } from './Tool';
 import { isMobile } from '~utils/device';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { openUrl } from '../../services/commonV3';
 const is_mobile = isMobile();
 const AssetData = createContext(null);
 export default function Asset() {
@@ -278,7 +279,7 @@ function AssetPc() {
           value={getV2PoolUSDValue()}
           event={() => {
             localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'v2');
-            window.open('/pools');
+            openUrl('/pools');
           }}
         >
           <div
@@ -287,9 +288,8 @@ function AssetPc() {
             {percent_in_dcl_farms}{' '}
             <span
               onClick={() => {
-                localStorage.setItem('farmV2Status', 'my');
-                localStorage.setItem('BOOST_FARM_RAB', 'dcl');
-                window.open('/v2farms');
+                localStorage.setItem('BOOST_FARM_TAB', 'yours');
+                openUrl('/v2farms');
               }}
               className="ml-1.5 text-limitOrderInputColor underline hover:text-primaryText cursor-pointer"
             >
@@ -302,16 +302,15 @@ function AssetPc() {
           value={getV1PoolUSDValue()}
           event={() => {
             localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'v1');
-            window.open('/pools');
+            openUrl('/pools');
           }}
         >
           <div className="flex items-center text-farmText text-xs mt-1 bg-cardBg rounded-md px-2 py-1">
             {percent_in_classic_farms}{' '}
             <span
               onClick={() => {
-                localStorage.setItem('farmV2Status', 'my');
-                localStorage.setItem('BOOST_FARM_RAB', 'classic');
-                window.open('/v2farms');
+                localStorage.setItem('BOOST_FARM_TAB', 'yours');
+                openUrl('/v2farms');
               }}
               className="ml-1.5 text-limitOrderInputColor underline hover:text-primaryText cursor-pointer"
             >
@@ -323,7 +322,7 @@ function AssetPc() {
           title={intl.formatMessage({ id: 'xref_staking' })}
           value={show_total_xref_value}
           event={() => {
-            window.open('/xref');
+            openUrl('/xref');
           }}
         ></DataTemplate>
       </div>
@@ -399,7 +398,7 @@ function AssetMobile() {
           value={getV2PoolUSDValue()}
           event={() => {
             localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'v2');
-            window.open('/pools');
+            openUrl('/pools');
           }}
           className="border-r border-cardBg px-5 w-1 flex-grow py-4"
         >
@@ -409,9 +408,8 @@ function AssetMobile() {
             {percent_in_dcl_farms}{' '}
             <span
               onClick={() => {
-                localStorage.setItem('farmV2Status', 'my');
-                localStorage.setItem('BOOST_FARM_RAB', 'dcl');
-                window.open('/v2farms');
+                localStorage.setItem('BOOST_FARM_TAB', 'yours');
+                openUrl('/v2farms');
               }}
               className="ml-1.5 text-limitOrderInputColor underline hover:text-primaryText cursor-pointer"
             >
@@ -424,7 +422,7 @@ function AssetMobile() {
           value={getV1PoolUSDValue()}
           event={() => {
             localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'v1');
-            window.open('/pools');
+            openUrl('/pools');
           }}
           className="pl-3 pr-5 w-1 flex-grow py-4"
         >
@@ -432,9 +430,8 @@ function AssetMobile() {
             {percent_in_classic_farms}{' '}
             <span
               onClick={() => {
-                localStorage.setItem('farmV2Status', 'my');
-                localStorage.setItem('BOOST_FARM_RAB', 'classic');
-                window.open('/v2farms');
+                localStorage.setItem('BOOST_FARM_TAB', 'yours');
+                openUrl('/v2farms');
               }}
               className="ml-1.5 text-limitOrderInputColor underline hover:text-primaryText cursor-pointer"
             >
@@ -448,7 +445,7 @@ function AssetMobile() {
           title={intl.formatMessage({ id: 'xref_staking' })}
           value={show_total_xref_value}
           event={() => {
-            window.open('/xref');
+            openUrl('/xref');
           }}
           className="px-5 w-1/2 py-4"
         ></DataTemplate>

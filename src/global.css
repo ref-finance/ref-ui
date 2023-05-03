@@ -506,12 +506,16 @@ input[type='range']::-webkit-slider-runnable-track {
 }
 .swiper-container {
   width: 100%;
-  height: 90px;
+  height: 98px;
 }
 .swiper-wrapper {
   position: relative;
   width: 100%;
   height: 100%;
+}
+.swiper-slide {
+  position: relative;
+  padding-top: 10px;
 }
 
 @keyframes rotation1 {
@@ -1261,4 +1265,20 @@ input[type='range']::-webkit-slider-runnable-track {
 
 #pr3sence-adItemImage {
   border-radius: 0.5rem;
+}
+#sitegpt-chat-icon {
+  background-color: #00c6a2 !important;
+}
+@media (max-width: 1023px) {
+  #sitegpt-chat-icon {
+    width: 36px !important;
+    height: 36px !important;
+  }
+}
+.recharts-wrapper svg {
+  overflow: inherit !important;
+}
+
+.hideScroll::-webkit-scrollbar {
+  display: none;
 }

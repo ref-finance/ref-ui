@@ -19,6 +19,9 @@ import {
   AuthenticationIcon,
 } from '../../../components/icon';
 import ReactTooltip from 'react-tooltip';
+import { REF_FI_SENDER_WALLET_ACCESS_KEY } from '../../../pages/Orderly/orderly/utils';
+import { ORDERLY_ASSET_MANAGER } from '../../../pages/Orderly/near';
+import { openUrl } from '../../../services/commonV3';
 
 const walletOfficialUrl = {
   'NEAR Wallet': 'wallet.near.org',
@@ -41,10 +44,10 @@ const walletOfficialMark = {
     mark: true,
     link: 'https://github.com/NearDeFi/neth/blob/main/audit/near-eth-audit-public.pdf',
   },
-  'Here Wallet': {
-    mark: true,
-    link: 'https://docs.herewallet.app/technology-description/readme/security-audit',
-  },
+  // 'Here Wallet': {
+  //   mark: true,
+  //   link: 'https://docs.herewallet.app/technology-description/readme/security-audit',
+  // },
 };
 
 const SelectedIcon = () => {
@@ -131,7 +134,7 @@ export const WalletSelectorFooter = () => {
       <div
         className="ml-2 cursor-pointer hover:underline font-bold"
         onClick={() => {
-          window.open('https://ref.finance', '_blank');
+          openUrl('https://ref.finance');
         }}
         style={{
           textDecorationThickness: '0.5px',
@@ -176,9 +179,29 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
       const currentWallet = await window.selector.wallet();
 
       await currentWallet.signOut();
-    } catch (error) {
-      console.log(error.message);
 
+      if (currentWallet.id === 'sender') {
+        try {
+          const senderAccessKey = localStorage.getItem(
+            REF_FI_SENDER_WALLET_ACCESS_KEY
+          );
+
+          const allKeys = Object.keys(JSON.parse(senderAccessKey)['allKeys']);
+
+          //@ts-ignore
+
+          await window.near.signOut({
+            contractId: allKeys.includes(ORDERLY_ASSET_MANAGER)
+              ? ORDERLY_ASSET_MANAGER
+              : allKeys[0],
+          });
+        } catch (error) {
+          await window.near.signOut();
+        }
+      } else {
+        await currentWallet.signOut();
+      }
+    } catch (error) {
       if (walletsRejectError.includes(error.message)) {
         // window.location.reload();
         onError(error.message);
@@ -231,8 +254,6 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
 
         return;
       }
-
-      console.log(err);
 
       onError(err);
     }
@@ -333,7 +354,7 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
                                 const { link } = walletOfficialMark[name];
                                 if (link) {
                                   e.stopPropagation();
-                                  window.open(link);
+                                  openUrl(link);
                                 }
                               }}
                             ></AuthenticationIcon>

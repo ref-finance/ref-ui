@@ -89,7 +89,11 @@ import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import { VEARROW } from '../icon/Referendum';
 import { isStablePool } from '../../services/near';
 import moment from 'moment';
-import { getEffectiveFarmList, sort_tokens_by_base } from '~services/commonV3';
+import {
+  getEffectiveFarmList,
+  sort_tokens_by_base,
+  openUrl,
+} from '~services/commonV3';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 const {
@@ -170,7 +174,7 @@ export default function FarmsDetail(props: {
   };
   const goPoolPage = () => {
     const poolId = pool.id;
-    window.open(`/pool/${poolId}`);
+    openUrl(`/pool/${poolId}`);
   };
   function isEnded() {
     const farms = detailData.farmList;
@@ -626,7 +630,7 @@ function StakeContainer(props: {
       const revenu24h = (total_fee / 10000) * 0.8 * Number(dayVolume);
       if (tvl > 0 && revenu24h > 0) {
         const annualisedFeesPrct = ((revenu24h * 365) / tvl) * 100;
-        const half_annualisedFeesPrct = annualisedFeesPrct / 2;
+        const half_annualisedFeesPrct = annualisedFeesPrct;
         result = toPrecision(half_annualisedFeesPrct.toString(), 2);
       }
     }
@@ -1345,7 +1349,7 @@ function DetailSymbol({
 
       <span
         className="cursor-pointer pl-2 py-0.5 text-gradientFrom"
-        onClick={() => window.open(`/pool/${id}`, '_blank')}
+        onClick={() => openUrl(`/pool/${id}`)}
       >
         <ExternalLinkIcon />
       </span>

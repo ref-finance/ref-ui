@@ -14,7 +14,7 @@ import { parseAction } from '../services/transaction';
 import { volumeType, TVLType } from '~state/pool';
 import db from '../store/RefDatabase';
 import { getCurrentWallet } from '../utils/wallets-integration';
-import { getPoolsByTokens, getAllPools, parsePool } from './pool';
+import { parsePool } from './pool';
 import {
   filterBlackListPools,
   ALL_STABLE_POOL_IDS,
@@ -23,6 +23,7 @@ import {
 
 import { getPool as getPoolRPC } from '../services/pool';
 import { BLACKLIST_POOL_IDS } from './near';
+import { TokenMetadata } from './ft-contract';
 
 const config = getConfig();
 
@@ -40,6 +41,8 @@ export const getPoolsByTokensIndexer = async ({
       method: 'GET',
     }
   ).then((res) => res.json());
+
+  if (res1?.code === -1 && res1?.data === null) return [];
 
   return res1.filter(
     (p: any) => !isStablePool(p.id) && !BLACKLIST_POOL_IDS.includes(p.id)
@@ -93,6 +96,47 @@ export interface HistoryOrderSwapInfo {
   amount_out: string;
   timestamp: string;
 }
+
+interface TokenFlow {
+  token_pair: string;
+  grade: string;
+  pool_ids: string[];
+  token_in: string;
+  token_out: string;
+  final_ratio: number;
+  amount: number;
+  swap_amount: number;
+  all_tokens: string[];
+  all_pool_fees: number[];
+  swap_ratio: number;
+  timestamp: string;
+}
+
+export const getTokenFlow = async ({
+  tokenInAmount,
+  tokenInId,
+  tokenOutId,
+  ledger,
+}: {
+  tokenInId: string;
+  tokenOutId: string;
+  tokenInAmount: string;
+  ledger: boolean;
+}): Promise<TokenFlow[]> => {
+  const token_pair: string = tokenInId + '->' + tokenOutId;
+
+  const swap_amount: string = tokenInAmount;
+
+  return await fetch(
+    config.indexerUrl +
+      `/get-token-flow?token_pair=${token_pair}&swap_amount=${swap_amount}&ledger=${
+        ledger ? 'one' : 'all'
+      }`,
+    {
+      method: 'GET',
+    }
+  ).then((res) => res.json());
+};
 
 export const getHistoryOrderSwapInfo = async (
   account_id: string
@@ -172,6 +216,13 @@ export const getTopPoolsIndexer = async () => {
     });
 };
 
+export const getTopPoolsIndexerRaw = async () => {
+  return await fetch(config.indexerUrl + '/list-top-pools', {
+    method: 'GET',
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  }).then((res) => res.json());
+};
+
 export const getTopPools = async (): Promise<PoolRPCView[]> => {
   try {
     let pools: any;
@@ -233,7 +284,6 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
       })
       .filter(filterBlackListPools);
   } catch (error) {
-    console.log(error);
     return [];
   }
 };
@@ -468,12 +518,12 @@ export const getAllTvl = async () => {
 };
 
 export const getAllVolume24h = async () => {
-  return await fetch(config.sodakiApiUrl + '/volume24h?period=1', {
+  return await fetch(config.sodakiApiUrl + '/24h-volume-variation', {
     method: 'GET',
   })
     .then((res) => res.json())
     .then((res) => {
-      return res?.[0]?.volume;
+      return res?.lastVolumeUSD;
     });
 };
 
@@ -510,5 +560,53 @@ export const getLimitOrderLogsByAccount = async (): Promise<any[]> => {
     })
     .catch(() => {
       return [];
+    });
+};
+
+export interface TokenPairRate {
+  symbol: string;
+  contract_address: string;
+  price_list: PriceList[];
+}
+
+interface PriceList {
+  price: number;
+  date_time: number;
+}
+
+export const getTokenPairRate = async ({
+  token,
+  base_token,
+  dimension,
+}: {
+  token: TokenMetadata;
+  base_token: TokenMetadata;
+  dimension: 'Y' | 'M' | 'W' | 'D' | 'All';
+}): Promise<TokenPairRate> => {
+  return await fetch(
+    config.indexerUrl +
+      `/token-price-report?token=${token.id}&base_token=${base_token.id}&dimension=${dimension}`,
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  )
+    .then(async (res) => {
+      const data = await res.json();
+      return {
+        ...data,
+        price_list: data.price_list.map((item: any) => ({
+          price: Number(item.price),
+          date_time: item.date_time * 1000,
+        })),
+      };
+    })
+
+    .catch(() => {
+      return {
+        symbol: token.symbol,
+        contract_address: token.id,
+        price_list: [],
+      };
     });
 };
