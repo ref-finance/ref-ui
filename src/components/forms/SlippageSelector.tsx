@@ -234,7 +234,7 @@ export default function SlippageSelector({
           className={`xs:fixed xs:z-50 xs:top-0 xs:left-0 xs:backdrop-filter xs:right-0 xs:bottom-0 xs:bg-black xs:bg-opacity-60`}
         >
           <fieldset
-            className="absolute top-10 text-newSlippageColor -right-32 xs:relative xs:mx-5 xs:top-40 xs:right-0 px-4 py-6 bg-cardBg rounded-lg flex flex-col mb-4"
+            className="absolute top-10 text-newSlippageColor right-0 xs:relative xs:mx-5 xs:top-40 xs:right-0 px-4 py-6 bg-cardBg rounded-lg flex flex-col mb-4"
             style={{
               background: '#2E3D47',
               border: '1px solid rgba(126, 138, 147, 0.2)',
