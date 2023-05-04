@@ -446,7 +446,13 @@ export const useSwap = ({
   const [count, setCount] = useState<number>(0);
 
   let minAmountOut = tokenOutAmount
-    ? percentLess(slippageTolerance, tokenOutAmount)
+    ? toPrecision(
+        percentLess(
+          slippageTolerance,
+          toPrecision(tokenOutAmount, Math.min(tokenOut?.decimals ?? 8, 8))
+        ),
+        tokenOut?.decimals ?? 24
+      )
     : null;
   const refreshTime = Number(POOL_TOKEN_REFRESH_INTERVAL) * 1000;
   const intl = useIntl();
@@ -590,7 +596,12 @@ export const useSwap = ({
       estimateValidator(
         swapsToDo,
         tokenIn,
-        toNonDivisibleNumber(tokenIn?.decimals || 24, tokenInAmount),
+        toNonDivisibleNumber(
+          tokenIn?.decimals === null || tokenIn?.decimals === undefined
+            ? 24
+            : tokenIn.decimals,
+          tokenInAmount
+        ),
         tokenOut
       );
 
@@ -620,7 +631,12 @@ export const useSwap = ({
       estimateValidator(
         swapsToDo,
         tokenIn,
-        toNonDivisibleNumber(tokenIn?.decimals || 24, tokenInAmount),
+        toNonDivisibleNumber(
+          tokenIn?.decimals === null || tokenIn?.decimals === undefined
+            ? 24
+            : tokenIn.decimals,
+          tokenInAmount
+        ),
         tokenOut
       );
 
@@ -926,7 +942,12 @@ export const useSwapV3 = ({
       outputToken: tokenOut?.id,
       token: tokenIn,
       tokens: [tokenIn, tokenOut],
-      totalInputAmount: toNonDivisibleNumber(tokenIn?.decimals, tokenInAmount),
+      totalInputAmount: toNonDivisibleNumber(
+        tokenIn?.decimals === null || tokenIn?.decimals === undefined
+          ? 24
+          : tokenIn.decimals,
+        tokenInAmount
+      ),
     },
   ];
 
@@ -938,7 +959,13 @@ export const useSwapV3 = ({
     canSwapPro: quoteDone && tagValidator(bestEstimate, tokenIn, tokenInAmount),
     priceImpact: priceImpact,
     minAmountOut: tokenOutAmount
-      ? percentLess(slippageTolerance, tokenOutAmount)
+      ? toPrecision(
+          percentLess(
+            slippageTolerance,
+            toPrecision(tokenOutAmount, Math.min(tokenOut?.decimals ?? 8, 8))
+          ),
+          tokenOut?.decimals ?? 24
+        )
       : null,
     swapsToDoV2,
     quoteDone:
@@ -1558,7 +1585,7 @@ export const useRefSwap = ({
           ? ''
           : toPrecision(
               tokenOutAmount || '0',
-              Math.min(8, tokenOut?.decimals || 8)
+              Math.min(8, tokenOut?.decimals ?? 8)
             ),
       minAmountOut: minAmountOut,
       fee: fee,
@@ -1587,7 +1614,7 @@ export const useRefSwap = ({
           ? ''
           : toPrecision(
               tokenOutAmountV2 || '0',
-              Math.min(8, tokenOut?.decimals || 8)
+              Math.min(8, tokenOut?.decimals ?? 8)
             ),
       tokenInAmount: tokenInAmountV2,
       minAmountOut: minAmountOutV2,
@@ -1860,7 +1887,9 @@ export const useOrderlySwap = ({
             inputToken: tokenIn?.id,
             pool: null,
             totalInputAmount: toNonDivisibleNumber(
-              tokenIn?.decimals || 24,
+              tokenIn?.decimals === null || tokenIn?.decimals === undefined
+                ? 24
+                : tokenIn.decimals,
               tokenInAmount
             ),
           },
@@ -1878,7 +1907,7 @@ export const useOrderlySwap = ({
       !!pairExist &&
       !!canSwap,
     swapError: null,
-    tokenOutAmount: toPrecision(estimate, Math.min(8, tokenOut?.decimals || 8)),
+    tokenOutAmount: toPrecision(estimate, Math.min(8, tokenOut?.decimals ?? 8)),
     exchange_name: <div className="text-white">Orderly</div>,
   };
 };
