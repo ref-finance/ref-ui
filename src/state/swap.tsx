@@ -936,7 +936,12 @@ export const useSwapV3 = ({
       outputToken: tokenOut?.id,
       token: tokenIn,
       tokens: [tokenIn, tokenOut],
-      totalInputAmount: toNonDivisibleNumber(tokenIn?.decimals, tokenInAmount),
+      totalInputAmount: toNonDivisibleNumber(
+        tokenIn?.decimals === null || tokenIn?.decimals === undefined
+          ? 24
+          : tokenIn.decimals,
+        tokenInAmount
+      ),
     },
   ];
 
@@ -1870,7 +1875,9 @@ export const useOrderlySwap = ({
             inputToken: tokenIn?.id,
             pool: null,
             totalInputAmount: toNonDivisibleNumber(
-              tokenIn?.decimals || 24,
+              tokenIn?.decimals === null || tokenIn?.decimals === undefined
+                ? 24
+                : tokenIn.decimals,
               tokenInAmount
             ),
           },
