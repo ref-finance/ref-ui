@@ -239,11 +239,11 @@ export const GetExchangeRate = ({
   token0Price?: string;
 }) => {
   const first_token_num = toReadableNumber(
-    tokens[0].decimals || 24,
+    tokens[0].decimals ?? 24,
     pool.supplies[tokens[0].id]
   );
   const second_token_num = toReadableNumber(
-    tokens[1].decimals || 24,
+    tokens[1].decimals ?? 24,
     pool.supplies[tokens[1].id]
   );
   const rate = Number(second_token_num) / Number(first_token_num);
