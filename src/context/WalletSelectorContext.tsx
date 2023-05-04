@@ -20,6 +20,8 @@ import { setupNeth } from '@near-wallet-selector/neth';
 
 import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet';
 
+import { setupXDEFI } from '@near-wallet-selector/xdefi';
+
 import { setupWalletConnect } from '@near-wallet-selector/wallet-connect';
 
 import { InjectedWallet } from '@near-wallet-selector/core';
@@ -140,6 +142,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
           iconUrl: walletIcons['ledger'],
         }),
         setupHereWallet(),
+        setupXDEFI(),
         // setupNightlyConnect({
         //   url: 'wss://ncproxy.nightly.app/app',
         //   appMetadata: {

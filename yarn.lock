@@ -2347,6 +2347,13 @@
   dependencies:
     rxjs "^7.8.0"
 
+"@near-wallet-selector/core@8.0.3":
+  version "8.0.3"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/core/-/core-8.0.3.tgz#999be1f8c7ef31674dba30550adc28ac75c6b600"
+  integrity sha512-AYb1wfBCEXMle+IC6aDLbgEHy6gEmM7d+jHXJ3W0BWPL3Buc6m+UgBFc660zNsZ0JspE02BIXQCiggrIxyHb7w==
+  dependencies:
+    rxjs "^7.8.0"
+
 "@near-wallet-selector/here-wallet@^7.9.0":
   version "7.9.0"
   resolved "https://registry.yarnpkg.com/@near-wallet-selector/here-wallet/-/here-wallet-7.9.0.tgz#da97ed9c62b0f26b8dc63adf78757040e3fb8234"
@@ -2458,6 +2465,14 @@
   dependencies:
     "@near-wallet-selector/core" "7.9.1"
     bn.js "^5.2.0"
+
+"@near-wallet-selector/xdefi@^8.0.3":
+  version "8.0.3"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/xdefi/-/xdefi-8.0.3.tgz#d6e7d9b615aa27270ee64b25b930321a89ab9388"
+  integrity sha512-LTyMQCJKys+Wo9W9mST2+kwyZtfo5EjmjkVtzWARSAKH30Q4S93W6IwB7kZFoqfWlYYyHoC/vz+FzBljDuit6A==
+  dependencies:
+    "@near-wallet-selector/core" "8.0.3"
+    is-mobile "^3.1.1"
 
 "@nicolo-ribaudo/eslint-scope-5-internals@5.1.1-v1":
   version "5.1.1-v1"

@@ -75,6 +75,7 @@
     "@near-wallet-selector/neth": "^7.0.2",
     "@near-wallet-selector/sender": "^7.0.0",
     "@near-wallet-selector/wallet-connect": "^7.0.2",
+    "@near-wallet-selector/xdefi": "^8.0.3",
     "@react-icons/all-files": "^4.1.0",
     "@svgr/parcel-plugin-svgr": "^5.5.0",
     "@transak/transak-sdk": "1.2.2",

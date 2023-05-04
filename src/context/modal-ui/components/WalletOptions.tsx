@@ -290,11 +290,15 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
                 return result;
               }
 
-              const installed =
+              let installed =
                 module.type === 'injected' &&
                 module.metadata.available &&
                 module.id !== 'meteor-wallet' &&
                 module.id !== 'here-wallet';
+
+              installed =
+                // @ts-ignore
+                installed || (module.id === 'xdefi' && !!window.xfi.installed);
 
               const isBeta = module.metadata.name === 'MyNearWallet';
 
