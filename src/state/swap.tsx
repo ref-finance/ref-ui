@@ -446,7 +446,10 @@ export const useSwap = ({
   const [count, setCount] = useState<number>(0);
 
   let minAmountOut = tokenOutAmount
-    ? percentLess(slippageTolerance, tokenOutAmount)
+    ? toPrecision(
+        percentLess(slippageTolerance, tokenOutAmount).toString(),
+        tokenOut.decimals ?? 24
+      )
     : null;
   const refreshTime = Number(POOL_TOKEN_REFRESH_INTERVAL) * 1000;
   const intl = useIntl();
@@ -953,7 +956,10 @@ export const useSwapV3 = ({
     canSwapPro: quoteDone && tagValidator(bestEstimate, tokenIn, tokenInAmount),
     priceImpact: priceImpact,
     minAmountOut: tokenOutAmount
-      ? percentLess(slippageTolerance, tokenOutAmount)
+      ? toPrecision(
+          percentLess(slippageTolerance, tokenOutAmount),
+          tokenOut.decimals ?? 24
+        )
       : null,
     swapsToDoV2,
     quoteDone:
