@@ -345,7 +345,7 @@ export const executeMultipleTransactions = async (
       if (!res) return;
 
       const transactionHashes = (Array.isArray(res) ? res : [res])?.map(
-        (r) => r.transaction.hash
+        (r) => r?.transaction?.hash || r
       );
       const parsedTransactionHashes = transactionHashes?.join(',');
       const newHref = addQueryParams(
