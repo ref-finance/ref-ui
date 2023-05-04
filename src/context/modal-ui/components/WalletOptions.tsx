@@ -297,8 +297,9 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
                 module.id !== 'here-wallet';
 
               installed =
+                installed ||
                 // @ts-ignore
-                installed || (module.id === 'xdefi' && !!window.xfi.installed);
+                (module.id === 'xdefi' && !!window?.xfi?.installed);
 
               const isBeta = module.metadata.name === 'MyNearWallet';
 
