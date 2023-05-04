@@ -173,6 +173,7 @@ import { VEARROW } from '../../components/icon/Referendum';
 import Big from 'big.js';
 import { getEffectiveFarmList, sort_tokens_by_base } from '~services/commonV3';
 import { openUrl } from '../../services/commonV3';
+import { numberWithCommas } from '../Orderly/utiles';
 
 interface ParamTypes {
   id: string;
@@ -248,7 +249,7 @@ export const GetExchangeRate = ({
   );
   const rate = Number(second_token_num) / Number(first_token_num);
 
-  const showRate = rate < 0.001 ? '< 0.001' : rate.toFixed(3);
+  const showRate = rate < 0.001 ? '< 0.001' : numberWithCommas(rate.toFixed(3));
 
   return Number(first_token_num) === 0 ? (
     <div className="px-1 border border-transparent">&nbsp;</div>
