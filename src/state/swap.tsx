@@ -2018,7 +2018,6 @@ export const useRefSwapPro = ({
         (!resRef?.availableRoute ||
           resRef.estimates?.[0]?.tokens?.at(-1)?.id ===
             localStorage.getItem('REF_FI_SWAP_OUT'));
-      console.log('resValid: ', resValid);
 
       if (!resValid) {
         setReEstimateTrigger(!reEstimateTrigger);
