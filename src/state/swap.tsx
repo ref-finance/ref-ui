@@ -590,7 +590,12 @@ export const useSwap = ({
       estimateValidator(
         swapsToDo,
         tokenIn,
-        toNonDivisibleNumber(tokenIn?.decimals || 24, tokenInAmount),
+        toNonDivisibleNumber(
+          tokenIn?.decimals === null || tokenIn?.decimals === undefined
+            ? 24
+            : tokenIn.decimals,
+          tokenInAmount
+        ),
         tokenOut
       );
 
@@ -620,7 +625,12 @@ export const useSwap = ({
       estimateValidator(
         swapsToDo,
         tokenIn,
-        toNonDivisibleNumber(tokenIn?.decimals || 24, tokenInAmount),
+        toNonDivisibleNumber(
+          tokenIn?.decimals === null || tokenIn?.decimals === undefined
+            ? 24
+            : tokenIn.decimals,
+          tokenInAmount
+        ),
         tokenOut
       );
 
@@ -2001,6 +2011,7 @@ export const useRefSwapPro = ({
         (!resRef?.availableRoute ||
           resRef.estimates?.[0]?.tokens?.at(-1)?.id ===
             localStorage.getItem('REF_FI_SWAP_OUT'));
+      console.log('resValid: ', resValid);
 
       if (!resValid) {
         setReEstimateTrigger(!reEstimateTrigger);
