@@ -1573,7 +1573,7 @@ export const useRefSwap = ({
           ? ''
           : toPrecision(
               tokenOutAmount || '0',
-              Math.min(8, tokenOut?.decimals || 8)
+              Math.min(8, tokenOut?.decimals ?? 8)
             ),
       minAmountOut: minAmountOut,
       fee: fee,
@@ -1602,7 +1602,7 @@ export const useRefSwap = ({
           ? ''
           : toPrecision(
               tokenOutAmountV2 || '0',
-              Math.min(8, tokenOut?.decimals || 8)
+              Math.min(8, tokenOut?.decimals ?? 8)
             ),
       tokenInAmount: tokenInAmountV2,
       minAmountOut: minAmountOutV2,
@@ -1895,7 +1895,7 @@ export const useOrderlySwap = ({
       !!pairExist &&
       !!canSwap,
     swapError: null,
-    tokenOutAmount: toPrecision(estimate, Math.min(8, tokenOut?.decimals || 8)),
+    tokenOutAmount: toPrecision(estimate, Math.min(8, tokenOut?.decimals ?? 8)),
     exchange_name: <div className="text-white">Orderly</div>,
   };
 };
