@@ -447,8 +447,11 @@ export const useSwap = ({
 
   let minAmountOut = tokenOutAmount
     ? toPrecision(
-        percentLess(slippageTolerance, tokenOutAmount).toString(),
-        tokenOut.decimals ?? 24
+        percentLess(
+          slippageTolerance,
+          toPrecision(tokenOutAmount, Math.min(tokenOut?.decimals ?? 8, 8))
+        ),
+        tokenOut?.decimals ?? 24
       )
     : null;
   const refreshTime = Number(POOL_TOKEN_REFRESH_INTERVAL) * 1000;
@@ -957,8 +960,11 @@ export const useSwapV3 = ({
     priceImpact: priceImpact,
     minAmountOut: tokenOutAmount
       ? toPrecision(
-          percentLess(slippageTolerance, tokenOutAmount),
-          tokenOut.decimals ?? 24
+          percentLess(
+            slippageTolerance,
+            toPrecision(tokenOutAmount, Math.min(tokenOut?.decimals ?? 8, 8))
+          ),
+          tokenOut?.decimals ?? 24
         )
       : null,
     swapsToDoV2,
