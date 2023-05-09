@@ -219,7 +219,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
         y={y}
         textAnchor="middle"
       >
-        {displayY}
+        {numberWithCommas(displayY)}
       </text>
     );
   };
@@ -402,7 +402,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
         })}
       </div>
 
-      <div className="frcs xs:flex xs:items-center xs:mb-2 xs:justify-between">
+      <div className="frcs xs:flex xs:items-center xs:mb-2 xs:justify-between xs:flex-wrap">
         <div className="frcs ml-4  xsm:ml-0">
           <span className="text-white text-2xl  mr-1">
             {diff ? priceFormatter(diff.curPrice) : '-'}
@@ -440,7 +440,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
         </div>
 
         {diff && (
-          <div className=" lg:hidden text-primaryText ml-4 flex flex-col items-end text-10px text-right">
+          <div className=" lg:hidden text-primaryText ml-4 flex flex-col items-end text-10px text-right xs:flex-grow">
             <span className="whitespace-nowrap">
               <FormattedMessage
                 id="last_updated"
