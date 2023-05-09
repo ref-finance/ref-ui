@@ -424,17 +424,16 @@ function SwapPage() {
               />
             )}
           </section>
-          {swapType === SWAP_TYPE.LITE ||
-            (!isMobile && (
-              <div className="lg:w-p450  text-white mt-5">
-                <AdSwiper />
-              </div>
-            ))}
+          {!isMobile && (
+            <div className="lg:w-480px  text-white mt-5">
+              <AdSwiper />
+            </div>
+          )}
         </div>
       </div>
 
-      {swapType === SWAP_TYPE.Pro && isMobile && (
-        <div className="lg:w-p450 xsm:mx-3  m-auto relative text-white mt-5">
+      {isMobile && (
+        <div className="lg:w-480px xsm:mx-3  m-auto relative text-white mt-5">
           <AdSwiper />
         </div>
       )}
