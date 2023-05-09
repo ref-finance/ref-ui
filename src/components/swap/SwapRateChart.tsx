@@ -410,7 +410,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
 
           {diff && (
             <span className="mr-1.5 ml-0.5 text-sm text-primaryText">
-              {tokenOut && toRealSymbol(tokenOut.symbol)}
+              {displayTokenOut && toRealSymbol(displayTokenOut.symbol)}
             </span>
           )}
           {diff && (
