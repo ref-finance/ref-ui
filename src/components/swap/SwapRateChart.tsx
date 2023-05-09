@@ -34,6 +34,7 @@ import { useClientMobile } from '../../utils/device';
 import { SwapProContext } from '../../pages/SwapPage';
 import { scientificNotationToString, toPrecision } from '../../utils/numbers';
 import Big from 'big.js';
+import { toRealSymbol } from '~utils/token';
 export interface SwapRateChartProps {
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
@@ -406,6 +407,12 @@ export default function SwapRateChart(props: SwapRateChartProps) {
           <span className="text-white text-2xl  mr-1">
             {diff ? priceFormatter(diff.curPrice) : '-'}
           </span>
+
+          {diff && (
+            <span className="mr-1.5 ml-0.5 text-sm text-primaryText">
+              {tokenOut && toRealSymbol(tokenOut.symbol)}
+            </span>
+          )}
           {diff && (
             <span
               className={`frcs text-xs rounded-md px-1 py-0.5
