@@ -1202,5 +1202,6 @@ const zh_CN = {
   steps_in_the_route: '步',
   swap_chart_no_data: '目前该图表没有数据。',
   last_updated: '上次更新于',
+  has_tri_pool_tip: '。在Cross-chain选项中启用Trisolaris寻找更多路径。',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

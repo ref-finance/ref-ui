@@ -80,6 +80,7 @@ export interface ExchangeEstimate {
   maker_fee?: number;
   taker_fee?: number;
   exchange_name?: JSX.Element;
+  hasTriPool?: boolean;
 }
 
 export interface TradeEstimates {

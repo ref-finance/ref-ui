@@ -735,7 +735,8 @@ export default function SwapCard(props: {
   const location = useLocation();
   const history = useHistory();
 
-  const { selectMarket, trades, enableTri } = useContext(SwapProContext);
+  const { selectMarket, trades, enableTri, swapType } =
+    useContext(SwapProContext);
 
   const selectTrade = trades?.[selectMarket];
 
@@ -1314,7 +1315,21 @@ export default function SwapCard(props: {
         Number(tokenInAmount || '0') > 0 &&
         tokenIn?.id !== tokenOut?.id ? (
           <div className="pb-2 relative ">
-            <Alert level="warn" message={selectTrade?.swapError.message} />
+            <Alert
+              level="warn"
+              message={
+                selectMarket === 'ref' &&
+                swapType === SWAP_TYPE.Pro &&
+                !enableTri &&
+                !!selectTrade.hasTriPool
+                  ? selectTrade?.swapError.message +
+                    ` ` +
+                    intl.formatMessage({
+                      id: 'has_tri_pool_tip',
+                    })
+                  : selectTrade?.swapError.message
+              }
+            />
           </div>
         ) : null}
       </SwapFormWrap>
