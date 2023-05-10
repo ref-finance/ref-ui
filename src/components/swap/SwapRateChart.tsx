@@ -440,7 +440,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
         </div>
 
         {diff && (
-          <div className=" lg:hidden text-primaryText ml-4 flex flex-col items-end text-10px text-right xs:flex-grow">
+          <div className=" lg:hidden text-primaryText  flex  items-end text-10px text-right ">
             <span className="whitespace-nowrap">
               <FormattedMessage
                 id="last_updated"
