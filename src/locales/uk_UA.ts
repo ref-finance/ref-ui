@@ -1093,6 +1093,6 @@ const uk_UA = {
   last_updated: 'Last Updated',
   steps_in_the_route_zh: '',
   has_tri_pool_tip:
-    ', in Ref. Enable Trisolaris in Cross-chain Options to find more.',
+    ' in Ref. Enable Trisolaris in Cross-chain Options to find more.',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

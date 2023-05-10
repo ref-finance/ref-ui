@@ -1152,6 +1152,6 @@ const es = {
   last_updated: 'Last Updated',
   steps_in_the_route_zh: '',
   has_tri_pool_tip:
-    ', in Ref. Enable Trisolaris in Cross-chain Options to find more.',
+    ' in Ref. Enable Trisolaris in Cross-chain Options to find more.',
 };
 export default Object.assign(es, es_in_risks_page);
