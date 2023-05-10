@@ -1324,7 +1324,6 @@ export default function SwapCard(props: {
                 !enableTri &&
                 !!selectTrade.hasTriPool
                   ? selectTrade?.swapError.message +
-                    ` ` +
                     intl.formatMessage({
                       id: 'has_tri_pool_tip',
                     })
