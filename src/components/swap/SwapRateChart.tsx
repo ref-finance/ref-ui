@@ -34,7 +34,7 @@ import { useClientMobile } from '../../utils/device';
 import { SwapProContext } from '../../pages/SwapPage';
 import { scientificNotationToString, toPrecision } from '../../utils/numbers';
 import Big from 'big.js';
-import { toRealSymbol } from '~utils/token';
+import { toRealSymbol } from '../../utils/token';
 export interface SwapRateChartProps {
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
