@@ -1310,7 +1310,7 @@ export default function SwapCard(props: {
           />
         ) : null}
 
-        {selectTrade?.swapError &&
+        {selectTrade?.swapError && !quoting &&
         !wrapOperation &&
         Number(tokenInAmount || '0') > 0 &&
         tokenIn?.id !== tokenOut?.id ? (
