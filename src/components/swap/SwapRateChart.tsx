@@ -34,6 +34,7 @@ import { useClientMobile } from '../../utils/device';
 import { SwapProContext } from '../../pages/SwapPage';
 import { scientificNotationToString, toPrecision } from '../../utils/numbers';
 import Big from 'big.js';
+import { toRealSymbol } from '../../utils/token';
 export interface SwapRateChartProps {
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
@@ -218,7 +219,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
         y={y}
         textAnchor="middle"
       >
-        {displayY}
+        {numberWithCommas(displayY)}
       </text>
     );
   };
@@ -401,11 +402,17 @@ export default function SwapRateChart(props: SwapRateChartProps) {
         })}
       </div>
 
-      <div className="frcs xs:flex xs:items-center xs:mb-2 xs:justify-between">
+      <div className="frcs xs:flex xs:items-center xs:mb-2 xs:justify-between xs:flex-wrap">
         <div className="frcs ml-4  xsm:ml-0">
           <span className="text-white text-2xl  mr-1">
             {diff ? priceFormatter(diff.curPrice) : '-'}
           </span>
+
+          {diff && (
+            <span className="mr-1.5 ml-0.5 text-sm text-primaryText">
+              {displayTokenOut && toRealSymbol(displayTokenOut.symbol)}
+            </span>
+          )}
           {diff && (
             <span
               className={`frcs text-xs rounded-md px-1 py-0.5
@@ -433,12 +440,13 @@ export default function SwapRateChart(props: SwapRateChartProps) {
         </div>
 
         {diff && (
-          <div className=" lg:hidden text-primaryText ml-4 flex flex-col items-end text-10px ">
-            <FormattedMessage
-              id="last_updated"
-              defaultMessage={'Last Updated'}
-            ></FormattedMessage>
-            <br />
+          <div className=" lg:hidden text-primaryText  flex  items-end text-10px text-right ">
+            <span className="whitespace-nowrap">
+              <FormattedMessage
+                id="last_updated"
+                defaultMessage={'Last Updated'}
+              ></FormattedMessage>
+            </span>
 
             <span className="ml-1">{diff.lastUpdate}</span>
           </div>
@@ -484,9 +492,14 @@ export default function SwapRateChart(props: SwapRateChartProps) {
       </div>
 
       {diff && (
-        <div className="frcs">
-          <div className="lg:hidden text-primaryText frcs  text-sm">
-            <span>
+        <div
+          className="frcs  "
+          style={{
+            overflow: 'anywhere',
+          }}
+        >
+          <div className="lg:hidden flex-wrap text-primaryText frcs   text-sm">
+            <span className="mr-1.5">
               <FormattedMessage
                 id="low"
                 defaultMessage={'Low'}
@@ -494,7 +507,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
               {`(${displayDimension})`}
             </span>
 
-            <span className="font-gothamBold ml-1.5 text-white">
+            <span className="font-gothamBold  text-white">
               {priceList &&
                 priceFormatter(
                   minBy(priceList.price_list, (p) => p.price)?.price || 0
@@ -502,8 +515,8 @@ export default function SwapRateChart(props: SwapRateChartProps) {
             </span>
           </div>
 
-          <div className="frcs lg:hidden ml-7 text-primaryText text-sm">
-            <span>
+          <div className="frcs flex-wrap lg:hidden  ml-7 text-primaryText text-sm">
+            <span className="mr-1.5">
               <FormattedMessage
                 id="high"
                 defaultMessage={'High'}
@@ -511,7 +524,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
               {`(${displayDimension})`}
             </span>
 
-            <span className="font-gothamBold ml-1.5 text-white">
+            <span className="font-gothamBold  text-white">
               {priceList &&
                 priceFormatter(
                   maxBy(priceList.price_list, (p) => p.price)?.price || 0
