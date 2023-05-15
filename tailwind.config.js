@@ -127,6 +127,7 @@ module.exports = {
           'linear-gradient(180deg, #00C6A2 0%, #5B40FF 100%)',
         darkBlueColor:
           'linear-gradient(360deg, #1A2B35 0%, rgba(19, 33, 42, 0) 100%)',
+        purpleBgColor:"linear-gradient(180deg, #C191FF 0%, #763AC5 100%)",
       }),
       gridTemplateColumns: {
         farmSearch: '2fr 1fr',
@@ -381,6 +382,10 @@ module.exports = {
         light_red_color: 'rgba(255, 106, 142, 0.15)',
         menuBorderColor: '#27343E',
         guideBgColor: 'rgba(0, 19, 32, 0.8)',
+        burrowTabColor:'#22333E',
+        burrowTableBorderColor:"rgba(48, 67, 82, 0.5)",
+        burrowTitleGreenColor:'#78FF9E',
+        burrowPurpleColor:'#C190FF',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

@@ -177,6 +177,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         REF_UNI_SWAP_CONTRACT_ID:
           process.env.REF_UNI_SWAP_CONTRACT_ID || 'dcl.ref-labs.near',
         switch_on_dcl_farms: 'off',
+        BURROW_CONTRACT_ID: 'contract.main.burrow.near',
       };
     case 'pub-testnet':
       return {
@@ -406,6 +407,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.REF_UNI_SWAP_CONTRACT_ID || 'dcl.ref-labs.near',
         switch_on_dcl_farms: 'off',
         DCL_POOL_BLACK_LIST: ['usdt.tether-token.near|wrap.near|2000'],
+        BURROW_CONTRACT_ID: 'contract.main.burrow.near',
       };
   }
 }

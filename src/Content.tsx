@@ -41,6 +41,7 @@ import XrefPage from './pages/xref/XrefPage';
 import RiskPage from './pages/RiskPage';
 import USNPage from './pages/USNPage';
 import Portfolio from './pages/Portfolio';
+import Burrow from './pages/Burrow';
 import {
   auroraAddr,
   getAuroraPool,
@@ -263,7 +264,8 @@ export function Content() {
           />
           <Route path="/farmsMigrate" component={AutoHeight(FarmsMigrate)} />
           <Route path="/poolV2/:id" component={AutoHeight(PoolDetailV3)} />
-          <Route path="/portfolio" component={AutoHeight(Portfolio)} />
+          <Route path="/portfolio/ref" component={AutoHeight(Portfolio)} />
+          <Route path="/portfolio/burrow" component={AutoHeight(Burrow)} />
           <Route path="/" component={AutoHeight(SwapPage)} />
         </Switch>
       </OrderlyContextProvider>
