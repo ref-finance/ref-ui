@@ -7,9 +7,11 @@ import {
   IAccount,
   IAsset,
   IAssetRewardDetail,
+  IModalProps,
 } from '~services/burrow-interfaces';
 import Big from 'big.js';
 import { shrinkToken, toAPY } from '~services/burrow-utils';
+import ModalBox from './ModalBox';
 export default function SuppliedMarket() {
   const {
     account,
@@ -22,9 +24,11 @@ export default function SuppliedMarket() {
     rewards: IAssetRewardDetail[];
     assetMetadatas: Record<string, TokenMetadata>;
   } = useContext(BurrowData);
+  const [showModalBox, setShowModalBox] = useState<boolean>(false);
   const [market_supplied_list, set_market_supplied_list] = useState<
     React.ReactElement[]
   >([]);
+  const [modalData, setModalData] = useState<IModalProps>();
   useEffect(() => {
     if (account && assets && rewards) {
       get_market_supplied();
@@ -82,13 +86,26 @@ export default function SuppliedMarket() {
           <td>${totalLiquidity_usd}</td>
           <td>
             <div className="flex items-center justify-end pr-5 gap-2">
-              <GradientButton>Supply</GradientButton>
+              <GradientButton
+                onClick={() => {
+                  showSupplyModal(asset);
+                }}
+              >
+                Supply
+              </GradientButton>
             </div>
           </td>
         </tr>
       );
     });
     set_market_supplied_list(market_deposit_assets);
+  }
+  function showSupplyModal(asset: IAsset) {
+    setShowModalBox(true);
+    setModalData({
+      action: 'supply',
+      asset,
+    });
   }
   return (
     <div className="pb-5 pt-4">
@@ -109,6 +126,11 @@ export default function SuppliedMarket() {
         </thead>
         <tbody>{market_supplied_list}</tbody>
       </table>
+      <ModalBox
+        showModalBox={showModalBox}
+        setShowModalBox={setShowModalBox}
+        modalData={modalData}
+      ></ModalBox>
     </div>
   );
 }

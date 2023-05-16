@@ -80,3 +80,14 @@ export const formatNumber = (v: string | number) => {
   }
 };
 export const toAPY = (v: number) => Math.round(v * 100) / 100;
+export function decimalMax(a: string | number, b: string | number) {
+  const aBig = new Big(a);
+  const bBig = new Big(b);
+  return aBig.gt(bBig) ? aBig : bBig;
+}
+
+export function decimalMin(a: string | number, b: string | number) {
+  const aBig = new Big(a);
+  const bBig = new Big(b);
+  return aBig.lt(bBig) ? aBig : bBig;
+}

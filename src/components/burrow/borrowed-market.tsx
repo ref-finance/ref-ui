@@ -8,10 +8,12 @@ import {
   IAsset,
   IAssetRewardDetail,
   IBurrowConfig,
+  IModalProps,
 } from '~services/burrow-interfaces';
 import { getExtraApy } from '~services/burrow-business';
 import Big from 'big.js';
 import { toAPY } from '~services/burrow-utils';
+import ModalBox from './ModalBox';
 export default function BorrowedMarket() {
   const {
     account,
@@ -29,6 +31,8 @@ export default function BorrowedMarket() {
   const [market_borrowed_list, set_market_borrowed_list] = useState<
     React.ReactElement[]
   >([]);
+  const [showModalBox, setShowModalBox] = useState<boolean>(false);
+  const [modalData, setModalData] = useState<IModalProps>();
   useEffect(() => {
     if (account && assets && rewards && globalConfig) {
       get_market_borrowed();
@@ -79,13 +83,26 @@ export default function BorrowedMarket() {
           <td>${liquidity}</td>
           <td>
             <div className="flex items-center justify-end pr-5 gap-2">
-              <PurpleButton>Borrow</PurpleButton>
+              <PurpleButton
+                onClick={() => {
+                  showBorrowModal(asset);
+                }}
+              >
+                Borrow
+              </PurpleButton>
             </div>
           </td>
         </tr>
       );
     });
     set_market_borrowed_list(market_burrow_assets);
+  }
+  function showBorrowModal(asset: IAsset) {
+    setShowModalBox(true);
+    setModalData({
+      action: 'borrow',
+      asset,
+    });
   }
   return (
     <div className="pb-5 pt-4">
@@ -106,6 +123,11 @@ export default function BorrowedMarket() {
         </thead>
         <tbody>{market_borrowed_list}</tbody>
       </table>
+      <ModalBox
+        showModalBox={showModalBox}
+        setShowModalBox={setShowModalBox}
+        modalData={modalData}
+      ></ModalBox>
     </div>
   );
 }

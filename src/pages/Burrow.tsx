@@ -18,7 +18,9 @@ import {
   INetTvlFarm,
   IBurrowConfig,
 } from '~services/burrow-interfaces';
+import { ftGetNearBalance } from '~services/near';
 import { WalletContext } from '../utils/wallets-integration';
+import { toReadableNumber } from '~utils/numbers';
 const is_mobile = isMobile();
 export const BurrowData = createContext(null);
 function Burrow() {
@@ -31,10 +33,14 @@ function Burrow() {
   const [rewards, setRewards] = useState<IAssetRewardDetail[]>();
   const [netTvlFarm, setNetTvlFarm] = useState<INetTvlFarm>();
   const [globalConfig, setGlobalConfig] = useState<IBurrowConfig>();
+  const [nearBalance, setNearBalance] = useState<string>();
   useEffect(() => {
     if (isSignedIn) {
       getAccount().then((account: IAccount) => {
         setAccount(account);
+      });
+      ftGetNearBalance().then((available) => {
+        setNearBalance(toReadableNumber(24, available || '0'));
       });
     }
     getAssets().then((assets: IAsset[]) => {
@@ -73,6 +79,7 @@ function Burrow() {
         assetMetadatas,
         netTvlFarm,
         globalConfig,
+        nearBalance,
       }}
     >
       <div className="flex items-stretch justify-between w-full h-full lg:-mt-12">

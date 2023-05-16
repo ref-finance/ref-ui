@@ -182,3 +182,8 @@ export interface IBurrowConfig {
   x_booster_multiplier_at_maximum_staking_duration: number;
   force_closing_enabled: boolean;
 }
+
+export interface IModalProps {
+  action: 'adjust' | 'withdraw' | 'borrow' | 'repay' | 'supply';
+  asset: IAsset;
+}

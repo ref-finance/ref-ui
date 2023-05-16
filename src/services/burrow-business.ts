@@ -7,9 +7,20 @@ import {
   IAccountItem,
   IBurrowConfig,
 } from './burrow-interfaces';
-import { toUsd, sumReducer, sumRewards, shrinkToken } from './burrow-utils';
+import {
+  toUsd,
+  sumReducer,
+  sumRewards,
+  shrinkToken,
+  expandToken,
+  decimalMax,
+  decimalMin,
+} from './burrow-utils';
 import { getFarm } from './burrow';
 import Big from 'big.js';
+import getConfig from './config';
+const { WRAP_NEAR_CONTRACT_ID } = getConfig();
+const MAX_RATIO = 10_000;
 export async function getProtocolRewards(assets: IAsset[]) {
   const netTvl = (await getFarm('NetTvl')) as INetTvlFarm;
   const rewards = Object.entries(netTvl.rewards).map(
@@ -248,6 +259,7 @@ export function getExtraApy(
         const totalBoostedShares = Number(
           shrinkToken(asset_farm_reward.boosted_shares, assetDecimals)
         );
+        debugger;
         const boosterLogBase = Number(
           shrinkToken(
             asset_farm_reward.booster_log_base,
@@ -279,4 +291,157 @@ export function getExtraApy(
       })
       .reduce((acc, cur) => acc + Number(cur), 0);
   }
+}
+export function getAdjustedSum(
+  type: 'collateral' | 'borrowed',
+  account: IAccount,
+  assets: IAsset[]
+) {
+  if (!assets || !account || account[type].length == 0) return 0;
+  return account[type]
+    .map((assetInAccount) => {
+      const asset = assets.find((a) => a.token_id === assetInAccount.token_id);
+
+      const price = asset.price
+        ? Big(asset.price.multiplier).div(Big(10).pow(asset.price.decimals))
+        : Big(0);
+
+      const pricedBalance = Big(assetInAccount.balance)
+        .div(expandToken(1, asset.config.extra_decimals))
+        .mul(price);
+
+      return type === 'borrowed'
+        ? pricedBalance
+            .div(asset.config.volatility_ratio)
+            .mul(MAX_RATIO)
+            .toFixed()
+        : pricedBalance
+            .mul(asset.config.volatility_ratio)
+            .div(MAX_RATIO)
+            .toFixed();
+    })
+    .reduce((sum, cur) => Big(sum).plus(Big(cur)).toFixed());
+}
+export function computeAdjustMaxBalance(account: IAccount, asset: IAsset) {
+  const { metadata, config, token_id } = asset;
+  const decimals = metadata.decimals + config.extra_decimals;
+  // const assetPrice = asset.price.usd || 0;
+  const accountSuppliedAsset = account.supplied.find(
+    (a) => a.token_id === token_id
+  );
+  const suppliedBalance = Big(accountSuppliedAsset?.balance || 0);
+  const supplied = Number(shrinkToken(suppliedBalance.toFixed(), decimals));
+
+  const accountCollateralAsset = account.collateral.find(
+    (a) => a.token_id === token_id
+  );
+  const collateralBalance = Big(accountCollateralAsset?.balance || 0);
+  const collateral = shrinkToken(collateralBalance.toFixed(), decimals);
+  const availableBalance = Big(supplied).plus(collateral).toFixed();
+  // const availableBalance$ = Big(assetPrice).mul(availableBalance).toFixed();
+  return [availableBalance, collateral];
+}
+export function computeWithdrawMaxAmount(
+  account: IAccount,
+  asset: IAsset,
+  assets: IAsset[]
+) {
+  const { metadata, config, token_id } = asset;
+  const decimals = metadata.decimals + config.extra_decimals;
+  const assetPrice = asset.price
+    ? Big(asset.price.multiplier).div(Big(10).pow(asset.price.decimals))
+    : Big(0);
+  const accountSuppliedAsset = account.supplied.find(
+    (a) => a.token_id === token_id
+  );
+  const suppliedBalance = new Big(accountSuppliedAsset?.balance || 0);
+  // const supplied = Number(shrinkToken(suppliedBalance.toFixed(), decimals));
+
+  const accountCollateralAsset = account.collateral.find(
+    (a) => a.token_id === token_id
+  );
+  const collateralBalance = new Big(accountCollateralAsset?.balance || 0);
+  // const collateral = Number(shrinkToken(collateralBalance.toFixed(), decimals));
+  let maxAmount = suppliedBalance;
+  if (collateralBalance.gt(0)) {
+    const adjustedCollateralSum = getAdjustedSum('collateral', account, assets);
+    const adjustedBorrowedSum = getAdjustedSum('borrowed', account, assets);
+    const adjustedPricedDiff = decimalMax(
+      0,
+      Big(adjustedCollateralSum).sub(adjustedBorrowedSum).toFixed()
+    );
+    const safeAdjustedPricedDiff = adjustedPricedDiff.mul(999).div(1000);
+
+    const safePricedDiff = safeAdjustedPricedDiff
+      .div(asset.config.volatility_ratio)
+      .mul(10000);
+    const safeDiff = safePricedDiff
+      .div(assetPrice)
+      .mul(expandToken(1, asset.config.extra_decimals))
+      .toFixed(0);
+    maxAmount = maxAmount.add(
+      decimalMin(safeDiff, collateralBalance.toFixed())
+    );
+  }
+  const availableBalance = shrinkToken(maxAmount.toFixed(), decimals);
+  // const remain = Math.abs(
+  //   Math.min(collateral, collateral + supplied - (amount || 0))
+  // );
+  // const remainBalance = Big(remain).toFixed(4);
+  // const price = asset.price.usd || 0;
+  // const maxAmount$ = maxAmount.mul(price).toFixed(2);
+  // const remainBalance$ = Big(remain).mul(price).toFixed(2);
+  return [availableBalance];
+}
+export function computeSupplyMaxAmount(asset: IAsset, nearBalance: string) {
+  const { accountBalance, metadata, token_id } = asset;
+  const accountBalanceReadAble = shrinkToken(accountBalance, metadata.decimals);
+  const availableNearBalance = decimalMax(
+    0,
+    Big(nearBalance || 0)
+      .plus(accountBalanceReadAble)
+      .minus(0.25)
+      .toFixed()
+  ).toFixed();
+  const availableBalance =
+    token_id == WRAP_NEAR_CONTRACT_ID
+      ? availableNearBalance
+      : accountBalanceReadAble;
+  return [availableBalance];
+}
+
+export function computeRepayMaxAmount(
+  account: IAccount,
+  asset: IAsset,
+  nearBalance: string
+) {
+  const { accountBalance, metadata, token_id } = asset;
+  const borrowed = account.borrowed.find((a) => a.token_id === token_id);
+  const decimals = asset.metadata.decimals + asset.config.extra_decimals;
+  const borrowedBalance = shrinkToken(borrowed.balance || 0, decimals);
+  const accountBalanceReadAble = shrinkToken(accountBalance, metadata.decimals);
+  const walletBalance =
+    token_id == WRAP_NEAR_CONTRACT_ID ? nearBalance : accountBalanceReadAble;
+  const availableBalance = decimalMin(borrowedBalance, walletBalance).toFixed();
+  return [availableBalance];
+}
+
+export function computeBurrowMaxAmount(
+  account: IAccount,
+  asset: IAsset,
+  assets: IAsset[]
+) {
+  const adjustedCollateralSum = getAdjustedSum('collateral', account, assets);
+  const adjustedBorrowedSum = getAdjustedSum('borrowed', account, assets);
+  const volatiliyRatio = asset.config.volatility_ratio || 0;
+  const price = asset.price?.usd || Infinity;
+  const availableBalance = Big(adjustedCollateralSum)
+    .sub(Big(adjustedBorrowedSum))
+    .mul(volatiliyRatio)
+    .div(MAX_RATIO)
+    .div(price)
+    .mul(95)
+    .div(100)
+    .toFixed();
+  return [availableBalance];
 }

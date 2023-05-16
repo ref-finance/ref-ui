@@ -9,6 +9,8 @@ import {
 import { getPortfolioRewards } from '~services/burrow-business';
 import Big from 'big.js';
 import { shrinkToken, toAPY } from '~services/burrow-utils';
+import { IModalProps } from '~services/burrow-interfaces';
+import ModalBox from './ModalBox';
 import './burrow.css';
 export default function YourSupplied() {
   const {
@@ -20,6 +22,8 @@ export default function YourSupplied() {
   const [your_supplied_list, set_your_supplied_list] = useState<
     React.ReactElement[]
   >([]);
+  const [showModalBox, setShowModalBox] = useState<boolean>(false);
+  const [modalData, setModalData] = useState<IModalProps>();
   useEffect(() => {
     if (account && assets && rewards) {
       get_your_supplied();
@@ -101,14 +105,42 @@ export default function YourSupplied() {
           </td>
           <td>
             <div className="flex items-center justify-end pr-5 gap-2">
-              {can_use_as_collateral && <GradientButton>Adjust</GradientButton>}
-              <GradientLineButton>Withdraw</GradientLineButton>
+              {can_use_as_collateral && (
+                <GradientButton
+                  onClick={() => {
+                    showAdjustModal(asset);
+                  }}
+                >
+                  Adjust
+                </GradientButton>
+              )}
+              <GradientLineButton
+                onClick={() => {
+                  showWithdrawModal(asset);
+                }}
+              >
+                Withdraw
+              </GradientLineButton>
             </div>
           </td>
         </tr>
       );
     });
     set_your_supplied_list(tbody);
+  }
+  function showAdjustModal(asset: IAsset) {
+    setShowModalBox(true);
+    setModalData({
+      action: 'adjust',
+      asset,
+    });
+  }
+  function showWithdrawModal(asset: IAsset) {
+    setShowModalBox(true);
+    setModalData({
+      action: 'withdraw',
+      asset,
+    });
   }
   return (
     <div className="border-b-2 border-burrowTableBorderColor pb-5">
@@ -128,6 +160,11 @@ export default function YourSupplied() {
         </thead>
         <tbody>{your_supplied_list}</tbody>
       </table>
+      <ModalBox
+        showModalBox={showModalBox}
+        setShowModalBox={setShowModalBox}
+        modalData={modalData}
+      ></ModalBox>
     </div>
   );
 }

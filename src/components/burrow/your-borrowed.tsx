@@ -6,10 +6,12 @@ import {
   IAsset,
   IAssetRewardDetail,
   IBurrowConfig,
+  IModalProps,
 } from '~services/burrow-interfaces';
 import { getExtraApy, getPortfolioRewards } from '~services/burrow-business';
 import Big from 'big.js';
 import { shrinkToken, toAPY } from '~services/burrow-utils';
+import ModalBox from './ModalBox';
 export default function YourBorrowed() {
   const {
     account,
@@ -25,6 +27,8 @@ export default function YourBorrowed() {
   const [your_borrowed_list, set_your_borrowed_list] = useState<
     React.ReactElement[]
   >([]);
+  const [showModalBox, setShowModalBox] = useState<boolean>(false);
+  const [modalData, setModalData] = useState<IModalProps>();
   useEffect(() => {
     if (account && assets && globalConfig && rewards) {
       get_your_borrowed();
@@ -82,13 +86,26 @@ export default function YourBorrowed() {
           </td>
           <td>
             <div className="flex items-center justify-end pr-5 gap-2">
-              <PurpleLineButton>Repay</PurpleLineButton>
+              <PurpleLineButton
+                onClick={() => {
+                  showRepayModal(asset);
+                }}
+              >
+                Repay
+              </PurpleLineButton>
             </div>
           </td>
         </tr>
       );
     });
     set_your_borrowed_list(your_borrowed_list);
+  }
+  function showRepayModal(asset: IAsset) {
+    setShowModalBox(true);
+    setModalData({
+      action: 'repay',
+      asset,
+    });
   }
   return (
     <div className="border-b-2 border-burrowTableBorderColor pb-5">
@@ -107,6 +124,11 @@ export default function YourBorrowed() {
         </thead>
         <tbody>{your_borrowed_list}</tbody>
       </table>
+      <ModalBox
+        showModalBox={showModalBox}
+        setShowModalBox={setShowModalBox}
+        modalData={modalData}
+      ></ModalBox>
     </div>
   );
 }

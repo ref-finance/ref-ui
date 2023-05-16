@@ -339,6 +339,7 @@ module.exports = {
         withdrawPurple2: '#443F67',
         gray1: '#23313C',
         gray2: '#91A2AE',
+        gray3: '#cccccc',
         txBlue: '#5285DF',
         withdrawPurple3: '#8883D7',
         positionLineBgColor: '#10202B',

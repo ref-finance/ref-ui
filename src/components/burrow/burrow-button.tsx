@@ -1,9 +1,11 @@
 import React from 'react';
 export function GradientButton(props: any) {
-  const { disabled, onClick } = props;
+  const { disabled, onClick, full } = props;
   return (
     <div
-      className={`h-8 px-3 w-max rounded-md text-sm text-white ${
+      className={`${
+        full ? 'h-11 w-full text-base gotham_bold' : 'h-8 w-max text-sm'
+      } px-3  rounded-md  text-white ${
         disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'
       } bg-gradient-to-b from-gradientFrom to-gradientTo hover:from-gradientFromHover to:from-gradientToHover`}
     >
@@ -42,10 +44,12 @@ export function PurpleLineButton(props: any) {
   );
 }
 export function PurpleButton(props: any) {
-  const { disabled, onClick } = props;
+  const { disabled, onClick, full } = props;
   return (
     <div
-      className={`h-8 px-3 w-max rounded-md text-sm text-white bg-purpleBgColor  ${
+      className={`${
+        full ? 'h-11 w-full text-base gotham_bold' : 'h-8 w-max text-sm'
+      } px-3 rounded-md text-white bg-purpleBgColor  ${
         disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'
       }`}
     >
