@@ -11,8 +11,7 @@ import {
   ftGetStorageBalance,
 } from '~services/ft-contract';
 import getConfig from './config';
-const { BURROW_CONTRACT_ID, ORACLE_CONTRACT, WRAP_NEAR_CONTRACT_ID } =
-  getConfig();
+const { BURROW_CONTRACT_ID, WRAP_NEAR_CONTRACT_ID } = getConfig();
 import { getCurrentWallet, WalletContext } from '../utils/wallets-integration';
 import { useWalletSelector } from 'context/WalletSelectorContext';
 import {
@@ -249,6 +248,7 @@ export async function submitAdjust({
   amount,
   availableBalance,
   setShowModalBox,
+  globalConfig,
 }: {
   account: IAccount;
   asset: IAsset;
@@ -256,6 +256,7 @@ export async function submitAdjust({
   amount: string;
   availableBalance: string;
   setShowModalBox: Function;
+  globalConfig: IBurrowConfig;
 }) {
   const { token_id, metadata, config } = asset;
   const decimals = metadata.decimals + config.extra_decimals;
@@ -292,7 +293,7 @@ export async function submitAdjust({
     });
   } else if (expandedAmount.lt(collateralBalance)) {
     transactions.push({
-      receiverId: ORACLE_CONTRACT,
+      receiverId: globalConfig.oracle_account_id,
       functionCalls: [
         {
           methodName: 'oracle_call',
@@ -452,12 +453,14 @@ export async function submitWithdraw({
   isMax,
   amount,
   availableBalance,
+  globalConfig,
 }: {
   account: IAccount;
   asset: IAsset;
   isMax: boolean;
   amount: string;
   availableBalance: string;
+  globalConfig: IBurrowConfig;
 }) {
   const { token_id, metadata, config } = asset;
   const decimals = metadata.decimals + config.extra_decimals;
@@ -481,7 +484,7 @@ export async function submitWithdraw({
   const transactions: Transaction[] = [];
   if (decreaseCollateralAmount.gt(0)) {
     transactions.push({
-      receiverId: ORACLE_CONTRACT,
+      receiverId: globalConfig.oracle_account_id,
       functionCalls: [
         {
           methodName: 'oracle_call',
@@ -508,7 +511,7 @@ export async function submitWithdraw({
     });
   } else {
     transactions.push({
-      receiverId: ORACLE_CONTRACT,
+      receiverId: globalConfig.oracle_account_id,
       functionCalls: [
         {
           methodName: 'oracle_call',

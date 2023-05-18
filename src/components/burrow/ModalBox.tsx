@@ -306,6 +306,7 @@ export default function ModalBox(props: {
       amount,
       availableBalance,
       setShowModalBox,
+      globalConfig,
     });
   }
   function handleSupply() {
@@ -345,6 +346,7 @@ export default function ModalBox(props: {
       isMax,
       amount,
       availableBalance,
+      globalConfig,
     });
   }
   return (
