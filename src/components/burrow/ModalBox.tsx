@@ -94,10 +94,16 @@ export default function ModalBox(props: {
           value={volatility_ratio}
           switchButton={
             <div
-              className={`flex items-center w-9 h-5 rounded-2xl cursor-pointer ml-2 p-0.5 ${
-                switchStatus ? 'bg-greenColor' : 'bg-gray3'
-              }`}
-              onClick={switchEvent}
+              className={`flex items-center w-9 h-5 rounded-2xl ml-2 p-0.5 ${
+                asset.config.can_use_as_collateral
+                  ? 'cursor-pointer'
+                  : 'opacity-40 cursor-not-allowed'
+              } ${switchStatus ? 'bg-greenColor' : 'bg-gray3'}`}
+              onClick={() => {
+                if (asset.config.can_use_as_collateral) {
+                  switchEvent();
+                }
+              }}
             >
               <label
                 style={{
@@ -105,7 +111,11 @@ export default function ModalBox(props: {
                   transition: 'all 100ms ease-out',
                   marginLeft: switchStatus ? '16px' : '2px',
                 }}
-                className={`w-3.5 h-3.5 bg-white rounded-full cursor-pointer`}
+                className={`w-3.5 h-3.5 bg-white rounded-full ${
+                  asset.config.can_use_as_collateral
+                    ? 'cursor-pointer'
+                    : 'cursor-not-allowed'
+                }`}
               ></label>
             </div>
           }
