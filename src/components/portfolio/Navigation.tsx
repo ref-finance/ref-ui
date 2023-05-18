@@ -14,7 +14,7 @@ export default function Navigation(props: any) {
       Icon: MenuREFIcon,
       name: 'Ref.finance',
       id: 'ref',
-      url: '/portfolio/ref',
+      url: '/portfolio',
       borderColor: '#00D6AF',
     },
     { Icon: MenuOrderlyIcon, name: 'Orderly', id: 'orderly' },
@@ -22,13 +22,13 @@ export default function Navigation(props: any) {
       Icon: MenuBurrowIcon,
       name: 'Burrow',
       id: 'burrow',
-      url: '/portfolio/burrow',
+      url: '/burrow',
       borderColor: '#745F4B',
     },
   ]);
   const [activeMenu, setActiveMenu] = useState('');
   useEffect(() => {
-    if (location.pathname.includes('ref')) {
+    if (location.pathname.includes('portfolio')) {
       setActiveMenu('ref');
     } else if (location.pathname.includes('burrow')) {
       setActiveMenu('burrow');

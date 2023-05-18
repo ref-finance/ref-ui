@@ -283,10 +283,16 @@ const YourOverview = () => {
               }}
               color="#fff"
               borderRadius="8px"
-              disabled={claimLoading}
-              btnClassName={`${claimLoading ? 'cursor-not-allowed' : ''}`}
+              disabled={claimLoading || unclaimedRewardsIcons?.length == 0}
+              btnClassName={`${
+                claimLoading || unclaimedRewardsIcons?.length == 0
+                  ? 'cursor-not-allowed'
+                  : ''
+              }`}
               className={`h-8 px-4 ml-14 text-center text-sm text-white focus:outline-none gotham_bold ${
-                claimLoading ? 'opacity-40' : ''
+                claimLoading || unclaimedRewardsIcons?.length == 0
+                  ? 'opacity-40'
+                  : ''
               }`}
             >
               <ButtonTextWrapper

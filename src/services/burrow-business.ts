@@ -15,6 +15,7 @@ import {
   expandToken,
   decimalMax,
   decimalMin,
+  clone,
 } from './burrow-utils';
 import { getFarm } from './burrow';
 import Big from 'big.js';
@@ -259,7 +260,6 @@ export function getExtraApy(
         const totalBoostedShares = Number(
           shrinkToken(asset_farm_reward.boosted_shares, assetDecimals)
         );
-        debugger;
         const boosterLogBase = Number(
           shrinkToken(
             asset_farm_reward.booster_log_base,
@@ -322,10 +322,9 @@ export function getAdjustedSum(
     })
     .reduce((sum, cur) => Big(sum).plus(Big(cur)).toFixed());
 }
-export function computeAdjustMaxBalance(account: IAccount, asset: IAsset) {
+export function computeAdjustMaxAmount(account: IAccount, asset: IAsset) {
   const { metadata, config, token_id } = asset;
   const decimals = metadata.decimals + config.extra_decimals;
-  // const assetPrice = asset.price.usd || 0;
   const accountSuppliedAsset = account.supplied.find(
     (a) => a.token_id === token_id
   );
@@ -338,8 +337,7 @@ export function computeAdjustMaxBalance(account: IAccount, asset: IAsset) {
   const collateralBalance = Big(accountCollateralAsset?.balance || 0);
   const collateral = shrinkToken(collateralBalance.toFixed(), decimals);
   const availableBalance = Big(supplied).plus(collateral).toFixed();
-  // const availableBalance$ = Big(assetPrice).mul(availableBalance).toFixed();
-  return [availableBalance, collateral];
+  return availableBalance;
 }
 export function computeWithdrawMaxAmount(
   account: IAccount,
@@ -355,13 +353,10 @@ export function computeWithdrawMaxAmount(
     (a) => a.token_id === token_id
   );
   const suppliedBalance = new Big(accountSuppliedAsset?.balance || 0);
-  // const supplied = Number(shrinkToken(suppliedBalance.toFixed(), decimals));
-
   const accountCollateralAsset = account.collateral.find(
     (a) => a.token_id === token_id
   );
   const collateralBalance = new Big(accountCollateralAsset?.balance || 0);
-  // const collateral = Number(shrinkToken(collateralBalance.toFixed(), decimals));
   let maxAmount = suppliedBalance;
   if (collateralBalance.gt(0)) {
     const adjustedCollateralSum = getAdjustedSum('collateral', account, assets);
@@ -384,14 +379,7 @@ export function computeWithdrawMaxAmount(
     );
   }
   const availableBalance = shrinkToken(maxAmount.toFixed(), decimals);
-  // const remain = Math.abs(
-  //   Math.min(collateral, collateral + supplied - (amount || 0))
-  // );
-  // const remainBalance = Big(remain).toFixed(4);
-  // const price = asset.price.usd || 0;
-  // const maxAmount$ = maxAmount.mul(price).toFixed(2);
-  // const remainBalance$ = Big(remain).mul(price).toFixed(2);
-  return [availableBalance];
+  return availableBalance;
 }
 export function computeSupplyMaxAmount(asset: IAsset, nearBalance: string) {
   const { accountBalance, metadata, token_id } = asset;
@@ -399,7 +387,7 @@ export function computeSupplyMaxAmount(asset: IAsset, nearBalance: string) {
   const availableNearBalance = decimalMax(
     0,
     Big(nearBalance || 0)
-      .plus(accountBalanceReadAble)
+      .plus(accountBalanceReadAble || 0)
       .minus(0.25)
       .toFixed()
   ).toFixed();
@@ -407,7 +395,7 @@ export function computeSupplyMaxAmount(asset: IAsset, nearBalance: string) {
     token_id == WRAP_NEAR_CONTRACT_ID
       ? availableNearBalance
       : accountBalanceReadAble;
-  return [availableBalance];
+  return availableBalance;
 }
 
 export function computeRepayMaxAmount(
@@ -423,7 +411,7 @@ export function computeRepayMaxAmount(
   const walletBalance =
     token_id == WRAP_NEAR_CONTRACT_ID ? nearBalance : accountBalanceReadAble;
   const availableBalance = decimalMin(borrowedBalance, walletBalance).toFixed();
-  return [availableBalance];
+  return availableBalance;
 }
 
 export function computeBurrowMaxAmount(
@@ -443,5 +431,327 @@ export function computeBurrowMaxAmount(
     .mul(95)
     .div(100)
     .toFixed();
-  return [availableBalance];
+  return availableBalance;
+}
+export function getHealthFactor(account: IAccount, assets: IAsset[]) {
+  const adjustedCollateralSum = getAdjustedSum('collateral', account, assets);
+  const adjustedBorrowedSum = getAdjustedSum('borrowed', account, assets);
+  if (Big(adjustedBorrowedSum).eq(0)) return 10000;
+  const healthFactor = Big(adjustedCollateralSum)
+    .div(Big(adjustedBorrowedSum))
+    .mul(100)
+    .toNumber();
+  return Number(healthFactor) < MAX_RATIO ? healthFactor : MAX_RATIO;
+}
+
+export function recomputeAdjustHealthFactor(
+  account: IAccount,
+  asset: IAsset,
+  assets: IAsset[],
+  amount: string
+) {
+  const { token_id } = asset;
+  const decimals = asset.metadata.decimals + asset.config.extra_decimals;
+  const accountCollateralAsset = account.collateral.find(
+    (a) => a.token_id === token_id
+  );
+  const amountDecimal = expandToken(amount || 0, decimals);
+  const newBalance = amountDecimal;
+  const clonedAccount = clone(account);
+
+  const updatedToken = {
+    token_id,
+    balance: newBalance,
+    shares: newBalance,
+    apr: '0',
+  };
+
+  if (clonedAccount?.collateral.length === 0) {
+    clonedAccount.collateral = [updatedToken];
+  } else if (!accountCollateralAsset) {
+    clonedAccount.collateral.push(updatedToken);
+  } else {
+    clonedAccount.collateral = [
+      ...clonedAccount.collateral.filter(
+        (a: IAccountItem) => a.token_id !== token_id
+      ),
+      updatedToken,
+    ];
+  }
+  const adjustedCollateralSum = getAdjustedSum(
+    'collateral',
+    clonedAccount,
+    assets
+  );
+  const adjustedBorrowedSum = getAdjustedSum('borrowed', account, assets);
+  let newHealthFactor;
+  if (Big(adjustedBorrowedSum).eq(0)) {
+    newHealthFactor = 10000;
+  } else {
+    newHealthFactor = Big(adjustedCollateralSum)
+      .div(Big(adjustedBorrowedSum))
+      .mul(100)
+      .toNumber();
+  }
+  const newHealthFactorAmount =
+    Number(newHealthFactor) < MAX_RATIO ? newHealthFactor : MAX_RATIO;
+  return newHealthFactorAmount;
+}
+export function recomputeWithdrawHealthFactor(
+  account: IAccount,
+  asset: IAsset,
+  assets: IAsset[],
+  amount: string
+) {
+  const { token_id } = asset;
+  const decimals = asset.metadata.decimals + asset.config.extra_decimals;
+  const accountCollateralAsset = account.collateral.find(
+    (a) => a.token_id === token_id
+  );
+  const accountSuppliedAsset = account.supplied.find(
+    (a) => a.token_id === token_id
+  );
+  const collateralBalance = Big(accountCollateralAsset?.balance || 0);
+  const suppliedBalance = Big(accountSuppliedAsset?.balance || 0);
+  const amountDecimal = expandToken(amount || 0, decimals);
+
+  const newBalance = decimalMin(
+    collateralBalance.toFixed(),
+    collateralBalance.plus(suppliedBalance).minus(amountDecimal).toFixed()
+  ).toFixed();
+  const clonedAccount = clone(account);
+
+  const updatedToken = {
+    token_id: token_id,
+    balance: newBalance,
+    shares: newBalance,
+    apr: '0',
+  };
+
+  if (clonedAccount?.collateral.length === 0) {
+    clonedAccount.collateral = [updatedToken];
+  } else if (!accountCollateralAsset) {
+    clonedAccount.collateral.push(updatedToken);
+  } else {
+    clonedAccount.collateral = [
+      ...clonedAccount.collateral.filter(
+        (a: IAccountItem) => a.token_id !== token_id
+      ),
+      updatedToken,
+    ];
+  }
+  const adjustedCollateralSum = getAdjustedSum(
+    'collateral',
+    +amount == 0 ? account : clonedAccount,
+    assets
+  );
+  const adjustedBorrowedSum = getAdjustedSum('borrowed', account, assets);
+  let newHealthFactor;
+  if (Big(adjustedBorrowedSum).eq(0)) {
+    newHealthFactor = 10000;
+  } else {
+    newHealthFactor = Big(adjustedCollateralSum)
+      .div(Big(adjustedBorrowedSum))
+      .mul(100)
+      .toNumber();
+  }
+  return Number(newHealthFactor) < MAX_RATIO ? newHealthFactor : MAX_RATIO;
+}
+export function recomputeSupplyHealthFactor(
+  account: IAccount,
+  asset: IAsset,
+  assets: IAsset[],
+  amount: string
+) {
+  if (!account) return 10000;
+  const { token_id } = asset;
+  const decimals = asset.metadata.decimals + asset.config.extra_decimals;
+  const accountCollateralAsset = account.collateral.find(
+    (a) => a.token_id === token_id
+  );
+  const newBalance = Big(expandToken(amount, decimals))
+    .plus(accountCollateralAsset?.balance || 0)
+    .toFixed();
+  const clonedAccount = clone(account);
+  const updatedToken = {
+    token_id: token_id,
+    balance: newBalance,
+    shares: newBalance,
+    apr: '0',
+  };
+  if (clonedAccount?.collateral.length === 0) {
+    clonedAccount.collateral = [updatedToken];
+  } else if (!accountCollateralAsset) {
+    clonedAccount.collateral.push(updatedToken);
+  } else {
+    clonedAccount.collateral = [
+      ...clonedAccount.collateral.filter(
+        (a: IAccountItem) => a.token_id !== token_id
+      ),
+      updatedToken,
+    ];
+  }
+  const adjustedCollateralSum = getAdjustedSum(
+    'collateral',
+    +amount == 0 ? account : clonedAccount,
+    assets
+  );
+  const adjustedBorrowedSum = getAdjustedSum('borrowed', account, assets);
+  let newHealthFactor;
+  if (Big(adjustedBorrowedSum).eq(0)) {
+    newHealthFactor = 10000;
+  } else {
+    newHealthFactor = Big(adjustedCollateralSum)
+      .div(Big(adjustedBorrowedSum))
+      .mul(100)
+      .toNumber();
+  }
+  return Number(newHealthFactor) < MAX_RATIO ? newHealthFactor : MAX_RATIO;
+}
+export function recomputeRepayHealthFactor(
+  account: IAccount,
+  asset: IAsset,
+  assets: IAsset[],
+  amount: string
+) {
+  const { token_id } = asset;
+  const decimals = asset.metadata.decimals + asset.config.extra_decimals;
+  const accountBorrowedAsset = account.borrowed.find(
+    (a) => a.token_id === token_id
+  );
+  const borrowedBalance = Big(accountBorrowedAsset?.balance || 0);
+  const balance = borrowedBalance.minus(expandToken(amount, decimals));
+  const clonedAccount = clone(account);
+  const newBalance = balance.lt(0) ? 0 : balance.toFixed();
+  const updatedToken = {
+    token_id: token_id,
+    balance: newBalance,
+    shares: newBalance,
+    apr: '0',
+  };
+  if (clonedAccount?.borrowed.length === 0) {
+    clonedAccount.borrowed = [updatedToken];
+  } else if (!accountBorrowedAsset) {
+    clonedAccount.borrowed.push(updatedToken);
+  } else {
+    clonedAccount.borrowed = [
+      ...clonedAccount.borrowed.filter(
+        (a: IAccountItem) => a.token_id !== token_id
+      ),
+      updatedToken,
+    ];
+  }
+  const adjustedCollateralSum = getAdjustedSum('collateral', account, assets);
+  const adjustedBorrowedSum = getAdjustedSum(
+    'borrowed',
+    +amount == 0 ? account : clonedAccount,
+    assets
+  );
+  if (Big(adjustedBorrowedSum).eq(0)) {
+    return MAX_RATIO;
+  } else {
+    const newHealthFactor = Big(adjustedCollateralSum)
+      .div(Big(adjustedBorrowedSum))
+      .mul(100)
+      .toNumber();
+    return Number(newHealthFactor) < MAX_RATIO ? newHealthFactor : MAX_RATIO;
+  }
+}
+export function recomputeBurrowHealthFactor(
+  account: IAccount,
+  asset: IAsset,
+  assets: IAsset[],
+  amount: string
+) {
+  if (!account) return 10000;
+  const { token_id } = asset;
+  const decimals = asset.metadata.decimals + asset.config.extra_decimals;
+  const accountBorrowedAsset = account.borrowed.find(
+    (a) => a.token_id === token_id
+  );
+
+  const newBalance = Big(expandToken(amount, decimals))
+    .plus(accountBorrowedAsset?.balance || 0)
+    .toFixed();
+
+  const clonedAccount = clone(account);
+
+  const updatedToken = {
+    token_id: token_id,
+    balance: newBalance,
+    shares: newBalance,
+    apr: '0',
+  };
+
+  if (clonedAccount?.borrowed.length === 0) {
+    clonedAccount.borrowed = [updatedToken];
+  } else if (!accountBorrowedAsset) {
+    clonedAccount.borrowed.push(updatedToken);
+  } else {
+    clonedAccount.borrowed = [
+      ...clonedAccount.borrowed.filter(
+        (a: IAccountItem) => a.token_id !== token_id
+      ),
+      updatedToken,
+    ];
+  }
+  const adjustedCollateralSum = getAdjustedSum('collateral', account, assets);
+  const adjustedBorrowedSum = getAdjustedSum(
+    'borrowed',
+    +amount == 0 ? account : clonedAccount,
+    assets
+  );
+  const newHealthFactor = Big(adjustedCollateralSum)
+    .div(Big(adjustedBorrowedSum))
+    .mul(100)
+    .toNumber();
+  return Number(newHealthFactor) < MAX_RATIO ? newHealthFactor : MAX_RATIO;
+}
+export function get_as_collateral_adjust(
+  account: IAccount,
+  asset: IAsset,
+  amount: string
+) {
+  const { metadata, config, token_id } = asset;
+  const decimals = metadata.decimals + config.extra_decimals;
+  const accountCollateralAsset = account.collateral.find(
+    (a) => a.token_id === token_id
+  );
+  const collateralBalance = Big(accountCollateralAsset?.balance || 0);
+  const collateral = shrinkToken(collateralBalance.toFixed(), decimals);
+  return amount || collateral || '0';
+}
+
+export function get_remain_collateral_withdraw(
+  account: IAccount,
+  asset: IAsset,
+  amount: string
+) {
+  const { metadata, config, token_id } = asset;
+  const decimals = metadata.decimals + config.extra_decimals;
+  const accountCollateralAsset = account.collateral.find(
+    (a) => a.token_id === token_id
+  );
+  const collateralBalance = new Big(accountCollateralAsset?.balance || 0);
+  const collateral = Number(shrinkToken(collateralBalance.toFixed(), decimals));
+  const accountSuppliedAsset = account.supplied.find(
+    (a) => a.token_id === token_id
+  );
+  const suppliedBalance = new Big(accountSuppliedAsset?.balance || 0);
+  const supplied = Number(shrinkToken(suppliedBalance.toFixed(), decimals));
+  const remain = Math.abs(
+    Math.min(collateral, collateral + supplied - (+amount || 0))
+  );
+  return remain.toString();
+}
+export function get_remain_borrow_repay(
+  availableBalance: string,
+  amount: string
+) {
+  return decimalMax(
+    Big(availableBalance || 0)
+      .sub(amount || 0)
+      .toFixed(),
+    '0'
+  ).toFixed();
 }

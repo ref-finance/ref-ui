@@ -1,23 +1,38 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { toPrecision } from '~utils/numbers';
+import Big from 'big.js';
 export default function RangeSlider(props: any) {
+  const { setAmount, balance, isMax, setIsMax, sliderAmount, setSliderAmount } =
+    props;
   const [splitList] = useState([0, 25, 50, 75, 100]);
-  const [value, setValue] = useState('0');
+
   const tipRef = useRef(null);
   const valueRef = useRef(null);
   useEffect(() => {
     if (valueRef.current) {
-      valueRef.current.style.backgroundSize = `${value}% 100%`;
+      valueRef.current.style.backgroundSize = `${sliderAmount}% 100%`;
     }
     if (tipRef.current) {
-      tipRef.current.style.left = `${+value}%`;
-      const marginLeft = -13 - (20 * +value) / 100;
+      tipRef.current.style.left = `${+sliderAmount}%`;
+      const marginLeft = -13 - (20 * +sliderAmount) / 100;
       tipRef.current.style.marginLeft = `${marginLeft}px`;
     }
-  }, [value]);
+    if (+sliderAmount == 100) {
+      setIsMax(true);
+    } else {
+      setIsMax(false);
+    }
+  }, [sliderAmount]);
   function changeValue(v: string) {
-    setValue(v);
+    setSliderAmount(v);
+    setAmount(
+      Big(v)
+        .div(100)
+        .mul(balance || 0)
+        .toFixed(4)
+    );
   }
+
   return (
     <div className="mt-6 mb-8">
       <div className="flex justify-between items-center mb-3 -mx-3">
@@ -32,7 +47,7 @@ export default function RangeSlider(props: any) {
             >
               <span
                 className={`flex items-center justify-center text-xs text-primaryText w-11 py-1 border border-transparent hover:border-v3LiquidityRemoveBarColor rounded-lg ${
-                  p == +value ? 'bg-black bg-opacity-20' : ''
+                  p == +sliderAmount ? 'bg-black bg-opacity-20' : ''
                 }`}
               >
                 {p}%
@@ -51,7 +66,7 @@ export default function RangeSlider(props: any) {
           onChange={(e) => {
             changeValue(e.target.value);
           }}
-          value={value}
+          value={sliderAmount}
           type="range"
           className={`w-full cursor-pointer`}
           style={{ backgroundSize: '100% 100%' }}
@@ -66,7 +81,7 @@ export default function RangeSlider(props: any) {
         >
           <span className="text-sm text-black">
             <label className="gotham_bold">
-              {toPrecision(value.toString(), 0)}
+              {toPrecision(sliderAmount.toString(), 0)}
             </label>
             %
           </span>

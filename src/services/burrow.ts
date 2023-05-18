@@ -1,18 +1,36 @@
 import Big from 'big.js';
-import { wallet, executeMultipleTransactions, Transaction } from './near';
-import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
+import {
+  wallet,
+  executeMultipleTransactions,
+  Transaction,
+  ONE_YOCTO_NEAR,
+} from './near';
+import {
+  ftGetTokenMetadata,
+  TokenMetadata,
+  ftGetStorageBalance,
+} from '~services/ft-contract';
 import getConfig from './config';
-const { BURROW_CONTRACT_ID } = getConfig();
+const { BURROW_CONTRACT_ID, ORACLE_CONTRACT, WRAP_NEAR_CONTRACT_ID } =
+  getConfig();
 import { getCurrentWallet, WalletContext } from '../utils/wallets-integration';
 import { useWalletSelector } from 'context/WalletSelectorContext';
-import { shrinkToken, expandToken, sumReducer, toUsd } from './burrow-utils';
+import {
+  shrinkToken,
+  expandToken,
+  sumReducer,
+  toUsd,
+  decimalMax,
+} from './burrow-utils';
 import {
   IAccount,
   IAsset,
   INetTvlFarm,
   IAssetRewardDetail,
+  IBurrowConfig,
 } from './burrow-interfaces';
 import { getNetLiquidityAPY } from './burrow-business';
+const NO_STORAGE_DEPOSIT_CONTRACTS = ['aurora', 'meta-pool.near'];
 
 export async function getAssets() {
   const assets = await burrowViewFunction({ methodName: 'get_assets_paged' });
@@ -223,4 +241,493 @@ export const executeBurrowMultipleTransactions = async (
 };
 export async function getGlobalConfig() {
   return await burrowViewFunction({ methodName: 'get_config' });
+}
+export async function submitAdjust({
+  account,
+  asset,
+  isMax,
+  amount,
+  availableBalance,
+  setShowModalBox,
+}: {
+  account: IAccount;
+  asset: IAsset;
+  isMax: boolean;
+  amount: string;
+  availableBalance: string;
+  setShowModalBox: Function;
+}) {
+  const { token_id, metadata, config } = asset;
+  const decimals = metadata.decimals + config.extra_decimals;
+  const expandedAmount = isMax
+    ? Big(expandToken(availableBalance, decimals))
+    : Big(expandToken(amount, decimals));
+  const accountCollateralAsset = account.collateral.find(
+    (a) => a.token_id === token_id
+  );
+  const collateralBalance = accountCollateralAsset?.balance || 0;
+  const transactions: Transaction[] = [];
+  if (expandedAmount.gt(collateralBalance)) {
+    transactions.push({
+      receiverId: BURROW_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'execute',
+          args: {
+            actions: [
+              {
+                IncreaseCollateral: {
+                  token_id,
+                  max_amount: !isMax
+                    ? expandedAmount.sub(collateralBalance).toFixed(0)
+                    : undefined,
+                },
+              },
+            ],
+          },
+          gas: expandToken(100, 12),
+          amount: ONE_YOCTO_NEAR,
+        },
+      ],
+    });
+  } else if (expandedAmount.lt(collateralBalance)) {
+    transactions.push({
+      receiverId: ORACLE_CONTRACT,
+      functionCalls: [
+        {
+          methodName: 'oracle_call',
+          args: {
+            receiver_id: BURROW_CONTRACT_ID,
+            msg: JSON.stringify({
+              Execute: {
+                actions: [
+                  {
+                    DecreaseCollateral: {
+                      token_id,
+                      max_amount: expandedAmount.gt(0)
+                        ? Big(collateralBalance).sub(expandedAmount).toFixed(0)
+                        : undefined,
+                    },
+                  },
+                ],
+              },
+            }),
+          },
+          gas: expandToken(100, 12),
+          amount: ONE_YOCTO_NEAR,
+        },
+      ],
+    });
+  } else {
+    setShowModalBox(false);
+  }
+  return executeBurrowMultipleTransactions(transactions);
+}
+
+export async function submitSupply({
+  asset,
+  isMax,
+  amount,
+  availableBalance,
+  switchStatus,
+}: {
+  asset: IAsset;
+  isMax: boolean;
+  amount: string;
+  availableBalance: string;
+  switchStatus: boolean;
+}) {
+  const amountValue = isMax ? availableBalance : amount;
+  const { token_id, metadata, config } = asset;
+  if (token_id === WRAP_NEAR_CONTRACT_ID) {
+    handleDepositNear(asset, amount, switchStatus);
+    return;
+  }
+  const transactions: Transaction[] = [];
+  const expandedAmount = expandToken(amountValue, metadata.decimals);
+  const collateralAmount = expandToken(
+    amountValue,
+    metadata.decimals + config.extra_decimals
+  );
+  const collateralMsg =
+    config.can_use_as_collateral && switchStatus
+      ? `{"Execute":{"actions":[{"IncreaseCollateral":{"token_id": "${token_id}","max_amount":"${collateralAmount}"}}]}}`
+      : '';
+  transactions.push({
+    receiverId: token_id,
+    functionCalls: [
+      {
+        methodName: 'ft_transfer_call',
+        args: {
+          receiver_id: BURROW_CONTRACT_ID,
+          amount: expandedAmount,
+          msg: collateralMsg,
+        },
+        gas: expandToken(100, 12),
+        amount: ONE_YOCTO_NEAR,
+      },
+    ],
+  });
+  const storageBurrow = await ftGetStorageBalance(BURROW_CONTRACT_ID);
+  if (storageBurrow?.available === '0' || !storageBurrow?.available) {
+    transactions.unshift({
+      receiverId: BURROW_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'storage_deposit',
+          args: {},
+          gas: expandToken(140, 12),
+          amount: '0.25',
+        },
+      ],
+    });
+  }
+  return executeBurrowMultipleTransactions(transactions);
+}
+const handleDepositNear = async (
+  asset: IAsset,
+  amount: string,
+  switchStatus: boolean
+) => {
+  const { token_id } = asset;
+  const transactions: Transaction[] = [];
+  const expandedAmount = expandToken(amount, 24);
+  const amountDecimal = expandedAmount;
+  const extraDecimal = Big(expandedAmount).sub(asset.accountBalance || 0);
+  transactions.push(
+    ...(extraDecimal.gt(0)
+      ? [
+          {
+            receiverId: token_id,
+            functionCalls: [
+              {
+                methodName: 'ft_transfer_call',
+                args: {},
+                gas: expandToken(100, 12),
+                amount: extraDecimal.toFixed(),
+              },
+            ],
+          },
+        ]
+      : [])
+  );
+  transactions.push({
+    receiverId: WRAP_NEAR_CONTRACT_ID,
+    functionCalls: [
+      {
+        methodName: 'ft_transfer_call',
+        args: {
+          receiver_id: BURROW_CONTRACT_ID,
+          amount: amountDecimal,
+          msg: switchStatus
+            ? `{"Execute":{"actions":[{"IncreaseCollateral":{"token_id":"wrap.near","max_amount":"${amountDecimal}"}}]}}`
+            : '',
+        },
+        gas: expandToken(300, 12),
+        amount: ONE_YOCTO_NEAR,
+      },
+    ],
+  });
+
+  const storageBurrow = await ftGetStorageBalance(BURROW_CONTRACT_ID);
+  if (storageBurrow?.available === '0' || !storageBurrow?.available) {
+    transactions.unshift({
+      receiverId: BURROW_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'storage_deposit',
+          args: {},
+          gas: expandToken(140, 12),
+          amount: '0.25',
+        },
+      ],
+    });
+  }
+  return executeBurrowMultipleTransactions(transactions);
+};
+
+export async function submitWithdraw({
+  account,
+  asset,
+  isMax,
+  amount,
+  availableBalance,
+}: {
+  account: IAccount;
+  asset: IAsset;
+  isMax: boolean;
+  amount: string;
+  availableBalance: string;
+}) {
+  const { token_id, metadata, config } = asset;
+  const decimals = metadata.decimals + config.extra_decimals;
+  const expandedAmount = Big(
+    expandToken(isMax ? availableBalance : amount, decimals)
+  );
+  const accountSuppliedAsset = account.supplied.find(
+    (a) => a.token_id === token_id
+  );
+  const suppliedBalance = accountSuppliedAsset?.balance || 0;
+  const decreaseCollateralAmount = decimalMax(
+    expandedAmount.sub(suppliedBalance).toFixed(),
+    0
+  );
+  const withdrawAction = {
+    Withdraw: {
+      token_id,
+      max_amount: !isMax ? expandedAmount.toFixed() : undefined,
+    },
+  };
+  const transactions: Transaction[] = [];
+  if (decreaseCollateralAmount.gt(0)) {
+    transactions.push({
+      receiverId: ORACLE_CONTRACT,
+      functionCalls: [
+        {
+          methodName: 'oracle_call',
+          args: {
+            receiver_id: BURROW_CONTRACT_ID,
+            msg: JSON.stringify({
+              Execute: {
+                actions: [
+                  {
+                    DecreaseCollateral: {
+                      token_id,
+                      amount: decreaseCollateralAmount.toFixed(0),
+                    },
+                  },
+                  withdrawAction,
+                ],
+              },
+            }),
+          },
+          gas: expandToken(100, 12),
+          amount: ONE_YOCTO_NEAR,
+        },
+      ],
+    });
+  } else {
+    transactions.push({
+      receiverId: ORACLE_CONTRACT,
+      functionCalls: [
+        {
+          methodName: 'oracle_call',
+          args: {
+            receiver_id: BURROW_CONTRACT_ID,
+            msg: JSON.stringify({
+              Execute: { actions: [withdrawAction] },
+            }),
+          },
+          gas: expandToken(100, 12),
+          amount: ONE_YOCTO_NEAR,
+        },
+      ],
+    });
+  }
+  const isNEAR = token_id == WRAP_NEAR_CONTRACT_ID;
+  if (isNEAR && expandedAmount.gt(10)) {
+    transactions.push({
+      receiverId: token_id,
+      functionCalls: [
+        {
+          methodName: 'near_withdraw',
+          args: {
+            amount: expandedAmount.sub(10).toFixed(0),
+          },
+          gas: expandToken(100, 12),
+          amount: ONE_YOCTO_NEAR,
+        },
+      ],
+    });
+  }
+  const storageToken = await ftGetStorageBalance(token_id);
+  if (
+    !(storageToken && storageToken.total != '0') &&
+    !NO_STORAGE_DEPOSIT_CONTRACTS.includes(token_id)
+  ) {
+    transactions.unshift({
+      receiverId: token_id,
+      functionCalls: [
+        {
+          methodName: 'storage_deposit',
+          args: {},
+          gas: expandToken(100, 12),
+          amount: '0.1',
+        },
+      ],
+    });
+  }
+  return executeBurrowMultipleTransactions(transactions);
+}
+
+export async function submitRepay({
+  asset,
+  isMax,
+  amount,
+  availableBalance,
+}: {
+  asset: IAsset;
+  isMax: boolean;
+  amount: string;
+  availableBalance: string;
+}) {
+  const { token_id, metadata, config } = asset;
+  const finalAmount = isMax ? availableBalance : amount;
+  const expandedAmount = Big(
+    expandToken(
+      finalAmount,
+      asset.metadata.decimals + asset.config.extra_decimals
+    )
+  );
+  const repayTemplate = {
+    Execute: {
+      actions: [
+        {
+          Repay: {
+            max_amount: !isMax ? expandedAmount.toFixed(0, 0) : undefined,
+            token_id: token_id,
+          },
+        },
+      ],
+    },
+  };
+  const transactions: Transaction[] = [];
+  transactions.push({
+    receiverId: token_id,
+    functionCalls: [
+      {
+        methodName: 'ft_transfer_call',
+        args: {
+          receiver_id: BURROW_CONTRACT_ID,
+          amount: expandToken(finalAmount, metadata.decimals),
+          msg: JSON.stringify(repayTemplate),
+        },
+        gas: expandToken(300, 12),
+        amount: ONE_YOCTO_NEAR,
+      },
+    ],
+  });
+  const storageBurrow = await ftGetStorageBalance(BURROW_CONTRACT_ID);
+  if (storageBurrow?.available === '0' || !storageBurrow?.available) {
+    transactions.unshift({
+      receiverId: BURROW_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'storage_deposit',
+          args: {},
+          gas: expandToken(140, 12),
+          amount: '0.25',
+        },
+      ],
+    });
+  }
+  return executeBurrowMultipleTransactions(transactions);
+}
+
+export async function submitBorrow({
+  asset,
+  isMax,
+  amount,
+  availableBalance,
+  globalConfig,
+}: {
+  asset: IAsset;
+  isMax: boolean;
+  amount: string;
+  availableBalance: string;
+  globalConfig: IBurrowConfig;
+}) {
+  const { token_id, metadata, config } = asset;
+  const finalAmount = isMax
+    ? decimalMax(availableBalance, amount).toFixed()
+    : amount;
+  const transactions: Transaction[] = [];
+  const expandedAmount = Big(
+    expandToken(
+      finalAmount,
+      asset.metadata.decimals + asset.config.extra_decimals
+    )
+  );
+
+  const borrowTemplate = {
+    Execute: {
+      actions: [
+        {
+          Borrow: {
+            token_id,
+            amount: expandedAmount.toFixed(0),
+          },
+        },
+        {
+          Withdraw: {
+            token_id,
+            max_amount: expandedAmount.toFixed(0),
+          },
+        },
+      ],
+    },
+  };
+  transactions.push({
+    receiverId: globalConfig.oracle_account_id,
+    functionCalls: [
+      {
+        methodName: 'oracle_call',
+        args: {
+          receiver_id: BURROW_CONTRACT_ID,
+          msg: JSON.stringify(borrowTemplate),
+        },
+        gas: expandToken(300, 12),
+        amount: ONE_YOCTO_NEAR,
+      },
+    ],
+  });
+  const storageToken = await ftGetStorageBalance(token_id);
+  const storageBurrow = await ftGetStorageBalance(BURROW_CONTRACT_ID);
+  if (
+    !(storageToken && storageToken.total != '0') &&
+    !NO_STORAGE_DEPOSIT_CONTRACTS.includes(token_id)
+  ) {
+    transactions.unshift({
+      receiverId: token_id,
+      functionCalls: [
+        {
+          methodName: 'storage_deposit',
+          args: {},
+          gas: expandToken(100, 12),
+          amount: '0.1',
+        },
+      ],
+    });
+  }
+
+  if (storageBurrow?.available === '0' || !storageBurrow?.available) {
+    transactions.unshift({
+      receiverId: BURROW_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'storage_deposit',
+          args: {},
+          gas: expandToken(100, 12),
+          amount: '0.25',
+        },
+      ],
+    });
+  }
+  if (token_id == WRAP_NEAR_CONTRACT_ID && expandedAmount.gt(10)) {
+    transactions.push({
+      receiverId: token_id,
+      functionCalls: [
+        {
+          methodName: 'near_withdraw',
+          args: {
+            amount: expandedAmount.sub(10).toFixed(0),
+          },
+          gas: expandToken(100, 12),
+          amount: ONE_YOCTO_NEAR,
+        },
+      ],
+    });
+  }
+
+  return executeBurrowMultipleTransactions(transactions);
 }

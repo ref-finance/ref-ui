@@ -34,7 +34,7 @@ export default function BorrowedMarket() {
   const [showModalBox, setShowModalBox] = useState<boolean>(false);
   const [modalData, setModalData] = useState<IModalProps>();
   useEffect(() => {
-    if (account && assets && rewards && globalConfig) {
+    if (assets && rewards && globalConfig) {
       get_market_borrowed();
     }
   }, [account, assets, rewards, globalConfig]);
@@ -123,11 +123,13 @@ export default function BorrowedMarket() {
         </thead>
         <tbody>{market_borrowed_list}</tbody>
       </table>
-      <ModalBox
-        showModalBox={showModalBox}
-        setShowModalBox={setShowModalBox}
-        modalData={modalData}
-      ></ModalBox>
+      {showModalBox && (
+        <ModalBox
+          showModalBox={showModalBox}
+          setShowModalBox={setShowModalBox}
+          modalData={modalData}
+        ></ModalBox>
+      )}
     </div>
   );
 }

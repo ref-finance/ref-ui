@@ -6,11 +6,14 @@ import {
   toReadableNumber,
   formatWithCommas,
 } from '../utils/numbers';
+import { JsonObject } from 'react-use-websocket/dist/lib/types';
 export const expandTokenDecimal = (
   value: string | number | BigNumber,
   decimals: string | number
 ): BigNumber => {
-  return new BigNumber(value).multipliedBy(new BigNumber(10).pow(decimals));
+  return new BigNumber(value || 0).multipliedBy(
+    new BigNumber(10).pow(decimals)
+  );
 };
 export const expandToken = (
   value: string | number | BigNumber,
@@ -25,7 +28,7 @@ export const shrinkToken = (
   decimals: string | number,
   fixed?: number
 ): string => {
-  return new BigNumber(value)
+  return new BigNumber(value || 0)
     .div(new BigNumber(10).pow(decimals))
     .toFixed(fixed);
 };
@@ -91,3 +94,9 @@ export function decimalMin(a: string | number, b: string | number) {
   const bBig = new Big(b);
   return aBig.lt(bBig) ? aBig : bBig;
 }
+export const clone = (o: any) => JSON.parse(JSON.stringify(o));
+
+export const isInvalid = function (v: any) {
+  if (v == '' || v == undefined || v == null) return true;
+  return false;
+};

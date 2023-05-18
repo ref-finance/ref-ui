@@ -103,12 +103,7 @@ export default function Marquee() {
     setTokenHistoryList(result.concat(result));
   }
   if (tokenHistoryList.length == 0) return null;
-  const hiddenRouters = [
-    '/risks',
-    '/portfolio/ref',
-    '/orderbook',
-    '/portfolio/burrow',
-  ];
+  const hiddenRouters = ['/risks', '/portfolio', '/orderbook', '/burrow'];
   return (
     <div
       className={`transform relative z-10 h-8 xs:-mt-6 md:-mt-6 xs:mb-6 md:mb-6 ${

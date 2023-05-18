@@ -124,11 +124,13 @@ export default function YourBorrowed() {
         </thead>
         <tbody>{your_borrowed_list}</tbody>
       </table>
-      <ModalBox
-        showModalBox={showModalBox}
-        setShowModalBox={setShowModalBox}
-        modalData={modalData}
-      ></ModalBox>
+      {showModalBox && (
+        <ModalBox
+          showModalBox={showModalBox}
+          setShowModalBox={setShowModalBox}
+          modalData={modalData}
+        ></ModalBox>
+      )}
     </div>
   );
 }

@@ -160,11 +160,13 @@ export default function YourSupplied() {
         </thead>
         <tbody>{your_supplied_list}</tbody>
       </table>
-      <ModalBox
-        showModalBox={showModalBox}
-        setShowModalBox={setShowModalBox}
-        modalData={modalData}
-      ></ModalBox>
+      {showModalBox && (
+        <ModalBox
+          showModalBox={showModalBox}
+          setShowModalBox={setShowModalBox}
+          modalData={modalData}
+        ></ModalBox>
+      )}
     </div>
   );
 }

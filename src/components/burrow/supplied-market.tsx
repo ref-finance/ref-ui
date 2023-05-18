@@ -30,7 +30,7 @@ export default function SuppliedMarket() {
   >([]);
   const [modalData, setModalData] = useState<IModalProps>();
   useEffect(() => {
-    if (account && assets && rewards) {
+    if (assets && rewards) {
       get_market_supplied();
     }
   }, [account, assets, rewards]);
@@ -126,11 +126,13 @@ export default function SuppliedMarket() {
         </thead>
         <tbody>{market_supplied_list}</tbody>
       </table>
-      <ModalBox
-        showModalBox={showModalBox}
-        setShowModalBox={setShowModalBox}
-        modalData={modalData}
-      ></ModalBox>
+      {showModalBox && (
+        <ModalBox
+          showModalBox={showModalBox}
+          setShowModalBox={setShowModalBox}
+          modalData={modalData}
+        ></ModalBox>
+      )}
     </div>
   );
 }
