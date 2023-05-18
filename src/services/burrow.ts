@@ -346,11 +346,10 @@ export async function submitSupply({
     return;
   }
   const transactions: Transaction[] = [];
-  const expandedAmount = expandToken(amountValue, metadata.decimals);
-  const collateralAmount = expandToken(
-    amountValue,
-    metadata.decimals + config.extra_decimals
-  );
+  const expandedAmount = Big(expandToken(amountValue, metadata.decimals));
+  const collateralAmount = Big(
+    expandToken(amountValue, metadata.decimals + config.extra_decimals)
+  ).toFixed(0);
   const collateralMsg =
     config.can_use_as_collateral && switchStatus
       ? `{"Execute":{"actions":[{"IncreaseCollateral":{"token_id": "${token_id}","max_amount":"${collateralAmount}"}}]}}`
@@ -362,7 +361,7 @@ export async function submitSupply({
         methodName: 'ft_transfer_call',
         args: {
           receiver_id: BURROW_CONTRACT_ID,
-          amount: expandedAmount,
+          amount: expandedAmount.toFixed(0),
           msg: collateralMsg,
         },
         gas: expandToken(100, 12),
@@ -394,7 +393,7 @@ const handleDepositNear = async (
   const { token_id } = asset;
   const transactions: Transaction[] = [];
   const expandedAmount = expandToken(amount, 24);
-  const amountDecimal = expandedAmount;
+  const amountDecimal = Big(expandedAmount);
   const extraDecimal = Big(expandedAmount).sub(asset.accountBalance || 0);
   transactions.push(
     ...(extraDecimal.gt(0)
@@ -406,7 +405,7 @@ const handleDepositNear = async (
                 methodName: 'ft_transfer_call',
                 args: {},
                 gas: expandToken(100, 12),
-                amount: extraDecimal.toFixed(),
+                amount: extraDecimal.toFixed(0),
               },
             ],
           },
@@ -420,9 +419,11 @@ const handleDepositNear = async (
         methodName: 'ft_transfer_call',
         args: {
           receiver_id: BURROW_CONTRACT_ID,
-          amount: amountDecimal,
+          amount: amountDecimal.toFixed(0),
           msg: switchStatus
-            ? `{"Execute":{"actions":[{"IncreaseCollateral":{"token_id":"wrap.near","max_amount":"${amountDecimal}"}}]}}`
+            ? `{"Execute":{"actions":[{"IncreaseCollateral":{"token_id":"wrap.near","max_amount":"${amountDecimal.toFixed(
+                0
+              )}"}}]}}`
             : '',
         },
         gas: expandToken(300, 12),
@@ -479,7 +480,7 @@ export async function submitWithdraw({
   const withdrawAction = {
     Withdraw: {
       token_id,
-      max_amount: !isMax ? expandedAmount.toFixed() : undefined,
+      max_amount: !isMax ? expandedAmount.toFixed(0) : undefined,
     },
   };
   const transactions: Transaction[] = [];
@@ -707,7 +708,7 @@ async function repay_from_deposit({
         {
           Repay: {
             token_id,
-            amount: expandedAmount.toFixed(0),
+            amount: isMax ? undefined : expandedAmount.toFixed(0),
           },
         },
       ],
@@ -760,13 +761,13 @@ export async function submitBorrow({
         {
           Borrow: {
             token_id,
-            amount: expandedAmount.toFixed(0),
+            amount: isMax ? undefined : expandedAmount.toFixed(0),
           },
         },
         {
           Withdraw: {
             token_id,
-            max_amount: expandedAmount.toFixed(0),
+            max_amount: isMax ? undefined : expandedAmount.toFixed(0),
           },
         },
       ],

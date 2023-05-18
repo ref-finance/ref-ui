@@ -44,7 +44,7 @@ export default function InputBox(props: any) {
       setAmount('0');
       setSliderAmount('0');
     } else {
-      setAmount(bigBalance.toFixed(4));
+      setAmount(bigBalance.toFixed());
       setSliderAmount('100');
     }
     setIsMax(true);
