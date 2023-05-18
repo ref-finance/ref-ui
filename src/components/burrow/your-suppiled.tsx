@@ -8,7 +8,12 @@ import {
 } from '~services/burrow-interfaces';
 import { getPortfolioRewards } from '~services/burrow-business';
 import Big from 'big.js';
-import { shrinkToken, toAPY } from '~services/burrow-utils';
+import {
+  shrinkToken,
+  toAPY,
+  formatNumber,
+  formatWithCommas_usd,
+} from '~services/burrow-utils';
 import { IModalProps } from '~services/burrow-interfaces';
 import ModalBox from './ModalBox';
 import './burrow.css';
@@ -85,8 +90,11 @@ export default function YourSupplied() {
               : rewardsList.map((reward, index) => {
                   const { rewardPerDay, rewardAsset } = reward;
                   return (
-                    <div className="flex items-center">
-                      {Big(rewardPerDay).toFixed(4)}
+                    <div
+                      className="flex items-center"
+                      title={Big(rewardPerDay || 0).toFixed()}
+                    >
+                      {formatNumber(rewardPerDay)}
                       <img
                         className={`w-4 h-4 rounded-full ml-1.5`}
                         src={rewardAsset.metadata.icon}
@@ -96,12 +104,20 @@ export default function YourSupplied() {
                 })}
           </td>
           <td>
-            {collateralBalance.toFixed(4)}
-            <span>(${collateralUsd.toFixed(2)})</span>
+            <span title={Big(collateralBalance || 0).toFixed()}>
+              {formatNumber(Big(collateralBalance || 0).toFixed())}
+              <span className="text-primaryText ml-1">
+                ({formatWithCommas_usd(Big(collateralUsd || 0).toFixed())})
+              </span>
+            </span>
           </td>
           <td>
-            {totalBalance.toFixed(4)}
-            <span>(${usd.toFixed(2)})</span>
+            <span title={Big(totalBalance || 0).toFixed()}>
+              {formatNumber(Big(totalBalance || 0).toFixed())}
+              <span className="text-primaryText ml-1">
+                ({formatWithCommas_usd(Big(usd || 0).toFixed())})
+              </span>
+            </span>
           </td>
           <td>
             <div className="flex items-center justify-end pr-5 gap-2">

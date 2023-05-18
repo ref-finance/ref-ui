@@ -10,7 +10,12 @@ import {
 } from '~services/burrow-interfaces';
 import { getExtraApy, getPortfolioRewards } from '~services/burrow-business';
 import Big from 'big.js';
-import { shrinkToken, toAPY } from '~services/burrow-utils';
+import {
+  shrinkToken,
+  toAPY,
+  formatNumber,
+  formatWithCommas_usd,
+} from '~services/burrow-utils';
 import ModalBox from './ModalBox';
 export default function YourBorrowed() {
   const {
@@ -70,8 +75,11 @@ export default function YourBorrowed() {
               : rewardsList.map((reward, index) => {
                   const { rewardPerDay, rewardAsset } = reward;
                   return (
-                    <div className="flex items-center">
-                      {Big(rewardPerDay).toFixed(4)}
+                    <div
+                      className="flex items-center"
+                      title={Big(rewardPerDay || 0).toFixed()}
+                    >
+                      {formatNumber(Big(rewardPerDay || 0).toFixed())}
                       <img
                         className={`w-4 h-4 rounded-full ml-1.5`}
                         src={rewardAsset.metadata.icon}
@@ -81,8 +89,12 @@ export default function YourBorrowed() {
                 })}
           </td>
           <td>
-            {borrowed.toFixed(4)}
-            <span>(${usd.toFixed(2)})</span>
+            <span title={Big(borrowed || 0).toFixed()}>
+              {formatNumber(Big(borrowed || 0).toFixed())}
+              <span className="text-primaryText ml-1">
+                ({formatWithCommas_usd(Big(usd || 0).toFixed())})
+              </span>
+            </span>
           </td>
           <td>
             <div className="flex items-center justify-end pr-5 gap-2">

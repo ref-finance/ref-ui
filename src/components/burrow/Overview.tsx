@@ -56,51 +56,53 @@ const YourOverview = () => {
   console.log('assets', assets);
   console.log('rewards', rewards);
   useEffect(() => {
-    if (account && assets && rewards) {
-      // supplied
-      const depositedIds = new Set([
-        ...account?.collateral?.map((item) => item.token_id),
-        ...account?.supplied?.map((item) => item.token_id),
-      ]);
-      const supplied_temp = [...depositedIds]
-        .map((depositedTokenId: string) => {
-          const asset = assets.find((a) => a.token_id === depositedTokenId);
-          const supplied = account.supplied.find(
-            (s) => s.token_id === depositedTokenId
-          );
-          const collateral = account.collateral.find(
-            (c) => c.token_id === depositedTokenId
-          );
-          const decimals =
-            asset.metadata.decimals + asset.config.extra_decimals;
-          const balance = Big(supplied?.balance || 0)
-            .plus(collateral?.balance || 0)
-            .toFixed();
-          return Big(shrinkToken(balance, decimals) || 0)
-            .mul(asset.price.usd || 0)
-            .toNumber();
-        })
-        .reduce(sumReducer, 0);
-      setSupplied(supplied_temp);
-      // borrowed
-      const borrowed_temp = account?.borrowed
-        ?.map((item) => {
-          const { balance, token_id } = item;
-          const asset = assets.find((a) => a.token_id === token_id);
-          const decimals =
-            asset.metadata.decimals + asset.config.extra_decimals;
-          return Big(shrinkToken(balance, decimals) || 0)
-            .mul(asset.price.usd || 0)
-            .toNumber();
-        })
-        .reduce(sumReducer, 0);
-      setBorrowed(borrowed_temp);
-      // net apy
-      const netApy = getNetAPY();
-      setNetApy(netApy);
-      // unClaimed rewards
-      const unclaimedRewards = getUnclaimedRewards();
-      setUnclaimedRewards(unclaimedRewards);
+    if (assets && rewards) {
+      if (account) {
+        // supplied
+        const depositedIds = new Set([
+          ...account?.collateral?.map((item) => item.token_id),
+          ...account?.supplied?.map((item) => item.token_id),
+        ]);
+        const supplied_temp = [...depositedIds]
+          .map((depositedTokenId: string) => {
+            const asset = assets.find((a) => a.token_id === depositedTokenId);
+            const supplied = account.supplied.find(
+              (s) => s.token_id === depositedTokenId
+            );
+            const collateral = account.collateral.find(
+              (c) => c.token_id === depositedTokenId
+            );
+            const decimals =
+              asset.metadata.decimals + asset.config.extra_decimals;
+            const balance = Big(supplied?.balance || 0)
+              .plus(collateral?.balance || 0)
+              .toFixed();
+            return Big(shrinkToken(balance, decimals) || 0)
+              .mul(asset.price.usd || 0)
+              .toNumber();
+          })
+          .reduce(sumReducer, 0);
+        setSupplied(supplied_temp);
+        // borrowed
+        const borrowed_temp = account?.borrowed
+          ?.map((item) => {
+            const { balance, token_id } = item;
+            const asset = assets.find((a) => a.token_id === token_id);
+            const decimals =
+              asset.metadata.decimals + asset.config.extra_decimals;
+            return Big(shrinkToken(balance, decimals) || 0)
+              .mul(asset.price.usd || 0)
+              .toNumber();
+          })
+          .reduce(sumReducer, 0);
+        setBorrowed(borrowed_temp);
+        // net apy
+        const netApy = getNetAPY();
+        setNetApy(netApy);
+        // unClaimed rewards
+        const unclaimedRewards = getUnclaimedRewards();
+        setUnclaimedRewards(unclaimedRewards);
+      }
       // get Daily Rewards
       getDailyRewards();
       // get total supplied、borrowed

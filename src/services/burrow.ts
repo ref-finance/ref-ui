@@ -322,6 +322,7 @@ export async function submitAdjust({
     });
   } else {
     setShowModalBox(false);
+    return;
   }
   return executeBurrowMultipleTransactions(transactions);
 }
