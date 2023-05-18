@@ -107,7 +107,7 @@ export default function BorrowedMarket() {
   return (
     <div className="pb-5 pt-4">
       <div className="text-lg gotham_bold text-white pl-7 mb-4">
-        <span className="text-purpleBgColor mr-2">Borrow</span>
+        <span className="text-burrowPurpleColor mr-2">Borrow</span>
         Market
       </div>
       <table className="burrow_table">
