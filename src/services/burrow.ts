@@ -27,6 +27,7 @@ import {
   INetTvlFarm,
   IAssetRewardDetail,
   IBurrowConfig,
+  IRepayWay,
 } from './burrow-interfaces';
 import { getNetLiquidityAPY } from './burrow-business';
 const NO_STORAGE_DEPOSIT_CONTRACTS = ['aurora', 'meta-pool.near'];
@@ -564,6 +565,41 @@ export async function submitWithdraw({
 }
 
 export async function submitRepay({
+  account,
+  asset,
+  isMax,
+  amount,
+  availableBalance,
+  repayWay,
+  globalConfig,
+}: {
+  account: IAccount;
+  asset: IAsset;
+  isMax: boolean;
+  amount: string;
+  availableBalance: string;
+  repayWay: IRepayWay;
+  globalConfig: IBurrowConfig;
+}) {
+  if (repayWay == 'wallet') {
+    repay_from_wallet({
+      asset,
+      isMax,
+      amount,
+      availableBalance,
+    });
+  } else if (repayWay == 'deposit') {
+    repay_from_deposit({
+      account,
+      asset,
+      isMax,
+      amount,
+      availableBalance,
+      globalConfig,
+    });
+  }
+}
+async function repay_from_wallet({
   asset,
   isMax,
   amount,
@@ -624,6 +660,72 @@ export async function submitRepay({
       ],
     });
   }
+  return executeBurrowMultipleTransactions(transactions);
+}
+async function repay_from_deposit({
+  account,
+  asset,
+  isMax,
+  amount,
+  availableBalance,
+  globalConfig,
+}: {
+  account: IAccount;
+  asset: IAsset;
+  isMax: boolean;
+  amount: string;
+  availableBalance: string;
+  globalConfig: IBurrowConfig;
+}) {
+  const { token_id, metadata, config } = asset;
+  const decimals = metadata.decimals + config.extra_decimals;
+  const expandedAmount = Big(
+    expandToken(isMax ? availableBalance : amount, decimals)
+  );
+  const accountSuppliedAsset = account.supplied.find(
+    (a) => a.token_id === token_id
+  );
+  const suppliedBalance = accountSuppliedAsset?.balance || 0;
+  const decreaseCollateralAmount = decimalMax(
+    expandedAmount.sub(suppliedBalance).toFixed(),
+    0
+  );
+  const transactions: Transaction[] = [];
+  const RepayTemplate = {
+    Execute: {
+      actions: [
+        ...(decreaseCollateralAmount.gt(0)
+          ? [
+              {
+                DecreaseCollateral: {
+                  token_id,
+                  amount: decreaseCollateralAmount.toFixed(0),
+                },
+              },
+            ]
+          : []),
+        {
+          Repay: {
+            token_id,
+            amount: expandedAmount.toFixed(0),
+          },
+        },
+      ],
+    },
+  };
+  transactions.push({
+    receiverId: globalConfig.oracle_account_id,
+    functionCalls: [
+      {
+        methodName: 'oracle_call',
+        args: {
+          receiver_id: BURROW_CONTRACT_ID,
+          msg: JSON.stringify(RepayTemplate),
+        },
+        amount: ONE_YOCTO_NEAR,
+      },
+    ],
+  });
   return executeBurrowMultipleTransactions(transactions);
 }
 

@@ -10,6 +10,7 @@ import {
   IAsset,
   IAssetRewardDetail,
   IBurrowConfig,
+  IRepayWay,
 } from '~services/burrow-interfaces';
 import {
   computeAdjustMaxAmount,
@@ -69,6 +70,8 @@ export default function ModalBox(props: {
   const [actionButton, setActionButton] = useState<React.ReactElement>();
   const [modalTitle, setModalTitle] = useState<string>();
   const [availableBalance, setAvailableBalance] = useState<string>();
+  const [availableBalanceInAccount, setAvailableBalanceInAccount] =
+    useState<string>();
   const [volatility_ratio, set_volatility_ratio] = useState<string>();
   const [healthFactor, setHealthFactor] = useState<number>();
   const [isMax, setIsMax] = useState<boolean>(false);
@@ -76,7 +79,7 @@ export default function ModalBox(props: {
   const [sliderAmount, setSliderAmount] = useState<string>('0');
   const [showWarning, setShowWarning] = useState<boolean>(false);
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
-  const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
+  const [repayWay, setRepayWay] = useState<IRepayWay>('wallet');
   const cardWidth = isMobile() ? '90vw' : '415px';
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -87,6 +90,17 @@ export default function ModalBox(props: {
   function Details() {
     const { action, asset } = modalData;
     let detail;
+    let button;
+    let buttonDisabled;
+    if (
+      isInvalid(amount) ||
+      Big(healthFactor || 0).lt(100) ||
+      (action !== 'adjust' && Big(amount).lte(0))
+    ) {
+      buttonDisabled = true;
+    } else {
+      buttonDisabled = false;
+    }
     if (action == 'supply') {
       detail = (
         <Template
@@ -121,6 +135,15 @@ export default function ModalBox(props: {
           }
         ></Template>
       );
+      button = (
+        <GradientButton
+          full={true}
+          disabled={buttonLoading || buttonDisabled}
+          onClick={handleSupply}
+        >
+          <ButtonTextWrapper loading={buttonLoading} Text={() => <>Supply</>} />
+        </GradientButton>
+      );
     } else if (action == 'adjust') {
       const v = get_as_collateral_adjust(account, asset, amount);
       detail = (
@@ -131,61 +154,6 @@ export default function ModalBox(props: {
           asset={asset}
         ></Template>
       );
-    } else if (action == 'borrow') {
-      detail = (
-        <Template title="Collateral Factor" value={volatility_ratio}></Template>
-      );
-    } else if (action == 'repay') {
-      const v = get_remain_borrow_repay(availableBalance, amount);
-      detail = (
-        <Template
-          title="Remaining Borrow"
-          value={v}
-          show$={true}
-          asset={asset}
-        ></Template>
-      );
-    } else if (action == 'withdraw') {
-      const v = get_remain_collateral_withdraw(account, asset, amount);
-      detail = (
-        <Template
-          title="Remaining Collateral"
-          value={v}
-          show$={true}
-          asset={asset}
-        ></Template>
-      );
-    }
-    if (
-      isInvalid(amount) ||
-      Big(healthFactor || 0).lt(100) ||
-      (action !== 'adjust' && Big(amount).lte(0))
-    ) {
-      setButtonDisabled(true);
-    } else {
-      setButtonDisabled(false);
-    }
-    setExtraDetail(detail);
-  }
-  // get max balance
-  function Actions() {
-    const { action, asset } = modalData;
-    let button;
-    let title;
-    let availableBalance;
-    if (action == 'supply') {
-      button = (
-        <GradientButton
-          full={true}
-          disabled={buttonLoading || buttonDisabled}
-          onClick={handleSupply}
-        >
-          <ButtonTextWrapper loading={buttonLoading} Text={() => <>Supply</>} />
-        </GradientButton>
-      );
-      title = `Supply ${asset?.metadata?.symbol}`;
-      availableBalance = computeSupplyMaxAmount(asset, nearBalance);
-    } else if (action == 'adjust') {
       button = (
         <GradientButton
           disabled={buttonLoading || buttonDisabled}
@@ -198,9 +166,10 @@ export default function ModalBox(props: {
           />
         </GradientButton>
       );
-      title = `Adjust Collateral`;
-      availableBalance = computeAdjustMaxAmount(account, asset);
     } else if (action == 'borrow') {
+      detail = (
+        <Template title="Collateral Factor" value={volatility_ratio}></Template>
+      );
       button = (
         <PurpleButton
           full={true}
@@ -210,9 +179,16 @@ export default function ModalBox(props: {
           <ButtonTextWrapper loading={buttonLoading} Text={() => <>Borrow</>} />
         </PurpleButton>
       );
-      title = `Borrow ${asset?.metadata?.symbol}`;
-      availableBalance = computeBurrowMaxAmount(account, asset, assets);
     } else if (action == 'repay') {
+      const v = get_remain_borrow_repay(availableBalance, amount);
+      detail = (
+        <Template
+          title="Remaining Borrow"
+          value={v}
+          show$={true}
+          asset={asset}
+        ></Template>
+      );
       button = (
         <PurpleButton
           full={true}
@@ -222,9 +198,16 @@ export default function ModalBox(props: {
           <ButtonTextWrapper loading={buttonLoading} Text={() => <>Repay</>} />
         </PurpleButton>
       );
-      title = `Repay ${asset?.metadata?.symbol}`;
-      availableBalance = computeRepayMaxAmount(account, asset, nearBalance);
     } else if (action == 'withdraw') {
+      const v = get_remain_collateral_withdraw(account, asset, amount);
+      detail = (
+        <Template
+          title="Remaining Collateral"
+          value={v}
+          show$={true}
+          asset={asset}
+        ></Template>
+      );
       button = (
         <GradientButton
           full={true}
@@ -237,14 +220,38 @@ export default function ModalBox(props: {
           />
         </GradientButton>
       );
-      title = `Withdraw ${asset?.metadata?.symbol}`;
-      availableBalance = computeWithdrawMaxAmount(account, asset, assets);
     }
     if (!isSignedIn) {
       button = <ConnectToNearBtn></ConnectToNearBtn>;
     }
-    setAvailableBalance(availableBalance);
     setActionButton(button);
+    setExtraDetail(detail);
+  }
+  // get max balance、title、button、cf
+  function getStaticData() {
+    const { action, asset } = modalData;
+    let title;
+    let availableBalance;
+    if (action == 'supply') {
+      title = `Supply ${asset?.metadata?.symbol}`;
+      availableBalance = computeSupplyMaxAmount(asset, nearBalance);
+    } else if (action == 'adjust') {
+      title = `Adjust Collateral`;
+      availableBalance = computeAdjustMaxAmount(account, asset);
+    } else if (action == 'borrow') {
+      title = `Borrow ${asset?.metadata?.symbol}`;
+      availableBalance = computeBurrowMaxAmount(account, asset, assets);
+    } else if (action == 'repay') {
+      title = `Repay ${asset?.metadata?.symbol}`;
+      const [availableBalance_wallet, availableBalance_deposit] =
+        computeRepayMaxAmount(account, asset, assets, nearBalance);
+      availableBalance = availableBalance_wallet;
+      setAvailableBalanceInAccount(availableBalance_deposit);
+    } else if (action == 'withdraw') {
+      title = `Withdraw ${asset?.metadata?.symbol}`;
+      availableBalance = computeWithdrawMaxAmount(account, asset, assets);
+    }
+    setAvailableBalance(availableBalance);
     setModalTitle(title);
     set_volatility_ratio(asset.config.volatility_ratio / 100 + '%');
   }
@@ -252,12 +259,20 @@ export default function ModalBox(props: {
     if (modalData) {
       Details();
     }
-  }, [modalData, switchStatus, amount, volatility_ratio, healthFactor]);
+  }, [
+    modalData,
+    switchStatus,
+    amount,
+    volatility_ratio,
+    healthFactor,
+    repayWay,
+    buttonLoading,
+  ]);
   useEffect(() => {
     if (modalData) {
-      Actions();
+      getStaticData();
     }
-  }, [modalData, buttonDisabled, buttonLoading, switchStatus]);
+  }, [modalData]);
   // get healthFactor
   useEffect(() => {
     if (!(assets && modalData)) return;
@@ -342,10 +357,13 @@ export default function ModalBox(props: {
   function handleRepay() {
     setButtonLoading(true);
     submitRepay({
+      account,
       asset: modalData.asset,
       isMax,
       amount,
       availableBalance,
+      repayWay,
+      globalConfig,
     });
   }
   function handleWithdraw() {
@@ -392,17 +410,39 @@ export default function ModalBox(props: {
               }}
             ></CloseButton>
           </div>
+          {/* repay way select */}
+          {modalData?.action == 'repay' ? (
+            <RepayTab
+              repayWay={repayWay}
+              setRepayWay={setRepayWay}
+              setAmount={setAmount}
+              setSliderAmount={setSliderAmount}
+            ></RepayTab>
+          ) : null}
           {/* Input */}
-          <InputBox
-            balance={availableBalance}
-            asset={modalData?.asset}
-            setIsMax={setIsMax}
-            isMax={isMax}
-            amount={amount}
-            setAmount={setAmount}
-            sliderAmount={sliderAmount}
-            setSliderAmount={setSliderAmount}
-          ></InputBox>
+          {repayWay !== 'deposit' ? (
+            <InputBox
+              balance={availableBalance}
+              asset={modalData?.asset}
+              setIsMax={setIsMax}
+              isMax={isMax}
+              amount={amount}
+              setAmount={setAmount}
+              sliderAmount={sliderAmount}
+              setSliderAmount={setSliderAmount}
+            ></InputBox>
+          ) : (
+            <InputBox
+              balance={availableBalanceInAccount}
+              asset={modalData?.asset}
+              setIsMax={setIsMax}
+              isMax={isMax}
+              amount={amount}
+              setAmount={setAmount}
+              sliderAmount={sliderAmount}
+              setSliderAmount={setSliderAmount}
+            ></InputBox>
+          )}
         </div>
         {showWarning && (
           <div className="flex items-start text-sm text-warnColor mt-2.5 px-6 pb-6">
@@ -455,6 +495,50 @@ function Template(props: {
         {show$ && <label className="text-primaryText ml-1.5">({value$})</label>}
         {switchButton}
       </span>
+    </div>
+  );
+}
+
+function RepayTab(props: {
+  repayWay: IRepayWay;
+  setRepayWay: Function;
+  setAmount: Function;
+  setSliderAmount: Function;
+}) {
+  const { repayWay, setRepayWay, setAmount, setSliderAmount } = props;
+  return (
+    <div className="flex items-center justify-between mb-5">
+      <span className="text-sm text-primaryText">From</span>
+      <div className="flex items-center border border-v3borderColor rounded-lg p-0.5">
+        <div
+          onClick={() => {
+            setRepayWay('wallet');
+            setAmount('0');
+            setSliderAmount('0');
+          }}
+          className={`flex items-center justify-center px-5 w-1/2 h-7 rounded-md cursor-pointer gotham_bold text-xs ${
+            repayWay == 'wallet'
+              ? 'bg-burrowTabColor text-white'
+              : 'text-primaryText'
+          }`}
+        >
+          Wallet
+        </div>
+        <div
+          onClick={() => {
+            setRepayWay('deposit');
+            setAmount('0');
+            setSliderAmount('0');
+          }}
+          className={`flex items-center justify-center px-5 w-1/2 h-7 rounded-md cursor-pointer gotham_bold text-xs ${
+            repayWay == 'deposit'
+              ? 'bg-burrowTabColor text-white'
+              : 'text-primaryText'
+          }`}
+        >
+          Supplied
+        </div>
+      </div>
     </div>
   );
 }

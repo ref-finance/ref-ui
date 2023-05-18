@@ -6,6 +6,7 @@ import {
   IProtocolReward,
   IAccountItem,
   IBurrowConfig,
+  IRepayWay,
 } from './burrow-interfaces';
 import {
   toUsd,
@@ -401,6 +402,7 @@ export function computeSupplyMaxAmount(asset: IAsset, nearBalance: string) {
 export function computeRepayMaxAmount(
   account: IAccount,
   asset: IAsset,
+  assets: IAsset[],
   nearBalance: string
 ) {
   const { accountBalance, metadata, token_id } = asset;
@@ -408,10 +410,27 @@ export function computeRepayMaxAmount(
   const decimals = asset.metadata.decimals + asset.config.extra_decimals;
   const borrowedBalance = shrinkToken(borrowed.balance || 0, decimals);
   const accountBalanceReadAble = shrinkToken(accountBalance, metadata.decimals);
+  const availableNearBalance = decimalMax(
+    0,
+    Big(nearBalance || 0)
+      .plus(accountBalanceReadAble || 0)
+      .minus(0.25)
+      .toFixed()
+  ).toFixed();
   const walletBalance =
-    token_id == WRAP_NEAR_CONTRACT_ID ? nearBalance : accountBalanceReadAble;
-  const availableBalance = decimalMin(borrowedBalance, walletBalance).toFixed();
-  return availableBalance;
+    token_id == WRAP_NEAR_CONTRACT_ID
+      ? availableNearBalance
+      : accountBalanceReadAble;
+  const withdrawMaxAmount = computeWithdrawMaxAmount(account, asset, assets);
+  const availableBalance_deposit = decimalMin(
+    withdrawMaxAmount,
+    borrowedBalance
+  ).toFixed();
+  const availableBalance_wallet = decimalMin(
+    borrowedBalance,
+    walletBalance
+  ).toFixed();
+  return [availableBalance_wallet, availableBalance_deposit];
 }
 
 export function computeBurrowMaxAmount(
@@ -443,7 +462,6 @@ export function getHealthFactor(account: IAccount, assets: IAsset[]) {
     .toNumber();
   return Number(healthFactor) < MAX_RATIO ? healthFactor : MAX_RATIO;
 }
-
 export function recomputeAdjustHealthFactor(
   account: IAccount,
   asset: IAsset,
@@ -721,7 +739,6 @@ export function get_as_collateral_adjust(
   const collateral = shrinkToken(collateralBalance.toFixed(), decimals);
   return amount || collateral || '0';
 }
-
 export function get_remain_collateral_withdraw(
   account: IAccount,
   asset: IAsset,

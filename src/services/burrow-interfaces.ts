@@ -187,3 +187,5 @@ export interface IModalProps {
   action: 'adjust' | 'withdraw' | 'borrow' | 'repay' | 'supply';
   asset: IAsset;
 }
+
+export type IRepayWay = 'wallet' | 'deposit';
