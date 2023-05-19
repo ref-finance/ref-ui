@@ -484,7 +484,7 @@ export function recomputeAdjustHealthFactor(
     apr: '0',
   };
 
-  if (clonedAccount?.collateral.length === 0) {
+  if (!clonedAccount.collateral) {
     clonedAccount.collateral = [updatedToken];
   } else if (!accountCollateralAsset) {
     clonedAccount.collateral.push(updatedToken);
@@ -546,7 +546,7 @@ export function recomputeWithdrawHealthFactor(
     apr: '0',
   };
 
-  if (clonedAccount?.collateral.length === 0) {
+  if (!clonedAccount.collateral) {
     clonedAccount.collateral = [updatedToken];
   } else if (!accountCollateralAsset) {
     clonedAccount.collateral.push(updatedToken);
@@ -597,7 +597,7 @@ export function recomputeSupplyHealthFactor(
     shares: newBalance,
     apr: '0',
   };
-  if (clonedAccount?.collateral.length === 0) {
+  if (!clonedAccount.collateral) {
     clonedAccount.collateral = [updatedToken];
   } else if (!accountCollateralAsset) {
     clonedAccount.collateral.push(updatedToken);
@@ -647,7 +647,7 @@ export function recomputeRepayHealthFactor(
     shares: newBalance,
     apr: '0',
   };
-  if (clonedAccount?.borrowed.length === 0) {
+  if (!clonedAccount.borrowed) {
     clonedAccount.borrowed = [updatedToken];
   } else if (!accountBorrowedAsset) {
     clonedAccount.borrowed.push(updatedToken);
@@ -687,9 +687,16 @@ export function recomputeRepayHealthFactorFromDeposits(
   const accountBorrowedAsset = account.borrowed.find(
     (a) => a.token_id === token_id
   );
-  const collateralBalance = Big(account.collateral[token_id]?.balance || '0');
-  const suppliedBalance = Big(account.supplied[token_id]?.balance || '0');
-  const newWithdrawBalance = decimalMin(
+  const accountCollateralAsset = account.collateral.find(
+    (a) => a.token_id === token_id
+  );
+  const accountSupplyAsset = account.supplied.find(
+    (a) => a.token_id === token_id
+  );
+
+  const collateralBalance = Big(accountCollateralAsset?.balance || '0');
+  const suppliedBalance = Big(accountSupplyAsset?.balance || '0');
+  const newCollateralBalance = decimalMin(
     collateralBalance.toFixed(),
     collateralBalance.plus(suppliedBalance).minus(amountDecimal).toFixed()
   ).toFixed();
@@ -698,19 +705,29 @@ export function recomputeRepayHealthFactorFromDeposits(
   const balance = borrowedBalance.minus(amountDecimal);
   const clonedAccount = clone(account);
   const newBorrowedBalance = balance.lt(0) ? 0 : balance.toFixed();
-  clonedAccount.borrowed[token_id].balance = newBorrowedBalance;
+  const updatedTokenBorrow = {
+    token_id: token_id,
+    balance: newBorrowedBalance,
+    shares: newBorrowedBalance,
+    apr: '0',
+  };
+  clonedAccount.borrowed = [
+    ...clonedAccount.borrowed.filter(
+      (a: IAccountItem) => a.token_id !== token_id
+    ),
+    updatedTokenBorrow,
+  ];
   if (config.can_use_as_collateral) {
-    // todo
     const updatedToken = {
       token_id: token_id,
-      balance: newWithdrawBalance,
-      shares: newWithdrawBalance,
+      balance: newCollateralBalance,
+      shares: newCollateralBalance,
       apr: '0',
     };
-    if (clonedAccount?.collateral.length === 0) {
+    if (!clonedAccount.collateral) {
       clonedAccount.collateral = [updatedToken];
-    } else if (!accountBorrowedAsset) {
-      clonedAccount.borrowed.push(updatedToken);
+    } else if (!accountCollateralAsset) {
+      clonedAccount.collateral.push(updatedToken);
     } else {
       clonedAccount.collateral = [
         ...clonedAccount.collateral.filter(
@@ -719,8 +736,6 @@ export function recomputeRepayHealthFactorFromDeposits(
         updatedToken,
       ];
     }
-    // clonedAccount.portfolio.collateral[token_id].balance =
-    //   newWithdrawBalance
   }
   const adjustedCollateralSum = getAdjustedSum(
     'collateral',
@@ -768,7 +783,7 @@ export function recomputeBurrowHealthFactor(
     apr: '0',
   };
 
-  if (clonedAccount?.borrowed.length === 0) {
+  if (!clonedAccount.borrowed) {
     clonedAccount.borrowed = [updatedToken];
   } else if (!accountBorrowedAsset) {
     clonedAccount.borrowed.push(updatedToken);

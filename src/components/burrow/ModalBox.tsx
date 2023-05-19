@@ -23,6 +23,7 @@ import {
   recomputeWithdrawHealthFactor,
   recomputeSupplyHealthFactor,
   recomputeRepayHealthFactor,
+  recomputeRepayHealthFactorFromDeposits,
   recomputeBurrowHealthFactor,
   get_as_collateral_adjust,
   get_remain_borrow_repay,
@@ -298,12 +299,21 @@ export default function ModalBox(props: {
           ? recomputeSupplyHealthFactor(account, asset, assets, amount)
           : getHealthFactor(account, assets);
       } else if (action == 'repay') {
-        newHealthFactor = recomputeRepayHealthFactor(
-          account,
-          asset,
-          assets,
-          amount
-        );
+        if (repayWay == 'wallet') {
+          newHealthFactor = recomputeRepayHealthFactor(
+            account,
+            asset,
+            assets,
+            amount
+          );
+        } else if (repayWay == 'deposit') {
+          newHealthFactor = recomputeRepayHealthFactorFromDeposits(
+            account,
+            asset,
+            assets,
+            amount
+          );
+        }
       } else if (action == 'borrow') {
         newHealthFactor = recomputeBurrowHealthFactor(
           account,
