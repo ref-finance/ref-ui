@@ -82,23 +82,33 @@ function Burrow() {
         nearBalance,
       }}
     >
-      <div className="flex items-stretch justify-between w-full h-full lg:-mt-12">
-        {/* Navigation */}
-        <div
-          style={{ width: '280px' }}
-          className="pl-5 py-4 pr-4 flex-shrink-0"
-        >
-          <Navigation></Navigation>
-        </div>
-        {/* content */}
-        <div className="flex-grow border-l border-r border-boxBorder pl-5 pt-9">
-          <div className="w-1000px">
-            <Overview></Overview>
-            <TableBox></TableBox>
-          </div>
+      {is_mobile ? <BurrowMobile></BurrowMobile> : <BurrowPc></BurrowPc>}
+    </BurrowData.Provider>
+  );
+}
+function BurrowPc() {
+  return (
+    <div className="flex items-stretch justify-between w-full h-full lg:-mt-12">
+      {/* Navigation */}
+      <div style={{ width: '280px' }} className="pl-5 py-4 pr-4 flex-shrink-0">
+        <Navigation></Navigation>
+      </div>
+      {/* content */}
+      <div className="flex-grow border-l border-r border-boxBorder pl-5 pt-9">
+        <div className="w-1000px">
+          <Overview></Overview>
+          <TableBox></TableBox>
         </div>
       </div>
-    </BurrowData.Provider>
+    </div>
+  );
+}
+
+function BurrowMobile() {
+  return (
+    <div className="px-4 py-5">
+      <Overview></Overview>
+    </div>
   );
 }
 

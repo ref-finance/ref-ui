@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useState, useContext } from 'react';
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  useContext,
+  createContext,
+} from 'react';
 import { GradientButton, ButtonTextWrapper } from '~components/button/Button';
 import { FormattedMessage, useIntl } from 'react-intl';
 import QuestionMark from '~components/farm/QuestionMark';
@@ -26,16 +32,10 @@ import {
   formatNumber,
 } from '~services/burrow-utils';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
-import { WalletSelectorModal } from '../layout/WalletSelector';
+import { isMobile } from '~utils/device';
+const is_mobile = isMobile();
+const OverviewData = createContext(null);
 export default function Overview() {
-  return (
-    <div>
-      <YourOverview></YourOverview>
-    </div>
-  );
-}
-
-const YourOverview = () => {
   const {
     account,
     assets,
@@ -247,6 +247,90 @@ const YourOverview = () => {
     return result;
   }
   return (
+    <OverviewData.Provider
+      value={{
+        activeTab,
+        setActiveTab,
+        totalSupplied,
+        totalBorrowed,
+        totalAvailableLiquidity,
+        dailyRewards,
+        supplied,
+        borrowed,
+        netApy,
+        getNetApyTip,
+        unclaimedRewardsNum,
+        unclaimedRewardsIcons,
+        setClaimLoading,
+        claimLoading,
+        accountId,
+        modal,
+      }}
+    >
+      {is_mobile ? (
+        <OverviewMobile></OverviewMobile>
+      ) : (
+        <OverviewPc></OverviewPc>
+      )}
+    </OverviewData.Provider>
+  );
+}
+function OverviewMobile() {
+  const {
+    activeTab,
+    setActiveTab,
+    totalSupplied,
+    totalBorrowed,
+    totalAvailableLiquidity,
+    dailyRewards,
+    supplied,
+    borrowed,
+    netApy,
+    getNetApyTip,
+    unclaimedRewardsNum,
+    unclaimedRewardsIcons,
+    setClaimLoading,
+    claimLoading,
+    accountId,
+    modal,
+  } = useContext(OverviewData);
+  return (
+    <div>
+      <div className="flex items-center border border-burrowTableBorderColor px-2">
+        <span
+          className={`text-sm gotham_bold mr-12 border-b-2  px-2 h-7 ${
+            activeTab == 'yours'
+              ? 'text-white border-senderHot'
+              : 'text-primaryText border-transparent'
+          }`}
+        >
+          Yours
+        </span>
+        <span className={``}>Market</span>
+      </div>
+    </div>
+  );
+}
+function OverviewPc() {
+  const {
+    activeTab,
+    setActiveTab,
+    totalSupplied,
+    totalBorrowed,
+    totalAvailableLiquidity,
+    dailyRewards,
+    supplied,
+    borrowed,
+    netApy,
+    getNetApyTip,
+    unclaimedRewardsNum,
+    unclaimedRewardsIcons,
+    setClaimLoading,
+    claimLoading,
+    accountId,
+    modal,
+  } = useContext(OverviewData);
+  return (
     <div className="flex items-start justify-between">
       <div className="w-1/2">
         <div className={`${activeTab == 'market' ? '' : 'hidden'}`}>
@@ -339,7 +423,7 @@ const YourOverview = () => {
       </div>
     </div>
   );
-};
+}
 const Template = (props: {
   title: string | number;
   value: string | number;

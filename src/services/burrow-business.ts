@@ -801,11 +801,15 @@ export function recomputeBurrowHealthFactor(
     +amount == 0 ? account : clonedAccount,
     assets
   );
-  const newHealthFactor = Big(adjustedCollateralSum)
-    .div(Big(adjustedBorrowedSum))
-    .mul(100)
-    .toNumber();
-  return Number(newHealthFactor) < MAX_RATIO ? newHealthFactor : MAX_RATIO;
+  if (Big(adjustedBorrowedSum).eq(0)) {
+    return MAX_RATIO;
+  } else {
+    const newHealthFactor = Big(adjustedCollateralSum)
+      .div(Big(adjustedBorrowedSum))
+      .mul(100)
+      .toNumber();
+    return Number(newHealthFactor) < MAX_RATIO ? newHealthFactor : MAX_RATIO;
+  }
 }
 export function get_as_collateral_adjust(
   account: IAccount,
