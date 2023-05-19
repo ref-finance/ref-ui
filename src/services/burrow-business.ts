@@ -125,8 +125,8 @@ export function getNetTvlRewards(
   const hasNetTvlFarm = !!Object.entries(netLiquidityFarm.rewards).length;
   if (!hasNetTvlFarm) return [];
   const netTvl = account.farms.find((farm) => farm.farm_id == 'NetTvl');
-  if (!netTvl.rewards) return [];
-  return netTvl.rewards.map((reward) => {
+  if (!netTvl || !netTvl.rewards) return [];
+  return netTvl.rewards?.map((reward) => {
     const { asset_farm_reward, boosted_shares, reward_token_id } = reward;
     const asset = assets.find((asset) => asset.token_id == reward_token_id);
     const assetDecimals = asset.metadata.decimals + asset.config.extra_decimals;
@@ -660,6 +660,73 @@ export function recomputeRepayHealthFactor(
     ];
   }
   const adjustedCollateralSum = getAdjustedSum('collateral', account, assets);
+  const adjustedBorrowedSum = getAdjustedSum(
+    'borrowed',
+    +amount == 0 ? account : clonedAccount,
+    assets
+  );
+  if (Big(adjustedBorrowedSum).eq(0)) {
+    return MAX_RATIO;
+  } else {
+    const newHealthFactor = Big(adjustedCollateralSum)
+      .div(Big(adjustedBorrowedSum))
+      .mul(100)
+      .toNumber();
+    return Number(newHealthFactor) < MAX_RATIO ? newHealthFactor : MAX_RATIO;
+  }
+}
+export function recomputeRepayHealthFactorFromDeposits(
+  account: IAccount,
+  asset: IAsset,
+  assets: IAsset[],
+  amount: string
+) {
+  const { token_id, config } = asset;
+  const decimals = asset.metadata.decimals + asset.config.extra_decimals;
+  const amountDecimal = expandToken(amount, decimals);
+  const accountBorrowedAsset = account.borrowed.find(
+    (a) => a.token_id === token_id
+  );
+  const collateralBalance = Big(account.collateral[token_id]?.balance || '0');
+  const suppliedBalance = Big(account.supplied[token_id]?.balance || '0');
+  const newWithdrawBalance = decimalMin(
+    collateralBalance.toFixed(),
+    collateralBalance.plus(suppliedBalance).minus(amountDecimal).toFixed()
+  ).toFixed();
+
+  const borrowedBalance = Big(accountBorrowedAsset?.balance || 0);
+  const balance = borrowedBalance.minus(amountDecimal);
+  const clonedAccount = clone(account);
+  const newBorrowedBalance = balance.lt(0) ? 0 : balance.toFixed();
+  clonedAccount.borrowed[token_id].balance = newBorrowedBalance;
+  if (config.can_use_as_collateral) {
+    // todo
+    const updatedToken = {
+      token_id: token_id,
+      balance: newWithdrawBalance,
+      shares: newWithdrawBalance,
+      apr: '0',
+    };
+    if (clonedAccount?.collateral.length === 0) {
+      clonedAccount.collateral = [updatedToken];
+    } else if (!accountBorrowedAsset) {
+      clonedAccount.borrowed.push(updatedToken);
+    } else {
+      clonedAccount.collateral = [
+        ...clonedAccount.collateral.filter(
+          (a: IAccountItem) => a.token_id !== token_id
+        ),
+        updatedToken,
+      ];
+    }
+    // clonedAccount.portfolio.collateral[token_id].balance =
+    //   newWithdrawBalance
+  }
+  const adjustedCollateralSum = getAdjustedSum(
+    'collateral',
+    +amount == 0 ? account : clonedAccount,
+    assets
+  );
   const adjustedBorrowedSum = getAdjustedSum(
     'borrowed',
     +amount == 0 ? account : clonedAccount,
