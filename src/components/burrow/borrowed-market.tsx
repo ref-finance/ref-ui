@@ -14,6 +14,8 @@ import { getExtraApy } from '~services/burrow-business';
 import Big from 'big.js';
 import { toAPY } from '~services/burrow-utils';
 import ModalBox from './ModalBox';
+import { isMobile } from '~utils/device';
+const is_mobile = isMobile();
 export default function BorrowedMarket() {
   const {
     account,
@@ -66,24 +68,39 @@ export default function BorrowedMarket() {
           ></img>
         );
       });
-      return (
-        <tr>
-          <td>
-            <div className="flex items-center">
+      if (is_mobile) {
+        return (
+          <div className="bg-symbolHover mb-3 p-3 rounded-xl">
+            <div className="flex items-center text-white text-sm gotham_bold">
               <img
                 className="w-7 h-7 rounded-full mr-2"
                 src={metadata.icon}
               ></img>
               {metadata.symbol}
             </div>
-          </td>
-          <td>{toAPY(apy)}%</td>
-          <td>{rewardTokensImg.length == 0 ? '-' : rewardTokensImg}</td>
-          <td>{cf || '-'}%</td>
-          <td>${liquidity}</td>
-          <td>
-            <div className="flex items-center justify-end pr-5 gap-2">
+            <div className="flex justify-between items-stretch mb-4 mt-5">
+              <div className="flex flex-col justify-between">
+                <span className="text-sm text-primaryText">APY</span>
+                <span className="text-sm text-white mt-1">{toAPY(apy)}%</span>
+              </div>
+              <div className="flex flex-col justify-between">
+                <span className="text-sm text-primaryText">Rewards</span>
+                <span className="text-sm text-white mt-1">
+                  {rewardTokensImg.length == 0 ? '-' : rewardTokensImg}
+                </span>
+              </div>
+              <div className="flex flex-col justify-between">
+                <span className="text-sm text-primaryText">C.F.</span>
+                <span className="text-sm text-white mt-1">{cf || '-'}%</span>
+              </div>
+              <div className="flex flex-col justify-between">
+                <span className="text-sm text-primaryText">Liquidity</span>
+                <span className="text-sm text-white mt-1">${liquidity}</span>
+              </div>
+            </div>
+            <div>
               <PurpleButton
+                customWidth="w-full"
                 onClick={() => {
                   showBorrowModal(asset);
                 }}
@@ -91,9 +108,38 @@ export default function BorrowedMarket() {
                 Borrow
               </PurpleButton>
             </div>
-          </td>
-        </tr>
-      );
+          </div>
+        );
+      } else {
+        return (
+          <tr>
+            <td>
+              <div className="flex items-center">
+                <img
+                  className="w-7 h-7 rounded-full mr-2"
+                  src={metadata.icon}
+                ></img>
+                {metadata.symbol}
+              </div>
+            </td>
+            <td>{toAPY(apy)}%</td>
+            <td>{rewardTokensImg.length == 0 ? '-' : rewardTokensImg}</td>
+            <td>{cf || '-'}%</td>
+            <td>${liquidity}</td>
+            <td>
+              <div className="flex items-center justify-end pr-5 gap-2">
+                <PurpleButton
+                  onClick={() => {
+                    showBorrowModal(asset);
+                  }}
+                >
+                  Borrow
+                </PurpleButton>
+              </div>
+            </td>
+          </tr>
+        );
+      }
     });
     set_market_borrowed_list(market_burrow_assets);
   }
@@ -106,23 +152,29 @@ export default function BorrowedMarket() {
   }
   return (
     <div className="pb-5 pt-4">
-      <div className="text-lg gotham_bold text-white pl-7 mb-4">
-        <span className="text-burrowPurpleColor mr-2">Borrow</span>
+      <div className="text-lg gotham_bold text-white pl-7 mb-4 xsm:pl-0 xsm:text-base">
+        <span className="text-burrowPurpleColor mr-2 xsm:text-white">
+          Borrow
+        </span>
         Market
       </div>
-      <table className="burrow_table">
-        <thead>
-          <tr>
-            <th style={{ width: '18%' }}>Assets</th>
-            <th style={{ width: '15%' }}>APY</th>
-            <th style={{ width: '15%' }}>Rewards</th>
-            <th style={{ width: '15%' }}>C.F.</th>
-            <th style={{ width: '15%' }}>Total Liquidity</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>{market_borrowed_list}</tbody>
-      </table>
+      {is_mobile ? (
+        <>{market_borrowed_list}</>
+      ) : (
+        <table className="burrow_table">
+          <thead>
+            <tr>
+              <th style={{ width: '18%' }}>Assets</th>
+              <th style={{ width: '15%' }}>APY</th>
+              <th style={{ width: '15%' }}>Rewards</th>
+              <th style={{ width: '15%' }}>C.F.</th>
+              <th style={{ width: '15%' }}>Total Liquidity</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>{market_borrowed_list}</tbody>
+        </table>
+      )}
       {showModalBox && (
         <ModalBox
           showModalBox={showModalBox}

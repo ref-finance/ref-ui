@@ -1,7 +1,9 @@
 import React, { useState, createContext, useEffect, useContext } from 'react';
 import { TokenMetadata } from '~services/ft-contract';
 import { isMobile } from '~utils/device';
-import Navigation from '../components/portfolio/Navigation';
+import Navigation, {
+  NavigationMobile,
+} from '../components/portfolio/Navigation';
 import Overview from '../components/burrow/Overview';
 import TableBox from '../components/burrow/TableBox';
 import {
@@ -105,10 +107,41 @@ function BurrowPc() {
 }
 
 function BurrowMobile() {
+  const [activeTab, setActiveTab] = useState<string>('supply');
   return (
-    <div className="px-4 py-5">
-      <Overview></Overview>
-    </div>
+    <>
+      <div className="px-4">
+        <Overview></Overview>
+        <div className="flex items-center justify-between mt-10 mb-5">
+          <span
+            onClick={() => {
+              setActiveTab('supply');
+            }}
+            className={`flex items-center justify-center h-10 rounded-md text-sm gotham_bold w-1/2 ${
+              activeTab == 'supply'
+                ? 'bg-senderHot text-burrowDarkColor'
+                : 'text-primaryText'
+            }`}
+          >
+            Supply
+          </span>
+          <span
+            onClick={() => {
+              setActiveTab('borrow');
+            }}
+            className={`flex items-center justify-center h-10 rounded-md text-sm gotham_bold w-1/2 ${
+              activeTab == 'borrow'
+                ? 'bg-burrowPurpleColor text-burrowDarkColor'
+                : 'text-primaryText'
+            }`}
+          >
+            Borrow
+          </span>
+        </div>
+        <TableBox activeTab={activeTab}></TableBox>
+      </div>
+      <NavigationMobile></NavigationMobile>
+    </>
   );
 }
 

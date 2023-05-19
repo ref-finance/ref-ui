@@ -1271,6 +1271,7 @@ input[type='range']::-webkit-slider-runnable-track {
 }
 @media (max-width: 1023px) {
   #sitegpt-chat-icon {
+    display: none !important;
     width: 36px !important;
     height: 36px !important;
   }

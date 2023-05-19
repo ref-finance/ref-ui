@@ -387,6 +387,7 @@ module.exports = {
         burrowTableBorderColor:"rgba(48, 67, 82, 0.5)",
         burrowTitleGreenColor:'#78FF9E',
         burrowPurpleColor:'#C190FF',
+        burrowDarkColor:'#04121F'
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

@@ -30,6 +30,7 @@ import {
   formatWithCommas_usd,
   formatPercentage,
   formatNumber,
+  formatToInternationalCurrencySystem$,
 } from '~services/burrow-utils';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { isMobile } from '~utils/device';
@@ -294,19 +295,98 @@ function OverviewMobile() {
     accountId,
     modal,
   } = useContext(OverviewData);
+  const claim = (
+    <div
+      onClick={() => {
+        if (claimLoading || unclaimedRewardsIcons?.length == 0) return;
+        setClaimLoading(true);
+        accountFarmClaimAll();
+      }}
+      className={`text-sm text-senderHot focus:outline-none gotham_bold underline ${
+        claimLoading || unclaimedRewardsIcons?.length == 0
+          ? 'opacity-40 cursor-not-allowed'
+          : 'cursor-pointer'
+      }`}
+    >
+      <ButtonTextWrapper
+        loading={claimLoading}
+        Text={() => <FormattedMessage id="claim"></FormattedMessage>}
+      />
+    </div>
+  );
   return (
     <div>
-      <div className="flex items-center border border-burrowTableBorderColor px-2">
+      <div className="flex items-center border-b border-burrowTableBorderColor px-3 mb-5">
         <span
-          className={`text-sm gotham_bold mr-12 border-b-2  px-2 h-7 ${
+          onClick={() => {
+            setActiveTab('yours');
+          }}
+          className={`text-sm gotham_bold mr-12 px-2 h-7 border-b-2 ${
             activeTab == 'yours'
-              ? 'text-white border-senderHot'
+              ? 'text-white  border-senderHot'
               : 'text-primaryText border-transparent'
           }`}
         >
           Yours
         </span>
-        <span className={``}>Market</span>
+        <span
+          onClick={() => {
+            setActiveTab('market');
+          }}
+          className={`text-sm gotham_bold mr-12 px-2 h-7 border-b-2 ${
+            activeTab == 'market'
+              ? 'text-white  border-senderHot'
+              : 'text-primaryText border-transparent'
+          }`}
+        >
+          Market
+        </span>
+      </div>
+      <div
+        className={`grid grid-cols-2 gap-y-6 pl-3 ${
+          activeTab == 'yours' ? '' : 'hidden'
+        }`}
+      >
+        <Template title="Supplied" value={supplied}></Template>
+        <Template title="Borrowed" value={borrowed}></Template>
+        <Template
+          title="Net APY"
+          value={formatPercentage(netApy)}
+          tip={getNetApyTip()}
+          noFormat={true}
+        ></Template>
+        <Template
+          title="Unclaimed Rewards"
+          value={formatNumber(unclaimedRewardsNum)}
+          noFormat={true}
+          claim={claim}
+        ></Template>
+      </div>
+      <div
+        className={`grid grid-cols-2 gap-y-6 pl-3 ${
+          activeTab == 'market' ? '' : 'hidden'
+        }`}
+      >
+        <Template
+          title="Total Supply"
+          value={formatToInternationalCurrencySystem$(totalSupplied)}
+          noFormat={true}
+        ></Template>
+        <Template
+          title="Total Borrow"
+          value={formatToInternationalCurrencySystem$(totalBorrowed)}
+          noFormat={true}
+        ></Template>
+        <Template
+          title="Available Liquidity"
+          value={formatToInternationalCurrencySystem$(totalAvailableLiquidity)}
+          noFormat={true}
+        ></Template>
+        <Template
+          title="Daily Rewards"
+          value={formatToInternationalCurrencySystem$(dailyRewards)}
+          noFormat={true}
+        ></Template>
       </div>
     </div>
   );
@@ -430,8 +510,9 @@ const Template = (props: {
   tip?: any;
   rewards?: React.ReactElement[];
   noFormat?: boolean;
+  claim?: React.ReactElement;
 }) => {
-  const { title, value, tip, rewards, noFormat } = props;
+  const { title, value, tip, rewards, noFormat, claim } = props;
   return (
     <div className="flex flex-col">
       <div className="flex items-center text-sm text-primaryText">
@@ -456,9 +537,14 @@ const Template = (props: {
           </div>
         )}
       </div>
-      <div className="flex items-center text-white gotham_bold text-2xl">
+      <div
+        className={`flex items-center text-white gotham_bold text-2xl ${
+          claim ? 'justify-between' : ''
+        }`}
+      >
         {noFormat ? value : formatWithCommas_usd(value)}
         <div className="ml-2.5">{rewards}</div>
+        {claim}
       </div>
     </div>
   );

@@ -19,6 +19,8 @@ import {
 import ModalBox from './ModalBox';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { ConnectToNearBtn } from '~components/button/Button';
+import { isMobile } from '~utils/device';
+const is_mobile = isMobile();
 export default function YourBorrowed() {
   const {
     account,
@@ -59,49 +61,60 @@ export default function YourBorrowed() {
           account,
           assets
         ) || [];
-
-      return (
-        <tr>
-          <td>
-            <div className="flex items-center">
-              <img
-                className="w-7 h-7 rounded-full mr-2"
-                src={asset.metadata.icon}
-              ></img>
-              {asset.metadata.symbol}
+      const rewards_usd = rewardsList.reduce(
+        (acc: string, cur: { rewardPerDay: number; rewardAsset: IAsset }) => {
+          const usd = Big(cur.rewardPerDay || 0).mul(
+            cur?.rewardAsset?.price?.usd || 0
+          );
+          return Big(acc).plus(usd).toFixed();
+        },
+        '0'
+      );
+      const rewards_icons = rewardsList.map(
+        (reward: { rewardPerDay: number; rewardAsset: IAsset }) => {
+          const { rewardAsset } = reward;
+          return (
+            <img
+              className={`w-4 h-4 rounded-full -ml-1`}
+              src={rewardAsset.metadata.icon}
+            />
+          );
+        }
+      );
+      if (is_mobile) {
+        return (
+          <div className="bg-symbolHover mb-3 p-3 rounded-xl">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center text-white text-sm gotham_bold">
+                <img
+                  className="w-7 h-7 rounded-full mr-2"
+                  src={asset.metadata.icon}
+                ></img>
+                {asset.metadata.symbol}
+              </div>
+              <div className="text-white text-sm gotham_bold">
+                {formatNumber(Big(borrowed || 0).toFixed())}
+              </div>
             </div>
-          </td>
-          <td>{toAPY(apy)}%</td>
-          <td>
-            {rewardsList.length == 0
-              ? '-'
-              : rewardsList.map((reward, index) => {
-                  const { rewardPerDay, rewardAsset } = reward;
-                  return (
-                    <div
-                      className="flex items-center"
-                      title={Big(rewardPerDay || 0).toFixed()}
-                    >
-                      {formatNumber(Big(rewardPerDay || 0).toFixed())}
-                      <img
-                        className={`w-4 h-4 rounded-full ml-1.5`}
-                        src={rewardAsset.metadata.icon}
-                      />
-                    </div>
-                  );
-                })}
-          </td>
-          <td>
-            <span title={Big(borrowed || 0).toFixed()}>
-              {formatNumber(Big(borrowed || 0).toFixed())}
-              <span className="text-primaryText ml-1">
-                ({formatWithCommas_usd(Big(usd || 0).toFixed())})
-              </span>
-            </span>
-          </td>
-          <td>
-            <div className="flex items-center justify-end pr-5 gap-2">
+            <div className="flex justify-between items-stretch mb-4 mt-5">
+              <div className="flex flex-col justify-between">
+                <span className="text-sm text-primaryText">Borrow APY</span>
+                <span className="text-sm text-white mt-1">{toAPY(apy)}%</span>
+              </div>
+              <div className="flex flex-col justify-between">
+                <span className="text-sm text-primaryText">Rewards</span>
+                <span className="text-sm text-white mt-1">
+                  {rewardsList.length == 0 ? (
+                    '-'
+                  ) : (
+                    <>{formatWithCommas_usd(rewards_usd)}</>
+                  )}
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center">
               <PurpleLineButton
+                customWidth="w-full"
                 onClick={() => {
                   showRepayModal(asset);
                 }}
@@ -109,9 +122,55 @@ export default function YourBorrowed() {
                 Repay
               </PurpleLineButton>
             </div>
-          </td>
-        </tr>
-      );
+          </div>
+        );
+      } else {
+        return (
+          <tr>
+            <td>
+              <div className="flex items-center">
+                <img
+                  className="w-7 h-7 rounded-full mr-2"
+                  src={asset.metadata.icon}
+                ></img>
+                {asset.metadata.symbol}
+              </div>
+            </td>
+            <td>{toAPY(apy)}%</td>
+            <td>
+              {rewardsList.length == 0 ? (
+                '-'
+              ) : (
+                <div className="flex items-center">
+                  {formatWithCommas_usd(rewards_usd)}
+                  <div className="flex items-center ml-2.5 flex-grow">
+                    {rewards_icons}
+                  </div>
+                </div>
+              )}
+            </td>
+            <td>
+              <span title={Big(borrowed || 0).toFixed()}>
+                {formatNumber(Big(borrowed || 0).toFixed())}
+                <span className="text-primaryText ml-1">
+                  ({formatWithCommas_usd(Big(usd || 0).toFixed())})
+                </span>
+              </span>
+            </td>
+            <td>
+              <div className="flex items-center justify-end pr-5 gap-2">
+                <PurpleLineButton
+                  onClick={() => {
+                    showRepayModal(asset);
+                  }}
+                >
+                  Repay
+                </PurpleLineButton>
+              </div>
+            </td>
+          </tr>
+        );
+      }
     });
     set_your_borrowed_list(your_borrowed_list);
   }
@@ -123,8 +182,8 @@ export default function YourBorrowed() {
     });
   }
   return (
-    <div className="border-b-2 border-burrowTableBorderColor pb-5">
-      <div className="text-lg gotham_bold text-white pl-7 mb-4">
+    <div className="border-b-2 border-burrowTableBorderColor pb-5 xsm:border-none">
+      <div className="text-lg gotham_bold text-white pl-7 mb-4 xsm:pl-0 xsm:text-base">
         You Borrowed
       </div>
       {your_borrowed_list.length == 0 && accountId ? (
@@ -133,18 +192,24 @@ export default function YourBorrowed() {
         </div>
       ) : null}
       {your_borrowed_list.length > 0 ? (
-        <table className="burrow_table">
-          <thead>
-            <tr>
-              <th style={{ width: '20%' }}>Assets</th>
-              <th style={{ width: '20%' }}>Borrow APY</th>
-              <th style={{ width: '23%' }}>Rewards</th>
-              <th style={{ width: '15%' }}>Borrowed</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>{your_borrowed_list}</tbody>
-        </table>
+        <>
+          {is_mobile ? (
+            <>{your_borrowed_list}</>
+          ) : (
+            <table className="burrow_table">
+              <thead>
+                <tr>
+                  <th style={{ width: '20%' }}>Assets</th>
+                  <th style={{ width: '20%' }}>Borrow APY</th>
+                  <th style={{ width: '23%' }}>Rewards</th>
+                  <th style={{ width: '15%' }}>Borrowed</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>{your_borrowed_list}</tbody>
+            </table>
+          )}
+        </>
       ) : null}
 
       {showModalBox && (

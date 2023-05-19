@@ -3,6 +3,10 @@ import {
   MenuREFIcon,
   MenuOrderlyIcon,
   MenuBurrowIcon,
+  OverviewMIcon,
+  RefMIcon,
+  OrderlyMIcon,
+  BurrowMIcon,
 } from '../../components/icon/Portfolio';
 import { useHistory, useLocation } from 'react-router-dom';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -80,5 +84,64 @@ export default function Navigation(props: any) {
         })}
       </div>
     </>
+  );
+}
+
+export function NavigationMobile(props: any) {
+  const history = useHistory();
+  const location = useLocation();
+  const [menuList, setMenuList] = useState([
+    // {
+    //   Icon: OverviewMIcon,
+    //   name: 'Overview',
+    //   id: 'overview'
+    // },
+    {
+      Icon: RefMIcon,
+      name: 'Ref',
+      id: 'ref',
+      url: '/portfolio',
+    },
+    { Icon: OrderlyMIcon, name: 'Orderly', id: 'orderly' },
+    {
+      Icon: BurrowMIcon,
+      name: 'Burrow',
+      id: 'burrow',
+      url: '/burrow',
+    },
+  ]);
+  const [activeMenu, setActiveMenu] = useState('');
+  useEffect(() => {
+    if (location.pathname.includes('portfolio')) {
+      setActiveMenu('ref');
+    } else if (location.pathname.includes('burrow')) {
+      setActiveMenu('burrow');
+    }
+  }, [location.pathname]);
+  return (
+    <div
+      className="flex items-center justify-between bg-cardBg py-1.5 fixed left-0 w-full z-50"
+      style={{ height: '48px', bottom: '32px', borderTop: '1px solid #313a38' }}
+    >
+      {menuList.map((item: any) => {
+        const { Icon, name, id, url } = item;
+        return (
+          <div
+            key={id}
+            onClick={() => {
+              if (url) {
+                history.push(url);
+              }
+            }}
+            className={`flex flex-col items-center justify-between h-full gotham_bold text-xs border-r border-burrowTableBorderColor w-1/3 ${
+              activeMenu == id ? 'text-senderHot' : 'text-primaryText'
+            } ${url ? '' : 'text-opacity-40'}`}
+          >
+            <Icon></Icon>
+            {name}
+          </div>
+        );
+      })}
+    </div>
   );
 }

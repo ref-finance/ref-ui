@@ -5,6 +5,7 @@ import {
   toPrecision,
   toReadableNumber,
   formatWithCommas,
+  toInternationalCurrencySystem,
 } from '../utils/numbers';
 import { JsonObject } from 'react-use-websocket/dist/lib/types';
 export const expandTokenDecimal = (
@@ -47,7 +48,7 @@ export const sumRewards = (acc: number, r: IProtocolReward) =>
   acc + r.dailyAmount * r.price;
 
 export const formatWithCommas_usd = (v: string | number) => {
-  if (v == undefined || v == null || v == '') return '$-';
+  if (isInvalid(v)) return '$-';
   const big = Big(v);
   if (big.eq(0)) {
     return '$0';
@@ -61,7 +62,7 @@ export const formatWithCommas_usd = (v: string | number) => {
 };
 
 export const formatPercentage = (v: string | number) => {
-  if (v == undefined || v == null || v == '') return '-%';
+  if (isInvalid(v)) return '-%';
   const big = Big(v);
   if (big.eq(0)) {
     return '0%';
@@ -72,7 +73,7 @@ export const formatPercentage = (v: string | number) => {
   }
 };
 export const formatNumber = (v: string | number) => {
-  if (v == undefined || v == null || v == '') return '-';
+  if (isInvalid(v)) return '-';
   const big = Big(v);
   if (big.eq(0)) {
     return '0';
@@ -81,6 +82,10 @@ export const formatNumber = (v: string | number) => {
   } else {
     return big.toFixed(2);
   }
+};
+export const formatToInternationalCurrencySystem$ = (v: string | number) => {
+  if (isInvalid(v)) return '$-';
+  return '$' + toInternationalCurrencySystem(Big(v || 0).toFixed(), 2);
 };
 export const toAPY = (v: number) => Math.round(v * 100) / 100;
 export function decimalMax(a: string | number, b: string | number) {

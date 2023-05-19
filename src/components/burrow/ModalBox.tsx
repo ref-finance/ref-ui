@@ -81,7 +81,7 @@ export default function ModalBox(props: {
   const [showWarning, setShowWarning] = useState<boolean>(false);
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
   const [repayWay, setRepayWay] = useState<IRepayWay>('wallet');
-  const cardWidth = isMobile() ? '90vw' : '415px';
+  const cardWidth = isMobile() ? '95vw' : '430px';
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   function switchEvent() {
@@ -409,7 +409,7 @@ export default function ModalBox(props: {
         style={{ width: cardWidth, maxHeight: '95vh' }}
         className={`outline-none bg-cardBg border border-gradientFrom border-opacity-30 overflow-auto rounded-2xl  xsm:rounded-lg`}
       >
-        <div className="px-6 py-5 xsm:p-3">
+        <div className="px-6 py-5 xsm:p-5">
           {/* Title */}
           <div className="flex items-center justify-between mb-8">
             <span className="text-white text-lg gotham_bold">{modalTitle}</span>
@@ -462,7 +462,7 @@ export default function ModalBox(props: {
           </div>
         )}
 
-        <div className="px-6 py-5 xsm:p-3 border-2 border-burrowTableBorderColor">
+        <div className="px-6 py-5 xsm:p-5 border-2 border-burrowTableBorderColor">
           {/* Details */}
           <div className="flex items-center justify-between  mb-5">
             <span className="text-sm text-primaryText">Health Factor</span>
