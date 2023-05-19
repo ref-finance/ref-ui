@@ -17,7 +17,10 @@ import {
 import { IModalProps } from '~services/burrow-interfaces';
 import ModalBox from './ModalBox';
 import './burrow.css';
+import { ConnectToNearBtn } from '~components/button/Button';
+import { useWalletSelector } from '../../context/WalletSelectorContext';
 export default function YourSupplied() {
+  const { accountId } = useWalletSelector();
   const {
     account,
     assets,
@@ -163,19 +166,32 @@ export default function YourSupplied() {
       <div className="text-lg gotham_bold text-white pl-7 mb-4">
         You Supplied
       </div>
-      <table className="burrow_table">
-        <thead>
-          <tr>
-            <th style={{ width: '18%' }}>Assets</th>
-            <th style={{ width: '15%' }}>Supply APY</th>
-            <th style={{ width: '15%' }}>Rewards</th>
-            <th style={{ width: '15%' }}>Collateral</th>
-            <th style={{ width: '15%' }}>You Supplied</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>{your_supplied_list}</tbody>
-      </table>
+      {your_supplied_list.length == 0 && accountId ? (
+        <div className="text-sm text-primaryText flex items-center justify-center py-6">
+          Your supplied asset will apear here.
+        </div>
+      ) : null}
+      {your_supplied_list.length > 0 ? (
+        <table className="burrow_table">
+          <thead>
+            <tr>
+              <th style={{ width: '18%' }}>Assets</th>
+              <th style={{ width: '15%' }}>Supply APY</th>
+              <th style={{ width: '15%' }}>Rewards</th>
+              <th style={{ width: '15%' }}>Collateral</th>
+              <th style={{ width: '15%' }}>You Supplied</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>{your_supplied_list}</tbody>
+        </table>
+      ) : null}
+      {!accountId ? (
+        <div style={{ width: '220px', margin: '0 auto' }}>
+          <ConnectToNearBtn></ConnectToNearBtn>
+        </div>
+      ) : null}
+
       {showModalBox && (
         <ModalBox
           showModalBox={showModalBox}

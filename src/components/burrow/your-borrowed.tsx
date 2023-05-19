@@ -17,6 +17,8 @@ import {
   formatWithCommas_usd,
 } from '~services/burrow-utils';
 import ModalBox from './ModalBox';
+import { useWalletSelector } from '../../context/WalletSelectorContext';
+import { ConnectToNearBtn } from '~components/button/Button';
 export default function YourBorrowed() {
   const {
     account,
@@ -29,6 +31,7 @@ export default function YourBorrowed() {
     rewards: IAssetRewardDetail[];
     globalConfig: IBurrowConfig;
   } = useContext(BurrowData);
+  const { accountId } = useWalletSelector();
   const [your_borrowed_list, set_your_borrowed_list] = useState<
     React.ReactElement[]
   >([]);
@@ -124,18 +127,26 @@ export default function YourBorrowed() {
       <div className="text-lg gotham_bold text-white pl-7 mb-4">
         You Borrowed
       </div>
-      <table className="burrow_table">
-        <thead>
-          <tr>
-            <th style={{ width: '20%' }}>Assets</th>
-            <th style={{ width: '20%' }}>Borrow APY</th>
-            <th style={{ width: '23%' }}>Rewards</th>
-            <th style={{ width: '15%' }}>Borrowed</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>{your_borrowed_list}</tbody>
-      </table>
+      {your_borrowed_list.length == 0 && accountId ? (
+        <div className="text-sm text-primaryText flex items-center justify-center py-6">
+          Your borrowed asset will apear here..
+        </div>
+      ) : null}
+      {your_borrowed_list.length > 0 ? (
+        <table className="burrow_table">
+          <thead>
+            <tr>
+              <th style={{ width: '20%' }}>Assets</th>
+              <th style={{ width: '20%' }}>Borrow APY</th>
+              <th style={{ width: '23%' }}>Rewards</th>
+              <th style={{ width: '15%' }}>Borrowed</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>{your_borrowed_list}</tbody>
+        </table>
+      ) : null}
+
       {showModalBox && (
         <ModalBox
           showModalBox={showModalBox}
@@ -143,6 +154,11 @@ export default function YourBorrowed() {
           modalData={modalData}
         ></ModalBox>
       )}
+      {!accountId ? (
+        <div style={{ width: '220px', margin: '0 auto' }}>
+          <ConnectToNearBtn></ConnectToNearBtn>
+        </div>
+      ) : null}
     </div>
   );
 }
