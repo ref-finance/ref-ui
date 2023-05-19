@@ -29,7 +29,7 @@ export default function RangeSlider(props: any) {
       Big(v)
         .div(100)
         .mul(balance || 0)
-        .toFixed(4)
+        .toFixed()
     );
   }
 

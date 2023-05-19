@@ -25,6 +25,8 @@ import {
   formatPercentage,
   formatNumber,
 } from '~services/burrow-utils';
+import { useWalletSelector } from '../../context/WalletSelectorContext';
+import { WalletSelectorModal } from '../layout/WalletSelector';
 export default function Overview() {
   return (
     <div>
@@ -40,6 +42,7 @@ const YourOverview = () => {
     rewards,
   }: { account: IAccount; assets: IAsset[]; rewards: IAssetRewardDetail[] } =
     useContext(BurrowData);
+  const { accountId, modal } = useWalletSelector();
   const [supplied, setSupplied] = useState<number>();
   const [borrowed, setBorrowed] = useState<number>();
   const [netApy, setNetApy] = useState<number>();
@@ -51,10 +54,9 @@ const YourOverview = () => {
   const [totalBorrowed, setTotalBorrowed] = useState<number>();
   const [totalAvailableLiquidity, setTotalAvailableLiquidity] =
     useState<number>();
-  const [activeTab, setActiveTab] = useState<string>('yours');
-  console.log('account', account);
-  console.log('assets', assets);
-  console.log('rewards', rewards);
+  const [activeTab, setActiveTab] = useState<string>(
+    accountId ? 'yours' : 'market'
+  );
   useEffect(() => {
     if (assets && rewards) {
       if (account) {
@@ -308,7 +310,11 @@ const YourOverview = () => {
       <div className="flex items-center border border-v3borderColor rounded-lg p-0.5 relative top-2">
         <div
           onClick={() => {
-            setActiveTab('yours');
+            if (accountId) {
+              setActiveTab('yours');
+            } else {
+              modal.show();
+            }
           }}
           className={`flex items-center justify-center px-5 w-1/2 h-7 rounded-md cursor-pointer gotham_bold text-xs ${
             activeTab == 'yours'
