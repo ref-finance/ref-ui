@@ -221,25 +221,17 @@ export default function Overview() {
 
     setTotalAvailableLiquidity(availableLiquidity$);
   }
-  const [unclaimedRewards$, unclaimedRewardsNum, unclaimedRewardsIcons] =
-    useMemo(() => {
-      const [$, n] = unclaimedRewards?.reduce(
-        (acc, cur) => {
-          return [
-            Big(cur.unclaimed).mul(cur.usd).plus(acc[0]).toNumber(),
-            Big(cur.unclaimed).plus(acc[1]).toNumber(),
-          ];
-        },
-        [0, 0]
-      ) || [0, 0];
-      const icons =
-        unclaimedRewards?.map((i: IUnclaimedReward) => {
-          return (
-            <img className="w-4 h-4 ml-0.5 rounded-full" src={i.icon}></img>
-          );
-        }) || [];
-      return [$, n, icons];
-    }, [unclaimedRewards]);
+  const [unclaimedRewards$, unclaimedRewardsIcons] = useMemo(() => {
+    const $ =
+      unclaimedRewards?.reduce((acc, cur) => {
+        return Big(cur.unclaimed).mul(cur.usd).plus(acc).toNumber();
+      }, 0) || 0;
+    const icons =
+      unclaimedRewards?.map((i: IUnclaimedReward) => {
+        return <img className="w-4 h-4 -ml-1 rounded-full" src={i.icon}></img>;
+      }) || [];
+    return [$, icons];
+  }, [unclaimedRewards]);
   function getNetApyTip() {
     // const tip = intl.formatMessage({ id: 'reward_range_tip' });
     const tip =
@@ -260,7 +252,7 @@ export default function Overview() {
         borrowed,
         netApy,
         getNetApyTip,
-        unclaimedRewardsNum,
+        unclaimedRewards$,
         unclaimedRewardsIcons,
         setClaimLoading,
         claimLoading,
@@ -288,7 +280,7 @@ function OverviewMobile() {
     borrowed,
     netApy,
     getNetApyTip,
-    unclaimedRewardsNum,
+    unclaimedRewards$,
     unclaimedRewardsIcons,
     setClaimLoading,
     claimLoading,
@@ -357,7 +349,7 @@ function OverviewMobile() {
         ></Template>
         <Template
           title="Unclaimed Rewards"
-          value={formatNumber(unclaimedRewardsNum)}
+          value={formatWithCommas_usd(unclaimedRewards$)}
           noFormat={true}
           claim={claim}
         ></Template>
@@ -403,7 +395,7 @@ function OverviewPc() {
     borrowed,
     netApy,
     getNetApyTip,
-    unclaimedRewardsNum,
+    unclaimedRewards$,
     unclaimedRewardsIcons,
     setClaimLoading,
     claimLoading,
@@ -440,7 +432,7 @@ function OverviewPc() {
           <div className="flex items-center mt-10">
             <Template
               title="Unclaimed Rewards"
-              value={formatNumber(unclaimedRewardsNum)}
+              value={formatWithCommas_usd(unclaimedRewards$)}
               noFormat={true}
               rewards={unclaimedRewardsIcons}
             ></Template>
@@ -543,7 +535,7 @@ const Template = (props: {
         }`}
       >
         {noFormat ? value : formatWithCommas_usd(value)}
-        <div className="ml-2.5">{rewards}</div>
+        <div className="flex items-center ml-2.5">{rewards}</div>
         {claim}
       </div>
     </div>
