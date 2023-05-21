@@ -188,7 +188,7 @@ export default function YourBorrowed() {
       </div>
       {your_borrowed_list.length == 0 && accountId ? (
         <div className="text-sm text-primaryText flex items-center justify-center py-6">
-          Your borrowed asset will apear here..
+          Your borrowed asset will apear here.
         </div>
       ) : null}
       {your_borrowed_list.length > 0 ? (

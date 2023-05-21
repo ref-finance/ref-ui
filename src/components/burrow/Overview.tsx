@@ -311,7 +311,11 @@ function OverviewMobile() {
       <div className="flex items-center border-b border-burrowTableBorderColor px-3 mb-5">
         <span
           onClick={() => {
-            setActiveTab('yours');
+            if (accountId) {
+              setActiveTab('yours');
+            } else {
+              modal.show();
+            }
           }}
           className={`text-sm gotham_bold mr-12 px-2 h-7 border-b-2 ${
             activeTab == 'yours'
