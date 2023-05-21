@@ -97,7 +97,7 @@ function BurrowPc() {
       </div>
       {/* content */}
       <div className="flex-grow border-l border-r border-boxBorder pl-5 pt-9">
-        <div className="w-1000px">
+        <div className="max-w-1000px">
           <Overview></Overview>
           <TableBox></TableBox>
         </div>

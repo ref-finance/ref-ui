@@ -430,6 +430,7 @@ module.exports = {
         28: '7rem',
         p150: '150px',
         p212: '212px',
+        '1000px': '1000px'
       },
       height: {
         vh90: '90vh',
@@ -453,7 +454,7 @@ module.exports = {
         '420px': '420px',
         p240: '240px',
         p90: '90px',
-        p300: '300px',
+        p300: '300px'
       },
 
       fontSize: {
