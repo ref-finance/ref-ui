@@ -403,10 +403,10 @@ const handleDepositNear = async (
             receiverId: token_id,
             functionCalls: [
               {
-                methodName: 'ft_transfer_call',
+                methodName: 'near_deposit',
                 args: {},
                 gas: expandToken(100, 12),
-                amount: extraDecimal.toFixed(0),
+                amount: shrinkToken(extraDecimal.toFixed(), 24),
               },
             ],
           },
