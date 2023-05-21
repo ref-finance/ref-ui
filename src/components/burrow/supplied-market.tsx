@@ -72,7 +72,7 @@ export default function SuppliedMarket() {
         const icon = assetMetadatas[token_id].icon;
         return (
           <img
-            className={`w-4 h-4 rounded-full ${index != 0 ? 'ml-1.5' : ''}`}
+            className={`w-4 h-4 rounded-full ${index != 0 ? '-ml-1.5' : ''}`}
             src={icon}
           ></img>
         );
@@ -97,7 +97,7 @@ export default function SuppliedMarket() {
               </div>
               <div className="flex flex-col justify-between">
                 <span className="text-sm text-primaryText">Rewards</span>
-                <span className="text-sm text-white mt-1">
+                <span className="flex items-center text-sm text-white mt-1">
                   {rewardTokensImg}
                 </span>
               </div>
@@ -137,7 +137,9 @@ export default function SuppliedMarket() {
               </div>
             </td>
             <td>{toAPY(depositApy)}%</td>
-            <td>{rewardTokensImg}</td>
+            <td>
+              <div className="flex items-center">{rewardTokensImg}</div>
+            </td>
             <td>{cf}%</td>
             <td>${totalLiquidity_usd}</td>
             <td>
