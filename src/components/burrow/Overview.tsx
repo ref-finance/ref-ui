@@ -535,7 +535,7 @@ const Template = (props: {
         }`}
       >
         {noFormat ? value : formatWithCommas_usd(value)}
-        <div className="flex items-center ml-2.5">{rewards}</div>
+        <div className="flex items-center ml-2.5 flex-grow">{rewards}</div>
         {claim}
       </div>
     </div>

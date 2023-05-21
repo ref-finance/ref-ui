@@ -181,7 +181,7 @@ export default function ModalBox(props: {
         </PurpleButton>
       );
     } else if (action == 'repay') {
-      const v = get_remain_borrow_repay(availableBalance, amount);
+      const v = get_remain_borrow_repay(account, asset, amount);
       detail = (
         <Template
           title="Remaining Borrow"

@@ -848,11 +848,16 @@ export function get_remain_collateral_withdraw(
   return remain.toString();
 }
 export function get_remain_borrow_repay(
-  availableBalance: string,
+  account: IAccount,
+  asset: IAsset,
   amount: string
 ) {
+  const { token_id } = asset;
+  const decimals = asset.metadata.decimals + asset.config.extra_decimals;
+  const borrowed = account.borrowed.find((a) => a.token_id === token_id);
+  const borrowedBalance = shrinkToken(borrowed.balance || 0, decimals);
   return decimalMax(
-    Big(availableBalance || 0)
+    Big(borrowedBalance || 0)
       .sub(amount || 0)
       .toFixed(),
     '0'
