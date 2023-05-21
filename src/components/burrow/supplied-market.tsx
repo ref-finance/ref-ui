@@ -8,11 +8,14 @@ import {
   IAsset,
   IAssetRewardDetail,
   IModalProps,
+  ISort,
 } from '~services/burrow-interfaces';
 import Big from 'big.js';
 import { shrinkToken, toAPY } from '~services/burrow-utils';
+import { sortSupplyMarketData, hiddenAssets } from '~services/burrow-business';
 import ModalBox from './ModalBox';
 import { isMobile } from '~utils/device';
+import { ArrowUpIcon, ArrowDownIcon } from './icons';
 const is_mobile = isMobile();
 export default function SuppliedMarket() {
   const {
@@ -27,6 +30,7 @@ export default function SuppliedMarket() {
     assetMetadatas: Record<string, TokenMetadata>;
   } = useContext(BurrowData);
   const [showModalBox, setShowModalBox] = useState<boolean>(false);
+  const [sort, setSort] = useState<ISort>({ field: 'total', order: 'desc' });
   const [market_supplied_list, set_market_supplied_list] = useState<
     React.ReactElement[]
   >([]);
@@ -35,9 +39,12 @@ export default function SuppliedMarket() {
     if (assets && rewards) {
       get_market_supplied();
     }
-  }, [account, assets, rewards]);
+  }, [account, assets, rewards, sort]);
   function get_market_supplied() {
-    const can_deposit_assets = assets.filter((a) => a.config.can_deposit);
+    let can_deposit_assets = assets.filter(
+      (a) => a.config.can_deposit && !hiddenAssets.includes(a.token_id)
+    );
+    sortSupplyMarketData(can_deposit_assets, rewards, sort);
     const market_deposit_assets = can_deposit_assets.map((asset) => {
       const { token_id, metadata, price, config } = asset;
       const assetReward = rewards.find(
@@ -172,10 +179,94 @@ export default function SuppliedMarket() {
           <thead>
             <tr>
               <th style={{ width: '18%' }}>Assets</th>
-              <th style={{ width: '15%' }}>APY</th>
+              <th style={{ width: '15%' }}>
+                <div
+                  className="inline-flex items-center cursor-pointer"
+                  onClick={() => {
+                    setSort({
+                      field: 'apy',
+                      order: sort.order == 'desc' ? 'asc' : 'desc',
+                    });
+                  }}
+                >
+                  APY
+                  <div className="flex flex-col items-center ml-1.5">
+                    <ArrowUpIcon
+                      className={`${
+                        sort.field == 'apy' && sort.order == 'asc'
+                          ? 'text-greenColor'
+                          : 'text-primaryText'
+                      }`}
+                    ></ArrowUpIcon>
+                    <ArrowDownIcon
+                      className={`mt-0.5 ${
+                        sort.field == 'apy' && sort.order == 'desc'
+                          ? 'text-greenColor'
+                          : 'text-primaryText'
+                      }`}
+                    ></ArrowDownIcon>
+                  </div>
+                </div>
+              </th>
               <th style={{ width: '15%' }}>Rewards</th>
-              <th style={{ width: '15%' }}>C.F.</th>
-              <th style={{ width: '15%' }}>Total Supply</th>
+              <th style={{ width: '15%' }}>
+                <div
+                  className="inline-flex items-center cursor-pointer"
+                  onClick={() => {
+                    setSort({
+                      field: 'cf',
+                      order: sort.order == 'desc' ? 'asc' : 'desc',
+                    });
+                  }}
+                >
+                  C.F.
+                  <div className="flex flex-col items-center ml-1.5">
+                    <ArrowUpIcon
+                      className={`${
+                        sort.field == 'cf' && sort.order == 'asc'
+                          ? 'text-greenColor'
+                          : 'text-primaryText'
+                      }`}
+                    ></ArrowUpIcon>
+                    <ArrowDownIcon
+                      className={`mt-0.5 ${
+                        sort.field == 'cf' && sort.order == 'desc'
+                          ? 'text-greenColor'
+                          : 'text-primaryText'
+                      }`}
+                    ></ArrowDownIcon>
+                  </div>
+                </div>
+              </th>
+              <th style={{ width: '15%' }}>
+                <div
+                  className="inline-flex items-center cursor-pointer"
+                  onClick={() => {
+                    setSort({
+                      field: 'total',
+                      order: sort.order == 'desc' ? 'asc' : 'desc',
+                    });
+                  }}
+                >
+                  Total Supply
+                  <div className="flex flex-col items-center ml-1.5">
+                    <ArrowUpIcon
+                      className={`${
+                        sort.field == 'total' && sort.order == 'asc'
+                          ? 'text-greenColor'
+                          : 'text-primaryText'
+                      }`}
+                    ></ArrowUpIcon>
+                    <ArrowDownIcon
+                      className={`mt-0.5 ${
+                        sort.field == 'total' && sort.order == 'desc'
+                          ? 'text-greenColor'
+                          : 'text-primaryText'
+                      }`}
+                    ></ArrowDownIcon>
+                  </div>
+                </div>
+              </th>
               <th></th>
             </tr>
           </thead>

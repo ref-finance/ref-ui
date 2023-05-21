@@ -6,7 +6,8 @@ import {
   IProtocolReward,
   IAccountItem,
   IBurrowConfig,
-  IRepayWay,
+  ISort,
+  IAssetRewardDetail,
 } from './burrow-interfaces';
 import {
   toUsd,
@@ -23,6 +24,7 @@ import Big from 'big.js';
 import getConfig from './config';
 const { WRAP_NEAR_CONTRACT_ID } = getConfig();
 const MAX_RATIO = 10_000;
+export const hiddenAssets = ['ref.fakes.testnet', 'meta-token.near'];
 export async function getProtocolRewards(assets: IAsset[]) {
   const netTvl = (await getFarm('NetTvl')) as INetTvlFarm;
   const rewards = Object.entries(netTvl.rewards).map(
@@ -862,4 +864,124 @@ export function get_remain_borrow_repay(
       .toFixed(),
     '0'
   ).toFixed();
+}
+
+export function sortSupplyMarketData(
+  list: IAsset[],
+  rewards: IAssetRewardDetail[],
+  sort: ISort
+) {
+  if (sort.field == 'total') {
+    sortByTotal(list, sort);
+  } else if (sort.field == 'apy') {
+    sortByApy(list, rewards, sort);
+  } else if (sort.field == 'cf') {
+    sortByCf(list, sort);
+  }
+}
+export function sortBorrowedMarketData(
+  list: IAsset[],
+  sort: ISort,
+  account: IAccount,
+  assets: IAsset[],
+  globalConfig: IBurrowConfig,
+  rewards: IAssetRewardDetail[]
+) {
+  if (sort.field == 'total') {
+    borrowSortByTotal(list, sort);
+  } else if (sort.field == 'apy') {
+    borrowSortByApy(list, sort, account, assets, globalConfig, rewards);
+  } else if (sort.field == 'cf') {
+    sortByCf(list, sort);
+  }
+}
+function sortByTotal(list: IAsset[], sort: ISort) {
+  list.sort((b: IAsset, a: IAsset) => {
+    const b_totalLiquidity = Big(b.supplied.balance || 0)
+      .plus(b.reserved)
+      .toFixed();
+    const b_decimals = b.metadata.decimals + b.config.extra_decimals;
+    const b_totalLiquidity_shrink = shrinkToken(b_totalLiquidity, b_decimals);
+    const b_totalLiquidity_usd = Big(b_totalLiquidity_shrink || 0)
+      .mul(b.price.usd || 0)
+      .toNumber();
+
+    const a_totalLiquidity = Big(a.supplied.balance || 0)
+      .plus(a.reserved)
+      .toFixed();
+    const a_decimals = a.metadata.decimals + a.config.extra_decimals;
+    const a_totalLiquidity_shrink = shrinkToken(a_totalLiquidity, a_decimals);
+    const a_totalLiquidity_usd = Big(a_totalLiquidity_shrink || 0)
+      .mul(a.price.usd || 0)
+      .toNumber();
+    return a_totalLiquidity_usd - b_totalLiquidity_usd;
+  });
+  if (sort.order == 'asc') {
+    list.reverse();
+  }
+}
+
+function sortByCf(list: IAsset[], sort: ISort) {
+  list.sort((b: IAsset, a: IAsset) => {
+    const b_cf = b.config.volatility_ratio;
+    const a_cf = a.config.volatility_ratio;
+    return a_cf - b_cf;
+  });
+  if (sort.order == 'asc') {
+    list.reverse();
+  }
+}
+
+function sortByApy(list: IAsset[], rewards: IAssetRewardDetail[], sort: ISort) {
+  list.sort((b: IAsset, a: IAsset) => {
+    const b_r = rewards.find((a: any) => a.token_id === b.token_id);
+    const b_netTvlMultiplier = b.config.net_tvl_multiplier / 10000;
+    const b_depositApy =
+      b_r.apyBase + b_r.apyRewardTvl * b_netTvlMultiplier + b_r.apyReward;
+
+    const a_r = rewards.find((m: any) => m.token_id === a.token_id);
+    const a_netTvlMultiplier = a.config.net_tvl_multiplier / 10000;
+    const a_depositApy =
+      a_r.apyBase + a_r.apyRewardTvl * a_netTvlMultiplier + a_r.apyReward;
+    return a_depositApy - b_depositApy;
+  });
+  if (sort.order == 'asc') {
+    list.reverse();
+  }
+}
+
+function borrowSortByTotal(list: IAsset[], sort: ISort) {
+  list.sort((b: IAsset, a: IAsset) => {
+    const b_liquidity = Big(b.availableLiquidity || 0).mul(b?.price?.usd || 0);
+    const a_liquidity = Big(a.availableLiquidity || 0).mul(a?.price?.usd || 0);
+    return a_liquidity.minus(b_liquidity).toNumber();
+  });
+  if (sort.order == 'asc') {
+    list.reverse();
+  }
+}
+
+function borrowSortByApy(
+  list: IAsset[],
+  sort: ISort,
+  account: IAccount,
+  assets: IAsset[],
+  globalConfig: IBurrowConfig,
+  rewards: IAssetRewardDetail[]
+) {
+  list.sort((b: IAsset, a: IAsset) => {
+    const r_b = rewards.find((a) => a.token_id === b.token_id);
+    const borrowApy_b = r_b.apyBaseBorrow;
+    const extraApy_b = getExtraApy(b, account, assets, globalConfig);
+    const apy_b = borrowApy_b - extraApy_b;
+
+    const r_a = rewards.find((m) => a.token_id === m.token_id);
+    const borrowApy_a = r_a.apyBaseBorrow;
+    const extraApy_a = getExtraApy(a, account, assets, globalConfig);
+    const apy_a = borrowApy_a - extraApy_a;
+    return apy_a - apy_b;
+  });
+  if (sort.order == 'asc') {
+    list.reverse();
+  }
 }

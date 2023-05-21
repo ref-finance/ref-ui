@@ -189,3 +189,8 @@ export interface IModalProps {
 }
 
 export type IRepayWay = 'wallet' | 'deposit';
+
+export type ISort = {
+  field: 'apy' | 'cf' | 'total';
+  order: 'asc' | 'desc';
+};
