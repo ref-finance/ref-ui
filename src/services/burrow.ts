@@ -30,7 +30,7 @@ import {
   IRepayWay,
 } from './burrow-interfaces';
 import { getNetLiquidityAPY } from './burrow-business';
-const NO_STORAGE_DEPOSIT_CONTRACTS = ['aurora', 'meta-pool.near'];
+const NO_STORAGE_DEPOSIT_CONTRACTS = ['aurora'];
 
 export async function getAssets() {
   const assets = await burrowViewFunction({ methodName: 'get_assets_paged' });
@@ -779,13 +779,13 @@ export async function submitBorrow({
         {
           Borrow: {
             token_id,
-            amount: isMax ? undefined : expandedAmount.toFixed(0),
+            amount: expandedAmount.toFixed(0),
           },
         },
         {
           Withdraw: {
             token_id,
-            max_amount: isMax ? undefined : expandedAmount.toFixed(0),
+            max_amount: expandedAmount.toFixed(0),
           },
         },
       ],
