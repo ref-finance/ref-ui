@@ -28,7 +28,7 @@ export const shrinkToken = (
   value: string | number,
   decimals: number
 ): string => {
-  return toReadableNumber(decimals, value.toString());
+  return toReadableNumber(decimals, Big(value).toFixed(0));
 };
 
 export const toUsd = (balance: string, asset: IAsset) =>

@@ -332,8 +332,7 @@ export function computeAdjustMaxAmount(account: IAccount, asset: IAsset) {
     (a) => a.token_id === token_id
   );
   const suppliedBalance = Big(accountSuppliedAsset?.balance || 0);
-  const supplied = Number(shrinkToken(suppliedBalance.toFixed(), decimals));
-
+  const supplied = shrinkToken(suppliedBalance.toFixed(), decimals);
   const accountCollateralAsset = account.collateral.find(
     (a) => a.token_id === token_id
   );
