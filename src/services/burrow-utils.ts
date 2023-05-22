@@ -26,12 +26,9 @@ export const expandToken = (
 
 export const shrinkToken = (
   value: string | number,
-  decimals: string | number,
-  fixed?: number
+  decimals: number
 ): string => {
-  return new BigNumber(value || 0)
-    .div(new BigNumber(10).pow(decimals))
-    .toFixed(fixed);
+  return toReadableNumber(decimals, value.toString());
 };
 
 export const toUsd = (balance: string, asset: IAsset) =>
