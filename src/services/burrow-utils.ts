@@ -7,8 +7,7 @@ import {
   formatWithCommas,
   toInternationalCurrencySystem,
 } from '../utils/numbers';
-import { wallet } from './near';
-const accountId = wallet?.getAccountId();
+import { getCurrentWallet } from '../utils/wallets-integration';
 export const expandTokenDecimal = (
   value: string | number | BigNumber,
   decimals: string | number
@@ -49,7 +48,8 @@ export const sumRewards = (acc: number, r: IProtocolReward) =>
   acc + r.dailyAmount * r.price;
 
 export const formatWithCommas_usd = (v: string | number) => {
-  if (isInvalid(v)) return accountId ? '$0' : '$0';
+  const accountId = getCurrentWallet()?.wallet?.getAccountId();
+  if (isInvalid(v)) return accountId ? '$0' : '$-';
   const big = Big(v);
   if (big.eq(0)) {
     return '$0';
@@ -63,7 +63,8 @@ export const formatWithCommas_usd = (v: string | number) => {
 };
 
 export const formatPercentage = (v: string | number) => {
-  if (isInvalid(v)) return accountId ? '0%' : '0%';
+  const accountId = getCurrentWallet()?.wallet?.getAccountId();
+  if (isInvalid(v)) return accountId ? '0%' : '-%';
   const big = Big(v);
   if (big.eq(0)) {
     return '0%';
@@ -74,7 +75,8 @@ export const formatPercentage = (v: string | number) => {
   }
 };
 export const formatNumber = (v: string | number) => {
-  if (isInvalid(v)) return accountId ? '0' : '0';
+  const accountId = getCurrentWallet()?.wallet?.getAccountId();
+  if (isInvalid(v)) return accountId ? '0' : '-';
   const big = Big(v);
   if (big.eq(0)) {
     return '0';
@@ -85,7 +87,8 @@ export const formatNumber = (v: string | number) => {
   }
 };
 export const formatToInternationalCurrencySystem$ = (v: string | number) => {
-  if (isInvalid(v)) return accountId ? '$0' : '$0';
+  const accountId = getCurrentWallet()?.wallet?.getAccountId();
+  if (isInvalid(v)) return accountId ? '$0' : '$-';
   return '$' + toInternationalCurrencySystem(Big(v || 0).toFixed(), 2);
 };
 export const toAPY = (v: number) => Math.round(v * 100) / 100;
