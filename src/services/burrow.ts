@@ -77,7 +77,7 @@ export async function getAssets() {
       .minus(Big(asset.borrowed.balance));
     const temp = temp_temp.minus(temp_temp.mul(0.001));
     const decimals = tokensMetadata?.[i].decimals + asset.config.extra_decimals;
-    const availableLiquidity = Number(shrinkToken(temp.toFixed(), decimals));
+    const availableLiquidity = Number(shrinkToken(temp.toFixed(0), decimals));
     const extraPrice = price?.price || {
       decimals: Number(refPrices?.[asset.token_id]?.decimal),
       multiplier: '1',
