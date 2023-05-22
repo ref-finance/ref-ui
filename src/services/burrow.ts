@@ -259,6 +259,7 @@ export async function submitAdjust({
   setShowModalBox: Function;
   globalConfig: IBurrowConfig;
 }) {
+  console.log('come in');
   const { token_id, metadata, config } = asset;
   const decimals = metadata.decimals + config.extra_decimals;
   const expandedAmount = isMax
@@ -270,6 +271,7 @@ export async function submitAdjust({
   const collateralBalance = accountCollateralAsset?.balance || 0;
   const transactions: Transaction[] = [];
   if (expandedAmount.gt(collateralBalance)) {
+    console.log('come in 2');
     transactions.push({
       receiverId: BURROW_CONTRACT_ID,
       functionCalls: [
@@ -293,6 +295,7 @@ export async function submitAdjust({
       ],
     });
   } else if (expandedAmount.lt(collateralBalance)) {
+    console.log('come in 3');
     transactions.push({
       receiverId: globalConfig.oracle_account_id,
       functionCalls: [
@@ -321,6 +324,7 @@ export async function submitAdjust({
       ],
     });
   } else {
+    console.log('come in 4');
     setShowModalBox(false);
     return;
   }
