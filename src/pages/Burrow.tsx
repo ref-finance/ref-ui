@@ -112,7 +112,7 @@ function BurrowMobile() {
     <>
       <div className="px-4">
         <Overview></Overview>
-        <div className="flex items-center justify-between mt-10 mb-5">
+        <div className="flex items-center justify-between mt-10 mb-5 gap-2">
           <span
             onClick={() => {
               setActiveTab('supply');
@@ -120,7 +120,7 @@ function BurrowMobile() {
             className={`flex items-center justify-center h-10 rounded-md text-sm gotham_bold w-1/2 ${
               activeTab == 'supply'
                 ? 'bg-senderHot text-burrowDarkColor'
-                : 'text-primaryText'
+                : 'bg-white bg-opacity-20 text-primaryText'
             }`}
           >
             Supply
@@ -132,7 +132,7 @@ function BurrowMobile() {
             className={`flex items-center justify-center h-10 rounded-md text-sm gotham_bold w-1/2 ${
               activeTab == 'borrow'
                 ? 'bg-burrowPurpleColor text-burrowDarkColor'
-                : 'text-primaryText'
+                : 'bg-white bg-opacity-20 text-primaryText'
             }`}
           >
             Borrow
