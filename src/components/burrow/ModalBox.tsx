@@ -257,6 +257,24 @@ export default function ModalBox(props: {
     set_volatility_ratio(asset.config.volatility_ratio / 100 + '%');
   }
   useEffect(() => {
+    if (account && modalData && availableBalance) {
+      const { action, asset } = modalData;
+      if (action == 'adjust') {
+        const init_collateral = get_as_collateral_adjust(account, asset, '');
+        setAmount(init_collateral);
+        setSliderAmount(
+          Big(init_collateral || 0)
+            .div(availableBalance || 1)
+            .mul(100)
+            .toFixed()
+        );
+        if (Big(init_collateral).eq(availableBalance)) {
+          setIsMax(true);
+        }
+      }
+    }
+  }, [modalData, account, availableBalance]);
+  useEffect(() => {
     if (modalData) {
       Details();
     }
@@ -268,6 +286,7 @@ export default function ModalBox(props: {
     healthFactor,
     repayWay,
     buttonLoading,
+    isMax,
   ]);
   useEffect(() => {
     if (modalData) {
