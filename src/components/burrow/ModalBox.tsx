@@ -371,7 +371,8 @@ export default function ModalBox(props: {
       asset: modalData.asset,
       isMax,
       amount,
-      availableBalance,
+      availableBalance:
+        repayWay == 'deposit' ? availableBalanceInAccount : availableBalance,
       repayWay,
       globalConfig,
     });
