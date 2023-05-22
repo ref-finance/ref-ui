@@ -177,9 +177,8 @@ export default function BorrowedMarket() {
     <div className="pb-5 pt-4">
       <div className="text-lg gotham_bold text-white pl-7 mb-4 xsm:pl-0 xsm:text-base">
         <span className="text-burrowPurpleColor mr-2 xsm:text-white">
-          Borrow
+          Borrow Market
         </span>
-        Market
       </div>
       {is_mobile ? (
         <>{market_borrowed_list}</>

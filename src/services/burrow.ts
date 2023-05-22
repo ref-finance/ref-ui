@@ -432,7 +432,23 @@ const handleDepositNear = async (
       },
     ],
   });
-
+  const storageToken = await ftGetStorageBalance(token_id);
+  if (
+    !(storageToken && storageToken.total != '0') &&
+    !NO_STORAGE_DEPOSIT_CONTRACTS.includes(token_id)
+  ) {
+    transactions.unshift({
+      receiverId: token_id,
+      functionCalls: [
+        {
+          methodName: 'storage_deposit',
+          args: {},
+          gas: expandToken(100, 12),
+          amount: '0.1',
+        },
+      ],
+    });
+  }
   const storageBurrow = await ftGetStorageBalance(BURROW_CONTRACT_ID);
   if (storageBurrow?.available === '0' || !storageBurrow?.available) {
     transactions.unshift({
@@ -447,6 +463,7 @@ const handleDepositNear = async (
       ],
     });
   }
+
   return executeBurrowMultipleTransactions(transactions);
 };
 

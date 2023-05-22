@@ -170,9 +170,8 @@ export default function SuppliedMarket() {
     <div className="pb-5 pt-4">
       <div className="text-lg gotham_bold text-white pl-7 mb-4 xsm:text-base xsm:pl-0">
         <span className="text-burrowTitleGreenColor mr-2 xsm:text-white">
-          Supply
+          Supply Market
         </span>
-        Market
       </div>
       {is_mobile ? (
         <>{market_supplied_list}</>
