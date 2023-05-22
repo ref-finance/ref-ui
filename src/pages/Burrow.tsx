@@ -96,8 +96,8 @@ function BurrowPc() {
         <Navigation></Navigation>
       </div>
       {/* content */}
-      <div className="flex-grow border-l border-r border-boxBorder pl-5 pt-9">
-        <div className="max-w-1000px">
+      <div className="flex-grow border-l border-r border-boxBorder px-5 pt-9">
+        <div className="lg:max-w-1000px 3xl:max-w-1280px m-auto">
           <Overview></Overview>
           <TableBox></TableBox>
         </div>
