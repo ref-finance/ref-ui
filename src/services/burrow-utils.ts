@@ -4,6 +4,7 @@ import Big from 'big.js';
 import {
   toPrecision,
   toReadableNumber,
+  toNonDivisibleNumber,
   formatWithCommas,
   toInternationalCurrencySystem,
 } from '../utils/numbers';
@@ -18,10 +19,9 @@ export const expandTokenDecimal = (
 };
 export const expandToken = (
   value: string | number | BigNumber,
-  decimals: string | number,
-  fixed?: number
+  decimals: number
 ): string => {
-  return expandTokenDecimal(value, decimals).toFixed(fixed);
+  return toNonDivisibleNumber(decimals, BigNumber(value).toFixed());
 };
 
 export const shrinkToken = (
