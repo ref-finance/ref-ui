@@ -34,6 +34,7 @@ import {
   isInvalid,
   formatNumber,
   formatWithCommas_usd,
+  expandToken
 } from '~services/burrow-utils';
 import {
   submitAdjust,
@@ -78,9 +79,9 @@ export default function ModalBox(props: {
   const [isMax, setIsMax] = useState<boolean>(false);
   const [amount, setAmount] = useState<string>('');
   const [sliderAmount, setSliderAmount] = useState<string>('0');
-  const [showWarning, setShowWarning] = useState<boolean>(false);
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
   const [repayWay, setRepayWay] = useState<IRepayWay>('wallet');
+  const [errorText, setErrorText] = useState<string>('');
   const cardWidth = isMobile() ? '95vw' : '430px';
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -92,16 +93,8 @@ export default function ModalBox(props: {
     const { action, asset } = modalData;
     let detail;
     let button;
-    let buttonDisabled;
-    if (
-      isInvalid(amount) ||
-      Big(healthFactor || 0).lt(100) ||
-      (action !== 'adjust' && Big(amount).lte(0))
-    ) {
-      buttonDisabled = true;
-    } else {
-      buttonDisabled = false;
-    }
+    const [buttonDisabled, errorText]  = operatingState() as [boolean, string];
+    setErrorText(errorText);
     if (action == 'supply') {
       detail = (
         <Template
@@ -228,6 +221,31 @@ export default function ModalBox(props: {
     setActionButton(button);
     setExtraDetail(detail);
   }
+  function operatingState() {
+    let buttonDisabled = false;
+    let errorText = '';
+    const { action, asset } = modalData;
+    if (isInvalid(amount) || action !== 'adjust' && Big(amount).lte(0)) {
+      buttonDisabled = true;
+      errorText = '';
+      return [buttonDisabled, errorText];
+    }
+    if (Big(healthFactor || 0).gte(0) && Big(healthFactor || 0).lte(105)) {
+      errorText = "Your health factor will be dangerously low and you're at risk of liquidation";
+      if (Big(healthFactor || 0).lt(100)) {
+        buttonDisabled = true;
+      }
+      return [buttonDisabled, errorText];
+    }
+    if (Big(amount || 0).gt(0) && Big(expandToken(amount, asset?.metadata?.decimals)).lt(1)) {
+      if (action == 'borrow' || action == 'supply' || action == 'withdraw' || (action == 'repay' && repayWay == 'wallet')) {
+        buttonDisabled = true;
+        errorText = 'The current balance is below the minimum token decimals, and the contract does not support withdrawals.';
+        return [buttonDisabled, errorText]
+      }
+    }
+    return [buttonDisabled, errorText];
+  }
   // get max balance、title、button、cf
   function getStaticData() {
     const { action, asset } = modalData;
@@ -345,11 +363,6 @@ export default function ModalBox(props: {
       newHealthFactor = getHealthFactor(account, assets);
     }
     setHealthFactor(newHealthFactor);
-    if (Number(newHealthFactor) >= 0 && Number(newHealthFactor) <= 105) {
-      setShowWarning(true);
-    } else {
-      setShowWarning(false);
-    }
   }, [amount, modalData, account, assets, switchStatus]);
   function handleAdjust() {
     setButtonLoading(true);
@@ -474,13 +487,9 @@ export default function ModalBox(props: {
             ></InputBox>
           )}
         </div>
-        {showWarning && (
-          <div className="flex items-start text-sm text-warnColor mt-2.5 px-6 pb-6">
-            <WarningIcon className="ml-2.5 mr-2"></WarningIcon>
-            Your health factor will be dangerously low and you're at risk of
-            liquidation
-          </div>
-        )}
+        {
+          errorText ? <ErrorTemplate tip={errorText}></ErrorTemplate>:null
+        }
 
         <div className="px-6 py-5 xsm:p-5 border-2 border-burrowTableBorderColor">
           {/* Details */}
@@ -499,6 +508,12 @@ export default function ModalBox(props: {
   );
 }
 
+function ErrorTemplate({ tip }: {tip:string}) {
+  return <div className="flex items-start text-sm text-warnColor mt-2.5 px-6 pb-6">
+  <WarningIcon className="ml-2.5 mr-2 flex-shrink-0 relative top-1"></WarningIcon>
+  {tip}
+</div>
+}
 function Template(props: {
   title: string;
   value: string;
