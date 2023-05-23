@@ -1,7 +1,6 @@
 import React from 'react';
 export function GradientButton(props: any) {
   const { disabled, onClick, full, customWidth } = props;
-  console.log('disabled', disabled);
   return (
     <div
       className={`${

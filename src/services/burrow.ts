@@ -650,6 +650,40 @@ async function repay_from_wallet({
     },
   };
   const transactions: Transaction[] = [];
+  if (
+    token_id == WRAP_NEAR_CONTRACT_ID &&
+    expandedAmount.gt(asset.accountBalance || 0)
+  ) {
+    const toWrapAmount = expandedAmount.sub(asset.accountBalance || 0);
+    const storageToken = await ftGetStorageBalance(token_id);
+    if (
+      !(storageToken && storageToken.total != '0') &&
+      !NO_STORAGE_DEPOSIT_CONTRACTS.includes(token_id)
+    ) {
+      transactions.unshift({
+        receiverId: token_id,
+        functionCalls: [
+          {
+            methodName: 'storage_deposit',
+            args: {},
+            gas: expandToken(100, 12),
+            amount: '0.1',
+          },
+        ],
+      });
+    }
+    transactions.push({
+      receiverId: token_id,
+      functionCalls: [
+        {
+          methodName: 'near_deposit',
+          args: {},
+          gas: expandToken(100, 12),
+          amount: shrinkToken(toWrapAmount.toFixed(), 24),
+        },
+      ],
+    });
+  }
   transactions.push({
     receiverId: token_id,
     functionCalls: [

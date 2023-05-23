@@ -69,7 +69,6 @@ function Burrow() {
       getRewards(account, assets).then((rewards: IAssetRewardDetail[]) => {
         setRewards(rewards);
       });
-      console.log('metadatas', metadatas);
     }
   }, [account, assets]);
   return (
