@@ -99,39 +99,47 @@ export default function ModalBox(props: {
     setErrorText(errorText);
     if (action == 'supply') {
       detail = (
-        <Template
-          title="Use as Collateral"
-          value={volatility_ratio}
-          switchButton={
-            <div className="flex items-center">
-              <div
-                className={`flex items-center w-9 h-5 rounded-2xl ml-2 p-0.5 ${
-                  asset.config.can_use_as_collateral
-                    ? 'cursor-pointer'
-                    : 'opacity-40 cursor-not-allowed'
-                } ${switchStatus ? 'bg-greenColor' : 'bg-gray3'}`}
-                onClick={() => {
-                  if (asset.config.can_use_as_collateral) {
-                    switchEvent();
-                  }
-                }}
-              >
-                <label
-                  style={{
-                    boxShadow: '0px 0px 2px rgba(0, 0, 0, 0.5)',
-                    transition: 'all 100ms ease-out',
-                    marginLeft: switchStatus ? '16px' : '2px',
-                  }}
-                  className={`w-3.5 h-3.5 bg-white rounded-full ${
+        <>
+          <Template
+            title="Use as Collateral"
+            value={''}
+            className="mb-5"
+            switchButton={
+              <div className="flex items-center">
+                <div
+                  className={`flex items-center w-9 h-5 rounded-2xl ml-2 p-0.5 ${
                     asset.config.can_use_as_collateral
                       ? 'cursor-pointer'
-                      : 'cursor-not-allowed'
-                  }`}
-                ></label>
+                      : 'opacity-40 cursor-not-allowed'
+                  } ${switchStatus ? 'bg-greenColor' : 'bg-gray3'}`}
+                  onClick={() => {
+                    if (asset.config.can_use_as_collateral) {
+                      switchEvent();
+                    }
+                  }}
+                >
+                  <label
+                    style={{
+                      boxShadow: '0px 0px 2px rgba(0, 0, 0, 0.5)',
+                      transition: 'all 100ms ease-out',
+                      marginLeft: switchStatus ? '16px' : '2px',
+                    }}
+                    className={`w-3.5 h-3.5 bg-white rounded-full ${
+                      asset.config.can_use_as_collateral
+                        ? 'cursor-pointer'
+                        : 'cursor-not-allowed'
+                    }`}
+                  ></label>
+                </div>
               </div>
-            </div>
-          }
-        ></Template>
+            }
+          ></Template>
+
+          <Template
+            title="Collateral Factor"
+            value={volatility_ratio}
+          ></Template>
+        </>
       );
       button = (
         <GradientButton
@@ -536,8 +544,9 @@ function Template(props: {
   show$?: boolean;
   switchButton?: React.ReactElement;
   asset?: IAsset;
+  className?: string;
 }) {
-  const { title, value, show$, switchButton, asset } = props;
+  const { title, value, show$, switchButton, asset, className } = props;
   let value$;
   let formatValue = value;
   if (show$ && asset) {
@@ -549,7 +558,7 @@ function Template(props: {
     formatValue = formatNumber(value);
   }
   return (
-    <div className="flex items-center justify-between">
+    <div className={`flex items-center justify-between ${className}`}>
       <span className="text-sm text-primaryText">{title}</span>
       <span className="flex items-center text-sm text-white">
         {formatValue}
