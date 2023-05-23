@@ -248,7 +248,7 @@ export default function BorrowedMarket() {
               </th>
               <th style={{ width: '15%' }}>
                 <div
-                  className="inline-flex items-center cursor-pointer"
+                  className="inline-flex items-center cursor-pointer whitespace-nowrap"
                   onClick={() => {
                     setSort({
                       field: 'total',

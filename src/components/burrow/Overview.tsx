@@ -411,10 +411,10 @@ function OverviewPc() {
       <div className="w-1/2">
         <div className={`${activeTab == 'market' ? '' : 'hidden'}`}>
           <div className="flex items-center gap-20">
-            <Template title="Total Supply" value={totalSupplied}></Template>
-            <Template title="Total Borrow" value={totalBorrowed}></Template>
+            <Template title="Total Supplied" value={totalSupplied}></Template>
+            <Template title="Total Borrowed" value={totalBorrowed}></Template>
             <Template
-              title="Available Liquidity"
+              title="Available Liquidities"
               value={totalAvailableLiquidity}
             ></Template>
           </div>
