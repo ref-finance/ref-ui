@@ -249,7 +249,7 @@ export default function SuppliedMarket() {
                     });
                   }}
                 >
-                  Total Supply
+                  Total Supplied
                   <div className="flex flex-col items-center ml-1.5">
                     <ArrowUpIcon
                       className={`${

@@ -2,8 +2,15 @@ import React, { useRef, useState, useEffect } from 'react';
 import { toPrecision } from '~utils/numbers';
 import Big from 'big.js';
 export default function RangeSlider(props: any) {
-  const { setAmount, balance, isMax, setIsMax, sliderAmount, setSliderAmount } =
-    props;
+  const {
+    setAmount,
+    balance,
+    isMax,
+    setIsMax,
+    sliderAmount,
+    setSliderAmount,
+    action,
+  } = props;
   const [splitList] = useState([0, 25, 50, 75, 100]);
 
   const tipRef = useRef(null);
@@ -32,7 +39,7 @@ export default function RangeSlider(props: any) {
         .toFixed()
     );
   }
-
+  const actionShowGoldColor = action == 'borrow' || action == 'repay';
   return (
     <div className="mt-6 mb-8">
       <div className="flex justify-between items-center mb-3 -mx-3">
@@ -68,14 +75,18 @@ export default function RangeSlider(props: any) {
           }}
           value={sliderAmount}
           type="range"
-          className={`w-full cursor-pointer`}
+          className={`w-full cursor-pointer ${
+            actionShowGoldColor ? 'goldInput' : ''
+          }`}
           style={{ backgroundSize: '100% 100%' }}
           min="0"
           max="100"
           step="any"
         />
         <div
-          className="flex items-center justify-center absolute top-6 rounded-lg bg-greenColor"
+          className={`flex items-center justify-center absolute top-6 rounded-lg ${
+            actionShowGoldColor ? 'bg-burrowPurpleColor' : 'bg-greenColor'
+          }`}
           style={{ marginLeft: '-33px', left: '100%', width: '46px' }}
           ref={tipRef}
         >

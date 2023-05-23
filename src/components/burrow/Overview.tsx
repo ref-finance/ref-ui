@@ -364,17 +364,17 @@ function OverviewMobile() {
         }`}
       >
         <Template
-          title="Total Supply"
+          title="Total Supplied"
           value={formatToInternationalCurrencySystem$(totalSupplied)}
           noFormat={true}
         ></Template>
         <Template
-          title="Total Borrow"
+          title="Total Borrowed"
           value={formatToInternationalCurrencySystem$(totalBorrowed)}
           noFormat={true}
         ></Template>
         <Template
-          title="Available Liquidity"
+          title="Available Liquidities"
           value={formatToInternationalCurrencySystem$(totalAvailableLiquidity)}
           noFormat={true}
         ></Template>

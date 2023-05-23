@@ -246,7 +246,7 @@ export default function YourSupplied() {
       </div>
       {your_supplied_list.length == 0 && accountId ? (
         <div className="text-sm text-primaryText flex items-center justify-center py-6">
-          Your supplied asset will apear here.
+          Your supplied assets will apear here.
         </div>
       ) : null}
       {your_supplied_list.length > 0 ? (

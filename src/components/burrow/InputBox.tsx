@@ -18,6 +18,7 @@ export default function InputBox(props: any) {
     setAmount,
     sliderAmount,
     setSliderAmount,
+    action,
   } = props;
   const [inputValue$, setInputValue$] = useState<string>();
 
@@ -93,6 +94,7 @@ export default function InputBox(props: any) {
           setIsMax={setIsMax}
           sliderAmount={sliderAmount}
           setSliderAmount={setSliderAmount}
+          action={action}
         ></RangeSlider>
       </div>
     </div>

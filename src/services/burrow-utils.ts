@@ -21,14 +21,14 @@ export const expandToken = (
   value: string | number | BigNumber,
   decimals: number
 ): string => {
-  return toNonDivisibleNumber(decimals, BigNumber(value).toFixed());
+  return toNonDivisibleNumber(decimals, BigNumber(value || 0).toFixed());
 };
 
 export const shrinkToken = (
   value: string | number,
   decimals: number
 ): string => {
-  return toReadableNumber(decimals, Big(value).toFixed(0));
+  return toReadableNumber(decimals, Big(value || 0).toFixed(0));
 };
 
 export const toUsd = (balance: string, asset: IAsset) =>

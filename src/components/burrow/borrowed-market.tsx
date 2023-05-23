@@ -256,7 +256,7 @@ export default function BorrowedMarket() {
                     });
                   }}
                 >
-                  Total Liquidity
+                  Available Liquidities
                   <div className="flex flex-col items-center ml-1.5">
                     <ArrowUpIcon
                       className={`${
