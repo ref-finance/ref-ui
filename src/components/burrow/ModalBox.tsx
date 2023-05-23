@@ -245,7 +245,7 @@ export default function ModalBox(props: {
     if (Big(healthFactor || 0).gte(0) && Big(healthFactor || 0).lte(105)) {
       errorText =
         "Your health factor will be dangerously low and you're at risk of liquidation";
-      if (Big(healthFactor || 0).lt(100)) {
+      if (Big(healthFactor || 0).lte(100)) {
         buttonDisabled = true;
       }
       return [buttonDisabled, errorText];
