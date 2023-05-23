@@ -375,7 +375,7 @@ export const useMenus = () => {
       children: [
         {
           id: '3-1',
-          label: <>Ref finance</>,
+          label: <>Ref.finance</>,
           logo: <PortfolioIcon />,
           url: '/portfolio',
           isExternal: false,
@@ -659,7 +659,7 @@ export const useMenusMobile = () => {
       children: [
         {
           id: '3-1',
-          label: <>Ref finance</>,
+          label: <>Ref.finance</>,
           logo: <PortfolioIcon />,
           url: '/portfolio',
           isExternal: false,
