@@ -442,7 +442,10 @@ const handleDepositNear = async (
       functionCalls: [
         {
           methodName: 'storage_deposit',
-          args: {},
+          args: {
+            registration_only: true,
+            account_id: getCurrentWallet()?.wallet?.getAccountId(),
+          },
           gas: expandToken(100, 12),
           amount: '0.1',
         },
@@ -573,7 +576,10 @@ export async function submitWithdraw({
       functionCalls: [
         {
           methodName: 'storage_deposit',
-          args: {},
+          args: {
+            registration_only: true,
+            account_id: getCurrentWallet()?.wallet?.getAccountId(),
+          },
           gas: expandToken(100, 12),
           amount: '0.1',
         },
@@ -665,7 +671,10 @@ async function repay_from_wallet({
         functionCalls: [
           {
             methodName: 'storage_deposit',
-            args: {},
+            args: {
+              registration_only: true,
+              account_id: getCurrentWallet()?.wallet?.getAccountId(),
+            },
             gas: expandToken(100, 12),
             amount: '0.1',
           },
@@ -850,7 +859,10 @@ export async function submitBorrow({
       functionCalls: [
         {
           methodName: 'storage_deposit',
-          args: {},
+          args: {
+            registration_only: true,
+            account_id: getCurrentWallet()?.wallet?.getAccountId(),
+          },
           gas: expandToken(100, 12),
           amount: '0.1',
         },
