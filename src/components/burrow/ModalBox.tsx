@@ -67,7 +67,9 @@ export default function ModalBox(props: {
     globalConfig: IBurrowConfig;
   } = useContext(BurrowData);
   const { showModalBox, setShowModalBox, modalData } = props;
-  const [switchStatus, setSwitchStatus] = useState<boolean>(true);
+  const [switchStatus, setSwitchStatus] = useState<boolean>(
+    !!modalData?.asset?.config?.can_use_as_collateral
+  );
   const [extraDetail, setExtraDetail] = useState<React.ReactElement>();
   const [actionButton, setActionButton] = useState<React.ReactElement>();
   const [modalTitle, setModalTitle] = useState<string>();
