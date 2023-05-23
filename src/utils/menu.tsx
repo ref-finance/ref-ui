@@ -369,7 +369,7 @@ export const useMenus = () => {
           <FormattedMessage id="portfolio" />
         </>
       ),
-      url: '/portfolio',
+      url: '',
       isExternal: false,
       links: ['/portfolio', '/burrow'],
       children: [
@@ -653,7 +653,7 @@ export const useMenusMobile = () => {
           <FormattedMessage id="portfolio" />
         </>
       ),
-      url: '/portfolio',
+      url: '',
       isExternal: false,
       links: ['/portfolio', '/burrow'],
       children: [
