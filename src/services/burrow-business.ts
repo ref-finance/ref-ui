@@ -189,13 +189,13 @@ export function getPortfolioRewards(
       );
       const totalBoostedShares = Number(
         shrinkToken(
-          totalRewards[reward_token_id].boosted_shares || 0,
+          totalRewards[reward_token_id]?.boosted_shares || 0,
           assetDecimals
         )
       );
       const totalRewardsPerDay = Number(
         shrinkToken(
-          totalRewards[reward_token_id].reward_per_day || 0,
+          totalRewards[reward_token_id]?.reward_per_day || 0,
           rewardTokenDecimals
         )
       );
