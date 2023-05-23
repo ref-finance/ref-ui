@@ -46,6 +46,8 @@ import {
   XrefIcon,
   REFSmallIcon,
   PurpleCircleIcon,
+  PortfolioIcon,
+  BorrowIcon,
 } from '~components/icon/Nav';
 // import { XrefIcon } from '~components/icon/Xref';
 import getConfig from '../services/config';
@@ -369,7 +371,25 @@ export const useMenus = () => {
       ),
       url: '/portfolio',
       isExternal: false,
-      links: ['/portfolio'],
+      links: ['/portfolio', '/burrow'],
+      children: [
+        {
+          id: '3-1',
+          label: <>Ref finance</>,
+          logo: <PortfolioIcon />,
+          url: '/portfolio',
+          isExternal: false,
+          links: ['/portfolio'],
+        },
+        {
+          id: '3-2',
+          label: <>Burrow</>,
+          logo: <BorrowIcon />,
+          url: '/burrow',
+          isExternal: false,
+          links: ['/burrow'],
+        },
+      ],
     },
     // {
     //   id: '4',
@@ -635,7 +655,25 @@ export const useMenusMobile = () => {
       ),
       url: '/portfolio',
       isExternal: false,
-      links: ['/portfolio'],
+      links: ['/portfolio', '/burrow'],
+      children: [
+        {
+          id: '3-1',
+          label: <>Ref finance</>,
+          logo: <PortfolioIcon />,
+          url: '/portfolio',
+          isExternal: false,
+          links: ['/portfolio'],
+        },
+        {
+          id: '3-2',
+          label: <>Burrow</>,
+          logo: <BorrowIcon />,
+          url: '/burrow',
+          isExternal: false,
+          links: ['/burrow'],
+        },
+      ],
     },
     // {
     //   id: '4',
