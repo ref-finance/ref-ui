@@ -34,7 +34,7 @@ import {
   isInvalid,
   formatNumber,
   formatWithCommas_usd,
-  expandToken
+  expandToken,
 } from '~services/burrow-utils';
 import {
   submitAdjust,
@@ -67,7 +67,7 @@ export default function ModalBox(props: {
     globalConfig: IBurrowConfig;
   } = useContext(BurrowData);
   const { showModalBox, setShowModalBox, modalData } = props;
-  const [switchStatus, setSwitchStatus] = useState<boolean>(false);
+  const [switchStatus, setSwitchStatus] = useState<boolean>(true);
   const [extraDetail, setExtraDetail] = useState<React.ReactElement>();
   const [actionButton, setActionButton] = useState<React.ReactElement>();
   const [modalTitle, setModalTitle] = useState<string>();
@@ -93,7 +93,7 @@ export default function ModalBox(props: {
     const { action, asset } = modalData;
     let detail;
     let button;
-    const [buttonDisabled, errorText]  = operatingState() as [boolean, string];
+    const [buttonDisabled, errorText] = operatingState() as [boolean, string];
     setErrorText(errorText);
     if (action == 'supply') {
       detail = (
@@ -225,23 +225,33 @@ export default function ModalBox(props: {
     let buttonDisabled = false;
     let errorText = '';
     const { action, asset } = modalData;
-    if (isInvalid(amount) || action !== 'adjust' && Big(amount).lte(0)) {
+    if (isInvalid(amount) || (action !== 'adjust' && Big(amount).lte(0))) {
       buttonDisabled = true;
       errorText = '';
       return [buttonDisabled, errorText];
     }
     if (Big(healthFactor || 0).gte(0) && Big(healthFactor || 0).lte(105)) {
-      errorText = "Your health factor will be dangerously low and you're at risk of liquidation";
+      errorText =
+        "Your health factor will be dangerously low and you're at risk of liquidation";
       if (Big(healthFactor || 0).lt(100)) {
         buttonDisabled = true;
       }
       return [buttonDisabled, errorText];
     }
-    if (Big(amount || 0).gt(0) && Big(expandToken(amount, asset?.metadata?.decimals)).lt(1)) {
-      if (action == 'borrow' || action == 'supply' || action == 'withdraw' || (action == 'repay' && repayWay == 'wallet')) {
+    if (
+      Big(amount || 0).gt(0) &&
+      Big(expandToken(amount, asset?.metadata?.decimals)).lt(1)
+    ) {
+      if (
+        action == 'borrow' ||
+        action == 'supply' ||
+        action == 'withdraw' ||
+        (action == 'repay' && repayWay == 'wallet')
+      ) {
         buttonDisabled = true;
-        errorText = 'The current balance is below the minimum token decimals, and the contract does not support withdrawals.';
-        return [buttonDisabled, errorText]
+        errorText =
+          'The current balance is below the minimum token decimals, and the contract does not support withdrawals.';
+        return [buttonDisabled, errorText];
       }
     }
     return [buttonDisabled, errorText];
@@ -487,9 +497,7 @@ export default function ModalBox(props: {
             ></InputBox>
           )}
         </div>
-        {
-          errorText ? <ErrorTemplate tip={errorText}></ErrorTemplate>:null
-        }
+        {errorText ? <ErrorTemplate tip={errorText}></ErrorTemplate> : null}
 
         <div className="px-6 py-5 xsm:p-5 border-2 border-burrowTableBorderColor">
           {/* Details */}
@@ -508,11 +516,13 @@ export default function ModalBox(props: {
   );
 }
 
-function ErrorTemplate({ tip }: {tip:string}) {
-  return <div className="flex items-start text-sm text-warnColor mt-2.5 px-6 pb-6">
-  <WarningIcon className="ml-2.5 mr-2 flex-shrink-0 relative top-1"></WarningIcon>
-  {tip}
-</div>
+function ErrorTemplate({ tip }: { tip: string }) {
+  return (
+    <div className="flex items-start text-sm text-warnColor mt-2.5 px-6 pb-6">
+      <WarningIcon className="ml-2.5 mr-2 flex-shrink-0 relative top-1"></WarningIcon>
+      {tip}
+    </div>
+  );
 }
 function Template(props: {
   title: string;

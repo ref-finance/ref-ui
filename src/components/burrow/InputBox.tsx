@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import RangeSlider from './RangeSlider';
 import { IAsset } from '~services/burrow-interfaces';
-import { formatWithCommas_usd, formatNumber } from '~services/burrow-utils';
+import {
+  formatWithCommas_usd,
+  formatNumber,
+  isInvalid,
+} from '~services/burrow-utils';
 import { toPrecision } from '~utils/numbers';
 import Big from 'big.js';
 export default function InputBox(props: any) {
@@ -15,16 +19,17 @@ export default function InputBox(props: any) {
     sliderAmount,
     setSliderAmount,
   } = props;
-  const [balance$, setBalance$] = useState<string>();
+  const [inputValue$, setInputValue$] = useState<string>();
+
   useEffect(() => {
-    if (asset && balance !== null && balance !== undefined && balance !== '') {
-      setBalance$(
+    if (asset && !isInvalid(amount)) {
+      setInputValue$(
         Big(asset.price.usd || 0)
-          .mul(balance || 0)
+          .mul(amount || 0)
           .toFixed()
       );
     }
-  }, [balance, asset]);
+  }, [amount, asset]);
   function changeAmount(v: string) {
     const bigV = Big(v || 0);
     if (bigV.lt(0) || bigV.gt(balance || 0)) return;
@@ -75,7 +80,9 @@ export default function InputBox(props: any) {
         </div>
       </div>
       <div className="flex items-center justify-between text-xs text-primaryText px-3 mt-2">
-        <span title={balance$ || '$0'}>{formatWithCommas_usd(balance$)}</span>
+        <span title={inputValue$ || '$0'}>
+          {formatWithCommas_usd(inputValue$)}
+        </span>
         <span title={balance || '0'}>Balance: {formatNumber(balance)}</span>
       </div>
       <div>
