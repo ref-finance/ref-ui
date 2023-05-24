@@ -555,3 +555,15 @@ export const refFarmBoostFunctionCall = async ({
 
   return await executeMultipleTransactions([transaction]);
 };
+
+export const ftGetNearBalance = async () => {
+  const nearConnection = await near.account(
+    getCurrentWallet().wallet.getAccountId()
+  );
+  return nearConnection
+    .getAccountBalance()
+    .then(({ available }) => available)
+    .catch((e) => {
+      return '0';
+    });
+};

@@ -7,7 +7,9 @@ import Tab from '../components/portfolio/Tab';
 import Positions from '../components/portfolio/Positions';
 import Farms from '../components/portfolio/Farms';
 import Orders from '../components/portfolio/Orders';
-import Navigation from '../components/portfolio/Navigation';
+import Navigation, {
+  NavigationMobile,
+} from '../components/portfolio/Navigation';
 import MainTab from '../components/portfolio/MainTab';
 import { getBoostTokenPrices } from '../services/farm';
 import { UserLiquidityInfo } from '../services/commonV3';
@@ -165,22 +167,25 @@ function Portfolio() {
 function PortfolioMobile() {
   const { main_active_tab } = useContext(PortfolioData);
   return (
-    <div>
-      <MainTab></MainTab>
-      <div className={`${main_active_tab == 'overview' ? '' : 'hidden'}`}>
-        <Asset></Asset>
-        <AssetChart></AssetChart>
-        <AssetProfit></AssetProfit>
+    <>
+      <div>
+        <MainTab></MainTab>
+        <div className={`${main_active_tab == 'overview' ? '' : 'hidden'}`}>
+          <Asset></Asset>
+          <AssetChart></AssetChart>
+          <AssetProfit></AssetProfit>
+        </div>
+        <div className={`${main_active_tab == 'positions_2' ? '' : 'hidden'}`}>
+          <Orders></Orders>
+          <Positions></Positions>
+          <Farms></Farms>
+        </div>
+        <div className={`${main_active_tab == 'token' ? '' : 'hidden'}`}>
+          <Tokens></Tokens>
+        </div>
       </div>
-      <div className={`${main_active_tab == 'positions_2' ? '' : 'hidden'}`}>
-        <Orders></Orders>
-        <Positions></Positions>
-        <Farms></Farms>
-      </div>
-      <div className={`${main_active_tab == 'token' ? '' : 'hidden'}`}>
-        <Tokens></Tokens>
-      </div>
-    </div>
+      <NavigationMobile></NavigationMobile>
+    </>
   );
 }
 function PortfolioPC() {
