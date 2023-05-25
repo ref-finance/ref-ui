@@ -99,13 +99,13 @@ export default function AdSwiper() {
                 {is_mobile ? (
                   <DCLPNearMobile
                     onClick={() => {
-                      location.href = '/v2farms/pNEAR<>NEAR@2000[3680-5880]-r';
+                      location.href = '/v2farms/pNEAR<>NEAR@2000[4080-5880]-r';
                     }}
                   ></DCLPNearMobile>
                 ) : (
                   <DCLPNear
                     onClick={() => {
-                      location.href = '/v2farms/pNEAR<>NEAR@2000[3680-5880]-r';
+                      location.href = '/v2farms/pNEAR<>NEAR@2000[4080-5880]-r';
                     }}
                   ></DCLPNear>
                 )}

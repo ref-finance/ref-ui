@@ -127,6 +127,7 @@ module.exports = {
           'linear-gradient(180deg, #00C6A2 0%, #5B40FF 100%)',
         darkBlueColor:
           'linear-gradient(360deg, #1A2B35 0%, rgba(19, 33, 42, 0) 100%)',
+        purpleBgColor:"linear-gradient(180deg, #C3BDAD 0%, #AF9773 100%)",
       }),
       gridTemplateColumns: {
         farmSearch: '2fr 1fr',
@@ -338,6 +339,7 @@ module.exports = {
         withdrawPurple2: '#443F67',
         gray1: '#23313C',
         gray2: '#91A2AE',
+        gray3: '#cccccc',
         txBlue: '#5285DF',
         withdrawPurple3: '#8883D7',
         positionLineBgColor: '#10202B',
@@ -381,6 +383,11 @@ module.exports = {
         light_red_color: 'rgba(255, 106, 142, 0.15)',
         menuBorderColor: '#27343E',
         guideBgColor: 'rgba(0, 19, 32, 0.8)',
+        burrowTabColor:'#22333E',
+        burrowTableBorderColor:"rgba(48, 67, 82, 0.5)",
+        burrowTitleGreenColor:'#78FF9E',
+        burrowPurpleColor:'#BCAB8F',
+        burrowDarkColor:'#04121F',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
@@ -423,6 +430,8 @@ module.exports = {
         28: '7rem',
         p150: '150px',
         p212: '212px',
+        '1000px': '1000px',
+        '1280px': '1280px'
       },
       height: {
         vh90: '90vh',
@@ -446,7 +455,7 @@ module.exports = {
         '420px': '420px',
         p240: '240px',
         p90: '90px',
-        p300: '300px',
+        p300: '300px'
       },
 
       fontSize: {

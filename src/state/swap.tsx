@@ -102,6 +102,8 @@ import { parseSymbol } from '../pages/Orderly/components/RecentTrade';
 import { getTopPoolsIndexer, getTopPoolsIndexerRaw } from '../services/indexer';
 import { SUPPORT_LEDGER_KEY } from '../components/swap/SwapCard';
 import { openUrl } from '../services/commonV3';
+import { hasTriPools } from '../services/aurora/aurora';
+import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
 const ONLY_ZEROS = /^0*\.?0*$/;
 
 export const REF_DCL_POOL_CACHE_KEY = 'REF_DCL_POOL_CACHE_VALUE';
@@ -1957,6 +1959,14 @@ export const useRefSwapPro = ({
     supportLedger,
     loadingData,
   });
+
+  resRef.hasTriPool =
+    tokenIn &&
+    tokenOut &&
+    hasTriPools([
+      tokenIn.id === WRAP_NEAR_CONTRACT_ID ? 'wNEAR' : tokenIn.symbol,
+      tokenOut.id === WRAP_NEAR_CONTRACT_ID ? 'wNEAR' : tokenOut.symbol,
+    ]);
 
   const resAurora = useCrossSwap({
     tokenIn,
