@@ -423,7 +423,7 @@ const handleDepositNear = async (
           receiver_id: BURROW_CONTRACT_ID,
           amount: amountDecimal.toFixed(0),
           msg: switchStatus
-            ? `{"Execute":{"actions":[{"IncreaseCollateral":{"token_id":${WRAP_NEAR_CONTRACT_ID},"max_amount":"${amountDecimal.toFixed(
+            ? `{"Execute":{"actions":[{"IncreaseCollateral":{"token_id":"${WRAP_NEAR_CONTRACT_ID}","max_amount":"${amountDecimal.toFixed(
                 0
               )}"}}]}}`
             : '',
