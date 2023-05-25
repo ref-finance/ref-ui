@@ -69,9 +69,10 @@ export async function getAssets() {
     const price = prices?.prices?.find(
       (p: any) => p.asset_id === asset?.token_id
     );
-    const usd =
-      Number(price?.price?.multiplier) /
-      10 ** (price?.price?.decimals - tokensMetadata?.[i].decimals);
+    const usd = price
+      ? Number(price?.price?.multiplier || 0) /
+        10 ** ((price?.price?.decimals || 0) - tokensMetadata?.[i].decimals)
+      : 0;
     const temp_temp = Big(asset.supplied.balance)
       .plus(Big(asset.reserved))
       .minus(Big(asset.borrowed.balance));
@@ -79,7 +80,7 @@ export async function getAssets() {
     const decimals = tokensMetadata?.[i].decimals + asset.config.extra_decimals;
     const availableLiquidity = Number(shrinkToken(temp.toFixed(0), decimals));
     const extraPrice = price?.price || {
-      decimals: Number(refPrices?.[asset.token_id]?.decimal),
+      decimals: Number(refPrices?.[asset.token_id]?.decimal || 0),
       multiplier: '1',
     };
     return {
@@ -89,7 +90,7 @@ export async function getAssets() {
       availableLiquidity,
       price: {
         ...extraPrice,
-        usd: usd || parseFloat(refPrices?.[asset.token_id]?.price),
+        usd: usd || parseFloat(refPrices?.[asset.token_id]?.price) || 0,
       },
     };
   });
@@ -422,7 +423,7 @@ const handleDepositNear = async (
           receiver_id: BURROW_CONTRACT_ID,
           amount: amountDecimal.toFixed(0),
           msg: switchStatus
-            ? `{"Execute":{"actions":[{"IncreaseCollateral":{"token_id":"wrap.near","max_amount":"${amountDecimal.toFixed(
+            ? `{"Execute":{"actions":[{"IncreaseCollateral":{"token_id":${WRAP_NEAR_CONTRACT_ID},"max_amount":"${amountDecimal.toFixed(
                 0
               )}"}}]}}`
             : '',
