@@ -388,6 +388,8 @@ module.exports = {
         burrowTitleGreenColor:'#78FF9E',
         burrowPurpleColor:'#BCAB8F',
         burrowDarkColor:'#04121F',
+        overviewBurrowColor:'#93806E',
+        overviewBurrowRedColor:'#FF4895',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
