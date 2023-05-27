@@ -5,6 +5,7 @@ import { TokenMetadata } from '../../services/ft-contract';
 import { toReadableNumber } from '~utils/numbers';
 import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import ReactECharts from 'echarts-for-react';
+import Big from 'big.js';
 import {
   auroraAddr,
   useAuroraBalancesNearMapping,
@@ -13,7 +14,6 @@ import {
 import { useTokenBalances } from '~state/token';
 import { NEARXIDS } from '~services/near';
 import {
-  ArrowJumpLarge,
   display_percentage_2,
   display_value,
   display_value_withCommas,
@@ -29,12 +29,17 @@ import {
 } from '../../components/icon/Portfolio';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { openUrl } from '../../services/commonV3';
 import { OverviewData } from '../../pages/Overview';
 
 export default function WalletPanel() {
-  const { tokenPriceList, isSignedIn, accountId, is_mobile } =
-    useContext(OverviewData);
+  const {
+    tokenPriceList,
+    isSignedIn,
+    accountId,
+    is_mobile,
+    set_wallet_assets_value_done,
+    set_wallet_assets_value,
+  } = useContext(OverviewData);
   const [pieOption, setPieOption] = useState(null);
   const [activeTab, setActiveTab] = useState('near'); // near,ref,dcl,aurora
   const [tabList, setTabList] = useState([{ name: 'NEAR', tag: 'near' }]);
@@ -129,11 +134,18 @@ export default function WalletPanel() {
       set_near_tokens(tokens_near);
       set_dcl_tokens(tokens_dcl);
       set_aurora_tokens(tokens_aurora);
-
       set_ref_total_value(total_value_ref);
       set_near_total_value(total_value_near);
       set_dcl_total_value(total_value_dcl);
       set_aurora_total_value(total_value_aurora);
+      set_wallet_assets_value(
+        Big(total_value_ref || 0)
+          .plus(total_value_near || 0)
+          .plus(total_value_dcl || 0)
+          .plus(total_value_aurora || 0)
+          .toFixed()
+      );
+      set_wallet_assets_value_done(true);
       const tab_list = [{ name: 'NEAR', tag: 'near' }];
       if (tokens_ref?.length > 0) {
         tab_list.push({
@@ -376,128 +388,114 @@ export default function WalletPanel() {
     }
     return display_value_withCommas(target);
   }
+  function showTokenPrice(token: TokenMetadata) {
+    const token_price =
+      tokenPriceList[token.id == 'NEAR' ? WRAP_NEAR_CONTRACT_ID : token.id]
+        ?.price || '0';
+    return display_value(token_price);
+  }
   return (
-    <div className="mt-6">
-      <div className="px-5">
-        <div className="text-base text-white mb-4 gotham_bold">
-          <FormattedMessage id="token_balances"></FormattedMessage>
-        </div>
-        <div className="flex items-center justify-between">
+    <div className="mt-4 bg-portfolioBarBgColor rounded-2xl overflow-hidden">
+      <div className="flex items-center justify-between border-b border-overviewBorderColor px-6 py-4">
+        <div className="flex items-center">
           <div className="flex items-center">
-            <div
-              className={`flex items-center mr-2 ${
-                tabList.length > 1 ? '' : 'hidden'
-              }`}
-            >
-              <div className="flex items-center h-8 rounded-lg p-0.5 border border-commonTokenBorderColor">
-                {tabList.map((item, index) => {
-                  return (
-                    <span
-                      key={item.tag}
-                      onClick={() => {
-                        setActiveTab(item.tag);
-                      }}
-                      className={`flex items-center justify-center rounded-md h-full ${
-                        item.tag == 'ref' ? 'w-24' : 'w-12'
-                      } text-xs gotham_bold cursor-pointer hover:bg-portfolioLightGreyColor ${
-                        index != tabList.length - 1 ? 'mr-0.5' : ''
-                      } ${
-                        activeTab == item.tag
-                          ? 'bg-portfolioLightGreyColor text-white'
-                          : 'text-primaryText'
-                      }`}
-                    >
-                      {item.tag == 'ref'
-                        ? 'REF' +
-                          '(' +
-                          intl.formatMessage({ id: 'classic' }) +
-                          ')'
-                        : item.name}
-                    </span>
-                  );
-                })}
-              </div>
-            </div>
-            <div
-              className={`flex items-center justify-center rounded-lg h-8 p-0.5 mr-3 ${
-                tabList.length == 1 && isSignedIn ? '' : 'hidden'
-              } ${
-                activeTab == 'near'
-                  ? 'border border-gradientFromHover text-white'
-                  : 'text-primaryText'
-              }`}
-            >
-              <span
-                onClick={() => {
-                  setActiveTab('near');
-                }}
-                className={`flex items-center justify-center rounded-md h-full px-2 text-xs gotham_bold cursor-pointer bg-portfolioLightGreyColor hover:text-white`}
+            <span className="text-base text-overviewLightBlueColor gotham_bold mr-3.5">
+              Wallet
+            </span>
+            <div className="flex items-center">
+              <div
+                className={`flex items-center mr-2 ${
+                  tabList.length > 1 ? '' : 'hidden'
+                }`}
               >
-                NEAR wallet
+                <div className="flex items-center h-8 rounded-lg p-0.5 border border-commonTokenBorderColor">
+                  {tabList.map((item, index) => {
+                    return (
+                      <span
+                        key={item.tag}
+                        onClick={() => {
+                          setActiveTab(item.tag);
+                        }}
+                        className={`flex items-center justify-center rounded-md h-full ${
+                          item.tag == 'ref' ? 'w-24' : 'w-12'
+                        } text-xs gotham_bold cursor-pointer hover:bg-portfolioLightGreyColor ${
+                          index != tabList.length - 1 ? 'mr-0.5' : ''
+                        } ${
+                          activeTab == item.tag
+                            ? 'bg-portfolioLightGreyColor text-white'
+                            : 'text-primaryText'
+                        }`}
+                      >
+                        {item.tag == 'ref'
+                          ? 'REF' +
+                            '(' +
+                            intl.formatMessage({ id: 'classic' }) +
+                            ')'
+                          : item.name}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+              <div
+                className={`flex items-center justify-center rounded-lg h-8 p-0.5 mr-3 ${
+                  tabList.length == 1 && isSignedIn ? '' : 'hidden'
+                } ${
+                  activeTab == 'near'
+                    ? 'border border-gradientFromHover text-white'
+                    : 'text-primaryText'
+                }`}
+              >
+                <span
+                  onClick={() => {
+                    setActiveTab('near');
+                  }}
+                  className={`flex items-center justify-center rounded-md h-full px-2 text-xs gotham_bold cursor-pointer bg-portfolioLightGreyColor hover:text-white`}
+                >
+                  NEAR wallet
+                </span>
+              </div>
+              <div
+                className={`text-sm text-primaryText ${
+                  isSignedIn ? 'hidden' : ''
+                }`}
+              >
+                NEAR Wallet
+              </div>
+              {aurora_tokens?.length > 0 ? (
+                activeTab == 'aurora' ? (
+                  <AuroraIconActive className="cursor-pointer"></AuroraIconActive>
+                ) : (
+                  <AuroraIcon
+                    onClick={() => {
+                      setActiveTab('aurora');
+                    }}
+                    className="text-primaryText hover:text-portfolioLightGreenColor cursor-pointer"
+                  ></AuroraIcon>
+                )
+              ) : null}
+            </div>
+          </div>
+          <div
+            className={`flex flex-col ml-2.5 ${
+              activeTab == 'aurora' ? '' : 'hidden'
+            }`}
+          >
+            <div className="flex items-center">
+              <TriangleGreyIcon className="mr-1"></TriangleGreyIcon>
+              <span className="text-xs text-primaryText">
+                <FormattedMessage id="mapping_account" />
               </span>
             </div>
-            <div
-              className={`text-sm text-primaryText ${
-                isSignedIn ? 'hidden' : ''
-              }`}
-            >
-              NEAR Wallet
+            <div className="flex items-center mt-0.5">
+              <span className="text-xs text-white">{displayAuroraAddress}</span>
+              <CopyToClipboard text={auroraAddress}>
+                <CopyIcon className="text-primaryText hover:text-white cursor-pointer ml-1.5"></CopyIcon>
+              </CopyToClipboard>
             </div>
-            {aurora_tokens?.length > 0 ? (
-              activeTab == 'aurora' ? (
-                <AuroraIconActive className="cursor-pointer"></AuroraIconActive>
-              ) : (
-                <AuroraIcon
-                  onClick={() => {
-                    setActiveTab('aurora');
-                  }}
-                  className="text-primaryText hover:text-portfolioLightGreenColor cursor-pointer"
-                ></AuroraIcon>
-              )
-            ) : null}
-          </div>
-          <ArrowJumpLarge
-            clickEvent={() => {
-              if (activeTab == 'aurora') {
-                localStorage.setItem('REF_FI_SWAP_SWAPPAGE_TAB_VALUE', 'cross');
-                localStorage.setItem(
-                  'REF_FI_ACCOUNT_TAB_AURORA_KEY',
-                  activeTab
-                );
-              } else {
-                localStorage.setItem(
-                  'REF_FI_SWAP_SWAPPAGE_TAB_VALUE',
-                  'normal'
-                );
-                localStorage.setItem('REF_FI_ACCOUNT_TAB_KEY', activeTab);
-              }
-
-              openUrl('/account');
-            }}
-            extraClass={`flex-shrink-0 ${isSignedIn ? '' : 'hidden'}`}
-          ></ArrowJumpLarge>
-        </div>
-        <div
-          className={`flex items-center justify-between mt-4 ${
-            activeTab == 'aurora' ? '' : 'hidden'
-          }`}
-        >
-          <div className="flex items-center">
-            <TriangleGreyIcon className="mr-1"></TriangleGreyIcon>
-            <span className="text-xs text-primaryText">
-              <FormattedMessage id="mapping_account" />
-            </span>
-          </div>
-          <div className="flex items-center">
-            <span className="text-xs text-white mr-1.5">
-              {displayAuroraAddress}
-            </span>
-            <CopyToClipboard text={auroraAddress}>
-              <CopyIcon className="text-primaryText hover:text-white cursor-pointer"></CopyIcon>
-            </CopyToClipboard>
           </div>
         </div>
-        <div className="text-xl gotham_bold text-white mt-2">
+        <div className="text-base gotham_bold text-white">
           {showTotalValue()}
         </div>
       </div>
@@ -506,119 +504,167 @@ export default function WalletPanel() {
           <FormattedMessage id="account_appear_here_tip" />
         </div>
       )}
-      <div className="flex items-center justify-center mt-8 xsm:mt-0">
-        {pieOption ? (
-          <ReactECharts
-            ref={tokenRef}
-            option={pieOption}
-            style={{
-              width: is_mobile ? '240px' : '200px',
-              height: is_mobile ? '240px' : '200px',
-            }}
-            onEvents={chartEvents}
-          />
-        ) : null}
-      </div>
-      <div
-        className="overflow-auto px-2 mt-5 xsm:mt-0 lg:absolute lg:w-full lg:bottom-0"
-        style={{
-          maxHeight: is_mobile ? '160px' : 'none',
-          top: !is_mobile ? (activeTab == 'aurora' ? '24rem' : '22rem') : '',
-        }}
-      >
-        <div className={`${activeTab == 'near' ? '' : 'hidden'}`}>
-          {near_tokens.map((token: TokenMetadata, index) => {
-            return (
-              <div
-                key={token.id + 'near'}
-                className="flex items-center justify-between mb-3 px-3 hover:bg-symbolHover rounded-md py-1.5"
-              >
-                <div className="flex items-center">
-                  <img
-                    className="w-4 h-4 border border-gradientFrom rounded-full mr-2.5"
-                    src={token.icon}
-                  />
-                  <span className="text-sm text-primaryText">
-                    {token.symbol}
-                  </span>
-                </div>
-                <span className="text-sm text-white">
-                  {display_value(token.t_value)}
-                </span>
+      {isSignedIn ? (
+        <div className="flex items-stretch">
+          {/* chart */}
+          <div className="border-r border-overviewBorderColor px-6 pt-5">
+            <div className="text-sm text-primaryText">Token Allocation</div>
+            {pieOption ? (
+              <ReactECharts
+                ref={tokenRef}
+                option={pieOption}
+                style={{
+                  width: is_mobile ? '240px' : '260px',
+                  height: is_mobile ? '240px' : '260px',
+                }}
+                onEvents={chartEvents}
+              />
+            ) : null}
+          </div>
+          {/* tokens */}
+          <div className="flex-grow p-4">
+            <div className="grid grid-cols-6 pb-4">
+              <span className="col-span-3 text-sm text-primaryText">Token</span>
+              <span className="col-span-1 text-sm text-primaryText">
+                Balance
+              </span>
+              <span className="col-span-1 text-sm text-primaryText">Price</span>
+              <span className="col-span-1 text-sm text-primaryText">Value</span>
+            </div>
+            <div
+              className="overflow-auto"
+              style={{
+                height: is_mobile ? '160px' : '220px',
+              }}
+            >
+              <div className={`${activeTab == 'near' ? '' : 'hidden'}`}>
+                {near_tokens.map((token: TokenMetadata, index) => {
+                  return (
+                    <div
+                      key={token.id + 'near'}
+                      className="grid grid-cols-6 px-3 hover:bg-symbolHover rounded-md py-3 col-span-3 text-sm"
+                    >
+                      <div className="flex items-center col-span-3">
+                        <img
+                          className="w-4 h-4 border border-gradientFrom rounded-full mr-2.5"
+                          src={token.icon}
+                        />
+                        <span className="text-sm text-primaryText">
+                          {token.symbol}
+                        </span>
+                      </div>
+                      <div className="col-span-1 text-white">
+                        {display_number_internationalCurrencySystemNature(
+                          Big(token.near || 0).toFixed()
+                        )}
+                      </div>
+                      <div className="col-span-1 text-white">
+                        {showTokenPrice(token)}
+                      </div>
+                      <span className="text-sm text-white col-span-1">
+                        {display_value(token.t_value)}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
-            );
-          })}
-        </div>
-        <div className={`${activeTab == 'ref' ? '' : 'hidden'}`}>
-          {ref_tokens.map((token: TokenMetadata, index) => {
-            return (
-              <div
-                key={token.id + 'ref'}
-                className="flex items-center justify-between mb-3 px-3 hover:bg-symbolHover rounded-md py-1.5"
-              >
-                <div className="flex items-center">
-                  <img
-                    className="w-4 h-4 border border-gradientFrom rounded-full mr-2.5"
-                    src={token.icon}
-                  />
-                  <span className="text-sm text-primaryText">
-                    {token.symbol}
-                  </span>
-                </div>
-                <span className="text-sm text-white">
-                  {display_value(token.t_value)}
-                </span>
+              <div className={`${activeTab == 'ref' ? '' : 'hidden'}`}>
+                {ref_tokens.map((token: TokenMetadata, index) => {
+                  return (
+                    <div
+                      key={token.id + 'ref'}
+                      className="grid grid-cols-6 px-3 hover:bg-symbolHover rounded-md py-1.5 text-sm"
+                    >
+                      <div className="flex items-center col-span-3">
+                        <img
+                          className="w-4 h-4 border border-gradientFrom rounded-full mr-2.5"
+                          src={token.icon}
+                        />
+                        <span className="text-sm text-primaryText">
+                          {token.symbol}
+                        </span>
+                      </div>
+                      <div className="col-span-1 text-white">
+                        {display_number_internationalCurrencySystemNature(
+                          Big(token.ref || 0).toFixed()
+                        )}
+                      </div>
+                      <div className="col-span-1 text-white">
+                        {showTokenPrice(token)}
+                      </div>
+                      <span className="text-sm text-white">
+                        {display_value(token.t_value)}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
-            );
-          })}
-        </div>
-        <div className={`${activeTab == 'dcl' ? '' : 'hidden'}`}>
-          {dcl_tokens.map((token: TokenMetadata, index) => {
-            return (
-              <div
-                key={token.id + 'dcl'}
-                className="flex items-center justify-between mb-3 px-3 hover:bg-symbolHover rounded-md py-1.5"
-              >
-                <div className="flex items-center">
-                  <img
-                    className="w-4 h-4 border border-gradientFrom rounded-full mr-2.5"
-                    src={token.icon}
-                  />
-                  <span className="text-sm text-primaryText">
-                    {token.symbol}
-                  </span>
-                </div>
-                <span className="text-sm text-white">
-                  {display_value(token.t_value)}
-                </span>
+              <div className={`${activeTab == 'dcl' ? '' : 'hidden'}`}>
+                {dcl_tokens.map((token: TokenMetadata, index) => {
+                  return (
+                    <div
+                      key={token.id + 'dcl'}
+                      className="grid grid-cols-6 px-3 hover:bg-symbolHover rounded-md py-1.5 text-sm"
+                    >
+                      <div className="flex items-center col-span-3">
+                        <img
+                          className="w-4 h-4 border border-gradientFrom rounded-full mr-2.5"
+                          src={token.icon}
+                        />
+                        <span className="text-sm text-primaryText">
+                          {token.symbol}
+                        </span>
+                      </div>
+                      <div className="col-span-1 text-white">
+                        {display_number_internationalCurrencySystemNature(
+                          Big(token.dcl || 0).toFixed()
+                        )}
+                      </div>
+                      <div className="col-span-1 text-white">
+                        {showTokenPrice(token)}
+                      </div>
+                      <span className="text-sm text-white">
+                        {display_value(token.t_value)}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
-            );
-          })}
-        </div>
-        <div className={`${activeTab == 'aurora' ? '' : 'hidden'}`}>
-          {aurora_tokens.map((token: TokenMetadata, index) => {
-            return (
-              <div
-                key={token.id + 'aurora'}
-                className="flex items-center justify-between mb-3 px-3 hover:bg-symbolHover rounded-md py-1.5"
-              >
-                <div className="flex items-center">
-                  <img
-                    className="w-4 h-4 border border-gradientFrom rounded-full mr-2.5"
-                    src={token.icon}
-                  />
-                  <span className="text-sm text-primaryText">
-                    {token.symbol}
-                  </span>
-                </div>
-                <span className="text-sm text-white">
-                  {display_value(token.t_value)}
-                </span>
+              <div className={`${activeTab == 'aurora' ? '' : 'hidden'}`}>
+                {aurora_tokens.map((token: TokenMetadata, index) => {
+                  return (
+                    <div
+                      key={token.id + 'aurora'}
+                      className="grid grid-cols-6 px-3 hover:bg-symbolHover rounded-md py-1.5 text-sm"
+                    >
+                      <div className="flex items-center col-span-3">
+                        <img
+                          className="w-4 h-4 border border-gradientFrom rounded-full mr-2.5"
+                          src={token.icon}
+                        />
+                        <span className="text-sm text-primaryText">
+                          {token.symbol}
+                        </span>
+                      </div>
+                      <div className="col-span-1 text-white">
+                        {display_number_internationalCurrencySystemNature(
+                          Big(token.aurora || 0).toFixed()
+                        )}
+                      </div>
+                      <div className="col-span-1 text-white">
+                        {showTokenPrice(token)}
+                      </div>
+                      <span className="text-sm text-white">
+                        {display_value(token.t_value)}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
-            );
-          })}
+            </div>
+          </div>
         </div>
-      </div>
+      ) : null}
     </div>
   );
 }

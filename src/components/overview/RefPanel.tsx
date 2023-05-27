@@ -35,6 +35,12 @@ import { formatWithCommas_usd } from '../../services/overview/utils';
 import { REFBgIcon } from './Icons';
 const { XREF_TOKEN_ID } = getConfig();
 function RefPanel() {
+  const {
+    set_ref_invest_value,
+    set_ref_invest_value_done,
+    set_ref_profit_value,
+    set_ref_profit_value_done,
+  } = useContext(OverviewData);
   // get xref
   const [xref_value, xref_value_done] = useXref() as [string, boolean];
   // get lp v1
@@ -63,24 +69,29 @@ function RefPanel() {
     return [total_value.toFixed(), total_value_done];
   }, [lpValueV1Done, lpValueV2Done, xref_value_done]);
   // get profit
-  const [total_proft, total_proft_done] = useMemo(() => {
+  const [total_profit, total_profit_done] = useMemo(() => {
     let total_profit = '0';
-    let total_proft_done = false;
+    let total_profit_done = false;
     if (total_fees_value_done && total_unClaimed_rewrads_value_done) {
       total_profit = new BigNumber(total_unClaimed_rewrads_value)
         .plus(total_fees_value)
         .toFixed();
-      total_proft_done = true;
-      return [total_profit, total_proft_done];
+      total_profit_done = true;
+      return [total_profit, total_profit_done];
     }
-    return [total_profit, total_proft_done];
+    return [total_profit, total_profit_done];
   }, [total_fees_value_done, total_unClaimed_rewrads_value_done]);
-  if (invest_value_done) {
-    console.log('invest_value', invest_value);
-  }
-  if (total_proft_done) {
-    console.log('total_proft', total_proft);
-  }
+  useEffect(() => {
+    if (invest_value_done) {
+      set_ref_invest_value(invest_value);
+      set_ref_invest_value_done(true);
+    }
+    if (total_profit_done) {
+      set_ref_profit_value(total_profit);
+      set_ref_profit_value_done(true);
+    }
+  }, [invest_value_done, total_profit_done]);
+
   return (
     <div
       className="flex flex-col justify-between bg-swapCardGradient rounded-2xl px-5 py-4 relative w-1 flex-grow"
@@ -95,14 +106,14 @@ function RefPanel() {
       <div className="flex items-stretch justify-between">
         <div className="flex flex-col w-1/2">
           <span className="text-sm text-primaryText">Total Investd</span>
-          <span className="text-base text-white gotham_bold mt-4">
+          <span className="text-base text-white gotham_bold mt-3">
             {formatWithCommas_usd(invest_value)}
           </span>
         </div>
         <div className="flex flex-col items-center w-1/2">
           <span className="text-sm text-primaryText">Claimable</span>
-          <span className="text-base text-portfolioQinColor gotham_bold mt-4">
-            {formatWithCommas_usd(total_proft)}
+          <span className="text-base text-portfolioQinColor gotham_bold mt-3">
+            {formatWithCommas_usd(total_profit)}
           </span>
         </div>
       </div>
@@ -491,6 +502,8 @@ function useFees() {
   >([]);
   const [liquidities_details_list_done, set_liquidities_details_list_done] =
     useState<boolean>(false);
+  const [liquidities_list_done, set_liquidities_list_done] =
+    useState<boolean>(false);
   const [liquidities_tokens_metas, set_liquidities_tokens_metas] =
     useState<Record<string, TokenMetadata>>();
 
@@ -504,7 +517,10 @@ function useFees() {
       get_all_tokens_metas();
       get_all_liquidities_details();
     }
-  }, [liquidities_list]);
+    if (liquidities_list_done && liquidities_list.length == 0) {
+      set_liquidities_details_list_done(true);
+    }
+  }, [liquidities_list, liquidities_list_done]);
   const [total_fees_value, total_fees_value_done] = useMemo(() => {
     let total_value = new BigNumber(0);
     let total_value_done = false;
@@ -551,6 +567,7 @@ function useFees() {
   async function get_list_liquidities() {
     const list: UserLiquidityInfo[] = await list_liquidities();
     set_liquidities_list(list);
+    set_liquidities_list_done(true);
   }
   async function get_all_tokens_metas() {
     const token_ids = new Set();

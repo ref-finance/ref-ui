@@ -197,32 +197,30 @@ function PortfolioPC() {
         <Navigation></Navigation>
       </div>
       {/* content */}
-      <div className="flex-grow border-l border-r border-boxBorder">
-        <div>
-          <div className="flex justify-between items-stretch">
-            <Asset></Asset>
-            <AssetChart></AssetChart>
+      <div className="flex-grow border-l border-r border-boxBorder px-5">
+        <div className="lg:max-w-1000px 3xl:max-w-1280px m-auto">
+          <div>
+            <div className="flex justify-between items-stretch">
+              <Asset></Asset>
+              <AssetChart></AssetChart>
+            </div>
+            <AssetProfit></AssetProfit>
           </div>
-          <AssetProfit></AssetProfit>
-        </div>
-        <div className="px-5">
-          <Tab></Tab>
-          <div className="relative px-3.5 py-4 rounded-2xl border border-boxBorder">
-            <div className={`${activeTab == 1 ? '' : 'hidden'}`}>
-              <Orders></Orders>
-            </div>
-            <div className={`${activeTab == 2 ? '' : 'hidden'}`}>
-              <Positions></Positions>
-            </div>
-            <div className={`${activeTab == 3 ? '' : 'hidden'}`}>
-              <Farms></Farms>
+          <div>
+            <Tab></Tab>
+            <div className="relative px-3.5 py-4 rounded-2xl border border-boxBorder">
+              <div className={`${activeTab == 1 ? '' : 'hidden'}`}>
+                <Orders></Orders>
+              </div>
+              <div className={`${activeTab == 2 ? '' : 'hidden'}`}>
+                <Positions></Positions>
+              </div>
+              <div className={`${activeTab == 3 ? '' : 'hidden'}`}>
+                <Farms></Farms>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      {/* tokens table */}
-      <div className="relative flex-shrink-0" style={{ minWidth: '330px' }}>
-        <Tokens></Tokens>
       </div>
     </div>
   );

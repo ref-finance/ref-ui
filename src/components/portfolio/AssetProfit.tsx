@@ -171,7 +171,7 @@ function AssetProfitPc() {
     show_total_unClaimed_rewrads_value,
   } = useContext(AssetProfitData);
   return (
-    <div className=" grid grid-cols-3 bg-portfolioBarBgColor px-7 py-4">
+    <div className=" grid grid-cols-3 bg-portfolioBarBgColor px-7 py-4 rounded-xl">
       <div className="col-span-1">
         <div className="flex items-center">
           <span className="text-sm text-primaryText">

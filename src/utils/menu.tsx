@@ -48,6 +48,7 @@ import {
   PurpleCircleIcon,
   PortfolioIcon,
   BorrowIcon,
+  OverviewIcon,
 } from '~components/icon/Nav';
 // import { XrefIcon } from '~components/icon/Xref';
 import getConfig from '../services/config';
@@ -371,10 +372,18 @@ export const useMenus = () => {
       ),
       url: '',
       isExternal: false,
-      links: ['/portfolio', '/burrow'],
+      links: ['/portfolio', '/burrow', '/overview'],
       children: [
         {
           id: '3-1',
+          label: <>Overview</>,
+          logo: <OverviewIcon />,
+          url: '/overview',
+          isExternal: false,
+          links: ['/overview'],
+        },
+        {
+          id: '3-2',
           label: <>Ref.finance</>,
           logo: <PortfolioIcon />,
           url: '/portfolio',
@@ -382,7 +391,7 @@ export const useMenus = () => {
           links: ['/portfolio'],
         },
         {
-          id: '3-2',
+          id: '3-3',
           label: <>Burrow</>,
           logo: <BorrowIcon />,
           url: '/burrow',
@@ -655,10 +664,18 @@ export const useMenusMobile = () => {
       ),
       url: '',
       isExternal: false,
-      links: ['/portfolio', '/burrow'],
+      links: ['/portfolio', '/burrow', '/overview'],
       children: [
         {
           id: '3-1',
+          label: <>Ref.finance</>,
+          logo: <OverviewIcon />,
+          url: '/overview',
+          isExternal: false,
+          links: ['/overview'],
+        },
+        {
+          id: '3-2',
           label: <>Ref.finance</>,
           logo: <PortfolioIcon />,
           url: '/portfolio',
@@ -666,7 +683,7 @@ export const useMenusMobile = () => {
           links: ['/portfolio'],
         },
         {
-          id: '3-2',
+          id: '3-3',
           label: <>Burrow</>,
           logo: <BorrowIcon />,
           url: '/burrow',
