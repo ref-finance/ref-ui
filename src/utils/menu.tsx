@@ -668,7 +668,7 @@ export const useMenusMobile = () => {
       children: [
         {
           id: '3-1',
-          label: <>Ref.finance</>,
+          label: <>Overview</>,
           logo: <OverviewIcon />,
           url: '/overview',
           isExternal: false,
