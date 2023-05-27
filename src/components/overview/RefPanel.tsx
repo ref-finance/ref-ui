@@ -33,6 +33,7 @@ import { get_liquidity_value } from '../../services/commonV3';
 import { OverviewData } from '../../pages/Overview';
 import { formatWithCommas_usd } from '../../services/overview/utils';
 import { REFBgIcon } from './Icons';
+import { useHistory } from 'react-router-dom';
 const { XREF_TOKEN_ID } = getConfig();
 function RefPanel() {
   const {
@@ -41,6 +42,7 @@ function RefPanel() {
     set_ref_profit_value,
     set_ref_profit_value_done,
   } = useContext(OverviewData);
+  const history = useHistory();
   // get xref
   const [xref_value, xref_value_done] = useXref() as [string, boolean];
   // get lp v1
@@ -94,8 +96,11 @@ function RefPanel() {
 
   return (
     <div
-      className="flex flex-col justify-between bg-swapCardGradient rounded-2xl px-5 py-4 relative w-1 flex-grow"
+      className="flex flex-col justify-between bg-swapCardGradient rounded-2xl px-5 py-4 relative w-1 flex-grow cursor-pointer"
       style={{ height: '176px' }}
+      onClick={() => {
+        history.push('/portfolio');
+      }}
     >
       <div>
         <span className="text-base text-greenColor gotham_bold">
@@ -155,7 +160,7 @@ function useXref() {
 }
 function useLpV1() {
   const { tokenPriceList, isSignedIn, accountId } = useContext(OverviewData);
-  const [YourLpValueV1, setYourLpValueV1] = useState('0');
+  const [yourLpValueV1, setYourLpValueV1] = useState('0');
   const [lpValueV1Done, setLpValueV1Done] = useState(false);
   const [pools, setPools] = useState<PoolRPCView[]>();
   const [stablePools, setStablePools] = useState<PoolRPCView[]>();
@@ -281,16 +286,13 @@ function useLpV1() {
       }
     }
   }, [data_fetch_status, tvls]);
-  return [YourLpValueV1, lpValueV1Done];
+  return [yourLpValueV1, lpValueV1Done];
 }
 function useLpV2() {
   const { tokenPriceList, isSignedIn, accountId } = useContext(OverviewData);
   const [all_pools_map, set_all_pools_map] =
     useState<Record<string, PoolInfo>>();
   const [liquidities_list, set_liquidities_list] = useState<
-    UserLiquidityInfo[]
-  >([]);
-  const [liquidities_details_list, set_iquidities_details_list] = useState<
     UserLiquidityInfo[]
   >([]);
   const [liquidities_tokens_metas, set_liquidities_tokens_metas] =
@@ -304,9 +306,8 @@ function useLpV2() {
   }, [isSignedIn]);
   useEffect(() => {
     if (liquidities_list.length > 0) {
-      get_all_pools_detail(); // +
-      get_all_tokens_metas(); // +
-      get_all_liquidities_details(); // -
+      get_all_pools_detail();
+      get_all_tokens_metas();
     }
   }, [liquidities_list]);
   useEffect(() => {
@@ -363,15 +364,6 @@ function useLpV2() {
       };
     }, {});
     set_liquidities_tokens_metas(liquidities_tokens_metas);
-  }
-  async function get_all_liquidities_details() {
-    const promise_list_details = liquidities_list.map(
-      (item: UserLiquidityInfo) => {
-        return get_liquidity(item.lpt_id);
-      }
-    );
-    const list_details = await Promise.all(promise_list_details);
-    set_iquidities_details_list(list_details);
   }
   function get_all_liquidity_value() {
     let total_value = new BigNumber(0);
@@ -500,13 +492,14 @@ function useFees() {
   const [liquidities_details_list, set_iquidities_details_list] = useState<
     UserLiquidityInfo[]
   >([]);
-  const [liquidities_details_list_done, set_liquidities_details_list_done] =
-    useState<boolean>(false);
-  const [liquidities_list_done, set_liquidities_list_done] =
-    useState<boolean>(false);
   const [liquidities_tokens_metas, set_liquidities_tokens_metas] =
     useState<Record<string, TokenMetadata>>();
-
+  const [liquidities_list_done, set_liquidities_list_done] =
+    useState<boolean>(false);
+  const [liquidities_details_list_done, set_liquidities_details_list_done] =
+    useState<boolean>(false);
+  const [liquidities_tokens_metas_done, set_liquidities_tokens_metas_done] =
+    useState<boolean>(false);
   useEffect(() => {
     if (isSignedIn) {
       get_list_liquidities();
@@ -519,6 +512,7 @@ function useFees() {
     }
     if (liquidities_list_done && liquidities_list.length == 0) {
       set_liquidities_details_list_done(true);
+      set_liquidities_tokens_metas_done(true);
     }
   }, [liquidities_list, liquidities_list_done]);
   const [total_fees_value, total_fees_value_done] = useMemo(() => {
@@ -561,8 +555,11 @@ function useFees() {
   }, [
     tokenPriceList,
     liquidities_details_list,
+    liquidities_list,
     liquidities_tokens_metas,
     liquidities_details_list_done,
+    liquidities_list_done,
+    liquidities_tokens_metas_done,
   ]);
   async function get_list_liquidities() {
     const list: UserLiquidityInfo[] = await list_liquidities();
@@ -590,6 +587,7 @@ function useFees() {
       };
     }, {});
     set_liquidities_tokens_metas(liquidities_tokens_metas);
+    set_liquidities_tokens_metas_done(true);
   }
   async function get_all_liquidities_details() {
     const promise_list_details = liquidities_list.map(

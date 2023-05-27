@@ -23,7 +23,7 @@ import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { getCurrentHolding } from '../../pages/Orderly/orderly/off-chain-api';
 import { toReadableNumber } from '~utils/numbers';
 import { OverviewData } from '../../pages/Overview';
-import { display_value } from '~components/portfolio/Tool';
+import { formatWithCommas_usd } from '../../services/overview/utils';
 import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import { RightArrowIcon, OrderlyLoading } from './Icons';
 import { openUrl } from '../../services/commonV3';
@@ -39,6 +39,7 @@ import {
 import { announceKey, setTradingKey } from '../../pages/Orderly/orderly/api';
 import getConfig from '../../pages/Orderly/config';
 import { getOrderlySystemInfo } from '../../pages/Orderly/orderly/off-chain-api';
+import { useHistory } from 'react-router-dom';
 export default function OrderlyPanel() {
   const {
     tokenPriceList,
@@ -47,6 +48,7 @@ export default function OrderlyPanel() {
     set_orderly_asset_value,
     set_orderly_asset_value_done,
   } = useContext(OverviewData);
+  const history = useHistory();
   const [tradingKeySet, setTradingKeySet] = useState<boolean>(false);
   const [keyAnnounced, setKeyAnnounced] = useState<boolean>(false);
   const [maintenance, setMaintenance] = React.useState<boolean>(false);
@@ -140,25 +142,27 @@ export default function OrderlyPanel() {
       set_orderly_asset_value_done(true);
     }
   }, [totalAssetDone]);
+
   const loading =
-    (storageEnough === undefined || keyLoading) && !!accountId && !maintenance;
+    (storageEnough === undefined || keyLoading) && accountId && !maintenance;
+
   const invalid =
     !storageEnough ||
     !tradingKeySet ||
     !keyAnnounced ||
     !validContract() ||
+    !accountId ||
     maintenance;
-  const showMask = loading || (!loading && invalid);
-  // console.log(
-  //   'storageEnough, keyLoading, tradingKeySet, keyAnnounced, validContract()',
-  //   storageEnough,
-  //   keyLoading,
-  //   tradingKeySet,
-  //   keyAnnounced,
-  //   validContract()
-  // );
+
+  const showMask = loading || invalid;
+
   return (
-    <div className="flex flex-col justify-between bg-swapCardGradient rounded-2xl px-5 py-4 w-1 flex-grow overflow-hidden relative">
+    <div
+      className="flex flex-col justify-between bg-swapCardGradient rounded-2xl px-5 py-4 w-1 flex-grow overflow-hidden relative cursor-pointer"
+      onClick={() => {
+        openUrl('/orderbook');
+      }}
+    >
       <div>
         <span className="text-base text-greenColor gotham_bold">Orderly</span>
         <OrderlyBgIcon className="absolute right-2 top-3"></OrderlyBgIcon>
@@ -171,7 +175,7 @@ export default function OrderlyPanel() {
         <div className="flex flex-col w-1/2">
           <span className="text-sm text-primaryText">Total Assets</span>
           <span className="text-base text-white gotham_bold mt-3">
-            {display_value(totalAsset)}
+            {formatWithCommas_usd(totalAsset)}
           </span>
         </div>
       </div>

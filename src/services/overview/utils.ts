@@ -1,4 +1,3 @@
-import BigNumber from 'bignumber.js';
 import Big from 'big.js';
 import { getCurrentWallet } from '../../utils/wallets-integration';
 import {
@@ -8,7 +7,7 @@ import {
 } from '../../utils/numbers';
 export const formatWithCommas_usd = (v: string | number) => {
   const accountId = getCurrentWallet()?.wallet?.getAccountId();
-  if (isInvalid(v)) return accountId ? '$0' : '$-';
+  if (isInvalid(v) || !accountId) return accountId ? '$0' : '$-';
   const big = Big(v);
   if (big.eq(0)) {
     return '$0';
@@ -23,7 +22,7 @@ export const formatWithCommas_usd = (v: string | number) => {
 
 export const formatPercentage = (v: string | number) => {
   const accountId = getCurrentWallet()?.wallet?.getAccountId();
-  if (isInvalid(v)) return accountId ? '0%' : '-%';
+  if (isInvalid(v) || !accountId) return accountId ? '0%' : '-%';
   const big = Big(v);
   if (big.eq(0)) {
     return '0%';
@@ -35,7 +34,7 @@ export const formatPercentage = (v: string | number) => {
 };
 export const formatNumber = (v: string | number) => {
   const accountId = getCurrentWallet()?.wallet?.getAccountId();
-  if (isInvalid(v)) return accountId ? '0' : '-';
+  if (isInvalid(v) || !accountId) return accountId ? '0' : '-';
   const big = Big(v);
   if (big.eq(0)) {
     return '0';
@@ -47,7 +46,7 @@ export const formatNumber = (v: string | number) => {
 };
 export const formatToInternationalCurrencySystem$ = (v: string | number) => {
   const accountId = getCurrentWallet()?.wallet?.getAccountId();
-  if (isInvalid(v)) return accountId ? '$0' : '$-';
+  if (isInvalid(v) || !accountId) return accountId ? '$0' : '$-';
   return '$' + toInternationalCurrencySystem(Big(v || 0).toFixed(), 2);
 };
 export const isInvalid = function (v: any) {

@@ -523,7 +523,7 @@ export default function WalletPanel() {
           </div>
           {/* tokens */}
           <div className="flex-grow p-4">
-            <div className="grid grid-cols-6 pb-4">
+            <div className="grid grid-cols-6 pb-4 px-3 mr-1.5">
               <span className="col-span-3 text-sm text-primaryText">Token</span>
               <span className="col-span-1 text-sm text-primaryText">
                 Balance
@@ -573,7 +573,7 @@ export default function WalletPanel() {
                   return (
                     <div
                       key={token.id + 'ref'}
-                      className="grid grid-cols-6 px-3 hover:bg-symbolHover rounded-md py-1.5 text-sm"
+                      className="grid grid-cols-6 px-3 hover:bg-symbolHover rounded-md  py-3 text-sm"
                     >
                       <div className="flex items-center col-span-3">
                         <img
@@ -604,7 +604,7 @@ export default function WalletPanel() {
                   return (
                     <div
                       key={token.id + 'dcl'}
-                      className="grid grid-cols-6 px-3 hover:bg-symbolHover rounded-md py-1.5 text-sm"
+                      className="grid grid-cols-6 px-3 hover:bg-symbolHover rounded-md py-3 text-sm"
                     >
                       <div className="flex items-center col-span-3">
                         <img
@@ -635,7 +635,7 @@ export default function WalletPanel() {
                   return (
                     <div
                       key={token.id + 'aurora'}
-                      className="grid grid-cols-6 px-3 hover:bg-symbolHover rounded-md py-1.5 text-sm"
+                      className="grid grid-cols-6 px-3 hover:bg-symbolHover rounded-md py-3 text-sm"
                     >
                       <div className="flex items-center col-span-3">
                         <img

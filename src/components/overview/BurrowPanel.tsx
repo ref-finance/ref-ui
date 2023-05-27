@@ -19,6 +19,7 @@ import {
   sumReducer,
 } from '../../services/overview/utils';
 import { BurrowBgIcon } from './Icons';
+import { useHistory } from 'react-router-dom';
 export default function BurrowPanel() {
   const {
     tokenPriceList,
@@ -29,11 +30,12 @@ export default function BurrowPanel() {
     set_burrow_rewards_value,
     set_burrow_done,
   } = useContext(OverviewData);
+  const history = useHistory();
   const [account, setAccount] = useState<IAccount>();
   const [assets, setAssets] = useState<IAsset[]>();
   const [accountDone, setAccountDone] = useState<boolean>(false);
-  const [supplied, setSupplied] = useState<string>('0');
-  const [borrowed, setBorrowed] = useState<string>('0');
+  const [supplied, setSupplied] = useState<string | number>('0');
+  const [borrowed, setBorrowed] = useState<string | number>('0');
   const [unclaimedRewards, setUnclaimedRewards] = useState<IUnclaimedReward[]>(
     []
   );
@@ -144,7 +146,6 @@ export default function BurrowPanel() {
   }, [unclaimedRewards]);
   useEffect(() => {
     if (burrow_data_done) {
-      debugger;
       set_burrow_done(true);
       set_burrow_borrowied_value(borrowed);
       set_burrow_supplied_value(supplied);
@@ -152,7 +153,12 @@ export default function BurrowPanel() {
     }
   }, [unclaimedRewards$, burrow_data_done, supplied, borrowed]);
   return (
-    <div className="flex flex-col justify-between bg-swapCardGradient rounded-2xl px-5 py-4 relative w-1 flex-grow">
+    <div
+      onClick={() => {
+        history.push('/burrow');
+      }}
+      className="flex flex-col justify-between bg-swapCardGradient rounded-2xl px-5 py-4 relative w-1 flex-grow cursor-pointer"
+    >
       <div>
         <span className="text-base text-overviewBurrowColor gotham_bold">
           Burrow

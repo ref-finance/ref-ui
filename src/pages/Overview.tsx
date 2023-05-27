@@ -80,34 +80,15 @@ function Overview() {
     burrow_borrowied_value,
     burrow_rewards_value,
   ]);
-  // console.log('ref_invest_value_done, ref_profit_value_done, orderly_asset_value, burrow_done, wallet_assets_value_done', ref_invest_value_done, ref_profit_value_done, orderly_asset_value, burrow_done, wallet_assets_value_done);
   const [claimable, claimableDone] = useMemo(() => {
     let claimable = '0';
     let claimableDone = false;
-    if (ref_profit_value_done && burrow_rewards_value) {
+    if (ref_profit_value_done && burrow_done) {
       claimable = Big(ref_profit_value).plus(burrow_rewards_value).toFixed();
       claimableDone = true;
     }
     return [claimable, claimableDone];
-  }, [ref_profit_value_done, burrow_rewards_value]);
-
-  // if (ref_invest_value_done) {
-  //   console.log('ref_invest_value', ref_invest_value);
-  // }
-  // if (ref_profit_value_done) {
-  //   console.log('ref_profit_value', ref_profit_value);
-  // }
-  // if (orderly_asset_value_done) {
-  //   console.log('orderly_asset_value', orderly_asset_value);
-  // }
-  // if (burrow_done) {
-  //   console.log('burrow_supplied_value', burrow_supplied_value);
-  //   console.log('burrow_borrowied_value', burrow_borrowied_value);
-  //   console.log('burrow_rewards_value', burrow_rewards_value);
-  // }
-  // if (wallet_assets_value_done) {
-  //   console.log('wallet_assets_value', wallet_assets_value);
-  // }
+  }, [ref_profit_value_done, burrow_rewards_value, burrow_done]);
   useEffect(() => {
     // get all token prices
     getTokenPriceList();
