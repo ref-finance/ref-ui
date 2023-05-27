@@ -133,28 +133,53 @@ function Overview() {
         burrow_done,
       }}
     >
-      <div className="flex items-stretch justify-between w-full h-full lg:-mt-12">
-        {/* Navigation */}
-        <div
-          style={{ width: '280px' }}
-          className="pl-5 py-4 pr-4 flex-shrink-0"
-        >
-          <Navigation></Navigation>
-        </div>
-        {/* content */}
-        <div className="flex-grow border-l border-r border-boxBorder px-5 pt-9">
-          <div className="lg:max-w-1000px 3xl:max-w-1280px m-auto">
-            <TotalPanel></TotalPanel>
-            <div className="flex  items-stretch justify-between gap-4 mt-7">
-              <RefPanel></RefPanel>
-              <OrderlyPanel></OrderlyPanel>
-              <BurrowPanel></BurrowPanel>
-            </div>
-            <WalletPanel></WalletPanel>
-          </div>
-        </div>
-      </div>
+      {is_mobile ? (
+        <OverviewMobile></OverviewMobile>
+      ) : (
+        <OverviewPc></OverviewPc>
+      )}
     </OverviewData.Provider>
   );
 }
 export default Overview;
+
+function OverviewPc() {
+  return (
+    <div className="flex items-stretch justify-between w-full h-full lg:-mt-12">
+      {/* Navigation */}
+      <div style={{ width: '280px' }} className="pl-5 py-4 pr-4 flex-shrink-0">
+        <Navigation></Navigation>
+      </div>
+      {/* content */}
+      <div className="flex-grow border-l border-r border-boxBorder px-5 pt-9">
+        <div className="lg:max-w-1000px 3xl:max-w-1280px m-auto">
+          <TotalPanel></TotalPanel>
+          <div className="flex  items-stretch justify-between gap-4 mt-7">
+            <RefPanel></RefPanel>
+            <OrderlyPanel></OrderlyPanel>
+            <BurrowPanel></BurrowPanel>
+          </div>
+          <WalletPanel></WalletPanel>
+        </div>
+      </div>
+    </div>
+  );
+}
+function OverviewMobile() {
+  return (
+    <>
+      <div>
+        <TotalPanel></TotalPanel>
+        <div className="flex flex-col px-2.5 mt-5">
+          <RefPanel></RefPanel>
+          <OrderlyPanel></OrderlyPanel>
+          <BurrowPanel></BurrowPanel>
+        </div>
+        <div className="px-2.5">
+          <WalletPanel></WalletPanel>
+        </div>
+      </div>
+      <NavigationMobile></NavigationMobile>
+    </>
+  );
+}

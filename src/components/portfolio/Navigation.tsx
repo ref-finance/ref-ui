@@ -97,11 +97,12 @@ export function NavigationMobile(props: any) {
   const history = useHistory();
   const location = useLocation();
   const [menuList, setMenuList] = useState([
-    // {
-    //   Icon: OverviewMIcon,
-    //   name: 'Overview',
-    //   id: 'overview'
-    // },
+    {
+      Icon: OverviewMIcon,
+      name: 'Overview',
+      id: 'overview',
+      url: '/overview',
+    },
     {
       Icon: RefMIcon,
       name: 'Ref',
@@ -122,6 +123,8 @@ export function NavigationMobile(props: any) {
       setActiveMenu('ref');
     } else if (location.pathname.includes('burrow')) {
       setActiveMenu('burrow');
+    } else if (location.pathname.includes('overview')) {
+      setActiveMenu('overview');
     }
   }, [location.pathname]);
   return (

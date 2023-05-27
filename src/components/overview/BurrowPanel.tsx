@@ -18,7 +18,7 @@ import {
   shrinkToken,
   sumReducer,
 } from '../../services/overview/utils';
-import { BurrowBgIcon } from './Icons';
+import { BurrowBgIcon, ArrowRightIcon } from './Icons';
 import { useHistory } from 'react-router-dom';
 export default function BurrowPanel() {
   const {
@@ -29,6 +29,7 @@ export default function BurrowPanel() {
     set_burrow_borrowied_value,
     set_burrow_rewards_value,
     set_burrow_done,
+    is_mobile,
   } = useContext(OverviewData);
   const history = useHistory();
   const [account, setAccount] = useState<IAccount>();
@@ -155,32 +156,41 @@ export default function BurrowPanel() {
   return (
     <div
       onClick={() => {
-        history.push('/burrow');
+        if (!is_mobile) {
+          history.push('/burrow');
+        }
       }}
-      className="flex flex-col justify-between bg-swapCardGradient rounded-2xl px-5 py-4 relative w-1 flex-grow cursor-pointer"
+      style={{ height: is_mobile ? '115px' : '176px' }}
+      className="flex flex-col justify-between bg-swapCardGradient rounded-2xl px-5 py-4 relative w-1 xsm:w-full flex-grow cursor-pointer xsm:mb-3"
     >
-      <div>
+      <div className="flex items-center justify-between">
         <span className="text-base text-overviewBurrowColor gotham_bold">
           Burrow
         </span>
-        <BurrowBgIcon className="absolute right-2 top-3"></BurrowBgIcon>
+        <ArrowRightIcon
+          className="lg:hidden"
+          onClick={() => {
+            history.push('/burrow');
+          }}
+        ></ArrowRightIcon>
+        <BurrowBgIcon className="absolute right-2 xsm:right-7 top-3"></BurrowBgIcon>
       </div>
       <div className="flex items-stretch justify-between">
         <div className="flex flex-col">
           <span className="text-sm text-primaryText">Total Supply</span>
-          <span className="text-base text-white gotham_bold mt-3">
+          <span className="text-base text-white gotham_bold mt-3 xsm:mt-0">
             {formatWithCommas_usd(supplied)}
           </span>
         </div>
         <div className="flex flex-col items-center">
           <span className="text-sm text-primaryText">Claimable</span>
-          <span className="text-base text-portfolioQinColor gotham_bold mt-3">
+          <span className="text-base text-portfolioQinColor gotham_bold mt-3 xsm:mt-0">
             {formatWithCommas_usd(unclaimedRewards$)}
           </span>
         </div>
         <div className="flex flex-col items-center">
           <span className="text-sm text-primaryText">Total Debts</span>
-          <span className="text-base text-overviewBurrowRedColor gotham_bold mt-3">
+          <span className="text-base text-overviewBurrowRedColor gotham_bold mt-3 xsm:mt-0">
             -{formatWithCommas_usd(borrowed)}
           </span>
         </div>

@@ -32,7 +32,7 @@ import { LP_TOKEN_DECIMALS } from '~services/m-token';
 import { get_liquidity_value } from '../../services/commonV3';
 import { OverviewData } from '../../pages/Overview';
 import { formatWithCommas_usd } from '../../services/overview/utils';
-import { REFBgIcon } from './Icons';
+import { REFBgIcon, ArrowRightIcon } from './Icons';
 import { useHistory } from 'react-router-dom';
 const { XREF_TOKEN_ID } = getConfig();
 function RefPanel() {
@@ -41,6 +41,7 @@ function RefPanel() {
     set_ref_invest_value_done,
     set_ref_profit_value,
     set_ref_profit_value_done,
+    is_mobile,
   } = useContext(OverviewData);
   const history = useHistory();
   // get xref
@@ -96,28 +97,36 @@ function RefPanel() {
 
   return (
     <div
-      className="flex flex-col justify-between bg-swapCardGradient rounded-2xl px-5 py-4 relative w-1 flex-grow cursor-pointer"
-      style={{ height: '176px' }}
+      className="flex flex-col justify-between bg-swapCardGradient rounded-2xl px-5 xsm:px-4 py-4 relative w-1 xsm:w-full flex-grow cursor-pointer xsm:mb-3"
+      style={{ height: is_mobile ? '115px' : '176px' }}
       onClick={() => {
-        history.push('/portfolio');
+        if (!is_mobile) {
+          history.push('/portfolio');
+        }
       }}
     >
-      <div>
+      <div className="flex items-center justify-between">
         <span className="text-base text-greenColor gotham_bold">
           Ref.finance
         </span>
-        <REFBgIcon className="absolute right-2 top-3"></REFBgIcon>
+        <ArrowRightIcon
+          className="lg:hidden"
+          onClick={() => {
+            history.push('/portfolio');
+          }}
+        ></ArrowRightIcon>
+        <REFBgIcon className="absolute right-2 xsm:right-7 top-3"></REFBgIcon>
       </div>
       <div className="flex items-stretch justify-between">
         <div className="flex flex-col w-1/2">
           <span className="text-sm text-primaryText">Total Investd</span>
-          <span className="text-base text-white gotham_bold mt-3">
+          <span className="text-base text-white gotham_bold mt-3 xsm:mt-0">
             {formatWithCommas_usd(invest_value)}
           </span>
         </div>
         <div className="flex flex-col items-center w-1/2">
           <span className="text-sm text-primaryText">Claimable</span>
-          <span className="text-base text-portfolioQinColor gotham_bold mt-3">
+          <span className="text-base text-portfolioQinColor gotham_bold mt-3 xsm:mt-0">
             {formatWithCommas_usd(total_profit)}
           </span>
         </div>

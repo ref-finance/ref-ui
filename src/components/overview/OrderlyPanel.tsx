@@ -25,7 +25,7 @@ import { toReadableNumber } from '~utils/numbers';
 import { OverviewData } from '../../pages/Overview';
 import { formatWithCommas_usd } from '../../services/overview/utils';
 import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
-import { RightArrowIcon, OrderlyLoading } from './Icons';
+import { RightArrowIcon, OrderlyLoading, ArrowRightIcon } from './Icons';
 import { openUrl } from '../../services/commonV3';
 import {
   is_orderly_key_announced,
@@ -47,6 +47,7 @@ export default function OrderlyPanel() {
     accountId,
     set_orderly_asset_value,
     set_orderly_asset_value_done,
+    is_mobile,
   } = useContext(OverviewData);
   const history = useHistory();
   const [tradingKeySet, setTradingKeySet] = useState<boolean>(false);
@@ -158,14 +159,23 @@ export default function OrderlyPanel() {
 
   return (
     <div
-      className="flex flex-col justify-between bg-swapCardGradient rounded-2xl px-5 py-4 w-1 flex-grow overflow-hidden relative cursor-pointer"
+      className="flex flex-col justify-between bg-swapCardGradient rounded-2xl px-5 py-4 w-1 xsm:w-full flex-grow overflow-hidden relative cursor-pointer  xsm:mb-3"
       onClick={() => {
-        openUrl('/orderbook');
+        if (!is_mobile) {
+          openUrl('/orderbook');
+        }
       }}
+      style={{ height: is_mobile ? '115px' : '176px' }}
     >
-      <div>
+      <div className="flex items-center justify-between">
         <span className="text-base text-greenColor gotham_bold">Orderly</span>
-        <OrderlyBgIcon className="absolute right-2 top-3"></OrderlyBgIcon>
+        <ArrowRightIcon
+          className="lg:hidden"
+          onClick={() => {
+            openUrl('/orderbook');
+          }}
+        ></ArrowRightIcon>
+        <OrderlyBgIcon className="absolute right-2 xsm:right-7 top-3"></OrderlyBgIcon>
       </div>
       <div
         className={`flex items-stretch justify-between ${
@@ -174,7 +184,7 @@ export default function OrderlyPanel() {
       >
         <div className="flex flex-col w-1/2">
           <span className="text-sm text-primaryText">Total Assets</span>
-          <span className="text-base text-white gotham_bold mt-3">
+          <span className="text-base text-white gotham_bold mt-3 xsm:mt-0">
             {formatWithCommas_usd(totalAsset)}
           </span>
         </div>
