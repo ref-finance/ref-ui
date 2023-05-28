@@ -761,6 +761,10 @@ const viewMap = {
   'Append Liquidity': AddLiquidity,
   'Burn Liquidity': RemoveLiquidity,
   'Mint Liquidity': AddLiquidity,
+  Adjust: Swap,
+  Borrow: RemoveLiquidity,
+  Repay: RemoveLiquidity,
+  Supply: AddLiquidity,
 };
 
 const blackViewMap = {
@@ -809,6 +813,10 @@ const blackViewMap = {
   'Append Liquidity': AddLiquidityBlack,
   'Burn Liquidity': RemoveLiquidityBlack,
   'Mint Liquidity': AddLiquidityBlack,
+  Adjust: SwapBlack,
+  Borrow: RemoveLiquidityBlack,
+  Repay: RemoveLiquidityBlack,
+  Supply: AddLiquidityBlack,
 };
 
 export function mapToView(action: string, black = false): JSX.Element {
