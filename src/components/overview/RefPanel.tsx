@@ -119,7 +119,7 @@ function RefPanel() {
       </div>
       <div className="flex items-stretch justify-between">
         <div className="flex flex-col w-1/2">
-          <span className="text-sm text-primaryText">Total Investd</span>
+          <span className="text-sm text-primaryText">Total Invested</span>
           <span className="text-base text-white gotham_bold mt-3 xsm:mt-0">
             {formatWithCommas_usd(invest_value)}
           </span>

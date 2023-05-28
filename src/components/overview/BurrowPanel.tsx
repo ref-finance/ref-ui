@@ -177,7 +177,7 @@ export default function BurrowPanel() {
       </div>
       <div className="flex items-stretch justify-between">
         <div className="flex flex-col">
-          <span className="text-sm text-primaryText">Total Supply</span>
+          <span className="text-sm text-primaryText">Total Supplied</span>
           <span className="text-base text-white gotham_bold mt-3 xsm:mt-0">
             {formatWithCommas_usd(supplied)}
           </span>
