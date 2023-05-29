@@ -1142,11 +1142,13 @@ const adjust = async (params: any) => {
     const assets: IAsset[] = await getAssets();
     const asset = assets.find((asset: IAsset) => asset.token_id == token_id);
     const contract_decimals = asset.config.extra_decimals + token_meta.decimals;
-    const Max_Amount = toReadableNumber(contract_decimals, max_amount);
+    const Max_Amount = max_amount
+      ? toReadableNumber(contract_decimals, max_amount)
+      : '';
     return {
       Action: 'Adjust',
       Token: token_meta.symbol,
-      'IncreaseCollateral Amount': Max_Amount,
+      ...(Max_Amount ? { 'IncreaseCollateral Amount': Max_Amount } : {}),
     };
   } catch (error) {
     return {
@@ -1212,6 +1214,12 @@ const oracleCall = async (params: any) => {
       const contract_decimals =
         asset.config.extra_decimals + token_meta.decimals;
       RepayAmount = amount ? toReadableNumber(contract_decimals, amount) : '';
+      if (actions[0]['DecreaseCollateral']) {
+        const { amount } = actions[0]['DecreaseCollateral'];
+        DecreaseCollateralAmount = amount
+          ? toReadableNumber(contract_decimals, amount)
+          : '';
+      }
       Action = 'Repay';
     }
 

@@ -12,18 +12,20 @@ import { OverviewData } from '../../pages/Overview';
 import { formatWithCommas_usd } from '../../services/overview/utils';
 export default function TotalPanel() {
   const { is_mobile } = useContext(OverviewData);
+  const netWorthTip = `<div class="text-navHighLightText text-xs text-left w-64 xsm:w-52">${'Total value of investments in Ref (including claimable rewards) + Total value of Orderly assets + Total value of Burrow assets + Total assets in wallet</div>'}</div>`;
   return (
     <>
       {is_mobile ? (
-        <TotalPanelMobile></TotalPanelMobile>
+        <TotalPanelMobile netWorthTip={netWorthTip}></TotalPanelMobile>
       ) : (
-        <TotalPanelPc></TotalPanelPc>
+        <TotalPanelPc netWorthTip={netWorthTip}></TotalPanelPc>
       )}
     </>
   );
 }
 
-function TotalPanelPc() {
+function TotalPanelPc(props: any) {
+  const { netWorthTip } = props;
   const { netWorth, claimable, wallet_assets_value, burrow_borrowied_value } =
     useContext(OverviewData);
   return (
@@ -37,7 +39,7 @@ function TotalPanelPc() {
             data-for="netWorthId"
             data-place="top"
             data-html={true}
-            data-tip={'hello kity'}
+            data-tip={netWorthTip}
           >
             <QuestionMark></QuestionMark>
             <ReactTooltip
@@ -76,7 +78,8 @@ function TotalPanelPc() {
     </div>
   );
 }
-function TotalPanelMobile() {
+function TotalPanelMobile(props: any) {
+  const { netWorthTip } = props;
   const { netWorth, claimable, wallet_assets_value, burrow_borrowied_value } =
     useContext(OverviewData);
   return (
@@ -90,7 +93,7 @@ function TotalPanelMobile() {
             data-for="netWorthId"
             data-place="top"
             data-html={true}
-            data-tip={'hello kity'}
+            data-tip={netWorthTip}
           >
             <QuestionMark></QuestionMark>
             <ReactTooltip

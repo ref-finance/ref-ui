@@ -762,8 +762,8 @@ const viewMap = {
   'Burn Liquidity': RemoveLiquidity,
   'Mint Liquidity': AddLiquidity,
   Adjust: Swap,
-  Borrow: RemoveLiquidity,
-  Repay: RemoveLiquidity,
+  Borrow: Deposit,
+  Repay: Withdraw,
   Supply: AddLiquidity,
 };
 
@@ -814,8 +814,8 @@ const blackViewMap = {
   'Burn Liquidity': RemoveLiquidityBlack,
   'Mint Liquidity': AddLiquidityBlack,
   Adjust: SwapBlack,
-  Borrow: RemoveLiquidityBlack,
-  Repay: RemoveLiquidityBlack,
+  Borrow: DepositBlack,
+  Repay: WithdrawBlack,
   Supply: AddLiquidityBlack,
 };
 

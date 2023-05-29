@@ -392,7 +392,8 @@ module.exports = {
         overviewBurrowRedColor:'#FF4895',
         overviewBorderColor:'#263540',
         overviewLightBlueColor:'#ACE1FF',
-        overviewMaskColor:'rgba(13, 29, 39, 0.5)'
+        overviewMaskColor:'rgba(13, 29, 39, 0.5)',
+        overviewPurpleColor:'#816CFF',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

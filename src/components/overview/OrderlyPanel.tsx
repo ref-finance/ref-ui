@@ -168,7 +168,9 @@ export default function OrderlyPanel() {
       style={{ height: is_mobile ? '115px' : '176px' }}
     >
       <div className="flex items-center justify-between">
-        <span className="text-base text-greenColor gotham_bold">Orderly</span>
+        <span className="text-base text-overviewPurpleColor gotham_bold">
+          Orderly
+        </span>
         <ArrowRightIcon
           className="lg:hidden"
           onClick={() => {
