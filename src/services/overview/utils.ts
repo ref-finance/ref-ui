@@ -14,9 +14,9 @@ export const formatWithCommas_usd = (v: string | number) => {
   } else if (big.lt(0.01)) {
     return '<$0.01';
   } else if (big.lt(10000)) {
-    return '$' + formatWithCommas(big.toFixed(2));
+    return '$' + formatWithCommas(big.toFixed(2, 1));
   } else {
-    return '$' + formatWithCommas(big.toFixed(0));
+    return '$' + formatWithCommas(big.toFixed(0, 1));
   }
 };
 
@@ -29,7 +29,7 @@ export const formatPercentage = (v: string | number) => {
   } else if (big.lt(0.01)) {
     return '<0.01%';
   } else {
-    return big.toFixed(2) + '%';
+    return big.toFixed(2, 1) + '%';
   }
 };
 export const formatNumber = (v: string | number) => {
@@ -41,7 +41,7 @@ export const formatNumber = (v: string | number) => {
   } else if (big.lt(0.01)) {
     return '<0.01';
   } else {
-    return big.toFixed(2);
+    return big.toFixed(2, 1);
   }
 };
 export const formatToInternationalCurrencySystem$ = (v: string | number) => {
@@ -58,5 +58,5 @@ export const shrinkToken = (
   value: string | number,
   decimals: number
 ): string => {
-  return toReadableNumber(decimals, Big(value || 0).toFixed(0));
+  return toReadableNumber(decimals, Big(value || 0).toFixed(0, 1));
 };
