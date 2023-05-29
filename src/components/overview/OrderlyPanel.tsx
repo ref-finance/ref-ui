@@ -159,9 +159,11 @@ export default function OrderlyPanel() {
 
   return (
     <div
-      className="flex flex-col justify-between bg-swapCardGradient rounded-2xl px-5 py-4 w-1 xsm:w-full flex-grow overflow-hidden relative cursor-pointer  xsm:mb-3"
+      className={`flex flex-col justify-between bg-swapCardGradient rounded-2xl px-5 py-4 w-1 xsm:w-full flex-grow overflow-hidden relative xsm:mb-3 ${
+        !is_mobile && !showMask ? 'cursor-pointer' : ''
+      }`}
       onClick={() => {
-        if (!is_mobile) {
+        if (!is_mobile && !showMask) {
           openUrl('/orderbook');
         }
       }}

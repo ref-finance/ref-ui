@@ -24,7 +24,7 @@ import {
   display_percentage_2,
   display_value,
   display_value_withCommas,
-  display_number_internationalCurrencySystemNature,
+  display_number_internationalCurrencySystemLongString,
 } from '../portfolio/Tool';
 import { BlueCircleLoading } from '../../components/layout/Loading';
 import { getCurrentWallet } from '../../utils/wallets-integration';
@@ -243,7 +243,7 @@ export default function WalletPanel() {
                   const { symbol, t_value } = data.data;
                   const num = data.data[activeTab];
                   const display_num =
-                    display_number_internationalCurrencySystemNature(num);
+                    display_number_internationalCurrencySystemLongString(num);
                   const display_v = display_value(t_value);
                   return `{a|${symbol}}\n{b|${display_num}}\n{a|${display_v}}`;
                 },
@@ -610,7 +610,7 @@ function WalletPanelPc() {
                         </span>
                       </div>
                       <div className="col-span-1 text-white">
-                        {display_number_internationalCurrencySystemNature(
+                        {display_number_internationalCurrencySystemLongString(
                           Big(token.near || 0).toFixed()
                         )}
                       </div>
@@ -641,7 +641,7 @@ function WalletPanelPc() {
                         </span>
                       </div>
                       <div className="col-span-1 text-white">
-                        {display_number_internationalCurrencySystemNature(
+                        {display_number_internationalCurrencySystemLongString(
                           Big(token.ref || 0).toFixed()
                         )}
                       </div>
@@ -672,7 +672,7 @@ function WalletPanelPc() {
                         </span>
                       </div>
                       <div className="col-span-1 text-white">
-                        {display_number_internationalCurrencySystemNature(
+                        {display_number_internationalCurrencySystemLongString(
                           Big(token.dcl || 0).toFixed()
                         )}
                       </div>
@@ -703,7 +703,7 @@ function WalletPanelPc() {
                         </span>
                       </div>
                       <div className="col-span-1 text-white">
-                        {display_number_internationalCurrencySystemNature(
+                        {display_number_internationalCurrencySystemLongString(
                           Big(token.aurora || 0).toFixed()
                         )}
                       </div>
@@ -934,7 +934,7 @@ function WalletPanelMobile() {
                         </div>
                       </div>
                       <div className="col-span-1 text-white">
-                        {display_number_internationalCurrencySystemNature(
+                        {display_number_internationalCurrencySystemLongString(
                           Big(token.near || 0).toFixed()
                         )}
                       </div>
@@ -967,7 +967,7 @@ function WalletPanelMobile() {
                         </div>
                       </div>
                       <div className="col-span-1 text-white">
-                        {display_number_internationalCurrencySystemNature(
+                        {display_number_internationalCurrencySystemLongString(
                           Big(token.ref || 0).toFixed()
                         )}
                       </div>
@@ -1000,7 +1000,7 @@ function WalletPanelMobile() {
                         </div>
                       </div>
                       <div className="col-span-1 text-white">
-                        {display_number_internationalCurrencySystemNature(
+                        {display_number_internationalCurrencySystemLongString(
                           Big(token.dcl || 0).toFixed()
                         )}
                       </div>
@@ -1033,7 +1033,7 @@ function WalletPanelMobile() {
                         </div>
                       </div>
                       <div className="col-span-1 text-white">
-                        {display_number_internationalCurrencySystemNature(
+                        {display_number_internationalCurrencySystemLongString(
                           Big(token.aurora || 0).toFixed()
                         )}
                       </div>

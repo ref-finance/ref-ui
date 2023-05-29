@@ -180,9 +180,6 @@ function PortfolioMobile() {
           <Positions></Positions>
           <Farms></Farms>
         </div>
-        <div className={`${main_active_tab == 'token' ? '' : 'hidden'}`}>
-          <Tokens></Tokens>
-        </div>
       </div>
       <NavigationMobile></NavigationMobile>
     </>
