@@ -995,7 +995,7 @@ const en_US = {
   h24Range: '24h Range',
   chart: 'Chart',
   deposit_assets_to_begin_your_trading_journey:
-    'Deposit assets to begin your <br> trading journey.',
+    'Deposit assets to begin your {br} trading journey.',
   open_orders: 'Open Orders',
   Side: 'Side',
   both: 'Both',
