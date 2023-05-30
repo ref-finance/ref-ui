@@ -67,7 +67,12 @@ export default function Positions(props: any) {
     <div className="text-white">
       <div className="xsm:border-b xsm:border-cardBg">
         {/* for mobile banner */}
-        <div className="flex items-center justify-between lg:hidden p-5">
+        <div
+          className="flex items-center justify-between lg:hidden p-5"
+          onClick={() => {
+            setActiveTab(activeTab == '2' ? '' : '2');
+          }}
+        >
           <span className="text-base text-white gotham_bold">
             <FormattedMessage id="your_liquidity_2" /> (
             {total_liquidity_quantity})

@@ -169,9 +169,7 @@ export default function BurrowPanel() {
           Burrow
         </span>
         <ArrowRightIcon
-          className={`lg:hidden ${
-            accountId ? 'text-white' : 'text-primaryText'
-          }`}
+          className={`lg:hidden text-primaryText`}
           onClick={() => {
             history.push('/burrow');
           }}

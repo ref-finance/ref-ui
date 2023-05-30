@@ -195,7 +195,7 @@ function AssetProfitPc() {
             />
           </div>
         </div>
-        <span className="text-2xl gotham_bold text-portfolioGreenColor mt-1">
+        <span className="text-2xl gotham_bold text-white mt-1">
           {show_total_proft}
         </span>
       </div>
@@ -210,7 +210,7 @@ function AssetProfitPc() {
             extraClass="ml-3"
           ></ArrowJump>
         </div>
-        <div className="text-base gotham_bold text-portfolioGreenColor relative -top-1">
+        <div className="text-base gotham_bold text-white relative -top-1">
           {show_total_fees_value}
         </div>
       </div>
@@ -225,7 +225,7 @@ function AssetProfitPc() {
             extraClass="ml-1"
           ></ArrowJump>
         </div>
-        <div className="text-base gotham_bold text-portfolioGreenColor relative -top-1">
+        <div className="text-base gotham_bold text-white relative -top-1">
           {show_total_unClaimed_rewrads_value}
         </div>
       </div>
@@ -264,7 +264,7 @@ function AssetProfitMobile() {
             />
           </div>
         </div>
-        <span className="text-2xl gotham_bold text-portfolioGreenColor">
+        <span className="text-2xl gotham_bold text-white">
           {show_total_proft}
         </span>
       </div>
@@ -280,7 +280,7 @@ function AssetProfitMobile() {
               extraClass="ml-3 flex-shrink-0 xsm:relative xsm:top-0.5"
             ></ArrowJump>
           </div>
-          <div className="text-base gotham_bold text-portfolioGreenColor mt-1">
+          <div className="text-base gotham_bold text-white mt-1">
             {show_total_fees_value}
           </div>
         </div>
@@ -295,7 +295,7 @@ function AssetProfitMobile() {
               extraClass="ml-0.5 flex-shrink-0 xsm:relative xsm:top-0.5"
             ></ArrowJump>
           </div>
-          <div className="text-base gotham_bold text-portfolioGreenColor">
+          <div className="text-base gotham_bold text-white">
             {show_total_unClaimed_rewrads_value}
           </div>
         </div>

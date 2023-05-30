@@ -765,6 +765,7 @@ const viewMap = {
   Borrow: Deposit,
   Repay: Withdraw,
   Supply: AddLiquidity,
+  Claim: Withdraw,
 };
 
 const blackViewMap = {
@@ -817,6 +818,7 @@ const blackViewMap = {
   Borrow: DepositBlack,
   Repay: WithdrawBlack,
   Supply: AddLiquidityBlack,
+  Claim: WithdrawBlack,
 };
 
 export function mapToView(action: string, black = false): JSX.Element {

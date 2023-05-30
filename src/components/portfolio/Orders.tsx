@@ -1063,7 +1063,12 @@ function OrderCard({
       </div>
       <div className="xsm:border-b xsm:border-cardBg">
         {/* for mobile banner */}
-        <div className="flex items-center justify-between lg:hidden p-5">
+        <div
+          className="flex items-center justify-between lg:hidden p-5"
+          onClick={() => {
+            setActiveTab(activeTab == '1' ? '' : '1');
+          }}
+        >
           <span className="text-base text-white gotham_bold">
             <FormattedMessage id="active_orders" /> (
             {total_active_orders_quanity})

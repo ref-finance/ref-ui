@@ -112,9 +112,7 @@ function RefPanel() {
           <FormattedMessage id="RefFinance" />
         </span>
         <ArrowRightIcon
-          className={`lg:hidden ${
-            accountId ? 'text-white' : 'text-primaryText'
-          }`}
+          className={`lg:hidden text-primaryText`}
           onClick={() => {
             history.push('/portfolio');
           }}
@@ -141,7 +139,7 @@ function RefPanel() {
           </span>
           <span
             className={`text-base gotham_bold mt-3 xsm:mt-0 ${
-              accountId ? 'text-portfolioQinColor' : 'text-overviewGreyColor'
+              accountId ? 'text-white' : 'text-overviewGreyColor'
             }`}
           >
             {formatWithCommas_usd(total_profit)}

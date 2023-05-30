@@ -153,6 +153,9 @@ export const parseAction = async (
     case 'oracle_call': {
       return await oracleCall(params);
     }
+    case 'account_farm_claim_all': {
+      return await borrow_claim_all(params);
+    }
     default: {
       return await parseDefault();
     }
@@ -1241,6 +1244,17 @@ const oracleCall = async (params: any) => {
   }
 };
 
+const borrow_claim_all = async (params: any) => {
+  try {
+    return {
+      Action: 'Claim',
+    };
+  } catch (error) {
+    return {
+      Action: 'Claim',
+    };
+  }
+};
 const parseDefault = async () => {
   return {
     Action: 'Not Found',
