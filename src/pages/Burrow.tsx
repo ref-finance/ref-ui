@@ -23,6 +23,7 @@ import {
 import { ftGetNearBalance } from '~services/near';
 import { WalletContext } from '../utils/wallets-integration';
 import { toReadableNumber } from '~utils/numbers';
+import { FormattedMessage, useIntl } from 'react-intl';
 const is_mobile = isMobile();
 export const BurrowData = createContext(null);
 function Burrow() {
@@ -122,7 +123,7 @@ function BurrowMobile() {
                 : 'bg-white bg-opacity-20 text-primaryText'
             }`}
           >
-            Supply
+            <FormattedMessage id="Supply" />
           </span>
           <span
             onClick={() => {
@@ -134,7 +135,7 @@ function BurrowMobile() {
                 : 'bg-white bg-opacity-20 text-primaryText'
             }`}
           >
-            Borrow
+            <FormattedMessage id="Borrow" />
           </span>
         </div>
         <TableBox activeTab={activeTab}></TableBox>

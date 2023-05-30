@@ -17,14 +17,14 @@ export default function Navigation(props: any) {
   const [menuList, setMenuList] = useState([
     {
       Icon: OverviewMenuIcon,
-      name: 'Overview',
+      name: <FormattedMessage id="Overview" />,
       id: 'overview',
       url: '/overview',
       borderColor: '#ffffff',
     },
     {
       Icon: MenuREFIcon,
-      name: 'Ref.finance',
+      name: <FormattedMessage id="RefFinance" />,
       id: 'ref',
       url: '/portfolio',
       borderColor: '#00D6AF',
@@ -32,7 +32,7 @@ export default function Navigation(props: any) {
     { Icon: MenuOrderlyIcon, name: 'Orderly', id: 'orderly' },
     {
       Icon: MenuBurrowIcon,
-      name: 'Burrow',
+      name: <FormattedMessage id="Burrow" />,
       id: 'burrow',
       url: '/burrow',
       borderColor: '#745F4B',

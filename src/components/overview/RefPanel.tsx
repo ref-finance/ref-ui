@@ -34,6 +34,7 @@ import { OverviewData } from '../../pages/Overview';
 import { formatWithCommas_usd } from '../../services/overview/utils';
 import { REFBgIcon, ArrowRightIcon } from './Icons';
 import { useHistory } from 'react-router-dom';
+import { FormattedMessage, useIntl } from 'react-intl';
 const { XREF_TOKEN_ID } = getConfig();
 function RefPanel() {
   const {
@@ -107,7 +108,7 @@ function RefPanel() {
     >
       <div className="flex items-center justify-between">
         <span className="text-base text-greenColor gotham_bold">
-          Ref.finance
+          <FormattedMessage id="RefFinance" />
         </span>
         <ArrowRightIcon
           className="lg:hidden"
@@ -119,13 +120,17 @@ function RefPanel() {
       </div>
       <div className="flex items-stretch justify-between">
         <div className="flex flex-col w-1/2">
-          <span className="text-sm text-primaryText">Total Invested</span>
+          <span className="text-sm text-primaryText">
+            <FormattedMessage id="TotalInvested" />
+          </span>
           <span className="text-base text-white gotham_bold mt-3 xsm:mt-0">
             {formatWithCommas_usd(invest_value)}
           </span>
         </div>
         <div className="flex flex-col items-center w-1/2">
-          <span className="text-sm text-primaryText">Claimable</span>
+          <span className="text-sm text-primaryText">
+            <FormattedMessage id="Claimable" />
+          </span>
           <span className="text-base text-portfolioQinColor gotham_bold mt-3 xsm:mt-0">
             {formatWithCommas_usd(total_profit)}
           </span>

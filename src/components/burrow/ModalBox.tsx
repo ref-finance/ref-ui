@@ -48,6 +48,7 @@ import { WarningIcon } from '~components/icon/V3';
 import { ButtonTextWrapper, ConnectToNearBtn } from '~components/button/Button';
 import { WalletContext } from '../../utils/wallets-integration';
 import Big from 'big.js';
+import { FormattedMessage, useIntl } from 'react-intl';
 export default function ModalBox(props: {
   showModalBox: boolean;
   setShowModalBox: Function;
@@ -72,7 +73,7 @@ export default function ModalBox(props: {
   );
   const [extraDetail, setExtraDetail] = useState<React.ReactElement>();
   const [actionButton, setActionButton] = useState<React.ReactElement>();
-  const [modalTitle, setModalTitle] = useState<string>();
+  const [modalTitle, setModalTitle] = useState<string | React.ReactElement>();
   const [availableBalance, setAvailableBalance] = useState<string>();
   const [availableBalanceInAccount, setAvailableBalanceInAccount] =
     useState<string>();
@@ -87,6 +88,7 @@ export default function ModalBox(props: {
   const cardWidth = isMobile() ? '95vw' : '430px';
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+  const intl = useIntl();
   function switchEvent() {
     setSwitchStatus(!switchStatus);
   }
@@ -101,7 +103,7 @@ export default function ModalBox(props: {
       detail = (
         <>
           <Template
-            title="Use as Collateral"
+            title={<FormattedMessage id="UseAsCollateral" />}
             value={''}
             className="mb-5"
             switchButton={
@@ -136,7 +138,7 @@ export default function ModalBox(props: {
           ></Template>
 
           <Template
-            title="Collateral Factor"
+            title={<FormattedMessage id="CollateralFactor" />}
             value={volatility_ratio}
           ></Template>
         </>
@@ -147,14 +149,21 @@ export default function ModalBox(props: {
           disabled={buttonLoading || buttonDisabled}
           onClick={handleSupply}
         >
-          <ButtonTextWrapper loading={buttonLoading} Text={() => <>Supply</>} />
+          <ButtonTextWrapper
+            loading={buttonLoading}
+            Text={() => (
+              <>
+                <FormattedMessage id="Supply" />
+              </>
+            )}
+          />
         </GradientButton>
       );
     } else if (action == 'adjust') {
       const v = get_as_collateral_adjust(account, asset, amount);
       detail = (
         <Template
-          title="Use as Collateral"
+          title={<FormattedMessage id="UseAsCollateral" />}
           value={v}
           show$={true}
           asset={asset}
@@ -168,13 +177,20 @@ export default function ModalBox(props: {
         >
           <ButtonTextWrapper
             loading={buttonLoading}
-            Text={() => <>Confirm</>}
+            Text={() => (
+              <>
+                <FormattedMessage id="Confirm" />
+              </>
+            )}
           />
         </GradientButton>
       );
     } else if (action == 'borrow') {
       detail = (
-        <Template title="Collateral Factor" value={volatility_ratio}></Template>
+        <Template
+          title={<FormattedMessage id="CollateralFactor" />}
+          value={volatility_ratio}
+        ></Template>
       );
       button = (
         <PurpleButton
@@ -182,14 +198,21 @@ export default function ModalBox(props: {
           disabled={buttonLoading || buttonDisabled}
           onClick={handleBorrow}
         >
-          <ButtonTextWrapper loading={buttonLoading} Text={() => <>Borrow</>} />
+          <ButtonTextWrapper
+            loading={buttonLoading}
+            Text={() => (
+              <>
+                <FormattedMessage id="Borrow" />
+              </>
+            )}
+          />
         </PurpleButton>
       );
     } else if (action == 'repay') {
       const v = get_remain_borrow_repay(account, asset, amount);
       detail = (
         <Template
-          title="Remaining Borrow"
+          title={<FormattedMessage id="RemainingBorrow" />}
           value={v}
           show$={true}
           asset={asset}
@@ -201,14 +224,21 @@ export default function ModalBox(props: {
           disabled={buttonLoading || buttonDisabled}
           onClick={handleRepay}
         >
-          <ButtonTextWrapper loading={buttonLoading} Text={() => <>Repay</>} />
+          <ButtonTextWrapper
+            loading={buttonLoading}
+            Text={() => (
+              <>
+                <FormattedMessage id="Repay" />
+              </>
+            )}
+          />
         </PurpleButton>
       );
     } else if (action == 'withdraw') {
       const v = get_remain_collateral_withdraw(account, asset, amount);
       detail = (
         <Template
-          title="Remaining Collateral"
+          title={<FormattedMessage id="RemainingCollateral" />}
           value={v}
           show$={true}
           asset={asset}
@@ -222,7 +252,11 @@ export default function ModalBox(props: {
         >
           <ButtonTextWrapper
             loading={buttonLoading}
-            Text={() => <>Withdraw</>}
+            Text={() => (
+              <>
+                <FormattedMessage id="Withdraw" />
+              </>
+            )}
           />
         </GradientButton>
       );
@@ -274,22 +308,30 @@ export default function ModalBox(props: {
     let title;
     let availableBalance;
     if (action == 'supply') {
-      title = `Supply ${asset?.metadata?.symbol}`;
+      title = `${intl.formatMessage({ id: 'Supply' })} ${
+        asset?.metadata?.symbol
+      }`;
       availableBalance = computeSupplyMaxAmount(asset, nearBalance);
     } else if (action == 'adjust') {
-      title = `Adjust Collateral`;
+      title = <FormattedMessage id="AdjustCollateral" />;
       availableBalance = computeAdjustMaxAmount(account, asset);
     } else if (action == 'borrow') {
-      title = `Borrow ${asset?.metadata?.symbol}`;
+      title = `${intl.formatMessage({ id: 'Borrow' })} ${
+        asset?.metadata?.symbol
+      }`;
       availableBalance = computeBurrowMaxAmount(account, asset, assets);
     } else if (action == 'repay') {
-      title = `Repay ${asset?.metadata?.symbol}`;
+      title = `${intl.formatMessage({ id: 'Repay' })} ${
+        asset?.metadata?.symbol
+      }`;
       const [availableBalance_wallet, availableBalance_deposit] =
         computeRepayMaxAmount(account, asset, assets, nearBalance);
       availableBalance = availableBalance_wallet;
       setAvailableBalanceInAccount(availableBalance_deposit);
     } else if (action == 'withdraw') {
-      title = `Withdraw ${asset?.metadata?.symbol}`;
+      title = `${intl.formatMessage({ id: 'Withdraw' })} ${
+        asset?.metadata?.symbol
+      }`;
       availableBalance = computeWithdrawMaxAmount(account, asset, assets);
     }
     setAvailableBalance(availableBalance);
@@ -516,7 +558,9 @@ export default function ModalBox(props: {
         <div className="px-6 py-5 xsm:p-5 border-2 border-burrowTableBorderColor">
           {/* Details */}
           <div className="flex items-center justify-between  mb-5">
-            <span className="text-sm text-primaryText">Health Factor</span>
+            <span className="text-sm text-primaryText">
+              <FormattedMessage id="HealthFactor" />
+            </span>
             <span className="text-sm text-white">
               {isSignedIn ? formatPercentage(healthFactor) : '-%'}
             </span>
@@ -539,7 +583,7 @@ function ErrorTemplate({ tip }: { tip: string }) {
   );
 }
 function Template(props: {
-  title: string;
+  title: string | React.ReactElement;
   value: string;
   show$?: boolean;
   switchButton?: React.ReactElement;
@@ -592,7 +636,7 @@ function RepayTab(props: {
               : 'text-primaryText'
           }`}
         >
-          Wallet
+          <FormattedMessage id="wallet_up" />
         </div>
         <div
           onClick={() => {
@@ -606,7 +650,7 @@ function RepayTab(props: {
               : 'text-primaryText'
           }`}
         >
-          Supplied
+          <FormattedMessage id="Supplied" />
         </div>
       </div>
     </div>

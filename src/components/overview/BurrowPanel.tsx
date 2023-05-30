@@ -20,6 +20,7 @@ import {
 } from '../../services/overview/utils';
 import { BurrowBgIcon, ArrowRightIcon } from './Icons';
 import { useHistory } from 'react-router-dom';
+import { FormattedMessage, useIntl } from 'react-intl';
 export default function BurrowPanel() {
   const {
     tokenPriceList,
@@ -177,19 +178,25 @@ export default function BurrowPanel() {
       </div>
       <div className="flex items-stretch justify-between">
         <div className="flex flex-col">
-          <span className="text-sm text-primaryText">Total Supplied</span>
+          <span className="text-sm text-primaryText">
+            <FormattedMessage id="TotalSupplied" />
+          </span>
           <span className="text-base text-white gotham_bold mt-3 xsm:mt-0">
             {formatWithCommas_usd(supplied)}
           </span>
         </div>
         <div className="flex flex-col items-center">
-          <span className="text-sm text-primaryText">Claimable</span>
+          <span className="text-sm text-primaryText">
+            <FormattedMessage id="Claimable" />
+          </span>
           <span className="text-base text-portfolioQinColor gotham_bold mt-3 xsm:mt-0">
             {formatWithCommas_usd(unclaimedRewards$)}
           </span>
         </div>
         <div className="flex flex-col items-center">
-          <span className="text-sm text-primaryText">Total Debts</span>
+          <span className="text-sm text-primaryText">
+            <FormattedMessage id="TotalDebts" />
+          </span>
           <span className="text-base text-overviewBurrowRedColor gotham_bold mt-3 xsm:mt-0">
             -{formatWithCommas_usd(borrowed)}
           </span>

@@ -40,6 +40,7 @@ import { announceKey, setTradingKey } from '../../pages/Orderly/orderly/api';
 import getConfig from '../../pages/Orderly/config';
 import { getOrderlySystemInfo } from '../../pages/Orderly/orderly/off-chain-api';
 import { useHistory } from 'react-router-dom';
+import { FormattedMessage, useIntl } from 'react-intl';
 export default function OrderlyPanel() {
   const {
     tokenPriceList,
@@ -187,7 +188,9 @@ export default function OrderlyPanel() {
         }`}
       >
         <div className="flex flex-col w-1/2">
-          <span className="text-sm text-primaryText">Total Assets</span>
+          <span className="text-sm text-primaryText">
+            <FormattedMessage id="TotalAssets" />
+          </span>
           <span className="text-base text-white gotham_bold mt-3 xsm:mt-0">
             {formatWithCommas_usd(totalAsset)}
           </span>
@@ -205,7 +208,8 @@ export default function OrderlyPanel() {
                 openUrl('/orderbook');
               }}
             >
-              Connect <RightArrowIcon className="ml-2"></RightArrowIcon>
+              <FormattedMessage id="connect" />{' '}
+              <RightArrowIcon className="ml-2"></RightArrowIcon>
             </div>
           )}
         </div>

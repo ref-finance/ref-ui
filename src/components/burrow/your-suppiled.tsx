@@ -21,6 +21,7 @@ import './burrow.css';
 import { ConnectToNearBtn } from '~components/button/Button';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { isMobile } from '~utils/device';
+import { FormattedMessage, useIntl } from 'react-intl';
 const is_mobile = isMobile();
 export default function YourSupplied() {
   const { accountId } = useWalletSelector();
@@ -114,13 +115,17 @@ export default function YourSupplied() {
             </div>
             <div className="flex justify-between items-stretch mb-4 mt-5">
               <div className="flex flex-col justify-between">
-                <span className="text-sm text-primaryText">Supply APY</span>
+                <span className="text-sm text-primaryText">
+                  <FormattedMessage id="SupplyAPY" />
+                </span>
                 <span className="text-sm text-white mt-1">
                   {toAPY(totalApy)}%
                 </span>
               </div>
               <div className="flex flex-col justify-between">
-                <span className="text-sm text-primaryText">Rewards</span>
+                <span className="text-sm text-primaryText">
+                  <FormattedMessage id="Rewards" />
+                </span>
                 <span className="text-sm text-white">
                   {rewardsList.length == 0 ? (
                     '-'
@@ -130,7 +135,9 @@ export default function YourSupplied() {
                 </span>
               </div>
               <div className="flex flex-col justify-between">
-                <span className="text-sm text-primaryText">Collateral</span>
+                <span className="text-sm text-primaryText">
+                  <FormattedMessage id="Collateral" />
+                </span>
                 <span className="text-sm text-white">
                   {formatNumber(Big(collateralBalance || 0).toFixed())}
                 </span>
@@ -144,7 +151,7 @@ export default function YourSupplied() {
                     showAdjustModal(asset);
                   }}
                 >
-                  Adjust
+                  <FormattedMessage id="Adjust" />
                 </GradientButton>
               )}
               <GradientLineButton
@@ -153,7 +160,7 @@ export default function YourSupplied() {
                   showWithdrawModal(asset);
                 }}
               >
-                Withdraw
+                <FormattedMessage id="Withdraw" />
               </GradientLineButton>
             </div>
           </div>
@@ -207,7 +214,7 @@ export default function YourSupplied() {
                       showAdjustModal(asset);
                     }}
                   >
-                    Adjust
+                    <FormattedMessage id="Adjust" />
                   </GradientButton>
                 )}
                 <GradientLineButton
@@ -215,7 +222,7 @@ export default function YourSupplied() {
                     showWithdrawModal(asset);
                   }}
                 >
-                  Withdraw
+                  <FormattedMessage id="Withdraw" />
                 </GradientLineButton>
               </div>
             </td>
@@ -242,11 +249,11 @@ export default function YourSupplied() {
   return (
     <div className="border-b-2 border-burrowTableBorderColor xsm:border-none pb-5">
       <div className="text-lg gotham_bold text-white lg:pl-7 xsm:pl-0 xsm:text-base mb-4">
-        You Supplied
+        <FormattedMessage id="YouSupplied" />
       </div>
       {your_supplied_list.length == 0 && accountId ? (
         <div className="text-sm text-primaryText flex items-center justify-center py-6">
-          Your supplied assets will apear here.
+          <FormattedMessage id="NoSupplyTip" />
         </div>
       ) : null}
       {your_supplied_list.length > 0 ? (
@@ -257,11 +264,21 @@ export default function YourSupplied() {
             <table className="burrow_table">
               <thead>
                 <tr>
-                  <th style={{ width: '18%' }}>Assets</th>
-                  <th style={{ width: '15%' }}>Supply APY</th>
-                  <th style={{ width: '15%' }}>Rewards</th>
-                  <th style={{ width: '15%' }}>Collateral</th>
-                  <th style={{ width: '15%' }}>You Supplied</th>
+                  <th style={{ width: '18%' }}>
+                    <FormattedMessage id="assets" />
+                  </th>
+                  <th style={{ width: '15%' }}>
+                    <FormattedMessage id="SupplyAPY" />
+                  </th>
+                  <th style={{ width: '15%' }}>
+                    <FormattedMessage id="Rewards" />
+                  </th>
+                  <th style={{ width: '15%' }}>
+                    <FormattedMessage id="Collateral" />
+                  </th>
+                  <th style={{ width: '15%' }}>
+                    <FormattedMessage id="YouSupplied" />
+                  </th>
                   <th></th>
                 </tr>
               </thead>

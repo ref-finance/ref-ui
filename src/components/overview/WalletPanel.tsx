@@ -455,8 +455,8 @@ function WalletPanelPc() {
       <div className="flex items-center justify-between border-b border-overviewBorderColor px-6 py-4">
         <div className="flex items-center">
           <div className="flex items-center">
-            <span className="text-base text-overviewLightBlueColor gotham_bold mr-3.5">
-              Wallet
+            <span className="text-base text-overviewLightBlueColor gotham_bold mr-3.5 whitespace-nowrap">
+              <FormattedMessage id="wallet_up" />
             </span>
             <div className="flex items-center">
               <div
@@ -516,7 +516,7 @@ function WalletPanelPc() {
                   isSignedIn ? 'hidden' : ''
                 }`}
               >
-                NEAR Wallet
+                NEAR <FormattedMessage id="wallet_up" />
               </div>
               {aurora_tokens?.length > 0 ? (
                 activeTab == 'aurora' ? (
@@ -564,7 +564,9 @@ function WalletPanelPc() {
         <div className="flex items-stretch">
           {/* chart */}
           <div className="border-r border-overviewBorderColor px-6 pt-5">
-            <div className="text-sm text-primaryText">Token Allocation</div>
+            <div className="text-sm text-primaryText">
+              <FormattedMessage id="TokenAllocation" />
+            </div>
             {pieOption ? (
               <ReactECharts
                 ref={tokenRef}
@@ -580,12 +582,18 @@ function WalletPanelPc() {
           {/* tokens */}
           <div className="flex-grow p-4">
             <div className="grid grid-cols-6 pb-4 px-3 mr-1.5">
-              <span className="col-span-3 text-sm text-primaryText">Token</span>
-              <span className="col-span-1 text-sm text-primaryText">
-                Balance
+              <span className="col-span-3 text-sm text-primaryText">
+                <FormattedMessage id="token" />
               </span>
-              <span className="col-span-1 text-sm text-primaryText">Price</span>
-              <span className="col-span-1 text-sm text-primaryText">Value</span>
+              <span className="col-span-1 text-sm text-primaryText">
+                <FormattedMessage id="balance" />
+              </span>
+              <span className="col-span-1 text-sm text-primaryText">
+                <FormattedMessage id="price" />
+              </span>
+              <span className="col-span-1 text-sm text-primaryText">
+                <FormattedMessage id="value" />
+              </span>
             </div>
             <div
               className="overflow-auto"
@@ -749,8 +757,8 @@ function WalletPanelMobile() {
       <div className="px-4 py-5">
         <div className="flex items-center">
           <div className="flex items-center">
-            <span className="text-base text-overviewLightBlueColor gotham_bold mr-3.5">
-              Wallet
+            <span className="text-base text-overviewLightBlueColor gotham_bold mr-3.5 whitespace-nowrap">
+              <FormattedMessage id="wallet_up" />
             </span>
             <div className="flex items-center">
               <div
@@ -810,7 +818,7 @@ function WalletPanelMobile() {
                   isSignedIn ? 'hidden' : ''
                 }`}
               >
-                NEAR Wallet
+                NEAR <FormattedMessage id="wallet_up" />
               </div>
               {aurora_tokens?.length > 0 ? (
                 activeTab == 'aurora' ? (
@@ -847,7 +855,9 @@ function WalletPanelMobile() {
         </div>
         <div className="flex items-center justify-between mt-4 pb-4">
           <div className="flex flex-col">
-            <span className="text-sm text-primaryText">Total Assets</span>
+            <span className="text-sm text-primaryText">
+              <FormattedMessage id="TotalAssets" />
+            </span>
             <span className="text-base gotham_bold text-white">
               {showTotalValue()}
             </span>
@@ -883,7 +893,9 @@ function WalletPanelMobile() {
         >
           {/* chart */}
           <div className="p-4">
-            <div className="text-sm text-primaryText">Token Allocation</div>
+            <div className="text-sm text-primaryText">
+              <FormattedMessage id="TokenAllocation" />
+            </div>
             {pieOption ? (
               <ReactECharts
                 ref={tokenRef}
@@ -900,11 +912,15 @@ function WalletPanelMobile() {
           {/* tokens */}
           <div className="p-4">
             <div className="grid grid-cols-4 pb-2 px-3 mr-1.5 border-b border-overviewBorderColor">
-              <span className="col-span-2 text-sm text-primaryText">Token</span>
-              <span className="col-span-1 text-sm text-primaryText">
-                Balance
+              <span className="col-span-2 text-sm text-primaryText">
+                <FormattedMessage id="token" />
               </span>
-              <span className="col-span-1 text-sm text-primaryText">Value</span>
+              <span className="col-span-1 text-sm text-primaryText">
+                <FormattedMessage id="balance" />
+              </span>
+              <span className="col-span-1 text-sm text-primaryText">
+                <FormattedMessage id="value" />
+              </span>
             </div>
             <div
               className="overflow-auto"

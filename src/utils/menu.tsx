@@ -376,7 +376,11 @@ export const useMenus = () => {
       children: [
         {
           id: '3-1',
-          label: <>Overview</>,
+          label: (
+            <>
+              <FormattedMessage id="Overview" />
+            </>
+          ),
           logo: <OverviewIcon />,
           url: '/overview',
           isExternal: false,
@@ -384,7 +388,11 @@ export const useMenus = () => {
         },
         {
           id: '3-2',
-          label: <>Ref.finance</>,
+          label: (
+            <>
+              <FormattedMessage id="RefFinance" />
+            </>
+          ),
           logo: <PortfolioIcon />,
           url: '/portfolio',
           isExternal: false,
@@ -392,7 +400,11 @@ export const useMenus = () => {
         },
         {
           id: '3-3',
-          label: <>Burrow</>,
+          label: (
+            <>
+              <FormattedMessage id="Burrow" />
+            </>
+          ),
           logo: <BorrowIcon />,
           url: '/burrow',
           isExternal: false,
@@ -668,7 +680,7 @@ export const useMenusMobile = () => {
       children: [
         {
           id: '3-1',
-          label: <>Overview</>,
+          label: <FormattedMessage id="Overview" />,
           logo: <OverviewIcon />,
           url: '/overview',
           isExternal: false,
@@ -676,7 +688,7 @@ export const useMenusMobile = () => {
         },
         {
           id: '3-2',
-          label: <>Ref.finance</>,
+          label: <FormattedMessage id="RefFinance" />,
           logo: <PortfolioIcon />,
           url: '/portfolio',
           isExternal: false,
@@ -684,7 +696,7 @@ export const useMenusMobile = () => {
         },
         {
           id: '3-3',
-          label: <>Burrow</>,
+          label: <FormattedMessage id="Burrow" />,
           logo: <BorrowIcon />,
           url: '/burrow',
           isExternal: false,
