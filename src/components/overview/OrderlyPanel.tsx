@@ -153,7 +153,6 @@ export default function OrderlyPanel() {
     !tradingKeySet ||
     !keyAnnounced ||
     !validContract() ||
-    !accountId ||
     maintenance;
 
   const showMask = loading || invalid;
@@ -184,20 +183,25 @@ export default function OrderlyPanel() {
       </div>
       <div
         className={`flex items-stretch justify-between ${
-          showMask ? 'hidden' : ''
+          showMask && accountId ? 'hidden' : ''
         }`}
       >
         <div className="flex flex-col w-1/2">
           <span className="text-sm text-primaryText">
             <FormattedMessage id="TotalAssets" />
           </span>
-          <span className="text-base text-white gotham_bold mt-3 xsm:mt-0">
+          <span
+            className={`text-base gotham_bold mt-3 xsm:mt-0 ${
+              accountId ? 'text-white' : 'text-overviewGreyColor'
+            }
+`}
+          >
             {formatWithCommas_usd(totalAsset)}
           </span>
         </div>
       </div>
       {/* mask */}
-      {showMask ? (
+      {showMask && accountId ? (
         <div className="flex items-center justify-center absolute left-0 right-0 top-0 bottom-0 bg-overviewMaskColor rounded-2xl">
           {loading ? (
             <OrderlyLoading></OrderlyLoading>

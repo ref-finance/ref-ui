@@ -389,11 +389,12 @@ module.exports = {
         burrowPurpleColor:'#BCAB8F',
         burrowDarkColor:'#04121F',
         overviewBurrowColor:'#93806E',
-        overviewBurrowRedColor:'#FF4895',
+        overviewBurrowRedColor:'#F083BE',
         overviewBorderColor:'#263540',
         overviewLightBlueColor:'#ACE1FF',
         overviewMaskColor:'rgba(13, 29, 39, 0.5)',
         overviewPurpleColor:'#816CFF',
+        overviewGreyColor:'#314758',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

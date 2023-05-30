@@ -181,7 +181,11 @@ export default function BurrowPanel() {
           <span className="text-sm text-primaryText">
             <FormattedMessage id="TotalSupplied" />
           </span>
-          <span className="text-base text-white gotham_bold mt-3 xsm:mt-0">
+          <span
+            className={`text-base gotham_bold mt-3 xsm:mt-0 ${
+              accountId ? 'text-white' : 'text-overviewGreyColor'
+            }`}
+          >
             {formatWithCommas_usd(supplied)}
           </span>
         </div>
@@ -189,7 +193,11 @@ export default function BurrowPanel() {
           <span className="text-sm text-primaryText">
             <FormattedMessage id="Claimable" />
           </span>
-          <span className="text-base text-portfolioQinColor gotham_bold mt-3 xsm:mt-0">
+          <span
+            className={`text-base gotham_bold mt-3 xsm:mt-0 ${
+              accountId ? 'text-white' : 'text-overviewGreyColor'
+            }`}
+          >
             {formatWithCommas_usd(unclaimedRewards$)}
           </span>
         </div>
@@ -197,7 +205,13 @@ export default function BurrowPanel() {
           <span className="text-sm text-primaryText">
             <FormattedMessage id="TotalDebts" />
           </span>
-          <span className="text-base text-overviewBurrowRedColor gotham_bold mt-3 xsm:mt-0">
+          <span
+            className={`text-base gotham_bold mt-3 xsm:mt-0 ${
+              accountId
+                ? 'text-overviewBurrowRedColor'
+                : 'text-overviewGreyColor'
+            }`}
+          >
             -{formatWithCommas_usd(borrowed)}
           </span>
         </div>

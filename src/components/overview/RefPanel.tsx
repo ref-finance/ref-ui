@@ -43,6 +43,7 @@ function RefPanel() {
     set_ref_profit_value,
     set_ref_profit_value_done,
     is_mobile,
+    accountId,
   } = useContext(OverviewData);
   const history = useHistory();
   // get xref
@@ -123,7 +124,12 @@ function RefPanel() {
           <span className="text-sm text-primaryText">
             <FormattedMessage id="TotalInvested" />
           </span>
-          <span className="text-base text-white gotham_bold mt-3 xsm:mt-0">
+          <span
+            className={`text-base gotham_bold mt-3 xsm:mt-0 ${
+              accountId ? 'text-white' : 'text-overviewGreyColor'
+            }
+`}
+          >
             {formatWithCommas_usd(invest_value)}
           </span>
         </div>
@@ -131,7 +137,11 @@ function RefPanel() {
           <span className="text-sm text-primaryText">
             <FormattedMessage id="Claimable" />
           </span>
-          <span className="text-base text-portfolioQinColor gotham_bold mt-3 xsm:mt-0">
+          <span
+            className={`text-base gotham_bold mt-3 xsm:mt-0 ${
+              accountId ? 'text-portfolioQinColor' : 'text-overviewGreyColor'
+            }`}
+          >
             {formatWithCommas_usd(total_profit)}
           </span>
         </div>

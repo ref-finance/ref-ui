@@ -37,7 +37,8 @@ import {
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { OverviewData } from '../../pages/Overview';
-import { TriangleIcon } from './Icons';
+import { TriangleIcon, EmptyCircle } from './Icons';
+import { ConnectToNearBtn } from '~components/button/Button';
 const WalletData = createContext(null);
 export default function WalletPanel() {
   const {
@@ -432,7 +433,7 @@ export default function WalletPanel() {
 }
 
 function WalletPanelPc() {
-  const { isSignedIn, is_mobile } = useContext(OverviewData);
+  const { isSignedIn, is_mobile, accountId } = useContext(OverviewData);
   const {
     tabList,
     activeTab,
@@ -511,13 +512,6 @@ function WalletPanelPc() {
                   NEAR wallet
                 </span>
               </div>
-              <div
-                className={`text-sm text-primaryText ${
-                  isSignedIn ? 'hidden' : ''
-                }`}
-              >
-                NEAR <FormattedMessage id="wallet_up" />
-              </div>
               {aurora_tokens?.length > 0 ? (
                 activeTab == 'aurora' ? (
                   <AuroraIconActive className="cursor-pointer"></AuroraIconActive>
@@ -555,46 +549,43 @@ function WalletPanelPc() {
           {showTotalValue()}
         </div>
       </div>
-      {isSignedIn ? null : (
-        <div className="flex items-center justify-center text-sm text-primaryText my-20 w-60 mx-auto text-center">
-          <FormattedMessage id="account_appear_here_tip" />
-        </div>
-      )}
-      {isSignedIn ? (
-        <div className="flex items-stretch">
-          {/* chart */}
-          <div className="border-r border-overviewBorderColor px-6 pt-5">
-            <div className="text-sm text-primaryText">
-              <FormattedMessage id="TokenAllocation" />
-            </div>
-            {pieOption ? (
-              <ReactECharts
-                ref={tokenRef}
-                option={pieOption}
-                style={{
-                  width: is_mobile ? '240px' : '260px',
-                  height: is_mobile ? '240px' : '260px',
-                }}
-                onEvents={chartEvents}
-              />
-            ) : null}
+      <div className="flex items-stretch">
+        {/* chart */}
+        <div className="border-r border-overviewBorderColor px-6 pt-5">
+          <div className="text-sm text-primaryText">
+            <FormattedMessage id="TokenAllocation" />
           </div>
-          {/* tokens */}
-          <div className="flex-grow p-4">
-            <div className="grid grid-cols-6 pb-4 px-3 mr-1.5">
-              <span className="col-span-3 text-sm text-primaryText">
-                <FormattedMessage id="token" />
-              </span>
-              <span className="col-span-1 text-sm text-primaryText">
-                <FormattedMessage id="balance" />
-              </span>
-              <span className="col-span-1 text-sm text-primaryText">
-                <FormattedMessage id="price" />
-              </span>
-              <span className="col-span-1 text-sm text-primaryText">
-                <FormattedMessage id="value" />
-              </span>
-            </div>
+          {pieOption && accountId ? (
+            <ReactECharts
+              ref={tokenRef}
+              option={pieOption}
+              style={{
+                width: is_mobile ? '240px' : '260px',
+                height: is_mobile ? '240px' : '260px',
+              }}
+              onEvents={chartEvents}
+            />
+          ) : (
+            <EmptyCircle className="m-10" />
+          )}
+        </div>
+        {/* tokens */}
+        <div className="flex-grow p-4">
+          <div className="grid grid-cols-6 pb-4 px-3 mr-1.5">
+            <span className="col-span-3 text-sm text-primaryText">
+              <FormattedMessage id="token" />
+            </span>
+            <span className="col-span-1 text-sm text-primaryText">
+              <FormattedMessage id="balance" />
+            </span>
+            <span className="col-span-1 text-sm text-primaryText">
+              <FormattedMessage id="price" />
+            </span>
+            <span className="col-span-1 text-sm text-primaryText">
+              <FormattedMessage id="value" />
+            </span>
+          </div>
+          {accountId ? (
             <div
               className="overflow-auto"
               style={{
@@ -726,14 +717,23 @@ function WalletPanelPc() {
                 })}
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-16">
+              <p className="flex items-center justify-center flex-col text-sm text-primaryText mb-5">
+                <span>Welcome!</span>Connect your wallet to view
+              </p>
+              <div className="w-60">
+                <ConnectToNearBtn></ConnectToNearBtn>
+              </div>
+            </div>
+          )}
         </div>
-      ) : null}
+      </div>
     </div>
   );
 }
 function WalletPanelMobile() {
-  const { isSignedIn, is_mobile } = useContext(OverviewData);
+  const { isSignedIn, accountId } = useContext(OverviewData);
   const {
     tabList,
     activeTab,
@@ -813,13 +813,6 @@ function WalletPanelMobile() {
                   NEAR wallet
                 </span>
               </div>
-              <div
-                className={`text-sm text-primaryText ${
-                  isSignedIn ? 'hidden' : ''
-                }`}
-              >
-                NEAR <FormattedMessage id="wallet_up" />
-              </div>
               {aurora_tokens?.length > 0 ? (
                 activeTab == 'aurora' ? (
                   <AuroraIconActive className="cursor-pointer"></AuroraIconActive>
@@ -858,33 +851,37 @@ function WalletPanelMobile() {
             <span className="text-sm text-primaryText">
               <FormattedMessage id="TotalAssets" />
             </span>
-            <span className="text-base gotham_bold text-white">
+            <span
+              className={`text-base gotham_bold ${
+                accountId ? 'text-white' : 'text-overviewGreyColor'
+              }
+`}
+            >
               {showTotalValue()}
             </span>
           </div>
           <div
             onClick={() => {
-              setShowTokens(!showTokens);
+              if (accountId) {
+                setShowTokens(!showTokens);
+              }
             }}
             className={`flex items-center justify-center rounded-md h-6 w-6 ${
               showTokens
                 ? 'bg-portfolioGreyColor'
-                : 'border border-limitOrderInputColor transform rotate-180'
+                : accountId
+                ? 'border border-limitOrderInputColor transform rotate-180'
+                : 'border border-limitOrderInputColor transform rotate-180 opacity-50'
             }`}
           >
-            <TriangleIcon></TriangleIcon>
+            <TriangleIcon
+              className={`${
+                accountId ? 'text-white' : 'text-limitOrderInputColor'
+              }`}
+            ></TriangleIcon>
           </div>
         </div>
       </div>
-      {isSignedIn ? null : (
-        <div
-          className={`border-t border-burrowTableBorderColor flex items-center justify-center text-sm text-primaryText py-10 w-60 mx-auto text-center ${
-            showTokens ? '' : 'hidden'
-          }`}
-        >
-          <FormattedMessage id="account_appear_here_tip" />
-        </div>
-      )}
       {isSignedIn ? (
         <div
           className={`border-t border-burrowTableBorderColor ${
@@ -896,7 +893,7 @@ function WalletPanelMobile() {
             <div className="text-sm text-primaryText">
               <FormattedMessage id="TokenAllocation" />
             </div>
-            {pieOption ? (
+            {pieOption && accountId ? (
               <ReactECharts
                 ref={tokenRef}
                 option={pieOption}

@@ -29,8 +29,13 @@ export default function TotalPanel() {
 
 function TotalPanelPc(props: any) {
   const { netWorthTip } = props;
-  const { netWorth, claimable, wallet_assets_value, burrow_borrowied_value } =
-    useContext(OverviewData);
+  const {
+    netWorth,
+    claimable,
+    wallet_assets_value,
+    burrow_borrowied_value,
+    accountId,
+  } = useContext(OverviewData);
   return (
     <div className="flex items-stretch justify-between px-2">
       <div className="flex flex-col">
@@ -63,7 +68,11 @@ function TotalPanelPc(props: any) {
           <span className="text-sm text-primaryText">
             <FormattedMessage id="Claimable" />
           </span>
-          <span className="text-base gotham_bold text-portfolioQinColor">
+          <span
+            className={`text-base gotham_bold ${
+              accountId ? 'text-white' : 'text-overviewGreyColor'
+            }`}
+          >
             {formatWithCommas_usd(claimable)}
           </span>
         </div>
@@ -71,7 +80,13 @@ function TotalPanelPc(props: any) {
           <span className="text-sm text-primaryText">
             <FormattedMessage id="TotalDebts" />
           </span>
-          <span className="text-base gotham_bold text-overviewBurrowRedColor">
+          <span
+            className={`text-base gotham_bold ${
+              accountId
+                ? 'text-overviewBurrowRedColor'
+                : 'text-overviewGreyColor'
+            }`}
+          >
             -{formatWithCommas_usd(burrow_borrowied_value)}
           </span>
         </div>
@@ -79,7 +94,12 @@ function TotalPanelPc(props: any) {
           <span className="text-sm text-primaryText">
             <FormattedMessage id="WalletAssets" />
           </span>
-          <span className="text-base gotham_bold text-white">
+          <span
+            className={`text-base gotham_bold ${
+              accountId ? 'text-white' : 'text-overviewGreyColor'
+            }
+ `}
+          >
             {formatWithCommas_usd(wallet_assets_value)}
           </span>
         </div>
@@ -89,8 +109,13 @@ function TotalPanelPc(props: any) {
 }
 function TotalPanelMobile(props: any) {
   const { netWorthTip } = props;
-  const { netWorth, claimable, wallet_assets_value, burrow_borrowied_value } =
-    useContext(OverviewData);
+  const {
+    netWorth,
+    claimable,
+    wallet_assets_value,
+    burrow_borrowied_value,
+    accountId,
+  } = useContext(OverviewData);
   return (
     <div className="px-4">
       <div className="flex flex-col">
@@ -123,7 +148,12 @@ function TotalPanelMobile(props: any) {
           <span className="text-sm text-primaryText">
             <FormattedMessage id="Claimable" />
           </span>
-          <span className="text-base gotham_bold text-portfolioQinColor">
+          <span
+            className={`text-base gotham_bold ${
+              accountId ? 'text-white' : 'text-overviewGreyColor'
+            }
+`}
+          >
             {formatWithCommas_usd(claimable)}
           </span>
         </div>
@@ -131,7 +161,11 @@ function TotalPanelMobile(props: any) {
           <span className="text-sm text-primaryText">
             <FormattedMessage id="WalletAssets" />
           </span>
-          <span className="text-base gotham_bold text-white">
+          <span
+            className={`text-base gotham_bold ${
+              accountId ? 'text-white' : 'text-overviewGreyColor'
+            }`}
+          >
             {formatWithCommas_usd(wallet_assets_value)}
           </span>
         </div>
@@ -140,7 +174,11 @@ function TotalPanelMobile(props: any) {
         <span className="text-sm text-primaryText">
           <FormattedMessage id="TotalDebts" />
         </span>
-        <span className="text-base gotham_bold text-overviewBurrowRedColor">
+        <span
+          className={`text-base gotham_bold ${
+            accountId ? 'text-white' : 'text-text-overviewBurrowRedColor'
+          }`}
+        >
           -{formatWithCommas_usd(burrow_borrowied_value)}
         </span>
       </div>
