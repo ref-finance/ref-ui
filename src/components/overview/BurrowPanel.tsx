@@ -164,12 +164,14 @@ export default function BurrowPanel() {
       style={{ height: is_mobile ? '115px' : '176px' }}
       className="flex flex-col justify-between bg-swapCardGradient rounded-2xl px-5 py-4 relative w-1 xsm:w-full flex-grow cursor-pointer xsm:mb-3"
     >
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between  xsm:relative  xsm:z-10">
         <span className="text-base text-overviewBurrowColor gotham_bold">
           Burrow
         </span>
         <ArrowRightIcon
-          className="lg:hidden"
+          className={`lg:hidden ${
+            accountId ? 'text-white' : 'text-primaryText'
+          }`}
           onClick={() => {
             history.push('/burrow');
           }}

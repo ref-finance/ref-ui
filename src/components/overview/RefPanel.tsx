@@ -112,7 +112,9 @@ function RefPanel() {
           <FormattedMessage id="RefFinance" />
         </span>
         <ArrowRightIcon
-          className="lg:hidden"
+          className={`lg:hidden ${
+            accountId ? 'text-white' : 'text-primaryText'
+          }`}
           onClick={() => {
             history.push('/portfolio');
           }}

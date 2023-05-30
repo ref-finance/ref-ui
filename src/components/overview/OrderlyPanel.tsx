@@ -160,21 +160,23 @@ export default function OrderlyPanel() {
   return (
     <div
       className={`flex flex-col justify-between bg-swapCardGradient rounded-2xl px-5 py-4 w-1 xsm:w-full flex-grow overflow-hidden relative xsm:mb-3 ${
-        !is_mobile && !showMask ? 'cursor-pointer' : ''
+        (!is_mobile && !showMask) || !accountId ? 'cursor-pointer' : ''
       }`}
       onClick={() => {
-        if (!is_mobile && !showMask) {
+        if ((!is_mobile && !showMask) || !accountId) {
           openUrl('/orderbook');
         }
       }}
       style={{ height: is_mobile ? '115px' : '176px' }}
     >
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between xsm:relative xsm:z-10">
         <span className="text-base text-overviewPurpleColor gotham_bold">
           Orderly
         </span>
         <ArrowRightIcon
-          className="lg:hidden"
+          className={`lg:hidden ${
+            accountId ? 'text-white' : 'text-primaryText'
+          }`}
           onClick={() => {
             openUrl('/orderbook');
           }}

@@ -37,7 +37,7 @@ import {
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { OverviewData } from '../../pages/Overview';
-import { TriangleIcon, EmptyCircle } from './Icons';
+import { TriangleIcon, EmptyCircle, EmptyLeftBg, EmptyRightBg } from './Icons';
 import { ConnectToNearBtn } from '~components/button/Button';
 const WalletData = createContext(null);
 export default function WalletPanel() {
@@ -452,8 +452,10 @@ function WalletPanelPc() {
     intl,
   } = useContext(WalletData);
   return (
-    <div className="mt-4 bg-portfolioBarBgColor rounded-2xl overflow-hidden">
-      <div className="flex items-center justify-between border-b border-overviewBorderColor px-6 py-4">
+    <div className="mt-4 bg-portfolioBarBgColor rounded-2xl overflow-hidden relative">
+      <EmptyLeftBg className="absolute left-0 top-0"></EmptyLeftBg>
+      <EmptyRightBg className="absolute right-0 bottom-0"></EmptyRightBg>
+      <div className="flex items-center justify-between border-b border-overviewBorderColor px-6 py-4 relative z-10">
         <div className="flex items-center">
           <div className="flex items-center">
             <span className="text-base text-overviewLightBlueColor gotham_bold mr-3.5 whitespace-nowrap">
@@ -545,11 +547,16 @@ function WalletPanelPc() {
             </div>
           </div>
         </div>
-        <div className="text-base gotham_bold text-white">
+        <div
+          className={`text-base gotham_bold ${
+            accountId ? 'text-white' : 'text-overviewGreyColor'
+          }
+`}
+        >
           {showTotalValue()}
         </div>
       </div>
-      <div className="flex items-stretch">
+      <div className="flex items-stretch relative z-10">
         {/* chart */}
         <div className="border-r border-overviewBorderColor px-6 pt-5">
           <div className="text-sm text-primaryText">
@@ -756,7 +763,11 @@ function WalletPanelMobile() {
     <div className="mt-4 bg-portfolioBarBgColor rounded-2xl overflow-hidden">
       <div className="px-4 py-5">
         <div className="flex items-center">
-          <div className="flex items-center">
+          <div
+            className={`flex items-center ${
+              accountId ? '' : 'justify-between w-full'
+            }`}
+          >
             <span className="text-base text-overviewLightBlueColor gotham_bold mr-3.5 whitespace-nowrap">
               <FormattedMessage id="wallet_up" />
             </span>
@@ -826,6 +837,11 @@ function WalletPanelMobile() {
                 )
               ) : null}
             </div>
+            {!accountId ? (
+              <div className="w-56">
+                <ConnectToNearBtn></ConnectToNearBtn>
+              </div>
+            ) : null}
           </div>
         </div>
         <div

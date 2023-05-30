@@ -176,7 +176,7 @@ function TotalPanelMobile(props: any) {
         </span>
         <span
           className={`text-base gotham_bold ${
-            accountId ? 'text-white' : 'text-text-overviewBurrowRedColor'
+            accountId ? 'text-overviewBurrowRedColor' : 'text-overviewGreyColor'
           }`}
         >
           -{formatWithCommas_usd(burrow_borrowied_value)}
