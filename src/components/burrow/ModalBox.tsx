@@ -630,7 +630,7 @@ function RepayTab(props: {
             setAmount('0');
             setSliderAmount('0');
           }}
-          className={`flex items-center justify-center px-5 w-1/2 h-7 rounded-md cursor-pointer gotham_bold text-xs ${
+          className={`flex items-center justify-center px-5 w-1/2 h-7 rounded-md cursor-pointer gotham_bold text-xs whitespace-nowrap ${
             repayWay == 'wallet'
               ? 'bg-burrowTabColor text-white'
               : 'text-primaryText'
@@ -644,7 +644,7 @@ function RepayTab(props: {
             setAmount('0');
             setSliderAmount('0');
           }}
-          className={`flex items-center justify-center px-5 w-1/2 h-7 rounded-md cursor-pointer gotham_bold text-xs ${
+          className={`flex items-center justify-center px-5 w-1/2 h-7 rounded-md cursor-pointer gotham_bold text-xs whitespace-nowrap ${
             repayWay == 'deposit'
               ? 'bg-burrowTabColor text-white'
               : 'text-primaryText'
