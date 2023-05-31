@@ -1242,10 +1242,10 @@ const zh_CN = {
 
   NetWorth: '净资产',
   Claimable: '可领取',
-  TotalDebts: '总负债',
+  TotalDebts: '负债',
   WalletAssets: '钱包资产',
-  TotalInvested: '总共投入',
-  TotalAssets: '总资产',
+  TotalInvested: '投资',
+  TotalAssets: '资产',
   TokenAllocation: '代币分布',
   netWorthTip:
     'Ref中的投资总价值(包括可领取奖励)+Orderly资产总价值+ Burrow资产总价值+钱包中的总资产',
