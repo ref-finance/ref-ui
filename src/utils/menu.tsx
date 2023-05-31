@@ -48,6 +48,7 @@ import {
   PurpleCircleIcon,
   PortfolioIcon,
   BorrowIcon,
+  OverviewIcon,
 } from '~components/icon/Nav';
 // import { XrefIcon } from '~components/icon/Xref';
 import getConfig from '../services/config';
@@ -371,19 +372,39 @@ export const useMenus = () => {
       ),
       url: '',
       isExternal: false,
-      links: ['/portfolio', '/burrow'],
+      links: ['/portfolio', '/burrow', '/overview'],
       children: [
         {
           id: '3-1',
-          label: <>Ref.finance</>,
+          label: (
+            <>
+              <FormattedMessage id="Overview" />
+            </>
+          ),
+          logo: <OverviewIcon />,
+          url: '/overview',
+          isExternal: false,
+          links: ['/overview'],
+        },
+        {
+          id: '3-2',
+          label: (
+            <>
+              <FormattedMessage id="RefFinance" />
+            </>
+          ),
           logo: <PortfolioIcon />,
           url: '/portfolio',
           isExternal: false,
           links: ['/portfolio'],
         },
         {
-          id: '3-2',
-          label: <>Burrow</>,
+          id: '3-3',
+          label: (
+            <>
+              <FormattedMessage id="Burrow" />
+            </>
+          ),
           logo: <BorrowIcon />,
           url: '/burrow',
           isExternal: false,
@@ -655,19 +676,27 @@ export const useMenusMobile = () => {
       ),
       url: '',
       isExternal: false,
-      links: ['/portfolio', '/burrow'],
+      links: ['/portfolio', '/burrow', '/overview'],
       children: [
         {
           id: '3-1',
-          label: <>Ref.finance</>,
+          label: <FormattedMessage id="Overview" />,
+          logo: <OverviewIcon />,
+          url: '/overview',
+          isExternal: false,
+          links: ['/overview'],
+        },
+        {
+          id: '3-2',
+          label: <FormattedMessage id="RefFinance" />,
           logo: <PortfolioIcon />,
           url: '/portfolio',
           isExternal: false,
           links: ['/portfolio'],
         },
         {
-          id: '3-2',
-          label: <>Burrow</>,
+          id: '3-3',
+          label: <FormattedMessage id="Burrow" />,
           logo: <BorrowIcon />,
           url: '/burrow',
           isExternal: false,

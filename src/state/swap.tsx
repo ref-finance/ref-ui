@@ -8,6 +8,8 @@ import React, {
 } from 'react';
 import { Pool, StablePool } from '../services/pool';
 
+import db from '../store/RefDatabase';
+
 import { TokenMetadata, ftGetTokenMetadata } from '../services/ft-contract';
 import {
   calculateMarketPrice,
@@ -147,6 +149,10 @@ interface SwapV3Options {
   reEstimatingPro?: boolean;
   reEstimateTrigger?: boolean;
 }
+
+const getTokenPriceListFromCache = async () => {
+  return await db.queryTokenPrices();
+};
 
 export const useSwapPopUp = () => {
   const { txHash, pathname, errorType } = getURLInfo();
@@ -520,15 +526,6 @@ export const useSwap = ({
             return;
           }
 
-          if (
-            localStorage.getItem(SUPPORT_LEDGER_KEY) &&
-            estimates?.length > 1
-          ) {
-            setForceEstimate(false);
-            setQuoteDone(false);
-            return;
-          }
-
           if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
             setAverageFee(estimates);
             setSwapError(null);
@@ -541,6 +538,16 @@ export const useSwap = ({
               new Big(0)
             );
 
+            const tokenPriceListForCal = !!tokenPriceList?.['NEAR']
+              ? tokenPriceList
+              : (await getTokenPriceListFromCache()).reduce(
+                  (acc, cur) => ({
+                    ...acc,
+                    [cur.id]: cur,
+                  }),
+                  {}
+                );
+
             const priceImpactValue = getPriceImpact({
               swapsToDo: estimates,
               tokenIn,
@@ -549,7 +556,7 @@ export const useSwap = ({
                 expectedOut.toString()
               ),
               tokenInAmount,
-              tokenPriceList,
+              tokenPriceList: tokenPriceListForCal,
             });
 
             setPriceImpactValue(priceImpactValue);
