@@ -20,6 +20,7 @@ import ModalBox from './ModalBox';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { ConnectToNearBtn } from '~components/button/Button';
 import { isMobile } from '~utils/device';
+import { FormattedMessage, useIntl } from 'react-intl';
 const is_mobile = isMobile();
 export default function YourBorrowed() {
   const {
@@ -98,11 +99,15 @@ export default function YourBorrowed() {
             </div>
             <div className="flex justify-between items-stretch mb-4 mt-5">
               <div className="flex flex-col justify-between">
-                <span className="text-sm text-primaryText">Borrow APY</span>
+                <span className="text-sm text-primaryText">
+                  <FormattedMessage id="BorrowAPY" />
+                </span>
                 <span className="text-sm text-white mt-1">{toAPY(apy)}%</span>
               </div>
               <div className="flex flex-col justify-between">
-                <span className="text-sm text-primaryText">Rewards</span>
+                <span className="text-sm text-primaryText">
+                  <FormattedMessage id="Rewards" />
+                </span>
                 <span className="text-sm text-white mt-1">
                   {rewardsList.length == 0 ? (
                     '-'
@@ -119,7 +124,7 @@ export default function YourBorrowed() {
                   showRepayModal(asset);
                 }}
               >
-                Repay
+                <FormattedMessage id="Repay" />
               </PurpleLineButton>
             </div>
           </div>
@@ -164,7 +169,7 @@ export default function YourBorrowed() {
                     showRepayModal(asset);
                   }}
                 >
-                  Repay
+                  <FormattedMessage id="Repay" />
                 </PurpleLineButton>
               </div>
             </td>
@@ -184,11 +189,11 @@ export default function YourBorrowed() {
   return (
     <div className="border-b-2 border-burrowTableBorderColor pb-5 xsm:border-none">
       <div className="text-lg gotham_bold text-white pl-7 mb-4 xsm:pl-0 xsm:text-base">
-        You Borrowed
+        <FormattedMessage id="YouBorrowed" />
       </div>
       {your_borrowed_list.length == 0 && accountId ? (
         <div className="text-sm text-primaryText flex items-center justify-center py-6">
-          Your borrowed assets will apear here.
+          <FormattedMessage id="NoBorrowTip"></FormattedMessage>
         </div>
       ) : null}
       {your_borrowed_list.length > 0 ? (
@@ -199,10 +204,18 @@ export default function YourBorrowed() {
             <table className="burrow_table">
               <thead>
                 <tr>
-                  <th style={{ width: '20%' }}>Assets</th>
-                  <th style={{ width: '20%' }}>Borrow APY</th>
-                  <th style={{ width: '23%' }}>Rewards</th>
-                  <th style={{ width: '15%' }}>Borrowed</th>
+                  <th style={{ width: '20%' }}>
+                    <FormattedMessage id="assets" />
+                  </th>
+                  <th style={{ width: '20%' }}>
+                    <FormattedMessage id="BorrowAPY" />
+                  </th>
+                  <th style={{ width: '23%' }}>
+                    <FormattedMessage id="Rewards" />
+                  </th>
+                  <th style={{ width: '15%' }}>
+                    <FormattedMessage id="Borrowed" />
+                  </th>
                   <th></th>
                 </tr>
               </thead>

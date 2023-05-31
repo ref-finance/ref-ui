@@ -4,6 +4,7 @@ import {
   formatWithCommas,
   toInternationalCurrencySystem,
   toInternationalCurrencySystemNature,
+  toInternationalCurrencySystemLongString,
 } from '~utils/numbers';
 import BigNumber from 'bignumber.js';
 import { ArrowRightIcon } from '../../components/icon/V3';
@@ -148,6 +149,18 @@ export function display_number_internationalCurrencySystemNature(
     return '<0.01';
   } else {
     return toInternationalCurrencySystemNature(amount, 2);
+  }
+}
+export function display_number_internationalCurrencySystemLongString(
+  amount: string
+) {
+  const amount_big = new BigNumber(amount);
+  if (amount_big.isEqualTo('0')) {
+    return '0';
+  } else if (amount_big.isLessThan('0.01')) {
+    return '<0.01';
+  } else {
+    return toInternationalCurrencySystemLongString(amount, 2);
   }
 }
 export function display_percentage(amount: string) {

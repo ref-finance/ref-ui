@@ -21,6 +21,7 @@ import { toAPY } from '~services/burrow-utils';
 import ModalBox from './ModalBox';
 import { isMobile } from '~utils/device';
 import { ArrowUpIcon, ArrowDownIcon } from './icons';
+import { FormattedMessage, useIntl } from 'react-intl';
 const is_mobile = isMobile();
 export default function BorrowedMarket() {
   const {
@@ -98,21 +99,29 @@ export default function BorrowedMarket() {
             </div>
             <div className="flex justify-between items-stretch mb-4 mt-5">
               <div className="flex flex-col justify-between">
-                <span className="text-sm text-primaryText">APY</span>
+                <span className="text-sm text-primaryText">
+                  <FormattedMessage id="APY" />
+                </span>
                 <span className="text-sm text-white mt-1">{toAPY(apy)}%</span>
               </div>
               <div className="flex flex-col justify-between">
-                <span className="text-sm text-primaryText">Rewards</span>
+                <span className="text-sm text-primaryText">
+                  <FormattedMessage id="rewards" />
+                </span>
                 <span className="flex items-center text-sm text-white mt-1">
                   {rewardTokensImg.length == 0 ? '-' : rewardTokensImg}
                 </span>
               </div>
               <div className="flex flex-col justify-between">
-                <span className="text-sm text-primaryText">C.F.</span>
+                <span className="text-sm text-primaryText">
+                  <FormattedMessage id="CF" />
+                </span>
                 <span className="text-sm text-white mt-1">{cf || '-'}%</span>
               </div>
               <div className="flex flex-col justify-between">
-                <span className="text-sm text-primaryText">Liquidity</span>
+                <span className="text-sm text-primaryText">
+                  <FormattedMessage id="liquidity" />
+                </span>
                 <span className="text-sm text-white mt-1">${liquidity}</span>
               </div>
             </div>
@@ -123,7 +132,7 @@ export default function BorrowedMarket() {
                   showBorrowModal(asset);
                 }}
               >
-                Borrow
+                <FormattedMessage id="Borrow" />
               </PurpleButton>
             </div>
           </div>
@@ -155,7 +164,7 @@ export default function BorrowedMarket() {
                     showBorrowModal(asset);
                   }}
                 >
-                  Borrow
+                  <FormattedMessage id="Borrow" />
                 </PurpleButton>
               </div>
             </td>
@@ -177,7 +186,7 @@ export default function BorrowedMarket() {
     <div className="pb-5 pt-4">
       <div className="text-lg gotham_bold text-white pl-7 mb-4 xsm:pl-0 xsm:text-base">
         <span className="text-burrowPurpleColor mr-2 xsm:text-white">
-          Borrow Market
+          <FormattedMessage id="BorrowMarket" />
         </span>
       </div>
       {is_mobile ? (
@@ -186,7 +195,9 @@ export default function BorrowedMarket() {
         <table className="burrow_table">
           <thead>
             <tr>
-              <th style={{ width: '18%' }}>Assets</th>
+              <th style={{ width: '18%' }}>
+                <FormattedMessage id="assets" />
+              </th>
               <th style={{ width: '15%' }}>
                 <div
                   className="inline-flex items-center cursor-pointer"
@@ -197,7 +208,7 @@ export default function BorrowedMarket() {
                     });
                   }}
                 >
-                  APY
+                  <FormattedMessage id="APY" />
                   <div className="flex flex-col items-center ml-1.5">
                     <ArrowUpIcon
                       className={`${
@@ -216,7 +227,9 @@ export default function BorrowedMarket() {
                   </div>
                 </div>
               </th>
-              <th style={{ width: '15%' }}>Rewards</th>
+              <th style={{ width: '15%' }}>
+                <FormattedMessage id="rewards" />
+              </th>
               <th style={{ width: '15%' }}>
                 <div
                   className="inline-flex items-center cursor-pointer"
@@ -227,7 +240,7 @@ export default function BorrowedMarket() {
                     });
                   }}
                 >
-                  C.F.
+                  <FormattedMessage id="CF" />
                   <div className="flex flex-col items-center ml-1.5">
                     <ArrowUpIcon
                       className={`${
@@ -256,7 +269,7 @@ export default function BorrowedMarket() {
                     });
                   }}
                 >
-                  Available Liquidities
+                  <FormattedMessage id="AvailableLiquidities" />
                   <div className="flex flex-col items-center ml-1.5">
                     <ArrowUpIcon
                       className={`${
