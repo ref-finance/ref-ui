@@ -1,0 +1,26 @@
+.burrow_table {
+  width: 100%;
+}
+.burrow_table tr th {
+  font-size: 14px;
+  color: #7e8a93;
+  height: 28px;
+  text-align: left;
+}
+.burrow_table tr th:first-child {
+  text-align: left;
+  padding-left: 30px;
+}
+.burrow_table tr td:first-child {
+  text-align: left;
+  padding-left: 30px;
+}
+.burrow_table tbody tr:hover {
+  background-color: rgba(126, 138, 147, 0.1);
+}
+.burrow_table tr td {
+  font-size: 14px;
+  color: #fff;
+  height: 50px;
+  text-align: left;
+}

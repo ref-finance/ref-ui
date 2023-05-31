@@ -19,7 +19,9 @@ import _ from 'lodash';
 const config = getConfig();
 const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
 import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
+import { getAssets } from './burrow';
 import moment from 'moment';
+import { IAsset } from './burrow-interfaces';
 
 export const parseAction = async (
   methodName: string,
@@ -144,6 +146,15 @@ export const parseAction = async (
     }
     case 'user_deposit_native_token': {
       return await userDepositNativeToken(params);
+    }
+    case 'execute': {
+      return await adjust(params);
+    }
+    case 'oracle_call': {
+      return await oracleCall(params);
+    }
+    case 'account_farm_claim_all': {
+      return await borrow_claim_all(params);
     }
     default: {
       return await parseDefault();
@@ -600,6 +611,44 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
         'Receiver ID': receiver_id,
       };
     }
+  } else if (receiver_id == config.BURROW_CONTRACT_ID) {
+    let Action;
+    const token = await ftGetTokenMetadata(tokenId);
+    let IncreaseCollateralAmount = '';
+    let RepayAmount = '';
+    if (msg) {
+      const assets: IAsset[] = await getAssets();
+      const asset = assets.find((asset: IAsset) => asset.token_id == tokenId);
+      const contract_decimals = asset.config.extra_decimals + token.decimals;
+      const msgObj = JSON.parse(msg.replace(/\\"/g, '"'));
+      const actions = msgObj?.Execute?.actions;
+      if (actions?.[0]?.IncreaseCollateral) {
+        Action = 'Supply';
+        const max_amount = actions[0]['IncreaseCollateral']['max_amount'];
+        IncreaseCollateralAmount = toReadableNumber(
+          contract_decimals,
+          max_amount
+        );
+      } else if (actions?.[0]?.['Repay']) {
+        const max_amount = actions[0]['Repay']['max_amount'];
+        RepayAmount = max_amount
+          ? toReadableNumber(contract_decimals, max_amount)
+          : '';
+        Action = 'Repay';
+      }
+    } else {
+      Action = 'Supply';
+    }
+    Amount = toReadableNumber(token.decimals, amount);
+    return {
+      Action,
+      Amount,
+      'Receiver ID': receiver_id,
+      ...(IncreaseCollateralAmount
+        ? { 'IncreaseCollateral Amount': IncreaseCollateralAmount }
+        : {}),
+      ...(RepayAmount ? { 'Repay Amount': RepayAmount } : {}),
+    };
   } else if (msg && receiver_id !== 'aurora') {
     Action = 'Instant swap';
     let actions = [];
@@ -1087,7 +1136,125 @@ const userDepositNativeToken = async (params: any) => {
     Action: 'Deposit',
   };
 };
+const adjust = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+    const { token_id, max_amount } =
+      params?.actions[0]?.['IncreaseCollateral'] || {};
+    const token_meta = await ftGetTokenMetadata(token_id);
+    const assets: IAsset[] = await getAssets();
+    const asset = assets.find((asset: IAsset) => asset.token_id == token_id);
+    const contract_decimals = asset.config.extra_decimals + token_meta.decimals;
+    const Max_Amount = max_amount
+      ? toReadableNumber(contract_decimals, max_amount)
+      : '';
+    return {
+      Action: 'Adjust',
+      Token: token_meta.symbol,
+      ...(Max_Amount ? { 'IncreaseCollateral Amount': Max_Amount } : {}),
+    };
+  } catch (error) {
+    return {
+      Action: 'Adjust',
+    };
+  }
+};
+const oracleCall = async (params: any) => {
+  try {
+    params = JSON.parse(params) || {};
+    const { receiver_id, msg } = params;
+    const msgObj = JSON.parse(msg.replace(/\\"/g, '"'));
+    const actions = msgObj.Execute.actions;
+    let DecreaseCollateralAmount;
+    let token_meta;
+    let Action;
+    let WithdrawAmount;
+    let BorrowAmount;
+    let RepayAmount;
+    if (actions[0]?.['DecreaseCollateral']) {
+      const { token_id, max_amount, amount } = actions[0]['DecreaseCollateral'];
+      token_meta = await ftGetTokenMetadata(token_id);
+      const assets: IAsset[] = await getAssets();
+      const asset = assets.find((asset: IAsset) => asset.token_id == token_id);
+      const contract_decimals =
+        asset.config.extra_decimals + token_meta.decimals;
+      DecreaseCollateralAmount =
+        max_amount || amount
+          ? toReadableNumber(contract_decimals, max_amount || amount)
+          : '';
+      Action = 'Adjust';
+    }
+    if (actions[0]?.['Withdraw'] || actions[1]?.['Withdraw']) {
+      const { token_id, max_amount } =
+        actions[0]['Withdraw'] || actions[1]['Withdraw'];
+      token_meta = await ftGetTokenMetadata(token_id);
+      const assets: IAsset[] = await getAssets();
+      const asset = assets.find((asset: IAsset) => asset.token_id == token_id);
+      const contract_decimals =
+        asset.config.extra_decimals + token_meta.decimals;
+      WithdrawAmount = max_amount
+        ? toReadableNumber(contract_decimals, max_amount)
+        : '';
+      Action = 'Withdraw';
+    }
+    if (actions[0]?.['Borrow']) {
+      const { token_id, amount } = actions[0]['Borrow'];
+      const { max_amount } = actions[1]['Withdraw'];
+      token_meta = await ftGetTokenMetadata(token_id);
+      const assets: IAsset[] = await getAssets();
+      const asset = assets.find((asset: IAsset) => asset.token_id == token_id);
+      const contract_decimals =
+        asset.config.extra_decimals + token_meta.decimals;
+      BorrowAmount = toReadableNumber(contract_decimals, amount);
+      WithdrawAmount = toReadableNumber(contract_decimals, max_amount);
+      Action = 'Borrow';
+    }
+    if (actions[0]?.['Repay'] || actions[1]?.['Repay']) {
+      const { token_id, amount } = actions[0]['Repay'] || actions[1]['Repay'];
+      token_meta = await ftGetTokenMetadata(token_id);
+      const assets: IAsset[] = await getAssets();
+      const asset = assets.find((asset: IAsset) => asset.token_id == token_id);
+      const contract_decimals =
+        asset.config.extra_decimals + token_meta.decimals;
+      RepayAmount = amount ? toReadableNumber(contract_decimals, amount) : '';
+      if (actions[0]['DecreaseCollateral']) {
+        const { amount } = actions[0]['DecreaseCollateral'];
+        DecreaseCollateralAmount = amount
+          ? toReadableNumber(contract_decimals, amount)
+          : '';
+      }
+      Action = 'Repay';
+    }
 
+    return {
+      Action,
+      'Receiver ID': receiver_id,
+      Token: token_meta.symbol,
+      ...(DecreaseCollateralAmount
+        ? { 'DecreaseCollateral Amount': DecreaseCollateralAmount }
+        : {}),
+      ...(BorrowAmount ? { 'Borrow Amount': BorrowAmount } : {}),
+      ...(WithdrawAmount ? { 'Withdraw Amount': WithdrawAmount } : {}),
+      ...(RepayAmount ? { 'Repay Amount': RepayAmount } : {}),
+    };
+  } catch (error) {
+    return {
+      Action: 'Oracle Call',
+    };
+  }
+};
+
+const borrow_claim_all = async (params: any) => {
+  try {
+    return {
+      Action: 'Claim',
+    };
+  } catch (error) {
+    return {
+      Action: 'Claim',
+    };
+  }
+};
 const parseDefault = async () => {
   return {
     Action: 'Not Found',

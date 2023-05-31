@@ -177,6 +177,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         REF_UNI_SWAP_CONTRACT_ID:
           process.env.REF_UNI_SWAP_CONTRACT_ID || 'dcl.ref-labs.near',
         switch_on_dcl_farms: 'off',
+        BURROW_CONTRACT_ID: 'contract.main.burrow.near',
       };
     case 'pub-testnet':
       return {
@@ -250,6 +251,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           '1760#1',
         ],
         switch_on_dcl_farms: 'on',
+        BURROW_CONTRACT_ID: 'contract.1638481328.burrow.testnet',
       };
     case 'testnet':
       return {
@@ -322,6 +324,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         FARM_BLACK_LIST_V2: process.env.FARM_BLACK_LIST_V2 || ['666'],
         boostBlackList: process.env.FARM__BOOST_BLACK_LIST || [''],
         switch_on_dcl_farms: 'on',
+        BURROW_CONTRACT_ID: 'contract.1638481328.burrow.testnet',
       };
     default:
       return {
@@ -406,6 +409,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.REF_UNI_SWAP_CONTRACT_ID || 'dcl.ref-labs.near',
         switch_on_dcl_farms: 'off',
         DCL_POOL_BLACK_LIST: ['usdt.tether-token.near|wrap.near|2000'],
+        BURROW_CONTRACT_ID: 'contract.main.burrow.near',
       };
   }
 }

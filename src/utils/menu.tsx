@@ -46,6 +46,9 @@ import {
   XrefIcon,
   REFSmallIcon,
   PurpleCircleIcon,
+  PortfolioIcon,
+  BorrowIcon,
+  OverviewIcon,
 } from '~components/icon/Nav';
 // import { XrefIcon } from '~components/icon/Xref';
 import getConfig from '../services/config';
@@ -367,9 +370,47 @@ export const useMenus = () => {
           <FormattedMessage id="portfolio" />
         </>
       ),
-      url: '/portfolio',
+      url: '',
       isExternal: false,
-      links: ['/portfolio'],
+      links: ['/portfolio', '/burrow', '/overview'],
+      children: [
+        {
+          id: '3-1',
+          label: (
+            <>
+              <FormattedMessage id="Overview" />
+            </>
+          ),
+          logo: <OverviewIcon />,
+          url: '/overview',
+          isExternal: false,
+          links: ['/overview'],
+        },
+        {
+          id: '3-2',
+          label: (
+            <>
+              <FormattedMessage id="RefFinance" />
+            </>
+          ),
+          logo: <PortfolioIcon />,
+          url: '/portfolio',
+          isExternal: false,
+          links: ['/portfolio'],
+        },
+        {
+          id: '3-3',
+          label: (
+            <>
+              <FormattedMessage id="Burrow" />
+            </>
+          ),
+          logo: <BorrowIcon />,
+          url: '/burrow',
+          isExternal: false,
+          links: ['/burrow'],
+        },
+      ],
     },
     // {
     //   id: '4',
@@ -633,9 +674,35 @@ export const useMenusMobile = () => {
           <FormattedMessage id="portfolio" />
         </>
       ),
-      url: '/portfolio',
+      url: '',
       isExternal: false,
-      links: ['/portfolio'],
+      links: ['/portfolio', '/burrow', '/overview'],
+      children: [
+        {
+          id: '3-1',
+          label: <FormattedMessage id="Overview" />,
+          logo: <OverviewIcon />,
+          url: '/overview',
+          isExternal: false,
+          links: ['/overview'],
+        },
+        {
+          id: '3-2',
+          label: <FormattedMessage id="RefFinance" />,
+          logo: <PortfolioIcon />,
+          url: '/portfolio',
+          isExternal: false,
+          links: ['/portfolio'],
+        },
+        {
+          id: '3-3',
+          label: <FormattedMessage id="Burrow" />,
+          logo: <BorrowIcon />,
+          url: '/burrow',
+          isExternal: false,
+          links: ['/burrow'],
+        },
+      ],
     },
     // {
     //   id: '4',

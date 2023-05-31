@@ -235,11 +235,13 @@ function CurAsset() {
           className="flex flex-col items-center justify-center text-primaryText"
         >
           <span className="text-center">
-            {intl.formatMessage({
-              id: 'deposit_assets_to_begin_your_trading_journey',
-              defaultMessage:
-                'Deposit assets to begin your <br> trading journey.',
-            })}
+            <FormattedMessage
+              id={'deposit_assets_to_begin_your_trading_journey'}
+              defaultMessage={
+                'Deposit assets to begin your {br} trading journey.'
+              }
+              values={{ br: <br /> }}
+            ></FormattedMessage>
           </span>
 
           <button

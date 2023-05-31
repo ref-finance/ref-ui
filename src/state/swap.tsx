@@ -8,6 +8,8 @@ import React, {
 } from 'react';
 import { Pool, StablePool } from '../services/pool';
 
+import db from '../store/RefDatabase';
+
 import { TokenMetadata, ftGetTokenMetadata } from '../services/ft-contract';
 import {
   calculateMarketPrice,
@@ -102,6 +104,8 @@ import { parseSymbol } from '../pages/Orderly/components/RecentTrade';
 import { getTopPoolsIndexer, getTopPoolsIndexerRaw } from '../services/indexer';
 import { SUPPORT_LEDGER_KEY } from '../components/swap/SwapCard';
 import { openUrl } from '../services/commonV3';
+import { hasTriPools } from '../services/aurora/aurora';
+import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
 const ONLY_ZEROS = /^0*\.?0*$/;
 
 export const REF_DCL_POOL_CACHE_KEY = 'REF_DCL_POOL_CACHE_VALUE';
@@ -145,6 +149,10 @@ interface SwapV3Options {
   reEstimatingPro?: boolean;
   reEstimateTrigger?: boolean;
 }
+
+const getTokenPriceListFromCache = async () => {
+  return await db.queryTokenPrices();
+};
 
 export const useSwapPopUp = () => {
   const { txHash, pathname, errorType } = getURLInfo();
@@ -518,15 +526,6 @@ export const useSwap = ({
             return;
           }
 
-          if (
-            localStorage.getItem(SUPPORT_LEDGER_KEY) &&
-            estimates?.length > 1
-          ) {
-            setForceEstimate(false);
-            setQuoteDone(false);
-            return;
-          }
-
           if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
             setAverageFee(estimates);
             setSwapError(null);
@@ -539,6 +538,16 @@ export const useSwap = ({
               new Big(0)
             );
 
+            const tokenPriceListForCal = !!tokenPriceList?.['NEAR']
+              ? tokenPriceList
+              : (await getTokenPriceListFromCache()).reduce(
+                  (acc, cur) => ({
+                    ...acc,
+                    [cur.id]: cur,
+                  }),
+                  {}
+                );
+
             const priceImpactValue = getPriceImpact({
               swapsToDo: estimates,
               tokenIn,
@@ -547,7 +556,7 @@ export const useSwap = ({
                 expectedOut.toString()
               ),
               tokenInAmount,
-              tokenPriceList,
+              tokenPriceList: tokenPriceListForCal,
             });
 
             setPriceImpactValue(priceImpactValue);
@@ -1957,6 +1966,14 @@ export const useRefSwapPro = ({
     supportLedger,
     loadingData,
   });
+
+  resRef.hasTriPool =
+    tokenIn &&
+    tokenOut &&
+    hasTriPools([
+      tokenIn.id === WRAP_NEAR_CONTRACT_ID ? 'wNEAR' : tokenIn.symbol,
+      tokenOut.id === WRAP_NEAR_CONTRACT_ID ? 'wNEAR' : tokenOut.symbol,
+    ]);
 
   const resAurora = useCrossSwap({
     tokenIn,
