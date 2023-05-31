@@ -99,7 +99,7 @@ export function NavigationMobile(props: any) {
   const [menuList, setMenuList] = useState([
     {
       Icon: OverviewMIcon,
-      name: 'Overview',
+      name: <FormattedMessage id="Overview" />,
       id: 'overview',
       url: '/overview',
     },

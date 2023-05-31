@@ -727,7 +727,10 @@ function WalletPanelPc() {
           ) : (
             <div className="flex flex-col items-center justify-center py-16">
               <p className="flex items-center justify-center flex-col text-sm text-primaryText mb-5">
-                <span>Welcome!</span>Connect your wallet to view
+                <span>
+                  <FormattedMessage id="Welcome"></FormattedMessage>
+                </span>
+                <FormattedMessage id="ConnectView" />
               </p>
               <div className="w-60">
                 <ConnectToNearBtn></ConnectToNearBtn>

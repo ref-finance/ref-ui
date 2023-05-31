@@ -262,7 +262,7 @@ export default function SuppliedMarket() {
                     });
                   }}
                 >
-                  <FormattedMessage id="TotalSupplied" />
+                  <FormattedMessage id="TotalSuppliedMarket" />
                   <div className="flex flex-col items-center ml-1.5">
                     <ArrowUpIcon
                       className={`${

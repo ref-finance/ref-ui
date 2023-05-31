@@ -6,7 +6,7 @@ export default function MainTab() {
   const { main_active_tab, set_main_active_tab } = useContext(PortfolioData);
 
   const [mainTabList, setMainTabList] = useState([
-    { name: 'Summary', icon: <OverviewIcon />, id: 'overview' },
+    { name: '', icon: <OverviewIcon />, id: 'Summary' },
     { name: '', icon: <PositionsIcon />, id: 'positions_2' },
   ]);
 

@@ -1148,6 +1148,14 @@ const ko = {
   NoBorrowTip: 'Your borrowed assets will apear here.',
   APY: 'APY',
   CF: 'C.F.',
+  burrowErrorTip:
+    'The current balance is below the minimum token decimals, so that it cannot be processed by the contract.',
+  healthErrorTip:
+    "Your health factor will be dangerously low and you're at risk of liquidation.",
+  Summary: 'Summary',
+  Welcome: 'Welcome!',
+  ConnectView: 'Connect your wallet to view',
+  TotalSuppliedMarket: 'Total Supplied',
 
   NetWorth: 'Net Worth',
   Claimable: 'Claimable',

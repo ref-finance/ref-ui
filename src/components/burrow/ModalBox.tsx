@@ -268,6 +268,8 @@ export default function ModalBox(props: {
     setExtraDetail(detail);
   }
   function operatingState() {
+    const burrowErrorTip = intl.formatMessage({ id: 'burrowErrorTip' });
+    const healthErrorTip = intl.formatMessage({ id: 'healthErrorTip' });
     let buttonDisabled = false;
     let errorText = '';
     const { action, asset } = modalData;
@@ -277,8 +279,7 @@ export default function ModalBox(props: {
       return [buttonDisabled, errorText];
     }
     if (Big(healthFactor || 0).gte(0) && Big(healthFactor || 0).lte(105)) {
-      errorText =
-        "Your health factor will be dangerously low and you're at risk of liquidation";
+      errorText = healthErrorTip;
       if (Big(healthFactor || 0).lte(100)) {
         buttonDisabled = true;
       }
@@ -295,8 +296,7 @@ export default function ModalBox(props: {
         (action == 'repay' && repayWay == 'wallet')
       ) {
         buttonDisabled = true;
-        errorText =
-          'The current balance is below the minimum token decimals, so that it cannot be processed by the contract.';
+        errorText = burrowErrorTip;
         return [buttonDisabled, errorText];
       }
     }
