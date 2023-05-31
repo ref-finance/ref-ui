@@ -1219,7 +1219,7 @@ const zh_CN = {
   NetAPYTip: '所有供应和借贷的净年利率，包括基本年利率和激励',
   Market: '市场',
   TotalSupplied: '资产',
-  TotalBorrowed: '总共借出',
+  TotalBorrowed: '总借出',
   AvailableLiquidities: '可贷流动性',
   DailyRewards: '每日奖励',
   SupplyAPY: '存款APY',
