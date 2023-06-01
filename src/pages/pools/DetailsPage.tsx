@@ -186,13 +186,8 @@ interface LocationTypes {
 export type ChartType = 'volume' | 'tvl' | 'liquidity';
 const ONLY_ZEROS = /^0*\.?0*$/;
 
-const getMax = function (id: string, max: string) {
-  return id !== WRAP_NEAR_CONTRACT_ID
-    ? max
-    : Number(max) <= 0.5
-    ? '0'
-    : String(Number(max) - 0.5);
-};
+const REF_FI_RECENT_TRANSACTION_TAB_KEY = 'REF_FI_RECENT_TRANSACTION_TAB_KEY';
+
 const formatDate = (rawDate: string) => {
   const date = rawDate
     .split('-')
@@ -1393,6 +1388,138 @@ function MyShares({
   );
 }
 
+type RencentTabKey = 'swap' | 'liquidity';
+
+export function RecentTransactions({ id }: { id: string | number }) {
+  const storedTab = sessionStorage.getItem(
+    REF_FI_RECENT_TRANSACTION_TAB_KEY
+  ) as RencentTabKey;
+
+  const [tab, setTab] = useState<RencentTabKey>(storedTab || 'swap');
+
+  const onChangeTab = (tab: RencentTabKey) => {
+    sessionStorage.setItem(REF_FI_RECENT_TRANSACTION_TAB_KEY, tab);
+    setTab(tab);
+  };
+
+  return (
+    <>
+      <div className="frcb w-full mb-3 mt-7">
+        <div className="text-white font-gothamBold text-base  ">
+          <FormattedMessage
+            id="recent_transactions"
+            defaultMessage={'Recent Transactions'}
+          />
+        </div>
+
+        <div className="frcs gap-2 h-8 text-sm text-primaryText">
+          <div
+            className={`rounded-lg frcc cursor-pointer h-full w-28 text-center align-middle ${
+              tab === 'swap'
+                ? 'text-white bg-inputV3BorderColor '
+                : 'bg-detailCardBg'
+            }`}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onChangeTab('swap');
+            }}
+          >
+            <FormattedMessage
+              id="swap"
+              defaultMessage={'Swap'}
+            ></FormattedMessage>
+          </div>
+
+          <div
+            className={`rounded-lg frcc cursor-pointer h-full w-28 text-center align-middle ${
+              tab === 'liquidity'
+                ? 'text-white bg-inputV3BorderColor '
+                : 'bg-detailCardBg'
+            }`}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onChangeTab('liquidity');
+            }}
+          >
+            <FormattedMessage
+              id="liquidity"
+              defaultMessage={'Liquidity'}
+            ></FormattedMessage>
+          </div>
+        </div>
+      </div>
+
+      <table className="text-sm rounded-lg w-full text-primaryText bg-detailCardBg">
+        <thead>
+          <tr className="text-left border-b border-gray1">
+            <th
+              style={{
+                width: '25%',
+              }}
+              className="p-4 pb-3"
+            >
+              {tab === 'liquidity' && (
+                <FormattedMessage
+                  id="action"
+                  defaultMessage={'Action'}
+                ></FormattedMessage>
+              )}
+              {tab === 'swap' && (
+                <FormattedMessage
+                  id="from"
+                  defaultMessage={'From'}
+                ></FormattedMessage>
+              )}
+            </th>
+
+            <th
+              style={{
+                width: '45%',
+              }}
+              className="p-4 pb-3"
+            >
+              {tab === 'liquidity' && (
+                <FormattedMessage
+                  id="lp_token_amount"
+                  defaultMessage={'LP Token Amount'}
+                ></FormattedMessage>
+              )}
+              {tab === 'swap' && (
+                <FormattedMessage
+                  id="to"
+                  defaultMessage={'To'}
+                ></FormattedMessage>
+              )}
+            </th>
+
+            <th
+              style={{
+                width: '30%',
+              }}
+              className="p-4 pb-3"
+            >
+              <FormattedMessage
+                id="time"
+                defaultMessage={'Time'}
+              ></FormattedMessage>
+            </th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td>t</td>
+            <td>t</td>
+            <td>t</td>
+          </tr>
+        </tbody>
+      </table>
+    </>
+  );
+}
+
 export const ChartChangeButton = ({
   chartDisplay,
   setChartDisplay,
@@ -2419,7 +2546,7 @@ export function PoolDetailsPage() {
               />
             </div>
 
-            <div className="text-white text-base mb-3 w-full">
+            <div className="text-white text-base mb-3 font-gothamBold w-full">
               <FormattedMessage
                 id="pool_composition"
                 defaultMessage={'Pool Composition'}
@@ -2554,6 +2681,8 @@ export function PoolDetailsPage() {
                 );
               })}
             </div>
+
+            <RecentTransactions id={pool.id}></RecentTransactions>
           </div>
 
           <div

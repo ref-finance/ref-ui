@@ -1796,6 +1796,192 @@ function DataBox(props: any) {
   );
 }
 
+type RencentTabKey = 'swap' | 'liquidity' | 'limit_order';
+
+const REF_FI_RECENT_TRANSACTION_TAB_KEY_DCL =
+  'REF_FI_RECENT_TRANSACTION_TAB_KEY_DCL';
+
+export function RecentTransactions() {
+  const storedTab = sessionStorage.getItem(
+    REF_FI_RECENT_TRANSACTION_TAB_KEY_DCL
+  ) as RencentTabKey;
+
+  const [tab, setTab] = useState<RencentTabKey>(storedTab || 'swap');
+
+  const onChangeTab = (tab: RencentTabKey) => {
+    sessionStorage.setItem(REF_FI_RECENT_TRANSACTION_TAB_KEY_DCL, tab);
+    setTab(tab);
+  };
+
+  return (
+    <>
+      <div className="frcb w-full mb-3 mt-7">
+        <div className="text-white font-gothamBold text-base  ">
+          <FormattedMessage
+            id="recent_transactions"
+            defaultMessage={'Recent Transactions'}
+          />
+        </div>
+
+        <div className="frcs gap-2 h-8 text-sm text-primaryText">
+          <div
+            className={`rounded-lg frcc cursor-pointer h-full w-28 text-center align-middle ${
+              tab === 'swap'
+                ? 'text-white bg-inputV3BorderColor '
+                : 'bg-detailCardBg'
+            }`}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onChangeTab('swap');
+            }}
+          >
+            <FormattedMessage
+              id="swap"
+              defaultMessage={'Swap'}
+            ></FormattedMessage>
+          </div>
+
+          <div
+            className={`rounded-lg frcc cursor-pointer h-full w-28 text-center align-middle ${
+              tab === 'liquidity'
+                ? 'text-white bg-inputV3BorderColor '
+                : 'bg-detailCardBg'
+            }`}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onChangeTab('liquidity');
+            }}
+          >
+            <FormattedMessage
+              id="liquidity"
+              defaultMessage={'Liquidity'}
+            ></FormattedMessage>
+          </div>
+
+          <div
+            className={`rounded-lg frcc cursor-pointer h-full w-28 text-center align-middle ${
+              tab === 'limit_order'
+                ? 'text-white bg-inputV3BorderColor '
+                : 'bg-detailCardBg'
+            }`}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onChangeTab('limit_order');
+            }}
+          >
+            <FormattedMessage
+              id="limit_order"
+              defaultMessage={'Limit Order'}
+            ></FormattedMessage>
+          </div>
+        </div>
+      </div>
+
+      <table className="text-sm rounded-lg w-full text-primaryText bg-detailCardBg">
+        <thead>
+          <tr className="text-left border-b border-gray1">
+            <th
+              style={{
+                width: tab === 'limit_order' ? '15%' : '25%',
+              }}
+              className="p-4 pb-3"
+            >
+              {tab === 'liquidity' && (
+                <FormattedMessage
+                  id="action"
+                  defaultMessage={'Action'}
+                ></FormattedMessage>
+              )}
+
+              {tab === 'limit_order' && (
+                <FormattedMessage
+                  id="action"
+                  defaultMessage={'Action'}
+                ></FormattedMessage>
+              )}
+
+              {tab === 'swap' && (
+                <FormattedMessage
+                  id="from"
+                  defaultMessage={'From'}
+                ></FormattedMessage>
+              )}
+            </th>
+
+            <th
+              style={{
+                width: tab === 'limit_order' ? '15%' : '45%',
+              }}
+              className="p-4 pb-3"
+            >
+              {tab === 'liquidity' && (
+                <FormattedMessage
+                  id="lp_token_amount"
+                  defaultMessage={'LP Token Amount'}
+                ></FormattedMessage>
+              )}
+              {tab === 'swap' && (
+                <FormattedMessage
+                  id="to"
+                  defaultMessage={'To'}
+                ></FormattedMessage>
+              )}
+
+              {tab === 'limit_order' && (
+                <FormattedMessage
+                  id="direction"
+                  defaultMessage={'Direction'}
+                ></FormattedMessage>
+              )}
+            </th>
+
+            {tab === 'limit_order' && (
+              <th className="p-4 pb-3">
+                <FormattedMessage
+                  id="price"
+                  defaultMessage={'Price'}
+                ></FormattedMessage>
+              </th>
+            )}
+
+            {tab === 'limit_order' && (
+              <th className="p-4 pb-3">
+                <FormattedMessage
+                  id="amount"
+                  defaultMessage={'Amount'}
+                ></FormattedMessage>
+              </th>
+            )}
+
+            <th
+              style={{
+                width: '30%',
+              }}
+              className="p-4 text-right pb-3"
+            >
+              <FormattedMessage
+                id="time"
+                defaultMessage={'Time'}
+              ></FormattedMessage>
+            </th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td>t</td>
+            <td>t</td>
+            <td>t</td>
+          </tr>
+        </tbody>
+      </table>
+    </>
+  );
+}
+
 function TablePool(props: any) {
   const { poolDetail, tokenPriceList } = props;
   const [tokens, setTokens] = useState([]);
@@ -1861,7 +2047,7 @@ function TablePool(props: any) {
   }
   return (
     <div className="mt-8">
-      <div className="text-white text-base mb-3 w-full">
+      <div className="text-white font-gothamBold text-base mb-3 w-full">
         <FormattedMessage
           id="pool_composition"
           defaultMessage={'Pool Composition'}
@@ -1949,6 +2135,8 @@ function TablePool(props: any) {
           </div>
         ))}
       </div>
+
+      <RecentTransactions></RecentTransactions>
     </div>
   );
 }
