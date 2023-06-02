@@ -46,6 +46,10 @@ import {
   getV3PoolVolumeById,
   getAllV3Pool24Volume,
   getV3poolTvlById,
+  getClassicPoolSwapRecentTransaction,
+  ClassicPoolSwapTransaction,
+  ClassicPoolLiquidtyRecentTransaction,
+  getClassicPoolLiquidtyRecentTransaction,
 } from '../services/indexer';
 import { parsePoolView, PoolRPCView } from '../services/api';
 import {
@@ -86,6 +90,7 @@ import { PoolInfo, get_pool } from '../services/swapV3';
 import { useTokenPriceList } from './token';
 import { isStablePool } from '../services/near';
 import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
+import { useWalletSelector } from '~context/WalletSelectorContext';
 const REF_FI_STABLE_POOL_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
   getConfig().STABLE_POOL_ID
 }`;
@@ -1343,4 +1348,35 @@ export const useV3VolumesPools = () => {
   }, []);
 
   return volumes;
+};
+
+export const useClassicPoolTransaction = ({
+  pool_id,
+}: {
+  pool_id: string | number;
+}) => {
+  const [swapRecent, setSwapRecent] = useState<ClassicPoolSwapTransaction[]>(
+    []
+  );
+
+  const [lqRecent, setLqRecent] = useState<
+    ClassicPoolLiquidtyRecentTransaction[]
+  >([]);
+
+  useEffect(() => {
+    getClassicPoolSwapRecentTransaction({
+      pool_id,
+    }).then(setSwapRecent);
+
+    getClassicPoolLiquidtyRecentTransaction({
+      pool_id,
+    }).then(setLqRecent);
+
+    // getClassicPoolSwapRecentTransaction({
+    //   account_id: accountId,
+    //   token_one:
+    // })
+  }, []);
+
+  return { swapTransaction: swapRecent, liquidityTransactions: lqRecent };
 };

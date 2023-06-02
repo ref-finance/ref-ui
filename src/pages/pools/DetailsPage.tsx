@@ -13,6 +13,7 @@ import {
   TVLDataType,
   TVLType,
   useDayVolume,
+  useClassicPoolTransaction,
 } from '~state/pool';
 import {
   addLiquidityToPool,
@@ -1390,7 +1391,17 @@ function MyShares({
 
 type RencentTabKey = 'swap' | 'liquidity';
 
-export function RecentTransactions({ id }: { id: string | number }) {
+export function RecentTransactions({
+  tokens,
+  pool_id,
+}: {
+  tokens: TokenMetadata[];
+  pool_id: string | number;
+}) {
+  const { swapTransaction, liquidityTransactions } = useClassicPoolTransaction({
+    pool_id,
+  });
+
   const storedTab = sessionStorage.getItem(
     REF_FI_RECENT_TRANSACTION_TAB_KEY
   ) as RencentTabKey;
@@ -1401,6 +1412,137 @@ export function RecentTransactions({ id }: { id: string | number }) {
     sessionStorage.setItem(REF_FI_RECENT_TRANSACTION_TAB_KEY, tab);
     setTab(tab);
   };
+
+  const renderSwapTransactions = swapTransaction.map((tx) => {
+    const swapIn = tokens.find((t) => t.id === tx.token_in);
+
+    const swapOut = tokens.find((t) => t.id === tx.token_out);
+
+    if (!swapIn || !swapOut) return null;
+
+    const swapInAmount = toReadableNumber(swapIn.decimals, tx.swap_in);
+    const displayInAmount =
+      Number(swapInAmount) < 0.01
+        ? '<0.01'
+        : numberWithCommas(toPrecision(swapInAmount, 6));
+
+    const swapOutAmount = toReadableNumber(swapOut.decimals, tx.swap_out);
+
+    const displayOutAmount =
+      Number(swapOutAmount) < 0.01
+        ? '<0.01'
+        : numberWithCommas(toPrecision(swapOutAmount, 6));
+
+    const txLink = (
+      <a
+        rel="noopener  noreferrer nofollow "
+        href={`${getConfig().explorerUrl}/txns/${tx.tx_id}`}
+        className="absolute right-6 text-txBlue hover:underline ml-1 "
+        target="_blank"
+      >
+        Tx
+      </a>
+    );
+
+    return (
+      <tr className="text-sm text-primaryText hover:bg-poolRecentHover">
+        <td className=" gap-1 p-4">
+          <span className="text-white" title={swapInAmount}>
+            {displayInAmount}
+          </span>
+
+          <span className="ml-1">{toRealSymbol(swapIn.symbol)}</span>
+        </td>
+
+        <td className=" gap-1 ">
+          <span className="text-white" title={swapOutAmount}>
+            {displayOutAmount}
+          </span>
+
+          <span className="ml-1">{toRealSymbol(swapOut.symbol)}</span>
+        </td>
+
+        <td className=" relative py-4 pr-4">
+          <span>{tx.timestamp}</span>
+
+          {txLink}
+        </td>
+      </tr>
+    );
+  });
+
+  const renderLiquidityTransactions = liquidityTransactions.map((tx) => {
+    const swapIn = tokens.find((t) => t.id === tx.token_in);
+
+    const swapOut = tokens.find((t) => t.id === tx.token_out);
+
+    if (!swapIn || !swapOut) return null;
+
+    const AmountIn = toReadableNumber(swapIn.decimals, tx.amount_in);
+    const displayInAmount =
+      Number(AmountIn) < 0.01
+        ? '<0.01'
+        : numberWithCommas(toPrecision(AmountIn, 6));
+
+    const AmountOut = toReadableNumber(swapOut.decimals, tx.amount_out);
+
+    const displayOutAmount =
+      Number(AmountOut) < 0.01
+        ? '<0.01'
+        : numberWithCommas(toPrecision(AmountOut, 6));
+
+    const txLink = (
+      <a
+        rel="noopener  noreferrer nofollow "
+        href={`${getConfig().explorerUrl}/txns/${tx.tx_id}`}
+        className="absolute right-6 text-txBlue hover:underline ml-1 "
+        target="_blank"
+      >
+        Tx
+      </a>
+    );
+
+    return (
+      <tr className="text-sm text-primaryText hover:bg-poolRecentHover">
+        <td className=" gap-1 p-4">
+          <span className="text-white">
+            {tx.method_name.toLowerCase().indexOf('add') > -1 && 'Add'}
+
+            {tx.method_name.toLowerCase().indexOf('remove') > -1 && 'Remove'}
+          </span>
+        </td>
+
+        <td className="text-white">
+          <span className="text-white" title={AmountIn}>
+            {displayInAmount}
+          </span>
+
+          <span className="ml-1 text-primaryText">
+            {toRealSymbol(swapIn.symbol)}
+          </span>
+
+          <span className="mx-1">+</span>
+
+          <span className="text-white" title={AmountOut}>
+            {displayOutAmount}
+          </span>
+
+          <span className="ml-1 text-primaryText">
+            {toRealSymbol(swapOut.symbol)}
+          </span>
+        </td>
+
+        <td className=" relative py-4 pr-4">
+          <span>{tx.timestamp}</span>
+
+          {txLink}
+        </td>
+      </tr>
+    );
+  });
+
+  const renderTx =
+    tab === 'swap' ? renderSwapTransactions : renderLiquidityTransactions;
 
   return (
     <>
@@ -1478,12 +1620,12 @@ export function RecentTransactions({ id }: { id: string | number }) {
               style={{
                 width: '45%',
               }}
-              className="p-4 pb-3"
+              className="py-4 pb-3"
             >
               {tab === 'liquidity' && (
                 <FormattedMessage
-                  id="lp_token_amount"
-                  defaultMessage={'LP Token Amount'}
+                  id="amount"
+                  defaultMessage={'Amount'}
                 ></FormattedMessage>
               )}
               {tab === 'swap' && (
@@ -1498,7 +1640,7 @@ export function RecentTransactions({ id }: { id: string | number }) {
               style={{
                 width: '30%',
               }}
-              className="p-4 pb-3"
+              className="pr-4 py-4 pb-3"
             >
               <FormattedMessage
                 id="time"
@@ -1508,12 +1650,13 @@ export function RecentTransactions({ id }: { id: string | number }) {
           </tr>
         </thead>
 
-        <tbody>
-          <tr>
-            <td>t</td>
-            <td>t</td>
-            <td>t</td>
-          </tr>
+        <tbody
+          className="overflow-hidden "
+          style={{
+            maxHeight: '700px',
+          }}
+        >
+          {renderTx}
         </tbody>
       </table>
     </>
@@ -2682,7 +2825,10 @@ export function PoolDetailsPage() {
               })}
             </div>
 
-            <RecentTransactions id={pool.id}></RecentTransactions>
+            <RecentTransactions
+              tokens={tokens}
+              pool_id={pool.id}
+            ></RecentTransactions>
           </div>
 
           <div

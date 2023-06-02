@@ -648,9 +648,9 @@ function UserLiquidityLine({
         }}
       >
         {styleType == '1' ? (
-          <UserLiquidityLineStyle1></UserLiquidityLineStyle1>
+          <UserLiquidityLineStyle1 />
         ) : (
-          <UserLiquidityLineStyle2></UserLiquidityLineStyle2>
+          <UserLiquidityLineStyle2 />
         )}
       </LiquidityContext.Provider>
     </>
@@ -690,6 +690,14 @@ function UserLiquidityLineStyle1() {
     liquidityDetail,
     showAddBox,
   } = useContext(LiquidityContext);
+
+  const history = useHistory();
+
+  function goDetailV2() {
+    const url_pool_id = get_pool_name(poolDetail.pool_id);
+    history.push(`/poolV2/${url_pool_id}`);
+  }
+
   const tokens = sort_tokens_by_base(tokenMetadata_x_y);
   return (
     <div
@@ -699,18 +707,12 @@ function UserLiquidityLineStyle1() {
     >
       {/* for PC */}
       <div className="relative flex flex-col items-center xs:hidden md:hidden">
-        <div className="absolute -top-1.5 flex items-center justify-center z-10">
-          <NFTIdIcon></NFTIdIcon>
-          <span className="absolute text-white text-xs gotham_bold">
-            NFT ID #{getLpt_id()}
-          </span>
-        </div>
         <div className="w-full rounded-xl overflow-hidden">
           <div
             className={`relative p-4 pt-8 cursor-pointer ${
               hover ? 'bg-v3HoverDarkBgColor' : 'bg-cardBg'
             }`}
-            onClick={goYourLiquidityDetailPage}
+            onClick={goDetailV2}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
@@ -942,7 +944,7 @@ function UserLiquidityLineStyle1() {
       <div className="lg:hidden">
         <div
           className={`relative cursor-pointer bg-cardBg rounded-lg overflow-hidden`}
-          onClick={goYourLiquidityDetailPage}
+          onClick={goDetailV2}
         >
           <div className="flex flex-col items-center justify-between w-full bg-orderMobileTop px-3 pb-3">
             <div className="flex items-center justify-center">
@@ -1239,7 +1241,6 @@ function UserLiquidityLineStyle1() {
 function UserLiquidityLineStyle2() {
   const {
     getLpt_id,
-    goYourLiquidityDetailPage,
     goPoolDetailPage,
     tokenMetadata_x_y,
     fee,
