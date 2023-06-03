@@ -30,6 +30,7 @@ import {
   get_pool_marketdepth,
   claim_all_liquidity_fee,
   get_metadata,
+  pointToPrice,
 } from '~services/swapV3';
 import {
   UserLiquidityInfo,
@@ -96,7 +97,11 @@ import { RemovePoolV3 } from '~components/pool/RemovePoolV3';
 import { AddPoolV3 } from '~components/pool/AddPoolV3';
 import Modal from 'react-modal';
 import { ModalClose } from '~components/icon';
-import { useV3VolumeChart, useV3TvlChart } from '~state/pool';
+import {
+  useV3VolumeChart,
+  useV3TvlChart,
+  useDCLPoolTransaction,
+} from '~state/pool';
 import { getV3Pool24VolumeById } from '~services/indexer';
 import {
   list_farmer_seeds,
@@ -114,6 +119,9 @@ import {
 import _ from 'lodash';
 import { PoolRPCView } from '../../services/api';
 import { FarmStampNew } from '../../components/icon/FarmStamp';
+import { numberWithCommas } from '~pages/Orderly/utiles';
+import { HiOutlineExternalLink } from 'react-icons/hi';
+import Big from 'big.js';
 
 const { REF_UNI_V3_SWAP_CONTRACT_ID, DCL_POOL_BLACK_LIST } = getConfig();
 export default function PoolDetailV3() {
@@ -1801,10 +1809,20 @@ type RencentTabKey = 'swap' | 'liquidity' | 'limit_order';
 const REF_FI_RECENT_TRANSACTION_TAB_KEY_DCL =
   'REF_FI_RECENT_TRANSACTION_TAB_KEY_DCL';
 
-export function RecentTransactions() {
+export function RecentTransactions({
+  pool_id,
+  tokens,
+}: {
+  pool_id: string;
+  tokens: TokenMetadata[];
+}) {
   const storedTab = sessionStorage.getItem(
     REF_FI_RECENT_TRANSACTION_TAB_KEY_DCL
   ) as RencentTabKey;
+
+  const { swapTransactions, liquidityTransactions, limitOrderTransactions } =
+    useDCLPoolTransaction({ pool_id });
+  console.log('pool_id: ', pool_id);
 
   const [tab, setTab] = useState<RencentTabKey>(storedTab || 'swap');
 
@@ -1813,6 +1831,236 @@ export function RecentTransactions() {
     setTab(tab);
   };
 
+  const renderSwapTransactions = swapTransactions.map((tx) => {
+    const swapIn = tokens.find((t) => t.id === tx.token_in);
+
+    const swapOut = tokens.find((t) => t.id === tx.token_out);
+
+    if (!swapIn || !swapOut) return null;
+
+    const swapInAmount = toReadableNumber(swapIn.decimals, tx.amount_in);
+    const displayInAmount =
+      Number(swapInAmount) < 0.01
+        ? '<0.01'
+        : numberWithCommas(toPrecision(swapInAmount, 6));
+
+    const swapOutAmount = toReadableNumber(swapOut.decimals, tx.amount_out);
+
+    const displayOutAmount =
+      Number(swapOutAmount) < 0.01
+        ? '<0.01'
+        : numberWithCommas(toPrecision(swapOutAmount, 6));
+
+    const txLink = (
+      <a
+        rel="noopener  noreferrer nofollow "
+        href={`${getConfig().explorerUrl}/txns/${tx.tx_id}`}
+        className="  hover:underline ml-2"
+        target="_blank"
+      >
+        <HiOutlineExternalLink className="relative "></HiOutlineExternalLink>
+      </a>
+    );
+
+    return (
+      <tr className="text-sm text-primaryText grid w-full grid-cols-5 hover:text-white hover:bg-poolRecentHover">
+        <td className=" gap-1 p-4 col-span-1">
+          <span className="text-white" title={swapInAmount}>
+            {displayInAmount}
+          </span>
+
+          <span className="ml-1 text-primaryText">
+            {toRealSymbol(swapIn.symbol)}
+          </span>
+        </td>
+
+        <td className=" gap-1 col-span-2 frcs">
+          <span className="text-white" title={swapOutAmount}>
+            {displayOutAmount}
+          </span>
+
+          <span className="ml-1 text-primaryText">
+            {toRealSymbol(swapOut.symbol)}
+          </span>
+        </td>
+
+        <td className=" relative  py-4 pr-4 flex items-center justify-end col-span-2">
+          <span className="hover:underline cursor-pointer">{tx.timestamp}</span>
+
+          {txLink}
+        </td>
+      </tr>
+    );
+  });
+
+  const renderLiquidityTransactions = liquidityTransactions.map((tx) => {
+    const swapIn = tokens[0];
+
+    const swapOut = tokens[1];
+
+    if (!swapIn || !swapOut) return null;
+
+    const AmountIn = toReadableNumber(swapIn.decimals, tx.amount_x);
+    const displayInAmount =
+      Number(AmountIn) < 0.01
+        ? '<0.01'
+        : numberWithCommas(toPrecision(AmountIn, 6));
+
+    const AmountOut = toReadableNumber(swapOut.decimals, tx.amount_y);
+
+    const displayOutAmount =
+      Number(AmountOut) < 0.01
+        ? '<0.01'
+        : numberWithCommas(toPrecision(AmountOut, 6));
+
+    const txLink = (
+      <a
+        rel="noopener  noreferrer nofollow "
+        href={`${getConfig().explorerUrl}/txns/${tx.tx_id}`}
+        className="hover:underline ml-2 "
+        target="_blank"
+      >
+        <HiOutlineExternalLink className="relative "></HiOutlineExternalLink>
+      </a>
+    );
+
+    return (
+      <tr className="text-sm text-primaryText grid grid-cols-5 hover:text-white hover:bg-poolRecentHover">
+        <td className=" gap-1 p-4  col-span-1">
+          <span className="text-white">
+            {(tx.method_name.toLowerCase().indexOf('add') > -1 ||
+              tx.method_name.toLowerCase().indexOf('append') > -1) &&
+              'Add'}
+
+            {tx.method_name.toLowerCase().indexOf('remove') > -1 && 'Remove'}
+          </span>
+        </td>
+
+        <td className="text-white col-span-2 frcs whitespace-nowrap">
+          <span className="text-white" title={AmountIn}>
+            {displayInAmount}
+          </span>
+
+          <span className="ml-1 text-primaryText">
+            {toRealSymbol(swapIn.symbol)}
+          </span>
+
+          <span className="mx-1">+</span>
+
+          <span className="text-white" title={AmountOut}>
+            {displayOutAmount}
+          </span>
+
+          <span className="ml-1 text-primaryText">
+            {toRealSymbol(swapOut.symbol)}
+          </span>
+        </td>
+
+        <td className=" relative py-4 pr-4 flex items-center justify-end col-span-2">
+          <span className="hover:underline cursor-pointer">{tx.timestamp}</span>
+
+          {txLink}
+        </td>
+      </tr>
+    );
+  });
+
+  const renderLimitOrderTransactions = limitOrderTransactions.map((tx) => {
+    const swapIn = tokens.find((t) => t.id === tx.sell_token);
+
+    const swapOut = tokens.find((t) => t.id !== tx.sell_token);
+
+    if (!swapIn || !swapOut) return null;
+
+    const AmountIn = toReadableNumber(swapIn.decimals, tx.amount);
+    const displayInAmount =
+      Number(AmountIn) < 0.01
+        ? '<0.01'
+        : numberWithCommas(toPrecision(AmountIn, 6));
+
+    const price = pointToPrice({
+      tokenA: swapIn,
+      tokenB: swapOut,
+      point:
+        swapIn.id === pool_id.split('|')[0]
+          ? Number(tx.point)
+          : -Number(tx.point),
+    });
+
+    const AmountOut = new Big(AmountIn).mul(price).toFixed(0, 0);
+
+    const displayOutAmount =
+      Number(AmountOut) < 0.01
+        ? '<0.01'
+        : numberWithCommas(toPrecision(AmountOut, 6));
+
+    const txLink = (
+      <a
+        rel="noopener  noreferrer nofollow "
+        href={`${getConfig().explorerUrl}/txns/${tx.tx_id}`}
+        className="  hover:underline ml-2 "
+        target="_blank"
+      >
+        <HiOutlineExternalLink className="relative "></HiOutlineExternalLink>
+      </a>
+    );
+
+    return (
+      <tr className="hover:text-white grid grid-cols-5 hover:bg-poolRecentHover text-sm text-primaryText">
+        <td className=" gap-1 p-4 frcs text-white">
+          {tx.method_name.toLowerCase().indexOf('cancelled') > -1 &&
+            'Cancelled'}
+
+          {tx.method_name.toLowerCase().indexOf('place') > -1 && 'Place'}
+        </td>
+
+        <td className="text-white frcs">
+          <span className="text-white" title={AmountIn}>
+            {displayInAmount}
+          </span>
+
+          <span className="ml-1 text-primaryText">
+            {toRealSymbol(swapIn.symbol)}
+          </span>
+        </td>
+
+        <td className="frcs">
+          <span className="text-white" title={AmountOut}>
+            {displayOutAmount}
+          </span>
+
+          <span className="ml-1 text-primaryText">
+            {toRealSymbol(swapOut.symbol)}
+          </span>
+        </td>
+
+        <td className="frcs">
+          <span className="text-white" title={price}>
+            {numberWithCommas(toPrecision(price, 4))}
+          </span>
+
+          <span className="ml-1 text-primaryText">
+            {toRealSymbol(swapOut.symbol)}/{toRealSymbol(swapIn.symbol)}
+          </span>
+        </td>
+
+        <td className=" relative py-4 flex items-center justify-end pr-2">
+          <span className="hover:underline text-right cursor-pointer  relative ">
+            {tx.timestamp}
+          </span>
+
+          {txLink}
+        </td>
+      </tr>
+    );
+  });
+
+  const renderTransactions =
+    tab === 'swap'
+      ? renderSwapTransactions
+      : tab === 'liquidity'
+      ? renderLiquidityTransactions
+      : renderLimitOrderTransactions;
   return (
     <>
       <div className="frcb w-full mb-3 mt-7">
@@ -1880,104 +2128,96 @@ export function RecentTransactions() {
         </div>
       </div>
 
-      <table className="text-sm rounded-lg w-full text-primaryText bg-detailCardBg">
-        <thead>
-          <tr className="text-left border-b border-gray1">
-            <th
-              style={{
-                width: tab === 'limit_order' ? '15%' : '25%',
-              }}
-              className="p-4 pb-3"
-            >
-              {tab === 'liquidity' && (
-                <FormattedMessage
-                  id="action"
-                  defaultMessage={'Action'}
-                ></FormattedMessage>
-              )}
-
-              {tab === 'limit_order' && (
-                <FormattedMessage
-                  id="action"
-                  defaultMessage={'Action'}
-                ></FormattedMessage>
-              )}
-
-              {tab === 'swap' && (
-                <FormattedMessage
-                  id="from"
-                  defaultMessage={'From'}
-                ></FormattedMessage>
-              )}
-            </th>
-
-            <th
-              style={{
-                width: tab === 'limit_order' ? '15%' : '45%',
-              }}
-              className="p-4 pb-3"
-            >
-              {tab === 'liquidity' && (
-                <FormattedMessage
-                  id="lp_token_amount"
-                  defaultMessage={'LP Token Amount'}
-                ></FormattedMessage>
-              )}
-              {tab === 'swap' && (
-                <FormattedMessage
-                  id="to"
-                  defaultMessage={'To'}
-                ></FormattedMessage>
-              )}
-
-              {tab === 'limit_order' && (
-                <FormattedMessage
-                  id="direction"
-                  defaultMessage={'Direction'}
-                ></FormattedMessage>
-              )}
-            </th>
-
-            {tab === 'limit_order' && (
-              <th className="p-4 pb-3">
-                <FormattedMessage
-                  id="price"
-                  defaultMessage={'Price'}
-                ></FormattedMessage>
-              </th>
-            )}
-
-            {tab === 'limit_order' && (
-              <th className="p-4 pb-3">
-                <FormattedMessage
-                  id="amount"
-                  defaultMessage={'Amount'}
-                ></FormattedMessage>
-              </th>
-            )}
-
-            <th
-              style={{
-                width: '30%',
-              }}
-              className="p-4 text-right pb-3"
-            >
+      <div className="text-sm rounded-t-lg overflow-hidden w-full text-primaryText bg-detailCardBg">
+        <tr className="text-left grid grid-cols-5 border-b border-gray1">
+          <th className={`p-4 ${'col-span-1'} pb-3`}>
+            {tab === 'liquidity' && (
               <FormattedMessage
-                id="time"
-                defaultMessage={'Time'}
+                id="action"
+                defaultMessage={'Action'}
+              ></FormattedMessage>
+            )}
+
+            {tab === 'limit_order' && (
+              <FormattedMessage
+                id="action"
+                defaultMessage={'Action'}
+              ></FormattedMessage>
+            )}
+
+            {tab === 'swap' && (
+              <FormattedMessage
+                id="from"
+                defaultMessage={'From'}
+              ></FormattedMessage>
+            )}
+          </th>
+
+          <th
+            className={`py-4 pb-3 ${
+              tab === 'limit_order' ? 'col-span-1' : 'col-span-2'
+            }`}
+          >
+            {tab === 'liquidity' && (
+              <FormattedMessage
+                id="amount"
+                defaultMessage={'Amount'}
+              ></FormattedMessage>
+            )}
+            {tab === 'swap' && (
+              <FormattedMessage
+                id="to"
+                defaultMessage={'To'}
+              ></FormattedMessage>
+            )}
+
+            {tab === 'limit_order' && (
+              <FormattedMessage
+                id="from"
+                defaultMessage={'From'}
+              ></FormattedMessage>
+            )}
+          </th>
+
+          {tab === 'limit_order' && (
+            <th className="py-4 pb-3 col-span-1">
+              <FormattedMessage
+                id="to"
+                defaultMessage={'To'}
               ></FormattedMessage>
             </th>
-          </tr>
-        </thead>
+          )}
 
-        <tbody>
-          <tr>
-            <td>t</td>
-            <td>t</td>
-            <td>t</td>
-          </tr>
-        </tbody>
-      </table>
+          {tab === 'limit_order' && (
+            <th className="py-4 pb-3 col-span-1">
+              <FormattedMessage
+                id="price"
+                defaultMessage={'Price'}
+              ></FormattedMessage>
+            </th>
+          )}
+
+          <th
+            className={`p-4 text-right pb-3 ${
+              tab === 'limit_order' ? 'col-span-1' : 'col-span-2'
+            }`}
+          >
+            <FormattedMessage
+              id="time"
+              defaultMessage={'Time'}
+            ></FormattedMessage>
+          </th>
+        </tr>
+
+        <div
+          className="overflow-auto "
+          style={{
+            maxHeight: '700px',
+          }}
+        >
+          {renderTransactions}
+        </div>
+      </div>
     </>
   );
 }
@@ -2136,7 +2376,10 @@ function TablePool(props: any) {
         ))}
       </div>
 
-      <RecentTransactions></RecentTransactions>
+      <RecentTransactions
+        tokens={tokens.map((t) => t.meta)}
+        pool_id={poolDetail.pool_id}
+      ></RecentTransactions>
     </div>
   );
 }

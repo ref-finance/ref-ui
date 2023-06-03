@@ -175,6 +175,7 @@ import Big from 'big.js';
 import { getEffectiveFarmList, sort_tokens_by_base } from '~services/commonV3';
 import { openUrl } from '../../services/commonV3';
 import { numberWithCommas } from '../Orderly/utiles';
+import { HiOutlineExternalLink, HiOutlineLink } from 'react-icons/hi';
 
 interface ParamTypes {
   id: string;
@@ -1437,33 +1438,37 @@ export function RecentTransactions({
       <a
         rel="noopener  noreferrer nofollow "
         href={`${getConfig().explorerUrl}/txns/${tx.tx_id}`}
-        className="absolute right-6 text-txBlue hover:underline ml-1 "
+        className=" hover:underline ml-2"
         target="_blank"
       >
-        Tx
+        <HiOutlineExternalLink className=""></HiOutlineExternalLink>
       </a>
     );
 
     return (
-      <tr className="text-sm text-primaryText hover:bg-poolRecentHover">
-        <td className=" gap-1 p-4">
+      <tr className="text-sm grid grid-cols-4 text-primaryText hover:text-white hover:bg-poolRecentHover">
+        <td className=" gap-1 p-4 frcs">
           <span className="text-white" title={swapInAmount}>
             {displayInAmount}
           </span>
 
-          <span className="ml-1">{toRealSymbol(swapIn.symbol)}</span>
+          <span className="ml-1 text-primaryText">
+            {toRealSymbol(swapIn.symbol)}
+          </span>
         </td>
 
-        <td className=" gap-1 ">
+        <td className=" gap-1 frcs">
           <span className="text-white" title={swapOutAmount}>
             {displayOutAmount}
           </span>
 
-          <span className="ml-1">{toRealSymbol(swapOut.symbol)}</span>
+          <span className="ml-1 text-primaryText">
+            {toRealSymbol(swapOut.symbol)}
+          </span>
         </td>
 
-        <td className=" relative py-4 pr-4">
-          <span>{tx.timestamp}</span>
+        <td className=" relative col-span-2  flex items-center justify-end py-4 pr-4">
+          <span className="hover:underline cursor-pointer">{tx.timestamp}</span>
 
           {txLink}
         </td>
@@ -1495,15 +1500,15 @@ export function RecentTransactions({
       <a
         rel="noopener  noreferrer nofollow "
         href={`${getConfig().explorerUrl}/txns/${tx.tx_id}`}
-        className="absolute right-6 text-txBlue hover:underline ml-1 "
+        className=" hover:underline ml-2 "
         target="_blank"
       >
-        Tx
+        <HiOutlineExternalLink className="relative"></HiOutlineExternalLink>
       </a>
     );
 
     return (
-      <tr className="text-sm text-primaryText hover:bg-poolRecentHover">
+      <tr className="text-sm grid grid-cols-4 text-primaryText hover:text-white hover:bg-poolRecentHover">
         <td className=" gap-1 p-4">
           <span className="text-white">
             {tx.method_name.toLowerCase().indexOf('add') > -1 && 'Add'}
@@ -1512,7 +1517,7 @@ export function RecentTransactions({
           </span>
         </td>
 
-        <td className="text-white">
+        <td className="text-white frcs">
           <span className="text-white" title={AmountIn}>
             {displayInAmount}
           </span>
@@ -1532,8 +1537,8 @@ export function RecentTransactions({
           </span>
         </td>
 
-        <td className=" relative py-4 pr-4">
-          <span>{tx.timestamp}</span>
+        <td className="col-span-2 relative py-4 pr-4 flex items-center justify-end">
+          <span className="hover:underline cursor-pointer">{tx.timestamp}</span>
 
           {txLink}
         </td>
@@ -1593,72 +1598,57 @@ export function RecentTransactions({
         </div>
       </div>
 
-      <table className="text-sm rounded-lg w-full text-primaryText bg-detailCardBg">
-        <thead>
-          <tr className="text-left border-b border-gray1">
-            <th
-              style={{
-                width: '25%',
-              }}
-              className="p-4 pb-3"
-            >
-              {tab === 'liquidity' && (
-                <FormattedMessage
-                  id="action"
-                  defaultMessage={'Action'}
-                ></FormattedMessage>
-              )}
-              {tab === 'swap' && (
-                <FormattedMessage
-                  id="from"
-                  defaultMessage={'From'}
-                ></FormattedMessage>
-              )}
-            </th>
-
-            <th
-              style={{
-                width: '45%',
-              }}
-              className="py-4 pb-3"
-            >
-              {tab === 'liquidity' && (
-                <FormattedMessage
-                  id="amount"
-                  defaultMessage={'Amount'}
-                ></FormattedMessage>
-              )}
-              {tab === 'swap' && (
-                <FormattedMessage
-                  id="to"
-                  defaultMessage={'To'}
-                ></FormattedMessage>
-              )}
-            </th>
-
-            <th
-              style={{
-                width: '30%',
-              }}
-              className="pr-4 py-4 pb-3"
-            >
+      <div className="text-sm overflow-hidden rounded-t-lg w-full text-primaryText bg-detailCardBg ">
+        <div
+          className={`text-left grid grid-cols-${4} w-full border-b border-gray1`}
+        >
+          <div className="p-4 pb-3 col-span-1">
+            {tab === 'liquidity' && (
               <FormattedMessage
-                id="time"
-                defaultMessage={'Time'}
+                id="action"
+                defaultMessage={'Action'}
               ></FormattedMessage>
-            </th>
-          </tr>
-        </thead>
+            )}
+            {tab === 'swap' && (
+              <FormattedMessage
+                id="from"
+                defaultMessage={'From'}
+              ></FormattedMessage>
+            )}
+          </div>
 
-        <tbody
-          className="overflow-hidden "
+          <div className="py-4 pb-3 col-span-1">
+            {tab === 'liquidity' && (
+              <FormattedMessage
+                id="amount"
+                defaultMessage={'Amount'}
+              ></FormattedMessage>
+            )}
+            {tab === 'swap' && (
+              <FormattedMessage
+                id="to"
+                defaultMessage={'To'}
+              ></FormattedMessage>
+            )}
+          </div>
+
+          <div className="pr-6 text-right col-span-2 py-4 pb-3">
+            <FormattedMessage
+              id="time"
+              defaultMessage={'Time'}
+            ></FormattedMessage>
+          </div>
+        </div>
+
+        <div
+          className="overflow-auto "
           style={{
             maxHeight: '700px',
           }}
         >
           {renderTx}
-        </tbody>
-      </table>
+        </div>
+      </div>
     </>
   );
 }

@@ -362,7 +362,7 @@ export interface DCLPoolSwapTransaction {
 }
 
 export const getDCLPoolSwapRecentTransaction = async (props: {
-  pool_id: string;
+  pool_id: string | number;
 }) => {
   const paramString = genUrlParams(props);
 
@@ -422,7 +422,7 @@ export interface DCLPoolLiquidtyRecentTransaction {
 }
 
 export const getDCLPoolLiquidtyRecentTransaction = async (props: {
-  pool_id: string;
+  pool_id: string | number;
 }) => {
   const paramString = genUrlParams(props);
 
@@ -452,7 +452,7 @@ export interface LimitOrderRecentTransaction {
 }
 
 export const getLimitOrderRecentTransaction = async (props: {
-  pool_id: string;
+  pool_id: string | number;
 }) => {
   const paramString = genUrlParams(props);
 

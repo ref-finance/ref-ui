@@ -50,6 +50,12 @@ import {
   ClassicPoolSwapTransaction,
   ClassicPoolLiquidtyRecentTransaction,
   getClassicPoolLiquidtyRecentTransaction,
+  DCLPoolSwapTransaction,
+  DCLPoolLiquidtyRecentTransaction,
+  getDCLPoolSwapRecentTransaction,
+  getDCLPoolLiquidtyRecentTransaction,
+  getLimitOrderRecentTransaction,
+  LimitOrderRecentTransaction,
 } from '../services/indexer';
 import { parsePoolView, PoolRPCView } from '../services/api';
 import {
@@ -1371,12 +1377,43 @@ export const useClassicPoolTransaction = ({
     getClassicPoolLiquidtyRecentTransaction({
       pool_id,
     }).then(setLqRecent);
-
-    // getClassicPoolSwapRecentTransaction({
-    //   account_id: accountId,
-    //   token_one:
-    // })
   }, []);
 
   return { swapTransaction: swapRecent, liquidityTransactions: lqRecent };
+};
+
+export const useDCLPoolTransaction = ({
+  pool_id,
+}: {
+  pool_id: string | number;
+}) => {
+  const [swapRecent, setSwapRecent] = useState<DCLPoolSwapTransaction[]>([]);
+
+  const [lqRecent, setLqRecent] = useState<DCLPoolLiquidtyRecentTransaction[]>(
+    []
+  );
+
+  const [limitOrderRecent, setLimitOrderRecent] = useState<
+    LimitOrderRecentTransaction[]
+  >([]);
+
+  useEffect(() => {
+    getDCLPoolSwapRecentTransaction({
+      pool_id,
+    }).then(setSwapRecent);
+
+    getDCLPoolLiquidtyRecentTransaction({
+      pool_id,
+    }).then(setLqRecent);
+
+    getLimitOrderRecentTransaction({
+      pool_id,
+    }).then(setLimitOrderRecent);
+  }, []);
+
+  return {
+    swapTransactions: swapRecent,
+    liquidityTransactions: lqRecent,
+    limitOrderTransactions: limitOrderRecent,
+  };
 };
