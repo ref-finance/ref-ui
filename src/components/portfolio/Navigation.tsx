@@ -7,6 +7,7 @@ import {
   RefMIcon,
   OrderlyMIcon,
   BurrowMIcon,
+  OverviewMenuIcon,
 } from '../../components/icon/Portfolio';
 import { useHistory, useLocation } from 'react-router-dom';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -15,8 +16,15 @@ export default function Navigation(props: any) {
   const location = useLocation();
   const [menuList, setMenuList] = useState([
     {
+      Icon: OverviewMenuIcon,
+      name: <FormattedMessage id="Overview" />,
+      id: 'overview',
+      url: '/overview',
+      borderColor: '#ffffff',
+    },
+    {
       Icon: MenuREFIcon,
-      name: 'Ref.finance',
+      name: <FormattedMessage id="RefFinance" />,
       id: 'ref',
       url: '/portfolio',
       borderColor: '#00D6AF',
@@ -24,7 +32,7 @@ export default function Navigation(props: any) {
     { Icon: MenuOrderlyIcon, name: 'Orderly', id: 'orderly' },
     {
       Icon: MenuBurrowIcon,
-      name: 'Burrow',
+      name: <FormattedMessage id="Burrow" />,
       id: 'burrow',
       url: '/burrow',
       borderColor: '#745F4B',
@@ -36,6 +44,8 @@ export default function Navigation(props: any) {
       setActiveMenu('ref');
     } else if (location.pathname.includes('burrow')) {
       setActiveMenu('burrow');
+    } else if (location.pathname.includes('overview')) {
+      setActiveMenu('overview');
     }
   }, [location.pathname]);
 
@@ -56,22 +66,18 @@ export default function Navigation(props: any) {
               style={{
                 borderColor: activeMenu == id ? borderColor : '',
               }}
-              className={`flex items-center rounded-md h-14 pl-5 mb-2 ${
+              className={`flex items-center rounded-md h-14 pl-5 mb-2 text-white  ${
                 url ? 'cursor-pointer' : ''
               } ${
-                activeMenu == id ? 'bg-selectTokenV3BgColor border-l-4' : ''
+                activeMenu == id
+                  ? 'bg-selectTokenV3BgColor border-l-4'
+                  : 'text-opacity-50'
               }`}
             >
               <div className="w-7">
                 <Icon></Icon>
               </div>
-              <span
-                className={`text-base text-white gotham_bold ${
-                  activeMenu == id ? '' : 'text-opacity-50'
-                }`}
-              >
-                {name}
-              </span>
+              <span className={`text-base  gotham_bold`}>{name}</span>
               <span
                 className={`text-xs text-primaryText rounded-md bg-navGreyColor px-1.5 py-0.5 ${
                   url ? 'hidden' : 'ml-1.5'
@@ -91,11 +97,12 @@ export function NavigationMobile(props: any) {
   const history = useHistory();
   const location = useLocation();
   const [menuList, setMenuList] = useState([
-    // {
-    //   Icon: OverviewMIcon,
-    //   name: 'Overview',
-    //   id: 'overview'
-    // },
+    {
+      Icon: OverviewMIcon,
+      name: <FormattedMessage id="Overview" />,
+      id: 'overview',
+      url: '/overview',
+    },
     {
       Icon: RefMIcon,
       name: 'Ref',
@@ -116,6 +123,8 @@ export function NavigationMobile(props: any) {
       setActiveMenu('ref');
     } else if (location.pathname.includes('burrow')) {
       setActiveMenu('burrow');
+    } else if (location.pathname.includes('overview')) {
+      setActiveMenu('overview');
     }
   }, [location.pathname]);
   return (

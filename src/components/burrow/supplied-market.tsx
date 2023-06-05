@@ -16,6 +16,7 @@ import { sortSupplyMarketData, hiddenAssets } from '~services/burrow-business';
 import ModalBox from './ModalBox';
 import { isMobile } from '~utils/device';
 import { ArrowUpIcon, ArrowDownIcon } from './icons';
+import { FormattedMessage, useIntl } from 'react-intl';
 const is_mobile = isMobile();
 export default function SuppliedMarket() {
   const {
@@ -90,23 +91,31 @@ export default function SuppliedMarket() {
             </div>
             <div className="flex justify-between items-stretch mb-4 mt-5">
               <div className="flex flex-col justify-between">
-                <span className="text-sm text-primaryText">APY</span>
+                <span className="text-sm text-primaryText">
+                  <FormattedMessage id="APY" />
+                </span>
                 <span className="text-sm text-white mt-1">
                   {toAPY(depositApy)}%
                 </span>
               </div>
               <div className="flex flex-col justify-between">
-                <span className="text-sm text-primaryText">Rewards</span>
+                <span className="text-sm text-primaryText">
+                  <FormattedMessage id="rewards" />
+                </span>
                 <span className="flex items-center text-sm text-white mt-1">
                   {rewardTokensImg}
                 </span>
               </div>
               <div className="flex flex-col justify-between">
-                <span className="text-sm text-primaryText">C.F.</span>
+                <span className="text-sm text-primaryText">
+                  <FormattedMessage id="CF" />
+                </span>
                 <span className="text-sm text-white mt-1">{cf}%</span>
               </div>
               <div className="flex flex-col justify-between">
-                <span className="text-sm text-primaryText">Total</span>
+                <span className="text-sm text-primaryText">
+                  <FormattedMessage id="total" />
+                </span>
                 <span className="text-sm text-white mt-1">
                   ${totalLiquidity_usd}
                 </span>
@@ -119,7 +128,7 @@ export default function SuppliedMarket() {
                   showSupplyModal(asset);
                 }}
               >
-                Supply
+                <FormattedMessage id="Supply" />
               </GradientButton>
             </div>
           </div>
@@ -149,7 +158,7 @@ export default function SuppliedMarket() {
                     showSupplyModal(asset);
                   }}
                 >
-                  Supply
+                  <FormattedMessage id="Supply" />
                 </GradientButton>
               </div>
             </td>
@@ -170,7 +179,7 @@ export default function SuppliedMarket() {
     <div className="pb-5 pt-4">
       <div className="text-lg gotham_bold text-white pl-7 mb-4 xsm:text-base xsm:pl-0">
         <span className="text-burrowTitleGreenColor mr-2 xsm:text-white">
-          Supply Market
+          <FormattedMessage id="SupplyMarket" />
         </span>
       </div>
       {is_mobile ? (
@@ -179,7 +188,9 @@ export default function SuppliedMarket() {
         <table className="burrow_table">
           <thead>
             <tr>
-              <th style={{ width: '18%' }}>Assets</th>
+              <th style={{ width: '18%' }}>
+                <FormattedMessage id="assets" />
+              </th>
               <th style={{ width: '15%' }}>
                 <div
                   className="inline-flex items-center cursor-pointer"
@@ -190,7 +201,7 @@ export default function SuppliedMarket() {
                     });
                   }}
                 >
-                  APY
+                  <FormattedMessage id="APY" />
                   <div className="flex flex-col items-center ml-1.5">
                     <ArrowUpIcon
                       className={`${
@@ -209,7 +220,9 @@ export default function SuppliedMarket() {
                   </div>
                 </div>
               </th>
-              <th style={{ width: '15%' }}>Rewards</th>
+              <th style={{ width: '15%' }}>
+                <FormattedMessage id="Rewards" />
+              </th>
               <th style={{ width: '15%' }}>
                 <div
                   className="inline-flex items-center cursor-pointer"
@@ -220,7 +233,7 @@ export default function SuppliedMarket() {
                     });
                   }}
                 >
-                  C.F.
+                  <FormattedMessage id="CF" />
                   <div className="flex flex-col items-center ml-1.5">
                     <ArrowUpIcon
                       className={`${
@@ -249,7 +262,7 @@ export default function SuppliedMarket() {
                     });
                   }}
                 >
-                  Total Supplied
+                  <FormattedMessage id="TotalSuppliedMarket" />
                   <div className="flex flex-col items-center ml-1.5">
                     <ArrowUpIcon
                       className={`${

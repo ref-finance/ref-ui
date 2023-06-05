@@ -19,7 +19,7 @@ const is_mobile = isMobile();
 export const PortfolioData = createContext(null);
 function Portfolio() {
   // variables only used in mobile site start
-  const [main_active_tab, set_main_active_tab] = useState('overview'); // overview,positions,token
+  const [main_active_tab, set_main_active_tab] = useState('Summary'); // Summary,positions
 
   // variables only used in mobile site end
   const [activeTab, setActiveTab] = useState(is_mobile ? '' : '1'); // 1,2,3
@@ -170,7 +170,7 @@ function PortfolioMobile() {
     <>
       <div>
         <MainTab></MainTab>
-        <div className={`${main_active_tab == 'overview' ? '' : 'hidden'}`}>
+        <div className={`${main_active_tab == 'Summary' ? '' : 'hidden'}`}>
           <Asset></Asset>
           <AssetChart></AssetChart>
           <AssetProfit></AssetProfit>
@@ -179,9 +179,6 @@ function PortfolioMobile() {
           <Orders></Orders>
           <Positions></Positions>
           <Farms></Farms>
-        </div>
-        <div className={`${main_active_tab == 'token' ? '' : 'hidden'}`}>
-          <Tokens></Tokens>
         </div>
       </div>
       <NavigationMobile></NavigationMobile>
@@ -197,32 +194,30 @@ function PortfolioPC() {
         <Navigation></Navigation>
       </div>
       {/* content */}
-      <div className="flex-grow border-l border-r border-boxBorder">
-        <div>
-          <div className="flex justify-between items-stretch">
-            <Asset></Asset>
-            <AssetChart></AssetChart>
+      <div className="flex-grow border-l border-r border-boxBorder px-5">
+        <div className="lg:max-w-1000px 3xl:max-w-1280px m-auto">
+          <div>
+            <div className="flex justify-between items-stretch">
+              <Asset></Asset>
+              <AssetChart></AssetChart>
+            </div>
+            <AssetProfit></AssetProfit>
           </div>
-          <AssetProfit></AssetProfit>
-        </div>
-        <div className="px-5">
-          <Tab></Tab>
-          <div className="relative px-3.5 py-4 rounded-2xl border border-boxBorder">
-            <div className={`${activeTab == 1 ? '' : 'hidden'}`}>
-              <Orders></Orders>
-            </div>
-            <div className={`${activeTab == 2 ? '' : 'hidden'}`}>
-              <Positions></Positions>
-            </div>
-            <div className={`${activeTab == 3 ? '' : 'hidden'}`}>
-              <Farms></Farms>
+          <div>
+            <Tab></Tab>
+            <div className="relative px-3.5 py-4 rounded-2xl border border-boxBorder">
+              <div className={`${activeTab == 1 ? '' : 'hidden'}`}>
+                <Orders></Orders>
+              </div>
+              <div className={`${activeTab == 2 ? '' : 'hidden'}`}>
+                <Positions></Positions>
+              </div>
+              <div className={`${activeTab == 3 ? '' : 'hidden'}`}>
+                <Farms></Farms>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      {/* tokens table */}
-      <div className="relative flex-shrink-0" style={{ minWidth: '330px' }}>
-        <Tokens></Tokens>
       </div>
     </div>
   );

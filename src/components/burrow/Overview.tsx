@@ -58,6 +58,7 @@ export default function Overview() {
   const [activeTab, setActiveTab] = useState<string>(
     accountId ? 'yours' : 'market'
   );
+  const intl = useIntl();
   useEffect(() => {
     if (assets && rewards) {
       if (account) {
@@ -233,9 +234,7 @@ export default function Overview() {
     return [$, icons];
   }, [unclaimedRewards]);
   function getNetApyTip() {
-    // const tip = intl.formatMessage({ id: 'reward_range_tip' });
-    const tip =
-      'Net APY of all supply and borrow positions, including base APYs and incentives';
+    const tip = intl.formatMessage({ id: 'NetAPYTip' });
     let result: string = `<div class="text-farmText text-xs text-left w-48">${tip}</div>`;
     return result;
   }
@@ -323,7 +322,7 @@ function OverviewMobile() {
               : 'text-primaryText border-transparent'
           }`}
         >
-          Yours
+          <FormattedMessage id="yours" />
         </span>
         <span
           onClick={() => {
@@ -335,7 +334,7 @@ function OverviewMobile() {
               : 'text-primaryText border-transparent'
           }`}
         >
-          Market
+          <FormattedMessage id="Market" />
         </span>
       </div>
       <div
@@ -343,16 +342,22 @@ function OverviewMobile() {
           activeTab == 'yours' ? '' : 'hidden'
         }`}
       >
-        <Template title="Supplied" value={supplied}></Template>
-        <Template title="Borrowed" value={borrowed}></Template>
         <Template
-          title="Net APY"
+          title={<FormattedMessage id="Supplied" />}
+          value={supplied}
+        ></Template>
+        <Template
+          title={<FormattedMessage id="Borrowed" />}
+          value={borrowed}
+        ></Template>
+        <Template
+          title={<FormattedMessage id="NetAPY" />}
           value={formatPercentage(netApy)}
           tip={getNetApyTip()}
           noFormat={true}
         ></Template>
         <Template
-          title="Unclaimed Rewards"
+          title={<FormattedMessage id="UnclaimedRewards" />}
           value={formatWithCommas_usd(unclaimedRewards$)}
           noFormat={true}
           claim={claim}
@@ -364,22 +369,22 @@ function OverviewMobile() {
         }`}
       >
         <Template
-          title="Total Supplied"
+          title={<FormattedMessage id="TotalSupplied" />}
           value={formatToInternationalCurrencySystem$(totalSupplied)}
           noFormat={true}
         ></Template>
         <Template
-          title="Total Borrowed"
+          title={<FormattedMessage id="TotalBorrowed" />}
           value={formatToInternationalCurrencySystem$(totalBorrowed)}
           noFormat={true}
         ></Template>
         <Template
-          title="Available Liquidities"
+          title={<FormattedMessage id="AvailableLiquidities" />}
           value={formatToInternationalCurrencySystem$(totalAvailableLiquidity)}
           noFormat={true}
         ></Template>
         <Template
-          title="Daily Rewards"
+          title={<FormattedMessage id="DailyRewards" />}
           value={formatToInternationalCurrencySystem$(dailyRewards)}
           noFormat={true}
         ></Template>
@@ -411,23 +416,38 @@ function OverviewPc() {
       <div className="w-1/2">
         <div className={`${activeTab == 'market' ? '' : 'hidden'}`}>
           <div className="flex items-center gap-20">
-            <Template title="Total Supplied" value={totalSupplied}></Template>
-            <Template title="Total Borrowed" value={totalBorrowed}></Template>
             <Template
-              title="Available Liquidities"
+              title={<FormattedMessage id="TotalSupplied" />}
+              value={totalSupplied}
+            ></Template>
+            <Template
+              title={<FormattedMessage id="TotalBorrowed" />}
+              value={totalBorrowed}
+            ></Template>
+            <Template
+              title={<FormattedMessage id="AvailableLiquidities" />}
               value={totalAvailableLiquidity}
             ></Template>
           </div>
           <div className="flex items-center mt-10">
-            <Template title="Daily Rewards" value={dailyRewards}></Template>
+            <Template
+              title={<FormattedMessage id="DailyRewards" />}
+              value={dailyRewards}
+            ></Template>
           </div>
         </div>
         <div className={`${activeTab == 'yours' ? '' : 'hidden'}`}>
           <div className="flex items-center gap-16">
-            <Template title="Supplied" value={supplied}></Template>
-            <Template title="Borrowed" value={borrowed}></Template>
             <Template
-              title="Net APY"
+              title={<FormattedMessage id="Supplied" />}
+              value={supplied}
+            ></Template>
+            <Template
+              title={<FormattedMessage id="Borrowed" />}
+              value={borrowed}
+            ></Template>
+            <Template
+              title={<FormattedMessage id="NetAPY" />}
               value={formatPercentage(netApy)}
               tip={getNetApyTip()}
               noFormat={true}
@@ -435,7 +455,7 @@ function OverviewPc() {
           </div>
           <div className="flex items-center mt-10">
             <Template
-              title="Unclaimed Rewards"
+              title={<FormattedMessage id="UnclaimedRewards" />}
               value={formatWithCommas_usd(unclaimedRewards$)}
               noFormat={true}
               rewards={unclaimedRewardsIcons}
@@ -482,7 +502,7 @@ function OverviewPc() {
               : 'text-primaryText'
           }`}
         >
-          Yours
+          <FormattedMessage id="yours" />
         </div>
         <div
           onClick={() => {
@@ -494,14 +514,14 @@ function OverviewPc() {
               : 'text-primaryText'
           }`}
         >
-          Market
+          <FormattedMessage id="Market" />
         </div>
       </div>
     </div>
   );
 }
 const Template = (props: {
-  title: string | number;
+  title: string | number | React.ReactElement;
   value: string | number;
   tip?: any;
   rewards?: React.ReactElement[];
