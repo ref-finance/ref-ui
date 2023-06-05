@@ -1279,4 +1279,6 @@ export interface PoolInfo {
   token_y_metadata?: TokenMetadata;
   total_fee_x_charged?: string;
   total_fee_y_charged?: string;
+  top_bin_apr?: string;
+  top_bin_apr_display?: string;
 }

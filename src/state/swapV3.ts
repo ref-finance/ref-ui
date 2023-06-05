@@ -9,8 +9,10 @@ import {
 import { WalletContext } from '../utils/wallets-integration';
 import { useTokenPriceList } from './token';
 import { ftGetTokenMetadata } from '../services/ft-contract';
-import { toReadableNumber } from '../utils/numbers';
+import { ONLY_ZEROS, toReadableNumber } from '../utils/numbers';
 import BigNumber from 'bignumber.js';
+import { getDCLTopBinFee } from '../services/indexer';
+import Big from 'big.js';
 
 export const useMyOrders = () => {
   const [activeOrder, setActiveOrder] = useState<UserOrderInfo[]>();
@@ -76,6 +78,23 @@ export const useAllPoolsV2 = () => {
               Number(pricey);
 
             p.tvl = tvlx + tvly;
+
+            const topBinFee = await getDCLTopBinFee({
+              pool_id: p.pool_id,
+              number: 100,
+            });
+
+            if (!topBinFee || ONLY_ZEROS.test(topBinFee.total_liquidity)) {
+              p.top_bin_apr = '0';
+              p.top_bin_apr_display = '-';
+            } else {
+              const apr = new Big(topBinFee.total_fee)
+                .div(topBinFee.total_liquidity)
+                .mul(365)
+                .toFixed(2);
+              p.top_bin_apr = apr;
+              p.top_bin_apr_display = apr + '%';
+            }
 
             return p;
           })

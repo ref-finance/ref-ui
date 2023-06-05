@@ -1453,14 +1453,20 @@ export const useDCLAccountAPR = ({
 export const useDCLTopBinFee = ({
   pool_id,
   number,
+  ownValue,
 }: {
   pool_id: string | number;
   number: string | number;
+  ownValue?: string;
 }) => {
   const [topBinApr, setTopBinApr] = useState<string>('-');
 
   useEffect(() => {
     if (!pool_id) return;
+    if (ownValue) {
+      setTopBinApr(ownValue);
+      return;
+    }
 
     getDCLTopBinFee({
       pool_id,
@@ -1473,7 +1479,7 @@ export const useDCLTopBinFee = ({
 
       setTopBinApr(apr);
     });
-  }, [pool_id, number]);
+  }, [pool_id, number, ownValue]);
 
   return topBinApr;
 };

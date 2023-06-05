@@ -30,6 +30,7 @@ import {
   useAllWatchList,
   useWatchPools,
   useV3VolumesPools,
+  useDCLTopBinFee,
 } from '../../state/pool';
 import Loading from '../../components/layout/Loading';
 
@@ -1739,6 +1740,12 @@ function PoolRowV2({
   const curRowTokens = useTokens([pool.token_x, pool.token_y], tokens);
   const history = useHistory();
 
+  const displayOfTopBinApr = useDCLTopBinFee({
+    pool_id: pool.pool_id,
+    number: 100,
+    ownValue: pool.top_bin_apr_display,
+  });
+
   if (!curRowTokens) return <></>;
   tokens = sort_tokens_by_base(tokens);
   function goDetailV2() {
@@ -1762,7 +1769,7 @@ function PoolRowV2({
     >
       <div
         className={`grid ${
-          showCol ? 'grid-cols-7' : 'grid-cols-8'
+          mark ? 'grid-cols-7' : 'grid-cols-9'
         } py-3.5 text-white content-center text-sm text-left mx-8 border-b border-gray-700 border-opacity-70 hover:opacity-80`}
       >
         <div
@@ -1795,32 +1802,31 @@ function PoolRowV2({
         </div>
 
         <div
-          className={`justify-self-center py-1 md:hidden ${
+          className={` py-1 md:hidden ${mark ? 'justify-self-center' : ''} ${
             showCol ? 'col-span-1' : 'col-span-2'
           }`}
         >
           {calculateFeePercent(pool.fee / 100)}%
         </div>
-
-        {mark && (
-          <div
-            className={`col-span-1 justify-self-center py-1 md:hidden ${
-              showCol ? '' : 'hidden'
-            }`}
-          >
-            /
-          </div>
-        )}
+        <div
+          className={`${mark ? 'justify-self-center' : ''} py-1 ${
+            mark ? 'col-span-1' : 'col-span-2'
+          }`}
+        >
+          {displayOfTopBinApr}
+        </div>
 
         <div
-          className={`col-span-1 justify-self-center py-1 md:hidden ${
-            showCol ? '' : 'hidden'
-          }`}
+          className={`col-span-1 ${
+            mark ? 'justify-self-center' : ''
+          }  py-1 md:hidden ${showCol ? '' : 'hidden'}`}
         >
           {geth24volume()}
         </div>
         <div
-          className="col-span-1 py-1 justify-self-center relative left-4"
+          className={`col-span-1 py-1  ${
+            mark ? 'justify-self-center' : ''
+          } relative left-4`}
           title={toPrecision(
             scientificNotationToString(pool.tvl.toString()),
             0
@@ -2164,6 +2170,9 @@ function LiquidityPage_({
 
     const v2 = volumes[p2.pool_id] ? parseFloat(volumes[p2.pool_id]) : 0;
 
+    const top_bin_apr1 = p1.top_bin_apr;
+    const top_bin_apr2 = p2.top_bin_apr;
+
     if (v2Order === 'desc') {
       if (v2SortBy === 'tvl') {
         return tvl2 - tvl1;
@@ -2171,6 +2180,8 @@ function LiquidityPage_({
         return f2 - f1;
       } else if (v2SortBy === 'volume_24h') {
         return v2 - v1;
+      } else if (v2SortBy === 'top_bin_apr') {
+        return Number(top_bin_apr2) - Number(top_bin_apr1);
       }
     } else if (v2Order === 'asc') {
       if (v2SortBy === 'tvl') {
@@ -2179,6 +2190,8 @@ function LiquidityPage_({
         return f1 - f2;
       } else if (v2SortBy === 'volume_24h') {
         return v1 - v2;
+      } else if (v2SortBy === 'top_bin_apr') {
+        return Number(top_bin_apr1) - Number(top_bin_apr2);
       }
     }
   };
@@ -2808,11 +2821,11 @@ function LiquidityPage_({
         {activeTab === 'v2' && (
           <Card width="w-full" className="bg-cardBg" padding="py-7 px-0">
             <section className="">
-              <header className="grid grid-cols-7 py-2 pb-4 text-left text-sm text-primaryText mx-8 border-b border-gray-700 border-opacity-70">
+              <header className="grid grid-cols-9 py-2 pb-4 text-left text-sm text-primaryText mx-8 border-b border-gray-700 border-opacity-70">
                 <div className="col-span-4 flex">
                   <FormattedMessage id="pair" defaultMessage="Pair" />
                 </div>
-                <div className="col-span-1 justify-self-center md:hidden flex items-center">
+                <div className="col-span-1  md:hidden flex items-center">
                   <span
                     className={`pr-1  cursor-pointer ${
                       v2SortBy !== 'fee' ? 'hover:text-white' : ''
@@ -2850,7 +2863,48 @@ function LiquidityPage_({
                   </span>
                 </div>
 
-                <div className="col-span-1 justify-self-center md:hidden flex items-center">
+                <div className="col-span-2  md:hidden flex items-center">
+                  <span
+                    className={`pr-1  cursor-pointer ${
+                      v2SortBy !== 'top_bin_apr' ? 'hover:text-white' : ''
+                    } ${v2SortBy === 'top_bin_apr' ? 'text-gradientFrom' : ''}`}
+                    onClick={() => {
+                      setV2SortBy('top_bin_apr');
+                      v2SortBy !== 'top_bin_apr' && setV2Order('desc');
+                      v2SortBy === 'top_bin_apr' &&
+                        setV2Order(v2Order === 'desc' ? 'asc' : 'desc');
+                    }}
+                  >
+                    <FormattedMessage
+                      id="top_bin_apr"
+                      defaultMessage="Top Bin APR (24h)"
+                    />
+                  </span>
+
+                  <span
+                    className={`cursor-pointer ${
+                      v2SortBy !== 'top_bin_apr' ? 'hidden' : ''
+                    }`}
+                    onClick={() => {
+                      setV2SortBy('top_bin_apr');
+                      v2SortBy !== 'top_bin_apr' && setV2Order('desc');
+                      v2SortBy === 'top_bin_apr' &&
+                        setV2Order(v2Order === 'desc' ? 'asc' : 'desc');
+                    }}
+                  >
+                    {v2SortBy === 'top_bin_apr' ? (
+                      v2Order === 'desc' ? (
+                        <DownArrowLight />
+                      ) : (
+                        <UpArrowLight />
+                      )
+                    ) : (
+                      <UpArrowDeep />
+                    )}
+                  </span>
+                </div>
+
+                <div className="col-span-1  md:hidden flex items-center">
                   <span
                     className={`pr-1  cursor-pointer ${
                       v2SortBy !== 'volume_24h' ? 'hover:text-white' : ''
@@ -2891,7 +2945,7 @@ function LiquidityPage_({
                   </span>
                 </div>
 
-                <div className="col-span-1 justify-self-center relative left-4 flex items-center">
+                <div className="col-span-1  relative left-4 flex items-center">
                   <span
                     className={`pr-1  cursor-pointer ${
                       v2SortBy !== 'tvl' ? 'hover:text-white' : ''
