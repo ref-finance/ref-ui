@@ -101,6 +101,7 @@ import {
   useV3VolumeChart,
   useV3TvlChart,
   useDCLPoolTransaction,
+  useDCLTopBinFee,
 } from '~state/pool';
 import { getV3Pool24VolumeById } from '~services/indexer';
 import {
@@ -118,7 +119,7 @@ import {
 } from '../../components/icon/V3';
 import _ from 'lodash';
 import { PoolRPCView } from '../../services/api';
-import { FarmStampNew } from '../../components/icon/FarmStamp';
+import { FarmStampNew, FarmStampNewDCL } from '../../components/icon/FarmStamp';
 import { numberWithCommas } from '~pages/Orderly/utiles';
 import { HiOutlineExternalLink } from 'react-icons/hi';
 import Big from 'big.js';
@@ -316,6 +317,12 @@ export default function PoolDetailV3() {
     let result: string = `<div class="text-navHighLightText text-xs text-left font-normal">${tip}</div>`;
     return result;
   }
+
+  const topBinApr = useDCLTopBinFee({
+    pool_id: poolDetail?.pool_id,
+    number: 100,
+  });
+
   if (!poolDetail) return <Loading></Loading>;
   const isMobile = isClientMobie();
   const tokens = sort_tokens_by_base([
@@ -336,7 +343,7 @@ export default function PoolDetailV3() {
           ]}
         />
         <div className="flex items-center justify-between mt-4 mb-3">
-          <div className="relative flex items-center xsm:w-full">
+          <div className="relative flex mr-4 lg:w-1/2 lg:flex-grow items-center xsm:w-full">
             <div className="flex items-center mr-2.5">
               <img
                 src={tokens[0]?.icon}
@@ -349,11 +356,48 @@ export default function PoolDetailV3() {
                 style={{ border: '4px solid rgb(61, 68, 81)' }}
               ></img>
             </div>
-            <div className="flex flex-col justify-between">
-              <div className="flex items-center">
-                <span className="text-lg text-white mr-3.5">
-                  {tokens[0]?.symbol}-{tokens[1]?.symbol}
-                </span>
+
+            <div className="w-full frcb">
+              <div className="flex flex-col gap-1 ml-2 justify-between">
+                <div className="flex items-center">
+                  <span className="text-lg font-gothamBold text-white  mr-3.5">
+                    {tokens[0]?.symbol}-{tokens[1]?.symbol}
+                  </span>
+                </div>
+                <div className="flex items-center text-sm text-farmText ">
+                  <span className=" ">
+                    <FormattedMessage id="fee" />:{' '}
+                    <span className="font-gothamBold text-white">
+                      {poolDetail.fee / 10000}%
+                    </span>
+                  </span>
+
+                  <div
+                    className="mx-4 bg-farmText"
+                    style={{
+                      height: '13px',
+                      width: '1px',
+                    }}
+                  ></div>
+
+                  <span className="">
+                    <FormattedMessage
+                      id="top_bin_apr_24h"
+                      defaultMessage={'Top Bin Fee APR(24h)'}
+                    />
+                    :{' '}
+                    <span className="font-gothamBold text-white">
+                      {topBinApr}
+                    </span>
+                  </span>
+
+                  {isMobile && sole_seed && (
+                    <FarmStampNewDCL multi={sole_seed.farmList?.length > 1} />
+                  )}
+                </div>
+              </div>
+
+              <div className="frcs">
                 <span
                   className="flex items-center justify-center rounded-lg cursor-pointer  xsm:absolute xsm:right-0"
                   onClick={(e) => {
@@ -366,7 +410,7 @@ export default function PoolDetailV3() {
                   style={{
                     background: '#172534',
                     width: '30px',
-                    height: '24px',
+                    height: '30px',
                   }}
                 >
                   {showFullStart ? (
@@ -414,21 +458,21 @@ export default function PoolDetailV3() {
                 </span>
                 <div className="xsm:hidden">
                   {sole_seed && (
-                    <FarmStampNew multi={sole_seed.farmList?.length > 1} />
+                    <FarmStampNewDCL multi={sole_seed.farmList?.length > 1} />
                   )}
                 </div>
               </div>
-              <div className="flex items-center lg:hidden">
-                <span className="text-sm text-primaryText">
-                  <FormattedMessage id="fee" />: {poolDetail.fee / 10000}%
-                </span>
-                {sole_seed && (
-                  <FarmStampNew multi={sole_seed.farmList?.length > 1} />
-                )}
-              </div>
             </div>
           </div>
+
+          <div
+            className=""
+            style={{
+              width: '300px',
+            }}
+          ></div>
         </div>
+
         <div className="flex  items-start flex-row w-full m-auto xs:flex-col-reverse md:flex-col-reverse">
           <div className="mr-4 xsm:w-full lg:flex-grow lg:w-1/2">
             <Chart

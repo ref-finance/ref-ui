@@ -56,6 +56,8 @@ import {
   getDCLPoolLiquidtyRecentTransaction,
   getLimitOrderRecentTransaction,
   LimitOrderRecentTransaction,
+  getDCLAccountFee,
+  getDCLTopBinFee,
 } from '../services/indexer';
 import { parsePoolView, PoolRPCView } from '../services/api';
 import {
@@ -1416,4 +1418,62 @@ export const useDCLPoolTransaction = ({
     liquidityTransactions: lqRecent,
     limitOrderTransactions: limitOrderRecent,
   };
+};
+
+export const useDCLAccountAPR = ({
+  pool_id,
+  account_id,
+}: {
+  pool_id: string | number;
+  account_id: string | number;
+}) => {
+  const [accountAPR, setAccountAPR] = useState<string>('-');
+
+  useEffect(() => {
+    getDCLAccountFee({
+      pool_id,
+      account_id,
+    }).then((res) => {
+      if (!res || ONLY_ZEROS.test(res.total_liquidity)) {
+        setAccountAPR('-');
+      } else {
+        const apr = new Big(res.total_fee)
+          .div(res.total_liquidity)
+          .mul(365)
+          .toFixed(2);
+
+        setAccountAPR(apr + '%');
+      }
+    });
+  }, [account_id, pool_id]);
+
+  return accountAPR;
+};
+
+export const useDCLTopBinFee = ({
+  pool_id,
+  number,
+}: {
+  pool_id: string | number;
+  number: string | number;
+}) => {
+  const [topBinApr, setTopBinApr] = useState<string>('-');
+
+  useEffect(() => {
+    if (!pool_id) return;
+
+    getDCLTopBinFee({
+      pool_id,
+      number,
+    }).then((res) => {
+      if (!res || ONLY_ZEROS.test(res.total_liquidity)) return;
+      const apr =
+        new Big(res.total_fee).div(res.total_liquidity).mul(365).toFixed(2) +
+        '%';
+
+      setTopBinApr(apr);
+    });
+  }, [pool_id, number]);
+
+  return topBinApr;
 };

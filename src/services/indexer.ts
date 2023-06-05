@@ -472,6 +472,35 @@ export const getLimitOrderRecentTransaction = async (props: {
     });
 };
 
+export interface DCLPoolFee {
+  total_fee: string;
+  total_liquidity: string;
+}
+
+export const getDCLTopBinFee = async (props: {
+  pool_id: string | number;
+  number: string | number;
+}): Promise<DCLPoolFee> => {
+  const paramString = genUrlParams(props);
+
+  return await fetch(config.indexerUrl + `/get-top-bin-fee?${paramString}`, {
+    method: 'GET',
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  }).then((res) => res.json());
+};
+
+export const getDCLAccountFee = async (props: {
+  pool_id: string | number;
+  account_id: string | number;
+}): Promise<DCLPoolFee> => {
+  const paramString = genUrlParams(props);
+
+  return await fetch(config.indexerUrl + `/get-fee-by-account?${paramString}`, {
+    method: 'GET',
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  }).then((res) => res.json());
+};
+
 export interface ProposalHash {
   proposal_id: string;
   receipt_id: string;
