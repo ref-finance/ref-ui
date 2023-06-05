@@ -1508,7 +1508,7 @@ export function RecentTransactions({
     );
 
     return (
-      <tr className="text-sm grid grid-cols-4 text-primaryText hover:text-white hover:bg-poolRecentHover">
+      <tr className="text-sm grid  overflow-hidden grid-cols-4 text-primaryText hover:text-white hover:bg-poolRecentHover">
         <td className=" gap-1 p-4">
           <span className="text-white">
             {tx.method_name.toLowerCase().indexOf('add') > -1 && 'Add'}
@@ -1598,7 +1598,7 @@ export function RecentTransactions({
         </div>
       </div>
 
-      <div className="text-sm overflow-hidden rounded-t-lg w-full text-primaryText bg-detailCardBg ">
+      <div className="text-sm overflow-hidden rounded-lg w-full text-primaryText bg-detailCardBg ">
         <div
           className={`text-left grid grid-cols-${4} w-full border-b border-gray1`}
         >

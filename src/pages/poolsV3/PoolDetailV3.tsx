@@ -2006,7 +2006,7 @@ export function RecentTransactions({
     );
 
     return (
-      <tr className="hover:text-white grid grid-cols-5 hover:bg-poolRecentHover text-sm text-primaryText">
+      <tr className="hover:text-white grid grid-cols-5 overflow-hidden hover:bg-poolRecentHover text-sm text-primaryText">
         <td className=" gap-1 p-4 frcs text-white">
           {tx.method_name.toLowerCase().indexOf('cancelled') > -1 &&
             'Cancelled'}
@@ -2128,7 +2128,7 @@ export function RecentTransactions({
         </div>
       </div>
 
-      <div className="text-sm rounded-t-lg overflow-hidden w-full text-primaryText bg-detailCardBg">
+      <div className="text-sm rounded-lg overflow-hidden w-full text-primaryText bg-detailCardBg">
         <tr className="text-left grid grid-cols-5 border-b border-gray1">
           <th className={`p-4 ${'col-span-1'} pb-3`}>
             {tab === 'liquidity' && (
