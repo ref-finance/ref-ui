@@ -1430,6 +1430,8 @@ export const useDCLAccountAPR = ({
   const [accountAPR, setAccountAPR] = useState<string>('-');
 
   useEffect(() => {
+    if (!account_id || !pool_id) return;
+
     getDCLAccountFee({
       pool_id,
       account_id,

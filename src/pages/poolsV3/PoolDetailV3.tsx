@@ -102,6 +102,7 @@ import {
   useV3TvlChart,
   useDCLPoolTransaction,
   useDCLTopBinFee,
+  useDCLAccountAPR,
 } from '~state/pool';
 import { getV3Pool24VolumeById } from '~services/indexer';
 import {
@@ -116,6 +117,7 @@ import {
   FarmBoardInDetailPool,
   Fire,
   JumpLinkIcon,
+  FarmBoardInDetailDCLPool,
 } from '../../components/icon/V3';
 import _ from 'lodash';
 import { PoolRPCView } from '../../services/api';
@@ -123,6 +125,7 @@ import { FarmStampNew, FarmStampNewDCL } from '../../components/icon/FarmStamp';
 import { numberWithCommas } from '~pages/Orderly/utiles';
 import { HiOutlineExternalLink } from 'react-icons/hi';
 import Big from 'big.js';
+import { findRangeIntersection } from '~components/pool/YourLiquidityV2';
 
 const { REF_UNI_V3_SWAP_CONTRACT_ID, DCL_POOL_BLACK_LIST } = getConfig();
 export default function PoolDetailV3() {
@@ -331,7 +334,7 @@ export default function PoolDetailV3() {
   ]);
   return (
     <>
-      <div className="md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-1050px m-auto">
+      <div className="md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-1200px m-auto">
         <BreadCrumb
           routes={[
             { id: 'top_pools', msg: 'Top Pools', pathname: '/pools' },
@@ -468,7 +471,7 @@ export default function PoolDetailV3() {
           <div
             className=""
             style={{
-              width: '300px',
+              width: '380px',
             }}
           ></div>
         </div>
@@ -491,7 +494,7 @@ export default function PoolDetailV3() {
           <div
             className="xsm:mb-4"
             style={{
-              width: isClientMobie() ? '100%' : '300px',
+              width: isClientMobie() ? '100%' : '380px',
             }}
           >
             {!isSignedIn ||
@@ -615,9 +618,13 @@ function YourLiquidityBox(props: {
   matched_seeds: Seed[];
 }) {
   const { poolDetail, liquidities, tokenPriceList, matched_seeds } = props;
+  console.log('liquidities: ', liquidities);
   const [user_liquidities_detail, set_user_liquidities_detail] = useState<
     UserLiquidityDetail[]
   >([]);
+
+  console.log('user_liquidities_detail: ', user_liquidities_detail);
+
   const [showSelectLiquidityBox, setShowSelectLiquidityBox] = useState(false);
   const [operationType, setOperationType] = useState('add');
   const { token_x_metadata, token_y_metadata } = poolDetail;
@@ -661,6 +668,9 @@ function YourLiquidityBox(props: {
           total_fees_price: total_fees_price.toString(),
           amount_x,
           amount_y,
+          unclaimed_fee_x_amount,
+          unclaimed_fee_y_amount,
+
           hashId: lpt_id.split('#')[1],
           l_price,
           r_price,
@@ -813,6 +823,60 @@ function YourLiquidityBox(props: {
       total_y: display_total_y,
     };
   }
+
+  function getTotalFee() {
+    let total_x = 0;
+    let total_y = 0;
+
+    let total_price = 0;
+
+    user_liquidities_detail.forEach((liquidityDetail: UserLiquidityDetail) => {
+      const {
+        unclaimed_fee_x_amount,
+        unclaimed_fee_y_amount,
+        total_fees_price,
+      } = liquidityDetail;
+      total_x += +unclaimed_fee_x_amount;
+      total_y += +unclaimed_fee_y_amount;
+
+      total_price += +total_fees_price;
+    });
+
+    let display_total_price = '$';
+
+    if (total_price == 0) {
+      display_total_price = display_total_price + '0';
+    } else if (total_price < 0.01) {
+      display_total_price = display_total_price + '<0.01';
+    } else {
+      display_total_price =
+        display_total_price +
+        toInternationalCurrencySystem(total_price.toString(), 3);
+    }
+
+    let display_total_x = '0';
+    let display_total_y = '0';
+    if (total_x == 0) {
+      display_total_x = '0';
+    } else if (total_x < 0.01) {
+      display_total_x = '<0.01';
+    } else {
+      display_total_x = toInternationalCurrencySystem(total_x.toString(), 3);
+    }
+    if (total_y == 0) {
+      display_total_y = '0';
+    } else if (total_y < 0.01) {
+      display_total_y = '<0.01';
+    } else {
+      display_total_y = toInternationalCurrencySystem(total_y.toString(), 3);
+    }
+    return {
+      total_fee_x: display_total_x,
+      total_fee_y: display_total_y,
+      total_fee_price: display_total_price,
+    };
+  }
+
   function addLiquidity() {
     setOperationType('add');
     setShowSelectLiquidityBox(true);
@@ -821,31 +885,233 @@ function YourLiquidityBox(props: {
     setOperationType('remove');
     setShowSelectLiquidityBox(true);
   }
+
+  const { accountId } = useWalletSelector();
+
+  const accountAPR = useDCLAccountAPR({
+    pool_id: poolDetail.pool_id,
+    account_id: accountId,
+  });
+
+  const [hover, setHover] = useState<boolean>(false);
+
+  const [noReverseRange, setNoReverseRange] = useState(true);
+
+  function getGroupLiquidities() {
+    const tokenMetadata_x_y = [token_x_metadata, token_y_metadata];
+
+    let rate_need_to_reverse_display: boolean;
+
+    if (TOKEN_LIST_FOR_RATE.indexOf(token_x_metadata.symbol) > -1) {
+      rate_need_to_reverse_display = true;
+    }
+
+    if (!noReverseRange) {
+      rate_need_to_reverse_display = !rate_need_to_reverse_display;
+    }
+
+    function getRateMapTokens() {
+      if (tokenMetadata_x_y) {
+        const [tokenX, tokenY] = tokenMetadata_x_y;
+        if (rate_need_to_reverse_display) {
+          return `${tokenX.symbol}/${tokenY.symbol}`;
+        } else {
+          return `${tokenY.symbol}/${tokenX.symbol}`;
+        }
+      }
+    }
+
+    function getRate(
+      direction: string,
+      left_point: number,
+      right_point: number
+    ) {
+      let value = '';
+      if (tokenMetadata_x_y) {
+        const [tokenX, tokenY] = tokenMetadata_x_y;
+        const decimalRate =
+          Math.pow(10, tokenX.decimals) / Math.pow(10, tokenY.decimals);
+        if (direction == 'left') {
+          value = getPriceByPoint(left_point, decimalRate);
+        } else if (direction == 'right') {
+          value = getPriceByPoint(right_point, decimalRate);
+        }
+        if (rate_need_to_reverse_display && +value !== 0) {
+          value = new BigNumber(1).dividedBy(value).toFixed();
+        }
+      }
+
+      console.log('value: ', value);
+
+      return value;
+    }
+
+    const priceRangeList =
+      liquidities?.map((l) => {
+        return [
+          +getRate(
+            rate_need_to_reverse_display ? 'right' : 'left',
+            l.left_point,
+            l.right_point
+          ),
+          +getRate(
+            rate_need_to_reverse_display ? 'left' : 'right',
+            l.left_point,
+            l.right_point
+          ),
+        ];
+      }) || [];
+
+    const rangeList = findRangeIntersection(priceRangeList);
+    console.log('rangeList: ', rangeList);
+
+    return {
+      rangeList,
+      rateMapTokens: getRateMapTokens(),
+    };
+  }
+
+  const groupedData = getGroupLiquidities();
+
   return (
     <div className="p-5 bg-cardBg rounded-xl xsm:p-0">
       <div className="flex items-start justify-between xsm:hidden">
-        <div className="flex flex-col items-start">
-          <span className="text-white text-base">
-            <FormattedMessage id="your_liquidity"></FormattedMessage>
-          </span>
-          <span className="text-xs text-farmText">
-            <FormattedMessage id="estimation" />
-          </span>
-        </div>
-        {liquidities?.length > 1 ? (
+        <span className="text-white font-gothamBold text-base">
+          <FormattedMessage id="your_liquidity"></FormattedMessage>
+        </span>
+
+        {/* {liquidities?.length > 1 ? (
           <span className="text-gradientFromHover text-xs bg-black bg-opacity-25 border border-greenColor rounded-3xl px-2">
             {liquidities.length} NFTs
           </span>
-        ) : null}
+        ) : null} */}
+        <span className="text-white font-gothamBold">
+          ~{getTotalLiquditiesTvl()}
+        </span>
       </div>
-      <div className="flex items-center justify-center text-xl text-white my-4 xsm:flex-col">
-        {getTotalLiquditiesTvl()}
+      {/* <div className="flex items-center justify-center text-xl text-white my-4 xsm:flex-col">
         {liquidities?.length > 1 ? (
           <span className="text-gradientFromHover text-xs bg-black bg-opacity-25 border border-greenColor rounded-3xl px-2 mt-0.5 lg:hidden">
             {liquidities.length} NFTs
           </span>
         ) : null}
+      </div> */}
+
+      <div className="flex flex-col gap-3 mt-4 text-sm">
+        <div className="flex items-start justify-between gap-5">
+          <span className="text-primaryText whitespace-nowrap">
+            <FormattedMessage
+              id="price_range"
+              defaultMessage={'Price Range'}
+            ></FormattedMessage>
+          </span>
+
+          <span className="flex items-center justify-end flex-wrap gap-1">
+            {groupedData.rangeList.map((range: number[], i: number) => {
+              return (
+                <div className="text-white whitespace-nowrap text-sm">
+                  <span>{displayNumberToAppropriateDecimals(range[0])}</span>
+                  <span className="mx-1">-</span>
+                  <span>{displayNumberToAppropriateDecimals(range[1])}</span>
+                  {groupedData.rangeList.length > 1 &&
+                    i < groupedData.rangeList.length - 1 && (
+                      <span className="mr-1">,</span>
+                    )}
+                </div>
+              );
+            })}
+
+            <span
+              className="cursor-pointer underline text-white"
+              onClick={() => {
+                setNoReverseRange(!noReverseRange);
+              }}
+            >
+              {groupedData.rateMapTokens}
+            </span>
+          </span>
+        </div>
+
+        <div className="frcb">
+          <span className="text-primaryText">
+            <FormattedMessage
+              id="position"
+              defaultMessage={'Position'}
+            ></FormattedMessage>
+          </span>
+
+          <div className="frcs gap-1 flex-wrap text-sm text-white">
+            <span>{getTotalTokenAmount().total_x}</span>
+
+            <span>{token_x_metadata.symbol}</span>
+
+            <span>+</span>
+
+            <span>{getTotalTokenAmount().total_y}</span>
+
+            <span>{token_y_metadata.symbol}</span>
+          </div>
+        </div>
+
+        <div className="frcb">
+          <span className="text-primaryText">
+            <FormattedMessage
+              id="apr_24h"
+              defaultMessage={'APR(24h)'}
+            ></FormattedMessage>
+          </span>
+
+          <div className="frcs gap-1 flex-wrap text-sm text-white">
+            {accountAPR}
+          </div>
+        </div>
+
+        <div className="frcb ">
+          <span className="text-primaryText">
+            <FormattedMessage
+              id="total_earned_fee"
+              defaultMessage={'Total Earned Fee'}
+            ></FormattedMessage>
+          </span>
+
+          <div
+            className="frcs gap-1 flex-wrap relative text-sm text-white"
+            onMouseEnter={() => {
+              setHover(true);
+            }}
+            onMouseLeave={() => {
+              setHover(false);
+            }}
+          >
+            <div className="relative">
+              {hover && (
+                <div
+                  className="p-3 -top-8 text-white right-0 text-xs absolute rounded-xl border bg- border-assetsBorder flex flex-col gap-3 min-w-32"
+                  style={{
+                    background: 'rgba(26, 39, 48, 0.9)',
+                  }}
+                >
+                  <div className="frcb gap-3 w-full">
+                    <span>{toRealSymbol(token_x_metadata.symbol)}</span>
+                    <span>{getTotalFee().total_fee_x}</span>
+                  </div>
+
+                  <div className="frcb gap-3 w-full">
+                    <span>{toRealSymbol(token_y_metadata.symbol)}</span>
+
+                    <span>{getTotalFee().total_fee_y}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {getTotalFee().total_fee_price}
+          </div>
+        </div>
       </div>
+
+      {/* 
+
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           <Icon icon={token_x_metadata.icon} className="h-7 w-7 mr-2"></Icon>
@@ -867,7 +1133,8 @@ function YourLiquidityBox(props: {
         <span className="text-farmText text-sm">
           {getTotalTokenAmount().total_y}
         </span>
-      </div>
+      </div> */}
+
       <div className="flex items-center justify-between mt-7">
         <GradientButton
           onClick={(e) => {
@@ -1010,63 +1277,57 @@ function UnclaimedFeesBox(props: any) {
     getTotalFeeAmount();
   return (
     <div className="p-5 bg-cardBg rounded-xl mt-3.5 xsm:p-0">
-      <div className="flex items-start justify-between xsm:hidden">
-        <div className="flex items-start flex-col">
-          <span className="text-white text-base">
-            <FormattedMessage id="unclaimed_fees" />
-          </span>
-          <span className="text-xs text-farmText">
-            <FormattedMessage id="estimation" />
-          </span>
-        </div>
-        {liquidities?.length > 1 ? (
+      <div className="flex  font-gothamBold text-white text-base items-start justify-between xsm:hidden">
+        <span className="">
+          <FormattedMessage id="unclaimed_fees" />
+        </span>
+
+        {/* {liquidities?.length > 1 ? (
           <span className="text-gradientFromHover text-xs bg-black bg-opacity-25 border border-greenColor rounded-3xl px-2">
             {liquidities.length} NFTs
           </span>
-        ) : null}
+        ) : null} */}
+
+        <span className="text-white font-gothamBold">
+          ~{getTotalLiquditiesFee()}
+        </span>
       </div>
-      <div className="flex items-center justify-center text-xl text-white my-4 xsm:flex-col">
-        {getTotalLiquditiesFee()}
+      <div className="flex items-center justify-center text-xl text-white my-2 xsm:flex-col">
         {liquidities?.length > 1 ? (
           <span className="text-gradientFromHover text-xs bg-black bg-opacity-25 border border-greenColor rounded-3xl px-2 mt-0.5 lg:hidden">
             {liquidities.length} NFTs
           </span>
         ) : null}
       </div>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center">
-          <Icon icon={token_x_metadata.icon} className="h-7 w-7 mr-2"></Icon>
-          <span className="text-farmText text-sm">
-            {token_x_metadata.symbol}
-          </span>
+
+      <div className="frcb">
+        <div className="frcs gap-6 text-sm text-white">
+          <div className="frcs">
+            <Icon icon={token_x_metadata.icon} className="h-7 w-7 mr-2"></Icon>
+            <span className=" ">{display_amount_x}</span>
+          </div>
+          <div className="frcs ">
+            <Icon icon={token_y_metadata.icon} className="h-7 w-7 mr-2"></Icon>
+            <span className=" ">{display_amount_y}</span>
+          </div>
         </div>
-        <span className="text-farmText text-s,">{display_amount_x}</span>
-      </div>
-      <div className="flex items-center justify-between mt-5">
-        <div className="flex items-center">
-          <Icon icon={token_y_metadata.icon} className="h-7 w-7 mr-2"></Icon>
-          <span className="text-farmText text-sm">
-            {token_y_metadata.symbol}
-          </span>
+
+        <div
+          className={`flex items-center font-gothamBold justify-center h-10 rounded-lg text-sm px-6 py-1  ${
+            total_amount_x_y == 0
+              ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
+              : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
+          }`}
+          onClick={claimRewards}
+          style={{
+            background: 'linear-gradient(180deg, #646DF4 0%, #371BE4 100%)',
+          }}
+        >
+          <ButtonTextWrapper
+            loading={cliam_loading}
+            Text={() => <FormattedMessage id={'claim'} />}
+          />
         </div>
-        <span className="text-farmText text-sm">{display_amount_y}</span>
-      </div>
-      <div
-        className={`flex items-center justify-center h-11 rounded-lg text-sm px-2 py-1 mt-7 ${
-          total_amount_x_y == 0
-            ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
-            : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
-        }`}
-        onClick={claimRewards}
-      >
-        <ButtonTextWrapper
-          loading={cliam_loading}
-          Text={() => (
-            <FormattedMessage
-              id={liquidities?.length > 1 ? 'claim_all' : 'claim'}
-            />
-          )}
-        />
       </div>
     </div>
   );
@@ -1162,7 +1423,7 @@ function RelatedFarmsBox(props: any) {
   if (!related_seed) return null;
   return (
     <div className="relative py-5 px-3 z-10 mt-3">
-      <FarmBoardInDetailPool
+      <FarmBoardInDetailDCLPool
         style={{
           position: 'absolute',
           // transform: isClientMobie() ? 'scale(1,1.05)' : 'scale(1.05)',
@@ -1170,7 +1431,7 @@ function RelatedFarmsBox(props: any) {
           left: 0,
           top: 0,
         }}
-      ></FarmBoardInDetailPool>
+      ></FarmBoardInDetailDCLPool>
       <div className="flex items-center justify-between">
         <span className="text-base text-white gotham_bold">Farm APR</span>
         <div className="flex items-center bg-dclButtonBgColor rounded-xl pl-1 pr-2 py-px">
@@ -1946,14 +2207,14 @@ export function RecentTransactions({
 
     const AmountIn = toReadableNumber(swapIn.decimals, tx.amount_x);
     const displayInAmount =
-      Number(AmountIn) < 0.01
+      Number(AmountIn) < 0.01 && Number(AmountIn) > 0
         ? '<0.01'
         : numberWithCommas(toPrecision(AmountIn, 6));
 
     const AmountOut = toReadableNumber(swapOut.decimals, tx.amount_y);
 
     const displayOutAmount =
-      Number(AmountOut) < 0.01
+      Number(AmountOut) < 0.01 && Number(AmountOut) > 0
         ? '<0.01'
         : numberWithCommas(toPrecision(AmountOut, 6));
 
@@ -2623,4 +2884,6 @@ interface UserLiquidityDetail {
   hashId: string;
   l_price: string;
   r_price: string;
+  unclaimed_fee_y_amount?: string;
+  unclaimed_fee_x_amount?: string;
 }

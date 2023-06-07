@@ -1070,7 +1070,7 @@ const es = {
   your: 'Your',
   max_apr: 'Max.APR',
   faming_positions: 'Farming Positions',
-  you_can_earn_tip: 'You can earn rewards by farming, est. APR is',
+  you_can_earn_tip: 'Farm available, farm APR up to',
   you_can_earn_current_tip:
     'Your current staked farm ended, and new farm is coming, est. APR is',
   go_new_farm: 'Go New Farm',

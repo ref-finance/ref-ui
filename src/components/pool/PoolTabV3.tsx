@@ -120,11 +120,22 @@ export const PoolTabV3 = ({
         const item2_hashId = +item2.lpt_id.split('#')[1];
         return item1_hashId - item2_hashId;
       });
+
       setListLiquidities(list);
     }
   }
 
-  const countV2 = listLiquiditiesLoading ? 0 : listLiquidities.length;
+  const groupedListByPoolId = listLiquidities.reduce((prev, cur) => {
+    if (!prev[cur.pool_id]) {
+      prev[cur.pool_id] = [];
+    }
+    prev[cur.pool_id].push(cur);
+    return prev;
+  }, {});
+
+  const countV2 = listLiquiditiesLoading
+    ? 0
+    : Object.keys(groupedListByPoolId).length;
 
   const { finalStakeList, stakeList, v2StakeList, stakeListDone } =
     useStakeListByAccountId();

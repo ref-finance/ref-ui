@@ -35,7 +35,7 @@ export function OrderStateOutline() {
         r="6"
         stroke="#62C440"
         stroke-width="1.4"
-        stroke-dasharray="1.4 1.4"
+        strokeDasharray="1.4 1.4"
       />
     </svg>
   );
@@ -1457,7 +1457,7 @@ export const GoToOrderbookTip = (props: any) => {
         x2="377"
         y2="137.5"
         stroke="#00D6AF"
-        stroke-dasharray="2 2"
+        strokeDasharray="2 2"
       />
       <mask
         id="path-4-outside-1_7206_1874"
@@ -1717,7 +1717,7 @@ export const GoToOrderbookTipMobileDot = () => {
         x2="12.5"
         y2="49"
         stroke="#00D6AF"
-        stroke-dasharray="2 2"
+        strokeDasharray="2 2"
       />
     </svg>
   );

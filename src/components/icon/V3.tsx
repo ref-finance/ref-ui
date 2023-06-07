@@ -682,6 +682,54 @@ export const FarmBoardInDetailPool = (props: any) => {
   );
 };
 
+export const FarmBoardInDetailDCLPool = (props: any) => {
+  return (
+    <svg
+      width={isClientMobie() ? '100%' : '390'}
+      height={isClientMobie() ? '105' : '105'}
+      viewBox={`0 0 390 ${isClientMobie() ? '92' : '100'}`}
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <rect
+        x="1"
+        y="1"
+        width={isClientMobie() ? '338' : '380'}
+        height={isClientMobie() ? '90' : '100'}
+        rx="11"
+        fill="url(#paint0_radial_2166_3074)"
+        stroke="url(#paint1_linear_2166_3074)"
+        strokeWidth="2"
+      />
+      <defs>
+        <radialGradient
+          id="paint0_radial_2166_3074"
+          cx="0"
+          cy="0"
+          r="1"
+          gradientUnits="userSpaceOnUse"
+          gradientTransform="translate(86.8785 26.5) rotate(33.0988) scale(137.342 152.301)"
+        >
+          <stop stopColor="#0E3E48" />
+          <stop offset="1" stopColor="#001320" />
+        </radialGradient>
+        <linearGradient
+          id="paint1_linear_2166_3074"
+          x1="0"
+          y1="92"
+          x2="340"
+          y2="92"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#00C6A2" />
+          <stop offset="1" stopColor="#7F43FF" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+};
+
 export const HintIcon = (props: any) => {
   return (
     <svg

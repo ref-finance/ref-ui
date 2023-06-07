@@ -3982,7 +3982,7 @@ export const CrossIconEmpty = (props: any) => {
         stroke="#00C6A2"
         stroke-linecap="round"
         stroke-linejoin="round"
-        stroke-dasharray="1 2"
+        strokeDasharray="1 2"
       />
     </svg>
   );
@@ -4004,7 +4004,7 @@ export const CrossIconLittle = (props: any) => {
         stroke="#00C6A2"
         stroke-linecap="round"
         stroke-linejoin="round"
-        stroke-dasharray="1 2"
+        strokeDasharray="1 2"
       />
       <mask
         id={`mask0_0_1_${props.num || 0}`}
@@ -4041,7 +4041,7 @@ export const CrossIconMiddle = (props: any) => {
         stroke="#00C6A2"
         stroke-linecap="round"
         stroke-linejoin="round"
-        stroke-dasharray="1 2"
+        strokeDasharray="1 2"
       />
       <mask
         id={`mask0_0_1_${props.num || 0}`}
@@ -4085,7 +4085,7 @@ export const CrossIconLarge = (props: any) => {
         stroke="#00C6A2"
         stroke-linecap="round"
         stroke-linejoin="round"
-        stroke-dasharray="1 2"
+        strokeDasharray="1 2"
       />
       <mask
         id={`mask0_0_1_${props.num || 0}`}
@@ -4123,7 +4123,7 @@ export const CrossIconFull = (props: any) => {
         stroke="#00C6A2"
         stroke-linecap="round"
         stroke-linejoin="round"
-        stroke-dasharray="1 2"
+        strokeDasharray="1 2"
       />
     </svg>
   );
