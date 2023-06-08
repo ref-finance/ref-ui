@@ -798,3 +798,22 @@ export const getTokenPairRate = async ({
       };
     });
 };
+
+export const getDclPoolPoints = async (
+  pool_id: string,
+  bin: number,
+  start_point: number,
+  end_point: number
+) => {
+  return await fetch(
+    config.indexerUrl +
+      `/get-dcl-points?pool_id=${pool_id}&slot_number=${bin}&start_point=${start_point}&end_point=${end_point}`
+  )
+    .then(async (res) => {
+      const data = await res.json();
+      return data;
+    })
+    .catch(() => {
+      return [];
+    });
+};
