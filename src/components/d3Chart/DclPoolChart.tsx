@@ -9,7 +9,6 @@ import {
   POINTLEFTRANGE,
   POINTRIGHTRANGE,
 } from '../../services/commonV3';
-import { ONLY_ZEROS, toPrecision } from '../../utils/numbers';
 import { getDclPoolPoints } from '../../services/indexer';
 import { sortBy } from 'lodash';
 import {
@@ -17,6 +16,7 @@ import {
   IChartItemConfig,
   IChartConfig,
   IBinDetail,
+  IPoolChartConfig,
 } from './interfaces';
 import { formatPrice, formatNumber, formatPercentage } from './utils';
 import {
@@ -25,18 +25,20 @@ import {
 } from './config';
 import Big from 'big.js';
 import * as d3 from 'd3';
-export default function AddChart({
+export default function DclPoolChart({
   pool_id,
   leftPoint,
   rightPoint,
   setLeftPoint,
   setRightPoint,
+  config,
 }: {
   pool_id: string;
   leftPoint?: number;
   rightPoint?: number;
   setLeftPoint?: Function;
   setRightPoint?: Function;
+  config?: IPoolChartConfig;
 }) {
   const [pool, setPool] = useState<PoolInfo>();
   const [price_range, set_price_range] = useState<number[]>();
@@ -45,17 +47,27 @@ export default function AddChart({
   const [dragLeftPoint, setDragLeftPoint] = useState<number>(leftPoint);
   const [dragRightPoint, setDragRightPoint] = useState<number>(rightPoint);
   const [zoom, setZoom] = useState<number>();
+  const [randomId, setRandomId] = useState('.' + createRandomString());
   /** constant start */
-  const svgWidth = 520;
-  const svgHeight = 250;
-  const axisHeight = 21;
-  const wholeBarHeight = svgHeight - axisHeight;
+  const appearanceConfig: IPoolChartConfig = config || {};
   const dragBarWidth = 28;
-  const disFromHoverBoxToPointer = 20;
   const percentBoxWidth = 44;
-  const disFromPercentBoxToDragBar = 2;
-  const svgPaddingX = 5;
-  const defaultPercent = 10; // 初始化左侧右侧价格与当前价格的间距百分比 10===》10%, e.g. 右侧价格是当前价格的 1 + 10%
+  const svgWidth = +(appearanceConfig.svgWidth || 520);
+  const svgHeight = +(appearanceConfig.svgHeight || 250);
+  const axisHeight = appearanceConfig.axisHidden
+    ? appearanceConfig.controlHidden
+      ? 0
+      : 5
+    : 21;
+  const wholeBarHeight = svgHeight - axisHeight;
+  const disFromHoverBoxToPointer = +(
+    appearanceConfig.disFromPercentBoxToDragBar || 20
+  );
+  const disFromPercentBoxToDragBar = +(
+    appearanceConfig.disFromPercentBoxToDragBar || 2
+  );
+  const svgPaddingX = +(appearanceConfig.svgPaddingX || 5);
+  const defaultPercent = +(appearanceConfig.defaultPercent || 10); // 初始化左侧右侧价格与当前价格的间距百分比 10===》10%, e.g. 右侧价格是当前价格的 1 + 10%
   /** constant end */
   useEffect(() => {
     if (pool_id) {
@@ -73,17 +85,17 @@ export default function AddChart({
     }
   }, [price_range, chartDataList]);
   useEffect(() => {
-    if (isValid(dragLeftPoint)) {
+    if (isValid(dragLeftPoint) && !appearanceConfig.controlHidden) {
       const scale = scaleAxis();
       const newPoint = dragLeftPoint;
       const newPrice = get_price_by_point(newPoint);
       const movePercent = diffPrices(newPrice);
       const x = scale(+newPrice) - dragBarWidth / 2;
-      d3.select('.drag-left').attr(
+      d3.select(`${randomId} .drag-left`).attr(
         'transform',
         `translate(${x}, -${axisHeight})`
       );
-      d3.select('.percentLeft')
+      d3.select(`${randomId} .percentLeft`)
         .attr(
           'transform',
           `translate(${
@@ -95,32 +107,36 @@ export default function AddChart({
         .text(movePercent + '%')
         .attr('fill', 'white');
       const rightX = Number(
-        d3.select('.drag-right').attr('transform').split(',')[0].slice(10)
+        d3
+          .select(`${randomId} .drag-right`)
+          .attr('transform')
+          .split(',')[0]
+          .slice(10)
       );
       const W = rightX - x - dragBarWidth / 2;
-      d3.select('.overlap rect')
+      d3.select(`${randomId} .overlap rect`)
         .attr('transform', `translate(${x + dragBarWidth / 2}, 0)`)
         .attr('width', W);
       setLeftPoint && setLeftPoint(newPoint);
     }
-  }, [dragLeftPoint]);
+  }, [dragLeftPoint, price_range]);
   useEffect(() => {
     if (isValid(leftPoint) && leftPoint !== dragLeftPoint) {
       setDragLeftPoint(leftPoint);
     }
   }, [leftPoint]);
   useEffect(() => {
-    if (isValid(dragRightPoint)) {
+    if (isValid(dragRightPoint) && !appearanceConfig.controlHidden) {
       const scale = scaleAxis();
       const newPoint = dragRightPoint;
       const newPrice = get_price_by_point(newPoint);
       const movePercent = diffPrices(newPrice);
       const x = scale(+newPrice);
-      d3.select('.drag-right').attr(
+      d3.select(`${randomId} .drag-right`).attr(
         'transform',
         `translate(${x}, -${axisHeight})`
       );
-      d3.select('.percentRight')
+      d3.select(`${randomId} .percentRight`)
         .attr(
           'transform',
           `translate(${x + (disFromPercentBoxToDragBar + 2)}, 0)`
@@ -130,13 +146,17 @@ export default function AddChart({
         .attr('fill', 'white');
 
       const leftX = Number(
-        d3.select('.drag-left').attr('transform').split(',')[0].slice(10)
+        d3
+          .select(`${randomId} .drag-left`)
+          .attr('transform')
+          .split(',')[0]
+          .slice(10)
       );
       const W = x - leftX - dragBarWidth / 2;
-      d3.select('.overlap rect').attr('width', W);
+      d3.select(`${randomId} .overlap rect`).attr('width', W);
       setRightPoint && setRightPoint(newPoint);
     }
-  }, [dragRightPoint]);
+  }, [dragRightPoint, price_range]);
   useEffect(() => {
     if (isValid(rightPoint) && rightPoint !== dragRightPoint) {
       setDragRightPoint(rightPoint);
@@ -180,22 +200,37 @@ export default function AddChart({
     const data: IChartData[] = getDataDisplayInChart();
     const scale = scaleAxis();
     const scaleBar = scaleAxisY();
-    // 创建横坐标轴
-    draw_axis({ scale });
     // down bars
     draw_down_bars({ data, scale, scaleBar });
     // up bars
     draw_up_bars({ data, scale, scaleBar });
+    // 创建横坐标轴
+    if (appearanceConfig.axisHidden) {
+      d3.select(`${randomId} .axis`).remove();
+    } else {
+      draw_axis({ scale });
+    }
     // background bars
-    draw_background_bars({ data, scale });
+    if (appearanceConfig.hoverBoxHidden) {
+      d3.select(`${randomId} .bars_background`).remove();
+      d3.select(`${randomId} .overBox`).remove();
+    } else {
+      draw_background_bars({ data, scale });
+    }
     // current line
-    draw_current_lint({ scale });
-    // drag left
-    draw_drag_left({ scale });
-    // drag right
-    draw_drag_right({ scale });
-    // init overlap area
-    draw_init_overlap_area({ scale });
+    if (appearanceConfig.currentBarHidden) {
+      d3.select(`${randomId} .currentLine`).remove();
+    } else {
+      draw_current_bar({ scale });
+    }
+    if (appearanceConfig.controlHidden) {
+      remove_control();
+    } else {
+      // drag left
+      draw_drag_left({ scale });
+      // drag right
+      draw_drag_right({ scale });
+    }
   }
   function getDataDisplayInChart() {
     const { bin: bin_final } = getConfig();
@@ -230,7 +265,7 @@ export default function AddChart({
     return data;
   }
   function hoverBox(e: any, d: IChartData) {
-    d3.select('.overBox').attr(
+    d3.select(`${randomId} .overBox`).attr(
       'style',
       `visibility:visible;transform:translate(${
         e.offsetX + disFromHoverBoxToPointer
@@ -280,17 +315,26 @@ export default function AddChart({
     });
   }
   function LeaveBox(e: any, d: IChartData) {
-    d3.select('.overBox').attr(
+    d3.select(`${randomId} .overBox`).attr(
       'style',
       `visibility:hidden;transform:translate(${
         e.offsetX + disFromHoverBoxToPointer
       }px, ${e.offsetY / 2}px)`
     );
   }
+  function remove_control() {
+    d3.select(`${randomId} .control`).remove();
+    d3.select(`${randomId} .overlap`).remove();
+    d3.select(`${randomId} .rightBar`).remove();
+    d3.select(`${randomId} .leftBar`).remove();
+  }
   function draw_axis({ scale }: { scale: any }) {
     const axis: any = d3.axisBottom(scale).tickSize(0).tickPadding(10);
-    d3.select('svg .axis').call(axis).selectAll('text').attr('fill', '#7E8A93');
-    d3.select('svg .axis')
+    d3.select(`${randomId} svg .axis`)
+      .call(axis)
+      .selectAll('text')
+      .attr('fill', '#7E8A93');
+    d3.select(`${randomId} svg .axis`)
       .attr('transform', `translate(0, ${svgHeight - axisHeight})`)
       .select('.domain')
       .attr('stroke', 'transparent');
@@ -306,7 +350,7 @@ export default function AddChart({
   }) {
     const { current_point } = pool;
     const { colors } = getConfig();
-    d3.select('.bars_liquidity')
+    d3.select(`${randomId} .bars_liquidity`)
       .selectAll('rect')
       .data(data)
       .join('rect')
@@ -341,7 +385,7 @@ export default function AddChart({
   }) {
     const { colors } = getConfig();
     const { current_point } = pool;
-    d3.select('.bars_order')
+    d3.select(`${randomId} .bars_order`)
       .selectAll('rect')
       .data(data)
       .join('rect')
@@ -375,7 +419,7 @@ export default function AddChart({
     data: IChartData[];
     scale: Function;
   }) {
-    d3.select('.bars_background')
+    d3.select(`${randomId} .bars_background`)
       .selectAll('rect')
       .data(data)
       .join('rect')
@@ -406,8 +450,8 @@ export default function AddChart({
       .attr('rx', 2)
       .attr('fill', 'transparent');
   }
-  function draw_current_lint({ scale }: { scale: Function }) {
-    d3.select('.currentLine').attr(
+  function draw_current_bar({ scale }: { scale: Function }) {
+    d3.select(`${randomId} .currentLine`).attr(
       'style',
       `transform:translate(${
         scale(+get_current_price()) + svgPaddingX
@@ -431,11 +475,11 @@ export default function AddChart({
       setDragLeftPoint(newLeftPoint);
     }
     const x = scale(price_l) - dragBarWidth / 2;
-    d3.select('.drag-left').attr(
+    d3.select(`${randomId} .drag-left`).attr(
       'transform',
       `translate(${x}, -${axisHeight})`
     );
-    d3.select('.percentLeft')
+    d3.select(`${randomId} .percentLeft`)
       .attr(
         'transform',
         `translate(${
@@ -447,14 +491,18 @@ export default function AddChart({
       .attr('fill', 'white');
     const dragLeft = d3.drag().on('drag', function (e) {
       const rightX = Number(
-        d3.select('.drag-right').attr('transform').split(',')[0].slice(10)
+        d3
+          .select(`${randomId} .drag-right`)
+          .attr('transform')
+          .split(',')[0]
+          .slice(10)
       );
       if (rightX < e.x || e.x < dragBarWidth / 2) return;
       const p = scale.invert(e.x);
       const newLeftPoint = get_nearby_bin_left_point(get_point_by_price(p));
       setDragLeftPoint(newLeftPoint);
     });
-    d3.select('.drag-left').call(dragLeft);
+    d3.select(`${randomId} .drag-left`).call(dragLeft);
   }
   function draw_drag_right({ scale }: { scale: any }) {
     // 初始化右的位置
@@ -473,28 +521,31 @@ export default function AddChart({
       setDragRightPoint(newRightPoint);
     }
     const x = scale(price_r);
-    d3.select('.drag-right').attr(
+    d3.select(`${randomId} .drag-right`).attr(
       'transform',
       `translate(${x}, -${axisHeight})`
     );
-    d3.select('.percentRight')
+    d3.select(`${randomId} .percentRight`)
       .attr('transform', `translate(${x + disFromPercentBoxToDragBar + 2}, 0)`)
       .select('text')
       .text(`${diffPrices(price_r)}%`)
       .attr('fill', 'white');
     const dragRight = d3.drag().on('drag', (e) => {
       const leftX = Number(
-        d3.select('.drag-left').attr('transform').split(',')[0].slice(10)
+        d3
+          .select(`${randomId} .drag-left`)
+          .attr('transform')
+          .split(',')[0]
+          .slice(10)
       );
       const limitx = svgWidth - (svgPaddingX * 2 + dragBarWidth);
-      console.log('limitx', limitx);
       if (leftX > e.x - dragBarWidth / 2 || e.x > limitx) return;
       console.log('e.x', e.x);
       const p = scale.invert(e.x);
       const newRightPoint = get_nearby_bin_right_point(get_point_by_price(p));
       setDragRightPoint(newRightPoint);
     });
-    d3.select('.drag-right').call(dragRight);
+    d3.select(`${randomId} .drag-right`).call(dragRight);
   }
   function draw_init_overlap_area({ scale }: { scale: any }) {
     const price = get_current_price();
@@ -512,10 +563,22 @@ export default function AddChart({
     }
     const x = scale(price_l);
     const rightX = Number(
-      d3.select('.drag-right').attr('transform').split(',')[0].slice(10)
+      d3
+        .select(`${randomId} .drag-right`)
+        .attr('transform')
+        .split(',')[0]
+        .slice(10)
     );
     const W = rightX - x;
-    d3.select('.overlap rect')
+    console.log(
+      'price_range transform, x, rightX W',
+      price_range,
+      d3.select(`${randomId} .drag-right`).attr('transform'),
+      x,
+      rightX,
+      W
+    );
+    d3.select(`${randomId} .overlap rect`)
       .attr('transform', `translate(${x}, 0)`)
       .attr('width', W);
   }
@@ -661,10 +724,12 @@ export default function AddChart({
   }
   return (
     <div
-      className={`m-10 relative inline-flex ${chartDataList ? '' : 'hidden'}`}
+      className={`relative inline-flex ${
+        chartDataList ? '' : 'hidden'
+      } ${randomId.slice(1)}`}
     >
       {/* 控件按钮*/}
-      <div className="flex items-center border border-v3GreyColor rounded-lg py-px h-6 w-24 absolute right-0 -top-20">
+      <div className="control flex items-center border border-v3GreyColor rounded-lg py-px h-6 w-24 absolute right-0 -top-20">
         <div
           className="flex items-center justify-center w-1 h-full flex-grow border-r border-chartBorderColor cursor-pointer"
           onClick={clickToLeft}
@@ -698,7 +763,7 @@ export default function AddChart({
           {/* 横坐标轴 */}
           <g className="axis"></g>
           {/* 拖拽线 left */}
-          <g>
+          <g className="leftBar">
             <g className="percentLeft">
               <rect
                 width={percentBoxWidth}
@@ -742,7 +807,7 @@ export default function AddChart({
             </g>
           </g>
           {/* 拖拽线 right */}
-          <g>
+          <g className="rightBar">
             <g className="percentRight">
               <rect
                 width={percentBoxWidth}
@@ -1036,4 +1101,20 @@ function SubIcon(props: any) {
       />
     </svg>
   );
+}
+function createRandomChar(c = 'a-z') {
+  switch (c) {
+    case 'A-Z':
+      return String.fromCharCode(Math.trunc(Math.random() * 25) + 65);
+    case 'a-z':
+      return String.fromCharCode(Math.trunc(Math.random() * 25) + 97);
+    case '0-9':
+    default:
+      return String.fromCharCode(Math.trunc(Math.random() * 10) + 48);
+  }
+}
+function createRandomString(length = 4) {
+  let str = '';
+  for (let i = 0; i < length; i++) str += createRandomChar();
+  return str;
 }

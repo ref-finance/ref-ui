@@ -37,3 +37,16 @@ export interface IBinDetail {
   price_by_token_y?: string;
   color: string;
 }
+
+export interface IPoolChartConfig {
+  svgWidth?: string | number;
+  svgHeight?: string | number;
+  disFromHoverBoxToPointer?: string | number;
+  disFromPercentBoxToDragBar?: string | number;
+  svgPaddingX?: string | number;
+  defaultPercent?: string | number;
+  controlHidden?: boolean;
+  axisHidden?: boolean;
+  currentBarHidden?: boolean;
+  hoverBoxHidden?: boolean;
+}
