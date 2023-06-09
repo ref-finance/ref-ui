@@ -2105,16 +2105,12 @@ export function AssetManagerModal(
                   if (decimalPlaceLimit === undefined) return;
 
                   function limitDecimalPlaces(e: any) {
-                    // 获取用户输入的数字
                     const value = e.target.value;
-
-                    // 判断是否超过了8位小数
 
                     if (
                       value.includes('.') &&
                       value.split('.')[1].length > decimalPlaceLimit
                     ) {
-                      // 截取前8位小数
                       e.target.value = value.slice(
                         0,
                         value.indexOf('.') + decimalPlaceLimit + 1

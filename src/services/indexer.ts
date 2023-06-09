@@ -479,14 +479,18 @@ export interface DCLPoolFee {
 
 export const getDCLTopBinFee = async (props: {
   pool_id: string | number;
-  number: string | number;
+  slot_number: string | number;
 }): Promise<DCLPoolFee> => {
   const paramString = genUrlParams(props);
 
-  return await fetch(config.indexerUrl + `/get-top-bin-fee?${paramString}`, {
+  return await fetch(config.indexerUrl + `/get-dcl-points?${paramString}`, {
     method: 'GET',
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
-  }).then((res) => res.json());
+  })
+    .then((res) => res.json())
+    .then((res) => {
+      return res.top_bin_fee_data;
+    });
 };
 
 export const getDCLAccountFee = async (props: {

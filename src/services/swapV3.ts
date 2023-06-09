@@ -1,4 +1,7 @@
 import { TokenMetadata, ftGetStorageBalance } from './ft-contract';
+
+import { utils } from 'near-api-js';
+
 import {
   refSwapV3ViewFunction,
   REF_UNI_V3_SWAP_CONTRACT_ID,
@@ -9,6 +12,7 @@ import {
   toNonDivisibleNumber,
   toReadableNumber,
   scientificNotationToString,
+  ONLY_ZEROS,
 } from '../utils/numbers';
 import { getCurrentWallet } from '../utils/wallets-integration';
 import _ from 'lodash';
@@ -311,6 +315,19 @@ export const v3Swap = async ({
           toReadableNumber(nearMetadata.decimals, min_output_amount)
         )
       );
+    }
+
+    const neededStorage = await get_user_storage_detail({ size: 1 });
+    if (!ONLY_ZEROS.test(neededStorage)) {
+      transactions.unshift({
+        receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+        functionCalls: [
+          storageDepositAction({
+            amount: neededStorage,
+            registrationOnly: true,
+          }),
+        ],
+      });
     }
   }
 
@@ -713,6 +730,58 @@ export const list_pools = async () => {
     (p: any) => !getConfig().DCL_POOL_BLACK_LIST.includes(p?.pool_id)
   );
 };
+
+export interface UserStorageDetail {
+  max_slots: number;
+  cur_order_slots: number;
+  cur_liquidity_slots: number;
+  locked_near: string;
+  storage_for_asset: string;
+  slot_price: string;
+  sponser_id: string;
+}
+
+export const get_user_storage_detail = async ({ size }: { size: number }) => {
+  const user_id = window.selectorAccountId;
+
+  let deposit_fee = new Big(0);
+
+  if (!user_id) {
+    alert('sign in first');
+    return;
+  }
+
+  const detail: UserStorageDetail = await refSwapV3ViewFunction({
+    methodName: 'get_user_storage_detail',
+    args: {
+      user_id,
+    },
+  });
+
+  const {
+    max_slots,
+    cur_order_slots,
+    cur_liquidity_slots,
+    locked_near,
+    storage_for_asset,
+    slot_price,
+  } = detail;
+
+  if (size + cur_liquidity_slots + cur_order_slots > max_slots) {
+    deposit_fee = deposit_fee.plus(
+      new Big(slot_price).mul(
+        size + cur_liquidity_slots + cur_order_slots - max_slots
+      )
+    );
+
+    if (user_id !== detail.sponser_id) {
+      deposit_fee = deposit_fee.plus(new Big(detail.locked_near));
+    }
+  }
+
+  return utils.format.formatNearAmount(deposit_fee.toFixed(0));
+};
+
 export const add_liquidity = async ({
   pool_id,
   left_point,
@@ -834,12 +903,15 @@ export const add_liquidity = async ({
       ],
     });
   }
-  const neededStorage = await checkTokenNeedsStorageDeposit_v3();
-  if (neededStorage) {
+  const neededStorage = await get_user_storage_detail({ size: 1 });
+  if (!ONLY_ZEROS.test(neededStorage)) {
     transactions.unshift({
       receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
       functionCalls: [
-        storageDepositAction({ amount: neededStorage, registrationOnly: true }),
+        storageDepositAction({
+          amount: neededStorage,
+          registrationOnly: true,
+        }),
       ],
     });
   }

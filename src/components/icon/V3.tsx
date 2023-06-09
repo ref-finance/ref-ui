@@ -13,7 +13,7 @@ export const ReturnIcon = function (props: any) {
     >
       <path
         d="M5.31201 1L1.00012 5.85088L5.31201 10.7018"
-        stroke="white"
+        stroke="currentColor"
         strokeLinecap="round"
       />
     </svg>

@@ -81,7 +81,7 @@ export const useAllPoolsV2 = () => {
 
             const topBinFee = await getDCLTopBinFee({
               pool_id: p.pool_id,
-              number: 100,
+              slot_number: 100,
             });
 
             if (!topBinFee || ONLY_ZEROS.test(topBinFee.total_liquidity)) {

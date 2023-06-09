@@ -2130,6 +2130,9 @@ function UserLiquidityLineStyleGroup1({
                   onClick={(e) => {
                     e.stopPropagation();
                     // setShowAddBox(true);
+
+                    history.push('/addLiquidityV2');
+
                   }}
                   color="#fff"
                   minWidth="5rem"

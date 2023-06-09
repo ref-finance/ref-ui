@@ -1472,7 +1472,7 @@ export const useDCLTopBinFee = ({
 
     getDCLTopBinFee({
       pool_id,
-      number,
+      slot_number: number,
     }).then((res) => {
       if (!res || ONLY_ZEROS.test(res.total_liquidity)) return;
       const apr =

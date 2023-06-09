@@ -1295,3 +1295,45 @@ input[type='range']::-webkit-slider-runnable-track {
 .hideScroll::-webkit-scrollbar {
   display: none;
 }
+
+.multi-slider {
+  height: 10px;
+  border-radius: 6px;
+  background: #121e27;
+}
+
+.multi-slider .thumb {
+  width: 21px;
+  height: 21px;
+  cursor: pointer;
+  background: white;
+  border-radius: 100%;
+  border: 3px solid #1d2932;
+  outline: none;
+  background: #00d6af;
+}
+
+.thumb-0 {
+  top: -5px;
+  transform: translateX(-50%);
+}
+
+.thumb-1 {
+  top: -5px;
+  transform: translateX(50%);
+}
+
+.invert .thumb-0 {
+  top: -5px;
+  transform: translateX(50%);
+}
+
+.invert .thumb-1 {
+  top: -5px;
+  transform: translateX(-50%);
+}
+
+.track-1 {
+  background-color: #00d6af;
+  height: 10px;
+}

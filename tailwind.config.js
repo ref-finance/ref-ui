@@ -87,6 +87,8 @@ module.exports = {
         darkGradientBg: 'linear-gradient(180deg, #1D2932 0%, #001320 100%)',
         orderGradient: 'linear-gradient(180deg, #455765 0%, #223746 100%)',
         orderGraidentHover: 'linear-gradient(180deg, #62798A 0%, #334B5E 100%)',
+        dclAddLiquidityFeeGradient:
+          'linear-gradient(180deg, #26343E 0%, #1D2932 100%)',
         grayBoderGradient:
           'linear-gradient(180deg, rgba(126, 138, 147, 0.2) 0%, rgba(3, 5, 5, 0.2) 100%)',
         grayBoderGradientReverse:
