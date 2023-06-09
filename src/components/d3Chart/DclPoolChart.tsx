@@ -178,7 +178,8 @@ export default function DclPoolChart({
     const [price_l, price_r] = get_price_range_by_percent(rangeGear[0]);
     const point_l = getPointByPrice(point_delta, price_l, decimalRate_point);
     const point_r = getPointByPrice(point_delta, price_r, decimalRate_point);
-    const list = await getDclPoolPoints(pool_id, bin_final, point_l, point_r);
+    const result = await getDclPoolPoints(pool_id, bin_final, point_l, point_r);
+    const list = result.point_data || [];
     const [price_l_default, price_r_default] =
       get_price_range_by_percent(range);
     set_price_range([+price_l_default, +price_r_default]);

@@ -811,9 +811,9 @@ export const getDclPoolPoints = async (
   )
     .then(async (res) => {
       const data = await res.json();
-      return data?.point_data || [];
+      return data;
     })
     .catch(() => {
-      return [];
+      return {}
     });
 };
