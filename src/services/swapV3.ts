@@ -317,6 +317,136 @@ export const v3Swap = async ({
       );
     }
 
+    if (SwapByOutput) {
+      const pool_ids = Swap.pool_ids;
+      const output_token = tokenB.id;
+      const output_amount = toNonDivisibleNumber(tokenB.decimals, amountB);
+      const msg = JSON.stringify({
+        SwapByOutput: {
+          pool_ids,
+          output_token,
+          output_amount,
+        },
+      });
+      const tokenRegistered = await ftGetStorageBalance(tokenB.id).catch(() => {
+        throw new Error(`${tokenB.id} doesn't exist.`);
+      });
+
+      if (tokenRegistered === null) {
+        transactions.push({
+          receiverId: tokenB.id,
+          functionCalls: [registerAccountOnToken()],
+        });
+      }
+
+      transactions.push({
+        receiverId: tokenA.id,
+        functionCalls: [
+          {
+            methodName: 'ft_transfer_call',
+            args: {
+              receiver_id: REF_UNI_V3_SWAP_CONTRACT_ID,
+              amount: toNonDivisibleNumber(tokenA.decimals, amountA),
+              msg,
+            },
+            gas: '180000000000000',
+            amount: ONE_YOCTO_NEAR,
+          },
+        ],
+      });
+    }
+
+    if (LimitOrderWithSwap) {
+      const pool_id = LimitOrderWithSwap.pool_id;
+
+      const fee = Number(pool_id.split(V3_POOL_SPLITER)[2]);
+
+      const buy_token = tokenB.id;
+      const point = priceToPoint({
+        amountA,
+        amountB,
+        tokenA,
+        tokenB,
+        fee,
+      });
+
+      const tokenRegistered = await ftGetStorageBalance(tokenB.id).catch(() => {
+        throw new Error(`${tokenB.id} doesn't exist.`);
+      });
+
+      if (tokenRegistered === null) {
+        transactions.push({
+          receiverId: tokenB.id,
+          functionCalls: [registerAccountOnToken()],
+        });
+      }
+
+      const DCLRegistered = await swapV3GetStorageBalance(tokenB.id).catch(
+        () => {
+          throw new Error(`${tokenB.id} doesn't exist.`);
+        }
+      );
+
+      if (DCLRegistered === null) {
+        transactions.push({
+          receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+          functionCalls: [
+            {
+              methodName: 'storage_deposit',
+              args: {
+                registration_only: true,
+                account_id: getCurrentWallet()?.wallet?.getAccountId(),
+              },
+              gas: '30000000000000',
+              amount: '0.5',
+            },
+          ],
+        });
+      }
+
+      const new_point =
+        pool_id.split(V3_POOL_SPLITER)[0] === tokenA.id ? point : -point;
+
+      const msg = JSON.stringify({
+        LimitOrderWithSwap: {
+          client_id: '',
+          pool_id,
+          buy_token,
+          point: new_point,
+        },
+      });
+
+      transactions.push({
+        receiverId: tokenA.id,
+        functionCalls: [
+          {
+            methodName: 'ft_transfer_call',
+            args: {
+              receiver_id: REF_UNI_V3_SWAP_CONTRACT_ID,
+              amount: toNonDivisibleNumber(tokenA.decimals, amountA),
+              msg,
+            },
+            gas: '250000000000000',
+            amount: ONE_YOCTO_NEAR,
+          },
+        ],
+      });
+    }
+
+    if (tokenA.id === WRAP_NEAR_CONTRACT_ID && tokenA.symbol == 'NEAR') {
+      transactions.unshift(nearDepositTransaction(amountA));
+    }
+
+    if (tokenA.id === WRAP_NEAR_CONTRACT_ID) {
+      const registered = await ftGetStorageBalance(WRAP_NEAR_CONTRACT_ID);
+      if (registered === null) {
+        transactions.unshift({
+          receiverId: WRAP_NEAR_CONTRACT_ID,
+          functionCalls: [registerAccountOnToken()],
+        });
+      }
+    }
+
     const neededStorage = await get_user_storage_detail({ size: 1 });
     if (!ONLY_ZEROS.test(neededStorage)) {
       transactions.unshift({
@@ -327,134 +457,6 @@ export const v3Swap = async ({
             registrationOnly: true,
           }),
         ],
-      });
-    }
-  }
-
-  if (SwapByOutput) {
-    const pool_ids = Swap.pool_ids;
-    const output_token = tokenB.id;
-    const output_amount = toNonDivisibleNumber(tokenB.decimals, amountB);
-    const msg = JSON.stringify({
-      SwapByOutput: {
-        pool_ids,
-        output_token,
-        output_amount,
-      },
-    });
-    const tokenRegistered = await ftGetStorageBalance(tokenB.id).catch(() => {
-      throw new Error(`${tokenB.id} doesn't exist.`);
-    });
-
-    if (tokenRegistered === null) {
-      transactions.push({
-        receiverId: tokenB.id,
-        functionCalls: [registerAccountOnToken()],
-      });
-    }
-
-    transactions.push({
-      receiverId: tokenA.id,
-      functionCalls: [
-        {
-          methodName: 'ft_transfer_call',
-          args: {
-            receiver_id: REF_UNI_V3_SWAP_CONTRACT_ID,
-            amount: toNonDivisibleNumber(tokenA.decimals, amountA),
-            msg,
-          },
-          gas: '180000000000000',
-          amount: ONE_YOCTO_NEAR,
-        },
-      ],
-    });
-  }
-
-  if (LimitOrderWithSwap) {
-    const pool_id = LimitOrderWithSwap.pool_id;
-
-    const fee = Number(pool_id.split(V3_POOL_SPLITER)[2]);
-
-    const buy_token = tokenB.id;
-    const point = priceToPoint({
-      amountA,
-      amountB,
-      tokenA,
-      tokenB,
-      fee,
-    });
-
-    const tokenRegistered = await ftGetStorageBalance(tokenB.id).catch(() => {
-      throw new Error(`${tokenB.id} doesn't exist.`);
-    });
-
-    if (tokenRegistered === null) {
-      transactions.push({
-        receiverId: tokenB.id,
-        functionCalls: [registerAccountOnToken()],
-      });
-    }
-
-    const DCLRegistered = await swapV3GetStorageBalance(tokenB.id).catch(() => {
-      throw new Error(`${tokenB.id} doesn't exist.`);
-    });
-
-    if (DCLRegistered === null) {
-      transactions.push({
-        receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
-        functionCalls: [
-          {
-            methodName: 'storage_deposit',
-            args: {
-              registration_only: true,
-              account_id: getCurrentWallet()?.wallet?.getAccountId(),
-            },
-            gas: '30000000000000',
-            amount: '0.5',
-          },
-        ],
-      });
-    }
-
-    const new_point =
-      pool_id.split(V3_POOL_SPLITER)[0] === tokenA.id ? point : -point;
-
-    const msg = JSON.stringify({
-      LimitOrderWithSwap: {
-        client_id: '',
-        pool_id,
-        buy_token,
-        point: new_point,
-      },
-    });
-
-    transactions.push({
-      receiverId: tokenA.id,
-      functionCalls: [
-        {
-          methodName: 'ft_transfer_call',
-          args: {
-            receiver_id: REF_UNI_V3_SWAP_CONTRACT_ID,
-            amount: toNonDivisibleNumber(tokenA.decimals, amountA),
-            msg,
-          },
-          gas: '250000000000000',
-          amount: ONE_YOCTO_NEAR,
-        },
-      ],
-    });
-  }
-
-  if (tokenA.id === WRAP_NEAR_CONTRACT_ID && tokenA.symbol == 'NEAR') {
-    transactions.unshift(nearDepositTransaction(amountA));
-  }
-
-  if (tokenA.id === WRAP_NEAR_CONTRACT_ID) {
-    const registered = await ftGetStorageBalance(WRAP_NEAR_CONTRACT_ID);
-    if (registered === null) {
-      transactions.unshift({
-        receiverId: WRAP_NEAR_CONTRACT_ID,
-        functionCalls: [registerAccountOnToken()],
       });
     }
   }
@@ -917,6 +919,164 @@ export const add_liquidity = async ({
   }
   return executeMultipleTransactions(transactions);
 };
+
+export interface AddLiquidityInfo {
+  pool_id: string;
+  left_point: number;
+  right_point: number;
+  amount_x: string;
+  amount_y: string;
+}
+
+export const batch_add_liquidity = async ({
+  liquidityInfo,
+  token_x,
+  token_y,
+}: {
+  liquidityInfo: AddLiquidityInfo[];
+} & {
+  token_x: TokenMetadata;
+  token_y: TokenMetadata;
+}) => {
+  const transactions: Transaction[] = [
+    {
+      receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'batch_add_liquidity',
+          args: {
+            add_liquidity_infos: liquidityInfo.map((info) => ({
+              ...info,
+              min_amount_x: '0',
+              min_amount_y: '0',
+            })),
+          },
+          gas: '150000000000000',
+        },
+      ],
+    },
+  ];
+
+  let amount_x;
+  let amount_y;
+
+  amount_x = liquidityInfo.reduce(
+    (acc, info) => acc.plus(info.amount_x),
+    new Big(0)
+  );
+
+  amount_x = amount_x.toFixed(0);
+
+  amount_y = liquidityInfo.reduce(
+    (acc, info) => acc.plus(info.amount_y),
+    new Big(0)
+  );
+
+
+  amount_y = amount_y.toFixed(0);
+
+
+  if (+amount_x > 0) {
+    transactions.unshift({
+      receiverId: token_x.id,
+      functionCalls: [
+        {
+          methodName: 'ft_transfer_call',
+          args: {
+            receiver_id: REF_UNI_V3_SWAP_CONTRACT_ID,
+            amount: amount_x,
+            msg: '"Deposit"',
+          },
+          amount: ONE_YOCTO_NEAR,
+          gas: '150000000000000',
+        },
+      ],
+    });
+  }
+  if (+amount_y > 0) {
+    transactions.unshift({
+      receiverId: token_y.id,
+      functionCalls: [
+        {
+          methodName: 'ft_transfer_call',
+          args: {
+            receiver_id: REF_UNI_V3_SWAP_CONTRACT_ID,
+            amount: amount_y,
+            msg: '"Deposit"',
+          },
+          amount: ONE_YOCTO_NEAR,
+          gas: '150000000000000',
+        },
+      ],
+    });
+  }
+  if (+amount_x > 0 && token_x.id == WRAP_NEAR_CONTRACT_ID) {
+    transactions.unshift({
+      receiverId: WRAP_NEAR_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'near_deposit',
+          args: {},
+          gas: '50000000000000',
+          amount: toReadableNumber(token_x.decimals, amount_x),
+        },
+      ],
+    });
+  }
+  if (+amount_y > 0 && token_y.id == WRAP_NEAR_CONTRACT_ID) {
+    transactions.unshift({
+      receiverId: WRAP_NEAR_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'near_deposit',
+          args: {},
+          gas: '50000000000000',
+          amount: toReadableNumber(token_y.decimals, amount_y),
+        },
+      ],
+    });
+  }
+  const ftBalance_x = await ftGetStorageBalance(token_x.id);
+  if (!ftBalance_x) {
+    transactions.unshift({
+      receiverId: token_x.id,
+      functionCalls: [
+        storageDepositAction({
+          registrationOnly: true,
+          amount: STORAGE_TO_REGISTER_WITH_MFT,
+        }),
+      ],
+    });
+  }
+  const ftBalance_y = await ftGetStorageBalance(token_y.id);
+  if (!ftBalance_y) {
+    transactions.unshift({
+      receiverId: token_y.id,
+      functionCalls: [
+        storageDepositAction({
+          registrationOnly: true,
+          amount: STORAGE_TO_REGISTER_WITH_MFT,
+        }),
+      ],
+    });
+  }
+  const neededStorage = await get_user_storage_detail({
+    size: liquidityInfo.length,
+  });
+  if (!ONLY_ZEROS.test(neededStorage)) {
+    transactions.unshift({
+      receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+      functionCalls: [
+        storageDepositAction({
+          amount: neededStorage,
+          registrationOnly: true,
+        }),
+      ],
+    });
+  }
+  return executeMultipleTransactions(transactions);
+};
+
 export const append_liquidity = async ({
   lpt_id,
   mft_id,
