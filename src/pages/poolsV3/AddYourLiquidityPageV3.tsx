@@ -108,9 +108,9 @@ import {
   BidAskShape,
 } from '../Orderly/components/Common/Icons';
 import { SLOT_NUMBER } from '~services/near';
+import DclChart from '../../components/d3Chart/DclChart';
 
 export type LiquidityShape = 'Spot' | 'Curve' | 'BidAsk';
-import DclPoolChart from '../../components/d3Chart/DclPoolChart';
 
 export default function AddYourLiquidityPageV3() {
   const [tokenX, setTokenX] = useState<TokenMetadata>(null);
@@ -693,11 +693,13 @@ export default function AddYourLiquidityPageV3() {
     <>
       <div className="m-20">
         {/* 缩略图 */}
-        {/* <DclPoolChart pool_id={currentSelectedPool?.pool_id} config={{axisHidden: true, controlHidden: true, currentBarHidden: true, hoverBoxHidden: true, svgWidth:'80', svgHeight:'32', svgPaddingX:'0'}}></DclPoolChart> */}
+        {/* <DclChart pool_id={currentSelectedPool?.pool_id} config={{axisHidden: true, controlHidden: true, currentBarHidden: true, hoverBoxHidden: true, svgWidth:'80', svgHeight:'32', svgPaddingX:'0'}}></DclChart> */}
         {/* 详情页图 */}
-        {/* <DclPoolChart pool_id={currentSelectedPool?.pool_id} config={{axisHidden: true, controlHidden: true}}></DclPoolChart> */}
+        {/* <DclChart pool_id={currentSelectedPool?.pool_id} config={{axisHidden: true, controlHidden: true}}></DclChart> */}
         {/* 添加页图 */}
-        {/* <DclPoolChart pool_id={currentSelectedPool?.pool_id}></DclPoolChart> */}
+        <DclChart pool_id={currentSelectedPool?.pool_id}></DclChart>
+        {/* 用户流动性图表*/}
+        {/* <DclChart pool_id={currentSelectedPool?.pool_id} config={{controlHidden: true}} chartType='USER'></DclChart> */}
       </div>
 
       <div className="m-auto xs:w-full md:w-full xs:px-3 md:px-3 flex items-center mb-5 lg:hidden">

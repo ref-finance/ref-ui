@@ -45,6 +45,7 @@ export interface IPoolChartConfig {
   disFromPercentBoxToDragBar?: string | number;
   svgPaddingX?: string | number;
   defaultPercent?: string | number;
+  whole_bars_background_padding?: string | number;
   controlHidden?: boolean;
   axisHidden?: boolean;
   currentBarHidden?: boolean;

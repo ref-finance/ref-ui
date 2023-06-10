@@ -818,6 +818,23 @@ export const getDclPoolPoints = async (
       return data;
     })
     .catch(() => {
-      return {}
+      return {};
+    });
+};
+export const getDclUserPoints = async (
+  pool_id: string,
+  bin: number,
+  account_id: string
+) => {
+  return await fetch(
+    config.indexerUrl +
+      `/get-dcl-points-by-account?pool_id=${pool_id}&slot_number=${bin}&account_id=${account_id}`
+  )
+    .then(async (res) => {
+      const data = await res.json();
+      return data;
+    })
+    .catch(() => {
+      return [];
     });
 };

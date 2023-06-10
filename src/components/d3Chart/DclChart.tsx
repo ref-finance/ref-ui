@@ -9,7 +9,7 @@ import {
   POINTLEFTRANGE,
   POINTRIGHTRANGE,
 } from '../../services/commonV3';
-import { getDclPoolPoints } from '../../services/indexer';
+import { getDclPoolPoints, getDclUserPoints } from '../../services/indexer';
 import { sortBy } from 'lodash';
 import {
   IChartData,
@@ -25,13 +25,15 @@ import {
 } from './config';
 import Big from 'big.js';
 import * as d3 from 'd3';
-export default function DclPoolChart({
+import { useWalletSelector } from '../../context/WalletSelectorContext';
+export default function DclChart({
   pool_id,
   leftPoint,
   rightPoint,
   setLeftPoint,
   setRightPoint,
   config,
+  chartType,
 }: {
   pool_id: string;
   leftPoint?: number;
@@ -39,6 +41,7 @@ export default function DclPoolChart({
   setLeftPoint?: Function;
   setRightPoint?: Function;
   config?: IPoolChartConfig;
+  chartType?: 'POOL' | 'USER';
 }) {
   const [pool, setPool] = useState<PoolInfo>();
   const [price_range, set_price_range] = useState<number[]>();
@@ -68,7 +71,11 @@ export default function DclPoolChart({
   );
   const svgPaddingX = +(appearanceConfig.svgPaddingX || 5);
   const defaultPercent = +(appearanceConfig.defaultPercent || 10); // 初始化左侧右侧价格与当前价格的间距百分比 10===》10%, e.g. 右侧价格是当前价格的 1 + 10%
+  const whole_bars_background_padding = +(
+    appearanceConfig.whole_bars_background_padding || 20
+  );
   /** constant end */
+  const { accountId } = useWalletSelector();
   useEffect(() => {
     if (pool_id) {
       get_pool_detail(pool_id);
@@ -78,9 +85,9 @@ export default function DclPoolChart({
     if (pool) {
       get_chart_data();
     }
-  }, [pool]);
+  }, [pool, accountId]);
   useEffect(() => {
-    if (price_range && chartDataList) {
+    if (price_range && chartDataList?.length) {
       drawChart();
     }
   }, [price_range, chartDataList]);
@@ -170,21 +177,70 @@ export default function DclPoolChart({
     setPool(p);
   }
   async function get_chart_data() {
+    const { range } = getConfig();
+    const list = await get_data_from_back_end();
+    const [price_l_default, price_r_default] =
+      get_price_range_by_percent(range);
+    set_price_range([+price_l_default, +price_r_default]);
+    setZoom(range);
+    setChartDataList(list);
+  }
+  async function get_data_from_back_end() {
     const { point_delta, token_x_metadata, token_y_metadata, pool_id } = pool;
-    const { bin: bin_final, rangeGear, range } = getConfig();
+    const { bin: bin_final, rangeGear } = getConfig();
     const decimalRate_point =
       Math.pow(10, token_y_metadata.decimals) /
       Math.pow(10, token_x_metadata.decimals);
     const [price_l, price_r] = get_price_range_by_percent(rangeGear[0]);
     const point_l = getPointByPrice(point_delta, price_l, decimalRate_point);
     const point_r = getPointByPrice(point_delta, price_r, decimalRate_point);
-    const result = await getDclPoolPoints(pool_id, bin_final, point_l, point_r);
-    const list = result.point_data || [];
-    const [price_l_default, price_r_default] =
-      get_price_range_by_percent(range);
-    set_price_range([+price_l_default, +price_r_default]);
-    setZoom(range);
-    setChartDataList(list);
+    let list = [];
+    if (chartType == 'USER' && accountId) {
+      list = await getDclUserPoints(pool_id, bin_final, accountId);
+    } else {
+      const result = await getDclPoolPoints(
+        pool_id,
+        bin_final,
+        point_l,
+        point_r
+      );
+      list = result.point_data || [];
+    }
+    return list;
+  }
+  function getChartDataListInRange() {
+    const point_l = get_point_by_price(price_range[0].toString());
+    const point_r = get_point_by_price(
+      price_range[price_range.length - 1].toString()
+    );
+    let start_index;
+    for (let i = 0; i < chartDataList.length - 1; i++) {
+      if (+chartDataList[i].point == point_l) {
+        start_index = i;
+        break;
+      }
+      if (
+        +chartDataList[i].point > point_l &&
+        +chartDataList[Math.max(i - 1, 0)].point < point_l
+      ) {
+        start_index = Math.max(i - 1, 0);
+        break;
+      }
+    }
+    let end_index = chartDataList.findIndex((d: IChartData) => {
+      return +d.point >= point_r;
+    });
+    if (!isValid(start_index)) {
+      start_index = 0;
+    }
+    if (end_index == -1) {
+      end_index = chartDataList.length - 1;
+    }
+    const chartDataListInRange = chartDataList.slice(
+      start_index,
+      end_index + 1
+    );
+    return chartDataListInRange;
   }
   function get_price_range_by_percent(percent: number): [string, string] {
     const p_l_r = percent / 100;
@@ -204,7 +260,9 @@ export default function DclPoolChart({
     // down bars
     draw_down_bars({ data, scale, scaleBar });
     // up bars
-    draw_up_bars({ data, scale, scaleBar });
+    if (chartType !== 'USER') {
+      draw_up_bars({ data, scale, scaleBar });
+    }
     // 创建横坐标轴
     if (appearanceConfig.axisHidden) {
       d3.select(`${randomId} .axis`).remove();
@@ -215,8 +273,10 @@ export default function DclPoolChart({
     if (appearanceConfig.hoverBoxHidden) {
       d3.select(`${randomId} .bars_background`).remove();
       d3.select(`${randomId} .overBox`).remove();
+      d3.select(`${randomId} .whole_bars_background`).remove();
+      d3.select(`${randomId} .wholeOverBox`).remove();
     } else {
-      draw_background_bars({ data, scale });
+      draw_background_bars({ data, scale, scaleBar });
     }
     // current line
     if (appearanceConfig.currentBarHidden) {
@@ -239,30 +299,32 @@ export default function DclPoolChart({
     const decimalRate_price =
       Math.pow(10, token_x_metadata.decimals) /
       Math.pow(10, token_y_metadata.decimals);
-    const data: IChartData[] = chartDataList.map((o: IChartData) => {
-      const { point } = o;
-      const price_l = getPriceByPoint(+point, decimalRate_price);
-      const point_r = +point + point_delta * bin_final;
-      const point_r_close = +point + point_delta * bin_final + 1;
-      const price_r = getPriceByPoint(point_r, decimalRate_price);
-      const price_r_close = getPriceByPoint(point_r_close, decimalRate_price);
+    const data: IChartData[] = getChartDataListInRange().map(
+      (o: IChartData) => {
+        const { point } = o;
+        const price_l = getPriceByPoint(+point, decimalRate_price);
+        const point_r = +point + point_delta * bin_final;
+        const point_r_close = +point + point_delta * bin_final + 1;
+        const price_r = getPriceByPoint(point_r, decimalRate_price);
+        const price_r_close = getPriceByPoint(point_r_close, decimalRate_price);
 
-      return {
-        ...o,
-        liquidity: Big(o.liquidity || 0).toFixed(),
-        order_liquidity: Big(o.order_liquidity || 0).toFixed(),
-        token_x: Big(o.token_x || 0).toFixed(),
-        token_y: Big(o.token_y || 0).toFixed(),
-        order_x: Big(o.order_x || 0).toFixed(),
-        order_y: Big(o.order_y || 0).toFixed(),
-        total_liquidity: Big(o.total_liquidity || 0).toFixed(),
-        fee: Big(o.fee || 0).toFixed(),
-        price: price_l.toString(),
-        price_r: price_r.toString(),
-        point_r: point_r.toString(),
-        price_r_close: price_r_close.toString(),
-      };
-    });
+        return {
+          ...o,
+          liquidity: Big(o.liquidity || 0).toFixed(),
+          order_liquidity: Big(o.order_liquidity || 0).toFixed(),
+          token_x: Big(o.token_x || 0).toFixed(),
+          token_y: Big(o.token_y || 0).toFixed(),
+          order_x: Big(o.order_x || 0).toFixed(),
+          order_y: Big(o.order_y || 0).toFixed(),
+          total_liquidity: Big(o.total_liquidity || 0).toFixed(),
+          fee: Big(o.fee || 0).toFixed(),
+          price: price_l.toString(),
+          price_r: price_r.toString(),
+          point_r: point_r.toString(),
+          price_r_close: price_r_close.toString(),
+        };
+      }
+    );
     return data;
   }
   function hoverBox(e: any, d: IChartData) {
@@ -272,17 +334,8 @@ export default function DclPoolChart({
         e.offsetX + disFromHoverBoxToPointer
       }px, ${e.offsetY / 2}px)`
     );
-    const {
-      point,
-      token_x,
-      token_y,
-      order_x,
-      order_y,
-      liquidity,
-      order_liquidity,
-      fee,
-      total_liquidity,
-    } = d;
+    const { point, token_x, token_y, order_x, order_y, fee, total_liquidity } =
+      d;
     const { current_point } = pool;
     const { colors } = getConfig();
 
@@ -317,6 +370,22 @@ export default function DclPoolChart({
   }
   function LeaveBox(e: any, d: IChartData) {
     d3.select(`${randomId} .overBox`).attr(
+      'style',
+      `visibility:hidden;transform:translate(${
+        e.offsetX + disFromHoverBoxToPointer
+      }px, ${e.offsetY / 2}px)`
+    );
+  }
+  function hoverUserBox(e: any) {
+    d3.select(`${randomId} .wholeOverBox`).attr(
+      'style',
+      `visibility:visible;transform:translate(${
+        e.offsetX + disFromHoverBoxToPointer
+      }px, ${e.offsetY / 2}px)`
+    );
+  }
+  function LeaveUserBox(e: any) {
+    d3.select(`${randomId} .wholeOverBox`).attr(
       'style',
       `visibility:hidden;transform:translate(${
         e.offsetX + disFromHoverBoxToPointer
@@ -416,6 +485,27 @@ export default function DclPoolChart({
   function draw_background_bars({
     data,
     scale,
+    scaleBar,
+  }: {
+    data: IChartData[];
+    scale: Function;
+    scaleBar: Function;
+  }) {
+    if (chartType == 'USER') {
+      draw_background_bars_user({
+        scale,
+        scaleBar,
+      });
+    } else {
+      draw_background_bars_pool({
+        data,
+        scale,
+      });
+    }
+  }
+  function draw_background_bars_pool({
+    data,
+    scale,
   }: {
     data: IChartData[];
     scale: Function;
@@ -449,6 +539,49 @@ export default function DclPoolChart({
         return 0;
       })
       .attr('rx', 2)
+      .attr('fill', 'transparent');
+  }
+  function draw_background_bars_user({
+    scale,
+    scaleBar,
+  }: {
+    scale: Function;
+    scaleBar: Function;
+  }) {
+    const { sortP, sortY } = getChartDataListRange_x_y();
+    d3.select(`${randomId} .whole_bars_background`)
+      .on('mousemove', function (e) {
+        d3.select(this).attr('fill', 'rgba(255,255,255,0.1)');
+        hoverUserBox(e);
+      })
+      .on('mouseleave', function (e) {
+        d3.select(this).attr('fill', 'transparent');
+        LeaveUserBox(e);
+      })
+      .transition()
+      .attr('width', function () {
+        return (
+          scale(sortP[sortP.length - 1]) -
+          scale(sortP[0]) +
+          whole_bars_background_padding * 2
+        );
+      })
+      .attr('height', function () {
+        return (
+          scaleBar(sortY[sortY.length - 1]) + whole_bars_background_padding
+        );
+      })
+      .attr('x', function () {
+        return scale(Big(sortP[0]).toNumber()) - whole_bars_background_padding;
+      })
+      .attr('y', function () {
+        return (
+          wholeBarHeight -
+          scaleBar(sortY[sortY.length - 1]) -
+          whole_bars_background_padding
+        );
+      })
+      .attr('rx', 4)
       .attr('fill', 'transparent');
   }
   function draw_current_bar({ scale }: { scale: Function }) {
@@ -548,41 +681,6 @@ export default function DclPoolChart({
     });
     d3.select(`${randomId} .drag-right`).call(dragRight);
   }
-  function draw_init_overlap_area({ scale }: { scale: any }) {
-    const price = get_current_price();
-    let price_l;
-    if (leftPoint) {
-      price_l = get_price_by_point(leftPoint);
-    } else {
-      const price_l_temp = Big(1 - defaultPercent / 100)
-        .mul(price)
-        .toFixed();
-      const newLeftPoint = get_nearby_bin_left_point(
-        get_point_by_price(price_l_temp)
-      );
-      price_l = get_point_by_price(newLeftPoint.toString());
-    }
-    const x = scale(price_l);
-    const rightX = Number(
-      d3
-        .select(`${randomId} .drag-right`)
-        .attr('transform')
-        .split(',')[0]
-        .slice(10)
-    );
-    const W = rightX - x;
-    console.log(
-      'price_range transform, x, rightX W',
-      price_range,
-      d3.select(`${randomId} .drag-right`).attr('transform'),
-      x,
-      rightX,
-      W
-    );
-    d3.select(`${randomId} .overlap rect`)
-      .attr('transform', `translate(${x}, 0)`)
-      .attr('width', W);
-  }
   function get_current_price() {
     return get_price_by_point(pool.current_point);
   }
@@ -640,6 +738,13 @@ export default function DclPoolChart({
       .range([0, svgWidth - svgPaddingX * 2]);
   }
   function scaleAxisY() {
+    if (chartType == 'USER') {
+      return scaleAxisY_User();
+    } else {
+      return scaleAxisY_Pool();
+    }
+  }
+  function scaleAxisY_Pool() {
     const L: number[] = [];
     chartDataList.forEach((o: IChartData) => {
       const { liquidity, order_liquidity } = o;
@@ -654,6 +759,32 @@ export default function DclPoolChart({
       .scaleLinear()
       .domain([+sortL[0], +sortL[sortL.length - 1]])
       .range([0, wholeBarHeight]);
+  }
+  function scaleAxisY_User() {
+    const { sortY: sortL } = getChartDataListRange_x_y();
+    return d3
+      .scaleLinear()
+      .domain([+sortL[0], +sortL[sortL.length - 1]])
+      .range([0, wholeBarHeight - whole_bars_background_padding])
+      .clamp(true);
+  }
+  function getChartDataListRange_x_y() {
+    const Y: number[] = [];
+    const X: number[] = [];
+    const chartDataListInrange = getChartDataListInRange();
+    chartDataListInrange.forEach((o: IChartData) => {
+      const { liquidity, point } = o;
+      Y.push(+liquidity);
+      X.push(+point);
+    });
+    const sortY = sortBy(Y);
+    const sortX = sortBy(X);
+    const max_x = sortX[X.length - 1] + getConfig().bin * pool.point_delta;
+    sortX.push(max_x);
+    const sortX_map_P = sortX.map((x) => {
+      return get_price_by_point(x);
+    });
+    return { sortP: sortX_map_P, sortY };
   }
   function diffPrices(newPrice: string, peferencePrice?: string) {
     let movePercent;
@@ -761,6 +892,7 @@ export default function DclPoolChart({
           <g className="bars_order"></g>
           <g className="bars_liquidity"></g>
           <g className="bars_background"></g>
+          <rect className="whole_bars_background"></rect>
           {/* 横坐标轴 */}
           <g className="axis"></g>
           {/* 拖拽线 left */}
@@ -971,6 +1103,33 @@ export default function DclPoolChart({
             </div>
           </>
         ) : null}
+      </div>
+      {/* hover到区域上的悬浮框 todo test数据*/}
+      <div className="wholeOverBox absolute rounded-xl bg-chartHoverBoxBg border border-assetsBorder px-3 py-2 z-10 invisible">
+        <div className="flex items-center justify-between my-2">
+          <span className="text-xs text-white">Your Liquidity</span>
+          <span className="text-xs text-white gotham_bold">~$294.25</span>
+        </div>
+        <div className="flex items-center justify-between my-2">
+          <span className="text-xs text-white mr-10">Price Range</span>
+          <span className="text-xs text-white gotham_bold">
+            1.5636 - 2.7102
+          </span>
+        </div>
+        <div className="flex items-center justify-between my-2">
+          <span className="text-xs text-white mr-10">Position</span>
+          <span className="text-xs text-white gotham_bold">
+            20 NEAR + 36.2418 USDC
+          </span>
+        </div>
+        <div className="flex items-center justify-between my-2">
+          <span className="text-xs text-white mr-10">24h APR</span>
+          <span className="text-xs text-white gotham_bold">34.5%</span>
+        </div>
+        <div className="flex items-center justify-between my-2">
+          <span className="text-xs text-white mr-10">Total Earned Fee</span>
+          <span className="text-xs text-white gotham_bold">$8.283</span>
+        </div>
       </div>
       {/* current 价格 */}
       <div className="currentLine flex flex-col items-center absolute left-0 pointer-events-none">
