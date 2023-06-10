@@ -2132,7 +2132,6 @@ function UserLiquidityLineStyleGroup1({
                     // setShowAddBox(true);
 
                     history.push('/addLiquidityV2');
-
                   }}
                   color="#fff"
                   minWidth="5rem"

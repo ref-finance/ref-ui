@@ -697,7 +697,7 @@ export default function AddYourLiquidityPageV3() {
         {/* 详情页图 */}
         {/* <DclChart pool_id={currentSelectedPool?.pool_id} config={{axisHidden: true, controlHidden: true}}></DclChart> */}
         {/* 添加页图 */}
-        <DclChart pool_id={currentSelectedPool?.pool_id}></DclChart>
+        {/* <DclChart pool_id={currentSelectedPool?.pool_id}></DclChart> */}
         {/* 用户流动性图表*/}
         {/* <DclChart pool_id={currentSelectedPool?.pool_id} config={{controlHidden: true}} chartType='USER'></DclChart> */}
       </div>

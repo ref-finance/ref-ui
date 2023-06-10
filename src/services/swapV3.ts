@@ -972,9 +972,7 @@ export const batch_add_liquidity = async ({
     new Big(0)
   );
 
-
   amount_y = amount_y.toFixed(0);
-
 
   if (+amount_x > 0) {
     transactions.unshift({
