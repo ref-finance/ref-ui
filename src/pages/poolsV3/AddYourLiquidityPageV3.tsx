@@ -108,6 +108,7 @@ import {
 import { SLOT_NUMBER } from '~services/near';
 
 export type LiquidityShape = 'Spot' | 'Curve' | 'BidAsk';
+import DclPoolChart from '../../components/d3Chart/DclPoolChart';
 
 export default function AddYourLiquidityPageV3() {
   const [tokenX, setTokenX] = useState<TokenMetadata>(null);
@@ -678,6 +679,26 @@ export default function AddYourLiquidityPageV3() {
   const mobileDevice = isMobile();
   return (
     <>
+      <div className="m-20">
+        {/* 缩略图 */}
+        {/* <DclPoolChart pool_id={currentSelectedPool?.pool_id} config={{axisHidden: true, controlHidden: true, currentBarHidden: true, hoverBoxHidden: true, svgWidth:'80', svgHeight:'32', svgPaddingX:'0'}}></DclPoolChart> */}
+        {/* 详情页图 */}
+        {/* <DclPoolChart pool_id={currentSelectedPool?.pool_id} config={{axisHidden: true, controlHidden: true}}></DclPoolChart> */}
+        {/* 添加页图 */}
+        {/* <DclPoolChart pool_id={currentSelectedPool?.pool_id}></DclPoolChart> */}
+      </div>
+
+      <div className="m-auto xs:w-full md:w-full xs:px-3 md:px-3 flex items-center mb-5 lg:hidden">
+        <div
+          className="cursor-pointer flex items-center justify-center w-6 h-6"
+          onClick={goYourLiquidityPage}
+        >
+          <ReturnIcon></ReturnIcon>
+        </div>
+        <span className="text-white text-sm">
+          <FormattedMessage id="add_liquidity"></FormattedMessage>
+        </span>
+      </div>
       <div
         style={{ width: mobileDevice ? '' : '1020px' }}
         className="relative flex flex-col  lg:w-4/5 2xl:w-3/5 xs:w-full md:w-full xs:px-3 md:px-3 m-auto text-white rounded-2xl "
