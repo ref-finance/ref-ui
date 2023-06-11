@@ -700,8 +700,10 @@ export default function AddYourLiquidityPageV3() {
         {/* <DclChart pool_id={currentSelectedPool?.pool_id}></DclChart> */}
         {/* 用户流动性图表*/}
         {/* <DclChart pool_id={currentSelectedPool?.pool_id} config={{controlHidden: true}} chartType='USER'></DclChart> */}
-        {/* 删除流动性图表 部分删除 */}
+        {/* 删除流动性图表 从右侧部分删除 */}
         {/* <DclChart pool_id={currentSelectedPool?.pool_id} config={{controlHidden: true, currentBarHidden: true, hoverBoxHidden: true}} chartType='USER' removeParams={{ fromRight:true, point:  408800}}></DclChart> */}
+        {/* 删除流动性图表 从左侧部分删除 */}
+        {/* <DclChart pool_id={currentSelectedPool?.pool_id} config={{controlHidden: true, currentBarHidden: true, hoverBoxHidden: true}} chartType='USER' removeParams={{ fromLeft:true, point:  408800}}></DclChart> */}
         {/* 删除流动性图表 全部删除 */}
         {/* <DclChart pool_id={currentSelectedPool?.pool_id} config={{controlHidden: true, currentBarHidden: true, hoverBoxHidden: true}} chartType='USER' removeParams={{ all: true }}></DclChart> */}
       </div>
