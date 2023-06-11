@@ -888,6 +888,8 @@ function YourLiquidityBox(props: {
 
   const { accountId } = useWalletSelector();
 
+  const history = useHistory();
+
   const accountAPR = useDCLAccountAPR({
     pool_id: poolDetail.pool_id,
     account_id: accountId,
@@ -972,6 +974,11 @@ function YourLiquidityBox(props: {
   }
 
   const groupedData = getGroupLiquidities();
+
+  function goAddliquidityV2() {
+    const url_pool_id = get_pool_name(poolDetail.pool_id);
+    history.push(`/addLiquidityV2#${url_pool_id}`);
+  }
 
   return (
     <div className="p-5 bg-cardBg rounded-xl xsm:p-0">
@@ -1139,7 +1146,9 @@ function YourLiquidityBox(props: {
         <GradientButton
           onClick={(e) => {
             e.stopPropagation();
-            addLiquidity();
+            // addLiquidity();
+
+            goAddliquidityV2();
           }}
           color="#fff"
           borderRadius={'8px'}
@@ -1522,6 +1531,7 @@ function SelectLiquidityBox(props: any) {
     user_liquidities,
     matched_seeds,
   } = props;
+
   const [hoverHashId, setHoverHashId] = useState('');
   const [showRemoveBox, setShowRemoveBox] = useState<boolean>(false);
   const [showAddBox, setShowAddBox] = useState<boolean>(false);
@@ -1639,312 +1649,335 @@ function SelectLiquidityBox(props: any) {
       (liquidity: UserLiquidityInfo) => +(liquidity.part_farm_ratio || 0) == 0
     );
   return (
-    <Modal isOpen={isOpen} onRequestClose={onRequestClose} style={style}>
-      <Card
-        style={{ maxHeight: '95vh', minWidth: isMobile ? '' : '730px' }}
-        padding="px-0 py-6"
-        className="outline-none border border-gradientFrom border-opacity-50 overflow-auto xs:w-90vw md:w-90vw lg:w-50vw"
-      >
-        <div className="header flex items-center justify-between mb-5 px-6">
-          <div className="flex items-center justify-center">
-            <span className="text-white text-xl mr-2">Your Positions</span>
-            <span className="flex-shrink-0 bg-senderHot flex items-center justify-center gotham_bold px-2.5 ml-2 rounded-t-xl rounded-br-xl text-sm text-black">
-              {user_liquidities_detail.length}
-            </span>
-          </div>
-          <div className="cursor-pointer" onClick={onRequestClose}>
-            <ModalClose />
-          </div>
-        </div>
-        {/* for Mobile */}
-        {isMobile ? (
-          <div className="px-3">
-            {user_liquidities_detail.map(
-              (liquidityDetail: UserLiquidityDetail, index: number) => {
-                return (
-                  <div
-                    key={liquidityDetail.hashId + index}
-                    className="bg-chartBg bg-opacity-30 rounded-2xl mb-2.5 p-3"
-                  >
-                    <span className="text-white text-base">
-                      #{liquidityDetail.hashId}
-                    </span>
-                    <div className="flex items-center justify-between my-1.5">
-                      <span className="text-sm text-farmText">Liquidity</span>
-                      <span className="text-sm text-white">
-                        {displayLiqudityTvl(liquidityDetail)}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between my-1.5">
-                      <span className="text-sm text-farmText">Range</span>
-                      <span className="text-sm text-white">
-                        {displayRange(liquidityDetail)}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between my-1.5">
-                      <span className="text-sm text-farmText">
-                        <FormattedMessage id="unclaimed_fee" />
-                      </span>
-                      <span className="text-sm text-white">
-                        {displayLiqudityFee(liquidityDetail)}
-                      </span>
-                    </div>
-                    <div
-                      className={`flex items-center justify-between my-1.5 ${
-                        has_no_related_seed ? 'hidden' : ''
-                      }`}
-                    >
-                      <span className="text-sm text-farmText">
-                        <FormattedMessage id="farm_state" />
-                      </span>
-                      <span className="text-sm text-white">
-                        {displayFarmStatus(user_liquidities[index])}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-end mt-2">
-                      {is_in_farming(user_liquidities[index]) ? (
-                        <BorderButton
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            go_farm(user_liquidities[index]);
-                          }}
-                          rounded="rounded-lg"
-                          px="px-0"
-                          py="py-1"
-                          style={{ minWidth: '5rem' }}
-                          className={`px-2 text-sm text-greenColor border-opacity-50 h-9 focus:outline-none`}
-                        >
-                          <div className="flex items-center justify-center cursor-pointer">
-                            <FormattedMessage id="farm_detail" />
-                            <JumpLinkIcon className="ml-1"></JumpLinkIcon>
-                          </div>
-                        </BorderButton>
-                      ) : (
-                        <>
-                          {operation == 'add' ? (
-                            <GradientButton
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                hoverLine(liquidityDetail.hashId);
-                                setShowAddBox(true);
-                              }}
-                              color="#fff"
-                              borderRadius={'8px'}
-                              className={`px-2 h-9 text-center text-sm text-white focus:outline-none`}
-                            >
-                              <FormattedMessage id="add_liquidity" />
-                            </GradientButton>
-                          ) : (
-                            <OprationButton
-                              onClick={(e: any) => {
-                                e.stopPropagation();
-                                hoverLine(liquidityDetail.hashId);
-                                setShowRemoveBox(true);
-                              }}
-                              color="#fff"
-                              className={`flex w-24 h-9  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover`}
-                            >
-                              <FormattedMessage id="remove" />
-                            </OprationButton>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  </div>
-                );
-              }
-            )}
-          </div>
-        ) : (
-          // for Pc
-          <div
-            className="wrap"
-            style={{ maxHeight: '500px', overflow: 'auto' }}
-          >
-            <div
-              className={`grid grid-cols-${
-                has_no_related_seed ? 10 : 12
-              } gap-x-3 text-farmText  text-sm h-10 justify-center items-center px-6`}
-            >
-              <span className="col-span-1 pl-2 whitespace-nowrap">NFT ID</span>
-              <span className="col-span-2">
-                <FormattedMessage id="liquidity" />
-              </span>
-              <span className="col-span-3">
-                <FormattedMessage id="range" />
-              </span>
-              <span className="col-span-2">
-                <FormattedMessage id="unclaimed_fee" />
-              </span>
-              {has_no_related_seed ? null : (
-                <span className={`col-span-2`}>
-                  <FormattedMessage id="farm_state" />
-                </span>
-              )}
-              <span className="col-span-2"></span>
-            </div>
-            <div>
-              {user_liquidities_detail.map(
-                (liquidityDetail: UserLiquidityDetail, index: number) => {
-                  return (
-                    <div
-                      key={index}
-                      onMouseOver={() => {
-                        hoverLine(liquidityDetail.hashId);
-                      }}
-                      // onMouseLeave={() => setHoverHashId('')}
-                      className={`grid grid-cols-${
-                        has_no_related_seed ? 10 : 12
-                      } gap-x-3 text-white text-base h-14 justify-center items-center px-6 ${
-                        hoverHashId == liquidityDetail.hashId
-                          ? 'bg-chartBg bg-opacity-20'
-                          : ''
-                      }`}
-                    >
-                      <span className="col-span-1 pl-2">
-                        #{liquidityDetail.hashId}
-                      </span>
-                      <span className="col-span-2">
-                        {displayLiqudityTvl(liquidityDetail)}
-                      </span>
-                      <span className="col-span-3">
-                        {displayRange(liquidityDetail)}
-                      </span>
-                      <span className="col-span-2">
-                        {displayLiqudityFee(liquidityDetail)}
-                      </span>
-                      {has_no_related_seed ? null : (
-                        <span className={`col-span-2`}>
-                          {displayFarmStatus(user_liquidities[index])}
-                        </span>
-                      )}
-                      <div className="col-span-2">
-                        {is_in_farming(user_liquidities[index]) ? (
-                          <BorderButton
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              go_farm(user_liquidities[index]);
-                            }}
-                            rounded="rounded-lg"
-                            px="px-0"
-                            py="py-1"
-                            style={{ minWidth: '5rem' }}
-                            className={`w-full px-2 text-sm text-greenColor h-9 border-opacity-50 ${
-                              hoverHashId == liquidityDetail.hashId
-                                ? ''
-                                : 'hidden'
-                            }`}
-                          >
-                            <div className="flex items-center justify-center cursor-pointer whitespace-nowrap">
-                              <FormattedMessage id="farm_detail" />
-                              <JumpLinkIcon className="ml-1 flex-shrink-0"></JumpLinkIcon>
-                            </div>
-                          </BorderButton>
-                        ) : (
-                          <>
-                            {operation == 'add' ? (
-                              <GradientButton
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setShowAddBox(true);
-                                }}
-                                color="#fff"
-                                borderRadius={'8px'}
-                                className={`px-2 h-9 text-center text-sm text-white focus:outline-none ${
-                                  hoverHashId == liquidityDetail.hashId
-                                    ? ''
-                                    : 'hidden'
-                                }`}
-                              >
-                                <FormattedMessage id="add" />
-                              </GradientButton>
-                            ) : (
-                              <OprationButton
-                                onClick={(e: any) => {
-                                  e.stopPropagation();
-                                  setShowRemoveBox(true);
-                                }}
-                                color="#fff"
-                                className={`flex h-9  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
-                                  hoverHashId == liquidityDetail.hashId
-                                    ? ''
-                                    : 'hidden'
-                                }`}
-                              >
-                                <FormattedMessage id="remove" />
-                              </OprationButton>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  );
-                }
-              )}
-            </div>
-          </div>
-        )}
+    // <Modal isOpen={isOpen} onRequestClose={onRequestClose} style={style}>
+    //   <Card
+    //     style={{ maxHeight: '95vh', minWidth: isMobile ? '' : '730px' }}
+    //     padding="px-0 py-6"
+    //     className="outline-none border border-gradientFrom border-opacity-50 overflow-auto xs:w-90vw md:w-90vw lg:w-50vw"
+    //   >
+    //     <div className="header flex items-center justify-between mb-5 px-6">
+    //       <div className="flex items-center justify-center">
+    //         <span className="text-white text-xl mr-2">Your Positions</span>
+    //         <span className="flex-shrink-0 bg-senderHot flex items-center justify-center gotham_bold px-2.5 ml-2 rounded-t-xl rounded-br-xl text-sm text-black">
+    //           {user_liquidities_detail.length}
+    //         </span>
+    //       </div>
+    //       <div className="cursor-pointer" onClick={onRequestClose}>
+    //         <ModalClose />
+    //       </div>
+    //     </div>
+    //     {/* for Mobile */}
+    //     {isMobile ? (
+    //       <div className="px-3">
+    //         {user_liquidities_detail.map(
+    //           (liquidityDetail: UserLiquidityDetail, index: number) => {
+    //             return (
+    //               <div
+    //                 key={liquidityDetail.hashId + index}
+    //                 className="bg-chartBg bg-opacity-30 rounded-2xl mb-2.5 p-3"
+    //               >
+    //                 <span className="text-white text-base">
+    //                   #{liquidityDetail.hashId}
+    //                 </span>
+    //                 <div className="flex items-center justify-between my-1.5">
+    //                   <span className="text-sm text-farmText">Liquidity</span>
+    //                   <span className="text-sm text-white">
+    //                     {displayLiqudityTvl(liquidityDetail)}
+    //                   </span>
+    //                 </div>
+    //                 <div className="flex items-center justify-between my-1.5">
+    //                   <span className="text-sm text-farmText">Range</span>
+    //                   <span className="text-sm text-white">
+    //                     {displayRange(liquidityDetail)}
+    //                   </span>
+    //                 </div>
+    //                 <div className="flex items-center justify-between my-1.5">
+    //                   <span className="text-sm text-farmText">
+    //                     <FormattedMessage id="unclaimed_fee" />
+    //                   </span>
+    //                   <span className="text-sm text-white">
+    //                     {displayLiqudityFee(liquidityDetail)}
+    //                   </span>
+    //                 </div>
+    //                 <div
+    //                   className={`flex items-center justify-between my-1.5 ${
+    //                     has_no_related_seed ? 'hidden' : ''
+    //                   }`}
+    //                 >
+    //                   <span className="text-sm text-farmText">
+    //                     <FormattedMessage id="farm_state" />
+    //                   </span>
+    //                   <span className="text-sm text-white">
+    //                     {displayFarmStatus(user_liquidities[index])}
+    //                   </span>
+    //                 </div>
+    //                 <div className="flex items-center justify-end mt-2">
+    //                   {is_in_farming(user_liquidities[index]) ? (
+    //                     <BorderButton
+    //                       onClick={(e) => {
+    //                         e.stopPropagation();
+    //                         go_farm(user_liquidities[index]);
+    //                       }}
+    //                       rounded="rounded-lg"
+    //                       px="px-0"
+    //                       py="py-1"
+    //                       style={{ minWidth: '5rem' }}
+    //                       className={`px-2 text-sm text-greenColor border-opacity-50 h-9 focus:outline-none`}
+    //                     >
+    //                       <div className="flex items-center justify-center cursor-pointer">
+    //                         <FormattedMessage id="farm_detail" />
+    //                         <JumpLinkIcon className="ml-1"></JumpLinkIcon>
+    //                       </div>
+    //                     </BorderButton>
+    //                   ) : (
+    //                     <>
+    //                       {operation == 'add' ? (
+    //                         <GradientButton
+    //                           onClick={(e) => {
+    //                             e.stopPropagation();
+    //                             hoverLine(liquidityDetail.hashId);
+    //                             setShowAddBox(true);
+    //                           }}
+    //                           color="#fff"
+    //                           borderRadius={'8px'}
+    //                           className={`px-2 h-9 text-center text-sm text-white focus:outline-none`}
+    //                         >
+    //                           <FormattedMessage id="add_liquidity" />
+    //                         </GradientButton>
+    //                       ) : (
+    //                         <OprationButton
+    //                           onClick={(e: any) => {
+    //                             e.stopPropagation();
+    //                             hoverLine(liquidityDetail.hashId);
+    //                             setShowRemoveBox(true);
+    //                           }}
+    //                           color="#fff"
+    //                           className={`flex w-24 h-9  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover`}
+    //                         >
+    //                           <FormattedMessage id="remove" />
+    //                         </OprationButton>
+    //                       )}
+    //                     </>
+    //                   )}
+    //                 </div>
+    //               </div>
+    //             );
+    //           }
+    //         )}
+    //       </div>
+    //     ) : (
+    //       // for Pc
+    //       <div
+    //         className="wrap"
+    //         style={{ maxHeight: '500px', overflow: 'auto' }}
+    //       >
+    //         <div
+    //           className={`grid grid-cols-${
+    //             has_no_related_seed ? 10 : 12
+    //           } gap-x-3 text-farmText  text-sm h-10 justify-center items-center px-6`}
+    //         >
+    //           <span className="col-span-1 pl-2 whitespace-nowrap">NFT ID</span>
+    //           <span className="col-span-2">
+    //             <FormattedMessage id="liquidity" />
+    //           </span>
+    //           <span className="col-span-3">
+    //             <FormattedMessage id="range" />
+    //           </span>
+    //           <span className="col-span-2">
+    //             <FormattedMessage id="unclaimed_fee" />
+    //           </span>
+    //           {has_no_related_seed ? null : (
+    //             <span className={`col-span-2`}>
+    //               <FormattedMessage id="farm_state" />
+    //             </span>
+    //           )}
+    //           <span className="col-span-2"></span>
+    //         </div>
+    //         <div>
+    //           {user_liquidities_detail.map(
+    //             (liquidityDetail: UserLiquidityDetail, index: number) => {
+    //               return (
+    //                 <div
+    //                   key={index}
+    //                   onMouseOver={() => {
+    //                     hoverLine(liquidityDetail.hashId);
+    //                   }}
+    //                   // onMouseLeave={() => setHoverHashId('')}
+    //                   className={`grid grid-cols-${
+    //                     has_no_related_seed ? 10 : 12
+    //                   } gap-x-3 text-white text-base h-14 justify-center items-center px-6 ${
+    //                     hoverHashId == liquidityDetail.hashId
+    //                       ? 'bg-chartBg bg-opacity-20'
+    //                       : ''
+    //                   }`}
+    //                 >
+    //                   <span className="col-span-1 pl-2">
+    //                     #{liquidityDetail.hashId}
+    //                   </span>
+    //                   <span className="col-span-2">
+    //                     {displayLiqudityTvl(liquidityDetail)}
+    //                   </span>
+    //                   <span className="col-span-3">
+    //                     {displayRange(liquidityDetail)}
+    //                   </span>
+    //                   <span className="col-span-2">
+    //                     {displayLiqudityFee(liquidityDetail)}
+    //                   </span>
+    //                   {has_no_related_seed ? null : (
+    //                     <span className={`col-span-2`}>
+    //                       {displayFarmStatus(user_liquidities[index])}
+    //                     </span>
+    //                   )}
+    //                   <div className="col-span-2">
+    //                     {is_in_farming(user_liquidities[index]) ? (
+    //                       <BorderButton
+    //                         onClick={(e) => {
+    //                           e.stopPropagation();
+    //                           go_farm(user_liquidities[index]);
+    //                         }}
+    //                         rounded="rounded-lg"
+    //                         px="px-0"
+    //                         py="py-1"
+    //                         style={{ minWidth: '5rem' }}
+    //                         className={`w-full px-2 text-sm text-greenColor h-9 border-opacity-50 ${
+    //                           hoverHashId == liquidityDetail.hashId
+    //                             ? ''
+    //                             : 'hidden'
+    //                         }`}
+    //                       >
+    //                         <div className="flex items-center justify-center cursor-pointer whitespace-nowrap">
+    //                           <FormattedMessage id="farm_detail" />
+    //                           <JumpLinkIcon className="ml-1 flex-shrink-0"></JumpLinkIcon>
+    //                         </div>
+    //                       </BorderButton>
+    //                     ) : (
+    //                       <>
+    //                         {operation == 'add' ? (
+    //                           <GradientButton
+    //                             onClick={(e) => {
+    //                               e.stopPropagation();
+    //                               setShowAddBox(true);
+    //                             }}
+    //                             color="#fff"
+    //                             borderRadius={'8px'}
+    //                             className={`px-2 h-9 text-center text-sm text-white focus:outline-none ${
+    //                               hoverHashId == liquidityDetail.hashId
+    //                                 ? ''
+    //                                 : 'hidden'
+    //                             }`}
+    //                           >
+    //                             <FormattedMessage id="add" />
+    //                           </GradientButton>
+    //                         ) : (
+    //                           <OprationButton
+    //                             onClick={(e: any) => {
+    //                               e.stopPropagation();
+    //                               setShowRemoveBox(true);
+    //                             }}
+    //                             color="#fff"
+    //                             className={`flex h-9  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
+    //                               hoverHashId == liquidityDetail.hashId
+    //                                 ? ''
+    //                                 : 'hidden'
+    //                             }`}
+    //                           >
+    //                             <FormattedMessage id="remove" />
+    //                           </OprationButton>
+    //                         )}
+    //                       </>
+    //                     )}
+    //                   </div>
+    //                 </div>
+    //               );
+    //             }
+    //           )}
+    //         </div>
+    //       </div>
+    //     )}
 
-        {operation == 'add' ? (
-          <div className="flex justify-center xsm:px-3">
-            <div
-              onClick={(e) => {
-                e.stopPropagation();
-                goAddLiqudityPage();
-              }}
-              color="#fff"
-              className={`flex items-center justify-center w-full h-10 mx-6 border border-dashed border-dclBorderColor rounded-lg text-sm  text-primaryText cursor-pointer hover:bg-dclButtonBgColor hover:text-white focus:outline-none mt-7 xsm:mt-4`}
-            >
-              + <FormattedMessage id="add_position" />
-            </div>
-          </div>
-        ) : null}
-        {operation == 'add' && showAddBox ? (
-          <AddPoolV3
-            isOpen={showAddBox}
-            onRequestClose={() => {
-              setShowAddBox(false);
-            }}
-            tokenMetadata_x_y={[token_x_metadata, token_y_metadata]}
-            poolDetail={poolDetail}
-            tokenPriceList={tokenPriceList}
-            userLiquidity={getCurrentLiqudity(hoverHashId)}
-            style={{
-              overlay: {
-                backdropFilter: 'blur(15px)',
-                WebkitBackdropFilter: 'blur(15px)',
-              },
-              content: {
-                outline: 'none',
-                transform: 'translate(-50%, -50%)',
-              },
-            }}
-          ></AddPoolV3>
-        ) : null}
-        {operation == 'remove' && showRemoveBox ? (
-          <RemovePoolV3
-            isOpen={showRemoveBox}
-            onRequestClose={() => {
-              setShowRemoveBox(false);
-            }}
-            tokenMetadata_x_y={[token_x_metadata, token_y_metadata]}
-            poolDetail={poolDetail}
-            tokenPriceList={tokenPriceList}
-            userLiquidity={getCurrentLiqudity(hoverHashId)}
-            style={{
-              overlay: {
-                backdropFilter: 'blur(15px)',
-                WebkitBackdropFilter: 'blur(15px)',
-              },
-              content: {
-                outline: 'none',
-                transform: 'translate(-50%, -50%)',
-              },
-            }}
-          ></RemovePoolV3>
-        ) : null}
-      </Card>
-    </Modal>
+    //     {operation == 'add' ? (
+    //       <div className="flex justify-center xsm:px-3">
+    //         <div
+    //           onClick={(e) => {
+    //             e.stopPropagation();
+    //             goAddLiqudityPage();
+    //           }}
+    //           color="#fff"
+    //           className={`flex items-center justify-center w-full h-10 mx-6 border border-dashed border-dclBorderColor rounded-lg text-sm  text-primaryText cursor-pointer hover:bg-dclButtonBgColor hover:text-white focus:outline-none mt-7 xsm:mt-4`}
+    //         >
+    //           + <FormattedMessage id="add_position" />
+    //         </div>
+    //       </div>
+    //     ) : null}
+    //     {operation == 'add' && showAddBox ? (
+    //       <AddPoolV3
+    //         isOpen={showAddBox}
+    //         onRequestClose={() => {
+    //           setShowAddBox(false);
+    //         }}
+    //         tokenMetadata_x_y={[token_x_metadata, token_y_metadata]}
+    //         poolDetail={poolDetail}
+    //         tokenPriceList={tokenPriceList}
+    //         userLiquidity={getCurrentLiqudity(hoverHashId)}
+    //         style={{
+    //           overlay: {
+    //             backdropFilter: 'blur(15px)',
+    //             WebkitBackdropFilter: 'blur(15px)',
+    //           },
+    //           content: {
+    //             outline: 'none',
+    //             transform: 'translate(-50%, -50%)',
+    //           },
+    //         }}
+    //       ></AddPoolV3>
+    //     ) : null}
+    //     {operation == 'remove' && showRemoveBox ? (
+    //       <RemovePoolV3
+    //         isOpen={showRemoveBox}
+    //         onRequestClose={() => {
+    //           setShowRemoveBox(false);
+    //         }}
+    //         listLiquidities={user_liquidities}
+    //         tokenMetadata_x_y={[token_x_metadata, token_y_metadata]}
+    //         poolDetail={poolDetail}
+    //         tokenPriceList={tokenPriceList}
+    //         userLiquidity={getCurrentLiqudity(hoverHashId)}
+    //         style={{
+    //           overlay: {
+    //             backdropFilter: 'blur(15px)',
+    //             WebkitBackdropFilter: 'blur(15px)',
+    //           },
+    //           content: {
+    //             outline: 'none',
+    //             transform: 'translate(-50%, -50%)',
+    //           },
+    //         }}
+    //       />
+    //     ) : null}
+    //   </Card>
+    // </Modal>
+
+    operation == 'remove' && isOpen ? (
+      <RemovePoolV3
+        isOpen={isOpen}
+        onRequestClose={onRequestClose}
+        listLiquidities={user_liquidities}
+        tokenMetadata_x_y={[token_x_metadata, token_y_metadata]}
+        poolDetail={poolDetail}
+        tokenPriceList={tokenPriceList}
+        userLiquidity={getCurrentLiqudity(hoverHashId)}
+        style={{
+          overlay: {
+            backdropFilter: 'blur(15px)',
+            WebkitBackdropFilter: 'blur(15px)',
+          },
+          content: {
+            outline: 'none',
+            transform: 'translate(-50%, -50%)',
+          },
+        }}
+      />
+    ) : null
   );
 }
 

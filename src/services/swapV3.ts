@@ -780,6 +780,9 @@ export const get_user_storage_detail = async ({ size }: { size: number }) => {
       deposit_fee = deposit_fee.plus(new Big(detail.locked_near));
     }
   }
+  if(deposit_fee.eq(0)){
+    return ''
+  }
 
   return utils.format.formatNearAmount(deposit_fee.toFixed(0));
 };
@@ -806,7 +809,7 @@ export const add_liquidity = async ({
       receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
       functionCalls: [
         {
-          methodName: 'add_liquidity',
+          methodName: 'batch_add_liquidity',
           args: {
             pool_id,
             left_point,

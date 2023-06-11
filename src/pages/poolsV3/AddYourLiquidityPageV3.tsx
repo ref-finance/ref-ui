@@ -82,6 +82,7 @@ import {
   scientificNotationToString,
   getAllocationsLeastOne,
   toInternationalCurrencySystem,
+  ONLY_ZEROS,
 } from '~utils/numbers';
 import { WalletContext } from '../../utils/wallets-integration';
 import _, { set } from 'lodash';
@@ -122,7 +123,6 @@ export default function AddYourLiquidityPageV3() {
   const [binNumber, setBinNumber] = useState(10);
   const [curPointInBinBoundry, setCurPointInBinBoundry] = useState(false);
 
-  const [buttonHover, setButtonHover] = useState<boolean>(false);
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
   const [currentPools, setCurrentPools] =
     useState<Record<string, PoolInfo>>(null);
@@ -225,6 +225,17 @@ export default function AddYourLiquidityPageV3() {
       getTopPairs();
     }
   }, [listPool, tokenPriceList]);
+
+  // trigger
+  useEffect(() => {
+    if (
+      liquidityShape === 'Spot' &&
+      !ONLY_ZEROS.test(tokenXAmount) &&
+      currentSelectedPool
+    ) {
+      changeTokenXAmount(tokenXAmount);
+    }
+  }, [liquidityShape]);
 
   async function getTopPairs() {
     const listPromise = listPool.map(async (p: PoolInfo) => {
@@ -446,7 +457,10 @@ export default function AddYourLiquidityPageV3() {
           rightPoint: rightPoint,
           currentPoint: currentPoint,
         });
-        setTokenYAmount(amount_result);
+
+        if (liquidityShape === 'Spot') {
+          setTokenYAmount(amount_result);
+        }
       }
     } else {
       if (!onlyAddYToken) {
@@ -456,7 +470,10 @@ export default function AddYourLiquidityPageV3() {
           rightPoint,
           currentPoint,
         });
-        setTokenYAmount(amount_result);
+
+        if (liquidityShape === 'Spot') {
+          setTokenYAmount(amount_result);
+        }
       }
     }
   }
@@ -472,7 +489,9 @@ export default function AddYourLiquidityPageV3() {
           rightPoint,
           currentPoint,
         });
-        setTokenXAmount(amount_result);
+        if (liquidityShape === 'Spot') {
+          setTokenXAmount(amount_result);
+        }
       }
     } else {
       if (!onlyAddXToken) {
@@ -482,7 +501,9 @@ export default function AddYourLiquidityPageV3() {
           rightPoint: rightPoint,
           currentPoint: currentPoint,
         });
-        setTokenXAmount(amount_result);
+        if (liquidityShape === 'Spot') {
+          setTokenXAmount(amount_result);
+        }
       }
     }
   }
@@ -617,6 +638,8 @@ export default function AddYourLiquidityPageV3() {
       }
       return;
     }
+
+    if (liquidityShape !== 'Spot') return;
     if (sort) {
       if (tokenXAmount) {
         const amount_result = getTokenYAmountByCondition({
@@ -1091,6 +1114,8 @@ export default function AddYourLiquidityPageV3() {
                   setCurPointInBinBoundry={setCurPointInBinBoundry}
                   getTokenYAmountByCondition={getTokenYAmountByCondition}
                   getTokenXAmountByCondition={getTokenXAmountByCondition}
+                  liquidityShape={liquidityShape}
+                  setLiquidityShape={setLiquidityShape}
                 />
               )}
 
@@ -1411,12 +1436,6 @@ function AddLiquidityComponent({
   const [radius, setRadius] = useState(5);
 
   useEffect(() => {
-    if (priceRangeMode === 'by_radius') {
-      setBinNumber(radius * 2);
-    }
-  }, [radius, priceRangeMode]);
-
-  useEffect(() => {
     if (!currentSelectedPool || !targetPoint) return;
     if (priceRangeMode === 'by_range') {
       setCurrentSelectedPool({
@@ -1429,7 +1448,8 @@ function AddLiquidityComponent({
         current_point: targetPoint,
       });
     }
-  }, [priceRangeMode, targetCustomPrice]);
+    setCurrentPoint(targetPoint);
+  }, [priceRangeMode, targetPoint]);
   console.log('currentSelectedPool: ', currentSelectedPool);
 
   useEffect(() => {
@@ -1450,8 +1470,6 @@ function AddLiquidityComponent({
     Record<string, any>
   >({});
 
-  console.log('quickOptionsMapPoint: ', quickOptionsMapPoint);
-
   const { globalState } = useContext(WalletContext);
   const [timer, setTimer] = useState(null);
   const [depthData, setDepthData] = useState(null);
@@ -1465,6 +1483,33 @@ function AddLiquidityComponent({
     tokenX.id == token_x ? tokenX.decimals : tokenY.decimals;
   const token_y_decimals =
     tokenY.id == token_y ? tokenY.decimals : tokenX.decimals;
+  useEffect(() => {
+    if (priceRangeMode === 'by_radius') {
+      setBinNumber(radius * 2);
+    }
+
+    if (!quickOptionsMapPoint['full']?.['left_p']) return;
+
+    //  get curpoint in bin boundry
+
+    const left_b = quickOptionsMapPoint['full']['left_p'];
+
+    const { current_point, point_delta } = currentSelectedPool;
+
+    const point_diff =
+      Math.floor((current_point - left_b) / (point_delta * SLOT_NUMBER)) *
+      (point_delta * SLOT_NUMBER);
+
+    const temp_cur_point = left_b + point_diff;
+
+    const new_left_point = temp_cur_point - point_delta * SLOT_NUMBER * radius;
+
+    const new_right_point = temp_cur_point + point_delta * SLOT_NUMBER * radius;
+
+    setLeftPoint(new_left_point);
+    setRightPoint(new_right_point);
+  }, [radius, priceRangeMode, quickOptionsMapPoint['full']?.['left_p']]);
+
   // init
 
   // quick options
@@ -2360,6 +2405,8 @@ function AddLiquidityButton({
   setCurPointInBinBoundry,
   getTokenYAmountByCondition,
   getTokenXAmountByCondition,
+  liquidityShape,
+  setLiquidityShape,
 }: {
   currentSelectedPool: PoolInfo;
   tokenX: TokenMetadata;
@@ -2382,6 +2429,8 @@ function AddLiquidityButton({
   setCurPointInBinBoundry: (curPointInBinBoundry: boolean) => void;
   getTokenYAmountByCondition: any;
   getTokenXAmountByCondition: any;
+  liquidityShape: LiquidityShape;
+  setLiquidityShape: (liquidityShape: LiquidityShape) => void;
 }) {
   let [leftPoint, setLeftPoint] = useState<number>(0);
   let [rightPoint, setRightPoint] = useState<number>(0);
@@ -2827,6 +2876,229 @@ function AddLiquidityButton({
     });
   }
 
+  function addLiquidityBidAsk() {
+    const { pool_id, point_delta } = currentSelectedPool;
+
+    const binSize = point_delta * SLOT_NUMBER;
+
+    let liquidityInfo: AddLiquidityInfo[];
+
+    if (onlyAddYToken) {
+      // left side
+      const Y = tokenYAmount;
+
+      const D = new Big(Y)
+        .mul(2)
+        .div(new Big(binNumber).mul(new Big(binNumber).plus(1)))
+        .div(binSize);
+
+      liquidityInfo = new Array(binNumber).map((item, index) => {
+        const height = new Big(binNumber - index).mul(D).toFixed(0);
+        const left_p = leftPoint + binSize * index;
+        const right_p = leftPoint + binSize * (index + 1);
+
+        const amount_y = toNonDivisibleNumber(
+          tokenY.decimals,
+          new Big(height).mul(binSize).toFixed()
+        );
+
+        return {
+          pool_id,
+          left_point: left_p,
+          right_point: right_p,
+          amount_x: '0',
+          amount_y,
+        };
+      });
+    }
+
+    if (onlyAddXToken) {
+      const X = tokenSort ? tokenYAmount : tokenXAmount;
+
+      const D = new Big(X)
+        .mul(2)
+        .div(new Big(binNumber).mul(new Big(binNumber).plus(1)))
+        .div(binSize);
+
+      liquidityInfo = new Array(binNumber).map((item, index) => {
+        const height = new Big(index + 1).mul(D).toFixed(0);
+        const left_p = leftPoint + binSize * index;
+        const right_p = leftPoint + binSize * (index + 1);
+
+        const amount_x = toNonDivisibleNumber(
+          tokenX.decimals,
+          new Big(height).mul(binSize).toFixed()
+        );
+
+        return {
+          pool_id,
+          left_point: left_p,
+          right_point: right_p,
+          amount_x,
+          amount_y: '0',
+        };
+      });
+    }
+
+    if (!onlyAddXToken || !onlyAddYToken) {
+      if (curPointInBinBoundry) {
+        const leftBinSize = Math.floor(binNumber / 2);
+        const rightBinSize = binNumber - leftBinSize;
+
+        const X_left = tokenYAmount;
+
+        const Y_right = tokenXAmount;
+
+        const D_left = new Big(X_left)
+          .mul(2)
+          .div(new Big(leftBinSize).mul(new Big(leftBinSize).plus(1)))
+          .div(binSize);
+
+        const D_right = new Big(Y_right)
+          .mul(2)
+          .div(new Big(rightBinSize).mul(new Big(rightBinSize).plus(1)))
+          .div(binSize);
+
+        liquidityInfo = new Array(leftBinSize).map((item, index) => {
+          const height = new Big(leftBinSize - index).mul(D_left).toFixed(0);
+          const left_p = leftPoint + binSize * index;
+          const right_p = leftPoint + binSize * (index + 1);
+
+          const amount_y = toNonDivisibleNumber(
+            tokenY.decimals,
+            new Big(height).mul(binSize).toFixed()
+          );
+
+          return {
+            pool_id,
+            left_point: left_p,
+            right_point: right_p,
+            amount_x: '0',
+            amount_y,
+          };
+        });
+
+        liquidityInfo = liquidityInfo.concat(
+          new Array(rightBinSize).map((item, index) => {
+            const height = new Big(index + 1).mul(D_right).toFixed(0);
+            const left_p = leftPoint + binSize * (leftBinSize + index);
+            const right_p = leftPoint + binSize * (leftBinSize + index + 1);
+
+            const amount_x = toNonDivisibleNumber(
+              tokenX.decimals,
+              new Big(height).mul(binSize).toFixed()
+            );
+
+            return {
+              pool_id,
+              left_point: left_p,
+              right_point: right_p,
+              amount_x,
+              amount_y: '0',
+            };
+          })
+        );
+      } else {
+        const leftBinSize = Math.floor(binNumber / 2) + 1;
+        const rightBinSize = binNumber - leftBinSize - 1;
+
+        const D_left = new Big(tokenYAmount).div(
+          new Big(
+            new Big(((leftBinSize - 1) * leftBinSize) / 2).mul(binSize)
+          ).plus(new Big(leftBinSize).mul(currentPoint - leftPoint))
+        );
+
+        if (leftBinSize - 1 > 0) {
+          const addLpList = new Array(leftBinSize - 1).map((item, index) => {
+            const height = new Big(leftBinSize - 1 - index)
+              .mul(D_left)
+              .toFixed(0);
+            const left_p = leftPoint + binSize * index;
+            const right_p = leftPoint + binSize * (index + 1);
+
+            const amount_y = toNonDivisibleNumber(
+              tokenY.decimals,
+              new Big(height).mul(binSize).toFixed()
+            );
+
+            return {
+              pool_id,
+              left_point: left_p,
+              right_point: right_p,
+              amount_x: '0',
+              amount_y: amount_y,
+            };
+          });
+          liquidityInfo = (liquidityInfo || []).concat(addLpList);
+        }
+
+        // middle bin
+
+        const tokenYMiddleAmount = new Big(currentPoint)
+          .minus(leftPoint + Number(leftBinSize - 1) * binSize)
+          .mul(D_left)
+          .toFixed(0);
+
+        const tokenXMiddleAmount = getTokenXAmountByCondition({
+          amount: tokenYMiddleAmount,
+          leftPoint: leftPoint + Number(leftBinSize - 1) * binSize,
+          rightPoint: leftPoint + leftBinSize * binSize,
+          currentPoint,
+        });
+
+        liquidityInfo = (liquidityInfo || []).concat([
+          {
+            pool_id,
+            left_point: leftPoint + Number(leftBinSize - 1) * binSize,
+            right_point: leftPoint + leftBinSize * binSize,
+            amount_x: toNonDivisibleNumber(tokenX.decimals, tokenXMiddleAmount),
+            amount_y: toNonDivisibleNumber(tokenY.decimals, tokenYMiddleAmount),
+          },
+        ]);
+
+        // right side
+
+        if (rightBinSize > 1) {
+          const newtokenXAmount = new Big(tokenXAmount)
+            .minus(tokenXMiddleAmount)
+            .toFixed(0);
+
+          const D_right = new Big(newtokenXAmount)
+            .mul(2)
+            .div(new Big(((rightBinSize - 1) * rightBinSize) / 2).mul(binSize));
+
+          const addLpList = new Array(rightBinSize).map((item, index) => {
+            const height = new Big(index + 1).mul(D_right).toFixed(0);
+            const left_p = leftPoint + leftBinSize + index * binSize;
+            const right_p = left_p + binSize;
+
+            const amount_x = toNonDivisibleNumber(
+              tokenX.decimals,
+              new Big(height).mul(binSize).toFixed()
+            );
+
+            return {
+              pool_id,
+              left_point: left_p,
+              right_point: right_p,
+              amount_x,
+              amount_y: '0',
+            };
+          });
+          liquidityInfo = (liquidityInfo || []).concat(addLpList);
+        }
+
+        //
+      }
+    }
+
+    return batch_add_liquidity({
+      liquidityInfo,
+      token_x: tokenX,
+      token_y: tokenY,
+    });
+  }
+
   function addLiquidity() {
     setAddLiquidityButtonLoading(true);
     const { pool_id } = currentSelectedPool;
@@ -2914,6 +3186,14 @@ function AddLiquidityButton({
 
   const tokenSort = tokenX.id == currentSelectedPool.token_x;
   const isAddLiquidityDisabled = getButtonStatus();
+
+  const add_lp_func =
+    liquidityShape === 'Spot'
+      ? addLiquidity
+      : liquidityShape === 'Curve'
+      ? addLiquidityCurve
+      : () => {};
+
   return (
     <div
       className={`w-full xs:w-full md:w-full flex flex-col justify-between self-stretch xs:mt-5 md:mt-5`}
@@ -2927,7 +3207,7 @@ function AddLiquidityButton({
           loading={addLiquidityButtonLoading}
           disabled={addLiquidityButtonLoading || isAddLiquidityDisabled}
           btnClassName={`${isAddLiquidityDisabled ? 'cursor-not-allowed' : ''}`}
-          onClick={addLiquidity}
+          onClick={add_lp_func}
         >
           <ButtonTextWrapper
             loading={addLiquidityButtonLoading}
@@ -3112,13 +3392,25 @@ function PointInputComponent({
   );
 }
 
-function IntegerInputComponent({ value, onChange, disabled }: any) {
+export function IntegerInputComponent({
+  value,
+  onChange,
+  disabled,
+  className,
+  max,
+}: any) {
   const removeLeadingZeros = (s: string) => {
     const oldLen = s.length;
     s = s.replace(/^0+/, '');
+
     if (s.length === 0 && oldLen > 0) {
       s = '0';
     }
+
+    if (max && Number(s) > max) {
+      return max;
+    }
+
     return s;
   };
 
@@ -3130,15 +3422,7 @@ function IntegerInputComponent({ value, onChange, disabled }: any) {
   };
 
   return (
-    <div className="flex items-center justify-between ">
-      {/* <div
-        className="flex w-6 h-6  flex-shrink-0 items-center justify-center rounded-md bg-v3BlackColor cursor-pointer"
-        onClick={() => {
-          reduceOneSlot('r');
-        }}
-      >
-        <ReduceButton className="cursor-pointer"></ReduceButton>
-      </div> */}
+    <div className={`${className} flex items-center justify-between `}>
       <input
         type="text"
         className={`text-base font-gothamBold mx-2 text-left ${
@@ -3150,14 +3434,6 @@ function IntegerInputComponent({ value, onChange, disabled }: any) {
           handleChange(target.value);
         }}
       />
-      {/* <div
-        className="flex w-6 h-6 flex-shrink-0 items-center justify-center rounded-md bg-v3BlackColor cursor-pointer"
-        onClick={() => {
-          addOneSlot('r');
-        }}
-      >
-        <AddButton className="cursor-pointer"></AddButton>
-      </div> */}
     </div>
   );
 }

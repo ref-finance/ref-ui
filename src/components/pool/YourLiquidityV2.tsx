@@ -275,6 +275,8 @@ export function YourLiquidityV2(props: any) {
       setYourLpValueV2 && setYourLpValueV2(total_value.toFixed());
     }
   }
+  console.log('liquidities_list: ', liquidities_list);
+  console.log('groupYourLiquidity: ', groupYourLiquidity);
 
   useEffect(() => {
     if (
@@ -380,6 +382,8 @@ export function YourLiquidityV2(props: any) {
               <UserLiquidityLineStyleGroup1
                 key={index}
                 groupYourLiquidityList={liquidity}
+                liquidities_list={liquidity.map((l: any) => l.liquidityDetail)}
+                tokenPriceList={tokenPriceList}
               />
             );
           }
@@ -1667,8 +1671,12 @@ export function findRangeIntersection(arr: number[][]) {
 
 function UserLiquidityLineStyleGroup1({
   groupYourLiquidityList,
+  liquidities_list,
+  tokenPriceList,
 }: {
   groupYourLiquidityList: any[];
+  liquidities_list: UserLiquidityInfo[];
+  tokenPriceList: any;
 }) {
   // const {
   //   goYourLiquidityDetailPage,
@@ -1694,6 +1702,8 @@ function UserLiquidityLineStyleGroup1({
   const [hover, setHover] = useState<boolean>(false);
 
   const publicData = groupYourLiquidityList[0];
+
+  const [showRemoveBox, setShowRemoveBox] = useState<boolean>(false);
 
   const {
     tokenMetadata_x_y,
@@ -2147,7 +2157,7 @@ function UserLiquidityLineStyleGroup1({
                 <BorderButton
                   onClick={(e) => {
                     e.stopPropagation();
-                    // setShowRemoveBox(true);
+                    setShowRemoveBox(true);
                   }}
                   rounded="rounded-lg"
                   disabled={is_in_farming}
@@ -2415,16 +2425,17 @@ function UserLiquidityLineStyleGroup1({
           ) : null}
         </div>
       </div> */}
-      {/* {showRemoveBox ? (
+      {showRemoveBox ? (
         <RemovePoolV3
           isOpen={showRemoveBox}
           onRequestClose={() => {
             setShowRemoveBox(false);
           }}
+          listLiquidities={liquidities_list}
           tokenMetadata_x_y={tokenMetadata_x_y}
           poolDetail={poolDetail}
           tokenPriceList={tokenPriceList}
-          userLiquidity={liquidityDetail}
+          userLiquidity={list_liquidities[0]}
           style={{
             overlay: {
               backdropFilter: 'blur(15px)',
@@ -2437,7 +2448,7 @@ function UserLiquidityLineStyleGroup1({
           }}
         ></RemovePoolV3>
       ) : null}
-      <AddPoolV3
+      {/* <AddPoolV3
         isOpen={showAddBox}
         onRequestClose={() => {
           setShowAddBox(false);

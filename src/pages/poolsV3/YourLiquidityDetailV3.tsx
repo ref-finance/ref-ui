@@ -87,6 +87,9 @@ export default function YourLiquidityDetail(props: any) {
   const [listLiquidities, setListLiquidities] = useState<UserLiquidityInfo[]>(
     []
   );
+
+  console.log('listLiquidities: ', listLiquidities);
+
   const [listLiquiditiesDone, setListLiquiditiesDone] =
     useState<Boolean>(false);
   const [is_in_farming, set_is_in_farming] = useState<boolean>(true);
@@ -950,6 +953,7 @@ export default function YourLiquidityDetail(props: any) {
           onRequestClose={() => {
             setShowRemoveBox(false);
           }}
+          listLiquidities={listLiquidities}
           tokenMetadata_x_y={tokenMetadata_x_y}
           poolDetail={poolDetail}
           tokenPriceList={tokenPriceList}
