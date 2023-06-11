@@ -34,6 +34,7 @@ export default function DclChart({
   setRightPoint,
   config,
   chartType,
+  removeParams,
 }: {
   pool_id: string;
   leftPoint?: number;
@@ -42,6 +43,12 @@ export default function DclChart({
   setRightPoint?: Function;
   config?: IPoolChartConfig;
   chartType?: 'POOL' | 'USER';
+  removeParams?: {
+    fromLeft?: boolean;
+    fromRight?: boolean;
+    point?: number;
+    all?: boolean;
+  };
 }) {
   const [pool, setPool] = useState<PoolInfo>();
   const [price_range, set_price_range] = useState<number[]>();
@@ -278,6 +285,13 @@ export default function DclChart({
     } else {
       draw_background_bars({ data, scale, scaleBar });
     }
+    // remove select area
+    if (chartType == 'USER' && removeParams) {
+      draw_background_bars_for_select_area({ scale, scaleBar });
+    } else {
+      d3.select('.remove_bars_background').remove();
+    }
+
     // current line
     if (appearanceConfig.currentBarHidden) {
       d3.select(`${randomId} .currentLine`).remove();
@@ -572,7 +586,7 @@ export default function DclChart({
         );
       })
       .attr('x', function () {
-        return scale(Big(sortP[0]).toNumber()) - whole_bars_background_padding;
+        return scale(sortP[0]) - whole_bars_background_padding;
       })
       .attr('y', function () {
         return (
@@ -583,6 +597,50 @@ export default function DclChart({
       })
       .attr('rx', 4)
       .attr('fill', 'transparent');
+  }
+  function draw_background_bars_for_select_area({
+    scale,
+    scaleBar,
+  }: {
+    scale: Function;
+    scaleBar: Function;
+  }) {
+    // todo
+    const { sortP, sortY } = getChartDataListRange_x_y();
+    const { fromLeft, fromRight, all, point } = removeParams;
+    d3.select(`${randomId} .remove_bars_background`)
+      .attr('width', function () {
+        if (all) {
+          return scale(sortP[sortP.length - 1]) - scale(sortP[0]);
+        } else if (fromLeft) {
+          return scale(get_price_by_point(point)) - scale(sortP[0]);
+        } else if (fromRight) {
+          return (
+            scale(sortP[sortP.length - 1]) - scale(get_price_by_point(point))
+          );
+        }
+      })
+      .attr('height', function () {
+        return (
+          scaleBar(sortY[sortY.length - 1]) + whole_bars_background_padding
+        );
+      })
+      .attr('x', function () {
+        if (fromRight) {
+          return scale(get_price_by_point(point));
+        } else {
+          return scale(sortP[0]);
+        }
+      })
+      .attr('y', function () {
+        return (
+          wholeBarHeight -
+          scaleBar(sortY[sortY.length - 1]) -
+          whole_bars_background_padding
+        );
+      })
+      .attr('rx', 4)
+      .attr('fill', 'rgba(255,255,255,0.1)');
   }
   function draw_current_bar({ scale }: { scale: Function }) {
     d3.select(`${randomId} .currentLine`).attr(
@@ -779,8 +837,9 @@ export default function DclChart({
     });
     const sortY = sortBy(Y);
     const sortX = sortBy(X);
-    const max_x = sortX[X.length - 1] + getConfig().bin * pool.point_delta;
-    sortX.push(max_x);
+    console.log('sortX', sortX);
+    // const max_x = sortX[X.length - 1] + getConfig().bin * pool.point_delta;
+    // sortX.push(max_x);
     const sortX_map_P = sortX.map((x) => {
       return get_price_by_point(x);
     });
@@ -893,6 +952,12 @@ export default function DclChart({
           <g className="bars_liquidity"></g>
           <g className="bars_background"></g>
           <rect className="whole_bars_background"></rect>
+          <rect
+            className="remove_bars_background"
+            stroke="white"
+            stroke-opacity="0.3"
+            stroke-dasharray="2 2"
+          ></rect>
           {/* 横坐标轴 */}
           <g className="axis"></g>
           {/* 拖拽线 left */}
