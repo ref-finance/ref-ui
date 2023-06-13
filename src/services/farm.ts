@@ -1344,6 +1344,150 @@ export const unStake_boost_nft = async ({
 
   return executeFarmMultipleTransactions(transactions);
 };
+export const batch_unStake_boost_nft = async ({
+  seed_id,
+  withdraw_amount,
+  liquidities,
+}: IStakeInfo) => {
+  const transactions: Transaction[] = [];
+  if (new BigNumber(withdraw_amount).isGreaterThan('0')) {
+    transactions.push({
+      receiverId: REF_FARM_BOOST_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'unlock_and_withdraw_seed',
+          args: {
+            seed_id: seed_id,
+            unlock_amount: '0',
+            withdraw_amount,
+          },
+          amount: ONE_YOCTO_NEAR,
+          gas: '200000000000000',
+        },
+      ],
+    });
+  }
+  liquidities.forEach((l: UserLiquidityInfo) => {
+    transactions.push({
+      receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'burn_v_liquidity',
+          args: {
+            lpt_id: l.lpt_id,
+          },
+          gas: '200000000000000',
+        },
+      ],
+    });
+  });
+  const neededStorage = await checkTokenNeedsStorageDeposit_boost();
+  if (neededStorage) {
+    transactions.unshift({
+      receiverId: REF_FARM_BOOST_CONTRACT_ID,
+      functionCalls: [storageDepositAction({ amount: neededStorage })],
+    });
+  }
+
+  return executeFarmMultipleTransactions(transactions);
+};
+export const batch_stake_boost_nft = async ({
+  liquidities,
+  total_v_liquidity,
+  withdraw_amount,
+  seed_id,
+}: IStakeInfo) => {
+  const [contractId, temp_pool_id] = seed_id.split('@');
+  const [fixRange, dcl_pool_id, left_point, right_point] =
+    temp_pool_id.split('&');
+  const transactions: Transaction[] = [];
+  liquidities.forEach((l: UserLiquidityInfo) => {
+    const { lpt_id, mft_id } = l;
+    const functionCalls = [];
+    if (!mft_id) {
+      functionCalls.push({
+        methodName: 'mint_v_liquidity',
+        args: {
+          lpt_id,
+          dcl_farming_type: JSON.parse(fixRange),
+        },
+        gas: '60000000000000',
+      });
+    } else if (liquidity_is_in_other_seed(seed_id, mft_id)) {
+      functionCalls.push(
+        {
+          methodName: 'burn_v_liquidity',
+          args: {
+            lpt_id,
+          },
+          gas: '60000000000000',
+        },
+        {
+          methodName: 'mint_v_liquidity',
+          args: {
+            lpt_id,
+            dcl_farming_type: JSON.parse(fixRange),
+          },
+          gas: '60000000000000',
+        }
+      );
+    } else if (Big(withdraw_amount).gt(0)) {
+      transactions.push({
+        receiverId: REF_FARM_BOOST_CONTRACT_ID,
+        functionCalls: [
+          {
+            methodName: 'unlock_and_withdraw_seed',
+            args: {
+              seed_id: seed_id,
+              unlock_amount: '0',
+              withdraw_amount,
+            },
+            amount: ONE_YOCTO_NEAR,
+            gas: '200000000000000',
+          },
+        ],
+      });
+    }
+    transactions.push({
+      receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+      functionCalls,
+    });
+  });
+  transactions.push({
+    receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+    functionCalls: [
+      {
+        methodName: 'mft_transfer_call',
+        args: {
+          receiver_id: REF_FARM_BOOST_CONTRACT_ID,
+          token_id: `:${temp_pool_id}`,
+          amount: total_v_liquidity,
+          msg: JSON.stringify('Free'),
+        },
+        amount: ONE_YOCTO_NEAR,
+        gas: '180000000000000',
+      },
+    ],
+  });
+  const neededStorage = await checkTokenNeedsStorageDeposit_boost();
+  if (neededStorage) {
+    transactions.unshift({
+      receiverId: REF_FARM_BOOST_CONTRACT_ID,
+      functionCalls: [storageDepositAction({ amount: neededStorage })],
+    });
+  }
+  return executeFarmMultipleTransactions(transactions);
+};
+function liquidity_is_in_other_seed(seed_id: string, mft_id: string) {
+  const [temp_pool_id] = seed_id.split('@');
+  const [fixRange_s, pool_id_s, left_point_s, right_point_s] =
+    temp_pool_id.split('&');
+  const [fixRange_l, pool_id_l, left_point_l, right_point_l] =
+    mft_id.split('&');
+  const is_in_other_seed =
+    left_point_s != left_point_l || right_point_s != right_point_l;
+  return is_in_other_seed;
+}
 export interface MigrateSeed {
   seed_id: string;
   amount: string;
@@ -1550,4 +1694,11 @@ export function getFarmClassification(): any {
       stable: ['1910', '3020', '3433', '3514', '3515', '3688', '3689', '3699'],
     };
   }
+}
+export interface IStakeInfo {
+  liquidities: UserLiquidityInfo[];
+  total_v_liquidity?: string;
+  withdraw_amount?: string;
+  canStake?: boolean;
+  seed_id?: string;
 }

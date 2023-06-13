@@ -780,8 +780,8 @@ export const get_user_storage_detail = async ({ size }: { size: number }) => {
       deposit_fee = deposit_fee.plus(new Big(detail.locked_near));
     }
   }
-  if(deposit_fee.eq(0)){
-    return ''
+  if (deposit_fee.eq(0)) {
+    return '';
   }
 
   return utils.format.formatNearAmount(deposit_fee.toFixed(0));

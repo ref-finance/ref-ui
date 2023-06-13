@@ -29,8 +29,10 @@ import {
   Seed,
   claimRewardBySeed_boost,
   BoostConfig,
-  stake_boost_nft,
-  unStake_boost_nft,
+  batch_stake_boost_nft,
+  batch_unStake_boost_nft,
+  IStakeInfo,
+  UserSeedInfo,
 } from '~services/farm';
 import { WalletContext } from '../../utils/wallets-integration';
 import {
@@ -101,6 +103,7 @@ export default function FarmsDclDetail(props: {
     dayVolumeMap,
     all_seeds,
   } = props;
+  console.log('8888888888-detailData', detailData);
   const [listLiquidities, setListLiquidities] = useState<UserLiquidityInfo[]>(
     []
   );
@@ -165,21 +168,46 @@ export default function FarmsDclDetail(props: {
   const unclaimedRewardsData = useMemo(() => {
     return getTotalUnclaimedRewards();
   }, [user_unclaimed_map[detailData.seed_id]]);
-  console.log('99999999999', listLiquidities_inFarimg);
-  console.log('listLiquiditiesLoading', listLiquiditiesLoading);
   const [yp_percent, yp_canFarm_value, yp_unFarm_value] = useMemo(() => {
     if (!listLiquiditiesLoading) {
-      const { total_value, can_farm_parts_value, un_farm_parts_value } = caculate_values();
+      const { total_value, can_farm_parts_value, un_farm_parts_value } =
+        caculate_values();
       if (total_value.gt(0)) {
         const percent = can_farm_parts_value.div(total_value).mul(100);
-        return [formatPercentage(percent.toFixed()),  formatWithCommas_usd(can_farm_parts_value.toFixed()), formatWithCommas_usd(un_farm_parts_value.toFixed())]
+        return [
+          formatPercentage(percent.toFixed()),
+          formatWithCommas_usd(can_farm_parts_value.toFixed()),
+          formatWithCommas_usd(un_farm_parts_value.toFixed()),
+        ];
       } else {
-        return ['0%', '$0', '$0']
+        return ['0%', '$0', '$0'];
       }
     } else {
-      return ['0%', '$0', '$0']
+      return ['0%', '$0', '$0'];
     }
-  }, [listLiquiditiesLoading, listLiquidities_inFarimg.length, listLiquidities_unFarimg.length])
+  }, [
+    listLiquiditiesLoading,
+    listLiquidities_inFarimg.length,
+    listLiquidities_unFarimg.length,
+  ]);
+
+  const canStake = useMemo(() => {
+    if (!listLiquiditiesLoading) {
+      const { canStake } = get_stake_info();
+      return canStake;
+    }
+    return false;
+  }, [
+    listLiquiditiesLoading,
+    listLiquidities_inFarimg.length,
+    listLiquidities_unFarimg.length,
+  ]);
+  const canUnStake = useMemo(() => {
+    if (!listLiquiditiesLoading) {
+      return listLiquidities_inFarimg.length;
+    }
+  }, [listLiquiditiesLoading, listLiquidities_inFarimg.length]);
+
   function getTotalUnclaimedRewards() {
     let totalPrice = 0;
     let resultTip = '';
@@ -396,7 +424,6 @@ export default function FarmsDclDetail(props: {
       set_listLiquidities_unFarimg(temp_free_final);
       set_listLiquidities_unavailable(temp_unavailable_final);
       setListLiquidities(matched_liquidities);
-      console.log('temp_farming_final, temp_unavailable_final, temp_free_final', temp_farming_final, temp_unavailable_final, temp_free_final);
     }
     if (!user_data_loading) {
       setListLiquiditiesLoading(false);
@@ -926,13 +953,17 @@ export default function FarmsDclDetail(props: {
     const [tokenx, tokeny, fee] = detailData?.pool?.pool_id?.split('|') || '';
     return +fee / 10000 + '%';
   }
-  function get_liquidity_value(liquidity: UserLiquidityInfo, leftPoint?:number, rightPoint?:number) {
+  function get_liquidity_value(
+    liquidity: UserLiquidityInfo,
+    leftPoint?: number,
+    rightPoint?: number
+  ) {
     const { amount } = liquidity;
     const poolDetail = detailData.pool;
     const { token_x, token_y } = poolDetail;
     const v = get_total_value_by_liquidity_amount_dcl({
-      left_point:leftPoint || liquidity.left_point,
-      right_point:rightPoint || liquidity.right_point,
+      left_point: leftPoint || liquidity.left_point,
+      right_point: rightPoint || liquidity.right_point,
       poolDetail,
       amount,
       price_x_y: {
@@ -949,40 +980,118 @@ export default function FarmsDclDetail(props: {
   const radio = getBoostMutil();
   /** new start */
   function caculate_values() {
-    const can_farm_liquidities = listLiquidities_inFarimg.concat(listLiquidities_unFarimg);
+    const can_farm_liquidities = listLiquidities_inFarimg.concat(
+      listLiquidities_unFarimg
+    );
     // 可以farm的所有流动性的总价值
     let total_value = Big(0);
-    can_farm_liquidities.forEach((l:UserLiquidityInfo) => {
+    can_farm_liquidities.forEach((l: UserLiquidityInfo) => {
       const l_v = get_liquidity_value(l);
       total_value = total_value.plus(l_v || 0);
-    })
+    });
     // 能farm部分的的流动性的总价值
     let can_farm_parts_value = Big(0);
-    can_farm_liquidities.forEach((l:UserLiquidityInfo) => {
-      const [left_point, right_point] = get_valid_range(l,detailData.seed_id);
-      const l_v = get_liquidity_value(l, left_point, right_point);
+    can_farm_liquidities.forEach((l: UserLiquidityInfo) => {
+      const l_v = get_range_part_value(l);
       can_farm_parts_value = can_farm_parts_value.plus(l_v || 0);
-    })
+    });
     // unFarming 部分流动性的总价值（包含部分在farm中的那个NFT剩余的部分）
     let un_farm_parts_value = Big(0);
-    listLiquidities_unFarimg.forEach((l:UserLiquidityInfo) => {
-        const l_v = get_liquidity_value(l);
-        un_farm_parts_value = un_farm_parts_value.plus(l_v || 0);
-    })
-    const [ part_farm_liquidity ] = listLiquidities_inFarimg.filter((l:UserLiquidityInfo) => {
-      return Big(l.part_farm_ratio || 0).gt(0);
-    })
+    listLiquidities_unFarimg.forEach((l: UserLiquidityInfo) => {
+      const l_v = get_range_part_value(l);
+      un_farm_parts_value = un_farm_parts_value.plus(l_v || 0);
+    });
+    const [part_farm_liquidity] = listLiquidities_inFarimg.filter(
+      (l: UserLiquidityInfo) => {
+        return Big(l.part_farm_ratio || 0).gt(0);
+      }
+    );
     if (part_farm_liquidity) {
-      const [left_point, right_point] = get_valid_range(part_farm_liquidity,detailData.seed_id);
-      const v = get_liquidity_value(part_farm_liquidity, left_point, right_point);
-      const un_farm_part_value = Big(100).minus(part_farm_liquidity.part_farm_ratio).div(100).mul(v)
+      const v = get_range_part_value(part_farm_liquidity);
+      const un_farm_part_value = Big(100)
+        .minus(part_farm_liquidity.part_farm_ratio)
+        .div(100)
+        .mul(v);
       un_farm_parts_value = un_farm_parts_value.plus(un_farm_part_value);
     }
     return {
       total_value,
       can_farm_parts_value,
       un_farm_parts_value,
+    };
+  }
+  function get_range_part_value(liquidity: UserLiquidityInfo) {
+    const [left_point, right_point] = get_valid_range(
+      liquidity,
+      detailData.seed_id
+    );
+    const v = get_liquidity_value(liquidity, left_point, right_point);
+    return v;
+  }
+  function batchStakeNFT() {
+    set_nft_stake_loading(true);
+    const { liquidities, total_v_liquidity, withdraw_amount } =
+      get_stake_info();
+    batch_stake_boost_nft({
+      liquidities,
+      total_v_liquidity,
+      withdraw_amount,
+      seed_id: detailData.seed_id,
+    });
+  }
+  function batchUnStakeNFT() {
+    set_nft_unStake_loading(true);
+    const unStake_info: IStakeInfo = get_unStake_info();
+    batch_unStake_boost_nft(unStake_info);
+  }
+  function get_stake_info(): IStakeInfo {
+    const { seed_id, min_deposit } = detailData;
+    let total_v_liquidity = Big(0);
+    let withdraw_amount = Big(0);
+    const liquidities: UserLiquidityInfo[] = listLiquidities_unFarimg;
+    listLiquidities_unFarimg.forEach((l: UserLiquidityInfo) => {
+      const v_liquidity = mint_liquidity(l, seed_id);
+      total_v_liquidity = total_v_liquidity.plus(v_liquidity);
+    });
+
+    const [part_farm_liquidity] = listLiquidities_inFarimg.filter(
+      (l: UserLiquidityInfo) => {
+        return Big(l.unfarm_part_amount || 0).gt(0);
+      }
+    );
+    if (part_farm_liquidity) {
+      total_v_liquidity = total_v_liquidity.plus(
+        part_farm_liquidity.unfarm_part_amount
+      );
+      liquidities.push(part_farm_liquidity);
     }
+    if (total_v_liquidity.lt(min_deposit)) {
+      if (part_farm_liquidity) {
+        const v_liquidity = mint_liquidity(part_farm_liquidity, seed_id);
+        withdraw_amount = new Big(v_liquidity).minus(
+          part_farm_liquidity.unfarm_part_amount
+        );
+        total_v_liquidity = total_v_liquidity.plus(withdraw_amount);
+      }
+    }
+    return {
+      liquidities,
+      total_v_liquidity: total_v_liquidity.toFixed(),
+      withdraw_amount: withdraw_amount.toFixed(),
+      canStake: total_v_liquidity.lt(min_deposit) ? false : true,
+    };
+  }
+  function get_unStake_info() {
+    const { free_amount = '0', locked_amount = '0' } =
+      user_seeds_map[detailData.seed_id] || {};
+    const user_seed_amount = new BigNumber(free_amount)
+      .plus(locked_amount)
+      .toFixed();
+    return {
+      liquidities: listLiquidities_inFarimg,
+      withdraw_amount: user_seed_amount,
+      seed_id: detailData.seed_id,
+    };
   }
   /** new end */
   return (
@@ -1263,116 +1372,82 @@ export default function FarmsDclDetail(props: {
       </div>
       {/* login area */}
       <AddLoginEntryBar></AddLoginEntryBar>
-      {/* Your Farming Position */}
-      <div className='bg-cardBg rounded-2xl p-4 mt-4'>
-        <div className='border-b border-dclLineColor pt-1 pb-4 mb-4'>
-          <div className='flex items-center justify-between'>
-              <span className='text-sm text-primaryText'>Your Farming Position</span>
-              <span className='text-white text-xl'>{yp_canFarm_value}</span>
+      <div className="mt-4">
+        {/* Your Farming Position */}
+        <div
+          className={`bg-cardBg rounded-2xl p-4 ${
+            !canStake && !canUnStake ? 'hidden' : ''
+          }`}
+        >
+          <div className="border-b border-dclLineColor pt-1 pb-4 mb-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-primaryText">
+                Your Farming Position
+              </span>
+              <span className="text-white text-xl">{yp_canFarm_value}</span>
+            </div>
+            <div className="flex items-center justify-end text-primaryText mt-2">
+              {yp_percent} of your total liquidity
+            </div>
           </div>
-          <div className='flex items-center justify-end text-primaryText mt-2'>{yp_percent} of your total liquidity</div>
-        </div>
-        <div className='flex items-center justify-between'>
-          <div className='text-sm text-primaryText'><span className='text-white'>{yp_unFarm_value}</span> available to stake</div>
-          <div className='flex items-center'>
-            <GradientButton 
-              color="#fff" 
-              disabled={nft_stake_loading}
-              btnClassName={nft_stake_loading ? 'cursor-not-allowed': ''} 
-              minWidth="6rem"
-              className={`h-8 px-4 text-center text-sm text-white focus:outline-none ${nft_stake_loading? 'opacity-40': ''
-            }`}
-            >
-              <ButtonTextWrapper
-                loading={nft_stake_loading}
-                Text={() => (
-                  <FormattedMessage id="stake" defaultMessage="Stake" />
-                )}
-              />
-            </GradientButton>
-            <OprationButton
-                color="#fff"
-                minWidth="6rem"
-                disabled={nft_unStake_loading ? true : false}
-                className={`flex items-center justify-center h-8 px-4 ml-2 text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
-                  nft_unStake_loading ? 'opacity-40' : ''
-                }`}
-              >
-                <ButtonTextWrapper
-                  loading={nft_unStake_loading}
-                  Text={() => (
-                    <FormattedMessage id="unstake" defaultMessage="unstake" />
-                  )}
-                />
-              </OprationButton>
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-primaryText">
+              <span className="text-white">{yp_unFarm_value}</span> available to
+              stake
+            </div>
+            <div className="flex items-center">
+              {canStake ? (
+                <GradientButton
+                  color="#fff"
+                  disabled={nft_stake_loading}
+                  btnClassName={nft_stake_loading ? 'cursor-not-allowed' : ''}
+                  minWidth="6rem"
+                  onClick={batchStakeNFT}
+                  className={`h-8 px-4 text-center text-sm text-white focus:outline-none ${
+                    nft_stake_loading ? 'opacity-40' : ''
+                  }`}
+                >
+                  <ButtonTextWrapper
+                    loading={nft_stake_loading}
+                    Text={() => (
+                      <FormattedMessage id="stake" defaultMessage="Stake" />
+                    )}
+                  />
+                </GradientButton>
+              ) : null}
+              {canUnStake ? (
+                <OprationButton
+                  color="#fff"
+                  minWidth="6rem"
+                  disabled={nft_unStake_loading ? true : false}
+                  onClick={batchUnStakeNFT}
+                  className={`flex items-center justify-center h-8 px-4 ml-2 text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
+                    nft_unStake_loading ? 'opacity-40' : ''
+                  }`}
+                >
+                  <ButtonTextWrapper
+                    loading={nft_unStake_loading}
+                    Text={() => (
+                      <FormattedMessage id="unstake" defaultMessage="unstake" />
+                    )}
+                  />
+                </OprationButton>
+              ) : null}
+            </div>
           </div>
         </div>
+        {/* unClaimed Rewards for PC */}
+        {user_seeds_map[detailData.seed_id] ? (
+          <UserTotalUnClaimBlock
+            detailData={detailData}
+            tokenPriceList={tokenPriceList}
+            user_seeds_map={user_seeds_map}
+            user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
+            user_unclaimed_map={user_unclaimed_map}
+          ></UserTotalUnClaimBlock>
+        ) : null}
       </div>
-      {/* unClaimed Rewards for PC */}
-      <div
-        className={`flex items-center justify-between my-7 p-4 bg-dclFarmBlueColor rounded-xl xsm:hidden ${
-          user_seeds_map[detailData.seed_id] ? '' : 'hidden'
-        }`}
-      >
-        <div className="flex items-center text-sm text-white">
-          <FormattedMessage id="unclaimed_rewards"></FormattedMessage>
-          <div
-            className="text-white text-right ml-1"
-            data-class="reactTip"
-            data-for={'unclaimedRewardQIdx'}
-            data-place="top"
-            data-html={true}
-            data-tip={valueOfRewardsTip()}
-          >
-            <QuestionMark></QuestionMark>
-            <ReactTooltip
-              id={'unclaimedRewardQIdx'}
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
-          </div>
-        </div>
-        <div className="flex items-center">
-          <div
-            className="text-white text-right"
-            data-class="reactTip"
-            data-for={'unclaimedRewardId' + detailData.seed_id}
-            data-place="top"
-            data-html={true}
-            data-tip={unclaimedRewardsData.tip}
-          >
-            <span className="text-base text-white">
-              {unclaimedRewardsData.worth}
-            </span>
-            <ReactTooltip
-              id={'unclaimedRewardId' + detailData.seed_id}
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
-          </div>
-          <span
-            className={`ml-3 flex items-center justify-center bg-deepBlue rounded-lg text-sm text-white h-8 w-20 cursor-pointer ${
-              unclaimedRewardsData.showClaimButton
-                ? 'hover:bg-deepBlueHover'
-                : 'opacity-40 cursor-not-allowed'
-            }`}
-            onClick={(e) => {
-              if (!unclaimedRewardsData.showClaimButton) return;
-              e.stopPropagation();
-              claimReward();
-            }}
-          >
-            <ButtonTextWrapper
-              loading={claimLoading}
-              Text={() => <FormattedMessage id="claim" />}
-            />
-          </span>
-        </div>
-      </div>
+
       {/* unClaimed Rewards for Mobile */}
       <div
         className={`bg-dclFarmBlueColor rounded-xl p-4 mt-4 lg:hidden ${
@@ -1520,6 +1595,264 @@ export default function FarmsDclDetail(props: {
           }}
         />
       ) : null}
+    </div>
+  );
+}
+function UserTotalUnClaimBlock(props: {
+  detailData: Seed;
+  tokenPriceList: any;
+  user_seeds_map: Record<string, UserSeedInfo>;
+  user_unclaimed_token_meta_map: Record<string, any>;
+  user_unclaimed_map: Record<string, any>;
+  radio?: string | number;
+}) {
+  const {
+    detailData,
+    tokenPriceList,
+    user_seeds_map,
+    user_unclaimed_token_meta_map,
+    user_unclaimed_map,
+    radio,
+  } = props;
+  const [claimLoading, setClaimLoading] = useState(false);
+  const [showDetail, setShowDetail] = useState(false);
+  const { seed_id } = detailData;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
+  const intl = useIntl();
+  function claimReward() {
+    if (claimLoading) return;
+    setClaimLoading(true);
+    claimRewardBySeed_boost(detailData.seed_id)
+      // .then(() => {
+      //   window.location.reload();
+      // })
+      .catch((error) => {
+        setClaimLoading(false);
+        // setError(error);
+      });
+  }
+  function getTotalUnclaimedRewards() {
+    let totalPrice = 0;
+    let resultTip = '';
+    const tempFarms = {};
+
+    detailData.farmList.forEach((farm: FarmBoost) => {
+      tempFarms[farm.terms.reward_token] = true;
+    });
+    const isEnded = detailData.farmList[0].status == 'Ended';
+    const unclaimed = user_unclaimed_map[seed_id] || {};
+    const unClaimedTokenIds = Object.keys(unclaimed);
+    const tokenList: any[] = [];
+    unClaimedTokenIds?.forEach((tokenId: string) => {
+      const token: TokenMetadata = user_unclaimed_token_meta_map[tokenId];
+      // total price
+      const { id, decimals, icon } = token;
+      const amount = toReadableNumber(decimals, unclaimed[id] || '0');
+      const tokenPrice = tokenPriceList[id]?.price;
+      if (tokenPrice && tokenPrice != 'N/A') {
+        totalPrice += +amount * tokenPrice;
+      }
+      // rewards number
+      let displayNum = '';
+      if (new BigNumber('0').isEqualTo(amount)) {
+        displayNum = '-';
+      } else if (new BigNumber('0.001').isGreaterThan(amount)) {
+        displayNum = '<0.001';
+      } else {
+        displayNum = new BigNumber(amount).toFixed(3, 1);
+      }
+      // before boost number
+      let beforeNum = '';
+      if (radio) {
+        const v = new BigNumber(amount).dividedBy(radio);
+        if (new BigNumber('0').isEqualTo(v)) {
+          beforeNum = '-';
+        } else if (new BigNumber('0.001').isGreaterThan(v)) {
+          beforeNum = '<0.001';
+        } else {
+          beforeNum = new BigNumber(v).toFixed(3, 1);
+        }
+      }
+      const tempTokenData = {
+        token,
+        amount: displayNum,
+        preAmount: beforeNum,
+      };
+      tokenList.push(tempTokenData);
+      const txt = intl.formatMessage({ id: 'ended_search' });
+      const itemHtml = `<div class="flex justify-between items-center h-8 active">
+          <img class="w-5 h-5 rounded-full mr-7" src="${icon}"/>
+            <div class="flex flex-col items-end text-xs text-navHighLightText">
+            ${formatWithCommas(displayNum)}
+            ${
+              !isEnded && !tempFarms[id]
+                ? `<span class="text-farmText text-xs">${txt}</span>`
+                : ''
+            }
+          </div>
+        </div>`;
+      resultTip += itemHtml;
+    });
+    if (totalPrice == 0) {
+      return {
+        worth: <label className="opacity-30">{isSignedIn ? '$0' : '-'}</label>,
+        showClaimButton: false,
+        tip: resultTip,
+        list: tokenList,
+      };
+    } else if (new BigNumber('0.01').isGreaterThan(totalPrice)) {
+      return {
+        worth: '<$0.01',
+        showClaimButton: true,
+        tip: resultTip,
+        list: tokenList,
+      };
+    } else {
+      return {
+        worth: `$${toInternationalCurrencySystem(totalPrice.toString(), 2)}`,
+        showClaimButton: true,
+        tip: resultTip,
+        list: tokenList,
+      };
+    }
+  }
+  const unclaimedRewardsData = useMemo(() => {
+    return getTotalUnclaimedRewards();
+  }, [user_unclaimed_map[seed_id]]);
+  function switchDetailButton() {
+    setShowDetail(!showDetail);
+  }
+  function valueOfRewardsTip() {
+    const tip = intl.formatMessage({ id: 'farmRewardsCopy' });
+    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+    return result;
+  }
+  return (
+    <div
+      className="bg-cardBg rounded-2xl p-5"
+      style={{ backgroundColor: 'rgba(29, 41, 50, 0.5)' }}
+    >
+      <div className="flex items-center justify-between text-sm text-primaryText">
+        <div className="flex items-center">
+          <FormattedMessage id="unclaimed_rewards"></FormattedMessage>
+          <div
+            className="text-white text-right ml-1"
+            data-class="reactTip"
+            data-for={'unclaimedRewardQIdx'}
+            data-place="top"
+            data-html={true}
+            data-tip={valueOfRewardsTip()}
+          >
+            <QuestionMark></QuestionMark>
+            <ReactTooltip
+              id={'unclaimedRewardQIdx'}
+              backgroundColor="#1D2932"
+              border
+              borderColor="#7e8a93"
+              effect="solid"
+            />
+          </div>
+        </div>
+
+        <div
+          className="text-white text-right"
+          data-class="reactTip"
+          data-for={'unclaimedRewardId' + detailData.seed_id}
+          data-place="top"
+          data-html={true}
+          data-tip={unclaimedRewardsData.tip}
+        >
+          <span className="text-xl text-white">
+            {unclaimedRewardsData.worth}
+          </span>
+          <ReactTooltip
+            id={'unclaimedRewardId' + detailData.seed_id}
+            backgroundColor="#1D2932"
+            border
+            borderColor="#7e8a93"
+            effect="solid"
+          />
+        </div>
+      </div>
+      {unclaimedRewardsData.showClaimButton ? (
+        <div className="flex justify-between items-center mt-4">
+          <div
+            onClick={switchDetailButton}
+            className={`flex items-center text-xs bg-lightBGreyColor bg-opacity-20 rounded-full px-4 py-0.5 cursor-pointer ${
+              showDetail ? 'text-greenColor' : 'text-farmText'
+            }`}
+          >
+            <FormattedMessage id="detail" />
+            <UpArrowIcon
+              className={`ml-1 transform ${
+                showDetail ? 'text-greenColor' : 'text-primaryText rotate-180'
+              }`}
+            ></UpArrowIcon>
+          </div>
+          <span
+            className="flex items-center justify-center bg-deepBlue hover:bg-deepBlueHover rounded-lg text-sm text-white h-8 w-20 cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
+              claimReward();
+            }}
+          >
+            <ButtonTextWrapper
+              loading={claimLoading}
+              Text={() => <FormattedMessage id="claim" />}
+            />
+          </span>
+        </div>
+      ) : null}
+
+      <div
+        className={`grid grid-cols-2 xs:grid-cols-1 md:grid-cols-1 gap-y-4 mt-4 pt-4 border-t border-borderGreyColor border-opacity-20 ${
+          showDetail ? '' : 'hidden'
+        }`}
+      >
+        {unclaimedRewardsData.list.map(
+          (
+            {
+              token,
+              amount,
+              preAmount,
+            }: { token: TokenMetadata; amount: string; preAmount: string },
+            index: number
+          ) => {
+            return (
+              <div
+                className="flex items-center xs:justify-between md:justify-between"
+                key={index}
+              >
+                <div className="flex items-center w-28">
+                  <img
+                    className="w-5 h-5 rounded-full border border-greenColor"
+                    src={token.icon}
+                  ></img>
+                  <span className="text-white text-sm ml-1.5">
+                    {toRealSymbol(token.symbol)}
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  {preAmount ? (
+                    <>
+                      <span className="text-sm text-primaryText">
+                        {preAmount}
+                      </span>
+                      <span className="mx-3.5">
+                        <BoostRightArrowIcon></BoostRightArrowIcon>
+                      </span>
+                      <span className={`text-sm text-white`}>{amount}</span>
+                    </>
+                  ) : (
+                    <span className={`text-sm text-primaryText`}>{amount}</span>
+                  )}
+                </div>
+              </div>
+            );
+          }
+        )}
+      </div>
     </div>
   );
 }

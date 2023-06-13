@@ -488,7 +488,9 @@ export default function DclChart({
       })
       .attr('y', function (d) {
         return (
-          wholeBarHeight - get_final_bar_height(scaleBar(+d.liquidity)) - get_final_bar_height(scaleBar(+d.order_liquidity))
+          wholeBarHeight -
+          get_final_bar_height(scaleBar(+d.liquidity)) -
+          get_final_bar_height(scaleBar(+d.order_liquidity))
         );
       })
       .attr('rx', 2)
@@ -497,9 +499,10 @@ export default function DclChart({
       })
       .attr('opacity', '0.7');
   }
-  function get_final_bar_height(h:number) {
-    if (Big(h || 0).lt(min_bar_height) && Big(h || 0).gt(0)) return min_bar_height;
-    return h
+  function get_final_bar_height(h: number) {
+    if (Big(h || 0).lt(min_bar_height) && Big(h || 0).gt(0))
+      return min_bar_height;
+    return h;
   }
   function draw_background_bars({
     data,
