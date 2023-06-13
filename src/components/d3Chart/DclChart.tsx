@@ -95,7 +95,7 @@ export default function DclChart({
     }
   }, [pool, accountId]);
   useEffect(() => {
-    if (price_range && chartDataList?.length) {
+    if (price_range && chartDataList) {
       drawChart();
     }
   }, [price_range, chartDataList]);
@@ -737,7 +737,6 @@ export default function DclChart({
       );
       const limitx = svgWidth - (svgPaddingX * 2 + dragBarWidth);
       if (leftX > e.x - dragBarWidth / 2 || e.x > limitx) return;
-      console.log('e.x', e.x);
       const p = scale.invert(e.x);
       const newRightPoint = get_nearby_bin_right_point(get_point_by_price(p));
       setDragRightPoint(newRightPoint);
@@ -842,7 +841,6 @@ export default function DclChart({
     });
     const sortY = sortBy(Y);
     const sortX = sortBy(X);
-    console.log('sortX', sortX);
     // const max_x = sortX[X.length - 1] + getConfig().bin * pool.point_delta;
     // sortX.push(max_x);
     const sortX_map_P = sortX.map((x) => {

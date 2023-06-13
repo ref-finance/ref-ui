@@ -11,6 +11,7 @@ import { ReferendumPage } from '~pages/ReferendumPage';
 
 import FarmsMigrate from '~pages/farms/FarmsMigrate';
 import FarmsBoosterPage from '~pages/farms/FarmsBoostPage';
+import FarmsBoosterPageCopy from '~pages/farms/FarmsBoostPageCopy';
 import YourLiquidityPageV3 from './pages/poolsV3/YourLiquidityPageV3';
 import AddYourLiquidityPageV3 from './pages/poolsV3/AddYourLiquidityPageV3';
 import YourLiquidityDetailV3 from './pages/poolsV3/YourLiquidityDetailV3';
@@ -262,6 +263,10 @@ export function Content() {
           <Route
             path="/v2farms/:id?"
             component={AutoHeight(FarmsBoosterPage)}
+          />
+          <Route
+            path="/v2farmsCopy/:id?"
+            component={AutoHeight(FarmsBoosterPageCopy)}
           />
           <Route path="/farmsMigrate" component={AutoHeight(FarmsMigrate)} />
           <Route path="/poolV2/:id" component={AutoHeight(PoolDetailV3)} />
