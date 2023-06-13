@@ -1205,6 +1205,7 @@ export const stake_boost_nft = async ({
   const transactions: Transaction[] = [];
   const functionCalls = [];
   const { lpt_id, mft_id } = liquidity;
+  debugger;
   if (needUnstake) {
     const v_liquidity = mint_liquidity(liquidity, seed_id);
     if (+withdraw_amount > 0) {
@@ -1448,10 +1449,12 @@ export const batch_stake_boost_nft = async ({
         ],
       });
     }
-    transactions.push({
-      receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
-      functionCalls,
-    });
+    if (functionCalls.length > 0) {
+      transactions.push({
+        receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+        functionCalls,
+      });
+    }
   });
   transactions.push({
     receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
@@ -1479,7 +1482,7 @@ export const batch_stake_boost_nft = async ({
   return executeFarmMultipleTransactions(transactions);
 };
 function liquidity_is_in_other_seed(seed_id: string, mft_id: string) {
-  const [temp_pool_id] = seed_id.split('@');
+  const [contractId, temp_pool_id] = seed_id.split('@');
   const [fixRange_s, pool_id_s, left_point_s, right_point_s] =
     temp_pool_id.split('&');
   const [fixRange_l, pool_id_l, left_point_l, right_point_l] =
