@@ -230,7 +230,7 @@ function SwapPage() {
   );
 
   const [forceEstimatePro, setForceEstimatePro] = useState<boolean>(false);
-  const [proTab, setProTab] = useState<IProTab>('ORDER');
+  const [proTab, setProTab] = useState<IProTab>('PRICE');
 
   const changeSwapType = (type: SWAP_TYPE) => {
     setSwapType(type);
