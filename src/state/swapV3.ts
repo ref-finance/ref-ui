@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { useLocation } from 'react-router';
 import {
   UserOrderInfo,
   list_active_orders,
@@ -12,6 +13,8 @@ import { ftGetTokenMetadata } from '../services/ft-contract';
 import { ONLY_ZEROS, toReadableNumber } from '../utils/numbers';
 import BigNumber from 'bignumber.js';
 import { getDCLTopBinFee } from '../services/indexer';
+import { list_pools } from '../services/swapV3';
+import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
 import Big from 'big.js';
 
 export const useMyOrders = () => {
@@ -103,4 +106,38 @@ export const useAllPoolsV2 = () => {
       .then(setAllPools);
   }, [tokenPriceList]);
   return allPools;
+};
+
+export const useDclPoolIdByUrl = () => {
+  const [pool_id, set_pool_id] = useState<string>();
+  const location = useLocation();
+  const hash = location.hash;
+  useEffect(() => {
+    get_all_dcl_pools_by_url();
+  }, [hash]);
+
+  async function get_all_dcl_pools_by_url() {
+    const dcl_pools: PoolInfo[] = await list_pools();
+    const [urlTokenIn, urlTokenOut] = decodeURIComponent(
+      location.hash.slice(1)
+    ).split('|');
+    const url_token_in =
+      urlTokenIn == 'near' ? WRAP_NEAR_CONTRACT_ID : urlTokenIn;
+    const url_token_out =
+      urlTokenOut == 'near' ? WRAP_NEAR_CONTRACT_ID : urlTokenOut;
+    const target: PoolInfo = dcl_pools.find((pool: PoolInfo) => {
+      const { token_x, token_y } = pool;
+      return (
+        (url_token_in == token_x && url_token_out == token_y) ||
+        (url_token_in == token_y && url_token_out == token_x)
+      );
+    });
+    if (target) {
+      set_pool_id(target.pool_id);
+    } else {
+      set_pool_id('');
+    }
+  }
+
+  return pool_id;
 };
