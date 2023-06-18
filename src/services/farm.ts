@@ -867,11 +867,6 @@ export const getBoostSeeds = async (): Promise<{
       list.forEach((s: BoostSeeds) => {
         const { id, update_time, ...info } = s;
         const { seed, farmList, pool } = info;
-        // ////// for test test test start todo
-        // const { seed_id } = seed;
-        // const contractId = seed_id.split('@')[0];
-        // if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) return;
-        // ////// for test test test end todo
         seeds.push(seed);
         farms.push(farmList);
         if (pool) {
@@ -904,16 +899,6 @@ export const getBoostSeedsFromServer = async (): Promise<{
     const dcl_all_pools: PoolInfo[] = await listPools();
     let pools: any[] = [];
     const both_normalPools_dclPools: any[] = [];
-    //  ////// for test test test start todo
-    //  const no_dcl_seeds:Seed[] = [];
-    //  list_seeds.forEach((seed:Seed) => {
-    //   const { seed_id } = seed;
-    //   const contractId = seed_id.split('@')[0];
-    //   if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) return;
-    //   no_dcl_seeds.push(seed);
-    //  })
-    //  list_seeds = no_dcl_seeds;
-    //  ////// for test test test end todo
     list_seeds.forEach((seed: Seed) => {
       const { seed_id } = seed;
       // seed type: [commonSeed, loveSeed, dclSeed]

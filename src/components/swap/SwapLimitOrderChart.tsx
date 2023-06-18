@@ -379,7 +379,9 @@ export default function SwapLimitOrderChart() {
               </span>
             </div>
             <div className="flex flex-col items-end">
-              <span className="text-sm text-primaryText whitespace-nowrap">Total Qty</span>
+              <span className="text-sm text-primaryText whitespace-nowrap">
+                Total Qty
+              </span>
               <span className="text-xs text-primaryText">
                 {cur_token_symbol}
               </span>
@@ -510,7 +512,8 @@ function OrderChart() {
       .range([0, svg_width - svg_padding - axisRightWidth])
       .clamp(true);
     const axisBottom: any = d3.axisTop(scaleBottom).tickSize(0).tickPadding(10);
-    d3.select('.axisBottom').transition()
+    d3.select('.axisBottom')
+      .transition()
       .attr('transform', `translate(0, ${svg_height - svg_padding})`)
       .call(axisBottom)
       .selectAll('text')
@@ -524,7 +527,8 @@ function OrderChart() {
       .range([0, svg_height - svg_padding * 2])
       .clamp(true);
     const axisRight: any = d3.axisLeft(scaleRight).tickSize(0).tickPadding(10);
-    d3.select('.axisRight').transition()
+    d3.select('.axisRight')
+      .transition()
       .attr('transform', `translate(${svg_width - svg_padding}, 0)`)
       .call(axisRight)
       .selectAll('text')

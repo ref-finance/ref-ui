@@ -103,7 +103,6 @@ export default function FarmsDclDetail(props: {
     dayVolumeMap,
     all_seeds,
   } = props;
-  console.log('8888888888-detailData', detailData);
   const [listLiquidities, setListLiquidities] = useState<UserLiquidityInfo[]>(
     []
   );
@@ -168,15 +167,15 @@ export default function FarmsDclDetail(props: {
   const unclaimedRewardsData = useMemo(() => {
     return getTotalUnclaimedRewards();
   }, [user_unclaimed_map[detailData.seed_id]]);
-  const [yp_percent, yp_canFarm_value, yp_unFarm_value] = useMemo(() => {
+  const [yp_percent, yp_farming_value, yp_unFarm_value] = useMemo(() => {
     if (!listLiquiditiesLoading) {
-      const { total_value, can_farm_parts_value, un_farm_parts_value } =
+      const { farming_parts_value, can_farm_parts_value, un_farm_parts_value } =
         caculate_values();
-      if (total_value.gt(0)) {
-        const percent = can_farm_parts_value.div(total_value).mul(100);
+      if (can_farm_parts_value.gt(0)) {
+        const percent = farming_parts_value.div(can_farm_parts_value).mul(100);
         return [
           formatPercentage(percent.toFixed()),
-          formatWithCommas_usd(can_farm_parts_value.toFixed()),
+          formatWithCommas_usd(farming_parts_value.toFixed()),
           formatWithCommas_usd(un_farm_parts_value.toFixed()),
         ];
       } else {
@@ -424,8 +423,6 @@ export default function FarmsDclDetail(props: {
       set_listLiquidities_unFarimg(temp_free_final);
       set_listLiquidities_unavailable(temp_unavailable_final);
       setListLiquidities(matched_liquidities);
-    }
-    if (!user_data_loading) {
       setListLiquiditiesLoading(false);
     }
   }
@@ -983,18 +980,13 @@ export default function FarmsDclDetail(props: {
     const can_farm_liquidities = listLiquidities_inFarimg.concat(
       listLiquidities_unFarimg
     );
-    // 可以farm的所有流动性的总价值
-    let total_value = Big(0);
-    can_farm_liquidities.forEach((l: UserLiquidityInfo) => {
-      const l_v = get_liquidity_value(l);
-      total_value = total_value.plus(l_v || 0);
-    });
     // 能farm部分的的流动性的总价值
     let can_farm_parts_value = Big(0);
     can_farm_liquidities.forEach((l: UserLiquidityInfo) => {
       const l_v = get_range_part_value(l);
       can_farm_parts_value = can_farm_parts_value.plus(l_v || 0);
     });
+
     // unFarming 部分流动性的总价值（包含部分在farm中的那个NFT剩余的部分）
     let un_farm_parts_value = Big(0);
     listLiquidities_unFarimg.forEach((l: UserLiquidityInfo) => {
@@ -1014,10 +1006,13 @@ export default function FarmsDclDetail(props: {
         .mul(v);
       un_farm_parts_value = un_farm_parts_value.plus(un_farm_part_value);
     }
+
+    // farming 部分流动性的总价值
+    const farming_parts_value = can_farm_parts_value.minus(un_farm_parts_value);
     return {
-      total_value,
       can_farm_parts_value,
       un_farm_parts_value,
+      farming_parts_value,
     };
   }
   function get_range_part_value(liquidity: UserLiquidityInfo) {
@@ -1078,7 +1073,7 @@ export default function FarmsDclDetail(props: {
       liquidities,
       total_v_liquidity: total_v_liquidity.toFixed(),
       withdraw_amount: withdraw_amount.toFixed(),
-      canStake: total_v_liquidity.lt(min_deposit) ? false : true,
+      canStake: total_v_liquidity.lt(min_deposit) || isEnded ? false : true,
     };
   }
   function get_unStake_info() {
@@ -1094,6 +1089,7 @@ export default function FarmsDclDetail(props: {
     };
   }
   /** new end */
+  const isEmpty = !canStake && !canUnStake;
   return (
     <div className={`m-auto lg:w-700px md:w-5/6 xs:w-11/12  xs:-mt-4 md:-mt-4`}>
       <div className="flex items-center justify-between">
@@ -1372,28 +1368,49 @@ export default function FarmsDclDetail(props: {
       </div>
       {/* login area */}
       <AddLoginEntryBar></AddLoginEntryBar>
+      {/* add liquidity entry bar */}
+      <AddLiquidityEntryBar
+        detailData={detailData}
+        isEnded={isEnded}
+        loading={listLiquiditiesLoading}
+        inFarimg={listLiquidities_inFarimg}
+        unFarimg={listLiquidities_unFarimg}
+        unavailable={listLiquidities_unavailable}
+      ></AddLiquidityEntryBar>
       <div className="mt-4">
         {/* Your Farming Position */}
         <div
           className={`bg-cardBg rounded-2xl p-4 ${
-            !canStake && !canUnStake ? 'hidden' : ''
+            isEmpty && isEnded ? 'hidden' : ''
           }`}
         >
           <div className="border-b border-dclLineColor pt-1 pb-4 mb-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-primaryText">
+              <span className={'text-sm text-primaryText'}>
                 Your Farming Position
               </span>
-              <span className="text-white text-xl">{yp_canFarm_value}</span>
+              <span
+                className={`text-xl ${
+                  isEmpty ? 'text-primaryText' : 'text-white'
+                }`}
+              >
+                {yp_farming_value}
+              </span>
             </div>
             <div className="flex items-center justify-end text-primaryText mt-2">
-              {yp_percent} of your total liquidity
+              {yp_percent} of your liquidity that can be farmed
             </div>
           </div>
           <div className="flex items-center justify-between">
             <div className="text-sm text-primaryText">
-              <span className="text-white">{yp_unFarm_value}</span> available to
-              stake
+              <span
+                className={`text-white ${
+                  isEmpty ? 'text-primaryText' : 'text-white'
+                }`}
+              >
+                {yp_unFarm_value}
+              </span>{' '}
+              available to stake
             </div>
             <div className="flex items-center">
               {canStake ? (
@@ -1437,15 +1454,15 @@ export default function FarmsDclDetail(props: {
           </div>
         </div>
         {/* unClaimed Rewards for PC */}
-        {user_seeds_map[detailData.seed_id] ? (
-          <UserTotalUnClaimBlock
-            detailData={detailData}
-            tokenPriceList={tokenPriceList}
-            user_seeds_map={user_seeds_map}
-            user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
-            user_unclaimed_map={user_unclaimed_map}
-          ></UserTotalUnClaimBlock>
-        ) : null}
+        {/* {user_seeds_map[detailData.seed_id] ? ( */}
+        <UserTotalUnClaimBlock
+          detailData={detailData}
+          tokenPriceList={tokenPriceList}
+          user_seeds_map={user_seeds_map}
+          user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
+          user_unclaimed_map={user_unclaimed_map}
+        ></UserTotalUnClaimBlock>
+        {/* ) : null} */}
       </div>
 
       {/* unClaimed Rewards for Mobile */}
@@ -1598,6 +1615,50 @@ export default function FarmsDclDetail(props: {
     </div>
   );
 }
+function AddLiquidityEntryBar(props: {
+  loading: boolean;
+  inFarimg: UserLiquidityInfo[];
+  unFarimg: UserLiquidityInfo[];
+  unavailable: UserLiquidityInfo[];
+  detailData: Seed;
+  isEnded: boolean;
+}) {
+  let tip: any;
+  const { loading, inFarimg, unFarimg, unavailable, detailData, isEnded } =
+    props;
+  if (!loading && inFarimg.length == 0 && unFarimg.length == 0) {
+    if (unavailable.length == 0) {
+      tip = <FormattedMessage id="add_lp_tokens_tip" />;
+    } else {
+      tip =
+        'The price range of your liquidity is out of reward range. Please add liquidity within reward range.';
+    }
+  }
+  if (loading || !tip || isEnded) return null;
+  return (
+    <div
+      className="rounded-lg overflow-hidden mt-8"
+      style={{ backgroundColor: 'rgba(29, 41, 50, 0.5)' }}
+    >
+      <div className="w-full bg-gradientFrom h-1.5"></div>
+      <div className="flex items-center justify-center pt-5 pb-3 px-3 xs:flex-col md:flex-col">
+        <p className="text-sm text-white xs:mb-3 md:mb-3">{tip}</p>
+        <GradientButton
+          onClick={() => {
+            const poolId = detailData.pool.pool_id;
+            const params_str = get_pool_name(poolId);
+            openUrl(`/addLiquidityV2#${params_str}`);
+          }}
+          color="#fff"
+          minWidth="9rem"
+          className={`flex-shrink-0 px-1 h-8 ml-5 text-center text-sm text-white focus:outline-none font-semibold `}
+        >
+          <FormattedMessage id="add_liquidity" defaultMessage="Add Liquidity" />
+        </GradientButton>
+      </div>
+    </div>
+  );
+}
 function UserTotalUnClaimBlock(props: {
   detailData: Seed;
   tokenPriceList: any;
@@ -1623,14 +1684,9 @@ function UserTotalUnClaimBlock(props: {
   function claimReward() {
     if (claimLoading) return;
     setClaimLoading(true);
-    claimRewardBySeed_boost(detailData.seed_id)
-      // .then(() => {
-      //   window.location.reload();
-      // })
-      .catch((error) => {
-        setClaimLoading(false);
-        // setError(error);
-      });
+    claimRewardBySeed_boost(detailData.seed_id).catch((error) => {
+      setClaimLoading(false);
+    });
   }
   function getTotalUnclaimedRewards() {
     let totalPrice = 0;
