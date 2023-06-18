@@ -891,6 +891,14 @@ export const getBoostSeedsFromServer = async (): Promise<{
   try {
     // get all seeds
     let list_seeds = await list_seeds_info();
+    // not the classic and dcl seeds would be filtered
+    list_seeds = list_seeds.filter((seed: Seed) => {
+      const contract_id = seed.seed_id.split('@')?.[0];
+      return (
+        contract_id == REF_UNI_V3_SWAP_CONTRACT_ID ||
+        contract_id == REF_FI_CONTRACT_ID
+      );
+    });
     // get all farms
     const farmsPromiseList: Promise<any>[] = [];
     const poolIds = new Set<string>();
@@ -1190,7 +1198,6 @@ export const stake_boost_nft = async ({
   const transactions: Transaction[] = [];
   const functionCalls = [];
   const { lpt_id, mft_id } = liquidity;
-  debugger;
   if (needUnstake) {
     const v_liquidity = mint_liquidity(liquidity, seed_id);
     if (+withdraw_amount > 0) {

@@ -592,7 +592,6 @@ export default function FarmsHome(props: any) {
         is_dcl_pool = true;
       }
       const targetFarms = farm_display_List.find((seed: Seed) => {
-        debugger;
         const { seed_id, farmList } = seed;
         const status = farmList[0].status;
         const id = getPoolIdBySeedId(seed_id);
@@ -3508,12 +3507,14 @@ function WithDrawBox(props: {
       const [key, v] = arr;
       const singlePrice = tokenPriceList[key]?.price;
       const token = rewardTokenList[key];
-      const number: any = toReadableNumber(token.decimals, v);
-      if (singlePrice && singlePrice != 'N/A') {
-        totalUnWithDraw = BigNumber.sum(
-          singlePrice * number,
-          totalUnWithDraw
-        ).toNumber();
+      if (token) {
+        const number: any = toReadableNumber(token.decimals, v);
+        if (singlePrice && singlePrice != 'N/A') {
+          totalUnWithDraw = BigNumber.sum(
+            singlePrice * number,
+            totalUnWithDraw
+          ).toNumber();
+        }
       }
     });
     if (totalUnWithDraw > 0) {
@@ -3763,12 +3764,14 @@ function WithDrawb(props: {
       const [key, v] = arr;
       const singlePrice = tokenPriceList[key]?.price;
       const token = rewardTokenList[key];
-      const number: any = toReadableNumber(token.decimals, v);
-      if (singlePrice && singlePrice != 'N/A') {
-        totalUnWithDraw = BigNumber.sum(
-          singlePrice * number,
-          totalUnWithDraw
-        ).toNumber();
+      if (token) {
+        const number: any = toReadableNumber(token.decimals, v);
+        if (singlePrice && singlePrice != 'N/A') {
+          totalUnWithDraw = BigNumber.sum(
+            singlePrice * number,
+            totalUnWithDraw
+          ).toNumber();
+        }
       }
     });
     if (totalUnWithDraw > 0) {
@@ -4099,12 +4102,14 @@ function WithDrawModal(props: {
       const [key, v] = arr;
       const singlePrice = tokenPriceList[key]?.price;
       const token = rewardTokenList[key];
-      const number: any = toReadableNumber(token.decimals, v);
-      if (singlePrice && singlePrice != 'N/A') {
-        totalUnWithDraw = BigNumber.sum(
-          singlePrice * number,
-          totalUnWithDraw
-        ).toNumber();
+      if (token) {
+        const number: any = toReadableNumber(token.decimals, v);
+        if (singlePrice && singlePrice != 'N/A') {
+          totalUnWithDraw = BigNumber.sum(
+            singlePrice * number,
+            totalUnWithDraw
+          ).toNumber();
+        }
       }
     });
     if (totalUnWithDraw > 0) {
