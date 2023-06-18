@@ -379,7 +379,7 @@ export default function SwapLimitOrderChart() {
               </span>
             </div>
             <div className="flex flex-col items-end">
-              <span className="text-sm text-primaryText">Total Qty</span>
+              <span className="text-sm text-primaryText whitespace-nowrap">Total Qty</span>
               <span className="text-xs text-primaryText">
                 {cur_token_symbol}
               </span>
