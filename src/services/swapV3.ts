@@ -430,6 +430,19 @@ export const v3Swap = async ({
         },
       ],
     });
+
+    const neededStorage = await get_user_storage_detail({ size: 1 });
+    if (!ONLY_ZEROS.test(neededStorage)) {
+      transactions.unshift({
+        receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+        functionCalls: [
+          storageDepositAction({
+            amount: neededStorage,
+            registrationOnly: true,
+          }),
+        ],
+      });
+    }
   }
 
   if (tokenA.id === WRAP_NEAR_CONTRACT_ID && tokenA.symbol == 'NEAR') {
@@ -444,19 +457,6 @@ export const v3Swap = async ({
         functionCalls: [registerAccountOnToken()],
       });
     }
-  }
-
-  const neededStorage = await get_user_storage_detail({ size: 1 });
-  if (!ONLY_ZEROS.test(neededStorage)) {
-    transactions.unshift({
-      receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
-      functionCalls: [
-        storageDepositAction({
-          amount: neededStorage,
-          registrationOnly: true,
-        }),
-      ],
-    });
   }
 
   return executeMultipleTransactions(transactions);
