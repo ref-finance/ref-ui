@@ -62,6 +62,7 @@ export default function DclChart({
   const appearanceConfig: IPoolChartConfig = config || {};
   const dragBarWidth = 28;
   const percentBoxWidth = 44;
+  const min_bar_height = 2;
   const svgWidth = +(appearanceConfig.svgWidth || 520);
   const svgHeight = +(appearanceConfig.svgHeight || 250);
   const axisHeight = appearanceConfig.axisHidden
@@ -94,7 +95,7 @@ export default function DclChart({
     }
   }, [pool, accountId]);
   useEffect(() => {
-    if (price_range && chartDataList?.length) {
+    if (price_range && chartDataList) {
       drawChart();
     }
   }, [price_range, chartDataList]);
@@ -445,13 +446,13 @@ export default function DclChart({
         );
       })
       .attr('height', function (d) {
-        return scaleBar(+d.liquidity);
+        return get_final_bar_height(scaleBar(+d.liquidity));
       })
       .attr('x', function (d) {
         return scale(Big(d.price).toNumber());
       })
       .attr('y', function (d) {
-        return wholeBarHeight - scaleBar(+d.liquidity);
+        return wholeBarHeight - get_final_bar_height(scaleBar(+d.liquidity));
       })
       .attr('rx', 2)
       .attr('fill', function (d) {
@@ -480,14 +481,16 @@ export default function DclChart({
         );
       })
       .attr('height', function (d) {
-        return scaleBar(+d.order_liquidity);
+        return get_final_bar_height(scaleBar(+d.order_liquidity));
       })
       .attr('x', function (d) {
         return scale(Big(d.price).toNumber());
       })
       .attr('y', function (d) {
         return (
-          wholeBarHeight - scaleBar(+d.liquidity) - scaleBar(+d.order_liquidity)
+          wholeBarHeight -
+          get_final_bar_height(scaleBar(+d.liquidity)) -
+          get_final_bar_height(scaleBar(+d.order_liquidity))
         );
       })
       .attr('rx', 2)
@@ -495,6 +498,11 @@ export default function DclChart({
         return +d.point >= current_point ? colors[1] : colors[0];
       })
       .attr('opacity', '0.7');
+  }
+  function get_final_bar_height(h: number) {
+    if (Big(h || 0).lt(min_bar_height) && Big(h || 0).gt(0))
+      return min_bar_height;
+    return h;
   }
   function draw_background_bars({
     data,
@@ -732,7 +740,6 @@ export default function DclChart({
       );
       const limitx = svgWidth - (svgPaddingX * 2 + dragBarWidth);
       if (leftX > e.x - dragBarWidth / 2 || e.x > limitx) return;
-      console.log('e.x', e.x);
       const p = scale.invert(e.x);
       const newRightPoint = get_nearby_bin_right_point(get_point_by_price(p));
       setDragRightPoint(newRightPoint);
@@ -809,7 +816,7 @@ export default function DclChart({
       L.push(
         +liquidity,
         +order_liquidity,
-        Big(liquidity).plus(order_liquidity).toNumber()
+        Big(liquidity).plus(order_liquidity).plus(min_bar_height).toNumber()
       );
     });
     const sortL = sortBy(L);
@@ -837,7 +844,6 @@ export default function DclChart({
     });
     const sortY = sortBy(Y);
     const sortX = sortBy(X);
-    console.log('sortX', sortX);
     // const max_x = sortX[X.length - 1] + getConfig().bin * pool.point_delta;
     // sortX.push(max_x);
     const sortX_map_P = sortX.map((x) => {

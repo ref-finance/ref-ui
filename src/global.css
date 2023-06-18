@@ -1337,3 +1337,8 @@ input[type='range']::-webkit-slider-runnable-track {
   background-color: #00d6af;
   height: 10px;
 }
+
+.refresh-loader {
+  animation: spin 1s linear infinite;
+  transform-origin: center;
+}

@@ -623,7 +623,6 @@ export const RemovePoolV3 = (props: any) => {
 
     sessionStorage.setItem(REF_POOL_NAV_TAB_KEY, '/yourliquidity');
 
-
     // replace to batch remove lp
     remove_liquidity({
       token_x: tokenX,

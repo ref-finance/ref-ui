@@ -407,6 +407,7 @@ module.exports = {
         overviewGreyColor: '#314758',
         chartHoverBoxBg: 'rgba(26, 39, 48, 0.9)',
         chartBorderColor: '#344451',
+        proTabBgColor: '#324451',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
