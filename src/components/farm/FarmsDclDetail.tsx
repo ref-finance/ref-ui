@@ -995,7 +995,7 @@ export default function FarmsDclDetail(props: {
     });
     const [part_farm_liquidity] = listLiquidities_inFarimg.filter(
       (l: UserLiquidityInfo) => {
-        return Big(l.part_farm_ratio || 0).gt(0);
+        return Big(l.unfarm_part_amount || 0).gt(0);
       }
     );
     if (part_farm_liquidity) {
@@ -1043,7 +1043,9 @@ export default function FarmsDclDetail(props: {
     const { seed_id, min_deposit } = detailData;
     let total_v_liquidity = Big(0);
     let withdraw_amount = Big(0);
-    const liquidities: UserLiquidityInfo[] = listLiquidities_unFarimg;
+    const liquidities: UserLiquidityInfo[] = listLiquidities_unFarimg.concat(
+      []
+    );
     listLiquidities_unFarimg.forEach((l: UserLiquidityInfo) => {
       const v_liquidity = mint_liquidity(l, seed_id);
       total_v_liquidity = total_v_liquidity.plus(v_liquidity);
