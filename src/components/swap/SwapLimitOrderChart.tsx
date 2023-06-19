@@ -230,11 +230,6 @@ export default function SwapLimitOrderChart() {
     set_sell_token_x_list(sell_token_x_list_reverse);
     set_buy_token_y_list(buy_token_y_list);
     set_sell_token_y_list(sell_token_y_list_reverse);
-
-    console.log('buy_token_x_list', buy_token_x_list);
-    console.log('sell_token_x_list', sell_token_x_list_reverse);
-    console.log('buy_token_y_list', buy_token_y_list);
-    console.log('sell_token_y_list', sell_token_y_list_reverse);
   }
   function get_price_by_point(point: number) {
     const { token_x_metadata, token_y_metadata } = pool;
@@ -279,14 +274,13 @@ export default function SwapLimitOrderChart() {
   return (
     <LimitOrderChartData.Provider
       value={{
-        buy_token_x_list,
-        sell_token_x_list,
-        buy_token_y_list,
-        sell_token_y_list,
         buy_list,
         sell_list,
         cur_pairs,
         cur_token_symbol,
+        pool,
+        get_price_by_point,
+        switch_token,
       }}
     >
       <div className="flex items-center justify-between">
@@ -457,8 +451,24 @@ export default function SwapLimitOrderChart() {
   );
 }
 function OrderChart() {
-  const { buy_list, sell_list, cur_pairs, cur_token_symbol } =
-    useContext(LimitOrderChartData);
+  const {
+    buy_list,
+    sell_list,
+    cur_pairs,
+    cur_token_symbol,
+    pool,
+    get_price_by_point,
+    switch_token,
+  }: {
+    buy_list: IOrderPointItem[];
+    sell_list: IOrderPointItem[];
+    cur_pairs: string;
+    cur_token_symbol: string;
+    pool: PoolInfo;
+    get_price_by_point: Function;
+    switch_token: ISwitchToken;
+  } = useContext(LimitOrderChartData);
+
   const [foucsOrderPoint, setFoucsOrderPoint] = useState<IOrderPointItem>();
   const [side, setSide] = useState<ISide>();
   // CONST start
@@ -477,33 +487,8 @@ function OrderChart() {
   }, [buy_list, sell_list]);
   function drawChart() {
     clearChart();
-    // 获取价格区间、数量区间
-    const prices: string[] = [];
-    const amounts: string[] = [];
-    buy_list.concat(sell_list).forEach((item: IOrderPointItem) => {
-      prices.push(item.price);
-      amounts.push(
-        Big(item.accumulated_x_readable || item.accumulated_y_readable).toFixed(
-          0
-        )
-      );
-    });
-    prices.sort((b, a) => {
-      return Big(b).minus(a).toNumber();
-    });
-    amounts.sort((b, a) => {
-      return Big(b).minus(a).toNumber();
-    });
-    let price_range: number[];
-    if (prices.length == 1) {
-      const p = +prices[0];
-      const minP = Big(p).mul(0.5).toNumber();
-      const maxP = Big(p).mul(2).toNumber();
-      price_range = [minP, maxP];
-    } else {
-      price_range = [+prices[0], +prices[prices.length - 1]];
-    }
-    const amount_range: number[] = [+amounts[amounts.length - 1], 0];
+    const { price_range, amount_range, buy_list_new, sell_list_new } =
+      get_data_for_drawing();
     // 创建一个横坐标轴
     const scaleBottom = d3
       .scaleLinear()
@@ -568,7 +553,7 @@ function OrderChart() {
     /** 创建左侧区域 */
     //  面积
     if (buy_list?.length) {
-      const area_path_data_left = areaGenerator(buy_list);
+      const area_path_data_left = areaGenerator(buy_list_new as any);
       d3.select('.areaLeft')
         .append('path')
         .attr('opacity', '0.3')
@@ -576,7 +561,7 @@ function OrderChart() {
         .attr('fill', 'url(#paint0_linear_7545_2924)');
 
       // 渐变色
-      const max_y = buy_list[buy_list.length - 1];
+      const max_y = buy_list_new[buy_list_new.length - 1];
       const y = +Big(
         scaleRight(
           +(max_y.accumulated_x_readable || max_y.accumulated_y_readable)
@@ -587,7 +572,7 @@ function OrderChart() {
         .attr('y2', svg_height - svg_padding * 2);
 
       // 折线
-      var line_path_data_left = lineGenerator(buy_list);
+      var line_path_data_left = lineGenerator(buy_list_new as any);
       d3.select('.areaLeft')
         .append('path')
         .attr('d', line_path_data_left)
@@ -596,8 +581,8 @@ function OrderChart() {
         .attr('fill', 'none');
 
       // 触发鼠标事件的矩形区域
-      const buy_list_first = buy_list[0];
-      const buy_list_last = buy_list[buy_list.length - 1];
+      const buy_list_first = buy_list_new[0];
+      const buy_list_last = buy_list_new[buy_list_new.length - 1];
       d3.select('.rectLeft')
         .append('rect')
         .attr('width', () => {
@@ -645,7 +630,7 @@ function OrderChart() {
     /** 创建右侧区域 */
     // 面积
     if (sell_list?.length) {
-      const area_path_data_right = areaGenerator(sell_list);
+      const area_path_data_right = areaGenerator(sell_list_new as any);
       d3.select('.areaRight')
         .append('path')
         .attr('opacity', '0.3')
@@ -653,7 +638,7 @@ function OrderChart() {
         .attr('fill', 'url(#paint0_linear_7545_2926)');
 
       // 渐变色
-      const max_y = sell_list[0];
+      const max_y = sell_list_new[0];
       const y = +Big(
         scaleRight(
           +(max_y.accumulated_x_readable || max_y.accumulated_y_readable)
@@ -664,7 +649,7 @@ function OrderChart() {
         .attr('y2', svg_height - svg_padding * 2);
 
       // 折线
-      const line_path_data_right = lineGenerator(sell_list);
+      const line_path_data_right = lineGenerator(sell_list_new as any);
       d3.select('.areaRight')
         .append('path')
         .attr('d', line_path_data_right)
@@ -672,8 +657,8 @@ function OrderChart() {
         .attr('strokeWidth', '2')
         .attr('fill', 'none');
       // 触发鼠标事件的矩形区域
-      const sell_list_first = sell_list[0];
-      const sell_list_last = sell_list[sell_list.length - 1];
+      const sell_list_first = sell_list_new[0];
+      const sell_list_last = sell_list_new[sell_list_new.length - 1];
       d3.select('.rectRight')
         .append('rect')
         .attr('width', () => {
@@ -718,7 +703,138 @@ function OrderChart() {
         });
     }
   }
+  function get_data_for_drawing() {
+    // 获取价格区间
+    let min_price: any;
+    let max_price: any;
+    if (buy_list.length == 0) {
+      min_price = Big(sell_list[sell_list.length - 1].price || 0)
+        .mul(0.9)
+        .toFixed();
+    } else if (buy_list.length == 1) {
+      min_price = Big(buy_list[0].price).mul(0.9).toFixed();
+    } else {
+      min_price = Big(buy_list[buy_list.length - 1].price)
+        .mul(0.9)
+        .toFixed();
+    }
+    if (sell_list.length == 0) {
+      max_price = Big(buy_list[0].price || 0)
+        .mul(1.1)
+        .toFixed();
+    } else if (sell_list.length == 1) {
+      max_price = Big(sell_list[0].price).mul(1.1).toFixed();
+    } else {
+      max_price = Big(sell_list[0].price).mul(1.1).toFixed();
+    }
+    // 获取 数量区间
+    const amounts: string[] = [];
+    buy_list.concat(sell_list).forEach((item: IOrderPointItem) => {
+      amounts.push(
+        Big(item.accumulated_x_readable || item.accumulated_y_readable).toFixed(
+          0
+        )
+      );
+    });
+    amounts.sort((b, a) => {
+      return Big(b).minus(a).toNumber();
+    });
 
+    // 给绘制的图 添加辅助点
+    const buy_list_new: IOrderPointItem[] = [];
+    if (buy_list.length == 1) {
+      const ele = buy_list[0];
+      buy_list_new.push(
+        {
+          price: ele.price,
+          accumulated_x_readable: '0',
+          accumulated_y_readable: '0',
+        },
+        ele,
+        {
+          price: min_price,
+          accumulated_x_readable: ele.accumulated_x_readable,
+          accumulated_y_readable: ele.accumulated_y_readable,
+        }
+      );
+    } else {
+      buy_list.forEach((item: IOrderPointItem, index) => {
+        if (index == 0) {
+          buy_list_new.push({
+            price: item.price,
+            accumulated_x_readable: '0',
+            accumulated_y_readable: '0',
+          });
+        }
+        buy_list_new.push(item);
+        const nextItem = buy_list[index + 1];
+        if (index < buy_list.length - 1) {
+          buy_list_new.push({
+            price: nextItem.price,
+            accumulated_x_readable: item.accumulated_x_readable,
+            accumulated_y_readable: item.accumulated_y_readable,
+          });
+        }
+        if (index == buy_list.length - 1) {
+          buy_list_new.push({
+            price: min_price,
+            accumulated_x_readable: item.accumulated_x_readable,
+            accumulated_y_readable: item.accumulated_y_readable,
+          });
+        }
+      });
+    }
+    const sell_list_new: IOrderPointItem[] = [];
+    if (sell_list.length == 1) {
+      const ele = sell_list[0];
+      sell_list_new.push(
+        {
+          price: max_price,
+          accumulated_x_readable: ele.accumulated_x_readable,
+          accumulated_y_readable: ele.accumulated_y_readable,
+        },
+        ele,
+        {
+          price: ele.price,
+          accumulated_x_readable: '0',
+          accumulated_y_readable: '0',
+        }
+      );
+    } else {
+      sell_list.forEach((item: IOrderPointItem, index) => {
+        if (index == 0) {
+          sell_list_new.push({
+            price: max_price,
+            accumulated_x_readable: item.accumulated_x_readable,
+            accumulated_y_readable: item.accumulated_y_readable,
+          });
+        }
+        if (index < sell_list.length - 1) {
+          const nextItem = sell_list[index + 1];
+          sell_list_new.push(item, {
+            price: item.price,
+            accumulated_x_readable: nextItem.accumulated_x_readable,
+            accumulated_y_readable: nextItem.accumulated_y_readable,
+          });
+        }
+        if (index == sell_list.length - 1) {
+          sell_list_new.push(item, {
+            price: item.price,
+            accumulated_x_readable: '0',
+            accumulated_y_readable: '0',
+          });
+        }
+      });
+    }
+    const price_range: number[] = [+min_price, +max_price];
+    const amount_range: number[] = [+amounts[amounts.length - 1], 0];
+    return {
+      price_range,
+      amount_range,
+      buy_list_new,
+      sell_list_new,
+    };
+  }
   function clearChart() {
     d3.selectAll('.axisBottom *').remove();
     d3.selectAll('.axisRight *').remove();
@@ -1077,9 +1193,9 @@ interface IOrderPoint {
   [point: string]: IOrderPointItem;
 }
 interface IOrderPointItem {
-  point: number;
-  amount_x: string;
-  amount_y: string;
+  point?: number;
+  amount_x?: string;
+  amount_y?: string;
   price?: string;
   amount_x_readable?: string;
   amount_y_readable?: string;
