@@ -44,15 +44,16 @@ export default function SwapLimitOrderChart() {
   const right_point = 600000;
   useEffect(() => {
     if (pool_id) {
-      if (market_loading) {
-        refresh();
-      } else {
-        get_points_of_orders();
-        get_pool_detail();
-        set_switch_token('X');
-      }
+      get_points_of_orders();
+      get_pool_detail();
+      set_switch_token('X');
     }
-  }, [pool_id, market_loading]);
+  }, [pool_id]);
+  useEffect(() => {
+    if (pool_id && market_loading) {
+      refresh();
+    }
+  }, [market_loading]);
   useEffect(() => {
     if (pool && orders) {
       process_orders();
@@ -391,13 +392,13 @@ export default function SwapLimitOrderChart() {
             className="p-3 pr-0 overflow-auto"
             style={{ maxHeight: `${limitOrderContainerHeight}px` }}
           >
-            {buy_list?.map((item: IOrderPointItem, index) => {
+            {sell_list?.map((item: IOrderPointItem, index) => {
               return (
                 <div
                   key={item.point + index}
                   className="flex items-center justify-between text-xs py-1.5 pr-2"
                 >
-                  <span className="text-gradientFromHover">
+                  <span className="text-sellColorNew">
                     {formatPrice(item.price)}
                   </span>
                   <span className="text-white">
@@ -415,9 +416,7 @@ export default function SwapLimitOrderChart() {
             })}
           </div>
           <div className="flex items-center mt-2.5 pl-3">
-            <span className="text-xs text-white cursor-pointer mr-2">
-              Market Pirce
-            </span>
+            <span className="text-xs text-white mr-2">Market Pirce</span>
             <RefreshIcon
               className={`cursor-pointer ${
                 market_loading ? 'refresh-loader' : ''
@@ -429,13 +428,13 @@ export default function SwapLimitOrderChart() {
             className="p-3 pr-0 overflow-auto"
             style={{ maxHeight: `${limitOrderContainerHeight}px` }}
           >
-            {sell_list?.map((item: IOrderPointItem, index) => {
+            {buy_list?.map((item: IOrderPointItem, index) => {
               return (
                 <div
                   key={item.point + index}
                   className="flex items-center justify-between text-xs py-1.5 pr-2"
                 >
-                  <span className="text-sellColorNew">
+                  <span className="text-gradientFromHover">
                     {formatPrice(item.price)}
                   </span>
                   <span className="text-white">
