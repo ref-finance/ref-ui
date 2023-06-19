@@ -11,14 +11,14 @@ export default function AdSwiper() {
   const [closeStatus, setCloseStatus] = useState(true);
   useEffect(() => {
     const popupSwiper = localStorage.getItem('ad-announcement');
-    if (popupSwiper == '2') {
+    if (popupSwiper == '3') {
       setCloseStatus(true);
     } else {
       setCloseStatus(false);
     }
   }, []);
   const closePop = (e: any) => {
-    localStorage.setItem('ad-announcement', '2');
+    localStorage.setItem('ad-announcement', '3');
     e.stopPropagation();
     setCloseStatus(true);
   };
@@ -99,13 +99,13 @@ export default function AdSwiper() {
                 {is_mobile ? (
                   <DCLPNearMobile
                     onClick={() => {
-                      location.href = '/v2farms/pNEAR<>NEAR@2000[4680-5880]-r';
+                      location.href = '/v2farms/pNEAR<>NEAR@2000[5000-5880]-r';
                     }}
                   ></DCLPNearMobile>
                 ) : (
                   <DCLPNear
                     onClick={() => {
-                      location.href = '/v2farms/pNEAR<>NEAR@2000[4680-5880]-r';
+                      location.href = '/v2farms/pNEAR<>NEAR@2000[5000-5880]-r';
                     }}
                   ></DCLPNear>
                 )}
