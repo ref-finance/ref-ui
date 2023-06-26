@@ -43,12 +43,11 @@ import _ from 'lodash';
 import { REF_POOL_NAV_TAB_KEY } from './PoolTabV3';
 import { useWalletSelector } from '~context/WalletSelectorContext';
 import { getDclUserPoints } from '../../services/indexer';
-import { SLOT_NUMBER } from '../../services/near';
 import Big from 'big.js';
 import { IntegerInputComponent } from '../../pages/poolsV3/AddYourLiquidityPageV3';
 
 export type RemoveType = 'left' | 'right' | 'all';
-
+const SLOT_NUMBER = 2; // todo
 export const RemovePoolV3 = (props: any) => {
   const {
     tokenMetadata_x_y,
