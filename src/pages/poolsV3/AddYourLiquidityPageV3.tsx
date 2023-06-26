@@ -748,6 +748,7 @@ export default function AddYourLiquidityPageV3() {
         onlyAddXToken,
         onlyAddYToken,
         invalidRange,
+        isSignedIn,
       }}
     >
       <div className="m-20">
@@ -1099,13 +1100,13 @@ export default function AddYourLiquidityPageV3() {
                   }
                 )}
               </div>
-
-              <div className="font-gothamBold mt-4 text-white">
+              {/* todo */}
+              {/* <div className="font-gothamBold mt-4 text-white">
                 <FormattedMessage
                   id="silmulate_liquidity_distribution"
                   defaultMessage={'Silmulate Liquidity Distribution'}
                 ></FormattedMessage>
-              </div>
+              </div> */}
               {currentSelectedPool && currentSelectedPool.pool_id && (
                 <AddLiquidityButton></AddLiquidityButton>
               )}
@@ -1864,6 +1865,8 @@ function SetPointsComponent() {
 
     SLOT_NUMBER,
     BIN_WIDTH,
+
+    isSignedIn,
   } = useContext(LiquidityProviderData);
   const [priceRangeMode, setPriceRangeMode] = useState<
     'by_range' | 'by_radius'
@@ -1878,6 +1881,7 @@ function SetPointsComponent() {
   const [leftInputStatus, setLeftInputStatus] = useState(false);
   const [rightInputStatus, setRightInputStatus] = useState(false);
   const [targetInputStatus, setTargetInputStatus] = useState(false);
+  const [chartTab, setChartTab] = useState<'liquidity' | 'yours'>('liquidity');
   const { token_x, token_y } = currentSelectedPool;
   const token_x_decimals =
     tokenX.id == token_x ? tokenX.decimals : tokenY.decimals;
@@ -1890,6 +1894,7 @@ function SetPointsComponent() {
       setTargetPoint(currentSelectedPool.current_point);
       setRadius(3);
       setPriceRangeMode('by_range');
+      setChartTab('liquidity');
     }
   }, [currentSelectedPool, tokenX, tokenY]);
   // change event in radius mode
@@ -1998,8 +2003,6 @@ function SetPointsComponent() {
       setBinNumber(v);
     }
   }
-  console.log('leftPoint', leftPoint);
-  console.log('rightPoint', rightPoint);
   return (
     <div
       className={`w-full xs:w-full md:w-full flex  mr-6 flex-col justify-between self-stretch xs:mt-5 md:mt-5`}
@@ -2008,32 +2011,55 @@ function SetPointsComponent() {
       <div className="relative mb-5 mt-24">
         <div className="absolute left-0 -top-24 inline-flex items-center justify-between bg-detailCardBg rounded-lg border border-dclTabBorderColor p-0.5">
           <span
-            className={`w-20 frcc text-xs gotham_bold px-3 py-1.5 rounded-md ${
-              true ? 'text-black bg-gradientFromHover' : 'text-primaryText'
+            onClick={() => {
+              setChartTab('liquidity');
+            }}
+            className={`w-20 frcc text-xs gotham_bold px-3 py-1.5 rounded-md cursor-pointer ${
+              chartTab == 'liquidity'
+                ? 'text-black bg-gradientFromHover'
+                : 'text-primaryText'
             }`}
           >
             Liquidity
           </span>
           <span
-            className={`w-20 frcc text-xs gotham_bold px-3 py-1.5 rounded-md ${
-              false ? 'text-black bg-gradientFromHover' : 'text-primaryText'
+            className={`w-20 frcc text-xs gotham_bold px-3 py-1.5 rounded-md cursor-pointer ${
+              isSignedIn ? '' : 'hidden'
+            } ${
+              chartTab == 'yours'
+                ? 'text-black bg-gradientFromHover'
+                : 'text-primaryText'
             }`}
+            onClick={() => {
+              setChartTab('yours');
+            }}
           >
             Yours
           </span>
         </div>
-        {leftPoint && rightPoint && (
-          <DclChart
-            pool_id={currentSelectedPool?.pool_id}
-            leftPoint={leftPoint}
-            rightPoint={rightPoint}
-            setLeftPoint={setLeftPoint}
-            setRightPoint={setRightPoint}
-            config={{
-              radiusMode: priceRangeMode == 'by_radius',
-              targetPoint,
-            }}
-          ></DclChart>
+        <div className={`${chartTab == 'liquidity' ? '' : 'hidden'}`}>
+          {leftPoint && rightPoint && (
+            <DclChart
+              pool_id={currentSelectedPool?.pool_id}
+              leftPoint={leftPoint}
+              rightPoint={rightPoint}
+              setLeftPoint={setLeftPoint}
+              setRightPoint={setRightPoint}
+              config={{
+                radiusMode: priceRangeMode == 'by_radius',
+                targetPoint,
+              }}
+            ></DclChart>
+          )}
+        </div>
+        {isSignedIn && (
+          <div className={`${chartTab == 'yours' ? '' : 'hidden'}`}>
+            <DclChart
+              pool_id={currentSelectedPool?.pool_id}
+              config={{ controlHidden: true }}
+              chartType="USER"
+            ></DclChart>
+          </div>
         )}
       </div>
       {/* set price range area */}
