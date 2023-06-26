@@ -50,4 +50,6 @@ export interface IPoolChartConfig {
   axisHidden?: boolean;
   currentBarHidden?: boolean;
   hoverBoxHidden?: boolean;
+  radiusMode?: boolean;
+  targetPoint?: number;
 }

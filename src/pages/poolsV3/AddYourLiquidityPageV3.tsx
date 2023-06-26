@@ -1,4 +1,10 @@
-import React, { useState, useContext, useEffect, useRef } from 'react';
+import React, {
+  useState,
+  useContext,
+  useEffect,
+  useRef,
+  createContext,
+} from 'react';
 
 import {
   ReturnIcon,
@@ -50,7 +56,6 @@ import {
   PoolInfo,
   get_pool_marketdepth,
   regularizedPoint,
-  AddLiquidityInfo,
   batch_add_liquidity,
 } from '../../services/swapV3';
 import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
@@ -64,14 +69,13 @@ import {
   POINTLEFTRANGE,
   POINTRIGHTRANGE,
   useAddAndRemoveUrlHandle,
-  drawChartData,
-  TOKEN_LIST_FOR_RATE,
   get_matched_seeds_for_dcl_pool,
   get_all_seeds,
-  displayNumberToAppropriateDecimals,
   get_pool_id,
   get_pool_name,
   openUrl,
+  getBinPointByPrice,
+  getBinPointByPoint,
 } from '../../services/commonV3';
 import {
   formatWithCommas,
@@ -85,7 +89,7 @@ import {
   ONLY_ZEROS,
 } from '~utils/numbers';
 import { WalletContext } from '../../utils/wallets-integration';
-import _, { set } from 'lodash';
+import _, { forEach, set } from 'lodash';
 import BigNumber from 'bignumber.js';
 import { toRealSymbol } from '../../utils/token';
 import ReactTooltip from 'react-tooltip';
@@ -108,43 +112,60 @@ import {
   SpotShape,
   BidAskShape,
 } from '../Orderly/components/Common/Icons';
-import { SLOT_NUMBER } from '~services/near';
 import DclChart from '../../components/d3Chart/DclChart';
-
-export type LiquidityShape = 'Spot' | 'Curve' | 'BidAsk';
-
+import {
+  IAddLiquidityInfo,
+  IaddLiquidityInfoHelp,
+  LiquidityShape,
+  PriceRangeModeType,
+} from './interfaces';
+import {
+  get_custom_config_for_chart,
+  get_default_config_for_chart,
+} from '../../components/d3Chart/config';
+import {
+  IChartItemConfig,
+  IChartConfig,
+} from '../../components/d3Chart/interfaces';
+import { isInvalid } from '../../components/d3Chart/utils';
+const LiquidityProviderData = createContext(null);
 export default function AddYourLiquidityPageV3() {
   const [tokenX, setTokenX] = useState<TokenMetadata>(null);
   const [tokenY, setTokenY] = useState<TokenMetadata>(null);
   const [tokenXAmount, setTokenXAmount] = useState('');
   const [tokenYAmount, setTokenYAmount] = useState('');
+  const [leftPoint, setLeftPoint] = useState<number>();
+  const [rightPoint, setRightPoint] = useState<number>();
+  const [currentPoint, setCurrentPoint] = useState<number>();
+  const [onlyAddYToken, setOnlyAddYToken] = useState(false);
+  const [onlyAddXToken, setOnlyAddXToken] = useState(false);
+  const [invalidRange, setInvalidRange] = useState(false);
+  const [currentSelectedPool, setCurrentSelectedPool] =
+    useState<PoolInfo>(null);
+
   const [listPool, setListPool] = useState<PoolInfo[]>([]);
-
-  const [binNumber, setBinNumber] = useState(10);
-  const [curPointInBinBoundry, setCurPointInBinBoundry] = useState(false);
-
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
   const [currentPools, setCurrentPools] =
     useState<Record<string, PoolInfo>>(null);
-  const [onlyAddYToken, setOnlyAddYToken] = useState(false); // real
-  const [onlyAddXToken, setOnlyAddXToken] = useState(false); // real
-  const [invalidRange, setInvalidRange] = useState(false); // real
   const [tokenXBalanceFromNear, setTokenXBalanceFromNear] = useState<string>();
   const [tokenYBalanceFromNear, setTokenYBalanceFromNear] = useState<string>();
-  const [leftPoint, setLeftPoint] = useState<number>(0); // real
-  const [rightPoint, setRightPoint] = useState<number>(0); // real
-  const [currentPoint, setCurrentPoint] = useState<number>(); // real
-  const [currentSelectedPool, setCurrentSelectedPool] =
-    useState<PoolInfo>(null); // real
+
   const [feeBoxStatus, setFeeBoxStatus] = useState(true);
   const [buttonSort, setButtonSort] = useState(false);
   const [selectHover, setSelectHover] = useState(false);
-  const [topPairs, setTopPairs] = useState([]);
-  const [seed_list, set_seed_list] = useState<Seed[]>();
-  const [related_seeds, set_related_seeds] = useState<Seed[]>([]);
   const [hoverFeeBox, setHoverFeeBox] = useState<boolean>(false);
 
+  // abandon
+  const [seed_list, set_seed_list] = useState<Seed[]>();
+  const [related_seeds, set_related_seeds] = useState<Seed[]>([]);
+
+  // new
+  const [binNumber, setBinNumber] = useState();
   const [liquidityShape, setLiquidityShape] = useState<LiquidityShape>('Spot');
+  const [curPointInBinBoundry, setCurPointInBinBoundry] = useState(false);
+  const [topPairs, setTopPairs] = useState([]);
+  const [SLOT_NUMBER, SET_SLOT_NUMBER] = useState<number>();
+  const [BIN_WIDTH, SET_BIN_WIDTH] = useState<number>();
 
   // callBack handle
   useAddAndRemoveUrlHandle();
@@ -158,10 +179,6 @@ export default function AddYourLiquidityPageV3() {
   const intl = useIntl();
   const intl_select = intl.formatMessage({ id: 'select_s' });
   const OPEN_CREATE_POOL_ENTRY = false;
-
-  const [priceRangeMode, setPriceRangeMode] = useState<
-    'by_range' | 'by_radius'
-  >('by_range');
 
   useEffect(() => {
     getBoostTokenPrices().then(setTokenPriceList);
@@ -225,7 +242,6 @@ export default function AddYourLiquidityPageV3() {
       getTopPairs();
     }
   }, [listPool, tokenPriceList]);
-
   // trigger
   useEffect(() => {
     if (
@@ -237,6 +253,18 @@ export default function AddYourLiquidityPageV3() {
     }
   }, [liquidityShape]);
 
+  // new
+  useEffect(() => {
+    // init
+    if (currentSelectedPool && tokenX && tokenY) {
+      const { current_point, point_delta } = currentSelectedPool;
+      const n = get_slot_number_in_a_bin();
+      const bin_width = n * point_delta;
+      SET_SLOT_NUMBER(n);
+      SET_BIN_WIDTH(bin_width);
+      setCurrentPoint(current_point);
+    }
+  }, [currentSelectedPool, tokenX, tokenY]);
   async function getTopPairs() {
     const listPromise = listPool.map(async (p: PoolInfo) => {
       const token_x = p.token_x;
@@ -271,7 +299,6 @@ export default function AddYourLiquidityPageV3() {
     const top3 = list.slice(0, 3);
     setTopPairs(top3);
   }
-
   if (!refTokens || !triTokens || !triTokenIds) return <Loading />;
   const allTokens = getAllTokens(refTokens, triTokens);
   async function get_seeds() {
@@ -449,20 +476,20 @@ export default function AddYourLiquidityPageV3() {
     const { token_x, token_y } = currentSelectedPool;
     const sort = tokenX.id == token_x;
     setTokenXAmount(amount);
-    if (sort) {
-      if (!onlyAddXToken) {
-        const amount_result = getTokenYAmountByCondition({
-          amount,
-          leftPoint: leftPoint,
-          rightPoint: rightPoint,
-          currentPoint: currentPoint,
-        });
+    /*if (sort) {*/
+    if (!onlyAddXToken) {
+      const amount_result = getTokenYAmountByCondition({
+        amount,
+        leftPoint: leftPoint,
+        rightPoint: rightPoint,
+        currentPoint: currentPoint,
+      });
 
-        if (liquidityShape === 'Spot') {
-          setTokenYAmount(amount_result);
-        }
+      if (liquidityShape === 'Spot') {
+        setTokenYAmount(amount_result);
       }
-    } else {
+    }
+    /*} else {
       if (!onlyAddYToken) {
         const amount_result = getTokenXAmountByCondition({
           amount,
@@ -475,25 +502,25 @@ export default function AddYourLiquidityPageV3() {
           setTokenYAmount(amount_result);
         }
       }
-    }
+    }*/
   }
   function changeTokenYAmount(amount: string = '0') {
     const { token_x, token_y } = currentSelectedPool;
     const sort = tokenX.id == token_x;
     setTokenYAmount(amount);
-    if (sort) {
-      if (!onlyAddYToken) {
-        const amount_result = getTokenXAmountByCondition({
-          amount,
-          leftPoint,
-          rightPoint,
-          currentPoint,
-        });
-        if (liquidityShape === 'Spot') {
-          setTokenXAmount(amount_result);
-        }
+    /*if (sort) {*/
+    if (!onlyAddYToken) {
+      const amount_result = getTokenXAmountByCondition({
+        amount,
+        leftPoint,
+        rightPoint,
+        currentPoint,
+      });
+      if (liquidityShape === 'Spot') {
+        setTokenXAmount(amount_result);
       }
-    } else {
+    }
+    /*} else {
       if (!onlyAddXToken) {
         const amount_result = getTokenYAmountByCondition({
           amount,
@@ -505,10 +532,9 @@ export default function AddYourLiquidityPageV3() {
           setTokenXAmount(amount_result);
         }
       }
-    }
+    }*/
   }
   function getTokenYAmountByCondition({
-    // real
     amount,
     leftPoint,
     rightPoint,
@@ -549,7 +575,6 @@ export default function AddYourLiquidityPageV3() {
     }
   }
   function getTokenXAmountByCondition({
-    // real
     amount,
     leftPoint,
     rightPoint,
@@ -591,9 +616,6 @@ export default function AddYourLiquidityPageV3() {
       return X_result.toString();
     }
   }
-  function switchFeeBoxStatus() {
-    setFeeBoxStatus(!feeBoxStatus);
-  }
   function pointChange({
     leftPoint,
     rightPoint,
@@ -607,7 +629,6 @@ export default function AddYourLiquidityPageV3() {
     const sort = tokenX.id == token_x;
     setLeftPoint(leftPoint);
     setRightPoint(rightPoint);
-    setCurrentPoint(currentPoint);
     setInvalidRange(false);
     setOnlyAddXToken(false);
     setOnlyAddYToken(false);
@@ -678,17 +699,6 @@ export default function AddYourLiquidityPageV3() {
       }
     }
   }
-  function switchButtonSort() {
-    if (tokenX || tokenY) {
-      setTokenX(tokenY);
-      setTokenY(tokenX);
-      setTokenXAmount(tokenYAmount);
-      setTokenYAmount(tokenXAmount);
-      setTokenXBalanceFromNear(tokenYBalanceFromNear);
-      setTokenYBalanceFromNear(tokenXBalanceFromNear);
-    }
-    setButtonSort(!buttonSort);
-  }
   function displayTvl(tvl: any) {
     if (!tokenPriceList) {
       return '-';
@@ -700,33 +710,59 @@ export default function AddYourLiquidityPageV3() {
       return `$${toInternationalCurrencySystem(tvl.toString(), 0)}`;
     }
   }
-  function goPoolsPage() {
-    const poolId = currentSelectedPool?.pool_id;
-    if (poolId) {
-      const newPoolId = get_pool_name(poolId);
-      openUrl(`/poolV2/${newPoolId}`);
-    } else {
-      localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'v2');
-      openUrl('/pools');
-    }
+  // start
+  function get_slot_number_in_a_bin() {
+    const pool_id = currentSelectedPool?.pool_id;
+    const { bin } = get_default_config_for_chart() as IChartItemConfig;
+    const custom_config: IChartConfig = get_custom_config_for_chart();
+    const slots = custom_config[pool_id]?.bin || bin;
+    return slots;
   }
   const tokenSort = tokenX?.id == currentSelectedPool?.token_x;
   const mobileDevice = isMobile();
+
   return (
-    <>
+    <LiquidityProviderData.Provider
+      value={{
+        get_slot_number_in_a_bin,
+        binNumber,
+        setBinNumber,
+        currentSelectedPool,
+        tokenX,
+        tokenY,
+        pointChange,
+        setCurPointInBinBoundry,
+        setCurrentSelectedPool,
+        leftPoint,
+        setLeftPoint,
+        rightPoint,
+        setRightPoint,
+        currentPoint,
+        SLOT_NUMBER,
+        BIN_WIDTH,
+        liquidityShape,
+        tokenXAmount,
+        tokenYAmount,
+        tokenXBalanceFromNear,
+        tokenYBalanceFromNear,
+        onlyAddXToken,
+        onlyAddYToken,
+        invalidRange,
+      }}
+    >
       <div className="m-20">
         {/* 缩略图 */}
         {/* <DclChart pool_id={currentSelectedPool?.pool_id} config={{axisHidden: true, controlHidden: true, currentBarHidden: true, hoverBoxHidden: true, svgWidth:'80', svgHeight:'32', svgPaddingX:'0'}}></DclChart> */}
         {/* 详情页图 */}
         {/* <DclChart pool_id={currentSelectedPool?.pool_id} config={{axisHidden: true, controlHidden: true}}></DclChart> */}
         {/* 添加页图 */}
-        <DclChart pool_id={currentSelectedPool?.pool_id}></DclChart>
+        {/* <DclChart pool_id={currentSelectedPool?.pool_id}></DclChart> */}
         {/* 用户流动性图表*/}
-        <DclChart
+        {/* <DclChart
           pool_id={currentSelectedPool?.pool_id}
           config={{ controlHidden: true }}
           chartType="USER"
-        ></DclChart>
+        ></DclChart> */}
         {/* 删除流动性图表 从右侧部分删除 */}
         {/* <DclChart pool_id={currentSelectedPool?.pool_id} config={{controlHidden: true, currentBarHidden: true, hoverBoxHidden: true}} chartType='USER' removeParams={{ fromRight:true, point:  408800}}></DclChart> */}
         {/* 删除流动性图表 从左侧部分删除 */}
@@ -735,6 +771,7 @@ export default function AddYourLiquidityPageV3() {
         {/* <DclChart pool_id={currentSelectedPool?.pool_id} config={{controlHidden: true, currentBarHidden: true, hoverBoxHidden: true}} chartType='USER' removeParams={{ all: true }}></DclChart> */}
       </div>
 
+      {/* mobile head */}
       <div className="m-auto xs:w-full md:w-full xs:px-3 md:px-3 flex items-center mb-5 lg:hidden">
         <div
           className="cursor-pointer flex items-center justify-center w-6 h-6"
@@ -750,6 +787,7 @@ export default function AddYourLiquidityPageV3() {
         style={{ width: mobileDevice ? '' : '1020px' }}
         className="relative flex flex-col  lg:w-4/5 2xl:w-3/5 xs:w-full md:w-full xs:px-3 md:px-3 m-auto text-white rounded-2xl "
       >
+        {/* pc head */}
         <div
           className=" xs:w-full max-w-max  md:w-full xs:px-3 md:px-3 text-farmText flex items-center mb-5 cursor-pointer hover:text-white"
           onClick={() => {
@@ -767,27 +805,14 @@ export default function AddYourLiquidityPageV3() {
           </span>
         </div>
 
+        {/* content */}
         <div
           className="relative z-10 py-5 px-7 xs:px-3 md:px-3 rounded-2xl"
           style={{
             background: 'linear-gradient(180deg, #213441 0%, #15242F 100%)',
           }}
         >
-          {/* <div className="relative flex items-center justify-center mb-7 xs:hidden md:hidden">
-              <div
-                className="absolute -left-1 cursor-pointer flex items-center justify-center w-6 h-6"
-                onClick={goYourLiquidityPage}
-              >
-                <ReturnIcon></ReturnIcon>
-              </div>
-              <span className="text-white text-base gotham_bold">
-                <FormattedMessage id="add_liquidity"></FormattedMessage>
-              </span>
-            </div> */}
           <div className="flex items-start justify-between xs:flex-col md:flex-col">
-            {/* left area */}
-
-            {/* right area */}
             {/* no Data */}
             {currentSelectedPool ? null : <NoDataComponent></NoDataComponent>}
             {/* add pool part */}
@@ -808,31 +833,11 @@ export default function AddYourLiquidityPageV3() {
               <NoDataComponent isNoPool={true}></NoDataComponent>
             ) : null}
             {/* add Liquidity part */}
+            {/* left area */}
             {currentSelectedPool && currentSelectedPool.pool_id ? (
-              <AddLiquidityComponent
-                currentSelectedPool={currentSelectedPool}
-                tokenX={tokenX}
-                tokenY={tokenY}
-                setCurrentSelectedPool={setCurrentSelectedPool}
-                tokenXAmount={tokenXAmount}
-                tokenYAmount={tokenYAmount}
-                tokenXBalanceFromNear={tokenXBalanceFromNear}
-                tokenYBalanceFromNear={tokenYBalanceFromNear}
-                tokenPriceList={tokenPriceList}
-                onlyAddXToken={onlyAddXToken}
-                onlyAddYToken={onlyAddYToken}
-                invalidRange={invalidRange}
-                pointChange={pointChange}
-                seeds={related_seeds}
-                priceRangeMode={priceRangeMode}
-                setPriceRangeMode={setPriceRangeMode}
-                binNumber={binNumber}
-                setBinNumber={setBinNumber}
-                curPointInBinBoundry={curPointInBinBoundry}
-                setCurPointInBinBoundry={setCurPointInBinBoundry}
-              ></AddLiquidityComponent>
+              <SetPointsComponent></SetPointsComponent>
             ) : null}
-
+            {/* right area */}
             <div
               style={{ width: mobileDevice ? '' : '400px' }}
               className="flex-shrink-0 xs:w-full md:w-full"
@@ -1102,33 +1107,8 @@ export default function AddYourLiquidityPageV3() {
                 ></FormattedMessage>
               </div>
               {currentSelectedPool && currentSelectedPool.pool_id && (
-                <AddLiquidityButton
-                  currentSelectedPool={currentSelectedPool}
-                  tokenX={tokenX}
-                  tokenY={tokenY}
-                  tokenXAmount={tokenXAmount}
-                  tokenYAmount={tokenYAmount}
-                  tokenXBalanceFromNear={tokenXBalanceFromNear}
-                  tokenYBalanceFromNear={tokenYBalanceFromNear}
-                  tokenPriceList={tokenPriceList}
-                  onlyAddXToken={onlyAddXToken}
-                  onlyAddYToken={onlyAddYToken}
-                  invalidRange={invalidRange}
-                  pointChange={pointChange}
-                  seeds={related_seeds}
-                  priceRangeMode={priceRangeMode}
-                  setPriceRangeMode={setPriceRangeMode}
-                  binNumber={binNumber}
-                  setBinNumber={setBinNumber}
-                  curPointInBinBoundry={curPointInBinBoundry}
-                  setCurPointInBinBoundry={setCurPointInBinBoundry}
-                  getTokenYAmountByCondition={getTokenYAmountByCondition}
-                  getTokenXAmountByCondition={getTokenXAmountByCondition}
-                  liquidityShape={liquidityShape}
-                  setLiquidityShape={setLiquidityShape}
-                />
+                <AddLiquidityButton></AddLiquidityButton>
               )}
-
               <div className="mt-5">
                 <OneSide
                   show={
@@ -1144,7 +1124,1104 @@ export default function AddYourLiquidityPageV3() {
           </div>
         </div>
       </div>
-    </>
+    </LiquidityProviderData.Provider>
+  );
+}
+
+function AddLiquidityButton() {
+  const {
+    currentSelectedPool,
+    tokenX,
+    tokenY,
+    binNumber,
+    SLOT_NUMBER,
+    leftPoint,
+    rightPoint,
+    currentPoint,
+    liquidityShape,
+    tokenXAmount,
+    tokenYAmount,
+    tokenXBalanceFromNear,
+    tokenYBalanceFromNear,
+    onlyAddXToken,
+    onlyAddYToken,
+    invalidRange,
+  } = useContext(LiquidityProviderData);
+  console.log('leftPoint', leftPoint);
+  console.log('rightPoint', rightPoint);
+  const tokenSort = tokenX.id == currentSelectedPool.token_x;
+  const [addLiquidityButtonLoading, setAddLiquidityButtonLoading] =
+    useState(false);
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
+  const { token_x, token_y, point_delta, pool_id } = currentSelectedPool;
+  const max_nft_divisional_per_side = 3;
+  const token_x_decimals =
+    tokenX.id == token_x ? tokenX.decimals : tokenY.decimals;
+  const token_y_decimals =
+    tokenY.id == token_y ? tokenY.decimals : tokenX.decimals;
+
+  function addLiquiditySpot() {
+    setAddLiquidityButtonLoading(true);
+    const { pool_id } = currentSelectedPool;
+    add_liquidity({
+      pool_id,
+      left_point: leftPoint,
+      right_point: rightPoint,
+      amount_x: toNonDivisibleNumber(tokenX.decimals, tokenXAmount || '0'),
+      amount_y: toNonDivisibleNumber(tokenY.decimals, tokenYAmount || '0'),
+      token_x: tokenX,
+      token_y: tokenY,
+      // amount_x: tokenSort
+      //   ? toNonDivisibleNumber(tokenX.decimals, tokenXAmount || '0')
+      //   : toNonDivisibleNumber(tokenY.decimals, tokenYAmount || '0'),
+      // amount_y: tokenSort
+      //   ? toNonDivisibleNumber(tokenY.decimals, tokenYAmount || '0')
+      //   : toNonDivisibleNumber(tokenX.decimals, tokenXAmount || '0'),
+      // token_x: tokenSort ? tokenX : tokenY,
+      // token_y: tokenSort ? tokenY : tokenX,
+    });
+  }
+  function addLiquidityForCurveAndBidAskMode() {
+    /**
+     *  已知条件:
+     *  bin的数量、一个bin里 slot的数量、leftPoint、rightPoint、tokenXAmount、tokenYAmount
+     *  当前点位为point，以slot为单位 下一跳是 point + slot
+     *  当前点位为point，以bin为单位 下一跳是 point + bin * slots
+     *  最小的bin的高度就是等差的值 为dis
+     **/
+    setAddLiquidityButtonLoading(true);
+    const tokenXAmount_nonDivisible = toNonDivisibleNumber(
+      tokenX.decimals,
+      tokenXAmount || '0'
+    );
+    const tokenYAmount_nonDivisible = toNonDivisibleNumber(
+      tokenY.decimals,
+      tokenYAmount || '0'
+    );
+    let nftList: IAddLiquidityInfo[] = [];
+    const get_x_nfts =
+      liquidityShape == 'Curve'
+        ? get_decline_pattern_nfts
+        : get_rise_pattern_nfts;
+    const get_y_nfts =
+      liquidityShape == 'Curve'
+        ? get_rise_pattern_nfts
+        : get_decline_pattern_nfts;
+    if (onlyAddYToken) {
+      nftList = get_y_nfts({
+        left_point: leftPoint,
+        right_point: rightPoint,
+        token: tokenY,
+        token_amount: tokenYAmount,
+        formula_fun: formula_of_token_y,
+        is_token_y: true,
+      });
+    }
+    if (onlyAddXToken) {
+      nftList = get_x_nfts({
+        left_point: leftPoint,
+        right_point: rightPoint,
+        token: tokenX,
+        token_amount: tokenXAmount,
+        formula_fun: formula_of_token_x,
+        is_token_x: true,
+      });
+    }
+    if (!onlyAddXToken && !onlyAddYToken) {
+      /**
+       * 把包含当前点位的那个bin单独拿出来作为一个nft处理，不参与做等差，因为参与做等差会导致 不成立。
+       * 除去参与做等差的 x,y,剩余 x,y 作为一个nft,由于这个nft的liquidity太小了，不能添加，可以忽略。
+       * */
+      const current_l_point = getBinPointByPoint(
+        point_delta,
+        SLOT_NUMBER,
+        currentPoint,
+        'floor'
+      );
+      const current_r_point = getBinPointByPoint(
+        point_delta,
+        SLOT_NUMBER,
+        currentPoint,
+        'ceil'
+      );
+      const nftList_y = get_y_nfts({
+        left_point: leftPoint,
+        right_point: current_l_point,
+        token: tokenY,
+        token_amount: tokenYAmount,
+        formula_fun: formula_of_token_y,
+        is_token_y: true,
+      });
+      const nftList_x = get_x_nfts({
+        left_point: current_r_point,
+        right_point: rightPoint,
+        token: tokenX,
+        token_amount: tokenXAmount,
+        formula_fun: formula_of_token_x,
+        is_token_x: true,
+      });
+      /** 包含当前点位的bin start */
+      const used_x_amount = nftList_x.reduce((acc, cur) => {
+        return acc.plus(cur.amount_x || '0');
+      }, Big(0));
+      const used_y_amount = nftList_y.reduce((acc, cur) => {
+        return acc.plus(cur.amount_y || '0');
+      }, Big(0));
+      const current_bin_nft: IAddLiquidityInfo = {
+        pool_id,
+        left_point: current_l_point,
+        right_point: current_r_point,
+        amount_x: Big(tokenXAmount_nonDivisible)
+          .minus(used_x_amount)
+          .toFixed(0),
+        amount_y: Big(tokenYAmount_nonDivisible)
+          .minus(used_y_amount)
+          .toFixed(0),
+        min_amount_x: '0',
+        min_amount_y: '0',
+      };
+      /** 包含当前点位的bin end */
+      nftList = nftList_x.concat(nftList_y);
+    }
+    batch_add_liquidity({
+      liquidityInfos: nftList,
+      token_x: tokenX,
+      token_y: tokenY,
+      amount_x: tokenXAmount_nonDivisible,
+      amount_y: tokenYAmount_nonDivisible,
+    });
+  }
+  // 待删除项
+  function addLiquidityCurve() {
+    /**
+     *  已知条件:
+     *  bin的数量、一个bin里 slot的数量、leftPoint、rightPoint、tokenXAmount、tokenYAmount
+     *  当前点位为point，以slot为单位 下一跳是 point + slot
+     *  当前点位为point，以bin为单位 下一跳是 point + bin * slots
+     *  最小的bin的高度就是等差的值 为dis
+     **/
+    setAddLiquidityButtonLoading(true);
+    const tokenXAmount_nonDivisible = toNonDivisibleNumber(
+      tokenX.decimals,
+      tokenXAmount || '0'
+    );
+    const tokenYAmount_nonDivisible = toNonDivisibleNumber(
+      tokenY.decimals,
+      tokenYAmount || '0'
+    );
+    let nftList: IAddLiquidityInfo[] = [];
+    if (onlyAddYToken) {
+      nftList = get_rise_pattern_nfts({
+        left_point: leftPoint,
+        right_point: rightPoint,
+        token: tokenY,
+        token_amount: tokenYAmount,
+        formula_fun: formula_of_token_y,
+        is_token_y: true,
+      });
+    }
+    if (onlyAddXToken) {
+      nftList = get_decline_pattern_nfts({
+        left_point: leftPoint,
+        right_point: rightPoint,
+        token: tokenX,
+        token_amount: tokenXAmount,
+        formula_fun: formula_of_token_x,
+        is_token_x: true,
+      });
+    }
+    if (!onlyAddXToken && !onlyAddYToken) {
+      /**
+       * 把包含当前点位的那个bin单独拿出来作为一个nft处理，不参与做等差，因为参与做等差会导致 不成立。
+       * 除去参与做等差的 x,y,剩余 x,y 作为一个nft,由于这个nft的liquidity太小了，不能添加，可以忽略。
+       * */
+      const current_l_point = getBinPointByPoint(
+        point_delta,
+        SLOT_NUMBER,
+        currentPoint,
+        'floor'
+      );
+      const current_r_point = getBinPointByPoint(
+        point_delta,
+        SLOT_NUMBER,
+        currentPoint,
+        'ceil'
+      );
+      const nftList_y = get_rise_pattern_nfts({
+        left_point: leftPoint,
+        right_point: current_l_point,
+        token: tokenY,
+        token_amount: tokenYAmount,
+        formula_fun: formula_of_token_y,
+        is_token_y: true,
+      });
+      const nftList_x = get_decline_pattern_nfts({
+        left_point: current_r_point,
+        right_point: rightPoint,
+        token: tokenX,
+        token_amount: tokenXAmount,
+        formula_fun: formula_of_token_x,
+        is_token_x: true,
+      });
+      /** 包含当前点位的bin start */
+      const used_x_amount = nftList_x.reduce((acc, cur) => {
+        return acc.plus(cur.amount_x || '0');
+      }, Big(0));
+      const used_y_amount = nftList_y.reduce((acc, cur) => {
+        return acc.plus(cur.amount_y || '0');
+      }, Big(0));
+      const current_bin_nft: IAddLiquidityInfo = {
+        pool_id,
+        left_point: current_l_point,
+        right_point: current_r_point,
+        amount_x: Big(tokenXAmount_nonDivisible)
+          .minus(used_x_amount)
+          .toFixed(0),
+        amount_y: Big(tokenYAmount_nonDivisible)
+          .minus(used_y_amount)
+          .toFixed(0),
+        min_amount_x: '0',
+        min_amount_y: '0',
+      };
+      /** 包含当前点位的bin end */
+      nftList = nftList_x.concat(nftList_y);
+    }
+    batch_add_liquidity({
+      liquidityInfos: nftList,
+      token_x: tokenX,
+      token_y: tokenY,
+      amount_x: tokenXAmount_nonDivisible,
+      amount_y: tokenYAmount_nonDivisible,
+    });
+  }
+  function addLiquidityBidAsk() {
+    /**
+     *  已知条件:
+     *  bin的数量、一个bin里 slot的数量、leftPoint、rightPoint、tokenXAmount、tokenYAmount
+     *  当前点位为point，以slot为单位 下一跳是 point + slot
+     *  当前点位为point，以bin为单位 下一跳是 point + bin * slots
+     *  最小的bin的高度就是等差的值 为dis
+     **/
+    setAddLiquidityButtonLoading(true);
+    const tokenXAmount_nonDivisible = toNonDivisibleNumber(
+      tokenX.decimals,
+      tokenXAmount || '0'
+    );
+    const tokenYAmount_nonDivisible = toNonDivisibleNumber(
+      tokenY.decimals,
+      tokenYAmount || '0'
+    );
+    let nftList: IAddLiquidityInfo[] = [];
+    if (onlyAddYToken) {
+      nftList = get_decline_pattern_nfts({
+        left_point: leftPoint,
+        right_point: rightPoint,
+        token: tokenY,
+        token_amount: tokenYAmount,
+        formula_fun: formula_of_token_y,
+        is_token_y: true,
+      });
+    }
+    if (onlyAddXToken) {
+      nftList = get_rise_pattern_nfts({
+        left_point: leftPoint,
+        right_point: rightPoint,
+        token: tokenX,
+        token_amount: tokenXAmount,
+        formula_fun: formula_of_token_x,
+        is_token_x: true,
+      });
+    }
+    if (!onlyAddXToken && !onlyAddYToken) {
+      /**
+       * 把包含当前点位的那个bin单独拿出来作为一个nft处理，不参与做等差，因为参与做等差会导致 不成立。
+       * 除去参与做等差的 x,y,剩余 x,y 作为一个nft,由于这个nft的liquidity太小了，不能添加，可以忽略。
+       * */
+      const current_l_point = getBinPointByPoint(
+        point_delta,
+        SLOT_NUMBER,
+        currentPoint,
+        'floor'
+      );
+      const current_r_point = getBinPointByPoint(
+        point_delta,
+        SLOT_NUMBER,
+        currentPoint,
+        'ceil'
+      );
+      const nftList_y = get_decline_pattern_nfts({
+        left_point: leftPoint,
+        right_point: current_l_point,
+        token: tokenY,
+        token_amount: tokenYAmount,
+        formula_fun: formula_of_token_y,
+        is_token_y: true,
+      });
+      const nftList_x = get_rise_pattern_nfts({
+        left_point: current_r_point,
+        right_point: rightPoint,
+        token: tokenX,
+        token_amount: tokenXAmount,
+        formula_fun: formula_of_token_x,
+        is_token_x: true,
+      });
+      /** 包含当前点位的bin start */
+      const used_x_amount = nftList_x.reduce((acc, cur) => {
+        return acc.plus(cur.amount_x || '0');
+      }, Big(0));
+      const used_y_amount = nftList_y.reduce((acc, cur) => {
+        return acc.plus(cur.amount_y || '0');
+      }, Big(0));
+      const current_bin_nft: IAddLiquidityInfo = {
+        pool_id,
+        left_point: current_l_point,
+        right_point: current_r_point,
+        amount_x: Big(tokenXAmount_nonDivisible)
+          .minus(used_x_amount)
+          .toFixed(0),
+        amount_y: Big(tokenYAmount_nonDivisible)
+          .minus(used_y_amount)
+          .toFixed(0),
+        min_amount_x: '0',
+        min_amount_y: '0',
+      };
+      /** 包含当前点位的bin end */
+      nftList = nftList_x.concat(nftList_y);
+    }
+    batch_add_liquidity({
+      liquidityInfos: nftList,
+      token_x: tokenX,
+      token_y: tokenY,
+      amount_x: tokenXAmount_nonDivisible,
+      amount_y: tokenYAmount_nonDivisible,
+    });
+  }
+
+  function get_decline_pattern_nfts({
+    left_point,
+    right_point,
+    token,
+    token_amount,
+    formula_fun,
+    is_token_x,
+    is_token_y,
+  }: {
+    left_point: number;
+    right_point: number;
+    token: TokenMetadata;
+    token_amount: string;
+    formula_fun: Function;
+    is_token_x?: boolean;
+    is_token_y?: boolean;
+  }) {
+    /**
+     * 从左往右逐渐下降模式
+     * nft 从右往左计算
+     * e.g.
+     * 公式推导：
+     * (dis * 常量1) + (2dis * 常量2) + ...(n*dis * 常量n) = tokenXAmount
+     * ===>dis(常量1 + 2常量2 + ...n*常量n) = tokenXAmount;
+     * ===>dis = tokenXAmount/(常量1 + 2常量2 + ...n*常量n)
+     * ===>求出dis后，就可以知道每个nft的amount
+     * NOTE:最后一个（最高的那个nft的宽度可能跟别的nft宽度不一致）
+     * */
+    const { pool_id, point_delta } = currentSelectedPool;
+    const slot_number_in_a_bin = SLOT_NUMBER;
+    const binWidth = slot_number_in_a_bin * point_delta;
+    const total_bin_number = (right_point - left_point) / binWidth;
+    let total_nft_number;
+    let bin_number_in_a_nft;
+    if (total_bin_number < max_nft_divisional_per_side) {
+      const unbroken_nft_number = Math.floor(total_bin_number);
+      const has_remaining = !!(total_bin_number % 1);
+      bin_number_in_a_nft = 1;
+      total_nft_number = has_remaining
+        ? unbroken_nft_number + 1
+        : unbroken_nft_number;
+    } else {
+      bin_number_in_a_nft = Math.floor(
+        total_bin_number / max_nft_divisional_per_side
+      );
+      const has_remaining = !!(total_bin_number % max_nft_divisional_per_side);
+      total_nft_number = has_remaining
+        ? max_nft_divisional_per_side + 1
+        : max_nft_divisional_per_side;
+    }
+    const nftWidth = point_delta * slot_number_in_a_bin * bin_number_in_a_nft;
+    let total_const = Big(0);
+    const addLiquidityInfoList: IAddLiquidityInfo[] = [];
+    const addLiquidityInfoHelp: IaddLiquidityInfoHelp = {};
+    for (let i = 0; i < total_nft_number; i++) {
+      let left_i_point;
+      let right_i_point;
+      if (i == total_nft_number - 1) {
+        left_i_point = left_point;
+      } else {
+        left_i_point = right_point - nftWidth * (i + 1);
+      }
+      right_i_point = right_point - nftWidth * i;
+      const const_i = Big(i + 1).mul(formula_fun(left_i_point, right_i_point));
+      total_const = total_const.plus(const_i);
+      addLiquidityInfoHelp[i] = {
+        left_point: left_i_point,
+        right_point: right_i_point,
+        const_value: const_i.toFixed(),
+      };
+    }
+    if (total_const.gt(0)) {
+      const dis = Big(
+        toNonDivisibleNumber(token.decimals, token_amount || '0')
+      ).div(total_const);
+      for (let i = 0; i < total_nft_number; i++) {
+        const { left_point, right_point, const_value } =
+          addLiquidityInfoHelp[i];
+        const amount_i = Big(dis).mul(const_value).toFixed(0);
+        addLiquidityInfoList.push({
+          pool_id,
+          left_point,
+          right_point,
+          amount_x: is_token_x ? amount_i : '0',
+          amount_y: is_token_y ? amount_i : '0',
+          min_amount_x: '0',
+          min_amount_y: '0',
+        });
+      }
+    }
+    return addLiquidityInfoList;
+  }
+
+  function get_rise_pattern_nfts({
+    left_point,
+    right_point,
+    token,
+    token_amount,
+    formula_fun,
+    is_token_x,
+    is_token_y,
+  }: {
+    left_point: number;
+    right_point: number;
+    token: TokenMetadata;
+    token_amount: string;
+    formula_fun: Function;
+    is_token_x?: boolean;
+    is_token_y?: boolean;
+  }) {
+    /**
+     * 从左往右逐渐上升模式
+     * 从左往右计算
+     * e.g.
+     * (dis * 常量1) + (2dis * 常量2) + ...(n*dis * 常量n) = tokenYAmount
+     * ===>dis(常量1 + 2常量2 + ...n*常量n) = tokenYAmount;
+     * ===>dis = tokenYAmount/(常量1 + 2常量2 + ...n*常量n)
+     * ===>求出dis后，就可以知道每个nft的amount
+     * NOTE:最后一个（最高的那个nft的宽度可能跟别的nft宽度不一致）
+     * */
+    const { pool_id, point_delta } = currentSelectedPool;
+    const slot_number_in_a_bin = SLOT_NUMBER;
+    const binWidth = slot_number_in_a_bin * point_delta;
+    const total_bin_number = (right_point - left_point) / binWidth;
+    let total_nft_number;
+    let bin_number_in_a_nft;
+    if (total_bin_number < max_nft_divisional_per_side) {
+      const unbroken_nft_number = Math.floor(total_bin_number);
+      const has_remaining = !!(total_bin_number % 1);
+      bin_number_in_a_nft = 1;
+      total_nft_number = has_remaining
+        ? unbroken_nft_number + 1
+        : unbroken_nft_number;
+    } else {
+      bin_number_in_a_nft = Math.floor(
+        total_bin_number / max_nft_divisional_per_side
+      );
+      const has_remaining = !!(total_bin_number % max_nft_divisional_per_side);
+      total_nft_number = has_remaining
+        ? max_nft_divisional_per_side + 1
+        : max_nft_divisional_per_side;
+    }
+    const nftWidth = point_delta * slot_number_in_a_bin * bin_number_in_a_nft;
+    let total_const = Big(0);
+    const addLiquidityInfoList: IAddLiquidityInfo[] = [];
+    const addLiquidityInfoHelp: IaddLiquidityInfoHelp = {};
+    for (let i = 0; i < total_nft_number; i++) {
+      const left_i_point = left_point + nftWidth * i;
+      let right_i_point;
+      if (i == total_nft_number - 1) {
+        right_i_point = right_point;
+      } else {
+        right_i_point = left_point + nftWidth * (i + 1);
+      }
+      const const_i = Big(i + 1).mul(formula_fun(left_i_point, right_i_point));
+      total_const = total_const.plus(const_i);
+      addLiquidityInfoHelp[i] = {
+        left_point: left_i_point,
+        right_point: right_i_point,
+        const_value: const_i.toFixed(),
+      };
+    }
+    if (total_const.gt(0)) {
+      const dis = Big(
+        toNonDivisibleNumber(token.decimals, token_amount || '0')
+      ).div(total_const);
+      for (let i = 0; i < total_nft_number; i++) {
+        const { left_point, right_point, const_value } =
+          addLiquidityInfoHelp[i];
+        const amount_i = Big(dis).mul(const_value).toFixed(0);
+        addLiquidityInfoList.push({
+          pool_id,
+          left_point,
+          right_point,
+          amount_x: is_token_x ? amount_i : '0',
+          amount_y: is_token_y ? amount_i : '0',
+          min_amount_x: '0',
+          min_amount_y: '0',
+        });
+      }
+    }
+    return addLiquidityInfoList;
+  }
+
+  function formula_of_token_x(leftPoint: number, rightPoint: number) {
+    return (
+      (Math.pow(Math.sqrt(CONSTANT_D), rightPoint - leftPoint) - 1) /
+      (Math.pow(Math.sqrt(CONSTANT_D), rightPoint) -
+        Math.pow(Math.sqrt(CONSTANT_D), rightPoint - 1))
+    );
+  }
+  function formula_of_token_y(leftPoint: number, rightPoint: number) {
+    return (
+      (Math.pow(Math.sqrt(CONSTANT_D), rightPoint) -
+        Math.pow(Math.sqrt(CONSTANT_D), leftPoint)) /
+      (Math.sqrt(CONSTANT_D) - 1)
+    );
+  }
+  function getMax(token: TokenMetadata, balance: string) {
+    return token.id !== WRAP_NEAR_CONTRACT_ID
+      ? balance
+      : Number(balance) <= 0.5
+      ? '0'
+      : String(Number(balance) - 0.5);
+  }
+  function getButtonText() {
+    let txt: any = (
+      <FormattedMessage id="add_liquidity" defaultMessage="Add Liquidity" />
+    );
+    if (invalidRange) {
+      txt = (
+        <FormattedMessage id="update_range" defaultMessage="Update Range" />
+      );
+    } else if (
+      (onlyAddXToken && +tokenXAmount == 0 && tokenSort) ||
+      (onlyAddXToken && +tokenYAmount == 0 && !tokenSort)
+    ) {
+      txt = (
+        <FormattedMessage
+          id="input_amount"
+          defaultMessage="Input Amount"
+        ></FormattedMessage>
+      );
+    } else if (
+      (onlyAddYToken && +tokenYAmount == 0 && tokenSort) ||
+      (onlyAddYToken && +tokenXAmount == 0 && !tokenSort)
+    ) {
+      txt = (
+        <FormattedMessage
+          id="input_amount"
+          defaultMessage="Input Amount"
+        ></FormattedMessage>
+      );
+    } else if (
+      !onlyAddXToken &&
+      !onlyAddYToken &&
+      (+tokenXAmount == 0 || +tokenYAmount == 0)
+    ) {
+      txt = (
+        <FormattedMessage
+          id="input_amount"
+          defaultMessage="Input Amount"
+        ></FormattedMessage>
+      );
+    } else if (
+      +tokenXAmount > 0 &&
+      new BigNumber(tokenXAmount).isGreaterThan(
+        getMax(tokenX, tokenXBalanceFromNear)
+      )
+    ) {
+      txt = (
+        <FormattedMessage
+          id="not_enough_balance"
+          defaultMessage="Not Enough Balance"
+        />
+      );
+    } else if (
+      +tokenYAmount > 0 &&
+      new BigNumber(tokenYAmount).isGreaterThan(
+        getMax(tokenY, tokenYBalanceFromNear)
+      )
+    ) {
+      txt = (
+        <FormattedMessage
+          id="not_enough_balance"
+          defaultMessage="Not Enough Balance"
+        />
+      );
+    }
+    return txt;
+  }
+  function getButtonStatus() {
+    const condition1 = currentSelectedPool?.pool_id;
+    let condition2;
+    if (onlyAddXToken) {
+      if (tokenSort) {
+        condition2 =
+          +tokenXAmount > 0 &&
+          new BigNumber(
+            getMax(tokenX, tokenXBalanceFromNear)
+          ).isGreaterThanOrEqualTo(tokenXAmount);
+      } else {
+        condition2 =
+          +tokenYAmount > 0 &&
+          new BigNumber(
+            getMax(tokenY, tokenYBalanceFromNear)
+          ).isGreaterThanOrEqualTo(tokenYAmount);
+      }
+    } else if (onlyAddYToken) {
+      if (tokenSort) {
+        condition2 =
+          +tokenYAmount > 0 &&
+          new BigNumber(
+            getMax(tokenY, tokenYBalanceFromNear)
+          ).isGreaterThanOrEqualTo(tokenYAmount);
+      } else {
+        condition2 =
+          +tokenXAmount > 0 &&
+          new BigNumber(
+            getMax(tokenX, tokenXBalanceFromNear)
+          ).isGreaterThanOrEqualTo(tokenXAmount);
+      }
+    } else if (!invalidRange) {
+      condition2 =
+        +tokenXAmount > 0 &&
+        new BigNumber(
+          getMax(tokenX, tokenXBalanceFromNear)
+        ).isGreaterThanOrEqualTo(tokenXAmount) &&
+        +tokenYAmount > 0 &&
+        new BigNumber(
+          getMax(tokenY, tokenYBalanceFromNear)
+        ).isGreaterThanOrEqualTo(tokenYAmount);
+    }
+    return !(condition1 && condition2);
+  }
+  const isAddLiquidityDisabled = getButtonStatus();
+
+  const add_lp_func =
+    liquidityShape === 'Spot'
+      ? addLiquiditySpot
+      : addLiquidityForCurveAndBidAskMode;
+
+  return (
+    <div
+      className={`w-full xs:w-full md:w-full flex flex-col justify-between self-stretch mt-5`}
+    >
+      {isSignedIn ? (
+        <GradientButton
+          color="#fff"
+          className={`w-full h-12 text-center text-base text-white focus:outline-none ${
+            isAddLiquidityDisabled ? 'opacity-40' : ''
+          }`}
+          loading={addLiquidityButtonLoading}
+          disabled={addLiquidityButtonLoading || isAddLiquidityDisabled}
+          btnClassName={`${isAddLiquidityDisabled ? 'cursor-not-allowed' : ''}`}
+          onClick={add_lp_func}
+        >
+          <ButtonTextWrapper
+            loading={addLiquidityButtonLoading}
+            Text={() => <>{getButtonText()}</>}
+          />
+        </GradientButton>
+      ) : (
+        <ConnectToNearBtn />
+      )}
+    </div>
+  );
+}
+function SetPointsComponent() {
+  const {
+    binNumber,
+    setBinNumber,
+    currentSelectedPool,
+    tokenX,
+    tokenY,
+
+    pointChange,
+    currentPoint,
+
+    leftPoint,
+    setLeftPoint,
+    rightPoint,
+    setRightPoint,
+
+    SLOT_NUMBER,
+    BIN_WIDTH,
+  } = useContext(LiquidityProviderData);
+  const [priceRangeMode, setPriceRangeMode] = useState<
+    'by_range' | 'by_radius'
+  >('by_range');
+  const [radius, setRadius] = useState<number>();
+
+  const [targetCustomPrice, setTargetCustomPrice] = useState('');
+  const [leftCustomPrice, setLeftCustomPrice] = useState('');
+  const [rightCustomPrice, setRightCustomPrice] = useState('');
+  const [targetPoint, setTargetPoint] = useState<number>();
+
+  const [leftInputStatus, setLeftInputStatus] = useState(false);
+  const [rightInputStatus, setRightInputStatus] = useState(false);
+  const [targetInputStatus, setTargetInputStatus] = useState(false);
+  const { token_x, token_y } = currentSelectedPool;
+  const token_x_decimals =
+    tokenX.id == token_x ? tokenX.decimals : tokenY.decimals;
+  const token_y_decimals =
+    tokenY.id == token_y ? tokenY.decimals : tokenX.decimals;
+  const tokenSort = tokenX.id == currentSelectedPool.token_x;
+  // init
+  useEffect(() => {
+    if (currentSelectedPool && tokenX && tokenY) {
+      setTargetPoint(currentSelectedPool.current_point);
+      setRadius(3);
+      setPriceRangeMode('by_range');
+    }
+  }, [currentSelectedPool, tokenX, tokenY]);
+  // change event in radius mode
+  useEffect(() => {
+    if (radius && +radius > 0 && targetPoint && BIN_WIDTH) {
+      const left_point_temp = handlePointToAppropriatePoint(
+        targetPoint - (radius - 1) * BIN_WIDTH
+      );
+      const right_point_temp = handlePointToAppropriatePoint(
+        targetPoint + (radius + 1) * BIN_WIDTH
+      );
+      setLeftPoint(left_point_temp);
+      setRightPoint(right_point_temp);
+    }
+  }, [radius, targetPoint, BIN_WIDTH, priceRangeMode]);
+
+  useEffect(() => {
+    const diff = rightPoint - leftPoint;
+    const bin_number_temp = diff / BIN_WIDTH;
+    setBinNumber(bin_number_temp);
+    // effect right area
+    pointChange({ leftPoint, rightPoint, currentPoint });
+  }, [leftPoint, rightPoint]);
+
+  function handlePointToAppropriatePoint(point: number) {
+    const { point_delta } = currentSelectedPool;
+    return getBinPointByPoint(point_delta, SLOT_NUMBER, point);
+  }
+  function handlePriceToAppropriatePoint(price: string) {
+    const { point_delta } = currentSelectedPool;
+    const decimalRate =
+      Math.pow(10, token_y_decimals) / Math.pow(10, token_x_decimals);
+    const appropriate_point = getBinPointByPrice(
+      point_delta,
+      price,
+      decimalRate,
+      SLOT_NUMBER
+    );
+    return appropriate_point;
+  }
+  function getLeftPrice() {
+    if (currentSelectedPool && currentSelectedPool.pool_id) {
+      const { token_x, token_y } = currentSelectedPool;
+      const decimalRate =
+        Math.pow(10, token_x_decimals) / Math.pow(10, token_y_decimals);
+      let price = getPriceByPoint(leftPoint, decimalRate);
+      // if (tokenX.id == token_y) {
+      //   price = new BigNumber(1).dividedBy(price).toFixed();
+      // }
+      if (new BigNumber(price).isLessThan('0.00000001')) {
+        return price;
+      } else {
+        return toPrecision(price.toString(), 8);
+      }
+    } else {
+      return '';
+    }
+  }
+  function getRightPrice() {
+    if (currentSelectedPool && currentSelectedPool.pool_id) {
+      const { token_x, token_y } = currentSelectedPool;
+      const decimalRate =
+        Math.pow(10, token_x_decimals) / Math.pow(10, token_y_decimals);
+      let price = getPriceByPoint(rightPoint, decimalRate);
+      // if (tokenX.id == token_y) {
+      //   price = new BigNumber(1).dividedBy(price).toFixed();
+      // }
+      if (new BigNumber(price).isLessThan('0.00000001')) {
+        return price;
+      } else {
+        return toPrecision(price.toString(), 8);
+      }
+    } else {
+      return '';
+    }
+  }
+  function getTargetPrice() {
+    if (currentSelectedPool && currentSelectedPool.pool_id) {
+      const { token_x, token_y } = currentSelectedPool;
+      const decimalRate =
+        Math.pow(10, token_x_decimals) / Math.pow(10, token_y_decimals);
+      let price = getPriceByPoint(targetPoint, decimalRate);
+      // if (tokenX.id == token_y) {
+      //   price = new BigNumber(1).dividedBy(price).toFixed();
+      // }
+      if (new BigNumber(price).isLessThan('0.00000001')) {
+        return price;
+      } else {
+        return toPrecision(price.toString(), 8);
+      }
+    } else {
+      return '';
+    }
+  }
+  function getPair() {
+    if (tokenSort) {
+      return `(${tokenX.symbol}/${tokenY.symbol})`;
+    } else {
+      return `(${tokenY.symbol}/${tokenX.symbol})`;
+    }
+  }
+  function changebinNunber(v: string) {
+    if (!isInvalid(v)) {
+      const right_point_temp = leftPoint + +v * BIN_WIDTH;
+      setRightPoint(right_point_temp);
+      setBinNumber(v);
+    }
+  }
+  console.log('leftPoint', leftPoint);
+  console.log('rightPoint', rightPoint);
+  return (
+    <div
+      className={`w-full xs:w-full md:w-full flex  mr-6 flex-col justify-between self-stretch xs:mt-5 md:mt-5`}
+    >
+      {/* chart area */}
+      <div className="relative mb-5 mt-24">
+        <div className="absolute left-0 -top-24 inline-flex items-center justify-between bg-detailCardBg rounded-lg border border-dclTabBorderColor p-0.5">
+          <span
+            className={`w-20 frcc text-xs gotham_bold px-3 py-1.5 rounded-md ${
+              true ? 'text-black bg-gradientFromHover' : 'text-primaryText'
+            }`}
+          >
+            Liquidity
+          </span>
+          <span
+            className={`w-20 frcc text-xs gotham_bold px-3 py-1.5 rounded-md ${
+              false ? 'text-black bg-gradientFromHover' : 'text-primaryText'
+            }`}
+          >
+            Yours
+          </span>
+        </div>
+        {leftPoint && rightPoint && (
+          <DclChart
+            pool_id={currentSelectedPool?.pool_id}
+            leftPoint={leftPoint}
+            rightPoint={rightPoint}
+            setLeftPoint={setLeftPoint}
+            setRightPoint={setRightPoint}
+            config={{
+              radiusMode: priceRangeMode == 'by_radius',
+              targetPoint,
+            }}
+          ></DclChart>
+        )}
+      </div>
+      {/* set price range area */}
+      <div className=" border border-limitOrderFeeTiersBorderColor rounded-xl p-4">
+        {/* price range mode area */}
+        <div className="frcb">
+          <div className="text-white font-gothamBold flex flex-col text-base ">
+            <FormattedMessage
+              id="set_price_range"
+              defaultMessage="Set Price Range"
+            />
+
+            <span className="text-xs font-gotham text-primaryText">
+              {getPair()}
+            </span>
+          </div>
+
+          <div className="rounded-lg p-1 border frcs text-xs text-primaryText border-v3borderColor">
+            <span
+              className={`whitespace-nowrap min-w-20 px-3 py-1.5 rounded-md cursor-pointer ${
+                priceRangeMode === 'by_range'
+                  ? 'text-white bg-burrowTabColor bg-opacity-60'
+                  : ''
+              }`}
+              onClick={() => {
+                setPriceRangeMode('by_range');
+              }}
+            >
+              <FormattedMessage
+                id="by_range"
+                defaultMessage={'By range'}
+              ></FormattedMessage>
+            </span>
+            <span
+              className={`whitespace-nowrap min-w-20 px-3 py-1.5 rounded-md cursor-pointer ${
+                priceRangeMode === 'by_radius'
+                  ? 'text-white bg-burrowTabColor bg-opacity-60'
+                  : ''
+              }`}
+              onClick={() => {
+                setPriceRangeMode('by_radius');
+              }}
+            >
+              <FormattedMessage
+                id="by_radius"
+                defaultMessage={'By Radius'}
+              ></FormattedMessage>
+            </span>
+          </div>
+        </div>
+        {/* content */}
+        <div className="grid grid-cols-3 gap-3 pt-4 mt-3  xsm:px-2">
+          {/* target price input box */}
+          <div
+            className={` ${
+              priceRangeMode === 'by_range' ? 'hidden' : ''
+            } flex border border-menuMoreBoxBorderColor items-center bg-black bg-opacity-20 rounded-xl p-2.5 col-span-2`}
+          >
+            <span className="text-sm text-primaryText xs:text-xs md:text-xs whitespace-nowrap">
+              <FormattedMessage
+                id="target_price"
+                defaultMessage="Target Price"
+              ></FormattedMessage>
+            </span>
+            <PointInputComponent
+              handlePriceToAppropriatePoint={handlePriceToAppropriatePoint}
+              customPrice={targetCustomPrice}
+              setCustomPrice={setTargetCustomPrice}
+              inputStatus={targetInputStatus}
+              setInputStatus={setTargetInputStatus}
+              getPrice={getTargetPrice}
+              setPoint={setTargetPoint}
+            />
+          </div>
+
+          {/* radius input box */}
+          <div
+            className={` ${
+              priceRangeMode === 'by_range' ? 'hidden' : ''
+            } flex border border-menuMoreBoxBorderColor items-center bg-black bg-opacity-20 rounded-xl p-2.5 col-span-1`}
+          >
+            <span className="text-sm text-primaryText xs:text-xs md:text-xs whitespace-nowrap">
+              <FormattedMessage
+                id="radius"
+                defaultMessage="Radius"
+              ></FormattedMessage>
+            </span>
+            <IntegerInputComponent
+              value={radius}
+              onChange={(value: any) => {
+                setRadius(value);
+              }}
+            />
+          </div>
+
+          {/* min price input box */}
+          <div className=" flex border border-menuMoreBoxBorderColor items-center bg-black bg-opacity-20 rounded-xl p-2.5 col-span-1">
+            <span className="text-sm text-primaryText xs:text-xs md:text-xs whitespace-nowrap">
+              <FormattedMessage
+                id="min_price"
+                defaultMessage="Min Price"
+              ></FormattedMessage>
+            </span>
+            {/* {tokenSort ? ( */}
+            <PointInputComponent
+              handlePriceToAppropriatePoint={handlePriceToAppropriatePoint}
+              disbaled={priceRangeMode === 'by_radius'}
+              customPrice={leftCustomPrice}
+              getPrice={getLeftPrice}
+              setCustomPrice={setLeftCustomPrice}
+              inputStatus={leftInputStatus}
+              setInputStatus={setLeftInputStatus}
+              setPoint={setLeftPoint}
+            ></PointInputComponent>
+            {/* ) : (
+              <PointInputComponent
+                disbaled={priceRangeMode === 'by_radius'}
+                handlePriceToAppropriatePoint={
+                  handlePriceToAppropriatePoint
+                }
+                customPrice={rightCustomPrice}
+                getPrice={getRightPrice}
+                setCustomPrice={setRightCustomPrice}
+                inputStatus={rightInputStatus}
+                setInputStatus={setRightInputStatus}
+              ></PointInputComponent>
+            )} */}
+          </div>
+
+          {/* max price input box */}
+          <div className="flex border border-menuMoreBoxBorderColor items-center bg-black bg-opacity-20 rounded-xl p-2.5 col-span-1">
+            <span className="text-sm text-primaryText xs:text-xs whitespace-nowrap md:text-xs">
+              <FormattedMessage
+                id="max_price"
+                defaultMessage="Max Price"
+              ></FormattedMessage>
+            </span>
+            {/* {tokenSort ? ( */}
+            <PointInputComponent
+              handlePriceToAppropriatePoint={handlePriceToAppropriatePoint}
+              customPrice={rightCustomPrice}
+              getPrice={getRightPrice}
+              setCustomPrice={setRightCustomPrice}
+              inputStatus={rightInputStatus}
+              setInputStatus={setRightInputStatus}
+              setPoint={setRightPoint}
+              disbaled={priceRangeMode === 'by_radius'}
+            ></PointInputComponent>
+            {/* ) : (
+              <PointInputComponent
+                disbaled={priceRangeMode === 'by_radius'}
+                customPrice={leftCustomPrice}
+                getPrice={getLeftPrice}
+                setCustomPrice={setLeftCustomPrice}
+                inputStatus={leftInputStatus}
+                setInputStatus={setLeftInputStatus}
+              ></PointInputComponent>
+            )} */}
+          </div>
+
+          {/* bin number input box */}
+          <div className=" flex border border-menuMoreBoxBorderColor items-center bg-black bg-opacity-20 rounded-xl p-2.5 col-span-1">
+            <span className="text-sm text-primaryText xs:text-xs md:text-xs whitespace-nowrap">
+              <FormattedMessage
+                id="bin_amount"
+                defaultMessage="Bin amount"
+              ></FormattedMessage>
+            </span>
+            <IntegerInputComponent
+              value={binNumber}
+              disabled={priceRangeMode === 'by_radius'}
+              onChange={(value: any) => {
+                changebinNunber(value);
+              }}
+            />
+          </div>
+        </div>
+        {/* tip in foot */}
+        <div
+          style={{
+            color: '#3F4A52',
+          }}
+          className="text-xs mt-3"
+        >
+          *Only NEAR is needed in the price range you choose.
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -1378,1859 +2455,6 @@ function CreatePoolComponent({
   );
 }
 
-export type PriceRangeModeType = 'by_range' | 'by_radius';
-
-function AddLiquidityComponent({
-  currentSelectedPool,
-  tokenX,
-  tokenY,
-  tokenPriceList,
-  tokenXAmount,
-  tokenYAmount,
-  tokenXBalanceFromNear,
-  tokenYBalanceFromNear,
-  pointChange,
-  onlyAddXToken,
-  onlyAddYToken,
-  invalidRange,
-  seeds,
-  priceRangeMode,
-  setPriceRangeMode,
-  binNumber,
-  setBinNumber,
-  curPointInBinBoundry,
-  setCurPointInBinBoundry,
-  setCurrentSelectedPool,
-}: {
-  currentSelectedPool: PoolInfo;
-  tokenX: TokenMetadata;
-  tokenY: TokenMetadata;
-  tokenPriceList: Record<string, any>;
-  tokenXAmount: string;
-  tokenYAmount: string;
-  tokenXBalanceFromNear: string;
-  tokenYBalanceFromNear: string;
-  pointChange: any;
-  onlyAddXToken: boolean;
-  onlyAddYToken: boolean;
-  invalidRange: boolean;
-  seeds: Seed[];
-  priceRangeMode: PriceRangeModeType;
-  setPriceRangeMode: (mode: PriceRangeModeType) => void;
-  binNumber: number;
-  setBinNumber: (binNumber: number) => void;
-  curPointInBinBoundry: boolean;
-  setCurPointInBinBoundry: (curPointInBinBoundry: boolean) => void;
-  setCurrentSelectedPool: (pool: PoolInfo) => void;
-}) {
-  let [leftCustomPrice, setLeftCustomPrice] = useState('');
-  let [rightCustomPrice, setRightCustomPrice] = useState('');
-  let [targetCustomPrice, setTargetCustomPrice] = useState('');
-
-  let [leftPoint, setLeftPoint] = useState<number>(0);
-  let [rightPoint, setRightPoint] = useState<number>(0);
-
-  let [targetPoint, setTargetPoint] = useState<number>(0);
-
-  const [leftInputStatus, setLeftInputStatus] = useState(false);
-  const [rightInputStatus, setRightInputStatus] = useState(false);
-  const [targetInputStatus, setTargetInputStatus] = useState(false);
-
-  const [currentPoint, setCurrentPoint] = useState<number>();
-
-  const [chartLoading, setChartLoading] = useState<boolean>(false);
-  const [noDataForChart, setNoDataForChart] = useState(false);
-  const [addLiquidityButtonLoading, setAddLiquidityButtonLoading] =
-    useState(false);
-
-  const [radius, setRadius] = useState(5);
-
-  useEffect(() => {
-    if (!currentSelectedPool || !targetPoint) return;
-    if (priceRangeMode === 'by_range') {
-      setCurrentSelectedPool({
-        ...currentSelectedPool,
-        current_point: currentPoint,
-      });
-    } else {
-      setCurrentSelectedPool({
-        ...currentSelectedPool,
-        current_point: targetPoint,
-      });
-    }
-    setCurrentPoint(targetPoint);
-  }, [priceRangeMode, targetPoint]);
-  console.log('currentSelectedPool: ', currentSelectedPool);
-
-  useEffect(() => {
-    const { point_delta } = currentSelectedPool;
-
-    if (tokenSort) {
-      setRightPoint(leftPoint + point_delta * SLOT_NUMBER * binNumber);
-    } else {
-      setLeftPoint(rightPoint - point_delta * SLOT_NUMBER * binNumber);
-    }
-  }, [binNumber]);
-
-  const [currentCheckedQuickOption, setCurrentCheckedQuickOption] = useState<
-    number | string
-  >();
-  const [quickOptions, setQuickOptions] = useState([5, 10, 20, 50]);
-  const [quickOptionsMapPoint, setQuickOptionsMapPoint] = useState<
-    Record<string, any>
-  >({});
-
-  const { globalState } = useContext(WalletContext);
-  const [timer, setTimer] = useState(null);
-  const [depthData, setDepthData] = useState(null);
-
-  const [displayedSeedIndex, setDisplayedSeedIndex] = useState(0);
-  const isSignedIn = globalState.isSignedIn;
-  const intl = useIntl();
-  const chartDom = useRef(null);
-  const { token_x, token_y } = currentSelectedPool;
-  const token_x_decimals =
-    tokenX.id == token_x ? tokenX.decimals : tokenY.decimals;
-  const token_y_decimals =
-    tokenY.id == token_y ? tokenY.decimals : tokenX.decimals;
-  useEffect(() => {
-    if (priceRangeMode === 'by_radius') {
-      setBinNumber(radius * 2);
-    }
-
-    if (!quickOptionsMapPoint['full']?.['left_p']) return;
-
-    //  get curpoint in bin boundry
-
-    const left_b = quickOptionsMapPoint['full']['left_p'];
-
-    const { current_point, point_delta } = currentSelectedPool;
-
-    const point_diff =
-      Math.floor((current_point - left_b) / (point_delta * SLOT_NUMBER)) *
-      (point_delta * SLOT_NUMBER);
-
-    const temp_cur_point = left_b + point_diff;
-
-    const new_left_point = temp_cur_point - point_delta * SLOT_NUMBER * radius;
-
-    const new_right_point = temp_cur_point + point_delta * SLOT_NUMBER * radius;
-
-    setLeftPoint(new_left_point);
-    setRightPoint(new_right_point);
-  }, [radius, priceRangeMode, quickOptionsMapPoint['full']?.['left_p']]);
-
-  // init
-
-  // quick options
-  useEffect(() => {
-    const { current_point, point_delta, fee } = currentSelectedPool;
-    // 5, 10 20 50
-
-    const BIN_SIZE = point_delta * SLOT_NUMBER;
-
-    const optionsMapPoints_temp = {};
-    quickOptions.forEach((p: number) => {
-      const { left_p, right_p } = getPointByCondition(p);
-      optionsMapPoints_temp[p] = { left_p, right_p };
-      // if (p == 10) {
-      //   leftPoint = left_p;
-      //   rightPoint = right_p;
-      //   setLeftPoint(left_p);
-      //   setRightPoint(right_p);
-      // }
-    });
-    // full
-    const l_p_temp = _.max([current_point - 400000, -800000]);
-    const r_p_temp = _.min([current_point + 400000, 800000]);
-    let l_p = Math.floor(l_p_temp / point_delta) * point_delta;
-    let r_p = Math.floor(r_p_temp / point_delta) * point_delta;
-    if (r_p - l_p >= POINTRIGHTRANGE) {
-      l_p = l_p + point_delta;
-    }
-
-    r_p = Math.floor((r_p - l_p) / BIN_SIZE) * BIN_SIZE + l_p;
-
-    optionsMapPoints_temp['full'] = { left_p: l_p, right_p: r_p };
-
-    let { left_p, right_p } = optionsMapPoints_temp['10'];
-
-    left_p = Math.floor((left_p - l_p) / BIN_SIZE) * BIN_SIZE + l_p;
-
-    right_p = left_p + BIN_SIZE * binNumber;
-
-    setCurPointInBinBoundry((current_point - l_p) / BIN_SIZE === 0);
-
-    setLeftPoint(left_p);
-    setRightPoint(right_p);
-
-    // set
-    setCurrentPoint(current_point);
-
-    setTargetPoint(current_point);
-    setQuickOptionsMapPoint(optionsMapPoints_temp);
-    setCurrentCheckedQuickOption(10);
-    // show chart data
-    setChartLoading(true);
-    setNoDataForChart(false);
-    clearTimeout(timer);
-    const timer_latest = setTimeout(() => {
-      getChartData();
-    }, 1000);
-    setTimer(timer_latest);
-  }, [currentSelectedPool]);
-  console.log('currentSelectedPool: ', currentSelectedPool);
-  useEffect(() => {
-    pointChange({ leftPoint, rightPoint, currentPoint });
-    const targetKey = Object.keys(quickOptionsMapPoint).find((key: string) => {
-      const { left_p, right_p } = quickOptionsMapPoint[key];
-      if (left_p == leftPoint && right_p == rightPoint) {
-        return key;
-      }
-    });
-    if (targetKey) {
-      setCurrentCheckedQuickOption(targetKey);
-    } else {
-      setCurrentCheckedQuickOption(undefined);
-    }
-    if (depthData) {
-      drawChartData({
-        depthData,
-        left_point: leftPoint,
-        right_point: rightPoint,
-        token_x_decimals,
-        token_y_decimals,
-        chartDom,
-        sort: tokenX.id == token_x,
-        space_x: 5,
-      });
-    }
-  }, [leftPoint, rightPoint]);
-  async function getChartData() {
-    const depthData = await get_pool_marketdepth(currentSelectedPool.pool_id);
-    const length = drawChartData({
-      depthData,
-      left_point: leftPoint,
-      right_point: rightPoint,
-      token_x_decimals,
-      token_y_decimals,
-      chartDom,
-      sort: tokenX.id == token_x,
-      space_x: 5,
-    });
-    if (length == 0) {
-      setNoDataForChart(true);
-    } else {
-      setDepthData(depthData);
-    }
-    setChartLoading(false);
-  }
-  function getPointByCondition(p: number) {
-    const { point_delta, token_x } = currentSelectedPool;
-    const c_price = getCurrentPrice_real_decimal();
-    const decimalRate =
-      Math.pow(10, token_y_decimals) / Math.pow(10, token_x_decimals);
-    const tokenSort = tokenX.id == token_x ? true : false;
-    const reduce_p = 1 - p / 100;
-    const add_p = 1 + p / 100;
-    if (tokenSort) {
-      // -10% example
-      const l_price = new BigNumber(c_price).multipliedBy(reduce_p).toFixed();
-      const point_l = getPointByPrice(
-        point_delta,
-        l_price.toString(),
-        decimalRate
-      );
-      // +10% example
-      const r_price = new BigNumber(c_price).multipliedBy(add_p).toFixed();
-      const point_r = getPointByPrice(
-        point_delta,
-        r_price.toString(),
-        decimalRate
-      );
-      return { left_p: point_l, right_p: point_r };
-    } else {
-      const c_price2 = new BigNumber(1).dividedBy(c_price).toFixed();
-      // +10% example
-      const priceAdd = new BigNumber(c_price2).multipliedBy(add_p);
-      const l_price_2 = new BigNumber(1).dividedBy(priceAdd).toFixed();
-      const point_l_2 = getPointByPrice(
-        point_delta,
-        l_price_2.toString(),
-        decimalRate
-      );
-      // -10% example
-      const priceDivide = new BigNumber(c_price2).multipliedBy(reduce_p);
-      const r_price_2 = new BigNumber(1).dividedBy(priceDivide).toFixed();
-      const point_r_2 = getPointByPrice(
-        point_delta,
-        r_price_2.toString(),
-        decimalRate
-      );
-      return { left_p: point_l_2, right_p: point_r_2 };
-    }
-  }
-  function getCurrentPrice() {
-    let price = getCurrentPrice_real_decimal();
-    if (tokenX.id == token_y) {
-      price = new BigNumber(1).dividedBy(price).toFixed();
-    }
-    if (price) {
-      return toPrecision(price.toString(), 8);
-    } else {
-      return '-';
-    }
-  }
-  function getCurrentPriceValue() {
-    if (tokenX) {
-      const price = tokenPriceList[tokenX.id]?.price;
-      return price ? `${'$' + price}` : '$-';
-    } else {
-      return '$-';
-    }
-  }
-
-  function getCurrentPrice_real_decimal() {
-    if (currentSelectedPool && currentSelectedPool.pool_id) {
-      const { current_point, token_x, token_y } = currentSelectedPool;
-      const decimalRate =
-        Math.pow(10, token_x_decimals) / Math.pow(10, token_y_decimals);
-      const price = getPriceByPoint(current_point, decimalRate);
-      return price;
-    }
-    return 0;
-  }
-  function addOneSlot(direction: string) {
-    const { point_delta } = currentSelectedPool;
-    const l_p = leftPoint + point_delta;
-    const r_p = rightPoint + point_delta;
-    if (direction == 'l') {
-      setLeftPoint(Math.max(Math.min(POINTRIGHTRANGE, l_p), POINTLEFTRANGE));
-    } else if (direction == 'r') {
-      const target_slot_r = Math.max(
-        Math.min(POINTRIGHTRANGE, r_p),
-        POINTLEFTRANGE
-      );
-      if (target_slot_r - leftPoint >= POINTRIGHTRANGE) return;
-      setRightPoint(target_slot_r);
-    }
-  }
-  function reduceOneSlot(direction: string) {
-    const { point_delta } = currentSelectedPool;
-    const l_p = leftPoint - point_delta;
-    const r_p = rightPoint - point_delta;
-    if (direction == 'l') {
-      const target_slot_l = Math.max(
-        Math.min(POINTRIGHTRANGE, l_p),
-        POINTLEFTRANGE
-      );
-      if (rightPoint - target_slot_l >= POINTRIGHTRANGE) return;
-      setLeftPoint(target_slot_l);
-    } else if (direction == 'r') {
-      setRightPoint(Math.max(Math.min(POINTRIGHTRANGE, r_p), POINTLEFTRANGE));
-    }
-  }
-  function handlePriceToAppropriatePoint() {
-    const { point_delta, token_x, token_y } = currentSelectedPool;
-    const decimalRate =
-      Math.pow(10, token_y_decimals) / Math.pow(10, token_x_decimals);
-    if (leftCustomPrice) {
-      if (!tokenSort) {
-        leftCustomPrice = new BigNumber(1).dividedBy(leftCustomPrice).toFixed();
-      }
-      const c_point = getPointByPrice(
-        point_delta,
-        leftCustomPrice,
-        decimalRate
-      );
-      setLeftCustomPrice('');
-      setLeftPoint(c_point);
-      if (rightPoint - c_point >= POINTRIGHTRANGE) {
-        const appropriate_r_point = POINTRIGHTRANGE + c_point - point_delta;
-        setRightPoint(appropriate_r_point);
-      }
-    }
-    if (targetCustomPrice) {
-      if (!tokenSort) {
-        targetCustomPrice = new BigNumber(1)
-          .dividedBy(targetCustomPrice)
-          .toFixed();
-      }
-      const c_point = getPointByPrice(
-        point_delta,
-        targetCustomPrice,
-        decimalRate
-      );
-      setTargetCustomPrice('');
-      setTargetPoint(c_point);
-      // if (c_point - leftPoint >= POINTRIGHTRANGE ) {
-      //   const appropriate_l_point = c_point - POINTRIGHTRANGE + point_delta;
-      //   setLeftPoint(appropriate_l_point);
-      // }
-    }
-
-    if (rightCustomPrice) {
-      if (!tokenSort) {
-        rightCustomPrice = new BigNumber(1)
-          .dividedBy(rightCustomPrice)
-          .toFixed();
-      }
-      const c_point = getPointByPrice(
-        point_delta,
-        rightCustomPrice,
-        decimalRate
-      );
-      setRightCustomPrice('');
-      setRightPoint(c_point);
-      if (c_point - leftPoint >= POINTRIGHTRANGE) {
-        const appropriate_l_point = c_point - POINTRIGHTRANGE + point_delta;
-        setLeftPoint(appropriate_l_point);
-      }
-    }
-  }
-
-  function getButtonStatus() {
-    const condition1 = currentSelectedPool?.pool_id;
-    let condition2;
-    if (onlyAddXToken) {
-      if (tokenSort) {
-        condition2 =
-          +tokenXAmount > 0 &&
-          new BigNumber(
-            getMax(tokenX, tokenXBalanceFromNear)
-          ).isGreaterThanOrEqualTo(tokenXAmount);
-      } else {
-        condition2 =
-          +tokenYAmount > 0 &&
-          new BigNumber(
-            getMax(tokenY, tokenYBalanceFromNear)
-          ).isGreaterThanOrEqualTo(tokenYAmount);
-      }
-    } else if (onlyAddYToken) {
-      if (tokenSort) {
-        condition2 =
-          +tokenYAmount > 0 &&
-          new BigNumber(
-            getMax(tokenY, tokenYBalanceFromNear)
-          ).isGreaterThanOrEqualTo(tokenYAmount);
-      } else {
-        condition2 =
-          +tokenXAmount > 0 &&
-          new BigNumber(
-            getMax(tokenX, tokenXBalanceFromNear)
-          ).isGreaterThanOrEqualTo(tokenXAmount);
-      }
-    } else if (!invalidRange) {
-      condition2 =
-        +tokenXAmount > 0 &&
-        new BigNumber(
-          getMax(tokenX, tokenXBalanceFromNear)
-        ).isGreaterThanOrEqualTo(tokenXAmount) &&
-        +tokenYAmount > 0 &&
-        new BigNumber(
-          getMax(tokenY, tokenYBalanceFromNear)
-        ).isGreaterThanOrEqualTo(tokenYAmount);
-    }
-    return !(condition1 && condition2);
-  }
-  function getMax(token: TokenMetadata, balance: string) {
-    return token.id !== WRAP_NEAR_CONTRACT_ID
-      ? balance
-      : Number(balance) <= 0.5
-      ? '0'
-      : String(Number(balance) - 0.5);
-  }
-  function getLeftPrice() {
-    if (currentSelectedPool && currentSelectedPool.pool_id) {
-      const { token_x, token_y } = currentSelectedPool;
-      const decimalRate =
-        Math.pow(10, token_x_decimals) / Math.pow(10, token_y_decimals);
-      let price = getPriceByPoint(leftPoint, decimalRate);
-      if (tokenX.id == token_y) {
-        price = new BigNumber(1).dividedBy(price).toFixed();
-      }
-      if (new BigNumber(price).isLessThan('0.00000001')) {
-        return price;
-      } else {
-        return toPrecision(price.toString(), 8);
-      }
-    } else {
-      return '';
-    }
-  }
-  function getRightPrice() {
-    if (currentSelectedPool && currentSelectedPool.pool_id) {
-      const { token_x, token_y } = currentSelectedPool;
-      const decimalRate =
-        Math.pow(10, token_x_decimals) / Math.pow(10, token_y_decimals);
-      let price = getPriceByPoint(rightPoint, decimalRate);
-      if (tokenX.id == token_y) {
-        price = new BigNumber(1).dividedBy(price).toFixed();
-      }
-      if (new BigNumber(price).isLessThan('0.00000001')) {
-        return price;
-      } else {
-        return toPrecision(price.toString(), 8);
-      }
-    } else {
-      return '';
-    }
-  }
-
-  function getTargetPrice() {
-    if (currentSelectedPool && currentSelectedPool.pool_id) {
-      const { token_x, token_y } = currentSelectedPool;
-      const decimalRate =
-        Math.pow(10, token_x_decimals) / Math.pow(10, token_y_decimals);
-      let price = getPriceByPoint(targetPoint, decimalRate);
-      if (tokenX.id == token_y) {
-        price = new BigNumber(1).dividedBy(price).toFixed();
-      }
-      if (new BigNumber(price).isLessThan('0.00000001')) {
-        return price;
-      } else {
-        return toPrecision(price.toString(), 8);
-      }
-    } else {
-      return '';
-    }
-  }
-
-  function addLiquidity() {
-    setAddLiquidityButtonLoading(true);
-    const { pool_id } = currentSelectedPool;
-    add_liquidity({
-      pool_id,
-      left_point: leftPoint,
-      right_point: rightPoint,
-      amount_x: tokenSort
-        ? toNonDivisibleNumber(tokenX.decimals, tokenXAmount || '0')
-        : toNonDivisibleNumber(tokenY.decimals, tokenYAmount || '0'),
-      amount_y: tokenSort
-        ? toNonDivisibleNumber(tokenY.decimals, tokenYAmount || '0')
-        : toNonDivisibleNumber(tokenX.decimals, tokenXAmount || '0'),
-      token_x: tokenSort ? tokenX : tokenY,
-      token_y: tokenSort ? tokenY : tokenX,
-    });
-  }
-
-  function quickChangePoint(item: string | number) {
-    if (currentCheckedQuickOption == item) return;
-    const { point_delta, current_point } = currentSelectedPool;
-    const decimalRateTurn =
-      Math.pow(10, token_y_decimals) / Math.pow(10, token_x_decimals);
-    if (item == 'full') {
-      const l_p_temp = _.max([current_point - 400000, -800000]);
-      const r_p_temp = _.min([current_point + 400000, 800000]);
-      let l_p = Math.floor(l_p_temp / point_delta) * point_delta;
-      let r_p = Math.floor(r_p_temp / point_delta) * point_delta;
-      if (r_p - l_p >= POINTRIGHTRANGE) {
-        l_p = l_p + point_delta;
-      }
-      setLeftPoint(l_p);
-      setRightPoint(r_p);
-    } else {
-      const decimalRate =
-        Math.pow(10, token_x_decimals) / Math.pow(10, token_y_decimals);
-      const price_c = getPriceByPoint(currentPoint, decimalRate);
-      if (tokenSort) {
-        const price_l_new = new BigNumber(1 - +item / 100)
-          .multipliedBy(price_c)
-          .toFixed();
-        const price_r_new = new BigNumber(1 + +item / 100)
-          .multipliedBy(price_c)
-          .toFixed();
-        const l_point = getPointByPrice(
-          point_delta,
-          price_l_new,
-          decimalRateTurn
-        );
-        const r_point = getPointByPrice(
-          point_delta,
-          price_r_new,
-          decimalRateTurn
-        );
-        setLeftPoint(l_point);
-        setRightPoint(r_point);
-      } else {
-        const price_c_2 = new BigNumber(1).dividedBy(price_c).toFixed();
-        const price_l_new_2 = new BigNumber(1 - +item / 100)
-          .multipliedBy(price_c_2)
-          .toFixed();
-        const price_r_new_2 = new BigNumber(1 + +item / 100)
-          .multipliedBy(price_c_2)
-          .toFixed();
-        const price_l_new = new BigNumber(1).dividedBy(price_r_new_2).toFixed();
-        const price_r_new = new BigNumber(1).dividedBy(price_l_new_2).toFixed();
-        const l_point = getPointByPrice(
-          point_delta,
-          price_l_new,
-          decimalRateTurn
-        );
-        const r_point = getPointByPrice(
-          point_delta,
-          price_r_new,
-          decimalRateTurn
-        );
-        setLeftPoint(l_point);
-        setRightPoint(r_point);
-      }
-    }
-  }
-
-  function get_related_seeds() {
-    const temp_seeds = seeds.map((seed: Seed) => {
-      const [contractId, temp_mft_id] = seed.seed_id.split('@');
-      const [fixRange, pool_id, left_point, right_point] =
-        temp_mft_id.split('&');
-      const decimalRate =
-        Math.pow(10, token_x_decimals) / Math.pow(10, token_y_decimals);
-      const price_left = getPriceByPoint(+left_point, decimalRate);
-      const price_right = getPriceByPoint(+right_point, decimalRate);
-      return {
-        seed,
-        price_left,
-        price_right,
-      };
-    });
-    const tokenSort = tokenX.id == token_x ? true : false;
-    const targetSeed = temp_seeds[displayedSeedIndex];
-    const { price_left, price_right } = targetSeed;
-    let price_left_final = price_left;
-    let price_right_final = price_right;
-
-    if (!tokenSort) {
-      price_left_final = new BigNumber(1).dividedBy(price_right).toFixed();
-      price_right_final = new BigNumber(1).dividedBy(price_left).toFixed();
-    }
-    const display_price_left = displayNumberToAppropriateDecimals(
-      price_left_final.toString()
-    );
-    const display_price_right = displayNumberToAppropriateDecimals(
-      price_right_final.toString()
-    );
-    return (
-      <div className="flex flex-col items-ends text-sm">
-        <span className="text-limitOrderInputColor text-right">
-          1 {tokenX.symbol} ={' '}
-        </span>
-        <div className="flex items-center mt-2">
-          <ArrowDownV3
-            onClick={() => {
-              setDisplayedSeedIndex(displayedSeedIndex - 1);
-            }}
-            className={`transform rotate-90 mr-1.5 text-primaryText cursor-pointer ${
-              seeds.length > 1 && displayedSeedIndex > 0 ? '' : 'hidden'
-            }`}
-          ></ArrowDownV3>
-          <span
-            className="text-v3SwapGray underline cursor-pointer mx-1"
-            onClick={() => {
-              if (!tokenSort) {
-                leftCustomPrice = price_right_final;
-                rightCustomPrice = price_left_final;
-              } else {
-                leftCustomPrice = price_left_final;
-                rightCustomPrice = price_right_final;
-              }
-              setLeftCustomPrice(leftCustomPrice);
-              setRightCustomPrice(rightCustomPrice);
-              handlePriceToAppropriatePoint();
-            }}
-          >
-            {display_price_left} ~ {display_price_right}
-          </span>
-          <span className="text-limitOrderInputColor">{tokenY.symbol}</span>
-          <ArrowDownV3
-            onClick={() => {
-              setDisplayedSeedIndex(displayedSeedIndex + 1);
-            }}
-            className={`transform -rotate-90 ml-1.5 text-primaryText cursor-pointer ${
-              seeds.length > 1 && displayedSeedIndex < seeds.length - 1
-                ? ''
-                : 'hidden'
-            }`}
-          ></ArrowDownV3>
-        </div>
-      </div>
-    );
-  }
-  function rewardRangeTip() {
-    const tip = intl.formatMessage({ id: 'reward_range_tip' });
-    let result: string = `<div class="text-farmText text-xs text-left">${tip}</div>`;
-    return result;
-  }
-  const tokenSort = tokenX.id == currentSelectedPool.token_x;
-
-  function getPair() {
-    if (tokenSort) {
-      return `(${tokenX.symbol}/${tokenY.symbol})`;
-    } else {
-      return `(${tokenY.symbol}/${tokenX.symbol})`;
-    }
-  }
-
-  return (
-    <div
-      className={`w-full xs:w-full md:w-full flex  mr-6 flex-col justify-between self-stretch xs:mt-5 md:mt-5`}
-    >
-      <div className=" border border-limitOrderFeeTiersBorderColor rounded-xl p-4">
-        <div className="frcb">
-          <div className="text-white font-gothamBold flex flex-col text-base ">
-            <FormattedMessage
-              id="set_price_range"
-              defaultMessage="Set Price Range"
-            />
-
-            <span className="text-xs font-gotham text-primaryText">
-              {getPair()}
-            </span>
-          </div>
-
-          <div className="rounded-lg p-1 border frcs text-xs text-primaryText border-v3borderColor">
-            <span
-              className={`whitespace-nowrap min-w-20 px-3 py-1.5 rounded-md cursor-pointer ${
-                priceRangeMode === 'by_range'
-                  ? 'text-white bg-burrowTabColor bg-opacity-60'
-                  : ''
-              }`}
-              onClick={() => {
-                setPriceRangeMode('by_range');
-              }}
-            >
-              <FormattedMessage
-                id="by_range"
-                defaultMessage={'By range'}
-              ></FormattedMessage>
-            </span>
-            <span
-              className={`whitespace-nowrap min-w-20 px-3 py-1.5 rounded-md cursor-pointer ${
-                priceRangeMode === 'by_radius'
-                  ? 'text-white bg-burrowTabColor bg-opacity-60'
-                  : ''
-              }`}
-              onClick={() => {
-                setPriceRangeMode('by_radius');
-              }}
-            >
-              <FormattedMessage
-                id="by_radius"
-                defaultMessage={'By Radius'}
-              ></FormattedMessage>
-            </span>
-          </div>
-        </div>
-
-        <div className="flex flex-col justify-between relative flex-grow   pt-4 mt-3  xsm:px-2">
-          <div>
-            <div className="grid grid-cols-3 gap-3">
-              {/* target price */}
-
-              <div className="col-span-3">
-                {priceRangeMode === 'by_range' &&
-                  quickOptionsMapPoint['full']?.['left_p'] &&
-                  quickOptionsMapPoint['full']?.['right_p'] && (
-                    <Slider
-                      invert={!tokenSort}
-                      min={quickOptionsMapPoint['full']?.['left_p']}
-                      max={quickOptionsMapPoint['full']?.['right_p']}
-                      step={
-                        // bin size
-
-                        (currentSelectedPool?.point_delta || 0) * SLOT_NUMBER
-                      }
-                      values={[leftPoint, rightPoint]}
-                      setValues={(values: any) => {
-                        setLeftPoint(values[0]);
-                        setRightPoint(values[1]);
-
-                        setBinNumber(
-                          (values[1] - values[0]) /
-                            (currentSelectedPool.point_delta * SLOT_NUMBER)
-                        );
-                      }}
-                    ></Slider>
-                  )}
-              </div>
-
-              <div
-                className={` ${
-                  priceRangeMode === 'by_range' ? 'hidden' : ''
-                } flex border border-menuMoreBoxBorderColor items-center bg-black bg-opacity-20 rounded-xl p-2.5 col-span-2`}
-              >
-                <span className="text-sm text-primaryText xs:text-xs md:text-xs whitespace-nowrap">
-                  <FormattedMessage
-                    id="target_price"
-                    defaultMessage="Target Price"
-                  ></FormattedMessage>
-                </span>
-                {/* {tokenSort ? ( */}
-                <PointInputComponent
-                  handlePriceToAppropriatePoint={handlePriceToAppropriatePoint}
-                  customPrice={targetCustomPrice}
-                  getPrice={getTargetPrice}
-                  setCustomPrice={setTargetCustomPrice}
-                  inputStatus={targetInputStatus}
-                  setInputStatus={setTargetInputStatus}
-                />
-              </div>
-
-              {/* radius */}
-              <div
-                className={` ${
-                  priceRangeMode === 'by_range' ? 'hidden' : ''
-                } flex border border-menuMoreBoxBorderColor items-center bg-black bg-opacity-20 rounded-xl p-2.5 col-span-1`}
-              >
-                <span className="text-sm text-primaryText xs:text-xs md:text-xs whitespace-nowrap">
-                  <FormattedMessage
-                    id="radius"
-                    defaultMessage="Radius"
-                  ></FormattedMessage>
-                </span>
-                <IntegerInputComponent
-                  value={radius}
-                  onChange={(value: any) => {
-                    setRadius(value);
-                  }}
-                />
-              </div>
-
-              {/* min price */}
-
-              <div className=" flex border border-menuMoreBoxBorderColor items-center bg-black bg-opacity-20 rounded-xl p-2.5 col-span-1">
-                <span className="text-sm text-primaryText xs:text-xs md:text-xs whitespace-nowrap">
-                  <FormattedMessage
-                    id="min_price"
-                    defaultMessage="Min Price"
-                  ></FormattedMessage>
-                </span>
-                {tokenSort ? (
-                  <PointInputComponent
-                    handlePriceToAppropriatePoint={
-                      handlePriceToAppropriatePoint
-                    }
-                    disbaled={priceRangeMode === 'by_radius'}
-                    customPrice={leftCustomPrice}
-                    getPrice={getLeftPrice}
-                    setCustomPrice={setLeftCustomPrice}
-                    inputStatus={leftInputStatus}
-                    setInputStatus={setLeftInputStatus}
-                  ></PointInputComponent>
-                ) : (
-                  <PointInputComponent
-                    reduceOneSlot={() => {
-                      addOneSlot('r');
-                    }}
-                    addOneSlot={() => {
-                      reduceOneSlot('r');
-                    }}
-                    disbaled={priceRangeMode === 'by_radius'}
-                    handlePriceToAppropriatePoint={
-                      handlePriceToAppropriatePoint
-                    }
-                    customPrice={rightCustomPrice}
-                    getPrice={getRightPrice}
-                    setCustomPrice={setRightCustomPrice}
-                    inputStatus={rightInputStatus}
-                    setInputStatus={setRightInputStatus}
-                  ></PointInputComponent>
-                )}
-              </div>
-
-              {/* max price */}
-              <div className="flex border border-menuMoreBoxBorderColor items-center bg-black bg-opacity-20 rounded-xl p-2.5 col-span-1">
-                <span className="text-sm text-primaryText xs:text-xs whitespace-nowrap md:text-xs">
-                  <FormattedMessage
-                    id="max_price"
-                    defaultMessage="Max Price"
-                  ></FormattedMessage>
-                </span>
-                {tokenSort ? (
-                  <PointInputComponent
-                    reduceOneSlot={() => {
-                      reduceOneSlot('r');
-                    }}
-                    disbaled={priceRangeMode === 'by_radius'}
-                    addOneSlot={() => {
-                      addOneSlot('r');
-                    }}
-                    handlePriceToAppropriatePoint={
-                      handlePriceToAppropriatePoint
-                    }
-                    customPrice={rightCustomPrice}
-                    getPrice={getRightPrice}
-                    setCustomPrice={setRightCustomPrice}
-                    inputStatus={rightInputStatus}
-                    setInputStatus={setRightInputStatus}
-                  ></PointInputComponent>
-                ) : (
-                  <PointInputComponent
-                    reduceOneSlot={() => {
-                      addOneSlot('l');
-                    }}
-                    addOneSlot={() => {
-                      reduceOneSlot('l');
-                    }}
-                    handlePriceToAppropriatePoint={
-                      handlePriceToAppropriatePoint
-                    }
-                    disbaled={priceRangeMode === 'by_radius'}
-                    customPrice={leftCustomPrice}
-                    getPrice={getLeftPrice}
-                    setCustomPrice={setLeftCustomPrice}
-                    inputStatus={leftInputStatus}
-                    setInputStatus={setLeftInputStatus}
-                  ></PointInputComponent>
-                )}
-              </div>
-
-              {/* bin number */}
-              <div className=" flex border border-menuMoreBoxBorderColor items-center bg-black bg-opacity-20 rounded-xl p-2.5 col-span-1">
-                <span className="text-sm text-primaryText xs:text-xs md:text-xs whitespace-nowrap">
-                  <FormattedMessage
-                    id="bin_amount"
-                    defaultMessage="Bin amount"
-                  ></FormattedMessage>
-                </span>
-                <IntegerInputComponent
-                  value={binNumber}
-                  disabled={priceRangeMode === 'by_radius'}
-                  onChange={(value: any) => {
-                    setBinNumber(value);
-                  }}
-                />
-              </div>
-            </div>
-
-            {seeds.length ? (
-              <div
-                className={`relative flex items-start justify-between xsm:justify-end mt-3.5 mb-1`}
-              >
-                <div className="flex items-center text-sm text-primaryText mr-3 xsm:absolute xsm:left-0">
-                  <FormattedMessage id="farm_reward_range" />
-                  <div
-                    className="text-white text-right ml-1"
-                    data-class="reactTip"
-                    data-for="rangeTipId"
-                    data-place="top"
-                    data-html={true}
-                    data-tip={rewardRangeTip()}
-                  >
-                    <QuestionMark></QuestionMark>
-                    <ReactTooltip
-                      id="rangeTipId"
-                      backgroundColor="#1D2932"
-                      border
-                      borderColor="#7e8a93"
-                      effect="solid"
-                    />
-                  </div>
-                </div>
-                {get_related_seeds()}
-              </div>
-            ) : null}
-          </div>
-        </div>
-
-        <div
-          style={{
-            color: '#3F4A52',
-          }}
-          className="text-xs mt-3"
-        >
-          *Only NEAR is needed in the price range you choose.
-        </div>
-      </div>
-
-      {/* <div
-        className={`items-start justify-center bg-black bg-opacity-20 rounded-lg mt-2.5 px-4 py-3 ${
-          onlyAddXToken || (onlyAddYToken && currentPoint != rightPoint - 1)
-            ? 'flex'
-            : 'hidden'
-        }`}
-      >
-        <WarningIcon className="relative top-1 flex-shrink-0"></WarningIcon>
-        <div className="text-sm text-v3WarningColor ml-3">
-          <FormattedMessage
-            id="add_single_price_tip"
-            defaultMessage="As long as the market is trading into your range of prices, you will receive trading fees proportional to your liquidity. "
-          ></FormattedMessage>
-        </div>
-      </div>
-      <div
-        className={`items-start justify-center bg-black bg-opacity-20 rounded-lg mt-2.5 px-4 py-3 ${
-          invalidRange ? 'flex' : 'hidden'
-        }`}
-      >
-        <WarningIcon className="relative top-1 flex-shrink-0"></WarningIcon>
-        <div className="text-sm text-v3WarningColor ml-3">
-          <FormattedMessage
-            id="invalid_range_tip"
-            defaultMessage="Invalid range selected. The min price must be lower than the max price."
-          />
-        </div>
-      </div> */}
-      {/* {isSignedIn ? (
-        <GradientButton
-          color="#fff"
-          className={`w-full h-12 mt-5 text-center text-base text-white focus:outline-none ${
-            isAddLiquidityDisabled ? 'opacity-40' : ''
-          }`}
-          loading={addLiquidityButtonLoading}
-          disabled={addLiquidityButtonLoading || isAddLiquidityDisabled}
-          btnClassName={`${isAddLiquidityDisabled ? 'cursor-not-allowed' : ''}`}
-          onClick={addLiquidity}
-        >
-          <ButtonTextWrapper
-            loading={addLiquidityButtonLoading}
-            Text={() => <>{getButtonText()}</>}
-          />
-        </GradientButton>
-      ) : (
-        <ConnectToNearBtn />
-      )} */}
-    </div>
-  );
-}
-
-function AddLiquidityButton({
-  currentSelectedPool,
-  tokenX,
-  tokenY,
-  tokenPriceList,
-  tokenXAmount,
-  tokenYAmount,
-  tokenXBalanceFromNear,
-  tokenYBalanceFromNear,
-  pointChange,
-  onlyAddXToken,
-  onlyAddYToken,
-  invalidRange,
-  seeds,
-  priceRangeMode,
-  setPriceRangeMode,
-  binNumber,
-  setBinNumber,
-  curPointInBinBoundry,
-  setCurPointInBinBoundry,
-  getTokenYAmountByCondition,
-  getTokenXAmountByCondition,
-  liquidityShape,
-  setLiquidityShape,
-}: {
-  currentSelectedPool: PoolInfo;
-  tokenX: TokenMetadata;
-  tokenY: TokenMetadata;
-  tokenPriceList: Record<string, any>;
-  tokenXAmount: string;
-  tokenYAmount: string;
-  tokenXBalanceFromNear: string;
-  tokenYBalanceFromNear: string;
-  pointChange: any;
-  onlyAddXToken: boolean;
-  onlyAddYToken: boolean;
-  invalidRange: boolean;
-  seeds: Seed[];
-  priceRangeMode: PriceRangeModeType;
-  setPriceRangeMode: (mode: PriceRangeModeType) => void;
-  binNumber: number;
-  setBinNumber: (binNumber: number) => void;
-  curPointInBinBoundry: boolean;
-  setCurPointInBinBoundry: (curPointInBinBoundry: boolean) => void;
-  getTokenYAmountByCondition: any;
-  getTokenXAmountByCondition: any;
-  liquidityShape: LiquidityShape;
-  setLiquidityShape: (liquidityShape: LiquidityShape) => void;
-}) {
-  let [leftPoint, setLeftPoint] = useState<number>(0);
-  let [rightPoint, setRightPoint] = useState<number>(0);
-  const [leftInputStatus, setLeftInputStatus] = useState(false);
-  const [rightInputStatus, setRightInputStatus] = useState(false);
-  const [currentPoint, setCurrentPoint] = useState<number>();
-  const [chartLoading, setChartLoading] = useState<boolean>(false);
-  const [noDataForChart, setNoDataForChart] = useState(false);
-  const [addLiquidityButtonLoading, setAddLiquidityButtonLoading] =
-    useState(false);
-  const [currentCheckedQuickOption, setCurrentCheckedQuickOption] = useState<
-    number | string
-  >();
-  const [quickOptions, setQuickOptions] = useState([5, 10, 20, 50]);
-  const [quickOptionsMapPoint, setQuickOptionsMapPoint] = useState<
-    Record<string, any>
-  >({});
-  const { globalState } = useContext(WalletContext);
-  const [timer, setTimer] = useState(null);
-  const [depthData, setDepthData] = useState(null);
-  const isSignedIn = globalState.isSignedIn;
-  const intl = useIntl();
-  const chartDom = useRef(null);
-  const { token_x, token_y } = currentSelectedPool;
-  const token_x_decimals =
-    tokenX.id == token_x ? tokenX.decimals : tokenY.decimals;
-  const token_y_decimals =
-    tokenY.id == token_y ? tokenY.decimals : tokenX.decimals;
-  // init
-  useEffect(() => {
-    const { current_point, point_delta } = currentSelectedPool;
-    // 5, 10 20 50
-    const optionsMapPoints_temp = {};
-    quickOptions.forEach((p: number) => {
-      const { left_p, right_p } = getPointByCondition(p);
-      optionsMapPoints_temp[p] = { left_p, right_p };
-      if (p == 10) {
-        leftPoint = left_p;
-        rightPoint = right_p;
-        setLeftPoint(left_p);
-        setRightPoint(right_p);
-      }
-    });
-    // full
-    const l_p_temp = _.max([current_point - 400000, -800000]);
-    const r_p_temp = _.min([current_point + 400000, 800000]);
-    let l_p = Math.floor(l_p_temp / point_delta) * point_delta;
-    let r_p = Math.floor(r_p_temp / point_delta) * point_delta;
-    if (r_p - l_p >= POINTRIGHTRANGE) {
-      l_p = l_p + point_delta;
-    }
-    optionsMapPoints_temp['full'] = { left_p: l_p, right_p: r_p };
-    // set
-    setCurrentPoint(current_point);
-    setQuickOptionsMapPoint(optionsMapPoints_temp);
-    setCurrentCheckedQuickOption(10);
-    // show chart data
-    setChartLoading(true);
-    setNoDataForChart(false);
-    clearTimeout(timer);
-    const timer_latest = setTimeout(() => {
-      getChartData();
-    }, 1000);
-    setTimer(timer_latest);
-  }, [currentSelectedPool]);
-  useEffect(() => {
-    pointChange({ leftPoint, rightPoint, currentPoint });
-    const targetKey = Object.keys(quickOptionsMapPoint).find((key: string) => {
-      const { left_p, right_p } = quickOptionsMapPoint[key];
-      if (left_p == leftPoint && right_p == rightPoint) {
-        return key;
-      }
-    });
-    if (targetKey) {
-      setCurrentCheckedQuickOption(targetKey);
-    } else {
-      setCurrentCheckedQuickOption(undefined);
-    }
-    if (depthData) {
-      drawChartData({
-        depthData,
-        left_point: leftPoint,
-        right_point: rightPoint,
-        token_x_decimals,
-        token_y_decimals,
-        chartDom,
-        sort: tokenX.id == token_x,
-        space_x: 5,
-      });
-    }
-  }, [leftPoint, rightPoint]);
-  async function getChartData() {
-    const depthData = await get_pool_marketdepth(currentSelectedPool.pool_id);
-    const length = drawChartData({
-      depthData,
-      left_point: leftPoint,
-      right_point: rightPoint,
-      token_x_decimals,
-      token_y_decimals,
-      chartDom,
-      sort: tokenX.id == token_x,
-      space_x: 5,
-    });
-    if (length == 0) {
-      setNoDataForChart(true);
-    } else {
-      setDepthData(depthData);
-    }
-    setChartLoading(false);
-  }
-  function getPointByCondition(p: number) {
-    const { point_delta, token_x } = currentSelectedPool;
-    const c_price = getCurrentPrice_real_decimal();
-    const decimalRate =
-      Math.pow(10, token_y_decimals) / Math.pow(10, token_x_decimals);
-    const tokenSort = tokenX.id == token_x ? true : false;
-    const reduce_p = 1 - p / 100;
-    const add_p = 1 + p / 100;
-    if (tokenSort) {
-      // -10% example
-      const l_price = new BigNumber(c_price).multipliedBy(reduce_p).toFixed();
-      const point_l = getPointByPrice(
-        point_delta,
-        l_price.toString(),
-        decimalRate
-      );
-      // +10% example
-      const r_price = new BigNumber(c_price).multipliedBy(add_p).toFixed();
-      const point_r = getPointByPrice(
-        point_delta,
-        r_price.toString(),
-        decimalRate
-      );
-      return { left_p: point_l, right_p: point_r };
-    } else {
-      const c_price2 = new BigNumber(1).dividedBy(c_price).toFixed();
-      // +10% example
-      const priceAdd = new BigNumber(c_price2).multipliedBy(add_p);
-      const l_price_2 = new BigNumber(1).dividedBy(priceAdd).toFixed();
-      const point_l_2 = getPointByPrice(
-        point_delta,
-        l_price_2.toString(),
-        decimalRate
-      );
-      // -10% example
-      const priceDivide = new BigNumber(c_price2).multipliedBy(reduce_p);
-      const r_price_2 = new BigNumber(1).dividedBy(priceDivide).toFixed();
-      const point_r_2 = getPointByPrice(
-        point_delta,
-        r_price_2.toString(),
-        decimalRate
-      );
-      return { left_p: point_l_2, right_p: point_r_2 };
-    }
-  }
-
-  function getCurrentPrice_real_decimal() {
-    if (currentSelectedPool && currentSelectedPool.pool_id) {
-      const { current_point, token_x, token_y } = currentSelectedPool;
-      const decimalRate =
-        Math.pow(10, token_x_decimals) / Math.pow(10, token_y_decimals);
-      const price = getPriceByPoint(current_point, decimalRate);
-      return price;
-    }
-    return 0;
-  }
-
-  function getButtonStatus() {
-    const condition1 = currentSelectedPool?.pool_id;
-    let condition2;
-    if (onlyAddXToken) {
-      if (tokenSort) {
-        condition2 =
-          +tokenXAmount > 0 &&
-          new BigNumber(
-            getMax(tokenX, tokenXBalanceFromNear)
-          ).isGreaterThanOrEqualTo(tokenXAmount);
-      } else {
-        condition2 =
-          +tokenYAmount > 0 &&
-          new BigNumber(
-            getMax(tokenY, tokenYBalanceFromNear)
-          ).isGreaterThanOrEqualTo(tokenYAmount);
-      }
-    } else if (onlyAddYToken) {
-      if (tokenSort) {
-        condition2 =
-          +tokenYAmount > 0 &&
-          new BigNumber(
-            getMax(tokenY, tokenYBalanceFromNear)
-          ).isGreaterThanOrEqualTo(tokenYAmount);
-      } else {
-        condition2 =
-          +tokenXAmount > 0 &&
-          new BigNumber(
-            getMax(tokenX, tokenXBalanceFromNear)
-          ).isGreaterThanOrEqualTo(tokenXAmount);
-      }
-    } else if (!invalidRange) {
-      condition2 =
-        +tokenXAmount > 0 &&
-        new BigNumber(
-          getMax(tokenX, tokenXBalanceFromNear)
-        ).isGreaterThanOrEqualTo(tokenXAmount) &&
-        +tokenYAmount > 0 &&
-        new BigNumber(
-          getMax(tokenY, tokenYBalanceFromNear)
-        ).isGreaterThanOrEqualTo(tokenYAmount);
-    }
-    return !(condition1 && condition2);
-  }
-  function getMax(token: TokenMetadata, balance: string) {
-    return token.id !== WRAP_NEAR_CONTRACT_ID
-      ? balance
-      : Number(balance) <= 0.5
-      ? '0'
-      : String(Number(balance) - 0.5);
-  }
-
-  function addLiquidityCurve() {
-    const { pool_id, point_delta } = currentSelectedPool;
-
-    const binSize = point_delta * SLOT_NUMBER;
-
-    let liquidityInfo: AddLiquidityInfo[];
-
-    if (onlyAddYToken) {
-      // left side
-      const Y = tokenYAmount;
-
-      const D = new Big(Y)
-        .mul(2)
-        .div(new Big(binNumber).mul(new Big(binNumber).plus(1)))
-        .div(binSize);
-
-      liquidityInfo = new Array(binNumber).map((item, index) => {
-        const height = new Big(index + 1).mul(D).toFixed(0);
-        const left_p = leftPoint + binSize * index;
-        const right_p = leftPoint + binSize * (index + 1);
-
-        const amount_y = toNonDivisibleNumber(
-          tokenY.decimals,
-          new Big(height).mul(binSize).toFixed()
-        );
-
-        return {
-          pool_id,
-          left_point: left_p,
-          right_point: right_p,
-          amount_x: '0',
-          amount_y,
-        };
-      });
-    }
-
-    if (onlyAddXToken) {
-      const X = tokenSort ? tokenYAmount : tokenXAmount;
-
-      const D = new Big(X)
-        .mul(2)
-        .div(new Big(binNumber).mul(new Big(binNumber).plus(1)))
-        .div(binSize);
-
-      liquidityInfo = new Array(binNumber).map((item, index) => {
-        const height = new Big(binNumber - index).mul(D).toFixed(0);
-        const left_p = leftPoint + binSize * index;
-        const right_p = leftPoint + binSize * (index + 1);
-
-        const amount_x = toNonDivisibleNumber(
-          tokenX.decimals,
-          new Big(height).mul(binSize).toFixed()
-        );
-
-        return {
-          pool_id,
-          left_point: left_p,
-          right_point: right_p,
-          amount_x,
-          amount_y: '0',
-        };
-      });
-    }
-
-    if (!onlyAddXToken || !onlyAddYToken) {
-      if (curPointInBinBoundry) {
-        const leftBinSize = Math.floor(binNumber / 2);
-        const rightBinSize = binNumber - leftBinSize;
-
-        const X_left = tokenYAmount;
-
-        const Y_right = tokenXAmount;
-
-        const D_left = new Big(X_left)
-          .mul(2)
-          .div(new Big(leftBinSize).mul(new Big(leftBinSize).plus(1)))
-          .div(binSize);
-
-        const D_right = new Big(Y_right)
-          .mul(2)
-          .div(new Big(rightBinSize).mul(new Big(rightBinSize).plus(1)))
-          .div(binSize);
-
-        liquidityInfo = new Array(leftBinSize).map((item, index) => {
-          const height = new Big(index + 1).mul(D_left).toFixed(0);
-          const left_p = leftPoint + binSize * index;
-          const right_p = leftPoint + binSize * (index + 1);
-
-          const amount_y = toNonDivisibleNumber(
-            tokenY.decimals,
-            new Big(height).mul(binSize).toFixed()
-          );
-
-          return {
-            pool_id,
-            left_point: left_p,
-            right_point: right_p,
-            amount_x: '0',
-            amount_y,
-          };
-        });
-
-        liquidityInfo = liquidityInfo.concat(
-          new Array(rightBinSize).map((item, index) => {
-            const height = new Big(rightBinSize - index)
-              .mul(D_right)
-              .toFixed(0);
-            const left_p = leftPoint + binSize * (leftBinSize + index);
-            const right_p = leftPoint + binSize * (leftBinSize + index + 1);
-
-            const amount_x = toNonDivisibleNumber(
-              tokenX.decimals,
-              new Big(height).mul(binSize).toFixed()
-            );
-
-            return {
-              pool_id,
-              left_point: left_p,
-              right_point: right_p,
-              amount_x,
-              amount_y: '0',
-            };
-          })
-        );
-      } else {
-        const leftBinSize = Math.floor(binNumber / 2) + 1;
-        const rightBinSize = binNumber - leftBinSize - 1;
-
-        const D_left = new Big(tokenYAmount).div(
-          new Big(
-            new Big(((leftBinSize - 1) * leftBinSize) / 2).mul(binSize)
-          ).plus(new Big(leftBinSize).mul(currentPoint - leftPoint))
-        );
-
-        if (leftBinSize - 1 > 0) {
-          const addLpList = new Array(leftBinSize - 1).map((item, index) => {
-            const height = new Big(index + 1).mul(D_left).toFixed(0);
-            const left_p = leftPoint + binSize * index;
-            const right_p = leftPoint + binSize * (index + 1);
-
-            const amount_y = toNonDivisibleNumber(
-              tokenY.decimals,
-              new Big(height).mul(binSize).toFixed()
-            );
-
-            return {
-              pool_id,
-              left_point: left_p,
-              right_point: right_p,
-              amount_x: '0',
-              amount_y: amount_y,
-            };
-          });
-          liquidityInfo = (liquidityInfo || []).concat(addLpList);
-        }
-
-        // middle bin
-
-        const tokenYMiddleAmount = new Big(currentPoint)
-          .minus(leftPoint + Number(leftBinSize - 1) * binSize)
-          .mul(D_left)
-          .mul(leftBinSize)
-          .toFixed(0);
-
-        const tokenXMiddleAmount = getTokenXAmountByCondition({
-          amount: tokenYMiddleAmount,
-          leftPoint: leftPoint + Number(leftBinSize - 1) * binSize,
-          rightPoint: leftPoint + leftBinSize * binSize,
-          currentPoint,
-        });
-
-        liquidityInfo = (liquidityInfo || []).concat([
-          {
-            pool_id,
-            left_point: leftPoint + Number(leftBinSize - 1) * binSize,
-            right_point: leftPoint + leftBinSize * binSize,
-            amount_x: toNonDivisibleNumber(tokenX.decimals, tokenXMiddleAmount),
-            amount_y: toNonDivisibleNumber(tokenY.decimals, tokenYMiddleAmount),
-          },
-        ]);
-
-        // right side
-
-        if (rightBinSize > 1) {
-          const newtokenXAmount = new Big(tokenXAmount)
-            .minus(tokenXMiddleAmount)
-            .toFixed(0);
-
-          const D_right = new Big(newtokenXAmount)
-            .mul(2)
-            .div(new Big(((rightBinSize - 1) * rightBinSize) / 2).mul(binSize));
-
-          const addLpList = new Array(rightBinSize).map((item, index) => {
-            const height = new Big(rightBinSize - index)
-              .mul(D_right)
-              .toFixed(0);
-            const left_p = leftPoint + leftBinSize + index * binSize;
-            const right_p = left_p + binSize;
-
-            const amount_x = toNonDivisibleNumber(
-              tokenX.decimals,
-              new Big(height).mul(binSize).toFixed()
-            );
-
-            return {
-              pool_id,
-              left_point: left_p,
-              right_point: right_p,
-              amount_x,
-              amount_y: '0',
-            };
-          });
-          liquidityInfo = (liquidityInfo || []).concat(addLpList);
-        }
-
-        //
-      }
-    }
-
-    return batch_add_liquidity({
-      liquidityInfo,
-      token_x: tokenX,
-      token_y: tokenY,
-    });
-  }
-
-  function addLiquidityBidAsk() {
-    const { pool_id, point_delta } = currentSelectedPool;
-
-    const binSize = point_delta * SLOT_NUMBER;
-
-    let liquidityInfo: AddLiquidityInfo[];
-
-    if (onlyAddYToken) {
-      // left side
-      const Y = tokenYAmount;
-
-      const D = new Big(Y)
-        .mul(2)
-        .div(new Big(binNumber).mul(new Big(binNumber).plus(1)))
-        .div(binSize);
-
-      liquidityInfo = new Array(binNumber).map((item, index) => {
-        const height = new Big(binNumber - index).mul(D).toFixed(0);
-        const left_p = leftPoint + binSize * index;
-        const right_p = leftPoint + binSize * (index + 1);
-
-        const amount_y = toNonDivisibleNumber(
-          tokenY.decimals,
-          new Big(height).mul(binSize).toFixed()
-        );
-
-        return {
-          pool_id,
-          left_point: left_p,
-          right_point: right_p,
-          amount_x: '0',
-          amount_y,
-        };
-      });
-    }
-
-    if (onlyAddXToken) {
-      const X = tokenSort ? tokenYAmount : tokenXAmount;
-
-      const D = new Big(X)
-        .mul(2)
-        .div(new Big(binNumber).mul(new Big(binNumber).plus(1)))
-        .div(binSize);
-
-      liquidityInfo = new Array(binNumber).map((item, index) => {
-        const height = new Big(index + 1).mul(D).toFixed(0);
-        const left_p = leftPoint + binSize * index;
-        const right_p = leftPoint + binSize * (index + 1);
-
-        const amount_x = toNonDivisibleNumber(
-          tokenX.decimals,
-          new Big(height).mul(binSize).toFixed()
-        );
-
-        return {
-          pool_id,
-          left_point: left_p,
-          right_point: right_p,
-          amount_x,
-          amount_y: '0',
-        };
-      });
-    }
-
-    if (!onlyAddXToken || !onlyAddYToken) {
-      if (curPointInBinBoundry) {
-        const leftBinSize = Math.floor(binNumber / 2);
-        const rightBinSize = binNumber - leftBinSize;
-
-        const X_left = tokenYAmount;
-
-        const Y_right = tokenXAmount;
-
-        const D_left = new Big(X_left)
-          .mul(2)
-          .div(new Big(leftBinSize).mul(new Big(leftBinSize).plus(1)))
-          .div(binSize);
-
-        const D_right = new Big(Y_right)
-          .mul(2)
-          .div(new Big(rightBinSize).mul(new Big(rightBinSize).plus(1)))
-          .div(binSize);
-
-        liquidityInfo = new Array(leftBinSize).map((item, index) => {
-          const height = new Big(leftBinSize - index).mul(D_left).toFixed(0);
-          const left_p = leftPoint + binSize * index;
-          const right_p = leftPoint + binSize * (index + 1);
-
-          const amount_y = toNonDivisibleNumber(
-            tokenY.decimals,
-            new Big(height).mul(binSize).toFixed()
-          );
-
-          return {
-            pool_id,
-            left_point: left_p,
-            right_point: right_p,
-            amount_x: '0',
-            amount_y,
-          };
-        });
-
-        liquidityInfo = liquidityInfo.concat(
-          new Array(rightBinSize).map((item, index) => {
-            const height = new Big(index + 1).mul(D_right).toFixed(0);
-            const left_p = leftPoint + binSize * (leftBinSize + index);
-            const right_p = leftPoint + binSize * (leftBinSize + index + 1);
-
-            const amount_x = toNonDivisibleNumber(
-              tokenX.decimals,
-              new Big(height).mul(binSize).toFixed()
-            );
-
-            return {
-              pool_id,
-              left_point: left_p,
-              right_point: right_p,
-              amount_x,
-              amount_y: '0',
-            };
-          })
-        );
-      } else {
-        const leftBinSize = Math.floor(binNumber / 2) + 1;
-        const rightBinSize = binNumber - leftBinSize - 1;
-
-        const D_left = new Big(tokenYAmount).div(
-          new Big(
-            new Big(((leftBinSize - 1) * leftBinSize) / 2).mul(binSize)
-          ).plus(new Big(leftBinSize).mul(currentPoint - leftPoint))
-        );
-
-        if (leftBinSize - 1 > 0) {
-          const addLpList = new Array(leftBinSize - 1).map((item, index) => {
-            const height = new Big(leftBinSize - 1 - index)
-              .mul(D_left)
-              .toFixed(0);
-            const left_p = leftPoint + binSize * index;
-            const right_p = leftPoint + binSize * (index + 1);
-
-            const amount_y = toNonDivisibleNumber(
-              tokenY.decimals,
-              new Big(height).mul(binSize).toFixed()
-            );
-
-            return {
-              pool_id,
-              left_point: left_p,
-              right_point: right_p,
-              amount_x: '0',
-              amount_y: amount_y,
-            };
-          });
-          liquidityInfo = (liquidityInfo || []).concat(addLpList);
-        }
-
-        // middle bin
-
-        const tokenYMiddleAmount = new Big(currentPoint)
-          .minus(leftPoint + Number(leftBinSize - 1) * binSize)
-          .mul(D_left)
-          .toFixed(0);
-
-        const tokenXMiddleAmount = getTokenXAmountByCondition({
-          amount: tokenYMiddleAmount,
-          leftPoint: leftPoint + Number(leftBinSize - 1) * binSize,
-          rightPoint: leftPoint + leftBinSize * binSize,
-          currentPoint,
-        });
-
-        liquidityInfo = (liquidityInfo || []).concat([
-          {
-            pool_id,
-            left_point: leftPoint + Number(leftBinSize - 1) * binSize,
-            right_point: leftPoint + leftBinSize * binSize,
-            amount_x: toNonDivisibleNumber(tokenX.decimals, tokenXMiddleAmount),
-            amount_y: toNonDivisibleNumber(tokenY.decimals, tokenYMiddleAmount),
-          },
-        ]);
-
-        // right side
-
-        if (rightBinSize > 1) {
-          const newtokenXAmount = new Big(tokenXAmount)
-            .minus(tokenXMiddleAmount)
-            .toFixed(0);
-
-          const D_right = new Big(newtokenXAmount)
-            .mul(2)
-            .div(new Big(((rightBinSize - 1) * rightBinSize) / 2).mul(binSize));
-
-          const addLpList = new Array(rightBinSize).map((item, index) => {
-            const height = new Big(index + 1).mul(D_right).toFixed(0);
-            const left_p = leftPoint + leftBinSize + index * binSize;
-            const right_p = left_p + binSize;
-
-            const amount_x = toNonDivisibleNumber(
-              tokenX.decimals,
-              new Big(height).mul(binSize).toFixed()
-            );
-
-            return {
-              pool_id,
-              left_point: left_p,
-              right_point: right_p,
-              amount_x,
-              amount_y: '0',
-            };
-          });
-          liquidityInfo = (liquidityInfo || []).concat(addLpList);
-        }
-
-        //
-      }
-    }
-
-    return batch_add_liquidity({
-      liquidityInfo,
-      token_x: tokenX,
-      token_y: tokenY,
-    });
-  }
-
-  function addLiquidity() {
-    setAddLiquidityButtonLoading(true);
-    const { pool_id } = currentSelectedPool;
-    add_liquidity({
-      pool_id,
-      left_point: leftPoint,
-      right_point: rightPoint,
-      amount_x: tokenSort
-        ? toNonDivisibleNumber(tokenX.decimals, tokenXAmount || '0')
-        : toNonDivisibleNumber(tokenY.decimals, tokenYAmount || '0'),
-      amount_y: tokenSort
-        ? toNonDivisibleNumber(tokenY.decimals, tokenYAmount || '0')
-        : toNonDivisibleNumber(tokenX.decimals, tokenXAmount || '0'),
-      token_x: tokenSort ? tokenX : tokenY,
-      token_y: tokenSort ? tokenY : tokenX,
-    });
-  }
-
-  function getButtonText() {
-    let txt: any = (
-      <FormattedMessage id="add_liquidity" defaultMessage="Add Liquidity" />
-    );
-    if (invalidRange) {
-      txt = (
-        <FormattedMessage id="update_range" defaultMessage="Update Range" />
-      );
-    } else if (
-      (onlyAddXToken && +tokenXAmount == 0 && tokenSort) ||
-      (onlyAddXToken && +tokenYAmount == 0 && !tokenSort)
-    ) {
-      txt = (
-        <FormattedMessage
-          id="input_amount"
-          defaultMessage="Input Amount"
-        ></FormattedMessage>
-      );
-    } else if (
-      (onlyAddYToken && +tokenYAmount == 0 && tokenSort) ||
-      (onlyAddYToken && +tokenXAmount == 0 && !tokenSort)
-    ) {
-      txt = (
-        <FormattedMessage
-          id="input_amount"
-          defaultMessage="Input Amount"
-        ></FormattedMessage>
-      );
-    } else if (
-      !onlyAddXToken &&
-      !onlyAddYToken &&
-      (+tokenXAmount == 0 || +tokenYAmount == 0)
-    ) {
-      txt = (
-        <FormattedMessage
-          id="input_amount"
-          defaultMessage="Input Amount"
-        ></FormattedMessage>
-      );
-    } else if (
-      +tokenXAmount > 0 &&
-      new BigNumber(tokenXAmount).isGreaterThan(
-        getMax(tokenX, tokenXBalanceFromNear)
-      )
-    ) {
-      txt = (
-        <FormattedMessage
-          id="not_enough_balance"
-          defaultMessage="Not Enough Balance"
-        />
-      );
-    } else if (
-      +tokenYAmount > 0 &&
-      new BigNumber(tokenYAmount).isGreaterThan(
-        getMax(tokenY, tokenYBalanceFromNear)
-      )
-    ) {
-      txt = (
-        <FormattedMessage
-          id="not_enough_balance"
-          defaultMessage="Not Enough Balance"
-        />
-      );
-    }
-    return txt;
-  }
-
-  const tokenSort = tokenX.id == currentSelectedPool.token_x;
-  const isAddLiquidityDisabled = getButtonStatus();
-
-  const add_lp_func =
-    liquidityShape === 'Spot'
-      ? addLiquidity
-      : liquidityShape === 'Curve'
-      ? addLiquidityCurve
-      : () => {};
-
-  return (
-    <div
-      className={`w-full xs:w-full md:w-full flex flex-col justify-between self-stretch xs:mt-5 md:mt-5`}
-    >
-      {isSignedIn ? (
-        <GradientButton
-          color="#fff"
-          className={`w-full h-12 mt-5 text-center text-base text-white focus:outline-none ${
-            isAddLiquidityDisabled ? 'opacity-40' : ''
-          }`}
-          loading={addLiquidityButtonLoading}
-          disabled={addLiquidityButtonLoading || isAddLiquidityDisabled}
-          btnClassName={`${isAddLiquidityDisabled ? 'cursor-not-allowed' : ''}`}
-          onClick={add_lp_func}
-        >
-          <ButtonTextWrapper
-            loading={addLiquidityButtonLoading}
-            Text={() => <>{getButtonText()}</>}
-          />
-        </GradientButton>
-      ) : (
-        <ConnectToNearBtn />
-      )}
-    </div>
-  );
-}
-
 function NoDataComponent(props: any) {
   const { isNoPool } = props;
   const [quickOptions, setQuickOptions] = useState([5, 10, 20, 50]);
@@ -3351,26 +2575,19 @@ function NoDataComponent(props: any) {
   );
 }
 function PointInputComponent({
-  reduceOneSlot,
-  addOneSlot,
   handlePriceToAppropriatePoint,
   customPrice,
-  getPrice,
   setCustomPrice,
+
+  getPrice,
+  setPoint,
+
   inputStatus,
   setInputStatus,
   disbaled,
 }: any) {
   return (
-    <div className="flex items-center justify-between ">
-      {/* <div
-        className="flex w-6 h-6  flex-shrink-0 items-center justify-center rounded-md bg-v3BlackColor cursor-pointer"
-        onClick={() => {
-          reduceOneSlot('r');
-        }}
-      >
-        <ReduceButton className="cursor-pointer"></ReduceButton>
-      </div> */}
+    <div className="flex items-center justify-between">
       <input
         type="number"
         placeholder="0.0"
@@ -3379,8 +2596,13 @@ function PointInputComponent({
           disbaled ? 'text-primaryText' : 'text-white'
         }`}
         onBlur={() => {
-          handlePriceToAppropriatePoint();
-          setInputStatus(false);
+          if (customPrice) {
+            debugger;
+            const appropriate_point_temp =
+              handlePriceToAppropriatePoint(customPrice);
+            setInputStatus(false);
+            setPoint(appropriate_point_temp);
+          }
         }}
         disabled={disbaled}
         value={inputStatus ? customPrice : getPrice()}
@@ -3390,14 +2612,6 @@ function PointInputComponent({
           setCustomPrice(inputPrice);
         }}
       />
-      {/* <div
-        className="flex w-6 h-6 flex-shrink-0 items-center justify-center rounded-md bg-v3BlackColor cursor-pointer"
-        onClick={() => {
-          addOneSlot('r');
-        }}
-      >
-        <AddButton className="cursor-pointer"></AddButton>
-      </div> */}
     </div>
   );
 }

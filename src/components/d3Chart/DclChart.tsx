@@ -54,10 +54,11 @@ export default function DclChart({
   const [price_range, set_price_range] = useState<number[]>();
   const [chartDataList, setChartDataList] = useState<IChartData[]>();
   const [binDetail, setBinDetail] = useState<IBinDetail>();
-  const [dragLeftPoint, setDragLeftPoint] = useState<number>(leftPoint);
-  const [dragRightPoint, setDragRightPoint] = useState<number>(rightPoint);
+  const [dragLeftPoint, setDragLeftPoint] = useState<number>();
+  const [dragRightPoint, setDragRightPoint] = useState<number>();
   const [zoom, setZoom] = useState<number>();
   const [randomId, setRandomId] = useState('.' + createRandomString());
+  const [drawChartDone, setDrawChartDone] = useState<boolean>(false);
   /** constant start */
   const appearanceConfig: IPoolChartConfig = config || {};
   const dragBarWidth = 28;
@@ -87,6 +88,8 @@ export default function DclChart({
   useEffect(() => {
     if (pool_id) {
       get_pool_detail(pool_id);
+      leftPoint && setDragLeftPoint(leftPoint);
+      rightPoint && setDragRightPoint(rightPoint);
     }
   }, [pool_id]);
   useEffect(() => {
@@ -97,10 +100,15 @@ export default function DclChart({
   useEffect(() => {
     if (price_range && chartDataList) {
       drawChart();
+      setDrawChartDone(true);
     }
   }, [price_range, chartDataList]);
   useEffect(() => {
-    if (isValid(dragLeftPoint) && !appearanceConfig.controlHidden) {
+    if (
+      isValid(dragLeftPoint) &&
+      !appearanceConfig.controlHidden &&
+      drawChartDone
+    ) {
       const scale = scaleAxis();
       const newPoint = dragLeftPoint;
       const newPrice = get_price_by_point(newPoint);
@@ -134,14 +142,22 @@ export default function DclChart({
         .attr('width', W);
       setLeftPoint && setLeftPoint(newPoint);
     }
-  }, [dragLeftPoint, price_range]);
+  }, [dragLeftPoint, price_range, drawChartDone]);
   useEffect(() => {
-    if (isValid(leftPoint) && leftPoint !== dragLeftPoint) {
+    if (
+      isValid(leftPoint) &&
+      isValid(dragLeftPoint) &&
+      leftPoint !== dragLeftPoint
+    ) {
       setDragLeftPoint(leftPoint);
     }
   }, [leftPoint]);
   useEffect(() => {
-    if (isValid(dragRightPoint) && !appearanceConfig.controlHidden) {
+    if (
+      isValid(dragRightPoint) &&
+      !appearanceConfig.controlHidden &&
+      drawChartDone
+    ) {
       const scale = scaleAxis();
       const newPoint = dragRightPoint;
       const newPrice = get_price_by_point(newPoint);
@@ -171,12 +187,28 @@ export default function DclChart({
       d3.select(`${randomId} .overlap rect`).attr('width', W);
       setRightPoint && setRightPoint(newPoint);
     }
-  }, [dragRightPoint, price_range]);
+  }, [dragRightPoint, price_range, drawChartDone]);
   useEffect(() => {
-    if (isValid(rightPoint) && rightPoint !== dragRightPoint) {
+    if (
+      isValid(rightPoint) &&
+      isValid(dragRightPoint) &&
+      rightPoint !== dragRightPoint
+    ) {
       setDragRightPoint(rightPoint);
     }
   }, [rightPoint]);
+  useEffect(() => {
+    if (config?.radiusMode && config?.targetPoint) {
+      // hide drag bar and show target price bar
+      draw_radius_mode_bar();
+      d3.select('.leftBar').attr('style', 'display:none');
+      d3.select('.rightBar').attr('style', 'display:none');
+    } else {
+      d3.select('.leftBar').attr('style', '');
+      d3.select('.rightBar').attr('style', '');
+      d3.select('.radiusBar').attr('style', 'display:none');
+    }
+  }, [config?.radiusMode, config?.targetPoint]);
   async function get_pool_detail(pool_id: string) {
     const p: PoolInfo = await get_pool(pool_id);
     const { token_x, token_y } = p;
@@ -662,8 +694,8 @@ export default function DclChart({
     // 初始化左的位置
     const price = get_current_price();
     let price_l;
-    if (leftPoint) {
-      price_l = get_price_by_point(leftPoint);
+    if (dragLeftPoint) {
+      price_l = get_price_by_point(dragLeftPoint);
     } else {
       const price_l_temp = Big(1 - defaultPercent / 100)
         .mul(price)
@@ -708,8 +740,8 @@ export default function DclChart({
     // 初始化右的位置
     const price = get_current_price();
     let price_r;
-    if (rightPoint) {
-      price_r = get_price_by_point(rightPoint);
+    if (dragRightPoint) {
+      price_r = get_price_by_point(dragRightPoint);
     } else {
       const price_r_temp = Big(1 + defaultPercent / 100)
         .mul(price)
@@ -745,6 +777,15 @@ export default function DclChart({
       setDragRightPoint(newRightPoint);
     });
     d3.select(`${randomId} .drag-right`).call(dragRight);
+  }
+  function draw_radius_mode_bar() {
+    const scale: any = scaleAxis();
+    const { targetPoint } = config;
+    const price = get_price_by_point(targetPoint);
+    const x = scale(price);
+    d3.select(`${randomId} .radiusBar`)
+      .attr('transform', `translate(${x}, -${axisHeight})`)
+      .attr('style', 'display:block');
   }
   function get_current_price() {
     return get_price_by_point(pool.current_point);
@@ -926,7 +967,7 @@ export default function DclChart({
       } ${randomId.slice(1)}`}
     >
       {/* 控件按钮*/}
-      <div className="control flex items-center border border-v3GreyColor rounded-lg py-px h-6 w-24 absolute right-0 -top-20">
+      <div className="control flex items-center border border-v3GreyColor rounded-lg py-px h-6 w-24 absolute right-0 -top-24">
         <div
           className="flex items-center justify-center w-1 h-full flex-grow border-r border-chartBorderColor cursor-pointer"
           onClick={clickToLeft}
@@ -1061,7 +1102,33 @@ export default function DclChart({
           </g>
           {/* 左右坐标轴中间的重叠区域 */}
           <g className="overlap" pointer-events="none">
-            <rect height={wholeBarHeight} fill="rgba(255,255,255,0.1)"></rect>
+            <rect height={wholeBarHeight} fill="rgba(255,255,255,0.2)"></rect>
+          </g>
+          {/* radius 模式下 target price 对应的柱子 */}
+          <g className="radiusBar">
+            <path
+              d="M8 245L7.99999 -3.69549e-06"
+              stroke="#00FFD1"
+              stroke-width="1.6"
+            />
+            <path
+              d="M1 239C1 237.343 2.34315 236 4 236H12C13.6569 236 15 237.343 15 239V247C15 248.657 13.6569 250 12 250H4C2.34315 250 1 248.657 1 247V239Z"
+              fill="#1C272E"
+              stroke="#00FFD1"
+              stroke-width="1.6"
+            />
+            <path
+              d="M5.30811 245.034H10.9919"
+              stroke="#00FFD1"
+              stroke-width="1.6"
+              stroke-linecap="round"
+            />
+            <path
+              d="M5.30811 241.444H10.9919"
+              stroke="#00FFD1"
+              stroke-width="1.6"
+              stroke-linecap="round"
+            />
           </g>
         </g>
       </svg>

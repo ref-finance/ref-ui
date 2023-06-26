@@ -1115,6 +1115,56 @@ export function get_liquidity_value({
   });
   return v;
 }
+/**
+ * caculate bin point by price
+ * @param pointDelta
+ * @param price
+ * @param decimalRate tokenY/tokenX
+ * @returns
+ */
+export function getBinPointByPrice(
+  pointDelta: number,
+  price: string,
+  decimalRate: number,
+  slotNumber: number
+) {
+  const point = Math.log(+price * decimalRate) / Math.log(CONSTANT_D);
+  const point_int = Math.round(point);
+  const point_int_bin = getBinPointByPoint(pointDelta, slotNumber, point_int);
+  return point_int_bin;
+}
+
+/**
+ *  caculate bin point by point
+ * @param pointDelta
+ * @param point
+ * @param slotNumber
+ * @returns
+ */
+export function getBinPointByPoint(
+  pointDelta: number,
+  slotNumber: number,
+  point: number,
+  type?: 'round' | 'floor' | 'ceil'
+) {
+  const binWidth = pointDelta * slotNumber;
+  let int;
+  if (type == 'floor') {
+    int = Math.floor(point / binWidth);
+  } else if (type == 'ceil') {
+    int = Math.ceil(point / binWidth);
+  } else {
+    int = Math.round(point / binWidth);
+  }
+  const point_in_bin = int * binWidth;
+  if (point_in_bin < POINTLEFTRANGE) {
+    return POINTLEFTRANGE;
+  } else if (point_in_bin > POINTRIGHTRANGE) {
+    return 800000;
+  }
+  return point_in_bin;
+}
+
 // processing of pool id and farm id
 const FEE_TIER = [100, 400, 2000, 10000];
 const TOKENS = getTokens();

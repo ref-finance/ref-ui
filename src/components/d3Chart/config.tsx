@@ -52,9 +52,19 @@ export function get_custom_config_for_chart(): IChartConfig {
 export function get_default_config_for_chart(): IChartItemConfig {
   const env: string = process.env.NEAR_ENV;
   if (env == 'pub-testnet') {
-    return {};
+    return {
+      bin: 20,
+      range: 10,
+      rangeGear: [100, 80, 60, 40, 20, 10],
+      colors: ['#707C84', '#2775CA'],
+    };
   } else if (env == 'testnet') {
-    return {};
+    return {
+      bin: 20,
+      range: 10,
+      rangeGear: [100, 80, 60, 40, 20, 10],
+      colors: ['#707C84', '#2775CA'],
+    };
   } else {
     return {
       bin: 20,

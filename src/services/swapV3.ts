@@ -38,6 +38,7 @@ import { getPointByPrice } from './commonV3';
 import { toPrecision } from '../utils/numbers';
 import { REF_DCL_POOL_CACHE_KEY } from '../state/swap';
 import { REF_UNI_SWAP_CONTRACT_ID } from './near';
+import { IAddLiquidityInfo } from '../pages/poolsV3/interfaces';
 import getConfig from './config';
 const LOG_BASE = 1.0001;
 
@@ -807,7 +808,7 @@ export const add_liquidity = async ({
       receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
       functionCalls: [
         {
-          methodName: 'batch_add_liquidity',
+          methodName: 'add_liquidity',
           args: {
             pool_id,
             left_point,
@@ -921,23 +922,18 @@ export const add_liquidity = async ({
   return executeMultipleTransactions(transactions);
 };
 
-export interface AddLiquidityInfo {
-  pool_id: string;
-  left_point: number;
-  right_point: number;
-  amount_x: string;
-  amount_y: string;
-}
-
 export const batch_add_liquidity = async ({
-  liquidityInfo,
+  liquidityInfos,
   token_x,
   token_y,
+  amount_x,
+  amount_y,
 }: {
-  liquidityInfo: AddLiquidityInfo[];
-} & {
+  liquidityInfos: IAddLiquidityInfo[];
   token_x: TokenMetadata;
   token_y: TokenMetadata;
+  amount_x: string;
+  amount_y: string;
 }) => {
   const transactions: Transaction[] = [
     {
@@ -946,34 +942,13 @@ export const batch_add_liquidity = async ({
         {
           methodName: 'batch_add_liquidity',
           args: {
-            add_liquidity_infos: liquidityInfo.map((info) => ({
-              ...info,
-              min_amount_x: '0',
-              min_amount_y: '0',
-            })),
+            add_liquidity_infos: liquidityInfos,
           },
           gas: '150000000000000',
         },
       ],
     },
   ];
-
-  let amount_x;
-  let amount_y;
-
-  amount_x = liquidityInfo.reduce(
-    (acc, info) => acc.plus(info.amount_x),
-    new Big(0)
-  );
-
-  amount_x = amount_x.toFixed(0);
-
-  amount_y = liquidityInfo.reduce(
-    (acc, info) => acc.plus(info.amount_y),
-    new Big(0)
-  );
-
-  amount_y = amount_y.toFixed(0);
 
   if (+amount_x > 0) {
     transactions.unshift({
@@ -1059,9 +1034,7 @@ export const batch_add_liquidity = async ({
       ],
     });
   }
-  const neededStorage = await get_user_storage_detail({
-    size: liquidityInfo.length,
-  });
+  const neededStorage = await get_user_storage_detail({ size: 1 });
   if (!ONLY_ZEROS.test(neededStorage)) {
     transactions.unshift({
       receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,

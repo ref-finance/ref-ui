@@ -82,23 +82,24 @@ export const useAllPoolsV2 = () => {
 
             p.tvl = tvlx + tvly;
 
-            const topBinFee = await getDCLTopBinFee({
-              pool_id: p.pool_id,
-              slot_number: 100,
-            });
+            try {
+              const topBinFee = await getDCLTopBinFee({
+                pool_id: p.pool_id,
+                slot_number: 100,
+              });
 
-            if (!topBinFee || ONLY_ZEROS.test(topBinFee.total_liquidity)) {
-              p.top_bin_apr = '0';
-              p.top_bin_apr_display = '-';
-            } else {
-              const apr = new Big(topBinFee.total_fee)
-                .div(topBinFee.total_liquidity)
-                .mul(365)
-                .toFixed(2);
-              p.top_bin_apr = apr;
-              p.top_bin_apr_display = apr + '%';
-            }
-
+              if (!topBinFee || ONLY_ZEROS.test(topBinFee.total_liquidity)) {
+                p.top_bin_apr = '0';
+                p.top_bin_apr_display = '-';
+              } else {
+                const apr = new Big(topBinFee.total_fee)
+                  .div(topBinFee.total_liquidity)
+                  .mul(365)
+                  .toFixed(2);
+                p.top_bin_apr = apr;
+                p.top_bin_apr_display = apr + '%';
+              }
+            } catch (error) {}
             return p;
           })
         );

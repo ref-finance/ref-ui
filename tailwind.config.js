@@ -408,6 +408,7 @@ module.exports = {
         chartHoverBoxBg: 'rgba(26, 39, 48, 0.9)',
         chartBorderColor: '#344451',
         proTabBgColor: '#324451',
+        dclTabBorderColor:'#3F4A52'
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
