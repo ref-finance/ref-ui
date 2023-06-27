@@ -328,7 +328,7 @@ export const useOrderlyMarketData = ({
     if (lastJsonMessage?.['topic'] === 'tickers') {
       const tickers = lastJsonMessage?.['data'];
 
-      setAllTickers(tickers);
+      setAllTickers(tickers.filter((s: any) => s.symbol.indexOf('SPOT') > -1));
 
       const ticker = tickers.find((t: Ticker) => t.symbol === symbol);
 
