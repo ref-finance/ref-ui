@@ -115,7 +115,7 @@ import {
 import DclChart from '../../components/d3Chart/DclChart';
 import {
   IAddLiquidityInfo,
-  IaddLiquidityInfoHelp,
+  IAddLiquidityInfoHelp,
   LiquidityShape,
   PriceRangeModeType,
 } from './interfaces';
@@ -1670,7 +1670,7 @@ function AddLiquidityButton() {
       point_delta * slot_number_in_a_bin * exclude_cur_bin_number_in_a_nft;
     let total_const = Big(0);
     const addLiquidityInfoList: IAddLiquidityInfo[] = [];
-    const addLiquidityInfoHelp: IaddLiquidityInfoHelp = {};
+    const addLiquidityInfoHelp: IAddLiquidityInfoHelp = {};
     for (let i = 0; i < exclude_cur_total_nft_number; i++) {
       const left_i_point = exclude_cur_left_point + nftWidth * i;
       let right_i_point;
@@ -1809,7 +1809,7 @@ function AddLiquidityButton() {
       point_delta * slot_number_in_a_bin * exclude_cur_bin_number_in_a_nft;
     let total_const = Big(0);
     const addLiquidityInfoList: IAddLiquidityInfo[] = [];
-    const addLiquidityInfoHelp: IaddLiquidityInfoHelp = {};
+    const addLiquidityInfoHelp: IAddLiquidityInfoHelp = {};
     for (let i = 0; i < exclude_cur_total_nft_number; i++) {
       // 不同点3
       let left_i_point;
@@ -1951,7 +1951,7 @@ function AddLiquidityButton() {
       point_delta * slot_number_in_a_bin * exclude_cur_bin_number_in_a_nft;
     let total_const = Big(0);
     const addLiquidityInfoList: IAddLiquidityInfo[] = [];
-    const addLiquidityInfoHelp: IaddLiquidityInfoHelp = {};
+    const addLiquidityInfoHelp: IAddLiquidityInfoHelp = {};
     for (let i = 0; i < exclude_cur_total_nft_number; i++) {
       // 不同点3
       const left_i_point = exclude_cur_left_point + nftWidth * i;
@@ -2091,7 +2091,7 @@ function AddLiquidityButton() {
       point_delta * slot_number_in_a_bin * exclude_cur_bin_number_in_a_nft;
     let total_const = Big(0);
     const addLiquidityInfoList: IAddLiquidityInfo[] = [];
-    const addLiquidityInfoHelp: IaddLiquidityInfoHelp = {};
+    const addLiquidityInfoHelp: IAddLiquidityInfoHelp = {};
     for (let i = 0; i < exclude_cur_total_nft_number; i++) {
       // 不同点3
       let left_i_point;
@@ -2223,7 +2223,7 @@ function AddLiquidityButton() {
     const nftWidth = point_delta * slot_number_in_a_bin * bin_number_in_a_nft;
     let total_const = Big(0);
     const addLiquidityInfoList: IAddLiquidityInfo[] = [];
-    const addLiquidityInfoHelp: IaddLiquidityInfoHelp = {};
+    const addLiquidityInfoHelp: IAddLiquidityInfoHelp = {};
     for (let i = 0; i < total_nft_number; i++) {
       const left_i_point = left_point + nftWidth * i;
       let right_i_point;
@@ -2320,7 +2320,7 @@ function AddLiquidityButton() {
     const nftWidth = point_delta * slot_number_in_a_bin * bin_number_in_a_nft;
     let total_const = Big(0);
     const addLiquidityInfoList: IAddLiquidityInfo[] = [];
-    const addLiquidityInfoHelp: IaddLiquidityInfoHelp = {};
+    const addLiquidityInfoHelp: IAddLiquidityInfoHelp = {};
     for (let i = 0; i < total_nft_number; i++) {
       let left_i_point;
       let right_i_point;
@@ -3320,6 +3320,7 @@ function PointInputComponent({
 export function IntegerInputComponent({
   value,
   onChange,
+  onBlur,
   disabled,
   className,
   max,
@@ -3355,6 +3356,9 @@ export function IntegerInputComponent({
         }`}
         disabled={disabled}
         value={value}
+        onBlur={() => {
+          onBlur && onBlur();
+        }}
         onChange={({ target }) => {
           handleChange(target.value);
         }}

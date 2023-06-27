@@ -1,13 +1,10 @@
-import { path } from 'animejs';
 import React, { useEffect, useMemo, useState, useContext, useRef } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { WalletContext } from '../../utils/wallets-integration';
-import { useHistory } from 'react-router-dom';
 import { Card } from '~components/card/Card';
-import { isMobile } from '~utils/device';
 import { ModalClose } from '~components/icon';
 import { TokenMetadata } from '../../services/ft-contract';
-import { SwitchButton, Slider } from '~components/icon/V3';
+import { Slider } from '~components/icon/V3';
 import {
   GradientButton,
   ButtonTextWrapper,
@@ -20,8 +17,6 @@ import {
   toPrecision,
   toReadableNumber,
   toNonDivisibleNumber,
-  formatWithCommas,
-  ONLY_ZEROS,
 } from '~utils/numbers';
 import {
   getPriceByPoint,
@@ -30,29 +25,44 @@ import {
   getXAmount_per_point_by_Lx,
   getYAmount_per_point_by_Ly,
   sort_tokens_by_base,
-  POINTRIGHTRANGE,
-  getPointByPrice,
+  getBinPointByPrice,
+  getBinPointByPoint,
 } from '../../services/commonV3';
 import {
   PoolInfo,
-  pointToPrice,
-  priceToPoint,
-  remove_liquidity,
+  batch_remove_liquidity_contract,
 } from '../../services/swapV3';
-import _ from 'lodash';
 import { REF_POOL_NAV_TAB_KEY } from './PoolTabV3';
-import { useWalletSelector } from '~context/WalletSelectorContext';
-import { getDclUserPoints } from '../../services/indexer';
 import Big from 'big.js';
 import { IntegerInputComponent } from '../../pages/poolsV3/AddYourLiquidityPageV3';
+import {
+  get_custom_config_for_chart,
+  get_default_config_for_chart,
+} from '../../components/d3Chart/config';
+import {
+  IChartItemConfig,
+  IChartConfig,
+} from '../../components/d3Chart/interfaces';
+import {
+  formatNumber,
+  formatWithCommas_usd,
+} from '../../components/d3Chart/utils';
+import {
+  IAddLiquidityInfo,
+  IRemoveLiquidityInfo,
+  IBatchUpdateiquidityInfo,
+} from '~pages/poolsV3/interfaces';
 
 export type RemoveType = 'left' | 'right' | 'all';
-const SLOT_NUMBER = 2; // todo
+/**
+ * 遗产nft 的处理，采用老的弹窗ui？todo
+ * @param props
+ * @returns
+ */
 export const RemovePoolV3 = (props: any) => {
   const {
     tokenMetadata_x_y,
     poolDetail,
-    userLiquidity,
     tokenPriceList,
     isLegacy,
     listLiquidities,
@@ -60,411 +70,244 @@ export const RemovePoolV3 = (props: any) => {
   }: {
     tokenMetadata_x_y: TokenMetadata[];
     poolDetail: PoolInfo;
-    userLiquidity: UserLiquidityInfo;
     tokenPriceList: any;
     isLegacy?: boolean;
     restProps: any;
     listLiquidities: UserLiquidityInfo[];
   } = props;
-
+  const SLOT_NUMBER = get_slot_number_in_a_bin();
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
-  const [tokenXAmount, setTokenXAmount] = useState('');
-  const [tokenYAmount, setTokenYAmount] = useState('');
 
-  const tokens = sort_tokens_by_base(tokenMetadata_x_y);
-  const { decimals: token_y_decimals } = tokens[1];
+  // const tokens = sort_tokens_by_base(tokenMetadata_x_y);// todo
+  const tokens = tokenMetadata_x_y;
   const { decimals: token_x_decimals } = tokens[0];
-  console.log('poolDetail: ', poolDetail);
-
-  console.log('tokenMetadata_x_y: ', tokenMetadata_x_y);
-
-  //  all your liquidity amount
-  const [liquidityAmount, setLiquidityAmount] = useState('');
-  console.log('liquidityAmount: ', liquidityAmount);
-
-  const [removeAmount, setRemoveAmount] = useState('');
-  const [removeTokenXAmount, setRemoveTokenXAmount] = useState('');
-  const [removeTokenYAmount, setRemoveTokenYAmount] = useState('');
-  const [isInrange, setIsInrange] = useState<boolean>(true);
+  const { decimals: token_y_decimals } = tokens[1];
   const [removeLoading, setRemoveLoading] = useState<boolean>(false);
-  const [rateDirection, setRateDirection] = useState<boolean>(true);
-  const [removePercentAmount, setRemovePercentAmount] = useState<string>('100');
-  const [removeType, setRemoveType] = useState<RemoveType>('left');
+  const [removeType, setRemoveType] = useState<RemoveType>('all');
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
-  const { accountId } = useWalletSelector();
-
-  const BIN_SIZE = poolDetail.point_delta * SLOT_NUMBER;
-
+  // new
+  const [minPoint, setMinPoint] = useState<number>();
+  const [maxPoint, setMaxPoint] = useState<number>();
   const [minPrice, setMinPrice] = useState<string>('');
-
   const [maxPrice, setMaxPrice] = useState<string>('');
-
-  // left boundry point
-  const [leftPoint, setLeftPoint] = useState<number>();
-
-  // right boundry point
-  const [rightPoint, setRightPoint] = useState<number>();
-
-  const [binAmount, setBinAmount] = useState<string>('');
-
   const [maxBinAmount, setMaxBinAmount] = useState<string>();
 
-  const [dclUserPoints, setDclUserPoints] = useState<any[]>();
-
-  const [changeType, setChangeType] = useState<'min' | 'max'>();
+  const [minBoxPrice, setMinBoxPrice] = useState<string>('');
+  const [maxBoxPrice, setMaxBoxPrice] = useState<string>('');
+  const [minBoxPoint, setMinBoxPoint] = useState<number>();
+  const [maxBoxPoint, setMaxBoxPoint] = useState<number>();
+  const [binBoxAmount, setBinBoxAmount] = useState<string>('');
 
   useEffect(() => {
-    if (!dclUserPoints) return;
+    // init
+    if (tokens && poolDetail && listLiquidities) {
+      get_user_points_range();
+    }
+  }, [tokens, poolDetail, listLiquidities]);
+  useEffect(() => {
+    if (minBoxPoint && maxBoxPoint) {
+      const bin_amount = get_bin_amount_by_points(minBoxPoint, maxBoxPoint);
+      setBinBoxAmount(bin_amount);
+    }
+  }, [minBoxPoint, maxBoxPoint]);
+  const [
+    min_received_x_amount,
+    min_received_y_amount,
+    min_received_total_value,
+  ] = useMemo(() => {
+    if (tokenMetadata_x_y && minBoxPoint && maxBoxPoint) {
+      const { total_token_x_amount, total_token_y_amount, total_value } =
+        get_minimum_received_data();
+      return [
+        formatNumber(total_token_x_amount),
+        formatNumber(total_token_y_amount),
+        formatWithCommas_usd(total_value),
+      ];
+    }
+    return ['0', '0', '$0'];
+  }, [
+    tokenPriceList,
+    tokenMetadata_x_y,
+    minBoxPoint,
+    maxBoxPoint,
+    slippageTolerance,
+  ]);
+  /**
+   * NOTE 删除一个点的场景暂时不考虑
+   * @returns
+   */
+  function get_will_deleted_nfts() {
+    let whole_deleted_nfts: UserLiquidityInfo[] = [];
+    let broken_deleted_nfts: UserLiquidityInfo[] = [];
+    if (removeType == 'all') {
+      whole_deleted_nfts = [].concat(listLiquidities);
+    } else if (removeType == 'left') {
+      listLiquidities.forEach((l: UserLiquidityInfo) => {
+        const { left_point, right_point } = l;
+        if (left_point < maxBoxPoint) {
+          // 之前:left_point <= maxBoxPoint
+          if (right_point <= maxBoxPoint) {
+            whole_deleted_nfts.push(l);
+          } else {
+            broken_deleted_nfts.push(l);
+          }
+        }
+      });
+    } else if (removeType == 'right') {
+      listLiquidities.forEach((l: UserLiquidityInfo) => {
+        const { left_point, right_point } = l;
+        if (right_point > minBoxPoint) {
+          if (left_point >= minBoxPoint) {
+            whole_deleted_nfts.push(l);
+          } else {
+            broken_deleted_nfts.push(l);
+          }
+        }
+      });
+    }
+    return {
+      whole_deleted_nfts,
+      broken_deleted_nfts,
+    };
+  }
+  function get_slot_number_in_a_bin() {
+    const pool_id = poolDetail?.pool_id;
+    const { bin } = get_default_config_for_chart() as IChartItemConfig;
+    const custom_config: IChartConfig = get_custom_config_for_chart();
+    const slots = custom_config[pool_id]?.bin || bin;
+    return slots;
+  }
+  function get_user_points_range() {
+    const user_points: number[] = [];
+    listLiquidities.forEach((l: UserLiquidityInfo) => {
+      user_points.push(l.left_point, l.right_point);
+    });
+    user_points.sort((b, a) => b - a);
+    const min_point = get_bin_point_by_point(user_points[0], 'floor');
+    const max_point = get_bin_point_by_point(
+      user_points[user_points.length - 1],
+      'ceil'
+    );
+    const min_price = get_bin_price_by_point(min_point);
+    const max_price = get_bin_price_by_point(max_point);
 
+    const max_bin_amount = get_bin_amount_by_points(min_point, max_point);
+
+    setMinPoint(min_point);
+    setMaxPoint(max_point);
+    setMinPrice(min_price);
+    setMaxPrice(max_price);
+    setMaxBinAmount(max_bin_amount);
+
+    setMinBoxPrice(min_price);
+    setMaxBoxPrice(max_price);
+    setMinBoxPoint(min_point);
+    setMaxBoxPoint(max_point);
+    setBinBoxAmount(max_bin_amount);
+  }
+  function get_bin_amount_by_points(left_point: number, right_point: number) {
     const { point_delta } = poolDetail;
-
-    const BIN_SIZE = point_delta * SLOT_NUMBER;
-
-    const len = dclUserPoints.length;
-
-    const left_point = dclUserPoints[0].point;
-    console.log('left_point: ', left_point);
-
-    const right_point = dclUserPoints[len - 1].point;
-    console.log('right_point: ', right_point);
-
-    setLeftPoint(left_point);
-
-    setRightPoint(right_point + BIN_SIZE);
-
-    const calcBinAmount = new Big(right_point)
-      .plus(new Big(BIN_SIZE))
-      .minus(left_point)
-      .div(new Big(BIN_SIZE))
-      .toFixed(0);
-
-    console.log('calcBinAmount: ', calcBinAmount);
-
-    setBinAmount(calcBinAmount);
-
-    setMaxBinAmount(calcBinAmount);
-
-    const { decimals: token_y_decimals } = tokens[1];
-    const { decimals: token_x_decimals } = tokens[0];
-
+    const binWidth = SLOT_NUMBER * point_delta;
+    const bin_amount = Big(right_point - left_point)
+      .div(binWidth)
+      .toFixed();
+    return bin_amount;
+  }
+  function get_bin_price_by_point(point: number) {
+    const decimalRate =
+      Math.pow(10, token_x_decimals) / Math.pow(10, token_y_decimals);
+    const price = getPriceByPoint(point, decimalRate);
+    return price;
+  }
+  function get_bin_point_by_price(price: string) {
+    const point_delta = poolDetail.point_delta;
     const decimalRate =
       Math.pow(10, token_y_decimals) / Math.pow(10, token_x_decimals);
-
-    const minPrice = getPriceByPoint(left_point, decimalRate);
-
-    const maxPrice = getPriceByPoint(right_point + BIN_SIZE, decimalRate);
-
-    const displayMinPrice = toPrecision(minPrice, 8);
-
-    const displayMaxPrice = toPrecision(maxPrice, 8);
-
-    setMinPrice(displayMinPrice);
-    setMaxPrice(displayMaxPrice);
-  }, [dclUserPoints]);
-
-  useEffect(() => {
-    if (!poolDetail || !accountId) return;
-    getDclUserPoints(poolDetail.pool_id, SLOT_NUMBER, accountId).then((res) => {
-      setDclUserPoints(res);
-    });
-  }, [accountId]);
-
-  useEffect(() => {
-    if (removeType === 'all') {
-      setRemovePercentAmount('100');
-      setBinAmount(maxBinAmount);
-    }
-  }, [removeType]);
-
-  useEffect(() => {
-    if (removeType === 'all' || !poolDetail || !leftPoint || !rightPoint)
-      return;
-
-    const { point_delta, token_x, token_y } = poolDetail;
-
-    if (removeType === 'left') {
-      // set left price to left poin
-
-      let decimalRate =
-        Math.pow(10, token_y_decimals) / Math.pow(10, token_x_decimals);
-      console.log('decimalRate11: ', decimalRate);
-
-      const raw_left_price = getPriceByPoint(leftPoint, decimalRate);
-      console.log('raw_left_price: ', raw_left_price);
-
-      const left_price = toPrecision(raw_left_price, 8);
-      console.log('left_price: ', left_price);
-
-      const c_right_point = leftPoint + BIN_SIZE * Number(binAmount);
-
-      console.log('c_right_point: ', c_right_point);
-
-      const raw_right_price = getPriceByPoint(c_right_point, decimalRate);
-      console.log('raw_right_price: ', raw_right_price);
-
-      const text_right_point = getPointByPrice(
-        point_delta,
-        raw_right_price,
-        1 / decimalRate
-      );
-      console.log('text_right_point: ', text_right_point);
-
-      const right_price = toPrecision(raw_right_price, 8);
-
-      setMaxPrice(right_price);
-
-      const removePercent = new Big(c_right_point)
-        .minus(leftPoint)
-        .div(new Big(rightPoint).minus(leftPoint))
-        .mul(100)
-        .toFixed(0);
-      console.log('removePercent: ', removePercent);
-
-      setRemovePercentAmount(removePercent);
-
-      setMinPrice(left_price);
-    }
-  }, [binAmount, poolDetail]);
-
-  // const [removePercentList] = useState([0, 25, 50, 75, 100]);
-  const { globalState } = useContext(WalletContext);
-  const v3PoolRemoveRef = useRef(null);
-  const sliderRef = useRef(null);
-  const isSignedIn = globalState.isSignedIn;
-  useEffect(() => {
-    if (tokens && poolDetail && listLiquidities) {
-      // const { current_point } = poolDetail;
-      // const { left_point, right_point } = userLiquidity;
-      // if (current_point >= left_point && right_point > current_point) {
-      //   setIsInrange(true);
-      // } else {
-      //   setIsInrange(false);
-      // }
-      get_liquidity_x_y();
-      getLiquidityAmount();
-    }
-  }, [tokens, userLiquidity, poolDetail, listLiquidities]);
-  useEffect(() => {
-    if (liquidityAmount) {
-      changeRemoveAmount('100');
-    }
-  }, [liquidityAmount]);
-  useEffect(() => {
-    if (v3PoolRemoveRef.current) {
-      v3PoolRemoveRef.current.style.backgroundSize = `${removePercentAmount}% 100%`;
-    }
-    if (sliderRef.current) {
-      sliderRef.current.style.left = `${+removePercentAmount}%`;
-      const marginLeft = -13 - (20 * +removePercentAmount) / 100;
-      sliderRef.current.style.marginLeft = `${marginLeft}px`;
-    }
-  }, [removePercentAmount]);
-
-  const step =
-    !leftPoint || !rightPoint
-      ? 'any'
-      : new Big(100)
-          .div(new Big(rightPoint).minus(new Big(leftPoint)).div(BIN_SIZE))
-          .toFixed();
-
-  function get_liquidity_x_y() {
-    const [tokenX, tokenY] = tokenMetadata_x_y;
-
-    const { tokenXAmount, tokenYAmount } = listLiquidities.reduce(
-      (acc, userLiquidity) => {
-        const { left_point, right_point, amount: L } = userLiquidity;
-        const { current_point } = poolDetail;
-
-        let curTokenXAmount = '0';
-        let curTokenYAmount = '0';
-
-        //  in range
-        if (current_point >= left_point && right_point > current_point) {
-          curTokenYAmount = getY(left_point, current_point, L, tokenY);
-          curTokenXAmount = getX(current_point + 1, right_point, L, tokenX);
-          const { amountx, amounty } = get_X_Y_In_CurrentPoint(
-            tokenX,
-            tokenY,
-            L
-          );
-
-          return {
-            tokenXAmount: new Big(acc.tokenXAmount)
-              .plus(curTokenXAmount)
-              .plus(amountx)
-              .toFixed(),
-            tokenYAmount: new Big(acc.tokenYAmount)
-              .plus(curTokenYAmount)
-              .plus(amounty)
-              .toFixed(),
-          };
-
-          // setTokenXAmount(new BigNumber(tokenXAmount).plus(amountx).toFixed());
-          // setTokenYAmount(new BigNumber(tokenYAmount).plus(amounty).toFixed());
-        }
-        // only y token
-        if (current_point >= right_point) {
-          curTokenYAmount = getY(left_point, right_point, L, tokenY);
-          // setTokenYAmount(tokenYAmount);
-          return {
-            ...acc,
-            tokenYAmount: new Big(acc.tokenYAmount)
-              .plus(curTokenYAmount)
-              .toFixed(),
-          };
-        }
-        // only x token
-        if (left_point > current_point) {
-          curTokenXAmount = getX(left_point, right_point, L, tokenX);
-          // setTokenXAmount(tokenXAmount);
-
-          return {
-            ...acc,
-            tokenXAmount: new Big(acc.tokenXAmount)
-              .plus(curTokenXAmount)
-              .toFixed(),
-          };
-        }
-      },
-      {
-        tokenXAmount: '0',
-        tokenYAmount: '0',
-      }
+    const point = getBinPointByPrice(
+      point_delta,
+      price,
+      decimalRate,
+      SLOT_NUMBER
     );
-
-    setTokenXAmount(tokenXAmount);
-    setTokenYAmount(tokenYAmount);
+    return point;
   }
-
-  // no change
-  function getLiquidityPrice() {
-    if (tokenPriceList && tokenMetadata_x_y) {
-      const [tokenX, tokenY] = tokenMetadata_x_y;
-      const priceX = tokenPriceList[tokenX.id]?.price || 0;
-      const priceY = tokenPriceList[tokenY.id]?.price || 0;
-      const tokenYTotalPrice = new BigNumber(tokenYAmount || 0).multipliedBy(
-        priceY
-      );
-      const tokenXTotalPrice = new BigNumber(tokenXAmount || 0).multipliedBy(
-        priceX
-      );
-      let total_price = tokenYTotalPrice.plus(tokenXTotalPrice);
-      total_price = new BigNumber(removePercentAmount)
-        .multipliedBy(total_price)
-        .dividedBy(100);
-      if (total_price.isEqualTo(0)) {
-        return '$0';
-      } else if (total_price.isLessThan('0.01')) {
-        return '$<0.01';
-      } else {
-        return `$` + formatWithCommas(toPrecision(total_price.toFixed(), 2));
-      }
-    }
+  function get_bin_point_by_point(
+    point: number,
+    type: 'round' | 'floor' | 'ceil'
+  ) {
+    const point_delta = poolDetail.point_delta;
+    const bin_point = getBinPointByPoint(point_delta, SLOT_NUMBER, point, type);
+    return bin_point;
   }
-  function getLiquidityAmount() {
-    const liquidityAmountRaw = listLiquidities
-      .reduce(
-        (pre, cur) => {
-          const { amount } = cur;
-
-          return pre.plus(new Big(amount));
-        },
-
-        new Big(0)
-      )
-      .toFixed();
-
-    console.log('liquidityAmountRaw: ', liquidityAmountRaw);
-
-    setLiquidityAmount(liquidityAmountRaw);
+  function handleMinBoxPriceToAppropriatePoint() {
+    /**
+     * min price <= price < max box price
+     */
+    let appropriate_price;
+    let appropriate_point;
+    const big_price = Big(minBoxPrice || 0);
+    if (big_price.lt(minPrice)) {
+      appropriate_price = minPrice;
+      appropriate_point = minPoint;
+    } else if (big_price.gt(maxBoxPrice)) {
+      appropriate_price = maxBoxPrice;
+      appropriate_point = maxBoxPoint;
+    } else {
+      appropriate_point = get_bin_point_by_price(minBoxPrice);
+      appropriate_price = get_bin_price_by_point(appropriate_point);
+    }
+    setMinBoxPrice(appropriate_price);
+    setMinBoxPoint(appropriate_point);
   }
-
-  function handlePriceToAppropriatePoint() {
-    const { point_delta, token_x, token_y } = poolDetail;
-
-    const { decimals: token_y_decimals } = tokens[1];
-    const { decimals: token_x_decimals } = tokens[0];
-
-    let decimalRate =
-      Math.pow(10, token_y_decimals) / Math.pow(10, token_x_decimals);
-    console.log('decimalRate: ', decimalRate);
-
-    if (minPrice && changeType == 'min') {
-      console.log('minPrice: ', minPrice);
-
-      let c_point = getPointByPrice(point_delta, minPrice, 1 / decimalRate);
-      console.log('c_point: ', c_point);
-      console.log('leftPoint: ', leftPoint);
-
-      if (c_point >= rightPoint) {
-        c_point = rightPoint - BIN_SIZE;
-      }
-      if (c_point < leftPoint) {
-        c_point = leftPoint;
-      }
-
-      if (
-        !new Big(c_point)
-          .minus(new Big(leftPoint))
-          .div(BIN_SIZE || 1)
-          .eq(0)
-      ) {
-        const new_point =
-          Math.floor((c_point - leftPoint) / BIN_SIZE) * BIN_SIZE + leftPoint;
-
-        console.log('new_point_min: ', new_point);
-
-        const new_min_price = getPriceByPoint(new_point, decimalRate);
-        console.log('new_min_price: ', new_min_price);
-
-        setMinPrice(new_min_price);
-      }
-
-      //  formatted point
+  function handleMaxBoxPriceToAppropriatePoint() {
+    /**
+     *  min box price <= price <= max price
+     */
+    let appropriate_price;
+    let appropriate_point;
+    const big_price = Big(maxBoxPrice || 0);
+    if (big_price.lt(minBoxPrice)) {
+      appropriate_price = minBoxPrice;
+      appropriate_point = minBoxPoint;
+    } else if (big_price.gt(maxPrice)) {
+      appropriate_price = maxPrice;
+      appropriate_point = maxPoint;
+    } else {
+      appropriate_point = get_bin_point_by_price(maxBoxPrice);
+      appropriate_price = get_bin_price_by_point(appropriate_point);
     }
-    console.log('maxPrice: ', maxPrice);
-
-    if (maxPrice && changeType == 'max') {
-      console.log('maxPrice: ', maxPrice);
-
-      let c_point = getPointByPrice(point_delta, maxPrice, 1 / decimalRate);
-      console.log('right_point', rightPoint);
-      console.log('c_point_max: ', c_point);
-      if (c_point > rightPoint) {
-        c_point = rightPoint;
-      }
-      if (c_point <= leftPoint) {
-        c_point = leftPoint + BIN_SIZE;
-      }
-
-      if (
-        new Big(c_point)
-          .minus(new Big(leftPoint))
-          .div(BIN_SIZE || 1)
-          .eq(0)
-      ) {
-        return;
-      } else {
-        const new_point =
-          Math.floor((c_point - leftPoint) / BIN_SIZE) * BIN_SIZE + leftPoint;
-
-        console.log('new_point_max: ', new_point);
-
-        const new_max_price = getPriceByPoint(new_point, decimalRate);
-        console.log('new_max_price: ', new_max_price);
-        setMaxPrice(new_max_price);
-      }
-
-      //  formatted point
-    }
+    setMaxBoxPrice(appropriate_price);
+    setMaxBoxPoint(appropriate_point);
   }
-
-  function priceToBinBoundry(amount: string) {}
-
-  function displayLiquidityAmount() {
-    if (liquidityAmount) {
-      return toPrecision(liquidityAmount, 3);
+  /**
+   * 左右点位改变会触发bin amount随之更改
+   * bin amount 修改会改变可以修改的点位
+   * 0 < bin amount < max bin amount
+   */
+  function handleBinAmountToAppropriateAmount() {
+    const amount_int = +binBoxAmount;
+    const { point_delta } = poolDetail;
+    const binWidth = SLOT_NUMBER * point_delta;
+    let appropriate_amount = amount_int;
+    if (amount_int < 1) {
+      appropriate_amount = 1;
+    } else if (amount_int > +maxBinAmount) {
+      appropriate_amount = +maxBinAmount;
     }
+    if (removeType == 'left') {
+      const right_box_point = minPoint + binWidth * appropriate_amount;
+      const right_box_price = get_bin_price_by_point(right_box_point);
+      setMaxBoxPoint(right_box_point);
+      setMaxBoxPrice(right_box_price);
+    } else if (removeType == 'right') {
+      const left_box_point = maxPoint - binWidth * appropriate_amount;
+      const left_box_price = get_bin_price_by_point(left_box_point);
+      setMinBoxPoint(left_box_point);
+      setMinBoxPrice(left_box_price);
+    }
+    setBinBoxAmount(appropriate_amount.toString());
   }
   function getY(
     leftPoint: number,
@@ -524,168 +367,244 @@ export const RemovePoolV3 = (props: any) => {
     );
     return { amountx: amountX_read, amounty: amountY_read };
   }
+  function batch_remove_nfts() {
+    setRemoveLoading(true);
+    const [tokenX, tokenY] = tokenMetadata_x_y;
+    sessionStorage.setItem(REF_POOL_NAV_TAB_KEY, '/yourliquidity');
+    let batch_remove_liquidity: IRemoveLiquidityInfo[];
+    let batch_update_liquidity: IBatchUpdateiquidityInfo;
+    let mint_liquidities: UserLiquidityInfo[] = [];
+    const { whole_deleted_nfts, broken_deleted_nfts } = get_will_deleted_nfts();
+    const { pool_id } = poolDetail;
+    /**
+     *  step1 找到被截断的nft的 未截断的区间
+     *  step2 找到区间，也知道高度==>推导出这个区间的 tokenx的数量和tokeny的数量
+     *  step3 未截断的区间 和 token 数量作为 添加nft的参数
+     */
+    if (broken_deleted_nfts.length) {
+      const removeLiquidityInfos: IRemoveLiquidityInfo[] = [];
+      const addLiquidityInfoList: IAddLiquidityInfo[] = [];
+      broken_deleted_nfts.forEach((l: UserLiquidityInfo) => {
+        const { amount, lpt_id, left_point, right_point, mft_id } = l;
+        const [new_left_point, new_right_point] = get_un_deleted_range(l);
+        const [new_token_x_amount, new_token_y_amount] =
+          get_x_y_amount_of_liquidity({
+            left_point: new_left_point,
+            right_point: new_right_point,
+            amount,
+          });
+        const [min_token_x_amount, min_token_y_amount] =
+          get_min_x_y_amount_of_liquidity({
+            left_point: left_point,
+            right_point: right_point,
+            amount,
+          });
+        addLiquidityInfoList.push({
+          pool_id,
+          left_point: new_left_point,
+          right_point: new_right_point,
+          amount_x: toNonDivisibleNumber(tokenX.decimals, new_token_x_amount),
+          amount_y: toNonDivisibleNumber(tokenY.decimals, new_token_y_amount),
+          min_amount_x: '0',
+          min_amount_y: '0',
+        });
+        removeLiquidityInfos.push({
+          lpt_id,
+          amount,
+          min_amount_x: toNonDivisibleNumber(
+            tokenX.decimals,
+            min_token_x_amount
+          ),
+          min_amount_y: toNonDivisibleNumber(
+            tokenY.decimals,
+            min_token_y_amount
+          ),
+        });
+        if (mft_id) {
+          mint_liquidities.push(l);
+        }
+      });
 
-  function getPoolFee() {
-    if (poolDetail) {
-      return poolDetail.fee / 10000;
+      batch_update_liquidity = {
+        remove_liquidity_infos: removeLiquidityInfos,
+        add_liquidity_infos: addLiquidityInfoList,
+      };
     }
-    return '';
+    if (whole_deleted_nfts.length) {
+      const batchRemoveLiquidity: IRemoveLiquidityInfo[] = [];
+      whole_deleted_nfts.forEach((l: UserLiquidityInfo) => {
+        const { amount, lpt_id, left_point, right_point, mft_id } = l;
+        const [min_token_x_amount, min_token_y_amount] =
+          get_min_x_y_amount_of_liquidity({
+            left_point: left_point,
+            right_point: right_point,
+            amount,
+          });
+        batchRemoveLiquidity.push({
+          lpt_id,
+          amount,
+          min_amount_x: toNonDivisibleNumber(
+            tokenX.decimals,
+            min_token_x_amount
+          ),
+          min_amount_y: toNonDivisibleNumber(
+            tokenY.decimals,
+            min_token_y_amount
+          ),
+        });
+        if (mft_id) {
+          mint_liquidities.push(l);
+        }
+      });
+      batch_remove_liquidity = batchRemoveLiquidity;
+    }
+
+    batch_remove_liquidity_contract({
+      token_x: tokenX,
+      token_y: tokenY,
+      batch_remove_liquidity,
+      batch_update_liquidity,
+      mint_liquidities,
+    });
   }
-  function changeRemoveAmount(value: string) {
-    setRemovePercentAmount(value);
-    const amount = new BigNumber(liquidityAmount)
-      .multipliedBy(value)
-      .dividedBy(100)
-      .toFixed(0, 1);
-
-    setRemoveAmount(amount);
-    getMinimumInfo(amount);
-
-    if (!value || !maxBinAmount) {
-      return;
+  function get_minimum_received_data() {
+    /**
+     * step1 完整删除的nfts，求出每个nft 对应的最小 x,y 的数量
+     * step2 截段的nfts，求出每个nft被删除那一段流动性 对应的最小 x,y的数量
+     * step3 把上述step1, step2 得到的x,y 累加起来即可
+     */
+    let total_token_x_amount = Big(0);
+    let total_token_y_amount = Big(0);
+    let total_value = Big(0);
+    const { whole_deleted_nfts, broken_deleted_nfts } = get_will_deleted_nfts();
+    if (whole_deleted_nfts.length) {
+      whole_deleted_nfts.forEach((l: UserLiquidityInfo) => {
+        const { amount, left_point, right_point } = l;
+        const [min_token_x_amount, min_token_y_amount] =
+          get_min_x_y_amount_of_liquidity({
+            left_point: left_point,
+            right_point: right_point,
+            amount,
+          });
+        total_token_x_amount = total_token_x_amount.plus(
+          min_token_x_amount || 0
+        );
+        total_token_y_amount = total_token_y_amount.plus(
+          min_token_y_amount || 0
+        );
+      });
     }
-
-    const newBinAmount = new Big(value).div(100).mul(maxBinAmount).toFixed();
-
-    setBinAmount(newBinAmount);
-  }
-  function getMinimumInfo(amount: string) {
-    if (liquidityAmount) {
-      const proportion = new BigNumber(amount || 0).dividedBy(liquidityAmount);
-      setRemoveTokenXAmount(
-        proportion.multipliedBy(tokenXAmount || '0').toFixed()
-      );
-      setRemoveTokenYAmount(
-        proportion.multipliedBy(tokenYAmount || '0').toFixed()
-      );
-    }
-  }
-  function getMinTokenAmount() {
-    const rate = 100 - slippageTolerance;
-    const result: any = {};
-    if (removeTokenXAmount) {
-      const minX = new BigNumber(removeTokenXAmount || 0).multipliedBy(
-        rate / 100
-      );
-      let displayX = '';
-      if (minX.isEqualTo(0)) {
-        displayX = '0';
-      } else if (minX.isLessThan(0.001)) {
-        displayX = '<0.001';
-      } else {
-        displayX = toPrecision(minX.toFixed(), 3);
-      }
-      result.minX = minX.toFixed();
-      result.displayX = displayX;
-    }
-    if (removeTokenYAmount) {
-      const minY = new BigNumber(removeTokenYAmount || 0).multipliedBy(
-        rate / 100
-      );
-      let displayY = '';
-      if (minY.isEqualTo(0)) {
-        displayY = '0';
-      } else if (minY.isLessThan(0.001)) {
-        displayY = '<0.001';
-      } else {
-        displayY = toPrecision(minY.toFixed(), 3);
-      }
-      result.minY = minY.toFixed();
-      result.displayY = displayY;
+    if (broken_deleted_nfts.length) {
+      broken_deleted_nfts.forEach((l: UserLiquidityInfo) => {
+        const [new_left_point, new_right_point] = get_deleted_range(l);
+        const [min_token_x_amount, min_token_y_amount] =
+          get_min_x_y_amount_of_liquidity({
+            left_point: new_left_point,
+            right_point: new_right_point,
+            amount: l.amount,
+          });
+        total_token_x_amount = total_token_x_amount.plus(
+          min_token_x_amount || 0
+        );
+        total_token_y_amount = total_token_y_amount.plus(
+          min_token_y_amount || 0
+        );
+      });
     }
     if (tokenPriceList && tokenMetadata_x_y) {
       const [tokenX, tokenY] = tokenMetadata_x_y;
       const priceX = tokenPriceList[tokenX.id]?.price || 0;
       const priceY = tokenPriceList[tokenY.id]?.price || 0;
-      const tokenXTotalPrice = new BigNumber(result.minX || 0).multipliedBy(
-        priceX
-      );
-      const tokenYTotalPrice = new BigNumber(result.minY || 0).multipliedBy(
-        priceY
-      );
-      const total_price = tokenYTotalPrice.plus(tokenXTotalPrice);
-      if (total_price.isEqualTo(0)) {
-        result.minPrice = '$0';
-      } else if (total_price.isLessThan('0.001')) {
-        result.minPrice = '<$0.001';
-      } else {
-        result.minPrice = `$` + toPrecision(total_price.toFixed(), 3);
-      }
+      const token_x_value = total_token_x_amount.mul(priceX);
+      const token_y_value = total_token_y_amount.mul(priceY);
+      total_value = token_x_value.plus(token_y_value);
     }
-    return result;
+    return {
+      total_token_x_amount: total_token_x_amount.toFixed(),
+      total_token_y_amount: total_token_y_amount.toFixed(),
+      total_value: total_value.toFixed(),
+    };
   }
-
-  function remove() {
-    setRemoveLoading(true);
+  function get_un_deleted_range(liquidity: UserLiquidityInfo) {
+    const { left_point, right_point } = liquidity;
+    // intersection part
+    const intersection_l = Math.max(left_point, minBoxPoint);
+    const intersection_r = Math.min(right_point, maxBoxPoint);
+    // intersection part
+    let un_intersection_l;
+    let un_intersection_r;
+    if (removeType == 'left') {
+      un_intersection_l = intersection_r;
+      un_intersection_r = right_point;
+    } else if (removeType == 'right') {
+      un_intersection_l = left_point;
+      un_intersection_r = intersection_l;
+    }
+    return [un_intersection_l, un_intersection_r];
+  }
+  function get_deleted_range(liquidity: UserLiquidityInfo) {
+    const { left_point, right_point } = liquidity;
+    // intersection part
+    const intersection_l = Math.max(left_point, minBoxPoint);
+    const intersection_r = Math.min(right_point, maxBoxPoint);
+    return [intersection_l, intersection_r];
+  }
+  function get_x_y_amount_of_liquidity(liquidity: {
+    left_point: number;
+    right_point: number;
+    amount: string;
+  }) {
     const [tokenX, tokenY] = tokenMetadata_x_y;
-    const { lpt_id, mft_id } = userLiquidity;
-
-    sessionStorage.setItem(REF_POOL_NAV_TAB_KEY, '/yourliquidity');
-
-    // replace to batch remove lp
-    remove_liquidity({
-      token_x: tokenX,
-      token_y: tokenY,
-      lpt_id,
-      mft_id,
-      amount: removeAmount,
-      min_amount_x: toNonDivisibleNumber(tokenX.decimals, MINDATA.minX),
-      min_amount_y: toNonDivisibleNumber(tokenY.decimals, MINDATA.minY),
-      isLegacy,
-    });
-  }
-  function switchRate() {
-    setRateDirection(!rateDirection);
-  }
-  function getCurrentPrice(type: string) {
-    if (poolDetail && tokenMetadata_x_y) {
-      const { current_point } = poolDetail;
-      const [tokenX, tokenY] = tokenMetadata_x_y;
-      const rate =
-        Math.pow(10, tokenX.decimals) / Math.pow(10, tokenY.decimals);
-      let price = getPriceByPoint(current_point, rate);
-      if (type == 'l') {
-        price = new BigNumber('1').dividedBy(price).toFixed();
-      }
-
-      const price_big = new BigNumber(price);
-      if (price_big.isLessThan('0.001')) {
-        return '<0.001';
-      } else {
-        return toPrecision(price, 6);
-      }
+    const { left_point, right_point, amount: L } = liquidity;
+    const { current_point } = poolDetail;
+    let curTokenXAmount = '0';
+    let curTokenYAmount = '0';
+    //  in range
+    if (current_point >= left_point && right_point > current_point) {
+      curTokenXAmount = getX(current_point + 1, right_point, L, tokenX);
+      curTokenYAmount = getY(left_point, current_point, L, tokenY);
+      const { amountx, amounty } = get_X_Y_In_CurrentPoint(tokenX, tokenY, L);
+      curTokenXAmount = Big(amountx || '0')
+        .plus(curTokenXAmount || '0')
+        .toFixed();
+      curTokenYAmount = Big(amounty || '0')
+        .plus(curTokenYAmount || '0')
+        .toFixed();
     }
-  }
-  function getTokenPrice(type: string) {
-    if (tokenPriceList && tokenMetadata_x_y) {
-      const [tokenX, tokenY] = tokenMetadata_x_y;
-      if (type == 'l') {
-        return tokenPriceList[tokenX.id]?.price || '-';
-      }
-      if (type == 'r') {
-        return tokenPriceList[tokenY.id]?.price || '-';
-      }
+    // only y token
+    if (current_point >= right_point) {
+      curTokenYAmount = getY(left_point, right_point, L, tokenY);
     }
-    return '-';
+    // only x token
+    if (left_point > current_point) {
+      curTokenXAmount = getX(left_point, right_point, L, tokenX);
+    }
+    return [curTokenXAmount, curTokenYAmount];
   }
-  const MINDATA: {
-    minX: string;
-    displayX: string;
-    minY: string;
-    displayY: string;
-    minPrice: string;
-  } = getMinTokenAmount();
-  const isRemoveLiquidityDisabled = !(
-    +removeAmount > 0 &&
-    new BigNumber(removeAmount || 0).isLessThanOrEqualTo(liquidityAmount || 0)
-  );
-
+  function get_min_x_y_amount_of_liquidity(liquidity: {
+    left_point: number;
+    right_point: number;
+    amount: string;
+  }) {
+    const rate = (100 - slippageTolerance) / 100;
+    const [token_x_amount, token_y_amount] =
+      get_x_y_amount_of_liquidity(liquidity);
+    const min_token_x_amount = Big(token_x_amount || 0)
+      .mul(rate)
+      .toFixed();
+    const min_token_y_amount = Big(token_y_amount || 0)
+      .mul(rate)
+      .toFixed();
+    return [min_token_x_amount, min_token_y_amount];
+  }
+  const isRemoveLiquidityDisabled = minBoxPoint == maxBoxPoint;
   return (
     <Modal {...restProps}>
       <Card
         style={{ maxHeight: '95vh', minWidth: '550px' }}
         className={`outline-none border border-gradientFrom border-opacity-50 overflow-auto xsm: p-5 xs:w-90vw md:w-90vw lg:w-40vw xl:w-30vw`}
       >
+        {/* Title */}
         <div className="flex items-center justify-between">
           <span className="text-xl text-white">
             <FormattedMessage id="remove_liquidity"></FormattedMessage>
@@ -694,6 +613,7 @@ export const RemovePoolV3 = (props: any) => {
             <ModalClose />
           </div>
         </div>
+        {/* Symbol pairs */}
         <div className="flex items-center justify-between mt-6 flex-wrap">
           <div className="flex items-center mb-2">
             <div className="flex items-center">
@@ -710,9 +630,11 @@ export const RemovePoolV3 = (props: any) => {
               {tokens[0]?.symbol}/{tokens[1]?.symbol}
             </span>
           </div>
-          <span className="text-white text-lg mb-2">{getLiquidityPrice()}</span>
+          <span className="text-white text-lg mb-2">
+            {min_received_total_value}
+          </span>
         </div>
-
+        {/* Removing way */}
         <div className="mt-3 frcb ">
           <div className="text-primaryText text-xs">
             <FormattedMessage
@@ -730,6 +652,8 @@ export const RemovePoolV3 = (props: any) => {
                 e.preventDefault();
                 e.stopPropagation();
                 setRemoveType('left');
+                setMinBoxPrice(minPrice);
+                setMinBoxPoint(minPoint);
               }}
             >
               <FormattedMessage
@@ -747,6 +671,8 @@ export const RemovePoolV3 = (props: any) => {
                 e.preventDefault();
                 e.stopPropagation();
                 setRemoveType('right');
+                setMaxBoxPrice(maxPrice);
+                setMaxBoxPoint(maxPoint);
               }}
             >
               <FormattedMessage
@@ -764,6 +690,10 @@ export const RemovePoolV3 = (props: any) => {
                 e.preventDefault();
                 e.stopPropagation();
                 setRemoveType('all');
+                setMinBoxPrice(minPrice);
+                setMinBoxPoint(minPoint);
+                setMaxBoxPrice(maxPrice);
+                setMaxBoxPoint(maxPoint);
               }}
             >
               <FormattedMessage
@@ -773,36 +703,8 @@ export const RemovePoolV3 = (props: any) => {
             </div>
           </div>
         </div>
-
-        <div className={`my-3 ${liquidityAmount ? '' : 'hidden'}`}>
-          {/* <div className="flex justify-between items-center mb-3 -mx-3">
-            {removePercentList.map((p) => {
-              return (
-                <div
-                  key={p}
-                  className={`flex flex-col items-center ${
-                    isLegacy ? 'cursor-not-allowed' : 'cursor-pointer'
-                  }`}
-                  onClick={() => {
-                    if (isLegacy) return;
-                    changeRemoveAmount(p.toString());
-                  }}
-                >
-                  <span
-                    className={`flex items-center justify-center text-xs text-primaryText w-11 py-1 border border-transparent hover:border-v3LiquidityRemoveBarColor rounded-lg ${
-                      p == +removePercentAmount ? 'bg-black bg-opacity-20' : ''
-                    }`}
-                  >
-                    {p}%
-                  </span>
-                  <label
-                    style={{ height: '5px', width: '1px' }}
-                    className="bg-primaryText mt-1"
-                  ></label>
-                </div>
-              );
-            })}
-          </div> */}
+        {/* remove slider todo */}
+        {/* <div className={`my-3 ${liquidityAmount ? '' : 'hidden'}`}>
           <input
             ref={v3PoolRemoveRef}
             onChange={(e) => {
@@ -819,21 +721,10 @@ export const RemovePoolV3 = (props: any) => {
             max="100"
             step={step}
           />
-          {/* <div
-              className="flex items-center justify-center absolute top-5"
-              style={{ marginLeft: '-33px', left: '100%' }}
-              ref={sliderRef}
-            >
-              <Slider></Slider>
-              <span className="absolute text-sm text-black top-2.5">
-                {toPrecision(removePercentAmount.toString(), 0)}%
-              </span>
-            </div> */}
-        </div>
-
-        <div className="mb-3  text-base grid grid-cols-3 gap-2 w-full">
+        </div> */}
+        {/* Set points */}
+        <div className="mb-3  text-base grid grid-cols-3 gap-2 w-full mt-6">
           {/* min price  */}
-
           <div className="frcs w-full border border-menuMoreBoxBorderColor py-2 px-3 rounded-xl col-span-1">
             <span className="text-xs min-w-max text-primaryText">
               <FormattedMessage
@@ -846,22 +737,19 @@ export const RemovePoolV3 = (props: any) => {
               className={`ml-2 font-gothamBold ${
                 removeType !== 'right' ? 'text-primaryText' : 'text-white'
               }`}
-              min={0}
-              max={maxPrice}
-              value={minPrice}
+              value={minBoxPrice}
               onChange={(e) => {
                 const value = e.target.value;
-                setChangeType('min');
-                setMinPrice(value);
+                setMinBoxPrice(value);
               }}
               inputMode="decimal"
               onBlur={() => {
-                handlePriceToAppropriatePoint();
+                handleMinBoxPriceToAppropriatePoint();
               }}
               disabled={removeType !== 'right'}
             ></input>
           </div>
-
+          {/* max price */}
           <div className="frcs w-full border border-menuMoreBoxBorderColor py-2 px-3 rounded-xl col-span-1">
             <span className="text-xs min-w-max text-primaryText">
               <FormattedMessage
@@ -875,32 +763,34 @@ export const RemovePoolV3 = (props: any) => {
               }`}
               onChange={(e) => {
                 const value = e.target.value;
-                setChangeType('max');
-                setMaxPrice(value);
+                setMaxBoxPrice(value);
               }}
-              min={0}
-              value={maxPrice}
+              value={maxBoxPrice}
               inputMode="decimal"
               onBlur={() => {
-                handlePriceToAppropriatePoint();
+                handleMaxBoxPriceToAppropriatePoint();
               }}
+              disabled={removeType !== 'left'}
             ></input>
           </div>
-
+          {/* bin amount */}
           <div className="frcs w-full border border-menuMoreBoxBorderColor py-2 px-3 rounded-xl col-span-1">
             <span className="text-xs  min-w-max text-primaryText">
               <FormattedMessage id="bin_amount" defaultMessage={'Bin Amount'} />
             </span>
 
             <IntegerInputComponent
-              value={binAmount}
+              value={binBoxAmount}
               className="ml-2"
-              onChange={setBinAmount}
+              onChange={(v: string) => {
+                setBinBoxAmount(v);
+              }}
+              onBlur={handleBinAmountToAppropriateAmount}
               disabled={removeType === 'all'}
             />
           </div>
         </div>
-
+        {/* Slippage */}
         <div>
           <PoolSlippageSelectorV3
             slippageTolerance={slippageTolerance}
@@ -908,9 +798,10 @@ export const RemovePoolV3 = (props: any) => {
             textColor="text-white"
           />
         </div>
+        {/* Minimum received */}
         <div
           className="mt-6"
-          style={{ border: '1px solid rgba(110, 124, 133, 0.2)' }}
+          style={{ borderTop: '1px solid rgba(110, 124, 133, 0.2)' }}
         ></div>
         <div className="frcb mt-4">
           <span className="text-sm text-white">
@@ -925,7 +816,7 @@ export const RemovePoolV3 = (props: any) => {
               ></img>
 
               <span className="text-lg font-gothamBold text-white">
-                {MINDATA.displayX || '-'}
+                {min_received_x_amount}
               </span>
             </div>
             <div
@@ -938,15 +829,15 @@ export const RemovePoolV3 = (props: any) => {
               ></img>
 
               <span className="text-lg font-gothamBold text-white">
-                {MINDATA.displayY || '-'}
+                {min_received_y_amount}
               </span>
             </div>
           </div>
         </div>
-
+        {/* Button */}
         {isSignedIn ? (
           <GradientButton
-            onClick={remove}
+            onClick={batch_remove_nfts}
             color="#fff"
             disabled={removeLoading || isRemoveLiquidityDisabled}
             loading={removeLoading || isRemoveLiquidityDisabled}

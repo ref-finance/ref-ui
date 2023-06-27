@@ -15,7 +15,7 @@ import {
   ONLY_ZEROS,
 } from '../utils/numbers';
 import { getCurrentWallet } from '../utils/wallets-integration';
-import _ from 'lodash';
+import _, { forEach } from 'lodash';
 import Big from 'big.js';
 import {
   Transaction,
@@ -34,11 +34,15 @@ import {
 import { WRAP_NEAR_CONTRACT_ID, nearMetadata } from '../services/wrap-near';
 import { registerAccountOnToken } from './creators/token';
 import { nearDepositTransaction, nearWithdrawTransaction } from './wrap-near';
-import { getPointByPrice } from './commonV3';
+import { UserLiquidityInfo, getPointByPrice } from './commonV3';
 import { toPrecision } from '../utils/numbers';
 import { REF_DCL_POOL_CACHE_KEY } from '../state/swap';
 import { REF_UNI_SWAP_CONTRACT_ID } from './near';
-import { IAddLiquidityInfo } from '../pages/poolsV3/interfaces';
+import {
+  IAddLiquidityInfo,
+  IBatchUpdateiquidityInfo,
+  IRemoveLiquidityInfo,
+} from '../pages/poolsV3/interfaces';
 import getConfig from './config';
 const LOG_BASE = 1.0001;
 
@@ -1267,6 +1271,126 @@ export const remove_liquidity = async ({
       receiverId: isLegacy
         ? REF_UNI_SWAP_CONTRACT_ID
         : REF_UNI_V3_SWAP_CONTRACT_ID,
+      functionCalls: [
+        storageDepositAction({ amount: neededStorage, registrationOnly: true }),
+      ],
+    });
+  }
+  return executeMultipleTransactions(transactions);
+};
+export const batch_remove_liquidity_contract = async ({
+  token_x,
+  token_y,
+  batch_remove_liquidity,
+  batch_update_liquidity,
+  mint_liquidities,
+}: {
+  token_x: TokenMetadata;
+  token_y: TokenMetadata;
+  batch_remove_liquidity: IRemoveLiquidityInfo[];
+  batch_update_liquidity: IBatchUpdateiquidityInfo;
+  mint_liquidities: UserLiquidityInfo[];
+}) => {
+  const max_number = 20;
+  const transactions: Transaction[] = [];
+  if (mint_liquidities.length) {
+    const functionCallsV3: any = [];
+    mint_liquidities.forEach((l: UserLiquidityInfo) => {
+      functionCallsV3.push({
+        methodName: 'burn_v_liquidity',
+        args: {
+          lpt_id: l.lpt_id,
+        },
+        gas: '20000000000000',
+      });
+    });
+    transactions.push({
+      receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+      functionCalls: functionCallsV3,
+    });
+  }
+  if (batch_remove_liquidity) {
+    const length = batch_remove_liquidity.length;
+    const ts_length = Math.ceil(length / max_number);
+    for (let i = 0; i < ts_length; i++) {
+      let batch_remove_liquidity_i;
+      const startIndex = i * max_number;
+      const endIndex = startIndex + max_number;
+      batch_remove_liquidity_i = batch_remove_liquidity.slice(
+        startIndex,
+        endIndex
+      );
+      transactions.push({
+        receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+        functionCalls: [
+          {
+            methodName: 'batch_remove_liquidity',
+            args: {
+              remove_liquidity_infos: batch_remove_liquidity_i,
+            },
+            gas: '250000000000000',
+          },
+        ],
+      });
+    }
+  }
+  if (batch_update_liquidity) {
+    const { add_liquidity_infos, remove_liquidity_infos } =
+      batch_update_liquidity;
+    const length = add_liquidity_infos.length;
+    const ts_length = Math.ceil(length / (max_number / 2));
+    for (let i = 0; i < ts_length; i++) {
+      let batch_update_liquidity_i;
+      const startIndex = i * max_number;
+      const endIndex = startIndex + max_number;
+      batch_update_liquidity_i = {
+        add_liquidity_infos: add_liquidity_infos.slice(startIndex, endIndex),
+        remove_liquidity_infos: remove_liquidity_infos.slice(
+          startIndex,
+          endIndex
+        ),
+      };
+      transactions.push({
+        receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+        functionCalls: [
+          {
+            methodName: 'batch_update_liquidity',
+            args: batch_update_liquidity_i,
+            gas: '250000000000000',
+          },
+        ],
+      });
+    }
+  }
+
+  const ftBalance_x = await ftGetStorageBalance(token_x.id);
+  if (!ftBalance_x) {
+    transactions.unshift({
+      receiverId: token_x.id,
+      functionCalls: [
+        storageDepositAction({
+          registrationOnly: true,
+          amount: STORAGE_TO_REGISTER_WITH_MFT,
+        }),
+      ],
+    });
+  }
+  const ftBalance_y = await ftGetStorageBalance(token_y.id);
+  if (!ftBalance_y) {
+    transactions.unshift({
+      receiverId: token_y.id,
+      functionCalls: [
+        storageDepositAction({
+          registrationOnly: true,
+          amount: STORAGE_TO_REGISTER_WITH_MFT,
+        }),
+      ],
+    });
+  }
+  const neededStorage = await checkTokenNeedsStorageDeposit_v3();
+  if (neededStorage) {
+    transactions.unshift({
+      receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
       functionCalls: [
         storageDepositAction({ amount: neededStorage, registrationOnly: true }),
       ],

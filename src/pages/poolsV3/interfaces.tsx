@@ -7,7 +7,7 @@ export interface IAddLiquidityInfo {
   min_amount_x: string;
   min_amount_y: string;
 }
-export interface IaddLiquidityInfoHelp {
+export interface IAddLiquidityInfoHelp {
   [key: number]: {
     left_point: number;
     right_point: number;
@@ -17,3 +17,14 @@ export interface IaddLiquidityInfoHelp {
 
 export type LiquidityShape = 'Spot' | 'Curve' | 'BidAsk';
 export type PriceRangeModeType = 'by_range' | 'by_radius';
+export interface IRemoveLiquidityInfo {
+  lpt_id: string;
+  amount: string;
+  min_amount_x: string;
+  min_amount_y: string;
+}
+
+export interface IBatchUpdateiquidityInfo {
+  remove_liquidity_infos: IRemoveLiquidityInfo[];
+  add_liquidity_infos: IAddLiquidityInfo[];
+}
