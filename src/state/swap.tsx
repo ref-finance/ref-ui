@@ -1756,7 +1756,8 @@ export const useOrderlySwap = ({
     const canSwapSymbol = availableSymbolsWithTokens?.find((symbol) => {
       return (
         symbol.token_ids.includes(tokenIn.id) &&
-        symbol.token_ids.includes(tokenOut.id)
+        symbol.token_ids.includes(tokenOut.id) &&
+        symbol.symbol.indexOf('SPOT') > -1
       );
     });
 
