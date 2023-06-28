@@ -4,7 +4,7 @@ import { WalletContext } from '../../utils/wallets-integration';
 import { Card } from '~components/card/Card';
 import { ModalClose } from '~components/icon';
 import { TokenMetadata } from '../../services/ft-contract';
-import { Slider } from '~components/icon/V3';
+import ReactSlider from 'react-slider';
 import {
   GradientButton,
   ButtonTextWrapper,
@@ -112,6 +112,11 @@ export const RemovePoolV3 = (props: any) => {
       setBinBoxAmount(bin_amount);
     }
   }, [minBoxPoint, maxBoxPoint]);
+  useEffect(() => {
+    if (binBoxAmount !== '') {
+      handleBinAmountToAppropriateAmount(+binBoxAmount);
+    }
+  }, [binBoxAmount]);
   const [
     min_received_x_amount,
     min_received_y_amount,
@@ -284,16 +289,14 @@ export const RemovePoolV3 = (props: any) => {
   /**
    * 左右点位改变会触发bin amount随之更改
    * bin amount 修改会改变可以修改的点位
-   * 0 < bin amount < max bin amount
+   * 0 <= bin amount < max bin amount
    */
-  function handleBinAmountToAppropriateAmount() {
-    const amount_int = +binBoxAmount;
+  function handleBinAmountToAppropriateAmount(point: number) {
+    const amount_int = point || +binBoxAmount;
     const { point_delta } = poolDetail;
     const binWidth = SLOT_NUMBER * point_delta;
     let appropriate_amount = amount_int;
-    if (amount_int < 1) {
-      appropriate_amount = 1;
-    } else if (amount_int > +maxBinAmount) {
+    if (amount_int > +maxBinAmount) {
       appropriate_amount = +maxBinAmount;
     }
     if (removeType == 'left') {
@@ -704,24 +707,19 @@ export const RemovePoolV3 = (props: any) => {
           </div>
         </div>
         {/* remove slider todo */}
-        {/* <div className={`my-3 ${liquidityAmount ? '' : 'hidden'}`}>
-          <input
-            ref={v3PoolRemoveRef}
-            onChange={(e) => {
-              changeRemoveAmount(e.target.value);
-            }}
-            disabled={removeType === 'all' || isLegacy ? true : false}
-            value={removePercentAmount}
-            type="range"
-            className={`w-full ${
-              isLegacy ? 'pause cursor-not-allowed' : 'cursor-pointer'
-            }`}
-            style={{ backgroundSize: '100% 100%' }}
-            min="0"
-            max="100"
-            step={step}
-          />
-        </div> */}
+        {/* binBoxAmount 控制 */}
+        <ReactSlider
+          invert={removeType == 'right'}
+          disabled={removeType == 'all'}
+          className={`multi-slider mt-6`}
+          onChange={(v) => {
+            setBinBoxAmount(v.toString());
+          }}
+          value={+binBoxAmount}
+          min={0}
+          max={+maxBinAmount}
+          step={1}
+        ></ReactSlider>
         {/* Set points */}
         <div className="mb-3  text-base grid grid-cols-3 gap-2 w-full mt-6">
           {/* min price  */}

@@ -1296,47 +1296,37 @@ input[type='range']::-webkit-slider-runnable-track {
   display: none;
 }
 
+/* slider start*/
 .multi-slider {
-  height: 10px;
-  border-radius: 6px;
-  background: #121e27;
+  height: 22px;
 }
 
 .multi-slider .thumb {
-  width: 21px;
-  height: 21px;
+  width: 22px;
+  height: 22px;
   cursor: pointer;
-  background: white;
   border-radius: 100%;
   border: 3px solid #1d2932;
   outline: none;
   background: #00d6af;
 }
-
-.thumb-0 {
-  top: -5px;
-  transform: translateX(-50%);
+.multi-slider.disabled .thumb {
+  cursor: not-allowed;
 }
-
-.thumb-1 {
-  top: -5px;
-  transform: translateX(50%);
-}
-
-.invert .thumb-0 {
-  top: -5px;
-  transform: translateX(50%);
-}
-
-.invert .thumb-1 {
-  top: -5px;
-  transform: translateX(-50%);
-}
-
-.track-1 {
-  background-color: #00d6af;
+.multi-slider .track-0 {
   height: 10px;
+  top: 6px;
+  border-radius: 6px;
+  background-color: #00c6a2;
 }
+.multi-slider .track-1 {
+  height: 10px;
+  top: 6px;
+  border-radius: 6px;
+  background-color: #121e27;
+}
+
+/* slider start*/
 
 .refresh-loader {
   animation: spin 1s linear infinite;
