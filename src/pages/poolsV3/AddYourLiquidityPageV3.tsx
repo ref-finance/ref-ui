@@ -167,6 +167,8 @@ export default function AddYourLiquidityPageV3() {
   const [SLOT_NUMBER, SET_SLOT_NUMBER] = useState<number>();
   const [BIN_WIDTH, SET_BIN_WIDTH] = useState<number>();
   const [token_amount_tip, set_token_amount_tip] = useState<string>();
+  const [only_suppport_spot_shape, set_only_suppport_spot_shape] =
+    useState<boolean>(false);
 
   // callBack handle
   useAddAndRemoveUrlHandle();
@@ -178,7 +180,6 @@ export default function AddYourLiquidityPageV3() {
   const isSignedIn = globalState.isSignedIn;
   const nearBalance = useDepositableBalance('NEAR');
   const intl = useIntl();
-  const intl_select = intl.formatMessage({ id: 'select_s' });
   const OPEN_CREATE_POOL_ENTRY = false;
 
   useEffect(() => {
@@ -243,17 +244,6 @@ export default function AddYourLiquidityPageV3() {
       getTopPairs();
     }
   }, [listPool, tokenPriceList]);
-  // trigger
-  useEffect(() => {
-    if (
-      liquidityShape === 'Spot' &&
-      !ONLY_ZEROS.test(tokenXAmount) &&
-      currentSelectedPool
-    ) {
-      changeTokenXAmount(tokenXAmount);
-    }
-  }, [liquidityShape]);
-
   // new
   useEffect(() => {
     // init
@@ -266,6 +256,33 @@ export default function AddYourLiquidityPageV3() {
       setCurrentPoint(current_point);
     }
   }, [currentSelectedPool, tokenX, tokenY]);
+  // 如果只有一个 bin 且 双边 则只允许设置成spot模式
+  useEffect(() => {
+    set_only_suppport_spot_shape(false);
+    if (currentSelectedPool) {
+      const { point_delta } = currentSelectedPool;
+      if (leftPoint <= currentPoint && rightPoint > currentPoint) {
+        // inrange
+        const binWidth = SLOT_NUMBER * point_delta;
+        const binNumber = (rightPoint - leftPoint) / binWidth;
+        if (binNumber == 1) {
+          setLiquidityShape('Spot');
+          set_only_suppport_spot_shape(true);
+          if (tokenXAmount) {
+            changeTokenXAmount(tokenXAmount);
+          } else if (tokenYAmount) {
+            changeTokenYAmount(tokenYAmount);
+          }
+        }
+      }
+    }
+  }, [
+    leftPoint,
+    rightPoint,
+    currentPoint,
+    currentSelectedPool,
+    liquidityShape,
+  ]);
   async function getTopPairs() {
     const listPromise = listPool.map(async (p: PoolInfo) => {
       const token_x = p.token_x;
@@ -478,30 +495,24 @@ export default function AddYourLiquidityPageV3() {
     const sort = tokenX.id == token_x;
     setTokenXAmount(amount);
     /*if (sort) {*/
-    if (!onlyAddXToken) {
+    if (!onlyAddXToken && liquidityShape === 'Spot') {
       const amount_result = getTokenYAmountByCondition({
         amount,
         leftPoint: leftPoint,
         rightPoint: rightPoint,
         currentPoint: currentPoint,
       });
-
-      if (liquidityShape === 'Spot') {
-        setTokenYAmount(amount_result);
-      }
+      setTokenYAmount(amount_result);
     }
     /*} else {
-      if (!onlyAddYToken) {
+      if (!onlyAddYToken && liquidityShape === 'Spot') {
         const amount_result = getTokenXAmountByCondition({
           amount,
           leftPoint,
           rightPoint,
           currentPoint,
         });
-
-        if (liquidityShape === 'Spot') {
-          setTokenYAmount(amount_result);
-        }
+        setTokenYAmount(amount_result);
       }
     }*/
   }
@@ -510,28 +521,24 @@ export default function AddYourLiquidityPageV3() {
     const sort = tokenX.id == token_x;
     setTokenYAmount(amount);
     /*if (sort) {*/
-    if (!onlyAddYToken) {
+    if (!onlyAddYToken && liquidityShape === 'Spot') {
       const amount_result = getTokenXAmountByCondition({
         amount,
         leftPoint,
         rightPoint,
         currentPoint,
       });
-      if (liquidityShape === 'Spot') {
-        setTokenXAmount(amount_result);
-      }
+      setTokenXAmount(amount_result);
     }
     /*} else {
-      if (!onlyAddXToken) {
+      if (!onlyAddXToken && liquidityShape === 'Spot') {
         const amount_result = getTokenYAmountByCondition({
           amount,
           leftPoint: leftPoint,
           rightPoint: rightPoint,
           currentPoint: currentPoint,
         });
-        if (liquidityShape === 'Spot') {
-          setTokenXAmount(amount_result);
-        }
+        setTokenXAmount(amount_result);
       }
     }*/
   }
@@ -1060,9 +1067,18 @@ export default function AddYourLiquidityPageV3() {
               <div className="frcb">
                 {[SpotShape, CurveShape, BidAskShape].map(
                   (Shape, index: number) => {
+                    let disabled = false;
+                    if (
+                      (index == 1 || index == 2) &&
+                      only_suppport_spot_shape
+                    ) {
+                      disabled = true;
+                    }
                     return (
                       <div
-                        className={`flex flex-col  rounded-xl cursor-pointer items-center border justify-center ${
+                        className={`flex flex-col  rounded-xl items-center border justify-center ${
+                          disabled ? 'opacity-40' : 'cursor-pointer'
+                        } ${
                           (index === 0 && liquidityShape === 'Spot') ||
                           (index === 1 && liquidityShape === 'Curve') ||
                           (index === 2 && liquidityShape === 'BidAsk')
@@ -1077,8 +1093,10 @@ export default function AddYourLiquidityPageV3() {
                           e.preventDefault();
                           e.stopPropagation();
                           if (index === 0) setLiquidityShape('Spot');
-                          else if (index === 1) setLiquidityShape('Curve');
-                          else setLiquidityShape('BidAsk');
+                          else if (index === 1 && !only_suppport_spot_shape)
+                            setLiquidityShape('Curve');
+                          else if (index == 2 && !only_suppport_spot_shape)
+                            setLiquidityShape('BidAsk');
                         }}
                       >
                         <Shape />
@@ -1138,7 +1156,6 @@ export default function AddYourLiquidityPageV3() {
   );
 }
 /**
- * 如果只选择了一个bin且是双边的话，那只能选择spot模式 todo 待处理
  * 双边 最小token数量不满足 提示
  * 双边 一侧token 数量太多 提示 todo
  * @returns
@@ -2699,9 +2716,9 @@ function SetPointsComponent() {
             Liquidity
           </span>
           <span
-            className={`w-20 frcc text-xs gotham_bold px-3 py-1.5 rounded-md cursor-pointer ${
-              isSignedIn ? '' : 'hidden'
-            } ${
+            className={`w-20 ${
+              isSignedIn ? 'frcc' : 'hidden'
+            } text-xs gotham_bold px-3 py-1.5 rounded-md cursor-pointer ${
               chartTab == 'yours'
                 ? 'text-black bg-gradientFromHover'
                 : 'text-primaryText'
