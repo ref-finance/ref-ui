@@ -198,7 +198,7 @@ export default function DclChart({
     }
   }, [rightPoint]);
   useEffect(() => {
-    if (config?.radiusMode && config?.targetPoint) {
+    if (config?.radiusMode && config?.targetPoint && drawChartDone) {
       // hide drag bar and show target price bar
       draw_radius_mode_bar();
       d3.select(`${randomId} .leftBar`).attr('style', 'display:none');
@@ -208,7 +208,7 @@ export default function DclChart({
       d3.select(`${randomId} .rightBar`).attr('style', '');
       d3.select(`${randomId} .radiusBar`).attr('style', 'display:none');
     }
-  }, [config?.radiusMode, config?.targetPoint, pool_id]);
+  }, [config?.radiusMode, config?.targetPoint, pool_id, drawChartDone]);
   async function get_pool_detail(pool_id: string) {
     const p: PoolInfo = await get_pool(pool_id);
     const { token_x, token_y } = p;

@@ -1326,7 +1326,38 @@ input[type='range']::-webkit-slider-runnable-track {
   background-color: #121e27;
 }
 
-/* slider start*/
+.multi-slider-double {
+  height: 22px;
+}
+.multi-slider-double .thumb {
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  border-radius: 100%;
+  border: 3px solid #1d2932;
+  outline: none;
+  background: #00d6af;
+}
+
+.multi-slider-double .track-0 {
+  height: 10px;
+  top: 6px;
+  border-radius: 6px;
+  background-color: #121e27;
+}
+.multi-slider-double .track-1 {
+  height: 10px;
+  top: 6px;
+  border-radius: 6px;
+  background-color: #00c6a2;
+}
+.multi-slider-double .track-2 {
+  height: 10px;
+  top: 6px;
+  border-radius: 6px;
+  background-color: #121e27;
+}
+/* slider end*/
 
 .refresh-loader {
   animation: spin 1s linear infinite;

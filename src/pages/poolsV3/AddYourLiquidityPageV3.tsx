@@ -2564,8 +2564,9 @@ function SetPointsComponent() {
   const [priceRangeMode, setPriceRangeMode] = useState<
     'by_range' | 'by_radius'
   >('by_range');
+  const SLIDER_BIN_NUMBER = 20;
+  const RADIUS_DEFAULT_NUMBER = 3;
   const [radius, setRadius] = useState<number>();
-
   const [targetCustomPrice, setTargetCustomPrice] = useState('');
   const [leftCustomPrice, setLeftCustomPrice] = useState('');
   const [rightCustomPrice, setRightCustomPrice] = useState('');
@@ -2575,6 +2576,14 @@ function SetPointsComponent() {
   const [rightInputStatus, setRightInputStatus] = useState(false);
   const [targetInputStatus, setTargetInputStatus] = useState(false);
   const [chartTab, setChartTab] = useState<'liquidity' | 'yours'>('liquidity');
+  const [initDone, setInitDone] = useState<boolean>(false);
+
+  const [slider_point_min, set_slider_point_min] = useState<number>();
+  const [slider_point_max, set_slider_point_max] = useState<number>();
+
+  const [slider_left_value, set_slider_left_value] = useState<number>();
+  const [slider_right_value, set_slider_right_value] = useState<number>();
+
   const { token_x, token_y } = currentSelectedPool;
   const token_x_decimals =
     tokenX.id == token_x ? tokenX.decimals : tokenY.decimals;
@@ -2583,34 +2592,88 @@ function SetPointsComponent() {
   const tokenSort = tokenX.id == currentSelectedPool.token_x;
   // init
   useEffect(() => {
+    setInitDone(false);
     if (currentSelectedPool && tokenX && tokenY) {
       setTargetPoint(currentSelectedPool.current_point);
-      setRadius(3);
+      setRadius(RADIUS_DEFAULT_NUMBER);
       setPriceRangeMode('by_range');
       setChartTab('liquidity');
+      setInitDone(true);
     }
   }, [currentSelectedPool, tokenX, tokenY]);
-  // change event in radius mode
   useEffect(() => {
-    if (radius && +radius > 0 && targetPoint && BIN_WIDTH) {
-      const left_point_temp = handlePointToAppropriatePoint(
-        targetPoint - (radius - 1) * BIN_WIDTH
-      );
+    if (initDone) {
+      set_slider_point_range();
+    }
+  }, [initDone]);
+  /**
+   * change event in radius mode
+   * radius && targetPoint ===> left point right point ===> binNumber
+   */
+  useEffect(() => {
+    if (targetPoint && BIN_WIDTH) {
       const right_point_temp = handlePointToAppropriatePoint(
-        targetPoint + (radius + 1) * BIN_WIDTH
+        targetPoint + radius * BIN_WIDTH
       );
+      const left_point_temp = right_point_temp - BIN_WIDTH * radius * 2;
+
       setLeftPoint(left_point_temp);
       setRightPoint(right_point_temp);
     }
   }, [radius, targetPoint, BIN_WIDTH, priceRangeMode]);
 
   useEffect(() => {
-    const diff = rightPoint - leftPoint;
-    const bin_number_temp = diff / BIN_WIDTH;
-    setBinNumber(bin_number_temp);
-    // effect right area
-    pointChange({ leftPoint, rightPoint, currentPoint });
+    if (leftPoint && rightPoint) {
+      const diff = rightPoint - leftPoint;
+      const bin_number_temp = diff / BIN_WIDTH;
+      setBinNumber(bin_number_temp);
+      // effect right area
+      pointChange({ leftPoint, rightPoint, currentPoint });
+      // effect slider
+      const slider_left_value = get_slider_value_by_point(leftPoint);
+      const slider_right_value = get_slider_value_by_point(rightPoint);
+      set_slider_left_value(slider_left_value);
+      set_slider_right_value(slider_right_value);
+    }
   }, [leftPoint, rightPoint]);
+  useEffect(() => {
+    if (binNumber !== '') {
+      const right_point_temp = leftPoint + binNumber * BIN_WIDTH;
+      setRightPoint(right_point_temp);
+    }
+  }, [binNumber]);
+
+  useEffect(() => {
+    if (slider_left_value !== undefined && slider_right_value !== undefined) {
+      const new_left_point = get_point_by_slider_value(slider_left_value);
+      const new_right_point = get_point_by_slider_value(slider_right_value);
+      setLeftPoint(new_left_point);
+      setRightPoint(new_right_point);
+    }
+  }, [slider_left_value, slider_right_value]);
+
+  /**
+   * 设置slider可以操作的point 左右点位区间
+   */
+  function set_slider_point_range() {
+    const { current_point } = currentSelectedPool;
+    const max_point = handlePointToAppropriatePoint(
+      current_point + BIN_WIDTH * (SLIDER_BIN_NUMBER / 2)
+    );
+    const min_point = max_point - SLIDER_BIN_NUMBER * BIN_WIDTH;
+    set_slider_point_min(min_point);
+    set_slider_point_max(max_point);
+  }
+  function get_slider_value_by_point(point: number) {
+    // if (point < slider_point_min) return 0;
+    // if (point > slider_point_max) return SLIDER_BIN_NUMBER;
+    const value = (point - slider_point_min) / BIN_WIDTH;
+    return value;
+  }
+  function get_point_by_slider_value(v: number) {
+    const new_point = slider_point_min + v * BIN_WIDTH;
+    return new_point;
+  }
 
   function handlePointToAppropriatePoint(point: number) {
     const { point_delta } = currentSelectedPool;
@@ -2687,13 +2750,6 @@ function SetPointsComponent() {
       return `(${tokenX.symbol}/${tokenY.symbol})`;
     } else {
       return `(${tokenY.symbol}/${tokenX.symbol})`;
-    }
-  }
-  function changebinNunber(v: string) {
-    if (!isInvalid(v)) {
-      const right_point_temp = leftPoint + +v * BIN_WIDTH;
-      setRightPoint(right_point_temp);
-      setBinNumber(v);
     }
   }
   return (
@@ -2804,6 +2860,20 @@ function SetPointsComponent() {
           </div>
         </div>
         {/* content */}
+        <div
+          className={`mt-6 mb-4 ${
+            priceRangeMode == 'by_range' ? '' : 'hidden'
+          }`}
+        >
+          <Slider
+            min={0}
+            max={SLIDER_BIN_NUMBER}
+            step={1}
+            value={[slider_left_value, slider_right_value]}
+            set_slider_left_value={set_slider_left_value}
+            set_slider_right_value={set_slider_right_value}
+          ></Slider>
+        </div>
         <div className="grid grid-cols-3 gap-3 pt-4 mt-3  xsm:px-2">
           {/* target price input box */}
           <div
@@ -2825,6 +2895,7 @@ function SetPointsComponent() {
               setInputStatus={setTargetInputStatus}
               getPrice={getTargetPrice}
               setPoint={setTargetPoint}
+              point={targetPoint}
             />
           </div>
 
@@ -2840,12 +2911,7 @@ function SetPointsComponent() {
                 defaultMessage="Radius"
               ></FormattedMessage>
             </span>
-            <IntegerInputComponent
-              value={radius}
-              onChange={(value: any) => {
-                setRadius(value);
-              }}
-            />
+            <IntegerInputComponent value={radius} setValue={setRadius} />
           </div>
 
           {/* min price input box */}
@@ -2866,6 +2932,7 @@ function SetPointsComponent() {
               inputStatus={leftInputStatus}
               setInputStatus={setLeftInputStatus}
               setPoint={setLeftPoint}
+              point={leftPoint}
             ></PointInputComponent>
             {/* ) : (
               <PointInputComponent
@@ -2899,6 +2966,7 @@ function SetPointsComponent() {
               inputStatus={rightInputStatus}
               setInputStatus={setRightInputStatus}
               setPoint={setRightPoint}
+              point={rightPoint}
               disbaled={priceRangeMode === 'by_radius'}
             ></PointInputComponent>
             {/* ) : (
@@ -2923,10 +2991,8 @@ function SetPointsComponent() {
             </span>
             <IntegerInputComponent
               value={binNumber}
+              setValue={setBinNumber}
               disabled={priceRangeMode === 'by_radius'}
-              onChange={(value: any) => {
-                changebinNunber(value);
-              }}
             />
           </div>
         </div>
@@ -2944,32 +3010,40 @@ function SetPointsComponent() {
   );
 }
 
+/**
+ * step1 slider设置数字区间[0, 20]
+ * step2 数字区间 和 point区间做一个 双向 映射
+ * step step 为 一个bin，区间设定逻辑是 以当前价格为起点，向左向右各辐射30个point（可配置）
+ * @param param0
+ * @returns
+ */
 function Slider({
   min,
   max,
   step,
-  values,
-  setValues,
-  invert,
+  value,
+  set_slider_left_value,
+  set_slider_right_value,
 }: {
   min: number;
   max: number;
   step: number;
-  values: any;
-  setValues: any;
-  invert: boolean;
+  value: any;
+  set_slider_left_value: Function;
+  set_slider_right_value: Function;
 }) {
   return (
     <ReactSlider
-      invert={invert}
-      className={`multi-slider ${
-        invert ? 'invert' : ''
-      } w-full h-2.5 mb-6 my-8`}
-      onChange={setValues}
-      value={values}
+      className={`multi-slider-double`}
+      onChange={(v) => {
+        set_slider_left_value(v[0]);
+        set_slider_right_value(v[1]);
+      }}
+      value={value}
       min={min}
       max={max}
       step={step}
+      pearling={true}
     />
   );
 }
@@ -3299,6 +3373,7 @@ function PointInputComponent({
   setCustomPrice,
 
   getPrice,
+  point,
   setPoint,
 
   inputStatus,
@@ -3315,11 +3390,13 @@ function PointInputComponent({
           disbaled ? 'text-primaryText' : 'text-white'
         }`}
         onBlur={() => {
+          setInputStatus(false);
           if (customPrice) {
             const appropriate_point_temp =
               handlePriceToAppropriatePoint(customPrice);
-            setInputStatus(false);
             setPoint(appropriate_point_temp);
+          } else {
+            setPoint(point);
           }
         }}
         disabled={disbaled}
@@ -3336,11 +3413,11 @@ function PointInputComponent({
 
 export function IntegerInputComponent({
   value,
-  onChange,
-  onBlur,
+  setValue,
   disabled,
   className,
   max,
+  onBlur,
 }: any) {
   const removeLeadingZeros = (s: string) => {
     const oldLen = s.length;
@@ -3360,8 +3437,7 @@ export function IntegerInputComponent({
   const handleChange = (val: string) => {
     val = val.replace(/[^\d]/g, '');
     val = removeLeadingZeros(val);
-
-    onChange(val);
+    setValue(val);
   };
 
   return (
@@ -3373,8 +3449,12 @@ export function IntegerInputComponent({
         }`}
         disabled={disabled}
         value={value}
-        onBlur={() => {
-          onBlur && onBlur();
+        onBlur={({ target }) => {
+          if (onBlur) {
+            onBlur();
+          } else if (!target.value) {
+            setValue(1);
+          }
         }}
         onChange={({ target }) => {
           handleChange(target.value);

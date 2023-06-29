@@ -779,10 +779,8 @@ export const RemovePoolV3 = (props: any) => {
 
             <IntegerInputComponent
               value={binBoxAmount}
+              setValue={setBinBoxAmount}
               className="ml-2"
-              onChange={(v: string) => {
-                setBinBoxAmount(v);
-              }}
               onBlur={handleBinAmountToAppropriateAmount}
               disabled={removeType === 'all'}
             />
