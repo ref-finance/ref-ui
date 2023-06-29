@@ -26,6 +26,7 @@ import {
 import Big from 'big.js';
 import * as d3 from 'd3';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
+
 export default function DclChart({
   pool_id,
   leftPoint,
@@ -144,11 +145,7 @@ export default function DclChart({
     }
   }, [dragLeftPoint, price_range, drawChartDone]);
   useEffect(() => {
-    if (
-      isValid(leftPoint) &&
-      isValid(dragLeftPoint) &&
-      leftPoint !== dragLeftPoint
-    ) {
+    if (isValid(leftPoint) && isValid(dragLeftPoint)) {
       setDragLeftPoint(leftPoint);
     }
   }, [leftPoint]);
@@ -189,11 +186,7 @@ export default function DclChart({
     }
   }, [dragRightPoint, price_range, drawChartDone]);
   useEffect(() => {
-    if (
-      isValid(rightPoint) &&
-      isValid(dragRightPoint) &&
-      rightPoint !== dragRightPoint
-    ) {
+    if (isValid(rightPoint) && isValid(dragRightPoint)) {
       setDragRightPoint(rightPoint);
     }
   }, [rightPoint]);
@@ -733,6 +726,7 @@ export default function DclChart({
       const p = scale.invert(e.x);
       const newLeftPoint = get_nearby_bin_left_point(get_point_by_price(p));
       setDragLeftPoint(newLeftPoint);
+      setLeftPoint(newLeftPoint);
     });
     d3.select(`${randomId} .drag-left`).call(dragLeft);
   }
@@ -775,6 +769,7 @@ export default function DclChart({
       const p = scale.invert(e.x);
       const newRightPoint = get_nearby_bin_right_point(get_point_by_price(p));
       setDragRightPoint(newRightPoint);
+      setRightPoint(newRightPoint);
     });
     d3.select(`${randomId} .drag-right`).call(dragRight);
   }

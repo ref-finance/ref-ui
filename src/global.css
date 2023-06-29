@@ -1310,8 +1310,9 @@ input[type='range']::-webkit-slider-runnable-track {
   outline: none;
   background: #00d6af;
 }
-.multi-slider.disabled .thumb {
-  cursor: not-allowed;
+.multi-slider.disabled .thumb-0,
+.multi-slider.disabled .track-1 {
+  visibility: hidden;
 }
 .multi-slider .track-0 {
   height: 10px;

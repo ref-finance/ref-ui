@@ -34,7 +34,6 @@ import {
 } from '../../services/swapV3';
 import { REF_POOL_NAV_TAB_KEY } from './PoolTabV3';
 import Big from 'big.js';
-import { IntegerInputComponent } from '../../pages/poolsV3/AddYourLiquidityPageV3';
 import {
   get_custom_config_for_chart,
   get_default_config_for_chart,
@@ -857,3 +856,56 @@ export const RemovePoolV3 = (props: any) => {
     </Modal>
   );
 };
+
+export function IntegerInputComponent({
+  value,
+  setValue,
+  disabled,
+  className,
+  max,
+  onBlur,
+}: any) {
+  const removeLeadingZeros = (s: string) => {
+    const oldLen = s.length;
+    s = s.replace(/^0+/, '');
+
+    if (s.length === 0 && oldLen > 0) {
+      s = '0';
+    }
+
+    if (max && Number(s) > max) {
+      return max;
+    }
+
+    return s;
+  };
+
+  const handleChange = (val: string) => {
+    val = val.replace(/[^\d]/g, '');
+    val = removeLeadingZeros(val);
+    setValue(val);
+  };
+
+  return (
+    <div className={`${className} flex items-center justify-between `}>
+      <input
+        type="text"
+        className={`text-base font-gothamBold mx-2 text-left ${
+          disabled ? 'text-primaryText' : 'text-white'
+        }`}
+        disabled={disabled}
+        value={value}
+        onBlur={({ target }) => {
+          if (onBlur) {
+            onBlur();
+          } else if (!target.value) {
+            setValue(1);
+          }
+        }}
+        onChange={({ target }) => {
+          handleChange(target.value);
+        }}
+      />
+    </div>
+  );
+}

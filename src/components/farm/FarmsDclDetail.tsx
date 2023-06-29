@@ -1399,9 +1399,9 @@ export default function FarmsDclDetail(props: {
                 {yp_farming_value}
               </span>
             </div>
-            <div className="flex items-center justify-end text-primaryText mt-2">
+            {/* <div className="flex items-center justify-end text-primaryText mt-2">
               {yp_percent} of your liquidity that can be farmed
-            </div>
+            </div> */}
           </div>
           <div className="flex items-center justify-between">
             <div className="text-sm text-primaryText">

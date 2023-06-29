@@ -74,3 +74,6 @@ export function get_default_config_for_chart(): IChartItemConfig {
     };
   }
 }
+
+export const SLIDER_BIN_NUMBER = 20;
+export const RADIUS_DEFAULT_NUMBER = 3;
