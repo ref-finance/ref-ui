@@ -863,15 +863,14 @@ export default function AddYourLiquidityPageV3() {
 
                 <SelectTokenDCL
                   selectTokenIn={(token) => {
-                    if (tokenY && tokenY.id == token.id) return;
                     setTokenX(token);
                     setTokenXBalanceFromNear(token?.near?.toString());
                   }}
                   selectTokenOut={(token: TokenMetadata) => {
-                    if (tokenX && tokenX.id == token.id) return;
                     setTokenY(token);
                     setTokenYBalanceFromNear(token?.near?.toString());
                   }}
+                  notNeedSortToken={true}
                   className="pt-6  absolute top-5 outline-none   right-0    xs:text-white xs:font-bold xs:fixed xs:bottom-0 xs:w-full "
                   selected={
                     <div
@@ -1221,6 +1220,7 @@ function AddLiquidityButton() {
      *  当前点位为point，以bin为单位 下一跳是 point + bin * slots
      *  最小的bin的高度就是等差的值 为dis
      **/
+    debugger;
     setAddLiquidityButtonLoading(true);
     const tokenXAmount_nonDivisible = toNonDivisibleNumber(
       tokenX.decimals,
@@ -1405,212 +1405,6 @@ function AddLiquidityButton() {
           nftList = nftList_x.concat(nftList_y);
         }
       }
-    }
-    batch_add_liquidity({
-      liquidityInfos: nftList,
-      token_x: tokenX,
-      token_y: tokenY,
-      amount_x: tokenXAmount_nonDivisible,
-      amount_y: tokenYAmount_nonDivisible,
-    });
-  }
-  // 待删除项目
-  function addLiquidityCurve() {
-    /**
-     *  已知条件:
-     *  bin的数量、一个bin里 slot的数量、leftPoint、rightPoint、tokenXAmount、tokenYAmount
-     *  当前点位为point，以slot为单位 下一跳是 point + slot
-     *  当前点位为point，以bin为单位 下一跳是 point + bin * slots
-     *  最小的bin的高度就是等差的值 为dis
-     **/
-    setAddLiquidityButtonLoading(true);
-    const tokenXAmount_nonDivisible = toNonDivisibleNumber(
-      tokenX.decimals,
-      tokenXAmount || '0'
-    );
-    const tokenYAmount_nonDivisible = toNonDivisibleNumber(
-      tokenY.decimals,
-      tokenYAmount || '0'
-    );
-    let nftList: IAddLiquidityInfo[] = [];
-    if (onlyAddYToken) {
-      nftList = get_rise_pattern_nfts({
-        left_point: leftPoint,
-        right_point: rightPoint,
-        token: tokenY,
-        token_amount: tokenYAmount,
-        formula_fun: formula_of_token_y,
-        is_token_y: true,
-      });
-    }
-    if (onlyAddXToken) {
-      nftList = get_decline_pattern_nfts({
-        left_point: leftPoint,
-        right_point: rightPoint,
-        token: tokenX,
-        token_amount: tokenXAmount,
-        formula_fun: formula_of_token_x,
-        is_token_x: true,
-      });
-    }
-    if (!onlyAddXToken && !onlyAddYToken) {
-      /**
-       * 把包含当前点位的那个bin单独拿出来作为一个nft处理，不参与做等差，因为参与做等差会导致 不成立。
-       * 除去参与做等差的 x,y,剩余 x,y 作为一个nft,由于这个nft的liquidity太小了，不能添加，可以忽略。
-       * */
-      const current_l_point = getBinPointByPoint(
-        point_delta,
-        SLOT_NUMBER,
-        currentPoint,
-        'floor'
-      );
-      const current_r_point = getBinPointByPoint(
-        point_delta,
-        SLOT_NUMBER,
-        currentPoint,
-        'ceil'
-      );
-      const nftList_y = get_rise_pattern_nfts({
-        left_point: leftPoint,
-        right_point: current_l_point,
-        token: tokenY,
-        token_amount: tokenYAmount,
-        formula_fun: formula_of_token_y,
-        is_token_y: true,
-      });
-      const nftList_x = get_decline_pattern_nfts({
-        left_point: current_r_point,
-        right_point: rightPoint,
-        token: tokenX,
-        token_amount: tokenXAmount,
-        formula_fun: formula_of_token_x,
-        is_token_x: true,
-      });
-      /** 包含当前点位的bin start */
-      const used_x_amount = nftList_x.reduce((acc, cur) => {
-        return acc.plus(cur.amount_x || '0');
-      }, Big(0));
-      const used_y_amount = nftList_y.reduce((acc, cur) => {
-        return acc.plus(cur.amount_y || '0');
-      }, Big(0));
-      const current_bin_nft: IAddLiquidityInfo = {
-        pool_id,
-        left_point: current_l_point,
-        right_point: current_r_point,
-        amount_x: Big(tokenXAmount_nonDivisible)
-          .minus(used_x_amount)
-          .toFixed(0),
-        amount_y: Big(tokenYAmount_nonDivisible)
-          .minus(used_y_amount)
-          .toFixed(0),
-        min_amount_x: '0',
-        min_amount_y: '0',
-      };
-      /** 包含当前点位的bin end */
-      nftList = nftList_x.concat(nftList_y);
-    }
-    batch_add_liquidity({
-      liquidityInfos: nftList,
-      token_x: tokenX,
-      token_y: tokenY,
-      amount_x: tokenXAmount_nonDivisible,
-      amount_y: tokenYAmount_nonDivisible,
-    });
-  }
-  // 待删除项目
-  function addLiquidityBidAsk() {
-    /**
-     *  已知条件:
-     *  bin的数量、一个bin里 slot的数量、leftPoint、rightPoint、tokenXAmount、tokenYAmount
-     *  当前点位为point，以slot为单位 下一跳是 point + slot
-     *  当前点位为point，以bin为单位 下一跳是 point + bin * slots
-     *  最小的bin的高度就是等差的值 为dis
-     **/
-    setAddLiquidityButtonLoading(true);
-    const tokenXAmount_nonDivisible = toNonDivisibleNumber(
-      tokenX.decimals,
-      tokenXAmount || '0'
-    );
-    const tokenYAmount_nonDivisible = toNonDivisibleNumber(
-      tokenY.decimals,
-      tokenYAmount || '0'
-    );
-    let nftList: IAddLiquidityInfo[] = [];
-    if (onlyAddYToken) {
-      nftList = get_decline_pattern_nfts({
-        left_point: leftPoint,
-        right_point: rightPoint,
-        token: tokenY,
-        token_amount: tokenYAmount,
-        formula_fun: formula_of_token_y,
-        is_token_y: true,
-      });
-    }
-    if (onlyAddXToken) {
-      nftList = get_rise_pattern_nfts({
-        left_point: leftPoint,
-        right_point: rightPoint,
-        token: tokenX,
-        token_amount: tokenXAmount,
-        formula_fun: formula_of_token_x,
-        is_token_x: true,
-      });
-    }
-    if (!onlyAddXToken && !onlyAddYToken) {
-      /**
-       * 把包含当前点位的那个bin单独拿出来作为一个nft处理，不参与做等差，因为参与做等差会导致 不成立。
-       * 除去参与做等差的 x,y,剩余 x,y 作为一个nft,由于这个nft的liquidity太小了，不能添加，可以忽略。
-       * */
-      const current_l_point = getBinPointByPoint(
-        point_delta,
-        SLOT_NUMBER,
-        currentPoint,
-        'floor'
-      );
-      const current_r_point = getBinPointByPoint(
-        point_delta,
-        SLOT_NUMBER,
-        currentPoint,
-        'ceil'
-      );
-      const nftList_y = get_decline_pattern_nfts({
-        left_point: leftPoint,
-        right_point: current_l_point,
-        token: tokenY,
-        token_amount: tokenYAmount,
-        formula_fun: formula_of_token_y,
-        is_token_y: true,
-      });
-      const nftList_x = get_rise_pattern_nfts({
-        left_point: current_r_point,
-        right_point: rightPoint,
-        token: tokenX,
-        token_amount: tokenXAmount,
-        formula_fun: formula_of_token_x,
-        is_token_x: true,
-      });
-      /** 包含当前点位的bin start */
-      const used_x_amount = nftList_x.reduce((acc, cur) => {
-        return acc.plus(cur.amount_x || '0');
-      }, Big(0));
-      const used_y_amount = nftList_y.reduce((acc, cur) => {
-        return acc.plus(cur.amount_y || '0');
-      }, Big(0));
-      const current_bin_nft: IAddLiquidityInfo = {
-        pool_id,
-        left_point: current_l_point,
-        right_point: current_r_point,
-        amount_x: Big(tokenXAmount_nonDivisible)
-          .minus(used_x_amount)
-          .toFixed(0),
-        amount_y: Big(tokenYAmount_nonDivisible)
-          .minus(used_y_amount)
-          .toFixed(0),
-        min_amount_x: '0',
-        min_amount_y: '0',
-      };
-      /** 包含当前点位的bin end */
-      nftList = nftList_x.concat(nftList_y);
     }
     batch_add_liquidity({
       liquidityInfos: nftList,
@@ -2590,22 +2384,34 @@ function SetPointsComponent() {
   const token_y_decimals =
     tokenY.id == token_y ? tokenY.decimals : tokenX.decimals;
   const tokenSort = tokenX.id == currentSelectedPool.token_x;
+  /**
+   * step1 切换池子，左右点位重新初始化
+   * step2 切换池子，slider 左右边界值重新初始化
+   * step3 左右点===>得到slider 的左右值
+   *
+   *
+   *
+   */
   // init
   useEffect(() => {
-    setInitDone(false);
     if (currentSelectedPool && tokenX && tokenY) {
+      debugger;
       setTargetPoint(currentSelectedPool.current_point);
       setRadius(RADIUS_DEFAULT_NUMBER);
       setPriceRangeMode('by_range');
       setChartTab('liquidity');
       setInitDone(true);
+    } else {
+      setInitDone(false);
     }
   }, [currentSelectedPool, tokenX, tokenY]);
+  // init
   useEffect(() => {
     if (initDone) {
+      debugger;
       set_slider_point_range();
     }
-  }, [initDone]);
+  }, [initDone, currentSelectedPool, tokenX, tokenY]);
   /**
    * change event in radius mode
    * radius && targetPoint ===> left point right point ===> binNumber
@@ -2624,6 +2430,7 @@ function SetPointsComponent() {
 
   useEffect(() => {
     if (leftPoint && rightPoint) {
+      debugger;
       const diff = rightPoint - leftPoint;
       const bin_number_temp = diff / BIN_WIDTH;
       setBinNumber(bin_number_temp);
@@ -2637,14 +2444,24 @@ function SetPointsComponent() {
     }
   }, [leftPoint, rightPoint]);
   useEffect(() => {
-    if (binNumber !== '') {
-      const right_point_temp = leftPoint + binNumber * BIN_WIDTH;
+    if (!isInvalid(binNumber)) {
+      let right_point_temp = leftPoint + binNumber * BIN_WIDTH;
+      if (right_point_temp < POINTLEFTRANGE) {
+        right_point_temp = POINTLEFTRANGE;
+      } else if (right_point_temp > POINTRIGHTRANGE) {
+        right_point_temp = 800000;
+      }
+      const diff = right_point_temp - leftPoint;
+      const bin_number_temp = diff / BIN_WIDTH;
+
+      setBinNumber(bin_number_temp);
       setRightPoint(right_point_temp);
     }
   }, [binNumber]);
 
   useEffect(() => {
     if (slider_left_value !== undefined && slider_right_value !== undefined) {
+      debugger;
       const new_left_point = get_point_by_slider_value(slider_left_value);
       const new_right_point = get_point_by_slider_value(slider_right_value);
       setLeftPoint(new_left_point);
