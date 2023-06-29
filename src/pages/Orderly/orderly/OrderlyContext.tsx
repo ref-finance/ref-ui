@@ -58,8 +58,15 @@ export const REF_ORDERLY_SYMBOL_KEY = 'REF_ORDERLY_SYMBOL_KEY';
 export const OrderlyContext = createContext<OrderlyContextValue | null>(null);
 
 const OrderlyContextProvider: React.FC<any> = ({ children }) => {
+  let storedSymbol = localStorage.getItem(REF_ORDERLY_SYMBOL_KEY);
+
+  if (!!storedSymbol && storedSymbol.indexOf('SPOT') === -1) {
+    localStorage.setItem(REF_ORDERLY_SYMBOL_KEY, 'SPOT_NEAR_USDC');
+    storedSymbol = 'SPOT_NEAR_USDC';
+  }
+
   const [symbol, setSymbol] = useState<string>(
-    localStorage.getItem(REF_ORDERLY_SYMBOL_KEY) || 'SPOT_NEAR_USDC'
+    storedSymbol || 'SPOT_NEAR_USDC'
   );
 
   const [requestSymbol, setRequestSymbol] = useState<string>();
