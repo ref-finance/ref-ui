@@ -135,10 +135,16 @@ export default function SwapLimitOrderChart() {
     const list_x = list.filter((item: IOrderPointItem) =>
       Big(item.amount_x).gt(0)
     );
+    list_x.sort((b: IOrderPointItem, a: IOrderPointItem) => {
+      return b.point - a.point;
+    });
     const list_y = list
       .filter((item: IOrderPointItem) => Big(item.amount_y).gt(0))
       .reverse();
     const { token_x_metadata, token_y_metadata } = pool;
+    list_y.sort((b: IOrderPointItem, a: IOrderPointItem) => {
+      return a.point - b.point;
+    });
     // accumulate
     list_x.forEach((item: IOrderPointItem) => {
       const { point, amount_x } = item;
