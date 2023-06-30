@@ -1,19 +1,19 @@
 export interface IChartData {
   pool_id: string;
-  point: string;
+  point: number;
+  token_x: string;
+  token_y: string;
+  liquidity: string;
   price?: string;
   price_r?: string;
   point_r?: string;
   price_r_close?: string;
-  liquidity: string;
-  token_x: string;
-  token_y: string;
-  order_x: string;
-  order_y: string;
-  order_liquidity: string;
-  fee: string;
-  total_liquidity: string;
-  sort_number: number;
+  order_x?: string;
+  order_y?: string;
+  order_liquidity?: string;
+  fee?: string;
+  total_liquidity?: string;
+  sort_number?: number;
 }
 
 export interface IChartItemConfig {

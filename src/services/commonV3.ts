@@ -5,8 +5,12 @@ import { WalletContext } from '../utils/wallets-integration';
 import { useHistory } from 'react-router';
 import BigNumber from 'bignumber.js';
 import * as d3 from 'd3';
-import _ from 'lodash';
-import { toReadableNumber, toPrecision } from '../utils/numbers';
+import _, { forEach } from 'lodash';
+import {
+  toReadableNumber,
+  toPrecision,
+  toNonDivisibleNumber,
+} from '../utils/numbers';
 import { TokenMetadata } from '../services/ft-contract';
 import { PoolInfo } from './swapV3';
 import {
@@ -31,6 +35,8 @@ import { useIntl } from 'react-intl';
 import { scientificNotationToString } from '../utils/numbers';
 
 import { getTokens } from './tokens_static';
+import Big from 'big.js';
+import { IChartData } from '~components/d3Chart/interfaces';
 const { REF_UNI_V3_SWAP_CONTRACT_ID, boostBlackList } = getConfig();
 
 /**
@@ -548,6 +554,47 @@ function getX(
         Math.pow(Math.sqrt(CONSTANT_D), rightPoint - 1))
   );
   return x.shiftedBy(-token.decimals).toFixed();
+}
+/**
+ *
+ * @param leftPoint
+ * @param rightPoint
+ * @param token_x_amount NonDivisible
+ */
+function getLByTokenX(
+  leftPoint: number,
+  rightPoint: number,
+  token_x_amount: string
+) {
+  const L = Big(token_x_amount)
+    .div(
+      (Math.pow(Math.sqrt(CONSTANT_D), rightPoint - leftPoint) - 1) /
+        (Math.pow(Math.sqrt(CONSTANT_D), rightPoint) -
+          Math.pow(Math.sqrt(CONSTANT_D), rightPoint - 1))
+    )
+    .toFixed(0);
+  return L;
+}
+/**
+ *
+ * @param leftPoint
+ * @param rightPoint
+ * @param token_y_amount NonDivisible
+ * @returns
+ */
+function getLByTokenY(
+  leftPoint: number,
+  rightPoint: number,
+  token_y_amount: string
+) {
+  const L = Big(token_y_amount)
+    .div(
+      (Math.pow(Math.sqrt(CONSTANT_D), rightPoint) -
+        Math.pow(Math.sqrt(CONSTANT_D), leftPoint)) /
+        (Math.sqrt(CONSTANT_D) - 1)
+    )
+    .toFixed(0);
+  return L;
 }
 function get_X_Y_In_CurrentPoint(
   tokenX: TokenMetadata,
@@ -1227,4 +1274,221 @@ export function openUrl(url: string) {
   var newTab = window.open();
   newTab.opener = null;
   newTab.location = url;
+}
+
+/**
+ * 中文
+ * @param nfts
+ * @param slot_number_in_a_bin
+ * step1 遍历每个nft，按照slot拆分，把每个slot的 liquidity 和 tokenx amount token y amount 放入 map集合里
+ * step2 根据step1 得到的 几个，再按照bin划分，每个bin的宽度根据参数拿到，高度 根据 这个bin 里token x token y的数量 应用公式拿到
+ */
+export function divide_liquidities_into_bins({
+  liquidities,
+  slot_number_in_a_bin,
+  tokenX,
+  tokenY,
+  poolDetail,
+}: {
+  liquidities: UserLiquidityInfo[];
+  slot_number_in_a_bin: number;
+  tokenX: TokenMetadata;
+  tokenY: TokenMetadata;
+  poolDetail: PoolInfo;
+}) {
+  // split data to slots
+  const liquidities_in_slot_unit: { [point: number]: IChartData } = {};
+  const { point_delta, pool_id } = poolDetail;
+  liquidities.forEach((liquidity: UserLiquidityInfo) => {
+    const { left_point, right_point, amount } = liquidity;
+    const slots_in_a_nft = (right_point - left_point) / point_delta;
+    for (let i = 0; i < slots_in_a_nft; i++) {
+      const left_point_i = left_point + i * point_delta;
+      const right_point_i = left_point_i + point_delta;
+      const { total_x, total_y } = get_x_y_amount_by_condition({
+        left_point: left_point_i,
+        right_point: right_point_i,
+        amount,
+        tokenX,
+        tokenY,
+        poolDetail,
+      });
+      const {
+        token_x: token_x_amount,
+        token_y: token_y_amount,
+        liquidity: L,
+      } = liquidities_in_slot_unit[left_point_i] || {};
+      liquidities_in_slot_unit[left_point_i] = {
+        pool_id,
+        point: left_point_i,
+        liquidity: Big(amount || 0)
+          .plus(L || 0)
+          .toFixed(),
+        token_x: Big(total_x || 0)
+          .plus(token_x_amount || 0)
+          .toFixed(),
+        token_y: Big(total_y || 0)
+          .plus(token_y_amount || 0)
+          .toFixed(),
+      };
+    }
+  });
+  // split slots to bin
+  const liquidities_in_bin_unit: IChartData[] = [];
+  const slots: IChartData[] = Object.values(liquidities_in_slot_unit);
+  slots.sort((b: IChartData, a: IChartData) => {
+    return b.point - a.point;
+  });
+  const min_point = slots[0].point;
+  const max_point = slots[slots.length - 1].point + point_delta;
+
+  const min_bin_point = getBinPointByPoint(
+    point_delta,
+    slot_number_in_a_bin,
+    min_point,
+    'floor'
+  );
+  const max_bin_point = getBinPointByPoint(
+    point_delta,
+    slot_number_in_a_bin,
+    max_point,
+    'ceil'
+  );
+  const binWidth = slot_number_in_a_bin * point_delta;
+  const bins_number = (max_bin_point - min_bin_point) / binWidth;
+  for (let i = 0; i < bins_number; i++) {
+    // search slots in this bin
+    const bin_i_point_start = min_bin_point + i * binWidth;
+    const bin_i_point_end = min_bin_point + (i + 1) * binWidth;
+    const slots_in_bin_i = slots.filter((slot: IChartData) => {
+      const { point } = slot;
+      const point_start = point;
+      const point_end = point + point_delta;
+      return point_start >= bin_i_point_start && point_end <= bin_i_point_end;
+    });
+    // get tokenx tokeny amount in this bin
+    let total_x_amount_in_bin_i = Big(0);
+    let total_y_amount_in_bin_i = Big(0);
+    slots_in_bin_i.forEach((slot: IChartData) => {
+      const { token_x, token_y } = slot;
+      total_x_amount_in_bin_i = total_x_amount_in_bin_i.plus(token_x);
+      total_y_amount_in_bin_i = total_y_amount_in_bin_i.plus(token_y);
+    });
+
+    // get L in this bin
+    const bin_i_L = get_l_amount_by_condition({
+      left_point: bin_i_point_start,
+      right_point: bin_i_point_end,
+      token_x_amount: toNonDivisibleNumber(
+        tokenX.decimals,
+        total_x_amount_in_bin_i.toFixed()
+      ),
+      token_y_amount: toNonDivisibleNumber(
+        tokenY.decimals,
+        total_y_amount_in_bin_i.toFixed()
+      ),
+      poolDetail,
+    });
+
+    //
+    liquidities_in_bin_unit.push({
+      pool_id,
+      point: bin_i_point_start,
+      liquidity: bin_i_L,
+      token_x: total_x_amount_in_bin_i.toFixed(),
+      token_y: total_y_amount_in_bin_i.toFixed(),
+    });
+  }
+  // filter empty bin
+  const bins_final = liquidities_in_bin_unit.filter((bin: IChartData) => {
+    const { token_x, token_y } = bin;
+    return Big(token_x || 0).gt(0) || Big(token_y || 0).gt(0);
+  });
+  bins_final.sort((b: IChartData, a: IChartData) => {
+    return b.point - a.point;
+  });
+  // last bins
+  return bins_final;
+}
+// 根据 point 区间和 L 高度，获得这段区间里的token x 和 token y的数量
+function get_x_y_amount_by_condition({
+  left_point,
+  right_point,
+  amount,
+  tokenX,
+  tokenY,
+  poolDetail,
+}: {
+  left_point: number;
+  right_point: number;
+  amount: string;
+  tokenX: TokenMetadata;
+  tokenY: TokenMetadata;
+  poolDetail: PoolInfo;
+}) {
+  const { current_point } = poolDetail;
+  let total_x = '0';
+  let total_y = '0';
+  //  in range
+  if (current_point >= left_point && right_point > current_point) {
+    const tokenYAmount = getY(left_point, current_point, amount, tokenY);
+    const tokenXAmount = getX(current_point + 1, right_point, amount, tokenX);
+    const { amountx, amounty } = get_X_Y_In_CurrentPoint(
+      tokenX,
+      tokenY,
+      amount,
+      poolDetail
+    );
+    total_x = new BigNumber(tokenXAmount).plus(amountx).toFixed();
+    total_y = new BigNumber(tokenYAmount).plus(amounty).toFixed();
+  }
+  // only y token
+  if (current_point >= right_point) {
+    const tokenYAmount = getY(left_point, right_point, amount, tokenY);
+    total_y = tokenYAmount;
+  }
+  // only x token
+  if (left_point > current_point) {
+    const tokenXAmount = getX(left_point, right_point, amount, tokenX);
+    total_x = tokenXAmount;
+  }
+  return {
+    total_x,
+    total_y,
+  };
+}
+
+// 根据 区间和这段区间里的token x tokeny的数量，获得这段区间的高度
+function get_l_amount_by_condition({
+  left_point,
+  right_point,
+  token_x_amount,
+  token_y_amount,
+  poolDetail,
+}: {
+  left_point: number;
+  right_point: number;
+  token_x_amount: string;
+  token_y_amount: string;
+  poolDetail: PoolInfo;
+}) {
+  let L;
+  const { current_point } = poolDetail;
+  //  in range
+  if (current_point >= left_point && right_point > current_point) {
+    if (Big(token_y_amount).gt(0)) {
+      L = getLByTokenY(left_point, current_point, token_y_amount);
+    } else {
+      L = getLByTokenX(current_point + 1, right_point, token_x_amount);
+    }
+  }
+  // only y token
+  if (current_point >= right_point) {
+    L = getLByTokenY(left_point, right_point, token_y_amount);
+  }
+  // only x token
+  if (left_point > current_point) {
+    L = getLByTokenX(left_point, right_point, token_x_amount);
+  }
+  return L;
 }

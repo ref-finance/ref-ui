@@ -51,6 +51,7 @@ import {
   IRemoveLiquidityInfo,
   IBatchUpdateiquidityInfo,
 } from '~pages/poolsV3/interfaces';
+import DclChart from '../../components/d3Chart/DclChart';
 
 export type RemoveType = 'left' | 'right' | 'all';
 /**
@@ -198,7 +199,6 @@ export const RemovePoolV3 = (props: any) => {
     const max_price = get_bin_price_by_point(max_point);
 
     const max_bin_amount = get_bin_amount_by_points(min_point, max_point);
-
     setMinPoint(min_point);
     setMaxPoint(max_point);
     setMinPrice(min_price);
@@ -635,6 +635,27 @@ export const RemovePoolV3 = (props: any) => {
           <span className="text-white text-lg mb-2">
             {min_received_total_value}
           </span>
+        </div>
+        <div className="flex items-center justify-center border border-v3SwapGray border-opacity-20 rounded-xl py-4">
+          {maxPoint && (
+            <DclChart
+              pool_id={poolDetail.pool_id}
+              config={{
+                controlHidden: true,
+                currentBarHidden: true,
+                hoverBoxHidden: true,
+                svgWidth: '480',
+                svgHeight: '82',
+              }}
+              chartType="USER"
+              removeParams={{
+                fromLeft: removeType == 'left',
+                fromRight: removeType == 'right',
+                all: removeType == 'all',
+                point: removeType == 'left' ? maxBoxPoint : minBoxPoint,
+              }}
+            ></DclChart>
+          )}
         </div>
         {/* Removing way */}
         <div className="mt-3 frcb ">

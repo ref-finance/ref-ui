@@ -60,7 +60,7 @@ export function get_default_config_for_chart(): IChartItemConfig {
     };
   } else if (env == 'testnet') {
     return {
-      bin: 20,
+      bin: 10,
       range: 10,
       rangeGear: [100, 80, 60, 40, 20, 10],
       colors: ['#707C84', '#2775CA'],

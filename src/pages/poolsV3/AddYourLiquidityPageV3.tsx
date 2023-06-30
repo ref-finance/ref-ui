@@ -2609,15 +2609,18 @@ function SetPointsComponent() {
               ></DclChart>
             )}
         </div>
-        {isSignedIn && (
-          <div className={`${chartTab == 'yours' ? '' : 'hidden'}`}>
-            <DclChart
-              pool_id={currentSelectedPool?.pool_id}
-              config={{ controlHidden: true }}
-              chartType="USER"
-            ></DclChart>
-          </div>
-        )}
+        {isSignedIn &&
+          !isInvalid(leftPoint) &&
+          !isInvalid(rightPoint) &&
+          !switch_pool_loading && (
+            <div className={`${chartTab == 'yours' ? '' : 'hidden'}`}>
+              <DclChart
+                pool_id={currentSelectedPool?.pool_id}
+                config={{ controlHidden: true }}
+                chartType="USER"
+              ></DclChart>
+            </div>
+          )}
       </div>
       {/* set price range area */}
       <div className=" border border-limitOrderFeeTiersBorderColor rounded-xl p-4">

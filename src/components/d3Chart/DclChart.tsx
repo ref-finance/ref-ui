@@ -2,12 +2,15 @@ import React, { useState, useRef, useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { isMobile } from '../../utils/device';
 import { TokenMetadata, ftGetTokenMetadata } from '../../services/ft-contract';
-import { get_pool, PoolInfo } from '../../services/swapV3';
+import { get_pool, PoolInfo, list_liquidities } from '../../services/swapV3';
 import {
   getPriceByPoint,
   getPointByPrice,
   POINTLEFTRANGE,
   POINTRIGHTRANGE,
+  divide_liquidities_into_bins,
+  UserLiquidityInfo,
+  getBinPointByPoint,
 } from '../../services/commonV3';
 import { getDclPoolPoints, getDclUserPoints } from '../../services/indexer';
 import { sortBy } from 'lodash';
@@ -26,7 +29,6 @@ import {
 import Big from 'big.js';
 import * as d3 from 'd3';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
-
 export default function DclChart({
   pool_id,
   leftPoint,
@@ -202,6 +204,23 @@ export default function DclChart({
       d3.select(`${randomId} .radiusBar`).attr('style', 'display:none');
     }
   }, [config?.radiusMode, config?.targetPoint, pool_id, drawChartDone]);
+  /**
+   * 中文
+   * remove 流动性，当参数改变，重新绘制删除区域的北京框
+   */
+  useEffect(() => {
+    if (removeParams && drawChartDone) {
+      const scale = scaleAxis();
+      const scaleBar = scaleAxisY();
+      draw_background_bars_for_select_area({ scale, scaleBar });
+    }
+  }, [
+    removeParams?.all,
+    removeParams?.fromLeft,
+    removeParams?.fromRight,
+    removeParams?.point,
+    drawChartDone,
+  ]);
   async function get_pool_detail(pool_id: string) {
     const p: PoolInfo = await get_pool(pool_id);
     const { token_x, token_y } = p;
@@ -229,7 +248,17 @@ export default function DclChart({
     const point_r = getPointByPrice(point_delta, price_r, decimalRate_point);
     let list = [];
     if (chartType == 'USER' && accountId) {
-      list = await getDclUserPoints(pool_id, bin_final, accountId);
+      const liquidities = await list_liquidities();
+      const nfts = liquidities.filter((l: UserLiquidityInfo) => {
+        return l.pool_id == pool_id;
+      });
+      list = divide_liquidities_into_bins({
+        liquidities: nfts,
+        slot_number_in_a_bin: bin_final,
+        tokenX: token_x_metadata,
+        tokenY: token_y_metadata,
+        poolDetail: pool,
+      });
     } else {
       const result = await getDclPoolPoints(
         pool_id,
@@ -339,32 +368,32 @@ export default function DclChart({
     const decimalRate_price =
       Math.pow(10, token_x_metadata.decimals) /
       Math.pow(10, token_y_metadata.decimals);
-    const data: IChartData[] = getChartDataListInRange().map(
-      (o: IChartData) => {
-        const { point } = o;
-        const price_l = getPriceByPoint(+point, decimalRate_price);
-        const point_r = +point + point_delta * bin_final;
-        const point_r_close = +point + point_delta * bin_final + 1;
-        const price_r = getPriceByPoint(point_r, decimalRate_price);
-        const price_r_close = getPriceByPoint(point_r_close, decimalRate_price);
+    const list =
+      chartType == 'USER' ? chartDataList : getChartDataListInRange();
+    const data: IChartData[] = list.map((o: IChartData) => {
+      const { point } = o;
+      const price_l = getPriceByPoint(+point, decimalRate_price);
+      const point_r = +point + point_delta * bin_final;
+      const point_r_close = +point + point_delta * bin_final + 1;
+      const price_r = getPriceByPoint(point_r, decimalRate_price);
+      const price_r_close = getPriceByPoint(point_r_close, decimalRate_price);
 
-        return {
-          ...o,
-          liquidity: Big(o.liquidity || 0).toFixed(),
-          order_liquidity: Big(o.order_liquidity || 0).toFixed(),
-          token_x: Big(o.token_x || 0).toFixed(),
-          token_y: Big(o.token_y || 0).toFixed(),
-          order_x: Big(o.order_x || 0).toFixed(),
-          order_y: Big(o.order_y || 0).toFixed(),
-          total_liquidity: Big(o.total_liquidity || 0).toFixed(),
-          fee: Big(o.fee || 0).toFixed(),
-          price: price_l.toString(),
-          price_r: price_r.toString(),
-          point_r: point_r.toString(),
-          price_r_close: price_r_close.toString(),
-        };
-      }
-    );
+      return {
+        ...o,
+        liquidity: Big(o.liquidity || 0).toFixed(),
+        order_liquidity: Big(o.order_liquidity || 0).toFixed(),
+        token_x: Big(o.token_x || 0).toFixed(),
+        token_y: Big(o.token_y || 0).toFixed(),
+        order_x: Big(o.order_x || 0).toFixed(),
+        order_y: Big(o.order_y || 0).toFixed(),
+        total_liquidity: Big(o.total_liquidity || 0).toFixed(),
+        fee: Big(o.fee || 0).toFixed(),
+        price: price_l.toString(),
+        price_r: price_r.toString(),
+        point_r: point_r.toString(),
+        price_r_close: price_r_close.toString(),
+      };
+    });
     return data;
   }
   function hoverBox(e: any, d: IChartData) {
@@ -638,19 +667,18 @@ export default function DclChart({
     scale: Function;
     scaleBar: Function;
   }) {
-    // todo
     const { sortP, sortY } = getChartDataListRange_x_y();
+    const min_bin_price = sortP[0];
+    const max_bin_price = sortP[sortP.length - 1];
     const { fromLeft, fromRight, all, point } = removeParams;
     d3.select(`${randomId} .remove_bars_background`)
       .attr('width', function () {
         if (all) {
-          return scale(sortP[sortP.length - 1]) - scale(sortP[0]);
+          return scale(max_bin_price) - scale(min_bin_price);
         } else if (fromLeft) {
-          return scale(get_price_by_point(point)) - scale(sortP[0]);
+          return scale(get_price_by_point(point)) - scale(min_bin_price);
         } else if (fromRight) {
-          return (
-            scale(sortP[sortP.length - 1]) - scale(get_price_by_point(point))
-          );
+          return scale(max_bin_price) - scale(get_price_by_point(point));
         }
       })
       .attr('height', function () {
@@ -662,7 +690,7 @@ export default function DclChart({
         if (fromRight) {
           return scale(get_price_by_point(point));
         } else {
-          return scale(sortP[0]);
+          return scale(min_bin_price);
         }
       })
       .attr('y', function () {
@@ -833,9 +861,35 @@ export default function DclChart({
     setDragRightPoint(get_nearby_bin_left_point(newPoint));
   }
   function scaleAxis() {
+    if (chartType == 'USER') {
+      return scaleAxis_User();
+    } else {
+      return scaleAxis_Pool();
+    }
+  }
+  function scaleAxis_Pool() {
     return d3
       .scaleLinear()
       .domain(price_range)
+      .range([0, svgWidth - svgPaddingX * 2]);
+  }
+  function scaleAxis_User() {
+    chartDataList;
+    const binWidth = getConfig().bin * pool.point_delta;
+    const min_point = Math.max(
+      chartDataList[0].point - binWidth * 2,
+      POINTLEFTRANGE
+    );
+    const max_point = Math.min(
+      chartDataList[chartDataList.length - 1].point + binWidth * 3,
+      POINTRIGHTRANGE
+    );
+    const min_price = get_price_by_point(min_point);
+    const max_price = get_price_by_point(max_point);
+    const range = [+min_price, +max_price];
+    return d3
+      .scaleLinear()
+      .domain(range)
       .range([0, svgWidth - svgPaddingX * 2]);
   }
   function scaleAxisY() {
@@ -856,32 +910,41 @@ export default function DclChart({
       );
     });
     const sortL = sortBy(L);
-    return d3
-      .scaleLinear()
-      .domain([+sortL[0], +sortL[sortL.length - 1]])
-      .range([0, wholeBarHeight]);
+    return (
+      d3
+        .scaleLinear()
+        // .domain([+sortL[0], +sortL[sortL.length - 1]])
+        .domain([0, +sortL[sortL.length - 1]])
+        .range([0, wholeBarHeight])
+    );
   }
   function scaleAxisY_User() {
     const { sortY: sortL } = getChartDataListRange_x_y();
-    return d3
-      .scaleLinear()
-      .domain([+sortL[0], +sortL[sortL.length - 1]])
-      .range([0, wholeBarHeight - whole_bars_background_padding])
-      .clamp(true);
+    return (
+      d3
+        .scaleLinear()
+        .domain([0, +sortL[sortL.length - 1]])
+        // .domain([+sortL[0], +sortL[sortL.length - 1]])
+        .range([0, wholeBarHeight - whole_bars_background_padding])
+        .clamp(true)
+    );
   }
   function getChartDataListRange_x_y() {
     const Y: number[] = [];
     const X: number[] = [];
-    const chartDataListInrange = getChartDataListInRange();
-    chartDataListInrange.forEach((o: IChartData) => {
+    const chartDataListInrange =
+      chartType == 'USER' ? chartDataList : getChartDataListInRange();
+    const binWidth = getConfig().bin * pool.point_delta;
+    chartDataListInrange.forEach((o: IChartData, index) => {
       const { liquidity, point } = o;
       Y.push(+liquidity);
       X.push(+point);
+      if (index == chartDataListInrange.length - 1) {
+        X.push(+point + binWidth);
+      }
     });
     const sortY = sortBy(Y);
     const sortX = sortBy(X);
-    // const max_x = sortX[X.length - 1] + getConfig().bin * pool.point_delta;
-    // sortX.push(max_x);
     const sortX_map_P = sortX.map((x) => {
       return get_price_by_point(x);
     });
