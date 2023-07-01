@@ -38,6 +38,7 @@ export default function DclChart({
   config,
   chartType,
   removeParams,
+  newlyAddedLiquidities,
 }: {
   pool_id: string;
   leftPoint?: number;
@@ -52,6 +53,7 @@ export default function DclChart({
     point?: number;
     all?: boolean;
   };
+  newlyAddedLiquidities?:UserLiquidityInfo[]
 }) {
   const [pool, setPool] = useState<PoolInfo>();
   const [price_range, set_price_range] = useState<number[]>();
@@ -99,7 +101,7 @@ export default function DclChart({
     if (pool) {
       get_chart_data();
     }
-  }, [pool, accountId]);
+  }, [pool, accountId, newlyAddedLiquidities]);
   useEffect(() => {
     if (price_range && chartDataList) {
       drawChart();
@@ -221,6 +223,9 @@ export default function DclChart({
     removeParams?.point,
     drawChartDone,
   ]);
+  /**
+   * 用户图表来说，新增的Liquidities发生改变时，把数据叠加重新绘制图表
+   */
   async function get_pool_detail(pool_id: string) {
     const p: PoolInfo = await get_pool(pool_id);
     const { token_x, token_y } = p;
@@ -249,9 +254,10 @@ export default function DclChart({
     let list = [];
     if (chartType == 'USER' && accountId) {
       const liquidities = await list_liquidities();
-      const nfts = liquidities.filter((l: UserLiquidityInfo) => {
+      let nfts = liquidities.filter((l: UserLiquidityInfo) => {
         return l.pool_id == pool_id;
       });
+      nfts = nfts.concat(newlyAddedLiquidities || []);
       list = divide_liquidities_into_bins({
         liquidities: nfts,
         slot_number_in_a_bin: bin_final,

@@ -76,6 +76,8 @@ import {
   openUrl,
   getBinPointByPrice,
   getBinPointByPoint,
+  get_l_amount_by_condition,
+  UserLiquidityInfo,
 } from '../../services/commonV3';
 import {
   formatWithCommas,
@@ -97,22 +99,17 @@ import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { BlueCircleLoading } from '../../components/layout/Loading';
 import { isMobile } from '../../utils/device';
 import { SelectedIcon, ArrowDownV3 } from '../../components/icon/swapV3';
-import { OutLinkIcon } from '../../components/icon/Common';
-import { REF_FI_POOL_ACTIVE_TAB } from '../pools/LiquidityPage';
-import getConfig from '../../services/config';
-import QuestionMark from '../../components/farm/QuestionMark';
 import ReactSlider from 'react-slider';
 import Big from 'big.js';
 import { SelectTokenDCL } from '../../components/forms/SelectToken';
 import { SliderCurColor } from '~components/icon/Info';
-import { values } from 'lodash';
-import { PipValues } from '../../../public/charting_library/charting_library';
 import {
   CurveShape,
   SpotShape,
   BidAskShape,
 } from '../Orderly/components/Common/Icons';
 import DclChart from '../../components/d3Chart/DclChart';
+import { IChartData } from '../../components/d3Chart/interfaces';
 import {
   IAddLiquidityInfo,
   IAddLiquidityInfoHelp,
@@ -124,6 +121,7 @@ import {
   get_default_config_for_chart,
   SLIDER_BIN_NUMBER,
   RADIUS_DEFAULT_NUMBER,
+  max_nft_divisional_per_side
 } from '../../components/d3Chart/config';
 import {
   IChartItemConfig,
@@ -164,7 +162,6 @@ export default function AddYourLiquidityPageV3() {
   // new
   const [binNumber, setBinNumber] = useState();
   const [liquidityShape, setLiquidityShape] = useState<LiquidityShape>('Spot');
-  const [curPointInBinBoundry, setCurPointInBinBoundry] = useState(false);
   const [topPairs, setTopPairs] = useState([]);
   const [SLOT_NUMBER, SET_SLOT_NUMBER] = useState<number>();
   const [BIN_WIDTH, SET_BIN_WIDTH] = useState<number>();
@@ -173,6 +170,7 @@ export default function AddYourLiquidityPageV3() {
     useState<boolean>(false);
   const [switch_pool_loading, set_switch_pool_loading] =
     useState<boolean>(true);
+ const [new_user_liquidities, set_new_user_liquidities] = useState<UserLiquidityInfo[]>([]);
 
   // callBack handle
   useAddAndRemoveUrlHandle();
@@ -261,7 +259,7 @@ export default function AddYourLiquidityPageV3() {
       set_switch_pool_loading(false);
     }
   }, [currentSelectedPool]);
-  // 如果只有一个 bin 且 双边 则只允许设置成spot模式
+  // 中文 如果只有一个 bin 且 双边 则只允许设置成spot模式
   useEffect(() => {
     set_only_suppport_spot_shape(false);
     if (currentSelectedPool) {
@@ -323,7 +321,6 @@ export default function AddYourLiquidityPageV3() {
     setTopPairs(top3);
   }
   if (!refTokens || !triTokens || !triTokenIds) return <Loading />;
-  const allTokens = getAllTokens(refTokens, triTokens);
   async function get_seeds() {
     const seeds = await get_all_seeds();
     set_seed_list(seeds);
@@ -730,476 +727,35 @@ export default function AddYourLiquidityPageV3() {
     const slots = custom_config[pool_id]?.bin || bin;
     return slots;
   }
-  const tokenSort = tokenX?.id == currentSelectedPool?.token_x;
-  const mobileDevice = isMobile();
-
-  return (
-    <LiquidityProviderData.Provider
-      value={{
-        get_slot_number_in_a_bin,
-        binNumber,
-        setBinNumber,
-        currentSelectedPool,
-        tokenX,
-        tokenY,
-        pointChange,
-        setCurPointInBinBoundry,
-        setCurrentSelectedPool,
-        leftPoint,
-        setLeftPoint,
-        rightPoint,
-        setRightPoint,
-        currentPoint,
-        SLOT_NUMBER,
-        BIN_WIDTH,
-        liquidityShape,
-        tokenXAmount,
-        tokenYAmount,
-        tokenXBalanceFromNear,
-        tokenYBalanceFromNear,
-        onlyAddXToken,
-        onlyAddYToken,
-        invalidRange,
-        isSignedIn,
-        token_amount_tip,
-        set_token_amount_tip,
-        switch_pool_loading,
-      }}
-    >
-      <div className="m-20">
-        {/* 缩略图 */}
-        {/* <DclChart pool_id={currentSelectedPool?.pool_id} config={{axisHidden: true, controlHidden: true, currentBarHidden: true, hoverBoxHidden: true, svgWidth:'80', svgHeight:'32', svgPaddingX:'0'}}></DclChart> */}
-        {/* 详情页图 */}
-        {/* <DclChart pool_id={currentSelectedPool?.pool_id} config={{axisHidden: true, controlHidden: true}}></DclChart> */}
-        {/* 添加页图 */}
-        {/* <DclChart pool_id={currentSelectedPool?.pool_id}></DclChart> */}
-        {/* 用户流动性图表*/}
-        {/* <DclChart
-          pool_id={currentSelectedPool?.pool_id}
-          config={{ controlHidden: true }}
-          chartType="USER"
-        ></DclChart> */}
-        {/* 删除流动性图表 从右侧部分删除 */}
-        {/* <DclChart pool_id={currentSelectedPool?.pool_id} config={{controlHidden: true, currentBarHidden: true, hoverBoxHidden: true}} chartType='USER' removeParams={{ fromRight:true, point:  408800}}></DclChart> */}
-        {/* 删除流动性图表 从左侧部分删除 */}
-        {/* <DclChart pool_id={currentSelectedPool?.pool_id} config={{controlHidden: true, currentBarHidden: true, hoverBoxHidden: true}} chartType='USER' removeParams={{ fromLeft:true, point:  408800}}></DclChart> */}
-        {/* 删除流动性图表 全部删除 */}
-        {/* <DclChart pool_id={currentSelectedPool?.pool_id} config={{controlHidden: true, currentBarHidden: true, hoverBoxHidden: true}} chartType='USER' removeParams={{ all: true }}></DclChart> */}
-      </div>
-
-      {/* mobile head */}
-      <div className="m-auto xs:w-full md:w-full xs:px-3 md:px-3 flex items-center mb-5 lg:hidden">
-        <div
-          className="cursor-pointer flex items-center justify-center w-6 h-6"
-          onClick={goYourLiquidityPage}
-        >
-          <ReturnIcon></ReturnIcon>
-        </div>
-        <span className="text-white text-sm">
-          <FormattedMessage id="add_liquidity"></FormattedMessage>
-        </span>
-      </div>
-      <div
-        style={{ width: mobileDevice ? '' : '1020px' }}
-        className="relative flex flex-col  lg:w-4/5 2xl:w-3/5 xs:w-full md:w-full xs:px-3 md:px-3 m-auto text-white rounded-2xl "
-      >
-        {/* pc head */}
-        <div
-          className=" xs:w-full max-w-max  md:w-full xs:px-3 md:px-3 text-farmText flex items-center mb-5 cursor-pointer hover:text-white"
-          onClick={() => {
-            history.goBack();
-          }}
-        >
-          <div
-            className="cursor-pointer flex items-center justify-center w-6 h-6"
-            onClick={goYourLiquidityPage}
-          >
-            <ReturnIcon></ReturnIcon>
-          </div>
-          <span className=" text-sm">
-            <FormattedMessage id="add_liquidity"></FormattedMessage>
-          </span>
-        </div>
-
-        {/* content */}
-        <div
-          className="relative z-10 py-5 px-7 xs:px-3 md:px-3 rounded-2xl"
-          style={{
-            background: 'linear-gradient(180deg, #213441 0%, #15242F 100%)',
-          }}
-        >
-          <div className="flex items-start justify-between xs:flex-col md:flex-col">
-            {/* no Data */}
-            {currentSelectedPool ? null : <NoDataComponent></NoDataComponent>}
-            {/* add pool part */}
-            {currentSelectedPool &&
-            !currentSelectedPool.pool_id &&
-            OPEN_CREATE_POOL_ENTRY ? (
-              <CreatePoolComponent
-                currentSelectedPool={currentSelectedPool}
-                tokenX={tokenX}
-                tokenY={tokenY}
-                tokenPriceList={tokenPriceList}
-                buttonSort={buttonSort}
-              ></CreatePoolComponent>
-            ) : null}
-            {currentSelectedPool &&
-            !currentSelectedPool.pool_id &&
-            !OPEN_CREATE_POOL_ENTRY ? (
-              <NoDataComponent isNoPool={true}></NoDataComponent>
-            ) : null}
-            {/* add Liquidity part */}
-            {/* left area */}
-            {currentSelectedPool && currentSelectedPool.pool_id ? (
-              <SetPointsComponent></SetPointsComponent>
-            ) : null}
-            {/* right area */}
-            <div
-              style={{ width: mobileDevice ? '' : '400px' }}
-              className="flex-shrink-0 xs:w-full md:w-full"
-            >
-              <div className="flex items-center justify-between">
-                <div className="text-white font-gothamBold">
-                  <FormattedMessage
-                    id="select_token_pair"
-                    defaultMessage={'Select Token Pair'}
-                  ></FormattedMessage>
-                </div>
-
-                <SelectTokenDCL
-                  selectTokenIn={(token) => {
-                    setTokenX(token);
-                    setTokenXBalanceFromNear(token?.near?.toString());
-                  }}
-                  selectTokenOut={(token: TokenMetadata) => {
-                    setTokenY(token);
-                    setTokenYBalanceFromNear(token?.near?.toString());
-                  }}
-                  notNeedSortToken={true}
-                  className="pt-6  absolute top-5 outline-none   right-0    xs:text-white xs:font-bold xs:fixed xs:bottom-0 xs:w-full "
-                  selected={
-                    <div
-                      className={` text-sm rounded-lg frcc cursor-pointer p-3 bg-v3SwapGray bg-opacity-10 ${
-                        selectHover ? 'text-white' : 'text-primaryText'
-                      }`}
-                      onMouseEnter={() => {
-                        if (!mobileDevice) {
-                          setSelectHover(true);
-                        }
-                      }}
-                      onMouseLeave={() => {
-                        if (!mobileDevice) {
-                          setSelectHover(false);
-                        }
-                      }}
-                      onClick={() => {
-                        if (mobileDevice) {
-                          setSelectHover(!selectHover);
-                        }
-                      }}
-                      onBlur={() => {
-                        if (mobileDevice) {
-                          setSelectHover(false);
-                        }
-                      }}
-                    >
-                      <ArrowDownV3 />
-                    </div>
-                  }
-                />
-              </div>
-
-              <InputAmount
-                token={tokenX}
-                balance={tokenXBalanceFromNear}
-                tokenPriceList={tokenPriceList}
-                amount={tokenXAmount}
-                changeAmount={changeTokenXAmount}
-                currentSelectedPool={currentSelectedPool}
-                hidden={
-                  tokenSort
-                    ? onlyAddYToken || invalidRange
-                      ? true
-                      : false
-                    : onlyAddXToken || invalidRange
-                    ? true
-                    : false
-                }
-              ></InputAmount>
-              <InputAmount
-                token={tokenY}
-                balance={tokenYBalanceFromNear}
-                tokenPriceList={tokenPriceList}
-                amount={tokenYAmount}
-                changeAmount={changeTokenYAmount}
-                currentSelectedPool={currentSelectedPool}
-                hidden={
-                  tokenSort
-                    ? onlyAddXToken || invalidRange
-                      ? true
-                      : false
-                    : onlyAddYToken || invalidRange
-                    ? true
-                    : false
-                }
-              ></InputAmount>
-              {token_amount_tip ? (
-                <div className="flex items-center text-sm text-warnColor mt-2.5">
-                  <WarningIcon className="ml-2.5 mr-2"></WarningIcon>
-                  {token_amount_tip}
-                </div>
-              ) : null}
-
-              <div className="frcb mt-6 mb-7">
-                <div className="text-white font-gothamBold">
-                  <FormattedMessage
-                    id="select_fee_tiers"
-                    defaultMessage={'Select Fee Tiers'}
-                  ></FormattedMessage>
-                </div>
-
-                <div className="frcs gap-2">
-                  <span className="font-gothamBold text-white">
-                    {!!currentSelectedPool?.fee
-                      ? `${currentSelectedPool.fee / 10000}%`
-                      : ''}
-                  </span>
-
-                  <div
-                    className="w-7 h-7 rounded-lg relative bg-v3SwapGray z-50 bg-opacity-10 hover:bg-opacity-30 text-primaryText hover:text-white frcc "
-                    onMouseLeave={() => {
-                      setHoverFeeBox(false);
-                    }}
-                    onMouseEnter={() => {
-                      setHoverFeeBox(true);
-                    }}
-                  >
-                    <div>
-                      <SliderCurColor></SliderCurColor>
-                    </div>
-                    {hoverFeeBox && (
-                      <div className="absolute right-0 top-5 pt-4">
-                        <div
-                          className="rounded-xl  right-0 top-3 px-4 py-3  xs:px-2 md:px-2"
-                          style={{
-                            border: '1.2px solid rgba(145, 162, 174, 0.2)',
-                            width: '418px',
-                            background:
-                              'linear-gradient(rgb(34, 47, 55) 0%, rgb(25, 34, 41) 100%)',
-                          }}
-                        >
-                          <div className="text-sm text-white font-gothamBold">
-                            <FormattedMessage
-                              id="fee_Tiers"
-                              defaultMessage="Fee Tiers"
-                            />
-                          </div>
-                          <div
-                            className={`items-stretch justify-between mt-5 ${
-                              feeBoxStatus ? 'flex' : 'hidden'
-                            }`}
-                          >
-                            {FEELIST.map((feeItem, index) => {
-                              const { fee, text } = feeItem;
-                              const isNoPool =
-                                currentPools && !currentPools[fee];
-                              return (
-                                <div
-                                  onClick={() => {
-                                    switchSelectedFee(fee);
-                                  }}
-                                  key={fee + index}
-                                  className={`relative flex flex-col px-2 py-1.5 xsm:py-1 rounded-lg w-1 flex-grow ${
-                                    tokenX && tokenY ? 'cursor-pointer' : ''
-                                  } ${index == 3 ? '' : 'mr-2.5 xsm:mr-1'} ${
-                                    isNoPool
-                                      ? 'border border-v3GreyColor'
-                                      : currentSelectedPool?.fee == fee
-                                      ? 'bg-feeBoxBgLiqudityColor'
-                                      : 'bg-v3GreyColor'
-                                  }`}
-                                >
-                                  <span
-                                    className={`text-sm font-gothamBold ${
-                                      isNoPool ||
-                                      !(tokenX && tokenY && currentPools)
-                                        ? 'text-primaryText text-opacity-60'
-                                        : 'text-white'
-                                    }`}
-                                  >
-                                    {fee / 10000}%
-                                  </span>
-                                  {tokenX && tokenY && currentPools ? (
-                                    <span
-                                      className={`transform scale-90 origin-left text-xs text-primaryText whitespace-nowrap ${
-                                        isNoPool ? 'text-opacity-60' : ''
-                                      }`}
-                                    >
-                                      {isNoPool ? (
-                                        'No Pool'
-                                      ) : Object.keys(tokenPriceList).length >
-                                        0 ? (
-                                        <span>
-                                          {displayTvl(currentPools[fee].tvl)}
-                                        </span>
-                                      ) : (
-                                        'Loading...'
-                                      )}
-                                    </span>
-                                  ) : null}
-                                  {currentSelectedPool?.fee == fee ? (
-                                    <SelectedIcon className="absolute top-0 right-0"></SelectedIcon>
-                                  ) : null}
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className="font-gothamBold mb-2.5 text-white">
-                <FormattedMessage
-                  id="choose_liquidity_shape"
-                  defaultMessage={'Choose Liquidity Shape'}
-                ></FormattedMessage>
-              </div>
-
-              <div className="frcb">
-                {[SpotShape, CurveShape, BidAskShape].map(
-                  (Shape, index: number) => {
-                    let disabled = false;
-                    if (
-                      (index == 1 || index == 2) &&
-                      only_suppport_spot_shape
-                    ) {
-                      disabled = true;
-                    }
-                    return (
-                      <div
-                        className={`flex flex-col  rounded-xl items-center border justify-center ${
-                          disabled ? 'opacity-40' : 'cursor-pointer'
-                        } ${
-                          (index === 0 && liquidityShape === 'Spot') ||
-                          (index === 1 && liquidityShape === 'Curve') ||
-                          (index === 2 && liquidityShape === 'BidAsk')
-                            ? ' border-senderHot bg-senderHot bg-opacity-10'
-                            : 'border-limitOrderFeeTiersBorderColor'
-                        }  gap-2.5`}
-                        style={{
-                          width: '127px',
-                          height: '70px',
-                        }}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          if (index === 0) setLiquidityShape('Spot');
-                          else if (index === 1 && !only_suppport_spot_shape)
-                            setLiquidityShape('Curve');
-                          else if (index == 2 && !only_suppport_spot_shape)
-                            setLiquidityShape('BidAsk');
-                        }}
-                      >
-                        <Shape />
-
-                        <span className="text-white text-xs font-gothamBold">
-                          {index === 0 && (
-                            <FormattedMessage
-                              id="spot"
-                              defaultMessage={'Spot'}
-                            ></FormattedMessage>
-                          )}
-                          {index === 1 && (
-                            <FormattedMessage
-                              id="curve"
-                              defaultMessage={'Curve'}
-                            ></FormattedMessage>
-                          )}
-
-                          {index === 2 && (
-                            <FormattedMessage
-                              id="bid_ask"
-                              defaultMessage={'Bid-ask'}
-                            ></FormattedMessage>
-                          )}
-                        </span>
-                      </div>
-                    );
-                  }
-                )}
-              </div>
-              {/* todo */}
-              {/* <div className="font-gothamBold mt-4 text-white">
-                <FormattedMessage
-                  id="silmulate_liquidity_distribution"
-                  defaultMessage={'Silmulate Liquidity Distribution'}
-                ></FormattedMessage>
-              </div> */}
-              {currentSelectedPool && currentSelectedPool.pool_id && (
-                <AddLiquidityButton></AddLiquidityButton>
-              )}
-              <div className="mt-5">
-                <OneSide
-                  show={
-                    (onlyAddYToken && currentPoint != rightPoint - 1) ||
-                    onlyAddXToken
-                      ? true
-                      : false
-                  }
-                ></OneSide>
-                <InvalidRange show={invalidRange ? true : false}></InvalidRange>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </LiquidityProviderData.Provider>
-  );
-}
-/**
- * 双边 最小token数量不满足 提示
- * 双边 一侧token 数量太多 提示 todo
- * @returns
- */
-function AddLiquidityButton() {
-  const {
-    currentSelectedPool,
-    tokenX,
-    tokenY,
-    binNumber,
-    SLOT_NUMBER,
-    leftPoint,
-    rightPoint,
-    currentPoint,
-    liquidityShape,
-    tokenXAmount,
-    tokenYAmount,
-    tokenXBalanceFromNear,
-    tokenYBalanceFromNear,
-    onlyAddXToken,
-    onlyAddYToken,
-    invalidRange,
-    set_token_amount_tip,
-  } = useContext(LiquidityProviderData);
-  const tokenSort = tokenX.id == currentSelectedPool.token_x;
-  const [addLiquidityButtonLoading, setAddLiquidityButtonLoading] =
-    useState(false);
-  const { globalState } = useContext(WalletContext);
-  const isSignedIn = globalState.isSignedIn;
-  const { token_x, token_y, point_delta, pool_id } = currentSelectedPool;
-  const max_nft_divisional_per_side = 3;
-  const token_x_decimals =
-    tokenX.id == token_x ? tokenX.decimals : tokenY.decimals;
-  const token_y_decimals =
-    tokenY.id == token_y ? tokenY.decimals : tokenX.decimals;
-
-  function addLiquiditySpot() {
-    setAddLiquidityButtonLoading(true);
+  /**
+   * step1 当数据发生改变 
+   *       leftPoint, rightPoint 有效
+   *       tokenXAmount, tokenYAmount 至少有一个有值
+   *       ===> 可以触发 
+   * step2 根据当前数据获实时获取新的 liquidtiy数据--->改成UserLiquidityInfo数据格式
+   * step3 把新增的liquidity传递给Chart组件，
+   * step4 chart组件把用户已有的liquidtiy + 新增的，划分成bin数据，生成新的图表
+   * step5 疑问；？实时修改图表 会导致效率什么问题吗？
+   */
+  function generate_new_user_chart() {
+    if (!isInvalid(leftPoint) && !isInvalid(rightPoint) && (+tokenXAmount > 0 || +tokenYAmount > 0)) {
+      let new_nfts:any;
+      if (liquidityShape == 'Spot') {
+        const new_nft = getLiquiditySpot();
+        new_nfts = [new_nft]
+      } else {
+         new_nfts = getLiquidityForCurveAndBidAskMode();
+         if (!new_nfts) return;
+      }
+      const processed_new_nfts = process_liquidities(new_nfts);
+      set_new_user_liquidities(processed_new_nfts);
+    } else {
+      set_new_user_liquidities([]);
+    }
+  }
+  function getLiquiditySpot() {
     const { pool_id } = currentSelectedPool;
-    add_liquidity({
+    return {
       pool_id,
       left_point: leftPoint,
       right_point: rightPoint,
@@ -1215,9 +771,9 @@ function AddLiquidityButton() {
       //   : toNonDivisibleNumber(tokenX.decimals, tokenXAmount || '0'),
       // token_x: tokenSort ? tokenX : tokenY,
       // token_y: tokenSort ? tokenY : tokenX,
-    });
+    }
   }
-  function addLiquidityForCurveAndBidAskMode() {
+  function getLiquidityForCurveAndBidAskMode() {
     /**
      *  已知条件:
      *  bin的数量、一个bin里 slot的数量、leftPoint、rightPoint、tokenXAmount、tokenYAmount
@@ -1225,15 +781,6 @@ function AddLiquidityButton() {
      *  当前点位为point，以bin为单位 下一跳是 point + bin * slots
      *  最小的bin的高度就是等差的值 为dis
      **/
-    setAddLiquidityButtonLoading(true);
-    const tokenXAmount_nonDivisible = toNonDivisibleNumber(
-      tokenX.decimals,
-      tokenXAmount || '0'
-    );
-    const tokenYAmount_nonDivisible = toNonDivisibleNumber(
-      tokenY.decimals,
-      tokenYAmount || '0'
-    );
     let nftList: IAddLiquidityInfo[] = [];
     const get_x_nfts =
       liquidityShape == 'Curve'
@@ -1303,7 +850,6 @@ function AddLiquidityButton() {
           if (remain_token_x_amount.lt(0)) {
             // 给出提示 token x 数量太少不能添加
             set_token_amount_tip(`${tokenX.symbol} Token amount is too little`);
-            setAddLiquidityButtonLoading(false);
             return;
           } else {
             nftList_x = get_decline_pattern_nfts({
@@ -1333,7 +879,6 @@ function AddLiquidityButton() {
           if (remain_token_y_amount.lt(0)) {
             // 给出提示 token y 数量太少不能添加
             set_token_amount_tip(`${tokenY.symbol} Token amount is too little`);
-            setAddLiquidityButtonLoading(false);
             return;
           } else {
             nftList_y = get_rise_pattern_nfts({
@@ -1364,7 +909,6 @@ function AddLiquidityButton() {
           if (remain_token_x_amount.lt(0)) {
             // 给出提示 token x 数量太少不能添加
             set_token_amount_tip(`${tokenX.symbol} Token amount is too little`);
-            setAddLiquidityButtonLoading(false);
             return;
           } else {
             nftList_x = get_rise_pattern_nfts({
@@ -1394,7 +938,6 @@ function AddLiquidityButton() {
           if (remain_token_y_amount.lt(0)) {
             // 给出提示 token y 数量太少不能添加
             set_token_amount_tip(`${tokenY.symbol} Token amount is too little`);
-            setAddLiquidityButtonLoading(false);
             return;
           } else {
             nftList_y = get_decline_pattern_nfts({
@@ -1410,13 +953,7 @@ function AddLiquidityButton() {
         }
       }
     }
-    batch_add_liquidity({
-      liquidityInfos: nftList,
-      token_x: tokenX,
-      token_y: tokenY,
-      amount_x: tokenXAmount_nonDivisible,
-      amount_y: tokenYAmount_nonDivisible,
-    });
+    return nftList;
   }
   /**
    * curve 模式下，左侧（y）包含当前点位的 nfts划分
@@ -2188,6 +1725,787 @@ function AddLiquidityButton() {
       (Math.sqrt(CONSTANT_D) - 1)
     );
   }
+  /**
+   * 把传递给合约的liquidities数据形式转换成用于图表展示的liquidity数据形式
+   */
+  function process_liquidities(liquidities:IAddLiquidityInfo[]) {
+    const { pool_id } = currentSelectedPool;
+    const new_liquidities:UserLiquidityInfo[] = [];
+    liquidities.forEach((l:IAddLiquidityInfo) => {
+      const { left_point, right_point, amount_x, amount_y } = l;
+      const L = get_l_amount_by_condition({
+        left_point,
+        right_point,
+        token_x_amount:amount_x,
+        token_y_amount:amount_y,
+        poolDetail:currentSelectedPool
+      })
+      new_liquidities.push({
+        pool_id,
+        left_point,
+        right_point,
+        amount: L
+      })
+    })
+    return new_liquidities;
+  }
+  function pointAndshapeAndAmountChange() {
+    set_token_amount_tip('');
+    if (liquidityShape == 'Spot') {
+      if (tokenXAmount) {
+        changeTokenXAmount(tokenXAmount)
+      } else if (tokenYAmount) {
+        changeTokenYAmount(tokenYAmount)
+      }
+    }
+  }
+  const tokenSort = tokenX?.id == currentSelectedPool?.token_x;
+  const mobileDevice = isMobile();
+
+  return (
+    <LiquidityProviderData.Provider
+      value={{
+        get_slot_number_in_a_bin,
+        binNumber,
+        setBinNumber,
+        currentSelectedPool,
+        tokenX,
+        tokenY,
+        pointChange,
+        setCurrentSelectedPool,
+        leftPoint,
+        setLeftPoint,
+        rightPoint,
+        setRightPoint,
+        currentPoint,
+        SLOT_NUMBER,
+        BIN_WIDTH,
+        liquidityShape,
+        tokenXAmount,
+        tokenYAmount,
+        tokenXBalanceFromNear,
+        tokenYBalanceFromNear,
+        onlyAddXToken,
+        onlyAddYToken,
+        invalidRange,
+        isSignedIn,
+        token_amount_tip,
+        set_token_amount_tip,
+        switch_pool_loading,
+        pointAndshapeAndAmountChange,
+
+        get_y_nfts_contain_current_curve,
+        get_x_nfts_contain_current_curve,
+        get_x_nfts_contain_current_bid_ask,
+        get_y_nfts_contain_current_bid_ask,
+        get_rise_pattern_nfts,
+        get_decline_pattern_nfts,
+        formula_of_token_x,
+        formula_of_token_y,
+
+        getLiquiditySpot,
+        getLiquidityForCurveAndBidAskMode,
+        
+      }}
+    >
+      <div className="m-20">
+        {/* 缩略图 */}
+        {/* <DclChart pool_id={currentSelectedPool?.pool_id} config={{axisHidden: true, controlHidden: true, currentBarHidden: true, hoverBoxHidden: true, svgWidth:'80', svgHeight:'32', svgPaddingX:'0'}}></DclChart> */}
+        {/* 详情页图 */}
+        {/* <DclChart pool_id={currentSelectedPool?.pool_id} config={{axisHidden: true, controlHidden: true}}></DclChart> */}
+        {/* 添加页图 */}
+        {/* <DclChart pool_id={currentSelectedPool?.pool_id}></DclChart> */}
+        {/* 用户流动性图表*/}
+        {/* <DclChart
+          pool_id={currentSelectedPool?.pool_id}
+          config={{ controlHidden: true }}
+          chartType="USER"
+        ></DclChart> */}
+        {/* 删除流动性图表 从右侧部分删除 */}
+        {/* <DclChart pool_id={currentSelectedPool?.pool_id} config={{controlHidden: true, currentBarHidden: true, hoverBoxHidden: true}} chartType='USER' removeParams={{ fromRight:true, point:  408800}}></DclChart> */}
+        {/* 删除流动性图表 从左侧部分删除 */}
+        {/* <DclChart pool_id={currentSelectedPool?.pool_id} config={{controlHidden: true, currentBarHidden: true, hoverBoxHidden: true}} chartType='USER' removeParams={{ fromLeft:true, point:  408800}}></DclChart> */}
+        {/* 删除流动性图表 全部删除 */}
+        {/* <DclChart pool_id={currentSelectedPool?.pool_id} config={{controlHidden: true, currentBarHidden: true, hoverBoxHidden: true}} chartType='USER' removeParams={{ all: true }}></DclChart> */}
+      </div>
+
+      {/* mobile head */}
+      <div className="m-auto xs:w-full md:w-full xs:px-3 md:px-3 flex items-center mb-5 lg:hidden">
+        <div
+          className="cursor-pointer flex items-center justify-center w-6 h-6"
+          onClick={goYourLiquidityPage}
+        >
+          <ReturnIcon></ReturnIcon>
+        </div>
+        <span className="text-white text-sm">
+          <FormattedMessage id="add_liquidity"></FormattedMessage>
+        </span>
+      </div>
+      <div
+        style={{ width: mobileDevice ? '' : '1020px' }}
+        className="relative flex flex-col  lg:w-4/5 2xl:w-3/5 xs:w-full md:w-full xs:px-3 md:px-3 m-auto text-white rounded-2xl "
+      >
+        {/* pc head */}
+        <div
+          className=" xs:w-full max-w-max  md:w-full xs:px-3 md:px-3 text-farmText flex items-center mb-5 cursor-pointer hover:text-white"
+          onClick={() => {
+            history.goBack();
+          }}
+        >
+          <div
+            className="cursor-pointer flex items-center justify-center w-6 h-6"
+            onClick={goYourLiquidityPage}
+          >
+            <ReturnIcon></ReturnIcon>
+          </div>
+          <span className=" text-sm">
+            <FormattedMessage id="add_liquidity"></FormattedMessage>
+          </span>
+        </div>
+
+        {/* content */}
+        <div
+          className="relative z-10 py-5 px-7 xs:px-3 md:px-3 rounded-2xl"
+          style={{
+            background: 'linear-gradient(180deg, #213441 0%, #15242F 100%)',
+          }}
+        >
+          <div className="flex items-start justify-between xs:flex-col md:flex-col">
+            {/* no Data */}
+            {currentSelectedPool ? null : <NoDataComponent></NoDataComponent>}
+            {/* add pool part */}
+            {currentSelectedPool &&
+            !currentSelectedPool.pool_id &&
+            OPEN_CREATE_POOL_ENTRY ? (
+              <CreatePoolComponent
+                currentSelectedPool={currentSelectedPool}
+                tokenX={tokenX}
+                tokenY={tokenY}
+                tokenPriceList={tokenPriceList}
+                buttonSort={buttonSort}
+              ></CreatePoolComponent>
+            ) : null}
+            {currentSelectedPool &&
+            !currentSelectedPool.pool_id &&
+            !OPEN_CREATE_POOL_ENTRY ? (
+              <NoDataComponent isNoPool={true}></NoDataComponent>
+            ) : null}
+            {/* add Liquidity part */}
+            {/* left area */}
+            {currentSelectedPool && currentSelectedPool.pool_id ? (
+              <SetPointsComponent></SetPointsComponent>
+            ) : null}
+            {/* right area */}
+            <div
+              style={{ width: mobileDevice ? '' : '400px' }}
+              className="flex-shrink-0 xs:w-full md:w-full"
+            >
+              <div className="flex items-center justify-between">
+                <div className="text-white font-gothamBold">
+                  <FormattedMessage
+                    id="select_token_pair"
+                    defaultMessage={'Select Token Pair'}
+                  ></FormattedMessage>
+                </div>
+
+                <SelectTokenDCL
+                  selectTokenIn={(token) => {
+                    setTokenX(token);
+                    setTokenXBalanceFromNear(token?.near?.toString());
+                  }}
+                  selectTokenOut={(token: TokenMetadata) => {
+                    setTokenY(token);
+                    setTokenYBalanceFromNear(token?.near?.toString());
+                  }}
+                  notNeedSortToken={true}
+                  className="pt-6  absolute top-5 outline-none   right-0    xs:text-white xs:font-bold xs:fixed xs:bottom-0 xs:w-full "
+                  selected={
+                    <div
+                      className={` text-sm rounded-lg frcc cursor-pointer p-3 bg-v3SwapGray bg-opacity-10 ${
+                        selectHover ? 'text-white' : 'text-primaryText'
+                      }`}
+                      onMouseEnter={() => {
+                        if (!mobileDevice) {
+                          setSelectHover(true);
+                        }
+                      }}
+                      onMouseLeave={() => {
+                        if (!mobileDevice) {
+                          setSelectHover(false);
+                        }
+                      }}
+                      onClick={() => {
+                        if (mobileDevice) {
+                          setSelectHover(!selectHover);
+                        }
+                      }}
+                      onBlur={() => {
+                        if (mobileDevice) {
+                          setSelectHover(false);
+                        }
+                      }}
+                    >
+                      <ArrowDownV3 />
+                    </div>
+                  }
+                />
+              </div>
+
+              <InputAmount
+                token={tokenX}
+                balance={tokenXBalanceFromNear}
+                tokenPriceList={tokenPriceList}
+                amount={tokenXAmount}
+                changeAmount={changeTokenXAmount}
+                currentSelectedPool={currentSelectedPool}
+                hidden={
+                  tokenSort
+                    ? onlyAddYToken || invalidRange
+                      ? true
+                      : false
+                    : onlyAddXToken || invalidRange
+                    ? true
+                    : false
+                }
+              ></InputAmount>
+              <InputAmount
+                token={tokenY}
+                balance={tokenYBalanceFromNear}
+                tokenPriceList={tokenPriceList}
+                amount={tokenYAmount}
+                changeAmount={changeTokenYAmount}
+                currentSelectedPool={currentSelectedPool}
+                hidden={
+                  tokenSort
+                    ? onlyAddXToken || invalidRange
+                      ? true
+                      : false
+                    : onlyAddYToken || invalidRange
+                    ? true
+                    : false
+                }
+              ></InputAmount>
+              {token_amount_tip ? (
+                <div className="flex items-center text-sm text-warnColor mt-2.5">
+                  <WarningIcon className="ml-2.5 mr-2"></WarningIcon>
+                  {token_amount_tip}
+                </div>
+              ) : null}
+
+              <div className="frcb mt-6 mb-7">
+                <div className="text-white font-gothamBold">
+                  <FormattedMessage
+                    id="select_fee_tiers"
+                    defaultMessage={'Select Fee Tiers'}
+                  ></FormattedMessage>
+                </div>
+
+                <div className="frcs gap-2">
+                  <span className="font-gothamBold text-white">
+                    {!!currentSelectedPool?.fee
+                      ? `${currentSelectedPool.fee / 10000}%`
+                      : ''}
+                  </span>
+
+                  <div
+                    className="w-7 h-7 rounded-lg relative bg-v3SwapGray z-50 bg-opacity-10 hover:bg-opacity-30 text-primaryText hover:text-white frcc "
+                    onMouseLeave={() => {
+                      setHoverFeeBox(false);
+                    }}
+                    onMouseEnter={() => {
+                      setHoverFeeBox(true);
+                    }}
+                  >
+                    <div>
+                      <SliderCurColor></SliderCurColor>
+                    </div>
+                    {hoverFeeBox && (
+                      <div className="absolute right-0 top-5 pt-4">
+                        <div
+                          className="rounded-xl  right-0 top-3 px-4 py-3  xs:px-2 md:px-2"
+                          style={{
+                            border: '1.2px solid rgba(145, 162, 174, 0.2)',
+                            width: '418px',
+                            background:
+                              'linear-gradient(rgb(34, 47, 55) 0%, rgb(25, 34, 41) 100%)',
+                          }}
+                        >
+                          <div className="text-sm text-white font-gothamBold">
+                            <FormattedMessage
+                              id="fee_Tiers"
+                              defaultMessage="Fee Tiers"
+                            />
+                          </div>
+                          <div
+                            className={`items-stretch justify-between mt-5 ${
+                              feeBoxStatus ? 'flex' : 'hidden'
+                            }`}
+                          >
+                            {FEELIST.map((feeItem, index) => {
+                              const { fee, text } = feeItem;
+                              const isNoPool =
+                                currentPools && !currentPools[fee];
+                              return (
+                                <div
+                                  onClick={() => {
+                                    switchSelectedFee(fee);
+                                  }}
+                                  key={fee + index}
+                                  className={`relative flex flex-col px-2 py-1.5 xsm:py-1 rounded-lg w-1 flex-grow ${
+                                    tokenX && tokenY ? 'cursor-pointer' : ''
+                                  } ${index == 3 ? '' : 'mr-2.5 xsm:mr-1'} ${
+                                    isNoPool
+                                      ? 'border border-v3GreyColor'
+                                      : currentSelectedPool?.fee == fee
+                                      ? 'bg-feeBoxBgLiqudityColor'
+                                      : 'bg-v3GreyColor'
+                                  }`}
+                                >
+                                  <span
+                                    className={`text-sm font-gothamBold ${
+                                      isNoPool ||
+                                      !(tokenX && tokenY && currentPools)
+                                        ? 'text-primaryText text-opacity-60'
+                                        : 'text-white'
+                                    }`}
+                                  >
+                                    {fee / 10000}%
+                                  </span>
+                                  {tokenX && tokenY && currentPools ? (
+                                    <span
+                                      className={`transform scale-90 origin-left text-xs text-primaryText whitespace-nowrap ${
+                                        isNoPool ? 'text-opacity-60' : ''
+                                      }`}
+                                    >
+                                      {isNoPool ? (
+                                        'No Pool'
+                                      ) : Object.keys(tokenPriceList).length >
+                                        0 ? (
+                                        <span>
+                                          {displayTvl(currentPools[fee].tvl)}
+                                        </span>
+                                      ) : (
+                                        'Loading...'
+                                      )}
+                                    </span>
+                                  ) : null}
+                                  {currentSelectedPool?.fee == fee ? (
+                                    <SelectedIcon className="absolute top-0 right-0"></SelectedIcon>
+                                  ) : null}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="font-gothamBold mb-2.5 text-white">
+                <FormattedMessage
+                  id="choose_liquidity_shape"
+                  defaultMessage={'Choose Liquidity Shape'}
+                ></FormattedMessage>
+              </div>
+
+              <div className="frcb">
+                {[SpotShape, CurveShape, BidAskShape].map(
+                  (Shape, index: number) => {
+                    let disabled = false;
+                    if (
+                      (index == 1 || index == 2) &&
+                      only_suppport_spot_shape
+                    ) {
+                      disabled = true;
+                    }
+                    return (
+                      <div
+                        className={`flex flex-col  rounded-xl items-center border justify-center ${
+                          disabled ? 'opacity-40' : 'cursor-pointer'
+                        } ${
+                          (index === 0 && liquidityShape === 'Spot') ||
+                          (index === 1 && liquidityShape === 'Curve') ||
+                          (index === 2 && liquidityShape === 'BidAsk')
+                            ? ' border-senderHot bg-senderHot bg-opacity-10'
+                            : 'border-limitOrderFeeTiersBorderColor'
+                        }  gap-2.5`}
+                        style={{
+                          width: '127px',
+                          height: '70px',
+                        }}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          if (index === 0) setLiquidityShape('Spot');
+                          else if (index === 1 && !only_suppport_spot_shape)
+                            setLiquidityShape('Curve');
+                          else if (index == 2 && !only_suppport_spot_shape)
+                            setLiquidityShape('BidAsk');
+                        }}
+                      >
+                        <Shape />
+
+                        <span className="text-white text-xs font-gothamBold">
+                          {index === 0 && (
+                            <FormattedMessage
+                              id="spot"
+                              defaultMessage={'Spot'}
+                            ></FormattedMessage>
+                          )}
+                          {index === 1 && (
+                            <FormattedMessage
+                              id="curve"
+                              defaultMessage={'Curve'}
+                            ></FormattedMessage>
+                          )}
+
+                          {index === 2 && (
+                            <FormattedMessage
+                              id="bid_ask"
+                              defaultMessage={'Bid-ask'}
+                            ></FormattedMessage>
+                          )}
+                        </span>
+                      </div>
+                    );
+                  }
+                )}
+              </div>
+              {/* new user chart part */}
+              {
+                isSignedIn && currentSelectedPool ? <div>
+                <div className='flex items-center justify-between  mt-4'>
+                  <div className="font-gothamBold text-white">
+                    <FormattedMessage
+                      id="Simulate_liquidity_distribution"
+                      defaultMessage={'Simulate Liquidity Distribution'}
+                    ></FormattedMessage>
+                  </div>
+                  <div onClick={generate_new_user_chart} className='text-xs text-v3SwapGray border border-opacity-20 border-primaryText rounded-lg p-2 bg-primaryText bg-opacity-20 cursor-pointer hover:text-white hover:bg-opacity-10 hover:border-transparent'>Generate</div>
+                </div>
+                {
+                  !isInvalid(leftPoint) &&
+                  !isInvalid(rightPoint) &&
+                  !switch_pool_loading && (
+                    <div className='flex items-center justify-center border border-v3SwapGray border-opacity-20 rounded-xl px-3 mt-2'>
+                      <DclChart
+                        pool_id={currentSelectedPool?.pool_id}
+                        config={{ controlHidden: true, currentBarHidden: true, hoverBoxHidden: true, svgWidth:'300', svgHeight:'68' }}
+                        chartType="USER"
+                        newlyAddedLiquidities={new_user_liquidities}
+                      ></DclChart>
+                    </div>
+                  )}
+              </div>:null
+              }
+              
+              {currentSelectedPool && currentSelectedPool.pool_id && (
+                <AddLiquidityButton></AddLiquidityButton>
+              )}
+              <div className="mt-5">
+                <OneSide
+                  show={
+                    (onlyAddYToken && currentPoint != rightPoint - 1) ||
+                    onlyAddXToken
+                      ? true
+                      : false
+                  }
+                ></OneSide>
+                <InvalidRange show={invalidRange ? true : false}></InvalidRange>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </LiquidityProviderData.Provider>
+  );
+}
+/**
+ * 双边 最小token数量不满足 提示
+ * 双边 一侧token 数量太多 提示 todo
+ * @returns
+ */
+function AddLiquidityButton() {
+  const {
+    currentSelectedPool,
+    tokenX,
+    tokenY,
+    binNumber,
+    SLOT_NUMBER,
+    leftPoint,
+    rightPoint,
+    currentPoint,
+    liquidityShape,
+    tokenXAmount,
+    tokenYAmount,
+    tokenXBalanceFromNear,
+    tokenYBalanceFromNear,
+    onlyAddXToken,
+    onlyAddYToken,
+    invalidRange,
+    set_token_amount_tip,
+    get_y_nfts_contain_current_curve,
+    get_x_nfts_contain_current_curve,
+    get_x_nfts_contain_current_bid_ask,
+    get_y_nfts_contain_current_bid_ask,
+    get_rise_pattern_nfts,
+    get_decline_pattern_nfts,
+    formula_of_token_x,
+    formula_of_token_y,
+
+    getLiquiditySpot,
+    getLiquidityForCurveAndBidAskMode,
+  } = useContext(LiquidityProviderData);
+  const tokenSort = tokenX.id == currentSelectedPool.token_x;
+  const [addLiquidityButtonLoading, setAddLiquidityButtonLoading] =
+    useState(false);
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
+  const { token_x, token_y, point_delta, pool_id } = currentSelectedPool;
+  const token_x_decimals =
+    tokenX.id == token_x ? tokenX.decimals : tokenY.decimals;
+  const token_y_decimals =
+    tokenY.id == token_y ? tokenY.decimals : tokenX.decimals;
+
+  function addLiquiditySpot() {
+    setAddLiquidityButtonLoading(true);
+    const new_liquidity = getLiquiditySpot();
+    add_liquidity(new_liquidity);
+  }
+  function addLiquidityForCurveAndBidAskMode() {
+    /**
+     *  已知条件:
+     *  bin的数量、一个bin里 slot的数量、leftPoint、rightPoint、tokenXAmount、tokenYAmount
+     *  当前点位为point，以slot为单位 下一跳是 point + slot
+     *  当前点位为point，以bin为单位 下一跳是 point + bin * slots
+     *  最小的bin的高度就是等差的值 为dis
+     **/
+    setAddLiquidityButtonLoading(true);
+    const tokenXAmount_nonDivisible = toNonDivisibleNumber(
+      tokenX.decimals,
+      tokenXAmount || '0'
+    );
+    const tokenYAmount_nonDivisible = toNonDivisibleNumber(
+      tokenY.decimals,
+      tokenYAmount || '0'
+    );
+    let nftList: IAddLiquidityInfo[] = [];
+    nftList = getLiquidityForCurveAndBidAskMode();
+    if (!nftList) {
+      setAddLiquidityButtonLoading(false);
+      return;
+    }
+    batch_add_liquidity({
+      liquidityInfos: nftList,
+      token_x: tokenX,
+      token_y: tokenY,
+      amount_x: tokenXAmount_nonDivisible,
+      amount_y: tokenYAmount_nonDivisible,
+    });
+  }
+  function addLiquidityForCurveAndBidAskModeCopy() {
+    /**
+     *  已知条件:
+     *  bin的数量、一个bin里 slot的数量、leftPoint、rightPoint、tokenXAmount、tokenYAmount
+     *  当前点位为point，以slot为单位 下一跳是 point + slot
+     *  当前点位为point，以bin为单位 下一跳是 point + bin * slots
+     *  最小的bin的高度就是等差的值 为dis
+     **/
+    setAddLiquidityButtonLoading(true);
+    const tokenXAmount_nonDivisible = toNonDivisibleNumber(
+      tokenX.decimals,
+      tokenXAmount || '0'
+    );
+    const tokenYAmount_nonDivisible = toNonDivisibleNumber(
+      tokenY.decimals,
+      tokenYAmount || '0'
+    );
+    let nftList: IAddLiquidityInfo[] = [];
+    const get_x_nfts =
+      liquidityShape == 'Curve'
+        ? get_decline_pattern_nfts
+        : get_rise_pattern_nfts;
+    const get_y_nfts =
+      liquidityShape == 'Curve'
+        ? get_rise_pattern_nfts
+        : get_decline_pattern_nfts;
+    if (onlyAddYToken) {
+      nftList = get_y_nfts({
+        left_point: leftPoint,
+        right_point: rightPoint,
+        token: tokenY,
+        token_amount: tokenYAmount,
+        formula_fun: formula_of_token_y,
+        is_token_y: true,
+      });
+    }
+    if (onlyAddXToken) {
+      nftList = get_x_nfts({
+        left_point: leftPoint,
+        right_point: rightPoint,
+        token: tokenX,
+        token_amount: tokenXAmount,
+        formula_fun: formula_of_token_x,
+        is_token_x: true,
+      });
+    }
+    if (!onlyAddXToken && !onlyAddYToken) {
+      /**
+       * step1 先判断左侧bin的数量是否 > 1,是的话，左侧包含当前点作等差，否则右侧包含当前点位作等差
+       * step2 分配好后，获得对右侧的最小token数量要求
+       * step3 另外一侧 总的token数量减去 当前bin中包含的，剩下的 作单边 等差分配即可
+       */
+      const { point_delta, current_point } = currentSelectedPool;
+      const current_l_point = getBinPointByPoint(
+        point_delta,
+        SLOT_NUMBER,
+        current_point,
+        'floor'
+      );
+      const current_r_point = getBinPointByPoint(
+        point_delta,
+        SLOT_NUMBER,
+        current_point,
+        'ceil'
+      );
+      const slot_number_in_a_bin = SLOT_NUMBER;
+      const binWidth = slot_number_in_a_bin * point_delta;
+      const bin_number_left = (current_point - leftPoint) / binWidth;
+      set_token_amount_tip('');
+      if (liquidityShape == 'Curve') {
+        if (bin_number_left > 1) {
+          // 左侧做等差
+          let nftList_x: IAddLiquidityInfo[] = [];
+          let nftList_y: IAddLiquidityInfo[] = [];
+          const { addLiquidityInfoList, min_token_x_amount_needed } =
+            get_y_nfts_contain_current_curve({
+              left_point: leftPoint,
+              right_point: current_r_point,
+            });
+          nftList_y = addLiquidityInfoList;
+          const remain_token_x_amount = Big(tokenXAmount).minus(
+            min_token_x_amount_needed
+          );
+          if (remain_token_x_amount.lt(0)) {
+            // 给出提示 token x 数量太少不能添加
+            set_token_amount_tip(`${tokenX.symbol} Token amount is too little`);
+            setAddLiquidityButtonLoading(false);
+            return;
+          } else {
+            nftList_x = get_decline_pattern_nfts({
+              left_point: current_r_point,
+              right_point: rightPoint,
+              token: tokenX,
+              token_amount: remain_token_x_amount.toFixed(),
+              formula_fun: formula_of_token_x,
+              is_token_x: true,
+            });
+          }
+          nftList = nftList_x.concat(nftList_y);
+        } else {
+          // 右侧做等差
+          let nftList_x: IAddLiquidityInfo[] = [];
+          let nftList_y: IAddLiquidityInfo[] = [];
+          const { addLiquidityInfoList, min_token_y_amount_needed } =
+            get_x_nfts_contain_current_curve({
+              left_point: current_l_point,
+              right_point: rightPoint,
+            });
+          nftList_x = addLiquidityInfoList;
+
+          const remain_token_y_amount = Big(tokenYAmount).minus(
+            min_token_y_amount_needed
+          );
+          if (remain_token_y_amount.lt(0)) {
+            // 给出提示 token y 数量太少不能添加
+            set_token_amount_tip(`${tokenY.symbol} Token amount is too little`);
+            setAddLiquidityButtonLoading(false);
+            return;
+          } else {
+            nftList_y = get_rise_pattern_nfts({
+              left_point: leftPoint,
+              right_point: current_l_point,
+              token: tokenY,
+              token_amount: remain_token_y_amount.toFixed(),
+              formula_fun: formula_of_token_y,
+              is_token_y: true,
+            });
+          }
+          nftList = nftList_x.concat(nftList_y);
+        }
+      } else {
+        if (bin_number_left > 1) {
+          // 左侧做等差
+          let nftList_x: IAddLiquidityInfo[] = [];
+          let nftList_y: IAddLiquidityInfo[] = [];
+          const { addLiquidityInfoList, min_token_x_amount_needed } =
+            get_y_nfts_contain_current_bid_ask({
+              left_point: leftPoint,
+              right_point: current_r_point,
+            });
+          nftList_y = addLiquidityInfoList;
+          const remain_token_x_amount = Big(tokenXAmount).minus(
+            min_token_x_amount_needed
+          );
+          if (remain_token_x_amount.lt(0)) {
+            // 给出提示 token x 数量太少不能添加
+            set_token_amount_tip(`${tokenX.symbol} Token amount is too little`);
+            setAddLiquidityButtonLoading(false);
+            return;
+          } else {
+            nftList_x = get_rise_pattern_nfts({
+              left_point: current_r_point,
+              right_point: rightPoint,
+              token: tokenX,
+              token_amount: remain_token_x_amount.toFixed(),
+              formula_fun: formula_of_token_x,
+              is_token_x: true,
+            });
+          }
+          nftList = nftList_x.concat(nftList_y);
+        } else {
+          // 右侧做等差
+          let nftList_x: IAddLiquidityInfo[] = [];
+          let nftList_y: IAddLiquidityInfo[] = [];
+          const { addLiquidityInfoList, min_token_y_amount_needed } =
+            get_x_nfts_contain_current_bid_ask({
+              left_point: current_l_point,
+              right_point: rightPoint,
+            });
+          nftList_x = addLiquidityInfoList;
+
+          const remain_token_y_amount = Big(tokenYAmount).minus(
+            min_token_y_amount_needed
+          );
+          if (remain_token_y_amount.lt(0)) {
+            // 给出提示 token y 数量太少不能添加
+            set_token_amount_tip(`${tokenY.symbol} Token amount is too little`);
+            setAddLiquidityButtonLoading(false);
+            return;
+          } else {
+            nftList_y = get_decline_pattern_nfts({
+              left_point: leftPoint,
+              right_point: current_l_point,
+              token: tokenY,
+              token_amount: remain_token_y_amount.toFixed(),
+              formula_fun: formula_of_token_y,
+              is_token_y: true,
+            });
+          }
+          nftList = nftList_x.concat(nftList_y);
+        }
+      }
+    }
+    batch_add_liquidity({
+      liquidityInfos: nftList,
+      token_x: tokenX,
+      token_y: tokenY,
+      amount_x: tokenXAmount_nonDivisible,
+      amount_y: tokenYAmount_nonDivisible,
+    });
+  }
   function getMax(token: TokenMetadata, balance: string) {
     return token.id !== WRAP_NEAR_CONTRACT_ID
       ? balance
@@ -2345,9 +2663,13 @@ function SetPointsComponent() {
     currentSelectedPool,
     tokenX,
     tokenY,
+    tokenXAmount,
+    tokenYAmount,
+    pointAndshapeAndAmountChange,
 
     pointChange,
     currentPoint,
+    liquidityShape,
 
     leftPoint,
     setLeftPoint,
@@ -2406,6 +2728,7 @@ function SetPointsComponent() {
     }
   }, [currentSelectedPool, switch_pool_loading]);
 
+  // 左侧改变===》点位
   useEffect(() => {
     if (!isInvalid(leftPoint) && !isInvalid(rightPoint)) {
       // effect bin
@@ -2422,6 +2745,13 @@ function SetPointsComponent() {
       pointChange({ leftPoint, rightPoint, currentPoint });
     }
   }, [leftPoint, rightPoint, BIN_WIDTH, slider_point_min, slider_point_max]);
+  // 数据有变动==》去掉token 太少提示 
+  useEffect(() => {
+    if (!isInvalid(leftPoint) && !isInvalid(rightPoint)) {
+      pointAndshapeAndAmountChange();
+    }
+  }, [liquidityShape,  tokenXAmount, tokenYAmount, leftPoint, rightPoint])
+    
 
   // 修改bin --> 合适的右点位 --->合适的bin
   function changeBin(bin: number) {

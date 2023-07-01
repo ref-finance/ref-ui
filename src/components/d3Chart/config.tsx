@@ -77,3 +77,4 @@ export function get_default_config_for_chart(): IChartItemConfig {
 
 export const SLIDER_BIN_NUMBER = 20;
 export const RADIUS_DEFAULT_NUMBER = 3;
+export const max_nft_divisional_per_side = 3;

@@ -106,16 +106,16 @@ export const FEELIST = [
 export const POINTLEFTRANGE = -800000;
 export const POINTRIGHTRANGE = 800000;
 export interface UserLiquidityInfo {
-  lpt_id: string;
-  owner_id: string;
+  lpt_id?: string;
+  owner_id?: string;
   pool_id: string;
   left_point: number;
   right_point: number;
   amount: string;
-  unclaimed_fee_x: string;
-  unclaimed_fee_y: string;
-  mft_id: string;
-  v_liquidity: string;
+  unclaimed_fee_x?: string;
+  unclaimed_fee_y?: string;
+  mft_id?: string;
+  v_liquidity?: string;
   part_farm_ratio?: string;
   unfarm_part_amount?: string;
   status_in_other_seed?: string;
@@ -1459,7 +1459,13 @@ function get_x_y_amount_by_condition({
 }
 
 // 根据 区间和这段区间里的token x tokeny的数量，获得这段区间的高度
-function get_l_amount_by_condition({
+/**
+ * 
+ * @param param0 
+ * @returns 
+ * token_x_amount、token_y_amount ---> NonDivisible
+ */
+export function get_l_amount_by_condition({
   left_point,
   right_point,
   token_x_amount,
