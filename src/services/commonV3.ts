@@ -1411,7 +1411,7 @@ export function divide_liquidities_into_bins({
   return bins_final;
 }
 // 根据 point 区间和 L 高度，获得这段区间里的token x 和 token y的数量
-function get_x_y_amount_by_condition({
+export function get_x_y_amount_by_condition({
   left_point,
   right_point,
   amount,
@@ -1460,9 +1460,9 @@ function get_x_y_amount_by_condition({
 
 // 根据 区间和这段区间里的token x tokeny的数量，获得这段区间的高度
 /**
- * 
- * @param param0 
- * @returns 
+ *
+ * @param param0
+ * @returns
  * token_x_amount、token_y_amount ---> NonDivisible
  */
 export function get_l_amount_by_condition({

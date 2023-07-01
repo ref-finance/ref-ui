@@ -121,7 +121,7 @@ import {
   get_default_config_for_chart,
   SLIDER_BIN_NUMBER,
   RADIUS_DEFAULT_NUMBER,
-  max_nft_divisional_per_side
+  max_nft_divisional_per_side,
 } from '../../components/d3Chart/config';
 import {
   IChartItemConfig,
@@ -170,7 +170,9 @@ export default function AddYourLiquidityPageV3() {
     useState<boolean>(false);
   const [switch_pool_loading, set_switch_pool_loading] =
     useState<boolean>(true);
- const [new_user_liquidities, set_new_user_liquidities] = useState<UserLiquidityInfo[]>([]);
+  const [new_user_liquidities, set_new_user_liquidities] = useState<
+    UserLiquidityInfo[]
+  >([]);
 
   // callBack handle
   useAddAndRemoveUrlHandle();
@@ -728,24 +730,28 @@ export default function AddYourLiquidityPageV3() {
     return slots;
   }
   /**
-   * step1 当数据发生改变 
+   * step1 当数据发生改变
    *       leftPoint, rightPoint 有效
    *       tokenXAmount, tokenYAmount 至少有一个有值
-   *       ===> 可以触发 
+   *       ===> 可以触发
    * step2 根据当前数据获实时获取新的 liquidtiy数据--->改成UserLiquidityInfo数据格式
    * step3 把新增的liquidity传递给Chart组件，
    * step4 chart组件把用户已有的liquidtiy + 新增的，划分成bin数据，生成新的图表
    * step5 疑问；？实时修改图表 会导致效率什么问题吗？
    */
   function generate_new_user_chart() {
-    if (!isInvalid(leftPoint) && !isInvalid(rightPoint) && (+tokenXAmount > 0 || +tokenYAmount > 0)) {
-      let new_nfts:any;
+    if (
+      !isInvalid(leftPoint) &&
+      !isInvalid(rightPoint) &&
+      (+tokenXAmount > 0 || +tokenYAmount > 0)
+    ) {
+      let new_nfts: any;
       if (liquidityShape == 'Spot') {
         const new_nft = getLiquiditySpot();
-        new_nfts = [new_nft]
+        new_nfts = [new_nft];
       } else {
-         new_nfts = getLiquidityForCurveAndBidAskMode();
-         if (!new_nfts) return;
+        new_nfts = getLiquidityForCurveAndBidAskMode();
+        if (!new_nfts) return;
       }
       const processed_new_nfts = process_liquidities(new_nfts);
       set_new_user_liquidities(processed_new_nfts);
@@ -771,7 +777,7 @@ export default function AddYourLiquidityPageV3() {
       //   : toNonDivisibleNumber(tokenX.decimals, tokenXAmount || '0'),
       // token_x: tokenSort ? tokenX : tokenY,
       // token_y: tokenSort ? tokenY : tokenX,
-    }
+    };
   }
   function getLiquidityForCurveAndBidAskMode() {
     /**
@@ -1728,34 +1734,34 @@ export default function AddYourLiquidityPageV3() {
   /**
    * 把传递给合约的liquidities数据形式转换成用于图表展示的liquidity数据形式
    */
-  function process_liquidities(liquidities:IAddLiquidityInfo[]) {
+  function process_liquidities(liquidities: IAddLiquidityInfo[]) {
     const { pool_id } = currentSelectedPool;
-    const new_liquidities:UserLiquidityInfo[] = [];
-    liquidities.forEach((l:IAddLiquidityInfo) => {
+    const new_liquidities: UserLiquidityInfo[] = [];
+    liquidities.forEach((l: IAddLiquidityInfo) => {
       const { left_point, right_point, amount_x, amount_y } = l;
       const L = get_l_amount_by_condition({
         left_point,
         right_point,
-        token_x_amount:amount_x,
-        token_y_amount:amount_y,
-        poolDetail:currentSelectedPool
-      })
+        token_x_amount: amount_x,
+        token_y_amount: amount_y,
+        poolDetail: currentSelectedPool,
+      });
       new_liquidities.push({
         pool_id,
         left_point,
         right_point,
-        amount: L
-      })
-    })
+        amount: L,
+      });
+    });
     return new_liquidities;
   }
   function pointAndshapeAndAmountChange() {
     set_token_amount_tip('');
     if (liquidityShape == 'Spot') {
       if (tokenXAmount) {
-        changeTokenXAmount(tokenXAmount)
+        changeTokenXAmount(tokenXAmount);
       } else if (tokenYAmount) {
-        changeTokenYAmount(tokenYAmount)
+        changeTokenYAmount(tokenYAmount);
       }
     }
   }
@@ -1805,7 +1811,6 @@ export default function AddYourLiquidityPageV3() {
 
         getLiquiditySpot,
         getLiquidityForCurveAndBidAskMode,
-        
       }}
     >
       <div className="m-20">
@@ -2174,33 +2179,43 @@ export default function AddYourLiquidityPageV3() {
                 )}
               </div>
               {/* new user chart part */}
-              {
-                isSignedIn && currentSelectedPool ? <div>
-                <div className='flex items-center justify-between  mt-4'>
-                  <div className="font-gothamBold text-white">
-                    <FormattedMessage
-                      id="Simulate_liquidity_distribution"
-                      defaultMessage={'Simulate Liquidity Distribution'}
-                    ></FormattedMessage>
-                  </div>
-                  <div onClick={generate_new_user_chart} className='text-xs text-v3SwapGray border border-opacity-20 border-primaryText rounded-lg p-2 bg-primaryText bg-opacity-20 cursor-pointer hover:text-white hover:bg-opacity-10 hover:border-transparent'>Generate</div>
-                </div>
-                {
-                  !isInvalid(leftPoint) &&
-                  !isInvalid(rightPoint) &&
-                  !switch_pool_loading && (
-                    <div className='flex items-center justify-center border border-v3SwapGray border-opacity-20 rounded-xl px-3 mt-2'>
-                      <DclChart
-                        pool_id={currentSelectedPool?.pool_id}
-                        config={{ controlHidden: true, currentBarHidden: true, hoverBoxHidden: true, svgWidth:'300', svgHeight:'68' }}
-                        chartType="USER"
-                        newlyAddedLiquidities={new_user_liquidities}
-                      ></DclChart>
+              {isSignedIn && currentSelectedPool ? (
+                <div>
+                  <div className="flex items-center justify-between  mt-4">
+                    <div className="font-gothamBold text-white">
+                      <FormattedMessage
+                        id="Simulate_liquidity_distribution"
+                        defaultMessage={'Simulate Liquidity Distribution'}
+                      ></FormattedMessage>
                     </div>
-                  )}
-              </div>:null
-              }
-              
+                    <div
+                      onClick={generate_new_user_chart}
+                      className="text-xs text-v3SwapGray border border-opacity-20 border-primaryText rounded-lg p-2 bg-primaryText bg-opacity-20 cursor-pointer hover:text-white hover:bg-opacity-10 hover:border-transparent"
+                    >
+                      Generate
+                    </div>
+                  </div>
+                  {!isInvalid(leftPoint) &&
+                    !isInvalid(rightPoint) &&
+                    !switch_pool_loading && (
+                      <div className="flex items-center justify-center border border-v3SwapGray border-opacity-20 rounded-xl px-3 mt-2">
+                        <DclChart
+                          pool_id={currentSelectedPool?.pool_id}
+                          config={{
+                            controlHidden: true,
+                            currentBarHidden: true,
+                            hoverBoxHidden: true,
+                            svgWidth: '300',
+                            svgHeight: '68',
+                          }}
+                          chartType="USER"
+                          newlyAddedLiquidities={new_user_liquidities}
+                        ></DclChart>
+                      </div>
+                    )}
+                </div>
+              ) : null}
+
               {currentSelectedPool && currentSelectedPool.pool_id && (
                 <AddLiquidityButton></AddLiquidityButton>
               )}
@@ -2745,13 +2760,12 @@ function SetPointsComponent() {
       pointChange({ leftPoint, rightPoint, currentPoint });
     }
   }, [leftPoint, rightPoint, BIN_WIDTH, slider_point_min, slider_point_max]);
-  // 数据有变动==》去掉token 太少提示 
+  // 数据有变动==》去掉token 太少提示
   useEffect(() => {
     if (!isInvalid(leftPoint) && !isInvalid(rightPoint)) {
       pointAndshapeAndAmountChange();
     }
-  }, [liquidityShape,  tokenXAmount, tokenYAmount, leftPoint, rightPoint])
-    
+  }, [liquidityShape, tokenXAmount, tokenYAmount, leftPoint, rightPoint]);
 
   // 修改bin --> 合适的右点位 --->合适的bin
   function changeBin(bin: number) {

@@ -53,3 +53,44 @@ export interface IPoolChartConfig {
   radiusMode?: boolean;
   targetPoint?: number;
 }
+
+export interface IUserLiquiditiesDetail {
+  total_value: string;
+  min_price: string;
+  max_price: string;
+  total_x_amount: string;
+  total_y_amount: string;
+  apr_24: string;
+  total_earned_fee: string;
+}
+
+export interface IDCLAccountFee {
+  total_earned_fee: {
+    total_fee_x: string;
+    total_fee_y: string;
+  };
+  apr: {
+    fee_data: {
+      fee_x: string;
+      fee_y: string;
+    };
+    user_token: {
+      token_x: string;
+      token_y: string;
+    };
+    change_log_data: IDclLogData[];
+  };
+}
+
+export interface IDclLogData {
+  event_method?: string;
+  token_x: string;
+  token_y: string;
+  timestamp: string;
+}
+export interface IProcessedLogData {
+  total_value: string;
+  distance_from_24: string;
+  token_x: string;
+  token_y: string;
+}

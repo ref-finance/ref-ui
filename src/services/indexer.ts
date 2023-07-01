@@ -498,11 +498,17 @@ export const getDCLAccountFee = async (props: {
   account_id: string | number;
 }): Promise<DCLPoolFee> => {
   const paramString = genUrlParams(props);
-
-  return await fetch(config.indexerUrl + `/get-fee-by-account?${paramString}`, {
-    method: 'GET',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
-  }).then((res) => res.json());
+  try {
+    return await fetch(
+      config.indexerUrl + `/get-fee-by-account?${paramString}`,
+      {
+        method: 'GET',
+        headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      }
+    ).then((res) => res.json());
+  } catch (error) {
+    return;
+  }
 };
 
 export interface ProposalHash {

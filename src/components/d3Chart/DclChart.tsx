@@ -11,8 +11,9 @@ import {
   divide_liquidities_into_bins,
   UserLiquidityInfo,
   getBinPointByPoint,
+  get_x_y_amount_by_condition,
 } from '../../services/commonV3';
-import { getDclPoolPoints, getDclUserPoints } from '../../services/indexer';
+import { getDclPoolPoints, getDCLAccountFee } from '../../services/indexer';
 import { sortBy } from 'lodash';
 import {
   IChartData,
@@ -20,8 +21,17 @@ import {
   IChartConfig,
   IBinDetail,
   IPoolChartConfig,
+  IUserLiquiditiesDetail,
+  IDCLAccountFee,
+  IDclLogData,
+  IProcessedLogData,
 } from './interfaces';
-import { formatPrice, formatNumber, formatPercentage } from './utils';
+import {
+  formatPrice,
+  formatNumber,
+  formatPercentage,
+  formatWithCommas_usd,
+} from './utils';
 import {
   get_custom_config_for_chart,
   get_default_config_for_chart,
@@ -29,6 +39,9 @@ import {
 import Big from 'big.js';
 import * as d3 from 'd3';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
+import { getBoostTokenPrices } from '../../services/farm';
+import { toNonDivisibleNumber, toReadableNumber } from '~utils/numbers';
+
 export default function DclChart({
   pool_id,
   leftPoint,
@@ -53,7 +66,7 @@ export default function DclChart({
     point?: number;
     all?: boolean;
   };
-  newlyAddedLiquidities?:UserLiquidityInfo[]
+  newlyAddedLiquidities?: UserLiquidityInfo[];
 }) {
   const [pool, setPool] = useState<PoolInfo>();
   const [price_range, set_price_range] = useState<number[]>();
@@ -64,6 +77,12 @@ export default function DclChart({
   const [zoom, setZoom] = useState<number>();
   const [randomId, setRandomId] = useState('.' + createRandomString());
   const [drawChartDone, setDrawChartDone] = useState<boolean>(false);
+  const [user_liquidities, set_user_liquidities] = useState<
+    UserLiquidityInfo[]
+  >([]);
+  const [user_liquidities_detail, set_user_liquidities_detail] =
+    useState<IUserLiquiditiesDetail>();
+  const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>();
   /** constant start */
   const appearanceConfig: IPoolChartConfig = config || {};
   const dragBarWidth = 28;
@@ -91,6 +110,12 @@ export default function DclChart({
   /** constant end */
   const { accountId } = useWalletSelector();
   useEffect(() => {
+    // get all token prices
+    getBoostTokenPrices().then((result) => {
+      setTokenPriceList(result);
+    });
+  }, []);
+  useEffect(() => {
     if (pool_id) {
       get_pool_detail(pool_id);
       leftPoint && setDragLeftPoint(leftPoint);
@@ -101,7 +126,13 @@ export default function DclChart({
     if (pool) {
       get_chart_data();
     }
-  }, [pool, accountId, newlyAddedLiquidities]);
+  }, [pool, accountId]);
+  useEffect(() => {
+    if (pool && accountId && newlyAddedLiquidities && chartType == 'USER') {
+      const new_list = get_latest_user_chart_data();
+      setChartDataList(new_list);
+    }
+  }, [newlyAddedLiquidities, user_liquidities]);
   useEffect(() => {
     if (price_range && chartDataList) {
       drawChart();
@@ -224,6 +255,228 @@ export default function DclChart({
     drawChartDone,
   ]);
   /**
+   * 获取个人流动性图表详情信息
+   * 用户 hover 框里数据展示
+   */
+  useEffect(() => {
+    if (
+      user_liquidities.length &&
+      pool &&
+      chartType == 'USER' &&
+      tokenPriceList
+    ) {
+      get_user_liquidities_detail();
+    }
+  }, [user_liquidities, pool, chartType, tokenPriceList]);
+  async function get_user_liquidities_detail() {
+    const { token_x_metadata, token_y_metadata, pool_id } = pool;
+    const dcl_fee_result: IDCLAccountFee | any = await getDCLAccountFee({
+      pool_id,
+      account_id: accountId,
+    });
+    const price_x = tokenPriceList[token_x_metadata.id]?.price || 0;
+    const price_y = tokenPriceList[token_y_metadata.id]?.price || 0;
+
+    const points: number[] = [];
+    let total_x_amount = Big(0);
+    let total_y_amount = Big(0);
+    let total_value = Big(0);
+    let total_fee_earned = Big(0);
+    let apr_24 = '';
+    if (dcl_fee_result) {
+      const dclAccountFee: IDCLAccountFee = dcl_fee_result;
+      const { total_earned_fee, apr } = dclAccountFee;
+
+      // 总共赚到的fee
+      const { total_fee_x, total_fee_y } = total_earned_fee || {};
+      const total_earned_fee_x = toReadableNumber(
+        token_x_metadata.decimals,
+        Big(total_fee_x || 0).toFixed()
+      );
+      const total_earned_fee_y = toReadableNumber(
+        token_y_metadata.decimals,
+        Big(total_fee_y || 0).toFixed()
+      );
+      const total_earned_fee_x_value = Big(total_earned_fee_x).mul(price_x);
+      const total_earned_fee_y_value = Big(total_earned_fee_y).mul(price_y);
+      total_fee_earned = total_earned_fee_x_value.plus(
+        total_earned_fee_y_value
+      );
+
+      // 24小时平均利润
+      const { fee_data, user_token, change_log_data } = apr;
+      const { fee_x, fee_y } = fee_data;
+      // 针对后端接口 fee_x、fee_y 会有负值处理成0
+      const fee_x_final = Big(fee_x || 0).lt(0) ? 0 : fee_x;
+      const fee_y_final = Big(fee_y || 0).lt(0) ? 0 : fee_y;
+      const fee_x_24 = toReadableNumber(
+        token_x_metadata.decimals,
+        Big(fee_x_final || 0).toFixed()
+      );
+      const fee_y_24 = toReadableNumber(
+        token_y_metadata.decimals,
+        Big(fee_y_final || 0).toFixed()
+      );
+      const fee_x_24_value = Big(fee_x_24).mul(price_x);
+      const fee_y_24_value = Big(fee_y_24).mul(price_y);
+      const total_fee_24_value = fee_x_24_value.plus(fee_y_24_value);
+
+      // 24小时平均本金
+      const processed_change_log: IProcessedLogData[] = [];
+      const current_time = Big(new Date().getTime()).div(1000).toFixed(0); // 秒
+      const second24 = 24 * 60 * 60;
+      const before24Time = Big(current_time).minus(second24).toFixed(0); // 秒
+      const { token_x, token_y } = user_token;
+      const token_x_NonDivisible = toNonDivisibleNumber(
+        token_x_metadata.decimals,
+        Big(token_x || 0).toFixed()
+      );
+      const token_y_NonDivisible = toNonDivisibleNumber(
+        token_y_metadata.decimals,
+        Big(token_y || 0).toFixed()
+      );
+      const current_user_token: IDclLogData = {
+        token_x: token_x_NonDivisible,
+        token_y: token_y_NonDivisible,
+        timestamp: current_time,
+      };
+      const current_processed = process_log_data(
+        current_user_token,
+        before24Time
+      );
+      processed_change_log.push(current_processed);
+
+      if (change_log_data?.length) {
+        change_log_data.reverse();
+        change_log_data.forEach((log: IDclLogData) => {
+          const pre_processed_log =
+            processed_change_log[processed_change_log.length - 1];
+          const { token_x, token_y, timestamp } = log; // timestamp 纳秒
+          const real_token_x = Big(pre_processed_log.token_x)
+            .minus(token_x)
+            .toFixed();
+          const real_token_y = Big(pre_processed_log.token_y)
+            .minus(token_y)
+            .toFixed();
+          const new_log = {
+            token_x: real_token_x,
+            token_y: real_token_y,
+            timestamp: Big(timestamp).div(1000000000).toFixed(0),
+          };
+          const processed_log: IProcessedLogData = process_log_data(
+            new_log,
+            before24Time
+          );
+          processed_change_log.push(processed_log);
+        });
+        // for 加权
+        processed_change_log.forEach(
+          (log: IProcessedLogData, index: number) => {
+            const { distance_from_24 } = log;
+            if (index !== processed_change_log.length - 1) {
+              const next_log = processed_change_log[index + 1];
+              const dis = Big(distance_from_24)
+                .minus(next_log.distance_from_24)
+                .toFixed();
+              log.distance_from_24 = dis;
+            }
+          }
+        );
+      }
+      // 24小时apr
+      let total_processed_log_value = Big(0);
+      processed_change_log.forEach((log: IProcessedLogData) => {
+        const { total_value, distance_from_24 } = log;
+        total_processed_log_value = total_processed_log_value.plus(
+          Big(total_value).mul(distance_from_24)
+        );
+      });
+      const principal = total_processed_log_value.div(second24);
+      if (principal.gt(0)) {
+        apr_24 = formatPercentage(
+          total_fee_24_value.div(principal).mul(100).toFixed()
+        );
+      }
+    }
+    user_liquidities.forEach((l: UserLiquidityInfo) => {
+      const { left_point, right_point, amount } = l;
+      points.push(left_point, right_point);
+      const { total_x, total_y } = get_x_y_amount_by_condition({
+        left_point,
+        right_point,
+        amount,
+        tokenX: token_x_metadata,
+        tokenY: token_y_metadata,
+        poolDetail: pool,
+      });
+      total_x_amount = total_x_amount.plus(total_x);
+      total_y_amount = total_y_amount.plus(total_y);
+    });
+    const total_x_value = Big(price_x).mul(total_x_amount);
+    const total_y_value = Big(price_y).mul(total_y_amount);
+    total_value = total_x_value.plus(total_y_value);
+    points.sort((b: number, a: number) => {
+      return b - a;
+    });
+    const min_point = points[0];
+    const max_point = points[points.length - 1];
+    const min_price = get_price_by_point(min_point);
+    const max_price = get_price_by_point(max_point);
+    set_user_liquidities_detail({
+      total_value: formatWithCommas_usd(total_value.toFixed()),
+      min_price: formatPrice(min_price),
+      max_price: formatPrice(max_price),
+      total_x_amount: formatNumber(total_x_amount.toFixed()),
+      total_y_amount: formatNumber(total_y_amount.toFixed()),
+      apr_24,
+      total_earned_fee: formatWithCommas_usd(total_fee_earned.toFixed()),
+    });
+  }
+  /**
+   *
+   * @param log 这笔log的本金
+   * @param before24Time 秒
+   * timestamp 秒
+   * @returns
+   */
+  function process_log_data(log: IDclLogData, before24Time: string) {
+    const { token_x_metadata, token_y_metadata } = pool;
+    const { token_x, token_y, timestamp } = log;
+    const token_x_amount = toReadableNumber(
+      token_x_metadata.decimals,
+      Big(token_x || 0).toFixed()
+    );
+    const token_y_amount = toReadableNumber(
+      token_y_metadata.decimals,
+      Big(token_y || 0).toFixed()
+    );
+    const price_x = tokenPriceList[token_x_metadata.id]?.price || 0;
+    const price_y = tokenPriceList[token_y_metadata.id]?.price || 0;
+    const token_x_value = Big(token_x_amount).mul(price_x);
+    const token_y_value = Big(token_y_amount).mul(price_y);
+    const total_value = token_x_value.plus(token_y_value).toFixed();
+    const distance_from_24 = Big(timestamp).minus(before24Time).toFixed(0); // 秒
+    return {
+      distance_from_24,
+      total_value,
+      token_x: Big(token_x).toFixed(),
+      token_y: Big(token_y).toFixed(),
+    };
+  }
+  function get_latest_user_chart_data() {
+    const { token_x_metadata, token_y_metadata } = pool;
+    const { bin: bin_final } = getConfig();
+    const nfts = user_liquidities.concat(newlyAddedLiquidities || []);
+    const list = divide_liquidities_into_bins({
+      liquidities: nfts,
+      slot_number_in_a_bin: bin_final,
+      tokenX: token_x_metadata,
+      tokenY: token_y_metadata,
+      poolDetail: pool,
+    });
+    return list;
+  }
+  /**
    * 用户图表来说，新增的Liquidities发生改变时，把数据叠加重新绘制图表
    */
   async function get_pool_detail(pool_id: string) {
@@ -254,10 +507,10 @@ export default function DclChart({
     let list = [];
     if (chartType == 'USER' && accountId) {
       const liquidities = await list_liquidities();
-      let nfts = liquidities.filter((l: UserLiquidityInfo) => {
+      const nfts = liquidities.filter((l: UserLiquidityInfo) => {
         return l.pool_id == pool_id;
       });
-      nfts = nfts.concat(newlyAddedLiquidities || []);
+      set_user_liquidities(nfts);
       list = divide_liquidities_into_bins({
         liquidities: nfts,
         slot_number_in_a_bin: bin_final,
@@ -1200,8 +1453,6 @@ export default function DclChart({
       <div className="overBox absolute rounded-xl bg-chartHoverBoxBg border border-assetsBorder px-3 py-2 invisible z-10">
         <div className="flex items-center justify-between my-2">
           <span className="text-xs text-white">Fee APR (24h)</span>
-          {/* todo test 数据 */}
-          {/* {binDetail?.point} */}
           <span className="text-xs text-white gotham_bold">
             {binDetail?.feeApr}
           </span>
@@ -1310,27 +1561,37 @@ export default function DclChart({
       <div className="wholeOverBox absolute rounded-xl bg-chartHoverBoxBg border border-assetsBorder px-3 py-2 z-10 invisible">
         <div className="flex items-center justify-between my-2">
           <span className="text-xs text-white">Your Liquidity</span>
-          <span className="text-xs text-white gotham_bold">~$294.25</span>
+          <span className="text-xs text-white gotham_bold">
+            {user_liquidities_detail?.total_value}
+          </span>
         </div>
         <div className="flex items-center justify-between my-2">
           <span className="text-xs text-white mr-10">Price Range</span>
           <span className="text-xs text-white gotham_bold">
-            1.5636 - 2.7102
+            {user_liquidities_detail?.min_price} -{' '}
+            {user_liquidities_detail?.max_price}
           </span>
         </div>
         <div className="flex items-center justify-between my-2">
           <span className="text-xs text-white mr-10">Position</span>
           <span className="text-xs text-white gotham_bold">
-            20 NEAR + 36.2418 USDC
+            {user_liquidities_detail?.total_x_amount}{' '}
+            {pool?.token_x_metadata.symbol} +{' '}
+            {user_liquidities_detail?.total_y_amount}{' '}
+            {pool?.token_y_metadata.symbol}
           </span>
         </div>
         <div className="flex items-center justify-between my-2">
           <span className="text-xs text-white mr-10">24h APR</span>
-          <span className="text-xs text-white gotham_bold">34.5%</span>
+          <span className="text-xs text-white gotham_bold">
+            {user_liquidities_detail?.apr_24}
+          </span>
         </div>
         <div className="flex items-center justify-between my-2">
           <span className="text-xs text-white mr-10">Total Earned Fee</span>
-          <span className="text-xs text-white gotham_bold">$8.283</span>
+          <span className="text-xs text-white gotham_bold">
+            {user_liquidities_detail?.total_earned_fee}
+          </span>
         </div>
       </div>
       {/* current 价格 */}
