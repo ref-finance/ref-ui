@@ -1296,6 +1296,7 @@ export function divide_liquidities_into_bins({
   tokenY: TokenMetadata;
   poolDetail: PoolInfo;
 }) {
+  if (!liquidities.length) return [];
   // split data to slots
   const liquidities_in_slot_unit: { [point: number]: IChartData } = {};
   const { point_delta, pool_id } = poolDetail;

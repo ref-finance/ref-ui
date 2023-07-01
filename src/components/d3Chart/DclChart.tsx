@@ -135,8 +135,10 @@ export default function DclChart({
   }, [newlyAddedLiquidities, user_liquidities]);
   useEffect(() => {
     if (price_range && chartDataList) {
-      drawChart();
-      setDrawChartDone(true);
+      if (chartType !== 'USER' || chartType =='USER' && chartDataList.length) {
+        drawChart();
+        setDrawChartDone(true);
+      }
     }
   }, [price_range, chartDataList]);
   useEffect(() => {
@@ -1133,7 +1135,6 @@ export default function DclChart({
       .range([0, svgWidth - svgPaddingX * 2]);
   }
   function scaleAxis_User() {
-    chartDataList;
     const binWidth = getConfig().bin * pool.point_delta;
     const min_point = Math.max(
       chartDataList[0].point - binWidth * 2,
@@ -1280,7 +1281,7 @@ export default function DclChart({
   return (
     <div
       className={`relative inline-flex ${
-        chartDataList ? '' : 'hidden'
+        (chartType !=="USER" && chartDataList) || (chartType =="USER" && chartDataList?.length) ? '' : 'hidden'
       } ${randomId.slice(1)}`}
     >
       {/* 控件按钮*/}
@@ -1557,12 +1558,11 @@ export default function DclChart({
           </>
         ) : null}
       </div>
-      {/* hover到区域上的悬浮框 todo test数据*/}
       <div className="wholeOverBox absolute rounded-xl bg-chartHoverBoxBg border border-assetsBorder px-3 py-2 z-10 invisible">
         <div className="flex items-center justify-between my-2">
           <span className="text-xs text-white">Your Liquidity</span>
           <span className="text-xs text-white gotham_bold">
-            {user_liquidities_detail?.total_value}
+            {user_liquidities_detail?.total_value || '-'}
           </span>
         </div>
         <div className="flex items-center justify-between my-2">
@@ -1584,13 +1584,13 @@ export default function DclChart({
         <div className="flex items-center justify-between my-2">
           <span className="text-xs text-white mr-10">24h APR</span>
           <span className="text-xs text-white gotham_bold">
-            {user_liquidities_detail?.apr_24}
+            {user_liquidities_detail?.apr_24 || '-'}
           </span>
         </div>
         <div className="flex items-center justify-between my-2">
           <span className="text-xs text-white mr-10">Total Earned Fee</span>
           <span className="text-xs text-white gotham_bold">
-            {user_liquidities_detail?.total_earned_fee}
+            {user_liquidities_detail?.total_earned_fee || '-'}
           </span>
         </div>
       </div>
