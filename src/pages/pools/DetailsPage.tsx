@@ -127,8 +127,6 @@ import { checkTransaction } from '../../services/swap';
 
 export const REF_FI_PRE_LIQUIDITY_ID_KEY = 'REF_FI_PRE_LIQUIDITY_ID_VALUE';
 
-import { TokenLinks } from '~components/tokens/Token';
-import { OutLinkIcon } from '~components/icon/Common';
 import ReactTooltip from 'react-tooltip';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
@@ -2474,35 +2472,6 @@ export function PoolDetailsPage() {
                               />
                             </span>
                           }
-                          {TokenLinks[token.symbol] ? (
-                            <div
-                              className="ml-0.5 text-sm"
-                              data-type="info"
-                              data-place="right"
-                              data-multiline={true}
-                              data-class="reactTip"
-                              data-html={true}
-                              data-tip={valueOfNearTokenTip()}
-                              data-for="nearVerifiedId1"
-                            >
-                              <a
-                                className=""
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  openUrl(TokenLinks[token.symbol]);
-                                }}
-                              >
-                                <FiArrowUpRight className="text-primaryText hover:text-greenColor cursor-pointer" />
-                              </a>
-                              <ReactTooltip
-                                id="nearVerifiedId1"
-                                backgroundColor="#1D2932"
-                                border
-                                borderColor="#7e8a93"
-                                effect="solid"
-                              />
-                            </div>
-                          ) : null}
                         </div>
                         <a
                           target="_blank"
