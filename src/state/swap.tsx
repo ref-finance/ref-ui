@@ -2070,14 +2070,15 @@ export const useRefSwapPro = ({
       );
 
       if (
-        sessionStorage.getItem('loadingTrigger') === 'true' &&
-        sessionStorage.getItem('enableTri') === enableTri.toString() &&
-        !forceEstimatePro
+        sessionStorage.getItem('loadingTrigger') === 'true' ||
+        (sessionStorage.getItem('enableTri') === enableTri.toString() &&
+          !forceEstimatePro)
       ) {
         setQuoting(false);
 
         return;
       }
+
       sessionStorage.setItem('enableTri', 'true');
 
       if (trades[bestMarket].availableRoute === true) {
