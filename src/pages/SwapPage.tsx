@@ -220,7 +220,7 @@ function SwapPage() {
   const storedType = sessionStorage.getItem(SWAP_TYPE_KEY) as SWAP_TYPE | null;
 
   const [swapType, setSwapType] = useState<SWAP_TYPE>(
-    storedType || SWAP_TYPE.Pro
+    storedType || SWAP_TYPE.LITE
   );
 
   const [forceEstimatePro, setForceEstimatePro] = useState<boolean>(false);
