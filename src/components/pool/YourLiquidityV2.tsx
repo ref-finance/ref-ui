@@ -63,7 +63,6 @@ import { UpDownButton } from '../portfolio/Tool';
 import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 import { PortfolioData } from '../../pages/Portfolio';
 import { isMobile } from '~utils/device';
-import { useDCLAccountAPR } from '~state/pool';
 import Big from 'big.js';
 import { useWalletSelector } from '~context/WalletSelectorContext';
 const is_mobile = isMobile();
@@ -1865,10 +1864,11 @@ function UserLiquidityLineStyleGroup1({
 
   const { accountId } = useWalletSelector();
 
-  const poolApr = useDCLAccountAPR({
-    pool_id,
-    account_id: accountId,
-  });
+  // const poolApr = useDCLAccountAPR({
+  //   pool_id,
+  //   account_id: accountId,
+  // });
+  const poolApr = '';
 
   const [claim_loading, set_claim_loading] = useState(false);
 

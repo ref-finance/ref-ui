@@ -15,7 +15,7 @@ import {
   get_account_24_apr,
 } from '../../services/commonV3';
 import { getDclPoolPoints, getDCLAccountFee } from '../../services/indexer';
-import { sortBy } from 'lodash';
+import { sortBy, debounce } from 'lodash';
 import {
   IChartData,
   IChartItemConfig,
@@ -42,7 +42,6 @@ import * as d3 from 'd3';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { getBoostTokenPrices } from '../../services/farm';
 import { toNonDivisibleNumber, toReadableNumber } from '~utils/numbers';
-
 export default function DclChart({
   pool_id,
   leftPoint,
@@ -86,6 +85,9 @@ export default function DclChart({
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>();
   /** constant start */
   const appearanceConfig: IPoolChartConfig = config || {};
+  let [timerObj, setTimerObj] = useState<any>({
+      timer: ''
+  });
   const dragBarWidth = 28;
   const percentBoxWidth = 44;
   const min_bar_height = 2;
@@ -117,10 +119,13 @@ export default function DclChart({
     });
   }, []);
   useEffect(() => {
+    clearTimeout(timerObj.timer);
     if (pool_id) {
-      get_pool_detail(pool_id);
-      leftPoint && setDragLeftPoint(leftPoint);
-      rightPoint && setDragRightPoint(rightPoint);
+      timerObj.timer = setTimeout(() => {
+        get_pool_detail(pool_id);
+        leftPoint && setDragLeftPoint(leftPoint);
+        rightPoint && setDragRightPoint(rightPoint);
+      }, 500)
     }
   }, [pool_id]);
   useEffect(() => {
