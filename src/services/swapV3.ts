@@ -773,12 +773,9 @@ export const get_user_storage_detail = async ({ size }: { size: number }) => {
   } = detail;
 
   if (size + cur_liquidity_slots + cur_order_slots > max_slots) {
-    deposit_fee = deposit_fee.plus(
-      new Big(slot_price).mul(
-        size + cur_liquidity_slots + cur_order_slots - max_slots
-      )
-    );
-
+    const need_num =  size + cur_liquidity_slots + cur_order_slots - max_slots;
+    const need_num_final = Math.max(need_num, 10);
+    deposit_fee = deposit_fee.plus(new Big(slot_price).mul(need_num_final));
     if (user_id !== detail.sponser_id) {
       deposit_fee = deposit_fee.plus(new Big(detail.locked_near));
     }
