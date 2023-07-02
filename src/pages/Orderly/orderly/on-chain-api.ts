@@ -185,6 +185,13 @@ const storage_withdraw = async (amount: string) => {
   };
 };
 
+const user_request_settlement = async () => {
+  return {
+    methodName: 'user_request_settlement',
+    gas: '30000000000000',
+  };
+};
+
 const storage_balance_bounds = async () => {
   return orderlyViewFunction({
     methodName: 'storage_balance_bounds',
@@ -291,4 +298,5 @@ export {
   is_trading_key_set,
   storage_cost_of_token_balance,
   storage_balance_of_orderly,
+  user_request_settlement,
 };

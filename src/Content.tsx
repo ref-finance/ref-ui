@@ -220,7 +220,7 @@ export function Content() {
       />
       <OrderlyContextProvider>
         <Switch>
-          <Route path="/account" component={AccountPage} />
+          {/* <Route path="/account" component={AccountPage} />
           <Route path="/recent" component={RecentActivityPage} />
           <Route
             path="/more_pools/:tokenIds"
@@ -267,8 +267,8 @@ export function Content() {
           <Route path="/poolV2/:id" component={AutoHeight(PoolDetailV3)} />
           <Route path="/portfolio" component={AutoHeight(Portfolio)} />
           <Route path="/burrow" component={AutoHeight(Burrow)} />
-          <Route path="/overview" component={AutoHeight(Overview)} />
-          <Route path="/" component={AutoHeight(SwapPage)} />
+          <Route path="/overview" component={AutoHeight(Overview)} /> */}
+          <Route path="/" component={AutoHeight(View)} />
         </Switch>
       </OrderlyContextProvider>
     </WalletContext.Provider>

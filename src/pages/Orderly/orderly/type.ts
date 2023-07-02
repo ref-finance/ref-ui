@@ -124,15 +124,52 @@ export interface ClientInfo {
   account_id: string;
   email: string;
   account_mode: string;
+  max_leverage: number;
   tier: string;
   taker_fee_rate: number;
   maker_fee_rate: number;
+  futures_taker_fee_rate: number;
+  futures_maker_fee_rate: number;
+  imr_factor: any;
   maintenance_cancel_orders: boolean;
 }
 
 export interface MarkPrice {
   symbol: string;
   price: number;
+}
+
+export interface IndexPrice {
+  symbol: string;
+  price: number;
+}
+
+export interface EstFundingrate {
+  fundingRate: number;
+  fundingTs: number;
+  symbol: string;
+}
+
+interface Position {
+  symbol: string;
+  positionQty: number;
+  costPosition: number;
+  lastSumUnitaryFunding: number;
+  sumUnitaryFundingVersion: number;
+  pendingLongQty: number;
+  pendingShortQty: number;
+  settlePrice: number;
+  averageOpenPrice: number;
+  unsettledPnl: number;
+  pnl24H: number;
+  fee24H: number;
+  markPrice: number;
+  estLiqPrice: number;
+  version: number;
+  imrwithOrders: number;
+  mmrwithOrders: number;
+  mmr: number;
+  imr: number;
 }
 
 export interface Balance {

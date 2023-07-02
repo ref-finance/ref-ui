@@ -168,20 +168,6 @@ export const createOrder = async (props: {
     visible_quantity,
   } = props.orderlyProps;
 
-  //Note for DELETE requests, the parameters are not in the json body.
-  // const message = Object.entries(props.orderlyProps)
-  //   .filter(([k, v], i) => {
-  //     return v !== undefined && v !== null;
-  //   })
-  //   .map(([k, v], i) => {
-  //     if (typeof v === 'number') {
-  //       return `${k}=${parseFloat(v.toString())}`;
-  //     }
-  //     return `${k}=${v}`;
-  //   })
-  //   .sort()
-  //   .join('&');
-
   const message = formateParams(props.orderlyProps);
 
   const signature = generateOrderSignature(message);

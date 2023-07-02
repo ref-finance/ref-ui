@@ -14,6 +14,8 @@ import {
   Ticker,
   MarkPrice,
   Balance,
+  IndexPrice,
+  EstFundingrate,
 } from './type';
 import { getOrderlyConfig } from '../config';
 import {
@@ -28,6 +30,7 @@ import { useTokenInfo } from './state';
 import { getFTmetadata } from '../near';
 import { useWalletSelector } from '../../../context/WalletSelectorContext';
 import useInterval from 'react-useinterval';
+import { Position } from '../../../../dist/charting_library/charting_library';
 
 export const REF_ORDERLY_WS_ID_PREFIX = 'orderly_ws_';
 
@@ -142,6 +145,12 @@ export const generateMarketDataFlow = ({ symbol }: { symbol: string }) => {
         limit: 50,
       },
     },
+
+    {
+      id: `${symbol}@estfundingrate`,
+      event: 'request',
+      topic: `${symbol}@estfundingrate`,
+    },
     {
       id: `markprices`,
       event: 'subscribe',
@@ -152,6 +161,17 @@ export const generateMarketDataFlow = ({ symbol }: { symbol: string }) => {
       id: `tickers`,
       event: 'subscribe',
       topic: `tickers`,
+    },
+    {
+      id: `indexprices`,
+      event: 'subscribe',
+      topic: `indexprices`,
+    },
+
+    {
+      id: `position`,
+      event: 'subscribe',
+      topic: `position`,
     },
   ];
 
@@ -200,9 +220,14 @@ export const useOrderlyMarketData = ({
 
   const [markPrices, setMarkPrices] = useState<MarkPrice[]>();
 
+  const [indexprices, setIndexprices] = useState<IndexPrice[]>();
+
+  const [estFundingRate, setEstFundingRate] = useState<EstFundingrate>();
+
   const [ordersUpdate, setOrdersUpdate] = useState<Orders>();
 
-  // subscribe
+  const [positions, setPositions] = useState<Position[]>();
+
   useEffect(() => {
     if (connectionStatus !== 'Open') return;
 
@@ -216,8 +241,6 @@ export const useOrderlyMarketData = ({
       if (!id) return;
 
       if (preSubScription.has(id + '|' + symbol)) {
-        // unsubscribe
-
         if ('unsubscribe' in msg) {
           sendMessage(
             JSON.stringify({
@@ -235,7 +258,6 @@ export const useOrderlyMarketData = ({
     });
   }, [symbol, connectionStatus]);
 
-  // onmessage
   useEffect(() => {
     // update orderbook
 
@@ -304,6 +326,10 @@ export const useOrderlyMarketData = ({
       });
     }
 
+    if (lastJsonMessage?.['topice'] === `${symbol}@estfundingrate`) {
+      setEstFundingRate(lastJsonMessage?.['data']);
+    }
+
     //  process trade
     if (
       (lastJsonMessage?.['id'] &&
@@ -335,10 +361,22 @@ export const useOrderlyMarketData = ({
       if (ticker) setTicker(ticker);
     }
 
+    if (lastJsonMessage?.['topic'] === 'indexprices') {
+      const indexPrices = lastJsonMessage?.['data'];
+
+      setIndexprices(indexPrices);
+    }
+
     if (lastJsonMessage?.['topic'] === 'markprices') {
       const markPrices = lastJsonMessage?.['data'];
 
       setMarkPrices(markPrices);
+    }
+
+    if (lastJsonMessage?.['topic'] === 'position') {
+      const positions = lastJsonMessage?.['data']?.positions;
+
+      setPositions(positions);
     }
   }, [lastJsonMessage, symbol, connectionStatus]);
 

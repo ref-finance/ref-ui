@@ -12,6 +12,7 @@ import {
   storage_cost_of_token_balance,
   storage_balance_of_orderly,
   is_trading_key_set,
+  user_request_settlement,
 } from './on-chain-api';
 import { Transaction as WSTransaction } from '@near-wallet-selector/core';
 
@@ -44,9 +45,6 @@ import { ledgerTipTrigger } from '../../../utils/wallets-integration';
 const signAndSendTransactions = async (transactions: Transaction[]) => {
   return executeMultipleTransactions(transactions);
 };
-
-// account_exist = await user_account_exists(accountId);
-// no account_exist to call registerOrderly.
 
 const announceLedgerAccessKey = async (accountId: string) => {
   const keyPairLedger = KeyPair.fromRandom('ed25519');
@@ -493,6 +491,15 @@ const withdrawOrderly = async (token: string, amount: string) => {
   return signAndSendTransactions(transactions);
 };
 
+const perpSettlementTx = async () => {
+  const transaction: Transaction = {
+    receiverId: ORDERLY_ASSET_MANAGER,
+    functionCalls: [await user_request_settlement()],
+  };
+
+  return transaction;
+};
+
 export {
   signAndSendTransactions,
   withdrawOrderly,
@@ -503,4 +510,5 @@ export {
   depositFT,
   checkStorageDeposit,
   setTradingKey,
+  perpSettlementTx,
 };
