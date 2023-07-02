@@ -126,6 +126,7 @@ import { numberWithCommas } from '~pages/Orderly/utiles';
 import { HiOutlineExternalLink } from 'react-icons/hi';
 import Big from 'big.js';
 import { findRangeIntersection } from '~components/pool/YourLiquidityV2';
+import DclChart from '../../components/d3Chart/DclChart';
 
 const { REF_UNI_V3_SWAP_CONTRACT_ID, DCL_POOL_BLACK_LIST } = getConfig();
 export default function PoolDetailV3() {
@@ -1116,32 +1117,6 @@ function YourLiquidityBox(props: {
           </div>
         </div>
       </div>
-
-      {/* 
-
-      <div className="flex items-center justify-between">
-        <div className="flex items-center">
-          <Icon icon={token_x_metadata.icon} className="h-7 w-7 mr-2"></Icon>
-          <span className="text-farmText text-sm">
-            {token_x_metadata.symbol}
-          </span>
-        </div>
-        <span className="text-farmText text-sm">
-          {getTotalTokenAmount().total_x}
-        </span>
-      </div>
-      <div className="flex items-center justify-between mt-5">
-        <div className="flex items-center">
-          <Icon icon={token_y_metadata.icon} className="h-7 w-7 mr-2"></Icon>
-          <span className="text-farmText text-sm">
-            {token_y_metadata.symbol}
-          </span>
-        </div>
-        <span className="text-farmText text-sm">
-          {getTotalTokenAmount().total_y}
-        </span>
-      </div> */}
-
       <div className="flex items-center justify-between mt-7">
         <GradientButton
           onClick={(e) => {
@@ -2019,11 +1994,13 @@ function Chart(props: any) {
           showLiqudityButton={true}
         />
       ) : (
+        // todo
         <LiquidityChart
           data={{ poolDetail, depthData }}
           chartDisplay={chartDisplay}
           setChartDisplay={setChartDisplay}
         ></LiquidityChart>
+        // <DclChart pool_id={poolDetail?.pool_id} config={{axisHidden: true, controlHidden: true}}></DclChart>
       )}
     </Card>
   );
@@ -2743,7 +2720,6 @@ function LiquidityChart(props: any) {
   const [chartLoading, setChartLoading] = useState<boolean>(true);
   const [noData, setNoData] = useState<boolean>(true);
   const [rateDirection, setRateDirection] = useState(true);
-  const chartDom = useRef(null);
   const isMobile = isClientMobie();
   useEffect(() => {
     if (poolDetail?.token_x_metadata) {
@@ -2756,31 +2732,6 @@ function LiquidityChart(props: any) {
       }
     }
   }, [poolDetail]);
-  useEffect(() => {
-    if (depthData) {
-      drawChartData({
-        depthData,
-        token_x_decimals: poolDetail.token_x_metadata.decimals,
-        token_y_decimals: poolDetail.token_y_metadata.decimals,
-        chartDom,
-        sort: rateDirection,
-        onlyCurrent: true,
-        sizey: isMobile ? 220 : 330,
-        ticks: isMobile ? 5 : 8,
-        space_x: isMobile ? 20 : 50,
-      });
-      const { liquidities } = depthData;
-      const list = Object.values(liquidities);
-      if (list.length == 0) {
-        setNoData(true);
-      } else {
-        setNoData(false);
-      }
-      setChartLoading(false);
-    } else {
-      setChartLoading(true);
-    }
-  }, [depthData, rateDirection]);
   const rateDOM = useMemo(() => {
     const { current_point, token_x_metadata, token_y_metadata } = poolDetail;
     const rate =
@@ -2850,22 +2801,7 @@ function LiquidityChart(props: any) {
       {!chartLoading && noData ? (
         <EmptyLiquidityChart></EmptyLiquidityChart>
       ) : (
-        <svg
-          width="100%"
-          height={isMobile ? '350' : '450'}
-          className={`${chartLoading ? 'invisible' : 'visible'}`}
-          ref={chartDom}
-          style={{ color: 'rgba(91, 64, 255, 0.5)' }}
-        >
-          <g className="chart"></g>
-          <g
-            className="g"
-            transform={`translate(${isMobile ? 20 : 50},${
-              isMobile ? 220 : 330
-            })`}
-          ></g>
-          <g className="g2"></g>
-        </svg>
+        <DclChart pool_id={poolDetail?.pool_id} config={{controlHidden: true, svgWidth:'750', svgHeight:'300'}}></DclChart>
       )}
     </>
   );

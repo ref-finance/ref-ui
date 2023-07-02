@@ -361,8 +361,9 @@ export const v3Swap = async ({
       ],
     });
   }
-
+  debugger;
   if (LimitOrderWithSwap) {
+    debugger;
     const pool_id = LimitOrderWithSwap.pool_id;
 
     const fee = Number(pool_id.split(V3_POOL_SPLITER)[2]);
@@ -743,7 +744,7 @@ export interface UserStorageDetail {
   locked_near: string;
   storage_for_asset: string;
   slot_price: string;
-  sponser_id: string;
+  sponsor_id: string;
 }
 
 export const get_user_storage_detail = async ({ size }: { size: number }) => {
@@ -776,7 +777,7 @@ export const get_user_storage_detail = async ({ size }: { size: number }) => {
     const need_num =  size + cur_liquidity_slots + cur_order_slots - max_slots;
     const need_num_final = Math.max(need_num, 10);
     deposit_fee = deposit_fee.plus(new Big(slot_price).mul(need_num_final));
-    if (user_id !== detail.sponser_id) {
+    if (user_id !== detail.sponsor_id) {
       deposit_fee = deposit_fee.plus(new Big(detail.locked_near));
     }
   }
