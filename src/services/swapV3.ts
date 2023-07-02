@@ -1038,7 +1038,7 @@ export const batch_add_liquidity = async ({
       ],
     });
   }
-  const neededStorage = await get_user_storage_detail({ size: 1 });
+  const neededStorage = await get_user_storage_detail({ size: 9 });
   if (!ONLY_ZEROS.test(neededStorage)) {
     transactions.unshift({
       receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
@@ -1387,7 +1387,7 @@ export const batch_remove_liquidity_contract = async ({
       ],
     });
   }
-  const neededStorage = await checkTokenNeedsStorageDeposit_v3();
+  const neededStorage = await get_user_storage_detail({ size: 0 });
   if (neededStorage) {
     transactions.unshift({
       receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
@@ -1452,7 +1452,7 @@ export const claim_all_liquidity_fee = async ({
     });
   }
 
-  const neededStorage = await checkTokenNeedsStorageDeposit_v3();
+  const neededStorage = await get_user_storage_detail({ size: 0 });
   if (neededStorage) {
     transactions.unshift({
       receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
