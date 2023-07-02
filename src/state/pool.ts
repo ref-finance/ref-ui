@@ -1420,38 +1420,6 @@ export const useDCLPoolTransaction = ({
   };
 };
 
-export const useDCLAccountAPR = ({
-  pool_id,
-  account_id,
-}: {
-  pool_id: string | number;
-  account_id: string | number;
-}) => {
-  const [accountAPR, setAccountAPR] = useState<string>('-');
-
-  useEffect(() => {
-    if (!account_id || !pool_id) return;
-
-    getDCLAccountFee({
-      pool_id,
-      account_id,
-    }).then((res) => {
-      if (!res || ONLY_ZEROS.test(res.total_liquidity)) {
-        setAccountAPR('-');
-      } else {
-        const apr = new Big(res.total_fee)
-          .div(res.total_liquidity)
-          .mul(365)
-          .toFixed(2);
-
-        setAccountAPR(apr + '%');
-      }
-    });
-  }, [account_id, pool_id]);
-
-  return accountAPR;
-};
-
 export const useDCLTopBinFee = ({
   pool_id,
   number,

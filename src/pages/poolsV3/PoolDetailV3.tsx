@@ -50,6 +50,7 @@ import {
   get_pool_id,
   get_pool_name,
   openUrl,
+  get_account_24_apr,
 } from '~services/commonV3';
 import { ftGetTokensMetadata } from '../../services/ft-contract';
 import {
@@ -102,7 +103,6 @@ import {
   useV3TvlChart,
   useDCLPoolTransaction,
   useDCLTopBinFee,
-  useDCLAccountAPR,
 } from '~state/pool';
 import { getV3Pool24VolumeById } from '~services/indexer';
 import {
@@ -127,6 +127,9 @@ import { HiOutlineExternalLink } from 'react-icons/hi';
 import Big from 'big.js';
 import { findRangeIntersection } from '~components/pool/YourLiquidityV2';
 import DclChart from '../../components/d3Chart/DclChart';
+import { IDCLAccountFee } from '../../components/d3Chart/interfaces';
+import { formatPercentage } from '../../components/d3Chart/utils';
+import { getDCLAccountFee } from '../../services/indexer';
 
 const { REF_UNI_V3_SWAP_CONTRACT_ID, DCL_POOL_BLACK_LIST } = getConfig();
 export default function PoolDetailV3() {
@@ -619,16 +622,15 @@ function YourLiquidityBox(props: {
   matched_seeds: Seed[];
 }) {
   const { poolDetail, liquidities, tokenPriceList, matched_seeds } = props;
-  console.log('liquidities: ', liquidities);
   const [user_liquidities_detail, set_user_liquidities_detail] = useState<
     UserLiquidityDetail[]
   >([]);
-
-  console.log('user_liquidities_detail: ', user_liquidities_detail);
-
   const [showSelectLiquidityBox, setShowSelectLiquidityBox] = useState(false);
+  const [accountAPR, setAccountAPR] = useState('');
   const [operationType, setOperationType] = useState('add');
-  const { token_x_metadata, token_y_metadata } = poolDetail;
+  const { token_x_metadata, token_y_metadata, pool_id } = poolDetail;
+  const { accountId } = useWalletSelector();
+  const history = useHistory();
   useEffect(() => {
     if (liquidities) {
       const temp_list: UserLiquidityDetail[] = [];
@@ -681,6 +683,23 @@ function YourLiquidityBox(props: {
       set_user_liquidities_detail(temp_list);
     }
   }, [liquidities, Object.keys(tokenPriceList).length]);
+  useEffect(() => {
+    if (poolDetail && tokenPriceList) {
+      get_24_apr();
+    }
+  }, [poolDetail, tokenPriceList]);
+  async function get_24_apr() {
+    let apr_24 = '';
+    const dcl_fee_result: IDCLAccountFee | any = await getDCLAccountFee({
+      pool_id,
+      account_id: accountId,
+    });
+    if (dcl_fee_result) {
+      // 24h 利润
+      apr_24 = get_account_24_apr(dcl_fee_result, poolDetail, tokenPriceList);
+    }
+    setAccountAPR(formatPercentage(apr_24));
+  }
   function get_amount_x_y(liquidity: UserLiquidityInfo) {
     const [tokenX, tokenY] = [token_x_metadata, token_y_metadata];
     const { left_point, right_point, amount: L } = liquidity;
@@ -877,25 +896,10 @@ function YourLiquidityBox(props: {
       total_fee_price: display_total_price,
     };
   }
-
-  function addLiquidity() {
-    setOperationType('add');
-    setShowSelectLiquidityBox(true);
-  }
   function removeLiquidity() {
     setOperationType('remove');
     setShowSelectLiquidityBox(true);
   }
-
-  const { accountId } = useWalletSelector();
-
-  const history = useHistory();
-
-  const accountAPR = useDCLAccountAPR({
-    pool_id: poolDetail.pool_id,
-    account_id: accountId,
-  });
-
   const [hover, setHover] = useState<boolean>(false);
 
   const [noReverseRange, setNoReverseRange] = useState(true);
@@ -943,9 +947,6 @@ function YourLiquidityBox(props: {
           value = new BigNumber(1).dividedBy(value).toFixed();
         }
       }
-
-      console.log('value: ', value);
-
       return value;
     }
 
@@ -966,8 +967,6 @@ function YourLiquidityBox(props: {
       }) || [];
 
     const rangeList = findRangeIntersection(priceRangeList);
-    console.log('rangeList: ', rangeList);
-
     return {
       rangeList,
       rateMapTokens: getRateMapTokens(),
@@ -987,25 +986,26 @@ function YourLiquidityBox(props: {
         <span className="text-white font-gothamBold text-base">
           <FormattedMessage id="your_liquidity"></FormattedMessage>
         </span>
-
-        {/* {liquidities?.length > 1 ? (
-          <span className="text-gradientFromHover text-xs bg-black bg-opacity-25 border border-greenColor rounded-3xl px-2">
-            {liquidities.length} NFTs
-          </span>
-        ) : null} */}
         <span className="text-white font-gothamBold">
           ~{getTotalLiquditiesTvl()}
         </span>
       </div>
-      {/* <div className="flex items-center justify-center text-xl text-white my-4 xsm:flex-col">
-        {liquidities?.length > 1 ? (
-          <span className="text-gradientFromHover text-xs bg-black bg-opacity-25 border border-greenColor rounded-3xl px-2 mt-0.5 lg:hidden">
-            {liquidities.length} NFTs
-          </span>
-        ) : null}
-      </div> */}
-
-      <div className="flex flex-col gap-3 mt-4 text-sm">
+      {/* chart area */}
+      <div className="flex items-center justify-center border border-gray2 border-opacity-20 rounded-xl p-3 pt-1 mt-6">
+        <DclChart
+          pool_id={poolDetail?.pool_id}
+          config={{
+            controlHidden: true,
+            svgWidth: '300',
+            svgHeight: '80',
+            svgPaddingX: '12',
+            currentBarHidden: true,
+            hoverBoxHidden: true,
+          }}
+          chartType="USER"
+        ></DclChart>
+      </div>
+      <div className="flex flex-col gap-3 mt-6 text-sm">
         <div className="flex items-start justify-between gap-5">
           <span className="text-primaryText whitespace-nowrap">
             <FormattedMessage
@@ -1070,7 +1070,7 @@ function YourLiquidityBox(props: {
           </span>
 
           <div className="frcs gap-1 flex-wrap text-sm text-white">
-            {accountAPR}
+            {accountAPR || '-'}
           </div>
         </div>
 
@@ -1121,8 +1121,6 @@ function YourLiquidityBox(props: {
         <GradientButton
           onClick={(e) => {
             e.stopPropagation();
-            // addLiquidity();
-
             goAddliquidityV2();
           }}
           color="#fff"
@@ -1994,13 +1992,11 @@ function Chart(props: any) {
           showLiqudityButton={true}
         />
       ) : (
-        // todo
         <LiquidityChart
           data={{ poolDetail, depthData }}
           chartDisplay={chartDisplay}
           setChartDisplay={setChartDisplay}
         ></LiquidityChart>
-        // <DclChart pool_id={poolDetail?.pool_id} config={{axisHidden: true, controlHidden: true}}></DclChart>
       )}
     </Card>
   );
@@ -2137,8 +2133,6 @@ export function RecentTransactions({
 
   const { swapTransactions, liquidityTransactions, limitOrderTransactions } =
     useDCLPoolTransaction({ pool_id });
-  console.log('pool_id: ', pool_id);
-
   const [tab, setTab] = useState<RencentTabKey>(storedTab || 'swap');
 
   const onChangeTab = (tab: RencentTabKey) => {
@@ -2732,6 +2726,20 @@ function LiquidityChart(props: any) {
       }
     }
   }, [poolDetail]);
+  useEffect(() => {
+    if (depthData) {
+      const { liquidities } = depthData;
+      const list = Object.values(liquidities);
+      if (list.length == 0) {
+        setNoData(true);
+      } else {
+        setNoData(false);
+      }
+      setChartLoading(false);
+    } else {
+      setChartLoading(true);
+    }
+  }, [depthData, rateDirection]);
   const rateDOM = useMemo(() => {
     const { current_point, token_x_metadata, token_y_metadata } = poolDetail;
     const rate =
@@ -2801,7 +2809,12 @@ function LiquidityChart(props: any) {
       {!chartLoading && noData ? (
         <EmptyLiquidityChart></EmptyLiquidityChart>
       ) : (
-        <DclChart pool_id={poolDetail?.pool_id} config={{controlHidden: true, svgWidth:'750', svgHeight:'300'}}></DclChart>
+        <div className="mt-16">
+          <DclChart
+            pool_id={poolDetail?.pool_id}
+            config={{ controlHidden: true, svgWidth: '750', svgHeight: '300' }}
+          ></DclChart>
+        </div>
       )}
     </>
   );

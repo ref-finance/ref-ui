@@ -150,6 +150,7 @@ import { useTokenPriceList } from '../../state/token';
 import { useSeedFarmsByPools } from '../../state/pool';
 
 import { RiArrowRightSLine } from 'react-icons/ri';
+import DclChart from '../../components/d3Chart/DclChart';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -1769,7 +1770,7 @@ function PoolRowV2({
     >
       <div
         className={`grid ${
-          mark ? 'grid-cols-7' : 'grid-cols-9'
+          mark ? 'grid-cols-7' : 'grid-cols-10'
         } py-3.5 text-white content-center text-sm text-left mx-8 border-b border-gray-700 border-opacity-70 hover:opacity-80`}
       >
         <div
@@ -1834,6 +1835,23 @@ function PoolRowV2({
         >
           {'$' + toInternationalCurrencySystem(pool.tvl.toString())}
         </div>
+        {/* 缩略图 中文*/}
+        {!mark && (
+          <div className="justify-center ml-2">
+            <DclChart
+              pool_id={pool?.pool_id}
+              config={{
+                axisHidden: true,
+                controlHidden: true,
+                currentBarHidden: true,
+                hoverBoxHidden: true,
+                svgWidth: '80',
+                svgHeight: '32',
+                svgPaddingX: '0',
+              }}
+            ></DclChart>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1985,7 +2003,6 @@ function WatchListCard({
     </>
   );
 }
-
 function LiquidityPage_({
   pools,
   sortBy,
@@ -2044,7 +2061,7 @@ function LiquidityPage_({
   const intl = useIntl();
   const inputRef = useRef(null);
 
-  const allPoolsV2 = useAllPoolsV2();
+  let allPoolsV2 = useAllPoolsV2();
 
   const [tvlV2, setTvlV2] = useState<string>();
 
@@ -2129,7 +2146,6 @@ function LiquidityPage_({
       setFarmCountStar(count);
     });
   }, []);
-
   const tokensStar = [REF_META_DATA, unwrapedNear];
   const poolReSortingFunc = (p1: Pool, p2: Pool) => {
     const v1 = volumes[p1.id] ? parseFloat(volumes[p1.id]) : 0;
@@ -2821,7 +2837,7 @@ function LiquidityPage_({
         {activeTab === 'v2' && (
           <Card width="w-full" className="bg-cardBg" padding="py-7 px-0">
             <section className="">
-              <header className="grid grid-cols-9 py-2 pb-4 text-left text-sm text-primaryText mx-8 border-b border-gray-700 border-opacity-70">
+              <header className="grid  grid-cols-10 py-2 pb-4 text-left text-sm text-primaryText mx-8 border-b border-gray-700 border-opacity-70">
                 <div className="col-span-4 flex">
                   <FormattedMessage id="pair" defaultMessage="Pair" />
                 </div>
@@ -2982,8 +2998,8 @@ function LiquidityPage_({
                     )}
                   </span>
                 </div>
+                <div className="col-span-1"></div>
               </header>
-
               <div className="max-h-96 overflow-y-auto  pool-list-container-pc">
                 {allPoolsV2
                   .sort(poolv2ReSortingFunc)

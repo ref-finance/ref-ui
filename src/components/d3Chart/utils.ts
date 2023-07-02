@@ -44,10 +44,10 @@ export const formatPrice = (v: string | number) => {
   const big = Big(v);
   if (big.eq(0)) {
     return '0';
-  } else if (big.lt(0.01)) {
+  } else if (big.lt(0.0001)) {
     return '<0.0001';
   } else {
-    return big.toFixed(4, 1);
+    return big.toFixed(4, 0);
   }
 };
 export const formatToInternationalCurrencySystem$ = (v: string | number) => {

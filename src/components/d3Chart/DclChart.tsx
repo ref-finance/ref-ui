@@ -12,6 +12,7 @@ import {
   UserLiquidityInfo,
   getBinPointByPoint,
   get_x_y_amount_by_condition,
+  get_account_24_apr,
 } from '../../services/commonV3';
 import { getDclPoolPoints, getDCLAccountFee } from '../../services/indexer';
 import { sortBy } from 'lodash';
@@ -102,7 +103,7 @@ export default function DclChart({
   const disFromPercentBoxToDragBar = +(
     appearanceConfig.disFromPercentBoxToDragBar || 2
   );
-  const svgPaddingX = +(appearanceConfig.svgPaddingX || 5);
+  const svgPaddingX = +(appearanceConfig.svgPaddingX || 10);
   const defaultPercent = +(appearanceConfig.defaultPercent || 10); // 初始化左侧右侧价格与当前价格的间距百分比 10===》10%, e.g. 右侧价格是当前价格的 1 + 10%
   const whole_bars_background_padding = +(
     appearanceConfig.whole_bars_background_padding || 20
@@ -135,7 +136,10 @@ export default function DclChart({
   }, [newlyAddedLiquidities, user_liquidities]);
   useEffect(() => {
     if (price_range && chartDataList) {
-      if (chartType !== 'USER' || chartType =='USER' && chartDataList.length) {
+      if (
+        chartType !== 'USER' ||
+        (chartType == 'USER' && chartDataList.length)
+      ) {
         drawChart();
         setDrawChartDone(true);
       }
@@ -287,8 +291,7 @@ export default function DclChart({
     let apr_24 = '';
     if (dcl_fee_result) {
       const dclAccountFee: IDCLAccountFee = dcl_fee_result;
-      const { total_earned_fee, apr } = dclAccountFee;
-
+      const { total_earned_fee } = dclAccountFee;
       // 总共赚到的fee
       const { total_fee_x, total_fee_y } = total_earned_fee || {};
       const total_earned_fee_x = toReadableNumber(
@@ -304,101 +307,10 @@ export default function DclChart({
       total_fee_earned = total_earned_fee_x_value.plus(
         total_earned_fee_y_value
       );
-
-      // 24小时平均利润
-      const { fee_data, user_token, change_log_data } = apr;
-      const { fee_x, fee_y } = fee_data;
-      // 针对后端接口 fee_x、fee_y 会有负值处理成0
-      const fee_x_final = Big(fee_x || 0).lt(0) ? 0 : fee_x;
-      const fee_y_final = Big(fee_y || 0).lt(0) ? 0 : fee_y;
-      const fee_x_24 = toReadableNumber(
-        token_x_metadata.decimals,
-        Big(fee_x_final || 0).toFixed()
+      // 24h 利润
+      apr_24 = formatPercentage(
+        get_account_24_apr(dcl_fee_result, pool, tokenPriceList)
       );
-      const fee_y_24 = toReadableNumber(
-        token_y_metadata.decimals,
-        Big(fee_y_final || 0).toFixed()
-      );
-      const fee_x_24_value = Big(fee_x_24).mul(price_x);
-      const fee_y_24_value = Big(fee_y_24).mul(price_y);
-      const total_fee_24_value = fee_x_24_value.plus(fee_y_24_value);
-
-      // 24小时平均本金
-      const processed_change_log: IProcessedLogData[] = [];
-      const current_time = Big(new Date().getTime()).div(1000).toFixed(0); // 秒
-      const second24 = 24 * 60 * 60;
-      const before24Time = Big(current_time).minus(second24).toFixed(0); // 秒
-      const { token_x, token_y } = user_token;
-      const token_x_NonDivisible = toNonDivisibleNumber(
-        token_x_metadata.decimals,
-        Big(token_x || 0).toFixed()
-      );
-      const token_y_NonDivisible = toNonDivisibleNumber(
-        token_y_metadata.decimals,
-        Big(token_y || 0).toFixed()
-      );
-      const current_user_token: IDclLogData = {
-        token_x: token_x_NonDivisible,
-        token_y: token_y_NonDivisible,
-        timestamp: current_time,
-      };
-      const current_processed = process_log_data(
-        current_user_token,
-        before24Time
-      );
-      processed_change_log.push(current_processed);
-
-      if (change_log_data?.length) {
-        change_log_data.reverse();
-        change_log_data.forEach((log: IDclLogData) => {
-          const pre_processed_log =
-            processed_change_log[processed_change_log.length - 1];
-          const { token_x, token_y, timestamp } = log; // timestamp 纳秒
-          const real_token_x = Big(pre_processed_log.token_x)
-            .minus(token_x)
-            .toFixed();
-          const real_token_y = Big(pre_processed_log.token_y)
-            .minus(token_y)
-            .toFixed();
-          const new_log = {
-            token_x: real_token_x,
-            token_y: real_token_y,
-            timestamp: Big(timestamp).div(1000000000).toFixed(0),
-          };
-          const processed_log: IProcessedLogData = process_log_data(
-            new_log,
-            before24Time
-          );
-          processed_change_log.push(processed_log);
-        });
-        // for 加权
-        processed_change_log.forEach(
-          (log: IProcessedLogData, index: number) => {
-            const { distance_from_24 } = log;
-            if (index !== processed_change_log.length - 1) {
-              const next_log = processed_change_log[index + 1];
-              const dis = Big(distance_from_24)
-                .minus(next_log.distance_from_24)
-                .toFixed();
-              log.distance_from_24 = dis;
-            }
-          }
-        );
-      }
-      // 24小时apr
-      let total_processed_log_value = Big(0);
-      processed_change_log.forEach((log: IProcessedLogData) => {
-        const { total_value, distance_from_24 } = log;
-        total_processed_log_value = total_processed_log_value.plus(
-          Big(total_value).mul(distance_from_24)
-        );
-      });
-      const principal = total_processed_log_value.div(second24);
-      if (principal.gt(0)) {
-        apr_24 = formatPercentage(
-          total_fee_24_value.div(principal).mul(100).toFixed()
-        );
-      }
     }
     user_liquidities.forEach((l: UserLiquidityInfo) => {
       const { left_point, right_point, amount } = l;
@@ -433,37 +345,6 @@ export default function DclChart({
       apr_24,
       total_earned_fee: formatWithCommas_usd(total_fee_earned.toFixed()),
     });
-  }
-  /**
-   *
-   * @param log 这笔log的本金
-   * @param before24Time 秒
-   * timestamp 秒
-   * @returns
-   */
-  function process_log_data(log: IDclLogData, before24Time: string) {
-    const { token_x_metadata, token_y_metadata } = pool;
-    const { token_x, token_y, timestamp } = log;
-    const token_x_amount = toReadableNumber(
-      token_x_metadata.decimals,
-      Big(token_x || 0).toFixed()
-    );
-    const token_y_amount = toReadableNumber(
-      token_y_metadata.decimals,
-      Big(token_y || 0).toFixed()
-    );
-    const price_x = tokenPriceList[token_x_metadata.id]?.price || 0;
-    const price_y = tokenPriceList[token_y_metadata.id]?.price || 0;
-    const token_x_value = Big(token_x_amount).mul(price_x);
-    const token_y_value = Big(token_y_amount).mul(price_y);
-    const total_value = token_x_value.plus(token_y_value).toFixed();
-    const distance_from_24 = Big(timestamp).minus(before24Time).toFixed(0); // 秒
-    return {
-      distance_from_24,
-      total_value,
-      token_x: Big(token_x).toFixed(),
-      token_y: Big(token_y).toFixed(),
-    };
   }
   function get_latest_user_chart_data() {
     const { token_x_metadata, token_y_metadata } = pool;
@@ -1141,7 +1022,7 @@ export default function DclChart({
       POINTLEFTRANGE
     );
     const max_point = Math.min(
-      chartDataList[chartDataList.length - 1].point + binWidth * 3,
+      chartDataList[chartDataList.length - 1].point + binWidth * 2,
       POINTRIGHTRANGE
     );
     const min_price = get_price_by_point(min_point);
@@ -1281,7 +1162,10 @@ export default function DclChart({
   return (
     <div
       className={`relative inline-flex ${
-        (chartType !=="USER" && chartDataList) || (chartType =="USER" && chartDataList?.length) ? '' : 'hidden'
+        (chartType !== 'USER' && chartDataList) ||
+        (chartType == 'USER' && chartDataList?.length)
+          ? ''
+          : 'hidden'
       } ${randomId.slice(1)}`}
     >
       {/* 控件按钮*/}
