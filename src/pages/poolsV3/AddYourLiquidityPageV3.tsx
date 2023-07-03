@@ -779,6 +779,16 @@ export default function AddYourLiquidityPageV3() {
       // token_y: tokenSort ? tokenY : tokenX,
     };
   }
+  function formatWithCommas_for_tip(v: string) {
+    const v_big = Big(v || 0);
+    let v_temp;
+    if (v_big.lt(0.001)) {
+      v_temp = v;
+    } else {
+      v_temp = toPrecision(v, 3, true, false);
+    }
+    return v_temp;
+  }
   function getLiquidityForCurveAndBidAskMode() {
     /**
      *  已知条件:
@@ -854,8 +864,12 @@ export default function AddYourLiquidityPageV3() {
             min_token_x_amount_needed
           );
           if (remain_token_x_amount.lt(0)) {
-            // 给出提示 token x 数量太少不能添加
-            set_token_amount_tip(`${tokenX.symbol} Token amount is too little`);
+            // 给出提示 token x 数量太少不能添加 1
+            set_token_amount_tip(
+              `You need at least ${formatWithCommas_for_tip(
+                min_token_x_amount_needed
+              )}${' '}${tokenX.symbol}`
+            );
             return;
           } else {
             nftList_x = get_decline_pattern_nfts({
@@ -883,8 +897,12 @@ export default function AddYourLiquidityPageV3() {
             min_token_y_amount_needed
           );
           if (remain_token_y_amount.lt(0)) {
-            // 给出提示 token y 数量太少不能添加
-            set_token_amount_tip(`${tokenY.symbol} Token amount is too little`);
+            // 给出提示 token y 数量太少不能添加 2
+            set_token_amount_tip(
+              `You need at least ${formatWithCommas_for_tip(
+                min_token_y_amount_needed
+              )}${' '}${tokenY.symbol}`
+            );
             return;
           } else {
             nftList_y = get_rise_pattern_nfts({
@@ -913,8 +931,12 @@ export default function AddYourLiquidityPageV3() {
             min_token_x_amount_needed
           );
           if (remain_token_x_amount.lt(0)) {
-            // 给出提示 token x 数量太少不能添加
-            set_token_amount_tip(`${tokenX.symbol} Token amount is too little`);
+            // 给出提示 token x 数量太少不能添加 3
+            set_token_amount_tip(
+              `You need at least ${formatWithCommas_for_tip(
+                min_token_x_amount_needed
+              )}${' '}${tokenX.symbol}`
+            );
             return;
           } else {
             nftList_x = get_rise_pattern_nfts({
@@ -942,8 +964,13 @@ export default function AddYourLiquidityPageV3() {
             min_token_y_amount_needed
           );
           if (remain_token_y_amount.lt(0)) {
-            // 给出提示 token y 数量太少不能添加
-            set_token_amount_tip(`${tokenY.symbol} Token amount is too little`);
+            // 给出提示 token y 数量太少不能添加 4
+
+            set_token_amount_tip(
+              `You need at least ${formatWithCommas_for_tip(
+                min_token_y_amount_needed
+              )}${' '}${tokenY.symbol}`
+            );
             return;
           } else {
             nftList_y = get_decline_pattern_nfts({
@@ -2260,16 +2287,6 @@ function AddLiquidityButton() {
     onlyAddXToken,
     onlyAddYToken,
     invalidRange,
-    set_token_amount_tip,
-    get_y_nfts_contain_current_curve,
-    get_x_nfts_contain_current_curve,
-    get_x_nfts_contain_current_bid_ask,
-    get_y_nfts_contain_current_bid_ask,
-    get_rise_pattern_nfts,
-    get_decline_pattern_nfts,
-    formula_of_token_x,
-    formula_of_token_y,
-
     getLiquiditySpot,
     getLiquidityForCurveAndBidAskMode,
   } = useContext(LiquidityProviderData);
@@ -2312,213 +2329,28 @@ function AddLiquidityButton() {
       setAddLiquidityButtonLoading(false);
       return;
     }
-    batch_add_liquidity({
-      liquidityInfos: nftList,
-      token_x: tokenX,
-      token_y: tokenY,
-      amount_x: tokenXAmount_nonDivisible,
-      amount_y: tokenYAmount_nonDivisible,
-    });
-  }
-  function addLiquidityForCurveAndBidAskModeCopy() {
     /**
-     *  已知条件:
-     *  bin的数量、一个bin里 slot的数量、leftPoint、rightPoint、tokenXAmount、tokenYAmount
-     *  当前点位为point，以slot为单位 下一跳是 point + slot
-     *  当前点位为point，以bin为单位 下一跳是 point + bin * slots
-     *  最小的bin的高度就是等差的值 为dis
-     **/
-    setAddLiquidityButtonLoading(true);
-    const tokenXAmount_nonDivisible = toNonDivisibleNumber(
-      tokenX.decimals,
-      tokenXAmount || '0'
-    );
-    const tokenYAmount_nonDivisible = toNonDivisibleNumber(
-      tokenY.decimals,
-      tokenYAmount || '0'
-    );
-    let nftList: IAddLiquidityInfo[] = [];
-    const get_x_nfts =
-      liquidityShape == 'Curve'
-        ? get_decline_pattern_nfts
-        : get_rise_pattern_nfts;
-    const get_y_nfts =
-      liquidityShape == 'Curve'
-        ? get_rise_pattern_nfts
-        : get_decline_pattern_nfts;
-    if (onlyAddYToken) {
-      nftList = get_y_nfts({
-        left_point: leftPoint,
-        right_point: rightPoint,
-        token: tokenY,
-        token_amount: tokenYAmount,
-        formula_fun: formula_of_token_y,
-        is_token_y: true,
-      });
-    }
-    if (onlyAddXToken) {
-      nftList = get_x_nfts({
-        left_point: leftPoint,
-        right_point: rightPoint,
-        token: tokenX,
-        token_amount: tokenXAmount,
-        formula_fun: formula_of_token_x,
-        is_token_x: true,
-      });
-    }
-    if (!onlyAddXToken && !onlyAddYToken) {
-      /**
-       * step1 先判断左侧bin的数量是否 > 1,是的话，左侧包含当前点作等差，否则右侧包含当前点位作等差
-       * step2 分配好后，获得对右侧的最小token数量要求
-       * step3 另外一侧 总的token数量减去 当前bin中包含的，剩下的 作单边 等差分配即可
-       */
-      const { point_delta, current_point } = currentSelectedPool;
-      const current_l_point = getBinPointByPoint(
-        point_delta,
-        SLOT_NUMBER,
-        current_point,
-        'floor'
+     * 计算出 nftList token x tokeny 的数量，这是需要的总数量
+     * tokenXAmount_nonDivisible，tokenYAmount_nonDivisible 是输入的总数量
+     * 单边只有一个nft且包含当前点位的，输入的量可能会多余，所以不采用输入的值作为参数，而是采用实际使用的值作为参数
+     */
+    let last_total_needed_token_x_amount = Big(0);
+    let last_total_needed_token_y_amount = Big(0);
+    nftList.forEach((nft: IAddLiquidityInfo) => {
+      const { amount_x, amount_y } = nft;
+      last_total_needed_token_x_amount = last_total_needed_token_x_amount.plus(
+        amount_x || 0
       );
-      const current_r_point = getBinPointByPoint(
-        point_delta,
-        SLOT_NUMBER,
-        current_point,
-        'ceil'
+      last_total_needed_token_y_amount = last_total_needed_token_y_amount.plus(
+        amount_y || 0
       );
-      const slot_number_in_a_bin = SLOT_NUMBER;
-      const binWidth = slot_number_in_a_bin * point_delta;
-      const bin_number_left = (current_point - leftPoint) / binWidth;
-      set_token_amount_tip('');
-      if (liquidityShape == 'Curve') {
-        if (bin_number_left > 1) {
-          // 左侧做等差
-          let nftList_x: IAddLiquidityInfo[] = [];
-          let nftList_y: IAddLiquidityInfo[] = [];
-          const { addLiquidityInfoList, min_token_x_amount_needed } =
-            get_y_nfts_contain_current_curve({
-              left_point: leftPoint,
-              right_point: current_r_point,
-            });
-          nftList_y = addLiquidityInfoList;
-          const remain_token_x_amount = Big(tokenXAmount).minus(
-            min_token_x_amount_needed
-          );
-          if (remain_token_x_amount.lt(0)) {
-            // 给出提示 token x 数量太少不能添加
-            set_token_amount_tip(`${tokenX.symbol} Token amount is too little`);
-            setAddLiquidityButtonLoading(false);
-            return;
-          } else {
-            nftList_x = get_decline_pattern_nfts({
-              left_point: current_r_point,
-              right_point: rightPoint,
-              token: tokenX,
-              token_amount: remain_token_x_amount.toFixed(),
-              formula_fun: formula_of_token_x,
-              is_token_x: true,
-            });
-          }
-          nftList = nftList_x.concat(nftList_y);
-        } else {
-          // 右侧做等差
-          let nftList_x: IAddLiquidityInfo[] = [];
-          let nftList_y: IAddLiquidityInfo[] = [];
-          const { addLiquidityInfoList, min_token_y_amount_needed } =
-            get_x_nfts_contain_current_curve({
-              left_point: current_l_point,
-              right_point: rightPoint,
-            });
-          nftList_x = addLiquidityInfoList;
-
-          const remain_token_y_amount = Big(tokenYAmount).minus(
-            min_token_y_amount_needed
-          );
-          if (remain_token_y_amount.lt(0)) {
-            // 给出提示 token y 数量太少不能添加
-            set_token_amount_tip(`${tokenY.symbol} Token amount is too little`);
-            setAddLiquidityButtonLoading(false);
-            return;
-          } else {
-            nftList_y = get_rise_pattern_nfts({
-              left_point: leftPoint,
-              right_point: current_l_point,
-              token: tokenY,
-              token_amount: remain_token_y_amount.toFixed(),
-              formula_fun: formula_of_token_y,
-              is_token_y: true,
-            });
-          }
-          nftList = nftList_x.concat(nftList_y);
-        }
-      } else {
-        if (bin_number_left > 1) {
-          // 左侧做等差
-          let nftList_x: IAddLiquidityInfo[] = [];
-          let nftList_y: IAddLiquidityInfo[] = [];
-          const { addLiquidityInfoList, min_token_x_amount_needed } =
-            get_y_nfts_contain_current_bid_ask({
-              left_point: leftPoint,
-              right_point: current_r_point,
-            });
-          nftList_y = addLiquidityInfoList;
-          const remain_token_x_amount = Big(tokenXAmount).minus(
-            min_token_x_amount_needed
-          );
-          if (remain_token_x_amount.lt(0)) {
-            // 给出提示 token x 数量太少不能添加
-            set_token_amount_tip(`${tokenX.symbol} Token amount is too little`);
-            setAddLiquidityButtonLoading(false);
-            return;
-          } else {
-            nftList_x = get_rise_pattern_nfts({
-              left_point: current_r_point,
-              right_point: rightPoint,
-              token: tokenX,
-              token_amount: remain_token_x_amount.toFixed(),
-              formula_fun: formula_of_token_x,
-              is_token_x: true,
-            });
-          }
-          nftList = nftList_x.concat(nftList_y);
-        } else {
-          // 右侧做等差
-          let nftList_x: IAddLiquidityInfo[] = [];
-          let nftList_y: IAddLiquidityInfo[] = [];
-          const { addLiquidityInfoList, min_token_y_amount_needed } =
-            get_x_nfts_contain_current_bid_ask({
-              left_point: current_l_point,
-              right_point: rightPoint,
-            });
-          nftList_x = addLiquidityInfoList;
-
-          const remain_token_y_amount = Big(tokenYAmount).minus(
-            min_token_y_amount_needed
-          );
-          if (remain_token_y_amount.lt(0)) {
-            // 给出提示 token y 数量太少不能添加
-            set_token_amount_tip(`${tokenY.symbol} Token amount is too little`);
-            setAddLiquidityButtonLoading(false);
-            return;
-          } else {
-            nftList_y = get_decline_pattern_nfts({
-              left_point: leftPoint,
-              right_point: current_l_point,
-              token: tokenY,
-              token_amount: remain_token_y_amount.toFixed(),
-              formula_fun: formula_of_token_y,
-              is_token_y: true,
-            });
-          }
-          nftList = nftList_x.concat(nftList_y);
-        }
-      }
-    }
+    });
     batch_add_liquidity({
       liquidityInfos: nftList,
       token_x: tokenX,
       token_y: tokenY,
-      amount_x: tokenXAmount_nonDivisible,
-      amount_y: tokenYAmount_nonDivisible,
+      amount_x: last_total_needed_token_x_amount.toFixed(),
+      amount_y: last_total_needed_token_y_amount.toFixed(),
     });
   }
   function getMax(token: TokenMetadata, balance: string) {
