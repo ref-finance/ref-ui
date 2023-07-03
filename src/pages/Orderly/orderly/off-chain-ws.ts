@@ -167,12 +167,6 @@ export const generateMarketDataFlow = ({ symbol }: { symbol: string }) => {
       event: 'subscribe',
       topic: `indexprices`,
     },
-
-    {
-      id: `position`,
-      event: 'subscribe',
-      topic: `position`,
-    },
   ];
 
   return data;
@@ -219,14 +213,11 @@ export const useOrderlyMarketData = ({
   const [marketTrade, setMarketTrade] = useState<MarketTrade[]>();
 
   const [markPrices, setMarkPrices] = useState<MarkPrice[]>();
+  const [ordersUpdate, setOrdersUpdate] = useState<Orders>();
 
   const [indexprices, setIndexprices] = useState<IndexPrice[]>();
 
   const [estFundingRate, setEstFundingRate] = useState<EstFundingrate>();
-
-  const [ordersUpdate, setOrdersUpdate] = useState<Orders>();
-
-  const [positions, setPositions] = useState<Position[]>();
 
   useEffect(() => {
     if (connectionStatus !== 'Open') return;
@@ -372,12 +363,6 @@ export const useOrderlyMarketData = ({
 
       setMarkPrices(markPrices);
     }
-
-    if (lastJsonMessage?.['topic'] === 'position') {
-      const positions = lastJsonMessage?.['data']?.positions;
-
-      setPositions(positions);
-    }
   }, [lastJsonMessage, symbol, connectionStatus]);
 
   useEffect(() => {
@@ -438,6 +423,7 @@ export const useOrderlyPrivateData = ({
   const { accountId } = useWalletSelector();
 
   const [balances, setBalances] = useState<Record<string, Balance>>({});
+  const [positions, setPositions] = useState<Position[]>();
 
   const [orderlyKey, setOrderlyKey] = useState('');
 
@@ -496,17 +482,30 @@ export const useOrderlyPrivateData = ({
     if (lastJsonMessage?.['topic'] === 'balance') {
       setBalances(lastJsonMessage?.['data'].balances);
     }
+
+    if (lastJsonMessage?.['topic'] === 'position') {
+      const positions = lastJsonMessage?.['data']?.positions;
+
+      setPositions(positions);
+    }
   }, [lastJsonMessage]);
 
   useEffect(() => {
     if (!authPass) return;
 
     sendMessage(
-      JSON.stringify({
-        id: 'balance',
-        topic: 'balance',
-        event: 'subscribe',
-      })
+      JSON.stringify([
+        {
+          id: 'balance',
+          topic: 'balance',
+          event: 'subscribe',
+        },
+        {
+          id: 'position',
+          event: 'subscribe',
+          topic: `position`,
+        },
+      ])
     );
   }, [authPass]);
 
