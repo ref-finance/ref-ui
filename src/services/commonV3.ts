@@ -1380,7 +1380,6 @@ export function divide_liquidities_into_bins({
       total_x_amount_in_bin_i = total_x_amount_in_bin_i.plus(token_x);
       total_y_amount_in_bin_i = total_y_amount_in_bin_i.plus(token_y);
     });
-
     // get L in this bin
     const bin_i_L = get_l_amount_by_condition({
       left_point: bin_i_point_start,
@@ -1394,6 +1393,8 @@ export function divide_liquidities_into_bins({
         total_y_amount_in_bin_i.toFixed()
       ),
       poolDetail,
+      slots: slots_in_bin_i,
+      binWidth,
     });
 
     //
@@ -1468,7 +1469,7 @@ export function get_x_y_amount_by_condition({
 /**
  *
  * @param param0
- * @returns
+ * @returns bin
  * token_x_amount、token_y_amount ---> NonDivisible
  */
 export function get_l_amount_by_condition({
@@ -1477,21 +1478,44 @@ export function get_l_amount_by_condition({
   token_x_amount,
   token_y_amount,
   poolDetail,
+  slots,
+  binWidth,
 }: {
   left_point: number;
   right_point: number;
   token_x_amount: string;
   token_y_amount: string;
   poolDetail: PoolInfo;
+  slots?: IChartData[];
+  binWidth?: number;
 }) {
   let L;
-  const { current_point } = poolDetail;
+  const { current_point, point_delta } = poolDetail;
   //  in range
   if (current_point >= left_point && right_point > current_point) {
-    if (Big(token_y_amount).gt(0)) {
-      L = getLByTokenY(left_point, current_point, token_y_amount);
+    // 中文 已知这个 bin 里每一个slot的高度，直接加权算
+    if (slots) {
+      let L_temp = Big(0);
+      slots.forEach((slot: IChartData) => {
+        const { liquidity } = slot;
+        L_temp = L_temp.plus(Big(liquidity || 0).mul(point_delta));
+      });
+      L = L_temp.div(binWidth).toFixed();
     } else {
-      L = getLByTokenX(current_point + 1, right_point, token_x_amount);
+      let lx = '0';
+      let ly = '0';
+      if (Big(token_y_amount).gt(0)) {
+        ly = getLByTokenY(left_point, current_point + 1, token_y_amount);
+      }
+      if (Big(token_x_amount).gt(0)) {
+        lx = getLByTokenX(current_point, right_point, token_x_amount);
+      }
+      if (Big(lx).gt(0)) {
+        L = lx;
+      }
+      if (Big(ly).gt(0)) {
+        L = ly;
+      }
     }
   }
   // only y token

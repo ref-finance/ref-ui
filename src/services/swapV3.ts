@@ -444,7 +444,7 @@ export const v3Swap = async ({
         functionCalls: [
           storageDepositAction({
             amount: neededStorage,
-            registrationOnly: false,
+            registrationOnly: neededStorage == '0.5',
           }),
         ],
       });
@@ -763,7 +763,10 @@ export const get_user_storage_detail = async ({ size }: { size: number }) => {
       user_id,
     },
   });
-
+  // first register
+  if (!detail) {
+    return '0.5';
+  }
   const {
     max_slots,
     cur_order_slots,
@@ -916,7 +919,7 @@ export const add_liquidity = async ({
       functionCalls: [
         storageDepositAction({
           amount: neededStorage,
-          registrationOnly: false,
+          registrationOnly: neededStorage == '0.5',
         }),
       ],
     });
@@ -1043,7 +1046,7 @@ export const batch_add_liquidity = async ({
       functionCalls: [
         storageDepositAction({
           amount: neededStorage,
-          registrationOnly: false,
+          registrationOnly: neededStorage == '0.5',
         }),
       ],
     });
@@ -1392,7 +1395,7 @@ export const batch_remove_liquidity_contract = async ({
       functionCalls: [
         storageDepositAction({
           amount: neededStorage,
-          registrationOnly: false,
+          registrationOnly: neededStorage == '0.5',
         }),
       ],
     });
@@ -1460,7 +1463,7 @@ export const claim_all_liquidity_fee = async ({
       functionCalls: [
         storageDepositAction({
           amount: neededStorage,
-          registrationOnly: false,
+          registrationOnly: neededStorage == '0.5',
         }),
       ],
     });

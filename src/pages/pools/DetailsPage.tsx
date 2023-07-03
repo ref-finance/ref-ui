@@ -32,12 +32,6 @@ import Loading from '~components/layout/Loading';
 import { FarmMiningIcon } from '~components/icon/FarmMining';
 import { FarmStamp, FarmStampNew } from '~components/icon/FarmStamp';
 import { ChartLoading } from '~components/icon/Loading';
-import {
-  REF_FARM_CONTRACT_ID,
-  REF_FI_CONTRACT_ID,
-  STABLE_POOL_ID,
-  REF_FARM_BOOST_CONTRACT_ID,
-} from '~services/near';
 import { PoolSlippageSelector } from '~components/forms/SlippageSelector';
 import { Link } from 'react-router-dom';
 import { canFarm } from '~services/pool';
@@ -58,7 +52,6 @@ import InputAmount from '~components/forms/InputAmount';
 import { isMobile } from '~utils/device';
 import ReactModal from 'react-modal';
 import { toRealSymbol } from '~utils/token';
-
 import {
   BackArrowWhite,
   BackArrowGray,
@@ -82,7 +75,10 @@ import {
 } from '~components/button/Button';
 import { wallet } from '~services/near';
 import { BreadCrumb } from '~components/layout/BreadCrumb';
-import { LP_TOKEN_DECIMALS } from '../../services/m-token';
+import {
+  LP_TOKEN_DECIMALS,
+  LP_STABLE_TOKEN_DECIMALS,
+} from '../../services/m-token';
 import {
   ResponsiveContainer,
   LineChart,
@@ -176,6 +172,7 @@ import { getEffectiveFarmList, sort_tokens_by_base } from '~services/commonV3';
 import { openUrl } from '../../services/commonV3';
 import { numberWithCommas } from '../Orderly/utiles';
 import { HiOutlineExternalLink, HiOutlineLink } from 'react-icons/hi';
+const STABLE_POOL_IDS = getConfig().STABLE_POOL_IDS;
 
 interface ParamTypes {
   id: string;
@@ -1477,31 +1474,22 @@ export function RecentTransactions({
   });
 
   const renderLiquidityTransactions = liquidityTransactions.map((tx) => {
-    const swapIn = tokens.find((t) => t.id === tx.token_in);
-
-    const swapOut = tokens.find((t) => t.id === tx.token_out);
-
-    if (!swapIn || !swapOut) return null;
-
-    const AmountIn = toReadableNumber(swapIn.decimals, tx.amount_in);
-    const displayInAmount =
-      Number(AmountIn) < 0.01
-        ? '<0.01'
-        : numberWithCommas(toPrecision(AmountIn, 6));
-
-    const AmountOut = toReadableNumber(swapOut.decimals, tx.amount_out);
-
-    const displayOutAmount =
-      Number(AmountOut) < 0.01
-        ? '<0.01'
-        : numberWithCommas(toPrecision(AmountOut, 6));
+    const { shares, pool_id } = tx;
+    let lp_amount;
+    if (new Set(STABLE_POOL_IDS || []).has(pool_id.toString())) {
+      lp_amount = toReadableNumber(LP_STABLE_TOKEN_DECIMALS, shares || '0');
+    } else {
+      lp_amount = toReadableNumber(LP_TOKEN_DECIMALS, shares || '0');
+    }
+    const display_lp_amount =
+      Number(lp_amount) < 0.001
+        ? '<0.001'
+        : numberWithCommas(toPrecision(lp_amount, 3));
 
     const txLink = (
       <a
         rel="noopener  noreferrer nofollow "
-        href={`${getConfig().explorerUrl}/txns/${tx.tx_id}`}
         className=" hover:underline ml-2 "
-        target="_blank"
       >
         <HiOutlineExternalLink className="relative"></HiOutlineExternalLink>
       </a>
@@ -1518,29 +1506,23 @@ export function RecentTransactions({
         </td>
 
         <td className="text-white frcs">
-          <span className="text-white" title={AmountIn}>
-            {displayInAmount}
-          </span>
-
-          <span className="ml-1 text-primaryText">
-            {toRealSymbol(swapIn.symbol)}
-          </span>
-
-          <span className="mx-1">+</span>
-
-          <span className="text-white" title={AmountOut}>
-            {displayOutAmount}
-          </span>
-
-          <span className="ml-1 text-primaryText">
-            {toRealSymbol(swapOut.symbol)}
+          <span className="text-white" title={lp_amount}>
+            {display_lp_amount}
           </span>
         </td>
 
         <td className="col-span-2 relative py-4 pr-4 flex items-center justify-end">
-          <span className="hover:underline cursor-pointer">{tx.timestamp}</span>
-
-          {txLink}
+          <span
+            className="inline-flex items-center cursor-pointer"
+            onClick={() => {
+              openUrl(`${getConfig().explorerUrl}/txns/${tx.tx_id}`);
+            }}
+          >
+            <span className="hover:underline cursor-pointer">
+              {tx.timestamp}
+            </span>
+            {txLink}
+          </span>
         </td>
       </tr>
     );
