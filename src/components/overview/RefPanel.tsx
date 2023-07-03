@@ -61,18 +61,25 @@ function RefPanel() {
     boolean
   ];
   // get invest
-  const [invest_value, invest_value_done] = useMemo(() => {
-    let total_value = new BigNumber(0);
-    let total_value_done = false;
-    if (lpValueV1Done && lpValueV2Done) {
-      total_value = total_value
-        .plus(yourLpValueV1)
-        .plus(yourLpValueV2)
-        .plus(xref_value);
-      total_value_done = true;
-    }
-    return [total_value.toFixed(), total_value_done];
-  }, [lpValueV1Done, lpValueV2Done, xref_value_done]);
+  const [invest_value, invest_value_done, invest_value_no_xref] =
+    useMemo(() => {
+      let total_value = new BigNumber(0);
+      let total_value_no_xref = new BigNumber(0);
+
+      let total_value_done = false;
+      if (lpValueV1Done && lpValueV2Done) {
+        total_value = total_value
+          .plus(yourLpValueV1)
+          .plus(yourLpValueV2)
+          .plus(xref_value);
+
+        total_value_no_xref = total_value_no_xref
+          .plus(yourLpValueV1)
+          .plus(yourLpValueV2);
+        total_value_done = true;
+      }
+      return [total_value.toFixed(), total_value_done, total_value_no_xref];
+    }, [lpValueV1Done, lpValueV2Done, xref_value_done]);
   // get profit
   const [total_profit, total_profit_done] = useMemo(() => {
     let total_profit = '0';
@@ -88,7 +95,7 @@ function RefPanel() {
   }, [total_fees_value_done, total_unClaimed_rewrads_value_done]);
   useEffect(() => {
     if (invest_value_done) {
-      set_ref_invest_value(invest_value);
+      set_ref_invest_value(invest_value_no_xref);
       set_ref_invest_value_done(true);
     }
     if (total_profit_done) {

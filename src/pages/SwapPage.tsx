@@ -215,9 +215,14 @@ function SwapPage() {
     sessionStorage.getItem(SWAP_ENABLE_TRI) === 'true' || false
   );
 
+  const storedType =
+    (sessionStorage.getItem(SWAP_TYPE_KEY) as SWAP_TYPE) || null;
+
   const [selectMarket, setSelectMarket] = useState<SwapMarket>(undefined);
 
-  const [swapType, setSwapType] = useState<SWAP_TYPE>(SWAP_TYPE.LITE);
+  const [swapType, setSwapType] = useState<SWAP_TYPE>(
+    storedType || SWAP_TYPE.LITE
+  );
 
   const [forceEstimatePro, setForceEstimatePro] = useState<boolean>(false);
 
