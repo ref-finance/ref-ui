@@ -131,6 +131,7 @@ const ChangeSwapMode = ({
           onClick={() => {
             setSwapMode(SWAP_MODE.NORMAL);
             localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.NORMAL);
+            changeSwapType(SWAP_TYPE.LITE);
           }}
         >
           Swap
@@ -152,7 +153,6 @@ const ChangeSwapMode = ({
             setSwapMode(SWAP_MODE.LIMIT);
             localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.LIMIT);
             setLimitTokenTrigger(!limitTokenTrigger ? true : false);
-            changeSwapType(SWAP_TYPE.LITE);
           }}
           style={{
             fontSize: '15px',
