@@ -29,6 +29,9 @@ import BigNumber from 'bignumber.js';
 import { getStablePoolFromCache, Pool, StablePool } from '../../services/pool';
 import { getStableSwapTabKey } from './StableSwapPageUSN';
 import { STABLE_TOKEN_IDS } from '../../services/near';
+import { RecentTransactions } from '../pools/DetailsPage';
+import { useTokens } from '~state/token';
+
 export const DEFAULT_ACTIONS = ['add_liquidity', 'remove_liquidity'];
 const STABLE_TOKENS = ['USDT.e', 'USDC', 'DAI'];
 
@@ -79,6 +82,7 @@ function StableSwapPage({ pool }: { pool: Pool }) {
   const nearBalances = useWalletTokenBalances(
     tokens?.map((token) => token.id) || []
   );
+  const pool_tokens = useTokens(pool?.tokenIds);
 
   const changeAction = (actionName: string) => {
     localStorage.setItem(REF_STABLE_SWAP_TAB_KEY, actionName);
@@ -127,6 +131,12 @@ function StableSwapPage({ pool }: { pool: Pool }) {
       {<SharesCard shares={shares} pool={pool} />}
       {renderModule(actionName)}
       {<TokenReserves tokens={tokens} pools={[pool]} forPool hiddenChart />}
+      <div className="-mt-7">
+        <RecentTransactions
+          tokens={pool_tokens}
+          pool_id={pool.id}
+        ></RecentTransactions>
+      </div>
     </div>
   );
 }

@@ -444,7 +444,7 @@ export const v3Swap = async ({
         functionCalls: [
           storageDepositAction({
             amount: neededStorage,
-            registrationOnly: true,
+            registrationOnly: false,
           }),
         ],
       });
@@ -916,7 +916,7 @@ export const add_liquidity = async ({
       functionCalls: [
         storageDepositAction({
           amount: neededStorage,
-          registrationOnly: true,
+          registrationOnly: false,
         }),
       ],
     });
@@ -1043,7 +1043,7 @@ export const batch_add_liquidity = async ({
       functionCalls: [
         storageDepositAction({
           amount: neededStorage,
-          registrationOnly: true,
+          registrationOnly: false,
         }),
       ],
     });
@@ -1390,7 +1390,10 @@ export const batch_remove_liquidity_contract = async ({
     transactions.unshift({
       receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
       functionCalls: [
-        storageDepositAction({ amount: neededStorage, registrationOnly: true }),
+        storageDepositAction({
+          amount: neededStorage,
+          registrationOnly: false,
+        }),
       ],
     });
   }
@@ -1455,7 +1458,10 @@ export const claim_all_liquidity_fee = async ({
     transactions.unshift({
       receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
       functionCalls: [
-        storageDepositAction({ amount: neededStorage, registrationOnly: true }),
+        storageDepositAction({
+          amount: neededStorage,
+          registrationOnly: false,
+        }),
       ],
     });
   }

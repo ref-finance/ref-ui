@@ -86,7 +86,7 @@ export default function DclChart({
   /** constant start */
   const appearanceConfig: IPoolChartConfig = config || {};
   let [timerObj, setTimerObj] = useState<any>({
-      timer: ''
+    timer: '',
   });
   const dragBarWidth = 28;
   const percentBoxWidth = 44;
@@ -125,7 +125,7 @@ export default function DclChart({
         get_pool_detail(pool_id);
         leftPoint && setDragLeftPoint(leftPoint);
         rightPoint && setDragRightPoint(rightPoint);
-      }, 500)
+      }, 500);
     }
   }, [pool_id]);
   useEffect(() => {
