@@ -1731,7 +1731,7 @@ function UserLiquidityLineStyleGroup1({
       account_id: accountId,
     });
     if (dcl_fee_result) {
-      // 24h 利润
+      // 24h 利润 中文
       apr_24 = get_account_24_apr(dcl_fee_result, poolDetail, tokenPriceList);
     }
     setAccountAPR(formatPercentage(apr_24));

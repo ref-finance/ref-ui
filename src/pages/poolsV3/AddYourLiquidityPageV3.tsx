@@ -251,7 +251,7 @@ export default function AddYourLiquidityPageV3() {
   // new
   useEffect(() => {
     // init
-    if (currentSelectedPool) {
+    if (currentSelectedPool?.pool_id) {
       const { current_point, point_delta } = currentSelectedPool;
       const n = get_slot_number_in_a_bin();
       const bin_width = n * point_delta;
@@ -2727,7 +2727,7 @@ function SetPointsComponent() {
 
   // init
   useEffect(() => {
-    if (currentSelectedPool && !switch_pool_loading) {
+    if (currentSelectedPool?.pool_id && !switch_pool_loading) {
       const { current_point } = currentSelectedPool;
       const right_point = handlePointToAppropriatePoint(
         current_point + BIN_WIDTH * RADIUS_DEFAULT_NUMBER
@@ -2743,7 +2743,7 @@ function SetPointsComponent() {
     }
   }, [currentSelectedPool, switch_pool_loading]);
 
-  // 左侧改变===》点位
+  // 中文 左侧改变===》点位
   useEffect(() => {
     if (!isInvalid(leftPoint) && !isInvalid(rightPoint)) {
       // effect bin
@@ -3552,7 +3552,11 @@ function PointInputComponent({
         onChange={({ target }) => {
           setInputStatus(true);
           const inputPrice = target.value;
-          setCustomPrice(inputPrice);
+          if (Big(target.value || 0).lt(0)) {
+            setCustomPrice('0');
+          } else {
+            setCustomPrice(inputPrice);
+          }
         }}
       />
     </div>
@@ -3607,59 +3611,6 @@ export function IntegerInputComponent({
     </div>
   );
 }
-export function IntegerInputComponentCopy({
-  value,
-  setValue,
-  disabled,
-  className,
-  max,
-  onBlur,
-}: any) {
-  const removeLeadingZeros = (s: string) => {
-    const oldLen = s.length;
-    s = s.replace(/^0+/, '');
-
-    if (s.length === 0 && oldLen > 0) {
-      s = '0';
-    }
-
-    if (max && Number(s) > max) {
-      return max;
-    }
-
-    return s;
-  };
-
-  const handleChange = (val: string) => {
-    val = val.replace(/[^\d]/g, '');
-    val = removeLeadingZeros(val);
-    setValue(val);
-  };
-
-  return (
-    <div className={`${className} flex items-center justify-between `}>
-      <input
-        type="text"
-        className={`text-base font-gothamBold mx-2 text-left ${
-          disabled ? 'text-primaryText' : 'text-white'
-        }`}
-        disabled={disabled}
-        value={value}
-        onBlur={({ target }) => {
-          if (onBlur) {
-            onBlur();
-          } else if (!target.value) {
-            setValue(1);
-          }
-        }}
-        onChange={({ target }) => {
-          handleChange(target.value);
-        }}
-      />
-    </div>
-  );
-}
-
 function OneSide({ show }: { show: boolean }) {
   return (
     <div

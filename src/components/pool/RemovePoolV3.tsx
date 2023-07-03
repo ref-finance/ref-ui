@@ -55,7 +55,7 @@ import DclChart from '../../components/d3Chart/DclChart';
 
 export type RemoveType = 'left' | 'right' | 'all';
 /**
- * 遗产nft 的处理，采用老的弹窗ui？todo
+ * 中文
  * @param props
  * @returns
  */
@@ -477,7 +477,7 @@ export const RemovePoolV3 = (props: any) => {
      */
     let total_token_x_amount = Big(0);
     let total_token_y_amount = Big(0);
-    let total_value = Big(0);
+    let minimum_total_value = Big(0);
     const { whole_deleted_nfts, broken_deleted_nfts } = get_will_deleted_nfts();
     if (whole_deleted_nfts.length) {
       whole_deleted_nfts.forEach((l: UserLiquidityInfo) => {
@@ -519,12 +519,14 @@ export const RemovePoolV3 = (props: any) => {
       const priceY = tokenPriceList[tokenY.id]?.price || 0;
       const token_x_value = total_token_x_amount.mul(priceX);
       const token_y_value = total_token_y_amount.mul(priceY);
-      total_value = token_x_value.plus(token_y_value);
+      minimum_total_value = token_x_value.plus(token_y_value);
     }
+    const rate = (100 - slippageTolerance) / 100;
     return {
       total_token_x_amount: total_token_x_amount.toFixed(),
       total_token_y_amount: total_token_y_amount.toFixed(),
-      total_value: total_value.toFixed(),
+      minimum_total_value: minimum_total_value.toFixed(),
+      total_value: minimum_total_value.div(rate).toFixed(),
     };
   }
   function get_un_deleted_range(liquidity: UserLiquidityInfo) {
