@@ -361,9 +361,7 @@ export const v3Swap = async ({
       ],
     });
   }
-  debugger;
   if (LimitOrderWithSwap) {
-    debugger;
     const pool_id = LimitOrderWithSwap.pool_id;
 
     const fee = Number(pool_id.split(V3_POOL_SPLITER)[2]);
@@ -387,28 +385,6 @@ export const v3Swap = async ({
         functionCalls: [registerAccountOnToken()],
       });
     }
-
-    const DCLRegistered = await swapV3GetStorageBalance(tokenB.id).catch(() => {
-      throw new Error(`${tokenB.id} doesn't exist.`);
-    });
-
-    if (DCLRegistered === null) {
-      transactions.push({
-        receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
-        functionCalls: [
-          {
-            methodName: 'storage_deposit',
-            args: {
-              registration_only: true,
-              account_id: getCurrentWallet()?.wallet?.getAccountId(),
-            },
-            gas: '30000000000000',
-            amount: '0.5',
-          },
-        ],
-      });
-    }
-
     const new_point =
       pool_id.split(V3_POOL_SPLITER)[0] === tokenA.id ? point : -point;
 

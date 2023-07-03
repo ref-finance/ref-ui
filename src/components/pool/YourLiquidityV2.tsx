@@ -43,6 +43,7 @@ import {
   get_pool_name,
   openUrl,
   sort_tokens_by_base,
+  get_account_24_apr,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import {
@@ -65,6 +66,9 @@ import { PortfolioData } from '../../pages/Portfolio';
 import { isMobile } from '~utils/device';
 import Big from 'big.js';
 import { useWalletSelector } from '~context/WalletSelectorContext';
+import { IDCLAccountFee } from '../../components/d3Chart/interfaces';
+import { formatPercentage } from '../../components/d3Chart/utils';
+import { getDCLAccountFee } from '../../services/indexer';
 const is_mobile = isMobile();
 const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
 const LiquidityContext = createContext(null);
@@ -1697,13 +1701,11 @@ function UserLiquidityLineStyleGroup1({
   //   liquidityDetail,
   //   showAddBox,
   // } = useContext(LiquidityContext);
-
   const [hover, setHover] = useState<boolean>(false);
-
   const publicData = groupYourLiquidityList[0];
-
   const [showRemoveBox, setShowRemoveBox] = useState<boolean>(false);
-
+  const [accountAPR, setAccountAPR] = useState('');
+  const [claim_loading, set_claim_loading] = useState(false);
   const {
     tokenMetadata_x_y,
     fee,
@@ -1714,8 +1716,26 @@ function UserLiquidityLineStyleGroup1({
     poolDetail,
     go_farm,
   } = publicData;
-
+  const tokens = sort_tokens_by_base(tokenMetadata_x_y);
+  const { accountId } = useWalletSelector();
   const history = useHistory();
+  useEffect(() => {
+    if (poolDetail && tokenPriceList) {
+      get_24_apr();
+    }
+  }, [poolDetail, tokenPriceList]);
+  async function get_24_apr() {
+    let apr_24 = '';
+    const dcl_fee_result: IDCLAccountFee | any = await getDCLAccountFee({
+      pool_id,
+      account_id: accountId,
+    });
+    if (dcl_fee_result) {
+      // 24h 利润
+      apr_24 = get_account_24_apr(dcl_fee_result, poolDetail, tokenPriceList);
+    }
+    setAccountAPR(formatPercentage(apr_24));
+  }
 
   const groupList = () => {
     const your_liquidity = groupYourLiquidityList.reduce((prev, cur) => {
@@ -1859,19 +1879,6 @@ function UserLiquidityLineStyleGroup1({
     const url_pool_id = get_pool_name(pool_id);
     history.push(`/poolV2/${url_pool_id}`);
   }
-
-  const tokens = sort_tokens_by_base(tokenMetadata_x_y);
-
-  const { accountId } = useWalletSelector();
-
-  // const poolApr = useDCLAccountAPR({
-  //   pool_id,
-  //   account_id: accountId,
-  // });
-  const poolApr = '';
-
-  const [claim_loading, set_claim_loading] = useState(false);
-
   function claimRewards() {
     if (!canClaim) return;
 
@@ -2016,7 +2023,7 @@ function UserLiquidityLineStyleGroup1({
             </div>
 
             <div className="text-white flex flex-col gap-2  text-sm">
-              <span>{poolApr}</span>
+              <span>{accountAPR}</span>
               <span className="frcs gap-1 text-primaryText">
                 {related_seed_info.your_apr && (
                   <span>

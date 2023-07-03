@@ -1443,9 +1443,11 @@ export function RecentTransactions({
     );
 
     return (
-      <tr className="text-sm grid grid-cols-4 text-primaryText hover:text-white hover:bg-poolRecentHover">
+      <tr
+        className={`text-sm grid grid-cols-3 text-primaryText hover:text-white hover:bg-poolRecentHover`}
+      >
         <td className=" gap-1 p-4 frcs">
-          <span className="text-white" title={swapInAmount}>
+          <span className="col-span-1 text-white" title={swapInAmount}>
             {displayInAmount}
           </span>
 
@@ -1454,7 +1456,7 @@ export function RecentTransactions({
           </span>
         </td>
 
-        <td className=" gap-1 frcs">
+        <td className="col-span-1 gap-1 frcs">
           <span className="text-white" title={swapOutAmount}>
             {displayOutAmount}
           </span>
@@ -1464,7 +1466,7 @@ export function RecentTransactions({
           </span>
         </td>
 
-        <td className=" relative col-span-2  flex items-center justify-end py-4 pr-4">
+        <td className="col-span-1 relative flex items-center justify-end py-4 pr-4">
           <span className="hover:underline cursor-pointer">{tx.timestamp}</span>
 
           {txLink}
@@ -1474,18 +1476,17 @@ export function RecentTransactions({
   });
 
   const renderLiquidityTransactions = liquidityTransactions.map((tx) => {
-    const { shares, pool_id } = tx;
-    let lp_amount;
-    if (new Set(STABLE_POOL_IDS || []).has(pool_id.toString())) {
-      lp_amount = toReadableNumber(LP_STABLE_TOKEN_DECIMALS, shares || '0');
-    } else {
-      lp_amount = toReadableNumber(LP_TOKEN_DECIMALS, shares || '0');
-    }
-    const display_lp_amount =
-      Number(lp_amount) < 0.001
-        ? '<0.001'
-        : numberWithCommas(toPrecision(lp_amount, 3));
-
+    const { amounts } = tx;
+    const renderTokens: any[] = [];
+    const amountsObj: any[] = JSON.parse(amounts.replace(/\'/g, '"'));
+    amountsObj.forEach((amount: string, index) => {
+      if (Big(amount || 0).gt(0)) {
+        renderTokens.push({
+          token: tokens[index],
+          amount: toReadableNumber(tokens[index].decimals, amountsObj[index]),
+        });
+      }
+    });
     const txLink = (
       <a
         rel="noopener  noreferrer nofollow "
@@ -1496,8 +1497,12 @@ export function RecentTransactions({
     );
 
     return (
-      <tr className="text-sm grid  overflow-hidden grid-cols-4 text-primaryText hover:text-white hover:bg-poolRecentHover">
-        <td className=" gap-1 p-4">
+      <tr
+        className={`text-sm grid  overflow-hidden grid-cols-${
+          tab == 'swap' ? 3 : 5
+        } text-primaryText hover:text-white hover:bg-poolRecentHover`}
+      >
+        <td className="col-span-1 gap-1 p-4">
           <span className="text-white">
             {tx.method_name.toLowerCase().indexOf('add') > -1 && 'Add'}
 
@@ -1505,13 +1510,34 @@ export function RecentTransactions({
           </span>
         </td>
 
-        <td className="text-white frcs">
-          <span className="text-white" title={lp_amount}>
-            {display_lp_amount}
-          </span>
+        <td
+          className={`col-span-${
+            tab == 'swap' ? 1 : 2
+          } text-white frcs flex-wrap`}
+        >
+          {renderTokens.map((renderToken, index) => {
+            return (
+              <>
+                <span className="text-white" title={renderToken.amount}>
+                  {formatNumber(renderToken.amount)}
+                </span>
+
+                <span className="ml-1 text-primaryText">
+                  {toRealSymbol(renderToken.token.symbol)}
+                </span>
+                {index !== renderTokens.length - 1 ? (
+                  <span className="mx-1">+</span>
+                ) : null}
+              </>
+            );
+          })}
         </td>
 
-        <td className="col-span-2 relative py-4 pr-4 flex items-center justify-end">
+        <td
+          className={`col-span-${
+            tab == 'swap' ? 1 : 2
+          } relative py-4 pr-4 flex items-center justify-end`}
+        >
           <span
             className="inline-flex items-center cursor-pointer"
             onClick={() => {
@@ -1582,9 +1608,9 @@ export function RecentTransactions({
 
       <div className="text-sm overflow-hidden rounded-lg w-full text-primaryText bg-detailCardBg ">
         <div
-          className={`text-left grid grid-cols-${4} w-full border-b border-gray1`}
+          className={`text-left grid grid-cols-${5} w-full border-b border-gray1`}
         >
-          <div className="p-4 pb-3 col-span-1">
+          <div className={`p-4 pb-3 col-span-${tab == 'swap' ? 2 : 1}`}>
             {tab === 'liquidity' && (
               <FormattedMessage
                 id="action"
@@ -1599,7 +1625,7 @@ export function RecentTransactions({
             )}
           </div>
 
-          <div className="py-4 pb-3 col-span-1">
+          <div className={`py-4 pb-3 col-span-${tab == 'swap' ? 1 : 2}`}>
             {tab === 'liquidity' && (
               <FormattedMessage
                 id="amount"
@@ -3075,3 +3101,14 @@ export function PoolDetailsPage() {
     </>
   );
 }
+
+export const formatNumber = (v: string | number) => {
+  const big = Big(v || 0);
+  if (big.eq(0)) {
+    return '0';
+  } else if (big.lt(0.001)) {
+    return '<0.001';
+  } else {
+    return big.toFixed(3, 1);
+  }
+};

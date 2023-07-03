@@ -392,6 +392,7 @@ export interface ClassicPoolLiquidtyRecentTransaction {
   tx_id: string;
   shares?: string;
   pool_id?: string;
+  amounts?: string;
 }
 
 export const getClassicPoolLiquidtyRecentTransaction = async (props: {

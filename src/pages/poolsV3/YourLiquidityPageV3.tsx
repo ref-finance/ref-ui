@@ -51,6 +51,7 @@ import {
 import BigNumber from 'bignumber.js';
 import { FarmBoost, getBoostTokenPrices, Seed } from '../../services/farm';
 import { RemovePoolV3 } from '~components/pool/RemovePoolV3';
+import { RemoveOldPoolV3 } from '~components/pool/RemoveOldPoolV3';
 import { AddPoolV3 } from '~components/pool/AddPoolV3';
 import { PoolTabV3 } from '~components/pool/PoolTabV3';
 import {
@@ -1445,8 +1446,9 @@ function UserLiquidityLine_old({
           </div>
         </div>
       </div>
+      {/* todo */}
       {showRemoveBox ? (
-        <RemovePoolV3
+        <RemoveOldPoolV3
           isOpen={showRemoveBox}
           onRequestClose={() => {
             setShowRemoveBox(false);
@@ -1466,7 +1468,7 @@ function UserLiquidityLine_old({
               transform: 'translate(-50%, -50%)',
             },
           }}
-        ></RemovePoolV3>
+        ></RemoveOldPoolV3>
       ) : null}
       <AddPoolV3
         isOpen={showAddBox}
