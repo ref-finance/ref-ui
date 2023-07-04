@@ -24,8 +24,6 @@ import {
   IPoolChartConfig,
   IUserLiquiditiesDetail,
   IDCLAccountFee,
-  IDclLogData,
-  IProcessedLogData,
 } from './interfaces';
 import {
   formatPrice,
@@ -123,8 +121,6 @@ export default function DclChart({
     if (pool_id) {
       timerObj.timer = setTimeout(() => {
         get_pool_detail(pool_id);
-        leftPoint && setDragLeftPoint(leftPoint);
-        rightPoint && setDragRightPoint(rightPoint);
       }, 500);
     }
   }, [pool_id]);
@@ -187,11 +183,10 @@ export default function DclChart({
       d3.select(`${randomId} .overlap rect`)
         .attr('transform', `translate(${x + dragBarWidth / 2}, 0)`)
         .attr('width', W);
-      setLeftPoint && setLeftPoint(newPoint);
     }
   }, [dragLeftPoint, price_range, drawChartDone]);
   useEffect(() => {
-    if (isValid(leftPoint) && isValid(dragLeftPoint)) {
+    if (isValid(leftPoint)) {
       setDragLeftPoint(leftPoint);
     }
   }, [leftPoint]);
@@ -228,11 +223,10 @@ export default function DclChart({
       );
       const W = x - leftX - dragBarWidth / 2;
       d3.select(`${randomId} .overlap rect`).attr('width', W);
-      setRightPoint && setRightPoint(newPoint);
     }
   }, [dragRightPoint, price_range, drawChartDone]);
   useEffect(() => {
-    if (isValid(rightPoint) && isValid(dragRightPoint)) {
+    if (isValid(rightPoint)) {
       setDragRightPoint(rightPoint);
     }
   }, [rightPoint]);
@@ -502,7 +496,7 @@ export default function DclChart({
     }
     if (appearanceConfig.controlHidden) {
       remove_control();
-    } else {
+    } else { // init
       // drag left
       draw_drag_left({ scale });
       // drag right
@@ -901,7 +895,7 @@ export default function DclChart({
       const p = scale.invert(e.x);
       const newLeftPoint = get_nearby_bin_left_point(get_point_by_price(p));
       setDragLeftPoint(newLeftPoint);
-      setLeftPoint(newLeftPoint);
+      setLeftPoint && setLeftPoint(newLeftPoint);
     });
     d3.select(`${randomId} .drag-left`).call(dragLeft);
   }
@@ -944,7 +938,7 @@ export default function DclChart({
       const p = scale.invert(e.x);
       const newRightPoint = get_nearby_bin_right_point(get_point_by_price(p));
       setDragRightPoint(newRightPoint);
-      setRightPoint(newRightPoint);
+      setRightPoint && setRightPoint(newRightPoint);
     });
     d3.select(`${randomId} .drag-right`).call(dragRight);
   }
@@ -1000,12 +994,16 @@ export default function DclChart({
   function clickToLeft() {
     const { bin } = getConfig();
     const newPoint = dragLeftPoint - pool.point_delta * (bin + 1);
-    setDragLeftPoint(get_nearby_bin_left_point(newPoint));
+    const newPoint_nearby_bin = get_nearby_bin_left_point(newPoint);
+    setDragLeftPoint(newPoint_nearby_bin);
+    setLeftPoint && setLeftPoint(newPoint_nearby_bin);
   }
   function clickToRight() {
     const { bin } = getConfig();
     const newPoint = dragRightPoint + pool.point_delta * (bin + 1);
-    setDragRightPoint(get_nearby_bin_left_point(newPoint));
+    const newPoint_nearby_bin = get_nearby_bin_left_point(newPoint);
+    setDragRightPoint(newPoint_nearby_bin);
+    setRightPoint && setRightPoint(newPoint_nearby_bin);
   }
   function scaleAxis() {
     if (chartType == 'USER') {
