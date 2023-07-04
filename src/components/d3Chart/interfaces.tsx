@@ -94,3 +94,4 @@ export interface IProcessedLogData {
   token_x: string;
   token_y: string;
 }
+export type IRMTYPE = 'round' | 'floor' | 'ceil';

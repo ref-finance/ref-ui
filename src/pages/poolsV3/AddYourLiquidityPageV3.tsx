@@ -2577,7 +2577,6 @@ function SetPointsComponent() {
 
   // 中文 左侧改变===》点位
   useEffect(() => {
-    debugger;
     if (!isInvalid(leftPoint) && !isInvalid(rightPoint)) {
       // effect bin
       const diff = rightPoint - leftPoint;

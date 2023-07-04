@@ -24,6 +24,7 @@ import {
   IPoolChartConfig,
   IUserLiquiditiesDetail,
   IDCLAccountFee,
+  IRMTYPE,
 } from './interfaces';
 import {
   formatPrice,
@@ -105,6 +106,7 @@ export default function DclChart({
   );
   const svgPaddingX = +(appearanceConfig.svgPaddingX || 10);
   const defaultPercent = +(appearanceConfig.defaultPercent || 10); // 初始化左侧右侧价格与当前价格的间距百分比 10===》10%, e.g. 右侧价格是当前价格的 1 + 10%
+  // hover 到用户图表上时，hover出来的背景框要大些，设置多扩充出来的大小。
   const whole_bars_background_padding = +(
     appearanceConfig.whole_bars_background_padding || 20
   );
@@ -116,6 +118,7 @@ export default function DclChart({
       setTokenPriceList(result);
     });
   }, []);
+  // init
   useEffect(() => {
     clearTimeout(timerObj.timer);
     if (pool_id) {
@@ -124,26 +127,27 @@ export default function DclChart({
       }, 500);
     }
   }, [pool_id]);
+  // init 从后端获取数据
   useEffect(() => {
     if (pool) {
       get_chart_data();
     }
   }, [pool, accountId]);
+  // 更新用户数据
   useEffect(() => {
     if (pool && accountId && newlyAddedLiquidities && chartType == 'USER') {
       const new_list = get_latest_user_chart_data();
       setChartDataList(new_list);
     }
   }, [newlyAddedLiquidities, user_liquidities]);
+  //  绘制图表
   useEffect(() => {
-    if (price_range && chartDataList) {
-      if (
-        chartType !== 'USER' ||
-        (chartType == 'USER' && chartDataList.length)
-      ) {
-        drawChart();
-        setDrawChartDone(true);
-      }
+    if (
+      (chartType !== 'USER' && price_range && chartDataList) ||
+      (chartType == 'USER' && chartDataList?.length)
+    ) {
+      drawChart();
+      setDrawChartDone(true);
     }
   }, [price_range, chartDataList]);
   useEffect(() => {
@@ -371,10 +375,12 @@ export default function DclChart({
   async function get_chart_data() {
     const { range } = getConfig();
     const list = await get_data_from_back_end();
-    const [price_l_default, price_r_default] =
-      get_price_range_by_percent(range);
-    set_price_range([+price_l_default, +price_r_default]);
-    setZoom(range);
+    if (chartType !== 'USER') {
+      const [price_l_default, price_r_default] =
+        get_price_range_by_percent(range);
+      set_price_range([+price_l_default, +price_r_default]);
+      setZoom(range);
+    }
     setChartDataList(list);
   }
   async function get_data_from_back_end() {
@@ -457,7 +463,7 @@ export default function DclChart({
     return [price_l, price_r];
   }
   function drawChart() {
-    const data: IChartData[] = getDataDisplayInChart();
+    const data: IChartData[] = process_chart_data_for_display();
     const scale = scaleAxis();
     const scaleBar = scaleAxisY();
     // down bars
@@ -496,14 +502,15 @@ export default function DclChart({
     }
     if (appearanceConfig.controlHidden) {
       remove_control();
-    } else { // init
+    } else {
+      // init
       // drag left
       draw_drag_left({ scale });
       // drag right
       draw_drag_right({ scale });
     }
   }
-  function getDataDisplayInChart() {
+  function process_chart_data_for_display() {
     const { bin: bin_final } = getConfig();
     const { token_x_metadata, token_y_metadata, point_delta } = pool;
     const decimalRate_price =
@@ -765,7 +772,7 @@ export default function DclChart({
     scale: Function;
     scaleBar: Function;
   }) {
-    const { sortP, sortY } = getChartDataListRange_x_y();
+    const { sortP, sortY } = get_price_and_liquidity_range();
     d3.select(`${randomId} .whole_bars_background`)
       .on('mousemove', function (e) {
         d3.select(this).attr('fill', 'rgba(255,255,255,0.1)');
@@ -808,7 +815,7 @@ export default function DclChart({
     scale: Function;
     scaleBar: Function;
   }) {
-    const { sortP, sortY } = getChartDataListRange_x_y();
+    const { sortP, sortY } = get_price_and_liquidity_range();
     const min_bin_price = sortP[0];
     const max_bin_price = sortP[sortP.length - 1];
     const { fromLeft, fromRight, all, point } = removeParams;
@@ -894,6 +901,7 @@ export default function DclChart({
       if (rightX < e.x || e.x < dragBarWidth / 2) return;
       const p = scale.invert(e.x);
       const newLeftPoint = get_nearby_bin_left_point(get_point_by_price(p));
+
       setDragLeftPoint(newLeftPoint);
       setLeftPoint && setLeftPoint(newLeftPoint);
     });
@@ -994,16 +1002,21 @@ export default function DclChart({
   function clickToLeft() {
     const { bin } = getConfig();
     const newPoint = dragLeftPoint - pool.point_delta * (bin + 1);
-    const newPoint_nearby_bin = get_nearby_bin_left_point(newPoint);
+    const newPoint_nearby_bin = get_bin_point_by_point(newPoint, 'floor');
     setDragLeftPoint(newPoint_nearby_bin);
     setLeftPoint && setLeftPoint(newPoint_nearby_bin);
   }
   function clickToRight() {
     const { bin } = getConfig();
     const newPoint = dragRightPoint + pool.point_delta * (bin + 1);
-    const newPoint_nearby_bin = get_nearby_bin_left_point(newPoint);
+    const newPoint_nearby_bin = get_bin_point_by_point(newPoint, 'ceil');
     setDragRightPoint(newPoint_nearby_bin);
     setRightPoint && setRightPoint(newPoint_nearby_bin);
+  }
+  function get_bin_point_by_point(point: number, type?: IRMTYPE) {
+    const { point_delta } = pool;
+    const slot_num = getConfig().bin;
+    return getBinPointByPoint(point_delta, slot_num, point, type);
   }
   function scaleAxis() {
     if (chartType == 'USER') {
@@ -1019,7 +1032,7 @@ export default function DclChart({
       .range([0, svgWidth - svgPaddingX * 2]);
   }
   function scaleAxis_User() {
-    const binWidth = getConfig().bin * pool.point_delta;
+    const binWidth = get_bin_width();
     const min_point = Math.max(
       chartDataList[0].point - binWidth * 2,
       POINTLEFTRANGE
@@ -1054,26 +1067,25 @@ export default function DclChart({
       );
     });
     const sortL = sortBy(L);
-    return (
-      d3
-        .scaleLinear()
-        // .domain([+sortL[0], +sortL[sortL.length - 1]])
-        .domain([0, +sortL[sortL.length - 1]])
-        .range([0, wholeBarHeight])
-    );
+    return d3
+      .scaleLinear()
+      .domain([0, +sortL[sortL.length - 1]])
+      .range([0, wholeBarHeight]);
   }
   function scaleAxisY_User() {
-    const { sortY: sortL } = getChartDataListRange_x_y();
-    return (
-      d3
-        .scaleLinear()
-        .domain([0, +sortL[sortL.length - 1]])
-        // .domain([+sortL[0], +sortL[sortL.length - 1]])
-        .range([0, wholeBarHeight - whole_bars_background_padding])
-        .clamp(true)
-    );
+    const { sortY: sortL } = get_price_and_liquidity_range();
+    return d3
+      .scaleLinear()
+      .domain([0, +sortL[sortL.length - 1]])
+      .range([0, wholeBarHeight - whole_bars_background_padding])
+      .clamp(true);
   }
-  function getChartDataListRange_x_y() {
+  function get_bin_width() {
+    const slot_num_in_a_bin = getConfig().bin;
+    const { point_delta } = pool;
+    return point_delta * slot_num_in_a_bin;
+  }
+  function get_price_and_liquidity_range() {
     const Y: number[] = [];
     const X: number[] = [];
     const chartDataListInrange =
@@ -1089,10 +1101,10 @@ export default function DclChart({
     });
     const sortY = sortBy(Y);
     const sortX = sortBy(X);
-    const sortX_map_P = sortX.map((x) => {
+    const sortX_Price = sortX.map((x) => {
       return get_price_by_point(x);
     });
-    return { sortP: sortX_map_P, sortY };
+    return { sortP: sortX_Price, sortY };
   }
   function diffPrices(newPrice: string, peferencePrice?: string) {
     let movePercent;
