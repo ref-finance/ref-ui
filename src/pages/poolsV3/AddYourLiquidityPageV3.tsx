@@ -783,9 +783,9 @@ export default function AddYourLiquidityPageV3() {
     const v_big = Big(v || 0);
     let v_temp;
     if (v_big.lt(0.001)) {
-      v_temp = v;
+      v_temp = v_big.toFixed(6, 3);
     } else {
-      v_temp = toPrecision(v, 3, true, false);
+      v_temp = formatWithCommas(v_big.toFixed(3, 3));
     }
     return v_temp;
   }
@@ -2266,7 +2266,7 @@ export default function AddYourLiquidityPageV3() {
 }
 /**
  * 双边 最小token数量不满足 提示
- * 双边 一侧token 数量太多 提示 todo
+ * 双边 一侧token 数量太多 传递的时候只传实际使用值
  * @returns
  */
 function AddLiquidityButton() {
