@@ -617,6 +617,16 @@ export default function DclChart({
   }
   function draw_axis({ scale }: { scale: any }) {
     const axis: any = d3.axisBottom(scale).tickSize(0).tickPadding(10);
+    if (appearanceConfig.ticks || chartType == 'USER') {
+      axis.ticks(appearanceConfig.ticks || 5).tickFormat(function (d: any) {
+        const dBig = new Big(d);
+        if (dBig.gte(10000)) {
+          return dBig.toFixed(0);
+        } else {
+          return d;
+        }
+      });
+    }
     d3.select(`${randomId} svg .axis`)
       .call(axis)
       .selectAll('text')

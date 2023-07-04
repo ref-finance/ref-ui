@@ -52,6 +52,7 @@ export interface IPoolChartConfig {
   hoverBoxHidden?: boolean;
   radiusMode?: boolean;
   targetPoint?: number;
+  ticks?:number;
 }
 
 export interface IUserLiquiditiesDetail {
