@@ -2736,7 +2736,7 @@ function SetPointsComponent() {
   }
   return (
     <div
-      className={`w-full xs:w-full md:w-full flex  mr-6 flex-col justify-between self-stretch xs:mt-5 md:mt-5`}
+      className={`w-full xs:w-full md:w-full flex  mr-6 flex-col self-stretch xs:mt-5 md:mt-5`}
     >
       {/* chart area */}
       <div className="relative mb-5 mt-24" style={{ height: '250px' }}>
@@ -2848,7 +2848,7 @@ function SetPointsComponent() {
           </div>
         </div>
         {/* content */}
-        <div
+        {/* <div
           className={`mt-6 mb-4 ${
             priceRangeMode == 'by_range' ? '' : 'hidden'
           }`}
@@ -2861,7 +2861,7 @@ function SetPointsComponent() {
             set_left_point={setLeftPoint}
             set_right_point={setRightPoint}
           ></Slider>
-        </div>
+        </div> */}
         <div className="grid grid-cols-3 gap-3 pt-4 mt-3  xsm:px-2">
           {/* target price input box */}
           <div

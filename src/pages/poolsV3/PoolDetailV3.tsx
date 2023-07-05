@@ -128,7 +128,7 @@ import Big from 'big.js';
 import { findRangeIntersection } from '~components/pool/YourLiquidityV2';
 import DclChart from '../../components/d3Chart/DclChart';
 import { IDCLAccountFee } from '../../components/d3Chart/interfaces';
-import { formatPercentage } from '../../components/d3Chart/utils';
+import { formatPercentage, formatWithCommas_usd } from '../../components/d3Chart/utils';
 import { getDCLAccountFee } from '../../services/indexer';
 
 const { REF_UNI_V3_SWAP_CONTRACT_ID, DCL_POOL_BLACK_LIST } = getConfig();
@@ -627,6 +627,7 @@ function YourLiquidityBox(props: {
   >([]);
   const [showSelectLiquidityBox, setShowSelectLiquidityBox] = useState(false);
   const [accountAPR, setAccountAPR] = useState('');
+  const [earned_fee, set_earned_fee] = useState('');
   const [operationType, setOperationType] = useState('add');
   const { token_x_metadata, token_y_metadata, pool_id } = poolDetail;
   const { accountId } = useWalletSelector();
@@ -685,19 +686,40 @@ function YourLiquidityBox(props: {
   }, [liquidities, Object.keys(tokenPriceList).length]);
   useEffect(() => {
     if (poolDetail && tokenPriceList) {
-      get_24_apr();
+      get_24_apr_and_fee();
     }
   }, [poolDetail, tokenPriceList]);
-  async function get_24_apr() {
+  async function get_24_apr_and_fee() {
     let apr_24 = '';
-    const dcl_fee_result: IDCLAccountFee | any = await getDCLAccountFee({
+    let total_fee_earned = '';
+    const dcl_fee_result: IDCLAccountFee | any  = await getDCLAccountFee({
       pool_id,
       account_id: accountId,
     });
     if (dcl_fee_result) {
       // 24h 利润
       apr_24 = get_account_24_apr(dcl_fee_result, poolDetail, tokenPriceList);
+      // total earned fee
+      const { total_fee_x, total_fee_y } = dcl_fee_result.total_earned_fee;
+      // 总共赚到的fee
+      const total_earned_fee_x = toReadableNumber(
+        token_x_metadata.decimals,
+        Big(total_fee_x || 0).toFixed()
+      );
+      const total_earned_fee_y = toReadableNumber(
+        token_y_metadata.decimals,
+        Big(total_fee_y || 0).toFixed()
+      );
+      const price_x = tokenPriceList[token_x_metadata.id]?.price || 0;
+      const price_y = tokenPriceList[token_y_metadata.id]?.price || 0;
+      const total_earned_fee_x_value = Big(total_earned_fee_x).mul(price_x);
+      const total_earned_fee_y_value = Big(total_earned_fee_y).mul(price_y);
+      total_fee_earned = total_earned_fee_x_value.plus(
+        total_earned_fee_y_value
+      ).toFixed();
     }
+
+    set_earned_fee(formatWithCommas_usd(total_fee_earned));
     setAccountAPR(formatPercentage(apr_24));
   }
   function get_amount_x_y(liquidity: UserLiquidityInfo) {
@@ -1112,8 +1134,7 @@ function YourLiquidityBox(props: {
                 </div>
               )}
             </div>
-
-            {getTotalFee().total_fee_price}
+            {earned_fee || '-'}
           </div>
         </div>
       </div>
