@@ -1273,7 +1273,7 @@ export const batch_remove_liquidity_contract = async ({
   //   min_withdraw_token_y_amount: string;
   // };
 }) => {
-  const max_number = 20;
+  const max_number = 10;
   const transactions: Transaction[] = [];
   if (mint_liquidities.length) {
     const functionCallsV3: any = [];
@@ -1320,7 +1320,7 @@ export const batch_remove_liquidity_contract = async ({
     const { add_liquidity_infos, remove_liquidity_infos } =
       batch_update_liquidity;
     const length = add_liquidity_infos.length;
-    const ts_length = Math.ceil(length / (max_number / 2));
+    const ts_length = Math.ceil(length / max_number);
     for (let i = 0; i < ts_length; i++) {
       let batch_update_liquidity_i;
       const startIndex = i * max_number;
