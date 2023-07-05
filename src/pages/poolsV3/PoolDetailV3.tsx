@@ -128,7 +128,10 @@ import Big from 'big.js';
 import { findRangeIntersection } from '~components/pool/YourLiquidityV2';
 import DclChart from '../../components/d3Chart/DclChart';
 import { IDCLAccountFee } from '../../components/d3Chart/interfaces';
-import { formatPercentage, formatWithCommas_usd } from '../../components/d3Chart/utils';
+import {
+  formatPercentage,
+  formatWithCommas_usd,
+} from '../../components/d3Chart/utils';
 import { getDCLAccountFee } from '../../services/indexer';
 
 const { REF_UNI_V3_SWAP_CONTRACT_ID, DCL_POOL_BLACK_LIST } = getConfig();
@@ -692,7 +695,7 @@ function YourLiquidityBox(props: {
   async function get_24_apr_and_fee() {
     let apr_24 = '';
     let total_fee_earned = '';
-    const dcl_fee_result: IDCLAccountFee | any  = await getDCLAccountFee({
+    const dcl_fee_result: IDCLAccountFee | any = await getDCLAccountFee({
       pool_id,
       account_id: accountId,
     });
@@ -714,9 +717,9 @@ function YourLiquidityBox(props: {
       const price_y = tokenPriceList[token_y_metadata.id]?.price || 0;
       const total_earned_fee_x_value = Big(total_earned_fee_x).mul(price_x);
       const total_earned_fee_y_value = Big(total_earned_fee_y).mul(price_y);
-      total_fee_earned = total_earned_fee_x_value.plus(
-        total_earned_fee_y_value
-      ).toFixed();
+      total_fee_earned = total_earned_fee_x_value
+        .plus(total_earned_fee_y_value)
+        .toFixed();
     }
 
     set_earned_fee(formatWithCommas_usd(total_fee_earned));

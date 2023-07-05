@@ -391,8 +391,8 @@ export const RemovePoolV3 = (props: any) => {
       broken_deleted_nfts.forEach((l: UserLiquidityInfo) => {
         const { amount, lpt_id, left_point, right_point, mft_id } = l;
         const [new_left_point, new_right_point] = get_un_deleted_range(l);
-        const [whole_token_x_amount, whole_token_y_amount] =
-          get_x_y_amount_of_liquidity({ left_point, right_point, amount });
+        // const [whole_token_x_amount, whole_token_y_amount] =
+        //   get_x_y_amount_of_liquidity({ left_point, right_point, amount });
         const [new_token_x_amount, new_token_y_amount] =
           get_x_y_amount_of_liquidity({
             left_point: new_left_point,
@@ -405,20 +405,30 @@ export const RemovePoolV3 = (props: any) => {
             right_point: right_point,
             amount,
           });
+        if (Big(min_token_x_amount).gt(new_token_x_amount)) {
+          min_withdraw_token_x_amount = min_withdraw_token_x_amount.plus(
+            Big(min_token_x_amount).minus(new_token_x_amount)
+          );
+        }
+        if (Big(min_token_y_amount).gt(new_token_y_amount)) {
+          min_withdraw_token_y_amount = min_withdraw_token_y_amount.plus(
+            Big(min_token_y_amount).minus(new_token_y_amount)
+          );
+        }
 
-        const remove_part_token_x_amount = new Big(
-          whole_token_x_amount || 0
-        ).minus(new_token_x_amount || 0);
-        const remove_part_token_y_amount = new Big(
-          whole_token_y_amount || 0
-        ).minus(whole_token_y_amount || 0);
-        const rate = (100 - slippageTolerance) / 100;
-        min_withdraw_token_x_amount = min_withdraw_token_x_amount.plus(
-          remove_part_token_x_amount.mul(rate)
-        );
-        min_withdraw_token_y_amount = min_withdraw_token_y_amount.plus(
-          remove_part_token_y_amount.mul(rate)
-        );
+        // const remove_part_token_x_amount = new Big(
+        //   whole_token_x_amount || 0
+        // ).minus(new_token_x_amount || 0);
+        // const remove_part_token_y_amount = new Big(
+        //   whole_token_y_amount || 0
+        // ).minus(whole_token_y_amount || 0);
+        // const rate = (100 - slippageTolerance) / 100;
+        // min_withdraw_token_x_amount = min_withdraw_token_x_amount.plus(
+        //   remove_part_token_x_amount.mul(rate)
+        // );
+        // min_withdraw_token_y_amount = min_withdraw_token_y_amount.plus(
+        //   remove_part_token_y_amount.mul(rate)
+        // );
 
         addLiquidityInfoList.push({
           pool_id,
