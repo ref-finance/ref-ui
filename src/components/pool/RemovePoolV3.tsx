@@ -383,12 +383,16 @@ export const RemovePoolV3 = (props: any) => {
      *  step2 找到区间，也知道高度==>推导出这个区间的 tokenx的数量和tokeny的数量
      *  step3 未截断的区间 和 token 数量作为 添加nft的参数
      */
+    let min_withdraw_token_x_amount = Big(0);
+    let min_withdraw_token_y_amount = Big(0);
     if (broken_deleted_nfts.length) {
       const removeLiquidityInfos: IRemoveLiquidityInfo[] = [];
       const addLiquidityInfoList: IAddLiquidityInfo[] = [];
       broken_deleted_nfts.forEach((l: UserLiquidityInfo) => {
         const { amount, lpt_id, left_point, right_point, mft_id } = l;
         const [new_left_point, new_right_point] = get_un_deleted_range(l);
+        const [whole_token_x_amount, whole_token_y_amount] =
+          get_x_y_amount_of_liquidity({ left_point, right_point, amount });
         const [new_token_x_amount, new_token_y_amount] =
           get_x_y_amount_of_liquidity({
             left_point: new_left_point,
@@ -401,6 +405,21 @@ export const RemovePoolV3 = (props: any) => {
             right_point: right_point,
             amount,
           });
+
+        const remove_part_token_x_amount = new Big(
+          whole_token_x_amount || 0
+        ).minus(new_token_x_amount || 0);
+        const remove_part_token_y_amount = new Big(
+          whole_token_y_amount || 0
+        ).minus(whole_token_y_amount || 0);
+        const rate = (100 - slippageTolerance) / 100;
+        min_withdraw_token_x_amount = min_withdraw_token_x_amount.plus(
+          remove_part_token_x_amount.mul(rate)
+        );
+        min_withdraw_token_y_amount = min_withdraw_token_y_amount.plus(
+          remove_part_token_y_amount.mul(rate)
+        );
+
         addLiquidityInfoList.push({
           pool_id,
           left_point: new_left_point,
@@ -460,13 +479,23 @@ export const RemovePoolV3 = (props: any) => {
       });
       batch_remove_liquidity = batchRemoveLiquidity;
     }
-
+    const widthdraw_infos = {
+      min_withdraw_token_x_amount: toNonDivisibleNumber(
+        tokenX.decimals,
+        min_withdraw_token_x_amount.toFixed()
+      ),
+      min_withdraw_token_y_amount: toNonDivisibleNumber(
+        tokenY.decimals,
+        min_withdraw_token_y_amount.toFixed()
+      ),
+    };
     batch_remove_liquidity_contract({
       token_x: tokenX,
       token_y: tokenY,
       batch_remove_liquidity,
       batch_update_liquidity,
       mint_liquidities,
+      widthdraw_infos,
     });
   }
   function get_minimum_received_data() {
