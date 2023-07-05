@@ -289,6 +289,9 @@ export default function AddYourLiquidityPageV3() {
     currentSelectedPool,
     liquidityShape,
   ]);
+  useEffect(() => {
+    set_token_amount_tip(null);
+  }, [tokenXAmount, tokenYAmount ,currentSelectedPool])
   async function getTopPairs() {
     const listPromise = listPool.map(async (p: PoolInfo) => {
       const token_x = p.token_x;
@@ -853,7 +856,7 @@ export default function AddYourLiquidityPageV3() {
       const slot_number_in_a_bin = SLOT_NUMBER;
       const binWidth = slot_number_in_a_bin * point_delta;
       const bin_number_left = (current_point - leftPoint) / binWidth;
-      set_token_amount_tip(<></>);
+      set_token_amount_tip(null);
       if (liquidityShape == 'Curve') {
         if (bin_number_left > 1) {
           // 左侧做等差
@@ -1846,8 +1849,8 @@ export default function AddYourLiquidityPageV3() {
     });
     return new_liquidities;
   }
-  function pointAndshapeAndAmountChange() {
-    set_token_amount_tip('');
+  function pointAndshapeChange() {
+    set_token_amount_tip(null);
     if (liquidityShape == 'Spot') {
       if (tokenXAmount) {
         changeTokenXAmount(tokenXAmount);
@@ -1889,7 +1892,7 @@ export default function AddYourLiquidityPageV3() {
         token_amount_tip,
         set_token_amount_tip,
         switch_pool_loading,
-        pointAndshapeAndAmountChange,
+        pointAndshapeChange,
 
         get_y_nfts_contain_current_curve,
         get_x_nfts_contain_current_curve,
@@ -2576,7 +2579,7 @@ function SetPointsComponent() {
     tokenY,
     tokenXAmount,
     tokenYAmount,
-    pointAndshapeAndAmountChange,
+    pointAndshapeChange,
 
     pointChange,
     currentPoint,
@@ -2659,9 +2662,9 @@ function SetPointsComponent() {
   // 数据有变动==》去掉token 太少提示
   useEffect(() => {
     if (!isInvalid(leftPoint) && !isInvalid(rightPoint)) {
-      pointAndshapeAndAmountChange();
+      pointAndshapeChange();
     }
-  }, [liquidityShape, tokenXAmount, tokenYAmount, leftPoint, rightPoint]);
+  }, [liquidityShape,leftPoint, rightPoint]);
 
   // 修改bin --> 合适的右点位 --->合适的bin
   function changeBin(bin: number) {

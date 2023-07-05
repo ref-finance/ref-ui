@@ -1261,17 +1261,17 @@ export const batch_remove_liquidity_contract = async ({
   batch_remove_liquidity,
   batch_update_liquidity,
   mint_liquidities,
-  widthdraw_infos,
+  // widthdraw_infos,
 }: {
   token_x: TokenMetadata;
   token_y: TokenMetadata;
   batch_remove_liquidity: IRemoveLiquidityInfo[];
   batch_update_liquidity: IBatchUpdateiquidityInfo;
   mint_liquidities: UserLiquidityInfo[];
-  widthdraw_infos: {
-    min_withdraw_token_x_amount: string;
-    min_withdraw_token_y_amount: string;
-  };
+  // widthdraw_infos: {
+  //   min_withdraw_token_x_amount: string;
+  //   min_withdraw_token_y_amount: string;
+  // };
 }) => {
   const max_number = 20;
   const transactions: Transaction[] = [];
@@ -1344,22 +1344,16 @@ export const batch_remove_liquidity_contract = async ({
       });
     }
     const widthdrawActions: any[] = [];
-    const { min_withdraw_token_x_amount, min_withdraw_token_y_amount } =
-      widthdraw_infos;
-    if (Big(min_withdraw_token_x_amount).gt(0)) {
-      widthdrawActions.push({
-        methodName: 'withdraw_asset',
-        args: { token_id: token_x.id, amount: min_withdraw_token_x_amount },
-        gas: '55000000000000',
-      });
-    }
-    if (Big(min_withdraw_token_y_amount).lt(0)) {
-      widthdrawActions.push({
-        methodName: 'withdraw_asset',
-        args: { token_id: token_y.id, amount: min_withdraw_token_y_amount },
-        gas: '55000000000000',
-      });
-    }
+    widthdrawActions.push({
+      methodName: 'withdraw_asset',
+      args: { token_id: token_x.id},
+      gas: '55000000000000',
+    });
+    widthdrawActions.push({
+      methodName: 'withdraw_asset',
+      args: { token_id: token_y.id },
+      gas: '55000000000000',
+    });
     transactions.push({
       receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
       functionCalls: widthdrawActions,

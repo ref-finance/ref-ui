@@ -405,16 +405,16 @@ export const RemovePoolV3 = (props: any) => {
             right_point: right_point,
             amount,
           });
-        if (Big(min_token_x_amount).gt(new_token_x_amount)) {
-          min_withdraw_token_x_amount = min_withdraw_token_x_amount.plus(
-            Big(min_token_x_amount).minus(new_token_x_amount)
-          );
-        }
-        if (Big(min_token_y_amount).gt(new_token_y_amount)) {
-          min_withdraw_token_y_amount = min_withdraw_token_y_amount.plus(
-            Big(min_token_y_amount).minus(new_token_y_amount)
-          );
-        }
+        // if (Big(min_token_x_amount).gt(new_token_x_amount)) {
+        //   min_withdraw_token_x_amount = min_withdraw_token_x_amount.plus(
+        //     Big(min_token_x_amount).minus(new_token_x_amount)
+        //   );
+        // }
+        // if (Big(min_token_y_amount).gt(new_token_y_amount)) {
+        //   min_withdraw_token_y_amount = min_withdraw_token_y_amount.plus(
+        //     Big(min_token_y_amount).minus(new_token_y_amount)
+        //   );
+        // }
 
         // const remove_part_token_x_amount = new Big(
         //   whole_token_x_amount || 0
@@ -489,23 +489,23 @@ export const RemovePoolV3 = (props: any) => {
       });
       batch_remove_liquidity = batchRemoveLiquidity;
     }
-    const widthdraw_infos = {
-      min_withdraw_token_x_amount: toNonDivisibleNumber(
-        tokenX.decimals,
-        min_withdraw_token_x_amount.toFixed()
-      ),
-      min_withdraw_token_y_amount: toNonDivisibleNumber(
-        tokenY.decimals,
-        min_withdraw_token_y_amount.toFixed()
-      ),
-    };
+    // const widthdraw_infos = {
+    //   min_withdraw_token_x_amount: toNonDivisibleNumber(
+    //     tokenX.decimals,
+    //     min_withdraw_token_x_amount.toFixed()
+    //   ),
+    //   min_withdraw_token_y_amount: toNonDivisibleNumber(
+    //     tokenY.decimals,
+    //     min_withdraw_token_y_amount.toFixed()
+    //   ),
+    // };
     batch_remove_liquidity_contract({
       token_x: tokenX,
       token_y: tokenY,
       batch_remove_liquidity,
       batch_update_liquidity,
       mint_liquidities,
-      widthdraw_infos,
+      // widthdraw_infos,
     });
   }
   function get_minimum_received_data() {

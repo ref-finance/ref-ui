@@ -2187,7 +2187,6 @@ export function RecentTransactions({
     const txLink = (
       <a
         rel="noopener  noreferrer nofollow "
-        href={`${getConfig().explorerUrl}/txns/${tx.tx_id}`}
         className="  hover:underline ml-2"
         target="_blank"
       >
@@ -2218,9 +2217,17 @@ export function RecentTransactions({
         </td>
 
         <td className=" relative  py-4 pr-4 flex items-center justify-end col-span-2">
-          <span className="hover:underline cursor-pointer">{tx.timestamp}</span>
-
-          {txLink}
+          <span
+            className="inline-flex items-center cursor-pointer"
+            onClick={() => {
+              openUrl(`${getConfig().explorerUrl}/txns/${tx.tx_id}`);
+            }}
+          >
+            <span className="hover:underline cursor-pointer">
+              {tx.timestamp}
+            </span>
+            {txLink}
+          </span>
         </td>
       </tr>
     );
@@ -2249,7 +2256,6 @@ export function RecentTransactions({
     const txLink = (
       <a
         rel="noopener  noreferrer nofollow "
-        href={`${getConfig().explorerUrl}/txns/${tx.tx_id}`}
         className="hover:underline ml-2 "
         target="_blank"
       >
@@ -2290,9 +2296,17 @@ export function RecentTransactions({
         </td>
 
         <td className=" relative py-4 pr-4 flex items-center justify-end col-span-2">
-          <span className="hover:underline cursor-pointer">{tx.timestamp}</span>
-
-          {txLink}
+        <span
+            className="inline-flex items-center cursor-pointer"
+            onClick={() => {
+              openUrl(`${getConfig().explorerUrl}/txns/${tx.tx_id}`);
+            }}
+          >
+            <span className="hover:underline cursor-pointer">
+              {tx.timestamp}
+            </span>
+            {txLink}
+          </span>
         </td>
       </tr>
     );
@@ -2330,21 +2344,21 @@ export function RecentTransactions({
     const txLink = (
       <a
         rel="noopener  noreferrer nofollow "
-        href={`${getConfig().explorerUrl}/txns/${tx.tx_id}`}
         className="  hover:underline ml-2 "
         target="_blank"
       >
         <HiOutlineExternalLink className="relative "></HiOutlineExternalLink>
       </a>
     );
-
+   console.log(' {tx}',tx)
     return (
       <tr className="hover:text-white grid grid-cols-5 overflow-hidden hover:bg-poolRecentHover text-sm text-primaryText">
         <td className=" gap-1 p-4 frcs text-white">
+         
           {tx.method_name.toLowerCase().indexOf('cancelled') > -1 &&
-            'Cancelled'}
+            'Cancel'}
 
-          {tx.method_name.toLowerCase().indexOf('place') > -1 && 'Place'}
+          {tx.method_name.toLowerCase().indexOf('add') > -1 && 'Place'}
         </td>
 
         <td className="text-white frcs">
@@ -2378,11 +2392,17 @@ export function RecentTransactions({
         </td>
 
         <td className=" relative py-4 flex items-center justify-end pr-2">
-          <span className="hover:underline text-right cursor-pointer  relative ">
-            {tx.timestamp}
+        <span
+            className="inline-flex items-center cursor-pointer"
+            onClick={() => {
+              openUrl(`${getConfig().explorerUrl}/txns/${tx.tx_id}`);
+            }}
+          >
+            <span className="hover:underline cursor-pointer text-right">
+              {tx.timestamp}
+            </span>
+            {txLink}
           </span>
-
-          {txLink}
         </td>
       </tr>
     );

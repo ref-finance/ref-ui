@@ -1434,7 +1434,6 @@ export function RecentTransactions({
     const txLink = (
       <a
         rel="noopener  noreferrer nofollow "
-        href={`${getConfig().explorerUrl}/txns/${tx.tx_id}`}
         className=" hover:underline ml-2"
         target="_blank"
       >
@@ -1467,9 +1466,17 @@ export function RecentTransactions({
         </td>
 
         <td className="col-span-1 relative flex items-center justify-end py-4 pr-4">
-          <span className="hover:underline cursor-pointer">{tx.timestamp}</span>
-
-          {txLink}
+          <span
+            className="inline-flex items-center cursor-pointer"
+            onClick={() => {
+              openUrl(`${getConfig().explorerUrl}/txns/${tx.tx_id}`);
+            }}
+          >
+            <span className="hover:underline cursor-pointer">
+              {tx.timestamp}
+            </span>
+            {txLink}
+          </span>
         </td>
       </tr>
     );
