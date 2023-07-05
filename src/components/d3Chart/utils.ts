@@ -39,6 +39,17 @@ export const formatNumber = (v: string | number) => {
     return big.toFixed(2, 1);
   }
 };
+export const formatWithCommas_number = (v: string | number) => {
+  if (isInvalid(v)) return '-';
+  const big = Big(v);
+  if (big.eq(0)) {
+    return '0';
+  } else if (big.lt(0.01)) {
+    return '<0.01';
+  } else {
+    return formatWithCommas(big.toFixed(2, 1));
+  }
+};
 export const formatPrice = (v: string | number) => {
   if (isInvalid(v)) return '-';
   const big = Big(v);
@@ -48,6 +59,19 @@ export const formatPrice = (v: string | number) => {
     return '<0.0001';
   } else {
     return big.toFixed(4, 0);
+  }
+};
+export const formatPriceWithCommas = (v: string | number) => {
+  if (isInvalid(v)) return '-';
+  const big = Big(v);
+  if (big.eq(0)) {
+    return '0';
+  } else if (big.lt(0.0001)) {
+    return '<0.0001';
+  } else {
+    const p = big.toFixed(4, 0);
+    const [whole, decimal] = p.split('.')
+    return `${formatWithCommas(whole)}${decimal ? '.' + decimal : ''}`;
   }
 };
 export const formatToInternationalCurrencySystem$ = (v: string | number) => {

@@ -35,7 +35,7 @@ export interface IBinDetail {
   token_y_amount_in_order?: string;
   price_by_token_x?: string;
   price_by_token_y?: string;
-  color: string;
+  colors: string[];
 }
 
 export interface IPoolChartConfig {

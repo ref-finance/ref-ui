@@ -31,6 +31,8 @@ import {
   formatNumber,
   formatPercentage,
   formatWithCommas_usd,
+  formatWithCommas_number,
+  formatPriceWithCommas
 } from './utils';
 import {
   get_custom_config_for_chart,
@@ -553,7 +555,6 @@ export default function DclChart({
     );
     const { point, token_x, token_y, order_x, order_y, fee, total_liquidity } =
       d;
-    const { current_point } = pool;
     const { colors } = getConfig();
 
     const total_token_x = Big(token_x).plus(order_x);
@@ -564,21 +565,20 @@ export default function DclChart({
       ? Big(fee).div(total_liquidity).mul(365).mul(100).toFixed()
       : '0';
     setBinDetail({
-      // point,
       feeApr: formatPercentage(apr),
-      color: +point > current_point ? colors[1] : colors[0],
+      colors,
       ...(total_token_x.gt(0)
         ? {
-            token_x_amount: formatNumber(total_token_x.toFixed()),
-            token_x_amount_in_liquidity: formatNumber(token_x),
-            token_x_amount_in_order: formatNumber(order_x),
+            token_x_amount: formatWithCommas_number(total_token_x.toFixed()),
+            token_x_amount_in_liquidity: formatWithCommas_number(token_x),
+            token_x_amount_in_order: formatWithCommas_number(order_x),
           }
         : {}),
       ...(total_token_y.gt(0)
         ? {
-            token_y_amount: formatNumber(total_token_y.toFixed()),
-            token_y_amount_in_liquidity: formatNumber(token_y),
-            token_y_amount_in_order: formatNumber(order_y),
+            token_y_amount: formatWithCommas_number(total_token_y.toFixed()),
+            token_y_amount_in_liquidity: formatWithCommas_number(token_y),
+            token_y_amount_in_order: formatWithCommas_number(order_y),
           }
         : {}),
       price_by_token_x: formatPrice(price_by_token_x),
@@ -1146,13 +1146,13 @@ export default function DclChart({
   }
   function get_current_price_by_token_x() {
     if (pool) {
-      return formatPrice(get_current_price());
+      return formatPriceWithCommas(get_current_price());
     }
     return '-';
   }
   function get_current_price_by_token_y() {
     if (pool) {
-      return formatPrice(reverse_price(get_current_price()));
+      return formatPriceWithCommas(reverse_price(get_current_price()));
     }
     return '-';
   }
@@ -1359,7 +1359,7 @@ export default function DclChart({
           </g>
         </g>
       </svg>
-      {/* hover到柱子上的悬浮框 */}
+      {/* hover到柱子(bin)上的悬浮框 */}
       <div className="overBox absolute rounded-xl bg-chartHoverBoxBg border border-assetsBorder px-3 py-2 invisible z-10">
         <div className="flex items-center justify-between my-2">
           <span className="text-xs text-white">Fee APR (24h)</span>
@@ -1392,7 +1392,7 @@ export default function DclChart({
                     width: '10px',
                     height: '10px',
                     borderRadius: '3px',
-                    backgroundColor: `${binDetail?.color}`,
+                    backgroundColor: `${binDetail?.colors[1]}`,
                   }}
                 ></span>
                 <span className="text-xs text-white">in Liquidity</span>
@@ -1409,7 +1409,7 @@ export default function DclChart({
                     width: '10px',
                     height: '10px',
                     borderRadius: '3px',
-                    backgroundColor: `${binDetail?.color}`,
+                    backgroundColor: `${binDetail?.colors[1]}`,
                   }}
                 ></span>
                 <span className="text-xs text-white">by Limit Orders</span>
@@ -1438,7 +1438,7 @@ export default function DclChart({
                     width: '10px',
                     height: '10px',
                     borderRadius: '3px',
-                    backgroundColor: `${binDetail?.color}`,
+                    backgroundColor: `${binDetail?.colors[0]}`,
                   }}
                 ></span>
                 <span className="text-xs text-white">in Liquidity</span>
@@ -1455,7 +1455,7 @@ export default function DclChart({
                     width: '10px',
                     height: '10px',
                     borderRadius: '3px',
-                    backgroundColor: `${binDetail?.color}`,
+                    backgroundColor: `${binDetail?.colors[0]}`,
                   }}
                 ></span>
                 <span className="text-xs text-white">by Limit Orders</span>
