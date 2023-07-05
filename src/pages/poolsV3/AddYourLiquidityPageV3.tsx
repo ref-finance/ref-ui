@@ -2884,7 +2884,7 @@ function SetPointsComponent() {
             <span
               className={`whitespace-nowrap min-w-20 px-3 py-1.5 rounded-md cursor-pointer ${
                 priceRangeMode === 'by_range'
-                  ? 'text-white bg-burrowTabColor bg-opacity-60'
+                  ? 'text-white bg-proTabBgColor'
                   : ''
               }`}
               onClick={() => {
@@ -2899,7 +2899,7 @@ function SetPointsComponent() {
             <span
               className={`whitespace-nowrap min-w-20 px-3 py-1.5 rounded-md cursor-pointer ${
                 priceRangeMode === 'by_radius'
-                  ? 'text-white bg-burrowTabColor bg-opacity-60'
+                  ? 'text-white bg-proTabBgColor'
                   : ''
               }`}
               onClick={() => {

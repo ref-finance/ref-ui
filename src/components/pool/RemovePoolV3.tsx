@@ -537,19 +537,32 @@ export const RemovePoolV3 = (props: any) => {
     }
     if (broken_deleted_nfts.length) {
       broken_deleted_nfts.forEach((l: UserLiquidityInfo) => {
-        const [new_left_point, new_right_point] = get_deleted_range(l);
-        const [min_token_x_amount, min_token_y_amount] =
-          get_min_x_y_amount_of_liquidity({
+        const { amount, left_point, right_point } = l;
+        const [new_left_point, new_right_point] = get_un_deleted_range(l);
+        const [new_token_x_amount, new_token_y_amount] =
+          get_x_y_amount_of_liquidity({
             left_point: new_left_point,
             right_point: new_right_point,
-            amount: l.amount,
+            amount,
           });
-        total_token_x_amount = total_token_x_amount.plus(
-          min_token_x_amount || 0
-        );
-        total_token_y_amount = total_token_y_amount.plus(
-          min_token_y_amount || 0
-        );
+        const [min_token_x_amount, min_token_y_amount] =
+          get_min_x_y_amount_of_liquidity({
+            left_point: left_point,
+            right_point: right_point,
+            amount,
+          });
+        const broken_min_token_x_amount = Big(min_token_x_amount).minus(new_token_x_amount);
+        const broken_min_token_y_amount = Big(min_token_y_amount).minus(new_token_y_amount);
+        if (broken_min_token_x_amount.gt(0)) {
+          total_token_x_amount = total_token_x_amount.plus(
+            broken_min_token_x_amount || 0
+          );
+        }
+        if (broken_min_token_y_amount.gt(0)) {
+          total_token_y_amount = total_token_y_amount.plus(
+            broken_min_token_y_amount || 0
+          );
+        }
       });
     }
     if (tokenPriceList && tokenMetadata_x_y) {

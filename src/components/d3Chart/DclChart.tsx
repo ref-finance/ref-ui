@@ -1184,6 +1184,9 @@ export default function DclChart({
       setZoom(targetPercent);
     }
   }
+  const rangeGear = getConfig().rangeGear;
+  const is_in_max_zoom = zoom == rangeGear[rangeGear.length - 1];
+  const is_in_min_zoom = zoom == rangeGear[0];
   return (
     <div
       className={`relative inline-flex ${
@@ -1194,31 +1197,31 @@ export default function DclChart({
       } ${randomId.slice(1)}`}
     >
       {/* 控件按钮*/}
-      <div className="control flex items-center border border-v3GreyColor rounded-lg py-px h-6 w-24 absolute right-0 -top-24">
-        <div
+      <div className="control flex items-center border border-v3GreyColor rounded-lg py-px h-6 w-16 absolute right-0 -top-24">
+        {/* <div
           className="flex items-center justify-center w-1 h-full flex-grow border-r border-chartBorderColor cursor-pointer"
           onClick={clickToLeft}
         >
           <LeftArrowIcon></LeftArrowIcon>
-        </div>
+        </div> */}
         <div
-          className="flex items-center justify-center w-1 h-full flex-grow border-r border-chartBorderColor cursor-pointer"
+          className={`flex items-center justify-center w-1 h-full flex-grow border-r border-chartBorderColor ${is_in_max_zoom? 'text-chartBorderColor cursor-not-allowed': 'text-v3SwapGray cursor-pointer'}`}
           onClick={zoomOut}
         >
           <AddIcon></AddIcon>
         </div>
         <div
-          className="flex items-center justify-center w-1 h-full flex-grow border-r border-chartBorderColor cursor-pointer"
+          className={`flex items-center justify-center w-1 h-full flex-grow ${is_in_min_zoom? 'text-chartBorderColor cursor-not-allowed': 'text-v3SwapGray cursor-pointer'}`}
           onClick={zoomIn}
         >
           <SubIcon></SubIcon>
         </div>
-        <div
+        {/* <div
           className="flex items-center justify-center w-1 h-full flex-grow cursor-pointer"
           onClick={clickToRight}
         >
           <RightArrowIcon></RightArrowIcon>
-        </div>
+        </div> */}
       </div>
       <svg width={svgWidth} height={svgHeight}>
         <g transform={`translate(${svgPaddingX} 0)`}>
@@ -1595,7 +1598,7 @@ function AddIcon(props: any) {
         y1="4.43054"
         x2="8.09615"
         y2="4.43054"
-        stroke="#91A2AE"
+        stroke="currentColor"
         stroke-width="1.5"
         stroke-linecap="round"
       />
@@ -1604,7 +1607,7 @@ function AddIcon(props: any) {
         y1="0.826904"
         x2="4.49268"
         y2="8.17306"
-        stroke="#91A2AE"
+        stroke="currentColor"
         stroke-width="1.5"
         stroke-linecap="round"
       />
@@ -1627,7 +1630,7 @@ function SubIcon(props: any) {
         y1="1.25"
         x2="8.09615"
         y2="1.25"
-        stroke="#91A2AE"
+        stroke="currentColor"
         stroke-width="1.5"
         stroke-linecap="round"
       />

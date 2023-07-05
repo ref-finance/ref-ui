@@ -851,7 +851,7 @@ function OrderChart() {
     d3.select('.verticalDashLine').attr('d', '');
     d3.select('.horizontalDashLine').attr('d', '');
   }
-  // 找到离这个点最近的一个数据
+  // 找到离这个点最近的一个数据 中文
   function searchNearCoordinate(
     list: IOrderPointItem[],
     e: any,
