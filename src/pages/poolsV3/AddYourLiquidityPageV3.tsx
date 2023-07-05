@@ -165,7 +165,7 @@ export default function AddYourLiquidityPageV3() {
   const [topPairs, setTopPairs] = useState([]);
   const [SLOT_NUMBER, SET_SLOT_NUMBER] = useState<number>();
   const [BIN_WIDTH, SET_BIN_WIDTH] = useState<number>();
-  const [token_amount_tip, set_token_amount_tip] = useState<string>();
+  const [token_amount_tip, set_token_amount_tip] = useState<React.ReactElement>();
   const [only_suppport_spot_shape, set_only_suppport_spot_shape] =
     useState<boolean>(false);
   const [switch_pool_loading, set_switch_pool_loading] =
@@ -779,13 +779,17 @@ export default function AddYourLiquidityPageV3() {
       // token_y: tokenSort ? tokenY : tokenX,
     };
   }
-  function formatWithCommas_for_tip(v: string) {
+  function formatWithCommas_for_tip(v: string, commas?:boolean) {
     const v_big = Big(v || 0);
     let v_temp;
     if (v_big.lt(0.001)) {
       v_temp = v_big.toFixed(6, 3);
     } else {
-      v_temp = formatWithCommas(v_big.toFixed(3, 3));
+      if (commas) {
+        v_temp = formatWithCommas(v_big.toFixed(3, 3));
+      } else {
+        v_temp = v_big.toFixed(3, 3);
+      }
     }
     return v_temp;
   }
@@ -848,7 +852,7 @@ export default function AddYourLiquidityPageV3() {
       const slot_number_in_a_bin = SLOT_NUMBER;
       const binWidth = slot_number_in_a_bin * point_delta;
       const bin_number_left = (current_point - leftPoint) / binWidth;
-      set_token_amount_tip('');
+      set_token_amount_tip(<></>);
       if (liquidityShape == 'Curve') {
         if (bin_number_left > 1) {
           // 左侧做等差
@@ -865,11 +869,12 @@ export default function AddYourLiquidityPageV3() {
           );
           if (remain_token_x_amount.lt(0)) {
             // 给出提示 token x 数量太少不能添加 1
-            set_token_amount_tip(
-              `You need at least ${formatWithCommas_for_tip(
-                min_token_x_amount_needed
-              )}${' '}${tokenX.symbol}`
-            );
+            const a = formatWithCommas_for_tip(min_token_x_amount_needed);
+            const a_display = formatWithCommas_for_tip(min_token_x_amount_needed, true);
+            const tip = <span>You need at least<a onClick={() => {
+              setTokenXAmount(a);
+            }} className='mx-0.5 cursor-pointer underline'>{a_display}</a>{tokenX.symbol}</span>
+            set_token_amount_tip(tip)
             return;
           } else {
             nftList_x = get_decline_pattern_nfts({
@@ -898,11 +903,12 @@ export default function AddYourLiquidityPageV3() {
           );
           if (remain_token_y_amount.lt(0)) {
             // 给出提示 token y 数量太少不能添加 2
-            set_token_amount_tip(
-              `You need at least ${formatWithCommas_for_tip(
-                min_token_y_amount_needed
-              )}${' '}${tokenY.symbol}`
-            );
+            const a = formatWithCommas_for_tip(min_token_y_amount_needed)
+            const a_display = formatWithCommas_for_tip(min_token_y_amount_needed, true)
+            const tip = <span>You need at least<a onClick={() => {
+              setTokenYAmount(a);
+            }} className='mx-0.5 cursor-pointer underline'>{a_display}</a>{tokenY.symbol}</span>
+            set_token_amount_tip(tip)
             return;
           } else {
             nftList_y = get_rise_pattern_nfts({
@@ -932,11 +938,12 @@ export default function AddYourLiquidityPageV3() {
           );
           if (remain_token_x_amount.lt(0)) {
             // 给出提示 token x 数量太少不能添加 3
-            set_token_amount_tip(
-              `You need at least ${formatWithCommas_for_tip(
-                min_token_x_amount_needed
-              )}${' '}${tokenX.symbol}`
-            );
+            const a = formatWithCommas_for_tip(min_token_x_amount_needed);
+            const a_display = formatWithCommas_for_tip(min_token_x_amount_needed, true);
+            const tip = <span>You need at least<a onClick={() => {
+              setTokenXAmount(a);
+            }} className='mx-0.5 cursor-pointer underline'>{a_display}</a>{tokenX.symbol}</span>
+            set_token_amount_tip(tip)
             return;
           } else {
             nftList_x = get_rise_pattern_nfts({
@@ -965,12 +972,12 @@ export default function AddYourLiquidityPageV3() {
           );
           if (remain_token_y_amount.lt(0)) {
             // 给出提示 token y 数量太少不能添加 4
-
-            set_token_amount_tip(
-              `You need at least ${formatWithCommas_for_tip(
-                min_token_y_amount_needed
-              )}${' '}${tokenY.symbol}`
-            );
+            const a = formatWithCommas_for_tip(min_token_y_amount_needed)
+            const a_display = formatWithCommas_for_tip(min_token_y_amount_needed, true)
+            const tip = <span>You need at least<a onClick={() => {
+              setTokenYAmount(a);
+            }} className='mx-0.5 cursor-pointer underline'>{a_display}</a>{tokenY.symbol}</span>
+            set_token_amount_tip(tip)
             return;
           } else {
             nftList_y = get_decline_pattern_nfts({
