@@ -133,9 +133,9 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         // setupMathWallet({
         //   iconUrl: walletIcons['math-wallet'],
         // }),
-        // setupNightly({
-        //   iconUrl: walletIcons['nightly'],
-        // }),
+        setupNightly({
+          iconUrl: walletIcons['nightly'],
+        }),
         setupLedger({
           iconUrl: walletIcons['ledger'],
         }),
