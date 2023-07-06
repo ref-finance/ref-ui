@@ -108,7 +108,6 @@ function Overview() {
         set_ref_invest_value_done,
         set_ref_profit_value,
         set_ref_profit_value_done,
-
         set_orderly_asset_value,
         set_orderly_asset_value_done,
 

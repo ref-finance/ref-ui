@@ -101,8 +101,6 @@ import {
 import _ from 'lodash';
 import moment from 'moment';
 import { ChartNoData } from '~components/icon/ChartNoData';
-import { WarnTriangle } from '~components/icon/SwapRefresh';
-import { RefIcon } from '~components/icon/Common';
 import {
   getCurrentWallet,
   WalletContext,
@@ -123,7 +121,6 @@ import {
   getURLInfo,
   checkAccountTip,
 } from '../../components/layout/transactionTipPopUp';
-import { checkTransaction } from '../../services/swap';
 
 export const REF_FI_PRE_LIQUIDITY_ID_KEY = 'REF_FI_PRE_LIQUIDITY_ID_VALUE';
 

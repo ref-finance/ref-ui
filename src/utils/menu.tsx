@@ -3,6 +3,7 @@ import { AiOutlineMedium } from 'react-icons/ai';
 import { FaDiscord, FaTelegramPlane, FaTwitter } from 'react-icons/fa';
 import { HiOutlineExternalLink } from 'react-icons/hi';
 import { FormattedMessage, useIntl } from 'react-intl';
+
 import {
   IconAirDrop,
   IconCommunity,
@@ -250,7 +251,7 @@ export const useMenus = () => {
           isExternal: false,
           swap_mode: 'normal',
           clickEvent: () => {
-            sessionStorage.setItem(SWAP_TYPE_KEY, 'Pro');
+            sessionStorage.setItem(SWAP_TYPE_KEY, 'Lite');
             localStorage.setItem('SWAP_MODE_VALUE', 'normal');
 
             history.push('/');
@@ -595,9 +596,9 @@ export const useMenusMobile = () => {
           swap_mode: 'normal',
           clickEvent: () => {
             history.push('/');
-            localStorage.setItem('SWAP_MODE_VALUE', 'normal');
 
-            sessionStorage.setItem(SWAP_TYPE_KEY, 'Pro');
+            sessionStorage.setItem(SWAP_TYPE_KEY, 'Lite');
+            localStorage.setItem('SWAP_MODE_VALUE', 'normal');
           },
           links: ['/', '/swap'],
         },
