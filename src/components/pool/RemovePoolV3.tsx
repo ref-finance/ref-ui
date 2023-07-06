@@ -551,8 +551,10 @@ export const RemovePoolV3 = (props: any) => {
             right_point: right_point,
             amount,
           });
-        const broken_min_token_x_amount = Big(min_token_x_amount).minus(new_token_x_amount);
-        const broken_min_token_y_amount = Big(min_token_y_amount).minus(new_token_y_amount);
+        const broken_min_token_x_amount =
+          Big(min_token_x_amount).minus(new_token_x_amount);
+        const broken_min_token_y_amount =
+          Big(min_token_y_amount).minus(new_token_y_amount);
         if (broken_min_token_x_amount.gt(0)) {
           total_token_x_amount = total_token_x_amount.plus(
             broken_min_token_x_amount || 0

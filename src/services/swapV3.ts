@@ -1261,8 +1261,8 @@ export const batch_remove_liquidity_contract = async ({
   batch_remove_liquidity,
   batch_update_liquidity,
   mint_liquidities,
-  // widthdraw_infos,
-}: {
+}: // widthdraw_infos,
+{
   token_x: TokenMetadata;
   token_y: TokenMetadata;
   batch_remove_liquidity: IRemoveLiquidityInfo[];
@@ -1346,7 +1346,7 @@ export const batch_remove_liquidity_contract = async ({
     const widthdrawActions: any[] = [];
     widthdrawActions.push({
       methodName: 'withdraw_asset',
-      args: { token_id: token_x.id},
+      args: { token_id: token_x.id },
       gas: '55000000000000',
     });
     widthdrawActions.push({

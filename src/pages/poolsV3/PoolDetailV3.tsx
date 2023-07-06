@@ -1012,7 +1012,7 @@ function YourLiquidityBox(props: {
           <FormattedMessage id="your_liquidity"></FormattedMessage>
         </span>
         <span className="text-white font-gothamBold">
-          ~{getTotalLiquditiesTvl()}
+          {getTotalLiquditiesTvl()}
         </span>
       </div>
       {/* chart area */}
@@ -1087,12 +1087,7 @@ function YourLiquidityBox(props: {
         </div>
 
         <div className="frcb">
-          <span className="text-primaryText">
-            <FormattedMessage
-              id="apr_24h"
-              defaultMessage={'APR(24h)'}
-            ></FormattedMessage>
-          </span>
+          <span className="text-primaryText">Trailing 24hr APR</span>
 
           <div className="frcs gap-1 flex-wrap text-sm text-white">
             {accountAPR || '-'}
@@ -1287,15 +1282,8 @@ function UnclaimedFeesBox(props: any) {
         <span className="">
           <FormattedMessage id="unclaimed_fees" />
         </span>
-
-        {/* {liquidities?.length > 1 ? (
-          <span className="text-gradientFromHover text-xs bg-black bg-opacity-25 border border-greenColor rounded-3xl px-2">
-            {liquidities.length} NFTs
-          </span>
-        ) : null} */}
-
         <span className="text-white font-gothamBold">
-          ~{getTotalLiquditiesFee()}
+          {getTotalLiquditiesFee()}
         </span>
       </div>
       <div className="flex items-center justify-center text-xl text-white my-2 xsm:flex-col">
@@ -2276,27 +2264,35 @@ export function RecentTransactions({
         </td>
 
         <td className="text-white col-span-2 frcs whitespace-nowrap">
-          <span className="text-white" title={AmountIn}>
-            {displayInAmount}
-          </span>
+          {Big(AmountIn || 0).gt(0) ? (
+            <>
+              <span className="text-white" title={AmountIn}>
+                {displayInAmount}
+              </span>
 
-          <span className="ml-1 text-primaryText">
-            {toRealSymbol(swapIn.symbol)}
-          </span>
-
-          <span className="mx-1">+</span>
-
-          <span className="text-white" title={AmountOut}>
-            {displayOutAmount}
-          </span>
-
-          <span className="ml-1 text-primaryText">
-            {toRealSymbol(swapOut.symbol)}
-          </span>
+              <span className="ml-1 text-primaryText">
+                {toRealSymbol(swapIn.symbol)}
+              </span>
+            </>
+          ) : null}
+          {Big(AmountIn || 0).gt(0) && Big(AmountOut || 0).gt(0) ? (
+            <span className="mx-1">+</span>
+          ) : null}
+          {Big(AmountOut || 0).gt(0) ? (
+            <>
+              {' '}
+              <span className="text-white" title={AmountOut}>
+                {displayOutAmount}
+              </span>
+              <span className="ml-1 text-primaryText">
+                {toRealSymbol(swapOut.symbol)}
+              </span>
+            </>
+          ) : null}
         </td>
 
         <td className=" relative py-4 pr-4 flex items-center justify-end col-span-2">
-        <span
+          <span
             className="inline-flex items-center cursor-pointer"
             onClick={() => {
               openUrl(`${getConfig().explorerUrl}/txns/${tx.tx_id}`);
@@ -2323,7 +2319,7 @@ export function RecentTransactions({
     const displayInAmount =
       Number(AmountIn) < 0.01
         ? '<0.01'
-        : numberWithCommas(toPrecision(AmountIn, 6));
+        : numberWithCommas(toPrecision(AmountIn, 3));
 
     const price = pointToPrice({
       tokenA: swapIn,
@@ -2333,13 +2329,12 @@ export function RecentTransactions({
           ? Number(tx.point)
           : -Number(tx.point),
     });
-
-    const AmountOut = new Big(AmountIn).mul(price).toFixed(0, 0);
+    const AmountOut = new Big(AmountIn).mul(price).toFixed();
 
     const displayOutAmount =
       Number(AmountOut) < 0.01
         ? '<0.01'
-        : numberWithCommas(toPrecision(AmountOut, 6));
+        : numberWithCommas(toPrecision(AmountOut, 3));
 
     const txLink = (
       <a
@@ -2350,13 +2345,10 @@ export function RecentTransactions({
         <HiOutlineExternalLink className="relative "></HiOutlineExternalLink>
       </a>
     );
-   console.log(' {tx}',tx)
     return (
       <tr className="hover:text-white grid grid-cols-5 overflow-hidden hover:bg-poolRecentHover text-sm text-primaryText">
         <td className=" gap-1 p-4 frcs text-white">
-         
-          {tx.method_name.toLowerCase().indexOf('cancelled') > -1 &&
-            'Cancel'}
+          {tx.method_name.toLowerCase().indexOf('cancelled') > -1 && 'Cancel'}
 
           {tx.method_name.toLowerCase().indexOf('add') > -1 && 'Place'}
         </td>
@@ -2392,7 +2384,7 @@ export function RecentTransactions({
         </td>
 
         <td className=" relative py-4 flex items-center justify-end pr-2">
-        <span
+          <span
             className="inline-flex items-center cursor-pointer"
             onClick={() => {
               openUrl(`${getConfig().explorerUrl}/txns/${tx.tx_id}`);

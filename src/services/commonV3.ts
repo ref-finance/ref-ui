@@ -1559,10 +1559,10 @@ export function get_account_24_apr(
 
   // 24小时平均本金
   const processed_change_log: IProcessedLogData[] = [];
-  const current_time = Big(new Date().getTime()).div(1000).toFixed(0); // 秒
+  // const current_time = Big(new Date().getTime()).div(1000).toFixed(0); // 秒
   const second24 = 24 * 60 * 60;
+  const { token_x, token_y, timestamp: current_time } = user_token;
   const before24Time = Big(current_time).minus(second24).toFixed(0); // 秒
-  const { token_x, token_y } = user_token;
   const token_x_NonDivisible = toNonDivisibleNumber(
     token_x_metadata.decimals,
     Big(token_x || 0).toFixed()
@@ -1631,7 +1631,7 @@ export function get_account_24_apr(
   });
   const principal = total_processed_log_value.div(second24);
   if (principal.gt(0)) {
-    apr_24 = total_fee_24_value.div(principal).mul(100).toFixed();
+    apr_24 = total_fee_24_value.div(principal).mul(365).mul(100).toFixed();
   }
   return apr_24;
 }

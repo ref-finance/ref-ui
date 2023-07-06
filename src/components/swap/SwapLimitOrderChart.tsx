@@ -38,8 +38,8 @@ export default function SwapLimitOrderChart() {
   const [sell_list, set_sell_list] = useState<IOrderPointItem[]>();
   const [market_loading, set_market_loading] = useState<boolean>(false);
   const { dcl_pool_id } = useContext(SwapProContext);
-  const GEARS = [15,14,13,12,11,10, 9, 8, 7, 6, 5, 4, 3, 2, 1]; 
-  const [zoom, setZoom] = useState<number>(GEARS[0]);          
+  const GEARS = [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
+  const [zoom, setZoom] = useState<number>(GEARS[0]);
   const pool_id = dcl_pool_id;
   const left_point = -800000;
   const right_point = 600000;
@@ -48,7 +48,7 @@ export default function SwapLimitOrderChart() {
       get_points_of_orders();
       get_pool_detail();
       set_switch_token('X');
-      setZoom(GEARS[0])
+      setZoom(GEARS[0]);
     }
   }, [pool_id]);
   useEffect(() => {
@@ -289,7 +289,7 @@ export default function SwapLimitOrderChart() {
   }
   // 放大坐标轴区间范围
   function zoomIn() {
-    const GEARSCOPY:number[] = JSON.parse(JSON.stringify(GEARS)).reverse();
+    const GEARSCOPY: number[] = JSON.parse(JSON.stringify(GEARS)).reverse();
     const targetPercent = GEARSCOPY.find((item) => item > zoom);
     if (targetPercent) {
       setZoom(targetPercent);
@@ -307,7 +307,7 @@ export default function SwapLimitOrderChart() {
         get_price_by_point,
         switch_token,
         zoom,
-        GEARS
+        GEARS,
       }}
     >
       <div className="flex items-center justify-between">
@@ -323,7 +323,7 @@ export default function SwapLimitOrderChart() {
           {/* base data */}
           <div className="flex items-center justify-between">
             <div className="flex items-end">{get_rate_element()}</div>
-            <div className='flex items-center gap-2.5'>
+            <div className="flex items-center gap-2.5">
               <div className="flex items-center">
                 <div className="flex items-center justify-between border border-v3GreyColor rounded-lg p-0.5 mr-2.5">
                   <span
@@ -361,13 +361,21 @@ export default function SwapLimitOrderChart() {
                   <LeftArrowIcon></LeftArrowIcon>
                 </div> */}
                 <div
-                  className={`flex items-center justify-center w-1 h-full flex-grow border-r border-chartBorderColor ${zoom == GEARS[GEARS.length - 1]? 'text-chartBorderColor cursor-not-allowed': 'text-v3SwapGray cursor-pointer'}`}
+                  className={`flex items-center justify-center w-1 h-full flex-grow border-r border-chartBorderColor ${
+                    zoom == GEARS[GEARS.length - 1]
+                      ? 'text-chartBorderColor cursor-not-allowed'
+                      : 'text-v3SwapGray cursor-pointer'
+                  }`}
                   onClick={zoomOut}
                 >
                   <AddIcon></AddIcon>
                 </div>
                 <div
-                  className={`flex items-center justify-center w-1 h-full flex-grow ${zoom == GEARS[0]? 'text-chartBorderColor cursor-not-allowed': 'text-v3SwapGray cursor-pointer'}`}
+                  className={`flex items-center justify-center w-1 h-full flex-grow ${
+                    zoom == GEARS[0]
+                      ? 'text-chartBorderColor cursor-not-allowed'
+                      : 'text-v3SwapGray cursor-pointer'
+                  }`}
                   onClick={zoomIn}
                 >
                   <SubIcon></SubIcon>
@@ -490,7 +498,7 @@ function OrderChart() {
     get_price_by_point,
     switch_token,
     zoom,
-    GEARS
+    GEARS,
   }: {
     buy_list: IOrderPointItem[];
     sell_list: IOrderPointItem[];
@@ -499,8 +507,8 @@ function OrderChart() {
     pool: PoolInfo;
     get_price_by_point: Function;
     switch_token: ISwitchToken;
-    zoom:number;
-    GEARS:number[];
+    zoom: number;
+    GEARS: number[];
   } = useContext(LimitOrderChartData);
 
   const [foucsOrderPoint, setFoucsOrderPoint] = useState<IOrderPointItem>();
@@ -761,17 +769,19 @@ function OrderChart() {
     } else {
       max_price = Big(sell_list[0].price).mul(1.1).toFixed();
     }
-   let new_min_price: any;
-   let new_max_price: any;
-   const each_step_range = Big(max_price).minus(min_price).div(GEARS[0] * 2);
-   const total_step_range = each_step_range.mul(GEARS[0] - zoom);
-   new_min_price = Big(min_price).plus(total_step_range).toFixed();
-   new_max_price = Big(max_price).minus(total_step_range).toFixed();
-   return [new_min_price, new_max_price]
+    let new_min_price: any;
+    let new_max_price: any;
+    const each_step_range = Big(max_price)
+      .minus(min_price)
+      .div(GEARS[0] * 2);
+    const total_step_range = each_step_range.mul(GEARS[0] - zoom);
+    new_min_price = Big(min_price).plus(total_step_range).toFixed();
+    new_max_price = Big(max_price).minus(total_step_range).toFixed();
+    return [new_min_price, new_max_price];
   }
   function get_data_for_drawing() {
     // 获取价格区间
-    const [min_price, max_price] = gte_price_range_by_zoom()
+    const [min_price, max_price] = gte_price_range_by_zoom();
     // 获取 数量区间
     const amounts: string[] = [];
     buy_list.concat(sell_list).forEach((item: IOrderPointItem) => {

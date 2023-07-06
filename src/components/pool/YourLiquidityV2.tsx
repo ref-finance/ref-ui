@@ -363,12 +363,7 @@ export function YourLiquidityV2(props: any) {
             ></FormattedMessage>
           </div>
 
-          <div className="col-span-1 ">
-            <FormattedMessage
-              id="apr_24h"
-              defaultMessage={'APR(24h)'}
-            ></FormattedMessage>
-          </div>
+          <div className="col-span-1 ">Trailing 24hr APR</div>
           <div className="col-span-1 ">
             <FormattedMessage
               id="your_liquidity"

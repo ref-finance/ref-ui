@@ -70,7 +70,7 @@ export const formatPriceWithCommas = (v: string | number) => {
     return '<0.0001';
   } else {
     const p = big.toFixed(4, 0);
-    const [whole, decimal] = p.split('.')
+    const [whole, decimal] = p.split('.');
     return `${formatWithCommas(whole)}${decimal ? '.' + decimal : ''}`;
   }
 };

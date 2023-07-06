@@ -32,7 +32,7 @@ import {
   formatPercentage,
   formatWithCommas_usd,
   formatWithCommas_number,
-  formatPriceWithCommas
+  formatPriceWithCommas,
 } from './utils';
 import {
   get_custom_config_for_chart,
@@ -1205,13 +1205,21 @@ export default function DclChart({
           <LeftArrowIcon></LeftArrowIcon>
         </div> */}
         <div
-          className={`flex items-center justify-center w-1 h-full flex-grow border-r border-chartBorderColor ${is_in_max_zoom? 'text-chartBorderColor cursor-not-allowed': 'text-v3SwapGray cursor-pointer'}`}
+          className={`flex items-center justify-center w-1 h-full flex-grow border-r border-chartBorderColor ${
+            is_in_max_zoom
+              ? 'text-chartBorderColor cursor-not-allowed'
+              : 'text-v3SwapGray cursor-pointer'
+          }`}
           onClick={zoomOut}
         >
           <AddIcon></AddIcon>
         </div>
         <div
-          className={`flex items-center justify-center w-1 h-full flex-grow ${is_in_min_zoom? 'text-chartBorderColor cursor-not-allowed': 'text-v3SwapGray cursor-pointer'}`}
+          className={`flex items-center justify-center w-1 h-full flex-grow ${
+            is_in_min_zoom
+              ? 'text-chartBorderColor cursor-not-allowed'
+              : 'text-v3SwapGray cursor-pointer'
+          }`}
           onClick={zoomIn}
         >
           <SubIcon></SubIcon>
@@ -1494,7 +1502,7 @@ export default function DclChart({
           </span>
         </div>
         <div className="flex items-center justify-between my-2">
-          <span className="text-xs text-white mr-10">24h APR</span>
+          <span className="text-xs text-white mr-10">Trailing 24hr APR</span>
           <span className="text-xs text-white gotham_bold">
             {user_liquidities_detail?.apr_24 || '-'}
           </span>

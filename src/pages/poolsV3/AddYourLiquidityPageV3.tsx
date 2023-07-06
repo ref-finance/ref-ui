@@ -291,7 +291,7 @@ export default function AddYourLiquidityPageV3() {
   ]);
   useEffect(() => {
     set_token_amount_tip(null);
-  }, [tokenXAmount, tokenYAmount ,currentSelectedPool])
+  }, [tokenXAmount, tokenYAmount, currentSelectedPool]);
   async function getTopPairs() {
     const listPromise = listPool.map(async (p: PoolInfo) => {
       const token_x = p.token_x;
@@ -2664,7 +2664,7 @@ function SetPointsComponent() {
     if (!isInvalid(leftPoint) && !isInvalid(rightPoint)) {
       pointAndshapeChange();
     }
-  }, [liquidityShape,leftPoint, rightPoint]);
+  }, [liquidityShape, leftPoint, rightPoint]);
 
   // 修改bin --> 合适的右点位 --->合适的bin
   function changeBin(bin: number) {

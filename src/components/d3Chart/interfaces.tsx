@@ -78,6 +78,7 @@ export interface IDCLAccountFee {
     user_token: {
       token_x: string;
       token_y: string;
+      timestamp: number;
     };
     change_log_data: IDclLogData[];
   };

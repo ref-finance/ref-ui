@@ -382,23 +382,6 @@ export default function YourLiquidityPageV3() {
                     <span className="gotham_bold">
                       DCL ({+v2LiquidityQuantity})
                     </span>
-                    <div
-                      className="text-white text-right ml-1"
-                      data-class="reactTip"
-                      data-for={'v2PoolNumberTip'}
-                      data-place="right"
-                      data-html={true}
-                      data-tip={getTipForV2Pool()}
-                    >
-                      <QuestionMark></QuestionMark>
-                      <ReactTooltip
-                        id={'v2PoolNumberTip'}
-                        backgroundColor="#1D2932"
-                        border
-                        borderColor="#7e8a93"
-                        effect="solid"
-                      />
-                    </div>
                   </div>
                   <p className="text-sm text-farmText">
                     <FormattedMessage id="v2_your_pool_introduction"></FormattedMessage>
