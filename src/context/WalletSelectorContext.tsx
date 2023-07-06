@@ -20,9 +20,7 @@ import { setupNeth } from '@near-wallet-selector/neth';
 
 import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet';
 
-import { setupWalletConnect } from '@near-wallet-selector/wallet-connect';
-
-import { InjectedWallet } from '@near-wallet-selector/core';
+import { setupNightly } from '@near-wallet-selector/nightly';
 
 import getConfig from '../services/config';
 
