@@ -1283,6 +1283,7 @@ const en_US = {
   Market: 'Market',
   TotalSupplied: 'Total Supplied',
   TotalBorrowed: 'Total Borrowed',
+
   AvailableLiquidities: 'Available Liquidities',
   DailyRewards: 'Daily Rewards',
   SupplyAPY: 'Supply APY',
@@ -1318,7 +1319,41 @@ const en_US = {
   TotalInvested: 'Total Invested',
   TotalAssets: 'Total Assets',
   TokenAllocation: 'Token Allocation',
+  perpTip:
+    'Welcome to Ref perpetual-future, read {perpTipLink} docs to get start!',
+  perpTipLink: '[Perpetual-futures Introduction]',
+  pred_funding_rate: 'Pred. Funding Rate',
+  open_interest: 'Open Interest',
   netWorthTip:
     'Total value of investments in Ref (including claimable rewards) + Total value of Orderly assets + Total value of Burrow assets + Total assets in wallet',
+
+  mark_price: 'Mark Price',
+  mark_price_tip: 'Mark price is used for PnL calculating and liquidation.',
+  total_collateral: 'Total Collateral',
+  free_collateral: 'Free Collateral',
+  total_upnl: 'Total uPnL',
+  margin_ratio: 'Margin Ratio',
+  total_npnl_tip:
+    'Estimated unrealized profit and loss across all open positions',
+  low_risk: 'Low Risk',
+  mid_risk: 'Mid Risk',
+  high_risk: 'High Risk',
+  liquidations: 'Liquidations',
+  leverage_max_10x: 'Leverage (Max-10x):',
+  marker_taker_fee_rate: 'Maker/Taker Fee Rate',
+  liquidation_price: 'Liquidation Price',
+  margin_required: 'Margin Required',
+  perp_buy_limit_order_range:
+    'The price of buy limit orders should be less than or equal to',
+  perp_sell_limit_order_range:
+    'The price of sell limit orders should be greater than or equal to',
+  perp_buy_limit_order_scope:
+    'The price of a buy limit order cannot be lower than',
+  perp_sell_limit_order_scope:
+    'The price of a sell limit order cannot be higher than',
+  liquidations_fee: 'Liquidations Fee',
+  more_trading_price: 'More Trading Price',
+  margin_ratio_tip:
+    'The margin ratio of an account is equal to the total collateral value (ie the USDC balance + any unrealized profit/loss) divided by the total open notional of the account (the sum of the absolute notional value of all positions)',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

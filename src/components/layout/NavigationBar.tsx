@@ -187,11 +187,6 @@ function Anchor({
         if (curMode == SWAP_MODE.NORMAL && storageSwapTab === 'normal') {
           setChosenSub('swap');
         } else if (
-          e[SWAP_MODE_KEY] == SWAP_MODE.STABLE &&
-          storageSwapTab === 'normal'
-        ) {
-          setChosenSub('stable');
-        } else if (
           e[SWAP_MODE_KEY] == SWAP_MODE.LIMIT &&
           storageSwapTab === 'normal'
         ) {
@@ -1508,7 +1503,7 @@ function MenuBar() {
               }`}
             >
               {logo ? <span className="mr-1">{logo}</span> : null}
-              <div className={`text-base`}>{label}</div>
+              <div className={`text-base `}>{label}</div>
               {children ? (
                 <DownTriangleIcon className="ml-1 mt-1"></DownTriangleIcon>
               ) : null}
@@ -1550,7 +1545,7 @@ function MenuBar() {
                     }`}
                   >
                     {logo ? <div className="w-8 mr-2">{logo}</div> : null}
-                    <div className="text-base">{label}</div>
+                    <div className="text-base ">{label}</div>
                     {children ? (
                       <span className="text-xl ml-2">
                         <FiChevronRight />

@@ -1178,5 +1178,20 @@ const vi = {
   TokenAllocation: 'Token Allocation',
   netWorthTip:
     'Total value of investments in Ref (including claimable rewards) + Total value of Orderly assets + Total value of Burrow assets + Total assets in wallet',
+  open_interest: 'Open Interest',
+
+  perpTip:
+    'Welcome to Ref perpetual-future, read {perpTipLink} docs to get start!',
+  pred_funding_rate: 'Pred. Funding Rate',
+  perpTipLink: '[Perpetual-futures Introduction]',
+  mark_price: 'Mark Price',
+  mark_price_tip: 'Mark price is used for PnL calculating and liquidation.',
+  total_collateral: 'Total Collateral',
+  free_collateral: 'Free Collateral',
+  total_upnl: 'Total uPnL',
+  margin_ratio: 'Margin Ratio',
+  low_risk: 'Low Risk',
+  mid_risk: 'Medium Risk',
+  high_risk: 'High Risk',
 };
 export default Object.assign(vi, vi_in_risks_page);

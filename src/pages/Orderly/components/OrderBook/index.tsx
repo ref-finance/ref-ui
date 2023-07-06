@@ -5,6 +5,7 @@ import RecentTrade from '../RecentTrade';
 import { MyOrder, Orders, SymbolInfo } from '../../orderly/type';
 import { MyOrderTip } from '../Common';
 import {
+  PerpOrSpot,
   digitWrapper,
   numberWithCommas,
   numberWithCommasPadding,
@@ -13,15 +14,21 @@ import { MdArrowDropDown, MdArrowDropUp } from 'react-icons/md';
 import { Selector } from '../OrderBoard';
 import { IoArrowUpOutline } from 'react-icons/io5';
 import Big from 'big.js';
-import { TextWrapper } from '../UserBoard/index';
-import { OrderlyLoading } from '../Common/Icons';
+import { MarkPriceFlag, OrderlyLoading } from '../Common/Icons';
 import { useClientMobile } from '../../../../utils/device';
-import {
-  scientificNotationToString,
-  formatWithCommas,
-} from '../../../../utils/numbers';
-import { useInView } from 'react-intersection-observer';
+
 import { useIntl } from 'react-intl';
+import ReactTooltip from 'react-tooltip';
+
+function getMarkPrice() {
+  const intl = useIntl();
+  return `<div class=" rounded-md w-p200 text-primaryOrderly  text-xs  text-left">
+    ${intl.formatMessage({
+      id: 'mark_price_tip',
+      defaultMessage: 'Mark price is used for PnL calculating and liquidation.',
+    })} 
+  </div>`;
+}
 
 function parseSymbol(fullName: string) {
   return {
@@ -172,7 +179,7 @@ function groupOrdersByPrecision({
   };
 }
 
-function getDecimalPlaceByNumber(precision: number) {
+export function getDecimalPlaceByNumber(precision: number) {
   const str = precision.toString();
 
   if (str.indexOf('.') === -1) return 0;
@@ -190,8 +197,6 @@ function OrderLine({
   pendingOrders,
   groupMyPendingOrders,
   zIndex,
-  setInViewCOunt,
-  inViewCount,
   decimalLength,
   symbolInfo,
 }: {
@@ -279,7 +284,11 @@ function OrderBook({ maintenance }: { maintenance: boolean }) {
     setBridgePrice,
     handlePendingOrderRefreshing,
     availableSymbols,
+    indexprices,
+    markPrices,
   } = useOrderlyContext();
+
+  const curMarkPrice = markPrices?.find((i) => i.symbol === symbol)?.price;
 
   const symbolInfo = availableSymbols?.find((s) => s.symbol === symbol) || {
     created_time: 1575441595650, // Unix epoch time in milliseconds
@@ -393,6 +402,31 @@ function OrderBook({ maintenance }: { maintenance: boolean }) {
   const diff = preMedian === undefined ? 0 : curMedian - preMedian || 0;
 
   const intl = useIntl();
+
+  const symbolType = PerpOrSpot(symbol);
+
+  const displayMarkPrice = (
+    <div className="frcs gap-2">
+      <MarkPriceFlag></MarkPriceFlag>
+
+      {!curMarkPrice ? (
+        '-'
+      ) : (
+        <span
+          className="whitespace-nowrap text-xs text-white underline"
+          style={{
+            textDecorationLine: 'underline',
+            textDecorationStyle: 'dashed',
+            textUnderlineOffset: '3px',
+            WebkitTextDecorationColor: '#7E8A93',
+            textDecorationColor: '#7E8A93',
+          }}
+        >
+          {numberWithCommas(curMarkPrice)}
+        </span>
+      )}
+    </div>
+  );
 
   return (
     <div className="w-full h-full flex flex-col  relative border  border-boxBorder text-sm rounded-2xl bg-black bg-opacity-10 py-4 ">
@@ -588,7 +622,7 @@ function OrderBook({ maintenance }: { maintenance: boolean }) {
           </section>
 
           {/* market trade */}
-          {!maintenance && (
+          {!maintenance && symbolType == 'SPOT' && (
             <div
               className={`text-center font-nunito flex items-center py-1 justify-center ${
                 diff > 0
@@ -608,6 +642,47 @@ function OrderBook({ maintenance }: { maintenance: boolean }) {
                   className={diff < 0 ? 'transform rotate-180' : ''}
                 />
               )}
+            </div>
+          )}
+
+          {!maintenance && symbolType == 'PERP' && (
+            <div
+              className={`text-center text-sm relative font-nunito flex items-center py-2 justify-center ${
+                diff > 0
+                  ? 'text-buyGreen'
+                  : diff < 0
+                  ? 'text-sellRed'
+                  : 'text-primaryText'
+              } text-lg`}
+            >
+              {
+                <span className="top-0.5 whitespace-nowrap absolute left-4  text-lg">
+                  {orders &&
+                    recentTrades?.length > 0 &&
+                    curMedian !== undefined &&
+                    displayMedian}
+                </span>
+              }
+
+              <div
+                className="pl-1 text-white text-base"
+                data-for={'orderbook_mark_price'}
+                data-class="reactTip"
+                data-html={true}
+                data-tip={getMarkPrice()}
+                data-multiline={true}
+              >
+                {orders && curMarkPrice && displayMarkPrice}
+                <ReactTooltip
+                  id={'orderbook_mark_price'}
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  effect="solid"
+                  textColor="#C6D1DA"
+                  place="top"
+                />
+              </div>
             </div>
           )}
 

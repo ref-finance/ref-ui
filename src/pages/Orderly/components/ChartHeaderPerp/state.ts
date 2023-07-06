@@ -11,7 +11,7 @@ export function useTokenMetaFromSymbol(
   useEffect(() => {
     if (!symbol || !tokenInfo) return;
 
-    const token = tokenInfo && tokenInfo.find((t) => t.token.includes(symbol));
+    const token = tokenInfo && tokenInfo.find((t) => t.token === symbol);
 
     if (!token?.token_account_id) return;
 

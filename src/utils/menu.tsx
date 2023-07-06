@@ -67,6 +67,7 @@ import {
 import { WalletContext } from '../utils/wallets-integration';
 import { useHistory } from 'react-router';
 import { jsx } from '@emotion/react';
+import { openUrl } from '~services/commonV3';
 
 export type MenuItem = {
   id: number;
@@ -278,11 +279,51 @@ export const useMenus = () => {
         {
           id: '1-3',
           label: (
-            <>
-              <FormattedMessage id="orderbook_mobile"></FormattedMessage>
-            </>
+            <div className="w-full">
+              <div className="frcs gap-6 mb-2">
+                <OrderBookIcon />
+                <FormattedMessage id="orderbook_mobile"></FormattedMessage>
+              </div>
+
+              <div className="w-full frcs gap-3 text-white text-base ">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+
+                    openUrl('/orderbook/spot');
+                  }}
+                  style={{
+                    width: '120px',
+                  }}
+                  className="frcc bg-symbolHover2 hover:bg-light1 w-1/2 rounded-xl py-2"
+                >
+                  <FormattedMessage
+                    id="spot"
+                    defaultMessage={'Spot'}
+                  ></FormattedMessage>
+                </button>
+
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    openUrl('/orderbook/perps');
+                  }}
+                  style={{
+                    width: '120px',
+                  }}
+                  className="frcc bg-symbolHover2 hover:bg-light1 w-1/2 rounded-xl py-2"
+                >
+                  <FormattedMessage
+                    id="perpetual"
+                    defaultMessage={'Perpetual'}
+                  ></FormattedMessage>
+                </button>
+              </div>
+            </div>
           ),
-          logo: <OrderBookIcon />,
           url: '/orderbook',
           isExternal: false,
           links: ['/orderbook'],

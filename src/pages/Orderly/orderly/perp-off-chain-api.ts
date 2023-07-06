@@ -3,6 +3,7 @@ import {
   requestOrderly,
   tradingOrderly,
 } from './off-chain-api';
+import { SymbolFuture } from './type';
 import { formateParams } from './utils';
 
 interface FundingRate {
@@ -29,17 +30,15 @@ const getFundingRates = (): Promise<FundingRate> => {
   return getOrderlyPublic('/v1/public/funding_rates');
 };
 
-const getUserAllPositions = (
-  user: string,
-  leverage: 1 | 2 | 3 | 4 | 5 | 10
-) => {
-  const url = `/v1/positions/leverage`;
+const getFundingRateSymbol = (symbol: string) => {
+  return getOrderlyPublic(`/v1/public/funding_rate/${symbol}`);
+};
+
+const getUserAllPositions = (user: string) => {
+  const url = `/v1/positions`;
   const res = requestOrderly({
     url,
     accountId: user,
-    param: {
-      leverage,
-    },
   });
 
   return res;
@@ -112,10 +111,31 @@ const claimLiquidatedPositions = async ({
   });
 };
 
+const getLiquidationHistory = async (props: {
+  accountId: string;
+  HistoryParam: {
+    symbol: string;
+    page: number;
+    size?: number;
+  };
+}) => {
+  const url = `/v1/liquidations?${formateParams(props.HistoryParam)}`;
+
+  const res = await requestOrderly({
+    url,
+    accountId: props.accountId,
+    ct: 'application/json;charset=utf-8',
+  });
+
+  return res;
+};
+
 export {
   getFundingRates,
   getUserAllPositions,
   updateLeverage,
   getFundingFeeHistory,
   claimLiquidatedPositions,
+  getFundingRateSymbol,
+  getLiquidationHistory,
 };

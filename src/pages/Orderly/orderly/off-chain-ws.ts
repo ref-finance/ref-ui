@@ -16,6 +16,9 @@ import {
   Balance,
   IndexPrice,
   EstFundingrate,
+  OpenInterest,
+  PositionPushType,
+  LiquidationPushType,
 } from './type';
 import { getOrderlyConfig } from '../config';
 import {
@@ -30,7 +33,7 @@ import { useTokenInfo } from './state';
 import { getFTmetadata } from '../near';
 import { useWalletSelector } from '../../../context/WalletSelectorContext';
 import useInterval from 'react-useinterval';
-import { Position } from '../../../../dist/charting_library/charting_library';
+import { getFundingRateSymbol } from './perp-off-chain-api';
 
 export const REF_ORDERLY_WS_ID_PREFIX = 'orderly_ws_';
 
@@ -148,9 +151,16 @@ export const generateMarketDataFlow = ({ symbol }: { symbol: string }) => {
 
     {
       id: `${symbol}@estfundingrate`,
-      event: 'request',
+      event: 'subscribe',
       topic: `${symbol}@estfundingrate`,
     },
+
+    {
+      id: `openinterests`,
+      event: 'subscribe',
+      topic: `openinterests`,
+    },
+
     {
       id: `markprices`,
       event: 'subscribe',
@@ -218,6 +228,8 @@ export const useOrderlyMarketData = ({
   const [indexprices, setIndexprices] = useState<IndexPrice[]>();
 
   const [estFundingRate, setEstFundingRate] = useState<EstFundingrate>();
+
+  const [openinterests, setOpeninterests] = useState<OpenInterest[]>();
 
   useEffect(() => {
     if (connectionStatus !== 'Open') return;
@@ -317,8 +329,12 @@ export const useOrderlyMarketData = ({
       });
     }
 
-    if (lastJsonMessage?.['topice'] === `${symbol}@estfundingrate`) {
+    if (lastJsonMessage?.['topic'] === `${symbol}@estfundingrate`) {
       setEstFundingRate(lastJsonMessage?.['data']);
+    }
+
+    if (lastJsonMessage?.['topic'] === `openinterests`) {
+      setOpeninterests(lastJsonMessage?.['data']);
     }
 
     //  process trade
@@ -345,7 +361,7 @@ export const useOrderlyMarketData = ({
     if (lastJsonMessage?.['topic'] === 'tickers') {
       const tickers = lastJsonMessage?.['data'];
 
-      setAllTickers(tickers.filter((s: any) => s.symbol.indexOf('SPOT') > -1));
+      setAllTickers(tickers);
 
       const ticker = tickers.find((t: Ticker) => t.symbol === symbol);
 
@@ -381,6 +397,19 @@ export const useOrderlyMarketData = ({
     );
   }, [requestSymbol, connectionStatus]);
 
+  // change funding rate
+  useEffect(() => {
+    if (!symbol) return;
+
+    getFundingRateSymbol(symbol).then((res) => {
+      setEstFundingRate({
+        symbol,
+        fundingRate: res.data.est_funding_rate,
+        fundingTs: res.data.next_funding_time,
+      });
+    });
+  }, [symbol]);
+
   useEffect(() => {
     if (connectionStatus !== 'Open' || !requestSymbol) return;
 
@@ -403,6 +432,9 @@ export const useOrderlyMarketData = ({
     allTickers,
     ordersUpdate,
     requestOrders,
+    openinterests,
+    estFundingRate,
+    indexprices,
   };
 };
 
@@ -411,23 +443,20 @@ export const useOrderlyPrivateData = ({
 }: {
   validAccountSig: boolean;
 }) => {
-  const {
-    connectionStatus,
-    messageHistory,
-    lastMessage,
-    sendMessage,
-    lastJsonMessage,
-  } = usePrivateOrderlyWS();
+  const { sendMessage, lastJsonMessage } = usePrivateOrderlyWS();
 
   const [authPass, setAuthPass] = useState(false);
   const { accountId } = useWalletSelector();
 
   const [balances, setBalances] = useState<Record<string, Balance>>({});
-  const [positions, setPositions] = useState<Position[]>();
 
   const [orderlyKey, setOrderlyKey] = useState('');
 
   const [requestSignature, setRequestSignature] = useState('');
+
+  const [liquidations, setLiquidations] = useState<LiquidationPushType[]>([]);
+
+  const [positionPush, setPositionPush] = useState<PositionPushType[]>();
 
   const time_stamp = useMemo(() => Date.now(), []);
 
@@ -484,9 +513,14 @@ export const useOrderlyPrivateData = ({
     }
 
     if (lastJsonMessage?.['topic'] === 'position') {
-      const positions = lastJsonMessage?.['data']?.positions;
+      setPositionPush(lastJsonMessage?.['data'].positions);
+    }
 
-      setPositions(positions);
+    if (lastJsonMessage?.['topic'] === 'liquidatorliquidations') {
+      setLiquidations((liquidations) => [
+        ...liquidations,
+        lastJsonMessage?.['data'],
+      ]);
     }
   }, [lastJsonMessage]);
 
@@ -494,22 +528,34 @@ export const useOrderlyPrivateData = ({
     if (!authPass) return;
 
     sendMessage(
-      JSON.stringify([
-        {
-          id: 'balance',
-          topic: 'balance',
-          event: 'subscribe',
-        },
-        {
-          id: 'position',
-          event: 'subscribe',
-          topic: `position`,
-        },
-      ])
+      JSON.stringify({
+        id: 'balance',
+        topic: 'balance',
+        event: 'subscribe',
+      })
+    );
+
+    sendMessage(
+      JSON.stringify({
+        id: 'position',
+        topic: 'position',
+        event: 'subscribe',
+      })
+    );
+
+    sendMessage(
+      JSON.stringify({
+        id: 'liquidatorliquidations',
+        topic: 'position',
+        event: 'liquidatorliquidations',
+      })
     );
   }, [authPass]);
 
   return {
     balances,
+    positionPush,
+    liquidations,
+    setLiquidations,
   };
 };

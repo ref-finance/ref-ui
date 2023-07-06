@@ -1252,8 +1252,24 @@ const zh_CN = {
   WalletAssets: '钱包资产',
   TotalInvested: '投资',
   TotalAssets: '资产',
+  open_interest: 'Open Interest',
   TokenAllocation: '代币分布',
   netWorthTip:
     'Ref中的投资总价值(包括可领取奖励)+Orderly资产总价值+ Burrow资产总价值+钱包中的总资产',
+  perpTip:
+    'Welcome to Ref perpetual-future, read {perpTipLink} docs to get start!',
+  perpTipLink: '[Perpetual-futures Introduction]',
+  pred_funding_rate: 'Pred. Funding Rate',
+  mark_price: 'Mark Price',
+  mark_price_tip: 'Mark price is used for PnL calculating and liquidation.',
+  total_collateral: 'Total Collateral',
+  free_collateral: 'Free Collateral',
+  total_upnl: 'Total uPnL',
+  margin_ratio: 'Margin Ratio',
+  low_risk: 'Low Risk',
+  mid_risk: 'Medium Risk',
+  high_risk: 'High Risk',
+  margin_ratio_tip:
+    'The margin ratio of an account is equal to the total collateral value (ie the USDC balance + any unrealized profit/loss) divided by the total open notional of the account (the sum of the absolute notional value of all positions)',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

@@ -239,23 +239,8 @@ export const getAssetHistory = async (props: {
   return res;
 };
 
-export const getOpenOrders = async (props: {
-  accountId: string;
-  // OrderProps?: {
-  //   symbol?: string;
-  //   side?: 'BUY' | 'SELL';
-  //   order_type?: 'LIMIT' | 'MARKET';
-  //   order_tag?: string;
-  //   status?: 'NEW' | 'CANCELLED' | 'REJECTED' | 'COMPLETED' | 'FILLED' | 'PARTIAL_FILLED' | 'INCOMPLETE';
-  //   start_t?: number;
-  //   end_t?: number;
-  //   page?: number;
-  //   size?: number;
-  // };
-}) => {
-  const url = `/orderservice/v1/merge/orders/pending?${formateParams({
-    broker_id: 'ref_dex',
-  })}`;
+export const getOpenOrders = async (props: { accountId: string }) => {
+  const url = `/orderservice/v1/merge/orders/pending`;
 
   const res = requestOrderly({
     url,

@@ -1,8 +1,21 @@
 import React, { useContext, createContext, useState, useEffect } from 'react';
 import { useOrderlyMarketData, useOrderlyPrivateData } from './off-chain-ws';
-import { useAccountExist, useOrderlySystemAvailable } from './state';
+import {
+  useAccountExist,
+  useAllOrders,
+  useAllPositions,
+  useOrderlySystemAvailable,
+} from './state';
 import { useAllSymbolInfo } from '../components/AllOrders/state';
-import { SymbolInfo } from './type';
+import {
+  EstFundingrate,
+  IndexPrice,
+  LiquidationPushType,
+  OpenInterest,
+  PositionPushType,
+  PositionsType,
+  SymbolInfo,
+} from './type';
 import {
   MarketTrade,
   Orders,
@@ -13,15 +26,7 @@ import {
   Balance,
   MyOrder,
 } from './type';
-import {
-  useMarketTrades,
-  useTokenInfo,
-  usePendingOrders,
-  useAllOrdersSymbol,
-  useStorageEnough,
-} from './state';
-import { TokenMetadata } from '~services/ft-contract';
-import { parseSymbol } from '../components/RecentTrade';
+import { useTokenInfo, useAllOrdersSymbol, useStorageEnough } from './state';
 
 interface OrderlyContextValue {
   orders: Orders | undefined;
@@ -36,6 +41,9 @@ interface OrderlyContextValue {
   markPrices: MarkPrice[] | undefined;
   balances?: Record<string, Balance>;
   allTickers: Ticker[] | undefined;
+  indexprices: IndexPrice[] | undefined;
+  allTickersPerp: Ticker[] | undefined;
+  openinterests: OpenInterest[] | undefined;
   allOrdersSymbol: MyOrder[] | undefined;
   handlePendingOrderRefreshing: () => void;
   pendingOrders: MyOrder[];
@@ -51,6 +59,12 @@ interface OrderlyContextValue {
   systemAvailable: boolean;
   requestSymbol: string;
   setRequestSymbol: (symbol: string) => void;
+  estFundingRate: EstFundingrate | undefined;
+  positions: PositionsType | undefined;
+  positionPush: PositionPushType[] | undefined;
+  allOrdersSymbolMarket?: MyOrder[];
+  liquidations: LiquidationPushType[];
+  setLiquidations: (liquidations: LiquidationPushType[]) => void;
 }
 
 export const REF_ORDERLY_SYMBOL_KEY = 'REF_ORDERLY_SYMBOL_KEY';
@@ -58,18 +72,38 @@ export const REF_ORDERLY_SYMBOL_KEY = 'REF_ORDERLY_SYMBOL_KEY';
 export const OrderlyContext = createContext<OrderlyContextValue | null>(null);
 
 const OrderlyContextProvider: React.FC<any> = ({ children }) => {
-  let storedSymbol = localStorage.getItem(REF_ORDERLY_SYMBOL_KEY);
+  const storedSymbol = localStorage.getItem(REF_ORDERLY_SYMBOL_KEY);
 
-  if (!!storedSymbol && storedSymbol.indexOf('SPOT') === -1) {
-    localStorage.setItem(REF_ORDERLY_SYMBOL_KEY, 'SPOT_NEAR_USDC');
-    storedSymbol = 'SPOT_NEAR_USDC';
-  }
+  const pathname = window.location.pathname;
+
+  const isPerp = pathname.includes('perp');
 
   const [symbol, setSymbol] = useState<string>(
     storedSymbol || 'SPOT_NEAR_USDC'
   );
 
+  useEffect(() => {
+    if (
+      (isPerp && symbol.indexOf('PERP') > -1) ||
+      (!isPerp && symbol.indexOf('SPOT') > -1)
+    ) {
+      return;
+    }
+
+    if (isPerp) {
+      setSymbol('PERP_NEAR_USDC');
+      localStorage.setItem(REF_ORDERLY_SYMBOL_KEY, 'PERP_NEAR_USDC');
+    } else {
+      setSymbol('SPOT_NEAR_USDC');
+      localStorage.setItem(REF_ORDERLY_SYMBOL_KEY, 'SPOT_NEAR_USDC');
+    }
+  }, [symbol]);
+
   const [requestSymbol, setRequestSymbol] = useState<string>();
+  const [myPendingOrdersRefreshing, setMyPendingOrdersRefreshing] =
+    useState<boolean>(false);
+
+  const { positions } = useAllPositions(myPendingOrdersRefreshing);
 
   const value = useOrderlyMarketData({
     symbol,
@@ -85,16 +119,15 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
 
   const [validAccountSig, setValidAccountSig] = useState<boolean>(false);
 
-  const [myPendingOrdersRefreshing, setMyPendingOrdersRefreshing] =
-    useState<boolean>(false);
-
   const handlePendingOrderRefreshing = () => {
     setMyPendingOrdersRefreshing(!myPendingOrdersRefreshing);
   };
 
   const [bridgePrice, setBridgePrice] = useState<string>('');
 
-  const privateValue = useOrderlyPrivateData({ validAccountSig });
+  const privateValue = useOrderlyPrivateData({
+    validAccountSig,
+  });
 
   const availableSymbols = useAllSymbolInfo();
 
@@ -126,6 +159,13 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
       value={{
         ...value,
         ...privateValue,
+        allTickers: value.allTickers?.filter(
+          (t) => t.symbol.indexOf('SPOT') > -1
+        ),
+        allTickersPerp: value.allTickers?.filter(
+          (t) => t.symbol.indexOf('PERP') > -1
+        ),
+        positions,
         systemAvailable,
         requestSymbol,
         setRequestSymbol,
@@ -137,7 +177,9 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
         },
         recentTrades,
         tokenInfo,
-        allOrdersSymbol,
+        allOrdersSymbol: allOrdersSymbol?.filter(
+          (o) => o.broker_id === 'ref_dex'
+        ),
         handlePendingOrderRefreshing,
         pendingOrders:
           allOrdersSymbol?.filter(

@@ -4,7 +4,10 @@ import { ChartContainer } from './components/TVChartContainer/index';
 
 import OrderBook from './components/OrderBook';
 import ChartHeader from './components/ChartHeader';
-import UserBoard from './components/UserBoard';
+
+import ChartHeaderPerp from './components/ChartHeaderPerp';
+
+import UserBoardPerp from './components/UserBoardPerp';
 
 import {
   get_orderly_private_key_path,
@@ -20,6 +23,7 @@ import MobileInfoBoard from './components/MobileInfoBoard';
 
 import { OrderlyUnderMaintainIcon } from './components/Common/Icons';
 import { getOrderlySystemInfo } from './orderly/off-chain-api';
+import { PerpOrderlyTip } from './components/PerpHeader';
 
 function TradingBoard() {
   const isLarge = useLargeScreen();
@@ -43,14 +47,15 @@ function TradingBoard() {
       {maintenance && <OrderlyUnderMaintain></OrderlyUnderMaintain>}
 
       <div className="w-full flex flex-col" id="trading-orderly-board">
+        <ChartHeaderPerp maintenance={maintenance}></ChartHeaderPerp>
+
         <div
           className="w-full flex"
           style={{
-            height: 'calc(52vh + 70px)',
+            height: 'calc(52vh + 30px)',
           }}
         >
           <div className="w-full border p-4   border-boxBorder rounded-2xl bg-black bg-opacity-10">
-            <ChartHeader maintenance={maintenance}></ChartHeader>
             <ChartContainer maintenance={maintenance} />
           </div>
           {!isLarge && (
@@ -80,7 +85,7 @@ function TradingBoard() {
           width: '340px',
         }}
       >
-        <UserBoard maintenance={maintenance} />
+        <UserBoardPerp maintenance={maintenance} />
       </div>
     </div>
   );
@@ -148,7 +153,7 @@ function OrderlyUnderMaintain() {
   );
 }
 
-function OrderlyTradingBoard() {
+export function OrderlyPerpetual() {
   const priKeyPath = get_orderly_private_key_path();
 
   const pubKeyPath = get_orderly_public_key_path();
@@ -165,12 +170,12 @@ function OrderlyTradingBoard() {
   });
 
   return (
-    <div className="mx-auto relative xs:bottom-6">
+    <div className="mx-auto xs:relative xs:bottom-6">
+      <PerpOrderlyTip />
+
       {!isMobile && <TradingBoard></TradingBoard>}
 
       {isMobile && <MobileTradingBoard></MobileTradingBoard>}
     </div>
   );
 }
-
-export default OrderlyTradingBoard;

@@ -46,3 +46,8 @@ export function numberWithCommasPadding(x: number, decimalPlaceLength: number) {
   parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   return parts.join('.');
 }
+
+export function PerpOrSpot(symbol: string) {
+  if (symbol.indexOf('SPOT') > -1) return 'SPOT';
+  else return 'PERP';
+}

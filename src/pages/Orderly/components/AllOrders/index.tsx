@@ -65,7 +65,7 @@ import {
   FilledStamp,
   HistoryOrderDetailIcon,
 } from '../Common/Icons';
-import { digitWrapper, numberWithCommas } from '../../utiles';
+import { digitWrapper, numberWithCommas, PerpOrSpot } from '../../utiles';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../UserBoard/index';
 import {
   ONLY_ZEROS,
@@ -2705,6 +2705,10 @@ function OpenOrders({
     if (!orders) return;
 
     setOpenCount(orders.filter(filterFunc).length);
+    console.log(
+      'orders.filter(filterFunc).length: ',
+      orders.filter(filterFunc).length
+    );
   }, [chooseSide, chooseMarketSymbol, !!orders, chooseType]);
 
   useEffect(() => {
@@ -3246,6 +3250,10 @@ function HistoryOrders({
     if (!orders) return;
 
     setHistoryCount(orders.filter(filterFunc).length);
+    console.log(
+      'orders.filter(filterFunc).length: ',
+      orders.filter(filterFunc).length
+    );
   }, [chooseSide, chooseType, chooseStatus, !!orders, chooseMarketSymbol]);
 
   useEffect(() => {
@@ -3370,6 +3378,78 @@ function HistoryOrders({
       }, 500);
     }
   };
+
+  const symbolType = PerpOrSpot(symbol);
+
+  const typeList =
+    symbolType === 'SPOT'
+      ? [
+          {
+            text: intl.formatMessage({
+              id: 'All',
+              defaultMessage: 'All',
+            }),
+            textId: 'All',
+            className: 'text-white',
+          },
+          {
+            text: intl.formatMessage({
+              id: 'limit_orderly',
+              defaultMessage: 'Limit',
+            }),
+            textId: 'Limit',
+            className: 'text-white',
+          },
+          {
+            text: intl.formatMessage({
+              id: 'market',
+              defaultMessage: 'Market',
+            }),
+            textId: 'Market',
+            className: 'text-white',
+          },
+          {
+            text: 'IOC',
+            textId: 'IOC',
+            className: 'text-white',
+          },
+          {
+            text: 'FOK',
+            textId: 'FOK',
+            className: 'text-white',
+          },
+          {
+            text: 'Post Only',
+            textId: 'Post Only',
+            className: 'text-white',
+          },
+        ]
+      : [
+          {
+            text: intl.formatMessage({
+              id: 'All',
+              defaultMessage: 'All',
+            }),
+            textId: 'All',
+            className: 'text-white',
+          },
+          {
+            text: intl.formatMessage({
+              id: 'limit_orderly',
+              defaultMessage: 'Limit',
+            }),
+            textId: 'Limit',
+            className: 'text-white',
+          },
+          {
+            text: intl.formatMessage({
+              id: 'market',
+              defaultMessage: 'Market',
+            }),
+            textId: 'Market',
+            className: 'text-white',
+          },
+        ];
 
   return (
     <>
@@ -3655,47 +3735,7 @@ function HistoryOrders({
                       setChooseType(value);
                       setShowTypeSelector(false);
                     }}
-                    list={[
-                      {
-                        text: intl.formatMessage({
-                          id: 'All',
-                          defaultMessage: 'All',
-                        }),
-                        textId: 'All',
-                        className: 'text-white',
-                      },
-                      {
-                        text: intl.formatMessage({
-                          id: 'limit_orderly',
-                          defaultMessage: 'Limit',
-                        }),
-                        textId: 'Limit',
-                        className: 'text-white',
-                      },
-                      {
-                        text: intl.formatMessage({
-                          id: 'market',
-                          defaultMessage: 'Market',
-                        }),
-                        textId: 'Market',
-                        className: 'text-white',
-                      },
-                      {
-                        text: 'IOC',
-                        textId: 'IOC',
-                        className: 'text-white',
-                      },
-                      {
-                        text: 'FOK',
-                        textId: 'FOK',
-                        className: 'text-white',
-                      },
-                      {
-                        text: 'Post Only',
-                        textId: 'Post Only',
-                        className: 'text-white',
-                      },
-                    ]}
+                    list={typeList}
                   />
                 )}
               </FlexRow>
@@ -3935,15 +3975,15 @@ function HistoryOrders({
 }
 
 function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
-  const {
-    symbol,
-    myPendingOrdersRefreshing,
-    handlePendingOrderRefreshing,
-    tokenInfo,
-    validAccountSig,
-  } = useOrderlyContext();
+  const { symbol, myPendingOrdersRefreshing, tokenInfo } = useOrderlyContext();
+  const symbolType = PerpOrSpot(symbol);
 
-  const availableSymbols = useAllSymbolInfo();
+  const AllAvailableSymbols = useAllSymbolInfo();
+
+  const availableSymbols = AllAvailableSymbols?.filter(
+    (s) => s.symbol.indexOf(symbolType) > -1
+  );
+
   const [mobileFilterOpen, setMobileFilterOpen] = useState<
     'open' | 'history' | undefined
   >(undefined);
@@ -3969,7 +4009,10 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
 
   const isMobile = useClientMobile();
 
-  const allOrders = useAllOrders({ refreshingTag: myPendingOrdersRefreshing });
+  const allOrders = useAllOrders({
+    refreshingTag: myPendingOrdersRefreshing,
+    type: symbolType,
+  });
 
   const { accountId } = useWalletSelector();
 
@@ -4016,7 +4059,7 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
     if (historyOrders !== undefined) {
       setHistoryCount(historyOrders.length);
     }
-  }, [allOrders, openOrders?.length, historyOrders?.length]);
+  }, [openOrders?.length, historyOrders?.length]);
 
   return (
     <>
@@ -4162,7 +4205,6 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
             <div
               className="flex relative items-center justify-center pr-5"
               onClick={() => {
-                // todo
                 tab === 'open'
                   ? setMobileFilterOpen('open')
                   : setMobileFilterOpen('history');

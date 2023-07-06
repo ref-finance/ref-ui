@@ -140,7 +140,7 @@ const datafeed = {
     const { from, to, firstDataRequest } = periodParams;
     const parsedSymbol = parseFullSymbol(symbolInfo.full_name);
     const urlParameters = {
-      symbol: `SPOT_${parsedSymbol?.fromSymbol}_${parsedSymbol?.toSymbol}`,
+      symbol: symbolInfo.ticker,
       resolution,
       from,
       to,

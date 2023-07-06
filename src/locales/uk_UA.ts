@@ -1146,8 +1146,23 @@ const uk_UA = {
   WalletAssets: 'Wallet Assets',
   TotalInvested: 'Total Invested',
   TotalAssets: 'Total Assets',
+  open_interest: 'Open Interest',
   TokenAllocation: 'Token Allocation',
   netWorthTip:
     'Total value of investments in Ref (including claimable rewards) + Total value of Orderly assets + Total value of Burrow assets + Total assets in wallet',
+
+  perpTip:
+    'Welcome to Ref perpetual-future, read {perpTipLink} docs to get start!',
+  pred_funding_rate: 'Pred. Funding Rate',
+  perpTipLink: '[Perpetual-futures Introduction]',
+  mark_price: 'Mark Price',
+  mark_price_tip: 'Mark price is used for PnL calculating and liquidation.',
+  total_collateral: 'Total Collateral',
+  free_collateral: 'Free Collateral',
+  total_upnl: 'Total uPnL',
+  margin_ratio: 'Margin Ratio',
+  low_risk: 'Low Risk',
+  mid_risk: 'Medium Risk',
+  high_risk: 'High Risk',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

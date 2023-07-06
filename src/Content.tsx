@@ -85,7 +85,10 @@ import { AccountView } from 'near-api-js/lib/providers/provider';
 import { InjectedWallet } from '@near-wallet-selector/core';
 import { REF_FARM_BOOST_CONTRACT_ID, wallet } from './services/near';
 import { LedgerTransactionModal } from './context/modal-ui/modal';
-import View from './pages/Orderly/OrderlyTradingBoard';
+import OrderlyTradingBoard from './pages/Orderly/OrderlyTradingBoard';
+
+import { OrderlyPerpetual } from './pages/Orderly/OrderlyPerpetual';
+
 import OrderlyContextProvider, {
   OrderlyContext,
 } from '~pages/Orderly/orderly/OrderlyContext';
@@ -213,14 +216,26 @@ export function Content() {
     <WalletContext.Provider value={{ globalState, globalStatedispatch }}>
       <NavigationBar />
       <ToastContainer
-        newestOnTop={window.location.pathname === '/orderbook' ? true : false}
+        newestOnTop={
+          window.location.pathname.startsWith('/orderbook') ? true : false
+        }
         style={{
           marginTop: isMobile() ? 'none' : '44px',
         }}
       />
       <OrderlyContextProvider>
         <Switch>
-          {/* <Route path="/account" component={AccountPage} />
+          <Route
+            path="/orderbook/perps"
+            component={AutoHeight(OrderlyPerpetual)}
+          />
+
+          <Route
+            path="/orderbook/spot"
+            component={AutoHeight(OrderlyTradingBoard)}
+          />
+
+          <Route path="/account" component={AccountPage} />
           <Route path="/recent" component={RecentActivityPage} />
           <Route
             path="/more_pools/:tokenIds"
@@ -234,8 +249,6 @@ export function Content() {
           <Route path={`/sauce/:id`} component={AutoHeight(StableSwapRouter)} />
           <Route path={'/myOrder'} component={AutoHeight(MyOrderPage)} />
 
-          <Route path={'/orderly/all-orders'} component={AllOrders} />
-
           <Route
             path="/yourliquidity"
             component={AutoHeight(YourLiquidityPageV3)}
@@ -245,7 +258,6 @@ export function Content() {
             component={AutoHeight(YourLiquidityDetailV3)}
           />
 
-          <Route path="/orderbook" component={View} />
           <Route
             path="/addLiquidityV2"
             component={AutoHeight(AddYourLiquidityPageV3)}
@@ -267,8 +279,15 @@ export function Content() {
           <Route path="/poolV2/:id" component={AutoHeight(PoolDetailV3)} />
           <Route path="/portfolio" component={AutoHeight(Portfolio)} />
           <Route path="/burrow" component={AutoHeight(Burrow)} />
-          <Route path="/overview" component={AutoHeight(Overview)} /> */}
-          <Route path="/" component={AutoHeight(View)} />
+          <Route path="/overview" component={AutoHeight(Overview)} />
+
+          <Route
+            path="/orderbook"
+            component={AutoHeight(OrderlyTradingBoard)}
+            exact
+          />
+
+          <Route path="/" component={AutoHeight(SwapPage)} />
         </Switch>
       </OrderlyContextProvider>
     </WalletContext.Provider>

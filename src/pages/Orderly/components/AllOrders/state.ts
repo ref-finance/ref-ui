@@ -19,17 +19,28 @@ export function useAllSymbolInfo() {
       .catch((e) => {
         setAvailableSymbols([
           {
-            created_time: 1575441595650, // Unix epoch time in milliseconds
-            updated_time: 1575441595650, // Unix epoch time in milliseconds
-            symbol: 'SPOT_BTC_USDT',
-            quote_min: 100,
+            symbol: 'PERP_BTC_USDC',
+            quote_min: 0,
             quote_max: 100000,
-            quote_tick: 0.01,
-            base_min: 0.0001,
+            quote_tick: 0.1,
+            base_min: 0.00001,
             base_max: 20,
-            base_tick: 0.0001,
-            min_notional: 0.02,
-            price_range: 0.99,
+            base_tick: 0.00001,
+            min_notional: 1,
+            price_range: 0.02,
+            price_scope: 0.4,
+            std_liquidation_fee: 0.03,
+            liquidator_fee: 0.015,
+            claim_insurance_fund_discount: 0.0075,
+            funding_period: 8,
+            cap_funding: 0.000375,
+            floor_funding: -0.000375,
+            interest_rate: 0.0001,
+            created_time: 1684140107326,
+            updated_time: 1685345968053,
+            imr_factor: 0.0000002512,
+            base_mmr: 0.05,
+            base_imr: 0.1,
           },
         ]);
       });
