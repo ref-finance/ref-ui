@@ -726,6 +726,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         order_type: orderType === 'Market' ? 'MARKET' : 'LIMIT',
         order_quantity: parseFloat(inputValue),
         broker_id: 'ref_dex',
+        order_price: orderType === 'Limit' ? limitPrice : '',
       },
     }).then(async (res) => {
       if (res.success === false)
