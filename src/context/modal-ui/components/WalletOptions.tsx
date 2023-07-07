@@ -106,6 +106,8 @@ const notSupportingIcons = [
   walletIcons['ledger'],
   walletIcons['neth'],
 
+  walletIcons['nightly'],
+
   // walletIcons['nightly-connect'],
   // walletIcons['wallet-connect'],
 ];
@@ -295,8 +297,6 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
                 module.metadata.available &&
                 module.id !== 'meteor-wallet' &&
                 module.id !== 'here-wallet';
-
-              const isBeta = module.metadata.name === 'MyNearWallet';
 
               result.push(
                 <li
