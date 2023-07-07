@@ -3254,7 +3254,7 @@ function HistoryOrders({
       'orders.filter(filterFunc).length: ',
       orders.filter(filterFunc).length
     );
-  }, [chooseSide, chooseType, chooseStatus, !!orders, chooseMarketSymbol]);
+  }, [chooseSide, chooseType, chooseStatus, orders, chooseMarketSymbol]);
 
   useEffect(() => {
     if (tab !== 'history') return;
