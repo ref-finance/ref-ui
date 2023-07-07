@@ -1253,6 +1253,8 @@ const zh_CN = {
   TotalInvested: '投资',
   TotalAssets: '资产',
   TokenAllocation: '代币分布',
+  bridge_pure: '桥',
+
   netWorthTip:
     'Ref中的投资总价值(包括可领取奖励)+Orderly资产总价值+ Burrow资产总价值+钱包中的总资产',
 };

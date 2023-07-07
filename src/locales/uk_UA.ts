@@ -1147,6 +1147,7 @@ const uk_UA = {
   TotalInvested: 'Total Invested',
   TotalAssets: 'Total Assets',
   TokenAllocation: 'Token Allocation',
+  bridge_pure: 'Міст',
   netWorthTip:
     'Total value of investments in Ref (including claimable rewards) + Total value of Orderly assets + Total value of Burrow assets + Total assets in wallet',
 };

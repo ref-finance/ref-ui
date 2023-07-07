@@ -1,8 +1,20 @@
-import React, { ReactNode, useContext } from 'react';
+import React, { ReactNode, useContext, useState, useEffect } from 'react';
 import { AiOutlineMedium } from 'react-icons/ai';
 import { FaDiscord, FaTelegramPlane, FaTwitter } from 'react-icons/fa';
 import { HiOutlineExternalLink } from 'react-icons/hi';
 import { FormattedMessage, useIntl } from 'react-intl';
+
+import {
+  Rainbow,
+  Ethereum,
+  Celo,
+  Allbridge,
+  Aurora,
+  Terra,
+  Solana,
+  ElectronLabs,
+  BridgeIconMenu,
+} from '../components/icon/Menu';
 
 import {
   IconAirDrop,
@@ -53,7 +65,7 @@ import {
 } from '~components/icon/Nav';
 // import { XrefIcon } from '~components/icon/Xref';
 import getConfig from '../services/config';
-import { MobileNavLimitOrder } from '../components/icon/Nav';
+import { MobileNavLimitOrder, IconMyLiquidity } from '../components/icon/Nav';
 import {
   SWAP_MODE_KEY,
   SWAP_MODE,
@@ -68,6 +80,7 @@ import {
 import { WalletContext } from '../utils/wallets-integration';
 import { useHistory } from 'react-router';
 import { jsx } from '@emotion/react';
+import { openUrl } from '~services/commonV3';
 
 export type MenuItem = {
   id: number;
@@ -445,53 +458,53 @@ export const useMenus = () => {
       ),
       links: ['/risks', '/airdrop'],
       children: [
-        {
-          id: '5-1',
-          label: <>{intl.formatMessage({ id: 'bridge' })}</>,
-          logo: <BridgeIcon />,
-          children: [
-            {
-              label: <>{intl.formatMessage({ id: 'from_ethereum' })}</>,
-              url: 'https://rainbowbridge.app/transfer',
-              isExternal: true,
-              icon: <HiOutlineExternalLink />,
-              id: '5-1-1',
-              logo: <IconEthereum />,
-            },
-            {
-              label: <>{intl.formatMessage({ id: 'from_aurora' })}</>,
-              url: 'https://rainbowbridge.app/transfer',
-              isExternal: true,
-              icon: <HiOutlineExternalLink />,
-              id: '5-1-2',
-              logo: <IconAurora />,
-            },
-            {
-              label: <>{intl.formatMessage({ id: 'from_solana' })}</>,
-              url: 'https://app.allbridge.io/bridge?from=SOL&to=NEAR',
-              isExternal: true,
-              icon: <HiOutlineExternalLink />,
-              id: '5-1-3',
-              logo: <IconSolana />,
-            },
-            {
-              label: <>{intl.formatMessage({ id: 'from_terra' })}</>,
-              url: 'https://app.allbridge.io/bridge?from=TRA&to=NEAR',
-              isExternal: true,
-              icon: <HiOutlineExternalLink />,
-              id: '5-1-4',
-              logo: <IconTerra />,
-            },
-            {
-              label: <>{intl.formatMessage({ id: 'from_celo' })}</>,
-              url: 'https://app.allbridge.io/bridge?from=CELO&to=NEAR',
-              isExternal: true,
-              icon: <HiOutlineExternalLink />,
-              id: '5-1-5',
-              logo: <IconCelo />,
-            },
-          ],
-        },
+        // {
+        //   id: '5-1',
+        //   label: <>{intl.formatMessage({ id: 'bridge' })}</>,
+        //   logo: <BridgeIcon />,
+        //   children: [
+        //     {
+        //       label: <>{intl.formatMessage({ id: 'from_ethereum' })}</>,
+        //       url: 'https://rainbowbridge.app/transfer',
+        //       isExternal: true,
+        //       icon: <HiOutlineExternalLink />,
+        //       id: '5-1-1',
+        //       logo: <IconEthereum />,
+        //     },
+        //     {
+        //       label: <>{intl.formatMessage({ id: 'from_aurora' })}</>,
+        //       url: 'https://rainbowbridge.app/transfer',
+        //       isExternal: true,
+        //       icon: <HiOutlineExternalLink />,
+        //       id: '5-1-2',
+        //       logo: <IconAurora />,
+        //     },
+        //     {
+        //       label: <>{intl.formatMessage({ id: 'from_solana' })}</>,
+        //       url: 'https://app.allbridge.io/bridge?from=SOL&to=NEAR',
+        //       isExternal: true,
+        //       icon: <HiOutlineExternalLink />,
+        //       id: '5-1-3',
+        //       logo: <IconSolana />,
+        //     },
+        //     {
+        //       label: <>{intl.formatMessage({ id: 'from_terra' })}</>,
+        //       url: 'https://app.allbridge.io/bridge?from=TRA&to=NEAR',
+        //       isExternal: true,
+        //       icon: <HiOutlineExternalLink />,
+        //       id: '5-1-4',
+        //       logo: <IconTerra />,
+        //     },
+        //     {
+        //       label: <>{intl.formatMessage({ id: 'from_celo' })}</>,
+        //       url: 'https://app.allbridge.io/bridge?from=CELO&to=NEAR',
+        //       isExternal: true,
+        //       icon: <HiOutlineExternalLink />,
+        //       id: '5-1-5',
+        //       logo: <IconCelo />,
+        //     },
+        //   ],
+        // },
         {
           id: '5-2',
           label: <>{intl.formatMessage({ id: 'docs' })}</>,
@@ -825,129 +838,208 @@ export const useMenusMobile = () => {
   ];
   return menuData;
 };
-export const moreLinks: MobileMenuItem[] = [
+
+export const bridgeData = [
   {
-    id: 'trade_capital',
-    label: 'TRADE',
-    pattern: '/',
-    url: '/',
-    isExternal: false,
-  },
-  {
-    id: 'POOL',
-    label: 'POOL',
-    pattern: '/pools',
-    url: '/yourliquidity',
-    isExternal: false,
-  },
-  {
-    id: 'farm_capital',
-    label: 'FARMS',
-    pattern: '/v2farms',
-    url: '/v2farms',
-    isExternal: false,
-  },
-  {
-    id: 'xref',
-    label: 'xREF',
-    pattern: '/xref',
-    url: '/xref',
-    isExternal: false,
-    showIcon: true,
-    iconElement: <XrefIcon></XrefIcon>,
-  },
-  {
-    id: 'vote_capital',
-    label: 'VOTE',
-    pattern: '/referendum',
-    url: '/referendum',
-    isExternal: false,
-    hidden: !getConfig().REF_VE_CONTRACT_ID,
-  },
-  {
-    id: 'MORE',
-    label: 'MORE',
-    url: '',
-    isExternal: false,
-    subRoute: ['/airdrop', '/risks', '/sauce'],
+    name: (
+      <FormattedMessage
+        id="rainbow"
+        defaultMessage={'Rainbow'}
+      ></FormattedMessage>
+    ),
+    icon: Rainbow,
+    id: '0',
+    label: 'rainbow',
+
     children: [
       {
-        id: 'bridge',
-        label: 'bridge',
-        url: '',
-        isExternal: false,
-        logo: <MobileBridgeIcon />,
-        children: [
-          {
-            id: 'from_ethereum',
-            label: 'From Ethereum',
-            url: 'https://rainbowbridge.app/transfer',
-            isExternal: true,
-            logo: <IconEthereum />,
-          },
-          {
-            id: 'from_aurora',
-            label: 'From Aurora',
-            url: 'https://rainbowbridge.app/transfer',
-            isExternal: true,
-            logo: <IconAurora />,
-          },
-          {
-            id: 'from_solana',
-            label: 'From Solana',
-            url: 'https://app.allbridge.io/bridge?from=SOL&to=NEAR',
-            isExternal: true,
-            logo: <IconSolana />,
-          },
-          {
-            id: 'from_terra',
-            label: 'From Terra',
-            url: 'https://app.allbridge.io/bridge?from=TRA&to=NEAR',
-            isExternal: true,
-            logo: <IconTerra />,
-          },
-          {
-            id: 'from_celo',
-            label: 'From Celo',
-            url: 'https://app.allbridge.io/bridge?from=CELO&to=NEAR',
-            isExternal: true,
-            logo: <IconCelo />,
-          },
-        ],
+        name: <FormattedMessage id="from_ethereum"></FormattedMessage>,
+        icon: Ethereum,
+        link: 'https://rainbowbridge.app/transfer',
+        id: '0-0',
       },
       {
-        id: 'docs',
-        label: 'docs',
-        url: 'https://guide.ref.finance',
-        isExternal: true,
-        logo: <IconDocs />,
+        name: <FormattedMessage id="from_aurora"></FormattedMessage>,
+        icon: Aurora,
+        link: 'https://rainbowbridge.app/transfer',
+        id: '0-1',
+      },
+    ],
+  },
+  {
+    name: (
+      <FormattedMessage
+        id="allbridge"
+        defaultMessage={'Allbridge'}
+      ></FormattedMessage>
+    ),
+    id: '1',
+    label: 'allbridge',
+    icon: Allbridge,
+    children: [
+      {
+        name: (
+          <FormattedMessage
+            id="from_solana"
+            defaultMessage={'Solana'}
+          ></FormattedMessage>
+        ),
+        icon: Solana,
+        link: 'https://app.allbridge.io/bridge?from=SOL&to=NEAR',
+        id: '1-0',
       },
       {
-        label: 'Risks',
-        id: 'risks',
-        pattern: '/risks',
-        url: '/risks',
-        isExternal: false,
-        logo: <RisksIcon />,
+        name: (
+          <FormattedMessage
+            id="from_terra"
+            defaultMessage={'Terra'}
+          ></FormattedMessage>
+        ),
+        icon: Terra,
+        id: '1-1',
+
+        link: 'https://app.allbridge.io/bridge?from=TRA&to=NEAR',
       },
       {
-        id: 'airdrop',
-        label: 'Airdrop',
-        url: '/airdrop',
-        pattern: '/airdrop',
-        isExternal: false,
-        logo: <IconAirDrop />,
+        name: (
+          <FormattedMessage
+            id="from_celo"
+            defaultMessage={'Celo'}
+          ></FormattedMessage>
+        ),
+        icon: Celo,
+        id: '1-2',
+
+        link: 'https://app.allbridge.io/bridge?from=CELO&to=NEAR',
       },
+    ],
+  },
+  {
+    name: (
+      <FormattedMessage
+        id="electron_labs"
+        defaultMessage={'Electron Labs'}
+      ></FormattedMessage>
+    ),
+    icon: ElectronLabs,
+    id: '2',
+    label: 'electron_labs',
+
+    children: [
       {
-        id: 'inquiries',
-        label: 'Business Inquiries',
-        url: 'https://form.typeform.com/to/onOPhJ6Y',
-        isExternal: true,
-        logo: <InquiriesIcon />,
+        name: <FormattedMessage id="from_ethereum"></FormattedMessage>,
+        icon: Ethereum,
+        link: 'https://mainnet.electronlabs.org/bridge',
+        id: '2-0',
       },
     ],
   },
 ];
+
+export function BridgeButton() {
+  const [hover, setHover] = useState<boolean>(false);
+
+  const [hoverBridgeType, setHoverBridgeType] = useState<
+    'rainbow' | 'allbridge' | 'electron_labs'
+  >();
+
+  const [hoverSubBridge, setHoverSubBridge] = useState<string>();
+
+  return (
+    <div
+      className={` relative text-sm whitespace-nowrap rounded-md frcs gap-2 px-3 py-2  text-primaryText ${
+        hover ? 'bg-primaryText bg-opacity-30' : ''
+      }`}
+      onMouseEnter={() => {
+        setHover(true);
+      }}
+      onMouseLeave={() => {
+        setHover(false);
+      }}
+    >
+      <BridgeIconMenu
+        className={hover ? 'text-white' : 'text-primaryText'}
+      ></BridgeIconMenu>
+
+      <span className={`whitespace-nowrap ${hover ? 'text-white' : ''}`}>
+        <FormattedMessage
+          id="bridge_pure"
+          defaultMessage={'Bridge'}
+        ></FormattedMessage>
+      </span>
+
+      {hover && (
+        <div className="absolute pt-4 top-6 right-1/2 transform translate-x-1/2">
+          <div className="bg-priceBoardColor p-2 rounded-2xl border border-menuMoreBoxBorderColor flex ">
+            {bridgeData.map((item) => {
+              return (
+                <div
+                  className={`flex flex-col font-gothamBold py-2 rounded-xl px-2 ${
+                    hoverBridgeType === item.label
+                      ? 'bg-primaryText bg-opacity-20 text-white'
+                      : ''
+                  } `}
+                  style={{
+                    width: '146px',
+                  }}
+                  onMouseEnter={() => {
+                    setHoverBridgeType(item.label as any);
+                  }}
+                  onMouseLeave={() => {
+                    setHoverBridgeType(undefined);
+                  }}
+                >
+                  <div className="frcs gap-2 mb-2  ">
+                    <item.icon
+                      className={
+                        hoverBridgeType === item.label
+                          ? 'text-white'
+                          : 'text-primaryText'
+                      }
+                    ></item.icon>
+                    {item.name}
+                  </div>
+
+                  {item.children.map((sub) => {
+                    return (
+                      <div
+                        className={`font-gotham  py-2  rounded-md frcs gap-2 cursor-pointer
+                      
+                        ${
+                          hoverSubBridge === sub.id
+                            ? 'px-2 bg-hoverSubBridge'
+                            : ''
+                        }
+                      `}
+                        onClick={() => {
+                          openUrl(sub.link);
+                        }}
+                        onMouseEnter={() => {
+                          setHoverSubBridge(sub.id);
+                        }}
+                        onMouseLeave={() => {
+                          setHoverSubBridge('');
+                        }}
+                      >
+                        <sub.icon
+                          className={
+                            hoverBridgeType === item.label ? '' : 'opacity-50'
+                          }
+                        ></sub.icon>
+
+                        {sub.name}
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export interface menuItemType {
   id?: string;

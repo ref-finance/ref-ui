@@ -468,6 +468,7 @@ const en_US = {
   bridged_tokens: 'Bridged',
   gaming: 'Gaming',
   nft: 'NFT',
+
   bridge: 'Bridge to/from',
   from_ethereum: 'Ethereum',
   from_aurora: 'Aurora',
@@ -1318,6 +1319,7 @@ const en_US = {
   TotalInvested: 'Total Invested',
   TotalAssets: 'Total Assets',
   TokenAllocation: 'Token Allocation',
+  bridge_pure: 'Bridge',
   netWorthTip:
     'Total value of investments in Ref (including claimable rewards) + Total value of Orderly assets + Total value of Burrow assets + Total assets in wallet',
 };
