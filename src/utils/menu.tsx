@@ -750,53 +750,6 @@ export const useMenusMobile = () => {
       ),
       links: ['/risks', '/airdrop'],
       children: [
-        // {
-        //   id: '5-1',
-        //   label: <>{intl.formatMessage({ id: 'bridge' })}</>,
-        //   logo: <BridgeIcon />,
-        //   children: [
-        //     {
-        //       label: <>{intl.formatMessage({ id: 'from_ethereum' })}</>,
-        //       url: 'https://rainbowbridge.app/transfer',
-        //       isExternal: true,
-        //       icon: <HiOutlineExternalLink />,
-        //       id: '5-1-1',
-        //       logo: <IconEthereum />,
-        //     },
-        //     {
-        //       label: <>{intl.formatMessage({ id: 'from_aurora' })}</>,
-        //       url: 'https://rainbowbridge.app/transfer',
-        //       isExternal: true,
-        //       icon: <HiOutlineExternalLink />,
-        //       id: '5-1-2',
-        //       logo: <IconAurora />,
-        //     },
-        //     {
-        //       label: <>{intl.formatMessage({ id: 'from_solana' })}</>,
-        //       url: 'https://app.allbridge.io/bridge?from=SOL&to=NEAR',
-        //       isExternal: true,
-        //       icon: <HiOutlineExternalLink />,
-        //       id: '5-1-3',
-        //       logo: <IconSolana />,
-        //     },
-        //     {
-        //       label: <>{intl.formatMessage({ id: 'from_terra' })}</>,
-        //       url: 'https://app.allbridge.io/bridge?from=TRA&to=NEAR',
-        //       isExternal: true,
-        //       icon: <HiOutlineExternalLink />,
-        //       id: '5-1-4',
-        //       logo: <IconTerra />,
-        //     },
-        //     {
-        //       label: <>{intl.formatMessage({ id: 'from_celo' })}</>,
-        //       url: 'https://app.allbridge.io/bridge?from=CELO&to=NEAR',
-        //       isExternal: true,
-        //       icon: <HiOutlineExternalLink />,
-        //       id: '5-1-5',
-        //       logo: <IconCelo />,
-        //     },
-        //   ],
-        // },
         {
           id: '5-2',
           label: <>{intl.formatMessage({ id: 'docs' })}</>,
