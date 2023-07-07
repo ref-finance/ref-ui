@@ -29,7 +29,13 @@ export default function Navigation(props: any) {
       url: '/portfolio',
       borderColor: '#00D6AF',
     },
-    { Icon: MenuOrderlyIcon, name: 'Orderly', id: 'orderly' },
+    {
+      Icon: MenuOrderlyIcon,
+      name: 'Orderly',
+      id: 'orderly',
+      url: '/orderly',
+      borderColor: '#4527FF',
+    },
     {
       Icon: MenuBurrowIcon,
       name: <FormattedMessage id="Burrow" />,
@@ -46,6 +52,8 @@ export default function Navigation(props: any) {
       setActiveMenu('burrow');
     } else if (location.pathname.includes('overview')) {
       setActiveMenu('overview');
+    } else if (location.pathname.includes('orderly')) {
+      setActiveMenu('orderly');
     }
   }, [location.pathname]);
 
@@ -109,7 +117,12 @@ export function NavigationMobile(props: any) {
       id: 'ref',
       url: '/portfolio',
     },
-    { Icon: OrderlyMIcon, name: 'Orderly', id: 'orderly' },
+    {
+      Icon: OrderlyMIcon,
+      name: 'Orderly',
+      id: 'orderly',
+      url: '/orderly'
+    },
     {
       Icon: BurrowMIcon,
       name: 'Burrow',

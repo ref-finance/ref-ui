@@ -109,6 +109,7 @@ export default function Marquee() {
     '/orderbook',
     '/burrow',
     '/overview',
+    '/orderly'
   ];
   return (
     <div

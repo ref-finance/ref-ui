@@ -43,6 +43,7 @@ import USNPage from './pages/USNPage';
 import Portfolio from './pages/Portfolio';
 import Burrow from './pages/Burrow';
 import Overview from './pages/Overview';
+import PortfolioOrderly from './pages/Orderly/PorfolioOrderly';
 import {
   auroraAddr,
   getAuroraPool,
@@ -268,6 +269,7 @@ export function Content() {
           <Route path="/portfolio" component={AutoHeight(Portfolio)} />
           <Route path="/burrow" component={AutoHeight(Burrow)} />
           <Route path="/overview" component={AutoHeight(Overview)} />
+          <Route path="/orderly" component={AutoHeight(PortfolioOrderly)} />
           <Route path="/" component={AutoHeight(SwapPage)} />
         </Switch>
       </OrderlyContextProvider>
