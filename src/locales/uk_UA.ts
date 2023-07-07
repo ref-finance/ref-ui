@@ -1112,7 +1112,7 @@ const uk_UA = {
   Market: 'Market',
   TotalSupplied: 'Total Supplied',
   TotalBorrowed: 'Total Borrowed',
-  AvailableLiquidities: 'Available Liquidities',
+  AvailableLiquidities: 'Available Liquidity',
   DailyRewards: 'Daily Rewards',
   SupplyAPY: 'Supply APY',
   BorrowAPY: 'Borrow APY',
@@ -1142,7 +1142,7 @@ const uk_UA = {
 
   NetWorth: 'Net Worth',
   Claimable: 'Claimable',
-  TotalDebts: 'Total Debts',
+  TotalDebts: 'Total Debt',
   WalletAssets: 'Wallet Assets',
   TotalInvested: 'Total Invested',
   TotalAssets: 'Total Assets',
