@@ -44,6 +44,11 @@ const walletOfficialMark = {
     mark: true,
     link: 'https://github.com/NearDeFi/neth/blob/main/audit/near-eth-audit-public.pdf',
   },
+
+  Nightly: {
+    mark: true,
+    link: 'https://wallet.nightly.app/Security_Audit_NEAR.pdf',
+  },
   // 'Here Wallet': {
   //   mark: true,
   //   link: 'https://docs.herewallet.app/technology-description/readme/security-audit',
