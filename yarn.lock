@@ -2432,7 +2432,7 @@
     is-mobile "^3.1.1"
     near-seed-phrase "^0.2.0"
 
-"@near-wallet-selector/nightly@^7.0.0":
+"@near-wallet-selector/nightly@^7.0.2":
   version "7.9.3"
   resolved "https://registry.yarnpkg.com/@near-wallet-selector/nightly/-/nightly-7.9.3.tgz#f4a42d750213f3fc2cee4843bd4bc9b4b7a03d91"
   integrity sha512-ssIjArHISadq51ivQYz+AEXvsRYS2nUrwqWKDzj2UH8p6DssFMCLZjmuhE2c6RgLgVYgIZj5jAbMh8RLs6OOqA==
