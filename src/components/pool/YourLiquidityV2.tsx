@@ -67,8 +67,8 @@ import { isMobile } from '~utils/device';
 import Big from 'big.js';
 import { useWalletSelector } from '~context/WalletSelectorContext';
 import { IDCLAccountFee } from '../../components/d3Chart/interfaces';
-import { formatPercentage } from '../../components/d3Chart/utils';
 import { getDCLAccountFee } from '../../services/indexer';
+import { formatNumber, formatWithCommas_usd, formatPercentage } from './utils';
 const is_mobile = isMobile();
 const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
 const LiquidityContext = createContext(null);
@@ -1770,12 +1770,7 @@ function UserLiquidityLineStyleGroup1({
       (range) => current_point >= range[0] && current_point <= range[1]
     );
 
-    const canClaim = groupYourLiquidityList.reduce((pre, cur) => {
-      const liquidityDetail = cur.liquidityDetail;
-      const { unclaimed_fee_x, unclaimed_fee_y } = liquidityDetail;
-
-      return !!pre && !!(+unclaimed_fee_x > 0 || +unclaimed_fee_y > 0);
-    }, true);
+    const canClaim = tokenFeeLeft.plus(tokenFeeRight).gt(0);
 
     // on farm not on myself
     const farmApr: Big = !publicData.related_seed_info.your_apr
@@ -1816,17 +1811,9 @@ function UserLiquidityLineStyleGroup1({
 
     return {
       ...publicData,
-      your_liquidity:
-        '$' +
-        (your_liquidity.toNumber() < 0.01
-          ? '< 0.01'
-          : your_liquidity.toFixed(2, 0)),
-      tokenFeeLeft:
-        tokenFeeLeft.toNumber() < 0.01 ? '< 0.01' : tokenFeeLeft.toFixed(2, 0),
-      tokenFeeRight:
-        tokenFeeRight.toNumber() < 0.01
-          ? '< 0.01'
-          : tokenFeeRight.toFixed(2, 0),
+      your_liquidity: formatWithCommas_usd(your_liquidity.toFixed()),
+      tokenFeeLeft: formatNumber(tokenFeeLeft.toFixed()),
+      tokenFeeRight: formatNumber(tokenFeeRight.toFixed()),
       intersectionRangeList: intersectionRangeList.map((range) => [
         new Big(range[0]).toFixed(),
         new Big(range[1]).toFixed(),
@@ -2141,18 +2128,12 @@ function UserLiquidityLineStyleGroup1({
                 <GradientButton
                   onClick={(e) => {
                     e.stopPropagation();
-                    // setShowAddBox(true);
-
                     history.push('/addLiquidityV2');
                   }}
                   color="#fff"
                   minWidth="5rem"
-                  disabled={is_in_farming}
                   borderRadius="8px"
-                  btnClassName={is_in_farming ? 'cursor-not-allowed' : ''}
-                  className={`px-3 w-24 h-8 text-center text-sm text-white  focus:outline-none mr-2.5 ${
-                    is_in_farming ? 'opacity-40 ' : ''
-                  }`}
+                  className={`px-3 w-24 h-8 text-center text-sm text-white  focus:outline-none mr-2.5`}
                 >
                   <FormattedMessage id="add" />
                 </GradientButton>
@@ -2450,26 +2431,6 @@ function UserLiquidityLineStyleGroup1({
           }}
         ></RemovePoolV3>
       ) : null}
-      {/* <AddPoolV3
-        isOpen={showAddBox}
-        onRequestClose={() => {
-          setShowAddBox(false);
-        }}
-        tokenMetadata_x_y={tokenMetadata_x_y}
-        poolDetail={poolDetail}
-        tokenPriceList={tokenPriceList}
-        userLiquidity={liquidityDetail}
-        style={{
-          overlay: {
-            backdropFilter: 'blur(15px)',
-            WebkitBackdropFilter: 'blur(15px)',
-          },
-          content: {
-            outline: 'none',
-            transform: 'translate(-50%, -50%)',
-          },
-        }}
-      ></AddPoolV3> */}
     </div>
   );
 }
