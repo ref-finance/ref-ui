@@ -403,11 +403,11 @@ export default function SwapLimitOrderChart() {
           <div className="flex items-center justify-between p-3 border-b border-limitOrderFeeTiersBorderColor">
             <div className="flex flex-col">
               <span className="text-sm text-primaryText">Price</span>
-              <span className="text-xs text-primaryText">{cur_pairs}</span>
+              <span className="text-xs text-primaryText" style={{zoom:0.85}}>{cur_pairs}</span>
             </div>
             <div className="flex flex-col items-end">
               <span className="text-sm text-primaryText">Qty</span>
-              <span className="text-xs text-primaryText">
+              <span className="text-xs text-primaryText" style={{zoom:0.85}}>
                 {cur_token_symbol}
               </span>
             </div>
@@ -415,7 +415,7 @@ export default function SwapLimitOrderChart() {
               <span className="text-sm text-primaryText whitespace-nowrap">
                 Total Qty
               </span>
-              <span className="text-xs text-primaryText">
+              <span className="text-xs text-primaryText" style={{zoom:0.85}}>
                 {cur_token_symbol}
               </span>
             </div>
