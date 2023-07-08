@@ -237,35 +237,35 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
     getAllKeys(accountId);
   }, [accountId, selector]);
 
-  const getAccount = useCallback(async (): Promise<Account | null> => {
-    if (!accountId) {
-      return null;
-    }
+  // const getAccount = useCallback(async (): Promise<Account | null> => {
+  //   if (!accountId) {
+  //     return null;
+  //   }
 
-    const provider = new providers.JsonRpcProvider({
-      url: getConfig().nodeUrl,
-    });
+  //   const provider = new providers.JsonRpcProvider({
+  //     url: getConfig().nodeUrl,
+  //   });
 
-    return provider
-      .query<AccountView>({
-        request_type: 'view_account',
-        finality: 'final',
-        account_id: accountId,
-      })
-      .then((data: any) => ({
-        ...data,
-        account_id: accountId,
-      }));
-  }, [accountId]);
+  //   return provider
+  //     .query<AccountView>({
+  //       request_type: 'view_account',
+  //       finality: 'final',
+  //       account_id: accountId,
+  //     })
+  //     .then((data: any) => ({
+  //       ...data,
+  //       account_id: accountId,
+  //     }));
+  // }, [accountId]);
 
-  useEffect(() => {
-    if (!selector || !accountId) return;
+  // useEffect(() => {
+  //   if (!selector || !accountId) return;
 
-    getAccount().catch((e) => {
-      alert(e?.message);
-      selector.wallet().then((wallet) => wallet.signOut());
-    });
-  }, [selector, accountId]);
+  //   getAccount().catch((e) => {
+  //     alert(e?.message);
+  //     selector.wallet().then((wallet) => wallet.signOut());
+  //   });
+  // }, [selector, accountId]);
 
   if (!selector || !modal || (!!accountId && isLedger === undefined)) {
     return null;
