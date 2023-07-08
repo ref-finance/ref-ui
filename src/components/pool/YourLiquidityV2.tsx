@@ -1980,12 +1980,9 @@ function UserLiquidityLineStyleGroup1({
     your_liquidity,
     tokenFeeLeft,
     tokenFeeRight,
-    is_in_farming,
     intersectionRangeList,
     isInRange,
-    canClaim,
-    farmApr,
-    in_farm_percent,
+    canClaim
   } = groupedData;
 
   function goDetailV2() {
@@ -2011,25 +2008,6 @@ function UserLiquidityLineStyleGroup1({
       lpt_ids,
     });
   }
-
-  function getTotalAprForSeed() {
-    const farms = related_seed_info.targetSeed.farmList;
-    let apr = 0;
-    const allPendingFarms = isPending(related_seed_info.targetSeed);
-    farms.forEach(function (item: FarmBoost) {
-      const pendingFarm = item.status == 'Created' || item.status == 'Pending';
-      if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
-        apr = +new BigNumber(item.apr).plus(apr).toFixed();
-      }
-    });
-    if (apr == 0) {
-      return '-';
-    } else {
-      apr = +new BigNumber(apr).multipliedBy(100).toFixed();
-      return toPrecision(apr.toString(), 2) + '%';
-    }
-  }
-
   function isPending(seed: Seed) {
     let pending: boolean = true;
     const farms = seed.farmList;
@@ -2191,7 +2169,7 @@ function UserLiquidityLineStyleGroup1({
                       if (seed_status == 'ended') return null;
                       if (length == 1) {
                         return (
-                          <div className="frcs gap-1 text-primaryText">
+                          <div className="frcs gap-1 text-primaryText whitespace-nowrap">
                             <span>
                               <FormattedMessage
                                 id="farm_apr"
@@ -2203,7 +2181,7 @@ function UserLiquidityLineStyleGroup1({
                         );
                       } else {
                         return (
-                          <div className="frcs gap-1 text-primaryText">
+                          <div className="frcs gap-1 text-primaryText whitespace-nowrap">
                             <span>
                               {seed_status == 'run' ? 'new' : 'pre.'} APR
                             </span>
@@ -2226,10 +2204,10 @@ function UserLiquidityLineStyleGroup1({
               ) : null}
             </div>
             {/* Your Liquidity */}
-            <div className=" text-white text-sm flex flex-col gap-2">
+            <div className=" text-white text-sm flex flex-col gap-2 pl-2">
               {your_liquidity}
               {joined_seeds ? (
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-2">
                   {Object.values(joined_seeds)
                     .sort(sort_joined_seeds)
                     .map((joined_seed_info: IUserJoinedSeedDetail) => {
@@ -2409,37 +2387,16 @@ function UserLiquidityLineStyleGroup1({
                     setShowRemoveBox(true);
                   }}
                   rounded="rounded-lg"
-                  disabled={is_in_farming}
+                  disabled={!!joined_seeds}
                   px="px-0"
                   py="py-1"
                   style={{ minWidth: '5rem' }}
                   className={`flex-grow w-24  text-sm text-greenColor h-8 ${
-                    is_in_farming ? 'opacity-40' : ''
+                    !!joined_seeds ? 'opacity-40' : ''
                   }`}
                 >
                   <FormattedMessage id="remove" />
                 </BorderButton>
-                {/* {is_in_farming ? (
-                  <div className="flex items-center text-sm text-primaryText ml-2.5">
-                    <FormattedMessage id="staked" />
-                    <div
-                      className="flex items-center cursor-pointer"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        go_farm();
-                      }}
-                    >
-                      <span className="text-greenColor mx-1 cursor-pointer underline">
-                        {liquidity_staked_farm_status == 'end' ? (
-                          <FormattedMessage id="in_ended_farm" />
-                        ) : (
-                          <FormattedMessage id="in_farm_3" />
-                        )}
-                      </span>
-                      <LinkArrowIcon className="cursor-pointer text-greenColor"></LinkArrowIcon>
-                    </div>
-                  </div>
-                ) : null} */}
               </div>
             </div>
           </div>
