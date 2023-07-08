@@ -115,7 +115,7 @@ module.exports = {
         dclBannerColor:
           'linear-gradient(90deg, #00C6A2 2.54%, rgba(91, 64, 255, 0.5) 70%, rgba(91, 64, 255, 0) 100%)',
         dclIconBgColor: 'linear-gradient(180deg, #00C6A2 0%, #5B40FF 100%)',
-        dclFarmTipColor: 'linear-gradient(270deg, #00C6A2 0%, #5B40FF 68%)',
+        dclFarmTipColor: 'linear-gradient(270deg, #00C6A2 0%, rgba(91, 64, 255, 0) 68.86%)',
         sellGradientRed: 'linear-gradient(180deg, #944A8C 0%, #D26060 100%)',
         swapCardGradient: 'linear-gradient(180deg, #213441 0%, #15242F 100%)',
         sellGradientRedReverse:

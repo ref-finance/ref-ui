@@ -624,7 +624,6 @@ export function get_detail_the_liquidity_refer_to_seed({
     if (condition1 && condition2 && condition3) return true;
   });
   const targetSeed = canFarmSeed || active_seeds[0];
-  console.log('targetSeed: ', targetSeed);
   if (targetSeed) {
     const { seed_id } = targetSeed;
     const [fixRange, dcl_pool_id, left_point_seed, right_point_seed] = seed_id

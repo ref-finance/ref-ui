@@ -790,6 +790,46 @@ export function get_matched_seeds_for_dcl_pool({
   }
   return activeSeeds;
 }
+// contain run and ended seed
+export function get_matched_all_seeds_of_a_dcl_pool({
+  seeds,
+  pool_id,
+}: {
+  seeds: Seed[];
+  pool_id: string;
+}) {
+  const matchedSeeds = seeds.filter((seed: Seed) => {
+    const { seed_id, farmList } = seed;
+    const [contractId, mft_id] = seed_id.split('@');
+    if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) {
+      const [fixRange, pool_id_from_seed, left_point, right_point] =
+        mft_id.split('&');
+      return pool_id_from_seed == pool_id;
+    }
+  });
+
+  // sort by the latest
+  matchedSeeds.sort((b: Seed, a: Seed) => {
+    const b_latest = getLatestStartTime(b);
+    const a_latest = getLatestStartTime(a);
+    if (b_latest == 0) return -1;
+    if (a_latest == 0) return 1;
+    return a_latest - b_latest;
+  });
+  const activeSeeds: Seed[] = [];
+  const endedSeeds: Seed[] = [];
+  matchedSeeds.forEach((seed: Seed) => {
+    const { farmList } = seed;
+    if (farmList[0].status != 'Ended') {
+      activeSeeds.push(seed);
+    } else {
+      endedSeeds.push(seed);
+    }
+  });
+
+  return [activeSeeds, endedSeeds, matchedSeeds];
+}
+
 export function isPending(seed: Seed) {
   let pending: boolean = true;
   const farms = seed.farmList;
@@ -1535,8 +1575,8 @@ export function get_account_24_apr(
   tokenPriceList: any
 ) {
   const { token_x_metadata, token_y_metadata } = pool;
-  const price_x = tokenPriceList[token_x_metadata.id]?.price || 0;
-  const price_y = tokenPriceList[token_y_metadata.id]?.price || 0;
+  const price_x = tokenPriceList?.[token_x_metadata.id]?.price || 0;
+  const price_y = tokenPriceList?.[token_y_metadata.id]?.price || 0;
   let apr_24 = '';
   const { apr } = dclAccountFee;
   // 24小时平均利润
@@ -1671,4 +1711,30 @@ function process_log_data(
     token_x: Big(token_x).toFixed(),
     token_y: Big(token_y).toFixed(),
   };
+}
+
+export function whether_liquidity_can_farm_in_seed(
+  liquidity: UserLiquidityInfo,
+  seed: Seed
+) {
+  const { mft_id, left_point, right_point, amount } = liquidity;
+  const { min_deposit, seed_id } = seed;
+  const [fixRange, dcl_pool_id, left_point_seed, right_point_seed] = seed_id
+    .split('@')[1]
+    .split('&');
+  const v_liquidity = mint_liquidity(liquidity, seed_id);
+  const radio = get_intersection_radio({
+    left_point_liquidity: left_point,
+    right_point_liquidity: right_point,
+    left_point_seed,
+    right_point_seed,
+  });
+  const condition1 = new BigNumber(v_liquidity).isGreaterThanOrEqualTo(
+    min_deposit
+  );
+  const condition2 = +radio > 0;
+  const condition3 =
+    mft_id ||
+    (!mft_id && new BigNumber(amount).isGreaterThanOrEqualTo(1000000));
+  if (condition1 && condition2 && condition3) return true;
 }

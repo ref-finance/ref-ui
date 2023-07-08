@@ -44,6 +44,10 @@ import {
   openUrl,
   sort_tokens_by_base,
   get_account_24_apr,
+  get_matched_all_seeds_of_a_dcl_pool,
+  whether_liquidity_can_farm_in_seed,
+  get_valid_range,
+  get_total_value_by_liquidity_amount_dcl,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import {
@@ -69,6 +73,7 @@ import { useWalletSelector } from '~context/WalletSelectorContext';
 import { IDCLAccountFee } from '../../components/d3Chart/interfaces';
 import { getDCLAccountFee } from '../../services/indexer';
 import { formatNumber, formatWithCommas_usd, formatPercentage } from './utils';
+import { FarmStamp, FarmStampNew } from '~components/icon/FarmStamp';
 const is_mobile = isMobile();
 const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
 const LiquidityContext = createContext(null);
@@ -141,6 +146,68 @@ export function YourLiquidityV2(props: any) {
     }
     return temp_map;
   }, [liquidities_details_list]);
+  useEffect(() => {
+    if (
+      !liquidities_list ||
+      !all_pools_map ||
+      !liquidities_tokens_metas ||
+      !tokenPriceList ||
+      !dcl_liquidities_details_map ||
+      Object.keys(dcl_liquidities_details_map).length === 0
+    ) {
+      return;
+    }
+    Promise.all(
+      liquidities_list.map((liquidity) =>
+        getYourLiquidityData({
+          liquidity,
+          all_seeds,
+          styleType,
+          tokenPriceList,
+          poolDetail: all_pools_map?.[liquidity.pool_id],
+          liquidityDetail: dcl_liquidities_details_map?.[liquidity.lpt_id],
+          liquidities_tokens_metas,
+        })
+      )
+    ).then((yourLiquidityList) => {
+      const groupedLiquidity = yourLiquidityList.reduce((acc, cur) => {
+        const { pool_id } = cur;
+        const [token_x, token_y] = pool_id.split('|');
+        const poolDetail = all_pools_map[pool_id];
+        const tokensMeta = [
+          liquidities_tokens_metas[token_x],
+          liquidities_tokens_metas[token_y],
+        ];
+
+        if (acc[pool_id]) {
+          acc[pool_id].push(cur);
+
+          return acc;
+        } else {
+          return {
+            ...acc,
+            [pool_id]: [
+              {
+                ...cur,
+                poolDetail,
+                tokensMeta,
+              },
+            ],
+          };
+        }
+      }, {} as Record<string, any[]>);
+
+      setGroupYourLiquidity(groupedLiquidity);
+    });
+  }, [
+    liquidities_list,
+    all_seeds,
+    all_pools_map,
+    liquidities_tokens_metas,
+    tokenPriceList,
+    dcl_liquidities_details_map,
+    Object.keys(dcl_liquidities_details_map).length === 0,
+  ]);
   async function get_list_liquidities() {
     const list: UserLiquidityInfo[] = await list_liquidities();
     if (list.length > 0) {
@@ -278,73 +345,6 @@ export function YourLiquidityV2(props: any) {
       setYourLpValueV2 && setYourLpValueV2(total_value.toFixed());
     }
   }
-  console.log('liquidities_list: ', liquidities_list);
-  console.log('groupYourLiquidity: ', groupYourLiquidity);
-
-  useEffect(() => {
-    if (
-      !liquidities_list ||
-      !all_pools_map ||
-      !liquidities_tokens_metas ||
-      !tokenPriceList ||
-      !dcl_liquidities_details_map ||
-      Object.keys(dcl_liquidities_details_map).length === 0
-    ) {
-      return;
-    }
-
-    Promise.all(
-      liquidities_list.map((liquidity) =>
-        getYourLiquidityData({
-          liquidity,
-          all_seeds,
-          styleType,
-          tokenPriceList,
-          poolDetail: all_pools_map?.[liquidity.pool_id],
-          liquidityDetail: dcl_liquidities_details_map?.[liquidity.lpt_id],
-          liquidities_tokens_metas,
-        })
-      )
-    ).then((yourLiquidityList) => {
-      const groupedLiquidity = yourLiquidityList.reduce((acc, cur) => {
-        const { pool_id } = cur;
-        const [token_x, token_y] = pool_id.split('|');
-        const poolDetail = all_pools_map[pool_id];
-        const tokensMeta = [
-          liquidities_tokens_metas[token_x],
-          liquidities_tokens_metas[token_y],
-        ];
-
-        if (acc[pool_id]) {
-          acc[pool_id].push(cur);
-
-          return acc;
-        } else {
-          return {
-            ...acc,
-            [pool_id]: [
-              {
-                ...cur,
-                poolDetail,
-                tokensMeta,
-              },
-            ],
-          };
-        }
-      }, {} as Record<string, any[]>);
-
-      setGroupYourLiquidity(groupedLiquidity);
-    });
-  }, [
-    liquidities_list,
-    all_seeds,
-    all_pools_map,
-    liquidities_tokens_metas,
-    tokenPriceList,
-    dcl_liquidities_details_map,
-    Object.keys(dcl_liquidities_details_map).length === 0,
-  ]);
-
   return (
     <div>
       {liquidityLoadingDone && (
@@ -382,6 +382,7 @@ export function YourLiquidityV2(props: any) {
                 groupYourLiquidityList={liquidity}
                 liquidities_list={liquidity.map((l: any) => l.liquidityDetail)}
                 tokenPriceList={tokenPriceList}
+                all_seeds={all_seeds}
               />
             );
           }
@@ -792,49 +793,6 @@ async function getYourLiquidityData({
   liquidities_tokens_metas: Record<string, TokenMetadata>;
   liquidityDetail: UserLiquidityInfo;
 }) {
-  const { lpt_id, pool_id, left_point, right_point, amount: L } = liquidity;
-  const [token_x, token_y, fee] = pool_id.split('|');
-
-  const tokenMetadata_x_y = liquidities_tokens_metas
-    ? [liquidities_tokens_metas[token_x], liquidities_tokens_metas[token_y]]
-    : null;
-
-  let rate_need_to_reverse_display: boolean;
-
-  if (tokenMetadata_x_y) {
-    const [tokenX] = tokenMetadata_x_y;
-    if (TOKEN_LIST_FOR_RATE.indexOf(tokenX.symbol) > -1)
-      rate_need_to_reverse_display = true;
-    else rate_need_to_reverse_display = false;
-  }
-
-  let your_liquidity: any;
-
-  if (tokenMetadata_x_y && poolDetail && tokenPriceList) {
-    const { current_point } = poolDetail;
-    your_liquidity = get_your_liquidity(current_point, left_point, right_point);
-  }
-
-  const is_in_farming =
-    liquidity.part_farm_ratio && +liquidity.part_farm_ratio > 0;
-  console.log('liquidity: ', liquidity);
-
-  let related_farms: any;
-
-  if (is_in_farming) {
-    const id = liquidity.mft_id.slice(1);
-    const seed_id = REF_UNI_V3_SWAP_CONTRACT_ID + '@' + id;
-    related_farms = await list_seed_farms(seed_id);
-  }
-
-  const related_seed_info = get_detail_the_liquidity_refer_to_seed({
-    liquidity,
-    all_seeds,
-    is_in_farming,
-    related_farms,
-    tokenPriceList,
-  });
-
   function get_your_liquidity_in_farm_range() {
     if (!related_seed_info.targetSeed || !related_seed_info.targetSeed.seed_id)
       return '0';
@@ -852,7 +810,6 @@ async function getYourLiquidityData({
       right_point <= farmRangeRight ? right_point : farmRangeRight
     );
   }
-
   function get_your_liquidity(
     current_point: number,
     left_point: number,
@@ -946,7 +903,6 @@ async function getYourLiquidityData({
     );
     return { amountx: amountX_read, amounty: amountY_read };
   }
-
   function getTokenFeeAmount(p: string) {
     if (liquidityDetail && tokenMetadata_x_y && tokenPriceList) {
       const [tokenX, tokenY] = tokenMetadata_x_y;
@@ -978,11 +934,6 @@ async function getYourLiquidityData({
       }
     }
   }
-
-  const tokenFeeLeft = getTokenFeeAmount('l');
-
-  const tokenFeeRight = getTokenFeeAmount('r');
-
   function getRate(direction: string) {
     let value = '';
     if (tokenMetadata_x_y) {
@@ -1000,7 +951,6 @@ async function getYourLiquidityData({
     }
     return value;
   }
-
   function go_farm() {
     const [fixRange, pool_id, left_point, right_point] =
       liquidity.mft_id.split('&');
@@ -1018,11 +968,6 @@ async function getYourLiquidityData({
     }
     openUrl(url);
   }
-
-  const rangeMin = getRate(rate_need_to_reverse_display ? 'right' : 'left');
-
-  const rangeMax = getRate(rate_need_to_reverse_display ? 'left' : 'right');
-
   function getRateMapTokens() {
     if (tokenMetadata_x_y) {
       const [tokenX, tokenY] = tokenMetadata_x_y;
@@ -1033,11 +978,46 @@ async function getYourLiquidityData({
       }
     }
   }
+  const { lpt_id, pool_id, left_point, right_point, amount: L } = liquidity;
+  const [token_x, token_y, fee] = pool_id.split('|');
+  const tokenMetadata_x_y = liquidities_tokens_metas
+    ? [liquidities_tokens_metas[token_x], liquidities_tokens_metas[token_y]]
+    : null;
+  let rate_need_to_reverse_display: boolean;
 
+  if (tokenMetadata_x_y) {
+    const [tokenX] = tokenMetadata_x_y;
+    if (TOKEN_LIST_FOR_RATE.indexOf(tokenX.symbol) > -1)
+      rate_need_to_reverse_display = true;
+    else rate_need_to_reverse_display = false;
+  }
+  // the value of the liquidity;
+  let your_liquidity: any;
+  if (tokenMetadata_x_y && poolDetail && tokenPriceList) {
+    const { current_point } = poolDetail;
+    your_liquidity = get_your_liquidity(current_point, left_point, right_point);
+  }
+  const is_in_farming =
+    liquidity.part_farm_ratio && +liquidity.part_farm_ratio > 0;
+  let related_farms: any;
+  if (is_in_farming) {
+    const id = liquidity.mft_id.slice(1);
+    const seed_id = REF_UNI_V3_SWAP_CONTRACT_ID + '@' + id;
+    related_farms = await list_seed_farms(seed_id);
+  }
+  const related_seed_info = get_detail_the_liquidity_refer_to_seed({
+    liquidity,
+    all_seeds,
+    is_in_farming,
+    related_farms,
+    tokenPriceList,
+  });
+  const tokenFeeLeft = getTokenFeeAmount('l');
+  const tokenFeeRight = getTokenFeeAmount('r');
+  const rangeMin = getRate(rate_need_to_reverse_display ? 'right' : 'left');
+  const rangeMax = getRate(rate_need_to_reverse_display ? 'left' : 'right');
   const ratedMapTokens = getRateMapTokens();
-
   const your_liquidity_farm = get_your_liquidity_in_farm_range();
-
   return {
     fee,
     your_liquidity,
@@ -1671,36 +1651,14 @@ function UserLiquidityLineStyleGroup1({
   groupYourLiquidityList,
   liquidities_list,
   tokenPriceList,
+  all_seeds,
 }: {
   groupYourLiquidityList: any[];
   liquidities_list: UserLiquidityInfo[];
   tokenPriceList: any;
+  all_seeds: Seed[];
 }) {
-  // const {
-  //   goYourLiquidityDetailPage,
-  //   Liquidity_icon,
-  //   liquidity_link,
-
-  //   // liquidity_staked_farm_status,
-  //   // setShowAddBox,
-  //   // setShowRemoveBox,
-  //   getTokenFeeAmount,
-  //   // canClaim,
-  //   // go_farm,
-  //   mobile_ReferenceToken,
-  //   // claimRewards,
-  //   // claimLoading,
-  //   showRemoveBox,
-  //   poolDetail,
-  //   tokenPriceList,
-  //   liquidityDetail,
-  //   showAddBox,
-  // } = useContext(LiquidityContext);
-  const [hover, setHover] = useState<boolean>(false);
   const publicData = groupYourLiquidityList[0];
-  const [showRemoveBox, setShowRemoveBox] = useState<boolean>(false);
-  const [accountAPR, setAccountAPR] = useState('');
-  const [claim_loading, set_claim_loading] = useState(false);
   const {
     tokenMetadata_x_y,
     fee,
@@ -1711,14 +1669,185 @@ function UserLiquidityLineStyleGroup1({
     poolDetail,
     go_farm,
   } = publicData;
+  const [hover, setHover] = useState<boolean>(false);
+  const [showRemoveBox, setShowRemoveBox] = useState<boolean>(false);
+  const [accountAPR, setAccountAPR] = useState('');
+  const [claim_loading, set_claim_loading] = useState(false);
+
+  // new
+  const [farm_icon, set_farm_icon] = useState<'single' | 'muti'>();
+  const [tip_seed, set_tip_seed] = useState<ILatestSeedTip>();
+  const [joined_seeds, set_joined_seeds] = useState<IUserJoinedSeed>();
+
   const tokens = sort_tokens_by_base(tokenMetadata_x_y);
   const { accountId } = useWalletSelector();
   const history = useHistory();
   useEffect(() => {
-    if (poolDetail && tokenPriceList) {
+    if (poolDetail && tokenPriceList && tokenMetadata_x_y) {
       get_24_apr();
     }
-  }, [poolDetail, tokenPriceList]);
+  }, [poolDetail, tokenPriceList, tokenMetadata_x_y]);
+  // todo
+  useEffect(() => {
+    if (
+      all_seeds.length &&
+      groupYourLiquidityList.length &&
+      liquidities_list.length
+    ) {
+      // get all seeds of the dcl pool
+      const [activeSeeds, endedSeeds, matchedSeeds] =
+        get_matched_all_seeds_of_a_dcl_pool({
+          seeds: all_seeds,
+          pool_id,
+        });
+      // farm icon
+      if (activeSeeds.length) {
+        const muti = activeSeeds.find((seed: Seed) => {
+          return seed.farmList.length > 1;
+        });
+        if (muti) {
+          set_farm_icon('muti');
+        } else {
+          set_farm_icon('single');
+        }
+      }
+      // tip
+      const latest_seed = activeSeeds[0];
+      if (latest_seed) {
+        const exist = groupYourLiquidityList.find((l: any) => {
+          const liquidity: UserLiquidityInfo = l.liquidity;
+          const { part_farm_ratio } = liquidity;
+          const is_in_farming = part_farm_ratio && +part_farm_ratio > 0;
+          if (!is_in_farming) {
+            if (whether_liquidity_can_farm_in_seed(liquidity, latest_seed)) {
+              return true;
+            }
+          }
+        });
+        if (exist) {
+          set_tip_seed({
+            seed: latest_seed,
+            seed_apr: formatPercentage(getSeedApr(latest_seed)),
+            go_farm_url_link: get_go_seed_link_url(latest_seed),
+          });
+        }
+      }
+      // get all seed that user had joined
+      let joined_seeds: IUserJoinedSeed;
+      const in_farming_liquidities = groupYourLiquidityList.filter((l: any) => {
+        return l.is_in_farming;
+      });
+      debugger;
+      in_farming_liquidities.forEach((l: any) => {
+        const [fixRange_l, pool_id_l, left_point_l, right_point_l] =
+          l.liquidity.mft_id.split('&');
+        const targetSeed = matchedSeeds.find((seed: Seed) => {
+          const [contractId, mft_id] = seed.seed_id.split('@');
+          if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) {
+            const [
+              fixRange,
+              pool_id_from_seed,
+              left_point_seed,
+              right_point_seed,
+            ] = mft_id.split('&');
+            return (
+              left_point_l == left_point_seed &&
+              right_point_l == right_point_seed
+            );
+          }
+        });
+        if (targetSeed) {
+          if (!joined_seeds) {
+            joined_seeds = {
+              [targetSeed.seed_id]: {
+                seed: targetSeed,
+                liquidities: [l.liquidity],
+              },
+            };
+          } else if (!joined_seeds[targetSeed.seed_id]) {
+            joined_seeds[targetSeed.seed_id] = {
+              seed: targetSeed,
+              liquidities: [l.liquidity],
+            };
+          } else {
+            joined_seeds[targetSeed.seed_id].liquidities = [l.liquidity];
+          }
+        }
+      });
+
+      // get farm apr and value of user's investment
+      joined_seeds &&
+        Object.values(joined_seeds).forEach(
+          (joined_seed_info: IUserJoinedSeedDetail) => {
+            const { seed, liquidities } = joined_seed_info;
+            joined_seed_info.seed_apr = formatPercentage(getSeedApr(seed));
+            joined_seed_info.value_of_investment = formatWithCommas_usd(
+              getTotalValueInFarmsOfLiquidities(seed, liquidities)
+            );
+            if (seed.farmList[0].status == 'Ended') {
+              joined_seed_info.seed_status == 'ended';
+              joined_seed_info.seed_status_num == 3;
+            } else {
+              if (latest_seed.seed_id == seed.seed_id) {
+                joined_seed_info.seed_status = 'run';
+                joined_seed_info.seed_status_num == 1;
+              } else {
+                joined_seed_info.seed_status = 'would_ended';
+                joined_seed_info.seed_status_num == 2;
+              }
+            }
+            joined_seed_info.go_farm_url_link = get_go_seed_link_url(seed);
+          }
+        );
+      set_joined_seeds(joined_seeds);
+      console.log(
+        'pool_id, farm_icon,tip_seed, joined_seeds',
+        pool_id,
+        farm_icon,
+        tip_seed,
+        joined_seeds
+      );
+    }
+  }, [groupYourLiquidityList, liquidities_list, tokenPriceList, all_seeds]);
+
+  function get_go_seed_link_url(seed: Seed) {
+    const [fixRange, dcl_pool_id, left_point_seed, right_point_seed] =
+      seed.seed_id.split('@')[1].split('&');
+    const link_params = `${get_pool_name(
+      dcl_pool_id
+    )}[${left_point_seed}-${right_point_seed}]`;
+    if (seed.farmList[0].status == 'Ended') {
+      return `/v2farms/${link_params}-e`;
+    } else {
+      return `/v2farms/${link_params}-r`;
+    }
+  }
+  function getSeedApr(seed: Seed) {
+    const farms = seed.farmList;
+    let apr = 0;
+    const allPendingFarms = isPending(seed);
+    farms.forEach(function (item: FarmBoost) {
+      const pendingFarm = item.status == 'Created' || item.status == 'Pending';
+      if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
+        apr = +new BigNumber(apr).plus(item.apr).toFixed();
+      }
+    });
+    return apr * 100;
+  }
+  function getTotalValueInFarmsOfLiquidities(
+    seed: Seed,
+    liquidities: UserLiquidityInfo[]
+  ) {
+    let total_value = Big(0);
+    liquidities.forEach((l: UserLiquidityInfo) => {
+      let v = get_range_part_value(l, seed);
+      if (Big(l.unfarm_part_amount || 0).gt(0)) {
+        v = Big(l.part_farm_ratio).div(100).mul(v).toFixed();
+      }
+      total_value = total_value.plus(v || 0);
+    });
+    return total_value.toFixed();
+  }
   async function get_24_apr() {
     let apr_24 = '';
     const dcl_fee_result: IDCLAccountFee | any = await getDCLAccountFee({
@@ -1727,6 +1856,8 @@ function UserLiquidityLineStyleGroup1({
     });
     if (dcl_fee_result) {
       // 24h 利润 中文
+      poolDetail.token_x_metadata = tokenMetadata_x_y[0];
+      poolDetail.token_y_metadata = tokenMetadata_x_y[1];
       apr_24 = get_account_24_apr(dcl_fee_result, poolDetail, tokenPriceList);
     }
     setAccountAPR(formatPercentage(apr_24));
@@ -1910,7 +2041,47 @@ function UserLiquidityLineStyleGroup1({
     }
     return pending;
   }
-
+  function get_range_part_value(liquidity: UserLiquidityInfo, seed: Seed) {
+    const [left_point, right_point] = get_valid_range(liquidity, seed.seed_id);
+    const v = get_liquidity_value_of_range(
+      liquidity,
+      seed,
+      left_point,
+      right_point
+    );
+    return v;
+  }
+  function get_liquidity_value_of_range(
+    liquidity: UserLiquidityInfo,
+    seed: Seed,
+    leftPoint: number,
+    rightPoint: number
+  ) {
+    const { amount } = liquidity;
+    const poolDetail = seed.pool;
+    const { token_x, token_y } = poolDetail;
+    const v = get_total_value_by_liquidity_amount_dcl({
+      left_point: leftPoint || liquidity.left_point,
+      right_point: rightPoint || liquidity.right_point,
+      poolDetail,
+      amount,
+      price_x_y: {
+        [token_x]: tokenPriceList[token_x]?.price || '0',
+        [token_y]: tokenPriceList[token_y]?.price || '0',
+      },
+      metadata_x_y: {
+        [token_x]: tokenMetadata_x_y[0],
+        [token_y]: tokenMetadata_x_y[1],
+      },
+    });
+    return v;
+  }
+  function sort_joined_seeds(
+    b: IUserJoinedSeedDetail,
+    a: IUserJoinedSeedDetail
+  ) {
+    return b.seed_status_num - a.seed_status_num;
+  }
   return (
     <div
       className="mt-3.5"
@@ -1957,12 +2128,16 @@ function UserLiquidityLineStyleGroup1({
                     </span>
                     <span className="">{+fee / 10000}%</span>
                   </div>
+                  {farm_icon ? (
+                    <div className="-ml-2">
+                      <FarmStampNew multi={farm_icon == 'muti'} />
+                    </div>
+                  ) : null}
                 </div>
               </div>
             </div>
-
             {/* 2/3 */}
-
+            {/* Price Range */}
             <div className="col-span-2">
               <div className=" flex flex-wrap">
                 {intersectionRangeList.map((range: string[], i: number) => {
@@ -2003,31 +2178,125 @@ function UserLiquidityLineStyleGroup1({
                 </span>
               </div>
             </div>
-
+            {/* Trailing 24hr APR */}
             <div className="text-white flex flex-col gap-2  text-sm">
-              <span>{accountAPR}</span>
-              <span className="frcs gap-1 text-primaryText">
-                {related_seed_info.your_apr && (
+              <span>{accountAPR || '-'}</span>
+              {joined_seeds ? (
+                <div className="flex flex-col gap-1">
+                  {Object.values(joined_seeds)
+                    .sort(sort_joined_seeds)
+                    .map((joined_seed_info: IUserJoinedSeedDetail) => {
+                      const length = Object.values(joined_seeds).length;
+                      const { seed_apr, seed_status } = joined_seed_info;
+                      if (seed_status == 'ended') return null;
+                      if (length == 1) {
+                        return (
+                          <div className="frcs gap-1 text-primaryText">
+                            <span>
+                              <FormattedMessage
+                                id="farm_apr"
+                                defaultMessage={'Farm APR'}
+                              ></FormattedMessage>
+                            </span>
+                            <span>{seed_apr}</span>
+                          </div>
+                        );
+                      } else {
+                        return (
+                          <div className="frcs gap-1 text-primaryText">
+                            <span>
+                              {seed_status == 'run' ? 'new' : 'pre.'} APR
+                            </span>
+                            <span>{seed_apr}</span>
+                          </div>
+                        );
+                      }
+                    })}
+                </div>
+              ) : tip_seed ? (
+                <div className="frcs gap-1 text-primaryText">
                   <span>
                     <FormattedMessage
                       id="farm_apr"
                       defaultMessage={'Farm APR'}
                     ></FormattedMessage>
                   </span>
-                )}
-
-                {related_seed_info.your_apr
-                  ? !is_in_farming || related_seed_info.status == 'end'
-                    ? '0%'
-                    : getTotalAprForSeed()
-                  : '-'}
-              </span>
+                  <span>0%</span>
+                </div>
+              ) : null}
             </div>
-
+            {/* Your Liquidity */}
             <div className=" text-white text-sm flex flex-col gap-2">
               {your_liquidity}
-
-              {related_seed_info.your_apr ? (
+              {joined_seeds ? (
+                <div className="flex flex-col gap-1">
+                  {Object.values(joined_seeds)
+                    .sort(sort_joined_seeds)
+                    .map((joined_seed_info: IUserJoinedSeedDetail) => {
+                      const length = Object.values(joined_seeds).length;
+                      const {
+                        seed_status,
+                        value_of_investment,
+                        go_farm_url_link,
+                      } = joined_seed_info;
+                      if (length == 1) {
+                        return (
+                          <div className="frcs gap-1 text-primaryText">
+                            {value_of_investment} in{' '}
+                            <a
+                              className="cursor-pointer underline"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openUrl(go_farm_url_link);
+                              }}
+                            >
+                              farm
+                            </a>
+                          </div>
+                        );
+                      } else {
+                        return (
+                          <div className="frcs gap-1 text-primaryText">
+                            {value_of_investment} in{' '}
+                            <a
+                              className={`cursor-pointer underline ${
+                                seed_status == 'run'
+                                  ? 'text-greenColor'
+                                  : 'text-primaryText'
+                              }`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openUrl(go_farm_url_link);
+                              }}
+                            >
+                              farm (
+                              {seed_status == 'run'
+                                ? 'new'
+                                : seed_status == 'would_ended'
+                                ? 'pre.'
+                                : 'ended'}
+                              )
+                            </a>
+                          </div>
+                        );
+                      }
+                    })}
+                </div>
+              ) : tip_seed ? (
+                <div className="frcs gap-1 text-primaryText">
+                  0% in{' '}
+                  <a
+                    className="cursor-pointer underline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openUrl(tip_seed.go_farm_url_link);
+                    }}
+                  >
+                    farm
+                  </a>
+                </div>
+              ) : null}
+              {/* {related_seed_info.your_apr ? (
                 <div className="frcs gap-1 text-primaryText">
                   <span>{in_farm_percent}</span>
                   <span>
@@ -2053,37 +2322,34 @@ function UserLiquidityLineStyleGroup1({
                 </div>
               ) : (
                 <span className="text-primaryText">-</span>
-              )}
+              )} */}
             </div>
           </div>
-          {farmApr && (!is_in_farming || related_seed_info.status == 'end') ? (
-            <div className="relative flex items-center pr-8  bg-dclFarmTipColor justify-end p-1">
-              <TipIon className="mr-2 flex-shrink-0"></TipIon>
-              <span className="text-sm mr-8  text-white">
-                {related_seed_info.status == 'end' ? (
-                  <FormattedMessage id="you_can_earn_current_tip" />
-                ) : (
-                  <FormattedMessage id="you_can_earn_tip" />
-                )}{' '}
-                <span className="font-gothamBold">{getTotalAprForSeed()}</span>
-              </span>
-              <div
-                className="flex items-center justify-center  text-white cursor-pointer"
-                onClick={() => {
-                  openUrl(related_seed_info.link);
-                }}
-              >
-                <a className="text-sm text-white mr-1 underline">
-                  {related_seed_info.status == 'end' ? (
-                    <FormattedMessage id="go_new_farm" />
-                  ) : (
+          {/* tip */}
+          {tip_seed ? (
+            <div className={`${hover ? 'bg-v3HoverDarkBgColor' : 'bg-cardBg'}`}>
+              <div className="relative flex items-center pr-8  bg-dclFarmTipColor justify-end p-1">
+                <TipIon className="mr-2 flex-shrink-0"></TipIon>
+                <span className="text-sm mr-8  text-white">
+                  <FormattedMessage id="you_can_earn_tip" />{' '}
+                  <span className="font-gothamBold">{tip_seed.seed_apr}</span>
+                </span>
+                <div
+                  className="flex items-center justify-center  text-white cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openUrl(tip_seed.go_farm_url_link);
+                  }}
+                >
+                  <a className="text-sm text-white mr-1 underline">
                     <FormattedMessage id="go_farm" />
-                  )}
-                </a>
-                <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
+                  </a>
+                  <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
+                </div>
               </div>
             </div>
           ) : null}
+
           <div
             className={`border-t border-v3BlueBorderColor w-full ${
               hover ? '' : 'hidden'
@@ -2838,4 +3104,21 @@ function UserLiquidityLineStyle2Pc({
       </div>
     </div>
   );
+}
+interface IUserJoinedSeed {
+  seed_id?: IUserJoinedSeedDetail;
+}
+interface IUserJoinedSeedDetail {
+  seed: Seed;
+  liquidities: UserLiquidityInfo[];
+  seed_apr?: string;
+  value_of_investment?: string;
+  seed_status?: 'run' | 'would_ended' | 'ended';
+  seed_status_num?: number;
+  go_farm_url_link?: string;
+}
+interface ILatestSeedTip {
+  seed: Seed;
+  seed_apr: string;
+  go_farm_url_link: string;
 }
