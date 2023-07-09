@@ -467,7 +467,7 @@ export default function DclChart({
   function drawChart() {
     const data: IChartData[] = process_chart_data_for_display();
     const scale = scaleAxis();
-    const scaleBar = scaleAxisY();
+    const scaleBar = scaleAxisY(data);
     // down bars
     draw_down_bars({ data, scale, scaleBar });
     // up bars
@@ -1059,16 +1059,16 @@ export default function DclChart({
       .domain(range)
       .range([0, svgWidth - svgPaddingX * 2]);
   }
-  function scaleAxisY() {
+  function scaleAxisY(data: IChartData[]) {
     if (chartType == 'USER') {
       return scaleAxisY_User();
     } else {
-      return scaleAxisY_Pool();
+      return scaleAxisY_Pool(data);
     }
   }
-  function scaleAxisY_Pool() {
+  function scaleAxisY_Pool(data: IChartData[]) {
     const L: number[] = [];
-    chartDataList.forEach((o: IChartData) => {
+    data.forEach((o: IChartData) => {
       const { liquidity, order_liquidity } = o;
       L.push(
         +liquidity,

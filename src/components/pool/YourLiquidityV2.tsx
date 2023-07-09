@@ -1982,7 +1982,7 @@ function UserLiquidityLineStyleGroup1({
     tokenFeeRight,
     intersectionRangeList,
     isInRange,
-    canClaim
+    canClaim,
   } = groupedData;
 
   function goDetailV2() {
