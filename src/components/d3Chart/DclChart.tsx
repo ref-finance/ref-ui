@@ -8,7 +8,7 @@ import {
   getPointByPrice,
   POINTLEFTRANGE,
   POINTRIGHTRANGE,
-  divide_liquidities_into_bins,
+  divide_liquidities_into_bins_user,
   UserLiquidityInfo,
   getBinPointByPoint,
   get_x_y_amount_by_condition,
@@ -355,7 +355,7 @@ export default function DclChart({
     const { token_x_metadata, token_y_metadata } = pool;
     const { bin: bin_final } = getConfig();
     const nfts = user_liquidities.concat(newlyAddedLiquidities || []);
-    const list = divide_liquidities_into_bins({
+    const list = divide_liquidities_into_bins_user({
       liquidities: nfts,
       slot_number_in_a_bin: bin_final,
       tokenX: token_x_metadata,
@@ -401,7 +401,7 @@ export default function DclChart({
         return l.pool_id == pool_id;
       });
       set_user_liquidities(nfts);
-      list = divide_liquidities_into_bins({
+      list = divide_liquidities_into_bins_user({
         liquidities: nfts,
         slot_number_in_a_bin: bin_final,
         tokenX: token_x_metadata,

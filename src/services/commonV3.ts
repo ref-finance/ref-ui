@@ -1326,9 +1326,9 @@ export function openUrl(url: string) {
  * @param nfts
  * @param slot_number_in_a_bin
  * step1 遍历每个nft，按照slot拆分，把每个slot的 liquidity 和 tokenx amount token y amount 放入 map集合里
- * step2 根据step1 得到的 几个，再按照bin划分，每个bin的宽度根据参数拿到，高度 根据 这个bin 里token x token y的数量 应用公式拿到
+ * step2 根据step1 得到的slot，再按照bin划分，每个bin的宽度根据参数拿到，高度 根据 这个bin 里token x token y的数量 应用公式拿到
  */
-export function divide_liquidities_into_bins({
+export function divide_liquidities_into_bins_user({
   liquidities,
   slot_number_in_a_bin,
   tokenX,
