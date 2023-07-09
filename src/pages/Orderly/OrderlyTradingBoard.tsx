@@ -1,9 +1,14 @@
 import * as React from 'react';
+
+import { useEffect, useState } from 'react';
 import './App.css';
 import { ChartContainer } from './components/TVChartContainer/index';
 
-import OrderBook from './components/OrderBook';
-import ChartHeader from './components/ChartHeader';
+import OrderBook, { OrderBookMobile } from './components/OrderBook';
+import ChartHeader, {
+  ChartHeaderDetail,
+  ChartHeaderSecondRoute,
+} from './components/ChartHeader';
 import UserBoard from './components/UserBoard';
 
 import {
@@ -16,25 +21,22 @@ import { REF_ORDERLY_ACCOUNT_VALID } from './components/UserBoard/index';
 
 import { useLargeScreen, useClientMobile, isMobile } from '../../utils/device';
 
-import MobileInfoBoard from './components/MobileInfoBoard';
+import MobileInfoBoard, {
+  CurAsset,
+  MobileChartBoard,
+} from './components/MobileInfoBoard';
 
 import { OrderlyUnderMaintainIcon } from './components/Common/Icons';
 import { getOrderlySystemInfo } from './orderly/off-chain-api';
+import { useAllOrders } from './orderly/state';
+import { useOrderlyContext } from './orderly/OrderlyContext';
+import { PerpOrSpot } from './utiles';
+import { FormattedMessage } from 'react-intl';
 
 function TradingBoard() {
   const isLarge = useLargeScreen();
 
-  const [maintenance, setMaintenance] = React.useState<boolean>(undefined);
-
-  React.useEffect(() => {
-    getOrderlySystemInfo().then((res) => {
-      if (res.data.status === 2) {
-        setMaintenance(true);
-      } else {
-        setMaintenance(false);
-      }
-    });
-  }, []);
+  const { maintenance } = useOrderlyContext();
 
   if (maintenance === undefined) return null;
 
@@ -50,7 +52,7 @@ function TradingBoard() {
           }}
         >
           <div className="w-full border p-4   border-boxBorder rounded-2xl bg-black bg-opacity-10">
-            <ChartHeader maintenance={maintenance}></ChartHeader>
+            <ChartHeader></ChartHeader>
             <ChartContainer maintenance={maintenance} />
           </div>
           {!isLarge && (
@@ -89,6 +91,19 @@ function TradingBoard() {
 function MobileTradingBoard() {
   const [maintenance, setMaintenance] = React.useState<boolean>(undefined);
 
+  const { myPendingOrdersRefreshing, symbol } = useOrderlyContext();
+
+  const symbolType = PerpOrSpot(symbol);
+
+  const [route, setRoute] = useState<'user_board' | 'chart'>('user_board');
+
+  const [displayTab, setDisplayTab] = useState<'orders' | 'assets'>('orders');
+
+  const allOrders = useAllOrders({
+    refreshingTag: myPendingOrdersRefreshing,
+    type: symbolType,
+  });
+
   React.useEffect(() => {
     getOrderlySystemInfo().then((res) => {
       if (res.data.status === 2) {
@@ -103,32 +118,110 @@ function MobileTradingBoard() {
     if (maintenance) {
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'auto';
-      document.documentElement.style.overflow = 'auto';
     }
   }, [maintenance]);
 
   if (maintenance === undefined) return null;
 
   return (
-    <div>
+    <>
       {maintenance && <OrderlyUnderMaintain></OrderlyUnderMaintain>}
 
       <div className="w-95vw  mx-auto flex flex-col lg:hidden">
-        <ChartHeader maintenance={maintenance}></ChartHeader>
-
-        {/* info board */}
-
-        <MobileInfoBoard maintenance={maintenance} />
-
-        {/* operation board */}
+        {route === 'user_board' && (
+          <ChartHeader route={route} setRoute={setRoute}></ChartHeader>
+        )}
+        {route == 'chart' && (
+          <ChartHeaderSecondRoute route={route} setRoute={setRoute} />
+        )}
+        {route === 'chart' && <ChartHeaderDetail></ChartHeaderDetail>}
+        {route === 'user_board' && (
+          <MobileInfoBoard maintenance={maintenance} />
+        )}
+        {route === 'chart' && (
+          <MobileChartBoard maintenance={maintenance}></MobileChartBoard>
+        )}
       </div>
 
-      <div className="w-full flex flex-col lg:hidden">
-        <AllOrderBoard maintenance={maintenance} />
-      </div>
-    </div>
+      {route == 'user_board' && (
+        <>
+          <div className="w-full frcs border-b text-sm text-primaryText border-white border-opacity-20">
+            <div
+              className={`w-1/2 relative ${
+                displayTab == 'orders' ? 'text-white' : ''
+              } frcc pb-2`}
+              onClick={() => {
+                setDisplayTab('orders');
+              }}
+            >
+              <FormattedMessage
+                id="order"
+                defaultMessage={'Order'}
+              ></FormattedMessage>
+              {!!allOrders && `(${allOrders.length})`}
+
+              {displayTab === 'orders' && (
+                <div
+                  className="w-full absolute -bottom-0.5 h-0.5 bg-gradientFromHover"
+                  style={{
+                    width: 'calc(100% - 40px)',
+                  }}
+                ></div>
+              )}
+            </div>
+
+            <div
+              className={`w-1/2 ${
+                displayTab == 'assets' ? 'text-white' : ''
+              } frcc pb-2 relative`}
+              onClick={() => {
+                setDisplayTab('assets');
+              }}
+            >
+              <FormattedMessage
+                id="assetts"
+                defaultMessage={'Assets'}
+              ></FormattedMessage>
+
+              {displayTab === 'assets' && (
+                <div
+                  style={{
+                    width: 'calc(100% - 40px)',
+                  }}
+                  className="w-full absolute -bottom-0.5 h-0.5 bg-gradientFromHover"
+                ></div>
+              )}
+            </div>
+          </div>
+
+          {displayTab === 'orders' && (
+            <div className="w-full flex flex-col ">
+              <AllOrderBoard maintenance={maintenance} />
+            </div>
+          )}
+
+          {displayTab === 'assets' && <CurAsset></CurAsset>}
+        </>
+      )}
+
+      {route === 'chart' && (
+        <OrderBookMobile maintenance={maintenance}></OrderBookMobile>
+      )}
+
+      {route === 'chart' && (
+        <div
+          className="fixed text-base bottom-10 text-white w-95vw  bg-stableTab rounded-lg frcc py-2 font-gothamBold"
+          onClick={() => {
+            setRoute('user_board');
+          }}
+        >
+          <FormattedMessage
+            id="trade"
+            defaultMessage={'Trade'}
+          ></FormattedMessage>
+        </div>
+      )}
+    </>
   );
 }
 

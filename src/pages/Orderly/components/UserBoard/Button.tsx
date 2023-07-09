@@ -190,19 +190,19 @@ function SellRecMobile({ select }: { select: boolean }) {
   );
 }
 
-function BuyButton(props: {
-  select: boolean;
-  onClick: () => void;
-  mobile?: boolean;
-}) {
-  const { select, mobile } = props;
+function BuyButton(props: { select: boolean; onClick: () => void }) {
+  const { select } = props;
 
   const clientWidth = document.documentElement.clientWidth;
 
   const isMobile = useClientMobile();
   const intl = useIntl();
   const buttonStyle = {
-    transform: isMobile ? `scale( ${(clientWidth / 2 - 20) / 144} ,1)` : '',
+    transform: isMobile
+      ? `scale( ${isMobile ? '0.75' : (clientWidth / 2 - 20) / 144} ,${
+          isMobile ? 0.8 : 1
+        })`
+      : '',
   };
   return (
     <div
@@ -214,7 +214,7 @@ function BuyButton(props: {
         className="absolute cursor-pointer transform  z-10"
         style={buttonStyle}
       >
-        {mobile ? (
+        {isMobile ? (
           <BuyRecMobile select={select}></BuyRecMobile>
         ) : (
           <BuyRec select={select}></BuyRec>
@@ -231,18 +231,19 @@ function BuyButton(props: {
   );
 }
 
-function SellButton(props: {
-  select: boolean;
-  onClick: () => void;
-  mobile?: boolean;
-}) {
-  const { select, mobile } = props;
+function SellButton(props: { select: boolean; onClick: () => void }) {
+  const { select } = props;
   const clientWidth = document.documentElement.clientWidth;
   const isMobile = useClientMobile();
   const intl = useIntl();
   const buttonStyle = {
-    transform: isMobile ? `scale( ${(clientWidth / 2 - 20) / 144} ,1)` : '',
+    transform: isMobile
+      ? `scale( ${isMobile ? '0.75' : (clientWidth / 2 - 20) / 144} ,${
+          isMobile ? 0.8 : 1
+        })`
+      : '',
   };
+
   return (
     <div
       className="relative  w-1/2  flex items-center justify-center"
@@ -252,7 +253,7 @@ function SellButton(props: {
         className="absolute z-10 cursor-pointer transform  "
         style={buttonStyle}
       >
-        {mobile ? (
+        {isMobile ? (
           <SellRecMobile select={select}></SellRecMobile>
         ) : (
           <SellRec select={select}></SellRec>

@@ -3,7 +3,7 @@ import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import Modal from 'react-modal';
 import { parseSymbol } from '../RecentTrade';
 import { nearMetadata, getFTmetadata, toPrecision } from '../../near';
-
+import { RiArrowLeftSLine } from 'react-icons/ri';
 import {
   IoArrowDownOutline,
   IoArrowUpOutline,
@@ -16,7 +16,12 @@ import { Ticker, TokenInfo } from '../../orderly/type';
 import { TokenIcon } from '../Common';
 import useCallback from 'react';
 import { digitWrapper } from '../../utiles';
-import { AllMarketIcon, CheckSelector } from '../Common/Icons';
+import {
+  AllMarketIcon,
+  CheckSelector,
+  MobileChartIcon,
+  MobileMoreRouteIcon,
+} from '../Common/Icons';
 import { useClientMobile } from '../../../../utils/device';
 import { useIntl } from 'react-intl';
 
@@ -348,8 +353,11 @@ export function SymbolSelectorMobileModal(
   );
 }
 
-function ChartHeader({ maintenance }: { maintenance: boolean }) {
-  const { symbol, setSymbol, tokenInfo, ticker } = useOrderlyContext();
+function ChartHeader(props?: any) {
+  const { symbol, setSymbol, tokenInfo, ticker, maintenance } =
+    useOrderlyContext();
+
+  const { setRoute, route } = props;
 
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
 
@@ -363,6 +371,8 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
   const [iconIn, setIconIn] = useState<string>();
 
   const [iconOut, setIconOut] = useState<string>();
+
+  const isMobile = useClientMobile();
 
   useEffect(() => {
     if (!idFrom) return;
@@ -392,12 +402,15 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
 
   const [hoverSymbol, setHoverSymbol] = useState<boolean>(false);
 
-  const isMobile = useClientMobile();
-
   const intl = useIntl();
 
   return (
-    <div className="flex items-center  text-white text-sm">
+    <div
+      className="flex orderly-chart-header items-center  text-white text-sm xs:sticky xs:top-0 xs:z-50"
+      style={{
+        backgroundColor: isMobile ? 'rgba(0,18,32)' : '',
+      }}
+    >
       {/* icon */}
       <div
         className={`flex 2xl:mr-11 xl:mr-6 lg2:mr-3  relative items-center flex-shrink-0 ${
@@ -424,17 +437,37 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
       >
         {<img src={iconIn} alt="" className="rounded-full relative  h-6 w-6" />}
 
-        {
-          <img
-            src={iconOut}
-            alt=""
-            className="rounded-full relative right-1 z-10 h-6 w-6"
-          />
-        }
+        <img
+          src={iconOut}
+          alt=""
+          className="rounded-full relative right-1 z-10 h-6 w-6"
+        />
 
         <span className="text-base ml-4">
           {symbolFrom} / {symbolTo}
         </span>
+
+        {isMobile && ticker && (
+          <span
+            className={`${
+              diff < 0
+                ? 'text-sellRed bg-sellRed'
+                : diff > 0
+                ? 'text-buyGreen bg-buyGreen'
+                : 'text-white'
+            } bg-opacity-10 text-xs flex items-center  rounded-md ml-2 px-1 py-0.5`}
+          >
+            {' '}
+            <span className="relative ">
+              {diff > 0 ? (
+                <IoArrowUpOutline />
+              ) : diff < 0 ? (
+                <IoArrowDownOutline />
+              ) : null}
+            </span>
+            <span>{disPlayDiff}%</span>
+          </span>
+        )}
 
         <IoMdArrowDropdown
           color={!hoverSymbol ? '#566069' : '#FFFFFF'}
@@ -467,7 +500,7 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
 
       {ticker && !maintenance && (
         <div
-          className={`flex  items-center  mr-2 max-w-full w-p460
+          className={`flex  items-center  mr-2 max-w-full xs:w-full lg:w-p460
             justify-between xs:justify-end md:justify-end  text-primaryOrderly`}
         >
           <div className="flex xs:justify-end md:justify-end  items-start flex-col xs:flex-row md:flex-row xs:items-center md:items-center">
@@ -477,7 +510,7 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
                 defaultMessage: 'Price',
               })}
             </span>
-            <div className="flex items-center mt-0.5">
+            <div className="flex xs:hidden md:hidden items-center mt-0.5">
               <span className="text-white font-bold">
                 {digitWrapper(ticker.close.toString(), 3)}
               </span>
@@ -541,6 +574,277 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
             <span className="text-white mt-0.5 font-bold">
               ${toPrecision(ticker.amount.toString(), 3, true)}
             </span>
+          </div>
+
+          <div className="frcs lg:hidden gap-2 ">
+            <div
+              onClick={() => {
+                setRoute && setRoute('chart');
+              }}
+            >
+              <MobileChartIcon></MobileChartIcon>
+            </div>
+
+            <MobileMoreRouteIcon></MobileMoreRouteIcon>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function ChartHeaderSecondRoute(props?: any) {
+  const { symbol, setSymbol, tokenInfo, ticker, maintenance } =
+    useOrderlyContext();
+
+  const { route, setRoute } = props;
+
+  const { symbolFrom, symbolTo } = parseSymbol(symbol);
+
+  const idFrom =
+    tokenInfo &&
+    tokenInfo.find((t) => t.token === symbolFrom)?.token_account_id;
+
+  const idTo =
+    tokenInfo && tokenInfo.find((t) => t.token === symbolTo)?.token_account_id;
+
+  const [iconIn, setIconIn] = useState<string>();
+
+  const [iconOut, setIconOut] = useState<string>();
+
+  const isMobile = useClientMobile();
+
+  useEffect(() => {
+    if (!idFrom) return;
+
+    if (idFrom === 'near') {
+      setIconIn(nearMetadata.icon);
+    } else {
+      getFTmetadata(idFrom).then((res) => {
+        setIconIn(res.icon);
+      });
+    }
+  }, [idFrom]);
+
+  useEffect(() => {
+    if (!idTo) return;
+
+    if (idTo === 'near') {
+      setIconOut(nearMetadata.icon);
+    } else {
+      getFTmetadata(idTo).then((res) => {
+        setIconOut(res.icon);
+      });
+    }
+  }, [idTo]);
+
+  const { diff, disPlayDiff } = tickerToDisplayDiff(ticker);
+
+  const [hoverSymbol, setHoverSymbol] = useState<boolean>(false);
+
+  const intl = useIntl();
+
+  return (
+    <div
+      className="frcb orderly-chart-header   text-white text-sm xs:sticky xs:top-0 xs:z-50"
+      style={{
+        backgroundColor: isMobile ? 'rgba(0,18,32)' : '',
+      }}
+    >
+      {/* icon */}
+
+      <div
+        className="frcs text-primaryText"
+        onClick={() => {
+          setRoute && setRoute('user_board');
+        }}
+      >
+        <RiArrowLeftSLine size={22}></RiArrowLeftSLine>
+      </div>
+
+      <div
+        className={`frcs  flex-shrink-0 ${
+          hoverSymbol ? 'cursor-pointer bg-symbolHover rounded-lg' : ''
+        } 
+        
+          px-3 py-2
+        `}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (isMobile) {
+            setHoverSymbol(!hoverSymbol);
+          }
+        }}
+        onMouseEnter={() => {
+          if (isMobile) return;
+          setHoverSymbol(true);
+        }}
+        onMouseLeave={() => {
+          if (isMobile) return;
+          setHoverSymbol(false);
+        }}
+      >
+        {<img src={iconIn} alt="" className="rounded-full relative  h-6 w-6" />}
+
+        <img
+          src={iconOut}
+          alt=""
+          className="rounded-full relative right-1 z-10 h-6 w-6"
+        />
+
+        <span className="text-base ml-4">
+          {symbolFrom} / {symbolTo}
+        </span>
+      </div>
+
+      <div className="frcc mr-2">
+        <MobileMoreRouteIcon></MobileMoreRouteIcon>
+      </div>
+    </div>
+  );
+}
+
+export function ChartHeaderDetail(props?: any) {
+  const { symbol, setSymbol, tokenInfo, ticker, maintenance } =
+    useOrderlyContext();
+
+  const { setRoute, route } = props;
+
+  const { symbolFrom, symbolTo } = parseSymbol(symbol);
+
+  const idFrom =
+    tokenInfo &&
+    tokenInfo.find((t) => t.token === symbolFrom)?.token_account_id;
+
+  const idTo =
+    tokenInfo && tokenInfo.find((t) => t.token === symbolTo)?.token_account_id;
+
+  const [iconIn, setIconIn] = useState<string>();
+
+  const [iconOut, setIconOut] = useState<string>();
+
+  const isMobile = useClientMobile();
+
+  useEffect(() => {
+    if (!idFrom) return;
+
+    if (idFrom === 'near') {
+      setIconIn(nearMetadata.icon);
+    } else {
+      getFTmetadata(idFrom).then((res) => {
+        setIconIn(res.icon);
+      });
+    }
+  }, [idFrom]);
+
+  useEffect(() => {
+    if (!idTo) return;
+
+    if (idTo === 'near') {
+      setIconOut(nearMetadata.icon);
+    } else {
+      getFTmetadata(idTo).then((res) => {
+        setIconOut(res.icon);
+      });
+    }
+  }, [idTo]);
+
+  const { diff, disPlayDiff } = tickerToDisplayDiff(ticker);
+
+  const intl = useIntl();
+
+  return (
+    <div
+      className="flex orderly-chart-header items-center  text-white text-sm  xs:z-50"
+      style={{
+        backgroundColor: isMobile ? 'rgba(0,18,32)' : '',
+      }}
+    >
+      {/* icon */}
+
+      {ticker && !maintenance && (
+        <div
+          className={`flex justify-between w-full text-xs text-primaryText text-10px`}
+        >
+          <div className="flex flex-col gap-1">
+            <span className="">
+              {intl.formatMessage({
+                id: 'price',
+                defaultMessage: 'Price',
+              })}
+            </span>
+            <span
+              className={`${
+                diff < 0
+                  ? 'text-sellRed'
+                  : diff > 0
+                  ? 'text-buyGreen'
+                  : 'text-white'
+              } font-gothamBold text-base`}
+            >
+              {digitWrapper(ticker.close.toString(), 3)}
+            </span>
+
+            <span
+              className={`${
+                diff < 0
+                  ? 'text-sellRed bg-sellRed'
+                  : diff > 0
+                  ? 'text-buyGreen bg-buyGreen'
+                  : 'text-white'
+              } bg-opacity-10 text-xs flex items-center  rounded-md 2 px-1 py-0.5`}
+            >
+              <span className="relative ">
+                {diff > 0 ? (
+                  <IoArrowUpOutline />
+                ) : diff < 0 ? (
+                  <IoArrowDownOutline />
+                ) : null}
+              </span>
+              <span>{disPlayDiff}%</span>
+            </span>
+          </div>
+
+          <div className="flex flex-col w-1/2  gap-1.5">
+            <div className="frcb ">
+              <span>
+                {intl.formatMessage({
+                  id: 'h24_high',
+                  defaultMessage: '24h High',
+                })}
+              </span>
+
+              <span className="text-white mt-0.5 font-bold">
+                {digitWrapper(ticker.high.toString(), 3)}
+              </span>
+            </div>
+
+            <div className="frcb">
+              <span>
+                {intl.formatMessage({
+                  id: 'h24_low',
+                  defaultMessage: '24h Low',
+                })}
+              </span>
+
+              <span className="text-white mt-0.5 font-bold">
+                {digitWrapper(ticker.low.toString(), 3)}
+              </span>
+            </div>
+
+            <div className="frcb">
+              <span>
+                {intl.formatMessage({
+                  id: 'h24_Volume',
+                  defaultMessage: '24h Volume',
+                })}
+              </span>
+
+              <span className="text-white mt-0.5 font-bold">
+                ${toPrecision(ticker.amount.toString(), 3, true)}
+              </span>
+            </div>
           </div>
         </div>
       )}

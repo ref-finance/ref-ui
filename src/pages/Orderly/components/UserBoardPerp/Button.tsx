@@ -202,7 +202,7 @@ function BuyButton(props: {
   const isMobile = useClientMobile();
   const intl = useIntl();
   const buttonStyle = {
-    transform: isMobile ? `scale( ${(clientWidth / 2 - 20) / 144} ,1)` : '',
+    transform: isMobile ? `scale( ${(clientWidth / 2 - 20) / 144} ,   1)` : '',
   };
   return (
     <div

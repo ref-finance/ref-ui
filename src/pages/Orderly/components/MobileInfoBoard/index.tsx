@@ -1,14 +1,5 @@
-import { FlexRow } from '../Common';
-import {
-  BalanceIcon,
-  BookIcon,
-  ChartIcon,
-  MobileIconCloseUp,
-  NearIConSelectModal,
-  OrderlyIconBalance,
-} from '../Common/Icons';
+import { NearIConSelectModal, OrderlyIconBalance } from '../Common/Icons';
 
-import { SlArrowUp } from 'react-icons/sl';
 import { digitWrapper, digitWrapperAsset } from '../../utiles';
 import { useTokenMetaFromSymbol } from '../ChartHeader/state';
 import { useTokenBalance } from '../UserBoard/state';
@@ -17,9 +8,10 @@ import {
   AssetManagerModal,
   REF_ORDERLY_ACCOUNT_VALID,
   REF_ORDERLY_AGREE_CHECK,
+  UserBoardMobileSpot,
 } from '../UserBoard/index';
 import { ChartContainer } from '../TVChartContainer';
-import OrderBook from '../OrderBook';
+import OrderBook, { OrderBookShrink } from '../OrderBook';
 import { OrderlyLoading } from '../Common/Icons';
 
 import React, { useState, useEffect, useRef, useDebugValue } from 'react';
@@ -95,56 +87,24 @@ import * as math from 'mathjs';
 import { NearWalletIcon } from '../Common/Icons';
 import { getSelectedWalletId } from '../../orderly/utils';
 import { BuyButton, SellButton } from '../UserBoard/Button';
-import { MobileUserBoard } from '../UserBoard/index';
 import AllOrderBoard from '../AllOrders';
 import { isMobile } from '../../../../utils/device';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { PerpOrderlyTipMobile } from '../PerpHeader';
 
 export const MOBILE_TAB = 'REF_ORDERLY_MOBILE_TAB';
 
 export const MOBILE_DISPLAY = 'REF_ORDERLY_MOBILE_DISPLAY';
 
-function ChartBoard({ maintenance }: { maintenance: boolean }) {
-  const { validAccountSig, ticker } = useOrderlyContext();
-  const intl = useIntl();
+export function MobileChartBoard({ maintenance }: { maintenance: boolean }) {
   return (
     <div className="h-full ">
-      {ticker && (
-        <div className="flex items-center text-xs mx-4 justify-between">
-          <div className="flex items-center">
-            <span className="text-primaryText mr-2">
-              {intl.formatMessage({
-                id: 'h24Vol',
-                defaultMessage: '24h Vol',
-              })}
-            </span>
-
-            <span className="text-white">
-              ${toPrecision(ticker.amount.toString(), 3, true)}
-            </span>
-          </div>
-
-          <div className="flex items-center">
-            <span className="text-primaryText">
-              {intl.formatMessage({
-                id: 'h24Range',
-                defaultMessage: '24h Range',
-              })}
-            </span>
-
-            <span className="text-white ml-2">
-              {digitWrapper(ticker.low.toString(), 3)} -{' '}
-              {digitWrapper(ticker.high.toString(), 3)}
-            </span>
-          </div>
-        </div>
-      )}
       <ChartContainer maintenance={maintenance} />
     </div>
   );
 }
 
-function CurAsset() {
+export function CurAsset() {
   const {
     symbol,
     orders,
@@ -266,41 +226,11 @@ function CurAsset() {
       )}
       {valid && validAccountSig && holdings && (
         <div
-          className="w-full flex flex-col "
+          className="w-full flex flex-col pt-5"
           style={{
             minHeight: '35vh',
           }}
         >
-          <div className="text-sm text-white font-bold mb-4 text-left flex items-center justify-between">
-            <div className="flex items-center">
-              <DepositButton
-                onClick={() => {
-                  setOperationType('deposit');
-                  setOperationId(tokenIn?.id || '');
-                }}
-              ></DepositButton>
-
-              <WithdrawButton
-                onClick={() => {
-                  setOperationType('withdraw');
-                  setOperationId(tokenIn?.id || '');
-                }}
-              ></WithdrawButton>
-            </div>
-
-            <span
-              className="text-base font-normal text-gradientFromHover "
-              onClick={() => {
-                setShowAllAssets(true);
-              }}
-            >
-              {intl.formatMessage({
-                id: 'see_all',
-                defaultMessage: 'See all',
-              })}
-            </span>
-          </div>
-
           <div className="grid grid-cols-4 text-sm text-primaryOrderly mb-2">
             <span className="col-span-2  justify-self-start">
               {intl.formatMessage({
@@ -378,6 +308,36 @@ function CurAsset() {
               </span>
             </div>
           </div>
+
+          <div className="text-sm text-white font-bold pt-4 text-left frcb">
+            <div className="flex items-center">
+              <DepositButton
+                onClick={() => {
+                  setOperationType('deposit');
+                  setOperationId(tokenIn?.id || '');
+                }}
+              ></DepositButton>
+
+              <WithdrawButton
+                onClick={() => {
+                  setOperationType('withdraw');
+                  setOperationId(tokenIn?.id || '');
+                }}
+              ></WithdrawButton>
+            </div>
+
+            <span
+              className="text-base font-normal text-gradientFromHover "
+              onClick={() => {
+                setShowAllAssets(true);
+              }}
+            >
+              {intl.formatMessage({
+                id: 'see_all',
+                defaultMessage: 'See all',
+              })}
+            </span>
+          </div>
         </div>
       )}
 
@@ -425,12 +385,12 @@ function CurAsset() {
 function BookBoard({ maintenance }: { maintenance: boolean }) {
   return (
     <div
-      className="w-full "
+      className=" flex-shrink-0 mr-4"
       style={{
-        height: 'calc(52vh + 16px)',
+        width: 'calc(40% - 20px)',
       }}
     >
-      <OrderBook maintenance={maintenance} />
+      <OrderBookShrink maintenance={maintenance} />
     </div>
   );
 }
@@ -791,105 +751,6 @@ function RegisterWrapper() {
   );
 }
 
-function UserBoardWrapper() {
-  const [showWrapper, setShowWrapper] = useState<boolean>(false);
-  const [side, setSide] = useState<'Buy' | 'Sell'>('Buy');
-
-  const [showButton, setShowButton] = useState<boolean>(true);
-
-  useEffect(() => {
-    const element = document.body;
-    let prevState = element.classList.contains('ReactModal__Body--open');
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        const { target } = mutation;
-
-        if (mutation.attributeName === 'class') {
-          //@ts-ignore
-          const currentState = mutation.target.classList.contains(
-            'ReactModal__Body--open'
-          );
-          if (prevState !== currentState) {
-            prevState = currentState;
-            if (currentState) {
-              setShowButton(false);
-            } else {
-              setShowButton(true);
-            }
-          }
-        }
-      });
-    });
-
-    observer.observe(element, {
-      attributes: true,
-    });
-  }, []);
-
-  return (
-    <>
-      <div
-        className={
-          !showButton
-            ? 'hidden'
-            : 'w-screen left-0 rounded-t-2xl bg-boxBorder gradientBorderWrapperNoShadowOrderly fixed  bottom-0'
-        }
-        style={{
-          zIndex: 89,
-        }}
-      >
-        <div className="flex items-center px-4 rounded-t-2xl bg-boxBorder pb-12 pt-5 w-full justify-center  ">
-          <BuyButton
-            onClick={() => {
-              setSide('Buy');
-              setShowWrapper(true);
-            }}
-            select
-            mobile
-          />
-
-          <SellButton
-            onClick={() => {
-              setSide('Sell');
-              setShowWrapper(true);
-            }}
-            select
-            mobile
-          />
-        </div>
-      </div>
-
-      <Modal
-        isOpen={showWrapper}
-        onRequestClose={() => {
-          setShowWrapper(false);
-        }}
-        style={{
-          content: {
-            position: 'fixed',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            top: 'none',
-            bottom: '0px',
-            left: '50%',
-            transform: 'translate(-50%, -30px)',
-            outline: 'none',
-          },
-        }}
-      >
-        <div className=" rounded-t-2xl lg:w-p410 xs:w-screen bg-boxBorder text-sm text-primaryOrderly  ">
-          <MobileUserBoard
-            setShowWrapper={setShowWrapper}
-            side={side}
-            setSide={setSide}
-          />
-        </div>
-      </Modal>
-    </>
-  );
-}
-
 export default function ({ maintenance }: { maintenance: boolean }) {
   const storedTab = sessionStorage.getItem(MOBILE_TAB) as any;
 
@@ -905,12 +766,6 @@ export default function ({ maintenance }: { maintenance: boolean }) {
     storedDisplay === 'false' ? false : true
   );
 
-  const handleSetTab = (tab: any) => {
-    setTab(tab);
-
-    sessionStorage.setItem(MOBILE_TAB, tab);
-  };
-
   const handleSetDisplay = (display: boolean) => {
     setShowDisplay(display);
 
@@ -919,107 +774,22 @@ export default function ({ maintenance }: { maintenance: boolean }) {
   const intl = useIntl();
   return (
     <>
-      <div className={tab === 'balance' && showDisplay ? '' : 'hidden'}>
+      {/* <div className={tab === 'balance' && showDisplay ? '' : 'hidden'}>
         <CurAsset></CurAsset>
       </div>
 
       <div className={tab === 'chart' && showDisplay ? '' : 'hidden'}>
         <ChartBoard maintenance={maintenance}></ChartBoard>
+      </div> */}
+
+      <div className="w-full flex">
+        <BookBoard maintenance={maintenance} />
+
+        <UserBoardMobileSpot maintenance={maintenance}></UserBoardMobileSpot>
       </div>
 
-      <div className={tab === 'book' && showDisplay ? '' : 'hidden'}>
-        <BookBoard maintenance={maintenance}></BookBoard>
-      </div>
-
-      <div className="w-full mx-auto flex mt-2 h-9 items-center">
-        <div className="flex items-center font-bold text-13px  text-primaryText w-full rounded-lg bg-darkBg2 p-0.5 mr-2">
-          <FlexRow
-            className={`w-1/3 justify-center rounded-lg py-2 ${
-              tab === 'balance' && showDisplay
-                ? 'bg-senderHot text-chartBg'
-                : ''
-            }`}
-            onClick={(e) => {
-              if (!showDisplay) {
-                setShowDisplay(true);
-              }
-
-              handleSetTab('balance');
-            }}
-          >
-            <BalanceIcon></BalanceIcon>
-            <span className="ml-1">
-              {intl.formatMessage({
-                id: 'balance',
-                defaultMessage: 'Balance',
-              })}
-            </span>
-          </FlexRow>
-
-          <FlexRow
-            className={`w-1/3 py-2 justify-center rounded-lg ${
-              tab === 'chart' && showDisplay ? 'bg-senderHot text-chartBg' : ''
-            }`}
-            onClick={() => {
-              if (!showDisplay) {
-                setShowDisplay(true);
-              }
-
-              handleSetTab('chart');
-            }}
-          >
-            <ChartIcon></ChartIcon>
-            <span className="ml-1">
-              {intl.formatMessage({
-                id: 'chart',
-                defaultMessage: 'Chart',
-              })}
-            </span>
-          </FlexRow>
-
-          <FlexRow
-            className={`rounded-lg justify-center w-1/3 py-2 ${
-              tab === 'book' && showDisplay ? 'bg-senderHot text-chartBg' : ''
-            }`}
-            onClick={() => {
-              if (!showDisplay) {
-                setShowDisplay(true);
-              }
-
-              handleSetTab('book');
-            }}
-          >
-            <BookIcon></BookIcon>
-            <span className="ml-1">
-              {intl.formatMessage({
-                id: 'orderbook_mobile',
-                defaultMessage: 'Orderbook',
-              })}
-            </span>
-          </FlexRow>
-        </div>
-
-        <div
-          className={`rounded-lg  flex-shrink-0 flex ${
-            !showDisplay ? 'bg-senderHot text-chartBg' : 'bg-darkBg2 text-white'
-          }  w-10 items-center justify-center`}
-          style={{
-            height: '85%',
-          }}
-        >
-          <span
-            className={` ${!showDisplay ? 'transform rotate-180' : ''} `}
-            onClick={() => {
-              handleSetDisplay(!showDisplay);
-            }}
-          >
-            {/* <SlArrowUp></SlArrowUp> */}
-            <MobileIconCloseUp></MobileIconCloseUp>
-          </span>
-        </div>
-      </div>
       {!validAccountSig && <RegisterWrapper></RegisterWrapper>}
-      {validAccountSig && <UserBoardWrapper />}
+      {/* {validAccountSig && <UserBoardWrapper />} */}
     </>
   );
 }

@@ -4064,21 +4064,21 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
   return (
     <>
       <div
-        className="w-full relative  xs:mt-5 lg:rounded-2xl shadow-sm  xs:bg-mobileOrderListBg lg:border md:border-none xs:border-none  text-primaryOrderly border-boxBorder    text-sm lg:bg-black  lg:bg-opacity-10 pb-4"
+        className="w-full relative  xs:mt-6 lg:rounded-2xl shadow-sm  lg:border md:border-none xs:border-none  text-primaryOrderly border-boxBorder    text-sm lg:bg-black  lg:bg-opacity-10 pb-4"
         style={{
           minHeight: isMobile ? '' : 'calc(100vh - 680px)',
         }}
       >
-        <FlexRowBetween className="pb-3 xs:mb-5 xs:bg-mobileOrderListTab py-3 rounded-t-2xl lg:border-b xs:px-0 xs:py-0 px-5 mt-0 border-white border-opacity-10">
-          <FlexRow className={`min-h-8 `}>
+        <FlexRowBetween className="pb-3 xs:mb-5 py-3  rounded-t-2xl lg:border-b xs:px-0 xs:py-0 px-5 mt-0 border-white border-opacity-10">
+          <FlexRow
+            className={`min-h-8 xs:ml-3 xs:p-1 xs:py-0.5 xs:border border-white border-opacity-10 xs:rounded-2xl`}
+          >
             <FlexRow
               onClick={() => {
                 setTab('open');
               }}
-              className={`justify-center xs:py-3 xs:px-5 ${
-                tab === 'open'
-                  ? 'xs:bg-mobileOrderListBg'
-                  : 'xs:bg-mobileOrderListTab'
+              className={`justify-center  xs:py-0.5 xs:px-2 xs:rounded-lg ${
+                tab === 'open' ? 'xs:bg-mobileOrderBg ' : ''
               } cursor-pointer`}
             >
               <span
@@ -4115,10 +4115,8 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
               onClick={() => {
                 setTab('history');
               }}
-              className={`justify-center xs:py-3 xs:px-5 ${
-                tab === 'history'
-                  ? 'xs:bg-mobileOrderListBg'
-                  : 'xs:bg-mobileOrderListTab'
+              className={`justify-center  xs:py-1 xs:px-2 xs:rounded-lg ${
+                tab === 'history' ? 'xs:bg-mobileOrderBg ' : ''
               } cursor-pointer ml-4`}
             >
               <span
@@ -4219,42 +4217,38 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
             </div>
           </FlexRow>
         </FlexRowBetween>
-        {
-          <OpenOrders
-            availableSymbols={availableSymbols}
-            allTokens={allTokens}
-            orders={openOrders || []}
-            setOpenCount={setOpenCount}
-            symbol={symbol}
-            hidden={tab === 'history'}
-            showCurSymbol={showCurSymbol}
-            loading={loading}
-            mobileFilterOpen={mobileFilterOpen}
-            setMobileFilterOpen={setMobileFilterOpen}
-            setShowCurSymbol={setShowCurSymbol}
-            setMobileFilterSize={setMobileFilterSize}
-            mobileFilterSize={mobileFilterSize}
-            tab={tab}
-          />
-        }
-        {
-          <HistoryOrders
-            tab={tab}
-            availableSymbols={availableSymbols}
-            allTokens={allTokens}
-            setHistoryCount={setHistoryCount}
-            orders={historyOrders || []}
-            symbol={symbol}
-            hidden={tab === 'open'}
-            showCurSymbol={showCurSymbol}
-            loading={loading}
-            mobileFilterOpen={mobileFilterOpen}
-            setMobileFilterOpen={setMobileFilterOpen}
-            setShowCurSymbol={setShowCurSymbol}
-            setMobileFilterSize={setMobileFilterSize}
-            mobileFilterSize={mobileFilterSize}
-          />
-        }
+        <OpenOrders
+          availableSymbols={availableSymbols}
+          allTokens={allTokens}
+          orders={openOrders || []}
+          setOpenCount={setOpenCount}
+          symbol={symbol}
+          hidden={tab === 'history'}
+          showCurSymbol={showCurSymbol}
+          loading={loading}
+          mobileFilterOpen={mobileFilterOpen}
+          setMobileFilterOpen={setMobileFilterOpen}
+          setShowCurSymbol={setShowCurSymbol}
+          setMobileFilterSize={setMobileFilterSize}
+          mobileFilterSize={mobileFilterSize}
+          tab={tab}
+        />
+        <HistoryOrders
+          tab={tab}
+          availableSymbols={availableSymbols}
+          allTokens={allTokens}
+          setHistoryCount={setHistoryCount}
+          orders={historyOrders || []}
+          symbol={symbol}
+          hidden={tab === 'open'}
+          showCurSymbol={showCurSymbol}
+          loading={loading}
+          mobileFilterOpen={mobileFilterOpen}
+          setMobileFilterOpen={setMobileFilterOpen}
+          setShowCurSymbol={setShowCurSymbol}
+          setMobileFilterSize={setMobileFilterSize}
+          mobileFilterSize={mobileFilterSize}
+        />
       </div>
     </>
   );

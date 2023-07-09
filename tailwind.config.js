@@ -397,6 +397,7 @@ module.exports = {
         overviewPurpleColor: '#816CFF',
         overviewGreyColor: '#314758',
         liquidationBorder: '#5B2E39',
+        mobileOrderBg: '#324451',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

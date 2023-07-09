@@ -77,15 +77,17 @@ export function Selector({
   setSelect,
   className,
   width,
+  style,
 }: {
   list: { text: JSX.Element | string; textId: string; className?: string }[];
   selected: string;
   setSelect: (value: any) => void;
   className?: string;
   width?: string;
+  style?: any;
 }) {
   return (
-    <div className="absolute top-6 z-50">
+    <div className="absolute top-6 z-50" style={style}>
       <div
         className={`${className}  flex flex-col ${
           width || 'min-w-28'

@@ -23,7 +23,7 @@ import MobileInfoBoard from './components/MobileInfoBoard';
 
 import { OrderlyUnderMaintainIcon } from './components/Common/Icons';
 import { getOrderlySystemInfo } from './orderly/off-chain-api';
-import { PerpOrderlyTip } from './components/PerpHeader';
+import { PerpOrderlyTip, PerpOrderlyTipMobile } from './components/PerpHeader';
 
 function TradingBoard() {
   const isLarge = useLargeScreen();
@@ -170,12 +170,16 @@ export function OrderlyPerpetual() {
   });
 
   return (
-    <div className="mx-auto xs:relative xs:bottom-6">
-      <PerpOrderlyTip />
+    <>
+      <div className="mx-auto xs:relative xs:bottom-6">
+        {!isMobile && <PerpOrderlyTip />}
 
-      {!isMobile && <TradingBoard></TradingBoard>}
+        {!isMobile && <TradingBoard></TradingBoard>}
 
-      {isMobile && <MobileTradingBoard></MobileTradingBoard>}
-    </div>
+        {isMobile && <MobileTradingBoard></MobileTradingBoard>}
+      </div>
+
+      {isMobile && <PerpOrderlyTipMobile></PerpOrderlyTipMobile>}
+    </>
   );
 }

@@ -454,17 +454,7 @@ export const useMenus = () => {
         },
       ],
     },
-    // {
-    //   id: '4',
-    //   logo: (
-    //     <>
-    //       <REFSmallIcon className="mt-0.5"></REFSmallIcon>
-    //     </>
-    //   ),
-    //   label: <>Anylatics</>,
-    //   url: '',
-    //   isExternal: false,
-    // },
+
     {
       id: '6',
       label: (
@@ -624,11 +614,53 @@ export const useMenusMobile = () => {
         {
           id: '1-3',
           label: (
-            <>
-              <FormattedMessage id="orderbook_mobile"></FormattedMessage>
-            </>
+            <div className="w-full pl-2">
+              <div className="frcs gap-4 mb-2">
+                <OrderBookIcon />
+                <FormattedMessage id="orderbook_mobile"></FormattedMessage>
+              </div>
+
+              <div className="w-full font-gotham frcs gap-3 text-white text-base ">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+
+                    openUrl('/orderbook/spot');
+                  }}
+                  className="frcc bg-symbolHover2 border text-white border-white border-opacity-30 w-1/2 rounded-xl py-2"
+                  style={{
+                    background: '#4F6574',
+                    width: '104px',
+                  }}
+                >
+                  <FormattedMessage
+                    id="spot"
+                    defaultMessage={'Spot'}
+                  ></FormattedMessage>
+                </button>
+
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    openUrl('/orderbook/perps');
+                  }}
+                  style={{
+                    background: '#4F6574',
+                    width: '104px',
+                  }}
+                  className="frcc bg-symbolHover2 border  border-white border-opacity-30 w-1/2 rounded-xl py-2"
+                >
+                  <FormattedMessage
+                    id="perpetual"
+                    defaultMessage={'Perpetual'}
+                  ></FormattedMessage>
+                </button>
+              </div>
+            </div>
           ),
-          logo: <OrderBookIcon />,
           url: '/orderbook',
           isExternal: false,
           links: ['/orderbook'],
@@ -746,17 +778,6 @@ export const useMenusMobile = () => {
         },
       ],
     },
-    // {
-    //   id: '4',
-    //   logo: (
-    //     <>
-    //       <REFSmallIcon className="mt-0.5"></REFSmallIcon>
-    //     </>
-    //   ),
-    //   label: <>Anylatics</>,
-    //   url: '',
-    //   isExternal: false,
-    // },
     {
       id: '6',
       label: (

@@ -1892,3 +1892,91 @@ export const PerpPerpIcon = () => {
     </svg>
   );
 };
+
+export const MobileChartIcon = () => {
+  return (
+    <svg
+      width="18"
+      height="19"
+      viewBox="0 0 18 19"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <rect
+        x="1"
+        y="6.85718"
+        width="5.71429"
+        height="8"
+        rx="1"
+        stroke="#7E8A93"
+        stroke-width="1.5"
+      />
+      <path d="M3.85718 6.85722V3.42865" stroke="#7E8A93" stroke-width="1.5" />
+      <path d="M3.85718 18.2857V14.8572" stroke="#7E8A93" stroke-width="1.5" />
+      <rect
+        x="11.2856"
+        y="3.42865"
+        width="5.71429"
+        height="8"
+        rx="1"
+        stroke="#7E8A93"
+        stroke-width="1.5"
+      />
+      <path
+        d="M14.1428 3.42863V6.10352e-05"
+        stroke="#7E8A93"
+        stroke-width="1.5"
+      />
+      <path d="M14.1428 14.8572V11.4286" stroke="#7E8A93" stroke-width="1.5" />
+    </svg>
+  );
+};
+
+export const MobileMoreRouteIcon = () => {
+  return (
+    <svg
+      width="17"
+      height="17"
+      viewBox="0 0 17 17"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <rect
+        x="1"
+        y="1"
+        width="6"
+        height="6"
+        rx="1"
+        stroke="#7E8A93"
+        stroke-width="1.5"
+      />
+      <rect
+        x="1"
+        y="10"
+        width="6"
+        height="6"
+        rx="1"
+        stroke="#7E8A93"
+        stroke-width="1.5"
+      />
+      <rect
+        x="10"
+        y="1"
+        width="6"
+        height="6"
+        rx="1"
+        stroke="#7E8A93"
+        stroke-width="1.5"
+      />
+      <rect
+        x="10"
+        y="10"
+        width="6"
+        height="6"
+        rx="1"
+        stroke="#7E8A93"
+        stroke-width="1.5"
+      />
+    </svg>
+  );
+};

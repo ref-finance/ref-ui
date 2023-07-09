@@ -27,6 +27,7 @@ import {
   MyOrder,
 } from './type';
 import { useTokenInfo, useAllOrdersSymbol, useStorageEnough } from './state';
+import { getOrderlySystemInfo } from './off-chain-api';
 
 interface OrderlyContextValue {
   orders: Orders | undefined;
@@ -64,6 +65,7 @@ interface OrderlyContextValue {
   positionPush: PositionPushType[] | undefined;
   allOrdersSymbolMarket?: MyOrder[];
   liquidations: LiquidationPushType[];
+  maintenance: boolean | undefined;
   setLiquidations: (liquidations: LiquidationPushType[]) => void;
 }
 
@@ -73,6 +75,18 @@ export const OrderlyContext = createContext<OrderlyContextValue | null>(null);
 
 const OrderlyContextProvider: React.FC<any> = ({ children }) => {
   const storedSymbol = localStorage.getItem(REF_ORDERLY_SYMBOL_KEY);
+
+  const [maintenance, setMaintenance] = useState<boolean>(undefined);
+
+  React.useEffect(() => {
+    getOrderlySystemInfo().then((res) => {
+      if (res.data.status === 2) {
+        setMaintenance(true);
+      } else {
+        setMaintenance(false);
+      }
+    });
+  }, []);
 
   const pathname = window.location.pathname;
 
@@ -165,6 +179,7 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
         allTickersPerp: value.allTickers?.filter(
           (t) => t.symbol.indexOf('PERP') > -1
         ),
+        maintenance,
         positions,
         systemAvailable,
         requestSymbol,

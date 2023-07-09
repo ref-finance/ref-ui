@@ -235,7 +235,7 @@ export function Content() {
             component={AutoHeight(OrderlyTradingBoard)}
           />
 
-          <Route path="/account" component={AccountPage} />
+          {/* <Route path="/account" component={AccountPage} />
           <Route path="/recent" component={RecentActivityPage} />
           <Route
             path="/more_pools/:tokenIds"
@@ -285,7 +285,7 @@ export function Content() {
             path="/orderbook"
             component={AutoHeight(OrderlyTradingBoard)}
             exact
-          />
+          /> */}
 
           <Route path="/" component={AutoHeight(SwapPage)} />
         </Switch>

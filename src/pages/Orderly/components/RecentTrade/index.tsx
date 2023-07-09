@@ -30,7 +30,9 @@ function formatTime(ts: number) {
   return moment(ts).format('HH:mm:ss');
 }
 
-function RecentTrade() {
+function RecentTrade(props?: { quantityDecimal: number }) {
+  const { quantityDecimal: quantityDecimalProps } = props || {};
+
   const { recentTrades, symbol, availableSymbols } = useOrderlyContext();
 
   const symbolInfo = availableSymbols.find((s) => s.symbol === symbol);
@@ -44,9 +46,9 @@ function RecentTrade() {
       ? 0
       : -Math.log10(symbolInfo.base_tick);
 
-  // if (symbolInfo.symbol.toLowerCase().includes('woo')) {
-  //   quantityDecimal = 0;
-  // }
+  if (typeof quantityDecimalProps === 'number') {
+    quantityDecimal = quantityDecimalProps;
+  }
 
   useEffect(() => {
     if (!!recentTrades || !symbolInfo) {
@@ -58,7 +60,7 @@ function RecentTrade() {
 
   return (
     <>
-      <div className="flex px-4 mr-4 mb-1 items-center text-xs text-primaryOrderly justify-between ">
+      <div className="flex px-4 xs:px-1.5 mr-4 mb-1 items-center text-xs text-primaryOrderly justify-between ">
         <div className="flex items-center">
           <span>
             {intl.formatMessage({
@@ -94,7 +96,7 @@ function RecentTrade() {
       </div>
 
       <section
-        className="overflow-auto w-full px-4 text-xs"
+        className="overflow-auto w-full px-4 xs:px-1.5 text-xs"
         style={{
           height: 'calc(100% - 56px)',
         }}
