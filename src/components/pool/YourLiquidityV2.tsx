@@ -1738,7 +1738,6 @@ function UserLiquidityLineStyleGroup1({
       const in_farming_liquidities = groupYourLiquidityList.filter((l: any) => {
         return l.is_in_farming;
       });
-      debugger;
       in_farming_liquidities.forEach((l: any) => {
         const [fixRange_l, pool_id_l, left_point_l, right_point_l] =
           l.liquidity.mft_id.split('&');
@@ -1786,8 +1785,8 @@ function UserLiquidityLineStyleGroup1({
               getTotalValueInFarmsOfLiquidities(seed, liquidities)
             );
             if (seed.farmList[0].status == 'Ended') {
-              joined_seed_info.seed_status == 'ended';
-              joined_seed_info.seed_status_num == 3;
+              joined_seed_info.seed_status = 'ended';
+              joined_seed_info.seed_status_num = 3;
             } else {
               if (latest_seed.seed_id == seed.seed_id) {
                 joined_seed_info.seed_status = 'run';
@@ -1801,13 +1800,6 @@ function UserLiquidityLineStyleGroup1({
           }
         );
       set_joined_seeds(joined_seeds);
-      console.log(
-        'pool_id, farm_icon,tip_seed, joined_seeds',
-        pool_id,
-        farm_icon,
-        tip_seed,
-        joined_seeds
-      );
     }
   }, [groupYourLiquidityList, liquidities_list, tokenPriceList, all_seeds]);
 
@@ -2161,7 +2153,7 @@ function UserLiquidityLineStyleGroup1({
             <div className="text-white flex flex-col gap-2  text-sm">
               <span>{accountAPR || '-'}</span>
               {joined_seeds ? (
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-2">
                   {Object.values(joined_seeds)
                     .sort(sort_joined_seeds)
                     .map((joined_seed_info: IUserJoinedSeedDetail) => {
@@ -2184,7 +2176,7 @@ function UserLiquidityLineStyleGroup1({
                         return (
                           <div className="frcs gap-1 text-primaryText whitespace-nowrap">
                             <span>
-                              {seed_status == 'run' ? 'new' : 'pre.'} APR
+                              ({seed_status == 'run' ? 'new' : 'pre.'}) APR
                             </span>
                             <span>{seed_apr}</span>
                           </div>
