@@ -1725,9 +1725,10 @@ function UserLiquidityLineStyleGroup1({
           }
         });
         if (exist) {
+          const seed_apr = getSeedApr(latest_seed);
           set_tip_seed({
             seed: latest_seed,
-            seed_apr: formatPercentage(getSeedApr(latest_seed)),
+            seed_apr: seed_apr == 0 ? '-' : formatPercentage(seed_apr),
             go_farm_url_link: get_go_seed_link_url(latest_seed),
           });
         }
@@ -2219,7 +2220,7 @@ function UserLiquidityLineStyleGroup1({
                       } = joined_seed_info;
                       if (length == 1) {
                         return (
-                          <div className="frcs gap-1 text-primaryText">
+                          <div className="frcs gap-1 text-primaryText whitespace-nowrap">
                             {value_of_investment} in{' '}
                             <a
                               className="cursor-pointer underline"
@@ -2234,14 +2235,10 @@ function UserLiquidityLineStyleGroup1({
                         );
                       } else {
                         return (
-                          <div className="frcs gap-1 text-primaryText">
+                          <div className="frcs gap-1 text-primaryText whitespace-nowrap">
                             {value_of_investment} in{' '}
                             <a
-                              className={`cursor-pointer underline ${
-                                seed_status == 'run'
-                                  ? 'text-greenColor'
-                                  : 'text-primaryText'
-                              }`}
+                              className={`cursor-pointer underline text-primaryText hover:text-greenColor`}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 openUrl(go_farm_url_link);
