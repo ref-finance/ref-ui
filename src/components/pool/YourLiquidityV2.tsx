@@ -1770,7 +1770,7 @@ function UserLiquidityLineStyleGroup1({
               liquidities: [l.liquidity],
             };
           } else {
-            joined_seeds[targetSeed.seed_id].liquidities = [l.liquidity];
+            joined_seeds[targetSeed.seed_id].liquidities.push(l.liquidity);
           }
         }
       });
