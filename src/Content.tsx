@@ -174,7 +174,13 @@ export function Content() {
           globalStatedispatch({ type: 'signIn' });
         }
       })
-      .catch((e) => {});
+      .catch(async (e) => {
+        alert(
+          `Account ID: ${accountId} has not been found. Please send some NEAR into this account.`
+        );
+        const wallet = await selector.wallet();
+        await wallet.signOut();
+      });
   }, [accountId, getAccount]);
 
   useEffect(() => {
