@@ -11,6 +11,7 @@ import { IoClose } from 'react-icons/io5';
 import _ from 'lodash';
 
 import {
+  MobileMoreRouteIcon,
   OrderlyLoading,
   PerpPerpIcon,
   PerpSpotIcon,
@@ -28,10 +29,19 @@ import { openUrl } from '~services/commonV3';
 function MoreRouteBox(props: Modal.Props) {
   const isMobile = useClientMobile();
 
-  const { symbol, tokenInfo, allTickersPerp, allTickers, markPrices } =
-    useOrderlyContext();
+  const {
+    symbol: rawSymbol,
+    tokenInfo,
+    allTickersPerp,
+    allTickers,
+    markPrices,
+    symbolType,
+  } = useOrderlyContext();
 
-  const { symbolFrom, symbolTo } = parseSymbol(symbol);
+  const { symbolFrom, symbolTo } = parseSymbol(rawSymbol);
+
+  const symbol =
+    symbolType === 'PERP' ? rawSymbol : `PERP_${symbolFrom}_${symbolTo}`;
 
   const spotSymbol = `SPOT_${
     symbolFrom === 'BTC' ? 'WBTC' : symbolFrom
@@ -120,13 +130,20 @@ function MoreRouteBox(props: Modal.Props) {
     !allTickersPerp;
 
   return (
-    <Modal {...props}>
+    <Modal
+      {...props}
+      style={{
+        content: {
+          transform: isMobile ? '' : 'translate(-50%, -65%)',
+        },
+      }}
+    >
       <div
         className={`${
           isMobile ? '' : 'border border-assetsBorder'
         } rounded-2xl xs:rounded-none xs:rounded-t-2xl pb-6 relative  lg:overflow-hidden xs:pb-8 xs:w-screen xs:fixed xs:bottom-0  bg-boxBorder text-sm text-primaryOrderly border xs:border-none `}
         style={{
-          height: isMobile ? '77vh' : '424px',
+          height: isMobile ? '' : '424px',
           width: '404px',
         }}
       >
@@ -208,8 +225,12 @@ function MoreRouteBox(props: Modal.Props) {
               onMouseLeave={() => {
                 sethoverRoute(undefined);
               }}
-              onClick={() => {
-                openUrl('/orderbook/spot');
+              onClick={(e: any) => {
+                if (symbolType === 'SPOT') {
+                  props.onRequestClose && props.onRequestClose(e);
+                } else {
+                  openUrl('/orderbook/spot');
+                }
               }}
             >
               <div className="frcb ">
@@ -255,7 +276,11 @@ function MoreRouteBox(props: Modal.Props) {
                 sethoverRoute(undefined);
               }}
               onClick={(e) => {
-                props.onRequestClose && props.onRequestClose(e);
+                if (symbolType === 'PERP') {
+                  props.onRequestClose && props.onRequestClose(e);
+                } else {
+                  openUrl('/orderbook/perps');
+                }
               }}
             >
               <div className="frcb ">
@@ -314,6 +339,31 @@ export function MoreRouterButton() {
         className="frcc rounded text-primaryText text-sm "
       >
         <span>···</span>
+      </button>
+      {showRouter && (
+        <MoreRouteBox
+          isOpen={showRouter}
+          onRequestClose={() => {
+            setShowRouter(false);
+          }}
+        />
+      )}
+    </>
+  );
+}
+
+export function MoBileMoreRouterButton() {
+  const [showRouter, setShowRouter] = useState<boolean>(false);
+
+  return (
+    <>
+      <button
+        onClick={() => {
+          setShowRouter(true);
+        }}
+        className="frcc rounded text-primaryText text-sm "
+      >
+        <MobileMoreRouteIcon></MobileMoreRouteIcon>
       </button>
       {showRouter && (
         <MoreRouteBox

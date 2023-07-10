@@ -2944,3 +2944,1204 @@ function ConfirmOrderModal(
     </Modal>
   );
 }
+
+export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
+  const {
+    symbol,
+    orders,
+    tokenInfo,
+    storageEnough,
+    balances,
+    setValidAccountSig,
+    handlePendingOrderRefreshing,
+    validAccountSig,
+    myPendingOrdersRefreshing,
+    bridgePrice,
+    userExist,
+    positions,
+    markPrices,
+    positionPush,
+    ticker,
+    symbolType,
+  } = useOrderlyContext();
+
+  const curSymbolMarkPrice = markPrices?.find((item) => item.symbol === symbol);
+
+  const availableSymbols = useAllSymbolInfo();
+
+  const { accountId, modal, selector } = useWalletSelector();
+
+  const [operationType, setOperationType] = useState<'deposit' | 'withdraw'>();
+
+  const { symbolFrom, symbolTo } = parseSymbol(symbol);
+
+  const sideUrl = new URLSearchParams(window.location.search).get('side');
+
+  const orderTypeUrl = new URLSearchParams(window.location.search).get(
+    'orderType'
+  );
+
+  const [side, setSide] = useState<'Buy' | 'Sell'>(
+    (sideUrl as 'Buy' | 'Sell') || 'Buy'
+  );
+
+  const [orderType, setOrderType] = useState<'Market' | 'Limit'>(
+    (orderTypeUrl as 'Market' | 'Limit') || 'Limit'
+  );
+
+  const history = useHistory();
+
+  useEffect(() => {
+    history.push('/orderbook/perps');
+  }, [sideUrl, orderTypeUrl]);
+
+  const [holdings, setHoldings] = useState<Holding[]>();
+
+  const tokenIn = useTokenMetaFromSymbol(symbolFrom, tokenInfo);
+
+  const tokenOut = useTokenMetaFromSymbol(symbolTo, tokenInfo);
+
+  const [operationId, setOperationId] = useState<string>(tokenIn?.id || '');
+
+  const [inputValue, setInputValue] = useState<string>('');
+
+  const [showAdvance, setShowAdvance] = useState<boolean>(false);
+
+  const [showTotal, setShowTotal] = useState<boolean>(false);
+
+  const [limitPrice, setLimitPrice] = useState<string>('');
+
+  useEffect(() => {
+    setLimitPrice(bridgePrice);
+  }, [bridgePrice]);
+
+  const [showAllAssets, setShowAllAssets] = useState<boolean>(false);
+
+  const [confirmModalOpen, setConfirmModalOpen] = useState<boolean>(false);
+
+  const [agreeCheck, setAgreeCheck] = useState<boolean>(false);
+
+  const { userInfo, curLeverage, setCurLeverage } = useLeverage();
+
+  const [registerModalOpen, setRegisterModalOpen] = useState<boolean>(false);
+
+  const submitDisable =
+    !inputValue ||
+    Number(inputValue) === 0 ||
+    (orderType === 'Limit' && Number(limitPrice) <= 0) ||
+    !userInfo;
+
+  const inputLimitPriceRef = useRef<HTMLInputElement>(null);
+
+  const inputAmountRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!accountId || !validAccountSig) return;
+
+    getCurrentHolding({ accountId }).then((res) => {
+      setHoldings(res.data.holding);
+    });
+  }, [accountId, myPendingOrdersRefreshing, validAccountSig]);
+
+  const curHoldingIn = useMemo(() => {
+    try {
+      const holding = holdings?.find((h) => h.token === symbolFrom);
+
+      const balance = balances[symbolFrom];
+
+      if (balance) {
+        holding.holding = balance.holding;
+
+        holding.pending_short = balance.pendingShortQty;
+      }
+
+      return holding;
+    } catch (error) {
+      return undefined;
+    }
+  }, [balances, holdings]);
+
+  const curSymbol = availableSymbols?.find((item) => item.symbol === symbol);
+
+  const curHoldingOut = useMemo(() => {
+    try {
+      const holding = holdings?.find((h) => h.token === symbolTo);
+
+      const balance = balances[symbolTo];
+
+      if (balance) {
+        holding.holding = balance.holding;
+
+        holding.pending_short = balance.pendingShortQty;
+      }
+
+      return holding;
+    } catch (error) {
+      return undefined;
+    }
+  }, [balances, holdings]);
+
+  const newPositions = useMemo(() => {
+    try {
+      const calcPositions = positions.rows.map((item) => {
+        const push = positionPush?.find((i) => i.symbol === item.symbol);
+
+        if (push) {
+          const qty = push.positionQty;
+          const pendingLong = push.pendingLongQty;
+          const pendingShort = push.pendingShortQty;
+
+          return {
+            ...item,
+            ...push,
+            position_qty: qty,
+            pending_long_qty: pendingLong,
+            pending_short_qty: pendingShort,
+            unsettled_pnl: push.unsettledPnl,
+            mark_price: push.markPrice,
+            average_open_price: push.averageOpenPrice,
+            mmr: push.mmr,
+            imr: push.imr,
+          };
+        } else {
+          return item;
+        }
+      });
+
+      positions.rows = calcPositions;
+
+      return {
+        ...positions,
+        rows: calcPositions,
+      };
+    } catch (error) {
+      return null;
+    }
+  }, [positionPush, positions]);
+
+  const totalCollateral = useMemo(() => {
+    try {
+      const res = getTotalCollateral(newPositions, markPrices, curHoldingOut);
+
+      return res.toFixed(4);
+    } catch (error) {
+      return '-';
+    }
+  }, [curHoldingOut, markPrices, newPositions, positionPush]);
+
+  const tokenInHolding = curHoldingIn
+    ? toPrecision(
+        new Big(curHoldingIn.holding + curHoldingIn.pending_short).toString(),
+        Math.min(8, tokenIn?.decimals || 8),
+        false
+      )
+    : balances && balances[symbolFrom]?.holding;
+
+  const tokenOutHolding = curHoldingOut
+    ? toPrecision(
+        new Big(curHoldingOut.holding + curHoldingOut.pending_short).toString(),
+        Math.min(8, tokenOut?.decimals || 8),
+        false
+      )
+    : balances && balances[symbolTo]?.holding;
+
+  const totaluPnl = useMemo(() => {
+    try {
+      return getTotaluPnl(newPositions, markPrices);
+    } catch (error) {
+      return null;
+    }
+  }, [newPositions, markPrices]);
+
+  const freeCollateral = useMemo(() => {
+    try {
+      return getFreeCollateral(
+        newPositions,
+        markPrices,
+        userInfo,
+        curHoldingOut
+      );
+    } catch (error) {
+      return '-';
+    }
+  }, [newPositions, markPrices, userInfo, positionPush]);
+
+  const marginRatio = useMemo(() => {
+    {
+      try {
+        const ratio = getMarginRatio(markPrices, newPositions, curHoldingOut);
+
+        return Number(ratio);
+      } catch (error) {
+        return '-';
+      }
+    }
+  }, [markPrices, newPositions, totaluPnl]);
+
+  const lqPrice = useMemo(() => {
+    return getLqPrice(
+      markPrices,
+      curSymbol,
+      newPositions,
+      curHoldingOut,
+      inputValue
+    );
+  }, [newPositions, markPrices, curHoldingOut, curSymbol, inputValue]);
+
+  const tokenFromBalance = useTokenBalance(
+    tokenIn?.id,
+    JSON.stringify(balances)
+  );
+
+  const tokenToBalance = useTokenBalance(
+    tokenOut?.id,
+    JSON.stringify(balances)
+  );
+
+  const marketPrice = !orders
+    ? 0
+    : side === 'Buy'
+    ? orders.asks?.[0]?.[0]
+    : orders?.bids?.[0]?.[0];
+
+  const total =
+    orderType === 'Limit'
+      ? !limitPrice || !userInfo
+        ? '-'
+        : Number(inputValue || 0) * Number(limitPrice || 0)
+      : !orders || !userInfo || !marketPrice
+      ? '-'
+      : Number(inputValue || 0) * Number(marketPrice || 0);
+
+  const handleSubmit = async () => {
+    if (!accountId) return;
+    return createOrder({
+      accountId,
+      orderlyProps: {
+        side: side === 'Buy' ? 'BUY' : 'SELL',
+        symbol: symbol,
+        order_type: orderType === 'Market' ? 'MARKET' : 'LIMIT',
+        order_quantity: parseFloat(inputValue),
+        broker_id: 'ref_dex',
+        order_price: orderType === 'Limit' ? limitPrice : '',
+      },
+    }).then(async (res) => {
+      if (res.success === false)
+        return orderEditPopUpFailure({
+          tip: res.message,
+        });
+
+      handlePendingOrderRefreshing();
+
+      const order = await getOrderByOrderId({
+        accountId,
+        order_id: res.data.order_id,
+      });
+
+      return orderPopUp({
+        orderType: orderType === 'Market' ? 'Market' : 'Limit',
+        symbolName: symbol,
+        side: side,
+        size: parseFloat(inputValue).toString(),
+
+        tokenIn: tokenIn,
+        price: parseFloat(
+          orderType === 'Market'
+            ? marketPrice.toString()
+            : limitPrice.toString()
+        ).toString(),
+        timeStamp: res.timestamp,
+        filled: order?.data?.status === 'FILLED',
+        order,
+      });
+    });
+  };
+
+  const [tradingKeySet, setTradingKeySet] = useState<boolean>(false);
+
+  const [keyAnnounced, setKeyAnnounced] = useState<boolean>(false);
+
+  const [showErrorTip, setShowErrorTip] = useState<boolean>(false);
+
+  const [errorTipMsg, setErrorTipMsg] = useState<string>('');
+
+  const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
+
+  useEffect(() => {
+    if (!accountId || !storageEnough) return;
+
+    if (!!storedValid) {
+      setValidAccountSig(true);
+      setKeyAnnounced(true);
+      setTradingKeySet(true);
+
+      return;
+    }
+
+    is_orderly_key_announced(accountId, true)
+      .then(async (key_announce) => {
+        setKeyAnnounced(key_announce);
+        if (!key_announce) {
+          const res = await announceKey(accountId).then((res) => {
+            setKeyAnnounced(true);
+          });
+        } else return;
+      })
+      .then(() => {
+        is_trading_key_set(accountId).then(async (trading_key_set) => {
+          setTradingKeySet(trading_key_set);
+          if (!trading_key_set) {
+            await setTradingKey(accountId).then(() => {
+              setTradingKeySet(true);
+            });
+          }
+        });
+      })
+      .catch((e) => {
+        setKeyAnnounced(false);
+        setTradingKeySet(false);
+        setValidAccountSig(false);
+
+        localStorage.removeItem(REF_ORDERLY_ACCOUNT_VALID);
+      });
+  }, [accountId, storageEnough, agreeCheck]);
+
+  useEffect(() => {
+    if (!tradingKeySet || !keyAnnounced) return;
+
+    localStorage.setItem(REF_ORDERLY_ACCOUNT_VALID, '1');
+    if (userExist) {
+      localStorage.removeItem(REF_ORDERLY_AGREE_CHECK);
+    }
+
+    handlePendingOrderRefreshing();
+
+    setValidAccountSig(true);
+  }, [tradingKeySet, keyAnnounced]);
+  const intl = useIntl();
+
+  const isInsufficientBalance =
+    side === 'Buy'
+      ? new Big(total === '-' ? '0' : total).gt(tokenOutHolding || '0') ||
+        new Big(tokenOutHolding || 0).eq(0)
+      : new Big(inputValue || '0').gt(tokenInHolding || '0');
+
+  const loading =
+    ((!!accountId && storageEnough === undefined) ||
+      (!!storedValid && !validAccountSig)) &&
+    !!accountId;
+
+  const priceValidator = (price: string, size: string) => {
+    const symbolInfo = availableSymbols?.find((s) => s.symbol === symbol);
+    console.log('symbolInfo: ', symbolInfo);
+
+    if (!symbolInfo) {
+      return;
+    }
+
+    if (new Big(price || 0).lt(symbolInfo.quote_min)) {
+      setShowErrorTip(true);
+      setErrorTipMsg(
+        `${intl.formatMessage({
+          id: 'min_price_should_be_higher_than_or_equal_to',
+          defaultMessage: 'Min price should be higher than or equal to',
+        })} ${symbolInfo.quote_min}`
+      );
+      return;
+    }
+
+    if (new Big(price || 0).gt(symbolInfo.quote_max)) {
+      setShowErrorTip(true);
+      setErrorTipMsg(
+        `${intl.formatMessage({
+          id: 'price_should_be_lower_than_or_equal_to',
+          defaultMessage: 'Price should be lower than or equal to',
+        })} ${symbolInfo.quote_max}`
+      );
+      return;
+    }
+
+    if (
+      new Big(new Big(price || 0).minus(new Big(symbolInfo.quote_min)))
+        .mod(symbolInfo.quote_tick)
+        .gt(0)
+    ) {
+      setShowErrorTip(true);
+      setErrorTipMsg(
+        `${intl.formatMessage({
+          id: 'price_should_be_a_multiple_of',
+          defaultMessage: 'Price should be a multiple of',
+        })} ${symbolInfo.quote_tick}${intl.formatMessage({
+          id: 'price_should_be_a_multiple_of_zh',
+          defaultMessage: ' ',
+        })}`
+      );
+      return;
+    }
+
+    if (
+      new Big(price || 0).gt(
+        new Big(orders.asks?.[0]?.[0] || 0).times(1 + symbolInfo.price_range)
+      ) &&
+      side === 'Buy'
+    ) {
+      setShowErrorTip(true);
+      setErrorTipMsg(
+        `${intl.formatMessage({
+          id: 'price_should_be_lower_than_or_equal_to',
+          defaultMessage: 'Price should be lower than or equal to',
+        })} ${new Big(orders.asks?.[0]?.[0] || 0).times(
+          1 + symbolInfo.price_range
+        )}`
+      );
+
+      return;
+    }
+
+    if (
+      new Big(price || 0).lt(
+        new Big(orders.bids?.[0]?.[0] || 0).times(1 - symbolInfo.price_range)
+      ) &&
+      side === 'Sell'
+    ) {
+      setShowErrorTip(true);
+      setErrorTipMsg(
+        `${intl.formatMessage({
+          id: 'price_should_be_greater_than_or_equal_to',
+          defaultMessage: 'Price should be greater than or equal to',
+        })} ${new Big(orders.bids?.[0]?.[0] || 0).times(
+          1 - symbolInfo.price_range
+        )}`
+      );
+
+      return;
+    }
+
+    if (
+      price &&
+      size &&
+      new Big(price || 0).times(new Big(size || 0)).lt(symbolInfo.min_notional)
+    ) {
+      setShowErrorTip(true);
+      setErrorTipMsg(
+        `${intl.formatMessage({
+          id: 'the_order_value_should_be_be_greater_than_or_equal_to',
+          defaultMessage:
+            'The order value should be be greater than or equal to',
+        })} ${symbolInfo.min_notional}`
+      );
+      return;
+    }
+
+    if (
+      price &&
+      size &&
+      side === 'Buy' &&
+      curSymbolMarkPrice &&
+      new Big(price || 0).gt(
+        new Big(curSymbolMarkPrice.price || 0).mul(1 + symbolInfo.price_range)
+      )
+    ) {
+      setShowErrorTip(true);
+
+      setErrorTipMsg(
+        `${intl.formatMessage({
+          id: 'perp_buy_limit_order_range',
+          defaultMessage:
+            'The price of buy limit orders should be less than or equal to',
+        })} ${new Big(curSymbolMarkPrice.price || 0)
+          .mul(1 + symbolInfo.price_range)
+          .toFixed(tickToPrecision(symbolInfo.quote_tick))}`
+      );
+      return;
+    }
+
+    if (
+      price &&
+      size &&
+      side === 'Sell' &&
+      curSymbolMarkPrice &&
+      new Big(price || 0).lt(
+        new Big(curSymbolMarkPrice.price || 0).mul(1 - symbolInfo.price_range)
+      )
+    ) {
+      setShowErrorTip(true);
+
+      setErrorTipMsg(
+        `${intl.formatMessage({
+          id: 'perp_sell_limit_order_range',
+          defaultMessage:
+            'The price of sell limit orders should be greater than or equal to',
+        })} ${new Big(curSymbolMarkPrice.price || 0)
+          .mul(1 + symbolInfo.price_range)
+          .toFixed(tickToPrecision(symbolInfo.quote_tick))}`
+      );
+      return;
+    }
+
+    if (
+      price &&
+      size &&
+      side === 'Sell' &&
+      curSymbolMarkPrice &&
+      new Big(price || 0).gt(
+        new Big(curSymbolMarkPrice.price || 0).mul(1 + symbolInfo.price_scope)
+      )
+    ) {
+      setShowErrorTip(true);
+
+      setErrorTipMsg(
+        `${intl.formatMessage({
+          id: 'perp_sell_limit_order_scope',
+          defaultMessage:
+            'The price of a sell limit order cannot be higher than',
+        })} ${new Big(curSymbolMarkPrice.price || 0)
+          .mul(1 + symbolInfo.price_scope)
+          .toFixed(tickToPrecision(symbolInfo.quote_tick))}`
+      );
+      return;
+    }
+
+    if (
+      price &&
+      size &&
+      side === 'Buy' &&
+      curSymbolMarkPrice &&
+      new Big(price || 0).lt(
+        new Big(curSymbolMarkPrice.price || 0).mul(1 - symbolInfo.price_scope)
+      )
+    ) {
+      setShowErrorTip(true);
+
+      setErrorTipMsg(
+        `${intl.formatMessage({
+          id: 'perp_sell_limit_order_scope',
+          defaultMessage:
+            'The price of a sell limit order cannot be higher than',
+        })} ${new Big(curSymbolMarkPrice.price || 0)
+          .mul(1 - symbolInfo.price_scope)
+          .toFixed(tickToPrecision(symbolInfo.quote_tick))}`
+      );
+      return;
+    }
+
+    return true;
+  };
+
+  const sizeValidator = (price: string, size: string) => {
+    const symbolInfo = availableSymbols?.find((s) => s.symbol === symbol);
+
+    if (!symbolInfo) {
+      return;
+    }
+
+    if (new Big(size || 0).lt(symbolInfo.base_min)) {
+      setShowErrorTip(true);
+      setErrorTipMsg(
+        `${
+          side === 'Buy'
+            ? intl.formatMessage({
+                id: 'quantity_to_buy_should_be_greater_than_or_equal_to',
+                defaultMessage:
+                  'Quantity to buy should be greater than or equal to',
+              })
+            : intl.formatMessage({
+                id: 'quantity_to_sell_should_be_greater_than_or_equal_to',
+                defaultMessage:
+                  'Quantity to sell should be greater than or equal to',
+              })
+        } ${symbolInfo.base_min}`
+      );
+      return;
+    }
+
+    if (new Big(size || 0).gt(symbolInfo.base_max)) {
+      setShowErrorTip(true);
+      setErrorTipMsg(
+        `${
+          side === 'Buy'
+            ? intl.formatMessage({
+                id: 'quantity_to_buy_should_be_less_than_or_equal_to',
+                defaultMessage:
+                  'Quantity to buy should be less than or equal to',
+              })
+            : intl.formatMessage({
+                id: 'quantity_to_sell_should_be_less_than_or_equal_to',
+                defaultMessage:
+                  'Quantity to sell should be less than or equal to',
+              })
+        } ${symbolInfo.base_max}`
+      );
+      return;
+    }
+
+    if (
+      new Big(new Big(size || 0).minus(new Big(symbolInfo.base_min)))
+        .mod(symbolInfo.base_tick)
+        .gt(0)
+    ) {
+      setShowErrorTip(true);
+      setErrorTipMsg(
+        `${intl.formatMessage({
+          id: 'quantity_should_be_a_multiple_of',
+          defaultMessage: 'Quantity should be a multiple of',
+        })} ${symbolInfo.base_tick}${intl.formatMessage({
+          id: 'quantity_should_be_a_multiple_of_zh',
+          defaultMessage: ' ',
+        })}`
+      );
+      return;
+    }
+
+    if (
+      price &&
+      size &&
+      new Big(price || 0).times(new Big(size || 0)).lt(symbolInfo.min_notional)
+    ) {
+      setShowErrorTip(true);
+      setErrorTipMsg(
+        `${intl.formatMessage({
+          id: 'the_order_value_should_be_be_greater_than_or_equal_to',
+          defaultMessage:
+            'The order value should be be greater than or equal to',
+        })} ${symbolInfo.min_notional}`
+      );
+      return;
+    }
+
+    return true;
+  };
+
+  const priceAndSizeValidator = (price: string, size: string) => {
+    const symbolInfo = availableSymbols?.find((s) => s.symbol === symbol);
+
+    if (!symbolInfo || (ONLY_ZEROS.test(price) && ONLY_ZEROS.test(size))) {
+      setShowErrorTip(false);
+      setErrorTipMsg('');
+      return;
+    }
+
+    let resPrice;
+    let resSize;
+
+    if (!ONLY_ZEROS.test(price)) {
+      resPrice = priceValidator(price, size);
+    } else {
+      resPrice = true;
+    }
+
+    if (!ONLY_ZEROS.test(size)) {
+      resSize = sizeValidator(price, size);
+    } else {
+      resSize = true;
+    }
+
+    if (resPrice === true && resSize === true) {
+      // price validator
+
+      setShowErrorTip(false);
+      setErrorTipMsg('');
+    }
+  };
+
+  useEffect(() => {
+    const marketPrice = !orders
+      ? 0
+      : side === 'Buy'
+      ? orders.asks?.[0]?.[0]
+      : orders?.bids?.[0]?.[0];
+
+    priceAndSizeValidator(
+      orderType === 'Limit' ? limitPrice : marketPrice.toString(),
+      inputValue
+    );
+  }, [side, orderType, symbol, orders]);
+
+  const validator =
+    !accountId ||
+    !storageEnough ||
+    !tradingKeySet ||
+    !keyAnnounced ||
+    !validContract() ||
+    maintenance;
+
+  return (
+    <div className="w-full relative flex flex-col border-boxBorder ">
+      {maintenance && (
+        <div
+          className="absolute  flex flex-col justify-center items-center h-full w-full top-0 left-0 "
+          style={{
+            background: 'rgba(0, 19, 32, 0.8)',
+            backdropFilter: 'blur(5px)',
+            zIndex: 90,
+          }}
+        ></div>
+      )}
+
+      {loading && !maintenance && (
+        <div
+          className="absolute  flex flex-col justify-center items-center h-full w-full top-0 left-0 "
+          style={{
+            background: 'rgba(0, 19, 32, 0.8)',
+            backdropFilter: 'blur(5px)',
+            zIndex: 90,
+          }}
+        >
+          <OrderlyLoading />
+        </div>
+      )}
+
+      {validator && !loading && !maintenance && (
+        <div
+          className="absolute  flex flex-col justify-center items-center h-full w-full top-0 left-0 "
+          style={{
+            background: 'rgba(0, 19, 32, 0.8)',
+            backdropFilter: 'blur(5px)',
+            zIndex: 50,
+          }}
+        >
+          <RefToOrderly></RefToOrderly>
+
+          {!accountId && (
+            <ConnectWallet
+              onClick={() => {
+                modal.show();
+              }}
+            ></ConnectWallet>
+          )}
+
+          {accountId && !validContract() && (
+            <div className="relative bottom-1 break-words inline-flex flex-col items-center">
+              <div className="text-base w-p200 pb-6 text-center text-white">
+                Using Orderbook request re-connect wallet
+              </div>
+              <ConfirmButton
+                onClick={async () => {
+                  // window.modal.show();
+                  const wallet = await window.selector.wallet();
+
+                  await wallet.signOut();
+
+                  window.location.reload();
+                }}
+              ></ConfirmButton>
+            </div>
+          )}
+
+          {!!accountId &&
+            validContract() &&
+            (!storageEnough || !tradingKeySet || !keyAnnounced) && (
+              <RegisterButton
+                userExist={userExist}
+                onClick={() => {
+                  if (!agreeCheck) {
+                    setRegisterModalOpen(true);
+                    return;
+                  }
+                  if (!accountId || storageEnough) return;
+
+                  if (!userExist) {
+                    localStorage.setItem(REF_ORDERLY_AGREE_CHECK, 'true');
+                  }
+
+                  storageDeposit(accountId);
+                }}
+                check={agreeCheck}
+                storageEnough={!!storageEnough}
+                spin={
+                  (storageEnough && (!tradingKeySet || !keyAnnounced)) ||
+                  agreeCheck
+                }
+              />
+            )}
+        </div>
+      )}
+
+      <div className="frcb px-2 pb-2 border-white border-opacity-10 text-primaryText ">
+        <button
+          className={`  w-1/2 frcc relative`}
+          onClick={() => {
+            setOrderType('Limit');
+          }}
+        >
+          <span
+            className={`text-sm ${
+              orderType === 'Limit' ? 'text-white font-gothamBold' : ''
+            } `}
+          >
+            {intl.formatMessage({
+              id: 'limit_orderly',
+              defaultMessage: 'Limit',
+            })}
+          </span>
+
+          {orderType === 'Limit' && (
+            <div className="w-full absolute -bottom-2 h-0.5 bg-gradientFromHover"></div>
+          )}
+        </button>
+
+        <button
+          className={`  w-1/2 frcc relative`}
+          onClick={() => {
+            setOrderType('Market');
+          }}
+        >
+          <span
+            className={`text-sm ${
+              orderType === 'Market' ? 'text-white font-gothamBold' : ''
+            } `}
+          >
+            {intl.formatMessage({
+              id: 'market',
+              defaultMessage: 'Market',
+            })}
+          </span>
+
+          {orderType === 'Market' && (
+            <div className="w-full absolute -bottom-2 h-0.5 bg-gradientFromHover"></div>
+          )}
+        </button>
+      </div>
+      {/* sell and buy button  */}
+
+      <div className="flex flex-col gap-2 px-2">
+        <div className="flex items-center  pt-2 mt-2  justify-center ">
+          <BuyButton
+            onClick={() => {
+              setSide('Buy');
+            }}
+            select={side === 'Buy'}
+          />
+
+          <SellButton
+            onClick={() => {
+              setSide('Sell');
+            }}
+            select={side === 'Sell'}
+          />
+        </div>
+
+        {orderType === 'Limit' && (
+          <div className="w-full text-primaryOrderly bg-perpCardBg mt-3 text-xs  rounded-xl border border-boxBorder p-1.5">
+            <div className="flex items-center justify-between">
+              <span>
+                {intl.formatMessage({
+                  id: 'price',
+                  defaultMessage: 'Price',
+                })}
+              </span>
+
+              <span>
+                {symbolTo}/{symbolFrom}
+              </span>
+            </div>
+
+            <div className="flex items-center mt-3 justify-between">
+              <input
+                type="number"
+                step="any"
+                ref={inputLimitPriceRef}
+                onWheel={(e) =>
+                  inputLimitPriceRef.current
+                    ? inputLimitPriceRef.current?.blur()
+                    : null
+                }
+                min={0}
+                placeholder="0"
+                className="text-white text-left ml-2 text-xl w-full"
+                value={limitPrice}
+                onChange={(e) => {
+                  priceAndSizeValidator(e.target.value, inputValue);
+
+                  setLimitPrice(e.target.value);
+                }}
+                inputMode="decimal"
+                onKeyDown={(e) =>
+                  symbolsArr.includes(e.key) && e.preventDefault()
+                }
+              />
+            </div>
+          </div>
+        )}
+        {orderType === 'Market' && (
+          <div className="w-full rounded-xl border bg-perpCardBg border-boxBorder p-3 mt-3 text-sm flex items-center justify-between">
+            <span className="text-primaryOrderly">
+              {intl.formatMessage({
+                id: 'price',
+                defaultMessage: 'Price',
+              })}
+            </span>
+
+            <span className="text-white">
+              {' '}
+              {intl.formatMessage({
+                id: 'market_price',
+                defaultMessage: 'Market price',
+              })}
+            </span>
+          </div>
+        )}
+
+        <div className="w-full text-primaryOrderly text-xs  bg-perpCardBg rounded-xl border border-boxBorder p-1.5">
+          <div className="mb-2 text-left flex items-center justify-between">
+            <span>
+              {intl.formatMessage({
+                id: 'quantity',
+                defaultMessage: 'Quantity',
+              })}
+            </span>
+
+            <span className="">{symbolFrom}</span>
+          </div>
+
+          <div className="flex items-center mt-2">
+            <input
+              autoFocus
+              inputMode="decimal"
+              ref={inputAmountRef}
+              onWheel={(e) =>
+                inputAmountRef.current ? inputAmountRef.current.blur() : null
+              }
+              className="text-white ml-2 text-xl w-full"
+              value={inputValue}
+              placeholder="0"
+              type="number"
+              step="any"
+              min={0}
+              onChange={(e) => {
+                priceAndSizeValidator(
+                  orderType === 'Limit' ? limitPrice : marketPrice.toString(),
+                  e.target.value
+                );
+
+                setInputValue(e.target.value);
+              }}
+              onKeyDown={(e) =>
+                symbolsArr.includes(e.key) && e.preventDefault()
+              }
+            />
+
+            <span
+              className="bg-menuMoreBgColor rounded-md px-2 py-0.5 text-primaryText cursor-pointer hover:opacity-70"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                if (
+                  orderType === 'Limit' &&
+                  new Big(limitPrice || 0).lte(0) &&
+                  side === 'Buy'
+                ) {
+                  return;
+                }
+                const symbolInfo = availableSymbols?.find(
+                  (s) => s.symbol === symbol
+                );
+
+                if (!symbolInfo) {
+                  return;
+                }
+
+                const maxAmount =
+                  side === 'Sell'
+                    ? tokenInHolding || 0
+                    : new Big(tokenOutHolding || 0)
+                        .div(
+                          orderType === 'Market' ? marketPrice : limitPrice || 1
+                        )
+                        .toNumber();
+
+                const displayAmount = new Big(maxAmount || 0)
+                  .div(new Big(symbolInfo.base_tick))
+                  .round(0, 0)
+                  .times(new Big(symbolInfo.base_tick))
+                  .toString();
+
+                setInputValue(displayAmount);
+
+                priceAndSizeValidator(
+                  orderType == 'Market' ? marketPrice.toString() : limitPrice,
+                  displayAmount
+                );
+              }}
+            >
+              Max
+            </span>
+          </div>
+        </div>
+
+        <LeverageSlider
+          className={`orderly-leverage-slider ${
+            side === 'Buy'
+              ? 'orderly-leverage-slider-buy'
+              : 'orderly-leverage-slider-sell'
+          }`}
+          curLeverage={userInfo?.max_leverage || '-'}
+          value={leverageMap(curLeverage)}
+          onChange={(v) => {
+            console.log('v: ', v);
+            setCurLeverage(leverageMap(v, true));
+          }}
+          marginRatio={marginRatio}
+          min={0}
+        />
+
+        {showErrorTip && (
+          <ErrorTip className={'relative top-3'} text={errorTipMsg} />
+        )}
+
+        <div className="rounded-lg text-sm px-0 pt-1 relative flex flex-col gap-2 z-10 pb-2.5">
+          <div className="frcb border-b pb-3 border-white border-opacity-10">
+            <span className="text-primaryOrderly">
+              {intl.formatMessage({
+                id: 'advance',
+                defaultMessage: 'Advance',
+              })}
+            </span>
+
+            <DetailBox show={showAdvance} setShow={setShowAdvance} />
+          </div>
+
+          <div className={!showAdvance ? 'hidden' : 'flex flex-col gap-2'}>
+            <div className="frcb">
+              <span className="text-primaryOrderly">
+                {intl.formatMessage({
+                  id: 'total',
+                  defaultMessage: 'Total',
+                })}
+              </span>
+
+              <div className="frcs gap-2">
+                <span className="text-white">
+                  {total === '-' ? '-' : digitWrapper(total.toString(), 3)}{' '}
+                </span>
+                <span className="text-primaryText">USDC</span>
+
+                <DetailBox show={showTotal} setShow={setShowTotal} />
+              </div>
+            </div>
+
+            <div className={!showTotal ? 'hidden' : 'flex flex-col gap-2'}>
+              <div className="frcb text-xs">
+                <span className="text-primaryOrderly">
+                  {intl.formatMessage({
+                    id: 'liquidation_price',
+                    defaultMessage: 'Liquidation Price',
+                  })}
+                </span>
+                <div className="frcs gap-2">
+                  <span className="text-white">{lqPrice}</span>
+
+                  <span className="text-primaryText">USDC</span>
+                </div>
+              </div>
+              <div className="frcb text-xs">
+                <span className="text-primaryOrderly">
+                  {intl.formatMessage({
+                    id: 'margin_required',
+                    defaultMessage: 'Margin Required',
+                  })}
+                </span>
+
+                <div className="frcs gap-2">
+                  <span className="text-white">
+                    {total === '-' ? '-' : digitWrapper(total.toString(), 3)}{' '}
+                  </span>
+
+                  <span className="text-primaryText">USDC</span>
+                </div>
+              </div>
+
+              <div className="frcb text-xs">
+                <span className="text-primaryOrderly">
+                  {intl.formatMessage({
+                    id: 'marker_taker_fee',
+                    defaultMessage: 'Maker/Taker Fee',
+                  })}
+                </span>
+
+                <FlexRow className="text-white">
+                  <span className="  ">
+                    {Number(
+                      (userInfo?.futures_maker_fee_rate || 0) / 100
+                    ).toFixed(2)}
+                    %
+                  </span>
+                  /
+                  <span className=" ">
+                    {Number(
+                      (userInfo?.futures_taker_fee_rate || 0) / 100
+                    ).toFixed(2)}
+                    %
+                  </span>
+                </FlexRow>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button
+          className={`rounded-lg ${
+            isInsufficientBalance
+              ? 'bg-errorTip'
+              : side === 'Buy'
+              ? 'bg-buyGradientGreen'
+              : 'bg-sellGradientRed'
+          } ${
+            isInsufficientBalance
+              ? 'text-redwarningColor cursor-not-allowed'
+              : 'text-white'
+          }  py-2.5 relative bottom-3  flex z-20 items-center justify-center text-base ${
+            submitDisable || showErrorTip ? 'opacity-60 cursor-not-allowed' : ''
+          } `}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            setConfirmModalOpen(true);
+          }}
+          disabled={submitDisable || isInsufficientBalance || showErrorTip}
+          type="button"
+        >
+          {isInsufficientBalance
+            ? intl.formatMessage({
+                id: 'insufficient_balance',
+                defaultMessage: 'Insufficient Balance',
+              })
+            : intl.formatMessage({
+                id: side === 'Buy' ? 'buy_long' : 'sell_short',
+                defaultMessage: side === 'Buy' ? 'Buy / Long' : 'Sell / Short',
+              })}
+        </button>
+      </div>
+
+      <ConfirmOrderModal
+        isOpen={confirmModalOpen}
+        onRequestClose={() => {
+          setConfirmModalOpen(false);
+        }}
+        symbolFrom={symbolFrom}
+        symbolTo={symbolTo}
+        side={side}
+        quantity={inputValue}
+        price={
+          orderType === 'Limit' ? limitPrice : marketPrice?.toString() || '0'
+        }
+        totalCost={total}
+        onClick={handleSubmit}
+        userInfo={userInfo}
+      ></ConfirmOrderModal>
+
+      <RegisterModal
+        isOpen={registerModalOpen}
+        onRequestClose={() => {
+          setRegisterModalOpen(false);
+        }}
+        orderlyRegistered={userExist}
+        onConfirm={() => {
+          setAgreeCheck(true);
+        }}
+      />
+    </div>
+  );
+}

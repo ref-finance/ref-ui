@@ -1,9 +1,20 @@
 import { NearIConSelectModal, OrderlyIconBalance } from '../Common/Icons';
+import { BsArrowRight, BsWrenchAdjustableCircleFill } from 'react-icons/bs';
 
-import { digitWrapper, digitWrapperAsset } from '../../utiles';
+import {
+  digitWrapper,
+  digitWrapperAsset,
+  numberWithCommas,
+  numberWithCommasPadding,
+} from '../../utiles';
 import { useTokenMetaFromSymbol } from '../ChartHeader/state';
 import { useTokenBalance } from '../UserBoard/state';
-import { DepositButton, WithdrawButton } from '../Common/index';
+import {
+  DepositButton,
+  DepositButtonMobile,
+  WithdrawButton,
+  WithdrawButtonMobile,
+} from '../Common/index';
 import {
   AssetManagerModal,
   REF_ORDERLY_ACCOUNT_VALID,
@@ -14,7 +25,13 @@ import { ChartContainer } from '../TVChartContainer';
 import OrderBook, { OrderBookShrink } from '../OrderBook';
 import { OrderlyLoading } from '../Common/Icons';
 
-import React, { useState, useEffect, useRef, useDebugValue } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useDebugValue,
+  useMemo,
+} from 'react';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import { parseSymbol } from '../RecentTrade/index';
 import {
@@ -91,6 +108,20 @@ import AllOrderBoard from '../AllOrders';
 import { isMobile } from '../../../../utils/device';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { PerpOrderlyTipMobile } from '../PerpHeader';
+import { TextWrapper, UserBoardMobilePerp } from '../UserBoardPerp';
+import moment from 'moment';
+import {
+  getFreeCollateral,
+  getMarginRatio,
+  getRiskLevel,
+  getTotalCollateral,
+  getTotaluPnl,
+} from '../UserBoardPerp/math';
+import { useLeverage } from '../../orderly/state';
+import {
+  MarginRatioText,
+  TotaluPNLText,
+} from '../UserBoardPerp/components/HoverText';
 
 export const MOBILE_TAB = 'REF_ORDERLY_MOBILE_TAB';
 
@@ -104,7 +135,7 @@ export function MobileChartBoard({ maintenance }: { maintenance: boolean }) {
   );
 }
 
-export function CurAsset() {
+export function CurAsset(props?: any) {
   const {
     symbol,
     orders,
@@ -116,10 +147,15 @@ export function CurAsset() {
     validAccountSig,
     myPendingOrdersRefreshing,
     bridgePrice,
+    symbolType,
   } = useOrderlyContext();
   const [holdings, setHoldings] = useState<Holding[]>();
 
   const { accountId } = useWalletSelector();
+
+  const [tab, setTab] = useState<'account' | 'balance'>(
+    symbolType === 'SPOT' ? 'account' : 'account'
+  );
 
   useEffect(() => {
     if (!accountId) return;
@@ -170,8 +206,42 @@ export function CurAsset() {
   const valid = !!accountId && (holdings === undefined || allHoldings > 0);
 
   return (
-    <>
-      {(!accountId || !validAccountSig) && (
+    <div>
+      {symbolType === 'PERP' && (
+        <div className="frcs text-sm my-3 border border-v3SwapGray border-opacity-20 rounded-2xl p-1 text-primaryText">
+          <div
+            className={`w-1/2 rounded-md py-0.5 frcc ${
+              tab === 'account' ? 'text-white bg-mobileOrderBg' : ''
+            }`}
+            onClick={() => {
+              setTab('account');
+            }}
+          >
+            <FormattedMessage
+              id="account"
+              defaultMessage={'Account'}
+            ></FormattedMessage>
+          </div>
+
+          <div
+            className={`w-1/2 py-0.5 rounded-md frcc ${
+              tab === 'balance' ? 'text-white bg-mobileOrderBg' : ''
+            }`}
+            onClick={() => {
+              setTab('balance');
+            }}
+          >
+            <FormattedMessage
+              id="balances"
+              defaultMessage={'Balances'}
+            ></FormattedMessage>
+          </div>
+        </div>
+      )}
+
+      {tab === 'account' && <PerpAccountBoard></PerpAccountBoard>}
+
+      {(!accountId || !validAccountSig) && tab == 'balance' && (
         <div
           style={{
             minHeight: '35vh',
@@ -187,46 +257,50 @@ export function CurAsset() {
         </div>
       )}
 
-      {!!accountId && holdings && allHoldings === 0 && validAccountSig && (
-        <div
-          style={{
-            minHeight: '35vh',
-          }}
-          className="flex flex-col items-center justify-center text-primaryText"
-        >
-          <span className="text-center">
-            <FormattedMessage
-              id={'deposit_assets_to_begin_your_trading_journey'}
-              defaultMessage={
-                'Deposit assets to begin your {br} trading journey.'
-              }
-              values={{ br: <br /> }}
-            ></FormattedMessage>
-          </span>
-
-          <button
-            className="flex items-center justify-center py-2 mt-2 px-8 text-white bg-primaryGradient rounded-lg"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setOperationType('deposit');
-              setOperationId(tokenOut?.id || '');
+      {!!accountId &&
+        holdings &&
+        allHoldings === 0 &&
+        validAccountSig &&
+        tab == 'balance' && (
+          <div
+            style={{
+              minHeight: '35vh',
             }}
+            className="flex flex-col items-center justify-center text-primaryText"
           >
-            <span className="mr-2">
-              {intl.formatMessage({
-                id: 'deposit',
-                defaultMessage: 'Deposit',
-              })}
+            <span className="text-center">
+              <FormattedMessage
+                id={'deposit_assets_to_begin_your_trading_journey'}
+                defaultMessage={
+                  'Deposit assets to begin your {br} trading journey.'
+                }
+                values={{ br: <br /> }}
+              ></FormattedMessage>
             </span>
 
-            <HiDownload />
-          </button>
-        </div>
-      )}
-      {valid && validAccountSig && holdings && (
+            <button
+              className="flex items-center justify-center py-2 mt-2 px-8 text-white bg-primaryGradient rounded-lg"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setOperationType('deposit');
+                setOperationId(tokenOut?.id || '');
+              }}
+            >
+              <span className="mr-2">
+                {intl.formatMessage({
+                  id: 'deposit',
+                  defaultMessage: 'Deposit',
+                })}
+              </span>
+
+              <HiDownload />
+            </button>
+          </div>
+        )}
+      {valid && validAccountSig && holdings && tab == 'balance' && (
         <div
-          className="w-full flex flex-col pt-5"
+          className="w-full flex flex-col pt-5 px-2"
           style={{
             minHeight: '35vh',
           }}
@@ -310,24 +384,54 @@ export function CurAsset() {
           </div>
 
           <div className="text-sm text-white font-bold pt-4 text-left frcb">
-            <div className="flex items-center">
-              <DepositButton
-                onClick={() => {
-                  setOperationType('deposit');
-                  setOperationId(tokenIn?.id || '');
-                }}
-              ></DepositButton>
+            <div
+              className={`flex items-center ${
+                symbolType == 'PERP' ? 'justify-between' : ''
+              }`}
+            >
+              {symbolType == 'PERP' && (
+                <>
+                  <DepositButtonMobile
+                    onClick={() => {
+                      setOperationType('deposit');
+                      setOperationId(tokenIn?.id || '');
+                    }}
+                  ></DepositButtonMobile>
 
-              <WithdrawButton
-                onClick={() => {
-                  setOperationType('withdraw');
-                  setOperationId(tokenIn?.id || '');
-                }}
-              ></WithdrawButton>
+                  <WithdrawButtonMobile
+                    onClick={() => {
+                      setOperationType('withdraw');
+                      setOperationId(tokenIn?.id || '');
+                    }}
+                  ></WithdrawButtonMobile>
+                </>
+              )}
+
+              {symbolType === 'SPOT' && (
+                <>
+                  <DepositButton
+                    onClick={() => {
+                      setOperationType('deposit');
+                      setOperationId(tokenIn?.id || '');
+                    }}
+                  ></DepositButton>
+
+                  <WithdrawButton
+                    onClick={() => {
+                      setOperationType('withdraw');
+                      setOperationId(tokenIn?.id || '');
+                    }}
+                  ></WithdrawButton>
+                </>
+              )}
             </div>
 
             <span
-              className="text-base font-normal text-gradientFromHover "
+              className={
+                symbolType === 'PERP'
+                  ? 'hidden'
+                  : 'text-base font-normal text-gradientFromHover '
+              }
               onClick={() => {
                 setShowAllAssets(true);
               }}
@@ -338,51 +442,340 @@ export function CurAsset() {
               })}
             </span>
           </div>
+
+          {symbolType === 'PERP' && (
+            <div className="frcb w-full gap-2 text-white">
+              <button className="frcc w-full mt-4 py-2 rounded-lg border border-orderTypeBg gap-2">
+                <FormattedMessage
+                  id="portfolio"
+                  defaultMessage={'Portfolio'}
+                ></FormattedMessage>
+
+                <BsArrowRight strokeWidth={1}></BsArrowRight>
+              </button>
+
+              {/* <LiquidationButton /> */}
+            </div>
+          )}
         </div>
       )}
 
-      <AssetManagerModal
-        isOpen={operationType === 'deposit'}
-        onRequestClose={() => {
-          setOperationType(undefined);
-        }}
-        type={operationType}
-        onClick={(amount: string, tokenId: string) => {
-          if (!tokenId) return;
-          return depositOrderly(tokenId, amount);
-        }}
-        tokenId={operationId}
-        accountBalance={tokenInHolding || 0}
-        tokenInfo={tokenInfo}
-      />
+      {tab == 'balance' && (
+        <>
+          <AssetManagerModal
+            isOpen={operationType === 'deposit'}
+            onRequestClose={() => {
+              setOperationType(undefined);
+            }}
+            type={operationType}
+            onClick={(amount: string, tokenId: string) => {
+              if (!tokenId) return;
+              return depositOrderly(tokenId, amount);
+            }}
+            tokenId={operationId}
+            accountBalance={tokenInHolding || 0}
+            tokenInfo={tokenInfo}
+          />
 
-      <AssetManagerModal
-        isOpen={operationType === 'withdraw'}
-        onRequestClose={() => {
-          setOperationType(undefined);
-        }}
-        type={operationType}
-        onClick={(amount: string, tokenId: string) => {
-          if (!tokenId) return;
-          return withdrawOrderly(tokenId, amount);
-        }}
-        tokenId={operationId}
-        accountBalance={tokenInHolding || 0}
-        tokenInfo={tokenInfo}
-      />
-      {showAllAssets && (
-        <AssetModal
-          isOpen={showAllAssets}
-          onRequestClose={() => {
-            setShowAllAssets(false);
-          }}
-        ></AssetModal>
+          <AssetManagerModal
+            isOpen={operationType === 'withdraw'}
+            onRequestClose={() => {
+              setOperationType(undefined);
+            }}
+            type={operationType}
+            onClick={(amount: string, tokenId: string) => {
+              if (!tokenId) return;
+              return withdrawOrderly(tokenId, amount);
+            }}
+            tokenId={operationId}
+            accountBalance={tokenInHolding || 0}
+            tokenInfo={tokenInfo}
+          />
+          {showAllAssets && (
+            <AssetModal
+              isOpen={showAllAssets}
+              onRequestClose={() => {
+                setShowAllAssets(false);
+              }}
+            ></AssetModal>
+          )}
+        </>
       )}
-    </>
+    </div>
+  );
+}
+
+export function PerpAccountBoard() {
+  const {
+    symbol,
+    orders,
+    tokenInfo,
+    storageEnough,
+    balances,
+    setValidAccountSig,
+    handlePendingOrderRefreshing,
+    validAccountSig,
+    myPendingOrdersRefreshing,
+    bridgePrice,
+    userExist,
+    positions,
+    markPrices,
+    positionPush,
+    ticker,
+  } = useOrderlyContext();
+  const newPositions = useMemo(() => {
+    try {
+      const calcPositions = positions.rows.map((item) => {
+        const push = positionPush?.find((i) => i.symbol === item.symbol);
+
+        if (push) {
+          const qty = push.positionQty;
+          const pendingLong = push.pendingLongQty;
+          const pendingShort = push.pendingShortQty;
+
+          return {
+            ...item,
+            ...push,
+            position_qty: qty,
+            pending_long_qty: pendingLong,
+            pending_short_qty: pendingShort,
+            unsettled_pnl: push.unsettledPnl,
+            mark_price: push.markPrice,
+            average_open_price: push.averageOpenPrice,
+            mmr: push.mmr,
+            imr: push.imr,
+          };
+        } else {
+          return item;
+        }
+      });
+
+      positions.rows = calcPositions;
+
+      return {
+        ...positions,
+        rows: calcPositions,
+      };
+    } catch (error) {
+      return null;
+    }
+  }, [positionPush, positions]);
+
+  const { userInfo, curLeverage, setCurLeverage } = useLeverage();
+
+  const [holdings, setHoldings] = useState<Holding[]>();
+  const { symbolFrom, symbolTo } = parseSymbol(symbol);
+
+  const { accountId } = useWalletSelector();
+  useEffect(() => {
+    if (!accountId || !validAccountSig) return;
+
+    getCurrentHolding({ accountId }).then((res) => {
+      setHoldings(res.data.holding);
+    });
+  }, [accountId, myPendingOrdersRefreshing, validAccountSig]);
+  const curHoldingOut = useMemo(() => {
+    try {
+      const holding = holdings?.find((h) => h.token === symbolTo);
+
+      const balance = balances[symbolTo];
+
+      if (balance) {
+        holding.holding = balance.holding;
+
+        holding.pending_short = balance.pendingShortQty;
+      }
+
+      return holding;
+    } catch (error) {
+      return undefined;
+    }
+  }, [balances, holdings]);
+
+  const totalCollateral = useMemo(() => {
+    try {
+      const res = getTotalCollateral(newPositions, markPrices, curHoldingOut);
+
+      return res.toFixed(4);
+    } catch (error) {
+      return '-';
+    }
+  }, [curHoldingOut, markPrices, newPositions, positionPush]);
+
+  const totaluPnl = useMemo(() => {
+    try {
+      return getTotaluPnl(newPositions, markPrices);
+    } catch (error) {
+      return null;
+    }
+  }, [newPositions, markPrices]);
+
+  const freeCollateral = useMemo(() => {
+    try {
+      return getFreeCollateral(
+        newPositions,
+        markPrices,
+        userInfo,
+        curHoldingOut
+      );
+    } catch (error) {
+      return '-';
+    }
+  }, [newPositions, markPrices, userInfo, positionPush]);
+
+  const marginRatio = useMemo(() => {
+    {
+      try {
+        const ratio = getMarginRatio(markPrices, newPositions, curHoldingOut);
+
+        return Number(ratio);
+      } catch (error) {
+        return '-';
+      }
+    }
+  }, [markPrices, newPositions, totaluPnl]);
+
+  const intl = useIntl();
+
+  const riskLevel =
+    marginRatio === '-'
+      ? null
+      : getRiskLevel(marginRatio, userInfo?.max_leverage || 10);
+
+  return (
+    <div className="flex flex-col text-primaryText gap-2 px-2 text-13px">
+      <div className="frcb">
+        <FormattedMessage
+          id="max_account_leverage"
+          defaultMessage={`Max Account Leverage `}
+        ></FormattedMessage>
+
+        <span className="font-nunito text-white">
+          {!userInfo ? '-' : userInfo.max_leverage + 'x'}
+        </span>
+      </div>
+      <div className="frcb">
+        <FormattedMessage
+          id="total_collateral"
+          defaultMessage={`Total Collateral`}
+        ></FormattedMessage>
+
+        <span className="font-nunito text-white">
+          {!positions || totalCollateral === '-'
+            ? '-'
+            : numberWithCommas(totalCollateral)}
+        </span>
+      </div>
+
+      <div className="frcb">
+        <FormattedMessage
+          id="free_collateral"
+          defaultMessage={`Free Collateral`}
+        />
+
+        <span className="font-nunito text-white">
+          {!positions ? '-' : numberWithCommas(freeCollateral)}
+        </span>
+      </div>
+
+      <div className="frcb">
+        <TotaluPNLText></TotaluPNLText>
+
+        <span className="font-nunito text-white">{totaluPnl}</span>
+      </div>
+
+      <div className="frcb">
+        <MarginRatioText></MarginRatioText>
+
+        <div className="frcs gap-2 text-white">
+          {!riskLevel ? (
+            '-'
+          ) : (
+            <TextWrapper
+              value={intl.formatMessage({
+                id: riskLevel,
+                defaultMessage: riskLevel,
+              })}
+              className="text-xs px-1.5"
+              textC={
+                riskLevel === 'low_risk'
+                  ? 'text-buyGreen'
+                  : riskLevel === 'high_risk'
+                  ? 'text-sellRed'
+                  : 'text-warn'
+              }
+            ></TextWrapper>
+          )}
+
+          <span
+            className={`font-nunito
+        
+            ${
+              riskLevel === 'low_risk'
+                ? 'text-buyGreen'
+                : riskLevel === 'high_risk'
+                ? 'text-sellRed'
+                : 'text-warn'
+            }
+        `}
+          >
+            {!positions || marginRatio == '-'
+              ? '-'
+              : numberWithCommas(new Big(marginRatio * 100).toFixed(2)) + '%'}
+          </span>
+        </div>
+      </div>
+    </div>
   );
 }
 
 function BookBoard({ maintenance }: { maintenance: boolean }) {
+  const {
+    symbol,
+    setSymbol,
+    tokenInfo,
+    ticker,
+    openinterests,
+    estFundingRate,
+    markPrices,
+    symbolType,
+  } = useOrderlyContext();
+  const intl = useIntl();
+
+  const [displayCountDown, setDisplayCountDown] = useState<string>();
+
+  const interval = 1000;
+  useEffect(() => {
+    if (!estFundingRate?.fundingTs) return;
+
+    const duration = moment.duration(estFundingRate.fundingTs - Date.now());
+
+    const hours = duration.hours().toString().padStart(2, '0');
+    const minutes = duration.minutes().toString().padStart(2, '0');
+    const seconds = duration.seconds().toString().padStart(2, '0');
+    if (duration.asSeconds() < 0) {
+      setDisplayCountDown('00:00:00');
+      return;
+    }
+    setDisplayCountDown(`${hours}:${minutes}:${seconds}`);
+
+    const id = setInterval(() => {
+      const duration = moment.duration(estFundingRate?.fundingTs - Date.now());
+
+      const hours = duration.hours().toString().padStart(2, '0');
+      const minutes = duration.minutes().toString().padStart(2, '0');
+      const seconds = duration.seconds().toString().padStart(2, '0');
+      if (duration.asSeconds() < 0) {
+        setDisplayCountDown('00:00:00');
+        return;
+      }
+
+      setDisplayCountDown(`${hours}:${minutes}:${seconds}`);
+    }, interval);
+
+    return () => clearInterval(id);
+  }, [estFundingRate?.fundingTs?.toString()]);
+
   return (
     <div
       className=" flex-shrink-0 mr-4"
@@ -390,6 +783,48 @@ function BookBoard({ maintenance }: { maintenance: boolean }) {
         width: 'calc(40% - 20px)',
       }}
     >
+      {symbolType === 'PERP' && (
+        <div className="flex items-start  flex-col">
+          <span className="text-primaryText whitespace-nowrap text-10px">
+            {intl.formatMessage({
+              id: 'pred_funding_rate',
+              defaultMessage: 'Pred. Funding Rate',
+            })}
+          </span>
+
+          <div className="frcs gap-1">
+            <span className="text-white mt-0.5 font-bold">
+              <span className="text-white mt-0.5 text-13px font-bold frcs gap-2 whitespace-nowrap">
+                <span
+                  style={{
+                    color: estFundingRate?.fundingRate ? '#FFAA47' : '',
+                  }}
+                  title={numberWithCommasPadding(
+                    estFundingRate?.fundingRate * 100,
+                    4
+                  )}
+                >
+                  {estFundingRate?.fundingRate
+                    ? numberWithCommasPadding(
+                        Number(
+                          new Big(estFundingRate.fundingRate * 100).toFixed(4)
+                        ),
+                        4
+                      ) + '%'
+                    : '-'}
+                </span>
+              </span>
+            </span>
+
+            <TextWrapper
+              value={displayCountDown || '-'}
+              textC="text-primaryText"
+              className="text-10px px-1"
+            ></TextWrapper>
+          </div>
+        </div>
+      )}
+
       <OrderBookShrink maintenance={maintenance} />
     </div>
   );
@@ -754,42 +1189,25 @@ function RegisterWrapper() {
 export default function ({ maintenance }: { maintenance: boolean }) {
   const storedTab = sessionStorage.getItem(MOBILE_TAB) as any;
 
-  const [tab, setTab] = useState<'balance' | 'chart' | 'book'>(
-    storedTab || 'chart'
-  );
-
-  const { validAccountSig, ticker } = useOrderlyContext();
+  const { validAccountSig, ticker, symbolType } = useOrderlyContext();
 
   const storedDisplay = sessionStorage.getItem(MOBILE_DISPLAY) as any;
 
-  const [showDisplay, setShowDisplay] = useState<boolean>(
-    storedDisplay === 'false' ? false : true
-  );
-
-  const handleSetDisplay = (display: boolean) => {
-    setShowDisplay(display);
-
-    sessionStorage.setItem(MOBILE_DISPLAY, display.toString());
-  };
-  const intl = useIntl();
   return (
     <>
-      {/* <div className={tab === 'balance' && showDisplay ? '' : 'hidden'}>
-        <CurAsset></CurAsset>
-      </div>
-
-      <div className={tab === 'chart' && showDisplay ? '' : 'hidden'}>
-        <ChartBoard maintenance={maintenance}></ChartBoard>
-      </div> */}
-
       <div className="w-full flex">
         <BookBoard maintenance={maintenance} />
 
-        <UserBoardMobileSpot maintenance={maintenance}></UserBoardMobileSpot>
+        {symbolType === 'SPOT' && (
+          <UserBoardMobileSpot maintenance={maintenance}></UserBoardMobileSpot>
+        )}
+
+        {symbolType === 'PERP' && (
+          <UserBoardMobilePerp maintenance={maintenance}></UserBoardMobilePerp>
+        )}
       </div>
 
       {!validAccountSig && <RegisterWrapper></RegisterWrapper>}
-      {/* {validAccountSig && <UserBoardWrapper />} */}
     </>
   );
 }

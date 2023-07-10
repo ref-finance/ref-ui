@@ -349,8 +349,6 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
 
   const interval = 1000;
   useEffect(() => {
-    console.log('estFundingRate: ', estFundingRate);
-
     if (!estFundingRate?.fundingTs) return;
 
     const duration = moment.duration(estFundingRate.fundingTs - Date.now());
@@ -358,7 +356,10 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
     const hours = duration.hours().toString().padStart(2, '0');
     const minutes = duration.minutes().toString().padStart(2, '0');
     const seconds = duration.seconds().toString().padStart(2, '0');
-
+    if (duration.asSeconds() < 0) {
+      setDisplayCountDown('00:00:00');
+      return;
+    }
     setDisplayCountDown(`${hours}:${minutes}:${seconds}`);
 
     const id = setInterval(() => {
@@ -368,7 +369,10 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
       const minutes = duration.minutes().toString().padStart(2, '0');
       const seconds = duration.seconds().toString().padStart(2, '0');
 
-      if (duration.asSeconds() < 0) return;
+      if (duration.asSeconds() < 0) {
+        setDisplayCountDown('00:00:00');
+        return;
+      }
 
       setDisplayCountDown(`${hours}:${minutes}:${seconds}`);
     }, interval);
@@ -411,7 +415,6 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
         background: 'rgba(1,16,29,1)',
       }}
     >
-      {/* icon */}
       <div
         className={`flex 2xl:mr-11 xl:mr-6 lg2:mr-3  relative items-center flex-shrink-0 ${
           hoverSymbol ? 'cursor-pointer bg-symbolHover rounded-lg' : ''
@@ -600,7 +603,7 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
                     color: estFundingRate?.fundingRate ? '#FFAA47' : '',
                   }}
                   title={numberWithCommasPadding(
-                    estFundingRate.fundingRate * 100,
+                    estFundingRate?.fundingRate * 100,
                     4
                   )}
                 >

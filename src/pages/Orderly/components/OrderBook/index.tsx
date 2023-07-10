@@ -1316,7 +1316,7 @@ export function OrderBookShrink({ maintenance }: { maintenance: boolean }) {
   );
 
   return (
-    <div className="w-full  h-full flex flex-col  relative   border-boxBorder text-sm rounded-2xl  py-4 ">
+    <div className="w-full  h-full flex flex-col  relative   border-boxBorder text-sm rounded-2xl  pb-4  pt-0">
       {loading && <OrderlyLoading></OrderlyLoading>}
 
       {!loading && (
@@ -1402,7 +1402,7 @@ export function OrderBookShrink({ maintenance }: { maintenance: boolean }) {
 
           {!maintenance && symbolType == 'PERP' && (
             <div
-              className={` text-sm relative font-nunito flex flex-col gap-1 items-center py-2  ${
+              className={` text-sm relative font-nunito flex flex-col gap-1 xs:items-start items-center py-2  ${
                 diff > 0
                   ? 'text-buyGreen'
                   : diff < 0

@@ -89,9 +89,8 @@ function TradingBoard() {
 }
 
 function MobileTradingBoard() {
-  const [maintenance, setMaintenance] = React.useState<boolean>(undefined);
-
-  const { myPendingOrdersRefreshing, symbol } = useOrderlyContext();
+  const { myPendingOrdersRefreshing, symbol, maintenance } =
+    useOrderlyContext();
 
   const symbolType = PerpOrSpot(symbol);
 
@@ -103,16 +102,6 @@ function MobileTradingBoard() {
     refreshingTag: myPendingOrdersRefreshing,
     type: symbolType,
   });
-
-  React.useEffect(() => {
-    getOrderlySystemInfo().then((res) => {
-      if (res.data.status === 2) {
-        setMaintenance(true);
-      } else {
-        setMaintenance(false);
-      }
-    });
-  }, []);
 
   React.useEffect(() => {
     if (maintenance) {
@@ -201,6 +190,8 @@ function MobileTradingBoard() {
           )}
 
           {displayTab === 'assets' && <CurAsset></CurAsset>}
+
+          {}
         </>
       )}
 
@@ -210,9 +201,12 @@ function MobileTradingBoard() {
 
       {route === 'chart' && (
         <div
-          className="fixed text-base bottom-10 text-white w-95vw  bg-stableTab rounded-lg frcc py-2 font-gothamBold"
+          className="fixed z-50 text-base bottom-10 text-white w-95vw  bg-stableTab rounded-lg frcc py-2 font-gothamBold"
           onClick={() => {
             setRoute('user_board');
+          }}
+          style={{
+            zIndex: '',
           }}
         >
           <FormattedMessage

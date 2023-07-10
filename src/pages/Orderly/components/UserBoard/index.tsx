@@ -476,10 +476,6 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
   const history = useHistory();
 
-  useEffect(() => {
-    history.push('/orderbook/spot');
-  }, [sideUrl, orderTypeUrl]);
-
   const [holdings, setHoldings] = useState<Holding[]>();
 
   const tokenIn = useTokenMetaFromSymbol(symbolFrom, tokenInfo);
@@ -1867,10 +1863,6 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
   );
 
   const history = useHistory();
-
-  useEffect(() => {
-    history.push('/orderbook/spot');
-  }, [sideUrl, orderTypeUrl]);
 
   const [holdings, setHoldings] = useState<Holding[]>();
 

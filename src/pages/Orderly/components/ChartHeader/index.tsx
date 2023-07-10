@@ -15,7 +15,12 @@ import { useTokenMetaFromSymbol } from './state';
 import { Ticker, TokenInfo } from '../../orderly/type';
 import { TokenIcon } from '../Common';
 import useCallback from 'react';
-import { digitWrapper } from '../../utiles';
+import {
+  PerpOrSpot,
+  digitWrapper,
+  numberWithCommas,
+  numberWithCommasPadding,
+} from '../../utiles';
 import {
   AllMarketIcon,
   CheckSelector,
@@ -23,7 +28,11 @@ import {
   MobileMoreRouteIcon,
 } from '../Common/Icons';
 import { useClientMobile } from '../../../../utils/device';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { TextWrapper } from '../UserBoard';
+import Big from 'big.js';
+import moment from 'moment';
+import { MoBileMoreRouterButton } from '../ChartHeaderPerp/components/MoreRouterButton';
 
 function tickerToDisplayDiff(ticker: Ticker | undefined) {
   const diff = ticker ? ((ticker.close - ticker.open) * 100) / ticker.open : 0;
@@ -196,7 +205,15 @@ export function SymbolSelectorMobileModal(
 ) {
   const { setSymbol, curSymbol, all, fromList, fromListClick } = props;
 
-  const { allTickers, tokenInfo } = useOrderlyContext();
+  const {
+    allTickers: allTickersSpot,
+    tokenInfo,
+    allTickersPerp,
+  } = useOrderlyContext();
+
+  const symbolType = PerpOrSpot(curSymbol);
+
+  const allTickers = symbolType === 'SPOT' ? allTickersSpot : allTickersPerp;
 
   const [SymbolList, setSymbolList] = useState<JSX.Element>();
 
@@ -221,7 +238,13 @@ export function SymbolSelectorMobileModal(
           <div className="ml-2 whitespace-nowrap">
             <span>{symbolFrom}</span>
 
-            <span className="text-primaryOrderly">{`/${symbolTo}`} </span>
+            <span
+              className={` ${
+                symbolType === 'SPOT' ? 'text-primaryOrderly' : 'text-white'
+              }`}
+            >
+              {symbolType === 'PERP' ? ' PERP' : `/${symbolTo}`}{' '}
+            </span>
           </div>
 
           {curSymbol === ticker.symbol && !all && (
@@ -374,6 +397,8 @@ function ChartHeader(props?: any) {
 
   const isMobile = useClientMobile();
 
+  const symbolType = PerpOrSpot(symbol);
+
   useEffect(() => {
     if (!idFrom) return;
 
@@ -444,7 +469,9 @@ function ChartHeader(props?: any) {
         />
 
         <span className="text-base ml-4">
-          {symbolFrom} / {symbolTo}
+          {symbolType === 'SPOT'
+            ? `${symbolFrom} / ${symbolTo}`
+            : `${symbolFrom} PERP`}
         </span>
 
         {isMobile && ticker && (
@@ -585,7 +612,7 @@ function ChartHeader(props?: any) {
               <MobileChartIcon></MobileChartIcon>
             </div>
 
-            <MobileMoreRouteIcon></MobileMoreRouteIcon>
+            <MoBileMoreRouterButton></MoBileMoreRouterButton>
           </div>
         </div>
       )}
@@ -594,7 +621,7 @@ function ChartHeader(props?: any) {
 }
 
 export function ChartHeaderSecondRoute(props?: any) {
-  const { symbol, setSymbol, tokenInfo, ticker, maintenance } =
+  const { symbol, setSymbol, symbolType, tokenInfo, ticker, maintenance } =
     useOrderlyContext();
 
   const { route, setRoute } = props;
@@ -638,11 +665,7 @@ export function ChartHeaderSecondRoute(props?: any) {
     }
   }, [idTo]);
 
-  const { diff, disPlayDiff } = tickerToDisplayDiff(ticker);
-
   const [hoverSymbol, setHoverSymbol] = useState<boolean>(false);
-
-  const intl = useIntl();
 
   return (
     <div
@@ -686,30 +709,40 @@ export function ChartHeaderSecondRoute(props?: any) {
         }}
       >
         {<img src={iconIn} alt="" className="rounded-full relative  h-6 w-6" />}
+        {symbolType === 'SPOT' && (
+          <img
+            src={iconOut}
+            alt=""
+            className="rounded-full relative right-1 z-10 h-6 w-6"
+          />
+        )}
 
-        <img
-          src={iconOut}
-          alt=""
-          className="rounded-full relative right-1 z-10 h-6 w-6"
-        />
-
-        <span className="text-base ml-4">
-          {symbolFrom} / {symbolTo}
+        <span className="text-base ml-2">
+          {symbolType === 'PERP'
+            ? `${symbolFrom} PERP`
+            : `${symbolFrom} / ${symbolTo}`}
         </span>
       </div>
 
       <div className="frcc mr-2">
-        <MobileMoreRouteIcon></MobileMoreRouteIcon>
+        <MoBileMoreRouterButton></MoBileMoreRouterButton>
       </div>
     </div>
   );
 }
 
 export function ChartHeaderDetail(props?: any) {
-  const { symbol, setSymbol, tokenInfo, ticker, maintenance } =
-    useOrderlyContext();
-
-  const { setRoute, route } = props;
+  const {
+    symbol,
+    setSymbol,
+    tokenInfo,
+    ticker,
+    maintenance,
+    markPrices,
+    openinterests,
+    estFundingRate,
+    symbolType,
+  } = useOrderlyContext();
 
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
 
@@ -726,6 +759,43 @@ export function ChartHeaderDetail(props?: any) {
 
   const isMobile = useClientMobile();
 
+  const curMarkPrice = markPrices?.find((o) => o.symbol === symbol);
+  const curOpenInterest = openinterests?.find((o) => o.symbol === symbol);
+
+  const [displayCountDown, setDisplayCountDown] = useState<string>();
+
+  const interval = 1000;
+  useEffect(() => {
+    if (!estFundingRate?.fundingTs) return;
+
+    const duration = moment.duration(estFundingRate.fundingTs - Date.now());
+
+    const hours = duration.hours().toString().padStart(2, '0');
+    const minutes = duration.minutes().toString().padStart(2, '0');
+    const seconds = duration.seconds().toString().padStart(2, '0');
+    if (duration.asSeconds() < 0) {
+      setDisplayCountDown('00:00:00');
+      return;
+    }
+
+    setDisplayCountDown(`${hours}:${minutes}:${seconds}`);
+
+    const id = setInterval(() => {
+      const duration = moment.duration(estFundingRate?.fundingTs - Date.now());
+
+      const hours = duration.hours().toString().padStart(2, '0');
+      const minutes = duration.minutes().toString().padStart(2, '0');
+      const seconds = duration.seconds().toString().padStart(2, '0');
+      if (duration.asSeconds() < 0) {
+        setDisplayCountDown('00:00:00');
+        return;
+      }
+
+      setDisplayCountDown(`${hours}:${minutes}:${seconds}`);
+    }, interval);
+
+    return () => clearInterval(id);
+  }, [estFundingRate?.fundingTs?.toString()]);
   useEffect(() => {
     if (!idFrom) return;
 
@@ -793,7 +863,7 @@ export function ChartHeaderDetail(props?: any) {
                   : diff > 0
                   ? 'text-buyGreen bg-buyGreen'
                   : 'text-white'
-              } bg-opacity-10 text-xs flex items-center  rounded-md 2 px-1 py-0.5`}
+              } bg-opacity-10 max-w-max text-xs flex items-center  rounded-md 2 px-1 py-0.5`}
             >
               <span className="relative ">
                 {diff > 0 ? (
@@ -804,47 +874,144 @@ export function ChartHeaderDetail(props?: any) {
               </span>
               <span>{disPlayDiff}%</span>
             </span>
+
+            {symbolType === 'PERP' && (
+              <div className="frcs gap-1">
+                <FormattedMessage
+                  id="mark_price"
+                  defaultMessage={'Mark Price'}
+                ></FormattedMessage>
+
+                <span className="text-white">
+                  {curMarkPrice &&
+                    digitWrapper(curMarkPrice.price.toString(), 3)}
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col w-1/2  gap-1.5">
-            <div className="frcb ">
-              <span>
-                {intl.formatMessage({
-                  id: 'h24_high',
-                  defaultMessage: '24h High',
-                })}
-              </span>
-
-              <span className="text-white mt-0.5 font-bold">
-                {digitWrapper(ticker.high.toString(), 3)}
-              </span>
-            </div>
-
             <div className="frcb">
               <span>
                 {intl.formatMessage({
-                  id: 'h24_low',
-                  defaultMessage: '24h Low',
+                  id: 'h24_vol_dot',
+                  defaultMessage: '24h Vol.',
                 })}
               </span>
 
               <span className="text-white mt-0.5 font-bold">
-                {digitWrapper(ticker.low.toString(), 3)}
+                {digitWrapper(ticker.volume.toString(), 3)}
               </span>
             </div>
 
-            <div className="frcb">
-              <span>
-                {intl.formatMessage({
-                  id: 'h24_Volume',
-                  defaultMessage: '24h Volume',
-                })}
-              </span>
+            {symbolType === 'SPOT' && (
+              <div className="frcb">
+                <span>
+                  {intl.formatMessage({
+                    id: 'h24_high',
+                    defaultMessage: '24h High',
+                  })}
+                </span>
 
-              <span className="text-white mt-0.5 font-bold">
-                ${toPrecision(ticker.amount.toString(), 3, true)}
-              </span>
-            </div>
+                <span className="text-white mt-0.5 font-bold">
+                  {digitWrapper(ticker.high.toString(), 3)}
+                </span>
+              </div>
+            )}
+
+            {symbolType === 'SPOT' && (
+              <div className="frcb">
+                <span>
+                  {intl.formatMessage({
+                    id: 'h24_low',
+                    defaultMessage: '24h Low',
+                  })}
+                </span>
+
+                <span className="text-white mt-0.5 font-bold">
+                  {digitWrapper(ticker.low.toString(), 3)}
+                </span>
+              </div>
+            )}
+
+            {symbolType === 'PERP' && (
+              <div className="frcb">
+                <span>
+                  {intl.formatMessage({
+                    id: 'h24_range',
+                    defaultMessage: '24h Range',
+                  })}
+                </span>
+
+                <span className="text-white mt-0.5 font-bold">
+                  {digitWrapper(ticker.low.toString(), 3)}-{' '}
+                  {digitWrapper(ticker.high.toString(), 3)}
+                </span>
+              </div>
+            )}
+
+            {symbolType == 'PERP' && (
+              <div className="frcb">
+                <span>
+                  {intl.formatMessage({
+                    id: 'open_interest',
+                    defaultMessage: 'Open Interest',
+                  })}
+                </span>
+
+                <span className="text-white mt-0.5  frcs gap-2">
+                  <span>
+                    {curOpenInterest?.openInterest
+                      ? numberWithCommas(curOpenInterest?.openInterest)
+                      : '-'}
+                  </span>
+
+                  <TextWrapper
+                    value={symbolFrom}
+                    textC="text-primaryText"
+                    className="text-10px px-1"
+                  ></TextWrapper>
+                </span>
+              </div>
+            )}
+
+            {symbolType === 'PERP' && (
+              <div className="frcb">
+                <span>
+                  {intl.formatMessage({
+                    id: 'funding',
+                    defaultMessage: 'Funding',
+                  })}
+                </span>
+
+                <span className="text-white mt-0.5  frcs gap-1">
+                  <span
+                    style={{
+                      color: estFundingRate?.fundingRate ? '#FFAA47' : '',
+                    }}
+                    title={numberWithCommasPadding(
+                      estFundingRate?.fundingRate * 100,
+                      4
+                    )}
+                  >
+                    {estFundingRate?.fundingRate
+                      ? numberWithCommasPadding(
+                          Number(
+                            new Big(estFundingRate.fundingRate * 100).toFixed(4)
+                          ),
+                          4
+                        ) + '%'
+                      : '-'}
+                  </span>
+
+                  <TextWrapper
+                    value={displayCountDown || '-'}
+                    textC="text-primaryText"
+                    className="text-10px px-1"
+                  ></TextWrapper>
+                </span>
+              </div>
+            )}
           </div>
         </div>
       )}

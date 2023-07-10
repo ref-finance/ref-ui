@@ -13,7 +13,7 @@ export function LeverageSlider(
 ) {
   return (
     <div className="">
-      <div className="w-full frcb text-sm text-primaryText">
+      <div className="w-full frcb text-sm xs:text-xs text-primaryText">
         <FormattedMessage
           id="leverage_max_10x"
           defaultMessage={'Leverage (Max-10x):'}
@@ -21,7 +21,9 @@ export function LeverageSlider(
 
         <span className="whitespace-nowrap text-white">
           {props.curLeverage}
-          <span className="text-primaryText">x</span>
+          <span className="text-primaryText xs:text-white xs:font-gothamBold">
+            x
+          </span>
         </span>
       </div>
 

@@ -28,6 +28,7 @@ import {
 } from './type';
 import { useTokenInfo, useAllOrdersSymbol, useStorageEnough } from './state';
 import { getOrderlySystemInfo } from './off-chain-api';
+import { PerpOrSpot } from '../utiles';
 
 interface OrderlyContextValue {
   orders: Orders | undefined;
@@ -66,6 +67,7 @@ interface OrderlyContextValue {
   allOrdersSymbolMarket?: MyOrder[];
   liquidations: LiquidationPushType[];
   maintenance: boolean | undefined;
+  symbolType: 'PERP' | 'SPOT';
   setLiquidations: (liquidations: LiquidationPushType[]) => void;
 }
 
@@ -112,6 +114,8 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
       localStorage.setItem(REF_ORDERLY_SYMBOL_KEY, 'SPOT_NEAR_USDC');
     }
   }, [symbol]);
+
+  const symbolType = PerpOrSpot(symbol);
 
   const [requestSymbol, setRequestSymbol] = useState<string>();
   const [myPendingOrdersRefreshing, setMyPendingOrdersRefreshing] =
@@ -209,6 +213,7 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
         setBridgePrice,
         userExist,
         availableSymbols,
+        symbolType,
       }}
     >
       {children}
