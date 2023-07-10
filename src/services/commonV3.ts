@@ -127,6 +127,16 @@ export interface UserLiquidityInfo {
   less_than_min_deposit?: boolean;
   farmList?: FarmBoost[];
 }
+export interface ILiquidityInfoPool {
+  left_point: number;
+  right_point: number;
+  amount_l: string;
+}
+export interface IOrderInfoPool {
+  point: number;
+  amount_x: string;
+  amount_y: string;
+}
 
 export function useAddAndRemoveUrlHandle() {
   const history = useHistory();
@@ -209,6 +219,31 @@ export function getYAmount_per_point_by_Ly(L: string, point: number) {
   return yAmount;
 }
 
+/**
+ *
+ * @param amount  NonDivisible
+ * @param point
+ * @returns
+ */
+export function get_Lx_per_point_by_XAmount(amount: string, point: number) {
+  const L = Big(amount)
+    .mul(Math.pow(Math.sqrt(CONSTANT_D), point))
+    .toFixed();
+  return L;
+}
+
+/**
+ *
+ * @param amount NonDivisible
+ * @param point
+ * @returns
+ */
+export function get_Ly_per_point_by_YAmount(amount: string, point: number) {
+  const L = Big(amount)
+    .div(Math.pow(Math.sqrt(CONSTANT_D), point))
+    .toFixed();
+  return L;
+}
 export function drawChartData({
   depthData,
   chartDom,
@@ -1568,6 +1603,56 @@ export function get_l_amount_by_condition({
   }
   return L;
 }
+/**
+ * 根据区间和这段区间里的 order的数据，获得order在这段区间的平均高度
+ * @param param0
+ * @returns
+ */
+export function get_o_l_amount_by_condition({
+  left_point,
+  right_point,
+  token_x_amount,
+  token_y_amount,
+  poolDetail,
+  orders,
+  binWidth,
+}: {
+  left_point: number;
+  right_point: number;
+  token_x_amount: string;
+  token_y_amount: string;
+  poolDetail: PoolInfo;
+  orders?: IOrderInfoPool[];
+  binWidth?: number;
+}) {
+  let L;
+  const { current_point } = poolDetail;
+  //  in range
+  if (current_point >= left_point && right_point > current_point) {
+    // 算出这个bin里每一个order的高度，直接加权求平均
+    let L_O_temp = Big(0);
+    orders.forEach((order: IOrderInfoPool) => {
+      const { amount_x, amount_y, point } = order;
+      if (amount_x) {
+        const lx = get_Lx_per_point_by_XAmount(amount_x, point);
+        L_O_temp.plus(lx || 0);
+      } else if (amount_y) {
+        const ly = get_Ly_per_point_by_YAmount(amount_y, point);
+        L_O_temp.plus(ly || 0);
+      }
+    });
+    L = L_O_temp.div(binWidth).toFixed();
+  }
+  // only y token
+  if (current_point >= right_point) {
+    L = getLByTokenY(left_point, right_point, token_y_amount);
+  }
+  // only x token
+  if (left_point > current_point) {
+    L = getLByTokenX(left_point, right_point, token_x_amount);
+  }
+  return L;
+}
 
 export function get_account_24_apr(
   dclAccountFee: IDCLAccountFee | any,
@@ -1737,4 +1822,192 @@ export function whether_liquidity_can_farm_in_seed(
     mft_id ||
     (!mft_id && new BigNumber(amount).isGreaterThanOrEqualTo(1000000));
   if (condition1 && condition2 && condition3) return true;
+}
+
+/**
+ * 中文
+ * @param nfts
+ * @param slot_number_in_a_bin
+ * 获取这个池子的所有liquidity 和 order数据
+ * liquidity划分成slot。
+ * 找到这个slot和order的最小point 和最大point
+ * 根据 区间范围 划分bin
+ *
+ *
+ * step1 遍历每个nft，按照slot拆分，把每个slot的 liquidity 和 tokenx amount token y amount 放入 map集合里
+ * step2 根据step1 得到的slot，再按照bin划分，每个bin的宽度根据参数拿到，高度 根据 这个bin 里token x token y的数量 应用公式拿到
+ */
+export function divide_liquidities_into_bins_pool({
+  liquidities,
+  orders,
+  slot_number_in_a_bin,
+  tokenX,
+  tokenY,
+  poolDetail,
+}: {
+  liquidities: ILiquidityInfoPool[];
+  orders: IOrderInfoPool[];
+  slot_number_in_a_bin: number;
+  tokenX: TokenMetadata;
+  tokenY: TokenMetadata;
+  poolDetail: PoolInfo;
+}) {
+  if (!liquidities.length && !orders.length) return [];
+  // split data to slots
+  const liquidities_in_slot_unit: { [point: number]: IChartData } = {};
+  const { point_delta, pool_id } = poolDetail;
+  liquidities.forEach((liquidity: ILiquidityInfoPool, index) => {
+    const { left_point, right_point, amount_l } = liquidity;
+    const slots_in_a_nft = (right_point - left_point) / point_delta;
+    for (let i = 0; i < slots_in_a_nft; i++) {
+      const left_point_i = left_point + i * point_delta;
+      const right_point_i = left_point_i + point_delta;
+      const { total_x, total_y } = get_x_y_amount_by_condition({
+        left_point: left_point_i,
+        right_point: right_point_i,
+        amount: amount_l,
+        tokenX,
+        tokenY,
+        poolDetail,
+      });
+      const {
+        token_x: token_x_amount,
+        token_y: token_y_amount,
+        liquidity: L,
+      } = liquidities_in_slot_unit[left_point_i] || {};
+      liquidities_in_slot_unit[left_point_i] = {
+        pool_id,
+        point: left_point_i,
+        liquidity: Big(amount_l || 0)
+          .plus(L || 0)
+          .toFixed(),
+        token_x: Big(total_x || 0)
+          .plus(token_x_amount || 0)
+          .toFixed(),
+        token_y: Big(total_y || 0)
+          .plus(token_y_amount || 0)
+          .toFixed(),
+      };
+    }
+  });
+  // split slots to bin
+  const liquidities_in_bin_unit: IChartData[] = [];
+  const slots: IChartData[] = Object.values(liquidities_in_slot_unit);
+  slots.sort((b: IChartData, a: IChartData) => {
+    return b.point - a.point;
+  });
+  orders.sort((b: IOrderInfoPool, a: IOrderInfoPool) => {
+    return b.point - a.point;
+  });
+  const min_point = Math.min(slots[0].point, orders[0].point);
+  const max_point = Math.max(
+    slots[slots.length - 1].point + point_delta,
+    orders[orders.length - 1].point + point_delta
+  );
+
+  const min_bin_point = getBinPointByPoint(
+    point_delta,
+    slot_number_in_a_bin,
+    min_point,
+    'floor'
+  );
+  const max_bin_point = getBinPointByPoint(
+    point_delta,
+    slot_number_in_a_bin,
+    max_point,
+    'ceil'
+  );
+  const binWidth = slot_number_in_a_bin * point_delta;
+  const bins_number = (max_bin_point - min_bin_point) / binWidth;
+  for (let i = 0; i < bins_number; i++) {
+    // search slots and orders in this bin
+    const bin_i_point_start = min_bin_point + i * binWidth;
+    const bin_i_point_end = min_bin_point + (i + 1) * binWidth;
+    const slots_in_bin_i = slots.filter((slot: IChartData) => {
+      const { point } = slot;
+      const point_start = point;
+      const point_end = point + point_delta;
+      return point_start >= bin_i_point_start && point_end <= bin_i_point_end;
+    });
+    const orders_in_bin_i = orders.filter((order: IOrderInfoPool) => {
+      const { point } = order;
+      return point >= bin_i_point_start && point < bin_i_point_end;
+    });
+    // get tokenx tokeny amount in this bin ===>liquidity
+    let total_x_amount_in_bin_i = Big(0);
+    let total_y_amount_in_bin_i = Big(0);
+    slots_in_bin_i.forEach((slot: IChartData) => {
+      const { token_x, token_y } = slot;
+      total_x_amount_in_bin_i = total_x_amount_in_bin_i.plus(token_x);
+      total_y_amount_in_bin_i = total_y_amount_in_bin_i.plus(token_y);
+    });
+
+    // get L in this bin =====>liquidity
+    const bin_i_L = get_l_amount_by_condition({
+      left_point: bin_i_point_start,
+      right_point: bin_i_point_end,
+      token_x_amount: toNonDivisibleNumber(
+        tokenX.decimals,
+        total_x_amount_in_bin_i.toFixed()
+      ),
+      token_y_amount: toNonDivisibleNumber(
+        tokenY.decimals,
+        total_y_amount_in_bin_i.toFixed()
+      ),
+      poolDetail,
+      slots: slots_in_bin_i,
+      binWidth,
+    });
+
+    // get tokenx tokeny amount in this bin ===>order
+    let total_o_x_amount_in_bin_i = Big(0);
+    let total_o_y_amount_in_bin_i = Big(0);
+    orders_in_bin_i.forEach((order: IOrderInfoPool) => {
+      const { amount_x, amount_y } = order;
+      total_o_x_amount_in_bin_i = total_o_x_amount_in_bin_i.plus(amount_x);
+      total_o_y_amount_in_bin_i = total_o_y_amount_in_bin_i.plus(amount_y);
+    });
+
+    const o_bin_i_L = get_o_l_amount_by_condition({
+      left_point: bin_i_point_start,
+      right_point: bin_i_point_end,
+      token_x_amount: total_o_x_amount_in_bin_i.toFixed(),
+      token_y_amount: total_o_y_amount_in_bin_i.toFixed(),
+      orders: orders_in_bin_i,
+      poolDetail,
+      binWidth,
+    });
+
+    liquidities_in_bin_unit.push({
+      pool_id,
+      point: bin_i_point_start,
+      liquidity: bin_i_L,
+      token_x: total_x_amount_in_bin_i.toFixed(),
+      token_y: total_y_amount_in_bin_i.toFixed(),
+      order_x: toReadableNumber(
+        tokenX.decimals,
+        total_o_x_amount_in_bin_i.toFixed()
+      ),
+      order_y: toReadableNumber(
+        tokenY.decimals,
+        total_o_y_amount_in_bin_i.toFixed()
+      ),
+      order_liquidity: o_bin_i_L,
+    });
+  }
+  // filter empty bin
+  const bins_final = liquidities_in_bin_unit.filter((bin: IChartData) => {
+    const { token_x, token_y, order_x, order_y } = bin;
+    return (
+      Big(token_x || 0).gt(0) ||
+      Big(token_y || 0).gt(0) ||
+      Big(order_x || 0).gt(0) ||
+      Big(order_y || 0).gt(0)
+    );
+  });
+  bins_final.sort((b: IChartData, a: IChartData) => {
+    return b.point - a.point;
+  });
+  // last bins
+  return bins_final;
 }

@@ -2,7 +2,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { isMobile } from '../../utils/device';
 import { TokenMetadata, ftGetTokenMetadata } from '../../services/ft-contract';
-import { get_pool, PoolInfo, list_liquidities } from '../../services/swapV3';
+import {
+  get_pool,
+  PoolInfo,
+  list_liquidities,
+  get_pool_marketdepth,
+} from '../../services/swapV3';
 import {
   getPriceByPoint,
   getPointByPrice,
@@ -13,6 +18,7 @@ import {
   getBinPointByPoint,
   get_x_y_amount_by_condition,
   get_account_24_apr,
+  divide_liquidities_into_bins_pool,
 } from '../../services/commonV3';
 import { getDclPoolPoints, getDCLAccountFee } from '../../services/indexer';
 import { sortBy, debounce } from 'lodash';
@@ -43,6 +49,7 @@ import * as d3 from 'd3';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { getBoostTokenPrices } from '../../services/farm';
 import { toNonDivisibleNumber, toReadableNumber } from '~utils/numbers';
+import { ILiquidityInfoPool, IOrderInfoPool } from '../../services/commonV3';
 export default function DclChart({
   pool_id,
   leftPoint,
@@ -409,15 +416,133 @@ export default function DclChart({
         poolDetail: pool,
       });
     } else {
-      const result = await getDclPoolPoints(
+      // todo
+      const pointsData_apr = await getDclPoolPoints(
         pool_id,
         bin_final,
         point_l,
         point_r
       );
-      list = result.point_data || [];
+      const marketdepthData = await get_pool_marketdepth(pool_id);
+      const { liquidities, orders } = marketdepthData;
+      let liquidities_array: ILiquidityInfoPool[] = Object.values(liquidities);
+
+      // 去找 left_point左点位是当前点位，右点位也是当前点位的两条数据，把这两条数据合并成一条，因为合约侧是从当前点位从两侧开始查找
+      let range_contain_current_point: any;
+      liquidities_array = liquidities_array.filter((l: ILiquidityInfoPool) => {
+        const { left_point, right_point, amount_l } = l;
+        if (right_point == pool.current_point) {
+          range_contain_current_point = range_contain_current_point || {};
+          range_contain_current_point['left_point'] = left_point;
+          range_contain_current_point['amount_l'] = amount_l;
+          return false;
+        }
+        if (left_point == pool.current_point) {
+          range_contain_current_point = range_contain_current_point || {};
+          range_contain_current_point['right_point'] = right_point;
+          range_contain_current_point['amount_l'] = amount_l;
+          return false;
+        }
+        return true;
+      });
+      if (range_contain_current_point) {
+        liquidities_array.push(range_contain_current_point);
+      }
+      const orders_array: IOrderInfoPool[] = Object.values(orders);
+      const pointsData_l = divide_liquidities_into_bins_pool({
+        liquidities: liquidities_array,
+        orders: orders_array,
+        slot_number_in_a_bin: bin_final,
+        tokenX: token_x_metadata,
+        tokenY: token_y_metadata,
+        poolDetail: pool,
+      });
+      console.log('pointsData_l', pointsData_l);
+      console.log('pointsData_apr', pointsData_apr.point_data);
+      list = combine_data(pointsData_apr?.point_data, pointsData_l);
+      // list = pointsData_apr.point_data;
     }
     return list;
+  }
+  function combine_data(
+    pointsData_apr: IChartData[],
+    pointsData_l: IChartData[]
+  ) {
+    const pointsData: IChartData[] = [];
+    const pointsData_apr_map = pointsData_apr?.reduce((acc, cur) => {
+      return {
+        ...acc,
+        [cur.point]: cur,
+      };
+    }, {});
+    const pointsData_l_map = pointsData_l?.reduce((acc, cur) => {
+      return {
+        ...acc,
+        [cur.point]: cur,
+      };
+    }, {});
+    debugger;
+    if (pointsData_apr_map && pointsData_l_map) {
+      // 以 pointsData_apr 为base， 组合两组数据
+      Object.keys(pointsData_apr_map).forEach((point_l: string) => {
+        const { fee, total_liquidity } = pointsData_apr_map[point_l];
+        const {
+          liquidity,
+          token_x,
+          token_y,
+          order_liquidity,
+          order_x,
+          order_y,
+          pool_id,
+          point,
+        } = pointsData_l_map[point_l] || {};
+        pointsData.push({
+          fee,
+          total_liquidity,
+          pool_id,
+          point,
+          liquidity,
+          token_x,
+          token_y,
+          order_liquidity,
+          order_x,
+          order_y,
+        });
+        pointsData.sort((b: IChartData, a: IChartData) => {
+          return b.point - a.point;
+        });
+      });
+    } else if (pointsData_l_map) {
+      Object.keys(pointsData_l_map).forEach((point_l: string) => {
+        const {
+          liquidity,
+          token_x,
+          token_y,
+          order_liquidity,
+          order_x,
+          order_y,
+          point,
+          pool_id,
+        } = pointsData_l_map[point_l] || {};
+        pointsData.push({
+          fee: '0',
+          total_liquidity: '0',
+          pool_id,
+          point,
+          liquidity,
+          token_x,
+          token_y,
+          order_liquidity,
+          order_x,
+          order_y,
+        });
+        pointsData.sort((b: IChartData, a: IChartData) => {
+          return b.point - a.point;
+        });
+      });
+    }
+
+    return pointsData;
   }
   function getChartDataListInRange() {
     const point_l = get_point_by_price(price_range[0].toString());
