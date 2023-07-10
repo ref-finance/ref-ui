@@ -180,6 +180,8 @@ export function Content() {
         );
         const wallet = await selector.wallet();
         await wallet.signOut();
+
+        window.location.reload();
       });
   }, [accountId, getAccount]);
 
