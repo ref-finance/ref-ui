@@ -416,7 +416,6 @@ export default function DclChart({
         poolDetail: pool,
       });
     } else {
-      // todo
       const pointsData_apr = await getDclPoolPoints(
         pool_id,
         bin_final,
@@ -481,11 +480,21 @@ export default function DclChart({
         [cur.point]: cur,
       };
     }, {});
-    debugger;
     if (pointsData_apr_map && pointsData_l_map) {
       // 以 pointsData_apr 为base， 组合两组数据
       Object.keys(pointsData_apr_map).forEach((point_l: string) => {
-        const { fee, total_liquidity } = pointsData_apr_map[point_l];
+        const {
+          fee,
+          total_liquidity,
+          point: point_apr,
+          liquidity: liquidity_apr,
+          token_x: token_x_apr,
+          token_y: token_y_apr,
+          order_liquidity: order_liquidity_apr,
+          order_x: order_x_apr,
+          order_y: order_y_apr,
+          pool_id: pool_id_apr,
+        } = pointsData_apr_map[point_l];
         const {
           liquidity,
           token_x,
@@ -499,14 +508,14 @@ export default function DclChart({
         pointsData.push({
           fee,
           total_liquidity,
-          pool_id,
-          point,
-          liquidity,
-          token_x,
-          token_y,
-          order_liquidity,
-          order_x,
-          order_y,
+          pool_id: pool_id || pool_id_apr,
+          point: point || point_apr,
+          liquidity: liquidity || liquidity_apr,
+          token_x: token_x || token_x_apr,
+          token_y: token_y || token_y_apr,
+          order_liquidity: order_liquidity || order_liquidity_apr,
+          order_x: order_x || order_x_apr,
+          order_y: order_y || order_y_apr,
         });
         pointsData.sort((b: IChartData, a: IChartData) => {
           return b.point - a.point;
@@ -881,8 +890,7 @@ export default function DclChart({
       .transition()
       .attr('width', function (d) {
         return (
-          scale(Big(d.price_r).toNumber()) -
-          scale(Big(d.price).toNumber())
+          scale(Big(d.price_r).toNumber()) - scale(Big(d.price).toNumber())
         );
       })
       .attr('height', function (d) {
