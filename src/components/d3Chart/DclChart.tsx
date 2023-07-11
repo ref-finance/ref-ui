@@ -649,7 +649,6 @@ export default function DclChart({
       const { point } = o;
       const price_l = getPriceByPoint(+point, decimalRate_price);
       const point_r = +point + point_delta * bin_final;
-      const point_r_close = +point + point_delta * bin_final + 1;
       const price_r = getPriceByPoint(point_r, decimalRate_price);
 
       return {
