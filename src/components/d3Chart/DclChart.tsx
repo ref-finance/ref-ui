@@ -651,7 +651,6 @@ export default function DclChart({
       const point_r = +point + point_delta * bin_final;
       const point_r_close = +point + point_delta * bin_final + 1;
       const price_r = getPriceByPoint(point_r, decimalRate_price);
-      const price_r_close = getPriceByPoint(point_r_close, decimalRate_price);
 
       return {
         ...o,
@@ -666,7 +665,6 @@ export default function DclChart({
         price: price_l.toString(),
         price_r: price_r.toString(),
         point_r: point_r.toString(),
-        price_r_close: price_r_close.toString(),
       };
     });
     return data;
@@ -884,7 +882,7 @@ export default function DclChart({
       .transition()
       .attr('width', function (d) {
         return (
-          scale(Big(d.price_r_close).toNumber()) -
+          scale(Big(d.point_r).toNumber()) -
           scale(Big(d.price).toNumber())
         );
       })
@@ -1184,7 +1182,7 @@ export default function DclChart({
       .domain(range)
       .range([0, svgWidth - svgPaddingX * 2]);
   }
-  function scaleAxisY(data: IChartData[]) {
+  function scaleAxisY(data?: IChartData[]) {
     if (chartType == 'USER') {
       return scaleAxisY_User();
     } else {

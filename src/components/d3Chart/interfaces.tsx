@@ -7,7 +7,6 @@ export interface IChartData {
   price?: string;
   price_r?: string;
   point_r?: string;
-  price_r_close?: string;
   order_x?: string;
   order_y?: string;
   order_liquidity?: string;
