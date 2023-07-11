@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { TokenInfo, TokenMetadata } from '../../orderly/type';
 import { getFTmetadata } from '../../near';
+import { useRefSwap } from '../../../../state/swap';
+import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
+import { ExchangeEstimate, SWAP_MODE } from '../../../SwapPage';
 
 export function useTokenMetaFromSymbol(
   symbol: string,
@@ -61,4 +64,38 @@ export function useBatchTokenMetaFromSymbols(
     }
     return acc;
   }, {} as { [key: string]: TokenMetadata });
+}
+
+export function useRefQuery({
+  tokenIn,
+  tokenOut,
+}: {
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+}) {
+  const [res, setRes] = useState<ExchangeEstimate>();
+
+  const RefSwapRes = useRefSwap({
+    tokenIn: {
+      ...tokenIn,
+      id:
+        tokenIn?.id?.toLowerCase() === 'near'
+          ? WRAP_NEAR_CONTRACT_ID
+          : tokenIn?.id,
+    },
+    tokenOut,
+    tokenInAmount: '1',
+    supportLedger: true,
+    slippageTolerance: 0.1,
+    loadingTrigger: false,
+    reEstimateTrigger: false,
+    swapMode: SWAP_MODE.NORMAL,
+    loadingPause: false,
+  });
+
+  useEffect(() => {
+    setRes(RefSwapRes);
+  }, [RefSwapRes.quoteDone]);
+
+  return res;
 }

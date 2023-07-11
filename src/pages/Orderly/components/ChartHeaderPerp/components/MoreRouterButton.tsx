@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { useEffect, useState } from 'react';
 
@@ -25,6 +25,9 @@ import { useTokenRate24h } from '../../../../../state/tokenRate';
 import { tickerToDisplayDiff } from '..';
 import { BsArrowRight } from 'react-icons/bs';
 import { openUrl } from '~services/commonV3';
+import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
+import { SWAP_MODE } from '../../../../SwapPage';
+import { useRefQuery } from '../state';
 
 function MoreRouteBox(props: Modal.Props) {
   const isMobile = useClientMobile();
@@ -83,23 +86,71 @@ function MoreRouteBox(props: Modal.Props) {
     </span>
   );
 
-  const tokenIn = useTokenMetaFromSymbol(symbolFrom, tokenInfo);
+  const symbolFromMemo = useMemo(() => {
+    return symbolFrom;
+  }, [symbolFrom.toString()]);
 
-  const tokenOut = useTokenMetaFromSymbol(symbolTo, tokenInfo);
+  const symbolToMemo = useMemo(() => {
+    return symbolTo;
+  }, [symbolTo.toString()]);
 
-  const tokenInAmount = '1';
+  const tokenInfoMemo = useMemo(() => tokenInfo, [JSON.stringify(tokenInfo)]);
 
-  const RefSwapRes = useRefSwap({
-    tokenIn,
-    tokenOut,
-    tokenInAmount,
-    supportLedger: true,
-    slippageTolerance: 0,
+  const tokenIn = useTokenMetaFromSymbol(symbolFromMemo, tokenInfoMemo);
+
+  const tokenOut = useTokenMetaFromSymbol(symbolToMemo, tokenInfoMemo);
+
+  console.log('tokenIn', {
+    ...tokenIn,
+    id:
+      tokenIn?.id?.toLowerCase() === 'near'
+        ? WRAP_NEAR_CONTRACT_ID
+        : tokenIn?.id,
   });
+
+  // const RefSwapRes = useRefSwap({
+  //   tokenIn: {
+  //     ...tokenIn,
+  //     id:
+  //       tokenIn?.id?.toLowerCase() === 'near'
+  //         ? WRAP_NEAR_CONTRACT_ID
+  //         : tokenIn?.id,
+  //   },
+  //   tokenOut,
+  //   tokenInAmount: '1',
+  //   supportLedger: true,
+  //   slippageTolerance: 0.1,
+  //   loadingTrigger: false,
+  //   reEstimateTrigger: false,
+  //   swapMode: SWAP_MODE.NORMAL,
+  //   loadingPause: false,
+  // });
+
+  const RefSwapRes = useRefQuery({
+    tokenIn: {
+      ...tokenIn,
+      id:
+        tokenIn?.id?.toLowerCase() === 'near'
+          ? WRAP_NEAR_CONTRACT_ID
+          : tokenIn?.id,
+    },
+
+    tokenOut,
+  });
+
+  console.log('RefSwapRes: ', RefSwapRes);
+
+  // const RefSwapRes = {};
 
   const refDiff = useTokenRate24h({
     base_token: tokenOut,
-    token: tokenIn,
+    token: {
+      ...tokenIn,
+      id:
+        tokenIn?.id?.toLowerCase() === 'near'
+          ? WRAP_NEAR_CONTRACT_ID
+          : tokenIn?.id,
+    },
   });
 
   const [hoverRoute, sethoverRoute] = useState<'ref' | 'spot' | 'perp'>();
@@ -124,10 +175,8 @@ function MoreRouteBox(props: Modal.Props) {
   );
 
   const loading =
-    RefSwapRes.quoteDone === false ||
-    !markPrices ||
-    !allTickers ||
-    !allTickersPerp;
+    // RefSwapRes.quoteDone === false ||
+    !markPrices || !allTickers || !allTickersPerp;
 
   return (
     <Modal
