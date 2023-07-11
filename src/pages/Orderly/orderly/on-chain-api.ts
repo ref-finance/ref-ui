@@ -189,6 +189,8 @@ const user_request_settlement = async () => {
   return {
     methodName: 'user_request_settlement',
     gas: '30000000000000',
+    amount: ONE_YOCTO_NEAR,
+    args: {},
   };
 };
 

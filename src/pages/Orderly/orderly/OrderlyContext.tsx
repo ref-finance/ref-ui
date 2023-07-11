@@ -1,4 +1,10 @@
-import React, { useContext, createContext, useState, useEffect } from 'react';
+import React, {
+  useContext,
+  createContext,
+  useState,
+  useEffect,
+  useMemo,
+} from 'react';
 import { useOrderlyMarketData, useOrderlyPrivateData } from './off-chain-ws';
 import {
   useAccountExist,
@@ -171,6 +177,46 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
       }))
     );
   }, [JSON.stringify(value.marketTrade)]);
+
+  const newPositions = useMemo(() => {
+    try {
+      const calcPositions = positions.rows.map((item) => {
+        const push = privateValue.positionPush?.find(
+          (i) => i.symbol === item.symbol
+        );
+
+        if (push) {
+          const qty = push.positionQty;
+          const pendingLong = push.pendingLongQty;
+          const pendingShort = push.pendingShortQty;
+
+          return {
+            ...item,
+            ...push,
+            position_qty: qty,
+            pending_long_qty: pendingLong,
+            pending_short_qty: pendingShort,
+            unsettled_pnl: push.unsettledPnl,
+            mark_price: push.markPrice,
+            average_open_price: push.averageOpenPrice,
+            mmr: push.mmr,
+            imr: push.imr,
+          };
+        } else {
+          return item;
+        }
+      });
+
+      positions.rows = calcPositions;
+
+      return {
+        ...positions,
+        rows: calcPositions,
+      };
+    } catch (error) {
+      return null;
+    }
+  }, [privateValue.positionPush, positions]);
 
   return (
     <OrderlyContext.Provider

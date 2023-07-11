@@ -297,7 +297,11 @@ export const useMenus = () => {
                   style={{
                     width: '120px',
                   }}
-                  className="frcc bg-symbolHover2 hover:bg-light1 w-1/2 rounded-xl py-2"
+                  className={`frcc bg-symbolHover2 hover:bg-light1 w-1/2 rounded-xl py-2 ${
+                    window.location.pathname.startsWith('/orderbook/spot')
+                      ? 'bg-light1'
+                      : ''
+                  }`}
                 >
                   <FormattedMessage
                     id="spot"
@@ -315,7 +319,11 @@ export const useMenus = () => {
                   style={{
                     width: '120px',
                   }}
-                  className="frcc bg-symbolHover2 hover:bg-light1 w-1/2 rounded-xl py-2"
+                  className={`frcc bg-symbolHover2 hover:bg-light1 w-1/2 rounded-xl py-2  ${
+                    window.location.pathname.startsWith('/orderbook/perps')
+                      ? 'bg-light1'
+                      : ''
+                  }`}
                 >
                   <FormattedMessage
                     id="perpetual"
@@ -325,9 +333,7 @@ export const useMenus = () => {
               </div>
             </div>
           ),
-          url: '/orderbook',
           isExternal: false,
-          links: ['/orderbook'],
         },
       ],
     },

@@ -16,7 +16,7 @@ export function LeverageSlider(
       <div className="w-full frcb text-sm xs:text-xs text-primaryText">
         <FormattedMessage
           id="leverage_max_10x"
-          defaultMessage={'Leverage (Max-10x):'}
+          defaultMessage={'Max Account Leverage:'}
         />
 
         <span className="whitespace-nowrap text-white">

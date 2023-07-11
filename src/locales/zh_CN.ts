@@ -1256,9 +1256,9 @@ const zh_CN = {
   TokenAllocation: '代币分布',
   netWorthTip:
     'Ref中的投资总价值(包括可领取奖励)+Orderly资产总价值+ Burrow资产总价值+钱包中的总资产',
-  perpTip:
-    'Welcome to Ref perpetual-future, read {perpTipLink} docs to get start!',
-  perpTipLink: '[Perpetual-futures Introduction]',
+
+  perpTip: 'Welcome to Ref perpetual-future, read {perpTipLink} to get start!',
+  perpTipLink: '[Perpetual-futures Introduction]  docs',
   pred_funding_rate: 'Pred. Funding Rate',
   mark_price: 'Mark Price',
   mark_price_tip: 'Mark price is used for PnL calculating and liquidation.',

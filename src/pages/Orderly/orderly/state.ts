@@ -310,16 +310,12 @@ export function useLeverage() {
         console.log('userInfo: ', userInfo);
         // setError(updateRes.message);
 
-        return normalFailToast(updateRes.message);
+        return normalFailToast(updateRes.message, 3000);
       }
 
       setError(null);
 
       await requestLeverage();
-
-      return normalSuccessToast(
-        `MAX account leverage updated to ${curLeverage}`
-      );
     },
     []
   );

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { nearMetadata, getFTmetadata, ftGetBalance } from '../../near';
 import { toReadableNumber } from '../../orderly/utils';
 import { Holding, TokenInfo, TokenMetadata } from '../../orderly/type';
@@ -6,6 +6,15 @@ import { getCurrentHolding } from '../../orderly/off-chain-api';
 import { useWalletSelector } from '../../../../context/WalletSelectorContext';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import Big from 'big.js';
+import {
+  getFreeCollateral,
+  getMarginRatio,
+  getTotalCollateral,
+  getTotaluPnl,
+  getUnsettel,
+} from './math';
+import { parseSymbol } from '../RecentTrade';
+import { useLeverage } from '~pages/Orderly/orderly/state';
 
 export function useTokenBalance(tokenId: string | undefined, deps?: any) {
   const [tokenMeta, setTokenMeta] = useState<TokenMetadata>();
@@ -62,7 +71,7 @@ export function useTokensBalances(
   const { accountId } = useWalletSelector();
 
   const { myPendingOrdersRefreshing, validAccountSig } = useOrderlyContext();
-
+  const { freeCollateral } = usePerpData();
   const getBalanceAndMeta = async (token: TokenWithDecimals) => {
     const balance = await ftGetBalance(token.id).then((balance) => {
       return toReadableNumber(token.decimals, balance);
@@ -77,7 +86,14 @@ export function useTokensBalances(
   };
 
   useEffect(() => {
-    if (!tokens || !tokenInfo || !accountId || !validAccountSig) return;
+    if (
+      !tokens ||
+      !tokenInfo ||
+      !accountId ||
+      !validAccountSig ||
+      freeCollateral === '-'
+    )
+      return;
 
     Promise.all(
       tokenInfo.map((t) =>
@@ -124,7 +140,8 @@ export function useTokensBalances(
 
             acc[id] = {
               ...cur,
-              holding: displayHolding,
+              holding:
+                cur.name === 'USDC' ? Number(freeCollateral) : displayHolding,
               'in-order': holding?.pending_short || 0,
             };
             return acc;
@@ -143,7 +160,151 @@ export function useTokensBalances(
     trigger,
     myPendingOrdersRefreshing,
     validAccountSig,
+    freeCollateral,
   ]);
 
   return showbalances;
+}
+
+export function usePerpData() {
+  const {
+    symbol,
+    orders,
+    tokenInfo,
+    storageEnough,
+    balances,
+    setValidAccountSig,
+    handlePendingOrderRefreshing,
+    validAccountSig,
+    myPendingOrdersRefreshing,
+    bridgePrice,
+    userExist,
+    positions,
+    markPrices,
+    positionPush,
+    ticker,
+  } = useOrderlyContext();
+  const newPositions = useMemo(() => {
+    try {
+      const calcPositions = positions.rows.map((item) => {
+        const push = positionPush?.find((i) => i.symbol === item.symbol);
+
+        if (push) {
+          const qty = push.positionQty;
+          const pendingLong = push.pendingLongQty;
+          const pendingShort = push.pendingShortQty;
+
+          return {
+            ...item,
+            ...push,
+            position_qty: qty,
+            pending_long_qty: pendingLong,
+            pending_short_qty: pendingShort,
+            unsettled_pnl: push.unsettledPnl,
+            mark_price: push.markPrice,
+            average_open_price: push.averageOpenPrice,
+            mmr: push.mmr,
+            imr: push.imr,
+          };
+        } else {
+          return item;
+        }
+      });
+
+      positions.rows = calcPositions;
+
+      return {
+        ...positions,
+        rows: calcPositions,
+      };
+    } catch (error) {
+      return null;
+    }
+  }, [positionPush, positions]);
+
+  const [holdings, setHoldings] = useState<Holding[]>();
+
+  const { accountId, modal, selector } = useWalletSelector();
+
+  const { symbolFrom, symbolTo } = parseSymbol(symbol);
+
+  const { userInfo, curLeverage, setCurLeverage } = useLeverage();
+
+  useEffect(() => {
+    if (!accountId || !validAccountSig) return;
+
+    getCurrentHolding({ accountId }).then((res) => {
+      setHoldings(res.data.holding);
+    });
+  }, [accountId, myPendingOrdersRefreshing, validAccountSig]);
+  const curHoldingOut = useMemo(() => {
+    try {
+      const holding = holdings?.find((h) => h.token === symbolTo);
+
+      const balance = balances[symbolTo];
+
+      if (balance) {
+        holding.holding = balance.holding;
+
+        holding.pending_short = balance.pendingShortQty;
+      }
+
+      return holding;
+    } catch (error) {
+      return undefined;
+    }
+  }, [balances, holdings]);
+
+  const totalCollateral = useMemo(() => {
+    try {
+      const res = getTotalCollateral(newPositions, markPrices, curHoldingOut);
+
+      return res.toFixed(2);
+    } catch (error) {
+      return '-';
+    }
+  }, [curHoldingOut, markPrices, newPositions, positionPush]);
+
+  const freeCollateral = useMemo(() => {
+    try {
+      return getFreeCollateral(
+        newPositions,
+        markPrices,
+        userInfo,
+        curHoldingOut
+      );
+    } catch (error) {
+      return '-';
+    }
+  }, [newPositions, markPrices, userInfo, positionPush]);
+
+  const totaluPnl = useMemo(() => {
+    try {
+      return getTotaluPnl(newPositions, markPrices);
+    } catch (error) {
+      return null;
+    }
+  }, [newPositions, markPrices]);
+
+  const marginRatio = useMemo(() => {
+    {
+      try {
+        const ratio = getMarginRatio(markPrices, newPositions, curHoldingOut);
+
+        return Number(ratio);
+      } catch (error) {
+        return '-';
+      }
+    }
+  }, [markPrices, newPositions, totaluPnl]);
+
+  const unsettle = useMemo(() => getUnsettel(newPositions), [newPositions]);
+
+  return {
+    totalCollateral,
+    freeCollateral,
+    totaluPnl,
+    marginRatio,
+    unsettle,
+  };
 }

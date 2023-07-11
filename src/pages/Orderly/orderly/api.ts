@@ -22,6 +22,7 @@ import { getNormalizeTradingKey, toNonDivisibleNumber } from './utils';
 import {
   getAddFunctionCallKeyTransaction,
   keyStore,
+  ONE_YOCTO_NEAR,
   ORDERLY_ASSET_MANAGER,
 } from '../near';
 import {
@@ -496,6 +497,7 @@ const perpSettlementTx = async () => {
     receiverId: ORDERLY_ASSET_MANAGER,
     functionCalls: [await user_request_settlement()],
   };
+  console.log('transaction: ', transaction);
 
   return transaction;
 };

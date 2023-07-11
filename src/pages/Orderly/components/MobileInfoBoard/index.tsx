@@ -122,6 +122,7 @@ import {
   MarginRatioText,
   TotaluPNLText,
 } from '../UserBoardPerp/components/HoverText';
+import { usePerpData } from '../UserBoardPerp/state';
 
 export const MOBILE_TAB = 'REF_ORDERLY_MOBILE_TAB';
 
@@ -176,9 +177,14 @@ export function CurAsset(props?: any) {
     ? curHoldingIn.holding + curHoldingIn.pending_short
     : balances && balances[symbolFrom]?.holding;
 
-  const tokenOutHolding = curHoldingOut
-    ? curHoldingOut.holding + curHoldingOut.pending_short
-    : balances && balances[symbolTo]?.holding;
+  const { freeCollateral } = usePerpData();
+
+  const tokenOutHolding =
+    symbolTo === 'USDC' && freeCollateral !== '-'
+      ? freeCollateral
+      : curHoldingOut
+      ? curHoldingOut.holding + curHoldingOut.pending_short
+      : balances && balances[symbolTo]?.holding;
 
   const tokenIn = useTokenMetaFromSymbol(symbolFrom, tokenInfo);
 
@@ -342,7 +348,7 @@ export function CurAsset(props?: any) {
                 alt=""
                 className="rounded-full w-6 h-6 mr-2"
               />
-              <span>{symbolFrom}</span>
+              <span>{symbolFrom === 'BTC' ? 'WBTC' : symbolFrom}</span>
             </div>
 
             <div className="justify-self-end relative right-10">

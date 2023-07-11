@@ -27,6 +27,7 @@ import {
   announceKey,
   depositFT,
   depositOrderly,
+  perpSettlementTx,
   setTradingKey,
   storageDeposit,
   withdrawOrderly,
@@ -69,7 +70,7 @@ import {
   ConfirmButton,
   QuestionMark,
 } from '../Common/index';
-import { useTokenBalance, useTokensBalances } from './state';
+import { usePerpData, useTokenBalance, useTokensBalances } from './state';
 import {
   digitWrapper,
   digitWrapperAsset,
@@ -112,7 +113,11 @@ import { QuestionTip } from '../../../../components/layout/TipWrapper';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { REF_FI_SENDER_WALLET_ACCESS_KEY } from '../../orderly/utils';
 import { useHistory } from 'react-router-dom';
-import { MarginRatioText, TotaluPNLText } from './components/HoverText';
+import {
+  MarginRatioText,
+  TotaluPNLText,
+  UnsettlePnl,
+} from './components/HoverText';
 import {
   getFreeCollateral,
   getLqPrice,
@@ -127,6 +132,8 @@ import { LeverageSlider } from './components/LeverageSlider';
 import { useLeverage } from '~pages/Orderly/orderly/state';
 import { DetailBox } from './components/DetailBox';
 import { LiquidationButton } from './components/LiquidationHistory';
+import { executeMultipleTransactions } from '~services/near';
+const REF_ORDERLY_LIMIT_ORDER_ADVANCE = 'REF_ORDERLY_LIMIT_ORDER_ADVANCE';
 
 function getTipFOK() {
   const intl = useIntl();
@@ -346,7 +353,7 @@ function UserBoardFoot() {
 
   return (
     <div
-      className="flex flex-col text-primaryText  left-1/2 transform -translate-x-1/2   absolute  bottom-2 text-13px"
+      className="flex flex-col text-primaryText  left-1/2 transform -translate-x-1/2   absolute  bottom-0 text-13px"
       style={{
         zIndex: 91,
       }}
@@ -618,16 +625,6 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     }
   }, [positionPush, positions]);
 
-  const totalCollateral = useMemo(() => {
-    try {
-      const res = getTotalCollateral(newPositions, markPrices, curHoldingOut);
-
-      return res.toFixed(4);
-    } catch (error) {
-      return '-';
-    }
-  }, [curHoldingOut, markPrices, newPositions, positionPush]);
-
   const tokenInHolding = curHoldingIn
     ? toPrecision(
         new Big(curHoldingIn.holding + curHoldingIn.pending_short).toString(),
@@ -636,46 +633,8 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       )
     : balances && balances[symbolFrom]?.holding;
 
-  const tokenOutHolding = curHoldingOut
-    ? toPrecision(
-        new Big(curHoldingOut.holding + curHoldingOut.pending_short).toString(),
-        Math.min(8, tokenOut?.decimals || 8),
-        false
-      )
-    : balances && balances[symbolTo]?.holding;
-
-  const totaluPnl = useMemo(() => {
-    try {
-      return getTotaluPnl(newPositions, markPrices);
-    } catch (error) {
-      return null;
-    }
-  }, [newPositions, markPrices]);
-
-  const freeCollateral = useMemo(() => {
-    try {
-      return getFreeCollateral(
-        newPositions,
-        markPrices,
-        userInfo,
-        curHoldingOut
-      );
-    } catch (error) {
-      return '-';
-    }
-  }, [newPositions, markPrices, userInfo, positionPush]);
-
-  const marginRatio = useMemo(() => {
-    {
-      try {
-        const ratio = getMarginRatio(markPrices, newPositions, curHoldingOut);
-
-        return Number(ratio);
-      } catch (error) {
-        return '-';
-      }
-    }
-  }, [markPrices, newPositions, totaluPnl]);
+  const { totalCollateral, freeCollateral, marginRatio, totaluPnl, unsettle } =
+    usePerpData();
 
   const lqPrice = useMemo(() => {
     return getLqPrice(
@@ -683,11 +642,55 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       curSymbol,
       newPositions,
       curHoldingOut,
-      inputValue
+      inputValue,
+      side,
+      orderType,
+      limitPrice,
+      availableSymbols
     );
-  }, [newPositions, markPrices, curHoldingOut, curSymbol, inputValue]);
+  }, [
+    newPositions,
+    markPrices,
+    curHoldingOut,
+    curSymbol,
+    inputValue,
+    orderType,
+    side,
+    limitPrice,
+    availableSymbols,
+  ]);
 
   console.log('lqPrice: ', lqPrice);
+
+  const storedLimitOrderAdvance =
+    sessionStorage.getItem(REF_ORDERLY_LIMIT_ORDER_ADVANCE) || '{}';
+
+  const parsedAdvance = JSON.parse(storedLimitOrderAdvance);
+
+  const [showLimitAdvance, setShowLimitAdvance] = useState<boolean>(
+    parsedAdvance?.show || false
+  );
+
+  const [advanceLimitMode, setAdvanceLimitMode] = useState<
+    'IOC' | 'FOK' | 'POST_ONLY'
+  >(parsedAdvance?.advance);
+
+  useEffect(() => {
+    sessionStorage.setItem(
+      REF_ORDERLY_LIMIT_ORDER_ADVANCE,
+
+      JSON.stringify(
+        advanceLimitMode
+          ? {
+              advance: advanceLimitMode,
+              show: showLimitAdvance,
+            }
+          : {
+              show: showLimitAdvance,
+            }
+      )
+    );
+  }, [showLimitAdvance, advanceLimitMode]);
 
   const tokenFromBalance = useTokenBalance(
     tokenIn?.id,
@@ -698,6 +701,20 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     tokenOut?.id,
     JSON.stringify(balances)
   );
+  console.log('tokenOut: ', tokenOut);
+
+  const tokenOutHolding =
+    tokenOut?.symbol === 'USDC' && freeCollateral !== '-'
+      ? freeCollateral
+      : curHoldingOut
+      ? toPrecision(
+          new Big(
+            curHoldingOut.holding + curHoldingOut.pending_short
+          ).toString(),
+          Math.min(8, tokenOut?.decimals || 8),
+          false
+        )
+      : balances && balances[symbolTo]?.holding;
 
   const marketPrice = !orders
     ? 0
@@ -721,7 +738,12 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       orderlyProps: {
         side: side === 'Buy' ? 'BUY' : 'SELL',
         symbol: symbol,
-        order_type: orderType === 'Market' ? 'MARKET' : 'LIMIT',
+        order_type:
+          orderType === 'Market'
+            ? 'MARKET'
+            : typeof advanceLimitMode !== 'undefined'
+            ? advanceLimitMode
+            : 'LIMIT',
         order_quantity: parseFloat(inputValue),
         broker_id: 'ref_dex',
         order_price: orderType === 'Limit' ? limitPrice : '',
@@ -938,6 +960,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       price &&
       size &&
       side === 'Buy' &&
+      orderType === 'Limit' &&
       curSymbolMarkPrice &&
       new Big(price || 0).gt(
         new Big(curSymbolMarkPrice.price || 0).mul(1 + symbolInfo.price_range)
@@ -961,6 +984,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       price &&
       size &&
       side === 'Sell' &&
+      orderType === 'Limit' &&
       curSymbolMarkPrice &&
       new Big(price || 0).lt(
         new Big(curSymbolMarkPrice.price || 0).mul(1 - symbolInfo.price_range)
@@ -974,7 +998,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           defaultMessage:
             'The price of sell limit orders should be greater than or equal to',
         })} ${new Big(curSymbolMarkPrice.price || 0)
-          .mul(1 + symbolInfo.price_range)
+          .mul(1 - symbolInfo.price_range)
           .toFixed(tickToPrecision(symbolInfo.quote_tick))}`
       );
       return;
@@ -984,6 +1008,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       price &&
       size &&
       side === 'Sell' &&
+      orderType === 'Limit' &&
       curSymbolMarkPrice &&
       new Big(price || 0).gt(
         new Big(curSymbolMarkPrice.price || 0).mul(1 + symbolInfo.price_scope)
@@ -1007,6 +1032,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       price &&
       size &&
       side === 'Buy' &&
+      orderType === 'Limit' &&
       curSymbolMarkPrice &&
       new Big(price || 0).lt(
         new Big(curSymbolMarkPrice.price || 0).mul(1 - symbolInfo.price_scope)
@@ -1016,9 +1042,8 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
       setErrorTipMsg(
         `${intl.formatMessage({
-          id: 'perp_sell_limit_order_scope',
-          defaultMessage:
-            'The price of a sell limit order cannot be higher than',
+          id: 'perp_buy_limit_order_scope',
+          defaultMessage: 'The price of a buy limit order cannot be lower than',
         })} ${new Big(curSymbolMarkPrice.price || 0)
           .mul(1 - symbolInfo.price_scope)
           .toFixed(tickToPrecision(symbolInfo.quote_tick))}`
@@ -1173,7 +1198,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
   const riskLevel =
     marginRatio === '-'
       ? null
-      : getRiskLevel(marginRatio, userInfo?.max_leverage || 10);
+      : getRiskLevel(Number(marginRatio), userInfo?.max_leverage || 10);
 
   const PerpAccountInfo = (
     <div className="flex gap-4 px-6 py-4 flex-col bg-perpCardBg text-primaryText text-13px">
@@ -1197,7 +1222,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         />
 
         <span className="font-nunito">
-          {!positions ? '-' : numberWithCommas(freeCollateral)}
+          {freeCollateral === '-' ? '-' : numberWithCommas(freeCollateral)}
         </span>
       </div>
 
@@ -1244,8 +1269,30 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           >
             {!positions || marginRatio == '-'
               ? '-'
-              : numberWithCommas(new Big(marginRatio * 100).toFixed(2)) + '%'}
+              : numberWithCommas(
+                  new Big(Number(marginRatio) * 100).toFixed(2)
+                ) + '%'}
           </span>
+        </div>
+      </div>
+
+      <div className="frcb">
+        <UnsettlePnl></UnsettlePnl>
+
+        <div className="font-nunito frcs gap-2">
+          {unsettle}
+
+          <button
+            className="font-gotham text-white px-1 text-xs rounded-md border border-inputV3BorderColor "
+            onClick={async () => {
+              return executeMultipleTransactions([await perpSettlementTx()]);
+            }}
+          >
+            <FormattedMessage
+              id="settle"
+              defaultMessage={'Settle'}
+            ></FormattedMessage>
+          </button>
         </div>
       </div>
 
@@ -1266,7 +1313,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
   return (
     <div
-      className="w-full  bg-orderLineHover relative flex flex-col  border-t border-l border-b h-screen border-boxBorder "
+      className="w-full  bg-orderLineHover relative min-w-max flex flex-col  border-t border-l border-b h-screen border-boxBorder "
       style={{
         minHeight: '775px',
         height: validator ? 'calc(100vh - 100px)' : '100%',
@@ -1465,7 +1512,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                 alt=""
                 className="rounded-full w-6 h-6 mr-2"
               />
-              <span>{symbolFrom}</span>
+              <span>{symbolFrom === 'BTC' ? 'WBTC' : symbolFrom}</span>
             </div>
 
             <div
@@ -1589,7 +1636,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       </div>
       {/* sell and buy button  */}
 
-      <div className="flex flex-col gap-3 px-5 bg-orderLineHover">
+      <div className="flex pb-12 flex-col gap-3 px-5 bg-orderLineHover">
         <div className="flex items-center  pt-6  justify-center ">
           <BuyButtonPerp
             onClick={() => {
@@ -1767,7 +1814,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
             console.log('v: ', v);
             setCurLeverage(leverageMap(v, true));
           }}
-          marginRatio={marginRatio}
+          marginRatio={Number(marginRatio)}
           min={0}
         />
 
@@ -1776,18 +1823,164 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         )}
 
         <div className="rounded-lg text-sm px-0 pt-1 relative flex flex-col gap-2 z-10 pb-6">
-          <div className="frcb border-b pb-3 border-white border-opacity-10">
-            <span className="text-primaryOrderly">
-              {intl.formatMessage({
-                id: 'advance',
-                defaultMessage: 'Advance',
-              })}
-            </span>
+          {orderType === 'Limit' && (
+            <div className="text-white text-sm mt-2 border-b pb-3 border-white border-opacity-10">
+              <div className="frcb ">
+                <span className="text-primaryOrderly">
+                  {intl.formatMessage({
+                    id: 'advance',
+                    defaultMessage: 'Advance',
+                  })}
+                </span>
 
-            <DetailBox show={showAdvance} setShow={setShowAdvance} />
-          </div>
+                <DetailBox
+                  show={showLimitAdvance}
+                  setShow={setShowLimitAdvance}
+                />
+              </div>
 
-          <div className={!showAdvance ? 'hidden' : 'flex flex-col gap-2'}>
+              <div
+                className={`flex mt-2 items-center justify-between ${
+                  showLimitAdvance ? '' : 'hidden'
+                }`}
+              >
+                <div className="flex items-center">
+                  <CheckBox
+                    check={advanceLimitMode === 'IOC'}
+                    setCheck={() => {
+                      if (advanceLimitMode === 'IOC') {
+                        setAdvanceLimitMode(undefined);
+                      } else {
+                        setAdvanceLimitMode('IOC');
+                      }
+                    }}
+                  ></CheckBox>
+                  <span
+                    className="ml-2 mr-1 cursor-pointer"
+                    onClick={() => {
+                      if (advanceLimitMode === 'IOC') {
+                        setAdvanceLimitMode(undefined);
+                      } else {
+                        setAdvanceLimitMode('IOC');
+                      }
+                    }}
+                  >
+                    IOC
+                  </span>
+
+                  <div
+                    data-class="reactTip"
+                    data-for={'user_board_ioc'}
+                    data-html={true}
+                    data-place={'top'}
+                    data-tip={getTipIoc()}
+                  >
+                    <QuestionMark></QuestionMark>
+
+                    <ReactTooltip
+                      id={'user_board_ioc'}
+                      backgroundColor="#1D2932"
+                      place="right"
+                      border
+                      borderColor="#7e8a93"
+                      textColor="#C6D1DA"
+                      effect="solid"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <CheckBox
+                    check={advanceLimitMode === 'FOK'}
+                    setCheck={() => {
+                      if (advanceLimitMode === 'FOK') {
+                        setAdvanceLimitMode(undefined);
+                      } else {
+                        setAdvanceLimitMode('FOK');
+                      }
+                    }}
+                  ></CheckBox>
+                  <span
+                    className="cursor-pointer ml-2 mr-1"
+                    onClick={() => {
+                      if (advanceLimitMode === 'FOK') {
+                        setAdvanceLimitMode(undefined);
+                      } else {
+                        setAdvanceLimitMode('FOK');
+                      }
+                    }}
+                  >
+                    FOK
+                  </span>
+
+                  <div
+                    data-class="reactTip"
+                    data-for={'user_board_folk'}
+                    data-html={true}
+                    data-place={'top'}
+                    data-tip={getTipFOK()}
+                  >
+                    <QuestionMark></QuestionMark>
+
+                    <ReactTooltip
+                      id={'user_board_folk'}
+                      backgroundColor="#1D2932"
+                      place="right"
+                      border
+                      borderColor="#7e8a93"
+                      textColor="#C6D1DA"
+                      effect="solid"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <CheckBox
+                    check={advanceLimitMode === 'POST_ONLY'}
+                    setCheck={() => {
+                      if (advanceLimitMode === 'POST_ONLY') {
+                        setAdvanceLimitMode(undefined);
+                      } else {
+                        setAdvanceLimitMode('POST_ONLY');
+                      }
+                    }}
+                  ></CheckBox>
+                  <span
+                    className="ml-2 mr-1 cursor-pointer"
+                    onClick={() => {
+                      if (advanceLimitMode === 'POST_ONLY') {
+                        setAdvanceLimitMode(undefined);
+                      } else {
+                        setAdvanceLimitMode('POST_ONLY');
+                      }
+                    }}
+                  >
+                    Post-only
+                  </span>
+
+                  <div
+                    data-class="reactTip"
+                    data-for={'user_board_post_only'}
+                    data-html={true}
+                    data-place={'top'}
+                    data-tip={getTipPostOnly()}
+                  >
+                    <QuestionMark></QuestionMark>
+
+                    <ReactTooltip
+                      id={'user_board_post_only'}
+                      backgroundColor="#1D2932"
+                      place="right"
+                      border
+                      borderColor="#7e8a93"
+                      textColor="#C6D1DA"
+                      effect="solid"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className={'flex flex-col gap-2'}>
             <div className="frcb">
               <span className="text-primaryOrderly">
                 {intl.formatMessage({
@@ -1845,18 +2038,18 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                   })}
                 </span>
 
-                <FlexRow className="gap-2 text-white">
+                <FlexRow className="text-white">
                   <span className="  ">
                     {Number(
                       (userInfo?.futures_maker_fee_rate || 0) / 100
-                    ).toFixed(2)}
+                    ).toFixed(3)}
                     %
                   </span>
-
+                  /
                   <span className=" ">
                     {Number(
                       (userInfo?.futures_taker_fee_rate || 0) / 100
-                    ).toFixed(2)}
+                    ).toFixed(3)}
                     %
                   </span>
                 </FlexRow>
@@ -2034,6 +2227,8 @@ export function AssetManagerModal(
     balances
       ?.find((b: any) => b.id.toLowerCase() === tokenId.toLowerCase())
       ?.holding?.toString() || '0';
+
+  console.log('displayAccountBalance: ', displayAccountBalance);
 
   useEffect(() => {
     if (!tokenId) return;
@@ -3015,8 +3210,6 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
     setLimitPrice(bridgePrice);
   }, [bridgePrice]);
 
-  const [showAllAssets, setShowAllAssets] = useState<boolean>(false);
-
   const [confirmModalOpen, setConfirmModalOpen] = useState<boolean>(false);
 
   const [agreeCheck, setAgreeCheck] = useState<boolean>(false);
@@ -3119,15 +3312,8 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
     }
   }, [positionPush, positions]);
 
-  const totalCollateral = useMemo(() => {
-    try {
-      const res = getTotalCollateral(newPositions, markPrices, curHoldingOut);
-
-      return res.toFixed(4);
-    } catch (error) {
-      return '-';
-    }
-  }, [curHoldingOut, markPrices, newPositions, positionPush]);
+  const { freeCollateral, totalCollateral, totaluPnl, marginRatio } =
+    usePerpData();
 
   const tokenInHolding = curHoldingIn
     ? toPrecision(
@@ -3145,58 +3331,28 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
       )
     : balances && balances[symbolTo]?.holding;
 
-  const totaluPnl = useMemo(() => {
-    try {
-      return getTotaluPnl(newPositions, markPrices);
-    } catch (error) {
-      return null;
-    }
-  }, [newPositions, markPrices]);
-
-  const freeCollateral = useMemo(() => {
-    try {
-      return getFreeCollateral(
-        newPositions,
-        markPrices,
-        userInfo,
-        curHoldingOut
-      );
-    } catch (error) {
-      return '-';
-    }
-  }, [newPositions, markPrices, userInfo, positionPush]);
-
-  const marginRatio = useMemo(() => {
-    {
-      try {
-        const ratio = getMarginRatio(markPrices, newPositions, curHoldingOut);
-
-        return Number(ratio);
-      } catch (error) {
-        return '-';
-      }
-    }
-  }, [markPrices, newPositions, totaluPnl]);
-
   const lqPrice = useMemo(() => {
     return getLqPrice(
       markPrices,
       curSymbol,
       newPositions,
       curHoldingOut,
-      inputValue
+      inputValue,
+      side,
+      orderType,
+      limitPrice,
+      availableSymbols
     );
-  }, [newPositions, markPrices, curHoldingOut, curSymbol, inputValue]);
-
-  const tokenFromBalance = useTokenBalance(
-    tokenIn?.id,
-    JSON.stringify(balances)
-  );
-
-  const tokenToBalance = useTokenBalance(
-    tokenOut?.id,
-    JSON.stringify(balances)
-  );
+  }, [
+    newPositions,
+    markPrices,
+    curHoldingOut,
+    curSymbol,
+    inputValue,
+    orderType,
+    side,
+    limitPrice,
+  ]);
 
   const marketPrice = !orders
     ? 0
@@ -3220,7 +3376,12 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
       orderlyProps: {
         side: side === 'Buy' ? 'BUY' : 'SELL',
         symbol: symbol,
-        order_type: orderType === 'Market' ? 'MARKET' : 'LIMIT',
+        order_type:
+          orderType === 'Market'
+            ? 'MARKET'
+            : typeof advanceLimitMode !== 'undefined'
+            ? advanceLimitMode
+            : 'LIMIT',
         order_quantity: parseFloat(inputValue),
         broker_id: 'ref_dex',
         order_price: orderType === 'Limit' ? limitPrice : '',
@@ -3264,6 +3425,36 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
   const [showErrorTip, setShowErrorTip] = useState<boolean>(false);
 
   const [errorTipMsg, setErrorTipMsg] = useState<string>('');
+
+  const storedLimitOrderAdvance =
+    sessionStorage.getItem(REF_ORDERLY_LIMIT_ORDER_ADVANCE) || '{}';
+
+  const parsedAdvance = JSON.parse(storedLimitOrderAdvance);
+
+  const [showLimitAdvance, setShowLimitAdvance] = useState<boolean>(
+    parsedAdvance?.show || false
+  );
+
+  const [advanceLimitMode, setAdvanceLimitMode] = useState<
+    'IOC' | 'FOK' | 'POST_ONLY'
+  >(parsedAdvance?.advance);
+
+  useEffect(() => {
+    sessionStorage.setItem(
+      REF_ORDERLY_LIMIT_ORDER_ADVANCE,
+
+      JSON.stringify(
+        advanceLimitMode
+          ? {
+              advance: advanceLimitMode,
+              show: showLimitAdvance,
+            }
+          : {
+              show: showLimitAdvance,
+            }
+      )
+    );
+  }, [showLimitAdvance, advanceLimitMode]);
 
   const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
 
@@ -3437,6 +3628,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
       price &&
       size &&
       side === 'Buy' &&
+      orderType === 'Limit' &&
       curSymbolMarkPrice &&
       new Big(price || 0).gt(
         new Big(curSymbolMarkPrice.price || 0).mul(1 + symbolInfo.price_range)
@@ -3460,6 +3652,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
       price &&
       size &&
       side === 'Sell' &&
+      orderType === 'Limit' &&
       curSymbolMarkPrice &&
       new Big(price || 0).lt(
         new Big(curSymbolMarkPrice.price || 0).mul(1 - symbolInfo.price_range)
@@ -3473,7 +3666,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
           defaultMessage:
             'The price of sell limit orders should be greater than or equal to',
         })} ${new Big(curSymbolMarkPrice.price || 0)
-          .mul(1 + symbolInfo.price_range)
+          .mul(1 - symbolInfo.price_range)
           .toFixed(tickToPrecision(symbolInfo.quote_tick))}`
       );
       return;
@@ -3483,6 +3676,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
       price &&
       size &&
       side === 'Sell' &&
+      orderType === 'Limit' &&
       curSymbolMarkPrice &&
       new Big(price || 0).gt(
         new Big(curSymbolMarkPrice.price || 0).mul(1 + symbolInfo.price_scope)
@@ -3506,6 +3700,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
       price &&
       size &&
       side === 'Buy' &&
+      orderType === 'Limit' &&
       curSymbolMarkPrice &&
       new Big(price || 0).lt(
         new Big(curSymbolMarkPrice.price || 0).mul(1 - symbolInfo.price_scope)
@@ -3515,16 +3710,14 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
 
       setErrorTipMsg(
         `${intl.formatMessage({
-          id: 'perp_sell_limit_order_scope',
-          defaultMessage:
-            'The price of a sell limit order cannot be higher than',
+          id: 'perp_buy_limit_order_scope',
+          defaultMessage: 'The price of a buy limit order cannot be lower than',
         })} ${new Big(curSymbolMarkPrice.price || 0)
           .mul(1 - symbolInfo.price_scope)
           .toFixed(tickToPrecision(symbolInfo.quote_tick))}`
       );
       return;
     }
-
     return true;
   };
 
@@ -3982,7 +4175,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
             console.log('v: ', v);
             setCurLeverage(leverageMap(v, true));
           }}
-          marginRatio={marginRatio}
+          marginRatio={Number(marginRatio)}
           min={0}
         />
 
@@ -3991,16 +4184,162 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
         )}
 
         <div className="rounded-lg text-sm px-0 pt-1 relative flex flex-col gap-2 z-10 pb-2.5">
-          <div className="frcb border-b pb-3 border-white border-opacity-10">
-            <span className="text-primaryOrderly">
-              {intl.formatMessage({
-                id: 'advance',
-                defaultMessage: 'Advance',
-              })}
-            </span>
+          {orderType === 'Limit' && (
+            <div className="text-white text-sm mt-2 border-b pb-3 border-white border-opacity-10">
+              <div className="frcb ">
+                <span className="text-primaryOrderly">
+                  {intl.formatMessage({
+                    id: 'advance',
+                    defaultMessage: 'Advance',
+                  })}
+                </span>
 
-            <DetailBox show={showAdvance} setShow={setShowAdvance} />
-          </div>
+                <DetailBox
+                  show={showLimitAdvance}
+                  setShow={setShowLimitAdvance}
+                />
+              </div>
+
+              <div
+                className={`flex mt-2  flex-col gap-2 items-start  ${
+                  showLimitAdvance ? '' : 'hidden'
+                }`}
+              >
+                <div className="flex items-center">
+                  <CheckBox
+                    check={advanceLimitMode === 'IOC'}
+                    setCheck={() => {
+                      if (advanceLimitMode === 'IOC') {
+                        setAdvanceLimitMode(undefined);
+                      } else {
+                        setAdvanceLimitMode('IOC');
+                      }
+                    }}
+                  ></CheckBox>
+                  <span
+                    className="ml-2 mr-1 cursor-pointer"
+                    onClick={() => {
+                      if (advanceLimitMode === 'IOC') {
+                        setAdvanceLimitMode(undefined);
+                      } else {
+                        setAdvanceLimitMode('IOC');
+                      }
+                    }}
+                  >
+                    IOC
+                  </span>
+
+                  <div
+                    data-class="reactTip"
+                    data-for={'user_board_ioc'}
+                    data-html={true}
+                    data-place={'top'}
+                    data-tip={getTipIoc()}
+                  >
+                    <QuestionMark></QuestionMark>
+
+                    <ReactTooltip
+                      id={'user_board_ioc'}
+                      backgroundColor="#1D2932"
+                      place="right"
+                      border
+                      borderColor="#7e8a93"
+                      textColor="#C6D1DA"
+                      effect="solid"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <CheckBox
+                    check={advanceLimitMode === 'FOK'}
+                    setCheck={() => {
+                      if (advanceLimitMode === 'FOK') {
+                        setAdvanceLimitMode(undefined);
+                      } else {
+                        setAdvanceLimitMode('FOK');
+                      }
+                    }}
+                  ></CheckBox>
+                  <span
+                    className="cursor-pointer ml-2 mr-1"
+                    onClick={() => {
+                      if (advanceLimitMode === 'FOK') {
+                        setAdvanceLimitMode(undefined);
+                      } else {
+                        setAdvanceLimitMode('FOK');
+                      }
+                    }}
+                  >
+                    FOK
+                  </span>
+
+                  <div
+                    data-class="reactTip"
+                    data-for={'user_board_folk'}
+                    data-html={true}
+                    data-place={'top'}
+                    data-tip={getTipFOK()}
+                  >
+                    <QuestionMark></QuestionMark>
+
+                    <ReactTooltip
+                      id={'user_board_folk'}
+                      backgroundColor="#1D2932"
+                      place="right"
+                      border
+                      borderColor="#7e8a93"
+                      textColor="#C6D1DA"
+                      effect="solid"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <CheckBox
+                    check={advanceLimitMode === 'POST_ONLY'}
+                    setCheck={() => {
+                      if (advanceLimitMode === 'POST_ONLY') {
+                        setAdvanceLimitMode(undefined);
+                      } else {
+                        setAdvanceLimitMode('POST_ONLY');
+                      }
+                    }}
+                  ></CheckBox>
+                  <span
+                    className="ml-2 mr-1 cursor-pointer"
+                    onClick={() => {
+                      if (advanceLimitMode === 'POST_ONLY') {
+                        setAdvanceLimitMode(undefined);
+                      } else {
+                        setAdvanceLimitMode('POST_ONLY');
+                      }
+                    }}
+                  >
+                    Post-only
+                  </span>
+
+                  <div
+                    data-class="reactTip"
+                    data-for={'user_board_post_only'}
+                    data-html={true}
+                    data-place={'top'}
+                    data-tip={getTipPostOnly()}
+                  >
+                    <QuestionMark></QuestionMark>
+
+                    <ReactTooltip
+                      id={'user_board_post_only'}
+                      backgroundColor="#1D2932"
+                      place="right"
+                      border
+                      borderColor="#7e8a93"
+                      textColor="#C6D1DA"
+                      effect="solid"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className={!showAdvance ? 'hidden' : 'flex flex-col gap-2'}>
             <div className="frcb">

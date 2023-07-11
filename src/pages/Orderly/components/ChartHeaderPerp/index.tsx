@@ -474,7 +474,7 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
 
       {ticker && !maintenance && (
         <div
-          className={`flex  items-center  mr-2 max-w-full w-p869
+          className={`flex  items-center  mr-2 w-full 
             justify-between xs:justify-end md:justify-end  text-primaryOrderly`}
         >
           <div className="flex xs:justify-end md:justify-end  items-start flex-col xs:flex-row md:flex-row xs:items-center md:items-center">

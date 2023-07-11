@@ -1,6 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { TokenInfo, TokenMetadata } from '../../orderly/type';
 import { useTokensBalances } from '../UserBoard/state';
+import { getFreeCollateral } from '../UserBoardPerp/math';
+import { useOrderlyContext } from '~pages/Orderly/orderly/OrderlyContext';
+import { usePerpData } from '../UserBoardPerp/state';
 
 export interface OrderAsset {
   near: string;

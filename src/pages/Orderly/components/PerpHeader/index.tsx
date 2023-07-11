@@ -4,9 +4,12 @@ import { FormattedMessage } from 'react-intl';
 import { useClientMobile, isMobile } from '../../../../utils/device';
 
 import { IoMdClose } from 'react-icons/io';
+import { REF_ORDERLY_PERP_TIP_SIG } from '~pages/Orderly/OrderlyPerpetual';
 
 export function PerpOrderlyTip() {
-  const [show, setShow] = useState<boolean>(true);
+  const [show, setShow] = useState<boolean>(
+    !!localStorage.getItem(REF_ORDERLY_PERP_TIP_SIG) ? false : true
+  );
 
   const isMobile = useClientMobile();
 
@@ -61,7 +64,9 @@ export function PerpOrderlyTip() {
 }
 
 export function PerpOrderlyTipMobile() {
-  const [show, setShow] = useState<boolean>(true);
+  const [show, setShow] = useState<boolean>(
+    !!localStorage.getItem(REF_ORDERLY_PERP_TIP_SIG) ? false : true
+  );
 
   const isMobile = useClientMobile();
 

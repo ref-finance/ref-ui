@@ -213,6 +213,16 @@ export const getCurrentHolding = async (props: { accountId: string }) => {
     accountId: props.accountId,
   });
 
+  const wbtcHolding = res.data.holding.find((h: any) => h.token === 'WBTC');
+
+  if (wbtcHolding) {
+    const btcholding = {
+      ...wbtcHolding,
+      token: 'BTC',
+    };
+    res.data.holding.push(btcholding);
+  }
+
   return res;
 };
 

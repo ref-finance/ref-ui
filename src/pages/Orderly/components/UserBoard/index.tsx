@@ -104,6 +104,7 @@ import { QuestionTip } from '../../../../components/layout/TipWrapper';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { REF_FI_SENDER_WALLET_ACCESS_KEY } from '../../orderly/utils';
 import { useHistory } from 'react-router-dom';
+import { usePerpData } from '../UserBoardPerp/state';
 
 function getTipFOK() {
   const intl = useIntl();
@@ -429,6 +430,8 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
   const storedLimitOrderAdvance =
     sessionStorage.getItem(REF_ORDERLY_LIMIT_ORDER_ADVANCE) || '{}';
 
+  const { freeCollateral } = usePerpData();
+
   const parsedAdvance = JSON.parse(storedLimitOrderAdvance);
 
   const [showLimitAdvance, setShowLimitAdvance] = useState<boolean>(
@@ -550,13 +553,18 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       )
     : balances && balances[symbolFrom]?.holding;
 
-  const tokenOutHolding = curHoldingOut
-    ? toPrecision(
-        new Big(curHoldingOut.holding + curHoldingOut.pending_short).toString(),
-        Math.min(8, tokenOut?.decimals || 8),
-        false
-      )
-    : balances && balances[symbolTo]?.holding;
+  const tokenOutHolding =
+    tokenOut?.symbol === 'USDC' && freeCollateral !== '-'
+      ? freeCollateral
+      : curHoldingOut
+      ? toPrecision(
+          new Big(
+            curHoldingOut.holding + curHoldingOut.pending_short
+          ).toString(),
+          Math.min(8, tokenOut?.decimals || 8),
+          false
+        )
+      : balances && balances[symbolTo]?.holding;
 
   const fee =
     orderType === 'Limit'
@@ -976,8 +984,10 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       ? orders.asks?.[0]?.[0]
       : orders?.bids?.[0]?.[0];
 
+    if (typeof marketPrice === 'undefined') return;
+
     priceAndSizeValidator(
-      orderType === 'Limit' ? limitPrice : marketPrice.toString(),
+      orderType === 'Limit' ? limitPrice : marketPrice?.toString(),
       inputValue
     );
   }, [side, orderType, symbol, orders]);

@@ -6,6 +6,7 @@ import { getCurrentHolding } from '../../orderly/off-chain-api';
 import { useWalletSelector } from '../../../../context/WalletSelectorContext';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import Big from 'big.js';
+import { usePerpData } from '../UserBoardPerp/state';
 
 export function useTokenBalance(tokenId: string | undefined, deps?: any) {
   const [tokenMeta, setTokenMeta] = useState<TokenMetadata>();
@@ -61,6 +62,9 @@ export function useTokensBalances(
 
   const { accountId } = useWalletSelector();
 
+  const { freeCollateral } = usePerpData();
+  console.log('freeCollateral: ', freeCollateral);
+
   const { myPendingOrdersRefreshing, validAccountSig } = useOrderlyContext();
 
   const getBalanceAndMeta = async (token: TokenWithDecimals) => {
@@ -77,7 +81,14 @@ export function useTokensBalances(
   };
 
   useEffect(() => {
-    if (!tokens || !tokenInfo || !accountId || !validAccountSig) return;
+    if (
+      !tokens ||
+      !tokenInfo ||
+      !accountId ||
+      !validAccountSig ||
+      freeCollateral === '-'
+    )
+      return;
 
     Promise.all(
       tokenInfo.map((t) =>
@@ -124,7 +135,8 @@ export function useTokensBalances(
 
             acc[id] = {
               ...cur,
-              holding: displayHolding,
+              holding:
+                cur.name === 'USDC' ? Number(freeCollateral) : displayHolding,
               'in-order': holding?.pending_short || 0,
             };
             return acc;
@@ -143,6 +155,7 @@ export function useTokensBalances(
     trigger,
     myPendingOrdersRefreshing,
     validAccountSig,
+    freeCollateral,
   ]);
 
   return showbalances;

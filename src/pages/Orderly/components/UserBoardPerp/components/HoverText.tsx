@@ -98,3 +98,46 @@ export function TotaluPNLText() {
     </div>
   );
 }
+
+export function UnsettlePnl() {
+  const [hover, setHover] = useState(false);
+
+  const intl = useIntl();
+
+  return (
+    <div className="frcs gap-1 ">
+      <FormattedMessage
+        id="unsettle_png"
+        defaultMessage={`Unsettle PnL`}
+      ></FormattedMessage>
+
+      <div
+        className="relative"
+        onMouseEnter={() => {
+          setHover(true);
+        }}
+        onMouseLeave={() => {
+          setHover(false);
+        }}
+      >
+        <QuestionMark></QuestionMark>
+
+        {hover && (
+          <div
+            className=" absolute bg-cardBg z-30 transform translate-y-1/2 right-3 bottom-3  px-4 py-2 rounded-lg text-xs border border-primaryText"
+            style={{
+              width: '300px',
+            }}
+          >
+            <FormattedMessage
+              id="total_npnl_tip"
+              defaultMessage={
+                'Estimated unrealized profit and loss across all open positions'
+              }
+            ></FormattedMessage>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

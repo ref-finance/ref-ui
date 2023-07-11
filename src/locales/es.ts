@@ -1207,9 +1207,8 @@ const es = {
   TotalAssets: 'Total Assets',
   open_interest: 'Open Interest',
   TokenAllocation: 'Token Allocation',
-  perpTip:
-    'Welcome to Ref perpetual-future, read {perpTipLink} docs to get start!',
-  perpTipLink: '[Perpetual-futures Introduction]',
+  perpTip: 'Welcome to Ref perpetual-future, read {perpTipLink} to get start!',
+  perpTipLink: '[Perpetual-futures Introduction]  docs',
   pred_funding_rate: 'Pred. Funding Rate',
   netWorthTip:
     'Total value of investments in Ref (including claimable rewards) + Total value of Orderly assets + Total value of Burrow assets + Total assets in wallet',

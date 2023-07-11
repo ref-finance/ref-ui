@@ -40,6 +40,8 @@ import { FormattedMessage } from 'react-intl';
 import { OrderBookMobile } from './components/OrderBook/index';
 import { MobileliquidationList } from './components/UserBoardPerp/components/LiquidationHistory';
 
+export const REF_ORDERLY_PERP_TIP_SIG = 'REF_ORDERLY_PERP_TIP_SIG';
+
 function TradingBoard() {
   const isLarge = useLargeScreen();
 

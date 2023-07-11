@@ -1319,9 +1319,8 @@ const en_US = {
   TotalInvested: 'Total Invested',
   TotalAssets: 'Total Assets',
   TokenAllocation: 'Token Allocation',
-  perpTip:
-    'Welcome to Ref perpetual-future, read {perpTipLink} docs to get start!',
-  perpTipLink: '[Perpetual-futures Introduction]',
+  perpTip: 'Welcome to Ref perpetual-future, read {perpTipLink} to get start!',
+  perpTipLink: '[Perpetual-futures Introduction]  docs',
   pred_funding_rate: 'Pred. Funding Rate',
   open_interest: 'Open Interest',
   netWorthTip:
@@ -1339,7 +1338,7 @@ const en_US = {
   mid_risk: 'Mid Risk',
   high_risk: 'High Risk',
   liquidations: 'Liquidations',
-  leverage_max_10x: 'Leverage (Max-10x):',
+  leverage_max_10x: 'Max Account Leverage:',
   marker_taker_fee_rate: 'Maker/Taker Fee Rate',
   liquidation_price: 'Liquidation Price',
   margin_required: 'Margin Required',

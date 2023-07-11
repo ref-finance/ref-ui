@@ -563,7 +563,7 @@ export const getErrorMessage = (res: any) => {
   }
 };
 
-export const normalFailToast = (text: string) => {
+export const normalFailToast = (text: string, autoClose?: number) => {
   toast(
     <div
       className="text-error w-full h-full pl-1.5 py-1  flex-col text-sm"
@@ -575,7 +575,7 @@ export const normalFailToast = (text: string) => {
       <span>{text}</span>
     </div>,
     {
-      autoClose: false,
+      autoClose: typeof autoClose === 'undefined' ? false : autoClose,
       closeOnClick: true,
       hideProgressBar: false,
       closeButton: <CloseIcon />,
@@ -592,6 +592,7 @@ export const normalFailToast = (text: string) => {
     }
   );
 };
+
 export const normalSuccessToast = (text: string) => {
   toast(
     <div
