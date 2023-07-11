@@ -1468,7 +1468,10 @@ function MenuBar() {
           history.push(url);
         }
       }
-      hover_off_one_level_item();
+
+      if (clickEvent) {
+        hover_off_one_level_item();
+      }
     }
   }
   function click_three_level_title_to_back(menuItem: menuItemType) {
