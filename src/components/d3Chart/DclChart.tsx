@@ -882,7 +882,7 @@ export default function DclChart({
       .transition()
       .attr('width', function (d) {
         return (
-          scale(Big(d.point_r).toNumber()) -
+          scale(Big(d.price_r).toNumber()) -
           scale(Big(d.price).toNumber())
         );
       })
