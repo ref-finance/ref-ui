@@ -28,6 +28,7 @@ import {
   CheckSelectorWhite,
   MobileEdit,
   MobileFilter,
+  NoOrderEmpty,
   OrderStateOutline,
   RejectStamp,
 } from '../Common/Icons';
@@ -2747,6 +2748,9 @@ function OpenOrders({
       .sort((a, b) => (a.symbol > b.symbol ? 1 : -1))
       .forEach((symbol) => {
         const { symbolFrom, symbolTo } = parseSymbol(symbol.symbol);
+
+        const symbolType = PerpOrSpot(symbol.symbol);
+
         const fromToken = allTokens[symbolFrom];
 
         const render = (
@@ -2769,7 +2773,10 @@ function OpenOrders({
             </span>
 
             <span className="text-primaryOrderly xs:text-white xs:font-bold">
-              /{symbolTo}
+              {symbolType === 'SPOT' ? '/' : ' '}
+              <span className={symbolType === 'PERP' ? 'ml-1' : ''}>
+                {symbolType === 'SPOT' ? symbolTo : ` PERP`}
+              </span>
             </span>
           </div>
         );
@@ -2783,6 +2790,75 @@ function OpenOrders({
     return marketList;
   };
   const marketList = generateMarketList();
+
+  const symbolType = PerpOrSpot(symbol);
+
+  const typeList =
+    symbolType === 'SPOT'
+      ? [
+          {
+            text: intl.formatMessage({
+              id: 'All',
+              defaultMessage: 'All',
+            }),
+            textId: 'All',
+            className: 'text-white',
+          },
+          {
+            text: intl.formatMessage({
+              id: 'limit_orderly',
+              defaultMessage: 'Limit',
+            }),
+            textId: 'Limit',
+            className: 'text-white',
+          },
+          {
+            text: intl.formatMessage({
+              id: 'market',
+              defaultMessage: 'Market',
+            }),
+            textId: 'Market',
+            className: 'text-white',
+          },
+          {
+            text: 'IOC',
+            textId: 'IOC',
+            className: 'text-white',
+          },
+          {
+            text: 'FOK',
+            textId: 'FOK',
+            className: 'text-white',
+          },
+          {
+            text: 'Post Only',
+            textId: 'Post Only',
+            className: 'text-white',
+          },
+        ]
+      : [
+          {
+            text: intl.formatMessage({
+              id: 'All',
+              defaultMessage: 'All',
+            }),
+            textId: 'All',
+            className: 'text-white',
+          },
+          {
+            text: intl.formatMessage({
+              id: 'limit_orderly',
+              defaultMessage: 'Limit',
+            }),
+            textId: 'Limit',
+            className: 'text-white',
+          },
+          {
+            text: 'Post Only',
+            textId: 'Post Only',
+            className: 'text-white',
+          },
+        ];
 
   return (
     <>
@@ -2974,17 +3050,48 @@ function OpenOrders({
 
             <th>
               <FlexRow className="col-span-1 relative">
-                <span>
-                  {chooseType === 'All'
-                    ? intl.formatMessage({
-                        id: 'type',
-                        defaultMessage: 'Type',
-                      })
-                    : intl.formatMessage({
-                        id: chooseSide.toLocaleLowerCase(),
-                        defaultMessage: chooseSide,
-                      })}
-                </span>
+                <div
+                  className="cursor-pointer flex items-center"
+                  onClick={(e) => {
+                    if (symbolType === 'SPOT') return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowTypeSelector(!showTypeSelector);
+                    setShowMarketSelector(false);
+                    setShowSideSelector(false);
+                  }}
+                >
+                  <span>
+                    {chooseType === 'All'
+                      ? intl.formatMessage({
+                          id: 'type',
+                          defaultMessage: 'Type',
+                        })
+                      : chooseType === 'Limit'
+                      ? intl.formatMessage({
+                          id: 'limit_orderly',
+                          defaultMessage: 'Limit',
+                        })
+                      : chooseType}
+                  </span>
+
+                  {symbolType === 'PERP' && (
+                    <MdArrowDropDown
+                      size={22}
+                      color={showTypeSelector ? 'white' : '#7E8A93'}
+                    />
+                  )}
+                </div>
+                {showTypeSelector && (
+                  <Selector
+                    selected={chooseType}
+                    setSelect={(value: any) => {
+                      setChooseType(value);
+                      setShowTypeSelector(false);
+                    }}
+                    list={typeList}
+                  />
+                )}
               </FlexRow>
             </th>
 
@@ -3083,7 +3190,8 @@ function OpenOrders({
           {loading ? (
             <OrderlyLoading></OrderlyLoading>
           ) : orders.filter(filterFunc).length === 0 ? (
-            <div className="text-dark4 mt-10 mb-4 text-center text-sm">
+            <div className="text-primaryText mt-10 mb-4 text-center text-sm flex flex-col justify-center items-center gap-2">
+              {isMobile() && <NoOrderEmpty></NoOrderEmpty>}
               {intl.formatMessage({
                 id: 'no_orders_found',
                 defaultMessage: 'No orders found',
@@ -3314,6 +3422,7 @@ function HistoryOrders({
       .forEach((symbol) => {
         const { symbolFrom, symbolTo } = parseSymbol(symbol.symbol);
         const fromToken = allTokens[symbolFrom];
+        const symbolType = PerpOrSpot(symbol.symbol);
 
         const render = (
           <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
@@ -3335,7 +3444,10 @@ function HistoryOrders({
             </span>
 
             <span className="text-primaryOrderly xs:text-white xs:font-bold">
-              /{symbolTo}
+              {symbolType === 'SPOT' ? '/' : ' '}
+              <span className={symbolType === 'PERP' ? 'ml-1' : ''}>
+                {symbolType === 'SPOT' ? symbolTo : ` PERP`}
+              </span>
             </span>
           </div>
         );
@@ -3381,75 +3493,47 @@ function HistoryOrders({
 
   const symbolType = PerpOrSpot(symbol);
 
-  const typeList =
-    symbolType === 'SPOT'
-      ? [
-          {
-            text: intl.formatMessage({
-              id: 'All',
-              defaultMessage: 'All',
-            }),
-            textId: 'All',
-            className: 'text-white',
-          },
-          {
-            text: intl.formatMessage({
-              id: 'limit_orderly',
-              defaultMessage: 'Limit',
-            }),
-            textId: 'Limit',
-            className: 'text-white',
-          },
-          {
-            text: intl.formatMessage({
-              id: 'market',
-              defaultMessage: 'Market',
-            }),
-            textId: 'Market',
-            className: 'text-white',
-          },
-          {
-            text: 'IOC',
-            textId: 'IOC',
-            className: 'text-white',
-          },
-          {
-            text: 'FOK',
-            textId: 'FOK',
-            className: 'text-white',
-          },
-          {
-            text: 'Post Only',
-            textId: 'Post Only',
-            className: 'text-white',
-          },
-        ]
-      : [
-          {
-            text: intl.formatMessage({
-              id: 'All',
-              defaultMessage: 'All',
-            }),
-            textId: 'All',
-            className: 'text-white',
-          },
-          {
-            text: intl.formatMessage({
-              id: 'limit_orderly',
-              defaultMessage: 'Limit',
-            }),
-            textId: 'Limit',
-            className: 'text-white',
-          },
-          {
-            text: intl.formatMessage({
-              id: 'market',
-              defaultMessage: 'Market',
-            }),
-            textId: 'Market',
-            className: 'text-white',
-          },
-        ];
+  const typeList = [
+    {
+      text: intl.formatMessage({
+        id: 'All',
+        defaultMessage: 'All',
+      }),
+      textId: 'All',
+      className: 'text-white',
+    },
+    {
+      text: intl.formatMessage({
+        id: 'limit_orderly',
+        defaultMessage: 'Limit',
+      }),
+      textId: 'Limit',
+      className: 'text-white',
+    },
+    {
+      text: intl.formatMessage({
+        id: 'market',
+        defaultMessage: 'Market',
+      }),
+      textId: 'Market',
+      className: 'text-white',
+    },
+    {
+      text: 'IOC',
+      textId: 'IOC',
+      className: 'text-white',
+    },
+    {
+      text: 'FOK',
+      textId: 'FOK',
+      className: 'text-white',
+    },
+    {
+      text: 'Post Only',
+      textId: 'Post Only',
+      className: 'text-white',
+    },
+  ];
 
   return (
     <>
@@ -3925,7 +4009,8 @@ function HistoryOrders({
           {loading ? (
             <OrderlyLoading></OrderlyLoading>
           ) : orders.filter(filterFunc).length === 0 ? (
-            <div className="text-dark4 mt-10 mb-4 text-center text-sm">
+            <div className="text-primaryText mt-10 mb-4 text-center text-sm flex flex-col justify-center items-center gap-2">
+              {isMobile() && <NoOrderEmpty></NoOrderEmpty>}
               {intl.formatMessage({
                 id: 'no_orders_found',
                 defaultMessage: 'No orders found',
@@ -4173,7 +4258,12 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
                 <span className="text-white">
                   {parseSymbol(symbol).symbolFrom}
                 </span>
-                /<span>{parseSymbol(symbol).symbolTo}</span>
+                {symbolType === 'SPOT' ? '/' : ' '}
+                <span>
+                  {symbolType === 'SPOT'
+                    ? parseSymbol(symbol).symbolTo
+                    : 'PERP'}
+                </span>
               </span>
             </FlexRow>
 

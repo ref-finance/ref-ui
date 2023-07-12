@@ -39,6 +39,7 @@ import { useAllOrders, useLiquidationHistoryAll } from './orderly/state';
 import { FormattedMessage } from 'react-intl';
 import { OrderBookMobile } from './components/OrderBook/index';
 import { MobileliquidationList } from './components/UserBoardPerp/components/LiquidationHistory';
+import { BsArrowRight } from 'react-icons/bs';
 
 export const REF_ORDERLY_PERP_TIP_SIG = 'REF_ORDERLY_PERP_TIP_SIG';
 
@@ -255,6 +256,18 @@ function MobileTradingBoard() {
           {displayTab === 'liquidations' && (
             <MobileliquidationList></MobileliquidationList>
           )}
+          <div className="frcb w-full gap-2 px-3 border-t border-white text-white border-opacity-10">
+            <button className="frcc w-full mt-4 py-2 rounded-lg border border-white border-opacity-10 gap-2">
+              <FormattedMessage
+                id="portfolio"
+                defaultMessage={'Portfolio'}
+              ></FormattedMessage>
+
+              <BsArrowRight strokeWidth={1}></BsArrowRight>
+            </button>
+
+            {/* <LiquidationButton /> */}
+          </div>
         </>
       )}
 

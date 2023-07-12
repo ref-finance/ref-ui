@@ -625,8 +625,8 @@ export const useSwap = ({
   }, [
     loadingTrigger,
     loadingPause,
-    tokenIn,
-    tokenOut,
+    tokenIn?.id,
+    tokenOut?.id,
     tokenInAmount,
     reEstimateTrigger,
     enableTri,
@@ -821,7 +821,7 @@ export const useSwapV3 = ({
         setBestPool(bestPool);
       })
       .finally(() => {});
-  }, [bestFee, tokenIn, tokenOut, poolReFetch]);
+  }, [bestFee, tokenIn?.id, tokenOut?.id, poolReFetch]);
 
   useEffect(() => {
     if (!tokenIn || !tokenOut || !tokenInAmount || wrapOperation) return;

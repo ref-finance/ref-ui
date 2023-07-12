@@ -620,7 +620,7 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
                 <TextWrapper
                   value={displayCountDown || '-'}
                   textC="text-primaryText"
-                  className="text-10px px-1"
+                  className="text-10px px-1 font-nunito"
                 ></TextWrapper>
               </span>
             </span>

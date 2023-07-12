@@ -75,6 +75,7 @@ interface OrderlyContextValue {
   maintenance: boolean | undefined;
   symbolType: 'PERP' | 'SPOT';
   setLiquidations: (liquidations: LiquidationPushType[]) => void;
+  futureLeverage: number | undefined;
 }
 
 export const REF_ORDERLY_SYMBOL_KEY = 'REF_ORDERLY_SYMBOL_KEY';

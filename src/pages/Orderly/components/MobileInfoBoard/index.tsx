@@ -50,6 +50,7 @@ import {
   announceKey,
   depositFT,
   depositOrderly,
+  perpSettlementTx,
   setTradingKey,
   storageDeposit,
   withdrawOrderly,
@@ -121,8 +122,10 @@ import { useLeverage } from '../../orderly/state';
 import {
   MarginRatioText,
   TotaluPNLText,
+  UnsettlePnl,
 } from '../UserBoardPerp/components/HoverText';
 import { usePerpData } from '../UserBoardPerp/state';
+import { executeMultipleTransactions } from '../../../../services/near';
 
 export const MOBILE_TAB = 'REF_ORDERLY_MOBILE_TAB';
 
@@ -304,7 +307,7 @@ export function CurAsset(props?: any) {
             </button>
           </div>
         )}
-      {valid && validAccountSig && holdings && tab == 'balance' && (
+      {valid && validAccountSig && holdings && (
         <div
           className="w-full flex flex-col pt-5 px-2"
           style={{
@@ -448,21 +451,6 @@ export function CurAsset(props?: any) {
               })}
             </span>
           </div>
-
-          {symbolType === 'PERP' && (
-            <div className="frcb w-full gap-2 text-white">
-              <button className="frcc w-full mt-4 py-2 rounded-lg border border-orderTypeBg gap-2">
-                <FormattedMessage
-                  id="portfolio"
-                  defaultMessage={'Portfolio'}
-                ></FormattedMessage>
-
-                <BsArrowRight strokeWidth={1}></BsArrowRight>
-              </button>
-
-              {/* <LiquidationButton /> */}
-            </div>
-          )}
         </div>
       )}
 
@@ -528,6 +516,7 @@ export function PerpAccountBoard() {
     markPrices,
     positionPush,
     ticker,
+    futureLeverage,
   } = useOrderlyContext();
   const newPositions = useMemo(() => {
     try {
@@ -567,7 +556,20 @@ export function PerpAccountBoard() {
     }
   }, [positionPush, positions]);
 
-  const { userInfo, curLeverage, setCurLeverage } = useLeverage();
+  const {
+    userInfo,
+    curLeverage,
+    setCurLeverage,
+    setCurLeverageRaw,
+    setRequestTrigger,
+  } = useLeverage();
+
+  useEffect(() => {
+    if (typeof futureLeverage === 'undefined') return;
+
+    setCurLeverageRaw(futureLeverage);
+    setRequestTrigger((b) => !b);
+  }, [futureLeverage]);
 
   const [holdings, setHoldings] = useState<Holding[]>();
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
@@ -580,73 +582,22 @@ export function PerpAccountBoard() {
       setHoldings(res.data.holding);
     });
   }, [accountId, myPendingOrdersRefreshing, validAccountSig]);
-  const curHoldingOut = useMemo(() => {
-    try {
-      const holding = holdings?.find((h) => h.token === symbolTo);
 
-      const balance = balances[symbolTo];
-
-      if (balance) {
-        holding.holding = balance.holding;
-
-        holding.pending_short = balance.pendingShortQty;
-      }
-
-      return holding;
-    } catch (error) {
-      return undefined;
-    }
-  }, [balances, holdings]);
-
-  const totalCollateral = useMemo(() => {
-    try {
-      const res = getTotalCollateral(newPositions, markPrices, curHoldingOut);
-
-      return res.toFixed(4);
-    } catch (error) {
-      return '-';
-    }
-  }, [curHoldingOut, markPrices, newPositions, positionPush]);
-
-  const totaluPnl = useMemo(() => {
-    try {
-      return getTotaluPnl(newPositions, markPrices);
-    } catch (error) {
-      return null;
-    }
-  }, [newPositions, markPrices]);
-
-  const freeCollateral = useMemo(() => {
-    try {
-      return getFreeCollateral(
-        newPositions,
-        markPrices,
-        userInfo,
-        curHoldingOut
-      );
-    } catch (error) {
-      return '-';
-    }
-  }, [newPositions, markPrices, userInfo, positionPush]);
-
-  const marginRatio = useMemo(() => {
-    {
-      try {
-        const ratio = getMarginRatio(markPrices, newPositions, curHoldingOut);
-
-        return Number(ratio);
-      } catch (error) {
-        return '-';
-      }
-    }
-  }, [markPrices, newPositions, totaluPnl]);
+  const {
+    marginRatio,
+    totalCollateral,
+    freeCollateral,
+    totaluPnl,
+    unsettle,
+    mmr,
+  } = usePerpData();
 
   const intl = useIntl();
 
   const riskLevel =
     marginRatio === '-'
       ? null
-      : getRiskLevel(marginRatio, userInfo?.max_leverage || 10);
+      : getRiskLevel(Number(marginRatio), userInfo?.max_leverage || 10);
 
   return (
     <div className="flex flex-col text-primaryText gap-2 px-2 text-13px">
@@ -727,9 +678,40 @@ export function PerpAccountBoard() {
           >
             {!positions || marginRatio == '-'
               ? '-'
-              : numberWithCommas(new Big(marginRatio * 100).toFixed(2)) + '%'}
+              : numberWithCommas(
+                  new Big(Number(marginRatio) * 100).toFixed(2)
+                ) + '%'}
           </span>
         </div>
+      </div>
+
+      <div className="frcb">
+        <UnsettlePnl></UnsettlePnl>
+
+        <div className="font-nunito frcs gap-2">
+          {unsettle}
+
+          <button
+            className="font-gotham text-white px-1 text-xs rounded-md border border-inputV3BorderColor "
+            onClick={async () => {
+              return executeMultipleTransactions([await perpSettlementTx()]);
+            }}
+          >
+            <FormattedMessage
+              id="settle"
+              defaultMessage={'Settle'}
+            ></FormattedMessage>
+          </button>
+        </div>
+      </div>
+
+      <div className="frcb">
+        <FormattedMessage
+          id="maintenance_margin_ratio"
+          defaultMessage={'Maintenance Margin Ratio'}
+        />
+
+        <span className="font-nunito">{mmr}</span>
       </div>
     </div>
   );
@@ -825,7 +807,7 @@ function BookBoard({ maintenance }: { maintenance: boolean }) {
             <TextWrapper
               value={displayCountDown || '-'}
               textC="text-primaryText"
-              className="text-10px px-1"
+              className="text-10px px-1 font-nunito"
             ></TextWrapper>
           </div>
         </div>

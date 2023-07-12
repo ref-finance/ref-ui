@@ -1320,8 +1320,8 @@ const en_US = {
   TotalAssets: 'Total Assets',
   TokenAllocation: 'Token Allocation',
   perpTip:
-    'Welcome to Perpetual Futures trading! Please read {perpTipLink} to get start!',
-  perpTipLink: '[Perpetual-futures Introduction]  ',
+    'Welcome to Perpetual Futures trading! Please read {perpTipLink} to get started!',
+  perpTipLink: '[Perpetual Futures Introduction]  ',
   pred_funding_rate: 'Pred. Funding Rate',
   open_interest: 'Open Interest',
   netWorthTip:
@@ -1353,6 +1353,8 @@ const en_US = {
     'The price of a sell limit order cannot be higher than',
   liquidations_fee: 'Liquidations Fee',
   more_trading_price: 'More Trading Price',
+  unsettle_pnl:
+    'Move a profit or loss from perp markets into the USDC token balance. This has no impact on your open positions or health.',
   margin_ratio_tip:
     'The margin ratio of an account is equal to the total collateral value (ie the USDC balance + any unrealized profit/loss) divided by the total open notional of the account (the sum of the absolute notional value of all positions)',
 };

@@ -398,6 +398,7 @@ module.exports = {
         overviewGreyColor: '#314758',
         liquidationBorder: '#5B2E39',
         mobileOrderBg: '#324451',
+        orderbookBase: '#4F6574',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

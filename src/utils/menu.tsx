@@ -230,9 +230,10 @@ export type MobileMenuItem = {
   specialMenuKey?: string;
   defaultClick?: (e?: any) => void;
 };
-export const useMenus = () => {
+export const useMenus = (cb?: () => void) => {
   const history = useHistory();
   const intl = useIntl();
+
   const menuData = [
     {
       id: '1',
@@ -291,13 +292,13 @@ export const useMenus = () => {
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
-
+                    cb && cb();
                     openUrl('/orderbook/spot');
                   }}
                   style={{
                     width: '120px',
                   }}
-                  className={`frcc bg-symbolHover2 hover:bg-light1 w-1/2 rounded-xl py-2 ${
+                  className={`frcc bg-orderbookBase hover:bg-light1 w-1/2 rounded-xl py-2 ${
                     window.location.pathname.startsWith('/orderbook/spot')
                       ? 'bg-light1'
                       : ''
@@ -314,12 +315,14 @@ export const useMenus = () => {
                     e.preventDefault();
                     e.stopPropagation();
 
+                    cb && cb();
+
                     openUrl('/orderbook/perps');
                   }}
                   style={{
                     width: '120px',
                   }}
-                  className={`frcc bg-symbolHover2 hover:bg-light1 w-1/2 rounded-xl py-2  ${
+                  className={`frcc bg-orderbookBase hover:bg-light1 w-1/2 rounded-xl py-2  ${
                     window.location.pathname.startsWith('/orderbook/perps')
                       ? 'bg-light1'
                       : ''
@@ -333,6 +336,7 @@ export const useMenus = () => {
               </div>
             </div>
           ),
+
           isExternal: false,
         },
       ],

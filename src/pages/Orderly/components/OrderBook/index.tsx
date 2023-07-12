@@ -290,6 +290,7 @@ function OrderLineShrink({
   symbolInfo,
   hideTotal,
   reverse,
+  onFlex,
 }: {
   order: number[];
   i: number;
@@ -305,6 +306,7 @@ function OrderLineShrink({
   symbolInfo: SymbolInfo;
   hideTotal?: boolean;
   reverse?: boolean;
+  onFlex?: boolean;
 }) {
   let quantityDecimal =
     Math.log10(symbolInfo.base_tick) > 0
@@ -320,7 +322,7 @@ function OrderLineShrink({
     <div
       className={`relative font-nunito ${
         reverse ? 'flex-row-reverse flex' : 'frcb'
-      } justify-between items-center cursor-pointer hover:bg-symbolHover grid-cols-3 lg:mr-2 py-1 justify-items-end`}
+      } justify-between items-center cursor-pointer hover:bg-symbolHover grid-cols-3 xs:left-1 lg:mr-2 py-1 justify-items-end`}
       id={`order-id-${order[0]}`}
       key={`orderbook-${type}-` + i}
       onClick={(e) => {
@@ -351,7 +353,9 @@ function OrderLineShrink({
       )}
 
       <div
-        className="absolute left-0 top-1 z-40"
+        className={`absolute top-1  z-40 ${
+          onFlex ? '-right-4' : 'xs:-left-4'
+        } `}
         style={{
           zIndex,
         }}
@@ -989,75 +993,79 @@ export function OrderBookMobile({
               ></FormattedMessage>
             </div>
 
-            <div className="w-1/2 text-13px">
-              <FormattedMessage
-                id="sell"
-                defaultMessage={'Sell'}
-              ></FormattedMessage>
-            </div>
+            {tab === 'book' && (
+              <div className="w-1/2 text-13px">
+                <FormattedMessage
+                  id="sell"
+                  defaultMessage={'Sell'}
+                ></FormattedMessage>
+              </div>
+            )}
 
-            <div
-              className=" w-full right-0 top-0 border border-white border-opacity-20 cursor-pointer rounded-md  pl-2 absolute  text-10px text-white frcs"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setShowPrecisionSelector(!showPrecisionSelector);
-              }}
-              style={{
-                maxWidth: '80px',
-              }}
-            >
-              <span
-                className="relative  flex items-center justify-center text-white pl-1 text-xs"
+            {tab === 'book' && (
+              <div
+                className=" w-full right-0 top-0 border border-white border-opacity-20 cursor-pointer rounded-md  pl-2 absolute  text-10px text-white frcs"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowPrecisionSelector(!showPrecisionSelector);
+                }}
                 style={{
-                  height: '22px',
+                  maxWidth: '80px',
                 }}
               >
-                {!symbolInfo ? '-' : precision}
-              </span>
-
-              <MdArrowDropDown
-                size={22}
-                className="text-primaryOrderly absolute right-0 justify-self-end"
-              ></MdArrowDropDown>
-
-              {showPrecisionSelector && (
-                <Selector
-                  selected={precision.toString()}
-                  setSelect={(textId: string) => {
-                    setPrecision(Number(textId));
-                    sessionStorage.setItem(REF_ORDERLY_PRECISION, textId);
-                    setShowPrecisionSelector(false);
-                  }}
+                <span
+                  className="relative  flex items-center justify-center text-white pl-1 text-xs"
                   style={{
-                    transform: 'translateY(calc(-100% - 30px))',
+                    height: '22px',
                   }}
-                  className=" min-w-p72 -left-2 bottom-0  relative"
-                  list={[
-                    {
-                      text: `${symbolInfo.quote_tick}`,
-                      textId: `${symbolInfo.quote_tick}`,
-                    },
-                    {
-                      text: `${symbolInfo.quote_tick * 10}`,
-                      textId: `${symbolInfo.quote_tick * 10}`,
-                    },
-                    {
-                      text: `${symbolInfo.quote_tick * 10 ** 2}`,
-                      textId: `${symbolInfo.quote_tick * 10 ** 2}`,
-                    },
-                    {
-                      text: `${symbolInfo.quote_tick * 10 ** 3}`,
-                      textId: `${symbolInfo.quote_tick * 10 ** 3}`,
-                    },
-                    {
-                      text: `${symbolInfo.quote_tick * 10 ** 4}`,
-                      textId: `${symbolInfo.quote_tick * 10 ** 4}`,
-                    },
-                  ]}
-                />
-              )}
-            </div>
+                >
+                  {!symbolInfo ? '-' : precision}
+                </span>
+
+                <MdArrowDropDown
+                  size={22}
+                  className="text-primaryOrderly absolute right-0 justify-self-end"
+                ></MdArrowDropDown>
+
+                {showPrecisionSelector && (
+                  <Selector
+                    selected={precision.toString()}
+                    setSelect={(textId: string) => {
+                      setPrecision(Number(textId));
+                      sessionStorage.setItem(REF_ORDERLY_PRECISION, textId);
+                      setShowPrecisionSelector(false);
+                    }}
+                    style={{
+                      transform: 'translateY(calc(-100% - 30px))',
+                    }}
+                    className=" min-w-p72 -left-2 bottom-0  relative"
+                    list={[
+                      {
+                        text: `${symbolInfo.quote_tick}`,
+                        textId: `${symbolInfo.quote_tick}`,
+                      },
+                      {
+                        text: `${symbolInfo.quote_tick * 10}`,
+                        textId: `${symbolInfo.quote_tick * 10}`,
+                      },
+                      {
+                        text: `${symbolInfo.quote_tick * 10 ** 2}`,
+                        textId: `${symbolInfo.quote_tick * 10 ** 2}`,
+                      },
+                      {
+                        text: `${symbolInfo.quote_tick * 10 ** 3}`,
+                        textId: `${symbolInfo.quote_tick * 10 ** 3}`,
+                      },
+                      {
+                        text: `${symbolInfo.quote_tick * 10 ** 4}`,
+                        textId: `${symbolInfo.quote_tick * 10 ** 4}`,
+                      },
+                    ]}
+                  />
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -1099,15 +1107,15 @@ export function OrderBookMobile({
 
           {/* sell  */}
 
-          <div className="flex gap-1 px-1.5 w-full">
+          <div className="flex gap-1 px-1.5 relative right-1 w-full">
             {/* buy */}
 
             <section
-              className="text-xs w-1/2 flex-row  overflow-auto  overflow-x-visible text-white"
+              className="text-xs w-1/2 flex-row   overflow-x-visible text-white"
               id="buy-order-book-panel"
             >
               {!maintenance &&
-                bids?.slice(0, 20).map((order, i) => {
+                bids?.slice(0, 14).map((order, i) => {
                   return (
                     <OrderLineShrink
                       type="bid"
@@ -1130,11 +1138,11 @@ export function OrderBookMobile({
             </section>
 
             <section
-              className="text-xs w-1/2  flex-row flex-shrink-0   overflow-auto text-white "
+              className="text-xs w-1/2  flex-row flex-shrink-0   text-white "
               id="sell-order-book-panel"
             >
               {!maintenance &&
-                asks?.slice(0, 20).map((order, i) => {
+                asks?.slice(0, 14).map((order, i) => {
                   return (
                     <OrderLineShrink
                       type="ask"
@@ -1150,6 +1158,7 @@ export function OrderBookMobile({
                       setInViewCOunt={setInViewAsk}
                       decimalLength={getDecimalPlaceByNumber(precision)}
                       symbolInfo={symbolInfo}
+                      onFlex={true}
                     />
                   );
                 })}
@@ -1157,9 +1166,7 @@ export function OrderBookMobile({
           </div>
         </>
       )}
-      {tab === 'recent' && !loading && (
-        <RecentTrade quantityDecimal={Math.log10(1 / precision)} />
-      )}
+      {tab === 'recent' && !loading && <RecentTrade />}
     </div>
   );
 }
@@ -1321,7 +1328,7 @@ export function OrderBookShrink({ maintenance }: { maintenance: boolean }) {
 
       {!loading && (
         <>
-          <div className="frcb text-xs mb-2 lg:mr-2 text-primaryOrderly  ">
+          <div className="frcb text-xs mb-2 relative left-1 lg:mr-2 text-primaryOrderly  ">
             <div className="flex flex-col gap-1">
               <span className="flex items-center text-sm ">
                 {intl.formatMessage({

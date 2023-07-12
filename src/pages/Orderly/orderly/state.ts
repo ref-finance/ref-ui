@@ -274,7 +274,6 @@ export function useAllPositions(refreshingTag: boolean) {
 
 export function useLeverage() {
   const [userInfo, setUserInfo] = useState<ClientInfo>();
-  console.log('userInfo: ', userInfo);
 
   const { accountId } = useWalletSelector();
 
@@ -285,6 +284,8 @@ export function useLeverage() {
   const [curLeverage, setCurLeverage] = useState<number>();
 
   const [changeTrigger, setChangeTrigger] = useState<boolean>();
+
+  const [requestTrigger, setRequestTrigger] = useState<boolean>();
 
   const requestLeverage = async () => {
     getAccountInformation({ accountId }).then((res) => {
@@ -329,7 +330,7 @@ export function useLeverage() {
     if (!accountId || !validAccountSig) return;
 
     requestLeverage();
-  }, [accountId, validAccountSig]);
+  }, [accountId, validAccountSig, requestTrigger]);
 
   useEffect(() => {
     if (curLeverage === undefined) return;
@@ -344,6 +345,8 @@ export function useLeverage() {
     userInfo,
     curLeverage,
     error,
+    setCurLeverageRaw: setCurLeverage,
+    setRequestTrigger,
     setCurLeverage: (leverage: number) => {
       setCurLeverage(leverage);
       setChangeTrigger(!changeTrigger);

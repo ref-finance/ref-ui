@@ -63,7 +63,6 @@ export function useTokensBalances(
   const { accountId } = useWalletSelector();
 
   const { freeCollateral } = usePerpData();
-  console.log('freeCollateral: ', freeCollateral);
 
   const { myPendingOrdersRefreshing, validAccountSig } = useOrderlyContext();
 
@@ -81,14 +80,7 @@ export function useTokensBalances(
   };
 
   useEffect(() => {
-    if (
-      !tokens ||
-      !tokenInfo ||
-      !accountId ||
-      !validAccountSig ||
-      freeCollateral === '-'
-    )
-      return;
+    if (!tokens || !tokenInfo || !accountId || !validAccountSig) return;
 
     Promise.all(
       tokenInfo.map((t) =>
@@ -135,8 +127,7 @@ export function useTokensBalances(
 
             acc[id] = {
               ...cur,
-              holding:
-                cur.name === 'USDC' ? Number(freeCollateral) : displayHolding,
+              holding: displayHolding,
               'in-order': holding?.pending_short || 0,
             };
             return acc;
@@ -155,8 +146,17 @@ export function useTokensBalances(
     trigger,
     myPendingOrdersRefreshing,
     validAccountSig,
-    freeCollateral,
   ]);
+
+  useEffect(() => {
+    if (showbalances.length === 0 || freeCollateral === '-') return;
+
+    showbalances.forEach((sb) => {
+      if (sb.name === 'USDC') {
+        sb.holding = Number(freeCollateral);
+      }
+    });
+  }, [showbalances, freeCollateral]);
 
   return showbalances;
 }

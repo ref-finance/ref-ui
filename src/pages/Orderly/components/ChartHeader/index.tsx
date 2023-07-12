@@ -904,51 +904,19 @@ export function ChartHeaderDetail(props?: any) {
               </span>
             </div>
 
-            {symbolType === 'SPOT' && (
-              <div className="frcb">
-                <span>
-                  {intl.formatMessage({
-                    id: 'h24_high',
-                    defaultMessage: '24h High',
-                  })}
-                </span>
+            <div className="frcb">
+              <span>
+                {intl.formatMessage({
+                  id: 'h24_range',
+                  defaultMessage: '24h Range',
+                })}
+              </span>
 
-                <span className="text-white mt-0.5 font-bold">
-                  {digitWrapper(ticker.high.toString(), 3)}
-                </span>
-              </div>
-            )}
-
-            {symbolType === 'SPOT' && (
-              <div className="frcb">
-                <span>
-                  {intl.formatMessage({
-                    id: 'h24_low',
-                    defaultMessage: '24h Low',
-                  })}
-                </span>
-
-                <span className="text-white mt-0.5 font-bold">
-                  {digitWrapper(ticker.low.toString(), 3)}
-                </span>
-              </div>
-            )}
-
-            {symbolType === 'PERP' && (
-              <div className="frcb">
-                <span>
-                  {intl.formatMessage({
-                    id: 'h24_range',
-                    defaultMessage: '24h Range',
-                  })}
-                </span>
-
-                <span className="text-white mt-0.5 font-bold">
-                  {digitWrapper(ticker.low.toString(), 3)}-{' '}
-                  {digitWrapper(ticker.high.toString(), 3)}
-                </span>
-              </div>
-            )}
+              <span className="text-white mt-0.5 font-bold">
+                {digitWrapper(ticker.low.toString(), 3)}-{' '}
+                {digitWrapper(ticker.high.toString(), 3)}
+              </span>
+            </div>
 
             {symbolType == 'PERP' && (
               <div className="frcb">
@@ -1006,8 +974,8 @@ export function ChartHeaderDetail(props?: any) {
 
                   <TextWrapper
                     value={displayCountDown || '-'}
-                    textC="text-primaryText"
-                    className="text-10px px-1"
+                    textC="text-primaryText "
+                    className="text-10px px-1 font-nunito"
                   ></TextWrapper>
                 </span>
               </div>

@@ -30,9 +30,7 @@ function formatTime(ts: number) {
   return moment(ts).format('HH:mm:ss');
 }
 
-function RecentTrade(props?: { quantityDecimal: number }) {
-  const { quantityDecimal: quantityDecimalProps } = props || {};
-
+function RecentTrade() {
   const { recentTrades, symbol, availableSymbols } = useOrderlyContext();
 
   const symbolInfo = availableSymbols.find((s) => s.symbol === symbol);
@@ -45,10 +43,6 @@ function RecentTrade(props?: { quantityDecimal: number }) {
     Math.log10(symbolInfo.base_tick) > 0
       ? 0
       : -Math.log10(symbolInfo.base_tick);
-
-  if (typeof quantityDecimalProps === 'number') {
-    quantityDecimal = quantityDecimalProps;
-  }
 
   useEffect(() => {
     if (!!recentTrades || !symbolInfo) {

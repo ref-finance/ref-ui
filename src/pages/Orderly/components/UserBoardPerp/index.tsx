@@ -87,6 +87,7 @@ import {
   Agree,
   OrderlyLoading,
   OrderlyIconBalance,
+  OrderlyNetworkIconGray,
 } from '../Common/Icons';
 
 import { MdKeyboardArrowDown } from 'react-icons/md';
@@ -119,9 +120,7 @@ import {
   UnsettlePnl,
 } from './components/HoverText';
 import {
-  getFreeCollateral,
   getLqPrice,
-  getMarginRatio,
   getRiskLevel,
   getTotalCollateral,
   getTotaluPnl,
@@ -391,27 +390,32 @@ function UserBoardFoot() {
       <div className={`frcc gap-2 relative `}>
         <span className="text-primaryText  whitespace-nowrap">Powered by</span>
 
-        <div className="">
-          <OrderlyNetworkIcon></OrderlyNetworkIcon>
+        <div className="relative top-1">
+          <OrderlyNetworkIconGray></OrderlyNetworkIconGray>
         </div>
 
-        <div className="frcs gap-1 text-primaryText">
-          <span>
-            <FormattedMessage
-              id="learn"
-              defaultMessage={'Learn'}
-            ></FormattedMessage>
-          </span>
-
+        <div className="frcs gap-2  text-primaryText">
           <a
             href="https://docs.orderly.network/welcome-to-orderly/what-is-orderly-network"
-            className="underline"
+            className="underline hover:text-white"
             target="_blank"
             rel="noopener noreferrer nofollow"
           >
             <FormattedMessage
               id="risk"
               defaultMessage={'Risk'}
+            ></FormattedMessage>
+          </a>
+
+          <a
+            href="https://docs.orderly.network/perpetual-futures/introduction"
+            className="underline hover:text-white"
+            target="_blank"
+            rel="noopener noreferrer nofollow"
+          >
+            <FormattedMessage
+              id="docs"
+              defaultMessage={'Docs'}
             ></FormattedMessage>
           </a>
         </div>
@@ -469,6 +473,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     markPrices,
     positionPush,
     ticker,
+    futureLeverage,
   } = useOrderlyContext();
 
   const curSymbolMarkPrice = markPrices?.find((item) => item.symbol === symbol);
@@ -527,7 +532,19 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
   const [agreeCheck, setAgreeCheck] = useState<boolean>(false);
 
-  const { userInfo, curLeverage, setCurLeverage } = useLeverage();
+  const {
+    userInfo,
+    setRequestTrigger,
+    curLeverage,
+    setCurLeverage,
+    setCurLeverageRaw,
+  } = useLeverage();
+
+  useEffect(() => {
+    if (typeof futureLeverage === 'undefined') return;
+    setCurLeverageRaw(futureLeverage);
+    setRequestTrigger((b) => !b);
+  }, [futureLeverage]);
 
   const [registerModalOpen, setRegisterModalOpen] = useState<boolean>(false);
 
@@ -633,8 +650,14 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       )
     : balances && balances[symbolFrom]?.holding;
 
-  const { totalCollateral, freeCollateral, marginRatio, totaluPnl, unsettle } =
-    usePerpData();
+  const {
+    totalCollateral,
+    mmr,
+    freeCollateral,
+    marginRatio,
+    totaluPnl,
+    unsettle,
+  } = usePerpData();
 
   const lqPrice = useMemo(() => {
     return getLqPrice(
@@ -746,7 +769,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
             : 'LIMIT',
         order_quantity: parseFloat(inputValue),
         broker_id: 'ref_dex',
-        order_price: orderType === 'Limit' ? limitPrice : '',
+        order_price: orderType === 'Limit' ? parseFloat(limitPrice) : '',
       },
     }).then(async (res) => {
       if (res.success === false)
@@ -1295,7 +1318,14 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           </button>
         </div>
       </div>
+      <div className="frcb">
+        <FormattedMessage
+          id="maintenance_margin_ratio"
+          defaultMessage={'Maintenance Margin Ratio'}
+        />
 
+        <span className="font-nunito">{mmr}</span>
+      </div>
       <div className="frcb w-full gap-2 text-white">
         <button className="frcc w-1/2 py-2 rounded-lg border border-orderTypeBg gap-2">
           <FormattedMessage
@@ -1316,7 +1346,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       className="w-full  bg-orderLineHover relative min-h-max flex flex-col  border-t border-l border-b h-screen border-boxBorder "
       style={{
         minHeight: '775px',
-        height: validator ? 'calc(100vh - 100px)' : '100%',
+        height: '100%',
       }}
     >
       {maintenance && (
@@ -1608,7 +1638,11 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           </span>
 
           {orderType === 'Limit' && (
-            <div className="w-full absolute -bottom-2 h-0.5 bg-gradientFromHover"></div>
+            <div
+              className={`w-full absolute -bottom-2 h-0.5  ${
+                side == 'Buy' ? 'bg-gradientFromHover' : 'bg-sellRed'
+              }`}
+            ></div>
           )}
         </button>
 
@@ -1630,7 +1664,11 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           </span>
 
           {orderType === 'Market' && (
-            <div className="w-full absolute -bottom-2 h-0.5 bg-gradientFromHover"></div>
+            <div
+              className={`w-full absolute -bottom-2 h-0.5 ${
+                side == 'Buy' ? 'bg-gradientFromHover' : 'bg-sellRed'
+              }`}
+            ></div>
           )}
         </button>
       </div>
@@ -1696,7 +1734,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           </div>
         )}
         {orderType === 'Market' && (
-          <div className="w-full rounded-xl border bg-perpCardBg border-boxBorder p-3 mt-3 text-sm flex items-center justify-between">
+          <div className="w-full rounded-xl border bg-orderLineHover border-menuMoreBoxBorderColor p-3 mt-3 text-sm flex items-center justify-between">
             <span className="text-primaryOrderly">
               {intl.formatMessage({
                 id: 'price',
@@ -1704,7 +1742,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
               })}
             </span>
 
-            <span className="text-white">
+            <span className="text-primaryOrderly">
               {' '}
               {intl.formatMessage({
                 id: 'market_price',
@@ -3158,6 +3196,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
     positionPush,
     ticker,
     symbolType,
+    futureLeverage,
   } = useOrderlyContext();
 
   const curSymbolMarkPrice = markPrices?.find((item) => item.symbol === symbol);
@@ -3214,7 +3253,19 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
 
   const [agreeCheck, setAgreeCheck] = useState<boolean>(false);
 
-  const { userInfo, curLeverage, setCurLeverage } = useLeverage();
+  const {
+    userInfo,
+    setRequestTrigger,
+    curLeverage,
+    setCurLeverage,
+    setCurLeverageRaw,
+  } = useLeverage();
+
+  useEffect(() => {
+    if (typeof futureLeverage === 'undefined') return;
+    setCurLeverageRaw(futureLeverage);
+    setRequestTrigger((b) => !b);
+  }, [futureLeverage]);
 
   const [registerModalOpen, setRegisterModalOpen] = useState<boolean>(false);
 
@@ -3384,7 +3435,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
             : 'LIMIT',
         order_quantity: parseFloat(inputValue),
         broker_id: 'ref_dex',
-        order_price: orderType === 'Limit' ? limitPrice : '',
+        order_price: orderType === 'Limit' ? parseFloat(limitPrice) : '',
       },
     }).then(async (res) => {
       if (res.success === false)
@@ -4057,7 +4108,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
           </div>
         )}
         {orderType === 'Market' && (
-          <div className="w-full rounded-xl border bg-perpCardBg border-boxBorder p-3 mt-3 text-sm flex items-center justify-between">
+          <div className="w-full rounded-xl border bg-orderLineHover border-menuMoreBoxBorderColor p-3 mt-3 text-sm flex items-center justify-between">
             <span className="text-primaryOrderly">
               {intl.formatMessage({
                 id: 'price',
@@ -4065,7 +4116,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
               })}
             </span>
 
-            <span className="text-white">
+            <span className="text-primaryOrderly">
               {' '}
               {intl.formatMessage({
                 id: 'market_price',
@@ -4359,7 +4410,25 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
                 <DetailBox show={showTotal} setShow={setShowTotal} />
               </div>
             </div>
+          </div>
+          <div className={'flex flex-col gap-2'}>
+            <div className="frcb">
+              <span className="text-primaryOrderly">
+                {intl.formatMessage({
+                  id: 'total',
+                  defaultMessage: 'Total',
+                })}
+              </span>
 
+              <div className="frcs gap-2">
+                <span className="text-white">
+                  {total === '-' ? '-' : digitWrapper(total.toString(), 3)}{' '}
+                </span>
+                <span className="text-primaryText">USDC</span>
+
+                <DetailBox show={showTotal} setShow={setShowTotal} />
+              </div>
+            </div>
             <div className={!showTotal ? 'hidden' : 'flex flex-col gap-2'}>
               <div className="frcb text-xs">
                 <span className="text-primaryOrderly">

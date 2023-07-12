@@ -1179,8 +1179,8 @@ const ja = {
   pred_funding_rate: 'Pred. Funding Rate',
 
   perpTip:
-    'Welcome to Perpetual Futures trading! Please read {perpTipLink} to get start!',
-  perpTipLink: '[Perpetual-futures Introduction]  ',
+    'Welcome to Perpetual Futures trading! Please read {perpTipLink} to get started!',
+  perpTipLink: '[Perpetual Futures Introduction]  ',
   mark_price: 'Mark Price',
   mark_price_tip: 'Mark price is used for PnL calculating and liquidation.',
   total_collateral: 'Total Collateral',

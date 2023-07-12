@@ -108,24 +108,6 @@ function MoreRouteBox(props: Modal.Props) {
         : tokenIn?.id,
   });
 
-  // const RefSwapRes = useRefSwap({
-  //   tokenIn: {
-  //     ...tokenIn,
-  //     id:
-  //       tokenIn?.id?.toLowerCase() === 'near'
-  //         ? WRAP_NEAR_CONTRACT_ID
-  //         : tokenIn?.id,
-  //   },
-  //   tokenOut,
-  //   tokenInAmount: '1',
-  //   supportLedger: true,
-  //   slippageTolerance: 0.1,
-  //   loadingTrigger: false,
-  //   reEstimateTrigger: false,
-  //   swapMode: SWAP_MODE.NORMAL,
-  //   loadingPause: false,
-  // });
-
   const RefSwapRes = useRefQuery({
     tokenIn: {
       ...tokenIn,

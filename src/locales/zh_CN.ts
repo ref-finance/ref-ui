@@ -1258,8 +1258,8 @@ const zh_CN = {
     'Ref中的投资总价值(包括可领取奖励)+Orderly资产总价值+ Burrow资产总价值+钱包中的总资产',
 
   perpTip:
-    'Welcome to Perpetual Futures trading! Please read {perpTipLink} to get start!',
-  perpTipLink: '[Perpetual-futures Introduction]  ',
+    'Welcome to Perpetual Futures trading! Please read {perpTipLink} to get started!',
+  perpTipLink: '[Perpetual Futures Introduction]  ',
   pred_funding_rate: 'Pred. Funding Rate',
   mark_price: 'Mark Price',
   mark_price_tip: 'Mark price is used for PnL calculating and liquidation.',

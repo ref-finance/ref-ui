@@ -1374,15 +1374,6 @@ export function USNCard({
   );
 }
 function MenuBar() {
-  const menus_temp = useMenus();
-  const menus = useMemo(() => {
-    if (menus_temp) {
-      const menus_final = menus_temp.filter((m: menuItemType) => {
-        return !m.hidden;
-      });
-      return menus_final;
-    }
-  }, [menus_temp]);
   const history = useHistory();
   const [hover_two_level_items, set_hover_two_level_items] = useState<
     menuItemType[]
@@ -1392,40 +1383,7 @@ function MenuBar() {
     useState<JSX.Element>();
   const [one_level_selected, set_one_level_selected] = useState<string>('');
   const [two_level_selected, set_two_level_selected] = useState<string>('');
-  useEffect(() => {
-    const pathname = '/' + location.pathname.split('/')[1];
-    let one_level_selected_id = '';
-    let two_level_selected_id = '';
-    const swap_mode_in_localstorage =
-      localStorage.getItem('SWAP_MODE_VALUE') || 'normal';
-    if (menus) {
-      const one_level_menu = menus.find((item: menuItemType) => {
-        const { links } = item;
-        return links?.indexOf(pathname) > -1;
-      });
-      if (one_level_menu) {
-        const { id, children } = one_level_menu;
-        one_level_selected_id = id;
-        let second_children: any = children;
-        if (second_children) {
-          const two_level_menu = second_children.find((item: menuItemType) => {
-            const { links, swap_mode } = item;
-            if (pathname == '/' || pathname == '/swap') {
-              return swap_mode_in_localstorage == swap_mode;
-            } else {
-              return links?.indexOf(pathname) > -1;
-            }
-          });
-          if (two_level_menu) {
-            two_level_selected_id = two_level_menu.id;
-          }
-        }
-      }
 
-      set_one_level_selected(one_level_selected_id);
-      set_two_level_selected(two_level_selected_id);
-    }
-  }, [location.pathname, menus]);
   function hover_on_one_level_item(item: menuItemType) {
     const { children, id } = item;
     if (children) {
@@ -1480,6 +1438,49 @@ function MenuBar() {
     set_back_one_level_item(null);
   }
 
+  const menus_temp = useMenus(hover_off_one_level_item);
+  const menus = useMemo(() => {
+    if (menus_temp) {
+      const menus_final = menus_temp.filter((m: menuItemType) => {
+        return !m.hidden;
+      });
+      return menus_final;
+    }
+  }, [menus_temp]);
+  useEffect(() => {
+    const pathname = '/' + location.pathname.split('/')[1];
+    let one_level_selected_id = '';
+    let two_level_selected_id = '';
+    const swap_mode_in_localstorage =
+      localStorage.getItem('SWAP_MODE_VALUE') || 'normal';
+    if (menus) {
+      const one_level_menu = menus.find((item: menuItemType) => {
+        const { links } = item;
+        return links?.indexOf(pathname) > -1;
+      });
+      if (one_level_menu) {
+        const { id, children } = one_level_menu;
+        one_level_selected_id = id;
+        let second_children: any = children;
+        if (second_children) {
+          const two_level_menu = second_children.find((item: menuItemType) => {
+            const { links, swap_mode } = item;
+            if (pathname == '/' || pathname == '/swap') {
+              return swap_mode_in_localstorage == swap_mode;
+            } else {
+              return links?.indexOf(pathname) > -1;
+            }
+          });
+          if (two_level_menu) {
+            two_level_selected_id = two_level_menu.id;
+          }
+        }
+      }
+
+      set_one_level_selected(one_level_selected_id);
+      set_two_level_selected(two_level_selected_id);
+    }
+  }, [location.pathname, menus]);
   return (
     <div className="flex items-center h-full z-50">
       {menus?.map((menuItem: menuItemType, indexP) => {
@@ -1513,7 +1514,7 @@ function MenuBar() {
             </div>
             {/* two-level */}
             <div
-              className={`absolute rounded-2xl border border-menuMoreBoxBorderColor bg-priceBoardColor top-12 cursor-pointer px-2.5 py-1 ${
+              className={`absolute rounded-2xl border border-menuMoreBoxBorderColor bg-priceBoardColor top-12 cursor-pointer px-2.5 py-1 pc-menu-bar-one-level ${
                 hover_one_level_id == id &&
                 children &&
                 hover_two_level_items.length > 0

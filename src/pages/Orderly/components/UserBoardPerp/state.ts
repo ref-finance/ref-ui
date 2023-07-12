@@ -8,6 +8,7 @@ import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import Big from 'big.js';
 import {
   getFreeCollateral,
+  getMaintenanceMarginRatio,
   getMarginRatio,
   getTotalCollateral,
   getTotaluPnl,
@@ -86,14 +87,7 @@ export function useTokensBalances(
   };
 
   useEffect(() => {
-    if (
-      !tokens ||
-      !tokenInfo ||
-      !accountId ||
-      !validAccountSig ||
-      freeCollateral === '-'
-    )
-      return;
+    if (!tokens || !tokenInfo || !accountId || !validAccountSig) return;
 
     Promise.all(
       tokenInfo.map((t) =>
@@ -140,8 +134,7 @@ export function useTokensBalances(
 
             acc[id] = {
               ...cur,
-              holding:
-                cur.name === 'USDC' ? Number(freeCollateral) : displayHolding,
+              holding: displayHolding,
               'in-order': holding?.pending_short || 0,
             };
             return acc;
@@ -160,8 +153,17 @@ export function useTokensBalances(
     trigger,
     myPendingOrdersRefreshing,
     validAccountSig,
-    freeCollateral,
   ]);
+
+  useEffect(() => {
+    if (showbalances.length === 0 || freeCollateral === '-') return;
+
+    showbalances.forEach((sb) => {
+      if (sb.name === 'USDC') {
+        sb.holding = Number(freeCollateral);
+      }
+    });
+  }, [showbalances, freeCollateral]);
 
   return showbalances;
 }
@@ -183,6 +185,7 @@ export function usePerpData() {
     markPrices,
     positionPush,
     ticker,
+    futureLeverage,
   } = useOrderlyContext();
   const newPositions = useMemo(() => {
     try {
@@ -215,6 +218,7 @@ export function usePerpData() {
 
       return {
         ...positions,
+
         rows: calcPositions,
       };
     } catch (error) {
@@ -228,7 +232,19 @@ export function usePerpData() {
 
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
 
-  const { userInfo, curLeverage, setCurLeverage } = useLeverage();
+  const {
+    userInfo,
+    setRequestTrigger,
+    curLeverage,
+    setCurLeverage,
+    setCurLeverageRaw,
+  } = useLeverage();
+
+  useEffect(() => {
+    if (typeof futureLeverage === 'undefined') return;
+    setCurLeverageRaw(futureLeverage);
+    setRequestTrigger((b) => !b);
+  }, [futureLeverage]);
 
   useEffect(() => {
     if (!accountId || !validAccountSig) return;
@@ -303,11 +319,16 @@ export function usePerpData() {
     [newPositions, markPrices]
   );
 
+  const mmr = useMemo(() => {
+    return getMaintenanceMarginRatio(newPositions, markPrices);
+  }, [newPositions, markPrices]);
+
   return {
     totalCollateral,
     freeCollateral,
     totaluPnl,
     marginRatio,
     unsettle,
+    mmr,
   };
 }

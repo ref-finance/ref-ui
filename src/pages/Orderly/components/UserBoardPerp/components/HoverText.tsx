@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { QuestionMark } from '../../Common';
+import { isMobile } from '~utils/device';
 
 export function MarginRatioText() {
   const [hover, setHover] = useState(false);
@@ -27,9 +28,9 @@ export function MarginRatioText() {
 
         {hover && (
           <div
-            className=" absolute bg-cardBg z-30 transform translate-y-1/2 right-3  bottom-3 px-4 py-2 rounded-lg text-xs border border-primaryText"
+            className=" absolute bg-cardBg z-30 transform xs:left-3 translate-y-1/2 right-3  bottom-3 px-4 py-2 rounded-lg text-xs border border-primaryText"
             style={{
-              width: '300px',
+              width: isMobile() ? '200px' : '300px',
             }}
           >
             <FormattedMessage
@@ -81,9 +82,9 @@ export function TotaluPNLText() {
 
         {hover && (
           <div
-            className=" absolute bg-cardBg z-30 transform translate-y-1/2 right-3 bottom-3  px-4 py-2 rounded-lg text-xs border border-primaryText"
+            className=" absolute bg-cardBg z-30 transform translate-y-1/2 right-3 xs:left-3 bottom-3  px-4 py-2 rounded-lg text-xs border border-primaryText"
             style={{
-              width: '300px',
+              width: isMobile() ? '200px' : '300px',
             }}
           >
             <FormattedMessage
@@ -124,15 +125,15 @@ export function UnsettlePnl() {
 
         {hover && (
           <div
-            className=" absolute bg-cardBg z-30 transform translate-y-1/2 right-3 bottom-3  px-4 py-2 rounded-lg text-xs border border-primaryText"
+            className=" absolute bg-cardBg z-30 xs:left-3 transform translate-y-1/2 right-3 bottom-3  px-4 py-2 rounded-lg text-xs border border-primaryText"
             style={{
-              width: '300px',
+              width: isMobile() ? '200px' : '300px',
             }}
           >
             <FormattedMessage
-              id="total_npnl_tip"
+              id="unsettle_pnl"
               defaultMessage={
-                'Estimated unrealized profit and loss across all open positions'
+                'Move a profit or loss from perp markets into the USDC token balance. This has no impact on your open positions or health.'
               }
             ></FormattedMessage>
           </div>

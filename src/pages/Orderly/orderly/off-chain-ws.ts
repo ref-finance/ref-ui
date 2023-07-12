@@ -450,6 +450,8 @@ export const useOrderlyPrivateData = ({
 
   const [balances, setBalances] = useState<Record<string, Balance>>({});
 
+  const [futureLeverage, setFutureLeverage] = useState<number>();
+
   const [orderlyKey, setOrderlyKey] = useState('');
 
   const [requestSignature, setRequestSignature] = useState('');
@@ -522,6 +524,12 @@ export const useOrderlyPrivateData = ({
         lastJsonMessage?.['data'],
       ]);
     }
+
+    if (lastJsonMessage?.['topic'] === 'account') {
+      setFutureLeverage(
+        lastJsonMessage?.['data']?.accountDetail?.futuresLeverage || undefined
+      );
+    }
   }, [lastJsonMessage]);
 
   useEffect(() => {
@@ -545,6 +553,14 @@ export const useOrderlyPrivateData = ({
 
     sendMessage(
       JSON.stringify({
+        id: 'account',
+        topic: 'account',
+        event: 'subscribe',
+      })
+    );
+
+    sendMessage(
+      JSON.stringify({
         id: 'liquidatorliquidations',
         topic: 'position',
         event: 'liquidatorliquidations',
@@ -557,5 +573,6 @@ export const useOrderlyPrivateData = ({
     positionPush,
     liquidations,
     setLiquidations,
+    futureLeverage,
   };
 };
