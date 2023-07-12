@@ -11,7 +11,7 @@ import {
   getMarginRatio,
   getTotalCollateral,
   getTotaluPnl,
-  getUnsettel,
+  getUnsettle,
 } from './math';
 import { parseSymbol } from '../RecentTrade';
 import { useLeverage } from '~pages/Orderly/orderly/state';
@@ -299,7 +299,7 @@ export function usePerpData() {
   }, [markPrices, newPositions, totaluPnl]);
 
   const unsettle = useMemo(
-    () => getUnsettel(newPositions, markPrices),
+    () => getUnsettle(newPositions, markPrices),
     [newPositions, markPrices]
   );
 

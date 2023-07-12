@@ -1,12 +1,10 @@
-import {
-  PositionPushType,
-  PositionsType,
-  SymbolInfo,
-} from '~pages/Orderly/orderly/type';
+import { PositionPushType, PositionsType } from '~pages/Orderly/orderly/type';
 import Big from 'big.js';
 import { numberWithCommas } from '~pages/Orderly/utiles';
 import { numberWithCommasPadding } from '../../utiles';
 import { toPrecision } from '~pages/Orderly/near';
+import { getMax } from '../../../../utils/numbers';
+import { SymbolInfo } from '../../orderly/type';
 import {
   MarkPrice,
   Holding,
@@ -186,17 +184,20 @@ const getLqPrice = (
     const markPrice =
       markPrices.find((item) => item.symbol === symbol.symbol)?.price || 0;
 
+    // OK
     const futuresTotalMM = positions.rows.reduce(
       (acc, cur) => {
+        const symbol = availableSymbols.find((s) => s.symbol === cur.symbol);
+
         const mark_price =
           markPrices.find((item) => item.symbol === cur.symbol)?.price || 0;
 
-        const symbolMM =
+        const notional =
           Math.abs(
             cur.position_qty + cur.pending_long_qty + cur.pending_short_qty
-          ) *
-          mark_price *
-          cur.mmr;
+          ) * mark_price;
+
+        const { symbolMM } = getFutureSymbolMM(symbol, notional);
 
         return new Big(symbolMM).plus(acc);
       },
@@ -204,73 +205,77 @@ const getLqPrice = (
       new Big(0)
     );
 
-    //  no
+    //  OK
     const orderSide = side === 'Buy' ? 1 : -1;
 
     const curPosition = positions.rows.find(
       (item) => item.symbol === symbol.symbol
     );
 
+    //  OK
     const futuresTotalCollateral = getTotalCollateral(
       positions,
       markPrices,
       curHoldingOut
     );
 
-    //  no::
-    const orderSize = new Big(cur_amount);
-
-    //  TODO:
+    // OK
     const holding = new Big(
       curPosition.position_qty +
         curPosition.pending_long_qty +
         curPosition.pending_short_qty
     );
 
-    //
+    //  OK
+    const orderSize = new Big(cur_amount);
+
+    //  OK
+
+    // OK
     const totalQty = new Big(orderSize).mul(orderSide).plus(holding);
 
+    // OK
     const totalSide = new Big(totalQty.gt(0) ? 1 : -1);
 
+    // OK
     const totalSize = totalQty.abs();
 
+    // OK
     const priceNumber = new Big(markPrice);
 
+    //OK
     const totalNational = totalSize.mul(markPrice).toNumber();
 
+    // ??
     const { symbolMM, symbolRealMMR } = getFutureSymbolMM(
       symbol,
       totalNational
     );
 
-    console.log('symbolRealMMR: ', symbolRealMMR.toString());
+    // console.log('symbolRealMMR: ', symbolRealMMR.toFixed(5));
 
-    // ?
-    const initialSymbolMM =
-      Math.abs(
-        curPosition.position_qty +
-          curPosition.pending_long_qty +
-          curPosition.pending_short_qty
-      ) *
-      curPosition.mmr *
-      markPrice;
+    // OK
+    const { symbolMM: initialSymbolMM } = getFutureSymbolMM(
+      symbol,
+      holding.abs().toNumber() * markPrice
+    );
 
-    console.log('initialSymbolMM: ', initialSymbolMM.toFixed(6));
-    console.log('symbolMM: ', symbolMM.toFixed(6));
-
+    // OK
     const newTotalMM = new Big(futuresTotalMM)
       .minus(initialSymbolMM)
       .plus(symbolMM);
 
+    // OK
     const lastOption = new Big(1).minus(totalSide.mul(symbolRealMMR));
 
+    // OK
     const rightOption = totalSide
       .mul(futuresTotalCollateral.minus(newTotalMM))
       .div(totalSize)
       .div(lastOption);
 
+    // OK
     const estLiqPrice = priceNumber.minus(rightOption);
-    console.log('estLiqPrice: ', estLiqPrice.toFixed(6));
 
     return estLiqPrice.toFixed(6);
   } catch (error) {
@@ -295,11 +300,17 @@ const getFutureSymbolMM = (symbol: SymbolInfo, holdingNotional: number) => {
   const firstOption = new Big(baseMMRi);
 
   const base = new Big(holdingNotional).abs();
+  const basePow4 = base.pow(4); // Calculate base to the power of 4
+  const numberBasePow4 = Number(basePow4.toString()); // Convert Big to a number
+  const basePow4Over5 = Math.pow(numberBasePow4, 1 / 5); // Calculate the fifth root
+
+  // Convert back to Big
+  const finalResult = new Big(basePow4Over5);
 
   const secondOption = new Big(baseMMRi)
     .div(baseIMRi)
     .mul(IMRFactori)
-    .mul(base.pow(4).pow(-5));
+    .mul(finalResult);
 
   const realMMR = new Big(firstOption).gt(secondOption)
     ? firstOption
@@ -347,7 +358,7 @@ const tickToPrecision = (tick: number) => {
 // }
 // const holding = new BigNumber(currentPosition.holding);
 // const orderSize = new BigNumber(order.size);
-// const orderSide = order.side === SideType.BUY ? 1 : -1;
+// const orderSide = order.side === 'Buy' ? 1 : -1;
 // const currentTicker = getCurrentTicker({ symbol });
 // const markPrice = new BigNumber(currentTicker?.markPrice || 0);
 // const futuresTotalCollateral = new BigNumber(futuresRelatedValues.futuresTotalCollateral);
@@ -398,7 +409,7 @@ const tickToPrecision = (tick: number) => {
 
 //   if (reduceOnly) {
 //     if (currentPosition?.holding) {
-//       if (side === SideType.BUY) {
+//       if (side === 'Buy') {
 //         return Decimal.min(currentPosition.holding, 0).abs().toNumber();
 //       }
 //       return Decimal.max(currentPosition.holding, 0).toNumber();
@@ -451,11 +462,11 @@ const tickToPrecision = (tick: number) => {
 //       //          max_buy_size = if(side >= 0, 0, holdingsize + pendingsell- pendingbuysize )
 //       //          max_sell_size = if(side >= 0, holdingsize + pendingbuysize - pendingsellsize , 0)
 //       const holding = new Decimal(currentPosition.holding);
-//       if ((side === SideType.BUY && holding.gte(0)) || (side === SideType.SELL && holding.lt(0))) {
+//       if ((side === 'Buy' && holding.gte(0)) || (side === ''Sell'' && holding.lt(0))) {
 //           return 0;
 //       }
 
-//       if (side === SideType.BUY) {
+//       if (side === 'Buy') {
 //           return Decimal.max(holding.abs().minus(currentPosition.pendingLongQty), 0).toNumber();
 //       }
 //       const pendingShortQty = new Decimal(currentPosition.pendingShortQty).abs().mul(-1);
@@ -480,7 +491,7 @@ const tickToPrecision = (tick: number) => {
 //   const newTotalIM = othersTotal.IM.plus(afterTradeIM);
 
 //   let others;
-//   if (side === SideType.BUY) {
+//   if (side === 'Buy') {
 //       // max_buy_size = neworder.size*0.995 - side*holding_size - pendingbuy_size
 //       others = new Decimal(-1).mul(currentPosition.holding).minus(currentPosition.pendingLongQty);
 //   } else {
@@ -515,7 +526,7 @@ const tickToPrecision = (tick: number) => {
 // }
 // const holding = new BigNumber(currentPosition.holding);
 // const orderSize = new BigNumber(order.size);
-// const orderSide = order.side === SideType.BUY ? 1 : -1;
+// const orderSide = order.side === 'Buy' ? 1 : -1;
 // const currentTicker = getCurrentTicker({ symbol });
 // const markPrice = new BigNumber(currentTicker?.markPrice || 0);
 // const futuresTotalCollateral = new BigNumber(futuresRelatedValues.futuresTotalCollateral);
@@ -588,7 +599,105 @@ const tickToPrecision = (tick: number) => {
 //   };
 // };
 
-const getUnsettel = (positions: PositionsType, markPrices: MarkPrice[]) => {
+const getMaxQuantity = (
+  symbol: SymbolInfo,
+  side: 'Buy' | 'Sell',
+  positions: PositionsType,
+  markPrices: MarkPrice[],
+  userInfo: ClientInfo,
+  curHoldingOut: Holding,
+  availableSymbols: SymbolInfo[]
+) => {
+  try {
+    const markPrice = markPrices.find((p) => p.symbol === symbol.symbol);
+
+    const leverage = userInfo.max_leverage;
+
+    const futuresTotalIM = positions.rows.reduce(
+      (acc, cur) => {
+        const symbol = availableSymbols.find((s) => s.symbol === cur.symbol);
+
+        const mark_price =
+          markPrices.find((item) => item.symbol === cur.symbol)?.price || 0;
+
+        const IM =
+          Math.abs(
+            cur.position_qty + cur.pending_long_qty + cur.pending_short_qty
+          ) *
+          mark_price *
+          cur.imr;
+
+        return new Big(IM).plus(acc);
+      },
+
+      new Big(0)
+    );
+
+    const currentPosition = positions.rows.find(
+      (r) => r.symbol === symbol.symbol
+    );
+
+    const othersPositions = positions.rows.filter((r) => {
+      return r.symbol !== symbol.symbol;
+    });
+
+    const futuresAdjustedCollateral = getFreeCollateral(
+      positions,
+      markPrices,
+      userInfo,
+      curHoldingOut
+    );
+
+    const curPositionIM = Math.abs(
+      currentPosition.position_qty +
+        currentPosition.pending_long_qty +
+        currentPosition.pending_short_qty
+    );
+
+    const othersIM = futuresTotalIM.minus(curPositionIM).toNumber();
+
+    const curPosition = {
+      ...currentPosition,
+      holding: new Big(
+        currentPosition.position_qty +
+          currentPosition.pending_long_qty +
+          currentPosition.pending_short_qty
+      ),
+      pendingShortQty: currentPosition.pending_short_qty,
+      pendingLongQty: currentPosition.pending_short_qty,
+    };
+
+    const params = {
+      futuresAdjustedCollateral,
+      totalIM: futuresTotalIM,
+      othersIM,
+      leverage,
+      markPrice: markPrice.price,
+      side,
+      symbol: symbol.symbol,
+      futuresMarginFactor: 0,
+      currentPosition: curPosition,
+      othersPositions,
+    };
+  } catch (error) {
+    return '-';
+  }
+};
+
+export interface CalcMaxSizeParams {
+  futuresAdjustedCollateral: string;
+  totalIM: number;
+  othersIM: number;
+  leverage: number;
+  side: 'Buy' | 'Sell';
+  symbol: string;
+  futuresMarginFactor: number;
+  currentPosition: any;
+  othersPositions: any;
+  markPrice: number;
+}
+
+const getUnsettle = (positions: PositionsType, markPrices: MarkPrice[]) => {
   try {
     const unsettle = positions.rows.reduce((acc, cur) => {
       const cur_mark_price = markPrices.find(
@@ -606,6 +715,90 @@ const getUnsettel = (positions: PositionsType, markPrices: MarkPrice[]) => {
   }
 };
 
+// const calcMaxSize = (params: CalcMaxSizeParams): number => {
+//   const futuresAdjustedCollateral = new Big(params.futuresAdjustedCollateral);
+//   const totalIM = new Big(params.totalIM);
+//   const othersIM = new Big(params.othersIM);
+//   const { side } = params;
+//   const { currentPosition, othersPositions } = params;
+//   if (futuresAdjustedCollateral.lt(totalIM)) {
+//     //          max_buy_size = if(side >= 0, 0, holdingsize + pendingsell- pendingbuysize )
+//     //          max_sell_size = if(side >= 0, holdingsize + pendingbuysize - pendingsellsize , 0)
+//     const holding = new Big(currentPosition.holding);
+//     if (
+//       (side === 'Buy' && holding.gte(0)) ||
+//       (side === 'Sell' && holding.lt(0))
+//     ) {
+//       return 0;
+//     }
+
+//     if (side === 'Buy') {
+//       return Decimal.max(
+//         holding.abs().minus(currentPosition.pendingLongQty),
+//         0
+//       ).toNumber();
+//     }
+//     const pendingShortQty = new Big(currentPosition.pendingShortQty)
+//       .abs()
+//       .mul(-1);
+//     return Decimal.max(holding.plus(pendingShortQty), 0).toNumber();
+//   }
+//   const { markPrice, symbol, futuresMarginFactor, leverage } = params;
+//   const newOrderSize = new Big(futuresAdjustedCollateral)
+//     .minus(othersIM)
+//     .mul(leverage)
+//     .div(markPrice);
+//   const order = {
+//     side,
+//     symbol,
+//     size: newOrderSize.toNumber(),
+//   };
+
+//   const { afterTradeIM } = calcAfterTrade({
+//     order,
+//     currentPosition,
+//     leverage,
+//     markPrice,
+//     futuresMarginFactor,
+//   });
+//   const othersTotal = calcTotal({ futuresPositions: othersPositions });
+//   const newTotalIM = othersTotal.IM.plus(afterTradeIM);
+
+//   let others;
+//   if (side === 'Buy') {
+//     // max_buy_size = neworder.size*0.995 - side*holding_size - pendingbuy_size
+//     others = new Big(-1)
+//       .mul(currentPosition.holding)
+//       .minus(currentPosition.pendingLongQty);
+//   } else {
+//     // max_sell_size = neworder.size *0.995 + side*holding_size - pendingsell_size
+//     others = new Big(currentPosition.holding).minus(
+//       currentPosition.pendingShortQty
+//     );
+//   }
+//   let result;
+//   if (
+//     futuresAdjustedCollateral
+//       .toDecimalPlaces(10)
+//       .gte(newTotalIM.toDecimalPlaces(10))
+//   ) {
+//     result = newOrderSize.mul(0.995).plus(others);
+//   } else {
+//     const iteratorSize = leverageIterator(params);
+//     result = new Big(iteratorSize).plus(others);
+//   }
+//   return Decimal.max(result, 0).toNumber();
+// };
+
+// function getEstLiqPriceWithOrder(side: SideType, size: number) {
+//   const order = { symbol, side, size };
+//   const result = futuresService.getEstLiqPriceWithOrder({ order, price });
+//   if (result?.gt(0) && result.gt(markPrice.times(0.01)) && result.lt(markPrice.times(10))) {
+//       return result.toFixed(symbolInfo.basePriceDecimal);
+//   }
+//   return '--';
+// }
+
 export {
   getTotaluPnl,
   getRiskLevel,
@@ -616,5 +809,5 @@ export {
   // getMaxQuantity,
   tickToPrecision,
   getLqPrice,
-  getUnsettel,
+  getUnsettle,
 };
