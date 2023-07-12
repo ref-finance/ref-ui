@@ -458,14 +458,24 @@ export default function DclChart({
       });
       console.log('pointsData_l', pointsData_l);
       console.log('pointsData_apr', pointsData_apr.point_data);
-      list = combine_data(pointsData_apr?.point_data, pointsData_l);
+      const binWidth = bin_final * point_delta;
+      list = combine_data(
+        pointsData_apr?.point_data,
+        pointsData_l,
+        point_l,
+        point_r,
+        binWidth
+      );
       // list = pointsData_apr.point_data;
     }
     return list;
   }
   function combine_data(
     pointsData_apr: IChartData[],
-    pointsData_l: IChartData[]
+    pointsData_l: IChartData[],
+    min_point: number,
+    max_point: number,
+    binWidth: number
   ) {
     const pointsData: IChartData[] = [];
     const pointsData_apr_map = pointsData_apr?.reduce((acc, cur) => {
@@ -474,7 +484,10 @@ export default function DclChart({
         [cur.point]: cur,
       };
     }, {});
-    const pointsData_l_map = pointsData_l?.reduce((acc, cur) => {
+    const pointsData_l_inRange = pointsData_l?.filter((d: IChartData) => {
+      return d.point >= min_point && d.point + binWidth <= max_point;
+    });
+    const pointsData_l_map = pointsData_l_inRange?.reduce((acc, cur) => {
       return {
         ...acc,
         [cur.point]: cur,
