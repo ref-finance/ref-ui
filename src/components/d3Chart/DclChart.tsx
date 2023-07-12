@@ -480,48 +480,7 @@ export default function DclChart({
         [cur.point]: cur,
       };
     }, {});
-    if (pointsData_apr_map && pointsData_l_map) {
-      // 以 pointsData_apr 为base， 组合两组数据
-      Object.keys(pointsData_apr_map).forEach((point_l: string) => {
-        const {
-          fee,
-          total_liquidity,
-          point: point_apr,
-          liquidity: liquidity_apr,
-          token_x: token_x_apr,
-          token_y: token_y_apr,
-          order_liquidity: order_liquidity_apr,
-          order_x: order_x_apr,
-          order_y: order_y_apr,
-          pool_id: pool_id_apr,
-        } = pointsData_apr_map[point_l];
-        const {
-          liquidity,
-          token_x,
-          token_y,
-          order_liquidity,
-          order_x,
-          order_y,
-          pool_id,
-          point,
-        } = pointsData_l_map[point_l] || {};
-        pointsData.push({
-          fee,
-          total_liquidity,
-          pool_id: pool_id || pool_id_apr,
-          point: point || point_apr,
-          liquidity: liquidity || liquidity_apr,
-          token_x: token_x || token_x_apr,
-          token_y: token_y || token_y_apr,
-          order_liquidity: order_liquidity || order_liquidity_apr,
-          order_x: order_x || order_x_apr,
-          order_y: order_y || order_y_apr,
-        });
-        pointsData.sort((b: IChartData, a: IChartData) => {
-          return b.point - a.point;
-        });
-      });
-    } else if (pointsData_l_map) {
+    if (pointsData_l_map) {
       Object.keys(pointsData_l_map).forEach((point_l: string) => {
         const {
           liquidity,
@@ -532,10 +491,13 @@ export default function DclChart({
           order_y,
           point,
           pool_id,
-        } = pointsData_l_map[point_l] || {};
+        } = pointsData_l_map[point_l];
+
+        const { fee, total_liquidity } = pointsData_apr_map?.[point_l] || {};
+
         pointsData.push({
-          fee: '0',
-          total_liquidity: '0',
+          fee: fee || '0',
+          total_liquidity: total_liquidity || '0',
           pool_id,
           point,
           liquidity,
@@ -550,7 +512,6 @@ export default function DclChart({
         });
       });
     }
-
     return pointsData;
   }
   function getChartDataListInRange() {

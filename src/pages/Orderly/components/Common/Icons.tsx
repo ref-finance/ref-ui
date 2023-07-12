@@ -1982,51 +1982,82 @@ export function CurveShape() {
 export function BidAskShape() {
   return (
     <svg
-      width="98"
+      width="89"
       height="29"
-      viewBox="0 0 98 29"
+      viewBox="0 0 89 29"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
+        d="M83 3C83 1.34315 84.3431 -5.01393e-08 86 0C87.6569 5.01393e-08 89 1.34315 89 3L83 3ZM89 3L89 29L83 29L83 3L89 3Z"
+        fill="url(#paint0_linear_2712_5)"
+      />
+      <path
         d="M6 3C6 1.34315 4.65685 -5.01393e-08 3 0C1.34315 5.01393e-08 -1.04612e-07 1.34315 0 3L6 3ZM0 3L1.64161e-06 29L6 29L6 3L0 3Z"
-        fill="url(#paint0_linear_19_1691)"
-      />
-      <path
-        d="M92 3C92 1.34315 93.3431 -5.01393e-08 95 0C96.6569 5.01393e-08 98 1.34315 98 3L92 3ZM98 3L98 29L92 29L92 3L98 3Z"
-        fill="url(#paint1_linear_19_1691)"
+        fill="url(#paint1_linear_2712_5)"
       />
       <path
         opacity="0.5"
-        d="M14 13C14 11.3431 12.6569 10 11 10C9.34315 10 8 11.3431 8 13L14 13ZM8 13L8 29L14 29L14 13L8 13Z"
-        fill="url(#paint2_linear_19_1691)"
+        d="M74 13C74 11.3431 75.3431 10 77 10C78.6569 10 80 11.3431 80 13L74 13ZM80 13L80 29L74 29L74 13L80 13Z"
+        fill="url(#paint2_linear_2712_5)"
       />
       <path
         opacity="0.5"
-        d="M84 13C84 11.3431 85.3431 10 87 10C88.6569 10 90 11.3431 90 13L84 13ZM90 13L90 29L84 29L84 13L90 13Z"
-        fill="url(#paint3_linear_19_1691)"
+        d="M15 13C15 11.3431 13.6569 10 12 10C10.3431 10 9 11.3431 9 13L15 13ZM9 13L9 29L15 29L15 13L9 13Z"
+        fill="url(#paint3_linear_2712_5)"
       />
       <path
         opacity="0.2"
-        d="M22 24C22 22.3431 20.6569 21 19 21C17.3431 21 16 22.3431 16 24L22 24ZM16 24L16 29L22 29L22 24L16 24Z"
-        fill="url(#paint4_linear_19_1691)"
+        d="M71 19C71 17.3431 69.6569 16 68 16C66.3431 16 65 17.3431 65 19L71 19ZM65 19L65 29L71 29L71 19L65 19Z"
+        fill="url(#paint4_linear_2712_5)"
       />
       <path
         opacity="0.2"
-        d="M76 24C76 22.3431 77.3431 21 79 21C80.6569 21 82 22.3431 82 24L76 24ZM82 24L82 29L76 29L76 24L82 24Z"
-        fill="url(#paint5_linear_19_1691)"
+        d="M24 19C24 17.3431 22.6569 16 21 16C19.3431 16 18 17.3431 18 19L24 19ZM18 19L18 29L24 29L24 19L18 19Z"
+        fill="url(#paint5_linear_2712_5)"
+      />
+      <path
+        opacity="0.2"
+        d="M62 24C62 22.3431 60.6569 21 59 21C57.3431 21 56 22.3431 56 24L62 24ZM56 24L56 29L62 29L62 24L56 24Z"
+        fill="url(#paint6_linear_2712_5)"
+      />
+      <path
+        opacity="0.2"
+        d="M33 24C33 22.3431 31.6569 21 30 21C28.3431 21 27 22.3431 27 24L33 24ZM27 24L27 29L33 29L33 24L27 24Z"
+        fill="url(#paint7_linear_2712_5)"
+      />
+      <path
+        opacity="0.2"
+        d="M53 28C53 26.3431 51.6569 25 50 25C48.3431 25 47 26.3431 47 28L53 28ZM47 28L47 29L53 29L53 28L47 28Z"
+        fill="url(#paint8_linear_2712_5)"
+      />
+      <path
+        opacity="0.2"
+        d="M36 28C36 26.3431 37.3431 25 39 25C40.6569 25 42 26.3431 42 28L36 28ZM42 28L42 29L36 29L36 28L42 28Z"
+        fill="url(#paint9_linear_2712_5)"
       />
       <line
-        x1="48.5"
+        x1="44.5"
         y1="29"
-        x2="48.5"
+        x2="44.5"
         y2="2"
         stroke="#7E8A93"
         stroke-dasharray="2 2"
       />
       <defs>
         <linearGradient
-          id="paint0_linear_19_1691"
+          id="paint0_linear_2712_5"
+          x1="87.5"
+          y1="3"
+          x2="87.7011"
+          y2="30.2705"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#00C6A2" />
+          <stop offset="1" stop-color="#00C6A2" stop-opacity="0" />
+        </linearGradient>
+        <linearGradient
+          id="paint1_linear_2712_5"
           x1="1.5"
           y1="3"
           x2="1.29892"
@@ -2037,21 +2068,10 @@ export function BidAskShape() {
           <stop offset="1" stop-color="#00C6A2" stop-opacity="0" />
         </linearGradient>
         <linearGradient
-          id="paint1_linear_19_1691"
-          x1="96.5"
-          y1="3"
-          x2="96.7011"
-          y2="30.2705"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop stop-color="#00C6A2" />
-          <stop offset="1" stop-color="#00C6A2" stop-opacity="0" />
-        </linearGradient>
-        <linearGradient
-          id="paint2_linear_19_1691"
-          x1="9.5"
+          id="paint2_linear_2712_5"
+          x1="78.5"
           y1="13"
-          x2="9.42385"
+          x2="78.5762"
           y2="29.7824"
           gradientUnits="userSpaceOnUse"
         >
@@ -2059,10 +2079,10 @@ export function BidAskShape() {
           <stop offset="1" stop-color="#00C6A2" stop-opacity="0" />
         </linearGradient>
         <linearGradient
-          id="paint3_linear_19_1691"
-          x1="88.5"
+          id="paint3_linear_2712_5"
+          x1="10.5"
           y1="13"
-          x2="88.5762"
+          x2="10.4238"
           y2="29.7824"
           gradientUnits="userSpaceOnUse"
         >
@@ -2070,10 +2090,32 @@ export function BidAskShape() {
           <stop offset="1" stop-color="#00C6A2" stop-opacity="0" />
         </linearGradient>
         <linearGradient
-          id="paint4_linear_19_1691"
-          x1="17.5"
+          id="paint4_linear_2712_5"
+          x1="66.5"
+          y1="19"
+          x2="66.4703"
+          y2="29.4891"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#00C6A2" />
+          <stop offset="1" stop-color="#00C6A2" stop-opacity="0" />
+        </linearGradient>
+        <linearGradient
+          id="paint5_linear_2712_5"
+          x1="19.5"
+          y1="19"
+          x2="19.4703"
+          y2="29.4891"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#00C6A2" />
+          <stop offset="1" stop-color="#00C6A2" stop-opacity="0" />
+        </linearGradient>
+        <linearGradient
+          id="paint6_linear_2712_5"
+          x1="57.5"
           y1="24"
-          x2="17.4926"
+          x2="57.4926"
           y2="29.2446"
           gradientUnits="userSpaceOnUse"
         >
@@ -2081,11 +2123,33 @@ export function BidAskShape() {
           <stop offset="1" stop-color="#00C6A2" stop-opacity="0" />
         </linearGradient>
         <linearGradient
-          id="paint5_linear_19_1691"
-          x1="80.5"
+          id="paint7_linear_2712_5"
+          x1="28.5"
           y1="24"
-          x2="80.5074"
+          x2="28.4926"
           y2="29.2446"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#00C6A2" />
+          <stop offset="1" stop-color="#00C6A2" stop-opacity="0" />
+        </linearGradient>
+        <linearGradient
+          id="paint8_linear_2712_5"
+          x1="48.5"
+          y1="28"
+          x2="48.4997"
+          y2="29.0489"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#00C6A2" />
+          <stop offset="1" stop-color="#00C6A2" stop-opacity="0" />
+        </linearGradient>
+        <linearGradient
+          id="paint9_linear_2712_5"
+          x1="40.5"
+          y1="28"
+          x2="40.5003"
+          y2="29.0489"
           gradientUnits="userSpaceOnUse"
         >
           <stop stop-color="#00C6A2" />
