@@ -21,7 +21,6 @@ export function PerpOrderlyTip() {
       style={{
         fontSize: '13px',
         color: '#111F29',
-        top: isMobile ? 'none' : '-48px',
         zIndex: isMobile ? 999999 : '',
       }}
     >
