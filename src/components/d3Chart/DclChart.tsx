@@ -532,33 +532,12 @@ export default function DclChart({
     const point_r = get_point_by_price(
       price_range[price_range.length - 1].toString()
     );
-    let start_index;
-    for (let i = 0; i < chartDataList.length - 1; i++) {
-      if (+chartDataList[i].point == point_l) {
-        start_index = i;
-        break;
-      }
-      if (
-        +chartDataList[i].point > point_l &&
-        +chartDataList[Math.max(i - 1, 0)].point < point_l
-      ) {
-        start_index = Math.max(i - 1, 0);
-        break;
-      }
-    }
-    let end_index = chartDataList.findIndex((d: IChartData) => {
-      return +d.point >= point_r;
+    const bin_width = getConfig().bin * pool.point_delta;
+    const chartDataListInRange = chartDataList.filter((d: IChartData) => {
+      const { point } = d;
+      const point_right = point + bin_width;
+      return point >= point_l && point_right <= point_r;
     });
-    if (!isValid(start_index)) {
-      start_index = 0;
-    }
-    if (end_index == -1) {
-      end_index = chartDataList.length - 1;
-    }
-    const chartDataListInRange = chartDataList.slice(
-      start_index,
-      end_index + 1
-    );
     return chartDataListInRange;
   }
   function get_price_range_by_percent(percent: number): [string, string] {
@@ -575,7 +554,7 @@ export default function DclChart({
   function drawChart() {
     const data: IChartData[] = process_chart_data_for_display();
     const scale = scaleAxis();
-    const scaleBar = scaleAxisY(data);
+    const scaleBar = scaleAxisY();
     // down bars
     draw_down_bars({ data, scale, scaleBar });
     // up bars
@@ -1163,14 +1142,15 @@ export default function DclChart({
       .domain(range)
       .range([0, svgWidth - svgPaddingX * 2]);
   }
-  function scaleAxisY(data?: IChartData[]) {
+  function scaleAxisY() {
     if (chartType == 'USER') {
       return scaleAxisY_User();
     } else {
-      return scaleAxisY_Pool(data);
+      return scaleAxisY_Pool();
     }
   }
-  function scaleAxisY_Pool(data: IChartData[]) {
+  function scaleAxisY_Pool() {
+    const data: IChartData[] = process_chart_data_for_display();
     const L: number[] = [];
     data.forEach((o: IChartData) => {
       const { liquidity, order_liquidity } = o;
