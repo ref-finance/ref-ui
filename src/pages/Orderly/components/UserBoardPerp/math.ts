@@ -588,10 +588,16 @@ const tickToPrecision = (tick: number) => {
 //   };
 // };
 
-const getUnsettel = (positions: PositionsType) => {
+const getUnsettel = (positions: PositionsType, markPrices: MarkPrice[]) => {
   try {
     const unsettle = positions.rows.reduce((acc, cur) => {
-      return acc.plus(cur.unsettled_pnl);
+      const cur_mark_price = markPrices.find(
+        (m) => m.symbol === cur.symbol
+      ).price;
+
+      const float = cur.position_qty * (cur_mark_price - cur.mark_price);
+
+      return acc.plus(cur.unsettled_pnl + float);
     }, new Big(0));
 
     return unsettle.toFixed(2);

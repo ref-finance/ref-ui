@@ -1319,8 +1319,9 @@ const en_US = {
   TotalInvested: 'Total Invested',
   TotalAssets: 'Total Assets',
   TokenAllocation: 'Token Allocation',
-  perpTip: 'Welcome to Ref perpetual-future, read {perpTipLink} to get start!',
-  perpTipLink: '[Perpetual-futures Introduction]  docs',
+  perpTip:
+    'Welcome to Perpetual Futures trading! Please read {perpTipLink} to get start!',
+  perpTipLink: '[Perpetual-futures Introduction]  ',
   pred_funding_rate: 'Pred. Funding Rate',
   open_interest: 'Open Interest',
   netWorthTip:

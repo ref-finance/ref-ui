@@ -298,7 +298,10 @@ export function usePerpData() {
     }
   }, [markPrices, newPositions, totaluPnl]);
 
-  const unsettle = useMemo(() => getUnsettel(newPositions), [newPositions]);
+  const unsettle = useMemo(
+    () => getUnsettel(newPositions, markPrices),
+    [newPositions, markPrices]
+  );
 
   return {
     totalCollateral,

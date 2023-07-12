@@ -28,7 +28,7 @@ export function PerpOrderlyTip() {
       <FormattedMessage
         id="perpTip"
         defaultMessage={
-          'Welcome to Ref perpetual-future, read {perpTipLink} docs to get start!'
+          'Welcome to Perpetual Futures trading! Please  read {perpTipLink} docs to get start!'
         }
         values={{
           perpTipLink: (
@@ -88,7 +88,7 @@ export function PerpOrderlyTipMobile() {
       <FormattedMessage
         id="perpTip"
         defaultMessage={
-          'Welcome to Ref perpetual-future, read {perpTipLink} docs to get start!'
+          'Welcome to Perpetual Futures trading! Please  read {perpTipLink} docs to get start!'
         }
         values={{
           perpTipLink: (

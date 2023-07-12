@@ -1182,8 +1182,9 @@ const vi = {
 
   pred_funding_rate: 'Pred. Funding Rate',
 
-  perpTip: 'Welcome to Ref perpetual-future, read {perpTipLink} to get start!',
-  perpTipLink: '[Perpetual-futures Introduction]  docs',
+  perpTip:
+    'Welcome to Perpetual Futures trading! Please read {perpTipLink} to get start!',
+  perpTipLink: '[Perpetual-futures Introduction]  ',
   mark_price: 'Mark Price',
   mark_price_tip: 'Mark price is used for PnL calculating and liquidation.',
   total_collateral: 'Total Collateral',

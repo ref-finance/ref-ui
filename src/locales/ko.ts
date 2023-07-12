@@ -1167,8 +1167,9 @@ const ko = {
   TokenAllocation: 'Token Allocation',
   netWorthTip:
     'Total value of investments in Ref (including claimable rewards) + Total value of Orderly assets + Total value of Burrow assets + Total assets in wallet',
-  perpTip: 'Welcome to Ref perpetual-future, read {perpTipLink} to get start!',
-  perpTipLink: '[Perpetual-futures Introduction]  docs',
+  perpTip:
+    'Welcome to Perpetual Futures trading! Please read {perpTipLink} to get start!',
+  perpTipLink: '[Perpetual-futures Introduction]  ',
   pred_funding_rate: 'Pred. Funding Rate',
 
   mark_price: 'Mark Price',
