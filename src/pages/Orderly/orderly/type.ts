@@ -209,3 +209,36 @@ export interface UserRecord {
   created_time: number;
   updated_time: number;
 }
+
+// portfolio
+export interface PortfolioTable {
+  title: string;
+  tabs: {
+    id: string;
+    default: string;
+    rightComp?: JSX.Element;
+    columns?: PortfolioTableColumns[];
+    tableRowType?: string;
+    tableTopComponent?: JSX.Element;
+    pagination?: boolean,
+    getData?: (params: any) => any;
+  }[];
+}
+
+export interface PortfolioTableColumns {
+  key: string;
+  header: string;
+  type?: string;
+  render?: (row: any) => any;
+  selectList?: string[];
+  extras?: string | string[];
+  icon?: string;
+  colSpan?: number;
+  list?: {
+    text: string;
+    textId: string;
+    className?: string;
+  }[];
+  textColor?: string;
+  headerType?: 'Dynamic' | 'Fixed';
+}

@@ -15,8 +15,8 @@ import { useIntl } from 'react-intl';
 
 export function parseSymbol(fullName: string) {
   return {
-    symbolFrom: fullName.split('_')[1],
-    symbolTo: fullName.split('_')[2],
+    symbolFrom: fullName?.split('_')[1],
+    symbolTo: fullName?.split('_')[2],
   };
 }
 

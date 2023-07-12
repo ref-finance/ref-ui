@@ -1,145 +1,69 @@
 import React, {
-  useState,
   createContext,
   useEffect,
   useContext,
-  useMemo,
 } from 'react';
 import { isMobile } from '~utils/device';
 import Navigation, {
   NavigationMobile,
 } from '../../components/portfolio/Navigation';
 import TableWithTabs from './components/TableWithTabs';
+import {
+  usePortableOrderlyTable
+} from './orderly/constantWjsx';
+import { getOrderlySystemInfo } from './orderly/off-chain-api';
+import { OrderlyUnderMaintain } from './OrderlyTradingBoard';
+import { useCurHoldings } from './components/AllOrders/state';
+import {
+  PortfolioTable
+} from './orderly/type';
 
 import { WalletContext } from '../../utils/wallets-integration';
-import { getBoostTokenPrices } from '~services/farm';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
-import Big from 'big.js';
 export const PortfolioOrderlyData = createContext(null);
 const is_mobile = isMobile();
 function PortfolioOrderly() {
   const { globalState } = useContext(WalletContext);
   const { accountId } = useWalletSelector();
   const isSignedIn = globalState.isSignedIn;
-  const [tokenPriceList, setTokenPriceList] = useState<any>({});
+  const [maintenance, setMaintenance] = React.useState<boolean>(undefined);
+  const { ordersTable, assetsTables, recordsTable } = usePortableOrderlyTable();
 
-  const [ref_invest_value, set_ref_invest_value] = useState<string>('0');
-  const [ref_invest_value_done, set_ref_invest_value_done] =
-    useState<boolean>(false);
-  const [ref_profit_value, set_ref_profit_value] = useState<string>('0');
-  const [ref_profit_value_done, set_ref_profit_value_done] =
-    useState<boolean>(false);
-
-  const [orderly_asset_value, set_orderly_asset_value] = useState<string>('0');
-  const [orderly_asset_value_done, set_orderly_asset_value_done] =
-    useState<boolean>(false);
-
-  const [burrow_supplied_value, set_burrow_supplied_value] =
-    useState<string>('0');
-  const [burrow_borrowied_value, set_burrow_borrowied_value] =
-    useState<string>('0');
-  const [burrow_rewards_value, set_burrow_rewards_value] =
-    useState<string>('0');
-  const [burrow_done, set_burrow_done] = useState<boolean>(false);
-
-  const [wallet_assets_value, set_wallet_assets_value] = useState<string>('0');
-  const [wallet_assets_value_done, set_wallet_assets_value_done] =
-    useState<boolean>(false);
-
-  const [netWorth, netWorthDone] = useMemo(() => {
-    let netWorth = '0';
-    let netWorthDone = false;
-    if (
-      ref_invest_value_done &&
-      ref_profit_value_done &&
-      burrow_done &&
-      wallet_assets_value_done
-    ) {
-      netWorth = Big(ref_invest_value)
-        .plus(ref_profit_value)
-        .plus(orderly_asset_value)
-        .plus(burrow_supplied_value)
-        .plus(burrow_rewards_value)
-        .plus(wallet_assets_value)
-        .minus(burrow_borrowied_value)
-        .toFixed();
-      netWorthDone = true;
-    }
-    return [netWorth, netWorthDone];
-  }, [
-    ref_invest_value_done,
-    ref_profit_value_done,
-    orderly_asset_value,
-    burrow_done,
-    wallet_assets_value_done,
-    burrow_supplied_value,
-    burrow_borrowied_value,
-    burrow_rewards_value,
-  ]);
-  const [claimable, claimableDone] = useMemo(() => {
-    let claimable = '0';
-    let claimableDone = false;
-    if (ref_profit_value_done && burrow_done) {
-      claimable = Big(ref_profit_value).plus(burrow_rewards_value).toFixed();
-      claimableDone = true;
-    }
-    return [claimable, claimableDone];
-  }, [ref_profit_value_done, burrow_rewards_value, burrow_done]);
   useEffect(() => {
-    // get all token prices
-    getTokenPriceList();
+    getOrderlySystemInfo().then((res) => {
+      if (res.data.status === 2) {
+        setMaintenance(true);
+      } else {
+        setMaintenance(false);
+      }
+    });
+    
   }, []);
-  async function getTokenPriceList() {
-    const tokenPriceList = await getBoostTokenPrices();
-    setTokenPriceList(tokenPriceList);
-  }
+
+  if (maintenance === undefined) return null;
+
   return (
     <PortfolioOrderlyData.Provider
       value={{
-        tokenPriceList,
         isSignedIn,
         accountId,
         is_mobile,
-        set_ref_invest_value,
-        set_ref_invest_value_done,
-        set_ref_profit_value,
-        set_ref_profit_value_done,
-
-        set_orderly_asset_value,
-        set_orderly_asset_value_done,
-
-        set_burrow_supplied_value,
-        set_burrow_borrowied_value,
-        set_burrow_rewards_value,
-        set_burrow_done,
-
-        set_wallet_assets_value,
-        set_wallet_assets_value_done,
-
-        netWorth,
-        netWorthDone,
-
-        claimable,
-        claimableDone,
-
-        wallet_assets_value,
-        wallet_assets_value_done,
-
-        burrow_borrowied_value,
-        burrow_done,
       }}
     >
+      {maintenance && <OrderlyUnderMaintain />}
       {is_mobile ? (
-        <PortfolioOrderlyMobile></PortfolioOrderlyMobile>
+        <PortfolioOrderlyMobile tables={[assetsTables, ordersTable, recordsTable]} />
       ) : (
-        <PortfolioOrderlyPc></PortfolioOrderlyPc>
+        <PortfolioOrderlyPc tables={[ordersTable, assetsTables, recordsTable]} />
       )}
     </PortfolioOrderlyData.Provider>
   );
 }
 export default PortfolioOrderly;
 
-function PortfolioOrderlyPc() {
+
+function PortfolioOrderlyPc({ tables }: { tables: PortfolioTable[] }) {
+
   return (
     <div className="flex items-stretch justify-between w-full h-full lg:-mt-12">
       {/* Navigation */}
@@ -147,15 +71,26 @@ function PortfolioOrderlyPc() {
         <Navigation></Navigation>
       </div>
       {/* content */}
-      <div className="flex-grow border-l border-r border-boxBorder px-5 pt-9">
+      <div className="flex-grow border-l border-r border-boxBorder px-1 pt-9">
         <div className="lg:max-w-1000px 3xl:max-w-1280px m-auto">
           <div
-            className="w-full grid grid-cols-4 bg-portfolioBarBgColor px-7 py-4 rounded-xl"
+            className="w-full grid grid-cols-4 bg-cardBg px-7 py-4 rounded-xl"
           >
+            {/* getCurrentHolding */}
             <div className="col-span-2">
               <div className="flex items-center">
                 <span className="text-sm text-primaryText">
-                  dasdas
+                  Total Est. Value 
+                </span>
+              </div>
+              <span className="text-2xl gotham_bold text-white mt-1">
+                ds
+              </span>
+            </div>
+            <div className="col-span-1">
+              <div className="flex items-center">
+                <span className="text-sm text-primaryText">
+                  In Open order
                 </span>
               </div>
               <span className="text-2xl gotham_bold text-white mt-1">
@@ -165,7 +100,7 @@ function PortfolioOrderlyPc() {
             <div className="col-span-1">
               <div className="flex items-center">
                 <span className="text-sm text-primaryText">
-                  dasdas
+                  Available
                 </span>
               </div>
               <span className="text-2xl gotham_bold text-white mt-1">
@@ -173,19 +108,57 @@ function PortfolioOrderlyPc() {
               </span>
             </div>
           </div>
-          <TableWithTabs />
-          <TableWithTabs />
-          <TableWithTabs />
+          
+          {tables.map((table) => <TableWithTabs key={table.title} table={table} />)}
         </div>
       </div>
     </div>
   );
 }
-function PortfolioOrderlyMobile() {
+
+function PortfolioOrderlyMobile({ tables }: { tables: PortfolioTable[] }) {
+
   return (
     <>
-      <div>
-        <TableWithTabs />
+      {/* content */}
+      <div className="flex-grow border-l border-r border-boxBorder px-5 pt-9">
+        <div className="lg:max-w-1000px 3xl:max-w-1280px m-auto">
+          <div
+            className="w-full grid grid-cols-4 bg-cardBg px-7 py-4 rounded-xl"
+          >
+            <div className="col-span-2">
+              <div className="flex items-center">
+                <span className="text-sm text-primaryText">
+                  Total Est. Value 
+                </span>
+              </div>
+              <span className="text-2xl gotham_bold text-white mt-1">
+                dsadsa
+              </span>
+            </div>
+            <div className="col-span-1">
+              <div className="flex items-center">
+                <span className="text-sm text-primaryText">
+                  In Open order
+                </span>
+              </div>
+              <span className="text-2xl gotham_bold text-white mt-1">
+                dsadsa
+              </span>
+            </div>
+            <div className="col-span-1">
+              <div className="flex items-center">
+                <span className="text-sm text-primaryText">
+                  Available
+                </span>
+              </div>
+              <span className="text-2xl gotham_bold text-white mt-1">
+                dsadsa
+              </span>
+            </div>
+          </div>
+        </div>
+        {tables.map((table) => <TableWithTabs key={table.title} table={table} />)}
       </div>
       <NavigationMobile></NavigationMobile>
     </>

@@ -1832,8 +1832,8 @@ export const InquiriesIcon = (props: any) => {
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M0 4C0 1.79086 1.79083 0 4 0H14C16.2092 0 18 1.79086 18 4V9C18 11.2091 16.2092 13 14 13H10.3866C10.1378 13 9.89801 13.0927 9.71393 13.2601L6.17267 16.4794C5.53027 17.0634 4.5 16.6076 4.5 15.7394V13.9C4.5 13.403 4.09705 13 3.59998 13C1.61176 13 0 11.3882 0 9.39999V4ZM4 5C4 4.44772 4.44769 4 5 4H13C13.5523 4 14 4.44772 14 5C14 5.55228 13.5523 6 13 6H5C4.44769 6 4 5.55228 4 5ZM5 8C4.44769 8 4 8.44772 4 9C4 9.55228 4.44769 10 5 10H10C10.5523 10 11 9.55228 11 9C11 8.44772 10.5523 8 10 8H5Z"
         fill="currentColor"
       />
@@ -1865,20 +1865,20 @@ export const NavLogoIcon = (props: any) => {
         fill="#00C6A2"
       />
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M16.8389 17.4501C16.7072 17.4501 16.5762 17.4466 16.4462 17.4399V11.5569L22.8455 5.61468C23.7477 6.846 24.2805 8.36502 24.2805 10.0085C24.2805 14.1183 20.9488 17.4501 16.8389 17.4501ZM21.1744 3.95958L16.4462 8.35005V2.57708C16.5762 2.57032 16.7072 2.56689 16.8389 2.56689C18.4565 2.56689 19.9536 3.08302 21.1744 3.95958Z"
         fill="white"
       />
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M15.6649 2.56641H8.61499V9.52191L11.7781 12.685L15.6649 9.07578V2.56641ZM15.6649 12.2826L11.7177 15.9479L8.61499 12.8453V26.8495H15.6649V12.2826Z"
         fill="white"
       />
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M7.83324 2.56665H0V12.6544L5.87426 6.78011L7.83324 8.7391V2.56665ZM7.83324 12.0625L5.87426 10.1035L0 15.9777V26.8497H7.83324V12.0625Z"
         fill="white"
       />
@@ -1939,9 +1939,9 @@ export function XswapIcon(props: any) {
       <path
         d="M14 1.5L11.5 5C16 2.5 20 5.00001 18.5 8.5C17 12 12.5 10.5 9.50005 6.5C5.68168 1.40883 0.500033 4 1.50004 8C2.47774 11.9108 8.50003 9.5 8.50003 9.5L6.00005 12.5"
         stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );
@@ -1960,9 +1960,9 @@ export function LimitOrderIcon(props: any) {
       <path
         d="M1 2V13.5H16"
         stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <rect x="3.5" y="3" width="3" height="7" rx="1.5" fill="currentColor" />
       <rect x="8.5" width="3" height="7" rx="1.5" fill="currentColor" />
@@ -1988,8 +1988,8 @@ export function OrderBookIcon(props: any) {
         height="15"
         rx="3"
         stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
+        strokeWidth="2"
+        strokeLinecap="round"
       />
       <line
         x1="11.375"
@@ -1997,8 +1997,8 @@ export function OrderBookIcon(props: any) {
         x2="4.625"
         y2="5.46155"
         stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
+        strokeWidth="2"
+        strokeLinecap="round"
       />
       <line
         x1="9.625"
@@ -2006,8 +2006,8 @@ export function OrderBookIcon(props: any) {
         x2="4.625"
         y2="8.9231"
         stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
+        strokeWidth="2"
+        strokeLinecap="round"
       />
       <line
         x1="7"
@@ -2015,8 +2015,8 @@ export function OrderBookIcon(props: any) {
         x2="4.625"
         y2="12.3846"
         stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
+        strokeWidth="2"
+        strokeLinecap="round"
       />
     </svg>
   );
@@ -2035,16 +2035,16 @@ export function PoolsIcon(props: any) {
       <path
         d="M2.03699 5.14807C2.03699 5.14807 3.59254 6.70363 6.18514 6.18511C7.71048 5.88004 8.25921 5.66655 10.8518 4.62956C13.4444 3.59256 14.9999 6.18511 14.9999 6.18511"
         stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <path
         d="M1 1V9.92593C1 11.5828 2.34315 12.9259 4 12.9259H12C13.6569 12.9259 15 11.5828 15 9.92593V1"
         stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );
@@ -2063,9 +2063,9 @@ export function YourliquidityIcon(props: any) {
       <path
         d="M14.647 10.7479C14.647 14.5164 11.5921 17.5714 7.82352 17.5714C4.055 17.5714 1 14.5164 1 10.7479C1 6.97936 7.82352 1 7.82352 1C7.82352 1 14.647 6.97936 14.647 10.7479Z"
         stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <path
         d="M14.647 10.748C14.647 14.5165 11.5921 17.5715 7.82352 17.5715C4.055 17.5715 1 14.5165 1 10.748C1 6.97946 1.85294 14.1597 6.97058 11.6009C12.0882 9.04209 14.647 6.97946 14.647 10.748Z"
@@ -2086,8 +2086,8 @@ export function FarmsIcon(props: any) {
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M11.8858 0.257829C11.0704 -0.228708 9.94872 -0.00644218 9.38048 0.754277L9.0154 1.24301C8.04622 0.85526 7.00856 0.57974 5.92311 0.434949L3.91692 3.66254C4.90464 3.76108 5.85591 3.96744 6.75567 4.26814L0.323308 12.8793C-0.244937 13.64 -0.0445781 14.6511 0.770821 15.1376C1.58622 15.6242 2.70788 15.4019 3.27613 14.6412L9.86726 5.81751C10.7513 6.42836 11.5367 7.14773 12.1985 7.95327C12.7686 7.92215 13.6043 7.90276 14.2223 8.00006C14.6891 8.07356 15.2455 8.24731 15.729 8.42189C15.1364 6.26857 13.8116 4.37263 12.004 2.95702L12.3333 2.51618C12.9015 1.75547 12.7012 0.744365 11.8858 0.257829Z"
         fill="currentColor"
       />
@@ -2113,9 +2113,9 @@ export function XrefEarnIcon(props: any) {
       <path
         d="M8 1L14.9282 5V13L8 17L1.0718 13V5L8 1Z"
         stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );
@@ -2163,8 +2163,8 @@ export function REFSmallIcon(props: any) {
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M3.58556 1.77167H0.00012207V12.1143H3.58556V5.35719L10.4806 5.35719C10.4806 3.37701 8.87539 1.77175 6.89521 1.77175L3.58556 1.77175V1.77167Z"
         fill="#EBEBEB"
       />
@@ -2199,8 +2199,8 @@ export function PurpleCircleIcon(props: any) {
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M10.5338 7.26667C9.88304 9.50206 7.81912 11.1356 5.37367 11.1356C2.92822 11.1356 0.864293 9.50206 0.213529 7.26667H3.55032C3.98399 7.79178 4.64005 8.12645 5.37428 8.12645C6.1085 8.12645 6.76456 7.79178 7.19824 7.26667H10.5338ZM10.6398 6.83677H7.48087C7.64571 6.51432 7.73869 6.14904 7.73869 5.76203C7.73869 5.37503 7.64571 5.00975 7.48088 4.68729H10.6399C10.7103 5.03452 10.7473 5.39389 10.7473 5.76191C10.7473 6.13002 10.7103 6.48948 10.6398 6.83677ZM3.26768 6.83677C3.10284 6.51432 3.00986 6.14904 3.00986 5.76203C3.00986 5.37503 3.10284 5.00975 3.26768 4.68729H0.107469C0.036995 5.03452 0 5.39389 0 5.76191C0 6.13002 0.0370125 6.48948 0.107519 6.83677H3.26768ZM1.07425 2.53783C0.690929 3.04819 0.396359 3.62902 0.213458 4.2574H3.55031C3.98399 3.73229 4.64005 3.39762 5.37428 3.39762C6.1085 3.39762 6.76457 3.73229 7.19824 4.2574H10.5339C10.351 3.62902 10.0564 3.04819 9.67308 2.53783H1.07425ZM9.31384 2.10793H1.43349C2.41487 1.05018 3.81697 0.388245 5.37367 0.388245C6.93037 0.388245 8.33246 1.05018 9.31384 2.10793Z"
         fill="#6850FF"
       />
@@ -2225,20 +2225,20 @@ export function PortfolioIcon(props: any) {
           fill="#00C6A2"
         />
         <path
-          fill-rule="evenodd"
-          clip-rule="evenodd"
+          fillRule="evenodd"
+          clipRule="evenodd"
           d="M9.11969 8.9095C9.04834 8.9095 8.97742 8.90764 8.90698 8.90398V5.71758L12.3728 2.49936C12.8615 3.16626 13.15 3.98901 13.15 4.87916C13.15 7.10505 11.3456 8.9095 9.11969 8.9095ZM11.4676 1.60299L8.90698 3.98074V0.854333C8.97742 0.85067 9.04834 0.848816 9.11969 0.848816C9.99572 0.848816 10.8065 1.12831 11.4676 1.60299Z"
           fill="currentColor"
         />
         <path
-          fill-rule="evenodd"
-          clip-rule="evenodd"
+          fillRule="evenodd"
+          clipRule="evenodd"
           d="M8.48386 0.848206H4.66565V4.61536L6.37875 6.32846L8.48386 4.37372V0.848206ZM8.48386 6.11055L6.34604 8.09567L4.66565 6.41528V13.9998H8.48386V6.11055Z"
           fill="currentColor"
         />
         <path
-          fill-rule="evenodd"
-          clip-rule="evenodd"
+          fillRule="evenodd"
+          clipRule="evenodd"
           d="M4.24222 0.848206H-0.000244141V6.31171L3.1812 3.13026L4.24222 4.19128V0.848206ZM4.24222 5.9912L3.1812 4.93018L-0.000244141 8.11163V13.9998H4.24222V5.9912Z"
           fill="currentColor"
         />
@@ -2260,8 +2260,8 @@ export function OrderlyIcon(props: any) {
       <g opacity="0.5">
         <circle cx="9.23804" cy="9.23804" r="9.23804" fill="#4627FF" />
         <path
-          fill-rule="evenodd"
-          clip-rule="evenodd"
+          fillRule="evenodd"
+          clipRule="evenodd"
           d="M15.3788 11.0289C14.6043 13.6894 12.1479 15.6335 9.23736 15.6335C6.32686 15.6335 3.87045 13.6894 3.09593 11.0289H7.06726C7.58341 11.6539 8.36423 12.0522 9.23808 12.0522C10.1119 12.0522 10.8927 11.6539 11.4089 11.0289H15.3788ZM15.505 10.5172H11.7453C11.9415 10.1335 12.0521 9.69871 12.0521 9.23811C12.0521 8.77752 11.9415 8.34277 11.7453 7.959H15.505C15.5889 8.37225 15.6329 8.79997 15.6329 9.23797C15.6329 9.67608 15.5889 10.1039 15.505 10.5172ZM6.73087 10.5172C6.53469 10.1335 6.42403 9.69871 6.42403 9.23811C6.42403 8.77752 6.53468 8.34277 6.73086 7.959H2.9697C2.88583 8.37225 2.8418 8.79997 2.8418 9.23797C2.8418 9.67608 2.88585 10.1039 2.96976 10.5172H6.73087ZM4.12034 5.40077C3.66412 6.00818 3.31353 6.69947 3.09585 7.44736H7.06725C7.58339 6.82238 8.36422 6.42406 9.23808 6.42406C10.1119 6.42406 10.8928 6.82238 11.4089 7.44736H15.3789C15.1612 6.69947 14.8106 6.00818 14.3544 5.40077H4.12034ZM13.9268 4.88912H4.54789C5.7159 3.63022 7.38463 2.84241 9.23736 2.84241C11.0901 2.84241 12.7588 3.63022 13.9268 4.88912Z"
           fill="white"
         />
