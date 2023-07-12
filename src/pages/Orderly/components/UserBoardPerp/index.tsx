@@ -1313,7 +1313,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
   return (
     <div
-      className="w-full  bg-orderLineHover relative min-w-max flex flex-col  border-t border-l border-b h-screen border-boxBorder "
+      className="w-full  bg-orderLineHover relative min-h-max flex flex-col  border-t border-l border-b h-screen border-boxBorder "
       style={{
         minHeight: '775px',
         height: validator ? 'calc(100vh - 100px)' : '100%',
@@ -3069,7 +3069,7 @@ function ConfirmOrderModal(
                 <span className=" mr-2 text-white">
                   {Number(
                     (userInfo?.futures_taker_fee_rate || 0) / 100
-                  ).toFixed(2)}
+                  ).toFixed(3)}
                   %
                 </span>
                 <TextWrapper
@@ -3086,7 +3086,7 @@ function ConfirmOrderModal(
                 <span className=" mr-2 text-white">
                   {Number(
                     (userInfo?.futures_maker_fee_rate || 0) / 100
-                  ).toFixed(2)}
+                  ).toFixed(3)}
                   %
                 </span>
                 <TextWrapper
