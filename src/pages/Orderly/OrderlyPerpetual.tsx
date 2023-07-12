@@ -313,7 +313,7 @@ export function OrderlyPerpetual() {
 
   return (
     <>
-      <div className="mx-auto xs:relative xs:bottom-6">
+      <div className="mx-auto xs:relative lg:relative lg:bottom-6 xs:bottom-6">
         {!isMobile && <PerpOrderlyTip />}
 
         {!isMobile && <TradingBoard></TradingBoard>}

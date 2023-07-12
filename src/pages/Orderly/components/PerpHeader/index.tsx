@@ -13,11 +13,11 @@ export function PerpOrderlyTip() {
 
   const isMobile = useClientMobile();
 
-  if (!show) return;
+  if (!show) return null;
 
   return (
     <div
-      className="w-screen px-4  xs:pb-7 h-9 xs:rounded-2xl   absolute xs:bottom-0 bg-gradientFromHover  frcc "
+      className="w-screen px-4  xs:pb-7 h-9 xs:rounded-2xl lg:relative lg:bottom-2   xs:bottom-0 bg-gradientFromHover  frcc "
       style={{
         fontSize: '13px',
         color: '#111F29',
@@ -52,6 +52,8 @@ export function PerpOrderlyTip() {
         className="absolute right-3 top-1 "
         onClick={() => {
           setShow(false);
+
+          localStorage.setItem(REF_ORDERLY_PERP_TIP_SIG, '1');
         }}
         style={{
           color: '#0E1D28',
@@ -74,7 +76,7 @@ export function PerpOrderlyTipMobile() {
 
   return (
     <div
-      className="w-screen px-4  xs:pb-20 xs:pt-2 h-9 xs:rounded-2xl   absolute xs:bottom-0 bg-gradientFromHover  lg:frcc "
+      className="w-screen px-4  xs:pb-20 xs:pt-2 h-9 xs:rounded-2xl   xs:bottom-0 bg-gradientFromHover  lg:frcc "
       style={{
         fontSize: '13px',
         color: '#111F29',
@@ -110,6 +112,7 @@ export function PerpOrderlyTipMobile() {
         className="absolute right-3 top-1 "
         onClick={() => {
           setShow(false);
+          localStorage.setItem(REF_ORDERLY_PERP_TIP_SIG, '1');
         }}
         style={{
           color: '#0E1D28',
