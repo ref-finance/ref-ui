@@ -614,3 +614,74 @@ export const getMarketTrades = async ({
     `/v1/public/market_trades?symbol=${symbol}&limit=${limit}`
   );
 };
+
+export const getFundingFee = async ({
+  page = 1,
+  accountId
+} : {
+  accountId: string;
+  page: number;
+}) => {
+  const url = `/v1/funding_fee/history?size=10&page=${page}`;
+
+  const res = requestOrderly({
+    url,
+    accountId
+  });
+
+  return res;
+};
+
+export const getPortfolioAssetHistory = async ({
+  page = 1,
+  side,
+  accountId
+} : {
+  accountId: string;
+  side: string;
+  page: number;
+}) => {
+  const url =`/v1/asset/history?size=10&page=${page}&side=${side}`;
+
+  const res = requestOrderly({
+    url,
+    accountId
+  });
+
+  return res;
+}
+
+export const getPortfolioPosition = async ({
+  accountId
+} : {
+  accountId: string;
+}) => {
+  const url =`/v1/positions`;
+
+  const res = requestOrderly({
+    url,
+    accountId
+  });
+
+  return res;
+};
+
+export const getPortfolioAllOrders = async (props: {
+  accountId: string;
+  OrderProps?: {
+    symbol?: string;
+    page?: number;
+    size?: number;
+    status?: 'NEW' | 'CANCELLED' | 'PARTIAL_FILLED' | 'FILLED' | 'REJECTED' | 'INCOMPLETE' | 'COMPLETED' 
+  };
+}) => {
+  const res = await getOrders({
+    accountId: props.accountId,
+    OrderProps: {
+      ...props.OrderProps,
+      size: 10,
+    },
+  });
+
+  return res;
+};

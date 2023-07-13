@@ -219,7 +219,7 @@ function MobileTradingBoard() {
   );
 }
 
-function OrderlyUnderMaintain() {
+export function OrderlyUnderMaintain() {
   return (
     <div
       className="absolute xs:fixed w-screen h-full  left-0 flex items-center justify-center"

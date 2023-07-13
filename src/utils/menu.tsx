@@ -48,6 +48,7 @@ import {
   REFSmallIcon,
   PurpleCircleIcon,
   PortfolioIcon,
+  OrderlyIcon,
   BorrowIcon,
   OverviewIcon,
 } from '~components/icon/Nav';
@@ -424,7 +425,7 @@ export const useMenus = (cb?: () => void) => {
       ),
       url: '',
       isExternal: false,
-      links: ['/portfolio', '/burrow', '/overview'],
+      links: ['/portfolio', '/burrow', '/overview', '/orderly'],
       children: [
         {
           id: '3-1',
@@ -454,6 +455,18 @@ export const useMenus = (cb?: () => void) => {
           id: '3-3',
           label: (
             <>
+              <FormattedMessage id="Orderly" />
+            </>
+          ),
+          logo: <OrderlyIcon />,
+          url: '/orderly',
+          isExternal: false,
+          links: ['/orderly'],
+        },
+        {
+          id: '3-4',
+          label: (
+            <>
               <FormattedMessage id="Burrow" />
             </>
           ),
@@ -461,7 +474,7 @@ export const useMenus = (cb?: () => void) => {
           url: '/burrow',
           isExternal: false,
           links: ['/burrow'],
-        },
+        }
       ],
     },
 
@@ -760,7 +773,7 @@ export const useMenusMobile = () => {
       ),
       url: '',
       isExternal: false,
-      links: ['/portfolio', '/burrow', '/overview'],
+      links: ['/portfolio', '/burrow', '/overview', '/orderly'],
       children: [
         {
           id: '3-1',
@@ -780,6 +793,14 @@ export const useMenusMobile = () => {
         },
         {
           id: '3-3',
+          label: <FormattedMessage id="Orderly" />,
+          logo: <OrderlyIcon />,
+          url: '/orderly',
+          isExternal: false,
+          links: ['/orderly'],
+        },
+        {
+          id: '3-4',
           label: <FormattedMessage id="Burrow" />,
           logo: <BorrowIcon />,
           url: '/burrow',

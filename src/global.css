@@ -631,6 +631,15 @@ input[type='range']::-webkit-slider-runnable-track {
   }
 }
 
+.woofidex-logo {
+  width: 26px;
+  height: 26px;
+  background: url('./assets/imgs/woofi-logo.png') center no-repeat;
+  background-color: #121925;
+  background-size: 20px 20px;
+  border-radius: 8px;
+}
+
 .crossSwap-requesting-loading::after {
   overflow: hidden;
   position: absolute;
