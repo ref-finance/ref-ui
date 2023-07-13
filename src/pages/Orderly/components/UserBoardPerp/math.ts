@@ -262,7 +262,6 @@ const getLqPrice = (
 
     const estLiqPrice = new Big(markPrice).plus(
       futuresTotalCollateral
-
         .minus(newTotalMM)
         .div(totalSize.mul(symbolRealMMR).minus(totalQty))
     );
