@@ -1899,11 +1899,20 @@ export function divide_liquidities_into_bins_pool({
   orders.sort((b: IOrderInfoPool, a: IOrderInfoPool) => {
     return b.point - a.point;
   });
-  const min_point = Math.min(slots[0].point, orders[0].point);
-  const max_point = Math.max(
-    slots[slots.length - 1].point + point_delta,
-    orders[orders.length - 1].point + point_delta
-  );
+  let min_point, max_point;
+  if (slots.length && orders.length) {
+    min_point = Math.min(slots[0].point, orders[0].point);
+    max_point = Math.max(
+      slots[slots.length - 1].point + point_delta,
+      orders[orders.length - 1].point + point_delta
+    );
+  } else if (slots.length) {
+    min_point = slots[0].point;
+    max_point = slots[slots.length - 1].point + point_delta;
+  } else if (orders.length) {
+    min_point = orders[0].point;
+    max_point = orders[orders.length - 1].point + point_delta;
+  }
 
   const min_bin_point = getBinPointByPoint(
     point_delta,
