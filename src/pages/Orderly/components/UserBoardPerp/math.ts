@@ -74,11 +74,11 @@ const getTotalCollateral = (
   positions: PositionsType,
   markprices: MarkPrice[]
 ) => {
-  const totaluPnl = getPositionFloat(positions, markprices);
+  const float = getPositionFloat(positions, markprices);
 
   const total_collateral_value = positions.total_collateral_value;
 
-  return new Big(total_collateral_value).plus(totaluPnl);
+  return new Big(total_collateral_value).plus(float);
 };
 const getFreeCollateral = (
   positions: PositionsType,
@@ -212,17 +212,15 @@ const getLqPrice = (
       (item) => item.symbol === symbol.symbol
     );
 
-    //  OK just total collateral
     const futuresTotalCollateral = getTotalCollateral(positions, markPrices);
 
     // OK pure holding
     const holding = new Big(
-      curPosition.position_qty +
-        curPosition.pending_long_qty +
-        curPosition.pending_short_qty
+      Math.max(
+        curPosition.pending_long_qty + curPosition.position_qty,
+        curPosition.pending_short_qty + curPosition.position_qty
+      )
     );
-
-    console.log('holding: ', holding.toFixed());
 
     //  OK
     const orderSize = new Big(cur_amount);
@@ -232,17 +230,14 @@ const getLqPrice = (
 
     // OK
     const totalQty = orderSize.mul(orderSide).plus(holding);
-    console.log('totalQty: ', totalQty.toFixed());
 
     // OK
     const totalSide = new Big(totalQty.gt(0) ? 1 : -1);
 
     // OK
     const totalSize = totalQty.abs();
-    console.log('totalSize: ', totalSize.toFixed());
 
     // OK
-    const priceNumber = new Big(markPrice);
 
     //OK
     const totalNational = totalSize.times(markPrice).toNumber();
@@ -265,13 +260,20 @@ const getLqPrice = (
       .minus(initialSymbolMM)
       .plus(symbolMM);
 
+    const estLiqPrice = new Big(markPrice).plus(
+      futuresTotalCollateral
+
+        .minus(newTotalMM)
+        .div(totalSize.mul(symbolRealMMR).minus(totalQty))
+    );
+
     const lastOption = new Big(1).minus(totalSide.mul(symbolRealMMR));
 
     const rightOption = totalSide
       .mul(futuresTotalCollateral.minus(newTotalMM))
       .div(totalSize.mul(lastOption));
 
-    const estLiqPrice = priceNumber.minus(rightOption);
+    // const estLiqPrice = priceNumber.minus(rightOption);
 
     return estLiqPrice.toFixed(6);
   } catch (error) {
@@ -290,7 +292,7 @@ const getFutureSymbolMM = (
     const currentSymbolInfo = symbol;
 
     const symbolFrom = parseSymbol(currentSymbolInfo.symbol).symbolFrom;
-    const imrFactor = userInfo?.imr_factor[symbolFrom] ?? (0 as number);
+    const imrFactor = (userInfo?.imr_factor[symbolFrom] as number) ?? 0;
     const realMMR = BigNumber.max(
       new BigNumber(currentSymbolInfo?.base_mmr ?? 0),
       new BigNumber(currentSymbolInfo?.base_mmr ?? 0)
@@ -564,6 +566,36 @@ const getMaintenanceMarginRatio = (
 //   }
 //   return '--';
 // }
+
+// export const getEstLiqPriceWithOrder = (params: { order: OrderParams; price: string }): BigNumber | null => {
+// const { order } = params;
+// const { symbol } = order;
+// const { futuresRelatedValues, currentPosition } = getFuturesState({ symbol });
+
+// const holding = new BigNumber(currentPosition.holding);
+// const orderSize = new BigNumber(order.size);
+// const orderSide = order.side === SideType.BUY ? 1 : -1;
+// const currentTicker = getCurrentTicker({ symbol });
+// const markPrice = new BigNumber(currentTicker?.markPrice || 0);
+// const futuresTotalCollateral = new BigNumber(futuresRelatedValues.futuresTotalCollateral);
+
+// const totalQty = orderSize.multipliedBy(orderSide).plus(holding);
+
+// const totalSide = new BigNumber(totalQty.gt(0) ? 1 : -1);
+// const totalSize = totalQty.abs();
+// const priceNumber = new BigNumber(params.price);
+// const totalNational = totalSize.times(markPrice).toNumber();
+// const { asset } = store.getState();
+// const { symbolRealMMR, symbolMM } = FuturesUtils.getFuturesSymbolMM(symbol, totalNational, { asset });
+// const initialSymbolMM = currentPosition.maintenanceMargin ?? 0;
+// const newTotalMM = new BigNumber(futuresRelatedValues.futuresTotalMM).minus(initialSymbolMM).plus(symbolMM);
+
+// // (1- side * real-MMR )
+// const lastOption = new BigNumber(1).minus(totalSide.multipliedBy(symbolRealMMR));
+// const rightOption = totalSide.multipliedBy(futuresTotalCollateral.minus(newTotalMM)).dividedBy(totalSize).dividedBy(lastOption);
+// const estLiqPrice = priceNumber.minus(rightOption);
+// return BigNumber.max(estLiqPrice, 0);
+// };
 
 export {
   getTotaluPnl,

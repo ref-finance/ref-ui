@@ -1200,6 +1200,8 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       ? orders.asks?.[0]?.[0]
       : orders?.bids?.[0]?.[0];
 
+     if(typeof marginRatio === 'undefined') return;
+
     priceAndSizeValidator(
       orderType === 'Limit' ? limitPrice : marketPrice.toString(),
       inputValue
