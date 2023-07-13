@@ -1376,10 +1376,10 @@ export function divide_liquidities_into_bins_user({
   tokenY: TokenMetadata;
   poolDetail: PoolInfo;
 }) {
-  if (!liquidities.length) return [];
+  if (!liquidities?.length) return [];
   // split data to slots
   const liquidities_in_slot_unit: { [point: number]: IChartData } = {};
-  const { point_delta, pool_id } = poolDetail;
+  const { point_delta, pool_id, current_point } = poolDetail;
   liquidities.forEach((liquidity: UserLiquidityInfo) => {
     const { left_point, right_point, amount } = liquidity;
     const slots_in_a_nft = (right_point - left_point) / point_delta;
@@ -1414,6 +1414,27 @@ export function divide_liquidities_into_bins_user({
       };
     }
   });
+  // 如果有包含当前点位的slot，这个slot里面的 token_x token_y 累计的amount，重新计算 token的数量
+  const contain_current_point = getBinPointByPoint(
+    point_delta,
+    1,
+    current_point,
+    'floor'
+  );
+  const contain_current_point_slot =
+    liquidities_in_slot_unit[contain_current_point];
+  if (contain_current_point_slot) {
+    const { total_x, total_y } = get_x_y_amount_by_condition({
+      left_point: contain_current_point,
+      right_point: contain_current_point + point_delta,
+      amount: contain_current_point_slot.liquidity,
+      tokenX,
+      tokenY,
+      poolDetail,
+    });
+    liquidities_in_slot_unit[contain_current_point]['token_x'] = total_x;
+    liquidities_in_slot_unit[contain_current_point]['token_y'] = total_y;
+  }
   // split slots to bin
   const liquidities_in_bin_unit: IChartData[] = [];
   const slots: IChartData[] = Object.values(liquidities_in_slot_unit);
@@ -1852,7 +1873,7 @@ export function divide_liquidities_into_bins_pool({
   tokenY: TokenMetadata;
   poolDetail: PoolInfo;
 }) {
-  if (!liquidities.length && !orders.length) return [];
+  if (!liquidities?.length && !orders?.length) return [];
   // split data to slots
   const liquidities_in_slot_unit: { [point: number]: IChartData } = {};
   const { point_delta, pool_id } = poolDetail;
@@ -2019,4 +2040,33 @@ export function divide_liquidities_into_bins_pool({
   });
   // last bins
   return bins_final;
+}
+
+export function get_token_amount_in_user_liquidities({
+  user_liquidities,
+  pool,
+  token_x_metadata,
+  token_y_metadata,
+}: {
+  user_liquidities: UserLiquidityInfo[];
+  pool: PoolInfo;
+  token_x_metadata: TokenMetadata;
+  token_y_metadata: TokenMetadata;
+}) {
+  let total_x_amount = Big(0);
+  let total_y_amount = Big(0);
+  const list = divide_liquidities_into_bins_user({
+    liquidities: user_liquidities,
+    slot_number_in_a_bin: 1,
+    tokenX: token_x_metadata,
+    tokenY: token_y_metadata,
+    poolDetail: pool,
+  });
+
+  list.forEach((l: IChartData) => {
+    const { token_x, token_y } = l;
+    total_x_amount = total_x_amount.plus(token_x);
+    total_y_amount = total_y_amount.plus(token_y);
+  });
+  return [total_x_amount.toFixed(), total_y_amount.toFixed()];
 }

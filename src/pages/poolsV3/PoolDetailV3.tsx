@@ -51,6 +51,7 @@ import {
   get_pool_name,
   openUrl,
   get_account_24_apr,
+  get_token_amount_in_user_liquidities,
 } from '~services/commonV3';
 import { ftGetTokensMetadata } from '../../services/ft-contract';
 import {
@@ -826,42 +827,41 @@ function YourLiquidityBox(props: {
     return { amountx: amountX_read, amounty: amountY_read };
   }
   function getTotalLiquditiesTvl() {
-    let total = 0;
-    user_liquidities_detail.forEach((liquidityDetail: UserLiquidityDetail) => {
-      const { total_liqudities_price } = liquidityDetail;
-      total += +total_liqudities_price;
+    const [total_x, total_y] = get_tokens_amount_liquidities();
+    const price_x = tokenPriceList[token_x_metadata.id]?.price || 0;
+    const price_y = tokenPriceList[token_y_metadata.id]?.price || 0;
+    const total_x_value = Big(price_x).mul(total_x);
+    const total_y_value = Big(price_y).mul(total_y);
+    const total_value = total_x_value.plus(total_y_value).toFixed();
+    const total_value_display = formatWithCommas_usd(total_value);
+    return total_value_display;
+  }
+  function get_tokens_amount_liquidities() {
+    const [total_x, total_y] = get_token_amount_in_user_liquidities({
+      user_liquidities: liquidities,
+      pool: poolDetail,
+      token_x_metadata,
+      token_y_metadata,
     });
-    if (total == 0) {
-      return '$0';
-    } else if (total < 0.01) {
-      return '<$0.01';
-    } else {
-      return '$' + formatWithCommas(toPrecision(total.toString(), 2));
-    }
+    return [total_x, total_y];
   }
   function getTotalTokenAmount() {
-    let total_x = 0;
-    let total_y = 0;
-    user_liquidities_detail.forEach((liquidityDetail: UserLiquidityDetail) => {
-      const { amount_x, amount_y } = liquidityDetail;
-      total_x += +amount_x;
-      total_y += +amount_y;
-    });
+    const [total_x, total_y] = get_tokens_amount_liquidities();
     let display_total_x = '0';
     let display_total_y = '0';
-    if (total_x == 0) {
+    if (+total_x == 0) {
       display_total_x = '0';
-    } else if (total_x < 0.01) {
+    } else if (+total_x < 0.01) {
       display_total_x = '<0.01';
     } else {
-      display_total_x = toInternationalCurrencySystem(total_x.toString(), 3);
+      display_total_x = toInternationalCurrencySystem(total_x, 3);
     }
-    if (total_y == 0) {
+    if (+total_y == 0) {
       display_total_y = '0';
-    } else if (total_y < 0.01) {
+    } else if (+total_y < 0.01) {
       display_total_y = '<0.01';
     } else {
-      display_total_y = toInternationalCurrencySystem(total_y.toString(), 3);
+      display_total_y = toInternationalCurrencySystem(total_y, 3);
     }
     return {
       total_x: display_total_x,

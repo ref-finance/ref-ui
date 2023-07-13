@@ -19,6 +19,7 @@ import {
   get_x_y_amount_by_condition,
   get_account_24_apr,
   divide_liquidities_into_bins_pool,
+  get_token_amount_in_user_liquidities,
 } from '../../services/commonV3';
 import { getDclPoolPoints, getDCLAccountFee } from '../../services/indexer';
 import { sortBy, debounce } from 'lodash';
@@ -325,21 +326,23 @@ export default function DclChart({
       );
     }
     user_liquidities.forEach((l: UserLiquidityInfo) => {
-      const { left_point, right_point, amount } = l;
+      const { left_point, right_point } = l;
       points.push(left_point, right_point);
-      const { total_x, total_y } = get_x_y_amount_by_condition({
-        left_point,
-        right_point,
-        amount,
-        tokenX: token_x_metadata,
-        tokenY: token_y_metadata,
-        poolDetail: pool,
-      });
-      total_x_amount = total_x_amount.plus(total_x);
-      total_y_amount = total_y_amount.plus(total_y);
     });
+    const [total_token_x_amount, total_token_y_amount] =
+      get_token_amount_in_user_liquidities({
+        user_liquidities,
+        pool,
+        token_x_metadata,
+        token_y_metadata,
+      });
+
+    total_x_amount = total_x_amount.plus(total_token_x_amount);
+    total_y_amount = total_y_amount.plus(total_token_y_amount);
+
     const total_x_value = Big(price_x).mul(total_x_amount);
     const total_y_value = Big(price_y).mul(total_y_amount);
+
     total_value = total_x_value.plus(total_y_value);
     points.sort((b: number, a: number) => {
       return b - a;

@@ -48,6 +48,7 @@ import {
   whether_liquidity_can_farm_in_seed,
   get_valid_range,
   get_total_value_by_liquidity_amount_dcl,
+  get_token_amount_in_user_liquidities,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import {
@@ -1857,9 +1858,20 @@ function UserLiquidityLineStyleGroup1({
   }
 
   const groupList = () => {
-    const your_liquidity = groupYourLiquidityList.reduce((prev, cur) => {
-      return new Big(prev || '0').plus(new Big(cur.your_liquidity || '0'));
-    }, new Big(0));
+    const [total_x, total_y] = get_token_amount_in_user_liquidities({
+      user_liquidities: liquidities_list,
+      pool: poolDetail,
+      token_x_metadata: tokenMetadata_x_y[0],
+      token_y_metadata: tokenMetadata_x_y[1],
+    });
+
+    const price_x = tokenPriceList?.[tokenMetadata_x_y[0].id]?.price || 0;
+    const price_y = tokenPriceList?.[tokenMetadata_x_y[1].id]?.price || 0;
+
+    const total_x_value = Big(price_x).mul(total_x);
+    const total_y_value = Big(price_y).mul(total_y);
+
+    const your_liquidity = total_x_value.plus(total_y_value);
 
     const tokenFeeLeft = groupYourLiquidityList.reduce((prev, cur) => {
       return new Big(prev || '0').plus(new Big(cur.tokenFeeLeft || '0'));
