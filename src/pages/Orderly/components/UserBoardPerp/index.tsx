@@ -664,23 +664,23 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       markPrices,
       curSymbol,
       newPositions,
-      curHoldingOut,
       inputValue,
       side,
       orderType,
       limitPrice,
-      availableSymbols
+      availableSymbols,
+      userInfo
     );
   }, [
     newPositions,
     markPrices,
-    curHoldingOut,
     curSymbol,
     inputValue,
     orderType,
     side,
     limitPrice,
     availableSymbols,
+    userInfo,
   ]);
 
   console.log('lqPrice: ', lqPrice);
@@ -3387,22 +3387,22 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
       markPrices,
       curSymbol,
       newPositions,
-      curHoldingOut,
       inputValue,
       side,
       orderType,
       limitPrice,
-      availableSymbols
+      availableSymbols,
+      userInfo
     );
   }, [
     newPositions,
     markPrices,
-    curHoldingOut,
     curSymbol,
     inputValue,
     orderType,
     side,
     limitPrice,
+    userInfo,
   ]);
 
   const marketPrice = !orders

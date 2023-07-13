@@ -273,7 +273,7 @@ export function usePerpData() {
 
   const totalCollateral = useMemo(() => {
     try {
-      const res = getTotalCollateral(newPositions, markPrices, curHoldingOut);
+      const res = getTotalCollateral(newPositions, markPrices);
 
       return res.toFixed(2);
     } catch (error) {
