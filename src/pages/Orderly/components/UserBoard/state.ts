@@ -147,3 +147,100 @@ export function useTokensBalances(
 
   return showbalances;
 }
+
+export function useTokensOrderlyBalances(
+  tokens: TokenWithDecimals[] | undefined,
+  tokenInfo: TokenInfo[] | undefined,
+  trigger?: any
+) {
+  const [showbalances, setShowBalances] = useState<BalanceType[]>([]);
+
+  const { accountId } = useWalletSelector();
+
+  const { myPendingOrdersRefreshing, validAccountSig } = useOrderlyContext();
+
+  const getBalanceAndMeta = async (token: TokenWithDecimals) => {
+    const balance = await ftGetBalance(token.id).then((balance) => {
+      return toReadableNumber(token.decimals, balance);
+    });
+
+    const meta = await getFTmetadata(token.id);
+
+    return {
+      balance,
+      meta,
+    };
+  };
+
+  useEffect(() => {
+    console.log(!tokens, !tokenInfo, !accountId)
+    if (!tokens || !tokenInfo || !accountId) return;
+
+    Promise.all(
+      tokenInfo.map((t) =>
+        getBalanceAndMeta({
+          id: t.token_account_id,
+          decimals: t.decimals,
+        })
+      )
+    )
+      .then((balances) => {
+        const showbalances = balances.map((b, i) => {
+          const wallet_balance = b.balance;
+
+          return {
+            meta: b.meta,
+            wallet_balance,
+            id: tokenInfo[i].token_account_id,
+            name: tokenInfo[i].token,
+          };
+        });
+
+        return showbalances;
+      })
+      .then(async (res) => {
+        const response = await getCurrentHolding({ accountId });
+
+        const holdings = response?.data?.holding as Holding[];
+
+        const resMap = res.reduce(
+          (acc, cur) => {
+            const id = cur.id;
+
+            const holding = holdings?.find(
+              (h: Holding) => h.token === cur.name
+            );
+            const displayHolding = holding
+              ? Number(
+                  new Big(holding.holding + holding.pending_short).toFixed(
+                    Math.min(8, cur.meta.decimals || 9),
+                    0
+                  )
+                )
+              : 0;
+
+            acc[id] = {
+              ...cur,
+              holding: displayHolding,
+              'in-order': holding?.pending_short || 0,
+            };
+            return acc;
+          },
+          {} as {
+            [key: string]: BalanceType;
+          }
+        );
+
+        setShowBalances(Object.values(resMap));
+      });
+  }, [
+    tokens?.map((t) => t.id).join('|'),
+    tokenInfo,
+    accountId,
+    trigger,
+    myPendingOrdersRefreshing,
+    validAccountSig,
+  ]);
+
+  return showbalances;
+}

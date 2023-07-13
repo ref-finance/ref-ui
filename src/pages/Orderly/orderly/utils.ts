@@ -288,7 +288,7 @@ export function formatTimeDate(ts: number) {
   return moment(ts).format('YYYY-MM-DD HH:mm:ss');
 }
 
-export const shortenAddress = (address: string, length = 8) => {
+export const shortenAddress = (address: string, length = 4) => {
   if (!address) return '';
   const start = address.slice(0, length);
   const end = address.slice(-length);

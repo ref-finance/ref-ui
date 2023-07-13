@@ -14,7 +14,7 @@ import { formatTimeDate, shortenAddress, getAccountName } from './utils';
 import { digitWrapperAsset } from '../utiles';
 import { useTokenInfo } from './state';
 import { useAllSymbolInfo } from '../components/TableWithTabs/state';
-import { OrderAsset, useOrderAssets } from '../components/AssetModal/state';
+import { OrderAsset, useOrderlyPortfolioAssets } from '../components/AssetModal/state';
 import { useBatchTokenMetaFromSymbols } from '../components/ChartHeader/state';
 import { NearTip } from '../../../pages/AccountPage';
 import { parseSymbol } from '../components/RecentTrade';
@@ -23,6 +23,7 @@ import ProgressBar from '../components/TableWithTabs/ProgressBar';
 import {
   AllMarketIcon
 } from '../components/Common/Icons';
+import getConfig from '../../../services/config';
 
 // Portfolio Table
 export const usePortableOrderlyTable = () => {
@@ -114,14 +115,7 @@ export const usePortableOrderlyTable = () => {
             <img
               src={fromToken?.icon}
               alt=""
-              className="rounded-full xs:hidden md:hidden flex-shrink-0 w-5 h-5 mr-2.5"
-            />
-
-            <Images
-              tokens={[fromToken, allTokens[symbolTo]]}
-              size="5"
-              className="lg:hidden"
-              borderStyle="border-gradientFrom"
+              className="rounded-full flex-shrink-0 w-5 h-5 mr-0.5 md:mr-2.5"
             />
 
             <span className="xs:text-white xs:ml-2 xs:font-bold">
@@ -167,6 +161,7 @@ export const usePortableOrderlyTable = () => {
         default: 'Open Orders',
         rightComp: <OpenbookBtn />,
         tableRowType: 'card',
+        filter: true,
         getData: ({page}: {page: number}) => getPortfolioAllOrders({ accountId, OrderProps: { page, status: 'INCOMPLETE' } }),
         columns: [
           {
@@ -185,7 +180,7 @@ export const usePortableOrderlyTable = () => {
               <TextWrapper
                 className="px-2 text-sm"
                 value={intl.formatMessage({
-                  id: side.toLowerCase(),
+                  id: side?.toLowerCase(),
                   defaultMessage: side,
                 })}
                 bg={side === 'BUY' ? 'bg-buyGreen' : 'bg-sellRed'}
@@ -224,6 +219,7 @@ export const usePortableOrderlyTable = () => {
         default: 'History',
         rightComp: <OpenbookBtn />,
         tableRowType: 'card',
+        filter: true,
         getData: ({page}: {page: number}) => getPortfolioAllOrders({ accountId, OrderProps: { page, status: 'COMPLETED' } }),
         columns: [
           {
@@ -243,7 +239,7 @@ export const usePortableOrderlyTable = () => {
               <TextWrapper
                 className="px-2 text-sm"
                 value={intl.formatMessage({
-                  id: side.toLowerCase(),
+                  id: side?.toLowerCase(),
                   defaultMessage: side,
                 })}
                 bg={side === 'BUY' ? 'bg-buyGreen' : 'bg-sellRed'}
@@ -280,7 +276,7 @@ export const usePortableOrderlyTable = () => {
     ]
   }
 
-  const displayBalances: OrderAsset[] = useOrderAssets(nonOrderlyTokenInfo);
+  const displayBalances: OrderAsset[] = useOrderlyPortfolioAssets(nonOrderlyTokenInfo);
 
   const assetsTables: PortfolioTable = {
     title: 'Assets',
@@ -291,8 +287,7 @@ export const usePortableOrderlyTable = () => {
         pagination: false,
         getData: async () => {
 
-          return {
-            data: { rows: displayBalances }}
+          return false
         },
         columns: [
           {
@@ -394,6 +389,47 @@ export const usePortableOrderlyTable = () => {
         id: 'deposit',
         default: 'Deposit',
         getData: ({page}: {page: number}) => getPortfolioAssetHistory({ accountId, page, side: 'DEPOSIT' }),
+        mobileRender: ({ token, created_time, tx_id, amount, user_id }) => (
+          <div
+            className={`m-2 p-3 gap-2 rounded-xl`}
+            style={{ backgroundColor: '#7E8A931A' }}
+          >
+            <div className="w-full inline-block text-white">
+              <div className="font-bold">{token}</div>
+            </div>
+            <div className="w-1/2 inline-block">
+              <div className={`p-0.5 my-0.5`}>
+                from <span className="text-white">{user_id}</span>
+              </div>
+              <div className={`p-0.5 text-sm my-0.5`}>
+                <span>{formatTimeDate(created_time)}</span>
+              </div>
+            </div>
+            <div className="w-1/2 inline-block text-right">
+              <div className={`p-0.5 my-0.5`}>
+                to&nbsp;
+                <span className="text-txBlue">
+                  <a
+                    href={`${getConfig().nearExplorerUrl}/transactions/${tx_id}`}
+                    target="_blank"
+                    rel="noopener noreferrer nofollow"
+                  >
+                    {shortenAddress(tx_id)}
+                  </a>
+                  <a onClick={() => navigator.clipboard.writeText(tx_id)}>
+                    <svg width="11" height="12" viewBox="0 0 11 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="inline-block ml-1">
+                      <rect x="1" y="3" width="7" height="8" rx="2" stroke="#5285DF"/>
+                      <path d="M2.72754 3.27246L2.72754 3C2.72754 1.89543 3.62297 1 4.72754 1H7.99941C9.10398 1 9.99941 1.89543 9.99941 3V7.36288C9.99941 8.36692 9.18548 9.18085 8.18144 9.18085V9.18085" stroke="#5285DF"/>
+                    </svg>
+                  </a>
+                </span>
+              </div>
+              <div className={`p-0.5 text-sm my-0.5 text-white`}>
+                Total <span className="text-white">{amount}</span>
+              </div>
+            </div>
+          </div>
+        ),
         columns: [
           {
             key: 'token',
@@ -404,7 +440,22 @@ export const usePortableOrderlyTable = () => {
           },
           { key: 'amount', textColor: '', header: 'Amount', render: ({ amount }) => amount },
           { key: 'source_address', header: 'Source Address', render: ({ user_id }) => user_id },
-          { key: 'txid', header: 'TxID', colSpan: 2, type: 'link', render: ({ tx_id }) => shortenAddress(tx_id) },
+          {
+            key: 'txid',
+            header: 'TxID',
+            colSpan: 2,
+            type: 'link',
+            render: ({ tx_id }) => (
+              <a
+                href={`${getConfig().nearExplorerUrl}/transactions/${tx_id}`}
+                className="text-txBlue"
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+              >
+                {shortenAddress(tx_id, 8)}
+              </a> 
+            )
+          },
           {
             key: 'time',
             header: 'Time',
@@ -420,6 +471,41 @@ export const usePortableOrderlyTable = () => {
         id: 'withdraw',
         default: 'Withdraw',
         getData: ({page}: {page: number}) => getPortfolioAssetHistory({ accountId, page, side: 'WITHDRAW' }),
+        mobileRender: ({ token, created_time, tx_id, amount, user_id }) => (
+          <div
+            className={`m-2 p-3 gap-2 rounded-xl`}
+            style={{ backgroundColor: '#7E8A931A' }}
+          >
+            <div className="w-full inline-block text-white">
+              <div className="font-bold">{token}</div>
+            </div>
+            <div className="w-1/2 inline-block">
+              <div className={`p-0.5 my-0.5`}>
+                from <span className="text-white">{user_id}</span>
+              </div>
+              <div className={`p-0.5 text-sm my-0.5`}>
+                <span>{formatTimeDate(created_time)}</span>
+              </div>
+            </div>
+            <div className="w-1/2 inline-block text-right">
+              <div className={`p-0.5 my-0.5`}>
+                to&nbsp;
+                <span className="text-txBlue">
+                  <a
+                    href={`${getConfig().nearExplorerUrl}/transactions/${tx_id}`}
+                    target="_blank"
+                    rel="noopener noreferrer nofollow"
+                  >
+                    {shortenAddress(tx_id)}
+                  </a>
+                </span>
+              </div>
+              <div className={`p-0.5 text-sm my-0.5 text-white`}>
+                Total <span className="text-white">{amount}</span>
+              </div>
+            </div>
+          </div>
+        ),
         columns: [
           {
             key: 'token',
@@ -430,7 +516,22 @@ export const usePortableOrderlyTable = () => {
           },
           { key: 'amount', textColor: '', header: 'Amount', render: ({ amount }) => amount },
           { key: 'source_address', header: 'Source Address', render: ({ user_id }) => user_id },
-          { key: 'txid', header: 'TxID', colSpan: 2, type: 'link', render: ({ tx_id }) => shortenAddress(tx_id) },
+          {
+            key: 'txid',
+            header: 'TxID',
+            colSpan: 2,
+            type: 'link',
+            render: ({ tx_id }) => (
+              <a
+                href={`${getConfig().nearExplorerUrl}/transactions/${tx_id}`}
+                className="text-txBlue"
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+              >
+                {shortenAddress(tx_id, 8)}
+              </a> 
+            )
+          },
           {
             key: 'time',
             header: 'Time',
@@ -447,6 +548,30 @@ export const usePortableOrderlyTable = () => {
         id: 'funding_fee',
         default: 'Funding Fee',
         getData: ({page}: {page: number}) => getFundingFee({ accountId, page }),
+        mobileRender: ({ symbol, funding_fee, created_time, status }) => (
+          <div
+            className={`m-2 p-3 gap-2 rounded-xl`}
+            style={{ backgroundColor: '#7E8A931A' }}
+          >
+            <div className="w-4/12 inline-block">
+              <div className="font-bold">{marketList.find((m) => m.textId === symbol)?.withSymbol}</div>
+              <div className={`p-0.5 text-sm my-0.5`}>
+                <span>{status}</span>
+              </div>
+            </div>
+            <div className="w-8/12 inline-block text-right">
+              <div className={`p-0.5 text-sm my-0.5 text-white`}>
+                <span className={funding_fee > 0 ? 'text-buyGreen' : 'text-sellColorNew'}>
+                  {funding_fee > 0 ? '+' : ''}{funding_fee.toFixed(4)}
+                </span>
+                &nbsp;USDC
+              </div>
+              <div className={`p-0.5 text-sm my-0.5`}>
+                <span>{formatTimeDate(created_time)}</span>
+              </div>
+            </div>
+          </div>
+        ),
         columns: [
           {
             key: 'instrument',

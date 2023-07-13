@@ -78,7 +78,8 @@ function Table({
   page,
   setPage,
   tableRowType,
-  pagination = true
+  pagination = true,
+  mobileRender
 }: {
   data: MyOrder[];
   loading: boolean;
@@ -89,6 +90,7 @@ function Table({
   setPage: (page: number) => void;
   tableRowType: string;
   pagination: boolean;
+  mobileRender: (row: any) => any
 }) {
 
   const [chooseSide, setChooseSide] = useState<'Both' | 'Buy' | 'Sell'>('Both');
@@ -117,64 +119,88 @@ function Table({
 
   return (
     <>
+      <div className="w-full hidden md:block lg:block">
+        <table className="table-fixed w-full">
+          {/* Header */}
+          <thead
+            className={`w-full xs:hidden table table-fixed  pl-5 pr-4 py-2 border-white border-opacity-10`}
+            style={{
+              width: 'calc(100% - 9px)',
+            }}
+          >
+            <tr className={`w-full px-5 table-fixed grid grid-cols-${gridCol} gap-4`}>
 
-      <table className="table-fixed w-full">
-        {/* Header */}
-        <thead
-          className={`w-full xs:hidden table table-fixed  pl-5 pr-4 py-2 border-white border-opacity-10`}
-          style={{
-            width: 'calc(100% - 9px)',
-          }}
-        >
-          <tr className={`w-full px-5 table-fixed grid grid-cols-${gridCol} gap-4`}>
-
-            {columns.map((column, i) => (
-              <TableHeader
-                key={column.key}
-                column={column}
-                loading={loading}
-                sort={sort}
-                setSort={setSort}
-              />
-            ))}
-          </tr>
-        </thead>
-        <tbody
-          className=" block overflow-auto  flex-col "
-          id="all-orders-body-open"
-        >
-          {loading ? (
-            <tr className={`w-full mt-10 mb-4 px-5 table-fixed grid grid-cols-${gridCol} gap-4`}>
-              <td className={`col-span-${gridCol} text-center`}>
-                <OrderlyLoading />
-              </td>
+              {columns.map((column, i) => (
+                <TableHeader
+                  key={column.key}
+                  column={column}
+                  loading={loading}
+                  sort={sort}
+                  setSort={setSort}
+                />
+              ))}
             </tr>
-          ) : data.filter(filterFunc).length === 0 ? (
-            <tr className={`w-full mt-10 mb-4 px-5 table-fixed grid grid-cols-${gridCol} gap-4`}>
-              <td className={`col-span-${gridCol} text-center`}>
-                {intl.formatMessage({
-                  id: 'no_orders_found',
-                  defaultMessage: 'No orders found',
-                })}
-              </td>
-            </tr>
-          ) : (
-            data
-              .sort(sortingFunc)
-              .filter(filterFunc)
-              .map((order, i) => {
-                return (
-                  <OrderLine
-                    order={order}
-                    key={`${tableKey}-order-${i}`}
-                    columns={columns}
-                    tableRowType={tableRowType}
-                  />
-                );
-              })
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody
+            className=" block overflow-auto  flex-col "
+            id="all-orders-body-open"
+          >
+            {loading ? (
+              <tr className={`w-full mt-10 mb-4 px-5 table-fixed grid grid-cols-${gridCol} gap-4`}>
+                <td className={`col-span-${gridCol} text-center`}>
+                  <OrderlyLoading />
+                </td>
+              </tr>
+            ) : data.filter(filterFunc).length === 0 ? (
+              <tr className={`w-full mt-10 mb-4 px-5 table-fixed grid grid-cols-${gridCol} gap-4`}>
+                <td className={`col-span-${gridCol} text-center`}>
+                  {intl.formatMessage({
+                    id: 'no_orders_found',
+                    defaultMessage: 'No orders found',
+                  })}
+                </td>
+              </tr>
+            ) : (
+              data
+                .sort(sortingFunc)
+                .filter(filterFunc)
+                .map((order, i) => {
+                  return (
+                    <OrderLine
+                      order={order}
+                      key={`${tableKey}-order-${i}`}
+                      columns={columns}
+                      tableRowType={tableRowType}
+                    />
+                  );
+                })
+            )}
+          </tbody>
+        </table>
+      </div>
+      <div className="w-full md:hidden lg:hidden">
+        {loading ? (
+          <div className="w-full mt-10 mb-4 px-5 gap-4">
+            <div className="text-center">
+              <OrderlyLoading />
+            </div>
+          </div>
+        ) : data.filter(filterFunc).length === 0 ? (
+          <div className="w-full mt-10 mb-4 px-5 gap-4">
+            <div className="text-center">
+              {intl.formatMessage({
+                id: 'no_orders_found',
+                defaultMessage: 'No orders found',
+              })}
+            </div>
+          </div>
+        ) : (
+          data
+            .sort(sortingFunc)
+            .filter(filterFunc)
+            .map((order) => mobileRender && mobileRender(order))
+        )}
+      </div>
 
       {/* Pagination */}
       {(!loading && data.filter(filterFunc).length > 0 && pagination) && (

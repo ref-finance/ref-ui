@@ -16,7 +16,7 @@ const en_US_in_risks_page = {
   address: 'Address',
   type: 'Type',
   txid: 'TxID',
-  funding_fee: 'Funding Fee',
+  funding_fee: 'Funding',
   funding_annual_rate: 'Funding Rate / Annual Rate',
   mission: 'Mission',
   Locked: 'Locked',

@@ -221,7 +221,9 @@ export interface PortfolioTable {
     tableRowType?: string;
     tableTopComponent?: JSX.Element;
     pagination?: boolean,
+    filter?: boolean,
     getData?: (params: any) => any;
+    mobileRender?: (row: any) => any;
   }[];
 }
 

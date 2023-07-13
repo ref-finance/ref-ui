@@ -8,7 +8,8 @@ import {
 } from '../Common/Icons';
 import Table from './Table';
 
-import { useAllSymbolInfo } from './state';
+import { useTokenInfo } from '../../orderly/state';
+import { OrderAsset, useOrderlyPortfolioAssets } from '../AssetModal/state';
 
 import {
   PortfolioTable
@@ -29,6 +30,7 @@ export function SymbolWrapper({ symbol }: { symbol: string }) {
 }
 
 function TableWithTabs({ table }: { table: PortfolioTable }) {
+  const intl = useIntl();
 
   const [mobileFilterOpen, setMobileFilterOpen] = useState<
     'open' | 'history' | undefined
@@ -42,37 +44,50 @@ function TableWithTabs({ table }: { table: PortfolioTable }) {
   const [page, setPage] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
 
+  const nonOrderlyTokenInfo = useTokenInfo();
+  const displayBalances: OrderAsset[] = useOrderlyPortfolioAssets(nonOrderlyTokenInfo);
+
+  const { getData, id } = table.tabs[tab];
+
   useEffect(() => {
     setPage(1);
-    table.tabs[tab].getData && callGetData();
+    getData && callGetData();
   }, [tab]);
 
   useEffect(() => {
-    table.tabs[tab].getData && callGetData();
+    getData && callGetData();
   }, [page]);
 
+  useEffect(() => {
+    (getData && id === 'spot') && callGetData();
+  }, [nonOrderlyTokenInfo]);
+
   const callGetData = async () => {
-    const { data } = await table.tabs[tab].getData({ page });
+    const { data } = await getData({ page });
+
+    if (!data && id === 'spot') {
+      setData(displayBalances);
+      setLoading(false);
+      return
+    }
 
     setData(data.rows || []);
     setTotal(data.meta?.total || 0);
     setLoading(false);
   }
 
-  const intl = useIntl();
-
   const [mobileFilterSize, setMobileFilterSize] = useState<number>(0);
 
   return (
     <>
       <div
-        className="w-full relative mt-10 xs:mt-5 lg:rounded-2xl shadow-sm  xs:bg-mobileOrderListBg md:border-none xs:border-none  text-primaryOrderly text-sm lg:bg-black  lg:bg-opacity-10 pb-4"
+        className="w-full relative mt-10 xs:mt-5 lg:rounded-2xl shadow-sm text-primaryOrderly text-sm lg:bg-black lg:bg-opacity-10 pb-4"
         style={{
           minHeight: isMobile ? '' : 'calc(100vh - 680px)',
         }}
       >
-        <span className="text-white gotham_bold text-lg px-5">{table.title}</span>
-        <FlexRowBetween className="pb-3 xs:mb-5 xs:bg-mobileOrderListTab py-3 rounded-t-2xl xs:px-0 xs:py-0 px-5 mt-0 border-white border-opacity-10">
+        <span className="text-white gotham_bold text-lg px-5 hidden md:block lg:block">{table.title}</span>
+        <FlexRowBetween className="pb-3 py-3 rounded-t-2xl px-5 mt-0 border-white border-opacity-10 hidden md:flex lg:flex">
           <FlexRowBetween className={`w-full min-h-8 `}>
             <FlexRow>
               {table.tabs.map((tableTab, index) => (
@@ -83,11 +98,7 @@ function TableWithTabs({ table }: { table: PortfolioTable }) {
                     setData([]);
                     setTab(index);
                   }}
-                  className={`justify-center xs:py-3 xs:px-5 ${
-                    tab === index
-                      ? 'xs:bg-mobileOrderListBg'
-                      : 'xs:bg-mobileOrderListTab'
-                  } cursor-pointer`}
+                  className={`justify-center cursor-pointer`}
                 >
                   <span
                     className={`px-5
@@ -101,7 +112,7 @@ function TableWithTabs({ table }: { table: PortfolioTable }) {
                       defaultMessage: tableTab.default,
                     })}
 
-                    {tab === index && !isMobile && (
+                    {tab === index && (
                       <div className="h-0.5 bg-gradientFromHover rounded-lg w-full absolute -bottom-5 left-0"></div>
                     )}
                   </span>
@@ -109,36 +120,66 @@ function TableWithTabs({ table }: { table: PortfolioTable }) {
               ))}
             </FlexRow>
             
-            {table.tabs[tab].rightComp && table.tabs[tab].rightComp}
+            <div className="hidden md:block lg:block">
+              {(table.tabs[tab].rightComp) && table.tabs[tab].rightComp}
+            </div>
           </FlexRowBetween>
 
-          <FlexRow className={'lg:hidden'}>
-            <div
-              className="flex relative items-center justify-center pr-5"
-              onClick={() => {
-                // todo
-                tab === 0
-                  ? setMobileFilterOpen('open')
-                  : setMobileFilterOpen('history');
-              }}
-            >
-              <MobileFilter></MobileFilter>
-              {mobileFilterSize > 0 && (
-                <div className="absolute  -bottom-1 right-3 text-10px w-3 h-3 rounded-full flex items-center justify-center font-bold text-black bg-gradientFrom">
-                  {mobileFilterSize}
-                </div>
-              )}
-            </div>
-          </FlexRow>
+          {table.tabs[tab].filter && (
+            <FlexRow className={'md:hidden lg:hidden'}>
+              <div
+                className="flex relative items-center justify-center pr-5"
+                onClick={() => {
+                  // todo
+                  tab === 0
+                    ? setMobileFilterOpen('open')
+                    : setMobileFilterOpen('history');
+                }}
+              >
+                <MobileFilter />
+                {mobileFilterSize > 0 && (
+                  <div className="absolute  -bottom-1 right-3 text-10px w-3 h-3 rounded-full flex items-center justify-center font-bold text-black bg-gradientFrom">
+                    {mobileFilterSize}
+                  </div>
+                )}
+              </div>
+            </FlexRow>
+          )}
         </FlexRowBetween>
 
-        <div className="w-full rounded-2xl bg-cardBg py-5">
+        <div
+          className={`flex items-center bg-acccountTab rounded-lg p-1 md:hidden lg:hidden`}
+        >
+          {table.tabs.map((tableTab, index) => (
+            <label
+              key={tableTab.id}
+              onClick={() => {
+                setLoading(true);
+                setData([]);
+                setTab(index);
+              }}
+              className={`flex items-center justify-center w-1/2 h-10 flex-grow text-base rounded-md  ${
+                tab === index
+                  ? 'text-white bg-acccountBlock'
+                  : 'text-primaryText'
+              }`}
+            >
+                {intl.formatMessage({
+                  id: tableTab.id,
+                  defaultMessage: tableTab.default,
+                })}
+            </label>
+          ))}
+        </div>
+
+        <div className="w-full rounded-2xl md:bg-cardBg lg:bg-cardBg py-5">
           <Table
             data={data || []}
             loading={loading}
             tableKey={table.tabs[tab].id}
             columns={table.tabs[tab].columns}
             tableRowType={table.tabs[tab].tableRowType}
+            mobileRender={table.tabs[tab].mobileRender}
             total={total}
             page={page}
             setPage={setPage}
