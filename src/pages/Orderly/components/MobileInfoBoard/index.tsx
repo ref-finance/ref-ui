@@ -307,7 +307,7 @@ export function CurAsset(props?: any) {
             </button>
           </div>
         )}
-      {valid && validAccountSig && holdings && (
+      {valid && validAccountSig && holdings && tab == 'balance' && (
         <div
           className="w-full flex flex-col pt-5 px-2"
           style={{
