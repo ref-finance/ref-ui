@@ -112,6 +112,7 @@ export default function Marquee() {
 
     '/burrow',
     '/overview',
+    '/orderly'
   ];
   return (
     <div
