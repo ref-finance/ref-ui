@@ -80,7 +80,7 @@ export function PerpOrderlyTipMobile() {
         fontSize: '13px',
         color: '#111F29',
         top: isMobile ? 'none' : '-48px',
-        zIndex: isMobile ? 999999 : '',
+        zIndex: isMobile ? 51 : '',
         position: 'fixed',
       }}
     >
