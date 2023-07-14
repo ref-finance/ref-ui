@@ -132,6 +132,7 @@ import { useLeverage } from '~pages/Orderly/orderly/state';
 import { DetailBox } from './components/DetailBox';
 import { LiquidationButton } from './components/LiquidationHistory';
 import { executeMultipleTransactions } from '~services/near';
+import { openUrl } from '~services/commonV3';
 const REF_ORDERLY_LIMIT_ORDER_ADVANCE = 'REF_ORDERLY_LIMIT_ORDER_ADVANCE';
 
 function getTipFOK() {
@@ -1329,7 +1330,11 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         <span className="font-nunito">{mmr}</span>
       </div>
       <div className="frcb w-full gap-2 text-white">
-        <button className="frcc w-1/2 py-2 rounded-lg border border-orderTypeBg gap-2">
+        <button className="frcc w-1/2 py-2 rounded-lg border border-orderTypeBg gap-2"
+          onClick={()=>{
+            openUrl('/orderly')
+          }}
+        >
           <FormattedMessage
             id="portfolio"
             defaultMessage={'Portfolio'}

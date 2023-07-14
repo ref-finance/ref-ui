@@ -356,8 +356,8 @@ export function MobileliquidationList() {
 
   const loading = liquidations === undefined;
 
-  const alldata = liquidations
-    ?.map((l) => {
+  const alldata = (
+    liquidations?.map((l) => {
       return l.positions_by_perp.map((p) => {
         const symbolFrom = parseSymbol(p.symbol).symbolFrom;
 
@@ -372,33 +372,32 @@ export function MobileliquidationList() {
           ),
         };
       });
-    })
-    .flat();
-
-  // const renderData = _.orderBy(alldata, [orderBy], ['desc']);
-  const renderData = [
-    {
-      symbol: 'PERP_BTC_USDT',
-      position_qty: 1.23,
-      cost_position_transfer: 1350,
-      transfer_price: 18123.43,
-      liquidator_fee: 0.015,
-      insurance_fund_fee: 0.015,
-      abs_liquidation_fee: 3520,
-      timestamp: 1663313562090,
-      transfer_amount_to_insurance_fund: 0,
-      onPush: true,
-    },
-  ];
+    }) || []
+  ).flat();
+  //   {
+  //     symbol: 'PERP_BTC_USDT',
+  //     position_qty: 1.23,
+  //     cost_position_transfer: 1350,
+  //     transfer_price: 18123.43,
+  //     liquidator_fee: 0.015,
+  //     insurance_fund_fee: 0.015,
+  //     abs_liquidation_fee: 3520,
+  //     timestamp: 1663313562090,
+  //     transfer_amount_to_insurance_fund: 0,
+  //     onPush: true,
+  //   },
+  // ];
 
   return (
     <div className="flex flex-col gap-4 mt-4">
-      {renderData.map((r) => {
+      {alldata.map((r) => {
         return (
           <div className="p-2 text-sm text-white rounded-xl bg-primaryText bg-opacity-20 flex flex-col gap-3 w-full">
             <div className="frcb">
               <div className="frcs gap-1 font-gothamBold w-1/2  flex-shrink-0">
                 <img
+                  // const renderData = _.orderBy(alldata, [orderBy], ['desc']);
+                  // const renderData = [
                   src={r?.from_meta?.icon}
                   alt=""
                   className={`h-7 w-7 flex-shrink-0 rounded-full border-gradientFromHover pr-2`}

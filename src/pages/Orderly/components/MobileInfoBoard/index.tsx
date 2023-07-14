@@ -158,7 +158,7 @@ export function CurAsset(props?: any) {
   const { accountId } = useWalletSelector();
 
   const [tab, setTab] = useState<'account' | 'balance'>(
-    symbolType === 'SPOT' ? 'account' : 'account'
+    symbolType === 'SPOT' ? 'balance' : 'account'
   );
 
   useEffect(() => {
@@ -215,9 +215,9 @@ export function CurAsset(props?: any) {
   const valid = !!accountId && (holdings === undefined || allHoldings > 0);
 
   return (
-    <div>
+    <div className="pb-3">
       {symbolType === 'PERP' && (
-        <div className="frcs text-sm my-3 border border-v3SwapGray border-opacity-20 rounded-2xl p-1 text-primaryText">
+        <div className="frcs text-sm my-3 border border-v3SwapGray border-opacity-20 rounded-xl p-1 text-primaryText">
           <div
             className={`w-1/2 rounded-md py-0.5 frcc ${
               tab === 'account' ? 'text-white bg-mobileOrderBg' : ''
@@ -248,7 +248,9 @@ export function CurAsset(props?: any) {
         </div>
       )}
 
-      {tab === 'account' && <PerpAccountBoard></PerpAccountBoard>}
+      {tab === 'account' && symbolType === 'PERP' && (
+        <PerpAccountBoard></PerpAccountBoard>
+      )}
 
       {(!accountId || !validAccountSig) && tab == 'balance' && (
         <div
@@ -308,12 +310,7 @@ export function CurAsset(props?: any) {
           </div>
         )}
       {valid && validAccountSig && holdings && tab == 'balance' && (
-        <div
-          className="w-full flex flex-col pt-5 px-2"
-          style={{
-            minHeight: '35vh',
-          }}
-        >
+        <div className="w-full flex flex-col pt-5 px-2 pb-3">
           <div className="grid grid-cols-4 text-sm text-primaryOrderly mb-2">
             <span className="col-span-2  justify-self-start">
               {intl.formatMessage({
@@ -394,7 +391,7 @@ export function CurAsset(props?: any) {
 
           <div className="text-sm text-white font-bold pt-4 text-left frcb">
             <div
-              className={`flex items-center ${
+              className={`flex items-center w-full ${
                 symbolType == 'PERP' ? 'justify-between' : ''
               }`}
             >
@@ -439,7 +436,7 @@ export function CurAsset(props?: any) {
               className={
                 symbolType === 'PERP'
                   ? 'hidden'
-                  : 'text-base font-normal text-gradientFromHover '
+                  : 'text-base font-normal whitespace-nowrap text-gradientFromHover '
               }
               onClick={() => {
                 setShowAllAssets(true);

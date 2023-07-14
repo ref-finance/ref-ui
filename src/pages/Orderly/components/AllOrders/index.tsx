@@ -2875,11 +2875,17 @@ function OpenOrders({
           <div className="flex flex-wrap items-center justify-end">
             {chooseMarketSymbol !== 'all_markets' && (
               <div className="flex items-center mr-2">
-                <span>
-                  {parseSymbol(chooseMarketSymbol).symbolFrom}-
-                  {parseSymbol(chooseMarketSymbol).symbolTo}
-                </span>
-
+                {symbolType === 'SPOT' && (
+                  <span>
+                    {parseSymbol(chooseMarketSymbol).symbolFrom}-
+                    {parseSymbol(chooseMarketSymbol).symbolTo}
+                  </span>
+                )}
+                {symbolType === 'PERP' && (
+                  <span>
+                    {`${parseSymbol(chooseMarketSymbol).symbolFrom} PERP`}
+                  </span>
+                )}
                 <span
                   className="ml-2 flex items-center justify-center rounded-full w-4 h-4 bg-mobileOrderListTab text-primaryText"
                   onClick={() => {
@@ -3551,10 +3557,17 @@ function HistoryOrders({
           <div className="flex flex-wrap items-center justify-end">
             {chooseMarketSymbol !== 'all_markets' && (
               <div className="flex items-center mr-2 ">
-                <span>
-                  {parseSymbol(chooseMarketSymbol).symbolFrom}-
-                  {parseSymbol(chooseMarketSymbol).symbolTo}
-                </span>
+                {symbolType === 'SPOT' && (
+                  <span>
+                    {parseSymbol(chooseMarketSymbol).symbolFrom}-
+                    {parseSymbol(chooseMarketSymbol).symbolTo}
+                  </span>
+                )}
+                {symbolType === 'PERP' && (
+                  <span>
+                    {`${parseSymbol(chooseMarketSymbol).symbolFrom} PERP`}
+                  </span>
+                )}
 
                 <span
                   className="ml-2 flex items-center justify-center rounded-full w-4 h-4 bg-mobileOrderListTab text-primaryText"

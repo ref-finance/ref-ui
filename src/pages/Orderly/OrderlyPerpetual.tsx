@@ -40,6 +40,7 @@ import { FormattedMessage } from 'react-intl';
 import { OrderBookMobile } from './components/OrderBook/index';
 import { MobileliquidationList } from './components/UserBoardPerp/components/LiquidationHistory';
 import { BsArrowRight } from 'react-icons/bs';
+import { openUrl } from '~services/commonV3';
 
 export const REF_ORDERLY_PERP_TIP_SIG = 'REF_ORDERLY_PERP_TIP_SIG';
 
@@ -257,7 +258,12 @@ function MobileTradingBoard() {
             <MobileliquidationList></MobileliquidationList>
           )}
           <div className="frcb w-full gap-2 px-3 border-t border-white text-white border-opacity-10">
-            <button className="frcc w-full mt-4 py-2 rounded-lg border border-white border-opacity-10 gap-2">
+            <button
+              className="frcc w-full mt-4 py-2 rounded-lg border border-white border-opacity-10 gap-2"
+              onClick={() => {
+                openUrl('/orderly');
+              }}
+            >
               <FormattedMessage
                 id="portfolio"
                 defaultMessage={'Portfolio'}
@@ -326,7 +332,7 @@ export function OrderlyPerpetual() {
 
   return (
     <>
-      <div className="mx-auto xs:relative lg:relative lg:bottom-6 xs:bottom-6">
+      <div className="mx-auto xs:relative lg:relative xs:w-95vw lg:bottom-6 xs:bottom-6">
         {!isMobile && <PerpOrderlyTip />}
 
         {!isMobile && <TradingBoard></TradingBoard>}
