@@ -1768,6 +1768,7 @@ export function get_account_24_apr(
       }
     });
   }
+  console.log('processed_change_log', processed_change_log);
   // 24小时apr
   let total_processed_log_value = Big(0);
   processed_change_log.forEach((log: IProcessedLogData) => {
