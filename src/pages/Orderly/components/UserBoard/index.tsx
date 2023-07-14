@@ -187,11 +187,20 @@ function RegisterModal(
   const intl = useIntl();
 
   return (
-    <Modal {...props}>
+    <Modal
+      {...props}
+      style={{
+        content: {
+          transform: isMobile()
+            ? 'translate(-50%, -50%)'
+            : 'translate(-50%, -65%)',
+        },
+      }}
+    >
       <div
-        className={` ${'rounded-2xl gradientBorderWrapperZ  border'}      bg-boxBorder text-sm text-white  `}
+        className={` rounded-2xl gradientBorderWrapperZ  border  bg-boxBorder text-sm text-white  `}
         style={{
-          width: '460px',
+          width: isMobile() ? '95vw' : '460px',
         }}
       >
         <div className=" py-6 text-white text-sm flex flex-col px-6">
@@ -2382,7 +2391,7 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
 
   return (
     <div
-      className=" pr-4 relative flex flex-col  "
+      className=" mr-4 relative flex flex-col  "
       style={{
         width: 'calc(60% + 20px)',
       }}

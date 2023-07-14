@@ -170,7 +170,9 @@ export function ConnectWallet({ onClick }: { onClick: () => void }) {
         onClick();
       }}
     >
-      <NearIcon />
+      <div className="flex-shrink-0">
+        <NearIcon />
+      </div>
 
       <span className="whitespace-nowrap ml-3  hover:bg-">
         {intl.formatMessage({
@@ -371,16 +373,6 @@ export function RegisterButton({
         onClick={(e) => {
           e.stopPropagation();
           e.preventDefault();
-
-          if (isMobile) {
-            if (!isOpenMobile) {
-              setIsOpenMobile(true);
-              return;
-            } else {
-              setCheck(true);
-              return;
-            }
-          }
 
           onClick();
 

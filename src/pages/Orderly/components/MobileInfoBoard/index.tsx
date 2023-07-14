@@ -1192,7 +1192,7 @@ export default function ({ maintenance }: { maintenance: boolean }) {
         )}
       </div>
 
-      {!validAccountSig && <RegisterWrapper></RegisterWrapper>}
+      {/* {!validAccountSig && <RegisterWrapper></RegisterWrapper>} */}
     </>
   );
 }

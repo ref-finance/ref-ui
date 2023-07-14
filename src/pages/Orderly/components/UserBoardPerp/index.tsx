@@ -216,11 +216,20 @@ function RegisterModal(
   const intl = useIntl();
 
   return (
-    <Modal {...props}>
+    <Modal
+      {...props}
+      style={{
+        content: {
+          transform: isMobile()
+            ? 'translate(-50%, -50%)'
+            : 'translate(-50%, -65%)',
+        },
+      }}
+    >
       <div
-        className={` ${'rounded-2xl gradientBorderWrapperZ  border'}      bg-boxBorder text-sm text-white  `}
+        className={` rounded-2xl gradientBorderWrapperZ  border  bg-boxBorder text-sm text-white  `}
         style={{
-          width: '460px',
+          width: isMobile() ? '95vw' : '460px',
         }}
       >
         <div className=" py-6 text-white text-sm flex flex-col px-6">
@@ -1201,7 +1210,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       ? orders.asks?.[0]?.[0]
       : orders?.bids?.[0]?.[0];
 
-     if(typeof marginRatio === 'undefined') return;
+    if (typeof marginRatio === 'undefined') return;
 
     priceAndSizeValidator(
       orderType === 'Limit' ? limitPrice : marketPrice.toString(),
@@ -1330,9 +1339,10 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         <span className="font-nunito">{mmr}</span>
       </div>
       <div className="frcb w-full gap-2 text-white">
-        <button className="frcc w-1/2 py-2 rounded-lg border border-orderTypeBg gap-2"
-          onClick={()=>{
-            openUrl('/orderly')
+        <button
+          className="frcc w-1/2 py-2 rounded-lg border border-orderTypeBg gap-2"
+          onClick={() => {
+            openUrl('/orderly');
           }}
         >
           <FormattedMessage
