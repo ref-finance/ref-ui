@@ -205,13 +205,15 @@ export function SymbolSelectorMobileModal(
 ) {
   const { setSymbol, curSymbol, all, fromList, fromListClick } = props;
 
+  const { symbol } = useOrderlyContext();
+
   const {
     allTickers: allTickersSpot,
     tokenInfo,
     allTickersPerp,
   } = useOrderlyContext();
 
-  const symbolType = PerpOrSpot(curSymbol);
+  const symbolType = PerpOrSpot(symbol);
 
   const allTickers = symbolType === 'SPOT' ? allTickersSpot : allTickersPerp;
 

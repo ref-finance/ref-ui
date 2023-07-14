@@ -175,6 +175,8 @@ export function SymbolSelectorMobileModal(
 
   const { allTickersPerp, tokenInfo } = useOrderlyContext();
 
+  const { symbol } = useOrderlyContext();
+
   const [SymbolList, setSymbolList] = useState<JSX.Element>();
 
   function SymbolLine({ ticker }: { ticker: Ticker }) {
@@ -217,6 +219,7 @@ export function SymbolSelectorMobileModal(
   }
   const [searchValue, setSearchValue] = useState<string>();
   const intl = useIntl();
+
   useEffect(() => {
     if (!allTickersPerp) return;
     else {

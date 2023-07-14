@@ -2868,7 +2868,7 @@ function OpenOrders({
             {intl.formatMessage({
               id: 'filter',
               defaultMessage: 'Filter',
-            })}{' '}
+            })}
             :
           </div>
 
