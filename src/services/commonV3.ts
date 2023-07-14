@@ -1705,7 +1705,6 @@ export function get_account_24_apr(
 
   // 24小时平均本金
   const processed_change_log: IProcessedLogData[] = [];
-  // const current_time = Big(new Date().getTime()).div(1000).toFixed(0); // 秒
   const second24 = 24 * 60 * 60;
   const { token_x, token_y, timestamp: current_time } = user_token;
   const before24Time = Big(current_time).minus(second24).toFixed(0); // 秒
@@ -1731,7 +1730,9 @@ export function get_account_24_apr(
   processed_change_log.push(current_processed);
 
   if (change_log_data?.length) {
-    change_log_data.reverse();
+    change_log_data.sort((b: IDclLogData, a: IDclLogData) => {
+      return Big(a.timestamp).minus(b.timestamp).toNumber();
+    });
     change_log_data.forEach((log: IDclLogData) => {
       const pre_processed_log =
         processed_change_log[processed_change_log.length - 1];
