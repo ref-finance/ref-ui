@@ -108,19 +108,19 @@ function MoreRouteBox(props: Modal.Props) {
         : tokenIn?.id,
   });
 
-  const RefSwapRes = useRefQuery({
-    tokenIn: {
-      ...tokenIn,
-      id:
-        tokenIn?.id?.toLowerCase() === 'near'
-          ? WRAP_NEAR_CONTRACT_ID
-          : tokenIn?.id,
-    },
+  // const RefSwapRes = useRefQuery({
+  //   tokenIn: {
+  //     ...tokenIn,
+  //     id:
+  //       tokenIn?.id?.toLowerCase() === 'near'
+  //         ? WRAP_NEAR_CONTRACT_ID
+  //         : tokenIn?.id,
+  //   },
 
-    tokenOut,
-  });
+  //   tokenOut,
+  // });
 
-  console.log('RefSwapRes: ', RefSwapRes);
+  // console.log('RefSwapRes: ', RefSwapRes);
 
   // const RefSwapRes = {};
 
@@ -137,8 +137,7 @@ function MoreRouteBox(props: Modal.Props) {
 
   const [hoverRoute, sethoverRoute] = useState<'ref' | 'spot' | 'perp'>();
 
-  const displayRefPrice =
-    RefSwapRes?.estimates === undefined ? '-' : RefSwapRes.tokenOutAmount;
+  const displayRefPrice = refDiff?.curPrice || '-';
 
   const displayRefDiff = !refDiff ? (
     '-'
