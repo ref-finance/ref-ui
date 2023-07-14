@@ -186,7 +186,6 @@ export function useTokensOrderlyBalances(
   };
 
   useEffect(() => {
-    console.log(!tokens, !tokenInfo, !accountId)
     if (!tokens || !tokenInfo || !accountId) return;
 
     Promise.all(

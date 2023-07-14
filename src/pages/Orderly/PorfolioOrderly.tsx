@@ -16,6 +16,7 @@ import {
 import { getOrderlySystemInfo } from './orderly/off-chain-api';
 import { OrderlyUnderMaintain } from './OrderlyTradingBoard';
 import { FlexRow, FlexRowBetween } from './components/Common';
+import { WarningIcon } from '../../components/icon';
 import {
   PortfolioTable
 } from './orderly/type';
@@ -32,7 +33,20 @@ function PortfolioOrderly() {
   const isSignedIn = globalState.isSignedIn;
   const [maintenance, setMaintenance] = useState<boolean>(undefined);
   const [tab, setTab] = useState<number>(0);
-  const { ordersTable, assetsTables, recordsTable } = usePortableOrderlyTable();
+  const [refOnly, setRefOnly] = useState<boolean>(false);
+  const [orderType, setOrderType] = useState<number>(0);
+  const [chooseMarketSymbol, setChooseMarketSymbol] = useState<string>('all_markets');
+  const [chooseOrderSide, setChooseOrderSide] = useState<'BOTH' | 'BUY' | 'SELL'>('BOTH');
+  const { ordersTable, assetsTables, recordsTable } = usePortableOrderlyTable({
+    refOnly,
+    setRefOnly,
+    orderType,
+    setOrderType,
+    chooseMarketSymbol,
+    setChooseMarketSymbol,
+    chooseOrderSide,
+    setChooseOrderSide
+  });
 
   useEffect(() => {
     getOrderlySystemInfo().then((res) => {
@@ -86,7 +100,7 @@ function PortfolioOrderly() {
                     In Open order
                   </span>
                 </div>
-                <span className="text-2xl gotham_bold text-white mt-1">
+                <span className="text-xl gotham_bold text-white mt-1">
                   $0
                 </span>
               </div>
@@ -96,14 +110,35 @@ function PortfolioOrderly() {
                     Available
                   </span>
                 </div>
-                <span className="text-2xl gotham_bold text-white mt-1">
+                <span className="text-xl gotham_bold text-white mt-1">
                   $0
                 </span>
               </div>
             </div>
             
             <div className="hidden md:block lg:block">
-              {[ordersTable, assetsTables, recordsTable].map((table) => <TableWithTabs key={table.title} table={table} maintenance={maintenance} />)}
+              <TableWithTabs
+                table={ordersTable}
+                maintenance={maintenance}
+                refOnly={refOnly}
+                orderType={orderType}
+                setOrderType={setOrderType}
+                chooseMarketSymbol={chooseMarketSymbol}
+                setChooseMarketSymbol={setChooseMarketSymbol}
+                chooseOrderSide={chooseOrderSide}
+                setChooseOrderSide={setChooseOrderSide}
+              />
+              <TableWithTabs table={assetsTables} maintenance={maintenance} />
+              <TableWithTabs table={recordsTable} maintenance={maintenance} />
+              <span className="text-xs text-primaryOrderly flex items-center">
+                <div className="ml-5 mr-1">
+                  <WarningIcon />
+                </div>
+                {intl.formatMessage({
+                  id: 'orderly_portfolio_table_tips',
+                  defaultMessage: 'The data provided herein includes all assets and records in your account, not limited to those generated through REF.',
+                })}
+              </span>
             </div>
             
             <div className="md:hidden lg:hidden">
@@ -138,8 +173,20 @@ function PortfolioOrderly() {
               </FlexRow>
 
               {tab === 0 && <TableWithTabs table={assetsTables} maintenance={maintenance} />}
-              {tab === 1 && <TableWithTabs table={ordersTable} maintenance={maintenance}/>}
-              {tab === 2 && <TableWithTabs table={recordsTable} maintenance={maintenance}/>}
+              {tab === 1 && (
+                <TableWithTabs
+                  table={ordersTable}
+                  maintenance={maintenance}
+                  refOnly={refOnly}
+                  orderType={orderType}
+                  setOrderType={setOrderType}
+                  chooseMarketSymbol={chooseMarketSymbol}
+                  setChooseMarketSymbol={setChooseMarketSymbol}
+                  chooseOrderSide={chooseOrderSide}
+                  setChooseOrderSide={setChooseOrderSide}
+                />
+              )}
+              {tab === 2 && <TableWithTabs table={recordsTable} maintenance={maintenance} />}
               
             </div>
           </div>

@@ -77,7 +77,12 @@ function OrderLine({
               key={column.key}
               className={`col-span-${column.colSpan ? column.colSpan : 1} flex items-center py-5 pr-2 relative`}
             >
-              <div className={`flex items-center ${column.textColor !== undefined ? column.textColor : 'text-white'}`}>
+              <div
+                className={`
+                  flex items-center ${column.textColor !== undefined ? column.textColor : 'text-white'}
+                  ${column.render({ ...order }) === '-' ? ' text-center' : '' }
+                `}
+              >
                 {column.render({ ...order })}
               </div>
             </td>
@@ -98,6 +103,7 @@ function Table({
   setPage,
   tableRowType,
   tableRowEmpty,
+  tableTopComponent,
   pagination = true,
   mobileRender,
   maintenance
@@ -111,6 +117,7 @@ function Table({
   setPage: (page: number) => void;
   tableRowType: string;
   tableRowEmpty?: string;
+  tableTopComponent: JSX.Element,
   pagination: boolean;
   mobileRender: (row: any) => any;
   maintenance: boolean;
@@ -299,6 +306,7 @@ function Table({
         </div>
       )}
       <div className="w-full hidden md:block lg:block">
+        {tableTopComponent}
         <table className="table-fixed w-full">
           {/* Header */}
           <thead
