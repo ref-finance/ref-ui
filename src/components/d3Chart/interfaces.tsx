@@ -1,3 +1,4 @@
+import { UserLiquidityInfo } from '../../services/commonV3';
 export interface IChartData {
   pool_id: string;
   point: number;
@@ -5,8 +6,14 @@ export interface IChartData {
   token_y: string;
   liquidity: string;
   price?: string;
+  
+  price_l?: string;
   price_r?: string;
-  point_r?: string;
+  point_l?:number;
+  point_r?: number;
+  
+  price_l_reverse?:string;
+  price_r_reverse?:string;
   order_x?: string;
   order_y?: string;
   order_liquidity?: string;
@@ -96,3 +103,21 @@ export interface IProcessedLogData {
   token_y: string;
 }
 export type IRMTYPE = 'round' | 'floor' | 'ceil';
+
+export interface IDclChartProps {
+  pool_id: string;
+  leftPoint?: number;
+  rightPoint?: number;
+  setLeftPoint?: Function;
+  setRightPoint?: Function;
+  config?: IPoolChartConfig;
+  chartType?: 'POOL' | 'USER';
+  removeParams?: {
+    fromLeft?: boolean;
+    fromRight?: boolean;
+    point?: number;
+    all?: boolean;
+  };
+  newlyAddedLiquidities?: UserLiquidityInfo[];
+  reverse?: boolean;
+}

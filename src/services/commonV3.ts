@@ -2073,3 +2073,7 @@ export function get_token_amount_in_user_liquidities({
   });
   return [total_x_amount.toFixed(), total_y_amount.toFixed()];
 }
+export function reverse_price(price: string) {
+  if (Big(price).eq(0)) return '999999999999999999999';
+  return Big(1).div(price).toFixed();
+}
