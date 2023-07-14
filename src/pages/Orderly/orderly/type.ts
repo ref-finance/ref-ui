@@ -377,6 +377,8 @@ export interface PortfolioTable {
     rightComp?: JSX.Element;
     columns?: PortfolioTableColumns[];
     tableRowType?: string;
+    tableRowEmpty?: string;
+    mobileKey?: string;
     tableTopComponent?: JSX.Element;
     pagination?: boolean,
     filter?: boolean,
@@ -388,6 +390,7 @@ export interface PortfolioTable {
 export interface PortfolioTableColumns {
   key: string;
   header: string;
+  mobileHeaderKey?: string;
   type?: string;
   render?: (row: any) => any;
   selectList?: string[];

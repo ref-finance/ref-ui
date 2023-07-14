@@ -140,7 +140,8 @@ function getTipIoc() {
   })}
   </div>`;
 }
-function validContract() {
+
+export function validContract() {
   const selectedWalletId = getSelectedWalletId();
 
   if (selectedWalletId === 'sender') {
@@ -176,7 +177,7 @@ function validContract() {
   }
 }
 
-function RegisterModal(
+export function RegisterModal(
   props: Modal.Props & {
     orderlyRegistered: boolean;
     onConfirm: () => void;
@@ -1046,7 +1047,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
       {validator && !loading && !maintenance && (
         <div
-          className="absolute  flex flex-col justify-center items-center h-full w-full top-0 left-0 "
+          className="absolute flex flex-col justify-center items-center h-full w-full top-0 left-0 "
           style={{
             background: 'rgba(0, 19, 32, 0.8)',
             backdropFilter: 'blur(5px)',

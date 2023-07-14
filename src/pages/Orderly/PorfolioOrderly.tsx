@@ -103,7 +103,7 @@ function PortfolioOrderly() {
             </div>
             
             <div className="hidden md:block lg:block">
-              {[ordersTable, assetsTables, recordsTable].map((table) => <TableWithTabs key={table.title} table={table} />)}
+              {[ordersTable, assetsTables, recordsTable].map((table) => <TableWithTabs key={table.title} table={table} maintenance={maintenance} />)}
             </div>
             
             <div className="md:hidden lg:hidden">
@@ -137,9 +137,9 @@ function PortfolioOrderly() {
                 </FlexRow>
               </FlexRow>
 
-              {tab === 0 && <TableWithTabs table={assetsTables} />}
-              {tab === 1 && <TableWithTabs table={ordersTable} />}
-              {tab === 2 && <TableWithTabs table={recordsTable} />}
+              {tab === 0 && <TableWithTabs table={assetsTables} maintenance={maintenance} />}
+              {tab === 1 && <TableWithTabs table={ordersTable} maintenance={maintenance}/>}
+              {tab === 2 && <TableWithTabs table={recordsTable} maintenance={maintenance}/>}
               
             </div>
           </div>
