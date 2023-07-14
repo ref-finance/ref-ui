@@ -1379,6 +1379,9 @@ function MenuBar() {
     menuItemType[]
   >([]);
   const [hover_one_level_id, set_hover_one_level_id] = useState<string>();
+
+  const [hover_two_level_id, set_hover_two_level_id] = useState<string>();
+
   const [back_one_level_item, set_back_one_level_item] =
     useState<JSX.Element>();
   const [one_level_selected, set_one_level_selected] = useState<string>('');
@@ -1484,7 +1487,7 @@ function MenuBar() {
   return (
     <div className="flex items-center h-full z-50">
       {menus?.map((menuItem: menuItemType, indexP) => {
-        const { label, logo, children, id } = menuItem;
+        const { label, logo, children, id, hoverLabel } = menuItem;
         return (
           <div
             id={`menu-${id}`}
@@ -1521,7 +1524,7 @@ function MenuBar() {
                   ? ''
                   : 'hidden'
               }`}
-              style={{ minWidth: '220px' }}
+              style={{ minWidth: '220px', left: '-80px' }}
             >
               {back_one_level_item && (
                 <div
@@ -1535,21 +1538,38 @@ function MenuBar() {
                 </div>
               )}
               {hover_two_level_items?.map((item: menuItemType, indexC) => {
-                const { label, logo, children, id, icon } = item;
+                const {
+                  label,
+                  logo,
+                  children,
+                  id: id_two_level,
+                  icon,
+                  hoverLabel,
+                } = item;
                 return (
                   <div
                     key={indexC}
                     onClick={() => {
                       click_two_level_item(item);
                     }}
+                    onMouseEnter={() => {
+                      set_hover_two_level_id(id_two_level);
+                    }}
+                    onMouseLeave={() => {
+                      set_hover_two_level_id(id_two_level);
+                    }}
                     className={`flex items-center rounded-xl whitespace-nowrap hover:bg-menuMoreBgColor hover:text-white text-sm py-3 my-1.5 px-2 cursor-pointer ${
-                      two_level_selected == id
+                      two_level_selected == id_two_level
                         ? 'bg-menuMoreBgColor text-white'
                         : 'text-primaryText'
                     }`}
                   >
                     {logo ? <div className="w-8 mr-2">{logo}</div> : null}
-                    <div className="text-base ">{label}</div>
+                    <div className="text-base ">
+                      {hover_two_level_id == id_two_level && hoverLabel
+                        ? hoverLabel
+                        : label}
+                    </div>
                     {children ? (
                       <span className="text-xl ml-2">
                         <FiChevronRight />

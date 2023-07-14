@@ -281,7 +281,7 @@ export const useMenus = (cb?: () => void) => {
         },
         {
           id: '1-3',
-          label: (
+          hoverLabel: (
             <div className="w-full">
               <div className="frcs gap-6 mb-2">
                 <OrderBookIcon />
@@ -299,7 +299,7 @@ export const useMenus = (cb?: () => void) => {
                   style={{
                     width: '120px',
                   }}
-                  className={`frcc bg-orderbookBase hover:bg-light1 w-1/2 rounded-xl py-2 ${
+                  className={`frcc bg-symbolHover2 hover:bg-light1 w-1/2 rounded-xl py-2 ${
                     window.location.pathname.startsWith('/orderbook/spot')
                       ? 'bg-light1'
                       : ''
@@ -323,7 +323,7 @@ export const useMenus = (cb?: () => void) => {
                   style={{
                     width: '120px',
                   }}
-                  className={`frcc bg-orderbookBase hover:bg-light1 w-1/2 rounded-xl py-2  ${
+                  className={`frcc bg-symbolHover2 hover:bg-light1 w-1/2 rounded-xl py-2  ${
                     window.location.pathname.startsWith('/orderbook/perps')
                       ? 'bg-light1'
                       : ''
@@ -335,6 +335,13 @@ export const useMenus = (cb?: () => void) => {
                   ></FormattedMessage>
                 </button>
               </div>
+            </div>
+          ),
+
+          label: (
+            <div className="frcs gap-6 mb-2">
+              <OrderBookIcon />
+              <FormattedMessage id="orderbook_mobile"></FormattedMessage>
             </div>
           ),
 
@@ -474,7 +481,7 @@ export const useMenus = (cb?: () => void) => {
           url: '/burrow',
           isExternal: false,
           links: ['/burrow'],
-        }
+        },
       ],
     },
 
@@ -1054,4 +1061,5 @@ export interface menuItemType {
   swap_mode?: string;
   icon?: JSX.Element;
   hidden?: boolean;
+  hoverLabel?: JSX.Element;
 }
