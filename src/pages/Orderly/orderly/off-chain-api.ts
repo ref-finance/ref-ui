@@ -651,6 +651,23 @@ export const getPortfolioAssetHistory = async ({
   return res;
 }
 
+export const getPortfolioSettlements = async ({
+  page = 1,
+  accountId
+} : {
+  accountId: string;
+  page: number;
+}) => {
+  const url =`/v1/pnl_settlement/history?size=10&page=${page}`;
+
+  const res = requestOrderly({
+    url,
+    accountId
+  });
+
+  return res;
+}
+
 export const getPortfolioPosition = async ({
   accountId
 } : {
@@ -672,7 +689,9 @@ export const getPortfolioAllOrders = async (props: {
     symbol?: string;
     page?: number;
     size?: number;
-    status?: 'NEW' | 'CANCELLED' | 'PARTIAL_FILLED' | 'FILLED' | 'REJECTED' | 'INCOMPLETE' | 'COMPLETED' 
+    status?: 'NEW' | 'CANCELLED' | 'PARTIAL_FILLED' | 'FILLED' | 'REJECTED' | 'INCOMPLETE' | 'COMPLETED',
+    broker_id?: string,
+    side?: 'BUY' | 'SELL'
   };
 }) => {
   const res = await getOrders({

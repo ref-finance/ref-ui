@@ -404,8 +404,8 @@ export const useOrderlyMarketData = ({
     getFundingRateSymbol(symbol).then((res) => {
       setEstFundingRate({
         symbol,
-        fundingRate: res.data.est_funding_rate,
-        fundingTs: res.data.next_funding_time,
+        fundingRate: res.data?.est_funding_rate,
+        fundingTs: res.data?.next_funding_time,
       });
     });
   }, [symbol]);

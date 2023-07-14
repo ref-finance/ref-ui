@@ -963,6 +963,7 @@ const en_US = {
   v1_your_pool_introduction: 'Your liquidity in classic pools',
   estimate_value: 'Estimate Value',
   price: 'Price',
+  '@price': '@Price',
   h24_high: '24h High',
   h24_low: '24h Low',
   h24_Volume: '24h Volume',
@@ -1001,9 +1002,16 @@ const en_US = {
   deposit_assets_to_begin_your_trading_journey:
     'Deposit assets to begin your {br} trading journey.',
   open_orders: 'Open Orders',
+  ref_order_only: 'Order on REF only',
+  orderly_portfolio_table_tips: 'The data provided herein includes all assets and records in your account, not limited to those generated through REF.',
+  settlements: 'Settlements',
+  settled_balance: 'Settled Balance',
+  settled_amount: 'Settlement Amount',
   Side: 'Side',
+  all_side: 'All Side',
   both: 'Both',
   filled_qty: 'Filled / Qty',
+  fill_qty: 'Fill / Qty',
   est_total: 'Est.Total',
   avg_price: 'Avg.Price',
   create_time: 'Create Time',
@@ -1046,6 +1054,7 @@ const en_US = {
   more_order_book_page_detail:
     'This Orderbook page is powered by Orderly Network, users are strongly encouraged to do their own research before connecting their wallet and/or placing any orders.{br} Ref Finance does not guarantee the security of the systems, smart contracts, and any funds deposited or sent to those systems and contracts.{br} Neither Ref Finance nor Orderly Network is responsible for any profit or loss of investment users made through this Orderbook page.',
   learn_more_about: 'Learn more about',
+  learn_more_about_zh: ' ',
   by_click_confirm:
     'By clicking "Confirm", you confirm that you have comprehensively reviewed and comprehended the contents aforementioned',
   connect_to_orderly_account:

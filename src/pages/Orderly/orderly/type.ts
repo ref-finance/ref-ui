@@ -395,7 +395,8 @@ export interface PortfolioTableColumns {
   render?: (row: any) => any;
   selectList?: string[];
   extras?: string | string[];
-  icon?: string;
+  icon?: any;
+  suffix?: any;
   colSpan?: number;
   list?: {
     text: string;
