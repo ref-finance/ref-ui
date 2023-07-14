@@ -492,13 +492,6 @@ const withdrawOrderly = async (token: string, amount: string) => {
   return signAndSendTransactions(transactions);
 };
 
-const user_request_settlement = async () => {
-  return {
-    methodName: 'user_request_settlement',
-    gas: '30000000000000',
-  };
-};
-
 const perpSettlementTx = async () => {
   const transaction: Transaction = {
     receiverId: ORDERLY_ASSET_MANAGER,

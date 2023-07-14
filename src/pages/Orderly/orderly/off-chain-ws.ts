@@ -520,8 +520,8 @@ export const useOrderlyPrivateData = ({
 
     if (lastJsonMessage?.['topic'] === 'liquidatorliquidations') {
       setLiquidations((liquidations) => [
-        ...liquidations,
         lastJsonMessage?.['data'],
+        ...liquidations,
       ]);
     }
 

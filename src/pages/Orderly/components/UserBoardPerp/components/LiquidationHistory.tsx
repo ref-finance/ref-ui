@@ -15,6 +15,10 @@ import { formatTimeDate } from '../../OrderBoard';
 import { TokenIcon } from '../../Common';
 import { numberWithCommas } from '~pages/Orderly/utiles';
 import { OrderlyLoading } from '../../Common/Icons';
+import { LiquidationPushType } from '../../../orderly/type';
+
+export const REF_FI_ORDERLY_LIQUIDATION_UNREAD =
+  'REF_FI_ORDERLY_LIQUIDATION_UNREAD';
 
 function SortArrow(props: any & { on: boolean }) {
   return (
@@ -26,7 +30,12 @@ function SortArrow(props: any & { on: boolean }) {
   );
 }
 
-function LiquidationHistoryModal(props: Modal.Props) {
+function LiquidationHistoryModal(
+  props: Modal.Props & {
+    unReadCount: number;
+    setUnReadCount: React.Dispatch<React.SetStateAction<number>>;
+  }
+) {
   const isMobile = useClientMobile();
 
   const { availableSymbols, tokenInfo } = useOrderlyContext();
@@ -86,6 +95,17 @@ function LiquidationHistoryModal(props: Modal.Props) {
   //       transfer_amount_to_insurance_fund: 0,
   //     },
   //   ];
+
+  useEffect(() => {
+    if (loading) return;
+
+    const id = setTimeout(() => {
+      props.setUnReadCount(0);
+      localStorage.removeItem(REF_FI_ORDERLY_LIQUIDATION_UNREAD);
+    }, 1000);
+
+    return () => clearTimeout(id);
+  }, [loading]);
 
   return (
     <Modal
@@ -270,20 +290,60 @@ function LiquidationHistoryModal(props: Modal.Props) {
 export function LiquidationButton() {
   const { liquidations, setLiquidations } = useOrderlyContext();
 
+  const storedUnRead = localStorage.getItem(REF_FI_ORDERLY_LIQUIDATION_UNREAD);
+
+  const [unReadCount, setUnReadCount] = useState<number>(
+    !storedUnRead ? 0 : Number(storedUnRead)
+  );
+  useEffect(() => {
+    if (!liquidations.length) return;
+    setUnReadCount((c) => c + 1);
+    localStorage.setItem(
+      REF_FI_ORDERLY_LIQUIDATION_UNREAD,
+
+      (liquidations.length + 1).toString()
+    );
+  }, [liquidations?.length]);
+
   const [showLiquidationHistory, setShowLiquidationHistory] =
     useState<boolean>(false);
 
   return (
     <>
       <button
+        className="frcss w-p200 rounded-lg py-2 bg-gradientFromHover text-black "
         onClick={() => {
-          setLiquidations([]);
+          setLiquidations([
+            {
+              liquidationId: 1,
+              timestamp: 1684821114917,
+              type: 'liquidated',
+              positionsByPerp: [
+                {
+                  symbol: 'PERP_NEAR_USDC',
+                  positionQty: 12.6,
+                  costPositionTransfer: 20.05668,
+                  transferPrice: 1.5918,
+                  liquidatorFee: 0.0175,
+                  absLiquidatorFee: 0.350992,
+                },
+              ],
+            },
+            ...liquidations,
+          ]);
+        }}
+      >
+        click to push
+      </button>
+
+      <button
+        onClick={() => {
           setShowLiquidationHistory(true);
         }}
         className={`frcc w-1/2 py-2 rounded-lg border  gap-2
         
             ${
-              liquidations.length > 0
+              unReadCount > 0
                 ? 'border-liquidationBorder text-sellRed'
                 : 'border-orderTypeBg  text-white'
             }
@@ -293,7 +353,7 @@ export function LiquidationButton() {
           id="liquidations"
           defaultMessage={'liquidations'}
         ></FormattedMessage>
-        {liquidations.length > 0 && (
+        {unReadCount > 0 && (
           <div
             className="rounded frcc bg-sellRed text-10px"
             style={{
@@ -302,7 +362,7 @@ export function LiquidationButton() {
               color: '#0E1B24',
             }}
           >
-            {liquidations.length}
+            {unReadCount}
           </div>
         )}
       </button>
@@ -313,13 +373,22 @@ export function LiquidationButton() {
           onRequestClose={() => {
             setShowLiquidationHistory(false);
           }}
+          unReadCount={unReadCount}
+          setUnReadCount={setUnReadCount}
         ></LiquidationHistoryModal>
       )}
     </>
   );
 }
 
-export function MobileliquidationList() {
+export function MobileliquidationList({
+  unReadCount,
+  setUnReadCount,
+}: {
+  unReadCount: number;
+
+  setUnReadCount: React.Dispatch<React.SetStateAction<number>>;
+}) {
   const {
     availableSymbols,
     tokenInfo,
@@ -348,11 +417,12 @@ export function MobileliquidationList() {
 
   useEffect(() => {
     const id = setTimeout(() => {
-      setLiquidations([]);
+      setUnReadCount(0);
+      localStorage.removeItem(REF_FI_ORDERLY_LIQUIDATION_UNREAD);
     }, 1000);
 
     return () => clearTimeout(id);
-  }, []);
+  }, [liquidationsFromPush?.[0]?.timestamp]);
 
   const loading = liquidations === undefined;
 
@@ -390,7 +460,7 @@ export function MobileliquidationList() {
 
   return (
     <div className="flex flex-col gap-4 mt-4">
-      {alldata.map((r) => {
+      {liquidationsFromPush.concat(alldata).map((r) => {
         return (
           <div className="p-2 text-sm text-white rounded-xl bg-primaryText bg-opacity-20 flex flex-col gap-3 w-full">
             <div className="frcb">
@@ -409,7 +479,7 @@ export function MobileliquidationList() {
 
               <div className="w-1/2 flex items-center justify-end gap-1">
                 {formatTimeDate(r.timestamp)}
-                {r.onPush && (
+                {(r?.onPush || !!r.liquidationId) && unReadCount && (
                   <div className="w-2 h-2 rounded-full bg-sellRed"></div>
                 )}
               </div>
@@ -430,7 +500,7 @@ export function MobileliquidationList() {
                     textC="text-primaryText"
                   ></TextWrapper>
                 </div>
-                <div>{numberWithCommas(r.transfer_price)}</div>
+                <div>{numberWithCommas(r?.transfer_price || 0)}</div>
               </div>
 
               <div className="w-1/2">
@@ -441,7 +511,7 @@ export function MobileliquidationList() {
                   ></FormattedMessage>
                 </div>
 
-                <div>{numberWithCommas(r.position_qty)}</div>
+                <div>{numberWithCommas(r?.position_qty || 0)}</div>
               </div>
             </div>
 
@@ -454,7 +524,7 @@ export function MobileliquidationList() {
                   ></FormattedMessage>
                 </div>
                 <div className="frcs whitespace-nowrap gap-1">
-                  <span>{numberWithCommas(r.liquidator_fee)}</span>
+                  <span>{numberWithCommas(r?.liquidator_fee || 0)}</span>
                   <span>USDC</span>
                 </div>
               </div>
@@ -468,7 +538,7 @@ export function MobileliquidationList() {
                 </div>
 
                 <div>
-                  {numberWithCommas(r.transfer_amount_to_insurance_fund)}
+                  {numberWithCommas(r?.transfer_amount_to_insurance_fund || 0)}
                 </div>
               </div>
             </div>

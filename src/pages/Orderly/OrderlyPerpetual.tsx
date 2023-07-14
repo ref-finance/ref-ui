@@ -38,7 +38,10 @@ import { PerpOrSpot } from './utiles';
 import { useAllOrders, useLiquidationHistoryAll } from './orderly/state';
 import { FormattedMessage } from 'react-intl';
 import { OrderBookMobile } from './components/OrderBook/index';
-import { MobileliquidationList } from './components/UserBoardPerp/components/LiquidationHistory';
+import {
+  MobileliquidationList,
+  REF_FI_ORDERLY_LIQUIDATION_UNREAD,
+} from './components/UserBoardPerp/components/LiquidationHistory';
 import { BsArrowRight } from 'react-icons/bs';
 import { openUrl } from '~services/commonV3';
 
@@ -132,6 +135,21 @@ function MobileTradingBoard() {
     type: symbolType,
   });
 
+  const storedUnRead = localStorage.getItem(REF_FI_ORDERLY_LIQUIDATION_UNREAD);
+
+  const [unReadCount, setUnReadCount] = useState<number>(
+    !storedUnRead ? 0 : Number(storedUnRead)
+  );
+  useEffect(() => {
+    if (!liquidations.length) return;
+    localStorage.setItem(
+      REF_FI_ORDERLY_LIQUIDATION_UNREAD,
+
+      (unReadCount + 1).toString()
+    );
+    setUnReadCount((c) => c + 1);
+  }, [liquidations?.length, liquidations?.[0]?.timestamp]);
+
   React.useEffect(() => {
     if (maintenance) {
       document.body.style.overflow = 'hidden';
@@ -167,6 +185,32 @@ function MobileTradingBoard() {
         {/* operation board */}
       </div>
 
+      <button
+        className="frcss w-p200 rounded-lg py-2 bg-gradientFromHover text-black "
+        onClick={() => {
+          setLiquidations([
+            {
+              liquidationId: 1,
+              timestamp: Math.abs(Math.random()) + 100000000000,
+              type: 'liquidated',
+              positionsByPerp: [
+                {
+                  symbol: 'PERP_NEAR_USDC',
+                  positionQty: 12.6,
+                  costPositionTransfer: 20.05668,
+                  transferPrice: 1.5918,
+                  liquidatorFee: 0.0175,
+                  absLiquidatorFee: 0.350992,
+                },
+              ],
+            },
+            ...liquidations,
+          ]);
+        }}
+      >
+        click to push
+      </button>
+
       {route == 'user_board' && (
         <>
           <div className="w-full frcs border-b text-sm text-primaryText border-white border-opacity-20">
@@ -188,7 +232,7 @@ function MobileTradingBoard() {
                 <div
                   className="w-full absolute -bottom-0.5 h-0.5 bg-gradientFromHover"
                   style={{
-                    width: 'calc(100% - 40px)',
+                    width: 'calc(100% - 20px)',
                   }}
                 ></div>
               )}
@@ -210,7 +254,7 @@ function MobileTradingBoard() {
               {displayTab === 'assets' && (
                 <div
                   style={{
-                    width: 'calc(100% - 40px)',
+                    width: 'calc(100% - 20px)',
                   }}
                   className="w-full absolute -bottom-0.5 h-0.5 bg-gradientFromHover"
                 ></div>
@@ -229,16 +273,22 @@ function MobileTradingBoard() {
                 id="liquidations"
                 defaultMessage={'Liquidations'}
               ></FormattedMessage>
-              {liquidations.length > 0 && (
-                <div className="rounded-full w-3 h-3 bg-sellRed frcc">
-                  {liquidations.length}
+              {unReadCount > 0 && (
+                <div
+                  className="rounded-full text-10px text-chartBg  bg-sellRed frcc"
+                  style={{
+                    width: '14px',
+                    height: '14px',
+                  }}
+                >
+                  {unReadCount}
                 </div>
               )}
 
               {displayTab === 'liquidations' && (
                 <div
                   style={{
-                    width: 'calc(100% - 40px)',
+                    width: 'calc(100% - 20px)',
                   }}
                   className="w-full absolute -bottom-0.5 h-0.5 bg-gradientFromHover"
                 ></div>
@@ -255,7 +305,10 @@ function MobileTradingBoard() {
           {displayTab === 'assets' && <CurAsset></CurAsset>}
 
           {displayTab === 'liquidations' && (
-            <MobileliquidationList></MobileliquidationList>
+            <MobileliquidationList
+              unReadCount={unReadCount}
+              setUnReadCount={setUnReadCount}
+            ></MobileliquidationList>
           )}
           <div className="frcb w-full gap-2 px-3 border-t border-white text-white border-opacity-10">
             <button
