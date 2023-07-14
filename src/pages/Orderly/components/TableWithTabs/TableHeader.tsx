@@ -23,7 +23,7 @@ export default function TableHeader({
 
   const intl = useIntl();
 
-  const { colSpan = 1, key, header, extras, list } = column
+  const { colSpan = 1, key, header, mobileHeaderKey, extras, list } = column
 
   return (
     <>
@@ -44,6 +44,7 @@ export default function TableHeader({
           }}
         >
           <span
+            className="hidden md:block lg:block"
             style={{ color: (sort[0] === key || showSideSelector) ? 'white' : '#7E8A93' }}
           >
             {select ?
@@ -52,6 +53,20 @@ export default function TableHeader({
                 defaultMessage: select,
               }) : intl.formatMessage({
                 id: key,
+                defaultMessage: header,
+              })
+            }
+          </span>
+          <span
+            className="md:hidden lg:hidden"
+            style={{ color: (sort[0] === key || showSideSelector) ? 'white' : '#7E8A93' }}
+          >
+            {select ?
+              intl.formatMessage({
+                id: select,
+                defaultMessage: select,
+              }) : intl.formatMessage({
+                id: mobileHeaderKey ? mobileHeaderKey : key,
                 defaultMessage: header,
               })
             }

@@ -161,6 +161,7 @@ export const usePortableOrderlyTable = () => {
         default: 'Open Orders',
         rightComp: <OpenbookBtn />,
         tableRowType: 'card',
+        tableRowEmpty: 'no_orders_found',
         filter: true,
         getData: ({page}: {page: number}) => getPortfolioAllOrders({ accountId, OrderProps: { page, status: 'INCOMPLETE' } }),
         columns: [
@@ -219,6 +220,7 @@ export const usePortableOrderlyTable = () => {
         default: 'History',
         rightComp: <OpenbookBtn />,
         tableRowType: 'card',
+        tableRowEmpty: 'no_orders_found',
         filter: true,
         getData: ({page}: {page: number}) => getPortfolioAllOrders({ accountId, OrderProps: { page, status: 'COMPLETED' } }),
         columns: [
@@ -389,6 +391,7 @@ export const usePortableOrderlyTable = () => {
         id: 'deposit',
         default: 'Deposit',
         getData: ({page}: {page: number}) => getPortfolioAssetHistory({ accountId, page, side: 'DEPOSIT' }),
+        tableRowEmpty: 'no_records_found',
         mobileRender: ({ token, created_time, tx_id, amount, user_id }) => (
           <div
             className={`m-2 p-3 gap-2 rounded-xl`}
@@ -462,7 +465,6 @@ export const usePortableOrderlyTable = () => {
             type: 'dateTime',
             colSpan: 2,
             textColor: '',
-            extras: ['sort'],
             render: ({ created_time }) => formatTimeDate(created_time)
           },
         ]
@@ -471,6 +473,7 @@ export const usePortableOrderlyTable = () => {
         id: 'withdraw',
         default: 'Withdraw',
         getData: ({page}: {page: number}) => getPortfolioAssetHistory({ accountId, page, side: 'WITHDRAW' }),
+        tableRowEmpty: 'no_records_found',
         mobileRender: ({ token, created_time, tx_id, amount, user_id }) => (
           <div
             className={`m-2 p-3 gap-2 rounded-xl`}
@@ -538,7 +541,6 @@ export const usePortableOrderlyTable = () => {
             type: 'dateTime',
             colSpan: 2,
             textColor: '',
-            extras: ['sort'],
             render: ({ created_time }) => formatTimeDate(created_time)
           },
         ]
@@ -547,7 +549,9 @@ export const usePortableOrderlyTable = () => {
       {
         id: 'funding_fee',
         default: 'Funding Fee',
+        mobileKey: 'funding',
         getData: ({page}: {page: number}) => getFundingFee({ accountId, page }),
+        tableRowEmpty: 'no_records_found',
         mobileRender: ({ symbol, funding_fee, created_time, status }) => (
           <div
             className={`m-2 p-3 gap-2 rounded-xl`}
@@ -592,6 +596,7 @@ export const usePortableOrderlyTable = () => {
           {
             key: 'funding_fee',
             header: 'Funding Fee',
+            mobileHeaderKey: 'funding',
             colSpan: 2,
             render: ({ funding_fee }) => (
               <>
@@ -608,7 +613,6 @@ export const usePortableOrderlyTable = () => {
             type: 'dateTime',
             colSpan: 2,
             textColor: '',
-            extras: ['sort'],
             render: ({ created_time }) => formatTimeDate(created_time)
           },
         ]

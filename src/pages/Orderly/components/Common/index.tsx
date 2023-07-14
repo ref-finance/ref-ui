@@ -244,7 +244,7 @@ export function RegisterButton({
   const intl = useIntl();
   return (
     <div className="flex flex-col items-center xs:w-full  relative ">
-      {isMobile && !isOpenMobile ? null : (
+      {!isOpenMobile ? null : (
         <>
           <div className="lg:px-6 xs:font-bold text-white pb-5 text-center text-base">
             {spinNow

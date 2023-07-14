@@ -29,7 +29,7 @@ export function SymbolWrapper({ symbol }: { symbol: string }) {
   );
 }
 
-function TableWithTabs({ table }: { table: PortfolioTable }) {
+function TableWithTabs({ table, maintenance }: { table: PortfolioTable, maintenance: boolean }) {
   const intl = useIntl();
 
   const [mobileFilterOpen, setMobileFilterOpen] = useState<
@@ -164,10 +164,18 @@ function TableWithTabs({ table }: { table: PortfolioTable }) {
                   : 'text-primaryText'
               }`}
             >
+              <span className="hidden md:block lg:block">
                 {intl.formatMessage({
                   id: tableTab.id,
                   defaultMessage: tableTab.default,
                 })}
+              </span>
+              <span className="md:hidden lg:hidden">
+                {intl.formatMessage({
+                  id: tableTab.mobileKey ? tableTab.mobileKey : tableTab.id,
+                  defaultMessage: tableTab.default,
+                })}
+              </span>
             </label>
           ))}
         </div>
@@ -179,10 +187,12 @@ function TableWithTabs({ table }: { table: PortfolioTable }) {
             tableKey={table.tabs[tab].id}
             columns={table.tabs[tab].columns}
             tableRowType={table.tabs[tab].tableRowType}
+            tableRowEmpty={table.tabs[tab].tableRowEmpty}
             mobileRender={table.tabs[tab].mobileRender}
             total={total}
             page={page}
             setPage={setPage}
+            maintenance={maintenance}
             pagination={!table.tabs[tab].pagination ? table.tabs[tab].pagination : true}
           />
         </div>
