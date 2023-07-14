@@ -405,7 +405,7 @@ module.exports = {
         overviewMaskColor: 'rgba(13, 29, 39, 0.5)',
         overviewPurpleColor: '#816CFF',
         overviewGreyColor: '#314758',
-        chartHoverBoxBg: 'rgba(26, 39, 48, 0.9)',
+        chartHoverBoxBg: 'rgba(26, 39, 48, 1)',
         chartBorderColor: '#344451',
         proTabBgColor: '#324451',
         dclTabBorderColor:'#3F4A52'

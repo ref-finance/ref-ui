@@ -694,8 +694,8 @@ function YourLiquidityBox(props: {
     }
   }, [poolDetail, tokenPriceList]);
   async function get_24_apr_and_fee() {
-    let apr_24 = '';
-    let total_fee_earned = '';
+    let apr_24 = '0';
+    let total_fee_earned = '0';
     const dcl_fee_result: IDCLAccountFee | any = await getDCLAccountFee({
       pool_id,
       account_id: accountId,

@@ -1683,7 +1683,7 @@ export function get_account_24_apr(
   const { token_x_metadata, token_y_metadata } = pool;
   const price_x = tokenPriceList?.[token_x_metadata.id]?.price || 0;
   const price_y = tokenPriceList?.[token_y_metadata.id]?.price || 0;
-  let apr_24 = '';
+  let apr_24 = '0';
   const { apr } = dclAccountFee;
   // 24小时平均利润
   const { fee_data, user_token, change_log_data } = apr;
@@ -1737,15 +1737,11 @@ export function get_account_24_apr(
       const pre_processed_log =
         processed_change_log[processed_change_log.length - 1];
       const { token_x, token_y, timestamp } = log; // timestamp 纳秒
-      const real_token_x = Big(pre_processed_log.token_x)
-        .minus(token_x)
-        .toFixed();
-      const real_token_y = Big(pre_processed_log.token_y)
-        .minus(token_y)
-        .toFixed();
+      const real_token_x = Big(pre_processed_log.token_x).minus(token_x);
+      const real_token_y = Big(pre_processed_log.token_y).minus(token_y);
       const new_log = {
-        token_x: real_token_x,
-        token_y: real_token_y,
+        token_x: real_token_x.lt(0) ? '0' : real_token_x.toFixed(),
+        token_y: real_token_y.lt(0) ? '0' : real_token_y.toFixed(),
         timestamp: Big(timestamp).div(1000000000).toFixed(0),
       };
       const processed_log: IProcessedLogData = process_log_data(
