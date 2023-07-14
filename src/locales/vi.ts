@@ -119,6 +119,12 @@ const vi_in_risks_page = {
     '>(được gọi là Guardians)</a>có khả năng dừng contract của Ref.finance lại. Trong trường họp contract bị ngưng lại, chỉ có Ref.finance DAO mới có khả năng mở lại contract.',
   risks_of_using_ref_finance:
     '<label class="text-greenColor">Rủi ro</label> khi sử dụng Ref Finance',
+  third_party_wallet: 'Ví của bên thứ ba',
+  third_party_wallet_1: 'Ref Finance tích hợp ví của bên thứ ba.',
+  third_party_wallet_2:
+    'Mặc dù chúng tôi đã thực hiện các biện pháp để lựa chọn các nhà cung cấp ví có uy tín, nhưng chúng tôi không thể đảm bảo tính bảo mật hoặc hiệu suất của họ. Bạn nên tự làm quen với các rủi ro liên quan đến nhà cung cấp ví cụ thể mà chúng tôi cung cấp và hiểu các điều khoản dịch vụ, chính sách quyền riêng tư và thực tiễn bảo mật của họ.',
+  third_party_wallet_3:
+    'Vui lòng tự chịu rủi ro khi sử dụng các dịch vụ này và thận trọng.',
 };
 const vi = {
   deposit: 'Nạp',

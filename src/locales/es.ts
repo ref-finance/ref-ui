@@ -132,6 +132,12 @@ const es_in_risks_page = {
   admin_sentence_2:
     'Para obtener más información relacionada con los contratos y las direcciones que han gestionado directamente o gestionan actualmente los asuntos de Ref Finance, consulte nuestro <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://guide.ref.finance/developers/contracts"' +
     '>Documentation</a>.',
+  third_party_wallet: 'Monedero de terceros',
+  third_party_wallet_1: 'Ref Finance integra carteras de terceros.',
+  third_party_wallet_2:
+    'Si bien hemos tomado medidas para seleccionar proveedores de billeteras de buena reputación, no podemos garantizar su seguridad o rendimiento. Debe familiarizarse con los riesgos asociados con el proveedor de billetera específico que tenemos y comprender sus términos de servicio, política de privacidad y prácticas de seguridad.',
+  third_party_wallet_3:
+    'Utilice estos servicios bajo su propio riesgo y tenga cuidado.',
 };
 // Main-page
 const es = {

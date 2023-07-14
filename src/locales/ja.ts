@@ -125,6 +125,13 @@ const ja_in_risks_page = {
   admin_sentence_2:
     'Ref Financeの業務を直接管理している、または現在管理している契約および住所の詳細については、 <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://guide.ref.finance/developers/contracts"' +
     '>ドキュメント</a> を確認してください。',
+  third_party_wallet: 'サードパーティのウォレット',
+  third_party_wallet_1:
+    'Ref Finance はサードパーティのウォレットを統合します。',
+  third_party_wallet_2:
+    '当社は信頼できるウォレットプロバイダーを選択するための措置を講じていますが、そのセキュリティやパフォーマンスを保証することはできません。 特定のウォレットプロバイダーに関連するリスクをよく理解し、サービス利用規約、プライバシーポリシー、およびセキュリティ慣行を理解する必要があります。',
+  third_party_wallet_3:
+    'これらのサービスはご自身の責任でご利用いただき、十分にご注意ください。',
 };
 const ja = {
   deposit: 'デポジット',
