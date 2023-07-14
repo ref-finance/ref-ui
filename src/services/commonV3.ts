@@ -1768,7 +1768,6 @@ export function get_account_24_apr(
       }
     });
   }
-  console.log('processed_change_log', processed_change_log);
   // 24小时apr
   let total_processed_log_value = Big(0);
   processed_change_log.forEach((log: IProcessedLogData) => {
@@ -1778,6 +1777,8 @@ export function get_account_24_apr(
     );
   });
   const principal = total_processed_log_value.div(second24);
+  console.log('processed_change_log', processed_change_log);
+  console.log('processed_change_log-principal', principal.toFixed());
   if (principal.gt(0)) {
     apr_24 = total_fee_24_value.div(principal).mul(365).mul(100).toFixed();
   }
