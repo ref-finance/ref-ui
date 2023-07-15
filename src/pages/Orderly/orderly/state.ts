@@ -279,6 +279,8 @@ export function useLeverage() {
 
   const [error, setError] = useState<Error>();
 
+  const { futureLeverage } = useOrderlyContext();
+
   const { validAccountSig } = useOrderlyContext();
 
   const [curLeverage, setCurLeverage] = useState<number>();
@@ -325,6 +327,13 @@ export function useLeverage() {
     _.debounce(changeLeverage, 500),
     []
   );
+
+  useEffect(() => {
+    if (futureLeverage !== undefined) {
+      setCurLeverage(futureLeverage);
+      userInfo.max_leverage = futureLeverage;
+    }
+  }, [futureLeverage]);
 
   useEffect(() => {
     if (!accountId || !validAccountSig) return;

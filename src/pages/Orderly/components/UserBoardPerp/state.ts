@@ -241,12 +241,6 @@ export function usePerpData() {
   } = useLeverage();
 
   useEffect(() => {
-    if (typeof futureLeverage === 'undefined') return;
-    setCurLeverageRaw(futureLeverage);
-    setRequestTrigger((b) => !b);
-  }, [futureLeverage]);
-
-  useEffect(() => {
     if (!accountId || !validAccountSig) return;
 
     getCurrentHolding({ accountId }).then((res) => {

@@ -84,6 +84,7 @@ import { Images } from '../../../../components/stableswap/CommonComp';
 import { SymbolSelectorMobileModal } from '../ChartHeader';
 import { FormattedMessage, useIntl } from 'react-intl';
 import _ from 'lodash';
+import { tickToPrecision } from '../UserBoardPerp/math';
 
 function getTranslateList(key: 'type' | 'side' | 'status' | 'instrument') {
   const intl = useIntl();
@@ -378,7 +379,7 @@ function OrderLine({
 
   const { accountId } = useWalletSelector();
 
-  const { handlePendingOrderRefreshing } = useOrderlyContext();
+  const { handlePendingOrderRefreshing, markPrices } = useOrderlyContext();
 
   const [price, setPrice] = useState<string>(order.price.toString());
 
@@ -425,6 +426,10 @@ function OrderLine({
 
     if (!symbolInfo) return;
 
+    const symbolType = PerpOrSpot(symbolInfo.symbol);
+
+    const markPrice = markPrices.find((m) => m.symbol === symbolInfo.symbol);
+
     if (
       new Big(order.price).eq(new Big(price || 0)) &&
       new Big(order.quantity).eq(new Big(quantity || 0))
@@ -459,7 +464,8 @@ function OrderLine({
         .minus(order.price)
         .times(new Big(quantity || 0))
         .gt(new Big(holdingTo.holding + holdingTo.pending_short)) &&
-      order.side === 'BUY'
+      order.side === 'BUY' &&
+      symbolType === 'SPOT'
     ) {
       errorTipMsg = `${intl.formatMessage({
         id: 'insufficient_en',
@@ -483,7 +489,8 @@ function OrderLine({
     if (
       new Big(quantity || 0).gt(order.quantity || 0) &&
       holdingFrom &&
-      holdingTo
+      holdingTo &&
+      symbolType === 'SPOT'
     ) {
       let diff = new Big(quantity || 0).minus(new Big(order.quantity || 0));
 
@@ -509,14 +516,14 @@ function OrderLine({
       }
     }
 
-    if (new Big(price || 0).lt(symbolInfo.quote_min)) {
+    if (new Big(price || 0).lt(symbolInfo.quote_min) && symbolType === 'SPOT') {
       errorTipMsg = `${intl.formatMessage({
         id: 'min_price_should_be_higher_than_or_equal_to',
         defaultMessage: 'Min price should be higher than or equal to',
       })} ${symbolInfo.quote_min}`;
     }
 
-    if (new Big(price || 0).gt(symbolInfo.quote_max)) {
+    if (new Big(price || 0).gt(symbolInfo.quote_max) && symbolType === 'SPOT') {
       errorTipMsg = `${intl.formatMessage({
         id: 'price_should_be_lower_than_or_equal_to',
         defaultMessage: 'Price should be lower than or equal to',
@@ -546,7 +553,8 @@ function OrderLine({
       new Big(price || 0).gt(
         new Big(marketPrice || 0).times(1 + symbolInfo.price_range)
       ) &&
-      order.side === 'BUY'
+      order.side === 'BUY' &&
+      symbolType === 'SPOT'
     ) {
       errorTipMsg = `${intl.formatMessage({
         id: 'price_should_be_lower_than_or_equal_to',
@@ -558,7 +566,8 @@ function OrderLine({
       new Big(price || 0).lt(
         new Big(marketPrice || 0).times(1 - symbolInfo.price_range)
       ) &&
-      order.side === 'SELL'
+      order.side === 'SELL' &&
+      symbolType === 'SPOT'
     ) {
       errorTipMsg = `${intl.formatMessage({
         id: 'price_should_be_greater_than_or_equal_to',
@@ -595,7 +604,7 @@ function OrderLine({
       } ${symbolInfo.base_min}`;
     }
 
-    if (new Big(size || 0).gt(symbolInfo.base_max)) {
+    if (new Big(size || 0).gt(symbolInfo.base_max) && symbolType === 'SPOT') {
       errorTipMsg = `${
         order.side === 'BUY'
           ? intl.formatMessage({
@@ -633,6 +642,76 @@ function OrderLine({
         id: 'the_order_value_should_be_be_greater_than_or_equal_to',
         defaultMessage: 'The order value should be be greater than or equal to',
       })} ${symbolInfo.min_notional}`;
+    }
+
+    if (
+      price &&
+      size &&
+      order.side === 'BUY' &&
+      markPrice &&
+      new Big(price || 0).gt(
+        new Big(markPrice.price || 0).mul(1 + symbolInfo.price_range)
+      )
+    ) {
+      errorTipMsg = `${intl.formatMessage({
+        id: 'perp_buy_limit_order_range',
+        defaultMessage:
+          'The price of buy limit orders should be less than or equal to',
+      })} ${new Big(markPrice.price || 0)
+        .mul(1 + symbolInfo.price_range)
+        .toFixed(tickToPrecision(symbolInfo.quote_tick))}`;
+    }
+
+    if (
+      price &&
+      size &&
+      order.side === 'SELL' &&
+      markPrice &&
+      new Big(price || 0).lt(
+        new Big(markPrice.price || 0).mul(1 - symbolInfo.price_range)
+      )
+    ) {
+      errorTipMsg = `${intl.formatMessage({
+        id: 'perp_sell_limit_order_range',
+        defaultMessage:
+          'The price of sell limit orders should be greater than or equal to',
+      })} ${new Big(markPrice.price || 0)
+        .mul(1 - symbolInfo.price_range)
+        .toFixed(tickToPrecision(symbolInfo.quote_tick))}`;
+    }
+
+    if (
+      price &&
+      size &&
+      order.side === 'SELL' &&
+      markPrice &&
+      new Big(price || 0).gt(
+        new Big(markPrice.price || 0).mul(1 + symbolInfo.price_scope)
+      )
+    ) {
+      errorTipMsg = `${intl.formatMessage({
+        id: 'perp_sell_limit_order_scope',
+        defaultMessage: 'The price of a sell limit order cannot be higher than',
+      })} ${new Big(markPrice.price || 0)
+        .mul(1 + symbolInfo.price_scope)
+        .toFixed(tickToPrecision(symbolInfo.quote_tick))}`;
+    }
+
+    if (
+      price &&
+      size &&
+      order.side === 'BUY' &&
+      markPrice &&
+      new Big(price || 0).lt(
+        new Big(markPrice.price || 0).mul(1 - symbolInfo.price_scope)
+      )
+    ) {
+      errorTipMsg = `${intl.formatMessage({
+        id: 'perp_buy_limit_order_scope',
+        defaultMessage: 'The price of a buy limit order cannot be lower than',
+      })} ${new Big(markPrice.price || 0)
+        .mul(1 - symbolInfo.price_scope)
+        .toFixed(tickToPrecision(symbolInfo.quote_tick))}`;
     }
 
     if (!!errorTipMsg && !noPop) {

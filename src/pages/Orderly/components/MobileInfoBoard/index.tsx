@@ -497,88 +497,9 @@ export function CurAsset(props?: any) {
 }
 
 export function PerpAccountBoard() {
-  const {
-    symbol,
-    orders,
-    tokenInfo,
-    storageEnough,
-    balances,
-    setValidAccountSig,
-    handlePendingOrderRefreshing,
-    validAccountSig,
-    myPendingOrdersRefreshing,
-    bridgePrice,
-    userExist,
-    positions,
-    markPrices,
-    positionPush,
-    ticker,
-    futureLeverage,
-  } = useOrderlyContext();
-  const newPositions = useMemo(() => {
-    try {
-      const calcPositions = positions.rows.map((item) => {
-        const push = positionPush?.find((i) => i.symbol === item.symbol);
+  const { positions } = useOrderlyContext();
 
-        if (push) {
-          const qty = push.positionQty;
-          const pendingLong = push.pendingLongQty;
-          const pendingShort = push.pendingShortQty;
-
-          return {
-            ...item,
-            ...push,
-            position_qty: qty,
-            pending_long_qty: pendingLong,
-            pending_short_qty: pendingShort,
-            unsettled_pnl: push.unsettledPnl,
-            mark_price: push.markPrice,
-            average_open_price: push.averageOpenPrice,
-            mmr: push.mmr,
-            imr: push.imr,
-          };
-        } else {
-          return item;
-        }
-      });
-
-      positions.rows = calcPositions;
-
-      return {
-        ...positions,
-        rows: calcPositions,
-      };
-    } catch (error) {
-      return null;
-    }
-  }, [positionPush, positions]);
-
-  const {
-    userInfo,
-    curLeverage,
-    setCurLeverage,
-    setCurLeverageRaw,
-    setRequestTrigger,
-  } = useLeverage();
-
-  useEffect(() => {
-    if (typeof futureLeverage === 'undefined') return;
-
-    setCurLeverageRaw(futureLeverage);
-    setRequestTrigger((b) => !b);
-  }, [futureLeverage]);
-
-  const [holdings, setHoldings] = useState<Holding[]>();
-  const { symbolFrom, symbolTo } = parseSymbol(symbol);
-
-  const { accountId } = useWalletSelector();
-  useEffect(() => {
-    if (!accountId || !validAccountSig) return;
-
-    getCurrentHolding({ accountId }).then((res) => {
-      setHoldings(res.data.holding);
-    });
-  }, [accountId, myPendingOrdersRefreshing, validAccountSig]);
+  const { userInfo } = useLeverage();
 
   const {
     marginRatio,

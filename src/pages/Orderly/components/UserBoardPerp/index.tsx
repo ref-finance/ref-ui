@@ -121,6 +121,7 @@ import {
 } from './components/HoverText';
 import {
   getLqPrice,
+  getMaxQuantity,
   getRiskLevel,
   getTotalCollateral,
   getTotaluPnl,
@@ -550,12 +551,6 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     setCurLeverageRaw,
   } = useLeverage();
 
-  useEffect(() => {
-    if (typeof futureLeverage === 'undefined') return;
-    setCurLeverageRaw(futureLeverage);
-    setRequestTrigger((b) => !b);
-  }, [futureLeverage]);
-
   const [registerModalOpen, setRegisterModalOpen] = useState<boolean>(false);
 
   const submitDisable =
@@ -670,16 +665,19 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
   } = usePerpData();
 
   const lqPrice = useMemo(() => {
+    const priceNumber =
+      orderType === 'Market'
+        ? curSymbolMarkPrice?.price || 0
+        : Number(limitPrice);
+
     return getLqPrice(
       markPrices,
       curSymbol,
       newPositions,
       inputValue,
       side,
-      orderType,
-      limitPrice,
-      availableSymbols,
-      userInfo
+      curHoldingOut,
+      priceNumber
     );
   }, [
     newPositions,
@@ -689,11 +687,12 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     orderType,
     side,
     limitPrice,
-    availableSymbols,
     userInfo,
+    curHoldingOut,
+    orderType,
+    limitPrice,
+    curSymbolMarkPrice,
   ]);
-
-  console.log('lqPrice: ', lqPrice);
 
   const storedLimitOrderAdvance =
     sessionStorage.getItem(REF_ORDERLY_LIMIT_ORDER_ADVANCE) || '{}';
@@ -763,6 +762,37 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       : !orders || !userInfo || !marketPrice
       ? '-'
       : Number(inputValue || 0) * Number(marketPrice || 0);
+
+  const maxOrderSize = useMemo(() => {
+    const mark_price = curSymbolMarkPrice?.price || 0;
+
+    const priceNumber =
+      orderType === 'Market' ? mark_price.toString() : limitPrice;
+
+    const res = getMaxQuantity(
+      curSymbol,
+      side,
+      newPositions,
+      markPrices,
+      userInfo,
+      curHoldingOut,
+      priceNumber
+    );
+
+    return res;
+  }, [
+    side,
+    newPositions,
+    markPrices,
+    userInfo,
+    curHoldingOut,
+    curSymbol,
+    orderType,
+    limitPrice,
+    curSymbolMarkPrice,
+  ]);
+
+  console.log('maxOrderSize: ', maxOrderSize);
 
   const handleSubmit = async () => {
     if (!accountId) return;
@@ -876,11 +906,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
   }, [tradingKeySet, keyAnnounced]);
   const intl = useIntl();
 
-  const isInsufficientBalance =
-    side === 'Buy'
-      ? new Big(total === '-' ? '0' : total).gt(tokenOutHolding || '0') ||
-        new Big(tokenOutHolding || 0).eq(0)
-      : new Big(inputValue || '0').gt(tokenInHolding || '0');
+  const isInsufficientBalance = false;
 
   const loading =
     ((!!accountId && storageEnough === undefined) ||
@@ -895,27 +921,27 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       return;
     }
 
-    if (new Big(price || 0).lt(symbolInfo.quote_min)) {
-      setShowErrorTip(true);
-      setErrorTipMsg(
-        `${intl.formatMessage({
-          id: 'min_price_should_be_higher_than_or_equal_to',
-          defaultMessage: 'Min price should be higher than or equal to',
-        })} ${symbolInfo.quote_min}`
-      );
-      return;
-    }
+    // if (new Big(price || 0).lt(symbolInfo.quote_min)) {
+    //   setShowErrorTip(true);
+    //   setErrorTipMsg(
+    //     `${intl.formatMessage({
+    //       id: 'min_price_should_be_higher_than_or_equal_to',
+    //       defaultMessage: 'Min price should be higher than or equal to',
+    //     })} ${symbolInfo.quote_min}`
+    //   );
+    //   return;
+    // }
 
-    if (new Big(price || 0).gt(symbolInfo.quote_max)) {
-      setShowErrorTip(true);
-      setErrorTipMsg(
-        `${intl.formatMessage({
-          id: 'price_should_be_lower_than_or_equal_to',
-          defaultMessage: 'Price should be lower than or equal to',
-        })} ${symbolInfo.quote_max}`
-      );
-      return;
-    }
+    // if (new Big(price || 0).gt(symbolInfo.quote_max)) {
+    //   setShowErrorTip(true);
+    //   setErrorTipMsg(
+    //     `${intl.formatMessage({
+    //       id: 'price_should_be_lower_than_or_equal_to',
+    //       defaultMessage: 'Price should be lower than or equal to',
+    //     })} ${symbolInfo.quote_max}`
+    //   );
+    //   return;
+    // }
 
     if (
       new Big(new Big(price || 0).minus(new Big(symbolInfo.quote_min)))
@@ -935,43 +961,43 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       return;
     }
 
-    if (
-      new Big(price || 0).gt(
-        new Big(orders.asks?.[0]?.[0] || 0).times(1 + symbolInfo.price_range)
-      ) &&
-      side === 'Buy'
-    ) {
-      setShowErrorTip(true);
-      setErrorTipMsg(
-        `${intl.formatMessage({
-          id: 'price_should_be_lower_than_or_equal_to',
-          defaultMessage: 'Price should be lower than or equal to',
-        })} ${new Big(orders.asks?.[0]?.[0] || 0).times(
-          1 + symbolInfo.price_range
-        )}`
-      );
+    // if (
+    //   new Big(price || 0).gt(
+    //     new Big(orders.asks?.[0]?.[0] || 0).times(1 + symbolInfo.price_range)
+    //   ) &&
+    //   side === 'Buy'
+    // ) {
+    //   setShowErrorTip(true);
+    //   setErrorTipMsg(
+    //     `${intl.formatMessage({
+    //       id: 'price_should_be_lower_than_or_equal_to',
+    //       defaultMessage: 'Price should be lower than or equal to',
+    //     })} ${new Big(orders.asks?.[0]?.[0] || 0).times(
+    //       1 + symbolInfo.price_range
+    //     )}`
+    //   );
 
-      return;
-    }
+    //   return;
+    // }
 
-    if (
-      new Big(price || 0).lt(
-        new Big(orders.bids?.[0]?.[0] || 0).times(1 - symbolInfo.price_range)
-      ) &&
-      side === 'Sell'
-    ) {
-      setShowErrorTip(true);
-      setErrorTipMsg(
-        `${intl.formatMessage({
-          id: 'price_should_be_greater_than_or_equal_to',
-          defaultMessage: 'Price should be greater than or equal to',
-        })} ${new Big(orders.bids?.[0]?.[0] || 0).times(
-          1 - symbolInfo.price_range
-        )}`
-      );
+    // if (
+    //   new Big(price || 0).lt(
+    //     new Big(orders.bids?.[0]?.[0] || 0).times(1 - symbolInfo.price_range)
+    //   ) &&
+    //   side === 'Sell'
+    // ) {
+    //   setShowErrorTip(true);
+    //   setErrorTipMsg(
+    //     `${intl.formatMessage({
+    //       id: 'price_should_be_greater_than_or_equal_to',
+    //       defaultMessage: 'Price should be greater than or equal to',
+    //     })} ${new Big(orders.bids?.[0]?.[0] || 0).times(
+    //       1 - symbolInfo.price_range
+    //     )}`
+    //   );
 
-      return;
-    }
+    //   return;
+    // }
 
     if (
       price &&
@@ -1114,25 +1140,25 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       return;
     }
 
-    if (new Big(size || 0).gt(symbolInfo.base_max)) {
-      setShowErrorTip(true);
-      setErrorTipMsg(
-        `${
-          side === 'Buy'
-            ? intl.formatMessage({
-                id: 'quantity_to_buy_should_be_less_than_or_equal_to',
-                defaultMessage:
-                  'Quantity to buy should be less than or equal to',
-              })
-            : intl.formatMessage({
-                id: 'quantity_to_sell_should_be_less_than_or_equal_to',
-                defaultMessage:
-                  'Quantity to sell should be less than or equal to',
-              })
-        } ${symbolInfo.base_max}`
-      );
-      return;
-    }
+    // if (new Big(size || 0).gt(symbolInfo.base_max)) {
+    //   setShowErrorTip(true);
+    //   setErrorTipMsg(
+    //     `${
+    //       side === 'Buy'
+    //         ? intl.formatMessage({
+    //             id: 'quantity_to_buy_should_be_less_than_or_equal_to',
+    //             defaultMessage:
+    //               'Quantity to buy should be less than or equal to',
+    //           })
+    //         : intl.formatMessage({
+    //             id: 'quantity_to_sell_should_be_less_than_or_equal_to',
+    //             defaultMessage:
+    //               'Quantity to sell should be less than or equal to',
+    //           })
+    //     } ${symbolInfo.base_max}`
+    //   );
+    //   return;
+    // }
 
     if (
       new Big(new Big(size || 0).minus(new Big(symbolInfo.base_min)))
@@ -1372,6 +1398,8 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           style={{
             background: 'rgba(0, 19, 32, 0.8)',
             backdropFilter: 'blur(5px)',
+            WebkitBackdropFilter: 'blur(5px)',
+
             zIndex: 90,
           }}
         ></div>
@@ -1383,6 +1411,8 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           style={{
             background: 'rgba(0, 19, 32, 0.8)',
             backdropFilter: 'blur(5px)',
+            WebkitBackdropFilter: 'blur(5px)',
+
             zIndex: 90,
           }}
         >
@@ -1395,6 +1425,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           className="absolute  flex flex-col justify-center items-center h-full w-full top-0 left-0 "
           style={{
             background: 'rgba(0, 19, 32, 0.8)',
+            WebkitBackdropFilter: 'blur(5px)',
             backdropFilter: 'blur(5px)',
             zIndex: 50,
           }}
@@ -1829,14 +1860,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                   return;
                 }
 
-                const maxAmount =
-                  side === 'Sell'
-                    ? tokenInHolding || 0
-                    : new Big(tokenOutHolding || 0)
-                        .div(
-                          orderType === 'Market' ? marketPrice : limitPrice || 1
-                        )
-                        .toNumber();
+                const maxAmount = maxOrderSize === '-' ? 0 : maxOrderSize;
 
                 const displayAmount = new Big(maxAmount || 0)
                   .div(new Big(symbolInfo.base_tick))
@@ -2078,7 +2102,9 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
                 <div className="frcs gap-2">
                   <span className="text-white">
-                    {total === '-' ? '-' : digitWrapper(total.toString(), 3)}{' '}
+                    {total === '-'
+                      ? '-'
+                      : digitWrapper((total / curLeverage).toString(), 3)}{' '}
                   </span>
 
                   <span className="text-primaryText">USDC</span>
@@ -3278,12 +3304,6 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
     setCurLeverageRaw,
   } = useLeverage();
 
-  useEffect(() => {
-    if (typeof futureLeverage === 'undefined') return;
-    setCurLeverageRaw(futureLeverage);
-    setRequestTrigger((b) => !b);
-  }, [futureLeverage]);
-
   const [registerModalOpen, setRegisterModalOpen] = useState<boolean>(false);
 
   const submitDisable =
@@ -3380,8 +3400,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
     }
   }, [positionPush, positions]);
 
-  const { freeCollateral, totalCollateral, totaluPnl, marginRatio } =
-    usePerpData();
+  const { marginRatio } = usePerpData();
 
   const tokenInHolding = curHoldingIn
     ? toPrecision(
@@ -3400,16 +3419,19 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
     : balances && balances[symbolTo]?.holding;
 
   const lqPrice = useMemo(() => {
+    const priceNumber =
+      orderType === 'Market'
+        ? curSymbolMarkPrice?.price || 0
+        : Number(limitPrice);
+
     return getLqPrice(
       markPrices,
       curSymbol,
       newPositions,
       inputValue,
       side,
-      orderType,
-      limitPrice,
-      availableSymbols,
-      userInfo
+      curHoldingOut,
+      priceNumber
     );
   }, [
     newPositions,
@@ -3420,6 +3442,10 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
     side,
     limitPrice,
     userInfo,
+    curHoldingOut,
+    orderType,
+    limitPrice,
+    curSymbolMarkPrice,
   ]);
 
   const marketPrice = !orders
@@ -3427,6 +3453,37 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
     : side === 'Buy'
     ? orders.asks?.[0]?.[0]
     : orders?.bids?.[0]?.[0];
+
+  const maxOrderSize = useMemo(() => {
+    const mark_price = curSymbolMarkPrice?.price || 0;
+
+    const priceNumber =
+      orderType === 'Market' ? mark_price.toString() : limitPrice;
+
+    const res = getMaxQuantity(
+      curSymbol,
+      side,
+      newPositions,
+      markPrices,
+      userInfo,
+      curHoldingOut,
+      priceNumber
+    );
+
+    return res;
+  }, [
+    side,
+    newPositions,
+    markPrices,
+    userInfo,
+    curHoldingOut,
+    curSymbol,
+    orderType,
+    limitPrice,
+    curSymbolMarkPrice,
+  ]);
+
+  console.log('maxOrderSize: ', maxOrderSize);
 
   const total =
     orderType === 'Limit'
@@ -3598,27 +3655,27 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
       return;
     }
 
-    if (new Big(price || 0).lt(symbolInfo.quote_min)) {
-      setShowErrorTip(true);
-      setErrorTipMsg(
-        `${intl.formatMessage({
-          id: 'min_price_should_be_higher_than_or_equal_to',
-          defaultMessage: 'Min price should be higher than or equal to',
-        })} ${symbolInfo.quote_min}`
-      );
-      return;
-    }
+    // if (new Big(price || 0).lt(symbolInfo.quote_min)) {
+    //   setShowErrorTip(true);
+    //   setErrorTipMsg(
+    //     `${intl.formatMessage({
+    //       id: 'min_price_should_be_higher_than_or_equal_to',
+    //       defaultMessage: 'Min price should be higher than or equal to',
+    //     })} ${symbolInfo.quote_min}`
+    //   );
+    //   return;
+    // }
 
-    if (new Big(price || 0).gt(symbolInfo.quote_max)) {
-      setShowErrorTip(true);
-      setErrorTipMsg(
-        `${intl.formatMessage({
-          id: 'price_should_be_lower_than_or_equal_to',
-          defaultMessage: 'Price should be lower than or equal to',
-        })} ${symbolInfo.quote_max}`
-      );
-      return;
-    }
+    // if (new Big(price || 0).gt(symbolInfo.quote_max)) {
+    //   setShowErrorTip(true);
+    //   setErrorTipMsg(
+    //     `${intl.formatMessage({
+    //       id: 'price_should_be_lower_than_or_equal_to',
+    //       defaultMessage: 'Price should be lower than or equal to',
+    //     })} ${symbolInfo.quote_max}`
+    //   );
+    //   return;
+    // }
 
     if (
       new Big(new Big(price || 0).minus(new Big(symbolInfo.quote_min)))
@@ -3638,43 +3695,43 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
       return;
     }
 
-    if (
-      new Big(price || 0).gt(
-        new Big(orders.asks?.[0]?.[0] || 0).times(1 + symbolInfo.price_range)
-      ) &&
-      side === 'Buy'
-    ) {
-      setShowErrorTip(true);
-      setErrorTipMsg(
-        `${intl.formatMessage({
-          id: 'price_should_be_lower_than_or_equal_to',
-          defaultMessage: 'Price should be lower than or equal to',
-        })} ${new Big(orders.asks?.[0]?.[0] || 0).times(
-          1 + symbolInfo.price_range
-        )}`
-      );
+    // if (
+    //   new Big(price || 0).gt(
+    //     new Big(orders.asks?.[0]?.[0] || 0).times(1 + symbolInfo.price_range)
+    //   ) &&
+    //   side === 'Buy'
+    // ) {
+    //   setShowErrorTip(true);
+    //   setErrorTipMsg(
+    //     `${intl.formatMessage({
+    //       id: 'price_should_be_lower_than_or_equal_to',
+    //       defaultMessage: 'Price should be lower than or equal to',
+    //     })} ${new Big(orders.asks?.[0]?.[0] || 0).times(
+    //       1 + symbolInfo.price_range
+    //     )}`
+    //   );
 
-      return;
-    }
+    //   return;
+    // }
 
-    if (
-      new Big(price || 0).lt(
-        new Big(orders.bids?.[0]?.[0] || 0).times(1 - symbolInfo.price_range)
-      ) &&
-      side === 'Sell'
-    ) {
-      setShowErrorTip(true);
-      setErrorTipMsg(
-        `${intl.formatMessage({
-          id: 'price_should_be_greater_than_or_equal_to',
-          defaultMessage: 'Price should be greater than or equal to',
-        })} ${new Big(orders.bids?.[0]?.[0] || 0).times(
-          1 - symbolInfo.price_range
-        )}`
-      );
+    // if (
+    //   new Big(price || 0).lt(
+    //     new Big(orders.bids?.[0]?.[0] || 0).times(1 - symbolInfo.price_range)
+    //   ) &&
+    //   side === 'Sell'
+    // ) {
+    //   setShowErrorTip(true);
+    //   setErrorTipMsg(
+    //     `${intl.formatMessage({
+    //       id: 'price_should_be_greater_than_or_equal_to',
+    //       defaultMessage: 'Price should be greater than or equal to',
+    //     })} ${new Big(orders.bids?.[0]?.[0] || 0).times(
+    //       1 - symbolInfo.price_range
+    //     )}`
+    //   );
 
-      return;
-    }
+    //   return;
+    // }
 
     if (
       price &&
@@ -3786,6 +3843,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
       );
       return;
     }
+
     return true;
   };
 
@@ -3796,45 +3854,45 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
       return;
     }
 
-    if (new Big(size || 0).lt(symbolInfo.base_min)) {
-      setShowErrorTip(true);
-      setErrorTipMsg(
-        `${
-          side === 'Buy'
-            ? intl.formatMessage({
-                id: 'quantity_to_buy_should_be_greater_than_or_equal_to',
-                defaultMessage:
-                  'Quantity to buy should be greater than or equal to',
-              })
-            : intl.formatMessage({
-                id: 'quantity_to_sell_should_be_greater_than_or_equal_to',
-                defaultMessage:
-                  'Quantity to sell should be greater than or equal to',
-              })
-        } ${symbolInfo.base_min}`
-      );
-      return;
-    }
+    // if (new Big(size || 0).lt(symbolInfo.base_min)) {
+    //   setShowErrorTip(true);
+    //   setErrorTipMsg(
+    //     `${
+    //       side === 'Buy'
+    //         ? intl.formatMessage({
+    //             id: 'quantity_to_buy_should_be_greater_than_or_equal_to',
+    //             defaultMessage:
+    //               'Quantity to buy should be greater than or equal to',
+    //           })
+    //         : intl.formatMessage({
+    //             id: 'quantity_to_sell_should_be_greater_than_or_equal_to',
+    //             defaultMessage:
+    //               'Quantity to sell should be greater than or equal to',
+    //           })
+    //     } ${symbolInfo.base_min}`
+    //   );
+    //   return;
+    // }
 
-    if (new Big(size || 0).gt(symbolInfo.base_max)) {
-      setShowErrorTip(true);
-      setErrorTipMsg(
-        `${
-          side === 'Buy'
-            ? intl.formatMessage({
-                id: 'quantity_to_buy_should_be_less_than_or_equal_to',
-                defaultMessage:
-                  'Quantity to buy should be less than or equal to',
-              })
-            : intl.formatMessage({
-                id: 'quantity_to_sell_should_be_less_than_or_equal_to',
-                defaultMessage:
-                  'Quantity to sell should be less than or equal to',
-              })
-        } ${symbolInfo.base_max}`
-      );
-      return;
-    }
+    // if (new Big(size || 0).gt(symbolInfo.base_max)) {
+    //   setShowErrorTip(true);
+    //   setErrorTipMsg(
+    //     `${
+    //       side === 'Buy'
+    //         ? intl.formatMessage({
+    //             id: 'quantity_to_buy_should_be_less_than_or_equal_to',
+    //             defaultMessage:
+    //               'Quantity to buy should be less than or equal to',
+    //           })
+    //         : intl.formatMessage({
+    //             id: 'quantity_to_sell_should_be_less_than_or_equal_to',
+    //             defaultMessage:
+    //               'Quantity to sell should be less than or equal to',
+    //           })
+    //     } ${symbolInfo.base_max}`
+    //   );
+    //   return;
+    // }
 
     if (
       new Big(new Big(size || 0).minus(new Big(symbolInfo.base_min)))
@@ -3904,7 +3962,6 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
       setErrorTipMsg('');
     }
   };
-
   useEffect(() => {
     const marketPrice = !orders
       ? 0
@@ -3934,6 +3991,8 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
           style={{
             background: 'rgba(0, 19, 32, 0.8)',
             backdropFilter: 'blur(5px)',
+            WebkitBackdropFilter: 'blur(5px)',
+
             zIndex: 90,
           }}
         ></div>
@@ -3945,6 +4004,8 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
           style={{
             background: 'rgba(0, 19, 32, 0.8)',
             backdropFilter: 'blur(5px)',
+            WebkitBackdropFilter: 'blur(5px)',
+
             zIndex: 90,
           }}
         >
@@ -3958,6 +4019,8 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
           style={{
             background: 'rgba(0, 19, 32, 0.8)',
             backdropFilter: 'blur(5px)',
+            WebkitBackdropFilter: 'blur(5px)',
+
             zIndex: 50,
           }}
         >
@@ -4203,14 +4266,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
                   return;
                 }
 
-                const maxAmount =
-                  side === 'Sell'
-                    ? tokenInHolding || 0
-                    : new Big(tokenOutHolding || 0)
-                        .div(
-                          orderType === 'Market' ? marketPrice : limitPrice || 1
-                        )
-                        .toNumber();
+                const maxAmount = maxOrderSize === '-' ? 0 : maxOrderSize;
 
                 const displayAmount = new Big(maxAmount || 0)
                   .div(new Big(symbolInfo.base_tick))
@@ -4470,7 +4526,9 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
 
                 <div className="frcs gap-2">
                   <span className="text-white">
-                    {total === '-' ? '-' : digitWrapper(total.toString(), 3)}{' '}
+                    {total === '-'
+                      ? '-'
+                      : digitWrapper((total / curLeverage).toString(), 3)}{' '}
                   </span>
 
                   <span className="text-primaryText">USDC</span>
