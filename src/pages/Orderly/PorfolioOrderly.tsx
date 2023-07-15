@@ -122,7 +122,7 @@ function PortfolioOrderly() {
           <Navigation></Navigation>
         </div>
         {/* content */}
-        <div className="flex-grow border-l border-r border-boxBorder px-1 pt-9">
+        <div className="flex-grow border-l border-r border-boxBorder px-1 pt-4 md:pt-9 lg:pt-9">
           <div className="lg:max-w-1000px 3xl:max-w-1280px m-auto">
             <div
               className="w-full grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 md:bg-cardBg lg:bg-cardBg px-7 py-4 rounded-xl"

@@ -148,11 +148,46 @@ function TableWithTabs({
               {(table.tabs[tab].rightComp) && table.tabs[tab].rightComp}
             </div>
           </FlexRowBetween>
+        </FlexRowBetween>
+
+        <div className="md:hidden lg:hidden">
+          <div
+            className={`flex items-center bg-acccountTab p-1 rounded-lg ${table.tabs[tab].filter ? 'w-11/12 inline-flex' : ''}`}
+          >
+            {table.tabs.map((tableTab, index) => (
+              <label
+                key={tableTab.id}
+                onClick={() => {
+                  setLoading(true);
+                  setData([]);
+                  setTab(index);
+                }}
+                className={`flex items-center justify-center w-1/2 py-1 flex-grow text-sm rounded-md  ${
+                  tab === index
+                    ? 'text-white bg-acccountBlock'
+                    : 'text-primaryText'
+                }`}
+              >
+                <span className="hidden md:block lg:block">
+                  {intl.formatMessage({
+                    id: tableTab.id,
+                    defaultMessage: tableTab.default,
+                  })}
+                </span>
+                <span className="md:hidden lg:hidden">
+                  {intl.formatMessage({
+                    id: tableTab.mobileKey ? tableTab.mobileKey : tableTab.id,
+                    defaultMessage: tableTab.default,
+                  })}
+                </span>
+              </label>
+            ))}
+          </div>
 
           {table.tabs[tab].filter && (
-            <FlexRow className={'md:hidden lg:hidden'}>
+            <FlexRow className={'md:hidden lg:hidden inline-flex w-1/12 justify-center'}>
               <div
-                className="flex relative items-center justify-center pr-5"
+                className="flex relative items-center justify-center"
                 onClick={() => {
                   // todo
                   tab === 0
@@ -169,40 +204,8 @@ function TableWithTabs({
               </div>
             </FlexRow>
           )}
-        </FlexRowBetween>
-
-        <div
-          className={`flex items-center bg-acccountTab p-1 rounded-lg md:hidden lg:hidden`}
-        >
-          {table.tabs.map((tableTab, index) => (
-            <label
-              key={tableTab.id}
-              onClick={() => {
-                setLoading(true);
-                setData([]);
-                setTab(index);
-              }}
-              className={`flex items-center justify-center w-1/2 py-1 flex-grow text-sm rounded-md  ${
-                tab === index
-                  ? 'text-white bg-acccountBlock'
-                  : 'text-primaryText'
-              }`}
-            >
-              <span className="hidden md:block lg:block">
-                {intl.formatMessage({
-                  id: tableTab.id,
-                  defaultMessage: tableTab.default,
-                })}
-              </span>
-              <span className="md:hidden lg:hidden">
-                {intl.formatMessage({
-                  id: tableTab.mobileKey ? tableTab.mobileKey : tableTab.id,
-                  defaultMessage: tableTab.default,
-                })}
-              </span>
-            </label>
-          ))}
         </div>
+
 
         <div className="w-full rounded-2xl md:bg-cardBg lg:bg-cardBg py-5">
           <Table
