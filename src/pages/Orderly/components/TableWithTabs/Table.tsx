@@ -17,8 +17,7 @@ import {
   CheckBox,
   ConnectWallet,
   ErrorTip,
-  RegisterButton,
-  WithdrawButton,
+  RegisterButton
 } from '../Common';
 
 import { ConfirmButton } from '../Common/index';
@@ -45,22 +44,6 @@ function OrderLine({
   tableRowType: string;
 }) {
 
-  const [openEditQuantity, setOpenEditQuantity] = useState<boolean>(false);
-
-  const [openEditPrice, setOpenEditPrice] = useState<boolean>(false);
-
-  const [isCancelled, setIsCancelled] = useState<boolean>(false);
-
-  function getVerticalAlign() {
-    const el = document.querySelector(`#order-line-${order.order_id}`);
-    if (!el) return;
-    if (openEditQuantity || openEditPrice) {
-      return 'baseline';
-    }
-  }
-
-  if (isCancelled) return null;
-
   const gridCol = columns.reduce((acc, column) => acc + (column.colSpan ? column.colSpan : 1), 0);
 
   return (
@@ -68,14 +51,13 @@ function OrderLine({
       <tr
         className={`table-fixed grid grid-cols-${gridCol} ${tableRowType === 'card' ? ' m-2 px-3 gap-2 rounded-xl' : ' gap-4 px-5 lg:border-t border-white border-opacity-10'}`}
         style={{
-          verticalAlign: getVerticalAlign(),
           backgroundColor: tableRowType === 'card' ? '#7E8A931A' : ''
         }}
       >
           {columns.map((column, i) => (
             <td
-              key={column.key}
-              className={`col-span-${column.colSpan ? column.colSpan : 1} flex items-center py-5 pr-2 relative`}
+              key={`${column.key}-${i}`}
+              className={`col-span-${column.colSpan ? column.colSpan : 1} flex items-center py-5 relative break-all`}
             >
               <div
                 className={`
@@ -106,7 +88,7 @@ function Table({
   tableTopComponent,
   pagination = true,
   mobileRender,
-  mobileRenderType,
+  mobileRenderCustom,
   mobileFooter,
   maintenance
 }: {
@@ -122,7 +104,7 @@ function Table({
   tableTopComponent: JSX.Element;
   pagination: boolean;
   mobileRender: (row: any) => any;
-  mobileRenderType?: 'table';
+  mobileRenderCustom?: boolean;
   mobileFooter?: JSX.Element,
   maintenance: boolean;
 }) {
@@ -323,7 +305,7 @@ function Table({
 
               {columns.map((column, i) => (
                 <TableHeader
-                  key={column.key}
+                  key={`${column.key ? column.key : 'column'}-${i}`}
                   column={column}
                   loading={loading}
                   sort={sort}
@@ -396,37 +378,12 @@ function Table({
           </div>
         ) : (
           <>
-            {!mobileRenderType && data
+            {!mobileRenderCustom && data
                 .sort(sortingFunc)
                 .filter(filterFunc)
                 .map((order) => mobileRender && mobileRender(order))
             }
-            {mobileRenderType === 'table' &&  (
-              <table className="table-fixed w-full">
-                <thead
-                  className={`w-full xs:hidden table table-fixed  pl-5 pr-4 py-2 border-white border-opacity-10`}
-                  style={{
-                    width: 'calc(100% - 9px)',
-                  }}
-                >
-                  <tr className={`w-full px-5 table-fixed grid grid-cols-3 gap-4`}>
-                    {['assets', 'Wallet', 'available_orderly'].map((key) => (
-                      <th>
-                        {intl.formatMessage({
-                          id: key,
-                          defaultMessage: key,
-                        })}
-                      </th>
-                    ))}
-                  </tr>
-                  {data
-                    .sort(sortingFunc)
-                    .filter(filterFunc)
-                    .map((order) => mobileRender && mobileRender(order))
-                  }
-                </thead>
-              </table>
-            ) }
+            {mobileRenderCustom &&  mobileRender(data.sort(sortingFunc).filter(filterFunc))}
           </>
         )}
       </div>

@@ -1026,6 +1026,14 @@ const en_US = {
   all_instrument: 'All Instrument',
   available_orderly: 'Available',
   history_orderly: 'History',
+  settle_pnl: 'Settle PnL',
+  settle_pnl_tips: 'By doing this, we’ll move your profit or loss from perp markets into the USDC token balance. This has no impact on your open positions or health.',
+  total_unsettled_pnl: 'Total unsettled PnL',
+  fut_unreal_pnl: 'Fut. Unreal. PnL',
+  fut_daily_real: 'Fut. Daily Real.',
+  fut_notional: 'Fut. Notional',
+  fut_unsettle_pnl: 'Unsettle PnL',
+  settle: 'Settle',
   mark_orderly: 'Mark',
   avg_open: 'Avg. Open',
   liq_price: 'Liq. Price',
@@ -1354,6 +1362,7 @@ const en_US = {
     'Total value of investments in Ref (including claimable rewards) + Total value of Orderly assets + Total value of Burrow assets + Total assets in wallet',
 
   mark_price: 'Mark Price',
+  last_price: 'Last Price',
   mark_price_tip: 'Mark price is used for PnL calculating and liquidation.',
   total_collateral: 'Total Collateral',
   free_collateral: 'Free Collateral',
@@ -1383,5 +1392,6 @@ const en_US = {
     'Move a profit or loss from perp markets into the USDC token balance. This has no impact on your open positions or health.',
   margin_ratio_tip:
     'The margin ratio of an account is equal to the total collateral value (ie the USDC balance + any unrealized profit/loss) divided by the total open notional of the account (the sum of the absolute notional value of all positions)',
+  portfolio_total_est_tip: 'Portfolio value in USD.',  
 };
 export default Object.assign(en_US, en_US_in_risks_page);

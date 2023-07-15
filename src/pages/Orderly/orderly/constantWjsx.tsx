@@ -1,14 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { TokenMetadata } from '~services/ft-contract';
-import {
-  PriceFloatUpIcon
-} from '~components/icon/Common';
 import { getPortfolioAllOrders, getFundingFee, getPortfolioAssetHistory, getPortfolioPosition, getPortfolioSettlements } from '../orderly/off-chain-api';
 import { TextWrapper } from '../components/UserBoard';
 import { PortfolioTable } from './type';
 import { useDEXLogoRender } from './customRenderHook';
-import { openUrl } from '../../../services/commonV3';
+import { openUrl } from '../../../services/commonV3'
 import { useWalletSelector } from '../../../context/WalletSelectorContext';
 import { useOrderlyContext } from '../orderly/OrderlyContext';
 import { formatTimeDate, shortenAddress, getAccountName } from './utils';
@@ -19,6 +16,10 @@ import { parseSymbol } from '../components/RecentTrade';
 import ProgressBar from '../components/TableWithTabs/ProgressBar';
 import OrdersFilters from '../components/TableWithTabs/OrdersFilters';
 import { AllMarketIcon } from '../components/Common/Icons';
+import { 
+  DepositButtonMobile,
+  WithdrawButtonMobile
+} from '../components/Common';
 import { NearTip } from '../../../pages/AccountPage';
 import getConfig from '../../../services/config';
 import { Checkbox, CheckboxSelected, ArrowGrey } from '../../../components/icon';
@@ -50,7 +51,9 @@ export const usePortableOrderlyTable = ({
   setChooseOrderSide,
   setOperationType,
   setOperationId,
-  tokenIn
+  tokenIn,
+  setSettlePnlModalOpen,
+  futuresStats
 }: {
   refOnly: boolean;
   setRefOnly: (item: boolean) => void;
@@ -63,6 +66,8 @@ export const usePortableOrderlyTable = ({
   setOperationType: (item: 'deposit' | 'withdraw') => void;
   setOperationId: (item: string) => void;
   tokenIn: TokenMetadata;
+  setSettlePnlModalOpen: (item: boolean) => void;
+  futuresStats: { unreal: number; daily: number; notional: number; unsettle: number }
 }) => {
   const intl = useIntl();
   const { tokenInfo } = useOrderlyContext();
@@ -121,9 +126,14 @@ export const usePortableOrderlyTable = ({
   const SettlePnlBtn = () => (
     <button
       className="text-white py-1 px-2 relative bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center"
-      onClick={() => {}}
+      onClick={() => setSettlePnlModalOpen(true)}
     >
-      <span>Settle Pnl</span>
+      <span>
+        {intl.formatMessage({
+          id: 'settle_pnl',
+          defaultMessage: 'Settle PnL',
+        })}
+      </span>
     </button>
   );
 
@@ -179,44 +189,69 @@ export const usePortableOrderlyTable = ({
     availableSymbols
       .sort((a, b) => (a.symbol > b.symbol ? 1 : -1))
       .forEach((symbol) => {
-        const { symbolFrom, symbolTo } = parseSymbol(symbol.symbol);
-        const fromToken = allTokens[symbolFrom];
+        if (!symbol.symbol.includes('PERP')) {
+          const { symbolFrom, symbolTo } = parseSymbol(symbol.symbol);
+          const fromToken = allTokens[symbolFrom];
+  
+          const symbolRender = (
+            <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
+              <img
+                src={fromToken?.icon}
+                alt=""
+                className="rounded-full flex-shrink-0 w-5 h-5 mr-0.5 md:mr-2.5 lg:mr-2.5"
+              />
+  
+              <span className="xs:text-white xs:ml-2 xs:font-bold">
+                ${symbolFrom} / ${symbolTo}
+              </span>
+            </div>
+          );
+  
+          const textRender = (
+            <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
+              <span className="xs:text-white xs:ml-2 xs:font-bold">
+                {symbolFrom} / ${symbolTo}
+              </span>
+            </div>
+          );
+  
+          marketList.push({
+            text: textRender,
+            withSymbol: symbolRender,
+            textId: symbol.symbol,
+          });
+        } else {
+          const { symbolFrom } = parseSymbol(symbol.symbol);
+          const toToken = allTokens[symbolFrom];
 
-        const symbolRender = (
-          <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
-            <img
-              src={fromToken?.icon}
-              alt=""
-              className="rounded-full flex-shrink-0 w-5 h-5 mr-0.5 md:mr-2.5"
-            />
+          const symbolRender = (
+            <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
+              <img
+                src={toToken?.icon}
+                alt=""
+                className="rounded-full flex-shrink-0 w-5 h-5 mr-0.5 md:mr-2.5 lg:mr-2.5"
+              />
 
-            <span className="xs:text-white xs:ml-2 xs:font-bold">
-              {symbolFrom}
-            </span>
+              <span className="xs:text-white xs:ml-2 xs:font-bold">
+                {symbolFrom} PERP
+              </span>
+            </div>
+          );
 
-            <span className="text-primaryOrderly xs:text-white xs:font-bold">
-              /{symbolTo}
-            </span>
-          </div>
-        );
+          const textRender = (
+            <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
+              <span className="xs:text-white xs:ml-2 xs:font-bold">
+                {symbolFrom} PERP
+              </span>
+            </div>
+          );
 
-        const textRender = (
-          <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
-            <span className="xs:text-white xs:ml-2 xs:font-bold">
-              {symbolFrom}
-            </span>
-
-            <span className="text-primaryOrderly xs:text-white xs:font-bold">
-              /{symbolTo}
-            </span>
-          </div>
-        );
-
-        marketList.push({
-          text: textRender,
-          withSymbol: symbolRender,
-          textId: symbol.symbol,
-        });
+          marketList.push({
+            text: textRender,
+            withSymbol: symbolRender,
+            textId: symbol.symbol,
+          });
+        }
       });
 
     return marketList;
@@ -377,9 +412,9 @@ export const usePortableOrderlyTable = ({
               </div>
             )
           },
-          { key: '@price', header: '@Price', render: ({ price }) => price.toFixed(4) || '-'  },
-          { key: 'avg_price', header: 'Avg.Price', render: ({ average_executed_price }) => average_executed_price?.toFixed(0) || '-' },
-          { key: 'est_total', header: 'Est.Total', render: ({ price, quantity}) => (price * quantity).toFixed(0)},
+          { key: '@price', header: '@Price', render: ({ price, symbol }) => price?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 4) || '-'  },
+          { key: 'avg_price', header: 'Avg.Price', render: ({ average_executed_price, symbol }) => average_executed_price?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 4) || '-' },
+          { key: 'est_total', header: 'Est.Total', render: ({ price, average_executed_price, quantity, symbol }) => ((price || average_executed_price) * quantity)?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 4)},
           {
             key: 'create',
             header: 'Create',
@@ -541,9 +576,9 @@ export const usePortableOrderlyTable = ({
               </div>
             )
           },
-          { key: '@price', header: '@Price', render: ({ price }) => price?.toFixed(4) || '-'  },
-          { key: 'avg_price', header: 'Avg.Price', render: ({ average_executed_price }) => average_executed_price?.toFixed(0) || '-' },
-          { key: 'est_total', header: 'Est.Total', render: ({ price, average_executed_price, quantity}) => ((price || average_executed_price) * quantity)?.toFixed(0)},
+          { key: '@price', header: '@Price', render: ({ price, symbol }) => price?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 4) || '-'  },
+          { key: 'avg_price', header: 'Avg.Price', render: ({ average_executed_price, symbol }) => average_executed_price?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 4) || '-' },
+          { key: 'est_total', header: 'Est.Total', render: ({ price, average_executed_price, quantity, symbol }) => ((price || average_executed_price) * quantity)?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 4)},
           { key: 'status', header: 'Status', render: ({ status }) =>  status },
           {
             key: 'create',
@@ -568,8 +603,70 @@ export const usePortableOrderlyTable = ({
         pagination: false,
         getData: async () => false,
         rightComp: <SpotTransactionBtn />,
-        mobileRenderType: 'table',
-        mobileRender: (rows) => <></>,
+        mobileRenderCustom: true,
+        mobileRender: (rows) => (
+          <>
+            <table className="table-fixed w-full">
+              <thead className={`w-full table table-fixed py-2 border-white border-opacity-10`}>
+                <tr className={`w-full  table-fixed grid grid-cols-3 gap-4 px-3`}>
+                  {['assets', 'Wallet', 'available_orderly'].map((key, i) => (
+                    <th className={`col-span-1 pb-2${i === 2 ? ' text-right' : ' text-left'}`}>
+                      {intl.formatMessage({
+                        id: key,
+                        defaultMessage: key,
+                    })}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className=" block overflow-auto flex-col px-3">
+                {rows.map(({ tokenMeta, near, available }: any) => (
+                  <tr className="table-fixed grid grid-cols-3 gap-4 lg:border-t border-white border-opacity-10 text-white">
+                    <td className="col-span-1 flex py-2 relative">
+                      <div className="flex items-center">
+                        <img
+                          src={tokenMeta.icon}
+                          className="rounded-full flex-shrink-0 mr-2 w-7 h-7 border border-green-400"
+                          alt=""
+                        />
+                        <div className="flex flex-col  ">
+                          <div className="text-white flex items-center font-bold">
+                            {tokenMeta.symbol}
+                            {tokenMeta?.id?.toLowerCase() === 'near' && <NearTip />}
+                          </div>
+                
+                          <div className="text-primaryOrderly xs:hidden text-xs">
+                            {getAccountName(tokenMeta.id)}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="col-span-1 py-2">
+                      {digitWrapperAsset(near, 3)}
+                    </td>
+                    <td className="col-span-1 text-right py-2">
+                      {digitWrapperAsset(available, 3)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className="flex justify-between align-center px-3 mt-5">
+              <DepositButtonMobile
+                onClick={() => {
+                  setOperationType('deposit');
+                  setOperationId(tokenIn?.id || '');
+                }}
+              />
+              <WithdrawButtonMobile
+                onClick={() => {
+                  setOperationType('withdraw');
+                  setOperationId(tokenIn?.id || '');
+                }}
+              />
+            </div>
+          </>
+        ),
         columns: [
           {
             key: 'token',
@@ -629,21 +726,84 @@ export const usePortableOrderlyTable = ({
         rightComp: <SettlePnlBtn />,
         pagination: false,
         getData: () => getPortfolioPosition({ accountId }),
+        tableTopComponent: (
+          <div className="w-full px-5 mb-4">
+            <div className="w-full flex justify-start items-center py-3 px-5 rounded-full" style={{ backgroundColor: '#7E8A931A' }}>
+              <div className="mr-5">
+                {intl.formatMessage({
+                  id: 'fut_unreal_pnl',
+                  defaultMessage: 'Fut. Unreal. PnL',
+                })}
+                <span className="text-buyGreen pl-2">{futuresStats.unreal.toFixed(0)}</span>
+              </div>
+              <div className="mr-5">
+                {intl.formatMessage({
+                  id: 'fut_daily_real',
+                  defaultMessage: 'Fut. Daily Real.',
+                })}
+                <span className="text-white pl-2">{futuresStats.daily.toFixed(0)}</span>
+              </div>
+              <div className="mr-5">
+                {intl.formatMessage({
+                  id: 'fut_notional',
+                  defaultMessage: 'Fut. Notional',
+                })}
+                <span className="text-white pl-2">{futuresStats.notional.toFixed(0)}</span>
+              </div>
+              <div className="ml-auto">
+                {intl.formatMessage({
+                  id: 'fut_unsettle_pnl',
+                  defaultMessage: 'Unsettle PnL',
+                })}
+                <span className="text-buyGreen pl-2">{futuresStats.unsettle.toFixed(0)}</span>
+              </div>
+            </div>
+          </div>
+        ),
         columns: [
           {
             key: 'instrument',
-            colSpan: 2,
             header: 'Instrument',
             render: ({ symbol }) => (
               <div className="flex items-center ">{marketList.find((m) => m.textId === symbol)?.text}</div>
             )
           },
+          {
+            key: 'qty.',
+            header: 'Qty.',
+            extras: ['sort'],
+            render: ({ position_qty }) => (
+              <div className="px-2 text-sm text-buyGreen">
+                {position_qty?.toFixed(0) || '-' }
+              </div>
+            )},
           { key: 'avg_open', header: 'Avg. Open', extras: ['sort'], render: ({ average_open_price }) => average_open_price?.toFixed(3) || '-' },
           { key: 'mark_orderly', header: 'Mark', extras: ['sort'], render: ({ mark_price }) => mark_price?.toFixed(3) || '-' },
           { key: 'liq_price', header: 'Liq. Price', extras: ['sort'], render: ({ est_liq_price }) => est_liq_price?.toFixed(3) || '-' },
-          { key: 'unreal_pnl', header: 'Unreal. PnL', extras: ['sort'], render: ({ mark_price, average_open_price, position_qty }) =>  ((mark_price - average_open_price) *  position_qty)?.toFixed(3) || '-' },
+          {
+            key: 'unreal_pnl',
+            header: 'Unreal. PnL',
+            headerType: 'dashed',
+            extras: ['radio'],
+            list: [
+              {
+                text: intl.formatMessage({
+                  id: 'mark_price',
+                  defaultMessage: 'Mark Price',
+                }),
+                textId: 'mark_price'
+              },
+              {
+                text: intl.formatMessage({
+                  id: 'last_price',
+                  defaultMessage: 'Last Price',
+                }),
+                textId: 'last_price'
+              }
+            ],
+            render: ({ mark_price, average_open_price, position_qty }) =>  ((mark_price - average_open_price) *  position_qty)?.toFixed(3) || '-'
+          },
           { key: 'daily_real', header: 'Daily Real', extras: ['sort'], render: ({ pnl_24_h }) => pnl_24_h?.toFixed(3) || '-' },
-          { key: 'unsettled_pnl', header: 'Unsettled PnL', extras: ['sort'], render: ({ unsettled_pnl }) => <span className="text-buyGreen">{unsettled_pnl?.toFixed(3) || '-'}</span> },
           { key: 'notional', header: 'Notional', extras: ['sort'], render: ({ average_open_price, position_qty }) => (position_qty * average_open_price)?.toFixed(3) || '-' },
           {
             key: 'qty.',
@@ -660,7 +820,8 @@ export const usePortableOrderlyTable = ({
                 {position_qty?.toFixed(0) || '-' }
               </div>
             )},
-          // { key: 'price', header: 'Price', render: ({ average_open_price }) => average_open_price?.toFixed(3) || '-' },
+          { key: 'price', header: 'Price', render: ({ average_open_price }) => average_open_price?.toFixed(3) || '-' },
+          { key: '', header: '', render: () => 'close'},
         ]
       }
     ]
@@ -681,7 +842,17 @@ export const usePortableOrderlyTable = ({
             style={{ backgroundColor: '#7E8A931A' }}
           >
             <div className="w-full inline-block text-white">
-              <div className="font-bold">{token}</div>
+              <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
+                <img
+                  src={allTokens[token]?.icon}
+                  alt=""
+                  className="rounded-full flex-shrink-0 w-5 h-5 mr-0.5 md:mr-2.5 lg:mr-2.5"
+                />
+
+                <span className="xs:text-white xs:ml-2 xs:font-bold">
+                  {allTokens[token]?.symbol}
+                </span>
+              </div>
             </div>
             <div className="w-1/2 inline-block">
               <div className={`p-0.5 my-0.5`}>
@@ -716,7 +887,17 @@ export const usePortableOrderlyTable = ({
             key: 'token',
             header: 'Token',
             render: ({ token }) => (
-              <div className="flex items-center ">{token}</div>
+              <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
+                <img
+                  src={allTokens[token]?.icon}
+                  alt=""
+                  className="rounded-full flex-shrink-0 w-5 h-5 mr-0.5 md:mr-2.5 lg:mr-2.5"
+                />
+
+                <span className="xs:text-white xs:ml-2 xs:font-bold">
+                  {allTokens[token]?.symbol}
+                </span>
+              </div>
             )
           },
           { key: 'amount', textColor: '', header: 'Amount', render: ({ amount }) => amount },
@@ -761,7 +942,17 @@ export const usePortableOrderlyTable = ({
             style={{ backgroundColor: '#7E8A931A' }}
           >
             <div className="w-full inline-block text-white">
-              <div className="font-bold">{token}</div>
+              <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
+                <img
+                  src={allTokens[token]?.icon}
+                  alt=""
+                  className="rounded-full flex-shrink-0 w-5 h-5 mr-0.5 md:mr-2.5 lg:mr-2.5"
+                />
+
+                <span className="xs:text-white xs:ml-2 xs:font-bold">
+                  {allTokens[token]?.symbol}
+                </span>
+              </div>
             </div>
             <div className="w-1/2 inline-block">
               <div className={`p-0.5 my-0.5`}>
@@ -796,7 +987,17 @@ export const usePortableOrderlyTable = ({
             key: 'token',
             header: 'Token',
             render: ({ token }) => (
-              <div className="flex items-center ">{token}</div>
+              <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
+                <img
+                  src={allTokens[token]?.icon}
+                  alt=""
+                  className="rounded-full flex-shrink-0 w-5 h-5 mr-0.5 md:mr-2.5 lg:mr-2.5"
+                />
+
+                <span className="xs:text-white xs:ml-2 xs:font-bold">
+                  {allTokens[token]?.symbol}
+                </span>
+              </div>
             )
           },
           { key: 'amount', textColor: '', header: 'Amount', render: ({ amount }) => amount },
@@ -852,13 +1053,13 @@ export const usePortableOrderlyTable = ({
             </div>
             <div className="w-1/2 inline-block text-right">
               <div className={`p-0.5 text-sm my-0.5 flex items-center justify-end`}>
-                <span className={`${old_balance ? 'text-white' : ''}`}>
+                <span className="text-white">
                   {old_balance ? `${old_balance?.toFixed(4)}` : '-'}
                 </span>
                 <div className="mx-1">
                   <ArrowGrey />
                 </div>
-                <span className={`${new_balance ? 'text-white' : ''}`}>
+                <span className="text-white">
                   {new_balance ? `${new_balance?.toFixed(4)}` : '-'}
                 </span>
               </div>
@@ -878,7 +1079,7 @@ export const usePortableOrderlyTable = ({
                 <span className={`${settled_amount > 0 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
                   {settled_amount > 0 ? '+' : ''}{settled_amount || '-'}
                 </span>
-                &nbsp;USDC
+                <span className="text-white">&nbsp;USDC</span>
               </div>
             </div>
             <div className="w-1/2 inline-block">

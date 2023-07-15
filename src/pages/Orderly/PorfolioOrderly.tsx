@@ -5,17 +5,20 @@ import React, {
   useState
 } from 'react';
 import Big from 'big.js';
+import ReactTooltip from 'react-tooltip';
 import { isMobile } from '~utils/device';
 import { useIntl } from 'react-intl';
 import Navigation, {
   NavigationMobile,
 } from '../../components/portfolio/Navigation';
+import QuestionMark from '../../components/farm/QuestionMark';
 import { toPrecision } from './near';
 import TableWithTabs from './components/TableWithTabs';
+import SettlePnlModal from './components/TableWithTabs/SettlePnlModal';
 import {
   usePortableOrderlyTable
 } from './orderly/constantWjsx';
-import { getOrderlySystemInfo, getCurrentHolding } from './orderly/off-chain-api';
+import { getOrderlySystemInfo, getCurrentHolding, getPortfolioPosition } from './orderly/off-chain-api';
 import { OrderlyUnderMaintain } from './OrderlyTradingBoard';
 import { FlexRow } from './components/Common';
 import { AssetManagerModal } from './components/UserBoard';
@@ -47,7 +50,7 @@ function PortfolioOrderly() {
   const [chooseOrderSide, setChooseOrderSide] = useState<'all_side' | 'BUY' | 'SELL'>('all_side');
 
   const [holdings, setHoldings] = useState<Holding[]>();
-  const [portfolioValue, setPorfofolioValue] = useState<{ est: number; open: number; avail: number; }>({ est: 0, open: 0, avail: 0 });
+  const [futuresStats, setFuturesStats] = useState<{ unreal: number; daily: number; notional: number; unsettle: number }>({ unreal: 0, daily: 0, notional: 0, unsettle: 0 });
   const [operationType, setOperationType] = useState<'deposit' | 'withdraw'>();
   const { symbolFrom } = parseSymbol(symbol);
 
@@ -63,6 +66,12 @@ function PortfolioOrderly() {
       )
     : balances && balances[symbolFrom]?.holding;
 
+  const nonOrderlyTokenInfo = useTokenInfo();
+  const displayBalances: OrderAsset[] = useOrderlyPortfolioAssets(nonOrderlyTokenInfo);
+
+  const [settlePnlModalOpen, setSettlePnlModalOpen] = useState<boolean>(false);
+  const [totalPnl, setTotalPnl] = useState<number>(0);
+
   const { ordersTable, assetsTables, recordsTable } = usePortableOrderlyTable({
     refOnly,
     setRefOnly,
@@ -74,11 +83,29 @@ function PortfolioOrderly() {
     setChooseOrderSide,
     setOperationType,
     setOperationId,
-    tokenIn
+    tokenIn,
+    setSettlePnlModalOpen,
+    futuresStats
   });
 
-  const nonOrderlyTokenInfo = useTokenInfo();
-  const displayBalances: OrderAsset[] = useOrderlyPortfolioAssets(nonOrderlyTokenInfo);
+  const handleSettlePnl = () => {
+    if (!accountId) return;
+
+  };
+
+  const getPnLTotal = async () => {
+    const { data } = await getPortfolioPosition({ accountId });
+    const { rows, total_pnl_24_h } = data;
+    const totalUnsettle: number = rows.reduce((total: number, { unsettled_pnl } : { unsettled_pnl: number }) => total + unsettled_pnl, 0);
+
+    setTotalPnl(totalUnsettle);
+    setFuturesStats({
+      unreal: rows.reduce((total: number, { mark_price, average_open_price, position_qty } : { mark_price: number; average_open_price: number; position_qty: number; }) => total + ((mark_price - average_open_price) *  position_qty), 0),
+      daily: total_pnl_24_h,
+      notional: rows.reduce((total: number, { average_open_price, position_qty } : { average_open_price: number;  position_qty: number; }) => total + (average_open_price * position_qty), 0),
+      unsettle: totalUnsettle
+    });
+  }
 
   useEffect(() => {
     getOrderlySystemInfo().then((res) => {
@@ -89,6 +116,7 @@ function PortfolioOrderly() {
       }
     });
     
+    getPnLTotal();
   }, []);
 
   useEffect(() => {
@@ -98,10 +126,6 @@ function PortfolioOrderly() {
       setHoldings(res.data.holding);
     });
   }, [accountId, myPendingOrdersRefreshing, validAccountSig]);
-
-  useEffect(() => {
-    if (holdings) return;
-  }, [holdings]);
 
   if (maintenance === undefined) return null;
 
@@ -123,19 +147,40 @@ function PortfolioOrderly() {
         </div>
         {/* content */}
         <div className="flex-grow border-l border-r border-boxBorder px-1 pt-4 md:pt-9 lg:pt-9">
-          <div className="lg:max-w-1000px 3xl:max-w-1280px m-auto">
+          <div className="md:px-2.5 lg:px-5 3xl:max-w-1280px m-auto">
             <div
               className="w-full grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 md:bg-cardBg lg:bg-cardBg px-7 py-4 rounded-xl"
             >
               {/* getCurrentHolding */}
               <div className="col-span-2 mb-3">
                 <div className="flex items-center">
-                  <span className="text-sm text-primaryText">
-                    Total Est. Value 
+                  <span className="text-sm text-primaryText flex items-center">
+                    Total Est. Value
+                    <div
+                      className="text-white text-right ml-1"
+                      data-class="reactTip"
+                      data-for="selectAllId"
+                      data-place="bottom"
+                      data-html={true}
+                      data-tip={`
+                        <div class="text-navHighLightText text-xs text-left w-64 xsm:w-52">
+                          ${intl.formatMessage({ id: 'portfolio_total_est_tip' })}
+                        </div>
+                      `}
+                    >
+                      <QuestionMark />
+                      <ReactTooltip
+                        id="selectAllId"
+                        backgroundColor="#1D2932"
+                        border
+                        borderColor="#7e8a93"
+                        effect="solid"
+                      />
+                    </div>
                   </span>
                 </div>
                 <span className="text-2xl gotham_bold text-white mt-1">
-                  $0
+                  ${displayBalances.reduce((total, { near }) => total + parseInt(near), 0)}
                 </span>
               </div>
               <div className="col-span-1 mb-3">
@@ -145,7 +190,7 @@ function PortfolioOrderly() {
                   </span>
                 </div>
                 <span className="text-xl gotham_bold text-white mt-1">
-                  $0
+                  ${displayBalances.reduce((total, row) => total + parseInt(row['in-order']), 0)}
                 </span>
               </div>
               <div className="col-span-1 mb-3">
@@ -155,7 +200,7 @@ function PortfolioOrderly() {
                   </span>
                 </div>
                 <span className="text-xl gotham_bold text-white mt-1">
-                  $0
+                  ${displayBalances.reduce((total, { available }) => total + parseInt(available), 0)}
                 </span>
               </div>
             </div>
@@ -242,6 +287,14 @@ function PortfolioOrderly() {
         <NavigationMobile />
       </div>
 
+      <SettlePnlModal
+        isOpen={settlePnlModalOpen}
+        onRequestClose={() => {
+          setSettlePnlModalOpen(false);
+        }}
+        totalUnsettle={totalPnl}
+        onClick={handleSettlePnl}
+      />
 
       <AssetManagerModal
         isOpen={operationType === 'deposit'}
