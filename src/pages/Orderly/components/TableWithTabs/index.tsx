@@ -1,24 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { useOrderlyContext } from '../../orderly/OrderlyContext';
 
 import { FlexRow, FlexRowBetween } from '../Common';
 import 'react-circular-progressbar/dist/styles.css';
-import {
-  MobileFilter,
-} from '../Common/Icons';
+import { MobileFilter } from '../Common/Icons';
 import Table from './Table';
-import { REF_ORDERLY_ACCOUNT_VALID } from '../UserBoard';
 
-import { useTokenInfo } from '../../orderly/state';
-import { OrderAsset, useOrderlyPortfolioAssets } from '../AssetModal/state';
-import { useWalletSelector } from '../../../../context/WalletSelectorContext';
+import { OrderAsset } from '../AssetModal/state';
 
-import {
-  PortfolioTable
-} from '../../orderly/type';
-import {
-  useClientMobile
-} from '../../../../utils/device';
+import { PortfolioTable } from '../../orderly/type';
+import { useClientMobile } from '../../../../utils/device';
 
 import { useIntl } from 'react-intl';
 import _ from 'lodash';
@@ -40,7 +30,8 @@ function TableWithTabs({
   chooseMarketSymbol,
   setChooseMarketSymbol,
   chooseOrderSide,
-  setChooseOrderSide
+  setChooseOrderSide,
+  displayBalances
 } : {
   table: PortfolioTable;
   maintenance: boolean;
@@ -49,17 +40,11 @@ function TableWithTabs({
   setOrderType?: (item: number) => void;
   chooseMarketSymbol?: string;
   setChooseMarketSymbol?: (item: string) => void;
-  chooseOrderSide?: 'BOTH' | 'BUY' | 'SELL';
-  setChooseOrderSide?: (item: 'BOTH' | 'BUY' | 'SELL') => void;
+  chooseOrderSide?: 'all_side' | 'BUY' | 'SELL';
+  setChooseOrderSide?: (item: 'all_side' | 'BUY' | 'SELL') => void;
+  displayBalances: OrderAsset[];
 }) {
   const intl = useIntl();
-  const {
-    storageEnough,
-    setValidAccountSig,
-    validAccountSig,
-  } = useOrderlyContext();
-
-  const { accountId } = useWalletSelector();
 
   const [mobileFilterOpen, setMobileFilterOpen] = useState<
     'open' | 'history' | undefined
@@ -73,17 +58,13 @@ function TableWithTabs({
   const [page, setPage] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const nonOrderlyTokenInfo = useTokenInfo();
-  const displayBalances: OrderAsset[] = useOrderlyPortfolioAssets(nonOrderlyTokenInfo);
-  const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
-
   const { getData, id } = table.tabs[tab];
 
   useEffect(() => {
     setPage(1);
     setOrderType && setOrderType(0);
     setChooseMarketSymbol && setChooseMarketSymbol('all_markets');
-    setChooseOrderSide && setChooseOrderSide('BOTH');
+    setChooseOrderSide && setChooseOrderSide('all_side');
     getData && callGetData();
   }, [tab]);
 
@@ -98,31 +79,16 @@ function TableWithTabs({
   }, [refOnly, orderType, chooseMarketSymbol, chooseOrderSide]);
 
   useEffect(() => {
-    if (!accountId || !storageEnough) return;
-
-    console.log(!!storedValid)
-
-    if (!!storedValid) {
-
-      setValidAccountSig(true);
-
-      return;
+    if (getData && (id === 'spot')) {
+      callGetData();
     }
-    
-  }, [accountId, storageEnough]);
-
-  useEffect(() => {
-    if (!accountId || !validAccountSig) return;
-
-    if (getData && id === 'spot') {
-      setData(displayBalances);
-    }
-  }, [accountId, validAccountSig]);
+  }, [displayBalances]);
 
   const callGetData = async () => {
     const { data } = await getData({ page });
 
     if (!data && id === 'spot') {
+      setData(displayBalances);
       setLoading(false);
       return
     }
@@ -206,7 +172,7 @@ function TableWithTabs({
         </FlexRowBetween>
 
         <div
-          className={`flex items-center bg-acccountTab rounded-lg p-1 md:hidden lg:hidden`}
+          className={`flex items-center bg-acccountTab p-1 rounded-lg md:hidden lg:hidden`}
         >
           {table.tabs.map((tableTab, index) => (
             <label
@@ -216,7 +182,7 @@ function TableWithTabs({
                 setData([]);
                 setTab(index);
               }}
-              className={`flex items-center justify-center w-1/2 h-10 flex-grow text-base rounded-md gotham_bold  ${
+              className={`flex items-center justify-center w-1/2 py-1 flex-grow text-sm rounded-md  ${
                 tab === index
                   ? 'text-white bg-acccountBlock'
                   : 'text-primaryText'
