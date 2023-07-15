@@ -152,7 +152,7 @@ function TableWithTabs({
 
         <div className="md:hidden lg:hidden">
           <div
-            className={`flex items-center bg-acccountTab p-1 rounded-lg ${table.tabs[tab].filter ? 'w-11/12 inline-flex' : ''}`}
+            className={`relative flex items-center bg-acccountTab p-1 rounded-lg ${table.tabs[tab].filter ? 'w-11/12 inline-flex' : ''}`}
           >
             {table.tabs.map((tableTab, index) => (
               <label
@@ -217,6 +217,7 @@ function TableWithTabs({
             tableRowEmpty={table.tabs[tab].tableRowEmpty}
             tableTopComponent={table.tabs[tab].tableTopComponent}
             mobileRender={table.tabs[tab].mobileRender}
+            mobileRenderCustom={table.tabs[tab].mobileRenderCustom}
             total={total}
             page={page}
             setPage={setPage}

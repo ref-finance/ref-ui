@@ -18,16 +18,16 @@ export default function TableHeader({
   sort: [string, 'asc' | 'dsc'];
   setSort: (s: [string, 'asc' | 'dsc']) => void;
 }) {
-  const [select, setSelect] = useState<any>('')
+  const { colSpan = 1, key, header, mobileHeaderKey, extras, list, icon, suffix, headerType } = column;
+
+  const [select, setSelect] = useState<any>(list ? list[0].textId : '')
   const [showSideSelector, setShowSideSelector] = useState<boolean>(false);
 
   const intl = useIntl();
 
-  const { colSpan = 1, key, header, mobileHeaderKey, extras, list, icon, suffix } = column
-
   return (
     <>
-      <th className={`col-span-${colSpan} pb-2`}>
+      <th className={`col-span-${colSpan} pb-2 flex items-center`}>
         <FlexRow
           className={`relative text-left ${extras ? 'cursor-pointer' : ''}`}
           onClick={() => {
@@ -38,7 +38,7 @@ export default function TableHeader({
                 setSort([key, sort[1] === 'asc' ? 'dsc' : 'asc'])
               }
             }
-            if (extras?.includes('select')) {
+            if (extras?.includes('select') || extras?.includes('radio')) {
               setShowSideSelector(true);
             }
           }}
@@ -48,16 +48,19 @@ export default function TableHeader({
             style={{ color: (sort[0] === key || showSideSelector) ? 'white' : '#7E8A93' }}
           >
             {icon && icon}
-            <span className="ml-2">
-              {select ?
-                intl.formatMessage({
-                  id: select,
-                  defaultMessage: select,
-                }) : intl.formatMessage({
-                  id: key,
-                  defaultMessage: header,
-                })
-              }
+            <span
+              className={`
+                ml-2
+                ${headerType === 'dashed' ? ' underline' : ''}
+              `}
+              style={{
+                textDecorationStyle: headerType === 'dashed' ? 'dashed' : 'solid'
+              }}
+            >
+              {header && intl.formatMessage({
+                id: key,
+                defaultMessage: header,
+              })}
             </span>
           </span>
           {suffix && suffix}
@@ -67,18 +70,13 @@ export default function TableHeader({
           >
             {icon && icon}
             <span className="ml-2">
-              {select ?
-                intl.formatMessage({
-                  id: select,
-                  defaultMessage: select,
-                }) : intl.formatMessage({
-                  id: mobileHeaderKey ? mobileHeaderKey : key,
-                  defaultMessage: header,
-                })
-              }
+              {header && intl.formatMessage({
+                id: mobileHeaderKey ? mobileHeaderKey : key,
+                defaultMessage: header,
+              })}
             </span>
           </span>
-          {(extras?.includes('sort') || extras?.includes('select')) && (
+          {(extras?.includes('sort') || extras?.includes('select') || extras?.includes('radio')) && (
             <MdArrowDropDown
               className={`
                 ${(extras?.includes('sort') && (sort[0] === key && sort[1] === 'asc')) ? 'transform rotate-180' : ''}
@@ -90,8 +88,7 @@ export default function TableHeader({
           )}
 
           {showSideSelector && (
-
-            <div className="absolute top-6 z-50">
+            <div className="absolute top-full z-50">
               <div
                 className={`flex flex-col min-w-28 items-start py-2 px-1.5 rounded-lg border border-borderC text-sm  bg-darkBg `}
               >
@@ -101,8 +98,8 @@ export default function TableHeader({
                       className={`whitespace-nowrap flex items-center justify-between cursor-pointer min-w-fit my-0.5 text-left px-1 py-1 w-full rounded-md ${
                         item.className
                       } ${
-                        select === item.textId ? 'bg-symbolHover2' : ''
-                      } hover:bg-symbolHover2 `}
+                        (extras?.includes('select') && select === item.textId) ? 'bg-symbolHover2' : ''
+                      } ${extras?.includes('select') ? 'hover:bg-symbolHover2' : ''} `}
                       key={item.textId + index}
                       onClick={(e) => {
                         e.preventDefault();
@@ -111,8 +108,13 @@ export default function TableHeader({
                         setShowSideSelector(false);
                       }}
                     >
+                      {extras?.includes('radio') && (
+                        <div className="mr-2 border border-baseGreen bg-symbolHover2 border-solid w-3 h-3 rounded-full">
+                          {select === item.textId && <div className="w-2 h-2 bg-baseGreen rounded-full m-px" />}
+                        </div>
+                      )}
                       <span className="whitespace-nowrap pr-2">{item.text}</span>
-                      {select === item.textId && <CheckSelector />}
+                      {(extras?.includes('select') && select === item.textId)&& <CheckSelector />}
                     </div>
                   );
                 })}

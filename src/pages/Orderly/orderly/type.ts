@@ -384,7 +384,7 @@ export interface PortfolioTable {
     filter?: boolean,
     getData?: (params: any) => any;
     mobileRender?: (row: any) => any;
-    mobileRenderType?: 'table';
+    mobileRenderCustom?: boolean;
     mobileFooter?: JSX.Element;
   }[];
 }
@@ -406,5 +406,5 @@ export interface PortfolioTableColumns {
     className?: string;
   }[];
   textColor?: string;
-  headerType?: 'Dynamic' | 'Fixed';
+  headerType?: string;
 }
