@@ -384,6 +384,8 @@ export interface PortfolioTable {
     filter?: boolean,
     getData?: (params: any) => any;
     mobileRender?: (row: any) => any;
+    mobileRenderType?: 'table';
+    mobileFooter?: JSX.Element;
   }[];
 }
 
@@ -395,7 +397,8 @@ export interface PortfolioTableColumns {
   render?: (row: any) => any;
   selectList?: string[];
   extras?: string | string[];
-  icon?: string;
+  icon?: any;
+  suffix?: any;
   colSpan?: number;
   list?: {
     text: string;

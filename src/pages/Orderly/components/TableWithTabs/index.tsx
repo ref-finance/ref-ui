@@ -1,22 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { useOrderlyContext } from '../../orderly/OrderlyContext';
 
 import { FlexRow, FlexRowBetween } from '../Common';
 import 'react-circular-progressbar/dist/styles.css';
-import {
-  MobileFilter,
-} from '../Common/Icons';
+import { MobileFilter } from '../Common/Icons';
 import Table from './Table';
 
-import { useTokenInfo } from '../../orderly/state';
-import { OrderAsset, useOrderlyPortfolioAssets } from '../AssetModal/state';
+import { OrderAsset } from '../AssetModal/state';
 
-import {
-  PortfolioTable
-} from '../../orderly/type';
-import {
-  useClientMobile
-} from '../../../../utils/device';
+import { PortfolioTable } from '../../orderly/type';
+import { useClientMobile } from '../../../../utils/device';
 
 import { useIntl } from 'react-intl';
 import _ from 'lodash';
@@ -29,7 +21,29 @@ export function SymbolWrapper({ symbol }: { symbol: string }) {
   );
 }
 
-function TableWithTabs({ table, maintenance }: { table: PortfolioTable, maintenance: boolean }) {
+function TableWithTabs({
+  table,
+  maintenance,
+  refOnly,
+  orderType,
+  setOrderType,
+  chooseMarketSymbol,
+  setChooseMarketSymbol,
+  chooseOrderSide,
+  setChooseOrderSide,
+  displayBalances
+} : {
+  table: PortfolioTable;
+  maintenance: boolean;
+  refOnly?: boolean;
+  orderType?: number;
+  setOrderType?: (item: number) => void;
+  chooseMarketSymbol?: string;
+  setChooseMarketSymbol?: (item: string) => void;
+  chooseOrderSide?: 'all_side' | 'BUY' | 'SELL';
+  setChooseOrderSide?: (item: 'all_side' | 'BUY' | 'SELL') => void;
+  displayBalances: OrderAsset[];
+}) {
   const intl = useIntl();
 
   const [mobileFilterOpen, setMobileFilterOpen] = useState<
@@ -44,13 +58,13 @@ function TableWithTabs({ table, maintenance }: { table: PortfolioTable, maintena
   const [page, setPage] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const nonOrderlyTokenInfo = useTokenInfo();
-  const displayBalances: OrderAsset[] = useOrderlyPortfolioAssets(nonOrderlyTokenInfo);
-
   const { getData, id } = table.tabs[tab];
 
   useEffect(() => {
     setPage(1);
+    setOrderType && setOrderType(0);
+    setChooseMarketSymbol && setChooseMarketSymbol('all_markets');
+    setChooseOrderSide && setChooseOrderSide('all_side');
     getData && callGetData();
   }, [tab]);
 
@@ -59,8 +73,16 @@ function TableWithTabs({ table, maintenance }: { table: PortfolioTable, maintena
   }, [page]);
 
   useEffect(() => {
-    (getData && id === 'spot') && callGetData();
-  }, [nonOrderlyTokenInfo]);
+    if (getData && (id === 'open_orders' || id === 'history')) {
+      callGetData();
+    }
+  }, [refOnly, orderType, chooseMarketSymbol, chooseOrderSide]);
+
+  useEffect(() => {
+    if (getData && (id === 'spot')) {
+      callGetData();
+    }
+  }, [displayBalances]);
 
   const callGetData = async () => {
     const { data } = await getData({ page });
@@ -101,16 +123,18 @@ function TableWithTabs({ table, maintenance }: { table: PortfolioTable, maintena
                   className={`justify-center cursor-pointer`}
                 >
                   <span
-                    className={`px-5
+                    className={`px-5 gotham_bold
                       ${tab === index
                         ? 'text-white relative'
                         : 'text-primaryOrderly relative'
                     }`}
                   >
-                    {intl.formatMessage({
-                      id: tableTab.id,
-                      defaultMessage: tableTab.default,
-                    })}
+                    <b>
+                      {intl.formatMessage({
+                        id: tableTab.id,
+                        defaultMessage: tableTab.default,
+                      })}
+                    </b>
 
                     {tab === index && (
                       <div className="h-0.5 bg-gradientFromHover rounded-lg w-full absolute -bottom-5 left-0"></div>
@@ -138,7 +162,7 @@ function TableWithTabs({ table, maintenance }: { table: PortfolioTable, maintena
               >
                 <MobileFilter />
                 {mobileFilterSize > 0 && (
-                  <div className="absolute  -bottom-1 right-3 text-10px w-3 h-3 rounded-full flex items-center justify-center font-bold text-black bg-gradientFrom">
+                  <div className="absolute  -bottom-1 right-3 text-10px w-3 h-3 rounded-full flex items-center justify-center gotham_bold text-black bg-gradientFrom">
                     {mobileFilterSize}
                   </div>
                 )}
@@ -148,7 +172,7 @@ function TableWithTabs({ table, maintenance }: { table: PortfolioTable, maintena
         </FlexRowBetween>
 
         <div
-          className={`flex items-center bg-acccountTab rounded-lg p-1 md:hidden lg:hidden`}
+          className={`flex items-center bg-acccountTab p-1 rounded-lg md:hidden lg:hidden`}
         >
           {table.tabs.map((tableTab, index) => (
             <label
@@ -158,7 +182,7 @@ function TableWithTabs({ table, maintenance }: { table: PortfolioTable, maintena
                 setData([]);
                 setTab(index);
               }}
-              className={`flex items-center justify-center w-1/2 h-10 flex-grow text-base rounded-md  ${
+              className={`flex items-center justify-center w-1/2 py-1 flex-grow text-sm rounded-md  ${
                 tab === index
                   ? 'text-white bg-acccountBlock'
                   : 'text-primaryText'
@@ -188,6 +212,7 @@ function TableWithTabs({ table, maintenance }: { table: PortfolioTable, maintena
             columns={table.tabs[tab].columns}
             tableRowType={table.tabs[tab].tableRowType}
             tableRowEmpty={table.tabs[tab].tableRowEmpty}
+            tableTopComponent={table.tabs[tab].tableTopComponent}
             mobileRender={table.tabs[tab].mobileRender}
             total={total}
             page={page}

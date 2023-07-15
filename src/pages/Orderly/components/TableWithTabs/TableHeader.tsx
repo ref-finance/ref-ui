@@ -23,13 +23,13 @@ export default function TableHeader({
 
   const intl = useIntl();
 
-  const { colSpan = 1, key, header, mobileHeaderKey, extras, list } = column
+  const { colSpan = 1, key, header, mobileHeaderKey, extras, list, icon, suffix } = column
 
   return (
     <>
-      <th className={`col-span-${colSpan}`}>
+      <th className={`col-span-${colSpan} pb-2`}>
         <FlexRow
-          className={`relative ${extras ? 'cursor-pointer' : ''}`}
+          className={`relative text-left ${extras ? 'cursor-pointer' : ''}`}
           onClick={() => {
             if (extras?.includes('sort')) {
               if (sort[0] !== key) {
@@ -44,32 +44,39 @@ export default function TableHeader({
           }}
         >
           <span
-            className="hidden md:block lg:block"
+            className="hidden md:flex lg:flex items-center"
             style={{ color: (sort[0] === key || showSideSelector) ? 'white' : '#7E8A93' }}
           >
-            {select ?
-              intl.formatMessage({
-                id: select,
-                defaultMessage: select,
-              }) : intl.formatMessage({
-                id: key,
-                defaultMessage: header,
-              })
-            }
+            {icon && icon}
+            <span className="ml-2">
+              {select ?
+                intl.formatMessage({
+                  id: select,
+                  defaultMessage: select,
+                }) : intl.formatMessage({
+                  id: key,
+                  defaultMessage: header,
+                })
+              }
+            </span>
           </span>
+          {suffix && suffix}
           <span
-            className="md:hidden lg:hidden"
+            className="md:hidden lg:hidden flex"
             style={{ color: (sort[0] === key || showSideSelector) ? 'white' : '#7E8A93' }}
           >
-            {select ?
-              intl.formatMessage({
-                id: select,
-                defaultMessage: select,
-              }) : intl.formatMessage({
-                id: mobileHeaderKey ? mobileHeaderKey : key,
-                defaultMessage: header,
-              })
-            }
+            {icon && icon}
+            <span className="ml-2">
+              {select ?
+                intl.formatMessage({
+                  id: select,
+                  defaultMessage: select,
+                }) : intl.formatMessage({
+                  id: mobileHeaderKey ? mobileHeaderKey : key,
+                  defaultMessage: header,
+                })
+              }
+            </span>
           </span>
           {(extras?.includes('sort') || extras?.includes('select')) && (
             <MdArrowDropDown

@@ -136,6 +136,8 @@ export function NavigationMobile(props: any) {
       setActiveMenu('ref');
     } else if (location.pathname.includes('burrow')) {
       setActiveMenu('burrow');
+    } else if (location.pathname.includes('orderly')) {
+      setActiveMenu('orderly');
     } else if (location.pathname.includes('overview')) {
       setActiveMenu('overview');
     }
