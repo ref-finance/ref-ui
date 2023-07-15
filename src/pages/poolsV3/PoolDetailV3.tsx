@@ -689,7 +689,7 @@ function YourLiquidityBox(props: {
     }
   }, [liquidities, Object.keys(tokenPriceList).length]);
   useEffect(() => {
-    if (poolDetail && tokenPriceList) {
+    if (poolDetail && tokenPriceList && Object.keys(tokenPriceList).length) {
       get_24_apr_and_fee();
     }
   }, [poolDetail, tokenPriceList]);
