@@ -227,8 +227,8 @@ function Table({
   const gridCol = columns.reduce((acc, column) => acc + (column.colSpan ? column.colSpan : 1), 0);
 
   return (
-    <>
-      {validator && !loading && !maintenance && (
+    <div className="relative">
+      {validator && !maintenance && (
         <div
           className="absolute flex flex-col justify-center items-center h-full w-full top-0 left-0 "
           style={{
@@ -336,8 +336,8 @@ function Table({
             className=" block overflow-auto  flex-col "
             id="all-orders-body-open"
           >
-            {loading ? (
-              <tr className={`w-full mt-10 mb-4 px-5 table-fixed grid grid-cols-${gridCol} gap-4`}>
+            {(accountId && validContract()) && loading ? (
+              <tr className={`w-full relative mt-10 mb-4 px-5 table-fixed grid grid-cols-${gridCol} gap-4`} style={{ zIndex: 1 }}>
                 <td className={`col-span-${gridCol} text-center`}>
                   <OrderlyLoading />
                 </td>
@@ -379,8 +379,8 @@ function Table({
         </table>
       </div>
       <div className="w-full md:hidden lg:hidden">
-        {loading ? (
-          <div className="w-full mt-10 mb-4 px-5 gap-4">
+        {(accountId && validContract()) && loading ? (
+          <div className="w-full relative mt-10 mb-4 px-5 gap-4">
             <div className="text-center">
               <OrderlyLoading />
             </div>
@@ -415,10 +415,15 @@ function Table({
                         {intl.formatMessage({
                           id: key,
                           defaultMessage: key,
-                      })}
+                        })}
                       </th>
                     ))}
                   </tr>
+                  {data
+                    .sort(sortingFunc)
+                    .filter(filterFunc)
+                    .map((order) => mobileRender && mobileRender(order))
+                  }
                 </thead>
               </table>
             ) }
@@ -502,7 +507,7 @@ function Table({
       />
 
 
-    </>
+    </div>
   );
 }
 
