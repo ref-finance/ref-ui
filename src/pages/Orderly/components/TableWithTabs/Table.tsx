@@ -80,7 +80,7 @@ function OrderLine({
               <div
                 className={`
                   flex items-center ${column.textColor !== undefined ? column.textColor : 'text-white'}
-                  ${column.render({ ...order }) === '-' ? ' text-center' : '' }
+                  ${column.render({ ...order }) === '-' ? ' w-full text-center justify-center' : '' }
                 `}
               >
                 {column.render({ ...order })}
@@ -106,6 +106,8 @@ function Table({
   tableTopComponent,
   pagination = true,
   mobileRender,
+  mobileRenderType,
+  mobileFooter,
   maintenance
 }: {
   data: MyOrder[];
@@ -117,9 +119,11 @@ function Table({
   setPage: (page: number) => void;
   tableRowType: string;
   tableRowEmpty?: string;
-  tableTopComponent: JSX.Element,
+  tableTopComponent: JSX.Element;
   pagination: boolean;
   mobileRender: (row: any) => any;
+  mobileRenderType?: 'table';
+  mobileFooter?: JSX.Element,
   maintenance: boolean;
 }) {
   const {
@@ -391,10 +395,34 @@ function Table({
             </div>
           </div>
         ) : (
-          data
-            .sort(sortingFunc)
-            .filter(filterFunc)
-            .map((order) => mobileRender && mobileRender(order))
+          <>
+            {!mobileRenderType && data
+                .sort(sortingFunc)
+                .filter(filterFunc)
+                .map((order) => mobileRender && mobileRender(order))
+            }
+            {mobileRenderType === 'table' &&  (
+              <table className="table-fixed w-full">
+                <thead
+                  className={`w-full xs:hidden table table-fixed  pl-5 pr-4 py-2 border-white border-opacity-10`}
+                  style={{
+                    width: 'calc(100% - 9px)',
+                  }}
+                >
+                  <tr className={`w-full px-5 table-fixed grid grid-cols-3 gap-4`}>
+                    {['assets', 'Wallet', 'available_orderly'].map((key) => (
+                      <th>
+                        {intl.formatMessage({
+                          id: key,
+                          defaultMessage: key,
+                      })}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+              </table>
+            ) }
+          </>
         )}
       </div>
 

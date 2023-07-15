@@ -493,6 +493,7 @@ const en_US = {
   create: 'Create',
   select_a: 'Select a',
   wallet: 'wallet',
+  Wallet: 'Wallet',
   to_use_ref_finance: 'to use Ref.Finance',
   not_supported: 'not supported',
   installed: 'installed',

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
-import { MdArrowDropDown } from 'react-icons/md';
+import { TokenMetadata } from '~services/ft-contract';
 import {
   PriceFloatUpIcon
 } from '~components/icon/Common';
@@ -13,20 +13,15 @@ import { useWalletSelector } from '../../../context/WalletSelectorContext';
 import { useOrderlyContext } from '../orderly/OrderlyContext';
 import { formatTimeDate, shortenAddress, getAccountName } from './utils';
 import { digitWrapperAsset } from '../utiles';
-import { useTokenInfo } from './state';
 import { useAllSymbolInfo } from '../components/TableWithTabs/state';
-import { OrderAsset, useOrderlyPortfolioAssets } from '../components/AssetModal/state';
 import { useBatchTokenMetaFromSymbols } from '../components/ChartHeader/state';
-import { NearTip } from '../../../pages/AccountPage';
 import { parseSymbol } from '../components/RecentTrade';
-import { Checkbox, CheckboxSelected, ArrowGrey } from '../../../components/icon';
 import ProgressBar from '../components/TableWithTabs/ProgressBar';
-import { FlexRow } from '../components/Common';
-import { Selector } from '../components/OrderBoard';
-import {
-  AllMarketIcon
-} from '../components/Common/Icons';
+import OrdersFilters from '../components/TableWithTabs/OrdersFilters';
+import { AllMarketIcon } from '../components/Common/Icons';
+import { NearTip } from '../../../pages/AccountPage';
 import getConfig from '../../../services/config';
+import { Checkbox, CheckboxSelected, ArrowGrey } from '../../../components/icon';
 
 const OrderlyIcon = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -52,7 +47,10 @@ export const usePortableOrderlyTable = ({
   chooseMarketSymbol,
   setChooseMarketSymbol,
   chooseOrderSide,
-  setChooseOrderSide
+  setChooseOrderSide,
+  setOperationType,
+  setOperationId,
+  tokenIn
 }: {
   refOnly: boolean;
   setRefOnly: (item: boolean) => void;
@@ -60,15 +58,17 @@ export const usePortableOrderlyTable = ({
   setOrderType: (item: number) => void;
   chooseMarketSymbol: string;
   setChooseMarketSymbol: (item: string) => void;
-  chooseOrderSide: 'BOTH' | 'BUY' | 'SELL';
-  setChooseOrderSide: (item: 'BOTH' | 'BUY' | 'SELL') => void;
+  chooseOrderSide: 'all_side' | 'BUY' | 'SELL';
+  setChooseOrderSide: (item: 'all_side' | 'BUY' | 'SELL') => void;
+  setOperationType: (item: 'deposit' | 'withdraw') => void;
+  setOperationId: (item: string) => void;
+  tokenIn: TokenMetadata;
 }) => {
   const intl = useIntl();
   const { tokenInfo } = useOrderlyContext();
   const { accountId } = useWalletSelector();
   const availableSymbols = useAllSymbolInfo();
   const { renderLogo } =  useDEXLogoRender();
-  const nonOrderlyTokenInfo = useTokenInfo();
   const [showMarketSelector, setShowMarketSelector] = useState<boolean>(false);
   const [showSideSelector, setShowSideSelector] = useState<boolean>(false);
 
@@ -83,174 +83,40 @@ export const usePortableOrderlyTable = ({
           defaultMessage: 'Order on REF only',
         })}
       </span>
-      <button
-        className="text-white py-1 px-2 relative bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center"
-        onClick={() => {
-          openUrl('/orderbook');
-        }}
-      >
-        <span style={{ marginRight: 5 }}>Orderbook</span>
-        <PriceFloatUpIcon />
-      </button>
     </div>
   );
 
-  const OrdersFilters = () => {
-    return (
-      <div className="w-full px-5 pb-5 flex justify-between items-center">
-        <div
-          className={`flex items-center w-225 border rounded-lg p-1`}
-          style={{
-            borderColor: 'rgba(145, 162, 174, 0.20)',
-            width: 'calc(225px + 0.5rem)'
+  const SpotTransactionBtn = () => (
+    <>
+      <div className="flex items-center">
+        <button
+          className="text-white py-1 px-2 mr-2 relative bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center"
+          onClick={() => {
+            setOperationType('deposit');
+            setOperationId(tokenIn?.id || '');
           }}
         >
-          {['All', 'spot', 'futures'].map((tab, index) => (
-            <label
-              key={tab}
-              onClick={() => {
-                setOrderType(index);
-              }}
-              className={`flex items-center justify-center h-25 text-base rounded-md font-bold  ${
-                orderType === index
-                  ? 'text-white bg-acccountBlock'
-                  : 'text-primaryText cursor-pointer'
-              }`}
-              style={{ flex: '0 0 75px' }}
-            >
-              <span className="hidden md:block lg:block">
-                {intl.formatMessage({
-                  id: tab,
-                  defaultMessage: tab
-                })}
-              </span>
-            </label>
-          ))}
-        </div>
-        <div className="flex justify-between">
-
-          <FlexRow
-            className="relative mr-2"
-          >
-            <div
-              className="cursor-pointer flex items-center border rounded-lg py-1 px-2"
-              style={{
-                borderColor: 'rgba(145, 162, 174, 0.20)'
-              }}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setShowMarketSelector(!showMarketSelector);
-                setShowSideSelector(false);
-              }}
-            >
-              <span className="flex items-center">
-                {chooseMarketSymbol === 'all_markets' ? (
-                  intl.formatMessage({
-                    id: 'all_instrument',
-                    defaultMessage: 'All Instrument',
-                  })
-                ) : (
-                  <>
-                    <span className="text-white">
-                      {parseSymbol(chooseMarketSymbol).symbolFrom}
-                    </span>
-                    /{parseSymbol(chooseMarketSymbol).symbolTo}
-                  </>
-                )}
-              </span>
-
-              <MdArrowDropDown
-                size={22}
-                color={showMarketSelector ? 'white' : '#7E8A93'}
-              />
-            </div>
-
-            {showMarketSelector && (
-              <Selector
-                selected={chooseMarketSymbol}
-                setSelect={(value: any) => {
-                  setChooseMarketSymbol(value);
-                  setShowMarketSelector(false);
-                }}
-                list={marketList}
-              />
-            )}
-          </FlexRow>
-          <FlexRow className="relative">
-            <div
-              className="cursor-pointer flex items-center border rounded-lg py-1 px-2"
-              style={{
-                borderColor: 'rgba(145, 162, 174, 0.20)'
-              }}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setShowSideSelector(!showSideSelector);
-                setShowMarketSelector(false);
-              }}
-            >
-              <span>
-                {chooseOrderSide === 'BOTH'
-                  ? intl.formatMessage({
-                      id: 'all_side',
-                      defaultMessage: 'All Side',
-                    })
-                  : intl.formatMessage({
-                      id: chooseOrderSide.toLocaleLowerCase(),
-                      defaultMessage: chooseOrderSide,
-                    })}
-              </span>
-
-              <MdArrowDropDown
-                size={22}
-                color={showSideSelector ? 'white' : '#7E8A93'}
-              />
-            </div>
-
-            {showSideSelector && (
-              <Selector
-                selected={intl.formatMessage({
-                  id: chooseOrderSide.toLowerCase(),
-                  defaultMessage: chooseOrderSide,
-                })}
-                setSelect={(value: any) => {
-                  setChooseOrderSide(value);
-                  setShowSideSelector(false);
-                }}
-                list={[
-                  {
-                    text: intl.formatMessage({
-                      id: 'both',
-                      defaultMessage: 'Both',
-                    }),
-                    textId: 'BOTH',
-                    className: 'text-white',
-                  },
-                  {
-                    text: intl.formatMessage({
-                      id: 'buy',
-                      defaultMessage: 'Buy',
-                    }),
-                    textId: 'BUY',
-                    className: 'text-buyGreen',
-                  },
-                  {
-                    text: intl.formatMessage({
-                      id: 'sell',
-                      defaultMessage: 'Sell',
-                    }),
-                    textId: 'SELL',
-                    className: 'text-sellColorNew',
-                  },
-                ]}
-              />
-            )}
-          </FlexRow>
-        </div>
+          {intl.formatMessage({
+            id: 'deposit',
+            defaultMessage: 'Deposit',
+          })}
+        </button>
+        <button
+          className="text-white py-1 px-2 relative bg-withdrawPurple2 rounded-lg text-white font-bold flex items-center justify-center"
+          onClick={() => {
+            setOperationType('withdraw');
+            setOperationId(tokenIn?.id || '');
+          }}
+        >
+          {intl.formatMessage({
+            id: 'withdraw',
+            defaultMessage: 'Withdraw',
+          })}
+        </button>
       </div>
-    )
-  }
+    </>
+  );
+
 
   const SettlePnlBtn = () => (
     <button
@@ -368,7 +234,21 @@ export const usePortableOrderlyTable = ({
         rightComp: <OpenbookBtn />,
         tableRowType: 'card',
         tableRowEmpty: 'no_orders_found',
-        tableTopComponent: <OrdersFilters />,
+        tableTopComponent: (
+          <OrdersFilters
+            orderType={orderType}
+            setOrderType={setOrderType}
+            chooseMarketSymbol={chooseMarketSymbol}
+            setChooseMarketSymbol={setChooseMarketSymbol}
+            chooseOrderSide={chooseOrderSide}
+            setChooseOrderSide={setChooseOrderSide}
+            showMarketSelector={showMarketSelector}
+            setShowMarketSelector={setShowMarketSelector}
+            showSideSelector={showSideSelector}
+            setShowSideSelector={setShowSideSelector}
+            marketList={marketList}
+          />
+        ),
         filter: true,
         getData: ({page}: {page: number}) => {
           return getPortfolioAllOrders({
@@ -379,7 +259,7 @@ export const usePortableOrderlyTable = ({
               broker_id: refOnly ? 'ref_dex' : '',
               symbol: chooseMarketSymbol === 'all_markets' ? '' : chooseMarketSymbol,
               // @ts-ignore
-              side: chooseOrderSide === 'BOTH' ? '' : chooseOrderSide
+              side: chooseOrderSide === 'all_side' ? '' : chooseOrderSide.toUpperCase()
             } 
           })
         },
@@ -439,18 +319,32 @@ export const usePortableOrderlyTable = ({
         rightComp: <OpenbookBtn />,
         tableRowType: 'card',
         tableRowEmpty: 'no_orders_found',
-        tableTopComponent: <OrdersFilters />,
+        tableTopComponent: (
+          <OrdersFilters
+            orderType={orderType}
+            setOrderType={setOrderType}
+            chooseMarketSymbol={chooseMarketSymbol}
+            setChooseMarketSymbol={setChooseMarketSymbol}
+            chooseOrderSide={chooseOrderSide}
+            setChooseOrderSide={setChooseOrderSide}
+            showMarketSelector={showMarketSelector}
+            setShowMarketSelector={setShowMarketSelector}
+            showSideSelector={showSideSelector}
+            setShowSideSelector={setShowSideSelector}
+            marketList={marketList}
+          />
+        ),
         filter: true,
         getData: ({page}: {page: number}) => {
           return getPortfolioAllOrders({
             accountId,
             OrderProps: {
               page,
-              status: 'INCOMPLETE',
+              status: 'COMPLETED',
               broker_id: refOnly ? 'ref_dex' : '',
               symbol: chooseMarketSymbol === 'all_markets' ? '' : chooseMarketSymbol,
               // @ts-ignore
-              side: chooseOrderSide === 'BOTH' ? '' : chooseOrderSide
+              side: chooseOrderSide === 'all_side' ? '' : chooseOrderSide.toUpperCase()
             } 
           })
         },
@@ -509,8 +403,6 @@ export const usePortableOrderlyTable = ({
     ]
   }
 
-  const displayBalances: OrderAsset[] = useOrderlyPortfolioAssets(nonOrderlyTokenInfo);
-
   const assetsTables: PortfolioTable = {
     title: 'Assets',
     tabs: [
@@ -518,10 +410,10 @@ export const usePortableOrderlyTable = ({
         id: 'spot',
         default: 'Spot',
         pagination: false,
-        getData: async () => {
-
-          return false
-        },
+        getData: async () => false,
+        rightComp: <SpotTransactionBtn />,
+        mobileRenderType: 'table',
+        mobileRender: (rows) => <></>,
         columns: [
           {
             key: 'token',
@@ -803,7 +695,7 @@ export const usePortableOrderlyTable = ({
               </div>
             </div>
             <div className="w-1/2 inline-block text-right">
-              <div className={`p-0.5 text-sm my-0.5 flex items-center`}>
+              <div className={`p-0.5 text-sm my-0.5 flex items-center justify-end`}>
                 <span className={`${old_balance ? 'text-white' : ''}`}>
                   {old_balance ? `${old_balance?.toFixed(4)}` : '-'}
                 </span>
@@ -828,7 +720,7 @@ export const usePortableOrderlyTable = ({
             <div className="w-1/2 inline-block text-right">
               <div className={`p-0.5 text-sm my-0.5`}>
                 <span className={`${settled_amount > 0 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
-                  {settled_amount || '-'}
+                  {settled_amount > 0 ? '+' : ''}{settled_amount || '-'}
                 </span>
                 &nbsp;USDC
               </div>
@@ -877,7 +769,7 @@ export const usePortableOrderlyTable = ({
             colSpan: 2,
             render: ({ settled_amount }) => (
               <span className={`${settled_amount > 0 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
-                {settled_amount || '-'}
+                {settled_amount > 0 ? '+' : ''}{settled_amount || '-'}
               </span>
             )
           },
@@ -933,7 +825,7 @@ export const usePortableOrderlyTable = ({
           {
             key: 'funding_annual_rate',
             header: 'Funding Rate / Annual Rate',
-            colSpan: 2,
+            colSpan: 3,
             render: ({ funding_rate }) => `${funding_rate?.toFixed(6)}%/${(Math.ceil(funding_rate * 3 * 365 * 100 * 100) / 100)?.toFixed(2)}%`
           },
           { key: 'status', header: 'Status', render: ({ status }) => status },
@@ -956,7 +848,6 @@ export const usePortableOrderlyTable = ({
             key: 'time',
             header: 'Created',
             type: 'dateTime',
-            colSpan: 2,
             textColor: '',
             render: ({ created_time }) => formatTimeDate(created_time)
           },
