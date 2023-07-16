@@ -93,9 +93,9 @@ const OrdersFilters = ({
               ) : (
                 <>
                   <span className="text-white">
-                    {parseSymbol(chooseMarketSymbol).symbolFrom}
+                    {parseSymbol(chooseMarketSymbol).symbolFrom}{chooseMarketSymbol.includes('PERP') ? ' PERP' : `/${parseSymbol(chooseMarketSymbol).symbolTo}`}
                   </span>
-                  /{parseSymbol(chooseMarketSymbol).symbolTo}
+                  
                 </>
               )}
             </span>
