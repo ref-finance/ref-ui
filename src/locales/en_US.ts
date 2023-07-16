@@ -127,7 +127,7 @@ const en_US_in_risks_page = {
   third_party_wallet: 'Third-party wallet',
   third_party_wallet_1: 'Ref Finance integrates third-party wallets.',
   third_party_wallet_2:
-    'While we have taken measures to select reputable wallet providers, we cannot guarantee their security or performance. You should familiarize yourself with the risks associated with the specific wallet provider we and understand their terms of service, privacy policy, and security practices.',
+    'While we have taken measures to select wallet providers, we cannot guarantee their security or performance. You should familiarize yourself with the risks associated with the specific wallet provider and understand their terms of service, privacy policy, and security practices.',
   third_party_wallet_3:
     'Please use these services at your own risk and exercise caution.',
 };
