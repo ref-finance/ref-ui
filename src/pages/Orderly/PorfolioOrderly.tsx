@@ -6,8 +6,9 @@ import React, {
 } from 'react';
 import Big from 'big.js';
 import ReactTooltip from 'react-tooltip';
-import { isMobile } from '~utils/device';
 import { useIntl } from 'react-intl';
+import { isMobile } from '~utils/device';
+import { executeMultipleTransactions } from '~services/near';
 import Navigation, {
   NavigationMobile,
 } from '../../components/portfolio/Navigation';
@@ -27,7 +28,7 @@ import { useTokenMetaFromSymbol } from './components/ChartHeader/state';
 import { parseSymbol } from './components/RecentTrade';
 import { useTokenInfo } from './orderly/state';
 import { OrderAsset, useOrderlyPortfolioAssets } from './components/AssetModal/state';
-import { depositOrderly, withdrawOrderly } from './orderly/api';
+import { depositOrderly, withdrawOrderly, perpSettlementTx } from './orderly/api';
 import { useOrderlyContext } from './orderly/OrderlyContext';
 import { Holding } from './orderly/type';
 
@@ -69,6 +70,7 @@ function PortfolioOrderly() {
   const nonOrderlyTokenInfo = useTokenInfo();
   const displayBalances: OrderAsset[] = useOrderlyPortfolioAssets(nonOrderlyTokenInfo);
 
+  // settle pnl
   const [settlePnlModalOpen, setSettlePnlModalOpen] = useState<boolean>(false);
   const [totalPnl, setTotalPnl] = useState<number>(0);
 
@@ -88,9 +90,10 @@ function PortfolioOrderly() {
     futuresStats
   });
 
-  const handleSettlePnl = () => {
+  const handleSettlePnl = async () => {
     if (!accountId) return;
 
+    return executeMultipleTransactions([await perpSettlementTx()]);
   };
 
   const getPnLTotal = async () => {
@@ -292,7 +295,6 @@ function PortfolioOrderly() {
         onRequestClose={() => {
           setSettlePnlModalOpen(false);
         }}
-        totalUnsettle={totalPnl}
         onClick={handleSettlePnl}
       />
 

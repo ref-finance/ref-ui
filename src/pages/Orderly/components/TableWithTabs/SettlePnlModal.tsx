@@ -5,19 +5,22 @@ import { useIntl } from 'react-intl';
 import {
   digitWrapper,
 } from '../../utiles';
+import { usePerpData } from '../UserBoardPerp/state';
 import { ButtonTextWrapper } from '../../../../components/button/Button';
 
 export default function SettlePnlModal(
   props: Modal.Props & {
-    totalUnsettle: number | '-';
     onClick: () => Promise<any>;
   }
 ) {
   const {
     onRequestClose,
-    totalUnsettle,
     onClick,
   } = props;
+
+  const {
+    unsettle
+  } = usePerpData();
 
   const [loading, setLoading] = useState<boolean>(false);
   
@@ -72,9 +75,7 @@ export default function SettlePnlModal(
 
             <span className="flex items-center">
               <span className=" mr-2 text-buyGreen gotham_bold">
-                {totalUnsettle === '-'
-                  ? '-'
-                  : digitWrapper(totalUnsettle.toString(), 3)}
+                {digitWrapper(unsettle.toString(), 3)}
               </span>
               USDC
             </span>

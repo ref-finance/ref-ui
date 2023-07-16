@@ -15,6 +15,7 @@ import { useBatchTokenMetaFromSymbols } from '../components/ChartHeader/state';
 import { parseSymbol } from '../components/RecentTrade';
 import ProgressBar from '../components/TableWithTabs/ProgressBar';
 import OrdersFilters from '../components/TableWithTabs/OrdersFilters';
+import { FutureMobileView } from '../components/TableWithTabs/FuturesControls';
 import { AllMarketIcon } from '../components/Common/Icons';
 import { 
   DepositButtonMobile,
@@ -202,7 +203,7 @@ export const usePortableOrderlyTable = ({
               />
   
               <span className="xs:text-white xs:ml-2 xs:font-bold">
-                ${symbolFrom} / ${symbolTo}
+                {symbolFrom} / {symbolTo}
               </span>
             </div>
           );
@@ -210,7 +211,7 @@ export const usePortableOrderlyTable = ({
           const textRender = (
             <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
               <span className="xs:text-white xs:ml-2 xs:font-bold">
-                {symbolFrom} / ${symbolTo}
+                {symbolFrom} / {symbolTo}
               </span>
             </div>
           );
@@ -760,6 +761,16 @@ export const usePortableOrderlyTable = ({
             </div>
           </div>
         ),
+        mobileRenderCustom: true,
+        mobileRender: (rows) => (
+          <FutureMobileView
+            rows={rows}
+            futuresStats={futuresStats}
+            marketList={marketList}
+          >
+            <SettlePnlBtn />
+          </FutureMobileView>
+        ),
         columns: [
           {
             key: 'instrument',
@@ -787,17 +798,11 @@ export const usePortableOrderlyTable = ({
             extras: ['radio'],
             list: [
               {
-                text: intl.formatMessage({
-                  id: 'mark_price',
-                  defaultMessage: 'Mark Price',
-                }),
+                text: intl.formatMessage({ id: 'mark_price' }),
                 textId: 'mark_price'
               },
               {
-                text: intl.formatMessage({
-                  id: 'last_price',
-                  defaultMessage: 'Last Price',
-                }),
+                text: intl.formatMessage({ id: 'last_price' }),
                 textId: 'last_price'
               }
             ],
@@ -1077,7 +1082,7 @@ export const usePortableOrderlyTable = ({
             <div className="w-1/2 inline-block text-right">
               <div className={`p-0.5 text-sm my-0.5`}>
                 <span className={`${settled_amount > 0 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
-                  {settled_amount > 0 ? '+' : ''}{settled_amount || '-'}
+                  {settled_amount || '-'}
                 </span>
                 <span className="text-white">&nbsp;USDC</span>
               </div>
@@ -1108,13 +1113,13 @@ export const usePortableOrderlyTable = ({
             render: ({ old_balance, new_balance }) => (
               <div className={`flex items-center`}>
                 <span className={`${old_balance ? 'text-white' : ''}`}>
-                  {old_balance ? `${old_balance > 0 ? '+' : ''}${old_balance?.toFixed(4)}` : '-'}
+                  {old_balance ? `${old_balance?.toFixed(4)}` : '-'}
                 </span>
                 <div className="mx-1">
                   <ArrowGrey />
                 </div>
                 <span className={`${new_balance ? 'text-white' : ''}`}>
-                  {new_balance ? `${new_balance > 0 ? '+' : ''}${new_balance?.toFixed(4)}` : '-'}
+                  {new_balance ? `${new_balance?.toFixed(4)}` : '-'}
                 </span>
               </div>
             )
@@ -1126,7 +1131,7 @@ export const usePortableOrderlyTable = ({
             colSpan: 2,
             render: ({ settled_amount }) => (
               <span className={`${settled_amount > 0 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
-                {settled_amount > 0 ? '+' : ''}{settled_amount || '-'}
+                {settled_amount || '-'}
               </span>
             )
           },
