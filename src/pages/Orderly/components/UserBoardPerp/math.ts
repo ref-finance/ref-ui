@@ -394,32 +394,9 @@ const getMaintenanceMarginRatio = (
   markPrices: MarkPrice[]
 ) => {
   try {
-    const notionalValue = positions.rows.reduce((acc, cur) => {
-      const qty =
-        cur.position_qty + cur.pending_long_qty + cur.pending_short_qty;
+    const mmr = positions.maintenance_margin_ratio;
 
-      const price =
-        markPrices.find((item) => item.symbol === cur.symbol)?.price || 0;
-
-      const value = new Big(qty).abs().mul(price);
-
-      return new Big(value).plus(acc);
-    }, new Big(0));
-
-    const maintainMargin = positions.rows.reduce((acc, cur) => {
-      const qty =
-        cur.position_qty + cur.pending_long_qty + cur.pending_short_qty;
-
-      const price =
-        markPrices.find((item) => item.symbol === cur.symbol)?.price || 0;
-
-      const value = new Big(qty).abs().mul(price).mul(cur.mmr);
-      return new Big(value).plus(acc);
-    }, new Big(0));
-
-    const mmr = maintainMargin.div(notionalValue);
-
-    return mmr.times(100).toFixed(2) + '%';
+    return new Big(mmr * 100).toFixed(2) + '%';
   } catch (error) {
     return '-';
   }
