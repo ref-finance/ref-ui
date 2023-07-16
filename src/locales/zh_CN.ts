@@ -935,6 +935,7 @@ const zh_CN = {
   order_type_market_tip: '市价订单立即匹配到最佳的市场价格，并执行。',
   quantity: '数量',
   advanced: '高级选项',
+  advance: '高级选项',
   tip_fok:
     'FOK指必须立即全部执行的买入或卖出订单；如果不能立即全部成交，整个订单将被取消。',
   tip_post_only:
@@ -1252,7 +1253,7 @@ const zh_CN = {
   WalletAssets: '钱包资产',
   TotalInvested: '投资',
   TotalAssets: '资产',
-  open_interest: 'Open Interest',
+  open_interest: '未平仓量',
   TokenAllocation: '代币分布',
   netWorthTip:
     'Ref中的投资总价值(包括可领取奖励)+Orderly资产总价值+ Burrow资产总价值+钱包中的总资产',
@@ -1260,16 +1261,23 @@ const zh_CN = {
   perpTip:
     'Welcome to Perpetual Futures trading! Please read {perpTipLink} to get started!',
   perpTipLink: '[Perpetual Futures Introduction]  ',
-  pred_funding_rate: 'Pred. Funding Rate',
-  mark_price: 'Mark Price',
+  pred_funding_rate: '预测资金费率',
+  mark_price: '标记价格',
   mark_price_tip: 'Mark price is used for PnL calculating and liquidation.',
-  total_collateral: 'Total Collateral',
-  free_collateral: 'Free Collateral',
-  total_upnl: 'Total uPnL',
-  margin_ratio: 'Margin Ratio',
+  total_collateral: '总抵押资产',
+  free_collateral: '可用抵押资产',
+  total_upnl: '未实现盈亏',
+  margin_ratio: '保证金比率',
   low_risk: 'Low Risk',
   mid_risk: 'Medium Risk',
   high_risk: 'High Risk',
+  unsettle_pnl: '未结盈亏',
+  liquidation_price: '清算价格',
+  margin_required: '保证金',
+  marker_taker_fee_rate: '挂单/吃单费率',
+  settle: '结算',
+  leverage_max_leverage: '最大账户杠杠率',
+  maintenance_margin_ratio: '维持保证金比率',
   margin_ratio_tip:
     'The margin ratio of an account is equal to the total collateral value (ie the USDC balance + any unrealized profit/loss) divided by the total open notional of the account (the sum of the absolute notional value of all positions)',
 };

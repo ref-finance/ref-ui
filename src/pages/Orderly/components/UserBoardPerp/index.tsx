@@ -609,43 +609,43 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     }
   }, [balances, holdings]);
 
-  const newPositions = useMemo(() => {
-    try {
-      const calcPositions = positions.rows.map((item) => {
-        const push = positionPush?.find((i) => i.symbol === item.symbol);
+  // const newPositions = useMemo(() => {
+  //   try {
+  //     const calcPositions = positions.rows.map((item) => {
+  //       const push = positionPush?.find((i) => i.symbol === item.symbol);
 
-        if (push) {
-          const qty = push.positionQty;
-          const pendingLong = push.pendingLongQty;
-          const pendingShort = push.pendingShortQty;
+  //       if (push) {
+  //         const qty = push.positionQty;
+  //         const pendingLong = push.pendingLongQty;
+  //         const pendingShort = push.pendingShortQty;
 
-          return {
-            ...item,
-            ...push,
-            position_qty: qty,
-            pending_long_qty: pendingLong,
-            pending_short_qty: pendingShort,
-            unsettled_pnl: push.unsettledPnl,
-            mark_price: push.markPrice,
-            average_open_price: push.averageOpenPrice,
-            mmr: push.mmr,
-            imr: push.imr,
-          };
-        } else {
-          return item;
-        }
-      });
+  //         return {
+  //           ...item,
+  //           ...push,
+  //           position_qty: qty,
+  //           pending_long_qty: pendingLong,
+  //           pending_short_qty: pendingShort,
+  //           unsettled_pnl: push.unsettledPnl,
+  //           mark_price: push.markPrice,
+  //           average_open_price: push.averageOpenPrice,
+  //           mmr: push.mmr,
+  //           imr: push.imr,
+  //         };
+  //       } else {
+  //         return item;
+  //       }
+  //     });
 
-      positions.rows = calcPositions;
+  //     positions.rows = calcPositions;
 
-      return {
-        ...positions,
-        rows: calcPositions,
-      };
-    } catch (error) {
-      return null;
-    }
-  }, [positionPush, positions]);
+  //     return {
+  //       ...positions,
+  //       rows: calcPositions,
+  //     };
+  //   } catch (error) {
+  //     return null;
+  //   }
+  // }, [positionPush, positions]);
 
   const tokenInHolding = curHoldingIn
     ? toPrecision(
@@ -673,14 +673,14 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     return getLqPrice(
       markPrices,
       curSymbol,
-      newPositions,
+      positions,
       inputValue,
       side,
       curHoldingOut,
       priceNumber
     );
   }, [
-    newPositions,
+    positions,
     markPrices,
     curSymbol,
     inputValue,
@@ -772,7 +772,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     const res = getMaxQuantity(
       curSymbol,
       side,
-      newPositions,
+      positions,
       markPrices,
       userInfo,
       curHoldingOut,
@@ -782,7 +782,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     return res;
   }, [
     side,
-    newPositions,
+    positions,
     markPrices,
     userInfo,
     curHoldingOut,

@@ -1005,7 +1005,8 @@ const en_US = {
     'Deposit assets to begin your {br} trading journey.',
   open_orders: 'Open Orders',
   ref_order_only: 'Order on REF only',
-  orderly_portfolio_table_tips: 'The data provided herein includes all assets and records in your account, not limited to those generated through REF.',
+  orderly_portfolio_table_tips:
+    'The data provided herein includes all assets and records in your account, not limited to those generated through REF.',
   settlements: 'Settlements',
   settled_balance: 'Settled Balance',
   settled_amount: 'Settlement Amount',
@@ -1028,7 +1029,8 @@ const en_US = {
   available_orderly: 'Available',
   history_orderly: 'History',
   settle_pnl: 'Settle PnL',
-  settle_pnl_tips: 'By doing this, we’ll move your profit or loss from perp markets into the USDC token balance. This has no impact on your open positions or health.',
+  settle_pnl_tips:
+    'By doing this, we’ll move your profit or loss from perp markets into the USDC token balance. This has no impact on your open positions or health.',
   total_unsettled_pnl: 'Total unsettled PnL',
   fut_unreal_pnl: 'Fut. Unreal. PnL',
   fut_daily_real: 'Fut. Daily Real.',
@@ -1049,7 +1051,7 @@ const en_US = {
   'qty.': 'Qty.',
   no_orders_found: 'No orders found',
   no_records_found: 'No records found',
-  its_empty: 'It\'s Empty!',
+  its_empty: "It's Empty!",
   current_orderly: 'Current',
   cancel_order: 'Cancel Order',
   post_only: 'Post Only',
@@ -1376,7 +1378,7 @@ const en_US = {
   mid_risk: 'Mid Risk',
   high_risk: 'High Risk',
   liquidations: 'Liquidations',
-  leverage_max_10x: 'Max Account Leverage:',
+  leverage_max_leverage: 'Max Account Leverage:',
   marker_taker_fee_rate: 'Maker/Taker Fee Rate',
   liquidation_price: 'Liquidation Price',
   margin_required: 'Margin Required',
@@ -1390,10 +1392,10 @@ const en_US = {
     'The price of a sell limit order cannot be higher than',
   liquidations_fee: 'Liquidations Fee',
   more_trading_price: 'More Trading Price',
-  unsettle_pnl:
+  unsettle_pnl_tip:
     'Move a profit or loss from perp markets into the USDC token balance. This has no impact on your open positions or health.',
   margin_ratio_tip:
     'The margin ratio of an account is equal to the total collateral value (ie the USDC balance + any unrealized profit/loss) divided by the total open notional of the account (the sum of the absolute notional value of all positions)',
-  portfolio_total_est_tip: 'Portfolio value in USD.',  
+  portfolio_total_est_tip: 'Portfolio value in USD.',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

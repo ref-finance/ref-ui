@@ -187,44 +187,6 @@ export function usePerpData() {
     ticker,
     futureLeverage,
   } = useOrderlyContext();
-  const newPositions = useMemo(() => {
-    try {
-      const calcPositions = positions.rows.map((item) => {
-        const push = positionPush?.find((i) => i.symbol === item.symbol);
-
-        if (push) {
-          const qty = push.positionQty;
-          const pendingLong = push.pendingLongQty;
-          const pendingShort = push.pendingShortQty;
-
-          return {
-            ...item,
-            ...push,
-            position_qty: qty,
-            pending_long_qty: pendingLong,
-            pending_short_qty: pendingShort,
-            unsettled_pnl: push.unsettledPnl,
-            mark_price: push.markPrice,
-            average_open_price: push.averageOpenPrice,
-            mmr: push.mmr,
-            imr: push.imr,
-          };
-        } else {
-          return item;
-        }
-      });
-
-      positions.rows = calcPositions;
-
-      return {
-        ...positions,
-
-        rows: calcPositions,
-      };
-    } catch (error) {
-      return null;
-    }
-  }, [positionPush, positions]);
 
   const [holdings, setHoldings] = useState<Holding[]>();
 
@@ -232,13 +194,7 @@ export function usePerpData() {
 
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
 
-  const {
-    userInfo,
-    setRequestTrigger,
-    curLeverage,
-    setCurLeverage,
-    setCurLeverageRaw,
-  } = useLeverage();
+  const { userInfo } = useLeverage();
 
   useEffect(() => {
     if (!accountId || !validAccountSig) return;
@@ -267,55 +223,55 @@ export function usePerpData() {
 
   const totalCollateral = useMemo(() => {
     try {
-      const res = getTotalCollateral(newPositions, markPrices);
+      const res = getTotalCollateral(positions, markPrices);
 
       return res.toFixed(2);
     } catch (error) {
       return '-';
     }
-  }, [curHoldingOut, markPrices, newPositions, positionPush]);
+  }, [curHoldingOut, markPrices, positions, positionPush]);
 
   const freeCollateral = useMemo(() => {
     try {
-      return getFreeCollateral(
-        newPositions,
-        markPrices,
-        userInfo,
-        curHoldingOut
-      );
+      return getFreeCollateral(positions, markPrices, userInfo, curHoldingOut);
     } catch (error) {
       return '-';
     }
-  }, [newPositions, markPrices, userInfo, positionPush]);
+  }, [positions, markPrices, userInfo, positionPush]);
 
   const totaluPnl = useMemo(() => {
     try {
-      return getTotaluPnl(newPositions, markPrices);
+      return getTotaluPnl(positions, markPrices);
     } catch (error) {
       return null;
     }
-  }, [newPositions, markPrices]);
+  }, [positions, markPrices]);
 
   const marginRatio = useMemo(() => {
     {
       try {
-        const ratio = getMarginRatio(markPrices, newPositions, curHoldingOut);
+        const ratio = getMarginRatio(markPrices, positions, curHoldingOut);
 
         return Number(ratio);
       } catch (error) {
         return '-';
       }
     }
-  }, [markPrices, newPositions, totaluPnl]);
+  }, [markPrices, positions, totaluPnl]);
 
-  const unsettle = useMemo(
-    () => getUnsettle(newPositions, markPrices),
-    [newPositions, markPrices]
-  );
+  const unsettle = useMemo(() => {
+    try {
+      const res = getUnsettle(positions, markPrices);
+
+      return res.toFixed(2);
+    } catch (error) {
+      return '-';
+    }
+  }, [positions, markPrices]);
 
   const mmr = useMemo(() => {
-    return getMaintenanceMarginRatio(newPositions, markPrices);
-  }, [newPositions, markPrices]);
+    return getMaintenanceMarginRatio(positions, markPrices);
+  }, [positions, markPrices]);
 
   return {
     totalCollateral,

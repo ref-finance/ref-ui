@@ -243,10 +243,7 @@ const getLqPrice = (
       curHoldingOut.holding + curHoldingOut.pending_short
     ).minus(unsettle);
 
-    const mmr = getMaintenanceMarginRatioValue(positions, markPrices);
-
-    const maintenance_margin_ratio =
-      mmr == '-' ? positions.maintenance_margin_ratio : mmr;
+    const maintenance_margin_ratio = positions.maintenance_margin_ratio;
 
     const mark_price_current_i =
       markPrices.find((item) => item.symbol === symbol.symbol)?.price || 0;
@@ -383,21 +380,13 @@ export interface CalcMaxSizeParams {
 }
 
 const getUnsettle = (positions: PositionsType, markPrices: MarkPrice[]) => {
-  try {
-    const unsettle = positions.rows.reduce((acc, cur) => {
-      const cur_mark_price = markPrices.find(
-        (m) => m.symbol === cur.symbol
-      ).price;
+  const float = getPositionFloat(positions, markPrices);
 
-      const float = cur.position_qty * (cur_mark_price - cur.mark_price);
+  const unsettle = positions.rows.reduce((acc, cur) => {
+    return acc.plus(cur.unsettled_pnl);
+  }, new Big(0));
 
-      return acc.plus(cur.unsettled_pnl + float);
-    }, new Big(0));
-
-    return unsettle.toFixed(2);
-  } catch (error) {
-    return '-';
-  }
+  return unsettle.plus(float);
 };
 
 const getMaintenanceMarginRatio = (
@@ -431,42 +420,6 @@ const getMaintenanceMarginRatio = (
     const mmr = maintainMargin.div(notionalValue);
 
     return mmr.times(100).toFixed(2) + '%';
-  } catch (error) {
-    return '-';
-  }
-};
-
-const getMaintenanceMarginRatioValue = (
-  positions: PositionsType,
-  markPrices: MarkPrice[]
-) => {
-  try {
-    const notionalValue = positions.rows.reduce((acc, cur) => {
-      const qty =
-        cur.position_qty + cur.pending_long_qty + cur.pending_short_qty;
-
-      const price =
-        markPrices.find((item) => item.symbol === cur.symbol)?.price || 0;
-
-      const value = new Big(qty).abs().mul(price);
-
-      return new Big(value).plus(acc);
-    }, new Big(0));
-
-    const maintainMargin = positions.rows.reduce((acc, cur) => {
-      const qty =
-        cur.position_qty + cur.pending_long_qty + cur.pending_short_qty;
-
-      const price =
-        markPrices.find((item) => item.symbol === cur.symbol)?.price || 0;
-
-      const value = new Big(qty).abs().mul(price).mul(cur.mmr);
-      return new Big(value).plus(acc);
-    }, new Big(0));
-
-    const mmr = maintainMargin.div(notionalValue);
-
-    return mmr;
   } catch (error) {
     return '-';
   }

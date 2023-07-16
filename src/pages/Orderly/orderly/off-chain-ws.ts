@@ -460,6 +460,9 @@ export const useOrderlyPrivateData = ({
 
   const [positionPush, setPositionPush] = useState<PositionPushType[]>();
 
+  const [positionPushReceiver, setPositionPushReceiver] =
+    useState<boolean>(false);
+
   const time_stamp = useMemo(() => Date.now(), []);
 
   useEffect(() => {
@@ -516,6 +519,7 @@ export const useOrderlyPrivateData = ({
 
     if (lastJsonMessage?.['topic'] === 'position') {
       setPositionPush(lastJsonMessage?.['data'].positions);
+      setPositionPushReceiver((b) => !b);
     }
 
     if (lastJsonMessage?.['topic'] === 'liquidatorliquidations') {
@@ -574,5 +578,6 @@ export const useOrderlyPrivateData = ({
     liquidations,
     setLiquidations,
     futureLeverage,
+    positionPushReceiver,
   };
 };

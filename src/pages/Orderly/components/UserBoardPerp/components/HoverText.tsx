@@ -108,7 +108,7 @@ export function UnsettlePnl() {
   return (
     <div className="frcs gap-1 ">
       <FormattedMessage
-        id="unsettle_png"
+        id="unsettle_pnl"
         defaultMessage={`Unsettle PnL`}
       ></FormattedMessage>
 
@@ -131,7 +131,7 @@ export function UnsettlePnl() {
             }}
           >
             <FormattedMessage
-              id="unsettle_pnl"
+              id="unsettle_pnl_tip"
               defaultMessage={
                 'Move a profit or loss from perp markets into the USDC token balance. This has no impact on your open positions or health.'
               }
