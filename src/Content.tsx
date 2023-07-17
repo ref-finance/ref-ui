@@ -176,7 +176,7 @@ export function Content() {
       })
       .catch(async (e) => {
         alert(
-          `Account ID: ${accountId} has not been found. Please send some NEAR into this account.`
+          `Account ID: ${accountId} has not been found. Please transfer some NEAR to this account and try again.`
         );
         const wallet = await selector.wallet();
         await wallet.signOut();
