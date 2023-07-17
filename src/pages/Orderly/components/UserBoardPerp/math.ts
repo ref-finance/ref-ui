@@ -38,7 +38,10 @@ const getTotaluPnl = (positions: PositionsType, markprices: MarkPrice[]) => {
   return numberWithCommas(pnl.toFixed(2));
 };
 
-const getPortfolioTotaluPnl = (positions: PositionsType, markprices: MarkPrice[]) => {
+const getPortfolioTotaluPnl = (
+  positions: PositionsType,
+  markprices: MarkPrice[]
+) => {
   if (!positions) return '0';
 
   const pnl = positions.rows.reduce(
@@ -135,8 +138,7 @@ const getTotalCollateral = (
 const getFreeCollateral = (
   positions: PositionsType,
   markprices: MarkPrice[],
-  userInfo: ClientInfo,
-  curHoldingOut: Holding
+  userInfo: ClientInfo
 ) => {
   const pnl = positions.rows.reduce(
     (acc, cur, index) => {
@@ -269,19 +271,25 @@ const getLqPrice = (
   side: 'Buy' | 'Sell',
   curHoldingOut: Holding,
 
-  priceNumber: number
+  priceNumber: number,
+  userInfo: ClientInfo
 ) => {
   try {
     const unsettle = getUnsettle(positions, markPrices);
 
-    const collateral = new Big(
-      curHoldingOut.holding + curHoldingOut.pending_short
-    ).minus(unsettle);
-
-    const maintenance_margin_ratio = positions.maintenance_margin_ratio;
-
     const mark_price_current_i =
       markPrices.find((item) => item.symbol === symbol.symbol)?.price || 0;
+    const total_notional_value = getTotalnotional(markPrices, positions).times(
+      mark_price_current_i
+    );
+
+    const collateral = new Big(
+      curHoldingOut.holding + curHoldingOut.pending_short
+    )
+      .plus(total_notional_value)
+      .div(userInfo.max_leverage);
+
+    const maintenance_margin_ratio = positions.maintenance_margin_ratio;
 
     const current_position = positions.rows.find(
       (r) => r.symbol === symbol.symbol
@@ -358,9 +366,19 @@ const getMaxQuantity = (
   try {
     const unsettle = getUnsettle(positions, markPrices);
 
+    const mark_price_current_i =
+      markPrices.find((item) => item.symbol === symbol.symbol)?.price || 0;
+    const total_notional_value = getTotalnotional(markPrices, positions).times(
+      mark_price_current_i
+    );
+
     const collateral = new Big(
       curHoldingOut.holding + curHoldingOut.pending_short
-    ).minus(unsettle);
+    )
+      .plus(total_notional_value)
+      .div(userInfo.max_leverage);
+
+    // console.log('curHoldingOut: ', curHoldingOut);
 
     const im = positions.rows.reduce((acc, cur) => {
       const mark_price_current_i = markPrices.find(
@@ -389,7 +407,7 @@ const getMaxQuantity = (
     const newOrderSize = collateral
       .minus(im)
       .times(account_max_leverage)
-      .div(priceNumber)
+      .div(mark_price_current_i)
       .times(0.995);
 
     const res = newOrderSize.toFixed(tickToPrecision(symbol.base_tick));
@@ -424,7 +442,10 @@ const getUnsettle = (positions: PositionsType, markPrices: MarkPrice[]) => {
   return unsettle.plus(float);
 };
 
-const getPortfolioUnsettle = (positions: PositionsType, markPrices: MarkPrice[]) => {
+const getPortfolioUnsettle = (
+  positions: PositionsType,
+  markPrices: MarkPrice[]
+) => {
   try {
     const unsettle = positions.rows.reduce((acc, cur) => {
       const cur_mark_price = markPrices.find(

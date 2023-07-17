@@ -6,7 +6,7 @@ import { FormattedMessage } from 'react-intl';
 import Modal from 'react-modal';
 
 import { useClientMobile } from '../../../../../utils/device';
-import { IoClose } from 'react-icons/io5';
+import { IoArrowDownOutline, IoArrowUpOutline, IoClose } from 'react-icons/io5';
 
 import _ from 'lodash';
 
@@ -63,12 +63,23 @@ function MoreRouteBox(props: Modal.Props) {
 
   const displayDiffSpot = (
     <span
-      className={
-        diffSpot > 0 ? 'text-buyGreen' : diffSpot < 0 ? 'text-sellRed' : ''
-      }
+      className={`${
+        diffSpot < 0
+          ? 'text-sellRed bg-sellRed'
+          : diffSpot > 0
+          ? 'text-buyGreen bg-buyGreen'
+          : 'text-white'
+      } bg-opacity-10 text-xs flex items-center  rounded-md ml-2 px-1 py-0.5`}
     >
-      {diffSpot < 0 ? '-' : diffSpot > 0 ? '+' : ''}
-      {DiffSpotRaw}%
+      {' '}
+      <span className="relative ">
+        {diffSpot > 0 ? (
+          <IoArrowUpOutline />
+        ) : diffSpot < 0 ? (
+          <IoArrowDownOutline />
+        ) : null}
+      </span>
+      <span>{DiffSpotRaw}%</span>
     </span>
   );
 
@@ -77,12 +88,23 @@ function MoreRouteBox(props: Modal.Props) {
 
   const displayDiffPerp = (
     <span
-      className={
-        diffPerp > 0 ? 'text-buyGreen' : diffPerp < 0 ? 'text-sellRed' : ''
-      }
+      className={`${
+        diffPerp < 0
+          ? 'text-sellRed bg-sellRed'
+          : diffPerp > 0
+          ? 'text-buyGreen bg-buyGreen'
+          : 'text-white'
+      } bg-opacity-10 text-xs flex items-center  rounded-md ml-2 px-1 py-0.5`}
     >
-      {diffPerp < 0 ? '-' : diffSpot > 0 ? '+' : ''}
-      {DiffPerpRaw}%
+      {' '}
+      <span className="relative ">
+        {diffPerp > 0 ? (
+          <IoArrowUpOutline />
+        ) : diffPerp < 0 ? (
+          <IoArrowDownOutline />
+        ) : null}
+      </span>
+      <span>{DiffPerpRaw}%</span>
     </span>
   );
 
@@ -143,15 +165,23 @@ function MoreRouteBox(props: Modal.Props) {
     '-'
   ) : (
     <span
-      className={
+      className={`${
         refDiff.direction === 'down'
-          ? 'text-sellRed'
+          ? 'text-sellRed bg-sellRed'
           : refDiff.direction === 'up'
-          ? 'text-buyGreen'
-          : ''
-      }
+          ? 'text-buyGreen bg-buyGreen'
+          : 'text-white'
+      } bg-opacity-10 text-xs flex items-center  rounded-md ml-2 px-1 py-0.5`}
     >
-      {refDiff.direction === 'down' ? '-' : '+'} {refDiff.percent}
+      {' '}
+      <span className="relative ">
+        {refDiff.direction === 'up' ? (
+          <IoArrowUpOutline />
+        ) : refDiff.direction === 'down' ? (
+          <IoArrowDownOutline />
+        ) : null}
+      </span>
+      <span>{refDiff.percent}</span>
     </span>
   );
 

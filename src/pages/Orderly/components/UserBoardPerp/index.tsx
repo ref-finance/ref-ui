@@ -677,7 +677,8 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       inputValue,
       side,
       curHoldingOut,
-      priceNumber
+      priceNumber,
+      userInfo
     );
   }, [
     positions,
@@ -1861,6 +1862,8 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                 }
 
                 const maxAmount = maxOrderSize === '-' ? 0 : maxOrderSize;
+
+                if(maxAmount === 0) return;
 
                 const displayAmount = new Big(maxAmount || 0)
                   .div(new Big(symbolInfo.base_tick))
@@ -3431,7 +3434,8 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
       inputValue,
       side,
       curHoldingOut,
-      priceNumber
+      priceNumber,
+      userInfo
     );
   }, [
     newPositions,
@@ -4267,6 +4271,9 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
                 }
 
                 const maxAmount = maxOrderSize === '-' ? 0 : maxOrderSize;
+
+                if(maxAmount === 0) return;
+
 
                 const displayAmount = new Big(maxAmount || 0)
                   .div(new Big(symbolInfo.base_tick))
