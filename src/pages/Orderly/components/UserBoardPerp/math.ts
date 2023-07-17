@@ -38,7 +38,10 @@ const getTotaluPnl = (positions: PositionsType, markprices: MarkPrice[]) => {
   return numberWithCommas(pnl.toFixed(2));
 };
 
-const getPortfolioTotaluPnl = (positions: PositionsType, markprices: MarkPrice[]) => {
+const getPortfolioTotaluPnl = (
+  positions: PositionsType,
+  markprices: MarkPrice[]
+) => {
   if (!positions) return '0';
 
   const pnl = positions.rows.reduce(
@@ -135,8 +138,7 @@ const getTotalCollateral = (
 const getFreeCollateral = (
   positions: PositionsType,
   markprices: MarkPrice[],
-  userInfo: ClientInfo,
-  curHoldingOut: Holding
+  userInfo: ClientInfo
 ) => {
   const pnl = positions.rows.reduce(
     (acc, cur, index) => {
@@ -358,9 +360,13 @@ const getMaxQuantity = (
   try {
     const unsettle = getUnsettle(positions, markPrices);
 
+    const available = getFreeCollateral(positions, markPrices, userInfo);
+
     const collateral = new Big(
       curHoldingOut.holding + curHoldingOut.pending_short
     ).minus(unsettle);
+
+    // console.log('curHoldingOut: ', curHoldingOut);
 
     const im = positions.rows.reduce((acc, cur) => {
       const mark_price_current_i = markPrices.find(
@@ -424,7 +430,10 @@ const getUnsettle = (positions: PositionsType, markPrices: MarkPrice[]) => {
   return unsettle.plus(float);
 };
 
-const getPortfolioUnsettle = (positions: PositionsType, markPrices: MarkPrice[]) => {
+const getPortfolioUnsettle = (
+  positions: PositionsType,
+  markPrices: MarkPrice[]
+) => {
   try {
     const unsettle = positions.rows.reduce((acc, cur) => {
       const cur_mark_price = markPrices.find(

@@ -14,7 +14,7 @@ import _ from 'lodash';
 import { formatTimeDate } from '../../OrderBoard';
 import { TokenIcon } from '../../Common';
 import { numberWithCommas } from '~pages/Orderly/utiles';
-import { OrderlyLoading } from '../../Common/Icons';
+import { NoOrderEmpty, OrderlyLoading } from '../../Common/Icons';
 import { LiquidationPushType } from '../../../orderly/type';
 
 export const REF_FI_ORDERLY_LIQUIDATION_UNREAD =
@@ -233,7 +233,7 @@ function LiquidationHistoryModal(
               </th>
             </thead>
 
-            {
+            {renderData.length > 0 && (
               <tbody className="text-white text-xs">
                 {renderData.map((r, i) => {
                   return (
@@ -279,7 +279,19 @@ function LiquidationHistoryModal(
                   );
                 })}
               </tbody>
-            }
+            )}
+
+            {renderData.length === 0 && (
+              <div className="absolute top-1/2 flex gap-2 flex-col items-center justify-center left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <NoOrderEmpty></NoOrderEmpty>
+                <span>
+                  <FormattedMessage
+                    id="no_liquidation_yet"
+                    defaultMessage={'No liquidation yet'}
+                  ></FormattedMessage>
+                </span>
+              </div>
+            )}
           </table>
         )}
       </div>
@@ -458,93 +470,111 @@ export function MobileliquidationList({
   //   },
   // ];
 
+  console.log(liquidationsFromPush.concat(alldata).length, 'length');
+
   return (
-    <div className="flex flex-col gap-4 mt-4">
-      {liquidationsFromPush.concat(alldata).map((r) => {
-        return (
-          <div className="p-2 text-sm text-white rounded-xl bg-primaryText bg-opacity-20 flex flex-col gap-3 w-full">
-            <div className="frcb">
-              <div className="frcs gap-1 font-gothamBold w-1/2  flex-shrink-0">
-                <img
-                  // const renderData = _.orderBy(alldata, [orderBy], ['desc']);
-                  // const renderData = [
-                  src={r?.from_meta?.icon}
-                  alt=""
-                  className={`h-7 w-7 flex-shrink-0 rounded-full border-gradientFromHover pr-2`}
-                />
-                <span>{parseSymbol(r.symbol).symbolFrom}</span>
+    <div className="flex flex-col gap-4 mt-4 relative">
+      {loading && <OrderlyLoading></OrderlyLoading>}
+      {!loading && liquidationsFromPush.concat(alldata).length === 0 && (
+        <div className="absolute top-1/2 flex gap-2 flex-col items-center justify-center left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+          <NoOrderEmpty></NoOrderEmpty>
+          <span>
+            <FormattedMessage
+              id="no_liquidation_yet"
+              defaultMessage={'No liquidation yet'}
+            ></FormattedMessage>
+          </span>
+        </div>
+      )}
 
-                <span>PERP</span>
+      {!loading &&
+        liquidationsFromPush.concat(alldata).map((r) => {
+          return (
+            <div className="p-2 text-sm text-white rounded-xl bg-primaryText bg-opacity-20 flex flex-col gap-3 w-full">
+              <div className="frcb">
+                <div className="frcs gap-1 font-gothamBold w-1/2  flex-shrink-0">
+                  <img
+                    // const renderData = _.orderBy(alldata, [orderBy], ['desc']);
+                    // const renderData = [
+                    src={r?.from_meta?.icon}
+                    alt=""
+                    className={`h-7 w-7 flex-shrink-0 rounded-full border-gradientFromHover pr-2`}
+                  />
+                  <span>{parseSymbol(r.symbol).symbolFrom}</span>
+
+                  <span>PERP</span>
+                </div>
+
+                <div className="w-1/2 flex items-center justify-end gap-1">
+                  {formatTimeDate(r.timestamp)}
+                  {(r?.onPush || !!r.liquidationId) && unReadCount && (
+                    <div className="w-2 h-2 rounded-full bg-sellRed"></div>
+                  )}
+                </div>
               </div>
 
-              <div className="w-1/2 flex items-center justify-end gap-1">
-                {formatTimeDate(r.timestamp)}
-                {(r?.onPush || !!r.liquidationId) && unReadCount && (
-                  <div className="w-2 h-2 rounded-full bg-sellRed"></div>
-                )}
+              <div className="frcb">
+                <div className="w-1/2">
+                  {' '}
+                  <div className="frcs gap-1 text-primaryText">
+                    <FormattedMessage
+                      id="price"
+                      defaultMessage={'Price'}
+                    ></FormattedMessage>
+
+                    <TextWrapper
+                      className="text-10px px-1"
+                      value="USDC"
+                      textC="text-primaryText"
+                    ></TextWrapper>
+                  </div>
+                  <div>{numberWithCommas(r?.transfer_price || 0)}</div>
+                </div>
+
+                <div className="w-1/2">
+                  <div className="text-primaryText">
+                    <FormattedMessage
+                      id="quantity"
+                      defaultMessage={'Quantity'}
+                    ></FormattedMessage>
+                  </div>
+
+                  <div>{numberWithCommas(r?.position_qty || 0)}</div>
+                </div>
+              </div>
+
+              <div className="frcb">
+                <div className="w-1/2">
+                  <div className="text-primaryText">
+                    <FormattedMessage
+                      id="liquidation_fee"
+                      defaultMessage={'Liquidation Fee'}
+                    ></FormattedMessage>
+                  </div>
+                  <div className="frcs whitespace-nowrap gap-1">
+                    <span>{numberWithCommas(r?.liquidator_fee || 0)}</span>
+                    <span>USDC</span>
+                  </div>
+                </div>
+
+                <div className="w-1/2">
+                  <div className="text-primaryText">
+                    <FormattedMessage
+                      id="ins_fund_transfer"
+                      defaultMessage={'Ins. Fund Transfer'}
+                    ></FormattedMessage>
+                  </div>
+
+                  <div>
+                    {numberWithCommas(
+                      r?.transfer_amount_to_insurance_fund || 0
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
-
-            <div className="frcb">
-              <div className="w-1/2">
-                {' '}
-                <div className="frcs gap-1 text-primaryText">
-                  <FormattedMessage
-                    id="price"
-                    defaultMessage={'Price'}
-                  ></FormattedMessage>
-
-                  <TextWrapper
-                    className="text-10px px-1"
-                    value="USDC"
-                    textC="text-primaryText"
-                  ></TextWrapper>
-                </div>
-                <div>{numberWithCommas(r?.transfer_price || 0)}</div>
-              </div>
-
-              <div className="w-1/2">
-                <div className="text-primaryText">
-                  <FormattedMessage
-                    id="quantity"
-                    defaultMessage={'Quantity'}
-                  ></FormattedMessage>
-                </div>
-
-                <div>{numberWithCommas(r?.position_qty || 0)}</div>
-              </div>
-            </div>
-
-            <div className="frcb">
-              <div className="w-1/2">
-                <div className="text-primaryText">
-                  <FormattedMessage
-                    id="liquidation_fee"
-                    defaultMessage={'Liquidation Fee'}
-                  ></FormattedMessage>
-                </div>
-                <div className="frcs whitespace-nowrap gap-1">
-                  <span>{numberWithCommas(r?.liquidator_fee || 0)}</span>
-                  <span>USDC</span>
-                </div>
-              </div>
-
-              <div className="w-1/2">
-                <div className="text-primaryText">
-                  <FormattedMessage
-                    id="ins_fund_transfer"
-                    defaultMessage={'Ins. Fund Transfer'}
-                  ></FormattedMessage>
-                </div>
-
-                <div>
-                  {numberWithCommas(r?.transfer_amount_to_insurance_fund || 0)}
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      })}
+          );
+        })}
     </div>
   );
 }
