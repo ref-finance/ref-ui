@@ -400,6 +400,8 @@ export interface PortfolioTableColumns {
   icon?: any;
   suffix?: any;
   colSpan?: number;
+  select?: any;
+  setSelect?: (input: any) => void;
   list?: {
     text: string;
     textId: string;

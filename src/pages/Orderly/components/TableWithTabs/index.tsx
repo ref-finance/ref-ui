@@ -103,9 +103,6 @@ function TableWithTabs({
     if (getData && (id === 'futures')) {
       setData(newPositions.rows);
     }
-    if (getData && (id === 'open_orders' || id === 'history')) {
-      callGetData();
-    }
   }, [newPositions]);
 
   useEffect(() => {
@@ -129,8 +126,9 @@ function TableWithTabs({
       return
     }
 
-    if (!data && id === 'futures') {
-      setData({ ...newPositions.rows });
+    if (id === 'futures') {
+      setData(newPositions.rows);
+      setLoading(false);
       return
     }
 
