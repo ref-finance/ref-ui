@@ -463,7 +463,7 @@ export const usePortableOrderlyTable = ({
           },
           { key: '@price', header: '@Price', render: ({ price, symbol }) => price?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 4) || '-'  },
           { key: 'avg_price', header: 'Avg.Price', render: ({ average_executed_price, symbol }) => average_executed_price?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 4) || '-' },
-          { key: 'est_total', header: 'Est.Total', render: ({ price, average_executed_price, quantity, symbol }) => ((price || average_executed_price) * quantity)?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 4)},
+          { key: 'est_total', header: 'Est.Total', render: ({ price, average_executed_price, quantity, symbol }) => Math.floor(((price || average_executed_price) * quantity))?.toFixed(0)},
           { key: 'status', header: 'Status', render: ({ status }) =>  status },
           {
             key: 'create',
@@ -963,13 +963,13 @@ export const usePortableOrderlyTable = ({
             render: ({ old_balance, new_balance }) => (
               <div className={`flex items-center`}>
                 <span className={`${old_balance ? 'text-white' : ''}`}>
-                  {old_balance ? `${old_balance?.toFixed(4)}` : '-'}
+                  {typeof new_balance === 'number' ? `${old_balance?.toFixed(4)}` : '-'}
                 </span>
                 <div className="mx-1">
                   <ArrowGrey />
                 </div>
                 <span className={`${new_balance ? 'text-white' : ''}`}>
-                  {new_balance ? `${new_balance?.toFixed(4)}` : '-'}
+                  {typeof new_balance === 'number' ? `${new_balance?.toFixed(4)}` : '-'}
                 </span>
               </div>
             )
@@ -1042,9 +1042,10 @@ export const usePortableOrderlyTable = ({
               const annualBase = ((funding_rate * 3 * 365 * 100 * 100) / 100).toFixed(4);
               const last = parseInt(annualBase.substr(annualBase.length - 2, 1));
               const negative = (funding_rate < 0);
-              const annual = ((last < 5 && negative) || (last > 4 && !negative)) ? (Math.floor(funding_rate * 3 * 365 * 100 * 100) / 100)?.toFixed(2) : (Math.ceil(funding_rate * 3 * 365 * 100 * 100) / 100)?.toFixed(2);
+              const annual = /* ((last < 5 && negative) || (last > 4 && !negative)) ?  */(Math.floor(funding_rate * 3 * 365 * 100 * 1000) / 1000).toString()/*  : (Math.ceil(funding_rate * 3 * 365 * 100 * 100) / 100)?.toFixed(2) */;
+              const annualParse = annual.substring(0, annual.length - 1);
 
-              return `${(funding_rate * 100).toFixed(6)}%/${annual}%`
+              return `${(funding_rate * 100).toFixed(6)}%/${annualParse}%`
             }
           },
           { key: 'status', header: 'Status', render: ({ status }) => status },
