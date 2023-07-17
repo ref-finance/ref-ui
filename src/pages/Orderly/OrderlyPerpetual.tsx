@@ -50,17 +50,7 @@ export const REF_ORDERLY_PERP_TIP_SIG = 'REF_ORDERLY_PERP_TIP_SIG';
 function TradingBoard() {
   const isLarge = useLargeScreen();
 
-  const [maintenance, setMaintenance] = React.useState<boolean>(undefined);
-
-  React.useEffect(() => {
-    getOrderlySystemInfo().then((res) => {
-      if (res.data.status === 2) {
-        setMaintenance(true);
-      } else {
-        setMaintenance(false);
-      }
-    });
-  }, []);
+  const { maintenance } = useOrderlyContext();
 
   if (maintenance === undefined) return null;
 

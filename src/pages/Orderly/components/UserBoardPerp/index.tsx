@@ -100,7 +100,6 @@ import { AssetModal } from '../AssetModal';
 import ReactTooltip from 'react-tooltip';
 import { ButtonTextWrapper } from '../../../../components/button/Button';
 import { FlexRow, orderEditPopUpFailure } from '../Common/index';
-import { useAllSymbolInfo } from '../AllOrders/state';
 import { ONLY_ZEROS } from '../../../../utils/numbers';
 import * as math from 'mathjs';
 import { NearWalletIcon } from '../Common/Icons';
@@ -484,11 +483,10 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     positionPush,
     ticker,
     futureLeverage,
+    availableSymbols,
   } = useOrderlyContext();
 
   const curSymbolMarkPrice = markPrices?.find((item) => item.symbol === symbol);
-
-  const availableSymbols = useAllSymbolInfo();
 
   const { accountId, modal, selector } = useWalletSelector();
 
@@ -541,14 +539,19 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
   const [confirmModalOpen, setConfirmModalOpen] = useState<boolean>(false);
 
   const [agreeCheck, setAgreeCheck] = useState<boolean>(false);
-
   const {
-    userInfo,
-    setRequestTrigger,
+    totalCollateral,
+    mmr,
+    freeCollateral,
+    marginRatio,
+    totaluPnl,
+    unsettle,
     curLeverage,
+    error,
     setCurLeverage,
     setCurLeverageRaw,
-  } = useLeverage();
+    userInfo,
+  } = usePerpData();
 
   const [registerModalOpen, setRegisterModalOpen] = useState<boolean>(false);
 
@@ -608,44 +611,6 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     }
   }, [balances, holdings]);
 
-  // const newPositions = useMemo(() => {
-  //   try {
-  //     const calcPositions = positions.rows.map((item) => {
-  //       const push = positionPush?.find((i) => i.symbol === item.symbol);
-
-  //       if (push) {
-  //         const qty = push.positionQty;
-  //         const pendingLong = push.pendingLongQty;
-  //         const pendingShort = push.pendingShortQty;
-
-  //         return {
-  //           ...item,
-  //           ...push,
-  //           position_qty: qty,
-  //           pending_long_qty: pendingLong,
-  //           pending_short_qty: pendingShort,
-  //           unsettled_pnl: push.unsettledPnl,
-  //           mark_price: push.markPrice,
-  //           average_open_price: push.averageOpenPrice,
-  //           mmr: push.mmr,
-  //           imr: push.imr,
-  //         };
-  //       } else {
-  //         return item;
-  //       }
-  //     });
-
-  //     positions.rows = calcPositions;
-
-  //     return {
-  //       ...positions,
-  //       rows: calcPositions,
-  //     };
-  //   } catch (error) {
-  //     return null;
-  //   }
-  // }, [positionPush, positions]);
-
   const tokenInHolding = curHoldingIn
     ? toPrecision(
         new Big(curHoldingIn.holding + curHoldingIn.pending_short).toString(),
@@ -653,15 +618,6 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         false
       )
     : balances && balances[symbolFrom]?.holding;
-
-  const {
-    totalCollateral,
-    mmr,
-    freeCollateral,
-    marginRatio,
-    totaluPnl,
-    unsettle,
-  } = usePerpData();
 
   const lqPrice = useMemo(() => {
     const priceNumber =
@@ -3213,11 +3169,10 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
     ticker,
     symbolType,
     futureLeverage,
+    availableSymbols,
   } = useOrderlyContext();
 
   const curSymbolMarkPrice = markPrices?.find((item) => item.symbol === symbol);
-
-  const availableSymbols = useAllSymbolInfo();
 
   const { accountId, modal, selector } = useWalletSelector();
 
@@ -3269,13 +3224,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
 
   const [agreeCheck, setAgreeCheck] = useState<boolean>(false);
 
-  const {
-    userInfo,
-    setRequestTrigger,
-    curLeverage,
-    setCurLeverage,
-    setCurLeverageRaw,
-  } = useLeverage();
+  const { userInfo, curLeverage, setCurLeverage } = useLeverage();
 
   const [registerModalOpen, setRegisterModalOpen] = useState<boolean>(false);
 

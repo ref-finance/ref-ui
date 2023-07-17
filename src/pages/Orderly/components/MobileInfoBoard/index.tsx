@@ -56,7 +56,6 @@ import {
   withdrawOrderly,
 } from '../../orderly/api';
 import {
-  getAccountInformation,
   getCurrentHolding,
   createOrder,
   getOrderByOrderId,
@@ -99,7 +98,6 @@ import getConfig from '../../config';
 import { AssetModal } from '../AssetModal';
 import ReactTooltip from 'react-tooltip';
 import { ButtonTextWrapper } from '~components/button/Button';
-import { useAllSymbolInfo } from '../AllOrders/state';
 import { ONLY_ZEROS } from '../../../../utils/numbers';
 import * as math from 'mathjs';
 import { NearWalletIcon } from '../Common/Icons';

@@ -273,13 +273,11 @@ export function useAllPositions(refreshingTag: boolean[]) {
 }
 
 export function useLeverage() {
-  const [userInfo, setUserInfo] = useState<ClientInfo>();
-
   const { accountId } = useWalletSelector();
 
   const [error, setError] = useState<Error>();
 
-  const { futureLeverage } = useOrderlyContext();
+  const { futureLeverage, userInfo, setUserInfo } = useOrderlyContext();
 
   const { validAccountSig } = useOrderlyContext();
 
@@ -287,7 +285,12 @@ export function useLeverage() {
 
   const [changeTrigger, setChangeTrigger] = useState<boolean>();
 
-  const [requestTrigger, setRequestTrigger] = useState<boolean>();
+  useEffect(() => {
+    if (!!curLeverage) return;
+    if (userInfo) {
+      setCurLeverage(userInfo.max_leverage);
+    }
+  }, [userInfo]);
 
   const requestLeverage = async () => {
     getAccountInformation({ accountId }).then((res) => {
@@ -335,11 +338,12 @@ export function useLeverage() {
     }
   }, [futureLeverage]);
 
-  useEffect(() => {
-    if (!accountId || !validAccountSig) return;
+  // useEffect(() => {
+  //   if (!accountId || !validAccountSig ||) return;
+  //   console.log('requestLeverage: ');
 
-    requestLeverage();
-  }, [accountId, validAccountSig, requestTrigger]);
+  //   requestLeverage();
+  // }, [accountId, validAccountSig, userInfo]);
 
   useEffect(() => {
     if (curLeverage === undefined) return;
@@ -355,7 +359,6 @@ export function useLeverage() {
     curLeverage,
     error,
     setCurLeverageRaw: setCurLeverage,
-    setRequestTrigger,
     setCurLeverage: (leverage: number) => {
       setCurLeverage(leverage);
       setChangeTrigger(!changeTrigger);

@@ -240,7 +240,8 @@ export function usePerpData() {
 
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
 
-  const { userInfo } = useLeverage();
+  const { userInfo, curLeverage, error, setCurLeverage, setCurLeverageRaw } =
+    useLeverage();
 
   useEffect(() => {
     if (!accountId || !validAccountSig) return;
@@ -378,5 +379,10 @@ export function usePerpData() {
     triggerPositionBasedData,
     markPrices,
     lastPrices,
+    curLeverage,
+    error,
+    setCurLeverage,
+    setCurLeverageRaw,
+    userInfo,
   };
 }

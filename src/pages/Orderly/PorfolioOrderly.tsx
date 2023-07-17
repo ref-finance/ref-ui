@@ -1,9 +1,4 @@
-import React, {
-  createContext,
-  useEffect,
-  useContext,
-  useState
-} from 'react';
+import React, { createContext, useEffect, useContext, useState } from 'react';
 import Big from 'big.js';
 import ReactTooltip from 'react-tooltip';
 import { useIntl } from 'react-intl';
@@ -18,7 +13,11 @@ import TableWithTabs from './components/TableWithTabs';
 import SettlePnlModal from './components/TableWithTabs/SettlePnlModal';
 import { MobileFilterModal } from './components/TableWithTabs/OrdersFilters';
 import { usePortableOrderlyTable, useMarketlist } from './orderly/constantWjsx';
-import { getOrderlySystemInfo, getCurrentHolding, getPortfolioPosition } from './orderly/off-chain-api';
+import {
+  getOrderlySystemInfo,
+  getCurrentHolding,
+  getPortfolioPosition,
+} from './orderly/off-chain-api';
 import { OrderlyUnderMaintain } from './OrderlyTradingBoard';
 import { FlexRow } from './components/Common';
 import { AssetManagerModal } from './components/UserBoard';
@@ -27,8 +26,15 @@ import { usePerpData } from './components/UserBoardPerp/state';
 import { useTokenMetaFromSymbol } from './components/ChartHeader/state';
 import { parseSymbol } from './components/RecentTrade';
 import { useTokenInfo } from './orderly/state';
-import { OrderAsset, useOrderlyPortfolioAssets } from './components/AssetModal/state';
-import { depositOrderly, withdrawOrderly, perpSettlementTx } from './orderly/api';
+import {
+  OrderAsset,
+  useOrderlyPortfolioAssets,
+} from './components/AssetModal/state';
+import {
+  depositOrderly,
+  withdrawOrderly,
+  perpSettlementTx,
+} from './orderly/api';
 import { useOrderlyContext } from './orderly/OrderlyContext';
 import { Holding } from './orderly/type';
 
@@ -44,22 +50,35 @@ function PortfolioOrderly() {
     markPrices,
     triggerBalanceBasedData,
     triggerPositionBasedData,
-    lastPrices
+    lastPrices,
   } = usePerpData();
   const { marketList } = useMarketlist();
   const { globalState } = useContext(WalletContext);
   const { accountId } = useWalletSelector();
-  const { tokenInfo, balances, symbol, myPendingOrdersRefreshing, validAccountSig } = useOrderlyContext();
+  const {
+    tokenInfo,
+    balances,
+    symbol,
+    myPendingOrdersRefreshing,
+    validAccountSig,
+  } = useOrderlyContext();
   const isSignedIn = globalState.isSignedIn;
   const [maintenance, setMaintenance] = useState<boolean>(undefined);
   const [tab, setTab] = useState<number>(0);
   const [refOnly, setRefOnly] = useState<boolean>(false);
   const [orderType, setOrderType] = useState<number>(0);
-  const [chooseMarketSymbol, setChooseMarketSymbol] = useState<string>('all_markets');
-  const [chooseOrderSide, setChooseOrderSide] = useState<'all_side' | 'BUY' | 'SELL'>('all_side');
-  
-  const [chooseOrderStatus, setChooseOrderStatus] = useState<'all' | 'Cancelled' | 'filled' | 'Rejected'>('all');
-  const [chooseOrderType, setChooseOrderType] = useState<'all' | 'limit' | 'market'>('all');
+  const [chooseMarketSymbol, setChooseMarketSymbol] =
+    useState<string>('all_markets');
+  const [chooseOrderSide, setChooseOrderSide] = useState<
+    'all_side' | 'BUY' | 'SELL'
+  >('all_side');
+
+  const [chooseOrderStatus, setChooseOrderStatus] = useState<
+    'all' | 'Cancelled' | 'filled' | 'Rejected'
+  >('all');
+  const [chooseOrderType, setChooseOrderType] = useState<
+    'all' | 'limit' | 'market'
+  >('all');
 
   const [mobileFilterOpen, setMobileFilterOpen] = useState<number>(0);
 
@@ -80,7 +99,8 @@ function PortfolioOrderly() {
     : balances && balances[symbolFrom]?.holding;
 
   const nonOrderlyTokenInfo = useTokenInfo();
-  const displayBalances: OrderAsset[] = useOrderlyPortfolioAssets(nonOrderlyTokenInfo);
+  const displayBalances: OrderAsset[] =
+    useOrderlyPortfolioAssets(nonOrderlyTokenInfo);
 
   // settle pnl
   const [settlePnlModalOpen, setSettlePnlModalOpen] = useState<boolean>(false);
@@ -101,7 +121,7 @@ function PortfolioOrderly() {
     chooseOrderStatus,
     chooseOrderType,
     markPrices,
-    lastPrices
+    lastPrices,
   });
 
   const handleSettlePnl = async () => {
@@ -109,7 +129,6 @@ function PortfolioOrderly() {
 
     return executeMultipleTransactions([await perpSettlementTx()]);
   };
-
 
   useEffect(() => {
     getOrderlySystemInfo().then((res) => {
@@ -119,7 +138,6 @@ function PortfolioOrderly() {
         setMaintenance(false);
       }
     });
-    
   }, []);
 
   useEffect(() => {
@@ -145,15 +163,16 @@ function PortfolioOrderly() {
       {maintenance && <OrderlyUnderMaintain />}
       <div className="flex items-stretch justify-between w-full h-full lg:-mt-12">
         {/* Navigation */}
-        <div style={{ width: '280px' }} className="pl-5 py-4 pr-4 flex-shrink-0 hidden md:block lg:block">
+        <div
+          style={{ width: '280px' }}
+          className="pl-5 py-4 pr-4 flex-shrink-0 hidden md:block lg:block"
+        >
           <Navigation></Navigation>
         </div>
         {/* content */}
         <div className="flex-grow border-l border-r border-boxBorder px-1 pt-4 md:pt-9 lg:pt-9">
           <div className="md:px-2.5 lg:px-5 3xl:max-w-1280px m-auto">
-            <div
-              className="w-full grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 md:bg-cardBg lg:bg-cardBg px-7 py-4 rounded-xl"
-            >
+            <div className="w-full grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 md:bg-cardBg lg:bg-cardBg px-7 py-4 rounded-xl">
               {/* getCurrentHolding */}
               <div className="col-span-2 mb-3">
                 <div className="flex items-center">
@@ -167,7 +186,9 @@ function PortfolioOrderly() {
                       data-html={true}
                       data-tip={`
                         <div class="text-navHighLightText text-xs text-left w-64 xsm:w-52">
-                          ${intl.formatMessage({ id: 'portfolio_total_est_tip' })}
+                          ${intl.formatMessage({
+                            id: 'portfolio_total_est_tip',
+                          })}
                         </div>
                       `}
                     >
@@ -183,7 +204,11 @@ function PortfolioOrderly() {
                   </span>
                 </div>
                 <span className="text-2xl gotham_bold text-white mt-1">
-                  ${displayBalances.reduce((total, { near }) => total + parseInt(near), 0)}
+                  $
+                  {displayBalances.reduce(
+                    (total, { near }) => total + parseInt(near),
+                    0
+                  )}
                 </span>
               </div>
               <div className="col-span-1 mb-3">
@@ -193,21 +218,27 @@ function PortfolioOrderly() {
                   </span>
                 </div>
                 <span className="text-xl gotham_bold text-white mt-1">
-                  ${displayBalances.reduce((total, row) => total + parseInt(row['in-order']), 0)}
+                  $
+                  {displayBalances.reduce(
+                    (total, row) => total + parseInt(row['in-order']),
+                    0
+                  )}
                 </span>
               </div>
               <div className="col-span-1 mb-3">
                 <div className="flex items-center">
-                  <span className="text-sm text-primaryText">
-                    Available
-                  </span>
+                  <span className="text-sm text-primaryText">Available</span>
                 </div>
                 <span className="text-xl gotham_bold text-white mt-1">
-                  ${displayBalances.reduce((total, { available }) => total + parseInt(available), 0)}
+                  $
+                  {displayBalances.reduce(
+                    (total, { available }) => total + parseInt(available),
+                    0
+                  )}
                 </span>
               </div>
             </div>
-            
+
             <div className="hidden md:block lg:block">
               <TableWithTabs
                 table={ordersTable}
@@ -222,19 +253,30 @@ function PortfolioOrderly() {
                 displayBalances={displayBalances}
                 triggerPositionBasedData={triggerPositionBasedData}
               />
-              <TableWithTabs table={assetsTables} maintenance={maintenance} displayBalances={displayBalances} newPositions={newPositions} />
-              <TableWithTabs table={recordsTable} maintenance={maintenance} displayBalances={displayBalances} triggerBalanceBasedData={triggerBalanceBasedData} />
+              <TableWithTabs
+                table={assetsTables}
+                maintenance={maintenance}
+                displayBalances={displayBalances}
+                newPositions={newPositions}
+              />
+              <TableWithTabs
+                table={recordsTable}
+                maintenance={maintenance}
+                displayBalances={displayBalances}
+                triggerBalanceBasedData={triggerBalanceBasedData}
+              />
               <span className="text-xs text-primaryOrderly flex items-center">
                 <div className="ml-5 mr-1">
                   <WarningIcon />
                 </div>
                 {intl.formatMessage({
                   id: 'orderly_portfolio_table_tips',
-                  defaultMessage: 'The data provided herein includes all assets and records in your account, not limited to those generated through REF.',
+                  defaultMessage:
+                    'The data provided herein includes all assets and records in your account, not limited to those generated through REF.',
                 })}
               </span>
             </div>
-            
+
             <div className="md:hidden lg:hidden">
               <FlexRow className="w-full pb-3 justify-center rounded-t-2xl mt-0 border-white border-opacity-10  md:hidden lg:hidden">
                 <FlexRow className={`w-full min-h-8 justify-center`}>
@@ -249,10 +291,11 @@ function PortfolioOrderly() {
                       >
                         <span
                           className={`px-5 gotham_bold
-                            ${tab === index
-                              ? 'text-white relative'
-                              : 'text-primaryOrderly relative'
-                          }`}
+                            ${
+                              tab === index
+                                ? 'text-white relative'
+                                : 'text-primaryOrderly relative'
+                            }`}
                         >
                           {table.title}
 
@@ -266,7 +309,14 @@ function PortfolioOrderly() {
                 </FlexRow>
               </FlexRow>
 
-              {tab === 0 && <TableWithTabs table={assetsTables} maintenance={maintenance} displayBalances={displayBalances} newPositions={newPositions} />}
+              {tab === 0 && (
+                <TableWithTabs
+                  table={assetsTables}
+                  maintenance={maintenance}
+                  displayBalances={displayBalances}
+                  newPositions={newPositions}
+                />
+              )}
               {tab === 1 && (
                 <TableWithTabs
                   table={ordersTable}
@@ -287,8 +337,14 @@ function PortfolioOrderly() {
                   setMobileFilterOpen={setMobileFilterOpen}
                 />
               )}
-              {tab === 2 && <TableWithTabs table={recordsTable} maintenance={maintenance} displayBalances={displayBalances} triggerBalanceBasedData={triggerBalanceBasedData} />}
-              
+              {tab === 2 && (
+                <TableWithTabs
+                  table={recordsTable}
+                  maintenance={maintenance}
+                  displayBalances={displayBalances}
+                  triggerBalanceBasedData={triggerBalanceBasedData}
+                />
+              )}
             </div>
           </div>
         </div>
@@ -334,7 +390,6 @@ function PortfolioOrderly() {
         accountBalance={tokenInHolding || 0}
         tokenInfo={tokenInfo}
       />
-
 
       <MobileFilterModal
         isOpen={mobileFilterOpen !== 0}

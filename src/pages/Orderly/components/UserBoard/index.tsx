@@ -92,7 +92,6 @@ import { AssetModal } from '../AssetModal';
 import ReactTooltip from 'react-tooltip';
 import { ButtonTextWrapper } from '../../../../components/button/Button';
 import { FlexRow, orderEditPopUpFailure } from '../Common/index';
-import { useAllSymbolInfo } from '../AllOrders/state';
 import { ONLY_ZEROS } from '../../../../utils/numbers';
 import * as math from 'mathjs';
 import { NearWalletIcon } from '../Common/Icons';
@@ -478,9 +477,8 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     myPendingOrdersRefreshing,
     bridgePrice,
     userExist,
+    availableSymbols,
   } = useOrderlyContext();
-
-  const availableSymbols = useAllSymbolInfo();
 
   const { accountId, modal, selector } = useWalletSelector();
 
@@ -1877,9 +1875,8 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
     myPendingOrdersRefreshing,
     bridgePrice,
     userExist,
+    availableSymbols,
   } = useOrderlyContext();
-
-  const availableSymbols = useAllSymbolInfo();
 
   const { accountId, modal, selector } = useWalletSelector();
 

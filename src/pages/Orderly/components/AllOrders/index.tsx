@@ -54,7 +54,7 @@ import {
   getOrderTrades,
 } from '../../orderly/off-chain-api';
 import { useAllOrders } from '../../orderly/state';
-import { useAllSymbolInfo, useOrderBook, useCurHoldings } from './state';
+import { useOrderBook, useCurHoldings } from './state';
 import { useBatchTokenMetaFromSymbols } from '../ChartHeader/state';
 import Modal from 'react-modal';
 
@@ -4160,10 +4160,13 @@ function HistoryOrders({
 }
 
 function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
-  const { symbol, myPendingOrdersRefreshing, tokenInfo } = useOrderlyContext();
+  const {
+    symbol,
+    myPendingOrdersRefreshing,
+    tokenInfo,
+    availableSymbols: AllAvailableSymbols,
+  } = useOrderlyContext();
   const symbolType = PerpOrSpot(symbol);
-
-  const AllAvailableSymbols = useAllSymbolInfo();
 
   const availableSymbols = AllAvailableSymbols?.filter(
     (s) => s.symbol.indexOf(symbolType) > -1
