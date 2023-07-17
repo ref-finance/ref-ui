@@ -407,7 +407,7 @@ const getMaxQuantity = (
     const newOrderSize = collateral
       .minus(im)
       .times(account_max_leverage)
-      .div(priceNumber)
+      .div(mark_price_current_i)
       .times(0.995);
 
     const res = newOrderSize.toFixed(tickToPrecision(symbol.base_tick));
