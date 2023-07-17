@@ -118,6 +118,7 @@ function Table({
     setValidAccountSig,
     handlePendingOrderRefreshing,
     userExist,
+    validAccountSig,
   } = useOrderlyContext();
   const { accountId, modal } = useWalletSelector();
 
@@ -203,6 +204,7 @@ function Table({
 
     return a;
   };
+  const intl = useIntl();
 
   const validator =
     !accountId ||
@@ -212,8 +214,6 @@ function Table({
     !validContract() ||
     maintenance;
 
-  const intl = useIntl();
-
   const gridCol = columns.reduce(
     (acc, column) => acc + (column.colSpan ? column.colSpan : 1),
     0
@@ -221,7 +221,7 @@ function Table({
 
   return (
     <div className="relative">
-      {validator && !maintenance && (
+      {validator && !maintenance && !validAccountSig && (
         <div
           className="absolute flex flex-col justify-center items-center h-full w-full top-0 left-0 "
           style={{
@@ -298,6 +298,7 @@ function Table({
                     (storageEnough && (!tradingKeySet || !keyAnnounced)) ||
                     agreeCheck
                   }
+                  onPortfolio
                 />
               </div>
             )}

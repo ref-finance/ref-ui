@@ -677,7 +677,8 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       inputValue,
       side,
       curHoldingOut,
-      priceNumber
+      priceNumber,
+      userInfo
     );
   }, [
     positions,
@@ -3431,7 +3432,8 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
       inputValue,
       side,
       curHoldingOut,
-      priceNumber
+      priceNumber,
+      userInfo
     );
   }, [
     newPositions,

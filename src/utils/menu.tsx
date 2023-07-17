@@ -83,6 +83,7 @@ export type MenuItem = {
 };
 export const useMenuItems = () => {
   const intl = useIntl();
+
   const menuData: any[] = [
     // {
     //   label: intl.formatMessage({ id: 'stable_pool' }),
@@ -294,7 +295,8 @@ export const useMenus = (cb?: () => void) => {
                     e.stopPropagation();
                     e.preventDefault();
                     cb && cb();
-                    openUrl('/orderbook/spot');
+
+                    history.push('/orderbook/spot');
                   }}
                   style={{
                     width: '120px',
@@ -318,7 +320,7 @@ export const useMenus = (cb?: () => void) => {
 
                     cb && cb();
 
-                    openUrl('/orderbook/perps');
+                    history.push('/orderbook/perps');
                   }}
                   style={{
                     width: '120px',
@@ -656,7 +658,7 @@ export const useMenusMobile = () => {
                     e.stopPropagation();
                     e.preventDefault();
 
-                    openUrl('/orderbook/spot');
+                    history.push('/orderbook/spot');
                   }}
                   className="frcc bg-symbolHover2 border text-white border-white border-opacity-30 w-1/2 rounded-xl py-2"
                   style={{
@@ -675,7 +677,7 @@ export const useMenusMobile = () => {
                     e.preventDefault();
                     e.stopPropagation();
 
-                    openUrl('/orderbook/perps');
+                    history.push('/orderbook/perps');
                   }}
                   style={{
                     background: '#4F6574',
