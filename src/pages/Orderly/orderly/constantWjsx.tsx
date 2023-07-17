@@ -5,8 +5,6 @@ import { getPortfolioAllOrders, getFundingFee, getPortfolioAssetHistory, getPort
 import { TextWrapper } from '../components/UserBoard';
 import { PortfolioTable } from './type';
 import { useDEXLogoRender } from './customRenderHook';
-import { openUrl } from '../../../services/commonV3'
-import { useWalletSelector } from '../../../context/WalletSelectorContext';
 import { useOrderlyContext } from '../orderly/OrderlyContext';
 import { formatTimeDate, shortenAddress, getAccountName } from './utils';
 import { digitWrapperAsset } from '../utiles';
@@ -15,12 +13,14 @@ import { useBatchTokenMetaFromSymbols } from '../components/ChartHeader/state';
 import { parseSymbol } from '../components/RecentTrade';
 import ProgressBar from '../components/TableWithTabs/ProgressBar';
 import OrdersFilters from '../components/TableWithTabs/OrdersFilters';
-import { FutureMobileView } from '../components/TableWithTabs/FuturesControls';
+import { FutureMobileView, FutureTopComponent } from '../components/TableWithTabs/FuturesControls';
 import { AllMarketIcon } from '../components/Common/Icons';
 import { 
   DepositButtonMobile,
   WithdrawButtonMobile
 } from '../components/Common';
+import { getCurrentWallet } from '../../../utils/wallets-integration';
+import { useWalletSelector } from '../../../context/WalletSelectorContext';
 import { NearTip } from '../../../pages/AccountPage';
 import getConfig from '../../../services/config';
 import { Checkbox, CheckboxSelected, ArrowGrey } from '../../../components/icon';
@@ -53,8 +53,7 @@ export const usePortableOrderlyTable = ({
   setOperationType,
   setOperationId,
   tokenIn,
-  setSettlePnlModalOpen,
-  futuresStats
+  setSettlePnlModalOpen
 }: {
   refOnly: boolean;
   setRefOnly: (item: boolean) => void;
@@ -67,16 +66,15 @@ export const usePortableOrderlyTable = ({
   setOperationType: (item: 'deposit' | 'withdraw') => void;
   setOperationId: (item: string) => void;
   tokenIn: TokenMetadata;
-  setSettlePnlModalOpen: (item: boolean) => void;
-  futuresStats: { unreal: number; daily: number; notional: number; unsettle: number }
+  setSettlePnlModalOpen: (item: boolean) => void
 }) => {
   const intl = useIntl();
-  const { tokenInfo } = useOrderlyContext();
   const { accountId } = useWalletSelector();
-  const availableSymbols = useAllSymbolInfo();
   const { renderLogo } =  useDEXLogoRender();
+  const { wallet } = getCurrentWallet();
   const [showMarketSelector, setShowMarketSelector] = useState<boolean>(false);
   const [showSideSelector, setShowSideSelector] = useState<boolean>(false);
+  const { marketList, allTokens } = useMarketlist();
 
   const OpenbookBtn = () => (
     <div className="flex items-center">
@@ -137,128 +135,6 @@ export const usePortableOrderlyTable = ({
       </span>
     </button>
   );
-
-
-  const allTokenSymbols = [
-    ...new Set(
-      !availableSymbols
-        ? []
-        : availableSymbols.flatMap((s) => {
-            const { symbolFrom, symbolTo } = parseSymbol(s.symbol);
-
-            return [symbolFrom, symbolTo];
-          })
-    ),
-  ];
-
-  const allTokens = useBatchTokenMetaFromSymbols(
-    allTokenSymbols.length > 0 ? allTokenSymbols : null,
-    tokenInfo
-  );
-
-  const generateMarketList = () => {
-    if (!availableSymbols || !allTokens) return [];
-    const marketList = [
-      {
-        text: (
-          <div className="flex items-center p-0.5 pr-4 my-0.5">
-            <span className="text-white">
-              {intl.formatMessage({
-                id: 'all_instrument',
-                defaultMessage: 'All Instrument',
-              })}
-            </span>
-          </div>
-        ),
-        withSymbol: (
-          <div className="flex items-center p-0.5 pr-4 my-0.5">
-            <div className="mr-2 ml-1 text-white text-sm ">
-              <AllMarketIcon />
-            </div>
-            <span className="text-white">
-              {intl.formatMessage({
-                id: 'all_instrument',
-                defaultMessage: 'All Instrument',
-              })}
-            </span>
-          </div>
-        ),
-        textId: 'all_markets',
-      },
-    ];
-
-    availableSymbols
-      .sort((a, b) => (a.symbol > b.symbol ? 1 : -1))
-      .forEach((symbol) => {
-        if (!symbol.symbol.includes('PERP')) {
-          const { symbolFrom, symbolTo } = parseSymbol(symbol.symbol);
-          const fromToken = allTokens[symbolFrom];
-  
-          const symbolRender = (
-            <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
-              <img
-                src={fromToken?.icon}
-                alt=""
-                className="rounded-full flex-shrink-0 w-5 h-5 mr-0.5 md:mr-2.5 lg:mr-2.5"
-              />
-  
-              <span className="xs:text-white xs:ml-2 xs:font-bold">
-                {symbolFrom} / {symbolTo}
-              </span>
-            </div>
-          );
-  
-          const textRender = (
-            <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
-              <span className="xs:text-white xs:ml-2 xs:font-bold">
-                {symbolFrom} / {symbolTo}
-              </span>
-            </div>
-          );
-  
-          marketList.push({
-            text: textRender,
-            withSymbol: symbolRender,
-            textId: symbol.symbol,
-          });
-        } else {
-          const { symbolFrom } = parseSymbol(symbol.symbol);
-          const toToken = allTokens[symbolFrom];
-
-          const symbolRender = (
-            <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
-              <img
-                src={toToken?.icon}
-                alt=""
-                className="rounded-full flex-shrink-0 w-5 h-5 mr-0.5 md:mr-2.5 lg:mr-2.5"
-              />
-
-              <span className="xs:text-white xs:ml-2 xs:font-bold">
-                {symbolFrom} PERP
-              </span>
-            </div>
-          );
-
-          const textRender = (
-            <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
-              <span className="xs:text-white xs:ml-2 xs:font-bold">
-                {symbolFrom} PERP
-              </span>
-            </div>
-          );
-
-          marketList.push({
-            text: textRender,
-            withSymbol: symbolRender,
-            textId: symbol.symbol,
-          });
-        }
-      });
-
-    return marketList;
-  };
-
-  const marketList = generateMarketList();
 
   const ordersTable: PortfolioTable = {
     title: 'Orders',
@@ -727,45 +603,11 @@ export const usePortableOrderlyTable = ({
         rightComp: <SettlePnlBtn />,
         pagination: false,
         getData: () => getPortfolioPosition({ accountId }),
-        tableTopComponent: (
-          <div className="w-full px-5 mb-4">
-            <div className="w-full flex justify-start items-center py-3 px-5 rounded-full" style={{ backgroundColor: '#7E8A931A' }}>
-              <div className="mr-5">
-                {intl.formatMessage({
-                  id: 'fut_unreal_pnl',
-                  defaultMessage: 'Fut. Unreal. PnL',
-                })}
-                <span className="text-buyGreen pl-2">{futuresStats.unreal.toFixed(0)}</span>
-              </div>
-              <div className="mr-5">
-                {intl.formatMessage({
-                  id: 'fut_daily_real',
-                  defaultMessage: 'Fut. Daily Real.',
-                })}
-                <span className="text-white pl-2">{futuresStats.daily.toFixed(0)}</span>
-              </div>
-              <div className="mr-5">
-                {intl.formatMessage({
-                  id: 'fut_notional',
-                  defaultMessage: 'Fut. Notional',
-                })}
-                <span className="text-white pl-2">{futuresStats.notional.toFixed(0)}</span>
-              </div>
-              <div className="ml-auto">
-                {intl.formatMessage({
-                  id: 'fut_unsettle_pnl',
-                  defaultMessage: 'Unsettle PnL',
-                })}
-                <span className="text-buyGreen pl-2">{futuresStats.unsettle.toFixed(0)}</span>
-              </div>
-            </div>
-          </div>
-        ),
+        tableTopComponent: <FutureTopComponent />,
         mobileRenderCustom: true,
         mobileRender: (rows) => (
           <FutureMobileView
             rows={rows}
-            futuresStats={futuresStats}
             marketList={marketList}
           >
             <SettlePnlBtn />
@@ -785,7 +627,7 @@ export const usePortableOrderlyTable = ({
             extras: ['sort'],
             render: ({ position_qty }) => (
               <div className="px-2 text-sm text-buyGreen">
-                {position_qty?.toFixed(0) || '-' }
+                {position_qty?.toFixed(4) || '-' }
               </div>
             )},
           { key: 'avg_open', header: 'Avg. Open', extras: ['sort'], render: ({ average_open_price }) => average_open_price?.toFixed(3) || '-' },
@@ -809,7 +651,7 @@ export const usePortableOrderlyTable = ({
             render: ({ mark_price, average_open_price, position_qty }) =>  ((mark_price - average_open_price) *  position_qty)?.toFixed(3) || '-'
           },
           { key: 'daily_real', header: 'Daily Real', extras: ['sort'], render: ({ pnl_24_h }) => pnl_24_h?.toFixed(3) || '-' },
-          { key: 'notional', header: 'Notional', extras: ['sort'], render: ({ average_open_price, position_qty }) => (position_qty * average_open_price)?.toFixed(3) || '-' },
+          { key: 'notional', header: 'Notional', extras: ['sort'], render: ({ average_open_price, position_qty }) => (position_qty * average_open_price)?.toFixed(0) || '-' },
           {
             key: 'qty.',
             header: 'Qty.', 
@@ -861,7 +703,7 @@ export const usePortableOrderlyTable = ({
             </div>
             <div className="w-1/2 inline-block">
               <div className={`p-0.5 my-0.5`}>
-                from <span className="text-white">{user_id}</span>
+                from <span className="text-white">{getAccountName(wallet.getAccountId())}</span>
               </div>
               <div className={`p-0.5 text-sm my-0.5`}>
                 <span>{formatTimeDate(created_time)}</span>
@@ -906,7 +748,7 @@ export const usePortableOrderlyTable = ({
             )
           },
           { key: 'amount', textColor: '', header: 'Amount', render: ({ amount }) => amount },
-          { key: 'source_address', header: 'Source Address', render: ({ user_id }) => user_id },
+          { key: 'source_address', header: 'Source Address', render: () => getAccountName(wallet.getAccountId()) },
           {
             key: 'txid',
             header: 'TxID',
@@ -961,7 +803,7 @@ export const usePortableOrderlyTable = ({
             </div>
             <div className="w-1/2 inline-block">
               <div className={`p-0.5 my-0.5`}>
-                from <span className="text-white">{user_id}</span>
+                from <span className="text-white">{getAccountName(wallet.getAccountId())}</span>
               </div>
               <div className={`p-0.5 text-sm my-0.5`}>
                 <span>{formatTimeDate(created_time)}</span>
@@ -1006,7 +848,7 @@ export const usePortableOrderlyTable = ({
             )
           },
           { key: 'amount', textColor: '', header: 'Amount', render: ({ amount }) => amount },
-          { key: 'source_address', header: 'Source Address', render: ({ user_id }) => user_id },
+          { key: 'source_address', header: 'Source Address', render: () => getAccountName(wallet.getAccountId()) },
           {
             key: 'txid',
             header: 'TxID',
@@ -1082,7 +924,7 @@ export const usePortableOrderlyTable = ({
             <div className="w-1/2 inline-block text-right">
               <div className={`p-0.5 text-sm my-0.5`}>
                 <span className={`${settled_amount > 0 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
-                  {settled_amount || '-'}
+                  {settled_amount > 0 ? '+' : ''}{settled_amount || '-'}
                 </span>
                 <span className="text-white">&nbsp;USDC</span>
               </div>
@@ -1131,7 +973,7 @@ export const usePortableOrderlyTable = ({
             colSpan: 2,
             render: ({ settled_amount }) => (
               <span className={`${settled_amount > 0 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
-                {settled_amount || '-'}
+                {settled_amount > 0 ? '+' : ''}{settled_amount || '-'}
               </span>
             )
           },
@@ -1188,7 +1030,14 @@ export const usePortableOrderlyTable = ({
             key: 'funding_annual_rate',
             header: 'Funding Rate / Annual Rate',
             colSpan: 3,
-            render: ({ funding_rate }) => `${funding_rate?.toFixed(6)}%/${(Math.ceil(funding_rate * 3 * 365 * 100 * 100) / 100)?.toFixed(2)}%`
+            render: ({ funding_rate }) => {
+              const annualBase = ((funding_rate * 3 * 365 * 100 * 100) / 100).toFixed(4);
+              const last = parseInt(annualBase.substr(annualBase.length - 2, 1));
+              const negative = (funding_rate < 0);
+              const annual = ((last < 5 && negative) || (last > 4 && !negative)) ? (Math.floor(funding_rate * 3 * 365 * 100 * 100) / 100)?.toFixed(2) : (Math.ceil(funding_rate * 3 * 365 * 100 * 100) / 100)?.toFixed(2);
+
+              return `${(funding_rate * 100).toFixed(6)}%/${annual}%`
+            }
           },
           { key: 'status', header: 'Status', render: ({ status }) => status },
           { key: 'type', header: 'Type', render: ({ payment_type }) => payment_type },
@@ -1199,10 +1048,10 @@ export const usePortableOrderlyTable = ({
             colSpan: 2,
             render: ({ funding_fee }) => (
               <>
-                <span className={funding_fee > 0 ? 'text-buyGreen' : 'text-sellColorNew'}>
-                  {funding_fee > 0 ? '+' : ''}{funding_fee?.toFixed(4)}
+                <span className={funding_fee < 0 ? 'text-buyGreen' : 'text-sellColorNew'}>
+                  {funding_fee < 0 ? '+' : ''}{(funding_fee * -1)}
+                  <span className="text-white">&nbsp;USDC</span>
                 </span>
-                &nbsp;USDC
               </>
             ) 
           },
@@ -1222,5 +1071,137 @@ export const usePortableOrderlyTable = ({
     ordersTable,
     assetsTables,
     recordsTable
+  }
+}
+
+export const useMarketlist = () => {
+  const { tokenInfo } = useOrderlyContext();
+  const availableSymbols = useAllSymbolInfo();
+  const intl = useIntl();
+
+  const allTokenSymbols = [
+    ...new Set(
+      !availableSymbols
+        ? []
+        : availableSymbols.flatMap((s) => {
+            const { symbolFrom, symbolTo } = parseSymbol(s.symbol);
+
+            return [symbolFrom, symbolTo];
+          })
+    ),
+  ];
+
+  const allTokens = useBatchTokenMetaFromSymbols(
+    allTokenSymbols.length > 0 ? allTokenSymbols : null,
+    tokenInfo
+  );
+
+  const generateMarketList = () => {
+    if (!availableSymbols || !allTokens) return [];
+    const marketList = [
+      {
+        text: (
+          <div className="flex items-center p-0.5 pr-4 my-0.5">
+            <span className="text-white">
+              {intl.formatMessage({
+                id: 'all_instrument',
+                defaultMessage: 'All Instrument',
+              })}
+            </span>
+          </div>
+        ),
+        withSymbol: (
+          <div className="flex items-center p-0.5 pr-4 my-0.5">
+            <div className="mr-2 ml-1 text-white text-sm ">
+              <AllMarketIcon />
+            </div>
+            <span className="text-white">
+              {intl.formatMessage({
+                id: 'all_instrument',
+                defaultMessage: 'All Instrument',
+              })}
+            </span>
+          </div>
+        ),
+        textId: 'all_markets',
+      },
+    ];
+
+    availableSymbols
+      .sort((a, b) => (a.symbol > b.symbol ? 1 : -1))
+      .forEach((symbol) => {
+        if (!symbol.symbol.includes('PERP')) {
+          const { symbolFrom, symbolTo } = parseSymbol(symbol.symbol);
+          const fromToken = allTokens[symbolFrom];
+  
+          const symbolRender = (
+            <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
+              <img
+                src={fromToken?.icon}
+                alt=""
+                className="rounded-full flex-shrink-0 w-5 h-5 mr-0.5 md:mr-2.5 lg:mr-2.5"
+              />
+  
+              <span className="xs:text-white xs:ml-2 xs:font-bold">
+                {symbolFrom} / {symbolTo}
+              </span>
+            </div>
+          );
+  
+          const textRender = (
+            <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
+              <span className="xs:text-white xs:ml-2 xs:font-bold">
+                {symbolFrom} / {symbolTo}
+              </span>
+            </div>
+          );
+  
+          marketList.push({
+            text: textRender,
+            withSymbol: symbolRender,
+            textId: symbol.symbol,
+          });
+        } else {
+          const { symbolFrom } = parseSymbol(symbol.symbol);
+          const toToken = allTokens[symbolFrom];
+
+          const symbolRender = (
+            <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
+              <img
+                src={toToken?.icon}
+                alt=""
+                className="rounded-full flex-shrink-0 w-5 h-5 mr-0.5 md:mr-2.5 lg:mr-2.5"
+              />
+
+              <span className="xs:text-white xs:ml-2 xs:font-bold">
+                {symbolFrom} PERP
+              </span>
+            </div>
+          );
+
+          const textRender = (
+            <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
+              <span className="xs:text-white xs:ml-2 xs:font-bold">
+                {symbolFrom} PERP
+              </span>
+            </div>
+          );
+
+          marketList.push({
+            text: textRender,
+            withSymbol: symbolRender,
+            textId: symbol.symbol,
+          });
+        }
+      });
+
+    return marketList;
+  };
+
+  const marketList = generateMarketList();
+
+  return {
+    marketList,
+    allTokens
   }
 }

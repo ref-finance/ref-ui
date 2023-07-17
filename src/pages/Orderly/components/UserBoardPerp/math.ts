@@ -38,6 +38,41 @@ const getTotaluPnl = (positions: PositionsType, markprices: MarkPrice[]) => {
   return numberWithCommas(pnl.toFixed(2));
 };
 
+const getPortfolioTotaluPnl = (positions: PositionsType, markprices: MarkPrice[]) => {
+  if (!positions) return '0';
+
+  const pnl = positions.rows.reduce(
+    (acc, cur, index) => {
+      const markPrice =
+        markprices?.find((item) => item.symbol === cur.symbol)?.price || 0;
+
+      const value = (markPrice - cur.average_open_price) * cur.position_qty;
+
+      return new Big(value).plus(acc);
+    },
+
+    new Big(0)
+  );
+
+  return numberWithCommas(pnl.toFixed(0));
+};
+
+const getNotional = (positions: PositionsType) => {
+  if (!positions) return '0';
+
+  const notional = positions.rows.reduce(
+    (acc, cur, index) => {
+      const value = cur.average_open_price * cur.position_qty;
+
+      return new Big(value).plus(acc);
+    },
+
+    new Big(0)
+  );
+
+  return numberWithCommas(notional.toFixed(0));
+};
+
 const get_total_upnl = (positions: PositionsType, markprices: MarkPrice[]) => {
   const pnl = positions.rows.reduce(
     (acc, cur, index) => {
@@ -389,6 +424,24 @@ const getUnsettle = (positions: PositionsType, markPrices: MarkPrice[]) => {
   return unsettle.plus(float);
 };
 
+const getPortfolioUnsettle = (positions: PositionsType, markPrices: MarkPrice[]) => {
+  try {
+    const unsettle = positions.rows.reduce((acc, cur) => {
+      const cur_mark_price = markPrices.find(
+        (m) => m.symbol === cur.symbol
+      ).price;
+
+      const float = cur.position_qty * (cur_mark_price - cur.mark_price);
+
+      return acc.plus(cur.unsettled_pnl + float);
+    }, new Big(0));
+
+    return unsettle.toFixed(0);
+  } catch (error) {
+    return '-';
+  }
+};
+
 const getMaintenanceMarginRatio = (
   positions: PositionsType,
   markPrices: MarkPrice[]
@@ -404,6 +457,8 @@ const getMaintenanceMarginRatio = (
 
 export {
   getTotaluPnl,
+  getPortfolioTotaluPnl,
+  getNotional,
   getRiskLevel,
   getMarginRatio,
   getTotalCollateral,
@@ -413,5 +468,6 @@ export {
   tickToPrecision,
   getLqPrice,
   getUnsettle,
+  getPortfolioUnsettle,
   getMaintenanceMarginRatio,
 };

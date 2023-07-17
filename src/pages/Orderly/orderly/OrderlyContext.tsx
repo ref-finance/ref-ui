@@ -48,6 +48,7 @@ interface OrderlyContextValue {
   ticker: Ticker | undefined;
   markPrices: MarkPrice[] | undefined;
   balances?: Record<string, Balance>;
+  balanceTimeStamp: number;
   allTickers: Ticker[] | undefined;
   indexprices: IndexPrice[] | undefined;
   allTickersPerp: Ticker[] | undefined;
@@ -70,6 +71,7 @@ interface OrderlyContextValue {
   estFundingRate: EstFundingrate | undefined;
   positions: PositionsType | undefined;
   positionPush: PositionPushType[] | undefined;
+  positionTimeStamp: number;
   allOrdersSymbolMarket?: MyOrder[];
   liquidations: LiquidationPushType[];
   maintenance: boolean | undefined;

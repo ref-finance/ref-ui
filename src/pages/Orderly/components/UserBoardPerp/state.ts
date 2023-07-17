@@ -12,7 +12,10 @@ import {
   getMarginRatio,
   getTotalCollateral,
   getTotaluPnl,
+  getPortfolioTotaluPnl,
   getUnsettle,
+  getPortfolioUnsettle,
+  getNotional
 } from './math';
 import { parseSymbol } from '../RecentTrade';
 import { useLeverage } from '~pages/Orderly/orderly/state';
@@ -175,6 +178,7 @@ export function usePerpData() {
     tokenInfo,
     storageEnough,
     balances,
+    balanceTimeStamp,
     setValidAccountSig,
     handlePendingOrderRefreshing,
     validAccountSig,
@@ -184,9 +188,49 @@ export function usePerpData() {
     positions,
     markPrices,
     positionPush,
+    positionTimeStamp,
     ticker,
     futureLeverage,
   } = useOrderlyContext();
+  
+  const newPositions = useMemo(() => {
+    try {
+      const calcPositions = positions.rows.map((item) => {
+        const push = positionPush?.find((i) => i.symbol === item.symbol);
+
+        if (push) {
+          const qty = push.positionQty;
+          const pendingLong = push.pendingLongQty;
+          const pendingShort = push.pendingShortQty;
+
+          return {
+            ...item,
+            ...push,
+            position_qty: qty,
+            pending_long_qty: pendingLong,
+            pending_short_qty: pendingShort,
+            unsettled_pnl: push.unsettledPnl,
+            mark_price: push.markPrice,
+            average_open_price: push.averageOpenPrice,
+            mmr: push.mmr,
+            imr: push.imr,
+          };
+        } else {
+          return item;
+        }
+      });
+
+      positions.rows = calcPositions;
+
+      return {
+        ...positions,
+
+        rows: calcPositions,
+      };
+    } catch (error) {
+      return null;
+    }
+  }, [positionPush, positions]);
 
   const [holdings, setHoldings] = useState<Holding[]>();
 
@@ -247,6 +291,30 @@ export function usePerpData() {
     }
   }, [positions, markPrices]);
 
+  const totalPortfoliouPnl = useMemo(() => {
+    try {
+      return getPortfolioTotaluPnl(newPositions, markPrices);
+    } catch (error) {
+      return null;
+    }
+  }, [newPositions, markPrices]);
+
+  const totalDailyReal = useMemo(() => {
+    try {
+      return newPositions.total_pnl_24_h?.toFixed(0);
+    } catch (error) {
+      return null;
+    }
+  }, [newPositions]);
+
+  const totalNotional = useMemo(() => {
+    try {
+      return getNotional(newPositions);
+    } catch (error) {
+      return null;
+    }
+  }, [newPositions]);
+
   const marginRatio = useMemo(() => {
     {
       try {
@@ -269,16 +337,38 @@ export function usePerpData() {
     }
   }, [positions, markPrices]);
 
+  const portfolioUnsettle = useMemo(
+    () => getPortfolioUnsettle(newPositions, markPrices),
+    [newPositions, markPrices]
+  );
+
   const mmr = useMemo(() => {
     return getMaintenanceMarginRatio(positions, markPrices);
   }, [positions, markPrices]);
+
+  const triggerBalanceBasedData = useMemo(
+    () => balanceTimeStamp,
+    [balanceTimeStamp]
+  );
+
+  const triggerPositionBasedData = useMemo(
+    () => positionTimeStamp,
+    [positionTimeStamp]
+  );
 
   return {
     totalCollateral,
     freeCollateral,
     totaluPnl,
+    totalPortfoliouPnl,
+    totalDailyReal,
+    totalNotional,
     marginRatio,
     unsettle,
+    portfolioUnsettle,
     mmr,
+    newPositions,
+    triggerBalanceBasedData,
+    triggerPositionBasedData
   };
 }
