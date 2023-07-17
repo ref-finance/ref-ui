@@ -3,7 +3,7 @@ import { useIntl } from 'react-intl';
 import { TokenMetadata } from '~services/ft-contract';
 import { getPortfolioAllOrders, getFundingFee, getPortfolioAssetHistory, getPortfolioPosition, getPortfolioSettlements } from '../orderly/off-chain-api';
 import { TextWrapper } from '../components/UserBoard';
-import { PortfolioTable } from './type';
+import { PortfolioTable, MarkPrice, Ticker } from './type';
 import { useDEXLogoRender } from './customRenderHook';
 import { useOrderlyContext } from '../orderly/OrderlyContext';
 import { formatTimeDate, shortenAddress, getAccountName } from './utils';
@@ -55,7 +55,9 @@ export const usePortableOrderlyTable = ({
   setOperationType,
   setOperationId,
   tokenIn,
-  setSettlePnlModalOpen
+  setSettlePnlModalOpen,
+  markPrices,
+  lastPrices
 }: {
   refOnly: boolean;
   setRefOnly: (item: boolean) => void;
@@ -70,7 +72,9 @@ export const usePortableOrderlyTable = ({
   chooseOrderStatus: 'all' | 'Cancelled' | 'filled' | 'Rejected';
   chooseOrderType: 'all' | 'limit' | 'market';
   tokenIn: TokenMetadata;
-  setSettlePnlModalOpen: (item: boolean) => void
+  setSettlePnlModalOpen: (item: boolean) => void;
+  markPrices: MarkPrice[];
+  lastPrices: { symbol: string;low: number; }[];
 }) => {
   const intl = useIntl();
   const { accountId } = useWalletSelector();
@@ -78,6 +82,7 @@ export const usePortableOrderlyTable = ({
   const { wallet } = getCurrentWallet();
   const [showMarketSelector, setShowMarketSelector] = useState<boolean>(false);
   const [showSideSelector, setShowSideSelector] = useState<boolean>(false);
+  const [unrealMode, setUnrealMode] = useState<'mark_price' | 'last_price'>('mark_price');
   const { marketList, allTokens } = useMarketlist();
 
   const OpenbookBtn = () => (
@@ -249,6 +254,7 @@ export const usePortableOrderlyTable = ({
             accountId,
             OrderProps: {
               page,
+              size: orderType > 0 ? 500 : 10,
               // @ts-ignore
               status: chooseOrderStatus === 'all' ? 'INCOMPLETE' : chooseOrderStatus.toUpperCase(),
               broker_id: refOnly ? 'ref_dex' : '',
@@ -268,7 +274,7 @@ export const usePortableOrderlyTable = ({
               <div className="flex items-center ">{marketList.find((m) => m.textId === symbol)?.withSymbol}</div>
             )
           },
-          { key: 'type', header: 'Type', render: ({ type }) => <span className='capitalize'>{type}</span> },
+          { key: 'type', header: 'Type', render: ({ type }) => <span className='capitalize'>{type.toLocaleLowerCase()}</span> },
           {
             key: 'Side',
             header: 'Side',
@@ -413,7 +419,8 @@ export const usePortableOrderlyTable = ({
           return getPortfolioAllOrders({
             accountId,
             OrderProps: {
-              page,
+              page: orderType > 0 ? 1 : page,
+              size: orderType > 0 ? 500 : 10,
               // @ts-ignore
               status: chooseOrderStatus === 'all' ? 'COMPLETED' : chooseOrderStatus.toUpperCase(),
               broker_id: refOnly ? 'ref_dex' : '',
@@ -449,7 +456,7 @@ export const usePortableOrderlyTable = ({
               />
             )
           },
-          { key: 'type', header: 'Type', render: ({ type }) => <span className='capitalize'>{type}</span> },
+          { key: 'type', header: 'Type', render: ({ type }) => <span className='capitalize'>{type.toLocaleLowerCase()}</span> },
           {
             key: 'fill_qty',
             header: 'Fill / Qty',
@@ -464,7 +471,7 @@ export const usePortableOrderlyTable = ({
           { key: '@price', header: '@Price', render: ({ price, symbol }) => price?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 4) || '-'  },
           { key: 'avg_price', header: 'Avg.Price', render: ({ average_executed_price, symbol }) => average_executed_price?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 4) || '-' },
           { key: 'est_total', header: 'Est.Total', render: ({ price, average_executed_price, quantity, symbol }) => Math.floor(((price || average_executed_price) * quantity))?.toFixed(0)},
-          { key: 'status', header: 'Status', render: ({ status }) =>  status },
+          { key: 'status', header: 'Status', render: ({ status }) =>  <span className='capitalize'>{status.toLocaleLowerCase()}</span> },
           {
             key: 'create',
             header: 'Created',
@@ -634,18 +641,25 @@ export const usePortableOrderlyTable = ({
             header: 'Qty.',
             extras: ['sort'],
             render: ({ position_qty }) => (
-              <div className="px-2 text-sm text-buyGreen">
+              <div className={`px-2 text-sm ${position_qty > -1 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
                 {position_qty?.toFixed(4) || '-' }
               </div>
             )},
           { key: 'avg_open', header: 'Avg. Open', extras: ['sort'], render: ({ average_open_price }) => average_open_price?.toFixed(3) || '-' },
-          { key: 'mark_orderly', header: 'Mark', extras: ['sort'], render: ({ mark_price }) => mark_price?.toFixed(3) || '-' },
+          { key: 'mark_orderly', header: 'Mark', extras: ['sort'], render: ({ symbol }) => (
+              <div className={`px-2 text-sm ${markPrices.find((i) => i.symbol === symbol)?.price > -1 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
+                {markPrices.find((i) => i.symbol === symbol)?.price.toFixed(3) || '-' }
+              </div>
+            )
+          },
           { key: 'liq_price', header: 'Liq. Price', extras: ['sort'], render: ({ est_liq_price }) => est_liq_price?.toFixed(3) || '-' },
           {
             key: 'unreal_pnl',
             header: 'Unreal. PnL',
             headerType: 'dashed',
             extras: ['radio'],
+            select: unrealMode,
+            setSelect: setUnrealMode,
             list: [
               {
                 text: intl.formatMessage({ id: 'mark_price' }),
@@ -656,16 +670,33 @@ export const usePortableOrderlyTable = ({
                 textId: 'last_price'
               }
             ],
-            render: ({ mark_price, average_open_price, position_qty }) =>  ((mark_price - average_open_price) *  position_qty)?.toFixed(3) || '-'
+            render: ({ symbol, average_open_price, position_qty }) => {
+              const price = unrealMode === 'mark_price' ? markPrices.find((i) => i.symbol === symbol)?.price : lastPrices.find((i) => i.symbol === symbol)?.low;
+
+              return (
+                <div className={`px-2 text-sm ${(price - average_open_price) *  position_qty > -1 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
+                  {((price - average_open_price) *  position_qty)?.toFixed(0) || '-' }
+                </div>
+              )
+            }
           },
           { key: 'daily_real', header: 'Daily Real', extras: ['sort'], render: ({ pnl_24_h }) => pnl_24_h?.toFixed(3) || '-' },
-          { key: 'notional', header: 'Notional', extras: ['sort'], render: ({ average_open_price, position_qty }) => (position_qty * average_open_price)?.toFixed(0) || '-' },
+          {
+            key: 'notional',
+            header: 'Notional',
+            extras: ['sort'],
+            render: ({ average_open_price, position_qty }) => (
+              <div className={`px-2 text-sm ${position_qty * average_open_price > -1 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
+                {(position_qty * average_open_price)?.toFixed(0) || '-' }
+              </div>
+            )
+          },
           {
             key: 'qty.',
             header: 'Qty.', 
             render: ({ position_qty }) => (
               <div
-                className="px-2 text-sm text-buyGreen"
+                className={`px-2 text-sm ${position_qty > -1 ? 'text-buyGreen' : 'text-sellColorNew'}`}
                 style={{
                   borderRadius: '6px',
                   border: '1px solid #1D2932',

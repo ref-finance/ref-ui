@@ -705,7 +705,6 @@ export const getPortfolioAllOrders = async (props: {
     accountId: props.accountId,
     OrderProps: {
       ...props.OrderProps,
-      size: 10,
     },
   });
 

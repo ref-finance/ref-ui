@@ -179,21 +179,136 @@ function FuturePriceModal(
   );
 }
 
+
+export  function SettlePnlModal(
+  props: Modal.Props & {
+    onClick: () => Promise<any>;
+  }
+) {
+  const {
+    onRequestClose,
+    onClick,
+  } = props;
+
+  const {
+    portfolioUnsettle
+  } = usePerpData();
+
+  const [loading, setLoading] = useState<boolean>(false);
+  
+  const intl = useIntl();
+  return (
+    <Modal
+      {...props}
+      style={{
+        content: {
+          zIndex: 999,
+        },
+      }}
+    >
+      <div
+        className={`rounded-2xl lg:w-96 xs:w-95vw border border-gradientFrom border-opacity-30 bg-boxBorder text-sm text-primaryOrderly`}
+      >
+        <div className="px-5 py-6 flex flex-col ">
+          <div className="flex items-center pb-6 justify-between">
+            <span className="text-white text-lg font-bold">
+              {intl.formatMessage({
+                id: 'settle_pnl',
+                defaultMessage: 'Settle PnL',
+              })}
+            </span>
+
+            <span
+              className="cursor-pointer "
+              onClick={(e: any) => {
+                onRequestClose && onRequestClose(e);
+              }}
+            >
+              <IoClose size={20} />
+            </span>
+          </div>
+
+          <div className="flex items-center mb-5 justify-between">
+            <span className="text-sm">
+              {intl.formatMessage({
+                id: 'settle_pnl_tips',
+                defaultMessage: 'By doing this, we’ll move your profit or loss from perp markets into the USDC token balance. This has no impact on your open positions or health.',
+              })}
+            </span>
+          </div>
+
+          <div className="flex items-center mb-5 justify-between">
+            <span className="text-white">
+              {intl.formatMessage({
+                id: 'total_unsettled_pnl',
+                defaultMessage: 'Total unsettled PnL',
+              })}:
+            </span>
+
+            <span className="flex items-center">
+              <span className=" mr-2 text-buyGreen gotham_bold">
+                {portfolioUnsettle}
+              </span>
+              USDC
+            </span>
+          </div>
+
+          <button
+            className={`rounded-lg gotham_bold ${
+              loading
+                ? 'opacity-70 cursor-not-allowed bg-buttonGradientBgOpacity'
+                : ''
+            } flex items-center justify-center py-1 bg-buttonGradientBg hover:bg-buttonGradientBgOpacity text-base text-white font-bold`}
+            onClick={(e: any) => {
+              e.preventDefault();
+              e.stopPropagation();
+
+              setLoading(true);
+              onClick().then(() => {
+                setLoading(false);
+                onRequestClose && onRequestClose(e);
+              });
+            }}
+            disabled={loading}
+          >
+            <ButtonTextWrapper
+              loading={loading}
+              Text={() => {
+                return (
+                  <span>
+                    {' '}
+                    {intl.formatMessage({
+                      id: 'settle',
+                      defaultMessage: 'Settle',
+                    })}
+                  </span>
+                );
+              }}
+            />
+          </button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
 const FutureMobileRow: React.FC<{
-  row: { symbol: string, position_qty:number, average_open_price: number, mark_price: number, unsettled_pnl: number },
+  row: { symbol: string, position_qty:number, average_open_price: number, unsettled_pnl: number },
   marketList: { text: JSX.Element; withSymbol: JSX.Element; textId: string; }[]
 }> = ({
   row,
   marketList
 }) => {
   const intl = useIntl();
-  const { symbol, position_qty, average_open_price, mark_price, unsettled_pnl } = row;
+  const { markPrices } = usePerpData();
+  const { symbol, position_qty, average_open_price, unsettled_pnl } = row;
   const [select, setSelect] = useState<any>('mark_price');
   const [showSideSelector, setShowSideSelector] = useState<boolean>(false);
   const [futureQuantityOpen, setFutureQuantityOpen] = useState<boolean>(false);
   const [futurePriceOpen, setFuturePriceOpen] = useState<boolean>(false);
   const [quantity, setQuantity] = useState<number>(position_qty);
   const [priceMode, setPriceMode] = useState<'market_price' | 'limit_price'>('market_price');
+  const mark_price = markPrices.find((i) => i.symbol === symbol)?.price;
   const [price, setPrice] = useState<number>(mark_price);
 
   useEffect(() => {
@@ -351,7 +466,8 @@ export const FutureMobileView: React.FC<{
     totalPortfoliouPnl,
     totalDailyReal,
     totalNotional,
-    newPositions
+    newPositions,
+    
   } = usePerpData();
 
   const { rows } = newPositions

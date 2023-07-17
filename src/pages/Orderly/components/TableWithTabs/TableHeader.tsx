@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MdArrowDropDown } from 'react-icons/md';
 import { useIntl } from 'react-intl';
-import { FlexRow } from '../Common';
 import { CheckSelector } from '../Common/Icons';
 import {
   PortfolioTableColumns
@@ -18,19 +17,25 @@ export default function TableHeader({
   sort: [string, 'asc' | 'dsc'];
   setSort: (s: [string, 'asc' | 'dsc']) => void;
 }) {
-  const { colSpan = 1, key, header, mobileHeaderKey, extras, list, icon, suffix, headerType } = column;
+  const { colSpan = 1, key, header, mobileHeaderKey, extras, list, icon, suffix, headerType, setSelect, select } = column;
 
-  const [select, setSelect] = useState<any>(list ? list[0].textId : '')
-  const [showSideSelector, setShowSideSelector] = useState<boolean>(false);
+  const [showSelector, setShowSelector] = useState<boolean>(false);
 
   const intl = useIntl();
+
+  useEffect(() => {
+    if (showSelector)
+      document.addEventListener('click', () => {
+        setShowSelector(false);
+      });
+  }, [showSelector]);
 
   return (
     <>
       <th className={`col-span-${colSpan} pb-2 flex items-center`}>
-        <FlexRow
-          className={`relative text-left ${extras ? 'cursor-pointer' : ''}`}
-          onClick={() => {
+        <div
+          className={`flex items-center relative text-left ${extras ? 'cursor-pointer' : ''}`}
+          onClick={(e: any) => {
             if (extras?.includes('sort')) {
               if (sort[0] !== key) {
                 setSort([key, 'asc'])
@@ -39,13 +44,15 @@ export default function TableHeader({
               }
             }
             if (extras?.includes('select') || extras?.includes('radio')) {
-              setShowSideSelector(true);
+              e.preventDefault();
+              e.stopPropagation();
+              setShowSelector(true);
             }
           }}
         >
           <span
             className="hidden md:flex lg:flex items-center"
-            style={{ color: (sort[0] === key || showSideSelector) ? 'white' : '#7E8A93' }}
+            style={{ color: (sort[0] === key || showSelector) ? 'white' : '#7E8A93' }}
           >
             {icon && icon}
             <span
@@ -66,7 +73,7 @@ export default function TableHeader({
           {suffix && suffix}
           <span
             className="md:hidden lg:hidden flex"
-            style={{ color: (sort[0] === key || showSideSelector) ? 'white' : '#7E8A93' }}
+            style={{ color: (sort[0] === key || showSelector) ? 'white' : '#7E8A93' }}
           >
             {icon && icon}
             <span className="ml-2">
@@ -83,11 +90,11 @@ export default function TableHeader({
               `}
               style={{ flex: '0 0 22px' }}
               size={22}
-              color={(sort[0] === key || showSideSelector) ? 'white' : '#7E8A93'}
+              color={(sort[0] === key || showSelector) ? 'white' : '#7E8A93'}
             />
           )}
 
-          {showSideSelector && (
+          {showSelector && (
             <div className="absolute top-full z-50">
               <div
                 className={`flex flex-col min-w-28 items-start py-2 px-1.5 rounded-lg border border-borderC text-sm  bg-darkBg `}
@@ -105,7 +112,7 @@ export default function TableHeader({
                         e.preventDefault();
                         e.stopPropagation();
                         setSelect(item.textId);
-                        setShowSideSelector(false);
+                        setShowSelector(false);
                       }}
                     >
                       {extras?.includes('radio') && (
@@ -121,7 +128,7 @@ export default function TableHeader({
               </div>
             </div>
           )}
-        </FlexRow>
+        </div>
 
       </th>
     </>

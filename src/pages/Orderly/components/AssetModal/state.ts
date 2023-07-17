@@ -49,7 +49,8 @@ export function useOrderlyPortfolioAssets(tokenInfo: TokenInfo[] | undefined) {
   const displayBalances = balances.map((b, i) => {
     return {
       near: b.wallet_balance,
-      'in-order': Math.abs(b['in-order']).toString(),
+      // 'in-order': Math.abs(b['in-order']).toString(),
+      'in-order': ((parseFloat(b.wallet_balance) - b.holding > 0 ? parseFloat(b.wallet_balance) - b.holding : 0)).toString(),
       available: b.holding.toString(),
       tokenMeta: b.meta,
     };

@@ -41,8 +41,10 @@ function PortfolioOrderly() {
   const intl = useIntl();
   const {
     newPositions,
+    markPrices,
     triggerBalanceBasedData,
-    triggerPositionBasedData
+    triggerPositionBasedData,
+    lastPrices
   } = usePerpData();
   const { marketList } = useMarketlist();
   const { globalState } = useContext(WalletContext);
@@ -97,7 +99,9 @@ function PortfolioOrderly() {
     tokenIn,
     setSettlePnlModalOpen,
     chooseOrderStatus,
-    chooseOrderType
+    chooseOrderType,
+    markPrices,
+    lastPrices
   });
 
   const handleSettlePnl = async () => {

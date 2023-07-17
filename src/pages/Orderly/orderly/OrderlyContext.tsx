@@ -52,6 +52,7 @@ interface OrderlyContextValue {
   allTickers: Ticker[] | undefined;
   indexprices: IndexPrice[] | undefined;
   allTickersPerp: Ticker[] | undefined;
+  everyTickers: Ticker[] | undefined;
   openinterests: OpenInterest[] | undefined;
   allOrdersSymbol: MyOrder[] | undefined;
   handlePendingOrderRefreshing: () => void;
@@ -194,6 +195,7 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
         allTickersPerp: value.allTickers?.filter(
           (t) => t.symbol.indexOf('PERP') > -1
         ),
+        everyTickers: value.allTickers,
         maintenance,
         positions,
         systemAvailable,

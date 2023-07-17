@@ -187,8 +187,10 @@ export function usePerpData() {
     userExist,
     positions,
     markPrices,
+    indexprices,
     positionPush,
     positionTimeStamp,
+    everyTickers,
     ticker,
     futureLeverage,
   } = useOrderlyContext();
@@ -230,7 +232,7 @@ export function usePerpData() {
     } catch (error) {
       return null;
     }
-  }, [positionPush, positions]);
+  }, [positionPush, positions, markPrices]);
 
   const [holdings, setHoldings] = useState<Holding[]>();
 
@@ -356,6 +358,10 @@ export function usePerpData() {
     [positionTimeStamp]
   );
 
+  const lastPrices = useMemo(() => {
+    return everyTickers?.map(({ symbol, low }) => ({ symbol, low }));
+  }, [everyTickers]);
+
   return {
     totalCollateral,
     freeCollateral,
@@ -370,5 +376,7 @@ export function usePerpData() {
     newPositions,
     triggerBalanceBasedData,
     triggerPositionBasedData,
+    markPrices,
+    lastPrices,
   };
 }
