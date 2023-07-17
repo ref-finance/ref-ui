@@ -870,7 +870,7 @@ export function OrderlyLoading() {
   return (
     <svg
       width="20"
-      className="animate-spin absolute left-1/2 transform translate-x-1/2 translate-y-1/2"
+      className="animate-spin top-1/2 absolute left-1/2 transform translate-x-1/2 translate-y-1/2"
       style={{
         zIndex: 299,
       }}
