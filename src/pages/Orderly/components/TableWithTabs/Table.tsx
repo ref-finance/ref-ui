@@ -22,7 +22,7 @@ import {
 } from '../../orderly/on-chain-api';
 import { announceKey, setTradingKey, storageDeposit } from '../../orderly/api';
 import { useIntl } from 'react-intl';
-import _ from 'lodash';
+import _, { set } from 'lodash';
 
 function OrderLine({
   order,
@@ -280,6 +280,7 @@ function Table({
                   onClick={() => {
                     if (!agreeCheck) {
                       setRegisterModalOpen(true);
+
                       return;
                     }
                     if (!accountId || storageEnough) return;
@@ -290,6 +291,7 @@ function Table({
 
                     storageDeposit(accountId);
                   }}
+                  setCheck={setAgreeCheck}
                   check={agreeCheck}
                   storageEnough={!!storageEnough}
                   spin={
@@ -545,6 +547,7 @@ function Table({
         onRequestClose={() => {
           setRegisterModalOpen(false);
         }}
+        userExist={userExist}
         orderlyRegistered={userExist}
         onConfirm={() => {
           setAgreeCheck(true);

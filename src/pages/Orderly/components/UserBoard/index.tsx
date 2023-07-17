@@ -78,6 +78,7 @@ import {
   Agree,
   OrderlyLoading,
   OrderlyIconBalance,
+  RefToOrderlyMobile,
 } from '../Common/Icons';
 
 import { MdKeyboardArrowDown } from 'react-icons/md';
@@ -181,19 +182,23 @@ export function RegisterModal(
   props: Modal.Props & {
     orderlyRegistered: boolean;
     onConfirm: () => void;
+    userExist: boolean;
   }
 ) {
-  const { orderlyRegistered, onRequestClose, isOpen, onConfirm } = props;
+  const { orderlyRegistered, onRequestClose, isOpen, onConfirm, userExist } =
+    props;
 
   const intl = useIntl();
+
+  const isMobile = useClientMobile();
 
   return (
     <Modal
       {...props}
       style={{
         content: {
-          transform: isMobile()
-            ? 'translate(-50%, -50%)'
+          transform: isMobile
+            ? 'translate(-50%, -27%)'
             : 'translate(-50%, -65%)',
         },
       }}
@@ -201,72 +206,97 @@ export function RegisterModal(
       <div
         className={` rounded-2xl gradientBorderWrapperZ  border  bg-boxBorder text-sm text-white  `}
         style={{
-          width: isMobile() ? '95vw' : '460px',
+          width: isMobile ? '100vw' : '460px',
         }}
       >
         <div className=" py-6 text-white text-sm flex flex-col px-6">
-          <div className="flex px-4 items-center pb-4 justify-end">
-            <span
-              className={'cursor-pointer text-primaryText'}
-              onClick={(e: any) => {
-                onRequestClose && onRequestClose(e);
-              }}
-            >
-              <IoClose size={20} />
-            </span>
-          </div>
-          <div>
-            <FormattedMessage
-              id="more_order_book_page_detail"
-              values={{
-                br: <br />,
-              }}
-              defaultMessage={
-                'This Orderbook page is powered by Orderly Network, users are strongly encouraged to do their own research before connecting their wallet and/or placing any orders.{br} Ref Finance does not guarantee the security of the systems, smart contracts, and any funds deposited or sent to those systems and contracts.{br} Neither Ref Finance nor Orderly Network is responsible for any profit or loss of investment users made through this Orderbook page.'
-              }
-            />
-          </div>
-
-          <div className="py-5">
-            {!orderlyRegistered && (
-              <span className="mr-1">
-                {intl.formatMessage({
-                  id: 'must_register_tip',
-                  defaultMessage:
-                    'Your wallet must be registered with Orderly to trade on their system.',
-                })}
+          {isMobile ? (
+            <div className="frcc">
+              <RefToOrderlyMobile></RefToOrderlyMobile>
+            </div>
+          ) : (
+            <div className="flex px-4 items-center pb-4 justify-end">
+              <span
+                className={'cursor-pointer text-primaryText'}
+                onClick={(e: any) => {
+                  onRequestClose && onRequestClose(e);
+                }}
+              >
+                <IoClose size={20} />
               </span>
-            )}{' '}
-            {intl.formatMessage({
-              id: 'learn_more_about',
-              defaultMessage: 'Learn more about',
-            })}
-            <a
-              className="underline text-primary ml-1"
-              href="https://orderly.network/"
-              target="_blank"
-              rel="noopener noreferrer nofollow"
-            >
-              Orderly Network
-            </a>
-            {intl.formatMessage({
-              id: 'learn_more_about_zh',
-              defaultMessage: '.',
-            })}
-          </div>
+            </div>
+          )}
 
-          <div>
-            {intl.formatMessage({
-              id: 'by_click_confirm',
-              defaultMessage:
-                'By clicking "Confirm", you confirm that you have comprehensively reviewed and comprehended the contents aforementioned',
-            })}
+          {isMobile && (
+            <div className="lg:px-6 font-gothamBold xs:font-bold text-white pb-5 text-center text-base xs:text-sm">
+              {userExist
+                ? intl.formatMessage({
+                    id: 'connect_to_orderly_account',
+                    defaultMessage:
+                      "You need to (re)connect your Orderly account to use Ref's Orderbook.",
+                  })
+                : intl.formatMessage({
+                    id: 'first_register_orderly_tip',
+                    defaultMessage:
+                      'Your wallet must first be registered with Orderly in order to use the Orderbook.',
+                  })}
+            </div>
+          )}
+
+          <div className="flex flex-col xs:h-48 xs:text-sm xs:text-primaryText xs:overflow-auto">
+            <div>
+              <FormattedMessage
+                id="more_order_book_page_detail"
+                values={{
+                  br: <br />,
+                }}
+                defaultMessage={
+                  'This Orderbook page is powered by Orderly Network, users are strongly encouraged to do their own research before connecting their wallet and/or placing any orders.{br} Ref Finance does not guarantee the security of the systems, smart contracts, and any funds deposited or sent to those systems and contracts.{br} Neither Ref Finance nor Orderly Network is responsible for any profit or loss of investment users made through this Orderbook page.'
+                }
+              />
+            </div>
+
+            <div className="py-5">
+              {!orderlyRegistered && (
+                <span className="mr-1">
+                  {intl.formatMessage({
+                    id: 'must_register_tip',
+                    defaultMessage:
+                      'Your wallet must be registered with Orderly to trade on their system.',
+                  })}
+                </span>
+              )}{' '}
+              {intl.formatMessage({
+                id: 'learn_more_about',
+                defaultMessage: 'Learn more about',
+              })}
+              <a
+                className="underline text-primary ml-1"
+                href="https://orderly.network/"
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+              >
+                Orderly Network
+              </a>
+              {intl.formatMessage({
+                id: 'learn_more_about_zh',
+                defaultMessage: '.',
+              })}
+            </div>
+
+            <div>
+              {intl.formatMessage({
+                id: 'by_click_confirm',
+                defaultMessage:
+                  'By clicking "Confirm", you confirm that you have comprehensively reviewed and comprehended the contents aforementioned',
+              })}
+            </div>
           </div>
 
           <div className="flex items-center justify-center">
             <button
               type="button"
-              className="bg-primaryGradient w-52 rounded-lg mt-5 text-white flex items-center justify-center py-2.5 text-base"
+              className="bg-primaryGradient w-52 xs:w-full rounded-lg mt-5 text-white flex items-center justify-center py-2.5 text-base"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -281,6 +311,22 @@ export function RegisterModal(
               })}
             </button>
           </div>
+
+          {isMobile && (
+            <div className="text-sm  text-center text-white flex items-center lg:px-6 justify-center pb-8 py-3">
+              {!userExist
+                ? `* ${intl.formatMessage({
+                    id: 'register_deposit_tip',
+                    defaultMessage:
+                      'Registering will require a storage deposit.',
+                  })}`
+                : `* ${intl.formatMessage({
+                    id: 'increase_storage_deposit',
+                    defaultMessage:
+                      'You may need to increase the storage deposit on your Orderly account.',
+                  })}`}
+            </div>
+          )}
         </div>
       </div>
     </Modal>
@@ -1001,7 +1047,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       inputValue
     );
   }, [side, orderType, symbol, orders]);
-
+  const isMobile = useClientMobile();
   const validator =
     !accountId ||
     !storageEnough ||
@@ -1100,6 +1146,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
                   storageDeposit(accountId);
                 }}
+                isOpenMobile={isMobile && registerModalOpen}
                 check={agreeCheck}
                 storageEnough={!!storageEnough}
                 spin={
@@ -1806,6 +1853,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         onRequestClose={() => {
           setRegisterModalOpen(false);
         }}
+        userExist={userExist}
         orderlyRegistered={userExist}
         onConfirm={() => {
           setAgreeCheck(true);
@@ -2950,6 +2998,7 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
         onConfirm={() => {
           setAgreeCheck(true);
         }}
+        userExist={userExist}
       />
     </div>
   );

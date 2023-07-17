@@ -432,6 +432,241 @@ export function RegisterButton({
     </div>
   );
 }
+export function RegisterButtonWithMobileStyle({
+  onClick,
+  storageEnough,
+  spin,
+  check,
+  isOpenMobile,
+  setIsOpenMobile,
+  userExist,
+  setCheck,
+}: {
+  onClick: () => void;
+  spin?: boolean;
+  storageEnough: boolean;
+  check: boolean;
+  setCheck?: (c: boolean) => void;
+  isOpenMobile?: boolean;
+  setIsOpenMobile?: (isOpen: boolean) => void;
+  userExist: boolean;
+}) {
+  const [spinNow, setSpinNow] = useState<boolean>(!!spin);
+
+  const isMobile = useClientMobile();
+
+  const storedAgree = !!localStorage.getItem(REF_ORDERLY_AGREE_CHECK);
+
+  useEffect(() => {
+    if (check) {
+      setSpinNow(true);
+
+      onClick();
+    }
+  }, [check]);
+
+  useEffect(() => {
+    setSpinNow(!!spin);
+  }, [spin]);
+  const intl = useIntl();
+  return (
+    <div className="flex flex-col items-center xs:w-full  relative ">
+      {isMobile && !isOpenMobile ? null : (
+        <>
+          <div className="lg:px-6 xs:font-bold text-white pb-5 text-center text-base">
+            {spinNow
+              ? null
+              : userExist
+              ? intl.formatMessage({
+                  id: 'connect_to_orderly_account',
+                  defaultMessage:
+                    "You need to (re)connect your Orderly account to use Ref's Orderbook.",
+                })
+              : intl.formatMessage({
+                  id: 'first_register_orderly_tip',
+                  defaultMessage:
+                    'Your wallet must first be registered with Orderly in order to use the Orderbook.',
+                })}
+          </div>
+
+          <div
+            className={
+              !isMobile || !isOpenMobile || check
+                ? 'hidden'
+                : 'h-48 overflow-auto pt-2 mb-2 text-primaryText text-sm flex flex-col'
+            }
+          >
+            <div>
+              <FormattedMessage
+                id="more_order_book_page_detail"
+                values={{
+                  br: <br />,
+                }}
+                defaultMessage={
+                  'This Orderbook page is powered by Orderly Network, users are strongly encouraged to do their own research before connecting their wallet and/or placing any orders.{br} Ref Finance does not guarantee the security of the systems, smart contracts, and any funds deposited or sent to those systems and contracts.{br} Neither Ref Finance nor Orderly Network is responsible for any profit or loss of investment users made through this Orderbook page.'
+                }
+              />
+            </div>
+
+            <div className="py-5">
+              {!userExist && (
+                <span className="mr-1">
+                  {intl.formatMessage({
+                    id: 'must_register_tip',
+                    defaultMessage:
+                      'Your wallet must be registered with Orderly to trade on their system.',
+                  })}
+                </span>
+              )}{' '}
+              {intl.formatMessage({
+                id: 'learn_more_about',
+                defaultMessage: 'Learn more about',
+              })}
+              <a
+                className="underline text-primary ml-1"
+                href="https://orderly.network/"
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+              >
+                Orderly Network
+              </a>
+              {intl.formatMessage({
+                id: 'learn_more_about_zh',
+                defaultMessage: '.',
+              })}
+            </div>
+
+            <div>
+              {intl.formatMessage({
+                id: 'by_click_confirm',
+                defaultMessage:
+                  'By clicking "Confirm", you confirm that you have comprehensively reviewed and comprehended the contents aforementioned',
+              })}
+            </div>
+          </div>
+        </>
+      )}
+      {((!userExist && check) || (storedAgree && storageEnough)) && (
+        <div
+          className={`flex items-start  pb-5 xs:pb-3  text-sm relative  text-white flex-col`}
+        >
+          <div className="relative mb-3 flex items-center">
+            <div className="mr-2">
+              <CheckFlow checked={!!storageEnough}></CheckFlow>
+            </div>
+
+            <div>
+              {intl.formatMessage({
+                id: 'deposit_storage_fee',
+                defaultMessage: 'Deposit Storage Fee',
+              })}
+            </div>
+          </div>
+
+          <div className="relative flex mb-5 items-center">
+            <div className="mr-2">
+              <CheckFlow checked={false}></CheckFlow>
+            </div>
+
+            <div>
+              {' '}
+              {intl.formatMessage({
+                id: 'register_orderly_account',
+                defaultMessage: 'Register Orderly Account',
+              })}
+            </div>
+          </div>
+
+          <div
+            className="w-4 transform rotate-90 absolute top-6"
+            style={{
+              border: '1px dashed #566069 ',
+              left: '-2px',
+            }}
+          ></div>
+        </div>
+      )}
+
+      <button
+        className={`text-base min-w-fit xs:w-full xs:py-2  ${
+          isMobile && !isOpenMobile ? 'mb-2' : 'mb-5 xs:mb-3'
+        } py-3   relative w-p240 ${
+          spinNow ? 'opacity-30 cursor-not-allowed' : ''
+        } bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center
+      
+    `}
+        onClick={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+
+          if (isMobile) {
+            if (!isOpenMobile) {
+              setIsOpenMobile(true);
+              return;
+            } else {
+              setCheck(true);
+              return;
+            }
+          }
+
+          onClick();
+
+          if (!check) return;
+
+          if (spinNow) return;
+
+          setSpinNow(true);
+        }}
+        type="button"
+        disabled={spinNow}
+      >
+        {spinNow && <SpinIcon />}
+        <span className={`whitespace-nowrap ml-3  `}>
+          {userExist && !storedAgree
+            ? !check
+              ? isOpenMobile && !check
+                ? intl.formatMessage({
+                    id: 'confirm',
+                    defaultMessage: 'Confirm',
+                  })
+                : intl.formatMessage({
+                    id: 'connect_to_orderly',
+                    defaultMessage: 'Connect to Orderly',
+                  })
+              : intl.formatMessage({
+                  id: 'Connecting',
+                  defaultMessage: 'Connecting',
+                })
+            : isOpenMobile && !check
+            ? intl.formatMessage({
+                id: 'confirm',
+                defaultMessage: 'Confirm',
+              })
+            : intl.formatMessage({
+                id: 'register',
+                defaultMessage: 'Register',
+              })}
+        </span>
+      </button>
+      {isMobile && !isOpenMobile ? null : (
+        <div className="text-sm  text-center text-white flex items-center lg:px-6 justify-center">
+          {spinNow
+            ? null
+            : !userExist
+            ? `* ${intl.formatMessage({
+                id: 'register_deposit_tip',
+                defaultMessage: 'Registering will require a storage deposit.',
+              })}`
+            : `* ${intl.formatMessage({
+                id: 'increase_storage_deposit',
+                defaultMessage:
+                  'You may need to increase the storage deposit on your Orderly account.',
+              })}`}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function FlexRowBetween({
   className,
