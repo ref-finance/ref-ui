@@ -1043,6 +1043,8 @@ const en_US = {
   unreal_pnl: 'Unreal. PnL',
   daily_real: 'Daily Real',
   market_price: 'Market Price',
+  NEW: 'New',
+  PARTIAL_FILLED: 'Partial Filled',
   limit_price: 'Limit Price',
   unsettled_pnl: 'Unsettled PnL',
   notional: 'Notional',

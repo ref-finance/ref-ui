@@ -7,6 +7,7 @@ import Table from './Table';
 import { FlexRow, FlexRowBetween } from '../Common';
 import { MobileFilter } from '../Common/Icons';
 import { OrderAsset } from '../AssetModal/state';
+import { useMarketlist } from '../../orderly/constantWjsx';
 
 import { PortfolioTable } from '../../orderly/type';
 import { useClientMobile } from '../../../../utils/device';
@@ -29,10 +30,15 @@ function TableWithTabs({
   setChooseMarketSymbol,
   chooseOrderSide,
   setChooseOrderSide,
+  chooseOrderStatus,
+  setChooseOrderStatus,
+  chooseOrderType,
+  setChooseOrderType,
   displayBalances,
   newPositions,
   triggerBalanceBasedData,
-  triggerPositionBasedData
+  triggerPositionBasedData,
+  setMobileFilterOpen
 } : {
   table: PortfolioTable;
   maintenance: boolean;
@@ -43,16 +49,19 @@ function TableWithTabs({
   setChooseMarketSymbol?: (item: string) => void;
   chooseOrderSide?: 'all_side' | 'BUY' | 'SELL';
   setChooseOrderSide?: (item: 'all_side' | 'BUY' | 'SELL') => void;
+  chooseOrderStatus?: 'all' | 'Cancelled' | 'filled' | 'Rejected';
+  setChooseOrderStatus?: (item: 'all' | 'Cancelled' | 'filled' | 'Rejected') => void;
+  chooseOrderType?: 'all' | 'limit' | 'market';
+  setChooseOrderType?: (item: 'all' | 'limit' | 'market') => void;
   newPositions?: any;
   displayBalances: OrderAsset[];
   triggerBalanceBasedData?: number;
   triggerPositionBasedData?: number;
+  setMobileFilterOpen?: (item: number) => void;
 }) {
   const intl = useIntl();
-
-  const [mobileFilterOpen, setMobileFilterOpen] = useState<
-    'open' | 'history' | undefined
-  >(undefined);
+  const { marketList } = useMarketlist();
+  
   const [data, setData] = useState<any>([])
   const [total, setTotal] = useState(0);
 
@@ -69,6 +78,8 @@ function TableWithTabs({
     setOrderType && setOrderType(0);
     setChooseMarketSymbol && setChooseMarketSymbol('all_markets');
     setChooseOrderSide && setChooseOrderSide('all_side');
+    setChooseOrderStatus && setChooseOrderStatus('all');
+    setChooseOrderType && setChooseOrderType('all');
     getData && callGetData();
   }, [tab]);
 
@@ -80,7 +91,7 @@ function TableWithTabs({
     if (getData && (id === 'open_orders' || id === 'history')) {
       callGetData();
     }
-  }, [refOnly, orderType, chooseMarketSymbol, chooseOrderSide]);
+  }, [refOnly, orderType, chooseMarketSymbol, chooseOrderSide, chooseOrderStatus, chooseOrderType]);
 
   useEffect(() => {
     if (getData && (id === 'spot')) {
@@ -123,12 +134,10 @@ function TableWithTabs({
       return
     }
 
-    setData(data.rows || []);
+    setData(data?.rows || []);
     setTotal(data.meta?.total || 0);
     setLoading(false);
   }
-
-  const [mobileFilterSize, setMobileFilterSize] = useState<number>(0);
 
   return (
     <>
@@ -222,26 +231,73 @@ function TableWithTabs({
             <FlexRow className={'md:hidden lg:hidden inline-flex w-1/12 justify-center'}>
               <div
                 className="flex relative items-center justify-center"
-                onClick={() => {
-                  // todo
-                  tab === 0
-                    ? setMobileFilterOpen('open')
-                    : setMobileFilterOpen('history');
-                }}
+                onClick={() => setMobileFilterOpen(tab + 1)}
               >
                 <MobileFilter />
-                {mobileFilterSize > 0 && (
-                  <div className="absolute  -bottom-1 right-3 text-10px w-3 h-3 rounded-full flex items-center justify-center gotham_bold text-black bg-gradientFrom">
-                    {mobileFilterSize}
+              </div>
+            </FlexRow>
+          )}
+        </div>
+    
+
+
+        <div className="w-full rounded-2xl md:bg-cardBg lg:bg-cardBg py-5">
+          {(table.tabs[tab].filter && (chooseMarketSymbol !== 'all_markets' || chooseOrderSide !== 'all_side' || chooseOrderType !== 'all' || chooseOrderStatus !== 'all')) && (
+            <FlexRow className={'md:hidden lg:hidden px-3 pb-1 inline-flex w-full justify-between'}>
+              <div className="p-2" style={{ flex: '0 0 100px' }}>
+                {intl.formatMessage({
+                  id: 'filter',
+                  defaultMessage: 'Filter',
+                })}
+              </div>
+              <div className="ml-auto flex items-center justify-between">
+                {chooseMarketSymbol !== 'all_markets' && (
+                  <div className="flex items-center p-2">
+                    {marketList.find((m) => m.textId === chooseMarketSymbol)?.textNoColor}
+                    <div
+                      className="ml-1.5 cursor-pointer"
+                      onClick={() => setChooseMarketSymbol('all_markets')}
+                    >
+                      <OffFilterIcon />
+                    </div>
+                  </div>
+                )}
+                {chooseOrderType !== 'all' && (
+                  <div className="flex items-center capitalize p-2">
+                    {chooseOrderType}
+                    <div
+                      className="ml-1.5 cursor-pointer"
+                      onClick={() => setChooseOrderType('all')}
+                    >
+                      <OffFilterIcon />
+                    </div>
+                  </div>
+                )}
+                {chooseOrderSide !== 'all_side' && (
+                  <div className="flex items-center capitalize p-2">
+                    {chooseOrderSide}
+                    <div
+                      className="ml-1.5 cursor-pointer"
+                      onClick={() => setChooseOrderSide('all_side')}
+                    >
+                      <OffFilterIcon />
+                    </div>
+                  </div>
+                )}
+                {chooseOrderStatus !== 'all' && (
+                  <div className="flex items-center capitalize p-2">
+                    {chooseOrderStatus?.toLowerCase().replace('_', ' ')}
+                    <div
+                      className="ml-1.5 cursor-pointer"
+                      onClick={() => setChooseOrderStatus('all')}
+                    >
+                      <OffFilterIcon />
+                    </div>
                   </div>
                 )}
               </div>
             </FlexRow>
           )}
-        </div>
-
-
-        <div className="w-full rounded-2xl md:bg-cardBg lg:bg-cardBg py-5">
           <Table
             data={data || []}
             loading={loading}
@@ -263,6 +319,13 @@ function TableWithTabs({
     </>
   );
 }
+
+const OffFilterIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="8" cy="8" r="8" fill="#182935"/>
+    <path fillRule="evenodd" clipRule="evenodd" d="M5.14765 6.32208C4.85476 6.02918 4.85476 5.55431 5.14765 5.26142C5.44054 4.96852 5.91542 4.96852 6.20831 5.26142L7.99289 7.046L9.77748 5.26142C10.0704 4.96852 10.5452 4.96852 10.8381 5.26142C11.131 5.55431 11.131 6.02918 10.8381 6.32208L9.05355 8.10666L10.7037 9.7568C10.9966 10.0497 10.9966 10.5246 10.7037 10.8175C10.4108 11.1104 9.93593 11.1104 9.64303 10.8175L7.99289 9.16732L6.34276 10.8175C6.04986 11.1104 5.57499 11.1104 5.2821 10.8175C4.9892 10.5246 4.9892 10.0497 5.2821 9.7568L6.93223 8.10666L5.14765 6.32208Z" fill="#7E8A93"/>
+  </svg>
+)
 
 
 export default TableWithTabs;

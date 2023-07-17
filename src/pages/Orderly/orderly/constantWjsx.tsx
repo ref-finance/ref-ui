@@ -50,6 +50,8 @@ export const usePortableOrderlyTable = ({
   setChooseMarketSymbol,
   chooseOrderSide,
   setChooseOrderSide,
+  chooseOrderStatus,
+  chooseOrderType,
   setOperationType,
   setOperationId,
   tokenIn,
@@ -65,6 +67,8 @@ export const usePortableOrderlyTable = ({
   setChooseOrderSide: (item: 'all_side' | 'BUY' | 'SELL') => void;
   setOperationType: (item: 'deposit' | 'withdraw') => void;
   setOperationId: (item: string) => void;
+  chooseOrderStatus: 'all' | 'Cancelled' | 'filled' | 'Rejected';
+  chooseOrderType: 'all' | 'limit' | 'market';
   tokenIn: TokenMetadata;
   setSettlePnlModalOpen: (item: boolean) => void
 }) => {
@@ -245,11 +249,13 @@ export const usePortableOrderlyTable = ({
             accountId,
             OrderProps: {
               page,
-              status: 'INCOMPLETE',
+              // @ts-ignore
+              status: chooseOrderStatus === 'all' ? 'INCOMPLETE' : chooseOrderStatus.toUpperCase(),
               broker_id: refOnly ? 'ref_dex' : '',
               symbol: chooseMarketSymbol === 'all_markets' ? '' : chooseMarketSymbol,
               // @ts-ignore
-              side: chooseOrderSide === 'all_side' ? '' : chooseOrderSide.toUpperCase()
+              side: chooseOrderSide === 'all_side' || chooseOrderSide === 'all' ? '' : chooseOrderSide.toUpperCase(),
+              order_type: chooseOrderType === 'all' ? '' : chooseOrderType.toUpperCase()
             } 
           })
         },
@@ -408,11 +414,13 @@ export const usePortableOrderlyTable = ({
             accountId,
             OrderProps: {
               page,
-              status: 'COMPLETED',
+              // @ts-ignore
+              status: chooseOrderStatus === 'all' ? 'COMPLETED' : chooseOrderStatus.toUpperCase(),
               broker_id: refOnly ? 'ref_dex' : '',
               symbol: chooseMarketSymbol === 'all_markets' ? '' : chooseMarketSymbol,
               // @ts-ignore
-              side: chooseOrderSide === 'all_side' ? '' : chooseOrderSide.toUpperCase()
+              side: chooseOrderSide === 'all_side' || chooseOrderSide === 'all' ? '' : chooseOrderSide.toUpperCase(),
+              order_type: chooseOrderType === 'all' ? '' : chooseOrderType.toUpperCase()
             } 
           })
         },
@@ -1110,6 +1118,16 @@ export const useMarketlist = () => {
             </span>
           </div>
         ),
+        textNoColor: (
+          <div className="flex items-center p-0.5 pr-4 my-0.5">
+            <span>
+              {intl.formatMessage({
+                id: 'all_instrument',
+                defaultMessage: 'All Instrument',
+              })}
+            </span>
+          </div>
+        ),
         withSymbol: (
           <div className="flex items-center p-0.5 pr-4 my-0.5">
             <div className="mr-2 ml-1 text-white text-sm ">
@@ -1156,9 +1174,18 @@ export const useMarketlist = () => {
             </div>
           );
   
+          const textNoColorRender = (
+            <div className="flex items-center p-0.5 pr-4 text-sm my-0.5">
+              <span className="xs:ml-2 xs:font-bold">
+                {symbolFrom} / {symbolTo}
+              </span>
+            </div>
+          );
+  
           marketList.push({
             text: textRender,
             withSymbol: symbolRender,
+            textNoColor: textNoColorRender,
             textId: symbol.symbol,
           });
         } else {
@@ -1187,9 +1214,18 @@ export const useMarketlist = () => {
             </div>
           );
 
+          const textNoColorRender = (
+            <div className="flex items-center p-0.5 pr-4 text-sm my-0.5">
+              <span className="xs:ml-2 xs:font-bold">
+                {symbolFrom} PERP
+              </span>
+            </div>
+          );
+
           marketList.push({
             text: textRender,
             withSymbol: symbolRender,
+            textNoColor: textNoColorRender,
             textId: symbol.symbol,
           });
         }

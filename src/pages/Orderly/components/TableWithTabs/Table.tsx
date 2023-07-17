@@ -132,7 +132,6 @@ function Table({
   const [keyAnnounced, setKeyAnnounced] = useState<boolean>(false);
   const [agreeCheck, setAgreeCheck] = useState<boolean>(false);
   const [registerModalOpen, setRegisterModalOpen] = useState<boolean>(false);
-  const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
 
