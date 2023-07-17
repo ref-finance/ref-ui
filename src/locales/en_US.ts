@@ -124,6 +124,12 @@ const en_US_in_risks_page = {
   admin_sentence_2:
     'For more information relating to the contracts and addresses that have directly managed or currently manage the affairs of Ref Finance, please check our <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://guide.ref.finance/developers/contracts"' +
     '>Documentation</a>.',
+  third_party_wallet: 'Third-party wallet',
+  third_party_wallet_1: 'Ref Finance integrates third-party wallets.',
+  third_party_wallet_2:
+    'While we have taken measures to select wallet providers, we cannot guarantee their security or performance. You should familiarize yourself with the risks associated with the specific wallet provider and understand their terms of service, privacy policy, and security practices.',
+  third_party_wallet_3:
+    'Please use these services at your own risk and exercise caution.',
 };
 const en_US = {
   deposit: 'Deposit',
@@ -468,6 +474,7 @@ const en_US = {
   bridged_tokens: 'Bridged',
   gaming: 'Gaming',
   nft: 'NFT',
+
   bridge: 'Bridge to/from',
   from_ethereum: 'Ethereum',
   from_aurora: 'Aurora',
@@ -1283,7 +1290,7 @@ const en_US = {
   Market: 'Market',
   TotalSupplied: 'Total Supplied',
   TotalBorrowed: 'Total Borrowed',
-  AvailableLiquidities: 'Available Liquidities',
+  AvailableLiquidities: 'Available Liquidity',
   DailyRewards: 'Daily Rewards',
   SupplyAPY: 'Supply APY',
   BorrowAPY: 'Borrow APY',
@@ -1313,11 +1320,12 @@ const en_US = {
 
   NetWorth: 'Net Worth',
   Claimable: 'Claimable',
-  TotalDebts: 'Total Debts',
+  TotalDebts: 'Total Debt',
   WalletAssets: 'Wallet Assets',
   TotalInvested: 'Total Invested',
   TotalAssets: 'Total Assets',
   TokenAllocation: 'Token Allocation',
+  bridge_pure: 'Bridge',
   netWorthTip:
     'Total value of investments in Ref (including claimable rewards) + Total value of Orderly assets + Total value of Burrow assets + Total assets in wallet',
 };

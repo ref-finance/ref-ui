@@ -18,7 +18,7 @@ import { FiChevronUp, FiChevronDown } from 'react-icons/fi';
 import { RiLogoutCircleRLine } from 'react-icons/ri';
 import { useRefPrice } from '~state/account';
 import { toPrecision } from '~utils/numbers';
-import { moreLinks, useMenusMobile, menuItemType } from '~utils/menu';
+import { useMenusMobile, menuItemType, bridgeData } from '~utils/menu';
 import getConfig from '~services/config';
 import {
   AccountIcon,
@@ -29,6 +29,7 @@ import {
 
 import { WalletContext } from '../../utils/wallets-integration';
 
+import Modal from 'react-modal';
 const config = getConfig();
 import { isMobile } from '~utils/device';
 import {
@@ -562,6 +563,10 @@ export function MobileNavBar(props: any) {
       close();
     }
   }
+
+  const [showBridgeModalMobile, setShowBridgeModalMobile] =
+    useState<boolean>(false);
+
   return (
     <>
       <div
@@ -680,20 +685,32 @@ export function MobileNavBar(props: any) {
           >
             <div className={`${showLanguage ? 'hidden' : ''}`}>
               <div className="flex text-white items-center justify-between p-4 border-b border-menuBorderColor">
-                <div className="transform scale-90 origin-left">
-                  <NavLogoSimple
-                    onClick={() => {
-                      openUrl('https://www.ref.finance/');
-                    }}
-                  />
+                <div className="flex items-center  bg-priceBgColor rounded-2xl p-1">
+                  <RefIcon className="mr-1"></RefIcon>
+                  <span className="text-white text-sm">
+                    ${data && data !== '-' ? toPrecision(data, 2) : '-'}
+                  </span>
                 </div>
-                <div className="flex items-center">
+                <div className="flex items-center gap-2">
                   <BuyNearButton />
-                  <div className="flex items-center ml-2.5 bg-priceBgColor rounded-2xl p-1">
-                    <RefIcon className="mr-1"></RefIcon>
-                    <span className="text-white text-sm">
-                      ${data && data !== '-' ? toPrecision(data, 2) : '-'}
-                    </span>
+
+                  <div
+                    className={`frcc text-xs     rounded-lg py-1.5 px-3
+                  
+                  ${
+                    showBridgeModalMobile
+                      ? 'text-white  bg-priceBgColor'
+                      : 'text-cardBg bg-primaryText font-gothamBold'
+                  }
+                  `}
+                    onClick={() => {
+                      setShowBridgeModalMobile(true);
+                    }}
+                  >
+                    <FormattedMessage
+                      id="bridge_pure"
+                      defaultMessage={'Bridge'}
+                    ></FormattedMessage>
                   </div>
                 </div>
               </div>
@@ -860,9 +877,90 @@ export function MobileNavBar(props: any) {
         ) : null}
       </div>
       {isMobile ? <Marquee></Marquee> : null}
+
+      <MobileBridgeModal
+        isOpen={showBridgeModalMobile}
+        onRequestClose={() => {
+          setShowBridgeModalMobile(false);
+        }}
+      ></MobileBridgeModal>
     </>
   );
 }
+
+function MobileBridgeModal(props: Modal.Props) {
+  return (
+    <Modal
+      {...props}
+      style={{
+        overlay: {
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          zIndex: 9999999,
+          outline: 'none',
+        },
+        content: {
+          position: 'absolute',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          bottom: 0,
+          left: '50%',
+          top: 'none',
+          transform: 'translate(-50%, 0)',
+          outline: 'none',
+          width: '100%',
+        },
+      }}
+    >
+      <div
+        className="border rounded-2xl w-full pb-10 bg-cardBg p-2 text-base flex flex-col gap-4 text-white"
+        style={{
+          border: '1px solid #27343E',
+        }}
+      >
+        <div className="pl-4">
+          <FormattedMessage
+            id="bridge_pure"
+            defaultMessage={'Bridge'}
+          ></FormattedMessage>
+        </div>
+        {bridgeData.map((item) => {
+          return (
+            <div className="flex flex-col gap-2 pl-1 text-primaryText ">
+              <div className="frcs gap-2 pl-3">
+                <item.icon></item.icon>
+
+                {item.name}
+              </div>
+
+              {item.children.map((sub) => {
+                return (
+                  <div
+                    className="rounded-xl  py-1.5 pl-1 text-white bg-primaryText bg-opacity-20 cursor-pointer frcs"
+                    onClick={() => {
+                      openUrl(sub.link);
+                    }}
+                  >
+                    <div className="frcs pl-3 gap-2">
+                      <sub.icon></sub.icon>
+                      {sub.name}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
+      </div>
+    </Modal>
+  );
+}
+
 function MobileLanguage(props: any) {
   const context = useContext(Context);
   const lans = useLanguageItems();

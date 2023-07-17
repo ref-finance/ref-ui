@@ -127,6 +127,12 @@ const ru_in_risks_page = {
   admin_sentence_2:
     'Для получения дополнительной информации, касающейся контрактов и адресов, которые непосредственно управляли или в настоящее время управляют делами Ref Finance, пожалуйста, ознакомьтесь с нашей <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://guide.ref.finance/developers/contracts"' +
     '>Документацией</a>.',
+  third_party_wallet: 'Сторонний кошелек',
+  third_party_wallet_1: 'Ref Finance интегрирует сторонние кошельки.',
+  third_party_wallet_2:
+    'Несмотря на то, что мы приняли меры для выбора надежных поставщиков кошельков, мы не можем гарантировать их безопасность или производительность. Вам следует ознакомиться с рисками, связанными с конкретным поставщиком кошельков, и понять их условия обслуживания, политику конфиденциальности и меры безопасности.',
+  third_party_wallet_3:
+    'Пожалуйста, используйте эти сервисы на свой страх и риск и соблюдайте осторожность.',
 };
 const ru = {
   deposit: 'Депозит',
@@ -1141,7 +1147,7 @@ const ru = {
   Market: 'Market',
   TotalSupplied: 'Total Supplied',
   TotalBorrowed: 'Total Borrowed',
-  AvailableLiquidities: 'Available Liquidities',
+  AvailableLiquidities: 'Available Liquidity',
   DailyRewards: 'Daily Rewards',
   SupplyAPY: 'Supply APY',
   BorrowAPY: 'Borrow APY',
@@ -1171,11 +1177,13 @@ const ru = {
 
   NetWorth: 'Net Worth',
   Claimable: 'Claimable',
-  TotalDebts: 'Total Debts',
+  TotalDebts: 'Total Debt',
   WalletAssets: 'Wallet Assets',
   TotalInvested: 'Total Invested',
   TotalAssets: 'Total Assets',
   TokenAllocation: 'Token Allocation',
+  bridge_pure: 'Перенос',
+
   netWorthTip:
     'Total value of investments in Ref (including claimable rewards) + Total value of Orderly assets + Total value of Burrow assets + Total assets in wallet',
 };

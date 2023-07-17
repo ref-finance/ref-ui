@@ -121,6 +121,12 @@ const ko_in_risks_page = {
   admin_sentence_2:
     'Ref Finance의 전/현 담당자들의 계약 및 연락 정보를 알고 싶으시다면, <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://guide.ref.finance/developers/contracts"' +
     '>문서</a> 쪽에서 확인해 주세요.',
+  third_party_wallet: '타사 지갑',
+  third_party_wallet_1: 'Ref Finance는 타사 지갑을 통합합니다.',
+  third_party_wallet_2:
+    '평판이 좋은 지갑 공급자를 선택하기 위한 조치를 취했지만 보안이나 성능을 보장할 수는 없습니다. 특정 지갑 공급자와 관련된 위험을 숙지하고 서비스 약관, 개인 정보 보호 정책 및 보안 관행을 이해해야 합니다.',
+  third_party_wallet_3:
+    '이러한 서비스를 자신의 책임 하에 사용하고 주의를 기울여 주십시오.',
 };
 const ko = {
   deposit: '입금',
@@ -1129,7 +1135,7 @@ const ko = {
   Market: 'Market',
   TotalSupplied: 'Total Supplied',
   TotalBorrowed: 'Total Borrowed',
-  AvailableLiquidities: 'Available Liquidities',
+  AvailableLiquidities: 'Available Liquidity',
   DailyRewards: 'Daily Rewards',
   SupplyAPY: 'Supply APY',
   BorrowAPY: 'Borrow APY',
@@ -1159,11 +1165,13 @@ const ko = {
 
   NetWorth: 'Net Worth',
   Claimable: 'Claimable',
-  TotalDebts: 'Total Debts',
+  TotalDebts: 'Total Debt',
   WalletAssets: 'Wallet Assets',
   TotalInvested: 'Total Invested',
   TotalAssets: 'Total Assets',
   TokenAllocation: 'Token Allocation',
+  bridge_pure: '브릿지',
+
   netWorthTip:
     'Total value of investments in Ref (including claimable rewards) + Total value of Orderly assets + Total value of Burrow assets + Total assets in wallet',
 };

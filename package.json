@@ -73,6 +73,7 @@
     "@near-wallet-selector/my-near-wallet": "^7.0.0",
     "@near-wallet-selector/near-wallet": "^7.0.0",
     "@near-wallet-selector/neth": "^7.0.2",
+    "@near-wallet-selector/nightly": "^7.0.2",
     "@near-wallet-selector/sender": "^7.0.0",
     "@near-wallet-selector/wallet-connect": "^7.0.2",
     "@react-icons/all-files": "^4.1.0",

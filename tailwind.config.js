@@ -127,7 +127,7 @@ module.exports = {
           'linear-gradient(180deg, #00C6A2 0%, #5B40FF 100%)',
         darkBlueColor:
           'linear-gradient(360deg, #1A2B35 0%, rgba(19, 33, 42, 0) 100%)',
-        purpleBgColor:"linear-gradient(180deg, #C3BDAD 0%, #AF9773 100%)",
+        purpleBgColor: 'linear-gradient(180deg, #C3BDAD 0%, #AF9773 100%)',
       }),
       gridTemplateColumns: {
         farmSearch: '2fr 1fr',
@@ -282,6 +282,7 @@ module.exports = {
         limitOrderFeeTiersBorderColor: 'rgba(145, 162, 174, 0.2)',
         addV1PoolTableColor: '#55616A',
         pinEmptyHoverColor: '#B7C9D6',
+        hoverSubBridge: '#4F6574',
         commonTokenBorderColor: 'rgba(126, 138, 147, 0.2)',
         commonCloseColor: '#454D52',
         lightReBgColor: 'rgba(255, 117, 117, 0.1)',
@@ -383,18 +384,18 @@ module.exports = {
         light_red_color: 'rgba(255, 106, 142, 0.15)',
         menuBorderColor: '#27343E',
         guideBgColor: 'rgba(0, 19, 32, 0.8)',
-        burrowTabColor:'#22333E',
-        burrowTableBorderColor:"rgba(48, 67, 82, 0.5)",
-        burrowTitleGreenColor:'#78FF9E',
-        burrowPurpleColor:'#BCAB8F',
-        burrowDarkColor:'#04121F',
-        overviewBurrowColor:'#93806E',
-        overviewBurrowRedColor:'#F083BE',
-        overviewBorderColor:'#263540',
-        overviewLightBlueColor:'#ACE1FF',
-        overviewMaskColor:'rgba(13, 29, 39, 0.5)',
-        overviewPurpleColor:'#816CFF',
-        overviewGreyColor:'#314758',
+        burrowTabColor: '#22333E',
+        burrowTableBorderColor: 'rgba(48, 67, 82, 0.5)',
+        burrowTitleGreenColor: '#78FF9E',
+        burrowPurpleColor: '#BCAB8F',
+        burrowDarkColor: '#04121F',
+        overviewBurrowColor: '#93806E',
+        overviewBurrowRedColor: '#F083BE',
+        overviewBorderColor: '#263540',
+        overviewLightBlueColor: '#ACE1FF',
+        overviewMaskColor: 'rgba(13, 29, 39, 0.5)',
+        overviewPurpleColor: '#816CFF',
+        overviewGreyColor: '#314758',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
@@ -438,7 +439,7 @@ module.exports = {
         p150: '150px',
         p212: '212px',
         '1000px': '1000px',
-        '1280px': '1280px'
+        '1280px': '1280px',
       },
       height: {
         vh90: '90vh',
@@ -462,7 +463,7 @@ module.exports = {
         '420px': '420px',
         p240: '240px',
         p90: '90px',
-        p300: '300px'
+        p300: '300px',
       },
 
       fontSize: {
