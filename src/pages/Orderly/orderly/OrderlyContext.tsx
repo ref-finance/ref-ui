@@ -14,6 +14,7 @@ import {
 } from './state';
 import { useAllSymbolInfo } from '../components/AllOrders/state';
 import {
+  ClientInfo,
   EstFundingrate,
   IndexPrice,
   LiquidationPushType,
@@ -33,8 +34,9 @@ import {
   MyOrder,
 } from './type';
 import { useTokenInfo, useAllOrdersSymbol, useStorageEnough } from './state';
-import { getOrderlySystemInfo } from './off-chain-api';
+import { getAccountInformation, getOrderlySystemInfo } from './off-chain-api';
 import { PerpOrSpot } from '../utiles';
+import { useWalletSelector } from '~context/WalletSelectorContext';
 
 interface OrderlyContextValue {
   orders: Orders | undefined;
@@ -79,6 +81,8 @@ interface OrderlyContextValue {
   symbolType: 'PERP' | 'SPOT';
   setLiquidations: (liquidations: LiquidationPushType[]) => void;
   futureLeverage: number | undefined;
+  userInfo: ClientInfo;
+  setUserInfo: (userInfo: ClientInfo) => void;
 }
 
 export const REF_ORDERLY_SYMBOL_KEY = 'REF_ORDERLY_SYMBOL_KEY';
@@ -99,6 +103,8 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
       }
     });
   }, []);
+
+  const [userInfo, setUserInfo] = useState<ClientInfo>();
 
   const pathname = window.location.pathname;
 
@@ -169,6 +175,18 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
 
   const [recentTrades, setTrades] = useState<Trade[]>();
 
+  const { accountId } = useWalletSelector();
+
+  useEffect(() => {
+    if (!validAccountSig) return;
+
+    getAccountInformation({ accountId }).then((res) => {
+      if (!!res) {
+        setUserInfo(res);
+      }
+    });
+  }, [validAccountSig]);
+
   useEffect(() => {
     if (value?.marketTrade?.[0]?.symbol !== symbol) {
       return;
@@ -227,6 +245,8 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
         userExist,
         availableSymbols,
         symbolType,
+        userInfo,
+        setUserInfo,
       }}
     >
       {children}

@@ -359,7 +359,7 @@ export interface LiquidationType {
   timestamp: number;
   transfer_amount_to_insurance_fund: number;
   positions_by_perp: {
-    abs_liquidator_fee: number;
+    abs_liquidation_fee: number;
     cost_position_transfer: number;
     liquidator_fee: number;
     position_qty: number;
@@ -380,8 +380,8 @@ export interface PortfolioTable {
     tableRowEmpty?: string;
     mobileKey?: string;
     tableTopComponent?: JSX.Element;
-    pagination?: boolean,
-    filter?: boolean,
+    pagination?: boolean;
+    filter?: boolean;
     getData?: (params: any) => any;
     mobileRender?: (row: any) => any;
     mobileRenderCustom?: boolean;

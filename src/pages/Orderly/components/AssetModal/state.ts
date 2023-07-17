@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { TokenInfo, TokenMetadata } from '../../orderly/type';
-import { getFreeCollateral } from '../UserBoardPerp/math';
-import { useOrderlyContext } from '~pages/Orderly/orderly/OrderlyContext';
-import { usePerpData } from '../UserBoardPerp/state';
-import { useTokensBalances, useTokensOrderlyBalances } from '../UserBoard/state';
+
+import {
+  useTokensBalances,
+  useTokensOrderlyBalances,
+} from '../UserBoard/state';
 
 export interface OrderAsset {
   near: string;
@@ -34,7 +35,6 @@ export function useOrderAssets(tokenInfo: TokenInfo[] | undefined) {
 
   return displayBalances;
 }
-
 
 export function useOrderlyPortfolioAssets(tokenInfo: TokenInfo[] | undefined) {
   const tokens = tokenInfo

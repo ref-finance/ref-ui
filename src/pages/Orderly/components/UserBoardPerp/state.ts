@@ -15,7 +15,7 @@ import {
   getPortfolioTotaluPnl,
   getUnsettle,
   getPortfolioUnsettle,
-  getNotional
+  getNotional,
 } from './math';
 import { parseSymbol } from '../RecentTrade';
 import { useLeverage } from '~pages/Orderly/orderly/state';
@@ -194,7 +194,7 @@ export function usePerpData() {
     ticker,
     futureLeverage,
   } = useOrderlyContext();
-  
+
   const newPositions = useMemo(() => {
     try {
       const calcPositions = positions.rows.map((item) => {
@@ -240,7 +240,8 @@ export function usePerpData() {
 
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
 
-  const { userInfo } = useLeverage();
+  const { userInfo, curLeverage, error, setCurLeverage, setCurLeverageRaw } =
+    useLeverage();
 
   useEffect(() => {
     if (!accountId || !validAccountSig) return;
@@ -279,7 +280,7 @@ export function usePerpData() {
 
   const freeCollateral = useMemo(() => {
     try {
-      return getFreeCollateral(positions, markPrices, userInfo, curHoldingOut);
+      return getFreeCollateral(positions, markPrices, userInfo);
     } catch (error) {
       return '-';
     }
@@ -333,7 +334,7 @@ export function usePerpData() {
     try {
       const res = getUnsettle(positions, markPrices);
 
-      return res.toFixed(2);
+      return res.toFixed();
     } catch (error) {
       return '-';
     }
@@ -358,12 +359,9 @@ export function usePerpData() {
     [positionTimeStamp]
   );
 
-  const lastPrices = useMemo(
-    () => {
-      return everyTickers?.map(({ symbol, low }) => ({ symbol, low }))
-    }, 
-    [everyTickers]
-  );
+  const lastPrices = useMemo(() => {
+    return everyTickers?.map(({ symbol, low }) => ({ symbol, low }));
+  }, [everyTickers]);
 
   return {
     totalCollateral,
@@ -380,6 +378,11 @@ export function usePerpData() {
     triggerBalanceBasedData,
     triggerPositionBasedData,
     markPrices,
-    lastPrices
+    lastPrices,
+    curLeverage,
+    error,
+    setCurLeverage,
+    setCurLeverageRaw,
+    userInfo,
   };
 }

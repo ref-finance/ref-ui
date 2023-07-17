@@ -273,13 +273,11 @@ export function useAllPositions(refreshingTag: boolean[]) {
 }
 
 export function useLeverage() {
-  const [userInfo, setUserInfo] = useState<ClientInfo>();
-
   const { accountId } = useWalletSelector();
 
   const [error, setError] = useState<Error>();
 
-  const { futureLeverage } = useOrderlyContext();
+  const { futureLeverage, userInfo, setUserInfo } = useOrderlyContext();
 
   const { validAccountSig } = useOrderlyContext();
 
@@ -287,7 +285,12 @@ export function useLeverage() {
 
   const [changeTrigger, setChangeTrigger] = useState<boolean>();
 
-  const [requestTrigger, setRequestTrigger] = useState<boolean>();
+  useEffect(() => {
+    if (!!curLeverage) return;
+    if (userInfo) {
+      setCurLeverage(userInfo.max_leverage);
+    }
+  }, [userInfo]);
 
   const requestLeverage = async () => {
     getAccountInformation({ accountId }).then((res) => {
@@ -335,11 +338,12 @@ export function useLeverage() {
     }
   }, [futureLeverage]);
 
-  useEffect(() => {
-    if (!accountId || !validAccountSig) return;
+  // useEffect(() => {
+  //   if (!accountId || !validAccountSig ||) return;
+  //   console.log('requestLeverage: ');
 
-    requestLeverage();
-  }, [accountId, validAccountSig, requestTrigger]);
+  //   requestLeverage();
+  // }, [accountId, validAccountSig, userInfo]);
 
   useEffect(() => {
     if (curLeverage === undefined) return;
@@ -355,7 +359,6 @@ export function useLeverage() {
     curLeverage,
     error,
     setCurLeverageRaw: setCurLeverage,
-    setRequestTrigger,
     setCurLeverage: (leverage: number) => {
       setCurLeverage(leverage);
       setChangeTrigger(!changeTrigger);
@@ -363,57 +366,44 @@ export function useLeverage() {
   };
 }
 
-export function useLiquidationHistoryAll(
-  availableSymbols: SymbolInfo[],
-  tokenInfo: TokenInfo[]
-) {
-  const perpSymbols = useMemo(() => {
-    return availableSymbols?.filter((item) => item.symbol.indexOf('PERP') > -1);
-  }, [availableSymbols]);
-
-  const [symbolRes, setsymbolRes] = useState<
-    {
-      records: LiquidationType[];
-      loadingDone: boolean;
-      curPage: number;
-      total: number;
-    }[]
-  >();
+export function useLiquidationHistoryAll() {
+  const [res, setRes] = useState<{
+    records: LiquidationType[];
+    loadingDone: boolean;
+    curPage: number;
+    total: number;
+  }>();
 
   const { accountId } = useWalletSelector();
 
   useEffect(() => {
-    if (!perpSymbols || !accountId) return;
+    if (!accountId) return;
 
-    const allDone = symbolRes?.every((item) => item.loadingDone);
+    const allDone = res?.loadingDone;
     if (allDone) return;
 
-    Promise.all(
-      perpSymbols.map((item, i) =>
-        getLiquidationHistory({
-          accountId,
-          HistoryParam: {
-            symbol: item.symbol,
-            page: symbolRes?.[i]?.curPage + 1 || 1,
-          },
-        })
-      )
-    ).then((res) => {
-      const newSymbolRes = res.map((item, i) => {
-        const { rows } = item.data;
-        const { meta } = item.data;
-        return {
-          records: [...(item?.records || []), ...rows],
-          loadingDone: rows.length === meta.total,
-          curPage: meta.current_page,
-          total: meta.total,
-        };
-      });
-      setsymbolRes(newSymbolRes);
+    getLiquidationHistory({
+      accountId,
+      HistoryParam: {
+        page: res?.curPage + 1 || 1,
+      },
+    }).then((response) => {
+      const data = response.data;
+      const { rows } = data;
+      const { meta } = data;
+      const finalrecords = [...(res?.records || []), ...rows];
+
+      const restemp = {
+        records: finalrecords,
+        loadingDone: finalrecords.length === meta.total,
+        curPage: meta.current_page,
+        total: meta.total,
+      };
+      setRes(restemp);
     });
-  }, [perpSymbols, symbolRes, accountId]);
+  }, [accountId, res]);
 
-  const allDone = symbolRes?.every((item) => item.loadingDone);
+  const allDone = res?.loadingDone;
 
-  return !allDone ? undefined : symbolRes?.flatMap((res) => res.records);
+  return !allDone ? undefined : res?.records;
 }

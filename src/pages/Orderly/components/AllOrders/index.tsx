@@ -54,7 +54,7 @@ import {
   getOrderTrades,
 } from '../../orderly/off-chain-api';
 import { useAllOrders } from '../../orderly/state';
-import { useAllSymbolInfo, useOrderBook, useCurHoldings } from './state';
+import { useOrderBook, useCurHoldings } from './state';
 import { useBatchTokenMetaFromSymbols } from '../ChartHeader/state';
 import Modal from 'react-modal';
 
@@ -86,7 +86,9 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import _ from 'lodash';
 import { tickToPrecision } from '../UserBoardPerp/math';
 
-export function getTranslateList(key: 'type' | 'side' | 'status' | 'instrument') {
+export function getTranslateList(
+  key: 'type' | 'side' | 'status' | 'instrument'
+) {
   const intl = useIntl();
   return {
     type: {
@@ -572,7 +574,7 @@ function OrderLine({
       errorTipMsg = `${intl.formatMessage({
         id: 'price_should_be_greater_than_or_equal_to',
         defaultMessage: 'Price should be greater than or equal to',
-      })} ${new Big(marketPrice || 0).times(1 - symbolInfo.price_range)}`;
+      })} ${(new Big(marketPrice || 0).times(1 - symbolInfo.price_range), 3)}`;
     }
 
     if (
@@ -675,9 +677,12 @@ function OrderLine({
         id: 'perp_sell_limit_order_range',
         defaultMessage:
           'The price of sell limit orders should be greater than or equal to',
-      })} ${new Big(markPrice.price || 0)
-        .mul(1 - symbolInfo.price_range)
-        .toFixed(tickToPrecision(symbolInfo.quote_tick))}`;
+      })} ${
+        (new Big(markPrice.price || 0)
+          .mul(1 - symbolInfo.price_range)
+          .toFixed(tickToPrecision(symbolInfo.quote_tick)),
+        3)
+      }`;
     }
 
     if (
@@ -709,9 +714,12 @@ function OrderLine({
       errorTipMsg = `${intl.formatMessage({
         id: 'perp_buy_limit_order_scope',
         defaultMessage: 'The price of a buy limit order cannot be lower than',
-      })} ${new Big(markPrice.price || 0)
-        .mul(1 - symbolInfo.price_scope)
-        .toFixed(tickToPrecision(symbolInfo.quote_tick))}`;
+      })} ${
+        (new Big(markPrice.price || 0)
+          .mul(1 - symbolInfo.price_scope)
+          .toFixed(tickToPrecision(symbolInfo.quote_tick)),
+        3)
+      }`;
     }
 
     if (!!errorTipMsg && !noPop) {
@@ -4152,10 +4160,13 @@ function HistoryOrders({
 }
 
 function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
-  const { symbol, myPendingOrdersRefreshing, tokenInfo } = useOrderlyContext();
+  const {
+    symbol,
+    myPendingOrdersRefreshing,
+    tokenInfo,
+    availableSymbols: AllAvailableSymbols,
+  } = useOrderlyContext();
   const symbolType = PerpOrSpot(symbol);
-
-  const AllAvailableSymbols = useAllSymbolInfo();
 
   const availableSymbols = AllAvailableSymbols?.filter(
     (s) => s.symbol.indexOf(symbolType) > -1
