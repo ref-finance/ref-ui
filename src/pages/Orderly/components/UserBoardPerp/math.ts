@@ -285,9 +285,7 @@ const getLqPrice = (
 
     const collateral = new Big(
       curHoldingOut.holding + curHoldingOut.pending_short
-    )
-      .plus(total_notional_value)
-      .div(userInfo.max_leverage);
+    ).plus(total_notional_value.div(userInfo.max_leverage));
 
     const maintenance_margin_ratio = positions.maintenance_margin_ratio;
 
@@ -366,6 +364,8 @@ const getMaxQuantity = (
   try {
     const unsettle = getUnsettle(positions, markPrices);
 
+    console.log('userInfo: ', userInfo);
+
     const mark_price_current_i =
       markPrices.find((item) => item.symbol === symbol.symbol)?.price || 0;
     const total_notional_value = getTotalnotional(markPrices, positions).times(
@@ -374,9 +374,7 @@ const getMaxQuantity = (
 
     const collateral = new Big(
       curHoldingOut.holding + curHoldingOut.pending_short
-    )
-      .plus(total_notional_value)
-      .div(userInfo.max_leverage);
+    ).plus(total_notional_value.div(userInfo.max_leverage));
 
     // console.log('curHoldingOut: ', curHoldingOut);
 
