@@ -45,7 +45,7 @@ function tickerToDisplayDiff(ticker: Ticker | undefined) {
   return { diff, disPlayDiff };
 }
 
-function TickerDisplayComponent({
+export function TickerDisplayComponent({
   ticker,
   showBg,
 }: {

@@ -50,6 +50,8 @@ export const usePortableOrderlyTable = ({
   setChooseMarketSymbol,
   chooseOrderSide,
   setChooseOrderSide,
+  chooseOrderStatus,
+  chooseOrderType,
   setOperationType,
   setOperationId,
   tokenIn,
@@ -65,6 +67,8 @@ export const usePortableOrderlyTable = ({
   setChooseOrderSide: (item: 'all_side' | 'BUY' | 'SELL') => void;
   setOperationType: (item: 'deposit' | 'withdraw') => void;
   setOperationId: (item: string) => void;
+  chooseOrderStatus: 'all' | 'Cancelled' | 'filled' | 'Rejected';
+  chooseOrderType: 'all' | 'limit' | 'market';
   tokenIn: TokenMetadata;
   setSettlePnlModalOpen: (item: boolean) => void
 }) => {
@@ -245,11 +249,13 @@ export const usePortableOrderlyTable = ({
             accountId,
             OrderProps: {
               page,
-              status: 'INCOMPLETE',
+              // @ts-ignore
+              status: chooseOrderStatus === 'all' ? 'INCOMPLETE' : chooseOrderStatus.toUpperCase(),
               broker_id: refOnly ? 'ref_dex' : '',
               symbol: chooseMarketSymbol === 'all_markets' ? '' : chooseMarketSymbol,
               // @ts-ignore
-              side: chooseOrderSide === 'all_side' ? '' : chooseOrderSide.toUpperCase()
+              side: chooseOrderSide === 'all_side' || chooseOrderSide === 'all' ? '' : chooseOrderSide.toUpperCase(),
+              order_type: chooseOrderType === 'all' ? '' : chooseOrderType.toUpperCase()
             } 
           })
         },
@@ -408,11 +414,13 @@ export const usePortableOrderlyTable = ({
             accountId,
             OrderProps: {
               page,
-              status: 'COMPLETED',
+              // @ts-ignore
+              status: chooseOrderStatus === 'all' ? 'COMPLETED' : chooseOrderStatus.toUpperCase(),
               broker_id: refOnly ? 'ref_dex' : '',
               symbol: chooseMarketSymbol === 'all_markets' ? '' : chooseMarketSymbol,
               // @ts-ignore
-              side: chooseOrderSide === 'all_side' ? '' : chooseOrderSide.toUpperCase()
+              side: chooseOrderSide === 'all_side' || chooseOrderSide === 'all' ? '' : chooseOrderSide.toUpperCase(),
+              order_type: chooseOrderType === 'all' ? '' : chooseOrderType.toUpperCase()
             } 
           })
         },
@@ -455,7 +463,7 @@ export const usePortableOrderlyTable = ({
           },
           { key: '@price', header: '@Price', render: ({ price, symbol }) => price?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 4) || '-'  },
           { key: 'avg_price', header: 'Avg.Price', render: ({ average_executed_price, symbol }) => average_executed_price?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 4) || '-' },
-          { key: 'est_total', header: 'Est.Total', render: ({ price, average_executed_price, quantity, symbol }) => ((price || average_executed_price) * quantity)?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 4)},
+          { key: 'est_total', header: 'Est.Total', render: ({ price, average_executed_price, quantity, symbol }) => Math.floor(((price || average_executed_price) * quantity))?.toFixed(0)},
           { key: 'status', header: 'Status', render: ({ status }) =>  status },
           {
             key: 'create',
@@ -955,13 +963,13 @@ export const usePortableOrderlyTable = ({
             render: ({ old_balance, new_balance }) => (
               <div className={`flex items-center`}>
                 <span className={`${old_balance ? 'text-white' : ''}`}>
-                  {old_balance ? `${old_balance?.toFixed(4)}` : '-'}
+                  {typeof new_balance === 'number' ? `${old_balance?.toFixed(4)}` : '-'}
                 </span>
                 <div className="mx-1">
                   <ArrowGrey />
                 </div>
                 <span className={`${new_balance ? 'text-white' : ''}`}>
-                  {new_balance ? `${new_balance?.toFixed(4)}` : '-'}
+                  {typeof new_balance === 'number' ? `${new_balance?.toFixed(4)}` : '-'}
                 </span>
               </div>
             )
@@ -1034,9 +1042,10 @@ export const usePortableOrderlyTable = ({
               const annualBase = ((funding_rate * 3 * 365 * 100 * 100) / 100).toFixed(4);
               const last = parseInt(annualBase.substr(annualBase.length - 2, 1));
               const negative = (funding_rate < 0);
-              const annual = ((last < 5 && negative) || (last > 4 && !negative)) ? (Math.floor(funding_rate * 3 * 365 * 100 * 100) / 100)?.toFixed(2) : (Math.ceil(funding_rate * 3 * 365 * 100 * 100) / 100)?.toFixed(2);
+              const annual = /* ((last < 5 && negative) || (last > 4 && !negative)) ?  */(Math.floor(funding_rate * 3 * 365 * 100 * 1000) / 1000).toString()/*  : (Math.ceil(funding_rate * 3 * 365 * 100 * 100) / 100)?.toFixed(2) */;
+              const annualParse = annual.substring(0, annual.length - 1);
 
-              return `${(funding_rate * 100).toFixed(6)}%/${annual}%`
+              return `${(funding_rate * 100).toFixed(6)}%/${annualParse}%`
             }
           },
           { key: 'status', header: 'Status', render: ({ status }) => status },
@@ -1110,6 +1119,16 @@ export const useMarketlist = () => {
             </span>
           </div>
         ),
+        textNoColor: (
+          <div className="flex items-center p-0.5 pr-4 my-0.5">
+            <span>
+              {intl.formatMessage({
+                id: 'all_instrument',
+                defaultMessage: 'All Instrument',
+              })}
+            </span>
+          </div>
+        ),
         withSymbol: (
           <div className="flex items-center p-0.5 pr-4 my-0.5">
             <div className="mr-2 ml-1 text-white text-sm ">
@@ -1156,9 +1175,18 @@ export const useMarketlist = () => {
             </div>
           );
   
+          const textNoColorRender = (
+            <div className="flex items-center p-0.5 pr-4 text-sm my-0.5">
+              <span className="xs:ml-2 xs:font-bold">
+                {symbolFrom} / {symbolTo}
+              </span>
+            </div>
+          );
+  
           marketList.push({
             text: textRender,
             withSymbol: symbolRender,
+            textNoColor: textNoColorRender,
             textId: symbol.symbol,
           });
         } else {
@@ -1187,9 +1215,18 @@ export const useMarketlist = () => {
             </div>
           );
 
+          const textNoColorRender = (
+            <div className="flex items-center p-0.5 pr-4 text-sm my-0.5">
+              <span className="xs:ml-2 xs:font-bold">
+                {symbolFrom} PERP
+              </span>
+            </div>
+          );
+
           marketList.push({
             text: textRender,
             withSymbol: symbolRender,
+            textNoColor: textNoColorRender,
             textId: symbol.symbol,
           });
         }
