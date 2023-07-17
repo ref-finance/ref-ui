@@ -114,7 +114,6 @@ const claimLiquidatedPositions = async ({
 const getLiquidationHistory = async (props: {
   accountId: string;
   HistoryParam: {
-    symbol: string;
     page: number;
     size?: number;
   };

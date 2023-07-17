@@ -15,7 +15,7 @@ import {
   getPortfolioTotaluPnl,
   getUnsettle,
   getPortfolioUnsettle,
-  getNotional
+  getNotional,
 } from './math';
 import { parseSymbol } from '../RecentTrade';
 import { useLeverage } from '~pages/Orderly/orderly/state';
@@ -192,7 +192,7 @@ export function usePerpData() {
     ticker,
     futureLeverage,
   } = useOrderlyContext();
-  
+
   const newPositions = useMemo(() => {
     try {
       const calcPositions = positions.rows.map((item) => {
@@ -277,7 +277,7 @@ export function usePerpData() {
 
   const freeCollateral = useMemo(() => {
     try {
-      return getFreeCollateral(positions, markPrices, userInfo, curHoldingOut);
+      return getFreeCollateral(positions, markPrices, userInfo);
     } catch (error) {
       return '-';
     }
@@ -331,7 +331,7 @@ export function usePerpData() {
     try {
       const res = getUnsettle(positions, markPrices);
 
-      return res.toFixed(2);
+      return res.toFixed();
     } catch (error) {
       return '-';
     }
@@ -369,6 +369,6 @@ export function usePerpData() {
     mmr,
     newPositions,
     triggerBalanceBasedData,
-    triggerPositionBasedData
+    triggerPositionBasedData,
   };
 }

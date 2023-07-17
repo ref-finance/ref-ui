@@ -607,11 +607,19 @@ export function PerpAccountBoard() {
         <UnsettlePnl></UnsettlePnl>
 
         <div className="font-nunito frcs gap-2">
-          {unsettle}
+          {Number(unsettle) < 0.01 && Number(unsettle) > 0
+            ? '< 0.01'
+            : numberWithCommas(toPrecision(unsettle, 2))}
 
           <button
-            className="font-gotham text-white px-1 text-xs rounded-md border border-inputV3BorderColor "
+            className={`font-gotham text-white px-1 text-xs rounded-md border border-inputV3BorderColor ${
+              ONLY_ZEROS.test(unsettle) ? 'cursor-not-allowed' : ''
+            } `}
             onClick={async () => {
+              if (ONLY_ZEROS.test(unsettle)) {
+                return;
+              }
+
               return executeMultipleTransactions([await perpSettlementTx()]);
             }}
           >

@@ -130,22 +130,6 @@ function MoreRouteBox(props: Modal.Props) {
         : tokenIn?.id,
   });
 
-  // const RefSwapRes = useRefQuery({
-  //   tokenIn: {
-  //     ...tokenIn,
-  //     id:
-  //       tokenIn?.id?.toLowerCase() === 'near'
-  //         ? WRAP_NEAR_CONTRACT_ID
-  //         : tokenIn?.id,
-  //   },
-
-  //   tokenOut,
-  // });
-
-  // console.log('RefSwapRes: ', RefSwapRes);
-
-  // const RefSwapRes = {};
-
   const refDiff = useTokenRate24h({
     base_token: tokenOut,
     token: {
@@ -251,12 +235,14 @@ function MoreRouteBox(props: Modal.Props) {
                     defaultMessage={'Swap'}
                   ></FormattedMessage>
                 </span>
-                {hoverRoute === 'ref' && (
-                  <BsArrowRight
-                    strokeWidth={1}
-                    className="text-gradientFromHover"
-                  ></BsArrowRight>
-                )}
+                <div className="cursor-pointer">
+                  {hoverRoute === 'ref' && (
+                    <BsArrowRight
+                      strokeWidth={1}
+                      className="text-gradientFromHover"
+                    ></BsArrowRight>
+                  )}
+                </div>
               </div>
 
               <div className="frcb pt-3 text-white">
@@ -301,12 +287,16 @@ function MoreRouteBox(props: Modal.Props) {
                     defaultMessage={'Spot'}
                   ></FormattedMessage>
                 </span>
-                {hoverRoute === 'spot' && (
-                  <BsArrowRight
-                    strokeWidth={1}
-                    className="text-gradientFromHover"
-                  ></BsArrowRight>
-                )}
+                <div className="cursor-pointer">
+                  <div className="cursor-pointer">
+                    {hoverRoute === 'spot' && (
+                      <BsArrowRight
+                        strokeWidth={1}
+                        className="text-gradientFromHover"
+                      ></BsArrowRight>
+                    )}
+                  </div>
+                </div>
               </div>
 
               <div className="frcb pt-3 text-white">

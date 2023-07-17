@@ -2,28 +2,22 @@ import React, { useState } from 'react';
 import Modal from 'react-modal';
 import { IoClose } from 'react-icons/io5';
 import { useIntl } from 'react-intl';
-import {
-  digitWrapper,
-} from '../../utiles';
+import { digitWrapper } from '../../utiles';
 import { usePerpData } from '../UserBoardPerp/state';
 import { ButtonTextWrapper } from '../../../../components/button/Button';
+import { ONLY_ZEROS } from '../../../../utils/numbers';
 
 export default function SettlePnlModal(
   props: Modal.Props & {
     onClick: () => Promise<any>;
   }
 ) {
-  const {
-    onRequestClose,
-    onClick,
-  } = props;
+  const { onRequestClose, onClick } = props;
 
-  const {
-    portfolioUnsettle
-  } = usePerpData();
+  const { portfolioUnsettle } = usePerpData();
 
   const [loading, setLoading] = useState<boolean>(false);
-  
+
   const intl = useIntl();
   return (
     <Modal
@@ -60,7 +54,8 @@ export default function SettlePnlModal(
             <span className="text-sm">
               {intl.formatMessage({
                 id: 'settle_pnl_tips',
-                defaultMessage: 'By doing this, we’ll move your profit or loss from perp markets into the USDC token balance. This has no impact on your open positions or health.',
+                defaultMessage:
+                  'By doing this, we’ll move your profit or loss from perp markets into the USDC token balance. This has no impact on your open positions or health.',
               })}
             </span>
           </div>
@@ -70,7 +65,8 @@ export default function SettlePnlModal(
               {intl.formatMessage({
                 id: 'total_unsettled_pnl',
                 defaultMessage: 'Total unsettled PnL',
-              })}:
+              })}
+              :
             </span>
 
             <span className="flex items-center">
@@ -86,10 +82,16 @@ export default function SettlePnlModal(
               loading
                 ? 'opacity-70 cursor-not-allowed bg-buttonGradientBgOpacity'
                 : ''
+            } ${
+              ONLY_ZEROS.test(portfolioUnsettle) ? 'cursor-not-allowed' : ''
             } flex items-center justify-center py-1 bg-buttonGradientBg hover:bg-buttonGradientBgOpacity text-base text-white font-bold`}
             onClick={(e: any) => {
               e.preventDefault();
               e.stopPropagation();
+
+              if (ONLY_ZEROS.test(portfolioUnsettle)) {
+                return;
+              }
 
               setLoading(true);
               onClick().then(() => {

@@ -106,6 +106,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { REF_FI_SENDER_WALLET_ACCESS_KEY } from '../../orderly/utils';
 import { useHistory } from 'react-router-dom';
 import { usePerpData } from '../UserBoardPerp/state';
+import { tickToPrecision } from '../UserBoardPerp/math';
 
 function getTipFOK() {
   const intl = useIntl();
@@ -888,9 +889,9 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         `${intl.formatMessage({
           id: 'price_should_be_greater_than_or_equal_to',
           defaultMessage: 'Price should be greater than or equal to',
-        })} ${new Big(orders.bids?.[0]?.[0] || 0).times(
-          1 - symbolInfo.price_range
-        )}`
+        })} ${new Big(orders.bids?.[0]?.[0] || 0)
+          .times(1 - symbolInfo.price_range)
+          .toFixed(tickToPrecision(symbolInfo.quote_tick))}`
       );
 
       return;
@@ -2270,9 +2271,9 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
         `${intl.formatMessage({
           id: 'price_should_be_greater_than_or_equal_to',
           defaultMessage: 'Price should be greater than or equal to',
-        })} ${new Big(orders.bids?.[0]?.[0] || 0).times(
-          1 - symbolInfo.price_range
-        )}`
+        })} ${new Big(orders.bids?.[0]?.[0] || 0)
+          .times(1 - symbolInfo.price_range)
+          .toFixed(symbolInfo.quote_tick)}`
       );
 
       return;

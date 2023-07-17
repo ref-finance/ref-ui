@@ -40,7 +40,7 @@ function LiquidationHistoryModal(
 
   const { availableSymbols, tokenInfo } = useOrderlyContext();
 
-  const liquidations = useLiquidationHistoryAll(availableSymbols, tokenInfo);
+  const liquidations = useLiquidationHistoryAll();
 
   const allTokenSymbols = [
     ...new Set(
@@ -82,19 +82,7 @@ function LiquidationHistoryModal(
     .flat();
 
   const renderData = _.orderBy(alldata, [orderBy], ['desc']);
-  //   const renderData = [
-  //     {
-  //       symbol: 'PERP_BTC_USDT',
-  //       position_qty: 1.23,
-  //       cost_position_transfer: 1350,
-  //       transfer_price: 18123.43,
-  //       liquidator_fee: 0.015,
-  //       insurance_fund_fee: 0.015,
-  //       abs_liquidation_fee: 3520,
-  //       timestamp: 1663313562090,
-  //       transfer_amount_to_insurance_fund: 0,
-  //     },
-  //   ];
+  console.log('renderData: ', renderData);
 
   useEffect(() => {
     if (loading) return;
@@ -218,7 +206,7 @@ function LiquidationHistoryModal(
 
               <th align="right" className="pb-3">
                 <div
-                  className="flex items-center max-w-max justify-end pr-4 gap-0.5 cursor-pointer"
+                  className="flex items-center  max-w-max justify-end pr-4 gap-0.5 cursor-pointer"
                   onClick={() => {
                     setOrderBy('timestamp');
                   }}
@@ -261,7 +249,9 @@ function LiquidationHistoryModal(
 
                       <td>
                         <div className="frcs whitespace-nowrap gap-1">
-                          <span>{numberWithCommas(r.liquidator_fee)}</span>
+                          <span>
+                            {numberWithCommas(r.abs_liquidation_fee || 0)}
+                          </span>
                           <span>USDC</span>
                         </div>
                       </td>
@@ -271,7 +261,7 @@ function LiquidationHistoryModal(
                       </td>
 
                       <td align="right">
-                        <div className="pr-4">
+                        <div className="pr-4 text-primaryText">
                           {formatTimeDate(r.timestamp)}
                         </div>
                       </td>
@@ -405,10 +395,9 @@ export function MobileliquidationList({
     availableSymbols,
     tokenInfo,
     liquidations: liquidationsFromPush,
-    setLiquidations,
   } = useOrderlyContext();
 
-  const liquidations = useLiquidationHistoryAll(availableSymbols, tokenInfo);
+  const liquidations = useLiquidationHistoryAll();
 
   const allTokenSymbols = [
     ...new Set(
@@ -456,26 +445,11 @@ export function MobileliquidationList({
       });
     }) || []
   ).flat();
-  //   {
-  //     symbol: 'PERP_BTC_USDT',
-  //     position_qty: 1.23,
-  //     cost_position_transfer: 1350,
-  //     transfer_price: 18123.43,
-  //     liquidator_fee: 0.015,
-  //     insurance_fund_fee: 0.015,
-  //     abs_liquidation_fee: 3520,
-  //     timestamp: 1663313562090,
-  //     transfer_amount_to_insurance_fund: 0,
-  //     onPush: true,
-  //   },
-  // ];
-
-  console.log(liquidationsFromPush.concat(alldata).length, 'length');
 
   return (
     <div className="flex flex-col gap-4 mt-4 relative">
       {loading && <OrderlyLoading></OrderlyLoading>}
-      {!loading && liquidationsFromPush.concat(alldata).length === 0 && (
+      {!loading && alldata.length === 0 && (
         <div className="absolute top-1/2 flex gap-2 flex-col items-center justify-center left-1/2 transform -translate-x-1/2 -translate-y-1/2">
           <NoOrderEmpty></NoOrderEmpty>
           <span>
@@ -488,7 +462,7 @@ export function MobileliquidationList({
       )}
 
       {!loading &&
-        liquidationsFromPush.concat(alldata).map((r) => {
+        alldata.map((r) => {
           return (
             <div className="p-2 text-sm text-white rounded-xl bg-primaryText bg-opacity-20 flex flex-col gap-3 w-full">
               <div className="frcb">
@@ -507,7 +481,7 @@ export function MobileliquidationList({
 
                 <div className="w-1/2 flex items-center justify-end gap-1">
                   {formatTimeDate(r.timestamp)}
-                  {(r?.onPush || !!r.liquidationId) && unReadCount && (
+                  {r?.onPush && unReadCount && (
                     <div className="w-2 h-2 rounded-full bg-sellRed"></div>
                   )}
                 </div>
@@ -552,7 +526,7 @@ export function MobileliquidationList({
                     ></FormattedMessage>
                   </div>
                   <div className="frcs whitespace-nowrap gap-1">
-                    <span>{numberWithCommas(r?.liquidator_fee || 0)}</span>
+                    <span>{numberWithCommas(r.abs_liquidation_fee || 0)}</span>
                     <span>USDC</span>
                   </div>
                 </div>

@@ -48,7 +48,7 @@ export function PerpOrderlyTip() {
       />
 
       <div
-        className="absolute right-3 top-1 "
+        className="absolute right-3 cursor-pointer top-1 "
         onClick={() => {
           setShow(false);
 

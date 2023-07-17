@@ -213,7 +213,7 @@ export const getCurrentHolding = async (props: { accountId: string }) => {
     accountId: props.accountId,
   });
 
-  const wbtcHolding = res.data.holding.find((h: any) => h.token === 'WBTC');
+  const wbtcHolding = res?.data?.holding.find((h: any) => h.token === 'WBTC');
 
   if (wbtcHolding) {
     const btcholding = {
@@ -617,8 +617,8 @@ export const getMarketTrades = async ({
 
 export const getFundingFee = async ({
   page = 1,
-  accountId
-} : {
+  accountId,
+}: {
   accountId: string;
   page: number;
 }) => {
@@ -626,7 +626,7 @@ export const getFundingFee = async ({
 
   const res = requestOrderly({
     url,
-    accountId
+    accountId,
   });
 
   return res;
@@ -635,49 +635,49 @@ export const getFundingFee = async ({
 export const getPortfolioAssetHistory = async ({
   page = 1,
   side,
-  accountId
-} : {
+  accountId,
+}: {
   accountId: string;
   side: string;
   page: number;
 }) => {
-  const url =`/v1/asset/history?size=10&page=${page}&side=${side}`;
+  const url = `/v1/asset/history?size=10&page=${page}&side=${side}`;
 
   const res = requestOrderly({
     url,
-    accountId
+    accountId,
   });
 
   return res;
-}
+};
 
 export const getPortfolioSettlements = async ({
   page = 1,
-  accountId
-} : {
+  accountId,
+}: {
   accountId: string;
   page: number;
 }) => {
-  const url =`/v1/pnl_settlement/history?size=10&page=${page}`;
+  const url = `/v1/pnl_settlement/history?size=10&page=${page}`;
 
   const res = requestOrderly({
     url,
-    accountId
+    accountId,
   });
 
   return res;
-}
+};
 
 export const getPortfolioPosition = async ({
-  accountId
-} : {
+  accountId,
+}: {
   accountId: string;
 }) => {
-  const url =`/v1/positions`;
+  const url = `/v1/positions`;
 
   const res = requestOrderly({
     url,
-    accountId
+    accountId,
   });
 
   return res;
@@ -689,9 +689,16 @@ export const getPortfolioAllOrders = async (props: {
     symbol?: string;
     page?: number;
     size?: number;
-    status?: 'NEW' | 'CANCELLED' | 'PARTIAL_FILLED' | 'FILLED' | 'REJECTED' | 'INCOMPLETE' | 'COMPLETED',
-    broker_id?: string,
-    side?: 'BUY' | 'SELL'
+    status?:
+      | 'NEW'
+      | 'CANCELLED'
+      | 'PARTIAL_FILLED'
+      | 'FILLED'
+      | 'REJECTED'
+      | 'INCOMPLETE'
+      | 'COMPLETED';
+    broker_id?: string;
+    side?: 'BUY' | 'SELL';
   };
 }) => {
   const res = await getOrders({
