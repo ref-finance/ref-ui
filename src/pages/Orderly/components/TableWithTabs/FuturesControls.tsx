@@ -3,14 +3,16 @@ import { MdArrowDropDown } from 'react-icons/md';
 import { IoClose } from 'react-icons/io5';
   import { useIntl } from 'react-intl';
   import Modal from 'react-modal';
+  import { usePerpData } from '../UserBoardPerp/state';
 
 function FutureQuantityModal(
   props: Modal.Props & {
     onClose: (input: number) => void;
     quantity: number;
+    position_qty: number;
   }
 ) {
-  const { onClose, quantity } = props;
+  const { onClose, quantity, position_qty } = props;
   const intl = useIntl();
   const [inputQuantity, setInputQuantity] = useState<number>(quantity);
   
@@ -59,10 +61,14 @@ function FutureQuantityModal(
               type="number"
               placeholder="0.0"
               value={inputQuantity}
-              onChange={({ target }) => setInputQuantity(parseFloat(target.value))}
+              onChange={({ target }) => {
+                let value: number = parseFloat(target.value);
+                if (value > Math.abs(position_qty)) value = position_qty;
+                if (value < 0 || !value) value = 0;
+                setInputQuantity(value)
+              }}
               className="text-white text-xl leading-tight px-2.5 pb-2 w-10/12 mr-2"
               style={{ borderBottomColor: '#FFFFFF1A', borderBottomWidth: 1 }}
-              min={0}
             />
             <button
               className="text-white py-1 px-4 relative bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center"
@@ -190,6 +196,10 @@ const FutureMobileRow: React.FC<{
   const [priceMode, setPriceMode] = useState<'market_price' | 'limit_price'>('market_price');
   const [price, setPrice] = useState<number>(mark_price);
 
+  useEffect(() => {
+    setQuantity(position_qty);
+  }, [row])
+
   return (
     <>
       <div
@@ -200,15 +210,20 @@ const FutureMobileRow: React.FC<{
           <div className="col-span-1 mb-3">
             <div className="flex items-center ">{marketList.find((m) => m.textId === symbol)?.withSymbol}</div>
           </div>
-          <div className="col-span-1 text-right mb-3">
-            
+          <div className="col-span-1 flex justify-end items-center mb-3">
+            <div
+              className="cursor-pointer text-center py-1 px-3 border border-orderTypeBg rounded-md"
+              // onClick={}
+            >
+              {intl.formatMessage({ id: 'close' })}
+            </div>
           </div>
           <div className="col-span-1 my-3">
             <div className="flex items-center">
               {intl.formatMessage({ id: 'qty.' })}
               <div className="text-10px p-0.5 ml-1" style={{ borderRadius: '4px', backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>USDC</div>
             </div>
-            <span className="text-white">{position_qty?.toFixed(0) || '-' }</span>
+            <span className="text-white">{position_qty?.toFixed(4) || '-' }</span>
           </div>
           <div className="col-span-1 my-3">
             <div>
@@ -303,6 +318,7 @@ const FutureMobileRow: React.FC<{
           setQuantity(input);
           setFutureQuantityOpen(false);
         }}
+        position_qty={position_qty}
         quantity={quantity}
       />
 
@@ -323,16 +339,22 @@ const FutureMobileRow: React.FC<{
 }
 
 export const FutureMobileView: React.FC<{
-  futuresStats: { unreal: number; daily: number; notional: number; unsettle: number },
   rows: { symbol: string, position_qty:number, average_open_price: number, mark_price: number, unsettled_pnl: number }[],
   marketList: { text: JSX.Element; withSymbol: JSX.Element; textId: string; }[]
 }> = ({
-  futuresStats,
-  rows,
   marketList,
   children
 }) => {
   const intl = useIntl();
+  const {
+    portfolioUnsettle,
+    totalPortfoliouPnl,
+    totalDailyReal,
+    totalNotional,
+    newPositions
+  } = usePerpData();
+
+  const { rows } = newPositions
 
   return (
     <div className="w-full p-3">
@@ -346,21 +368,21 @@ export const FutureMobileView: React.FC<{
               id: 'fut_unreal_pnl',
               defaultMessage: 'Fut. Unreal. PnL',
             })}
-            <span className="text-buyGreen pl-2">{futuresStats.unreal.toFixed(0)}</span>
+            <span className="text-buyGreen pl-2">{totalPortfoliouPnl}</span>
           </div>
           <div className="col-span-1 text-right">
             {intl.formatMessage({
               id: 'fut_daily_real',
               defaultMessage: 'Fut. Daily Real.',
             })}
-            <span className="text-white pl-2">{futuresStats.daily.toFixed(0)}</span>
+            <span className="text-white pl-2">{totalDailyReal}</span>
           </div>
-          <div className="col-span-2 text-right">
+          <div className="col-span-2 text-right mt-2">
             {intl.formatMessage({
               id: 'fut_notional',
               defaultMessage: 'Fut. Notional',
             })}
-            <span className="text-white pl-2">{futuresStats.notional.toFixed(0)}</span>
+            <span className="text-white pl-2">{totalNotional}</span>
           </div>
           <div className="h-px col-span-2 w-full border border-white opacity-10 my-2.5" />
           <div className="col-span-1 flex items-center">
@@ -368,7 +390,7 @@ export const FutureMobileView: React.FC<{
               id: 'fut_unsettle_pnl',
               defaultMessage: 'Unsettle PnL',
             })}
-            <span className="text-buyGreen pl-2">{futuresStats.unsettle.toFixed(0)}</span>
+            <span className="text-buyGreen pl-2">{portfolioUnsettle}</span>
           </div>
           <div className="col-span-1 text-right flex justify-end">
             {children}
@@ -382,6 +404,51 @@ export const FutureMobileView: React.FC<{
           marketList={marketList}
         />
       ))}
+    </div>
+  )
+}
+
+export const FutureTopComponent = () => {
+  const intl = useIntl();
+  const {
+    portfolioUnsettle,
+    totalPortfoliouPnl,
+    totalDailyReal,
+    totalNotional
+  } = usePerpData();
+
+  return (
+    <div className="w-full px-5 mb-4">
+      <div className="w-full flex justify-start items-center py-3 px-5 rounded-full" style={{ backgroundColor: '#7E8A931A' }}>
+        <div className="mr-5">
+          {intl.formatMessage({
+            id: 'fut_unreal_pnl',
+            defaultMessage: 'Fut. Unreal. PnL',
+          })}
+          <span className="text-buyGreen pl-2">{totalPortfoliouPnl}</span>
+        </div>
+        <div className="mr-5">
+          {intl.formatMessage({
+            id: 'fut_daily_real',
+            defaultMessage: 'Fut. Daily Real.',
+          })}
+          <span className="text-white pl-2">{totalDailyReal}</span>
+        </div>
+        <div className="mr-5">
+          {intl.formatMessage({
+            id: 'fut_notional',
+            defaultMessage: 'Fut. Notional',
+          })}
+          <span className="text-white pl-2">{totalNotional}</span>
+        </div>
+        <div className="ml-auto">
+          {intl.formatMessage({
+            id: 'fut_unsettle_pnl',
+            defaultMessage: 'Unsettle PnL',
+          })}
+          <span className="text-buyGreen pl-2">{portfolioUnsettle}</span>
+        </div>
+      </div>
     </div>
   )
 }

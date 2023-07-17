@@ -1,17 +1,15 @@
 import React, { useEffect, useState } from 'react';
+import { useIntl } from 'react-intl';
+import _ from 'lodash';
 
-import { FlexRow, FlexRowBetween } from '../Common';
 import 'react-circular-progressbar/dist/styles.css';
-import { MobileFilter } from '../Common/Icons';
 import Table from './Table';
-
+import { FlexRow, FlexRowBetween } from '../Common';
+import { MobileFilter } from '../Common/Icons';
 import { OrderAsset } from '../AssetModal/state';
 
 import { PortfolioTable } from '../../orderly/type';
 import { useClientMobile } from '../../../../utils/device';
-
-import { useIntl } from 'react-intl';
-import _ from 'lodash';
 
 export function SymbolWrapper({ symbol }: { symbol: string }) {
   return (
@@ -31,7 +29,10 @@ function TableWithTabs({
   setChooseMarketSymbol,
   chooseOrderSide,
   setChooseOrderSide,
-  displayBalances
+  displayBalances,
+  newPositions,
+  triggerBalanceBasedData,
+  triggerPositionBasedData
 } : {
   table: PortfolioTable;
   maintenance: boolean;
@@ -42,7 +43,10 @@ function TableWithTabs({
   setChooseMarketSymbol?: (item: string) => void;
   chooseOrderSide?: 'all_side' | 'BUY' | 'SELL';
   setChooseOrderSide?: (item: 'all_side' | 'BUY' | 'SELL') => void;
+  newPositions?: any;
   displayBalances: OrderAsset[];
+  triggerBalanceBasedData?: number;
+  triggerPositionBasedData?: number;
 }) {
   const intl = useIntl();
 
@@ -84,12 +88,38 @@ function TableWithTabs({
     }
   }, [displayBalances]);
 
+  useEffect(() => {
+    if (getData && (id === 'futures')) {
+      setData(newPositions.rows);
+    }
+    if (getData && (id === 'open_orders' || id === 'history')) {
+      callGetData();
+    }
+  }, [newPositions]);
+
+  useEffect(() => {
+    if (getData && (id === 'deposit' || id === 'withdraw' || id === 'settlements')) {
+      callGetData();
+    }
+  }, [triggerBalanceBasedData]);
+
+  useEffect(() => {
+    if (getData && (id === 'open_orders' || id === 'history')) {
+      callGetData();
+    }
+  }, [triggerPositionBasedData]);
+
   const callGetData = async () => {
     const { data } = await getData({ page });
 
     if (!data && id === 'spot') {
       setData(displayBalances);
       setLoading(false);
+      return
+    }
+
+    if (!data && id === 'futures') {
+      setData({ ...newPositions.rows });
       return
     }
 
@@ -116,9 +146,11 @@ function TableWithTabs({
                 <FlexRow
                   key={tableTab.id}
                   onClick={() => {
-                    setLoading(true);
-                    setData([]);
-                    setTab(index);
+                    if (tab !== index) {
+                      setLoading(true);
+                      setData([]);
+                      setTab(index);
+                    }
                   }}
                   className={`justify-center cursor-pointer`}
                 >
@@ -158,9 +190,11 @@ function TableWithTabs({
               <label
                 key={tableTab.id}
                 onClick={() => {
-                  setLoading(true);
-                  setData([]);
-                  setTab(index);
+                  if (tab !== index) {
+                    setLoading(true);
+                    setData([]);
+                    setTab(index);
+                  }
                 }}
                 className={`flex items-center justify-center w-1/2 py-1 flex-grow text-sm rounded-md  ${
                   tab === index
@@ -229,4 +263,6 @@ function TableWithTabs({
     </>
   );
 }
+
+
 export default TableWithTabs;

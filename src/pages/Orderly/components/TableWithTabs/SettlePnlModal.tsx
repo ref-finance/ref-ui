@@ -19,7 +19,7 @@ export default function SettlePnlModal(
   } = props;
 
   const {
-    unsettle
+    portfolioUnsettle
   } = usePerpData();
 
   const [loading, setLoading] = useState<boolean>(false);
@@ -75,7 +75,7 @@ export default function SettlePnlModal(
 
             <span className="flex items-center">
               <span className=" mr-2 text-buyGreen gotham_bold">
-                {digitWrapper(unsettle.toString(), 3)}
+                {portfolioUnsettle}
               </span>
               USDC
             </span>

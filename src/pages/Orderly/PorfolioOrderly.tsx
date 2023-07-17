@@ -4,6 +4,9 @@ import React, {
   useContext,
   useState
 } from 'react';
+import { IoClose } from 'react-icons/io5';
+import { RiArrowDownSFill } from 'react-icons/ri';
+import Modal from 'react-modal';
 import Big from 'big.js';
 import ReactTooltip from 'react-tooltip';
 import { useIntl } from 'react-intl';
@@ -16,14 +19,16 @@ import QuestionMark from '../../components/farm/QuestionMark';
 import { toPrecision } from './near';
 import TableWithTabs from './components/TableWithTabs';
 import SettlePnlModal from './components/TableWithTabs/SettlePnlModal';
-import {
-  usePortableOrderlyTable
-} from './orderly/constantWjsx';
+import { usePortableOrderlyTable, useMarketlist } from './orderly/constantWjsx';
 import { getOrderlySystemInfo, getCurrentHolding, getPortfolioPosition } from './orderly/off-chain-api';
 import { OrderlyUnderMaintain } from './OrderlyTradingBoard';
 import { FlexRow } from './components/Common';
+import { CheckBox } from './components/Common/index';
+import { SymbolSelectorMobileModal } from './components/ChartHeader';
+import { getTranslateList } from './components/AllOrders';
 import { AssetManagerModal } from './components/UserBoard';
 import { WarningIcon } from '../../components/icon';
+import { usePerpData } from './components/UserBoardPerp/state';
 import { useTokenMetaFromSymbol } from './components/ChartHeader/state';
 import { parseSymbol } from './components/RecentTrade';
 import { useTokenInfo } from './orderly/state';
@@ -39,6 +44,12 @@ const is_mobile = isMobile();
 
 function PortfolioOrderly() {
   const intl = useIntl();
+  const {
+    newPositions,
+    triggerBalanceBasedData,
+    triggerPositionBasedData
+  } = usePerpData();
+  const { marketList } = useMarketlist();
   const { globalState } = useContext(WalletContext);
   const { accountId } = useWalletSelector();
   const { tokenInfo, balances, symbol, myPendingOrdersRefreshing, validAccountSig } = useOrderlyContext();
@@ -50,8 +61,9 @@ function PortfolioOrderly() {
   const [chooseMarketSymbol, setChooseMarketSymbol] = useState<string>('all_markets');
   const [chooseOrderSide, setChooseOrderSide] = useState<'all_side' | 'BUY' | 'SELL'>('all_side');
 
+  const [mobileFilterOpen, setMobileFilterOpen] = useState<boolean>(false);
+
   const [holdings, setHoldings] = useState<Holding[]>();
-  const [futuresStats, setFuturesStats] = useState<{ unreal: number; daily: number; notional: number; unsettle: number }>({ unreal: 0, daily: 0, notional: 0, unsettle: 0 });
   const [operationType, setOperationType] = useState<'deposit' | 'withdraw'>();
   const { symbolFrom } = parseSymbol(symbol);
 
@@ -72,7 +84,6 @@ function PortfolioOrderly() {
 
   // settle pnl
   const [settlePnlModalOpen, setSettlePnlModalOpen] = useState<boolean>(false);
-  const [totalPnl, setTotalPnl] = useState<number>(0);
 
   const { ordersTable, assetsTables, recordsTable } = usePortableOrderlyTable({
     refOnly,
@@ -86,8 +97,7 @@ function PortfolioOrderly() {
     setOperationType,
     setOperationId,
     tokenIn,
-    setSettlePnlModalOpen,
-    futuresStats
+    setSettlePnlModalOpen
   });
 
   const handleSettlePnl = async () => {
@@ -96,19 +106,6 @@ function PortfolioOrderly() {
     return executeMultipleTransactions([await perpSettlementTx()]);
   };
 
-  const getPnLTotal = async () => {
-    const { data } = await getPortfolioPosition({ accountId });
-    const { rows, total_pnl_24_h } = data;
-    const totalUnsettle: number = rows.reduce((total: number, { unsettled_pnl } : { unsettled_pnl: number }) => total + unsettled_pnl, 0);
-
-    setTotalPnl(totalUnsettle);
-    setFuturesStats({
-      unreal: rows.reduce((total: number, { mark_price, average_open_price, position_qty } : { mark_price: number; average_open_price: number; position_qty: number; }) => total + ((mark_price - average_open_price) *  position_qty), 0),
-      daily: total_pnl_24_h,
-      notional: rows.reduce((total: number, { average_open_price, position_qty } : { average_open_price: number;  position_qty: number; }) => total + (average_open_price * position_qty), 0),
-      unsettle: totalUnsettle
-    });
-  }
 
   useEffect(() => {
     getOrderlySystemInfo().then((res) => {
@@ -119,7 +116,6 @@ function PortfolioOrderly() {
       }
     });
     
-    getPnLTotal();
   }, []);
 
   useEffect(() => {
@@ -220,9 +216,10 @@ function PortfolioOrderly() {
                 chooseOrderSide={chooseOrderSide}
                 setChooseOrderSide={setChooseOrderSide}
                 displayBalances={displayBalances}
+                triggerPositionBasedData={triggerPositionBasedData}
               />
-              <TableWithTabs table={assetsTables} maintenance={maintenance} displayBalances={displayBalances} />
-              <TableWithTabs table={recordsTable} maintenance={maintenance} displayBalances={displayBalances} />
+              <TableWithTabs table={assetsTables} maintenance={maintenance} displayBalances={displayBalances} newPositions={newPositions} />
+              <TableWithTabs table={recordsTable} maintenance={maintenance} displayBalances={displayBalances} triggerBalanceBasedData={triggerBalanceBasedData} />
               <span className="text-xs text-primaryOrderly flex items-center">
                 <div className="ml-5 mr-1">
                   <WarningIcon />
@@ -265,7 +262,7 @@ function PortfolioOrderly() {
                 </FlexRow>
               </FlexRow>
 
-              {tab === 0 && <TableWithTabs table={assetsTables} maintenance={maintenance} displayBalances={displayBalances} />}
+              {tab === 0 && <TableWithTabs table={assetsTables} maintenance={maintenance} displayBalances={displayBalances} newPositions={newPositions} />}
               {tab === 1 && (
                 <TableWithTabs
                   table={ordersTable}
@@ -278,9 +275,10 @@ function PortfolioOrderly() {
                   chooseOrderSide={chooseOrderSide}
                   setChooseOrderSide={setChooseOrderSide}
                   displayBalances={displayBalances}
+                  triggerPositionBasedData={triggerPositionBasedData}
                 />
               )}
-              {tab === 2 && <TableWithTabs table={recordsTable} maintenance={maintenance} displayBalances={displayBalances} />}
+              {tab === 2 && <TableWithTabs table={recordsTable} maintenance={maintenance} displayBalances={displayBalances} triggerBalanceBasedData={triggerBalanceBasedData} />}
               
             </div>
           </div>
@@ -327,7 +325,245 @@ function PortfolioOrderly() {
         accountBalance={tokenInHolding || 0}
         tokenInfo={tokenInfo}
       />
+
+
+      <MobileFilterModal
+        isOpen={false}
+        onRequestClose={() => setMobileFilterOpen(false)}
+        curInstrument={
+          chooseMarketSymbol === 'all_markets'
+            ? 'All'
+            : marketList.find((m) => m.textId === chooseMarketSymbol)?.text
+        }
+        curSymbol={chooseMarketSymbol ? chooseMarketSymbol : ''}
+        typeList={['All', 'Limit', 'Market', 'Post Only']}
+        sideList={['Both', 'Buy', 'Sell']}
+        setSide={setChooseOrderSide}
+        curSide={chooseOrderSide}
+        setInstrument={(value: string) => {
+          setChooseMarketSymbol(value);
+        }}
+        statusList={['All', 'Cancelled', 'Filled', 'Rejected']}
+      />
     </PortfolioOrderlyData.Provider>
   );
 }
+
+function MobileFilterModal(
+  props: {
+    curInstrument: JSX.Element | string;
+    typeList?: string[];
+    curSymbol?: string;
+    sideList?: string[];
+    statusList?: string[];
+    curType?: string;
+    curSide: string;
+    curStatus?: string;
+    setType?: (value: any) => void;
+    setSide: (value: any) => void;
+    setStatus?: (value: any) => void;
+    setInstrument?: (value: string) => void;
+    setShowCurSymbol?: (value: boolean) => void;
+  } & Modal.Props
+) {
+  const {
+    curInstrument,
+    typeList,
+    sideList,
+    statusList,
+    curSide,
+    curStatus,
+    curType,
+    setType,
+    setSide,
+    setStatus,
+    curSymbol,
+    setInstrument,
+    setShowCurSymbol,
+  } = props;
+
+  const [showSymbolSelector, setShowSymbolSelector] = useState<boolean>(false);
+
+  const { setSymbol } = useOrderlyContext();
+
+  function SelectList({
+    curSelect,
+    list,
+    listKey,
+    setCurSelect,
+    keyTranslate,
+  }: {
+    listKey: string;
+    curSelect: string;
+    list: string[];
+    setCurSelect: (value: string) => void;
+    keyTranslate: 'type' | 'status' | 'side' | 'instrument';
+  }) {
+    return (
+      <div className="mb-5 flex items-start w-full justify-between">
+        <div className="text-gray2">{listKey}</div>
+
+        <div
+          className={` flex-shrink-0 items-center ${
+            list.length > 3 ? 'grid' : 'flex'
+          }  grid-cols-2`}
+        >
+          {list.map((item, index) => {
+            return (
+              <div
+                className="flex items-center ml-4 mb-1"
+                key={'mobile-select-list-' + item + index}
+                onClick={() => {
+                  setCurSelect(item);
+                }}
+              >
+                <CheckBox
+                  check={item === curSelect}
+                  setCheck={() => setCurSelect(item)}
+                />
+
+                <span className="ml-2">
+                  {getTranslateList(keyTranslate)[item]}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  const intl = useIntl();
+
+  return (
+    <>
+      <Modal
+        {...props}
+        style={{
+          content: {
+            position: 'fixed',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            top: 'none',
+            bottom: '0px',
+            left: '0px',
+            transform: 'translate(-50%, -20px)',
+            outline: 'none',
+            zIndex: 999,
+          },
+        }}
+      >
+        <div className="bg-darkBg px-5 overflow-auto  xs:w-screen xs:fixed xs:bottom-0 xs:left-0 rounded-t-2xl  text-base   rounded-lg   border-t border-borderC  py-4 text-white">
+          <div className="text-left font-bold flex items-center justify-between">
+            <span>
+              {intl.formatMessage({
+                id: 'filter',
+                defaultMessage: 'Filter',
+              })}
+            </span>
+
+            <span
+              onClick={(e: any) => {
+                e.stopPropagation();
+                e.preventDefault();
+
+                props.onRequestClose && props.onRequestClose(e);
+              }}
+            >
+              <IoClose size={20} className="text-primaryText"></IoClose>
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between my-5">
+            <span>
+              {intl.formatMessage({
+                id: 'instrument',
+                defaultMessage: 'Instrument',
+              })}
+            </span>
+            <div
+              className="flex items-center"
+              onClick={() => {
+                setShowSymbolSelector(true);
+              }}
+            >
+              <span className={curInstrument === 'All' ? 'mr-2' : ''}>
+                {curInstrument === 'All'
+                  ? intl.formatMessage({
+                      id: 'All',
+                      defaultMessage: 'All',
+                    })
+                  : curInstrument}
+              </span>
+              <RiArrowDownSFill
+                color="white"
+                className="relative bottom-0.5 right-1"
+                size="22"
+              />
+            </div>
+          </div>
+          {typeList && (
+            <SelectList
+              curSelect={curType}
+              listKey={intl.formatMessage({
+                id: 'type',
+                defaultMessage: 'Type',
+              })}
+              list={typeList}
+              setCurSelect={setType}
+              keyTranslate="type"
+            />
+          )}
+
+          <SelectList
+            curSelect={curSide}
+            listKey={intl.formatMessage({
+              id: 'Side',
+              defaultMessage: 'Side',
+            })}
+            list={sideList}
+            setCurSelect={setSide}
+            keyTranslate="side"
+          />
+
+          {statusList && (
+            <SelectList
+              curSelect={curStatus}
+              listKey={intl.formatMessage({
+                id: 'status',
+                defaultMessage: 'Status',
+              })}
+              list={statusList}
+              setCurSelect={setStatus}
+              keyTranslate="status"
+            />
+          )}
+        </div>
+      </Modal>
+
+      {showSymbolSelector && (
+        <SymbolSelectorMobileModal
+          isOpen={showSymbolSelector}
+          setSymbol={(value: string) => {
+            setShowCurSymbol(true);
+            setSymbol(value);
+            setInstrument(value);
+          }}
+          onRequestClose={() => {
+            setShowSymbolSelector(false);
+          }}
+          fromList
+          all={curInstrument === 'All'}
+          curSymbol={curSymbol}
+          fromListClick={() => {
+            setShowCurSymbol(false);
+            setInstrument('all_markets');
+          }}
+        ></SymbolSelectorMobileModal>
+      )}
+    </>
+  );
+}
+
 export default PortfolioOrderly;

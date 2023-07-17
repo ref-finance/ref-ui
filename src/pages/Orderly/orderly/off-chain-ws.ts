@@ -450,6 +450,8 @@ export const useOrderlyPrivateData = ({
 
   const [balances, setBalances] = useState<Record<string, Balance>>({});
 
+  const [balanceTimeStamp, setBalanceTimeStamp] = useState<number>(0);
+
   const [futureLeverage, setFutureLeverage] = useState<number>();
 
   const [orderlyKey, setOrderlyKey] = useState('');
@@ -459,6 +461,8 @@ export const useOrderlyPrivateData = ({
   const [liquidations, setLiquidations] = useState<LiquidationPushType[]>([]);
 
   const [positionPush, setPositionPush] = useState<PositionPushType[]>();
+
+  const [positionTimeStamp, setPositionTimeStamp] = useState<number>(0);
 
   const time_stamp = useMemo(() => Date.now(), []);
 
@@ -511,10 +515,12 @@ export const useOrderlyPrivateData = ({
     }
 
     if (lastJsonMessage?.['topic'] === 'balance') {
+      setBalanceTimeStamp(lastJsonMessage?.['ts']);
       setBalances(lastJsonMessage?.['data'].balances);
     }
 
     if (lastJsonMessage?.['topic'] === 'position') {
+      setPositionTimeStamp(lastJsonMessage?.['ts']);
       setPositionPush(lastJsonMessage?.['data'].positions);
     }
 
@@ -570,7 +576,9 @@ export const useOrderlyPrivateData = ({
 
   return {
     balances,
+    balanceTimeStamp,
     positionPush,
+    positionTimeStamp,
     liquidations,
     setLiquidations,
     futureLeverage,

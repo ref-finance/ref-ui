@@ -12,7 +12,10 @@ import {
   getMarginRatio,
   getTotalCollateral,
   getTotaluPnl,
+  getPortfolioTotaluPnl,
   getUnsettle,
+  getPortfolioUnsettle,
+  getNotional
 } from './math';
 import { parseSymbol } from '../RecentTrade';
 import { useLeverage } from '~pages/Orderly/orderly/state';
@@ -175,6 +178,7 @@ export function usePerpData() {
     tokenInfo,
     storageEnough,
     balances,
+    balanceTimeStamp,
     setValidAccountSig,
     handlePendingOrderRefreshing,
     validAccountSig,
@@ -184,9 +188,11 @@ export function usePerpData() {
     positions,
     markPrices,
     positionPush,
+    positionTimeStamp,
     ticker,
     futureLeverage,
   } = useOrderlyContext();
+  
   const newPositions = useMemo(() => {
     try {
       const calcPositions = positions.rows.map((item) => {
@@ -296,6 +302,30 @@ export function usePerpData() {
     }
   }, [newPositions, markPrices]);
 
+  const totalPortfoliouPnl = useMemo(() => {
+    try {
+      return getPortfolioTotaluPnl(newPositions, markPrices);
+    } catch (error) {
+      return null;
+    }
+  }, [newPositions, markPrices]);
+
+  const totalDailyReal = useMemo(() => {
+    try {
+      return newPositions.total_pnl_24_h?.toFixed(0);
+    } catch (error) {
+      return null;
+    }
+  }, [newPositions]);
+
+  const totalNotional = useMemo(() => {
+    try {
+      return getNotional(newPositions);
+    } catch (error) {
+      return null;
+    }
+  }, [newPositions]);
+
   const marginRatio = useMemo(() => {
     {
       try {
@@ -313,16 +343,38 @@ export function usePerpData() {
     [newPositions, markPrices]
   );
 
+  const portfolioUnsettle = useMemo(
+    () => getPortfolioUnsettle(newPositions, markPrices),
+    [newPositions, markPrices]
+  );
+
   const mmr = useMemo(() => {
     return getMaintenanceMarginRatio(newPositions, markPrices);
   }, [newPositions, markPrices]);
+
+  const triggerBalanceBasedData = useMemo(
+    () => balanceTimeStamp,
+    [balanceTimeStamp]
+  );
+
+  const triggerPositionBasedData = useMemo(
+    () => positionTimeStamp,
+    [positionTimeStamp]
+  );
 
   return {
     totalCollateral,
     freeCollateral,
     totaluPnl,
+    totalPortfoliouPnl,
+    totalDailyReal,
+    totalNotional,
     marginRatio,
     unsettle,
+    portfolioUnsettle,
     mmr,
+    newPositions,
+    triggerBalanceBasedData,
+    triggerPositionBasedData
   };
 }

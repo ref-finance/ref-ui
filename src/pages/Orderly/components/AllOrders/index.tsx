@@ -86,7 +86,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import _ from 'lodash';
 import { tickToPrecision } from '../UserBoardPerp/math';
 
-function getTranslateList(key: 'type' | 'side' | 'status' | 'instrument') {
+export function getTranslateList(key: 'type' | 'side' | 'status' | 'instrument') {
   const intl = useIntl();
   return {
     type: {
