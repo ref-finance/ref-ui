@@ -688,7 +688,7 @@ export const getPortfolioAllOrders = async (props: {
   OrderProps?: {
     symbol?: string;
     page?: number;
-    size?: number;
+    size: number;
     status?: 'NEW' | 'CANCELLED' | 'PARTIAL_FILLED' | 'FILLED' | 'REJECTED' | 'INCOMPLETE' | 'COMPLETED',
     broker_id?: string,
     side?: 'BUY' | 'SELL'
@@ -697,8 +697,7 @@ export const getPortfolioAllOrders = async (props: {
   const res = await getOrders({
     accountId: props.accountId,
     OrderProps: {
-      ...props.OrderProps,
-      size: 10,
+      ...props.OrderProps
     },
   });
 

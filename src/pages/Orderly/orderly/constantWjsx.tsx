@@ -254,6 +254,7 @@ export const usePortableOrderlyTable = ({
             accountId,
             OrderProps: {
               page,
+              size: orderType > 0 ? 500 : 10,
               // @ts-ignore
               status: chooseOrderStatus === 'all' ? 'INCOMPLETE' : chooseOrderStatus.toUpperCase(),
               broker_id: refOnly ? 'ref_dex' : '',
@@ -418,7 +419,8 @@ export const usePortableOrderlyTable = ({
           return getPortfolioAllOrders({
             accountId,
             OrderProps: {
-              page,
+              page: orderType > 0 ? 1 : page,
+              size: orderType > 0 ? 500 : 10,
               // @ts-ignore
               status: chooseOrderStatus === 'all' ? 'COMPLETED' : chooseOrderStatus.toUpperCase(),
               broker_id: refOnly ? 'ref_dex' : '',

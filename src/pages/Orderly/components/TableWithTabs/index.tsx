@@ -88,6 +88,10 @@ function TableWithTabs({
   }, [page]);
 
   useEffect(() => {
+    setPage(1);
+  }, [orderType]);
+
+  useEffect(() => {
     if (getData && (id === 'open_orders' || id === 'history')) {
       callGetData();
     }
@@ -311,6 +315,7 @@ function TableWithTabs({
             setPage={setPage}
             maintenance={maintenance}
             pagination={!table.tabs[tab].pagination ? table.tabs[tab].pagination : true}
+            orderType={orderType}
           />
         </div>
       </div>

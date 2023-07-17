@@ -94,6 +94,7 @@ function Table({
   pagination = true,
   mobileRender,
   mobileRenderCustom,
+  orderType,
   mobileFooter,
   maintenance,
 }: {
@@ -108,6 +109,7 @@ function Table({
   tableRowEmpty?: string;
   tableTopComponent: JSX.Element;
   pagination: boolean;
+  orderType: number;
   mobileRender: (row: any) => any;
   mobileRenderCustom?: boolean;
   mobileFooter?: JSX.Element;
@@ -120,9 +122,7 @@ function Table({
     userExist,
     validAccountSig,
   } = useOrderlyContext();
-  const { accountId, modal } = useWalletSelector();
-
-  const [chooseSide, setChooseSide] = useState<'Both' | 'Buy' | 'Sell'>('Both');
+  const { accountId, modal } = useWalletSelector()
 
   const [sort, setSort] = useState<[string, 'asc' | 'dsc']>([
     '',
@@ -133,6 +133,7 @@ function Table({
   const [keyAnnounced, setKeyAnnounced] = useState<boolean>(false);
   const [agreeCheck, setAgreeCheck] = useState<boolean>(false);
   const [registerModalOpen, setRegisterModalOpen] = useState<boolean>(false);
+  const [customTotal, setCustomTotal] = useState<number | null>(null);
 
   const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
 
@@ -196,13 +197,36 @@ function Table({
     }
   };
 
-  const filterFunc = (order: MyOrder) => {
-    const a =
-      chooseSide === 'Both' ||
-      order.side.toLowerCase() === chooseSide.toLowerCase();
+  const filterFunc = (order: MyOrder, index: number) => {
+    let a = true;
+    if (orderType === 1) {
+      a = !order.symbol.includes('PERP');
+    } else if (orderType === 2) {
+      a = order.symbol.includes('PERP');
+    }
 
     return a;
   };
+
+  const pagingFunc = (order: MyOrder, index: number) => {
+    let a = true;
+    if (orderType === 1) {
+      a = (index >= ((page - 1) * 10) && index < (page * 10));
+    } else if (orderType === 2) {
+      a = (index >= ((page - 1) * 10) && index < (page * 10));;
+    }
+
+    return a;
+  };
+
+  useEffect(() => {
+    if (orderType > 0) {
+      setCustomTotal(data.filter(filterFunc).length);
+    } else {
+      setCustomTotal(null);
+    }
+  }, [data])
+
   const intl = useIntl();
 
   const validator =
@@ -340,7 +364,7 @@ function Table({
                   <OrderlyLoading />
                 </td>
               </tr>
-            ) : data.filter(filterFunc).length === 0 ? (
+            ) : data.filter(filterFunc).filter(pagingFunc).length === 0 ? (
               <tr
                 className={`w-full mt-10 mb-4 px-5 table-fixed grid grid-cols-${gridCol} gap-4`}
               >
@@ -377,8 +401,9 @@ function Table({
               </tr>
             ) : (
               data
-                .sort(sortingFunc)
                 .filter(filterFunc)
+                .filter(pagingFunc)
+                .sort(sortingFunc)
                 .map((order, i) => {
                   return (
                     <OrderLine
@@ -400,7 +425,7 @@ function Table({
               <OrderlyLoading />
             </div>
           </div>
-        ) : data.filter(filterFunc).length === 0 ? (
+        ) : data.filter(filterFunc).filter(pagingFunc).length === 0 ? (
           <div className="w-full mt-10 mb-4 px-5 gap-4">
             <div className="text-center">
               {intl.formatMessage({
@@ -413,8 +438,9 @@ function Table({
           <>
             {!mobileRenderCustom &&
               data
-                .sort(sortingFunc)
                 .filter(filterFunc)
+                .filter(pagingFunc)
+                .sort(sortingFunc)
                 .map((order) => mobileRender && mobileRender(order))}
             {mobileRenderCustom &&
               mobileRender(data.sort(sortingFunc).filter(filterFunc))}
@@ -481,16 +507,16 @@ function Table({
             </div>
 
             <span>
-              {(page - 1) * 10 + 1}-{total > page * 10 ? page * 10 : total} of{' '}
-              {total}
+              {(page - 1) * 10 + 1}-{(customTotal ? customTotal : total) > page * 10 ? page * 10 : (customTotal ? customTotal : total)} of{' '}
+              {(customTotal ? customTotal : total)}
             </span>
 
             {/* Next */}
             <div
               onClick={() => {
-                page < Math.ceil(total / 10) && setPage(page + 1);
+                page < Math.ceil((customTotal ? customTotal : total) / 10) && setPage(page + 1);
               }}
-              className={page < Math.ceil(total / 10) ? 'cursor-pointer' : ''}
+              className={page < Math.ceil((customTotal ? customTotal : total) / 10) ? 'cursor-pointer' : ''}
             >
               <svg
                 className="mx-1"
@@ -501,7 +527,7 @@ function Table({
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
-                  opacity={page < Math.ceil(total / 10) ? '1' : '0.3'}
+                  opacity={page < Math.ceil((customTotal ? customTotal : total) / 10) ? '1' : '0.3'}
                   d="M5.22267 3.77071C5.64372 4.16574 5.64372 4.83426 5.22267 5.22928L1.68421 8.54905C1.04564 9.14816 -4.6751e-07 8.69538 -4.29236e-07 7.81976L-1.39013e-07 1.18023C-1.00738e-07 0.304619 1.04564 -0.148155 1.68421 0.450951L5.22267 3.77071Z"
                   fill="#7E8A93"
                 />
@@ -511,9 +537,9 @@ function Table({
             {/* Last page */}
             <div
               onClick={() => {
-                page < Math.ceil(total / 10) && setPage(Math.ceil(total / 10));
+                page < Math.ceil((customTotal ? customTotal : total) / 10) && setPage(Math.ceil((customTotal ? customTotal : total) / 10));
               }}
-              className={page < Math.ceil(total / 10) ? 'cursor-pointer' : ''}
+              className={page < Math.ceil((customTotal ? customTotal : total) / 10) ? 'cursor-pointer' : ''}
             >
               <svg
                 className="mx-1"
@@ -523,7 +549,7 @@ function Table({
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
               >
-                <g opacity={page < Math.ceil(total / 10) ? '1' : '0.3'}>
+                <g opacity={page < Math.ceil((customTotal ? customTotal : total) / 10) ? '1' : '0.3'}>
                   <path
                     d="M7.22267 5.77071C7.64372 6.16574 7.64372 6.83426 7.22267 7.22928L3.68421 10.5491C3.04564 11.1482 2 10.6954 2 9.81976L2 3.18023C2 2.30462 3.04564 1.85185 3.68421 2.45095L7.22267 5.77071Z"
                     fill="#7E8A93"
