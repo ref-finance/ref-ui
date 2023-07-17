@@ -394,7 +394,10 @@ export interface PortfolioTableColumns {
   header: string;
   mobileHeaderKey?: string;
   type?: string;
+  customRender?: boolean;
   render?: (row: any) => any;
+  CustomComponent?: JSX.Element;
+  headerRender?: () => any;
   selectList?: string[];
   extras?: string | string[];
   icon?: any;

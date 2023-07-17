@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useIntl } from 'react-intl';
 import { TokenMetadata } from '~services/ft-contract';
 import { getPortfolioAllOrders, getFundingFee, getPortfolioAssetHistory, getPortfolioPosition, getPortfolioSettlements } from '../orderly/off-chain-api';
 import { TextWrapper } from '../components/UserBoard';
-import { PortfolioTable, MarkPrice, Ticker } from './type';
+import { PortfolioTable } from './type';
 import { useDEXLogoRender } from './customRenderHook';
 import { useOrderlyContext } from '../orderly/OrderlyContext';
 import { formatTimeDate, shortenAddress, getAccountName } from './utils';
@@ -13,7 +13,8 @@ import { useBatchTokenMetaFromSymbols } from '../components/ChartHeader/state';
 import { parseSymbol } from '../components/RecentTrade';
 import ProgressBar from '../components/TableWithTabs/ProgressBar';
 import OrdersFilters from '../components/TableWithTabs/OrdersFilters';
-import { FutureMobileView, FutureTopComponent } from '../components/TableWithTabs/FuturesControls';
+import { FutureMobileView, FutureTopComponent, FutureTableFormHeaders } from '../components/TableWithTabs/FuturesControls';
+import { usePerpData } from '../components/UserBoardPerp/state';
 import { AllMarketIcon } from '../components/Common/Icons';
 import { 
   DepositButtonMobile,
@@ -56,8 +57,7 @@ export const usePortableOrderlyTable = ({
   setOperationId,
   tokenIn,
   setSettlePnlModalOpen,
-  markPrices,
-  lastPrices
+  handleOpenClosing
 }: {
   refOnly: boolean;
   setRefOnly: (item: boolean) => void;
@@ -73,10 +73,13 @@ export const usePortableOrderlyTable = ({
   chooseOrderType: 'all' | 'limit' | 'market';
   tokenIn: TokenMetadata;
   setSettlePnlModalOpen: (item: boolean) => void;
-  markPrices: MarkPrice[];
-  lastPrices: { symbol: string;low: number; }[];
+  handleOpenClosing: (closingQuantity: number, closingPrice: number | 'Market', row: any) => void;
 }) => {
   const intl = useIntl();
+  const {
+    markPrices,
+    lastPrices
+  } = usePerpData();
   const { accountId } = useWalletSelector();
   const { renderLogo } =  useDEXLogoRender();
   const { wallet } = getCurrentWallet();
@@ -624,6 +627,7 @@ export const usePortableOrderlyTable = ({
           <FutureMobileView
             rows={rows}
             marketList={marketList}
+            handleOpenClosing={handleOpenClosing}
           >
             <SettlePnlBtn />
           </FutureMobileView>
@@ -693,21 +697,11 @@ export const usePortableOrderlyTable = ({
           },
           {
             key: 'qty.',
-            header: 'Qty.', 
-            render: ({ position_qty }) => (
-              <div
-                className={`px-2 text-sm ${position_qty > -1 ? 'text-buyGreen' : 'text-sellColorNew'}`}
-                style={{
-                  borderRadius: '6px',
-                  border: '1px solid #1D2932',
-                  backgroundColor: 'rgba(0, 0, 0, 0.10)'
-                }}
-              >
-                {position_qty?.toFixed(0) || '-' }
-              </div>
-            )},
-          { key: 'price', header: 'Price', render: ({ average_open_price }) => average_open_price?.toFixed(3) || '-' },
-          { key: '', header: '', render: () => 'close'},
+            header: 'Qty.',
+            colSpan: 3,
+            customRender: true,
+            headerRender: () => <FutureTableFormHeaders />
+          }
         ]
       }
     ]

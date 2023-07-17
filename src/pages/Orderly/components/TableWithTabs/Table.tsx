@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 import 'react-circular-progressbar/dist/styles.css';
 import {
@@ -7,6 +7,7 @@ import {
   REF_ORDERLY_ACCOUNT_VALID,
   REF_ORDERLY_AGREE_CHECK,
 } from '../UserBoard';
+import { FutureTableFormCells } from './FuturesControls';
 import { MyOrder, PortfolioTableColumns } from '../../orderly/type';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import { RefToOrderly, OrderlyLoading } from '../Common/Icons';
@@ -28,15 +29,22 @@ function OrderLine({
   order,
   columns,
   tableRowType,
+  handleOpenClosing
 }: {
-  order: MyOrder;
+  order: any;
   columns: PortfolioTableColumns[];
   tableRowType: string;
+  handleOpenClosing?: (closingQuantity: number, closingPrice: number | 'Market', row: any) => void;
 }) {
+  const inputRefs = useRef([]);
   const gridCol = columns.reduce(
     (acc, column) => acc + (column.colSpan ? column.colSpan : 1),
     0
   );
+
+  const [closingQuantity, setClosingQuantity] = useState(order.position_qty);
+  const [closingPrice, setClosingPrice] = useState<'Market' | number>(order.mark_price);
+  const [open, setOpen] = useState<boolean>(false);
 
   return (
     <>
@@ -50,7 +58,7 @@ function OrderLine({
           backgroundColor: tableRowType === 'card' ? '#7E8A931A' : '',
         }}
       >
-        {columns.map((column, i) => (
+        {columns.map((column, i) => !column.customRender ? (
           <td
             key={`${column.key}-${i}`}
             className={`col-span-${
@@ -74,6 +82,19 @@ function OrderLine({
               {column.render({ ...order })}
             </div>
           </td>
+        ): (
+          <FutureTableFormCells
+            key="table-form"
+            position_qty={order.position_qty}
+            closingQuantity={closingQuantity}
+            setClosingQuantity={setClosingQuantity}
+            closingPrice={closingPrice}
+            setClosingPrice={setClosingPrice}
+            open={open}
+            setOpen={setOpen}
+            handleOpenClosing={handleOpenClosing}
+            row={order}
+          />
         ))}
       </tr>
     </>
@@ -97,6 +118,7 @@ function Table({
   orderType,
   mobileFooter,
   maintenance,
+  handleOpenClosing
 }: {
   data: MyOrder[];
   loading: boolean;
@@ -114,6 +136,7 @@ function Table({
   mobileRenderCustom?: boolean;
   mobileFooter?: JSX.Element;
   maintenance: boolean;
+  handleOpenClosing?: (closingQuantity: number, closingPrice: number | 'Market', row: any) => void;
 }) {
   const {
     storageEnough,
@@ -340,7 +363,7 @@ function Table({
             <tr
               className={`w-full px-5 table-fixed grid grid-cols-${gridCol} gap-4`}
             >
-              {columns.map((column, i) => (
+              {columns.map((column, i) => !column.customRender ? (
                 <TableHeader
                   key={`${column.key ? column.key : 'column'}-${i}`}
                   column={column}
@@ -348,6 +371,8 @@ function Table({
                   sort={sort}
                   setSort={setSort}
                 />
+              ) : (
+                column.headerRender()
               ))}
             </tr>
           </thead>
@@ -409,6 +434,7 @@ function Table({
                     <OrderLine
                       order={order}
                       key={`${tableKey}-order-${i}`}
+                      handleOpenClosing={handleOpenClosing}
                       columns={columns}
                       tableRowType={tableRowType}
                     />

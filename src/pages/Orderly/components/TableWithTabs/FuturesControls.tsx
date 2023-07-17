@@ -1,9 +1,159 @@
 import React , { useEffect, useState } from 'react';
 import { MdArrowDropDown } from 'react-icons/md';
 import { IoClose } from 'react-icons/io5';
-  import { useIntl } from 'react-intl';
-  import Modal from 'react-modal';
-  import { usePerpData } from '../UserBoardPerp/state';
+import { useIntl } from 'react-intl';
+import Modal from 'react-modal';
+import { TextWrapper } from '../UserBoard';
+import { usePerpData } from '../UserBoardPerp/state';
+import { parseSymbol } from '../RecentTrade';
+
+export const FutureTableFormHeaders: React.FC = () => {
+  const intl = useIntl();
+
+  const TableHeader: React.FC = ({ children }) => (
+    <th className={`col-span-1 pb-2 flex items-center`}>
+      <div className={`flex items-center relative text-left`}>
+        <span
+          className="hidden md:flex lg:flex items-center"
+          style={{ color: '#7E8A93' }}
+        >
+          <span className={`ml-2`}>
+            {children}
+          </span>
+        </span>
+      </div>
+    </th>
+  )
+
+
+  return (
+    <>
+      <TableHeader>
+        {intl.formatMessage({
+          id: 'qty.',
+          defaultMessage: 'Qty.',
+        })}
+      </TableHeader>
+      <TableHeader>
+        {intl.formatMessage({
+          id: 'price',
+          defaultMessage: 'Price',
+        })}
+      </TableHeader>
+      <TableHeader>{' '}</TableHeader>
+    </>
+  )
+}
+
+export const FutureTableFormCells: React.FC<{
+  position_qty: number;
+  closingQuantity: number;
+  setClosingQuantity: (input: number) => void;
+  closingPrice: number | 'Market';
+  setClosingPrice: (input: number) => void;
+  open: boolean;
+  setOpen: (input: boolean) => void;
+  handleOpenClosing: (closingQuantity: number, closingPrice: number | 'Market', row: any) => void;
+  row: any,
+}> = ({
+  position_qty,
+  closingQuantity,
+  setClosingQuantity,
+  closingPrice,
+  setClosingPrice,
+  open,
+  setOpen,
+  handleOpenClosing,
+  row
+}) => {
+  const intl = useIntl();
+  const [price, setPrice] = useState<number | 'Market'>('Market');
+
+  const TableCell: React.FC = ({ children }) => (
+    <td className={`col-span-1 flex items-center py-5 relative break-all`}>
+      <div className={`flex items-center text-white`}>
+        {children}
+      </div>
+    </td>
+  )
+  return (
+    <>
+      <TableCell>
+        <input
+          className={`px-2 text-sm`}
+          style={{
+            borderRadius: '6px',
+            border: '1px solid #1D2932',
+            backgroundColor: 'rgba(0, 0, 0, 0.10)'
+          }}
+          type="number"
+          placeholder="0.0"
+          onChange={({ target }) => {
+            let value: number = parseFloat(target.value);
+            if (value > Math.abs(position_qty)) value = position_qty;
+            if (value < 0 || !value) value = 0;
+            setClosingQuantity(value)
+          }}
+          value={closingQuantity}
+        />
+      </TableCell>
+      <TableCell>
+        <div className="relative">
+          <input
+            className={`px-2 text-sm`}
+            style={{
+              borderRadius: '6px',
+              border: '1px solid #1D2932',
+              backgroundColor: 'rgba(0, 0, 0, 0.10)'
+            }}
+            placeholder="0.0"
+            onChange={({ target }) => {
+              let value: number = parseFloat(target.value);
+              if (value > Math.abs(position_qty)) value = position_qty;
+              if (value < 0 || !value) value = 0;
+              setClosingPrice(value);
+            }}
+            value={price || closingPrice}
+            onClick={() => {
+              if (price !== 0) setPrice(0) 
+              else setOpen(true)
+            }}
+          />
+          {open && (
+            <div  
+              className="absolute top-full cursor-pointer px-2 text-sm"
+              style={{
+                borderRadius: '6px',
+                border: '1px solid #1D2932',
+                backgroundColor: 'rgba(0, 0, 0, 0.10)'
+              }}
+              onClick={() => {
+                setPrice('Market');
+                setOpen(false);
+              }}
+            >
+              {intl.formatMessage({
+                id: 'market',
+                defaultMessage: 'Market',
+              })}
+            </div>
+          )}
+        </div>
+      </TableCell>
+      <TableCell>
+        <div
+          className="border border-orderTypeBg px-3 py-1.5 rounded-md text-primaryText cursor-pointer"
+          onClick={() => handleOpenClosing(closingQuantity, closingPrice, row)}
+        >
+          {intl.formatMessage({
+            id: 'close',
+            defaultMessage: 'Close',
+          })}
+        </div>
+      </TableCell>
+    </>
+  )
+}
 
 function FutureQuantityModal(
   props: Modal.Props & {
@@ -180,19 +330,27 @@ function FuturePriceModal(
 }
 
 
-export  function SettlePnlModal(
+export  function ClosingModal(
   props: Modal.Props & {
     onClick: () => Promise<any>;
+    row: any,
+    closingPrice: number | 'Market';
+    closingQuantity: number;
+    marketList: { text: JSX.Element; withSymbol: JSX.Element; textId: string; }[];
   }
 ) {
   const {
     onRequestClose,
     onClick,
+    closingPrice,
+    closingQuantity,
+    marketList,
+    row
   } = props;
 
-  const {
-    portfolioUnsettle
-  } = usePerpData();
+  const { symbol  } = row;
+
+  const { symbolFrom } = parseSymbol(symbol);
 
   const [loading, setLoading] = useState<boolean>(false);
   
@@ -210,82 +368,88 @@ export  function SettlePnlModal(
         className={`rounded-2xl lg:w-96 xs:w-95vw border border-gradientFrom border-opacity-30 bg-boxBorder text-sm text-primaryOrderly`}
       >
         <div className="px-5 py-6 flex flex-col ">
-          <div className="flex items-center pb-6 justify-between">
-            <span className="text-white text-lg font-bold">
-              {intl.formatMessage({
-                id: 'settle_pnl',
-                defaultMessage: 'Settle PnL',
-              })}
-            </span>
+          <div className="w-full grid grid-cols-2 gap-4">
+            <div className="col-span-2 m-4">
+              <div className="flex items-center justify-center text-white gotham_bold">
+                {intl.formatMessage({ id: 'closing_1' })}&nbsp;
+                <span className={row.position_qty < 0  ? 'text-buyGreen' : 'text-sellColorNew'}>{closingQuantity}</span>
+                &nbsp;{intl.formatMessage({ id: 'closing_2' })}
+              </div>
+            </div>
+            <div className="col-span-1 mb-3">
+              <div className="flex items-center ">{marketList.find((m) => m.textId === symbol)?.text}</div>
+            </div>
+            <div className="col-span-1 mb-3">
+              <div className="flex items-center justify-end  text-white">
+                {intl.formatMessage({ id: 'market' })}
+                <TextWrapper
+                  className="px-2 text-sm ml-2"
+                  value={intl.formatMessage({
+                    id: row.position_qty < 0 ? 'buy' : 'sell',
+                    defaultMessage: row.position_qty < 0 ? 'buy' : 'sell',
+                  })}
+                  bg={row.position_qty < 0  ? 'bg-buyGreen' : 'bg-sellRed'}
+                  textC={row.position_qty < 0  ? 'text-buyGreen' : 'text-sellColorNew'}
+                />
+              </div>
+            </div>
+            <div className="col-span-1 mb-3">
+              <div className="flex items-center text-white">{intl.formatMessage({ id: 'size' })}</div>
+            </div>
+            <div className="col-span-1 mb-3">
+              <div className="flex items-center justify-end text-white">{closingPrice} {symbolFrom}</div>
+            </div>
+            <div className="col-span-1 mb-3">
+              <div className="flex items-center text-white">{intl.formatMessage({ id: 'price' })}</div>
+            </div>
+            <div className="col-span-1 mb-3">
+              <div className="flex items-center justify-end text-white">{closingQuantity}</div>
+            </div>
+            <div className="col-span-1 mb-3">
+              <button
+                className={`w-full rounded-lg gotham_bold ${
+                  loading
+                    ? 'opacity-70 cursor-not-allowed border-buttonGradientBgOpacity'
+                    : ''
+                } flex items-center justify-center py-1 border border-greenColor text-base text-greenColor`}
+                onClick={(e: any) => {
+                  e.preventDefault();
+                  e.stopPropagation();
 
-            <span
-              className="cursor-pointer "
-              onClick={(e: any) => {
-                onRequestClose && onRequestClose(e);
-              }}
-            >
-              <IoClose size={20} />
-            </span>
+                  setLoading(true);
+                  onClick().then(() => {
+                    setLoading(false);
+                    onRequestClose && onRequestClose(e);
+                  });
+                }}
+                disabled={loading}
+              >
+                {intl.formatMessage({ id: 'cancel' })}
+              </button>
+            </div>
+            <div className="col-span-1 mb-3">
+              <button
+                className={`w-full rounded-lg gotham_bold ${
+                  loading
+                    ? 'opacity-70 cursor-not-allowed bg-buttonGradientBgOpacity'
+                    : ''
+                } flex items-center justify-center py-1 bg-buttonGradientBg hover:bg-buttonGradientBgOpacity text-base text-white`}
+                onClick={(e: any) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+
+                  setLoading(true);
+                  onClick().then(() => {
+                    setLoading(false);
+                    onRequestClose && onRequestClose(e);
+                  });
+                }}
+                disabled={loading}
+              >
+                {intl.formatMessage({ id: 'Confirm' })}
+              </button>
+            </div>
           </div>
-
-          <div className="flex items-center mb-5 justify-between">
-            <span className="text-sm">
-              {intl.formatMessage({
-                id: 'settle_pnl_tips',
-                defaultMessage: 'By doing this, we’ll move your profit or loss from perp markets into the USDC token balance. This has no impact on your open positions or health.',
-              })}
-            </span>
-          </div>
-
-          <div className="flex items-center mb-5 justify-between">
-            <span className="text-white">
-              {intl.formatMessage({
-                id: 'total_unsettled_pnl',
-                defaultMessage: 'Total unsettled PnL',
-              })}:
-            </span>
-
-            <span className="flex items-center">
-              <span className=" mr-2 text-buyGreen gotham_bold">
-                {portfolioUnsettle}
-              </span>
-              USDC
-            </span>
-          </div>
-
-          <button
-            className={`rounded-lg gotham_bold ${
-              loading
-                ? 'opacity-70 cursor-not-allowed bg-buttonGradientBgOpacity'
-                : ''
-            } flex items-center justify-center py-1 bg-buttonGradientBg hover:bg-buttonGradientBgOpacity text-base text-white font-bold`}
-            onClick={(e: any) => {
-              e.preventDefault();
-              e.stopPropagation();
-
-              setLoading(true);
-              onClick().then(() => {
-                setLoading(false);
-                onRequestClose && onRequestClose(e);
-              });
-            }}
-            disabled={loading}
-          >
-            <ButtonTextWrapper
-              loading={loading}
-              Text={() => {
-                return (
-                  <span>
-                    {' '}
-                    {intl.formatMessage({
-                      id: 'settle',
-                      defaultMessage: 'Settle',
-                    })}
-                  </span>
-                );
-              }}
-            />
-          </button>
         </div>
       </div>
     </Modal>
@@ -294,10 +458,12 @@ export  function SettlePnlModal(
 
 const FutureMobileRow: React.FC<{
   row: { symbol: string, position_qty:number, average_open_price: number, unsettled_pnl: number },
-  marketList: { text: JSX.Element; withSymbol: JSX.Element; textId: string; }[]
+  marketList: { text: JSX.Element; withSymbol: JSX.Element; textId: string; }[],
+  handleOpenClosing: (closingQuantity: number, closingPrice: number | 'Market', row: any) => void;
 }> = ({
   row,
-  marketList
+  marketList,
+  handleOpenClosing
 }) => {
   const intl = useIntl();
   const { markPrices } = usePerpData();
@@ -328,7 +494,9 @@ const FutureMobileRow: React.FC<{
           <div className="col-span-1 flex justify-end items-center mb-3">
             <div
               className="cursor-pointer text-center py-1 px-3 border border-orderTypeBg rounded-md"
-              // onClick={}
+               onClick={() => {
+                handleOpenClosing(quantity, price, row);
+               }}
             >
               {intl.formatMessage({ id: 'close' })}
             </div>
@@ -455,10 +623,12 @@ const FutureMobileRow: React.FC<{
 
 export const FutureMobileView: React.FC<{
   rows: { symbol: string, position_qty:number, average_open_price: number, mark_price: number, unsettled_pnl: number }[],
-  marketList: { text: JSX.Element; withSymbol: JSX.Element; textId: string; }[]
+  marketList: { text: JSX.Element; withSymbol: JSX.Element; textId: string; }[],
+  handleOpenClosing: (closingQuantity: number, closingPrice: number | 'Market', row: any) => void;
 }> = ({
   marketList,
-  children
+  children,
+  handleOpenClosing
 }) => {
   const intl = useIntl();
   const {
@@ -518,6 +688,7 @@ export const FutureMobileView: React.FC<{
           key={row.symbol}
           row={row}
           marketList={marketList}
+          handleOpenClosing={handleOpenClosing}
         />
       ))}
     </div>

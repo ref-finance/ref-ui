@@ -1399,5 +1399,8 @@ const en_US = {
   margin_ratio_tip:
     'The margin ratio of an account is equal to the total collateral value (ie the USDC balance + any unrealized profit/loss) divided by the total open notional of the account (the sum of the absolute notional value of all positions)',
   portfolio_total_est_tip: 'Portfolio value in USD.',
+  size: 'Size',
+  closing_1: 'Closing',
+  closing_2: 'position at market price.'
 };
 export default Object.assign(en_US, en_US_in_risks_page);

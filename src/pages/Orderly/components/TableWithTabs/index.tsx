@@ -38,7 +38,8 @@ function TableWithTabs({
   newPositions,
   triggerBalanceBasedData,
   triggerPositionBasedData,
-  setMobileFilterOpen
+  setMobileFilterOpen,
+  handleOpenClosing
 } : {
   table: PortfolioTable;
   maintenance: boolean;
@@ -58,6 +59,7 @@ function TableWithTabs({
   triggerBalanceBasedData?: number;
   triggerPositionBasedData?: number;
   setMobileFilterOpen?: (item: number) => void;
+  handleOpenClosing?: (closingQuantity: number, closingPrice: number | 'Market', row: any) => void;
 }) {
   const intl = useIntl();
   const { marketList } = useMarketlist();
@@ -316,6 +318,7 @@ function TableWithTabs({
             maintenance={maintenance}
             pagination={!table.tabs[tab].pagination ? table.tabs[tab].pagination : true}
             orderType={orderType}
+            handleOpenClosing={handleOpenClosing}
           />
         </div>
       </div>
