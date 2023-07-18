@@ -70,7 +70,7 @@ export default function SettlePnlModal(
             </span>
 
             <span className="flex items-center">
-              <span className=" mr-2 text-buyGreen gotham_bold">
+              <span className={`mr-2 ${parseFloat(portfolioUnsettle) > -1 ? 'bg-buyGreen' : 'bg-sellRed'} gotham_bold`}>
                 {portfolioUnsettle}
               </span>
               USDC

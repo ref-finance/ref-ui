@@ -201,6 +201,7 @@ function PortfolioOrderly() {
                         <div class="text-navHighLightText text-xs text-left w-64 xsm:w-52">
                           ${intl.formatMessage({
                             id: 'portfolio_total_est_tip',
+                            defaultMessage: 'Portfolio value in USD.'
                           })}
                         </div>
                       `}

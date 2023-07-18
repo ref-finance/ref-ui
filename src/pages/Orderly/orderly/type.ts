@@ -391,6 +391,7 @@ export interface PortfolioTable {
 
 export interface PortfolioTableColumns {
   key: string;
+  sortKey?: string | string[];
   header: string;
   mobileHeaderKey?: string;
   type?: string;

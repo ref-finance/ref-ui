@@ -90,6 +90,11 @@ function TableWithTabs({
   }, [page]);
 
   useEffect(() => {
+    if (orderType === 0 && (id === 'open_orders' || id === 'history')) {
+      setLoading(true);
+      setData([]);
+      callGetData();
+    }
     setPage(1);
   }, [orderType]);
 

@@ -14,10 +14,10 @@ export default function TableHeader({
 }: {
   loading: boolean;
   column: PortfolioTableColumns;
-  sort: [string, 'asc' | 'dsc'];
-  setSort: (s: [string, 'asc' | 'dsc']) => void;
+  sort: [string | string[], 'asc' | 'dsc'];
+  setSort: (s: [string | string[], 'asc' | 'dsc']) => void;
 }) {
-  const { colSpan = 1, key, header, mobileHeaderKey, extras, list, icon, suffix, headerType, setSelect, select } = column;
+  const { colSpan = 1, key, sortKey, header, mobileHeaderKey, extras, list, icon, suffix, headerType, setSelect, select } = column;
 
   const [showSelector, setShowSelector] = useState<boolean>(false);
 
@@ -37,10 +37,10 @@ export default function TableHeader({
           className={`flex items-center relative text-left ${extras ? 'cursor-pointer' : ''}`}
           onClick={(e: any) => {
             if (extras?.includes('sort')) {
-              if (sort[0] !== key) {
-                setSort([key, 'asc'])
+              if (sort[0] !== sortKey) {
+                setSort([sortKey, 'asc'])
               } else {
-                setSort([key, sort[1] === 'asc' ? 'dsc' : 'asc'])
+                setSort([sortKey, sort[1] === 'asc' ? 'dsc' : 'asc'])
               }
             }
             if (extras?.includes('select') || extras?.includes('radio')) {
@@ -52,12 +52,11 @@ export default function TableHeader({
         >
           <span
             className="hidden md:flex lg:flex items-center"
-            style={{ color: (sort[0] === key || showSelector) ? 'white' : '#7E8A93' }}
+            style={{ color: (sort[0] === sortKey || showSelector) ? 'white' : '#7E8A93' }}
           >
             {icon && icon}
             <span
               className={`
-                ml-2
                 ${headerType === 'dashed' ? ' underline' : ''}
               `}
               style={{
@@ -73,7 +72,7 @@ export default function TableHeader({
           {suffix && suffix}
           <span
             className="md:hidden lg:hidden flex"
-            style={{ color: (sort[0] === key || showSelector) ? 'white' : '#7E8A93' }}
+            style={{ color: (sort[0] === sortKey || showSelector) ? 'white' : '#7E8A93' }}
           >
             {icon && icon}
             <span className="ml-2">
@@ -86,11 +85,11 @@ export default function TableHeader({
           {(extras?.includes('sort') || extras?.includes('select') || extras?.includes('radio')) && (
             <MdArrowDropDown
               className={`
-                ${(extras?.includes('sort') && (sort[0] === key && sort[1] === 'asc')) ? 'transform rotate-180' : ''}
+                ${(extras?.includes('sort') && (sort[0] === sortKey && sort[1] === 'asc')) ? 'transform rotate-180' : ''}
               `}
               style={{ flex: '0 0 22px' }}
               size={22}
-              color={(sort[0] === key || showSelector) ? 'white' : '#7E8A93'}
+              color={(sort[0] === sortKey || showSelector) ? 'white' : '#7E8A93'}
             />
           )}
 
