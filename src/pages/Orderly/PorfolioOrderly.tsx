@@ -12,6 +12,7 @@ import { toPrecision } from './near';
 import TableWithTabs from './components/TableWithTabs';
 import SettlePnlModal from './components/TableWithTabs/SettlePnlModal';
 import { MobileFilterModal } from './components/TableWithTabs/OrdersFilters';
+import { ClosingModal } from './components/TableWithTabs/FuturesControls';
 import { usePortableOrderlyTable, useMarketlist } from './orderly/constantWjsx';
 import {
   getOrderlySystemInfo,
@@ -102,6 +103,19 @@ function PortfolioOrderly() {
   const displayBalances: OrderAsset[] =
     useOrderlyPortfolioAssets(nonOrderlyTokenInfo);
 
+  // closing order
+  const [closeOrderOpen, setCloseOrderOpen] = useState<boolean>(false);
+  const [closeOrderPrice, setCloseOrderPrice] = useState<number | 'Market'>('Market');
+  const [closeOrderQuantity, setCloseOrderQuantity] = useState<number>(0);
+  const [closeOrderRow, setCloseOrderRow] = useState<any>({});
+
+  const handleOpenClosing = (closingQuantity: number, closingPrice: number | 'Market', row: any) => {
+    setCloseOrderOpen(true);
+    setCloseOrderRow(row);
+    setCloseOrderPrice(closingPrice);
+    setCloseOrderQuantity(closingQuantity);
+  }
+
   // settle pnl
   const [settlePnlModalOpen, setSettlePnlModalOpen] = useState<boolean>(false);
 
@@ -120,8 +134,7 @@ function PortfolioOrderly() {
     setSettlePnlModalOpen,
     chooseOrderStatus,
     chooseOrderType,
-    markPrices,
-    lastPrices,
+    handleOpenClosing
   });
 
   const handleSettlePnl = async () => {
@@ -252,12 +265,13 @@ function PortfolioOrderly() {
                 setChooseOrderSide={setChooseOrderSide}
                 displayBalances={displayBalances}
                 triggerPositionBasedData={triggerPositionBasedData}
-              />
+              />\
               <TableWithTabs
                 table={assetsTables}
                 maintenance={maintenance}
                 displayBalances={displayBalances}
                 newPositions={newPositions}
+                handleOpenClosing={handleOpenClosing}
               />
               <TableWithTabs
                 table={recordsTable}
@@ -359,6 +373,18 @@ function PortfolioOrderly() {
           setSettlePnlModalOpen(false);
         }}
         onClick={handleSettlePnl}
+      />
+
+      <ClosingModal
+        isOpen={closeOrderOpen}
+        onRequestClose={() => {
+          setCloseOrderOpen(false);
+        }}
+        onClick={() => {}}
+        row={closeOrderRow}
+        closingPrice={closeOrderPrice}
+        closingQuantity={closeOrderQuantity}
+        marketList={marketList}
       />
 
       <AssetManagerModal
