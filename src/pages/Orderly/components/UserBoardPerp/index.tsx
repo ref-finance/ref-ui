@@ -872,28 +872,6 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       return;
     }
 
-    // if (new Big(price || 0).lt(symbolInfo.quote_min)) {
-    //   setShowErrorTip(true);
-    //   setErrorTipMsg(
-    //     `${intl.formatMessage({
-    //       id: 'min_price_should_be_higher_than_or_equal_to',
-    //       defaultMessage: 'Min price should be higher than or equal to',
-    //     })} ${symbolInfo.quote_min}`
-    //   );
-    //   return;
-    // }
-
-    // if (new Big(price || 0).gt(symbolInfo.quote_max)) {
-    //   setShowErrorTip(true);
-    //   setErrorTipMsg(
-    //     `${intl.formatMessage({
-    //       id: 'price_should_be_lower_than_or_equal_to',
-    //       defaultMessage: 'Price should be lower than or equal to',
-    //     })} ${symbolInfo.quote_max}`
-    //   );
-    //   return;
-    // }
-
     if (
       new Big(new Big(price || 0).minus(new Big(symbolInfo.quote_min)))
         .mod(symbolInfo.quote_tick)
@@ -1056,25 +1034,25 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       return;
     }
 
-    // if (new Big(size || 0).gt(symbolInfo.base_max)) {
-    //   setShowErrorTip(true);
-    //   setErrorTipMsg(
-    //     `${
-    //       side === 'Buy'
-    //         ? intl.formatMessage({
-    //             id: 'quantity_to_buy_should_be_less_than_or_equal_to',
-    //             defaultMessage:
-    //               'Quantity to buy should be less than or equal to',
-    //           })
-    //         : intl.formatMessage({
-    //             id: 'quantity_to_sell_should_be_less_than_or_equal_to',
-    //             defaultMessage:
-    //               'Quantity to sell should be less than or equal to',
-    //           })
-    //     } ${symbolInfo.base_max}`
-    //   );
-    //   return;
-    // }
+    if (new Big(size || 0).gt(symbolInfo.base_max)) {
+      setShowErrorTip(true);
+      setErrorTipMsg(
+        `${
+          side === 'Buy'
+            ? intl.formatMessage({
+                id: 'quantity_to_buy_should_be_less_than_or_equal_to',
+                defaultMessage:
+                  'Quantity to buy should be less than or equal to',
+              })
+            : intl.formatMessage({
+                id: 'quantity_to_sell_should_be_less_than_or_equal_to',
+                defaultMessage:
+                  'Quantity to sell should be less than or equal to',
+              })
+        } ${symbolInfo.base_max}`
+      );
+      return;
+    }
 
     if (
       new Big(new Big(size || 0).minus(new Big(symbolInfo.base_min)))
@@ -1779,8 +1757,6 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                 }
 
                 const maxAmount = maxOrderSize === '-' ? 0 : maxOrderSize;
-
-                if (maxAmount === 0) return;
 
                 const displayAmount = new Big(maxAmount || 0)
                   .div(new Big(symbolInfo.base_tick))
@@ -4103,8 +4079,6 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
                 }
 
                 const maxAmount = maxOrderSize === '-' ? 0 : maxOrderSize;
-
-                if (maxAmount === 0) return;
 
                 const displayAmount = new Big(maxAmount || 0)
                   .div(new Big(symbolInfo.base_tick))
