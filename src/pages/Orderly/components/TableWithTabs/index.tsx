@@ -110,13 +110,13 @@ function TableWithTabs({
     if (getData && (id === 'spot')) {
       callGetData();
     }
-  }, [displayBalances]);
+  }, [JSON.stringify(displayBalances)]);
 
   useEffect(() => {
     if (getData && (id === 'futures')) {
       setData(newPositions.rows);
     }
-  }, [newPositions]);
+  }, [JSON.stringify(newPositions)]);
 
   useEffect(() => {
     if (getData && (id === 'deposit' || id === 'withdraw' || id === 'settlements')) {
@@ -128,7 +128,7 @@ function TableWithTabs({
     if (getData && (id === 'open_orders' || id === 'history')) {
       callGetData();
     }
-  }, [triggerPositionBasedData]);
+  }, [triggerPositionBasedData, triggerBalanceBasedData]);
 
   const callGetData = async () => {
     const { data } = await getData({ page });

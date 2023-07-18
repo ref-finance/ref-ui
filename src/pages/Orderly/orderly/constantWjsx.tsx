@@ -194,10 +194,10 @@ export const usePortableOrderlyTable = ({
                       marginRight: (executed / quantity * 100) === 100 ? '1px' : '2px',
                       height: '8px',
                       width: (executed / quantity * 100) === 0 ? 0 
-                        : (executed / quantity * 100) > 0 && (executed / quantity * 100) < 100 ? '4px'
+                        : (executed / quantity * 100) >= 0 && (executed / quantity * 100) < 100 ? '4px'
                         : '8px',
                       borderRadius: (executed / quantity * 100) === 0 ? 0 
-                      : (executed / quantity * 100) > 0 && (executed / quantity * 100) < 100 ? '0 50% 50% 0'
+                      : (executed / quantity * 100) >= 0 && (executed / quantity * 100) < 100 ? '0 50% 50% 0'
                       : '50%',
                     }}
                   />
@@ -256,7 +256,7 @@ export const usePortableOrderlyTable = ({
           return getPortfolioAllOrders({
             accountId,
             OrderProps: {
-              page,
+              page: orderType > 0 ? Math.ceil(page / 50) : page,
               size: orderType > 0 ? 500 : 10,
               // @ts-ignore
               status: chooseOrderStatus === 'all' ? 'INCOMPLETE' : chooseOrderStatus.toUpperCase(),
@@ -361,10 +361,10 @@ export const usePortableOrderlyTable = ({
                       marginRight: (executed / quantity * 100) === 100 ? '1px' : '2px',
                       height: '8px',
                       width: (executed / quantity * 100) === 0 ? 0 
-                        : (executed / quantity * 100) > 0 && (executed / quantity * 100) < 100 ? '4px'
+                        : (executed / quantity * 100) >= 0 && (executed / quantity * 100) < 100 ? '4px'
                         : '8px',
                       borderRadius: (executed / quantity * 100) === 0 ? 0 
-                      : (executed / quantity * 100) > 0 && (executed / quantity * 100) < 100 ? '0 50% 50% 0'
+                      : (executed / quantity * 100) >= 0 && (executed / quantity * 100) < 100 ? '0 50% 50% 0'
                       : '50%',
                     }}
                   />
@@ -423,7 +423,7 @@ export const usePortableOrderlyTable = ({
           return getPortfolioAllOrders({
             accountId,
             OrderProps: {
-              page: orderType > 0 ? 1 : page,
+              page: orderType > 0 ? Math.ceil(page / 50) : page,
               size: orderType > 0 ? 500 : 10,
               // @ts-ignore
               status: chooseOrderStatus === 'all' ? 'COMPLETED' : chooseOrderStatus.toUpperCase(),
@@ -649,13 +649,13 @@ export const usePortableOrderlyTable = ({
             extras: ['sort'],
             sortKey: 'position_qty',
             render: ({ position_qty }) => (
-              <div className={`px-2 text-sm ${position_qty > -1 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
+              <div className={`pr-2 text-sm ${position_qty >= 0 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
                 {position_qty?.toFixed(4) || '-' }
               </div>
             )},
           { key: 'avg_open', header: 'Avg. Open', extras: ['sort'], sortKey: 'average_open_price', render: ({ average_open_price }) => average_open_price?.toFixed(3) || '-' },
           { key: 'mark_orderly', header: 'Mark', extras: ['sort'], sortKey: 'mark_price', render: ({ symbol }) => (
-              <div className={`px-2 text-sm ${markPrices.find((i) => i.symbol === symbol)?.price > -1 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
+              <div className={`pr-2 text-sm ${markPrices.find((i) => i.symbol === symbol)?.price >= 0 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
                 {markPrices.find((i) => i.symbol === symbol)?.price.toFixed(3) || '-' }
               </div>
             )
@@ -666,7 +666,7 @@ export const usePortableOrderlyTable = ({
             extras: ['sort'],
             sortKey: 'est_liq_price',
             render: ({ est_liq_price }) => (
-              <div className={`px-2 text-sm text-warn`}>
+              <div className={`pr-2 text-sm text-warn`}>
                 {est_liq_price ? est_liq_price.toFixed(1) : '-'}
               </div>
             )
@@ -692,8 +692,8 @@ export const usePortableOrderlyTable = ({
               const price = unrealMode === 'mark_price' ? markPrices.find((i) => i.symbol === symbol)?.price : lastPrices.find((i) => i.symbol === symbol)?.low;
 
               return (
-                <div className={`px-2 text-sm ${(price - average_open_price) *  position_qty > -1 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
-                  {((price - average_open_price) *  position_qty)?.toFixed(0) || '-' }
+                <div className={`pr-2 text-sm ${(price - average_open_price) *  position_qty >= 0  ? 'text-buyGreen' : 'text-sellColorNew'}`}>
+                  {((price - average_open_price) *  position_qty)?.toFixed(2) || '-' }
                 </div>
               )
             }
@@ -704,7 +704,7 @@ export const usePortableOrderlyTable = ({
             extras: ['sort'],
             sortKey: 'pnl_24_h',
             render: ({ pnl_24_h }) => (
-              <div className={`px-2 text-sm ${pnl_24_h > -1 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
+              <div className={`pr-2 text-sm ${pnl_24_h >= 0 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
                 {pnl_24_h?.toFixed(3) || '-' || '-' }
               </div>
             )
@@ -714,7 +714,7 @@ export const usePortableOrderlyTable = ({
             header: 'Notional',
             extras: ['sort'],
             sortKey: ['position_qty', 'average_open_price'],
-            render: ({ average_open_price, position_qty }) => (position_qty * average_open_price)?.toFixed(0) || '-' 
+            render: ({ average_open_price, position_qty }) => (position_qty * average_open_price)?.toFixed(2) || '-' 
           },
           {
             key: 'qty.',
@@ -977,8 +977,8 @@ export const usePortableOrderlyTable = ({
             </div>
             <div className="w-1/2 inline-block text-right">
               <div className={`p-0.5 text-sm my-0.5`}>
-                <span className={`${settled_amount > 0 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
-                  {settled_amount > 0 ? '+' : ''}{settled_amount || '-'}
+                <span className={`${settled_amount >= 0 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
+                  {settled_amount >= 0 ? '+' : ''}{settled_amount || '-'}
                 </span>
                 <span className="text-white">&nbsp;USDC</span>
               </div>
@@ -1004,7 +1004,7 @@ export const usePortableOrderlyTable = ({
           {
             key: 'settled_balance',
             header: 'Settled Balance',
-            suffix: <div className="text-[10px] p-0.5 ml-1" style={{ borderRadius: '4px', backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>USDC</div>,
+            suffix: <div className="text-[10px] px-1.5 py-0.5 ml-1 rounded-md" style={{  backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>USDC</div>,
             colSpan: 2,
             render: ({ old_balance, new_balance }) => (
               <div className={`flex items-center`}>
@@ -1023,11 +1023,11 @@ export const usePortableOrderlyTable = ({
           {
             key: 'settled_amount',
             header: 'Settled Amount',
-            suffix: <div className="text-[10px] p-0.5 ml-1" style={{ borderRadius: '4px', backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>USDC</div>,
+            suffix: <div className="text-[10px] px-1.5 py-0.5 ml-1 rounded-md" style={{ backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>USDC</div>,
             colSpan: 2,
             render: ({ settled_amount }) => (
-              <span className={`${settled_amount > 0 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
-                {settled_amount > 0 ? '+' : ''}{settled_amount || '-'}
+              <span className={`${settled_amount >= 0 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
+                {settled_amount >= 0 ? '+' : ''}{settled_amount || '-'}
               </span>
             )
           },
@@ -1060,8 +1060,8 @@ export const usePortableOrderlyTable = ({
             </div>
             <div className="w-8/12 inline-block text-right">
               <div className={`p-0.5 text-sm my-0.5 text-white`}>
-                <span className={funding_fee > 0 ? 'text-buyGreen' : 'text-sellColorNew'}>
-                  {funding_fee > 0 ? '+' : ''}{funding_fee?.toFixed(4)}
+                <span className={funding_fee >= 0 ? 'text-buyGreen' : 'text-sellColorNew'}>
+                  {funding_fee >= 0 ? '+' : ''}{funding_fee?.toFixed(4)}
                 </span>
                 &nbsp;USDC
               </div>
@@ -1147,7 +1147,7 @@ export const useMarketlist = () => {
   ];
 
   const allTokens = useBatchTokenMetaFromSymbols(
-    allTokenSymbols.length > 0 ? allTokenSymbols : null,
+    allTokenSymbols.length >= 0 ? allTokenSymbols : null,
     tokenInfo
   );
 

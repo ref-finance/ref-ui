@@ -235,6 +235,8 @@ const en_US = {
   earn: 'Earn',
   ended: 'ENDED',
   pending: 'PENDING',
+  pending_cap: 'Pending',
+  pending_orders_title: 'Pending Close Orders',
   rewards_per_week: 'Rewards per week',
   apr: 'APR',
   total_staked: 'Total staked',
@@ -1401,6 +1403,6 @@ const en_US = {
   portfolio_total_est_tip: 'Portfolio value in USD.',
   size: 'Size',
   closing_1: 'Closing',
-  closing_2: 'position at market price.'
+  closing_2: 'position at {type} price.'
 };
 export default Object.assign(en_US, en_US_in_risks_page);

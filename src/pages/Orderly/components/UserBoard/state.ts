@@ -170,6 +170,8 @@ export function useTokensOrderlyBalances(
 
   const { accountId } = useWalletSelector();
 
+  const { freeCollateral, triggerBalanceBasedData } = usePerpData();
+
   const { myPendingOrdersRefreshing, validAccountSig } = useOrderlyContext();
 
   const getBalanceAndMeta = async (token: TokenWithDecimals) => {
@@ -186,7 +188,7 @@ export function useTokensOrderlyBalances(
   };
 
   useEffect(() => {
-    if (!tokens || !tokenInfo || !accountId) return;
+    if (!tokens || !tokenInfo || !accountId || !validAccountSig) return;
 
     Promise.all(
       tokenInfo.map((t) =>
@@ -252,7 +254,18 @@ export function useTokensOrderlyBalances(
     trigger,
     myPendingOrdersRefreshing,
     validAccountSig,
+    triggerBalanceBasedData
   ]);
+
+  useEffect(() => {
+    if (showbalances.length === 0 || freeCollateral === '-') return;
+
+    showbalances.forEach((sb) => {
+      if (sb.name === 'USDC') {
+        sb.holding = Number(freeCollateral);
+      }
+    });
+  }, [showbalances, freeCollateral]);
 
   return showbalances;
 }

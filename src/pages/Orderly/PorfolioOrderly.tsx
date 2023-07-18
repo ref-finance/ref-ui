@@ -17,10 +17,12 @@ import { usePortableOrderlyTable, useMarketlist } from './orderly/constantWjsx';
 import {
   getOrderlySystemInfo,
   getCurrentHolding,
-  getPortfolioPosition,
+  createOrder,
+  getOrderByOrderId
 } from './orderly/off-chain-api';
 import { OrderlyUnderMaintain } from './OrderlyTradingBoard';
-import { FlexRow } from './components/Common';
+import { FlexRow, orderEditPopUpFailure } from './components/Common';
+import { orderPopUp } from './components/Common/index';
 import { AssetManagerModal } from './components/UserBoard';
 import { WarningIcon } from '../../components/icon';
 import { usePerpData } from './components/UserBoardPerp/state';
@@ -50,9 +52,9 @@ function PortfolioOrderly() {
     newPositions,
     markPrices,
     triggerBalanceBasedData,
-    triggerPositionBasedData,
-    lastPrices,
+    triggerPositionBasedData
   } = usePerpData();
+  
   const { marketList } = useMarketlist();
   const { globalState } = useContext(WalletContext);
   const { accountId } = useWalletSelector();
@@ -61,6 +63,7 @@ function PortfolioOrderly() {
     balances,
     symbol,
     myPendingOrdersRefreshing,
+    handlePendingOrderRefreshing,
     validAccountSig,
   } = useOrderlyContext();
   const isSignedIn = globalState.isSignedIn;
@@ -143,6 +146,52 @@ function PortfolioOrderly() {
     return executeMultipleTransactions([await perpSettlementTx()]);
   };
 
+  const handleCloseOrder = async () => {
+    if (!accountId) return;
+    return createOrder({
+      accountId,
+      orderlyProps: {
+        side: closeOrderRow.position_qty < 0 ? 'BUY' : 'SELL',
+        symbol: closeOrderRow.symbol,
+        order_type:
+        closeOrderPrice === 'Market'
+            ? 'MARKET'
+            : 'LIMIT',
+        order_quantity: closeOrderQuantity,
+        broker_id: 'ref_dex',
+        order_price: closeOrderPrice === 'Market' ? '' : closeOrderPrice,
+      },
+    }).then(async (res) => {
+      if (res.success === false)
+        return orderEditPopUpFailure({
+          tip: res.message,
+        });
+
+      handlePendingOrderRefreshing();
+
+      const order = await getOrderByOrderId({
+        accountId,
+        order_id: res.data.order_id,
+      });
+
+      return orderPopUp({
+        orderType: closeOrderPrice === 'Market' ? 'Market' : 'Limit',
+        symbolName: closeOrderRow.symbol,
+        side: closeOrderRow.position_qty < 0 ? 'Buy' : 'Sell',
+        size: closeOrderQuantity.toString(),
+        tokenIn: tokenIn,
+        price: parseFloat(
+          closeOrderPrice === 'Market'
+            ? markPrices.find((i) => i.symbol === closeOrderRow.symbol)?.price.toString()
+            : closeOrderPrice.toString()
+        ).toString(),
+        timeStamp: res.timestamp,
+        filled: order?.data?.status === 'FILLED',
+        order,
+      });
+    });
+  };
+
   useEffect(() => {
     getOrderlySystemInfo().then((res) => {
       if (res.data.status === 2) {
@@ -220,9 +269,9 @@ function PortfolioOrderly() {
                 <span className="text-2xl gotham_bold text-white mt-1">
                   $
                   {displayBalances.reduce(
-                    (total, { near }) => total + parseInt(near),
+                    (total, { near }) => total + parseFloat(near),
                     0
-                  )}
+                  ).toFixed(3)}
                 </span>
               </div>
               <div className="col-span-1 mb-3">
@@ -234,9 +283,9 @@ function PortfolioOrderly() {
                 <span className="text-xl gotham_bold text-white mt-1">
                   $
                   {displayBalances.reduce(
-                    (total, row) => total + parseInt(row['in-order']),
+                    (total, row) => total + parseFloat(row['in-order']),
                     0
-                  )}
+                  ).toFixed(3)}
                 </span>
               </div>
               <div className="col-span-1 mb-3">
@@ -246,9 +295,9 @@ function PortfolioOrderly() {
                 <span className="text-xl gotham_bold text-white mt-1">
                   $
                   {displayBalances.reduce(
-                    (total, { available }) => total + parseInt(available),
+                    (total, { available }) => total + parseFloat(available),
                     0
-                  )}
+                  ).toFixed(3)}
                 </span>
               </div>
             </div>
@@ -265,6 +314,7 @@ function PortfolioOrderly() {
                 chooseOrderSide={chooseOrderSide}
                 setChooseOrderSide={setChooseOrderSide}
                 displayBalances={displayBalances}
+                triggerBalanceBasedData={triggerBalanceBasedData}
                 triggerPositionBasedData={triggerPositionBasedData}
                 validAccountSig={validAccountSig}
               />
@@ -352,6 +402,7 @@ function PortfolioOrderly() {
                   setChooseOrderType={setChooseOrderType}
                   chooseOrderType={chooseOrderType}
                   displayBalances={displayBalances}
+                  triggerBalanceBasedData={triggerBalanceBasedData}
                   triggerPositionBasedData={triggerPositionBasedData}
                   setMobileFilterOpen={setMobileFilterOpen}
                   validAccountSig={validAccountSig}
@@ -387,7 +438,7 @@ function PortfolioOrderly() {
         onRequestClose={() => {
           setCloseOrderOpen(false);
         }}
-        onClick={() => {}}
+        onClick={handleCloseOrder}
         row={closeOrderRow}
         closingPrice={closeOrderPrice}
         closingQuantity={closeOrderQuantity}

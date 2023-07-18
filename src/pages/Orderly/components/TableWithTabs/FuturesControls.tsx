@@ -3,9 +3,13 @@ import { MdArrowDropDown } from 'react-icons/md';
 import { IoClose } from 'react-icons/io5';
 import { useIntl } from 'react-intl';
 import Modal from 'react-modal';
+import { useWalletSelector } from '~context/WalletSelectorContext';
 import { TextWrapper } from '../UserBoard';
 import { usePerpData } from '../UserBoardPerp/state';
 import { parseSymbol } from '../RecentTrade';
+import { orderEditPopUpFailure } from '../Common';
+import { getPortfolioAllOrders, cancelOrder } from '../../orderly/off-chain-api';
+import { useOrderlyContext } from '../../orderly/OrderlyContext';
 
 export const FutureTableFormHeaders: React.FC = () => {
   const intl = useIntl();
@@ -164,7 +168,7 @@ function FutureQuantityModal(
 ) {
   const { onClose, quantity, position_qty } = props;
   const intl = useIntl();
-  const [inputQuantity, setInputQuantity] = useState<number>(quantity);
+  const [inputQuantity, setInputQuantity] = useState<number>(Math.abs(position_qty));
   
   useEffect(() => {
     setInputQuantity(quantity);
@@ -213,7 +217,7 @@ function FutureQuantityModal(
               value={inputQuantity}
               onChange={({ target }) => {
                 let value: number = parseFloat(target.value);
-                if (value > Math.abs(position_qty)) value = position_qty;
+                if (value > Math.abs(position_qty)) value = Math.abs(position_qty);
                 if (value < 0 || !value) value = 0;
                 setInputQuantity(value)
               }}
@@ -239,15 +243,15 @@ function FutureQuantityModal(
 
 function FuturePriceModal(
   props: Modal.Props & {
-    onClose: (input: number) => void;
-    price: number;
+    onClose: (input: number | 'Market') => void;
+    price: number | 'Market';
     mark_price: number;
     priceMode: 'market_price' | 'limit_price';
     setPriceMode: (input: 'market_price' | 'limit_price') => void;
   }
 ) {
   const { onClose, priceMode, setPriceMode, price, mark_price } = props;
-  const [inputPrice, setInputPrice] = useState<number>(price);
+  const [inputPrice, setInputPrice] = useState<number | 'Market'>(price);
   const intl = useIntl();
 
   return (
@@ -280,6 +284,7 @@ function FuturePriceModal(
             <span
               className="cursor-pointer"
               onClick={(e: any) => {
+                console.log(price)
                 onClose && onClose(price);
               }}
             >
@@ -330,6 +335,111 @@ function FuturePriceModal(
 }
 
 
+function PendingOrdersModal(
+  props: Modal.Props & {
+    onClose: () => void;
+    rows: any;
+  }
+) {
+  const intl = useIntl();
+  const { accountId } = useWalletSelector();
+  const { handlePendingOrderRefreshing } = useOrderlyContext();
+  const { onClose, rows } = props;
+
+  return (
+    <Modal
+      {...props}
+      onRequestClose={() => onClose && onClose()}
+      style={{
+        content: {
+          position: 'fixed',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          top: 'none',
+          bottom: '0px',
+          left: '0px',
+          transform: 'translate(-50%, -20px)',
+          outline: 'none',
+        }
+      }}
+    >
+      <div
+        className={`rounded-t-2xl fixed w-screen bottom-0 left-0 bg-boxBorder text-sm text-primaryOrderly`}
+      >
+        <div className="py-6 text-primaryOrderly text-sm flex flex-col  lg:w-p400  lg:h-p560">
+          <div className="px-4 flex items-center pb-6 justify-between">
+            <span className="text-white text-base gotham_bold">
+              {intl.formatMessage({ id: 'pending_orders_title', defaultMessage: 'Pending Close Orders' })}
+            </span>
+
+            <span
+              className="cursor-pointer"
+              onClick={(e: any) => {
+                onClose && onClose();
+              }}
+            >
+              <IoClose size={20} />
+            </span>
+          </div>
+          {rows.map(({ symbol, quantity, price, order_id }: any) => (
+            <div className="px-4 py-6 grid grid-cols-4 gap-2 border-b" style={{ borderColor: 'rgba(255, 255, 255, 0.1)'}}>
+              <div className="col-span-3 text-base">
+                <span className="pr-3">
+                  <span className="text-white">
+                    {quantity}&nbsp;
+                  </span>
+                  <span>
+                    {parseSymbol(symbol).symbolFrom}
+                  </span>
+                </span>
+                <span>
+                  <span className="italic">{intl.formatMessage({ id: 'at_orderly', defaultMessage: 'at' })}</span>&nbsp;
+                  <span className="text-white">
+                    ${price?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 3)}
+                  </span>
+                </span>
+              </div>
+              <div className="col-span-1 flex justify-end items-center">
+                <div
+                  className="cursor-pointer"
+                  onClick={async () => {
+                    try {
+                      if (!accountId) return;
+  
+                      const res = await cancelOrder({
+                        accountId,
+                        DeleteParams: {
+                          order_id: order_id,
+                          symbol: symbol,
+                        },
+                      })
+  
+                      if (res.success === true) {
+                        handlePendingOrderRefreshing();
+                      }
+                    } catch (err) {
+                      return orderEditPopUpFailure({
+                        tip: err.message,
+                      });
+                    }
+                  }}
+                >
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fillRule="evenodd" clipRule="evenodd" d="M10 1.81818C5.48131 1.81818 1.81818 5.48131 1.81818 10C1.81818 14.5187 5.48131 18.1818 10 18.1818C14.5187 18.1818 18.1818 14.5187 18.1818 10C18.1818 5.48131 14.5187 1.81818 10 1.81818ZM0 10C0 4.47715 4.47715 0 10 0C15.5228 0 20 4.47715 20 10C20 15.5228 15.5228 20 10 20C4.47715 20 0 15.5228 0 10Z" fill="#FF6A8E"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M4.24243 9.99972C4.24243 9.33028 4.78512 8.7876 5.45455 8.7876L14.5455 8.7876C15.2149 8.7876 15.7576 9.33028 15.7576 9.99972C15.7576 10.6692 15.2149 11.2118 14.5455 11.2118L5.45455 11.2118C4.78512 11.2118 4.24243 10.6692 4.24243 9.99972Z" fill="#FF6A8E"/>
+                  </svg>
+
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
 export  function ClosingModal(
   props: Modal.Props & {
     onClick: () => Promise<any>;
@@ -370,18 +480,20 @@ export  function ClosingModal(
         <div className="px-5 py-6 flex flex-col ">
           <div className="w-full grid grid-cols-2 gap-4">
             <div className="col-span-2 m-4">
-              <div className="flex items-center justify-center text-white gotham_bold">
-                {intl.formatMessage({ id: 'closing_1' })}&nbsp;
-                <span className={row.position_qty < 0  ? 'text-buyGreen' : 'text-sellColorNew'}>{closingQuantity}</span>
-                &nbsp;{intl.formatMessage({ id: 'closing_2' })}
+              <div className="flex items-center justify-center text-white text-center gotham_bold">
+                <span>
+                  {intl.formatMessage({ id: 'closing_1' } )}&nbsp;
+                  <span className={row.position_qty < 0  ? 'text-buyGreen' : 'text-sellColorNew'}>{closingQuantity}</span>
+                  &nbsp;{intl.formatMessage({ id: 'closing_2' }, { type: closingPrice === 'Market' ? 'market' : 'limit' } )}
+                </span>
               </div>
             </div>
-            <div className="col-span-1 mb-3">
-              <div className="flex items-center ">{marketList.find((m) => m.textId === symbol)?.text}</div>
+            <div className="col-span-1 mb-2">
+              <div className="flex items-center -m-2">{marketList.find((m) => m.textId === symbol)?.text}</div>
             </div>
-            <div className="col-span-1 mb-3">
+            <div className="col-span-1 mb-2">
               <div className="flex items-center justify-end  text-white">
-                {intl.formatMessage({ id: 'market' })}
+                {closingPrice === 'Market' ? intl.formatMessage({ id: 'market' }) : intl.formatMessage({ id: 'limit' })}
                 <TextWrapper
                   className="px-2 text-sm ml-2"
                   value={intl.formatMessage({
@@ -393,19 +505,29 @@ export  function ClosingModal(
                 />
               </div>
             </div>
-            <div className="col-span-1 mb-3">
+            <div className="col-span-1 mb-2">
               <div className="flex items-center text-white">{intl.formatMessage({ id: 'size' })}</div>
             </div>
-            <div className="col-span-1 mb-3">
-              <div className="flex items-center justify-end text-white">{closingPrice} {symbolFrom}</div>
+            <div className="col-span-1 mb-2">
+              <div className="flex items-center justify-end text-white">{closingQuantity} {symbolFrom}</div>
             </div>
-            <div className="col-span-1 mb-3">
+            <div className="col-span-1 mb-2">
               <div className="flex items-center text-white">{intl.formatMessage({ id: 'price' })}</div>
             </div>
-            <div className="col-span-1 mb-3">
-              <div className="flex items-center justify-end text-white">{closingQuantity}</div>
+            <div className="col-span-1 mb-2">
+              <div className="flex items-center justify-end text-white">{closingPrice === 'Market' ? intl.formatMessage({ id: 'market' }) : `$${closingPrice}`}</div>
             </div>
-            <div className="col-span-1 mb-3">
+            {closingPrice !== 'Market' && (
+              <>
+                <div className="col-span-1 mb-2">
+                  <div className="flex items-center text-white">{intl.formatMessage({ id: 'total' })}</div>
+                </div>
+                <div className="col-span-1 mb-2">
+                  <div className="flex items-center justify-end text-white">${(closingPrice * closingQuantity).toFixed(2)}</div>
+                </div>
+              </>
+            )}
+            <div className="col-span-1 mb-2">
               <button
                 className={`w-full rounded-lg gotham_bold ${
                   loading
@@ -423,7 +545,7 @@ export  function ClosingModal(
                 {intl.formatMessage({ id: 'cancel' })}
               </button>
             </div>
-            <div className="col-span-1 mb-3">
+            <div className="col-span-1 mb-2">
               <button
                 className={`w-full rounded-lg gotham_bold ${
                   loading
@@ -462,20 +584,45 @@ const FutureMobileRow: React.FC<{
   handleOpenClosing
 }) => {
   const intl = useIntl();
-  const { markPrices } = usePerpData();
+  const { accountId } = useWalletSelector();
+  const { markPrices, triggerPositionBasedData } = usePerpData();
   const { symbol, position_qty, average_open_price, unsettled_pnl } = row;
   const [select, setSelect] = useState<any>('mark_price');
   const [showSideSelector, setShowSideSelector] = useState<boolean>(false);
   const [futureQuantityOpen, setFutureQuantityOpen] = useState<boolean>(false);
   const [futurePriceOpen, setFuturePriceOpen] = useState<boolean>(false);
-  const [quantity, setQuantity] = useState<number>(position_qty);
+  const [quantity, setQuantity] = useState<number>(Math.abs(position_qty));
   const [priceMode, setPriceMode] = useState<'market_price' | 'limit_price'>('market_price');
   const mark_price = markPrices.find((i) => i.symbol === symbol)?.price;
-  const [price, setPrice] = useState<number>(mark_price);
+  const [price, setPrice] = useState<number | 'Market'>(mark_price);
+  const [orders, setOrders] = useState<any>([]);
+  const [pendingOpen, setPendingOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    setQuantity(position_qty);
+    setQuantity(Math.abs(position_qty));
   }, [row])
+
+  useEffect(() => {
+    getPendingOrders();
+  }, [])
+
+  useEffect(() => {
+    getPendingOrders();
+  }, [triggerPositionBasedData])
+
+  const getPendingOrders = async () => {
+    const { data } = await getPortfolioAllOrders({
+      accountId,
+      OrderProps: {
+        page: 1,
+        size: 500,
+        status: 'INCOMPLETE',
+        symbol: row.symbol
+      } 
+    })
+
+    setOrders(data.rows);
+  }
 
   return (
     <>
@@ -488,6 +635,16 @@ const FutureMobileRow: React.FC<{
             <div className="flex items-center ">{marketList.find((m) => m.textId === symbol)?.withSymbol}</div>
           </div>
           <div className="col-span-1 flex justify-end items-center mb-3">
+            {orders.length > 0 && (
+              <div
+                className="cursor-pointer text-center py-1 px-3 mr-2 border border-orderTypeBg rounded-md"
+                onClick={() => {
+                  setPendingOpen(true);
+                }}
+              >
+                {intl.formatMessage({ id: 'pending_cap' })}&#40;{orders.length}&#41;
+              </div>
+            )}
             <div
               className="cursor-pointer text-center py-1 px-3 border border-orderTypeBg rounded-md"
                onClick={() => {
@@ -579,7 +736,7 @@ const FutureMobileRow: React.FC<{
               className="text-white flex items-center cursor-pointer"
               onClick={() => setFuturePriceOpen(true)}
             >
-              {price === mark_price ? 'Market' : price}
+              {priceMode === 'market_price' ? 'Market' : price}
               <MdArrowDropDown
                 className="ml-0.5"
                 style={{ flex: '0 0 22px' }}
@@ -603,8 +760,8 @@ const FutureMobileRow: React.FC<{
 
       <FuturePriceModal
         isOpen={futurePriceOpen}
-        onClose={(input: number) => {
-          setPrice((priceMode === 'market_price') ? mark_price : input);
+        onClose={(input: number | 'Market') => {
+          setPrice((priceMode === 'market_price') ? 'Market' : input);
           
           setFuturePriceOpen(false);
         }}
@@ -612,6 +769,14 @@ const FutureMobileRow: React.FC<{
         setPriceMode={setPriceMode}
         price={price}
         mark_price={mark_price}
+      />
+
+      <PendingOrdersModal
+        isOpen={pendingOpen}
+        onClose={() => {
+          setPendingOpen(false);
+        }}
+        rows={orders}
       />
     </>
   )
@@ -632,11 +797,10 @@ export const FutureMobileView: React.FC<{
     totalPortfoliouPnl,
     totalDailyReal,
     totalNotional,
-    newPositions,
-    
+    newPositions
   } = usePerpData();
 
-  const { rows } = newPositions
+  const { rows } = newPositions;
 
   return (
     <div className="w-full p-3">
@@ -650,14 +814,14 @@ export const FutureMobileView: React.FC<{
               id: 'fut_unreal_pnl',
               defaultMessage: 'Fut. Unreal. PnL',
             })}
-            <span className="text-buyGreen pl-2">{totalPortfoliouPnl}</span>
+            <span className={`pl-2 ${parseFloat(totalPortfoliouPnl) >= 0 ? 'text-buyGreen' : 'text-sellRed'}`}>{totalPortfoliouPnl}</span>
           </div>
           <div className="col-span-1 text-right">
             {intl.formatMessage({
               id: 'fut_daily_real',
               defaultMessage: 'Fut. Daily Real.',
             })}
-            <span className="text-white pl-2">{totalDailyReal}</span>
+            <span className={`pl-2 ${parseFloat(totalDailyReal) >= 0 ? 'text-buyGreen' : 'text-sellRed'}`}>{totalDailyReal}</span>
           </div>
           <div className="col-span-2 text-right mt-2">
             {intl.formatMessage({
@@ -672,14 +836,14 @@ export const FutureMobileView: React.FC<{
               id: 'fut_unsettle_pnl',
               defaultMessage: 'Unsettle PnL',
             })}
-            <span className="text-buyGreen pl-2">{portfolioUnsettle}</span>
+            <span className={`pl-2 ${parseFloat(portfolioUnsettle) >= 0 ? 'text-buyGreen' : 'text-sellRed'}`}>{portfolioUnsettle}</span>
           </div>
           <div className="col-span-1 text-right flex justify-end">
             {children}
           </div>
         </div>
       </div>
-      {rows.map((row) => (
+      {rows.filter((row) => row.position_qty !== 0).map((row) => (
         <FutureMobileRow
           key={row.symbol}
           row={row}
@@ -708,14 +872,14 @@ export const FutureTopComponent = () => {
             id: 'fut_unreal_pnl',
             defaultMessage: 'Fut. Unreal. PnL',
           })}
-          <span className="text-buyGreen pl-2">{totalPortfoliouPnl}</span>
+          <span className={`pl-2 ${parseFloat(portfolioUnsettle) >= 0 ? 'text-buyGreen' : 'text-sellRed'}`}>{totalPortfoliouPnl}</span>
         </div>
         <div className="mr-5">
           {intl.formatMessage({
             id: 'fut_daily_real',
             defaultMessage: 'Fut. Daily Real.',
           })}
-          <span className="text-white pl-2">{totalDailyReal}</span>
+          <span className={`pl-2 ${parseFloat(totalDailyReal) >= 0 ? 'text-buyGreen' : 'text-sellRed'}`}>{totalDailyReal}</span>
         </div>
         <div className="mr-5">
           {intl.formatMessage({
@@ -729,7 +893,7 @@ export const FutureTopComponent = () => {
             id: 'fut_unsettle_pnl',
             defaultMessage: 'Unsettle PnL',
           })}
-          <span className="text-buyGreen pl-2">{portfolioUnsettle}</span>
+          <span className={`pl-2 ${parseFloat(portfolioUnsettle) >= 0 ? 'text-buyGreen' : 'text-sellRed'}`}>{portfolioUnsettle}</span>
         </div>
       </div>
     </div>

@@ -57,7 +57,7 @@ const getPortfolioTotaluPnl = (
     new Big(0)
   );
 
-  return numberWithCommas(pnl.toFixed(0));
+  return numberWithCommas(pnl.toFixed(2));
 };
 
 const getNotional = (positions: PositionsType) => {
@@ -73,7 +73,7 @@ const getNotional = (positions: PositionsType) => {
     new Big(0)
   );
 
-  return numberWithCommas(notional.toFixed(0));
+  return numberWithCommas(notional.toFixed(2));
 };
 
 const get_total_upnl = (positions: PositionsType, markprices: MarkPrice[]) => {
@@ -445,17 +445,13 @@ const getPortfolioUnsettle = (
   markPrices: MarkPrice[]
 ) => {
   try {
+    const float = getPositionFloat(positions, markPrices);
+  
     const unsettle = positions.rows.reduce((acc, cur) => {
-      const cur_mark_price = markPrices.find(
-        (m) => m.symbol === cur.symbol
-      ).price;
-
-      const float = cur.position_qty * (cur_mark_price - cur.mark_price);
-
-      return acc.plus(cur.unsettled_pnl + float);
+      return acc.plus(cur.unsettled_pnl);
     }, new Big(0));
 
-    return unsettle.toFixed(0);
+    return unsettle.plus(float);
   } catch (error) {
     return '-';
   }

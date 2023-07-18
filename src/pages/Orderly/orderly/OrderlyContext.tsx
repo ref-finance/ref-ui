@@ -108,7 +108,7 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
   const [userInfo, setUserInfo] = useState<ClientInfo>();
 
   const pathname = window.location.pathname;
-  console.log('pathname: ', pathname);
+  // console.log('pathname: ', pathname);
 
   const isPerp = pathname.includes('perp');
 

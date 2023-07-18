@@ -596,7 +596,9 @@ export const useMenus = (cb?: () => void) => {
   ];
   return menuData;
 };
-export const useMenusMobile = () => {
+export const useMenusMobile = (
+  setShow: (show: boolean) => void
+) => {
   const history = useHistory();
   const intl = useIntl();
   const menuData = [
@@ -659,6 +661,7 @@ export const useMenusMobile = () => {
                     e.preventDefault();
 
                     history.push('/orderbook/spot');
+                    setShow(false);
                   }}
                   className="frcc bg-symbolHover2 border text-white border-white border-opacity-30 w-1/2 rounded-xl py-2"
                   style={{
@@ -678,6 +681,7 @@ export const useMenusMobile = () => {
                     e.stopPropagation();
 
                     history.push('/orderbook/perps');
+                    setShow(false);
                   }}
                   style={{
                     background: '#4F6574',

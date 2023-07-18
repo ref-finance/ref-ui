@@ -51,7 +51,7 @@ function OrderLine({
       <tr
         className={`table-fixed grid grid-cols-${gridCol} ${
           tableRowType === 'card'
-            ? ' m-2 px-3 gap-2 rounded-xl'
+            ? ' m-2 px-3 gap-4 rounded-xl'
             : ' gap-4 px-5 lg:border-t border-white border-opacity-10'
         }`}
         style={{
@@ -231,7 +231,7 @@ function Table({
     }
   };
 
-  const filterFunc = (order: MyOrder, index: number) => {
+  const filterFunc = (order: any, index: number) => {
     let a = true;
     if (orderType === 1) {
       a = !order.symbol.includes('PERP');
@@ -239,7 +239,12 @@ function Table({
       a = order.symbol.includes('PERP');
     }
 
-    return a;
+    let b = true;
+    if (tableKey === 'futures') {
+      b = order.position_qty > 0 || order.position_qty < 0;
+    }
+
+    return a && b;
   };
 
   const pagingFunc = (order: MyOrder, index: number) => {
@@ -367,9 +372,6 @@ function Table({
           {/* Header */}
           <thead
             className={`w-full xs:hidden table table-fixed  pl-5 pr-4 py-2 border-white border-opacity-10`}
-            style={{
-              width: 'calc(100% - 9px)',
-            }}
           >
             <tr
               className={`w-full px-5 table-fixed grid grid-cols-${gridCol} gap-4`}
@@ -443,8 +445,8 @@ function Table({
                 .map((order, i) => {
                   return (
                     <OrderLine
-                      order={order}
                       key={`${tableKey}-order-${i}`}
+                      order={order}
                       handleOpenClosing={handleOpenClosing}
                       columns={columns}
                       tableRowType={tableRowType}

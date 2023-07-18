@@ -350,7 +350,7 @@ export function MobileNavBar(props: any) {
   } = props;
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
-  const menusMobile_temp = useMenusMobile();
+  const menusMobile_temp = useMenusMobile(setShow);
   const [showTip, setShowTip] = useState<boolean>(false);
   const [showLanguage, setShowLanguage] = useState<boolean>(false);
   const [one_level_selected, set_one_level_selected] = useState<string>('');

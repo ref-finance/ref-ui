@@ -304,7 +304,7 @@ export function usePerpData() {
 
   const totalDailyReal = useMemo(() => {
     try {
-      return newPositions.total_pnl_24_h?.toFixed(0);
+      return newPositions.total_pnl_24_h?.toFixed(2);
     } catch (error) {
       return null;
     }
@@ -339,10 +339,16 @@ export function usePerpData() {
       return '-';
     }
   }, [positions, markPrices]);
+  
+  const portfolioUnsettle = useMemo(() => {
+    try {
+      const res = getPortfolioUnsettle(positions, markPrices);
 
-  const portfolioUnsettle = useMemo(
-    () => getPortfolioUnsettle(newPositions, markPrices),
-    [newPositions, markPrices]
+      return res === '-' ? res : res.toFixed(2);
+    } catch (error) {
+      return '-';
+    }
+  }, [newPositions, markPrices]
   );
 
   const mmr = useMemo(() => {
@@ -383,6 +389,6 @@ export function usePerpData() {
     error,
     setCurLeverage,
     setCurLeverageRaw,
-    userInfo,
+    userInfo
   };
 }
