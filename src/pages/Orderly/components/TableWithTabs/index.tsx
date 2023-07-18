@@ -39,7 +39,8 @@ function TableWithTabs({
   triggerBalanceBasedData,
   triggerPositionBasedData,
   setMobileFilterOpen,
-  handleOpenClosing
+  handleOpenClosing,
+  validAccountSig
 } : {
   table: PortfolioTable;
   maintenance: boolean;
@@ -60,6 +61,7 @@ function TableWithTabs({
   triggerPositionBasedData?: number;
   setMobileFilterOpen?: (item: number) => void;
   handleOpenClosing?: (closingQuantity: number, closingPrice: number | 'Market', row: any) => void;
+  validAccountSig: boolean;
 }) {
   const intl = useIntl();
   const { marketList } = useMarketlist();
@@ -87,9 +89,14 @@ function TableWithTabs({
 
   useEffect(() => {
     getData && callGetData();
-  }, [page]);
+  }, [page, validAccountSig]);
 
   useEffect(() => {
+    if (orderType === 0 && (id === 'open_orders' || id === 'history')) {
+      setLoading(true);
+      setData([]);
+      callGetData();
+    }
     setPage(1);
   }, [orderType]);
 

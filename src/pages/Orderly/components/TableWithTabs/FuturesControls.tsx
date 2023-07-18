@@ -80,7 +80,7 @@ export const FutureTableFormCells: React.FC<{
     <>
       <TableCell>
         <input
-          className={`px-2 text-sm`}
+          className={`px-2 text-sm ${position_qty > -1 ? 'text-buyGreen' : 'text-sellColorNew'}`}
           style={{
             borderRadius: '6px',
             border: '1px solid #1D2932',
@@ -415,12 +415,8 @@ export  function ClosingModal(
                 onClick={(e: any) => {
                   e.preventDefault();
                   e.stopPropagation();
-
-                  setLoading(true);
-                  onClick().then(() => {
-                    setLoading(false);
-                    onRequestClose && onRequestClose(e);
-                  });
+                  
+                  onRequestClose && onRequestClose(e);
                 }}
                 disabled={loading}
               >

@@ -313,6 +313,7 @@ export const usePortableOrderlyTable = ({
             type: 'dateTime',
             textColor: '',
             extras: ['sort'],
+            sortKey: 'created_time',
             render: ({ created_time }) => formatTimeDate(created_time)
           },
           { key: 'dex', header: 'Dex', render: ({ broker_name }) => renderLogo(broker_name) }
@@ -594,7 +595,7 @@ export const usePortableOrderlyTable = ({
                 <path fillRule="evenodd" clipRule="evenodd" d="M6 0C2.68629 0 0 2.68629 0 6V10C0 13.3137 2.68629 16 6 16H10C13.3137 16 16 13.3137 16 10V6C16 2.68629 13.3137 0 10 0H6ZM5.25169 10.1382V5.40912L10.9917 11.2454C11.7358 12.0019 13.1774 11.5514 13.1774 10.5624V4.85282C13.1774 3.85671 11.7184 3.4103 10.9811 4.18081L9.21454 6.84695L9.46222 7.05901L11.6913 5.44625V9.9813L5.95127 4.14508C5.20724 3.38857 3.76562 3.83906 3.76562 4.82807V10.667C3.76562 11.6232 5.12751 12.0909 5.8992 11.3996L7.97615 8.54347L7.72847 8.33141L5.25169 10.1382Z" fill="#7E8A93"/>
               </svg>
             ),
-            headerType: 'Dynamic',
+            sortKey: 'near',
             extras: ['sort'],
             colSpan: 2,
             render: ({ near }) => digitWrapperAsset(near, 3)
@@ -604,6 +605,7 @@ export const usePortableOrderlyTable = ({
             header: 'In Open Order',
             icon: <OrderlyIcon />,
             extras: ['sort'],
+            sortKey: 'in-order',
             render: (row) => digitWrapperAsset(row['in-order'], 3)
           },
           {
@@ -611,6 +613,7 @@ export const usePortableOrderlyTable = ({
             header: 'Available',
             icon: <OrderlyIcon />,
             extras: ['sort'],
+            sortKey: 'available',
             render: ({ available }) => digitWrapperAsset(available, 3)
           }
         ]
@@ -644,19 +647,30 @@ export const usePortableOrderlyTable = ({
             key: 'qty.',
             header: 'Qty.',
             extras: ['sort'],
+            sortKey: 'position_qty',
             render: ({ position_qty }) => (
               <div className={`px-2 text-sm ${position_qty > -1 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
                 {position_qty?.toFixed(4) || '-' }
               </div>
             )},
-          { key: 'avg_open', header: 'Avg. Open', extras: ['sort'], render: ({ average_open_price }) => average_open_price?.toFixed(3) || '-' },
-          { key: 'mark_orderly', header: 'Mark', extras: ['sort'], render: ({ symbol }) => (
+          { key: 'avg_open', header: 'Avg. Open', extras: ['sort'], sortKey: 'average_open_price', render: ({ average_open_price }) => average_open_price?.toFixed(3) || '-' },
+          { key: 'mark_orderly', header: 'Mark', extras: ['sort'], sortKey: 'mark_price', render: ({ symbol }) => (
               <div className={`px-2 text-sm ${markPrices.find((i) => i.symbol === symbol)?.price > -1 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
                 {markPrices.find((i) => i.symbol === symbol)?.price.toFixed(3) || '-' }
               </div>
             )
           },
-          { key: 'liq_price', header: 'Liq. Price', extras: ['sort'], render: ({ est_liq_price }) => est_liq_price?.toFixed(3) || '-' },
+          {
+            key: 'liq_price',
+            header: 'Liq. Price',
+            extras: ['sort'],
+            sortKey: 'est_liq_price',
+            render: ({ est_liq_price }) => (
+              <div className={`px-2 text-sm text-warn`}>
+                {est_liq_price ? est_liq_price.toFixed(1) : '-'}
+              </div>
+            )
+          },
           {
             key: 'unreal_pnl',
             header: 'Unreal. PnL',
@@ -684,16 +698,23 @@ export const usePortableOrderlyTable = ({
               )
             }
           },
-          { key: 'daily_real', header: 'Daily Real', extras: ['sort'], render: ({ pnl_24_h }) => pnl_24_h?.toFixed(3) || '-' },
+          {
+            key: 'daily_real',
+            header: 'Daily Real',
+            extras: ['sort'],
+            sortKey: 'pnl_24_h',
+            render: ({ pnl_24_h }) => (
+              <div className={`px-2 text-sm ${pnl_24_h > -1 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
+                {pnl_24_h?.toFixed(3) || '-' || '-' }
+              </div>
+            )
+          },
           {
             key: 'notional',
             header: 'Notional',
             extras: ['sort'],
-            render: ({ average_open_price, position_qty }) => (
-              <div className={`px-2 text-sm ${position_qty * average_open_price > -1 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
-                {(position_qty * average_open_price)?.toFixed(0) || '-' }
-              </div>
-            )
+            sortKey: ['position_qty', 'average_open_price'],
+            render: ({ average_open_price, position_qty }) => (position_qty * average_open_price)?.toFixed(0) || '-' 
           },
           {
             key: 'qty.',
@@ -1067,8 +1088,8 @@ export const usePortableOrderlyTable = ({
               const annualBase = ((funding_rate * 3 * 365 * 100 * 100) / 100).toFixed(4);
               const last = parseInt(annualBase.substr(annualBase.length - 2, 1));
               const negative = (funding_rate < 0);
-              const annual = /* ((last < 5 && negative) || (last > 4 && !negative)) ?  */(Math.floor(funding_rate * 3 * 365 * 100 * 1000) / 1000).toString()/*  : (Math.ceil(funding_rate * 3 * 365 * 100 * 100) / 100)?.toFixed(2) */;
-              const annualParse = annual.substring(0, annual.length - 1);
+              const annual = /* ((last < 5 && negative) || (last > 4 && !negative)) ?  */(Math.floor(funding_rate * 3 * 365 * 100 * 100000) / 100000).toString()/*  : (Math.ceil(funding_rate * 3 * 365 * 100 * 100) / 100)?.toFixed(2) */;
+              const annualParse = annual.substring(0, annual.length - 3);
 
               return `${(funding_rate * 100).toFixed(6)}%/${annualParse}%`
             }

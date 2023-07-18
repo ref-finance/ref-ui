@@ -147,7 +147,7 @@ function Table({
   } = useOrderlyContext();
   const { accountId, modal } = useWalletSelector()
 
-  const [sort, setSort] = useState<[string, 'asc' | 'dsc']>([
+  const [sort, setSort] = useState<[string | string[], 'asc' | 'dsc']>([
     '',
     loading ? undefined : 'dsc',
   ]);
@@ -213,10 +213,21 @@ function Table({
   }, [tradingKeySet, keyAnnounced]);
 
   const sortingFunc = (a: MyOrder, b: MyOrder) => {
-    if (sort[1] === 'asc') {
-      return a[sort[0]] - b[sort[0]];
+    if (!Array.isArray(sort[0])) {
+      if (sort[1] === 'asc') {
+        return a[sort[0]] - b[sort[0]];
+      } else {
+        return b[sort[0]] - a[sort[0]];
+      }
     } else {
-      return b[sort[0]] - a[sort[0]];
+      const c = a[sort[0][0]] * a[sort[0][1]];
+      const d = b[sort[0][0]] * b[sort[0][1]];
+
+      if (sort[1] === 'asc') {
+        return c - d;
+      } else {
+        return d - c;
+      }
     }
   };
 

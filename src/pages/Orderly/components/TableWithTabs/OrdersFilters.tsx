@@ -45,6 +45,30 @@ const OrdersFilters = ({
   }[]
 }) => {
   const intl = useIntl();
+  const [displayList, setDisplayList] = useState<{
+    text: JSX.Element;
+    withSymbol: JSX.Element;
+    textId: string;
+  }[]>([]);
+
+  useEffect(() => {
+    if (showMarketSelector || showSideSelector)
+      document.addEventListener('click', () => {
+        setShowMarketSelector(false);
+        setShowSideSelector(false);
+      });
+  }, [showMarketSelector, showSideSelector]);
+
+  useEffect(() => {
+    if (orderType === 0) {
+      setDisplayList(marketList);
+    } else if (orderType === 1) {
+      setDisplayList(marketList.filter((market) => !market.textId.includes('PERP')))
+    } else if (orderType === 2) {
+      setDisplayList(marketList.filter((market) => market.textId.includes('PERP') ||market.textId === 'all_markets'))
+    }
+
+  }, [orderType, marketList])
 
   return (
     <div className="w-full px-5 pb-5 flex justify-between items-center">
@@ -123,7 +147,7 @@ const OrdersFilters = ({
                 setChooseMarketSymbol(value);
                 setShowMarketSelector(false);
               }}
-              list={marketList}
+              list={displayList}
             />
           )}
         </FlexRow>
