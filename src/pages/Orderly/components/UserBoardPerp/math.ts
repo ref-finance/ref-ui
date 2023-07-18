@@ -344,7 +344,9 @@ const getMaxQuantity = (
 
     const cur_position = positions.rows.find((r) => r.symbol === symbol.symbol);
 
-    const cur_side = new Big(1).times(cur_position.position_qty >= 0 ? 1 : -1);
+    const cur_side = new Big(1).times(
+      (cur_position?.position_qty || 0) >= 0 ? 1 : -1
+    );
 
     const order_side = side == 'Buy' ? new Big(1) : new Big(-1);
 
@@ -410,6 +412,7 @@ const getMaxQuantity = (
 
     return Number(res);
   } catch (error) {
+    console.log('error: ', error);
     return '-';
   }
 };
