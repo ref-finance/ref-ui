@@ -1998,11 +1998,12 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
                 <div className="frcs gap-2">
                   <span className="text-white">
-                    {total === '-'
+                    {!inputValue
                       ? '-'
                       : digitWrapper(
                           (
-                            (total * (curSymbolMarkPrice.price || 0)) /
+                            (Number(inputValue) *
+                              (curSymbolMarkPrice.price || 0)) /
                             curLeverage
                           ).toString(),
                           3
@@ -3182,6 +3183,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
   const [operationId, setOperationId] = useState<string>(tokenIn?.id || '');
 
   const [inputValue, setInputValue] = useState<string>('');
+  console.log('inputValue: ', inputValue);
 
   const [showAdvance, setShowAdvance] = useState<boolean>(false);
 
@@ -3549,28 +3551,6 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
       return;
     }
 
-    // if (new Big(price || 0).lt(symbolInfo.quote_min)) {
-    //   setShowErrorTip(true);
-    //   setErrorTipMsg(
-    //     `${intl.formatMessage({
-    //       id: 'min_price_should_be_higher_than_or_equal_to',
-    //       defaultMessage: 'Min price should be higher than or equal to',
-    //     })} ${symbolInfo.quote_min}`
-    //   );
-    //   return;
-    // }
-
-    // if (new Big(price || 0).gt(symbolInfo.quote_max)) {
-    //   setShowErrorTip(true);
-    //   setErrorTipMsg(
-    //     `${intl.formatMessage({
-    //       id: 'price_should_be_lower_than_or_equal_to',
-    //       defaultMessage: 'Price should be lower than or equal to',
-    //     })} ${symbolInfo.quote_max}`
-    //   );
-    //   return;
-    // }
-
     if (
       new Big(new Big(price || 0).minus(new Big(symbolInfo.quote_min)))
         .mod(symbolInfo.quote_tick)
@@ -3710,6 +3690,46 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
     const symbolInfo = availableSymbols?.find((s) => s.symbol === symbol);
 
     if (!symbolInfo) {
+      return;
+    }
+
+    if (new Big(size || 0).lt(symbolInfo.base_min)) {
+      setShowErrorTip(true);
+      setErrorTipMsg(
+        `${
+          side === 'Buy'
+            ? intl.formatMessage({
+                id: 'quantity_to_buy_should_be_greater_than_or_equal_to',
+                defaultMessage:
+                  'Quantity to buy should be greater than or equal to',
+              })
+            : intl.formatMessage({
+                id: 'quantity_to_sell_should_be_greater_than_or_equal_to',
+                defaultMessage:
+                  'Quantity to sell should be greater than or equal to',
+              })
+        } ${symbolInfo.base_min}`
+      );
+      return;
+    }
+
+    if (new Big(size || 0).gt(symbolInfo.base_max)) {
+      setShowErrorTip(true);
+      setErrorTipMsg(
+        `${
+          side === 'Buy'
+            ? intl.formatMessage({
+                id: 'quantity_to_buy_should_be_less_than_or_equal_to',
+                defaultMessage:
+                  'Quantity to buy should be less than or equal to',
+              })
+            : intl.formatMessage({
+                id: 'quantity_to_sell_should_be_less_than_or_equal_to',
+                defaultMessage:
+                  'Quantity to sell should be less than or equal to',
+              })
+        } ${symbolInfo.base_max}`
+      );
       return;
     }
 
@@ -4338,11 +4358,12 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
 
                 <div className="frcs gap-2">
                   <span className="text-white">
-                    {total === '-'
+                    {!inputValue
                       ? '-'
                       : digitWrapper(
                           (
-                            (total * (curSymbolMarkPrice.price || 0)) /
+                            (Number(inputValue) *
+                              (curSymbolMarkPrice.price || 0)) /
                             curLeverage
                           ).toString(),
                           3
