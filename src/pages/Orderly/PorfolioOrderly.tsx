@@ -266,19 +266,22 @@ function PortfolioOrderly() {
                 setChooseOrderSide={setChooseOrderSide}
                 displayBalances={displayBalances}
                 triggerPositionBasedData={triggerPositionBasedData}
-              />\
+                validAccountSig={validAccountSig}
+              />
               <TableWithTabs
                 table={assetsTables}
                 maintenance={maintenance}
                 displayBalances={displayBalances}
                 newPositions={newPositions}
                 handleOpenClosing={handleOpenClosing}
+                validAccountSig={validAccountSig}
               />
               <TableWithTabs
                 table={recordsTable}
                 maintenance={maintenance}
                 displayBalances={displayBalances}
                 triggerBalanceBasedData={triggerBalanceBasedData}
+                validAccountSig={validAccountSig}
               />
               <span className="text-xs text-primaryOrderly flex items-center">
                 <div className="ml-5 mr-1">
@@ -330,6 +333,7 @@ function PortfolioOrderly() {
                   maintenance={maintenance}
                   displayBalances={displayBalances}
                   newPositions={newPositions}
+                  validAccountSig={validAccountSig}
                 />
               )}
               {tab === 1 && (
@@ -350,6 +354,7 @@ function PortfolioOrderly() {
                   displayBalances={displayBalances}
                   triggerPositionBasedData={triggerPositionBasedData}
                   setMobileFilterOpen={setMobileFilterOpen}
+                  validAccountSig={validAccountSig}
                 />
               )}
               {tab === 2 && (
@@ -358,6 +363,7 @@ function PortfolioOrderly() {
                   maintenance={maintenance}
                   displayBalances={displayBalances}
                   triggerBalanceBasedData={triggerBalanceBasedData}
+                  validAccountSig={validAccountSig}
                 />
               )}
             </div>
