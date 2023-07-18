@@ -1019,12 +1019,9 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         `${intl.formatMessage({
           id: 'perp_buy_limit_order_scope',
           defaultMessage: 'The price of a buy limit order cannot be lower than',
-        })} ${
-          (new Big(curSymbolMarkPrice.price || 0)
-            .mul(1 - symbolInfo.price_scope)
-            .toFixed(tickToPrecision(symbolInfo.quote_tick)),
-          3)
-        }`
+        })} ${new Big(curSymbolMarkPrice.price || 0)
+          .mul(1 - symbolInfo.price_scope)
+          .toFixed(tickToPrecision(symbolInfo.quote_tick), 3)}`
       );
       return;
     }
@@ -3723,12 +3720,9 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
         `${intl.formatMessage({
           id: 'perp_buy_limit_order_scope',
           defaultMessage: 'The price of a buy limit order cannot be lower than',
-        })} ${
-          (new Big(curSymbolMarkPrice.price || 0)
-            .mul(1 - symbolInfo.price_scope)
-            .toFixed(tickToPrecision(symbolInfo.quote_tick)),
-          3)
-        }`
+        })} ${new Big(curSymbolMarkPrice.price || 0)
+          .mul(1 - symbolInfo.price_scope)
+          .toFixed(tickToPrecision(symbolInfo.quote_tick), 3)}`
       );
       return;
     }

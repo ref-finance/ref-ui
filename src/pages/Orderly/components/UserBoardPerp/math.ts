@@ -234,37 +234,59 @@ const getLqPrice = (
 
     const mark_price_current_i =
       markPrices.find((item) => item.symbol === symbol.symbol)?.price || 0;
+
+    console.log('mark_price_current_i: ', mark_price_current_i.toFixed());
+
     const total_notional_value = getTotalnotional(markPrices, positions).times(
       mark_price_current_i
     );
+
+    console.log('total_notional_value: ', total_notional_value.toFixed());
 
     const collateral = new Big(
       curHoldingOut.holding + curHoldingOut.pending_short
     ).plus(total_notional_value.div(userInfo.max_leverage));
 
+    console.log('collateral: ', collateral.toFixed());
+
     const maintenance_margin_ratio = positions.maintenance_margin_ratio;
+    console.log(
+      'maintenance_margin_ratio: ',
+      maintenance_margin_ratio.toFixed()
+    );
 
     const current_position = positions.rows.find(
       (r) => r.symbol === symbol.symbol
     );
 
+    console.log('current_position: ', current_position);
+
     const unsettled_pnl_i = new Big(current_position?.unsettled_pnl || 0);
+    console.log('unsettled_pnl_i: ', unsettled_pnl_i.toFixed());
 
     const current_notional_i = new Big(
       current_position?.position_qty || 0
     ).times(mark_price_current_i);
 
+    console.log('current_notional_i: ', current_notional_i.toFixed());
+
     const position_qty_i = current_position?.position_qty || 0;
+    console.log('position_qty_i: ', position_qty_i.toFixed());
 
     const total_unpnl = get_total_upnl(positions, markPrices);
+    console.log('total_unpnl: ', total_unpnl.toFixed());
 
     const total_notional = getTotalnotional(markPrices, positions);
+    console.log('total_notional: ', total_notional.toFixed());
 
     const new_positon_qty_i = new Big(cur_amount).times(side == 'Buy' ? 1 : -1);
+    console.log('new_positon_qty_i: ', new_positon_qty_i.toFixed());
 
     const after_position_qty_i = new Big(position_qty_i).plus(
       new_positon_qty_i
     );
+
+    console.log('after_position_qty_i: ', after_position_qty_i.toFixed());
 
     const numerator = current_notional_i
       .times(maintenance_margin_ratio)
