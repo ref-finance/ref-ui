@@ -714,10 +714,14 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     orderType === 'Limit'
       ? !limitPrice || !userInfo
         ? '-'
-        : Number(inputValue || 0) * Number(limitPrice || 0)
+        : new Big(inputValue || 0)
+            .times(new Big(Number(limitPrice || 0)))
+            .toNumber()
       : !orders || !userInfo || !marketPrice
       ? '-'
-      : Number(inputValue || 0) * Number(marketPrice || 0);
+      : new Big(inputValue || 0)
+          .times(new Big(Number(marketPrice || 0)))
+          .toNumber();
 
   const maxOrderSize = useMemo(() => {
     const mark_price = curSymbolMarkPrice?.price || 0;
@@ -1625,7 +1629,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       </div>
       {/* sell and buy button  */}
 
-      <div className="flex pb-12 flex-col gap-3 px-5 bg-orderLineHover">
+      <div className="flex pb-20 flex-col gap-3 px-5 bg-orderLineHover">
         <div className="flex items-center  pt-6  justify-center ">
           <BuyButtonPerp
             onClick={() => {
@@ -1966,7 +1970,9 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
               <div className="frcs gap-2">
                 <span className="text-white">
-                  {total === '-' ? '-' : digitWrapper(total.toString(), 3)}{' '}
+                  {total === '-'
+                    ? '-'
+                    : digitWrapper(new Big(total).toFixed(), 3)}{' '}
                 </span>
                 <span className="text-primaryText">USDC</span>
 

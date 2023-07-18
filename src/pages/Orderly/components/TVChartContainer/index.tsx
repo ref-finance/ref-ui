@@ -167,7 +167,9 @@ export function ChartContainer({ maintenance }: { maintenance: boolean }) {
   React.useEffect(() => {
     if (!tvWidget) return;
 
-    tvWidget.setSymbol(symbol, 'D' as ResolutionString, () => {});
+    tvWidget.onChartReady(() => {
+      tvWidget.setSymbol(symbol, 'D' as ResolutionString, () => {});
+    });
   }, [symbol]);
 
   return (

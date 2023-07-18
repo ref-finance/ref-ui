@@ -1,4 +1,5 @@
 import { toPrecision } from './near';
+import Big from 'big.js';
 import {
   scientificNotationToString,
   formatWithCommas,
@@ -11,9 +12,14 @@ export function digitWrapper(
 ) {
   const minStr = '0.' + '0'.repeat(precision - 1) + '1';
 
-  if (Number(digit) < Number(minStr) && Number(digit) > 0) {
+  if (Number(digit) < Number(minStr) && new Big(digit).gt(0)) {
     return scientificNotationToString(digit.toString());
-  } else return toPrecision(digit.toString(), precision, true);
+  } else
+    return toPrecision(
+      scientificNotationToString(digit.toString()),
+      precision,
+      true
+    );
 }
 
 export function digitWrapperAsset(

@@ -235,9 +235,11 @@ function LiquidationHistoryModal(
                           <img
                             src={r?.from_meta?.icon}
                             alt=""
-                            className={`h-7 w-7 flex-shrink-0 rounded-full border-gradientFromHover pr-2`}
+                            className={`h-7 w-7 flex-shrink-0 rounded-full border-gradientFromHover `}
                           />
-                          <span>{parseSymbol(r.symbol).symbolFrom}</span>
+                          <span className="pl-2">
+                            {parseSymbol(r.symbol).symbolFrom}
+                          </span>
 
                           <span>PERP</span>
                         </div>
@@ -257,7 +259,14 @@ function LiquidationHistoryModal(
                       </td>
 
                       <td>
-                        {numberWithCommas(r.transfer_amount_to_insurance_fund)}
+                        <div className="frcs whitespace-nowrap gap-1">
+                          <span>
+                            {numberWithCommas(
+                              r.transfer_amount_to_insurance_fund || 0
+                            )}
+                          </span>
+                          <span>USDC</span>
+                        </div>
                       </td>
 
                       <td align="right">

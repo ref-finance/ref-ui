@@ -37,6 +37,7 @@ import { useTokenInfo, useAllOrdersSymbol, useStorageEnough } from './state';
 import { getAccountInformation, getOrderlySystemInfo } from './off-chain-api';
 import { PerpOrSpot } from '../utiles';
 import { useWalletSelector } from '~context/WalletSelectorContext';
+import { useHistory } from 'react-router-dom';
 
 interface OrderlyContextValue {
   orders: Orders | undefined;
@@ -107,6 +108,7 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
   const [userInfo, setUserInfo] = useState<ClientInfo>();
 
   const pathname = window.location.pathname;
+  console.log('pathname: ', pathname);
 
   const isPerp = pathname.includes('perp');
 
@@ -129,7 +131,7 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
       setSymbol('SPOT_NEAR_USDC');
       localStorage.setItem(REF_ORDERLY_SYMBOL_KEY, 'SPOT_NEAR_USDC');
     }
-  }, [symbol]);
+  }, [symbol, isPerp]);
 
   const symbolType = PerpOrSpot(symbol);
 
