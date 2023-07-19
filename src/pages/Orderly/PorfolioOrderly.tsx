@@ -238,7 +238,7 @@ function PortfolioOrderly() {
           <div className="md:px-2.5 lg:px-5 3xl:max-w-1280px m-auto">
             <div className="w-full grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 md:bg-cardBg lg:bg-cardBg px-7 py-4 rounded-xl">
               {/* getCurrentHolding */}
-              <div className="col-span-2 mb-3">
+              <div className="col-span-3 mb-3">
                 <div className="flex items-center">
                   <span className="text-sm text-primaryText flex items-center">
                     Total Est. Value
@@ -274,20 +274,6 @@ function PortfolioOrderly() {
                     (total, row) => total + parseFloat(row.available) + parseFloat(row['in-order']),
                     0
                   ) + parseFloat(portfolioUnsettle)).toFixed(3) : 0}
-                </span>
-              </div>
-              <div className="col-span-1 mb-3">
-                <div className="flex items-center">
-                  <span className="text-sm text-primaryText">
-                    In Open order
-                  </span>
-                </div>
-                <span className="text-xl gotham_bold text-white mt-1">
-                  $
-                  {(displayBalances.length > 0) ? displayBalances.reduce(
-                    (total, row) => total + parseFloat(row['in-order']),
-                    0
-                  ).toFixed(3) : 0}
                 </span>
               </div>
               <div className="col-span-1 mb-3">

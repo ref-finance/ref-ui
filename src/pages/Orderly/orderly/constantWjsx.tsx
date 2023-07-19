@@ -739,7 +739,6 @@ export const usePortableOrderlyTable = ({
     ]
   }
 
-
   const recordsTable: PortfolioTable = {
     title: 'Records',
     tabs: [
