@@ -23,7 +23,7 @@ import {
 } from '../../orderly/on-chain-api';
 import { announceKey, setTradingKey, storageDeposit } from '../../orderly/api';
 import { useIntl } from 'react-intl';
-import _, { set } from 'lodash';
+import _ from 'lodash';
 
 function OrderLine({
   order,
@@ -44,7 +44,6 @@ function OrderLine({
   const [closingQuantity, setClosingQuantity] = useState(order.position_qty);
   const [closingPrice, setClosingPrice] = useState<'Market' | number>(order.mark_price);
   const [open, setOpen] = useState<boolean>(false);
-
 
   return (
     <>
@@ -85,7 +84,7 @@ function OrderLine({
           </td>
         ): (
           <FutureTableFormCells
-            key="table-form"
+            key={`table-form-${order.symbol}`}
             position_qty={order.position_qty}
             closingQuantity={closingQuantity}
             setClosingQuantity={setClosingQuantity}
@@ -99,43 +98,27 @@ function OrderLine({
         ))}
       </tr>
     </>
-  );
+  )
 }
 
-function Table({
+function AssetAndFutureTable({
   data,
   columns,
   loading,
   tableKey,
-  total,
-  page,
-  setPage,
   tableRowType,
   tableRowEmpty,
   tableTopComponent,
-  pagination = true,
-  mobileRender,
-  mobileRenderCustom,
-  orderType,
-  mobileFooter,
   maintenance,
   handleOpenClosing
 }: {
-  data: MyOrder[];
+  data: any;
   loading: boolean;
   tableKey: string;
   columns: PortfolioTableColumns[];
-  total: number;
-  page: number;
-  setPage: (page: number) => void;
   tableRowType: string;
   tableRowEmpty?: string;
   tableTopComponent: JSX.Element;
-  pagination: boolean;
-  orderType?: number;
-  mobileRender: (row: any) => any;
-  mobileRenderCustom?: boolean;
-  mobileFooter?: JSX.Element;
   maintenance: boolean;
   handleOpenClosing?: (closingQuantity: number, closingPrice: number | 'Market', row: any) => void;
 }) {
@@ -157,7 +140,6 @@ function Table({
   const [keyAnnounced, setKeyAnnounced] = useState<boolean>(false);
   const [agreeCheck, setAgreeCheck] = useState<boolean>(false);
   const [registerModalOpen, setRegisterModalOpen] = useState<boolean>(false);
-  const [customTotal, setCustomTotal] = useState<number | null>(null);
 
   const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
 
@@ -233,39 +215,13 @@ function Table({
   };
 
   const filterFunc = (order: any, index: number) => {
-    let a = true;
-    if (orderType === 1) {
-      a = !order.symbol.includes('PERP');
-    } else if (orderType === 2) {
-      a = order.symbol.includes('PERP');
-    }
-
     let b = true;
     if (tableKey === 'futures') {
       b = order.position_qty > 0 || order.position_qty < 0;
     }
 
-    return a && b;
+    return b;
   };
-
-  const pagingFunc = (order: MyOrder, index: number) => {
-    let a = true;
-    if (orderType === 1) {
-      a = (index >= ((page - 1) * 10) && index < (page * 10));
-    } else if (orderType === 2) {
-      a = (index >= ((page - 1) * 10) && index < (page * 10));;
-    }
-
-    return a;
-  };
-
-  useEffect(() => {
-    if (orderType > 0) {
-      setCustomTotal(data.filter(filterFunc).length);
-    } else {
-      setCustomTotal(null);
-    }
-  }, [data])
 
   const intl = useIntl();
 
@@ -397,7 +353,7 @@ function Table({
             className=" block overflow-auto  flex-col "
             id="all-orders-body-open"
           >
-            {accountId && validContract() && loading ? (
+            {accountId && validContract() && loading && (
               <tr
                 className={`w-full relative mt-10 mb-4 px-5 table-fixed grid grid-cols-${gridCol} gap-4`}
                 style={{ zIndex: 1 }}
@@ -406,7 +362,8 @@ function Table({
                   <OrderlyLoading />
                 </td>
               </tr>
-            ) : data.filter(filterFunc).filter(pagingFunc).length === 0 ? (
+            )}
+            {data.filter(filterFunc).length === 0 && (
               <tr
                 className={`w-full mt-10 mb-4 px-5 table-fixed grid grid-cols-${gridCol} gap-4`}
               >
@@ -441,175 +398,22 @@ function Table({
                   </span>
                 </td>
               </tr>
-            ) : (
-              data
-                .filter(filterFunc)
-                .filter(pagingFunc)
-                .sort(sortingFunc)
-                .map((order, i) => {
-                  return (
-                    <OrderLine
-                      key={`${tableKey}-order-${i}`}
-                      order={order}
-                      handleOpenClosing={handleOpenClosing}
-                      columns={columns}
-                      tableRowType={tableRowType}
-                    />
-                  );
-                })
             )}
+            {data.filter(filterFunc).sort(sortingFunc).map((order: any, i: number) => {
+                return (
+                  <OrderLine
+                    key={`${tableKey}-order-${i}`}
+                    order={order}
+                    handleOpenClosing={handleOpenClosing}
+                    columns={columns}
+                    tableRowType={tableRowType}
+                  />
+                );
+              })
+            }
           </tbody>
         </table>
       </div>
-      <div className="w-full md:hidden lg:hidden">
-        {accountId && validContract() && loading ? (
-          <div className="w-full relative mt-10 mb-4 px-5 gap-4">
-            <div className="text-center">
-              <OrderlyLoading />
-            </div>
-          </div>
-        ) : data.filter(filterFunc).filter(pagingFunc).length === 0 ? (
-          <div className="w-full mt-10 mb-4 px-5 gap-4">
-            <div className="text-center">
-              {intl.formatMessage({
-                id: 'no_orders_found',
-                defaultMessage: 'No orders found',
-              })}
-            </div>
-          </div>
-        ) : (
-          <>
-            {!mobileRenderCustom &&
-              data
-                .filter(filterFunc)
-                .filter(pagingFunc)
-                .sort(sortingFunc)
-                .map((order) => mobileRender && mobileRender(order))}
-            {mobileRenderCustom &&
-              mobileRender(data.sort(sortingFunc).filter(filterFunc))}
-          </>
-        )}
-      </div>
-
-      {/* Pagination */}
-      {!loading && data.filter(filterFunc).length > 0 && pagination && (
-        <div className="flex justify-center mt-5">
-          <div className="flex items-center">
-            {/* Back to first page */}
-            <div
-              onClick={() => {
-                page > 1 && setPage(1);
-              }}
-              className={page > 1 ? 'cursor-pointer' : ''}
-            >
-              <svg
-                className="mx-1"
-                width="10"
-                height="13"
-                viewBox="0 0 10 13"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <g opacity={page > 1 ? '1' : '0.3'}>
-                  <path
-                    d="M2.77733 5.77071C2.35628 6.16574 2.35628 6.83426 2.77733 7.22928L6.31579 10.5491C6.95436 11.1482 8 10.6954 8 9.81976L8 3.18023C8 2.30462 6.95436 1.85185 6.31579 2.45095L2.77733 5.77071Z"
-                    fill="#7E8A93"
-                  />
-                  <path
-                    d="M1 3V10"
-                    stroke="#7E8A93"
-                    strokeWidth="1.2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </g>
-              </svg>
-            </div>
-
-            {/* Back */}
-            <div
-              onClick={() => {
-                page > 1 && setPage(page - 1);
-              }}
-              className={page > 1 ? 'cursor-pointer' : ''}
-            >
-              <svg
-                className="mx-1"
-                width="6"
-                height="9"
-                viewBox="0 0 6 9"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  opacity={page > 1 ? '1' : '0.3'}
-                  d="M0.777329 3.77071C0.356276 4.16574 0.356276 4.83426 0.777328 5.22928L4.31579 8.54905C4.95436 9.14816 6 8.69538 6 7.81976L6 1.18023C6 0.304619 4.95436 -0.148155 4.31579 0.450951L0.777329 3.77071Z"
-                  fill="#7E8A93"
-                />
-              </svg>
-            </div>
-
-            <span>
-              {(page - 1) * 10 + 1}-{(customTotal ? customTotal : total) > page * 10 ? page * 10 : (customTotal ? customTotal : total)} of{' '}
-              {(customTotal ? customTotal : total)}
-            </span>
-
-            {/* Next */}
-            <div
-              onClick={() => {
-                page < Math.ceil((customTotal ? customTotal : total) / 10) && setPage(page + 1);
-              }}
-              className={page < Math.ceil((customTotal ? customTotal : total) / 10) ? 'cursor-pointer' : ''}
-            >
-              <svg
-                className="mx-1"
-                width="6"
-                height="9"
-                viewBox="0 0 6 9"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  opacity={page < Math.ceil((customTotal ? customTotal : total) / 10) ? '1' : '0.3'}
-                  d="M5.22267 3.77071C5.64372 4.16574 5.64372 4.83426 5.22267 5.22928L1.68421 8.54905C1.04564 9.14816 -4.6751e-07 8.69538 -4.29236e-07 7.81976L-1.39013e-07 1.18023C-1.00738e-07 0.304619 1.04564 -0.148155 1.68421 0.450951L5.22267 3.77071Z"
-                  fill="#7E8A93"
-                />
-              </svg>
-            </div>
-
-            {/* Last page */}
-            <div
-              onClick={() => {
-                page < Math.ceil((customTotal ? customTotal : total) / 10) && setPage(Math.ceil((customTotal ? customTotal : total) / 10));
-              }}
-              className={page < Math.ceil((customTotal ? customTotal : total) / 10) ? 'cursor-pointer' : ''}
-            >
-              <svg
-                className="mx-1"
-                width="10"
-                height="13"
-                viewBox="0 0 10 13"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <g opacity={page < Math.ceil((customTotal ? customTotal : total) / 10) ? '1' : '0.3'}>
-                  <path
-                    d="M7.22267 5.77071C7.64372 6.16574 7.64372 6.83426 7.22267 7.22928L3.68421 10.5491C3.04564 11.1482 2 10.6954 2 9.81976L2 3.18023C2 2.30462 3.04564 1.85185 3.68421 2.45095L7.22267 5.77071Z"
-                    fill="#7E8A93"
-                  />
-                  <path
-                    d="M9 3V10"
-                    stroke="#7E8A93"
-                    strokeWidth="1.2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </g>
-              </svg>
-            </div>
-          </div>
-        </div>
-      )}
 
       <RegisterModal
         isOpen={registerModalOpen}
@@ -626,4 +430,4 @@ function Table({
   );
 }
 
-export default Table;
+export default AssetAndFutureTable;

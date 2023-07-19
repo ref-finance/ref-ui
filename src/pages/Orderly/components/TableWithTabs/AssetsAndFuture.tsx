@@ -3,7 +3,7 @@ import { useIntl } from 'react-intl';
 import _ from 'lodash';
 
 import 'react-circular-progressbar/dist/styles.css';
-import Table from './Table';
+import AssetAndFutureTable from './AssetAndFutureTable';
 import { FlexRow, FlexRowBetween, DepositButtonMobile, WithdrawButtonMobile } from '../Common';
 import { FutureMobileView, FutureTopComponent, FutureTableFormHeaders } from '../TableWithTabs/FuturesControls';
 import { OrderAsset } from '../AssetModal/state';
@@ -128,70 +128,6 @@ function AssetsAndFuture({
         pagination: false,
         getData: async () => false,
         rightComp: <SpotTransactionBtn />,
-        mobileRenderCustom: true,
-        mobileRender: (rows) => (
-          <>
-            <table className="table-fixed w-full">
-              <thead className={`w-full table table-fixed py-2 border-white border-opacity-10`}>
-                <tr className={`w-full  table-fixed grid grid-cols-3 gap-4 px-3`}>
-                  {['assets', 'Wallet', 'available_orderly'].map((key, i) => (
-                    <th className={`col-span-1 pb-2${i === 2 ? ' text-right' : ' text-left'}`}>
-                      {intl.formatMessage({
-                        id: key,
-                        defaultMessage: key,
-                    })}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className=" block overflow-auto flex-col px-3">
-                {rows.map(({ tokenMeta, near, available }: any) => (
-                  <tr className="table-fixed grid grid-cols-3 gap-4 lg:border-t border-white border-opacity-10 text-white">
-                    <td className="col-span-1 flex py-2 relative">
-                      <div className="flex items-center">
-                        <img
-                          src={tokenMeta.icon}
-                          className="rounded-full flex-shrink-0 mr-2 w-7 h-7 border border-green-400"
-                          alt=""
-                        />
-                        <div className="flex flex-col  ">
-                          <div className="text-white flex items-center font-bold">
-                            {tokenMeta.symbol}
-                            {tokenMeta?.id?.toLowerCase() === 'near' && <NearTip />}
-                          </div>
-                
-                          <div className="text-primaryOrderly xs:hidden text-xs">
-                            {getAccountName(tokenMeta.id)}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="col-span-1 py-2">
-                      {digitWrapperAsset(near, 3)}
-                    </td>
-                    <td className="col-span-1 text-right py-2">
-                      {digitWrapperAsset(available, 3)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div className="flex justify-between align-center px-3 mt-5">
-              <DepositButtonMobile
-                onClick={() => {
-                  setOperationType('deposit');
-                  setOperationId(tokenIn?.id || '');
-                }}
-              />
-              <WithdrawButtonMobile
-                onClick={() => {
-                  setOperationType('withdraw');
-                  setOperationId(tokenIn?.id || '');
-                }}
-              />
-            </div>
-          </>
-        ),
         columns: [
           {
             key: 'token',
@@ -255,16 +191,6 @@ function AssetsAndFuture({
         pagination: false,
         getData: () => getPortfolioPosition({ accountId }),
         tableTopComponent: <FutureTopComponent />,
-        mobileRenderCustom: true,
-        mobileRender: (rows) => (
-          <FutureMobileView
-            rows={rows}
-            marketList={marketList}
-            handleOpenClosing={handleOpenClosing}
-          >
-            <SettlePnlBtn />
-          </FutureMobileView>
-        ),
         columns: [
           {
             key: 'instrument',
@@ -410,7 +336,7 @@ function AssetsAndFuture({
           minHeight: isMobile ? '' : 'calc(100vh - 680px)',
         }}
       >
-        <span className="text-white gotham_bold text-lg px-5 hidden md:block lg:block">{table.title}</span>
+        <span className="text-white gotham_bold text-lg px-5 hidden md:block lg:block">Assets</span>
         <FlexRowBetween className="pb-3 py-3 rounded-t-2xl px-5 mt-0 border-white border-opacity-10 hidden md:flex lg:flex">
           <FlexRowBetween className={`w-full min-h-8 `}>
             <FlexRow>
@@ -454,47 +380,9 @@ function AssetsAndFuture({
           </FlexRowBetween>
         </FlexRowBetween>
 
-        <div className="md:hidden lg:hidden">
-          <div
-            className={`relative flex items-center bg-acccountTab p-1 rounded-lg ${table.tabs[tab].filter ? 'w-11/12 inline-flex' : ''}`}
-          >
-            {table.tabs.map((tableTab, index) => (
-              <label
-                key={tableTab.id}
-                onClick={() => {
-                  if (tab !== index) {
-                    setLoading(true);
-                    setData([]);
-                    setTab(index);
-                  }
-                }}
-                className={`flex items-center justify-center w-1/2 py-1 flex-grow text-sm rounded-md  ${
-                  tab === index
-                    ? 'text-white bg-acccountBlock'
-                    : 'text-primaryText'
-                }`}
-              >
-                <span className="hidden md:block lg:block">
-                  {intl.formatMessage({
-                    id: tableTab.id,
-                    defaultMessage: tableTab.default,
-                  })}
-                </span>
-                <span className="md:hidden lg:hidden">
-                  {intl.formatMessage({
-                    id: tableTab.mobileKey ? tableTab.mobileKey : tableTab.id,
-                    defaultMessage: tableTab.default,
-                  })}
-                </span>
-              </label>
-            ))}
-          </div>
-        </div>
-    
-
-
         <div className="w-full rounded-2xl md:bg-cardBg lg:bg-cardBg py-5">
-          <Table
+          <AssetAndFutureTable
+            key={table.tabs[tab].id}
             data={data || []}
             loading={loading}
             tableKey={table.tabs[tab].id}
@@ -502,13 +390,7 @@ function AssetsAndFuture({
             tableRowType={table.tabs[tab].tableRowType}
             tableRowEmpty={table.tabs[tab].tableRowEmpty}
             tableTopComponent={table.tabs[tab].tableTopComponent}
-            mobileRender={table.tabs[tab].mobileRender}
-            mobileRenderCustom={table.tabs[tab].mobileRenderCustom}
-            total={total}
-            page={page}
-            setPage={setPage}
             maintenance={maintenance}
-            pagination={!table.tabs[tab].pagination ? table.tabs[tab].pagination : true}
             handleOpenClosing={handleOpenClosing}
           />
         </div>
@@ -517,16 +399,7 @@ function AssetsAndFuture({
   );
 }
 
-const OffFilterIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="8" cy="8" r="8" fill="#182935"/>
-    <path fillRule="evenodd" clipRule="evenodd" d="M5.14765 6.32208C4.85476 6.02918 4.85476 5.55431 5.14765 5.26142C5.44054 4.96852 5.91542 4.96852 6.20831 5.26142L7.99289 7.046L9.77748 5.26142C10.0704 4.96852 10.5452 4.96852 10.8381 5.26142C11.131 5.55431 11.131 6.02918 10.8381 6.32208L9.05355 8.10666L10.7037 9.7568C10.9966 10.0497 10.9966 10.5246 10.7037 10.8175C10.4108 11.1104 9.93593 11.1104 9.64303 10.8175L7.99289 9.16732L6.34276 10.8175C6.04986 11.1104 5.57499 11.1104 5.2821 10.8175C4.9892 10.5246 4.9892 10.0497 5.2821 9.7568L6.93223 8.10666L5.14765 6.32208Z" fill="#7E8A93"/>
-  </svg>
-)
-
 export default AssetsAndFuture;
-
-
 
 const OrderlyIcon = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
