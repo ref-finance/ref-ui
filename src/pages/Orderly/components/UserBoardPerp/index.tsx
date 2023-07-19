@@ -951,12 +951,9 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           id: 'perp_sell_limit_order_range',
           defaultMessage:
             'The price of sell limit orders should be greater than or equal to',
-        })} ${
-          (new Big(curSymbolMarkPrice.price || 0)
-            .mul(1 - symbolInfo.price_range)
-            .toFixed(tickToPrecision(symbolInfo.quote_tick)),
-          3)
-        }`
+        })} ${new Big(curSymbolMarkPrice.price || 0)
+          .mul(1 - symbolInfo.price_range)
+          .toFixed(tickToPrecision(symbolInfo.quote_tick), 3)}`
       );
       return;
     }
@@ -3632,12 +3629,9 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
           id: 'perp_sell_limit_order_range',
           defaultMessage:
             'The price of sell limit orders should be greater than or equal to',
-        })} ${
-          (new Big(curSymbolMarkPrice.price || 0)
-            .mul(1 - symbolInfo.price_range)
-            .toFixed(tickToPrecision(symbolInfo.quote_tick)),
-          3)
-        }`
+        })} ${new Big(curSymbolMarkPrice.price || 0)
+          .mul(1 - symbolInfo.price_range)
+          .toFixed(tickToPrecision(symbolInfo.quote_tick), 3)}`
       );
       return;
     }
