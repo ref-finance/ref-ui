@@ -10,6 +10,7 @@ import { parseSymbol } from '../RecentTrade';
 import { orderEditPopUpFailure } from '../Common';
 import { getPortfolioAllOrders, cancelOrder } from '../../orderly/off-chain-api';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
+import { formatDecimalToTwoOrMore } from '../../orderly/utils';
 
 export const FutureTableFormHeaders: React.FC = () => {
   const intl = useIntl();
@@ -57,6 +58,8 @@ export const FutureTableFormCells: React.FC<{
   setClosingPrice: (input: number) => void;
   open: boolean;
   setOpen: (input: boolean) => void;
+  showFloatingBox: boolean;
+  setShowFloatingBox: (input: boolean) => void;
   handleOpenClosing: (closingQuantity: number, closingPrice: number | 'Market', row: any) => void;
   row: any,
 }> = ({
@@ -67,11 +70,39 @@ export const FutureTableFormCells: React.FC<{
   setClosingPrice,
   open,
   setOpen,
+  showFloatingBox,
+  setShowFloatingBox,
   handleOpenClosing,
   row
 }) => {
   const intl = useIntl();
+  const { accountId } = useWalletSelector();
+  const { triggerPositionBasedData } = usePerpData();
+  const { handlePendingOrderRefreshing } = useOrderlyContext();
   const [price, setPrice] = useState<number | 'Market'>('Market');
+  const [orders, setOrders] = useState<any>([]);
+
+  useEffect(() => {
+    getPendingOrders();
+  }, [])
+
+  useEffect(() => {
+    getPendingOrders();
+  }, [triggerPositionBasedData])
+
+  const getPendingOrders = async () => {
+    const { data } = await getPortfolioAllOrders({
+      accountId,
+      OrderProps: {
+        page: 1,
+        size: 500,
+        status: 'INCOMPLETE',
+        symbol: row.symbol
+      } 
+    })
+
+    setOrders(data.rows);
+  }
 
   const TableCell: React.FC = ({ children }) => (
     <td className={`col-span-1 flex items-center py-5 relative break-all`}>
@@ -108,7 +139,6 @@ export const FutureTableFormCells: React.FC<{
             style={{
               borderRadius: '6px',
               border: '1px solid #1D2932',
-              backgroundColor: 'rgba(0, 0, 0, 0.10)'
             }}
             placeholder="0.0"
             onChange={({ target }) => {
@@ -146,13 +176,90 @@ export const FutureTableFormCells: React.FC<{
       </TableCell>
       <TableCell>
         <div
-          className="border border-orderTypeBg px-3 py-1.5 rounded-md text-primaryText cursor-pointer"
-          onClick={() => handleOpenClosing(closingQuantity, closingPrice, row)}
+          className="relative"
+          onMouseEnter={() => setShowFloatingBox(true)}
+          onMouseLeave={() => setShowFloatingBox(false)}
         >
-          {intl.formatMessage({
-            id: 'close',
-            defaultMessage: 'Close',
-          })}
+          <div
+            className={`border border-orderTypeBg ${orders.length > 0 ? 'px-1.5' : 'px-3'} py-1.5 rounded-md text-xs text-primaryText cursor-pointer`}
+            onClick={() => handleOpenClosing(closingQuantity, closingPrice, row)}
+          >
+            {intl.formatMessage({
+              id: 'close',
+              defaultMessage: 'Close',
+            })}
+            {orders.length > 0 && `(${orders.length})`}
+          </div>
+          {showFloatingBox && (
+            <div
+              className="absolute bg-cardBg rounded-xl py-3 px-1.5"
+              style={{
+                bottom: '100%',
+                right: 0,
+                width: '300px'
+              }}
+            >
+              <div className="px-4 flex items-center pb-2 border-b border-gray1">
+                <span className="text-white text-sm gotham_bold">
+                  {intl.formatMessage({ id: 'pending_orders_title', defaultMessage: 'Pending Close Orders' })}
+                </span>
+              </div>
+              <div>
+              {orders.map(({ symbol, quantity, price, order_id }: any) => (
+                <div key={order_id} className="px-4 py-2 grid grid-cols-4 gap-2 rounded-lg hover:bg-symbolHover3" >
+                  <div className="col-span-3 text-sm flex justify-between">
+                    <span className="pr-3">
+                      <span>
+                        {quantity}&nbsp;
+                      </span>
+                      <span className="text-primaryText">
+                        {parseSymbol(symbol).symbolFrom}
+                      </span>
+                    </span>
+                    <span className="text-left">
+                      <span className="text-primaryText">{intl.formatMessage({ id: 'at_orderly', defaultMessage: 'at' })}</span>&nbsp;
+                      <span>
+                        ${price?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 3)}
+                      </span>
+                    </span>
+                  </div>
+                  <div className="col-span-1 flex justify-end items-center">
+                    <div
+                      className="cursor-pointer"
+                      onClick={async () => {
+                        try {
+                          if (!accountId) return;
+      
+                          const res = await cancelOrder({
+                            accountId,
+                            DeleteParams: {
+                              order_id: order_id,
+                              symbol: symbol,
+                            },
+                          })
+      
+                          if (res.success === true) {
+                            handlePendingOrderRefreshing();
+                          }
+                        } catch (err) {
+                          return orderEditPopUpFailure({
+                            tip: err.message,
+                          });
+                        }
+                      }}
+                    >
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fillRule="evenodd" clipRule="evenodd" d="M10 1.81818C5.48131 1.81818 1.81818 5.48131 1.81818 10C1.81818 14.5187 5.48131 18.1818 10 18.1818C14.5187 18.1818 18.1818 14.5187 18.1818 10C18.1818 5.48131 14.5187 1.81818 10 1.81818ZM0 10C0 4.47715 4.47715 0 10 0C15.5228 0 20 4.47715 20 10C20 15.5228 15.5228 20 10 20C4.47715 20 0 15.5228 0 10Z" fill="#FF6A8E"/>
+                        <path fillRule="evenodd" clipRule="evenodd" d="M4.24243 9.99972C4.24243 9.33028 4.78512 8.7876 5.45455 8.7876L14.5455 8.7876C15.2149 8.7876 15.7576 9.33028 15.7576 9.99972C15.7576 10.6692 15.2149 11.2118 14.5455 11.2118L5.45455 11.2118C4.78512 11.2118 4.24243 10.6692 4.24243 9.99972Z" fill="#FF6A8E"/>
+                      </svg>
+
+                    </div>
+                  </div>
+                </div>
+              ))}
+              </div>
+            </div>
+          )}
         </div>
       </TableCell>
     </>
@@ -168,10 +275,10 @@ function FutureQuantityModal(
 ) {
   const { onClose, quantity, position_qty } = props;
   const intl = useIntl();
-  const [inputQuantity, setInputQuantity] = useState<number>(Math.abs(position_qty));
+  const [inputQuantity, setInputQuantity] = useState<string>(Math.abs(position_qty).toString());
   
   useEffect(() => {
-    setInputQuantity(quantity);
+    setInputQuantity(quantity.toString());
   }, [quantity])
 
   return (
@@ -212,13 +319,16 @@ function FutureQuantityModal(
           </div>
           <div className="flex px-4 items-center pb-6 justify-between">
             <input
-              type="number"
+              type="text"
               placeholder="0.0"
+              pattern="[0-9]*\.?[0-9]+"
               value={inputQuantity}
               onChange={({ target }) => {
-                let value: number = parseFloat(target.value);
-                if (value > Math.abs(position_qty)) value = Math.abs(position_qty);
-                if (value < 0 || !value) value = 0;
+                let value: any = target.value;
+                const pattern = /^[0-9]*\.?[0-9]+$/;
+                if (!pattern.test(value) && value && value !== '0' && value !== '0.' && value !== '0.0') return
+                if (parseFloat(value) > Math.abs(position_qty)) value = Math.abs(position_qty);
+                if (parseFloat(value) < 0 || !value) value = '0';
                 setInputQuantity(value)
               }}
               className="text-white text-xl leading-tight px-2.5 pb-2 w-10/12 mr-2"
@@ -227,7 +337,7 @@ function FutureQuantityModal(
             <button
               className="text-white py-1 px-4 relative bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center"
               onClick={() => {
-                onClose && onClose(inputQuantity);
+                onClose && onClose(parseFloat(inputQuantity));
               }}
             >
               <span>
@@ -284,7 +394,6 @@ function FuturePriceModal(
             <span
               className="cursor-pointer"
               onClick={(e: any) => {
-                console.log(price)
                 onClose && onClose(price);
               }}
             >
@@ -295,13 +404,23 @@ function FuturePriceModal(
             {['market_price', 'limit_price'].map((item: 'market_price' | 'limit_price') => (
               <div
                 key={item}
-                className={`text-center px-7 py-4 w-150 rounded-md border ${priceMode !== item ? 'text-primaryText border-orderTypeBg' : 'text-white border-mobileOrderBg bg-mobileOrderBg'}`}
+                className={`relative text-center px-7 py-4 w-150 rounded-md border ${priceMode !== item ? 'text-primaryText border-orderTypeBg' : 'text-white border-mobileOrderBg bg-mobileOrderBg'}`}
                 onClick={() => {
                   setInputPrice(mark_price);
                   setPriceMode(item);
                 }}
               >
                 {intl.formatMessage({ id: item })}
+                {priceMode === item && (
+                  <div
+                    className="absolute bg-gradientFromHover rounded-full flex justify-center items-center -top-0.5 -right-1.5"
+                    style={{ width: '22px', height: '22px' }}
+                  >
+                    <svg width="11" height="8" viewBox="0 0 11 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M1 4L4 7L10 1" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -509,13 +628,13 @@ export  function ClosingModal(
               <div className="flex items-center text-white">{intl.formatMessage({ id: 'size' })}</div>
             </div>
             <div className="col-span-1 mb-2">
-              <div className="flex items-center justify-end text-white">{closingQuantity} {symbolFrom}</div>
+              <div className="flex items-center justify-end text-white">{formatDecimalToTwoOrMore(closingQuantity)} {symbolFrom}</div>
             </div>
             <div className="col-span-1 mb-2">
               <div className="flex items-center text-white">{intl.formatMessage({ id: 'price' })}</div>
             </div>
             <div className="col-span-1 mb-2">
-              <div className="flex items-center justify-end text-white">{closingPrice === 'Market' ? intl.formatMessage({ id: 'market' }) : `$${closingPrice}`}</div>
+              <div className="flex items-center justify-end text-white">{closingPrice === 'Market' ? intl.formatMessage({ id: 'market' }) : `$${closingPrice.toFixed(2)}`}</div>
             </div>
             {closingPrice !== 'Market' && (
               <>
@@ -588,13 +707,13 @@ const FutureMobileRow: React.FC<{
   const { markPrices, triggerPositionBasedData } = usePerpData();
   const { symbol, position_qty, average_open_price, unsettled_pnl } = row;
   const [select, setSelect] = useState<any>('mark_price');
-  const [showSideSelector, setShowSideSelector] = useState<boolean>(false);
+  const [showPnlSelector, setShowPnlSelector] = useState<boolean>(false);
   const [futureQuantityOpen, setFutureQuantityOpen] = useState<boolean>(false);
   const [futurePriceOpen, setFuturePriceOpen] = useState<boolean>(false);
   const [quantity, setQuantity] = useState<number>(Math.abs(position_qty));
   const [priceMode, setPriceMode] = useState<'market_price' | 'limit_price'>('market_price');
   const mark_price = markPrices.find((i) => i.symbol === symbol)?.price;
-  const [price, setPrice] = useState<number | 'Market'>(mark_price);
+  const [price, setPrice] = useState<number | 'Market'>('Market');
   const [orders, setOrders] = useState<any>([]);
   const [pendingOpen, setPendingOpen] = useState<boolean>(false);
 
@@ -609,6 +728,13 @@ const FutureMobileRow: React.FC<{
   useEffect(() => {
     getPendingOrders();
   }, [triggerPositionBasedData])
+
+  useEffect(() => {
+    if (showPnlSelector)
+      document.addEventListener('click', () => {
+        setShowPnlSelector(false);
+      });
+  }, [showPnlSelector]);
 
   const getPendingOrders = async () => {
     const { data } = await getPortfolioAllOrders({
@@ -671,11 +797,15 @@ const FutureMobileRow: React.FC<{
             <div
               className="relative flex items-center underline"
               style={{ textDecorationStyle: 'dashed' }}
-              onClick={() => setShowSideSelector(true)}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setShowPnlSelector(true)
+              }}
             >
               {intl.formatMessage({ id: 'unreal_pnl' })}
 
-              {showSideSelector && (
+              {showPnlSelector && (
                 <div className="absolute top-full z-50">
                   <div
                     className={`flex flex-col min-w-28 items-start py-2 px-1.5 rounded-lg border border-borderC text-sm  bg-darkBg `}
@@ -689,7 +819,7 @@ const FutureMobileRow: React.FC<{
                             e.preventDefault();
                             e.stopPropagation();
                             setSelect(item);
-                            setShowSideSelector(false);
+                            setShowPnlSelector(false);
                           }}
                         >
                           <div className="mr-2 border border-baseGreen bg-symbolHover2 border-solid w-3 h-3 rounded-full">
@@ -800,7 +930,7 @@ export const FutureMobileView: React.FC<{
     newPositions
   } = usePerpData();
 
-  const { rows } = newPositions;
+  const { rows } = newPositions || {};
 
   return (
     <div className="w-full p-3">
@@ -843,7 +973,7 @@ export const FutureMobileView: React.FC<{
           </div>
         </div>
       </div>
-      {rows.filter((row) => row.position_qty !== 0).map((row) => (
+      {rows?.filter((row) => row.position_qty !== 0).map((row) => (
         <FutureMobileRow
           key={row.symbol}
           row={row}

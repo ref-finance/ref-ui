@@ -57,7 +57,7 @@ function PortfolioOrderly() {
     triggerPositionBasedData
   } = usePerpData();
 
-  const { marketList } = useMarketlist();
+  const { marketList, allTokens } = useMarketlist();
   const { globalState } = useContext(WalletContext);
   const { accountId } = useWalletSelector();
   const {
@@ -115,6 +115,7 @@ function PortfolioOrderly() {
   const [closeOrderRow, setCloseOrderRow] = useState<any>({});
 
   const handleOpenClosing = (closingQuantity: number, closingPrice: number | 'Market', row: any) => {
+    console.log(closingPrice)
     setCloseOrderOpen(true);
     setCloseOrderRow(row);
     setCloseOrderPrice(closingPrice);
@@ -268,24 +269,44 @@ function PortfolioOrderly() {
                     </div>
                   </span>
                 </div>
-                <span className="text-2xl gotham_bold text-white mt-1">
-                  $
-                  {(portfolioUnsettle && displayBalances.length > 0) ? (displayBalances.reduce(
+                <div className="text-2xl gotham_bold text-white mt-1 flex items-center">
+                  ${(portfolioUnsettle && displayBalances.length > 0) ? (displayBalances.reduce(
                     (total, row) => total + parseFloat(row.available) + parseFloat(row['in-order']),
                     0
                   ) + parseFloat(portfolioUnsettle)).toFixed(3) : 0}
-                </span>
+                  <div className="ml-3 flex items-center hidden md:flex lg:flex flex-wrap">
+                    {displayBalances.map(({ tokenMeta }) => (
+                      <div className="flex items-center text-white text-sm -ml-1">
+                        <img
+                          src={allTokens[tokenMeta.symbol]?.icon}
+                          alt=""
+                          className="rounded-full flex-shrink-0 w-4 h-4"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
               <div className="col-span-1 mb-3">
                 <div className="flex items-center">
                   <span className="text-sm text-primaryText">Available</span>
                 </div>
-                <span className="text-xl gotham_bold text-white mt-1">
-                  $
-                  {(displayBalances.length > 0) ? displayBalances.reduce(
+                <span className="text-xl gotham_bold text-white mt-1 flex items-center">
+                  ${(displayBalances.length > 0) ? displayBalances.reduce(
                     (total, { available }) => total + parseFloat(available),
                     0
                   ).toFixed(3) : 0}
+                  <div className="ml-3 items-center hidden md:flex lg:flex flex-wrap">
+                    {displayBalances.map(({ tokenMeta }) => (
+                      <div className="flex items-center text-white text-sm -ml-1">
+                        <img
+                          src={allTokens[tokenMeta.symbol]?.icon}
+                          alt=""
+                          className="rounded-full flex-shrink-0 w-4 h-4"
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </span>
               </div>
             </div>
@@ -336,36 +357,32 @@ function PortfolioOrderly() {
             </div>
 
             <div className="md:hidden lg:hidden">
-              <FlexRow className="w-full pb-3 justify-center rounded-t-2xl mt-0 border-white border-opacity-10  md:hidden lg:hidden">
-                <FlexRow className={`w-full min-h-8 justify-center`}>
-                  <FlexRow className="">
-                    {mobileTables.map((table, index) => (
-                      <FlexRow
-                        key={table.title}
-                        onClick={() => {
-                          setTab(index);
-                        }}
-                        className={`justify-center cursor-pointer`}
-                      >
-                        <span
-                          className={`px-5 gotham_bold
-                            ${
-                              tab === index
-                                ? 'text-white relative'
-                                : 'text-primaryOrderly relative'
-                            }`}
-                        >
-                          {table.title}
 
-                          {tab === index && (
-                            <div className="h-0.5 bg-gradientFromHover rounded-lg w-full absolute -bottom-5 left-0"></div>
-                          )}
-                        </span>
-                      </FlexRow>
-                    ))}
-                  </FlexRow>
-                </FlexRow>
-              </FlexRow>
+              <div className="w-full frcs border-b gotham_bold text-primaryText border-white border-opacity-20">
+
+                {mobileTables.map((table, index) => (
+                  <div
+                    key={table.title}
+                    onClick={() => {
+                      setTab(index);
+                    }}
+                    className={`w-1/3 relative ${
+                      tab === index ? 'text-white' : ''
+                    } frcc pb-2`}
+                  >
+                    {table.title}
+
+                    {tab === index  && (
+                      <div
+                        className="w-full absolute -bottom-0.5 h-0.5 bg-gradientFromHover"
+                        style={{
+                          width: 'calc(100% - 40px)',
+                        }}
+                      ></div>
+                    )}
+                  </div>
+                ))}
+              </div>
 
               {tab === 0 && (
                 <TableWithTabs

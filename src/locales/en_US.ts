@@ -1059,6 +1059,8 @@ const en_US = {
   current_orderly: 'Current',
   cancel_order: 'Cancel Order',
   post_only: 'Post Only',
+  fok: 'FOK',
+  ioc: 'IOC',
   instrument: 'Instrument',
   open_order_detail: 'Open Order Detail',
   history_order_detail: 'History Order Detail',

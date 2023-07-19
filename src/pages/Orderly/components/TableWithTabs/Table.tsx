@@ -64,7 +64,7 @@ function OrderLine({
             key={`${column.key}-${i}`}
             className={`col-span-${
               column.colSpan ? column.colSpan : 1
-            } flex items-center py-5 relative break-all`}
+            } flex items-center py-5 relative break-words`}
           >
             <div
               className={`

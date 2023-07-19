@@ -42,8 +42,9 @@ function OrderLine({
   );
 
   const [closingQuantity, setClosingQuantity] = useState(order.position_qty);
-  const [closingPrice, setClosingPrice] = useState<'Market' | number>(order.mark_price);
+  const [closingPrice, setClosingPrice] = useState<'Market' | number>('Market');
   const [open, setOpen] = useState<boolean>(false);
+  const [showFloatingBox, setShowFloatingBox] = useState(false);
 
   return (
     <>
@@ -94,6 +95,8 @@ function OrderLine({
             setOpen={setOpen}
             handleOpenClosing={handleOpenClosing}
             row={order}
+            showFloatingBox={showFloatingBox}
+            setShowFloatingBox={setShowFloatingBox}
           />
         ))}
       </tr>
@@ -350,7 +353,7 @@ function AssetAndFutureTable({
             </tr>
           </thead>
           <tbody
-            className=" block overflow-auto  flex-col "
+            className="block flex-col "
             id="all-orders-body-open"
           >
             {accountId && validContract() && loading && (

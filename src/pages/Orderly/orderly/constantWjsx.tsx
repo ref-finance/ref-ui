@@ -164,7 +164,7 @@ export const usePortableOrderlyTable = ({
             style={{ backgroundColor: '#7E8A931A' }}
           >
             <div className="w-8/12 inline-block">
-              <div className={`p-0.5 my-0.5 flex`}>
+              <div className={`p-0.5 my-0.5 flex items-center`}>
                 <div className={`px-2 pt-0.5 text-sm mr-2 inline-flex items-center justify-center rounded-md gotham_bold text-dark5 ${side === 'BUY' ? 'bg-greenLight' : 'bg-redLight'}`}>
                   {intl.formatMessage({
                     id: side?.toLowerCase(),
@@ -179,28 +179,21 @@ export const usePortableOrderlyTable = ({
                 <span className="mr-1">
                   {(executed / quantity * 100).toFixed(0)}% filled
                 </span>
-                <div
-                  className="flex justify-end items-center"
-                  style={{
-                    border: `1.4px dashed ${side === 'BUY' ? '#62C340' : '#FF6A8E'}`,
-                    borderRadius: '50%',
-                    height: '12px',
-                    width: '12px',
-                  }}
-                >
-                  <div
-                    style={{
-                      backgroundColor: side === 'BUY' ? '#62C340' : '#FF6A8E',
-                      marginRight: (executed / quantity * 100) === 100 ? '1px' : '2px',
-                      height: '8px',
-                      width: (executed / quantity * 100) === 0 ? 0 
-                        : (executed / quantity * 100) >= 0 && (executed / quantity * 100) < 100 ? '4px'
-                        : '8px',
-                      borderRadius: (executed / quantity * 100) === 0 ? 0 
-                      : (executed / quantity * 100) >= 0 && (executed / quantity * 100) < 100 ? '0 50% 50% 0'
-                      : '50%',
-                    }}
-                  />
+
+                <div className="flex justify-end items-center relative">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="7" cy="7" r="6" stroke={side === 'BUY' ? '#62C340' : '#FF6A8E'} strokeWidth="1.4" strokeDasharray="1.4 1.4"/>
+                  </svg>
+                  {(executed / quantity * 100) > 0 && (executed / quantity * 100) < 100 && (
+                    <svg className="absolute" style={{ right: '3px' }} width="4" height="8" viewBox="0 0 4 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M0 8C2.20914 8 4 6.20914 4 4C4 1.79086 2.20914 0 0 0V8Z" fill={side === 'BUY' ? '#62C340' : '#FF6A8E'}/>
+                    </svg>
+                  )}
+                  {(executed / quantity * 100) === 100 && (
+                    <svg className="absolute" style={{ right: '3px' }} width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="4" cy="4" r="4" fill={side === 'BUY' ? '#62C340' : '#FF6A8E'}/>
+                    </svg>
+                  )}
                 </div>
               </div>
             </div>
@@ -277,7 +270,7 @@ export const usePortableOrderlyTable = ({
               <div className="flex items-center ">{marketList.find((m) => m.textId === symbol)?.withSymbol}</div>
             )
           },
-          { key: 'type', header: 'Type', render: ({ type }) => <span className='capitalize'>{type.toLocaleLowerCase()}</span> },
+          { key: 'type', header: 'Type', render: ({ type }) => <span className='capitalize'>{intl.formatMessage({ id: type.toLocaleLowerCase(), defaultMessage: type.toLocaleLowerCase() })}</span> },
           {
             key: 'Side',
             header: 'Side',
@@ -331,7 +324,7 @@ export const usePortableOrderlyTable = ({
             style={{ backgroundColor: '#7E8A931A' }}
           >
             <div className="w-8/12 inline-block">
-              <div className={`p-0.5 my-0.5 flex`}>
+              <div className={`p-0.5 my-0.5 flex items-center`}>
                 <div className={`px-2 pt-0.5 text-sm mr-2 inline-flex items-center justify-center rounded-md gotham_bold text-dark5 ${side === 'BUY' ? 'bg-greenLight' : 'bg-redLight'}`}>
                   {intl.formatMessage({
                     id: side?.toLowerCase(),
@@ -346,28 +339,21 @@ export const usePortableOrderlyTable = ({
                 <span className="mr-1">
                   {(executed / quantity * 100).toFixed(0)}% filled
                 </span>
-                <div
-                  className="flex justify-end items-center"
-                  style={{
-                    border: `1.4px dashed ${side === 'BUY' ? '#62C340' : '#FF6A8E'}`,
-                    borderRadius: '50%',
-                    height: '12px',
-                    width: '12px',
-                  }}
-                >
-                  <div
-                    style={{
-                      backgroundColor: side === 'BUY' ? '#62C340' : '#FF6A8E',
-                      marginRight: (executed / quantity * 100) === 100 ? '1px' : '2px',
-                      height: '8px',
-                      width: (executed / quantity * 100) === 0 ? 0 
-                        : (executed / quantity * 100) >= 0 && (executed / quantity * 100) < 100 ? '4px'
-                        : '8px',
-                      borderRadius: (executed / quantity * 100) === 0 ? 0 
-                      : (executed / quantity * 100) >= 0 && (executed / quantity * 100) < 100 ? '0 50% 50% 0'
-                      : '50%',
-                    }}
-                  />
+
+                <div className="flex justify-end items-center relative">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="7" cy="7" r="6" stroke={side === 'BUY' ? '#62C340' : '#FF6A8E'} strokeWidth="1.4" strokeDasharray="1.4 1.4"/>
+                  </svg>
+                  {(executed / quantity * 100) > 0 && (executed / quantity * 100) < 100 && (
+                    <svg className="absolute" style={{ right: '3px' }} width="4" height="8" viewBox="0 0 4 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M0 8C2.20914 8 4 6.20914 4 4C4 1.79086 2.20914 0 0 0V8Z" fill={side === 'BUY' ? '#62C340' : '#FF6A8E'}/>
+                    </svg>
+                  )}
+                  {(executed / quantity * 100) === 100 && (
+                    <svg className="absolute" style={{ right: '3px' }} width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="4" cy="4" r="4" fill={side === 'BUY' ? '#62C340' : '#FF6A8E'}/>
+                    </svg>
+                  )}
                 </div>
               </div>
             </div>
@@ -460,7 +446,7 @@ export const usePortableOrderlyTable = ({
               />
             )
           },
-          { key: 'type', header: 'Type', render: ({ type }) => <span className='capitalize'>{type.toLocaleLowerCase()}</span> },
+          { key: 'type', header: 'Type', render: ({ type }) => <span className='capitalize'>{intl.formatMessage({ id: type.toLocaleLowerCase(), defaultMessage: type.toLocaleLowerCase() })}</span> },
           {
             key: 'fill_qty',
             header: 'Fill / Qty',
