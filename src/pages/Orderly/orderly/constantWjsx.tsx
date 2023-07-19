@@ -482,6 +482,7 @@ export const usePortableOrderlyTable = ({
             type: 'dateTime',
             textColor: '',
             extras: ['sort'],
+            sortKey: 'created_time',
             render: ({ created_time }) => formatTimeDate(created_time)
           },
           { key: 'dex', header: 'Dex', render: ({ broker_name }) => renderLogo(broker_name) }
@@ -567,6 +568,7 @@ export const usePortableOrderlyTable = ({
           {
             key: 'token',
             header: 'Token',
+            colSpan: 2,
             render: ({ tokenMeta }) => (
               <div className="flex items-center ">
                 <img
@@ -639,6 +641,7 @@ export const usePortableOrderlyTable = ({
           {
             key: 'instrument',
             header: 'Instrument',
+            colSpan: 2,
             render: ({ symbol }) => (
               <div className="flex items-center ">{marketList.find((m) => m.textId === symbol)?.text}</div>
             )
@@ -653,8 +656,14 @@ export const usePortableOrderlyTable = ({
                 {position_qty?.toFixed(4) || '-' }
               </div>
             )},
-          { key: 'avg_open', header: 'Avg. Open', extras: ['sort'], sortKey: 'average_open_price', render: ({ average_open_price }) => average_open_price?.toFixed(3) || '-' },
-          { key: 'mark_orderly', header: 'Mark', extras: ['sort'], sortKey: 'mark_price', render: ({ symbol }) => (
+          { key: 'avg_open',  header: 'Avg. Open', extras: ['sort'], sortKey: 'average_open_price', render: ({ average_open_price }) => average_open_price?.toFixed(3) || '-' },
+          {
+            key: 'mark_orderly',
+            header: 'Mark',
+            colSpan: 2,
+            extras: ['sort'],
+            sortKey: 'mark_price',
+            render: ({ symbol }) => (
               <div className={`pr-2 text-sm ${markPrices.find((i) => i.symbol === symbol)?.price >= 0 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
                 {markPrices.find((i) => i.symbol === symbol)?.price.toFixed(3) || '-' }
               </div>
@@ -678,6 +687,7 @@ export const usePortableOrderlyTable = ({
             extras: ['radio'],
             select: unrealMode,
             setSelect: setUnrealMode,
+            colSpan: 2,
             list: [
               {
                 text: intl.formatMessage({ id: 'mark_price' }),
@@ -714,6 +724,7 @@ export const usePortableOrderlyTable = ({
             header: 'Notional',
             extras: ['sort'],
             sortKey: ['position_qty', 'average_open_price'],
+            colSpan: 2,
             render: ({ average_open_price, position_qty }) => (position_qty * average_open_price)?.toFixed(2) || '-' 
           },
           {

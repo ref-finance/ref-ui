@@ -54,7 +54,9 @@ export default function TableHeader({
             className="hidden md:flex lg:flex items-center"
             style={{ color: (JSON.stringify(sort[0]) === JSON.stringify(sortKey) || showSelector) ? 'white' : '#7E8A93' }}
           >
-            {icon && icon}
+            {icon && (
+              <div className="mr-1.5">{icon}</div>
+            )}
             <span
               className={`
                 ${headerType === 'dashed' ? ' underline' : ''}

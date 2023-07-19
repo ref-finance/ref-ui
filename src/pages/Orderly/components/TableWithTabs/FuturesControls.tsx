@@ -383,7 +383,7 @@ function PendingOrdersModal(
             </span>
           </div>
           {rows.map(({ symbol, quantity, price, order_id }: any) => (
-            <div className="px-4 py-6 grid grid-cols-4 gap-2 border-b" style={{ borderColor: 'rgba(255, 255, 255, 0.1)'}}>
+            <div key={order_id} className="px-4 py-6 grid grid-cols-4 gap-2 border-b" style={{ borderColor: 'rgba(255, 255, 255, 0.1)'}}>
               <div className="col-span-3 text-base">
                 <span className="pr-3">
                   <span className="text-white">
@@ -899,3 +899,4 @@ export const FutureTopComponent = () => {
     </div>
   )
 }
+

@@ -36,7 +36,6 @@ function OrderLine({
   tableRowType: string;
   handleOpenClosing?: (closingQuantity: number, closingPrice: number | 'Market', row: any) => void;
 }) {
-  const inputRefs = useRef([]);
   const gridCol = columns.reduce(
     (acc, column) => acc + (column.colSpan ? column.colSpan : 1),
     0
@@ -46,16 +45,18 @@ function OrderLine({
   const [closingPrice, setClosingPrice] = useState<'Market' | number>(order.mark_price);
   const [open, setOpen] = useState<boolean>(false);
 
+
   return (
     <>
       <tr
-        className={`table-fixed grid grid-cols-${gridCol} ${
+        className={`table-fixed grid ${
           tableRowType === 'card'
             ? ' m-2 px-3 gap-4 rounded-xl'
             : ' gap-4 px-5 lg:border-t border-white border-opacity-10'
         }`}
         style={{
           backgroundColor: tableRowType === 'card' ? '#7E8A931A' : '',
+          gridTemplateColumns: `repeat(${gridCol}, minmax(0, 1fr))`
         }}
       >
         {columns.map((column, i) => !column.customRender ? (
@@ -131,7 +132,7 @@ function Table({
   tableRowEmpty?: string;
   tableTopComponent: JSX.Element;
   pagination: boolean;
-  orderType: number;
+  orderType?: number;
   mobileRender: (row: any) => any;
   mobileRenderCustom?: boolean;
   mobileFooter?: JSX.Element;
@@ -374,7 +375,10 @@ function Table({
             className={`w-full xs:hidden table table-fixed  pl-5 pr-4 py-2 border-white border-opacity-10`}
           >
             <tr
-              className={`w-full px-5 table-fixed grid grid-cols-${gridCol} gap-4`}
+              className={`w-full px-5 table-fixed grid gap-4`}
+              style={{
+                gridTemplateColumns: `repeat(${gridCol}, minmax(0, 1fr))`
+              }}
             >
               {columns.map((column, i) => !column.customRender ? (
                 <TableHeader

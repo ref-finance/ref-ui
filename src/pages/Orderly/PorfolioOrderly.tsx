@@ -11,6 +11,7 @@ import QuestionMark from '../../components/farm/QuestionMark';
 import { toPrecision } from './near';
 import TableWithTabs from './components/TableWithTabs';
 import SettlePnlModal from './components/TableWithTabs/SettlePnlModal';
+import AssetsAndFuture from './components/TableWithTabs/AssetsAndFuture';
 import { MobileFilterModal } from './components/TableWithTabs/OrdersFilters';
 import { ClosingModal } from './components/TableWithTabs/FuturesControls';
 import { usePortableOrderlyTable, useMarketlist } from './orderly/constantWjsx';
@@ -51,10 +52,11 @@ function PortfolioOrderly() {
   const {
     newPositions,
     markPrices,
+    portfolioUnsettle,
     triggerBalanceBasedData,
     triggerPositionBasedData
   } = usePerpData();
-  
+
   const { marketList } = useMarketlist();
   const { globalState } = useContext(WalletContext);
   const { accountId } = useWalletSelector();
@@ -268,10 +270,10 @@ function PortfolioOrderly() {
                 </div>
                 <span className="text-2xl gotham_bold text-white mt-1">
                   $
-                  {displayBalances.reduce(
-                    (total, { near }) => total + parseFloat(near),
+                  {(portfolioUnsettle && displayBalances.length > 0) ? (displayBalances.reduce(
+                    (total, row) => total + parseFloat(row.available) + parseFloat(row['in-order']),
                     0
-                  ).toFixed(3)}
+                  ) + parseFloat(portfolioUnsettle)).toFixed(3) : 0}
                 </span>
               </div>
               <div className="col-span-1 mb-3">
@@ -282,10 +284,10 @@ function PortfolioOrderly() {
                 </div>
                 <span className="text-xl gotham_bold text-white mt-1">
                   $
-                  {displayBalances.reduce(
+                  {(displayBalances.length > 0) ? displayBalances.reduce(
                     (total, row) => total + parseFloat(row['in-order']),
                     0
-                  ).toFixed(3)}
+                  ).toFixed(3) : 0}
                 </span>
               </div>
               <div className="col-span-1 mb-3">
@@ -294,10 +296,10 @@ function PortfolioOrderly() {
                 </div>
                 <span className="text-xl gotham_bold text-white mt-1">
                   $
-                  {displayBalances.reduce(
+                  {(displayBalances.length > 0) ? displayBalances.reduce(
                     (total, { available }) => total + parseFloat(available),
                     0
-                  ).toFixed(3)}
+                  ).toFixed(3) : 0}
                 </span>
               </div>
             </div>
@@ -318,13 +320,15 @@ function PortfolioOrderly() {
                 triggerPositionBasedData={triggerPositionBasedData}
                 validAccountSig={validAccountSig}
               />
-              <TableWithTabs
-                table={assetsTables}
+              <AssetsAndFuture
                 maintenance={maintenance}
                 displayBalances={displayBalances}
                 newPositions={newPositions}
                 handleOpenClosing={handleOpenClosing}
                 validAccountSig={validAccountSig}
+                setOperationType={setOperationType}
+                setOperationId={setOperationId}
+                setSettlePnlModalOpen={setSettlePnlModalOpen}
               />
               <TableWithTabs
                 table={recordsTable}

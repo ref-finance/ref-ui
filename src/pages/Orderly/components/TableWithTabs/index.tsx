@@ -112,11 +112,11 @@ function TableWithTabs({
     }
   }, [JSON.stringify(displayBalances)]);
 
-  useEffect(() => {
+  /* useEffect(() => {
     if (getData && (id === 'futures')) {
       setData(newPositions.rows);
     }
-  }, [JSON.stringify(newPositions)]);
+  }, [JSON.stringify(newPositions)]); */
 
   useEffect(() => {
     if (getData && (id === 'deposit' || id === 'withdraw' || id === 'settlements')) {
@@ -135,12 +135,6 @@ function TableWithTabs({
 
     if (!data && id === 'spot') {
       setData(displayBalances);
-      setLoading(false);
-      return
-    }
-
-    if (id === 'futures') {
-      setData(newPositions.rows);
       setLoading(false);
       return
     }
