@@ -292,7 +292,7 @@ export const usePortableOrderlyTable = ({
             colSpan: 2,
             render: ({ executed, quantity, side }) => (
               <div>
-                <span className={`text-sm ${side === 'BUY' ? 'text-buyGreen' : 'text-sellColorNew'}`}>{`${executed} / ${quantity}`}</span>
+                <span className={`text-sm ${side === 'BUY' ? 'text-buyGreen' : 'text-sellColorNew'}`}>{`${executed} / ${quantity || executed}`}</span>
                 <ProgressBar value={executed} total={quantity} color={side === 'BUY' ? '#00D6AF' : '#E14B8A'} />
               </div>
             )
@@ -453,7 +453,7 @@ export const usePortableOrderlyTable = ({
             colSpan: 2,
             render: ({ executed, quantity, side }) => (
               <div>
-                <span className={`text-sm ${side === 'BUY' ? 'text-buyGreen' : 'text-sellColorNew'}`}>{`${executed} / ${quantity}`}</span>
+                <span className={`text-sm ${side === 'BUY' ? 'text-buyGreen' : 'text-sellColorNew'}`}>{`${executed} / ${quantity || executed}`}</span>
                 <ProgressBar value={executed} total={quantity} color={side === 'BUY' ? '#00D6AF' : '#E14B8A'} />
               </div>
             )
@@ -614,6 +614,7 @@ export const usePortableOrderlyTable = ({
         getData: () => getPortfolioPosition({ accountId }),
         tableTopComponent: <FutureTopComponent />,
         mobileRenderCustom: true,
+        tableRowType: 'small',
         mobileRender: (rows) => (
           <FutureMobileView
             rows={rows}
@@ -627,7 +628,7 @@ export const usePortableOrderlyTable = ({
           {
             key: 'instrument',
             header: 'Instrument',
-            colSpan: 2,
+            colSpan: 3,
             render: ({ symbol }) => (
               <div className="flex items-center ">{marketList.find((m) => m.textId === symbol)?.text}</div>
             )
@@ -636,21 +637,22 @@ export const usePortableOrderlyTable = ({
             key: 'qty.',
             header: 'Qty.',
             extras: ['sort'],
+            colSpan: 3,
             sortKey: 'position_qty',
             render: ({ position_qty }) => (
-              <div className={`pr-2 text-sm ${position_qty >= 0 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
+              <div className={`pr-2 ${position_qty >= 0 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
                 {position_qty?.toFixed(4) || '-' }
               </div>
             )},
-          { key: 'avg_open',  header: 'Avg. Open', extras: ['sort'], sortKey: 'average_open_price', render: ({ average_open_price }) => average_open_price?.toFixed(3) || '-' },
+          { key: 'avg_open', colSpan: 2,  header: 'Avg. Open', extras: ['sort'], sortKey: 'average_open_price', render: ({ average_open_price }) => average_open_price?.toFixed(3) || '-' },
           {
             key: 'mark_orderly',
             header: 'Mark',
-            colSpan: 2,
+            colSpan: 3,
             extras: ['sort'],
             sortKey: 'mark_price',
             render: ({ symbol }) => (
-              <div className={`pr-2 text-sm ${markPrices.find((i) => i.symbol === symbol)?.price >= 0 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
+              <div className={`pr-2 ${markPrices.find((i) => i.symbol === symbol)?.price >= 0 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
                 {markPrices.find((i) => i.symbol === symbol)?.price.toFixed(3) || '-' }
               </div>
             )
@@ -659,9 +661,10 @@ export const usePortableOrderlyTable = ({
             key: 'liq_price',
             header: 'Liq. Price',
             extras: ['sort'],
+            colSpan: 2,
             sortKey: 'est_liq_price',
             render: ({ est_liq_price }) => (
-              <div className={`pr-2 text-sm text-warn`}>
+              <div className={`pr-2 text-warn`}>
                 {est_liq_price ? est_liq_price.toFixed(1) : '-'}
               </div>
             )
@@ -671,9 +674,9 @@ export const usePortableOrderlyTable = ({
             header: 'Unreal. PnL',
             headerType: 'dashed',
             extras: ['radio'],
+            colSpan: 2,
             select: unrealMode,
             setSelect: setUnrealMode,
-            colSpan: 2,
             list: [
               {
                 text: intl.formatMessage({ id: 'mark_price' }),
@@ -688,7 +691,7 @@ export const usePortableOrderlyTable = ({
               const price = unrealMode === 'mark_price' ? markPrices.find((i) => i.symbol === symbol)?.price : lastPrices.find((i) => i.symbol === symbol)?.low;
 
               return (
-                <div className={`pr-2 text-sm ${(price - average_open_price) *  position_qty >= 0  ? 'text-buyGreen' : 'text-sellColorNew'}`}>
+                <div className={`pr-2 ${(price - average_open_price) *  position_qty >= 0  ? 'text-buyGreen' : 'text-sellColorNew'}`}>
                   {((price - average_open_price) *  position_qty)?.toFixed(2) || '-' }
                 </div>
               )
@@ -699,8 +702,9 @@ export const usePortableOrderlyTable = ({
             header: 'Daily Real',
             extras: ['sort'],
             sortKey: 'pnl_24_h',
+            colSpan: 2,
             render: ({ pnl_24_h }) => (
-              <div className={`pr-2 text-sm ${pnl_24_h >= 0 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
+              <div className={`pr-2 ${pnl_24_h >= 0 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
                 {pnl_24_h?.toFixed(3) || '-' || '-' }
               </div>
             )
@@ -708,15 +712,17 @@ export const usePortableOrderlyTable = ({
           {
             key: 'notional',
             header: 'Notional',
+            colSpan: 3,
             extras: ['sort'],
             sortKey: ['position_qty', 'average_open_price'],
-            colSpan: 2,
-            render: ({ average_open_price, position_qty }) => (position_qty * average_open_price)?.toFixed(2) || '-' 
+            render: ({ symbol, position_qty }) => {
+              return  Math.abs(markPrices.find((i) => i.symbol === symbol)?.price * position_qty)?.toFixed(2) || '-' 
+            }
           },
           {
             key: 'qty.',
             header: 'Qty.',
-            colSpan: 3,
+            colSpan: 9,
             customRender: true,
             headerRender: () => <FutureTableFormHeaders />
           }

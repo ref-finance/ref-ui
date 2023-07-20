@@ -1,4 +1,4 @@
-import React , { useEffect, useState } from 'react';
+import React , { useEffect, useState, useRef } from 'react';
 import { MdArrowDropDown } from 'react-icons/md';
 import { IoClose } from 'react-icons/io5';
 import { useIntl } from 'react-intl';
@@ -16,7 +16,7 @@ export const FutureTableFormHeaders: React.FC = () => {
   const intl = useIntl();
 
   const TableHeader: React.FC = ({ children }) => (
-    <th className={`col-span-1 pb-2 flex items-center`}>
+    <th className={`col-span-3 pb-2 flex items-center`}>
       <div className={`flex items-center relative text-left`}>
         <span
           className="hidden md:flex lg:flex items-center"
@@ -45,7 +45,6 @@ export const FutureTableFormHeaders: React.FC = () => {
           defaultMessage: 'Price',
         })}
       </TableHeader>
-      <TableHeader>{' '}</TableHeader>
     </>
   )
 }
@@ -53,17 +52,21 @@ export const FutureTableFormHeaders: React.FC = () => {
 export const FutureTableFormCells: React.FC<{
   position_qty: number;
   closingQuantity: number;
+  mark_price: number;
   setClosingQuantity: (input: number) => void;
   closingPrice: number | 'Market';
-  setClosingPrice: (input: number) => void;
+  setClosingPrice: (input: number | 'Market') => void;
   open: boolean;
   setOpen: (input: boolean) => void;
   showFloatingBox: boolean;
   setShowFloatingBox: (input: boolean) => void;
+  isFocus: string;
+  setIsFocus: (input: string) => void;
   handleOpenClosing: (closingQuantity: number, closingPrice: number | 'Market', row: any) => void;
   row: any,
 }> = ({
   position_qty,
+  mark_price,
   closingQuantity,
   setClosingQuantity,
   closingPrice,
@@ -79,12 +82,12 @@ export const FutureTableFormCells: React.FC<{
   const { accountId } = useWalletSelector();
   const { triggerPositionBasedData } = usePerpData();
   const { handlePendingOrderRefreshing } = useOrderlyContext();
-  const [price, setPrice] = useState<number | 'Market'>('Market');
   const [orders, setOrders] = useState<any>([]);
 
   useEffect(() => {
     getPendingOrders();
   }, [])
+
 
   useEffect(() => {
     getPendingOrders();
@@ -101,167 +104,180 @@ export const FutureTableFormCells: React.FC<{
       } 
     })
 
-    setOrders(data.rows);
+    data && setOrders(data.rows);
   }
 
-  const TableCell: React.FC = ({ children }) => (
-    <td className={`col-span-1 flex items-center py-5 relative break-all`}>
-      <div className={`flex items-center text-white`}>
-        {children}
-      </div>
-    </td>
-  )
   return (
     <>
-      <TableCell>
-        <input
-          className={`px-2 text-sm ${position_qty > -1 ? 'text-buyGreen' : 'text-sellColorNew'}`}
-          style={{
-            borderRadius: '6px',
-            border: '1px solid #1D2932',
-            backgroundColor: 'rgba(0, 0, 0, 0.10)'
-          }}
-          type="number"
-          placeholder="0.0"
-          onChange={({ target }) => {
-            let value: number = parseFloat(target.value);
-            if (value > Math.abs(position_qty)) value = position_qty;
-            if (value < 0 || !value) value = 0;
-            setClosingQuantity(value)
-          }}
-          value={closingQuantity}
-        />
-      </TableCell>
-      <TableCell>
-        <div className="relative">
+      <td className={`col-span-3 flex items-center py-5 relative break-words`}>
+        <div className={`flex items-center text-white`}>
           <input
-            className={`px-2 text-sm`}
+            id={`${row.symbol}-input`}
+            className={`px-4 py-1.5 text-xs ${position_qty > -1 ? 'text-buyGreen' : 'text-sellColorNew'}`}
             style={{
               borderRadius: '6px',
               border: '1px solid #1D2932',
+              backgroundColor: 'rgba(0, 0, 0, 0.10)'
             }}
+            type="number"
             placeholder="0.0"
             onChange={({ target }) => {
               let value: number = parseFloat(target.value);
               if (value > Math.abs(position_qty)) value = position_qty;
               if (value < 0 || !value) value = 0;
-              setClosingPrice(value);
+              setClosingQuantity(value)
             }}
-            value={price || closingPrice}
-            onClick={() => {
-              if (price !== 0) setPrice(0) 
-              else setOpen(true)
-            }}
+            value={closingQuantity}
           />
-          {open && (
-            <div  
-              className="absolute top-full cursor-pointer px-2 text-sm"
-              style={{
-                borderRadius: '6px',
-                border: '1px solid #1D2932',
-                backgroundColor: 'rgba(0, 0, 0, 0.10)'
-              }}
-              onClick={() => {
-                setPrice('Market');
-                setOpen(false);
-              }}
+        </div>
+      </td>
+      <td className={`col-span-3 flex items-center py-5 relative break-words`}>
+        <div className={`flex items-center text-white relative  w-full`}>
+          <div
+            className="absolute w-full z-10"
+            style={{
+              borderRadius: '6px',
+              border: '1px solid #1D2932',
+              backgroundColor: '#1C272F',
+              top: '-15px'
+            }}
+          >
+            <div className="w-full px-2.5 py-1.5 text-white relative">
+              <input
+                className="w-full"
+                placeholder={mark_price.toString()}
+                onChange={({ target }) => {
+                  let value: number = parseFloat(target.value);
+                  setClosingPrice(value);
+                }}
+                value={closingPrice}
+                onClick={() => {
+                  if (closingPrice === 'Market') setClosingPrice(mark_price)
+                }}
+              />
+              {closingPrice !== 'Market' && (
+                <svg
+                  className="absolute right-2.5 top-1/2 cursor-pointer"
+                  style={{ transform: 'translateY(-50%)' }}
+                  onClick={() => setOpen(true)}
+                  width="10"
+                  height="6"
+                  viewBox="0 0 10 6"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M5.38406 5.53907C5.18417 5.77894 4.81574 5.77894 4.61584 5.53907L0.683364 0.820091C0.411977 0.494427 0.643556 -9.9678e-07 1.06747 -9.5972e-07L8.93243 -2.72144e-07C9.35635 -2.35083e-07 9.58793 0.494429 9.31654 0.820092L5.38406 5.53907Z" fill="white"/>
+                </svg>
+              )}
+            </div>
+            {open && (
+              <div  
+                className="cursor-pointer px-2.5 py-1.5 w-full hover:bg-symbolHover2 hover:text-white"
+                onClick={() => {
+                  setClosingPrice('Market');
+                  setOpen(false);
+                }}
+              >
+                {intl.formatMessage({
+                  id: 'market',
+                  defaultMessage: 'Market',
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      </td>
+      <td className={`col-span-3 flex items-center py-5 break-all`}>
+        <div className={`flex items-center text-white w-full`}>
+          <div
+            className="w-full relative"
+            onMouseEnter={() => setShowFloatingBox(true)}
+            // onMouseLeave={() => setShowFloatingBox(false)}
+          >
+            <div
+              className={`border w-full text-center border-orderTypeBg ${orders.length > 0 ? 'px-1.5' : 'px-3'} py-1.5 rounded-md text-xs text-primaryText cursor-pointer`}
+              onClick={() => handleOpenClosing(closingQuantity, closingPrice, row)}
             >
               {intl.formatMessage({
-                id: 'market',
-                defaultMessage: 'Market',
+                id: 'close',
+                defaultMessage: 'Close',
               })}
+              {orders.length > 0 && `(${orders.length})`}
             </div>
-          )}
-        </div>
-      </TableCell>
-      <TableCell>
-        <div
-          className="relative"
-          onMouseEnter={() => setShowFloatingBox(true)}
-          onMouseLeave={() => setShowFloatingBox(false)}
-        >
-          <div
-            className={`border border-orderTypeBg ${orders.length > 0 ? 'px-1.5' : 'px-3'} py-1.5 rounded-md text-xs text-primaryText cursor-pointer`}
-            onClick={() => handleOpenClosing(closingQuantity, closingPrice, row)}
-          >
-            {intl.formatMessage({
-              id: 'close',
-              defaultMessage: 'Close',
-            })}
-            {orders.length > 0 && `(${orders.length})`}
-          </div>
-          {showFloatingBox && (
-            <div
-              className="absolute bg-cardBg rounded-xl py-3 px-1.5"
-              style={{
-                bottom: '100%',
-                right: 0,
-                width: '300px'
-              }}
-            >
-              <div className="px-4 flex items-center pb-2 border-b border-gray1">
-                <span className="text-white text-sm gotham_bold">
-                  {intl.formatMessage({ id: 'pending_orders_title', defaultMessage: 'Pending Close Orders' })}
-                </span>
-              </div>
-              <div>
-              {orders.map(({ symbol, quantity, price, order_id }: any) => (
-                <div key={order_id} className="px-4 py-2 grid grid-cols-4 gap-2 rounded-lg hover:bg-symbolHover3" >
-                  <div className="col-span-3 text-sm flex justify-between">
-                    <span className="pr-3">
-                      <span>
-                        {quantity}&nbsp;
+            {(showFloatingBox && orders.length > 0) && (
+              <div
+                className="absolute bg-cardBg rounded-xl py-3 px-1.5 z-20"
+                style={{
+                  bottom: '100%',
+                  right: 0,
+                  width: '300px',
+                  background: 'linear-gradient(180deg, #1D2932 100%, #2F3A39 100%)'
+                }}
+              >
+                <div className="px-4 flex items-center pb-2 border-b border-gray1">
+                  <span className="text-white text-sm gotham_bold">
+                    {intl.formatMessage({ id: 'pending_orders_title', defaultMessage: 'Pending Close Orders' })}
+                  </span>
+                </div>
+                <div>
+                {orders.map(({ symbol, quantity, price, order_id }: any) => (
+                  <div key={order_id} className="px-4 py-2 grid grid-cols-4 gap-2 rounded-lg hover:bg-symbolHover3" >
+                    <div className="col-span-3 text-sm flex justify-between">
+                      <span className="pr-3">
+                        <span>
+                          {quantity}&nbsp;
+                        </span>
+                        <span className="text-primaryText">
+                          {parseSymbol(symbol).symbolFrom}
+                        </span>
                       </span>
-                      <span className="text-primaryText">
-                        {parseSymbol(symbol).symbolFrom}
+                      <span className="text-left">
+                        <span className="text-primaryText">{intl.formatMessage({ id: 'at_orderly', defaultMessage: 'at' })}</span>&nbsp;
+                        <span>
+                          ${price?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 3)}
+                        </span>
                       </span>
-                    </span>
-                    <span className="text-left">
-                      <span className="text-primaryText">{intl.formatMessage({ id: 'at_orderly', defaultMessage: 'at' })}</span>&nbsp;
-                      <span>
-                        ${price?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 3)}
-                      </span>
-                    </span>
-                  </div>
-                  <div className="col-span-1 flex justify-end items-center">
-                    <div
-                      className="cursor-pointer"
-                      onClick={async () => {
-                        try {
-                          if (!accountId) return;
-      
-                          const res = await cancelOrder({
-                            accountId,
-                            DeleteParams: {
-                              order_id: order_id,
-                              symbol: symbol,
-                            },
-                          })
-      
-                          if (res.success === true) {
-                            handlePendingOrderRefreshing();
+                    </div>
+                    <div className="col-span-1 flex justify-end items-center">
+                      <div
+                        className="cursor-pointer"
+                        onClick={async () => {
+                          try {
+                            if (!accountId) return;
+        
+                            const res = await cancelOrder({
+                              accountId,
+                              DeleteParams: {
+                                order_id: order_id,
+                                symbol: symbol,
+                              },
+                            })
+        
+                            if (res.success === true) {
+                              handlePendingOrderRefreshing();
+                            }
+                          } catch (err) {
+                            return orderEditPopUpFailure({
+                              tip: err.message,
+                            });
                           }
-                        } catch (err) {
-                          return orderEditPopUpFailure({
-                            tip: err.message,
-                          });
-                        }
-                      }}
-                    >
-                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fillRule="evenodd" clipRule="evenodd" d="M10 1.81818C5.48131 1.81818 1.81818 5.48131 1.81818 10C1.81818 14.5187 5.48131 18.1818 10 18.1818C14.5187 18.1818 18.1818 14.5187 18.1818 10C18.1818 5.48131 14.5187 1.81818 10 1.81818ZM0 10C0 4.47715 4.47715 0 10 0C15.5228 0 20 4.47715 20 10C20 15.5228 15.5228 20 10 20C4.47715 20 0 15.5228 0 10Z" fill="#FF6A8E"/>
-                        <path fillRule="evenodd" clipRule="evenodd" d="M4.24243 9.99972C4.24243 9.33028 4.78512 8.7876 5.45455 8.7876L14.5455 8.7876C15.2149 8.7876 15.7576 9.33028 15.7576 9.99972C15.7576 10.6692 15.2149 11.2118 14.5455 11.2118L5.45455 11.2118C4.78512 11.2118 4.24243 10.6692 4.24243 9.99972Z" fill="#FF6A8E"/>
-                      </svg>
+                        }}
+                      >
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path fillRule="evenodd" clipRule="evenodd" d="M10 1.81818C5.48131 1.81818 1.81818 5.48131 1.81818 10C1.81818 14.5187 5.48131 18.1818 10 18.1818C14.5187 18.1818 18.1818 14.5187 18.1818 10C18.1818 5.48131 14.5187 1.81818 10 1.81818ZM0 10C0 4.47715 4.47715 0 10 0C15.5228 0 20 4.47715 20 10C20 15.5228 15.5228 20 10 20C4.47715 20 0 15.5228 0 10Z" fill="#FF6A8E"/>
+                          <path fillRule="evenodd" clipRule="evenodd" d="M4.24243 9.99972C4.24243 9.33028 4.78512 8.7876 5.45455 8.7876L14.5455 8.7876C15.2149 8.7876 15.7576 9.33028 15.7576 9.99972C15.7576 10.6692 15.2149 11.2118 14.5455 11.2118L5.45455 11.2118C4.78512 11.2118 4.24243 10.6692 4.24243 9.99972Z" fill="#FF6A8E"/>
+                        </svg>
 
+                      </div>
                     </div>
                   </div>
+                ))}
                 </div>
-              ))}
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </TableCell>
+      </td>
     </>
   )
 }
@@ -275,10 +291,10 @@ function FutureQuantityModal(
 ) {
   const { onClose, quantity, position_qty } = props;
   const intl = useIntl();
-  const [inputQuantity, setInputQuantity] = useState<string>(Math.abs(position_qty).toString());
+  const [inputQuantity, setInputQuantity] = useState<number>(Math.abs(position_qty));
   
   useEffect(() => {
-    setInputQuantity(quantity.toString());
+    setInputQuantity(quantity);
   }, [quantity])
 
   return (
@@ -319,16 +335,15 @@ function FutureQuantityModal(
           </div>
           <div className="flex px-4 items-center pb-6 justify-between">
             <input
-              type="text"
+              type="number"
+              step="any"
+              inputMode="decimal"
               placeholder="0.0"
-              pattern="[0-9]*\.?[0-9]+"
               value={inputQuantity}
               onChange={({ target }) => {
                 let value: any = target.value;
-                const pattern = /^[0-9]*\.?[0-9]+$/;
-                if (!pattern.test(value) && value && value !== '0' && value !== '0.' && value !== '0.0') return
                 if (parseFloat(value) > Math.abs(position_qty)) value = Math.abs(position_qty);
-                if (parseFloat(value) < 0 || !value) value = '0';
+                if (parseFloat(value) < 0) value = 0;
                 setInputQuantity(value)
               }}
               className="text-white text-xl leading-tight px-2.5 pb-2 w-10/12 mr-2"
@@ -337,6 +352,7 @@ function FutureQuantityModal(
             <button
               className="text-white py-1 px-4 relative bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center"
               onClick={() => {
+                // @ts-ignore
                 onClose && onClose(parseFloat(inputQuantity));
               }}
             >

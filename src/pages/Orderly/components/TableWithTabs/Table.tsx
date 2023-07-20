@@ -41,9 +41,11 @@ function OrderLine({
     0
   );
 
-  const [closingQuantity, setClosingQuantity] = useState(order.position_qty);
-  const [closingPrice, setClosingPrice] = useState<'Market' | number>(order.mark_price);
+  const [closingQuantity, setClosingQuantity] = useState(Math.abs(order.position_qty));
+  const [closingPrice, setClosingPrice] = useState<'Market' | number>('Market');
   const [open, setOpen] = useState<boolean>(false);
+  const [showFloatingBox, setShowFloatingBox] = useState(true);
+  const [isFocus, setIsFocus] = useState<string>('');
 
 
   return (
@@ -53,7 +55,7 @@ function OrderLine({
           tableRowType === 'card'
             ? ' m-2 px-3 gap-4 rounded-xl'
             : ' gap-4 px-5 lg:border-t border-white border-opacity-10'
-        }`}
+        } ${tableRowType === 'small' ? 'text-xs' : ''}`}
         style={{
           backgroundColor: tableRowType === 'card' ? '#7E8A931A' : '',
           gridTemplateColumns: `repeat(${gridCol}, minmax(0, 1fr))`
@@ -64,7 +66,7 @@ function OrderLine({
             key={`${column.key}-${i}`}
             className={`col-span-${
               column.colSpan ? column.colSpan : 1
-            } flex items-center py-5 relative break-words`}
+            } flex items-center py-5 relative ${'break-words'}`}
           >
             <div
               className={`
@@ -85,8 +87,9 @@ function OrderLine({
           </td>
         ): (
           <FutureTableFormCells
-            key="table-form"
+            key={`table-form-${order.symbol}`}
             position_qty={order.position_qty}
+            mark_price={order.mark_price}
             closingQuantity={closingQuantity}
             setClosingQuantity={setClosingQuantity}
             closingPrice={closingPrice}
@@ -95,6 +98,10 @@ function OrderLine({
             setOpen={setOpen}
             handleOpenClosing={handleOpenClosing}
             row={order}
+            showFloatingBox={showFloatingBox}
+            setShowFloatingBox={setShowFloatingBox}
+            isFocus={isFocus}
+            setIsFocus={setIsFocus}
           />
         ))}
       </tr>
@@ -382,19 +389,21 @@ function Table({
             >
               {columns.map((column, i) => !column.customRender ? (
                 <TableHeader
-                  key={`${column.key ? column.key : 'column'}-${i}`}
+                  key={`column-${i}`}
                   column={column}
                   loading={loading}
                   sort={sort}
                   setSort={setSort}
                 />
               ) : (
-                column.headerRender()
+                <React.Fragment key={`${tableKey}-form-header`}>
+                  {column.headerRender()}
+                </React.Fragment>
               ))}
             </tr>
           </thead>
           <tbody
-            className=" block overflow-auto  flex-col "
+            className=" block flex-col "
             id="all-orders-body-open"
           >
             {accountId && validContract() && loading ? (

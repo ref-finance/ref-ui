@@ -11,7 +11,6 @@ import QuestionMark from '../../components/farm/QuestionMark';
 import { toPrecision } from './near';
 import TableWithTabs from './components/TableWithTabs';
 import SettlePnlModal from './components/TableWithTabs/SettlePnlModal';
-import AssetsAndFuture from './components/TableWithTabs/AssetsAndFuture';
 import { MobileFilterModal } from './components/TableWithTabs/OrdersFilters';
 import { ClosingModal } from './components/TableWithTabs/FuturesControls';
 import { usePortableOrderlyTable, useMarketlist } from './orderly/constantWjsx';
@@ -49,14 +48,6 @@ const is_mobile = isMobile();
 
 function PortfolioOrderly() {
   const intl = useIntl();
-  const {
-    newPositions,
-    markPrices,
-    portfolioUnsettle,
-    triggerBalanceBasedData,
-    triggerPositionBasedData
-  } = usePerpData();
-
   const { marketList, allTokens } = useMarketlist();
   const { globalState } = useContext(WalletContext);
   const { accountId } = useWalletSelector();
@@ -107,6 +98,15 @@ function PortfolioOrderly() {
   const nonOrderlyTokenInfo = useTokenInfo();
   const displayBalances: OrderAsset[] =
     useOrderlyPortfolioAssets(nonOrderlyTokenInfo);
+
+  const {
+    newPositions,
+    markPrices,
+    portfolioUnsettle,
+    triggerBalanceBasedData,
+    triggerPositionBasedData,
+    totalAvailable
+  } = usePerpData({ displayBalances });
 
   // closing order
   const [closeOrderOpen, setCloseOrderOpen] = useState<boolean>(false);
@@ -275,8 +275,8 @@ function PortfolioOrderly() {
                     0
                   ) + parseFloat(portfolioUnsettle)).toFixed(3) : 0}
                   <div className="ml-3 flex items-center hidden md:flex lg:flex flex-wrap">
-                    {displayBalances.map(({ tokenMeta }) => (
-                      <div className="flex items-center text-white text-sm -ml-1">
+                    {displayBalances.map(({ tokenMeta, available }) => parseFloat(available) > 0 && (
+                      <div key={tokenMeta.id} className="flex items-center text-white text-sm -ml-1">
                         <img
                           src={allTokens[tokenMeta.symbol]?.icon}
                           alt=""
@@ -292,13 +292,10 @@ function PortfolioOrderly() {
                   <span className="text-sm text-primaryText">Available</span>
                 </div>
                 <span className="text-xl gotham_bold text-white mt-1 flex items-center">
-                  ${(displayBalances.length > 0) ? displayBalances.reduce(
-                    (total, { available }) => total + parseFloat(available),
-                    0
-                  ).toFixed(3) : 0}
+                  ${totalAvailable}
                   <div className="ml-3 items-center hidden md:flex lg:flex flex-wrap">
-                    {displayBalances.map(({ tokenMeta }) => (
-                      <div className="flex items-center text-white text-sm -ml-1">
+                    {displayBalances.map(({ tokenMeta, available }) => parseFloat(available) > 0 && (
+                      <div key={tokenMeta.id} className="flex items-center text-white text-sm -ml-1">
                         <img
                           src={allTokens[tokenMeta.symbol]?.icon}
                           alt=""
@@ -327,15 +324,13 @@ function PortfolioOrderly() {
                 triggerPositionBasedData={triggerPositionBasedData}
                 validAccountSig={validAccountSig}
               />
-              <AssetsAndFuture
+              <TableWithTabs
+                table={assetsTables}
                 maintenance={maintenance}
                 displayBalances={displayBalances}
                 newPositions={newPositions}
-                handleOpenClosing={handleOpenClosing}
                 validAccountSig={validAccountSig}
-                setOperationType={setOperationType}
-                setOperationId={setOperationId}
-                setSettlePnlModalOpen={setSettlePnlModalOpen}
+                handleOpenClosing={handleOpenClosing}
               />
               <TableWithTabs
                 table={recordsTable}
@@ -391,6 +386,7 @@ function PortfolioOrderly() {
                   displayBalances={displayBalances}
                   newPositions={newPositions}
                   validAccountSig={validAccountSig}
+                  handleOpenClosing={handleOpenClosing}
                 />
               )}
               {tab === 1 && (

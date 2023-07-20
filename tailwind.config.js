@@ -128,6 +128,7 @@ module.exports = {
         darkBlueColor:
           'linear-gradient(360deg, #1A2B35 0%, rgba(19, 33, 42, 0) 100%)',
         purpleBgColor: 'linear-gradient(180deg, #C3BDAD 0%, #AF9773 100%)',
+        pendingBgColor: 'linear-gradient(180deg, #2F3A39 0%, #1D2932 100%)',
       }),
       gridTemplateColumns: {
         farmSearch: '2fr 1fr',

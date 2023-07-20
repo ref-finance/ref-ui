@@ -16,6 +16,7 @@ import {
   MyOrder,
   Ticker,
 } from '../../orderly/type';
+import { OrderAsset } from '../AssetModal/state';
 import Decimal from 'decimal.js';
 import { parseSymbol } from '../RecentTrade';
 
@@ -49,7 +50,7 @@ const getPortfolioTotaluPnl = (
       const markPrice =
         markprices?.find((item) => item.symbol === cur.symbol)?.price || 0;
 
-      const value = (markPrice - cur.average_open_price) * cur.position_qty;
+      const value = ((markPrice - cur.average_open_price) * cur.position_qty) - cur.fee_24_h;
 
       return new Big(value).plus(acc);
     },
@@ -60,20 +61,44 @@ const getPortfolioTotaluPnl = (
   return numberWithCommas(pnl.toFixed(2));
 };
 
-const getNotional = (positions: PositionsType) => {
+const getNotional = (positions: PositionsType, markPrices: MarkPrice[]) => {
   if (!positions) return '0';
 
-  const notional = positions.rows.reduce(
+  const notionals = positions.rows.reduce(
     (acc, cur, index) => {
-      const value = cur.average_open_price * cur.position_qty;
+      const markPrice =
+        markPrices?.find((item) => item.symbol === cur.symbol)?.price || 0;
+
+      const value = Math.abs(markPrice * cur.position_qty);
 
       return new Big(value).plus(acc);
     },
-
     new Big(0)
   );
 
-  return numberWithCommas(notional.toFixed(2));
+  return numberWithCommas(notionals.toFixed(2));
+};
+
+const getAvailable = (positions: PositionsType, markPrices: MarkPrice[], displayBalances: OrderAsset[]) => {
+  if (!displayBalances) return '0';
+
+  const unsettle_pnl = getPortfolioUnsettle(positions, markPrices);
+
+  const availables = displayBalances.reduce(
+    (acc, cur, index) => {
+      const markPrice =
+        markPrices?.find((item) => item.symbol === `SPOT_${cur.tokenMeta.symbol}_USDC`)?.price || 0;
+
+      const value = cur.tokenMeta.symbol === 'USDC' ? parseFloat(cur.available) : parseFloat(cur.available) * markPrice;
+
+      return new Big(value).plus(acc);
+    },
+    new Big(0)
+  );
+
+  const available = availables;
+
+  return numberWithCommas(available.toFixed(2));
 };
 
 const get_total_upnl = (positions: PositionsType, markprices: MarkPrice[]) => {
@@ -485,4 +510,5 @@ export {
   getUnsettle,
   getPortfolioUnsettle,
   getMaintenanceMarginRatio,
+  getAvailable
 };

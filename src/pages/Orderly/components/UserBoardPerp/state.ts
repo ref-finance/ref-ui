@@ -5,6 +5,7 @@ import { Holding, TokenInfo, TokenMetadata } from '../../orderly/type';
 import { getCurrentHolding } from '../../orderly/off-chain-api';
 import { useWalletSelector } from '../../../../context/WalletSelectorContext';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
+import { OrderAsset, useOrderlyPortfolioAssets } from '../AssetModal/state';
 import Big from 'big.js';
 import {
   getFreeCollateral,
@@ -16,9 +17,10 @@ import {
   getUnsettle,
   getPortfolioUnsettle,
   getNotional,
+  getAvailable
 } from './math';
 import { parseSymbol } from '../RecentTrade';
-import { useLeverage } from '~pages/Orderly/orderly/state';
+import { useLeverage, useTokenInfo } from '~pages/Orderly/orderly/state';
 
 export function useTokenBalance(tokenId: string | undefined, deps?: any) {
   const [tokenMeta, setTokenMeta] = useState<TokenMetadata>();
@@ -171,7 +173,10 @@ export function useTokensBalances(
   return showbalances;
 }
 
-export function usePerpData() {
+export function usePerpData(deps?: {
+  displayBalances?: OrderAsset[]
+}) {
+  const { displayBalances } = deps || {};
   const {
     symbol,
     orders,
@@ -312,11 +317,19 @@ export function usePerpData() {
 
   const totalNotional = useMemo(() => {
     try {
-      return getNotional(newPositions);
+      return getNotional(newPositions, markPrices);
     } catch (error) {
       return null;
     }
-  }, [newPositions]);
+  }, [newPositions, markPrices]);
+
+  const totalAvailable = useMemo(() => {
+    try {
+      return getAvailable(newPositions, markPrices, displayBalances);
+    } catch (error) {
+      return null;
+    }
+  }, [newPositions, markPrices, displayBalances]);
 
   const marginRatio = useMemo(() => {
     {
@@ -342,7 +355,7 @@ export function usePerpData() {
   
   const portfolioUnsettle = useMemo(() => {
     try {
-      const res = getPortfolioUnsettle(positions, markPrices);
+      const res = getPortfolioUnsettle(newPositions, markPrices);
 
       return res === '-' ? res : res.toFixed(2);
     } catch (error) {
@@ -389,6 +402,7 @@ export function usePerpData() {
     error,
     setCurLeverage,
     setCurLeverageRaw,
-    userInfo
+    userInfo,
+    totalAvailable
   };
 }

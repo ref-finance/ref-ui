@@ -1366,6 +1366,7 @@ const en_US = {
   perpTip:
     'Welcome to Perpetual Futures trading! Please read {perpTipLink} to get started!',
   perpTipLink: '[Perpetual Futures Introduction]  ',
+  perpetual: 'Perpetual',
   pred_funding_rate: 'Pred. Funding Rate',
   open_interest: 'Open Interest',
   netWorthTip:
