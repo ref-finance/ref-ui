@@ -102,7 +102,7 @@ function PortfolioOrderly() {
   const {
     newPositions,
     markPrices,
-    portfolioUnsettle,
+    totalEst,
     triggerBalanceBasedData,
     triggerPositionBasedData,
     totalAvailable
@@ -239,7 +239,7 @@ function PortfolioOrderly() {
           <div className="md:px-2.5 lg:px-5 3xl:max-w-1280px m-auto">
             <div className="w-full grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 md:bg-cardBg lg:bg-cardBg px-7 py-4 rounded-xl">
               {/* getCurrentHolding */}
-              <div className="col-span-3 mb-3">
+              <div className="col-span-2 mb-3">
                 <div className="flex items-center">
                   <span className="text-sm text-primaryText flex items-center">
                     Total Est. Value
@@ -270,10 +270,7 @@ function PortfolioOrderly() {
                   </span>
                 </div>
                 <div className="text-2xl gotham_bold text-white mt-1 flex items-center">
-                  ${(portfolioUnsettle && displayBalances.length > 0) ? (displayBalances.reduce(
-                    (total, row) => total + parseFloat(row.available) + parseFloat(row['in-order']),
-                    0
-                  ) + parseFloat(portfolioUnsettle)).toFixed(3) : 0}
+                  ${totalEst}
                   <div className="ml-3 flex items-center hidden md:flex lg:flex flex-wrap">
                     {displayBalances.map(({ tokenMeta, available }) => parseFloat(available) > 0 && (
                       <div key={tokenMeta.id} className="flex items-center text-white text-sm -ml-1">
@@ -287,7 +284,7 @@ function PortfolioOrderly() {
                   </div>
                 </div>
               </div>
-              <div className="col-span-1 mb-3">
+              <div className="col-span-2 mb-3">
                 <div className="flex items-center">
                   <span className="text-sm text-primaryText">Available</span>
                 </div>

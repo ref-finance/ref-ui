@@ -88,10 +88,13 @@ export const usePortableOrderlyTable = ({
   const [unrealMode, setUnrealMode] = useState<'mark_price' | 'last_price'>('mark_price');
   const { marketList, allTokens } = useMarketlist();
 
-  const OpenbookBtn = () => (
+  const OpenbookBtn = ({ usable } : { usable: boolean }) => (
     <div className="flex items-center">
       <span className="flex items-center mr-2">
-        <label className="cursor-pointer mr-1" onClick={() => setRefOnly(!refOnly)}>
+        <label
+          className={`mr-1 ${usable ? 'cursor-pointer' : 'opacity-40 cursor-not-allowed'}`}
+          onClick={() => usable && setRefOnly(!refOnly)}
+        >
           {refOnly ? <CheckboxSelected /> :<Checkbox />}
         </label>
         {intl.formatMessage({
@@ -102,11 +105,12 @@ export const usePortableOrderlyTable = ({
     </div>
   );
 
-  const SpotTransactionBtn = () => (
+  const SpotTransactionBtn = ({ usable } : { usable: boolean }) => (
     <>
       <div className="flex items-center">
         <button
-          className="text-white py-1 px-2 mr-2 relative bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center"
+          disabled={!usable}
+          className="text-white py-1 px-2 mr-2 relative bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
           onClick={() => {
             setOperationType('deposit');
             setOperationId(tokenIn?.id || '');
@@ -118,7 +122,8 @@ export const usePortableOrderlyTable = ({
           })}
         </button>
         <button
-          className="text-white py-1 px-2 relative bg-withdrawPurple2 rounded-lg text-white font-bold flex items-center justify-center"
+          disabled={!usable}
+          className="text-white py-1 px-2 relative bg-withdrawPurple2 rounded-lg text-white font-bold flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
           onClick={() => {
             setOperationType('withdraw');
             setOperationId(tokenIn?.id || '');
@@ -134,9 +139,10 @@ export const usePortableOrderlyTable = ({
   );
 
 
-  const SettlePnlBtn = () => (
+  const SettlePnlBtn = ({ usable } : { usable: boolean }) => (
     <button
-      className="text-white py-1 px-2 relative bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center"
+      disabled={!usable}
+      className="text-white py-1 px-2 relative bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
       onClick={() => setSettlePnlModalOpen(true)}
     >
       <span>
@@ -155,7 +161,7 @@ export const usePortableOrderlyTable = ({
       {
         id: 'open_orders',
         default: 'Open Orders',
-        rightComp: <OpenbookBtn />,
+        rightComp: (usable: boolean) => <OpenbookBtn usable={usable} />,
         tableRowType: 'card',
         tableRowEmpty: 'no_orders_found',
         mobileRender: ({ symbol, side, created_time, price, average_executed_price, quantity, executed, broker_name }) => (
@@ -315,7 +321,7 @@ export const usePortableOrderlyTable = ({
       {
         id: 'history',
         default: 'History',
-        rightComp: <OpenbookBtn />,
+        rightComp: (usable: boolean) => <OpenbookBtn usable={usable} />,
         tableRowType: 'card',
         tableRowEmpty: 'no_orders_found',
         mobileRender: ({ symbol, side, created_time, price, average_executed_price, quantity, executed, broker_name }) => (
@@ -485,7 +491,7 @@ export const usePortableOrderlyTable = ({
         default: 'Spot',
         pagination: false,
         getData: async () => false,
-        rightComp: <SpotTransactionBtn />,
+        rightComp: (usable: boolean) => <SpotTransactionBtn usable={usable} />,
         mobileRenderCustom: true,
         mobileRender: (rows) => (
           <>
@@ -609,7 +615,7 @@ export const usePortableOrderlyTable = ({
       {
         id: 'futures',
         default: 'Futures',
-        rightComp: <SettlePnlBtn />,
+        rightComp: (usable: boolean) => <SettlePnlBtn usable={usable} />,
         pagination: false,
         getData: () => getPortfolioPosition({ accountId }),
         tableTopComponent: <FutureTopComponent />,
@@ -621,7 +627,7 @@ export const usePortableOrderlyTable = ({
             marketList={marketList}
             handleOpenClosing={handleOpenClosing}
           >
-            <SettlePnlBtn />
+            <SettlePnlBtn usable={true} />
           </FutureMobileView>
         ),
         columns: [
@@ -665,7 +671,7 @@ export const usePortableOrderlyTable = ({
             sortKey: 'est_liq_price',
             render: ({ est_liq_price }) => (
               <div className={`pr-2 text-warn`}>
-                {est_liq_price ? est_liq_price.toFixed(1) : '-'}
+                {est_liq_price ? est_liq_price.toFixed(3) : '-'}
               </div>
             )
           },
@@ -688,11 +694,12 @@ export const usePortableOrderlyTable = ({
               }
             ],
             render: ({ symbol, average_open_price, position_qty }) => {
-              const price = unrealMode === 'mark_price' ? markPrices.find((i) => i.symbol === symbol)?.price : lastPrices.find((i) => i.symbol === symbol)?.low;
+              const price = unrealMode === 'mark_price' ? markPrices.find((i) => i.symbol === symbol)?.price : lastPrices.find((i) => i.symbol === symbol)?.close;
+              const value = position_qty >= 0 ? ((price - average_open_price) * position_qty) : ((average_open_price - price) * position_qty) * -1;
 
               return (
-                <div className={`pr-2 ${(price - average_open_price) *  position_qty >= 0  ? 'text-buyGreen' : 'text-sellColorNew'}`}>
-                  {((price - average_open_price) *  position_qty)?.toFixed(2) || '-' }
+                <div className={`pr-2 ${value >= 0  ? 'text-buyGreen' : 'text-sellColorNew'}`}>
+                  {value?.toFixed(2) || '-' }
                 </div>
               )
             }
@@ -957,13 +964,13 @@ export const usePortableOrderlyTable = ({
             <div className="w-1/2 inline-block text-right">
               <div className={`p-0.5 text-sm my-0.5 flex items-center justify-end`}>
                 <span className="text-white">
-                  {old_balance ? `${old_balance?.toFixed(4)}` : '-'}
+                  {typeof new_balance === 'number' ? `${old_balance?.toFixed(4)}` : '-'}
                 </span>
                 <div className="mx-1">
                   <ArrowGrey />
                 </div>
                 <span className="text-white">
-                  {new_balance ? `${new_balance?.toFixed(4)}` : '-'}
+                  {typeof new_balance === 'number' ? `${new_balance?.toFixed(4)}` : '-'}
                 </span>
               </div>
             </div>
@@ -1063,7 +1070,7 @@ export const usePortableOrderlyTable = ({
             <div className="w-8/12 inline-block text-right">
               <div className={`p-0.5 text-sm my-0.5 text-white`}>
                 <span className={funding_fee >= 0 ? 'text-buyGreen' : 'text-sellColorNew'}>
-                  {funding_fee >= 0 ? '+' : ''}{funding_fee?.toFixed(4)}
+                  {funding_fee >= 0 ? '+' : ''}{(funding_fee * -1)?.toFixed(4)}
                 </span>
                 &nbsp;USDC
               </div>

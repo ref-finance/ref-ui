@@ -49,8 +49,14 @@ const getPortfolioTotaluPnl = (
     (acc, cur, index) => {
       const markPrice =
         markprices?.find((item) => item.symbol === cur.symbol)?.price || 0;
+        
+        /*
+          long: (mark price(or last price) - avg open price) *(qty
+          short: (avg open price - mark price(or last price)) * qty
+         */
+      
 
-      const value = ((markPrice - cur.average_open_price) * cur.position_qty) - cur.fee_24_h;
+      const value = cur.position_qty >= 0 ? ((markPrice - cur.average_open_price) * cur.position_qty) : ((cur.average_open_price - markPrice) * cur.position_qty) * -1;
 
       return new Big(value).plus(acc);
     },
@@ -79,10 +85,30 @@ const getNotional = (positions: PositionsType, markPrices: MarkPrice[]) => {
   return numberWithCommas(notionals.toFixed(2));
 };
 
-const getAvailable = (positions: PositionsType, markPrices: MarkPrice[], displayBalances: OrderAsset[]) => {
-  if (!displayBalances) return '0';
+const getTotalEst = (positions: PositionsType, markPrices: MarkPrice[], displayBalances: OrderAsset[]) => {
+  if (!displayBalances || !positions || !markPrices) return '0';
 
-  const unsettle_pnl = getPortfolioUnsettle(positions, markPrices);
+  const totatEst = displayBalances.reduce(
+    (acc, cur, index) => {
+      const markPrice =
+        markPrices?.find((item) => item.symbol === `SPOT_${cur.tokenMeta.symbol}_USDC`)?.price || 0;
+
+      const value = cur.tokenMeta.symbol === 'USDC' ? parseFloat(cur.available) : parseFloat(cur.available) * markPrice;
+      const inOrder = cur.tokenMeta.symbol === 'USDC' ? parseFloat(cur['in-order']) : parseFloat(cur['in-order']) * markPrice;
+
+      const total = value + inOrder;
+
+      return new Big(total).plus(acc);
+    },
+    new Big(0)
+  );
+
+  return numberWithCommas(totatEst.toFixed(2));
+
+};
+
+const getAvailable = (positions: PositionsType, markPrices: MarkPrice[], displayBalances: OrderAsset[], curLeverage: number) => {
+  if (!displayBalances || !positions || !markPrices || !curLeverage) return '0';
 
   const availables = displayBalances.reduce(
     (acc, cur, index) => {
@@ -90,15 +116,32 @@ const getAvailable = (positions: PositionsType, markPrices: MarkPrice[], display
         markPrices?.find((item) => item.symbol === `SPOT_${cur.tokenMeta.symbol}_USDC`)?.price || 0;
 
       const value = cur.tokenMeta.symbol === 'USDC' ? parseFloat(cur.available) : parseFloat(cur.available) * markPrice;
+      const inOrder = cur.tokenMeta.symbol === 'USDC' ? parseFloat(cur['in-order']) : parseFloat(cur['in-order']) * markPrice;
 
-      return new Big(value).plus(acc);
+      const total = value + inOrder;
+
+      return new Big(total).plus(acc);
     },
     new Big(0)
   );
 
-  const available = availables;
+  const futures = positions.rows.reduce(
+    (acc, cur, index) => {
+      const markPrice =
+        markPrices?.find((item) => item.symbol === cur.symbol)?.price || 0;
+
+      const value = (markPrice * cur.position_qty) / curLeverage;
+
+      return new Big(value).plus(acc);
+    },
+
+    new Big(0)
+  );
+
+  const available = new Big(futures).plus(availables);
 
   return numberWithCommas(available.toFixed(2));
+
 };
 
 const get_total_upnl = (positions: PositionsType, markprices: MarkPrice[]) => {
@@ -510,5 +553,6 @@ export {
   getUnsettle,
   getPortfolioUnsettle,
   getMaintenanceMarginRatio,
-  getAvailable
+  getAvailable,
+  getTotalEst
 };

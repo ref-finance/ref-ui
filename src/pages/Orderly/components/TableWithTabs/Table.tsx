@@ -1,29 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 import 'react-circular-progressbar/dist/styles.css';
-import {
-  RegisterModal,
-  validContract,
-  REF_ORDERLY_ACCOUNT_VALID,
-  REF_ORDERLY_AGREE_CHECK,
-} from '../UserBoard';
+import { validContract } from '../UserBoard';
 import { FutureTableFormCells } from './FuturesControls';
 import { MyOrder, PortfolioTableColumns } from '../../orderly/type';
-import { useOrderlyContext } from '../../orderly/OrderlyContext';
-import { RefToOrderly, OrderlyLoading } from '../Common/Icons';
+import { OrderlyLoading } from '../Common/Icons';
 import TableHeader from './TableHeader';
 import { useWalletSelector } from '../../../../context/WalletSelectorContext';
-import { CheckBox, ConnectWallet, ErrorTip, RegisterButton } from '../Common';
-
-import { ConfirmButton } from '../Common/index';
-
-import {
-  is_orderly_key_announced,
-  is_trading_key_set,
-} from '../../orderly/on-chain-api';
-import { announceKey, setTradingKey, storageDeposit } from '../../orderly/api';
 import { useIntl } from 'react-intl';
-import _, { set } from 'lodash';
+import _ from 'lodash';
 
 function OrderLine({
   order,
@@ -42,9 +27,9 @@ function OrderLine({
   );
 
   const [closingQuantity, setClosingQuantity] = useState(Math.abs(order.position_qty));
-  const [closingPrice, setClosingPrice] = useState<'Market' | number>('Market');
+  const [closingPrice, setClosingPrice] = useState<'Market' | string>('Market');
   const [open, setOpen] = useState<boolean>(false);
-  const [showFloatingBox, setShowFloatingBox] = useState(true);
+  const [showFloatingBox, setShowFloatingBox] = useState(false);
   const [isFocus, setIsFocus] = useState<string>('');
 
 
@@ -54,7 +39,7 @@ function OrderLine({
         className={`table-fixed grid ${
           tableRowType === 'card'
             ? ' m-2 px-3 gap-4 rounded-xl'
-            : ' gap-4 px-5 lg:border-t border-white border-opacity-10'
+            : ' gap-4 px-5 hover:bg-portfolioBgColor lg:border-t border-white border-opacity-10'
         } ${tableRowType === 'small' ? 'text-xs' : ''}`}
         style={{
           backgroundColor: tableRowType === 'card' ? '#7E8A931A' : '',
@@ -124,8 +109,6 @@ function Table({
   mobileRender,
   mobileRenderCustom,
   orderType,
-  mobileFooter,
-  maintenance,
   handleOpenClosing
 }: {
   data: MyOrder[];
@@ -142,83 +125,16 @@ function Table({
   orderType?: number;
   mobileRender: (row: any) => any;
   mobileRenderCustom?: boolean;
-  mobileFooter?: JSX.Element;
-  maintenance: boolean;
   handleOpenClosing?: (closingQuantity: number, closingPrice: number | 'Market', row: any) => void;
 }) {
-  const {
-    storageEnough,
-    setValidAccountSig,
-    handlePendingOrderRefreshing,
-    userExist,
-    validAccountSig,
-  } = useOrderlyContext();
-  const { accountId, modal } = useWalletSelector()
+  const { accountId } = useWalletSelector()
 
   const [sort, setSort] = useState<[string | string[], 'asc' | 'dsc']>([
     '',
     loading ? undefined : 'dsc',
   ]);
 
-  const [tradingKeySet, setTradingKeySet] = useState<boolean>(false);
-  const [keyAnnounced, setKeyAnnounced] = useState<boolean>(false);
-  const [agreeCheck, setAgreeCheck] = useState<boolean>(false);
-  const [registerModalOpen, setRegisterModalOpen] = useState<boolean>(false);
   const [customTotal, setCustomTotal] = useState<number | null>(null);
-
-  const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
-
-  useEffect(() => {
-    if (!accountId || !storageEnough) return;
-
-    if (!!storedValid) {
-      setValidAccountSig(true);
-      setKeyAnnounced(true);
-      setTradingKeySet(true);
-
-      return;
-    }
-
-    is_orderly_key_announced(accountId, true)
-      .then(async (key_announce) => {
-        setKeyAnnounced(key_announce);
-        if (!key_announce) {
-          const res = await announceKey(accountId).then((res) => {
-            setKeyAnnounced(true);
-          });
-        } else return;
-      })
-      .then(() => {
-        is_trading_key_set(accountId).then(async (trading_key_set) => {
-          setTradingKeySet(trading_key_set);
-          if (!trading_key_set) {
-            await setTradingKey(accountId).then(() => {
-              setTradingKeySet(true);
-            });
-          }
-        });
-      })
-      .catch((e) => {
-        setKeyAnnounced(false);
-        setTradingKeySet(false);
-        setValidAccountSig(false);
-
-        localStorage.removeItem(REF_ORDERLY_ACCOUNT_VALID);
-      });
-  }, [accountId, storageEnough, agreeCheck]);
-
-  useEffect(() => {
-    if (!tradingKeySet || !keyAnnounced) return;
-
-    localStorage.setItem(REF_ORDERLY_ACCOUNT_VALID, '1');
-    if (userExist) {
-      localStorage.removeItem(REF_ORDERLY_AGREE_CHECK);
-    }
-
-    handlePendingOrderRefreshing();
-
-    setValidAccountSig(true);
-  }, [tradingKeySet, keyAnnounced]);
 
   const sortingFunc = (a: MyOrder, b: MyOrder) => {
     if (!Array.isArray(sort[0])) {
@@ -276,104 +192,13 @@ function Table({
 
   const intl = useIntl();
 
-  const validator =
-    !accountId ||
-    !storageEnough ||
-    !tradingKeySet ||
-    !keyAnnounced ||
-    !validContract() ||
-    maintenance;
-
   const gridCol = columns.reduce(
     (acc, column) => acc + (column.colSpan ? column.colSpan : 1),
     0
   );
 
   return (
-    <div className="relative">
-      {validator && !maintenance && !validAccountSig && (
-        <div
-          className="absolute flex flex-col justify-center items-center h-full w-full top-0 left-0 "
-          style={{
-            background: 'rgba(0, 19, 32, 0.8)',
-            backdropFilter: 'blur(5px)',
-            zIndex: 50,
-          }}
-        >
-          <div className="hidden md:block lg:block">
-            <RefToOrderly />
-          </div>
-
-          {!accountId && (
-            <div className="w-half md:w-full lg:w-full flex justify-center flex-col items-center">
-              <div className="md:hidden lg:hidden text-center mb-6">
-                <p>Welcome!</p>
-                <p>Connect your wallet to start</p>
-              </div>
-
-              <ConnectWallet
-                onClick={() => {
-                  modal.show();
-                }}
-              />
-            </div>
-          )}
-
-          {accountId && !validContract() && (
-            <div className="relative bottom-1 break-words inline-flex flex-col items-center">
-              <div className="text-base w-p200 pb-6 text-center text-white">
-                Using Orderbook request re-connect wallet
-              </div>
-              <ConfirmButton
-                onClick={async () => {
-                  // window.modal.show();
-                  const wallet = await window.selector.wallet();
-
-                  await wallet.signOut();
-
-                  window.location.reload();
-                }}
-              />
-            </div>
-          )}
-
-          {!!accountId &&
-            validContract() &&
-            (!storageEnough || !tradingKeySet || !keyAnnounced) && (
-              <div className="w-half md:w-full lg:w-full flex justify-center flex-col items-center">
-                <div className="md:hidden lg:hidden text-center mb-6">
-                  <p>Welcome!</p>
-                  <p>Connect your orderly account to start</p>
-                </div>
-                <RegisterButton
-                  userExist={userExist}
-                  onClick={() => {
-                    if (!agreeCheck) {
-                      setRegisterModalOpen(true);
-
-                      return;
-                    }
-                    if (!accountId || storageEnough) return;
-
-                    if (!userExist) {
-                      localStorage.setItem(REF_ORDERLY_AGREE_CHECK, 'true');
-                    }
-
-                    storageDeposit(accountId);
-                  }}
-                  setCheck={setAgreeCheck}
-                  check={agreeCheck}
-                  storageEnough={!!storageEnough}
-                  spin={
-                    (storageEnough && (!tradingKeySet || !keyAnnounced)) ||
-                    agreeCheck
-                  }
-                  onPortfolio
-                />
-              </div>
-            )}
-        </div>
-      )}
+    <>
       <div className="w-full hidden md:block lg:block">
         {tableTopComponent}
         <table className="table-fixed w-full">
@@ -619,19 +444,7 @@ function Table({
           </div>
         </div>
       )}
-
-      <RegisterModal
-        isOpen={registerModalOpen}
-        onRequestClose={() => {
-          setRegisterModalOpen(false);
-        }}
-        userExist={userExist}
-        orderlyRegistered={userExist}
-        onConfirm={() => {
-          setAgreeCheck(true);
-        }}
-      />
-    </div>
+    </>
   );
 }
 

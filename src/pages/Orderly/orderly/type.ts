@@ -374,7 +374,7 @@ export interface PortfolioTable {
   tabs: {
     id: string;
     default: string;
-    rightComp?: JSX.Element;
+    rightComp?: (state: boolean) => JSX.Element;
     columns?: PortfolioTableColumns[];
     tableRowType?: string;
     tableRowEmpty?: string;

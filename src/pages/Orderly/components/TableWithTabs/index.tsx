@@ -1,6 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import _ from 'lodash';
+import { RefToOrderly } from '../Common/Icons';
+import {
+  RegisterModal,
+  validContract,
+  REF_ORDERLY_ACCOUNT_VALID,
+  REF_ORDERLY_AGREE_CHECK,
+} from '../UserBoard';
+import { useOrderlyContext } from '../../orderly/OrderlyContext';
+import { ConnectWallet, RegisterButton } from '../Common';
+import { useWalletSelector } from '../../../../context/WalletSelectorContext';
+import { ConfirmButton } from '../Common/index';
+
+import {
+  is_orderly_key_announced,
+  is_trading_key_set,
+} from '../../orderly/on-chain-api';
+import { announceKey, setTradingKey, storageDeposit } from '../../orderly/api';
 
 import 'react-circular-progressbar/dist/styles.css';
 import Table from './Table';
@@ -65,6 +82,72 @@ function TableWithTabs({
 }) {
   const intl = useIntl();
   const { marketList } = useMarketlist();
+
+  const {
+    storageEnough,
+    setValidAccountSig,
+    handlePendingOrderRefreshing,
+    userExist,
+  } = useOrderlyContext();
+  const { accountId, modal } = useWalletSelector()
+  const [tradingKeySet, setTradingKeySet] = useState<boolean>(false);
+  const [keyAnnounced, setKeyAnnounced] = useState<boolean>(false);
+  const [agreeCheck, setAgreeCheck] = useState<boolean>(false);
+  const [registerModalOpen, setRegisterModalOpen] = useState<boolean>(false);
+
+  const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
+
+  useEffect(() => {
+    if (!accountId || !storageEnough) return;
+
+    if (!!storedValid) {
+      setValidAccountSig(true);
+      setKeyAnnounced(true);
+      setTradingKeySet(true);
+
+      return;
+    }
+
+    is_orderly_key_announced(accountId, true)
+      .then(async (key_announce) => {
+        setKeyAnnounced(key_announce);
+        if (!key_announce) {
+          const res = await announceKey(accountId).then((res) => {
+            setKeyAnnounced(true);
+          });
+        } else return;
+      })
+      .then(() => {
+        is_trading_key_set(accountId).then(async (trading_key_set) => {
+          setTradingKeySet(trading_key_set);
+          if (!trading_key_set) {
+            await setTradingKey(accountId).then(() => {
+              setTradingKeySet(true);
+            });
+          }
+        });
+      })
+      .catch((e) => {
+        setKeyAnnounced(false);
+        setTradingKeySet(false);
+        setValidAccountSig(false);
+
+        localStorage.removeItem(REF_ORDERLY_ACCOUNT_VALID);
+      });
+  }, [accountId, storageEnough, agreeCheck]);
+
+  useEffect(() => {
+    if (!tradingKeySet || !keyAnnounced) return;
+
+    localStorage.setItem(REF_ORDERLY_ACCOUNT_VALID, '1');
+    if (userExist) {
+      localStorage.removeItem(REF_ORDERLY_AGREE_CHECK);
+    }
+
+    handlePendingOrderRefreshing();
+
+    setValidAccountSig(true);
+  }, [tradingKeySet, keyAnnounced]);
   
   const [data, setData] = useState<any>([])
   const [total, setTotal] = useState(0);
@@ -112,11 +195,11 @@ function TableWithTabs({
     }
   }, [JSON.stringify(displayBalances)]);
 
-  /* useEffect(() => {
+  useEffect(() => {
     if (getData && (id === 'futures')) {
       setData(newPositions.rows);
     }
-  }, [JSON.stringify(newPositions)]); */
+  }, [JSON.stringify(newPositions)]);
 
   useEffect(() => {
     if (getData && (id === 'deposit' || id === 'withdraw' || id === 'settlements')) {
@@ -143,6 +226,14 @@ function TableWithTabs({
     setTotal(data.meta?.total || 0);
     setLoading(false);
   }
+
+  const validator =
+    !accountId ||
+    !storageEnough ||
+    !tradingKeySet ||
+    !keyAnnounced ||
+    !validContract() ||
+    maintenance;
 
   return (
     <>
@@ -183,7 +274,10 @@ function TableWithTabs({
                     </b>
 
                     {tab === index && (
-                      <div className="h-0.5 bg-gradientFromHover rounded-lg w-full absolute -bottom-5 left-0"></div>
+                      <div
+                        className="h-0.5 bg-gradientFromHover rounded-lg w-full absolute -bottom-5 left-0"
+                        style={{ zIndex: 100 }}
+                      />
                     )}
                   </span>
                 </FlexRow>
@@ -191,7 +285,7 @@ function TableWithTabs({
             </FlexRow>
             
             <div className="hidden md:block lg:block">
-              {(table.tabs[tab].rightComp) && table.tabs[tab].rightComp}
+              {(table.tabs[tab].rightComp) && table.tabs[tab].rightComp(!(validator && !maintenance && !validAccountSig))}
             </div>
           </FlexRowBetween>
         </FlexRowBetween>
@@ -232,7 +326,7 @@ function TableWithTabs({
             ))}
           </div>
 
-          {table.tabs[tab].filter && (
+          {(!(validator && !maintenance && !validAccountSig) && table.tabs[tab].filter) && (
             <FlexRow className={'md:hidden lg:hidden inline-flex w-1/12 justify-center'}>
               <div
                 className="flex relative items-center justify-center"
@@ -246,7 +340,7 @@ function TableWithTabs({
     
 
 
-        <div className="w-full rounded-2xl md:bg-cardBg lg:bg-cardBg py-5">
+        <div className={`w-full rounded-2xl md:bg-cardBg lg:bg-cardBg py-5 md:py-0 lg:py-0`}>
           {(table.tabs[tab].filter && (chooseMarketSymbol !== 'all_markets' || chooseOrderSide !== 'all_side' || chooseOrderType !== 'all' || chooseOrderStatus !== 'all')) && (
             <FlexRow className={'md:hidden lg:hidden px-3 pb-1 inline-flex w-full justify-between'}>
               <div className="p-2" style={{ flex: '0 0 100px' }}>
@@ -303,24 +397,120 @@ function TableWithTabs({
               </div>
             </FlexRow>
           )}
-          <Table
-            data={data || []}
-            loading={loading}
-            tableKey={table.tabs[tab].id}
-            columns={table.tabs[tab].columns}
-            tableRowType={table.tabs[tab].tableRowType}
-            tableRowEmpty={table.tabs[tab].tableRowEmpty}
-            tableTopComponent={table.tabs[tab].tableTopComponent}
-            mobileRender={table.tabs[tab].mobileRender}
-            mobileRenderCustom={table.tabs[tab].mobileRenderCustom}
-            total={total}
-            page={page}
-            setPage={setPage}
-            maintenance={maintenance}
-            pagination={!table.tabs[tab].pagination ? table.tabs[tab].pagination : true}
-            orderType={orderType}
-            handleOpenClosing={handleOpenClosing}
-          />
+          <div className="relative md:py-5 lg:py-5" style={{ minHeight: '350px' }}>
+            {validator && !maintenance && !validAccountSig && (
+              <div
+                className="absolute flex flex-col justify-center items-center h-full w-full top-0 left-0 "
+                style={{
+                  background: 'rgba(0, 19, 32, 0.8)',
+                  backdropFilter: 'blur(5px)',
+                  zIndex: 50,
+                }}
+              >
+                <div className="hidden md:block lg:block">
+                  <RefToOrderly />
+                </div>
+      
+                {!accountId && (
+                  <div className="w-half md:w-full lg:w-full flex justify-center flex-col items-center">
+                    <div className="md:hidden lg:hidden text-center mb-6">
+                      <p>Welcome!</p>
+                      <p>Connect your wallet to start</p>
+                    </div>
+      
+                    <ConnectWallet
+                      onClick={() => {
+                        modal.show();
+                      }}
+                    />
+                  </div>
+                )}
+      
+                {accountId && !validContract() && (
+                  <div className="relative bottom-1 break-words inline-flex flex-col items-center">
+                    <div className="text-base w-p200 pb-6 text-center text-white">
+                      Using Orderbook request re-connect wallet
+                    </div>
+                    <ConfirmButton
+                      onClick={async () => {
+                        // window.modal.show();
+                        const wallet = await window.selector.wallet();
+      
+                        await wallet.signOut();
+      
+                        window.location.reload();
+                      }}
+                    />
+                  </div>
+                )}
+      
+                {!!accountId &&
+                  validContract() &&
+                  (!storageEnough || !tradingKeySet || !keyAnnounced) && (
+                    <div className="w-half md:w-full lg:w-full flex justify-center flex-col items-center">
+                      <div className="md:hidden lg:hidden text-center mb-6">
+                        <p>Welcome!</p>
+                        <p>Connect your orderly account to start</p>
+                      </div>
+                      <RegisterButton
+                        userExist={userExist}
+                        onClick={() => {
+                          if (!agreeCheck) {
+                            setRegisterModalOpen(true);
+      
+                            return;
+                          }
+                          if (!accountId || storageEnough) return;
+      
+                          if (!userExist) {
+                            localStorage.setItem(REF_ORDERLY_AGREE_CHECK, 'true');
+                          }
+      
+                          storageDeposit(accountId);
+                        }}
+                        setCheck={setAgreeCheck}
+                        check={agreeCheck}
+                        storageEnough={!!storageEnough}
+                        spin={
+                          (storageEnough && (!tradingKeySet || !keyAnnounced)) ||
+                          agreeCheck
+                        }
+                        onPortfolio
+                      />
+                    </div>
+                  )}
+              </div>
+            )}
+            <Table
+              data={data || []}
+              loading={loading}
+              tableKey={table.tabs[tab].id}
+              columns={table.tabs[tab].columns}
+              tableRowType={table.tabs[tab].tableRowType}
+              tableRowEmpty={table.tabs[tab].tableRowEmpty}
+              tableTopComponent={table.tabs[tab].tableTopComponent}
+              mobileRender={table.tabs[tab].mobileRender}
+              mobileRenderCustom={table.tabs[tab].mobileRenderCustom}
+              total={total}
+              page={page}
+              setPage={setPage}
+              pagination={!table.tabs[tab].pagination ? table.tabs[tab].pagination : true}
+              orderType={orderType}
+              handleOpenClosing={handleOpenClosing}
+            />
+
+            <RegisterModal
+              isOpen={registerModalOpen}
+              onRequestClose={() => {
+                setRegisterModalOpen(false);
+              }}
+              userExist={userExist}
+              orderlyRegistered={userExist}
+              onConfirm={() => {
+                setAgreeCheck(true);
+              }}
+            />
+          </div>
         </div>
       </div>
     </>

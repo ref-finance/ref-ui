@@ -54,8 +54,8 @@ export const FutureTableFormCells: React.FC<{
   closingQuantity: number;
   mark_price: number;
   setClosingQuantity: (input: number) => void;
-  closingPrice: number | 'Market';
-  setClosingPrice: (input: number | 'Market') => void;
+  closingPrice: string | 'Market';
+  setClosingPrice: (input: string | 'Market') => void;
   open: boolean;
   setOpen: (input: boolean) => void;
   showFloatingBox: boolean;
@@ -86,11 +86,6 @@ export const FutureTableFormCells: React.FC<{
 
   useEffect(() => {
     getPendingOrders();
-  }, [])
-
-
-  useEffect(() => {
-    getPendingOrders();
   }, [triggerPositionBasedData])
 
   const getPendingOrders = async () => {
@@ -99,6 +94,7 @@ export const FutureTableFormCells: React.FC<{
       OrderProps: {
         page: 1,
         size: 500,
+        side: position_qty > -1 ? 'SELL' : 'BUY',
         status: 'INCOMPLETE',
         symbol: row.symbol
       } 
@@ -147,12 +143,13 @@ export const FutureTableFormCells: React.FC<{
                 className="w-full"
                 placeholder={mark_price.toString()}
                 onChange={({ target }) => {
-                  let value: number = parseFloat(target.value);
+                  let value: string = target.value;
+                  if (value && value !== 'Market' && ! /^(?:0|[1-9]\d*)(?:\.\d*)?$/.test(value)) return
                   setClosingPrice(value);
                 }}
                 value={closingPrice}
                 onClick={() => {
-                  if (closingPrice === 'Market') setClosingPrice(mark_price)
+                  if (closingPrice === 'Market') setClosingPrice(mark_price.toString())
                 }}
               />
               {closingPrice !== 'Market' && (
@@ -166,7 +163,7 @@ export const FutureTableFormCells: React.FC<{
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                 >
-                  <path d="M5.38406 5.53907C5.18417 5.77894 4.81574 5.77894 4.61584 5.53907L0.683364 0.820091C0.411977 0.494427 0.643556 -9.9678e-07 1.06747 -9.5972e-07L8.93243 -2.72144e-07C9.35635 -2.35083e-07 9.58793 0.494429 9.31654 0.820092L5.38406 5.53907Z" fill="white"/>
+                  <path d="M5.38406 5.53907C5.18417 5.77894 4.81574 5.77894 4.61584 5.53907L0.683364 0.820091C0.411977 0.494427 0.643556 -9.9678e-07 1.06747 -9.5972e-07L8.93243 -2.72144e-07C9.35635 -2.35083e-07 9.58793 0.494429 9.31654 0.820092L5.38406 5.53907Z" fill={closingPrice ? 'white' : '#7E8A93'}/>
                 </svg>
               )}
             </div>
@@ -192,11 +189,21 @@ export const FutureTableFormCells: React.FC<{
           <div
             className="w-full relative"
             onMouseEnter={() => setShowFloatingBox(true)}
-            // onMouseLeave={() => setShowFloatingBox(false)}
+            onMouseLeave={() => setShowFloatingBox(false)}
           >
             <div
               className={`border w-full text-center border-orderTypeBg ${orders.length > 0 ? 'px-1.5' : 'px-3'} py-1.5 rounded-md text-xs text-primaryText cursor-pointer`}
-              onClick={() => handleOpenClosing(closingQuantity, closingPrice, row)}
+              onClick={() => {
+                handleOpenClosing(
+                  closingQuantity, 
+                  closingPrice === ''
+                    ? mark_price : 
+                    closingPrice === 'Market'
+                    ? closingPrice 
+                    : parseFloat(closingPrice),
+                  row
+                )
+              }}
             >
               {intl.formatMessage({
                 id: 'close',

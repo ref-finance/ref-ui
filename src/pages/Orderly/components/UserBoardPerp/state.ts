@@ -17,7 +17,8 @@ import {
   getUnsettle,
   getPortfolioUnsettle,
   getNotional,
-  getAvailable
+  getAvailable,
+  getTotalEst
 } from './math';
 import { parseSymbol } from '../RecentTrade';
 import { useLeverage, useTokenInfo } from '~pages/Orderly/orderly/state';
@@ -323,9 +324,17 @@ export function usePerpData(deps?: {
     }
   }, [newPositions, markPrices]);
 
+  const totalEst = useMemo(() => {
+    try {
+      return getTotalEst(newPositions, markPrices, displayBalances);
+    } catch (error) {
+      return null;
+    }
+  }, [newPositions, markPrices, displayBalances]);
+
   const totalAvailable = useMemo(() => {
     try {
-      return getAvailable(newPositions, markPrices, displayBalances);
+      return getAvailable(newPositions, markPrices, displayBalances, curLeverage);
     } catch (error) {
       return null;
     }
@@ -379,7 +388,7 @@ export function usePerpData(deps?: {
   );
 
   const lastPrices = useMemo(() => {
-    return everyTickers?.map(({ symbol, low }) => ({ symbol, low }));
+    return everyTickers?.map(({ symbol, close }) => ({ symbol, close }));
   }, [everyTickers]);
 
   return {
@@ -403,6 +412,7 @@ export function usePerpData(deps?: {
     setCurLeverage,
     setCurLeverageRaw,
     userInfo,
-    totalAvailable
+    totalAvailable,
+    totalEst
   };
 }
