@@ -175,9 +175,10 @@ export function useTokensBalances(
 }
 
 export function usePerpData(deps?: {
-  displayBalances?: OrderAsset[]
+  displayBalances?: OrderAsset[],
+  markMode?: boolean
 }) {
-  const { displayBalances } = deps || {};
+  const { displayBalances, markMode } = deps || {};
   const {
     symbol,
     orders,
@@ -302,11 +303,11 @@ export function usePerpData(deps?: {
 
   const totalPortfoliouPnl = useMemo(() => {
     try {
-      return getPortfolioTotaluPnl(newPositions, markPrices);
+      return getPortfolioTotaluPnl(newPositions, markPrices, everyTickers, markMode);
     } catch (error) {
       return null;
     }
-  }, [newPositions, markPrices]);
+  }, [newPositions, markPrices, everyTickers, markMode]);
 
   const totalDailyReal = useMemo(() => {
     try {

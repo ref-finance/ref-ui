@@ -618,7 +618,7 @@ export const usePortableOrderlyTable = ({
         rightComp: (usable: boolean) => <SettlePnlBtn usable={usable} />,
         pagination: false,
         getData: () => getPortfolioPosition({ accountId }),
-        tableTopComponent: <FutureTopComponent />,
+        tableTopComponent: <FutureTopComponent mark={unrealMode === 'mark_price'} />,
         mobileRenderCustom: true,
         tableRowType: 'small',
         mobileRender: (rows) => (

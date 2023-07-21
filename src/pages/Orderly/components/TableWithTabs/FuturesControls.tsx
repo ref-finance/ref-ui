@@ -1008,14 +1008,14 @@ export const FutureMobileView: React.FC<{
   )
 }
 
-export const FutureTopComponent = () => {
+export const FutureTopComponent = ({ mark }: { mark: boolean }) => {
   const intl = useIntl();
   const {
     portfolioUnsettle,
     totalPortfoliouPnl,
     totalDailyReal,
     totalNotional
-  } = usePerpData();
+  } = usePerpData({ markMode: mark });
 
   return (
     <div className="w-full px-5 mb-4">

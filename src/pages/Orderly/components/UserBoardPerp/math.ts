@@ -41,7 +41,9 @@ const getTotaluPnl = (positions: PositionsType, markprices: MarkPrice[]) => {
 
 const getPortfolioTotaluPnl = (
   positions: PositionsType,
-  markprices: MarkPrice[]
+  markprices: MarkPrice[],
+  everyTickers: Ticker[],
+  markMode: boolean
 ) => {
   if (!positions) return '0';
 
@@ -49,14 +51,13 @@ const getPortfolioTotaluPnl = (
     (acc, cur, index) => {
       const markPrice =
         markprices?.find((item) => item.symbol === cur.symbol)?.price || 0;
-        
-        /*
-          long: (mark price(or last price) - avg open price) *(qty
-          short: (avg open price - mark price(or last price)) * qty
-         */
+
+      const lastPrice =  everyTickers.find((i) => i.symbol === cur.symbol)?.close || 0;
+
+      const price = markMode ? markPrice : lastPrice;
       
 
-      const value = cur.position_qty >= 0 ? ((markPrice - cur.average_open_price) * cur.position_qty) : ((cur.average_open_price - markPrice) * cur.position_qty) * -1;
+      const value = cur.position_qty >= 0 ? ((price - cur.average_open_price) * cur.position_qty) : ((cur.average_open_price - price) * cur.position_qty) * -1;
 
       return new Big(value).plus(acc);
     },
