@@ -720,16 +720,19 @@ const FutureMobileRow: React.FC<{
   row: { symbol: string, position_qty:number, average_open_price: number, unsettled_pnl: number },
   marketList: { text: JSX.Element; withSymbol: JSX.Element; textId: string; }[],
   handleOpenClosing: (closingQuantity: number, closingPrice: number | 'Market', row: any) => void;
+  unrealMode: string,
+  setUnrealMode: (mode: "mark_price" | "last_price") => void
 }> = ({
   row,
   marketList,
-  handleOpenClosing
+  handleOpenClosing,
+  unrealMode,
+  setUnrealMode
 }) => {
   const intl = useIntl();
   const { accountId } = useWalletSelector();
-  const { markPrices, triggerPositionBasedData } = usePerpData();
+  const { markPrices, triggerPositionBasedData, lastPrices } = usePerpData();
   const { symbol, position_qty, average_open_price, unsettled_pnl } = row;
-  const [select, setSelect] = useState<any>('mark_price');
   const [showPnlSelector, setShowPnlSelector] = useState<boolean>(false);
   const [futureQuantityOpen, setFutureQuantityOpen] = useState<boolean>(false);
   const [futurePriceOpen, setFuturePriceOpen] = useState<boolean>(false);
@@ -739,6 +742,14 @@ const FutureMobileRow: React.FC<{
   const [price, setPrice] = useState<number | 'Market'>('Market');
   const [orders, setOrders] = useState<any>([]);
   const [pendingOpen, setPendingOpen] = useState<boolean>(false);
+  const [unrealPnl, setUnrealPnl] = useState<number>(0);
+
+  useEffect(() => {
+    const price = unrealMode === 'mark_price' ? markPrices.find((i) => i.symbol === symbol)?.price : lastPrices.find((i) => i.symbol === symbol)?.close;
+    const value = position_qty >= 0 ? ((price - average_open_price) * position_qty) : ((average_open_price - price) * position_qty) * -1;
+
+    setUnrealPnl(value);
+  }, [unrealMode])
 
   useEffect(() => {
     setQuantity(Math.abs(position_qty));
@@ -833,7 +844,7 @@ const FutureMobileRow: React.FC<{
                   <div
                     className={`flex flex-col min-w-28 items-start py-2 px-1.5 rounded-lg border border-borderC text-sm  bg-darkBg `}
                   >
-                    {['mark_price', 'last_price'].map((item, index) => {
+                    {['mark_price', 'last_price'].map((item: "mark_price" | "last_price", index) => {
                       return (
                         <div
                           className={`whitespace-nowrap flex items-center justify-between cursor-pointer min-w-fit my-0.5 text-left px-1 py-1 w-full rounded-md`}
@@ -841,12 +852,12 @@ const FutureMobileRow: React.FC<{
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            setSelect(item);
+                            setUnrealMode(item);
                             setShowPnlSelector(false);
                           }}
                         >
                           <div className="mr-2 border border-baseGreen bg-symbolHover2 border-solid w-3 h-3 rounded-full">
-                            {select === item && <div className="w-2 h-2 bg-baseGreen rounded-full m-px" />}
+                            {unrealMode === item && <div className="w-2 h-2 bg-baseGreen rounded-full m-px" />}
                           </div>
                           <span className="whitespace-nowrap pr-2">{intl.formatMessage({ id: item })}</span>
                         </div>
@@ -856,7 +867,9 @@ const FutureMobileRow: React.FC<{
                 </div>
               )}
             </div>
-            <span className="text-white">{((mark_price - average_open_price) *  position_qty)?.toFixed(3) || '-' }</span>
+            <span className="text-white">
+              {unrealPnl?.toFixed(3) || '-'}
+            </span>
           </div>
           <div className="col-span-1 my-3">
             <div>
@@ -939,10 +952,14 @@ export const FutureMobileView: React.FC<{
   rows: { symbol: string, position_qty:number, average_open_price: number, mark_price: number, unsettled_pnl: number }[],
   marketList: { text: JSX.Element; withSymbol: JSX.Element; textId: string; }[],
   handleOpenClosing: (closingQuantity: number, closingPrice: number | 'Market', row: any) => void;
+  unrealMode: string,
+  setUnrealMode: (mode: "mark_price" | "last_price") => void
 }> = ({
   marketList,
   children,
-  handleOpenClosing
+  handleOpenClosing,
+  unrealMode,
+  setUnrealMode
 }) => {
   const intl = useIntl();
   const {
@@ -951,7 +968,7 @@ export const FutureMobileView: React.FC<{
     totalDailyReal,
     totalNotional,
     newPositions
-  } = usePerpData();
+  } = usePerpData({ markMode: unrealMode === 'mark_price' });
 
   const { rows } = newPositions || {};
 
@@ -1002,6 +1019,8 @@ export const FutureMobileView: React.FC<{
           row={row}
           marketList={marketList}
           handleOpenClosing={handleOpenClosing}
+          unrealMode={unrealMode}
+          setUnrealMode={setUnrealMode}
         />
       ))}
     </div>

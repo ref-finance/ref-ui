@@ -626,6 +626,8 @@ export const usePortableOrderlyTable = ({
             rows={rows}
             marketList={marketList}
             handleOpenClosing={handleOpenClosing}
+            unrealMode={unrealMode}
+            setUnrealMode={setUnrealMode}
           >
             <SettlePnlBtn usable={true} />
           </FutureMobileView>
