@@ -515,12 +515,12 @@ const getPortfolioUnsettle = (
 ) => {
   try {
     const float = getPositionFloat(positions, markPrices);
-  
-    const unsettle = positions.rows.reduce((acc, cur) => {
+
+    const unsettlePnl = positions.rows.reduce((acc, cur) => {
       return acc.plus(cur.unsettled_pnl);
     }, new Big(0));
 
-    return unsettle.plus(float);
+    return unsettlePnl.plus(float);
   } catch (error) {
     return '-';
   }

@@ -372,6 +372,7 @@ module.exports = {
         portfolioGreenColor: '#63C441',
         portfolioLightGreyColor: 'rgba(48, 68, 82, 0.5)',
         portfolioLightGreenColor: '#5FAB43',
+        portfolioHoverSelectColor: '#1C272F',
         navGreyColor: '#2B3741',
         selectBg: '#031928',
         mobileOrderListTab: '#182935',

@@ -7,7 +7,7 @@ import { useWalletSelector } from '~context/WalletSelectorContext';
 import { TextWrapper } from '../UserBoard';
 import { usePerpData } from '../UserBoardPerp/state';
 import { parseSymbol } from '../RecentTrade';
-import { orderEditPopUpFailure } from '../Common';
+import { orderEditPopUpFailure, orderEditPopUpSuccess } from '../Common';
 import { getPortfolioAllOrders, cancelOrder } from '../../orderly/off-chain-api';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import { formatDecimalToTwoOrMore } from '../../orderly/utils';
@@ -134,7 +134,7 @@ export const FutureTableFormCells: React.FC<{
             style={{
               borderRadius: '6px',
               border: '1px solid #1D2932',
-              backgroundColor: '#1C272F',
+              backgroundColor: open ? '#101E28' : 'rgba(0, 0, 0, 0.10)',
               top: '-15px'
             }}
           >
@@ -150,13 +150,14 @@ export const FutureTableFormCells: React.FC<{
                 value={closingPrice}
                 onClick={() => {
                   if (closingPrice === 'Market') setClosingPrice(mark_price.toString())
+                  else setOpen(open)
                 }}
               />
               {closingPrice !== 'Market' && (
                 <svg
                   className="absolute right-2.5 top-1/2 cursor-pointer"
                   style={{ transform: 'translateY(-50%)' }}
-                  onClick={() => setOpen(true)}
+                  onClick={() => setOpen(!open)}
                   width="10"
                   height="6"
                   viewBox="0 0 10 6"
@@ -169,7 +170,7 @@ export const FutureTableFormCells: React.FC<{
             </div>
             {open && (
               <div  
-                className="cursor-pointer px-2.5 py-1.5 w-full hover:bg-symbolHover2 hover:text-white"
+                className="cursor-pointer text-primaryText px-2.5 py-1.5 w-full hover:bg-portfolioHoverSelectColor"
                 onClick={() => {
                   setClosingPrice('Market');
                   setOpen(false);
@@ -227,7 +228,7 @@ export const FutureTableFormCells: React.FC<{
                   </span>
                 </div>
                 <div>
-                {orders.map(({ symbol, quantity, price, order_id }: any) => (
+                {orders.map(({ symbol, quantity, price, order_id, side }: any) => (
                   <div key={order_id} className="px-4 py-2 grid grid-cols-4 gap-2 rounded-lg hover:bg-symbolHover3" >
                     <div className="col-span-3 text-sm flex justify-between">
                       <span className="pr-3">
@@ -262,6 +263,14 @@ export const FutureTableFormCells: React.FC<{
         
                             if (res.success === true) {
                               handlePendingOrderRefreshing();
+
+                              return orderEditPopUpSuccess({
+                                side: side == 'BUY' ? 'Buy' : 'Sell',
+                                size: quantity,
+                                price,
+                                cancel: true,
+                                symbolName: symbol,
+                              });
                             }
                           } catch (err) {
                             return orderEditPopUpFailure({
@@ -743,13 +752,16 @@ const FutureMobileRow: React.FC<{
   const [orders, setOrders] = useState<any>([]);
   const [pendingOpen, setPendingOpen] = useState<boolean>(false);
   const [unrealPnl, setUnrealPnl] = useState<number>(0);
+  const [unrealPercentage, setUnrealPercentage] = useState<number>(0);
 
   useEffect(() => {
     const price = unrealMode === 'mark_price' ? markPrices.find((i) => i.symbol === symbol)?.price : lastPrices.find((i) => i.symbol === symbol)?.close;
     const value = position_qty >= 0 ? ((price - average_open_price) * position_qty) : ((average_open_price - price) * position_qty) * -1;
+    const percentage = position_qty >= 0 ? (price / average_open_price - 1) * 1000 : (average_open_price / price - 1) * 1000;
 
     setUnrealPnl(value);
-  }, [unrealMode])
+    setUnrealPercentage(percentage);
+  }, [unrealMode, markPrices, lastPrices])
 
   useEffect(() => {
     setQuantity(Math.abs(position_qty));
@@ -868,7 +880,7 @@ const FutureMobileRow: React.FC<{
               )}
             </div>
             <span className="text-white">
-              {unrealPnl?.toFixed(3) || '-'}
+              {unrealPnl?.toFixed(3) || '-'} ({unrealPercentage?.toFixed(1)}%)
             </span>
           </div>
           <div className="col-span-1 my-3">
@@ -1044,7 +1056,7 @@ export const FutureTopComponent = ({ mark }: { mark: boolean }) => {
             id: 'fut_unreal_pnl',
             defaultMessage: 'Fut. Unreal. PnL',
           })}
-          <span className={`pl-2 ${parseFloat(portfolioUnsettle) >= 0 ? 'text-buyGreen' : 'text-sellRed'}`}>{totalPortfoliouPnl}</span>
+          <span className={`pl-2 ${parseFloat(totalPortfoliouPnl) >= 0 ? 'text-buyGreen' : 'text-sellRed'}`}>{totalPortfoliouPnl}</span>
         </div>
         <div className="mr-5">
           {intl.formatMessage({

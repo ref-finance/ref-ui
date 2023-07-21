@@ -342,14 +342,22 @@ function TableWithTabs({
 
         <div className={`w-full rounded-2xl md:bg-cardBg lg:bg-cardBg py-5 md:py-0 lg:py-0`}>
           {(table.tabs[tab].filter && (chooseMarketSymbol !== 'all_markets' || chooseOrderSide !== 'all_side' || chooseOrderType !== 'all' || chooseOrderStatus !== 'all')) && (
-            <FlexRow className={'md:hidden lg:hidden px-3 pb-1 inline-flex w-full justify-between'}>
-              <div className="p-2" style={{ flex: '0 0 100px' }}>
-                {intl.formatMessage({
-                  id: 'filter',
-                  defaultMessage: 'Filter',
-                })}
+            <div className={'flex md:hidden lg:hidden px-3 pb-1 w-full items-start justify-between flex-wrap'}>
+              <div
+                className="ml-auto flex justify-start items-center flex-wrap"
+                style={{ flex: '0 0 15%', height: '44px' }}
+              >
+                <div className="p-2 flex items-center">
+                  {intl.formatMessage({
+                    id: 'filter',
+                    defaultMessage: 'Filter',
+                  })}:
+                </div>
               </div>
-              <div className="ml-auto flex items-center justify-between">
+              <div
+                className="ml-auto flex justify-end flex-wrap"
+                style={{ flex: '0 0 80%' }}
+              >
                 {chooseMarketSymbol !== 'all_markets' && (
                   <div className="flex items-center p-2">
                     {marketList.find((m) => m.textId === chooseMarketSymbol)?.textNoColor}
@@ -395,7 +403,7 @@ function TableWithTabs({
                   </div>
                 )}
               </div>
-            </FlexRow>
+            </div>
           )}
           <div className="relative md:py-5 lg:py-5" style={{ minHeight: '350px' }}>
             {validator && !maintenance && !validAccountSig && (
@@ -485,6 +493,7 @@ function TableWithTabs({
               data={data || []}
               loading={loading}
               tableKey={table.tabs[tab].id}
+              defaultSort={table.tabs[tab].defaultSort}
               columns={table.tabs[tab].columns}
               tableRowType={table.tabs[tab].tableRowType}
               tableRowEmpty={table.tabs[tab].tableRowEmpty}

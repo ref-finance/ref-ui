@@ -99,6 +99,7 @@ function Table({
   columns,
   loading,
   tableKey,
+  defaultSort,
   total,
   page,
   setPage,
@@ -114,6 +115,7 @@ function Table({
   data: MyOrder[];
   loading: boolean;
   tableKey: string;
+  defaultSort?: string;
   columns: PortfolioTableColumns[];
   total: number;
   page: number;
@@ -130,7 +132,7 @@ function Table({
   const { accountId } = useWalletSelector()
 
   const [sort, setSort] = useState<[string | string[], 'asc' | 'dsc']>([
-    '',
+    defaultSort ? defaultSort : '',
     loading ? undefined : 'dsc',
   ]);
 

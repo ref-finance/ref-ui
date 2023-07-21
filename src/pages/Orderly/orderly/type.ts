@@ -375,6 +375,7 @@ export interface PortfolioTable {
     id: string;
     default: string;
     rightComp?: (state: boolean) => JSX.Element;
+    defaultSort?: string;
     columns?: PortfolioTableColumns[];
     tableRowType?: string;
     tableRowEmpty?: string;

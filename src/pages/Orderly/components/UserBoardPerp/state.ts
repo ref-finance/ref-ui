@@ -325,21 +325,6 @@ export function usePerpData(deps?: {
     }
   }, [newPositions, markPrices]);
 
-  const totalEst = useMemo(() => {
-    try {
-      return getTotalEst(newPositions, markPrices, displayBalances);
-    } catch (error) {
-      return null;
-    }
-  }, [newPositions, markPrices, displayBalances]);
-
-  const totalAvailable = useMemo(() => {
-    try {
-      return getAvailable(newPositions, markPrices, displayBalances, curLeverage);
-    } catch (error) {
-      return null;
-    }
-  }, [newPositions, markPrices, displayBalances]);
 
   const marginRatio = useMemo(() => {
     {
@@ -391,6 +376,28 @@ export function usePerpData(deps?: {
   const lastPrices = useMemo(() => {
     return everyTickers?.map(({ symbol, close }) => ({ symbol, close }));
   }, [everyTickers]);
+
+  const perpOrders = useMemo(() => {
+    
+
+    return 
+  }, [newPositions])
+
+  const totalEst = useMemo(() => {
+    try {
+      return getTotalEst(newPositions, markPrices, displayBalances);
+    } catch (error) {
+      return null;
+    }
+  }, [newPositions, markPrices, displayBalances]);
+
+  const totalAvailable = useMemo(() => {
+    try {
+      return getAvailable(newPositions, markPrices, displayBalances, curLeverage);
+    } catch (error) {
+      return null;
+    }
+  }, [newPositions, markPrices, displayBalances]);
 
   return {
     totalCollateral,

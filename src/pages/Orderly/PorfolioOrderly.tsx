@@ -115,7 +115,6 @@ function PortfolioOrderly() {
   const [closeOrderRow, setCloseOrderRow] = useState<any>({});
 
   const handleOpenClosing = (closingQuantity: number, closingPrice: number | 'Market', row: any) => {
-    console.log(closingPrice)
     setCloseOrderOpen(true);
     setCloseOrderRow(row);
     setCloseOrderPrice(closingPrice);

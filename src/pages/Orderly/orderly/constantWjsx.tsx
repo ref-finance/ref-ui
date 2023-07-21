@@ -20,6 +20,7 @@ import {
   DepositButtonMobile,
   WithdrawButtonMobile
 } from '../components/Common';
+import { ONLY_ZEROS } from '../../../utils/numbers';
 import { getCurrentWallet } from '../../../utils/wallets-integration';
 import { useWalletSelector } from '../../../context/WalletSelectorContext';
 import { NearTip } from '../../../pages/AccountPage';
@@ -78,7 +79,8 @@ export const usePortableOrderlyTable = ({
   const intl = useIntl();
   const {
     markPrices,
-    lastPrices
+    lastPrices,
+    portfolioUnsettle
   } = usePerpData();
   const { accountId } = useWalletSelector();
   const { renderLogo } =  useDEXLogoRender();
@@ -141,7 +143,7 @@ export const usePortableOrderlyTable = ({
 
   const SettlePnlBtn = ({ usable } : { usable: boolean }) => (
     <button
-      disabled={!usable}
+      disabled={!usable || ONLY_ZEROS.test(portfolioUnsettle)}
       className="text-white py-1 px-2 relative bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
       onClick={() => setSettlePnlModalOpen(true)}
     >
@@ -267,6 +269,7 @@ export const usePortableOrderlyTable = ({
             } 
           })
         },
+        defaultSort: 'created_time',
         columns: [
           {
             key: 'instrument',
@@ -427,6 +430,7 @@ export const usePortableOrderlyTable = ({
             } 
           })
         },
+        defaultSort: 'created_time',
         columns: [
           {
             key: 'instrument',
@@ -464,7 +468,7 @@ export const usePortableOrderlyTable = ({
               </div>
             )
           },
-          { key: '@price', header: '@Price', render: ({ price, symbol }) => price?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 4) || '-'  },
+          { key: '@price', header: '@Price', render: ({ price, average_executed_price, symbol }) => (price || average_executed_price)?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 4) || '-'  },
           { key: 'avg_price', header: 'Avg.Price', render: ({ average_executed_price, symbol }) => average_executed_price?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 4) || '-' },
           { key: 'est_total', header: 'Est.Total', render: ({ price, average_executed_price, quantity, symbol }) => Math.floor(((price || average_executed_price) * quantity))?.toFixed(0)},
           { key: 'status', header: 'Status', render: ({ status }) =>  <span className='capitalize'>{status.toLocaleLowerCase()}</span> },
@@ -503,7 +507,7 @@ export const usePortableOrderlyTable = ({
                       {intl.formatMessage({
                         id: key,
                         defaultMessage: key,
-                    })}
+                      })}
                     </th>
                   ))}
                 </tr>
@@ -556,6 +560,7 @@ export const usePortableOrderlyTable = ({
             </div>
           </>
         ),
+        defaultSort: 'created_time',
         columns: [
           {
             key: 'token',
@@ -660,7 +665,7 @@ export const usePortableOrderlyTable = ({
             extras: ['sort'],
             sortKey: 'mark_price',
             render: ({ symbol }) => (
-              <div className={`pr-2 ${markPrices.find((i) => i.symbol === symbol)?.price >= 0 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
+              <div className={`pr-2 text-white`}>
                 {markPrices.find((i) => i.symbol === symbol)?.price.toFixed(3) || '-' }
               </div>
             )
@@ -697,11 +702,13 @@ export const usePortableOrderlyTable = ({
             ],
             render: ({ symbol, average_open_price, position_qty }) => {
               const price = unrealMode === 'mark_price' ? markPrices.find((i) => i.symbol === symbol)?.price : lastPrices.find((i) => i.symbol === symbol)?.close;
-              const value = position_qty >= 0 ? ((price - average_open_price) * position_qty) : ((average_open_price - price) * position_qty) * -1;
+              const unreal = position_qty >= 0 ? ((price - average_open_price) * position_qty) : ((average_open_price - price) * position_qty) * -1;
+              const percentage = position_qty >= 0 ? (price / average_open_price - 1) * 1000 : (average_open_price / price - 1) * 1000
 
               return (
-                <div className={`pr-2 ${value >= 0  ? 'text-buyGreen' : 'text-sellColorNew'}`}>
-                  {value?.toFixed(2) || '-' }
+                <div className={`pr-2 ${unreal >= 0  ? 'text-buyGreen' : 'text-sellColorNew'}`}>
+                  {unreal?.toFixed(2) || '-' } <br />
+                  ({percentage?.toFixed(1)}%)
                 </div>
               )
             }
@@ -713,7 +720,7 @@ export const usePortableOrderlyTable = ({
             sortKey: 'pnl_24_h',
             colSpan: 2,
             render: ({ pnl_24_h }) => (
-              <div className={`pr-2 ${pnl_24_h >= 0 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
+              <div className={`pr-2 text-white`}>
                 {pnl_24_h?.toFixed(3) || '-' || '-' }
               </div>
             )
@@ -768,7 +775,11 @@ export const usePortableOrderlyTable = ({
             </div>
             <div className="w-1/2 inline-block">
               <div className={`p-0.5 my-0.5`}>
-                from <span className="text-white">{getAccountName(wallet.getAccountId())}</span>
+                {intl.formatMessage({
+                  id: 'source_address',
+                  defaultMessage: 'Source Address',
+                })}&nbsp;
+                <span className="text-white">{getAccountName(wallet.getAccountId())}</span>
               </div>
               <div className={`p-0.5 text-sm my-0.5`}>
                 <span>{formatTimeDate(created_time)}</span>
@@ -776,7 +787,10 @@ export const usePortableOrderlyTable = ({
             </div>
             <div className="w-1/2 inline-block text-right">
               <div className={`p-0.5 my-0.5`}>
-                to&nbsp;
+                {intl.formatMessage({
+                  id: 'txid',
+                  defaultMessage: 'TxID',
+                })}&nbsp;
                 <span className="text-txBlue">
                   <a
                     href={`${getConfig().nearExplorerUrl}/transactions/${tx_id}`}
@@ -868,7 +882,11 @@ export const usePortableOrderlyTable = ({
             </div>
             <div className="w-1/2 inline-block">
               <div className={`p-0.5 my-0.5`}>
-                from <span className="text-white">{getAccountName(wallet.getAccountId())}</span>
+                {intl.formatMessage({
+                  id: 'source_address',
+                  defaultMessage: 'Source Address',
+                })}&nbsp;
+                <span className="text-white">{getAccountName(wallet.getAccountId())}</span>
               </div>
               <div className={`p-0.5 text-sm my-0.5`}>
                 <span>{formatTimeDate(created_time)}</span>
@@ -876,7 +894,10 @@ export const usePortableOrderlyTable = ({
             </div>
             <div className="w-1/2 inline-block text-right">
               <div className={`p-0.5 my-0.5`}>
-                to&nbsp;
+                {intl.formatMessage({
+                  id: 'txid',
+                  defaultMessage: 'TxID',
+                })}&nbsp;
                 <span className="text-txBlue">
                   <a
                     href={`${getConfig().nearExplorerUrl}/transactions/${tx_id}`}
@@ -1096,13 +1117,11 @@ export const usePortableOrderlyTable = ({
             header: 'Funding Rate / Annual Rate',
             colSpan: 3,
             render: ({ funding_rate }) => {
-              const annualBase = ((funding_rate * 3 * 365 * 100 * 100) / 100).toFixed(4);
-              const last = parseInt(annualBase.substr(annualBase.length - 2, 1));
-              const negative = (funding_rate < 0);
-              const annual = /* ((last < 5 && negative) || (last > 4 && !negative)) ?  */(Math.floor(funding_rate * 3 * 365 * 100 * 100000) / 100000).toString()/*  : (Math.ceil(funding_rate * 3 * 365 * 100 * 100) / 100)?.toFixed(2) */;
-              const annualParse = annual.substring(0, annual.length - 3);
+              const annual =( funding_rate * 3 * 365 * 100 * 100) / 100;
+              const annualParse = annual.toPrecision(annual.toString().split('.')[0].length + 3)
+              const annualTrue = annualParse.substring(0, annualParse.length - (annualParse.charAt(0) === '-' ? 2 : 1))
 
-              return `${(funding_rate * 100).toFixed(6)}%/${annualParse}%`
+              return `${(funding_rate * 100).toFixed(6)}%/${annualTrue}%`
             }
           },
           { key: 'status', header: 'Status', render: ({ status }) => status },
