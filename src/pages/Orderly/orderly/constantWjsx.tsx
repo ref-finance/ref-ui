@@ -560,7 +560,7 @@ export const usePortableOrderlyTable = ({
             </div>
           </>
         ),
-        defaultSort: 'created_time',
+        defaultSort: 'available',
         columns: [
           {
             key: 'token',
