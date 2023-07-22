@@ -10,7 +10,7 @@ const ProgressBar = ({ value, total, color }: { value: number, total: number, co
   }
 
   return (
-    <div className="progress-bar bg-gray-300 h-1 w-16 rounded-lg">
+    <div className="mt-1.5 progress-bar bg-gray-300 h-1 w-16 rounded-lg">
       <div
         className="progress-bar__fill h-full rounded-lg"
         style={{ width: `${progress}%`, backgroundColor: color }}

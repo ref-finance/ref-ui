@@ -88,6 +88,13 @@ export const FutureTableFormCells: React.FC<{
     getPendingOrders();
   }, [triggerPositionBasedData])
 
+  useEffect(() => {
+    if (open)
+      document.addEventListener('click', () => {
+        setOpen(false);
+      });
+  }, [open]);
+
   const getPendingOrders = async () => {
     const { data } = await getPortfolioAllOrders({
       accountId,
@@ -119,7 +126,7 @@ export const FutureTableFormCells: React.FC<{
             placeholder="0.0"
             onChange={({ target }) => {
               let value: number = parseFloat(target.value);
-              if (value > Math.abs(position_qty)) value = position_qty;
+              if (value > Math.abs(position_qty)) value = Math.abs(position_qty);
               if (value < 0 || !value) value = 0;
               setClosingQuantity(value)
             }}
@@ -130,9 +137,8 @@ export const FutureTableFormCells: React.FC<{
       <td className={`col-span-3 flex items-center py-5 relative break-words`}>
         <div className={`flex items-center text-white relative  w-full`}>
           <div
-            className="absolute w-full z-10"
+            className="absolute w-full z-10 rounded-md"
             style={{
-              borderRadius: '6px',
               border: '1px solid #1D2932',
               backgroundColor: open ? '#101E28' : 'rgba(0, 0, 0, 0.10)',
               top: '-15px'
@@ -148,16 +154,22 @@ export const FutureTableFormCells: React.FC<{
                   setClosingPrice(value);
                 }}
                 value={closingPrice}
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   if (closingPrice === 'Market') setClosingPrice(mark_price.toString())
-                  else setOpen(open)
+                  else setOpen(true)
                 }}
               />
               {closingPrice !== 'Market' && (
                 <svg
                   className="absolute right-2.5 top-1/2 cursor-pointer"
                   style={{ transform: 'translateY(-50%)' }}
-                  onClick={() => setOpen(!open)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setOpen(!open)
+                  }}
                   width="10"
                   height="6"
                   viewBox="0 0 10 6"
@@ -170,7 +182,7 @@ export const FutureTableFormCells: React.FC<{
             </div>
             {open && (
               <div  
-                className="cursor-pointer text-primaryText px-2.5 py-1.5 w-full hover:bg-portfolioHoverSelectColor"
+                className="cursor-pointer text-primaryText px-2.5 py-1.5 w-full rounded-md hover:bg-dclSelectTokenHover hover:text-white"
                 onClick={() => {
                   setClosingPrice('Market');
                   setOpen(false);
