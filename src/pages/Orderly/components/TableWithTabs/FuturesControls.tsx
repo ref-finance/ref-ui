@@ -116,10 +116,9 @@ export const FutureTableFormCells: React.FC<{
         <div className={`flex items-center text-white`}>
           <input
             id={`${row.symbol}-input`}
-            className={`px-4 py-1.5 text-xs ${position_qty > -1 ? 'text-buyGreen' : 'text-sellColorNew'}`}
+            className={`border border-orderTypeBg px-4 py-1.5 text-xs ${position_qty > -1 ? 'text-buyGreen' : 'text-sellColorNew'}`}
             style={{
               borderRadius: '6px',
-              border: '1px solid #1D2932',
               backgroundColor: 'rgba(0, 0, 0, 0.10)'
             }}
             type="number"
@@ -137,9 +136,9 @@ export const FutureTableFormCells: React.FC<{
       <td className={`col-span-3 flex items-center py-5 relative break-words`}>
         <div className={`flex items-center text-white relative  w-full`}>
           <div
-            className="absolute w-full z-10 rounded-md"
+            className="absolute w-full z-10 border border-orderTypeBg"
             style={{
-              border: '1px solid #1D2932',
+              borderRadius: '6px',
               backgroundColor: open ? '#101E28' : 'rgba(0, 0, 0, 0.10)',
               top: '-15px'
             }}
@@ -226,12 +225,11 @@ export const FutureTableFormCells: React.FC<{
             </div>
             {(showFloatingBox && orders.length > 0) && (
               <div
-                className="absolute bg-cardBg rounded-xl py-3 px-1.5 z-20"
+                className="absolute bg-boxBorder border border-orderTypeBg rounded-xl py-3 px-1.5 z-20"
                 style={{
                   bottom: '100%',
                   right: 0,
-                  width: '300px',
-                  background: 'linear-gradient(180deg, #1D2932 100%, #2F3A39 100%)'
+                  width: '300px'
                 }}
               >
                 <div className="px-4 flex items-center pb-2 border-b border-gray1">

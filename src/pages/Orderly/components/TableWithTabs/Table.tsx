@@ -38,11 +38,10 @@ function OrderLine({
       <tr
         className={`table-fixed grid ${
           tableRowType === 'card'
-            ? ' m-2 px-3 gap-4 rounded-xl'
+            ? ' m-2 px-3 gap-4 rounded-xl bg-portfolioOrderCardColor hover:bg-portfolioBgColor'
             : ' gap-4 px-5 hover:bg-portfolioBgColor lg:border-t border-white border-opacity-10'
         } ${tableRowType === 'small' ? 'text-xs' : ''}`}
         style={{
-          backgroundColor: tableRowType === 'card' ? '#7E8A931A' : '',
           gridTemplateColumns: `repeat(${gridCol}, minmax(0, 1fr))`
         }}
       >
