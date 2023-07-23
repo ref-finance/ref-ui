@@ -15,7 +15,7 @@ import {
 import { useTokenMetaFromSymbol } from '../ChartHeader/state';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import { parseFullSymbol } from '../../datafeed/helpers';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast, ToastContainer, cssTransition } from 'react-toastify';
 import { TokenMetadata } from '../../orderly/type';
 import { parseSymbol } from '../RecentTrade';
 import 'react-toastify/dist/ReactToastify.css';
@@ -981,6 +981,42 @@ export function orderEditPopUpFailure({ tip }: { tip: string }) {
       hideProgressBar: true,
       position: mobileDevice ? 'top-center' : 'bottom-right',
       progress: undefined,
+      autoClose: 3000,
+      // autoClose: false,
+
+      closeButton: false,
+      style: {
+        boxShadow: '0px -5px 10px rgba(0, 0, 0, 0.25)',
+        borderRadius: '4px',
+        zIndex: 9999,
+        right: mobileDevice ? '0px' : '-40px',
+        overflow: 'hidden',
+        width: mobileDevice ? '100%' : '90%',
+        background: 'rgba(30, 41, 49, 1)',
+        bottom:
+          !mobileDevice &&
+          !!document.getElementsByClassName('orderly-order-toast')?.[0]
+            ? '-70px'
+            : '0px',
+      },
+    }
+  );
+}
+
+export function portfolioFailure({ tip }: { tip: string }) {
+  const mobileDevice = isMobile();
+  toast.dismiss();
+
+  return toast(
+    <div className={`flex-col flex px-2  text-sm   w-full`}>
+      <span className="text-textRed">{tip}</span>
+
+      <div className="absolute w-1 bg-textRed bottom-0 h-full left-0"></div>
+    </div>,
+    {
+      closeOnClick: true,
+      hideProgressBar: true,
+      position: mobileDevice ? 'top-center' : 'bottom-right',
       autoClose: 3000,
       // autoClose: false,
 

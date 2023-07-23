@@ -703,7 +703,7 @@ export const usePortableOrderlyTable = ({
             render: ({ symbol, average_open_price, position_qty }) => {
               const price = unrealMode === 'mark_price' ? markPrices.find((i) => i.symbol === symbol)?.price : lastPrices.find((i) => i.symbol === symbol)?.close;
               const unreal = position_qty >= 0 ? ((price - average_open_price) * position_qty) : ((average_open_price - price) * position_qty) * -1;
-              const percentage = position_qty >= 0 ? (price / average_open_price - 1) * 1000 : (average_open_price / price - 1) * 1000
+              const percentage = position_qty >= 0 ? ((price / average_open_price) - 1) * 1000 : ((average_open_price / price) - 1) * 1000
 
               return (
                 <div className={`pr-2 ${unreal >= 0  ? 'text-buyGreen' : 'text-sellColorNew'}`}>
@@ -1092,8 +1092,8 @@ export const usePortableOrderlyTable = ({
             </div>
             <div className="w-8/12 inline-block text-right">
               <div className={`p-0.5 text-sm my-0.5 text-white`}>
-                <span className={funding_fee >= 0 ? 'text-buyGreen' : 'text-sellColorNew'}>
-                  {funding_fee >= 0 ? '+' : ''}{(funding_fee * -1)?.toFixed(4)}
+                <span className={funding_fee < 0 ? 'text-buyGreen' : 'text-sellColorNew'}>
+                  {funding_fee < 0 ? '+' : ''}{(funding_fee * -1).toFixed(4)}
                 </span>
                 &nbsp;USDC
               </div>

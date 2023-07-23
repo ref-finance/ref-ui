@@ -1,16 +1,398 @@
 import React , { useEffect, useState, useRef } from 'react';
+import Big from 'big.js';
 import { MdArrowDropDown } from 'react-icons/md';
 import { IoClose } from 'react-icons/io5';
-import { useIntl } from 'react-intl';
+import { useIntl, IntlShape } from 'react-intl';
 import Modal from 'react-modal';
 import { useWalletSelector } from '~context/WalletSelectorContext';
 import { TextWrapper } from '../UserBoard';
 import { usePerpData } from '../UserBoardPerp/state';
+import { tickToPrecision } from '../UserBoardPerp/math';
 import { parseSymbol } from '../RecentTrade';
-import { orderEditPopUpFailure, orderEditPopUpSuccess } from '../Common';
+import { orderEditPopUpFailure, orderEditPopUpSuccess, portfolioFailure } from '../Common';
 import { getPortfolioAllOrders, cancelOrder } from '../../orderly/off-chain-api';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import { formatDecimalToTwoOrMore } from '../../orderly/utils';
+import { MarkPrice, SymbolInfo } from '../../orderly/type';
+import { ONLY_ZEROS } from '../../../../utils/numbers';
+
+const priceValidator = (
+  price: string,
+  size: string,
+  symbolInfo: any,
+  intl: IntlShape,
+  side: string,
+  orderType: string,
+  markPrice: MarkPrice,
+  setTips?: (input: string) => void
+) => {
+  if (!symbolInfo) {
+    return;
+  }
+  
+
+  if (
+    new Big(new Big(price || 0).minus(new Big(symbolInfo.quote_min)))
+      .mod(symbolInfo.quote_tick)
+      .gt(0)
+  ) {
+    if (setTips) {
+      setTips(`${intl.formatMessage({
+        id: 'price_should_be_a_multiple_of',
+        defaultMessage: 'Price should be a multiple of',
+      })} ${symbolInfo.quote_tick}${intl.formatMessage({
+        id: 'price_should_be_a_multiple_of_zh',
+        defaultMessage: ' ',
+      })}`)
+    } else {
+      portfolioFailure({
+        tip: `${intl.formatMessage({
+          id: 'price_should_be_a_multiple_of',
+          defaultMessage: 'Price should be a multiple of',
+        })} ${symbolInfo.quote_tick}${intl.formatMessage({
+          id: 'price_should_be_a_multiple_of_zh',
+          defaultMessage: ' ',
+        })}`
+      });
+    }
+    return;
+  }
+
+  if (
+    price &&
+    size &&
+    new Big(price || 0).times(new Big(size || 0)).lt(symbolInfo.min_notional)
+  ) {
+    if (setTips) {
+      setTips(
+        `${intl.formatMessage({
+          id: 'the_order_value_should_be_be_greater_than_or_equal_to',
+          defaultMessage: 'The order value should be be greater than or equal to',
+        })} ${symbolInfo.min_notional}`
+      );
+    } else {
+      portfolioFailure({
+        tip: `${intl.formatMessage({
+          id: 'the_order_value_should_be_be_greater_than_or_equal_to',
+          defaultMessage: 'The order value should be be greater than or equal to',
+        })} ${symbolInfo.min_notional}`,
+      });
+    }
+    return;
+  }
+
+  if (
+    price &&
+    size &&
+    side === 'Buy' &&
+    orderType === 'Limit' &&
+    markPrice &&
+    new Big(price || 0).gt(
+      new Big(markPrice.price || 0).mul(1 + symbolInfo.price_range)
+    )
+  ) {
+    if (setTips) {
+      setTips(
+        `${intl.formatMessage({
+          id: 'perp_buy_limit_order_range',
+          defaultMessage:
+            'The price of buy limit orders should be less than or equal to',
+        })} ${new Big(markPrice.price || 0)
+          .mul(1 + symbolInfo.price_range)
+          .toFixed(tickToPrecision(symbolInfo.quote_tick))}`
+      );
+    } else {
+      portfolioFailure({
+        tip: `${intl.formatMessage({
+          id: 'perp_buy_limit_order_range',
+          defaultMessage:
+            'The price of buy limit orders should be less than or equal to',
+        })} ${new Big(markPrice.price || 0)
+          .mul(1 + symbolInfo.price_range)
+          .toFixed(tickToPrecision(symbolInfo.quote_tick))}`,
+      });
+    }
+    
+    return;
+  }
+
+  if (
+    price &&
+    size &&
+    side === 'Sell' &&
+    orderType === 'Limit' &&
+    markPrice &&
+    new Big(price || 0).lt(
+      new Big(markPrice.price || 0).mul(1 - symbolInfo.price_range)
+    )
+  ) {
+    if (setTips) {
+      setTips(
+        `${intl.formatMessage({
+          id: 'perp_sell_limit_order_range',
+          defaultMessage:
+            'The price of sell limit orders should be greater than or equal to',
+        })} ${new Big(markPrice.price || 0)
+          .mul(1 - symbolInfo.price_range)
+          .toFixed(tickToPrecision(symbolInfo.quote_tick), 3)}`
+      );
+    } else {
+      portfolioFailure({
+        tip: `${intl.formatMessage({
+          id: 'perp_sell_limit_order_range',
+          defaultMessage:
+            'The price of sell limit orders should be greater than or equal to',
+        })} ${new Big(markPrice.price || 0)
+          .mul(1 - symbolInfo.price_range)
+          .toFixed(tickToPrecision(symbolInfo.quote_tick), 3)}`,
+      });
+    }
+    
+    return;
+  }
+
+  if (
+    price &&
+    size &&
+    side === 'Sell' &&
+    orderType === 'Limit' &&
+    markPrice &&
+    new Big(price || 0).gt(
+      new Big(markPrice.price || 0).mul(1 + symbolInfo.price_scope)
+    )
+  ) {
+    if (setTips) {
+      setTips(
+        `${intl.formatMessage({
+          id: 'perp_sell_limit_order_scope',
+          defaultMessage: 'The price of a sell limit order cannot be higher than',
+        })} ${new Big(markPrice.price || 0)
+          .mul(1 + symbolInfo.price_scope)
+          .toFixed(tickToPrecision(symbolInfo.quote_tick))}`
+      );
+    } else {
+      portfolioFailure({
+        tip: `${intl.formatMessage({
+          id: 'perp_sell_limit_order_scope',
+          defaultMessage: 'The price of a sell limit order cannot be higher than',
+        })} ${new Big(markPrice.price || 0)
+          .mul(1 + symbolInfo.price_scope)
+          .toFixed(tickToPrecision(symbolInfo.quote_tick))}`,
+      });
+    }
+    
+    return;
+  }
+
+  if (
+    price &&
+    size &&
+    side === 'Buy' &&
+    orderType === 'Limit' &&
+    markPrice &&
+    new Big(price || 0).lt(
+      new Big(markPrice.price || 0).mul(1 - symbolInfo.price_scope)
+    )
+  ) {
+
+    if (setTips) {
+      setTips(
+        `${intl.formatMessage({
+          id: 'perp_buy_limit_order_scope',
+          defaultMessage: 'The price of a buy limit order cannot be lower than',
+        })} ${new Big(markPrice.price || 0)
+          .mul(1 - symbolInfo.price_scope)
+          .toFixed(tickToPrecision(symbolInfo.quote_tick), 3)}`
+      );
+    } else {
+      portfolioFailure({
+        tip: `${intl.formatMessage({
+          id: 'perp_buy_limit_order_scope',
+          defaultMessage: 'The price of a buy limit order cannot be lower than',
+        })} ${new Big(markPrice.price || 0)
+          .mul(1 - symbolInfo.price_scope)
+          .toFixed(tickToPrecision(symbolInfo.quote_tick), 3)}`,
+      });
+    }
+    
+    return;
+  }
+
+  setTips && setTips('');
+  return true;
+};
+
+const sizeValidator = (
+  price: string,
+  size: string,
+  symbolInfo: any,
+  intl: IntlShape,
+  side: string,
+  setTips?: (input: string) => void
+) => {
+  if (!symbolInfo) {
+    return;
+  }
+
+  if (new Big(size || 0).lt(symbolInfo.base_min)) {
+
+    if (setTips) {
+      setTips(`
+        ${side === 'Buy'
+          ? intl.formatMessage({
+              id: 'quantity_to_buy_should_be_greater_than_or_equal_to',
+              defaultMessage:
+                'Quantity to buy should be greater than or equal to',
+            })
+          : intl.formatMessage({
+              id: 'quantity_to_sell_should_be_greater_than_or_equal_to',
+              defaultMessage:
+                'Quantity to sell should be greater than or equal to',
+            })
+        } ${symbolInfo.base_min}`
+      );
+    } else {
+      portfolioFailure({
+        tip: `${
+          side === 'Buy'
+            ? intl.formatMessage({
+                id: 'quantity_to_buy_should_be_greater_than_or_equal_to',
+                defaultMessage:
+                  'Quantity to buy should be greater than or equal to',
+              })
+            : intl.formatMessage({
+                id: 'quantity_to_sell_should_be_greater_than_or_equal_to',
+                defaultMessage:
+                  'Quantity to sell should be greater than or equal to',
+              })
+        } ${symbolInfo.base_min}`
+      });
+    }
+    return;
+  }
+
+  if (new Big(size || 0).gt(symbolInfo.base_max)) {
+    if (setTips) {
+      setTips(`
+        ${side === 'Buy'
+          ? intl.formatMessage({
+              id: 'quantity_to_buy_should_be_less_than_or_equal_to',
+              defaultMessage: 'Quantity to buy should be less than or equal to',
+            })
+          : intl.formatMessage({
+              id: 'quantity_to_sell_should_be_less_than_or_equal_to',
+              defaultMessage: 'Quantity to sell should be less than or equal to',
+            })
+        } ${symbolInfo.base_max}`
+      );
+    } else {
+      portfolioFailure({
+        tip: `${
+          side === 'Buy'
+            ? intl.formatMessage({
+                id: 'quantity_to_buy_should_be_less_than_or_equal_to',
+                defaultMessage: 'Quantity to buy should be less than or equal to',
+              })
+            : intl.formatMessage({
+                id: 'quantity_to_sell_should_be_less_than_or_equal_to',
+                defaultMessage: 'Quantity to sell should be less than or equal to',
+              })
+        } ${symbolInfo.base_max}`
+      });
+    }
+    
+    return;
+  }
+
+  if (
+    new Big(new Big(size || 0).minus(new Big(symbolInfo.base_min)))
+      .mod(symbolInfo.base_tick)
+      .gt(0)
+  ) {
+    if (setTips) {
+      setTips(
+        `${intl.formatMessage({
+          id: 'quantity_should_be_a_multiple_of',
+          defaultMessage: 'Quantity should be a multiple of',
+        })} ${symbolInfo.base_tick}${intl.formatMessage({
+          id: 'quantity_should_be_a_multiple_of_zh',
+          defaultMessage: ' ',
+        })}`
+      );
+    } else {
+      portfolioFailure({
+        tip: `${intl.formatMessage({
+          id: 'quantity_should_be_a_multiple_of',
+          defaultMessage: 'Quantity should be a multiple of',
+        })} ${symbolInfo.base_tick}${intl.formatMessage({
+          id: 'quantity_should_be_a_multiple_of_zh',
+          defaultMessage: ' ',
+        })}`,
+      });
+    }
+    
+    return;
+  }
+
+  if (
+    price &&
+    size &&
+    new Big(price || 0).times(new Big(size || 0)).lt(symbolInfo.min_notional)
+  ) {
+    if (setTips) {
+      setTips(
+        `${intl.formatMessage({
+          id: 'the_order_value_should_be_be_greater_than_or_equal_to',
+          defaultMessage: 'The order value should be be greater than or equal to',
+        })} ${symbolInfo.min_notional}`
+      );
+    } else {
+      portfolioFailure({
+        tip: `${intl.formatMessage({
+          id: 'the_order_value_should_be_be_greater_than_or_equal_to',
+          defaultMessage: 'The order value should be be greater than or equal to',
+        })} ${symbolInfo.min_notional}`,
+      });
+    }
+    
+    return;
+  }
+
+  setTips && setTips('');
+  return true;
+};
+
+const priceAndSizeValidator = (
+  price: string,
+  size: string,
+  symbolInfo: any,
+  intl: IntlShape,
+  side: string,
+  orderType: string,
+  markPrice: MarkPrice
+) => {
+
+  if (!symbolInfo || (ONLY_ZEROS.test(price) && ONLY_ZEROS.test(size))) {
+    return;
+  }
+
+  let resPrice;
+  let resSize;
+
+  if (!ONLY_ZEROS.test(price)) {
+    resPrice = priceValidator(price, size, symbolInfo, intl, side, orderType, markPrice);
+  } else {
+    resPrice = true;
+  }
+
+  if (!ONLY_ZEROS.test(size)) {
+    resSize = sizeValidator(price, size, symbolInfo, intl, side);
+  } else {
+    resSize = true;
+  }
+
+  return resPrice === true && resSize === true
+};
 
 export const FutureTableFormHeaders: React.FC = () => {
   const intl = useIntl();
@@ -80,9 +462,11 @@ export const FutureTableFormCells: React.FC<{
 }) => {
   const intl = useIntl();
   const { accountId } = useWalletSelector();
-  const { triggerPositionBasedData } = usePerpData();
-  const { handlePendingOrderRefreshing } = useOrderlyContext();
+  const { triggerPositionBasedData, markPrices } = usePerpData();
+  const { handlePendingOrderRefreshing, availableSymbols } = useOrderlyContext();
   const [orders, setOrders] = useState<any>([]);
+  const symbolInfo = availableSymbols?.find((s) => s.symbol === row.symbol);
+  const referenceMark = markPrices.find((m) => m.symbol === row.symbol)
 
   useEffect(() => {
     getPendingOrders();
@@ -124,10 +508,25 @@ export const FutureTableFormCells: React.FC<{
             type="number"
             placeholder="0.0"
             onChange={({ target }) => {
+              priceAndSizeValidator(
+                closingPrice === 'Market' ? mark_price.toString() : closingPrice.toString(),
+                target.value,
+                symbolInfo,
+                intl,
+                position_qty > -1 ? 'Buy' : 'Sell',
+                closingPrice === 'Market' ? 'Market' : 'Limit',
+                referenceMark
+              );
+              
               let value: number = parseFloat(target.value);
               if (value > Math.abs(position_qty)) value = Math.abs(position_qty);
-              if (value < 0 || !value) value = 0;
+              if (value < 0) value = 0;
               setClosingQuantity(value)
+            }}
+            // @ts-ignore
+            onWheel={(e) => e.target.blur()}
+            onBlur={() => {
+              if (isNaN(closingQuantity)) setClosingQuantity(Math.abs(position_qty))
             }}
             value={closingQuantity}
           />
@@ -148,10 +547,22 @@ export const FutureTableFormCells: React.FC<{
                 className="w-full"
                 placeholder={mark_price.toString()}
                 onChange={({ target }) => {
+                  priceAndSizeValidator(
+                    closingPrice === 'Market' ? mark_price.toString() : target.value,
+                    closingQuantity.toString(),
+                    symbolInfo,
+                    intl,
+                    position_qty > -1 ? 'Buy' : 'Sell',
+                    closingPrice === 'Market' ? 'Market' : 'Limit',
+                    referenceMark
+                  );
+
                   let value: string = target.value;
                   if (value && value !== 'Market' && ! /^(?:0|[1-9]\d*)(?:\.\d*)?$/.test(value)) return
                   setClosingPrice(value);
                 }}
+                // @ts-ignore
+                onWheel={(e) => e.target.blur()}
                 value={closingPrice}
                 onClick={(e) => {
                   e.preventDefault();
@@ -206,15 +617,26 @@ export const FutureTableFormCells: React.FC<{
             <div
               className={`border w-full text-center border-orderTypeBg ${orders.length > 0 ? 'px-1.5' : 'px-3'} py-1.5 rounded-md text-xs text-primaryText cursor-pointer`}
               onClick={() => {
-                handleOpenClosing(
-                  closingQuantity, 
-                  closingPrice === ''
-                    ? mark_price : 
-                    closingPrice === 'Market'
-                    ? closingPrice 
-                    : parseFloat(closingPrice),
-                  row
-                )
+                const pass = priceAndSizeValidator(
+                  closingPrice === 'Market' ? mark_price.toString() : closingPrice,
+                  closingQuantity.toString(),
+                  symbolInfo,
+                  intl,
+                  position_qty > -1 ? 'Buy' : 'Sell',
+                  closingPrice === 'Market' ? 'Market' : 'Limit',
+                  referenceMark
+                );
+                if (pass) {
+                  handleOpenClosing(
+                    closingQuantity, 
+                    closingPrice === ''
+                      ? mark_price : 
+                      closingPrice === 'Market'
+                      ? closingPrice 
+                      : parseFloat(closingPrice),
+                    row
+                  )
+                }
               }}
             >
               {intl.formatMessage({
@@ -313,15 +735,23 @@ function FutureQuantityModal(
     onClose: (input: number) => void;
     quantity: number;
     position_qty: number;
+    mark_price: number;
+    price: number | "Market";
+    symbolInfo: SymbolInfo;
   }
 ) {
-  const { onClose, quantity, position_qty } = props;
+  const { onClose, quantity, position_qty, mark_price, price, symbolInfo  } = props;
   const intl = useIntl();
   const [inputQuantity, setInputQuantity] = useState<number>(Math.abs(position_qty));
+  const [tips, setTips] = useState<string>('');
   
   useEffect(() => {
     setInputQuantity(quantity);
   }, [quantity])
+  
+  useEffect(() => {
+    console.log(tips)
+  }, [tips])
 
   return (
     <Modal
@@ -359,7 +789,7 @@ function FutureQuantityModal(
               <IoClose size={20} />
             </span>
           </div>
-          <div className="flex px-4 items-center pb-6 justify-between">
+          <div className={`flex px-4 items-center ${tips ? 'pb-3' : 'pb-6'} justify-between`}>
             <input
               type="number"
               step="any"
@@ -367,6 +797,14 @@ function FutureQuantityModal(
               placeholder="0.0"
               value={inputQuantity}
               onChange={({ target }) => {
+                sizeValidator(
+                  price === 'Market' ? mark_price.toString() : target.value,
+                  target.value.toString(),
+                  symbolInfo,
+                  intl,
+                  position_qty > -1 ? 'Buy' : 'Sell',
+                  setTips
+                );
                 let value: any = target.value;
                 if (parseFloat(value) > Math.abs(position_qty)) value = Math.abs(position_qty);
                 if (parseFloat(value) < 0) value = 0;
@@ -376,7 +814,8 @@ function FutureQuantityModal(
               style={{ borderBottomColor: '#FFFFFF1A', borderBottomWidth: 1 }}
             />
             <button
-              className="text-white py-1 px-4 relative bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center"
+              className="text-white py-1 px-4 relative bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center disabled:opacity-40"
+              disabled={!!tips}
               onClick={() => {
                 // @ts-ignore
                 onClose && onClose(parseFloat(inputQuantity));
@@ -387,6 +826,15 @@ function FutureQuantityModal(
               </span>
             </button>
           </div>
+          {tips && (
+            <div className="flex items-center pb-6 justify-between">
+              <span
+                className="text-error text-xs leading-tight px-2.5 pb-2 w-full mr-2"
+              >
+                {tips}
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </Modal>
@@ -398,13 +846,18 @@ function FuturePriceModal(
     onClose: (input: number | 'Market') => void;
     price: number | 'Market';
     mark_price: number;
+    position_qty: number;
     priceMode: 'market_price' | 'limit_price';
     setPriceMode: (input: 'market_price' | 'limit_price') => void;
+    symbolInfo: SymbolInfo;
+    referenceMark: MarkPrice;
+    quantity: number;
   }
 ) {
-  const { onClose, priceMode, setPriceMode, price, mark_price } = props;
+  const { onClose, priceMode, setPriceMode, price, mark_price, symbolInfo, position_qty, referenceMark, quantity } = props;
   const [inputPrice, setInputPrice] = useState<number | 'Market'>(price);
   const intl = useIntl();
+  const [tips, setTips] = useState<string>('');
 
   return (
     <Modal
@@ -449,6 +902,7 @@ function FuturePriceModal(
                 className={`relative text-center px-7 py-4 w-150 rounded-md border ${priceMode !== item ? 'text-primaryText border-orderTypeBg' : 'text-white border-mobileOrderBg bg-mobileOrderBg'}`}
                 onClick={() => {
                   setInputPrice(mark_price);
+                  setTips('');
                   setPriceMode(item);
                 }}
               >
@@ -472,13 +926,26 @@ function FuturePriceModal(
                 type="number"
                 placeholder="0.0"
                 value={inputPrice}
-                onChange={({ target }) => setInputPrice(parseFloat(target.value))}
+                onChange={({ target }) => {
+                  priceValidator(
+                    target.value === 'Market' ? mark_price.toString() : target.value,
+                    quantity.toString(),
+                    symbolInfo,
+                    intl,
+                    position_qty > -1 ? 'Buy' : 'Sell',
+                    target.value === 'Market' ? 'Market' : 'Limit',
+                    referenceMark,
+                    setTips
+                  );
+                  setInputPrice(parseFloat(target.value))
+                }}
                 className="text-white text-xl leading-tight px-2.5 pb-2 w-10/12 mr-2"
                 style={{ borderBottomColor: '#FFFFFF1A', borderBottomWidth: 1 }}
                 min={0}
               />
               <button
-                className="text-white py-1 px-4 relative bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center"
+                className="text-white py-1 px-4 relative bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center disabled:opacity-40"
+                disabled={!!tips}
                 onClick={() => {
                   onClose && onClose(inputPrice);
                 }}
@@ -488,6 +955,15 @@ function FuturePriceModal(
                 </span>
               </button>
             </div>
+            )}
+            {tips && (
+              <div className="flex items-center pb-6 justify-between">
+                <span
+                  className="text-error text-xs leading-tight px-2.5 pb-2 w-full mr-2"
+                >
+                  {tips}
+                </span>
+              </div>
             )}
           </div>
       </div>
@@ -690,11 +1166,11 @@ export  function ClosingModal(
             )}
             <div className="col-span-1 mb-2">
               <button
-                className={`w-full rounded-lg gotham_bold ${
+                className={`w-full rounded-lg ${
                   loading
                     ? 'opacity-70 cursor-not-allowed border-buttonGradientBgOpacity'
                     : ''
-                } flex items-center justify-center py-1 border border-greenColor text-base text-greenColor`}
+                } flex items-center justify-center py-1.5 border border-greenColor text-xs text-greenColor`}
                 onClick={(e: any) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -708,11 +1184,11 @@ export  function ClosingModal(
             </div>
             <div className="col-span-1 mb-2">
               <button
-                className={`w-full rounded-lg gotham_bold ${
+                className={`w-full rounded-lg ${
                   loading
                     ? 'opacity-70 cursor-not-allowed bg-buttonGradientBgOpacity'
                     : ''
-                } flex items-center justify-center py-1 bg-buttonGradientBg hover:bg-buttonGradientBgOpacity text-base text-white`}
+                } flex items-center justify-center py-2 bg-buttonGradientBg hover:bg-buttonGradientBgOpacity text-xs text-white`}
                 onClick={(e: any) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -763,6 +1239,9 @@ const FutureMobileRow: React.FC<{
   const [pendingOpen, setPendingOpen] = useState<boolean>(false);
   const [unrealPnl, setUnrealPnl] = useState<number>(0);
   const [unrealPercentage, setUnrealPercentage] = useState<number>(0);
+  const { availableSymbols } = useOrderlyContext();
+  const symbolInfo = availableSymbols?.find((s) => s.symbol === row.symbol);
+  const referenceMark = markPrices.find((m) => m.symbol === row.symbol)
 
   useEffect(() => {
     const price = unrealMode === 'mark_price' ? markPrices.find((i) => i.symbol === symbol)?.price : lastPrices.find((i) => i.symbol === symbol)?.close;
@@ -830,7 +1309,16 @@ const FutureMobileRow: React.FC<{
             <div
               className="cursor-pointer text-center py-1 px-3 border border-orderTypeBg rounded-md"
                onClick={() => {
-                handleOpenClosing(quantity, price, row);
+                const pass = priceAndSizeValidator(
+                  price === 'Market' ? mark_price.toString() : price.toString(),
+                  quantity.toString(),
+                  symbolInfo,
+                  intl,
+                  position_qty > -1 ? 'Buy' : 'Sell',
+                  price === 'Market' ? 'Market' : 'Limit',
+                  referenceMark
+                );
+                pass && handleOpenClosing(quantity, price, row);
                }}
             >
               {intl.formatMessage({ id: 'close' })}
@@ -944,6 +1432,9 @@ const FutureMobileRow: React.FC<{
         }}
         position_qty={position_qty}
         quantity={quantity}
+        mark_price={referenceMark.price}
+        price={price}
+        symbolInfo={symbolInfo}
       />
 
       <FuturePriceModal
@@ -957,6 +1448,10 @@ const FutureMobileRow: React.FC<{
         setPriceMode={setPriceMode}
         price={price}
         mark_price={mark_price}
+        symbolInfo={symbolInfo}
+        referenceMark={referenceMark}
+        position_qty={position_qty}
+        quantity={quantity}
       />
 
       <PendingOrdersModal
