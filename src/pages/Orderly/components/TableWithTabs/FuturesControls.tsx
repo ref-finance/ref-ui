@@ -1185,10 +1185,12 @@ export  function ClosingModal(
             <div className="col-span-1 mb-2">
               <button
                 className={`w-full rounded-lg ${
-                  loading
-                    ? 'opacity-70 cursor-not-allowed bg-buttonGradientBgOpacity'
-                    : ''
-                } flex items-center justify-center py-2 bg-buttonGradientBg hover:bg-buttonGradientBgOpacity text-xs text-white`}
+                    loading
+                      ? 'opacity-70 cursor-not-allowed bg-buttonGradientBgOpacity'
+                      : ''
+                  } flex items-center justify-center  bg-buttonGradientBg hover:bg-buttonGradientBgOpacity text-xs text-white`
+                }
+                style={{ paddingTop: '0.4375rem', paddingBottom: '0.4375rem' }}
                 onClick={(e: any) => {
                   e.preventDefault();
                   e.stopPropagation();
