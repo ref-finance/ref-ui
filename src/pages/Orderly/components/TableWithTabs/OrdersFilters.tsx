@@ -362,8 +362,8 @@ export function MobileFilterModal(
                 {refOnly ? <CheckboxSelected /> :<TickCheckbox />}
               </label>
               {intl.formatMessage({
-                id: 'ref_order_only',
-                defaultMessage: 'Order on REF only',
+                id: 'ref_order',
+                defaultMessage: 'REF Dex only',
               })}
             </span>
           </div>

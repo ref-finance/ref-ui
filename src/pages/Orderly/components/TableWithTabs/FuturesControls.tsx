@@ -5,6 +5,7 @@ import { IoClose } from 'react-icons/io5';
 import { useIntl, IntlShape } from 'react-intl';
 import Modal from 'react-modal';
 import { useWalletSelector } from '~context/WalletSelectorContext';
+import { OrderlyLoading } from '../Common/Icons';
 import { TextWrapper } from '../UserBoard';
 import { usePerpData } from '../UserBoardPerp/state';
 import { tickToPrecision } from '../UserBoardPerp/math';
@@ -431,6 +432,87 @@ export const FutureTableFormHeaders: React.FC = () => {
   )
 }
 
+const PendingOrderRow: React.FC<{
+  order: any
+}> = ({
+  order
+}) => {
+  const intl = useIntl();
+  const { accountId } = useWalletSelector();
+  const { handlePendingOrderRefreshing } = useOrderlyContext();
+  const { symbol, quantity, price, order_id, side } = order;
+  const [loading, setLoading] = useState(false);
+
+  return (
+    <div className="px-4 py-2 grid grid-cols-4 gap-2 rounded-lg hover:bg-symbolHover3" >
+      <div className="col-span-3 text-sm flex justify-between">
+        <span className="pr-3">
+          <span>
+            {quantity}&nbsp;
+          </span>
+          <span className="text-primaryText">
+            {parseSymbol(symbol).symbolFrom}
+          </span>
+        </span>
+        <span className="text-left">
+          <span className="text-primaryText">{intl.formatMessage({ id: 'at_orderly', defaultMessage: 'at' })}</span>&nbsp;
+          <span>
+            ${price?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 3)}
+          </span>
+        </span>
+      </div>
+      <div className="col-span-1 flex justify-end items-center">
+        <div
+          className="cursor-pointer"
+          onClick={async () => {
+            try {
+              if (!accountId) return;
+              setLoading(true);
+
+              const res = await cancelOrder({
+                accountId,
+                DeleteParams: {
+                  order_id: order_id,
+                  symbol: symbol,
+                },
+              })
+
+              if (res.success === true) {
+                handlePendingOrderRefreshing();
+                setLoading(false);
+
+                return orderEditPopUpSuccess({
+                  side: side == 'BUY' ? 'Buy' : 'Sell',
+                  size: quantity,
+                  price,
+                  cancel: true,
+                  symbolName: symbol,
+                });
+              }
+            } catch (err) {
+              setLoading(false);
+              return orderEditPopUpFailure({
+                tip: err.message,
+              });
+            }
+          }}
+        >
+
+          {loading ? (
+            <OrderlyLoading className="animate-spin" />
+          ) : (
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fillRule="evenodd" clipRule="evenodd" d="M10 1.81818C5.48131 1.81818 1.81818 5.48131 1.81818 10C1.81818 14.5187 5.48131 18.1818 10 18.1818C14.5187 18.1818 18.1818 14.5187 18.1818 10C18.1818 5.48131 14.5187 1.81818 10 1.81818ZM0 10C0 4.47715 4.47715 0 10 0C15.5228 0 20 4.47715 20 10C20 15.5228 15.5228 20 10 20C4.47715 20 0 15.5228 0 10Z" fill="#FF6A8E"/>
+              <path fillRule="evenodd" clipRule="evenodd" d="M4.24243 9.99972C4.24243 9.33028 4.78512 8.7876 5.45455 8.7876L14.5455 8.7876C15.2149 8.7876 15.7576 9.33028 15.7576 9.99972C15.7576 10.6692 15.2149 11.2118 14.5455 11.2118L5.45455 11.2118C4.78512 11.2118 4.24243 10.6692 4.24243 9.99972Z" fill="#FF6A8E"/>
+            </svg>
+          )}
+
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export const FutureTableFormCells: React.FC<{
   position_qty: number;
   closingQuantity: number;
@@ -463,7 +545,7 @@ export const FutureTableFormCells: React.FC<{
   const intl = useIntl();
   const { accountId } = useWalletSelector();
   const { triggerPositionBasedData, markPrices } = usePerpData();
-  const { handlePendingOrderRefreshing, availableSymbols } = useOrderlyContext();
+  const { availableSymbols } = useOrderlyContext();
   const [orders, setOrders] = useState<any>([]);
   const symbolInfo = availableSymbols?.find((s) => s.symbol === row.symbol);
   const referenceMark = markPrices.find((m) => m.symbol === row.symbol)
@@ -500,7 +582,7 @@ export const FutureTableFormCells: React.FC<{
         <div className={`flex items-center text-white`}>
           <input
             id={`${row.symbol}-input`}
-            className={`border border-orderTypeBg px-4 py-1.5 text-xs ${position_qty > -1 ? 'text-buyGreen' : 'text-sellColorNew'}`}
+            className={`border border-orderTypeBg px-4 py-1.5 text-xs ${position_qty > 0 ? 'text-buyGreen' : 'text-sellColorNew'}`}
             style={{
               borderRadius: '6px',
               backgroundColor: 'rgba(0, 0, 0, 0.10)'
@@ -660,66 +742,7 @@ export const FutureTableFormCells: React.FC<{
                   </span>
                 </div>
                 <div>
-                {orders.map(({ symbol, quantity, price, order_id, side }: any) => (
-                  <div key={order_id} className="px-4 py-2 grid grid-cols-4 gap-2 rounded-lg hover:bg-symbolHover3" >
-                    <div className="col-span-3 text-sm flex justify-between">
-                      <span className="pr-3">
-                        <span>
-                          {quantity}&nbsp;
-                        </span>
-                        <span className="text-primaryText">
-                          {parseSymbol(symbol).symbolFrom}
-                        </span>
-                      </span>
-                      <span className="text-left">
-                        <span className="text-primaryText">{intl.formatMessage({ id: 'at_orderly', defaultMessage: 'at' })}</span>&nbsp;
-                        <span>
-                          ${price?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 3)}
-                        </span>
-                      </span>
-                    </div>
-                    <div className="col-span-1 flex justify-end items-center">
-                      <div
-                        className="cursor-pointer"
-                        onClick={async () => {
-                          try {
-                            if (!accountId) return;
-        
-                            const res = await cancelOrder({
-                              accountId,
-                              DeleteParams: {
-                                order_id: order_id,
-                                symbol: symbol,
-                              },
-                            })
-        
-                            if (res.success === true) {
-                              handlePendingOrderRefreshing();
-
-                              return orderEditPopUpSuccess({
-                                side: side == 'BUY' ? 'Buy' : 'Sell',
-                                size: quantity,
-                                price,
-                                cancel: true,
-                                symbolName: symbol,
-                              });
-                            }
-                          } catch (err) {
-                            return orderEditPopUpFailure({
-                              tip: err.message,
-                            });
-                          }
-                        }}
-                      >
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path fillRule="evenodd" clipRule="evenodd" d="M10 1.81818C5.48131 1.81818 1.81818 5.48131 1.81818 10C1.81818 14.5187 5.48131 18.1818 10 18.1818C14.5187 18.1818 18.1818 14.5187 18.1818 10C18.1818 5.48131 14.5187 1.81818 10 1.81818ZM0 10C0 4.47715 4.47715 0 10 0C15.5228 0 20 4.47715 20 10C20 15.5228 15.5228 20 10 20C4.47715 20 0 15.5228 0 10Z" fill="#FF6A8E"/>
-                          <path fillRule="evenodd" clipRule="evenodd" d="M4.24243 9.99972C4.24243 9.33028 4.78512 8.7876 5.45455 8.7876L14.5455 8.7876C15.2149 8.7876 15.7576 9.33028 15.7576 9.99972C15.7576 10.6692 15.2149 11.2118 14.5455 11.2118L5.45455 11.2118C4.78512 11.2118 4.24243 10.6692 4.24243 9.99972Z" fill="#FF6A8E"/>
-                        </svg>
-
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                {orders.map((order: any) => <PendingOrderRow key={order.order_id} order={order} />)}
                 </div>
               </div>
             )}
@@ -971,6 +994,87 @@ function FuturePriceModal(
   );
 }
 
+const PendingOrderMobileRow: React.FC<{
+  order: any
+}> = ({
+  order
+}) => {
+  const intl = useIntl();
+  const { accountId } = useWalletSelector();
+  const { handlePendingOrderRefreshing } = useOrderlyContext();
+  const { symbol, quantity, price, order_id, side } = order;
+  const [loading, setLoading] = useState(false)
+
+  return (
+    <div key={order_id} className="px-4 py-6 grid grid-cols-4 gap-2 border-b" style={{ borderColor: 'rgba(255, 255, 255, 0.1)'}}>
+      <div className="col-span-3 text-base">
+        <span className="pr-3">
+          <span className="text-white">
+            {quantity}&nbsp;
+          </span>
+          <span>
+            {parseSymbol(symbol).symbolFrom}
+          </span>
+        </span>
+        <span>
+          <span className="italic">{intl.formatMessage({ id: 'at_orderly', defaultMessage: 'at' })}</span>&nbsp;
+          <span className="text-white">
+            ${price?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 3)}
+          </span>
+        </span>
+      </div>
+      <div className="col-span-1 flex justify-end items-center">
+        <div
+          className="cursor-pointer"
+          onClick={async () => {
+            try {
+              if (!accountId || loading) return;
+              setLoading(true);
+
+              const res = await cancelOrder({
+                accountId,
+                DeleteParams: {
+                  order_id: order_id,
+                  symbol: symbol,
+                },
+              })
+
+              if (res.success === true) {
+                handlePendingOrderRefreshing();
+                setLoading(false);
+
+                return orderEditPopUpSuccess({
+                  side: side == 'BUY' ? 'Buy' : 'Sell',
+                  size: quantity,
+                  price,
+                  cancel: true,
+                  symbolName: symbol,
+                });
+              }
+            } catch (err) {
+              setLoading(false);
+              return orderEditPopUpFailure({
+                tip: err.message,
+              });
+            }
+          }}
+        >
+
+          {loading ? (
+            <OrderlyLoading className="animate-spin" />
+          ) : (
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fillRule="evenodd" clipRule="evenodd" d="M10 1.81818C5.48131 1.81818 1.81818 5.48131 1.81818 10C1.81818 14.5187 5.48131 18.1818 10 18.1818C14.5187 18.1818 18.1818 14.5187 18.1818 10C18.1818 5.48131 14.5187 1.81818 10 1.81818ZM0 10C0 4.47715 4.47715 0 10 0C15.5228 0 20 4.47715 20 10C20 15.5228 15.5228 20 10 20C4.47715 20 0 15.5228 0 10Z" fill="#FF6A8E"/>
+              <path fillRule="evenodd" clipRule="evenodd" d="M4.24243 9.99972C4.24243 9.33028 4.78512 8.7876 5.45455 8.7876L14.5455 8.7876C15.2149 8.7876 15.7576 9.33028 15.7576 9.99972C15.7576 10.6692 15.2149 11.2118 14.5455 11.2118L5.45455 11.2118C4.78512 11.2118 4.24243 10.6692 4.24243 9.99972Z" fill="#FF6A8E"/>
+            </svg>
+          )}
+
+        </div>
+      </div>
+    </div>
+  )
+}
+
 
 function PendingOrdersModal(
   props: Modal.Props & {
@@ -979,9 +1083,11 @@ function PendingOrdersModal(
   }
 ) {
   const intl = useIntl();
-  const { accountId } = useWalletSelector();
-  const { handlePendingOrderRefreshing } = useOrderlyContext();
   const { onClose, rows } = props;
+
+  useEffect(() => {
+    rows.length < 1 && onClose();
+  }, [rows])
 
   return (
     <Modal
@@ -1019,58 +1125,7 @@ function PendingOrdersModal(
               <IoClose size={20} />
             </span>
           </div>
-          {rows.map(({ symbol, quantity, price, order_id }: any) => (
-            <div key={order_id} className="px-4 py-6 grid grid-cols-4 gap-2 border-b" style={{ borderColor: 'rgba(255, 255, 255, 0.1)'}}>
-              <div className="col-span-3 text-base">
-                <span className="pr-3">
-                  <span className="text-white">
-                    {quantity}&nbsp;
-                  </span>
-                  <span>
-                    {parseSymbol(symbol).symbolFrom}
-                  </span>
-                </span>
-                <span>
-                  <span className="italic">{intl.formatMessage({ id: 'at_orderly', defaultMessage: 'at' })}</span>&nbsp;
-                  <span className="text-white">
-                    ${price?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 3)}
-                  </span>
-                </span>
-              </div>
-              <div className="col-span-1 flex justify-end items-center">
-                <div
-                  className="cursor-pointer"
-                  onClick={async () => {
-                    try {
-                      if (!accountId) return;
-  
-                      const res = await cancelOrder({
-                        accountId,
-                        DeleteParams: {
-                          order_id: order_id,
-                          symbol: symbol,
-                        },
-                      })
-  
-                      if (res.success === true) {
-                        handlePendingOrderRefreshing();
-                      }
-                    } catch (err) {
-                      return orderEditPopUpFailure({
-                        tip: err.message,
-                      });
-                    }
-                  }}
-                >
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path fillRule="evenodd" clipRule="evenodd" d="M10 1.81818C5.48131 1.81818 1.81818 5.48131 1.81818 10C1.81818 14.5187 5.48131 18.1818 10 18.1818C14.5187 18.1818 18.1818 14.5187 18.1818 10C18.1818 5.48131 14.5187 1.81818 10 1.81818ZM0 10C0 4.47715 4.47715 0 10 0C15.5228 0 20 4.47715 20 10C20 15.5228 15.5228 20 10 20C4.47715 20 0 15.5228 0 10Z" fill="#FF6A8E"/>
-                    <path fillRule="evenodd" clipRule="evenodd" d="M4.24243 9.99972C4.24243 9.33028 4.78512 8.7876 5.45455 8.7876L14.5455 8.7876C15.2149 8.7876 15.7576 9.33028 15.7576 9.99972C15.7576 10.6692 15.2149 11.2118 14.5455 11.2118L5.45455 11.2118C4.78512 11.2118 4.24243 10.6692 4.24243 9.99972Z" fill="#FF6A8E"/>
-                  </svg>
-
-                </div>
-              </div>
-            </div>
-          ))}
+          {rows.map((order: any) => <PendingOrderMobileRow key={order.order_id} order={order} />)}
         </div>
       </div>
     </Modal>
@@ -1152,7 +1207,7 @@ export  function ClosingModal(
               <div className="flex items-center text-white">{intl.formatMessage({ id: 'price' })}</div>
             </div>
             <div className="col-span-1 mb-2">
-              <div className="flex items-center justify-end text-white">{closingPrice === 'Market' ? intl.formatMessage({ id: 'market' }) : `$${closingPrice.toFixed(2)}`}</div>
+              <div className="flex items-center justify-end text-white">{closingPrice === 'Market' ? intl.formatMessage({ id: 'market' }) : `$${closingPrice}`}</div>
             </div>
             {closingPrice !== 'Market' && (
               <>
@@ -1160,7 +1215,7 @@ export  function ClosingModal(
                   <div className="flex items-center text-white">{intl.formatMessage({ id: 'total' })}</div>
                 </div>
                 <div className="col-span-1 mb-2">
-                  <div className="flex items-center justify-end text-white">${(closingPrice * closingQuantity).toFixed(2)}</div>
+                  <div className="flex items-center justify-end text-white">${(closingPrice * closingQuantity)}</div>
                 </div>
               </>
             )}
@@ -1279,6 +1334,7 @@ const FutureMobileRow: React.FC<{
       OrderProps: {
         page: 1,
         size: 500,
+        side: position_qty > -1 ? 'SELL' : 'BUY',
         status: 'INCOMPLETE',
         symbol: row.symbol
       } 
@@ -1394,7 +1450,7 @@ const FutureMobileRow: React.FC<{
               {intl.formatMessage({ id: 'quantity' })}
             </div>
             <span
-              className="text-white flex items-center cursor-pointer"
+              className="text-white flex items-center cursor-pointer underline"
               onClick={() => setFutureQuantityOpen(true)}
             >
               {quantity}
@@ -1411,7 +1467,7 @@ const FutureMobileRow: React.FC<{
               {intl.formatMessage({ id: 'price' })}
             </div>
             <span
-              className="text-white flex items-center cursor-pointer"
+              className="text-white flex items-center cursor-pointer underline"
               onClick={() => setFuturePriceOpen(true)}
             >
               {priceMode === 'market_price' ? 'Market' : price}

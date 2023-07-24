@@ -1007,6 +1007,7 @@ const en_US = {
     'Deposit assets to begin your {br} trading journey.',
   open_orders: 'Open Orders',
   ref_order_only: 'Order on REF only',
+  ref_order: 'REF Dex only',
   orderly_portfolio_table_tips:
     'The data provided herein includes all assets and records in your account, not limited to those generated through REF.',
   settlements: 'Settlements',

@@ -234,9 +234,9 @@ function PortfolioOrderly() {
           <Navigation></Navigation>
         </div>
         {/* content */}
-        <div className="flex-grow border-l border-r border-boxBorder px-1 pt-4 md:pt-9 lg:pt-9">
+        <div className="flex-grow border-l border-r border-boxBorder md:pt-9 lg:pt-9">
           <div className="md:px-2.5 lg:px-5 3xl:max-w-1280px m-auto">
-            <div className="w-full grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 md:bg-cardBg lg:bg-cardBg px-7 py-4 rounded-xl">
+            <div className="w-full grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 md:bg-cardBg lg:bg-cardBg px-3 py-4 rounded-xl">
               {/* getCurrentHolding */}
               <div className="col-span-2 mb-3">
                 <div className="flex items-center">
@@ -363,14 +363,7 @@ function PortfolioOrderly() {
                   >
                     {table.title}
 
-                    {tab === index  && (
-                      <div
-                        className="w-full absolute -bottom-0.5 h-0.5 bg-gradientFromHover"
-                        style={{
-                          width: 'calc(100% - 40px)',
-                        }}
-                      ></div>
-                    )}
+                    {tab === index  && <div className="w-full absolute -bottom-0.5 h-0.5 bg-gradientFromHover" /> }
                   </div>
                 ))}
               </div>
@@ -390,6 +383,7 @@ function PortfolioOrderly() {
                   table={ordersTable}
                   maintenance={maintenance}
                   refOnly={refOnly}
+                  setRefOnly={setRefOnly}
                   orderType={orderType}
                   setOrderType={setOrderType}
                   chooseMarketSymbol={chooseMarketSymbol}

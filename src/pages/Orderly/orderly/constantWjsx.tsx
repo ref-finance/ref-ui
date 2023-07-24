@@ -185,19 +185,19 @@ export const usePortableOrderlyTable = ({
             <div className="w-4/12 inline-block text-right">
               <div className={`p-0.5 text-xs my-1 flex justify-end items-center`}>
                 <span className="mr-1">
-                  {(executed / quantity * 100).toFixed(0)}% filled
+                  {(executed / (quantity || executed) * 100).toFixed(0)}% filled
                 </span>
 
                 <div className="flex justify-end items-center relative">
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="7" cy="7" r="6" stroke={side === 'BUY' ? '#62C340' : '#FF6A8E'} strokeWidth="1.4" strokeDasharray="1.4 1.4"/>
                   </svg>
-                  {(executed / quantity * 100) > 0 && (executed / quantity * 100) < 100 && (
+                  {(executed / (quantity || executed) * 100) > 0 && (executed / (quantity || executed) * 100) < 100 && (
                     <svg className="absolute" style={{ right: '3px' }} width="4" height="8" viewBox="0 0 4 8" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M0 8C2.20914 8 4 6.20914 4 4C4 1.79086 2.20914 0 0 0V8Z" fill={side === 'BUY' ? '#62C340' : '#FF6A8E'}/>
                     </svg>
                   )}
-                  {(executed / quantity * 100) === 100 && (
+                  {(executed / (quantity || executed) * 100) === 100 && (
                     <svg className="absolute" style={{ right: '3px' }} width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <circle cx="4" cy="4" r="4" fill={side === 'BUY' ? '#62C340' : '#FF6A8E'}/>
                     </svg>
@@ -208,9 +208,9 @@ export const usePortableOrderlyTable = ({
             <div className="w-8/12 inline-block">
               <div className={`p-0.5 text-xs my-1 text-white`}>
                 <span>
-                  {quantity}
+                  {(quantity || executed)}
                   <span className="text-10px p-1 text-gray2 mx-1" style={{ borderRadius: '4px', backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>
-                    NEAR
+                    {parseSymbol(symbol).symbolFrom}
                   </span>
                   * {price?.toFixed(2) || average_executed_price?.toFixed(2)}
                   <span className="text-10px p-1 text-gray2 mx-1" style={{ borderRadius: '4px', backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>
@@ -346,19 +346,19 @@ export const usePortableOrderlyTable = ({
             <div className="w-4/12 inline-block text-right">
               <div className={`p-0.5 text-xs my-1 flex justify-end items-center`}>
                 <span className="mr-1">
-                  {(executed / quantity * 100).toFixed(0)}% filled
+                  {(executed / (quantity || executed) * 100).toFixed(0)}% filled
                 </span>
 
                 <div className="flex justify-end items-center relative">
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="7" cy="7" r="6" stroke={side === 'BUY' ? '#62C340' : '#FF6A8E'} strokeWidth="1.4" strokeDasharray="1.4 1.4"/>
                   </svg>
-                  {(executed / quantity * 100) > 0 && (executed / quantity * 100) < 100 && (
+                  {(executed / (quantity || executed) * 100) > 0 && (executed / (quantity || executed) * 100) < 100 && (
                     <svg className="absolute" style={{ right: '3px' }} width="4" height="8" viewBox="0 0 4 8" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M0 8C2.20914 8 4 6.20914 4 4C4 1.79086 2.20914 0 0 0V8Z" fill={side === 'BUY' ? '#62C340' : '#FF6A8E'}/>
                     </svg>
                   )}
-                  {(executed / quantity * 100) === 100 && (
+                  {(executed / (quantity || executed) * 100) === 100 && (
                     <svg className="absolute" style={{ right: '3px' }} width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <circle cx="4" cy="4" r="4" fill={side === 'BUY' ? '#62C340' : '#FF6A8E'}/>
                     </svg>
@@ -369,9 +369,9 @@ export const usePortableOrderlyTable = ({
             <div className="w-8/12 inline-block">
               <div className={`p-0.5 text-xs my-1 text-white`}>
                 <span>
-                  {quantity}
+                  {(quantity || executed)}
                   <span className="text-10px p-1 text-gray2 mx-1" style={{ borderRadius: '4px', backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>
-                    NEAR
+                    {parseSymbol(symbol).symbolFrom}
                   </span>
                   * {price?.toFixed(2) || average_executed_price?.toFixed(2)}
                   <span className="text-10px p-1 text-gray2 mx-1" style={{ borderRadius: '4px', backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>
@@ -501,9 +501,9 @@ export const usePortableOrderlyTable = ({
           <>
             <table className="table-fixed w-full">
               <thead className={`w-full table table-fixed py-2 border-white border-opacity-10`}>
-                <tr className={`w-full  table-fixed grid grid-cols-3 gap-4 px-3`}>
+                <tr className={`w-full  table-fixed grid grid-cols-6 gap-4 px-3`}>
                   {['assets', 'Wallet', 'available_orderly'].map((key, i) => (
-                    <th className={`col-span-1 pb-2${i === 2 ? ' text-right' : ' text-left'}`}>
+                    <th className={`col-span-2 pb-2${i === 2 ? ' text-right' : ' text-left'}`}>
                       {intl.formatMessage({
                         id: key,
                         defaultMessage: key,
@@ -514,8 +514,8 @@ export const usePortableOrderlyTable = ({
               </thead>
               <tbody className=" block overflow-auto flex-col px-3">
                 {rows.map(({ tokenMeta, near, available }: any) => (
-                  <tr className="table-fixed grid grid-cols-3 gap-4 lg:border-t border-white border-opacity-10 text-white">
-                    <td className="col-span-1 flex py-2 relative">
+                  <tr className="table-fixed grid grid-cols-6 gap-4 lg:border-t border-white border-opacity-10 text-white">
+                    <td className="col-span-2 flex py-2 relative">
                       <div className="flex items-center">
                         <img
                           src={tokenMeta.icon}
@@ -534,10 +534,10 @@ export const usePortableOrderlyTable = ({
                         </div>
                       </div>
                     </td>
-                    <td className="col-span-1 py-2">
+                    <td className="col-span-2 py-2 flex items-center">
                       {digitWrapperAsset(near, 3)}
                     </td>
-                    <td className="col-span-1 text-right py-2">
+                    <td className="col-span-2 text-right py-2 flex items-center justify-end">
                       {digitWrapperAsset(available, 3)}
                     </td>
                   </tr>
@@ -776,8 +776,8 @@ export const usePortableOrderlyTable = ({
             <div className="w-1/2 inline-block">
               <div className={`p-0.5 my-0.5`}>
                 {intl.formatMessage({
-                  id: 'source_address',
-                  defaultMessage: 'Source Address',
+                  id: 'address',
+                  defaultMessage: 'Address',
                 })}&nbsp;
                 <span className="text-white">{getAccountName(wallet.getAccountId())}</span>
               </div>
@@ -883,8 +883,8 @@ export const usePortableOrderlyTable = ({
             <div className="w-1/2 inline-block">
               <div className={`p-0.5 my-0.5`}>
                 {intl.formatMessage({
-                  id: 'source_address',
-                  defaultMessage: 'Source Address',
+                  id: 'address',
+                  defaultMessage: 'Address',
                 })}&nbsp;
                 <span className="text-white">{getAccountName(wallet.getAccountId())}</span>
               </div>
@@ -1084,13 +1084,13 @@ export const usePortableOrderlyTable = ({
             className={`m-2 p-3 gap-2 rounded-xl`}
             style={{ backgroundColor: '#7E8A931A' }}
           >
-            <div className="w-4/12 inline-block">
+            <div className="w-1/2 inline-block">
               <div className="font-bold">{marketList.find((m) => m.textId === symbol)?.withSymbol}</div>
               <div className={`p-0.5 text-sm my-0.5`}>
                 <span>{status}</span>
               </div>
             </div>
-            <div className="w-8/12 inline-block text-right">
+            <div className="w-1/2 inline-block text-right">
               <div className={`p-0.5 text-sm my-0.5 text-white`}>
                 <span className={funding_fee < 0 ? 'text-buyGreen' : 'text-sellColorNew'}>
                   {funding_fee < 0 ? '+' : ''}{(funding_fee * -1).toFixed(4)}

@@ -41,6 +41,7 @@ function TableWithTabs({
   table,
   maintenance,
   refOnly,
+  setRefOnly,
   orderType,
   setOrderType,
   chooseMarketSymbol,
@@ -62,6 +63,7 @@ function TableWithTabs({
   table: PortfolioTable;
   maintenance: boolean;
   refOnly?: boolean;
+  setRefOnly?: (item: boolean) => void;
   orderType?: number;
   setOrderType?: (item: number) => void;
   chooseMarketSymbol?: string;
@@ -160,14 +162,24 @@ function TableWithTabs({
 
   const { getData, id } = table.tabs[tab];
 
+  const validator =
+    !accountId ||
+    !storageEnough ||
+    !tradingKeySet ||
+    !keyAnnounced ||
+    !validContract() ||
+    maintenance;
+
   useEffect(() => {
-    setPage(1);
-    setOrderType && setOrderType(0);
-    setChooseMarketSymbol && setChooseMarketSymbol('all_markets');
-    setChooseOrderSide && setChooseOrderSide('all_side');
-    setChooseOrderStatus && setChooseOrderStatus('all');
-    setChooseOrderType && setChooseOrderType('all');
-    getData && callGetData();
+    if (!(validator && !maintenance && !validAccountSig)) {
+      setPage(1);
+      setOrderType && setOrderType(0);
+      setChooseMarketSymbol && setChooseMarketSymbol('all_markets');
+      setChooseOrderSide && setChooseOrderSide('all_side');
+      setChooseOrderStatus && setChooseOrderStatus('all');
+      setChooseOrderType && setChooseOrderType('all');
+      getData && callGetData();
+    }
   }, [tab]);
 
   useEffect(() => {
@@ -176,9 +188,11 @@ function TableWithTabs({
 
   useEffect(() => {
     if (orderType === 0 && (id === 'open_orders' || id === 'history')) {
-      setLoading(true);
-      setData([]);
-      callGetData();
+      if (!(validator && !maintenance && !validAccountSig)) {
+        setLoading(true);
+        setData([]);
+        callGetData();
+      }
     }
     setPage(1);
   }, [orderType]);
@@ -214,31 +228,25 @@ function TableWithTabs({
   }, [triggerPositionBasedData, triggerBalanceBasedData]);
 
   const callGetData = async () => {
-    const { data } = await getData({ page });
-
-    if (!data && id === 'spot') {
-      setData(displayBalances);
+    if (!(validator && !maintenance && !validAccountSig)) {
+      const { data } = await getData({ page });
+  
+      if (!data && id === 'spot') {
+        setData(displayBalances);
+        setLoading(false);
+        return
+      }
+  
+      setData(data?.rows || []);
+      setTotal(data.meta?.total || 0);
       setLoading(false);
-      return
     }
-
-    setData(data?.rows || []);
-    setTotal(data.meta?.total || 0);
-    setLoading(false);
   }
-
-  const validator =
-    !accountId ||
-    !storageEnough ||
-    !tradingKeySet ||
-    !keyAnnounced ||
-    !validContract() ||
-    maintenance;
 
   return (
     <>
       <div
-        className="w-full relative mt-10 xs:mt-5 lg:rounded-2xl shadow-sm text-primaryOrderly text-sm lg:bg-black lg:bg-opacity-10 pb-4"
+        className="w-full relative mt-10 xs:mt-5 lg:rounded-2xl shadow-sm text-primaryOrderly text-sm lg:bg-opacity-10 pb-4"
         style={{
           minHeight: isMobile ? '' : 'calc(100vh - 680px)',
         }}
@@ -252,8 +260,10 @@ function TableWithTabs({
                   key={tableTab.id}
                   onClick={() => {
                     if (tab !== index) {
-                      setLoading(true);
-                      setData([]);
+                      if (!(validator && !maintenance && !validAccountSig)) {
+                        setLoading(true);
+                        setData([]);
+                      }
                       setTab(index);
                     }
                   }}
@@ -290,17 +300,19 @@ function TableWithTabs({
           </FlexRowBetween>
         </FlexRowBetween>
 
-        <div className="md:hidden lg:hidden">
+        <div className="md:hidden lg:hidden px-3 flex">
           <div
-            className={`relative flex items-center bg-acccountTab p-1 rounded-lg ${table.tabs[tab].filter ? 'w-11/12 inline-flex' : ''}`}
+            className={`relative flex items-center bg-acccountTab p-1 rounded-lg ${table.tabs[tab].filter ? 'w-11/12 inline-flex' : 'w-full'}`}
           >
             {table.tabs.map((tableTab, index) => (
               <label
                 key={tableTab.id}
                 onClick={() => {
                   if (tab !== index) {
-                    setLoading(true);
-                    setData([]);
+                    if (!(validator && !maintenance && !validAccountSig)) {
+                      setLoading(true);
+                      setData([]);
+                    }
                     setTab(index);
                   }
                 }}
@@ -321,6 +333,7 @@ function TableWithTabs({
                     id: tableTab.mobileKey ? tableTab.mobileKey : tableTab.id,
                     defaultMessage: tableTab.default,
                   })}
+                  &nbsp;{(tableTab.id === 'open_orders' && data.length > 0) && `(${data.length})`}
                 </span>
               </label>
             ))}
@@ -329,10 +342,22 @@ function TableWithTabs({
           {(!(validator && !maintenance && !validAccountSig) && table.tabs[tab].filter) && (
             <FlexRow className={'md:hidden lg:hidden inline-flex w-1/12 justify-center'}>
               <div
-                className="flex relative items-center justify-center"
+                className="flex relative items-center justify-center relative"
                 onClick={() => setMobileFilterOpen(tab + 1)}
               >
                 <MobileFilter />
+                {(Number(refOnly) + Number(chooseMarketSymbol !== 'all_markets') + Number(chooseOrderSide !== 'all_side') + Number(chooseOrderType !== 'all') + Number(chooseOrderStatus !== 'all')) > 0 && (
+                  <div
+                    className="text-cardBg rounded-full bg-gradientFromHover text-center absolute flex justify-center items-center -bottom-1 -right-1"
+                    style={{
+                      width: '13px',
+                      height: '13px',
+                      fontSize: '10px'
+                    }}
+                  >
+                    {Number(refOnly) + Number(chooseMarketSymbol !== 'all_markets') + Number(chooseOrderSide !== 'all_side') + Number(chooseOrderType !== 'all') + Number(chooseOrderStatus !== 'all')}
+                  </div>
+                )}
               </div>
             </FlexRow>
           )}
@@ -341,7 +366,7 @@ function TableWithTabs({
 
 
         <div className={`w-full rounded-2xl md:bg-cardBg lg:bg-cardBg py-5 md:py-0 lg:py-0`}>
-          {(table.tabs[tab].filter && (chooseMarketSymbol !== 'all_markets' || chooseOrderSide !== 'all_side' || chooseOrderType !== 'all' || chooseOrderStatus !== 'all')) && (
+          {(table.tabs[tab].filter && (refOnly || chooseMarketSymbol !== 'all_markets' || chooseOrderSide !== 'all_side' || chooseOrderType !== 'all' || chooseOrderStatus !== 'all')) && (
             <div className={'flex md:hidden lg:hidden px-3 pb-1 w-full items-start justify-between flex-wrap'}>
               <div
                 className="ml-auto flex justify-start items-center flex-wrap"
@@ -358,6 +383,20 @@ function TableWithTabs({
                 className="ml-auto flex justify-end flex-wrap"
                 style={{ flex: '0 0 80%' }}
               >
+                {refOnly && (
+                  <div className="flex items-center p-2">
+                    {intl.formatMessage({
+                      id: 'ref_order',
+                      defaultMessage: 'Order on REf',
+                    })}
+                    <div
+                      className="ml-1.5 cursor-pointer"
+                      onClick={() => setRefOnly(false)}
+                    >
+                      <OffFilterIcon />
+                    </div>
+                  </div>
+                )}
                 {chooseMarketSymbol !== 'all_markets' && (
                   <div className="flex items-center p-2">
                     {marketList.find((m) => m.textId === chooseMarketSymbol)?.textNoColor}
