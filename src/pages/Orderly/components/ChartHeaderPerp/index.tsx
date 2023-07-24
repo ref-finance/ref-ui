@@ -85,7 +85,7 @@ function SymbolLine({
     <div
       className={`px-1.5 text-sm ${
         ticker.symbol === symbol ? 'bg-symbolHover2' : ''
-      } text-white rounded-lg hover:bg-symbolHover2 py-2 flex items-center `}
+      } text-white rounded-lg hover:bg-symbolHover2 py-2 gap-6 flex items-center `}
       onClick={() => {
         setSymbol(ticker.symbol);
       }}
@@ -96,6 +96,10 @@ function SymbolLine({
         <div className="ml-3 whitespace-nowrap">
           <span>{symbolFrom}&nbsp;PERP</span>
         </div>
+      </div>
+      <div className="flex flex-col text-xs items-end">
+        <span>${ticker.close}</span>
+        <TickerDisplayComponent ticker={ticker} />
       </div>
     </div>
   );
@@ -141,7 +145,7 @@ function SymbolSelector(props: {
       <div
         className="bg-darkBg  rounded-lg   border border-borderC px-2 py-3  "
         style={{
-          width: '180px',
+          width: '220px',
         }}
         onMouseLeave={() => {
           mouseLeave();

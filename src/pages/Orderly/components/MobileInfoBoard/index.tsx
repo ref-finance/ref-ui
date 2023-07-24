@@ -464,6 +464,7 @@ export function CurAsset(props?: any) {
             tokenId={operationId}
             accountBalance={tokenInHolding || 0}
             tokenInfo={tokenInfo}
+            freeCollateral={freeCollateral}
           />
 
           <AssetManagerModal
@@ -479,6 +480,7 @@ export function CurAsset(props?: any) {
             tokenId={operationId}
             accountBalance={tokenInHolding || 0}
             tokenInfo={tokenInfo}
+            freeCollateral={freeCollateral}
           />
           {showAllAssets && (
             <AssetModal

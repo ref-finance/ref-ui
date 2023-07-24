@@ -18,7 +18,7 @@ import {
   getPortfolioUnsettle,
   getNotional,
   getAvailable,
-  getTotalEst
+  getTotalEst,
 } from './math';
 import { parseSymbol } from '../RecentTrade';
 import { useLeverage, useTokenInfo } from '~pages/Orderly/orderly/state';
@@ -71,14 +71,14 @@ interface BalanceType {
 export function useTokensBalances(
   tokens: TokenWithDecimals[] | undefined,
   tokenInfo: TokenInfo[] | undefined,
-  trigger?: any
+  trigger: any,
+  freeCollateral: string
 ) {
   const [showbalances, setShowBalances] = useState<BalanceType[]>([]);
 
   const { accountId } = useWalletSelector();
 
   const { myPendingOrdersRefreshing, validAccountSig } = useOrderlyContext();
-  const { freeCollateral } = usePerpData();
   const getBalanceAndMeta = async (token: TokenWithDecimals) => {
     const balance = await ftGetBalance(token.id).then((balance) => {
       return toReadableNumber(token.decimals, balance);
@@ -161,22 +161,20 @@ export function useTokensBalances(
     validAccountSig,
   ]);
 
-  useEffect(() => {
-    if (showbalances.length === 0 || freeCollateral === '-') return;
-
+  if (showbalances.length > 0 && freeCollateral !== '-') {
     showbalances.forEach((sb) => {
       if (sb.name === 'USDC') {
         sb.holding = Number(freeCollateral);
       }
     });
-  }, [showbalances, freeCollateral]);
+  }
 
   return showbalances;
 }
 
 export function usePerpData(deps?: {
-  displayBalances?: OrderAsset[],
-  markMode?: boolean
+  displayBalances?: OrderAsset[];
+  markMode?: boolean;
 }) {
   const { displayBalances, markMode } = deps || {};
   const {
@@ -303,7 +301,12 @@ export function usePerpData(deps?: {
 
   const totalPortfoliouPnl = useMemo(() => {
     try {
-      return getPortfolioTotaluPnl(newPositions, markPrices, everyTickers, markMode);
+      return getPortfolioTotaluPnl(
+        newPositions,
+        markPrices,
+        everyTickers,
+        markMode
+      );
     } catch (error) {
       return null;
     }
@@ -324,7 +327,6 @@ export function usePerpData(deps?: {
       return null;
     }
   }, [newPositions, markPrices]);
-
 
   const marginRatio = useMemo(() => {
     {
@@ -347,7 +349,7 @@ export function usePerpData(deps?: {
       return '-';
     }
   }, [positions, markPrices]);
-  
+
   const portfolioUnsettle = useMemo(() => {
     try {
       const res = getPortfolioUnsettle(newPositions, markPrices);
@@ -356,12 +358,18 @@ export function usePerpData(deps?: {
     } catch (error) {
       return '-';
     }
-  }, [newPositions, markPrices]
-  );
+  }, [newPositions, markPrices]);
 
   const mmr = useMemo(() => {
+    if (
+      Number(freeCollateral) > 0 &&
+      positions.rows.every((r) => r.position_qty === 0)
+    ) {
+      return '3.00%';
+    }
+
     return getMaintenanceMarginRatio(positions, markPrices);
-  }, [positions, markPrices]);
+  }, [positions, markPrices, freeCollateral]);
 
   const triggerBalanceBasedData = useMemo(
     () => balanceTimeStamp,
@@ -378,10 +386,8 @@ export function usePerpData(deps?: {
   }, [everyTickers]);
 
   const perpOrders = useMemo(() => {
-    
-
-    return 
-  }, [newPositions])
+    return;
+  }, [newPositions]);
 
   const totalEst = useMemo(() => {
     try {
@@ -393,7 +399,12 @@ export function usePerpData(deps?: {
 
   const totalAvailable = useMemo(() => {
     try {
-      return getAvailable(newPositions, markPrices, displayBalances, curLeverage);
+      return getAvailable(
+        newPositions,
+        markPrices,
+        displayBalances,
+        curLeverage
+      );
     } catch (error) {
       return null;
     }
@@ -421,6 +432,6 @@ export function usePerpData(deps?: {
     setCurLeverageRaw,
     userInfo,
     totalAvailable,
-    totalEst
+    totalEst,
   };
 }

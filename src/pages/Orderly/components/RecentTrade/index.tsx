@@ -54,7 +54,7 @@ function RecentTrade() {
 
   return (
     <>
-      <div className="flex px-4 xs:px-1.5 mr-4 mb-1 items-center text-xs text-primaryOrderly justify-between ">
+      <div className="flex px-4 xs:px-2 xs:border-b xs:border-white xs:border-opacity-10 xs:pb-1.5 xs:mr-0   mr-4 mb-1 items-center text-xs text-primaryOrderly justify-between ">
         <div className="flex items-center">
           <span>
             {intl.formatMessage({

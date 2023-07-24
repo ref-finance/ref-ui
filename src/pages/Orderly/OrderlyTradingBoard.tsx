@@ -144,8 +144,8 @@ function MobileTradingBoard() {
               }}
             >
               <FormattedMessage
-                id="order"
-                defaultMessage={'Order'}
+                id="orders"
+                defaultMessage={'Orders'}
               ></FormattedMessage>
               {!!allOrders && `(${allOrders.length})`}
 
@@ -252,7 +252,7 @@ function OrderlyTradingBoard() {
   });
 
   return (
-    <div className="mx-auto relative xs:bottom-6">
+    <div className="mx-auto relative xs:bottom-6 bottom-8">
       {!isMobile && <TradingBoard></TradingBoard>}
 
       {isMobile && <MobileTradingBoard></MobileTradingBoard>}

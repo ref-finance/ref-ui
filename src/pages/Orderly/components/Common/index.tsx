@@ -11,6 +11,7 @@ import {
   OrderStateOutlineBlack,
   OrderPopUpCheck,
   GrayBgBoxMobile,
+  RefToOrderlyPortFolio,
 } from './Icons';
 import { useTokenMetaFromSymbol } from '../ChartHeader/state';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
@@ -162,6 +163,34 @@ export function ConnectWallet({ onClick }: { onClick: () => void }) {
   return (
     <button
       className="text-base min-w-fit py-3 px-10 relative w-p240 xs:w-full xs:py-2 bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center
+
+    "
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onClick();
+      }}
+    >
+      <div className="flex-shrink-0">
+        <NearIcon />
+      </div>
+
+      <span className="whitespace-nowrap ml-3  hover:bg-">
+        {intl.formatMessage({
+          id: 'connect_wallet',
+          defaultMessage: 'Connect Wallet',
+        })}
+      </span>
+    </button>
+  );
+}
+
+export function ConnectWalletPorfolio({ onClick }: { onClick: () => void }) {
+  const intl = useIntl();
+
+  return (
+    <button
+      className="text-base min-w-fit py-3 px-6 relative  xs:w-full xs:py-2 bg-buyGradientGreen rounded-3xl text-white font-bold flex items-center justify-center
 
     "
       onClick={(e) => {
@@ -367,9 +396,11 @@ export function RegisterButton({
       <button
         className={`text-base min-w-fit xs:w-full xs:py-2  ${
           isMobile && !isOpenMobile ? 'mb-2' : 'mb-5 xs:mb-3'
-        } py-3   relative w-p240 ${
+        } py-3   relative  ${
           spinNow ? 'opacity-30 cursor-not-allowed' : ''
-        } bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center
+        } bg-buyGradientGreen  ${
+          onPortfolio ? 'rounded-3xl w-p200' : 'rounded-lg w-p240'
+        } text-white font-bold flex items-center justify-center
       
     `}
         onClick={(e) => {
@@ -387,33 +418,39 @@ export function RegisterButton({
         type="button"
         disabled={spinNow}
       >
-        {spinNow && <SpinIcon />}
-        <span className={`whitespace-nowrap ml-3  `}>
-          {userExist && !storedAgree
-            ? !check
-              ? isOpenMobile && !check
+        {onPortfolio ? (
+          <RefToOrderlyPortFolio></RefToOrderlyPortFolio>
+        ) : (
+          <>
+            {spinNow && <SpinIcon />}
+            <span className={`whitespace-nowrap ml-3  `}>
+              {userExist && !storedAgree
+                ? !check
+                  ? isOpenMobile && !check
+                    ? intl.formatMessage({
+                        id: 'confirm',
+                        defaultMessage: 'Confirm',
+                      })
+                    : intl.formatMessage({
+                        id: 'connect_to_orderly',
+                        defaultMessage: 'Connect to Orderly',
+                      })
+                  : intl.formatMessage({
+                      id: 'Connecting',
+                      defaultMessage: 'Connecting',
+                    })
+                : isOpenMobile && !check
                 ? intl.formatMessage({
                     id: 'confirm',
                     defaultMessage: 'Confirm',
                   })
                 : intl.formatMessage({
-                    id: 'connect_to_orderly',
-                    defaultMessage: 'Connect to Orderly',
-                  })
-              : intl.formatMessage({
-                  id: 'Connecting',
-                  defaultMessage: 'Connecting',
-                })
-            : isOpenMobile && !check
-            ? intl.formatMessage({
-                id: 'confirm',
-                defaultMessage: 'Confirm',
-              })
-            : intl.formatMessage({
-                id: 'register',
-                defaultMessage: 'Register',
-              })}
-        </span>
+                    id: 'register',
+                    defaultMessage: 'Register',
+                  })}
+            </span>
+          </>
+        )}
       </button>
       {isMobile || onPortfolio ? null : (
         <div className="text-sm  text-center text-white flex items-center lg:px-6 justify-center">
@@ -639,6 +676,9 @@ export function orderPopUp({
       },
     }
   );
+
+  console.log(order, 'order111111');
+
   if (
     (order.type === 'FOK' ||
       order.type === 'IOC' ||

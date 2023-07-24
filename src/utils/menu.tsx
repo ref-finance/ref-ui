@@ -596,9 +596,7 @@ export const useMenus = (cb?: () => void) => {
   ];
   return menuData;
 };
-export const useMenusMobile = (
-  setShow: (show: boolean) => void
-) => {
+export const useMenusMobile = (setShow: (show: boolean) => void) => {
   const history = useHistory();
   const intl = useIntl();
   const menuData = [
@@ -665,7 +663,10 @@ export const useMenusMobile = (
                   }}
                   className="frcc bg-symbolHover2 border text-white border-white border-opacity-30 w-1/2 rounded-xl py-2"
                   style={{
-                    background: '#4F6574',
+                    background:
+                      window.location.pathname === '/orderbook/spot'
+                        ? '#1D2932'
+                        : '#4F6574',
                     width: '104px',
                   }}
                 >
@@ -684,7 +685,10 @@ export const useMenusMobile = (
                     setShow(false);
                   }}
                   style={{
-                    background: '#4F6574',
+                    background:
+                      window.location.pathname === '/orderbook/perps'
+                        ? '#1D2932'
+                        : '#4F6574',
                     width: '104px',
                   }}
                   className="frcc bg-symbolHover2 border  border-white border-opacity-30 w-1/2 rounded-xl py-2"
@@ -697,7 +701,7 @@ export const useMenusMobile = (
               </div>
             </div>
           ),
-          url: '/orderbook',
+
           isExternal: false,
           links: ['/orderbook'],
         },

@@ -45,14 +45,14 @@ export default function Guider() {
             className={`absolute ${currentStep == 1 ? '' : 'hidden'}`}
             style={{ top: '21px', left: '122px' }}
           >
-            <span
+            {/* <span
               className="absolute text-sm text-black gotham_bold bottom-1 right-14 cursor-pointer"
               onClick={() => {
                 showStep(2);
               }}
             >
               {'Next >'}
-            </span>
+            </span> */}
             <StepOne></StepOne>
             <div className="flex items-center absolute right-9 -bottom-8">
               <span className="text-xs text-white">Close</span>

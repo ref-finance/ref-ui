@@ -45,7 +45,7 @@ export const useOrderlyWS = () => {
   const { lastMessage, readyState, lastJsonMessage, sendMessage } =
     useWebSocket(socketUrl, {
       shouldReconnect: (closeEvent) => true,
-      reconnectAttempts: 10,
+      reconnectAttempts: 50,
       reconnectInterval: (attemptNumber) =>
         Math.min(Math.pow(2, attemptNumber) * 1000, 10000),
       onClose: (e) => {},
@@ -93,7 +93,14 @@ export const usePrivateOrderlyWS = () => {
   const [messageHistory, setMessageHistory] = useState<any>([]);
 
   const { lastMessage, readyState, lastJsonMessage, sendMessage } =
-    useWebSocket(!accountId ? null : socketUrl);
+    useWebSocket(!accountId ? null : socketUrl, {
+      shouldReconnect: (closeEvent) => true,
+      reconnectAttempts: 50,
+      reconnectInterval: (attemptNumber) =>
+        Math.min(Math.pow(2, attemptNumber) * 1000, 10000),
+      onClose: (e) => {},
+      onError: (e) => {},
+    });
 
   useEffect(() => {
     if (lastMessage !== null) {

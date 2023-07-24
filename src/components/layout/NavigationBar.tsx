@@ -1441,7 +1441,10 @@ function MenuBar() {
     set_back_one_level_item(null);
   }
 
-  const menus_temp = useMenus(hover_off_one_level_item);
+  const menus_temp = useMenus(() => {
+    hover_off_one_level_item();
+    set_hover_two_level_id(undefined);
+  });
   const menus = useMemo(() => {
     if (menus_temp) {
       const menus_final = menus_temp.filter((m: menuItemType) => {

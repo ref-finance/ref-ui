@@ -380,7 +380,7 @@ function UserBoardFoot() {
 
   return (
     <div
-      className="flex flex-col text-primaryText pr-6    absolute  bottom-6 text-13px"
+      className="flex flex-col text-primaryText  whitespace-nowrap left-1/2 transform -translate-x-1/2   absolute  bottom-6 text-13px"
       style={{
         zIndex: 91,
       }}
@@ -415,16 +415,24 @@ function UserBoardFoot() {
         </>
       )}
 
-      <div
-        className={`flex items-center justify-center ${
-          accountId ? 'left-12' : ''
-        } relative `}
-      >
+      <div className={`flex items-center justify-center  relative `}>
         <span className="text-primaryText  ">Powered by</span>
 
         <div className="mx-2">
           <OrderlyNetworkIcon></OrderlyNetworkIcon>
         </div>
+
+        <a
+          href="https://docs.orderly.network/welcome-to-orderly/what-is-orderly-network"
+          className="underline hover:text-white"
+          target="_blank"
+          rel="noopener noreferrer nofollow"
+        >
+          <FormattedMessage
+            id="risk"
+            defaultMessage={'Risk'}
+          ></FormattedMessage>
+        </a>
       </div>
     </div>
   );
@@ -1812,6 +1820,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         tokenId={operationId}
         accountBalance={tokenInHolding || 0}
         tokenInfo={tokenInfo}
+        freeCollateral={freeCollateral}
       />
 
       <AssetManagerModal
@@ -1827,6 +1836,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         tokenId={operationId}
         accountBalance={tokenInHolding || 0}
         tokenInfo={tokenInfo}
+        freeCollateral={freeCollateral}
       />
 
       <ConfirmOrderModal
@@ -3011,6 +3021,7 @@ export function AssetManagerModal(
     walletBalance?: number | string;
     standAlone?: boolean;
     tokenInfo: TokenInfo[] | undefined;
+    freeCollateral: string;
   }
 ) {
   const {
@@ -3023,6 +3034,7 @@ export function AssetManagerModal(
     accountBalance,
     tokenInfo,
     isOpen,
+    freeCollateral,
   } = props;
 
   const [tokenId, setTokenId] = useState<string | undefined>(tokenIdProp);
@@ -3051,7 +3063,8 @@ export function AssetManagerModal(
       };
     }) || [],
     tokenInfo,
-    isOpen
+    isOpen,
+    freeCollateral
   );
 
   const walletBalance =

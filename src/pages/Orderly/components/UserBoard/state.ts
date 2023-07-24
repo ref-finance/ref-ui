@@ -56,13 +56,12 @@ interface BalanceType {
 export function useTokensBalances(
   tokens: TokenWithDecimals[] | undefined,
   tokenInfo: TokenInfo[] | undefined,
-  trigger?: any
+  trigger: any,
+  freeCollateral: string
 ) {
   const [showbalances, setShowBalances] = useState<BalanceType[]>([]);
 
   const { accountId } = useWalletSelector();
-
-  const { freeCollateral } = usePerpData();
 
   const { myPendingOrdersRefreshing, validAccountSig } = useOrderlyContext();
 
@@ -148,15 +147,13 @@ export function useTokensBalances(
     validAccountSig,
   ]);
 
-  useEffect(() => {
-    if (showbalances.length === 0 || freeCollateral === '-') return;
-
+  if (showbalances.length > 0 && freeCollateral !== '-') {
     showbalances.forEach((sb) => {
       if (sb.name === 'USDC') {
         sb.holding = Number(freeCollateral);
       }
     });
-  }, [showbalances, freeCollateral]);
+  }
 
   return showbalances;
 }
@@ -254,7 +251,7 @@ export function useTokensOrderlyBalances(
     trigger,
     myPendingOrdersRefreshing,
     validAccountSig,
-    triggerBalanceBasedData
+    triggerBalanceBasedData,
   ]);
 
   useEffect(() => {
