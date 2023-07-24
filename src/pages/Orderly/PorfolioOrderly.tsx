@@ -105,7 +105,8 @@ function PortfolioOrderly() {
     totalEst,
     triggerBalanceBasedData,
     triggerPositionBasedData,
-    totalAvailable
+    totalAvailable,
+    freeCollateral
   } = usePerpData({ displayBalances });
 
   // closing order
@@ -451,6 +452,7 @@ function PortfolioOrderly() {
         tokenId={operationId}
         accountBalance={tokenInHolding || 0}
         tokenInfo={tokenInfo}
+        freeCollateral={freeCollateral}
       />
 
       <AssetManagerModal
@@ -466,6 +468,7 @@ function PortfolioOrderly() {
         tokenId={operationId}
         accountBalance={tokenInHolding || 0}
         tokenInfo={tokenInfo}
+        freeCollateral={freeCollateral}
       />
 
       <MobileFilterModal
