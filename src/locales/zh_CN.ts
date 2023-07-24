@@ -106,6 +106,11 @@ const zh_CN_in_risks_page = {
     '>监护人</a>，特定的 NEAR 地址，可以暂停合约。 只有 DAO 可以随时恢复合约。',
   risks_of_using_ref_finance:
     'Ref. finance的使用<label class="text-greenColor">风险</label>',
+  third_party_wallet: '第三方钱包',
+  third_party_wallet_1: 'Ref Finance 集成了第三方钱包。',
+  third_party_wallet_2:
+    '尽管我们已采取措施选择钱包提供商，但我们无法保证其安全性或性能。 您应该熟悉与特定钱包提供商相关的风险，并了解他们的服务条款、隐私政策和安全实践。',
+  third_party_wallet_3: '请您自行承担使用这些服务的风险并谨慎行事。',
 };
 const zh_CN = {
   deposit: '存入',
@@ -1255,6 +1260,8 @@ const zh_CN = {
   TotalAssets: '资产',
   open_interest: '未平仓量',
   TokenAllocation: '代币分布',
+  bridge_pure: '桥',
+
   netWorthTip:
     'Ref中的投资总价值(包括可领取奖励)+Orderly资产总价值+ Burrow资产总价值+钱包中的总资产',
 

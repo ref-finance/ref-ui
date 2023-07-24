@@ -120,6 +120,12 @@ const uk_UA_in_risks_page = {
     '>Guardians</a>, конкретні адреси NEAR, які можуть призупинити контракт. Тільки DAO може відновити контракт у будь-який час.',
   risks_of_using_ref_finance:
     '<label class="text-greenColor">Risks</label> Використання Ref. finance',
+  third_party_wallet: 'Сторонній гаманець',
+  third_party_wallet_1: 'Ref Finance інтегрує гаманці сторонніх розробників.',
+  third_party_wallet_2:
+    'Незважаючи на те, що ми вжили заходів для вибору авторитетних постачальників гаманців, ми не можемо гарантувати їхню безпеку чи продуктивність. Ви повинні ознайомитися з ризиками, пов’язаними з конкретним постачальником гаманця, а також зрозуміти його умови обслуговування, політику конфіденційності та методи безпеки.',
+  third_party_wallet_3:
+    'Користуйтеся цими послугами на власний ризик і будьте обережні.',
 };
 const uk_UA = {
   deposit: 'депозит',
@@ -1112,7 +1118,7 @@ const uk_UA = {
   Market: 'Market',
   TotalSupplied: 'Total Supplied',
   TotalBorrowed: 'Total Borrowed',
-  AvailableLiquidities: 'Available Liquidities',
+  AvailableLiquidities: 'Available Liquidity',
   DailyRewards: 'Daily Rewards',
   SupplyAPY: 'Supply APY',
   BorrowAPY: 'Borrow APY',
@@ -1142,12 +1148,13 @@ const uk_UA = {
 
   NetWorth: 'Net Worth',
   Claimable: 'Claimable',
-  TotalDebts: 'Total Debts',
+  TotalDebts: 'Total Debt',
   WalletAssets: 'Wallet Assets',
   TotalInvested: 'Total Invested',
   TotalAssets: 'Total Assets',
   open_interest: 'Open Interest',
   TokenAllocation: 'Token Allocation',
+  bridge_pure: 'Міст',
   netWorthTip:
     'Total value of investments in Ref (including claimable rewards) + Total value of Orderly assets + Total value of Burrow assets + Total assets in wallet',
 
