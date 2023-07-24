@@ -26,6 +26,7 @@ function SortArrow(props: any & { on: boolean }) {
       {...props}
       size={24}
       color={props.on ? 'white' : '#7E8A93'}
+      className="flex-shrink-0"
     ></MdArrowDropDown>
   );
 }
@@ -146,8 +147,8 @@ function LiquidationHistoryModal(
         </div>
         {loading && <OrderlyLoading></OrderlyLoading>}
         {!loading && (
-          <table className="w-full">
-            <thead>
+          <table className="w-full table table-fixed">
+            <thead className="table w-full table-fixed">
               <th align="left" className="pb-3">
                 <div className="pl-6 frcs ">
                   <FormattedMessage
@@ -157,8 +158,8 @@ function LiquidationHistoryModal(
                 </div>
               </th>
 
-              <th className="pb-3">
-                <div className="frcs gap-1">
+              <th className="pb-3 relative left-4">
+                <div className="frcs gap-1 relative">
                   <FormattedMessage
                     id="price"
                     defaultMessage={'Price'}
@@ -172,23 +173,35 @@ function LiquidationHistoryModal(
                 </div>
               </th>
 
-              <th align="left" className="pb-3">
+              <th align="left" className="pb-3 relative right-4">
                 <FormattedMessage
                   id="quantity"
                   defaultMessage={'Quantity'}
                 ></FormattedMessage>
               </th>
 
-              <th align="left" className="pb-3">
-                <FormattedMessage
-                  id="liquidation_fee"
-                  defaultMessage={'Liquidation Fee'}
-                ></FormattedMessage>
+              <th align="left" className="pb-3 relative right-14">
+                <div className="frcs gap-1 whitespace-nowrap">
+                  <FormattedMessage
+                    id="liquidation_fee"
+                    defaultMessage={'Liquidation Fee'}
+                  ></FormattedMessage>
+
+                  <TextWrapper
+                    className="text-10px px-1"
+                    value="USDC"
+                    textC="text-primaryText"
+                  ></TextWrapper>
+                </div>
               </th>
 
-              <th className="pb-3">
+              <th className="pb-3 ">
                 <div
-                  className="frcs gap-0.5 max-w-max cursor-pointer"
+                  className={`frcs gap-0.5 whitespace-nowrap max-w-max cursor-pointer    relative right-8  ${
+                    orderBy === 'transfer_amount_to_insurance_fund'
+                      ? 'text-white'
+                      : ''
+                  }`}
                   onClick={() => {
                     setOrderBy('transfer_amount_to_insurance_fund');
                   }}
@@ -198,6 +211,12 @@ function LiquidationHistoryModal(
                     defaultMessage={'Ins. Fund Transfer'}
                   ></FormattedMessage>
 
+                  <TextWrapper
+                    className="text-10px px-1"
+                    value="USDC"
+                    textC="text-primaryText"
+                  ></TextWrapper>
+
                   <SortArrow
                     on={orderBy === 'transfer_amount_to_insurance_fund'}
                   ></SortArrow>
@@ -206,7 +225,10 @@ function LiquidationHistoryModal(
 
               <th align="right" className="pb-3">
                 <div
-                  className="flex items-center  max-w-max justify-end pr-4 gap-0.5 cursor-pointer"
+                  className={`flex items-center  max-w-max justify-end pr-4 gap-0.5 cursor-pointer
+                  
+                    ${orderBy === 'timestamp' ? 'text-white' : ''}
+                  `}
                   onClick={() => {
                     setOrderBy('timestamp');
                   }}
@@ -222,62 +244,69 @@ function LiquidationHistoryModal(
             </thead>
 
             {renderData.length > 0 && (
-              <tbody className="text-white text-xs">
-                {renderData.map((r, i) => {
-                  return (
-                    <tr
-                      className={`${
-                        i === renderData.length - 1 ? 'border-b' : ''
-                      } border-t border-white border-opacity-10`}
-                    >
-                      <td>
-                        <div className="frcs gap-1 pl-5 py-4">
-                          <img
-                            src={r?.from_meta?.icon}
-                            alt=""
-                            className={`h-7 w-7 flex-shrink-0 rounded-full border-gradientFromHover `}
-                          />
-                          <span className="pl-2">
-                            {parseSymbol(r.symbol).symbolFrom}
-                          </span>
+              <div
+                className="overflow-auto w-full"
+                style={{
+                  maxHeight: '480px',
+                }}
+              >
+                <tbody className="text-white text-xs table table-fixed">
+                  {renderData.map((r, i) => {
+                    return (
+                      <tr
+                        className={`${
+                          i === renderData.length - 1 ? 'border-b' : ''
+                        } border-t border-white border-opacity-10 table w-full  table-fixed`}
+                      >
+                        <td className="">
+                          <div className="frcs gap-1 pl-5 py-4">
+                            <img
+                              src={r?.from_meta?.icon}
+                              alt=""
+                              className={`h-7 w-7 flex-shrink-0 rounded-full border-gradientFromHover `}
+                            />
+                            <span className="pl-2">
+                              {parseSymbol(r.symbol).symbolFrom}
+                            </span>
 
-                          <span>PERP</span>
-                        </div>
-                      </td>
+                            <span>PERP</span>
+                          </div>
+                        </td>
 
-                      <td>{numberWithCommas(r.transfer_price)}</td>
+                        <td className="relative left-4">
+                          {numberWithCommas(r.transfer_price)}
+                        </td>
 
-                      <td>{numberWithCommas(r.position_qty)}</td>
+                        <td className="">{numberWithCommas(r.position_qty)}</td>
 
-                      <td>
-                        <div className="frcs whitespace-nowrap gap-1">
-                          <span>
-                            {numberWithCommas(r.abs_liquidation_fee || 0)}
-                          </span>
-                          <span>USDC</span>
-                        </div>
-                      </td>
+                        <td className=" relative right-12">
+                          <div className="frcs whitespace-nowrap gap-1">
+                            <span>
+                              {numberWithCommas(r.abs_liquidation_fee || 0)}
+                            </span>
+                          </div>
+                        </td>
 
-                      <td>
-                        <div className="frcs whitespace-nowrap gap-1">
-                          <span>
-                            {numberWithCommas(
-                              r.transfer_amount_to_insurance_fund || 0
-                            )}
-                          </span>
-                          <span>USDC</span>
-                        </div>
-                      </td>
+                        <td className="relative right-8">
+                          <div className="frcs whitespace-nowrap gap-1 relative left-6">
+                            <span>
+                              {numberWithCommas(
+                                r.transfer_amount_to_insurance_fund || 0
+                              )}
+                            </span>
+                          </div>
+                        </td>
 
-                      <td align="right">
-                        <div className="pr-4 text-primaryText">
-                          {formatTimeDate(r.timestamp)}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
+                        <td align="right" className="">
+                          <div className="pr-4 text-primaryText whitespace-nowrap">
+                            {formatTimeDate(r.timestamp)}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </div>
             )}
 
             {renderData.length === 0 && (
@@ -457,16 +486,32 @@ export function MobileliquidationList({
 
   return (
     <div className="flex flex-col gap-4 mt-4 relative">
-      {loading && <OrderlyLoading></OrderlyLoading>}
+      {loading && (
+        <div
+          className="w-full relative text-primaryText"
+          style={{
+            minHeight: '100px',
+          }}
+        >
+          <OrderlyLoading></OrderlyLoading>
+        </div>
+      )}
       {!loading && alldata.length === 0 && (
-        <div className="absolute top-1/2 flex gap-2 flex-col items-center justify-center left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-          <NoOrderEmpty></NoOrderEmpty>
-          <span>
-            <FormattedMessage
-              id="no_liquidation_yet"
-              defaultMessage={'No liquidation yet'}
-            ></FormattedMessage>
-          </span>
+        <div
+          className="w-full relative text-primaryText text-opacity-20"
+          style={{
+            minHeight: '100px',
+          }}
+        >
+          <div className="absolute top-1/2 flex gap-2 flex-col items-center justify-center left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            <NoOrderEmpty></NoOrderEmpty>
+            <span>
+              <FormattedMessage
+                id="no_liquidation_yet"
+                defaultMessage={'No liquidation yet'}
+              ></FormattedMessage>
+            </span>
+          </div>
         </div>
       )}
 
@@ -481,9 +526,11 @@ export function MobileliquidationList({
                     // const renderData = [
                     src={r?.from_meta?.icon}
                     alt=""
-                    className={`h-7 w-7 flex-shrink-0 rounded-full border-gradientFromHover pr-2`}
+                    className={`h-7 w-7 flex-shrink-0 rounded-full border-gradientFromHover `}
                   />
-                  <span>{parseSymbol(r.symbol).symbolFrom}</span>
+                  <span className="ml-2">
+                    {parseSymbol(r.symbol).symbolFrom}
+                  </span>
 
                   <span>PERP</span>
                 </div>
@@ -528,11 +575,17 @@ export function MobileliquidationList({
 
               <div className="frcb">
                 <div className="w-1/2">
-                  <div className="text-primaryText">
+                  <div className="text-primaryText frcs gap-1">
                     <FormattedMessage
                       id="liquidation_fee"
                       defaultMessage={'Liquidation Fee'}
                     ></FormattedMessage>
+
+                    <TextWrapper
+                      className="text-10px px-1"
+                      value="USDC"
+                      textC="text-primaryText"
+                    ></TextWrapper>
                   </div>
                   <div className="frcs whitespace-nowrap gap-1">
                     <span>{numberWithCommas(r.abs_liquidation_fee || 0)}</span>
@@ -541,11 +594,17 @@ export function MobileliquidationList({
                 </div>
 
                 <div className="w-1/2">
-                  <div className="text-primaryText">
+                  <div className="text-primaryText frcs gap-1">
                     <FormattedMessage
                       id="ins_fund_transfer"
                       defaultMessage={'Ins. Fund Transfer'}
                     ></FormattedMessage>
+
+                    <TextWrapper
+                      className="text-10px px-1"
+                      value="USDC"
+                      textC="text-primaryText"
+                    ></TextWrapper>
                   </div>
 
                   <div>

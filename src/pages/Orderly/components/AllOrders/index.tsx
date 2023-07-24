@@ -2840,6 +2840,11 @@ function OpenOrders({
 
         const fromToken = allTokens[symbolFrom];
 
+        const tokenList =
+          isMobile() && symbolType === 'PERP'
+            ? [fromToken]
+            : [fromToken, allTokens[symbolTo]];
+
         const render = (
           <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
             <img
@@ -2849,7 +2854,7 @@ function OpenOrders({
             />
 
             <Images
-              tokens={[fromToken, allTokens[symbolTo]]}
+              tokens={tokenList}
               size="5"
               className="lg:hidden"
               borderStyle="border-gradientFrom"
@@ -3516,6 +3521,10 @@ function HistoryOrders({
         const { symbolFrom, symbolTo } = parseSymbol(symbol.symbol);
         const fromToken = allTokens[symbolFrom];
         const symbolType = PerpOrSpot(symbol.symbol);
+        const tokenList =
+          isMobile() && symbolType === 'PERP'
+            ? [fromToken]
+            : [fromToken, allTokens[symbolTo]];
 
         const render = (
           <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
@@ -3526,7 +3535,7 @@ function HistoryOrders({
             />
 
             <Images
-              tokens={[fromToken, allTokens[symbolTo]]}
+              tokens={tokenList}
               size="5"
               className="lg:hidden"
               borderStyle="border-gradientFrom"

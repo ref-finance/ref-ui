@@ -464,11 +464,13 @@ function ChartHeader(props?: any) {
       >
         {<img src={iconIn} alt="" className="rounded-full relative  h-6 w-6" />}
 
-        <img
-          src={iconOut}
-          alt=""
-          className="rounded-full relative right-1 z-10 h-6 w-6"
-        />
+        {symbolType === 'SPOT' && (
+          <img
+            src={iconOut}
+            alt=""
+            className="rounded-full relative right-1 z-10 h-6 w-6"
+          />
+        )}
 
         <span className="text-base ml-4">
           {symbolType === 'SPOT'
@@ -902,7 +904,7 @@ export function ChartHeaderDetail(props?: any) {
               </span>
 
               <span className="text-white mt-0.5 font-bold">
-                {digitWrapper(ticker.volume.toString(), 3)}
+                ${digitWrapper(ticker.amount.toString(), 3)}
               </span>
             </div>
 

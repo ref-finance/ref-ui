@@ -14,7 +14,10 @@ export interface OrderAsset {
   tokenMeta: TokenMetadata;
 }
 
-export function useOrderAssets(tokenInfo: TokenInfo[] | undefined) {
+export function useOrderAssets(
+  tokenInfo: TokenInfo[] | undefined,
+  freeCollateral: string
+) {
   const tokens = tokenInfo
     ? tokenInfo.map((t) => ({
         id: t.token_account_id,
@@ -22,7 +25,7 @@ export function useOrderAssets(tokenInfo: TokenInfo[] | undefined) {
       }))
     : [];
 
-  const balances = useTokensBalances(tokens, tokenInfo);
+  const balances = useTokensBalances(tokens, tokenInfo, null, freeCollateral);
 
   const displayBalances = balances.map((b, i) => {
     return {

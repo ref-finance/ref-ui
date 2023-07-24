@@ -284,6 +284,7 @@ module.exports = {
         limitOrderFeeTiersBorderColor: 'rgba(145, 162, 174, 0.2)',
         addV1PoolTableColor: '#55616A',
         pinEmptyHoverColor: '#B7C9D6',
+        hoverSubBridge: '#4F6574',
         commonTokenBorderColor: 'rgba(126, 138, 147, 0.2)',
         commonCloseColor: '#454D52',
         lightReBgColor: 'rgba(255, 117, 117, 0.1)',

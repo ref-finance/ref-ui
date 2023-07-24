@@ -26,7 +26,7 @@ import { tickerToDisplayDiff } from '..';
 import { BsArrowRight } from 'react-icons/bs';
 import { openUrl } from '~services/commonV3';
 import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
-import { SWAP_MODE } from '../../../../SwapPage';
+import { SWAP_MODE, SWAP_TYPE_KEY } from '../../../../SwapPage';
 import { useRefQuery } from '../state';
 
 function MoreRouteBox(props: Modal.Props) {
@@ -122,14 +122,6 @@ function MoreRouteBox(props: Modal.Props) {
 
   const tokenOut = useTokenMetaFromSymbol(symbolToMemo, tokenInfoMemo);
 
-  console.log('tokenIn', {
-    ...tokenIn,
-    id:
-      tokenIn?.id?.toLowerCase() === 'near'
-        ? WRAP_NEAR_CONTRACT_ID
-        : tokenIn?.id,
-  });
-
   const refDiff = useTokenRate24h({
     base_token: tokenOut,
     token: {
@@ -224,6 +216,7 @@ function MoreRouteBox(props: Modal.Props) {
                 sethoverRoute(undefined);
               }}
               onClick={() => {
+                sessionStorage.setItem(SWAP_TYPE_KEY, 'Lite');
                 openUrl(`/swap/#${tokenIn.id}|${tokenOut.id}`);
               }}
             >

@@ -79,7 +79,6 @@ import {
 import { FiSearch } from 'react-icons/fi';
 import {
   NearIConSelectModal,
-  OrderlyNetworkIcon,
   OutLinkIcon,
   PowerByOrderly,
   RefToOrderly,
@@ -102,7 +101,7 @@ import { ButtonTextWrapper } from '../../../../components/button/Button';
 import { FlexRow, orderEditPopUpFailure } from '../Common/index';
 import { ONLY_ZEROS } from '../../../../utils/numbers';
 import * as math from 'mathjs';
-import { NearWalletIcon } from '../Common/Icons';
+import { NearWalletIcon, OrderlyNetworkIcon } from '../Common/Icons';
 import {
   getSelectedWalletId,
   generateTradingKeyPair,
@@ -132,6 +131,7 @@ import { DetailBox } from './components/DetailBox';
 import { LiquidationButton } from './components/LiquidationHistory';
 import { executeMultipleTransactions } from '~services/near';
 import { openUrl } from '~services/commonV3';
+import SettlePnlModal from '../TableWithTabs/SettlePnlModal';
 const REF_ORDERLY_LIMIT_ORDER_ADVANCE = 'REF_ORDERLY_LIMIT_ORDER_ADVANCE';
 
 function getTipFOK() {
@@ -396,12 +396,10 @@ function UserBoardFoot() {
         </>
       )}
 
-      <div className={`frcc gap-2 relative `}>
+      <div className={`frcc gap-1 relative `}>
         <span className="text-primaryText  whitespace-nowrap">Powered by</span>
 
-        <div className="relative top-1">
-          <OrderlyNetworkIconGray></OrderlyNetworkIconGray>
-        </div>
+        <OrderlyNetworkIcon></OrderlyNetworkIcon>
 
         <div className="frcs gap-2  text-primaryText">
           <a
@@ -509,10 +507,6 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
   );
 
   const history = useHistory();
-
-  useEffect(() => {
-    history.push('/orderbook/perps');
-  }, [sideUrl, orderTypeUrl]);
 
   const [holdings, setHoldings] = useState<Holding[]>();
 
@@ -633,7 +627,8 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       side,
       curHoldingOut,
       priceNumber,
-      userInfo
+      userInfo,
+      availableSymbols
     );
   }, [
     positions,
@@ -648,6 +643,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     orderType,
     limitPrice,
     curSymbolMarkPrice,
+    availableSymbols,
   ]);
 
   const storedLimitOrderAdvance =
@@ -767,6 +763,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         order_price: orderType === 'Limit' ? parseFloat(limitPrice) : '',
       },
     }).then(async (res) => {
+      console.log('res: ', res);
       if (res.success === false)
         return orderEditPopUpFailure({
           tip: res.message,
@@ -793,7 +790,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         ).toString(),
         timeStamp: res.timestamp,
         filled: order?.data?.status === 'FILLED',
-        order,
+        order: order.data,
       });
     });
   };
@@ -1139,11 +1136,13 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       orderType === 'Limit' ? limitPrice : marketPrice.toString(),
       inputValue
     );
-  }, [side, orderType, symbol, orders, curSymbolMarkPrice]);
+  }, [side, orderType, symbol, orders, curSymbolMarkPrice, limitPrice]);
 
   const [perpBoardTab, setPerpBoardTab] = useState<'account' | 'balance'>(
     'account'
   );
+
+  const [settleModalOpen, setSettleModalOpen] = useState<boolean>(false);
 
   const validator =
     !accountId ||
@@ -1250,7 +1249,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
               if (ONLY_ZEROS.test(unsettle)) {
                 return;
               }
-              return executeMultipleTransactions([await perpSettlementTx()]);
+              setSettleModalOpen(true);
             }}
           >
             <FormattedMessage
@@ -1804,8 +1803,8 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
               <div className="frcb ">
                 <span className="text-primaryOrderly">
                   {intl.formatMessage({
-                    id: 'advance',
-                    defaultMessage: 'Advance',
+                    id: 'advanced',
+                    defaultMessage: 'Advanced',
                   })}
                 </span>
 
@@ -2020,22 +2019,22 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
               <div className="frcb">
                 <span className="text-primaryOrderly">
                   {intl.formatMessage({
-                    id: 'marker_taker_fee_rate',
-                    defaultMessage: 'Maker/Taker Fee Rate',
+                    id: 'taker_maker_fee_rate',
+                    defaultMessage: 'Taker/Maker Fee Rate',
                   })}
                 </span>
 
                 <FlexRow className="text-white">
-                  <span className="  ">
+                  <span className=" ">
                     {Number(
-                      (userInfo?.futures_maker_fee_rate || 0) / 100
+                      (userInfo?.futures_taker_fee_rate || 0) / 100
                     ).toFixed(3)}
                     %
                   </span>
                   /
-                  <span className=" ">
+                  <span className="  ">
                     {Number(
-                      (userInfo?.futures_taker_fee_rate || 0) / 100
+                      (userInfo?.futures_maker_fee_rate || 0) / 100
                     ).toFixed(3)}
                     %
                   </span>
@@ -2104,6 +2103,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         tokenId={operationId}
         accountBalance={tokenInHolding || 0}
         tokenInfo={tokenInfo}
+        freeCollateral={freeCollateral}
       />
 
       <AssetManagerModal
@@ -2119,6 +2119,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         tokenId={operationId}
         accountBalance={tokenInHolding || 0}
         tokenInfo={tokenInfo}
+        freeCollateral={freeCollateral}
       />
 
       <ConfirmOrderModal
@@ -2148,6 +2149,16 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           setAgreeCheck(true);
         }}
       />
+
+      <SettlePnlModal
+        onClick={async () => {
+          return executeMultipleTransactions([await perpSettlementTx()]);
+        }}
+        onRequestClose={() => {
+          setSettleModalOpen(false);
+        }}
+        isOpen={settleModalOpen}
+      ></SettlePnlModal>
     </div>
   );
 }
@@ -2161,6 +2172,7 @@ export function AssetManagerModal(
     walletBalance?: number | string;
     standAlone?: boolean;
     tokenInfo: TokenInfo[] | undefined;
+    freeCollateral: string;
   }
 ) {
   const {
@@ -2173,6 +2185,7 @@ export function AssetManagerModal(
     accountBalance,
     tokenInfo,
     isOpen,
+    freeCollateral,
   } = props;
 
   const [tokenId, setTokenId] = useState<string | undefined>(tokenIdProp);
@@ -2201,7 +2214,8 @@ export function AssetManagerModal(
       };
     }) || [],
     tokenInfo,
-    isOpen
+    isOpen,
+    freeCollateral
   );
 
   const walletBalance =
@@ -3163,6 +3177,8 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
     'orderType'
   );
 
+  const [settleModalOpen, setSettleModalOpen] = useState<boolean>(false);
+
   const [side, setSide] = useState<'Buy' | 'Sell'>(
     (sideUrl as 'Buy' | 'Sell') || 'Buy'
   );
@@ -3172,10 +3188,6 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
   );
 
   const history = useHistory();
-
-  useEffect(() => {
-    history.push('/orderbook/perps');
-  }, [sideUrl, orderTypeUrl]);
 
   const [holdings, setHoldings] = useState<Holding[]>();
 
@@ -3332,7 +3344,8 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
       side,
       curHoldingOut,
       priceNumber,
-      userInfo
+      userInfo,
+      availableSymbols
     );
   }, [
     newPositions,
@@ -3347,6 +3360,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
     orderType,
     limitPrice,
     curSymbolMarkPrice,
+    availableSymbols,
   ]);
 
   const marketPrice = !orders
@@ -3437,7 +3451,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
         ).toString(),
         timeStamp: res.timestamp,
         filled: order?.data?.status === 'FILLED',
-        order,
+        order: order.data,
       });
     });
   };
@@ -3812,7 +3826,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
       orderType === 'Limit' ? limitPrice : marketPrice.toString(),
       inputValue
     );
-  }, [side, orderType, symbol, orders]);
+  }, [side, orderType, symbol, orders, limitPrice]);
 
   const validator =
     !accountId ||
@@ -4145,8 +4159,8 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
               <div className="frcb ">
                 <span className="text-primaryOrderly">
                   {intl.formatMessage({
-                    id: 'advance',
-                    defaultMessage: 'Advance',
+                    id: 'advanced',
+                    defaultMessage: 'Advanced',
                   })}
                 </span>
 
@@ -4377,23 +4391,23 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
               <div className="frcb text-xs">
                 <span className="text-primaryOrderly">
                   {intl.formatMessage({
-                    id: 'marker_taker_fee',
-                    defaultMessage: 'Maker/Taker Fee',
+                    id: 'taker_maker_fee',
+                    defaultMessage: 'Taker/Maker Fee',
                   })}
                 </span>
 
                 <FlexRow className="text-white">
                   <span className="  ">
                     {Number(
-                      (userInfo?.futures_maker_fee_rate || 0) / 100
-                    ).toFixed(2)}
+                      (userInfo?.futures_taker_fee_rate || 0) / 100
+                    ).toFixed(3)}
                     %
                   </span>
                   /
                   <span className=" ">
                     {Number(
-                      (userInfo?.futures_taker_fee_rate || 0) / 100
-                    ).toFixed(2)}
+                      (userInfo?.futures_maker_fee_rate || 0) / 100
+                    ).toFixed(3)}
                     %
                   </span>
                 </FlexRow>
@@ -4430,10 +4444,10 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
                 id: 'insufficient_balance',
                 defaultMessage: 'Insufficient Balance',
               })
-            : intl.formatMessage({
-                id: side === 'Buy' ? 'buy_long' : 'sell_short',
-                defaultMessage: side === 'Buy' ? 'Buy / Long' : 'Sell / Short',
-              })}
+            : `${intl.formatMessage({
+                id: side.toLowerCase(),
+                defaultMessage: side,
+              })} ${symbolFrom}`}
         </button>
       </div>
 

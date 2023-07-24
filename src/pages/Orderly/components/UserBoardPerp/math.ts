@@ -52,12 +52,15 @@ const getPortfolioTotaluPnl = (
       const markPrice =
         markprices?.find((item) => item.symbol === cur.symbol)?.price || 0;
 
-      const lastPrice =  everyTickers.find((i) => i.symbol === cur.symbol)?.close || 0;
+      const lastPrice =
+        everyTickers.find((i) => i.symbol === cur.symbol)?.close || 0;
 
       const price = markMode ? markPrice : lastPrice;
-      
 
-      const value = cur.position_qty >= 0 ? ((price - cur.average_open_price) * cur.position_qty) : ((cur.average_open_price - price) * cur.position_qty) * -1;
+      const value =
+        cur.position_qty >= 0
+          ? (price - cur.average_open_price) * cur.position_qty
+          : (cur.average_open_price - price) * cur.position_qty * -1;
 
       return new Big(value).plus(acc);
     },
@@ -71,60 +74,75 @@ const getPortfolioTotaluPnl = (
 const getNotional = (positions: PositionsType, markPrices: MarkPrice[]) => {
   if (!positions) return '0';
 
-  const notionals = positions.rows.reduce(
-    (acc, cur, index) => {
-      const markPrice =
-        markPrices?.find((item) => item.symbol === cur.symbol)?.price || 0;
+  const notionals = positions.rows.reduce((acc, cur, index) => {
+    const markPrice =
+      markPrices?.find((item) => item.symbol === cur.symbol)?.price || 0;
 
-      const value = Math.abs(markPrice * cur.position_qty);
+    const value = Math.abs(markPrice * cur.position_qty);
 
-      return new Big(value).plus(acc);
-    },
-    new Big(0)
-  );
+    return new Big(value).plus(acc);
+  }, new Big(0));
 
   return numberWithCommas(notionals.toFixed(2));
 };
 
-const getTotalEst = (positions: PositionsType, markPrices: MarkPrice[], displayBalances: OrderAsset[]) => {
+const getTotalEst = (
+  positions: PositionsType,
+  markPrices: MarkPrice[],
+  displayBalances: OrderAsset[]
+) => {
   if (!displayBalances || !positions || !markPrices) return '0';
 
-  const totatEst = displayBalances.reduce(
-    (acc, cur, index) => {
-      const markPrice =
-        markPrices?.find((item) => item.symbol === `SPOT_${cur.tokenMeta.symbol}_USDC`)?.price || 0;
+  const totatEst = displayBalances.reduce((acc, cur, index) => {
+    const markPrice =
+      markPrices?.find(
+        (item) => item.symbol === `SPOT_${cur.tokenMeta.symbol}_USDC`
+      )?.price || 0;
 
-      const value = cur.tokenMeta.symbol === 'USDC' ? parseFloat(cur.available) : parseFloat(cur.available) * markPrice;
-      const inOrder = cur.tokenMeta.symbol === 'USDC' ? parseFloat(cur['in-order']) : parseFloat(cur['in-order']) * markPrice;
+    const value =
+      cur.tokenMeta.symbol === 'USDC'
+        ? parseFloat(cur.available)
+        : parseFloat(cur.available) * markPrice;
+    const inOrder =
+      cur.tokenMeta.symbol === 'USDC'
+        ? parseFloat(cur['in-order'])
+        : parseFloat(cur['in-order']) * markPrice;
 
-      const total = value + inOrder;
+    const total = value + inOrder;
 
-      return new Big(total).plus(acc);
-    },
-    new Big(0)
-  );
+    return new Big(total).plus(acc);
+  }, new Big(0));
 
   return numberWithCommas(totatEst.toFixed(2));
-
 };
 
-const getAvailable = (positions: PositionsType, markPrices: MarkPrice[], displayBalances: OrderAsset[], curLeverage: number) => {
+const getAvailable = (
+  positions: PositionsType,
+  markPrices: MarkPrice[],
+  displayBalances: OrderAsset[],
+  curLeverage: number
+) => {
   if (!displayBalances || !positions || !markPrices || !curLeverage) return '0';
 
-  const availables = displayBalances.reduce(
-    (acc, cur, index) => {
-      const markPrice =
-        markPrices?.find((item) => item.symbol === `SPOT_${cur.tokenMeta.symbol}_USDC`)?.price || 0;
+  const availables = displayBalances.reduce((acc, cur, index) => {
+    const markPrice =
+      markPrices?.find(
+        (item) => item.symbol === `SPOT_${cur.tokenMeta.symbol}_USDC`
+      )?.price || 0;
 
-      const value = cur.tokenMeta.symbol === 'USDC' ? parseFloat(cur.available) : parseFloat(cur.available) * markPrice;
-      const inOrder = cur.tokenMeta.symbol === 'USDC' ? parseFloat(cur['in-order']) : parseFloat(cur['in-order']) * markPrice;
+    const value =
+      cur.tokenMeta.symbol === 'USDC'
+        ? parseFloat(cur.available)
+        : parseFloat(cur.available) * markPrice;
+    const inOrder =
+      cur.tokenMeta.symbol === 'USDC'
+        ? parseFloat(cur['in-order'])
+        : parseFloat(cur['in-order']) * markPrice;
 
-      const total = value + inOrder;
+    const total = value + inOrder;
 
-      return new Big(total).plus(acc);
-    },
-    new Big(0)
-  );
+    return new Big(total).plus(acc);
+  }, new Big(0));
 
   const futures = positions.rows.reduce(
     (acc, cur, index) => {
@@ -142,7 +160,6 @@ const getAvailable = (positions: PositionsType, markPrices: MarkPrice[], display
   const available = new Big(futures).plus(availables);
 
   return numberWithCommas(available.toFixed(2));
-
 };
 
 const get_total_upnl = (positions: PositionsType, markprices: MarkPrice[]) => {
@@ -287,6 +304,29 @@ const getMarginRatio = (
   return ratio;
 };
 
+const getMMR = (
+  symbol: SymbolInfo,
+  userInfo: ClientInfo,
+  position_notional: number
+) => {
+  const { symbolFrom } = parseSymbol(symbol.symbol);
+  const base_mmr = symbol.base_mmr;
+
+  const base_imr = symbol.base_imr;
+
+  const imr_factor = userInfo.imr_factor[symbolFrom];
+
+  const mmr_i = BigNumber.max(
+    new Big(base_mmr),
+    new BigNumber(base_mmr)
+      .div(new BigNumber(base_imr))
+      .times(new BigNumber(imr_factor))
+      .times(new Decimal(position_notional).pow(4 / 5).toNumber())
+  ).toFixed();
+
+  return mmr_i;
+};
+
 const getLqPrice = (
   markPrices: MarkPrice[],
   symbol: SymbolInfo,
@@ -294,84 +334,75 @@ const getLqPrice = (
   cur_amount: string,
   side: 'Buy' | 'Sell',
   curHoldingOut: Holding,
-
   priceNumber: number,
-  userInfo: ClientInfo
+  userInfo: ClientInfo,
+  availableSymbols: SymbolInfo[]
 ) => {
   try {
-    const unsettle = getUnsettle(positions, markPrices);
+    // const unsettle = getUnsettle(positions, markPrices);
 
-    const mark_price_current_i =
+    const mark_price =
       markPrices.find((item) => item.symbol === symbol.symbol)?.price || 0;
 
-    console.log('mark_price_current_i: ', mark_price_current_i.toFixed());
+    // const free_collateral = getFreeCollateral(positions, markPrices, userInfo);
 
-    const total_notional_value = getTotalnotional(markPrices, positions).times(
-      mark_price_current_i
+    const total_collateral_value = getTotalCollateral(positions, markPrices);
+
+    const total_mm = positions.rows.reduce((acc, cur) => {
+      const cur_mark_price =
+        markPrices.find((item) => item.symbol === cur.symbol)?.price || 0;
+
+      const value = new Big(cur_mark_price).times(cur.position_qty).abs();
+
+      const position_notional = value.toNumber();
+
+      const cur_symbol = availableSymbols.find((s) => s.symbol === cur.symbol);
+
+      const cur_mmr = getMMR(cur_symbol, userInfo, position_notional);
+
+      const mm = new Big(cur_mmr).times(position_notional);
+
+      return acc.plus(mm);
+    }, new Big(0));
+
+    const cur_position = positions.rows.find((r) => r.symbol === symbol.symbol);
+
+    const orderSize = new Big(side === 'Buy' ? 1 : -1).times(
+      new Big(cur_amount)
     );
 
-    console.log('total_notional_value: ', total_notional_value.toFixed());
+    const new_Qi = orderSize.plus(new Big(cur_position?.position_qty || 0));
 
-    const collateral = new Big(
-      curHoldingOut.holding + curHoldingOut.pending_short
-    ).plus(total_notional_value.div(userInfo.max_leverage));
+    const new_Qi_abs = new_Qi.abs();
+    console.log('new_Qi_abs: ', new_Qi_abs.toFixed());
 
-    console.log('collateral: ', collateral.toFixed());
+    const position_notional = new_Qi_abs.times(mark_price).toNumber();
 
-    const maintenance_margin_ratio = positions.maintenance_margin_ratio;
-    console.log(
-      'maintenance_margin_ratio: ',
-      maintenance_margin_ratio.toFixed()
-    );
+    // const mmr_i = BigNumber.max(
+    //   new Big(base_mmr),
+    //   new BigNumber(base_mmr)
+    //     .div(new BigNumber(base_imr))
+    //     .times(new BigNumber(imr_factor))
+    //     .times(new Decimal(position_notional).pow(4 / 5).toNumber())
+    // ).toFixed();
 
-    const current_position = positions.rows.find(
-      (r) => r.symbol === symbol.symbol
-    );
+    const mmr_i = getMMR(symbol, userInfo, position_notional);
 
-    console.log('current_position: ', current_position);
+    console.log('mmr_i: ', mmr_i);
 
-    const unsettled_pnl_i = new Big(current_position?.unsettled_pnl || 0);
-    console.log('unsettled_pnl_i: ', unsettled_pnl_i.toFixed());
+    const denominator = new Big(new_Qi_abs).times(new Big(mmr_i)).minus(new_Qi);
 
-    const current_notional_i = new Big(
-      current_position?.position_qty || 0
-    ).times(mark_price_current_i);
+    const numerator = new Big(total_collateral_value)
+      .minus(total_mm)
+      .minus(new Big(position_notional).times(mmr_i));
 
-    console.log('current_notional_i: ', current_notional_i.toFixed());
+    const result = new Big(priceNumber).plus(numerator.div(denominator));
 
-    const position_qty_i = current_position?.position_qty || 0;
-    console.log('position_qty_i: ', position_qty_i.toFixed());
+    // const result = total_notional
+    //   .times(maintenance_margin_ratio)
+    //   .minus(numerator.div(denominator));
 
-    const total_unpnl = get_total_upnl(positions, markPrices);
-    console.log('total_unpnl: ', total_unpnl.toFixed());
-
-    const total_notional = getTotalnotional(markPrices, positions);
-    console.log('total_notional: ', total_notional.toFixed());
-
-    const new_positon_qty_i = new Big(cur_amount).times(side == 'Buy' ? 1 : -1);
-    console.log('new_positon_qty_i: ', new_positon_qty_i.toFixed());
-
-    const after_position_qty_i = new Big(position_qty_i).plus(
-      new_positon_qty_i
-    );
-
-    console.log('after_position_qty_i: ', after_position_qty_i.toFixed());
-
-    const numerator = current_notional_i
-      .times(maintenance_margin_ratio)
-      .minus(collateral)
-      .minus(total_unpnl)
-      .plus(unsettled_pnl_i)
-      .plus(after_position_qty_i.times(priceNumber))
-      .abs();
-    const denominator = after_position_qty_i.minus(
-      after_position_qty_i.abs().times(maintenance_margin_ratio)
-    );
-    const result = total_notional
-      .times(maintenance_margin_ratio)
-      .minus(numerator.div(denominator));
-
-    console.log('result: ', result.toFixed());
+    // console.log('result: ', result.toFixed());
 
     return result.lte(0)
       ? '-'
@@ -406,12 +437,31 @@ const getMaxQuantity = (
   userInfo: ClientInfo
 ) => {
   try {
+    const cur_position = positions.rows.find((r) => r.symbol === symbol.symbol);
+
+    const free_collateral = getFreeCollateral(positions, markPrices, userInfo);
+
+    if (free_collateral === '0') {
+      if (side === 'Buy') {
+        return Math.max(
+          0,
+          Math.abs(cur_position?.position_qty || 0) -
+            (cur_position?.pending_long_qty || 0)
+        );
+      }
+      if (side === 'Sell') {
+        return Math.max(
+          0,
+          (cur_position?.position_qty || 0) +
+            (cur_position?.pending_short_qty || 0)
+        );
+      }
+    }
+
     const mark_price_current_i =
       markPrices.find((item) => item.symbol === symbol.symbol)?.price || 0;
 
     const collateral = getTotalCollateral(positions, markPrices);
-
-    const cur_position = positions.rows.find((r) => r.symbol === symbol.symbol);
 
     const cur_side = new Big(1).times(
       (cur_position?.position_qty || 0) >= 0 ? 1 : -1
@@ -423,11 +473,6 @@ const getMaxQuantity = (
       const mark_price_current_i = markPrices.find(
         (m) => m.symbol === cur.symbol
       ).price;
-
-      // const imr_pos = new Big(cur.position_qty)
-      //   .abs()
-      //   .times(mark_price_current_i)
-      //   .times(cur.imr);
 
       if (cur.symbol !== symbol.symbol) return acc;
 
@@ -448,11 +493,6 @@ const getMaxQuantity = (
       const mark_price_current_i = markPrices.find(
         (m) => m.symbol === cur.symbol
       ).price;
-
-      // const imr_pos = new Big(cur.position_qty)
-      //   .abs()
-      //   .times(mark_price_current_i)
-      //   .times(cur.imr);
 
       if (cur.symbol === symbol.symbol) return acc;
 
@@ -555,5 +595,5 @@ export {
   getPortfolioUnsettle,
   getMaintenanceMarginRatio,
   getAvailable,
-  getTotalEst
+  getTotalEst,
 };

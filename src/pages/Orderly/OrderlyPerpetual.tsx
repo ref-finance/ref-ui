@@ -375,7 +375,7 @@ export function OrderlyPerpetual() {
 
   return (
     <>
-      <div className="mx-auto xs:relative lg:relative xs:w-95vw lg:bottom-6 xs:bottom-6">
+      <div className="mx-auto xs:relative lg:relative xs:w-95vw lg:bottom-9 xs:bottom-6">
         {!isMobile && <PerpOrderlyTip />}
 
         {!isMobile && <TradingBoard></TradingBoard>}

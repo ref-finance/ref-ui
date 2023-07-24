@@ -983,7 +983,7 @@ export function OrderBookMobile({
         </div>
       </div>
 
-      {!loading && (
+      {!loading && tab === 'book' && (
         <div className="mb-2 px-1.5">
           <div className="relative  text-primaryText border-b pb-2 border-opacity-10 border-white frcs">
             <div className="w-1/2 text-13px">
@@ -1074,7 +1074,9 @@ export function OrderBookMobile({
 
       {tab === 'book' && !loading && (
         <>
-          <div className="px-4 flex items-center text-xs mb-2 lg:mr-2 text-primaryOrderly justify-between ">
+          <div
+            className={`px-2 flex items-center text-xs mb-2 lg:mr-2 text-primaryOrderly justify-between `}
+          >
             <div className="flex items-center">
               {intl.formatMessage({
                 id: 'amount',
@@ -1107,7 +1109,7 @@ export function OrderBookMobile({
 
           {/* sell  */}
 
-          <div className="flex gap-1 px-1.5 relative right-1 w-full">
+          <div className="flex gap-3 px-1.5 relative right-1 w-full">
             {/* buy */}
 
             <section

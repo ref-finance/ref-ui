@@ -9,7 +9,11 @@ import {
   REF_ORDERLY_AGREE_CHECK,
 } from '../UserBoard';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
-import { ConnectWallet, RegisterButton } from '../Common';
+import {
+  ConnectWallet,
+  ConnectWalletPorfolio,
+  RegisterButton,
+} from '../Common';
 import { useWalletSelector } from '../../../../context/WalletSelectorContext';
 import { ConfirmButton } from '../Common/index';
 
@@ -58,8 +62,8 @@ function TableWithTabs({
   triggerPositionBasedData,
   setMobileFilterOpen,
   handleOpenClosing,
-  validAccountSig
-} : {
+  validAccountSig,
+}: {
   table: PortfolioTable;
   maintenance: boolean;
   refOnly?: boolean;
@@ -71,7 +75,9 @@ function TableWithTabs({
   chooseOrderSide?: 'all_side' | 'BUY' | 'SELL';
   setChooseOrderSide?: (item: 'all_side' | 'BUY' | 'SELL') => void;
   chooseOrderStatus?: 'all' | 'Cancelled' | 'filled' | 'Rejected';
-  setChooseOrderStatus?: (item: 'all' | 'Cancelled' | 'filled' | 'Rejected') => void;
+  setChooseOrderStatus?: (
+    item: 'all' | 'Cancelled' | 'filled' | 'Rejected'
+  ) => void;
   chooseOrderType?: 'all' | 'limit' | 'market';
   setChooseOrderType?: (item: 'all' | 'limit' | 'market') => void;
   newPositions?: any;
@@ -79,7 +85,11 @@ function TableWithTabs({
   triggerBalanceBasedData?: number;
   triggerPositionBasedData?: number;
   setMobileFilterOpen?: (item: number) => void;
-  handleOpenClosing?: (closingQuantity: number, closingPrice: number | 'Market', row: any) => void;
+  handleOpenClosing?: (
+    closingQuantity: number,
+    closingPrice: number | 'Market',
+    row: any
+  ) => void;
   validAccountSig: boolean;
 }) {
   const intl = useIntl();
@@ -91,7 +101,7 @@ function TableWithTabs({
     handlePendingOrderRefreshing,
     userExist,
   } = useOrderlyContext();
-  const { accountId, modal } = useWalletSelector()
+  const { accountId, modal } = useWalletSelector();
   const [tradingKeySet, setTradingKeySet] = useState<boolean>(false);
   const [keyAnnounced, setKeyAnnounced] = useState<boolean>(false);
   const [agreeCheck, setAgreeCheck] = useState<boolean>(false);
@@ -150,8 +160,8 @@ function TableWithTabs({
 
     setValidAccountSig(true);
   }, [tradingKeySet, keyAnnounced]);
-  
-  const [data, setData] = useState<any>([])
+
+  const [data, setData] = useState<any>([]);
   const [total, setTotal] = useState(0);
 
   const isMobile = useClientMobile();
@@ -201,22 +211,32 @@ function TableWithTabs({
     if (getData && (id === 'open_orders' || id === 'history')) {
       callGetData();
     }
-  }, [refOnly, orderType, chooseMarketSymbol, chooseOrderSide, chooseOrderStatus, chooseOrderType]);
+  }, [
+    refOnly,
+    orderType,
+    chooseMarketSymbol,
+    chooseOrderSide,
+    chooseOrderStatus,
+    chooseOrderType,
+  ]);
 
   useEffect(() => {
-    if (getData && (id === 'spot')) {
+    if (getData && id === 'spot') {
       callGetData();
     }
   }, [JSON.stringify(displayBalances)]);
 
   useEffect(() => {
-    if (getData && (id === 'futures')) {
+    if (getData && id === 'futures') {
       setData(newPositions.rows);
     }
   }, [JSON.stringify(newPositions)]);
 
   useEffect(() => {
-    if (getData && (id === 'deposit' || id === 'withdraw' || id === 'settlements')) {
+    if (
+      getData &&
+      (id === 'deposit' || id === 'withdraw' || id === 'settlements')
+    ) {
       callGetData();
     }
   }, [triggerBalanceBasedData]);
@@ -251,7 +271,9 @@ function TableWithTabs({
           minHeight: isMobile ? '' : 'calc(100vh - 680px)',
         }}
       >
-        <span className="text-white gotham_bold text-lg px-5 hidden md:block lg:block">{table.title}</span>
+        <span className="text-white gotham_bold text-lg px-5 hidden md:block lg:block">
+          {table.title}
+        </span>
         <FlexRowBetween className="pb-3 py-3 rounded-t-2xl px-5 mt-0 border-white border-opacity-10 hidden md:flex lg:flex">
           <FlexRowBetween className={`w-full min-h-8 `}>
             <FlexRow>
@@ -271,10 +293,11 @@ function TableWithTabs({
                 >
                   <span
                     className={`px-5 gotham_bold
-                      ${tab === index
-                        ? 'text-white relative'
-                        : 'text-primaryOrderly relative'
-                    }`}
+                      ${
+                        tab === index
+                          ? 'text-white relative'
+                          : 'text-primaryOrderly relative'
+                      }`}
                   >
                     <b>
                       {intl.formatMessage({
@@ -293,16 +316,21 @@ function TableWithTabs({
                 </FlexRow>
               ))}
             </FlexRow>
-            
+
             <div className="hidden md:block lg:block">
-              {(table.tabs[tab].rightComp) && table.tabs[tab].rightComp(!(validator && !maintenance && !validAccountSig))}
+              {table.tabs[tab].rightComp &&
+                table.tabs[tab].rightComp(
+                  !(validator && !maintenance && !validAccountSig)
+                )}
             </div>
           </FlexRowBetween>
         </FlexRowBetween>
 
         <div className="md:hidden lg:hidden px-3 flex">
           <div
-            className={`relative flex items-center bg-acccountTab p-1 rounded-lg ${table.tabs[tab].filter ? 'w-11/12 inline-flex' : 'w-full'}`}
+            className={`relative flex items-center bg-acccountTab p-1 rounded-lg ${
+              table.tabs[tab].filter ? 'w-11/12 inline-flex' : ''
+            }`}
           >
             {table.tabs.map((tableTab, index) => (
               <label
@@ -362,21 +390,79 @@ function TableWithTabs({
             </FlexRow>
           )}
         </div>
-    
 
 
         <div className={`w-full rounded-2xl md:bg-cardBg lg:bg-cardBg py-5 md:py-0 lg:py-0`}>
           {(table.tabs[tab].filter && (refOnly || chooseMarketSymbol !== 'all_markets' || chooseOrderSide !== 'all_side' || chooseOrderType !== 'all' || chooseOrderStatus !== 'all')) && (
             <div className={'flex md:hidden lg:hidden px-3 pb-1 w-full items-start justify-between flex-wrap'}>
               <div
-                className="ml-auto flex justify-start items-center flex-wrap"
-                style={{ flex: '0 0 15%', height: '44px' }}
+                className={
+                  'flex md:hidden lg:hidden px-3 pb-1 w-full items-start justify-between flex-wrap'
+                }
               >
-                <div className="p-2 flex items-center">
-                  {intl.formatMessage({
-                    id: 'filter',
-                    defaultMessage: 'Filter',
-                  })}:
+                <div
+                  className="ml-auto flex justify-start items-center flex-wrap"
+                  style={{ flex: '0 0 15%', height: '44px' }}
+                >
+                  <div className="p-2 flex items-center">
+                    {intl.formatMessage({
+                      id: 'filter',
+                      defaultMessage: 'Filter',
+                    })}
+                    :
+                  </div>
+                </div>
+                <div
+                  className="ml-auto flex justify-end flex-wrap"
+                  style={{ flex: '0 0 80%' }}
+                >
+                  {chooseMarketSymbol !== 'all_markets' && (
+                    <div className="flex items-center p-2">
+                      {
+                        marketList.find((m) => m.textId === chooseMarketSymbol)
+                          ?.textNoColor
+                      }
+                      <div
+                        className="ml-1.5 cursor-pointer"
+                        onClick={() => setChooseMarketSymbol('all_markets')}
+                      >
+                        <OffFilterIcon />
+                      </div>
+                    </div>
+                  )}
+                  {chooseOrderType !== 'all' && (
+                    <div className="flex items-center capitalize p-2">
+                      {chooseOrderType}
+                      <div
+                        className="ml-1.5 cursor-pointer"
+                        onClick={() => setChooseOrderType('all')}
+                      >
+                        <OffFilterIcon />
+                      </div>
+                    </div>
+                  )}
+                  {chooseOrderSide !== 'all_side' && (
+                    <div className="flex items-center capitalize p-2">
+                      {chooseOrderSide}
+                      <div
+                        className="ml-1.5 cursor-pointer"
+                        onClick={() => setChooseOrderSide('all_side')}
+                      >
+                        <OffFilterIcon />
+                      </div>
+                    </div>
+                  )}
+                  {chooseOrderStatus !== 'all' && (
+                    <div className="flex items-center capitalize p-2">
+                      {chooseOrderStatus?.toLowerCase().replace('_', ' ')}
+                      <div
+                        className="ml-1.5 cursor-pointer"
+                        onClick={() => setChooseOrderStatus('all')}
+                      >
+                        <OffFilterIcon />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
               <div
@@ -454,25 +540,25 @@ function TableWithTabs({
                   zIndex: 50,
                 }}
               >
-                <div className="hidden md:block lg:block">
+                {/* <div className="hidden md:block lg:block">
                   <RefToOrderly />
                 </div>
-      
+       */}
                 {!accountId && (
                   <div className="w-half md:w-full lg:w-full flex justify-center flex-col items-center">
-                    <div className="md:hidden lg:hidden text-center mb-6">
+                    {/* <div className="md:hidden lg:hidden text-center mb-6">
                       <p>Welcome!</p>
                       <p>Connect your wallet to start</p>
-                    </div>
-      
-                    <ConnectWallet
+                    </div> */}
+
+                    <ConnectWalletPorfolio
                       onClick={() => {
                         modal.show();
                       }}
                     />
                   </div>
                 )}
-      
+
                 {accountId && !validContract() && (
                   <div className="relative bottom-1 break-words inline-flex flex-col items-center">
                     <div className="text-base w-p200 pb-6 text-center text-white">
@@ -482,15 +568,15 @@ function TableWithTabs({
                       onClick={async () => {
                         // window.modal.show();
                         const wallet = await window.selector.wallet();
-      
+
                         await wallet.signOut();
-      
+
                         window.location.reload();
                       }}
                     />
                   </div>
                 )}
-      
+
                 {!!accountId &&
                   validContract() &&
                   (!storageEnough || !tradingKeySet || !keyAnnounced) && (
@@ -504,22 +590,26 @@ function TableWithTabs({
                         onClick={() => {
                           if (!agreeCheck) {
                             setRegisterModalOpen(true);
-      
+
                             return;
                           }
                           if (!accountId || storageEnough) return;
-      
+
                           if (!userExist) {
-                            localStorage.setItem(REF_ORDERLY_AGREE_CHECK, 'true');
+                            localStorage.setItem(
+                              REF_ORDERLY_AGREE_CHECK,
+                              'true'
+                            );
                           }
-      
+
                           storageDeposit(accountId);
                         }}
                         setCheck={setAgreeCheck}
                         check={agreeCheck}
                         storageEnough={!!storageEnough}
                         spin={
-                          (storageEnough && (!tradingKeySet || !keyAnnounced)) ||
+                          (storageEnough &&
+                            (!tradingKeySet || !keyAnnounced)) ||
                           agreeCheck
                         }
                         onPortfolio
@@ -542,7 +632,9 @@ function TableWithTabs({
               total={total}
               page={page}
               setPage={setPage}
-              pagination={!table.tabs[tab].pagination ? table.tabs[tab].pagination : true}
+              pagination={
+                !table.tabs[tab].pagination ? table.tabs[tab].pagination : true
+              }
               orderType={orderType}
               handleOpenClosing={handleOpenClosing}
             />
@@ -566,11 +658,21 @@ function TableWithTabs({
 }
 
 const OffFilterIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="8" cy="8" r="8" fill="#182935"/>
-    <path fillRule="evenodd" clipRule="evenodd" d="M5.14765 6.32208C4.85476 6.02918 4.85476 5.55431 5.14765 5.26142C5.44054 4.96852 5.91542 4.96852 6.20831 5.26142L7.99289 7.046L9.77748 5.26142C10.0704 4.96852 10.5452 4.96852 10.8381 5.26142C11.131 5.55431 11.131 6.02918 10.8381 6.32208L9.05355 8.10666L10.7037 9.7568C10.9966 10.0497 10.9966 10.5246 10.7037 10.8175C10.4108 11.1104 9.93593 11.1104 9.64303 10.8175L7.99289 9.16732L6.34276 10.8175C6.04986 11.1104 5.57499 11.1104 5.2821 10.8175C4.9892 10.5246 4.9892 10.0497 5.2821 9.7568L6.93223 8.10666L5.14765 6.32208Z" fill="#7E8A93"/>
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <circle cx="8" cy="8" r="8" fill="#182935" />
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M5.14765 6.32208C4.85476 6.02918 4.85476 5.55431 5.14765 5.26142C5.44054 4.96852 5.91542 4.96852 6.20831 5.26142L7.99289 7.046L9.77748 5.26142C10.0704 4.96852 10.5452 4.96852 10.8381 5.26142C11.131 5.55431 11.131 6.02918 10.8381 6.32208L9.05355 8.10666L10.7037 9.7568C10.9966 10.0497 10.9966 10.5246 10.7037 10.8175C10.4108 11.1104 9.93593 11.1104 9.64303 10.8175L7.99289 9.16732L6.34276 10.8175C6.04986 11.1104 5.57499 11.1104 5.2821 10.8175C4.9892 10.5246 4.9892 10.0497 5.2821 9.7568L6.93223 8.10666L5.14765 6.32208Z"
+      fill="#7E8A93"
+    />
   </svg>
-)
-
+);
 
 export default TableWithTabs;

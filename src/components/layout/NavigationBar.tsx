@@ -32,6 +32,7 @@ import {
   useLanguageItems,
   useMenus,
   menuItemType,
+  BridgeButton,
 } from '~utils/menu';
 import { MobileNavBar } from './MobileNav';
 import WrapNear from '~components/forms/WrapNear';
@@ -823,142 +824,6 @@ export function AuroraEntry({
   );
 }
 
-function Xref() {
-  const history = useHistory();
-  const location = useLocation();
-  // const [hover, setHover] = useState(false);
-  const goXrefPage = () => {
-    history.push('/xref');
-  };
-  return (
-    <div
-      className={`h-full flex items-center justify-center z-20 relative py-4 mx-4 cursor-pointer hover:opacity-100 ${
-        location.pathname == '/xref' ? 'opacity-100' : 'opacity-60'
-      }`}
-      onClick={goXrefPage}
-    >
-      <XrefIcon className="relative -top-px cursor-pointer"></XrefIcon>
-      {/* <GreenArrow hover={hover}></GreenArrow> */}
-    </div>
-  );
-}
-
-function MoreMenu() {
-  const [showWrapNear, setShowWrapNear] = useState(false);
-  const [hover, setHover] = useState(false);
-  const [sauceHover, setSauceHover] = useState(false);
-  const [parentLabel, setParentLabel] = useState('');
-  const { menuData } = useMenuItems();
-  const [curMenuItems, setCurMenuItems] = useState(menuData);
-  const location = useLocation();
-  const history = useHistory();
-  const { globalState } = useContext(WalletContext);
-  const onClickMenuItem = (items: any[], label: string) => {
-    setCurMenuItems(items);
-    setParentLabel(label);
-  };
-  const handleMoreMenuClick = (
-    url: string,
-    isExternal: boolean,
-    label: string,
-    children?: any
-  ) => {
-    if (url) {
-      if (isExternal) {
-        openUrl(url);
-      } else {
-        history.push(url);
-      }
-    } else if (children) {
-      onClickMenuItem?.(children, label);
-    }
-  };
-  const hasSubMenu = curMenuItems.some(({ children }) => !!children?.length);
-  return (
-    <>
-      <div
-        className="relative z-30"
-        onMouseOver={() => setHover(true)}
-        onMouseLeave={() => {
-          setHover(false);
-          onClickMenuItem?.(menuData, '');
-        }}
-        style={{ zIndex: 599 }}
-      >
-        <div
-          className={`rounded-xl p-3 mx-4 cursor-pointer xsm:bg-transparent ${
-            hover ? 'text-white bg-menuMoreBgColor' : 'text-primaryText'
-          }`}
-        >
-          <MoreIcon></MoreIcon>
-        </div>
-        <div
-          className={`${
-            hover ? 'block' : 'block'
-          } absolute top-7 pt-3 -right-20 rounded-md`}
-        >
-          <Card
-            rounded="rounded-md"
-            className="p-2.5 w-full rounded-2xl border border-menuMoreBoxBorderColor bg-priceBoardColor"
-          >
-            {!hasSubMenu && parentLabel && (
-              <div
-                className="whitespace-nowrap hover:text-white text-left items-center flex justify-start text-sm font-semibold text-primaryText cursor-pointer pt-4 pb-2"
-                onClick={() => onClickMenuItem?.(menuData, '')}
-              >
-                <IoChevronBack className="text-xl " />
-                <span className="ml-3">{parentLabel}</span>
-              </div>
-            )}
-            {curMenuItems.map(
-              ({ url, children, label, icon, logo, isExternal }, index) => {
-                const isSelected =
-                  url &&
-                  !isExternal &&
-                  matchPath(location.pathname, {
-                    path: url,
-                    exact: true,
-                    strict: false,
-                  });
-                return (
-                  <div
-                    key={index}
-                    className={`flex items-center rounded-xl whitespace-nowrap hover:bg-menuMoreBgColor hover:text-white text-sm font-semibold py-3 my-1.5 cursor-pointer ${
-                      !hasSubMenu && parentLabel ? 'px-5' : 'px-2'
-                    }
-                    ${
-                      isSelected
-                        ? 'bg-menuMoreBgColor text-white'
-                        : 'text-primaryText'
-                    }`}
-                    onClick={() =>
-                      handleMoreMenuClick(url, isExternal, label, children)
-                    }
-                  >
-                    {logo && (
-                      <span
-                        className={`text-xl w-8 text-left flex justify-center mr-2`}
-                      >
-                        {logo}
-                      </span>
-                    )}
-                    {label}
-                    <span className="ml-4 text-xl">{icon}</span>
-                    {children && (
-                      <span className="text-xl">
-                        <FiChevronRight />
-                      </span>
-                    )}
-                  </div>
-                );
-              }
-            )}
-          </Card>
-        </div>
-      </div>
-    </>
-  );
-}
 function NavigationBar() {
   const { globalState } = useContext(WalletContext);
 
@@ -1182,6 +1047,10 @@ function NavigationBar() {
             </div>
           </div>
           <div className="flex items-center justify-end">
+            <div className="mr-3">
+              <BridgeButton></BridgeButton>
+            </div>
+
             {isMobile() ? null : <BuyNearButton />}
 
             <div className="flex items-center mx-3">
@@ -1441,7 +1310,10 @@ function MenuBar() {
     set_back_one_level_item(null);
   }
 
-  const menus_temp = useMenus(hover_off_one_level_item);
+  const menus_temp = useMenus(() => {
+    hover_off_one_level_item();
+    set_hover_two_level_id(undefined);
+  });
   const menus = useMemo(() => {
     if (menus_temp) {
       const menus_final = menus_temp.filter((m: menuItemType) => {
