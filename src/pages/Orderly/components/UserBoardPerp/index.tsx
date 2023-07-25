@@ -2081,8 +2081,8 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         >
           {isInsufficientBalance
             ? intl.formatMessage({
-                id: 'insufficient_balance',
-                defaultMessage: 'Insufficient Balance',
+                id: 'insufficient_margin',
+                defaultMessage: 'Insufficient Margin',
               })
             : `${intl.formatMessage({
                 id: side.toLowerCase(),
@@ -4461,8 +4461,8 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
         >
           {isInsufficientBalance
             ? intl.formatMessage({
-                id: 'insufficient_balance',
-                defaultMessage: 'Insufficient Balance',
+                id: 'insufficient_margin',
+                defaultMessage: 'Insufficient Margin',
               })
             : `${intl.formatMessage({
                 id: side.toLowerCase(),
