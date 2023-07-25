@@ -361,10 +361,9 @@ export function usePerpData(deps?: {
   }, [newPositions, markPrices]);
 
   const mmr = useMemo(() => {
-    if (
-      Number(freeCollateral) > 0 &&
-      positions.rows.every((r) => r.position_qty === 0)
-    ) {
+    if (!positions) return '-';
+
+    if (positions.rows.every((r) => r.position_qty === 0)) {
       return '3.00%';
     }
 
