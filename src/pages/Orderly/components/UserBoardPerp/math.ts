@@ -103,15 +103,13 @@ const getTotalEst = (
       cur.tokenMeta.symbol === 'USDC'
         ? parseFloat(cur.available)
         : parseFloat(cur.available) * markPrice;
-    const inOrder =
-      cur.tokenMeta.symbol === 'USDC'
-        ? parseFloat(cur['in-order'])
-        : parseFloat(cur['in-order']) * markPrice;
 
-    const total = value + inOrder;
+    const total = value;
 
     return new Big(total).plus(acc);
   }, new Big(0));
+
+  console.log(`total estimate:  ${totatEst} (all spot balance in usdc) `)
 
   return numberWithCommas(totatEst.toFixed(2));
 };
@@ -156,6 +154,8 @@ const getAvailable = (
 
     new Big(0)
   );
+
+  console.log(`total estimate:  ${availables} (all spot balance in usdc + in order spot token) + ${futures} (sum of (future mark price * qty) / leverage)`)
 
   const available = new Big(futures).plus(availables);
 

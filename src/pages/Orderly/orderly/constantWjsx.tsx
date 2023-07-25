@@ -703,7 +703,7 @@ export const usePortableOrderlyTable = ({
             render: ({ symbol, average_open_price, position_qty }) => {
               const price = unrealMode === 'mark_price' ? markPrices.find((i) => i.symbol === symbol)?.price : lastPrices.find((i) => i.symbol === symbol)?.close;
               const unreal = position_qty >= 0 ? ((price - average_open_price) * position_qty) : ((average_open_price - price) * position_qty) * -1;
-              const percentage = position_qty >= 0 ? ((price / average_open_price) - 1) * 1000 : ((average_open_price / price) - 1) * 1000
+              const percentage = position_qty >= 0 ? ((price / average_open_price) - 1) * 100 : ((average_open_price / price) - 1) * 100
 
               return (
                 <div className={`pr-2 ${unreal >= 0  ? 'text-buyGreen' : 'text-sellColorNew'}`}>
