@@ -589,7 +589,6 @@ export function MobileliquidationList({
                   </div>
                   <div className="frcs whitespace-nowrap gap-1">
                     <span>{numberWithCommas(r.abs_liquidation_fee || 0)}</span>
-                    <span>USDC</span>
                   </div>
                 </div>
 

@@ -31,7 +31,7 @@ export function digitWrapperAsset(
 
   if (Number(digit) < Number(minStr) && Number(digit) > 0) {
     return '<' + minStr;
-  } else return toPrecision(digit.toString(), 3, true);
+  } else return toPrecision(digit.toString(), 3, true, false);
 }
 
 export function numberWithCommas(x: number | string) {

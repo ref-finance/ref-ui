@@ -743,8 +743,6 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     curSymbolMarkPrice,
   ]);
 
-  console.log('maxOrderSize: ', maxOrderSize);
-
   const handleSubmit = async () => {
     if (!accountId) return;
     return createOrder({
@@ -858,7 +856,10 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
   }, [tradingKeySet, keyAnnounced]);
   const intl = useIntl();
 
-  const isInsufficientBalance = false;
+  const isInsufficientBalance =
+    maxOrderSize !== '-' &&
+    Number(inputValue || 0) > 0 &&
+    Number(inputValue) > Number(maxOrderSize);
 
   const loading =
     ((!!accountId && storageEnough === undefined) ||
@@ -1089,7 +1090,11 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     return true;
   };
 
-  const priceAndSizeValidator = (price: string, size: string) => {
+  const priceAndSizeValidator = (
+    price: string,
+    size: string,
+    source?: 'maxinput'
+  ) => {
     const symbolInfo = availableSymbols?.find((s) => s.symbol === symbol);
 
     if (!symbolInfo || (ONLY_ZEROS.test(price) && ONLY_ZEROS.test(size))) {
@@ -1111,6 +1116,10 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       resSize = sizeValidator(price, size);
     } else {
       resSize = true;
+    }
+
+    if (typeof resSize === 'boolean' && !resSize && source) {
+      setInputValue('0');
     }
 
     if (resPrice === true && resSize === true) {
@@ -1768,7 +1777,8 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
                 priceAndSizeValidator(
                   orderType == 'Market' ? marketPrice.toString() : limitPrice,
-                  displayAmount
+                  displayAmount,
+                  'maxinput'
                 );
               }}
             >
@@ -2072,10 +2082,10 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                 id: 'insufficient_balance',
                 defaultMessage: 'Insufficient Balance',
               })
-            : intl.formatMessage({
-                id: side === 'Buy' ? 'buy_long' : 'sell_short',
-                defaultMessage: side === 'Buy' ? 'Buy / Long' : 'Sell / Short',
-              })}
+            : `${intl.formatMessage({
+                id: side.toLowerCase(),
+                defaultMessage: side,
+              })} ${symbolFrom}`}
         </button>
       </div>
 
@@ -3550,10 +3560,9 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
   const intl = useIntl();
 
   const isInsufficientBalance =
-    side === 'Buy'
-      ? new Big(total === '-' ? '0' : total).gt(tokenOutHolding || '0') ||
-        new Big(tokenOutHolding || 0).eq(0)
-      : new Big(inputValue || '0').gt(tokenInHolding || '0');
+    maxOrderSize !== '-' &&
+    Number(inputValue || 0) > 0 &&
+    Number(inputValue) > Number(maxOrderSize);
 
   const loading =
     ((!!accountId && storageEnough === undefined) ||
@@ -3784,7 +3793,11 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
     return true;
   };
 
-  const priceAndSizeValidator = (price: string, size: string) => {
+  const priceAndSizeValidator = (
+    price: string,
+    size: string,
+    source?: 'maxinput'
+  ) => {
     const symbolInfo = availableSymbols?.find((s) => s.symbol === symbol);
 
     if (!symbolInfo || (ONLY_ZEROS.test(price) && ONLY_ZEROS.test(size))) {
@@ -3806,6 +3819,10 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
       resSize = sizeValidator(price, size);
     } else {
       resSize = true;
+    }
+
+    if (typeof resSize === 'boolean' && !resSize && source) {
+      setInputValue('0');
     }
 
     if (resPrice === true && resSize === true) {
@@ -4073,7 +4090,6 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
 
           <div className="flex items-center mt-2">
             <input
-              autoFocus
               inputMode="decimal"
               ref={inputAmountRef}
               onWheel={(e) =>
@@ -4124,7 +4140,8 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
 
                 priceAndSizeValidator(
                   orderType == 'Market' ? marketPrice.toString() : limitPrice,
-                  displayAmount
+                  displayAmount,
+                  'maxinput'
                 );
               }}
             >

@@ -1008,7 +1008,11 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     return true;
   };
 
-  const priceAndSizeValidator = (price: string, size: string) => {
+  const priceAndSizeValidator = (
+    price: string,
+    size: string,
+    source?: 'maxinput'
+  ) => {
     const symbolInfo = availableSymbols?.find((s) => s.symbol === symbol);
 
     if (!symbolInfo || (ONLY_ZEROS.test(price) && ONLY_ZEROS.test(size))) {
@@ -1030,6 +1034,10 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       resSize = sizeValidator(price, size);
     } else {
       resSize = true;
+    }
+
+    if (typeof resSize === 'boolean' && !resSize && source) {
+      setInputValue('0');
     }
 
     if (resPrice === true && resSize === true) {
@@ -1527,7 +1535,8 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
               priceAndSizeValidator(
                 orderType == 'Market' ? marketPrice.toString() : limitPrice,
-                displayAmount
+                displayAmount,
+                'maxinput'
               );
             }}
           >
@@ -2391,7 +2400,11 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
     return true;
   };
 
-  const priceAndSizeValidator = (price: string, size: string) => {
+  const priceAndSizeValidator = (
+    price: string,
+    size: string,
+    source?: 'maxinput'
+  ) => {
     const symbolInfo = availableSymbols?.find((s) => s.symbol === symbol);
 
     if (!symbolInfo || (ONLY_ZEROS.test(price) && ONLY_ZEROS.test(size))) {
@@ -2413,6 +2426,10 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
       resSize = sizeValidator(price, size);
     } else {
       resSize = true;
+    }
+
+    if (typeof resSize === 'boolean' && !resSize && source) {
+      setInputValue('0');
     }
 
     if (resPrice === true && resSize === true) {
@@ -2460,6 +2477,7 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
           style={{
             background: 'rgba(0, 19, 32, 0.8)',
             backdropFilter: 'blur(5px)',
+            WebkitBackdropFilter: 'blur(5px)',
             zIndex: 90,
           }}
         ></div>
@@ -2471,6 +2489,8 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
           style={{
             background: 'rgba(0, 19, 32, 0.8)',
             backdropFilter: 'blur(5px)',
+            WebkitBackdropFilter: 'blur(5px)',
+
             zIndex: 90,
           }}
         >
@@ -2484,6 +2504,8 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
           style={{
             background: 'rgba(0, 19, 32, 0.8)',
             backdropFilter: 'blur(5px)',
+            WebkitBackdropFilter: 'blur(5px)',
+
             zIndex: 50,
           }}
         >
@@ -2638,7 +2660,6 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
 
         <div className="flex items-center mt-2">
           <input
-            autoFocus
             inputMode="decimal"
             ref={inputAmountRef}
             onWheel={(e) =>
@@ -2701,7 +2722,8 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
 
               priceAndSizeValidator(
                 orderType == 'Market' ? marketPrice.toString() : limitPrice,
-                displayAmount
+                displayAmount,
+                'maxinput'
               );
             }}
           >

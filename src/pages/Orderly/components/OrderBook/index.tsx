@@ -948,12 +948,17 @@ export function OrderBookMobile({
 
   return (
     <div className="w-full  mt-4 flex flex-col  relative   border-boxBorder text-sm rounded-2xl bg-black bg-opacity-10 py-4 ">
-      <div className="px-1.5 relative flex mb-2 border-b border-white border-opacity-10 items-center ">
+      <div
+        className="relative right-2  flex mb-2 border-b border-white border-opacity-10 items-center "
+        style={{
+          width: 'calc(100% + 16px)',
+        }}
+      >
         <div
           onClick={() => {
             setTab('book');
           }}
-          className={`cursor-pointer text-left relative ${
+          className={`cursor-pointer pl-4 text-left relative ${
             tab === 'book' ? 'text-white' : 'text-primaryOrderly'
           } font-bold mb-1`}
         >
@@ -962,7 +967,7 @@ export function OrderBookMobile({
             defaultMessage: 'Order Book',
           })}
           {tab === 'book' && (
-            <div className="h-0.5 bg-gradientFromHover rounded-lg w-full absolute -bottom-1.5 left-0"></div>
+            <div className="h-0.5 ml-3 bg-gradientFromHover rounded-lg w-full absolute -bottom-1.5 left-0"></div>
           )}
         </div>
         <div
@@ -984,9 +989,14 @@ export function OrderBookMobile({
       </div>
 
       {!loading && tab === 'book' && (
-        <div className="mb-2 px-1.5">
+        <div
+          className="mb-2 relative right-2"
+          style={{
+            width: 'calc(100% + 16px)',
+          }}
+        >
           <div className="relative  text-primaryText border-b pb-2 border-opacity-10 border-white frcs">
-            <div className="w-1/2 text-13px">
+            <div className="w-1/2 text-13px relative left-4">
               <FormattedMessage
                 id={tab == 'book' ? 'buy' : 'price'}
                 defaultMessage={tab == 'book' ? 'Buy' : 'Price'}
@@ -1004,7 +1014,7 @@ export function OrderBookMobile({
 
             {tab === 'book' && (
               <div
-                className=" w-full right-0 top-0 border border-white border-opacity-20 cursor-pointer rounded-md  pl-2 absolute  text-10px text-white frcs"
+                className=" w-full right-4 top-0 border border-white border-opacity-20 cursor-pointer rounded-md  pl-2 absolute  text-10px text-white frcs"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();

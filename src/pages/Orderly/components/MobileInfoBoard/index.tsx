@@ -124,6 +124,7 @@ import {
 } from '../UserBoardPerp/components/HoverText';
 import { usePerpData } from '../UserBoardPerp/state';
 import { executeMultipleTransactions } from '../../../../services/near';
+import SettlePnlModal from '../TableWithTabs/SettlePnlModal';
 
 export const MOBILE_TAB = 'REF_ORDERLY_MOBILE_TAB';
 
@@ -512,6 +513,8 @@ export function PerpAccountBoard() {
 
   const intl = useIntl();
 
+  const [settleModalOpen, setSettleModalOpen] = useState<boolean>(false);
+
   const riskLevel =
     marginRatio === '-'
       ? null
@@ -612,15 +615,19 @@ export function PerpAccountBoard() {
             : numberWithCommas(toPrecision(unsettle, 2))}
 
           <button
-            className={`font-gotham text-white px-1 text-xs rounded-md border border-inputV3BorderColor ${
-              ONLY_ZEROS.test(unsettle) ? 'cursor-not-allowed' : ''
+            className={`font-gotham  px-1 text-xs rounded-md border border-inputV3BorderColor ${
+              ONLY_ZEROS.test(unsettle)
+                ? 'cursor-not-allowed text-primaryText opacity-70'
+                : 'text-white'
             } `}
             onClick={async () => {
               if (ONLY_ZEROS.test(unsettle)) {
                 return;
               }
 
-              return executeMultipleTransactions([await perpSettlementTx()]);
+              setSettleModalOpen(true);
+
+              // return executeMultipleTransactions([await perpSettlementTx()]);
             }}
           >
             <FormattedMessage
@@ -639,6 +646,16 @@ export function PerpAccountBoard() {
 
         <span className="font-nunito">{mmr}</span>
       </div>
+
+      <SettlePnlModal
+        onClick={async () => {
+          return executeMultipleTransactions([await perpSettlementTx()]);
+        }}
+        onRequestClose={() => {
+          setSettleModalOpen(false);
+        }}
+        isOpen={settleModalOpen}
+      ></SettlePnlModal>
     </div>
   );
 }

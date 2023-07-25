@@ -125,6 +125,10 @@ function MobileTradingBoard() {
     type: symbolType,
   });
 
+  const pendingOrders = allOrders?.filter((order) => {
+    return order.status === 'PARTIAL_FILLED' || order.status === 'NEW';
+  });
+
   const storedUnRead = localStorage.getItem(REF_FI_ORDERLY_LIQUIDATION_UNREAD);
 
   const [unReadCount, setUnReadCount] = useState<number>(
@@ -213,10 +217,10 @@ function MobileTradingBoard() {
               }}
             >
               <FormattedMessage
-                id="order"
-                defaultMessage={'Order'}
+                id="orders"
+                defaultMessage={'Orders'}
               ></FormattedMessage>
-              {!!allOrders && `(${allOrders.length})`}
+              {!!pendingOrders && `(${pendingOrders.length})`}
 
               {displayTab === 'orders' && (
                 <div

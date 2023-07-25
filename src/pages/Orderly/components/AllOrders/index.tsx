@@ -4302,7 +4302,9 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
                       ? 'text-white bg-grayBgLight'
                       : 'bg-baseGreen text-black'
                     : 'text-primaryOrderly bg-symbolHover'
-                } `}
+                } 
+                  ${isMobile ? 'hidden' : ''}
+                `}
               >
                 {allOrders === undefined || loading ? '-' : openCount}
               </span>
@@ -4340,7 +4342,10 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
                       ? 'text-white bg-grayBgLight'
                       : 'bg-baseGreen text-black'
                     : 'text-primaryOrderly bg-symbolHover'
-                } `}
+                } 
+                
+                ${isMobile ? 'hidden' : ''}
+                `}
               >
                 {allOrders === undefined || loading ? '-' : historyCount}
               </span>
