@@ -109,7 +109,7 @@ const getTotalEst = (
     return new Big(total).plus(acc);
   }, new Big(0));
 
-  console.log(`total estimate:  ${totatEst} (all spot balance in usdc) `)
+  console.log(`total estimate:  ${totatEst} (all spot balance in usdc) `);
 
   return numberWithCommas(totatEst.toFixed(2));
 };
@@ -155,7 +155,9 @@ const getAvailable = (
     new Big(0)
   );
 
-  console.log(`total estimate:  ${availables} (all spot balance in usdc + in order spot token) + ${futures} (sum of (future mark price * qty) / leverage)`)
+  console.log(
+    `total estimate:  ${availables} (all spot balance in usdc + in order spot token) + ${futures} (sum of (future mark price * qty) / leverage)`
+  );
 
   const available = new Big(futures).plus(availables);
 
@@ -442,19 +444,26 @@ const getMaxQuantity = (
     const free_collateral = getFreeCollateral(positions, markPrices, userInfo);
 
     if (free_collateral === '0') {
-      if (side === 'Buy') {
-        return Math.max(
-          0,
-          Math.abs(cur_position?.position_qty || 0) -
-            (cur_position?.pending_long_qty || 0)
-        );
-      }
-      if (side === 'Sell') {
-        return Math.max(
-          0,
-          (cur_position?.position_qty || 0) +
-            (cur_position?.pending_short_qty || 0)
-        );
+      if (
+        (side === 'Buy' && (cur_position?.position_qty || 0) >= 0) ||
+        (side == 'Sell' && (cur_position?.position_qty || 0) < 0)
+      ) {
+        return 0;
+      } else {
+        if (side === 'Buy') {
+          return Math.max(
+            0,
+            Math.abs(cur_position?.position_qty || 0) -
+              (cur_position?.pending_long_qty || 0)
+          );
+        }
+        if (side === 'Sell') {
+          return Math.max(
+            0,
+            (cur_position?.position_qty || 0) +
+              (cur_position?.pending_short_qty || 0)
+          );
+        }
       }
     }
 
