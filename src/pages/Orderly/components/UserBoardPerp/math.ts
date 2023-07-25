@@ -473,7 +473,13 @@ const getMaxQuantity = (
     const collateral = getTotalCollateral(positions, markPrices);
 
     const cur_side = new Big(1).times(
-      (cur_position?.position_qty || 0) >= 0 ? 1 : -1
+      (cur_position?.position_qty || 0) +
+        (side === 'Buy'
+          ? cur_position?.pending_long_qty || 0
+          : cur_position?.pending_short_qty || 0) >=
+        0
+        ? 1
+        : -1
     );
 
     const order_side = side == 'Buy' ? new Big(1) : new Big(-1);
@@ -504,12 +510,16 @@ const getMaxQuantity = (
 
       if (cur.symbol === symbol.symbol) return acc;
 
-      const im = new Big(
-        cur.position_qty + cur.pending_short_qty + cur.pending_long_qty
-      )
-        .abs()
-        .times(mark_price_current_i)
-        .times(cur.imr);
+      const pendingLong = cur.pending_long_qty;
+      const pendingShort = Math.abs(cur.pending_short_qty);
+
+      const positionQty = cur.position_qty;
+
+      const value =
+        mark_price_current_i *
+        Math.max(pendingLong + positionQty, pendingShort - positionQty);
+
+      const im = new Big(value).abs().times(cur.imr);
 
       return acc.plus(im);
     }, new Big(0));
