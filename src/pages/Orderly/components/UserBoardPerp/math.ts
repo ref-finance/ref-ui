@@ -399,6 +399,9 @@ const getLqPrice = (
       .minus(new Big(position_notional).times(mmr_i));
 
     const result = new Big(priceNumber).plus(numerator.div(denominator));
+    console.log('result: ', result.toFixed(), priceNumber);
+
+    console.log('right options', numerator.div(denominator).toFixed());
 
     // const result = total_notional
     //   .times(maintenance_margin_ratio)
@@ -408,7 +411,7 @@ const getLqPrice = (
 
     return result.lte(0)
       ? '-'
-      : result.toFixed(tickToPrecision(symbol.base_tick));
+      : result.toFixed(tickToPrecision(symbol.quote_tick));
   } catch (error) {
     console.log('error: ', error);
     return '-';

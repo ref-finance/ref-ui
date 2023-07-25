@@ -614,10 +614,12 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     : balances && balances[symbolFrom]?.holding;
 
   const lqPrice = useMemo(() => {
+    const cur_market_price =
+      markPrices?.find((item) => item.symbol === symbol)?.price || 0;
+
     const priceNumber =
-      orderType === 'Market'
-        ? curSymbolMarkPrice?.price || 0
-        : Number(limitPrice);
+      orderType === 'Market' ? cur_market_price || 0 : Number(limitPrice);
+    console.log('priceNumber: ', priceNumber);
 
     return getLqPrice(
       markPrices,
@@ -3341,10 +3343,11 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
     : balances && balances[symbolTo]?.holding;
 
   const lqPrice = useMemo(() => {
+    const cur_market_price =
+      markPrices?.find((item) => item.symbol === symbol)?.price || 0;
+
     const priceNumber =
-      orderType === 'Market'
-        ? curSymbolMarkPrice?.price || 0
-        : Number(limitPrice);
+      orderType === 'Market' ? cur_market_price || 0 : Number(limitPrice);
 
     return getLqPrice(
       markPrices,
