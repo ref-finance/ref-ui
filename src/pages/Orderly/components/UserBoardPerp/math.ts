@@ -485,12 +485,11 @@ const getMaxQuantity = (
 
       if (cur.symbol !== symbol.symbol) return acc;
 
-      const imr_pending = new Big(
-        Math.max(
-          cur.pending_long_qty + cur.position_qty,
-          cur.pending_short_qty - cur.position_qty
-        )
-      )
+      const qty =
+        cur.position_qty +
+        (side === 'Buy' ? cur.pending_long_qty : cur.pending_short_qty);
+
+      const imr_pending = new Big(qty)
         .abs()
         .times(mark_price_current_i)
         .times(cur.imr);
@@ -506,10 +505,7 @@ const getMaxQuantity = (
       if (cur.symbol === symbol.symbol) return acc;
 
       const im = new Big(
-        Math.max(
-          cur.pending_long_qty + cur.position_qty,
-          cur.pending_short_qty - cur.position_qty
-        )
+        cur.position_qty + cur.pending_short_qty + cur.pending_long_qty
       )
         .abs()
         .times(mark_price_current_i)
@@ -520,8 +516,10 @@ const getMaxQuantity = (
 
     const account_max_leverage = userInfo.max_leverage;
 
+    const total_side = order_side.times(cur_side);
+
     const newOrderSize = collateral
-      .minus(othersIm.plus(curIm.times(order_side.times(cur_side))))
+      .minus(othersIm.plus(curIm.times(total_side)))
       .times(account_max_leverage)
       .div(mark_price_current_i)
       .times(0.995);
