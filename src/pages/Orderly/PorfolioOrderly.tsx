@@ -1,29 +1,35 @@
 import React, { createContext, useEffect, useContext, useState } from 'react';
 import Big from 'big.js';
 import ReactTooltip from 'react-tooltip';
+import _ from 'lodash';
 import { useIntl } from 'react-intl';
+import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import { isMobile } from '~utils/device';
 import { executeMultipleTransactions } from '~services/near';
-import Navigation, {
-  NavigationMobile,
-} from '../../components/portfolio/Navigation';
-import QuestionMark from '../../components/farm/QuestionMark';
+import { numberWithCommas } from './utiles';
 import { toPrecision } from './near';
 import TableWithTabs from './components/TableWithTabs';
 import SettlePnlModal from './components/TableWithTabs/SettlePnlModal';
 import { MobileFilterModal } from './components/TableWithTabs/OrdersFilters';
 import { ClosingModal } from './components/TableWithTabs/FuturesControls';
+import { MobileHistoryOrderDetail } from './components/AllOrders';
+import { formatTimeDate } from './components/OrderBoard';
 import { usePortableOrderlyTable, useMarketlist } from './orderly/constantWjsx';
 import {
   getOrderlySystemInfo,
   getCurrentHolding,
   createOrder,
-  getOrderByOrderId
+  getOrderByOrderId,
+  getOrderTrades
 } from './orderly/off-chain-api';
 import { OrderlyUnderMaintain } from './OrderlyTradingBoard';
 import { FlexRow, orderEditPopUpFailure } from './components/Common';
 import { orderPopUp } from './components/Common/index';
-import { AssetManagerModal } from './components/UserBoard';
+import { AssetManagerModal, TextWrapper } from './components/UserBoard';
+import Navigation, {
+  NavigationMobile,
+} from '../../components/portfolio/Navigation';
+import QuestionMark from '../../components/farm/QuestionMark';
 import { WarningIcon } from '../../components/icon';
 import { usePerpData } from './components/UserBoardPerp/state';
 import { useTokenMetaFromSymbol } from './components/ChartHeader/state';
@@ -39,7 +45,7 @@ import {
   perpSettlementTx,
 } from './orderly/api';
 import { useOrderlyContext } from './orderly/OrderlyContext';
-import { Holding } from './orderly/type';
+import { Holding, MyOrder, OrderTrade } from './orderly/type';
 
 import { WalletContext } from '../../utils/wallets-integration';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
@@ -78,6 +84,10 @@ function PortfolioOrderly() {
   >('all');
 
   const [mobileFilterOpen, setMobileFilterOpen] = useState<number>(0);
+  const [selectedOrder, setSelectedOrder] = useState<MyOrder>();
+  const [showMobileOrderDetail, setShowMobileOrderDetail] =
+    useState<boolean>(false);
+    const [orderTradesHistory, setOrderTradesHistory] = useState<OrderTrade[]>();
 
   const [holdings, setHoldings] = useState<Holding[]>();
   const [operationType, setOperationType] = useState<'deposit' | 'withdraw'>();
@@ -98,6 +108,30 @@ function PortfolioOrderly() {
   const nonOrderlyTokenInfo = useTokenInfo();
   const displayBalances: OrderAsset[] =
     useOrderlyPortfolioAssets(nonOrderlyTokenInfo);
+
+  async function openTrades(order: MyOrder) {
+    setSelectedOrder(order);
+
+    if (!!orderTradesHistory) {
+      setShowMobileOrderDetail(!showMobileOrderDetail);
+      return;
+    }
+    if (!accountId) return;
+
+    if (order.executed !== null && order.executed > 0) {
+      const res = await getOrderTrades({
+        accountId,
+        order_id: order.order_id,
+      });
+      if (!res.success) {
+        return;
+      }
+  
+      setOrderTradesHistory(res.data.rows);
+    }
+    
+    setShowMobileOrderDetail(!showMobileOrderDetail);
+  }
 
   const {
     newPositions,
@@ -140,7 +174,8 @@ function PortfolioOrderly() {
     setSettlePnlModalOpen,
     chooseOrderStatus,
     chooseOrderType,
-    handleOpenClosing
+    handleOpenClosing,
+    openTrades
   });
 
   const handleSettlePnl = async () => {
@@ -493,6 +528,164 @@ function PortfolioOrderly() {
         setType={setChooseOrderType}
         curType={chooseOrderType}
       />
+
+
+      {showMobileOrderDetail && (
+        <MobileHistoryOrderDetail
+          isOpen={showMobileOrderDetail}
+          onRequestClose={() => {
+            setShowMobileOrderDetail(false);
+          }}
+          order={selectedOrder}
+          symbol={selectedOrder.symbol}
+          orderTradesHistory={orderTradesHistory}
+          titleList={[
+            intl.formatMessage({
+              id: 'instrument',
+              defaultMessage: 'Instrument',
+            }),
+            intl.formatMessage({
+              id: 'Side',
+              defaultMessage: 'Side',
+            }),
+            intl.formatMessage({
+              id: 'type',
+              defaultMessage: 'Type',
+            }),
+            intl.formatMessage({
+              id: 'filled_qty',
+              defaultMessage: 'Filled / Qty',
+            }),
+            intl.formatMessage({
+              id: 'price',
+              defaultMessage: 'Price',
+            }),
+            intl.formatMessage({
+              id: 'avg_price',
+              defaultMessage: 'Avg.Price',
+            }),
+            intl.formatMessage({
+              id: 'total',
+              defaultMessage: 'Total',
+            }),
+            intl.formatMessage({
+              id: 'create_time',
+              defaultMessage: 'Create Time',
+            }),
+            intl.formatMessage({
+              id: 'status',
+              defaultMessage: 'Status',
+            }),
+          ]}
+          valueList={[
+            marketList.find((m) => m.textId === selectedOrder.symbol)?.text,
+            <TextWrapper
+              className="px-2 text-sm"
+              value={intl.formatMessage({
+                id: selectedOrder.side.toLowerCase(),
+                defaultMessage: selectedOrder.side,
+              })}
+              bg={selectedOrder.side === 'BUY' ? 'bg-buyGreen' : 'bg-sellRed'}
+              textC={
+                selectedOrder.side === 'BUY' ? 'text-buyGreen' : 'text-sellColorNew'
+              }
+            />,
+            <FlexRow className="">
+              <span className={`text-white capitalize `}>
+                {selectedOrder.type === 'LIMIT'
+                  ? intl.formatMessage({
+                      id: 'limit_orderly',
+                      defaultMessage: 'Limit',
+                    })
+                  : selectedOrder.type === 'MARKET'
+                  ? intl.formatMessage({
+                      id: 'market',
+                      defaultMessage: 'Market',
+                    })
+                  : selectedOrder.type === 'POST_ONLY'
+                  ? 'Post Only'
+                  : selectedOrder.type}
+              </span>
+
+              <div
+                className={
+                  selectedOrder.type === 'MARKET'
+                    ? 'hidden'
+                    : 'flex items-center relative ml-1.5 justify-center border border-dashed rounded-full border-portfolioGreenColor '
+                }
+                style={{
+                  height: '14px',
+                  width: '14px',
+                }}
+              >
+                <div
+                  className=""
+                  style={{
+                    height: '9px',
+                    width: '9px',
+                  }}
+                >
+                  {selectedOrder.type !== 'MARKET' && (
+                    <CircularProgressbar
+                      styles={buildStyles({
+                        pathColor: '#62C340',
+                        strokeLinecap: 'butt',
+                        trailColor: 'transparent',
+                      })}
+                      background={false}
+                      strokeWidth={50}
+                      value={selectedOrder.executed || 0}
+                      maxValue={selectedOrder.quantity}
+                    />
+                  )}
+                </div>
+              </div>
+            </FlexRow>,
+            <FlexRow className="col-span-1  ">
+              <span className="font-nunito">
+                {numberWithCommas(selectedOrder.executed)}
+              </span>
+
+              <span className="mx-1 ">/</span>
+
+              <span className="text-white font-nunito">
+                {numberWithCommas(selectedOrder.quantity || selectedOrder.executed)}
+              </span>
+            </FlexRow>,
+            <span className="font-nunito">
+              {selectedOrder.price || selectedOrder.average_executed_price
+                ? numberWithCommas(selectedOrder.price || selectedOrder.average_executed_price)
+                : '-'}
+            </span>,
+            selectedOrder.average_executed_price === null ? (
+              '-'
+            ) : (
+              <span className="font-nunito">
+                {numberWithCommas(selectedOrder.average_executed_price)}
+              </span>
+            ),
+            <span className="font-nunito">
+              {numberWithCommas(
+                new Big(selectedOrder.quantity || selectedOrder.executed || '0')
+                  .times(
+                    new Big(selectedOrder.average_executed_price || selectedOrder.price || '0')
+                  )
+                  .toNumber()
+              )}
+            </span>,
+            <span className="font-nunito">
+              {formatTimeDate(selectedOrder.created_time)}
+            </span>,
+
+            <span className="capitalize">
+              {intl.formatMessage({
+                id: _.upperFirst(selectedOrder.status.toLowerCase()),
+                defaultMessage: _.upperFirst(selectedOrder.status.toLowerCase()),
+              })}
+            </span>,
+          ]}
+        />
+      )}
     </PortfolioOrderlyData.Provider>
   );
 }

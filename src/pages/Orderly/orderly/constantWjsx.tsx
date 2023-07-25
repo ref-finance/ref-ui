@@ -3,10 +3,11 @@ import { useIntl } from 'react-intl';
 import { TokenMetadata } from '~services/ft-contract';
 import { getPortfolioAllOrders, getFundingFee, getPortfolioAssetHistory, getPortfolioPosition, getPortfolioSettlements } from '../orderly/off-chain-api';
 import { TextWrapper } from '../components/UserBoard';
-import { PortfolioTable } from './type';
+import { PortfolioTable, MyOrder } from './type';
 import { useDEXLogoRender } from './customRenderHook';
 import { useOrderlyContext } from '../orderly/OrderlyContext';
 import { formatTimeDate, shortenAddress, getAccountName } from './utils';
+import { useLeverage } from './state';
 import { digitWrapperAsset } from '../utiles';
 import { useAllSymbolInfo } from '../components/TableWithTabs/state';
 import { useBatchTokenMetaFromSymbols } from '../components/ChartHeader/state';
@@ -58,7 +59,8 @@ export const usePortableOrderlyTable = ({
   setOperationId,
   tokenIn,
   setSettlePnlModalOpen,
-  handleOpenClosing
+  handleOpenClosing,
+  openTrades
 }: {
   refOnly: boolean;
   setRefOnly: (item: boolean) => void;
@@ -75,12 +77,13 @@ export const usePortableOrderlyTable = ({
   tokenIn: TokenMetadata;
   setSettlePnlModalOpen: (item: boolean) => void;
   handleOpenClosing: (closingQuantity: number, closingPrice: number | 'Market', row: any) => void;
+  openTrades: (order: MyOrder) => void;
 }) => {
   const intl = useIntl();
   const {
     markPrices,
     lastPrices,
-    portfolioUnsettle
+    portfolioUnsettle,
   } = usePerpData();
   const { accountId } = useWalletSelector();
   const { renderLogo } =  useDEXLogoRender();
@@ -89,6 +92,7 @@ export const usePortableOrderlyTable = ({
   const [showSideSelector, setShowSideSelector] = useState<boolean>(false);
   const [unrealMode, setUnrealMode] = useState<'mark_price' | 'last_price'>('mark_price');
   const { marketList, allTokens } = useMarketlist();
+  const { curLeverage } = useLeverage();
 
   const OpenbookBtn = ({ usable } : { usable: boolean }) => (
     <div className="flex items-center">
@@ -166,77 +170,82 @@ export const usePortableOrderlyTable = ({
         rightComp: (usable: boolean) => <OpenbookBtn usable={usable} />,
         tableRowType: 'card',
         tableRowEmpty: 'no_orders_found',
-        mobileRender: ({ symbol, side, created_time, price, average_executed_price, quantity, executed, broker_name }) => (
-          <div
-            className={`m-2 p-3 gap-2 rounded-xl`}
-            style={{ backgroundColor: '#7E8A931A' }}
-          >
-            <div className="w-8/12 inline-block">
-              <div className={`p-0.5 my-0.5 flex items-center`}>
-                <div className={`px-2 pt-0.5 text-sm mr-2 inline-flex items-center justify-center rounded-md gotham_bold text-dark5 ${side === 'BUY' ? 'bg-greenLight' : 'bg-redLight'}`}>
-                  {intl.formatMessage({
-                    id: side?.toLowerCase(),
-                    defaultMessage: side,
-                  })}
-                </div>
-                <div className="flex items-center ">{marketList.find((m) => m.textId === symbol)?.withSymbol}</div>
-              </div>
-            </div>
-            <div className="w-4/12 inline-block text-right">
-              <div className={`p-0.5 text-xs my-1 flex justify-end items-center`}>
-                <span className="mr-1">
-                  {(executed / (quantity || executed) * 100).toFixed(0)}% filled
-                </span>
+        mobileRender: (order) => {
+          const { symbol, side, created_time, price, average_executed_price, quantity, executed, broker_name } = order
 
-                <div className="flex justify-end items-center relative">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="7" cy="7" r="6" stroke={side === 'BUY' ? '#62C340' : '#FF6A8E'} strokeWidth="1.4" strokeDasharray="1.4 1.4"/>
-                  </svg>
-                  {(executed / (quantity || executed) * 100) > 0 && (executed / (quantity || executed) * 100) < 100 && (
-                    <svg className="absolute" style={{ right: '3px' }} width="4" height="8" viewBox="0 0 4 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M0 8C2.20914 8 4 6.20914 4 4C4 1.79086 2.20914 0 0 0V8Z" fill={side === 'BUY' ? '#62C340' : '#FF6A8E'}/>
+          return (
+            <div
+              className={`m-2 p-3 gap-2 rounded-xl`}
+              style={{ backgroundColor: '#7E8A931A' }}
+              onClick={() => openTrades && openTrades(order)}
+            >
+              <div className="w-8/12 inline-block">
+                <div className={`p-0.5 my-0.5 flex items-center`}>
+                  <div className={`px-2 pt-0.5 text-sm mr-2 inline-flex items-center justify-center rounded-md gotham_bold text-dark5 ${side === 'BUY' ? 'bg-greenLight' : 'bg-redLight'}`}>
+                    {intl.formatMessage({
+                      id: side?.toLowerCase(),
+                      defaultMessage: side,
+                    })}
+                  </div>
+                  <div className="flex items-center ">{marketList.find((m) => m.textId === symbol)?.withSymbol}</div>
+                </div>
+              </div>
+              <div className="w-4/12 inline-block text-right">
+                <div className={`p-0.5 text-xs my-1 flex justify-end items-center`}>
+                  <span className="mr-1">
+                    {(executed / (quantity || executed) * 100).toFixed(0)}% filled
+                  </span>
+
+                  <div className="flex justify-end items-center relative">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="7" cy="7" r="6" stroke={side === 'BUY' ? '#62C340' : '#FF6A8E'} strokeWidth="1.4" strokeDasharray="1.4 1.4"/>
                     </svg>
-                  )}
-                  {(executed / (quantity || executed) * 100) === 100 && (
-                    <svg className="absolute" style={{ right: '3px' }} width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="4" cy="4" r="4" fill={side === 'BUY' ? '#62C340' : '#FF6A8E'}/>
-                    </svg>
-                  )}
+                    {(executed / (quantity || executed) * 100) > 0 && (executed / (quantity || executed) * 100) < 100 && (
+                      <svg className="absolute" style={{ right: '3px' }} width="4" height="8" viewBox="0 0 4 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0 8C2.20914 8 4 6.20914 4 4C4 1.79086 2.20914 0 0 0V8Z" fill={side === 'BUY' ? '#62C340' : '#FF6A8E'}/>
+                      </svg>
+                    )}
+                    {(executed / (quantity || executed) * 100) === 100 && (
+                      <svg className="absolute" style={{ right: '3px' }} width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="4" cy="4" r="4" fill={side === 'BUY' ? '#62C340' : '#FF6A8E'}/>
+                      </svg>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="w-8/12 inline-block">
+                <div className={`p-0.5 text-xs my-1 text-white`}>
+                  <span>
+                    {(quantity || executed)}
+                    <span className="text-10px p-1 text-gray2 mx-1" style={{ borderRadius: '4px', backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>
+                      {parseSymbol(symbol).symbolFrom}
+                    </span>
+                    * {price?.toFixed(2) || average_executed_price?.toFixed(2)}
+                    <span className="text-10px p-1 text-gray2 mx-1" style={{ borderRadius: '4px', backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>
+                      USDC
+                    </span>
+                  </span>
+                </div>
+              </div>
+              <div className="w-4/12 inline-block text-right">
+                <span>
+                  Total&nbsp;
+                  <span className="text-white gotham_bold">{(quantity * (price || average_executed_price)).toFixed(1)}</span>
+                </span>
+              </div>
+              <div className="w-8/12 inline-block">
+                <div className={`p-0.5 text-xs my-1`}>
+                  <span>{formatTimeDate(created_time)}</span>
+                </div>
+              </div>
+              <div className="w-4/12 inline-block text-right">
+                <div className={`p-0.5 text-xs my-1 flex justify-end items-center`}>
+                  from {broker_name.split(' DEX')[0]}
                 </div>
               </div>
             </div>
-            <div className="w-8/12 inline-block">
-              <div className={`p-0.5 text-xs my-1 text-white`}>
-                <span>
-                  {(quantity || executed)}
-                  <span className="text-10px p-1 text-gray2 mx-1" style={{ borderRadius: '4px', backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>
-                    {parseSymbol(symbol).symbolFrom}
-                  </span>
-                  * {price?.toFixed(2) || average_executed_price?.toFixed(2)}
-                  <span className="text-10px p-1 text-gray2 mx-1" style={{ borderRadius: '4px', backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>
-                    USDC
-                  </span>
-                </span>
-              </div>
-            </div>
-            <div className="w-4/12 inline-block text-right">
-              <span>
-                Total&nbsp;
-                <span className="text-white gotham_bold">{(quantity * (price || average_executed_price)).toFixed(1)}</span>
-              </span>
-            </div>
-            <div className="w-8/12 inline-block">
-              <div className={`p-0.5 text-xs my-1`}>
-                <span>{formatTimeDate(created_time)}</span>
-              </div>
-            </div>
-            <div className="w-4/12 inline-block text-right">
-              <div className={`p-0.5 text-xs my-1 flex justify-end items-center`}>
-                from {broker_name.split(' DEX')[0]}
-              </div>
-            </div>
-          </div>
-        ),
+          )
+        },
         tableTopComponent: (
           <OrdersFilters
             orderType={orderType}
@@ -327,77 +336,82 @@ export const usePortableOrderlyTable = ({
         rightComp: (usable: boolean) => <OpenbookBtn usable={usable} />,
         tableRowType: 'card',
         tableRowEmpty: 'no_orders_found',
-        mobileRender: ({ symbol, side, created_time, price, average_executed_price, quantity, executed, broker_name }) => (
-          <div
-            className={`m-2 p-3 gap-2 rounded-xl`}
-            style={{ backgroundColor: '#7E8A931A' }}
-          >
-            <div className="w-8/12 inline-block">
-              <div className={`p-0.5 my-0.5 flex items-center`}>
-                <div className={`px-2 pt-0.5 text-sm mr-2 inline-flex items-center justify-center rounded-md gotham_bold text-dark5 ${side === 'BUY' ? 'bg-greenLight' : 'bg-redLight'}`}>
-                  {intl.formatMessage({
-                    id: side?.toLowerCase(),
-                    defaultMessage: side,
-                  })}
-                </div>
-                <div className="flex items-center ">{marketList.find((m) => m.textId === symbol)?.withSymbol}</div>
-              </div>
-            </div>
-            <div className="w-4/12 inline-block text-right">
-              <div className={`p-0.5 text-xs my-1 flex justify-end items-center`}>
-                <span className="mr-1">
-                  {(executed / (quantity || executed) * 100).toFixed(0)}% filled
-                </span>
+        mobileRender: (order) => {
+          const { symbol, side, created_time, price, average_executed_price, quantity, executed, broker_name } = order
 
-                <div className="flex justify-end items-center relative">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="7" cy="7" r="6" stroke={side === 'BUY' ? '#62C340' : '#FF6A8E'} strokeWidth="1.4" strokeDasharray="1.4 1.4"/>
-                  </svg>
-                  {(executed / (quantity || executed) * 100) > 0 && (executed / (quantity || executed) * 100) < 100 && (
-                    <svg className="absolute" style={{ right: '3px' }} width="4" height="8" viewBox="0 0 4 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M0 8C2.20914 8 4 6.20914 4 4C4 1.79086 2.20914 0 0 0V8Z" fill={side === 'BUY' ? '#62C340' : '#FF6A8E'}/>
+          return (
+            <div
+              className={`m-2 p-3 gap-2 rounded-xl`}
+              style={{ backgroundColor: '#7E8A931A' }}
+              onClick={() => openTrades && openTrades(order)}
+            >
+              <div className="w-8/12 inline-block">
+                <div className={`p-0.5 my-0.5 flex items-center`}>
+                  <div className={`px-2 pt-0.5 text-sm mr-2 inline-flex items-center justify-center rounded-md gotham_bold text-dark5 ${side === 'BUY' ? 'bg-greenLight' : 'bg-redLight'}`}>
+                    {intl.formatMessage({
+                      id: side?.toLowerCase(),
+                      defaultMessage: side,
+                    })}
+                  </div>
+                  <div className="flex items-center ">{marketList.find((m) => m.textId === symbol)?.withSymbol}</div>
+                </div>
+              </div>
+              <div className="w-4/12 inline-block text-right">
+                <div className={`p-0.5 text-xs my-1 flex justify-end items-center`}>
+                  <span className="mr-1">
+                    {(executed / (quantity || executed) * 100).toFixed(0)}% filled
+                  </span>
+
+                  <div className="flex justify-end items-center relative">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="7" cy="7" r="6" stroke={side === 'BUY' ? '#62C340' : '#FF6A8E'} strokeWidth="1.4" strokeDasharray="1.4 1.4"/>
                     </svg>
-                  )}
-                  {(executed / (quantity || executed) * 100) === 100 && (
-                    <svg className="absolute" style={{ right: '3px' }} width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="4" cy="4" r="4" fill={side === 'BUY' ? '#62C340' : '#FF6A8E'}/>
-                    </svg>
-                  )}
+                    {(executed / (quantity || executed) * 100) > 0 && (executed / (quantity || executed) * 100) < 100 && (
+                      <svg className="absolute" style={{ right: '3px' }} width="4" height="8" viewBox="0 0 4 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0 8C2.20914 8 4 6.20914 4 4C4 1.79086 2.20914 0 0 0V8Z" fill={side === 'BUY' ? '#62C340' : '#FF6A8E'}/>
+                      </svg>
+                    )}
+                    {(executed / (quantity || executed) * 100) === 100 && (
+                      <svg className="absolute" style={{ right: '3px' }} width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="4" cy="4" r="4" fill={side === 'BUY' ? '#62C340' : '#FF6A8E'}/>
+                      </svg>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="w-8/12 inline-block">
+                <div className={`p-0.5 text-xs my-1 text-white`}>
+                  <span>
+                    {(quantity || executed)}
+                    <span className="text-10px p-1 text-gray2 mx-1" style={{ borderRadius: '4px', backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>
+                      {parseSymbol(symbol).symbolFrom}
+                    </span>
+                    * {price?.toFixed(2) || average_executed_price?.toFixed(2)}
+                    <span className="text-10px p-1 text-gray2 mx-1" style={{ borderRadius: '4px', backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>
+                      USDC
+                    </span>
+                  </span>
+                </div>
+              </div>
+              <div className="w-4/12 inline-block text-right">
+                <span>
+                  Total&nbsp;
+                  <span className="text-white gotham_bold">{(quantity * (price || average_executed_price)).toFixed(1)}</span>
+                </span>
+              </div>
+              <div className="w-8/12 inline-block">
+                <div className={`p-0.5 text-xs my-1`}>
+                  <span>{formatTimeDate(created_time)}</span>
+                </div>
+              </div>
+              <div className="w-4/12 inline-block text-right">
+                <div className={`p-0.5 text-xs my-1 flex justify-end items-center`}>
+                  from {broker_name.split(' DEX')[0]}
                 </div>
               </div>
             </div>
-            <div className="w-8/12 inline-block">
-              <div className={`p-0.5 text-xs my-1 text-white`}>
-                <span>
-                  {(quantity || executed)}
-                  <span className="text-10px p-1 text-gray2 mx-1" style={{ borderRadius: '4px', backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>
-                    {parseSymbol(symbol).symbolFrom}
-                  </span>
-                  * {price?.toFixed(2) || average_executed_price?.toFixed(2)}
-                  <span className="text-10px p-1 text-gray2 mx-1" style={{ borderRadius: '4px', backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>
-                    USDC
-                  </span>
-                </span>
-              </div>
-            </div>
-            <div className="w-4/12 inline-block text-right">
-              <span>
-                Total&nbsp;
-                <span className="text-white gotham_bold">{(quantity * (price || average_executed_price)).toFixed(1)}</span>
-              </span>
-            </div>
-            <div className="w-8/12 inline-block">
-              <div className={`p-0.5 text-xs my-1`}>
-                <span>{formatTimeDate(created_time)}</span>
-              </div>
-            </div>
-            <div className="w-4/12 inline-block text-right">
-              <div className={`p-0.5 text-xs my-1 flex justify-end items-center`}>
-                from {broker_name.split(' DEX')[0]}
-              </div>
-            </div>
-          </div>
-        ),
+          )
+        },
         tableTopComponent: (
           <OrdersFilters
             orderType={orderType}
@@ -503,7 +517,7 @@ export const usePortableOrderlyTable = ({
               <thead className={`w-full table table-fixed py-2 border-white border-opacity-10`}>
                 <tr className={`w-full  table-fixed grid grid-cols-6 gap-4 px-3`}>
                   {['assets', 'Wallet', 'available_orderly'].map((key, i) => (
-                    <th className={`col-span-2 pb-2${i === 2 ? ' text-right' : ' text-left'}`}>
+                    <th className={`col-span-2 pb-2${i === 2 ? ' text-right' : ' text-left'}${i === 1 ? ' pl-5' : ''}`}>
                       {intl.formatMessage({
                         id: key,
                         defaultMessage: key,
@@ -522,7 +536,7 @@ export const usePortableOrderlyTable = ({
                           className="rounded-full flex-shrink-0 mr-2 w-7 h-7 border border-green-400"
                           alt=""
                         />
-                        <div className="flex flex-col  ">
+                        <div className="flex flex-col">
                           <div className="text-white flex items-center font-bold">
                             {tokenMeta.symbol}
                             {tokenMeta?.id?.toLowerCase() === 'near' && <NearTip />}
@@ -534,7 +548,7 @@ export const usePortableOrderlyTable = ({
                         </div>
                       </div>
                     </td>
-                    <td className="col-span-2 py-2 flex items-center">
+                    <td className="col-span-2 pl-5 py-2 flex items-center">
                       {digitWrapperAsset(near, 3)}
                     </td>
                     <td className="col-span-2 text-right py-2 flex items-center justify-end">
@@ -703,12 +717,14 @@ export const usePortableOrderlyTable = ({
             render: ({ symbol, average_open_price, position_qty }) => {
               const price = unrealMode === 'mark_price' ? markPrices.find((i) => i.symbol === symbol)?.price : lastPrices.find((i) => i.symbol === symbol)?.close;
               const unreal = position_qty >= 0 ? ((price - average_open_price) * position_qty) : ((average_open_price - price) * position_qty) * -1;
-              const percentage = position_qty >= 0 ? ((price / average_open_price) - 1) * 100 : ((average_open_price / price) - 1) * 100
+              const percentage = position_qty >= 0 ? ((average_open_price - price ) / (average_open_price / curLeverage )) * -100 : ((average_open_price - price ) / (average_open_price / curLeverage)) * 100
+              const percentageParse = percentage.toPrecision(percentage.toString().split('.')[0].length + 2)
+              const percentageTrue = percentageParse.substring(0, percentageParse.length - (percentageParse.charAt(0) === '-' ? 2 : 1))
 
               return (
                 <div className={`pr-2 ${unreal >= 0  ? 'text-buyGreen' : 'text-sellColorNew'}`}>
                   {unreal?.toFixed(2) || '-' } <br />
-                  ({percentage?.toFixed(1)}%)
+                  ({percentageTrue}%)
                 </div>
               )
             }

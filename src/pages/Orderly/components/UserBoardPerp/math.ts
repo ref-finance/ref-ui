@@ -147,7 +147,7 @@ const getAvailable = (
       const markPrice =
         markPrices?.find((item) => item.symbol === cur.symbol)?.price || 0;
 
-      const value = (markPrice * cur.position_qty) / curLeverage;
+      const value = Math.abs((markPrice * cur.position_qty) / curLeverage);
 
       return new Big(value).plus(acc);
     },
@@ -155,9 +155,7 @@ const getAvailable = (
     new Big(0)
   );
 
-  console.log(
-    `total estimate:  ${availables} (all spot balance in usdc + in order spot token) + ${futures} (sum of (future mark price * qty) / leverage)`
-  );
+  console.log(`available:  ${availables} (all spot balance in usdc + in order spot token) + ${futures} (sum of (future mark price * qty) / leverage)`)
 
   const available = new Big(futures).plus(availables);
 

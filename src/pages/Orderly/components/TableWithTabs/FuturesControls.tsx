@@ -15,6 +15,7 @@ import { getPortfolioAllOrders, cancelOrder } from '../../orderly/off-chain-api'
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import { formatDecimalToTwoOrMore } from '../../orderly/utils';
 import { MarkPrice, SymbolInfo } from '../../orderly/type';
+import { useLeverage } from '../../orderly/state';
 import { ONLY_ZEROS } from '../../../../utils/numbers';
 
 const priceValidator = (
@@ -465,8 +466,8 @@ const PendingOrderRow: React.FC<{
         <div
           className="cursor-pointer"
           onClick={async () => {
+            if (!accountId || loading) return;
             try {
-              if (!accountId) return;
               setLoading(true);
 
               const res = await cancelOrder({
@@ -555,6 +556,10 @@ export const FutureTableFormCells: React.FC<{
   }, [triggerPositionBasedData])
 
   useEffect(() => {
+    setClosingQuantity(Math.abs(position_qty));
+  }, [position_qty])
+
+  useEffect(() => {
     if (open)
       document.addEventListener('click', () => {
         setOpen(false);
@@ -590,15 +595,17 @@ export const FutureTableFormCells: React.FC<{
             type="number"
             placeholder="0.0"
             onChange={({ target }) => {
-              priceAndSizeValidator(
-                closingPrice === 'Market' ? mark_price.toString() : closingPrice.toString(),
-                target.value,
-                symbolInfo,
-                intl,
-                position_qty > -1 ? 'Buy' : 'Sell',
-                closingPrice === 'Market' ? 'Market' : 'Limit',
-                referenceMark
-              );
+              if (target.value) {
+                priceAndSizeValidator(
+                  closingPrice === 'Market' ? mark_price.toString() : closingPrice.toString(),
+                  target.value,
+                  symbolInfo,
+                  intl,
+                  position_qty > -1 ? 'Buy' : 'Sell',
+                  closingPrice === 'Market' ? 'Market' : 'Limit',
+                  referenceMark
+                );
+              }
               
               let value: number = parseFloat(target.value);
               if (value > Math.abs(position_qty)) value = Math.abs(position_qty);
@@ -629,15 +636,17 @@ export const FutureTableFormCells: React.FC<{
                 className="w-full"
                 placeholder={mark_price.toString()}
                 onChange={({ target }) => {
-                  priceAndSizeValidator(
-                    closingPrice === 'Market' ? mark_price.toString() : target.value,
-                    closingQuantity.toString(),
-                    symbolInfo,
-                    intl,
-                    position_qty > -1 ? 'Buy' : 'Sell',
-                    closingPrice === 'Market' ? 'Market' : 'Limit',
-                    referenceMark
-                  );
+                  if (target.value) {
+                    priceAndSizeValidator(
+                      closingPrice === 'Market' ? mark_price.toString() : target.value,
+                      closingQuantity.toString(),
+                      symbolInfo,
+                      intl,
+                      position_qty > -1 ? 'Buy' : 'Sell',
+                      closingPrice === 'Market' ? 'Market' : 'Limit',
+                      referenceMark
+                    );
+                  }
 
                   let value: string = target.value;
                   if (value && value !== 'Market' && ! /^(?:0|[1-9]\d*)(?:\.\d*)?$/.test(value)) return
@@ -1027,8 +1036,8 @@ const PendingOrderMobileRow: React.FC<{
         <div
           className="cursor-pointer"
           onClick={async () => {
+            if (!accountId || loading) return;
             try {
-              if (!accountId || loading) return;
               setLoading(true);
 
               const res = await cancelOrder({
@@ -1295,18 +1304,21 @@ const FutureMobileRow: React.FC<{
   const [orders, setOrders] = useState<any>([]);
   const [pendingOpen, setPendingOpen] = useState<boolean>(false);
   const [unrealPnl, setUnrealPnl] = useState<number>(0);
-  const [unrealPercentage, setUnrealPercentage] = useState<number>(0);
+  const [unrealPercentage, setUnrealPercentage] = useState<string>('0');
   const { availableSymbols } = useOrderlyContext();
+  const { curLeverage } = useLeverage();
   const symbolInfo = availableSymbols?.find((s) => s.symbol === row.symbol);
   const referenceMark = markPrices.find((m) => m.symbol === row.symbol)
 
   useEffect(() => {
     const price = unrealMode === 'mark_price' ? markPrices.find((i) => i.symbol === symbol)?.price : lastPrices.find((i) => i.symbol === symbol)?.close;
     const value = position_qty >= 0 ? ((price - average_open_price) * position_qty) : ((average_open_price - price) * position_qty) * -1;
-    const percentage = position_qty >= 0 ? (price / average_open_price - 1) * 1000 : (average_open_price / price - 1) * 1000;
+    const percentage = position_qty >= 0 ? ((average_open_price - price ) / (average_open_price / curLeverage )) * -100 : ((average_open_price - price ) / (average_open_price / curLeverage)) * 100
+    const percentageParse = percentage.toPrecision(percentage.toString().split('.')[0].length + 2)
+    const percentageTrue = percentageParse.substring(0, percentageParse.length - (percentageParse.charAt(0) === '-' ? 2 : 1))
 
     setUnrealPnl(value);
-    setUnrealPercentage(percentage);
+    setUnrealPercentage(percentageTrue);
   }, [unrealMode, markPrices, lastPrices])
 
   useEffect(() => {
@@ -1436,7 +1448,7 @@ const FutureMobileRow: React.FC<{
               )}
             </div>
             <span className="text-white">
-              {unrealPnl?.toFixed(3) || '-'} ({unrealPercentage?.toFixed(1)}%)
+              {unrealPnl?.toFixed(3) || '-'} ({unrealPercentage}%)
             </span>
           </div>
           <div className="col-span-1 my-3">

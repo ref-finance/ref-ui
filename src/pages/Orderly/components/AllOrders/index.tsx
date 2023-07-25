@@ -2597,7 +2597,7 @@ function DetailTable({
   );
 }
 
-function MobileHistoryOrderDetail(
+export function MobileHistoryOrderDetail(
   props: Modal.Props & {
     valueList: (JSX.Element | string)[];
 

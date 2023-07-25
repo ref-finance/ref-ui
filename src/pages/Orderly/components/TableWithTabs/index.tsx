@@ -106,6 +106,7 @@ function TableWithTabs({
   const [keyAnnounced, setKeyAnnounced] = useState<boolean>(false);
   const [agreeCheck, setAgreeCheck] = useState<boolean>(false);
   const [registerModalOpen, setRegisterModalOpen] = useState<boolean>(false);
+  const [openOrderCount, setOpenOrderCount] = useState<number>(0);
 
   const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
 
@@ -183,6 +184,7 @@ function TableWithTabs({
   useEffect(() => {
     if (!(validator && !maintenance && !validAccountSig)) {
       setPage(1);
+      setRefOnly && setRefOnly(false)
       setOrderType && setOrderType(0);
       setChooseMarketSymbol && setChooseMarketSymbol('all_markets');
       setChooseOrderSide && setChooseOrderSide('all_side');
@@ -259,6 +261,7 @@ function TableWithTabs({
   
       setData(data?.rows || []);
       setTotal(data.meta?.total || 0);
+      if (id === 'open_orders' && tab === 0) setOpenOrderCount(data.meta?.total || 0);
       setLoading(false);
     }
   }
@@ -329,7 +332,7 @@ function TableWithTabs({
         <div className="md:hidden lg:hidden px-3 flex">
           <div
             className={`relative flex items-center bg-acccountTab p-1 rounded-lg ${
-              table.tabs[tab].filter ? 'w-11/12 inline-flex' : ''
+              table.tabs[tab].filter ? 'w-11/12 inline-flex' : 'w-full'
             }`}
           >
             {table.tabs.map((tableTab, index) => (
@@ -361,7 +364,7 @@ function TableWithTabs({
                     id: tableTab.mobileKey ? tableTab.mobileKey : tableTab.id,
                     defaultMessage: tableTab.default,
                   })}
-                  &nbsp;{(tableTab.id === 'open_orders' && data.length > 0) && `(${data.length})`}
+                  &nbsp;{(tableTab.id === 'open_orders' && openOrderCount > 0) && `(${openOrderCount})`}
                 </span>
               </label>
             ))}
@@ -416,12 +419,23 @@ function TableWithTabs({
                   className="ml-auto flex justify-end flex-wrap"
                   style={{ flex: '0 0 80%' }}
                 >
+                  {refOnly && (
+                    <div className="flex items-center p-2">
+                      {intl.formatMessage({
+                        id: 'ref_order',
+                        defaultMessage: 'Order on REf',
+                      })}
+                      <div
+                        className="ml-1.5 cursor-pointer"
+                        onClick={() => setRefOnly(false)}
+                      >
+                        <OffFilterIcon />
+                      </div>
+                    </div>
+                  )}
                   {chooseMarketSymbol !== 'all_markets' && (
                     <div className="flex items-center p-2">
-                      {
-                        marketList.find((m) => m.textId === chooseMarketSymbol)
-                          ?.textNoColor
-                      }
+                      {marketList.find((m) => m.textId === chooseMarketSymbol)?.textNoColor}
                       <div
                         className="ml-1.5 cursor-pointer"
                         onClick={() => setChooseMarketSymbol('all_markets')}
@@ -464,69 +478,6 @@ function TableWithTabs({
                     </div>
                   )}
                 </div>
-              </div>
-              <div
-                className="ml-auto flex justify-end flex-wrap"
-                style={{ flex: '0 0 80%' }}
-              >
-                {refOnly && (
-                  <div className="flex items-center p-2">
-                    {intl.formatMessage({
-                      id: 'ref_order',
-                      defaultMessage: 'Order on REf',
-                    })}
-                    <div
-                      className="ml-1.5 cursor-pointer"
-                      onClick={() => setRefOnly(false)}
-                    >
-                      <OffFilterIcon />
-                    </div>
-                  </div>
-                )}
-                {chooseMarketSymbol !== 'all_markets' && (
-                  <div className="flex items-center p-2">
-                    {marketList.find((m) => m.textId === chooseMarketSymbol)?.textNoColor}
-                    <div
-                      className="ml-1.5 cursor-pointer"
-                      onClick={() => setChooseMarketSymbol('all_markets')}
-                    >
-                      <OffFilterIcon />
-                    </div>
-                  </div>
-                )}
-                {chooseOrderType !== 'all' && (
-                  <div className="flex items-center capitalize p-2">
-                    {chooseOrderType}
-                    <div
-                      className="ml-1.5 cursor-pointer"
-                      onClick={() => setChooseOrderType('all')}
-                    >
-                      <OffFilterIcon />
-                    </div>
-                  </div>
-                )}
-                {chooseOrderSide !== 'all_side' && (
-                  <div className="flex items-center capitalize p-2">
-                    {chooseOrderSide}
-                    <div
-                      className="ml-1.5 cursor-pointer"
-                      onClick={() => setChooseOrderSide('all_side')}
-                    >
-                      <OffFilterIcon />
-                    </div>
-                  </div>
-                )}
-                {chooseOrderStatus !== 'all' && (
-                  <div className="flex items-center capitalize p-2">
-                    {chooseOrderStatus?.toLowerCase().replace('_', ' ')}
-                    <div
-                      className="ml-1.5 cursor-pointer"
-                      onClick={() => setChooseOrderStatus('all')}
-                    >
-                      <OffFilterIcon />
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           )}

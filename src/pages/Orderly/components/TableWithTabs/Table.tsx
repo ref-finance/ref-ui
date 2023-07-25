@@ -1,11 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
-
+import Big from 'big.js';
+import { MdArrowDropDown } from 'react-icons/md';
 import 'react-circular-progressbar/dist/styles.css';
 import { validContract } from '../UserBoard';
-import { FutureTableFormCells } from './FuturesControls';
-import { MyOrder, PortfolioTableColumns } from '../../orderly/type';
-import { OrderlyLoading } from '../Common/Icons';
 import TableHeader from './TableHeader';
+import { FutureTableFormCells } from './FuturesControls';
+import { OrderlyLoading } from '../Common/Icons';
+import { TextWrapper } from '../UserBoard';
+import { formatTimeDate } from '../OrderBoard';
+import { getOrderTrades } from '../../orderly/off-chain-api';
+import { MyOrder, PortfolioTableColumns, OrderTrade } from '../../orderly/type';
+import { numberWithCommas } from '../../utiles';
+import { scientificNotationToString } from '../../../../utils/numbers';
 import { useWalletSelector } from '../../../../context/WalletSelectorContext';
 import { useIntl } from 'react-intl';
 import _ from 'lodash';
@@ -14,24 +20,53 @@ function OrderLine({
   order,
   columns,
   tableRowType,
-  handleOpenClosing
+  handleOpenClosing,
+  page
 }: {
   order: any;
   columns: PortfolioTableColumns[];
   tableRowType: string;
   handleOpenClosing?: (closingQuantity: number, closingPrice: number | 'Market', row: any) => void;
+  page: number;
 }) {
   const gridCol = columns.reduce(
     (acc, column) => acc + (column.colSpan ? column.colSpan : 1),
     0
   );
+  const intl = useIntl();
+  const { accountId } = useWalletSelector();
 
   const [closingQuantity, setClosingQuantity] = useState(Math.abs(order.position_qty));
   const [closingPrice, setClosingPrice] = useState<'Market' | string>('Market');
   const [open, setOpen] = useState<boolean>(false);
   const [showFloatingBox, setShowFloatingBox] = useState(false);
   const [isFocus, setIsFocus] = useState<string>('');
+  const [openFilledDetail, setOpenFilledDetail] = useState<boolean>(false);
+  const [orderTradesHistory, setOrderTradesHistory] = useState<OrderTrade[]>();
 
+  useEffect(() => {
+    setOpenFilledDetail(false);
+    setOrderTradesHistory(null);
+  }, [page])
+
+  async function openTrades() {
+    if (!!orderTradesHistory) {
+      setOpenFilledDetail(!openFilledDetail);
+      return;
+    }
+    if (!accountId) return;
+
+    const res = await getOrderTrades({
+      accountId,
+      order_id: order.order_id,
+    });
+    if (!res.success) {
+      return;
+    }
+
+    setOrderTradesHistory(res.data.rows);
+    setOpenFilledDetail(!openFilledDetail);
+  }
 
   return (
     <>
@@ -68,6 +103,28 @@ function OrderLine({
             >
               {column.render({ ...order })}
             </div>
+            {(column.key === 'status' && tableRowType === 'card'  && order.executed !== null && order.executed > 0) && (
+                <div
+                  className={`cursor-pointer  rounded-md  ml-2 ${
+                    openFilledDetail ? 'bg-light1' : 'bg-symbolHover3'
+                  }  w-5 h-5 flex items-center justify-center`}
+                  onClick={() => {
+                    openTrades();
+                  }}
+                >
+                  <div className="transform scale-95">
+                    <MdArrowDropDown
+                      size={22}
+                      color={
+                        openFilledDetail ? '#FFFFFF' : '#limitOrderInputColor'
+                      }
+                      className={`${
+                        openFilledDetail ? 'transform rotate-180' : ''
+                      } `}
+                    />
+                  </div>
+                </div>
+              )}
           </td>
         ): (
           <FutureTableFormCells
@@ -88,6 +145,99 @@ function OrderLine({
             setIsFocus={setIsFocus}
           />
         ))}
+        {(tableRowType === 'card' && openFilledDetail) && (
+          <td className={`col-span-${gridCol}`}>
+            <table
+              className={`table-fixed text-right flex-col items-end w-8/12`}
+              // @ts-ignore
+              align="right"
+            >
+              <thead
+                className={`w-full text-xs grid-cols-6 justify-items-start  border-white mt-2 pb-3 pt-1 border-opacity-10  `}
+              >
+                <tr className="w-full">
+                  <td className="">
+                    {intl.formatMessage({
+                      id: 'qty',
+                      defaultMessage: 'Qty',
+                    })}
+                  </td>
+
+                  <td className="">
+                    {intl.formatMessage({
+                      id: 'price',
+                      defaultMessage: 'Price',
+                    })}
+                  </td>
+
+                  <td className="">
+                    {intl.formatMessage({
+                      id: 'total',
+                      defaultMessage: 'Total',
+                    })}
+                  </td>
+
+                  <td className="">
+                    <div className="flex items-center justify-end">
+                      {intl.formatMessage({
+                        id: 'fee_orderly',
+                        defaultMessage: 'Fee',
+                      })}
+                      <TextWrapper
+                        value={order.fee_asset}
+                        className="ml-2 text-xs py-0 px-1"
+                        textC="text-primaryText"
+                      />
+                    </div>
+                  </td>
+
+                  <td className="text-right pr-6" align="right" colSpan={2}>
+                    {intl.formatMessage({
+                      id: 'time',
+                      defaultMessage: 'Time',
+                    })}
+                  </td>
+                </tr>
+              </thead>
+              <tbody className="w-full">
+                {orderTradesHistory.map((trade) => (
+                  <tr
+                    key={order.order_id + '_' + trade.id}
+                    className="text-white  pb-2 "
+                    style={{
+                      height: '30px',
+                    }}
+                  >
+                    <td className="font-nunito">
+                      {numberWithCommas(trade.executed_quantity)}
+                    </td>
+                    <td className="font-nunito">
+                      {numberWithCommas(trade.executed_price)}
+                    </td>
+                    <td className="font-nunito">
+                      {numberWithCommas(
+                        new Big(trade.executed_quantity || '0')
+                          .times(new Big(trade.executed_price || '0'))
+                          .toNumber()
+                      )}
+                    </td>
+                    <td className="font-nunito">
+                      {scientificNotationToString(trade.fee.toString())}
+                    </td>
+
+                    <td
+                      className=" pr-6 py-3 font-nunito text-primaryOrderly "
+                      align="right"
+                      colSpan={2}
+                    >
+                      {formatTimeDate(trade.executed_timestamp)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </td>
+        )}
       </tr>
     </>
   );
@@ -289,6 +439,7 @@ function Table({
                       handleOpenClosing={handleOpenClosing}
                       columns={columns}
                       tableRowType={tableRowType}
+                      page={page}
                     />
                   );
                 })
