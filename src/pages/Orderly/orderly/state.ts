@@ -255,7 +255,7 @@ export function useOrderlyRegistered() {
   return registered;
 }
 
-export function useAllPositions(refreshingTag: boolean[]) {
+export function useAllPositions(refreshingTag: any[]) {
   const { accountId } = useWalletSelector();
 
   const [positions, setPositions] = useState<PositionsType>();

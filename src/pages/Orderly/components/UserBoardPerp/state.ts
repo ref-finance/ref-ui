@@ -432,5 +432,6 @@ export function usePerpData(deps?: {
     userInfo,
     totalAvailable,
     totalEst,
+    holdings,
   };
 }

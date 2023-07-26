@@ -251,6 +251,7 @@ const getFreeCollateral = (
   const pendinguPnl = pnl.div(userInfo.max_leverage);
 
   const totalCollateral = getTotalCollateral(positions, markprices);
+  console.log('totalCollateral: ', totalCollateral.toFixed());
 
   const freeCollateral = new Big(totalCollateral).minus(new Big(pendinguPnl));
 

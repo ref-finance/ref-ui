@@ -170,7 +170,7 @@ export function useTokensOrderlyBalances(
   const { balances } = useOrderlyContext();
   console.log('balances: ', balances);
 
-  const { freeCollateral, triggerBalanceBasedData } = usePerpData();
+  const { freeCollateral, triggerBalanceBasedData, holdings } = usePerpData();
 
   const { myPendingOrdersRefreshing, validAccountSig } = useOrderlyContext();
 
@@ -188,7 +188,8 @@ export function useTokensOrderlyBalances(
   };
 
   useEffect(() => {
-    if (!tokens || !tokenInfo || !accountId || !validAccountSig) return;
+    if (!tokens || !tokenInfo || !accountId || !validAccountSig || !holdings)
+      return;
 
     Promise.all(
       tokenInfo.map((t) =>
@@ -214,8 +215,6 @@ export function useTokensOrderlyBalances(
       })
       .then(async (res) => {
         const response = await getCurrentHolding({ accountId });
-
-        const holdings = response?.data?.holding as Holding[];
 
         const resMap = res.reduce(
           (acc, cur) => {
@@ -255,7 +254,10 @@ export function useTokensOrderlyBalances(
     myPendingOrdersRefreshing,
     validAccountSig,
     triggerBalanceBasedData,
+    !!holdings,
   ]);
+
+  console.log('freeCollateral: ', freeCollateral, showbalances.length);
 
   if (showbalances.length > 0 && freeCollateral !== '-') {
     showbalances.forEach((sb) => {

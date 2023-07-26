@@ -164,6 +164,7 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
   });
   const { positions } = useAllPositions([
     myPendingOrdersRefreshing,
+    privateValue?.balanceTimeStamp,
     privateValue?.positionPushReceiver,
   ]);
 
