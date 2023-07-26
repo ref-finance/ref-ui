@@ -285,7 +285,7 @@ export function usePerpData(deps?: {
 
   const freeCollateral = useMemo(() => {
     try {
-      return getFreeCollateral(positions, markPrices, userInfo);
+      return getFreeCollateral(positions, markPrices, userInfo).toFixed(2);
     } catch (error) {
       return '-';
     }

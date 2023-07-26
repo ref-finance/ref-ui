@@ -255,11 +255,7 @@ const getFreeCollateral = (
 
   const freeCollateral = new Big(totalCollateral).minus(new Big(pendinguPnl));
 
-  if (freeCollateral.lt(0)) {
-    return '0';
-  }
-
-  return freeCollateral.toFixed(2);
+  return freeCollateral;
 };
 
 const getTotalnotional = (
@@ -459,7 +455,7 @@ const getMaxQuantity = (
 
     const free_collateral = getFreeCollateral(positions, markPrices, userInfo);
 
-    if (free_collateral === '0') {
+    if (free_collateral.lte(0)) {
       if (
         (side === 'Buy' && (cur_position?.position_qty || 0) >= 0) ||
         (side == 'Sell' && (cur_position?.position_qty || 0) < 0)
