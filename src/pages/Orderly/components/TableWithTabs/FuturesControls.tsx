@@ -1134,7 +1134,9 @@ function PendingOrdersModal(
               <IoClose size={20} />
             </span>
           </div>
-          {rows.map((order: any) => <PendingOrderMobileRow key={order.order_id} order={order} />)}
+          <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
+            {rows.map((order: any) => <PendingOrderMobileRow key={order.order_id} order={order} />)}
+          </div>
         </div>
       </div>
     </Modal>

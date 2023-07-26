@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { nearMetadata, getFTmetadata, ftGetBalance } from '../../near';
 import { toReadableNumber } from '../../orderly/utils';
-import { Holding, TokenInfo, TokenMetadata } from '../../orderly/type';
-import { getCurrentHolding } from '../../orderly/off-chain-api';
+import { Holding, TokenInfo, TokenMetadata, MyOrder } from '../../orderly/type';
+import { getCurrentHolding, getPortfolioAllOrders } from '../../orderly/off-chain-api';
 import { useWalletSelector } from '../../../../context/WalletSelectorContext';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import { OrderAsset, useOrderlyPortfolioAssets } from '../AssetModal/state';
@@ -220,7 +220,7 @@ export function usePerpData(deps?: {
             mark_price: push.markPrice,
             average_open_price: push.averageOpenPrice,
             mmr: push.mmr,
-            imr: push.imr,
+            imr: push.imr
           };
         } else {
           return item;
@@ -390,7 +390,7 @@ export function usePerpData(deps?: {
 
   const totalEst = useMemo(() => {
     try {
-      return getTotalEst(newPositions, markPrices, displayBalances);
+      return () => getTotalEst(newPositions, markPrices, displayBalances, curLeverage, accountId);
     } catch (error) {
       return null;
     }
@@ -401,8 +401,7 @@ export function usePerpData(deps?: {
       return getAvailable(
         newPositions,
         markPrices,
-        displayBalances,
-        curLeverage
+        displayBalances
       );
     } catch (error) {
       return null;

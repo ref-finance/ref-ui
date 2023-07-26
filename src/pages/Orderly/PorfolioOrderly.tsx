@@ -148,6 +148,7 @@ function PortfolioOrderly() {
   const [closeOrderPrice, setCloseOrderPrice] = useState<number | 'Market'>('Market');
   const [closeOrderQuantity, setCloseOrderQuantity] = useState<number>(0);
   const [closeOrderRow, setCloseOrderRow] = useState<any>({});
+  const [totalEstFinal, setTotalEstFinal] = useState<string>('0');
 
   const handleOpenClosing = (closingQuantity: number, closingPrice: number | 'Market', row: any) => {
     setCloseOrderOpen(true);
@@ -219,9 +220,7 @@ function PortfolioOrderly() {
         size: closeOrderQuantity.toString(),
         tokenIn: tokenIn,
         price: parseFloat(
-          closeOrderPrice === 'Market'
-            ? markPrices.find((i) => i.symbol === closeOrderRow.symbol)?.price.toString()
-            : closeOrderPrice.toString()
+          order.data.price || order.data.average_executed_price
         ).toString(),
         timeStamp: res.timestamp,
         filled: order?.data?.status === 'FILLED',
@@ -239,6 +238,18 @@ function PortfolioOrderly() {
       }
     });
   }, []);
+
+  const getTotalEst = async () => {
+    // Call the memoizedTotalEst function to get the calculated value
+    const totalEstimate = await totalEst();
+    setTotalEstFinal(totalEstimate);
+    console.log('Total Estimate:', totalEstimate);
+    // Do something with the calculated value (e.g., update state or render on the UI)
+  };
+
+  useEffect(() => {
+    getTotalEst();
+  }, [newPositions, markPrices, displayBalances]);
 
   useEffect(() => {
     if (!accountId || !validAccountSig) return;
@@ -305,7 +316,7 @@ function PortfolioOrderly() {
                   </span>
                 </div>
                 <div className="text-2xl gotham_bold text-white mt-1 flex items-center">
-                  ${totalEst}
+                  ${totalEstFinal}
                   <div className="ml-3 flex items-center hidden md:flex lg:flex flex-wrap">
                     {displayBalances.map(({ tokenMeta, available }) => parseFloat(available) > 0 && (
                       <div key={tokenMeta.id} className="flex items-center text-white text-sm -ml-1">

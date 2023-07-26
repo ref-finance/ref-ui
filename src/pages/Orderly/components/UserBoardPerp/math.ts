@@ -16,6 +16,7 @@ import {
   MyOrder,
   Ticker,
 } from '../../orderly/type';
+import { getPortfolioAllOrders } from '../../orderly/off-chain-api'
 import { OrderAsset } from '../AssetModal/state';
 import Decimal from 'decimal.js';
 import { parseSymbol } from '../RecentTrade';
@@ -86,7 +87,7 @@ const getNotional = (positions: PositionsType, markPrices: MarkPrice[]) => {
   return numberWithCommas(notionals.toFixed(2));
 };
 
-const getTotalEst = (
+const getAvailable = (
   positions: PositionsType,
   markPrices: MarkPrice[],
   displayBalances: OrderAsset[]
@@ -114,13 +115,37 @@ const getTotalEst = (
   return numberWithCommas(totatEst.toFixed(2));
 };
 
-const getAvailable = (
+const getTotalEst = async (
   positions: PositionsType,
   markPrices: MarkPrice[],
   displayBalances: OrderAsset[],
-  curLeverage: number
+  curLeverage: number,
+  accountId: string
 ) => {
   if (!displayBalances || !positions || !markPrices || !curLeverage) return '0';
+  
+  const { data } = await getPortfolioAllOrders({
+    accountId,
+    OrderProps: {
+      page: 1,
+      size: 500,
+      status: 'INCOMPLETE',
+    } 
+  })
+  
+  const futureOrders: MyOrder[] = data.rows.filter((order: MyOrder) => order.symbol.includes('PERP'))
+
+  const futureOrdersCount = futureOrders.reduce((acc, cur, index) => {
+    const markPrice =
+      markPrices?.find(
+        (item) => item.symbol === cur.symbol
+      )?.price || 0;
+
+
+    const value = cur.quantity * markPrice;
+
+    return new Big(value).plus(acc);
+  }, new Big(0))
 
   const availables = displayBalances.reduce((acc, cur, index) => {
     const markPrice =
@@ -137,7 +162,7 @@ const getAvailable = (
         ? parseFloat(cur['in-order'])
         : parseFloat(cur['in-order']) * markPrice;
 
-    const total = value + inOrder;
+    const total = value - inOrder;
 
     return new Big(total).plus(acc);
   }, new Big(0));
@@ -155,13 +180,16 @@ const getAvailable = (
     new Big(0)
   );
 
+
+
   console.log(
-    `available:  ${availables} (all spot balance in usdc + in order spot token) + ${futures} (sum of (future mark price * qty) / leverage)`
+    `available:  ${availables} (all spot balance in usdc + in order spot token) + ${futures} (sum of (future mark price * qty) / leverage) + ${futureOrdersCount} future in orders`
   );
 
-  const available = new Big(futures).plus(availables);
+  const available = new Big(futures).plus(availables).plus(futureOrdersCount);
 
   return numberWithCommas(available.toFixed(2));
+
 };
 
 const get_total_upnl = (positions: PositionsType, markprices: MarkPrice[]) => {
