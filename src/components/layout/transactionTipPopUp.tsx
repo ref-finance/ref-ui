@@ -768,3 +768,42 @@ export const LimitOrderFailPopUp = (txHash: string) => {
     }
   );
 };
+
+export const marginPopUp = (tip: string, type: 'error' | 'success') => {
+  const mobileDevice = isMobile();
+
+  toast(
+    <div
+      className={`flex-col flex px-2  text-sm  ${
+        type === 'success' ? 'text-marginGrayBg' : 'text-marginRedBg'
+      }  w-full`}
+    >
+      <span className="text-white font-gothamBold text-sm">{tip}</span>
+
+      <div
+        className={`absolute w-1  ${
+          type === 'error' ? 'bg-textRed' : 'bg-buyGreen'
+        } bottom-0 h-full left-0`}
+      ></div>
+    </div>,
+    {
+      autoClose: false,
+      closeOnClick: true,
+      hideProgressBar: false,
+      closeButton: false,
+      position: 'bottom-right',
+      style: {
+        boxShadow: '0px -5px 10px rgba(0, 0, 0, 0.25)',
+        borderRadius: '4px',
+        zIndex: 9999,
+        // right: mobileDevice ? '0px' : '-40px',
+        overflow: 'hidden',
+        width: mobileDevice ? '100%' : '90%',
+        background: type === 'success' ? '#334049' : '#904247',
+        // bottom: !mobileDevice ? '-70px' : '0px',
+        minHeight: '40px',
+        height: '40px',
+      },
+    }
+  );
+};

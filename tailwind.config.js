@@ -403,6 +403,9 @@ module.exports = {
         liquidationBorder: '#5B2E39',
         mobileOrderBg: '#324451',
         orderbookBase: '#4F6574',
+        marginRedBg:'#904247',
+        marginGrayBg:'#334049'
+        
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

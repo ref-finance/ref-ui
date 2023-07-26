@@ -39,11 +39,13 @@ import {
 } from './perp-off-chain-api';
 import _, { set } from 'lodash';
 import {
+  marginPopUp,
   normalFailToast,
   normalSuccessToast,
 } from '../../../components/layout/transactionTipPopUp';
 import { useBatchTokenMetaFromSymbols } from '../components/ChartHeader/state';
 import { parseSymbol } from '../components/RecentTrade';
+import { useIntl } from 'react-intl';
 
 export function useMarketTrades({
   symbol,
@@ -277,9 +279,9 @@ export function useLeverage() {
 
   const [error, setError] = useState<Error>();
 
-  const { futureLeverage, userInfo, setUserInfo } = useOrderlyContext();
+  const intl = useIntl();
 
-  const { validAccountSig } = useOrderlyContext();
+  const { futureLeverage, userInfo, setUserInfo } = useOrderlyContext();
 
   const [curLeverage, setCurLeverage] = useState<number>();
 
@@ -308,15 +310,24 @@ export function useLeverage() {
         leverage: curLeverage as any,
       });
 
-      console.log('updateRes: ', updateRes);
-
       if (!updateRes.success) {
         setCurLeverage(userInfo?.max_leverage);
         setChangeTrigger(undefined);
-        console.log('userInfo: ', userInfo);
         // setError(updateRes.message);
 
-        return normalFailToast(updateRes.message, 3000);
+        const tip = intl.formatMessage({
+          id: 'the_margin_will_be_insufficient',
+          defaultMessage: 'The margin will be insufficient',
+        });
+
+        return marginPopUp(tip, 'error');
+      } else {
+        const tip = `${curLeverage}x ${intl.formatMessage({
+          id: 'futures_leverage_saved',
+          defaultMessage: 'Futures Leverage saved',
+        })}`;
+
+        marginPopUp(tip, 'success');
       }
 
       setError(null);
