@@ -155,7 +155,9 @@ const getAvailable = (
     new Big(0)
   );
 
-  console.log(`available:  ${availables} (all spot balance in usdc + in order spot token) + ${futures} (sum of (future mark price * qty) / leverage)`)
+  console.log(
+    `available:  ${availables} (all spot balance in usdc + in order spot token) + ${futures} (sum of (future mark price * qty) / leverage)`
+  );
 
   const available = new Big(futures).plus(availables);
 
@@ -349,6 +351,8 @@ const getLqPrice = (
     const total_collateral_value = getTotalCollateral(positions, markPrices);
 
     const total_mm = positions.rows.reduce((acc, cur) => {
+      if (cur.symbol === symbol.symbol) return acc;
+
       const cur_mark_price =
         markPrices.find((item) => item.symbol === cur.symbol)?.price || 0;
 
@@ -365,6 +369,8 @@ const getLqPrice = (
       return acc.plus(mm);
     }, new Big(0));
 
+    console.log('total_mm: ', total_mm.toFixed());
+
     const cur_position = positions.rows.find((r) => r.symbol === symbol.symbol);
 
     const orderSize = new Big(side === 'Buy' ? 1 : -1).times(
@@ -372,9 +378,9 @@ const getLqPrice = (
     );
 
     const new_Qi = orderSize.plus(new Big(cur_position?.position_qty || 0));
+    console.log('new_Qi: ', new_Qi.toFixed());
 
     const new_Qi_abs = new_Qi.abs();
-    console.log('new_Qi_abs: ', new_Qi_abs.toFixed());
 
     const position_notional = new_Qi_abs.times(mark_price).toNumber();
 
@@ -392,14 +398,22 @@ const getLqPrice = (
 
     const denominator = new Big(new_Qi_abs).times(new Big(mmr_i)).minus(new_Qi);
 
+    // total_mm 所有占用
+    //
     const numerator = new Big(total_collateral_value)
       .minus(total_mm)
       .minus(new Big(position_notional).times(mmr_i));
+
+    console.log(
+      'new Big(position_notional).times(mmr_i): ',
+      new Big(position_notional).times(mmr_i).toFixed()
+    );
 
     const result = new Big(priceNumber).plus(numerator.div(denominator));
     console.log('result: ', result.toFixed(), priceNumber);
 
     console.log('right options', numerator.div(denominator).toFixed());
+    console.log('numerator: ', numerator.toFixed());
 
     // const result = total_notional
     //   .times(maintenance_margin_ratio)
