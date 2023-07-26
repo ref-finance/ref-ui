@@ -787,7 +787,7 @@ export const marginPopUp = (tip: string, type: 'error' | 'success') => {
       ></div>
     </div>,
     {
-      autoClose: false,
+      autoClose: 3000,
       closeOnClick: true,
       hideProgressBar: false,
       closeButton: false,
