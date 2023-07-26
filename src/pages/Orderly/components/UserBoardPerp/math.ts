@@ -142,7 +142,7 @@ const getTotalEst = async (
       )?.price || 0;
 
 
-    const value = cur.quantity * markPrice;
+    const value = (cur.quantity * markPrice) / curLeverage;
 
     return new Big(value).plus(acc);
   }, new Big(0))
