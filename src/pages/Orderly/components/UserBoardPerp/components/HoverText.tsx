@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { QuestionMark } from '../../Common';
 import { isMobile } from '~utils/device';
+import { useClientMobile } from '../../../../../utils/device';
+import ReactTooltip from 'react-tooltip';
 
 export function MarginRatioText() {
   const [hover, setHover] = useState(false);
@@ -143,42 +145,47 @@ export function UnsettlePnl() {
   );
 }
 
+function getLqPriceTip() {
+  const intl = useIntl();
+  return `<div class=" rounded-md w-p200 text-primaryOrderly text-xs text-left">
+    ${intl.formatMessage({
+      id: 'liquidation_price_tip',
+      defaultMessage:
+        'This price is for reference only. You can see the liquidation price in your Orderly portfolio after your order is filled.',
+    })} 
+  </div>`;
+}
+
 export function LiquidationPriceText() {
   const [hover, setHover] = useState(false);
+
+  const isMobile = useClientMobile();
 
   return (
     <div className="frcs gap-1 text-primaryText">
       <FormattedMessage
-        id="liquidation_price"
-        defaultMessage={`Liquidation Price`}
-      ></FormattedMessage>
+        id="est_liquidation_price"
+        defaultMessage={`Est. liquidation price`}
+      />
 
       <div
-        className="relative"
-        onMouseEnter={() => {
-          setHover(true);
-        }}
-        onMouseLeave={() => {
-          setHover(false);
-        }}
+        data-class="reactTip"
+        data-for={'user_lq_price'}
+        data-html={true}
+        data-place={'top'}
+        data-tip={getLqPriceTip()}
       >
-        <QuestionMark></QuestionMark>
+        <QuestionMark />
 
-        {hover && (
-          <div
-            className=" absolute bg-cardBg z-30 transform translate-y-1/2 right-3 bottom-3  px-4 py-2 rounded-lg text-xs border border-primaryText"
-            style={{
-              width: isMobile() ? '200px' : '300px',
-            }}
-          >
-            <FormattedMessage
-              id="liquidation_price_tip"
-              defaultMessage={
-                'This price is for reference only. You can see the liquidation price in your Orderly portfolio after your order is filled.'
-              }
-            ></FormattedMessage>
-          </div>
-        )}
+        <ReactTooltip
+          id={'user_lq_price'}
+          backgroundColor="#1D2932"
+          place="right"
+          border
+          borderColor="#7e8a93"
+          textColor="#C6D1DA"
+          effect="solid"
+        />
       </div>
     </div>
   );
