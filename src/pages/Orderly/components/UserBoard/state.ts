@@ -167,6 +167,9 @@ export function useTokensOrderlyBalances(
 
   const { accountId } = useWalletSelector();
 
+  const { balances } = useOrderlyContext();
+  console.log('balances: ', balances);
+
   const { freeCollateral, triggerBalanceBasedData } = usePerpData();
 
   const { myPendingOrdersRefreshing, validAccountSig } = useOrderlyContext();
@@ -258,6 +261,21 @@ export function useTokensOrderlyBalances(
     showbalances.forEach((sb) => {
       if (sb.name === 'USDC') {
         sb.holding = Number(freeCollateral);
+      }
+    });
+  }
+
+  if (balances) {
+    showbalances.forEach((sb) => {
+      const curBalance = balances[sb.name];
+
+      if (curBalance) {
+        sb.holding = Number(
+          new Big(curBalance.holding + curBalance.pendingShortQty).toFixed(
+            Math.min(8, sb.meta.decimals || 9),
+            0
+          )
+        );
       }
     });
   }
