@@ -269,7 +269,7 @@ export function useTokensOrderlyBalances(
     showbalances.forEach((sb) => {
       const curBalance = balances[sb.name];
 
-      if (curBalance) {
+      if (curBalance && sb.name !== 'USDC') {
         sb.holding = Number(
           new Big(curBalance.holding + curBalance.pendingShortQty).toFixed(
             Math.min(8, sb.meta.decimals || 9),

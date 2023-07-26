@@ -112,6 +112,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { REF_FI_SENDER_WALLET_ACCESS_KEY } from '../../orderly/utils';
 import { useHistory } from 'react-router-dom';
 import {
+  LiquidationPriceText,
   MarginRatioText,
   TotaluPNLText,
   UnsettlePnl,
@@ -1990,12 +1991,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
             <div className={!showTotal ? 'hidden' : 'flex flex-col gap-2'}>
               <div className="frcb">
-                <span className="text-primaryOrderly">
-                  {intl.formatMessage({
-                    id: 'liquidation_price',
-                    defaultMessage: 'Liquidation Price',
-                  })}
-                </span>
+                <LiquidationPriceText></LiquidationPriceText>
                 <div className="frcs gap-2">
                   <span className="text-white">{lqPrice}</span>
 
@@ -4370,12 +4366,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
             </div>
             <div className={!showTotal ? 'hidden' : 'flex flex-col gap-2'}>
               <div className="frcb text-xs">
-                <span className="text-primaryOrderly">
-                  {intl.formatMessage({
-                    id: 'liquidation_price',
-                    defaultMessage: 'Liquidation Price',
-                  })}
-                </span>
+                <LiquidationPriceText></LiquidationPriceText>
                 <div className="frcs gap-2">
                   <span className="text-white">{lqPrice}</span>
 

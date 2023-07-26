@@ -142,3 +142,44 @@ export function UnsettlePnl() {
     </div>
   );
 }
+
+export function LiquidationPriceText() {
+  const [hover, setHover] = useState(false);
+
+  return (
+    <div className="frcs gap-1 text-primaryText">
+      <FormattedMessage
+        id="liquidation_price"
+        defaultMessage={`Liquidation Price`}
+      ></FormattedMessage>
+
+      <div
+        className="relative"
+        onMouseEnter={() => {
+          setHover(true);
+        }}
+        onMouseLeave={() => {
+          setHover(false);
+        }}
+      >
+        <QuestionMark></QuestionMark>
+
+        {hover && (
+          <div
+            className=" absolute bg-cardBg z-30 xs:left-3 transform translate-y-1/2 right-3 bottom-3  px-4 py-2 rounded-lg text-xs border border-primaryText"
+            style={{
+              width: isMobile() ? '200px' : '300px',
+            }}
+          >
+            <FormattedMessage
+              id="liquidation_price_tip"
+              defaultMessage={
+                'This price is for reference only. You can see the liquidation price in your Orderly portfolio after your order is filled.'
+              }
+            ></FormattedMessage>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
