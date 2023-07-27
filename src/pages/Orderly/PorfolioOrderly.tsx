@@ -13,12 +13,10 @@ import SettlePnlModal from './components/TableWithTabs/SettlePnlModal';
 import { MobileFilterModal } from './components/TableWithTabs/OrdersFilters';
 import { ClosingModal } from './components/TableWithTabs/FuturesControls';
 import { MobileHistoryOrderDetail } from './components/AllOrders';
-import { useCurHoldings } from './components/AllOrders/state';
 import { formatTimeDate } from './components/OrderBoard';
 import { usePortableOrderlyTable, useMarketlist } from './orderly/constantWjsx';
 import {
   getOrderlySystemInfo,
-  getCurrentHolding,
   createOrder,
   getOrderByOrderId,
   getOrderTrades,
@@ -63,13 +61,17 @@ function PortfolioOrderly() {
     tokenInfo,
     balances,
     symbol,
-    myPendingOrdersRefreshing,
     handlePendingOrderRefreshing,
     validAccountSig,
     holdings,
   } = useOrderlyContext();
   const isSignedIn = globalState.isSignedIn;
   const [maintenance, setMaintenance] = useState<boolean>(undefined);
+  // for connect wallet
+  const [tradingKeySet, setTradingKeySet] = useState<boolean>(false);
+  const [keyAnnounced, setKeyAnnounced] = useState<boolean>(false);
+  const [agreeCheck, setAgreeCheck] = useState<boolean>(false);
+  // ^for connect wallet
   const [tab, setTab] = useState<number>(0);
   const [refOnly, setRefOnly] = useState<boolean>(false);
   const [orderType, setOrderType] = useState<number>(0);
@@ -115,7 +117,7 @@ function PortfolioOrderly() {
   async function openTrades(order: MyOrder) {
     setSelectedOrder(order);
 
-    if (!!orderTradesHistory) {
+    if (showMobileOrderDetail) {
       setShowMobileOrderDetail(!showMobileOrderDetail);
       return;
     }
@@ -281,27 +283,6 @@ function PortfolioOrderly() {
   };
 
   const getTotalEst = async () => {
-    /* const futures_in_order = newPositions?.rows.reduce(
-      (acc, cur, index) => {
-        const markPrice =
-          markPrices?.find((item) => item.symbol === cur.symbol)?.price || 0;
-  
-        const futureOrdersCount = futureOrders?.filter((order) => {
-            return (order.symbol === cur.symbol) && (order.side === (cur.position_qty < 0 ? 'BUY' : 'SELL'));
-          })
-          .reduce((acc, order, index) => {
-          const ordersValue = (order.quantity * markPrice) / curLeverage;
-  
-          return new Big(ordersValue).plus(acc);
-        }, new Big(0))
-  
-        return new Big(futureOrdersCount).plus(acc);
-      },
-  
-      new Big(0)
-    );
-  
-    console.log(`+ ${futures_in_order} future in orders`); */
 
     const totalEstimate = new Big(totalEst); /* .plus(futures_in_order) */
 
@@ -440,6 +421,12 @@ function PortfolioOrderly() {
                 triggerPositionBasedData={triggerPositionBasedData}
                 validAccountSig={validAccountSig}
                 markPrices={markPrices}
+                tradingKeySet={tradingKeySet}
+                setTradingKeySet={setTradingKeySet}
+                keyAnnounced={keyAnnounced}
+                setKeyAnnounced={setKeyAnnounced}
+                agreeCheck={agreeCheck}
+                setAgreeCheck={setAgreeCheck}
               />
               <TableWithTabs
                 table={assetsTables}
@@ -452,6 +439,12 @@ function PortfolioOrderly() {
                 markPrices={markPrices}
                 lastPrices={lastPrices}
                 unrealMode={unrealMode}
+                tradingKeySet={tradingKeySet}
+                setTradingKeySet={setTradingKeySet}
+                keyAnnounced={keyAnnounced}
+                setKeyAnnounced={setKeyAnnounced}
+                agreeCheck={agreeCheck}
+                setAgreeCheck={setAgreeCheck}
               />
               <TableWithTabs
                 table={recordsTable}
@@ -460,6 +453,12 @@ function PortfolioOrderly() {
                 triggerBalanceBasedData={triggerBalanceBasedData}
                 validAccountSig={validAccountSig}
                 markPrices={markPrices}
+                tradingKeySet={tradingKeySet}
+                setTradingKeySet={setTradingKeySet}
+                keyAnnounced={keyAnnounced}
+                setKeyAnnounced={setKeyAnnounced}
+                agreeCheck={agreeCheck}
+                setAgreeCheck={setAgreeCheck}
               />
               <span className="text-xs text-primaryOrderly flex items-center">
                 <div className="ml-5 mr-1">
@@ -506,6 +505,12 @@ function PortfolioOrderly() {
                   markPrices={markPrices}
                   unrealMode={unrealMode}
                   lastPrices={lastPrices}
+                  tradingKeySet={tradingKeySet}
+                  setTradingKeySet={setTradingKeySet}
+                  keyAnnounced={keyAnnounced}
+                  setKeyAnnounced={setKeyAnnounced}
+                  agreeCheck={agreeCheck}
+                  setAgreeCheck={setAgreeCheck}
                 />
               )}
               {tab === 1 && (
@@ -530,6 +535,12 @@ function PortfolioOrderly() {
                   setMobileFilterOpen={setMobileFilterOpen}
                   validAccountSig={validAccountSig}
                   markPrices={markPrices}
+                  tradingKeySet={tradingKeySet}
+                  setTradingKeySet={setTradingKeySet}
+                  keyAnnounced={keyAnnounced}
+                  setKeyAnnounced={setKeyAnnounced}
+                  agreeCheck={agreeCheck}
+                  setAgreeCheck={setAgreeCheck}
                 />
               )}
               {tab === 2 && (
@@ -540,6 +551,12 @@ function PortfolioOrderly() {
                   triggerBalanceBasedData={triggerBalanceBasedData}
                   validAccountSig={validAccountSig}
                   markPrices={markPrices}
+                  tradingKeySet={tradingKeySet}
+                  setTradingKeySet={setTradingKeySet}
+                  keyAnnounced={keyAnnounced}
+                  setKeyAnnounced={setKeyAnnounced}
+                  agreeCheck={agreeCheck}
+                  setAgreeCheck={setAgreeCheck}
                 />
               )}
             </div>

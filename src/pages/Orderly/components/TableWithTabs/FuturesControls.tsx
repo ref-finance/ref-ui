@@ -10,7 +10,7 @@ import { OrderlyLoading } from '../Common/Icons';
 import { TextWrapper } from '../UserBoard';
 import { tickToPrecision } from '../UserBoardPerp/math';
 import { parseSymbol } from '../RecentTrade';
-import { orderEditPopUpFailure, orderEditPopUpSuccess, portfolioFailure } from '../Common';
+import { orderEditPopUpFailure, orderEditPopUpSuccess, usePortfolioFailure } from '../Common';
 import { cancelOrder } from '../../orderly/off-chain-api';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import { formatDecimalToTwoOrMore } from '../../orderly/utils';
@@ -26,6 +26,7 @@ const priceValidator = (
   side: string,
   orderType: string,
   markPrice: MarkPrice,
+  portfolioFailure: ({ tip }: { tip: string; }) => void,
   setTips?: (input: string) => void
 ) => {
   if (!symbolInfo) {
@@ -230,6 +231,7 @@ const sizeValidator = (
   symbolInfo: any,
   intl: IntlShape,
   side: string,
+  portfolioFailure: ({ tip }: { tip: string; }) => void,
   setTips?: (input: string) => void
 ) => {
   if (!symbolInfo) {
@@ -371,7 +373,8 @@ const priceAndSizeValidator = (
   intl: IntlShape,
   side: string,
   orderType: string,
-  markPrice: MarkPrice
+  markPrice: MarkPrice,
+  portfolioFailure: ({ tip }: { tip: string; }) => void,
 ) => {
 
   if (!symbolInfo || (ONLY_ZEROS.test(price) && ONLY_ZEROS.test(size))) {
@@ -382,13 +385,13 @@ const priceAndSizeValidator = (
   let resSize;
 
   if (!ONLY_ZEROS.test(price)) {
-    resPrice = priceValidator(price, size, symbolInfo, intl, side, orderType, markPrice);
+    resPrice = priceValidator(price, size, symbolInfo, intl, side, orderType, markPrice, portfolioFailure);
   } else {
     resPrice = true;
   }
 
   if (!ONLY_ZEROS.test(size)) {
-    resSize = sizeValidator(price, size, symbolInfo, intl, side);
+    resSize = sizeValidator(price, size, symbolInfo, intl, side, portfolioFailure);
   } else {
     resSize = true;
   }
@@ -397,8 +400,8 @@ const priceAndSizeValidator = (
 };
 
 const debouncedPriceAndSizeValidator = debounce(
-  (closingPrice, closingQuantity, symbolInfo, intl, side, priceType, referenceMark) => {
-    priceAndSizeValidator(closingPrice, closingQuantity, symbolInfo, intl, side, priceType, referenceMark);
+  (closingPrice, closingQuantity, symbolInfo, intl, side, priceType, referenceMark, portfolioFailure) => {
+    priceAndSizeValidator(closingPrice, closingQuantity, symbolInfo, intl, side, priceType, referenceMark, portfolioFailure);
   },
   1000 
 );
@@ -558,7 +561,8 @@ export const FutureTableFormCells: React.FC<{
   const { availableSymbols } = useOrderlyContext();
   const [orders, setOrders] = useState<MyOrder[]>([]);
   const symbolInfo = availableSymbols?.find((s) => s.symbol === row.symbol);
-  const referenceMark = markPrices.find((m) => m.symbol === row.symbol)
+  const referenceMark = markPrices.find((m) => m.symbol === row.symbol);
+  const portfolioFailure = usePortfolioFailure();
 
   useEffect(() => {
     getPendingOrders();
@@ -603,7 +607,8 @@ export const FutureTableFormCells: React.FC<{
                   intl,
                   position_qty > -1 ? 'Buy' : 'Sell',
                   closingPrice === 'Market' ? 'Market' : 'Limit',
-                  referenceMark
+                  referenceMark,
+                  portfolioFailure
                 );
               }
               
@@ -644,7 +649,8 @@ export const FutureTableFormCells: React.FC<{
                       intl,
                       position_qty > -1 ? 'Buy' : 'Sell',
                       closingPrice === 'Market' ? 'Market' : 'Limit',
-                      referenceMark
+                      referenceMark,
+                      portfolioFailure
                     );
                   }
 
@@ -715,7 +721,8 @@ export const FutureTableFormCells: React.FC<{
                   intl,
                   position_qty > -1 ? 'Buy' : 'Sell',
                   closingPrice === 'Market' ? 'Market' : 'Limit',
-                  referenceMark
+                  referenceMark,
+                  portfolioFailure
                 );
                 if (pass) {
                   handleOpenClosing(
@@ -776,6 +783,7 @@ function FutureQuantityModal(
   const intl = useIntl();
   const [inputQuantity, setInputQuantity] = useState<number>(Math.abs(position_qty));
   const [tips, setTips] = useState<string>('');
+  const portfolioFailure = usePortfolioFailure();
   
   useEffect(() => {
     setInputQuantity(quantity);
@@ -835,6 +843,7 @@ function FutureQuantityModal(
                   symbolInfo,
                   intl,
                   position_qty > -1 ? 'Buy' : 'Sell',
+                  portfolioFailure,
                   setTips
                 );
                 let value: any = target.value;
@@ -886,15 +895,28 @@ function FuturePriceModal(
     quantity: number;
   }
 ) {
-  const { onClose, priceMode, setPriceMode, price, mark_price, symbolInfo, position_qty, referenceMark, quantity } = props;
-  const [inputPrice, setInputPrice] = useState<number | 'Market'>(price);
+  const { onClose, priceMode, setPriceMode, price, mark_price, symbolInfo, position_qty, referenceMark, quantity, isOpen } = props;
+  const [inputPrice, setInputPrice] = useState<string>(price.toString());
+  const [openOnMarket, setOpenOnMarket] = useState<boolean>(true);
   const intl = useIntl();
   const [tips, setTips] = useState<string>('');
+  const portfolioFailure = usePortfolioFailure();
+
+  useEffect(() => {
+    if (isOpen && openOnMarket) {
+      setPriceMode('market_price');
+    }
+  }, [isOpen])
 
   return (
     <Modal
       {...props}
-      onRequestClose={() => onClose && onClose(price)}
+      onRequestClose={() => {
+        if (onClose) {
+          priceMode === 'market_price' && setOpenOnMarket(true);
+          onClose(price)
+        }
+      }}
       style={{
         content: {
           position: 'fixed',
@@ -921,7 +943,10 @@ function FuturePriceModal(
             <span
               className="cursor-pointer"
               onClick={(e: any) => {
-                onClose && onClose(price);
+                if (onClose) {
+                  priceMode === 'market_price' && setOpenOnMarket(true);
+                  onClose(price)
+                }
               }}
             >
               <IoClose size={20} />
@@ -933,7 +958,7 @@ function FuturePriceModal(
                 key={item}
                 className={`relative text-center px-7 py-4 w-150 rounded-md border ${priceMode !== item ? 'text-primaryText border-orderTypeBg' : 'text-white border-mobileOrderBg bg-mobileOrderBg'}`}
                 onClick={() => {
-                  setInputPrice(mark_price);
+                  setInputPrice(mark_price.toString());
                   setTips('');
                   setPriceMode(item);
                 }}
@@ -967,9 +992,10 @@ function FuturePriceModal(
                     position_qty > -1 ? 'Buy' : 'Sell',
                     target.value === 'Market' ? 'Market' : 'Limit',
                     referenceMark,
+                    portfolioFailure,
                     setTips
                   );
-                  setInputPrice(parseFloat(target.value))
+                  setInputPrice(target.value)
                 }}
                 className="text-white text-xl leading-tight px-2.5 pb-2 w-10/12 mr-2"
                 style={{ borderBottomColor: '#FFFFFF1A', borderBottomWidth: 1 }}
@@ -979,7 +1005,10 @@ function FuturePriceModal(
                 className="text-white py-1 px-4 relative bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center disabled:opacity-40"
                 disabled={!!tips}
                 onClick={() => {
-                  onClose && onClose(inputPrice);
+                  if (onClose) {
+                    priceMode === 'limit_price' && setOpenOnMarket(false);
+                    onClose(parseFloat(inputPrice));
+                  }
                 }}
               >
                 <span>
@@ -1317,7 +1346,8 @@ const FutureMobileRow: React.FC<{
   const { availableSymbols } = useOrderlyContext();
   const { curLeverage } = useLeverage();
   const symbolInfo = availableSymbols?.find((s) => s.symbol === row.symbol);
-  const referenceMark = markPrices?.find((m) => m.symbol === row.symbol)
+  const referenceMark = markPrices?.find((m) => m.symbol === row.symbol);
+  const portfolioFailure = usePortfolioFailure();
 
   useEffect(() => {
     const price = unrealMode === 'mark_price' ? markPrices?.find((i) => i.symbol === symbol)?.price : lastPrices?.find((i) => i.symbol === symbol)?.close;
@@ -1386,7 +1416,8 @@ const FutureMobileRow: React.FC<{
                   intl,
                   position_qty > -1 ? 'Buy' : 'Sell',
                   price === 'Market' ? 'Market' : 'Limit',
-                  referenceMark
+                  referenceMark,
+                  portfolioFailure
                 );
                 pass && handleOpenClosing(quantity, price, row);
                }}

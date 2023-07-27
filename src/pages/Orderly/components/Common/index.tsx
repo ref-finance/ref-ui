@@ -416,8 +416,10 @@ export function RegisterButton({
         type="button"
         disabled={spinNow}
       >
-        {onPortfolio ? (
-          <RefToOrderlyPortFolio></RefToOrderlyPortFolio>
+        {(onPortfolio && !spinNow) ? (
+          <>
+            <RefToOrderlyPortFolio />
+          </>
         ) : (
           <>
             {spinNow && <SpinIcon />}
@@ -1041,11 +1043,12 @@ export function orderEditPopUpFailure({ tip }: { tip: string }) {
   );
 }
 
-export function portfolioFailure({ tip }: { tip: string }) {
+export function usePortfolioFailure() {
+  const toastId = useRef(null);
+  const [toastOpen, setToastOpen] = useState(false)
   const mobileDevice = isMobile();
-  toast.dismiss();
 
-  return toast(
+  const openToast = ({ tip }: { tip: string }) => toastId.current = toast(
     <div className={`flex-col flex px-2  text-sm   w-full`}>
       <span className="text-textRed">{tip}</span>
 
@@ -1056,6 +1059,7 @@ export function portfolioFailure({ tip }: { tip: string }) {
       hideProgressBar: true,
       position: mobileDevice ? 'top-center' : 'bottom-right',
       autoClose: 3000,
+      onClose: () => setToastOpen(false),
       // autoClose: false,
 
       closeButton: false,
@@ -1075,4 +1079,30 @@ export function portfolioFailure({ tip }: { tip: string }) {
       },
     }
   );
+
+  const updateToast = ({ tip }: { tip: string }) => toast.update(
+    toastId.current,
+    {
+      render: () => (
+        <div className={`flex-col flex px-2  text-sm   w-full`}>
+          <span className="text-textRed">{tip}</span>
+    
+          <div className="absolute w-1 bg-textRed bottom-0 h-full left-0"></div>
+        </div>
+      ),
+      autoClose: 3000,
+    }
+  );
+
+  const onToast = ({ tip }: { tip: string }) => {
+    if (!toastOpen) {
+      setToastOpen(true);
+      openToast({ tip });
+    } else {
+      console.log('update')
+      updateToast({ tip });
+    }
+  }
+
+  return onToast;
 }
