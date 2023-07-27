@@ -450,7 +450,8 @@ export const useOrderlyPrivateData = ({
 }: {
   validAccountSig: boolean;
 }) => {
-  const { sendMessage, lastJsonMessage } = usePrivateOrderlyWS();
+  const { sendMessage, lastJsonMessage, connectionStatus } =
+    usePrivateOrderlyWS();
 
   const [authPass, setAuthPass] = useState(false);
   const { accountId } = useWalletSelector();
@@ -509,9 +510,17 @@ export const useOrderlyPrivateData = ({
     };
 
     sendMessage(JSON.stringify(authData));
-  }, [orderlyKey, requestSignature, accountId, validAccountSig]);
+  }, [
+    orderlyKey,
+    requestSignature,
+    accountId,
+    validAccountSig,
+    connectionStatus,
+  ]);
 
   useEffect(() => {
+    if (connectionStatus !== 'Open') return;
+
     if (
       lastJsonMessage &&
       lastJsonMessage?.['event'] === 'auth' &&
@@ -547,10 +556,11 @@ export const useOrderlyPrivateData = ({
         lastJsonMessage?.['data']?.accountDetail?.futuresLeverage || undefined
       );
     }
-  }, [lastJsonMessage]);
+  }, [lastJsonMessage, connectionStatus]);
 
   useEffect(() => {
     if (!authPass) return;
+    if (connectionStatus !== 'Open') return;
 
     sendMessage(
       JSON.stringify({
@@ -583,7 +593,7 @@ export const useOrderlyPrivateData = ({
         event: 'subscribe',
       })
     );
-  }, [authPass]);
+  }, [authPass, connectionStatus]);
 
   return {
     balances,
