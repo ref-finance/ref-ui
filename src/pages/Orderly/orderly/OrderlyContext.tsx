@@ -170,7 +170,6 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
   });
   const { positions } = useAllPositions(validAccountSig, [
     privateValue?.balanceTimeStamp,
-    privateValue?.positionPushReceiver,
   ]);
 
   const holdings = useCurHoldings(validAccountSig, privateValue?.balances);
