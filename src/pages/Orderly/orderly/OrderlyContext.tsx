@@ -169,7 +169,6 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
     validAccountSig,
   });
   const { positions } = useAllPositions([
-    myPendingOrdersRefreshing,
     privateValue?.balanceTimeStamp,
     privateValue?.positionPushReceiver,
   ]);
