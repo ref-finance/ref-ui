@@ -498,7 +498,7 @@ function Table({
             </div>
           </div>
         ) : data.filter(filterFunc).filter(pagingFunc).length === 0 ? (
-          <div className="w-full mt-20 mb-4 px-5 gap-4">
+          <div className="w-full mb-4 px-5 gap-4">
             <div className="text-center flex flex-col justify-center items-center">
               <svg
                 className="mb-4"

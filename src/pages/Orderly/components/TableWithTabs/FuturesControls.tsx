@@ -4,6 +4,7 @@ import { MdArrowDropDown } from 'react-icons/md';
 import { IoClose } from 'react-icons/io5';
 import { useIntl, IntlShape } from 'react-intl';
 import Modal from 'react-modal';
+import { debounce } from 'lodash';
 import { useWalletSelector } from '~context/WalletSelectorContext';
 import { OrderlyLoading } from '../Common/Icons';
 import { TextWrapper } from '../UserBoard';
@@ -395,6 +396,13 @@ const priceAndSizeValidator = (
   return resPrice === true && resSize === true
 };
 
+const debouncedPriceAndSizeValidator = debounce(
+  (closingPrice, closingQuantity, symbolInfo, intl, side, priceType, referenceMark) => {
+    priceAndSizeValidator(closingPrice, closingQuantity, symbolInfo, intl, side, priceType, referenceMark);
+  },
+  1000 
+);
+
 export const FutureTableFormHeaders: React.FC = () => {
   const intl = useIntl();
 
@@ -588,7 +596,7 @@ export const FutureTableFormCells: React.FC<{
             placeholder="0.0"
             onChange={({ target }) => {
               if (target.value) {
-                priceAndSizeValidator(
+                debouncedPriceAndSizeValidator(
                   closingPrice === 'Market' ? mark_price.toString() : closingPrice.toString(),
                   target.value,
                   symbolInfo,
@@ -629,7 +637,7 @@ export const FutureTableFormCells: React.FC<{
                 placeholder={mark_price.toString()}
                 onChange={({ target }) => {
                   if (target.value) {
-                    priceAndSizeValidator(
+                    debouncedPriceAndSizeValidator(
                       closingPrice === 'Market' ? mark_price.toString() : target.value,
                       closingQuantity.toString(),
                       symbolInfo,
@@ -1272,7 +1280,7 @@ export  function ClosingModal(
 }
 
 const FutureMobileRow: React.FC<{
-  row: { symbol: string, position_qty:number, average_open_price: number, unsettled_pnl: number };
+  row: { symbol: string, position_qty:number, average_open_price: number, unsettled_pnl: number, est_liq_price: number };
   marketList: { text: JSX.Element; withSymbol: JSX.Element; textId: string; }[];
   handleOpenClosing: (closingQuantity: number, closingPrice: number | 'Market', row: any) => void;
   unrealMode: string;
@@ -1294,7 +1302,7 @@ const FutureMobileRow: React.FC<{
   lastPrices
 }) => {
   const intl = useIntl();
-  const { symbol, position_qty, average_open_price, unsettled_pnl } = row;
+  const { symbol, position_qty, average_open_price, est_liq_price } = row;
   const [showPnlSelector, setShowPnlSelector] = useState<boolean>(false);
   const [futureQuantityOpen, setFutureQuantityOpen] = useState<boolean>(false);
   const [futurePriceOpen, setFuturePriceOpen] = useState<boolean>(false);
@@ -1389,27 +1397,46 @@ const FutureMobileRow: React.FC<{
           <div className="col-span-1 my-3">
             <div className="flex items-center">
               {intl.formatMessage({ id: 'qty.' })}
-              <div className="text-10px p-0.5 ml-1" style={{ borderRadius: '4px', backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>USDC</div>
+              <div className="text-10px p-0.5 ml-1" style={{ borderRadius: '4px', backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>{parseSymbol(symbol).symbolFrom}</div>
             </div>
             <span className="text-white">{position_qty?.toFixed(4) || '-' }</span>
           </div>
           <div className="col-span-1 my-3">
-            <div>
+            <div className="flex items-center">
               {intl.formatMessage({ id: 'avg_open' })}
+              <div className="text-10px p-0.5 ml-1" style={{ borderRadius: '4px', backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>{parseSymbol(symbol).symbolTo}</div>
             </div>
             <span className="text-white">{average_open_price?.toFixed(3) || '-'}</span>
           </div>
           <div className="col-span-1 my-3">
-            <div
-              className="relative flex items-center underline"
-              style={{ textDecorationStyle: 'dashed' }}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setShowPnlSelector(true)
-              }}
-            >
-              {intl.formatMessage({ id: 'unreal_pnl' })}
+            <div className="flex items-center">
+              {intl.formatMessage({ id: 'mark_orderly' })}
+              <div className="text-10px p-0.5 ml-1" style={{ borderRadius: '4px', backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>{parseSymbol(symbol).symbolTo}</div>
+            </div>
+            <span className="text-white">{markPrices.find((i) => i.symbol === symbol)?.price.toFixed(3) || '-' }</span>
+          </div>
+          <div className="col-span-1 my-3">
+            <div className="flex items-center">
+              {intl.formatMessage({ id: 'liq_price' })}
+              <div className="text-10px p-0.5 ml-1" style={{ borderRadius: '4px', backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>{parseSymbol(symbol).symbolTo}</div>
+            </div>
+            <span className="text-white">{est_liq_price ? est_liq_price.toFixed(3) : '-'}</span>
+          </div>
+          <div className="col-span-1 my-3"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setShowPnlSelector(true)
+            }}
+          >
+            <div className="relative flex items-center">
+              <span
+                className=" underline"
+                style={{ textDecorationStyle: 'dashed' }}
+              >
+                {intl.formatMessage({ id: 'unreal_pnl' })}
+              </span>
+              <div className="text-10px p-0.5 ml-1 no-underline" style={{ borderRadius: '4px', backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>{parseSymbol(symbol).symbolTo}</div>
 
               {showPnlSelector && (
                 <div className="absolute top-full z-50">
@@ -1444,14 +1471,20 @@ const FutureMobileRow: React.FC<{
             </span>
           </div>
           <div className="col-span-1 my-3">
-            <div>
-              {intl.formatMessage({ id: 'fut_unsettle_pnl' })}
+            <div className="relative flex items-center">
+              <span>
+                {intl.formatMessage({ id: 'notional' })}
+              </span>
+              <div className="text-10px p-0.5 ml-1" style={{ borderRadius: '4px', backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>{parseSymbol(symbol).symbolTo}</div>
             </div>
-            <span className="text-white">{unsettled_pnl?.toFixed(3) || '-'}</span>
+            <span className="text-white">
+              {Math.abs(markPrices.find((i) => i.symbol === symbol)?.price * position_qty)?.toFixed(2) || '-'}
+            </span>
           </div>
           <div className="col-span-1 my-3">
             <div className="flex items-center">
               {intl.formatMessage({ id: 'quantity' })}
+              <div className="text-10px p-0.5 ml-1 no-underline" style={{ borderRadius: '4px', backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>{parseSymbol(symbol).symbolFrom}</div>
             </div>
             <span
               className="text-white flex items-center cursor-pointer underline"
@@ -1467,8 +1500,9 @@ const FutureMobileRow: React.FC<{
             </span>
           </div>
           <div className="col-span-1 my-3">
-            <div>
+            <div className="flex items-center">
               {intl.formatMessage({ id: 'price' })}
+              <div className="text-10px p-0.5 ml-1 no-underline" style={{ borderRadius: '4px', backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>{parseSymbol(symbol).symbolTo}</div>
             </div>
             <span
               className="text-white flex items-center cursor-pointer underline"

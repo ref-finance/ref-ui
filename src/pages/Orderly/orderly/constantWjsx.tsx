@@ -214,15 +214,22 @@ export const usePortableOrderlyTable = ({
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <circle cx="7" cy="7" r="6" stroke={side === 'BUY' ? '#62C340' : '#FF6A8E'} strokeWidth="1.4" strokeDasharray="1.4 1.4"/>
                     </svg>
-                    {(executed / (quantity || executed) * 100) > 0 && (executed / (quantity || executed) * 100) < 100 && (
-                      <svg className="absolute" style={{ right: '3px' }} width="4" height="8" viewBox="0 0 4 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M0 8C2.20914 8 4 6.20914 4 4C4 1.79086 2.20914 0 0 0V8Z" fill={side === 'BUY' ? '#62C340' : '#FF6A8E'}/>
-                      </svg>
-                    )}
-                    {(executed / (quantity || executed) * 100) === 100 && (
-                      <svg className="absolute" style={{ right: '3px' }} width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="4" cy="4" r="4" fill={side === 'BUY' ? '#62C340' : '#FF6A8E'}/>
-                      </svg>
+                    {(executed / (quantity || executed) * 100) > 0 && (
+                      <div
+                        className="flex justify-end items-center absolute overflow-hidden"
+                        style={{
+                          width: `${executed / (quantity || executed) * 8}px`,
+                          height: '8px',
+                          direction: 'rtl',
+                          right: '3px'
+                        }}
+                      >
+                        <div className="relative" style={{ width: '8px', height: '8px' }}>
+                          <svg className="absolute" width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="4" cy="4" r="4" fill={side === 'BUY' ? '#62C340' : '#FF6A8E'}/>
+                          </svg>
+                        </div>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -380,15 +387,22 @@ export const usePortableOrderlyTable = ({
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <circle cx="7" cy="7" r="6" stroke={side === 'BUY' ? '#62C340' : '#FF6A8E'} strokeWidth="1.4" strokeDasharray="1.4 1.4"/>
                     </svg>
-                    {(executed / (quantity || executed) * 100) > 0 && (executed / (quantity || executed) * 100) < 100 && (
-                      <svg className="absolute" style={{ right: '3px' }} width="4" height="8" viewBox="0 0 4 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M0 8C2.20914 8 4 6.20914 4 4C4 1.79086 2.20914 0 0 0V8Z" fill={side === 'BUY' ? '#62C340' : '#FF6A8E'}/>
-                      </svg>
-                    )}
-                    {(executed / (quantity || executed) * 100) === 100 && (
-                      <svg className="absolute" style={{ right: '3px' }} width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="4" cy="4" r="4" fill={side === 'BUY' ? '#62C340' : '#FF6A8E'}/>
-                      </svg>
+                    {(executed / (quantity || executed) * 100) > 0 && (
+                      <div
+                        className="flex justify-end items-center absolute overflow-hidden"
+                        style={{
+                          width: `${executed / (quantity || executed) * 8}px`,
+                          height: '8px',
+                          direction: 'rtl',
+                          right: '3px'
+                        }}
+                      >
+                        <div className="relative" style={{ width: '8px', height: '8px' }}>
+                          <svg className="absolute" width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="4" cy="4" r="4" fill={side === 'BUY' ? '#62C340' : '#FF6A8E'}/>
+                          </svg>
+                        </div>
+                      </div>
                     )}
                   </div>
                 </div>
