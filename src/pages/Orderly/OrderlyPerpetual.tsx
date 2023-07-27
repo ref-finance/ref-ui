@@ -241,7 +241,7 @@ function MobileTradingBoard() {
                 id="liquidations"
                 defaultMessage={'Liquidations'}
               ></FormattedMessage>
-              {unReadCount > 0 && (
+              {/* {unReadCount > 0 && (
                 <div
                   className="rounded-full text-10px text-chartBg  bg-sellRed frcc"
                   style={{
@@ -251,7 +251,7 @@ function MobileTradingBoard() {
                 >
                   {unReadCount}
                 </div>
-              )}
+              )} */}
 
               {displayTab === 'liquidations' && (
                 <div

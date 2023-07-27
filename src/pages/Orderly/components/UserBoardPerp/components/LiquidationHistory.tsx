@@ -356,18 +356,14 @@ export function LiquidationButton() {
         }}
         className={`frcc w-1/2 py-2 rounded-lg border  gap-2
         
-            ${
-              unReadCount > 0
-                ? 'border-liquidationBorder text-sellRed'
-                : 'border-orderTypeBg  text-white'
-            }
+            ${'border-orderTypeBg  text-white'}
         `}
       >
         <FormattedMessage
           id="liquidations"
           defaultMessage={'liquidations'}
         ></FormattedMessage>
-        {unReadCount > 0 && (
+        {/* {unReadCount > 0 && (
           <div
             className="rounded frcc bg-sellRed text-10px"
             style={{
@@ -378,7 +374,7 @@ export function LiquidationButton() {
           >
             {unReadCount}
           </div>
-        )}
+        )} */}
       </button>
 
       {showLiquidationHistory && (

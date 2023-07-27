@@ -656,6 +656,7 @@ export function PerpAccountBoard() {
           setSettleModalOpen(false);
         }}
         isOpen={settleModalOpen}
+        portfolioUnsettle={toPrecision(unsettle, 2, true, false)}
       ></SettlePnlModal>
     </div>
   );

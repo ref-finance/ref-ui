@@ -2168,6 +2168,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           setSettleModalOpen(false);
         }}
         isOpen={settleModalOpen}
+        portfolioUnsettle={toPrecision(unsettle, 2, true, false)}
       ></SettlePnlModal>
     </div>
   );
