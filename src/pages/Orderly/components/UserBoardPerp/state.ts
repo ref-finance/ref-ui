@@ -225,6 +225,7 @@ export function usePerpData(deps?: {
             average_open_price: push.averageOpenPrice,
             mmr: push.mmr,
             imr: push.imr,
+            est_liq_price: push.estLiqPrice,
           };
         } else {
           return item;
