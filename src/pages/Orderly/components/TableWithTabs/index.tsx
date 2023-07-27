@@ -501,16 +501,17 @@ function TableWithTabs({
                   zIndex: 50,
                 }}
               >
-                {/* <div className="hidden md:block lg:block">
-                  <RefToOrderly />
-                </div>
-       */}
+                {/*
+                  <div className="hidden md:block lg:block">
+                    <RefToOrderly />
+                  </div>
+                */}
                 {!accountId && (
                   <div className="w-half md:w-full lg:w-full flex justify-center flex-col items-center">
-                    {/* <div className="md:hidden lg:hidden text-center mb-6">
+                    <div className="md:hidden lg:hidden text-center mb-6">
                       <p>Welcome!</p>
                       <p>Connect your wallet to start</p>
-                    </div> */}
+                    </div>
 
                     <ConnectWalletPorfolio
                       onClick={() => {
