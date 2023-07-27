@@ -182,25 +182,13 @@ export function usePerpData(deps?: {
   const { displayBalances, markMode } = deps || {};
   const {
     symbol,
-    orders,
-    tokenInfo,
-    storageEnough,
     balances,
     balanceTimeStamp,
-    setValidAccountSig,
-    handlePendingOrderRefreshing,
-    validAccountSig,
-    myPendingOrdersRefreshing,
-    bridgePrice,
-    userExist,
     positions,
     markPrices,
-    indexprices,
     positionPush,
     positionTimeStamp,
     everyTickers,
-    ticker,
-    futureLeverage,
     holdings,
   } = useOrderlyContext();
 

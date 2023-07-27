@@ -466,6 +466,7 @@ export const useOrderlyPrivateData = ({
   const [requestSignature, setRequestSignature] = useState('');
 
   const [liquidations, setLiquidations] = useState<LiquidationPushType[]>([]);
+  console.log('liquidations: ', liquidations);
 
   const [positionPush, setPositionPush] = useState<PositionPushType[]>();
 
@@ -578,8 +579,8 @@ export const useOrderlyPrivateData = ({
     sendMessage(
       JSON.stringify({
         id: 'liquidatorliquidations',
-        topic: 'position',
-        event: 'liquidatorliquidations',
+        topic: 'liquidatorliquidations',
+        event: 'subscribe',
       })
     );
   }, [authPass]);

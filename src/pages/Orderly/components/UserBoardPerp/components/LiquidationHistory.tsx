@@ -351,32 +351,6 @@ export function LiquidationButton() {
   return (
     <>
       <button
-        className="frcss w-p200 rounded-lg py-2 bg-gradientFromHover text-black "
-        onClick={() => {
-          setLiquidations([
-            {
-              liquidationId: 1,
-              timestamp: 1684821114917,
-              type: 'liquidated',
-              positionsByPerp: [
-                {
-                  symbol: 'PERP_NEAR_USDC',
-                  positionQty: 12.6,
-                  costPositionTransfer: 20.05668,
-                  transferPrice: 1.5918,
-                  liquidatorFee: 0.0175,
-                  absLiquidatorFee: 0.350992,
-                },
-              ],
-            },
-            ...liquidations,
-          ]);
-        }}
-      >
-        click to push
-      </button>
-
-      <button
         onClick={() => {
           setShowLiquidationHistory(true);
         }}
@@ -426,7 +400,6 @@ export function MobileliquidationList({
   setUnReadCount,
 }: {
   unReadCount: number;
-
   setUnReadCount: React.Dispatch<React.SetStateAction<number>>;
 }) {
   const {

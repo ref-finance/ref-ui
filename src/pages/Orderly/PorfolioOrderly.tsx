@@ -148,7 +148,6 @@ function PortfolioOrderly() {
     triggerPositionBasedData,
     totalAvailable,
     freeCollateral,
-    curLeverage,
     portfolioUnsettle,
     totalPortfoliouPnl,
     totalDailyReal,
