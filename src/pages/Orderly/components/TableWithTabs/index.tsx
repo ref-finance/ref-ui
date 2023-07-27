@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import _ from 'lodash';
-import { RefToOrderly } from '../Common/Icons';
 import {
   RegisterModal,
   validContract,
@@ -30,7 +29,7 @@ import { MobileFilter } from '../Common/Icons';
 import { OrderAsset } from '../AssetModal/state';
 import { useMarketlist } from '../../orderly/constantWjsx';
 
-import { PortfolioTable } from '../../orderly/type';
+import { MarkPrice, MyOrder, PortfolioTable } from '../../orderly/type';
 import { useClientMobile } from '../../../../utils/device';
 
 export function SymbolWrapper({ symbol }: { symbol: string }) {
@@ -63,6 +62,10 @@ function TableWithTabs({
   setMobileFilterOpen,
   handleOpenClosing,
   validAccountSig,
+  futureOrders,
+  markPrices,
+  lastPrices,
+  unrealMode
 }: {
   table: PortfolioTable;
   maintenance: boolean;
@@ -91,6 +94,13 @@ function TableWithTabs({
     row: any
   ) => void;
   validAccountSig: boolean;
+  futureOrders?: MyOrder[];
+  markPrices: MarkPrice[];
+  lastPrices?: {
+    symbol: string;
+    close: number;
+  }[];
+  unrealMode?: 'mark_price' | 'last_price';
 }) {
   const intl = useIntl();
   const { marketList } = useMarketlist();
@@ -229,8 +239,8 @@ function TableWithTabs({
   }, [JSON.stringify(displayBalances)]);
 
   useEffect(() => {
-    if (getData && id === 'futures') {
-      setData(newPositions.rows);
+    if (id === 'futures') {
+      setData(newPositions?.rows);
     }
   }, [JSON.stringify(newPositions)]);
 
@@ -572,6 +582,7 @@ function TableWithTabs({
             <Table
               data={data || []}
               loading={loading}
+              tab={tab}
               tableKey={table.tabs[tab].id}
               defaultSort={table.tabs[tab].defaultSort}
               columns={table.tabs[tab].columns}
@@ -588,6 +599,10 @@ function TableWithTabs({
               }
               orderType={orderType}
               handleOpenClosing={handleOpenClosing}
+              futureOrders={futureOrders}
+              markPrices={markPrices}
+              lastPrices={lastPrices}
+              unrealMode={unrealMode}
             />
 
             <RegisterModal

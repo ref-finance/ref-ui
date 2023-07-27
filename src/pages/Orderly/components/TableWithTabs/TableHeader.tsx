@@ -36,7 +36,7 @@ export default function TableHeader({
         <div
           className={`flex items-center relative text-left ${extras ? 'cursor-pointer' : ''}`}
           onClick={(e: any) => {
-            if (extras?.includes('sort')) {
+            if (!(extras?.includes('select') || extras?.includes('radio')) && extras?.includes('sort')) {
               if (JSON.stringify(sort[0]) !== JSON.stringify(sortKey)) {
                 setSort([sortKey, 'asc'])
               } else {
@@ -92,6 +92,16 @@ export default function TableHeader({
               style={{ flex: '0 0 22px' }}
               size={22}
               color={(JSON.stringify(sort[0]) === JSON.stringify(sortKey) || showSelector) ? 'white' : '#7E8A93'}
+              onClick={(e: any) => {
+                e.stopPropagation();
+                if (extras?.includes('sort')) {
+                  if (JSON.stringify(sort[0]) !== JSON.stringify(sortKey)) {
+                    setSort([sortKey, 'asc'])
+                  } else {
+                    setSort([sortKey, sort[1] === 'asc' ? 'dsc' : 'asc'])
+                  }
+                }
+              }}
             />
           )}
 

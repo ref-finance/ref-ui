@@ -115,7 +115,7 @@ const getAvailable = (
   return numberWithCommas(totatEst.toFixed(2));
 };
 
-const getTotalEst = async (
+const getTotalEst = (
   positions: PositionsType,
   markPrices: MarkPrice[],
   displayBalances: OrderAsset[],
@@ -123,29 +123,6 @@ const getTotalEst = async (
   accountId: string
 ) => {
   if (!displayBalances || !positions || !markPrices || !curLeverage) return '0';
-  
-  const { data } = await getPortfolioAllOrders({
-    accountId,
-    OrderProps: {
-      page: 1,
-      size: 500,
-      status: 'INCOMPLETE',
-    } 
-  })
-  
-  const futureOrders: MyOrder[] = data.rows.filter((order: MyOrder) => order.symbol.includes('PERP'))
-
-  const futureOrdersCount = futureOrders.reduce((acc, cur, index) => {
-    const markPrice =
-      markPrices?.find(
-        (item) => item.symbol === cur.symbol
-      )?.price || 0;
-
-
-    const value = (cur.quantity * markPrice) / curLeverage;
-
-    return new Big(value).plus(acc);
-  }, new Big(0))
 
   const availables = displayBalances.reduce((acc, cur, index) => {
     const markPrice =
@@ -181,14 +158,13 @@ const getTotalEst = async (
   );
 
 
-
   console.log(
-    `available:  ${availables} (all spot balance in usdc + in order spot token) + ${futures} (sum of (future mark price * qty) / leverage) + ${futureOrdersCount} future in orders`
+    `available:  ${availables} (all spot balance in usdc + in order spot token) + ${futures} (sum of (future mark price * qty) / leverage)`
   );
 
-  const available = new Big(futures).plus(availables).plus(futureOrdersCount);
+  const available = new Big(futures).plus(availables);
 
-  return numberWithCommas(available.toFixed(2));
+  return available;
 
 };
 

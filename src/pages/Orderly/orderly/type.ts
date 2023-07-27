@@ -375,7 +375,7 @@ export interface PortfolioTable {
     id: string;
     default: string;
     rightComp?: (state: boolean) => JSX.Element;
-    defaultSort?: string;
+    defaultSort?: string | string[];
     columns?: PortfolioTableColumns[];
     tableRowType?: string;
     tableRowEmpty?: string;
@@ -384,7 +384,7 @@ export interface PortfolioTable {
     pagination?: boolean;
     filter?: boolean;
     getData?: (params: any) => any;
-    mobileRender?: (row: any) => any;
+    mobileRender?: (row: any, secondData?: any) => any;
     mobileRenderCustom?: boolean;
     mobileFooter?: JSX.Element;
   }[];

@@ -9,7 +9,7 @@ import { OrderlyLoading } from '../Common/Icons';
 import { TextWrapper } from '../UserBoard';
 import { formatTimeDate } from '../OrderBoard';
 import { getOrderTrades } from '../../orderly/off-chain-api';
-import { MyOrder, PortfolioTableColumns, OrderTrade } from '../../orderly/type';
+import { MyOrder, PortfolioTableColumns, OrderTrade, MarkPrice } from '../../orderly/type';
 import { numberWithCommas } from '../../utiles';
 import { scientificNotationToString } from '../../../../utils/numbers';
 import { useWalletSelector } from '../../../../context/WalletSelectorContext';
@@ -21,13 +21,17 @@ function OrderLine({
   columns,
   tableRowType,
   handleOpenClosing,
-  page
+  page,
+  futureOrders,
+  markPrices
 }: {
   order: any;
   columns: PortfolioTableColumns[];
   tableRowType: string;
   handleOpenClosing?: (closingQuantity: number, closingPrice: number | 'Market', row: any) => void;
   page: number;
+  futureOrders?: MyOrder[];
+  markPrices: MarkPrice[];
 }) {
   const gridCol = columns.reduce(
     (acc, column) => acc + (column.colSpan ? column.colSpan : 1),
@@ -143,6 +147,8 @@ function OrderLine({
             setShowFloatingBox={setShowFloatingBox}
             isFocus={isFocus}
             setIsFocus={setIsFocus}
+            futureOrders={futureOrders}
+            markPrices={markPrices}
           />
         ))}
         {(tableRowType === 'card' && openFilledDetail) && (
@@ -251,6 +257,7 @@ function Table({
   defaultSort,
   total,
   page,
+  tab,
   setPage,
   tableRowType,
   tableRowEmpty,
@@ -259,14 +266,19 @@ function Table({
   mobileRender,
   mobileRenderCustom,
   orderType,
-  handleOpenClosing
+  handleOpenClosing,
+  futureOrders,
+  markPrices,
+  lastPrices,
+  unrealMode
 }: {
   data: MyOrder[];
   loading: boolean;
   tableKey: string;
-  defaultSort?: string;
+  defaultSort?: string | string[];
   columns: PortfolioTableColumns[];
   total: number;
+  tab: number;
   page: number;
   setPage: (page: number) => void;
   tableRowType: string;
@@ -274,16 +286,30 @@ function Table({
   tableTopComponent: JSX.Element;
   pagination: boolean;
   orderType?: number;
-  mobileRender: (row: any) => any;
+  mobileRender: (row: any, secondData: any) => any;
   mobileRenderCustom?: boolean;
   handleOpenClosing?: (closingQuantity: number, closingPrice: number | 'Market', row: any) => void;
+  futureOrders?: MyOrder[];
+  markPrices: MarkPrice[];
+  lastPrices: {
+    symbol: string;
+    close: number;
+  }[];
+  unrealMode: 'mark_price' | 'last_price';
 }) {
   const { accountId } = useWalletSelector()
-
+  
   const [sort, setSort] = useState<[string | string[], 'asc' | 'dsc']>([
     defaultSort ? defaultSort : '',
     loading ? undefined : 'dsc',
   ]);
+
+  useEffect(() => {
+    defaultSort && setSort([
+      defaultSort ? defaultSort : '',
+      loading ? undefined : 'dsc',
+    ])
+  }, [tab])
 
   const [customTotal, setCustomTotal] = useState<number | null>(null);
 
@@ -295,13 +321,28 @@ function Table({
         return b[sort[0]] - a[sort[0]];
       }
     } else {
-      const c = a[sort[0][0]] * a[sort[0][1]];
-      const d = b[sort[0][0]] * b[sort[0][1]];
+      if (sort[0][0] === 'position_qty') {
+        const c = a[sort[0][0]] * a[sort[0][1]];
+        const d = b[sort[0][0]] * b[sort[0][1]];
 
-      if (sort[1] === 'asc') {
-        return c - d;
-      } else {
-        return d - c;
+        if (sort[1] === 'asc') {
+          return c - d;
+        } else {
+          return d - c;
+        }
+      }
+
+      if (sort[0][0] === 'symbol') {
+        const priceA = unrealMode === 'mark_price' ? markPrices.find((i) => i.symbol === a[sort[0][0]])?.price : lastPrices.find((i) => i.symbol === a[sort[0][0]])?.close;
+        const priceB = unrealMode === 'mark_price' ? markPrices.find((i) => i.symbol === b[sort[0][0]])?.price : lastPrices.find((i) => i.symbol === b[sort[0][0]])?.close;
+        const c = a[sort[0][2]] >= 0 ? ((priceA - a[sort[0][1]]) * a[sort[0][2]]) : ((a[sort[0][1]] - priceA) * a[sort[0][2]]) * -1;
+        const d = b[sort[0][2]] >= 0 ? ((priceB - b[sort[0][1]]) * b[sort[0][2]]) : ((b[sort[0][1]] - priceB) * b[sort[0][2]]) * -1;
+
+        if (sort[1] === 'asc') {
+          return c - d;
+        } else {
+          return d - c;
+        }
       }
     }
   };
@@ -440,6 +481,8 @@ function Table({
                       columns={columns}
                       tableRowType={tableRowType}
                       page={page}
+                      futureOrders={futureOrders || []}
+                      markPrices={markPrices}
                     />
                   );
                 })
@@ -465,7 +508,7 @@ function Table({
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
               >
-                <g opacity="0.2">
+                <g opacity="0.5">
                   <path
                     d="M52.8741 30.5661L46.2458 5.71241C46.0465 5.02172 45.6284 4.41438 45.0544 3.98162C44.4803 3.54887 43.7814 3.31407 43.0625 3.3125H9.9375C8.46344 3.3125 7.155 4.29962 6.75419 5.71241L0.125875 30.5661C0.0428979 30.8598 0.000545957 31.1635 0 31.4688L0 43.0625C0 44.8196 0.697989 46.5047 1.94042 47.7471C3.18285 48.9895 4.86794 49.6875 6.625 49.6875H46.375C48.1321 49.6875 49.8172 48.9895 51.0596 47.7471C52.302 46.5047 53 44.8196 53 43.0625V31.4688C53 31.1706 52.9586 30.8675 52.8741 30.5661ZM49.6875 43.0625C49.6875 44.8877 48.2002 46.375 46.375 46.375H6.625C4.79816 46.375 3.3125 44.8877 3.3125 43.0625V31.4688L9.93916 6.62334H43.0592L49.6875 31.4688V43.0625Z"
                     fill="#7E8A93"
@@ -492,9 +535,9 @@ function Table({
                 .filter(filterFunc)
                 .filter(pagingFunc)
                 .sort(sortingFunc)
-                .map((order) => mobileRender && mobileRender(order))}
+                .map((order) => mobileRender && mobileRender(order, null))}
             {mobileRenderCustom &&
-              mobileRender(data.sort(sortingFunc).filter(filterFunc))}
+              mobileRender(data.sort(sortingFunc).filter(filterFunc), futureOrders)}
           </>
         )}
       </div>
