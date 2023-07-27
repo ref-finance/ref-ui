@@ -258,18 +258,21 @@ export function useOrderlyRegistered() {
   return registered;
 }
 
-export function useAllPositions(refreshingTag: any[]) {
+export function useAllPositions(
+  validAccountSig: boolean,
+  refreshingTag: any[]
+) {
   const { accountId } = useWalletSelector();
 
   const [positions, setPositions] = useState<PositionsType>();
 
   useEffect(() => {
-    if (!accountId) return;
+    if (!accountId || !validAccountSig) return;
 
     getUserAllPositions(accountId).then((res) => {
       setPositions(res.data);
     });
-  }, [accountId, ...refreshingTag]);
+  }, [accountId, validAccountSig, ...refreshingTag]);
 
   return {
     positions,
