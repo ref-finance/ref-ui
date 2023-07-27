@@ -7,14 +7,13 @@ import Modal from 'react-modal';
 import { useWalletSelector } from '~context/WalletSelectorContext';
 import { OrderlyLoading } from '../Common/Icons';
 import { TextWrapper } from '../UserBoard';
-import { usePerpData } from '../UserBoardPerp/state';
 import { tickToPrecision } from '../UserBoardPerp/math';
 import { parseSymbol } from '../RecentTrade';
 import { orderEditPopUpFailure, orderEditPopUpSuccess, portfolioFailure } from '../Common';
-import { getPortfolioAllOrders, cancelOrder } from '../../orderly/off-chain-api';
+import { cancelOrder } from '../../orderly/off-chain-api';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import { formatDecimalToTwoOrMore } from '../../orderly/utils';
-import { MarkPrice, SymbolInfo } from '../../orderly/type';
+import { MarkPrice, MyOrder, SymbolInfo } from '../../orderly/type';
 import { useLeverage } from '../../orderly/state';
 import { ONLY_ZEROS } from '../../../../utils/numbers';
 
@@ -529,6 +528,8 @@ export const FutureTableFormCells: React.FC<{
   setIsFocus: (input: string) => void;
   handleOpenClosing: (closingQuantity: number, closingPrice: number | 'Market', row: any) => void;
   row: any,
+  markPrices: MarkPrice[],
+  futureOrders: MyOrder[]
 }> = ({
   position_qty,
   mark_price,
@@ -541,19 +542,19 @@ export const FutureTableFormCells: React.FC<{
   showFloatingBox,
   setShowFloatingBox,
   handleOpenClosing,
-  row
+  row,
+  markPrices,
+  futureOrders
 }) => {
   const intl = useIntl();
-  const { accountId } = useWalletSelector();
-  const { triggerPositionBasedData, markPrices } = usePerpData();
   const { availableSymbols } = useOrderlyContext();
-  const [orders, setOrders] = useState<any>([]);
+  const [orders, setOrders] = useState<MyOrder[]>([]);
   const symbolInfo = availableSymbols?.find((s) => s.symbol === row.symbol);
   const referenceMark = markPrices.find((m) => m.symbol === row.symbol)
 
   useEffect(() => {
     getPendingOrders();
-  }, [triggerPositionBasedData])
+  }, [futureOrders])
 
   useEffect(() => {
     setClosingQuantity(Math.abs(position_qty));
@@ -567,18 +568,9 @@ export const FutureTableFormCells: React.FC<{
   }, [open]);
 
   const getPendingOrders = async () => {
-    const { data } = await getPortfolioAllOrders({
-      accountId,
-      OrderProps: {
-        page: 1,
-        size: 500,
-        side: position_qty > -1 ? 'SELL' : 'BUY',
-        status: 'INCOMPLETE',
-        symbol: row.symbol
-      } 
-    })
+    const data = futureOrders.filter((order) => (order.symbol === row.symbol) && (order.side === (position_qty > 0 ? 'SELL' : 'BUY')))
 
-    data && setOrders(data.rows);
+    data && setOrders(data);
   }
 
   return (
@@ -1134,7 +1126,9 @@ function PendingOrdersModal(
               <IoClose size={20} />
             </span>
           </div>
-          {rows.map((order: any) => <PendingOrderMobileRow key={order.order_id} order={order} />)}
+          <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
+            {rows.map((order: any) => <PendingOrderMobileRow key={order.order_id} order={order} />)}
+          </div>
         </div>
       </div>
     </Modal>
@@ -1278,28 +1272,35 @@ export  function ClosingModal(
 }
 
 const FutureMobileRow: React.FC<{
-  row: { symbol: string, position_qty:number, average_open_price: number, unsettled_pnl: number },
-  marketList: { text: JSX.Element; withSymbol: JSX.Element; textId: string; }[],
+  row: { symbol: string, position_qty:number, average_open_price: number, unsettled_pnl: number };
+  marketList: { text: JSX.Element; withSymbol: JSX.Element; textId: string; }[];
   handleOpenClosing: (closingQuantity: number, closingPrice: number | 'Market', row: any) => void;
-  unrealMode: string,
-  setUnrealMode: (mode: "mark_price" | "last_price") => void
+  unrealMode: string;
+  setUnrealMode: (mode: "mark_price" | "last_price") => void;
+  futureOrders: MyOrder[];
+  markPrices: MarkPrice[];
+  lastPrices: {
+    symbol: string;
+    close: number;
+  }[]
 }> = ({
   row,
   marketList,
   handleOpenClosing,
   unrealMode,
-  setUnrealMode
+  setUnrealMode,
+  futureOrders,
+  markPrices,
+  lastPrices
 }) => {
   const intl = useIntl();
-  const { accountId } = useWalletSelector();
-  const { markPrices, triggerPositionBasedData, lastPrices } = usePerpData();
   const { symbol, position_qty, average_open_price, unsettled_pnl } = row;
   const [showPnlSelector, setShowPnlSelector] = useState<boolean>(false);
   const [futureQuantityOpen, setFutureQuantityOpen] = useState<boolean>(false);
   const [futurePriceOpen, setFuturePriceOpen] = useState<boolean>(false);
   const [quantity, setQuantity] = useState<number>(Math.abs(position_qty));
   const [priceMode, setPriceMode] = useState<'market_price' | 'limit_price'>('market_price');
-  const mark_price = markPrices.find((i) => i.symbol === symbol)?.price;
+  const mark_price = markPrices?.find((i) => i.symbol === symbol)?.price;
   const [price, setPrice] = useState<number | 'Market'>('Market');
   const [orders, setOrders] = useState<any>([]);
   const [pendingOpen, setPendingOpen] = useState<boolean>(false);
@@ -1308,10 +1309,10 @@ const FutureMobileRow: React.FC<{
   const { availableSymbols } = useOrderlyContext();
   const { curLeverage } = useLeverage();
   const symbolInfo = availableSymbols?.find((s) => s.symbol === row.symbol);
-  const referenceMark = markPrices.find((m) => m.symbol === row.symbol)
+  const referenceMark = markPrices?.find((m) => m.symbol === row.symbol)
 
   useEffect(() => {
-    const price = unrealMode === 'mark_price' ? markPrices.find((i) => i.symbol === symbol)?.price : lastPrices.find((i) => i.symbol === symbol)?.close;
+    const price = unrealMode === 'mark_price' ? markPrices?.find((i) => i.symbol === symbol)?.price : lastPrices?.find((i) => i.symbol === symbol)?.close;
     const value = position_qty >= 0 ? ((price - average_open_price) * position_qty) : ((average_open_price - price) * position_qty) * -1;
     const percentage = position_qty >= 0 ? ((average_open_price - price ) / (average_open_price / curLeverage )) * -100 : ((average_open_price - price ) / (average_open_price / curLeverage)) * 100
     const percentageParse = percentage.toPrecision(percentage.toString().split('.')[0].length + 2)
@@ -1331,7 +1332,7 @@ const FutureMobileRow: React.FC<{
 
   useEffect(() => {
     getPendingOrders();
-  }, [triggerPositionBasedData])
+  }, [futureOrders])
 
   useEffect(() => {
     if (showPnlSelector)
@@ -1341,18 +1342,9 @@ const FutureMobileRow: React.FC<{
   }, [showPnlSelector]);
 
   const getPendingOrders = async () => {
-    const { data } = await getPortfolioAllOrders({
-      accountId,
-      OrderProps: {
-        page: 1,
-        size: 500,
-        side: position_qty > -1 ? 'SELL' : 'BUY',
-        status: 'INCOMPLETE',
-        symbol: row.symbol
-      } 
-    })
+    const data = futureOrders.filter((order) => (order.symbol === row.symbol) && (order.side === (position_qty > 0 ? 'SELL' : 'BUY')))
 
-    setOrders(data.rows);
+    setOrders(data);
   }
 
   return (
@@ -1448,7 +1440,7 @@ const FutureMobileRow: React.FC<{
               )}
             </div>
             <span className="text-white">
-              {unrealPnl?.toFixed(3) || '-'} ({unrealPercentage}%)
+              {unrealPnl?.toFixed(2) || '-'} ({unrealPercentage}%)
             </span>
           </div>
           <div className="col-span-1 my-3">
@@ -1502,7 +1494,7 @@ const FutureMobileRow: React.FC<{
         }}
         position_qty={position_qty}
         quantity={quantity}
-        mark_price={referenceMark.price}
+        mark_price={referenceMark?.price}
         price={price}
         symbolInfo={symbolInfo}
       />
@@ -1541,21 +1533,33 @@ export const FutureMobileView: React.FC<{
   handleOpenClosing: (closingQuantity: number, closingPrice: number | 'Market', row: any) => void;
   unrealMode: string,
   setUnrealMode: (mode: "mark_price" | "last_price") => void
+  futureOrders: MyOrder[];
+  markPrices: MarkPrice[];
+  lastPrices: {
+    symbol: string;
+    close: number;
+  }[];
+  portfolioUnsettle: string;
+  totalPortfoliouPnl: string;
+  totalDailyReal: string;
+  totalNotional: string;
+  newPositions: any;
 }> = ({
   marketList,
   children,
   handleOpenClosing,
   unrealMode,
-  setUnrealMode
+  setUnrealMode,
+  futureOrders,
+  markPrices,
+  lastPrices,
+  portfolioUnsettle,
+  totalPortfoliouPnl,
+  totalDailyReal,
+  totalNotional,
+  newPositions
 }) => {
   const intl = useIntl();
-  const {
-    portfolioUnsettle,
-    totalPortfoliouPnl,
-    totalDailyReal,
-    totalNotional,
-    newPositions
-  } = usePerpData({ markMode: unrealMode === 'mark_price' });
 
   const { rows } = newPositions || {};
 
@@ -1600,7 +1604,7 @@ export const FutureMobileView: React.FC<{
           </div>
         </div>
       </div>
-      {rows?.filter((row) => row.position_qty !== 0).map((row) => (
+      {rows?.filter((row: any) => row.position_qty !== 0).map((row: any) => (
         <FutureMobileRow
           key={row.symbol}
           row={row}
@@ -1608,20 +1612,27 @@ export const FutureMobileView: React.FC<{
           handleOpenClosing={handleOpenClosing}
           unrealMode={unrealMode}
           setUnrealMode={setUnrealMode}
+          futureOrders={futureOrders}
+          markPrices={markPrices}
+          lastPrices={lastPrices}
         />
       ))}
     </div>
   )
 }
 
-export const FutureTopComponent = ({ mark }: { mark: boolean }) => {
+export const FutureTopComponent = ({ 
+  portfolioUnsettle,
+  totalPortfoliouPnl,
+  totalDailyReal,
+  totalNotional
+}: { 
+  portfolioUnsettle: string;
+  totalPortfoliouPnl: string;
+  totalDailyReal: string;
+  totalNotional: string;
+}) => {
   const intl = useIntl();
-  const {
-    portfolioUnsettle,
-    totalPortfoliouPnl,
-    totalDailyReal,
-    totalNotional
-  } = usePerpData({ markMode: mark });
 
   return (
     <div className="w-full px-5 mb-4">

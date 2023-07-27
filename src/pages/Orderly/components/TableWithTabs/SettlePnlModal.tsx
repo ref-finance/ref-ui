@@ -10,11 +10,10 @@ import { ONLY_ZEROS } from '../../../../utils/numbers';
 export default function SettlePnlModal(
   props: Modal.Props & {
     onClick: () => Promise<any>;
+    portfolioUnsettle: string;
   }
 ) {
-  const { onRequestClose, onClick } = props;
-
-  const { portfolioUnsettle } = usePerpData();
+  const { onRequestClose, onClick, portfolioUnsettle } = props;
 
   const [loading, setLoading] = useState<boolean>(false);
 

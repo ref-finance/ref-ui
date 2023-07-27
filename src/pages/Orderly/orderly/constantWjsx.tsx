@@ -3,7 +3,7 @@ import { useIntl } from 'react-intl';
 import { TokenMetadata } from '~services/ft-contract';
 import { getPortfolioAllOrders, getFundingFee, getPortfolioAssetHistory, getPortfolioPosition, getPortfolioSettlements } from '../orderly/off-chain-api';
 import { TextWrapper } from '../components/UserBoard';
-import { PortfolioTable, MyOrder } from './type';
+import { PortfolioTable, MyOrder, MarkPrice } from './type';
 import { useDEXLogoRender } from './customRenderHook';
 import { useOrderlyContext } from '../orderly/OrderlyContext';
 import { formatTimeDate, shortenAddress, getAccountName } from './utils';
@@ -15,7 +15,6 @@ import { parseSymbol } from '../components/RecentTrade';
 import ProgressBar from '../components/TableWithTabs/ProgressBar';
 import OrdersFilters from '../components/TableWithTabs/OrdersFilters';
 import { FutureMobileView, FutureTopComponent, FutureTableFormHeaders } from '../components/TableWithTabs/FuturesControls';
-import { usePerpData } from '../components/UserBoardPerp/state';
 import { AllMarketIcon } from '../components/Common/Icons';
 import { 
   DepositButtonMobile,
@@ -45,6 +44,8 @@ const CopyToClipboard = ({ tx_id }: { tx_id: string }) => (
 
 // Portfolio Table
 export const usePortableOrderlyTable = ({
+  unrealMode,
+  setUnrealMode,
   refOnly,
   setRefOnly,
   orderType,
@@ -60,8 +61,17 @@ export const usePortableOrderlyTable = ({
   tokenIn,
   setSettlePnlModalOpen,
   handleOpenClosing,
-  openTrades
+  openTrades,
+  markPrices,
+  lastPrices,
+  portfolioUnsettle,
+  totalPortfoliouPnl,
+  totalDailyReal,
+  totalNotional,
+  newPositions
 }: {
+  unrealMode: 'mark_price' | 'last_price';
+  setUnrealMode: (input: 'mark_price' | 'last_price') => void;
   refOnly: boolean;
   setRefOnly: (item: boolean) => void;
   orderType: number;
@@ -78,19 +88,23 @@ export const usePortableOrderlyTable = ({
   setSettlePnlModalOpen: (item: boolean) => void;
   handleOpenClosing: (closingQuantity: number, closingPrice: number | 'Market', row: any) => void;
   openTrades: (order: MyOrder) => void;
+  markPrices: MarkPrice[];
+  lastPrices: {
+    symbol: string;
+    close: number;
+  }[];
+  portfolioUnsettle: string;
+  totalPortfoliouPnl: string;
+  totalDailyReal: string;
+  totalNotional: string;
+  newPositions: any;
 }) => {
   const intl = useIntl();
-  const {
-    markPrices,
-    lastPrices,
-    portfolioUnsettle,
-  } = usePerpData();
   const { accountId } = useWalletSelector();
   const { renderLogo } =  useDEXLogoRender();
   const { wallet } = getCurrentWallet();
   const [showMarketSelector, setShowMarketSelector] = useState<boolean>(false);
   const [showSideSelector, setShowSideSelector] = useState<boolean>(false);
-  const [unrealMode, setUnrealMode] = useState<'mark_price' | 'last_price'>('mark_price');
   const { marketList, allTokens } = useMarketlist();
   const { curLeverage } = useLeverage();
 
@@ -482,8 +496,8 @@ export const usePortableOrderlyTable = ({
               </div>
             )
           },
-          { key: '@price', header: '@Price', render: ({ price, average_executed_price, symbol }) => (price || average_executed_price)?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 4) || '-'  },
-          { key: 'avg_price', header: 'Avg.Price', render: ({ average_executed_price, symbol }) => average_executed_price?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 4) || '-' },
+          { key: '@price', header: '@Price', render: ({ price, average_executed_price, symbol }) => (price || average_executed_price) || '-'  },
+          { key: 'avg_price', header: 'Avg.Price', render: ({ average_executed_price, symbol }) => average_executed_price || '-' },
           { key: 'est_total', header: 'Est.Total', render: ({ price, average_executed_price, quantity, symbol }) => Math.floor(((price || average_executed_price) * quantity))?.toFixed(0)},
           { key: 'status', header: 'Status', render: ({ status }) =>  <span className='capitalize'>{status.toLocaleLowerCase()}</span> },
           {
@@ -637,20 +651,36 @@ export const usePortableOrderlyTable = ({
         rightComp: (usable: boolean) => <SettlePnlBtn usable={usable} />,
         pagination: false,
         getData: () => getPortfolioPosition({ accountId }),
-        tableTopComponent: <FutureTopComponent mark={unrealMode === 'mark_price'} />,
+        tableTopComponent: (
+          <FutureTopComponent
+            totalPortfoliouPnl={totalPortfoliouPnl}
+            totalDailyReal={totalDailyReal}
+            totalNotional={totalNotional}
+            portfolioUnsettle={portfolioUnsettle}
+          />
+        ),
         mobileRenderCustom: true,
         tableRowType: 'small',
-        mobileRender: (rows) => (
+        mobileRender: (rows, futureOrders) => (
           <FutureMobileView
             rows={rows}
             marketList={marketList}
             handleOpenClosing={handleOpenClosing}
             unrealMode={unrealMode}
             setUnrealMode={setUnrealMode}
+            futureOrders={futureOrders}
+            markPrices={markPrices}
+            lastPrices={lastPrices}
+            totalPortfoliouPnl={totalPortfoliouPnl}
+            totalDailyReal={totalDailyReal}
+            totalNotional={totalNotional}
+            portfolioUnsettle={portfolioUnsettle}
+            newPositions={newPositions}
           >
             <SettlePnlBtn usable={true} />
           </FutureMobileView>
         ),
+        defaultSort: ['symbol', 'average_open_price', 'position_qty'],
         columns: [
           {
             key: 'instrument',
@@ -700,10 +730,11 @@ export const usePortableOrderlyTable = ({
             key: 'unreal_pnl',
             header: 'Unreal. PnL',
             headerType: 'dashed',
-            extras: ['radio'],
+            extras: ['radio', 'sort'],
             colSpan: 2,
             select: unrealMode,
             setSelect: setUnrealMode,
+            sortKey: ['symbol', 'average_open_price', 'position_qty'],
             list: [
               {
                 text: intl.formatMessage({ id: 'mark_price' }),

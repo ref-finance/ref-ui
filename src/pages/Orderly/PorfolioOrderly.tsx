@@ -13,6 +13,7 @@ import SettlePnlModal from './components/TableWithTabs/SettlePnlModal';
 import { MobileFilterModal } from './components/TableWithTabs/OrdersFilters';
 import { ClosingModal } from './components/TableWithTabs/FuturesControls';
 import { MobileHistoryOrderDetail } from './components/AllOrders';
+import { useCurHoldings } from './components/AllOrders/state';
 import { formatTimeDate } from './components/OrderBoard';
 import { usePortableOrderlyTable, useMarketlist } from './orderly/constantWjsx';
 import {
@@ -21,6 +22,7 @@ import {
   createOrder,
   getOrderByOrderId,
   getOrderTrades,
+  getPortfolioAllOrders,
 } from './orderly/off-chain-api';
 import { OrderlyUnderMaintain } from './OrderlyTradingBoard';
 import { FlexRow, orderEditPopUpFailure } from './components/Common';
@@ -133,16 +135,25 @@ function PortfolioOrderly() {
 
     setShowMobileOrderDetail(!showMobileOrderDetail);
   }
+  const [unrealMode, setUnrealMode] = useState<'mark_price' | 'last_price'>(
+    'mark_price'
+  );
 
   const {
     newPositions,
     markPrices,
+    lastPrices,
     totalEst,
     triggerBalanceBasedData,
     triggerPositionBasedData,
     totalAvailable,
     freeCollateral,
-  } = usePerpData({ displayBalances });
+    curLeverage,
+    portfolioUnsettle,
+    totalPortfoliouPnl,
+    totalDailyReal,
+    totalNotional,
+  } = usePerpData({ displayBalances, markMode: unrealMode === 'mark_price' });
 
   // closing order
   const [closeOrderOpen, setCloseOrderOpen] = useState<boolean>(false);
@@ -167,6 +178,8 @@ function PortfolioOrderly() {
   const [settlePnlModalOpen, setSettlePnlModalOpen] = useState<boolean>(false);
 
   const { ordersTable, assetsTables, recordsTable } = usePortableOrderlyTable({
+    unrealMode,
+    setUnrealMode,
     refOnly,
     setRefOnly,
     orderType,
@@ -183,6 +196,13 @@ function PortfolioOrderly() {
     chooseOrderType,
     handleOpenClosing,
     openTrades,
+    markPrices,
+    lastPrices,
+    portfolioUnsettle,
+    totalPortfoliouPnl,
+    totalDailyReal,
+    totalNotional,
+    newPositions,
   });
 
   const handleSettlePnl = async () => {
@@ -223,11 +243,7 @@ function PortfolioOrderly() {
         size: closeOrderQuantity.toString(),
         tokenIn: tokenIn,
         price: parseFloat(
-          closeOrderPrice === 'Market'
-            ? markPrices
-                .find((i) => i.symbol === closeOrderRow.symbol)
-                ?.price.toString()
-            : closeOrderPrice.toString()
+          order.data.price || order.data.average_executed_price
         ).toString(),
         timeStamp: res.timestamp,
         filled: order?.data?.status === 'FILLED',
@@ -246,13 +262,64 @@ function PortfolioOrderly() {
     });
   }, []);
 
-  // useEffect(() => {
-  //   if (!accountId || !validAccountSig) return;
+  const [totalEstFinal, setTotalEstFinal] = useState<string>('0');
+  const [futureOrders, setFutureOrders] = useState<MyOrder[]>();
 
-  //   getCurrentHolding({ accountId }).then((res) => {
-  //     setHoldings(res.data.holding);
-  //   });
-  // }, [accountId, myPendingOrdersRefreshing, validAccountSig]);
+  const getFutureOrders = async () => {
+    const { data } = await getPortfolioAllOrders({
+      accountId,
+      OrderProps: {
+        page: 1,
+        size: 500,
+        status: 'INCOMPLETE',
+      },
+    });
+    const filterOrders: MyOrder[] = data.rows.filter((order: MyOrder) =>
+      order.symbol.includes('PERP')
+    );
+
+    setFutureOrders(filterOrders);
+  };
+
+  const getTotalEst = async () => {
+    /* const futures_in_order = newPositions?.rows.reduce(
+      (acc, cur, index) => {
+        const markPrice =
+          markPrices?.find((item) => item.symbol === cur.symbol)?.price || 0;
+  
+        const futureOrdersCount = futureOrders?.filter((order) => {
+            return (order.symbol === cur.symbol) && (order.side === (cur.position_qty < 0 ? 'BUY' : 'SELL'));
+          })
+          .reduce((acc, order, index) => {
+          const ordersValue = (order.quantity * markPrice) / curLeverage;
+  
+          return new Big(ordersValue).plus(acc);
+        }, new Big(0))
+  
+        return new Big(futureOrdersCount).plus(acc);
+      },
+  
+      new Big(0)
+    );
+  
+    console.log(`+ ${futures_in_order} future in orders`); */
+
+    const totalEstimate = new Big(totalEst); /* .plus(futures_in_order) */
+
+    setTotalEstFinal(numberWithCommas(totalEstimate.toFixed(2)));
+  };
+
+  useEffect(() => {
+    getFutureOrders();
+  }, []);
+
+  useEffect(() => {
+    getFutureOrders();
+  }, [triggerPositionBasedData]);
+
+  useEffect(() => {
+    getTotalEst();
+  }, [newPositions]);
 
   if (maintenance === undefined) return null;
 
@@ -311,7 +378,7 @@ function PortfolioOrderly() {
                   </span>
                 </div>
                 <div className="text-2xl gotham_bold text-white mt-1 flex items-center">
-                  ${totalEst}
+                  ${totalEstFinal}
                   <div className="ml-3 flex items-center hidden md:flex lg:flex flex-wrap">
                     {displayBalances.map(
                       ({ tokenMeta, available }) =>
@@ -373,6 +440,7 @@ function PortfolioOrderly() {
                 triggerBalanceBasedData={triggerBalanceBasedData}
                 triggerPositionBasedData={triggerPositionBasedData}
                 validAccountSig={validAccountSig}
+                markPrices={markPrices}
               />
               <TableWithTabs
                 table={assetsTables}
@@ -381,6 +449,10 @@ function PortfolioOrderly() {
                 newPositions={newPositions}
                 validAccountSig={validAccountSig}
                 handleOpenClosing={handleOpenClosing}
+                futureOrders={futureOrders}
+                markPrices={markPrices}
+                lastPrices={lastPrices}
+                unrealMode={unrealMode}
               />
               <TableWithTabs
                 table={recordsTable}
@@ -388,6 +460,7 @@ function PortfolioOrderly() {
                 displayBalances={displayBalances}
                 triggerBalanceBasedData={triggerBalanceBasedData}
                 validAccountSig={validAccountSig}
+                markPrices={markPrices}
               />
               <span className="text-xs text-primaryOrderly flex items-center">
                 <div className="ml-5 mr-1">
@@ -430,6 +503,10 @@ function PortfolioOrderly() {
                   newPositions={newPositions}
                   validAccountSig={validAccountSig}
                   handleOpenClosing={handleOpenClosing}
+                  futureOrders={futureOrders}
+                  markPrices={markPrices}
+                  unrealMode={unrealMode}
+                  lastPrices={lastPrices}
                 />
               )}
               {tab === 1 && (
@@ -453,6 +530,7 @@ function PortfolioOrderly() {
                   triggerPositionBasedData={triggerPositionBasedData}
                   setMobileFilterOpen={setMobileFilterOpen}
                   validAccountSig={validAccountSig}
+                  markPrices={markPrices}
                 />
               )}
               {tab === 2 && (
@@ -462,6 +540,7 @@ function PortfolioOrderly() {
                   displayBalances={displayBalances}
                   triggerBalanceBasedData={triggerBalanceBasedData}
                   validAccountSig={validAccountSig}
+                  markPrices={markPrices}
                 />
               )}
             </div>
@@ -478,6 +557,7 @@ function PortfolioOrderly() {
           setSettlePnlModalOpen(false);
         }}
         onClick={handleSettlePnl}
+        portfolioUnsettle={portfolioUnsettle}
       />
 
       <ClosingModal
@@ -578,10 +658,6 @@ function PortfolioOrderly() {
               defaultMessage: 'Price',
             }),
             intl.formatMessage({
-              id: 'avg_price',
-              defaultMessage: 'Avg.Price',
-            }),
-            intl.formatMessage({
               id: 'total',
               defaultMessage: 'Total',
             }),
@@ -680,13 +756,6 @@ function PortfolioOrderly() {
                   )
                 : '-'}
             </span>,
-            selectedOrder.average_executed_price === null ? (
-              '-'
-            ) : (
-              <span className="font-nunito">
-                {numberWithCommas(selectedOrder.average_executed_price)}
-              </span>
-            ),
             <span className="font-nunito">
               {numberWithCommas(
                 new Big(selectedOrder.quantity || selectedOrder.executed || '0')

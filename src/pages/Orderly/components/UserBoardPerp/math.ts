@@ -16,6 +16,7 @@ import {
   MyOrder,
   Ticker,
 } from '../../orderly/type';
+import { getPortfolioAllOrders } from '../../orderly/off-chain-api'
 import { OrderAsset } from '../AssetModal/state';
 import Decimal from 'decimal.js';
 import { parseSymbol } from '../RecentTrade';
@@ -86,14 +87,14 @@ const getNotional = (positions: PositionsType, markPrices: MarkPrice[]) => {
   return numberWithCommas(notionals.toFixed(2));
 };
 
-const getTotalEst = (
+const getAvailable = (
   positions: PositionsType,
   markPrices: MarkPrice[],
   displayBalances: OrderAsset[]
 ) => {
   if (!displayBalances || !positions || !markPrices) return '0';
 
-  const totatEst = displayBalances.reduce((acc, cur, index) => {
+  const available = displayBalances.reduce((acc, cur, index) => {
     const markPrice =
       markPrices?.find(
         (item) => item.symbol === `SPOT_${cur.tokenMeta.symbol}_USDC`
@@ -109,12 +110,12 @@ const getTotalEst = (
     return new Big(total).plus(acc);
   }, new Big(0));
 
-  console.log(`total estimate:  ${totatEst} (all spot balance in usdc) `);
+  console.log(`Available:  ${available} (all spot balance in usdc) `);
 
-  return numberWithCommas(totatEst.toFixed(2));
+  return numberWithCommas(available.toFixed(2));
 };
 
-const getAvailable = (
+const getTotalEst = (
   positions: PositionsType,
   markPrices: MarkPrice[],
   displayBalances: OrderAsset[],
@@ -144,10 +145,32 @@ const getAvailable = (
 
   const futures = positions.rows.reduce(
     (acc, cur, index) => {
+      /*
+        1、如果相同token 都是sell/buy qty取绝对值相加*mark price/lererage
+        2、非相同 token 按照各自token计算 qty*mark price/leverage，再把每个token的值相加
+        3、同token qty非同边（方向相反），取绝对值（同边进行相加后取绝对值）大的 进行计算 
+      */
+      const { position_qty, pending_long_qty, pending_short_qty } = cur
       const markPrice =
         markPrices?.find((item) => item.symbol === cur.symbol)?.price || 0;
+      
+      let quantity = position_qty
 
-      const value = Math.abs((markPrice * cur.position_qty) / curLeverage);
+      if(position_qty > 0) {
+        if (position_qty + pending_long_qty > Math.abs(pending_short_qty)) {
+          quantity = position_qty + pending_long_qty;
+        } else {
+          quantity = Math.abs(pending_short_qty);
+        }
+      } else {
+        if (Math.abs(position_qty + pending_short_qty) > pending_long_qty) {
+          quantity = Math.abs(position_qty + pending_short_qty);
+        } else {
+          quantity = pending_long_qty;
+        }
+      }
+
+      const value = Math.abs((markPrice * quantity) / curLeverage);
 
       return new Big(value).plus(acc);
     },
@@ -155,13 +178,15 @@ const getAvailable = (
     new Big(0)
   );
 
+
   console.log(
-    `available:  ${availables} (all spot balance in usdc + in order spot token) + ${futures} (sum of (future mark price * qty) / leverage)`
+    `Total estimate:  ${availables} (all spot balance in usdc + in order spot token) + ${futures} (sum of (future mark price * qty) / leverage)`
   );
 
-  const available = new Big(futures).plus(availables);
+  const totalEst = new Big(futures).plus(availables);
 
-  return numberWithCommas(available.toFixed(2));
+  return totalEst;
+
 };
 
 const get_total_upnl = (positions: PositionsType, markprices: MarkPrice[]) => {

@@ -1,7 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { nearMetadata, getFTmetadata, ftGetBalance } from '../../near';
 import { toReadableNumber } from '../../orderly/utils';
-import { Holding, TokenInfo, TokenMetadata } from '../../orderly/type';
+import { Holding, TokenInfo, TokenMetadata, MyOrder } from '../../orderly/type';
+import {
+  getCurrentHolding,
+  getPortfolioAllOrders,
+} from '../../orderly/off-chain-api';
 import { useWalletSelector } from '../../../../context/WalletSelectorContext';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import { OrderAsset, useOrderlyPortfolioAssets } from '../AssetModal/state';
@@ -381,7 +385,12 @@ export function usePerpData(deps?: {
 
   const totalEst = useMemo(() => {
     try {
-      return getTotalEst(newPositions, markPrices, displayBalances);
+      return getTotalEst(
+        newPositions,
+        markPrices,
+        displayBalances,
+        curLeverage
+      );
     } catch (error) {
       return null;
     }
@@ -389,12 +398,7 @@ export function usePerpData(deps?: {
 
   const totalAvailable = useMemo(() => {
     try {
-      return getAvailable(
-        newPositions,
-        markPrices,
-        displayBalances,
-        curLeverage
-      );
+      return getAvailable(newPositions, markPrices, displayBalances);
     } catch (error) {
       return null;
     }
