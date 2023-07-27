@@ -94,7 +94,7 @@ const getAvailable = (
 ) => {
   if (!displayBalances || !positions || !markPrices) return '0';
 
-  const totatEst = displayBalances.reduce((acc, cur, index) => {
+  const available = displayBalances.reduce((acc, cur, index) => {
     const markPrice =
       markPrices?.find(
         (item) => item.symbol === `SPOT_${cur.tokenMeta.symbol}_USDC`
@@ -110,17 +110,16 @@ const getAvailable = (
     return new Big(total).plus(acc);
   }, new Big(0));
 
-  console.log(`total estimate:  ${totatEst} (all spot balance in usdc) `);
+  console.log(`Available:  ${available} (all spot balance in usdc) `);
 
-  return numberWithCommas(totatEst.toFixed(2));
+  return numberWithCommas(available.toFixed(2));
 };
 
 const getTotalEst = (
   positions: PositionsType,
   markPrices: MarkPrice[],
   displayBalances: OrderAsset[],
-  curLeverage: number,
-  accountId: string
+  curLeverage: number
 ) => {
   if (!displayBalances || !positions || !markPrices || !curLeverage) return '0';
 
@@ -139,7 +138,7 @@ const getTotalEst = (
         ? parseFloat(cur['in-order'])
         : parseFloat(cur['in-order']) * markPrice;
 
-    const total = value - inOrder;
+    const total = value + inOrder;
 
     return new Big(total).plus(acc);
   }, new Big(0));
@@ -159,12 +158,12 @@ const getTotalEst = (
 
 
   console.log(
-    `available:  ${availables} (all spot balance in usdc + in order spot token) + ${futures} (sum of (future mark price * qty) / leverage)`
+    `Total estimate:  ${availables} (all spot balance in usdc + in order spot token) + ${futures} (sum of (future mark price * qty) / leverage)`
   );
 
-  const available = new Big(futures).plus(availables);
+  const totalEst = new Big(futures).plus(availables);
 
-  return available;
+  return totalEst;
 
 };
 

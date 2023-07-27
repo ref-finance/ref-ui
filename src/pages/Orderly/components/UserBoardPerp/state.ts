@@ -390,7 +390,7 @@ export function usePerpData(deps?: {
 
   const totalEst = useMemo(() => {
     try {
-      return getTotalEst(newPositions, markPrices, displayBalances, curLeverage, accountId);
+      return getTotalEst(newPositions, markPrices, displayBalances, curLeverage);
     } catch (error) {
       return null;
     }
