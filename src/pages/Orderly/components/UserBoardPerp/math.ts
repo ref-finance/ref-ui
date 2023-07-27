@@ -145,10 +145,32 @@ const getTotalEst = (
 
   const futures = positions.rows.reduce(
     (acc, cur, index) => {
+      /*
+        1、如果相同token 都是sell/buy qty取绝对值相加*mark price/lererage
+        2、非相同 token 按照各自token计算 qty*mark price/leverage，再把每个token的值相加
+        3、同token qty非同边（方向相反），取绝对值（同边进行相加后取绝对值）大的 进行计算 
+      */
+      const { position_qty, pending_long_qty, pending_short_qty } = cur
       const markPrice =
         markPrices?.find((item) => item.symbol === cur.symbol)?.price || 0;
+      
+      let quantity = position_qty
 
-      const value = Math.abs((markPrice * cur.position_qty) / curLeverage);
+      if(position_qty > 0) {
+        if (position_qty + pending_long_qty > Math.abs(pending_short_qty)) {
+          quantity = position_qty + pending_long_qty;
+        } else {
+          quantity = Math.abs(pending_short_qty);
+        }
+      } else {
+        if (Math.abs(position_qty + pending_short_qty) > pending_long_qty) {
+          quantity = Math.abs(position_qty + pending_short_qty);
+        } else {
+          quantity = pending_long_qty;
+        }
+      }
+
+      const value = Math.abs((markPrice * quantity) / curLeverage);
 
       return new Big(value).plus(acc);
     },

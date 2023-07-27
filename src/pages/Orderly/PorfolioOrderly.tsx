@@ -275,7 +275,7 @@ function PortfolioOrderly() {
 
   const getTotalEst = async () => {
 
-    const futures_in_order = newPositions?.rows.reduce(
+    /* const futures_in_order = newPositions?.rows.reduce(
       (acc, cur, index) => {
         const markPrice =
           markPrices?.find((item) => item.symbol === cur.symbol)?.price || 0;
@@ -295,9 +295,9 @@ function PortfolioOrderly() {
       new Big(0)
     );
   
-    console.log(`+ ${futures_in_order} future in orders`);
+    console.log(`+ ${futures_in_order} future in orders`); */
 
-    const totalEstimate = new Big(totalEst).plus(futures_in_order)
+    const totalEstimate = new Big(totalEst)/* .plus(futures_in_order) */
   
     setTotalEstFinal(numberWithCommas(totalEstimate.toFixed(2)));
   };
