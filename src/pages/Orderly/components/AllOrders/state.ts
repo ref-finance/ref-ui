@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SymbolInfo, Holding } from '../../orderly/type';
+import { SymbolInfo, Holding, Balance } from '../../orderly/type';
 import { getOrderlyConfig } from '../../config';
 
 import { RequestOrder } from '../../orderly/type';
@@ -70,10 +70,11 @@ export function useOrderBook({
   return orderBook;
 }
 
-export function useCurHoldings() {
+export function useCurHoldings(
+  validAccountSig: boolean,
+  balances: Record<string, Balance>
+) {
   const [holdings, setHoldings] = useState<Holding[]>();
-
-  const { myPendingOrdersRefreshing, validAccountSig } = useOrderlyContext();
 
   const { accountId } = useWalletSelector();
 
@@ -83,7 +84,25 @@ export function useCurHoldings() {
     getCurrentHolding({ accountId }).then((res) => {
       setHoldings(res.data.holding);
     });
-  }, [accountId, myPendingOrdersRefreshing, validAccountSig]);
+  }, [accountId, validAccountSig]);
+
+  useEffect(() => {
+    if (balances && holdings) {
+      const updatedHoldings = holdings.map((holding) => {
+        const newBalance = balances[holding.token];
+
+        if (newBalance) {
+          holding.holding = newBalance.holding;
+          holding.pending_short = newBalance.pendingShortQty;
+          holding.frozen = newBalance.frozen;
+        }
+
+        return holding;
+      });
+
+      setHoldings(updatedHoldings);
+    }
+  }, [balances]);
 
   return holdings;
 }

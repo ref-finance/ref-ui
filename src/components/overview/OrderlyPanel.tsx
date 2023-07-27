@@ -41,6 +41,7 @@ import getConfig from '../../pages/Orderly/config';
 import { getOrderlySystemInfo } from '../../pages/Orderly/orderly/off-chain-api';
 import { useHistory } from 'react-router-dom';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { useOrderlyContext } from '~pages/Orderly/orderly/OrderlyContext';
 export default function OrderlyPanel() {
   const {
     tokenPriceList,
@@ -273,8 +274,18 @@ function useTokensBalances(
       meta,
     };
   };
+
+  const { holdings } = useOrderlyContext();
+
   useEffect(() => {
-    if (!tokens || !tokenInfo || !accountId || !tradingKeySet || !keyAnnounced)
+    if (
+      !tokens ||
+      !tokenInfo ||
+      !accountId ||
+      !tradingKeySet ||
+      !keyAnnounced ||
+      !holdings
+    )
       return;
 
     Promise.all(
@@ -300,9 +311,9 @@ function useTokensBalances(
         return showbalances;
       })
       .then(async (res) => {
-        const response = await getCurrentHolding({ accountId });
+        // const response = await getCurrentHolding({ accountId });
 
-        const holdings = response?.data?.holding as Holding[];
+        // const holdings = response?.data?.holding as Holding[];
 
         const resMap = res.reduce(
           (acc, cur) => {
@@ -341,6 +352,7 @@ function useTokensBalances(
     accountId,
     tradingKeySet,
     keyAnnounced,
+    holdings,
   ]);
 
   return [showbalances, showbalancesDone];

@@ -20,7 +20,7 @@ import {
   getCurrentHolding,
   createOrder,
   getOrderByOrderId,
-  getOrderTrades
+  getOrderTrades,
 } from './orderly/off-chain-api';
 import { OrderlyUnderMaintain } from './OrderlyTradingBoard';
 import { FlexRow, orderEditPopUpFailure } from './components/Common';
@@ -64,6 +64,7 @@ function PortfolioOrderly() {
     myPendingOrdersRefreshing,
     handlePendingOrderRefreshing,
     validAccountSig,
+    holdings,
   } = useOrderlyContext();
   const isSignedIn = globalState.isSignedIn;
   const [maintenance, setMaintenance] = useState<boolean>(undefined);
@@ -87,9 +88,9 @@ function PortfolioOrderly() {
   const [selectedOrder, setSelectedOrder] = useState<MyOrder>();
   const [showMobileOrderDetail, setShowMobileOrderDetail] =
     useState<boolean>(false);
-    const [orderTradesHistory, setOrderTradesHistory] = useState<OrderTrade[]>();
+  const [orderTradesHistory, setOrderTradesHistory] = useState<OrderTrade[]>();
 
-  const [holdings, setHoldings] = useState<Holding[]>();
+  // const [holdings, setHoldings] = useState<Holding[]>();
   const [operationType, setOperationType] = useState<'deposit' | 'withdraw'>();
   const { symbolFrom } = parseSymbol(symbol);
 
@@ -126,10 +127,10 @@ function PortfolioOrderly() {
       if (!res.success) {
         return;
       }
-  
+
       setOrderTradesHistory(res.data.rows);
     }
-    
+
     setShowMobileOrderDetail(!showMobileOrderDetail);
   }
 
@@ -140,21 +141,27 @@ function PortfolioOrderly() {
     triggerBalanceBasedData,
     triggerPositionBasedData,
     totalAvailable,
-    freeCollateral
+    freeCollateral,
   } = usePerpData({ displayBalances });
 
   // closing order
   const [closeOrderOpen, setCloseOrderOpen] = useState<boolean>(false);
-  const [closeOrderPrice, setCloseOrderPrice] = useState<number | 'Market'>('Market');
+  const [closeOrderPrice, setCloseOrderPrice] = useState<number | 'Market'>(
+    'Market'
+  );
   const [closeOrderQuantity, setCloseOrderQuantity] = useState<number>(0);
   const [closeOrderRow, setCloseOrderRow] = useState<any>({});
 
-  const handleOpenClosing = (closingQuantity: number, closingPrice: number | 'Market', row: any) => {
+  const handleOpenClosing = (
+    closingQuantity: number,
+    closingPrice: number | 'Market',
+    row: any
+  ) => {
     setCloseOrderOpen(true);
     setCloseOrderRow(row);
     setCloseOrderPrice(closingPrice);
     setCloseOrderQuantity(closingQuantity);
-  }
+  };
 
   // settle pnl
   const [settlePnlModalOpen, setSettlePnlModalOpen] = useState<boolean>(false);
@@ -175,7 +182,7 @@ function PortfolioOrderly() {
     chooseOrderStatus,
     chooseOrderType,
     handleOpenClosing,
-    openTrades
+    openTrades,
   });
 
   const handleSettlePnl = async () => {
@@ -191,10 +198,7 @@ function PortfolioOrderly() {
       orderlyProps: {
         side: closeOrderRow.position_qty < 0 ? 'BUY' : 'SELL',
         symbol: closeOrderRow.symbol,
-        order_type:
-        closeOrderPrice === 'Market'
-            ? 'MARKET'
-            : 'LIMIT',
+        order_type: closeOrderPrice === 'Market' ? 'MARKET' : 'LIMIT',
         order_quantity: closeOrderQuantity,
         broker_id: 'ref_dex',
         order_price: closeOrderPrice === 'Market' ? '' : closeOrderPrice,
@@ -220,7 +224,9 @@ function PortfolioOrderly() {
         tokenIn: tokenIn,
         price: parseFloat(
           closeOrderPrice === 'Market'
-            ? markPrices.find((i) => i.symbol === closeOrderRow.symbol)?.price.toString()
+            ? markPrices
+                .find((i) => i.symbol === closeOrderRow.symbol)
+                ?.price.toString()
             : closeOrderPrice.toString()
         ).toString(),
         timeStamp: res.timestamp,
@@ -240,13 +246,13 @@ function PortfolioOrderly() {
     });
   }, []);
 
-  useEffect(() => {
-    if (!accountId || !validAccountSig) return;
+  // useEffect(() => {
+  //   if (!accountId || !validAccountSig) return;
 
-    getCurrentHolding({ accountId }).then((res) => {
-      setHoldings(res.data.holding);
-    });
-  }, [accountId, myPendingOrdersRefreshing, validAccountSig]);
+  //   getCurrentHolding({ accountId }).then((res) => {
+  //     setHoldings(res.data.holding);
+  //   });
+  // }, [accountId, myPendingOrdersRefreshing, validAccountSig]);
 
   if (maintenance === undefined) return null;
 
@@ -288,7 +294,7 @@ function PortfolioOrderly() {
                         <div class="text-navHighLightText text-xs text-left w-64 xsm:w-52">
                           ${intl.formatMessage({
                             id: 'portfolio_total_est_tip',
-                            defaultMessage: 'Portfolio value in USD.'
+                            defaultMessage: 'Portfolio value in USD.',
                           })}
                         </div>
                       `}
@@ -307,15 +313,21 @@ function PortfolioOrderly() {
                 <div className="text-2xl gotham_bold text-white mt-1 flex items-center">
                   ${totalEst}
                   <div className="ml-3 flex items-center hidden md:flex lg:flex flex-wrap">
-                    {displayBalances.map(({ tokenMeta, available }) => parseFloat(available) > 0 && (
-                      <div key={tokenMeta.id} className="flex items-center text-white text-sm -ml-1">
-                        <img
-                          src={allTokens[tokenMeta.symbol]?.icon}
-                          alt=""
-                          className="rounded-full flex-shrink-0 w-4 h-4"
-                        />
-                      </div>
-                    ))}
+                    {displayBalances.map(
+                      ({ tokenMeta, available }) =>
+                        parseFloat(available) > 0 && (
+                          <div
+                            key={tokenMeta.id}
+                            className="flex items-center text-white text-sm -ml-1"
+                          >
+                            <img
+                              src={allTokens[tokenMeta.symbol]?.icon}
+                              alt=""
+                              className="rounded-full flex-shrink-0 w-4 h-4"
+                            />
+                          </div>
+                        )
+                    )}
                   </div>
                 </div>
               </div>
@@ -326,15 +338,21 @@ function PortfolioOrderly() {
                 <span className="text-xl gotham_bold text-white mt-1 flex items-center">
                   ${totalAvailable}
                   <div className="ml-3 items-center hidden md:flex lg:flex flex-wrap">
-                    {displayBalances.map(({ tokenMeta, available }) => parseFloat(available) > 0 && (
-                      <div key={tokenMeta.id} className="flex items-center text-white text-sm -ml-1">
-                        <img
-                          src={allTokens[tokenMeta.symbol]?.icon}
-                          alt=""
-                          className="rounded-full flex-shrink-0 w-4 h-4"
-                        />
-                      </div>
-                    ))}
+                    {displayBalances.map(
+                      ({ tokenMeta, available }) =>
+                        parseFloat(available) > 0 && (
+                          <div
+                            key={tokenMeta.id}
+                            className="flex items-center text-white text-sm -ml-1"
+                          >
+                            <img
+                              src={allTokens[tokenMeta.symbol]?.icon}
+                              alt=""
+                              className="rounded-full flex-shrink-0 w-4 h-4"
+                            />
+                          </div>
+                        )
+                    )}
                   </div>
                 </span>
               </div>
@@ -384,9 +402,7 @@ function PortfolioOrderly() {
             </div>
 
             <div className="md:hidden lg:hidden">
-
               <div className="w-full frcs border-b gotham_bold text-primaryText border-white border-opacity-20">
-
                 {mobileTables.map((table, index) => (
                   <div
                     key={table.title}
@@ -399,7 +415,9 @@ function PortfolioOrderly() {
                   >
                     {table.title}
 
-                    {tab === index  && <div className="w-full absolute -bottom-0.5 h-0.5 bg-gradientFromHover" /> }
+                    {tab === index && (
+                      <div className="w-full absolute -bottom-0.5 h-0.5 bg-gradientFromHover" />
+                    )}
                   </div>
                 ))}
               </div>
@@ -529,7 +547,6 @@ function PortfolioOrderly() {
         curType={chooseOrderType}
       />
 
-
       {showMobileOrderDetail && (
         <MobileHistoryOrderDetail
           isOpen={showMobileOrderDetail}
@@ -587,7 +604,9 @@ function PortfolioOrderly() {
               })}
               bg={selectedOrder.side === 'BUY' ? 'bg-buyGreen' : 'bg-sellRed'}
               textC={
-                selectedOrder.side === 'BUY' ? 'text-buyGreen' : 'text-sellColorNew'
+                selectedOrder.side === 'BUY'
+                  ? 'text-buyGreen'
+                  : 'text-sellColorNew'
               }
             />,
             <FlexRow className="">
@@ -649,12 +668,16 @@ function PortfolioOrderly() {
               <span className="mx-1 ">/</span>
 
               <span className="text-white font-nunito">
-                {numberWithCommas(selectedOrder.quantity || selectedOrder.executed)}
+                {numberWithCommas(
+                  selectedOrder.quantity || selectedOrder.executed
+                )}
               </span>
             </FlexRow>,
             <span className="font-nunito">
               {selectedOrder.price || selectedOrder.average_executed_price
-                ? numberWithCommas(selectedOrder.price || selectedOrder.average_executed_price)
+                ? numberWithCommas(
+                    selectedOrder.price || selectedOrder.average_executed_price
+                  )
                 : '-'}
             </span>,
             selectedOrder.average_executed_price === null ? (
@@ -668,7 +691,11 @@ function PortfolioOrderly() {
               {numberWithCommas(
                 new Big(selectedOrder.quantity || selectedOrder.executed || '0')
                   .times(
-                    new Big(selectedOrder.average_executed_price || selectedOrder.price || '0')
+                    new Big(
+                      selectedOrder.average_executed_price ||
+                        selectedOrder.price ||
+                        '0'
+                    )
                   )
                   .toNumber()
               )}
@@ -680,7 +707,9 @@ function PortfolioOrderly() {
             <span className="capitalize">
               {intl.formatMessage({
                 id: _.upperFirst(selectedOrder.status.toLowerCase()),
-                defaultMessage: _.upperFirst(selectedOrder.status.toLowerCase()),
+                defaultMessage: _.upperFirst(
+                  selectedOrder.status.toLowerCase()
+                ),
               })}
             </span>,
           ]}

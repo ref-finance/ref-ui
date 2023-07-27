@@ -35,7 +35,6 @@ import { getOrderlySystemInfo } from './orderly/off-chain-api';
 import { PerpOrderlyTip, PerpOrderlyTipMobile } from './components/PerpHeader';
 import { useOrderlyContext } from './orderly/OrderlyContext';
 import { PerpOrSpot } from './utiles';
-import { useAllOrders, useLiquidationHistoryAll } from './orderly/state';
 import { FormattedMessage } from 'react-intl';
 import { OrderBookMobile } from './components/OrderBook/index';
 import {
@@ -113,6 +112,7 @@ function MobileTradingBoard() {
     availableSymbols,
     tokenInfo,
     liquidations,
+    allOrders,
   } = useOrderlyContext();
 
   const [route, setRoute] = useState<'user_board' | 'chart'>('user_board');
@@ -120,10 +120,10 @@ function MobileTradingBoard() {
   const [displayTab, setDisplayTab] = useState<
     'orders' | 'assets' | 'liquidations'
   >('orders');
-  const allOrders = useAllOrders({
-    refreshingTag: myPendingOrdersRefreshing,
-    type: symbolType,
-  });
+  // const allOrders = useAllOrders({
+  //   refreshingTag: myPendingOrdersRefreshing,
+  //   type: symbolType,
+  // });
 
   const pendingOrders = allOrders?.filter((order) => {
     return order.status === 'PARTIAL_FILLED' || order.status === 'NEW';

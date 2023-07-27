@@ -25,7 +25,6 @@ import {
 } from '../../orderly/api';
 import {
   getAccountInformation,
-  getCurrentHolding,
   createOrder,
   getOrderByOrderId,
 } from '../../orderly/off-chain-api';
@@ -486,6 +485,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     bridgePrice,
     userExist,
     availableSymbols,
+    holdings,
   } = useOrderlyContext();
 
   const { accountId, modal, selector } = useWalletSelector();
@@ -542,7 +542,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
   const history = useHistory();
 
-  const [holdings, setHoldings] = useState<Holding[]>();
+  // const [holdings, setHoldings] = useState<Holding[]>();
 
   const tokenIn = useTokenMetaFromSymbol(symbolFrom, tokenInfo);
 
@@ -578,13 +578,13 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
   const inputAmountRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (!accountId || !validAccountSig) return;
+  // useEffect(() => {
+  //   if (!accountId || !validAccountSig) return;
 
-    getCurrentHolding({ accountId }).then((res) => {
-      setHoldings(res.data.holding);
-    });
-  }, [accountId, myPendingOrdersRefreshing, validAccountSig]);
+  //   getCurrentHolding({ accountId }).then((res) => {
+  //     setHoldings(res.data.holding);
+  //   });
+  // }, [accountId, myPendingOrdersRefreshing, validAccountSig]);
 
   useEffect(() => {
     if (!accountId || !validAccountSig) return;
@@ -1895,6 +1895,7 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
     bridgePrice,
     userExist,
     availableSymbols,
+    holdings,
   } = useOrderlyContext();
 
   const { accountId, modal, selector } = useWalletSelector();
@@ -1949,7 +1950,7 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
 
   const history = useHistory();
 
-  const [holdings, setHoldings] = useState<Holding[]>();
+  // const [holdings, setHoldings] = useState<Holding[]>();
 
   const tokenIn = useTokenMetaFromSymbol(symbolFrom, tokenInfo);
 
@@ -1985,13 +1986,13 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
 
   const inputAmountRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (!accountId || !validAccountSig) return;
+  // useEffect(() => {
+  //   if (!accountId || !validAccountSig) return;
 
-    getCurrentHolding({ accountId }).then((res) => {
-      setHoldings(res.data.holding);
-    });
-  }, [accountId, myPendingOrdersRefreshing, validAccountSig]);
+  //   getCurrentHolding({ accountId }).then((res) => {
+  //     setHoldings(res.data.holding);
+  //   });
+  // }, [accountId, myPendingOrdersRefreshing, validAccountSig]);
 
   useEffect(() => {
     if (!accountId || !validAccountSig) return;

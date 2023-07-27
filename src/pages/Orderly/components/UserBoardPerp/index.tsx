@@ -69,7 +69,7 @@ import {
   ConfirmButton,
   QuestionMark,
 } from '../Common/index';
-import { usePerpData, useTokenBalance, useTokensBalances } from './state';
+import { usePerpData, useTokenBalance } from './state';
 import {
   digitWrapper,
   digitWrapperAsset,
@@ -133,6 +133,7 @@ import { LiquidationButton } from './components/LiquidationHistory';
 import { executeMultipleTransactions } from '~services/near';
 import { openUrl } from '~services/commonV3';
 import SettlePnlModal from '../TableWithTabs/SettlePnlModal';
+import { useTokensBalances } from '../UserBoard/state';
 const REF_ORDERLY_LIMIT_ORDER_ADVANCE = 'REF_ORDERLY_LIMIT_ORDER_ADVANCE';
 
 function getTipFOK() {
@@ -483,6 +484,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     ticker,
     futureLeverage,
     availableSymbols,
+    holdings,
   } = useOrderlyContext();
 
   const curSymbolMarkPrice = markPrices?.find((item) => item.symbol === symbol);
@@ -509,7 +511,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
   const history = useHistory();
 
-  const [holdings, setHoldings] = useState<Holding[]>();
+  // const [holdings, setHoldings] = useState<Holding[]>();
 
   const tokenIn = useTokenMetaFromSymbol(symbolFrom, tokenInfo);
 
@@ -560,13 +562,13 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
   const inputAmountRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (!accountId || !validAccountSig) return;
+  // useEffect(() => {
+  //   if (!accountId || !validAccountSig) return;
 
-    getCurrentHolding({ accountId }).then((res) => {
-      setHoldings(res.data.holding);
-    });
-  }, [accountId, myPendingOrdersRefreshing, validAccountSig]);
+  //   getCurrentHolding({ accountId }).then((res) => {
+  //     setHoldings(res.data.holding);
+  //   });
+  // }, [accountId, myPendingOrdersRefreshing, validAccountSig]);
 
   const curHoldingIn = useMemo(() => {
     try {
@@ -3169,6 +3171,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
     symbolType,
     futureLeverage,
     availableSymbols,
+    holdings,
   } = useOrderlyContext();
 
   const curSymbolMarkPrice = markPrices?.find((item) => item.symbol === symbol);
@@ -3197,7 +3200,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
 
   const history = useHistory();
 
-  const [holdings, setHoldings] = useState<Holding[]>();
+  // const [holdings, setHoldings] = useState<Holding[]>();
 
   const tokenIn = useTokenMetaFromSymbol(symbolFrom, tokenInfo);
 
@@ -3236,13 +3239,13 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
 
   const inputAmountRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (!accountId || !validAccountSig) return;
+  // useEffect(() => {
+  //   if (!accountId || !validAccountSig) return;
 
-    getCurrentHolding({ accountId }).then((res) => {
-      setHoldings(res.data.holding);
-    });
-  }, [accountId, myPendingOrdersRefreshing, validAccountSig]);
+  //   getCurrentHolding({ accountId }).then((res) => {
+  //     setHoldings(res.data.holding);
+  //   });
+  // }, [accountId, myPendingOrdersRefreshing, validAccountSig]);
 
   const curHoldingIn = useMemo(() => {
     try {

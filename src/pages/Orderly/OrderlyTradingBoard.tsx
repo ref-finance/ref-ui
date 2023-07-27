@@ -27,8 +27,6 @@ import MobileInfoBoard, {
 } from './components/MobileInfoBoard';
 
 import { OrderlyUnderMaintainIcon } from './components/Common/Icons';
-import { getOrderlySystemInfo } from './orderly/off-chain-api';
-import { useAllOrders } from './orderly/state';
 import { useOrderlyContext } from './orderly/OrderlyContext';
 import { PerpOrSpot } from './utiles';
 import { FormattedMessage } from 'react-intl';
@@ -89,7 +87,7 @@ function TradingBoard() {
 }
 
 function MobileTradingBoard() {
-  const { myPendingOrdersRefreshing, symbol, maintenance } =
+  const { myPendingOrdersRefreshing, symbol, maintenance, allOrders } =
     useOrderlyContext();
 
   const symbolType = PerpOrSpot(symbol);
@@ -98,10 +96,10 @@ function MobileTradingBoard() {
 
   const [displayTab, setDisplayTab] = useState<'orders' | 'assets'>('orders');
 
-  const allOrders = useAllOrders({
-    refreshingTag: myPendingOrdersRefreshing,
-    type: symbolType,
-  });
+  // const allOrders = useAllOrders({
+  //   refreshingTag: myPendingOrdersRefreshing,
+  //   type: symbolType,
+  // });
 
   React.useEffect(() => {
     if (maintenance) {

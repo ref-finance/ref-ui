@@ -190,9 +190,7 @@ export function ConnectWalletPorfolio({ onClick }: { onClick: () => void }) {
 
   return (
     <button
-      className="text-base min-w-fit py-3 px-6 relative  xs:w-full xs:py-2 bg-buyGradientGreen rounded-3xl text-white font-bold flex items-center justify-center
-
-    "
+      className="text-base min-w-fit py-3 px-6 relative  xs:w-full xs:py-2 bg-buyGradientGreen rounded-3xl text-white font-bold flex items-center justify-center"
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();

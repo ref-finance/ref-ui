@@ -63,7 +63,8 @@ export function useTokensBalances(
 
   const { accountId } = useWalletSelector();
 
-  const { myPendingOrdersRefreshing, validAccountSig } = useOrderlyContext();
+  const { myPendingOrdersRefreshing, validAccountSig, holdings } =
+    useOrderlyContext();
 
   const getBalanceAndMeta = async (token: TokenWithDecimals) => {
     const balance = await ftGetBalance(token.id).then((balance) => {
@@ -79,7 +80,8 @@ export function useTokensBalances(
   };
 
   useEffect(() => {
-    if (!tokens || !tokenInfo || !accountId || !validAccountSig) return;
+    if (!tokens || !tokenInfo || !accountId || !validAccountSig || !holdings)
+      return;
 
     Promise.all(
       tokenInfo.map((t) =>
@@ -104,10 +106,6 @@ export function useTokensBalances(
         return showbalances;
       })
       .then(async (res) => {
-        const response = await getCurrentHolding({ accountId });
-
-        const holdings = response?.data?.holding as Holding[];
-
         const resMap = res.reduce(
           (acc, cur) => {
             const id = cur.id;
@@ -145,6 +143,7 @@ export function useTokensBalances(
     trigger,
     myPendingOrdersRefreshing,
     validAccountSig,
+    holdings,
   ]);
 
   if (showbalances.length > 0 && freeCollateral !== '-') {
@@ -214,7 +213,7 @@ export function useTokensOrderlyBalances(
         return showbalances;
       })
       .then(async (res) => {
-        const response = await getCurrentHolding({ accountId });
+        // const response = await getCurrentHolding({ accountId });
 
         const resMap = res.reduce(
           (acc, cur) => {

@@ -137,14 +137,16 @@ export function useAllOrdersSymbol({
 export function useAllOrders({
   refreshingTag,
   type,
+  validAccountSig,
 }: {
   refreshingTag: boolean;
   type?: 'SPOT' | 'PERP';
+  validAccountSig?: boolean;
 }) {
   const [liveOrders, setLiveOrders] = useState<MyOrder[]>();
 
   const { accountId } = useWalletSelector();
-  const { validAccountSig } = useOrderlyContext();
+  // const { validAccountSig } = useOrderlyContext();
 
   const setFunc = useCallback(async () => {
     if (accountId === null || !validAccountSig) return;
@@ -163,7 +165,8 @@ export function useAllOrders({
 
   useEffect(() => {
     setFunc();
-  }, [refreshingTag, setFunc]);
+  }, [refreshingTag]);
+  console.log('refreshingTag: ', refreshingTag);
 
   return liveOrders?.filter((o) => o.symbol.indexOf(type || 'SPOT') > -1);
 }

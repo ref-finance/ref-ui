@@ -151,8 +151,9 @@ export function CurAsset(props?: any) {
     myPendingOrdersRefreshing,
     bridgePrice,
     symbolType,
+    holdings,
   } = useOrderlyContext();
-  const [holdings, setHoldings] = useState<Holding[]>();
+  // const [holdings, setHoldings] = useState<Holding[]>();
 
   const { accountId } = useWalletSelector();
 
@@ -160,13 +161,13 @@ export function CurAsset(props?: any) {
     symbolType === 'SPOT' ? 'balance' : 'account'
   );
 
-  useEffect(() => {
-    if (!accountId) return;
+  // useEffect(() => {
+  //   if (!accountId) return;
 
-    getCurrentHolding({ accountId }).then((res) => {
-      setHoldings(res.data.holding);
-    });
-  }, [accountId, myPendingOrdersRefreshing, validAccountSig]);
+  //   getCurrentHolding({ accountId }).then((res) => {
+  //     setHoldings(res.data.holding);
+  //   });
+  // }, [accountId, myPendingOrdersRefreshing, validAccountSig]);
 
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
 

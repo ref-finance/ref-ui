@@ -12,10 +12,14 @@ import {
   useAllPositions,
   useOrderlySystemAvailable,
 } from './state';
-import { useAllSymbolInfo } from '../components/AllOrders/state';
+import {
+  useAllSymbolInfo,
+  useCurHoldings,
+} from '../components/AllOrders/state';
 import {
   ClientInfo,
   EstFundingrate,
+  Holding,
   IndexPrice,
   LiquidationPushType,
   OpenInterest,
@@ -84,6 +88,8 @@ interface OrderlyContextValue {
   futureLeverage: number | undefined;
   userInfo: ClientInfo;
   setUserInfo: (userInfo: ClientInfo) => void;
+  holdings: Holding[];
+  allOrders: MyOrder[];
 }
 
 export const REF_ORDERLY_SYMBOL_KEY = 'REF_ORDERLY_SYMBOL_KEY';
@@ -168,13 +174,23 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
     privateValue?.positionPushReceiver,
   ]);
 
+  const holdings = useCurHoldings(validAccountSig, privateValue?.balances);
+
   const availableSymbols = useAllSymbolInfo();
 
-  const allOrdersSymbol = useAllOrdersSymbol({
-    symbol,
+  // const allOrdersSymbol = useAllOrdersSymbol({
+  //   symbol,
+  //   refreshingTag: myPendingOrdersRefreshing,
+  //   validAccountSig,
+  // });
+
+  const allOrders = useAllOrders({
     refreshingTag: myPendingOrdersRefreshing,
+    type: symbolType,
     validAccountSig,
   });
+
+  const allOrdersSymbol = allOrders?.filter((o) => o.symbol === symbol);
 
   const [recentTrades, setTrades] = useState<Trade[]>();
 
@@ -229,7 +245,9 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
           localStorage.setItem(REF_ORDERLY_SYMBOL_KEY, symbol);
         },
         recentTrades,
+        holdings,
         tokenInfo,
+        allOrders,
         allOrdersSymbol: allOrdersSymbol?.filter(
           (o) => o.broker_id === 'ref_dex'
         ),

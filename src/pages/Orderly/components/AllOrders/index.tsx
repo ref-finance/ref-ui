@@ -53,7 +53,6 @@ import {
   editOrder,
   getOrderTrades,
 } from '../../orderly/off-chain-api';
-import { useAllOrders } from '../../orderly/state';
 import { useOrderBook, useCurHoldings } from './state';
 import { useBatchTokenMetaFromSymbols } from '../ChartHeader/state';
 import Modal from 'react-modal';
@@ -2723,7 +2722,7 @@ function OpenOrders({
 
   const [otherLineOpenTrigger, setOtherLineOpenTrigger] = useState<number>();
 
-  const curHoldings = useCurHoldings();
+  const { holdings: curHoldings } = useOrderlyContext();
 
   const [chooseSide, setChooseSide] = useState<'Both' | 'Buy' | 'Sell'>('Both');
 
@@ -4174,6 +4173,7 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
     myPendingOrdersRefreshing,
     tokenInfo,
     availableSymbols: AllAvailableSymbols,
+    allOrders,
   } = useOrderlyContext();
   const symbolType = PerpOrSpot(symbol);
 
@@ -4206,10 +4206,10 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
 
   const isMobile = useClientMobile();
 
-  const allOrders = useAllOrders({
-    refreshingTag: myPendingOrdersRefreshing,
-    type: symbolType,
-  });
+  // const allOrders = useAllOrders({
+  //   refreshingTag: myPendingOrdersRefreshing,
+  //   type: symbolType,
+  // });
 
   const { accountId } = useWalletSelector();
 
