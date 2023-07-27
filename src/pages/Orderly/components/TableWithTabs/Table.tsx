@@ -499,7 +499,7 @@ function Table({
           </div>
         ) : data.filter(filterFunc).filter(pagingFunc).length === 0 ? (
           <div className="w-full mb-4 px-5 gap-4">
-            <div className="text-center flex flex-col justify-center items-center">
+            <div className="text-center mt-20 flex flex-col justify-center items-center">
               <svg
                 className="mb-4"
                 width="53"
@@ -520,7 +520,7 @@ function Table({
                 </g>
               </svg>
 
-              <span className="opacity-20">
+              <span className="opacity-50">
                 {intl.formatMessage({
                   id: tableRowEmpty ? tableRowEmpty : 'its_empty',
                   defaultMessage: 'It’s empty',

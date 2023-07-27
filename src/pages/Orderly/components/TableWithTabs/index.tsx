@@ -65,7 +65,13 @@ function TableWithTabs({
   futureOrders,
   markPrices,
   lastPrices,
-  unrealMode
+  unrealMode,
+  tradingKeySet, 
+  setTradingKeySet, 
+  keyAnnounced, 
+  setKeyAnnounced, 
+  agreeCheck, 
+  setAgreeCheck 
 }: {
   table: PortfolioTable;
   maintenance: boolean;
@@ -101,6 +107,12 @@ function TableWithTabs({
     close: number;
   }[];
   unrealMode?: 'mark_price' | 'last_price';
+  tradingKeySet: boolean;
+  setTradingKeySet: (item: boolean) => void;
+  keyAnnounced: boolean;
+  setKeyAnnounced: (item: boolean) => void;
+  agreeCheck: boolean;
+  setAgreeCheck: (item: boolean) => void;
 }) {
   const intl = useIntl();
   const { marketList } = useMarketlist();
@@ -112,9 +124,6 @@ function TableWithTabs({
     userExist,
   } = useOrderlyContext();
   const { accountId, modal } = useWalletSelector();
-  const [tradingKeySet, setTradingKeySet] = useState<boolean>(false);
-  const [keyAnnounced, setKeyAnnounced] = useState<boolean>(false);
-  const [agreeCheck, setAgreeCheck] = useState<boolean>(false);
   const [registerModalOpen, setRegisterModalOpen] = useState<boolean>(false);
   const [openOrderCount, setOpenOrderCount] = useState<number>(0);
 
@@ -494,7 +503,7 @@ function TableWithTabs({
           <div className="relative md:py-5 lg:py-5" style={{ minHeight: '350px' }}>
             {validator && !maintenance && !validAccountSig && (
               <div
-                className="absolute flex flex-col justify-center items-center h-full w-full top-0 left-0 "
+                className="absolute flex flex-col md:justify-center lg:justify-center items-center h-full w-full top-0 left-0 "
                 style={{
                   background: 'rgba(0, 19, 32, 0.8)',
                   backdropFilter: 'blur(5px)',
