@@ -156,6 +156,9 @@ export const parseAction = async (
     case 'account_farm_claim_all': {
       return await borrow_claim_all(params);
     }
+    case 'user_request_settlement': {
+      return await parse_user_request_settlement();
+    }
     default: {
       return await parseDefault();
     }
@@ -1255,6 +1258,18 @@ const borrow_claim_all = async (params: any) => {
     };
   }
 };
+const parse_user_request_settlement = async (params: any) => {
+  try {
+    return {
+      Action: 'Settle PnL',
+    };
+  } catch (error) {
+    return {
+      Action: 'Settle PnL',
+    };
+  }
+};
+
 const parseDefault = async () => {
   return {
     Action: 'Not Found',
