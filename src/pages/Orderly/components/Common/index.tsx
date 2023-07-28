@@ -264,7 +264,6 @@ export function RegisterButton({
   useEffect(() => {
     if (check) {
       setSpinNow(true);
-
       onClick();
     }
   }, [check]);
@@ -416,7 +415,7 @@ export function RegisterButton({
         type="button"
         disabled={spinNow}
       >
-        {(onPortfolio && !spinNow) ? (
+        {onPortfolio && !spinNow ? (
           <>
             <RefToOrderlyPortFolio />
           </>
@@ -1045,64 +1044,63 @@ export function orderEditPopUpFailure({ tip }: { tip: string }) {
 
 export function usePortfolioFailure() {
   const toastId = useRef(null);
-  const [toastOpen, setToastOpen] = useState(false)
+  const [toastOpen, setToastOpen] = useState(false);
   const mobileDevice = isMobile();
 
-  const openToast = ({ tip }: { tip: string }) => toastId.current = toast(
-    <div className={`flex-col flex px-2  text-sm   w-full`}>
-      <span className="text-textRed">{tip}</span>
+  const openToast = ({ tip }: { tip: string }) =>
+    (toastId.current = toast(
+      <div className={`flex-col flex px-2  text-sm   w-full`}>
+        <span className="text-textRed">{tip}</span>
 
-      <div className="absolute w-1 bg-textRed bottom-0 h-full left-0"></div>
-    </div>,
-    {
-      closeOnClick: true,
-      hideProgressBar: true,
-      position: mobileDevice ? 'top-center' : 'bottom-right',
-      autoClose: 3000,
-      onClose: () => setToastOpen(false),
-      // autoClose: false,
+        <div className="absolute w-1 bg-textRed bottom-0 h-full left-0"></div>
+      </div>,
+      {
+        closeOnClick: true,
+        hideProgressBar: true,
+        position: mobileDevice ? 'top-center' : 'bottom-right',
+        autoClose: 3000,
+        onClose: () => setToastOpen(false),
+        // autoClose: false,
 
-      closeButton: false,
-      style: {
-        boxShadow: '0px -5px 10px rgba(0, 0, 0, 0.25)',
-        borderRadius: '4px',
-        zIndex: 9999,
-        right: mobileDevice ? '0px' : '-40px',
-        overflow: 'hidden',
-        width: mobileDevice ? '100%' : '90%',
-        background: 'rgba(30, 41, 49, 1)',
-        bottom:
-          !mobileDevice &&
-          !!document.getElementsByClassName('orderly-order-toast')?.[0]
-            ? '-70px'
-            : '0px',
-      },
-    }
-  );
+        closeButton: false,
+        style: {
+          boxShadow: '0px -5px 10px rgba(0, 0, 0, 0.25)',
+          borderRadius: '4px',
+          zIndex: 9999,
+          right: mobileDevice ? '0px' : '-40px',
+          overflow: 'hidden',
+          width: mobileDevice ? '100%' : '90%',
+          background: 'rgba(30, 41, 49, 1)',
+          bottom:
+            !mobileDevice &&
+            !!document.getElementsByClassName('orderly-order-toast')?.[0]
+              ? '-70px'
+              : '0px',
+        },
+      }
+    ));
 
-  const updateToast = ({ tip }: { tip: string }) => toast.update(
-    toastId.current,
-    {
+  const updateToast = ({ tip }: { tip: string }) =>
+    toast.update(toastId.current, {
       render: () => (
         <div className={`flex-col flex px-2  text-sm   w-full`}>
           <span className="text-textRed">{tip}</span>
-    
+
           <div className="absolute w-1 bg-textRed bottom-0 h-full left-0"></div>
         </div>
       ),
       autoClose: 3000,
-    }
-  );
+    });
 
   const onToast = ({ tip }: { tip: string }) => {
     if (!toastOpen) {
       setToastOpen(true);
       openToast({ tip });
     } else {
-      console.log('update')
+      console.log('update');
       updateToast({ tip });
     }
-  }
+  };
 
   return onToast;
 }

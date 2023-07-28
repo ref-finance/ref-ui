@@ -66,12 +66,10 @@ function TableWithTabs({
   markPrices,
   lastPrices,
   unrealMode,
-  tradingKeySet, 
-  setTradingKeySet, 
-  keyAnnounced, 
-  setKeyAnnounced, 
-  agreeCheck, 
-  setAgreeCheck 
+  tradingKeySet,
+  setTradingKeySet,
+  keyAnnounced,
+  setKeyAnnounced,
 }: {
   table: PortfolioTable;
   maintenance: boolean;
@@ -111,11 +109,11 @@ function TableWithTabs({
   setTradingKeySet: (item: boolean) => void;
   keyAnnounced: boolean;
   setKeyAnnounced: (item: boolean) => void;
-  agreeCheck: boolean;
-  setAgreeCheck: (item: boolean) => void;
 }) {
   const intl = useIntl();
   const { marketList } = useMarketlist();
+
+  const [agreeCheck, setAgreeCheck] = useState<boolean>(false);
 
   const {
     storageEnough,
@@ -203,7 +201,7 @@ function TableWithTabs({
   useEffect(() => {
     if (!(validator && !maintenance && !validAccountSig)) {
       setPage(1);
-      setRefOnly && setRefOnly(false)
+      setRefOnly && setRefOnly(false);
       setOrderType && setOrderType(0);
       setChooseMarketSymbol && setChooseMarketSymbol('all_markets');
       setChooseOrderSide && setChooseOrderSide('all_side');
@@ -271,19 +269,20 @@ function TableWithTabs({
   const callGetData = async () => {
     if (!(validator && !maintenance && !validAccountSig)) {
       const { data } = await getData({ page });
-  
+
       if (!data && id === 'spot') {
         setData(displayBalances);
         setLoading(false);
-        return
+        return;
       }
-  
+
       setData(data?.rows || []);
       setTotal(data.meta?.total || 0);
-      if (id === 'open_orders' && tab === 0) setOpenOrderCount(data.meta?.total || 0);
+      if (id === 'open_orders' && tab === 0)
+        setOpenOrderCount(data.meta?.total || 0);
       setLoading(false);
     }
-  }
+  };
 
   return (
     <>
@@ -383,124 +382,158 @@ function TableWithTabs({
                     id: tableTab.mobileKey ? tableTab.mobileKey : tableTab.id,
                     defaultMessage: tableTab.default,
                   })}
-                  &nbsp;{(tableTab.id === 'open_orders' && openOrderCount > 0) && `(${openOrderCount})`}
+                  &nbsp;
+                  {tableTab.id === 'open_orders' &&
+                    openOrderCount > 0 &&
+                    `(${openOrderCount})`}
                 </span>
               </label>
             ))}
           </div>
 
-          {(!(validator && !maintenance && !validAccountSig) && table.tabs[tab].filter) && (
-            <FlexRow className={'md:hidden lg:hidden inline-flex w-1/12 justify-center'}>
-              <div
-                className="flex relative items-center justify-center relative"
-                onClick={() => setMobileFilterOpen(tab + 1)}
+          {!(validator && !maintenance && !validAccountSig) &&
+            table.tabs[tab].filter && (
+              <FlexRow
+                className={
+                  'md:hidden lg:hidden inline-flex w-1/12 justify-center'
+                }
               >
-                <MobileFilter />
-                {(Number(refOnly) + Number(chooseMarketSymbol !== 'all_markets') + Number(chooseOrderSide !== 'all_side') + Number(chooseOrderType !== 'all') + Number(chooseOrderStatus !== 'all')) > 0 && (
-                  <div
-                    className="text-cardBg rounded-full bg-gradientFromHover text-center absolute flex justify-center items-center -bottom-1 -right-1"
-                    style={{
-                      width: '13px',
-                      height: '13px',
-                      fontSize: '10px'
-                    }}
-                  >
-                    {Number(refOnly) + Number(chooseMarketSymbol !== 'all_markets') + Number(chooseOrderSide !== 'all_side') + Number(chooseOrderType !== 'all') + Number(chooseOrderStatus !== 'all')}
-                  </div>
-                )}
-              </div>
-            </FlexRow>
-          )}
+                <div
+                  className="flex relative items-center justify-center relative"
+                  onClick={() => setMobileFilterOpen(tab + 1)}
+                >
+                  <MobileFilter />
+                  {Number(refOnly) +
+                    Number(chooseMarketSymbol !== 'all_markets') +
+                    Number(chooseOrderSide !== 'all_side') +
+                    Number(chooseOrderType !== 'all') +
+                    Number(chooseOrderStatus !== 'all') >
+                    0 && (
+                    <div
+                      className="text-cardBg rounded-full bg-gradientFromHover text-center absolute flex justify-center items-center -bottom-1 -right-1"
+                      style={{
+                        width: '13px',
+                        height: '13px',
+                        fontSize: '10px',
+                      }}
+                    >
+                      {Number(refOnly) +
+                        Number(chooseMarketSymbol !== 'all_markets') +
+                        Number(chooseOrderSide !== 'all_side') +
+                        Number(chooseOrderType !== 'all') +
+                        Number(chooseOrderStatus !== 'all')}
+                    </div>
+                  )}
+                </div>
+              </FlexRow>
+            )}
         </div>
 
-
-        <div className={`w-full rounded-2xl md:bg-cardBg lg:bg-cardBg py-5 md:py-0 lg:py-0`}>
-          {(table.tabs[tab].filter && (refOnly || chooseMarketSymbol !== 'all_markets' || chooseOrderSide !== 'all_side' || chooseOrderType !== 'all' || chooseOrderStatus !== 'all')) && (
-            <div className={'flex md:hidden lg:hidden px-3 pb-1 w-full items-start justify-between flex-wrap'}>
+        <div
+          className={`w-full rounded-2xl md:bg-cardBg lg:bg-cardBg py-5 md:py-0 lg:py-0`}
+        >
+          {table.tabs[tab].filter &&
+            (refOnly ||
+              chooseMarketSymbol !== 'all_markets' ||
+              chooseOrderSide !== 'all_side' ||
+              chooseOrderType !== 'all' ||
+              chooseOrderStatus !== 'all') && (
               <div
                 className={
                   'flex md:hidden lg:hidden px-3 pb-1 w-full items-start justify-between flex-wrap'
                 }
               >
                 <div
-                  className="ml-auto flex justify-start items-center flex-wrap"
-                  style={{ flex: '0 0 15%', height: '44px' }}
+                  className={
+                    'flex md:hidden lg:hidden px-3 pb-1 w-full items-start justify-between flex-wrap'
+                  }
                 >
-                  <div className="p-2 flex items-center">
-                    {intl.formatMessage({
-                      id: 'filter',
-                      defaultMessage: 'Filter',
-                    })}
-                    :
+                  <div
+                    className="ml-auto flex justify-start items-center flex-wrap"
+                    style={{ flex: '0 0 15%', height: '44px' }}
+                  >
+                    <div className="p-2 flex items-center">
+                      {intl.formatMessage({
+                        id: 'filter',
+                        defaultMessage: 'Filter',
+                      })}
+                      :
+                    </div>
+                  </div>
+                  <div
+                    className="ml-auto flex justify-end flex-wrap"
+                    style={{ flex: '0 0 80%' }}
+                  >
+                    {refOnly && (
+                      <div className="flex items-center p-2">
+                        {intl.formatMessage({
+                          id: 'ref_order',
+                          defaultMessage: 'Order on REf',
+                        })}
+                        <div
+                          className="ml-1.5 cursor-pointer"
+                          onClick={() => setRefOnly(false)}
+                        >
+                          <OffFilterIcon />
+                        </div>
+                      </div>
+                    )}
+                    {chooseMarketSymbol !== 'all_markets' && (
+                      <div className="flex items-center p-2">
+                        {
+                          marketList.find(
+                            (m) => m.textId === chooseMarketSymbol
+                          )?.textNoColor
+                        }
+                        <div
+                          className="ml-1.5 cursor-pointer"
+                          onClick={() => setChooseMarketSymbol('all_markets')}
+                        >
+                          <OffFilterIcon />
+                        </div>
+                      </div>
+                    )}
+                    {chooseOrderType !== 'all' && (
+                      <div className="flex items-center capitalize p-2">
+                        {chooseOrderType}
+                        <div
+                          className="ml-1.5 cursor-pointer"
+                          onClick={() => setChooseOrderType('all')}
+                        >
+                          <OffFilterIcon />
+                        </div>
+                      </div>
+                    )}
+                    {chooseOrderSide !== 'all_side' && (
+                      <div className="flex items-center capitalize p-2">
+                        {chooseOrderSide}
+                        <div
+                          className="ml-1.5 cursor-pointer"
+                          onClick={() => setChooseOrderSide('all_side')}
+                        >
+                          <OffFilterIcon />
+                        </div>
+                      </div>
+                    )}
+                    {chooseOrderStatus !== 'all' && (
+                      <div className="flex items-center capitalize p-2">
+                        {chooseOrderStatus?.toLowerCase().replace('_', ' ')}
+                        <div
+                          className="ml-1.5 cursor-pointer"
+                          onClick={() => setChooseOrderStatus('all')}
+                        >
+                          <OffFilterIcon />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
-                <div
-                  className="ml-auto flex justify-end flex-wrap"
-                  style={{ flex: '0 0 80%' }}
-                >
-                  {refOnly && (
-                    <div className="flex items-center p-2">
-                      {intl.formatMessage({
-                        id: 'ref_order',
-                        defaultMessage: 'Order on REf',
-                      })}
-                      <div
-                        className="ml-1.5 cursor-pointer"
-                        onClick={() => setRefOnly(false)}
-                      >
-                        <OffFilterIcon />
-                      </div>
-                    </div>
-                  )}
-                  {chooseMarketSymbol !== 'all_markets' && (
-                    <div className="flex items-center p-2">
-                      {marketList.find((m) => m.textId === chooseMarketSymbol)?.textNoColor}
-                      <div
-                        className="ml-1.5 cursor-pointer"
-                        onClick={() => setChooseMarketSymbol('all_markets')}
-                      >
-                        <OffFilterIcon />
-                      </div>
-                    </div>
-                  )}
-                  {chooseOrderType !== 'all' && (
-                    <div className="flex items-center capitalize p-2">
-                      {chooseOrderType}
-                      <div
-                        className="ml-1.5 cursor-pointer"
-                        onClick={() => setChooseOrderType('all')}
-                      >
-                        <OffFilterIcon />
-                      </div>
-                    </div>
-                  )}
-                  {chooseOrderSide !== 'all_side' && (
-                    <div className="flex items-center capitalize p-2">
-                      {chooseOrderSide}
-                      <div
-                        className="ml-1.5 cursor-pointer"
-                        onClick={() => setChooseOrderSide('all_side')}
-                      >
-                        <OffFilterIcon />
-                      </div>
-                    </div>
-                  )}
-                  {chooseOrderStatus !== 'all' && (
-                    <div className="flex items-center capitalize p-2">
-                      {chooseOrderStatus?.toLowerCase().replace('_', ' ')}
-                      <div
-                        className="ml-1.5 cursor-pointer"
-                        onClick={() => setChooseOrderStatus('all')}
-                      >
-                        <OffFilterIcon />
-                      </div>
-                    </div>
-                  )}
-                </div>
               </div>
-            </div>
-          )}
-          <div className="relative md:py-5 lg:py-5" style={{ minHeight: '350px' }}>
+            )}
+          <div
+            className="relative md:py-5 lg:py-5"
+            style={{ minHeight: '350px' }}
+          >
             {validator && !maintenance && !validAccountSig && (
               <div
                 className="absolute flex flex-col md:justify-center lg:justify-center items-center h-full w-full top-0 left-0 "
