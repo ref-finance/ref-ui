@@ -160,6 +160,7 @@ module.exports = {
         blackLight: '#003648',
         greenLight1: '#01C08B',
         cardBg: '#1D2932',
+        portfolioCardBg: '#172833',
         chartBg: '#001320',
         perpCardBg: '#01101d',
         warn: '#DEA550',

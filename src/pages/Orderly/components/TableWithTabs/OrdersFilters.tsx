@@ -165,8 +165,8 @@ const OrdersFilters = ({
             <span>
               {chooseOrderSide === 'all_side'
                 ? intl.formatMessage({
-                    id: 'all_side',
-                    defaultMessage: 'All Side',
+                    id: 'both_side',
+                    defaultMessage: 'Both Side',
                   })
                 : intl.formatMessage({
                     id: chooseOrderSide.toLocaleLowerCase(),
@@ -190,8 +190,8 @@ const OrdersFilters = ({
               list={[
                 {
                   text: intl.formatMessage({
-                    id: 'all_side',
-                    defaultMessage: 'All Side',
+                    id: 'both_side',
+                    defaultMessage: 'Both Side',
                   }),
                   textId: 'all_side',
                   className: 'text-white'

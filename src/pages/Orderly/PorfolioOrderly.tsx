@@ -325,7 +325,7 @@ function PortfolioOrderly() {
         {/* content */}
         <div className="flex-grow border-l border-r border-boxBorder md:pt-9 lg:pt-9">
           <div className="md:px-2.5 lg:px-5 3xl:max-w-1280px m-auto">
-            <div className="w-full grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 md:bg-cardBg lg:bg-cardBg px-3 py-4 rounded-xl">
+            <div className="w-full grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 md:bg-portfolioCardBg lg:bg-portfolioCardBg px-5 py-4 rounded-xl">
               {/* getCurrentHolding */}
               <div className="col-span-2 mb-3">
                 <div className="flex items-center">

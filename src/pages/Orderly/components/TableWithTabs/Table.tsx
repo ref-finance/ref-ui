@@ -77,7 +77,7 @@ function OrderLine({
       <tr
         className={`table-fixed grid ${
           tableRowType === 'card'
-            ? ' m-2 px-3 gap-4 rounded-xl bg-portfolioOrderCardColor hover:bg-portfolioBgColor'
+            ? ' m-5 px-3 gap-4 rounded-xl bg-portfolioOrderCardColor hover:bg-portfolioBgColor'
             : ' gap-4 px-5 hover:bg-portfolioBgColor lg:border-t border-white border-opacity-10'
         } ${tableRowType === 'small' ? 'text-xs' : ''}`}
         style={{
@@ -152,7 +152,7 @@ function OrderLine({
           />
         ))}
         {(tableRowType === 'card' && openFilledDetail) && (
-          <td className={`col-span-${gridCol}`}>
+          <td style={{ gridColumn: 'span 21 / span 21' }}>
             <table
               className={`table-fixed text-right flex-col items-end w-8/12`}
               // @ts-ignore
@@ -399,7 +399,7 @@ function Table({
             className={`w-full xs:hidden table table-fixed  pl-5 pr-4 py-2 border-white border-opacity-10`}
           >
             <tr
-              className={`w-full px-5 table-fixed grid gap-4`}
+              className={`w-full ${tableRowType === 'card' ? 'px-8' : 'px-5'} table-fixed grid gap-4`}
               style={{
                 gridTemplateColumns: `repeat(${gridCol}, minmax(0, 1fr))`
               }}
@@ -420,7 +420,7 @@ function Table({
             </tr>
           </thead>
           <tbody
-            className=" block flex-col "
+            className=" block flex-col"
             id="all-orders-body-open"
           >
             {accountId && validContract() && loading ? (

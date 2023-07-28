@@ -311,16 +311,17 @@ export const usePortableOrderlyTable = ({
         columns: [
           {
             key: 'instrument',
-            colSpan: 2,
+            colSpan: 3,
             header: 'Instrument',
             render: ({ symbol }) => (
               <div className="flex items-center ">{marketList.find((m) => m.textId === symbol)?.withSymbol}</div>
             )
           },
-          { key: 'type', header: 'Type', render: ({ type }) => <span className='capitalize'>{intl.formatMessage({ id: type.toLocaleLowerCase(), defaultMessage: type.toLocaleLowerCase() })}</span> },
+          { key: 'type', colSpan: 2, header: 'Type', render: ({ type }) => <span className='capitalize'>{intl.formatMessage({ id: type.toLocaleLowerCase(), defaultMessage: type.toLocaleLowerCase() })}</span> },
           {
             key: 'Side',
             header: 'Side',
+            colSpan: 2,
             render: ({ side }) => (
               <TextWrapper
                 className="px-2 text-sm"
@@ -344,13 +345,14 @@ export const usePortableOrderlyTable = ({
               </div>
             )
           },
-          { key: '@price', header: '@Price', render: ({ price, symbol }) => price?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 4) || '-'  },
-          { key: 'avg_price', header: 'Avg.Price', render: ({ average_executed_price, symbol }) => average_executed_price?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 4) || '-' },
-          { key: 'est_total', header: 'Est.Total', render: ({ price, average_executed_price, quantity, symbol }) => ((price || average_executed_price) * quantity)?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 4)},
+          { key: '@price', colSpan: 2, header: '@Price', render: ({ price, symbol }) => price?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 4) || '-'  },
+          { key: 'avg_price', colSpan: 2, header: 'Avg.Price', render: ({ average_executed_price, symbol }) => average_executed_price?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 4) || '-' },
+          { key: 'est_total', colSpan: 2, header: 'Est.Total', render: ({ price, average_executed_price, quantity, symbol }) => ((price || average_executed_price) * quantity)?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 4)},
           {
             key: 'create',
             header: 'Create',
             type: 'dateTime',
+            colSpan: 2,
             textColor: '',
             extras: ['sort'],
             sortKey: 'created_time',
@@ -496,7 +498,7 @@ export const usePortableOrderlyTable = ({
         columns: [
           {
             key: 'instrument',
-            colSpan: 2,
+            colSpan: 3,
             header: 'Instrument',
             render: ({ symbol }) => (
               <div className="flex items-center ">{marketList.find((m) => m.textId === symbol)?.withSymbol}</div>
@@ -505,6 +507,7 @@ export const usePortableOrderlyTable = ({
           {
             key: 'Side',
             header: 'Side',
+            colSpan: 2,
             render: ({ side }) => (
               
               <TextWrapper
@@ -518,11 +521,11 @@ export const usePortableOrderlyTable = ({
               />
             )
           },
-          { key: 'type', header: 'Type', render: ({ type }) => <span className='capitalize'>{intl.formatMessage({ id: type.toLocaleLowerCase(), defaultMessage: type.toLocaleLowerCase() })}</span> },
+          { key: 'type', colSpan: 2, header: 'Type', render: ({ type }) => <span className='capitalize'>{intl.formatMessage({ id: type.toLocaleLowerCase(), defaultMessage: type.toLocaleLowerCase() })}</span> },
           {
             key: 'fill_qty',
             header: 'Fill / Qty',
-            colSpan: 2,
+            colSpan: 3,
             render: ({ executed, quantity, side }) => (
               <div>
                 <span className={`text-sm ${side === 'BUY' ? 'text-buyGreen' : 'text-sellColorNew'}`}>{`${executed} / ${quantity || executed}`}</span>
@@ -530,14 +533,15 @@ export const usePortableOrderlyTable = ({
               </div>
             )
           },
-          { key: '@price', header: '@Price', render: ({ price, average_executed_price, symbol }) => (price || average_executed_price) || '-'  },
-          { key: 'avg_price', header: 'Avg.Price', render: ({ average_executed_price, symbol }) => average_executed_price || '-' },
-          { key: 'est_total', header: 'Est.Total', render: ({ price, average_executed_price, quantity, symbol }) => Math.floor(((price || average_executed_price) * quantity))?.toFixed(0)},
-          { key: 'status', header: 'Status', render: ({ status }) =>  <span className='capitalize'>{status.toLocaleLowerCase()}</span> },
+          { key: '@price', colSpan: 2, header: '@Price', render: ({ price, average_executed_price, symbol }) => (price || average_executed_price) || '-'  },
+          { key: 'avg_price', colSpan: 2, header: 'Avg.Price', render: ({ average_executed_price, symbol }) => average_executed_price || '-' },
+          { key: 'est_total', colSpan: 2, header: 'Est.Total', render: ({ price, average_executed_price, quantity, executed }) => Math.floor(((price || average_executed_price) * (quantity || executed)))?.toFixed(0)},
+          { key: 'status', colSpan: 2, header: 'Status', render: ({ status }) =>  <span className='capitalize'>{status.toLocaleLowerCase()}</span> },
           {
             key: 'create',
             header: 'Created',
             type: 'dateTime',
+            colSpan: 2,
             textColor: '',
             extras: ['sort'],
             sortKey: 'created_time',

@@ -1022,6 +1022,7 @@ const en_US = {
   settled_amount: 'Settlement Amount',
   Side: 'Side',
   all_side: 'All Side',
+  both_side: 'Both Side',
   both: 'Both',
   filled_qty: 'Filled / Qty',
   fill_qty: 'Fill / Qty',

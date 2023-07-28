@@ -22,7 +22,6 @@ import {
 } from '../../orderly/on-chain-api';
 import { announceKey, setTradingKey, storageDeposit } from '../../orderly/api';
 
-import 'react-circular-progressbar/dist/styles.css';
 import Table from './Table';
 import { FlexRow, FlexRowBetween } from '../Common';
 import { MobileFilter } from '../Common/Icons';
@@ -31,6 +30,8 @@ import { useMarketlist } from '../../orderly/constantWjsx';
 
 import { MarkPrice, MyOrder, PortfolioTable } from '../../orderly/type';
 import { useClientMobile } from '../../../../utils/device';
+
+import 'react-circular-progressbar/dist/styles.css';
 
 export function SymbolWrapper({ symbol }: { symbol: string }) {
   return (
@@ -118,6 +119,20 @@ function TableWithTabs({
   const [tradingKeySet, setTradingKeySet] = useState<boolean>(false);
   const [keyAnnounced, setKeyAnnounced] = useState<boolean>(false);
   // const [agreeCheck, setAgreeCheck] = useState<boolean>(false);
+  
+  useEffect(() => {
+    const rootElement = document.getElementById('root');
+    if (rootElement) {
+      rootElement.style.background = 'linear-gradient(180deg, #15222B 0%, #001320 100%)';
+    }
+
+    // Clean up function to remove the background style when the component dismounts
+    return () => {
+      if (rootElement) {
+        rootElement.style.background = '';
+      }
+    };
+  }, []);
 
   const {
     storageEnough,
@@ -298,9 +313,6 @@ function TableWithTabs({
     <>
       <div
         className="w-full relative mt-10 xs:mt-5 lg:rounded-2xl shadow-sm text-primaryOrderly text-sm lg:bg-opacity-10 pb-4"
-        style={{
-          minHeight: isMobile ? '' : 'calc(100vh - 680px)',
-        }}
       >
         <span className="text-white gotham_bold text-lg px-5 hidden md:block lg:block">
           {table.title}
@@ -375,7 +387,7 @@ function TableWithTabs({
                     setTab(index);
                   }
                 }}
-                className={`flex items-center justify-center w-1/2 py-1 flex-grow text-sm rounded-md  ${
+                className={`flex items-center justify-center w-1/${table.tabs.length} py-1 flex-grow text-sm rounded-md  ${
                   tab === index
                     ? 'text-white bg-acccountBlock'
                     : 'text-primaryText'
@@ -392,10 +404,9 @@ function TableWithTabs({
                     id: tableTab.mobileKey ? tableTab.mobileKey : tableTab.id,
                     defaultMessage: tableTab.default,
                   })}
-                  &nbsp;
                   {tableTab.id === 'open_orders' &&
                     openOrderCount > 0 &&
-                    `(${openOrderCount})`}
+                    ` (${openOrderCount})`}
                 </span>
               </label>
             ))}
@@ -407,10 +418,10 @@ function TableWithTabs({
                 className={
                   'md:hidden lg:hidden inline-flex w-1/12 justify-center'
                 }
+                onClick={() => setMobileFilterOpen(tab + 1)}
               >
                 <div
                   className="flex relative items-center justify-center relative"
-                  onClick={() => setMobileFilterOpen(tab + 1)}
                 >
                   <MobileFilter />
                   {Number(refOnly) +
@@ -440,7 +451,7 @@ function TableWithTabs({
         </div>
 
         <div
-          className={`w-full rounded-2xl md:bg-cardBg lg:bg-cardBg py-5 md:py-0 lg:py-0`}
+          className={`w-full rounded-2xl md:bg-portfolioCardBg lg:bg-portfolioCardBg py-5 md:py-0 lg:py-0`}
         >
           {table.tabs[tab].filter &&
             (refOnly ||
