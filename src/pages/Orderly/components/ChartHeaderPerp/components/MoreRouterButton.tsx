@@ -207,7 +207,7 @@ function MoreRouteBox(props: Modal.Props) {
               className={`w-full py-3 ${
                 hoverRoute === 'ref'
                   ? 'border border-gradientFromHover bg-inputV3BorderColor'
-                  : 'bg-one_level_menu_color border border-opacity-0'
+                  : 'bg-one_level_menu_color border border-opacity-0 cursor-pointer'
               } rounded-xl flex flex-col px-4`}
               onMouseEnter={() => {
                 sethoverRoute('ref');
@@ -256,7 +256,7 @@ function MoreRouteBox(props: Modal.Props) {
               className={`w-full py-3 ${
                 hoverRoute === 'spot'
                   ? 'border border-gradientFromHover bg-inputV3BorderColor'
-                  : 'bg-one_level_menu_color border border-opacity-0'
+                  : 'bg-one_level_menu_color border border-opacity-0 cursor-pointer'
               } rounded-xl flex flex-col px-4`}
               onMouseEnter={() => {
                 sethoverRoute('spot');
@@ -310,7 +310,7 @@ function MoreRouteBox(props: Modal.Props) {
               className={`w-full py-3 ${
                 hoverRoute === 'perp'
                   ? 'border border-gradientFromHover bg-inputV3BorderColor'
-                  : 'bg-one_level_menu_color border border-opacity-0'
+                  : 'bg-one_level_menu_color border border-opacity-0 cursor-pointer'
               } rounded-xl flex flex-col px-4`}
               onMouseEnter={() => {
                 sethoverRoute('perp');

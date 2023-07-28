@@ -60,11 +60,11 @@ function LiquidationHistoryModal(
     tokenInfo
   );
 
+  const loading = liquidations === undefined;
+
   const [orderBy, setOrderBy] = useState<
     'timestamp' | 'transfer_amount_to_insurance_fund'
-  >('timestamp');
-
-  const loading = liquidations === undefined;
+  >(loading ? undefined : 'timestamp');
 
   const alldata = liquidations
     ?.map((l) => {
@@ -84,6 +84,12 @@ function LiquidationHistoryModal(
 
   const renderData = _.orderBy(alldata, [orderBy], ['desc']);
   console.log('renderData: ', renderData);
+
+  useEffect(() => {
+    if (!loading && renderData.length > 0) {
+      setOrderBy('timestamp');
+    }
+  }, [renderData.length, loading]);
 
   useEffect(() => {
     if (loading) return;
@@ -312,7 +318,7 @@ function LiquidationHistoryModal(
             {renderData.length === 0 && (
               <div className="absolute top-1/2 flex gap-2 flex-col items-center justify-center left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 <NoOrderEmpty></NoOrderEmpty>
-                <span>
+                <span className="text-opacity-30 text-primaryText">
                   <FormattedMessage
                     id="no_liquidation_yet"
                     defaultMessage={'No liquidation yet'}
@@ -402,6 +408,7 @@ export function MobileliquidationList({
     availableSymbols,
     tokenInfo,
     liquidations: liquidationsFromPush,
+    validAccountSig,
   } = useOrderlyContext();
 
   const liquidations = useLiquidationHistoryAll();
@@ -432,7 +439,7 @@ export function MobileliquidationList({
     return () => clearTimeout(id);
   }, [liquidationsFromPush?.[0]?.timestamp]);
 
-  const loading = liquidations === undefined;
+  const loading = liquidations === undefined && validAccountSig;
 
   const alldata = (
     liquidations?.map((l) => {

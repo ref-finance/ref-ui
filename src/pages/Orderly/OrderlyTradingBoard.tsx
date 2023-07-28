@@ -68,7 +68,7 @@ function TradingBoard() {
         <div
           className="w-80 flex-shrink-0 flex flex-col mx-3"
           style={{
-            height: 'calc(100vh - 100px)',
+            height: 'calc(52vh + 30px + 100vh - 680px + 90px)',
           }}
         >
           <OrderBook maintenance={maintenance} />

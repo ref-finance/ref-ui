@@ -2025,7 +2025,7 @@ export const useOrderlySwap = ({
   ]);
 
   const makeSwap = () => {
-    openUrl(`/orderbook?side=${side}&orderType=Market`);
+    openUrl(`/orderbook/spot?side=${side}&orderType=Market`);
   };
 
   return {

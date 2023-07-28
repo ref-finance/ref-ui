@@ -3289,7 +3289,7 @@ function OpenOrders({
           {loading ? (
             <OrderlyLoading></OrderlyLoading>
           ) : orders.filter(filterFunc).length === 0 ? (
-            <div className="text-primaryText mt-10 mb-4 text-center text-sm flex flex-col justify-center items-center gap-2">
+            <div className="text-primaryText text-opacity-30 mt-10 mb-4 text-center text-sm flex flex-col justify-center items-center gap-2">
               {isMobile() && <NoOrderEmpty></NoOrderEmpty>}
               {intl.formatMessage({
                 id: 'no_orders_found',
@@ -4119,7 +4119,7 @@ function HistoryOrders({
           {loading ? (
             <OrderlyLoading></OrderlyLoading>
           ) : orders.filter(filterFunc).length === 0 ? (
-            <div className="text-primaryText mt-10 mb-4 text-center text-sm flex flex-col justify-center items-center gap-2">
+            <div className="text-primaryText text-opacity-30 mt-10 mb-4 text-center text-sm flex flex-col justify-center items-center gap-2">
               {isMobile() && <NoOrderEmpty></NoOrderEmpty>}
               {intl.formatMessage({
                 id: 'no_orders_found',

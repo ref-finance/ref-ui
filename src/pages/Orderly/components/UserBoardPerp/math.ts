@@ -16,7 +16,7 @@ import {
   MyOrder,
   Ticker,
 } from '../../orderly/type';
-import { getPortfolioAllOrders } from '../../orderly/off-chain-api'
+import { getPortfolioAllOrders } from '../../orderly/off-chain-api';
 import { OrderAsset } from '../AssetModal/state';
 import Decimal from 'decimal.js';
 import { parseSymbol } from '../RecentTrade';
@@ -145,18 +145,13 @@ const getTotalEst = (
 
   const futures = positions.rows.reduce(
     (acc, cur, index) => {
-      /*
-        1、如果相同token 都是sell/buy qty取绝对值相加*mark price/lererage
-        2、非相同 token 按照各自token计算 qty*mark price/leverage，再把每个token的值相加
-        3、同token qty非同边（方向相反），取绝对值（同边进行相加后取绝对值）大的 进行计算 
-      */
-      const { position_qty, pending_long_qty, pending_short_qty } = cur
+      const { position_qty, pending_long_qty, pending_short_qty } = cur;
       const markPrice =
         markPrices?.find((item) => item.symbol === cur.symbol)?.price || 0;
-      
-      let quantity = position_qty
 
-      if(position_qty > 0) {
+      let quantity = position_qty;
+
+      if (position_qty > 0) {
         if (position_qty + pending_long_qty > Math.abs(pending_short_qty)) {
           quantity = position_qty + pending_long_qty;
         } else {
@@ -178,7 +173,6 @@ const getTotalEst = (
     new Big(0)
   );
 
-
   console.log(
     `Total estimate:  ${availables} (all spot balance in usdc + in order spot token) + ${futures} (sum of (future mark price * qty) / leverage)`
   );
@@ -186,7 +180,6 @@ const getTotalEst = (
   const totalEst = new Big(futures).plus(availables);
 
   return totalEst;
-
 };
 
 const get_total_upnl = (positions: PositionsType, markprices: MarkPrice[]) => {
@@ -240,18 +233,26 @@ const getRiskLevel = (marginRatio: number, curLeverage: number) => {
 
 const getTotalCollateral = (
   positions: PositionsType,
-  markprices: MarkPrice[]
+  markprices: MarkPrice[],
+  curHoldingOut: Holding
 ) => {
-  const float = getPositionFloat(positions, markprices);
+  // const float = getPositionFloat(positions, markprices);
 
-  const total_collateral_value = positions.total_collateral_value;
+  const unsettle = getUnsettle(positions, markprices);
 
-  return new Big(total_collateral_value).plus(float);
+  const total_collateral_value = new Big(
+    curHoldingOut.holding + curHoldingOut.pending_short
+  ).plus(unsettle);
+
+  // const total_collateral_value = positions.total_collateral_value;
+
+  return total_collateral_value;
 };
 const getFreeCollateral = (
   positions: PositionsType,
   markprices: MarkPrice[],
-  userInfo: ClientInfo
+  userInfo: ClientInfo,
+  curHoldingOut: Holding
 ) => {
   const pnl = positions.rows.reduce(
     (acc, cur, index) => {
@@ -275,7 +276,11 @@ const getFreeCollateral = (
 
   const pendinguPnl = pnl.div(userInfo.max_leverage);
 
-  const totalCollateral = getTotalCollateral(positions, markprices);
+  const totalCollateral = getTotalCollateral(
+    positions,
+    markprices,
+    curHoldingOut
+  );
   console.log('totalCollateral: ', totalCollateral.toFixed());
 
   const freeCollateral = new Big(totalCollateral).minus(new Big(pendinguPnl));
@@ -319,7 +324,11 @@ const getMarginRatio = (
 
   if (notionalValue.eq(0)) return '10';
 
-  const total_collatetal = getTotalCollateral(positions, markPrices);
+  const total_collatetal = getTotalCollateral(
+    positions,
+    markPrices,
+    curHoldingOut
+  );
 
   const ratio = total_collatetal.div(notionalValue).gt(10)
     ? '10'
@@ -370,7 +379,11 @@ const getLqPrice = (
 
     // const free_collateral = getFreeCollateral(positions, markPrices, userInfo);
 
-    const total_collateral_value = getTotalCollateral(positions, markPrices);
+    const total_collateral_value = getTotalCollateral(
+      positions,
+      markPrices,
+      curHoldingOut
+    );
 
     const total_mm = positions.rows.reduce((acc, cur) => {
       if (cur.symbol === symbol.symbol) return acc;
@@ -473,12 +486,18 @@ const getMaxQuantity = (
   side: 'Buy' | 'Sell',
   positions: PositionsType,
   markPrices: MarkPrice[],
-  userInfo: ClientInfo
+  userInfo: ClientInfo,
+  curHoldingOut: Holding
 ) => {
   try {
     const cur_position = positions.rows.find((r) => r.symbol === symbol.symbol);
 
-    const free_collateral = getFreeCollateral(positions, markPrices, userInfo);
+    const free_collateral = getFreeCollateral(
+      positions,
+      markPrices,
+      userInfo,
+      curHoldingOut
+    );
 
     if (free_collateral.lte(0)) {
       if (
@@ -507,7 +526,7 @@ const getMaxQuantity = (
     const mark_price_current_i =
       markPrices.find((item) => item.symbol === symbol.symbol)?.price || 0;
 
-    const collateral = getTotalCollateral(positions, markPrices);
+    const collateral = getTotalCollateral(positions, markPrices, curHoldingOut);
 
     const cur_side = new Big(1).times(
       (cur_position?.position_qty || 0) +

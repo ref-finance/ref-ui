@@ -436,6 +436,7 @@ function ChartHeader(props?: any) {
       className="flex orderly-chart-header items-center  text-white text-sm xs:sticky xs:top-0 xs:z-50"
       style={{
         backgroundColor: isMobile ? 'rgba(0,18,32)' : '',
+        zIndex: isMobile ?  120 :''
       }}
     >
       {/* icon */}

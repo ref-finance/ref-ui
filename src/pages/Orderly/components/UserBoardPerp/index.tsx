@@ -732,7 +732,8 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       side,
       positions,
       markPrices,
-      userInfo
+      userInfo,
+      curHoldingOut
     );
 
     return res;
@@ -1347,60 +1348,67 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
             zIndex: 50,
           }}
         >
-          <RefToOrderly></RefToOrderly>
+          <div
+            className="flex flex-col justify-center items-center relative "
+            style={{
+              bottom: '10%',
+            }}
+          >
+            <RefToOrderly></RefToOrderly>
 
-          {!accountId && (
-            <ConnectWallet
-              onClick={() => {
-                modal.show();
-              }}
-            ></ConnectWallet>
-          )}
-
-          {accountId && !validContract() && (
-            <div className="relative bottom-1 break-words inline-flex flex-col items-center">
-              <div className="text-base w-p200 pb-6 text-center text-white">
-                Using Orderbook request re-connect wallet
-              </div>
-              <ConfirmButton
-                onClick={async () => {
-                  // window.modal.show();
-                  const wallet = await window.selector.wallet();
-
-                  await wallet.signOut();
-
-                  window.location.reload();
-                }}
-              ></ConfirmButton>
-            </div>
-          )}
-
-          {!!accountId &&
-            validContract() &&
-            (!storageEnough || !tradingKeySet || !keyAnnounced) && (
-              <RegisterButton
-                userExist={userExist}
+            {!accountId && (
+              <ConnectWallet
                 onClick={() => {
-                  if (!agreeCheck) {
-                    setRegisterModalOpen(true);
-                    return;
-                  }
-                  if (!accountId || storageEnough) return;
-
-                  if (!userExist) {
-                    localStorage.setItem(REF_ORDERLY_AGREE_CHECK, 'true');
-                  }
-
-                  storageDeposit(accountId);
+                  modal.show();
                 }}
-                check={agreeCheck}
-                storageEnough={!!storageEnough}
-                spin={
-                  (storageEnough && (!tradingKeySet || !keyAnnounced)) ||
-                  agreeCheck
-                }
-              />
+              ></ConnectWallet>
             )}
+
+            {accountId && !validContract() && (
+              <div className="relative bottom-1 break-words inline-flex flex-col items-center">
+                <div className="text-base w-p200 pb-6 text-center text-white">
+                  Using Orderbook request re-connect wallet
+                </div>
+                <ConfirmButton
+                  onClick={async () => {
+                    // window.modal.show();
+                    const wallet = await window.selector.wallet();
+
+                    await wallet.signOut();
+
+                    window.location.reload();
+                  }}
+                ></ConfirmButton>
+              </div>
+            )}
+
+            {!!accountId &&
+              validContract() &&
+              (!storageEnough || !tradingKeySet || !keyAnnounced) && (
+                <RegisterButton
+                  userExist={userExist}
+                  onClick={() => {
+                    if (!agreeCheck) {
+                      setRegisterModalOpen(true);
+                      return;
+                    }
+                    if (!accountId || storageEnough) return;
+
+                    if (!userExist) {
+                      localStorage.setItem(REF_ORDERLY_AGREE_CHECK, 'true');
+                    }
+
+                    storageDeposit(accountId);
+                  }}
+                  check={agreeCheck}
+                  storageEnough={!!storageEnough}
+                  spin={
+                    (storageEnough && (!tradingKeySet || !keyAnnounced)) ||
+                    agreeCheck
+                  }
+                />
+              )}
+          </div>
         </div>
       )}
 
@@ -3393,7 +3401,8 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
       side,
       newPositions,
       markPrices,
-      userInfo
+      userInfo,
+      curHoldingOut
     );
 
     return res;

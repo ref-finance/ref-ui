@@ -231,8 +231,8 @@ export function usePerpData(deps?: {
       return null;
     }
   }, [positionPush, positions, markPrices]);
+  console.log('positionPush: ', positionPush);
 
-  const { accountId, modal, selector } = useWalletSelector();
 
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
 
@@ -259,29 +259,34 @@ export function usePerpData(deps?: {
 
   const totalCollateral = useMemo(() => {
     try {
-      const res = getTotalCollateral(positions, markPrices);
+      const res = getTotalCollateral(newPositions, markPrices, curHoldingOut);
 
       return res.toFixed(2);
     } catch (error) {
       return '-';
     }
-  }, [curHoldingOut, markPrices, positions, positionPush]);
+  }, [curHoldingOut, markPrices, newPositions, positionPush]);
 
   const freeCollateral = useMemo(() => {
     try {
-      return getFreeCollateral(positions, markPrices, userInfo).toFixed(2);
+      return getFreeCollateral(
+        newPositions,
+        markPrices,
+        userInfo,
+        curHoldingOut
+      ).toFixed(2);
     } catch (error) {
       return '-';
     }
-  }, [positions, markPrices, userInfo, positionPush]);
+  }, [newPositions, markPrices, userInfo, curHoldingOut]);
 
   const totaluPnl = useMemo(() => {
     try {
-      return getTotaluPnl(positions, markPrices);
+      return getTotaluPnl(newPositions, markPrices);
     } catch (error) {
       return null;
     }
-  }, [positions, markPrices]);
+  }, [newPositions, markPrices]);
 
   const totalPortfoliouPnl = useMemo(() => {
     try {
@@ -315,24 +320,24 @@ export function usePerpData(deps?: {
   const marginRatio = useMemo(() => {
     {
       try {
-        const ratio = getMarginRatio(markPrices, positions, curHoldingOut);
+        const ratio = getMarginRatio(markPrices, newPositions, curHoldingOut);
 
         return Number(ratio);
       } catch (error) {
         return '-';
       }
     }
-  }, [markPrices, positions, totaluPnl]);
+  }, [markPrices, newPositions, totaluPnl]);
 
   const unsettle = useMemo(() => {
     try {
-      const res = getUnsettle(positions, markPrices);
+      const res = getUnsettle(newPositions, markPrices);
 
       return res.toFixed();
     } catch (error) {
       return '-';
     }
-  }, [positions, markPrices]);
+  }, [newPositions, markPrices]);
 
   const portfolioUnsettle = useMemo(() => {
     try {
@@ -345,14 +350,14 @@ export function usePerpData(deps?: {
   }, [newPositions, markPrices]);
 
   const mmr = useMemo(() => {
-    if (!positions) return '-';
+    if (!newPositions) return '-';
 
-    if (positions.rows.every((r) => r.position_qty === 0)) {
+    if (newPositions.rows.every((r) => r.position_qty === 0)) {
       return '3.00%';
     }
 
-    return getMaintenanceMarginRatio(positions, markPrices);
-  }, [positions, markPrices, freeCollateral]);
+    return getMaintenanceMarginRatio(newPositions, markPrices);
+  }, [newPositions, markPrices, freeCollateral]);
 
   const triggerBalanceBasedData = useMemo(
     () => balanceTimeStamp,
