@@ -291,7 +291,7 @@ function PortfolioOrderly() {
 
   useEffect(() => {
     getFutureOrders();
-  }, [myPendingOrdersRefreshing]);
+  }, [myPendingOrdersRefreshing, triggerPositionBasedData]);
 
   // useEffect(() => {
   //   getFutureOrders();

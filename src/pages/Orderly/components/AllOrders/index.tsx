@@ -2839,7 +2839,7 @@ function OpenOrders({
 
         const symbolType = PerpOrSpot(symbol.symbol);
 
-        const fromToken = allTokens[symbolFrom];
+        const fromToken = allTokens[symbolFrom === 'BTC' ? 'WBTC' : symbolFrom];
 
         const tokenList =
           isMobile() && symbolType === 'PERP'
@@ -3520,12 +3520,17 @@ function HistoryOrders({
       .sort((a, b) => (a.symbol > b.symbol ? 1 : -1))
       .forEach((symbol) => {
         const { symbolFrom, symbolTo } = parseSymbol(symbol.symbol);
-        const fromToken = allTokens[symbolFrom];
+        const fromToken = allTokens[symbolFrom === 'BTC' ? 'WBTC' : symbolFrom];
+
         const symbolType = PerpOrSpot(symbol.symbol);
         const tokenList =
           isMobile() && symbolType === 'PERP'
             ? [fromToken]
             : [fromToken, allTokens[symbolTo]];
+
+
+        console.log('tokenList: ', tokenList);
+
 
         const render = (
           <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
@@ -4194,7 +4199,7 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
         : availableSymbols.flatMap((s) => {
             const { symbolFrom, symbolTo } = parseSymbol(s.symbol);
 
-            return [symbolFrom, symbolTo];
+            return [symbolFrom === 'BTC' ? 'WBTC' : symbolFrom, symbolTo];
           })
     ),
   ];
@@ -4268,15 +4273,15 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
           minHeight: isMobile ? '' : 'calc(100vh - 680px)',
         }}
       >
-        <FlexRowBetween className="pb-3 xs:mb-5 py-3  rounded-t-2xl lg:border-b xs:px-0 xs:py-0 px-5 mt-0 border-white border-opacity-10">
+        <FlexRowBetween className="pb-1.5 xs:mb-5 py-3  rounded-t-2xl lg:border-b xs:px-0 xs:py-0 px-5 mt-0 border-white border-opacity-10">
           <FlexRow
-            className={`min-h-8 xs:ml-3 xs:p-1 xs:py-0.5 xs:border border-white border-opacity-10 xs:rounded-2xl`}
+            className={`min-h-8 xs:ml-3 xs:p-1 xs:py-0.5 xs:border border-white border-opacity-10 xs:rounded-xl`}
           >
             <FlexRow
               onClick={() => {
                 setTab('open');
               }}
-              className={`justify-center  xs:py-0.5 xs:px-2 xs:rounded-lg ${
+              className={`font-gothamBold justify-center  xs:py-0.5 xs:px-2 xs:rounded-lg ${
                 tab === 'open' ? 'xs:bg-mobileOrderBg ' : ''
               } cursor-pointer`}
             >
@@ -4293,7 +4298,7 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
                 })}
 
                 {tab === 'open' && !isMobile && (
-                  <div className="h-0.5 bg-gradientFromHover rounded-lg w-full absolute -bottom-5 left-0"></div>
+                  <div className="h-0.5 bg-gradientFromHover rounded-lg w-full absolute -bottom-3 left-0"></div>
                 )}
               </span>
 
@@ -4316,9 +4321,9 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
               onClick={() => {
                 setTab('history');
               }}
-              className={`justify-center  xs:py-1 xs:px-2 xs:rounded-lg ${
+              className={`font-gothamBold justify-center  xs:py-1 xs:px-2 xs:rounded-lg ${
                 tab === 'history' ? 'xs:bg-mobileOrderBg ' : ''
-              } cursor-pointer ml-4`}
+              } cursor-pointer ml-8`}
             >
               <span
                 className={
@@ -4333,7 +4338,7 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
                 })}
 
                 {tab === 'history' && !isMobile && (
-                  <div className="h-0.5 bg-gradientFromHover rounded-lg w-full absolute -bottom-5 left-0"></div>
+                  <div className="h-0.5 bg-gradientFromHover rounded-lg w-full absolute -bottom-3 left-0"></div>
                 )}
               </span>
 

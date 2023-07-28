@@ -84,6 +84,7 @@ function SymbolLine({
 }) {
   const { symbolFrom, symbolTo } = parseSymbol(ticker.symbol);
   const tokenIn = useTokenMetaFromSymbol(symbolFrom, tokenInfo);
+  console.log('tokenIn: ', tokenIn);
 
   const { symbol } = useOrderlyContext();
 
@@ -222,6 +223,7 @@ export function SymbolSelectorMobileModal(
   function SymbolLine({ ticker }: { ticker: Ticker }) {
     const { symbolFrom, symbolTo } = parseSymbol(ticker.symbol);
     const tokenIn = useTokenMetaFromSymbol(symbolFrom, tokenInfo);
+    console.log('tokenIn: ', tokenIn, symbolFrom);
 
     return (
       <div
@@ -436,16 +438,15 @@ function ChartHeader(props?: any) {
       className="flex orderly-chart-header items-center  text-white text-sm xs:sticky xs:top-0 xs:z-50"
       style={{
         backgroundColor: isMobile ? 'rgba(0,18,32)' : '',
-        zIndex: isMobile ?  120 :''
+        zIndex: isMobile ? 52 : '',
       }}
     >
       {/* icon */}
       <div
         className={`flex 2xl:mr-11 xl:mr-6 lg2:mr-3  relative items-center flex-shrink-0 ${
           hoverSymbol ? 'cursor-pointer bg-symbolHover rounded-lg' : ''
-        } 
-        
-          px-3 py-2
+        }
+          pl-1 py-2
         `}
         onClick={(e) => {
           e.preventDefault();
@@ -608,7 +609,7 @@ function ChartHeader(props?: any) {
             </span>
           </div>
 
-          <div className="frcs lg:hidden gap-2 ">
+          <div className="frcs lg:hidden gap-4">
             <div
               onClick={() => {
                 setRoute && setRoute('chart');

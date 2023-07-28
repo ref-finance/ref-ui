@@ -204,10 +204,10 @@ function MoreRouteBox(props: Modal.Props) {
         {!loading && (
           <div className="flex flex-col text-white px-6  gap-3">
             <div
-              className={`w-full py-3 ${
+              className={`w-full py-3 cursor-pointer ${
                 hoverRoute === 'ref'
                   ? 'border border-gradientFromHover bg-inputV3BorderColor'
-                  : 'bg-one_level_menu_color border border-opacity-0 cursor-pointer'
+                  : 'bg-one_level_menu_color border border-opacity-0 '
               } rounded-xl flex flex-col px-4`}
               onMouseEnter={() => {
                 sethoverRoute('ref');
@@ -253,7 +253,7 @@ function MoreRouteBox(props: Modal.Props) {
             </div>
 
             <div
-              className={`w-full py-3 ${
+              className={`w-full py-3 cursor-pointer ${
                 hoverRoute === 'spot'
                   ? 'border border-gradientFromHover bg-inputV3BorderColor'
                   : 'bg-one_level_menu_color border border-opacity-0 cursor-pointer'
@@ -307,7 +307,7 @@ function MoreRouteBox(props: Modal.Props) {
             </div>
 
             <div
-              className={`w-full py-3 ${
+              className={`w-full py-3 cursor-pointer ${
                 hoverRoute === 'perp'
                   ? 'border border-gradientFromHover bg-inputV3BorderColor'
                   : 'bg-one_level_menu_color border border-opacity-0 cursor-pointer'

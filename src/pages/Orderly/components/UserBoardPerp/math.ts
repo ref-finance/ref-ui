@@ -152,13 +152,19 @@ const getTotalEst = (
       let quantity = position_qty;
 
       if (position_qty > 0) {
-        if (position_qty + pending_long_qty > Math.abs(position_qty + pending_short_qty)) {
+        if (
+          position_qty + pending_long_qty >
+          Math.abs(position_qty + pending_short_qty)
+        ) {
           quantity = position_qty + pending_long_qty;
         } else {
           quantity = Math.abs(position_qty + pending_short_qty);
         }
       } else {
-        if (Math.abs(position_qty + pending_short_qty) > position_qty + pending_long_qty) {
+        if (
+          Math.abs(position_qty + pending_short_qty) >
+          position_qty + pending_long_qty
+        ) {
           quantity = Math.abs(position_qty + pending_short_qty);
         } else {
           quantity = position_qty + pending_long_qty;
@@ -236,15 +242,11 @@ const getTotalCollateral = (
   markprices: MarkPrice[],
   curHoldingOut: Holding
 ) => {
-  // const float = getPositionFloat(positions, markprices);
-
   const unsettle = getUnsettle(positions, markprices);
 
   const total_collateral_value = new Big(
     curHoldingOut.holding + curHoldingOut.pending_short
   ).plus(unsettle);
-
-  // const total_collateral_value = positions.total_collateral_value;
 
   return total_collateral_value;
 };

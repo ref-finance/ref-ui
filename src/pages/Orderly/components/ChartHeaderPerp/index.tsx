@@ -78,6 +78,7 @@ function SymbolLine({
 }) {
   const { symbolFrom, symbolTo } = parseSymbol(ticker.symbol);
   const tokenIn = useTokenMetaFromSymbol(symbolFrom, tokenInfo);
+  console.log('tokenIn: ', tokenIn);
 
   const { symbol } = useOrderlyContext();
 
@@ -426,7 +427,7 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
         className={`flex 2xl:mr-11 xl:mr-6 lg2:mr-3  relative items-center flex-shrink-0 ${
           hoverSymbol ? 'cursor-pointer bg-symbolHover rounded-lg' : ''
         } 
-          px-2 py-2
+          pl-1 py-2
         `}
         onClick={(e) => {
           e.preventDefault();

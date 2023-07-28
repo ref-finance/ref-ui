@@ -475,7 +475,7 @@ const PendingOrderRow: React.FC<{
       <div className="col-span-1 flex justify-end items-center">
         <div
           className="cursor-pointer"
-          onClick={async () => {
+          onClick={async () => {  
             if (!accountId || loading) return;
             try {
               setLoading(true);

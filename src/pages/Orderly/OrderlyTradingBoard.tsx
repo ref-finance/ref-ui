@@ -132,7 +132,7 @@ function MobileTradingBoard() {
 
       {route == 'user_board' && (
         <>
-          <div className="w-full frcs border-b text-sm text-primaryText border-white border-opacity-20">
+          <div className="w-full mt-7 frcs border-b text-sm text-primaryText border-white border-opacity-20">
             <div
               className={`w-1/2 relative ${
                 displayTab == 'orders' ? 'text-white' : ''

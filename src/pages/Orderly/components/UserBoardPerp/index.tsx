@@ -562,14 +562,6 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
   const inputAmountRef = useRef<HTMLInputElement>(null);
 
-  // useEffect(() => {
-  //   if (!accountId || !validAccountSig) return;
-
-  //   getCurrentHolding({ accountId }).then((res) => {
-  //     setHoldings(res.data.holding);
-  //   });
-  // }, [accountId, myPendingOrdersRefreshing, validAccountSig]);
-
   const curHoldingIn = useMemo(() => {
     try {
       const holding = holdings?.find((h) => h.token === symbolFrom);
@@ -847,6 +839,8 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         localStorage.removeItem(REF_ORDERLY_ACCOUNT_VALID);
       });
   }, [accountId, storageEnough, agreeCheck]);
+
+  console.log('tradingKeySet: ', tradingKeySet, keyAnnounced);
 
   useEffect(() => {
     if (!tradingKeySet || !keyAnnounced) return;
@@ -1600,8 +1594,8 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           }}
         >
           <span
-            className={`text-sm ${
-              orderType === 'Limit' ? 'text-white font-gothamBold' : ''
+            className={`text-sm font-gothamBold ${
+              orderType === 'Limit' ? 'text-white ' : ''
             } `}
           >
             {intl.formatMessage({
@@ -1626,8 +1620,8 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           }}
         >
           <span
-            className={`text-sm ${
-              orderType === 'Market' ? 'text-white font-gothamBold' : ''
+            className={`text-sm font-gothamBold ${
+              orderType === 'Market' ? 'text-white ' : ''
             } `}
           >
             {intl.formatMessage({
@@ -3569,6 +3563,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
 
     setValidAccountSig(true);
   }, [tradingKeySet, keyAnnounced]);
+
   const intl = useIntl();
 
   const isInsufficientBalance =
@@ -3971,8 +3966,8 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
           }}
         >
           <span
-            className={`text-sm ${
-              orderType === 'Limit' ? 'text-white font-gothamBold' : ''
+            className={`text-sm font-gothamBold ${
+              orderType === 'Limit' ? 'text-white' : ''
             } `}
           >
             {intl.formatMessage({
@@ -3993,8 +3988,8 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
           }}
         >
           <span
-            className={`text-sm ${
-              orderType === 'Market' ? 'text-white font-gothamBold' : ''
+            className={`text-sm font-gothamBold ${
+              orderType === 'Market' ? 'text-white ' : ''
             } `}
           >
             {intl.formatMessage({

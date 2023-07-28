@@ -318,7 +318,7 @@ function LiquidationHistoryModal(
             {renderData.length === 0 && (
               <div className="absolute top-1/2 flex gap-2 flex-col items-center justify-center left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 <NoOrderEmpty></NoOrderEmpty>
-                <span className="text-opacity-30 text-primaryText">
+                <span className="text-opacity-30 text-sm text-primaryText">
                   <FormattedMessage
                     id="no_liquidation_yet"
                     defaultMessage={'No liquidation yet'}
@@ -474,14 +474,14 @@ export function MobileliquidationList({
       )}
       {!loading && alldata.length === 0 && (
         <div
-          className="w-full relative text-primaryText text-opacity-20"
+          className="w-full relative text-primaryText text-opacity-30"
           style={{
             minHeight: '100px',
           }}
         >
           <div className="absolute top-1/2 flex gap-2 flex-col items-center justify-center left-1/2 transform -translate-x-1/2 -translate-y-1/2">
             <NoOrderEmpty></NoOrderEmpty>
-            <span>
+            <span className="text-sm">
               <FormattedMessage
                 id="no_liquidation_yet"
                 defaultMessage={'No liquidation yet'}

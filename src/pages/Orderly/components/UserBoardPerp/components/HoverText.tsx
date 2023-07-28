@@ -105,8 +105,6 @@ export function TotaluPNLText() {
 export function UnsettlePnl() {
   const [hover, setHover] = useState(false);
 
-  const intl = useIntl();
-
   return (
     <div className="frcs gap-1 ">
       <FormattedMessage
@@ -127,7 +125,7 @@ export function UnsettlePnl() {
 
         {hover && (
           <div
-            className=" absolute bg-cardBg z-30  transform translate-y-1/2 right-3 bottom-3  px-4 py-2 rounded-lg text-xs border border-primaryText"
+            className=" absolute bg-cardBg z-30 xs:left-3  transform translate-y-1/2 right-3 bottom-3  px-4 py-2 rounded-lg text-xs border border-primaryText"
             style={{
               width: isMobile() ? '200px' : '300px',
             }}

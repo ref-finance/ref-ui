@@ -673,7 +673,7 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
                     history.push('/orderbook/spot');
                     setShow(false);
                   }}
-                  className="frcc bg-symbolHover2 border text-white border-white border-opacity-30 w-1/2 rounded-xl py-2"
+                  className="frcc bg-symbolHover2  text-white border-white border-opacity-30 w-1/2 rounded-lg py-2"
                   style={{
                     background:
                       window.location.pathname === '/orderbook/spot'
@@ -703,7 +703,7 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
                         : '#4F6574',
                     width: '104px',
                   }}
-                  className="frcc bg-symbolHover2 border  border-white border-opacity-30 w-1/2 rounded-xl py-2"
+                  className="frcc bg-symbolHover2  text-white border-white border-opacity-30 w-1/2 rounded-lg py-2"
                 >
                   <FormattedMessage
                     id="perpetual"

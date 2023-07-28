@@ -161,14 +161,6 @@ export function CurAsset(props?: any) {
     symbolType === 'SPOT' ? 'balance' : 'account'
   );
 
-  // useEffect(() => {
-  //   if (!accountId) return;
-
-  //   getCurrentHolding({ accountId }).then((res) => {
-  //     setHoldings(res.data.holding);
-  //   });
-  // }, [accountId, myPendingOrdersRefreshing, validAccountSig]);
-
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
 
   const curHoldingIn = holdings?.find((h) => h.token === symbolFrom);
@@ -390,53 +382,25 @@ export function CurAsset(props?: any) {
           </div>
 
           <div className="text-sm text-white font-bold pt-4 text-left frcb">
-            <div
-              className={`flex items-center w-full ${
-                symbolType == 'PERP' ? 'justify-between' : ''
-              }`}
-            >
-              {symbolType == 'PERP' && (
-                <>
-                  <DepositButtonMobile
-                    onClick={() => {
-                      setOperationType('deposit');
-                      setOperationId(tokenIn?.id || '');
-                    }}
-                  ></DepositButtonMobile>
+            <div className={`flex items-center w-full `}>
+              <DepositButton
+                onClick={() => {
+                  setOperationType('deposit');
+                  setOperationId(tokenIn?.id || '');
+                }}
+              ></DepositButton>
 
-                  <WithdrawButtonMobile
-                    onClick={() => {
-                      setOperationType('withdraw');
-                      setOperationId(tokenIn?.id || '');
-                    }}
-                  ></WithdrawButtonMobile>
-                </>
-              )}
-
-              {symbolType === 'SPOT' && (
-                <>
-                  <DepositButton
-                    onClick={() => {
-                      setOperationType('deposit');
-                      setOperationId(tokenIn?.id || '');
-                    }}
-                  ></DepositButton>
-
-                  <WithdrawButton
-                    onClick={() => {
-                      setOperationType('withdraw');
-                      setOperationId(tokenIn?.id || '');
-                    }}
-                  ></WithdrawButton>
-                </>
-              )}
+              <WithdrawButton
+                onClick={() => {
+                  setOperationType('withdraw');
+                  setOperationId(tokenIn?.id || '');
+                }}
+              ></WithdrawButton>
             </div>
 
             <span
               className={
-                symbolType === 'PERP'
-                  ? 'hidden'
-                  : 'text-base font-normal whitespace-nowrap text-gradientFromHover '
+                'text-base font-normal whitespace-nowrap text-gradientFromHover '
               }
               onClick={() => {
                 setShowAllAssets(true);
@@ -763,362 +727,6 @@ function BookBoard({ maintenance }: { maintenance: boolean }) {
   );
 }
 
-function RegisterWrapper() {
-  const {
-    symbol,
-    orders,
-    tokenInfo,
-    storageEnough,
-    balances,
-    setValidAccountSig,
-    handlePendingOrderRefreshing,
-    validAccountSig,
-    myPendingOrdersRefreshing,
-    bridgePrice,
-  } = useOrderlyContext();
-
-  const [tradingKeySet, setTradingKeySet] = useState<boolean>(false);
-  const [agreeCheck, setAgreeCheck] = useState<boolean>(false);
-
-  const { accountId } = useWalletSelector();
-
-  const [keyAnnounced, setKeyAnnounced] = useState<boolean>(false);
-
-  const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
-
-  const { userExist } = useOrderlyContext();
-
-  const loading =
-    (storageEnough === undefined && !!accountId) ||
-    (!!storedValid && !validAccountSig);
-
-  useEffect(() => {
-    if (!accountId || !storageEnough) return;
-
-    if (!!storedValid) {
-      setValidAccountSig(true);
-      setKeyAnnounced(true);
-      setTradingKeySet(true);
-
-      return;
-    }
-
-    is_orderly_key_announced(accountId)
-      .then(async (key_announce) => {
-        setKeyAnnounced(key_announce);
-        if (!key_announce) {
-          const res = await announceKey(accountId).then((res) => {
-            setKeyAnnounced(true);
-          });
-        } else return;
-      })
-      .then(() => {
-        is_trading_key_set(accountId).then(async (trading_key_set) => {
-          setTradingKeySet(trading_key_set);
-          if (!trading_key_set) {
-            await setTradingKey(accountId).then(() => {
-              setTradingKeySet(true);
-            });
-          }
-        });
-      })
-      .catch((e) => {
-        setKeyAnnounced(false);
-        setTradingKeySet(false);
-        setValidAccountSig(false);
-
-        localStorage.removeItem(REF_ORDERLY_ACCOUNT_VALID);
-      });
-  }, [accountId, storageEnough, agreeCheck]);
-
-  const [isOpen, setIsOpen] = useState<boolean>(true);
-
-  useEffect(() => {
-    if (!tradingKeySet || !keyAnnounced) return;
-
-    localStorage.setItem(REF_ORDERLY_ACCOUNT_VALID, '1');
-    if (userExist) {
-      localStorage.removeItem(REF_ORDERLY_AGREE_CHECK);
-    }
-
-    handlePendingOrderRefreshing();
-
-    setValidAccountSig(true);
-    setIsOpen(false);
-  }, [tradingKeySet, keyAnnounced]);
-
-  function validContract() {
-    const selectedWalletId = getSelectedWalletId();
-
-    if (selectedWalletId === 'sender') {
-      //@ts-ignore
-      return !!window?.near?.authData?.allKeys?.[
-        getConfig().ORDERLY_ASSET_MANAGER
-      ];
-    }
-
-    const walletStoredContract = localStorage.getItem(
-      'near-wallet-selector:contract'
-    );
-
-    if (!walletStoredContract) {
-      return true;
-    } else {
-      const parsedContract = JSON.parse(walletStoredContract)?.contractId;
-
-      if (
-        parsedContract &&
-        parsedContract !== getConfig().ORDERLY_ASSET_MANAGER
-      ) {
-        return false;
-      }
-
-      return true;
-    }
-  }
-
-  const validator =
-    !accountId ||
-    !storageEnough ||
-    !tradingKeySet ||
-    !keyAnnounced ||
-    !validContract();
-
-  // if (!validator && loading) return null;
-
-  if (!validator && !loading) return null;
-
-  return (
-    <>
-      {!(!isOpen || !accountId) && (
-        <Modal
-          isOpen={true}
-          onRequestClose={() => {
-            setIsOpen(false);
-          }}
-          style={{
-            overlay: {
-              backgroundColor:
-                !isOpen || !accountId ? 'transparent' : 'rgba(0,0,0,0.7)',
-            },
-            content: {
-              position: 'fixed',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              top: 'none',
-              bottom: '0px',
-              left: '50%',
-              transform: 'translate(-50%, -30px)',
-              outline: 'none',
-            },
-          }}
-        >
-          <div className=" rounded-t-2xl lg:w-p410 xs:w-screen gradientBorderWrapperNoShadowOrderly bg-boxBorder text-sm text-primaryOrderly  ">
-            {loading && isOpen && (
-              <div
-                className="absolute  flex flex-col justify-center items-center h-full w-full top-0 left-0 "
-                style={{
-                  background: 'rgba(0, 19, 32, 0.8)',
-                  backdropFilter: 'blur(5px)',
-                  zIndex: 90,
-                  minHeight: '200px',
-                }}
-              >
-                <OrderlyLoading></OrderlyLoading>
-              </div>
-            )}
-
-            {validator && !loading && (
-              <div
-                className="rounded-t-2xl   flex flex-col justify-center items-center h-full w-full px-5 py-4 xs:pb-2"
-                style={{
-                  background: 'rgba(0, 19, 32, 0.8)',
-                  backdropFilter: 'blur(5px)',
-                  zIndex: 80,
-                }}
-              >
-                <div
-                  className={
-                    !isOpen ? 'hidden' : 'flex items-center justify-center pt-2'
-                  }
-                >
-                  {!(!accountId || !validContract()) && (
-                    <RefToOrderly></RefToOrderly>
-                  )}
-                </div>
-
-                {!accountId && (
-                  <ConnectWallet
-                    onClick={() => {
-                      window.modal.show();
-                      setIsOpen(false);
-                    }}
-                  ></ConnectWallet>
-                )}
-
-                {accountId && !validContract() && (
-                  <div className="relative bottom-1 break-words inline-flex flex-col items-center">
-                    <div
-                      className={
-                        !isOpen
-                          ? 'hidden'
-                          : 'text-base w-p200 pb-6 text-center text-white'
-                      }
-                    >
-                      Using Orderbook request re-connect wallet
-                    </div>
-                    <ConfirmButton
-                      onClick={async () => {
-                        // window.modal.show();
-                        const wallet = await window.selector.wallet();
-                        await wallet.signOut();
-
-                        window.location.reload();
-                      }}
-                    ></ConfirmButton>
-                  </div>
-                )}
-
-                {!!accountId &&
-                  validContract() &&
-                  (!storageEnough || !tradingKeySet || !keyAnnounced) && (
-                    <RegisterButton
-                      isOpenMobile={isOpen}
-                      setIsOpenMobile={setIsOpen}
-                      onClick={() => {
-                        if (!accountId || storageEnough) return;
-
-                        if (!userExist) {
-                          localStorage.setItem(REF_ORDERLY_AGREE_CHECK, 'true');
-                        }
-
-                        storageDeposit(accountId);
-                      }}
-                      setCheck={setAgreeCheck}
-                      check={(isMobile() && storageEnough) || agreeCheck}
-                      storageEnough={!!storageEnough}
-                      spin={
-                        (storageEnough && (!tradingKeySet || !keyAnnounced)) ||
-                        agreeCheck
-                      }
-                      userExist={userExist}
-                    />
-                  )}
-              </div>
-            )}
-          </div>
-        </Modal>
-      )}
-
-      {(!isOpen || !accountId) && (
-        <div
-          className=" rounded-t-2xl lg:w-p410 xs:w-screen fixed bottom-8 left-0 gradientBorderWrapperNoShadowOrderly bg-boxBorder text-sm text-primaryOrderly  "
-          style={{
-            zIndex: 99,
-          }}
-        >
-          {loading && isOpen && (
-            <div
-              className="absolute  flex flex-col justify-center items-center h-full w-full top-0 left-0 "
-              style={{
-                background: 'rgba(0, 19, 32, 0.8)',
-                backdropFilter: 'blur(5px)',
-                zIndex: 90,
-                minHeight: '200px',
-              }}
-            >
-              <OrderlyLoading></OrderlyLoading>
-            </div>
-          )}
-
-          {validator && !loading && (
-            <div
-              className="rounded-t-2xl   flex flex-col justify-center items-center h-full w-full px-5 py-4 "
-              style={{
-                background: 'rgba(0, 19, 32, 0.8)',
-                backdropFilter: 'blur(5px)',
-                zIndex: 80,
-              }}
-            >
-              <div
-                className={
-                  !isOpen ? 'hidden' : 'flex items-center justify-center pt-2'
-                }
-              >
-                {!(!accountId || !validContract()) && (
-                  <RefToOrderly></RefToOrderly>
-                )}
-              </div>
-
-              {!accountId && (
-                <ConnectWallet
-                  onClick={() => {
-                    window.modal.show();
-                    setIsOpen(false);
-                  }}
-                ></ConnectWallet>
-              )}
-
-              {accountId && !validContract() && (
-                <div className="relative bottom-1 break-words inline-flex flex-col items-center">
-                  <div
-                    className={
-                      !isOpen
-                        ? 'hidden'
-                        : 'text-base w-p200 pb-6 text-center text-white'
-                    }
-                  >
-                    Using Orderbook request re-connect wallet
-                  </div>
-                  <ConfirmButton
-                    onClick={async () => {
-                      // window.modal.show();
-                      const wallet = await window.selector.wallet();
-                      await wallet.signOut();
-                    }}
-                  ></ConfirmButton>
-
-                  <div
-                    className={
-                      !isOpen
-                        ? 'hidden'
-                        : 'flex items-center mt-2 justify-center'
-                    }
-                  >
-                    <PowerByOrderly />
-                  </div>
-                </div>
-              )}
-
-              {!!accountId &&
-                validContract() &&
-                (!storageEnough || !tradingKeySet || !keyAnnounced) && (
-                  <RegisterButton
-                    isOpenMobile={false}
-                    setIsOpenMobile={setIsOpen}
-                    setCheck={setAgreeCheck}
-                    onClick={() => {
-                      setIsOpen(true);
-                    }}
-                    check={agreeCheck}
-                    storageEnough={!!storageEnough}
-                    spin={
-                      storageEnough &&
-                      (!tradingKeySet || !keyAnnounced) &&
-                      agreeCheck
-                    }
-                    userExist={userExist}
-                  />
-                )}
-            </div>
-          )}
-        </div>
-      )}
-    </>
-  );
-}
-
 export default function ({ maintenance }: { maintenance: boolean }) {
   const storedTab = sessionStorage.getItem(MOBILE_TAB) as any;
 
@@ -1139,8 +747,6 @@ export default function ({ maintenance }: { maintenance: boolean }) {
           <UserBoardMobilePerp maintenance={maintenance}></UserBoardMobilePerp>
         )}
       </div>
-
-      {/* {!validAccountSig && <RegisterWrapper></RegisterWrapper>} */}
     </>
   );
 }

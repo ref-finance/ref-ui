@@ -231,8 +231,8 @@ export function usePerpData(deps?: {
       return null;
     }
   }, [positionPush, positions, markPrices]);
-  console.log('positionPush: ', positionPush);
 
+  const noPosition = newPositions?.rows?.length === 0;
 
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
 
@@ -257,18 +257,25 @@ export function usePerpData(deps?: {
     }
   }, [balances, holdings]);
 
+  console.log('curHoldingOut: ', curHoldingOut);
+
   const totalCollateral = useMemo(() => {
     try {
+      if (!curHoldingOut) return '0';
+
       const res = getTotalCollateral(newPositions, markPrices, curHoldingOut);
 
       return res.toFixed(2);
     } catch (error) {
+      console.log('error: ', error);
       return '-';
     }
-  }, [curHoldingOut, markPrices, newPositions, positionPush]);
+  }, [curHoldingOut, markPrices, newPositions, positionPush, noPosition]);
 
   const freeCollateral = useMemo(() => {
     try {
+      if (!curHoldingOut) return '0';
+
       return getFreeCollateral(
         newPositions,
         markPrices,
