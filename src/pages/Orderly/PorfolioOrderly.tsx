@@ -425,8 +425,6 @@ function PortfolioOrderly() {
                 setTradingKeySet={setTradingKeySet}
                 keyAnnounced={keyAnnounced}
                 setKeyAnnounced={setKeyAnnounced}
-                agreeCheck={agreeCheck}
-                setAgreeCheck={setAgreeCheck}
               />
               <TableWithTabs
                 table={assetsTables}
@@ -443,8 +441,6 @@ function PortfolioOrderly() {
                 setTradingKeySet={setTradingKeySet}
                 keyAnnounced={keyAnnounced}
                 setKeyAnnounced={setKeyAnnounced}
-                agreeCheck={agreeCheck}
-                setAgreeCheck={setAgreeCheck}
               />
               <TableWithTabs
                 table={recordsTable}
@@ -457,8 +453,6 @@ function PortfolioOrderly() {
                 setTradingKeySet={setTradingKeySet}
                 keyAnnounced={keyAnnounced}
                 setKeyAnnounced={setKeyAnnounced}
-                agreeCheck={agreeCheck}
-                setAgreeCheck={setAgreeCheck}
               />
               <span className="text-xs text-primaryOrderly flex items-center">
                 <div className="ml-5 mr-1">
@@ -509,8 +503,6 @@ function PortfolioOrderly() {
                   setTradingKeySet={setTradingKeySet}
                   keyAnnounced={keyAnnounced}
                   setKeyAnnounced={setKeyAnnounced}
-                  agreeCheck={agreeCheck}
-                  setAgreeCheck={setAgreeCheck}
                 />
               )}
               {tab === 1 && (
@@ -539,8 +531,6 @@ function PortfolioOrderly() {
                   setTradingKeySet={setTradingKeySet}
                   keyAnnounced={keyAnnounced}
                   setKeyAnnounced={setKeyAnnounced}
-                  agreeCheck={agreeCheck}
-                  setAgreeCheck={setAgreeCheck}
                 />
               )}
               {tab === 2 && (
@@ -555,8 +545,6 @@ function PortfolioOrderly() {
                   setTradingKeySet={setTradingKeySet}
                   keyAnnounced={keyAnnounced}
                   setKeyAnnounced={setKeyAnnounced}
-                  agreeCheck={agreeCheck}
-                  setAgreeCheck={setAgreeCheck}
                 />
               )}
             </div>

@@ -152,16 +152,16 @@ const getTotalEst = (
       let quantity = position_qty;
 
       if (position_qty > 0) {
-        if (position_qty + pending_long_qty > Math.abs(pending_short_qty)) {
+        if (position_qty + pending_long_qty > Math.abs(position_qty + pending_short_qty)) {
           quantity = position_qty + pending_long_qty;
         } else {
-          quantity = Math.abs(pending_short_qty);
+          quantity = Math.abs(position_qty + pending_short_qty);
         }
       } else {
-        if (Math.abs(position_qty + pending_short_qty) > pending_long_qty) {
+        if (Math.abs(position_qty + pending_short_qty) > position_qty + pending_long_qty) {
           quantity = Math.abs(position_qty + pending_short_qty);
         } else {
-          quantity = pending_long_qty;
+          quantity = position_qty + pending_long_qty;
         }
       }
 
