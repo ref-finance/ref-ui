@@ -1046,12 +1046,21 @@ export function usePortfolioFailure() {
   const toastId = useRef(null);
   const [toastOpen, setToastOpen] = useState(false);
   const mobileDevice = isMobile();
+  const toastTimerRef = useRef(null);
 
-  const openToast = ({ tip }: { tip: string }) =>
-    (toastId.current = toast(
+  const clearToastTimer = () => {
+    if (toastTimerRef.current) {
+      clearTimeout(toastTimerRef.current);
+    }
+  };
+
+  const openToast = ({ tip }: { tip: string }) => {
+    clearToastTimer();
+    setToastOpen(true);
+
+    toastId.current = toast(
       <div className={`flex-col flex px-2  text-sm   w-full`}>
         <span className="text-textRed">{tip}</span>
-
         <div className="absolute w-1 bg-textRed bottom-0 h-full left-0"></div>
       </div>,
       {
@@ -1059,9 +1068,10 @@ export function usePortfolioFailure() {
         hideProgressBar: true,
         position: mobileDevice ? 'top-center' : 'bottom-right',
         autoClose: 3000,
-        onClose: () => setToastOpen(false),
+        onClose: () => {
+          setToastOpen(false);
+        },
         // autoClose: false,
-
         closeButton: false,
         style: {
           boxShadow: '0px -5px 10px rgba(0, 0, 0, 0.25)',
@@ -1078,7 +1088,13 @@ export function usePortfolioFailure() {
               : '0px',
         },
       }
-    ));
+    );
+
+    // Close the toast after 3000ms (autoClose time)
+    toastTimerRef.current = setTimeout(() => {
+      setToastOpen(false);
+    }, 3000);
+  };
 
   const updateToast = ({ tip }: { tip: string }) =>
     toast.update(toastId.current, {
@@ -1097,7 +1113,6 @@ export function usePortfolioFailure() {
       setToastOpen(true);
       openToast({ tip });
     } else {
-      console.log('update');
       updateToast({ tip });
     }
   };

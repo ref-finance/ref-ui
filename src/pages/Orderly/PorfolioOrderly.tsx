@@ -289,13 +289,13 @@ function PortfolioOrderly() {
     setTotalEstFinal(numberWithCommas(totalEstimate.toFixed(2)));
   };
 
-  useEffect(() => {
+  /* useEffect(() => {
     getFutureOrders();
-  }, [myPendingOrdersRefreshing, triggerPositionBasedData]);
+  }, [myPendingOrdersRefreshing]); */
 
-  // useEffect(() => {
-  //   getFutureOrders();
-  // }, [triggerPositionBasedData]);
+  useEffect(() => {
+   getFutureOrders();
+  }, [myPendingOrdersRefreshing, triggerPositionBasedData]);
 
   useEffect(() => {
     getTotalEst();
