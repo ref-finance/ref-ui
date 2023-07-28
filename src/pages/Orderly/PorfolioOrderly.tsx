@@ -64,6 +64,7 @@ function PortfolioOrderly() {
     handlePendingOrderRefreshing,
     validAccountSig,
     holdings,
+    myPendingOrdersRefreshing,
   } = useOrderlyContext();
   const isSignedIn = globalState.isSignedIn;
   const [maintenance, setMaintenance] = useState<boolean>(undefined);
@@ -283,7 +284,6 @@ function PortfolioOrderly() {
   };
 
   const getTotalEst = async () => {
-
     const totalEstimate = new Big(totalEst); /* .plus(futures_in_order) */
 
     setTotalEstFinal(numberWithCommas(totalEstimate.toFixed(2)));
@@ -291,11 +291,11 @@ function PortfolioOrderly() {
 
   useEffect(() => {
     getFutureOrders();
-  }, []);
+  }, [myPendingOrdersRefreshing]);
 
-  useEffect(() => {
-    getFutureOrders();
-  }, [triggerPositionBasedData]);
+  // useEffect(() => {
+  //   getFutureOrders();
+  // }, [triggerPositionBasedData]);
 
   useEffect(() => {
     getTotalEst();
