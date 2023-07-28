@@ -226,7 +226,10 @@ function RecordLine(
           {digitWrapperAsset(props.amount.toString(), 3)}
         </FlexRow>
 
-        <FlexRow className="col-span-1 justify-self-end relative right-14">
+        <FlexRow
+          className="col-span-1 justify-self-end relative right-14"
+          title={window.selectorAccountId}
+        >
           {getAccountName(window.selectorAccountId)}
         </FlexRow>
 
