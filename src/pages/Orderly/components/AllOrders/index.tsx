@@ -707,6 +707,7 @@ function OrderLine({
       size &&
       order.side === 'BUY' &&
       markPrice &&
+      symbolInfo?.price_scope &&
       new Big(price || 0).lt(
         new Big(markPrice.price || 0).mul(1 - symbolInfo.price_scope)
       )
