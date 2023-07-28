@@ -227,7 +227,7 @@ function RecordLine(
         </FlexRow>
 
         <FlexRow className="col-span-1 justify-self-end relative right-14">
-          {window.selectorAccountId}
+          {getAccountName(window.selectorAccountId)}
         </FlexRow>
 
         <div className="flex items-center relative right-8 justify-self-end">
