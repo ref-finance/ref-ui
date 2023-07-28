@@ -789,6 +789,7 @@ const viewMap = {
   Repay: Withdraw,
   Supply: AddLiquidity,
   Claim: Withdraw,
+  'Settle PnL': Swap,
 };
 
 const blackViewMap = {
@@ -842,6 +843,7 @@ const blackViewMap = {
   Repay: WithdrawBlack,
   Supply: AddLiquidityBlack,
   Claim: WithdrawBlack,
+  'Settle PnL': SwapBlack,
 };
 
 export function mapToView(action: string, black = false): JSX.Element {
