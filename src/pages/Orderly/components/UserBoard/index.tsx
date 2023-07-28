@@ -379,9 +379,10 @@ function UserBoardFoot() {
 
   return (
     <div
-      className="flex flex-col text-primaryText  whitespace-nowrap left-1/2 transform -translate-x-1/2   absolute  bottom-6 text-13px"
+      className="flex flex-col text-primaryText left-1/2 transform -translate-x-1/2   absolute  bottom-6 text-13px"
       style={{
         zIndex: 91,
+        width: '291px',
       }}
     >
       {!accountId && (
