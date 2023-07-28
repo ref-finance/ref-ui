@@ -61,7 +61,7 @@ function TableWithTabs({
   triggerPositionBasedData,
   setMobileFilterOpen,
   handleOpenClosing,
-  validAccountSig,
+  // validAccountSig,
   futureOrders,
   markPrices,
   lastPrices,
@@ -97,7 +97,7 @@ function TableWithTabs({
     closingPrice: number | 'Market',
     row: any
   ) => void;
-  validAccountSig: boolean;
+  validAccountSig?: boolean;
   futureOrders?: MyOrder[];
   markPrices: MarkPrice[];
   lastPrices?: {
@@ -119,8 +119,12 @@ function TableWithTabs({
     storageEnough,
     setValidAccountSig,
     handlePendingOrderRefreshing,
+    validAccountSig,
     userExist,
   } = useOrderlyContext();
+
+  console.log('validAccountSig: ', validAccountSig);
+
   const { accountId, modal } = useWalletSelector();
   const [registerModalOpen, setRegisterModalOpen] = useState<boolean>(false);
   const [openOrderCount, setOpenOrderCount] = useState<number>(0);
@@ -166,8 +170,10 @@ function TableWithTabs({
       });
   }, [accountId, storageEnough, agreeCheck]);
 
+  console.log('trading_key_set: ', tradingKeySet, keyAnnounced);
+
   useEffect(() => {
-    if (!tradingKeySet || !keyAnnounced) return;
+    if (!tradingKeySet) return;
 
     localStorage.setItem(REF_ORDERLY_ACCOUNT_VALID, '1');
     if (userExist) {
