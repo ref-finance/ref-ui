@@ -66,11 +66,11 @@ function TableWithTabs({
   markPrices,
   lastPrices,
   unrealMode,
-  tradingKeySet,
-  setTradingKeySet,
-  keyAnnounced,
-  setKeyAnnounced,
-}: {
+}: // tradingKeySet,
+// setTradingKeySet,
+// keyAnnounced,
+// setKeyAnnounced,
+{
   table: PortfolioTable;
   maintenance: boolean;
   refOnly?: boolean;
@@ -114,6 +114,10 @@ function TableWithTabs({
   const { marketList } = useMarketlist();
 
   const [agreeCheck, setAgreeCheck] = useState<boolean>(false);
+
+  const [tradingKeySet, setTradingKeySet] = useState<boolean>(false);
+  const [keyAnnounced, setKeyAnnounced] = useState<boolean>(false);
+  // const [agreeCheck, setAgreeCheck] = useState<boolean>(false);
 
   const {
     storageEnough,
@@ -173,7 +177,7 @@ function TableWithTabs({
   console.log('trading_key_set: ', tradingKeySet, keyAnnounced);
 
   useEffect(() => {
-    if (!tradingKeySet) return;
+    if (!tradingKeySet || !keyAnnounced) return;
 
     localStorage.setItem(REF_ORDERLY_ACCOUNT_VALID, '1');
     if (userExist) {
