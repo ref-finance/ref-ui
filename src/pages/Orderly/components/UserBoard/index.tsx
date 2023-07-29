@@ -379,7 +379,7 @@ function UserBoardFoot() {
 
   return (
     <div
-      className="flex flex-col text-primaryText left-1/2 transform -translate-x-1/2   absolute  bottom-6 text-13px"
+      className="flex flex-col text-primaryText left-1/2 transform -translate-x-1/2   absolute  bottom-0 text-13px"
       style={{
         zIndex: 91,
         width: '291px',
@@ -1076,7 +1076,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
   return (
     <div
-      className="w-full p-6 relative flex flex-col  border-t border-l border-b h-screen border-boxBorder  bg-black bg-opacity-10"
+      className={`w-full relative flex flex-col  border-t border-l border-b h-screen border-boxBorder bg-orderLineHover `}
       style={{
         minHeight: '775px',
         height: validator ? 'calc(100vh - 100px)' : '100%',
@@ -1174,637 +1174,626 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         </div>
       )}
 
-      <div className="text-sm text-white font-bold mb-4 text-left flex items-center justify-between">
-        <span>
-          {intl.formatMessage({ id: 'balances', defaultMessage: 'Balances' })}
-        </span>
+      {/* balances board */}
 
-        <div className="flex items-center">
-          <DepositButton
-            onClick={() => {
-              setOperationType('deposit');
-              setOperationId(tokenIn?.id || '');
-            }}
-          ></DepositButton>
+      <div className="px-6 pt-6 w-full flex  bg-perpCardBg flex-col">
+        <div className="text-sm text-white font-bold mb-4 text-left flex items-center justify-between">
+          <span>
+            {intl.formatMessage({ id: 'balances', defaultMessage: 'Balances' })}
+          </span>
 
-          <WithdrawButton
-            onClick={() => {
-              setOperationType('withdraw');
-              setOperationId(tokenIn?.id || '');
-            }}
-          ></WithdrawButton>
+          <div className="flex items-center">
+            <DepositButton
+              onClick={() => {
+                setOperationType('deposit');
+                setOperationId(tokenIn?.id || '');
+              }}
+            ></DepositButton>
+
+            <WithdrawButton
+              onClick={() => {
+                setOperationType('withdraw');
+                setOperationId(tokenIn?.id || '');
+              }}
+            ></WithdrawButton>
+          </div>
         </div>
-      </div>
 
-      <div className="grid grid-cols-4 text-sm text-primaryOrderly mb-2">
-        <span className="col-span-2  justify-self-start">
-          {' '}
-          {intl.formatMessage({
-            id: 'assets',
-            defaultMessage: 'Assets',
-          })}
-        </span>
-
-        <span className="justify-self-end flex items-center relative right-10">
-          {' '}
-          <NearIConSelectModal />{' '}
-          <span className="ml-2 whitespace-nowrap">
+        <div className="grid grid-cols-4 text-sm text-primaryOrderly mb-2">
+          <span className="col-span-2  justify-self-start">
+            {' '}
             {intl.formatMessage({
-              id: 'wallet_up',
-              defaultMessage: 'Wallet',
+              id: 'assets',
+              defaultMessage: 'Assets',
             })}
-          </span>{' '}
-        </span>
+          </span>
 
-        <span className="justify-self-end flex items-center">
-          <OrderlyIconBalance></OrderlyIconBalance>
-          <span className="ml-2 whitespace-nowrap">
-            {intl.formatMessage({
-              id: 'available_orderly',
-              defaultMessage: 'Available',
-            })}
-          </span>{' '}
-        </span>
-      </div>
+          <span className="justify-self-end flex items-center relative right-10">
+            {' '}
+            <NearIConSelectModal />{' '}
+            <span className="ml-2 whitespace-nowrap">
+              {intl.formatMessage({
+                id: 'wallet_up',
+                defaultMessage: 'Wallet',
+              })}
+            </span>{' '}
+          </span>
 
-      <div className="grid grid-cols-4 items-center mb-5 text-white text-sm justify-between">
-        <div className="flex items-center justify-self-start col-span-2">
-          <img
-            src={tokenIn?.icon}
-            alt=""
-            className="rounded-full w-6 h-6 mr-2"
-          />
-          <span>{symbolFrom}</span>
+          <span className="justify-self-end flex items-center">
+            <OrderlyIconBalance></OrderlyIconBalance>
+            <span className="ml-2 whitespace-nowrap">
+              {intl.formatMessage({
+                id: 'available_orderly',
+                defaultMessage: 'Available',
+              })}
+            </span>{' '}
+          </span>
         </div>
 
-        <div
-          className="justify-self-end relative right-10"
-          title={tokenFromBalance}
-        >
-          {!!tokenFromBalance ? digitWrapperAsset(tokenFromBalance, 2) : '-'}
-        </div>
+        <div className="grid grid-cols-4 items-center mb-5 text-white text-sm justify-between">
+          <div className="flex items-center justify-self-start col-span-2">
+            <img
+              src={tokenIn?.icon}
+              alt=""
+              className="rounded-full w-6 h-6 mr-2"
+            />
+            <span>{symbolFrom}</span>
+          </div>
 
-        <div
-          className="flex items-center justify-self-end"
-          title={
-            tokenInHolding !== undefined || tokenInHolding !== null
-              ? scientificNotationToString(tokenInHolding?.toString() || '')
-              : ''
-          }
-        >
-          {tokenInHolding ? digitWrapperAsset(tokenInHolding.toString(), 2) : 0}
-        </div>
-      </div>
+          <div
+            className="justify-self-end relative right-10"
+            title={tokenFromBalance}
+          >
+            {!!tokenFromBalance ? digitWrapperAsset(tokenFromBalance, 2) : '-'}
+          </div>
 
-      <div className=" items-center text-white text-sm justify-between grid grid-cols-4">
-        <div className="flex items-center justify-self-start col-span-2">
-          <img
-            src={tokenOut?.icon}
-            className="rounded-full w-6 h-6 mr-2"
-            alt=""
-          />
-          <span>{symbolTo}</span>
-        </div>
-
-        <div
-          className="justify-self-end relative right-10"
-          title={tokenToBalance}
-        >
-          {!!tokenToBalance ? digitWrapperAsset(tokenToBalance, 2) : ''}
-        </div>
-
-        <div
-          className="flex items-center justify-self-end"
-          title={
-            tokenOutHolding !== undefined || tokenOutHolding !== null
-              ? scientificNotationToString(tokenOutHolding?.toString() || '')
-              : ''
-          }
-        >
-          {tokenOutHolding
-            ? digitWrapperAsset(tokenOutHolding.toString(), 2)
-            : 0}
-        </div>
-      </div>
-
-      <div className="inline-flex text-primaryOrderly justify-end border-b border-white border-opacity-10 mt-3">
-        <span
-          className="text-sm py-1.5  mb-3 px-3 rounded-lg bg-symbolHover hover:text-white cursor-pointer"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            setShowAllAssets(true);
-          }}
-        >
-          {intl.formatMessage({
-            id: 'see_all',
-            defaultMessage: 'See all',
-          })}
-        </span>
-      </div>
-
-      {/* sell and buy button  */}
-      <div className="flex items-center justify-center mt-4 pb-3">
-        <BuyButton
-          onClick={() => {
-            setSide('Buy');
-          }}
-          select={side === 'Buy'}
-        />
-
-        <SellButton
-          onClick={() => {
-            setSide('Sell');
-          }}
-          select={side === 'Sell'}
-        />
-      </div>
-
-      {/*  order type  */}
-      <div className="flex items-center justify-between mt-6">
-        <span className="text-sm text-primaryOrderly flex items-center ">
-          {intl.formatMessage({
-            id: 'order_type',
-            defaultMessage: 'Order Type',
-          })}
-          <QuestionTip
-            id={`order_type_${orderType.toLowerCase()}_tip`}
-            defaultMessage={
-              orderType === 'Limit'
-                ? 'A limit order is an order to buy or sell at a specific price, or better. Limit orders are not guaranteed to execute'
-                : 'A market order is immediately matched to the best available market price, and executed'
+          <div
+            className="flex items-center justify-self-end"
+            title={
+              tokenInHolding !== undefined || tokenInHolding !== null
+                ? scientificNotationToString(tokenInHolding?.toString() || '')
+                : ''
             }
-            dataPlace="bottom"
-            textC="text-primaryText"
-          />
-        </span>
+          >
+            {tokenInHolding
+              ? digitWrapperAsset(tokenInHolding.toString(), 2)
+              : 0}
+          </div>
+        </div>
 
-        <div className="flex items-center">
+        <div className=" items-center text-white text-sm justify-between grid grid-cols-4">
+          <div className="flex items-center justify-self-start col-span-2">
+            <img
+              src={tokenOut?.icon}
+              className="rounded-full w-6 h-6 mr-2"
+              alt=""
+            />
+            <span>{symbolTo}</span>
+          </div>
+
+          <div
+            className="justify-self-end relative right-10"
+            title={tokenToBalance}
+          >
+            {!!tokenToBalance ? digitWrapperAsset(tokenToBalance, 2) : ''}
+          </div>
+
+          <div
+            className="flex items-center justify-self-end"
+            title={
+              tokenOutHolding !== undefined || tokenOutHolding !== null
+                ? scientificNotationToString(tokenOutHolding?.toString() || '')
+                : ''
+            }
+          >
+            {tokenOutHolding
+              ? digitWrapperAsset(tokenOutHolding.toString(), 2)
+              : 0}
+          </div>
+        </div>
+
+        <div className="inline-flex text-primaryOrderly justify-end  mt-3">
+          <span
+            className="text-sm py-1.5  mb-3 px-3 rounded-lg bg-symbolHover hover:text-white cursor-pointer"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setShowAllAssets(true);
+            }}
+          >
+            {intl.formatMessage({
+              id: 'see_all',
+              defaultMessage: 'See all',
+            })}
+          </span>
+        </div>
+      </div>
+
+      {/* operations board */}
+      <div className="flex flex-col w-full bg-orderLineHover">
+        <div className="frcb   px-6  bg-orderLineHover py-2.5 pb-2 border-b border-t border-white border-opacity-10 text-primaryText ">
           <button
-            className={`flex px-4 py-2 mr-2 rounded-lg items-center justify-center ${
-              orderType === 'Limit'
-                ? side === 'Buy'
-                  ? 'bg-buyGradientGreen'
-                  : 'bg-sellGradientRedReverse'
-                : 'bg-orderTypeBg'
-            }`}
+            className={`  w-1/2 frcc relative`}
             onClick={() => {
               setOrderType('Limit');
             }}
-            style={{
-              width: '80px',
-            }}
           >
             <span
-              className={`text-sm ${
-                orderType === 'Limit' ? 'text-white' : 'text-boxBorder'
-              } font-bold`}
+              className={`text-sm font-gothamBold ${
+                orderType === 'Limit' ? 'text-white ' : ''
+              } `}
             >
               {intl.formatMessage({
                 id: 'limit_orderly',
                 defaultMessage: 'Limit',
               })}
             </span>
+
+            {orderType === 'Limit' && (
+              <div
+                className={`w-full absolute -bottom-2 h-0.5  ${
+                  side == 'Buy' ? 'bg-gradientFromHover' : 'bg-sellRed'
+                }`}
+              ></div>
+            )}
           </button>
 
           <button
-            className={`flex px-4 py-2 items-center rounded-lg justify-center ${
-              orderType === 'Market'
-                ? side === 'Buy'
-                  ? 'bg-buyGradientGreen'
-                  : 'bg-sellGradientRedReverse'
-                : 'bg-orderTypeBg'
-            }`}
+            className={`  w-1/2 frcc relative`}
             onClick={() => {
               setOrderType('Market');
             }}
-            style={{
-              width: '80px',
-            }}
           >
             <span
-              className={`text-sm ${
-                orderType === 'Market' ? 'text-white' : 'text-boxBorder'
-              } font-bold`}
+              className={`text-sm font-gothamBold ${
+                orderType === 'Market' ? 'text-white ' : ''
+              } `}
             >
               {intl.formatMessage({
                 id: 'market',
                 defaultMessage: 'Market',
               })}
             </span>
+
+            {orderType === 'Market' && (
+              <div
+                className={`w-full absolute -bottom-2 h-0.5 ${
+                  side == 'Buy' ? 'bg-gradientFromHover' : 'bg-sellRed'
+                }`}
+              ></div>
+            )}
           </button>
         </div>
-      </div>
 
-      {/* input box */}
+        {/* sell and buy button  */}
+        <div className="flex px-6  items-center justify-center mt-6 ">
+          <BuyButton
+            onClick={() => {
+              setSide('Buy');
+            }}
+            select={side === 'Buy'}
+          />
 
-      {orderType === 'Limit' && (
-        <div className="w-full text-primaryOrderly mt-3 text-sm bg-black bg-opacity-10 rounded-xl border border-boxBorder p-3">
-          <div className="flex items-center justify-between">
-            <span>
+          <SellButton
+            onClick={() => {
+              setSide('Sell');
+            }}
+            select={side === 'Sell'}
+          />
+        </div>
+
+        {/* input box */}
+
+        {orderType === 'Limit' && (
+          <div className="mx-6  text-primaryOrderly mt-3 text-sm  bg-perpCardBg rounded-xl border border-boxBorder p-3">
+            <div className="flex items-center justify-between">
+              <span>
+                {intl.formatMessage({
+                  id: 'price',
+                  defaultMessage: 'Price',
+                })}
+              </span>
+
+              <span>
+                {symbolTo}/{symbolFrom}
+              </span>
+            </div>
+
+            <div className="flex items-center mt-3 justify-between">
+              <input
+                type="number"
+                step="any"
+                ref={inputLimitPriceRef}
+                onWheel={(e) =>
+                  inputLimitPriceRef.current
+                    ? inputLimitPriceRef.current?.blur()
+                    : null
+                }
+                min={0}
+                placeholder="0"
+                className="text-white text-left ml-2 text-xl w-full"
+                value={limitPrice}
+                onChange={(e) => {
+                  priceAndSizeValidator(e.target.value, inputValue);
+
+                  setLimitPrice(e.target.value);
+                }}
+                inputMode="decimal"
+                onKeyDown={(e) =>
+                  symbolsArr.includes(e.key) && e.preventDefault()
+                }
+              />
+            </div>
+          </div>
+        )}
+        {orderType === 'Market' && (
+          <div className="mx-6 bg-perpCardBg rounded-xl border border-boxBorder p-3 mt-3 text-sm flex items-center  justify-between">
+            <span className="text-primaryOrderly">
               {intl.formatMessage({
                 id: 'price',
                 defaultMessage: 'Price',
               })}
             </span>
 
-            <span>
-              {symbolTo}/{symbolFrom}
+            <span className="text-white">
+              {' '}
+              {intl.formatMessage({
+                id: 'market_price',
+                defaultMessage: 'Market price',
+              })}
             </span>
           </div>
+        )}
 
-          <div className="flex items-center mt-3 justify-between">
+        <div className="mx-6  text-primaryOrderly mt-3 bg-perpCardBg text-sm  rounded-xl border border-boxBorder p-3">
+          <div className="mb-2 text-left flex items-center justify-between">
+            <span>
+              {intl.formatMessage({
+                id: 'quantity',
+                defaultMessage: 'Quantity',
+              })}
+            </span>
+
+            <span className="">{symbolFrom}</span>
+          </div>
+
+          <div className="flex items-center mt-2">
             <input
+              autoFocus
+              inputMode="decimal"
+              ref={inputAmountRef}
+              onWheel={(e) =>
+                inputAmountRef.current ? inputAmountRef.current.blur() : null
+              }
+              className="text-white ml-2 text-xl w-full"
+              value={inputValue}
+              placeholder="0"
               type="number"
               step="any"
-              ref={inputLimitPriceRef}
-              onWheel={(e) =>
-                inputLimitPriceRef.current
-                  ? inputLimitPriceRef.current?.blur()
-                  : null
-              }
               min={0}
-              placeholder="0"
-              className="text-white text-left ml-2 text-xl w-full"
-              value={limitPrice}
               onChange={(e) => {
-                priceAndSizeValidator(e.target.value, inputValue);
+                priceAndSizeValidator(
+                  orderType === 'Limit' ? limitPrice : marketPrice.toString(),
+                  e.target.value
+                );
 
-                setLimitPrice(e.target.value);
+                setInputValue(e.target.value);
               }}
-              inputMode="decimal"
               onKeyDown={(e) =>
                 symbolsArr.includes(e.key) && e.preventDefault()
               }
             />
+
+            <span
+              className="bg-menuMoreBgColor rounded-md px-2 py-0.5 text-primaryText cursor-pointer hover:opacity-70"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                if (
+                  orderType === 'Limit' &&
+                  new Big(limitPrice || 0).lte(0) &&
+                  side === 'Buy'
+                ) {
+                  return;
+                }
+                const symbolInfo = availableSymbols?.find(
+                  (s) => s.symbol === symbol
+                );
+
+                if (!symbolInfo) {
+                  return;
+                }
+
+                const maxAmount =
+                  side === 'Sell'
+                    ? tokenInHolding || 0
+                    : new Big(tokenOutHolding || 0)
+                        .div(
+                          orderType === 'Market' ? marketPrice : limitPrice || 1
+                        )
+                        .toNumber();
+
+                const displayAmount = new Big(maxAmount || 0)
+                  .div(new Big(symbolInfo.base_tick))
+                  .round(0, 0)
+                  .times(new Big(symbolInfo.base_tick))
+                  .toString();
+
+                setInputValue(displayAmount);
+
+                priceAndSizeValidator(
+                  orderType == 'Market' ? marketPrice.toString() : limitPrice,
+                  displayAmount,
+                  'maxinput'
+                );
+              }}
+            >
+              Max
+            </span>
           </div>
         </div>
-      )}
-      {orderType === 'Market' && (
-        <div className="w-full rounded-xl border border-boxBorder p-3 mt-3 text-sm flex items-center justify-between">
-          <span className="text-primaryOrderly">
-            {intl.formatMessage({
-              id: 'price',
-              defaultMessage: 'Price',
-            })}
-          </span>
 
-          <span className="text-white">
-            {' '}
-            {intl.formatMessage({
-              id: 'market_price',
-              defaultMessage: 'Market price',
-            })}
-          </span>
-        </div>
-      )}
+        {/* limit order advance mode */}
 
-      <div className="w-full text-primaryOrderly mt-3 bg-black text-sm bg-opacity-10 rounded-xl border border-boxBorder p-3">
-        <div className="mb-2 text-left flex items-center justify-between">
-          <span>
-            {intl.formatMessage({
-              id: 'quantity',
-              defaultMessage: 'Quantity',
-            })}
-          </span>
+        {orderType === 'Limit' && (
+          <div className="text-white text-sm mt-2 px-6 ">
+            <div className="flex items-center justify-between">
+              <span className="text-primaryOrderly">
+                {' '}
+                {intl.formatMessage({
+                  id: 'advanced',
+                  defaultMessage: 'Advanced',
+                })}
+              </span>
 
-          <span className="">{symbolFrom}</span>
-        </div>
+              <span
+                className={`${
+                  showLimitAdvance ? 'text-white' : 'text-primaryOrderly'
+                } cursor-pointer `}
+                onClick={() => {
+                  setShowLimitAdvance(!showLimitAdvance);
+                }}
+              >
+                {showLimitAdvance ? <IoIosArrowUp /> : <IoIosArrowDown />}
+              </span>
+            </div>
 
-        <div className="flex items-center mt-2">
-          <input
-            autoFocus
-            inputMode="decimal"
-            ref={inputAmountRef}
-            onWheel={(e) =>
-              inputAmountRef.current ? inputAmountRef.current.blur() : null
-            }
-            className="text-white ml-2 text-xl w-full"
-            value={inputValue}
-            placeholder="0"
-            type="number"
-            step="any"
-            min={0}
-            onChange={(e) => {
-              priceAndSizeValidator(
-                orderType === 'Limit' ? limitPrice : marketPrice.toString(),
-                e.target.value
-              );
+            <div
+              className={`flex mt-2 items-center justify-between ${
+                showLimitAdvance ? '' : 'hidden'
+              }`}
+            >
+              <div className="flex items-center">
+                <CheckBox
+                  check={advanceLimitMode === 'IOC'}
+                  setCheck={() => {
+                    if (advanceLimitMode === 'IOC') {
+                      setAdvanceLimitMode(undefined);
+                    } else {
+                      setAdvanceLimitMode('IOC');
+                    }
+                  }}
+                ></CheckBox>
+                <span
+                  className="ml-2 mr-1 cursor-pointer"
+                  onClick={() => {
+                    if (advanceLimitMode === 'IOC') {
+                      setAdvanceLimitMode(undefined);
+                    } else {
+                      setAdvanceLimitMode('IOC');
+                    }
+                  }}
+                >
+                  IOC
+                </span>
 
-              setInputValue(e.target.value);
-            }}
-            onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
-          />
+                <div
+                  data-class="reactTip"
+                  data-for={'user_board_ioc'}
+                  data-html={true}
+                  data-place={'top'}
+                  data-tip={getTipIoc()}
+                >
+                  <QuestionMark></QuestionMark>
 
-          <span
-            className="bg-menuMoreBgColor rounded-md px-2 py-0.5 text-primaryText cursor-pointer hover:opacity-70"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
+                  <ReactTooltip
+                    id={'user_board_ioc'}
+                    backgroundColor="#1D2932"
+                    place="right"
+                    border
+                    borderColor="#7e8a93"
+                    textColor="#C6D1DA"
+                    effect="solid"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center">
+                <CheckBox
+                  check={advanceLimitMode === 'FOK'}
+                  setCheck={() => {
+                    if (advanceLimitMode === 'FOK') {
+                      setAdvanceLimitMode(undefined);
+                    } else {
+                      setAdvanceLimitMode('FOK');
+                    }
+                  }}
+                ></CheckBox>
+                <span
+                  className="cursor-pointer ml-2 mr-1"
+                  onClick={() => {
+                    if (advanceLimitMode === 'FOK') {
+                      setAdvanceLimitMode(undefined);
+                    } else {
+                      setAdvanceLimitMode('FOK');
+                    }
+                  }}
+                >
+                  FOK
+                </span>
 
-              if (
-                orderType === 'Limit' &&
-                new Big(limitPrice || 0).lte(0) &&
-                side === 'Buy'
-              ) {
-                return;
-              }
-              const symbolInfo = availableSymbols?.find(
-                (s) => s.symbol === symbol
-              );
+                <div
+                  data-class="reactTip"
+                  data-for={'user_board_folk'}
+                  data-html={true}
+                  data-place={'top'}
+                  data-tip={getTipFOK()}
+                >
+                  <QuestionMark></QuestionMark>
 
-              if (!symbolInfo) {
-                return;
-              }
+                  <ReactTooltip
+                    id={'user_board_folk'}
+                    backgroundColor="#1D2932"
+                    place="right"
+                    border
+                    borderColor="#7e8a93"
+                    textColor="#C6D1DA"
+                    effect="solid"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center">
+                <CheckBox
+                  check={advanceLimitMode === 'POST_ONLY'}
+                  setCheck={() => {
+                    if (advanceLimitMode === 'POST_ONLY') {
+                      setAdvanceLimitMode(undefined);
+                    } else {
+                      setAdvanceLimitMode('POST_ONLY');
+                    }
+                  }}
+                ></CheckBox>
+                <span
+                  className="ml-2 mr-1 cursor-pointer"
+                  onClick={() => {
+                    if (advanceLimitMode === 'POST_ONLY') {
+                      setAdvanceLimitMode(undefined);
+                    } else {
+                      setAdvanceLimitMode('POST_ONLY');
+                    }
+                  }}
+                >
+                  Post-only
+                </span>
 
-              const maxAmount =
-                side === 'Sell'
-                  ? tokenInHolding || 0
-                  : new Big(tokenOutHolding || 0)
-                      .div(
-                        orderType === 'Market' ? marketPrice : limitPrice || 1
-                      )
-                      .toNumber();
+                <div
+                  data-class="reactTip"
+                  data-for={'user_board_post_only'}
+                  data-html={true}
+                  data-place={'top'}
+                  data-tip={getTipPostOnly()}
+                >
+                  <QuestionMark></QuestionMark>
 
-              const displayAmount = new Big(maxAmount || 0)
-                .div(new Big(symbolInfo.base_tick))
-                .round(0, 0)
-                .times(new Big(symbolInfo.base_tick))
-                .toString();
+                  <ReactTooltip
+                    id={'user_board_post_only'}
+                    backgroundColor="#1D2932"
+                    place="right"
+                    border
+                    borderColor="#7e8a93"
+                    textColor="#C6D1DA"
+                    effect="solid"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
-              setInputValue(displayAmount);
+        {showErrorTip && (
+          <ErrorTip className={'relative top-3 px-6 '} text={errorTipMsg} />
+        )}
 
-              priceAndSizeValidator(
-                orderType == 'Market' ? marketPrice.toString() : limitPrice,
-                displayAmount,
-                'maxinput'
-              );
-            }}
-          >
-            Max
-          </span>
-        </div>
-      </div>
-
-      {/* limit order advance mode */}
-
-      {orderType === 'Limit' && (
-        <div className="text-white text-sm mt-2">
+        <div className="mt-6 px-6  rounded-lg text-sm  pt-1 relative z-10 pb-6">
           <div className="flex items-center justify-between">
             <span className="text-primaryOrderly">
-              {' '}
               {intl.formatMessage({
-                id: 'advanced',
-                defaultMessage: 'Advanced',
+                id: 'Fees',
+                defaultMessage: 'Fees',
               })}
             </span>
 
-            <span
-              className={`${
-                showLimitAdvance ? 'text-white' : 'text-primaryOrderly'
-              } cursor-pointer `}
-              onClick={() => {
-                setShowLimitAdvance(!showLimitAdvance);
-              }}
-            >
-              {showLimitAdvance ? <IoIosArrowUp /> : <IoIosArrowDown />}
-            </span>
+            <FlexRow className="">
+              <span className="flex items-center mr-1.5">
+                <span className=" mr-2 text-white">
+                  {Number((userInfo?.taker_fee_rate || 0) / 100).toFixed(2)}%
+                </span>
+                <TextWrapper
+                  textC="text-primaryText "
+                  className="text-xs py-0 px-1"
+                  value={intl.formatMessage({
+                    id: 'Taker',
+                    defaultMessage: 'Taker',
+                  })}
+                ></TextWrapper>
+              </span>
+
+              <span className="flex items-center">
+                <span className=" mr-2 text-white">
+                  {Number((userInfo?.maker_fee_rate || 0) / 100).toFixed(2)}%
+                </span>
+                <TextWrapper
+                  textC="text-primaryText"
+                  value={intl.formatMessage({
+                    id: 'Maker',
+                    defaultMessage: 'Maker',
+                  })}
+                  className="text-xs py-0 px-1"
+                ></TextWrapper>
+              </span>
+            </FlexRow>
           </div>
 
-          <div
-            className={`flex mt-2 items-center justify-between ${
-              showLimitAdvance ? '' : 'hidden'
-            }`}
-          >
-            <div className="flex items-center">
-              <CheckBox
-                check={advanceLimitMode === 'IOC'}
-                setCheck={() => {
-                  if (advanceLimitMode === 'IOC') {
-                    setAdvanceLimitMode(undefined);
-                  } else {
-                    setAdvanceLimitMode('IOC');
-                  }
-                }}
-              ></CheckBox>
-              <span
-                className="ml-2 mr-1 cursor-pointer"
-                onClick={() => {
-                  if (advanceLimitMode === 'IOC') {
-                    setAdvanceLimitMode(undefined);
-                  } else {
-                    setAdvanceLimitMode('IOC');
-                  }
-                }}
-              >
-                IOC
-              </span>
-
-              <div
-                data-class="reactTip"
-                data-for={'user_board_ioc'}
-                data-html={true}
-                data-place={'top'}
-                data-tip={getTipIoc()}
-              >
-                <QuestionMark></QuestionMark>
-
-                <ReactTooltip
-                  id={'user_board_ioc'}
-                  backgroundColor="#1D2932"
-                  place="right"
-                  border
-                  borderColor="#7e8a93"
-                  textColor="#C6D1DA"
-                  effect="solid"
-                />
-              </div>
-            </div>
-            <div className="flex items-center">
-              <CheckBox
-                check={advanceLimitMode === 'FOK'}
-                setCheck={() => {
-                  if (advanceLimitMode === 'FOK') {
-                    setAdvanceLimitMode(undefined);
-                  } else {
-                    setAdvanceLimitMode('FOK');
-                  }
-                }}
-              ></CheckBox>
-              <span
-                className="cursor-pointer ml-2 mr-1"
-                onClick={() => {
-                  if (advanceLimitMode === 'FOK') {
-                    setAdvanceLimitMode(undefined);
-                  } else {
-                    setAdvanceLimitMode('FOK');
-                  }
-                }}
-              >
-                FOK
-              </span>
-
-              <div
-                data-class="reactTip"
-                data-for={'user_board_folk'}
-                data-html={true}
-                data-place={'top'}
-                data-tip={getTipFOK()}
-              >
-                <QuestionMark></QuestionMark>
-
-                <ReactTooltip
-                  id={'user_board_folk'}
-                  backgroundColor="#1D2932"
-                  place="right"
-                  border
-                  borderColor="#7e8a93"
-                  textColor="#C6D1DA"
-                  effect="solid"
-                />
-              </div>
-            </div>
-            <div className="flex items-center">
-              <CheckBox
-                check={advanceLimitMode === 'POST_ONLY'}
-                setCheck={() => {
-                  if (advanceLimitMode === 'POST_ONLY') {
-                    setAdvanceLimitMode(undefined);
-                  } else {
-                    setAdvanceLimitMode('POST_ONLY');
-                  }
-                }}
-              ></CheckBox>
-              <span
-                className="ml-2 mr-1 cursor-pointer"
-                onClick={() => {
-                  if (advanceLimitMode === 'POST_ONLY') {
-                    setAdvanceLimitMode(undefined);
-                  } else {
-                    setAdvanceLimitMode('POST_ONLY');
-                  }
-                }}
-              >
-                Post-only
-              </span>
-
-              <div
-                data-class="reactTip"
-                data-for={'user_board_post_only'}
-                data-html={true}
-                data-place={'top'}
-                data-tip={getTipPostOnly()}
-              >
-                <QuestionMark></QuestionMark>
-
-                <ReactTooltip
-                  id={'user_board_post_only'}
-                  backgroundColor="#1D2932"
-                  place="right"
-                  border
-                  borderColor="#7e8a93"
-                  textColor="#C6D1DA"
-                  effect="solid"
-                />
-              </div>
-            </div>
+          <div className="flex items-center mt-2 justify-between">
+            <span className="text-primaryOrderly">
+              {intl.formatMessage({
+                id: 'total',
+                defaultMessage: 'Total',
+              })}
+            </span>
+            <span className="text-white">
+              {total === '-' ? '-' : digitWrapper(total.toString(), 3)}{' '}
+              {` ${symbolTo}`}
+            </span>
           </div>
         </div>
-      )}
 
-      {showErrorTip && (
-        <ErrorTip className={'relative top-3'} text={errorTipMsg} />
-      )}
+        <button
+          className={`rounded-lg mx-6 ${
+            isInsufficientBalance
+              ? 'bg-errorTip'
+              : side === 'Buy'
+              ? 'bg-buyGradientGreen'
+              : 'bg-sellGradientRed'
+          } ${
+            isInsufficientBalance
+              ? 'text-redwarningColor cursor-not-allowed'
+              : 'text-white'
+          }  py-2.5 relative bottom-3  flex z-20 items-center justify-center text-base ${
+            submitDisable || showErrorTip ? 'opacity-60 cursor-not-allowed' : ''
+          } `}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            // handleSubmit();
 
-      <div className="mt-6  rounded-lg text-sm px-0 pt-1 relative z-10 pb-6">
-        <div className="flex items-center justify-between">
-          <span className="text-primaryOrderly">
-            {intl.formatMessage({
-              id: 'Fees',
-              defaultMessage: 'Fees',
-            })}
-          </span>
-
-          <FlexRow className="">
-            <span className="flex items-center mr-1.5">
-              <span className=" mr-2 text-white">
-                {Number((userInfo?.taker_fee_rate || 0) / 100).toFixed(2)}%
-              </span>
-              <TextWrapper
-                textC="text-primaryText "
-                className="text-xs py-0 px-1"
-                value={intl.formatMessage({
-                  id: 'Taker',
-                  defaultMessage: 'Taker',
-                })}
-              ></TextWrapper>
-            </span>
-
-            <span className="flex items-center">
-              <span className=" mr-2 text-white">
-                {Number((userInfo?.maker_fee_rate || 0) / 100).toFixed(2)}%
-              </span>
-              <TextWrapper
-                textC="text-primaryText"
-                value={intl.formatMessage({
-                  id: 'Maker',
-                  defaultMessage: 'Maker',
-                })}
-                className="text-xs py-0 px-1"
-              ></TextWrapper>
-            </span>
-          </FlexRow>
-        </div>
-
-        <div className="flex items-center mt-2 justify-between">
-          <span className="text-primaryOrderly">
-            {intl.formatMessage({
-              id: 'total',
-              defaultMessage: 'Total',
-            })}
-          </span>
-          <span className="text-white">
-            {total === '-' ? '-' : digitWrapper(total.toString(), 3)}{' '}
-            {` ${symbolTo}`}
-          </span>
-        </div>
+            setConfirmModalOpen(true);
+          }}
+          disabled={submitDisable || isInsufficientBalance || showErrorTip}
+          type="button"
+        >
+          {isInsufficientBalance
+            ? intl.formatMessage({
+                id: 'insufficient_balance',
+                defaultMessage: 'Insufficient Balance',
+              })
+            : intl.formatMessage({
+                id: side.toLowerCase(),
+                defaultMessage: side,
+              })}
+          {` ${isInsufficientBalance ? '' : symbolFrom}`}
+        </button>
       </div>
-
-      <button
-        className={`rounded-lg ${
-          isInsufficientBalance
-            ? 'bg-errorTip'
-            : side === 'Buy'
-            ? 'bg-buyGradientGreen'
-            : 'bg-sellGradientRed'
-        } ${
-          isInsufficientBalance
-            ? 'text-redwarningColor cursor-not-allowed'
-            : 'text-white'
-        }  py-2.5 relative bottom-3  flex z-20 items-center justify-center text-base ${
-          submitDisable || showErrorTip ? 'opacity-60 cursor-not-allowed' : ''
-        } `}
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          // handleSubmit();
-
-          setConfirmModalOpen(true);
-        }}
-        disabled={submitDisable || isInsufficientBalance || showErrorTip}
-        type="button"
-      >
-        {isInsufficientBalance
-          ? intl.formatMessage({
-              id: 'insufficient_balance',
-              defaultMessage: 'Insufficient Balance',
-            })
-          : intl.formatMessage({
-              id: side.toLowerCase(),
-              defaultMessage: side,
-            })}
-        {` ${isInsufficientBalance ? '' : symbolFrom}`}
-      </button>
 
       <UserBoardFoot />
 
