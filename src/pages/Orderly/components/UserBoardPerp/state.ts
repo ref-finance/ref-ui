@@ -195,7 +195,7 @@ export function usePerpData(deps?: {
 
   const newPositions = useMemo(() => {
     try {
-      const calcPositions = positions.rows.map((item) => {
+      let calcPositions = positions.rows.map((item) => {
         const push = positionPush?.find((i) => i.symbol === item.symbol);
 
         if (push) {
@@ -220,6 +220,43 @@ export function usePerpData(deps?: {
           return item;
         }
       });
+
+      const pushSymbols = positionPush?.map((p) => p.symbol) || [];
+
+      const positionSymbols = positions.rows.map((p) => p.symbol);
+
+      const diffSymbols = pushSymbols.filter(
+        (p) => !positionSymbols.includes(p)
+      );
+
+      if (diffSymbols && diffSymbols.length > 0) {
+        diffSymbols.forEach((s) => {
+          const item = positionPush?.find((p) => p.symbol === s);
+
+          if (item) {
+            calcPositions.push({
+              ...item,
+              position_qty: item.positionQty,
+              pending_long_qty: item.pendingLongQty,
+              pending_short_qty: item.pendingShortQty,
+              unsettled_pnl: item.unsettledPnl,
+              mark_price: item.markPrice,
+              average_open_price: item.averageOpenPrice,
+              mmr: item.mmr,
+              imr: item.imr,
+              est_liq_price: item.estLiqPrice,
+              timestamp: Date.now(),
+              IMR_withdraw_orders: item.imrwithOrders,
+              MMR_with_orders: item.mmrwithOrders,
+              last_sum_unitary_funding: item.lastSumUnitaryFunding,
+              pnl_24_h: item.pnl24H,
+              fee_24_h: item.fee24H,
+              cost_position: item.costPosition,
+              settle_price: item.settlePrice,
+            });
+          }
+        });
+      }
 
       positions.rows = calcPositions;
 
