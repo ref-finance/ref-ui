@@ -125,6 +125,16 @@ export function getTranslateList(
         defaultMessage: 'Rejected',
       }),
       Both: intl.formatMessage({ id: 'both', defaultMessage: 'Both' }),
+
+      New: intl.formatMessage({
+        id: 'new_orderly',
+        defaultMessage: 'New',
+      }),
+
+      'Partial Filled': intl.formatMessage({
+        id: 'partial_filled',
+        defaultMessage: 'Partial Filled',
+      }),
     },
     instrument: {
       All: intl.formatMessage({
@@ -2733,6 +2743,9 @@ function OpenOrders({
   const [chooseMarketSymbol, setChooseMarketSymbol] = useState<string>(
     showCurSymbol && !isMobile() ? symbol : 'all_markets'
   );
+  const [chooseStatus, setChooseStatus] = useState<
+    'All' | 'New' | 'Partial Filled'
+  >('All');
 
   const [showMarketSelector, setShowMarketSelector] = useState<boolean>(false);
 
@@ -2741,10 +2754,11 @@ function OpenOrders({
 
     const count =
       (chooseMarketSymbol !== 'all_markets' ? 1 : 0) +
-      (chooseSide !== 'Both' ? 1 : 0);
+      (chooseSide !== 'Both' ? 1 : 0) +
+      (chooseStatus !== 'All' ? 1 : 0);
 
     setMobileFilterSize(count);
-  }, [chooseMarketSymbol, chooseSide, tab]);
+  }, [chooseMarketSymbol, chooseSide, tab, chooseStatus]);
 
   const [timeSorting, setTimeSorting] = useState<'asc' | 'dsc'>(
     loading ? undefined : 'dsc'
@@ -2778,7 +2792,12 @@ function OpenOrders({
       (order.type === 'LIMIT' && chooseType === 'Limit') ||
       (order.type === 'POST_ONLY' && chooseType === 'Post Only');
 
-    return a && b && c;
+    const d =
+      chooseStatus === 'All' ||
+      (order.status === 'NEW' && chooseStatus === 'New') ||
+      (chooseStatus === 'Partial Filled' && order.status === 'PARTIAL_FILLED');
+
+    return a && b && c && d;
   };
 
   useEffect(() => {
@@ -3004,6 +3023,21 @@ function OpenOrders({
                   className="ml-2 flex items-center justify-center rounded-full w-4 h-4 bg-mobileOrderListTab text-primaryText"
                   onClick={() => {
                     setChooseSide('Both');
+                  }}
+                >
+                  <IoIosClose></IoIosClose>
+                </span>
+              </div>
+            )}
+
+            {chooseStatus !== 'All' && (
+              <div className="flex items-center mr-2">
+                <span>{getTranslateList('status')[chooseStatus]}</span>
+
+                <span
+                  className="ml-2 flex items-center justify-center rounded-full w-4 h-4 bg-mobileOrderListTab text-primaryText"
+                  onClick={() => {
+                    setChooseStatus('All');
                   }}
                 >
                   <IoIosClose></IoIosClose>
@@ -3347,6 +3381,9 @@ function OpenOrders({
           setChooseMarketSymbol(value);
         }}
         setShowCurSymbol={setShowCurSymbol}
+        statusList={['All', 'New', 'Partial Filled']}
+        setStatus={setChooseStatus}
+        curStatus={chooseStatus}
       ></MobileFilterModal>
     </>
   );
