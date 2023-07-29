@@ -2280,7 +2280,7 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
           defaultMessage: 'Price should be greater than or equal to',
         })} ${new Big(orders.bids?.[0]?.[0] || 0)
           .times(1 - symbolInfo.price_range)
-          .toFixed(symbolInfo.quote_tick)}`
+          .toFixed(tickToPrecision(symbolInfo.quote_tick))}`
       );
 
       return;
