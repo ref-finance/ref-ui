@@ -368,7 +368,7 @@ export const usePortableOrderlyTable = ({
         tableRowType: 'card',
         tableRowEmpty: 'no_orders_found',
         mobileRender: (order) => {
-          const { symbol, side, created_time, price, average_executed_price, quantity, executed, broker_name } = order
+          const { symbol, side, created_time, price, average_executed_price, quantity, executed, broker_name, status } = order
 
           return (
             <div
@@ -390,7 +390,7 @@ export const usePortableOrderlyTable = ({
               <div className="w-4/12 inline-block text-right">
                 <div className={`p-0.5 text-xs my-1 flex justify-end items-center`}>
                   <span className="mr-1">
-                    {(executed / (quantity || executed) * 100).toFixed(0)}% filled
+                    {((!quantity && status === 'CANCELLED' ? 0 : executed || 0) / (quantity || executed) * 100).toFixed(0)}% filled
                   </span>
 
                   <div className="flex justify-end items-center relative">
@@ -421,8 +421,8 @@ export const usePortableOrderlyTable = ({
                           })}
                           background={false}
                           strokeWidth={50}
-                          value={executed || 0}
-                          maxValue={quantity}
+                          value={!quantity && status === 'CANCELLED' ? 0 : executed || 0}
+                          maxValue={quantity || executed}
                         />
                       </div>
                     </div>
@@ -526,17 +526,21 @@ export const usePortableOrderlyTable = ({
             key: 'fill_qty',
             header: 'Fill / Qty',
             colSpan: 3,
-            render: ({ executed, quantity, side }) => (
+            render: ({ executed, quantity, side, status }) => (
               <div>
                 <span className={`text-sm ${side === 'BUY' ? 'text-buyGreen' : 'text-sellColorNew'}`}>{`${executed} / ${quantity || executed}`}</span>
-                <ProgressBar value={executed} total={quantity} color={side === 'BUY' ? '#00D6AF' : '#E14B8A'} />
+                <ProgressBar
+                  value={!quantity && status === 'CANCELLED' ? 0 : executed}
+                  total={quantity || executed}
+                  color={side === 'BUY' ? '#00D6AF' : '#E14B8A'}
+                />
               </div>
             )
           },
           { key: '@price', colSpan: 2, header: '@Price', render: ({ price, average_executed_price, symbol }) => (price || average_executed_price) || '-'  },
           { key: 'avg_price', colSpan: 2, header: 'Avg.Price', render: ({ average_executed_price, symbol }) => average_executed_price || '-' },
           { key: 'est_total', colSpan: 2, header: 'Est.Total', render: ({ price, average_executed_price, quantity, executed }) => Math.floor(((price || average_executed_price) * (quantity || executed)))?.toFixed(0)},
-          { key: 'status', colSpan: 2, header: 'Status', render: ({ status }) =>  <span className='capitalize'>{status.toLocaleLowerCase()}</span> },
+          { key: 'status', colSpan: 3, header: 'Status', render: ({ status }) =>  <span className='capitalize'>{status.toLocaleLowerCase()}</span> },
           {
             key: 'create',
             header: 'Created',
