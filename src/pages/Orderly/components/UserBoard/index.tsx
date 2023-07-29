@@ -1366,7 +1366,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         </div>
 
         {/* sell and buy button  */}
-        <div className="flex px-6  items-center justify-center mt-6 ">
+        <div className="flex px-6  items-center justify-center mt-6 pb-3">
           <BuyButton
             onClick={() => {
               setSide('Buy');
