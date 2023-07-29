@@ -50,7 +50,7 @@ function Footer() {
 
   return (
     <>
-      <div className="absolute w-full bottom-6 xs:bottom-0 md:bottom-0">
+      <div className="absolute w-full bottom-6 xs:bottom-20 md:bottom-20">
         <footer className="flex items-center justify-center pl-9 pr-9 xs:pb-9 md:pb-9">
           <div className="fixed left-8 bottom-5 md:hidden xs:hidden">
             <div className="flex items-center bg-cardBg rounded-2xl p-0.5 w-24">

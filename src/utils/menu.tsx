@@ -479,7 +479,7 @@ export const useMenus = (cb?: () => void) => {
               <FormattedMessage id="Orderly" />
             </>
           ),
-          logo: <OrderlyIcon />,
+          renderLogo: ({ activeMenu }: { activeMenu: boolean }) => <OrderlyIcon activeMenu={activeMenu} />,
           url: '/orderly',
           isExternal: false,
           links: ['/orderly'],
@@ -823,7 +823,7 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
         {
           id: '3-3',
           label: <FormattedMessage id="Orderly" />,
-          logo: <OrderlyIcon />,
+          renderLogo: ({ activeMenu }: { activeMenu: boolean }) => <OrderlyIcon activeMenu={activeMenu} />,
           url: '/orderly',
           isExternal: false,
           links: ['/orderly'],
@@ -1107,6 +1107,7 @@ export interface menuItemType {
   id?: string;
   label: JSX.Element;
   logo?: JSX.Element;
+  renderLogo?: (prop: any) => JSX.Element;
   url?: string;
   isExternal?: boolean;
   children?: menuItemType[];

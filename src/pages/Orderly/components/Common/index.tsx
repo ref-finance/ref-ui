@@ -1043,36 +1043,24 @@ export function orderEditPopUpFailure({ tip }: { tip: string }) {
 }
 
 export function usePortfolioFailure() {
-  const toastId = useRef(null);
-  const [toastOpen, setToastOpen] = useState(false);
   const mobileDevice = isMobile();
-  const toastTimerRef = useRef(null);
-
-  const clearToastTimer = () => {
-    if (toastTimerRef.current) {
-      clearTimeout(toastTimerRef.current);
-    }
-  };
 
   const openToast = ({ tip }: { tip: string }) => {
-    clearToastTimer();
-    setToastOpen(true);
 
-    toastId.current = toast(
+    toast(
       <div className={`flex-col flex px-2  text-sm   w-full`}>
         <span className="text-textRed">{tip}</span>
         <div className="absolute w-1 bg-textRed bottom-0 h-full left-0"></div>
       </div>,
       {
+        toastId: "future-error",
         closeOnClick: true,
         hideProgressBar: true,
         position: mobileDevice ? 'top-center' : 'bottom-right',
         autoClose: 3000,
-        onClose: () => {
-          setToastOpen(false);
-        },
         // autoClose: false,
         closeButton: false,
+        
         style: {
           boxShadow: '0px -5px 10px rgba(0, 0, 0, 0.25)',
           borderRadius: '4px',
@@ -1090,14 +1078,10 @@ export function usePortfolioFailure() {
       }
     );
 
-    // Close the toast after 3000ms (autoClose time)
-    toastTimerRef.current = setTimeout(() => {
-      setToastOpen(false);
-    }, 3000);
   };
 
   const updateToast = ({ tip }: { tip: string }) =>
-    toast.update(toastId.current, {
+    toast.update("future-error", {
       render: () => (
         <div className={`flex-col flex px-2  text-sm   w-full`}>
           <span className="text-textRed">{tip}</span>
@@ -1109,8 +1093,7 @@ export function usePortfolioFailure() {
     });
 
   const onToast = ({ tip }: { tip: string }) => {
-    if (!toastOpen) {
-      setToastOpen(true);
+    if (!toast.isActive("future-error")) {
       openToast({ tip });
     } else {
       updateToast({ tip });

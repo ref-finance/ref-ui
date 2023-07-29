@@ -493,6 +493,9 @@ module.exports = {
         gothamBold: "'gothamBold', sans-serif",
       },
     },
+    minHeight: {
+      '80': '350px',
+    },
     plugins: [],
   },
   variants: {
