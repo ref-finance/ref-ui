@@ -119,11 +119,12 @@ function TableWithTabs({
   const [tradingKeySet, setTradingKeySet] = useState<boolean>(false);
   const [keyAnnounced, setKeyAnnounced] = useState<boolean>(false);
   // const [agreeCheck, setAgreeCheck] = useState<boolean>(false);
-  
+
   useEffect(() => {
     const rootElement = document.getElementById('root');
     if (rootElement) {
-      rootElement.style.background = 'linear-gradient(180deg, #15222B 0%, #001320 100%)';
+      rootElement.style.background =
+        'linear-gradient(180deg, #15222B 0%, #001320 100%)';
     }
 
     // Clean up function to remove the background style when the component dismounts
@@ -161,8 +162,17 @@ function TableWithTabs({
       return;
     }
 
+    if (localStorage.getItem('temp_on_checking_key_announce')) {
+      return;
+    } else {
+      localStorage.setItem('temp_on_checking_key_announce', '1');
+    }
+
     is_orderly_key_announced(accountId, true)
       .then(async (key_announce) => {
+        console.log('key_announce: ', key_announce);
+        localStorage.removeItem('temp_on_checking_key_announce');
+
         setKeyAnnounced(key_announce);
         if (!key_announce) {
           const res = await announceKey(accountId).then((res) => {
@@ -311,9 +321,7 @@ function TableWithTabs({
 
   return (
     <>
-      <div
-        className="w-full relative mt-10 xs:mt-5 lg:rounded-2xl shadow-sm text-primaryOrderly text-sm lg:bg-opacity-10 pb-4"
-      >
+      <div className="w-full relative mt-10 xs:mt-5 lg:rounded-2xl shadow-sm text-primaryOrderly text-sm lg:bg-opacity-10 pb-4">
         <span className="text-white gotham_bold text-lg px-5 hidden md:block lg:block">
           {table.title}
         </span>
@@ -387,7 +395,9 @@ function TableWithTabs({
                     setTab(index);
                   }
                 }}
-                className={`flex items-center justify-center w-1/${table.tabs.length} py-1 flex-grow text-sm rounded-md  ${
+                className={`flex items-center justify-center w-1/${
+                  table.tabs.length
+                } py-1 flex-grow text-sm rounded-md  ${
                   tab === index
                     ? 'text-white bg-acccountBlock'
                     : 'text-primaryText'
@@ -420,9 +430,7 @@ function TableWithTabs({
                 }
                 onClick={() => setMobileFilterOpen(tab + 1)}
               >
-                <div
-                  className="flex relative items-center justify-center relative"
-                >
+                <div className="flex relative items-center justify-center relative">
                   <MobileFilter />
                   {Number(refOnly) +
                     Number(chooseMarketSymbol !== 'all_markets') +
@@ -626,6 +634,11 @@ function TableWithTabs({
                               'true'
                             );
                           }
+
+                          console.log(
+                            'deposit action, accountId: ',
+                            agreeCheck
+                          );
 
                           storageDeposit(accountId);
                         }}
