@@ -100,6 +100,27 @@ export function useCurHoldings(
         return holding;
       });
 
+      const balancesKeyList = Object.keys(balances);
+
+      const holdingKeyList = holdings.map((h) => h.token);
+
+      balancesKeyList.forEach((key) => {
+        const notFoundBalance =
+          holdingKeyList.findIndex((h) => h === key) === -1;
+
+        if (notFoundBalance) {
+          const newBalance = balances[key];
+
+          updatedHoldings.push({
+            token: key,
+            holding: newBalance.holding,
+            pending_short: newBalance.pendingShortQty,
+            frozen: newBalance.frozen,
+            updated_time: Date.now(),
+          });
+        }
+      });
+
       setHoldings(updatedHoldings);
     }
   }, [balances]);

@@ -643,10 +643,34 @@ const getPortfolioUnsettle = (
 
 const getMaintenanceMarginRatio = (
   positions: PositionsType,
-  markPrices: MarkPrice[]
+  markPrices: MarkPrice[],
+  userInfo: ClientInfo,
+  availableSymbols: SymbolInfo[],
+  curSymbol: SymbolInfo
 ) => {
   try {
-    const mmr = positions.maintenance_margin_ratio;
+    const total_mm = positions.rows.reduce((acc, cur) => {
+      if (cur.symbol === curSymbol.symbol) return acc;
+
+      const cur_mark_price =
+        markPrices.find((item) => item.symbol === cur.symbol)?.price || 0;
+
+      const value = new Big(cur_mark_price).times(cur.position_qty).abs();
+
+      const position_notional = value.toNumber();
+
+      const cur_symbol = availableSymbols.find((s) => s.symbol === cur.symbol);
+
+      const cur_mmr = getMMR(cur_symbol, userInfo, position_notional);
+
+      const mm = new Big(cur_mmr).times(position_notional);
+
+      return acc.plus(mm);
+    }, new Big(0));
+
+    const total_notional_value = getTotalnotional(markPrices, positions);
+
+    const mmr = total_mm.div(total_notional_value).toNumber();
 
     return new Big(mmr * 100).toFixed(2) + '%';
   } catch (error) {

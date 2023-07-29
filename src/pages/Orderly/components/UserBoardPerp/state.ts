@@ -190,6 +190,7 @@ export function usePerpData(deps?: {
     positionTimeStamp,
     everyTickers,
     holdings,
+    availableSymbols,
   } = useOrderlyContext();
 
   const newPositions = useMemo(() => {
@@ -363,8 +364,16 @@ export function usePerpData(deps?: {
       return '3.00%';
     }
 
-    return getMaintenanceMarginRatio(newPositions, markPrices);
-  }, [newPositions, markPrices, freeCollateral]);
+    const curSymbol = availableSymbols?.find((item) => item.symbol === symbol);
+
+    return getMaintenanceMarginRatio(
+      newPositions,
+      markPrices,
+      userInfo,
+      availableSymbols,
+      curSymbol
+    );
+  }, [newPositions, markPrices, freeCollateral, availableSymbols]);
 
   const triggerBalanceBasedData = useMemo(
     () => balanceTimeStamp,

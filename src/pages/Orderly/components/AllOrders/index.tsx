@@ -3528,9 +3528,7 @@ function HistoryOrders({
             ? [fromToken]
             : [fromToken, allTokens[symbolTo]];
 
-
         console.log('tokenList: ', tokenList);
-
 
         const render = (
           <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
@@ -4321,14 +4319,14 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
               onClick={() => {
                 setTab('history');
               }}
-              className={`font-gothamBold justify-center  xs:py-1 xs:px-2 xs:rounded-lg ${
+              className={`font-gothamBold justify-center  xs:py-0.5 xs:px-2 xs:rounded-lg ${
                 tab === 'history' ? 'xs:bg-mobileOrderBg ' : ''
               } cursor-pointer ml-8`}
             >
               <span
                 className={
                   tab === 'history'
-                    ? 'text-whites relative'
+                    ? 'text-white relative'
                     : 'text-primaryOrderly relative'
                 }
               >
@@ -4343,7 +4341,7 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
               </span>
 
               <span
-                className={`flex items-center justify-center px-1.5 min-w-fit  text-xs rounded-md  ml-2 ${
+                className={`flex items-center justify-center xs:h-6 px-1.5 min-w-fit  text-xs rounded-md  ml-2 ${
                   tab === 'history'
                     ? allOrders === undefined || loading
                       ? 'text-white bg-grayBgLight'

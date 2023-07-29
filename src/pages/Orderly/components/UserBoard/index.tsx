@@ -2568,8 +2568,54 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
         </div>
       )}
 
+      <div className="frcb px-2 pb-2 border-white border-opacity-10 text-primaryText ">
+        <button
+          className={`  w-1/2 frcc relative`}
+          onClick={() => {
+            setOrderType('Limit');
+          }}
+        >
+          <span
+            className={`text-sm font-gothamBold ${
+              orderType === 'Limit' ? 'text-white' : ''
+            } `}
+          >
+            {intl.formatMessage({
+              id: 'limit_orderly',
+              defaultMessage: 'Limit',
+            })}
+          </span>
+
+          {orderType === 'Limit' && (
+            <div className="w-full absolute -bottom-2 h-0.5 bg-gradientFromHover"></div>
+          )}
+        </button>
+
+        <button
+          className={`  w-1/2 frcc relative`}
+          onClick={() => {
+            setOrderType('Market');
+          }}
+        >
+          <span
+            className={`text-sm font-gothamBold ${
+              orderType === 'Market' ? 'text-white ' : ''
+            } `}
+          >
+            {intl.formatMessage({
+              id: 'market',
+              defaultMessage: 'Market',
+            })}
+          </span>
+
+          {orderType === 'Market' && (
+            <div className="w-full absolute -bottom-2 h-0.5 bg-gradientFromHover"></div>
+          )}
+        </button>
+      </div>
+
       {/* sell and buy button  */}
-      <div className="flex items-center justify-center mt-7">
+      <div className="flex items-center justify-center mt-3">
         <BuyButton
           onClick={() => {
             setSide('Buy');

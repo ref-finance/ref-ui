@@ -441,7 +441,7 @@ export const useSwap = ({
 
   const tokenPriceList = useTokenPriceList(loadingTrigger);
 
-  const { enableTri } = useContext(SwapProContext) || {};
+  const { enableTri } = useContext(SwapProContext);
 
   const [forceEstimate, setForceEstimate] = useState<boolean>(false);
 
@@ -519,7 +519,6 @@ export const useSwap = ({
           }));
 
           if (!estimates) throw '';
-          console.log('estimates: ', estimates);
           if (
             localStorage.getItem(SUPPORT_LEDGER_KEY) &&
             estimates?.length > 1
@@ -582,9 +581,9 @@ export const useSwap = ({
           // }
         })
         .finally(() => {
-          setForceEstimate && setForceEstimate(false);
-          setLoadingTrigger && setLoadingTrigger(false);
-          setEstimating && setEstimating(false);
+          setForceEstimate(false);
+          setLoadingTrigger(false);
+          setEstimating(false);
         });
     } else if (
       tokenIn &&
@@ -625,8 +624,8 @@ export const useSwap = ({
   }, [
     loadingTrigger,
     loadingPause,
-    tokenIn?.id,
-    tokenOut?.id,
+    tokenIn,
+    tokenOut,
     tokenInAmount,
     reEstimateTrigger,
     enableTri,
@@ -653,7 +652,6 @@ export const useSwap = ({
     if (estimating && swapsToDo && !forceEstimate) return;
 
     if (((valRes && !loadingTrigger) || swapError) && !forceEstimate) return;
-    console.log('valRes: ', valRes);
     getEstimate();
   }, [estimating]);
 
@@ -773,7 +771,7 @@ export const useSwapV3 = ({
     );
   };
 
-  const { enableTri } = useContext(SwapProContext) || {};
+  const { enableTri } = useContext(SwapProContext);
 
   const getQuote = async (
     fee: number,
@@ -821,7 +819,7 @@ export const useSwapV3 = ({
         setBestPool(bestPool);
       })
       .finally(() => {});
-  }, [bestFee, tokenIn?.id, tokenOut?.id, poolReFetch]);
+  }, [bestFee, tokenIn, tokenOut, poolReFetch]);
 
   useEffect(() => {
     if (!tokenIn || !tokenOut || !tokenInAmount || wrapOperation) return;
@@ -873,8 +871,8 @@ export const useSwapV3 = ({
         setLoadingTrigger && setLoadingTrigger(false);
       });
   }, [
-    tokenIn?.id,
-    tokenOut?.id,
+    tokenIn,
+    tokenOut,
     tokenInAmount,
     loadingTrigger,
     swapError?.message,
@@ -1641,149 +1639,6 @@ export const useRefSwap = ({
   }
 };
 
-export const useRefSwapWithCache = ({
-  tokenIn,
-  tokenInAmount,
-  tokenOut,
-  slippageTolerance,
-  setLoadingData,
-  loadingTrigger,
-  setLoadingTrigger,
-  loadingPause,
-  swapMode,
-  reEstimateTrigger,
-  supportLedger,
-  loadingData,
-}: SwapOptions): ExchangeEstimate => {
-  const {
-    canSwap,
-    tokenOutAmount,
-    minAmountOut,
-    swapError,
-    makeSwap: makeSwapV1,
-    avgFee: fee,
-    swapsToDo,
-    quoteDone,
-    priceImpactValue,
-    tokenInAmount: tokenInAmountV1,
-  } = useSwap({
-    tokenIn,
-    tokenInAmount,
-    tokenOut,
-    slippageTolerance,
-    setLoadingData,
-    loadingTrigger,
-    setLoadingTrigger,
-    loadingData,
-    loadingPause,
-    swapMode,
-    reEstimateTrigger,
-    supportLedger,
-  });
-
-  const {
-    makeSwap: makeSwapV2,
-    tokenOutAmount: tokenOutAmountV2,
-    minAmountOut: minAmountOutV2,
-    fee: feeV2,
-    swapsToDoV2,
-    priceImpact: priceImpactV2,
-    quoteDone: quoteDoneV2,
-    canSwap: canSwapV2,
-    swapErrorV3: swapErrorV2,
-    tokenInAmount: tokenInAmountV2,
-    tag: tagV2,
-  } = useSwapV3({
-    tokenIn,
-    tokenOut,
-    tokenInAmount,
-    slippageTolerance,
-    swapMode,
-    loadingTrigger,
-    swapError,
-    setLoadingTrigger,
-    reEstimateTrigger,
-  });
-
-  const quoteDoneRef = quoteDoneV2 && quoteDone;
-  console.log('quoteDone: ', quoteDone);
-  console.log('quoteDoneV2: ', quoteDoneV2);
-  console.log('quoteDoneRef: ', quoteDoneRef);
-
-  if (!quoteDoneRef)
-    return {
-      quoteDone: false,
-      canSwap: false,
-      tokenInAmount,
-      tokenIn,
-      tokenOut,
-      market: 'ref',
-      tokenOutAmount: '0',
-    };
-
-  const bestSwap =
-    new Big(tokenOutAmountV2 || '0').gte(tokenOutAmount || '0') &&
-    canSwapV2 &&
-    !swapErrorV2
-      ? 'v2'
-      : 'v1';
-
-  if (bestSwap === 'v1') {
-    return {
-      quoteDone: true,
-      canSwap: canSwap,
-      makeSwap: makeSwapV1,
-      estimates: swapsToDo?.map((s) => ({ ...s, contract: 'Ref_Classic' })),
-      tokenOutAmount:
-        !tokenOutAmount || swapError
-          ? ''
-          : toPrecision(
-              tokenOutAmount || '0',
-              Math.min(8, tokenOut?.decimals ?? 8)
-            ),
-      minAmountOut: minAmountOut,
-      fee: fee,
-      priceImpact: priceImpactValue,
-      swapError,
-      availableRoute: !swapError,
-      tokenInAmount: tokenInAmountV1,
-      tokenIn,
-      tokenOut,
-      market: 'ref',
-      exchange_name: <div className="text-white">Ref</div>,
-    };
-  }
-  if (bestSwap === 'v2') {
-    return {
-      quoteDone: true,
-      canSwap: canSwapV2,
-      makeSwap: makeSwapV2,
-      estimates: swapsToDoV2?.map((s) => ({
-        ...s,
-        contract: 'Ref_DCL',
-      })),
-
-      tokenOutAmount:
-        !tokenOutAmountV2 || swapErrorV2
-          ? ''
-          : toPrecision(
-              tokenOutAmountV2 || '0',
-              Math.min(8, tokenOut?.decimals ?? 8)
-            ),
-      tokenInAmount: tokenInAmountV2,
-      minAmountOut: minAmountOutV2,
-      fee: feeV2,
-      priceImpact: priceImpactV2,
-      swapError: swapErrorV2,
-      availableRoute: !swapErrorV2,
-      tokenIn,
-      tokenOut,
-      market: 'ref',
-      exchange_name: <div className="text-white">Ref</div>,
-    };
-  }
-};
-
 export const useOrderlySwap = ({
   tokenIn,
   tokenOut,
@@ -2215,15 +2070,14 @@ export const useRefSwapPro = ({
       );
 
       if (
-        sessionStorage.getItem('loadingTrigger') === 'true' ||
-        (sessionStorage.getItem('enableTri') === enableTri.toString() &&
-          !forceEstimatePro)
+        sessionStorage.getItem('loadingTrigger') === 'true' &&
+        sessionStorage.getItem('enableTri') === enableTri.toString() &&
+        !forceEstimatePro
       ) {
         setQuoting(false);
 
         return;
       }
-
       sessionStorage.setItem('enableTri', 'true');
 
       if (trades[bestMarket].availableRoute === true) {
