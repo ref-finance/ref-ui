@@ -650,8 +650,6 @@ const getMaintenanceMarginRatio = (
 ) => {
   try {
     const total_mm = positions.rows.reduce((acc, cur) => {
-      if (cur.symbol === curSymbol.symbol) return acc;
-
       const cur_mark_price =
         markPrices.find((item) => item.symbol === cur.symbol)?.price || 0;
 
