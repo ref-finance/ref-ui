@@ -441,7 +441,7 @@ export const useSwap = ({
 
   const tokenPriceList = useTokenPriceList(loadingTrigger);
 
-  const { enableTri } = useContext(SwapProContext) || {};
+  const { enableTri } = useContext(SwapProContext);
 
   const [forceEstimate, setForceEstimate] = useState<boolean>(false);
 
@@ -773,7 +773,7 @@ export const useSwapV3 = ({
     );
   };
 
-  const { enableTri } = useContext(SwapProContext) || {};
+  const { enableTri } = useContext(SwapProContext);
 
   const getQuote = async (
     fee: number,
@@ -2080,8 +2080,6 @@ export const useRefSwapPro = ({
 
         return;
       }
-
-      sessionStorage.setItem('enableTri', 'true');
 
       if (trades[bestMarket].availableRoute === true) {
         setSelectMarket(bestMarket as SwapMarket);
