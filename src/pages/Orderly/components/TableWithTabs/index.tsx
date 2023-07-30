@@ -327,9 +327,9 @@ function TableWithTabs({
       }
 
       setData(res.data?.rows || []);
-      setTotal(res.data.meta?.total || 0);
+      setTotal(res.data?.meta?.total || 0);
       if (id === 'open_orders' && tab === 0)
-        setOpenOrderCount(res.data.meta?.total || 0);
+        setOpenOrderCount(res.data?.meta?.total || 0);
       setLoading(false);
     }
   };
