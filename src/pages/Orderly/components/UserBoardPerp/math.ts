@@ -98,9 +98,7 @@ const getAvailable = (
     const markPrice =
       markPrices?.find(
         (item) => item.symbol === `SPOT_${cur.tokenMeta.symbol}_USDC`
-      )?.price || 0;
-
-    console.log('available:', cur.tokenMeta.symbol, cur.available, markPrice)
+      )?.price || 1;
 
     const value =
       cur.tokenMeta.symbol === 'USDC' || cur.tokenMeta.symbol.includes('USDC')
@@ -129,7 +127,7 @@ const getTotalEst = (
     const markPrice =
       markPrices?.find(
         (item) => item.symbol === `SPOT_${cur.tokenMeta.symbol}_USDC`
-      )?.price || 0;
+      )?.price || 1;
 
     const value =
       cur.tokenMeta.symbol === 'USDC' || cur.tokenMeta.symbol.includes('USDC')

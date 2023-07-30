@@ -341,7 +341,7 @@ export function OrderlyPerpetual() {
 
   const pubKeyPath = get_orderly_public_key_path();
   const { selector, accountId } = useWalletSelector();
-  const { needRefresh } = useOrderlyContext();
+  const { needRefresh, validAccountSig } = useOrderlyContext();
 
   const isMobile = useClientMobile();
 
@@ -364,11 +364,12 @@ export function OrderlyPerpetual() {
         
       </div>
 
-
-      <RefreshModal
-        isOpen={needRefresh}
-        onClick={async () => {}}
-      />
+      {validAccountSig && (
+        <RefreshModal
+          isOpen={needRefresh}
+          onClick={async () => {}}
+        />
+      )}
 
       {isMobile && <PerpOrderlyTipMobile></PerpOrderlyTipMobile>}
     </>

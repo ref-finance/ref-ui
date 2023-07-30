@@ -311,7 +311,7 @@ export const usePortableOrderlyTable = ({
         columns: [
           {
             key: 'instrument',
-            colSpan: 3,
+            colSpan: 4,
             header: 'Instrument',
             render: ({ symbol }) => (
               <div className="flex items-center ">{marketList.find((m) => m.textId === symbol)?.withSymbol}</div>
@@ -337,7 +337,7 @@ export const usePortableOrderlyTable = ({
           {
             key: 'fill_qty',
             header: 'Fill / Qty',
-            colSpan: 2,
+            colSpan: 3,
             render: ({ executed, quantity, side }) => (
               <div>
                 <span className={`text-sm ${side === 'BUY' ? 'text-buyGreen' : 'text-sellColorNew'}`}>{`${executed} / ${quantity || executed}`}</span>
@@ -352,7 +352,7 @@ export const usePortableOrderlyTable = ({
             key: 'create',
             header: 'Create',
             type: 'dateTime',
-            colSpan: 2,
+            colSpan: 3,
             textColor: '',
             extras: ['sort'],
             sortKey: 'created_time',
@@ -498,7 +498,7 @@ export const usePortableOrderlyTable = ({
         columns: [
           {
             key: 'instrument',
-            colSpan: 3,
+            colSpan: 4,
             header: 'Instrument',
             render: ({ symbol }) => (
               <div className="flex items-center ">{marketList.find((m) => m.textId === symbol)?.withSymbol}</div>
@@ -521,11 +521,11 @@ export const usePortableOrderlyTable = ({
               />
             )
           },
-          { key: 'type', colSpan: 2, header: 'Type', render: ({ type }) => <span className='capitalize'>{intl.formatMessage({ id: type.toLocaleLowerCase(), defaultMessage: type.toLocaleLowerCase() })}</span> },
+          { key: 'type', colSpan: 3, header: 'Type', render: ({ type }) => <span className='capitalize'>{intl.formatMessage({ id: type.toLocaleLowerCase(), defaultMessage: type.toLocaleLowerCase() })}</span> },
           {
             key: 'fill_qty',
             header: 'Fill / Qty',
-            colSpan: 3,
+            colSpan: 5,
             render: ({ executed, quantity, side, status }) => (
               <div>
                 <span className={`text-sm ${side === 'BUY' ? 'text-buyGreen' : 'text-sellColorNew'}`}>{`${executed} / ${quantity || executed}`}</span>
@@ -537,21 +537,21 @@ export const usePortableOrderlyTable = ({
               </div>
             )
           },
-          { key: '@price', colSpan: 2, header: '@Price', render: ({ price, average_executed_price, symbol }) => (price || average_executed_price) || '-'  },
-          { key: 'avg_price', colSpan: 2, header: 'Avg.Price', render: ({ average_executed_price, symbol }) => average_executed_price || '-' },
-          { key: 'est_total', colSpan: 2, header: 'Est.Total', render: ({ price, average_executed_price, quantity, executed }) => Math.floor(((price || average_executed_price) * (quantity || executed)))?.toFixed(0)},
+          { key: '@price', colSpan: 3, header: '@Price', render: ({ price, average_executed_price, symbol }) => (price || average_executed_price)?.toPrecision((price || average_executed_price).toString().split('.')[0].length + (symbol.includes('ETH') || symbol.includes('BTC') ? 2 : 4)) || '-'  },
+          { key: 'avg_price', colSpan: 3, header: 'Avg.Price', render: ({ average_executed_price, symbol }) => average_executed_price?.toPrecision((average_executed_price).toString().split('.')[0].length + (symbol.includes('ETH') || symbol.includes('BTC') ? 2 : 4)) || '-' },
+          { key: 'est_total', colSpan: 3, header: 'Est.Total', render: ({ price, average_executed_price, quantity, executed }) => Math.floor(((price || average_executed_price) * (quantity || executed)))?.toFixed(0)},
           { key: 'status', colSpan: 3, header: 'Status', render: ({ status }) =>  <span className='capitalize'>{status.toLocaleLowerCase()}</span> },
           {
             key: 'create',
             header: 'Created',
             type: 'dateTime',
-            colSpan: 2,
+            colSpan: 4,
             textColor: '',
             extras: ['sort'],
             sortKey: 'created_time',
             render: ({ created_time }) => formatTimeDate(created_time)
           },
-          { key: 'dex', header: 'Dex', render: ({ broker_name }) => renderLogo(broker_name) }
+          { key: 'dex', colSpan: 2, header: 'Dex', render: ({ broker_name }) => renderLogo(broker_name) }
         ]
       },
     ]
@@ -740,14 +740,14 @@ export const usePortableOrderlyTable = ({
             sortKey: 'position_qty',
             render: ({ position_qty }) => (
               <div className={`pr-2 ${position_qty >= 0 ? 'text-buyGreen' : 'text-sellColorNew'}`}>
-                {position_qty?.toFixed(4) || '-' }
+                {position_qty || '-' }
               </div>
             )},
-          { key: 'avg_open', colSpan: 2,  header: 'Avg. Open', extras: ['sort'], sortKey: 'average_open_price', render: ({ average_open_price }) => average_open_price?.toFixed(3) || '-' },
+          { key: 'avg_open', colSpan: 3,  header: 'Avg. Open', extras: ['sort'], sortKey: 'average_open_price', render: ({ average_open_price }) => average_open_price?.toFixed(3) || '-' },
           {
             key: 'mark_orderly',
             header: 'Mark',
-            colSpan: 3,
+            colSpan: 4,
             extras: ['sort'],
             sortKey: 'mark_price',
             render: ({ symbol }) => (
@@ -760,7 +760,7 @@ export const usePortableOrderlyTable = ({
             key: 'liq_price',
             header: 'Liq. Price',
             extras: ['sort'],
-            colSpan: 2,
+            colSpan: 3,
             sortKey: 'est_liq_price',
             render: ({ est_liq_price }) => (
               <div className={`pr-2 text-warn`}>
@@ -773,7 +773,7 @@ export const usePortableOrderlyTable = ({
             header: 'Unreal. PnL',
             headerType: 'dashed',
             extras: ['radio', 'sort'],
-            colSpan: 2,
+            colSpan: 3,
             select: unrealMode,
             setSelect: setUnrealMode,
             sortKey: ['symbol', 'average_open_price', 'position_qty'],
@@ -807,7 +807,7 @@ export const usePortableOrderlyTable = ({
             header: 'Daily Real',
             extras: ['sort'],
             sortKey: 'pnl_24_h',
-            colSpan: 2,
+            colSpan: 3,
             render: ({ pnl_24_h }) => (
               <div className={`pr-2 text-white`}>
                 {pnl_24_h?.toFixed(3) || '-' || '-' }
@@ -1356,7 +1356,7 @@ export const useMarketlist = () => {
           });
         } else {
           const { symbolFrom } = parseSymbol(symbol.symbol);
-          const toToken = allTokens[symbolFrom];
+          const toToken = allTokens[symbolFrom === 'BTC' ? 'WBTC' : symbolFrom];
 
           const symbolRender = (
             <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">

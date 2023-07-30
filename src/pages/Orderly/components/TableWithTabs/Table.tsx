@@ -77,7 +77,7 @@ function OrderLine({
       <tr
         className={`table-fixed grid ${
           tableRowType === 'card'
-            ? ' m-5 px-3 gap-4 rounded-xl bg-portfolioOrderCardColor hover:bg-portfolioBgColor'
+            ? ' m-5 px-3 gap-2 rounded-xl bg-portfolioOrderCardColor hover:bg-portfolioBgColor'
             : ' gap-4 px-5 hover:bg-portfolioBgColor lg:border-t border-white border-opacity-10'
         } ${tableRowType === 'small' ? 'text-xs' : ''}`}
         style={{

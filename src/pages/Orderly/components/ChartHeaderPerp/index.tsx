@@ -392,7 +392,7 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
 
   const idFrom =
     tokenInfo &&
-    tokenInfo.find((t) => t.token === symbolFrom)?.token_account_id;
+    tokenInfo.find((t) => symbolFrom === 'BTC' ? t.token === 'WBTC' : t.token === symbolFrom)?.token_account_id;
 
   const [iconIn, setIconIn] = useState<string>();
 
