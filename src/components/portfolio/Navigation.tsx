@@ -83,7 +83,7 @@ export default function Navigation(props: any) {
               }`}
             >
               <div className="w-7">
-                <Icon></Icon>
+                <Icon activeMenu={activeMenu == id} ></Icon>
               </div>
               <span className={`text-base  gotham_bold`}>{name}</span>
               <span

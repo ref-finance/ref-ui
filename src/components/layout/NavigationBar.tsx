@@ -1417,6 +1417,7 @@ function MenuBar() {
                   id: id_two_level,
                   icon,
                   hoverLabel,
+                  renderLogo
                 } = item;
                 return (
                   <div
@@ -1436,7 +1437,7 @@ function MenuBar() {
                         : 'text-primaryText'
                     }`}
                   >
-                    {logo ? <div className="w-8 mr-2">{logo}</div> : null}
+                    {(logo || renderLogo) ? <div className="w-8 mr-2">{renderLogo ? renderLogo({ activeMenu: two_level_selected == id_two_level }) : logo}</div> : null}
                     <div className="text-base ">
                       {hover_two_level_id == id_two_level && hoverLabel
                         ? hoverLabel

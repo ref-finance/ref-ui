@@ -22,6 +22,7 @@ import {
 import AllOrderBoard from './components/AllOrders';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { REF_ORDERLY_ACCOUNT_VALID } from './components/UserBoard/index';
+import RefreshModal from './components/TableWithTabs/RefreshModal';
 
 import { useLargeScreen, useClientMobile, isMobile } from '../../utils/device';
 
@@ -340,6 +341,7 @@ export function OrderlyPerpetual() {
 
   const pubKeyPath = get_orderly_public_key_path();
   const { selector, accountId } = useWalletSelector();
+  const { needRefresh } = useOrderlyContext();
 
   const isMobile = useClientMobile();
 
@@ -359,7 +361,14 @@ export function OrderlyPerpetual() {
         {!isMobile && <TradingBoard></TradingBoard>}
 
         {isMobile && <MobileTradingBoard></MobileTradingBoard>}
+        
       </div>
+
+
+      <RefreshModal
+        isOpen={needRefresh}
+        onClick={async () => {}}
+      />
 
       {isMobile && <PerpOrderlyTipMobile></PerpOrderlyTipMobile>}
     </>

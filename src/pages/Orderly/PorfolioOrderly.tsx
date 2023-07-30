@@ -12,6 +12,7 @@ import TableWithTabs from './components/TableWithTabs';
 import SettlePnlModal from './components/TableWithTabs/SettlePnlModal';
 import { MobileFilterModal } from './components/TableWithTabs/OrdersFilters';
 import { ClosingModal } from './components/TableWithTabs/FuturesControls';
+import RefreshModal from './components/TableWithTabs/RefreshModal';
 import { MobileHistoryOrderDetail } from './components/AllOrders';
 import { formatTimeDate } from './components/OrderBoard';
 import { usePortableOrderlyTable, useMarketlist } from './orderly/constantWjsx';
@@ -46,7 +47,6 @@ import {
 } from './orderly/api';
 import { useOrderlyContext } from './orderly/OrderlyContext';
 import { Holding, MyOrder, OrderTrade } from './orderly/type';
-
 import { WalletContext } from '../../utils/wallets-integration';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 export const PortfolioOrderlyData = createContext(null);
@@ -65,6 +65,7 @@ function PortfolioOrderly() {
     validAccountSig,
     holdings,
     myPendingOrdersRefreshing,
+    needRefresh
   } = useOrderlyContext();
   const isSignedIn = globalState.isSignedIn;
   const [maintenance, setMaintenance] = useState<boolean>(undefined);
@@ -314,17 +315,17 @@ function PortfolioOrderly() {
       }}
     >
       {maintenance && <OrderlyUnderMaintain />}
-      <div className="flex items-stretch justify-between w-full h-full lg:-mt-12">
+      <div className="flex items-stretch justify-between pb-20 md:pb-0 lg:pb-0 w-full h-full lg:-mt-12">
         {/* Navigation */}
         <div
           style={{ width: '280px' }}
           className="pl-5 py-4 pr-4 flex-shrink-0 hidden md:block lg:block"
         >
-          <Navigation></Navigation>
+          <Navigation />
         </div>
         {/* content */}
         <div className="flex-grow border-l border-r border-boxBorder md:pt-9 lg:pt-9">
-          <div className="md:px-2.5 lg:px-5 3xl:max-w-1280px m-auto">
+          <div className="md:px-2.5 lg:px-5 md:max-w-1000px lg:max-w-1000px 3xl:max-w-1280px m-auto">
             <div className="w-full grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 md:bg-portfolioCardBg lg:bg-portfolioCardBg px-5 py-4 rounded-xl">
               {/* getCurrentHolding */}
               <div className="col-span-2 mb-3">
@@ -554,6 +555,11 @@ function PortfolioOrderly() {
       <div className="md:hidden lg:hidden">
         <NavigationMobile />
       </div>
+
+      <RefreshModal
+        isOpen={needRefresh}
+        onClick={async () => {}}
+      />
 
       <SettlePnlModal
         isOpen={settlePnlModalOpen}

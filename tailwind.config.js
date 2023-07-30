@@ -461,6 +461,9 @@ module.exports = {
       },
       minHeight: {
         8: '2rem',
+        '80': '350px',
+        'screen': '100vh',
+        'max': 'max-content'
       },
       minWidth: {
         p72: '72px',

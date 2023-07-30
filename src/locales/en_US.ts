@@ -1017,6 +1017,8 @@ const en_US = {
   ref_order: 'REF Dex only',
   orderly_portfolio_table_tips:
     'The data provided herein includes all assets and records in your account, not limited to those generated through REF.',
+  orderly_ws_refresh: 'Please refresh the data to continue',
+  refresh: 'Refresh',
   settlements: 'Settlements',
   settled_balance: 'Settled Balance',
   settled_amount: 'Settlement Amount',
