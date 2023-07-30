@@ -2083,9 +2083,10 @@ export const useRefSwapPro = ({
       );
 
       if (
-        sessionStorage.getItem('loadingTrigger') === 'true' ||
-        (sessionStorage.getItem('enableTri') === enableTri.toString() &&
-          !forceEstimatePro)
+        (sessionStorage.getItem('loadingTrigger') === 'true' ||
+          (sessionStorage.getItem('enableTri') === enableTri.toString() &&
+            !forceEstimatePro)) &&
+        !!selectMarket
       ) {
         setQuoting(false);
 
