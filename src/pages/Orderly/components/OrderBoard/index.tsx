@@ -78,7 +78,6 @@ export function Selector({
   className,
   width,
   style,
-  top = 6
 }: {
   list: { text: JSX.Element | string; textId: string; className?: string }[];
   selected: string;
@@ -86,10 +85,9 @@ export function Selector({
   className?: string;
   width?: string;
   style?: any;
-  top?: number;
 }) {
   return (
-    <div className={`absolute top-${top} z-50`} style={style}>
+    <div className="absolute top-6 z-50" style={style}>
       <div
         className={`${className}  flex flex-col ${
           width || 'min-w-28'

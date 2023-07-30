@@ -263,9 +263,8 @@ function TableWithTabs({
 
   useEffect(() => {
     if (getData && (id === 'open_orders' || id === 'history')) {
-      callGetData(1);
+      callGetData();
     }
-    setPage(1);
   }, [
     refOnly,
     orderType,
@@ -302,34 +301,20 @@ function TableWithTabs({
     }
   }, [triggerPositionBasedData, triggerBalanceBasedData]);
 
-  useEffect(() => {
-    if ((data.length > 1 && data.length < 10) && id === 'open_orders' ) {
-      const currentScrollPosition = window.scrollY || window.pageYOffset;
-      const newScrollPosition = currentScrollPosition - 100;
-
-      window.scroll({
-        top: newScrollPosition,
-        left: 0,
-        behavior: 'auto'
-      });
-    }
-  }, [data])
-
-  const callGetData = async (forcePage?: number) => {
+  const callGetData = async () => {
     if (!(validator && !maintenance && !validAccountSig)) {
-      const res = await getData({ page: forcePage || page });
-      forcePage && setPage(forcePage);
+      const { data } = await getData({ page });
 
-      if (!res && id === 'spot') {
+      if (!data && id === 'spot') {
         setData(displayBalances);
         setLoading(false);
         return;
       }
 
-      setData(res.data?.rows || []);
-      setTotal(res.data.meta?.total || 0);
+      setData(data?.rows || []);
+      setTotal(data.meta?.total || 0);
       if (id === 'open_orders' && tab === 0)
-        setOpenOrderCount(res.data.meta?.total || 0);
+        setOpenOrderCount(data.meta?.total || 0);
       setLoading(false);
     }
   };
@@ -394,10 +379,9 @@ function TableWithTabs({
 
         <div className="md:hidden lg:hidden px-3 flex">
           <div
-            className={`relative border flex items-center bg-acccountTab p-1 rounded-lg ${
+            className={`relative flex items-center bg-acccountTab p-1 rounded-lg ${
               table.tabs[tab].filter ? 'w-11/12 inline-flex' : 'w-full'
             }`}
-            style={{ borderColor: 'rgba(145, 162, 174, 0.20)' }}
           >
             {table.tabs.map((tableTab, index) => (
               <label
@@ -576,7 +560,8 @@ function TableWithTabs({
               </div>
             )}
           <div
-            className="relative md:py-5 lg:py-5 md:min-h-80 lg:min-h-80"
+            className="relative md:py-5 lg:py-5"
+            style={{ minHeight: '350px' }}
           >
             {validator && !maintenance && !validAccountSig && (
               <div

@@ -79,7 +79,6 @@ export const usePrivateOrderlyWS = () => {
   const [socketUrl, setSocketUrl] = useState(
     getOrderlyConfig().ORDERLY_WS_ENDPOINT_PRIVATE + `/${accountId}`
   );
-  const [needRefresh, setNeedRefresh] = useState(false);
 
   useEffect(() => {
     if (!accountId) {
@@ -99,12 +98,8 @@ export const usePrivateOrderlyWS = () => {
       reconnectAttempts: 50,
       reconnectInterval: (attemptNumber) =>
         Math.min(Math.pow(2, attemptNumber) * 1000, 10000),
-      onClose: (e) => {
-        setNeedRefresh(true);
-      },
-      onError: (e) => {
-        setNeedRefresh(true);
-      },
+      onClose: (e) => {},
+      onError: (e) => {},
     });
 
   useEffect(() => {
@@ -127,7 +122,6 @@ export const usePrivateOrderlyWS = () => {
     lastMessage,
     sendMessage,
     lastJsonMessage,
-    needRefresh
   };
 };
 
@@ -456,7 +450,7 @@ export const useOrderlyPrivateData = ({
 }: {
   validAccountSig: boolean;
 }) => {
-  const { sendMessage, lastJsonMessage, connectionStatus, needRefresh } =
+  const { sendMessage, lastJsonMessage, connectionStatus } =
     usePrivateOrderlyWS();
 
   const [authPass, setAuthPass] = useState(false);
@@ -610,6 +604,5 @@ export const useOrderlyPrivateData = ({
     setLiquidations,
     futureLeverage,
     positionPushReceiver,
-    needRefresh
   };
 };

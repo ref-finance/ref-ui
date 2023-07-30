@@ -90,7 +90,6 @@ interface OrderlyContextValue {
   setUserInfo: (userInfo: ClientInfo) => void;
   holdings: Holding[];
   allOrders: MyOrder[];
-  needRefresh: boolean;
 }
 
 export const REF_ORDERLY_SYMBOL_KEY = 'REF_ORDERLY_SYMBOL_KEY';

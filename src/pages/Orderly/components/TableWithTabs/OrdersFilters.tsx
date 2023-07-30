@@ -148,7 +148,6 @@ const OrdersFilters = ({
                 setShowMarketSelector(false);
               }}
               list={displayList}
-              top={8}
             />
           )}
         </FlexRow>
@@ -214,7 +213,6 @@ const OrdersFilters = ({
                   className: 'text-white'
                 },
               ]}
-              top={8}
             />
           )}
         </FlexRow>

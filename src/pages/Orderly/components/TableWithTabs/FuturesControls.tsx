@@ -914,8 +914,7 @@ function FuturePriceModal(
       onRequestClose={() => {
         if (onClose) {
           priceMode === 'market_price' && setOpenOnMarket(true);
-          setTips('');
-          onClose(price);
+          onClose(price)
         }
       }}
       style={{
@@ -946,7 +945,6 @@ function FuturePriceModal(
               onClick={(e: any) => {
                 if (onClose) {
                   priceMode === 'market_price' && setOpenOnMarket(true);
-                  setTips('');
                   onClose(price)
                 }
               }}
