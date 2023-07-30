@@ -621,6 +621,8 @@ export const useSwap = ({
       return;
     }
 
+    console.log('valres2222', valRes);
+
     getEstimate();
   }, [
     loadingTrigger,
@@ -653,7 +655,7 @@ export const useSwap = ({
     if (estimating && swapsToDo && !forceEstimate) return;
 
     if (((valRes && !loadingTrigger) || swapError) && !forceEstimate) return;
-    console.log('valRes: ', valRes);
+    console.log('valRes111: ', valRes);
     getEstimate();
   }, [estimating]);
 
@@ -1970,6 +1972,8 @@ export const useRefSwapPro = ({
     loadingData,
   });
 
+  console.log('resRef: ', resRef);
+
   resRef.hasTriPool =
     tokenIn &&
     tokenOut &&
@@ -1990,6 +1994,8 @@ export const useRefSwapPro = ({
     reEstimateTrigger,
   });
 
+  console.log('resAurora: ', resAurora);
+
   const resOrderly = useOrderlySwap({
     tokenIn,
     tokenInAmount,
@@ -1998,6 +2004,8 @@ export const useRefSwapPro = ({
     slippageTolerance,
     reEstimateTrigger,
   });
+
+  console.log('resOrderly: ', resOrderly);
 
   useEffect(() => {
     if (tokenIn && tokenOut && tokenIn.id === tokenOut.id) {
@@ -2027,6 +2035,7 @@ export const useRefSwapPro = ({
         resValid &&
         tokenIn?.id === localStorage.getItem('REF_FI_SWAP_IN') &&
         tokenOut?.id === localStorage.getItem('REF_FI_SWAP_OUT');
+      console.log('resValid1: ', resValid);
 
       resValid =
         resValid &&
@@ -2038,6 +2047,8 @@ export const useRefSwapPro = ({
               toNonDivisibleNumber(tokenIn.decimals, tokenInAmount)
           );
         });
+
+      console.log('resValid2: ', resValid);
 
       resValid =
         resValid &&
@@ -2077,6 +2088,14 @@ export const useRefSwapPro = ({
           !forceEstimatePro)
       ) {
         setQuoting(false);
+
+        console.log(
+          'sessionStorage.getItem()',
+          sessionStorage.getItem('enableTri'),
+          sessionStorage.getItem('loadingTrigger'),
+          forceEstimatePro
+        ),
+          console.log('loading trigger 11111');
 
         return;
       }
