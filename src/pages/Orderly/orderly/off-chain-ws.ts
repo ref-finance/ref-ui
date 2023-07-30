@@ -100,10 +100,10 @@ export const usePrivateOrderlyWS = () => {
       reconnectInterval: (attemptNumber) =>
         Math.min(Math.pow(2, attemptNumber) * 1000, 10000),
       onClose: (e) => {
-        setNeedRefresh(true);
+        // setNeedRefresh(true);
       },
       onError: (e) => {
-        setNeedRefresh(true);
+        // setNeedRefresh(true);
       },
     });
 
@@ -127,7 +127,7 @@ export const usePrivateOrderlyWS = () => {
     lastMessage,
     sendMessage,
     lastJsonMessage,
-    needRefresh
+    needRefresh,
   };
 };
 
@@ -610,6 +610,6 @@ export const useOrderlyPrivateData = ({
     setLiquidations,
     futureLeverage,
     positionPushReceiver,
-    needRefresh
+    needRefresh,
   };
 };

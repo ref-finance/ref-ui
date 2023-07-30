@@ -685,7 +685,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
   console.log('tokenOut: ', tokenOut);
 
   const tokenOutHolding =
-    tokenOut?.symbol === 'USDC' && freeCollateral !== '-'
+    tokenOut?.symbol?.toLowerCase()?.includes('usdc') && freeCollateral !== '-'
       ? freeCollateral
       : curHoldingOut
       ? toPrecision(
@@ -741,6 +741,8 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     curSymbolMarkPrice,
   ]);
 
+  console.log('maxOrderSize: ', maxOrderSize);
+
   const handleSubmit = async () => {
     if (!accountId) return;
     return createOrder({
@@ -781,7 +783,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         tokenIn: tokenIn,
         price: parseFloat(
           orderType === 'Market'
-            ? marketPrice.toString()
+            ? marketPrice?.toString() || '0'
             : limitPrice.toString()
         ).toString(),
         timeStamp: res.timestamp,
@@ -857,9 +859,8 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
   const intl = useIntl();
 
   const isInsufficientBalance =
-    maxOrderSize !== '-' &&
     Number(inputValue || 0) > 0 &&
-    Number(inputValue) > Number(maxOrderSize);
+    Number(inputValue) > Number(maxOrderSize === '-' ? 0 : maxOrderSize);
 
   const loading =
     ((!!accountId && storageEnough === undefined) ||
@@ -1142,7 +1143,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     if (typeof curSymbolMarkPrice === 'undefined') return;
 
     priceAndSizeValidator(
-      orderType === 'Limit' ? limitPrice : marketPrice.toString(),
+      orderType === 'Limit' ? limitPrice : marketPrice?.toString() || '0',
       inputValue
     );
   }, [side, orderType, symbol, orders, curSymbolMarkPrice, limitPrice]);
@@ -1747,7 +1748,9 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
               min={0}
               onChange={(e) => {
                 priceAndSizeValidator(
-                  orderType === 'Limit' ? limitPrice : marketPrice.toString(),
+                  orderType === 'Limit'
+                    ? limitPrice
+                    : marketPrice?.toString() || '0',
                   e.target.value
                 );
 
@@ -1783,7 +1786,9 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                 setInputValue(displayAmount);
 
                 priceAndSizeValidator(
-                  orderType == 'Market' ? marketPrice.toString() : limitPrice,
+                  orderType == 'Market'
+                    ? marketPrice?.toString() || '0'
+                    : limitPrice,
                   displayAmount,
                   'maxinput'
                 );
@@ -3462,7 +3467,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
         tokenIn: tokenIn,
         price: parseFloat(
           orderType === 'Market'
-            ? marketPrice.toString()
+            ? marketPrice?.toString() || '0'
             : limitPrice.toString()
         ).toString(),
         timeStamp: res.timestamp,
@@ -3566,10 +3571,14 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
 
   const intl = useIntl();
 
+  // const isInsufficientBalance =
+  //   maxOrderSize !== '-' &&
+  //   Number(inputValue || 0) > 0 &&
+  //   Number(inputValue) > Number(maxOrderSize);
+
   const isInsufficientBalance =
-    maxOrderSize !== '-' &&
     Number(inputValue || 0) > 0 &&
-    Number(inputValue) > Number(maxOrderSize);
+    Number(inputValue) > Number(maxOrderSize === '-' ? 0 : maxOrderSize);
 
   const loading =
     ((!!accountId && storageEnough === undefined) ||
@@ -3847,7 +3856,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
       : orders?.bids?.[0]?.[0];
 
     priceAndSizeValidator(
-      orderType === 'Limit' ? limitPrice : marketPrice.toString(),
+      orderType === 'Limit' ? limitPrice : marketPrice?.toString() || '0',
       inputValue
     );
   }, [side, orderType, symbol, orders, limitPrice]);
@@ -4110,7 +4119,9 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
               min={0}
               onChange={(e) => {
                 priceAndSizeValidator(
-                  orderType === 'Limit' ? limitPrice : marketPrice.toString(),
+                  orderType === 'Limit'
+                    ? limitPrice
+                    : marketPrice?.toString() || '0',
                   e.target.value
                 );
 
@@ -4146,7 +4157,9 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
                 setInputValue(displayAmount);
 
                 priceAndSizeValidator(
-                  orderType == 'Market' ? marketPrice.toString() : limitPrice,
+                  orderType == 'Market'
+                    ? marketPrice?.toString() || '0'
+                    : limitPrice,
                   displayAmount,
                   'maxinput'
                 );

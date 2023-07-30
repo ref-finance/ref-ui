@@ -441,7 +441,7 @@ export const useSwap = ({
 
   const tokenPriceList = useTokenPriceList(loadingTrigger);
 
-  const { enableTri } = useContext(SwapProContext);
+  const { enableTri } = useContext(SwapProContext) || {};
 
   const [forceEstimate, setForceEstimate] = useState<boolean>(false);
 
@@ -519,6 +519,7 @@ export const useSwap = ({
           }));
 
           if (!estimates) throw '';
+          console.log('estimates: ', estimates);
           if (
             localStorage.getItem(SUPPORT_LEDGER_KEY) &&
             estimates?.length > 1
@@ -581,9 +582,9 @@ export const useSwap = ({
           // }
         })
         .finally(() => {
-          setForceEstimate(false);
-          setLoadingTrigger(false);
-          setEstimating(false);
+          setForceEstimate && setForceEstimate(false);
+          setLoadingTrigger && setLoadingTrigger(false);
+          setEstimating && setEstimating(false);
         });
     } else if (
       tokenIn &&
@@ -624,8 +625,8 @@ export const useSwap = ({
   }, [
     loadingTrigger,
     loadingPause,
-    tokenIn,
-    tokenOut,
+    tokenIn?.id,
+    tokenOut?.id,
     tokenInAmount,
     reEstimateTrigger,
     enableTri,
@@ -652,6 +653,7 @@ export const useSwap = ({
     if (estimating && swapsToDo && !forceEstimate) return;
 
     if (((valRes && !loadingTrigger) || swapError) && !forceEstimate) return;
+    console.log('valRes: ', valRes);
     getEstimate();
   }, [estimating]);
 
@@ -771,7 +773,7 @@ export const useSwapV3 = ({
     );
   };
 
-  const { enableTri } = useContext(SwapProContext);
+  const { enableTri } = useContext(SwapProContext) || {};
 
   const getQuote = async (
     fee: number,
@@ -819,7 +821,7 @@ export const useSwapV3 = ({
         setBestPool(bestPool);
       })
       .finally(() => {});
-  }, [bestFee, tokenIn, tokenOut, poolReFetch]);
+  }, [bestFee, tokenIn?.id, tokenOut?.id, poolReFetch]);
 
   useEffect(() => {
     if (!tokenIn || !tokenOut || !tokenInAmount || wrapOperation) return;
@@ -871,8 +873,8 @@ export const useSwapV3 = ({
         setLoadingTrigger && setLoadingTrigger(false);
       });
   }, [
-    tokenIn,
-    tokenOut,
+    tokenIn?.id,
+    tokenOut?.id,
     tokenInAmount,
     loadingTrigger,
     swapError?.message,
@@ -2070,14 +2072,15 @@ export const useRefSwapPro = ({
       );
 
       if (
-        sessionStorage.getItem('loadingTrigger') === 'true' &&
-        sessionStorage.getItem('enableTri') === enableTri.toString() &&
-        !forceEstimatePro
+        sessionStorage.getItem('loadingTrigger') === 'true' ||
+        (sessionStorage.getItem('enableTri') === enableTri.toString() &&
+          !forceEstimatePro)
       ) {
         setQuoting(false);
 
         return;
       }
+
       sessionStorage.setItem('enableTri', 'true');
 
       if (trades[bestMarket].availableRoute === true) {

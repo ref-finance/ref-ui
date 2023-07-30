@@ -697,7 +697,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           size: parseFloat(inputValue).toString(),
 
           tokenIn: tokenIn,
-          price: parseFloat(marketPrice.toString() || '').toString(),
+          price: parseFloat(marketPrice?.toString() || '0' || '').toString(),
           timeStamp: res.timestamp,
           order,
         });
@@ -1473,7 +1473,9 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
               min={0}
               onChange={(e) => {
                 priceAndSizeValidator(
-                  orderType === 'Limit' ? limitPrice : marketPrice.toString(),
+                  orderType === 'Limit'
+                    ? limitPrice
+                    : marketPrice?.toString() || '0',
                   e.target.value
                 );
 
@@ -1523,7 +1525,9 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                 setInputValue(displayAmount);
 
                 priceAndSizeValidator(
-                  orderType == 'Market' ? marketPrice.toString() : limitPrice,
+                  orderType == 'Market'
+                    ? marketPrice?.toString() || '0'
+                    : limitPrice,
                   displayAmount,
                   'maxinput'
                 );
@@ -2079,7 +2083,7 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
           size: parseFloat(inputValue).toString(),
 
           tokenIn: tokenIn,
-          price: parseFloat(marketPrice.toString() || '').toString(),
+          price: parseFloat(marketPrice?.toString() || '0' || '').toString(),
           timeStamp: res.timestamp,
           order,
         });
@@ -2439,7 +2443,7 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
       : orders?.bids?.[0]?.[0];
 
     priceAndSizeValidator(
-      orderType === 'Limit' ? limitPrice : marketPrice.toString(),
+      orderType === 'Limit' ? limitPrice : marketPrice?.toString() || '0',
       inputValue
     );
   }, [side, orderType, symbol, orders]);
@@ -2710,7 +2714,9 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
             min={0}
             onChange={(e) => {
               priceAndSizeValidator(
-                orderType === 'Limit' ? limitPrice : marketPrice.toString(),
+                orderType === 'Limit'
+                  ? limitPrice
+                  : marketPrice?.toString() || '0',
                 e.target.value
               );
 
@@ -2758,7 +2764,9 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
               setInputValue(displayAmount);
 
               priceAndSizeValidator(
-                orderType == 'Market' ? marketPrice.toString() : limitPrice,
+                orderType == 'Market'
+                  ? marketPrice?.toString() || '0'
+                  : limitPrice,
                 displayAmount,
                 'maxinput'
               );
