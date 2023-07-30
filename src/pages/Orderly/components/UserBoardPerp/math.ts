@@ -100,8 +100,10 @@ const getAvailable = (
         (item) => item.symbol === `SPOT_${cur.tokenMeta.symbol}_USDC`
       )?.price || 0;
 
+    console.log('available:', cur.tokenMeta.symbol, cur.available, markPrice)
+
     const value =
-      cur.tokenMeta.symbol === 'USDC'
+      cur.tokenMeta.symbol === 'USDC' || cur.tokenMeta.symbol.includes('USDC')
         ? parseFloat(cur.available)
         : parseFloat(cur.available) * markPrice;
 
@@ -130,11 +132,11 @@ const getTotalEst = (
       )?.price || 0;
 
     const value =
-      cur.tokenMeta.symbol === 'USDC'
+      cur.tokenMeta.symbol === 'USDC' || cur.tokenMeta.symbol.includes('USDC')
         ? parseFloat(cur.available)
         : parseFloat(cur.available) * markPrice;
     const inOrder =
-      cur.tokenMeta.symbol === 'USDC'
+      cur.tokenMeta.symbol === 'USDC' || cur.tokenMeta.symbol.includes('USDC')
         ? parseFloat(cur['in-order'])
         : parseFloat(cur['in-order']) * markPrice;
 

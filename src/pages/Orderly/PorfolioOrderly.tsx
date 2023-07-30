@@ -369,7 +369,7 @@ function PortfolioOrderly() {
                             className="flex items-center text-white text-sm -ml-1"
                           >
                             <img
-                              src={allTokens[tokenMeta.symbol]?.icon}
+                              src={tokenMeta.icon}
                               alt=""
                               className="rounded-full flex-shrink-0 w-4 h-4"
                             />
@@ -394,7 +394,7 @@ function PortfolioOrderly() {
                             className="flex items-center text-white text-sm -ml-1"
                           >
                             <img
-                              src={allTokens[tokenMeta.symbol]?.icon}
+                              src={tokenMeta.icon}
                               alt=""
                               className="rounded-full flex-shrink-0 w-4 h-4"
                             />
@@ -643,6 +643,7 @@ function PortfolioOrderly() {
           onRequestClose={() => {
             setShowMobileOrderDetail(false);
           }}
+          type={selectedOrder.status === 'NEW' || selectedOrder.status === 'PARTIAL_FILLED' ? 'open' : 'history'}
           order={selectedOrder}
           symbol={selectedOrder.symbol}
           orderTradesHistory={orderTradesHistory}

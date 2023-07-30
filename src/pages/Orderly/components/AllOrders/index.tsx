@@ -2616,9 +2616,10 @@ export function MobileHistoryOrderDetail(
     orderTradesHistory: OrderTrade[];
     symbol: string;
     order: MyOrder;
+    type?: string;
   }
 ) {
-  const { titleList, order, valueList, symbol, orderTradesHistory } = props;
+  const { titleList, order, valueList, symbol, orderTradesHistory, type = 'history' } = props;
 
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
 
@@ -2645,7 +2646,7 @@ export function MobileHistoryOrderDetail(
       <div className="bg-darkBg  pb-6 overflow-auto  xs:w-screen  xs:fixed xs:bottom-0 xs:left-0 rounded-t-2xl  text-base   rounded-lg   border-t border-borderC  py-4 text-white">
         <div className="text-left px-5 font-bold">
           {intl.formatMessage({
-            id: 'history_order_detail',
+            id: `${type}_order_detail`,
             defaultMessage: 'History Order Detail',
           })}
         </div>
