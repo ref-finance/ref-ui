@@ -1,4 +1,4 @@
-import React , { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Big from 'big.js';
 import { MdArrowDropDown } from 'react-icons/md';
 import { IoClose } from 'react-icons/io5';
@@ -10,7 +10,11 @@ import { OrderlyLoading } from '../Common/Icons';
 import { TextWrapper } from '../UserBoard';
 import { tickToPrecision } from '../UserBoardPerp/math';
 import { parseSymbol } from '../RecentTrade';
-import { orderEditPopUpFailure, orderEditPopUpSuccess, usePortfolioFailure } from '../Common';
+import {
+  orderEditPopUpFailure,
+  orderEditPopUpSuccess,
+  usePortfolioFailure,
+} from '../Common';
 import { cancelOrder } from '../../orderly/off-chain-api';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import { formatDecimalToTwoOrMore } from '../../orderly/utils';
@@ -26,13 +30,12 @@ const priceValidator = (
   side: string,
   orderType: string,
   markPrice: MarkPrice,
-  portfolioFailure: ({ tip }: { tip: string; }) => void,
+  portfolioFailure: ({ tip }: { tip: string }) => void,
   setTips?: (input: string) => void
 ) => {
   if (!symbolInfo) {
     return;
   }
-  
 
   if (
     new Big(new Big(price || 0).minus(new Big(symbolInfo.quote_min)))
@@ -40,13 +43,15 @@ const priceValidator = (
       .gt(0)
   ) {
     if (setTips) {
-      setTips(`${intl.formatMessage({
-        id: 'price_should_be_a_multiple_of',
-        defaultMessage: 'Price should be a multiple of',
-      })} ${symbolInfo.quote_tick}${intl.formatMessage({
-        id: 'price_should_be_a_multiple_of_zh',
-        defaultMessage: ' ',
-      })}`)
+      setTips(
+        `${intl.formatMessage({
+          id: 'price_should_be_a_multiple_of',
+          defaultMessage: 'Price should be a multiple of',
+        })} ${symbolInfo.quote_tick}${intl.formatMessage({
+          id: 'price_should_be_a_multiple_of_zh',
+          defaultMessage: ' ',
+        })}`
+      );
     } else {
       portfolioFailure({
         tip: `${intl.formatMessage({
@@ -55,7 +60,7 @@ const priceValidator = (
         })} ${symbolInfo.quote_tick}${intl.formatMessage({
           id: 'price_should_be_a_multiple_of_zh',
           defaultMessage: ' ',
-        })}`
+        })}`,
       });
     }
     return;
@@ -70,14 +75,16 @@ const priceValidator = (
       setTips(
         `${intl.formatMessage({
           id: 'the_order_value_should_be_be_greater_than_or_equal_to',
-          defaultMessage: 'The order value should be be greater than or equal to',
+          defaultMessage:
+            'The order value should be be greater than or equal to',
         })} ${symbolInfo.min_notional}`
       );
     } else {
       portfolioFailure({
         tip: `${intl.formatMessage({
           id: 'the_order_value_should_be_be_greater_than_or_equal_to',
-          defaultMessage: 'The order value should be be greater than or equal to',
+          defaultMessage:
+            'The order value should be be greater than or equal to',
         })} ${symbolInfo.min_notional}`,
       });
     }
@@ -115,7 +122,7 @@ const priceValidator = (
           .toFixed(tickToPrecision(symbolInfo.quote_tick))}`,
       });
     }
-    
+
     return;
   }
 
@@ -150,7 +157,7 @@ const priceValidator = (
           .toFixed(tickToPrecision(symbolInfo.quote_tick), 3)}`,
       });
     }
-    
+
     return;
   }
 
@@ -168,7 +175,8 @@ const priceValidator = (
       setTips(
         `${intl.formatMessage({
           id: 'perp_sell_limit_order_scope',
-          defaultMessage: 'The price of a sell limit order cannot be higher than',
+          defaultMessage:
+            'The price of a sell limit order cannot be higher than',
         })} ${new Big(markPrice.price || 0)
           .mul(1 + symbolInfo.price_scope)
           .toFixed(tickToPrecision(symbolInfo.quote_tick))}`
@@ -177,13 +185,14 @@ const priceValidator = (
       portfolioFailure({
         tip: `${intl.formatMessage({
           id: 'perp_sell_limit_order_scope',
-          defaultMessage: 'The price of a sell limit order cannot be higher than',
+          defaultMessage:
+            'The price of a sell limit order cannot be higher than',
         })} ${new Big(markPrice.price || 0)
           .mul(1 + symbolInfo.price_scope)
           .toFixed(tickToPrecision(symbolInfo.quote_tick))}`,
       });
     }
-    
+
     return;
   }
 
@@ -197,7 +206,6 @@ const priceValidator = (
       new Big(markPrice.price || 0).mul(1 - symbolInfo.price_scope)
     )
   ) {
-
     if (setTips) {
       setTips(
         `${intl.formatMessage({
@@ -217,7 +225,7 @@ const priceValidator = (
           .toFixed(tickToPrecision(symbolInfo.quote_tick), 3)}`,
       });
     }
-    
+
     return;
   }
 
@@ -231,7 +239,7 @@ const sizeValidator = (
   symbolInfo: any,
   intl: IntlShape,
   side: string,
-  portfolioFailure: ({ tip }: { tip: string; }) => void,
+  portfolioFailure: ({ tip }: { tip: string }) => void,
   setTips?: (input: string) => void
 ) => {
   if (!symbolInfo) {
@@ -239,22 +247,21 @@ const sizeValidator = (
   }
 
   if (new Big(size || 0).lt(symbolInfo.base_min)) {
-
     if (setTips) {
       setTips(`
-        ${side === 'Buy'
-          ? intl.formatMessage({
-              id: 'quantity_to_buy_should_be_greater_than_or_equal_to',
-              defaultMessage:
-                'Quantity to buy should be greater than or equal to',
-            })
-          : intl.formatMessage({
-              id: 'quantity_to_sell_should_be_greater_than_or_equal_to',
-              defaultMessage:
-                'Quantity to sell should be greater than or equal to',
-            })
-        } ${symbolInfo.base_min}`
-      );
+        ${
+          side === 'Buy'
+            ? intl.formatMessage({
+                id: 'quantity_to_buy_should_be_greater_than_or_equal_to',
+                defaultMessage:
+                  'Quantity to buy should be greater than or equal to',
+              })
+            : intl.formatMessage({
+                id: 'quantity_to_sell_should_be_greater_than_or_equal_to',
+                defaultMessage:
+                  'Quantity to sell should be greater than or equal to',
+              })
+        } ${symbolInfo.base_min}`);
     } else {
       portfolioFailure({
         tip: `${
@@ -269,7 +276,7 @@ const sizeValidator = (
                 defaultMessage:
                   'Quantity to sell should be greater than or equal to',
               })
-        } ${symbolInfo.base_min}`
+        } ${symbolInfo.base_min}`,
       });
     }
     return;
@@ -278,33 +285,37 @@ const sizeValidator = (
   if (new Big(size || 0).gt(symbolInfo.base_max)) {
     if (setTips) {
       setTips(`
-        ${side === 'Buy'
-          ? intl.formatMessage({
-              id: 'quantity_to_buy_should_be_less_than_or_equal_to',
-              defaultMessage: 'Quantity to buy should be less than or equal to',
-            })
-          : intl.formatMessage({
-              id: 'quantity_to_sell_should_be_less_than_or_equal_to',
-              defaultMessage: 'Quantity to sell should be less than or equal to',
-            })
-        } ${symbolInfo.base_max}`
-      );
+        ${
+          side === 'Buy'
+            ? intl.formatMessage({
+                id: 'quantity_to_buy_should_be_less_than_or_equal_to',
+                defaultMessage:
+                  'Quantity to buy should be less than or equal to',
+              })
+            : intl.formatMessage({
+                id: 'quantity_to_sell_should_be_less_than_or_equal_to',
+                defaultMessage:
+                  'Quantity to sell should be less than or equal to',
+              })
+        } ${symbolInfo.base_max}`);
     } else {
       portfolioFailure({
         tip: `${
           side === 'Buy'
             ? intl.formatMessage({
                 id: 'quantity_to_buy_should_be_less_than_or_equal_to',
-                defaultMessage: 'Quantity to buy should be less than or equal to',
+                defaultMessage:
+                  'Quantity to buy should be less than or equal to',
               })
             : intl.formatMessage({
                 id: 'quantity_to_sell_should_be_less_than_or_equal_to',
-                defaultMessage: 'Quantity to sell should be less than or equal to',
+                defaultMessage:
+                  'Quantity to sell should be less than or equal to',
               })
-        } ${symbolInfo.base_max}`
+        } ${symbolInfo.base_max}`,
       });
     }
-    
+
     return;
   }
 
@@ -334,7 +345,7 @@ const sizeValidator = (
         })}`,
       });
     }
-    
+
     return;
   }
 
@@ -347,18 +358,20 @@ const sizeValidator = (
       setTips(
         `${intl.formatMessage({
           id: 'the_order_value_should_be_be_greater_than_or_equal_to',
-          defaultMessage: 'The order value should be be greater than or equal to',
+          defaultMessage:
+            'The order value should be be greater than or equal to',
         })} ${symbolInfo.min_notional}`
       );
     } else {
       portfolioFailure({
         tip: `${intl.formatMessage({
           id: 'the_order_value_should_be_be_greater_than_or_equal_to',
-          defaultMessage: 'The order value should be be greater than or equal to',
+          defaultMessage:
+            'The order value should be be greater than or equal to',
         })} ${symbolInfo.min_notional}`,
       });
     }
-    
+
     return;
   }
 
@@ -374,9 +387,8 @@ const priceAndSizeValidator = (
   side: string,
   orderType: string,
   markPrice: MarkPrice,
-  portfolioFailure: ({ tip }: { tip: string; }) => void,
+  portfolioFailure: ({ tip }: { tip: string }) => void
 ) => {
-
   if (!symbolInfo || (ONLY_ZEROS.test(price) && ONLY_ZEROS.test(size))) {
     return;
   }
@@ -385,25 +397,59 @@ const priceAndSizeValidator = (
   let resSize;
 
   if (!ONLY_ZEROS.test(price)) {
-    resPrice = priceValidator(price, size, symbolInfo, intl, side, orderType, markPrice, portfolioFailure);
+    resPrice = priceValidator(
+      price,
+      size,
+      symbolInfo,
+      intl,
+      side,
+      orderType,
+      markPrice,
+      portfolioFailure
+    );
   } else {
     resPrice = true;
   }
 
   if (!ONLY_ZEROS.test(size)) {
-    resSize = sizeValidator(price, size, symbolInfo, intl, side, portfolioFailure);
+    resSize = sizeValidator(
+      price,
+      size,
+      symbolInfo,
+      intl,
+      side,
+      portfolioFailure
+    );
   } else {
     resSize = true;
   }
 
-  return resPrice === true && resSize === true
+  return resPrice === true && resSize === true;
 };
 
 const debouncedPriceAndSizeValidator = debounce(
-  (closingPrice, closingQuantity, symbolInfo, intl, side, priceType, referenceMark, portfolioFailure) => {
-    priceAndSizeValidator(closingPrice, closingQuantity, symbolInfo, intl, side, priceType, referenceMark, portfolioFailure);
+  (
+    closingPrice,
+    closingQuantity,
+    symbolInfo,
+    intl,
+    side,
+    priceType,
+    referenceMark,
+    portfolioFailure
+  ) => {
+    priceAndSizeValidator(
+      closingPrice,
+      closingQuantity,
+      symbolInfo,
+      intl,
+      side,
+      priceType,
+      referenceMark,
+      portfolioFailure
+    );
   },
-  1000 
+  1000
 );
 
 export const FutureTableFormHeaders: React.FC = () => {
@@ -416,14 +462,11 @@ export const FutureTableFormHeaders: React.FC = () => {
           className="hidden md:flex lg:flex items-center"
           style={{ color: '#7E8A93' }}
         >
-          <span className={`ml-2`}>
-            {children}
-          </span>
+          <span className={`ml-2`}>{children}</span>
         </span>
       </div>
     </th>
-  )
-
+  );
 
   return (
     <>
@@ -440,14 +483,12 @@ export const FutureTableFormHeaders: React.FC = () => {
         })}
       </TableHeader>
     </>
-  )
-}
+  );
+};
 
 const PendingOrderRow: React.FC<{
-  order: any
-}> = ({
-  order
-}) => {
+  order: any;
+}> = ({ order }) => {
   const intl = useIntl();
   const { accountId } = useWalletSelector();
   const { handlePendingOrderRefreshing } = useOrderlyContext();
@@ -455,27 +496,31 @@ const PendingOrderRow: React.FC<{
   const [loading, setLoading] = useState(false);
 
   return (
-    <div className="px-4 py-2 grid grid-cols-4 gap-2 rounded-lg hover:bg-symbolHover3" >
+    <div className="px-4 py-2 grid grid-cols-4 gap-2 rounded-lg hover:bg-symbolHover3">
       <div className="col-span-3 text-sm flex justify-between">
         <span className="pr-3">
-          <span>
-            {quantity}&nbsp;
-          </span>
+          <span>{quantity}&nbsp;</span>
           <span className="text-primaryText">
             {parseSymbol(symbol).symbolFrom}
           </span>
         </span>
         <span className="text-left">
-          <span className="text-primaryText">{intl.formatMessage({ id: 'at_orderly', defaultMessage: 'at' })}</span>&nbsp;
+          <span className="text-primaryText">
+            {intl.formatMessage({ id: 'at_orderly', defaultMessage: 'at' })}
+          </span>
+          &nbsp;
           <span>
-            ${price?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 3)}
+            $
+            {price?.toFixed(
+              symbol.includes('BTC') || symbol.includes('ETH') ? 2 : 3
+            )}
           </span>
         </span>
       </div>
       <div className="col-span-1 flex justify-end items-center">
         <div
           className="cursor-pointer"
-          onClick={async () => {  
+          onClick={async () => {
             if (!accountId || loading) return;
             try {
               setLoading(true);
@@ -486,7 +531,7 @@ const PendingOrderRow: React.FC<{
                   order_id: order_id,
                   symbol: symbol,
                 },
-              })
+              });
 
               if (res.success === true) {
                 handlePendingOrderRefreshing();
@@ -508,21 +553,35 @@ const PendingOrderRow: React.FC<{
             }
           }}
         >
-
           {loading ? (
             <OrderlyLoading className="animate-spin" />
           ) : (
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path fillRule="evenodd" clipRule="evenodd" d="M10 1.81818C5.48131 1.81818 1.81818 5.48131 1.81818 10C1.81818 14.5187 5.48131 18.1818 10 18.1818C14.5187 18.1818 18.1818 14.5187 18.1818 10C18.1818 5.48131 14.5187 1.81818 10 1.81818ZM0 10C0 4.47715 4.47715 0 10 0C15.5228 0 20 4.47715 20 10C20 15.5228 15.5228 20 10 20C4.47715 20 0 15.5228 0 10Z" fill="#FF6A8E"/>
-              <path fillRule="evenodd" clipRule="evenodd" d="M4.24243 9.99972C4.24243 9.33028 4.78512 8.7876 5.45455 8.7876L14.5455 8.7876C15.2149 8.7876 15.7576 9.33028 15.7576 9.99972C15.7576 10.6692 15.2149 11.2118 14.5455 11.2118L5.45455 11.2118C4.78512 11.2118 4.24243 10.6692 4.24243 9.99972Z" fill="#FF6A8E"/>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M10 1.81818C5.48131 1.81818 1.81818 5.48131 1.81818 10C1.81818 14.5187 5.48131 18.1818 10 18.1818C14.5187 18.1818 18.1818 14.5187 18.1818 10C18.1818 5.48131 14.5187 1.81818 10 1.81818ZM0 10C0 4.47715 4.47715 0 10 0C15.5228 0 20 4.47715 20 10C20 15.5228 15.5228 20 10 20C4.47715 20 0 15.5228 0 10Z"
+                fill="#FF6A8E"
+              />
+              <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M4.24243 9.99972C4.24243 9.33028 4.78512 8.7876 5.45455 8.7876L14.5455 8.7876C15.2149 8.7876 15.7576 9.33028 15.7576 9.99972C15.7576 10.6692 15.2149 11.2118 14.5455 11.2118L5.45455 11.2118C4.78512 11.2118 4.24243 10.6692 4.24243 9.99972Z"
+                fill="#FF6A8E"
+              />
             </svg>
           )}
-
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export const FutureTableFormCells: React.FC<{
   position_qty: number;
@@ -537,10 +596,14 @@ export const FutureTableFormCells: React.FC<{
   setShowFloatingBox: (input: boolean) => void;
   isFocus: string;
   setIsFocus: (input: string) => void;
-  handleOpenClosing: (closingQuantity: number, closingPrice: number | 'Market', row: any) => void;
-  row: any,
-  markPrices: MarkPrice[],
-  futureOrders: MyOrder[]
+  handleOpenClosing: (
+    closingQuantity: number,
+    closingPrice: number | 'Market',
+    row: any
+  ) => void;
+  row: any;
+  markPrices: MarkPrice[];
+  futureOrders: MyOrder[];
 }> = ({
   position_qty,
   mark_price,
@@ -555,7 +618,7 @@ export const FutureTableFormCells: React.FC<{
   handleOpenClosing,
   row,
   markPrices,
-  futureOrders
+  futureOrders,
 }) => {
   const intl = useIntl();
   const { availableSymbols } = useOrderlyContext();
@@ -566,11 +629,11 @@ export const FutureTableFormCells: React.FC<{
 
   useEffect(() => {
     getPendingOrders();
-  }, [futureOrders])
+  }, [futureOrders]);
 
   useEffect(() => {
     setClosingQuantity(Math.abs(position_qty));
-  }, [position_qty])
+  }, [position_qty]);
 
   useEffect(() => {
     if (open)
@@ -580,10 +643,14 @@ export const FutureTableFormCells: React.FC<{
   }, [open]);
 
   const getPendingOrders = async () => {
-    const data = futureOrders.filter((order) => (order.symbol === row.symbol) && (order.side === (position_qty > 0 ? 'SELL' : 'BUY')))
+    const data = futureOrders.filter(
+      (order) =>
+        order.symbol === row.symbol &&
+        order.side === (position_qty > 0 ? 'SELL' : 'BUY')
+    );
 
     data && setOrders(data);
-  }
+  };
 
   return (
     <>
@@ -591,17 +658,21 @@ export const FutureTableFormCells: React.FC<{
         <div className={`flex items-center text-white`}>
           <input
             id={`${row.symbol}-input`}
-            className={`border border-orderTypeBg px-4 py-1.5 text-xs ${position_qty > 0 ? 'text-buyGreen' : 'text-sellColorNew'}`}
+            className={`border border-orderTypeBg px-4 py-1.5 text-xs ${
+              position_qty > 0 ? 'text-buyGreen' : 'text-sellColorNew'
+            }`}
             style={{
               borderRadius: '6px',
-              backgroundColor: 'rgba(0, 0, 0, 0.10)'
+              backgroundColor: 'rgba(0, 0, 0, 0.10)',
             }}
             type="number"
             placeholder="0.0"
             onChange={({ target }) => {
               if (target.value) {
                 debouncedPriceAndSizeValidator(
-                  closingPrice === 'Market' ? mark_price.toString() : closingPrice.toString(),
+                  closingPrice === 'Market'
+                    ? mark_price.toString()
+                    : closingPrice.toString(),
                   target.value,
                   symbolInfo,
                   intl,
@@ -611,16 +682,18 @@ export const FutureTableFormCells: React.FC<{
                   portfolioFailure
                 );
               }
-              
+
               let value: number = parseFloat(target.value);
-              if (value > Math.abs(position_qty)) value = Math.abs(position_qty);
+              if (value > Math.abs(position_qty))
+                value = Math.abs(position_qty);
               if (value < 0) value = 0;
-              setClosingQuantity(value)
+              setClosingQuantity(value);
             }}
             // @ts-ignore
             onWheel={(e) => e.target.blur()}
             onBlur={() => {
-              if (isNaN(closingQuantity)) setClosingQuantity(Math.abs(position_qty))
+              if (isNaN(closingQuantity))
+                setClosingQuantity(Math.abs(position_qty));
             }}
             value={closingQuantity}
           />
@@ -633,7 +706,7 @@ export const FutureTableFormCells: React.FC<{
             style={{
               borderRadius: '6px',
               backgroundColor: open ? '#101E28' : 'rgba(0, 0, 0, 0.10)',
-              top: '-15px'
+              top: '-15px',
             }}
           >
             <div className="w-full px-2.5 py-1.5 text-white relative">
@@ -643,7 +716,9 @@ export const FutureTableFormCells: React.FC<{
                 onChange={({ target }) => {
                   if (target.value) {
                     debouncedPriceAndSizeValidator(
-                      closingPrice === 'Market' ? mark_price.toString() : target.value,
+                      closingPrice === 'Market'
+                        ? mark_price.toString()
+                        : target.value,
                       closingQuantity.toString(),
                       symbolInfo,
                       intl,
@@ -655,7 +730,12 @@ export const FutureTableFormCells: React.FC<{
                   }
 
                   let value: string = target.value;
-                  if (value && value !== 'Market' && ! /^(?:0|[1-9]\d*)(?:\.\d*)?$/.test(value)) return
+                  if (
+                    value &&
+                    value !== 'Market' &&
+                    !/^(?:0|[1-9]\d*)(?:\.\d*)?$/.test(value)
+                  )
+                    return;
                   setClosingPrice(value);
                 }}
                 // @ts-ignore
@@ -664,8 +744,9 @@ export const FutureTableFormCells: React.FC<{
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  if (closingPrice === 'Market') setClosingPrice(mark_price.toString())
-                  else setOpen(true)
+                  if (closingPrice === 'Market')
+                    setClosingPrice(mark_price.toString());
+                  else setOpen(true);
                 }}
               />
               {closingPrice !== 'Market' && (
@@ -675,7 +756,7 @@ export const FutureTableFormCells: React.FC<{
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    setOpen(!open)
+                    setOpen(!open);
                   }}
                   width="10"
                   height="6"
@@ -683,12 +764,15 @@ export const FutureTableFormCells: React.FC<{
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                 >
-                  <path d="M5.38406 5.53907C5.18417 5.77894 4.81574 5.77894 4.61584 5.53907L0.683364 0.820091C0.411977 0.494427 0.643556 -9.9678e-07 1.06747 -9.5972e-07L8.93243 -2.72144e-07C9.35635 -2.35083e-07 9.58793 0.494429 9.31654 0.820092L5.38406 5.53907Z" fill={closingPrice ? 'white' : '#7E8A93'}/>
+                  <path
+                    d="M5.38406 5.53907C5.18417 5.77894 4.81574 5.77894 4.61584 5.53907L0.683364 0.820091C0.411977 0.494427 0.643556 -9.9678e-07 1.06747 -9.5972e-07L8.93243 -2.72144e-07C9.35635 -2.35083e-07 9.58793 0.494429 9.31654 0.820092L5.38406 5.53907Z"
+                    fill={closingPrice ? 'white' : '#7E8A93'}
+                  />
                 </svg>
               )}
             </div>
             {open && (
-              <div  
+              <div
                 className="cursor-pointer text-primaryText px-2.5 py-1.5 w-full rounded-md hover:bg-dclSelectTokenHover hover:text-white"
                 onClick={() => {
                   setClosingPrice('Market');
@@ -712,10 +796,14 @@ export const FutureTableFormCells: React.FC<{
             onMouseLeave={() => setShowFloatingBox(false)}
           >
             <div
-              className={`border w-full text-center border-orderTypeBg ${orders.length > 0 ? 'px-1.5' : 'px-3'} py-1.5 rounded-md text-xs text-primaryText cursor-pointer`}
+              className={`border w-full text-center border-orderTypeBg ${
+                orders.length > 0 ? 'px-1.5' : 'px-3'
+              } py-1.5 whitespace-nowrap rounded-md text-xs text-primaryText cursor-pointer`}
               onClick={() => {
                 const pass = priceAndSizeValidator(
-                  closingPrice === 'Market' ? mark_price.toString() : closingPrice,
+                  closingPrice === 'Market'
+                    ? mark_price.toString()
+                    : closingPrice,
                   closingQuantity.toString(),
                   symbolInfo,
                   intl,
@@ -726,14 +814,14 @@ export const FutureTableFormCells: React.FC<{
                 );
                 if (pass) {
                   handleOpenClosing(
-                    closingQuantity, 
+                    closingQuantity,
                     closingPrice === ''
-                      ? mark_price : 
-                      closingPrice === 'Market'
-                      ? closingPrice 
+                      ? mark_price
+                      : closingPrice === 'Market'
+                      ? closingPrice
                       : parseFloat(closingPrice),
                     row
-                  )
+                  );
                 }
               }}
             >
@@ -743,22 +831,27 @@ export const FutureTableFormCells: React.FC<{
               })}
               {orders.length > 0 && `(${orders.length})`}
             </div>
-            {(showFloatingBox && orders.length > 0) && (
+            {showFloatingBox && orders.length > 0 && (
               <div
                 className="absolute bg-boxBorder border border-orderTypeBg rounded-xl py-3 px-1.5 z-20"
                 style={{
                   bottom: '100%',
                   right: 0,
-                  width: '300px'
+                  width: '300px',
                 }}
               >
                 <div className="px-4 flex items-center pb-2 border-b border-gray1">
                   <span className="text-white text-sm gotham_bold">
-                    {intl.formatMessage({ id: 'pending_orders_title', defaultMessage: 'Pending Close Orders' })}
+                    {intl.formatMessage({
+                      id: 'pending_orders_title',
+                      defaultMessage: 'Pending Close Orders',
+                    })}
                   </span>
                 </div>
                 <div>
-                {orders.map((order: any) => <PendingOrderRow key={order.order_id} order={order} />)}
+                  {orders.map((order: any) => (
+                    <PendingOrderRow key={order.order_id} order={order} />
+                  ))}
                 </div>
               </div>
             )}
@@ -766,8 +859,8 @@ export const FutureTableFormCells: React.FC<{
         </div>
       </td>
     </>
-  )
-}
+  );
+};
 
 function FutureQuantityModal(
   props: Modal.Props & {
@@ -775,23 +868,26 @@ function FutureQuantityModal(
     quantity: number;
     position_qty: number;
     mark_price: number;
-    price: number | "Market";
+    price: number | 'Market';
     symbolInfo: SymbolInfo;
   }
 ) {
-  const { onClose, quantity, position_qty, mark_price, price, symbolInfo  } = props;
+  const { onClose, quantity, position_qty, mark_price, price, symbolInfo } =
+    props;
   const intl = useIntl();
-  const [inputQuantity, setInputQuantity] = useState<number>(Math.abs(position_qty));
+  const [inputQuantity, setInputQuantity] = useState<number>(
+    Math.abs(position_qty)
+  );
   const [tips, setTips] = useState<string>('');
   const portfolioFailure = usePortfolioFailure();
-  
+
   useEffect(() => {
     setInputQuantity(quantity);
-  }, [quantity])
-  
+  }, [quantity]);
+
   useEffect(() => {
-    console.log(tips)
-  }, [tips])
+    console.log(tips);
+  }, [tips]);
 
   return (
     <Modal
@@ -808,7 +904,7 @@ function FutureQuantityModal(
           left: '0px',
           transform: 'translate(-50%, -20px)',
           outline: 'none',
-        }
+        },
       }}
     >
       <div
@@ -829,7 +925,11 @@ function FutureQuantityModal(
               <IoClose size={20} />
             </span>
           </div>
-          <div className={`flex px-4 items-center ${tips ? 'pb-3' : 'pb-6'} justify-between`}>
+          <div
+            className={`flex px-4 items-center ${
+              tips ? 'pb-3' : 'pb-6'
+            } justify-between`}
+          >
             <input
               type="number"
               step="any"
@@ -847,9 +947,10 @@ function FutureQuantityModal(
                   setTips
                 );
                 let value: any = target.value;
-                if (parseFloat(value) > Math.abs(position_qty)) value = Math.abs(position_qty);
+                if (parseFloat(value) > Math.abs(position_qty))
+                  value = Math.abs(position_qty);
                 if (parseFloat(value) < 0) value = 0;
-                setInputQuantity(value)
+                setInputQuantity(value);
               }}
               className="text-white text-xl leading-tight px-2.5 pb-2 w-10/12 mr-2"
               style={{ borderBottomColor: '#FFFFFF1A', borderBottomWidth: 1 }}
@@ -862,16 +963,12 @@ function FutureQuantityModal(
                 onClose && onClose(parseFloat(inputQuantity));
               }}
             >
-              <span>
-                {intl.formatMessage({ id: 'save' })}
-              </span>
+              <span>{intl.formatMessage({ id: 'save' })}</span>
             </button>
           </div>
           {tips && (
             <div className="flex items-center pb-6 justify-between">
-              <span
-                className="text-error text-xs leading-tight px-2.5 pb-2 w-full mr-2"
-              >
+              <span className="text-error text-xs leading-tight px-2.5 pb-2 w-full mr-2">
                 {tips}
               </span>
             </div>
@@ -895,7 +992,18 @@ function FuturePriceModal(
     quantity: number;
   }
 ) {
-  const { onClose, priceMode, setPriceMode, price, mark_price, symbolInfo, position_qty, referenceMark, quantity, isOpen } = props;
+  const {
+    onClose,
+    priceMode,
+    setPriceMode,
+    price,
+    mark_price,
+    symbolInfo,
+    position_qty,
+    referenceMark,
+    quantity,
+    isOpen,
+  } = props;
   const [inputPrice, setInputPrice] = useState<string>(price.toString());
   const [openOnMarket, setOpenOnMarket] = useState<boolean>(true);
   const intl = useIntl();
@@ -906,7 +1014,7 @@ function FuturePriceModal(
     if (isOpen && openOnMarket) {
       setPriceMode('market_price');
     }
-  }, [isOpen])
+  }, [isOpen]);
 
   return (
     <Modal
@@ -929,7 +1037,7 @@ function FuturePriceModal(
           left: '0px',
           transform: 'translate(-50%, -20px)',
           outline: 'none',
-        }
+        },
       }}
     >
       <div
@@ -947,7 +1055,7 @@ function FuturePriceModal(
                 if (onClose) {
                   priceMode === 'market_price' && setOpenOnMarket(true);
                   setTips('');
-                  onClose(price)
+                  onClose(price);
                 }
               }}
             >
@@ -955,29 +1063,47 @@ function FuturePriceModal(
             </span>
           </div>
           <div className="grid grid-cols-2 gap-4 p-4">
-            {['market_price', 'limit_price'].map((item: 'market_price' | 'limit_price') => (
-              <div
-                key={item}
-                className={`relative text-center px-7 py-4 w-150 rounded-md border ${priceMode !== item ? 'text-primaryText border-orderTypeBg' : 'text-white border-mobileOrderBg bg-mobileOrderBg'}`}
-                onClick={() => {
-                  setInputPrice(mark_price.toString());
-                  setTips('');
-                  setPriceMode(item);
-                }}
-              >
-                {intl.formatMessage({ id: item })}
-                {priceMode === item && (
-                  <div
-                    className="absolute bg-gradientFromHover rounded-full flex justify-center items-center -top-0.5 -right-1.5"
-                    style={{ width: '22px', height: '22px' }}
-                  >
-                    <svg width="11" height="8" viewBox="0 0 11 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M1 4L4 7L10 1" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                  </div>
-                )}
-              </div>
-            ))}
+            {['market_price', 'limit_price'].map(
+              (item: 'market_price' | 'limit_price') => (
+                <div
+                  key={item}
+                  className={`relative text-center px-7 py-4 w-150 rounded-md border ${
+                    priceMode !== item
+                      ? 'text-primaryText border-orderTypeBg'
+                      : 'text-white border-mobileOrderBg bg-mobileOrderBg'
+                  }`}
+                  onClick={() => {
+                    setInputPrice(mark_price.toString());
+                    setTips('');
+                    setPriceMode(item);
+                  }}
+                >
+                  {intl.formatMessage({ id: item })}
+                  {priceMode === item && (
+                    <div
+                      className="absolute bg-gradientFromHover rounded-full flex justify-center items-center -top-0.5 -right-1.5"
+                      style={{ width: '22px', height: '22px' }}
+                    >
+                      <svg
+                        width="11"
+                        height="8"
+                        viewBox="0 0 11 8"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M1 4L4 7L10 1"
+                          stroke="black"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+              )
+            )}
           </div>
           {priceMode === 'limit_price' && (
             <div className="flex px-4 items-center pb-6 justify-between">
@@ -987,7 +1113,9 @@ function FuturePriceModal(
                 value={inputPrice}
                 onChange={({ target }) => {
                   priceValidator(
-                    target.value === 'Market' ? mark_price.toString() : target.value,
+                    target.value === 'Market'
+                      ? mark_price.toString()
+                      : target.value,
                     quantity.toString(),
                     symbolInfo,
                     intl,
@@ -997,7 +1125,7 @@ function FuturePriceModal(
                     portfolioFailure,
                     setTips
                   );
-                  setInputPrice(target.value)
+                  setInputPrice(target.value);
                 }}
                 className="text-white text-xl leading-tight px-2.5 pb-2 w-10/12 mr-2"
                 style={{ borderBottomColor: '#FFFFFF1A', borderBottomWidth: 1 }}
@@ -1013,53 +1141,53 @@ function FuturePriceModal(
                   }
                 }}
               >
-                <span>
-                  {intl.formatMessage({ id: 'save' })}
-                </span>
+                <span>{intl.formatMessage({ id: 'save' })}</span>
               </button>
             </div>
-            )}
-            {tips && (
-              <div className="flex items-center pb-6 justify-between">
-                <span
-                  className="text-error text-xs leading-tight px-2.5 pb-2 w-full mr-2"
-                >
-                  {tips}
-                </span>
-              </div>
-            )}
-          </div>
+          )}
+          {tips && (
+            <div className="flex items-center pb-6 justify-between">
+              <span className="text-error text-xs leading-tight px-2.5 pb-2 w-full mr-2">
+                {tips}
+              </span>
+            </div>
+          )}
+        </div>
       </div>
     </Modal>
   );
 }
 
 const PendingOrderMobileRow: React.FC<{
-  order: any
-}> = ({
-  order
-}) => {
+  order: any;
+}> = ({ order }) => {
   const intl = useIntl();
   const { accountId } = useWalletSelector();
   const { handlePendingOrderRefreshing } = useOrderlyContext();
   const { symbol, quantity, price, order_id, side } = order;
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
 
   return (
-    <div key={order_id} className="px-4 py-6 grid grid-cols-4 gap-2 border-b" style={{ borderColor: 'rgba(255, 255, 255, 0.1)'}}>
+    <div
+      key={order_id}
+      className="px-4 py-6 grid grid-cols-4 gap-2 border-b"
+      style={{ borderColor: 'rgba(255, 255, 255, 0.1)' }}
+    >
       <div className="col-span-3 text-base">
         <span className="pr-3">
-          <span className="text-white">
-            {quantity}&nbsp;
-          </span>
-          <span>
-            {parseSymbol(symbol).symbolFrom}
-          </span>
+          <span className="text-white">{quantity}&nbsp;</span>
+          <span>{parseSymbol(symbol).symbolFrom}</span>
         </span>
         <span>
-          <span className="italic">{intl.formatMessage({ id: 'at_orderly', defaultMessage: 'at' })}</span>&nbsp;
+          <span className="italic">
+            {intl.formatMessage({ id: 'at_orderly', defaultMessage: 'at' })}
+          </span>
+          &nbsp;
           <span className="text-white">
-            ${price?.toFixed((symbol.includes('BTC') || symbol.includes('ETH')) ? 2 : 3)}
+            $
+            {price?.toFixed(
+              symbol.includes('BTC') || symbol.includes('ETH') ? 2 : 3
+            )}
           </span>
         </span>
       </div>
@@ -1077,7 +1205,7 @@ const PendingOrderMobileRow: React.FC<{
                   order_id: order_id,
                   symbol: symbol,
                 },
-              })
+              });
 
               if (res.success === true) {
                 handlePendingOrderRefreshing();
@@ -1099,22 +1227,35 @@ const PendingOrderMobileRow: React.FC<{
             }
           }}
         >
-
           {loading ? (
             <OrderlyLoading className="animate-spin" />
           ) : (
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path fillRule="evenodd" clipRule="evenodd" d="M10 1.81818C5.48131 1.81818 1.81818 5.48131 1.81818 10C1.81818 14.5187 5.48131 18.1818 10 18.1818C14.5187 18.1818 18.1818 14.5187 18.1818 10C18.1818 5.48131 14.5187 1.81818 10 1.81818ZM0 10C0 4.47715 4.47715 0 10 0C15.5228 0 20 4.47715 20 10C20 15.5228 15.5228 20 10 20C4.47715 20 0 15.5228 0 10Z" fill="#FF6A8E"/>
-              <path fillRule="evenodd" clipRule="evenodd" d="M4.24243 9.99972C4.24243 9.33028 4.78512 8.7876 5.45455 8.7876L14.5455 8.7876C15.2149 8.7876 15.7576 9.33028 15.7576 9.99972C15.7576 10.6692 15.2149 11.2118 14.5455 11.2118L5.45455 11.2118C4.78512 11.2118 4.24243 10.6692 4.24243 9.99972Z" fill="#FF6A8E"/>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M10 1.81818C5.48131 1.81818 1.81818 5.48131 1.81818 10C1.81818 14.5187 5.48131 18.1818 10 18.1818C14.5187 18.1818 18.1818 14.5187 18.1818 10C18.1818 5.48131 14.5187 1.81818 10 1.81818ZM0 10C0 4.47715 4.47715 0 10 0C15.5228 0 20 4.47715 20 10C20 15.5228 15.5228 20 10 20C4.47715 20 0 15.5228 0 10Z"
+                fill="#FF6A8E"
+              />
+              <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M4.24243 9.99972C4.24243 9.33028 4.78512 8.7876 5.45455 8.7876L14.5455 8.7876C15.2149 8.7876 15.7576 9.33028 15.7576 9.99972C15.7576 10.6692 15.2149 11.2118 14.5455 11.2118L5.45455 11.2118C4.78512 11.2118 4.24243 10.6692 4.24243 9.99972Z"
+                fill="#FF6A8E"
+              />
             </svg>
           )}
-
         </div>
       </div>
     </div>
-  )
-}
-
+  );
+};
 
 function PendingOrdersModal(
   props: Modal.Props & {
@@ -1127,7 +1268,7 @@ function PendingOrdersModal(
 
   useEffect(() => {
     rows.length < 1 && onClose();
-  }, [rows])
+  }, [rows]);
 
   return (
     <Modal
@@ -1144,7 +1285,7 @@ function PendingOrdersModal(
           left: '0px',
           transform: 'translate(-50%, -20px)',
           outline: 'none',
-        }
+        },
       }}
     >
       <div
@@ -1153,7 +1294,10 @@ function PendingOrdersModal(
         <div className="py-6 text-primaryOrderly text-sm flex flex-col  lg:w-p400  lg:h-p560">
           <div className="px-4 flex items-center pb-6 justify-between">
             <span className="text-white text-base gotham_bold">
-              {intl.formatMessage({ id: 'pending_orders_title', defaultMessage: 'Pending Close Orders' })}
+              {intl.formatMessage({
+                id: 'pending_orders_title',
+                defaultMessage: 'Pending Close Orders',
+              })}
             </span>
 
             <span
@@ -1166,7 +1310,9 @@ function PendingOrdersModal(
             </span>
           </div>
           <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
-            {rows.map((order: any) => <PendingOrderMobileRow key={order.order_id} order={order} />)}
+            {rows.map((order: any) => (
+              <PendingOrderMobileRow key={order.order_id} order={order} />
+            ))}
           </div>
         </div>
       </div>
@@ -1174,13 +1320,17 @@ function PendingOrdersModal(
   );
 }
 
-export  function ClosingModal(
+export function ClosingModal(
   props: Modal.Props & {
     onClick: () => Promise<any>;
-    row: any,
+    row: any;
     closingPrice: number | 'Market';
     closingQuantity: number;
-    marketList: { text: JSX.Element; withSymbol: JSX.Element; textId: string; }[];
+    marketList: {
+      text: JSX.Element;
+      withSymbol: JSX.Element;
+      textId: string;
+    }[];
   }
 ) {
   const {
@@ -1189,15 +1339,15 @@ export  function ClosingModal(
     closingPrice,
     closingQuantity,
     marketList,
-    row
+    row,
   } = props;
 
-  const { symbol  } = row;
+  const { symbol } = row;
 
   const { symbolFrom } = parseSymbol(symbol);
 
   const [loading, setLoading] = useState<boolean>(false);
-  
+
   const intl = useIntl();
   return (
     <Modal
@@ -1216,48 +1366,80 @@ export  function ClosingModal(
             <div className="col-span-2 m-4">
               <div className="flex items-center justify-center text-white text-center gotham_bold">
                 <span>
-                  {intl.formatMessage({ id: 'closing_1' } )}&nbsp;
-                  <span className={row.position_qty < 0  ? 'text-buyGreen' : 'text-sellColorNew'}>{closingQuantity}</span>
-                  &nbsp;{intl.formatMessage({ id: 'closing_2' }, { type: closingPrice === 'Market' ? 'market' : 'limit' } )}
+                  {intl.formatMessage({ id: 'closing_1' })}&nbsp;
+                  <span
+                    className={
+                      row.position_qty < 0
+                        ? 'text-buyGreen'
+                        : 'text-sellColorNew'
+                    }
+                  >
+                    {closingQuantity}
+                  </span>
+                  &nbsp;
+                  {intl.formatMessage(
+                    { id: 'closing_2' },
+                    { type: closingPrice === 'Market' ? 'market' : 'limit' }
+                  )}
                 </span>
               </div>
             </div>
             <div className="col-span-1 mb-2">
-              <div className="flex items-center -m-2">{marketList.find((m) => m.textId === symbol)?.text}</div>
+              <div className="flex items-center -m-2">
+                {marketList.find((m) => m.textId === symbol)?.text}
+              </div>
             </div>
             <div className="col-span-1 mb-2">
               <div className="flex items-center justify-end  text-white">
-                {closingPrice === 'Market' ? intl.formatMessage({ id: 'market' }) : intl.formatMessage({ id: 'limit' })}
+                {closingPrice === 'Market'
+                  ? intl.formatMessage({ id: 'market' })
+                  : intl.formatMessage({ id: 'limit' })}
                 <TextWrapper
                   className="px-2 text-sm ml-2"
                   value={intl.formatMessage({
                     id: row.position_qty < 0 ? 'buy' : 'sell',
                     defaultMessage: row.position_qty < 0 ? 'buy' : 'sell',
                   })}
-                  bg={row.position_qty < 0  ? 'bg-buyGreen' : 'bg-sellRed'}
-                  textC={row.position_qty < 0  ? 'text-buyGreen' : 'text-sellColorNew'}
+                  bg={row.position_qty < 0 ? 'bg-buyGreen' : 'bg-sellRed'}
+                  textC={
+                    row.position_qty < 0 ? 'text-buyGreen' : 'text-sellColorNew'
+                  }
                 />
               </div>
             </div>
             <div className="col-span-1 mb-2">
-              <div className="flex items-center text-white">{intl.formatMessage({ id: 'size' })}</div>
+              <div className="flex items-center text-white">
+                {intl.formatMessage({ id: 'size' })}
+              </div>
             </div>
             <div className="col-span-1 mb-2">
-              <div className="flex items-center justify-end text-white">{formatDecimalToTwoOrMore(closingQuantity)} {symbolFrom}</div>
+              <div className="flex items-center justify-end text-white">
+                {formatDecimalToTwoOrMore(closingQuantity)} {symbolFrom}
+              </div>
             </div>
             <div className="col-span-1 mb-2">
-              <div className="flex items-center text-white">{intl.formatMessage({ id: 'price' })}</div>
+              <div className="flex items-center text-white">
+                {intl.formatMessage({ id: 'price' })}
+              </div>
             </div>
             <div className="col-span-1 mb-2">
-              <div className="flex items-center justify-end text-white">{closingPrice === 'Market' ? intl.formatMessage({ id: 'market' }) : `$${closingPrice}`}</div>
+              <div className="flex items-center justify-end text-white">
+                {closingPrice === 'Market'
+                  ? intl.formatMessage({ id: 'market' })
+                  : `$${closingPrice}`}
+              </div>
             </div>
             {closingPrice !== 'Market' && (
               <>
                 <div className="col-span-1 mb-2">
-                  <div className="flex items-center text-white">{intl.formatMessage({ id: 'total' })}</div>
+                  <div className="flex items-center text-white">
+                    {intl.formatMessage({ id: 'total' })}
+                  </div>
                 </div>
                 <div className="col-span-1 mb-2">
-                  <div className="flex items-center justify-end text-white">${(closingPrice * closingQuantity)}</div>
+                  <div className="flex items-center justify-end text-white">
+                    ${closingPrice * closingQuantity}
+                  </div>
                 </div>
               </>
             )}
@@ -1271,7 +1453,7 @@ export  function ClosingModal(
                 onClick={(e: any) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  
+
                   onRequestClose && onRequestClose(e);
                 }}
                 disabled={loading}
@@ -1282,11 +1464,10 @@ export  function ClosingModal(
             <div className="col-span-1 mb-2">
               <button
                 className={`w-full rounded-lg ${
-                    loading
-                      ? 'opacity-70 cursor-not-allowed bg-buttonGradientBgOpacity'
-                      : ''
-                  } flex items-center justify-center  bg-buttonGradientBg hover:bg-buttonGradientBgOpacity text-xs text-white`
-                }
+                  loading
+                    ? 'opacity-70 cursor-not-allowed bg-buttonGradientBgOpacity'
+                    : ''
+                } flex items-center justify-center  bg-buttonGradientBg hover:bg-buttonGradientBgOpacity text-xs text-white`}
                 style={{ paddingTop: '0.4375rem', paddingBottom: '0.4375rem' }}
                 onClick={(e: any) => {
                   e.preventDefault();
@@ -1311,17 +1492,27 @@ export  function ClosingModal(
 }
 
 const FutureMobileRow: React.FC<{
-  row: { symbol: string, position_qty:number, average_open_price: number, unsettled_pnl: number, est_liq_price: number };
-  marketList: { text: JSX.Element; withSymbol: JSX.Element; textId: string; }[];
-  handleOpenClosing: (closingQuantity: number, closingPrice: number | 'Market', row: any) => void;
+  row: {
+    symbol: string;
+    position_qty: number;
+    average_open_price: number;
+    unsettled_pnl: number;
+    est_liq_price: number;
+  };
+  marketList: { text: JSX.Element; withSymbol: JSX.Element; textId: string }[];
+  handleOpenClosing: (
+    closingQuantity: number,
+    closingPrice: number | 'Market',
+    row: any
+  ) => void;
   unrealMode: string;
-  setUnrealMode: (mode: "mark_price" | "last_price") => void;
+  setUnrealMode: (mode: 'mark_price' | 'last_price') => void;
   futureOrders: MyOrder[];
   markPrices: MarkPrice[];
   lastPrices: {
     symbol: string;
     close: number;
-  }[]
+  }[];
 }> = ({
   row,
   marketList,
@@ -1330,7 +1521,7 @@ const FutureMobileRow: React.FC<{
   setUnrealMode,
   futureOrders,
   markPrices,
-  lastPrices
+  lastPrices,
 }) => {
   const intl = useIntl();
   const { symbol, position_qty, average_open_price, est_liq_price } = row;
@@ -1338,7 +1529,9 @@ const FutureMobileRow: React.FC<{
   const [futureQuantityOpen, setFutureQuantityOpen] = useState<boolean>(false);
   const [futurePriceOpen, setFuturePriceOpen] = useState<boolean>(false);
   const [quantity, setQuantity] = useState<number>(Math.abs(position_qty));
-  const [priceMode, setPriceMode] = useState<'market_price' | 'limit_price'>('market_price');
+  const [priceMode, setPriceMode] = useState<'market_price' | 'limit_price'>(
+    'market_price'
+  );
   const mark_price = markPrices?.find((i) => i.symbol === symbol)?.price;
   const [price, setPrice] = useState<number | 'Market'>('Market');
   const [orders, setOrders] = useState<any>([]);
@@ -1352,27 +1545,43 @@ const FutureMobileRow: React.FC<{
   const portfolioFailure = usePortfolioFailure();
 
   useEffect(() => {
-    const price = unrealMode === 'mark_price' ? markPrices?.find((i) => i.symbol === symbol)?.price : lastPrices?.find((i) => i.symbol === symbol)?.close;
-    const value = position_qty >= 0 ? ((price - average_open_price) * position_qty) : ((average_open_price - price) * position_qty) * -1;
-    const percentage = position_qty >= 0 ? ((average_open_price - price ) / (average_open_price / curLeverage )) * -100 : ((average_open_price - price ) / (average_open_price / curLeverage)) * 100
-    const percentageParse = percentage.toPrecision(percentage.toString().split('.')[0].length + 2)
-    const percentageTrue = percentageParse.substring(0, percentageParse.length - (percentageParse.charAt(0) === '-' ? 2 : 1))
+    const price =
+      unrealMode === 'mark_price'
+        ? markPrices?.find((i) => i.symbol === symbol)?.price
+        : lastPrices?.find((i) => i.symbol === symbol)?.close;
+    const value =
+      position_qty >= 0
+        ? (price - average_open_price) * position_qty
+        : (average_open_price - price) * position_qty * -1;
+    const percentage =
+      position_qty >= 0
+        ? ((average_open_price - price) / (average_open_price / curLeverage)) *
+          -100
+        : ((average_open_price - price) / (average_open_price / curLeverage)) *
+          100;
+    const percentageParse = percentage.toPrecision(
+      percentage.toString().split('.')[0].length + 2
+    );
+    const percentageTrue = percentageParse.substring(
+      0,
+      percentageParse.length - (percentageParse.charAt(0) === '-' ? 2 : 1)
+    );
 
     setUnrealPnl(value);
     setUnrealPercentage(percentageTrue);
-  }, [unrealMode, markPrices, lastPrices])
+  }, [unrealMode, markPrices, lastPrices]);
 
   useEffect(() => {
     setQuantity(Math.abs(position_qty));
-  }, [row])
+  }, [row]);
 
   useEffect(() => {
     getPendingOrders();
-  }, [])
+  }, []);
 
   useEffect(() => {
     getPendingOrders();
-  }, [futureOrders])
+  }, [futureOrders]);
 
   useEffect(() => {
     if (showPnlSelector)
@@ -1382,10 +1591,14 @@ const FutureMobileRow: React.FC<{
   }, [showPnlSelector]);
 
   const getPendingOrders = async () => {
-    const data = futureOrders.filter((order) => (order.symbol === row.symbol) && (order.side === (position_qty > 0 ? 'SELL' : 'BUY')))
+    const data = futureOrders.filter(
+      (order) =>
+        order.symbol === row.symbol &&
+        order.side === (position_qty > 0 ? 'SELL' : 'BUY')
+    );
 
     setOrders(data);
-  }
+  };
 
   return (
     <>
@@ -1395,7 +1608,9 @@ const FutureMobileRow: React.FC<{
       >
         <div className="w-full grid grid-cols-2 p-5">
           <div className="col-span-1 mb-3">
-            <div className="flex items-center ">{marketList.find((m) => m.textId === symbol)?.withSymbol}</div>
+            <div className="flex items-center ">
+              {marketList.find((m) => m.textId === symbol)?.withSymbol}
+            </div>
           </div>
           <div className="col-span-1 flex justify-end items-center mb-3">
             {orders.length > 0 && (
@@ -1405,12 +1620,13 @@ const FutureMobileRow: React.FC<{
                   setPendingOpen(true);
                 }}
               >
-                {intl.formatMessage({ id: 'pending_cap' })}&#40;{orders.length}&#41;
+                {intl.formatMessage({ id: 'pending_cap' })}&#40;{orders.length}
+                &#41;
               </div>
             )}
             <div
               className="cursor-pointer text-center py-1 px-3 border border-orderTypeBg rounded-md"
-               onClick={() => {
+              onClick={() => {
                 const pass = priceAndSizeValidator(
                   price === 'Market' ? mark_price.toString() : price.toString(),
                   quantity.toString(),
@@ -1422,7 +1638,7 @@ const FutureMobileRow: React.FC<{
                   portfolioFailure
                 );
                 pass && handleOpenClosing(quantity, price, row);
-               }}
+              }}
             >
               {intl.formatMessage({ id: 'close' })}
             </div>
@@ -1430,36 +1646,78 @@ const FutureMobileRow: React.FC<{
           <div className="col-span-1 my-3">
             <div className="flex items-center">
               {intl.formatMessage({ id: 'qty.' })}
-              <div className="text-10px p-0.5 ml-1" style={{ borderRadius: '4px', backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>{parseSymbol(symbol).symbolFrom}</div>
+              <div
+                className="text-10px p-0.5 ml-1"
+                style={{
+                  borderRadius: '4px',
+                  backgroundColor: 'rgba(126, 138, 147, 0.15)',
+                }}
+              >
+                {parseSymbol(symbol).symbolFrom}
+              </div>
             </div>
-            <span className="text-white">{position_qty?.toFixed(4) || '-' }</span>
+            <span className="text-white">
+              {position_qty?.toFixed(4) || '-'}
+            </span>
           </div>
           <div className="col-span-1 my-3">
             <div className="flex items-center">
               {intl.formatMessage({ id: 'avg_open' })}
-              <div className="text-10px p-0.5 ml-1" style={{ borderRadius: '4px', backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>{parseSymbol(symbol).symbolTo}</div>
+              <div
+                className="text-10px p-0.5 ml-1"
+                style={{
+                  borderRadius: '4px',
+                  backgroundColor: 'rgba(126, 138, 147, 0.15)',
+                }}
+              >
+                {parseSymbol(symbol).symbolTo}
+              </div>
             </div>
-            <span className="text-white">{average_open_price?.toFixed(3) || '-'}</span>
+            <span className="text-white">
+              {average_open_price?.toFixed(3) || '-'}
+            </span>
           </div>
           <div className="col-span-1 my-3">
             <div className="flex items-center">
               {intl.formatMessage({ id: 'mark_orderly' })}
-              <div className="text-10px p-0.5 ml-1" style={{ borderRadius: '4px', backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>{parseSymbol(symbol).symbolTo}</div>
+              <div
+                className="text-10px p-0.5 ml-1"
+                style={{
+                  borderRadius: '4px',
+                  backgroundColor: 'rgba(126, 138, 147, 0.15)',
+                }}
+              >
+                {parseSymbol(symbol).symbolTo}
+              </div>
             </div>
-            <span className="text-white">{markPrices.find((i) => i.symbol === symbol)?.price.toFixed(3) || '-' }</span>
+            <span className="text-white">
+              {markPrices.find((i) => i.symbol === symbol)?.price.toFixed(3) ||
+                '-'}
+            </span>
           </div>
           <div className="col-span-1 my-3">
             <div className="flex items-center">
               {intl.formatMessage({ id: 'liq_price' })}
-              <div className="text-10px p-0.5 ml-1" style={{ borderRadius: '4px', backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>{parseSymbol(symbol).symbolTo}</div>
+              <div
+                className="text-10px p-0.5 ml-1"
+                style={{
+                  borderRadius: '4px',
+                  backgroundColor: 'rgba(126, 138, 147, 0.15)',
+                }}
+              >
+                {parseSymbol(symbol).symbolTo}
+              </div>
             </div>
-            <span className="text-white">{est_liq_price ? est_liq_price.toFixed(3) : '-'}</span>
+            <span className="text-white">
+              {est_liq_price ? est_liq_price.toFixed(3) : '-'}
+            </span>
           </div>
-          <div className="col-span-1 my-3"
+          <div
+            className="col-span-1 my-3"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              setShowPnlSelector(true)
+              setShowPnlSelector(true);
             }}
           >
             <div className="relative flex items-center">
@@ -1469,32 +1727,46 @@ const FutureMobileRow: React.FC<{
               >
                 {intl.formatMessage({ id: 'unreal_pnl' })}
               </span>
-              <div className="text-10px p-0.5 ml-1 no-underline" style={{ borderRadius: '4px', backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>{parseSymbol(symbol).symbolTo}</div>
+              <div
+                className="text-10px p-0.5 ml-1 no-underline"
+                style={{
+                  borderRadius: '4px',
+                  backgroundColor: 'rgba(126, 138, 147, 0.15)',
+                }}
+              >
+                {parseSymbol(symbol).symbolTo}
+              </div>
 
               {showPnlSelector && (
                 <div className="absolute top-full z-50">
                   <div
                     className={`flex flex-col min-w-28 items-start py-2 px-1.5 rounded-lg border border-borderC text-sm  bg-darkBg `}
                   >
-                    {['mark_price', 'last_price'].map((item: "mark_price" | "last_price", index) => {
-                      return (
-                        <div
-                          className={`whitespace-nowrap flex items-center justify-between cursor-pointer min-w-fit my-0.5 text-left px-1 py-1 w-full rounded-md`}
-                          key={item + index}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setUnrealMode(item);
-                            setShowPnlSelector(false);
-                          }}
-                        >
-                          <div className="mr-2 border border-baseGreen bg-symbolHover2 border-solid w-3 h-3 rounded-full">
-                            {unrealMode === item && <div className="w-2 h-2 bg-baseGreen rounded-full m-px" />}
+                    {['mark_price', 'last_price'].map(
+                      (item: 'mark_price' | 'last_price', index) => {
+                        return (
+                          <div
+                            className={`whitespace-nowrap flex items-center justify-between cursor-pointer min-w-fit my-0.5 text-left px-1 py-1 w-full rounded-md`}
+                            key={item + index}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setUnrealMode(item);
+                              setShowPnlSelector(false);
+                            }}
+                          >
+                            <div className="mr-2 border border-baseGreen bg-symbolHover2 border-solid w-3 h-3 rounded-full">
+                              {unrealMode === item && (
+                                <div className="w-2 h-2 bg-baseGreen rounded-full m-px" />
+                              )}
+                            </div>
+                            <span className="whitespace-nowrap pr-2">
+                              {intl.formatMessage({ id: item })}
+                            </span>
                           </div>
-                          <span className="whitespace-nowrap pr-2">{intl.formatMessage({ id: item })}</span>
-                        </div>
-                      );
-                    })}
+                        );
+                      }
+                    )}
                   </div>
                 </div>
               )}
@@ -1505,19 +1777,36 @@ const FutureMobileRow: React.FC<{
           </div>
           <div className="col-span-1 my-3">
             <div className="relative flex items-center">
-              <span>
-                {intl.formatMessage({ id: 'notional' })}
-              </span>
-              <div className="text-10px p-0.5 ml-1" style={{ borderRadius: '4px', backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>{parseSymbol(symbol).symbolTo}</div>
+              <span>{intl.formatMessage({ id: 'notional' })}</span>
+              <div
+                className="text-10px p-0.5 ml-1"
+                style={{
+                  borderRadius: '4px',
+                  backgroundColor: 'rgba(126, 138, 147, 0.15)',
+                }}
+              >
+                {parseSymbol(symbol).symbolTo}
+              </div>
             </div>
             <span className="text-white">
-              {Math.abs(markPrices.find((i) => i.symbol === symbol)?.price * position_qty)?.toFixed(2) || '-'}
+              {Math.abs(
+                markPrices.find((i) => i.symbol === symbol)?.price *
+                  position_qty
+              )?.toFixed(2) || '-'}
             </span>
           </div>
           <div className="col-span-1 my-3">
             <div className="flex items-center">
               {intl.formatMessage({ id: 'quantity' })}
-              <div className="text-10px p-0.5 ml-1 no-underline" style={{ borderRadius: '4px', backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>{parseSymbol(symbol).symbolFrom}</div>
+              <div
+                className="text-10px p-0.5 ml-1 no-underline"
+                style={{
+                  borderRadius: '4px',
+                  backgroundColor: 'rgba(126, 138, 147, 0.15)',
+                }}
+              >
+                {parseSymbol(symbol).symbolFrom}
+              </div>
             </div>
             <span
               className="text-white flex items-center cursor-pointer underline"
@@ -1535,7 +1824,15 @@ const FutureMobileRow: React.FC<{
           <div className="col-span-1 my-3">
             <div className="flex items-center">
               {intl.formatMessage({ id: 'price' })}
-              <div className="text-10px p-0.5 ml-1 no-underline" style={{ borderRadius: '4px', backgroundColor: 'rgba(126, 138, 147, 0.15)' }}>{parseSymbol(symbol).symbolTo}</div>
+              <div
+                className="text-10px p-0.5 ml-1 no-underline"
+                style={{
+                  borderRadius: '4px',
+                  backgroundColor: 'rgba(126, 138, 147, 0.15)',
+                }}
+              >
+                {parseSymbol(symbol).symbolTo}
+              </div>
             </div>
             <span
               className="text-white flex items-center cursor-pointer underline"
@@ -1569,8 +1866,8 @@ const FutureMobileRow: React.FC<{
       <FuturePriceModal
         isOpen={futurePriceOpen}
         onClose={(input: number | 'Market') => {
-          setPrice((priceMode === 'market_price') ? 'Market' : input);
-          
+          setPrice(priceMode === 'market_price' ? 'Market' : input);
+
           setFuturePriceOpen(false);
         }}
         priceMode={priceMode}
@@ -1591,15 +1888,25 @@ const FutureMobileRow: React.FC<{
         rows={orders}
       />
     </>
-  )
-}
+  );
+};
 
 export const FutureMobileView: React.FC<{
-  rows: { symbol: string, position_qty:number, average_open_price: number, mark_price: number, unsettled_pnl: number }[],
-  marketList: { text: JSX.Element; withSymbol: JSX.Element; textId: string; }[],
-  handleOpenClosing: (closingQuantity: number, closingPrice: number | 'Market', row: any) => void;
-  unrealMode: string,
-  setUnrealMode: (mode: "mark_price" | "last_price") => void
+  rows: {
+    symbol: string;
+    position_qty: number;
+    average_open_price: number;
+    mark_price: number;
+    unsettled_pnl: number;
+  }[];
+  marketList: { text: JSX.Element; withSymbol: JSX.Element; textId: string }[];
+  handleOpenClosing: (
+    closingQuantity: number,
+    closingPrice: number | 'Market',
+    row: any
+  ) => void;
+  unrealMode: string;
+  setUnrealMode: (mode: 'mark_price' | 'last_price') => void;
   futureOrders: MyOrder[];
   markPrices: MarkPrice[];
   lastPrices: {
@@ -1624,7 +1931,7 @@ export const FutureMobileView: React.FC<{
   totalPortfoliouPnl,
   totalDailyReal,
   totalNotional,
-  newPositions
+  newPositions,
 }) => {
   const intl = useIntl();
 
@@ -1642,14 +1949,30 @@ export const FutureMobileView: React.FC<{
               id: 'fut_unreal_pnl',
               defaultMessage: 'Fut. Unreal. PnL',
             })}
-            <span className={`pl-2 ${parseFloat(totalPortfoliouPnl) >= 0 ? 'text-buyGreen' : 'text-sellRed'}`}>{totalPortfoliouPnl}</span>
+            <span
+              className={`pl-2 ${
+                parseFloat(totalPortfoliouPnl) >= 0
+                  ? 'text-buyGreen'
+                  : 'text-sellRed'
+              }`}
+            >
+              {totalPortfoliouPnl}
+            </span>
           </div>
           <div className="col-span-1 text-right">
             {intl.formatMessage({
               id: 'fut_daily_real',
               defaultMessage: 'Fut. Daily Real.',
             })}
-            <span className={`pl-2 ${parseFloat(totalDailyReal) >= 0 ? 'text-buyGreen' : 'text-sellRed'}`}>{totalDailyReal}</span>
+            <span
+              className={`pl-2 ${
+                parseFloat(totalDailyReal) >= 0
+                  ? 'text-buyGreen'
+                  : 'text-sellRed'
+              }`}
+            >
+              {totalDailyReal}
+            </span>
           </div>
           <div className="col-span-2 text-right mt-2">
             {intl.formatMessage({
@@ -1664,36 +1987,46 @@ export const FutureMobileView: React.FC<{
               id: 'fut_unsettle_pnl',
               defaultMessage: 'Unsettle PnL',
             })}
-            <span className={`pl-2 ${parseFloat(portfolioUnsettle) >= 0 ? 'text-buyGreen' : 'text-sellRed'}`}>{portfolioUnsettle}</span>
+            <span
+              className={`pl-2 ${
+                parseFloat(portfolioUnsettle) >= 0
+                  ? 'text-buyGreen'
+                  : 'text-sellRed'
+              }`}
+            >
+              {portfolioUnsettle}
+            </span>
           </div>
           <div className="col-span-1 text-right flex justify-end">
             {children}
           </div>
         </div>
       </div>
-      {rows?.filter((row: any) => row.position_qty !== 0).map((row: any) => (
-        <FutureMobileRow
-          key={row.symbol}
-          row={row}
-          marketList={marketList}
-          handleOpenClosing={handleOpenClosing}
-          unrealMode={unrealMode}
-          setUnrealMode={setUnrealMode}
-          futureOrders={futureOrders}
-          markPrices={markPrices}
-          lastPrices={lastPrices}
-        />
-      ))}
+      {rows
+        ?.filter((row: any) => row.position_qty !== 0)
+        .map((row: any) => (
+          <FutureMobileRow
+            key={row.symbol}
+            row={row}
+            marketList={marketList}
+            handleOpenClosing={handleOpenClosing}
+            unrealMode={unrealMode}
+            setUnrealMode={setUnrealMode}
+            futureOrders={futureOrders}
+            markPrices={markPrices}
+            lastPrices={lastPrices}
+          />
+        ))}
     </div>
-  )
-}
+  );
+};
 
-export const FutureTopComponent = ({ 
+export const FutureTopComponent = ({
   portfolioUnsettle,
   totalPortfoliouPnl,
   totalDailyReal,
-  totalNotional
-}: { 
+  totalNotional,
+}: {
   portfolioUnsettle: string;
   totalPortfoliouPnl: string;
   totalDailyReal: string;
@@ -1703,20 +2036,37 @@ export const FutureTopComponent = ({
 
   return (
     <div className="w-full px-5 mb-4">
-      <div className="w-full flex justify-start items-center py-3 px-5 rounded-full" style={{ backgroundColor: '#7E8A931A' }}>
+      <div
+        className="w-full flex justify-start items-center py-3 px-5 rounded-full"
+        style={{ backgroundColor: '#7E8A931A' }}
+      >
         <div className="mr-5">
           {intl.formatMessage({
             id: 'fut_unreal_pnl',
             defaultMessage: 'Fut. Unreal. PnL',
           })}
-          <span className={`pl-2 ${parseFloat(totalPortfoliouPnl) >= 0 ? 'text-buyGreen' : 'text-sellRed'}`}>{totalPortfoliouPnl}</span>
+          <span
+            className={`pl-2 ${
+              parseFloat(totalPortfoliouPnl) >= 0
+                ? 'text-buyGreen'
+                : 'text-sellRed'
+            }`}
+          >
+            {totalPortfoliouPnl}
+          </span>
         </div>
         <div className="mr-5">
           {intl.formatMessage({
             id: 'fut_daily_real',
             defaultMessage: 'Fut. Daily Real.',
           })}
-          <span className={`pl-2 ${parseFloat(totalDailyReal) >= 0 ? 'text-buyGreen' : 'text-sellRed'}`}>{totalDailyReal}</span>
+          <span
+            className={`pl-2 ${
+              parseFloat(totalDailyReal) >= 0 ? 'text-buyGreen' : 'text-sellRed'
+            }`}
+          >
+            {totalDailyReal}
+          </span>
         </div>
         <div className="mr-5">
           {intl.formatMessage({
@@ -1730,10 +2080,17 @@ export const FutureTopComponent = ({
             id: 'fut_unsettle_pnl',
             defaultMessage: 'Unsettle PnL',
           })}
-          <span className={`pl-2 ${parseFloat(portfolioUnsettle) >= 0 ? 'text-buyGreen' : 'text-sellRed'}`}>{portfolioUnsettle}</span>
+          <span
+            className={`pl-2 ${
+              parseFloat(portfolioUnsettle) >= 0
+                ? 'text-buyGreen'
+                : 'text-sellRed'
+            }`}
+          >
+            {portfolioUnsettle}
+          </span>
         </div>
       </div>
     </div>
-  )
-}
-
+  );
+};

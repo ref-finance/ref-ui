@@ -54,6 +54,7 @@ export default function OrderlyPanel() {
   const history = useHistory();
   const [tradingKeySet, setTradingKeySet] = useState<boolean>(false);
   const [keyAnnounced, setKeyAnnounced] = useState<boolean>(false);
+  console.log('keyAnnounced: ', keyAnnounced, tradingKeySet);
   const [maintenance, setMaintenance] = React.useState<boolean>(false);
   const [keyLoading, setKeyLoading] = useState<boolean>(false);
   const storageEnough = useStorageEnough();
@@ -165,7 +166,7 @@ export default function OrderlyPanel() {
       }`}
       onClick={() => {
         if (!is_mobile && (!showMask || !accountId)) {
-          openUrl('/orderbook');
+          history.push('/orderly');
         }
       }}
       style={{ height: is_mobile ? '115px' : '176px' }}
@@ -177,7 +178,7 @@ export default function OrderlyPanel() {
         <ArrowRightIcon
           className={`lg:hidden text-primaryText`}
           onClick={() => {
-            openUrl('/orderbook');
+            history.push('/orderly');
           }}
         ></ArrowRightIcon>
         <OrderlyBgIcon className="absolute right-2 xsm:right-7 top-3"></OrderlyBgIcon>
@@ -210,7 +211,7 @@ export default function OrderlyPanel() {
             <div
               className="flex items-center text-sm text-senderHot bg-greenColor rounded-lg bg-opacity-30 h-8 px-4 cursor-pointer"
               onClick={() => {
-                openUrl('/orderbook');
+                history.push('/orderly');
               }}
             >
               <FormattedMessage id="connect" />{' '}
@@ -241,6 +242,8 @@ function useOrderAssets(
     tradingKeySet,
     keyAnnounced
   ) as [BalanceType[], boolean];
+
+  console.log('balances: ', balances);
 
   const displayBalances = balances.map((b, i) => {
     return {
@@ -276,6 +279,15 @@ function useTokensBalances(
   };
 
   const { holdings } = useOrderlyContext();
+  console.log(
+    'holdings: ',
+    holdings,
+    tokens,
+    tokenInfo,
+    accountId,
+    tradingKeySet,
+    keyAnnounced
+  );
 
   useEffect(() => {
     if (

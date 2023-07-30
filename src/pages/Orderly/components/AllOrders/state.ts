@@ -79,7 +79,7 @@ export function useCurHoldings(
   const { accountId } = useWalletSelector();
 
   useEffect(() => {
-    if (!accountId || !validAccountSig) return;
+    if (!accountId) return;
 
     getCurrentHolding({ accountId }).then((res) => {
       setHoldings(res.data.holding);
