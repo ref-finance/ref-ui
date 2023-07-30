@@ -311,7 +311,7 @@ export const usePortableOrderlyTable = ({
         columns: [
           {
             key: 'instrument',
-            colSpan: 3,
+            colSpan: 4,
             header: 'Instrument',
             render: ({ symbol }) => (
               <div className="flex items-center ">{marketList.find((m) => m.textId === symbol)?.withSymbol}</div>
@@ -352,7 +352,7 @@ export const usePortableOrderlyTable = ({
             key: 'create',
             header: 'Create',
             type: 'dateTime',
-            colSpan: 2,
+            colSpan: 3,
             textColor: '',
             extras: ['sort'],
             sortKey: 'created_time',
@@ -498,7 +498,7 @@ export const usePortableOrderlyTable = ({
         columns: [
           {
             key: 'instrument',
-            colSpan: 3,
+            colSpan: 4,
             header: 'Instrument',
             render: ({ symbol }) => (
               <div className="flex items-center ">{marketList.find((m) => m.textId === symbol)?.withSymbol}</div>
@@ -521,7 +521,7 @@ export const usePortableOrderlyTable = ({
               />
             )
           },
-          { key: 'type', colSpan: 2, header: 'Type', render: ({ type }) => <span className='capitalize'>{intl.formatMessage({ id: type.toLocaleLowerCase(), defaultMessage: type.toLocaleLowerCase() })}</span> },
+          { key: 'type', colSpan: 3, header: 'Type', render: ({ type }) => <span className='capitalize'>{intl.formatMessage({ id: type.toLocaleLowerCase(), defaultMessage: type.toLocaleLowerCase() })}</span> },
           {
             key: 'fill_qty',
             header: 'Fill / Qty',
@@ -545,7 +545,7 @@ export const usePortableOrderlyTable = ({
             key: 'create',
             header: 'Created',
             type: 'dateTime',
-            colSpan: 3,
+            colSpan: 4,
             textColor: '',
             extras: ['sort'],
             sortKey: 'created_time',
