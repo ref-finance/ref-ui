@@ -34,6 +34,7 @@ import { getFTmetadata } from '../near';
 import { useWalletSelector } from '../../../context/WalletSelectorContext';
 import useInterval from 'react-useinterval';
 import { getFundingRateSymbol } from './perp-off-chain-api';
+import { REF_ORDERLY_ACCOUNT_VALID } from '../components/UserBoardPerp';
 
 export const REF_ORDERLY_WS_ID_PREFIX = 'orderly_ws_';
 
@@ -100,10 +101,12 @@ export const usePrivateOrderlyWS = () => {
       reconnectInterval: (attemptNumber) =>
         Math.min(Math.pow(2, attemptNumber) * 1000, 10000),
       onClose: (e) => {
-        setNeedRefresh(true);
+        const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
+        storedValid && setNeedRefresh(true);
       },
       onError: (e) => {
-        setNeedRefresh(true);
+        const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
+        storedValid && setNeedRefresh(true);
       },
     });
 

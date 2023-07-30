@@ -362,14 +362,14 @@ function PortfolioOrderly() {
                   ${totalEstFinal}
                   <div className="ml-3 flex items-center hidden md:flex lg:flex flex-wrap">
                     {displayBalances.map(
-                      ({ tokenMeta, available }) =>
-                        parseFloat(available) > 0 && (
+                      (row) =>
+                        (parseFloat(row.available) > 0 || parseFloat(row['in-order']) > 0 || (newPositions.rows.length > 0 && row.tokenMeta.symbol.includes('USDC')) ) && (
                           <div
-                            key={tokenMeta.id}
+                            key={row.tokenMeta.id}
                             className="flex items-center text-white text-sm -ml-1"
                           >
                             <img
-                              src={tokenMeta.icon}
+                              src={row.tokenMeta.icon}
                               alt=""
                               className="rounded-full flex-shrink-0 w-4 h-4"
                             />
@@ -555,11 +555,13 @@ function PortfolioOrderly() {
       <div className="md:hidden lg:hidden">
         <NavigationMobile />
       </div>
-
-      <RefreshModal
-        isOpen={needRefresh}
-        onClick={async () => {}}
-      />
+      
+      {validAccountSig && (
+        <RefreshModal
+          isOpen={needRefresh}
+          onClick={async () => {}}
+        />
+      )}
 
       <SettlePnlModal
         isOpen={settlePnlModalOpen}

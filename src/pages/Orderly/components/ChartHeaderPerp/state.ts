@@ -43,12 +43,12 @@ export function useBatchTokenMetaFromSymbols(
     if (!symbols || !tokenInfo) return;
 
     const tokens =
-      tokenInfo && tokenInfo.filter((t) => symbols.includes(t.token));
+      tokenInfo && tokenInfo.filter((t) => symbols.includes(t.token) || (symbols.includes('BTC') && t.token === 'WBTC' ));
 
     if (!tokens) return;
 
     Promise.all(
-      tokens.map((t, i) =>
+      tokens.map((t, i) => 
         getFTmetadata(t.token_account_id).then((meta) => {
           return {
             ...meta,
