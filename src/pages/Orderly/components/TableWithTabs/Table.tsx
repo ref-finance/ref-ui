@@ -152,7 +152,7 @@ function OrderLine({
           />
         ))}
         {(tableRowType === 'card' && openFilledDetail) && (
-          <td style={{ gridColumn: 'span 21 / span 21' }}>
+          <td style={{ gridColumn: `span ${gridCol} / span ${gridCol}` }}>
             <table
               className={`table-fixed text-right flex-col items-end w-8/12`}
               // @ts-ignore
