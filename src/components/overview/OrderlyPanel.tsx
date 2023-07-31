@@ -23,7 +23,7 @@ import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { getCurrentHolding } from '../../pages/Orderly/orderly/off-chain-api';
 import { toReadableNumber } from '~utils/numbers';
 import { OverviewData } from '../../pages/Overview';
-import { formatWithCommas_usd } from '../../services/overview/utils';
+import { formatWithCommas_usd,  formatWithCommas_usd_down} from '../../services/overview/utils';
 import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import { RightArrowIcon, OrderlyLoading, ArrowRightIcon } from './Icons';
 import { openUrl } from '../../services/commonV3';
@@ -60,6 +60,7 @@ export default function OrderlyPanel() {
   const [keyAnnounced, setKeyAnnounced] = useState<boolean>(false);
   const [maintenance, setMaintenance] = React.useState<boolean>(false);
   const [keyLoading, setKeyLoading] = useState<boolean>(false);
+  const [refreshCount, setRefreshCount] = useState<number>(0);
   const storageEnough = useStorageEnough();
   const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
   const tokenInfo = useTokenInfo();
@@ -67,6 +68,7 @@ export default function OrderlyPanel() {
   const displayBalances: OrderAsset[] = useOrderlyPortfolioAssets(tokenInfo);
   const { totalEst } = usePerpData({ displayBalances, markMode: true });
   const totalAsset = Big(totalEst || 0).toFixed();
+  const max_refresh_count = 4;
   useEffect(() => {
     getOrderlySystemInfo().then((res) => {
       if (res.data.status === 2) {
@@ -77,7 +79,7 @@ export default function OrderlyPanel() {
     });
   }, []);
   useEffect(() => {
-    if (!accountId || !storageEnough || maintenance) return;
+    if (!accountId || !storageEnough || maintenance || refreshCount > max_refresh_count) return;
     if (!!storedValid) {
       setKeyAnnounced(true);
       setTradingKeySet(true);
@@ -88,10 +90,12 @@ export default function OrderlyPanel() {
       .then(async (key_announce) => {
         setKeyAnnounced(key_announce);
         if (!key_announce) {
-          const res = await announceKey(accountId).then((res) => {
+          await announceKey(accountId).then((res) => {
             setKeyAnnounced(true);
-          });
-        } else return;
+          }).catch((e) => {
+            handleCatch(e);
+          })
+        }
       })
       .then(() => {
         is_trading_key_set(accountId).then(async (trading_key_set) => {
@@ -99,18 +103,29 @@ export default function OrderlyPanel() {
           if (!trading_key_set) {
             await setTradingKey(accountId).then(() => {
               setTradingKeySet(true);
-            });
+            }).catch((e) => {
+              handleCatch(e);
+            })
           }
           setKeyLoading(false);
         });
       })
       .catch((e) => {
-        setKeyAnnounced(false);
-        setTradingKeySet(false);
-        setKeyLoading(false);
-        localStorage.removeItem(REF_ORDERLY_ACCOUNT_VALID);
+        handleCatch(e);
       });
-  }, [accountId, storageEnough, maintenance]);
+  }, [accountId, storageEnough, maintenance, refreshCount]);
+  
+  function handleCatch(e:any) {
+    setKeyAnnounced(false);
+    setTradingKeySet(false);
+    localStorage.removeItem(REF_ORDERLY_ACCOUNT_VALID);
+    if (refreshCount + 1 > max_refresh_count) {
+      setKeyLoading(false);
+    } else {
+      setKeyLoading(true);
+    }
+    setRefreshCount(refreshCount + 1)
+  }
   useEffect(() => {
     if (!tradingKeySet || !keyAnnounced) return;
     localStorage.setItem(REF_ORDERLY_ACCOUNT_VALID, '1');
@@ -133,7 +148,6 @@ export default function OrderlyPanel() {
     maintenance;
 
   const showMask = loading || invalid;
-
   return (
     <div
       className={`flex flex-col justify-between bg-swapCardGradient rounded-2xl px-5 py-4 w-1 xsm:w-full flex-grow overflow-hidden relative xsm:mb-3 ${
@@ -173,7 +187,7 @@ export default function OrderlyPanel() {
             }
 `}
           >
-            {formatWithCommas_usd(totalAsset)}
+            {formatWithCommas_usd_down(totalAsset)}
           </span>
         </div>
       </div>
