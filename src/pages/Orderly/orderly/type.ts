@@ -293,6 +293,7 @@ export interface PositionsType {
   rows: PositionsRow[];
   total_collateral_value: number;
   total_pnl_24_h: number;
+  timestamp?: number;
 }
 
 interface PositionsRow {

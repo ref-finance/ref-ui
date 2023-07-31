@@ -92,6 +92,7 @@ interface OrderlyContextValue {
   allOrders: MyOrder[];
   needRefresh: boolean;
   setPositionTrigger: React.Dispatch<React.SetStateAction<boolean>>;
+  positionPushReceiver: boolean;
 }
 
 export const REF_ORDERLY_SYMBOL_KEY = 'REF_ORDERLY_SYMBOL_KEY';

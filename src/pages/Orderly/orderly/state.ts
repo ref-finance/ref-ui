@@ -272,7 +272,7 @@ export function useAllPositions(
     if (!accountId || !validAccountSig) return;
 
     getUserAllPositions(accountId).then((res) => {
-      setPositions(res.data);
+      setPositions({ ...res.data, timestamp: res.timestamp });
     });
   }, [accountId, positionTrigger, validAccountSig, ...refreshingTag]);
 

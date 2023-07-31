@@ -198,7 +198,7 @@ export function usePerpData(deps?: {
       let calcPositions = positions.rows.map((item) => {
         const push = positionPush?.find((i) => i.symbol === item.symbol);
 
-        if (push && positionTimeStamp > item.timestamp + 1000) {
+        if (push && positionTimeStamp > positions.timestamp) {
           const qty = push.positionQty;
           const pendingLong = push.pendingLongQty;
           const pendingShort = push.pendingShortQty;
@@ -263,13 +263,12 @@ export function usePerpData(deps?: {
 
       return {
         ...positions,
-
         rows: calcPositions,
       };
     } catch (error) {
       return null;
     }
-  }, [positionPush, positions, markPrices]);
+  }, [positions, markPrices, positionPush, positionTimeStamp]);
 
   const noPosition = newPositions?.rows?.length === 0;
 
