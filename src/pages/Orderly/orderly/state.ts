@@ -266,17 +266,21 @@ export function useAllPositions(
 
   const [positions, setPositions] = useState<PositionsType>();
 
+  const [positionTrigger, setPositionTrigger] = useState<boolean>(false);
+
   useEffect(() => {
     if (!accountId || !validAccountSig) return;
 
     getUserAllPositions(accountId).then((res) => {
       setPositions(res.data);
     });
-  }, [accountId, validAccountSig, ...refreshingTag]);
+  }, [accountId, positionTrigger, validAccountSig, ...refreshingTag]);
 
   return {
     positions,
     setPositions,
+    positionTrigger,
+    setPositionTrigger,
   };
 }
 
@@ -287,7 +291,8 @@ export function useLeverage() {
 
   const intl = useIntl();
 
-  const { futureLeverage, userInfo, setUserInfo } = useOrderlyContext();
+  const { futureLeverage, userInfo, setUserInfo, setPositionTrigger } =
+    useOrderlyContext();
 
   const [curLeverage, setCurLeverage] = useState<number>();
 
@@ -334,6 +339,8 @@ export function useLeverage() {
         })}`;
 
         marginPopUp(tip, 'success');
+
+        setPositionTrigger((b) => !b);
       }
 
       setError(null);

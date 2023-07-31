@@ -91,6 +91,7 @@ interface OrderlyContextValue {
   holdings: Holding[];
   allOrders: MyOrder[];
   needRefresh: boolean;
+  setPositionTrigger: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const REF_ORDERLY_SYMBOL_KEY = 'REF_ORDERLY_SYMBOL_KEY';
@@ -169,9 +170,10 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
   const privateValue = useOrderlyPrivateData({
     validAccountSig,
   });
-  const { positions } = useAllPositions(validAccountSig, [
-    privateValue?.balanceTimeStamp,
-  ]);
+  const { positions, setPositions, setPositionTrigger } = useAllPositions(
+    validAccountSig,
+    [privateValue?.balanceTimeStamp]
+  );
 
   const holdings = useCurHoldings(validAccountSig, privateValue?.balances);
 
@@ -267,6 +269,7 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
         symbolType,
         userInfo,
         setUserInfo,
+        setPositionTrigger,
       }}
     >
       {children}
