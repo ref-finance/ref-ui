@@ -586,6 +586,8 @@ const getMaxQuantity = (
 
     const total_side = order_side.times(cur_side);
 
+    console.log('free_collateral: ', free_collateral.toFixed(), userInfo);
+
     const newOrderSize = collateral
       .minus(othersIm.plus(curIm.times(total_side)))
       .times(account_max_leverage)

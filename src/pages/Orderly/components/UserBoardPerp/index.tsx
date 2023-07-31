@@ -478,7 +478,6 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     myPendingOrdersRefreshing,
     bridgePrice,
     userExist,
-    positions,
     markPrices,
     positionPush,
     ticker,
@@ -521,8 +520,6 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
   const [inputValue, setInputValue] = useState<string>('');
 
-  const [showAdvance, setShowAdvance] = useState<boolean>(false);
-
   const [showTotal, setShowTotal] = useState<boolean>(false);
 
   const [limitPrice, setLimitPrice] = useState<string>('');
@@ -548,6 +545,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     setCurLeverage,
     setCurLeverageRaw,
     userInfo,
+    newPositions,
   } = usePerpData();
 
   const [registerModalOpen, setRegisterModalOpen] = useState<boolean>(false);
@@ -619,7 +617,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     return getLqPrice(
       markPrices,
       curSymbol,
-      positions,
+      newPositions,
       inputValue,
       side,
       curHoldingOut,
@@ -628,7 +626,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       availableSymbols
     );
   }, [
-    positions,
+    newPositions,
     markPrices,
     curSymbol,
     inputValue,
@@ -682,7 +680,6 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     tokenOut?.id,
     JSON.stringify(balances)
   );
-  console.log('tokenOut: ', tokenOut);
 
   const tokenOutHolding =
     tokenOut?.symbol?.toLowerCase()?.includes('usdc') && freeCollateral !== '-'
@@ -717,12 +714,10 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           .toNumber();
 
   const maxOrderSize = useMemo(() => {
-    const mark_price = curSymbolMarkPrice?.price || 0;
-
     const res = getMaxQuantity(
       curSymbol,
       side,
-      positions,
+      newPositions,
       markPrices,
       userInfo,
       curHoldingOut
@@ -731,7 +726,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     return res;
   }, [
     side,
-    positions,
+    newPositions,
     markPrices,
     userInfo,
     curHoldingOut,
@@ -1185,7 +1180,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         ></FormattedMessage>
 
         <span className="font-nunito">
-          {!positions || totalCollateral === '-'
+          {!newPositions || totalCollateral === '-'
             ? '-'
             : numberWithCommas(totalCollateral)}
         </span>
@@ -1243,7 +1238,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
             }
         `}
           >
-            {!positions || marginRatio == '-'
+            {!newPositions || marginRatio == '-'
               ? '-'
               : numberWithCommas(
                   new Big(Number(marginRatio) * 100).toFixed(2)
@@ -3342,22 +3337,6 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
 
   const { marginRatio } = usePerpData();
 
-  const tokenInHolding = curHoldingIn
-    ? toPrecision(
-        new Big(curHoldingIn.holding + curHoldingIn.pending_short).toString(),
-        Math.min(8, tokenIn?.decimals || 8),
-        false
-      )
-    : balances && balances[symbolFrom]?.holding;
-
-  const tokenOutHolding = curHoldingOut
-    ? toPrecision(
-        new Big(curHoldingOut.holding + curHoldingOut.pending_short).toString(),
-        Math.min(8, tokenOut?.decimals || 8),
-        false
-      )
-    : balances && balances[symbolTo]?.holding;
-
   const lqPrice = useMemo(() => {
     const cur_market_price =
       markPrices?.find((item) => item.symbol === symbol)?.price || 0;
@@ -3399,11 +3378,6 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
     : orders?.bids?.[0]?.[0];
 
   const maxOrderSize = useMemo(() => {
-    const mark_price = curSymbolMarkPrice?.price || 0;
-
-    const priceNumber =
-      orderType === 'Market' ? mark_price.toString() : limitPrice;
-
     const res = getMaxQuantity(
       curSymbol,
       side,
@@ -3425,8 +3399,6 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
     limitPrice,
     curSymbolMarkPrice,
   ]);
-
-  console.log('maxOrderSize: ', maxOrderSize);
 
   const total =
     orderType === 'Limit'
