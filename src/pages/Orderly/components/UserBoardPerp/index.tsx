@@ -816,6 +816,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
     is_orderly_key_announced(accountId, true)
       .then(async (key_announce) => {
+        console.log('key_announce: ', key_announce);
         setKeyAnnounced(key_announce);
         if (!key_announce) {
           const res = await announceKey(accountId).then((res) => {
@@ -826,6 +827,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       .then(() => {
         is_trading_key_set(accountId).then(async (trading_key_set) => {
           setTradingKeySet(trading_key_set);
+          console.log('trading_key_set: ', trading_key_set);
           if (!trading_key_set) {
             await setTradingKey(accountId).then(() => {
               setTradingKeySet(true);
@@ -842,7 +844,14 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       });
   }, [accountId, storageEnough, agreeCheck]);
 
-  console.log('tradingKeySet: ', tradingKeySet, keyAnnounced);
+  console.log(
+    'tradingKeySet: ',
+    tradingKeySet,
+    keyAnnounced,
+    validAccountSig,
+    userExist,
+    accountId
+  );
 
   useEffect(() => {
     if (!tradingKeySet || !keyAnnounced) return;
