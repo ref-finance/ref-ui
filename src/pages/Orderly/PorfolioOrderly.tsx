@@ -65,7 +65,7 @@ function PortfolioOrderly() {
     validAccountSig,
     holdings,
     myPendingOrdersRefreshing,
-    needRefresh
+    needRefresh,
   } = useOrderlyContext();
   const isSignedIn = globalState.isSignedIn;
   const [maintenance, setMaintenance] = useState<boolean>(undefined);
@@ -295,7 +295,7 @@ function PortfolioOrderly() {
   }, [myPendingOrdersRefreshing]); */
 
   useEffect(() => {
-   getFutureOrders();
+    getFutureOrders();
   }, [myPendingOrdersRefreshing, triggerPositionBasedData]);
 
   useEffect(() => {
@@ -363,7 +363,10 @@ function PortfolioOrderly() {
                   <div className="ml-3 flex items-center hidden md:flex lg:flex flex-wrap">
                     {displayBalances.map(
                       (row) =>
-                        (parseFloat(row.available) > 0 || parseFloat(row['in-order']) > 0 || (newPositions.rows.length > 0 && row.tokenMeta.symbol.includes('USDC')) ) && (
+                        (parseFloat(row.available) > 0 ||
+                          parseFloat(row['in-order']) > 0 ||
+                          (newPositions?.rows?.length > 0 &&
+                            row.tokenMeta.symbol.includes('USDC'))) && (
                           <div
                             key={row.tokenMeta.id}
                             className="flex items-center text-white text-sm -ml-1"
@@ -555,12 +558,9 @@ function PortfolioOrderly() {
       <div className="md:hidden lg:hidden">
         <NavigationMobile />
       </div>
-      
+
       {validAccountSig && (
-        <RefreshModal
-          isOpen={needRefresh}
-          onClick={async () => {}}
-        />
+        <RefreshModal isOpen={needRefresh} onClick={async () => {}} />
       )}
 
       <SettlePnlModal
@@ -645,7 +645,12 @@ function PortfolioOrderly() {
           onRequestClose={() => {
             setShowMobileOrderDetail(false);
           }}
-          type={selectedOrder.status === 'NEW' || selectedOrder.status === 'PARTIAL_FILLED' ? 'open' : 'history'}
+          type={
+            selectedOrder.status === 'NEW' ||
+            selectedOrder.status === 'PARTIAL_FILLED'
+              ? 'open'
+              : 'history'
+          }
           order={selectedOrder}
           symbol={selectedOrder.symbol}
           orderTradesHistory={orderTradesHistory}
