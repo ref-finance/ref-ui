@@ -618,8 +618,10 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     : balances && balances[symbolFrom]?.holding;
 
   const tokenOutHolding =
-    tokenOut?.symbol === 'USDC' && freeCollateral !== '-'
-      ? freeCollateral
+    tokenOut?.symbol === 'USDC' || tokenOut?.symbol === 'USDC.e'
+      ? freeCollateral === '-'
+        ? '0'
+        : freeCollateral
       : curHoldingOut
       ? toPrecision(
           new Big(
@@ -1902,6 +1904,7 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
   const [showLimitAdvance, setShowLimitAdvance] = useState<boolean>(
     parsedAdvance?.show || false
   );
+  const { freeCollateral } = usePerpData();
 
   const [advanceLimitMode, setAdvanceLimitMode] = useState<
     'IOC' | 'FOK' | 'POST_ONLY'
@@ -2008,13 +2011,20 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
       )
     : balances && balances[symbolFrom]?.holding;
 
-  const tokenOutHolding = curHoldingOut
-    ? toPrecision(
-        new Big(curHoldingOut.holding + curHoldingOut.pending_short).toString(),
-        Math.min(8, tokenOut?.decimals || 8),
-        false
-      )
-    : balances && balances[symbolTo]?.holding;
+  const tokenOutHolding =
+    tokenOut?.symbol === 'USDC' || tokenOut?.symbol === 'USDC.e'
+      ? freeCollateral === '-'
+        ? '0'
+        : freeCollateral
+      : curHoldingOut
+      ? toPrecision(
+          new Big(
+            curHoldingOut.holding + curHoldingOut.pending_short
+          ).toString(),
+          Math.min(8, tokenOut?.decimals || 8),
+          false
+        )
+      : balances && balances[symbolTo]?.holding;
 
   const fee =
     orderType === 'Limit'
