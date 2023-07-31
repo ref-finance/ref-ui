@@ -16,6 +16,7 @@ import { Ticker, TokenInfo, OpenInterest } from '../../orderly/type';
 import { TokenIcon } from '../Common';
 import useCallback from 'react';
 import {
+  PerpOrSpot,
   digitWrapper,
   numberWithCommas,
   numberWithCommasPadding,
@@ -390,14 +391,19 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
 
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
 
+  const symbolType = PerpOrSpot(symbol);
+
   const idFrom =
     tokenInfo &&
-    tokenInfo.find((t) => symbolFrom === 'BTC' ? t.token === 'WBTC' : t.token === symbolFrom)?.token_account_id;
+    tokenInfo.find((t) =>
+      symbolFrom === 'BTC' ? t.token === 'WBTC' : t.token === symbolFrom
+    )?.token_account_id;
 
   const [iconIn, setIconIn] = useState<string>();
 
   useEffect(() => {
-    if (!idFrom) return;
+    if (!idFrom || symbolType !== 'PERP') return;
+    console.log('idFrom: ', idFrom);
 
     if (idFrom === 'near') {
       setIconIn(nearMetadata.icon);
@@ -406,7 +412,7 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
         setIconIn(res.icon);
       });
     }
-  }, [idFrom]);
+  }, [idFrom, symbolFrom, symbolType]);
 
   const { diff, disPlayDiff } = tickerToDisplayDiff(ticker);
 

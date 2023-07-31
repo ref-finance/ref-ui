@@ -314,6 +314,8 @@ export const executeMultipleTransactions = async (
 ) => {
   const { wallet } = getCurrentWallet();
 
+  console.log('transactions: ', transactions);
+
   const wstransactions: WSTransaction[] = [];
 
   transactions.forEach((transaction) => {
@@ -358,7 +360,6 @@ export const executeMultipleTransactions = async (
       window.location.href = newHref;
     })
     .catch((e: Error) => {
-      alert(e.message)
       if (extraWalletsError.includes(e.message)) {
         return;
       }
