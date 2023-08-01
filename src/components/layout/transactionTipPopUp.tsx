@@ -769,10 +769,20 @@ export const LimitOrderFailPopUp = (txHash: string) => {
   );
 };
 
+const TOAST_ID_KEY = 'ref-orderly-toast-id-key';
+
 export const marginPopUp = (tip: string, type: 'error' | 'success') => {
   const mobileDevice = isMobile();
 
-  toast(
+  const pre_id = sessionStorage.getItem(TOAST_ID_KEY);
+
+  const preActive = toast.isActive(pre_id);
+
+  if (preActive) {
+    toast.dismiss();
+  }
+
+  const cur_id = toast(
     <div
       className={`flex-col flex px-2  text-sm  ${
         type === 'success' ? 'text-marginGrayBg' : 'text-marginRedBg'
@@ -808,4 +818,6 @@ export const marginPopUp = (tip: string, type: 'error' | 'success') => {
       },
     }
   );
+
+  sessionStorage.setItem(TOAST_ID_KEY, cur_id.toString());
 };
