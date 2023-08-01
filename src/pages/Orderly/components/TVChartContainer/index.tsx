@@ -161,6 +161,36 @@ export function ChartContainer({ maintenance }: { maintenance: boolean }) {
 
     const tvWidget = new widget(widgetOptions);
 
+    const volumeParam = {
+      id: 'volume',
+      visible: true,
+    };
+
+    const checkVolumeIndicator = () => {
+      if (tvWidget) {
+        const chart = tvWidget.chart();
+
+        const studies = chart.getAllStudies();
+
+        const hasVolumeIndicator = studies.some(
+          (study) => study.name === 'Volume'
+        );
+
+        return hasVolumeIndicator;
+      }
+    };
+
+    tvWidget.onChartReady(() => {
+      tvWidget
+        .chart()
+        .onDataLoaded()
+        .subscribe(null, () => {
+          if (!checkVolumeIndicator()) {
+            tvWidget.chart().createStudy('Volume', false, false, volumeParam);
+          }
+        });
+    });
+
     setTvWidget(tvWidget);
   }, [maintenance]);
 
