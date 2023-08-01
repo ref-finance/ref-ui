@@ -576,7 +576,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     } catch (error) {
       return undefined;
     }
-  }, [balances, holdings]);
+  }, [balances, holdings, symbol]);
 
   const curSymbol = availableSymbols?.find((item) => item.symbol === symbol);
 
@@ -596,7 +596,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     } catch (error) {
       return undefined;
     }
-  }, [balances, holdings]);
+  }, [balances, holdings, symbol]);
 
   const tokenInHolding = curHoldingIn
     ? toPrecision(
