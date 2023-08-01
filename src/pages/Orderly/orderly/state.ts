@@ -326,10 +326,21 @@ export function useLeverage() {
         setChangeTrigger(undefined);
         // setError(updateRes.message);
 
-        const tip = intl.formatMessage({
+        let tip = intl.formatMessage({
           id: 'the_margin_will_be_insufficient',
           defaultMessage: 'The margin will be insufficient',
         });
+
+        if (
+          updateRes.message ===
+          'You have exceeded the rate limit, please try again in 60 seconds.'
+        ) {
+          tip = intl.formatMessage({
+            id: 'exceed_rate_limit',
+            defaultMessage:
+              'You have exceeded the rate limit, please try again in 60 seconds',
+          });
+        }
 
         return marginPopUp(tip, 'error');
       } else {

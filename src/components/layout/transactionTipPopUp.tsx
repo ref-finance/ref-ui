@@ -788,7 +788,7 @@ export const marginPopUp = (tip: string, type: 'error' | 'success') => {
         type === 'success' ? 'text-marginGrayBg' : 'text-marginRedBg'
       }  w-full`}
     >
-      <span className="text-white font-gothamBold text-sm">{tip}</span>
+      <span className="text-white  text-sm">{tip}</span>
 
       <div
         className={`absolute w-1  ${
@@ -814,7 +814,7 @@ export const marginPopUp = (tip: string, type: 'error' | 'success') => {
         // bottom: !mobileDevice ? '-70px' : '0px',
         minHeight: '40px',
         top: mobileDevice ? '50px' : '',
-        height: '40px',
+        // height: '40px',
       },
     }
   );
