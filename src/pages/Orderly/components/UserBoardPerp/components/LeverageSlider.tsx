@@ -13,7 +13,7 @@ export function LeverageSlider(
 ) {
   return (
     <div className="">
-      <div className="w-full frcb text-sm xs:text-xs text-primaryText">
+      <div className="w-full mb-4 frcb text-sm xs:text-xs text-primaryText">
         <FormattedMessage
           id="leverage_max_leverage"
           defaultMessage={'Max Account Leverage:'}
