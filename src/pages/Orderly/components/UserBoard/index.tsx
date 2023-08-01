@@ -1440,15 +1440,15 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           </div>
         )}
         {orderType === 'Market' && (
-          <div className="mx-6 bg-perpCardBg rounded-xl border border-boxBorder p-3 mt-3 text-sm flex items-center  justify-between">
-            <span className="text-primaryOrderly">
+          <div className="mx-6  text-primaryOrderly rounded-xl border bg-orderLineHover border-menuMoreBoxBorderColor p-3 mt-3 text-sm flex items-center  justify-between">
+            <span className="">
               {intl.formatMessage({
                 id: 'price',
                 defaultMessage: 'Price',
               })}
             </span>
 
-            <span className="text-white">
+            <span className="">
               {' '}
               {intl.formatMessage({
                 id: 'market_price',
@@ -1725,38 +1725,18 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           <div className="flex items-center justify-between">
             <span className="text-primaryOrderly">
               {intl.formatMessage({
-                id: 'Fees',
-                defaultMessage: 'Fees',
+                id: 'taker_maker_fee',
+                defaultMessage: 'Taker/Maker Fee',
               })}
             </span>
 
-            <FlexRow className="">
-              <span className="flex items-center mr-1.5">
-                <span className=" mr-2 text-white">
-                  {Number((userInfo?.taker_fee_rate || 0) / 100).toFixed(2)}%
-                </span>
-                <TextWrapper
-                  textC="text-primaryText "
-                  className="text-xs py-0 px-1"
-                  value={intl.formatMessage({
-                    id: 'Taker',
-                    defaultMessage: 'Taker',
-                  })}
-                ></TextWrapper>
+            <FlexRow className="text-white">
+              <span className="">
+                {Number((userInfo?.taker_fee_rate || 0) / 100).toFixed(2)}%
               </span>
-
-              <span className="flex items-center">
-                <span className=" mr-2 text-white">
-                  {Number((userInfo?.maker_fee_rate || 0) / 100).toFixed(2)}%
-                </span>
-                <TextWrapper
-                  textC="text-primaryText"
-                  value={intl.formatMessage({
-                    id: 'Maker',
-                    defaultMessage: 'Maker',
-                  })}
-                  className="text-xs py-0 px-1"
-                ></TextWrapper>
+              /
+              <span className="">
+                {Number((userInfo?.maker_fee_rate || 0) / 100).toFixed(2)}%
               </span>
             </FlexRow>
           </div>
@@ -1770,7 +1750,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
             </span>
             <span className="text-white">
               {total === '-' ? '-' : digitWrapper(total.toString(), 3)}{' '}
-              {` ${symbolTo}`}
+              <span className="text-primaryText">{` ${symbolTo}`}</span>
             </span>
           </div>
         </div>
