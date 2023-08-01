@@ -4,17 +4,26 @@ import { getFTmetadata } from '../../near';
 
 export function useTokenMetaFromSymbol(
   symbol: string,
-  tokenInfo: TokenInfo[] | undefined
+  tokenInfo: TokenInfo[] | undefined,
+  symbolTypeOn?: boolean
 ) {
   const [tokenMetadata, setTokenMetadata] = useState<TokenMetadata>();
 
   useEffect(() => {
     if (!symbol || !tokenInfo) return;
 
+    if (typeof symbolTypeOn === 'boolean' && symbolTypeOn === false) {
+      return;
+    }
+
+    console.log('symbol: ', symbol, tokenInfo);
+
     const token =
       tokenInfo &&
       tokenInfo.find((t) =>
-        symbol === 'BTC' ? t.token === 'WBTC' : t.token === symbol
+        symbol === 'BTC'
+          ? t.token === 'WBTC'
+          : t.token.toLowerCase() === symbol.toLowerCase()
       );
 
     if (!token?.token_account_id) return;
@@ -25,7 +34,7 @@ export function useTokenMetaFromSymbol(
         ...token,
       });
     });
-  }, [symbol, tokenInfo]);
+  }, [symbol, tokenInfo, symbolTypeOn]);
 
   return tokenMetadata;
 }

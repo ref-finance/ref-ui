@@ -62,6 +62,7 @@ import {
 } from '../Common/index';
 import { useTokenBalance, useTokensBalances } from './state';
 import {
+  PerpOrSpot,
   digitWrapper,
   digitWrapperAsset,
   numberWithCommas,
@@ -545,7 +546,15 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
   // const [holdings, setHoldings] = useState<Holding[]>();
 
-  const tokenIn = useTokenMetaFromSymbol(symbolFrom, tokenInfo);
+  console.log('symbolFrom: ', symbolFrom);
+
+  const symbolType = PerpOrSpot(symbol);
+
+  const tokenIn = useTokenMetaFromSymbol(
+    symbolFrom,
+    tokenInfo,
+    symbolType === 'SPOT'
+  );
 
   const tokenOut = useTokenMetaFromSymbol(symbolTo, tokenInfo);
 
@@ -603,6 +612,8 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     tokenIn?.id,
     JSON.stringify(balances)
   );
+
+  console.log('tokenFromBalance: ', tokenFromBalance, tokenIn);
 
   const tokenToBalance = useTokenBalance(
     tokenOut?.id,

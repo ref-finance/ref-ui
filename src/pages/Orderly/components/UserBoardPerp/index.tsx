@@ -71,6 +71,7 @@ import {
 } from '../Common/index';
 import { usePerpData, useTokenBalance } from './state';
 import {
+  PerpOrSpot,
   digitWrapper,
   digitWrapperAsset,
   numberWithCommas,
@@ -510,10 +511,15 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
   const history = useHistory();
 
-  // const [holdings, setHoldings] = useState<Holding[]>();
+  console.log('symbolFrom: ', symbolFrom);
 
-  const tokenIn = useTokenMetaFromSymbol(symbolFrom, tokenInfo);
+  const symbolType = PerpOrSpot(symbol);
 
+  const tokenIn = useTokenMetaFromSymbol(
+    symbolFrom,
+    tokenInfo,
+    symbolType === 'PERP'
+  );
   const tokenOut = useTokenMetaFromSymbol(symbolTo, tokenInfo);
 
   const [operationId, setOperationId] = useState<string>(tokenIn?.id || '');
@@ -3251,32 +3257,6 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
 
   const inputAmountRef = useRef<HTMLInputElement>(null);
 
-  // useEffect(() => {
-  //   if (!accountId || !validAccountSig) return;
-
-  //   getCurrentHolding({ accountId }).then((res) => {
-  //     setHoldings(res.data.holding);
-  //   });
-  // }, [accountId, myPendingOrdersRefreshing, validAccountSig]);
-
-  const curHoldingIn = useMemo(() => {
-    try {
-      const holding = holdings?.find((h) => h.token === symbolFrom);
-
-      const balance = balances[symbolFrom];
-
-      if (balance) {
-        holding.holding = balance.holding;
-
-        holding.pending_short = balance.pendingShortQty;
-      }
-
-      return holding;
-    } catch (error) {
-      return undefined;
-    }
-  }, [balances, holdings]);
-
   const curSymbol = availableSymbols?.find((item) => item.symbol === symbol);
 
   const curHoldingOut = useMemo(() => {
@@ -3295,7 +3275,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
     } catch (error) {
       return undefined;
     }
-  }, [balances, holdings]);
+  }, [balances, holdings, symbol]);
 
   const newPositions = useMemo(() => {
     try {
