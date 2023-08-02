@@ -3192,6 +3192,8 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
     holdings,
   } = useOrderlyContext();
 
+  const { marginRatio, newPositions } = usePerpData();
+
   const curSymbolMarkPrice = markPrices?.find((item) => item.symbol === symbol);
 
   const { accountId, modal, selector } = useWalletSelector();
@@ -3276,46 +3278,6 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
       return undefined;
     }
   }, [balances, holdings, symbol]);
-
-  const newPositions = useMemo(() => {
-    try {
-      const calcPositions = positions.rows.map((item) => {
-        const push = positionPush?.find((i) => i.symbol === item.symbol);
-
-        if (push) {
-          const qty = push.positionQty;
-          const pendingLong = push.pendingLongQty;
-          const pendingShort = push.pendingShortQty;
-
-          return {
-            ...item,
-            ...push,
-            position_qty: qty,
-            pending_long_qty: pendingLong,
-            pending_short_qty: pendingShort,
-            unsettled_pnl: push.unsettledPnl,
-            mark_price: push.markPrice,
-            average_open_price: push.averageOpenPrice,
-            mmr: push.mmr,
-            imr: push.imr,
-          };
-        } else {
-          return item;
-        }
-      });
-
-      positions.rows = calcPositions;
-
-      return {
-        ...positions,
-        rows: calcPositions,
-      };
-    } catch (error) {
-      return null;
-    }
-  }, [positionPush, positions]);
-
-  const { marginRatio } = usePerpData();
 
   const lqPrice = useMemo(() => {
     const cur_market_price =

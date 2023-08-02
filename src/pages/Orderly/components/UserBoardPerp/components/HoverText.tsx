@@ -12,10 +12,12 @@ export function MarginRatioText() {
 
   return (
     <div className="frcs gap-1 ">
-      <FormattedMessage
-        id="margin_ratio"
-        defaultMessage={`Margin Ratio`}
-      ></FormattedMessage>
+      <span className="whitespace-nowrap">
+        <FormattedMessage
+          id="margin_ratio"
+          defaultMessage={`Margin Ratio`}
+        ></FormattedMessage>
+      </span>
 
       <div
         className="relative"
@@ -66,10 +68,12 @@ export function TotaluPNLText() {
 
   return (
     <div className="frcs gap-1 ">
-      <FormattedMessage
-        id="total_upnl"
-        defaultMessage={`Total uPnL`}
-      ></FormattedMessage>
+      <span className="whitespace-nowrap">
+        <FormattedMessage
+          id="total_upnl"
+          defaultMessage={`Total uPnL`}
+        ></FormattedMessage>
+      </span>
 
       <div
         className="relative"
@@ -107,10 +111,12 @@ export function UnsettlePnl() {
 
   return (
     <div className="frcs gap-1 ">
-      <FormattedMessage
-        id="unsettle_pnl"
-        defaultMessage={`Unsettle PnL`}
-      ></FormattedMessage>
+      <span className="whitespace-nowrap">
+        <FormattedMessage
+          id="unsettle_pnl"
+          defaultMessage={`Unsettle PnL`}
+        ></FormattedMessage>
+      </span>
 
       <div
         className="relative"
@@ -161,10 +167,12 @@ export function LiquidationPriceText() {
 
   return (
     <div className="frcs gap-1 text-primaryText">
-      <FormattedMessage
-        id="est_liquidation_price"
-        defaultMessage={`Est. liquidation price`}
-      />
+      <span className="whitespace-nowrap">
+        <FormattedMessage
+          id="est_liquidation_price"
+          defaultMessage={`Est. liquidation price`}
+        />
+      </span>
 
       <div
         data-class="reactTip"
