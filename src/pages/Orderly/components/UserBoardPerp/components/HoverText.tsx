@@ -166,7 +166,7 @@ export function LiquidationPriceText() {
   const isMobile = useClientMobile();
 
   return (
-    <div className="frcs gap-1 text-primaryText">
+    <div className=" gap-1 text-primaryText">
       <span className="whitespace-nowrap">
         <FormattedMessage
           id="est_liquidation_price"
@@ -180,6 +180,7 @@ export function LiquidationPriceText() {
         data-html={true}
         data-place={'top'}
         data-tip={getLqPriceTip()}
+        className="inline-block pl-1 relative top-0.5"
       >
         <QuestionMark />
 
