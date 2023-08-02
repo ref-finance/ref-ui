@@ -390,7 +390,9 @@ function ChartHeader(props?: any) {
 
   const idFrom =
     tokenInfo &&
-    tokenInfo.find((t) => t.token === symbolFrom)?.token_account_id;
+    tokenInfo.find((t) =>
+      symbolFrom === 'BTC' ? t.token === 'WBTC' : t.token === symbolFrom
+    )?.token_account_id;
 
   const idTo =
     tokenInfo && tokenInfo.find((t) => t.token === symbolTo)?.token_account_id;
@@ -404,16 +406,24 @@ function ChartHeader(props?: any) {
   const symbolType = PerpOrSpot(symbol);
 
   useEffect(() => {
-    if (!idFrom) return;
+    const isPerpWindow = window.location.pathname.indexOf('perp') > -1;
+
+    if (
+      !idFrom ||
+      (isPerpWindow && symbolType === 'SPOT') ||
+      (!isPerpWindow && symbolType === 'PERP')
+    )
+      return;
 
     if (idFrom === 'near') {
       setIconIn(nearMetadata.icon);
     } else {
       getFTmetadata(idFrom).then((res) => {
+        // console.log('res: ', res);
         setIconIn(res.icon);
       });
     }
-  }, [idFrom]);
+  }, [idFrom, symbolType]);
 
   useEffect(() => {
     if (!idTo) return;

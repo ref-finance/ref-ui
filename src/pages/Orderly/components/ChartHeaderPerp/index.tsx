@@ -403,7 +403,6 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
 
   useEffect(() => {
     if (!idFrom || symbolType !== 'PERP') return;
-    console.log('idFrom: ', idFrom);
 
     if (idFrom === 'near') {
       setIconIn(nearMetadata.icon);
