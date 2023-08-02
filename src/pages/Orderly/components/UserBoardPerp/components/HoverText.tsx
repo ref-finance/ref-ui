@@ -166,34 +166,33 @@ export function LiquidationPriceText() {
   const isMobile = useClientMobile();
 
   return (
-    <div className=" gap-1 text-primaryText">
-      <span className="whitespace-nowrap">
+    <div className="frcs gap-1 text-primaryText">
+      <span className="">
         <FormattedMessage
           id="est_liquidation_price"
           defaultMessage={`Est. liquidation price`}
         />
+        <span
+          data-class="reactTip"
+          data-for={'user_lq_price'}
+          data-html={true}
+          data-place={'top'}
+          data-tip={getLqPriceTip()}
+          className="inline-block pl-1 relative top-0.5"
+        >
+          <QuestionMark />
+
+          <ReactTooltip
+            id={'user_lq_price'}
+            backgroundColor="#1D2932"
+            place="right"
+            border
+            borderColor="#7e8a93"
+            textColor="#C6D1DA"
+            effect="solid"
+          />
+        </span>
       </span>
-
-      <div
-        data-class="reactTip"
-        data-for={'user_lq_price'}
-        data-html={true}
-        data-place={'top'}
-        data-tip={getLqPriceTip()}
-        className="inline-block pl-1 relative top-0.5"
-      >
-        <QuestionMark />
-
-        <ReactTooltip
-          id={'user_lq_price'}
-          backgroundColor="#1D2932"
-          place="right"
-          border
-          borderColor="#7e8a93"
-          textColor="#C6D1DA"
-          effect="solid"
-        />
-      </div>
     </div>
   );
 }
