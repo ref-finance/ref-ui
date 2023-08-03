@@ -165,17 +165,27 @@ export const get24hVolume = async (pool_id: string): Promise<string> => {
 export const get24hVolumes = async (
   pool_ids: (string | number)[]
 ): Promise<string[]> => {
-  return await fetch(
-    config.sodakiApiUrl +
-      `/poollist/${pool_ids.join('|')}/rolling24hvolume/sum`,
-    {
-      method: 'GET',
-    }
-  )
-    .then((res) => res.json())
-    .then((res) => {
-      return res.map((r: any) => r.toString());
-    });
+  const batchSize = 300;
+  const numBatches = Math.ceil(pool_ids.length / batchSize);
+  const promises: Promise<string[]>[] = [];
+
+  for (let i = 0; i < numBatches; i++) {
+    const batchIds = pool_ids.slice(i * batchSize, (i + 1) * batchSize);
+    const promise = fetch(
+      config.sodakiApiUrl +
+        `/poollist/${batchIds.join('|')}/rolling24hvolume/sum`,
+      {
+        method: 'GET',
+      }
+    )
+      .then((res) => res.json())
+      .then((batchData) => batchData.map((r: any) => r.toString()));
+
+    promises.push(promise);
+  }
+
+  const results = await Promise.all(promises);
+  return results.flat();
 };
 
 const parseActionView = async (action: any) => {
