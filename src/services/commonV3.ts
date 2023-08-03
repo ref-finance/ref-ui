@@ -1675,6 +1675,7 @@ export function get_o_l_amount_by_condition({
   return L;
 }
 
+const second24 = 24 * 60 * 60;
 export function get_account_24_apr(
   dclAccountFee: IDCLAccountFee | any,
   pool: PoolInfo,
@@ -1683,7 +1684,7 @@ export function get_account_24_apr(
   const { token_x_metadata, token_y_metadata } = pool;
   const price_x = tokenPriceList?.[token_x_metadata.id]?.price || 0;
   const price_y = tokenPriceList?.[token_y_metadata.id]?.price || 0;
-  let apr_24 = '';
+  let apr_24 = '0';
   const { apr } = dclAccountFee;
   // 24小时平均利润
   const { fee_data, user_token, change_log_data } = apr;
@@ -1705,55 +1706,27 @@ export function get_account_24_apr(
 
   // 24小时平均本金
   const processed_change_log: IProcessedLogData[] = [];
-  const second24 = 24 * 60 * 60;
-  const { token_x, token_y, timestamp: current_time } = user_token;
-  const before24Time = Big(current_time).minus(second24).toFixed(0); // 秒
-  const token_x_NonDivisible = toNonDivisibleNumber(
-    token_x_metadata.decimals,
-    Big(token_x || 0).toFixed()
-  );
-  const token_y_NonDivisible = toNonDivisibleNumber(
-    token_y_metadata.decimals,
-    Big(token_y || 0).toFixed()
-  );
-  const current_user_token: IDclLogData = {
-    token_x: token_x_NonDivisible,
-    token_y: token_y_NonDivisible,
-    timestamp: current_time,
-  };
-  const current_processed = process_log_data(
-    current_user_token,
-    before24Time,
+  const user_token_processed = process_user_token({
+    user_token,
     pool,
-    tokenPriceList
-  );
-  processed_change_log.push(current_processed);
+    tokenPriceList,
+  });
+  const before24Time = Big(user_token.timestamp).minus(second24).toFixed(0); // 秒
+  processed_change_log.push(user_token_processed);
 
   if (change_log_data?.length) {
     change_log_data.sort((b: IDclLogData, a: IDclLogData) => {
       return Big(a.timestamp).minus(b.timestamp).toNumber();
     });
     change_log_data.forEach((log: IDclLogData) => {
-      const pre_processed_log =
-        processed_change_log[processed_change_log.length - 1];
-      const { token_x, token_y, timestamp } = log; // timestamp 纳秒
-      const real_token_x = Big(pre_processed_log.token_x)
-        .minus(token_x)
-        .toFixed();
-      const real_token_y = Big(pre_processed_log.token_y)
-        .minus(token_y)
-        .toFixed();
-      const new_log = {
-        token_x: real_token_x,
-        token_y: real_token_y,
-        timestamp: Big(timestamp).div(1000000000).toFixed(0),
-      };
-      const processed_log: IProcessedLogData = process_log_data(
-        new_log,
+      const preLog = processed_change_log[processed_change_log.length - 1];
+      const processed_log: IProcessedLogData = process_log_data({
+        preLog,
+        log,
         before24Time,
         pool,
-        tokenPriceList
-      );
+        tokenPriceList,
+      });
       processed_change_log.push(processed_log);
     });
     // for 加权
@@ -1792,33 +1765,81 @@ export function get_account_24_apr(
  * timestamp 秒
  * @returns
  */
-function process_log_data(
-  log: IDclLogData,
-  before24Time: string,
-  pool: PoolInfo,
-  tokenPriceList: any
-) {
+function process_log_data({
+  preLog,
+  log,
+  before24Time,
+  pool,
+  tokenPriceList,
+}: {
+  preLog: IProcessedLogData;
+  log: IDclLogData;
+  before24Time: string;
+  pool: PoolInfo;
+  tokenPriceList: any;
+}) {
+  let total_value = Big(0);
+  let distance_from_24;
   const { token_x_metadata, token_y_metadata } = pool;
-  const { token_x, token_y, timestamp } = log;
+  // get current log changed total value
+  const { token_x, token_y } = log;
+  const token_x_abs = Big(token_x || 0).abs();
+  const token_y_abs = Big(token_y || 0).abs();
+
   const token_x_amount = toReadableNumber(
     token_x_metadata.decimals,
-    Big(token_x || 0).toFixed()
+    Big(token_x_abs).toFixed()
   );
   const token_y_amount = toReadableNumber(
     token_y_metadata.decimals,
-    Big(token_y || 0).toFixed()
+    Big(token_y_abs).toFixed()
   );
   const price_x = tokenPriceList[token_x_metadata.id]?.price || 0;
   const price_y = tokenPriceList[token_y_metadata.id]?.price || 0;
   const token_x_value = Big(token_x_amount).mul(price_x);
   const token_y_value = Big(token_y_amount).mul(price_y);
-  const total_value = token_x_value.plus(token_y_value).toFixed();
-  const distance_from_24 = Big(timestamp).minus(before24Time).toFixed(0); // 秒
+
+  total_value = token_x_value.plus(token_y_value);
+
+  distance_from_24 = Big(log.timestamp)
+    .div(1000000000)
+    .minus(before24Time)
+    .toFixed(0); // 秒
+
+  if (Big(token_x).lt(0) || Big(token_y).lt(0)) {
+    total_value = Big(preLog.total_value).plus(total_value);
+  } else {
+    total_value = Big(preLog.total_value).minus(total_value);
+  }
+
   return {
     distance_from_24,
+    total_value: total_value.lt(0) ? '0' : total_value.toFixed(),
+  };
+}
+
+function process_user_token({
+  user_token,
+  pool,
+  tokenPriceList,
+}: {
+  user_token: IDclLogData;
+  pool: PoolInfo;
+  tokenPriceList: any;
+}) {
+  const { token_x_metadata, token_y_metadata } = pool;
+  const { token_x, token_y } = user_token;
+
+  const price_x = tokenPriceList?.[token_x_metadata.id]?.price || 0;
+  const price_y = tokenPriceList?.[token_y_metadata.id]?.price || 0;
+
+  const token_x_value = Big(token_x || 0).mul(price_x);
+  const token_y_value = Big(token_y || 0).mul(price_y);
+  const total_value = token_x_value.plus(token_y_value).toFixed();
+
+  return {
     total_value,
-    token_x: Big(token_x).toFixed(),
-    token_y: Big(token_y).toFixed(),
+    distance_from_24: Big(second24).toFixed(),
   };
 }
 

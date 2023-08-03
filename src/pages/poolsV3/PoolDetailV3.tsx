@@ -3,14 +3,9 @@ import { useLocation, useParams } from 'react-router-dom';
 import { Card } from '~components/card/Card';
 import { Link } from 'react-router-dom';
 import {
-  calculateFairShare,
-  calculateFeePercent,
-  percent,
-  toNonDivisibleNumber,
   toPrecision,
   toReadableNumber,
   toInternationalCurrencySystem,
-  toRoundedReadableNumber,
   formatWithCommas,
 } from '../../utils/numbers';
 import { useClientMobile, isClientMobie } from '../../utils/device';
@@ -132,6 +127,7 @@ import { IDCLAccountFee } from '../../components/d3Chart/interfaces';
 import {
   formatPercentage,
   formatWithCommas_usd,
+  formatNumber,
 } from '../../components/d3Chart/utils';
 import { getDCLAccountFee } from '../../services/indexer';
 
@@ -632,6 +628,8 @@ function YourLiquidityBox(props: {
   const [showSelectLiquidityBox, setShowSelectLiquidityBox] = useState(false);
   const [accountAPR, setAccountAPR] = useState('');
   const [earned_fee, set_earned_fee] = useState('');
+  const [earned_fee_x_amount, set_earned_fee_x_amount] = useState<any>();
+  const [earned_fee_y_amount, set_earned_fee_y_amount] = useState<any>();
   const [operationType, setOperationType] = useState('add');
   const { token_x_metadata, token_y_metadata, pool_id } = poolDetail;
   const { accountId } = useWalletSelector();
@@ -689,13 +687,15 @@ function YourLiquidityBox(props: {
     }
   }, [liquidities, Object.keys(tokenPriceList).length]);
   useEffect(() => {
-    if (poolDetail && tokenPriceList) {
+    if (poolDetail && tokenPriceList && Object.keys(tokenPriceList).length) {
       get_24_apr_and_fee();
     }
   }, [poolDetail, tokenPriceList]);
   async function get_24_apr_and_fee() {
-    let apr_24 = '';
-    let total_fee_earned = '';
+    let apr_24 = '0';
+    let total_fee_earned = '0';
+    let total_earned_fee_x;
+    let total_earned_fee_y;
     const dcl_fee_result: IDCLAccountFee | any = await getDCLAccountFee({
       pool_id,
       account_id: accountId,
@@ -706,11 +706,11 @@ function YourLiquidityBox(props: {
       // total earned fee
       const { total_fee_x, total_fee_y } = dcl_fee_result.total_earned_fee;
       // 总共赚到的fee
-      const total_earned_fee_x = toReadableNumber(
+      total_earned_fee_x = toReadableNumber(
         token_x_metadata.decimals,
         Big(total_fee_x || 0).toFixed()
       );
-      const total_earned_fee_y = toReadableNumber(
+      total_earned_fee_y = toReadableNumber(
         token_y_metadata.decimals,
         Big(total_fee_y || 0).toFixed()
       );
@@ -722,7 +722,8 @@ function YourLiquidityBox(props: {
         .plus(total_earned_fee_y_value)
         .toFixed();
     }
-
+    set_earned_fee_y_amount(formatNumber(total_earned_fee_y));
+    set_earned_fee_x_amount(formatNumber(total_earned_fee_x));
     set_earned_fee(formatWithCommas_usd(total_fee_earned));
     setAccountAPR(formatPercentage(apr_24));
   }
@@ -866,59 +867,6 @@ function YourLiquidityBox(props: {
     return {
       total_x: display_total_x,
       total_y: display_total_y,
-    };
-  }
-
-  function getTotalFee() {
-    let total_x = 0;
-    let total_y = 0;
-
-    let total_price = 0;
-
-    user_liquidities_detail.forEach((liquidityDetail: UserLiquidityDetail) => {
-      const {
-        unclaimed_fee_x_amount,
-        unclaimed_fee_y_amount,
-        total_fees_price,
-      } = liquidityDetail;
-      total_x += +unclaimed_fee_x_amount;
-      total_y += +unclaimed_fee_y_amount;
-
-      total_price += +total_fees_price;
-    });
-
-    let display_total_price = '$';
-
-    if (total_price == 0) {
-      display_total_price = display_total_price + '0';
-    } else if (total_price < 0.01) {
-      display_total_price = display_total_price + '<0.01';
-    } else {
-      display_total_price =
-        display_total_price +
-        toInternationalCurrencySystem(total_price.toString(), 3);
-    }
-
-    let display_total_x = '0';
-    let display_total_y = '0';
-    if (total_x == 0) {
-      display_total_x = '0';
-    } else if (total_x < 0.01) {
-      display_total_x = '<0.01';
-    } else {
-      display_total_x = toInternationalCurrencySystem(total_x.toString(), 3);
-    }
-    if (total_y == 0) {
-      display_total_y = '0';
-    } else if (total_y < 0.01) {
-      display_total_y = '<0.01';
-    } else {
-      display_total_y = toInternationalCurrencySystem(total_y.toString(), 3);
-    }
-    return {
-      total_fee_x: display_total_x,
-      total_fee_y: display_total_y,
-      total_fee_price: display_total_price,
     };
   }
   function removeLiquidity() {
@@ -1121,13 +1069,13 @@ function YourLiquidityBox(props: {
                 >
                   <div className="frcb gap-3 w-full">
                     <span>{toRealSymbol(token_x_metadata.symbol)}</span>
-                    <span>{getTotalFee().total_fee_x}</span>
+                    <span>{earned_fee_x_amount || '-'}</span>
                   </div>
 
                   <div className="frcb gap-3 w-full">
                     <span>{toRealSymbol(token_y_metadata.symbol)}</span>
 
-                    <span>{getTotalFee().total_fee_y}</span>
+                    <span>{earned_fee_y_amount || '-'}</span>
                   </div>
                 </div>
               )}

@@ -99,8 +99,6 @@ export interface IDclLogData {
 export interface IProcessedLogData {
   total_value: string;
   distance_from_24: string;
-  token_x: string;
-  token_y: string;
 }
 export type IRMTYPE = 'round' | 'floor' | 'ceil';
 

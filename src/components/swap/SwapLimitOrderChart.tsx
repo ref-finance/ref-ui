@@ -4,6 +4,7 @@ import React, {
   useMemo,
   useState,
   createContext,
+  useRef,
 } from 'react';
 import { get_pointorder_range } from '../../services/swapV3';
 import { get_pool, PoolInfo } from '../../services/swapV3';
@@ -43,6 +44,7 @@ export default function SwapLimitOrderChart() {
   const pool_id = dcl_pool_id;
   const left_point = -800000;
   const right_point = 600000;
+  const sellBoxRef = useRef(null);
   useEffect(() => {
     if (pool_id) {
       get_points_of_orders();
@@ -76,6 +78,11 @@ export default function SwapLimitOrderChart() {
     buy_token_y_list,
     sell_token_y_list,
   ]);
+  useEffect(() => {
+    if (sellBoxRef.current && sell_list?.length) {
+      sellBoxRef.current.scrollTop = 10000;
+    }
+  }, [sellBoxRef, sell_list]);
   const [cur_pairs, cur_token_symbol, cur_pair_icons] = useMemo(() => {
     if (pool) {
       const classStr = 'w-6 h-6 rounded-full border border-gradientFromHover';
@@ -423,6 +430,7 @@ export default function SwapLimitOrderChart() {
             </div>
           </div>
           <div
+            ref={sellBoxRef}
             className="p-3 pr-0 overflow-auto"
             style={{ maxHeight: `${limitOrderContainerHeight}px` }}
           >

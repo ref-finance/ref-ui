@@ -71,8 +71,6 @@ function DclChartForward({
   removeParams,
   newlyAddedLiquidities,
 }:IDclChartProps) {
-
-  
   const [pool, setPool] = useState<PoolInfo>();
   const [price_range, set_price_range] = useState<number[]>();
   const [chartDataList, setChartDataList] = useState<IChartData[]>();
@@ -425,26 +423,39 @@ function DclChartForward({
       const { liquidities, orders } = marketdepthData;
       let liquidities_array: ILiquidityInfoPool[] = Object.values(liquidities);
 
-      // 去找 left_point左点位是当前点位，右点位也是当前点位的两条数据，把这两条数据合并成一条，因为合约侧是从当前点位从两侧开始查找
-      let range_contain_current_point: any;
-      liquidities_array = liquidities_array.filter((l: ILiquidityInfoPool) => {
-        const { left_point, right_point, amount_l } = l;
-        if (right_point == pool.current_point) {
-          range_contain_current_point = range_contain_current_point || {};
-          range_contain_current_point['left_point'] = left_point;
-          range_contain_current_point['amount_l'] = amount_l;
-          return false;
+      /**
+       * 去找 left_point左点位是当前点位，右点位也是当前点位的数据，如果有两条，这需要把这两条数据合并，否则不动。
+       */
+      let merged_current_point_liquidity: ILiquidityInfoPool;
+      const contain_current_point_liquidities: ILiquidityInfoPool[] = [];
+      const exclude_current_point_liquidities_array = liquidities_array.filter(
+        (l: ILiquidityInfoPool) => {
+          const { left_point, right_point } = l;
+          if (
+            right_point == pool.current_point ||
+            left_point == pool.current_point
+          ) {
+            contain_current_point_liquidities.push(l);
+            return false;
+          }
+          return true;
         }
-        if (left_point == pool.current_point) {
-          range_contain_current_point = range_contain_current_point || {};
-          range_contain_current_point['right_point'] = right_point;
-          range_contain_current_point['amount_l'] = amount_l;
-          return false;
-        }
-        return true;
-      });
-      if (range_contain_current_point) {
-        liquidities_array.push(range_contain_current_point);
+      );
+      if (contain_current_point_liquidities.length == 2) {
+        contain_current_point_liquidities.sort(
+          (b: ILiquidityInfoPool, a: ILiquidityInfoPool) => {
+            return b.left_point - a.left_point;
+          }
+        );
+        merged_current_point_liquidity = {
+          left_point: contain_current_point_liquidities[0].left_point,
+          right_point: contain_current_point_liquidities[1].right_point,
+          amount_l: contain_current_point_liquidities[0].amount_l,
+        };
+        exclude_current_point_liquidities_array.push(
+          merged_current_point_liquidity
+        );
+        liquidities_array = exclude_current_point_liquidities_array;
       }
       const orders_array: IOrderInfoPool[] = Object.values(orders);
       const pointsData_l = divide_liquidities_into_bins_pool({
@@ -535,7 +546,7 @@ function DclChartForward({
     const chartDataListInRange = chartDataList.filter((d: IChartData) => {
       const { point } = d;
       const point_right = point + bin_width;
-      return point >= point_l && point_right <= point_r;
+      return point_right > point_l && point < point_r;
     });
     return chartDataListInRange;
   }
@@ -1450,7 +1461,7 @@ function DclChartForward({
         </g>
       </svg>
       {/* hover到柱子(bin)上的悬浮框 */}
-      <div className="overBox absolute rounded-xl bg-chartHoverBoxBg border border-assetsBorder px-3 py-2 invisible z-10">
+      <div className="overBox absolute rounded-xl bg-chartHoverBoxBg border border-assetsBorder px-3 py-2 invisible z-50">
         <div className="flex items-center justify-between my-2">
           <span className="text-xs text-white">Trailing 24hr APR</span>
           <span className="text-xs text-white gotham_bold">
