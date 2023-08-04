@@ -463,7 +463,7 @@ export function usePerpData(deps?: {
     const cur_lq_price = r.est_liq_price;
     console.log('cur_lq_price: ', cur_lq_price);
 
-    if (typeof cur_lq_price === 'number') {
+    if (typeof cur_lq_price === 'number' && cur_lq_price > 0) {
       const symbol = availableSymbols?.find((item) => item.symbol === r.symbol);
 
       const lq_price_float = getLqPriceFloat(
@@ -475,9 +475,14 @@ export function usePerpData(deps?: {
 
       console.log('lq_price_float: ', lq_price_float);
 
-      r.display_est_liq_price = cur_lq_price + lq_price_float;
+      r.display_est_liq_price =
+        cur_lq_price + lq_price_float < 0 ? 0 : cur_lq_price + lq_price_float;
+    } else {
+      r.display_est_liq_price = cur_lq_price;
     }
   });
+
+  console.log('newPositions: ', newPositions?.rows);
 
   return {
     totalCollateral,

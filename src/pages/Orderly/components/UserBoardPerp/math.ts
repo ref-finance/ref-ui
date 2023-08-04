@@ -232,8 +232,6 @@ const getOthersPositionFloat = (
   markprices: MarkPrice[],
   curSymbol: SymbolInfo
 ) => {
-  if (!positions) return new Big(0);
-
   const pnl = positions.rows.reduce(
     (acc, cur, index) => {
       if (cur.symbol === curSymbol.symbol) return acc;
@@ -426,12 +424,8 @@ const getLqPrice = (
   availableSymbols: SymbolInfo[]
 ) => {
   try {
-    // const unsettle = getUnsettle(positions, markPrices);
-
     const mark_price =
       markPrices.find((item) => item.symbol === symbol.symbol)?.price || 0;
-
-    // const free_collateral = getFreeCollateral(positions, markPrices, userInfo);
 
     const total_collateral_value = getTotalCollateral(
       positions,
@@ -624,19 +618,6 @@ const getMaxQuantity = (
     return '-';
   }
 };
-
-export interface CalcMaxSizeParams {
-  futuresAdjustedCollateral: string;
-  totalIM: number;
-  othersIM: number;
-  leverage: number;
-  side: 'Buy' | 'Sell';
-  symbol: string;
-  futuresMarginFactor: number;
-  currentPosition: any;
-  othersPositions: any;
-  markPrice: number;
-}
 
 const getUnsettle = (positions: PositionsType, markPrices: MarkPrice[]) => {
   const float = getPositionFloat(positions, markPrices);

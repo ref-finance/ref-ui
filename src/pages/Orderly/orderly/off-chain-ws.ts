@@ -104,11 +104,7 @@ export const usePrivateOrderlyWS = () => {
         const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
         storedValid && setNeedRefresh(true);
       },
-      onError: (e) => {
-        const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
-        storedValid && setNeedRefresh(true);
-      },
-
+      onError: (e) => {},
       onOpen: (e) => {
         setNeedRefresh(false);
       },

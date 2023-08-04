@@ -303,17 +303,17 @@ function TableWithTabs({
   }, [triggerPositionBasedData, triggerBalanceBasedData]);
 
   useEffect(() => {
-    if ((data.length > 1 && data.length < 10) && id === 'open_orders' ) {
+    if (data.length > 1 && data.length < 10 && id === 'open_orders') {
       const currentScrollPosition = window.scrollY || window.pageYOffset;
       const newScrollPosition = currentScrollPosition - 100;
 
       window.scroll({
         top: newScrollPosition,
         left: 0,
-        behavior: 'auto'
+        behavior: 'auto',
       });
     }
-  }, [data])
+  }, [data]);
 
   const callGetData = async (forcePage?: number) => {
     if (!(validator && !maintenance && !validAccountSig)) {
@@ -446,7 +446,7 @@ function TableWithTabs({
                 }
                 onClick={() => setMobileFilterOpen(tab + 1)}
               >
-                <div className="flex relative items-center justify-center relative">
+                <div className="flex items-center justify-center relative">
                   <MobileFilter />
                   {Number(refOnly) +
                     Number(chooseMarketSymbol !== 'all_markets') +
@@ -575,9 +575,7 @@ function TableWithTabs({
                 </div>
               </div>
             )}
-          <div
-            className="relative md:py-5 lg:py-5 md:min-h-80 lg:min-h-80"
-          >
+          <div className="relative md:py-5 lg:py-5 md:min-h-80 lg:min-h-80">
             {validator && !maintenance && !validAccountSig && (
               <div
                 className="absolute flex flex-col md:justify-center lg:justify-center items-center h-full w-full top-0 left-0 "
