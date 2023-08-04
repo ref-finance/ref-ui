@@ -469,15 +469,15 @@ export function usePerpData(deps?: {
       const lq_price_float = getLqPriceFloat(
         markPrices,
         symbol,
-        r.symbol,
         newPositions,
-        availableSymbols,
-        userInfo
+        curHoldingOut,
+        userInfo,
+        availableSymbols
       );
 
       console.log('lq_price_float: ', lq_price_float);
 
-      r.display_est_liq_price = Math.max(0, cur_lq_price + lq_price_float);
+      r.display_est_liq_price = Math.max(0, lq_price_float);
     } else {
       r.display_est_liq_price = cur_lq_price;
     }

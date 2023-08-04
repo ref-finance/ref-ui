@@ -273,6 +273,21 @@ const getTotalCollateral = (
 
   return total_collateral_value;
 };
+
+const getTotalCollateralStatic = (
+  positions: PositionsType,
+  markprices: MarkPrice[],
+  curHoldingOut: Holding
+) => {
+  const unsettle = getUnsettleStatic(positions, markprices);
+
+  const total_collateral_value = new Big(
+    curHoldingOut.holding + curHoldingOut.pending_short
+  ).plus(unsettle);
+
+  return total_collateral_value;
+};
+
 const getFreeCollateral = (
   positions: PositionsType,
   markprices: MarkPrice[],
@@ -388,48 +403,64 @@ const getMMR = (
 const getLqPriceFloat = (
   markPrices: MarkPrice[],
   symbol: SymbolInfo,
-  symbolLabel: string,
   positions: PositionsType,
-  availableSymbols: SymbolInfo[],
-  userInfo: ClientInfo
+  curHoldingOut: Holding,
+  userInfo: ClientInfo,
+  availableSymbols: SymbolInfo[]
 ) => {
   try {
     const othersFloat = getOthersPositionFloat(positions, markPrices, symbol);
 
-    const cur_position = positions.rows.find((r) => r.symbol === symbol.symbol);
+    const total_collateral_value = getTotalCollateralStatic(
+      positions,
+      markPrices,
+      curHoldingOut
+    ).plus(othersFloat);
 
-    const Qi = new Big(cur_position?.position_qty || 0);
-
-    const Qi_abs = Qi.abs();
-
-    const mmr = cur_position.mmr;
-
-    const total_mm_float = positions.rows.reduce((acc, cur) => {
+    const total_mm = positions.rows.reduce((acc, cur) => {
       if (cur.symbol === symbol.symbol) return acc;
 
       const cur_mark_price =
         markPrices.find((item) => item.symbol === cur.symbol)?.price || 0;
 
-      const value = new Big(cur_mark_price)
-        .minus(cur.mark_price)
-        .times(cur.position_qty)
-        .abs();
+      const value = new Big(cur_mark_price).times(cur.position_qty).abs();
 
       const position_notional = value.toNumber();
 
-      const cur_mmr = cur.mmr;
+      const cur_symbol = availableSymbols.find((s) => s.symbol === cur.symbol);
+
+      const cur_mmr = getMMR(cur_symbol, userInfo, position_notional);
 
       const mm = new Big(cur_mmr).times(position_notional);
 
       return acc.plus(mm);
     }, new Big(0));
 
-    const denominator = new Big(Qi_abs).times(new Big(mmr)).minus(Qi);
+    const cur_position = positions.rows.find((r) => r.symbol === symbol.symbol);
 
-    const float = othersFloat.minus(total_mm_float).div(denominator);
+    const new_Qi = new Big(cur_position?.position_qty || 0);
 
-    return float.toNumber();
+    const new_Qi_abs = new_Qi.abs();
+
+    const position_notional = new_Qi_abs
+      .times(cur_position.mark_price)
+      .toNumber();
+
+    const mmr_i = getMMR(symbol, userInfo, position_notional);
+
+    const denominator = new Big(new_Qi_abs).times(new Big(mmr_i)).minus(new_Qi);
+
+    const numerator = new Big(total_collateral_value)
+      .minus(total_mm)
+      .minus(new Big(position_notional).times(mmr_i));
+
+    const result = new Big(cur_position.mark_price).plus(
+      numerator.div(denominator)
+    );
+
+    return result.lte(0) ? 0 : result.toNumber();
   } catch (error) {
+    console.log('error: ', error);
     return 0;
   }
 };
@@ -649,6 +680,17 @@ const getUnsettle = (positions: PositionsType, markPrices: MarkPrice[]) => {
   }, new Big(0));
 
   return unsettle.plus(float);
+};
+
+const getUnsettleStatic = (
+  positions: PositionsType,
+  markPrices: MarkPrice[]
+) => {
+  const unsettle = positions.rows.reduce((acc, cur) => {
+    return acc.plus(cur.unsettled_pnl);
+  }, new Big(0));
+
+  return unsettle;
 };
 
 const getPortfolioUnsettle = (
