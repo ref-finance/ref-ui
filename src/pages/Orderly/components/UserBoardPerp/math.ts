@@ -389,7 +389,9 @@ const getLqPriceFloat = (
   markPrices: MarkPrice[],
   symbol: SymbolInfo,
   symbolLabel: string,
-  positions: PositionsType
+  positions: PositionsType,
+  availableSymbols: SymbolInfo[],
+  userInfo: ClientInfo
 ) => {
   try {
     const othersFloat = getOthersPositionFloat(positions, markPrices, symbol);
@@ -402,9 +404,29 @@ const getLqPriceFloat = (
 
     const mmr = cur_position.mmr;
 
+    const total_mm_float = positions.rows.reduce((acc, cur) => {
+      if (cur.symbol === symbol.symbol) return acc;
+
+      const cur_mark_price =
+        markPrices.find((item) => item.symbol === cur.symbol)?.price || 0;
+
+      const value = new Big(cur_mark_price)
+        .minus(cur.mark_price)
+        .times(cur.position_qty)
+        .abs();
+
+      const position_notional = value.toNumber();
+
+      const cur_mmr = cur.mmr;
+
+      const mm = new Big(cur_mmr).times(position_notional);
+
+      return acc.plus(mm);
+    }, new Big(0));
+
     const denominator = new Big(Qi_abs).times(new Big(mmr)).minus(Qi);
 
-    const float = othersFloat.div(denominator);
+    const float = othersFloat.minus(total_mm_float).div(denominator);
 
     return float.toNumber();
   } catch (error) {
