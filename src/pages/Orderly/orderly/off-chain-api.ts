@@ -675,10 +675,20 @@ export const getPortfolioPosition = async ({
 }) => {
   const url = `/v1/positions`;
 
-  const res = requestOrderly({
+  const res = await requestOrderly({
     url,
     accountId,
   });
+
+  if (res?.data?.rows) {
+    const newRows = res.data.rows.map((r: any) => {
+      return {
+        ...r,
+        display_est_liq_price: r.est_liq_price,
+      };
+    });
+    res.data.rows = newRows;
+  }
 
   return res;
 };

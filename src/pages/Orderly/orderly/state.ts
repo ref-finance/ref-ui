@@ -272,6 +272,13 @@ export function useAllPositions(
     if (!accountId || !validAccountSig) return;
 
     getUserAllPositions(accountId).then((res) => {
+      const rows = res.data.rows.map((row: any) => {
+        row.display_est_liq_price = row.est_liq_price;
+        return row;
+      });
+
+      res.data.rows = rows;
+
       setPositions({ ...res.data, timestamp: res.timestamp });
     });
   }, [accountId, positionTrigger, validAccountSig, ...refreshingTag]);
