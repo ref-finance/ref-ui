@@ -180,12 +180,6 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
 
   const availableSymbols = useAllSymbolInfo();
 
-  // const allOrdersSymbol = useAllOrdersSymbol({
-  //   symbol,
-  //   refreshingTag: myPendingOrdersRefreshing,
-  //   validAccountSig,
-  // });
-
   const allOrders = useAllOrders({
     refreshingTag: myPendingOrdersRefreshing,
     type: symbolType,

@@ -1497,7 +1497,7 @@ const FutureMobileRow: React.FC<{
     position_qty: number;
     average_open_price: number;
     unsettled_pnl: number;
-    est_liq_price: number;
+    display_est_liq_price: number;
   };
   marketList: { text: JSX.Element; withSymbol: JSX.Element; textId: string }[];
   handleOpenClosing: (
@@ -1524,7 +1524,8 @@ const FutureMobileRow: React.FC<{
   lastPrices,
 }) => {
   const intl = useIntl();
-  const { symbol, position_qty, average_open_price, est_liq_price } = row;
+  const { symbol, position_qty, average_open_price, display_est_liq_price } =
+    row;
   const [showPnlSelector, setShowPnlSelector] = useState<boolean>(false);
   const [futureQuantityOpen, setFutureQuantityOpen] = useState<boolean>(false);
   const [futurePriceOpen, setFuturePriceOpen] = useState<boolean>(false);
@@ -1709,7 +1710,7 @@ const FutureMobileRow: React.FC<{
               </div>
             </div>
             <span className="text-white">
-              {est_liq_price ? est_liq_price.toFixed(3) : '-'}
+              {display_est_liq_price ? display_est_liq_price.toFixed(3) : '-'}
             </span>
           </div>
           <div

@@ -315,6 +315,7 @@ interface PositionsRow {
   symbol: string;
   timestamp: number;
   unsettled_pnl: number;
+  display_est_liq_price?: number;
 }
 
 export interface PositionPushType {

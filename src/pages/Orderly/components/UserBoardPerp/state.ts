@@ -22,6 +22,7 @@ import {
   getNotional,
   getAvailable,
   getTotalEst,
+  getLqPriceFloat,
 } from './math';
 import { parseSymbol } from '../RecentTrade';
 import { useLeverage, useTokenInfo } from '~pages/Orderly/orderly/state';
@@ -216,9 +217,14 @@ export function usePerpData(deps?: {
             imr: push.imr,
             est_liq_price: push.estLiqPrice,
             timestamp: positionTimeStamp,
+            display_est_liq_price: push.estLiqPrice,
           };
         } else {
-          return item;
+          return {
+            ...item,
+
+            display_est_liq_price: item.est_liq_price,
+          };
         }
       });
 
@@ -254,6 +260,7 @@ export function usePerpData(deps?: {
               fee_24_h: item.fee24H,
               cost_position: item.costPosition,
               settle_price: item.settlePrice,
+              display_est_liq_price: item.estLiqPrice,
             });
           }
         });
@@ -450,6 +457,27 @@ export function usePerpData(deps?: {
       return null;
     }
   }, [newPositions, markPrices, displayBalances]);
+
+  newPositions?.rows?.forEach((r) => {
+    // update lq price
+    const cur_lq_price = r.est_liq_price;
+    console.log('cur_lq_price: ', cur_lq_price);
+
+    if (typeof cur_lq_price === 'number') {
+      const symbol = availableSymbols?.find((item) => item.symbol === r.symbol);
+
+      const lq_price_float = getLqPriceFloat(
+        markPrices,
+        symbol,
+        r.symbol,
+        newPositions
+      );
+
+      console.log('lq_price_float: ', lq_price_float);
+
+      r.display_est_liq_price = cur_lq_price + lq_price_float;
+    }
+  });
 
   return {
     totalCollateral,
