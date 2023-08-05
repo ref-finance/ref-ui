@@ -41,6 +41,8 @@ import {
   NEAR_CLASS_STABLE_POOL_IDS,
 } from '../../services/near';
 import Big from 'big.js';
+import { useIndexerStatus } from '../../state/pool';
+import { PoolRefreshModal } from '../../pages/pools/PoolRefreshModal';
 
 export function OnlyTokenReserves() {}
 
@@ -392,6 +394,8 @@ export default function ({
   const [showReserves, setShowReserves] = useState<boolean>(true);
   const [chart, setChart] = useState(null);
 
+  const { fail: indexerFail } = useIndexerStatus();
+
   const poolIds =
     !type || forPool
       ? inputPools.map((p) => p.id.toString())
@@ -699,6 +703,14 @@ export default function ({
           value={volume ? toInternationalCurrencySystem(volume) : '-'}
         />
       </Card>
+      {indexerFail && (
+        <PoolRefreshModal
+          isOpen={indexerFail}
+          onRequestClose={() => {
+            window.location.reload();
+          }}
+        ></PoolRefreshModal>
+      )}
     </div>
   );
 }

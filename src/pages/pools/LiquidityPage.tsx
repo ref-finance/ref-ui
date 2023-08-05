@@ -31,6 +31,7 @@ import {
   useAllWatchList,
   useWatchPools,
   useV3VolumesPools,
+  useIndexerStatus,
 } from '../../state/pool';
 import Loading from '../../components/layout/Loading';
 
@@ -150,6 +151,7 @@ import { useTokenPriceList } from '../../state/token';
 import { useSeedFarmsByPools } from '../../state/pool';
 
 import { RiArrowRightSLine } from 'react-icons/ri';
+import { PoolRefreshModal } from './PoolRefreshModal';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -3156,6 +3158,8 @@ export function LiquidityPage() {
   const v3PoolVolumes = useV3VolumesPools();
   const [h24VolumeV2, setH24VolumeV2] = useState<string>();
 
+  const { fail: indexerFail } = useIndexerStatus();
+
   const { farmAprById } = useSeedFarmsByPools([...pools, ...watchPools]);
 
   useEffect(() => {
@@ -3257,6 +3261,14 @@ export function LiquidityPage() {
           do_farms_v2_poos={do_farms_v2_poos}
           farmAprById={farmAprById}
         />
+      )}
+      {indexerFail && (
+        <PoolRefreshModal
+          isOpen={indexerFail}
+          onRequestClose={() => {
+            window.location.reload();
+          }}
+        ></PoolRefreshModal>
       )}
     </TokenPriceListContext.Provider>
   );

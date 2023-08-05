@@ -46,6 +46,7 @@ import {
   getV3PoolVolumeById,
   getAllV3Pool24Volume,
   getV3poolTvlById,
+  getTokenPriceList,
 } from '../services/indexer';
 import { parsePoolView, PoolRPCView } from '../services/api';
 import {
@@ -1345,4 +1346,22 @@ export const useV3VolumesPools = () => {
   }, []);
 
   return volumes;
+};
+
+export const useIndexerStatus = (dep?: any) => {
+  const [indexerStatus, setIndexerStatus] = useState<boolean>();
+
+  useEffect(() => {
+    getTokenPriceList()
+      .then((res) => {
+        setIndexerStatus(!!res);
+      })
+      .catch(() => {
+        setIndexerStatus(false);
+      });
+  }, []);
+
+  return {
+    fail: typeof indexerStatus === 'boolean' && !indexerStatus,
+  };
 };

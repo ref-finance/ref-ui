@@ -1174,5 +1174,6 @@ const ko = {
 
   netWorthTip:
     'Total value of investments in Ref (including claimable rewards) + Total value of Orderly assets + Total value of Burrow assets + Total assets in wallet',
+  pool_refresh: 'Something wrong with the server, please try again later.',
 };
 export default Object.assign(ko, ko_in_risks_page);

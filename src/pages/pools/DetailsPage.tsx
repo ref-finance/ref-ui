@@ -13,6 +13,7 @@ import {
   TVLDataType,
   TVLType,
   useDayVolume,
+  useIndexerStatus,
 } from '~state/pool';
 import {
   addLiquidityToPool,
@@ -171,6 +172,7 @@ import Big from 'big.js';
 import { getEffectiveFarmList, sort_tokens_by_base } from '~services/commonV3';
 import { openUrl } from '../../services/commonV3';
 import { numberWithCommas } from '../Orderly/utiles';
+import { PoolRefreshModal } from './PoolRefreshModal';
 
 interface ParamTypes {
   id: string;
@@ -1835,6 +1837,7 @@ export function PoolDetailsPage() {
   const { id } = useParams<ParamTypes>();
   const { state } = useLocation<LocationTypes>();
   const { pool, shares, finalStakeList: stakeList } = usePool(id);
+  const { fail: indexerFail } = useIndexerStatus();
 
   const [farmVersion, setFarmVersion] = useState<string>('');
 
@@ -2835,6 +2838,14 @@ export function PoolDetailsPage() {
           },
         }}
       />
+      {indexerFail && (
+        <PoolRefreshModal
+          isOpen={indexerFail}
+          onRequestClose={() => {
+            window.location.reload();
+          }}
+        ></PoolRefreshModal>
+      )}
     </>
   );
 }
