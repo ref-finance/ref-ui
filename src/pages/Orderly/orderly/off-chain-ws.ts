@@ -47,7 +47,7 @@ export const useOrderlyWS = () => {
     useWebSocket(socketUrl, {
       shouldReconnect: (closeEvent) => true,
       reconnectAttempts: 15,
-      reconnectInterval: 1000,
+      reconnectInterval: 10000,
       onClose: (e) => {},
 
       onError: (e) => {},
@@ -98,17 +98,14 @@ export const usePrivateOrderlyWS = () => {
     useWebSocket(!accountId ? null : socketUrl, {
       shouldReconnect: (closeEvent) => true,
       reconnectAttempts: 15,
-      reconnectInterval: 1000,
-      onClose: (e) => {},
-
+      reconnectInterval: 10000,
       onReconnectStop: (numAttempts) => {
         console.log('numAttempts: ', numAttempts);
-        if (numAttempts === 5) {
+        if (numAttempts === 15) {
           const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
           storedValid && setNeedRefresh(true);
         }
       },
-      onError: (e) => {},
     });
 
   useEffect(() => {
