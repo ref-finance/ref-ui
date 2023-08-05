@@ -46,7 +46,7 @@ export const useOrderlyWS = () => {
   const { lastMessage, readyState, lastJsonMessage, sendMessage } =
     useWebSocket(socketUrl, {
       shouldReconnect: (closeEvent) => true,
-      reconnectAttempts: 5,
+      reconnectAttempts: 15,
       reconnectInterval: 1000,
       onClose: (e) => {},
 
@@ -97,7 +97,7 @@ export const usePrivateOrderlyWS = () => {
   const { lastMessage, readyState, lastJsonMessage, sendMessage } =
     useWebSocket(!accountId ? null : socketUrl, {
       shouldReconnect: (closeEvent) => true,
-      reconnectAttempts: 5,
+      reconnectAttempts: 15,
       reconnectInterval: 1000,
       onClose: (e) => {},
 
@@ -485,10 +485,14 @@ export const useOrderlyPrivateData = ({
     useState<boolean>(false);
   const [positionTimeStamp, setPositionTimeStamp] = useState<number>(0);
 
-  const time_stamp = useMemo(() => Date.now(), []);
+  const [signatureTs, setSignatureTs] = useState<number>();
 
   useEffect(() => {
     if (!accountId || !validAccountSig) return;
+
+    const time_stamp = Date.now();
+
+    setSignatureTs(time_stamp);
 
     generateRequestSignatureHeader({
       accountId,
@@ -496,7 +500,7 @@ export const useOrderlyPrivateData = ({
       url: null,
       body: null,
     }).then(setRequestSignature);
-  }, [accountId, validAccountSig]);
+  }, [accountId, validAccountSig, connectionStatus]);
 
   useEffect(() => {
     if (!accountId) return;
@@ -507,26 +511,21 @@ export const useOrderlyPrivateData = ({
   }, [accountId]);
 
   useEffect(() => {
-    if (!orderlyKey || !requestSignature || !validAccountSig) return;
+    if (!orderlyKey || !requestSignature || !validAccountSig || !signatureTs)
+      return;
 
     const authData = {
       id: 'auth',
       event: 'auth',
       params: {
-        timestamp: time_stamp,
+        timestamp: signatureTs,
         sign: requestSignature,
         orderly_key: orderlyKey,
       },
     };
 
     sendMessage(JSON.stringify(authData));
-  }, [
-    orderlyKey,
-    requestSignature,
-    accountId,
-    validAccountSig,
-    connectionStatus,
-  ]);
+  }, [orderlyKey, requestSignature, accountId, validAccountSig]);
 
   useEffect(() => {
     if (connectionStatus !== 'Open') return;
@@ -568,6 +567,7 @@ export const useOrderlyPrivateData = ({
     }
   }, [lastJsonMessage, connectionStatus]);
 
+  // others
   useEffect(() => {
     if (!authPass) return;
     if (connectionStatus !== 'Open') return;
