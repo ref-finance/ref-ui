@@ -207,16 +207,23 @@ export function usePerpData(deps?: {
           return {
             ...item,
             ...push,
-            position_qty: qty,
-            pending_long_qty: pendingLong,
-            pending_short_qty: pendingShort,
+            position_qty: push.positionQty,
+            pending_long_qty: push.pendingLongQty,
+            pending_short_qty: push.pendingShortQty,
             unsettled_pnl: push.unsettledPnl,
             mark_price: push.markPrice,
             average_open_price: push.averageOpenPrice,
             mmr: push.mmr,
             imr: push.imr,
             est_liq_price: push.estLiqPrice,
-            timestamp: positionTimeStamp,
+            timestamp: Date.now(),
+            IMR_withdraw_orders: push.imrwithOrders,
+            MMR_with_orders: push.mmrwithOrders,
+            last_sum_unitary_funding: push.lastSumUnitaryFunding,
+            pnl_24_h: push.pnl24H,
+            fee_24_h: push.fee24H,
+            cost_position: push.costPosition,
+            settle_price: push.settlePrice,
             display_est_liq_price: push.estLiqPrice,
           };
         } else {
@@ -355,7 +362,11 @@ export function usePerpData(deps?: {
 
   const totalDailyReal = useMemo(() => {
     try {
-      return newPositions.total_pnl_24_h?.toFixed(2);
+      return newPositions.rows
+        .reduce((acc, cur) => {
+          return acc.plus(cur.pnl_24_h);
+        }, new Big(0))
+        .toNumber();
     } catch (error) {
       return null;
     }
