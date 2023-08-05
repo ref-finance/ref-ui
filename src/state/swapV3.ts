@@ -41,6 +41,7 @@ export const useAllPoolsV2 = () => {
   const [allPools, setAllPools] = useState<PoolInfo[]>();
 
   const tokenPriceList = useTokenPriceList();
+  console.log('tokenPriceList: ', tokenPriceList);
 
   useEffect(() => {
     if (!tokenPriceList) return;
@@ -76,6 +77,7 @@ export const useAllPoolsV2 = () => {
               Number(pricey);
 
             p.tvl = tvlx + tvly;
+            p.tvlUnreal = Object.keys(tokenPriceList).length === 0;
 
             return p;
           })

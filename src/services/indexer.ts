@@ -159,6 +159,9 @@ export const get24hVolume = async (pool_id: string): Promise<string> => {
     .then((res) => res.json())
     .then((monthTVL) => {
       return monthTVL.toString();
+    })
+    .catch(() => {
+      return undefined;
     });
 };
 

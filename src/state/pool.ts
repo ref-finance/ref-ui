@@ -282,8 +282,10 @@ export const usePools = (props: {
                 column: sortBy,
                 order: order,
               });
+        console.log('pools: ', pools);
 
         setRawPools(rawPools);
+        console.log('rawPools: ', rawPools);
 
         setHasMore(pools.length === DEFAULT_PAGE_LIMIT);
         setPools((currentPools) =>

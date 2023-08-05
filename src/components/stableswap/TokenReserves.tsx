@@ -415,9 +415,10 @@ export default function ({
     : inputTokens.filter((t) => NEAR_CLASS_STABLE_TOKEN_IDS.includes(t.id));
 
   const ids = pools.map((p) => p.id);
-  const [volume, setVolume] = useState<string>(null);
+  const [volume, setVolume] = useState<string>(undefined);
 
-  const [tvl, setTvl] = useState<number>(null);
+  const [tvl, setTvl] = useState<number>(undefined);
+  console.log('tvl: ', tvl);
 
   let utilisationDisplay;
 
@@ -448,8 +449,8 @@ export default function ({
       : 'StableCoin Value';
 
   useEffect(() => {
-    setTvl(null);
-    setVolume(null);
+    setTvl(undefined);
+    setVolume(undefined);
   }, [type]);
 
   useEffect(() => {
@@ -457,16 +458,24 @@ export default function ({
       if (ids.length > 1) {
         Promise.all(ids.map((id) => get24hVolume(id.toString()))).then(
           (vols) => {
+            console.log('vols: ', vols);
             setVolume(_.sumBy(vols, (o) => Number(o)).toString());
           }
         );
       } else {
-        get24hVolume(ids[0].toString()).then(setVolume);
+        get24hVolume(ids[0].toString()).then((res) => {
+          console.log('res: ', res);
+          setVolume(res);
+        });
       }
 
       getPoolsByIds({ pool_ids: ids.map((id) => id.toString()) }).then(
         (pools) => {
-          setTvl(_.sumBy(pools, (o) => o.tvl));
+          console.log('pools ids: ', pools);
+
+          if (pools?.length > 0) {
+            setTvl(_.sumBy(pools, (o) => o.tvl));
+          }
         }
       );
     }
@@ -646,15 +655,21 @@ export default function ({
         <InfoLine
           title={intl.formatMessage({ id: totalCoinsId })}
           value={
-            toInternationalCurrencySystem(
-              forPool ? tvl?.toString() : calTotalStableCoins,
-              3
-            ) || '0'
+            tvl === undefined
+              ? '-'
+              : toInternationalCurrencySystem(
+                  forPool ? tvl?.toString() : calTotalStableCoins,
+                  3
+                ) || '0'
           }
-          valueTitle={toPrecision(
-            forPool ? tvl?.toString() || '0' : calTotalStableCoins,
-            0
-          )}
+          valueTitle={
+            tvl === undefined
+              ? '-'
+              : toPrecision(
+                  forPool ? tvl?.toString() || '0' : calTotalStableCoins,
+                  0
+                )
+          }
         />
         {type !== 'USD' && (
           <InfoLine

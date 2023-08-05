@@ -418,32 +418,51 @@ export const estimateSwap = async ({
     );
   };
 
-  let pools = (
-    await getPoolsByTokens({
-      tokenInId: tokenIn.id,
-      tokenOutId: tokenOut.id,
-      amountIn: parsedAmountIn,
-      setLoadingData,
-      loadingTrigger,
-      tokenIn,
-      tokenOut,
-      proGetCachePool,
-    })
-  ).filter((p) => {
+  // let pools = (
+  //   await getPoolsByTokens({
+  //     tokenInId: tokenIn.id,
+  //     tokenOutId: tokenOut.id,
+  //     amountIn: parsedAmountIn,
+  //     setLoadingData,
+  //     loadingTrigger,
+  //     tokenIn,
+  //     tokenOut,
+  //     proGetCachePool,
+  //   })
+  // ).filter((p) => {
+  //   return getLiquidity(p, tokenIn, tokenOut) > 0;
+  // });
+
+  let { filteredPools: pools, pool_protocol } = await getPoolsByTokens({
+    tokenInId: tokenIn.id,
+    tokenOutId: tokenOut.id,
+    amountIn: parsedAmountIn,
+    setLoadingData,
+    loadingTrigger,
+    tokenIn,
+    tokenOut,
+    proGetCachePool,
+  });
+
+  pools = pools.filter((p: any) => {
     return getLiquidity(p, tokenIn, tokenOut) > 0;
   });
 
-  if (supportLedger) {
+  console.log('pool_protocol: ', pool_protocol);
+
+  if (supportLedger || pool_protocol === 'rpc') {
     const { supportLedgerRes } = await getOneSwapActionResult(
       pools,
       loadingTrigger,
       tokenIn,
       tokenOut,
-      supportLedger,
+      supportLedger || pool_protocol === 'rpc',
       throwNoPoolError,
       amountIn,
       parsedAmountIn
     );
+
+    console.log('supportLedgerRes: ', supportLedgerRes);
 
     return { estimates: supportLedgerRes, tag };
   }
@@ -748,7 +767,7 @@ export async function getHybridStableSmart(
         stablePools: allStablePools,
       });
 
-      let tmpPools = await getPoolsByTokens({
+      let { filteredPools: tmpPools } = await getPoolsByTokens({
         tokenInId: otherStable,
         tokenOutId: tokenOut.id,
         amountIn: parsedAmountIn,
@@ -756,7 +775,7 @@ export async function getHybridStableSmart(
       });
       const tobeAddedPools = tmpPools.concat(stablePools);
       pools2.push(
-        ...tobeAddedPools.filter((p) => {
+        ...tobeAddedPools.filter((p: any) => {
           const supplies = Object.values(p.supplies);
           return new Big(supplies[0]).times(new Big(supplies[1])).gt(0);
         })
@@ -780,7 +799,7 @@ export async function getHybridStableSmart(
         stablePools: allStablePools,
       });
 
-      let tmpPools = await getPoolsByTokens({
+      let { filteredPools: tmpPools } = await getPoolsByTokens({
         tokenInId: tokenIn.id,
         tokenOutId: otherStable,
         amountIn: parsedAmountIn,

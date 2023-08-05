@@ -283,6 +283,47 @@ export const isNotStablePool = (pool: Pool) => {
   return !isStablePool(pool.id);
 };
 
+const fetchPoolsRPC = async () => {
+  const totalPools = await getTotalPools();
+  const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
+
+  const res = (
+    await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
+  )
+    .flat()
+    .map((p) => ({ ...p, Dex: 'ref' }));
+
+  return res;
+};
+
+const fetchPoolsIndexer = async () => {
+  return await getTopPoolsIndexerRaw();
+};
+
+const REF_FI_POOL_PROTOCOL = 'REF_FI_POOL_PROTOCOL_KEY';
+
+const fetchTopPools = async () => {
+  try {
+    return {
+      pools: await getTopPoolsIndexerRaw(),
+      protocol: 'indexer',
+    };
+  } catch (error) {
+    console.log('error: ', error);
+
+    sessionStorage.setItem(REF_FI_POOL_PROTOCOL, 'rpc');
+
+    db.topPools.clear();
+
+    const res = await fetchPoolsRPC();
+
+    return {
+      pools: res,
+      protocol: 'rpc',
+    };
+  }
+};
+
 export const getPoolsByTokens = async ({
   tokenInId,
   tokenOutId,
@@ -291,8 +332,13 @@ export const getPoolsByTokens = async ({
   proGetCachePool,
   tokenIn,
   tokenOut,
-}: GetPoolOptions): Promise<Pool[]> => {
+}: GetPoolOptions): Promise<{
+  filteredPools: Pool[];
+  pool_protocol: string;
+}> => {
   let pools;
+
+  let pool_protocol = 'indexer';
 
   const cachePools = async (pools: any) => {
     await db.cachePoolsByTokens(
@@ -301,46 +347,11 @@ export const getPoolsByTokens = async ({
   };
 
   if (loadingTrigger) {
-    const poolsRaw = await getTopPoolsIndexerRaw();
+    const { pools: poolsRaw, protocol } = await fetchTopPools();
+    pool_protocol = protocol;
 
-    await db.cacheTopPools(poolsRaw);
-
-    pools = poolsRaw.map((p: any) => {
-      return {
-        ...parsePool(p),
-        Dex: 'ref',
-      };
-    });
-
-    await cachePools(pools);
-
-    await cacheAllDCLPools();
-  } else {
-    const poolsRaw = await db.queryTopPools();
-
-    if (!localStorage.getItem(REF_DCL_POOL_CACHE_KEY)) {
-      await cacheAllDCLPools();
-    }
-
-    if (poolsRaw && poolsRaw?.length > 0) {
-      pools = poolsRaw.map((p) => {
-        const parsedP = parsePool({
-          ...p,
-          share: p.shares_total_supply,
-          id: Number(p.id),
-          tvl: Number(p.tvl),
-        });
-
-        return {
-          ...parsedP,
-          Dex: 'ref',
-        };
-      });
-    } else {
-      const poolsRaw = await getTopPoolsIndexerRaw();
-
+    if (protocol === 'indexer') {
       await db.cacheTopPools(poolsRaw);
-
       pools = poolsRaw.map((p: any) => {
         return {
           ...parsePool(p),
@@ -348,7 +359,60 @@ export const getPoolsByTokens = async ({
         };
       });
 
-      await cachePools(pools);
+      sessionStorage.setItem(REF_FI_POOL_PROTOCOL, 'indexer');
+    } else {
+      pools = poolsRaw;
+    }
+
+    await cachePools(pools);
+
+    await cacheAllDCLPools();
+  } else {
+    if (!localStorage.getItem(REF_DCL_POOL_CACHE_KEY)) {
+      await cacheAllDCLPools();
+    }
+
+    const cachedPoolProtocol = sessionStorage.getItem(REF_FI_POOL_PROTOCOL);
+    pool_protocol = cachedPoolProtocol || 'indexer';
+
+    if (cachedPoolProtocol === 'rpc') {
+      pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
+
+      if (!pools || pools.length === 0) {
+        pools = await fetchPoolsRPC();
+        await cachePools(pools);
+      }
+    } else {
+      const poolsRaw = await db.queryTopPools();
+
+      if (poolsRaw && poolsRaw?.length > 0 && cachedPoolProtocol !== 'rpc') {
+        pools = poolsRaw.map((p) => {
+          const parsedP = parsePool({
+            ...p,
+            share: p.shares_total_supply,
+            id: Number(p.id),
+            tvl: Number(p.tvl),
+          });
+
+          return {
+            ...parsedP,
+            Dex: 'ref',
+          };
+        });
+      } else {
+        const poolsRaw = await fetchPoolsIndexer();
+
+        await db.cacheTopPools(poolsRaw);
+
+        pools = poolsRaw.map((p: any) => {
+          return {
+            ...parsePool(p),
+            Dex: 'ref',
+          };
+        });
+
+        await cachePools(pools);
+      }
     }
   }
 
@@ -362,7 +426,9 @@ export const getPoolsByTokens = async ({
       );
     });
 
-  return filteredPools;
+  console.log('filteredPools: ', filteredPools);
+
+  return { filteredPools, pool_protocol };
 };
 
 export const getPoolsByTokensAurora = async ({
