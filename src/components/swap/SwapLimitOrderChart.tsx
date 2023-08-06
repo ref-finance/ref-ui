@@ -9,7 +9,7 @@ import React, {
 import { get_pointorder_range } from '../../services/swapV3';
 import { get_pool, PoolInfo } from '../../services/swapV3';
 import { ftGetTokenMetadata } from '../../services/ft-contract';
-import { getPriceByPoint } from '../../services/commonV3';
+import { getPriceByPoint, sort_tokens_by_base } from '../../services/commonV3';
 import SwapProTab from './SwapProTab';
 import {
   toReadableNumber,
@@ -26,7 +26,7 @@ export default function SwapLimitOrderChart() {
   // CONST end
   const [pool, setPool] = useState<PoolInfo>();
   const [orders, setOrders] = useState<IOrderPoint>();
-  const [switch_token, set_switch_token] = useState<ISwitchToken>('X');
+  const [switch_token, set_switch_token] = useState<ISwitchToken>();
   const [buy_token_x_list, set_buy_token_x_list] =
     useState<IOrderPointItem[]>();
   const [sell_token_x_list, set_sell_token_x_list] =
@@ -38,6 +38,7 @@ export default function SwapLimitOrderChart() {
   const [buy_list, set_buy_list] = useState<IOrderPointItem[]>();
   const [sell_list, set_sell_list] = useState<IOrderPointItem[]>();
   const [market_loading, set_market_loading] = useState<boolean>(false);
+  const [pair_is_reverse, set_pair_is_reverse] = useState<boolean>(false);
   const { dcl_pool_id } = useContext(SwapProContext);
   const GEARS = [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
   const [zoom, setZoom] = useState<number>(GEARS[0]);
@@ -49,7 +50,6 @@ export default function SwapLimitOrderChart() {
     if (pool_id) {
       get_points_of_orders();
       get_pool_detail();
-      set_switch_token('X');
       setZoom(GEARS[0]);
     }
   }, [pool_id]);
@@ -90,17 +90,6 @@ export default function SwapLimitOrderChart() {
       const x_symbol = toRealSymbol(token_x_metadata.symbol);
       const y_symbol = toRealSymbol(token_y_metadata.symbol);
       if (switch_token == 'X') {
-        const x_icons = (
-          <>
-            <img className={classStr} src={token_x_metadata.icon}></img>
-            <img
-              className={`${classStr} -ml-1.5`}
-              src={token_y_metadata.icon}
-            ></img>
-          </>
-        );
-        return [`${x_symbol}/${y_symbol}`, `${x_symbol}`, x_icons];
-      } else if (switch_token == 'Y') {
         const y_icons = (
           <>
             <img className={classStr} src={token_y_metadata.icon}></img>
@@ -111,6 +100,17 @@ export default function SwapLimitOrderChart() {
           </>
         );
         return [`${y_symbol}/${x_symbol}`, `${y_symbol}`, y_icons];
+      } else if (switch_token == 'Y') {
+        const x_icons = (
+          <>
+            <img className={classStr} src={token_x_metadata.icon}></img>
+            <img
+              className={`${classStr} -ml-1.5`}
+              src={token_y_metadata.icon}
+            ></img>
+          </>
+        );
+        return [`${x_symbol}/${y_symbol}`, `${x_symbol}`, x_icons];
       }
     }
     return [];
@@ -133,6 +133,17 @@ export default function SwapLimitOrderChart() {
     const { token_x, token_y } = p;
     p.token_x_metadata = await ftGetTokenMetadata(token_x);
     p.token_y_metadata = await ftGetTokenMetadata(token_y);
+    const tokens = sort_tokens_by_base([
+      p.token_x_metadata,
+      p.token_y_metadata,
+    ]);
+    if (tokens[0].id == p.token_x_metadata.id) {
+      set_switch_token('X');
+      set_pair_is_reverse(false);
+    } else {
+      set_switch_token('Y');
+      set_pair_is_reverse(true);
+    }
     setPool(p);
   }
   function process_orders() {
@@ -301,7 +312,6 @@ export default function SwapLimitOrderChart() {
     if (targetPercent) {
       setZoom(targetPercent);
     }
-    console.log('放大中- targetPercent', targetPercent);
   }
   return (
     <LimitOrderChartData.Provider
@@ -332,7 +342,11 @@ export default function SwapLimitOrderChart() {
             <div className="flex items-end">{get_rate_element()}</div>
             <div className="flex items-center gap-2.5">
               <div className="flex items-center">
-                <div className="flex items-center justify-between border border-v3GreyColor rounded-lg p-0.5 mr-2.5">
+                <div
+                  className={`flex items-center justify-between border border-v3GreyColor rounded-lg p-0.5 mr-2.5 ${
+                    pair_is_reverse ? 'flex-row-reverse' : ''
+                  }`}
+                >
                   <span
                     onClick={() => {
                       set_switch_token('X');
@@ -359,7 +373,7 @@ export default function SwapLimitOrderChart() {
                   </span>
                 </div>
               </div>
-              {/* 控件按钮*/}
+              {/* control button*/}
               <div className="control flex items-center border border-v3GreyColor rounded-lg py-px h-6 w-16">
                 {/* <div
                   className="flex items-center justify-center w-1 h-full flex-grow border-r border-chartBorderColor cursor-pointer"

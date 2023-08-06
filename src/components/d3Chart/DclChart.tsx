@@ -146,6 +146,11 @@ export default function DclChart({
       get_chart_data();
     }
   }, [pool, accountId]);
+  useEffect(() => {
+    if (chartDataList) {
+      init_price_range();
+    }
+  }, [reverse]);
   //  draw chart
   useEffect(() => {
     if (
@@ -155,7 +160,7 @@ export default function DclChart({
       drawChart();
       setDrawChartDone(true);
     }
-  }, [price_range, chartDataList]);
+  }, [price_range, chartDataList, reverse]);
   // generate user chart
   useEffect(() => {
     if (pool && accountId && newlyAddedLiquidities && chartType == 'USER') {
@@ -354,8 +359,14 @@ export default function DclChart({
     });
     const min_point = points[0];
     const max_point = points[points.length - 1];
-    const min_price = reverse_price(get_price_by_point(max_point));
-    const max_price = reverse_price(get_price_by_point(min_point));
+    let min_price, max_price;
+    if (reverse) {
+      min_price = reverse_price(get_price_by_point(max_point));
+      max_price = reverse_price(get_price_by_point(min_point));
+    } else {
+      min_price = get_price_by_point(min_point);
+      max_price = get_price_by_point(max_point);
+    }
     set_user_liquidities_detail({
       total_value: formatWithCommas_usd(total_value.toFixed()),
       min_price: formatPrice(min_price),
@@ -387,15 +398,18 @@ export default function DclChart({
     setPool(p);
   }
   async function get_chart_data() {
-    const { range } = getConfig();
     const list = await get_data_from_back_end();
+    setChartDataList(list);
+    init_price_range();
+  }
+  function init_price_range() {
+    const { range } = getConfig();
     if (chartType !== 'USER') {
       const [price_l_default, price_r_default] =
         get_price_range_by_percent(range);
       set_price_range([+price_l_default, +price_r_default]);
       setZoom(range);
     }
-    setChartDataList(list);
   }
   async function get_data_from_back_end() {
     const { token_x_metadata, token_y_metadata, pool_id } = pool;
@@ -792,7 +806,7 @@ export default function DclChart({
         if (reverse) {
           return +d.point_r >= current_point ? colors[1] : colors[0];
         } else {
-          return +d.point_l >= current_point ? colors[0] : colors[1];
+          return +d.point_l >= current_point ? colors[1] : colors[0];
         }
       });
   }
@@ -835,7 +849,7 @@ export default function DclChart({
         if (reverse) {
           return +d.point_r >= current_point ? colors[1] : colors[0];
         } else {
-          return +d.point_l >= current_point ? colors[0] : colors[1];
+          return +d.point_l >= current_point ? colors[1] : colors[0];
         }
       })
       .attr('opacity', '0.7');
@@ -1551,9 +1565,7 @@ export default function DclChart({
                     width: '10px',
                     height: '10px',
                     borderRadius: '3px',
-                    backgroundColor: `${
-                      reverse ? binDetail?.colors[1] : binDetail?.colors[0]
-                    }`,
+                    backgroundColor: `${binDetail?.colors[1]}`,
                   }}
                 ></span>
                 <span className="text-xs text-white">in Liquidity</span>
@@ -1570,9 +1582,7 @@ export default function DclChart({
                     width: '10px',
                     height: '10px',
                     borderRadius: '3px',
-                    backgroundColor: `${
-                      reverse ? binDetail?.colors[1] : binDetail?.colors[0]
-                    }`,
+                    backgroundColor: `${binDetail?.colors[1]}`,
                   }}
                 ></span>
                 <span className="text-xs text-white">by Limit Orders</span>
@@ -1601,9 +1611,7 @@ export default function DclChart({
                     width: '10px',
                     height: '10px',
                     borderRadius: '3px',
-                    backgroundColor: `${
-                      reverse ? binDetail?.colors[0] : binDetail?.colors[1]
-                    }`,
+                    backgroundColor: `${binDetail?.colors[0]}`,
                   }}
                 ></span>
                 <span className="text-xs text-white">in Liquidity</span>
@@ -1620,9 +1628,7 @@ export default function DclChart({
                     width: '10px',
                     height: '10px',
                     borderRadius: '3px',
-                    backgroundColor: `${
-                      reverse ? binDetail?.colors[0] : binDetail?.colors[1]
-                    }`,
+                    backgroundColor: `${binDetail?.colors[0]}`,
                   }}
                 ></span>
                 <span className="text-xs text-white">by Limit Orders</span>
@@ -1643,9 +1649,18 @@ export default function DclChart({
         </div>
         <div className="flex items-center justify-between my-2">
           <span className="text-xs text-white mr-10">Price Range</span>
-          <span className="text-xs text-white gotham_bold">
+          <span className="flex items-center text-xs text-white gotham_bold">
             {user_liquidities_detail?.min_price} -{' '}
             {user_liquidities_detail?.max_price}
+            <span className="ml-1">
+              {reverse
+                ? pool?.token_x_metadata?.symbol +
+                  '/' +
+                  pool?.token_y_metadata?.symbol
+                : pool?.token_y_metadata?.symbol +
+                  '/' +
+                  pool?.token_x_metadata?.symbol}
+            </span>
           </span>
         </div>
         <div className="flex items-center justify-between my-2">

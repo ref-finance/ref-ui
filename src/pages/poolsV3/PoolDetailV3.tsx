@@ -634,6 +634,11 @@ function YourLiquidityBox(props: {
   const { token_x_metadata, token_y_metadata, pool_id } = poolDetail;
   const { accountId } = useWalletSelector();
   const history = useHistory();
+  let pair_is_reverse = false;
+  if (TOKEN_LIST_FOR_RATE.indexOf(token_x_metadata.symbol) > -1) {
+    pair_is_reverse = true;
+  }
+
   useEffect(() => {
     if (liquidities) {
       const temp_list: UserLiquidityDetail[] = [];
@@ -976,6 +981,7 @@ function YourLiquidityBox(props: {
             hoverBoxHidden: true,
           }}
           chartType="USER"
+          reverse={pair_is_reverse ? noReverseRange : !noReverseRange}
         ></DclChart>
       </div>
       <div className="flex flex-col gap-3 mt-6 text-sm">
@@ -2262,6 +2268,10 @@ export function RecentTransactions({
     const swapOut = tokens.find((t) => t.id !== tx.sell_token);
 
     if (!swapIn || !swapOut) return null;
+    let reverse = false;
+    if (sort_tokens_by_base([swapIn, swapOut])[0].id !== swapIn.id) {
+      reverse = true;
+    }
 
     const AmountIn = toReadableNumber(swapIn.decimals, tx.amount);
     const displayInAmount =
@@ -2327,7 +2337,11 @@ export function RecentTransactions({
           </span>
 
           <span className="ml-1 text-primaryText">
-            {toRealSymbol(swapOut.symbol)}/{toRealSymbol(swapIn.symbol)}
+            {reverse
+              ? `${toRealSymbol(swapOut.symbol)}/${toRealSymbol(swapIn.symbol)}`
+              : `${toRealSymbol(swapIn.symbol)}/${toRealSymbol(
+                  swapOut.symbol
+                )}`}
           </span>
         </td>
 
@@ -2797,6 +2811,7 @@ function LiquidityChart(props: any) {
           <DclChart
             pool_id={poolDetail?.pool_id}
             config={{ controlHidden: true, svgWidth: '750', svgHeight: '300' }}
+            reverse={!rateDirection}
           ></DclChart>
         </div>
       )}

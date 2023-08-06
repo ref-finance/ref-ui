@@ -732,15 +732,22 @@ export const RemovePoolV3 = (props: any) => {
             </div>
             <span className="text-white text-base font-bold ml-2.5">
               {pair_is_reverse
-                ? `${tokens[1]?.symbol}/${tokens[0]?.symbol}`
-                : `${tokens[0]?.symbol}/${tokens[1]?.symbol}`}
+                ? `${tokens[1]?.symbol}-${tokens[0]?.symbol}`
+                : `${tokens[0]?.symbol}-${tokens[1]?.symbol}`}
             </span>
           </div>
           <span className="text-white text-lg mb-2">
             {min_received_total_value}
           </span>
         </div>
-        <div className="flex items-center justify-center border border-v3SwapGray border-opacity-20 rounded-xl py-4">
+        <div className="flex flex-col relative items-center justify-center border border-v3SwapGray border-opacity-20 rounded-xl pb-4 pt-10">
+          <span className="absolute right-4 top-2 text-primaryText text-xs font-bold">
+            (
+            {pair_is_reverse
+              ? `${tokens[0]?.symbol}/${tokens[1]?.symbol}`
+              : `${tokens[1]?.symbol}/${tokens[0]?.symbol}`}
+            )
+          </span>
           {maxPoint && (
             <DclChart
               pool_id={poolDetail.pool_id}
