@@ -853,9 +853,7 @@ export function SelectTokenDCL({
 
   const renderList = renderPools?.map((p) => {
     const { token_x_metadata, token_y_metadata } = p;
-    const tokens = notNeedSortToken
-      ? [token_x_metadata, token_y_metadata]
-      : sort_tokens_by_base([token_x_metadata, token_y_metadata]);
+    const tokens = sort_tokens_by_base([token_x_metadata, token_y_metadata]);
     return (
       <div
         key={p.pool_id}

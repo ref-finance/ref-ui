@@ -5,15 +5,12 @@ export interface IChartData {
   token_x: string;
   token_y: string;
   liquidity: string;
-  price?: string;
-  
+
   price_l?: string;
   price_r?: string;
-  point_l?:number;
+  point_l?: number;
   point_r?: number;
-  
-  price_l_reverse?:string;
-  price_r_reverse?:string;
+
   order_x?: string;
   order_y?: string;
   order_liquidity?: string;

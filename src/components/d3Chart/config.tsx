@@ -4,7 +4,36 @@ export function get_custom_config_for_chart(): IChartConfig {
   if (env == 'pub-testnet') {
     return {};
   } else if (env == 'testnet') {
-    return {};
+    return {
+      'phoenix-bonds.testnet|wrap.testnet|2000': {
+        bin: 2,
+        range: 20,
+        rangeGear: [100, 80, 60, 40, 20, 10],
+        colors: ['#A36949', '#717C84'],
+      },
+      'usdc.fakes.testnet|wrap.testnet|2000': {
+        bin: 10,
+        range: 100,
+        rangeGear: [180, 160, 140, 120, 100, 80, 60, 40, 20, 10],
+        colors: ['#707C84', '#2775CA'],
+      },
+      'aurora.fakes.testnet|usdc.fakes.testnet|2000':
+        // AURORA<>USDC.e@2000
+        {
+          bin: 10,
+          range: 100,
+          rangeGear: [180, 160, 140, 120, 100, 80, 60, 40, 20, 10],
+          colors: ['#79BD84', '#2775CA'],
+        },
+      'eth.fakes.testnet|usdc.fakes.testnet|2000':
+        // ETH<>USDC.e@2000
+        {
+          bin: 4,
+          range: 50,
+          rangeGear: [130, 110, 90, 70, 50, 30, 20, 10],
+          colors: ['#626CA3', '#2775CA'],
+        },
+    };
   } else {
     return {
       'phoenix-bonds.near|wrap.near|2000':
@@ -75,6 +104,5 @@ export function get_default_config_for_chart(): IChartItemConfig {
   }
 }
 
-export const SLIDER_BIN_NUMBER = 20;
 export const RADIUS_DEFAULT_NUMBER = 3;
 export const max_nft_divisional_per_side = 3;
