@@ -11450,11 +11450,6 @@ ms@2.1.3, ms@^2.1.1:
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.3.tgz#574c8138ce1d2b5861f0b44579dbadd60c6615b2"
   integrity sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==
 
-multi-range-slider-react@^2.0.3:
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/multi-range-slider-react/-/multi-range-slider-react-2.0.3.tgz#f28233a23bb6711c854c5bf776493cb50b90c66f"
-  integrity sha512-mMjrVO9rP9uRMHq61MHNmiet5NxCMblrZwX9zEcqNBCguGXdSNlrhQfeluCy9ICpq7NOT9cKn+RhANrB5TBLkQ==
-
 multicast-dns@^7.2.5:
   version "7.2.5"
   resolved "https://registry.yarnpkg.com/multicast-dns/-/multicast-dns-7.2.5.tgz#77eb46057f4d7adbd16d9290fa7299f6fa64cced"
