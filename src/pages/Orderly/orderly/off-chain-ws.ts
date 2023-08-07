@@ -43,14 +43,13 @@ export const useOrderlyWS = () => {
 
   const [messageHistory, setMessageHistory] = useState<any>([]);
 
+  const [needRefreshPublic, setNeedRefreshPublic] = useState(false);
+
   const { lastMessage, readyState, lastJsonMessage, sendMessage } =
     useWebSocket(socketUrl, {
       shouldReconnect: (closeEvent) => true,
       reconnectAttempts: 15,
       reconnectInterval: 10000,
-      onClose: (e) => {},
-
-      onError: (e) => {},
     });
 
   useEffect(() => {
@@ -73,6 +72,7 @@ export const useOrderlyWS = () => {
     lastMessage,
     sendMessage,
     lastJsonMessage,
+    needRefreshPublic,
   };
 };
 export const usePrivateOrderlyWS = () => {
@@ -81,6 +81,8 @@ export const usePrivateOrderlyWS = () => {
     getOrderlyConfig().ORDERLY_WS_ENDPOINT_PRIVATE + `/${accountId}`
   );
   const [needRefresh, setNeedRefresh] = useState(false);
+
+  const [refreshTrigger, setRefreshTrigger] = useState<boolean>(false);
 
   useEffect(() => {
     if (!accountId) {
@@ -113,6 +115,31 @@ export const usePrivateOrderlyWS = () => {
       setMessageHistory((prev: any) => prev.concat(lastMessage));
     }
   }, [lastMessage, setMessageHistory]);
+
+  useEffect(() => {
+    let id: any;
+
+    if (readyState === ReadyState.CLOSED) {
+      id = setTimeout(() => {
+        setRefreshTrigger(true);
+      }, 150000);
+    } else if (id) {
+      setRefreshTrigger(false);
+      clearTimeout(id);
+    }
+    return () => {
+      if (id) {
+        clearTimeout(id);
+      }
+    };
+  }, [readyState]);
+
+  useEffect(() => {
+    if (refreshTrigger === true && readyState === ReadyState.CLOSED) {
+      const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
+      storedValid && setNeedRefresh(true);
+    }
+  }, [readyState, refreshTrigger]);
 
   const connectionStatus = {
     [ReadyState.CONNECTING]: 'Connecting',
@@ -224,7 +251,8 @@ export const useOrderlyMarketData = ({
   symbol: string;
   requestSymbol: string;
 }) => {
-  const { lastJsonMessage, sendMessage, connectionStatus } = useOrderlyWS();
+  const { lastJsonMessage, sendMessage, connectionStatus, needRefreshPublic } =
+    useOrderlyWS();
 
   const [orders, setOrders] = useState<Orders>();
 
@@ -449,6 +477,7 @@ export const useOrderlyMarketData = ({
     openinterests,
     estFundingRate,
     indexprices,
+    needRefreshPublic,
   };
 };
 
