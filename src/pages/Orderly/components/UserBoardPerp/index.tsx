@@ -845,15 +845,6 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       });
   }, [accountId, storageEnough, agreeCheck]);
 
-  console.log(
-    'tradingKeySet: ',
-    tradingKeySet,
-    keyAnnounced,
-    validAccountSig,
-    userExist,
-    accountId
-  );
-
   useEffect(() => {
     if (!tradingKeySet || !keyAnnounced) return;
 
@@ -1309,7 +1300,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
   return (
     <div
-      className="w-full  bg-orderLineHover relative min-h-max flex flex-col  border-t border-l border-b h-screen border-boxBorder "
+      className="w-full  bg-orderLineHover relative min-h-max flex flex-col   border-l border-b h-screen border-boxBorder "
       style={{
         minHeight: '775px',
         height: '100%',

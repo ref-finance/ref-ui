@@ -36,7 +36,7 @@ import { getOrderlySystemInfo } from './orderly/off-chain-api';
 import { PerpOrderlyTip, PerpOrderlyTipMobile } from './components/PerpHeader';
 import { useOrderlyContext } from './orderly/OrderlyContext';
 import { PerpOrSpot } from './utiles';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { OrderBookMobile } from './components/OrderBook/index';
 import {
   MobileliquidationList,
@@ -44,6 +44,10 @@ import {
 } from './components/UserBoardPerp/components/LiquidationHistory';
 import { BsArrowRight } from 'react-icons/bs';
 import { openUrl } from '~services/commonV3';
+import { usePerpData } from './components/UserBoardPerp/state';
+import PositionsTable from './components/AllOrders/PositionsTable';
+import { CheckBox } from './components/Common';
+import { parseSymbol } from './components/RecentTrade';
 
 export const REF_ORDERLY_PERP_TIP_SIG = 'REF_ORDERLY_PERP_TIP_SIG';
 
@@ -116,11 +120,13 @@ function MobileTradingBoard() {
     allOrders,
   } = useOrderlyContext();
 
+  const { newPositions } = usePerpData();
+
   const [route, setRoute] = useState<'user_board' | 'chart'>('user_board');
 
   const [displayTab, setDisplayTab] = useState<
-    'orders' | 'assets' | 'liquidations'
-  >('orders');
+    'orders' | 'assets' | 'liquidations' | 'positions'
+  >('positions');
   // const allOrders = useAllOrders({
   //   refreshingTag: myPendingOrdersRefreshing,
   //   type: symbolType,
@@ -152,6 +158,60 @@ function MobileTradingBoard() {
     }
   }, [maintenance]);
 
+  const [showCurSymbol, setShowCurSymbol] = useState<boolean>(false);
+
+  const intl = useIntl();
+
+  const SymbolShowComp = (
+    <div className="text-primaryText text-13px mt-5 w-full flex items-center justify-end gap-6">
+      <div className="frcs">
+        <CheckBox
+          check={showCurSymbol}
+          setCheck={() => {
+            setShowCurSymbol(true);
+          }}
+        ></CheckBox>
+
+        <span
+          className="ml-2 cursor-pointer"
+          onClick={() => {
+            setShowCurSymbol(true);
+          }}
+        >
+          {intl.formatMessage({
+            id: 'current_orderly',
+            defaultMessage: 'Current',
+          })}
+          : <span className="text-white">{parseSymbol(symbol).symbolFrom}</span>
+          {symbolType === 'SPOT' ? '/' : ' '}
+          <span>
+            {symbolType === 'SPOT' ? parseSymbol(symbol).symbolTo : 'PERP'}
+          </span>
+        </span>
+      </div>
+
+      <div className="frcs">
+        <CheckBox
+          check={!showCurSymbol}
+          setCheck={() => {
+            setShowCurSymbol(false);
+          }}
+        ></CheckBox>
+
+        <span
+          className="ml-2 cursor-pointer"
+          onClick={() => {
+            setShowCurSymbol(false);
+          }}
+        >
+          {intl.formatMessage({
+            id: 'All',
+            defaultMessage: 'All',
+          })}
+        </span>
+      </div>
+    </div>
+  );
   if (maintenance === undefined) return null;
 
   return (
@@ -184,7 +244,34 @@ function MobileTradingBoard() {
         <>
           <div className="w-full mt-7 frcs border-b text-sm text-primaryText border-white border-opacity-20">
             <div
-              className={`w-1/3 relative ${
+              className={`w-1/4 relative ${
+                displayTab == 'positions' ? 'text-white' : ''
+              } frcc pb-2`}
+              onClick={() => {
+                setDisplayTab('positions');
+              }}
+            >
+              <FormattedMessage
+                id="positions"
+                defaultMessage={'Positions'}
+              ></FormattedMessage>
+              {/* {!newPositions ||
+                !newPositions?.rows?.filter((p) => p.position_qty !== 0 && (showCurSymbol ? p.symbol === symbol : true)).length
+                  ? '-'
+                  : newPositions?.rows?.length} */}
+
+              {displayTab === 'positions' && (
+                <div
+                  className="w-full absolute -bottom-0.5 h-0.5 bg-gradientFromHover"
+                  style={{
+                    width: 'calc(100% - 20px)',
+                  }}
+                ></div>
+              )}
+            </div>
+
+            <div
+              className={`w-1/4 relative ${
                 displayTab == 'orders' ? 'text-white' : ''
               } frcc pb-2`}
               onClick={() => {
@@ -208,7 +295,7 @@ function MobileTradingBoard() {
             </div>
 
             <div
-              className={`w-1/3 ${
+              className={`w-1/4 ${
                 displayTab == 'assets' ? 'text-white' : ''
               } frcc pb-2 relative`}
               onClick={() => {
@@ -231,7 +318,7 @@ function MobileTradingBoard() {
             </div>
 
             <div
-              className={`w-1/3 ${
+              className={`w-1/4 ${
                 displayTab == 'liquidations' ? 'text-white' : ''
               } frcc gap-1 pb-2 relative`}
               onClick={() => {
@@ -268,6 +355,14 @@ function MobileTradingBoard() {
           {displayTab === 'orders' && (
             <div className="w-full flex flex-col ">
               <AllOrderBoard maintenance={maintenance} />
+            </div>
+          )}
+
+          {displayTab === 'positions' && (
+            <div className="text-primaryText">
+              {SymbolShowComp}
+
+              <PositionsTable hidden={false} showCurSymbol={showCurSymbol} />
             </div>
           )}
 
@@ -361,14 +456,10 @@ export function OrderlyPerpetual() {
         {!isMobile && <TradingBoard></TradingBoard>}
 
         {isMobile && <MobileTradingBoard></MobileTradingBoard>}
-        
       </div>
 
       {validAccountSig && (
-        <RefreshModal
-          isOpen={needRefresh}
-          onClick={async () => {}}
-        />
+        <RefreshModal isOpen={needRefresh} onClick={async () => {}} />
       )}
 
       {isMobile && <PerpOrderlyTipMobile></PerpOrderlyTipMobile>}

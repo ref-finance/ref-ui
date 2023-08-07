@@ -1089,7 +1089,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
   return (
     <div
-      className={`w-full relative flex flex-col  border-t border-l border-b h-screen border-boxBorder bg-orderLineHover `}
+      className={`w-full relative flex flex-col   border-l border-b h-screen border-boxBorder bg-orderLineHover `}
       style={{
         minHeight: '775px',
         height: validator ? 'calc(100vh - 100px)' : '100%',

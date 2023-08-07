@@ -313,10 +313,10 @@ export const useMenus = (cb?: () => void) => {
                   style={{
                     width: '120px',
                   }}
-                  className={`frcc  hover:bg-symbolHover2 w-1/2 rounded-xl py-2 ${
+                  className={`frcc  hover:bg-v3SwapGray  border-v3SwapGray border-opacity-10 hover:bg-opacity-10 w-1/2 rounded-xl py-2 ${
                     window.location.pathname.startsWith('/orderbook/spot')
-                      ? ' bg-symbolHover2'
-                      : 'bg-light1'
+                      ? ' bg-hoverSubBridge bg-opacity-50'
+                      : 'border'
                   }`}
                 >
                   <FormattedMessage
@@ -337,10 +337,10 @@ export const useMenus = (cb?: () => void) => {
                   style={{
                     width: '120px',
                   }}
-                  className={`frcc  hover:bg-symbolHover2 w-1/2 rounded-xl py-2  ${
+                  className={`frcc  hover:bg-v3SwapGray hover:bg-opacity-10  border-v3SwapGray border-opacity-10 w-1/2 rounded-xl py-2  ${
                     window.location.pathname.startsWith('/orderbook/perps')
-                      ? ' bg-symbolHover2'
-                      : 'bg-light1'
+                      ? ' bg-hoverSubBridge bg-opacity-50'
+                      : 'border'
                   }`}
                 >
                   <FormattedMessage
@@ -479,7 +479,9 @@ export const useMenus = (cb?: () => void) => {
               <FormattedMessage id="Orderly" />
             </>
           ),
-          renderLogo: ({ activeMenu }: { activeMenu: boolean }) => <OrderlyIcon activeMenu={activeMenu} />,
+          renderLogo: ({ activeMenu }: { activeMenu: boolean }) => (
+            <OrderlyIcon activeMenu={activeMenu} />
+          ),
           url: '/orderly',
           isExternal: false,
           links: ['/orderly'],
@@ -673,12 +675,16 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
                     history.push('/orderbook/spot');
                     setShow(false);
                   }}
-                  className="frcc bg-symbolHover2  text-white border-white border-opacity-30 w-1/2 rounded-lg py-2"
+                  className={`frcc bg-symbolHover2 ${
+                    window.location.pathname === '/orderbook/spot'
+                      ? ''
+                      : 'border'
+                  }  text-white border-white border-opacity-30 w-1/2 rounded-lg py-2`}
                   style={{
                     background:
                       window.location.pathname === '/orderbook/spot'
-                        ? '#1D2932'
-                        : '#4F6574',
+                        ? 'rgba(79,101,116,0.5)'
+                        : '',
                     width: '104px',
                   }}
                 >
@@ -699,11 +705,15 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
                   style={{
                     background:
                       window.location.pathname === '/orderbook/perps'
-                        ? '#1D2932'
-                        : '#4F6574',
+                        ? 'rgba(79,101,116,0.5)'
+                        : '',
                     width: '104px',
                   }}
-                  className="frcc bg-symbolHover2  text-white border-white border-opacity-30 w-1/2 rounded-lg py-2"
+                  className={`frcc bg-symbolHover2 ${
+                    window.location.pathname === '/orderbook/perps'
+                      ? ''
+                      : 'border'
+                  }   text-white border-white border-opacity-30 w-1/2 rounded-lg py-2`}
                 >
                   <FormattedMessage
                     id="perpetual"
@@ -823,7 +833,9 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
         {
           id: '3-3',
           label: <FormattedMessage id="Orderly" />,
-          renderLogo: ({ activeMenu }: { activeMenu: boolean }) => <OrderlyIcon activeMenu={activeMenu} />,
+          renderLogo: ({ activeMenu }: { activeMenu: boolean }) => (
+            <OrderlyIcon activeMenu={activeMenu} />
+          ),
           url: '/orderly',
           isExternal: false,
           links: ['/orderly'],

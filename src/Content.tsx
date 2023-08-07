@@ -236,12 +236,12 @@ export function Content() {
         <Switch>
           <Route
             path="/orderbook/perps"
-            component={AutoHeight(OrderlyPerpetual)}
+            component={AutoHeightNoOffset(OrderlyPerpetual)}
           />
 
           <Route
             path="/orderbook/spot"
-            component={AutoHeight(OrderlyTradingBoard)}
+            component={AutoHeightNoOffset(OrderlyTradingBoard)}
           />
 
           <Route path="/account" component={AccountPage} />
@@ -292,7 +292,7 @@ export function Content() {
 
           <Route
             path="/orderbook"
-            component={AutoHeight(OrderlyTradingBoard)}
+            component={AutoHeightNoOffset(OrderlyTradingBoard)}
             exact
           />
 
@@ -312,6 +312,16 @@ function AutoHeight(Comp: any) {
   return (props: any) => {
     return (
       <div className="xs:flex xs:flex-col md:flex md:flex-col justify-center h-4/5 lg:mt-12 relative xs:pb-14">
+        <Comp {...props} />
+      </div>
+    );
+  };
+}
+
+function AutoHeightNoOffset(Comp: any) {
+  return (props: any) => {
+    return (
+      <div className="xs:flex xs:flex-col md:flex md:flex-col justify-center h-4/5 relative lg:mt-9 xs:pb-14">
         <Comp {...props} />
       </div>
     );

@@ -42,7 +42,7 @@ function TradingBoard() {
     <div className="w-full flex  pl-4 xs:hidden md:hidden relative">
       {maintenance && <OrderlyUnderMaintain></OrderlyUnderMaintain>}
 
-      <div className="w-full flex flex-col" id="trading-orderly-board">
+      <div className="w-full flex flex-col pt-3" id="trading-orderly-board">
         <div
           className="w-full flex"
           style={{
@@ -250,7 +250,7 @@ function OrderlyTradingBoard() {
   });
 
   return (
-    <div className="mx-auto relative xs:bottom-6 bottom-8">
+    <div className="mx-auto relative xs:bottom-6 bottom-9">
       {!isMobile && <TradingBoard></TradingBoard>}
 
       {isMobile && <MobileTradingBoard></MobileTradingBoard>}

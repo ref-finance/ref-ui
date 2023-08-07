@@ -25,6 +25,7 @@ import {
   FutureMobileView,
   FutureTopComponent,
   FutureTableFormHeaders,
+  FutureMobileViewPerpPage,
 } from '../components/TableWithTabs/FuturesControls';
 import { AllMarketIcon } from '../components/Common/Icons';
 import {
@@ -1654,6 +1655,268 @@ export const usePortableOrderlyTable = ({
     ordersTable,
     assetsTables,
     recordsTable,
+  };
+};
+
+export const usePortableOrderlyTablePositions = ({
+  unrealMode,
+  setUnrealMode,
+  refOnly,
+  setRefOnly,
+  orderType,
+  setOrderType,
+  chooseMarketSymbol,
+  setChooseMarketSymbol,
+  chooseOrderSide,
+  setChooseOrderSide,
+  chooseOrderStatus,
+  chooseOrderType,
+  setOperationType,
+  setOperationId,
+  tokenIn,
+  setSettlePnlModalOpen,
+  handleOpenClosing,
+  openTrades,
+  markPrices,
+  lastPrices,
+  portfolioUnsettle,
+  totalPortfoliouPnl,
+  totalDailyReal,
+  totalNotional,
+  newPositions,
+  showCurSymbol,
+}: {
+  unrealMode: 'mark_price' | 'last_price';
+  setUnrealMode: (input: 'mark_price' | 'last_price') => void;
+  refOnly: boolean;
+  setRefOnly: (item: boolean) => void;
+  orderType: number;
+  setOrderType: (item: number) => void;
+  chooseMarketSymbol: string;
+  setChooseMarketSymbol: (item: string) => void;
+  chooseOrderSide: 'both_side' | 'BUY' | 'SELL';
+  setChooseOrderSide: (item: 'both_side' | 'BUY' | 'SELL') => void;
+  setOperationType: (item: 'deposit' | 'withdraw') => void;
+  setOperationId: (item: string) => void;
+  chooseOrderStatus: 'all' | 'Cancelled' | 'filled' | 'Rejected';
+  chooseOrderType: 'all' | 'limit' | 'market';
+  tokenIn: TokenMetadata;
+  setSettlePnlModalOpen: (item: boolean) => void;
+  handleOpenClosing: (
+    closingQuantity: number,
+    closingPrice: number | 'Market',
+    row: any
+  ) => void;
+  openTrades: (order: MyOrder) => void;
+  markPrices: MarkPrice[];
+  lastPrices: {
+    symbol: string;
+    close: number;
+  }[];
+  showCurSymbol: boolean;
+  portfolioUnsettle: string;
+  totalPortfoliouPnl: string;
+  totalDailyReal: string;
+  totalNotional: string;
+  newPositions: any;
+}) => {
+  const intl = useIntl();
+  const { accountId } = useWalletSelector();
+  const { marketList, allTokens } = useMarketlist();
+  const { curLeverage } = useLeverage();
+
+  const assetsTables: PortfolioTable = {
+    title: 'Assets',
+    tabs: [
+      {
+        id: 'futures',
+        default: 'Futures',
+        rightComp: (usable: boolean) => <div></div>,
+        pagination: false,
+        getData: () => getPortfolioPosition({ accountId }),
+        tableTopComponent: null,
+        mobileRenderCustom: true,
+        tableRowType: 'small',
+        mobileRender: (rows, futureOrders) => (
+          <FutureMobileViewPerpPage
+            rows={rows}
+            marketList={marketList}
+            handleOpenClosing={handleOpenClosing}
+            unrealMode={unrealMode}
+            setUnrealMode={setUnrealMode}
+            futureOrders={futureOrders}
+            markPrices={markPrices}
+            lastPrices={lastPrices}
+            totalPortfoliouPnl={totalPortfoliouPnl}
+            totalDailyReal={totalDailyReal}
+            totalNotional={totalNotional}
+            portfolioUnsettle={portfolioUnsettle}
+            newPositions={newPositions}
+          >
+            <div></div>
+          </FutureMobileViewPerpPage>
+        ),
+        defaultSort: ['symbol', 'average_open_price', 'position_qty'],
+        columns: [
+          {
+            key: 'instrument',
+            header: 'Instrument',
+
+            colSpan: 3,
+            render: ({ symbol }) => (
+              <div className="flex items-center ">
+                {marketList.find((m) => m.textId === symbol)?.text}
+              </div>
+            ),
+          },
+          {
+            key: 'qty.',
+            header: 'Qty.',
+            extras: ['sort'],
+            colSpan: 3,
+            sortKey: 'position_qty',
+            render: ({ position_qty }) => (
+              <div
+                className={`pr-2 ${
+                  position_qty >= 0 ? 'text-buyGreen' : 'text-sellColorNew'
+                }`}
+              >
+                {position_qty || '-'}
+              </div>
+            ),
+          },
+          {
+            key: 'avg_open',
+            colSpan: 3,
+            header: 'Avg. Open',
+            extras: ['sort'],
+            sortKey: 'average_open_price',
+            render: ({ average_open_price }) =>
+              average_open_price?.toFixed(3) || '-',
+          },
+          {
+            key: 'mark_orderly',
+            header: 'Mark',
+            colSpan: 4,
+            extras: ['sort'],
+            sortKey: 'mark_price',
+            render: ({ symbol }) => (
+              <div className={`pr-2 text-white`}>
+                {markPrices
+                  .find((i) => i.symbol === symbol)
+                  ?.price.toFixed(3) || '-'}
+              </div>
+            ),
+          },
+          {
+            key: 'liq_price',
+            header: 'Liq. Price',
+            extras: ['sort'],
+            colSpan: 3,
+            sortKey: 'display_est_liq_price',
+            render: ({ display_est_liq_price }) => (
+              <div className={`pr-2 text-warn`}>
+                {display_est_liq_price ? display_est_liq_price.toFixed(3) : '-'}
+              </div>
+            ),
+          },
+          {
+            key: 'unreal_pnl',
+            header: 'Unreal. PnL',
+            headerType: 'dashed',
+            extras: ['radio', 'sort'],
+            colSpan: 3,
+            select: unrealMode,
+            setSelect: setUnrealMode,
+            sortKey: ['symbol', 'average_open_price', 'position_qty'],
+            list: [
+              {
+                text: intl.formatMessage({ id: 'mark_price' }),
+                textId: 'mark_price',
+              },
+              {
+                text: intl.formatMessage({ id: 'last_price' }),
+                textId: 'last_price',
+              },
+            ],
+            render: ({ symbol, average_open_price, position_qty }) => {
+              const price =
+                unrealMode === 'mark_price'
+                  ? markPrices.find((i) => i.symbol === symbol)?.price
+                  : lastPrices.find((i) => i.symbol === symbol)?.close;
+              const unreal =
+                position_qty >= 0
+                  ? (price - average_open_price) * position_qty
+                  : (average_open_price - price) * position_qty * -1;
+              const percentage =
+                position_qty >= 0
+                  ? ((average_open_price - price) /
+                      (average_open_price / curLeverage)) *
+                    -100
+                  : ((average_open_price - price) /
+                      (average_open_price / curLeverage)) *
+                    100;
+              const percentageParse = percentage.toPrecision(
+                percentage.toString().split('.')[0].length + 2
+              );
+              const percentageTrue = percentageParse.substring(
+                0,
+                percentageParse.length -
+                  (percentageParse.charAt(0) === '-' ? 2 : 1)
+              );
+
+              return (
+                <div
+                  className={`pr-2 ${
+                    unreal >= 0 ? 'text-buyGreen' : 'text-sellColorNew'
+                  }`}
+                >
+                  {unreal?.toFixed(2) || '-'} <br />({percentageTrue}%)
+                </div>
+              );
+            },
+          },
+          {
+            key: 'daily_real',
+            header: 'Daily Real',
+            extras: ['sort'],
+            sortKey: 'pnl_24_h',
+            colSpan: 3,
+            render: ({ pnl_24_h }) => (
+              <div className={`pr-2 text-white`}>
+                {pnl_24_h?.toFixed(3) || '-' || '-'}
+              </div>
+            ),
+          },
+          {
+            key: 'notional',
+            header: 'Notional',
+            colSpan: 3,
+            extras: ['sort'],
+            sortKey: ['position_qty', 'average_open_price'],
+            render: ({ symbol, position_qty }) => {
+              return (
+                Math.abs(
+                  markPrices.find((i) => i.symbol === symbol)?.price *
+                    position_qty
+                )?.toFixed(2) || '-'
+              );
+            },
+          },
+          {
+            key: 'qty.',
+            header: 'Qty.',
+            colSpan: 9,
+            customRender: true,
+            headerRender: () => <FutureTableFormHeaders />,
+          },
+        ],
+      },
+    ],
+  };
+
+  return {
+    assetsTables,
   };
 };
 

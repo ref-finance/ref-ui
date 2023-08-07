@@ -33,6 +33,7 @@ import { TextWrapper } from '../UserBoard';
 import Big from 'big.js';
 import moment from 'moment';
 import { MoBileMoreRouterButton } from '../ChartHeaderPerp/components/MoreRouterButton';
+import { useHistory } from 'react-router-dom';
 
 function tickerToDisplayDiff(ticker: Ticker | undefined) {
   const diff = ticker ? ((ticker.close - ticker.open) * 100) / ticker.open : 0;
@@ -443,6 +444,8 @@ function ChartHeader(props?: any) {
 
   const intl = useIntl();
 
+  const history = useHistory();
+
   return (
     <div
       className="flex orderly-chart-header items-center  text-white text-sm xs:sticky xs:top-0 xs:z-50"
@@ -451,6 +454,31 @@ function ChartHeader(props?: any) {
         zIndex: isMobile ? 52 : '',
       }}
     >
+      <div className="rounded-xl frcs mr-2 gap-1 xs:hidden text-13px border border-v3SwapGray p-1 border-opacity-20 ">
+        {['spot', 'perp'].map((type) => {
+          return (
+            <div
+              className={`px-2.5 py-1 rounded-lg ${
+                symbolType.toString().toLowerCase() === type
+                  ? 'bg-mobileOrderBg text-white'
+                  : 'text-primaryText'
+              } cursor-pointer`}
+              onClick={() => {
+                if (type === 'spot') {
+                  history.push('/orderbook/spot');
+                } else {
+                  history.push('/orderbook/perps');
+                }
+              }}
+            >
+              <FormattedMessage
+                id={type}
+                defaultMessage={type.charAt(0).toUpperCase() + type.slice(1)}
+              ></FormattedMessage>
+            </div>
+          );
+        })}
+      </div>
       {/* icon */}
       <div
         className={`flex 2xl:mr-11 xl:mr-6 lg2:mr-3  relative items-center flex-shrink-0 ${

@@ -28,6 +28,7 @@ import { TextWrapper } from '../UserBoard';
 import moment from 'moment';
 import Big from 'big.js';
 import { MoreRouterButton } from './components/MoreRouterButton';
+import { useHistory } from 'react-router-dom';
 
 export function tickerToDisplayDiff(ticker: Ticker | undefined) {
   const diff = ticker ? ((ticker.close - ticker.open) * 100) / ticker.open : 0;
@@ -421,13 +422,36 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
 
   const intl = useIntl();
 
+  const history = useHistory();
+
   return (
-    <div
-      className="flex items-center bg-cardBg mb-3 mr-3 px-3 py-2 rounded-lg border border-cardBg text-white text-sm"
-      style={{
-        background: 'rgba(1,16,29,1)',
-      }}
-    >
+    <div className="flex items-center  mb-3 mr-3 px-3 py-2 rounded-lg  text-white text-sm">
+      <div className="rounded-xl frcs mr-2 gap-1 text-13px border border-v3SwapGray p-1 border-opacity-20 ">
+        {['spot', 'perp'].map((type) => {
+          return (
+            <div
+              className={`px-2.5 py-1 rounded-lg ${
+                symbolType.toString().toLowerCase() === type
+                  ? 'bg-mobileOrderBg text-white'
+                  : 'text-primaryText'
+              } cursor-pointer`}
+              onClick={() => {
+                if (type === 'spot') {
+                  history.push('/orderbook/spot');
+                } else {
+                  history.push('/orderbook/perps');
+                }
+              }}
+            >
+              <FormattedMessage
+                id={type}
+                defaultMessage={type.charAt(0).toUpperCase() + type.slice(1)}
+              ></FormattedMessage>
+            </div>
+          );
+        })}
+      </div>
+
       <div
         className={`flex 2xl:mr-11 xl:mr-6 lg2:mr-3  relative items-center flex-shrink-0 ${
           hoverSymbol ? 'cursor-pointer bg-symbolHover rounded-lg' : ''

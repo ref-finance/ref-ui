@@ -410,7 +410,7 @@ export interface PortfolioTableColumns {
   select?: any;
   setSelect?: (input: any) => void;
   list?: {
-    text: string;
+    text: string | JSX.Element;
     textId: string;
     className?: string;
   }[];

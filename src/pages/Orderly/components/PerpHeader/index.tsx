@@ -17,7 +17,7 @@ export function PerpOrderlyTip() {
 
   return (
     <div
-      className="w-screen px-4  xs:pb-7 h-9 xs:rounded-2xl lg:relative lg:bottom-2   xs:bottom-0 bg-gradientFromHover  frcc "
+      className="w-screen px-4  xs:pb-7 h-9 xs:rounded-2xl lg:relative    xs:bottom-0 bg-gradientFromHover  frcc "
       style={{
         fontSize: '13px',
         color: '#111F29',

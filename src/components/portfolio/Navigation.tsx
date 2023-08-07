@@ -83,7 +83,7 @@ export default function Navigation(props: any) {
               }`}
             >
               <div className="w-7">
-                <Icon activeMenu={activeMenu == id} ></Icon>
+                <Icon activeMenu={activeMenu == id}></Icon>
               </div>
               <span className={`text-base  gotham_bold`}>{name}</span>
               <span
@@ -121,7 +121,7 @@ export function NavigationMobile(props: any) {
       Icon: OrderlyMIcon,
       name: 'Orderly',
       id: 'orderly',
-      url: '/orderly'
+      url: '/orderly',
     },
     {
       Icon: BurrowMIcon,

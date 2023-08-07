@@ -366,7 +366,7 @@ export function usePerpData(deps?: {
         .reduce((acc, cur) => {
           return acc.plus(cur.pnl_24_h);
         }, new Big(0))
-        .toNumber();
+        .toFixed(2);
     } catch (error) {
       return null;
     }

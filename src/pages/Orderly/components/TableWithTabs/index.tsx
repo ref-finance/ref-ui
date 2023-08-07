@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import _ from 'lodash';
 import {
@@ -710,6 +710,160 @@ function TableWithTabs({
         </div>
       </div>
     </>
+  );
+}
+
+export function TableWithOutTabs({
+  table,
+  maintenance,
+  refOnly,
+  setRefOnly,
+  orderType,
+  setOrderType,
+  chooseMarketSymbol,
+  setChooseMarketSymbol,
+  chooseOrderSide,
+  setChooseOrderSide,
+  chooseOrderStatus,
+  setChooseOrderStatus,
+  chooseOrderType,
+  setChooseOrderType,
+  displayBalances,
+  newPositions,
+  triggerBalanceBasedData,
+  triggerPositionBasedData,
+  setMobileFilterOpen,
+  handleOpenClosing,
+  // validAccountSig,
+  futureOrders,
+  markPrices,
+  lastPrices,
+  unrealMode,
+  showCurSymbol,
+}: // tradingKeySet,
+// setTradingKeySet,
+// keyAnnounced,
+// setKeyAnnounced,
+{
+  table: PortfolioTable;
+  maintenance: boolean;
+  refOnly?: boolean;
+  showCurSymbol: boolean;
+  setRefOnly?: (item: boolean) => void;
+  orderType?: number;
+  setOrderType?: (item: number) => void;
+  chooseMarketSymbol?: string;
+  setChooseMarketSymbol?: (item: string) => void;
+  chooseOrderSide?: 'both_side' | 'BUY' | 'SELL';
+  setChooseOrderSide?: (item: 'both_side' | 'BUY' | 'SELL') => void;
+  chooseOrderStatus?: 'all' | 'Cancelled' | 'filled' | 'Rejected';
+  setChooseOrderStatus?: (
+    item: 'all' | 'Cancelled' | 'filled' | 'Rejected'
+  ) => void;
+  chooseOrderType?: 'all' | 'limit' | 'market';
+  setChooseOrderType?: (item: 'all' | 'limit' | 'market') => void;
+  newPositions?: any;
+  displayBalances: OrderAsset[];
+  triggerBalanceBasedData?: number;
+  triggerPositionBasedData?: number;
+  setMobileFilterOpen?: (item: number) => void;
+  handleOpenClosing?: (
+    closingQuantity: number,
+    closingPrice: number | 'Market',
+    row: any
+  ) => void;
+  validAccountSig?: boolean;
+  futureOrders?: MyOrder[];
+  markPrices: MarkPrice[];
+  lastPrices?: {
+    symbol: string;
+    close: number;
+  }[];
+  unrealMode?: 'mark_price' | 'last_price';
+  tradingKeySet: boolean;
+  setTradingKeySet: (item: boolean) => void;
+  keyAnnounced: boolean;
+  setKeyAnnounced: (item: boolean) => void;
+}) {
+  const {
+    storageEnough,
+    setValidAccountSig,
+    handlePendingOrderRefreshing,
+    validAccountSig,
+    userExist,
+    symbol,
+  } = useOrderlyContext();
+
+  const { accountId, modal } = useWalletSelector();
+  const [registerModalOpen, setRegisterModalOpen] = useState<boolean>(false);
+  const [openOrderCount, setOpenOrderCount] = useState<number>(0);
+
+  const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
+
+  // const [data, setData] = useState<any>([]);
+  const [total, setTotal] = useState(0);
+
+  const isMobile = useClientMobile();
+
+  const [tab, setTab] = useState<number>(0);
+  const [page, setPage] = useState<number>(1);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  // useEffect(() => {
+  //   if (!!newPositions?.rows) setData(newPositions?.rows);
+  // }, [newPositions]);
+
+  // useEffect(() => {
+  //   if (data && data.length > 1 && data.length < 10 && id === 'open_orders') {
+  //     const currentScrollPosition = window.scrollY || window.pageYOffset;
+  //     const newScrollPosition = currentScrollPosition - 100;
+
+  //     window.scroll({
+  //       top: newScrollPosition,
+  //       left: 0,
+  //       behavior: 'auto',
+  //     });
+  //   }
+  // }, [data]);
+
+  const filterFunc = useCallback(
+    (row: any) => {
+      if (!showCurSymbol) return true;
+      else {
+        return row.symbol === symbol;
+      }
+    },
+    [showCurSymbol]
+  );
+
+  const data = (newPositions?.rows || []).filter(filterFunc);
+
+  return (
+    <Table
+      data={data || []}
+      loading={loading}
+      tab={tab}
+      tableKey={table.tabs[tab].id}
+      defaultSort={table.tabs[tab].defaultSort}
+      columns={table.tabs[tab].columns}
+      tableRowType={table.tabs[tab].tableRowType}
+      tableRowEmpty={table.tabs[tab].tableRowEmpty}
+      tableTopComponent={table.tabs[tab].tableTopComponent}
+      mobileRender={table.tabs[tab].mobileRender}
+      mobileRenderCustom={table.tabs[tab].mobileRenderCustom}
+      total={total}
+      page={page}
+      setPage={setPage}
+      pagination={
+        !table.tabs[tab].pagination ? table.tabs[tab].pagination : true
+      }
+      orderType={orderType}
+      handleOpenClosing={handleOpenClosing}
+      futureOrders={futureOrders}
+      markPrices={markPrices}
+      lastPrices={lastPrices}
+      unrealMode={unrealMode}
+    />
   );
 }
 

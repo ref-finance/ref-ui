@@ -84,6 +84,8 @@ import { SymbolSelectorMobileModal } from '../ChartHeader';
 import { FormattedMessage, useIntl } from 'react-intl';
 import _ from 'lodash';
 import { tickToPrecision } from '../UserBoardPerp/math';
+import PositionsTable from './PositionsTable';
+import { usePerpData } from '../UserBoardPerp/state';
 
 export function getTranslateList(
   key: 'type' | 'side' | 'status' | 'instrument'
@@ -2619,7 +2621,14 @@ export function MobileHistoryOrderDetail(
     type?: string;
   }
 ) {
-  const { titleList, order, valueList, symbol, orderTradesHistory, type = 'history' } = props;
+  const {
+    titleList,
+    order,
+    valueList,
+    symbol,
+    orderTradesHistory,
+    type = 'history',
+  } = props;
 
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
 
@@ -2720,7 +2729,7 @@ function OpenOrders({
   allTokens: {
     [key: string]: TokenMetadata;
   };
-  tab: 'open' | 'history';
+  tab: 'open' | 'history' | 'positions';
   mobileFilterSize: number;
   setMobileFilterSize: (s: number) => void;
   mobileFilterOpen: 'open' | 'history' | undefined;
@@ -3417,7 +3426,7 @@ function HistoryOrders({
   setHistoryCount: (c: number) => void;
   showCurSymbol: boolean;
   loading: boolean;
-  tab: 'open' | 'history';
+  tab: 'open' | 'history' | 'positions';
   mobileFilterSize: number;
   setMobileFilterSize: (s: number) => void;
   setMobileFilterOpen: (c: 'open' | 'history' | undefined) => void;
@@ -4249,11 +4258,6 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
 
   const isMobile = useClientMobile();
 
-  // const allOrders = useAllOrders({
-  //   refreshingTag: myPendingOrdersRefreshing,
-  //   type: symbolType,
-  // });
-
   const { accountId } = useWalletSelector();
 
   const loading =
@@ -4263,7 +4267,15 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
     !!localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID) &&
     !maintenance;
 
-  const [tab, setTab] = useState<'open' | 'history'>('open');
+  const [tab, setTab] = useState<'open' | 'history' | 'positions'>('open');
+
+  useEffect(() => {
+    if (symbolType === 'SPOT' && tab === 'positions') {
+      setTab('open');
+    }
+  }, [symbolType, tab]);
+
+  const { newPositions } = usePerpData();
 
   const [showCurSymbol, setShowCurSymbol] = useState<boolean>(
     !!isMobile ? false : true
@@ -4311,15 +4323,66 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
       >
         <FlexRowBetween className="pb-1.5 xs:mb-5 py-3  rounded-t-2xl lg:border-b xs:px-0 xs:py-0 px-5 mt-0 border-white border-opacity-10">
           <FlexRow
-            className={`min-h-8 xs:ml-3 xs:p-1 xs:py-0.5 xs:border border-white border-opacity-10 xs:rounded-xl`}
+            className={`min-h-8 xs:ml-3 xs:p-1 xs:py-0.5 xs:border lg:gap-8 border-white border-opacity-10 xs:rounded-xl`}
           >
+            <FlexRow
+              onClick={() => {
+                setTab('positions');
+              }}
+              className={`font-gothamBold justify-center  xs:py-0.5 xs:px-2 xs:rounded-lg ${
+                tab === 'positions' ? 'xs:bg-mobileOrderBg ' : ''
+              } ${
+                symbolType === 'SPOT' || !!isMobile ? 'hidden' : ''
+              } cursor-pointer`}
+            >
+              <span
+                className={
+                  tab === 'positions'
+                    ? 'text-white relative'
+                    : 'text-primaryOrderly relative'
+                }
+              >
+                {intl.formatMessage({
+                  id: 'positions',
+                  defaultMessage: 'Positions',
+                })}
+
+                {tab === 'positions' && !isMobile && (
+                  <div className="h-0.5 bg-gradientFromHover rounded-lg w-full absolute -bottom-3 left-0"></div>
+                )}
+              </span>
+
+              <span
+                className={`flex items-center justify-center h-4 px-1.5 min-w-fit text-xs rounded-md  ml-2 ${
+                  tab === 'positions'
+                    ? 'text-white bg-grayBgLight'
+                    : 'text-primaryOrderly bg-symbolHover'
+                } 
+                  ${isMobile ? 'hidden' : ''}
+                `}
+              >
+                {!newPositions ||
+                newPositions?.rows?.filter(
+                  (p) =>
+                    p.position_qty !== 0 &&
+                    (showCurSymbol ? p.symbol === symbol : true)
+                )?.length === undefined
+                  ? '-'
+                  : newPositions?.rows?.filter(
+                      (p) =>
+                        p.position_qty !== 0 &&
+                        (showCurSymbol ? p.symbol === symbol : true)
+                    )?.length}
+              </span>
+            </FlexRow>
+
             <FlexRow
               onClick={() => {
                 setTab('open');
               }}
               className={`font-gothamBold justify-center  xs:py-0.5 xs:px-2 xs:rounded-lg ${
                 tab === 'open' ? 'xs:bg-mobileOrderBg ' : ''
-              } cursor-pointer`}
+              } cursor-pointer `}
             >
               <span
                 className={
@@ -4359,7 +4422,7 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
               }}
               className={`font-gothamBold justify-center  xs:py-0.5 xs:px-2 xs:rounded-lg ${
                 tab === 'history' ? 'xs:bg-mobileOrderBg ' : ''
-              } cursor-pointer ml-8`}
+              } cursor-pointer `}
             >
               <span
                 className={
@@ -4473,7 +4536,7 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
           orders={openOrders || []}
           setOpenCount={setOpenCount}
           symbol={symbol}
-          hidden={tab === 'history'}
+          hidden={tab !== 'open'}
           showCurSymbol={showCurSymbol}
           loading={loading}
           mobileFilterOpen={mobileFilterOpen}
@@ -4490,7 +4553,7 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
           setHistoryCount={setHistoryCount}
           orders={historyOrders || []}
           symbol={symbol}
-          hidden={tab === 'open'}
+          hidden={tab !== 'history'}
           showCurSymbol={showCurSymbol}
           loading={loading}
           mobileFilterOpen={mobileFilterOpen}
@@ -4498,6 +4561,11 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
           setShowCurSymbol={setShowCurSymbol}
           setMobileFilterSize={setMobileFilterSize}
           mobileFilterSize={mobileFilterSize}
+        />
+
+        <PositionsTable
+          hidden={tab !== 'positions' || !!isMobile}
+          showCurSymbol={showCurSymbol}
         />
       </div>
     </>

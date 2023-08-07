@@ -114,33 +114,14 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
     });
   }, []);
 
-  const [userInfo, setUserInfo] = useState<ClientInfo>();
-
-  const pathname = window.location.pathname;
-  // console.log('pathname: ', pathname);
-
-  const isPerp = pathname.includes('perp');
-
   const [symbol, setSymbol] = useState<string>(
     storedSymbol || 'SPOT_NEAR_USDC'
   );
 
-  useEffect(() => {
-    if (
-      (isPerp && symbol.indexOf('PERP') > -1) ||
-      (!isPerp && symbol.indexOf('SPOT') > -1)
-    ) {
-      return;
-    }
+  const [userInfo, setUserInfo] = useState<ClientInfo>();
 
-    if (isPerp) {
-      setSymbol('PERP_NEAR_USDC');
-      localStorage.setItem(REF_ORDERLY_SYMBOL_KEY, 'PERP_NEAR_USDC');
-    } else {
-      setSymbol('SPOT_NEAR_USDC');
-      localStorage.setItem(REF_ORDERLY_SYMBOL_KEY, 'SPOT_NEAR_USDC');
-    }
-  }, [symbol, isPerp]);
+  const pathname = window.location.pathname;
+  // console.log('pathname: ', pathname);
 
   const symbolType = PerpOrSpot(symbol);
 
@@ -184,6 +165,77 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
     type: symbolType,
     validAccountSig,
   });
+
+  const isPerp = pathname.includes('perp');
+
+  useEffect(() => {
+    if (
+      (isPerp && symbol.indexOf('PERP') > -1) ||
+      (!isPerp && symbol.indexOf('SPOT') > -1)
+    ) {
+      return;
+    }
+
+    //  pathname is perp
+    if (isPerp) {
+      // find if PERP_{token}_{USDC} exist  in availableSymbols, if exist, set to this symbol else set to PERP_NEAR_USDC
+
+      let newSymbol = 'PERP_NEAR_USDC';
+
+      const perpSymbol = availableSymbols?.find((s) => {
+        const storedSymbol = localStorage.getItem(REF_ORDERLY_SYMBOL_KEY);
+        if (!storedSymbol) return false;
+
+        const type = s.symbol.split('_')[0];
+
+        if (type === 'SPOT') return false;
+
+        const symbolFrom = s.symbol.split('_')[1];
+
+        const symbolFromStored = storedSymbol.split('_')[1];
+
+        if (symbolFrom.indexOf('BTC') > 0) {
+          return symbolFromStored.indexOf('BTC') > 0;
+        } else {
+          return symbolFromStored === symbolFrom;
+        }
+      });
+
+      if (perpSymbol) {
+        newSymbol = perpSymbol.symbol;
+      }
+
+      setSymbol(newSymbol);
+      localStorage.setItem(REF_ORDERLY_SYMBOL_KEY, newSymbol);
+    } else {
+      let newSymbol = 'SPOT_NEAR_USDC';
+
+      const spotSymbol = availableSymbols?.find((s) => {
+        const storedSymbol = localStorage.getItem(REF_ORDERLY_SYMBOL_KEY);
+        if (!storedSymbol) return false;
+
+        const type = s.symbol.split('_')[0];
+
+        if (type === 'PERP') return false;
+
+        const symbolFrom = s.symbol.split('_')[1];
+
+        const symbolFromStored = storedSymbol.split('_')[1];
+
+        if (symbolFrom.indexOf('BTC') > 0) {
+          return symbolFromStored.indexOf('BTC') > 0;
+        } else {
+          return symbolFromStored === symbolFrom;
+        }
+      });
+      if (spotSymbol) {
+        newSymbol = spotSymbol.symbol;
+      }
+
+      setSymbol(newSymbol);
+      localStorage.setItem(REF_ORDERLY_SYMBOL_KEY, newSymbol);
+    }
+  }, [symbol, isPerp, availableSymbols]);
 
   const allOrdersSymbol = allOrders?.filter((o) => o.symbol === symbol);
 

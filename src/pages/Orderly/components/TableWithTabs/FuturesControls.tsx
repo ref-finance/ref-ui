@@ -1892,6 +1892,73 @@ const FutureMobileRow: React.FC<{
   );
 };
 
+export const FutureMobileViewPerpPage: React.FC<{
+  rows: {
+    symbol: string;
+    position_qty: number;
+    average_open_price: number;
+    mark_price: number;
+    unsettled_pnl: number;
+  }[];
+  marketList: { text: JSX.Element; withSymbol: JSX.Element; textId: string }[];
+  handleOpenClosing: (
+    closingQuantity: number,
+    closingPrice: number | 'Market',
+    row: any
+  ) => void;
+  unrealMode: string;
+  setUnrealMode: (mode: 'mark_price' | 'last_price') => void;
+  futureOrders: MyOrder[];
+  markPrices: MarkPrice[];
+  lastPrices: {
+    symbol: string;
+    close: number;
+  }[];
+  portfolioUnsettle: string;
+  totalPortfoliouPnl: string;
+  totalDailyReal: string;
+  totalNotional: string;
+  newPositions: any;
+}> = ({
+  marketList,
+  children,
+  handleOpenClosing,
+  unrealMode,
+  setUnrealMode,
+  futureOrders,
+  markPrices,
+  lastPrices,
+  portfolioUnsettle,
+  totalPortfoliouPnl,
+  totalDailyReal,
+  totalNotional,
+  newPositions,
+}) => {
+  const intl = useIntl();
+
+  const { rows } = newPositions || {};
+
+  return (
+    <div className="w-full">
+      {rows
+        ?.filter((row: any) => row.position_qty !== 0)
+        .map((row: any) => (
+          <FutureMobileRow
+            key={row.symbol}
+            row={row}
+            marketList={marketList}
+            handleOpenClosing={handleOpenClosing}
+            unrealMode={unrealMode}
+            setUnrealMode={setUnrealMode}
+            futureOrders={futureOrders}
+            markPrices={markPrices}
+            lastPrices={lastPrices}
+          />
+        ))}
+    </div>
+  );
+};
+
 export const FutureMobileView: React.FC<{
   rows: {
     symbol: string;
