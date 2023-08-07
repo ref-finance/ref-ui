@@ -2839,12 +2839,7 @@ export function PoolDetailsPage() {
         }}
       />
       {indexerFail && (
-        <PoolRefreshModal
-          isOpen={indexerFail}
-          onRequestClose={() => {
-            window.location.reload();
-          }}
-        ></PoolRefreshModal>
+        <PoolRefreshModal isOpen={indexerFail}></PoolRefreshModal>
       )}
     </>
   );

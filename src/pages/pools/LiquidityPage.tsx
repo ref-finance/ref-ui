@@ -3263,12 +3263,7 @@ export function LiquidityPage() {
         />
       )}
       {indexerFail && (
-        <PoolRefreshModal
-          isOpen={indexerFail}
-          onRequestClose={() => {
-            window.location.reload();
-          }}
-        ></PoolRefreshModal>
+        <PoolRefreshModal isOpen={indexerFail}></PoolRefreshModal>
       )}
     </TokenPriceListContext.Provider>
   );

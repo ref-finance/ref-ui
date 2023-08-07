@@ -385,6 +385,13 @@ export const getTokenPriceList = async (): Promise<any> => {
     });
 };
 
+export const getIndexerStatus = async (): Promise<any> => {
+  return await fetch(config.indexerUrl + '/get-service-version', {
+    method: 'GET',
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  }).then((res) => res.status !== 502);
+};
+
 export const _search = (args: any, pools: PoolRPCView[]) => {
   if (args.tokenName === '') return pools;
   return _.filter(pools, (pool: PoolRPCView) => {

@@ -47,6 +47,7 @@ import {
   getAllV3Pool24Volume,
   getV3poolTvlById,
   getTokenPriceList,
+  getIndexerStatus,
 } from '../services/indexer';
 import { parsePoolView, PoolRPCView } from '../services/api';
 import {
@@ -1352,7 +1353,7 @@ export const useIndexerStatus = (dep?: any) => {
   const [indexerStatus, setIndexerStatus] = useState<boolean>();
 
   useEffect(() => {
-    getTokenPriceList()
+    getIndexerStatus()
       .then((res) => {
         setIndexerStatus(!!res);
       })

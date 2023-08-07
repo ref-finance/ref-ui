@@ -6,10 +6,16 @@ import { ButtonTextWrapper } from '../../components/button/Button';
 export function PoolRefreshModal(props: Modal.Props) {
   const [loading, setLoading] = useState<boolean>(false);
 
+  const [isOpen, setIsOpen] = useState<boolean>(props.isOpen);
+
   const intl = useIntl();
   return (
     <Modal
       {...props}
+      isOpen={isOpen}
+      onRequestClose={() => {
+        setIsOpen(false);
+      }}
       style={{
         content: {
           zIndex: 999,

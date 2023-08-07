@@ -704,12 +704,7 @@ export default function ({
         />
       </Card>
       {indexerFail && (
-        <PoolRefreshModal
-          isOpen={indexerFail}
-          onRequestClose={() => {
-            window.location.reload();
-          }}
-        ></PoolRefreshModal>
+        <PoolRefreshModal isOpen={indexerFail}></PoolRefreshModal>
       )}
     </div>
   );
