@@ -106,6 +106,7 @@ import { SUPPORT_LEDGER_KEY } from '../components/swap/SwapCard';
 import { openUrl } from '../services/commonV3';
 import { hasTriPools } from '../services/aurora/aurora';
 import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
+import { useIndexerStatus } from './pool';
 const ONLY_ZEROS = /^0*\.?0*$/;
 
 export const REF_DCL_POOL_CACHE_KEY = 'REF_DCL_POOL_CACHE_VALUE';
@@ -1026,6 +1027,8 @@ export const useLimitOrder = ({
 
   const [mostPoolDetail, setMostPoolDetail] = useState<PoolInfo>();
 
+  const { fail: indexerFail } = useIndexerStatus();
+
   const [poolToOrderCounts, setPoolToOrderCounts] = useState<{
     [key: string]: string | null;
   }>();
@@ -1050,6 +1053,7 @@ export const useLimitOrder = ({
         setQuoteDone(true);
       });
   }, [selectedV3LimitPool, loadingTrigger, swapMode]);
+  console.log('selectedV3LimitPool: ', selectedV3LimitPool);
 
   useEffect(() => {
     if (notLimitMode || !tokenIn || !tokenOut) {
@@ -1122,6 +1126,7 @@ export const useLimitOrder = ({
           sumOfCounts === 0 ? ['0', '0', '0', '0'] : finalPercents;
 
         const percensNew = percents.map((p, i) => (!!res[i] ? p : null));
+        console.log('percensNew: ', percensNew);
 
         const toCounts = percensNew.reduce((acc, cur, index) => {
           return {
@@ -1135,7 +1140,8 @@ export const useLimitOrder = ({
           res?.some(
             (r) => !!r && (Number(r?.total_x) > 0 || Number(r?.total_y) > 0)
           ) &&
-          percents.every((p) => Number(p) === 0)
+          percents.every((p) => Number(p) === 0) &&
+          !indexerFail
         )
           return;
         const temp = {};
@@ -1146,12 +1152,13 @@ export const useLimitOrder = ({
         setPoolToOrderCounts(toCounts);
       })
       .catch((e) => {
+        console.log('e: ', e);
         const allPoolsForThisPair = V3_POOL_FEE_LIST.map((fee) =>
           getV3PoolId(tokenIn.id, tokenOut.id, fee)
         );
         setSelectedV3LimitPool(allPoolsForThisPair[2]);
       });
-  }, [tokenIn?.id, tokenOut?.id, tokenPriceList, swapMode]);
+  }, [tokenIn?.id, tokenOut?.id, tokenPriceList, swapMode, indexerFail]);
 
   useEffect(() => {
     if (!poolToOrderCounts) return null;

@@ -313,7 +313,9 @@ const fetchTopPools = async () => {
 
     sessionStorage.setItem(REF_FI_POOL_PROTOCOL, 'rpc');
 
-    db.topPools.clear();
+    await db.topPools.clear();
+
+    await db.poolsTokens.clear();
 
     const res = await fetchPoolsRPC();
 
@@ -346,9 +348,12 @@ export const getPoolsByTokens = async ({
     );
   };
 
+  console.log('loadingTrigger: ', loadingTrigger);
+
   if (loadingTrigger) {
     const { pools: poolsRaw, protocol } = await fetchTopPools();
     pool_protocol = protocol;
+    console.log('protocol: ', protocol);
 
     if (protocol === 'indexer') {
       await db.cacheTopPools(poolsRaw);
@@ -362,6 +367,8 @@ export const getPoolsByTokens = async ({
       sessionStorage.setItem(REF_FI_POOL_PROTOCOL, 'indexer');
     } else {
       pools = poolsRaw;
+
+      sessionStorage.setItem(REF_FI_POOL_PROTOCOL, 'rpc');
     }
 
     await cachePools(pools);
@@ -374,9 +381,11 @@ export const getPoolsByTokens = async ({
 
     const cachedPoolProtocol = sessionStorage.getItem(REF_FI_POOL_PROTOCOL);
     pool_protocol = cachedPoolProtocol || 'indexer';
+    console.log('pool_protocol: ', pool_protocol);
 
     if (cachedPoolProtocol === 'rpc') {
       pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
+      console.log('pools from rpc: ', pools);
 
       if (!pools || pools.length === 0) {
         pools = await fetchPoolsRPC();

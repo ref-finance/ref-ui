@@ -448,8 +448,6 @@ export const estimateSwap = async ({
     return getLiquidity(p, tokenIn, tokenOut) > 0;
   });
 
-  console.log('pool_protocol: ', pool_protocol);
-
   if (supportLedger || pool_protocol === 'rpc') {
     const { supportLedgerRes } = await getOneSwapActionResult(
       pools,

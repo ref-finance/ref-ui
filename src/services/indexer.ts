@@ -230,10 +230,34 @@ export const getTopPoolsIndexer = async () => {
 };
 
 export const getTopPoolsIndexerRaw = async () => {
-  return await fetch(config.indexerUrl + '/list-top-pools', {
-    method: 'GET',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
-  }).then((res) => res.json());
+  const timeoutDuration = 20000; // 20 seconds in milliseconds
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => {
+    controller.abort();
+  }, timeoutDuration);
+
+  try {
+    const response = await fetch(config.indexerUrl + '/list-top-pools', {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeout);
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+
+    return await response.json();
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      throw new Error('Request timed out');
+    } else {
+      throw error;
+    }
+  }
 };
 
 export const getTopPools = async (): Promise<PoolRPCView[]> => {
