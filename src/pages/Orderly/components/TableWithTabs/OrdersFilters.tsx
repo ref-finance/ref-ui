@@ -10,10 +10,13 @@ import { TickerDisplayComponent } from '../ChartHeader';
 import { useTokenMetaFromSymbol } from '../ChartHeader/state';
 import { Selector } from '../OrderBoard';
 import { parseSymbol } from '../RecentTrade';
-import { PerpOrSpot  } from '../../utiles';
+import { PerpOrSpot } from '../../utiles';
 import { Ticker } from '../../orderly/type';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
-import { Checkbox as TickCheckbox, CheckboxSelected } from '../../../../components/icon';
+import {
+  Checkbox as TickCheckbox,
+  CheckboxSelected,
+} from '../../../../components/icon';
 
 const OrdersFilters = ({
   orderType,
@@ -26,14 +29,14 @@ const OrdersFilters = ({
   setShowMarketSelector,
   showSideSelector,
   setShowSideSelector,
-  marketList
-}:{
+  marketList,
+}: {
   orderType: number;
   setOrderType: (item: number) => void;
   chooseMarketSymbol: string;
   setChooseMarketSymbol: (item: string) => void;
-  chooseOrderSide: 'all_side' | 'BUY' | 'SELL';
-  setChooseOrderSide: (item: 'all_side' | 'BUY' | 'SELL') => void;
+  chooseOrderSide: 'both_side' | 'BUY' | 'SELL';
+  setChooseOrderSide: (item: 'both_side' | 'BUY' | 'SELL') => void;
   showMarketSelector: boolean;
   setShowMarketSelector: (item: boolean) => void;
   showSideSelector: boolean;
@@ -42,14 +45,16 @@ const OrdersFilters = ({
     text: JSX.Element;
     withSymbol: JSX.Element;
     textId: string;
-  }[]
+  }[];
 }) => {
   const intl = useIntl();
-  const [displayList, setDisplayList] = useState<{
-    text: JSX.Element;
-    withSymbol: JSX.Element;
-    textId: string;
-  }[]>([]);
+  const [displayList, setDisplayList] = useState<
+    {
+      text: JSX.Element;
+      withSymbol: JSX.Element;
+      textId: string;
+    }[]
+  >([]);
 
   useEffect(() => {
     if (showMarketSelector || showSideSelector)
@@ -63,12 +68,18 @@ const OrdersFilters = ({
     if (orderType === 0) {
       setDisplayList(marketList);
     } else if (orderType === 1) {
-      setDisplayList(marketList.filter((market) => !market.textId.includes('PERP')))
+      setDisplayList(
+        marketList.filter((market) => !market.textId.includes('PERP'))
+      );
     } else if (orderType === 2) {
-      setDisplayList(marketList.filter((market) => market.textId.includes('PERP') ||market.textId === 'all_markets'))
+      setDisplayList(
+        marketList.filter(
+          (market) =>
+            market.textId.includes('PERP') || market.textId === 'all_markets'
+        )
+      );
     }
-
-  }, [orderType, marketList])
+  }, [orderType, marketList]);
 
   return (
     <div className="w-full px-5 pb-5 flex justify-between items-center">
@@ -76,7 +87,7 @@ const OrdersFilters = ({
         className={`flex items-center w-225 border rounded-lg p-1`}
         style={{
           borderColor: 'rgba(145, 162, 174, 0.20)',
-          width: 'calc(225px + 0.5rem)'
+          width: 'calc(225px + 0.5rem)',
         }}
       >
         {['All', 'spot', 'futures'].map((tab, index) => (
@@ -95,21 +106,18 @@ const OrdersFilters = ({
             <span className="hidden md:block lg:block">
               {intl.formatMessage({
                 id: tab,
-                defaultMessage: tab
+                defaultMessage: tab,
               })}
             </span>
           </label>
         ))}
       </div>
       <div className="flex justify-between">
-
-        <FlexRow
-          className="relative mr-2"
-        >
+        <FlexRow className="relative mr-2">
           <div
             className="cursor-pointer flex items-center border rounded-lg py-1 px-2"
             style={{
-              borderColor: 'rgba(145, 162, 174, 0.20)'
+              borderColor: 'rgba(145, 162, 174, 0.20)',
             }}
             onClick={(e) => {
               e.preventDefault();
@@ -127,9 +135,11 @@ const OrdersFilters = ({
               ) : (
                 <>
                   <span className="text-white">
-                    {parseSymbol(chooseMarketSymbol).symbolFrom}{chooseMarketSymbol.includes('PERP') ? ' PERP' : `/${parseSymbol(chooseMarketSymbol).symbolTo}`}
+                    {parseSymbol(chooseMarketSymbol).symbolFrom}
+                    {chooseMarketSymbol.includes('PERP')
+                      ? ' PERP'
+                      : `/${parseSymbol(chooseMarketSymbol).symbolTo}`}
                   </span>
-                  
                 </>
               )}
             </span>
@@ -164,7 +174,7 @@ const OrdersFilters = ({
             }}
           >
             <span>
-              {chooseOrderSide === 'all_side'
+              {chooseOrderSide === 'both_side'
                 ? intl.formatMessage({
                     id: 'both_side',
                     defaultMessage: 'Both Side',
@@ -194,8 +204,8 @@ const OrdersFilters = ({
                     id: 'both_side',
                     defaultMessage: 'Both Side',
                   }),
-                  textId: 'all_side',
-                  className: 'text-white'
+                  textId: 'both_side',
+                  className: 'text-white',
                 },
                 {
                   text: intl.formatMessage({
@@ -203,7 +213,7 @@ const OrdersFilters = ({
                     defaultMessage: 'Buy',
                   }),
                   textId: 'buy',
-                  className: 'text-white'
+                  className: 'text-white',
                 },
                 {
                   text: intl.formatMessage({
@@ -211,7 +221,7 @@ const OrdersFilters = ({
                     defaultMessage: 'Sell',
                   }),
                   textId: 'sell',
-                  className: 'text-white'
+                  className: 'text-white',
                 },
               ]}
               top={8}
@@ -220,15 +230,15 @@ const OrdersFilters = ({
         </FlexRow>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default OrdersFilters;
 
 export function MobileFilterModal(
   props: {
     tab: number;
-    refOnly: boolean,
+    refOnly: boolean;
     setRefOnly?: (value: boolean) => void;
     curInstrument: JSX.Element | string;
     curSymbol?: string;
@@ -265,7 +275,7 @@ export function MobileFilterModal(
     curSelect,
     list,
     listKey,
-    setCurSelect
+    setCurSelect,
   }: {
     listKey: string;
     curSelect: string;
@@ -296,9 +306,7 @@ export function MobileFilterModal(
                   setCheck={() => setCurSelect(item)}
                 />
 
-                <span className="ml-2">
-                  {intl.formatMessage({ id: item })}
-                </span>
+                <span className="ml-2">{intl.formatMessage({ id: item })}</span>
               </div>
             );
           })}
@@ -349,8 +357,6 @@ export function MobileFilterModal(
             </span>
           </div>
 
-
-
           <div className="flex items-center justify-between my-5">
             <span className="text-gray2">
               {intl.formatMessage({
@@ -358,10 +364,13 @@ export function MobileFilterModal(
                 defaultMessage: 'Dex',
               })}
             </span>
-            
+
             <span className="flex items-center mr-2">
-              <label className="cursor-pointer mr-1" onClick={() => setRefOnly(!refOnly)}>
-                {refOnly ? <CheckboxSelected /> :<TickCheckbox />}
+              <label
+                className="cursor-pointer mr-1"
+                onClick={() => setRefOnly(!refOnly)}
+              >
+                {refOnly ? <CheckboxSelected /> : <TickCheckbox />}
               </label>
               {intl.formatMessage({
                 id: 'ref_order',
@@ -398,7 +407,7 @@ export function MobileFilterModal(
               />
             </div>
           </div>
-          
+
           <SelectList
             curSelect={curType}
             listKey={intl.formatMessage({
@@ -413,7 +422,7 @@ export function MobileFilterModal(
           <SelectList
             curSelect={curSide}
             listKey={intl.formatMessage({ id: 'Side' })}
-            list={['all_side', 'buy', 'sell']}
+            list={['both_side', 'buy', 'sell']}
             setCurSelect={setSide}
             keyTranslate="side"
           />
@@ -424,7 +433,11 @@ export function MobileFilterModal(
               id: 'status',
               defaultMessage: 'Status',
             })}
-            list={tab === 1 ? ['all', 'NEW', 'PARTIAL_FILLED'] : ['all', 'Cancelled', 'filled', 'Rejected']}
+            list={
+              tab === 1
+                ? ['all', 'NEW', 'PARTIAL_FILLED']
+                : ['all', 'Cancelled', 'filled', 'Rejected']
+            }
             setCurSelect={setStatus}
             keyTranslate="status"
           />
@@ -452,7 +465,6 @@ export function MobileFilterModal(
     </>
   );
 }
-
 
 export function SymbolSelectorMobileModal(
   props: {

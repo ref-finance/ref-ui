@@ -80,8 +80,8 @@ function TableWithTabs({
   setOrderType?: (item: number) => void;
   chooseMarketSymbol?: string;
   setChooseMarketSymbol?: (item: string) => void;
-  chooseOrderSide?: 'all_side' | 'BUY' | 'SELL';
-  setChooseOrderSide?: (item: 'all_side' | 'BUY' | 'SELL') => void;
+  chooseOrderSide?: 'both_side' | 'BUY' | 'SELL';
+  setChooseOrderSide?: (item: 'both_side' | 'BUY' | 'SELL') => void;
   chooseOrderStatus?: 'all' | 'Cancelled' | 'filled' | 'Rejected';
   setChooseOrderStatus?: (
     item: 'all' | 'Cancelled' | 'filled' | 'Rejected'
@@ -239,7 +239,7 @@ function TableWithTabs({
       setRefOnly && setRefOnly(false);
       setOrderType && setOrderType(0);
       setChooseMarketSymbol && setChooseMarketSymbol('all_markets');
-      setChooseOrderSide && setChooseOrderSide('all_side');
+      setChooseOrderSide && setChooseOrderSide('both_side');
       setChooseOrderStatus && setChooseOrderStatus('all');
       setChooseOrderType && setChooseOrderType('all');
       getData && callGetData();
@@ -450,7 +450,7 @@ function TableWithTabs({
                   <MobileFilter />
                   {Number(refOnly) +
                     Number(chooseMarketSymbol !== 'all_markets') +
-                    Number(chooseOrderSide !== 'all_side') +
+                    Number(chooseOrderSide !== 'both_side') +
                     Number(chooseOrderType !== 'all') +
                     Number(chooseOrderStatus !== 'all') >
                     0 && (
@@ -464,7 +464,7 @@ function TableWithTabs({
                     >
                       {Number(refOnly) +
                         Number(chooseMarketSymbol !== 'all_markets') +
-                        Number(chooseOrderSide !== 'all_side') +
+                        Number(chooseOrderSide !== 'both_side') +
                         Number(chooseOrderType !== 'all') +
                         Number(chooseOrderStatus !== 'all')}
                     </div>
@@ -480,7 +480,7 @@ function TableWithTabs({
           {table.tabs[tab].filter &&
             (refOnly ||
               chooseMarketSymbol !== 'all_markets' ||
-              chooseOrderSide !== 'all_side' ||
+              chooseOrderSide !== 'both_side' ||
               chooseOrderType !== 'all' ||
               chooseOrderStatus !== 'all') && (
               <div
@@ -495,7 +495,7 @@ function TableWithTabs({
                 >
                   <div
                     className="ml-auto flex justify-start items-center flex-wrap"
-                    style={{ flex: '0 0 15%', height: '44px' }}
+                    style={{ flex: '0 0 15%' }}
                   >
                     <div className="p-2 flex items-center">
                       {intl.formatMessage({
@@ -549,12 +549,12 @@ function TableWithTabs({
                         </div>
                       </div>
                     )}
-                    {chooseOrderSide !== 'all_side' && (
+                    {chooseOrderSide !== 'both_side' && (
                       <div className="flex items-center capitalize p-2">
                         {chooseOrderSide}
                         <div
                           className="ml-1.5 cursor-pointer"
-                          onClick={() => setChooseOrderSide('all_side')}
+                          onClick={() => setChooseOrderSide('both_side')}
                         >
                           <OffFilterIcon />
                         </div>

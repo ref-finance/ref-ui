@@ -80,8 +80,8 @@ function PortfolioOrderly() {
   const [chooseMarketSymbol, setChooseMarketSymbol] =
     useState<string>('all_markets');
   const [chooseOrderSide, setChooseOrderSide] = useState<
-    'all_side' | 'BUY' | 'SELL'
-  >('all_side');
+    'both_side' | 'BUY' | 'SELL'
+  >('both_side');
 
   const [chooseOrderStatus, setChooseOrderStatus] = useState<
     'all' | 'Cancelled' | 'filled' | 'Rejected'

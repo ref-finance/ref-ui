@@ -117,8 +117,8 @@ export const usePortableOrderlyTable = ({
   setOrderType: (item: number) => void;
   chooseMarketSymbol: string;
   setChooseMarketSymbol: (item: string) => void;
-  chooseOrderSide: 'all_side' | 'BUY' | 'SELL';
-  setChooseOrderSide: (item: 'all_side' | 'BUY' | 'SELL') => void;
+  chooseOrderSide: 'both_side' | 'BUY' | 'SELL';
+  setChooseOrderSide: (item: 'both_side' | 'BUY' | 'SELL') => void;
   setOperationType: (item: 'deposit' | 'withdraw') => void;
   setOperationId: (item: string) => void;
   chooseOrderStatus: 'all' | 'Cancelled' | 'filled' | 'Rejected';
@@ -384,7 +384,7 @@ export const usePortableOrderlyTable = ({
                 chooseMarketSymbol === 'all_markets' ? '' : chooseMarketSymbol,
               // @ts-ignore
               side:
-                chooseOrderSide === 'all_side' || chooseOrderSide === 'all'
+                chooseOrderSide === 'both_side' || chooseOrderSide === 'all'
                   ? ''
                   : chooseOrderSide.toUpperCase(),
               order_type:
@@ -678,7 +678,7 @@ export const usePortableOrderlyTable = ({
                 chooseMarketSymbol === 'all_markets' ? '' : chooseMarketSymbol,
               // @ts-ignore
               side:
-                chooseOrderSide === 'all_side' || chooseOrderSide === 'all'
+                chooseOrderSide === 'both_side' || chooseOrderSide === 'all'
                   ? ''
                   : chooseOrderSide.toUpperCase(),
               order_type:
