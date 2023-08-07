@@ -534,8 +534,8 @@ export function OprationButton(props: any) {
         onClick={onClick}
         disabled={disabled}
         className={`flex items-center justify-center  w-full h-full ${
-          btnClassName ? btnClassName : ''
-        }`}
+          disabled ? 'cursor-not-allowed' : ''
+        } ${btnClassName ? btnClassName : ''}`}
       >
         {props.children}
       </button>

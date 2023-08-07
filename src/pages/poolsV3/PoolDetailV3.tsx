@@ -246,59 +246,6 @@ export default function PoolDetailV3() {
     }
     set_user_liquidities(user_liqudities_final);
   }
-  function displayRateDom() {
-    const {
-      current_point,
-      token_x_metadata,
-      token_y_metadata,
-      token_x,
-      token_y,
-    } = poolDetail;
-    const rate =
-      Math.pow(10, token_x_metadata.decimals) /
-      Math.pow(10, token_y_metadata.decimals);
-    let price = getPriceByPoint(current_point, rate);
-    let tokenPrice = tokenPriceList[token_x]?.price;
-    if (!currentRateDirection) {
-      price = new BigNumber(1).dividedBy(price).toFixed();
-      tokenPrice = tokenPriceList[token_y]?.price;
-    }
-    let displayTokenPrice;
-    let displayRate;
-    if (!tokenPrice) {
-      displayTokenPrice = '-';
-    } else if (new BigNumber(tokenPrice).isLessThan('0.001')) {
-      displayTokenPrice = '<$0.001';
-    } else {
-      displayTokenPrice = `$${toPrecision(tokenPrice.toString(), 3)}`;
-    }
-    if (new BigNumber(price).isLessThan('0.001')) {
-      displayRate = ' < 0.001';
-    } else {
-      displayRate = ` = ${toPrecision(price.toString(), 3)}`;
-    }
-    if (currentRateDirection) {
-      return (
-        <span>
-          1 {token_x_metadata.symbol}
-          <label className="text-primaryText">({displayTokenPrice})</label>
-          {displayRate} {token_y_metadata.symbol}
-        </span>
-      );
-    } else {
-      return (
-        <span>
-          1 {token_y_metadata.symbol}
-          <label className="text-primaryText">({displayTokenPrice})</label>
-          {displayRate} {token_x_metadata.symbol}
-        </span>
-      );
-    }
-  }
-  function switchRateButton() {
-    const now_direction = !currentRateDirection;
-    setCurrentRateDirection(now_direction);
-  }
   const handleSaveWatchList = () => {
     if (!isSignedIn) {
       modal.show();
@@ -631,6 +578,11 @@ function YourLiquidityBox(props: {
   const [earned_fee_x_amount, set_earned_fee_x_amount] = useState<any>();
   const [earned_fee_y_amount, set_earned_fee_y_amount] = useState<any>();
   const [operationType, setOperationType] = useState('add');
+  const [hover, setHover] = useState<boolean>(false);
+  const [noReverseRange, setNoReverseRange] = useState(true);
+  const [removeButtonTip, setRemoveButtonTip] = useState<boolean>(false);
+  const [is_in_farming, set_is_in_farming] = useState<boolean>(false);
+  const [is_in_farming_done, set_is_in_farming_done] = useState<boolean>(false);
   const { token_x_metadata, token_y_metadata, pool_id } = poolDetail;
   const { accountId } = useWalletSelector();
   const history = useHistory();
@@ -638,7 +590,6 @@ function YourLiquidityBox(props: {
   if (TOKEN_LIST_FOR_RATE.indexOf(token_x_metadata.symbol) > -1) {
     pair_is_reverse = true;
   }
-
   useEffect(() => {
     if (liquidities) {
       const temp_list: UserLiquidityDetail[] = [];
@@ -696,6 +647,19 @@ function YourLiquidityBox(props: {
       get_24_apr_and_fee();
     }
   }, [poolDetail, tokenPriceList]);
+  useEffect(() => {
+    if (liquidities) {
+      const target = liquidities.find((l: UserLiquidityInfo) => {
+        return Big(l.part_farm_ratio || 0).gt(0);
+      });
+      if (target) {
+        set_is_in_farming(true);
+      } else {
+        set_is_in_farming(false);
+      }
+      set_is_in_farming_done(true);
+    }
+  }, [liquidities]);
   async function get_24_apr_and_fee() {
     let apr_24 = '0';
     let total_fee_earned = '0';
@@ -878,10 +842,6 @@ function YourLiquidityBox(props: {
     setOperationType('remove');
     setShowSelectLiquidityBox(true);
   }
-  const [hover, setHover] = useState<boolean>(false);
-
-  const [noReverseRange, setNoReverseRange] = useState(true);
-
   function getGroupLiquidities() {
     const tokenMetadata_x_y = [token_x_metadata, token_y_metadata];
 
@@ -1102,16 +1062,52 @@ function YourLiquidityBox(props: {
         >
           <FormattedMessage id="add" />
         </GradientButton>
-        <OprationButton
-          onClick={(e: any) => {
-            e.stopPropagation();
-            removeLiquidity();
+        <div
+          className={`relative flex items-center flex-grow`}
+          onMouseEnter={() => {
+            if (is_in_farming) {
+              setRemoveButtonTip(true);
+            }
           }}
-          color="#fff"
-          className={`flex-grow  w-1 h-11  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover }`}
+          onMouseLeave={() => {
+            if (is_in_farming) {
+              setRemoveButtonTip(false);
+            }
+          }}
         >
-          <FormattedMessage id="remove" />
-        </OprationButton>
+          <OprationButton
+            onClick={(e: any) => {
+              e.stopPropagation();
+              removeLiquidity();
+            }}
+            disabled={is_in_farming || !is_in_farming_done}
+            color="#fff"
+            className={`flex-grow  w-1 h-11  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
+              is_in_farming || !is_in_farming_done
+                ? 'opacity-30 pointer-events-none'
+                : ''
+            } }`}
+          >
+            <FormattedMessage id="remove" />
+          </OprationButton>
+          <div
+            className={`${
+              removeButtonTip ? '' : 'hidden'
+            } absolute z-50 left-20 border border-primaryText rounded-md px-2 py-1.5 text-xs text-farmText w-56 bg-cardBg`}
+          >
+            You have liquidity in farm, please unstake from{' '}
+            <a
+              className="underline cursor-pointer"
+              onClick={() => {
+                localStorage.setItem('BOOST_FARM_TAB', 'yours');
+                openUrl('/v2farms');
+              }}
+            >
+              Your Farm
+            </a>{' '}
+            first.
+          </div>
+        </div>
       </div>
       <SelectLiquidityBox
         isOpen={showSelectLiquidityBox}

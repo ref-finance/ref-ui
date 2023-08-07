@@ -349,20 +349,12 @@ export default function FarmsDclDetail(props: {
         }
       );
       if (liquidities_minted_in_another_seed.length > 0) {
-        const liquidity_another = liquidities_minted_in_another_seed[0];
-        const { mft_id } = liquidity_another;
-        const list_new = JSON.parse(JSON.stringify(list));
-        const seed_id_another =
-          REF_UNI_V3_SWAP_CONTRACT_ID + '@' + mft_id.slice(1);
-        const { free_amount = '0', locked_amount = '0' } =
-          user_seeds_map[seed_id_another] || {};
-        const user_seed_amount_another = new BigNumber(free_amount)
-          .plus(locked_amount)
-          .toFixed();
-        const seed_another = all_seeds.find((seed: Seed) => {
-          return seed.seed_id == seed_id_another;
-        });
-        if (seed_another) {
+        const another_seeds = get_another_seeds(
+          liquidities_minted_in_another_seed
+        );
+        Object.values(another_seeds).forEach((another_seed_detail: any) => {
+          const list_new = JSON.parse(JSON.stringify(list));
+          const [seed_another, user_seed_amount_another] = another_seed_detail;
           const [
             temp_farming_another,
             temp_free_another,
@@ -390,7 +382,7 @@ export default function FarmsDclDetail(props: {
               }
             }
           );
-        }
+        });
         const temp_unavailable_new: UserLiquidityInfo[] = [];
         const frees_extra = temp_unavailable.filter(
           (liquidity: UserLiquidityInfo) => {
@@ -425,6 +417,26 @@ export default function FarmsDclDetail(props: {
       setListLiquidities(matched_liquidities);
       setListLiquiditiesLoading(false);
     }
+  }
+  function get_another_seeds(minted_liquidities: UserLiquidityInfo[]) {
+    const target: any = {};
+    minted_liquidities.forEach((liquidity_minted_in_another_seed) => {
+      const { mft_id } = liquidity_minted_in_another_seed;
+      const seed_id_another =
+        REF_UNI_V3_SWAP_CONTRACT_ID + '@' + mft_id.slice(1);
+      const { free_amount = '0', locked_amount = '0' } =
+        user_seeds_map[seed_id_another] || {};
+      const user_seed_amount_another = new BigNumber(free_amount)
+        .plus(locked_amount)
+        .toFixed();
+      const seed_another: Seed = all_seeds.find((seed: Seed) => {
+        return seed.seed_id == seed_id_another;
+      });
+      if (seed_another) {
+        target[seed_another.seed_id] = [seed_another, user_seed_amount_another];
+      }
+    });
+    return target;
   }
   function sortTokens(tokens: TokenMetadata[]) {
     tokens.sort((a: TokenMetadata, b: TokenMetadata) => {

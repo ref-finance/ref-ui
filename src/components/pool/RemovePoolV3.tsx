@@ -536,7 +536,6 @@ export const RemovePoolV3 = (props: any) => {
       batch_remove_liquidity,
       batch_update_liquidity,
       mint_liquidities,
-      // widthdraw_infos,
     });
   }
   function get_minimum_received_data() {

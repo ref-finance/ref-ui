@@ -1360,20 +1360,24 @@ export const batch_unStake_boost_nft = async ({
       ],
     });
   }
+  const lpt_ids: string[] = [];
   liquidities.forEach((l: UserLiquidityInfo) => {
+    lpt_ids.push(l.lpt_id);
+  });
+  if (lpt_ids.length) {
     transactions.push({
       receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
       functionCalls: [
         {
-          methodName: 'burn_v_liquidity',
+          methodName: 'batch_burn_v_liquidity',
           args: {
-            lpt_id: l.lpt_id,
+            lpt_ids,
           },
-          gas: '200000000000000',
+          gas: '250000000000000',
         },
       ],
     });
-  });
+  }
   const neededStorage = await checkTokenNeedsStorageDeposit_boost();
   if (neededStorage) {
     transactions.unshift({
@@ -1394,18 +1398,12 @@ export const batch_stake_boost_nft = async ({
   const [fixRange, dcl_pool_id, left_point, right_point] =
     temp_pool_id.split('&');
   const transactions: Transaction[] = [];
+  const mint_infos: any[] = [];
   liquidities.forEach((l: UserLiquidityInfo) => {
     const { lpt_id, mft_id } = l;
     const functionCalls = [];
     if (!mft_id) {
-      functionCalls.push({
-        methodName: 'mint_v_liquidity',
-        args: {
-          lpt_id,
-          dcl_farming_type: JSON.parse(fixRange),
-        },
-        gas: '60000000000000',
-      });
+      mint_infos.push([lpt_id, JSON.parse(fixRange)]);
     } else if (liquidity_is_in_other_seed(seed_id, mft_id)) {
       functionCalls.push(
         {
@@ -1448,6 +1446,18 @@ export const batch_stake_boost_nft = async ({
       });
     }
   });
+  if (mint_infos.length) {
+    transactions.push({
+      receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'batch_mint_v_liquidity',
+          args: { mint_infos },
+          gas: '200000000000000',
+        },
+      ],
+    });
+  }
   transactions.push({
     receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
     functionCalls: [

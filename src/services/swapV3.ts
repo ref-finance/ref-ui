@@ -1261,34 +1261,31 @@ export const batch_remove_liquidity_contract = async ({
   batch_remove_liquidity,
   batch_update_liquidity,
   mint_liquidities,
-}: // widthdraw_infos,
-{
+}: {
   token_x: TokenMetadata;
   token_y: TokenMetadata;
   batch_remove_liquidity: IRemoveLiquidityInfo[];
   batch_update_liquidity: IBatchUpdateiquidityInfo;
   mint_liquidities: UserLiquidityInfo[];
-  // widthdraw_infos: {
-  //   min_withdraw_token_x_amount: string;
-  //   min_withdraw_token_y_amount: string;
-  // };
 }) => {
   const max_number = 10;
   const transactions: Transaction[] = [];
   if (mint_liquidities.length) {
-    const functionCallsV3: any = [];
+    const lpt_ids: any[] = [];
     mint_liquidities.forEach((l: UserLiquidityInfo) => {
-      functionCallsV3.push({
-        methodName: 'burn_v_liquidity',
-        args: {
-          lpt_id: l.lpt_id,
-        },
-        gas: '20000000000000',
-      });
+      lpt_ids.push(l.lpt_id);
     });
     transactions.push({
       receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
-      functionCalls: functionCallsV3,
+      functionCalls: [
+        {
+          methodName: 'batch_burn_v_liquidity',
+          args: {
+            lpt_ids,
+          },
+          gas: '250000000000000',
+        },
+      ],
     });
   }
   if (batch_remove_liquidity) {
@@ -1395,9 +1392,6 @@ export const batch_remove_liquidity_contract = async ({
       ],
     });
   }
-
-  // width draw
-
   return executeMultipleTransactions(transactions);
 };
 

@@ -349,23 +349,23 @@ export function YourLiquidityV2(props: any) {
   return (
     <div>
       {liquidityLoadingDone && (
-        <div className="grid grid-cols-6 px-6 text-sm text-primaryText">
-          <div className="col-span-2 ">
+        <div className="grid grid-cols-11 px-6 text-sm text-primaryText">
+          <div className="col-span-4 ">
             <FormattedMessage
               id="pool"
               defaultMessage={'Pool'}
             ></FormattedMessage>
           </div>
 
-          <div className="col-span-2 ">
+          <div className="col-span-3 ">
             <FormattedMessage
               id="price_range"
               defaultMessage={'Price Range'}
             ></FormattedMessage>
           </div>
 
-          <div className="col-span-1 ">Trailing 24hr APR</div>
-          <div className="col-span-1 ">
+          <div className="col-span-2 ">Trailing 24hr APR</div>
+          <div className="col-span-2 ">
             <FormattedMessage
               id="your_liquidity"
               defaultMessage={'Your Liquidity'}
@@ -1679,6 +1679,9 @@ function UserLiquidityLineStyleGroup1({
   const [farm_icon, set_farm_icon] = useState<'single' | 'muti'>();
   const [tip_seed, set_tip_seed] = useState<ILatestSeedTip>();
   const [joined_seeds, set_joined_seeds] = useState<IUserJoinedSeed>();
+  const [joined_seeds_done, set_joined_seeds_done] = useState<boolean>(false);
+
+  const [removeButtonTip, setRemoveButtonTip] = useState<boolean>(false);
 
   const tokens = sort_tokens_by_base(tokenMetadata_x_y);
   const { accountId } = useWalletSelector();
@@ -1688,7 +1691,6 @@ function UserLiquidityLineStyleGroup1({
       get_24_apr();
     }
   }, [poolDetail, tokenPriceList, tokenMetadata_x_y]);
-  // todo
   useEffect(() => {
     if (
       all_seeds.length &&
@@ -1801,6 +1803,7 @@ function UserLiquidityLineStyleGroup1({
           }
         );
       set_joined_seeds(joined_seeds);
+      set_joined_seeds_done(true);
     }
   }, [groupYourLiquidityList, liquidities_list, tokenPriceList, all_seeds]);
 
@@ -2073,11 +2076,11 @@ function UserLiquidityLineStyleGroup1({
     >
       {/* for PC */}
       <div className="relative flex flex-col items-center xs:hidden md:hidden">
-        <div className="w-full rounded-xl overflow-hidden">
+        <div className="w-full">
           <div
-            className={`relative p-6 cursor-pointer grid grid-cols-6  ${
-              hover ? 'bg-v3HoverDarkBgColor' : 'bg-cardBg'
-            }`}
+            className={`relative p-6 cursor-pointer grid  grid-cols-11 overflow-hidden ${
+              !tip_seed && !hover ? 'rounded-xl' : 'rounded-t-xl'
+            }  ${hover ? 'bg-v3HoverDarkBgColor' : 'bg-cardBg'}`}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -2085,7 +2088,7 @@ function UserLiquidityLineStyleGroup1({
             }}
           >
             {/* 1/3 */}
-            <div className="frcs col-span-2">
+            <div className="flex items-start col-span-4">
               <div className="flex items-center flex-shrink-0">
                 <img
                   src={tokens[0]?.icon}
@@ -2121,7 +2124,7 @@ function UserLiquidityLineStyleGroup1({
             </div>
             {/* 2/3 */}
             {/* Price Range */}
-            <div className="col-span-2">
+            <div className="col-span-3">
               <div className=" flex flex-wrap">
                 {intersectionRangeList.map((range: string[], i: number) => {
                   return (
@@ -2162,7 +2165,7 @@ function UserLiquidityLineStyleGroup1({
               </div>
             </div>
             {/* Trailing 24hr APR */}
-            <div className="text-white flex flex-col gap-2  text-sm">
+            <div className="text-white flex flex-col gap-2  text-sm col-span-2">
               <span>{accountAPR || '-'}</span>
               {joined_seeds ? (
                 <div className="flex flex-col gap-2">
@@ -2209,7 +2212,7 @@ function UserLiquidityLineStyleGroup1({
               ) : null}
             </div>
             {/* Your Liquidity */}
-            <div className=" text-white text-sm flex flex-col gap-2 pl-2">
+            <div className=" text-white text-sm flex flex-col gap-2 pl-2 col-span-2">
               {your_liquidity}
               {joined_seeds ? (
                 <div className="flex flex-col gap-2">
@@ -2275,38 +2278,15 @@ function UserLiquidityLineStyleGroup1({
                   </a>
                 </div>
               ) : null}
-              {/* {related_seed_info.your_apr ? (
-                <div className="frcs gap-1 text-primaryText">
-                  <span>{in_farm_percent}</span>
-                  <span>
-                    <FormattedMessage
-                      id="in"
-                      defaultMessage={'in'}
-                    ></FormattedMessage>
-                  </span>
-
-                  <span
-                    className="underline text-primaryText hover:text-gradientFromHover cursor-pointer"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      go_farm();
-                    }}
-                  >
-                    <FormattedMessage
-                      id="farm"
-                      defaultMessage={'farm'}
-                    ></FormattedMessage>
-                  </span>
-                </div>
-              ) : (
-                <span className="text-primaryText">-</span>
-              )} */}
             </div>
           </div>
           {/* tip */}
           {tip_seed ? (
-            <div className={`${hover ? 'bg-v3HoverDarkBgColor' : 'bg-cardBg'}`}>
+            <div
+              className={`overflow-hidden ${
+                hover ? 'bg-v3HoverDarkBgColor' : 'bg-cardBg rounded-b-xl'
+              }`}
+            >
               <div className="relative flex items-center pr-8  bg-dclFarmTipColor justify-end p-1">
                 <TipIon className="mr-2 flex-shrink-0"></TipIon>
                 <span className="text-sm mr-8  text-white">
@@ -2334,7 +2314,7 @@ function UserLiquidityLineStyleGroup1({
               hover ? '' : 'hidden'
             }`}
           >
-            <div className={`frcb bg-cardBg p-4`}>
+            <div className={`frcb bg-cardBg p-4 rounded-b-xl`}>
               {/* unclaimed fees */}
               <div className="frcc">
                 <span className="text-sm text-v3SwapGray mr-2.5">
@@ -2382,22 +2362,55 @@ function UserLiquidityLineStyleGroup1({
                 >
                   <FormattedMessage id="add" />
                 </GradientButton>
-                <BorderButton
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowRemoveBox(true);
-                  }}
-                  rounded="rounded-lg"
-                  disabled={!!joined_seeds}
-                  px="px-0"
-                  py="py-1"
-                  style={{ minWidth: '5rem' }}
-                  className={`flex-grow w-24  text-sm text-greenColor h-8 ${
-                    !!joined_seeds ? 'opacity-40' : ''
+                <div
+                  className={`relative flex items-center ${
+                    joined_seeds_done ? '' : 'hidden'
                   }`}
+                  onMouseEnter={() => {
+                    if (!!joined_seeds) {
+                      setRemoveButtonTip(true);
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    if (!!joined_seeds) {
+                      setRemoveButtonTip(false);
+                    }
+                  }}
                 >
-                  <FormattedMessage id="remove" />
-                </BorderButton>
+                  <BorderButton
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowRemoveBox(true);
+                    }}
+                    rounded="rounded-lg"
+                    disabled={!!joined_seeds}
+                    px="px-0"
+                    py="py-1"
+                    style={{ minWidth: '5rem' }}
+                    className={`flex-grow w-24  text-sm text-greenColor h-8 ${
+                      !!joined_seeds ? 'opacity-40 pointer-events-none' : ''
+                    }`}
+                  >
+                    <FormattedMessage id="remove" />
+                  </BorderButton>
+                  <div
+                    className={`${
+                      removeButtonTip ? '' : 'hidden'
+                    } absolute z-50 left-20 border border-primaryText rounded-md px-2 py-1.5 text-xs text-farmText w-56 bg-cardBg`}
+                  >
+                    You have liquidity in farm, please unstake from{' '}
+                    <a
+                      className="underline cursor-pointer"
+                      onClick={() => {
+                        localStorage.setItem('BOOST_FARM_TAB', 'yours');
+                        openUrl('/v2farms');
+                      }}
+                    >
+                      Your Farm
+                    </a>{' '}
+                    first.
+                  </div>
+                </div>
               </div>
             </div>
           </div>
