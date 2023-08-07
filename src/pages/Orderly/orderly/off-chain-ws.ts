@@ -111,28 +111,36 @@ export const usePrivateOrderlyWS = () => {
     });
 
   useEffect(() => {
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+
+      localStorage.removeItem('targetTime');
+    };
+  }, []);
+
+  const handleVisibilityChange = () => {
+    console.log('document.visibilityState: ', document.visibilityState);
+
+    if (document.visibilityState === 'visible') {
+      const savedTime = localStorage.getItem('targetTime');
+      console.log('savedTime: ', savedTime);
+
+      if (savedTime && Date.now() - Number(savedTime) > 5 * 60 * 1000) {
+        const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
+        storedValid && setNeedRefresh(true);
+      }
+      localStorage.setItem('targetTime', Date.now().toString());
+    } else {
+      localStorage.setItem('targetTime', Date.now().toString());
+    }
+  };
+
+  useEffect(() => {
     if (lastMessage !== null) {
       setMessageHistory((prev: any) => prev.concat(lastMessage));
     }
   }, [lastMessage, setMessageHistory]);
-
-  useEffect(() => {
-    let id: any;
-
-    if (readyState === ReadyState.CLOSED) {
-      id = setTimeout(() => {
-        setRefreshTrigger(true);
-      }, 150000);
-    } else if (id) {
-      setRefreshTrigger(false);
-      clearTimeout(id);
-    }
-    return () => {
-      if (id) {
-        clearTimeout(id);
-      }
-    };
-  }, [readyState]);
 
   useEffect(() => {
     if (refreshTrigger === true && readyState === ReadyState.CLOSED) {
