@@ -892,10 +892,22 @@ function FutureQuantityModal(
     console.log(tips);
   }, [tips]);
 
+  const scrollBack = () => {
+    const storedScrollTop = localStorage.getItem('mobile_scroll_top');
+
+    if (storedScrollTop) {
+      window.scrollTo(0, Number(storedScrollTop));
+      localStorage.removeItem('mobile_scroll_top');
+    }
+  };
+
   return (
     <Modal
       {...props}
-      onRequestClose={() => onClose && onClose(quantity)}
+      onRequestClose={() => {
+        onClose && onClose(quantity);
+        scrollBack();
+      }}
       style={{
         content: {
           position: 'fixed',
@@ -955,7 +967,11 @@ function FutureQuantityModal(
                 if (parseFloat(value) < 0) value = 0;
                 setInputQuantity(value);
               }}
-              className="text-white text-xl leading-tight px-2.5 pb-2 w-10/12 mr-2"
+              onFocus={() => {
+                const scrollTop = document.documentElement.scrollTop;
+                localStorage.setItem('mobile_scroll_top', scrollTop.toString());
+              }}
+              className="text-white text-xl leading-tight px-2.5 pb-2 w-10/12 mr-2 input-field"
               style={{ borderBottomColor: '#FFFFFF1A', borderBottomWidth: 1 }}
             />
             <button
@@ -964,6 +980,7 @@ function FutureQuantityModal(
               onClick={() => {
                 // @ts-ignore
                 onClose && onClose(parseFloat(inputQuantity));
+                scrollBack();
               }}
             >
               <span>{intl.formatMessage({ id: 'save' })}</span>
