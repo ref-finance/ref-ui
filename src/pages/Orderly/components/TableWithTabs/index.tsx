@@ -820,7 +820,7 @@ export function TableWithOutTabs({
         return row.symbol === symbol;
       }
     },
-    [showCurSymbol]
+    [showCurSymbol, symbol]
   );
 
   const data = (newPositions?.rows || []).filter(filterFunc);
