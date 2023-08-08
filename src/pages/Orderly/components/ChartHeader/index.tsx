@@ -455,11 +455,11 @@ function ChartHeader(props?: any) {
       }}
     >
       <div className="rounded-xl frcs mr-2 gap-1 xs:hidden text-13px border border-v3SwapGray p-1 border-opacity-20 ">
-        {['spot', 'perp'].map((type) => {
+        {['spot', 'perps'].map((type) => {
           return (
             <div
               className={`px-2.5 py-1 rounded-lg ${
-                symbolType.toString().toLowerCase() === type
+                type.indexOf(symbolType.toString().toLowerCase()) > -1
                   ? 'bg-mobileOrderBg text-white'
                   : 'text-primaryText'
               } cursor-pointer`}

@@ -194,8 +194,8 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
 
         const symbolFromStored = storedSymbol.split('_')[1];
 
-        if (symbolFrom.indexOf('BTC') > 0) {
-          return symbolFromStored.indexOf('BTC') > 0;
+        if (symbolFrom.indexOf('BTC') > -1) {
+          return symbolFromStored.indexOf('BTC') > -1;
         } else {
           return symbolFromStored === symbolFrom;
         }
@@ -222,8 +222,8 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
 
         const symbolFromStored = storedSymbol.split('_')[1];
 
-        if (symbolFrom.indexOf('BTC') > 0) {
-          return symbolFromStored.indexOf('BTC') > 0;
+        if (symbolFrom.indexOf('BTC') > -1) {
+          return symbolFromStored.indexOf('BTC') > -1;
         } else {
           return symbolFromStored === symbolFrom;
         }
