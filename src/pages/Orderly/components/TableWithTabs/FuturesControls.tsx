@@ -878,6 +878,9 @@ function FutureQuantityModal(
   const [inputQuantity, setInputQuantity] = useState<number>(
     Math.abs(position_qty)
   );
+
+  console.log('inputQuantity: ', inputQuantity);
+
   const [tips, setTips] = useState<string>('');
   const portfolioFailure = usePortfolioFailure();
 
@@ -1574,7 +1577,7 @@ const FutureMobileRow: React.FC<{
 
   useEffect(() => {
     setQuantity(Math.abs(position_qty));
-  }, [row]);
+  }, [row.position_qty]);
 
   useEffect(() => {
     getPendingOrders();
@@ -1919,6 +1922,7 @@ export const FutureMobileViewPerpPage: React.FC<{
   totalDailyReal: string;
   totalNotional: string;
   newPositions: any;
+  showCurSymbol: boolean;
 }> = ({
   marketList,
   children,
@@ -1933,28 +1937,37 @@ export const FutureMobileViewPerpPage: React.FC<{
   totalDailyReal,
   totalNotional,
   newPositions,
+  showCurSymbol,
 }) => {
   const intl = useIntl();
 
   const { rows } = newPositions || {};
 
+  const { symbol } = useOrderlyContext();
+
+  const filterFunc = (row: any) => {
+    const c1 = row.position_qty !== 0;
+
+    if (showCurSymbol) {
+      return row.symbol === symbol && c1;
+    } else return c1;
+  };
+
   return (
     <div className="w-full">
-      {rows
-        ?.filter((row: any) => row.position_qty !== 0)
-        .map((row: any) => (
-          <FutureMobileRow
-            key={row.symbol}
-            row={row}
-            marketList={marketList}
-            handleOpenClosing={handleOpenClosing}
-            unrealMode={unrealMode}
-            setUnrealMode={setUnrealMode}
-            futureOrders={futureOrders}
-            markPrices={markPrices}
-            lastPrices={lastPrices}
-          />
-        ))}
+      {rows?.filter(filterFunc).map((row: any) => (
+        <FutureMobileRow
+          key={row.symbol}
+          row={row}
+          marketList={marketList}
+          handleOpenClosing={handleOpenClosing}
+          unrealMode={unrealMode}
+          setUnrealMode={setUnrealMode}
+          futureOrders={futureOrders}
+          markPrices={markPrices}
+          lastPrices={lastPrices}
+        />
+      ))}
     </div>
   );
 };

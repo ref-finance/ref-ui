@@ -813,19 +813,6 @@ export function TableWithOutTabs({
   //   if (!!newPositions?.rows) setData(newPositions?.rows);
   // }, [newPositions]);
 
-  // useEffect(() => {
-  //   if (data && data.length > 1 && data.length < 10 && id === 'open_orders') {
-  //     const currentScrollPosition = window.scrollY || window.pageYOffset;
-  //     const newScrollPosition = currentScrollPosition - 100;
-
-  //     window.scroll({
-  //       top: newScrollPosition,
-  //       left: 0,
-  //       behavior: 'auto',
-  //     });
-  //   }
-  // }, [data]);
-
   const filterFunc = useCallback(
     (row: any) => {
       if (!showCurSymbol) return true;

@@ -1752,6 +1752,7 @@ export const usePortableOrderlyTablePositions = ({
             totalNotional={totalNotional}
             portfolioUnsettle={portfolioUnsettle}
             newPositions={newPositions}
+            showCurSymbol={showCurSymbol}
           >
             <div></div>
           </FutureMobileViewPerpPage>
