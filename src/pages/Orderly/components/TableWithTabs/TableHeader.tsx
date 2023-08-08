@@ -2,22 +2,33 @@ import React, { useState, useEffect } from 'react';
 import { MdArrowDropDown } from 'react-icons/md';
 import { useIntl } from 'react-intl';
 import { CheckSelector } from '../Common/Icons';
-import {
-  PortfolioTableColumns
-} from '../../orderly/type';
+import { PortfolioTableColumns } from '../../orderly/type';
 
 export default function TableHeader({
   column,
   loading,
   sort,
-  setSort
+  setSort,
 }: {
   loading: boolean;
   column: PortfolioTableColumns;
   sort: [string | string[], 'asc' | 'dsc'];
   setSort: (s: [string | string[], 'asc' | 'dsc']) => void;
 }) {
-  const { colSpan = 1, key, sortKey, header, mobileHeaderKey, extras, list, icon, suffix, headerType, setSelect, select } = column;
+  const {
+    colSpan = 1,
+    key,
+    sortKey,
+    header,
+    mobileHeaderKey,
+    extras,
+    list,
+    icon,
+    suffix,
+    headerType,
+    setSelect,
+    select,
+  } = column;
 
   const [showSelector, setShowSelector] = useState<boolean>(false);
 
@@ -32,15 +43,20 @@ export default function TableHeader({
 
   return (
     <>
-      <th className={`col-span-${colSpan} pb-2 flex items-center`}>
+      <th className={`col-span-${colSpan} py-2 flex items-center`}>
         <div
-          className={`flex items-center relative text-left ${extras ? 'cursor-pointer' : ''}`}
+          className={`flex items-center relative text-left ${
+            extras ? 'cursor-pointer' : ''
+          }`}
           onClick={(e: any) => {
-            if (!(extras?.includes('select') || extras?.includes('radio')) && extras?.includes('sort')) {
+            if (
+              !(extras?.includes('select') || extras?.includes('radio')) &&
+              extras?.includes('sort')
+            ) {
               if (JSON.stringify(sort[0]) !== JSON.stringify(sortKey)) {
-                setSort([sortKey, 'asc'])
+                setSort([sortKey, 'asc']);
               } else {
-                setSort([sortKey, sort[1] === 'asc' ? 'dsc' : 'asc'])
+                setSort([sortKey, sort[1] === 'asc' ? 'dsc' : 'asc']);
               }
             }
             if (extras?.includes('select') || extras?.includes('radio')) {
@@ -52,53 +68,79 @@ export default function TableHeader({
         >
           <span
             className="hidden md:flex lg:flex items-center"
-            style={{ color: (JSON.stringify(sort[0]) === JSON.stringify(sortKey) || showSelector) ? 'white' : '#7E8A93' }}
+            style={{
+              color:
+                JSON.stringify(sort[0]) === JSON.stringify(sortKey) ||
+                showSelector
+                  ? 'white'
+                  : '#7E8A93',
+            }}
           >
-            {icon && (
-              <div className="mr-1.5">{icon}</div>
-            )}
+            {icon && <div className="mr-1.5">{icon}</div>}
             <span
               className={`
                 ${headerType === 'dashed' ? ' underline' : ''}
               `}
               style={{
-                textDecorationStyle: headerType === 'dashed' ? 'dashed' : 'solid'
+                textDecorationStyle:
+                  headerType === 'dashed' ? 'dashed' : 'solid',
               }}
             >
-              {header && intl.formatMessage({
-                id: key,
-                defaultMessage: header,
-              })}
+              {header &&
+                intl.formatMessage({
+                  id: key,
+                  defaultMessage: header,
+                })}
             </span>
           </span>
           {suffix && suffix}
           <span
             className="md:hidden lg:hidden flex"
-            style={{ color: (JSON.stringify(sort[0]) === JSON.stringify(sortKey) || showSelector) ? 'white' : '#7E8A93' }}
+            style={{
+              color:
+                JSON.stringify(sort[0]) === JSON.stringify(sortKey) ||
+                showSelector
+                  ? 'white'
+                  : '#7E8A93',
+            }}
           >
             {icon && icon}
             <span className="ml-2">
-              {header && intl.formatMessage({
-                id: mobileHeaderKey ? mobileHeaderKey : key,
-                defaultMessage: header,
-              })}
+              {header &&
+                intl.formatMessage({
+                  id: mobileHeaderKey ? mobileHeaderKey : key,
+                  defaultMessage: header,
+                })}
             </span>
           </span>
-          {(extras?.includes('sort') || extras?.includes('select') || extras?.includes('radio')) && (
+          {(extras?.includes('sort') ||
+            extras?.includes('select') ||
+            extras?.includes('radio')) && (
             <MdArrowDropDown
               className={`
-                ${(extras?.includes('sort') && (JSON.stringify(sort[0]) === JSON.stringify(sortKey) && sort[1] === 'asc')) ? 'transform rotate-180' : ''}
+                ${
+                  extras?.includes('sort') &&
+                  JSON.stringify(sort[0]) === JSON.stringify(sortKey) &&
+                  sort[1] === 'asc'
+                    ? 'transform rotate-180'
+                    : ''
+                }
               `}
               style={{ flex: '0 0 22px' }}
               size={22}
-              color={(JSON.stringify(sort[0]) === JSON.stringify(sortKey) || showSelector) ? 'white' : '#7E8A93'}
+              color={
+                JSON.stringify(sort[0]) === JSON.stringify(sortKey) ||
+                showSelector
+                  ? 'white'
+                  : '#7E8A93'
+              }
               onClick={(e: any) => {
                 e.stopPropagation();
                 if (extras?.includes('sort')) {
                   if (JSON.stringify(sort[0]) !== JSON.stringify(sortKey)) {
-                    setSort([sortKey, 'asc'])
+                    setSort([sortKey, 'asc']);
                   } else {
-                    setSort([sortKey, sort[1] === 'asc' ? 'dsc' : 'asc'])
+                    setSort([sortKey, sort[1] === 'asc' ? 'dsc' : 'asc']);
                   }
                 }
               }}
@@ -116,8 +158,14 @@ export default function TableHeader({
                       className={`whitespace-nowrap flex items-center justify-between cursor-pointer min-w-fit my-0.5 text-left px-1 py-1 w-full rounded-md ${
                         item.className
                       } ${
-                        (extras?.includes('select') && select === item.textId) ? 'bg-symbolHover2' : ''
-                      } ${extras?.includes('select') ? 'hover:bg-symbolHover2' : ''} `}
+                        extras?.includes('select') && select === item.textId
+                          ? 'bg-symbolHover2'
+                          : ''
+                      } ${
+                        extras?.includes('select')
+                          ? 'hover:bg-symbolHover2'
+                          : ''
+                      } `}
                       key={item.textId + index}
                       onClick={(e) => {
                         e.preventDefault();
@@ -128,11 +176,17 @@ export default function TableHeader({
                     >
                       {extras?.includes('radio') && (
                         <div className="mr-2 border border-baseGreen bg-symbolHover2 border-solid w-3 h-3 rounded-full">
-                          {select === item.textId && <div className="w-2 h-2 bg-baseGreen rounded-full m-px" />}
+                          {select === item.textId && (
+                            <div className="w-2 h-2 bg-baseGreen rounded-full m-px" />
+                          )}
                         </div>
                       )}
-                      <span className="whitespace-nowrap pr-2">{item.text}</span>
-                      {(extras?.includes('select') && select === item.textId)&& <CheckSelector />}
+                      <span className="whitespace-nowrap pr-2">
+                        {item.text}
+                      </span>
+                      {extras?.includes('select') && select === item.textId && (
+                        <CheckSelector />
+                      )}
                     </div>
                   );
                 })}
@@ -140,7 +194,6 @@ export default function TableHeader({
             </div>
           )}
         </div>
-
       </th>
     </>
   );

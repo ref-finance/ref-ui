@@ -253,6 +253,26 @@ function PositionsTable({
     });
   };
 
+  const getFutureOrders = async () => {
+    const { data } = await getPortfolioAllOrders({
+      accountId,
+      OrderProps: {
+        page: 1,
+        size: 500,
+        status: 'INCOMPLETE',
+      },
+    });
+    const filterOrders: MyOrder[] = data.rows.filter((order: MyOrder) =>
+      order.symbol.includes('PERP')
+    );
+
+    setFutureOrders(filterOrders);
+  };
+
+  useEffect(() => {
+    getFutureOrders();
+  }, [myPendingOrdersRefreshing, triggerPositionBasedData]);
+
   const [futureOrders, setFutureOrders] = useState<MyOrder[]>([]);
 
   if (hidden) return null;
