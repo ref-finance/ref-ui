@@ -115,7 +115,7 @@ export const usePrivateOrderlyWS = () => {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
 
-      localStorage.removeItem('targetTime');
+      sessionStorage.removeItem('targetTime');
     };
   }, []);
 
@@ -123,16 +123,16 @@ export const usePrivateOrderlyWS = () => {
     console.log('document.visibilityState: ', document.visibilityState);
 
     if (document.visibilityState === 'visible') {
-      const savedTime = localStorage.getItem('targetTime');
+      const savedTime = sessionStorage.getItem('targetTime');
       console.log('savedTime: ', savedTime);
 
       if (savedTime && Date.now() - Number(savedTime) > 5 * 60 * 1000) {
         const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
         storedValid && setNeedRefresh(true);
       }
-      localStorage.setItem('targetTime', Date.now().toString());
+      sessionStorage.setItem('targetTime', Date.now().toString());
     } else {
-      localStorage.setItem('targetTime', Date.now().toString());
+      sessionStorage.setItem('targetTime', Date.now().toString());
     }
   };
 
