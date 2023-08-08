@@ -16,6 +16,19 @@ export const formatWithCommas_usd = (v: string | number) => {
     return '$' + formatWithCommas(big.toFixed(0, 1));
   }
 };
+export const formatWithCommas_usd_down = (v: string | number) => {
+  if (isInvalid(v)) return '$-';
+  const big = Big(v);
+  if (big.eq(0)) {
+    return '$0';
+  } else if (big.lt(0.01)) {
+    return '<$0.01';
+  } else if (big.lt(10000)) {
+    return '$' + formatWithCommas(big.toFixed(2, 0));
+  } else {
+    return '$' + formatWithCommas(big.toFixed(0, 0));
+  }
+};
 
 export const formatPercentage = (v: string | number) => {
   if (isInvalid(v)) return '-%';

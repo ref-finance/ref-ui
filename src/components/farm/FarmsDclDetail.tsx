@@ -1102,8 +1102,43 @@ export default function FarmsDclDetail(props: {
       seed_id: detailData.seed_id,
     };
   }
+  // unavailable 有没有把 min 过滤掉????
+  function get_unavailable_text() {
+    let tip = '';
+    const { seed_id, min_deposit } = detailData;
+    const { liquidities, total_v_liquidity } = get_stake_info();
+    if (liquidities.length == 0) {
+      for (let i = 0; i < listLiquidities_unavailable.length; i++) {
+        const liquidity = listLiquidities_unavailable[i];
+        const [left_point, right_point] = get_valid_range(liquidity, seed_id);
+        const inrange = +right_point > +left_point;
+        if (!inrange) {
+          tip = intl.formatMessage({ id: 'your_price_range_tip' });
+          break;
+        } else if (liquidity.status_in_other_seed == 'staked') {
+          tip = intl.formatMessage({ id: 'position_has_staked_tip' });
+        } else {
+          // min deposit
+          const rate = new BigNumber(min_deposit).dividedBy(total_v_liquidity);
+          let rate_display = rate.toFixed(1);
+          if (rate.isGreaterThan(rate_display)) {
+            rate_display = new BigNumber(rate_display).plus(0.1).toFixed();
+          }
+          // your liquidity
+          tip =
+            intl.formatMessage({ id: 'minimum_tip' }) +
+            ' ' +
+            `${rate_display}x` +
+            ' ' +
+            intl.formatMessage({ id: 'your_liquidity_3' });
+        }
+      }
+    }
+  }
   /** new end */
   const isEmpty = !canStake && !canUnStake;
+  const stakeDisabled = !canStake || nft_stake_loading;
+
   return (
     <div className={`m-auto lg:w-700px md:w-5/6 xs:w-11/12  xs:-mt-4 md:-mt-4`}>
       <div className="flex items-center justify-between">
@@ -1411,41 +1446,41 @@ export default function FarmsDclDetail(props: {
                 {yp_farming_value}
               </span>
             </div>
-            {/* <div className="flex items-center justify-end text-primaryText mt-2">
-              {yp_percent} of your liquidity that can be farmed
-            </div> */}
           </div>
           <div className="flex items-center justify-between">
-            <div className="text-sm text-primaryText">
-              <span
-                className={`text-white ${
-                  isEmpty ? 'text-primaryText' : 'text-white'
-                }`}
-              >
-                {yp_unFarm_value}
-              </span>{' '}
-              available to stake
-            </div>
-            <div className="flex items-center">
-              {canStake ? (
-                <GradientButton
-                  color="#fff"
-                  disabled={nft_stake_loading}
-                  btnClassName={nft_stake_loading ? 'cursor-not-allowed' : ''}
-                  minWidth="6rem"
-                  onClick={batchStakeNFT}
-                  className={`h-8 px-4 text-center text-sm text-white focus:outline-none ${
-                    nft_stake_loading ? 'opacity-40' : ''
+            <div className="flex flex-col">
+              <div className="text-sm text-primaryText">
+                <span
+                  className={`text-white ${
+                    isEmpty ? 'text-primaryText' : 'text-white'
                   }`}
                 >
-                  <ButtonTextWrapper
-                    loading={nft_stake_loading}
-                    Text={() => (
-                      <FormattedMessage id="stake" defaultMessage="Stake" />
-                    )}
-                  />
-                </GradientButton>
-              ) : null}
+                  {yp_unFarm_value}
+                </span>{' '}
+                available to stake
+              </div>
+              <div className={`text-sm text-dclFarmYellowColor hidden`}>
+                The minimum staking amount is 2x your liquidity
+              </div>
+            </div>
+            <div className="flex items-center">
+              <GradientButton
+                color="#fff"
+                disabled={stakeDisabled}
+                btnClassName={stakeDisabled ? 'cursor-not-allowed' : ''}
+                minWidth="6rem"
+                onClick={batchStakeNFT}
+                className={`h-8 px-4 text-center text-sm text-white focus:outline-none ${
+                  stakeDisabled ? 'opacity-40' : ''
+                }`}
+              >
+                <ButtonTextWrapper
+                  loading={nft_stake_loading}
+                  Text={() => (
+                    <FormattedMessage id="stake" defaultMessage="Stake" />
+                  )}
+                />
+              </GradientButton>
               {canUnStake ? (
                 <OprationButton
                   color="#fff"

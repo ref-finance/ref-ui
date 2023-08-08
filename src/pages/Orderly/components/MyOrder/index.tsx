@@ -78,6 +78,7 @@ import { HiOutlineExternalLink } from 'react-icons/hi';
 import getConfig from '../../../../services/config';
 import _ from 'lodash';
 import { HistoryOrderSwapInfo } from '../../../../services/indexer';
+import { useDclPoolIdByUrl } from '../../../../state/swapV3';
 
 const ORDER_TYPE_KEY = 'REF_FI_ORDER_TYPE_VALUE';
 
@@ -2200,11 +2201,40 @@ function OrderCard({
   const [historySortBy, setHistorySortBy] = useState<'claimed' | 'created'>(
     'created'
   );
+  const [select_type, set_select_type] = useState<'all' | 'current'>('all');
+  const [activeOrderList, setActiveOrderList] = useState<UserOrderInfo[]>();
+  const [historyOrderList, setHistoryOrderList] = useState<UserOrderInfo[]>();
+  const pool_id_by_url = useDclPoolIdByUrl();
+  console.log('pool_id_by_url', pool_id_by_url);
+  useEffect(() => {
+    if (activeOrder.length) {
+      if (select_type == 'all') {
+        setActiveOrderList(activeOrder);
+      } else {
+        setActiveOrderList(getCurrentPairOrders(activeOrder));
+      }
+    }
+  }, [activeOrder, select_type]);
 
+  useEffect(() => {
+    if (historyOrder.length) {
+      if (select_type == 'all') {
+        setHistoryOrderList(historyOrder);
+      } else {
+        setHistoryOrderList(getCurrentPairOrders(historyOrder));
+      }
+    }
+  }, [historyOrder, select_type]);
+
+  function getCurrentPairOrders(orders: UserOrderInfo[]) {
+    return orders.filter((order: UserOrderInfo) => {
+      return order.pool_id == pool_id_by_url;
+    });
+  }
   function OrderTab() {
     if (isMobile()) {
       return (
-        <div className="frcb">
+        <div className="frcb w-full">
           <div className="text-white font-gothamBold">
             <FormattedMessage
               id="your_orders"
@@ -2234,8 +2264,8 @@ function OrderCard({
             >
               <span className="frcs">
                 <FormattedMessage id="active" defaultMessage={'Active'} />
-                {activeOrder && activeOrder.length > 0
-                  ? ` (${activeOrder.length})`
+                {activeOrderList && activeOrderList.length > 0
+                  ? ` (${activeOrderList.length})`
                   : null}
               </span>
             </button>
@@ -2256,8 +2286,8 @@ function OrderCard({
             >
               <span className="frcs">
                 <FormattedMessage id="history" defaultMessage={'History'} />
-                {historyOrder && historyOrder.length > 0
-                  ? ` (${historyOrder.length})`
+                {historyOrderList && historyOrderList.length > 0
+                  ? ` (${historyOrderList.length})`
                   : null}
               </span>
             </button>
@@ -2284,8 +2314,8 @@ function OrderCard({
               id="active_orders"
               defaultMessage={'Active Orders'}
             />
-            {activeOrder && activeOrder.length > 0
-              ? ` (${activeOrder.length})`
+            {activeOrderList && activeOrderList.length > 0
+              ? ` (${activeOrderList.length})`
               : null}
           </span>
 
@@ -2313,8 +2343,8 @@ function OrderCard({
         >
           <span>
             <FormattedMessage id="history" defaultMessage={'History'} />
-            {historyOrder && historyOrder.length > 0
-              ? ` (${historyOrder.length})`
+            {historyOrderList && historyOrderList.length > 0
+              ? ` (${historyOrderList.length})`
               : null}
           </span>
 
@@ -2406,7 +2436,27 @@ function OrderCard({
 
   return (
     <div className="flex flex-col">
-      {OrderTab()}
+      <div className="flex items-center justify-between xsm:flex-col xsm:items-end">
+        {OrderTab()}
+        <div className="flex items-center gap-6 xsm:mt-4 mb-4">
+          <SwitchTabItem
+            active={select_type == 'current'}
+            clickEvent={() => {
+              set_select_type('current');
+            }}
+          >
+            Current: NEAR/USDC
+          </SwitchTabItem>
+          <SwitchTabItem
+            active={select_type == 'all'}
+            clickEvent={() => {
+              set_select_type('all');
+            }}
+          >
+            All
+          </SwitchTabItem>
+        </div>
+      </div>
 
       <table
         className="border-separate xsm:block"
@@ -2623,8 +2673,8 @@ function OrderCard({
           )}
 
         {orderType === 'active' &&
-          activeOrder &&
-          activeOrder.sort(activeOrderSorting).map((order, index) => {
+          activeOrderList &&
+          activeOrderList.sort(activeOrderSorting).map((order, index) => {
             return (
               <ActiveLine
                 tokensMap={tokensMap}
@@ -2642,8 +2692,8 @@ function OrderCard({
             );
           })}
         {orderType === 'history' &&
-          historyOrder &&
-          historyOrder.sort(historyOrderSorting).map((order, index) => {
+          historyOrderList &&
+          historyOrderList.sort(historyOrderSorting).map((order, index) => {
             return (
               <HistoryLine
                 index={index}
@@ -2740,6 +2790,25 @@ function OrderCard({
               );
             })}
       </table>
+    </div>
+  );
+}
+
+function SwitchTabItem(props: any) {
+  const { active, clickEvent } = props;
+  return (
+    <div
+      className="flex items-center text-sm text-primaryText cursor-pointer"
+      onClick={clickEvent}
+    >
+      <span className="flex items-center justify-center rounded-full w-3.5 h-3.5 border border-greenColor border-opacity-50 mr-1">
+        <label
+          className={`w-2 h-2 rounded-full bg-greenColor ${
+            active ? '' : 'hidden'
+          }`}
+        ></label>
+      </span>
+      {props.children}
     </div>
   );
 }
@@ -3764,7 +3833,6 @@ function MyOrderComponent() {
   //   const result: string = `<div class="text-navHighLightText text-xs text-left xsm:w-40 whitespace-normal" >${n}</div>`;
   //   return result;
   // }
-
   return (
     <div className="max-w-7xl mx-auto flex flex-col xs:w-full md:5/6 lg:w-full">
       <PriceContext.Provider value={tokenPriceList}>
