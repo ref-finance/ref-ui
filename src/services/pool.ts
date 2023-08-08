@@ -6,6 +6,7 @@ import {
   REF_FI_CONTRACT_ID,
   Transaction,
   RefFiFunctionCallOptions,
+  BLACKLIST_POOL_IDS,
 } from './near';
 import db from '../store/RefDatabase';
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
@@ -1321,9 +1322,10 @@ export const getStablePoolFromCache = async (
 
 export const getAllStablePoolsFromCache = async (loadingTriger?: boolean) => {
   const res = await Promise.all(
-    ALL_STABLE_POOL_IDS.map((id) =>
-      getStablePoolFromCache(id.toString(), loadingTriger)
-    )
+    ALL_STABLE_POOL_IDS.filter((id) => {
+      return !BLACKLIST_POOL_IDS.includes(id.toString());
+    })
+    .map((id) => getStablePoolFromCache(id.toString(), loadingTriger))
   );
 
   const allStablePoolsById = res.reduce((pre, cur, i) => {
