@@ -9,7 +9,12 @@ import { OrderlyLoading } from '../Common/Icons';
 import { TextWrapper } from '../UserBoard';
 import { formatTimeDate } from '../OrderBoard';
 import { getOrderTrades } from '../../orderly/off-chain-api';
-import { MyOrder, PortfolioTableColumns, OrderTrade, MarkPrice } from '../../orderly/type';
+import {
+  MyOrder,
+  PortfolioTableColumns,
+  OrderTrade,
+  MarkPrice,
+} from '../../orderly/type';
 import { numberWithCommas } from '../../utiles';
 import { scientificNotationToString } from '../../../../utils/numbers';
 import { useWalletSelector } from '../../../../context/WalletSelectorContext';
@@ -23,12 +28,16 @@ function OrderLine({
   handleOpenClosing,
   page,
   futureOrders,
-  markPrices
+  markPrices,
 }: {
   order: any;
   columns: PortfolioTableColumns[];
   tableRowType: string;
-  handleOpenClosing?: (closingQuantity: number, closingPrice: number | 'Market', row: any) => void;
+  handleOpenClosing?: (
+    closingQuantity: number,
+    closingPrice: number | 'Market',
+    row: any
+  ) => void;
   page: number;
   futureOrders?: MyOrder[];
   markPrices: MarkPrice[];
@@ -40,7 +49,9 @@ function OrderLine({
   const intl = useIntl();
   const { accountId } = useWalletSelector();
 
-  const [closingQuantity, setClosingQuantity] = useState(Math.abs(order.position_qty));
+  const [closingQuantity, setClosingQuantity] = useState(
+    Math.abs(order.position_qty)
+  );
   const [closingPrice, setClosingPrice] = useState<'Market' | string>('Market');
   const [open, setOpen] = useState<boolean>(false);
   const [showFloatingBox, setShowFloatingBox] = useState(false);
@@ -51,7 +62,7 @@ function OrderLine({
   useEffect(() => {
     setOpenFilledDetail(false);
     setOrderTradesHistory(null);
-  }, [page])
+  }, [page]);
 
   async function openTrades() {
     if (!!orderTradesHistory) {
@@ -81,18 +92,19 @@ function OrderLine({
             : ' gap-4 px-5 hover:bg-portfolioBgColor lg:border-t border-white border-opacity-10'
         } ${tableRowType === 'small' ? 'text-xs' : ''}`}
         style={{
-          gridTemplateColumns: `repeat(${gridCol}, minmax(0, 1fr))`
+          gridTemplateColumns: `repeat(${gridCol}, minmax(0, 1fr))`,
         }}
       >
-        {columns.map((column, i) => !column.customRender ? (
-          <td
-            key={`${column.key}-${i}`}
-            className={`col-span-${
-              column.colSpan ? column.colSpan : 1
-            } flex items-center py-5 relative ${'break-words'}`}
-          >
-            <div
-              className={`
+        {columns.map((column, i) =>
+          !column.customRender ? (
+            <td
+              key={`${column.key}-${i}`}
+              className={`col-span-${
+                column.colSpan ? column.colSpan : 1
+              } flex items-center py-5 relative ${'break-words'}`}
+            >
+              <div
+                className={`
                   flex items-center ${
                     column.textColor !== undefined
                       ? column.textColor
@@ -104,54 +116,58 @@ function OrderLine({
                       : ''
                   }
                 `}
-            >
-              {column.render({ ...order })}
-            </div>
-            {(column.key === 'status' && tableRowType === 'card'  && order.executed !== null && order.executed > 0) && (
-                <div
-                  className={`cursor-pointer  rounded-md  ml-2 ${
-                    openFilledDetail ? 'bg-light1' : 'bg-symbolHover3'
-                  }  w-5 h-5 flex items-center justify-center`}
-                  onClick={() => {
-                    openTrades();
-                  }}
-                >
-                  <div className="transform scale-95">
-                    <MdArrowDropDown
-                      size={22}
-                      color={
-                        openFilledDetail ? '#FFFFFF' : '#limitOrderInputColor'
-                      }
-                      className={`${
-                        openFilledDetail ? 'transform rotate-180' : ''
-                      } `}
-                    />
+              >
+                {column.render({ ...order })}
+              </div>
+              {column.key === 'status' &&
+                tableRowType === 'card' &&
+                order.executed !== null &&
+                order.executed > 0 && (
+                  <div
+                    className={`cursor-pointer  rounded-md  ml-2 ${
+                      openFilledDetail ? 'bg-light1' : 'bg-symbolHover3'
+                    }  w-5 h-5 flex items-center justify-center`}
+                    onClick={() => {
+                      openTrades();
+                    }}
+                  >
+                    <div className="transform scale-95">
+                      <MdArrowDropDown
+                        size={22}
+                        color={
+                          openFilledDetail ? '#FFFFFF' : '#limitOrderInputColor'
+                        }
+                        className={`${
+                          openFilledDetail ? 'transform rotate-180' : ''
+                        } `}
+                      />
+                    </div>
                   </div>
-                </div>
-              )}
-          </td>
-        ): (
-          <FutureTableFormCells
-            key={`table-form-${order.symbol}`}
-            position_qty={order.position_qty}
-            mark_price={order.mark_price}
-            closingQuantity={closingQuantity}
-            setClosingQuantity={setClosingQuantity}
-            closingPrice={closingPrice}
-            setClosingPrice={setClosingPrice}
-            open={open}
-            setOpen={setOpen}
-            handleOpenClosing={handleOpenClosing}
-            row={order}
-            showFloatingBox={showFloatingBox}
-            setShowFloatingBox={setShowFloatingBox}
-            isFocus={isFocus}
-            setIsFocus={setIsFocus}
-            futureOrders={futureOrders}
-            markPrices={markPrices}
-          />
-        ))}
-        {(tableRowType === 'card' && openFilledDetail) && (
+                )}
+            </td>
+          ) : (
+            <FutureTableFormCells
+              key={`table-form-${order.symbol}`}
+              position_qty={order.position_qty}
+              mark_price={order.mark_price}
+              closingQuantity={closingQuantity}
+              setClosingQuantity={setClosingQuantity}
+              closingPrice={closingPrice}
+              setClosingPrice={setClosingPrice}
+              open={open}
+              setOpen={setOpen}
+              handleOpenClosing={handleOpenClosing}
+              row={order}
+              showFloatingBox={showFloatingBox}
+              setShowFloatingBox={setShowFloatingBox}
+              isFocus={isFocus}
+              setIsFocus={setIsFocus}
+              futureOrders={futureOrders}
+              markPrices={markPrices}
+            />
+          )
+        )}
+        {tableRowType === 'card' && openFilledDetail && (
           <td style={{ gridColumn: `span ${gridCol} / span ${gridCol}` }}>
             <table
               className={`table-fixed text-right flex-col items-end w-8/12`}
@@ -270,7 +286,7 @@ function Table({
   futureOrders,
   markPrices,
   lastPrices,
-  unrealMode
+  unrealMode,
 }: {
   data: MyOrder[];
   loading: boolean;
@@ -288,7 +304,11 @@ function Table({
   orderType?: number;
   mobileRender: (row: any, secondData: any) => any;
   mobileRenderCustom?: boolean;
-  handleOpenClosing?: (closingQuantity: number, closingPrice: number | 'Market', row: any) => void;
+  handleOpenClosing?: (
+    closingQuantity: number,
+    closingPrice: number | 'Market',
+    row: any
+  ) => void;
   futureOrders?: MyOrder[];
   markPrices: MarkPrice[];
   lastPrices: {
@@ -297,19 +317,17 @@ function Table({
   }[];
   unrealMode: 'mark_price' | 'last_price';
 }) {
-  const { accountId } = useWalletSelector()
-  
+  const { accountId } = useWalletSelector();
+
   const [sort, setSort] = useState<[string | string[], 'asc' | 'dsc']>([
     defaultSort ? defaultSort : '',
     loading ? undefined : 'dsc',
   ]);
 
   useEffect(() => {
-    defaultSort && setSort([
-      defaultSort ? defaultSort : '',
-      loading ? undefined : 'dsc',
-    ])
-  }, [tab])
+    defaultSort &&
+      setSort([defaultSort ? defaultSort : '', loading ? undefined : 'dsc']);
+  }, [tab]);
 
   const [customTotal, setCustomTotal] = useState<number | null>(null);
 
@@ -333,10 +351,22 @@ function Table({
       }
 
       if (sort[0][0] === 'symbol') {
-        const priceA = unrealMode === 'mark_price' ? markPrices.find((i) => i.symbol === a[sort[0][0]])?.price : lastPrices.find((i) => i.symbol === a[sort[0][0]])?.close;
-        const priceB = unrealMode === 'mark_price' ? markPrices.find((i) => i.symbol === b[sort[0][0]])?.price : lastPrices.find((i) => i.symbol === b[sort[0][0]])?.close;
-        const c = a[sort[0][2]] >= 0 ? ((priceA - a[sort[0][1]]) * a[sort[0][2]]) : ((a[sort[0][1]] - priceA) * a[sort[0][2]]) * -1;
-        const d = b[sort[0][2]] >= 0 ? ((priceB - b[sort[0][1]]) * b[sort[0][2]]) : ((b[sort[0][1]] - priceB) * b[sort[0][2]]) * -1;
+        const priceA =
+          unrealMode === 'mark_price'
+            ? markPrices.find((i) => i.symbol === a[sort[0][0]])?.price
+            : lastPrices.find((i) => i.symbol === a[sort[0][0]])?.close;
+        const priceB =
+          unrealMode === 'mark_price'
+            ? markPrices.find((i) => i.symbol === b[sort[0][0]])?.price
+            : lastPrices.find((i) => i.symbol === b[sort[0][0]])?.close;
+        const c =
+          a[sort[0][2]] >= 0
+            ? (priceA - a[sort[0][1]]) * a[sort[0][2]]
+            : (a[sort[0][1]] - priceA) * a[sort[0][2]] * -1;
+        const d =
+          b[sort[0][2]] >= 0
+            ? (priceB - b[sort[0][1]]) * b[sort[0][2]]
+            : (b[sort[0][1]] - priceB) * b[sort[0][2]] * -1;
 
         if (sort[1] === 'asc') {
           return c - d;
@@ -366,9 +396,9 @@ function Table({
   const pagingFunc = (order: MyOrder, index: number) => {
     let a = true;
     if (orderType === 1) {
-      a = (index >= ((page - 1) * 10) && index < (page * 10));
+      a = index >= (page - 1) * 10 && index < page * 10;
     } else if (orderType === 2) {
-      a = (index >= ((page - 1) * 10) && index < (page * 10));;
+      a = index >= (page - 1) * 10 && index < page * 10;
     }
 
     return a;
@@ -380,7 +410,7 @@ function Table({
     } else {
       setCustomTotal(null);
     }
-  }, [data])
+  }, [data]);
 
   const intl = useIntl();
 
@@ -399,30 +429,31 @@ function Table({
             className={`w-full xs:hidden table table-fixed  pl-5 pr-4 py-2 border-white border-opacity-10`}
           >
             <tr
-              className={`w-full ${tableRowType === 'card' ? 'px-8' : 'px-5'} table-fixed grid gap-4`}
+              className={`w-full ${
+                tableRowType === 'card' ? 'px-8' : 'px-5'
+              } table-fixed grid gap-4`}
               style={{
-                gridTemplateColumns: `repeat(${gridCol}, minmax(0, 1fr))`
+                gridTemplateColumns: `repeat(${gridCol}, minmax(0, 1fr))`,
               }}
             >
-              {columns.map((column, i) => !column.customRender ? (
-                <TableHeader
-                  key={`column-${i}`}
-                  column={column}
-                  loading={loading}
-                  sort={sort}
-                  setSort={setSort}
-                />
-              ) : (
-                <React.Fragment key={`${tableKey}-form-header`}>
-                  {column.headerRender()}
-                </React.Fragment>
-              ))}
+              {columns.map((column, i) =>
+                !column.customRender ? (
+                  <TableHeader
+                    key={`column-${i}`}
+                    column={column}
+                    loading={loading}
+                    sort={sort}
+                    setSort={setSort}
+                  />
+                ) : (
+                  <React.Fragment key={`${tableKey}-form-header`}>
+                    {column.headerRender()}
+                  </React.Fragment>
+                )
+              )}
             </tr>
           </thead>
-          <tbody
-            className=" block flex-col"
-            id="all-orders-body-open"
-          >
+          <tbody className=" block flex-col" id="all-orders-body-open">
             {accountId && validContract() && loading ? (
               <tr
                 className={`w-full relative mt-10 mb-4 px-5 table-fixed grid grid-cols-${gridCol} gap-4`}
@@ -537,7 +568,10 @@ function Table({
                 .sort(sortingFunc)
                 .map((order) => mobileRender && mobileRender(order, null))}
             {mobileRenderCustom &&
-              mobileRender(data.sort(sortingFunc).filter(filterFunc), futureOrders)}
+              mobileRender(
+                data.sort(sortingFunc).filter(filterFunc),
+                futureOrders
+              )}
           </>
         )}
       </div>
@@ -601,16 +635,26 @@ function Table({
             </div>
 
             <span>
-              {(page - 1) * 10 + 1}-{(customTotal ? customTotal : total) > page * 10 ? page * 10 : (customTotal ? customTotal : total)} of{' '}
-              {(customTotal ? customTotal : total)}
+              {(page - 1) * 10 + 1}-
+              {(customTotal ? customTotal : total) > page * 10
+                ? page * 10
+                : customTotal
+                ? customTotal
+                : total}{' '}
+              of {customTotal ? customTotal : total}
             </span>
 
             {/* Next */}
             <div
               onClick={() => {
-                page < Math.ceil((customTotal ? customTotal : total) / 10) && setPage(page + 1);
+                page < Math.ceil((customTotal ? customTotal : total) / 10) &&
+                  setPage(page + 1);
               }}
-              className={page < Math.ceil((customTotal ? customTotal : total) / 10) ? 'cursor-pointer' : ''}
+              className={
+                page < Math.ceil((customTotal ? customTotal : total) / 10)
+                  ? 'cursor-pointer'
+                  : ''
+              }
             >
               <svg
                 className="mx-1"
@@ -621,7 +665,11 @@ function Table({
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
-                  opacity={page < Math.ceil((customTotal ? customTotal : total) / 10) ? '1' : '0.3'}
+                  opacity={
+                    page < Math.ceil((customTotal ? customTotal : total) / 10)
+                      ? '1'
+                      : '0.3'
+                  }
                   d="M5.22267 3.77071C5.64372 4.16574 5.64372 4.83426 5.22267 5.22928L1.68421 8.54905C1.04564 9.14816 -4.6751e-07 8.69538 -4.29236e-07 7.81976L-1.39013e-07 1.18023C-1.00738e-07 0.304619 1.04564 -0.148155 1.68421 0.450951L5.22267 3.77071Z"
                   fill="#7E8A93"
                 />
@@ -631,9 +679,14 @@ function Table({
             {/* Last page */}
             <div
               onClick={() => {
-                page < Math.ceil((customTotal ? customTotal : total) / 10) && setPage(Math.ceil((customTotal ? customTotal : total) / 10));
+                page < Math.ceil((customTotal ? customTotal : total) / 10) &&
+                  setPage(Math.ceil((customTotal ? customTotal : total) / 10));
               }}
-              className={page < Math.ceil((customTotal ? customTotal : total) / 10) ? 'cursor-pointer' : ''}
+              className={
+                page < Math.ceil((customTotal ? customTotal : total) / 10)
+                  ? 'cursor-pointer'
+                  : ''
+              }
             >
               <svg
                 className="mx-1"
@@ -643,7 +696,13 @@ function Table({
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
               >
-                <g opacity={page < Math.ceil((customTotal ? customTotal : total) / 10) ? '1' : '0.3'}>
+                <g
+                  opacity={
+                    page < Math.ceil((customTotal ? customTotal : total) / 10)
+                      ? '1'
+                      : '0.3'
+                  }
+                >
                   <path
                     d="M7.22267 5.77071C7.64372 6.16574 7.64372 6.83426 7.22267 7.22928L3.68421 10.5491C3.04564 11.1482 2 10.6954 2 9.81976L2 3.18023C2 2.30462 3.04564 1.85185 3.68421 2.45095L7.22267 5.77071Z"
                     fill="#7E8A93"

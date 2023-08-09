@@ -42,15 +42,16 @@ function TradingBoard() {
     <div className="w-full flex  pl-4 xs:hidden md:hidden relative">
       {maintenance && <OrderlyUnderMaintain></OrderlyUnderMaintain>}
 
-      <div className="w-full flex flex-col pt-3" id="trading-orderly-board">
+      <div className="w-full flex flex-col" id="trading-orderly-board">
+        <ChartHeader></ChartHeader>
+
         <div
           className="w-full flex"
           style={{
-            height: 'calc(52vh + 70px)',
+            height: 'calc(52vh + 30px)',
           }}
         >
           <div className="w-full border p-4   border-boxBorder rounded-2xl bg-black bg-opacity-10">
-            <ChartHeader></ChartHeader>
             <ChartContainer maintenance={maintenance} />
           </div>
           {!isLarge && (

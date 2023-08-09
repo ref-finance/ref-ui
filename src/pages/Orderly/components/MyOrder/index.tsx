@@ -1618,7 +1618,7 @@ function ActiveLine({
         });
       }}
       style={{
-        height: '38px',
+        height: '34px',
       }}
     >
       <ButtonTextWrapper

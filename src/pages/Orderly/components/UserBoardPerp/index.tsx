@@ -1248,9 +1248,19 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         <UnsettlePnl></UnsettlePnl>
 
         <div className="font-nunito frcs gap-2">
-          {Number(unsettle) < 0.01 && Number(unsettle) > 0
-            ? '< 0.01'
-            : numberWithCommas(toPrecision(unsettle, 2))}
+          <span
+            className={`whitespace-nowrap  ${
+              ONLY_ZEROS.test(unsettle)
+                ? ''
+                : Number(unsettle) > 0
+                ? 'text-buyGreen'
+                : 'text-sellRed'
+            }`}
+          >
+            {Number(unsettle) < 0.01 && Number(unsettle) > 0
+              ? '< 0.01'
+              : numberWithCommas(toPrecision(unsettle, 2))}
+          </span>
 
           <button
             className={`font-gotham text-white px-1 text-xs rounded-md border border-inputV3BorderColor  ${

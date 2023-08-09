@@ -256,10 +256,20 @@ function MobileTradingBoard() {
                 id="positions"
                 defaultMessage={'Positions'}
               ></FormattedMessage>
-              {/* {!newPositions ||
-                !newPositions?.rows?.filter((p) => p.position_qty !== 0 && (showCurSymbol ? p.symbol === symbol : true)).length
-                  ? '-'
-                  : newPositions?.rows?.length} */}
+              {!newPositions ||
+              newPositions?.rows?.filter(
+                (p) =>
+                  p.position_qty !== 0 &&
+                  (showCurSymbol ? p.symbol === symbol : true)
+              ) === undefined
+                ? '-'
+                : `(${
+                    newPositions?.rows?.filter(
+                      (p) =>
+                        p.position_qty !== 0 &&
+                        (showCurSymbol ? p.symbol === symbol : true)
+                    ).length
+                  })`}
 
               {displayTab === 'positions' && (
                 <div
@@ -355,7 +365,7 @@ function MobileTradingBoard() {
 
           {displayTab === 'orders' && (
             <div className="w-full flex flex-col ">
-              <AllOrderBoard maintenance={maintenance} />
+              <AllOrderBoard maintenance={maintenance} defaultOpen={true} />
             </div>
           )}
 

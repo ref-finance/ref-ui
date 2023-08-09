@@ -501,8 +501,6 @@ export function usePerpData(deps?: {
     }
   });
 
-  console.log('newPositions: ', newPositions?.rows);
-
   return {
     totalCollateral,
     freeCollateral,

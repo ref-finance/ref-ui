@@ -934,8 +934,10 @@ function OrderLine({
 
             <div
               className={`flex flex-col font-nunito overflow-hidden mb-0.5  rounded-lg ${
-                openEditQuantity ? 'border bg-dark2 relative bottom-1.5' : ''
-              }  border-border2 text-sm  w-14 text-white`}
+                openEditQuantity
+                  ? 'border bg-dark2 relative bottom-1.5 w-14'
+                  : ''
+              }  border-border2 text-sm   text-white`}
             >
               <input
                 ref={inputRef}
@@ -945,6 +947,7 @@ function OrderLine({
                 onChange={(e) => {
                   setQuantity(e.target.value);
                 }}
+                autoFocus={openEditQuantity}
                 onFocus={() => {
                   setOpenEditQuantity(true);
                   setOpenEditPrice(false);
@@ -955,7 +958,7 @@ function OrderLine({
                   !openEditQuantity ? 'hidden' : 'text-center'
                 }`}
                 style={{
-                  width: `${order.quantity.toString().length * 12}px`,
+                  // width: `${order.quantity.toString().length * 12}px`,
                   minWidth: '48px',
                 }}
               />
@@ -4219,7 +4222,13 @@ function HistoryOrders({
   );
 }
 
-function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
+function AllOrderBoard({
+  maintenance,
+  defaultOpen,
+}: {
+  maintenance?: boolean;
+  defaultOpen?: boolean;
+}) {
   const {
     symbol,
     myPendingOrdersRefreshing,
@@ -4268,14 +4277,14 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
     !maintenance;
 
   const [tab, setTab] = useState<'open' | 'history' | 'positions'>(
-    symbolType === 'PERP' ? 'positions' : 'open'
+    symbolType === 'PERP' ? (defaultOpen ? 'open' : 'positions') : 'open'
   );
 
   useEffect(() => {
     if (symbolType === 'SPOT' && tab === 'positions') {
       setTab('open');
     }
-    if (symbolType === 'PERP') {
+    if (symbolType === 'PERP' && !defaultOpen) {
       setTab('positions');
     }
   }, [symbolType]);

@@ -155,7 +155,7 @@ export default function TableHeader({
                 {list.map((item, index) => {
                   return (
                     <div
-                      className={`whitespace-nowrap flex items-center justify-between cursor-pointer min-w-fit my-0.5 text-left px-1 py-1 w-full rounded-md ${
+                      className={`whitespace-nowrap frcs cursor-pointer min-w-fit my-0.5 text-left px-1 py-1 w-full rounded-md ${
                         item.className
                       } ${
                         extras?.includes('select') && select === item.textId

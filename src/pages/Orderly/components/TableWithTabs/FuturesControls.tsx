@@ -499,8 +499,8 @@ const PendingOrderRow: React.FC<{
     <div className="px-4 py-2 grid grid-cols-4 gap-2 rounded-lg hover:bg-symbolHover3">
       <div className="col-span-3 text-sm flex justify-between">
         <span className="pr-3">
-          <span>{quantity}&nbsp;</span>
-          <span className="text-primaryText">
+          <span className="whitespace-nowrap">{quantity}&nbsp;</span>
+          <span className="text-primaryText whitespace-nowrap">
             {parseSymbol(symbol).symbolFrom}
           </span>
         </span>
@@ -509,7 +509,7 @@ const PendingOrderRow: React.FC<{
             {intl.formatMessage({ id: 'at_orderly', defaultMessage: 'at' })}
           </span>
           &nbsp;
-          <span>
+          <span className="whitespace-nowrap">
             $
             {price?.toFixed(
               symbol.includes('BTC') || symbol.includes('ETH') ? 2 : 3
@@ -621,11 +621,14 @@ export const FutureTableFormCells: React.FC<{
   futureOrders,
 }) => {
   const intl = useIntl();
-  const { availableSymbols } = useOrderlyContext();
+  const { availableSymbols, everyTickers } = useOrderlyContext();
   const [orders, setOrders] = useState<MyOrder[]>([]);
   const symbolInfo = availableSymbols?.find((s) => s.symbol === row.symbol);
   const referenceMark = markPrices.find((m) => m.symbol === row.symbol);
   const portfolioFailure = usePortfolioFailure();
+
+  // get close price from everyTickers for this symbol
+  const closePrice = everyTickers?.find((t) => t.symbol === row.symbol)?.close;
 
   useEffect(() => {
     getPendingOrders();
@@ -711,7 +714,7 @@ export const FutureTableFormCells: React.FC<{
           >
             <div className="w-full px-2.5 py-1.5 text-white relative">
               <input
-                className="w-full"
+                className="w-full pr-2"
                 placeholder={mark_price.toString()}
                 onChange={({ target }) => {
                   if (target.value) {
@@ -745,13 +748,15 @@ export const FutureTableFormCells: React.FC<{
                   e.preventDefault();
                   e.stopPropagation();
                   if (closingPrice === 'Market')
-                    setClosingPrice(mark_price.toString());
+                    setClosingPrice(
+                      closePrice?.toString() || mark_price.toString()
+                    );
                   else setOpen(true);
                 }}
               />
               {closingPrice !== 'Market' && (
                 <svg
-                  className="absolute right-2.5 top-1/2 cursor-pointer"
+                  className="absolute right-1 top-1/2 cursor-pointer"
                   style={{ transform: 'translateY(-50%)' }}
                   onClick={(e) => {
                     e.preventDefault();
@@ -1030,6 +1035,12 @@ function FuturePriceModal(
   const [tips, setTips] = useState<string>('');
   const portfolioFailure = usePortfolioFailure();
 
+  const { everyTickers } = useOrderlyContext();
+
+  const closePrice = everyTickers?.find(
+    (t) => t.symbol === symbolInfo.symbol
+  )?.close;
+
   useEffect(() => {
     if (isOpen && openOnMarket) {
       setPriceMode('market_price');
@@ -1093,7 +1104,9 @@ function FuturePriceModal(
                       : 'text-white border-mobileOrderBg bg-mobileOrderBg'
                   }`}
                   onClick={() => {
-                    setInputPrice(mark_price.toString());
+                    setInputPrice(
+                      closePrice?.toString() || mark_price.toString()
+                    );
                     setTips('');
                     setPriceMode(item);
                   }}
@@ -1390,8 +1403,8 @@ export function ClosingModal(
                   <span
                     className={
                       row.position_qty < 0
-                        ? 'text-buyGreen'
-                        : 'text-sellColorNew'
+                        ? 'text-sellColorNew'
+                        : 'text-buyGreen'
                     }
                   >
                     {closingQuantity}
@@ -1405,7 +1418,7 @@ export function ClosingModal(
               </div>
             </div>
             <div className="col-span-1 mb-2">
-              <div className="flex items-center -m-2">
+              <div className="flex items-center ">
                 {marketList.find((m) => m.textId === symbol)?.text}
               </div>
             </div>
@@ -1458,7 +1471,10 @@ export function ClosingModal(
                 </div>
                 <div className="col-span-1 mb-2">
                   <div className="flex items-center justify-end text-white">
-                    ${closingPrice * closingQuantity}
+                    $
+                    {new Big(closingPrice)
+                      .mul(new Big(closingQuantity))
+                      .toFixed(4)}
                   </div>
                 </div>
               </>
@@ -1730,7 +1746,11 @@ const FutureMobileRow: React.FC<{
               </div>
             </div>
             <span className="text-white">
-              {display_est_liq_price ? display_est_liq_price.toFixed(3) : '-'}
+              {mark_price && display_est_liq_price > mark_price * 10
+                ? '-'
+                : display_est_liq_price
+                ? display_est_liq_price.toFixed(3)
+                : '-'}
             </span>
           </div>
           <div
@@ -1767,7 +1787,7 @@ const FutureMobileRow: React.FC<{
                       (item: 'mark_price' | 'last_price', index) => {
                         return (
                           <div
-                            className={`whitespace-nowrap flex items-center justify-between cursor-pointer min-w-fit my-0.5 text-left px-1 py-1 w-full rounded-md`}
+                            className={`whitespace-nowrap frcs cursor-pointer min-w-fit my-0.5 text-left px-1 py-1 w-full rounded-md`}
                             key={item + index}
                             onClick={(e) => {
                               e.preventDefault();

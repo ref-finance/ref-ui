@@ -1049,11 +1049,22 @@ export const usePortableOrderlyTable = ({
             extras: ['sort'],
             colSpan: 3,
             sortKey: 'display_est_liq_price',
-            render: ({ display_est_liq_price }) => (
-              <div className={`pr-2 text-warn`}>
-                {display_est_liq_price ? display_est_liq_price.toFixed(3) : '-'}
-              </div>
-            ),
+            render: ({ display_est_liq_price, symbol }) => {
+              // get mark price for this symbol
+              const markPrice = markPrices.find(
+                (i) => i.symbol === symbol
+              )?.price;
+
+              return (
+                <div className={`pr-2 text-warn`}>
+                  {markPrice && display_est_liq_price > markPrice * 10 && symbol
+                    ? '-'
+                    : display_est_liq_price
+                    ? display_est_liq_price.toFixed(3)
+                    : '-'}
+                </div>
+              );
+            },
           },
           {
             key: 'unreal_pnl',
@@ -1458,11 +1469,15 @@ export const usePortableOrderlyTable = ({
               <div className={`p-0.5 text-sm my-0.5`}>
                 <span
                   className={`${
-                    settled_amount >= 0 ? 'text-buyGreen' : 'text-sellColorNew'
+                    settled_amount === 0
+                      ? 'text-white'
+                      : settled_amount > 0
+                      ? 'text-buyGreen'
+                      : 'text-sellColorNew'
                   }`}
                 >
                   {settled_amount >= 0 ? '+' : ''}
-                  {settled_amount || '-'}
+                  {settled_amount}
                 </span>
                 <span className="text-white">&nbsp;USDC</span>
               </div>
@@ -1530,11 +1545,15 @@ export const usePortableOrderlyTable = ({
             render: ({ settled_amount }) => (
               <span
                 className={`${
-                  settled_amount >= 0 ? 'text-buyGreen' : 'text-sellColorNew'
+                  settled_amount === 0
+                    ? 'text-white'
+                    : settled_amount > 0
+                    ? 'text-buyGreen'
+                    : 'text-sellColorNew'
                 }`}
               >
                 {settled_amount >= 0 ? '+' : ''}
-                {settled_amount || '-'}
+                {settled_amount}
               </span>
             ),
           },

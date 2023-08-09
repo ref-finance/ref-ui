@@ -448,17 +448,17 @@ function ChartHeader(props?: any) {
 
   return (
     <div
-      className="flex orderly-chart-header items-center  text-white text-sm xs:sticky xs:top-0 xs:z-50"
+      className="flex orderly-chart-header items-center  text-white text-sm xs:sticky xs:top-0 xs:z-50 lg:py-2 lg:px-3 lg:mb-3 lg:mr-3"
       style={{
         backgroundColor: isMobile ? 'rgba(0,18,32)' : '',
         zIndex: isMobile ? 52 : '',
       }}
     >
-      <div className="rounded-xl frcs mr-2 gap-1 xs:hidden text-13px border border-v3SwapGray p-1 border-opacity-20 ">
+      <div className="rounded-xl xs:rounded-lg frcs mr-2 xs:mr-0.5 xs:text-xs gap-1 text-13px border border-v3SwapGray p-1 border-opacity-20  xs:p-0.5 ">
         {['spot', 'perps'].map((type) => {
           return (
             <div
-              className={`px-2.5 py-1 rounded-lg ${
+              className={`px-2.5 xs:px-2 xs:py-0.5 py-1 rounded-lg xs:rounded-md ${
                 type.indexOf(symbolType.toString().toLowerCase()) > -1
                   ? 'bg-mobileOrderBg text-white'
                   : 'text-primaryText'
@@ -512,13 +512,13 @@ function ChartHeader(props?: any) {
           />
         )}
 
-        <span className="text-base ml-4">
+        <span className="text-base font-gothamBold  ml-4 xs:ml-2">
           {symbolType === 'SPOT'
             ? `${symbolFrom} / ${symbolTo}`
             : `${symbolFrom} PERP`}
         </span>
 
-        {isMobile && ticker && (
+        {/* {isMobile && ticker && (
           <span
             className={`${
               diff < 0
@@ -538,7 +538,7 @@ function ChartHeader(props?: any) {
             </span>
             <span>{disPlayDiff}%</span>
           </span>
-        )}
+        )} */}
 
         <IoMdArrowDropdown
           color={!hoverSymbol ? '#566069' : '#FFFFFF'}
