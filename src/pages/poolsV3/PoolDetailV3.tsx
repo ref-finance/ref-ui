@@ -273,7 +273,7 @@ export default function PoolDetailV3() {
   }
 
   const topBinApr = useDCLTopBinFee({
-    pool: poolDetail
+    pool: poolDetail,
   });
 
   if (!poolDetail) return <Loading></Loading>;
@@ -419,7 +419,6 @@ export default function PoolDetailV3() {
           </div>
 
           <div
-            className=""
             style={{
               width: '380px',
             }}
@@ -442,7 +441,7 @@ export default function PoolDetailV3() {
             ></TablePool>
           </div>
           <div
-            className="xsm:mb-4"
+            className="xsm:mb-4 -mt-14"
             style={{
               width: isClientMobie() ? '100%' : '380px',
             }}
@@ -642,7 +641,12 @@ function YourLiquidityBox(props: {
     }
   }, [liquidities, Object.keys(tokenPriceList).length]);
   useEffect(() => {
-    if (liquidities && poolDetail && tokenPriceList && Object.keys(tokenPriceList).length) {
+    if (
+      liquidities &&
+      poolDetail &&
+      tokenPriceList &&
+      Object.keys(tokenPriceList).length
+    ) {
       get_24_apr_and_fee();
     }
   }, [poolDetail, tokenPriceList, liquidities]);
@@ -672,20 +676,28 @@ function YourLiquidityBox(props: {
       // 24h profit
       apr_24 = get_account_24_apr(dcl_fee_result, poolDetail, tokenPriceList);
       // total unClaimed fee
-      const [unClaimed_tvl_fee, unClaimed_amount_x_fee, unClaimed_amount_y_fee] = get_unClaimed_fee_data(liquidities, poolDetail, tokenPriceList);
+      const [
+        unClaimed_tvl_fee,
+        unClaimed_amount_x_fee,
+        unClaimed_amount_y_fee,
+      ] = get_unClaimed_fee_data(liquidities, poolDetail, tokenPriceList);
       // total earned fee
       const { total_fee_x, total_fee_y } = dcl_fee_result.total_earned_fee;
       total_earned_fee_x = toReadableNumber(
         token_x_metadata.decimals,
         Big(total_fee_x || 0).toFixed()
       );
-      total_earned_fee_x = Big(total_earned_fee_x).plus(unClaimed_amount_x_fee).toFixed();
+      total_earned_fee_x = Big(total_earned_fee_x)
+        .plus(unClaimed_amount_x_fee)
+        .toFixed();
 
       total_earned_fee_y = toReadableNumber(
         token_y_metadata.decimals,
         Big(total_fee_y || 0).toFixed()
       );
-      total_earned_fee_y = Big(total_earned_fee_y).plus(unClaimed_amount_y_fee).toFixed();
+      total_earned_fee_y = Big(total_earned_fee_y)
+        .plus(unClaimed_amount_y_fee)
+        .toFixed();
 
       const price_x = tokenPriceList[token_x_metadata.id]?.price || 0;
       const price_y = tokenPriceList[token_y_metadata.id]?.price || 0;
@@ -694,7 +706,9 @@ function YourLiquidityBox(props: {
       total_fee_earned = total_earned_fee_x_value
         .plus(total_earned_fee_y_value)
         .toFixed();
-        total_fee_earned = Big(total_fee_earned).plus(unClaimed_tvl_fee).toFixed();
+      total_fee_earned = Big(total_fee_earned)
+        .plus(unClaimed_tvl_fee)
+        .toFixed();
     }
     set_earned_fee_y_amount(formatNumber(total_earned_fee_y));
     set_earned_fee_x_amount(formatNumber(total_earned_fee_x));
@@ -1147,7 +1161,8 @@ function UnclaimedFeesBox(props: any) {
   const [cliam_loading, set_cliam_loading] = useState(false);
   useEffect(() => {
     if (liquidities) {
-      const [total_tvl_fee, total_amount_x_fee, total_amount_y_fee] = get_unClaimed_fee_data(liquidities, poolDetail, tokenPriceList)
+      const [total_tvl_fee, total_amount_x_fee, total_amount_y_fee] =
+        get_unClaimed_fee_data(liquidities, poolDetail, tokenPriceList);
       set_user_liquidities_total({
         total_amount_x_fee,
         total_amount_y_fee,
@@ -1260,12 +1275,16 @@ function UnclaimedFeesBox(props: any) {
     </div>
   );
 }
-function get_unClaimed_fee_data(liquidities:UserLiquidityInfo[], poolDetail:PoolInfo, tokenPriceList:any) {
+function get_unClaimed_fee_data(
+  liquidities: UserLiquidityInfo[],
+  poolDetail: PoolInfo,
+  tokenPriceList: any
+) {
   // UnClaimed fee
   let total_amount_x_fee = 0;
   let total_amount_y_fee = 0;
   let total_tvl_fee = 0;
-  const { token_x_metadata, token_y_metadata } = poolDetail
+  const { token_x_metadata, token_y_metadata } = poolDetail;
   liquidities.forEach((liquidity: UserLiquidityInfo) => {
     const { unclaimed_fee_x, unclaimed_fee_y } = liquidity;
     const unclaimed_fee_x_amount = toReadableNumber(
@@ -1285,7 +1304,7 @@ function get_unClaimed_fee_data(liquidities:UserLiquidityInfo[], poolDetail:Pool
     total_amount_y_fee += Number(unclaimed_fee_y_amount);
     total_tvl_fee += Number(total_fees_price);
   });
-  return  [total_tvl_fee, total_amount_x_fee, total_amount_y_fee];
+  return [total_tvl_fee, total_amount_x_fee, total_amount_y_fee];
 }
 function RelatedFarmsBox(props: any) {
   const { poolDetail, tokenPriceList, sole_seed } = props;
@@ -1945,7 +1964,7 @@ function Chart(props: any) {
       width="w-full"
       className="relative rounded-2xl mr-4 mb-4 h-full flex flex-col items-center"
       padding="px-7 py-5 xsm:px-4"
-      bgcolor={isClientMobie() ? 'bg-transparent' : 'bg-cardBg'}
+      bgcolor={'bg-transparent'}
       style={{
         height: isClientMobie() ? '390px' : '470px',
       }}
@@ -2319,37 +2338,45 @@ export function RecentTransactions({
         </td>
 
         <td className="text-white frcs">
-          <span className="text-white" title={AmountIn}>
-            {displayInAmount}
-          </span>
+          <div className="frcs flex-wrap">
+            <span className="text-white mr-1" title={AmountIn}>
+              {displayInAmount}
+            </span>
 
-          <span className="ml-1 text-primaryText">
-            {toRealSymbol(swapIn.symbol)}
-          </span>
+            <span className="text-primaryText">
+              {toRealSymbol(swapIn.symbol)}
+            </span>
+          </div>
         </td>
 
         <td className="frcs">
-          <span className="text-white" title={AmountOut}>
-            {displayOutAmount}
-          </span>
+          <div className="frcs flex-wrap">
+            <span className="text-white mr-1" title={AmountOut}>
+              {displayOutAmount}
+            </span>
 
-          <span className="ml-1 text-primaryText">
-            {toRealSymbol(swapOut.symbol)}
-          </span>
+            <span className="text-primaryText">
+              {toRealSymbol(swapOut.symbol)}
+            </span>
+          </div>
         </td>
 
         <td className="frcs">
-          <span className="text-white" title={price}>
-            {numberWithCommas(toPrecision(price, 4))}
-          </span>
+          <div className="frcs flex-wrap">
+            <span className="text-white mr-1" title={price}>
+              {numberWithCommas(toPrecision(price, 4))}
+            </span>
 
-          <span className="ml-1 text-primaryText">
-            {reverse
-              ? `${toRealSymbol(swapOut.symbol)}/${toRealSymbol(swapIn.symbol)}`
-              : `${toRealSymbol(swapIn.symbol)}/${toRealSymbol(
-                  swapOut.symbol
-                )}`}
-          </span>
+            <span className="text-primaryText">
+              {reverse
+                ? `${toRealSymbol(swapOut.symbol)}/${toRealSymbol(
+                    swapIn.symbol
+                  )}`
+                : `${toRealSymbol(swapIn.symbol)}/${toRealSymbol(
+                    swapOut.symbol
+                  )}`}
+            </span>
+          </div>
         </td>
 
         <td className=" relative py-4 flex items-center justify-end pr-2">
@@ -2713,13 +2740,17 @@ function Icon(props: { icon?: string; className?: string; style?: any }) {
     />
   );
 }
+let timer: any;
 function LiquidityChart(props: any) {
+  const svgDefaultWidth = 750;
   const { data, chartDisplay, setChartDisplay } = props;
   const { poolDetail, depthData } = data;
   const [chartLoading, setChartLoading] = useState<boolean>(true);
   const [noData, setNoData] = useState<boolean>(true);
   const [rateDirection, setRateDirection] = useState(true);
+  const [svgWidth, setSvgWidth] = useState(svgDefaultWidth);
   const isMobile = isClientMobie();
+  const refDom = useRef(null);
   useEffect(() => {
     if (poolDetail?.token_x_metadata) {
       if (
@@ -2771,12 +2802,25 @@ function LiquidityChart(props: any) {
       </span>
     );
   }, [poolDetail, rateDirection]);
+  useEffect(() => {
+    if (isMobile) return;
+    if (refDom.current) {
+      setSvgWidth(refDom.current.clientWidth || svgDefaultWidth);
+      window.onresize = () => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          setSvgWidth(refDom?.current?.clientWidth || svgDefaultWidth);
+        }, 50);
+      };
+    }
+  }, [refDom.current]);
   function switchRate() {
     setRateDirection(!rateDirection);
   }
   return (
     <>
       <div
+        ref={refDom}
         className={`relative z-50 flex items-center xsm:flex-col-reverse xsm:items-start justify-between w-full mb-4 ${
           noData ? 'opacity-70' : ''
         }`}
@@ -2817,7 +2861,7 @@ function LiquidityChart(props: any) {
         <div className="mt-16">
           <DclChart
             pool_id={poolDetail?.pool_id}
-            config={{ controlHidden: true, svgWidth: '750', svgHeight: '300' }}
+            config={{ controlHidden: true, svgWidth, svgHeight: '300' }}
             reverse={!rateDirection}
           ></DclChart>
         </div>

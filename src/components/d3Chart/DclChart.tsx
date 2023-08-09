@@ -49,7 +49,7 @@ import Big from 'big.js';
 import * as d3 from 'd3';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { getBoostTokenPrices } from '../../services/farm';
-import { toReadableNumber } from '~utils/numbers';
+import { toReadableNumber, formatWithCommas } from '~utils/numbers';
 import { ILiquidityInfoPool, IOrderInfoPool } from '../../services/commonV3';
 export default function DclChart({
   pool_id,
@@ -160,7 +160,7 @@ export default function DclChart({
       drawChart();
       setDrawChartDone(true);
     }
-  }, [price_range, chartDataList, reverse]);
+  }, [price_range, chartDataList, reverse, config?.svgWidth]);
   // generate user chart
   useEffect(() => {
     if (pool && accountId && newlyAddedLiquidities && chartType == 'USER') {
@@ -369,8 +369,8 @@ export default function DclChart({
     }
     set_user_liquidities_detail({
       total_value: formatWithCommas_usd(total_value.toFixed()),
-      min_price: formatPrice(min_price),
-      max_price: formatPrice(max_price),
+      min_price: formatPriceWithCommas(min_price),
+      max_price: formatPriceWithCommas(max_price),
       total_x_amount: formatNumber(total_x_amount.toFixed()),
       total_y_amount: formatNumber(total_y_amount.toFixed()),
       apr_24,
@@ -716,8 +716,8 @@ export default function DclChart({
             token_y_amount_in_order: formatWithCommas_number(order_y),
           }
         : {}),
-      price_by_token_x: formatPrice(price_by_token_x),
-      price_by_token_y: formatPrice(price_by_token_y),
+      price_by_token_x: formatPriceWithCommas(price_by_token_x),
+      price_by_token_y: formatPriceWithCommas(price_by_token_y),
     });
   }
   function LeaveBox(e: any, d: IChartData) {
@@ -756,9 +756,9 @@ export default function DclChart({
       axis.ticks(appearanceConfig.ticks || 5).tickFormat(function (d: any) {
         const dBig = new Big(d);
         if (dBig.gte(10000)) {
-          return dBig.toFixed(0);
+          return formatWithCommas(dBig.toFixed(0));
         } else {
-          return d;
+          return formatWithCommas(dBig.toFixed());
         }
       });
     }
@@ -1154,7 +1154,10 @@ export default function DclChart({
   function draw_radius_mode_bar() {
     const scale: any = scaleAxis();
     const { targetPoint } = config;
-    const price = get_price_by_point(targetPoint);
+    let price = get_price_by_point(targetPoint);
+    if (reverse) {
+      price = reverse_price(price);
+    }
     const x = scale(price);
     d3.select(`${randomId} .radiusBar`)
       .attr('transform', `translate(${x}, -${axisHeight})`)

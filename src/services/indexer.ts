@@ -481,10 +481,10 @@ export interface DCLPoolFee {
 }
 
 export const getDCLTopBinFee = async (props: {
-  pool_id: string,
-  bin: number,
-  start_point: number,
-  end_point: number
+  pool_id: string;
+  bin: number;
+  start_point: number;
+  end_point: number;
 }): Promise<DCLPoolFee> => {
   const { pool_id, bin, start_point, end_point } = props;
   const result = await getDclPoolPoints(pool_id, bin, start_point, end_point);

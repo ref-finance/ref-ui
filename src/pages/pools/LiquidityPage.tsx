@@ -1742,7 +1742,7 @@ function PoolRowV2({
   const history = useHistory();
 
   const displayOfTopBinApr = useDCLTopBinFee({
-    pool
+    pool,
   });
 
   if (!curRowTokens) return <></>;

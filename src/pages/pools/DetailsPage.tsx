@@ -1683,10 +1683,25 @@ export const ChartChangeButton = ({
 }) => {
   return (
     <div
-      className={`text-white text-xs rounded-md p-0.5 flex items-center xs:bg-transparent md:bg-transparent bg-navHighLightBg ${className} ${
+      className={`text-white text-xs rounded-md p-0.5 flex items-center xs:bg-transparent md:bg-transparent bg-cardBg lg:bg-opacity-50 ${className} ${
         noData ? 'z-20 opacity-70' : ''
       }`}
     >
+      {showLiqudityButton ? (
+        <button
+          className={`py-1 xs:py-2 md:py-2 px-2 ${
+            chartDisplay === 'liquidity'
+              ? 'rounded-md bg-gradient-to-b from-gradientFrom to-gradientTo'
+              : 'text-primaryText'
+          }`}
+          onClick={() => setChartDisplay('liquidity')}
+          style={{
+            minWidth: '80px',
+          }}
+        >
+          <FormattedMessage id="liquidity" defaultMessage="Liquidity" />
+        </button>
+      ) : null}
       <button
         className={`py-1 xs:py-2 md:py-2 px-2 ${
           chartDisplay === 'tvl'
@@ -1713,21 +1728,6 @@ export const ChartChangeButton = ({
       >
         <FormattedMessage id="volume" defaultMessage="Volume" />
       </button>
-      {showLiqudityButton ? (
-        <button
-          className={`py-1 xs:py-2 md:py-2 px-2 ${
-            chartDisplay === 'liquidity'
-              ? 'rounded-md bg-gradient-to-b from-gradientFrom to-gradientTo'
-              : 'text-primaryText'
-          }`}
-          onClick={() => setChartDisplay('liquidity')}
-          style={{
-            minWidth: '80px',
-          }}
-        >
-          <FormattedMessage id="liquidity" defaultMessage="Liquidity" />
-        </button>
-      ) : null}
     </div>
   );
 };
@@ -2566,7 +2566,7 @@ export function PoolDetailsPage() {
               width="w-full"
               className="relative rounded-2xl mr-4 mb-4 h-full flex flex-col justify-center  items-center"
               padding="px-7 py-5"
-              bgcolor={isClientMobie() ? 'bg-transparent' : 'bg-cardBg'}
+              bgcolor={'bg-transparent'}
               style={{
                 height: isClientMobie() ? '370px' : '470px',
               }}

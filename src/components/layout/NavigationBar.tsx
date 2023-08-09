@@ -1549,7 +1549,7 @@ function MenuBar() {
                         : 'text-primaryText'
                     }`}
                   >
-                    {logo ? <div className="w-8 mr-2">{logo}</div> : null}
+                    {logo ? <div className="w-8 mr-2 pl-2">{logo}</div> : null}
                     <div className="text-base">{label}</div>
                     {children ? (
                       <span className="text-xl ml-2">

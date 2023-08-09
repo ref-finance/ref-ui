@@ -98,12 +98,16 @@ import { PoolInfo, get_pool } from '../services/swapV3';
 import { useTokenPriceList } from './token';
 import { isStablePool } from '../services/near';
 import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
-import { get_default_config_for_chart, get_custom_config_for_chart } from '../components/d3Chart/config';
-import { IChartItemConfig, IChartConfig } from '../components/d3Chart/interfaces';
-import { getPointByPrice, getPriceByPoint } from '../services/commonV3';
 import {
-  formatPercentage
-} from '../components/d3Chart/utils';
+  get_default_config_for_chart,
+  get_custom_config_for_chart,
+} from '../components/d3Chart/config';
+import {
+  IChartItemConfig,
+  IChartConfig,
+} from '../components/d3Chart/interfaces';
+import { getPointByPrice, getPriceByPoint } from '../services/commonV3';
+import { formatPercentage } from '../components/d3Chart/utils';
 
 const REF_FI_STABLE_POOL_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
   getConfig().STABLE_POOL_ID
@@ -1426,24 +1430,25 @@ export const useDCLPoolTransaction = ({
   };
 };
 
-export const useDCLTopBinFee = ({
-  pool,
-}: {
-  pool:PoolInfo,
-}) => {
+export const useDCLTopBinFee = ({ pool }: { pool: PoolInfo }) => {
   const [topBinApr, setTopBinApr] = useState<string>('-');
   useEffect(() => {
     if (!pool) return;
-    const [bin, start_point, end_point ] = get_config_of_dcl_pool(pool);
+    const [bin, start_point, end_point] = get_config_of_dcl_pool(pool);
     getDCLTopBinFee({
       pool_id: pool.pool_id,
       bin,
       start_point,
-      end_point
+      end_point,
     }).then((res) => {
       if (!res || ONLY_ZEROS.test(res.total_liquidity)) return;
-      const apr =
-      formatPercentage(new Big(res.total_fee).div(res.total_liquidity).mul(365).mul(100).toFixed())
+      const apr = formatPercentage(
+        new Big(res.total_fee)
+          .div(res.total_liquidity)
+          .mul(365)
+          .mul(100)
+          .toFixed()
+      );
       setTopBinApr(apr);
     });
   }, [pool]);
@@ -1451,21 +1456,24 @@ export const useDCLTopBinFee = ({
   return topBinApr;
 };
 
-function get_config_of_dcl_pool(pool:PoolInfo) {
+function get_config_of_dcl_pool(pool: PoolInfo) {
   const pool_id = pool.pool_id;
-  const { bin, rangeGear } =  get_default_config_for_chart() as IChartItemConfig;
+  const { bin, rangeGear } = get_default_config_for_chart() as IChartItemConfig;
   const custom_config: IChartConfig = get_custom_config_for_chart();
   const bin_final = custom_config[pool_id]?.bin || bin;
   const rangeGear_final = custom_config[pool_id]?.rangeGear || rangeGear;
-  const [price_l, price_r] = get_price_range_by_percent(rangeGear_final[0], pool);
+  const [price_l, price_r] = get_price_range_by_percent(
+    rangeGear_final[0],
+    pool
+  );
   const point_l = get_point_by_price(price_l, pool);
   const point_r = get_point_by_price(price_r, pool);
-  return [bin_final, point_l,  point_r]
+  return [bin_final, point_l, point_r];
 }
 
 function get_price_range_by_percent(
   percent: number,
-  pool:PoolInfo,
+  pool: PoolInfo
 ): [string, string] {
   const { current_point } = pool;
   const p_l_r = percent / 100;
@@ -1478,13 +1486,15 @@ function get_price_range_by_percent(
 
   return [price_l, price_r];
 }
-function get_price_by_point(point:number, pool:PoolInfo) {
+function get_price_by_point(point: number, pool: PoolInfo) {
   const { token_x_metadata, token_y_metadata } = pool;
-  const decimalRate_point = Math.pow(10, token_x_metadata.decimals) / Math.pow(10, token_y_metadata.decimals);
-  const price = getPriceByPoint(point, decimalRate_point)
+  const decimalRate_point =
+    Math.pow(10, token_x_metadata.decimals) /
+    Math.pow(10, token_y_metadata.decimals);
+  const price = getPriceByPoint(point, decimalRate_point);
   return price;
 }
-function get_point_by_price(price: string, pool:PoolInfo) {
+function get_point_by_price(price: string, pool: PoolInfo) {
   const { point_delta, token_x_metadata, token_y_metadata } = pool;
   const decimalRate_point =
     Math.pow(10, token_y_metadata.decimals) /

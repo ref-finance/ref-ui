@@ -35,6 +35,7 @@ export default function SwapLimitOrderChart() {
     useState<IOrderPointItem[]>();
   const [sell_token_y_list, set_sell_token_y_list] =
     useState<IOrderPointItem[]>();
+  const [fetch_data_done, set_fetch_data_done] = useState(false);
   const [buy_list, set_buy_list] = useState<IOrderPointItem[]>();
   const [sell_list, set_sell_list] = useState<IOrderPointItem[]>();
   const [market_loading, set_market_loading] = useState<boolean>(false);
@@ -48,6 +49,7 @@ export default function SwapLimitOrderChart() {
   const sellBoxRef = useRef(null);
   useEffect(() => {
     if (pool_id) {
+      set_fetch_data_done(false);
       get_points_of_orders();
       get_pool_detail();
       setZoom(GEARS[0]);
@@ -61,6 +63,7 @@ export default function SwapLimitOrderChart() {
   useEffect(() => {
     if (pool && orders) {
       process_orders();
+      set_fetch_data_done(true);
     }
   }, [pool, orders]);
   useEffect(() => {
@@ -313,6 +316,7 @@ export default function SwapLimitOrderChart() {
       setZoom(targetPercent);
     }
   }
+  const is_empty = fetch_data_done && !sell_list?.length && !buy_list?.length;
   return (
     <LimitOrderChartData.Provider
       value={{
@@ -411,7 +415,19 @@ export default function SwapLimitOrderChart() {
             </div>
           </div>
           {/* chart */}
-          <OrderChart></OrderChart>
+          {is_empty ? (
+            <div
+              className="flex flex-col items-center justify-center gap-5"
+              style={{ height: '400px' }}
+            >
+              <EmptyIcon></EmptyIcon>
+              <span className="text-sm text-limitOrderInputColor">
+                Not enough data for the chart right now.
+              </span>
+            </div>
+          ) : (
+            <OrderChart></OrderChart>
+          )}
         </div>
         {/* table area */}
         <div
@@ -443,70 +459,87 @@ export default function SwapLimitOrderChart() {
               </span>
             </div>
           </div>
-          <div
-            ref={sellBoxRef}
-            className="p-3 pr-0 overflow-auto"
-            style={{ maxHeight: `${limitOrderContainerHeight}px` }}
-          >
-            {sell_list?.map((item: IOrderPointItem, index) => {
-              return (
-                <div
-                  key={item.point + index}
-                  className="flex items-center justify-between text-xs py-1.5 pr-2"
-                >
-                  <span className="text-sellColorNew">
-                    {formatPrice(item.price)}
-                  </span>
-                  <span className="text-white">
-                    {formatNumber(
-                      item.amount_x_readable || item.amount_y_readable
-                    )}
-                  </span>
-                  <span className="text-white">
-                    {formatNumber(
-                      item.accumulated_x_readable || item.accumulated_y_readable
-                    )}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-          <div className="flex items-center mt-2.5 pl-3">
-            <span className="text-xs text-white mr-2">Market Pirce</span>
-            <RefreshIcon
-              className={`cursor-pointer ${
-                market_loading ? 'refresh-loader' : ''
-              }`}
-              onClick={marketRefresh}
-            ></RefreshIcon>
-          </div>
-          <div
-            className="p-3 pr-0 overflow-auto"
-            style={{ maxHeight: `${limitOrderContainerHeight}px` }}
-          >
-            {buy_list?.map((item: IOrderPointItem, index) => {
-              return (
-                <div
-                  key={item.point + index}
-                  className="flex items-center justify-between text-xs py-1.5 pr-2"
-                >
-                  <span className="text-gradientFromHover">
-                    {formatPrice(item.price)}
-                  </span>
-                  <span className="text-white">
-                    {formatNumber(
-                      item.amount_x_readable || item.amount_y_readable
-                    )}
-                  </span>
-                  <span className="text-white">
-                    {formatNumber(
-                      item.accumulated_x_readable || item.accumulated_y_readable
-                    )}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
+          {is_empty ? (
+            <div
+              className="text-sm text-limitOrderInputColor flex items-center justify-center"
+              style={{ marginTop: '100px' }}
+            >
+              No order yet
+            </div>
+          ) : (
+            <div>
+              <div
+                ref={sellBoxRef}
+                className={`${
+                  sell_list?.length ? 'p-3' : 'p-1'
+                } pr-0 overflow-auto`}
+                style={{ maxHeight: `${limitOrderContainerHeight}px` }}
+              >
+                {sell_list?.map((item: IOrderPointItem, index) => {
+                  return (
+                    <div
+                      key={item.point + index}
+                      className="flex items-center justify-between text-xs py-1.5 pr-2"
+                    >
+                      <span className="text-sellColorNew">
+                        {formatPrice(item.price)}
+                      </span>
+                      <span className="text-white">
+                        {formatNumber(
+                          item.amount_x_readable || item.amount_y_readable
+                        )}
+                      </span>
+                      <span className="text-white">
+                        {formatNumber(
+                          item.accumulated_x_readable ||
+                            item.accumulated_y_readable
+                        )}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="flex items-center mt-2.5 pl-3">
+                <span className="text-xs text-white mr-2">Market Pirce</span>
+                <RefreshIcon
+                  className={`cursor-pointer ${
+                    market_loading ? 'refresh-loader' : ''
+                  }`}
+                  onClick={marketRefresh}
+                ></RefreshIcon>
+              </div>
+              <div
+                className={`${
+                  buy_list?.length ? 'p-3' : 'p-1'
+                } pr-0 overflow-auto`}
+                style={{ maxHeight: `${limitOrderContainerHeight}px` }}
+              >
+                {buy_list?.map((item: IOrderPointItem, index) => {
+                  return (
+                    <div
+                      key={item.point + index}
+                      className="flex items-center justify-between text-xs py-1.5 pr-2"
+                    >
+                      <span className="text-gradientFromHover">
+                        {formatPrice(item.price)}
+                      </span>
+                      <span className="text-white">
+                        {formatNumber(
+                          item.amount_x_readable || item.amount_y_readable
+                        )}
+                      </span>
+                      <span className="text-white">
+                        {formatNumber(
+                          item.accumulated_x_readable ||
+                            item.accumulated_y_readable
+                        )}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </LimitOrderChartData.Provider>
@@ -1144,6 +1177,27 @@ function RefreshIcon(props: any) {
           <rect width="12" height="12" fill="white" />
         </clipPath>
       </defs>
+    </svg>
+  );
+}
+function EmptyIcon(props: any) {
+  return (
+    <svg
+      {...props}
+      width="37"
+      height="35"
+      viewBox="0 0 37 35"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M28.3876 4.56658C28.1438 4.62244 27.8849 4.55643 27.702 4.38377C27.5649 4.25682 27.4888 4.08416 27.4888 3.89627C27.4888 3.71346 27.5649 3.53572 27.702 3.40877L29.5911 1.51463C29.7181 1.37752 29.8907 1.30135 30.0786 1.30135C30.2665 1.30135 30.4392 1.37752 30.5661 1.51463C30.7032 1.64158 30.7794 1.81424 30.7794 2.00213C30.7794 2.18494 30.7032 2.36267 30.5661 2.48963L28.677 4.38377C28.5603 4.50057 28.5044 4.55642 28.3876 4.55642V4.56658ZM32.6228 8.98455C32.5364 9.03025 32.4349 9.05057 32.3333 9.04549L29.9313 8.76111C29.5505 8.73064 29.2712 8.39549 29.3017 8.01463C29.3321 7.63377 29.6673 7.35447 30.0481 7.38494L32.4501 7.61346C32.831 7.649 33.1103 7.97908 33.0798 8.35994C33.0798 8.64432 32.897 8.89822 32.6228 8.98455ZM24.32 3.65252C24.1474 3.71346 23.9544 3.69314 23.7919 3.60682C23.6294 3.52049 23.5126 3.36814 23.4618 3.19549L22.6595 0.900176C22.5376 0.554863 22.7153 0.168925 23.0606 0.0368943C23.2333 -0.0240432 23.4263 -0.0088091 23.5888 0.077519C23.7513 0.163847 23.8731 0.311113 23.9239 0.488847L24.7263 2.78416C24.7974 2.95174 24.7974 3.13963 24.7212 3.30213C24.645 3.46971 24.4977 3.59158 24.32 3.65252Z"
+        fill="#566069"
+      />
+      <path
+        d="M3.01234 14.4879C3.35765 14.366 3.6014 14.0511 3.63695 13.6855C2.97679 11.6187 2.31664 9.54685 1.6514 7.48005C1.52953 7.09411 1.06742 6.89606 0.620544 7.03825C0.173669 7.18044 -0.0954714 7.607 0.0314817 7.99294C0.691638 10.08 1.35179 12.1672 2.01703 14.2593C2.27601 14.5234 2.66703 14.6148 3.01234 14.4879ZM8.28851 30.7633C8.63383 30.6414 8.87758 30.3265 8.91312 29.9609C8.25297 27.8941 7.59281 25.8222 6.92758 23.7554C6.8057 23.3695 6.34359 23.1715 5.89672 23.3136C5.44984 23.4558 5.1807 23.8824 5.30765 24.2683C5.96781 26.3554 6.62797 28.4426 7.2932 30.5347C7.54711 30.8039 7.93812 30.8902 8.28851 30.7633ZM9.71039 34.7648C10.0557 34.6429 10.2995 34.3281 10.335 33.9625C9.67484 31.8957 10.3198 33.932 9.65961 31.8652C9.53773 31.4793 9.07562 31.2812 8.62875 31.4234C8.18187 31.5656 7.91273 31.9922 8.03969 32.3781C8.69984 34.4652 8.05492 32.4492 8.71508 34.5363C8.97406 34.8054 9.36508 34.8918 9.71039 34.7648ZM9.33969 34.8765C11.4319 34.2316 9.4057 34.8461 11.4979 34.2011C11.8838 34.0844 12.087 33.6172 11.9498 33.1703C11.8127 32.7234 11.3862 32.4543 11.0002 32.5711C8.92328 33.2058 10.9698 32.5761 8.89281 33.216C8.61351 33.4547 8.49672 33.8304 8.58812 34.1859C8.67953 34.5414 8.97406 34.8105 9.33969 34.8765ZM5.62758 22.6383C5.97289 22.5164 6.21664 22.2015 6.25218 21.8359C5.59203 19.7691 4.93187 17.6972 4.26664 15.6304C4.14476 15.2445 3.68265 15.0465 3.23578 15.1886C2.7889 15.3308 2.51976 15.7574 2.64672 16.1433C3.30687 18.2304 3.96703 20.3176 4.63226 22.4097C4.89125 22.6738 5.28226 22.7601 5.62758 22.6383ZM29.9772 27.6961C32.044 26.9699 34.1108 26.2488 36.1776 25.5226C36.5635 25.3906 36.7412 24.9183 36.5889 24.4765C36.4366 24.0347 35.9998 23.7808 35.619 23.9129C33.5674 24.6238 31.5159 25.3398 29.4643 26.0508C29.1952 26.2996 29.0936 26.6804 29.2002 27.0308C29.3069 27.3863 29.6116 27.6453 29.9772 27.6961ZM13.7424 33.3429C15.8092 32.6168 17.876 31.8957 19.9428 31.1695C20.3288 31.0375 20.5065 30.5652 20.3541 30.1234C20.2018 29.6816 19.7651 29.4277 19.3842 29.5597C17.3327 30.2707 15.2811 30.9867 13.2295 31.6976C12.9604 31.9465 12.8588 32.3273 12.9655 32.6777C13.0721 33.0281 13.3768 33.2922 13.7424 33.3429ZM21.842 30.5855C23.9088 29.8593 25.9756 29.1383 28.0424 28.4121C28.4284 28.2801 28.6061 27.8078 28.4537 27.366C28.3014 26.9242 27.8647 26.6703 27.4838 26.8023C25.4323 27.5133 23.3807 28.2293 21.3291 28.9402C21.06 29.189 20.9584 29.5699 21.0651 29.9203C21.1666 30.2758 21.4713 30.5347 21.842 30.5855ZM13.0772 23.8722L15.2506 19.6625L20.1459 22.1914C20.3491 22.298 20.5827 22.3183 20.801 22.2472L20.8213 22.2422C21.0448 22.166 21.2276 21.9984 21.3241 21.7851L26.5342 10.2832C26.7323 9.85153 26.5393 9.33864 26.1077 9.14567C25.676 8.9527 25.1631 9.1406 24.9702 9.57224L20.1307 20.2465L15.276 17.7429C14.8545 17.5246 14.3366 17.6922 14.1182 18.1136L11.5487 23.0851C11.3303 23.5066 11.4979 24.0246 11.9194 24.2429C12.3409 24.4562 12.8588 24.2937 13.0772 23.8722Z"
+        fill="#566069"
+      />
     </svg>
   );
 }
