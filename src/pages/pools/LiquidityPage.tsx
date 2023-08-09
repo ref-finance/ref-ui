@@ -1742,9 +1742,7 @@ function PoolRowV2({
   const history = useHistory();
 
   const displayOfTopBinApr = useDCLTopBinFee({
-    pool_id: pool.pool_id,
-    number: 100,
-    ownValue: pool.top_bin_apr_display,
+    pool
   });
 
   if (!curRowTokens) return <></>;
@@ -3002,7 +3000,7 @@ function LiquidityPage_({
               </header>
               <div className="max-h-96 overflow-y-auto  pool-list-container-pc">
                 {allPoolsV2
-                  .sort(poolv2ReSortingFunc)
+                  // .sort(poolv2ReSortingFunc)
                   .filter(poolv2FilterFunc)
                   .map((pool, i) => (
                     <PoolRowV2

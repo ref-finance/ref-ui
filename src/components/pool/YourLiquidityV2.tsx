@@ -173,7 +173,6 @@ export function YourLiquidityV2(props: any) {
         })
       )
     ).then((yourLiquidityList) => {
-      debugger;
       const groupedLiquidity = yourLiquidityList.reduce((acc, cur) => {
         const { pool_id } = cur;
         const [token_x, token_y] = pool_id.split('|');
@@ -367,7 +366,7 @@ export function YourLiquidityV2(props: any) {
             ></FormattedMessage>
           </div>
 
-          <div className="col-span-2 ">Trailing 24hr APR</div>
+          <div className="col-span-2 ">APR(24h)</div>
           <div className="col-span-2 ">
             <FormattedMessage
               id="your_liquidity"
@@ -1284,7 +1283,7 @@ function UserLiquidityLineStyleGroupStyle1() {
                 </span>
               </div>
             </div>
-            {/* Trailing 24hr APR */}
+            {/* APR(24h) */}
             <div className="text-white flex flex-col gap-2  text-sm col-span-2">
               <span>{accountAPR || '-'}</span>
               {joined_seeds ? (
@@ -1473,7 +1472,8 @@ function UserLiquidityLineStyleGroupStyle1() {
                 <GradientButton
                   onClick={(e) => {
                     e.stopPropagation();
-                    history.push('/addLiquidityV2');
+                    const pool_name = get_pool_name(poolDetail.pool_id);
+                    history.push(`/addLiquidityV2#${pool_name}`);
                   }}
                   color="#fff"
                   minWidth="5rem"

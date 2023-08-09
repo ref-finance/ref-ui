@@ -273,8 +273,7 @@ export default function PoolDetailV3() {
   }
 
   const topBinApr = useDCLTopBinFee({
-    pool_id: poolDetail?.pool_id,
-    number: 100,
+    pool: poolDetail
   });
 
   if (!poolDetail) return <Loading></Loading>;
@@ -337,7 +336,7 @@ export default function PoolDetailV3() {
                   <span className="">
                     <FormattedMessage
                       id="top_bin_apr_24h"
-                      defaultMessage={'Top Bin Fee APR(24h)'}
+                      defaultMessage={'Top Bin APR (24h)'}
                     />
                     :{' '}
                     <span className="font-gothamBold text-white">
@@ -643,10 +642,10 @@ function YourLiquidityBox(props: {
     }
   }, [liquidities, Object.keys(tokenPriceList).length]);
   useEffect(() => {
-    if (poolDetail && tokenPriceList && Object.keys(tokenPriceList).length) {
+    if (liquidities && poolDetail && tokenPriceList && Object.keys(tokenPriceList).length) {
       get_24_apr_and_fee();
     }
-  }, [poolDetail, tokenPriceList]);
+  }, [poolDetail, tokenPriceList, liquidities]);
   useEffect(() => {
     if (liquidities) {
       const target = liquidities.find((l: UserLiquidityInfo) => {
@@ -670,19 +669,24 @@ function YourLiquidityBox(props: {
       account_id: accountId,
     });
     if (dcl_fee_result) {
-      // 24h 利润
+      // 24h profit
       apr_24 = get_account_24_apr(dcl_fee_result, poolDetail, tokenPriceList);
+      // total unClaimed fee
+      const [unClaimed_tvl_fee, unClaimed_amount_x_fee, unClaimed_amount_y_fee] = get_unClaimed_fee_data(liquidities, poolDetail, tokenPriceList);
       // total earned fee
       const { total_fee_x, total_fee_y } = dcl_fee_result.total_earned_fee;
-      // 总共赚到的fee
       total_earned_fee_x = toReadableNumber(
         token_x_metadata.decimals,
         Big(total_fee_x || 0).toFixed()
       );
+      total_earned_fee_x = Big(total_earned_fee_x).plus(unClaimed_amount_x_fee).toFixed();
+
       total_earned_fee_y = toReadableNumber(
         token_y_metadata.decimals,
         Big(total_fee_y || 0).toFixed()
       );
+      total_earned_fee_y = Big(total_earned_fee_y).plus(unClaimed_amount_y_fee).toFixed();
+
       const price_x = tokenPriceList[token_x_metadata.id]?.price || 0;
       const price_y = tokenPriceList[token_y_metadata.id]?.price || 0;
       const total_earned_fee_x_value = Big(total_earned_fee_x).mul(price_x);
@@ -690,6 +694,7 @@ function YourLiquidityBox(props: {
       total_fee_earned = total_earned_fee_x_value
         .plus(total_earned_fee_y_value)
         .toFixed();
+        total_fee_earned = Big(total_fee_earned).plus(unClaimed_tvl_fee).toFixed();
     }
     set_earned_fee_y_amount(formatNumber(total_earned_fee_y));
     set_earned_fee_x_amount(formatNumber(total_earned_fee_x));
@@ -1001,7 +1006,7 @@ function YourLiquidityBox(props: {
         </div>
 
         <div className="frcb">
-          <span className="text-primaryText">Trailing 24hr APR</span>
+          <span className="text-primaryText">APR(24h)</span>
 
           <div className="frcs gap-1 flex-wrap text-sm text-white">
             {accountAPR || '-'}
@@ -1142,28 +1147,7 @@ function UnclaimedFeesBox(props: any) {
   const [cliam_loading, set_cliam_loading] = useState(false);
   useEffect(() => {
     if (liquidities) {
-      let total_amount_x_fee = 0;
-      let total_amount_y_fee = 0;
-      let total_tvl_fee = 0;
-      liquidities.forEach((liquidity: UserLiquidityInfo) => {
-        const { unclaimed_fee_x, unclaimed_fee_y } = liquidity;
-        const unclaimed_fee_x_amount = toReadableNumber(
-          token_x_metadata.decimals,
-          unclaimed_fee_x
-        );
-        const unclaimed_fee_y_amount = toReadableNumber(
-          token_y_metadata.decimals,
-          unclaimed_fee_y
-        );
-        const token_x_price = tokenPriceList[token_x_metadata.id]?.price || 0;
-        const token_y_price = tokenPriceList[token_y_metadata.id]?.price || 0;
-        const total_fees_price =
-          Number(unclaimed_fee_x_amount) * Number(token_x_price) +
-          Number(unclaimed_fee_y_amount) * Number(token_y_price);
-        total_amount_x_fee += Number(unclaimed_fee_x_amount);
-        total_amount_y_fee += Number(unclaimed_fee_y_amount);
-        total_tvl_fee += Number(total_fees_price);
-      });
+      const [total_tvl_fee, total_amount_x_fee, total_amount_y_fee] = get_unClaimed_fee_data(liquidities, poolDetail, tokenPriceList)
       set_user_liquidities_total({
         total_amount_x_fee,
         total_amount_y_fee,
@@ -1275,6 +1259,33 @@ function UnclaimedFeesBox(props: any) {
       </div>
     </div>
   );
+}
+function get_unClaimed_fee_data(liquidities:UserLiquidityInfo[], poolDetail:PoolInfo, tokenPriceList:any) {
+  // UnClaimed fee
+  let total_amount_x_fee = 0;
+  let total_amount_y_fee = 0;
+  let total_tvl_fee = 0;
+  const { token_x_metadata, token_y_metadata } = poolDetail
+  liquidities.forEach((liquidity: UserLiquidityInfo) => {
+    const { unclaimed_fee_x, unclaimed_fee_y } = liquidity;
+    const unclaimed_fee_x_amount = toReadableNumber(
+      token_x_metadata.decimals,
+      unclaimed_fee_x
+    );
+    const unclaimed_fee_y_amount = toReadableNumber(
+      token_y_metadata.decimals,
+      unclaimed_fee_y
+    );
+    const token_x_price = tokenPriceList[token_x_metadata.id]?.price || 0;
+    const token_y_price = tokenPriceList[token_y_metadata.id]?.price || 0;
+    const total_fees_price =
+      Number(unclaimed_fee_x_amount) * Number(token_x_price) +
+      Number(unclaimed_fee_y_amount) * Number(token_y_price);
+    total_amount_x_fee += Number(unclaimed_fee_x_amount);
+    total_amount_y_fee += Number(unclaimed_fee_y_amount);
+    total_tvl_fee += Number(total_fees_price);
+  });
+  return  [total_tvl_fee, total_amount_x_fee, total_amount_y_fee];
 }
 function RelatedFarmsBox(props: any) {
   const { poolDetail, tokenPriceList, sole_seed } = props;

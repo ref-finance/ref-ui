@@ -1535,7 +1535,7 @@ export default function DclChart({
       {/* show hover box then hover on the bin */}
       <div className="overBox absolute rounded-xl bg-chartHoverBoxBg border border-assetsBorder px-3 py-2 invisible z-10">
         <div className="flex items-center justify-between my-2">
-          <span className="text-xs text-white">Trailing 24hr APR</span>
+          <span className="text-xs text-white">APR(24h)</span>
           <span className="text-xs text-white gotham_bold">
             {binDetail?.feeApr}
           </span>
@@ -1585,7 +1585,7 @@ export default function DclChart({
                     backgroundColor: `${binDetail?.colors[1]}`,
                   }}
                 ></span>
-                <span className="text-xs text-white">by Limit Orders</span>
+                <span className="text-xs text-white">in Limit Orders</span>
               </div>
               <span className="text-xs text-white gotham_bold">
                 {binDetail.token_x_amount_in_order}
@@ -1631,7 +1631,7 @@ export default function DclChart({
                     backgroundColor: `${binDetail?.colors[0]}`,
                   }}
                 ></span>
-                <span className="text-xs text-white">by Limit Orders</span>
+                <span className="text-xs text-white">in Limit Orders</span>
               </div>
               <span className="text-xs text-white gotham_bold">
                 {binDetail.token_y_amount_in_order}
@@ -1673,7 +1673,7 @@ export default function DclChart({
           </span>
         </div>
         <div className="flex items-center justify-between my-2">
-          <span className="text-xs text-white mr-10">Trailing 24hr APR</span>
+          <span className="text-xs text-white mr-10">APR(24h)</span>
           <span className="text-xs text-white gotham_bold">
             {user_liquidities_detail?.apr_24 || '-'}
           </span>

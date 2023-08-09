@@ -1465,7 +1465,7 @@ function DclChartForward({
       {/* hover到柱子(bin)上的悬浮框 */}
       <div className="overBox absolute rounded-xl bg-chartHoverBoxBg border border-assetsBorder px-3 py-2 invisible z-50">
         <div className="flex items-center justify-between my-2">
-          <span className="text-xs text-white">Trailing 24hr APR</span>
+          <span className="text-xs text-white">APR(24h)</span>
           <span className="text-xs text-white gotham_bold">
             {binDetail?.feeApr}
           </span>
@@ -1515,7 +1515,7 @@ function DclChartForward({
                     backgroundColor: `${binDetail?.colors[1]}`,
                   }}
                 ></span>
-                <span className="text-xs text-white">by Limit Orders</span>
+                <span className="text-xs text-white">in Limit Orders</span>
               </div>
               <span className="text-xs text-white gotham_bold">
                 {binDetail.token_x_amount_in_order}
@@ -1561,7 +1561,7 @@ function DclChartForward({
                     backgroundColor: `${binDetail?.colors[0]}`,
                   }}
                 ></span>
-                <span className="text-xs text-white">by Limit Orders</span>
+                <span className="text-xs text-white">in Limit Orders</span>
               </div>
               <span className="text-xs text-white gotham_bold">
                 {binDetail.token_y_amount_in_order}
@@ -1594,7 +1594,7 @@ function DclChartForward({
           </span>
         </div>
         <div className="flex items-center justify-between my-2">
-          <span className="text-xs text-white mr-10">Trailing 24hr APR</span>
+          <span className="text-xs text-white mr-10">APR(24h)</span>
           <span className="text-xs text-white gotham_bold">
             {user_liquidities_detail?.apr_24 || '-'}
           </span>
@@ -3033,7 +3033,7 @@ function DclChartReverse({
       {/* hover到柱子(bin)上的悬浮框 */}
       <div className="overBox absolute rounded-xl bg-chartHoverBoxBg border border-assetsBorder px-3 py-2 invisible z-10">
         <div className="flex items-center justify-between my-2">
-          <span className="text-xs text-white">Trailing 24hr APR</span>
+          <span className="text-xs text-white">APR(24h)</span>
           <span className="text-xs text-white gotham_bold">
             {binDetail?.feeApr}
           </span>
@@ -3083,7 +3083,7 @@ function DclChartReverse({
                     backgroundColor: `${binDetail?.colors[1]}`,
                   }}
                 ></span>
-                <span className="text-xs text-white">by Limit Orders</span>
+                <span className="text-xs text-white">in Limit Orders</span>
               </div>
               <span className="text-xs text-white gotham_bold">
                 {binDetail.token_x_amount_in_order}
@@ -3129,7 +3129,7 @@ function DclChartReverse({
                     backgroundColor: `${binDetail?.colors[0]}`,
                   }}
                 ></span>
-                <span className="text-xs text-white">by Limit Orders</span>
+                <span className="text-xs text-white">in Limit Orders</span>
               </div>
               <span className="text-xs text-white gotham_bold">
                 {binDetail.token_y_amount_in_order}
@@ -3162,7 +3162,7 @@ function DclChartReverse({
           </span>
         </div>
         <div className="flex items-center justify-between my-2">
-          <span className="text-xs text-white mr-10">Trailing 24hr APR</span>
+          <span className="text-xs text-white mr-10">APR(24h)</span>
           <span className="text-xs text-white gotham_bold">
             {user_liquidities_detail?.apr_24 || '-'}
           </span>
