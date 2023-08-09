@@ -23,7 +23,10 @@ import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { getCurrentHolding } from '../../pages/Orderly/orderly/off-chain-api';
 import { toReadableNumber } from '~utils/numbers';
 import { OverviewData } from '../../pages/Overview';
-import { formatWithCommas_usd,  formatWithCommas_usd_down} from '../../services/overview/utils';
+import {
+  formatWithCommas_usd,
+  formatWithCommas_usd_down,
+} from '../../services/overview/utils';
 import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import { RightArrowIcon, OrderlyLoading, ArrowRightIcon } from './Icons';
 import { openUrl } from '../../services/commonV3';
@@ -58,28 +61,26 @@ export default function OrderlyPanel() {
   const history = useHistory();
   const [tradingKeySet, setTradingKeySet] = useState<boolean>(false);
   const [keyAnnounced, setKeyAnnounced] = useState<boolean>(false);
-  const [maintenance, setMaintenance] = React.useState<boolean>(false);
+
   const [keyLoading, setKeyLoading] = useState<boolean>(false);
   const [refreshCount, setRefreshCount] = useState<number>(0);
   const storageEnough = useStorageEnough();
   const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
   const tokenInfo = useTokenInfo();
-  const { setValidAccountSig } = useOrderlyContext();
+  const { setValidAccountSig, maintenance } = useOrderlyContext();
   const displayBalances: OrderAsset[] = useOrderlyPortfolioAssets(tokenInfo);
   const { totalEst } = usePerpData({ displayBalances, markMode: true });
   const totalAsset = Big(totalEst || 0).toFixed();
   const max_refresh_count = 4;
+
   useEffect(() => {
-    getOrderlySystemInfo().then((res) => {
-      if (res.data.status === 2) {
-        setMaintenance(true);
-      } else {
-        setMaintenance(false);
-      }
-    });
-  }, []);
-  useEffect(() => {
-    if (!accountId || !storageEnough || maintenance || refreshCount > max_refresh_count) return;
+    if (
+      !accountId ||
+      !storageEnough ||
+      maintenance ||
+      refreshCount > max_refresh_count
+    )
+      return;
     if (!!storedValid) {
       setKeyAnnounced(true);
       setTradingKeySet(true);
@@ -90,22 +91,26 @@ export default function OrderlyPanel() {
       .then(async (key_announce) => {
         setKeyAnnounced(key_announce);
         if (!key_announce) {
-          await announceKey(accountId).then((res) => {
-            setKeyAnnounced(true);
-          }).catch((e) => {
-            handleCatch(e);
-          })
+          await announceKey(accountId)
+            .then((res) => {
+              setKeyAnnounced(true);
+            })
+            .catch((e) => {
+              handleCatch(e);
+            });
         }
       })
       .then(() => {
         is_trading_key_set(accountId).then(async (trading_key_set) => {
           setTradingKeySet(trading_key_set);
           if (!trading_key_set) {
-            await setTradingKey(accountId).then(() => {
-              setTradingKeySet(true);
-            }).catch((e) => {
-              handleCatch(e);
-            })
+            await setTradingKey(accountId)
+              .then(() => {
+                setTradingKeySet(true);
+              })
+              .catch((e) => {
+                handleCatch(e);
+              });
           }
           setKeyLoading(false);
         });
@@ -114,8 +119,8 @@ export default function OrderlyPanel() {
         handleCatch(e);
       });
   }, [accountId, storageEnough, maintenance, refreshCount]);
-  
-  function handleCatch(e:any) {
+
+  function handleCatch(e: any) {
     setKeyAnnounced(false);
     setTradingKeySet(false);
     localStorage.removeItem(REF_ORDERLY_ACCOUNT_VALID);
@@ -124,7 +129,7 @@ export default function OrderlyPanel() {
     } else {
       setKeyLoading(true);
     }
-    setRefreshCount(refreshCount + 1)
+    setRefreshCount(refreshCount + 1);
   }
   useEffect(() => {
     if (!tradingKeySet || !keyAnnounced) return;

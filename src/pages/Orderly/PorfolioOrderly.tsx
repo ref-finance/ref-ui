@@ -66,9 +66,9 @@ function PortfolioOrderly() {
     holdings,
     myPendingOrdersRefreshing,
     needRefresh,
+    maintenance,
   } = useOrderlyContext();
   const isSignedIn = globalState.isSignedIn;
-  const [maintenance, setMaintenance] = useState<boolean>(undefined);
   // for connect wallet
   const [tradingKeySet, setTradingKeySet] = useState<boolean>(false);
   const [keyAnnounced, setKeyAnnounced] = useState<boolean>(false);
@@ -254,16 +254,6 @@ function PortfolioOrderly() {
       });
     });
   };
-
-  useEffect(() => {
-    getOrderlySystemInfo().then((res) => {
-      if (res.data.status === 2) {
-        setMaintenance(true);
-      } else {
-        setMaintenance(false);
-      }
-    });
-  }, []);
 
   const [totalEstFinal, setTotalEstFinal] = useState<string>('0');
   const [futureOrders, setFutureOrders] = useState<MyOrder[]>();
