@@ -765,8 +765,6 @@ export default function LimitOrderCard(props: {
     tokenPriceList,
   });
 
-  console.log('mostPoolDetail: ', mostPoolDetail);
-
   useEffect(() => {
     if (!mostPoolDetail) setCurOrderPrice(null);
     if (!mostPoolDetail || !tokenIn || !tokenOut || !quoteDoneLimit) {

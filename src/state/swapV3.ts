@@ -41,7 +41,6 @@ export const useAllPoolsV2 = () => {
   const [allPools, setAllPools] = useState<PoolInfo[]>();
 
   const tokenPriceList = useTokenPriceList();
-  console.log('tokenPriceList: ', tokenPriceList);
 
   useEffect(() => {
     if (!tokenPriceList) return;

@@ -460,8 +460,6 @@ export const estimateSwap = async ({
       parsedAmountIn
     );
 
-    console.log('supportLedgerRes: ', supportLedgerRes);
-
     return { estimates: supportLedgerRes, tag };
   }
 
@@ -774,7 +772,7 @@ export async function getHybridStableSmart(
       const tobeAddedPools = tmpPools.concat(stablePools);
       pools2.push(
         ...tobeAddedPools.filter((p: any) => {
-          const supplies = Object.values(p.supplies);
+          const supplies = Object.values(p.supplies) as any;
           return new Big(supplies[0]).times(new Big(supplies[1])).gt(0);
         })
       );

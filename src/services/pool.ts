@@ -310,8 +310,6 @@ const fetchTopPools = async () => {
       protocol: 'indexer',
     };
   } catch (error) {
-    console.log('error: ', error);
-
     sessionStorage.setItem(REF_FI_POOL_PROTOCOL, 'rpc');
 
     await db.topPools.clear();
@@ -349,12 +347,9 @@ export const getPoolsByTokens = async ({
     );
   };
 
-  console.log('loadingTrigger: ', loadingTrigger);
-
   if (loadingTrigger) {
     const { pools: poolsRaw, protocol } = await fetchTopPools();
     pool_protocol = protocol;
-    console.log('protocol: ', protocol);
 
     if (protocol === 'indexer') {
       await db.cacheTopPools(poolsRaw);
@@ -382,11 +377,9 @@ export const getPoolsByTokens = async ({
 
     const cachedPoolProtocol = sessionStorage.getItem(REF_FI_POOL_PROTOCOL);
     pool_protocol = cachedPoolProtocol || 'indexer';
-    console.log('pool_protocol: ', pool_protocol);
 
     if (cachedPoolProtocol === 'rpc') {
       pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
-      console.log('pools from rpc: ', pools);
 
       if (!pools || pools.length === 0) {
         pools = await fetchPoolsRPC();
@@ -435,8 +428,6 @@ export const getPoolsByTokens = async ({
         isNotStablePool(pool)
       );
     });
-
-  console.log('filteredPools: ', filteredPools);
 
   return { filteredPools, pool_protocol };
 };
@@ -1324,8 +1315,7 @@ export const getAllStablePoolsFromCache = async (loadingTriger?: boolean) => {
   const res = await Promise.all(
     ALL_STABLE_POOL_IDS.filter((id) => {
       return !BLACKLIST_POOL_IDS.includes(id.toString());
-    })
-    .map((id) => getStablePoolFromCache(id.toString(), loadingTriger))
+    }).map((id) => getStablePoolFromCache(id.toString(), loadingTriger))
   );
 
   const allStablePoolsById = res.reduce((pre, cur, i) => {

@@ -2052,7 +2052,6 @@ function LiquidityPage_({
   const inputRef = useRef(null);
 
   const allPoolsV2 = useAllPoolsV2();
-  console.log('allPoolsV2: ', allPoolsV2);
 
   const [tvlV2, setTvlV2] = useState<string>();
 
@@ -3847,7 +3846,6 @@ function StablePoolList({
   const [sortBy, setSortBy] = useState<string>('tvl');
 
   const allStablePoolData = useAllStablePoolData();
-  console.log('allStablePoolData: ', allStablePoolData);
 
   if (!allStablePoolData || allStablePoolData.some((pd) => !pd))
     return <Loading />;

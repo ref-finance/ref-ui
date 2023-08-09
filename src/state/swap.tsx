@@ -1053,7 +1053,6 @@ export const useLimitOrder = ({
         setQuoteDone(true);
       });
   }, [selectedV3LimitPool, loadingTrigger, swapMode]);
-  console.log('selectedV3LimitPool: ', selectedV3LimitPool);
 
   useEffect(() => {
     if (notLimitMode || !tokenIn || !tokenOut) {
@@ -1126,7 +1125,6 @@ export const useLimitOrder = ({
           sumOfCounts === 0 ? ['0', '0', '0', '0'] : finalPercents;
 
         const percensNew = percents.map((p, i) => (!!res[i] ? p : null));
-        console.log('percensNew: ', percensNew);
 
         const toCounts = percensNew.reduce((acc, cur, index) => {
           return {
@@ -1152,7 +1150,6 @@ export const useLimitOrder = ({
         setPoolToOrderCounts(toCounts);
       })
       .catch((e) => {
-        console.log('e: ', e);
         const allPoolsForThisPair = V3_POOL_FEE_LIST.map((fee) =>
           getV3PoolId(tokenIn.id, tokenOut.id, fee)
         );
