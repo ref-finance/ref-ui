@@ -422,7 +422,7 @@ function OrderlyUnderMaintain() {
       className="absolute xs:fixed w-screen h-full  left-0 flex items-center justify-center"
       style={{
         background: 'rgba(0, 19, 32, 0.6)',
-        zIndex: 190,
+        zIndex: 90,
         backdropFilter: isMobile() ? 'blur(5px)' : '',
         WebkitBackdropFilter: isMobile() ? 'blur(5px)' : '',
       }}

@@ -89,6 +89,12 @@ function PortfolioOrderly() {
   const [chooseOrderType, setChooseOrderType] = useState<
     'all' | 'limit' | 'market'
   >('all');
+  React.useEffect(() => {
+    if (maintenance && isMobile()) {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+    }
+  }, [maintenance]);
 
   const [mobileFilterOpen, setMobileFilterOpen] = useState<number>(0);
   const [selectedOrder, setSelectedOrder] = useState<MyOrder>();
