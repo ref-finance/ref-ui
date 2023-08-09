@@ -3,7 +3,7 @@ import { AiOutlineMedium } from 'react-icons/ai';
 import { FaDiscord, FaTelegramPlane, FaTwitter } from 'react-icons/fa';
 import { HiOutlineExternalLink } from 'react-icons/hi';
 import { FormattedMessage, useIntl } from 'react-intl';
-
+import { useLocation } from 'react-router-dom';
 import {
   Rainbow,
   Ethereum,
@@ -248,6 +248,10 @@ export const useMenus = (cb?: () => void) => {
   const history = useHistory();
   const intl = useIntl();
 
+  const location = useLocation();
+
+  const pathName = location.pathname;
+
   const menuData = [
     {
       id: '1',
@@ -314,7 +318,7 @@ export const useMenus = (cb?: () => void) => {
                     width: '120px',
                   }}
                   className={`frcc  hover:bg-v3SwapGray  border-v3SwapGray border-opacity-10 hover:bg-opacity-10 w-1/2 rounded-xl py-2 ${
-                    window.location.pathname.startsWith('/orderbook/spot')
+                    pathName.startsWith('/orderbook/spot')
                       ? ' bg-hoverSubBridge bg-opacity-50'
                       : 'border'
                   }`}
@@ -338,7 +342,7 @@ export const useMenus = (cb?: () => void) => {
                     width: '120px',
                   }}
                   className={`frcc  hover:bg-v3SwapGray hover:bg-opacity-10  border-v3SwapGray border-opacity-10 w-1/2 rounded-xl py-2  ${
-                    window.location.pathname.startsWith('/orderbook/perps')
+                    pathName.startsWith('/orderbook/perps')
                       ? ' bg-hoverSubBridge bg-opacity-50'
                       : 'border'
                   }`}

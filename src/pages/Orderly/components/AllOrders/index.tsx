@@ -4267,13 +4267,18 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
     !!localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID) &&
     !maintenance;
 
-  const [tab, setTab] = useState<'open' | 'history' | 'positions'>('open');
+  const [tab, setTab] = useState<'open' | 'history' | 'positions'>(
+    symbolType === 'PERP' ? 'positions' : 'open'
+  );
 
   useEffect(() => {
     if (symbolType === 'SPOT' && tab === 'positions') {
       setTab('open');
     }
-  }, [symbolType, tab]);
+    if (symbolType === 'PERP') {
+      setTab('positions');
+    }
+  }, [symbolType]);
 
   const { newPositions } = usePerpData();
 
