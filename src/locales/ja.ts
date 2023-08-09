@@ -1198,5 +1198,6 @@ const ja = {
   low_risk: 'Low Risk',
   mid_risk: 'Medium Risk',
   high_risk: 'High Risk',
+  pool_refresh: 'Something wrong with the server, please try again later.',
 };
 export default Object.assign(ja, ja_in_risks_page);

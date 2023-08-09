@@ -30,11 +30,7 @@ import {
   getCurrentWallet,
   WalletContext,
 } from '../../utils/wallets-integration';
-import {
-  useStabelPoolData,
-  PoolData,
-  useAllStablePoolData,
-} from '../../state/sauce';
+import { PoolData, useAllStablePoolData } from '../../state/sauce';
 import { useYourliquidity } from '../../state/pool';
 import { useCanFarmV1, useCanFarmV2 } from '../../state/farm';
 import {
@@ -123,9 +119,13 @@ export function formatePoolData({
     userTotalShare.toString()
   );
 
-  const displayTVL = `$${toInternationalCurrencySystem(poolTVL.toString(), 2)}`;
+  const displayTVL =
+    poolTVL === undefined
+      ? '-'
+      : `$${toInternationalCurrencySystem(poolTVL?.toString() || '0', 2)}`;
 
-  const TVLtitle = `${toPrecision(poolTVL.toString(), 2)}`;
+  const TVLtitle =
+    poolTVL === undefined ? '-' : `${toPrecision(poolTVL.toString(), 2)}`;
 
   const displayMyShareAmount = isSignedIn
     ? toPrecision(

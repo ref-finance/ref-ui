@@ -106,6 +106,7 @@ import { SUPPORT_LEDGER_KEY } from '../components/swap/SwapCard';
 import { openUrl } from '../services/commonV3';
 import { hasTriPools } from '../services/aurora/aurora';
 import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
+import { useIndexerStatus } from './pool';
 const ONLY_ZEROS = /^0*\.?0*$/;
 
 export const REF_DCL_POOL_CACHE_KEY = 'REF_DCL_POOL_CACHE_VALUE';
@@ -1030,6 +1031,8 @@ export const useLimitOrder = ({
 
   const [mostPoolDetail, setMostPoolDetail] = useState<PoolInfo>();
 
+  const { fail: indexerFail } = useIndexerStatus();
+
   const [poolToOrderCounts, setPoolToOrderCounts] = useState<{
     [key: string]: string | null;
   }>();
@@ -1139,7 +1142,8 @@ export const useLimitOrder = ({
           res?.some(
             (r) => !!r && (Number(r?.total_x) > 0 || Number(r?.total_y) > 0)
           ) &&
-          percents.every((p) => Number(p) === 0)
+          percents.every((p) => Number(p) === 0) &&
+          !indexerFail
         )
           return;
         const temp = {};
@@ -1155,7 +1159,7 @@ export const useLimitOrder = ({
         );
         setSelectedV3LimitPool(allPoolsForThisPair[2]);
       });
-  }, [tokenIn?.id, tokenOut?.id, tokenPriceList, swapMode]);
+  }, [tokenIn?.id, tokenOut?.id, tokenPriceList, swapMode, indexerFail]);
 
   useEffect(() => {
     if (!poolToOrderCounts) return null;

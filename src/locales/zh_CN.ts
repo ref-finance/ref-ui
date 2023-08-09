@@ -1261,6 +1261,7 @@ const zh_CN = {
   open_interest: '未平仓量',
   TokenAllocation: '代币分布',
   bridge_pure: '桥',
+  pool_refresh: 'Something wrong with the server, please try again later.',
 
   netWorthTip:
     'Ref中的投资总价值(包括可领取奖励)+Orderly资产总价值+ Burrow资产总价值+钱包中的总资产',

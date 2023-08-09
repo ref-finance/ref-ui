@@ -1155,6 +1155,8 @@ const uk_UA = {
   open_interest: 'Open Interest',
   TokenAllocation: 'Token Allocation',
   bridge_pure: 'Міст',
+  pool_refresh: 'Something wrong with the server, please try again later.',
+
   netWorthTip:
     'Total value of investments in Ref (including claimable rewards) + Total value of Orderly assets + Total value of Burrow assets + Total assets in wallet',
 

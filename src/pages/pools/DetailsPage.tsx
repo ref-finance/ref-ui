@@ -13,6 +13,7 @@ import {
   TVLDataType,
   TVLType,
   useDayVolume,
+  useIndexerStatus,
 } from '~state/pool';
 import {
   addLiquidityToPool,
@@ -169,6 +170,7 @@ import Big from 'big.js';
 import { getEffectiveFarmList, sort_tokens_by_base } from '~services/commonV3';
 import { openUrl } from '../../services/commonV3';
 import { numberWithCommas } from '../Orderly/utiles';
+import { PoolRefreshModal } from './PoolRefreshModal';
 
 interface ParamTypes {
   id: string;
@@ -390,11 +392,15 @@ function PoolDetailCard({
                 defaultMessage={'TVL'}
               ></FormattedMessage>
             }
-            value={`$${
-              Number(poolTVL) < 0.01 && Number(poolTVL) > 0
-                ? '< 0.01'
-                : toInternationalCurrencySystem(poolTVL || '0', 2)
-            }`}
+            value={
+              !poolTVL
+                ? '-'
+                : `$${
+                    Number(poolTVL) < 0.01 && Number(poolTVL) > 0
+                      ? '< 0.01'
+                      : toInternationalCurrencySystem(poolTVL || '0', 2)
+                  }`
+            }
             valueTitle={poolTVL}
           />
           <DetailRow
@@ -1829,6 +1835,7 @@ export function PoolDetailsPage() {
   const { id } = useParams<ParamTypes>();
   const { state } = useLocation<LocationTypes>();
   const { pool, shares, finalStakeList: stakeList } = usePool(id);
+  const { fail: indexerFail } = useIndexerStatus();
 
   const [farmVersion, setFarmVersion] = useState<string>('');
 
@@ -2315,14 +2322,18 @@ export function PoolDetailsPage() {
                   ></FormattedMessage>
                 }
                 id="tvl"
-                value={`$${
-                  Number(poolTVL) < 0.01 && Number(poolTVL) > 0
-                    ? '< 0.01'
-                    : toInternationalCurrencySystem(
-                        poolTVL?.toString() || '0',
-                        2
-                      )
-                }`}
+                value={
+                  !poolTVL
+                    ? '-'
+                    : `$${
+                        Number(poolTVL) < 0.01 && Number(poolTVL) > 0
+                          ? '< 0.01'
+                          : toInternationalCurrencySystem(
+                              poolTVL?.toString() || '0',
+                              2
+                            )
+                      }`
+                }
                 valueTitle={poolTVL?.toString()}
               />
 
@@ -2385,14 +2396,19 @@ export function PoolDetailsPage() {
                     data-tip={getPoolListFarmAprTip()}
                     data-for={'pool_list_pc_apr' + pool.id}
                   >
-                    {dayVolume
+                    {!poolTVL
+                      ? '-'
+                      : dayVolume
                       ? `${getPoolFeeApr(dayVolume, pool, poolTVL)}%`
                       : '-'}
-                    {dayVolume && seedFarms && BaseApr().rawApr > 0 && (
-                      <span className="text-xs text-gradientFrom">
-                        {` +` + BaseApr().displayApr}
-                      </span>
-                    )}
+                    {poolTVL &&
+                      dayVolume &&
+                      seedFarms &&
+                      BaseApr().rawApr > 0 && (
+                        <span className="text-xs text-gradientFrom">
+                          {` +` + BaseApr().displayApr}
+                        </span>
+                      )}
 
                     {!!seedFarms &&
                       !isMobile() &&
@@ -2791,6 +2807,9 @@ export function PoolDetailsPage() {
           },
         }}
       />
+      {indexerFail && (
+        <PoolRefreshModal isOpen={indexerFail}></PoolRefreshModal>
+      )}
     </>
   );
 }
