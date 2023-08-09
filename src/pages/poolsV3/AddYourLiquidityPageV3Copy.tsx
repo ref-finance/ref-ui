@@ -68,7 +68,6 @@ import {
   DEFAULTSELECTEDFEE,
   POINTLEFTRANGE,
   POINTRIGHTRANGE,
-  useAddAndRemoveUrlHandle,
   get_matched_seeds_for_dcl_pool,
   get_all_seeds,
   get_pool_id,
@@ -182,8 +181,6 @@ function AddYourLiquidityPageV3Forward() {
     UserLiquidityInfo[]
   >([]);
 
-  // callBack handle
-  useAddAndRemoveUrlHandle();
   const history = useHistory();
   const triTokenIds = useTriTokenIdsOnRef();
   const refTokens = useWhitelistTokens((triTokenIds || []).concat(['aurora']));
@@ -2341,8 +2338,6 @@ function AddYourLiquidityPageV3Reverse() {
     UserLiquidityInfo[]
   >([]);
 
-  // callBack handle
-  useAddAndRemoveUrlHandle();
   const history = useHistory();
   const triTokenIds = useTriTokenIdsOnRef();
   const refTokens = useWhitelistTokens((triTokenIds || []).concat(['aurora']));

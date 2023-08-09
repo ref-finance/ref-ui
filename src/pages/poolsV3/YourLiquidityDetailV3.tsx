@@ -39,7 +39,6 @@ import {
   getPriceByPoint,
   CONSTANT_D,
   UserLiquidityInfo,
-  useAddAndRemoveUrlHandle,
   getXAmount_per_point_by_Lx,
   getYAmount_per_point_by_Ly,
   drawChartData,
@@ -87,17 +86,12 @@ export default function YourLiquidityDetail(props: any) {
   const [listLiquidities, setListLiquidities] = useState<UserLiquidityInfo[]>(
     []
   );
-
-  console.log('listLiquidities: ', listLiquidities);
-
   const [listLiquiditiesDone, setListLiquiditiesDone] =
     useState<Boolean>(false);
   const [is_in_farming, set_is_in_farming] = useState<boolean>(true);
   const [is_in_farming_done, set_is_in_farming_done] = useState<boolean>(false);
   const [related_farms, set_related_farms] = useState<FarmBoost[]>([]);
   const history = useHistory();
-  // callBack handle
-  useAddAndRemoveUrlHandle();
   const { id, status } = props.match.params || {};
   let is_old_dcl: boolean;
   let tokenXId, tokenYId, feeV, lId;

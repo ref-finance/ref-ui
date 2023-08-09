@@ -34,7 +34,6 @@ import {
   CONSTANT_D,
   getXAmount_per_point_by_Lx,
   getYAmount_per_point_by_Ly,
-  useAddAndRemoveUrlHandle,
   TOKEN_LIST_FOR_RATE,
   allocation_rule_liquidities,
   get_matched_seeds_for_dcl_pool,
@@ -47,6 +46,7 @@ import {
   openUrl,
   get_account_24_apr,
   get_token_amount_in_user_liquidities,
+  useRemoveLiquidityUrlHandle,
 } from '~services/commonV3';
 import { ftGetTokensMetadata } from '../../services/ft-contract';
 import {
@@ -161,7 +161,7 @@ export default function PoolDetailV3() {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   // callBack handle
-  useAddAndRemoveUrlHandle();
+  useRemoveLiquidityUrlHandle();
   useEffect(() => {
     get_pool_detail();
     get_user_list_liquidities();

@@ -50,7 +50,7 @@ import {
   DEFAULTSELECTEDFEE,
   POINTLEFTRANGE,
   POINTRIGHTRANGE,
-  useAddAndRemoveUrlHandle,
+  useAddLiquidityUrlHandle,
   get_pool_id,
   get_pool_name,
   openUrl,
@@ -145,7 +145,7 @@ export default function AddYourLiquidityPageV3() {
   const [pair_is_reverse, set_pair_is_reverse] = useState<boolean>(false);
 
   // callBack handle
-  useAddAndRemoveUrlHandle();
+  useAddLiquidityUrlHandle();
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const nearBalance = useDepositableBalance('NEAR');
@@ -222,7 +222,6 @@ export default function AddYourLiquidityPageV3() {
   // get base info of currentSelectedPool
   useEffect(() => {
     if (currentSelectedPool?.pool_id) {
-      console.log('000000000---pool_id', currentSelectedPool.pool_id);
       const { current_point, point_delta } = currentSelectedPool;
       const n = get_slot_number_in_a_bin();
       const bin_width = n * point_delta;
@@ -2746,11 +2745,6 @@ function AddLiquidityButton() {
     useState(false);
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
-  const { token_x, token_y, point_delta, pool_id } = currentSelectedPool;
-  const token_x_decimals =
-    tokenX.id == token_x ? tokenX.decimals : tokenY.decimals;
-  const token_y_decimals =
-    tokenY.id == token_y ? tokenY.decimals : tokenX.decimals;
 
   function addLiquiditySpot() {
     setAddLiquidityButtonLoading(true);

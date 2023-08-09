@@ -38,7 +38,6 @@ import {
   DEFAULTSELECTEDFEE,
   POINTLEFTRANGE,
   POINTRIGHTRANGE,
-  useAddAndRemoveUrlHandle,
   drawChartData,
   TOKEN_LIST_FOR_RATE,
   displayNumberToAppropriateDecimals,

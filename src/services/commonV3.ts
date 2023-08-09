@@ -138,7 +138,7 @@ export interface IOrderInfoPool {
   amount_y: string;
 }
 
-export function useAddAndRemoveUrlHandle() {
+export function useAddLiquidityUrlHandle() {
   const history = useHistory();
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -157,48 +157,56 @@ export function useAddAndRemoveUrlHandle() {
             ?.method_name;
         const methodNameNormal =
           transaction?.actions[0]?.['FunctionCall']?.method_name;
-        const argsNormal = transaction?.actions[0]?.['FunctionCall']?.args;
-        const argsNeth =
-          receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall?.args;
-        const args = isNeth ? argsNeth : argsNormal;
         const methodName = isNeth ? methodNameNeth : methodNameNormal;
         const successValue = isNeth ? successValueNeth : successValueNormal;
         let returnValue;
-        let argsValue;
         if (successValue) {
           const buff = Buffer.from(successValue, 'base64');
           const v = buff.toString('ascii');
           returnValue = v.substring(1, v.length - 1);
         }
-        if (args) {
-          const buff = Buffer.from(args, 'base64');
-          const v = buff.toString('ascii');
-          argsValue = v;
+        let pool_info: string[] = [];
+        if (methodName == 'add_liquidity') {
+          pool_info = returnValue.split('|');
+        } else if (methodName == 'batch_add_liquidity') {
+          pool_info = returnValue.replace(/\"/g, '').split(',')[0]?.split('|');
         }
-        if (methodName == 'append_liquidity' && argsValue) {
-          const parmas = JSON.parse(argsValue);
-          const { lpt_id } = parmas;
-          const [tokenX, tokenY, id] = lpt_id.split('|');
-          const [fee, hashId] = id.split('#');
+        if (pool_info.length) {
+          const [tokenX, tokenY, id] = pool_info;
+          const [fee] = id.split('#');
           const pool_name = get_pool_name(`${tokenX}|${tokenY}|${fee}`);
-          const paramsId = `${pool_name}@${hashId}`;
-          history.replace('/yoursLiquidityDetailV2/' + `${paramsId}`);
-        } else if (methodName == 'add_liquidity' && returnValue) {
-          const [tokenX, tokenY, id] = returnValue.split('|');
-          const [fee, hashId] = id.split('#');
-          const pool_name = get_pool_name(`${tokenX}|${tokenY}|${fee}`);
-          const paramsId = `${pool_name}@${hashId}`;
-          history.replace('/yoursLiquidityDetailV2/' + `${paramsId}`);
-        } else if (methodName == 'remove_liquidity' && argsValue) {
-          const parmas = JSON.parse(argsValue);
-          const { amount, min_amount_x, min_amount_y } = parmas;
-          if (+amount == 0 && +min_amount_x == 0 && +min_amount_y == 0) {
-            history.replace(`${location.pathname}`);
-          } else {
-            history.replace('/yourliquidity');
-          }
-        } else if (methodName == 'create_pool' && returnValue) {
-          history.replace(`${location.pathname}#${returnValue}`);
+          history.replace('/poolV2/' + `${pool_name}`);
+        }
+      });
+    }
+  }, [txHash, isSignedIn]);
+}
+export function useRemoveLiquidityUrlHandle() {
+  const history = useHistory();
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
+  const { txHash } = getURLInfo();
+  useEffect(() => {
+    if (txHash && isSignedIn) {
+      checkTransaction(txHash).then((res: any) => {
+        const { transaction, receipts, receipts_outcome } = res;
+        receipts_outcome?.[1]?.outcome?.status?.SuccessValue;
+        const isNeth =
+          transaction?.actions?.[0]?.FunctionCall?.method_name === 'execute';
+        const methodNameNeth =
+          receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall
+            ?.method_name;
+        const methodNameNormal =
+          transaction?.actions[0]?.['FunctionCall']?.method_name;
+        const methodName = isNeth ? methodNameNeth : methodNameNormal;
+        if (
+          methodName == 'batch_remove_liquidity' ||
+          methodName == 'batch_update_liquidity' ||
+          methodName == 'withdraw_asset'
+        ) {
+          history.replace('/yourliquidity');
+        } else {
+          history.replace(`${location.pathname}`);
         }
       });
     }

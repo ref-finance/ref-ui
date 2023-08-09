@@ -33,7 +33,6 @@ import {
   getPriceByPoint,
   CONSTANT_D,
   UserLiquidityInfo,
-  useAddAndRemoveUrlHandle,
   getXAmount_per_point_by_Lx,
   getYAmount_per_point_by_Ly,
   TOKEN_LIST_FOR_RATE,
@@ -137,8 +136,6 @@ export default function YourLiquidityPageV3() {
   const [checkedStatus, setCheckedStatus] = useState('all');
   const [addLiqudityHover, setAddLiqudityHover] = useState(false);
   const [all_seeds, set_all_seeds] = useState<Seed[]>([]);
-  // callBack handle
-  useAddAndRemoveUrlHandle();
   const history = useHistory();
   const pool_link = sessionStorage.getItem(REF_POOL_NAV_TAB_KEY);
 

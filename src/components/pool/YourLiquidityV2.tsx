@@ -46,6 +46,7 @@ import {
   get_valid_range,
   get_total_value_by_liquidity_amount_dcl,
   get_token_amount_in_user_liquidities,
+  useRemoveLiquidityUrlHandle,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import {
@@ -112,6 +113,7 @@ export function YourLiquidityV2(props: any) {
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+  useRemoveLiquidityUrlHandle();
   useEffect(() => {
     getBoostTokenPrices().then(setTokenPriceList);
     get_all_seeds().then((seeds: Seed[]) => {
