@@ -1183,6 +1183,7 @@ const ru = {
   TotalAssets: 'Total Assets',
   TokenAllocation: 'Token Allocation',
   bridge_pure: 'Перенос',
+  pool_refresh: 'Something wrong with the server, please try again later.',
 
   netWorthTip:
     'Total value of investments in Ref (including claimable rewards) + Total value of Orderly assets + Total value of Burrow assets + Total assets in wallet',

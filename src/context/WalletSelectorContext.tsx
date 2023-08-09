@@ -119,6 +119,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         setupSender({
           iconUrl: walletIcons['sender'],
         }),
+        // @ts-ignore
         setupMeteorWallet({
           iconUrl: walletIcons['meteor-wallet'],
         }),
@@ -127,18 +128,14 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
           gas: '300000000000000',
           bundle: false,
         }),
-        // setupMeteorWallet({
-        //   iconUrl: walletIcons['meteor-wallet'],
-        // }),
-        // setupMathWallet({
-        //   iconUrl: walletIcons['math-wallet'],
-        // }),
+        // @ts-ignore
         setupNightly({
           iconUrl: walletIcons['nightly'],
         }),
         setupLedger({
           iconUrl: walletIcons['ledger'],
         }),
+        // @ts-ignore
         setupHereWallet(),
         // setupNightlyConnect({
         //   url: 'wss://ncproxy.nightly.app/app',
