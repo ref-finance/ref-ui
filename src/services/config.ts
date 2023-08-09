@@ -113,7 +113,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
 
         helperUrl: 'https://api.kitwallet.app',
         explorerUrl: 'https://nearblocks.io',
-        indexerUrl: 'https://1mainnet-indexer.ref-finance.com',
+        indexerUrl: 'https://mainnet-indexer.ref-finance.com',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3', '2769#2'],
         REF_FI_CONTRACT_ID:
