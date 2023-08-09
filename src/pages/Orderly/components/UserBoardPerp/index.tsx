@@ -400,14 +400,19 @@ function UserBoardFoot() {
       )}
 
       <div className={`frcc gap-1 relative `}>
-        <span className="text-primaryText  whitespace-nowrap">Powered by</span>
+        <span className="text-primaryText  whitespace-nowrap">
+          <FormattedMessage
+            id="powered_by"
+            defaultMessage={'Powered by'}
+          ></FormattedMessage>
+        </span>
 
         <OrderlyNetworkIcon></OrderlyNetworkIcon>
 
         <div className="frcs gap-2  text-primaryText">
           <a
             href="https://docs.orderly.network/welcome-to-orderly/what-is-orderly-network"
-            className="underline hover:text-white"
+            className="underline hover:text-white  whitespace-nowrap"
             target="_blank"
             rel="noopener noreferrer nofollow"
           >
@@ -419,7 +424,7 @@ function UserBoardFoot() {
 
           <a
             href="https://docs.orderly.network/perpetual-futures/introduction"
-            className="underline hover:text-white"
+            className="underline hover:text-white whitespace-nowrap"
             target="_blank"
             rel="noopener noreferrer nofollow"
           >

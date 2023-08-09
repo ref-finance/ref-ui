@@ -2,7 +2,7 @@ import React, { createContext, useEffect, useContext, useState } from 'react';
 import Big from 'big.js';
 import ReactTooltip from 'react-tooltip';
 import _ from 'lodash';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import { isMobile } from '~utils/device';
 import { executeMultipleTransactions } from '~services/near';
@@ -327,7 +327,10 @@ function PortfolioOrderly() {
               <div className="col-span-2 mb-3">
                 <div className="flex items-center">
                   <span className="text-sm text-primaryText flex items-center">
-                    Total Est. Value
+                    <FormattedMessage
+                      id="total_est_value"
+                      defaultMessage={'Total Est. Value'}
+                    ></FormattedMessage>
                     <div
                       className="text-white text-right ml-1"
                       data-class="reactTip"
@@ -380,7 +383,12 @@ function PortfolioOrderly() {
               </div>
               <div className="col-span-2 mb-3">
                 <div className="flex items-center">
-                  <span className="text-sm text-primaryText">Available</span>
+                  <span className="text-sm text-primaryText">
+                    <FormattedMessage
+                      id="available"
+                      defaultMessage={'Available'}
+                    ></FormattedMessage>
+                  </span>
                 </div>
                 <span className="text-xl gotham_bold text-white mt-1 flex items-center">
                   ${totalAvailable}

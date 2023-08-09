@@ -417,7 +417,12 @@ function UserBoardFoot() {
       )}
 
       <div className={`flex items-center justify-center  relative `}>
-        <span className="text-primaryText  ">Powered by</span>
+        <span className="text-primaryText  ">
+          <FormattedMessage
+            id="powered_by"
+            defaultMessage={'Powered by'}
+          ></FormattedMessage>
+        </span>
 
         <div className="mx-2">
           <OrderlyNetworkIcon></OrderlyNetworkIcon>
@@ -425,7 +430,7 @@ function UserBoardFoot() {
 
         <a
           href="https://docs.orderly.network/welcome-to-orderly/what-is-orderly-network"
-          className="underline hover:text-white"
+          className="underline hover:text-white whitespace-nowrap"
           target="_blank"
           rel="noopener noreferrer nofollow"
         >

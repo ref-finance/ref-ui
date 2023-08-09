@@ -220,7 +220,10 @@ export const usePortableOrderlyTable = ({
   );
 
   const ordersTable: PortfolioTable = {
-    title: 'Orders',
+    title: intl.formatMessage({
+      id: 'orders',
+      defaultMessage: 'Orders',
+    }),
     tabs: [
       // getOrders
       {
@@ -807,7 +810,10 @@ export const usePortableOrderlyTable = ({
   };
 
   const assetsTables: PortfolioTable = {
-    title: 'Assets',
+    title: intl.formatMessage({
+      id: 'assets',
+      defaultMessage: 'Assets',
+    }),
     tabs: [
       {
         id: 'spot',
@@ -1162,7 +1168,10 @@ export const usePortableOrderlyTable = ({
   };
 
   const recordsTable: PortfolioTable = {
-    title: 'Records',
+    title: intl.formatMessage({
+      id: 'records',
+      defaultMessage: 'Records',
+    }),
     tabs: [
       {
         id: 'deposit',
