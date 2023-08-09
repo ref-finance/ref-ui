@@ -106,14 +106,14 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
 
   React.useEffect(() => {
     getOrderlySystemInfo().then((res) => {
-      // if (res.data.status === 2) {
-      //   setMaintenance(true);
-      // } else {
-      //   setMaintenance(false);
-      // }
+      if (res.data.status === 2) {
+        setMaintenance(true);
+      } else {
+        setMaintenance(false);
+      }
 
       // mock maintenance
-      setMaintenance(true);
+      // setMaintenance(true);
     });
   }, []);
 
