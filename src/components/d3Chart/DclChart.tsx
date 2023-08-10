@@ -417,20 +417,22 @@ export default function DclChart({
     const [price_l, price_r] = get_price_range_by_percent(rangeGear[0], true);
     const point_l = get_point_by_price(price_l);
     const point_r = get_point_by_price(price_r);
-    let list = [];
-    if (chartType == 'USER' && accountId) {
-      const liquidities = await list_liquidities();
-      const nfts = liquidities.filter((l: UserLiquidityInfo) => {
-        return l.pool_id == pool_id;
-      });
-      set_user_liquidities(nfts);
-      list = divide_liquidities_into_bins_user({
-        liquidities: nfts,
-        slot_number_in_a_bin: bin_final,
-        tokenX: token_x_metadata,
-        tokenY: token_y_metadata,
-        poolDetail: pool,
-      });
+    let list: any[] = [];
+    if (chartType == 'USER') {
+      if (accountId) {
+        const liquidities = await list_liquidities();
+        const nfts = liquidities.filter((l: UserLiquidityInfo) => {
+          return l.pool_id == pool_id;
+        });
+        set_user_liquidities(nfts);
+        list = divide_liquidities_into_bins_user({
+          liquidities: nfts,
+          slot_number_in_a_bin: bin_final,
+          tokenX: token_x_metadata,
+          tokenY: token_y_metadata,
+          poolDetail: pool,
+        });
+      }
     } else {
       const pointsData_apr = await getDclPoolPoints(
         pool_id,

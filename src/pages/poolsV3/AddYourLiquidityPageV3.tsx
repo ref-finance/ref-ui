@@ -1846,7 +1846,7 @@ export default function AddYourLiquidityPageV3() {
             {currentSelectedPool &&
             !currentSelectedPool.pool_id &&
             !OPEN_CREATE_POOL_ENTRY ? (
-              <NoDataComponent isNoPool={true}></NoDataComponent>
+              <NoDataComponent></NoDataComponent>
             ) : null}
 
             {/* add Liquidity part */}
@@ -1862,7 +1862,7 @@ export default function AddYourLiquidityPageV3() {
               className="flex-shrink-0 xs:w-full md:w-full"
             >
               <div className="flex items-center justify-between">
-                <div className="text-white font-gothamBold">
+                <div className="text-white text-sm">
                   <FormattedMessage
                     id="select_token_pair"
                     defaultMessage={'Select Token Pair'}
@@ -1941,7 +1941,7 @@ export default function AddYourLiquidityPageV3() {
               ) : null}
 
               <div className="frcb mt-6 mb-7">
-                <div className="text-white font-gothamBold">
+                <div className="text-white text-sm">
                   <FormattedMessage
                     id="select_fee_tiers"
                     defaultMessage={'Select Fee Tiers'}
@@ -1949,7 +1949,7 @@ export default function AddYourLiquidityPageV3() {
                 </div>
 
                 <div className="frcs gap-2">
-                  <span className="font-gothamBold text-white">
+                  <span className="text-sm text-white">
                     {!!currentSelectedPool?.fee
                       ? `${currentSelectedPool.fee / 10000}%`
                       : ''}
@@ -2051,7 +2051,7 @@ export default function AddYourLiquidityPageV3() {
                 </div>
               </div>
 
-              <div className="font-gothamBold mb-2.5 text-white">
+              <div className="text-sm mb-2.5 text-white">
                 <FormattedMessage
                   id="choose_liquidity_shape"
                   defaultMessage={'Choose Liquidity Shape'}
@@ -2122,47 +2122,49 @@ export default function AddYourLiquidityPageV3() {
                 )}
               </div>
               {/* user chart part */}
-              {isSignedIn && currentSelectedPool ? (
-                <div>
-                  <div className="flex items-center justify-between  mt-4">
-                    <div className="font-gothamBold text-white">
-                      <FormattedMessage
-                        id="Simulate_liquidity_distribution"
-                        defaultMessage={'Simulate Liquidity Distribution'}
-                      ></FormattedMessage>
-                    </div>
-                    <div
-                      onClick={generate_new_user_chart}
-                      className="text-xs text-v3SwapGray border border-opacity-20 border-primaryText rounded-lg p-2 bg-primaryText bg-opacity-20 cursor-pointer hover:text-white hover:bg-opacity-10 hover:border-transparent"
-                    >
-                      Generate
-                    </div>
+              <div>
+                <div className="flex items-center justify-between  mt-4">
+                  <div className="text-sm text-white">
+                    <FormattedMessage
+                      id="Simulate_liquidity_distribution"
+                      defaultMessage={'Simulate Liquidity Distribution'}
+                    ></FormattedMessage>
                   </div>
-                  {!isInvalid(leftPoint) &&
-                    !isInvalid(rightPoint) &&
-                    !switch_pool_loading && (
-                      <div className="flex items-center justify-center border border-v3SwapGray border-opacity-20 rounded-xl px-3 mt-2 min-h-8">
-                        <DclChart
-                          pool_id={currentSelectedPool?.pool_id}
-                          config={{
-                            controlHidden: true,
-                            currentBarHidden: true,
-                            hoverBoxHidden: true,
-                            svgWidth: '300',
-                            svgHeight: '68',
-                          }}
-                          chartType="USER"
-                          reverse={pair_is_reverse ? true : false}
-                          newlyAddedLiquidities={new_user_liquidities}
-                        ></DclChart>
-                      </div>
-                    )}
+                  <div
+                    onClick={generate_new_user_chart}
+                    className="text-xs text-v3SwapGray border border-opacity-20 border-primaryText rounded-lg p-2 bg-primaryText bg-opacity-20 cursor-pointer hover:text-white hover:bg-opacity-10 hover:border-transparent"
+                  >
+                    Generate
+                  </div>
                 </div>
-              ) : null}
-
-              {currentSelectedPool && currentSelectedPool.pool_id && (
-                <AddLiquidityButton></AddLiquidityButton>
-              )}
+                {currentSelectedPool?.pool_id &&
+                  !isInvalid(leftPoint) &&
+                  isSignedIn &&
+                  !isInvalid(rightPoint) &&
+                  !switch_pool_loading && (
+                    <div className="flex items-center justify-center border border-v3SwapGray border-opacity-20 rounded-xl px-3 mt-2 min-h-8">
+                      <DclChart
+                        pool_id={currentSelectedPool?.pool_id}
+                        config={{
+                          controlHidden: true,
+                          currentBarHidden: true,
+                          hoverBoxHidden: true,
+                          svgWidth: '300',
+                          svgHeight: '68',
+                        }}
+                        chartType="USER"
+                        reverse={pair_is_reverse ? true : false}
+                        newlyAddedLiquidities={new_user_liquidities}
+                      ></DclChart>
+                    </div>
+                  )}
+                {(!currentSelectedPool?.pool_id || !isSignedIn) && (
+                  <div className="flex items-center justify-center border border-v3SwapGray border-opacity-20 text-sm text-primaryText mt-2 h-24 rounded-xl">
+                    No data
+                  </div>
+                )}
+              </div>
+              <AddLiquidityButton></AddLiquidityButton>
             </div>
           </div>
         </div>
@@ -2483,15 +2485,17 @@ function PointsComponent() {
             Liquidity
           </span>
           <span
-            className={`w-20 ${
-              isSignedIn ? 'frcc' : 'hidden'
-            } text-xs gotham_bold px-3 py-1.5 rounded-md cursor-pointer ${
+            className={`w-20 frcc ${
+              isSignedIn ? 'cursor-pointer' : 'cursor-not-allowed'
+            } text-xs gotham_bold px-3 py-1.5 rounded-md ${
               chartTab == 'yours'
                 ? 'text-black bg-gradientFromHover'
                 : 'text-primaryText'
             }`}
             onClick={() => {
-              setChartTab('yours');
+              if (isSignedIn) {
+                setChartTab('yours');
+              }
             }}
           >
             Yours
@@ -2533,7 +2537,7 @@ function PointsComponent() {
       <div className=" border border-limitOrderFeeTiersBorderColor rounded-xl p-4">
         {/* price range mode area */}
         <div className="frcb">
-          <div className="text-white font-gothamBold flex flex-col text-base ">
+          <div className="text-white flex flex-col text-sm ">
             <FormattedMessage
               id="set_price_range"
               defaultMessage="Set Price Range"
@@ -2626,7 +2630,11 @@ function PointsComponent() {
           </div>
 
           {/* min price input box */}
-          <div className=" flex border border-menuMoreBoxBorderColor items-center bg-black bg-opacity-20 rounded-xl p-2.5 col-span-1">
+          <div
+            className={`flex border border-menuMoreBoxBorderColor items-center rounded-xl p-2.5 col-span-1 ${
+              priceRangeMode === 'by_radius' ? '' : 'bg-black bg-opacity-20'
+            }`}
+          >
             <span className="text-sm text-primaryText xs:text-xs md:text-xs whitespace-nowrap">
               <FormattedMessage
                 id="min_price"
@@ -2653,7 +2661,11 @@ function PointsComponent() {
           </div>
 
           {/* max price input box */}
-          <div className="flex border border-menuMoreBoxBorderColor items-center bg-black bg-opacity-20 rounded-xl p-2.5 col-span-1">
+          <div
+            className={`flex border border-menuMoreBoxBorderColor items-center rounded-xl p-2.5 col-span-1 ${
+              priceRangeMode === 'by_radius' ? '' : 'bg-black bg-opacity-20'
+            }`}
+          >
             <span className="text-sm text-primaryText xs:text-xs whitespace-nowrap md:text-xs">
               <FormattedMessage
                 id="max_price"
@@ -2680,7 +2692,11 @@ function PointsComponent() {
           </div>
 
           {/* bin number input box */}
-          <div className=" flex border border-menuMoreBoxBorderColor items-center bg-black bg-opacity-20 rounded-xl p-2.5 col-span-1">
+          <div
+            className={`flex border border-menuMoreBoxBorderColor items-center rounded-xl p-2.5 col-span-1 ${
+              priceRangeMode === 'by_radius' ? '' : 'bg-black bg-opacity-20'
+            }`}
+          >
             <span className="text-sm text-primaryText xs:text-xs md:text-xs whitespace-nowrap">
               <FormattedMessage
                 id="bin_amount"
@@ -2724,11 +2740,6 @@ function AddLiquidityButton() {
     currentSelectedPool,
     tokenX,
     tokenY,
-    binNumber,
-    SLOT_NUMBER,
-    leftPoint,
-    rightPoint,
-    currentPoint,
     liquidityShape,
     tokenXAmount,
     tokenYAmount,
@@ -2740,7 +2751,6 @@ function AddLiquidityButton() {
     getLiquiditySpot,
     getLiquidityForCurveAndBidAskMode,
   } = useContext(LiquidityProviderData);
-  const tokenSort = tokenX.id == currentSelectedPool.token_x;
   const [addLiquidityButtonLoading, setAddLiquidityButtonLoading] =
     useState(false);
   const { globalState } = useContext(WalletContext);
@@ -2809,24 +2819,20 @@ function AddLiquidityButton() {
     let txt: any = (
       <FormattedMessage id="add_liquidity" defaultMessage="Add Liquidity" />
     );
-    if (invalidRange) {
+    if (!currentSelectedPool?.pool_id) {
+      txt = <FormattedMessage id="no_pool" defaultMessage="No Pool" />;
+    } else if (invalidRange) {
       txt = (
         <FormattedMessage id="update_range" defaultMessage="Update Range" />
       );
-    } else if (
-      (onlyAddXToken && +tokenXAmount == 0 && tokenSort) ||
-      (onlyAddXToken && +tokenYAmount == 0 && !tokenSort)
-    ) {
+    } else if (onlyAddXToken && +tokenXAmount == 0) {
       txt = (
         <FormattedMessage
           id="input_amount"
           defaultMessage="Input Amount"
         ></FormattedMessage>
       );
-    } else if (
-      (onlyAddYToken && +tokenYAmount == 0 && tokenSort) ||
-      (onlyAddYToken && +tokenXAmount == 0 && !tokenSort)
-    ) {
+    } else if (onlyAddYToken && +tokenYAmount == 0) {
       txt = (
         <FormattedMessage
           id="input_amount"
@@ -2875,33 +2881,17 @@ function AddLiquidityButton() {
     const condition1 = currentSelectedPool?.pool_id;
     let condition2;
     if (onlyAddXToken) {
-      if (tokenSort) {
-        condition2 =
-          +tokenXAmount > 0 &&
-          new BigNumber(
-            getMax(tokenX, tokenXBalanceFromNear)
-          ).isGreaterThanOrEqualTo(tokenXAmount);
-      } else {
-        condition2 =
-          +tokenYAmount > 0 &&
-          new BigNumber(
-            getMax(tokenY, tokenYBalanceFromNear)
-          ).isGreaterThanOrEqualTo(tokenYAmount);
-      }
+      condition2 =
+        +tokenXAmount > 0 &&
+        new BigNumber(
+          getMax(tokenX, tokenXBalanceFromNear)
+        ).isGreaterThanOrEqualTo(tokenXAmount);
     } else if (onlyAddYToken) {
-      if (tokenSort) {
-        condition2 =
-          +tokenYAmount > 0 &&
-          new BigNumber(
-            getMax(tokenY, tokenYBalanceFromNear)
-          ).isGreaterThanOrEqualTo(tokenYAmount);
-      } else {
-        condition2 =
-          +tokenXAmount > 0 &&
-          new BigNumber(
-            getMax(tokenX, tokenXBalanceFromNear)
-          ).isGreaterThanOrEqualTo(tokenXAmount);
-      }
+      condition2 =
+        +tokenYAmount > 0 &&
+        new BigNumber(
+          getMax(tokenY, tokenYBalanceFromNear)
+        ).isGreaterThanOrEqualTo(tokenYAmount);
     } else if (!invalidRange) {
       condition2 =
         +tokenXAmount > 0 &&
@@ -2948,102 +2938,165 @@ function AddLiquidityButton() {
     </div>
   );
 }
-function NoDataComponent(props: any) {
-  const { isNoPool } = props;
-  const [quickOptions, setQuickOptions] = useState([5, 10, 20, 50]);
-  const mobileDevice = isMobile();
+
+function NoDataComponent() {
+  const [chartTab, setChartTab] = useState<'liquidity' | 'yours'>('liquidity');
+  const [priceRangeMode, setPriceRangeMode] = useState<
+    'by_range' | 'by_radius'
+  >('by_range');
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   return (
     <div
-      style={{ width: mobileDevice ? '' : '372px' }}
-      className={`relative w-full xs:w-full md:w-full flex flex-col justify-between  self-stretch xs:mt-5 md:mt-5`}
+      className={`w-full xs:w-full md:w-full flex  mr-6 flex-col self-stretch xs:mt-5 md:mt-5`}
     >
-      <div className="text-primaryText text-sm ml-2">
-        <FormattedMessage
-          id="set_price_range"
-          defaultMessage="Set Price Range"
-        ></FormattedMessage>
+      {/* chart area */}
+      <div className="relative mb-5 mt-24" style={{ height: '250px' }}>
+        <div className="absolute left-0 -top-24 inline-flex items-center justify-between bg-detailCardBg rounded-lg border border-dclTabBorderColor p-0.5">
+          <span
+            onClick={() => {
+              setChartTab('liquidity');
+            }}
+            className={`w-20 frcc text-xs gotham_bold px-3 py-1.5 rounded-md cursor-pointer ${
+              chartTab == 'liquidity'
+                ? 'text-black bg-gradientFromHover'
+                : 'text-primaryText'
+            }`}
+          >
+            Liquidity
+          </span>
+          <span
+            className={`w-20 frcc text-xs gotham_bold px-3 py-1.5 rounded-md ${
+              isSignedIn ? 'cursor-pointer' : 'cursor-not-allowed'
+            } ${
+              chartTab == 'yours'
+                ? 'text-black bg-gradientFromHover'
+                : 'text-primaryText'
+            }`}
+            onClick={() => {
+              if (isSignedIn) {
+                setChartTab('yours');
+              }
+            }}
+          >
+            Yours
+          </span>
+        </div>
+        <div className="flex items-center justify-center text-ms text-primaryText mt-20">
+          Oops! The Pool doesn’t exist
+        </div>
       </div>
-      {isNoPool ? (
-        <div className="flex justify-center items-center absolute w-full text-sm text-v3poolWarningColor top-28 xsm:top-16 z-10">
-          <FormattedMessage id="no_pool_tip"></FormattedMessage>
+      {/* set price range area */}
+      <div className=" border border-limitOrderFeeTiersBorderColor rounded-xl p-4">
+        {/* price range mode area */}
+        <div className="frcb">
+          <div className="text-white flex flex-col text-sm ">
+            <FormattedMessage
+              id="set_price_range"
+              defaultMessage="Set Price Range"
+            />
+
+            <span className="text-xs font-gotham text-primaryText">
+              {/* {getPair()} */}
+            </span>
+          </div>
+
+          <div className="rounded-lg p-1 border frcs text-xs text-primaryText border-v3borderColor">
+            <span
+              className={`whitespace-nowrap min-w-20 px-3 py-1.5 rounded-md cursor-pointer ${
+                priceRangeMode === 'by_range'
+                  ? 'text-white bg-proTabBgColor'
+                  : ''
+              }`}
+              onClick={() => {
+                setPriceRangeMode('by_range');
+              }}
+            >
+              <FormattedMessage
+                id="by_range"
+                defaultMessage={'By range'}
+              ></FormattedMessage>
+            </span>
+            <span
+              className={`whitespace-nowrap min-w-20 px-3 py-1.5 rounded-md cursor-pointer ${
+                priceRangeMode === 'by_radius'
+                  ? 'text-white bg-proTabBgColor'
+                  : ''
+              }`}
+              onClick={() => {
+                setPriceRangeMode('by_radius');
+              }}
+            >
+              <FormattedMessage
+                id="by_radius"
+                defaultMessage={'By Radius'}
+              ></FormattedMessage>
+            </span>
+          </div>
         </div>
-      ) : null}
-      <div className="flex flex-col justify-between relative flex-grow bg-black bg-opacity-10 rounded-xl px-2.5 py-4 mt-3  xsm:px-2">
-        {/* range chart area */}
-        <div className="flex flex-col items-center justify-center my-24 xsm:my-12">
-          <EmptyIcon></EmptyIcon>
-        </div>
-        {/* input range area */}
-        <div>
-          <div className="flex items-center justify-between">
-            <div className="w-1 flex-grow flex flex-col items-center bg-black bg-opacity-20 rounded-xl p-3 mr-5 xs:mr-2 md:mr-2">
-              <span className="text-sm text-primaryText">
-                <FormattedMessage
-                  id="min_price"
-                  defaultMessage="Min Price"
-                ></FormattedMessage>
-              </span>
-              <div className="flex items-center justify-between mt-3.5">
-                <div className="flex w-6 h-6  flex-shrink-0 items-center justify-center rounded-md bg-v3BlackColor">
-                  <ReduceButton></ReduceButton>
-                </div>
-                <input
-                  type="number"
-                  placeholder="0.0"
-                  className="text-base mx-3 text-center"
-                  disabled={true}
-                />
-                <div className="flex w-6 h-6  flex-shrink-0 items-center justify-center rounded-md bg-v3BlackColor">
-                  <AddButton></AddButton>
-                </div>
-              </div>
-            </div>
-            <div className="w-1 flex-grow flex flex-col items-center bg-black bg-opacity-20 rounded-xl p-2.5">
-              <span className="text-sm text-primaryText">
-                <FormattedMessage
-                  id="max_price"
-                  defaultMessage="Max Price"
-                ></FormattedMessage>
-              </span>
-              <div className="flex items-center justify-between mt-3.5">
-                <div className="flex w-6 h-6  flex-shrink-0 items-center justify-center rounded-md bg-v3BlackColor">
-                  <ReduceButton></ReduceButton>
-                </div>
-                <input
-                  type="number"
-                  placeholder="0.0"
-                  className="text-base mx-2 text-center"
-                  disabled={true}
-                />
-                <div className="flex w-6 h-6 flex-shrink-0 items-center justify-center rounded-md bg-v3BlackColor">
-                  <AddButton></AddButton>
-                </div>
-              </div>
-            </div>
+        {/* content */}
+        <div className="grid grid-cols-3 gap-3 pt-4 mt-3  xsm:px-2">
+          {/* target price input box */}
+          <div
+            className={`${
+              priceRangeMode === 'by_range' ? 'hidden' : ''
+            } flex border border-menuMoreBoxBorderColor items-center justify-between rounded-xl p-2.5 col-span-2`}
+          >
+            <span className="text-sm text-primaryText xs:text-xs md:text-xs whitespace-nowrap">
+              <FormattedMessage
+                id="target_price"
+                defaultMessage="Target Price"
+              ></FormattedMessage>
+            </span>
+            <span className="text-base text-primaryText font-gothamBold">
+              0
+            </span>
+          </div>
+
+          {/* radius input box */}
+          <div
+            className={` ${
+              priceRangeMode === 'by_range' ? 'hidden' : ''
+            } flex border border-menuMoreBoxBorderColor items-center justify-between  rounded-xl p-2.5 col-span-1`}
+          >
+            <span className="text-sm text-primaryText xs:text-xs md:text-xs whitespace-nowrap">
+              <FormattedMessage
+                id="radius"
+                defaultMessage="Radius"
+              ></FormattedMessage>
+            </span>
+            <span className="text-base text-primaryText font-gothamBold">
+              0
+            </span>
+          </div>
+
+          {/* min price input box */}
+          <div className=" flex border border-menuMoreBoxBorderColor items-center justify-between rounded-xl p-2.5 col-span-1">
+            <span className="text-sm text-primaryText xs:text-xs md:text-xs whitespace-nowrap">
+              <FormattedMessage
+                id="min_price"
+                defaultMessage="Min Price"
+              ></FormattedMessage>
+            </span>
+            <span className="text-base text-primaryText font-gothamBold">
+              0
+            </span>
+          </div>
+
+          {/* max price input box */}
+          <div className="flex border border-menuMoreBoxBorderColor items-center justify-between rounded-xl p-2.5 col-span-1">
+            <span className="text-sm text-primaryText xs:text-xs whitespace-nowrap md:text-xs">
+              <FormattedMessage
+                id="max_price"
+                defaultMessage="Max Price"
+              ></FormattedMessage>
+            </span>
+            <span className="text-base text-primaryText font-gothamBold">
+              0
+            </span>
           </div>
         </div>
       </div>
-      <GradientButton
-        color="#fff"
-        className={`w-full h-12 mt-5 text-center text-base text-white focus:outline-none opacity-30`}
-        disabled={true}
-      >
-        <ButtonTextWrapper
-          loading={false}
-          Text={() => (
-            <>
-              {isNoPool ? (
-                <FormattedMessage id="no_pool" defaultMessage="No Pool" />
-              ) : (
-                <FormattedMessage
-                  id="select_tokens"
-                  defaultMessage="Select Tokens"
-                />
-              )}
-            </>
-          )}
-        />
-      </GradientButton>
     </div>
   );
 }
@@ -3254,7 +3307,7 @@ function InputAmount({
           <input
             type="number"
             placeholder="0.0"
-            className="text-2xl xs:text-xl md:text-xl"
+            className="font-gothamBold text-base"
             disabled={!currentSelectedPool?.pool_id || disabled ? true : false}
             value={isNoPool ? '' : amount}
             step="any"
