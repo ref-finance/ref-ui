@@ -593,14 +593,6 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
   const inputAmountRef = useRef<HTMLInputElement>(null);
 
-  // useEffect(() => {
-  //   if (!accountId || !validAccountSig) return;
-
-  //   getCurrentHolding({ accountId }).then((res) => {
-  //     setHoldings(res.data.holding);
-  //   });
-  // }, [accountId, myPendingOrdersRefreshing, validAccountSig]);
-
   useEffect(() => {
     if (!accountId || !validAccountSig) return;
 
@@ -1107,7 +1099,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           style={{
             background: 'rgba(0, 19, 32, 0.8)',
             backdropFilter: 'blur(5px)',
-            zIndex: 90,
+            zIndex: 89,
           }}
         ></div>
       )}
@@ -1118,7 +1110,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           style={{
             background: 'rgba(0, 19, 32, 0.8)',
             backdropFilter: 'blur(5px)',
-            zIndex: 90,
+            zIndex: 89,
           }}
         >
           <OrderlyLoading></OrderlyLoading>
