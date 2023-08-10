@@ -628,7 +628,18 @@ export const FutureTableFormCells: React.FC<{
   const portfolioFailure = usePortfolioFailure();
 
   // get close price from everyTickers for this symbol
+
   const closePrice = everyTickers?.find((t) => t.symbol === row.symbol)?.close;
+
+  useEffect(() => {
+    const closePrice = everyTickers?.find(
+      (t) => t.symbol === row.symbol
+    )?.close;
+
+    if (closingPrice !== 'Market' && closePrice) {
+      setClosingPrice(closePrice?.toString());
+    }
+  }, [row.symbol]);
 
   useEffect(() => {
     getPendingOrders();
