@@ -1846,6 +1846,7 @@ function PoolRowV2({
                 svgWidth: '80',
                 svgHeight: '32',
                 svgPaddingX: '0',
+                smallChart: true,
               }}
             ></DclChart>
           </div>

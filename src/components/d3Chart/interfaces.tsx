@@ -56,6 +56,7 @@ export interface IPoolChartConfig {
   radiusMode?: boolean;
   targetPoint?: number;
   ticks?: number;
+  smallChart?: boolean;
 }
 
 export interface IUserLiquiditiesDetail {

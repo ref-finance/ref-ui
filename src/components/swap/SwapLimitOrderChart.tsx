@@ -61,11 +61,11 @@ export default function SwapLimitOrderChart() {
     }
   }, [market_loading]);
   useEffect(() => {
-    if (pool && orders) {
+    if (pool && orders && !market_loading) {
       process_orders();
       set_fetch_data_done(true);
     }
-  }, [pool, orders]);
+  }, [pool, orders, market_loading]);
   useEffect(() => {
     if (switch_token == 'X' && buy_token_x_list && sell_token_x_list) {
       set_buy_list(buy_token_x_list);
@@ -479,12 +479,12 @@ export default function SwapLimitOrderChart() {
                   return (
                     <div
                       key={item.point + index}
-                      className="flex items-center justify-between text-xs py-1.5 pr-2"
+                      className="grid grid-cols-3  justify-items-end text-xs py-1.5 pr-2"
                     >
-                      <span className="text-sellColorNew">
+                      <span className="text-sellColorNew justify-self-start">
                         {formatPrice(item.price)}
                       </span>
-                      <span className="text-white">
+                      <span className="text-white pr-3">
                         {formatNumber(
                           item.amount_x_readable || item.amount_y_readable
                         )}
@@ -518,12 +518,12 @@ export default function SwapLimitOrderChart() {
                   return (
                     <div
                       key={item.point + index}
-                      className="flex items-center justify-between text-xs py-1.5 pr-2"
+                      className="grid grid-cols-3 justify-items-end text-xs py-1.5 pr-2"
                     >
-                      <span className="text-gradientFromHover">
+                      <span className="text-gradientFromHover justify-self-start">
                         {formatPrice(item.price)}
                       </span>
-                      <span className="text-white">
+                      <span className="text-white pr-3">
                         {formatNumber(
                           item.amount_x_readable || item.amount_y_readable
                         )}
@@ -1033,11 +1033,15 @@ function OrderChart() {
       .attr('cy', targetY)
       .attr('opacity', '1')
       .attr('fill', dotFillColor);
+    let translate_x = offsetX + disFromHoverBoxToPointer;
+    if (offsetX > 380) {
+      translate_x = offsetX - 235;
+    }
     d3.select('.hoverBox').attr(
       'style',
-      `visibility:visible;transform:translate(${
-        offsetX + disFromHoverBoxToPointer
-      }px, ${offsetY - disFromHoverBoxToPointer}px)`
+      `visibility:visible;transform:translate(${translate_x}px, ${
+        offsetY - disFromHoverBoxToPointer
+      }px)`
     );
   }
   function hideCrossDot() {

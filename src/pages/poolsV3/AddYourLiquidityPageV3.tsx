@@ -2142,7 +2142,7 @@ export default function AddYourLiquidityPageV3() {
                   isSignedIn &&
                   !isInvalid(rightPoint) &&
                   !switch_pool_loading && (
-                    <div className="flex items-center justify-center border border-v3SwapGray border-opacity-20 rounded-xl px-3 mt-2 min-h-8">
+                    <div className="flex items-center justify-center border border-v3SwapGray border-opacity-20 rounded-xl px-3 mt-2 h-24">
                       <DclChart
                         pool_id={currentSelectedPool?.pool_id}
                         config={{
@@ -2470,7 +2470,7 @@ function PointsComponent() {
       className={`w-full xs:w-full md:w-full flex  mr-6 flex-col self-stretch xs:mt-5 md:mt-5`}
     >
       {/* chart area */}
-      <div className="relative mb-5 mt-24" style={{ height: '250px' }}>
+      <div className="relative mb-5 mt-24" style={{ height: '270px' }}>
         <div className="absolute left-0 -top-24 inline-flex items-center justify-between bg-detailCardBg rounded-lg border border-dclTabBorderColor p-0.5">
           <span
             onClick={() => {

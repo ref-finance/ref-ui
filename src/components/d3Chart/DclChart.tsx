@@ -51,6 +51,7 @@ import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { getBoostTokenPrices } from '../../services/farm';
 import { toReadableNumber, formatWithCommas } from '~utils/numbers';
 import { ILiquidityInfoPool, IOrderInfoPool } from '../../services/commonV3';
+import { BlueCircleLoading } from '../../components/layout/Loading';
 export default function DclChart({
   pool_id,
   leftPoint,
@@ -94,6 +95,7 @@ export default function DclChart({
   const [user_liquidities_detail, set_user_liquidities_detail] =
     useState<IUserLiquiditiesDetail>();
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>();
+  const [chartDataListDone, setChartDataListDone] = useState<boolean>(false);
   /** constant start */
   const appearanceConfig: IPoolChartConfig = config || {};
   let [timerObj, setTimerObj] = useState<any>({
@@ -400,6 +402,7 @@ export default function DclChart({
   async function get_chart_data() {
     const list = await get_data_from_back_end();
     setChartDataList(list);
+    setChartDataListDone(true);
     init_price_range();
   }
   function init_price_range() {
@@ -412,6 +415,7 @@ export default function DclChart({
     }
   }
   async function get_data_from_back_end() {
+    setChartDataListDone(false);
     const { token_x_metadata, token_y_metadata, pool_id } = pool;
     const { bin: bin_final, rangeGear } = getConfig();
     const [price_l, price_r] = get_price_range_by_percent(rangeGear[0], true);
@@ -1361,375 +1365,403 @@ export default function DclChart({
   const is_in_max_zoom = zoom == rangeGear[rangeGear.length - 1];
   const is_in_min_zoom = zoom == rangeGear[0];
   return (
-    <div
-      className={`relative inline-flex ${
-        (chartType !== 'USER' && chartDataList) ||
-        (chartType == 'USER' && chartDataList?.length)
-          ? ''
-          : 'hidden'
-      } ${randomId.slice(1)}`}
-    >
-      {/* control button area*/}
-      <div className="control flex items-center border border-v3GreyColor rounded-lg py-px h-6 w-16 absolute right-0 -top-24">
-        <div
-          className={`flex items-center justify-center w-1 h-full flex-grow border-r border-chartBorderColor ${
-            is_in_max_zoom
-              ? 'text-chartBorderColor cursor-not-allowed'
-              : 'text-v3SwapGray cursor-pointer'
-          }`}
-          onClick={zoomOut}
-        >
-          <AddIcon></AddIcon>
-        </div>
-        <div
-          className={`flex items-center justify-center w-1 h-full flex-grow ${
-            is_in_min_zoom
-              ? 'text-chartBorderColor cursor-not-allowed'
-              : 'text-v3SwapGray cursor-pointer'
-          }`}
-          onClick={zoomIn}
-        >
-          <SubIcon></SubIcon>
-        </div>
-        {/* <div
+    <>
+      <div
+        className={`relative inline-flex ${
+          (chartType !== 'USER' && chartDataList) ||
+          (chartType == 'USER' && chartDataList?.length)
+            ? ''
+            : 'hidden'
+        } ${randomId.slice(1)}`}
+      >
+        {/* control button area*/}
+        <div className="control flex items-center border border-v3GreyColor rounded-lg py-px h-6 w-16 absolute right-0 -top-24">
+          <div
+            className={`flex items-center justify-center w-1 h-full flex-grow border-r border-chartBorderColor ${
+              is_in_max_zoom
+                ? 'text-chartBorderColor cursor-not-allowed'
+                : 'text-v3SwapGray cursor-pointer'
+            }`}
+            onClick={zoomOut}
+          >
+            <AddIcon></AddIcon>
+          </div>
+          <div
+            className={`flex items-center justify-center w-1 h-full flex-grow ${
+              is_in_min_zoom
+                ? 'text-chartBorderColor cursor-not-allowed'
+                : 'text-v3SwapGray cursor-pointer'
+            }`}
+            onClick={zoomIn}
+          >
+            <SubIcon></SubIcon>
+          </div>
+          {/* <div
           className="flex items-center justify-center w-1 h-full flex-grow cursor-pointer"
           onClick={clickToRight}
         >
           <RightArrowIcon></RightArrowIcon>
         </div> */}
-      </div>
-      <svg width={svgWidth} height={svgHeight}>
-        <g transform={`translate(${svgPaddingX} 0)`}>
-          <g className="bars_order"></g>
-          <g className="bars_liquidity"></g>
-          <g className="bars_background"></g>
-          <rect className="whole_bars_background"></rect>
-          <rect
-            className="remove_bars_background"
-            stroke="white"
-            stroke-opacity="0.3"
-            stroke-dasharray="2 2"
-          ></rect>
-          {/* axis */}
-          <g className="axis"></g>
-          {/* drag left bar */}
-          <g className="leftBar">
-            <g className="percentLeft">
-              <rect
-                width={percentBoxWidth}
-                height="22"
-                fill="#172631"
-                rx="4"
-              ></rect>
-              <text
-                x="22"
-                y="12"
-                dominant-baseline="middle"
-                text-anchor="middle"
-                font-size="12"
-              ></text>
+        </div>
+        <svg width={svgWidth} height={svgHeight}>
+          <g transform={`translate(${svgPaddingX} 0)`}>
+            <g className="bars_order"></g>
+            <g className="bars_liquidity"></g>
+            <g className="bars_background"></g>
+            <rect className="whole_bars_background"></rect>
+            <rect
+              className="remove_bars_background"
+              stroke="white"
+              stroke-opacity="0.3"
+              stroke-dasharray="2 2"
+            ></rect>
+            {/* axis */}
+            <g className="axis"></g>
+            {/* drag left bar */}
+            <g className="leftBar">
+              <g className="percentLeft">
+                <rect
+                  width={percentBoxWidth}
+                  height="22"
+                  fill="#172631"
+                  rx="4"
+                ></rect>
+                <text
+                  x="22"
+                  y="12"
+                  dominant-baseline="middle"
+                  text-anchor="middle"
+                  font-size="12"
+                ></text>
+              </g>
+              <g className="drag-left" style={{ cursor: 'ew-resize' }}>
+                <rect width="28" height="253" opacity="0"></rect>
+                <path
+                  d="M15 245L15 -3.69549e-06"
+                  stroke="#00FFD1"
+                  stroke-width="1.6"
+                />
+                <path
+                  d="M1 242C1 240.343 2.34315 239 4 239H15V253H4C2.34315 253 1 251.657 1 250V242Z"
+                  fill="#1C272E"
+                  stroke="#00FFD1"
+                  stroke-width="1.6"
+                />
+                <path
+                  d="M5.30798 248.034H10.9917"
+                  stroke="#00FFD1"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M5.30798 244.444H10.9917"
+                  stroke="#00FFD1"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                />
+              </g>
             </g>
-            <g className="drag-left" style={{ cursor: 'ew-resize' }}>
-              <rect width="28" height="253" opacity="0"></rect>
+            {/* drag right bar*/}
+            <g className="rightBar">
+              <g className="percentRight">
+                <rect
+                  width={percentBoxWidth}
+                  height="22"
+                  fill="#172631"
+                  rx="4"
+                ></rect>
+                <text
+                  x="22"
+                  y="12"
+                  dominant-baseline="middle"
+                  text-anchor="middle"
+                  font-size="12"
+                ></text>
+              </g>
+              <g className="drag-right" style={{ cursor: 'ew-resize' }}>
+                <rect
+                  width="28"
+                  height="253"
+                  opacity="0"
+                  x={`-${dragBarWidth / 2}`}
+                ></rect>
+                <path
+                  d="M1 245L0.999989 -3.69549e-06"
+                  stroke="#00FFD1"
+                  stroke-width="1.6"
+                />
+                <path
+                  d="M15 242C15 240.343 13.6569 239 12 239H1V253H12C13.6569 253 15 251.657 15 250V242Z"
+                  fill="#1C272E"
+                  stroke="#00FFD1"
+                  stroke-width="1.6"
+                />
+                <path
+                  d="M10.6921 248.034H5.00838"
+                  stroke="#00FFD1"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M10.6921 244.444H5.00838"
+                  stroke="#00FFD1"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                />
+              </g>
+            </g>
+            {/* overlap area between drag left and drag right */}
+            <g className="overlap" pointer-events="none">
+              <rect height={wholeBarHeight} fill="rgba(255,255,255,0.2)"></rect>
+            </g>
+            {/*  show bar in radius mode */}
+            <g className="radiusBar">
               <path
-                d="M15 245L15 -3.69549e-06"
+                d="M8 245L7.99999 -3.69549e-06"
                 stroke="#00FFD1"
                 stroke-width="1.6"
               />
               <path
-                d="M1 242C1 240.343 2.34315 239 4 239H15V253H4C2.34315 253 1 251.657 1 250V242Z"
+                d="M1 239C1 237.343 2.34315 236 4 236H12C13.6569 236 15 237.343 15 239V247C15 248.657 13.6569 250 12 250H4C2.34315 250 1 248.657 1 247V239Z"
                 fill="#1C272E"
                 stroke="#00FFD1"
                 stroke-width="1.6"
               />
               <path
-                d="M5.30798 248.034H10.9917"
+                d="M5.30811 245.034H10.9919"
                 stroke="#00FFD1"
                 stroke-width="1.6"
                 stroke-linecap="round"
               />
               <path
-                d="M5.30798 244.444H10.9917"
-                stroke="#00FFD1"
-                stroke-width="1.6"
-                stroke-linecap="round"
-              />
-            </g>
-          </g>
-          {/* drag right bar*/}
-          <g className="rightBar">
-            <g className="percentRight">
-              <rect
-                width={percentBoxWidth}
-                height="22"
-                fill="#172631"
-                rx="4"
-              ></rect>
-              <text
-                x="22"
-                y="12"
-                dominant-baseline="middle"
-                text-anchor="middle"
-                font-size="12"
-              ></text>
-            </g>
-            <g className="drag-right" style={{ cursor: 'ew-resize' }}>
-              <rect
-                width="28"
-                height="253"
-                opacity="0"
-                x={`-${dragBarWidth / 2}`}
-              ></rect>
-              <path
-                d="M1 245L0.999989 -3.69549e-06"
-                stroke="#00FFD1"
-                stroke-width="1.6"
-              />
-              <path
-                d="M15 242C15 240.343 13.6569 239 12 239H1V253H12C13.6569 253 15 251.657 15 250V242Z"
-                fill="#1C272E"
-                stroke="#00FFD1"
-                stroke-width="1.6"
-              />
-              <path
-                d="M10.6921 248.034H5.00838"
-                stroke="#00FFD1"
-                stroke-width="1.6"
-                stroke-linecap="round"
-              />
-              <path
-                d="M10.6921 244.444H5.00838"
+                d="M5.30811 241.444H10.9919"
                 stroke="#00FFD1"
                 stroke-width="1.6"
                 stroke-linecap="round"
               />
             </g>
           </g>
-          {/* overlap area between drag left and drag right */}
-          <g className="overlap" pointer-events="none">
-            <rect height={wholeBarHeight} fill="rgba(255,255,255,0.2)"></rect>
-          </g>
-          {/*  show bar in radius mode */}
-          <g className="radiusBar">
-            <path
-              d="M8 245L7.99999 -3.69549e-06"
-              stroke="#00FFD1"
-              stroke-width="1.6"
-            />
-            <path
-              d="M1 239C1 237.343 2.34315 236 4 236H12C13.6569 236 15 237.343 15 239V247C15 248.657 13.6569 250 12 250H4C2.34315 250 1 248.657 1 247V239Z"
-              fill="#1C272E"
-              stroke="#00FFD1"
-              stroke-width="1.6"
-            />
-            <path
-              d="M5.30811 245.034H10.9919"
-              stroke="#00FFD1"
-              stroke-width="1.6"
-              stroke-linecap="round"
-            />
-            <path
-              d="M5.30811 241.444H10.9919"
-              stroke="#00FFD1"
-              stroke-width="1.6"
-              stroke-linecap="round"
-            />
-          </g>
-        </g>
-      </svg>
-      {/* show hover box then hover on the bin */}
-      <div className="overBox absolute rounded-xl bg-chartHoverBoxBg border border-assetsBorder px-3 py-2 invisible z-10">
-        <div className="flex items-center justify-between my-2">
-          <span className="text-xs text-white">APR(24h)</span>
-          <span className="text-xs text-white gotham_bold">
-            {binDetail?.feeApr}
-          </span>
-        </div>
-        <div className="flex items-center justify-between my-2">
-          <span className="text-xs text-white mr-10">Price</span>
-          <span className="text-xs text-white gotham_bold">
-            {binDetail?.price_by_token_y} {pool?.token_y_metadata?.symbol} /{' '}
-            {binDetail?.price_by_token_x} {pool?.token_x_metadata?.symbol}
-          </span>
-        </div>
-        {binDetail?.token_x_amount ? (
-          <>
-            <div className="flex items-center justify-between my-2">
-              <span className="text-xs text-white">
-                {pool?.token_x_metadata?.symbol} Amount
-              </span>
-              <span className="text-xs text-white gotham_bold">
-                {binDetail.token_x_amount}
-              </span>
-            </div>
-            <div className="flex items-center justify-between my-2">
-              <div className="flex items-center text-xs text-white">
-                <span
-                  className="flex mr-2"
-                  style={{
-                    width: '10px',
-                    height: '10px',
-                    borderRadius: '3px',
-                    backgroundColor: `${binDetail?.colors[1]}`,
-                  }}
-                ></span>
-                <span className="text-xs text-white">in Liquidity</span>
-              </div>
-              <span className="text-xs text-white gotham_bold">
-                {binDetail.token_x_amount_in_liquidity}
-              </span>
-            </div>
-            <div className="flex items-center justify-between my-2">
-              <div className="flex items-center text-xs text-white">
-                <span
-                  className="flex mr-2 opacity-50"
-                  style={{
-                    width: '10px',
-                    height: '10px',
-                    borderRadius: '3px',
-                    backgroundColor: `${binDetail?.colors[1]}`,
-                  }}
-                ></span>
-                <span className="text-xs text-white">in Limit Orders</span>
-              </div>
-              <span className="text-xs text-white gotham_bold">
-                {binDetail.token_x_amount_in_order}
-              </span>
-            </div>
-          </>
-        ) : null}
-        {binDetail?.token_y_amount ? (
-          <>
-            <div className="flex items-center justify-between my-2">
-              <span className="text-xs text-white">
-                {pool?.token_y_metadata?.symbol} Amount
-              </span>
-              <span className="text-xs text-white gotham_bold">
-                {binDetail.token_y_amount}
-              </span>
-            </div>
-            <div className="flex items-center justify-between my-2">
-              <div className="flex items-center text-xs text-white">
-                <span
-                  className="flex mr-2"
-                  style={{
-                    width: '10px',
-                    height: '10px',
-                    borderRadius: '3px',
-                    backgroundColor: `${binDetail?.colors[0]}`,
-                  }}
-                ></span>
-                <span className="text-xs text-white">in Liquidity</span>
-              </div>
-              <span className="text-xs text-white gotham_bold">
-                {binDetail.token_y_amount_in_liquidity}
-              </span>
-            </div>
-            <div className="flex items-center justify-between my-2">
-              <div className="flex items-center text-xs text-white">
-                <span
-                  className="flex mr-2 opacity-50"
-                  style={{
-                    width: '10px',
-                    height: '10px',
-                    borderRadius: '3px',
-                    backgroundColor: `${binDetail?.colors[0]}`,
-                  }}
-                ></span>
-                <span className="text-xs text-white">in Limit Orders</span>
-              </div>
-              <span className="text-xs text-white gotham_bold">
-                {binDetail.token_y_amount_in_order}
-              </span>
-            </div>
-          </>
-        ) : null}
-      </div>
-      <div className="wholeOverBox absolute rounded-xl bg-chartHoverBoxBg border border-assetsBorder px-3 py-2 z-10 invisible">
-        <div className="flex items-center justify-between my-2">
-          <span className="text-xs text-white">Your Liquidity</span>
-          <span className="text-xs text-white gotham_bold">
-            {user_liquidities_detail?.total_value || '-'}
-          </span>
-        </div>
-        <div className="flex items-center justify-between my-2">
-          <span className="text-xs text-white mr-10">Price Range</span>
-          <span className="flex items-center text-xs text-white gotham_bold">
-            {user_liquidities_detail?.min_price} -{' '}
-            {user_liquidities_detail?.max_price}
-            <span className="ml-1">
-              {reverse
-                ? pool?.token_x_metadata?.symbol +
-                  '/' +
-                  pool?.token_y_metadata?.symbol
-                : pool?.token_y_metadata?.symbol +
-                  '/' +
-                  pool?.token_x_metadata?.symbol}
+        </svg>
+        {/* show hover box then hover on the bin */}
+        <div className="overBox absolute rounded-xl bg-chartHoverBoxBg border border-assetsBorder px-3 py-2 invisible z-10">
+          <div className="flex items-center justify-between my-2">
+            <span className="text-xs text-white">APR(24h)</span>
+            <span className="text-xs text-white gotham_bold">
+              {binDetail?.feeApr}
             </span>
-          </span>
+          </div>
+          <div className="flex items-center justify-between my-2">
+            <span className="text-xs text-white mr-10">Price</span>
+            <span className="text-xs text-white gotham_bold">
+              {binDetail?.price_by_token_y} {pool?.token_y_metadata?.symbol} /{' '}
+              {binDetail?.price_by_token_x} {pool?.token_x_metadata?.symbol}
+            </span>
+          </div>
+          {binDetail?.token_x_amount ? (
+            <>
+              <div className="flex items-center justify-between my-2">
+                <span className="text-xs text-white">
+                  {pool?.token_x_metadata?.symbol} Amount
+                </span>
+                <span className="text-xs text-white gotham_bold">
+                  {binDetail.token_x_amount}
+                </span>
+              </div>
+              <div className="flex items-center justify-between my-2">
+                <div className="flex items-center text-xs text-white">
+                  <span
+                    className="flex mr-2"
+                    style={{
+                      width: '10px',
+                      height: '10px',
+                      borderRadius: '3px',
+                      backgroundColor: `${binDetail?.colors[1]}`,
+                    }}
+                  ></span>
+                  <span className="text-xs text-white">in Liquidity</span>
+                </div>
+                <span className="text-xs text-white gotham_bold">
+                  {binDetail.token_x_amount_in_liquidity}
+                </span>
+              </div>
+              <div className="flex items-center justify-between my-2">
+                <div className="flex items-center text-xs text-white">
+                  <span
+                    className="flex mr-2 opacity-50"
+                    style={{
+                      width: '10px',
+                      height: '10px',
+                      borderRadius: '3px',
+                      backgroundColor: `${binDetail?.colors[1]}`,
+                    }}
+                  ></span>
+                  <span className="text-xs text-white">in Limit Orders</span>
+                </div>
+                <span className="text-xs text-white gotham_bold">
+                  {binDetail.token_x_amount_in_order}
+                </span>
+              </div>
+            </>
+          ) : null}
+          {binDetail?.token_y_amount ? (
+            <>
+              <div className="flex items-center justify-between my-2">
+                <span className="text-xs text-white">
+                  {pool?.token_y_metadata?.symbol} Amount
+                </span>
+                <span className="text-xs text-white gotham_bold">
+                  {binDetail.token_y_amount}
+                </span>
+              </div>
+              <div className="flex items-center justify-between my-2">
+                <div className="flex items-center text-xs text-white">
+                  <span
+                    className="flex mr-2"
+                    style={{
+                      width: '10px',
+                      height: '10px',
+                      borderRadius: '3px',
+                      backgroundColor: `${binDetail?.colors[0]}`,
+                    }}
+                  ></span>
+                  <span className="text-xs text-white">in Liquidity</span>
+                </div>
+                <span className="text-xs text-white gotham_bold">
+                  {binDetail.token_y_amount_in_liquidity}
+                </span>
+              </div>
+              <div className="flex items-center justify-between my-2">
+                <div className="flex items-center text-xs text-white">
+                  <span
+                    className="flex mr-2 opacity-50"
+                    style={{
+                      width: '10px',
+                      height: '10px',
+                      borderRadius: '3px',
+                      backgroundColor: `${binDetail?.colors[0]}`,
+                    }}
+                  ></span>
+                  <span className="text-xs text-white">in Limit Orders</span>
+                </div>
+                <span className="text-xs text-white gotham_bold">
+                  {binDetail.token_y_amount_in_order}
+                </span>
+              </div>
+            </>
+          ) : null}
         </div>
-        <div className="flex items-center justify-between my-2">
-          <span className="text-xs text-white mr-10">Position</span>
-          <span className="text-xs text-white gotham_bold">
-            {user_liquidities_detail?.total_x_amount}{' '}
-            {pool?.token_x_metadata.symbol} +{' '}
-            {user_liquidities_detail?.total_y_amount}{' '}
-            {pool?.token_y_metadata.symbol}
-          </span>
+        <div className="wholeOverBox absolute rounded-xl bg-chartHoverBoxBg border border-assetsBorder px-3 py-2 z-10 invisible">
+          <div className="flex items-center justify-between my-2">
+            <span className="text-xs text-white">Your Liquidity</span>
+            <span className="text-xs text-white gotham_bold">
+              {user_liquidities_detail?.total_value || '-'}
+            </span>
+          </div>
+          <div className="flex items-center justify-between my-2">
+            <span className="text-xs text-white mr-10">Price Range</span>
+            <span className="flex items-center text-xs text-white gotham_bold">
+              {user_liquidities_detail?.min_price} -{' '}
+              {user_liquidities_detail?.max_price}
+              <span className="ml-1">
+                {reverse
+                  ? pool?.token_x_metadata?.symbol +
+                    '/' +
+                    pool?.token_y_metadata?.symbol
+                  : pool?.token_y_metadata?.symbol +
+                    '/' +
+                    pool?.token_x_metadata?.symbol}
+              </span>
+            </span>
+          </div>
+          <div className="flex items-center justify-between my-2">
+            <span className="text-xs text-white mr-10">Position</span>
+            <span className="text-xs text-white gotham_bold">
+              {user_liquidities_detail?.total_x_amount}{' '}
+              {pool?.token_x_metadata.symbol} +{' '}
+              {user_liquidities_detail?.total_y_amount}{' '}
+              {pool?.token_y_metadata.symbol}
+            </span>
+          </div>
+          <div className="flex items-center justify-between my-2">
+            <span className="text-xs text-white mr-10">APR(24h)</span>
+            <span className="text-xs text-white gotham_bold">
+              {user_liquidities_detail?.apr_24 || '-'}
+            </span>
+          </div>
+          <div className="flex items-center justify-between my-2">
+            <span className="text-xs text-white mr-10">Total Earned Fee</span>
+            <span className="text-xs text-white gotham_bold">
+              {user_liquidities_detail?.total_earned_fee || '-'}
+            </span>
+          </div>
         </div>
-        <div className="flex items-center justify-between my-2">
-          <span className="text-xs text-white mr-10">APR(24h)</span>
-          <span className="text-xs text-white gotham_bold">
-            {user_liquidities_detail?.apr_24 || '-'}
-          </span>
-        </div>
-        <div className="flex items-center justify-between my-2">
-          <span className="text-xs text-white mr-10">Total Earned Fee</span>
-          <span className="text-xs text-white gotham_bold">
-            {user_liquidities_detail?.total_earned_fee || '-'}
-          </span>
+        {/* current price area */}
+        <div className="currentLine flex flex-col items-center absolute left-0 pointer-events-none">
+          <div
+            className="border border-white border-dashed"
+            style={{ height: svgHeight + 'px' }}
+          ></div>
+          <div
+            className={`top-0 left-0 bg-senderHot rounded-lg p-2 absolute transform -translate-x-1/2 -translate-y-full flex flex-col ${
+              reverse ? 'flex-col-reverse' : ''
+            }`}
+          >
+            <div className="flex items-center justify-between mb-0.5">
+              <span className="text-xs text-black mr-3">
+                {pool?.token_x_metadata?.symbol}:{' '}
+              </span>
+              <span className="text-xs text-black">
+                <label className="gotham_bold mr-1">
+                  {reverse
+                    ? get_current_price_by_token_y()
+                    : get_current_price_by_token_x()}
+                </label>
+                {pool?.token_y_metadata?.symbol}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-black mr-3">
+                {pool?.token_y_metadata?.symbol}:{' '}
+              </span>
+              <span className="text-xs text-black">
+                <label className="gotham_bold mr-1">
+                  {reverse
+                    ? get_current_price_by_token_x()
+                    : get_current_price_by_token_y()}
+                </label>
+                {pool?.token_x_metadata?.symbol}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
-      {/* current price area */}
-      <div className="currentLine flex flex-col items-center absolute left-0 pointer-events-none">
+      {!chartDataListDone && (
         <div
-          className="border border-white border-dashed"
           style={{ height: svgHeight + 'px' }}
-        ></div>
-        <div
-          className={`top-0 left-0 bg-senderHot rounded-lg p-2 absolute transform -translate-x-1/2 -translate-y-full flex flex-col ${
-            reverse ? 'flex-col-reverse' : ''
+          className={`flex items-center justify-center text-primaryText text-sm ${
+            chartType == 'USER'
+              ? ''
+              : appearanceConfig.smallChart
+              ? 'transform origin-center scale-50'
+              : '-mt-10'
           }`}
         >
-          <div className="flex items-center justify-between mb-0.5">
-            <span className="text-xs text-black mr-3">
-              {pool?.token_x_metadata?.symbol}:{' '}
-            </span>
-            <span className="text-xs text-black">
-              <label className="gotham_bold mr-1">
-                {reverse
-                  ? get_current_price_by_token_y()
-                  : get_current_price_by_token_x()}
-              </label>
-              {pool?.token_y_metadata?.symbol}
-            </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-black mr-3">
-              {pool?.token_y_metadata?.symbol}:{' '}
-            </span>
-            <span className="text-xs text-black">
-              <label className="gotham_bold mr-1">
-                {reverse
-                  ? get_current_price_by_token_x()
-                  : get_current_price_by_token_y()}
-              </label>
-              {pool?.token_x_metadata?.symbol}
-            </span>
-          </div>
+          <BlueCircleLoading></BlueCircleLoading>
         </div>
-      </div>
-    </div>
+      )}
+      {chartDataListDone &&
+        !chartDataList?.length &&
+        !appearanceConfig.smallChart && (
+          <div
+            style={{ height: svgHeight + 'px' }}
+            className={`flex items-center justify-center text-primaryText text-sm ${
+              chartType == 'USER' ? '' : '-mt-10'
+            }`}
+          >
+            No data
+          </div>
+        )}
+    </>
   );
 }
 function isValid(n: number) {

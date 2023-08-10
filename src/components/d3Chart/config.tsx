@@ -83,21 +83,21 @@ export function get_default_config_for_chart(): IChartItemConfig {
   if (env == 'pub-testnet') {
     return {
       bin: 20,
-      range: 10,
+      range: 40,
       rangeGear: [100, 80, 60, 40, 20, 10],
       colors: ['#707C84', '#2775CA'],
     };
   } else if (env == 'testnet') {
     return {
       bin: 10,
-      range: 10,
+      range: 40,
       rangeGear: [100, 80, 60, 40, 20, 10],
       colors: ['#707C84', '#2775CA'],
     };
   } else {
     return {
       bin: 20,
-      range: 10,
+      range: 40,
       rangeGear: [100, 80, 60, 40, 20, 10],
       colors: ['#707C84', '#2775CA'],
     };

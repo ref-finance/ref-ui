@@ -350,7 +350,7 @@ export function YourLiquidityV2(props: any) {
   }
   return (
     <div>
-      {liquidityLoadingDone && (
+      {groupYourLiquidity && Object.entries(groupYourLiquidity).length && (
         <div className="grid grid-cols-11 px-6 text-sm text-primaryText">
           <div className="col-span-4 ">
             <FormattedMessage
