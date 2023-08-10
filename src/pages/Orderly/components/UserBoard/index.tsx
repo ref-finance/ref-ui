@@ -2471,7 +2471,7 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
             background: 'rgba(0, 19, 32, 0.8)',
             backdropFilter: 'blur(5px)',
             WebkitBackdropFilter: 'blur(5px)',
-            zIndex: 90,
+            zIndex: 89,
           }}
         ></div>
       )}
@@ -2484,7 +2484,7 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
             backdropFilter: 'blur(5px)',
             WebkitBackdropFilter: 'blur(5px)',
 
-            zIndex: 90,
+            zIndex: 89,
           }}
         >
           <OrderlyLoading></OrderlyLoading>
