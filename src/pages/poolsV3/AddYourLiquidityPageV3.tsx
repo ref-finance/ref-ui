@@ -1921,7 +1921,7 @@ export default function AddYourLiquidityPageV3() {
                   amount={tokenXAmount}
                   changeAmount={changeTokenXAmount}
                   currentSelectedPool={currentSelectedPool}
-                  hidden={onlyAddYToken || invalidRange ? true : false}
+                  disabled={onlyAddYToken || invalidRange ? true : false}
                 ></InputAmount>
                 <InputAmount
                   token={tokenY}
@@ -1930,7 +1930,7 @@ export default function AddYourLiquidityPageV3() {
                   amount={tokenYAmount}
                   changeAmount={changeTokenYAmount}
                   currentSelectedPool={currentSelectedPool}
-                  hidden={onlyAddXToken || invalidRange ? true : false}
+                  disabled={onlyAddXToken || invalidRange ? true : false}
                 ></InputAmount>
               </div>
               {token_amount_tip ? (
@@ -2163,17 +2163,6 @@ export default function AddYourLiquidityPageV3() {
               {currentSelectedPool && currentSelectedPool.pool_id && (
                 <AddLiquidityButton></AddLiquidityButton>
               )}
-              <div className="mt-5">
-                <OneSide
-                  show={
-                    (onlyAddYToken && currentPoint != rightPoint - 1) ||
-                    onlyAddXToken
-                      ? true
-                      : false
-                  }
-                ></OneSide>
-                <InvalidRange show={invalidRange ? true : false}></InvalidRange>
-              </div>
             </div>
           </div>
         </div>
@@ -2200,6 +2189,11 @@ function PointsComponent() {
 
     isSignedIn,
     pair_is_reverse,
+
+    onlyAddXToken,
+    onlyAddYToken,
+    invalidRange,
+    currentPoint,
   } = useContext(LiquidityProviderData);
   const [priceRangeMode, setPriceRangeMode] = useState<
     'by_range' | 'by_radius'
@@ -2704,11 +2698,17 @@ function PointsComponent() {
         {/* tip in foot */}
         <div
           style={{
-            color: '#3F4A52',
+            color: '#FF9343',
           }}
           className="text-xs mt-3"
         >
-          *Only NEAR is needed in the price range you choose.
+          {onlyAddYToken && currentPoint != rightPoint - 1
+            ? `*Only ${currentSelectedPool?.token_y_metadata?.symbol} is needed in the price range you choose.`
+            : ''}
+          {onlyAddXToken
+            ? `*Only ${currentSelectedPool?.token_x_metadata?.symbol} is needed in the price range you choose.`
+            : ''}
+          {invalidRange ? `The maket price is outside your price range.` : ''}
         </div>
       </div>
     </div>
@@ -3185,7 +3185,7 @@ function InputAmount({
   changeAmount,
   amount,
   currentSelectedPool,
-  hidden,
+  disabled,
 }: {
   token: TokenMetadata;
   balance: string;
@@ -3193,7 +3193,7 @@ function InputAmount({
   changeAmount: any;
   amount: string;
   currentSelectedPool: PoolInfo;
-  hidden?: Boolean;
+  disabled?: Boolean;
 }) {
   const [inputPrice, setInputPrice] = useState('');
   const [showNearTip, setShowNearTip] = useState(false);
@@ -3244,8 +3244,10 @@ function InputAmount({
   return (
     <div>
       <div
-        className={`bg-black bg-opacity-20 rounded-xl p-3 mt-3 border border-inputV3BorderColor hover:border-inputV3BorderHoverColor ${
-          hidden ? 'hidden' : ''
+        className={`rounded-xl p-3 mt-3 border ${
+          disabled
+            ? 'border-inputV3BorderHoverColor'
+            : 'bg-black bg-opacity-20 border-inputV3BorderColor hover:border-inputV3BorderHoverColor'
         }`}
       >
         <div className="flex items-center justify-between">
@@ -3253,7 +3255,7 @@ function InputAmount({
             type="number"
             placeholder="0.0"
             className="text-2xl xs:text-xl md:text-xl"
-            disabled={currentSelectedPool?.pool_id ? false : true}
+            disabled={!currentSelectedPool?.pool_id || disabled ? true : false}
             value={isNoPool ? '' : amount}
             step="any"
             onChange={({ target }) => {
@@ -3280,8 +3282,11 @@ function InputAmount({
             <span title={balance}>
               <FormattedMessage id="balance" />:{' '}
               <span
-                className="cursor-pointer hover:text-white underline"
+                className={`${
+                  disabled ? '' : 'cursor-pointer hover:text-white underline'
+                }`}
                 onClick={() => {
+                  if (disabled) return;
                   changeAmount(maxBalance);
                 }}
               >
