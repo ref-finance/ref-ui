@@ -66,7 +66,10 @@ import {
   ExclamationTip,
 } from '../../../../components/layout/TipWrapper';
 import { MyOrderInstantSwapArrowRight } from '../../../../components/icon/swapV3';
-import { TOKEN_LIST_FOR_RATE } from '../../../../services/commonV3';
+import {
+  TOKEN_LIST_FOR_RATE,
+  sort_tokens_by_base,
+} from '../../../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import { isMobile } from '../../../../utils/device';
 import { useWalletSelector } from '../../../../context/WalletSelectorContext';
@@ -2205,7 +2208,6 @@ function OrderCard({
   const [activeOrderList, setActiveOrderList] = useState<UserOrderInfo[]>();
   const [historyOrderList, setHistoryOrderList] = useState<UserOrderInfo[]>();
   const pool_id_by_url = useDclPoolIdByUrl();
-  console.log('pool_id_by_url', pool_id_by_url);
   useEffect(() => {
     if (activeOrder.length) {
       if (select_type == 'all') {
@@ -2433,7 +2435,15 @@ function OrderCard({
   
     </div>`;
   }
-
+  function get_current_pairs() {
+    if (pool_id_by_url && tokensMap) {
+      const [token_x, token_y, fee] = pool_id_by_url.split('|');
+      const token_x_meta = tokensMap[token_x];
+      const token_y_meta = tokensMap[token_y];
+      const tokens = sort_tokens_by_base([token_x_meta, token_y_meta]);
+      return `${tokens[1].symbol}/${tokens[0].symbol}`;
+    }
+  }
   return (
     <div className="flex flex-col">
       <div className="flex items-center justify-between xsm:flex-col xsm:items-end">
@@ -2445,7 +2455,7 @@ function OrderCard({
               set_select_type('current');
             }}
           >
-            Current: NEAR/USDC
+            Current: {get_current_pairs()}
           </SwitchTabItem>
           <SwitchTabItem
             active={select_type == 'all'}

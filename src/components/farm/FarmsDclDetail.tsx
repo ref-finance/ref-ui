@@ -368,18 +368,18 @@ export default function FarmsDclDetail(props: {
           temp_farming_another.forEach((liquidity: UserLiquidityInfo) => {
             temp_farming_another_map[liquidity.lpt_id] = liquidity;
           });
-          const { min_deposit } = detailData;
+          // const { min_deposit } = detailData;
           liquidities_minted_in_another_seed.forEach(
             (liquidity: UserLiquidityInfo) => {
               const liquidity_another: UserLiquidityInfo =
                 temp_farming_another_map[liquidity.lpt_id];
-              const v_liquidity = mint_liquidity(liquidity, detailData.seed_id);
+              // const v_liquidity = mint_liquidity(liquidity, detailData.seed_id);
               if (+liquidity_another?.part_farm_ratio > 0) {
                 liquidity.status_in_other_seed = 'staked';
               }
-              if (new BigNumber(v_liquidity).isLessThan(min_deposit)) {
-                liquidity.less_than_min_deposit = true;
-              }
+              // if (new BigNumber(v_liquidity).isLessThan(min_deposit)) {
+              //   liquidity.less_than_min_deposit = true;
+              // }
             }
           );
         });
@@ -396,7 +396,7 @@ export default function FarmsDclDetail(props: {
             if (
               !(
                 liquidity.status_in_other_seed == 'staked' ||
-                liquidity.less_than_min_deposit ||
+                // liquidity.less_than_min_deposit ||
                 !inRange ||
                 (!mft_id && amount_is_little)
               )
@@ -1102,38 +1102,43 @@ export default function FarmsDclDetail(props: {
       seed_id: detailData.seed_id,
     };
   }
-  // unavailable 有没有把 min 过滤掉????
+  // get unavailable text
   function get_unavailable_text() {
     let tip = '';
     const { seed_id, min_deposit } = detailData;
-    const { liquidities, total_v_liquidity } = get_stake_info();
-    if (liquidities.length == 0) {
-      for (let i = 0; i < listLiquidities_unavailable.length; i++) {
-        const liquidity = listLiquidities_unavailable[i];
-        const [left_point, right_point] = get_valid_range(liquidity, seed_id);
-        const inrange = +right_point > +left_point;
-        if (!inrange) {
-          tip = intl.formatMessage({ id: 'your_price_range_tip' });
-          break;
-        } else if (liquidity.status_in_other_seed == 'staked') {
-          tip = intl.formatMessage({ id: 'position_has_staked_tip' });
-        } else {
-          // min deposit
-          const rate = new BigNumber(min_deposit).dividedBy(total_v_liquidity);
-          let rate_display = rate.toFixed(1);
-          if (rate.isGreaterThan(rate_display)) {
-            rate_display = new BigNumber(rate_display).plus(0.1).toFixed();
-          }
-          // your liquidity
-          tip =
-            intl.formatMessage({ id: 'minimum_tip' }) +
-            ' ' +
-            `${rate_display}x` +
-            ' ' +
-            intl.formatMessage({ id: 'your_liquidity_3' });
-        }
+    const { total_v_liquidity } = get_stake_info();
+    for (let i = 0; i < listLiquidities_unavailable.length; i++) {
+      const liquidity = listLiquidities_unavailable[i];
+      const [left_point, right_point] = get_valid_range(liquidity, seed_id);
+      const inrange = +right_point > +left_point;
+      if (!inrange) {
+        tip = intl.formatMessage({ id: 'your_price_range_tip' });
+        break;
+      } else if (liquidity.status_in_other_seed == 'staked') {
+        tip = intl.formatMessage({ id: 'position_has_staked_tip' });
       }
     }
+
+    if (listLiquidities_unavailable.length && !tip) {
+      // too little to mint
+      tip = 'The Liquidity amount is too little to mint';
+    }
+    if (!tip && Big(total_v_liquidity).gt(0)) {
+      // min deposit
+      const rate = new BigNumber(min_deposit).dividedBy(total_v_liquidity);
+      let rate_display = rate.toFixed(1);
+      if (rate.isGreaterThan(rate_display)) {
+        rate_display = new BigNumber(rate_display).plus(0.1).toFixed();
+      }
+      // your liquidity
+      tip =
+        intl.formatMessage({ id: 'minimum_tip' }) +
+        ' ' +
+        `${rate_display}x` +
+        ' ' +
+        intl.formatMessage({ id: 'your_liquidity_3' });
+    }
+    return tip;
   }
   /** new end */
   const isEmpty = !canStake && !canUnStake;
@@ -1459,28 +1464,33 @@ export default function FarmsDclDetail(props: {
                 </span>{' '}
                 available to stake
               </div>
-              <div className={`text-sm text-dclFarmYellowColor hidden`}>
-                The minimum staking amount is 2x your liquidity
-              </div>
+              {!isEnded && !canStake && (
+                <div className={`text-sm text-dclFarmYellowColor mt-1 `}>
+                  {get_unavailable_text()}
+                </div>
+              )}
             </div>
             <div className="flex items-center">
-              <GradientButton
-                color="#fff"
-                disabled={stakeDisabled}
-                btnClassName={stakeDisabled ? 'cursor-not-allowed' : ''}
-                minWidth="6rem"
-                onClick={batchStakeNFT}
-                className={`h-8 px-4 text-center text-sm text-white focus:outline-none ${
-                  stakeDisabled ? 'opacity-40' : ''
-                }`}
-              >
-                <ButtonTextWrapper
-                  loading={nft_stake_loading}
-                  Text={() => (
-                    <FormattedMessage id="stake" defaultMessage="Stake" />
-                  )}
-                />
-              </GradientButton>
+              {!isEnded && (
+                <GradientButton
+                  color="#fff"
+                  disabled={stakeDisabled}
+                  btnClassName={stakeDisabled ? 'cursor-not-allowed' : ''}
+                  minWidth="6rem"
+                  onClick={batchStakeNFT}
+                  className={`h-8 px-4 text-center text-sm text-white focus:outline-none ${
+                    stakeDisabled ? 'opacity-40' : ''
+                  }`}
+                >
+                  <ButtonTextWrapper
+                    loading={nft_stake_loading}
+                    Text={() => (
+                      <FormattedMessage id="stake" defaultMessage="Stake" />
+                    )}
+                  />
+                </GradientButton>
+              )}
+
               {canUnStake ? (
                 <OprationButton
                   color="#fff"

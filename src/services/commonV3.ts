@@ -753,13 +753,22 @@ export function allocation_rule_liquidities({
   });
   const temp_free_final: UserLiquidityInfo[] = [];
   temp_free = temp_unFarming.concat(temp_free);
+  // const temp_too_little_in_free: UserLiquidityInfo[] = temp_free.filter(
+  //   (liquidity: UserLiquidityInfo) => {
+  //     const v_liquidity = mint_liquidity(liquidity, seed_id);
+  //     if (new BigNumber(v_liquidity).isLessThan(min_deposit)) {
+  //       liquidity.less_than_min_deposit = true;
+  //       return true;
+  //     }
+  //     temp_free_final.push(liquidity);
+  //   }
+  // );
   const temp_too_little_in_free: UserLiquidityInfo[] = temp_free.filter(
     (liquidity: UserLiquidityInfo) => {
-      const v_liquidity = mint_liquidity(liquidity, seed_id);
-      if (new BigNumber(v_liquidity).isLessThan(min_deposit)) {
-        liquidity.less_than_min_deposit = true;
-        return true;
-      }
+      // too little to mint
+      const { amount } = liquidity;
+      const amount_is_little = new BigNumber(amount).isLessThan(1000000);
+      if (amount_is_little) return true;
       temp_free_final.push(liquidity);
     }
   );

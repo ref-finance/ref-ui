@@ -14,6 +14,7 @@ import SwapProTab from './SwapProTab';
 import {
   toReadableNumber,
   toInternationalCurrencySystem,
+  formatWithCommas,
 } from '~utils/numbers';
 import { toRealSymbol } from '../../utils/token';
 import { SwapProContext } from '../../pages/SwapPage';
@@ -285,8 +286,8 @@ export default function SwapLimitOrderChart() {
           </span>
           <span className="text-2xl text-white gotham_bold mx-1.5">
             {switch_token == 'X'
-              ? formatPrice(current_price_x)
-              : formatPrice(current_price_y)}
+              ? formatPriceWithCommas(current_price_x)
+              : formatPriceWithCommas(current_price_y)}
           </span>
           <span className="text-sm text-primaryText">
             {switch_token == 'X'
@@ -470,7 +471,7 @@ export default function SwapLimitOrderChart() {
             <div>
               <div
                 ref={sellBoxRef}
-                className={`${
+                className={`font-nunito ${
                   sell_list?.length ? 'p-3' : 'p-1'
                 } pr-0 overflow-auto`}
                 style={{ maxHeight: `${limitOrderContainerHeight}px` }}
@@ -482,7 +483,7 @@ export default function SwapLimitOrderChart() {
                       className="grid grid-cols-3  justify-items-end text-xs py-1.5 pr-2"
                     >
                       <span className="text-sellColorNew justify-self-start">
-                        {formatPrice(item.price)}
+                        {formatPriceWithCommas(item.price)}
                       </span>
                       <span className="text-white pr-3">
                         {formatNumber(
@@ -499,7 +500,7 @@ export default function SwapLimitOrderChart() {
                   );
                 })}
               </div>
-              <div className="flex items-center mt-2.5 pl-3">
+              <div className="flex items-center mt-2.5 pl-3 font-nunito">
                 <span className="text-xs text-white mr-2">Market Pirce</span>
                 <RefreshIcon
                   className={`cursor-pointer ${
@@ -509,7 +510,7 @@ export default function SwapLimitOrderChart() {
                 ></RefreshIcon>
               </div>
               <div
-                className={`${
+                className={`font-nunito ${
                   buy_list?.length ? 'p-3' : 'p-1'
                 } pr-0 overflow-auto`}
                 style={{ maxHeight: `${limitOrderContainerHeight}px` }}
@@ -521,7 +522,7 @@ export default function SwapLimitOrderChart() {
                       className="grid grid-cols-3 justify-items-end text-xs py-1.5 pr-2"
                     >
                       <span className="text-gradientFromHover justify-self-start">
-                        {formatPrice(item.price)}
+                        {formatPriceWithCommas(item.price)}
                       </span>
                       <span className="text-white pr-3">
                         {formatNumber(
@@ -1131,7 +1132,7 @@ function OrderChart() {
         <div className="flex items-center justify-between gap-5 mb-3">
           <span className="text-xs text-primaryText">Price({cur_pairs})</span>
           <span className="text-sm text-white">
-            {formatPrice(foucsOrderPoint?.price)}
+            {formatPriceWithCommas(foucsOrderPoint?.price)}
           </span>
         </div>
         <div className="flex items-center justify-between gap-5 mb-3">
@@ -1321,6 +1322,20 @@ const formatPrice = (v: string | number) => {
     return big.toFixed(4, 1);
   }
 };
+export const formatPriceWithCommas = (v: string | number) => {
+  if (isInvalid(v)) return '-';
+  const big = Big(v);
+  if (big.eq(0)) {
+    return '0';
+  } else if (big.lt(0.0001)) {
+    return '<0.0001';
+  } else {
+    const p = big.toFixed(4, 0);
+    const [whole, decimal] = p.split('.');
+    return `${formatWithCommas(whole)}${decimal ? '.' + decimal : ''}`;
+  }
+};
+
 const isInvalid = function (v: any) {
   if (v === '' || v === undefined || v === null) return true;
   return false;
