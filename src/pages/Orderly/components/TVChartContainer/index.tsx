@@ -122,13 +122,17 @@ export function ChartContainer({ maintenance }: { maintenance: boolean }) {
 
   const ref = React.useRef<HTMLDivElement>(null);
 
+  const storedInterval = localStorage.getItem(
+    'tradingview.chart.lastUsedTimeBasedResolution'
+  );
+
   const widgetOptions: ChartingLibraryWidgetOptions = {
     symbol: symbol,
     // BEWARE: no trailing slash is expected in feed URL
     // tslint:disable-next-line:no-any
     theme: 'Dark',
     datafeed: datafeed,
-    interval: 'D' as ResolutionString,
+    interval: (storedInterval || 'D') as ResolutionString,
     container: 'TVChartContainer',
     library_path: '/charting_library/',
     locale: getLanguageFromURL() || 'en',
@@ -198,7 +202,15 @@ export function ChartContainer({ maintenance }: { maintenance: boolean }) {
     if (!tvWidget) return;
 
     tvWidget.onChartReady(() => {
-      tvWidget.setSymbol(symbol, 'D' as ResolutionString, () => {});
+      const storedInterval = localStorage.getItem(
+        'tradingview.chart.lastUsedTimeBasedResolution'
+      );
+
+      tvWidget.setSymbol(
+        symbol,
+        (storedInterval || 'D') as ResolutionString,
+        () => {}
+      );
     });
   }, [symbol]);
 
