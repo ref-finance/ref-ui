@@ -1203,6 +1203,8 @@ export const TOKEN_LIST_FOR_RATE = [
   'USDt',
 ];
 
+export const TOKEN_LIST_FOR_RATE_EXTRA = ['NEAR'];
+
 export const PAUSE_DCL = true;
 
 export function pause_v2_tip() {
@@ -1223,6 +1225,11 @@ export function pause_old_dcl_claim_tip() {
 }
 export function sort_tokens_by_base(tokens: TokenMetadata[]) {
   const tokens_temp = JSON.parse(JSON.stringify(tokens || []));
+  tokens_temp.sort((item2: TokenMetadata, item1: TokenMetadata) => {
+    if (TOKEN_LIST_FOR_RATE_EXTRA.indexOf(item2.symbol) > -1) return 1;
+    if (TOKEN_LIST_FOR_RATE_EXTRA.indexOf(item1.symbol) > -1) return -1;
+    return 0;
+  });
   tokens_temp.sort((item2: TokenMetadata, item1: TokenMetadata) => {
     if (TOKEN_LIST_FOR_RATE.indexOf(item2.symbol) > -1) return 1;
     if (TOKEN_LIST_FOR_RATE.indexOf(item1.symbol) > -1) return -1;

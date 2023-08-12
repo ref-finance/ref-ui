@@ -2296,7 +2296,8 @@ export function RecentTransactions({
 
     if (!swapIn || !swapOut) return null;
     let reverse = false;
-    if (sort_tokens_by_base([swapIn, swapOut])[0].id !== swapIn.id) {
+    const sort_tokens = sort_tokens_by_base([swapIn, swapOut]);
+    if (sort_tokens[0].id !== swapIn.id) {
       reverse = true;
     }
 
@@ -2330,6 +2331,7 @@ export function RecentTransactions({
         <HiOutlineExternalLink className="relative "></HiOutlineExternalLink>
       </a>
     );
+    const display_price = reverse ? reverse_price(price) : price;
     return (
       <tr className="hover:text-white grid grid-cols-5 overflow-hidden hover:bg-poolRecentHover text-sm text-primaryText">
         <td className=" gap-1 p-4 frcs text-white">
@@ -2365,18 +2367,12 @@ export function RecentTransactions({
         <td className="frcs">
           <div className="frcs flex-wrap">
             <span className="text-white mr-1" title={price}>
-              {numberWithCommas(toPrecision(reverse_price(price), 4))}
+              {numberWithCommas(toPrecision(display_price, 4))}
             </span>
 
             <span className="text-primaryText">
-              {toRealSymbol(swapIn.symbol)}/{toRealSymbol(swapOut.symbol)}
-              {/* {reverse
-                ? `${toRealSymbol(swapOut.symbol)}/${toRealSymbol(
-                    swapIn.symbol
-                  )}`
-                : `${toRealSymbol(swapIn.symbol)}/${toRealSymbol(
-                    swapOut.symbol
-                  )}`} */}
+              {toRealSymbol(sort_tokens?.[1]?.symbol)}/
+              {toRealSymbol(sort_tokens?.[0]?.symbol)}
             </span>
           </div>
         </td>

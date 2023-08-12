@@ -2173,6 +2173,7 @@ function OrderCard({
       sessionStorage.removeItem(REF_FI_MY_ORDER_SHOW_HISTORY_SWAP_INFO);
     }
   };
+  const pool_id_by_url = useDclPoolIdByUrl();
 
   const [orderType, setOrderType] = useState<'active' | 'history'>(
     sessionStorage.getItem(ORDER_TYPE_KEY) ||
@@ -2207,8 +2208,23 @@ function OrderCard({
   const [select_type, set_select_type] = useState<'all' | 'current'>('all');
   const [activeOrderList, setActiveOrderList] = useState<UserOrderInfo[]>();
   const [historyOrderList, setHistoryOrderList] = useState<UserOrderInfo[]>();
-  const pool_id_by_url = useDclPoolIdByUrl();
-  console.log('000000000-pool_id_by_url', pool_id_by_url);
+
+  const tokenIds = useMemo(() => {
+    if (pool_id_by_url) {
+      const [token_x, token_y, fee] = pool_id_by_url.split('|');
+      return [token_x, token_y];
+    }
+    return [];
+  }, [pool_id_by_url]);
+
+  const tokens = useTokens(tokenIds) || [];
+  const current_pair_tokens_map = tokens.reduce((acc, cur) => {
+    return {
+      ...acc,
+      [cur.id]: cur,
+    };
+  }, {});
+
   useEffect(() => {
     if (activeOrder.length) {
       if (select_type == 'all') {
@@ -2437,10 +2453,10 @@ function OrderCard({
     </div>`;
   }
   function get_current_pairs() {
-    if (pool_id_by_url && tokensMap) {
+    if (pool_id_by_url && current_pair_tokens_map) {
       const [token_x, token_y, fee] = pool_id_by_url.split('|');
-      const token_x_meta = tokensMap[token_x];
-      const token_y_meta = tokensMap[token_y];
+      const token_x_meta = current_pair_tokens_map[token_x];
+      const token_y_meta = current_pair_tokens_map[token_y];
       if (token_x_meta?.symbol && token_y_meta?.symbol) {
         const tokens = sort_tokens_by_base([token_x_meta, token_y_meta]);
         return `${tokens[1].symbol}/${tokens[0].symbol}`;

@@ -694,13 +694,20 @@ export default function DclChart({
         e.offsetX + disFromHoverBoxToPointer
       }px, ${e.offsetY / 2}px)`
     );
-    const { point, token_x, token_y, order_x, order_y, fee, total_liquidity } =
-      d;
+    const {
+      point_l,
+      token_x,
+      token_y,
+      order_x,
+      order_y,
+      fee,
+      total_liquidity,
+    } = d;
     const { colors } = getConfig();
 
     const total_token_x = Big(token_x).plus(order_x);
     const total_token_y = Big(token_y).plus(order_y);
-    const price_by_token_x = get_price_by_point(+point);
+    const price_by_token_x = get_price_by_point(+point_l);
     const price_by_token_y = reverse_price(price_by_token_x);
     const apr = Big(total_liquidity).gt(0)
       ? Big(fee).div(total_liquidity).mul(365).mul(100).toFixed()

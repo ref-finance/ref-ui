@@ -2724,7 +2724,7 @@ function PointsComponent() {
           {onlyAddXToken
             ? `*Only ${currentSelectedPool?.token_x_metadata?.symbol} is needed in the price range you choose.`
             : ''}
-          {invalidRange ? `The maket price is outside your price range.` : ''}
+          {invalidRange ? <FormattedMessage id="invalid_range_tip" /> : ''}
         </div>
       </div>
     </div>
