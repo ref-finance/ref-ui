@@ -2208,6 +2208,7 @@ function OrderCard({
   const [activeOrderList, setActiveOrderList] = useState<UserOrderInfo[]>();
   const [historyOrderList, setHistoryOrderList] = useState<UserOrderInfo[]>();
   const pool_id_by_url = useDclPoolIdByUrl();
+  console.log('000000000-pool_id_by_url', pool_id_by_url);
   useEffect(() => {
     if (activeOrder.length) {
       if (select_type == 'all') {
@@ -2216,7 +2217,7 @@ function OrderCard({
         setActiveOrderList(getCurrentPairOrders(activeOrder));
       }
     }
-  }, [activeOrder, select_type]);
+  }, [activeOrder, select_type, pool_id_by_url]);
 
   useEffect(() => {
     if (historyOrder.length) {
@@ -2226,7 +2227,7 @@ function OrderCard({
         setHistoryOrderList(getCurrentPairOrders(historyOrder));
       }
     }
-  }, [historyOrder, select_type]);
+  }, [historyOrder, select_type, pool_id_by_url]);
 
   function getCurrentPairOrders(orders: UserOrderInfo[]) {
     return orders.filter((order: UserOrderInfo) => {
@@ -2440,9 +2441,12 @@ function OrderCard({
       const [token_x, token_y, fee] = pool_id_by_url.split('|');
       const token_x_meta = tokensMap[token_x];
       const token_y_meta = tokensMap[token_y];
-      const tokens = sort_tokens_by_base([token_x_meta, token_y_meta]);
-      return `${tokens[1].symbol}/${tokens[0].symbol}`;
+      if (token_x_meta?.symbol && token_y_meta?.symbol) {
+        const tokens = sort_tokens_by_base([token_x_meta, token_y_meta]);
+        return `${tokens[1].symbol}/${tokens[0].symbol}`;
+      }
     }
+    return '';
   }
   return (
     <div className="flex flex-col">

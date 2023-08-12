@@ -2460,9 +2460,9 @@ function PointsComponent() {
   }
   function getPair() {
     if (pair_is_reverse) {
-      return `(${tokenY.symbol}/${tokenX.symbol})`;
-    } else {
       return `(${tokenX.symbol}/${tokenY.symbol})`;
+    } else {
+      return `(${tokenY.symbol}/${tokenX.symbol})`;
     }
   }
   return (

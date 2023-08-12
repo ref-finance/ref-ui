@@ -47,6 +47,7 @@ import {
   get_account_24_apr,
   get_token_amount_in_user_liquidities,
   useRemoveLiquidityUrlHandle,
+  reverse_price,
 } from '~services/commonV3';
 import { ftGetTokensMetadata } from '../../services/ft-contract';
 import {
@@ -2364,17 +2365,18 @@ export function RecentTransactions({
         <td className="frcs">
           <div className="frcs flex-wrap">
             <span className="text-white mr-1" title={price}>
-              {numberWithCommas(toPrecision(price, 4))}
+              {numberWithCommas(toPrecision(reverse_price(price), 4))}
             </span>
 
             <span className="text-primaryText">
-              {reverse
+              {toRealSymbol(swapIn.symbol)}/{toRealSymbol(swapOut.symbol)}
+              {/* {reverse
                 ? `${toRealSymbol(swapOut.symbol)}/${toRealSymbol(
                     swapIn.symbol
                   )}`
                 : `${toRealSymbol(swapIn.symbol)}/${toRealSymbol(
                     swapOut.symbol
-                  )}`}
+                  )}`} */}
             </span>
           </div>
         </td>

@@ -46,7 +46,7 @@ export default function SwapLimitOrderChart() {
   const [zoom, setZoom] = useState<number>(GEARS[0]);
   const pool_id = dcl_pool_id;
   const left_point = -800000;
-  const right_point = 600000;
+  const right_point = 800000;
   const sellBoxRef = useRef(null);
   useEffect(() => {
     if (pool_id) {

@@ -1553,8 +1553,19 @@ export default function DclChart({
           <div className="flex items-center justify-between my-2">
             <span className="text-xs text-white mr-10">Price</span>
             <span className="text-xs text-white gotham_bold">
-              {binDetail?.price_by_token_y} {pool?.token_y_metadata?.symbol} /{' '}
-              {binDetail?.price_by_token_x} {pool?.token_x_metadata?.symbol}
+              {reverse ? (
+                <>
+                  {binDetail?.price_by_token_y} {pool?.token_x_metadata?.symbol}{' '}
+                  / {binDetail?.price_by_token_x}{' '}
+                  {pool?.token_y_metadata?.symbol}
+                </>
+              ) : (
+                <>
+                  {binDetail?.price_by_token_x} {pool?.token_y_metadata?.symbol}{' '}
+                  / {binDetail?.price_by_token_y}{' '}
+                  {pool?.token_x_metadata?.symbol}
+                </>
+              )}
             </span>
           </div>
           {binDetail?.token_x_amount ? (
