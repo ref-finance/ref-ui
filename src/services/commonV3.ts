@@ -82,6 +82,22 @@ export function getPointByPrice(
   }
   return point_int_slot;
 }
+/**
+ * caculate point by price
+ * @param pointDelta
+ * @param price
+ * @param decimalRate tokenY/tokenX
+ * @returns
+ */
+export function getSlotPointByPoint(pointDelta: number, point: number) {
+  let point_int_slot = Math.round(point / pointDelta) * pointDelta;
+  if (point_int_slot < POINTLEFTRANGE) {
+    return POINTLEFTRANGE;
+  } else if (point_int_slot > POINTRIGHTRANGE) {
+    return 800000;
+  }
+  return point_int_slot;
+}
 export const CONSTANT_D = 1.0001;
 export const POINTDELTAMAP = {
   100: 1,

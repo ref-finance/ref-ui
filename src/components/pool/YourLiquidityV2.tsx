@@ -1623,7 +1623,7 @@ function UserLiquidityLineStyleGroupStyle2() {
           <div className="flex items-center">
             <div className="flex flex-col items-end mr-5">
               <span className="text-white text-sm gotham_bold">
-                ${your_liquidity || '-'}
+                {your_liquidity || '-'}
               </span>
               <div className="flex items-center">
                 <WaterDropIcon className="m-1.5"></WaterDropIcon>
@@ -1669,7 +1669,7 @@ function UserLiquidityLineStyleGroupStyle2() {
                     )}
                   </span>
                 </div>
-                <div className=" flex flex-wrap">
+                <div className="flex items-center flex-wrap">
                   {intersectionRangeList.map((range: string[], i: number) => {
                     return (
                       <div className="text-white whitespace-nowrap text-sm">

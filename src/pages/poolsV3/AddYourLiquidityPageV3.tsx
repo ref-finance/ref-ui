@@ -60,6 +60,7 @@ import {
   UserLiquidityInfo,
   reverse_price,
   sort_tokens_by_base,
+  getSlotPointByPoint,
 } from '../../services/commonV3';
 import {
   formatWithCommas,
@@ -2223,18 +2224,19 @@ function PointsComponent() {
     if (currentSelectedPool?.pool_id && !switch_pool_loading) {
       const { current_point } = currentSelectedPool;
       let left_point, right_point;
+      const targetPoint = get_slot_point_by_point(current_point);
       if (pair_is_reverse) {
         left_point = get_bin_point_by_point(
-          current_point + BIN_WIDTH * RADIUS_DEFAULT_NUMBER
+          targetPoint + BIN_WIDTH * RADIUS_DEFAULT_NUMBER
         );
         right_point = left_point - BIN_WIDTH * RADIUS_DEFAULT_NUMBER * 2;
       } else {
         right_point = get_bin_point_by_point(
-          current_point + BIN_WIDTH * RADIUS_DEFAULT_NUMBER
+          targetPoint + BIN_WIDTH * RADIUS_DEFAULT_NUMBER
         );
         left_point = right_point - BIN_WIDTH * RADIUS_DEFAULT_NUMBER * 2;
       }
-      setTargetPoint(current_point);
+      setTargetPoint(targetPoint);
       setRadius(RADIUS_DEFAULT_NUMBER);
       setLeftPoint(left_point);
       setRightPoint(right_point);
@@ -2344,23 +2346,23 @@ function PointsComponent() {
       appropriate_right_point,
       appropriate_target_point;
     if (pair_is_reverse) {
-      appropriate_target_point = get_bin_point_by_price(reverse_price(price));
+      appropriate_target_point = get_point_by_price(reverse_price(price));
       appropriate_left_point = get_bin_point_by_point(
         appropriate_target_point + BIN_WIDTH * radius
       );
       appropriate_right_point = get_bin_point_by_point(
         appropriate_left_point - BIN_WIDTH * radius * 2
       );
-      appropriate_target_point = appropriate_left_point - BIN_WIDTH * radius;
+      // appropriate_target_point = appropriate_left_point - BIN_WIDTH * radius;
     } else {
-      appropriate_target_point = get_bin_point_by_price(price);
+      appropriate_target_point = get_point_by_price(price);
       appropriate_right_point = get_bin_point_by_point(
         appropriate_target_point + BIN_WIDTH * radius
       );
       appropriate_left_point = get_bin_point_by_point(
         appropriate_right_point - BIN_WIDTH * radius * 2
       );
-      appropriate_target_point = appropriate_right_point - BIN_WIDTH * radius;
+      // appropriate_target_point = appropriate_right_point - BIN_WIDTH * radius;
     }
     setLeftPoint(appropriate_left_point);
     setRightPoint(appropriate_right_point);
@@ -2458,6 +2460,10 @@ function PointsComponent() {
     const { point_delta } = currentSelectedPool;
     return getBinPointByPoint(point_delta, SLOT_NUMBER, point);
   }
+  function get_slot_point_by_point(point: number) {
+    const { point_delta } = currentSelectedPool;
+    return getSlotPointByPoint(point_delta, point);
+  }
   function getPair() {
     if (pair_is_reverse) {
       return `(${tokenX.symbol}/${tokenY.symbol})`;
@@ -2511,9 +2517,11 @@ function PointsComponent() {
                 rightPoint={rightPoint}
                 setLeftPoint={setLeftPoint}
                 setRightPoint={setRightPoint}
+                setTargetPoint={setTargetPoint}
+                targetPoint={targetPoint}
+                radius={radius}
                 config={{
                   radiusMode: priceRangeMode == 'by_radius',
-                  targetPoint,
                 }}
                 reverse={pair_is_reverse}
               ></DclChart>

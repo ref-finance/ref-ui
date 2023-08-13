@@ -56,19 +56,24 @@ export default function DclChart({
   pool_id,
   leftPoint,
   rightPoint,
+  targetPoint,
   setLeftPoint,
   setRightPoint,
+  setTargetPoint,
   config,
   chartType,
   removeParams,
   newlyAddedLiquidities,
   reverse,
+  radius,
 }: {
   pool_id: string;
   leftPoint?: number;
   rightPoint?: number;
+  targetPoint?: number;
   setLeftPoint?: Function;
   setRightPoint?: Function;
+  setTargetPoint?: Function;
   config?: IPoolChartConfig;
   chartType?: 'POOL' | 'USER';
   removeParams?: {
@@ -79,6 +84,7 @@ export default function DclChart({
   };
   newlyAddedLiquidities?: UserLiquidityInfo[];
   reverse?: boolean;
+  radius?: number;
 }) {
   const [pool, setPool] = useState<PoolInfo>();
   const [price_range, set_price_range] = useState<number[]>();
@@ -102,6 +108,7 @@ export default function DclChart({
     timer: '',
   });
   const dragBarWidth = 28;
+  const radiusDragBarWidth = 20;
   const percentBoxWidth = 44;
   const min_bar_height = 2;
   const svgWidth = +(appearanceConfig.svgWidth || 520);
@@ -234,7 +241,11 @@ export default function DclChart({
         newPrice = get_price_by_point(newPoint);
       }
       const movePercent = diffPrices(newPrice);
-      const x = scale(+newPrice);
+      let x = scale(+newPrice);
+      // transform attr can not receive too big number
+      if (Big(x).gt(9999999999)) {
+        x = 9999999999;
+      }
       d3.select(`${randomId} .drag-right`).attr(
         'transform',
         `translate(${x}, -${axisHeight})`
@@ -265,7 +276,7 @@ export default function DclChart({
     }
   }, [rightPoint]);
   useEffect(() => {
-    if (config?.radiusMode && config?.targetPoint && drawChartDone) {
+    if (config?.radiusMode && isValid(targetPoint) && drawChartDone) {
       // hide drag bar and show target price bar
       draw_radius_mode_bar();
       d3.select(`${randomId} .leftBar`).attr('style', 'display:none');
@@ -275,7 +286,15 @@ export default function DclChart({
       d3.select(`${randomId} .rightBar`).attr('style', '');
       d3.select(`${randomId} .radiusBar`).attr('style', 'display:none');
     }
-  }, [config?.radiusMode, config?.targetPoint, pool_id, drawChartDone]);
+  }, [config?.radiusMode, drawChartDone, targetPoint, pool_id, price_range]);
+
+  // bind drag event
+  useEffect(() => {
+    if (!config.controlHidden && pool_id && drawChartDone) {
+      bind_radius_mode_bar_event();
+    }
+  }, [config.controlHidden, drawChartDone, price_range, pool_id, radius]);
+
   // draw remove area for user
   useEffect(() => {
     if (removeParams && drawChartDone) {
@@ -1166,15 +1185,68 @@ export default function DclChart({
   }
   function draw_radius_mode_bar() {
     const scale: any = scaleAxis();
-    const { targetPoint } = config;
     let price = get_price_by_point(targetPoint);
     if (reverse) {
       price = reverse_price(price);
     }
-    const x = scale(price);
+    const x = scale(price) - 8;
     d3.select(`${randomId} .radiusBar`)
       .attr('transform', `translate(${x}, -${axisHeight})`)
-      .attr('style', 'display:block');
+      .attr('style', 'display:block;cursor:ew-resize');
+  }
+  function bind_radius_mode_bar_event() {
+    const scale: any = scaleAxis();
+    const dragTarget = d3.drag().on('drag', (e) => {
+      let p;
+      const drag_price = scale.invert(e.x);
+      if (reverse) {
+        p = reverse_price(drag_price);
+      } else {
+        p = drag_price;
+      }
+      // if target price is out of range then limit dragging
+      if (
+        Big(drag_price).lte(price_range[0]) ||
+        Big(drag_price).gte(price_range[price_range.length - 1])
+      )
+        return;
+
+      const newTargetPoint = get_point_by_price(p);
+      let left_point, right_point;
+      const BIN_WIDTH = getConfig().bin * pool.point_delta;
+      if (reverse) {
+        left_point = Math.min(
+          get_bin_point_by_point(newTargetPoint + BIN_WIDTH * radius),
+          POINTRIGHTRANGE
+        );
+        right_point = Math.max(
+          left_point - BIN_WIDTH * radius * 2,
+          POINTLEFTRANGE
+        );
+      } else {
+        right_point = Math.min(
+          get_bin_point_by_point(newTargetPoint + BIN_WIDTH * radius),
+          POINTRIGHTRANGE
+        );
+        left_point = Math.max(
+          right_point - BIN_WIDTH * radius * 2,
+          POINTLEFTRANGE
+        );
+      }
+
+      const left_price = get_price_by_point(left_point);
+      const right_price = get_price_by_point(right_point);
+
+      // if left or right price is out of range then limit dragging
+      if (Big(left_price).lte(0) || Big(right_price).lte(0)) return;
+
+      setTargetPoint && setTargetPoint(newTargetPoint);
+      setDragLeftPoint(left_point);
+      setDragRightPoint(right_point);
+      setLeftPoint && setLeftPoint(left_point);
+      setRightPoint && setRightPoint(right_point);
+    });
+    d3.select(`${randomId} .radiusBar`).call(dragTarget);
   }
   function get_current_price(forward?: boolean) {
     const current_price = get_price_by_point(pool.current_point);
@@ -1442,7 +1514,7 @@ export default function DclChart({
                 ></text>
               </g>
               <g className="drag-left" style={{ cursor: 'ew-resize' }}>
-                <rect width="28" height="253" opacity="0"></rect>
+                <rect width={dragBarWidth} height="253" opacity="0"></rect>
                 <path
                   d="M15 245L15 -3.69549e-06"
                   stroke="#00FFD1"
@@ -1487,7 +1559,7 @@ export default function DclChart({
               </g>
               <g className="drag-right" style={{ cursor: 'ew-resize' }}>
                 <rect
-                  width="28"
+                  width={dragBarWidth}
                   height="253"
                   opacity="0"
                   x={`-${dragBarWidth / 2}`}
@@ -1523,6 +1595,12 @@ export default function DclChart({
             </g>
             {/*  show bar in radius mode */}
             <g className="radiusBar">
+              <rect
+                width={radiusDragBarWidth}
+                height="253"
+                opacity="0"
+                x={`-3`}
+              ></rect>
               <path
                 d="M8 245L7.99999 -3.69549e-06"
                 stroke="#00FFD1"

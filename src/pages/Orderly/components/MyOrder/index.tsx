@@ -2459,7 +2459,7 @@ function OrderCard({
       const token_y_meta = current_pair_tokens_map[token_y];
       if (token_x_meta?.symbol && token_y_meta?.symbol) {
         const tokens = sort_tokens_by_base([token_x_meta, token_y_meta]);
-        return `${tokens[1].symbol}/${tokens[0].symbol}`;
+        return `${tokens[0].symbol}-${tokens[1].symbol}`;
       }
     }
     return '';

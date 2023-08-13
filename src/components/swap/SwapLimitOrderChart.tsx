@@ -87,38 +87,49 @@ export default function SwapLimitOrderChart() {
       sellBoxRef.current.scrollTop = 10000;
     }
   }, [sellBoxRef, sell_list]);
-  const [cur_pairs, cur_token_symbol, cur_pair_icons] = useMemo(() => {
-    if (pool) {
-      const classStr = 'w-6 h-6 rounded-full border border-gradientFromHover';
-      const { token_x_metadata, token_y_metadata } = pool;
-      const x_symbol = toRealSymbol(token_x_metadata.symbol);
-      const y_symbol = toRealSymbol(token_y_metadata.symbol);
-      if (switch_token == 'X') {
-        const y_icons = (
-          <>
-            <img className={classStr} src={token_y_metadata.icon}></img>
-            <img
-              className={`${classStr} -ml-1.5`}
-              src={token_x_metadata.icon}
-            ></img>
-          </>
-        );
-        return [`${y_symbol}/${x_symbol}`, `${y_symbol}`, y_icons];
-      } else if (switch_token == 'Y') {
-        const x_icons = (
-          <>
-            <img className={classStr} src={token_x_metadata.icon}></img>
-            <img
-              className={`${classStr} -ml-1.5`}
-              src={token_y_metadata.icon}
-            ></img>
-          </>
-        );
-        return [`${x_symbol}/${y_symbol}`, `${x_symbol}`, x_icons];
+  const [cur_pairs, cur_pairs_price_mode, cur_token_symbol, cur_pair_icons] =
+    useMemo(() => {
+      if (pool) {
+        const classStr = 'w-6 h-6 rounded-full border border-gradientFromHover';
+        const { token_x_metadata, token_y_metadata } = pool;
+        const x_symbol = toRealSymbol(token_x_metadata.symbol);
+        const y_symbol = toRealSymbol(token_y_metadata.symbol);
+        if (switch_token == 'X') {
+          const y_icons = (
+            <>
+              <img className={classStr} src={token_x_metadata.icon}></img>
+              <img
+                className={`${classStr} -ml-1.5`}
+                src={token_y_metadata.icon}
+              ></img>
+            </>
+          );
+          return [
+            `${y_symbol}/${x_symbol}`,
+            `${x_symbol}-${y_symbol}`,
+            `${y_symbol}`,
+            y_icons,
+          ];
+        } else if (switch_token == 'Y') {
+          const x_icons = (
+            <>
+              <img className={classStr} src={token_y_metadata.icon}></img>
+              <img
+                className={`${classStr} -ml-1.5`}
+                src={token_x_metadata.icon}
+              ></img>
+            </>
+          );
+          return [
+            `${x_symbol}/${y_symbol}`,
+            `${y_symbol}-${x_symbol}`,
+            `${x_symbol}`,
+            x_icons,
+          ];
+        }
       }
-    }
-    return [];
-  }, [switch_token, pool]);
+      return [];
+    }, [switch_token, pool]);
   async function refresh() {
     await get_points_of_orders();
     await get_pool_detail();
@@ -335,7 +346,9 @@ export default function SwapLimitOrderChart() {
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           <div className="flex items-center mr-2">{cur_pair_icons}</div>
-          <span className="text-base text-white gotham_bold">{cur_pairs}</span>
+          <span className="text-base text-white gotham_bold">
+            {cur_pairs_price_mode}
+          </span>
         </div>
         <SwapProTab></SwapProTab>
       </div>
