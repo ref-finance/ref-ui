@@ -431,6 +431,10 @@ export default function DclChart({
         get_price_range_by_percent(range);
       set_price_range([+price_l_default, +price_r_default]);
       setZoom(range);
+    } else {
+      const { sortP } = get_price_and_liquidity_range();
+      const range = [+sortP[0], +sortP[sortP.length - 1]];
+      set_price_range(range);
     }
   }
   async function get_data_from_back_end() {
