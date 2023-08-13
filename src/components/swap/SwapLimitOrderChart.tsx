@@ -51,9 +51,8 @@ export default function SwapLimitOrderChart() {
   useEffect(() => {
     if (pool_id) {
       set_fetch_data_done(false);
-      get_points_of_orders();
-      get_pool_detail();
       setZoom(GEARS[0]);
+      fetch_data();
     }
   }, [pool_id]);
   useEffect(() => {
@@ -131,9 +130,16 @@ export default function SwapLimitOrderChart() {
       return [];
     }, [switch_token, pool]);
   async function refresh() {
-    await get_points_of_orders();
-    await get_pool_detail();
+    await fetch_data();
     set_market_loading(false);
+  }
+  async function fetch_data() {
+    const orders = await get_points_of_orders();
+    const [switch_token, is_reverse, p] = (await get_pool_detail()) as any;
+    set_switch_token(switch_token);
+    set_pair_is_reverse(is_reverse);
+    setPool(p);
+    setOrders(orders);
   }
   async function get_points_of_orders() {
     const result = await get_pointorder_range({
@@ -141,7 +147,7 @@ export default function SwapLimitOrderChart() {
       left_point,
       right_point,
     });
-    setOrders(result);
+    return result;
   }
   async function get_pool_detail() {
     const p: PoolInfo = await get_pool(pool_id);
@@ -153,13 +159,10 @@ export default function SwapLimitOrderChart() {
       p.token_y_metadata,
     ]);
     if (tokens[0].id == p.token_x_metadata.id) {
-      set_switch_token('X');
-      set_pair_is_reverse(false);
+      return ['X', false, p];
     } else {
-      set_switch_token('Y');
-      set_pair_is_reverse(true);
+      return ['Y', true, p];
     }
-    setPool(p);
   }
   function process_orders() {
     const list = Object.values(orders);

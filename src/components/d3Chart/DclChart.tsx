@@ -169,7 +169,7 @@ export default function DclChart({
       drawChart();
       setDrawChartDone(true);
     }
-  }, [price_range, chartDataList, reverse, config?.svgWidth]);
+  }, [price_range, chartDataList, config?.svgWidth]);
   // generate user chart
   useEffect(() => {
     if (pool && accountId && newlyAddedLiquidities && chartType == 'USER') {
