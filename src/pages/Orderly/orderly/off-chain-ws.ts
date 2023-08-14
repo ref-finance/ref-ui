@@ -96,18 +96,26 @@ export const usePrivateOrderlyWS = () => {
 
   const [messageHistory, setMessageHistory] = useState<any>([]);
 
-  const { lastMessage, readyState, lastJsonMessage, sendMessage } =
-    useWebSocket(!accountId ? null : socketUrl, {
-      shouldReconnect: (closeEvent) => true,
-      reconnectAttempts: 15,
-      reconnectInterval: 10000,
-      onReconnectStop: (numAttempts) => {
-        if (numAttempts === 15) {
-          const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
-          storedValid && setNeedRefresh(true);
-        }
-      },
-    });
+  const {
+    lastMessage,
+    readyState,
+    lastJsonMessage,
+    sendMessage,
+    getWebSocket,
+  } = useWebSocket(!accountId ? null : socketUrl, {
+    shouldReconnect: (closeEvent) => true,
+    reconnectAttempts: 15,
+    reconnectInterval: 10000,
+    onReconnectStop: (numAttempts) => {
+      if (numAttempts === 15) {
+        const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
+        storedValid && setNeedRefresh(true);
+      }
+    },
+    onClose: (e) => {
+      console.log('websocket closed');
+    },
+  });
 
   useEffect(() => {
     document.addEventListener('visibilitychange', handleVisibilityChange);

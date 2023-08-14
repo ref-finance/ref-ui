@@ -2917,8 +2917,9 @@ function SelectTokenModal(
                       />
 
                       <span className="ml-2 mr-1">
-                        {tokenInfo.find((t: any) => t.token_account_id === b.id)
-                          ?.token || ''}
+                        {tokenInfo?.find(
+                          (t: any) => t.token_account_id === b.id
+                        )?.token || ''}
                       </span>
                     </div>
 

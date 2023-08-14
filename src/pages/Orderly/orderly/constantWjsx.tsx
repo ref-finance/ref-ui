@@ -1057,7 +1057,7 @@ export const usePortableOrderlyTable = ({
             sortKey: 'display_est_liq_price',
             render: ({ display_est_liq_price, symbol }) => {
               // get mark price for this symbol
-              const markPrice = markPrices.find(
+              const markPrice = markPrices?.find(
                 (i) => i.symbol === symbol
               )?.price;
 
@@ -1094,7 +1094,7 @@ export const usePortableOrderlyTable = ({
             render: ({ symbol, average_open_price, position_qty }) => {
               const price =
                 unrealMode === 'mark_price'
-                  ? markPrices.find((i) => i.symbol === symbol)?.price
+                  ? markPrices?.find((i) => i.symbol === symbol)?.price
                   : lastPrices.find((i) => i.symbol === symbol)?.close;
               const unreal =
                 position_qty >= 0
@@ -1149,7 +1149,7 @@ export const usePortableOrderlyTable = ({
             render: ({ symbol, position_qty }) => {
               return (
                 Math.abs(
-                  markPrices.find((i) => i.symbol === symbol)?.price *
+                  markPrices?.find((i) => i.symbol === symbol)?.price *
                     position_qty
                 )?.toFixed(2) || '-'
               );
@@ -1871,7 +1871,7 @@ export const usePortableOrderlyTablePositions = ({
             render: ({ symbol, average_open_price, position_qty }) => {
               const price =
                 unrealMode === 'mark_price'
-                  ? markPrices.find((i) => i.symbol === symbol)?.price
+                  ? markPrices?.find((i) => i.symbol === symbol)?.price
                   : lastPrices.find((i) => i.symbol === symbol)?.close;
               const unreal =
                 position_qty >= 0
@@ -1926,7 +1926,7 @@ export const usePortableOrderlyTablePositions = ({
             render: ({ symbol, position_qty }) => {
               return (
                 Math.abs(
-                  markPrices.find((i) => i.symbol === symbol)?.price *
+                  markPrices?.find((i) => i.symbol === symbol)?.price *
                     position_qty
                 )?.toFixed(2) || '-'
               );
