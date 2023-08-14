@@ -196,21 +196,7 @@ export const useLanguageItems = () => {
       language: 'vi',
       logo: <IconVi />,
     },
-    {
-      label: 'Українська',
-      language: 'uk',
-      logo: <UkIcon />,
-    },
-    {
-      label: 'Pусский',
-      language: 'ru',
-      logo: <RuIcon />,
-    },
-    {
-      label: '日本語',
-      language: 'ja',
-      logo: <JaIcon />,
-    },
+
     {
       label: '한국어',
       language: 'ko',

@@ -1088,16 +1088,7 @@ function NavigationBar() {
     </>
   );
 }
-export const commonLangKey = [
-  'en',
-  'zh-CN',
-  'vi',
-  'uk',
-  'ru',
-  'ja',
-  'ko',
-  'es',
-];
+export const commonLangKey = ['en', 'zh-CN', 'vi', 'ko', 'es'];
 export function formatItem(local: string) {
   if (commonLangKey.indexOf(local) > -1) {
     return local;
@@ -1417,7 +1408,7 @@ function MenuBar() {
                   id: id_two_level,
                   icon,
                   hoverLabel,
-                  renderLogo
+                  renderLogo,
                 } = item;
                 return (
                   <div
@@ -1437,7 +1428,15 @@ function MenuBar() {
                         : 'text-primaryText'
                     }`}
                   >
-                    {(logo || renderLogo) ? <div className="w-8 mr-2">{renderLogo ? renderLogo({ activeMenu: two_level_selected == id_two_level }) : logo}</div> : null}
+                    {logo || renderLogo ? (
+                      <div className="w-8 mr-2">
+                        {renderLogo
+                          ? renderLogo({
+                              activeMenu: two_level_selected == id_two_level,
+                            })
+                          : logo}
+                      </div>
+                    ) : null}
                     <div className="text-base ">
                       {hover_two_level_id == id_two_level && hoverLabel
                         ? hoverLabel
