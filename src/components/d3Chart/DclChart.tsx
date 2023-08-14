@@ -677,7 +677,7 @@ export default function DclChart({
     const { point_delta } = pool;
     const list =
       chartType == 'USER' ? chartDataList : getChartDataListInRange();
-    const data: IChartData[] = list.map((o: IChartData) => {
+    const data: IChartData[] = list?.map((o: IChartData) => {
       const { point } = o;
       let price_l, price_r, point_l, point_r;
       if (reverse) {
@@ -708,7 +708,7 @@ export default function DclChart({
         point_r,
       };
     });
-    return data;
+    return data || [];
   }
   function hoverBox(e: any, d: IChartData) {
     d3.select(`${randomId} .overBox`).attr(
