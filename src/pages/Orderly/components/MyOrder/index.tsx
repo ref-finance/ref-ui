@@ -3759,12 +3759,6 @@ function MyOrderComponent() {
     };
   }, {});
 
-  // function getTipForOrders() {
-  //   const n = intl.formatMessage({ id: 'orderTip' });
-  //   const result: string = `<div class="text-navHighLightText text-xs text-left xsm:w-40 whitespace-normal" >${n}</div>`;
-  //   return result;
-  // }
-
   return (
     <div className="max-w-7xl mx-auto flex flex-col xs:w-full md:5/6 lg:w-full">
       <PriceContext.Provider value={tokenPriceList}>
