@@ -16,8 +16,6 @@ export function useTokenMetaFromSymbol(
       return;
     }
 
-    console.log('symbol: ', symbol, tokenInfo);
-
     const token =
       tokenInfo &&
       tokenInfo.find((t) =>

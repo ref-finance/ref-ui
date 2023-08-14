@@ -159,7 +159,6 @@ function MobileTradingBoard() {
   }, [maintenance]);
 
   const [showCurSymbol, setShowCurSymbol] = useState<boolean>(false);
-  console.log('showCurSymbol: ', showCurSymbol);
 
   const intl = useIntl();
 

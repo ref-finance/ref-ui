@@ -895,18 +895,12 @@ function FutureQuantityModal(
     Math.abs(position_qty)
   );
 
-  console.log('inputQuantity: ', inputQuantity);
-
   const [tips, setTips] = useState<string>('');
   const portfolioFailure = usePortfolioFailure();
 
   useEffect(() => {
     setInputQuantity(quantity);
   }, [quantity]);
-
-  useEffect(() => {
-    console.log(tips);
-  }, [tips]);
 
   const scrollBack = () => {
     const storedScrollTop = localStorage.getItem('mobile_scroll_top');

@@ -166,7 +166,6 @@ export function useAllOrders({
   useEffect(() => {
     setFunc();
   }, [refreshingTag]);
-  console.log('refreshingTag: ', refreshingTag);
 
   return liveOrders?.filter((o) => o.symbol.indexOf(type || 'SPOT') > -1);
 }
@@ -380,16 +379,8 @@ export function useLeverage() {
     }
   }, [futureLeverage]);
 
-  // useEffect(() => {
-  //   if (!accountId || !validAccountSig ||) return;
-  //   console.log('requestLeverage: ');
-
-  //   requestLeverage();
-  // }, [accountId, validAccountSig, userInfo]);
-
   useEffect(() => {
     if (curLeverage === undefined) return;
-    console.log('changeTrigger: ', changeTrigger);
 
     if (typeof changeTrigger === 'undefined') return;
 

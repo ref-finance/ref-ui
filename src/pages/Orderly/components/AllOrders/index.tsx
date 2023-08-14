@@ -2826,10 +2826,6 @@ function OpenOrders({
     if (!orders) return;
 
     setOpenCount(orders.filter(filterFunc).length);
-    console.log(
-      'orders.filter(filterFunc).length: ',
-      orders.filter(filterFunc).length
-    );
   }, [chooseSide, chooseMarketSymbol, !!orders, chooseType]);
 
   useEffect(() => {
@@ -3507,10 +3503,6 @@ function HistoryOrders({
     if (!orders) return;
 
     setHistoryCount(orders.filter(filterFunc).length);
-    console.log(
-      'orders.filter(filterFunc).length: ',
-      orders.filter(filterFunc).length
-    );
   }, [chooseSide, chooseType, chooseStatus, orders, chooseMarketSymbol]);
 
   useEffect(() => {
@@ -3577,8 +3569,6 @@ function HistoryOrders({
           isMobile() && symbolType === 'PERP'
             ? [fromToken]
             : [fromToken, allTokens[symbolTo]];
-
-        console.log('tokenList: ', tokenList);
 
         const render = (
           <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">

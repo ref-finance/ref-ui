@@ -124,7 +124,6 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
   const [userInfo, setUserInfo] = useState<ClientInfo>();
 
   const pathname = window.location.pathname;
-  // console.log('pathname: ', pathname);
 
   const symbolType = PerpOrSpot(symbol);
 

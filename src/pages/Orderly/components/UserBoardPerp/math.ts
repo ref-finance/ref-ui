@@ -110,8 +110,6 @@ const getAvailable = (
     return new Big(total).plus(acc);
   }, new Big(0));
 
-  console.log(`Available:  ${available} (all spot balance in usdc) `);
-
   return numberWithCommas(available.toFixed(2));
 };
 
@@ -177,10 +175,6 @@ const getTotalEst = (
     },
 
     new Big(0)
-  );
-
-  console.log(
-    `Total estimate:  ${availables} (all spot balance in usdc + in order spot token) + ${futures} (sum of (future mark price * qty) / leverage)`
   );
 
   const totalEst = new Big(futures).plus(availables);
@@ -321,7 +315,6 @@ const getFreeCollateral = (
     markprices,
     curHoldingOut
   );
-  console.log('totalCollateral: ', totalCollateral.toFixed());
 
   const freeCollateral = new Big(totalCollateral).minus(new Big(pendinguPnl));
 
@@ -460,7 +453,6 @@ const getLqPriceFloat = (
 
     return result.lte(0) ? 0 : result.toNumber();
   } catch (error) {
-    console.log('error: ', error);
     return 0;
   }
 };
@@ -531,7 +523,6 @@ const getLqPrice = (
       ? '-'
       : result.toFixed(tickToPrecision(symbol.quote_tick));
   } catch (error) {
-    console.log('error: ', error);
     return '-';
   }
 };
@@ -655,8 +646,6 @@ const getMaxQuantity = (
 
     const total_side = order_side.times(cur_side);
 
-    console.log('free_collateral: ', free_collateral.toFixed(), userInfo);
-
     const newOrderSize = collateral
       .minus(othersIm.plus(curIm.times(total_side)))
       .times(account_max_leverage)
@@ -667,7 +656,6 @@ const getMaxQuantity = (
 
     return Number(res);
   } catch (error) {
-    console.log('error: ', error);
     return '-';
   }
 };

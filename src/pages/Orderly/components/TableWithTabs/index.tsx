@@ -143,8 +143,6 @@ function TableWithTabs({
     userExist,
   } = useOrderlyContext();
 
-  console.log('validAccountSig: ', validAccountSig);
-
   const { accountId, modal } = useWalletSelector();
   const [registerModalOpen, setRegisterModalOpen] = useState<boolean>(false);
   const [openOrderCount, setOpenOrderCount] = useState<number>(0);
@@ -170,7 +168,6 @@ function TableWithTabs({
 
     is_orderly_key_announced(accountId, true)
       .then(async (key_announce) => {
-        console.log('key_announce: ', key_announce);
         localStorage.removeItem('temp_on_checking_key_announce');
 
         setKeyAnnounced(key_announce);
@@ -198,8 +195,6 @@ function TableWithTabs({
         localStorage.removeItem(REF_ORDERLY_ACCOUNT_VALID);
       });
   }, [accountId, storageEnough, agreeCheck]);
-
-  console.log('trading_key_set: ', tradingKeySet, keyAnnounced);
 
   useEffect(() => {
     if (!tradingKeySet || !keyAnnounced) return;
@@ -647,11 +642,6 @@ function TableWithTabs({
                               'true'
                             );
                           }
-
-                          console.log(
-                            'deposit action, accountId: ',
-                            agreeCheck
-                          );
 
                           storageDeposit(accountId);
                         }}

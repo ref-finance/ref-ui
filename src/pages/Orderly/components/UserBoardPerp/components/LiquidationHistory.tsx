@@ -83,7 +83,6 @@ function LiquidationHistoryModal(
     .flat();
 
   const renderData = _.orderBy(alldata, [orderBy], ['desc']);
-  console.log('renderData: ', renderData);
 
   useEffect(() => {
     if (!loading && renderData.length > 0) {

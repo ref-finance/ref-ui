@@ -133,7 +133,6 @@ export function usePerpData(deps?: {
       });
 
       const pushSymbols = positionPush?.map((p) => p.symbol) || [];
-      console.log('positionPush: ', positionPush);
 
       const positionSymbols = positions.rows.map((p) => p.symbol);
 
@@ -141,14 +140,11 @@ export function usePerpData(deps?: {
         (p) => !positionSymbols.includes(p)
       );
 
-      console.log('diffSymbols: ', diffSymbols);
-
       if (diffSymbols && diffSymbols.length > 0) {
         setPositionTrigger((b) => !b);
 
         diffSymbols.forEach((s) => {
           const item = positionPush?.find((p) => p.symbol === s);
-          console.log('item: ', item);
 
           if (item) {
             calcPositions.push({
@@ -212,8 +208,6 @@ export function usePerpData(deps?: {
     }
   }, [balances, holdings]);
 
-  console.log('curHoldingOut: ', curHoldingOut);
-
   const totalCollateral = useMemo(() => {
     try {
       if (!curHoldingOut) return '0';
@@ -222,7 +216,6 @@ export function usePerpData(deps?: {
 
       return res.toFixed(2);
     } catch (error) {
-      console.log('error: ', error);
       return '-';
     }
   }, [curHoldingOut, markPrices, newPositions, positionPush, noPosition]);
@@ -375,7 +368,6 @@ export function usePerpData(deps?: {
   newPositions?.rows?.forEach((r) => {
     // update lq price
     const cur_lq_price = r.est_liq_price;
-    console.log('cur_lq_price: ', cur_lq_price);
 
     const cur_mark_price =
       markPrices?.find((item) => item.symbol === r.symbol)?.price || 0;
@@ -391,8 +383,6 @@ export function usePerpData(deps?: {
         userInfo,
         availableSymbols
       );
-
-      console.log('lq_price_float: ', lq_price_float);
 
       r.display_est_liq_price = Math.max(0, lq_price_float);
 

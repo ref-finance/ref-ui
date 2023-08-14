@@ -676,8 +676,6 @@ export function orderPopUp({
     }
   );
 
-  console.log(order, 'order111111');
-
   if (
     (order.type === 'FOK' ||
       order.type === 'IOC' ||
@@ -1046,21 +1044,20 @@ export function usePortfolioFailure() {
   const mobileDevice = isMobile();
 
   const openToast = ({ tip }: { tip: string }) => {
-
     toast(
       <div className={`flex-col flex px-2  text-sm   w-full`}>
         <span className="text-textRed">{tip}</span>
         <div className="absolute w-1 bg-textRed bottom-0 h-full left-0"></div>
       </div>,
       {
-        toastId: "future-error",
+        toastId: 'future-error',
         closeOnClick: true,
         hideProgressBar: true,
         position: mobileDevice ? 'top-center' : 'bottom-right',
         autoClose: 3000,
         // autoClose: false,
         closeButton: false,
-        
+
         style: {
           boxShadow: '0px -5px 10px rgba(0, 0, 0, 0.25)',
           borderRadius: '4px',
@@ -1077,11 +1074,10 @@ export function usePortfolioFailure() {
         },
       }
     );
-
   };
 
   const updateToast = ({ tip }: { tip: string }) =>
-    toast.update("future-error", {
+    toast.update('future-error', {
       render: () => (
         <div className={`flex-col flex px-2  text-sm   w-full`}>
           <span className="text-textRed">{tip}</span>
@@ -1093,7 +1089,7 @@ export function usePortfolioFailure() {
     });
 
   const onToast = ({ tip }: { tip: string }) => {
-    if (!toast.isActive("future-error")) {
+    if (!toast.isActive('future-error')) {
       openToast({ tip });
     } else {
       updateToast({ tip });

@@ -144,7 +144,6 @@ const datafeed = {
       .join('&');
     try {
       const data = await makePublicApiRequest(`tv/history/?${query}`);
-      console.log('data: ', data);
       if (!data || data['s'] !== 'ok') {
         // "noData" should be set if there is no data in the requested period.
         onHistoryCallback([], {

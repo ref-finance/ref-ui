@@ -85,7 +85,6 @@ function SymbolLine({
 }) {
   const { symbolFrom, symbolTo } = parseSymbol(ticker.symbol);
   const tokenIn = useTokenMetaFromSymbol(symbolFrom, tokenInfo);
-  console.log('tokenIn: ', tokenIn);
 
   const { symbol } = useOrderlyContext();
 
@@ -224,7 +223,6 @@ export function SymbolSelectorMobileModal(
   function SymbolLine({ ticker }: { ticker: Ticker }) {
     const { symbolFrom, symbolTo } = parseSymbol(ticker.symbol);
     const tokenIn = useTokenMetaFromSymbol(symbolFrom, tokenInfo);
-    console.log('tokenIn: ', tokenIn, symbolFrom);
 
     return (
       <div

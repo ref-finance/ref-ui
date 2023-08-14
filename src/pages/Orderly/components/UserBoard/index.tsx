@@ -551,8 +551,6 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
   // const [holdings, setHoldings] = useState<Holding[]>();
 
-  console.log('symbolFrom: ', symbolFrom);
-
   const symbolType = PerpOrSpot(symbol);
 
   const tokenIn = useTokenMetaFromSymbol(
@@ -609,8 +607,6 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     tokenIn?.id,
     JSON.stringify(balances)
   );
-
-  console.log('tokenFromBalance: ', tokenFromBalance, tokenIn);
 
   const tokenToBalance = useTokenBalance(
     tokenOut?.id,

@@ -80,7 +80,6 @@ function SymbolLine({
 }) {
   const { symbolFrom, symbolTo } = parseSymbol(ticker.symbol);
   const tokenIn = useTokenMetaFromSymbol(symbolFrom, tokenInfo);
-  console.log('tokenIn: ', tokenIn);
 
   const { symbol } = useOrderlyContext();
 

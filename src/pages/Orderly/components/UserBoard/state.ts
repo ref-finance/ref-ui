@@ -167,7 +167,6 @@ export function useTokensOrderlyBalances(
   const { accountId } = useWalletSelector();
 
   const { balances } = useOrderlyContext();
-  console.log('balances: ', balances);
 
   const { freeCollateral, triggerBalanceBasedData, holdings } = usePerpData();
 
@@ -255,8 +254,6 @@ export function useTokensOrderlyBalances(
     triggerBalanceBasedData,
     !!holdings,
   ]);
-
-  console.log('freeCollateral: ', freeCollateral, showbalances.length);
 
   if (showbalances.length > 0 && freeCollateral !== '-') {
     showbalances.forEach((sb) => {

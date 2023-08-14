@@ -505,7 +505,6 @@ const perpSettlementTx = async () => {
     receiverId: ORDERLY_ASSET_MANAGER,
     functionCalls: [await user_request_settlement()],
   };
-  console.log('transaction: ', transaction);
 
   return transaction;
 };

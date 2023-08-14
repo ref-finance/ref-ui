@@ -102,7 +102,6 @@ export const usePrivateOrderlyWS = () => {
       reconnectAttempts: 15,
       reconnectInterval: 10000,
       onReconnectStop: (numAttempts) => {
-        console.log('numAttempts: ', numAttempts);
         if (numAttempts === 15) {
           const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
           storedValid && setNeedRefresh(true);
@@ -120,11 +119,8 @@ export const usePrivateOrderlyWS = () => {
   }, []);
 
   const handleVisibilityChange = () => {
-    console.log('document.visibilityState: ', document.visibilityState);
-
     if (document.visibilityState === 'visible') {
       const savedTime = sessionStorage.getItem('targetTime');
-      console.log('savedTime: ', savedTime);
 
       if (savedTime && Date.now() - Number(savedTime) > 5 * 60 * 1000) {
         const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
@@ -511,7 +507,6 @@ export const useOrderlyPrivateData = ({
   const [requestSignature, setRequestSignature] = useState('');
 
   const [liquidations, setLiquidations] = useState<LiquidationPushType[]>([]);
-  console.log('liquidations: ', liquidations);
 
   const [positionPush, setPositionPush] = useState<PositionPushType[]>();
 

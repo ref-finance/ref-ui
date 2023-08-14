@@ -314,8 +314,6 @@ export const executeMultipleTransactions = async (
 ) => {
   const { wallet } = getCurrentWallet();
 
-  console.log('transactions: ', transactions);
-
   const wstransactions: WSTransaction[] = [];
 
   transactions.forEach((transaction) => {
