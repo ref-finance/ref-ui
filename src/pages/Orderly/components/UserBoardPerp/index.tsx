@@ -809,6 +809,18 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
   const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
 
+  console.log(
+    'user account:',
+    storageEnough,
+    userExist,
+    accountId,
+    validAccountSig,
+    storedValid,
+    agreeCheck,
+    tradingKeySet,
+    keyAnnounced
+  );
+
   useEffect(() => {
     if (!accountId || !storageEnough) return;
 
@@ -825,9 +837,16 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         console.log('key_announce: ', key_announce);
         setKeyAnnounced(key_announce);
         if (!key_announce) {
-          const res = await announceKey(accountId).then((res) => {
-            setKeyAnnounced(true);
-          });
+          const res = await announceKey(accountId)
+            .then((res) => {
+              setKeyAnnounced(true);
+            })
+            .catch((e) => {
+              alert(`something wrong on announce key: ${e.message}`);
+              window.location.reload();
+            });
+
+          console.log('res: ', res);
         } else return;
       })
       .then(() => {
@@ -835,9 +854,14 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           setTradingKeySet(trading_key_set);
           console.log('trading_key_set: ', trading_key_set);
           if (!trading_key_set) {
-            await setTradingKey(accountId).then(() => {
-              setTradingKeySet(true);
-            });
+            await setTradingKey(accountId)
+              .then(() => {
+                setTradingKeySet(true);
+              })
+              .catch((e) => {
+                alert(`something wrong on set trading key: ${e.message}`);
+                window.location.reload();
+              });
           }
         });
       })
@@ -3459,9 +3483,12 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
 
     is_orderly_key_announced(accountId, true)
       .then(async (key_announce) => {
+        console.log('key_announce: ', key_announce);
         setKeyAnnounced(key_announce);
         if (!key_announce) {
           const res = await announceKey(accountId).then((res) => {
+            console.log('announceKey done: ');
+
             setKeyAnnounced(true);
           });
         } else return;
@@ -3469,8 +3496,11 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
       .then(() => {
         is_trading_key_set(accountId).then(async (trading_key_set) => {
           setTradingKeySet(trading_key_set);
+          console.log('trading_key_set: ', trading_key_set);
           if (!trading_key_set) {
             await setTradingKey(accountId).then(() => {
+              console.log('setTradingKeySet done: ');
+
               setTradingKeySet(true);
             });
           }
@@ -3487,6 +3517,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
 
   useEffect(() => {
     if (!tradingKeySet || !keyAnnounced) return;
+    console.log('tradingKeySet check: ', tradingKeySet, keyAnnounced);
 
     localStorage.setItem(REF_ORDERLY_ACCOUNT_VALID, '1');
     if (userExist) {
