@@ -49,7 +49,7 @@ export const useOrderlyWS = () => {
     useWebSocket(socketUrl, {
       shouldReconnect: (closeEvent) => true,
       reconnectAttempts: 15,
-      reconnectInterval: 9000,
+      reconnectInterval: 10000,
       share: true,
     });
 
@@ -61,7 +61,7 @@ export const useOrderlyWS = () => {
 
   useEffect(() => {
     const id = setInterval(() => {
-      sendMessage(JSON.stringify({ event: 'ping', ts: Date.now() }));
+      sendMessage(JSON.stringify({ event: 'ping', ts: Date.now(), id: '' }));
     }, 5000);
 
     return clearInterval(id);
@@ -114,7 +114,7 @@ export const usePrivateOrderlyWS = () => {
   } = useWebSocket(!accountId ? null : socketUrl, {
     shouldReconnect: (closeEvent) => true,
     reconnectAttempts: 15,
-    reconnectInterval: 1000,
+    reconnectInterval: 10000,
     share: true,
     onReconnectStop: (numAttempts) => {
       const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
@@ -128,7 +128,7 @@ export const usePrivateOrderlyWS = () => {
 
   useEffect(() => {
     const id = setInterval(() => {
-      sendMessage(JSON.stringify({ event: 'ping', ts: Date.now() }));
+      sendMessage(JSON.stringify({ event: 'ping', ts: Date.now(), id: '' }));
     }, 5000);
 
     return () => clearInterval(id);
