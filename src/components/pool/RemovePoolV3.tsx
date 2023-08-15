@@ -52,6 +52,7 @@ import {
   IBatchUpdateiquidityInfo,
 } from '~pages/poolsV3/interfaces';
 import DclChart from '../../components/d3Chart/DclChart';
+import { isMobile } from '~utils/device';
 
 export type RemoveType = 'left' | 'right' | 'all';
 
@@ -697,11 +698,13 @@ export const RemovePoolV3 = (props: any) => {
     return [min_token_x_amount, min_token_y_amount];
   }
   const isRemoveLiquidityDisabled = minBoxPoint == maxBoxPoint;
+  const is_mobile = isMobile();
+  const cardWidth = is_mobile ? '95vw' : '550px';
   return (
     <Modal {...restProps}>
       <Card
-        style={{ maxHeight: '95vh', minWidth: '550px' }}
-        className={`outline-none border border-gradientFrom border-opacity-50 overflow-auto xsm: p-5 xs:w-90vw md:w-90vw lg:w-40vw xl:w-30vw`}
+        style={{ maxHeight: '95vh', minWidth: cardWidth }}
+        className={`outline-none border border-gradientFrom border-opacity-50 overflow-auto xsm:p-3`}
       >
         {/* Title */}
         <div className="flex items-center justify-between">
@@ -754,7 +757,7 @@ export const RemovePoolV3 = (props: any) => {
                 controlHidden: true,
                 currentBarHidden: true,
                 hoverBoxHidden: true,
-                svgWidth: '480',
+                svgWidth: is_mobile ? '320' : '480',
                 svgHeight: '82',
               }}
               chartType="USER"
@@ -865,7 +868,7 @@ export const RemovePoolV3 = (props: any) => {
           step={1}
         ></ReactSlider>
         {/* Set points */}
-        <div className="mb-3  text-base grid grid-cols-3 gap-2 w-full mt-6">
+        <div className="mb-3 text-base grid xsm:grid-rows-3 lg:grid-cols-3 gap-2 w-full mt-6">
           {/* min price  */}
           <div className="frcs w-full border border-menuMoreBoxBorderColor py-2 px-3 rounded-xl col-span-1">
             <span className="text-xs min-w-max text-primaryText">
@@ -943,13 +946,13 @@ export const RemovePoolV3 = (props: any) => {
           className="mt-6"
           style={{ borderTop: '1px solid rgba(110, 124, 133, 0.2)' }}
         ></div>
-        <div className="frcb mt-4">
+        <div className="flex justify-between lg:items-center xsm:items-start mt-4">
           <span className="text-sm text-white">
             <FormattedMessage id="minimum_tokens_out"></FormattedMessage>
           </span>
 
           <div
-            className={`flex items-center gap-8 ${
+            className={`flex items-center gap-8 xsm:flex-col xsm:items-end xsm:gap-1 ${
               pair_is_reverse ? 'flex-row-reverse' : ''
             }`}
           >

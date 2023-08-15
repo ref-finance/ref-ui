@@ -134,6 +134,7 @@ export default function DclChart({
   );
   /** constant end */
   const { accountId } = useWalletSelector();
+  const is_mobile = isMobile();
   useEffect(() => {
     // get all token prices
     getBoostTokenPrices().then((result) => {
@@ -711,12 +712,17 @@ export default function DclChart({
     return data || [];
   }
   function hoverBox(e: any, d: IChartData) {
-    d3.select(`${randomId} .overBox`).attr(
-      'style',
-      `visibility:visible;transform:translate(${
-        e.offsetX + disFromHoverBoxToPointer
-      }px, ${e.offsetY / 2}px)`
-    );
+    if (is_mobile) {
+      d3.select(`${randomId} .overBox`).attr('style', `display:block`);
+    } else {
+      d3.select(`${randomId} .overBox`).attr(
+        'style',
+        `visibility:visible;transform:translate(${
+          e.offsetX + disFromHoverBoxToPointer
+        }px, ${e.offsetY / 2}px)`
+      );
+    }
+
     const {
       point_l,
       token_x,
@@ -757,28 +763,40 @@ export default function DclChart({
     });
   }
   function LeaveBox(e: any, d: IChartData) {
-    d3.select(`${randomId} .overBox`).attr(
-      'style',
-      `visibility:hidden;transform:translate(${
-        e.offsetX + disFromHoverBoxToPointer
-      }px, ${e.offsetY / 2}px)`
-    );
+    if (is_mobile) {
+      d3.select(`${randomId} .overBox`).attr('style', `display:none`);
+    } else {
+      d3.select(`${randomId} .overBox`).attr(
+        'style',
+        `visibility:hidden;transform:translate(${
+          e.offsetX + disFromHoverBoxToPointer
+        }px, ${e.offsetY / 2}px)`
+      );
+    }
   }
   function hoverUserBox(e: any) {
-    d3.select(`${randomId} .wholeOverBox`).attr(
-      'style',
-      `visibility:visible;transform:translate(${
-        e.offsetX + disFromHoverBoxToPointer
-      }px, ${e.offsetY / 2}px)`
-    );
+    if (is_mobile) {
+      d3.select(`${randomId} .wholeOverBox`).attr('style', `display:block;`);
+    } else {
+      d3.select(`${randomId} .wholeOverBox`).attr(
+        'style',
+        `visibility:visible;transform:translate(${
+          e.offsetX + disFromHoverBoxToPointer
+        }px, ${e.offsetY / 2}px)`
+      );
+    }
   }
   function LeaveUserBox(e: any) {
-    d3.select(`${randomId} .wholeOverBox`).attr(
-      'style',
-      `visibility:hidden;transform:translate(${
-        e.offsetX + disFromHoverBoxToPointer
-      }px, ${e.offsetY / 2}px)`
-    );
+    if (is_mobile) {
+      d3.select(`${randomId} .wholeOverBox`).attr('style', `display:none;`);
+    } else {
+      d3.select(`${randomId} .wholeOverBox`).attr(
+        'style',
+        `visibility:hidden;transform:translate(${
+          e.offsetX + disFromHoverBoxToPointer
+        }px, ${e.offsetY / 2}px)`
+      );
+    }
   }
   function remove_control() {
     d3.select(`${randomId} .control`).remove();
@@ -1450,7 +1468,7 @@ export default function DclChart({
   return (
     <>
       <div
-        className={`relative inline-flex ${
+        className={`relative inline-flex flex-col justify-between ${
           (chartType !== 'USER' && chartDataList) ||
           (chartType == 'USER' && chartDataList?.length)
             ? ''
@@ -1458,7 +1476,7 @@ export default function DclChart({
         } ${randomId.slice(1)}`}
       >
         {/* control button area*/}
-        <div className="control flex items-center border border-v3GreyColor rounded-lg py-px h-6 w-16 absolute right-0 -top-24">
+        <div className="control flex items-center border border-v3GreyColor rounded-lg py-px h-6 w-16 absolute right-0 -top-28">
           <div
             className={`flex items-center justify-center w-1 h-full flex-grow border-r border-chartBorderColor ${
               is_in_max_zoom
@@ -1632,7 +1650,7 @@ export default function DclChart({
           </g>
         </svg>
         {/* show hover box then hover on the bin */}
-        <div className="overBox absolute rounded-xl bg-chartHoverBoxBg border border-assetsBorder px-3 py-2 invisible z-10">
+        <div className="overBox lg:absolute rounded-xl bg-chartHoverBoxBg border border-assetsBorder px-3 py-2 xsm:hidden xsm:mt-4 lg:invisible z-10">
           <div className="flex items-center justify-between my-2">
             <span className="text-xs text-white">APR(24h)</span>
             <span className="text-xs text-white gotham_bold">
@@ -1750,7 +1768,7 @@ export default function DclChart({
             </>
           ) : null}
         </div>
-        <div className="wholeOverBox absolute rounded-xl bg-chartHoverBoxBg border border-assetsBorder px-3 py-2 z-10 invisible">
+        <div className="wholeOverBox lg:absolute rounded-xl bg-chartHoverBoxBg border border-assetsBorder px-3 py-2 z-10  xsm:hidden xsm:mt-4 lg:invisible">
           <div className="flex items-center justify-between my-2">
             <span className="text-xs text-white">Your Liquidity</span>
             <span className="text-xs text-white gotham_bold">

@@ -1862,7 +1862,7 @@ export default function AddYourLiquidityPageV3() {
               style={{ width: mobileDevice ? '' : '400px' }}
               className="flex-shrink-0 xs:w-full md:w-full"
             >
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between xsm:mt-4">
                 <div className="text-white text-sm">
                   <FormattedMessage
                     id="select_token_pair"
@@ -1957,12 +1957,19 @@ export default function AddYourLiquidityPageV3() {
                   </span>
 
                   <div
-                    className="w-7 h-7 rounded-lg relative bg-v3SwapGray z-50 bg-opacity-10 hover:bg-opacity-30 text-primaryText hover:text-white frcc "
+                    className="w-7 h-7 rounded-lg relative bg-v3SwapGray z-50 bg-opacity-10 hover:bg-opacity-30 text-primaryText hover:text-white frcc"
                     onMouseLeave={() => {
+                      // if (mobileDevice) return;
                       setHoverFeeBox(false);
                     }}
                     onMouseEnter={() => {
+                      if (mobileDevice) return;
                       setHoverFeeBox(true);
+                    }}
+                    onClick={() => {
+                      if (mobileDevice) {
+                        setHoverFeeBox(!hoverFeeBox);
+                      }
                     }}
                   >
                     <div>
@@ -1974,7 +1981,7 @@ export default function AddYourLiquidityPageV3() {
                           className="rounded-xl  right-0 top-3 px-4 py-3  xs:px-2 md:px-2"
                           style={{
                             border: '1.2px solid rgba(145, 162, 174, 0.2)',
-                            width: '418px',
+                            width: mobileDevice ? '300px' : '418px',
                             background:
                               'linear-gradient(rgb(34, 47, 55) 0%, rgb(25, 34, 41) 100%)',
                           }}
@@ -1986,8 +1993,8 @@ export default function AddYourLiquidityPageV3() {
                             />
                           </div>
                           <div
-                            className={`items-stretch justify-between mt-5 ${
-                              feeBoxStatus ? 'flex' : 'hidden'
+                            className={`lg:items-stretch lg:justify-between xsm:grid-cols-2 xsm:gap-1.5 mt-5 xsm:mt-2.5 ${
+                              feeBoxStatus ? 'lg:flex xsm:grid' : 'hidden'
                             }`}
                           >
                             {FEELIST.map((feeItem, index) => {
@@ -2000,7 +2007,7 @@ export default function AddYourLiquidityPageV3() {
                                     switchSelectedFee(fee);
                                   }}
                                   key={fee + index}
-                                  className={`relative flex flex-col px-2 py-1.5 xsm:py-1 rounded-lg w-1 flex-grow ${
+                                  className={`relative xsm:w-full flex flex-col px-2 py-1.5 xsm:py-1 rounded-lg w-1 flex-grow ${
                                     tokenX && tokenY ? 'cursor-pointer' : ''
                                   } ${index == 3 ? '' : 'mr-2.5 xsm:mr-1'} ${
                                     isNoPool
@@ -2059,7 +2066,7 @@ export default function AddYourLiquidityPageV3() {
                 ></FormattedMessage>
               </div>
 
-              <div className="frcb">
+              <div className="frcb xsm:gap-2">
                 {[SpotShape, CurveShape, BidAskShape].map(
                   (Shape, index: number) => {
                     let disabled = false;
@@ -2071,7 +2078,7 @@ export default function AddYourLiquidityPageV3() {
                     }
                     return (
                       <div
-                        className={`flex flex-col  rounded-xl items-center border justify-center ${
+                        className={`flex xsm:flex-grow flex-col  rounded-xl items-center border justify-center ${
                           disabled ? 'opacity-40' : 'cursor-pointer'
                         } ${
                           (index === 0 && liquidityShape === 'Spot') ||
@@ -2081,7 +2088,7 @@ export default function AddYourLiquidityPageV3() {
                             : 'border-limitOrderFeeTiersBorderColor'
                         }  gap-2.5`}
                         style={{
-                          width: '127px',
+                          width: mobileDevice ? '10px' : '127px',
                           height: '70px',
                         }}
                         onClick={(e) => {
@@ -2123,8 +2130,8 @@ export default function AddYourLiquidityPageV3() {
                 )}
               </div>
               {/* user chart part */}
-              <div>
-                <div className="flex items-center justify-between  mt-4">
+              <div className="lg:mt-4 xsm:mt-8">
+                <div className="flex items-center justify-between">
                   <div className="text-sm text-white">
                     <FormattedMessage
                       id="Simulate_liquidity_distribution"
@@ -2471,12 +2478,16 @@ function PointsComponent() {
       return `(${tokenY.symbol}/${tokenX.symbol})`;
     }
   }
+  const is_mobile = isMobile();
   return (
     <div
       className={`w-full xs:w-full md:w-full flex  mr-6 flex-col self-stretch xs:mt-5 md:mt-5`}
     >
       {/* chart area */}
-      <div className="relative mb-5 mt-24" style={{ height: '270px' }}>
+      <div
+        className="relative mb-5 mt-24 pt-4"
+        style={{ height: is_mobile ? 'auto' : '270px' }}
+      >
         <div className="absolute left-0 -top-24 inline-flex items-center justify-between bg-detailCardBg rounded-lg border border-dclTabBorderColor p-0.5">
           <span
             onClick={() => {
@@ -2522,6 +2533,7 @@ function PointsComponent() {
                 radius={radius}
                 config={{
                   radiusMode: priceRangeMode == 'by_radius',
+                  svgWidth: is_mobile ? '330' : '',
                 }}
                 reverse={pair_is_reverse}
               ></DclChart>
@@ -2534,7 +2546,10 @@ function PointsComponent() {
             <div className={`${chartTab == 'yours' ? '' : 'hidden'}`}>
               <DclChart
                 pool_id={currentSelectedPool?.pool_id}
-                config={{ controlHidden: true }}
+                config={{
+                  controlHidden: true,
+                  svgWidth: is_mobile ? '330' : '',
+                }}
                 chartType="USER"
                 reverse={pair_is_reverse}
               ></DclChart>
@@ -2542,7 +2557,7 @@ function PointsComponent() {
           )}
       </div>
       {/* set price range area */}
-      <div className=" border border-limitOrderFeeTiersBorderColor rounded-xl p-4">
+      <div className="border border-limitOrderFeeTiersBorderColor rounded-xl p-4">
         {/* price range mode area */}
         <div className="frcb">
           <div className="text-white flex flex-col text-sm ">
@@ -2591,7 +2606,7 @@ function PointsComponent() {
           </div>
         </div>
         {/* content */}
-        <div className="grid grid-cols-3 gap-3 pt-4 mt-3  xsm:px-2">
+        <div className="lg:grid lg:grid-cols-3 xsm:flex xsm:flex-col gap-3 pt-4 mt-3">
           {/* target price input box */}
           <div
             className={` ${
@@ -2960,7 +2975,7 @@ function NoDataComponent() {
     >
       {/* chart area */}
       <div className="relative mb-5 mt-24" style={{ height: '250px' }}>
-        <div className="absolute left-0 -top-24 inline-flex items-center justify-between bg-detailCardBg rounded-lg border border-dclTabBorderColor p-0.5">
+        <div className="absolute left-0 -top-28 inline-flex items-center justify-between bg-detailCardBg rounded-lg border border-dclTabBorderColor p-0.5">
           <span
             onClick={() => {
               setChartTab('liquidity');
@@ -3004,9 +3019,7 @@ function NoDataComponent() {
               defaultMessage="Set Price Range"
             />
 
-            <span className="text-xs font-gotham text-primaryText">
-              {/* {getPair()} */}
-            </span>
+            <span className="text-xs font-gotham text-primaryText"></span>
           </div>
 
           <div className="rounded-lg p-1 border frcs text-xs text-primaryText border-v3borderColor">
@@ -3043,7 +3056,7 @@ function NoDataComponent() {
           </div>
         </div>
         {/* content */}
-        <div className="grid grid-cols-3 gap-3 pt-4 mt-3  xsm:px-2">
+        <div className="lg:grid lg:grid-cols-3 xsm:flex xsm:flex-col gap-3 pt-4 mt-3">
           {/* target price input box */}
           <div
             className={`${

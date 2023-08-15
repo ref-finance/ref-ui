@@ -351,7 +351,11 @@ export function YourLiquidityV2(props: any) {
   return (
     <div>
       {groupYourLiquidity && Object.entries(groupYourLiquidity).length && (
-        <div className="grid grid-cols-11 px-6 text-sm text-primaryText">
+        <div
+          className={`grid grid-cols-11 px-6 text-sm text-primaryText xsm:hidden ${
+            styleType == '2' ? 'hidden' : ''
+          }`}
+        >
           <div className="col-span-4 ">
             <FormattedMessage
               id="pool"
@@ -942,7 +946,6 @@ function UserLiquidityLineStyleGroup({
     );
 
     const intersectionRangeList = findRangeIntersection(rangeList);
-
     const intersectionPointRangeList = findRangeIntersection(pointRangeList);
 
     const current_point = poolDetail.current_point;
@@ -1156,6 +1159,421 @@ function UserLiquidityLineStyleGroup({
   );
 }
 function UserLiquidityLineStyleGroupStyle1() {
+  if (is_mobile) {
+    return (
+      <UserLiquidityLineStyleGroupStyle1Mobile></UserLiquidityLineStyleGroupStyle1Mobile>
+    );
+  } else {
+    return (
+      <UserLiquidityLineStyleGroupStyle1Pc></UserLiquidityLineStyleGroupStyle1Pc>
+    );
+  }
+}
+function UserLiquidityLineStyleGroupStyle1Mobile() {
+  const {
+    hover,
+    setHover,
+    tip_seed,
+    goDetailV2,
+    tokens,
+    fee,
+    farm_icon,
+    intersectionRangeList,
+    ratedMapTokens,
+    isInRange,
+    accountAPR,
+    joined_seeds,
+    sort_joined_seeds,
+    your_liquidity,
+    tokenMetadata_x_y,
+    tokenFeeLeft,
+    tokenFeeRight,
+    canClaim,
+    claimRewards,
+    claim_loading,
+    history,
+    joined_seeds_done,
+    setRemoveButtonTip,
+    setShowRemoveBox,
+    removeButtonTip,
+    showRemoveBox,
+    liquidities_list,
+    poolDetail,
+    tokenPriceList,
+  } = useContext(GroupData);
+  return (
+    <>
+      <div className="bg-cardBg rounded-lg overflow-hidden mb-3.5">
+        {/* head */}
+        <div
+          className="bg-orderMobileTop flex items-start p-3"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            goDetailV2();
+          }}
+        >
+          <div className="flex items-center flex-shrink-0">
+            <img
+              src={tokens[0]?.icon}
+              className="w-7 h-7 border border-greenColor rounded-full"
+            ></img>
+            <img
+              src={tokens[1]?.icon}
+              className="relative -ml-1.5 w-7 h-7 border border-greenColor rounded-full"
+            ></img>
+          </div>
+          <div className="flex flex-grow ml-2.5 flex-col  gap-1">
+            <div className="flex items-center justify-between">
+              <span className="text-white  font-gothamBold  text-sm">
+                {tokens[0]?.['symbol']}-{tokens[1]?.['symbol']}
+              </span>
+              <span
+                className={`whitespace-nowrap text-xs ${
+                  isInRange
+                    ? 'text-gradientFromHover'
+                    : 'text-v3GarkWarningColor'
+                }`}
+              >
+                {isInRange ? (
+                  <FormattedMessage id="in_range"></FormattedMessage>
+                ) : (
+                  <FormattedMessage id="out_of_range"></FormattedMessage>
+                )}
+              </span>
+            </div>
+
+            <div className="frcs gap-2 text-xs">
+              <div className="rounded-xl px-1.5 text-white text-sm bg-DCLIconGradient">
+                DCL
+              </div>
+              <div className="flex items-center text-v3SwapGray justify-center bg-black bg-opacity-25 rounded-2xl px-3 py-px border border-dclTabBorderColor">
+                <span className="text-xs  whitespace-nowrap mr-1.5">
+                  <FormattedMessage id="fee_Tiers" />
+                </span>
+                <span className="">{+fee / 10000}%</span>
+              </div>
+              {farm_icon ? (
+                <div className="-ml-2">
+                  <FarmStampNew multi={farm_icon == 'muti'} />
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </div>
+        {/* body */}
+        <div className="p-3">
+          <div className="flex items-start justify-between">
+            <span className="text-sm text-v3SwapGray whitespace-nowrap">
+              Price Range
+            </span>
+            <div className="flex flex-col items-end">
+              <div className="flex items-center justify-end flex-wrap">
+                {intersectionRangeList.map((range: string[], i: number) => {
+                  return (
+                    <div className="text-white whitespace-nowrap text-sm">
+                      <span>
+                        {displayNumberToAppropriateDecimals(range[0])}
+                      </span>
+                      <span className="mx-1">-</span>
+
+                      <span>
+                        {displayNumberToAppropriateDecimals(range[1])}
+                      </span>
+                      {intersectionRangeList.length > 1 &&
+                        i < intersectionRangeList.length - 1 && (
+                          <span className="mr-1">,</span>
+                        )}
+                    </div>
+                  );
+                })}
+              </div>
+              <span className="text-xs mt-1 text-v3SwapGray">
+                {ratedMapTokens}
+              </span>
+            </div>
+          </div>
+          <div className="flex items-start justify-between mt-3">
+            <span className="text-sm text-v3SwapGray whitespace-nowrap">
+              APR(24h)
+            </span>
+            <div className="flex flex-col items-end">
+              <span className="text-sm text-white">{accountAPR || '-'}</span>
+              {joined_seeds ? (
+                <div className="flex flex-col gap-0.5">
+                  {Object.values(joined_seeds)
+                    .sort(sort_joined_seeds)
+                    .map((joined_seed_info: IUserJoinedSeedDetail) => {
+                      const length = Object.values(joined_seeds).length;
+                      const { seed_apr, seed_status } = joined_seed_info;
+                      if (seed_status == 'ended') return null;
+                      if (length == 1) {
+                        return (
+                          <div className="frcs gap-1 text-xs text-v3SwapGray whitespace-nowrap">
+                            <span>
+                              <FormattedMessage
+                                id="farm_apr"
+                                defaultMessage={'Farm APR'}
+                              ></FormattedMessage>
+                            </span>
+                            <span>{seed_apr}</span>
+                          </div>
+                        );
+                      } else {
+                        return (
+                          <div className="frcs gap-1 text-xs text-v3SwapGray whitespace-nowrap">
+                            <span>
+                              ({seed_status == 'run' ? 'new' : 'pre.'}) APR
+                            </span>
+                            <span>{seed_apr}</span>
+                          </div>
+                        );
+                      }
+                    })}
+                </div>
+              ) : tip_seed ? (
+                <div className="frcs gap-1 text-xs text-v3SwapGray">
+                  <span>
+                    <FormattedMessage
+                      id="farm_apr"
+                      defaultMessage={'Farm APR'}
+                    ></FormattedMessage>
+                  </span>
+                  <span>0%</span>
+                </div>
+              ) : null}
+            </div>
+          </div>
+          <div className="flex items-start justify-between mt-3">
+            <span className="text-sm text-v3SwapGray whitespace-nowrap">
+              <FormattedMessage id="unclaimed_fees" />
+            </span>
+            <div className="frcc">
+              <img
+                src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
+                className="w-5 h-5 border border-greenColor rounded-full mr-1"
+              ></img>
+              <span className="text-sm text-white mr-3 gotham_bold">
+                {tokenFeeLeft || '-'}
+              </span>
+              <img
+                src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
+                className="w-5 h-5 border border-greenColor rounded-full mr-1"
+              ></img>
+              <span className="text-sm text-white gotham_bold">
+                {tokenFeeRight || '-'}
+              </span>
+            </div>
+          </div>
+        </div>
+        {/* foot */}
+        <div className="bg-dclYourLiquidityColor">
+          <div className="p-3">
+            <div className="flex items-start justify-between">
+              <span className="text-sm text-v3SwapGray">Your Liquidity</span>
+              <div className="flex flex-col items-end">
+                <span className="text-white gotham_bold mb-1">
+                  {your_liquidity}
+                </span>
+                {joined_seeds ? (
+                  <div className="flex flex-col items-end gap-0.5 text-xs text-v3SwapGray">
+                    {Object.values(joined_seeds)
+                      .sort(sort_joined_seeds)
+                      .map((joined_seed_info: IUserJoinedSeedDetail) => {
+                        const length = Object.values(joined_seeds).length;
+                        const {
+                          seed_status,
+                          value_of_investment,
+                          go_farm_url_link,
+                        } = joined_seed_info;
+                        if (length == 1) {
+                          return (
+                            <div className="frcs  whitespace-nowrap">
+                              {value_of_investment} in{' '}
+                              <a
+                                className="cursor-pointer underline"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openUrl(go_farm_url_link);
+                                }}
+                              >
+                                farm
+                              </a>
+                            </div>
+                          );
+                        } else {
+                          return (
+                            <div className="frcs gap-1 whitespace-nowrap">
+                              {value_of_investment} in{' '}
+                              <a
+                                className={`cursor-pointer underline`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openUrl(go_farm_url_link);
+                                }}
+                              >
+                                farm (
+                                {seed_status == 'run'
+                                  ? 'new'
+                                  : seed_status == 'would_ended'
+                                  ? 'pre.'
+                                  : 'ended'}
+                                )
+                              </a>
+                            </div>
+                          );
+                        }
+                      })}
+                  </div>
+                ) : tip_seed ? (
+                  <div className="frcs justify-end gap-1 text-xs text-v3SwapGray">
+                    0% in{' '}
+                    <a
+                      className="cursor-pointer underline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openUrl(tip_seed.go_farm_url_link);
+                      }}
+                    >
+                      farm
+                    </a>
+                  </div>
+                ) : null}
+              </div>
+            </div>
+            <div className="flex items-center justify-between gap-2 mt-3">
+              <div
+                className={`flex w-24 flex-grow h-8 items-center justify-center  rounded-lg text-sm px-3 py-1 ${
+                  !canClaim
+                    ? 'bg-deepBlue text-white opacity-30 cursor-not-allowed'
+                    : 'bg-deepBlue text-white hover:bg-lightBlue cursor-pointer'
+                }`}
+                onClick={claimRewards}
+              >
+                <ButtonTextWrapper
+                  loading={claim_loading}
+                  Text={() => <FormattedMessage id="claim" />}
+                />
+              </div>
+              <GradientButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const pool_name = get_pool_name(poolDetail.pool_id);
+                  history.push(`/addLiquidityV2#${pool_name}`);
+                }}
+                color="#fff"
+                minWidth="5rem"
+                borderRadius="8px"
+                className={`px-3 w-24 flex-grow h-8 text-center text-sm text-white  focus:outline-none`}
+              >
+                <FormattedMessage id="add" />
+              </GradientButton>
+              <div
+                className={`relative flex items-center flex-grow ${
+                  joined_seeds_done ? '' : 'hidden'
+                }`}
+                onMouseEnter={() => {
+                  if (!!joined_seeds && !is_mobile) {
+                    setRemoveButtonTip(true);
+                  }
+                }}
+                onMouseLeave={() => {
+                  if (!!joined_seeds) {
+                    setRemoveButtonTip(false);
+                  }
+                }}
+                onClick={() => {
+                  if (is_mobile) {
+                    setRemoveButtonTip(!removeButtonTip);
+                  }
+                }}
+              >
+                <BorderButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowRemoveBox(true);
+                  }}
+                  rounded="rounded-lg"
+                  disabled={!!joined_seeds}
+                  px="px-0"
+                  py="py-1"
+                  style={{ minWidth: '5rem' }}
+                  className={`flex-grow w-24  text-sm text-greenColor h-8 ${
+                    !!joined_seeds ? 'opacity-40 pointer-events-none' : ''
+                  }`}
+                >
+                  <FormattedMessage id="remove" />
+                </BorderButton>
+                <div
+                  className={`${
+                    removeButtonTip ? '' : 'hidden'
+                  } absolute z-50 right-0 -top-12 border border-primaryText rounded-md px-2 py-1.5 text-xs text-farmText w-56 bg-cardBg`}
+                >
+                  You have liquidity in farm, please unstake from{' '}
+                  <a
+                    className="underline cursor-pointer"
+                    onClick={() => {
+                      localStorage.setItem('BOOST_FARM_TAB', 'yours');
+                      openUrl('/v2farms');
+                    }}
+                  >
+                    Your Farm
+                  </a>{' '}
+                  first.
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* tip */}
+          {tip_seed ? (
+            <div className="relative flex items-center bg-dclFarmTipColor justify-between px-3 py-1">
+              <span className="text-sm text-white whitespace-nowrap">
+                Farm APR up to{' '}
+                <span className="font-gothamBold">{tip_seed.seed_apr}</span>
+              </span>
+              <div
+                className="flex items-center justify-center  text-white cursor-pointer whitespace-nowrap"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  openUrl(tip_seed.go_farm_url_link);
+                }}
+              >
+                <a className="text-sm text-white mr-1 underline">
+                  <FormattedMessage id="go_farm" />
+                </a>
+                <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
+              </div>
+            </div>
+          ) : null}
+        </div>
+      </div>
+      {showRemoveBox ? (
+        <RemovePoolV3
+          isOpen={showRemoveBox}
+          onRequestClose={() => {
+            setShowRemoveBox(false);
+          }}
+          listLiquidities={liquidities_list}
+          tokenMetadata_x_y={tokenMetadata_x_y}
+          poolDetail={poolDetail}
+          tokenPriceList={tokenPriceList}
+          userLiquidity={list_liquidities[0]}
+          style={{
+            overlay: {
+              backdropFilter: 'blur(15px)',
+              WebkitBackdropFilter: 'blur(15px)',
+            },
+            content: {
+              outline: 'none',
+              transform: 'translate(-50%, -50%)',
+            },
+          }}
+        ></RemovePoolV3>
+      ) : null}
+    </>
+  );
+}
+function UserLiquidityLineStyleGroupStyle1Pc() {
   const {
     hover,
     setHover,
@@ -1563,6 +1981,304 @@ function UserLiquidityLineStyleGroupStyle1() {
   );
 }
 function UserLiquidityLineStyleGroupStyle2() {
+  if (is_mobile) {
+    return (
+      <UserLiquidityLineStyleGroupStyle2Mobile></UserLiquidityLineStyleGroupStyle2Mobile>
+    );
+  } else {
+    return (
+      <UserLiquidityLineStyleGroupStyle2Pc></UserLiquidityLineStyleGroupStyle2Pc>
+    );
+  }
+}
+function UserLiquidityLineStyleGroupStyle2Mobile() {
+  const {
+    tip_seed,
+    tokens,
+    fee,
+    intersectionRangeList,
+    ratedMapTokens,
+    isInRange,
+    accountAPR,
+    joined_seeds,
+    sort_joined_seeds,
+    your_liquidity,
+    tokenMetadata_x_y,
+    tokenFeeLeft,
+    tokenFeeRight,
+    poolDetail,
+    tokenFeeValue,
+  } = useContext(GroupData);
+  const [switch_off, set_switch_off] = useState<boolean>(true);
+  function goPoolDetailPage() {
+    const params_str = get_pool_name(poolDetail.pool_id);
+    openUrl(`/poolV2/${params_str}`);
+  }
+  return (
+    <>
+      <div
+        className={`rounded-xl mt-3 mx-4 bg-portfolioBgColor ${
+          switch_off ? '' : 'border border-border_light_grey_color'
+        }`}
+      >
+        <div className="px-3 py-2.5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <div className="flex items-center flex-shrink-0 mr-2.5">
+                <img
+                  src={tokens[0]?.icon}
+                  className="w-7 h-7 border border-greenColor rounded-full"
+                ></img>
+                <img
+                  src={tokens[1]?.icon}
+                  className="relative -ml-1.5 w-7 h-7 border border-greenColor rounded-full"
+                ></img>
+              </div>
+              <span className="text-white font-bold text-sm gotham_bold">
+                {tokens[0]?.['symbol']}-{tokens[1]?.['symbol']}
+              </span>
+            </div>
+            <span className="text-white text-sm gotham_bold">
+              {your_liquidity || '-'}
+            </span>
+          </div>
+          <div className="flex items-center justify-between mt-3">
+            <div className="flex items-center">
+              <span className="flex items-center justify-center text-xs text-v3SwapGray bg-portfolioFeeBgColor rounded-md px-1.5 mr-1.5 py-0.5">
+                {+fee / 10000}%
+              </span>
+              <span
+                onClick={() => {
+                  goPoolDetailPage();
+                }}
+                className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md px-1.5 cursor-pointer hover:text-white  py-0.5  mr-1.5"
+              >
+                <FormattedMessage id="dcl_pool" />{' '}
+                <LinkIcon className="ml-1"></LinkIcon>
+              </span>
+            </div>
+            <div className="flex items-center">
+              <div className="flex items-center mr-1.5">
+                <WaterDropIcon className="m-1.5"></WaterDropIcon>
+                <span className="text-xs text-portfolioGreenColor gotham_bold">
+                  {tokenFeeValue}
+                </span>
+              </div>
+              <UpDownButton
+                set_switch_off={() => {
+                  set_switch_off(!switch_off);
+                }}
+                switch_off={switch_off}
+              ></UpDownButton>
+            </div>
+          </div>
+        </div>
+
+        <div
+          className={`border-t border-limitOrderFeeTiersBorderColor ${
+            switch_off ? 'hidden' : ''
+          }`}
+        >
+          <div className="p-3">
+            <div className="flex items-start justify-between mb-5">
+              <div className="flex items-start relative top-0.5">
+                <span className="text-sm text-v3SwapGray whitespace-nowrap">
+                  <FormattedMessage id="price_range" />
+                </span>
+                <div className="flex items-center justify-center bg-selectTokenV3BgColor rounded-md px-1.5 h-5 py-0.5 ml-1.5">
+                  <span
+                    className={`flex-shrink-0 w-1.5 h-1.5 rounded-full mr-1.5 ${
+                      isInRange
+                        ? 'bg-gradientFromHover'
+                        : 'bg-v3GarkWarningColor'
+                    }`}
+                  ></span>
+                  <span
+                    className={`whitespace-nowrap text-xs ${
+                      isInRange
+                        ? 'text-gradientFromHover'
+                        : 'text-v3GarkWarningColor'
+                    }`}
+                  >
+                    {isInRange ? (
+                      <FormattedMessage id="in_range"></FormattedMessage>
+                    ) : (
+                      <FormattedMessage id="out_of_range"></FormattedMessage>
+                    )}
+                  </span>
+                </div>
+              </div>
+              <div className="flex flex-col items-end">
+                {intersectionRangeList.map((range: string[], i: number) => {
+                  return (
+                    <div className="text-white whitespace-nowrap text-sm">
+                      <span>
+                        {displayNumberToAppropriateDecimals(range[0])}
+                      </span>
+                      <span className="mx-1">-</span>
+
+                      <span>
+                        {displayNumberToAppropriateDecimals(range[1])}
+                      </span>
+                      {intersectionRangeList.length > 1 &&
+                        i < intersectionRangeList.length - 1 && <span>,</span>}
+                    </div>
+                  );
+                })}
+                <span className="text-xs ml-1 text-v3SwapGray">
+                  {ratedMapTokens}
+                </span>
+              </div>
+            </div>
+            <div className="flex items-start justify-between mb-5">
+              <span className="text-sm text-v3SwapGray">APR(24h)</span>
+              <div className="flex flex-col items-end">
+                <span className="text-sm">{accountAPR || '-'}</span>
+                {joined_seeds ? (
+                  <div className="flex flex-col items-end gap-1 text-xs">
+                    {Object.values(joined_seeds)
+                      .sort(sort_joined_seeds)
+                      .map((joined_seed_info: IUserJoinedSeedDetail) => {
+                        const length = Object.values(joined_seeds).length;
+                        const { seed_apr, seed_status } = joined_seed_info;
+                        if (seed_status == 'ended') return null;
+                        if (length == 1) {
+                          return (
+                            <div className="frcs gap-1 text-v3SwapGray whitespace-nowrap">
+                              <span>
+                                <FormattedMessage
+                                  id="farm_apr"
+                                  defaultMessage={'Farm APR'}
+                                ></FormattedMessage>
+                              </span>
+                              <span>{seed_apr}</span>
+                            </div>
+                          );
+                        } else {
+                          return (
+                            <div className="frcs gap-1 text-v3SwapGray whitespace-nowrap">
+                              <span>
+                                ({seed_status == 'run' ? 'new' : 'pre.'}) APR
+                              </span>
+                              <span>{seed_apr}</span>
+                            </div>
+                          );
+                        }
+                      })}
+                  </div>
+                ) : tip_seed ? (
+                  <div className="frcs gap-1 text-v3SwapGray text-xs">
+                    <span>
+                      <FormattedMessage
+                        id="farm_apr"
+                        defaultMessage={'Farm APR'}
+                      ></FormattedMessage>
+                    </span>
+                    <span>0%</span>
+                  </div>
+                ) : null}
+              </div>
+            </div>
+            {joined_seeds || tip_seed ? (
+              <div className="flex items-start justify-between mb-6">
+                <span className="text-sm text-v3SwapGray">
+                  <FormattedMessage id="usage" />
+                </span>
+                {joined_seeds ? (
+                  <div className="flex flex-col items-end gap-1">
+                    {Object.values(joined_seeds)
+                      .sort(sort_joined_seeds)
+                      .map((joined_seed_info: IUserJoinedSeedDetail) => {
+                        const length = Object.values(joined_seeds).length;
+                        const {
+                          seed_status,
+                          value_of_investment,
+                          go_farm_url_link,
+                        } = joined_seed_info;
+                        if (length == 1) {
+                          return (
+                            <div className="frcs gap-1 whitespace-nowrap text-v3SwapGray text-xs">
+                              {value_of_investment} in{' '}
+                              <a
+                                className="cursor-pointer underline"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openUrl(go_farm_url_link);
+                                }}
+                              >
+                                farm
+                              </a>
+                            </div>
+                          );
+                        } else {
+                          return (
+                            <div className="frcs gap-1 whitespace-nowrap text-v3SwapGray text-xs">
+                              {value_of_investment} in{' '}
+                              <a
+                                className={`cursor-pointer underline text-v3SwapGray hover:text-greenColor`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openUrl(go_farm_url_link);
+                                }}
+                              >
+                                farm (
+                                {seed_status == 'run'
+                                  ? 'new'
+                                  : seed_status == 'would_ended'
+                                  ? 'pre.'
+                                  : 'ended'}
+                                )
+                              </a>
+                            </div>
+                          );
+                        }
+                      })}
+                  </div>
+                ) : tip_seed ? (
+                  <div className="frcs gap-1 text-v3SwapGray text-xs">
+                    0% in{' '}
+                    <a
+                      className="cursor-pointer underline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openUrl(tip_seed.go_farm_url_link);
+                      }}
+                    >
+                      farm
+                    </a>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-v3SwapGray whitespace-nowrap">
+                <FormattedMessage id="unclaimed_fees" />
+              </span>
+              <div className="flex items-center">
+                <img
+                  src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
+                  className="w-5 h-5 border border-greenColor rounded-full mr-1.5"
+                ></img>
+                <span className="text-sm text-white mr-5 gotham_bold">
+                  {tokenFeeLeft || '-'}
+                </span>
+                <img
+                  src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
+                  className="w-5 h-5 border border-greenColor rounded-full mr-1.5"
+                ></img>
+                <span className="text-sm text-white gotham_bold">
+                  {tokenFeeRight || '-'}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+function UserLiquidityLineStyleGroupStyle2Pc() {
   const {
     tip_seed,
     tokens,
@@ -1699,7 +2415,7 @@ function UserLiquidityLineStyleGroupStyle2() {
               <div className="flex items-center">
                 <span className="text-sm mr-2">{accountAPR || '-'}</span>
                 {joined_seeds ? (
-                  <div className="flex flex-col gap-2 text-xs">
+                  <div className="flex items-center gap-2 text-xs">
                     {Object.values(joined_seeds)
                       .sort(sort_joined_seeds)
                       .map((joined_seed_info: IUserJoinedSeedDetail) => {
@@ -1749,7 +2465,7 @@ function UserLiquidityLineStyleGroupStyle2() {
                   <FormattedMessage id="usage" />
                 </span>
                 {joined_seeds ? (
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col items-end gap-2">
                     {Object.values(joined_seeds)
                       .sort(sort_joined_seeds)
                       .map((joined_seed_info: IUserJoinedSeedDetail) => {
@@ -1845,339 +2561,6 @@ function UserLiquidityLineStyleGroupStyle2() {
     </>
   );
 }
-
-function UserLiquidityLineStyle2Pc({
-  switch_off,
-  set_switch_off,
-  getUsageDiv,
-}: {
-  switch_off: boolean;
-  set_switch_off: any;
-  getUsageDiv: any;
-}) {
-  const {
-    getLpt_id,
-    goYourLiquidityDetailPage,
-    goPoolDetailPage,
-    tokenMetadata_x_y,
-    fee,
-    getRate,
-    rate_need_to_reverse_display,
-    getRateMapTokens,
-    isInrange,
-    your_liquidity,
-    getTokenFeeAmount,
-  } = useContext(LiquidityContext);
-  const tokens = sort_tokens_by_base(tokenMetadata_x_y);
-  return (
-    <div
-      className={`rounded-xl mt-3 bg-portfolioBgColor px-5 ${
-        switch_off ? '' : 'pb-4'
-      }`}
-    >
-      <div className="flex items-center justify-between h-14">
-        <div className="flex items-center">
-          <div className="flex items-center flex-shrink-0 mr-2.5">
-            <img
-              src={tokens[0]?.icon}
-              className="w-7 h-7 border border-greenColor rounded-full"
-            ></img>
-            <img
-              src={tokens[1]?.icon}
-              className="relative -ml-1.5 w-7 h-7 border border-greenColor rounded-full"
-            ></img>
-          </div>
-          <span className="text-white font-bold text-sm gotham_bold">
-            {tokens[0]?.['symbol']}-{tokens[1]?.['symbol']}
-          </span>
-          <span className="flex items-center justify-center text-xs text-v3SwapGray bg-portfolioFeeBgColor rounded-md px-1.5 mx-1.5 py-0.5">
-            {+fee / 10000}%
-          </span>
-          <span
-            onClick={() => {
-              goPoolDetailPage();
-            }}
-            className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md px-1.5 cursor-pointer hover:text-white  py-0.5  mr-1.5"
-          >
-            <FormattedMessage id="dcl_pool" />{' '}
-            <LinkIcon className="ml-1"></LinkIcon>
-          </span>
-          <span
-            onClick={() => {
-              goYourLiquidityDetailPage('new window');
-            }}
-            className="flex items-center bg-portfolioRainbowColor rounded-md gotham_bold text-xs text-white cursor-pointer px-1.5 py-0.5"
-          >
-            NFT #{getLpt_id()} <LinkIcon className="ml-1"></LinkIcon>
-          </span>
-        </div>
-        <div className="flex items-center">
-          <div className="flex flex-col items-end mr-5">
-            <span className="text-white text-sm gotham_bold">
-              ${your_liquidity || '-'}
-            </span>
-            <div className="flex items-center">
-              <WaterDropIcon className="m-1.5"></WaterDropIcon>
-              <span className="text-xs text-portfolioGreenColor gotham_bold">
-                {getTokenFeeAmount('p')}
-              </span>
-            </div>
-          </div>
-          <UpDownButton
-            set_switch_off={() => {
-              set_switch_off(!switch_off);
-            }}
-            switch_off={switch_off}
-          ></UpDownButton>
-        </div>
-      </div>
-      <div className={`${switch_off ? 'hidden' : ''}`}>
-        <div className="flex items-center justify-between"></div>
-        <div className="bg-primaryText rounded-xl px-3.5 py-5 bg-opacity-10 mt-3">
-          <div className="flex items-center justify-between mb-6">
-            <span className="text-sm text-v3SwapGray">
-              <FormattedMessage id="your_liquidity_usd_value" />
-            </span>
-            <span className="text-sm text-white">${your_liquidity || '-'}</span>
-          </div>
-          <div className="flex items-center justify-between mb-6">
-            <span className="text-sm text-v3SwapGray">
-              <FormattedMessage id="price_range" />
-            </span>
-            <div className="flex items-center text-sm text-white">
-              <div className="flex items-center justify-center bg-selectTokenV3BgColor rounded-md px-3 h-5 py-0.5">
-                <span
-                  className={`flex-shrink-0 w-1.5 h-1.5 rounded-full mr-1.5 ${
-                    isInrange ? 'bg-gradientFromHover' : 'bg-v3GarkWarningColor'
-                  }`}
-                ></span>
-                <span
-                  className={`whitespace-nowrap text-xs ${
-                    isInrange
-                      ? 'text-gradientFromHover'
-                      : 'text-v3GarkWarningColor'
-                  }`}
-                >
-                  {isInrange ? (
-                    <FormattedMessage id="in_range"></FormattedMessage>
-                  ) : (
-                    <FormattedMessage id="out_of_range"></FormattedMessage>
-                  )}
-                </span>
-              </div>
-              <div className="flex items-center">
-                <span className="text-sm text-white ml-3 mr-1.5">
-                  {getRate(rate_need_to_reverse_display ? 'right' : 'left')} -{' '}
-                  {getRate(rate_need_to_reverse_display ? 'left' : 'right')}
-                </span>
-                <span className="text-xs text-v3SwapGray">
-                  {getRateMapTokens()}
-                </span>
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center justify-between mb-6">
-            <span className="text-sm text-v3SwapGray">
-              <FormattedMessage id="usage" />
-            </span>
-            {getUsageDiv()}
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-v3SwapGray">
-              <FormattedMessage id="unclaimed_fees" />
-            </span>
-            <div className="flex items-center">
-              <img
-                src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
-                className="w-5 h-5 border border-greenColor rounded-full mr-1.5"
-              ></img>
-              <span className="text-sm text-white mr-5 gotham_bold">
-                {getTokenFeeAmount('l') || '-'}
-              </span>
-              <img
-                src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
-                className="w-5 h-5 border border-greenColor rounded-full mr-1.5"
-              ></img>
-              <span className="text-sm text-white gotham_bold">
-                {getTokenFeeAmount('r') || '-'}
-              </span>
-              <span className="tex-sm text-portfolioQinColor pl-3.5 border-l border-orderTypeBg ml-3.5">
-                {getTokenFeeAmount('p')}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-function UserLiquidityLineStyle2Mobile({
-  switch_off,
-  set_switch_off,
-  getUsageDiv,
-}: {
-  switch_off: boolean;
-  set_switch_off: any;
-  getUsageDiv: any;
-}) {
-  const {
-    getLpt_id,
-    goYourLiquidityDetailPage,
-    goPoolDetailPage,
-    tokenMetadata_x_y,
-    fee,
-    getRate,
-    rate_need_to_reverse_display,
-    getRateMapTokens,
-    isInrange,
-    your_liquidity,
-    getTokenFeeAmount,
-  } = useContext(LiquidityContext);
-  const tokens = sort_tokens_by_base(tokenMetadata_x_y);
-  return (
-    <div
-      className={`rounded-xl mb-3 mx-4 ${
-        switch_off
-          ? 'bg-portfolioBgColor'
-          : 'border border-border_light_grey_color bg-portfolioBarBgColor'
-      }`}
-    >
-      <div className="flex flex-col justify-between h-20 p-2.5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <div className="flex items-center flex-shrink-0 mr-1.5">
-              <img
-                src={tokens[0]?.icon}
-                className="w-6 h-6 border border-greenColor rounded-full"
-              ></img>
-              <img
-                src={tokens[1]?.icon}
-                className="relative -ml-1.5 w-6 h-6 border border-greenColor rounded-full"
-              ></img>
-            </div>
-            <span className="text-white font-bold text-sm gotham_bold whitespace-nowrap">
-              {tokens[0]?.['symbol']}-{tokens[1]?.['symbol']}
-            </span>
-          </div>
-          <span className="text-white text-sm gotham_bold">
-            ${your_liquidity || '-'}
-          </span>
-        </div>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <span
-              onClick={() => {
-                goYourLiquidityDetailPage('new window');
-              }}
-              className="flex items-center bg-portfolioRainbowColor rounded-md gotham_bold text-xs text-white cursor-pointer px-1.5 py-0.5"
-            >
-              NFT #{getLpt_id()} <LinkIcon className="ml-1"></LinkIcon>
-            </span>
-            <span
-              onClick={() => {
-                goPoolDetailPage();
-              }}
-              className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md cursor-pointer whitespace-nowrap py-0.5 px-1.5 ml-1.5"
-            >
-              DCL<LinkIcon className="ml-1 flex-shrink-0"></LinkIcon>
-            </span>
-          </div>
-          <div className="flex items-center">
-            <WaterDropIcon></WaterDropIcon>
-            <span className="text-xs text-portfolioGreenColor gotham_bold px-1.5">
-              {getTokenFeeAmount('p')}
-            </span>
-            <UpDownButton
-              set_switch_off={() => {
-                set_switch_off(!switch_off);
-              }}
-              switch_off={switch_off}
-            ></UpDownButton>
-          </div>
-        </div>
-      </div>
-
-      <div
-        className={`px-2.5 py-4 border-t border-limitOrderFeeTiersBorderColor ${
-          switch_off ? 'hidden' : ''
-        }`}
-      >
-        <div className="flex items-center justify-between mb-6">
-          <span className="text-sm text-v3SwapGray whitespace-nowrap">
-            <FormattedMessage id="your_liquidity" />
-          </span>
-          <span className="text-sm text-white whitespace-nowrap">
-            ${your_liquidity || '-'}
-          </span>
-        </div>
-        <div className="flex items-start justify-between mb-6">
-          <div className="flex items-center">
-            <span className="text-sm text-v3SwapGray whitespace-nowrap">
-              <FormattedMessage id="price_range" />
-            </span>
-            <div className="flex items-center justify-center bg-selectTokenV3BgColor rounded-md px-1.5 h-5 py-0.5 ml-1.5">
-              <span
-                className={`flex-shrink-0 w-1.5 h-1.5 rounded-full mr-1.5 ${
-                  isInrange ? 'bg-gradientFromHover' : 'bg-v3GarkWarningColor'
-                }`}
-              ></span>
-              <span
-                className={`whitespace-nowrap text-xs ${
-                  isInrange
-                    ? 'text-gradientFromHover'
-                    : 'text-v3GarkWarningColor'
-                }`}
-              >
-                {isInrange ? (
-                  <FormattedMessage id="in_range"></FormattedMessage>
-                ) : (
-                  <FormattedMessage id="out_of_range"></FormattedMessage>
-                )}
-              </span>
-            </div>
-          </div>
-          <div className="flex flex-col items-end  text-sm text-white">
-            <span className="text-sm text-white whitespace-nowrap">
-              {getRate(rate_need_to_reverse_display ? 'right' : 'left')} -{' '}
-              {getRate(rate_need_to_reverse_display ? 'left' : 'right')}
-            </span>
-            <span className="text-xs text-v3SwapGray whitespace-nowrap mt-0.5">
-              {getRateMapTokens()}
-            </span>
-          </div>
-        </div>
-        <div className="flex items-center justify-between mb-6">
-          <span className="text-sm text-v3SwapGray">
-            <FormattedMessage id="usage" />
-          </span>
-          {getUsageDiv()}
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-v3SwapGray whitespace-nowrap mr-3">
-            <FormattedMessage id="unclaimed_fees" />
-          </span>
-          <div className="flex items-center flex-wrap">
-            <img
-              src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
-              className="w-5 h-5 border border-greenColor rounded-full mr-1.5"
-            ></img>
-            <span className="text-sm text-white mr-4">
-              {getTokenFeeAmount('l') || '-'}
-            </span>
-            <img
-              src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
-              className="w-5 h-5 border border-greenColor rounded-full mr-1.5"
-            ></img>
-            <span className="text-sm text-white">
-              {getTokenFeeAmount('r') || '-'}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 interface IUserJoinedSeed {
   seed_id?: IUserJoinedSeedDetail;
 }

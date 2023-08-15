@@ -412,7 +412,7 @@ export default function YourLiquidityPageV3() {
                 </div>
               ) : null}
               {+v1LiquidityQuantity > 0 || showV1EmptyBar ? (
-                <div className="mt-10 mb-3 xsm:-mb-1">
+                <div className="mt-10 mb-3">
                   <span className="text-white text-base gotham_bold">
                     <FormattedMessage id="classic" /> ({v1LiquidityQuantity})
                   </span>
