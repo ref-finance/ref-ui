@@ -113,7 +113,7 @@ export const usePrivateOrderlyWS = () => {
       }
     },
     onClose: (e) => {
-      console.log('websocket closed');
+      console.log(`websocket closed ${e.code} ${e.reason}`);
     },
   });
 
