@@ -1433,5 +1433,6 @@ const ja = {
   more_expensive_than_best_rate_zh_cn: '最適レートより高い',
   more_expensive_than_best_rate: '最適な為替レートより高い',
   risks: 'リスク',
+  insufficient_margin: 'Insufficient Margin',
 };
 export default Object.assign(ja, ja_in_risks_page);

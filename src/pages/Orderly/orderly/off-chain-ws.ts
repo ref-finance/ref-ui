@@ -114,13 +114,11 @@ export const usePrivateOrderlyWS = () => {
   } = useWebSocket(!accountId ? null : socketUrl, {
     shouldReconnect: (closeEvent) => true,
     reconnectAttempts: 15,
-    reconnectInterval: 9000,
+    reconnectInterval: 1000,
     share: true,
     onReconnectStop: (numAttempts) => {
-      if (numAttempts === 15) {
-        const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
-        storedValid && setNeedRefresh(true);
-      }
+      const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
+      storedValid && setNeedRefresh(true);
     },
     onClose: (e) => {
       console.log(`websocket closed ${e.code} ${e.reason}`);

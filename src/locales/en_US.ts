@@ -1435,5 +1435,6 @@ const en_US = {
   funding_fee: 'Funding Fee',
   settlements: 'Settlements',
   funding_annual_rate: 'Funding Rate / Annual Rate',
+  insufficient_margin: 'Insufficient Margin',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

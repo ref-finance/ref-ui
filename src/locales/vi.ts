@@ -1428,5 +1428,6 @@ const vi = {
     'Ref Finance được quản lý bởi <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://app.astrodao.com/dao/ref-finance.sputnik-dao.near">Ref Finance Sputnik DAO</a> và sẽ dần chuyển sang một hình thức hoàn toàn phi tập trung.',
   admin_sentence_2:
     'Để biết thêm thông tin liên quan đến hợp đồng và địa chỉ đã quản lý trực tiếp hoặc đang quản lý công việc của Ref Finance, vui lòng kiểm tra <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://guide.ref.finance/developers/contracts">Tài liệu</a> của chúng tôi.',
+  insufficient_margin: 'Insufficient Margin',
 };
 export default Object.assign(vi, vi_in_risks_page);

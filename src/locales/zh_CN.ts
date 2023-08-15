@@ -1361,5 +1361,6 @@ const zh_CN = {
   risk: 'Risk',
   taker_maker_fee_rate: '挂单/吃单费率',
   save: 'Save',
+  insufficient_margin: 'Insufficient Margin',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

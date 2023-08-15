@@ -1454,5 +1454,6 @@ const ru = {
   your_liquidity_positions_will_appear_here:
     'Ваши ликвидные позиции будут отображаться здесь.',
   more_expensive_than_best_rate_zh_cn: '',
+  insufficient_margin: 'Insufficient Margin',
 };
 export default Object.assign(ru, ru_in_risks_page);

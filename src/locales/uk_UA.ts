@@ -1439,5 +1439,6 @@ const uk_UA = {
     'Ринкова ціна знаходиться за межами вашого цінового діапазону.',
   market_price_outside_single_only_tip:
     'Ринкова ціна знаходиться за межами вашого цінового діапазону. Внесіть тільки один актив.',
+  insufficient_margin: 'Insufficient Margin',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);
