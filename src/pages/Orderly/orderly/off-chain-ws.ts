@@ -49,7 +49,8 @@ export const useOrderlyWS = () => {
     useWebSocket(socketUrl, {
       shouldReconnect: (closeEvent) => true,
       reconnectAttempts: 15,
-      reconnectInterval: 10000,
+      reconnectInterval: 9000,
+      share: true,
     });
 
   useEffect(() => {
@@ -57,6 +58,14 @@ export const useOrderlyWS = () => {
       setMessageHistory((prev: any) => prev.concat(lastMessage));
     }
   }, [lastMessage, setMessageHistory]);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      sendMessage(JSON.stringify({ event: 'ping', ts: Date.now() }));
+    }, 5000);
+
+    return clearInterval(id);
+  }, []);
 
   const connectionStatus = {
     [ReadyState.CONNECTING]: 'Connecting',
@@ -105,7 +114,8 @@ export const usePrivateOrderlyWS = () => {
   } = useWebSocket(!accountId ? null : socketUrl, {
     shouldReconnect: (closeEvent) => true,
     reconnectAttempts: 15,
-    reconnectInterval: 10000,
+    reconnectInterval: 9000,
+    share: true,
     onReconnectStop: (numAttempts) => {
       if (numAttempts === 15) {
         const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
@@ -116,6 +126,14 @@ export const usePrivateOrderlyWS = () => {
       console.log(`websocket closed ${e.code} ${e.reason}`);
     },
   });
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      sendMessage(JSON.stringify({ event: 'ping', ts: Date.now() }));
+    }, 5000);
+
+    return () => clearInterval(id);
+  }, []);
 
   useEffect(() => {
     document.addEventListener('visibilitychange', handleVisibilityChange);
@@ -321,7 +339,9 @@ export const useOrderlyMarketData = ({
     if (connectionStatus !== 'Open') return;
 
     if (lastJsonMessage?.['event'] === 'ping') {
-      sendMessage(JSON.stringify({ event: 'pong', ts: Date.now() }));
+      const ts = lastJsonMessage?.['ts'];
+
+      sendMessage(JSON.stringify({ event: 'pong', ts: Number(ts) }));
     }
 
     if (
@@ -576,7 +596,8 @@ export const useOrderlyPrivateData = ({
     }
 
     if (lastJsonMessage?.['event'] === 'ping') {
-      sendMessage(JSON.stringify({ event: 'pong', ts: Date.now() }));
+      const ts = lastJsonMessage?.['ts'];
+      sendMessage(JSON.stringify({ event: 'pong', ts: Number(ts) }));
     }
 
     if (lastJsonMessage?.['topic'] === 'balance') {
