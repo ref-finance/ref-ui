@@ -125,6 +125,7 @@ export const usePrivateOrderlyWS = () => {
     onClose: (e) => {
       console.log(`websocket closed ${e.code} ${e.reason}`);
     },
+    onError: (e) => console.log(`websocket error ${e.type}`),
   });
 
   useEffect(() => {
