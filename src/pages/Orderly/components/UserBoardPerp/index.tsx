@@ -864,6 +864,16 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
     setValidAccountSig(true);
   }, [tradingKeySet, keyAnnounced]);
+
+  console.log(
+    'user register log',
+    keyAnnounced,
+    tradingKeySet,
+    userExist,
+    validAccountSig,
+    agreeCheck
+  );
+
   const intl = useIntl();
 
   const isInsufficientBalance =
