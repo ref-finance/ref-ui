@@ -128,15 +128,9 @@ export function getTranslateList(
       }),
       Both: intl.formatMessage({ id: 'both', defaultMessage: 'Both' }),
 
-      New: intl.formatMessage({
-        id: 'new_orderly',
-        defaultMessage: 'New',
-      }),
+      New: 'New',
 
-      'Partial Filled': intl.formatMessage({
-        id: 'partial_filled',
-        defaultMessage: 'Partial Filled',
-      }),
+      'Partial Filled': 'Partial Filled',
     },
     instrument: {
       All: intl.formatMessage({

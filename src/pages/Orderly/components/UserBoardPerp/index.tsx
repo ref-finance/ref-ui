@@ -1269,7 +1269,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           </span>
 
           <button
-            className={`font-gotham text-white px-1 text-xs rounded-md border border-inputV3BorderColor  ${
+            className={`font-gotham text-white px-1 text-xs whitespace-nowrap rounded-md border border-inputV3BorderColor  ${
               ONLY_ZEROS.test(unsettle) ? 'cursor-not-allowed' : ''
             }`}
             onClick={async () => {

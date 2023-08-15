@@ -459,7 +459,7 @@ export const FutureTableFormHeaders: React.FC = () => {
     <th className={`col-span-3 pb-2 flex items-center`}>
       <div className={`flex items-center relative text-left`}>
         <span
-          className="hidden md:flex lg:flex items-center"
+          className="hidden md:flex lg:flex items-center "
           style={{ color: '#7E8A93' }}
         >
           <span className={`ml-2`}>{children}</span>
@@ -1657,7 +1657,7 @@ const FutureMobileRow: React.FC<{
           <div className="col-span-1 flex justify-end items-center mb-3">
             {orders.length > 0 && (
               <div
-                className="cursor-pointer text-center py-1 px-3 mr-2 border border-orderTypeBg rounded-md"
+                className="cursor-pointer text-center whitespace-nowrap py-1 px-3 mr-2 border border-orderTypeBg rounded-md"
                 onClick={() => {
                   setPendingOpen(true);
                 }}
@@ -1667,7 +1667,7 @@ const FutureMobileRow: React.FC<{
               </div>
             )}
             <div
-              className="cursor-pointer text-center py-1 px-3 border border-orderTypeBg rounded-md"
+              className="cursor-pointer text-center whitespace-nowrap py-1 px-3 border border-orderTypeBg rounded-md"
               onClick={() => {
                 const pass = priceAndSizeValidator(
                   price === 'Market' ? mark_price.toString() : price.toString(),

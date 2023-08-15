@@ -335,7 +335,7 @@ function PortfolioOrderly() {
                       className="text-white text-right ml-1"
                       data-class="reactTip"
                       data-for="selectAllId"
-                      data-place="bottom"
+                      data-place="top"
                       data-html={true}
                       data-tip={`
                         <div class="text-navHighLightText text-xs text-left w-64 xsm:w-52">
@@ -353,6 +353,7 @@ function PortfolioOrderly() {
                         border
                         borderColor="#7e8a93"
                         effect="solid"
+                        place="top"
                       />
                     </div>
                   </span>

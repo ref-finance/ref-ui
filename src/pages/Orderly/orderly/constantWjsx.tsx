@@ -831,7 +831,7 @@ export const usePortableOrderlyTable = ({
                 <tr
                   className={`w-full  table-fixed grid grid-cols-6 gap-4 px-3`}
                 >
-                  {['assets', 'Wallet', 'available_orderly'].map((key, i) => (
+                  {['assets', 'wallet', 'available_orderly'].map((key, i) => (
                     <th
                       className={`col-span-2 pb-2${
                         i === 2 ? ' text-right' : ' text-left'

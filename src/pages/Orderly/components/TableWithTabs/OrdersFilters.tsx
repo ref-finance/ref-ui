@@ -306,7 +306,9 @@ export function MobileFilterModal(
                   setCheck={() => setCurSelect(item)}
                 />
 
-                <span className="ml-2">{intl.formatMessage({ id: item })}</span>
+                <span className="ml-2">
+                  {intl.formatMessage({ id: item, defaultMessage: item })}
+                </span>
               </div>
             );
           })}
@@ -435,7 +437,7 @@ export function MobileFilterModal(
             })}
             list={
               tab === 1
-                ? ['all', 'NEW', 'PARTIAL_FILLED']
+                ? ['all', 'New', 'Partial Filled']
                 : ['all', 'Cancelled', 'filled', 'Rejected']
             }
             setCurSelect={setStatus}

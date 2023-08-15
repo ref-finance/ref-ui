@@ -489,7 +489,7 @@ export function PerpAccountBoard() {
     <div className="flex flex-col text-primaryText gap-2 px-2 text-13px">
       <div className="frcb">
         <FormattedMessage
-          id="max_account_leverage"
+          id="leverage_max_leverage"
           defaultMessage={`Max Account Leverage `}
         ></FormattedMessage>
 

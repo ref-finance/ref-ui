@@ -560,7 +560,7 @@ export function orderPopUp({
       <FlexRowBetween className="relative bottom-3 w-full">
         <div className="flex text-sm items-center">
           <div
-            className={`border border-dark5 rounded-lg font-bold px-2 mr-1.5  ${
+            className={`border border-dark5 whitespace-nowrap rounded-lg font-bold px-2 mr-1.5  ${
               side === 'Buy' ? 'bg-greenLight' : 'bg-redLight'
             }`}
           >

@@ -1000,8 +1000,8 @@ const ko = {
     '지정가 주문 (Post Only)는 내가 제출한 주문이 Maker 주문으로만 실행되게 해 주는 기능입니다. 오더북에 Maker 주문으로만 올라가고, Taker 주문으로 올라가는 경우 취소됩니다',
   tip_ioc:
     '즉시 혹은 취소(Immediate-Or-Cancel, IOC) 주문은 조건에 맞는 체결가능 수량만 즉각 체결하는 주문입니다, 체결 불가능한 조건의 주문 잔량은 취소됩니다.',
-  Taker: '테이커 Taker',
-  Maker: '메이커 Maker',
+  Taker: '테이커',
+  Maker: '메이커',
   see_all: '전부 보기',
   h24Vol: '24h 거래량',
   h24Range: '24h 거래 범위',
@@ -1055,7 +1055,7 @@ const ko = {
   PARTIAL_FILLED: '일부 체결됨',
   limit_price: '리미트 가격',
   unsettled_pnl: 'Unsettled PnL',
-  notional: '명목(Notional)',
+  notional: '명목',
   limit_orderly: '리미트',
   'qty.': 'Qty.',
   no_orders_found: '발견된 주문 없음',
@@ -1362,7 +1362,7 @@ const ko = {
   perpTip:
     '영구 선물 트레이딩에 오신 걸 환영합니다! 시작 전 {perpTipLink}를 확인해주세요! ',
   perpTipLink: '[영구 선물 소개]  ',
-  perpetual: '영속적인',
+  perpetual: 'Perpetual',
   pred_funding_rate: 'Pred. Funding Rate',
   open_interest: '이자 창 열기',
   bridge_pure: '브릿지',
@@ -1404,7 +1404,7 @@ const ko = {
   portfolio_total_est_tip: '포트폴리오 가치 (USD 기준)',
   size: '사이즈',
   closing_1: 'Closing',
-  closing_2: '{type} 가격 에서의 포지션',
+  closing_2: 'position at {type} price.',
   buy_long: '매수 / 롱',
   sell_short: '매도 / 숏',
   unsettle_pnl: '정산 취소(Unsettle) PnL',
@@ -1422,5 +1422,8 @@ const ko = {
   settlements: '정산',
   funding_annual_rate: '펀딩 요금 / 연간 요금',
   insufficient_margin: 'Insufficient Margin',
+  taker_maker_fee: 'Taker/Maker Fee',
+  funding: 'Funding',
+  taker_maker_fee_rate: 'Taker/Maker Fee Rate',
 };
 export default Object.assign(ko, ko_in_risks_page);

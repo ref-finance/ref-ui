@@ -313,7 +313,7 @@ function MobileTradingBoard() {
               }}
             >
               <FormattedMessage
-                id="assetts"
+                id="assets"
                 defaultMessage={'Assets'}
               ></FormattedMessage>
 

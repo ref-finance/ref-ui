@@ -160,6 +160,8 @@ export function ChartContainer({ maintenance }: { maintenance: boolean }) {
     },
   };
 
+  const [reloadTrigger, setReloadTrigger] = React.useState<boolean>(false);
+
   React.useEffect(() => {
     if (maintenance) return;
 
@@ -196,7 +198,32 @@ export function ChartContainer({ maintenance }: { maintenance: boolean }) {
     });
 
     setTvWidget(tvWidget);
-  }, [maintenance]);
+  }, [maintenance, reloadTrigger]);
+
+  const [newLocale, setNewLocale] = React.useState(null);
+
+  React.useEffect(() => {
+    window.addEventListener('setItemEvent', (e: any) => {
+      if (typeof e?.local === 'string') {
+        setNewLocale(e.local);
+      }
+    });
+
+    return () => window.removeEventListener('setItemEvent', null);
+  }, []);
+
+  React.useEffect(() => {
+    if (!newLocale || !tvWidget || !ref) return;
+    const cur_lang_code = tvWidget.getLanguage();
+
+    const new_lang_code = newLocale.split('-')?.[0];
+
+    if (cur_lang_code !== new_lang_code) {
+      // @ts-ignore
+      setReloadTrigger((b) => !b);
+      // alert(`${cur_lang_code} + ${new_lang_code}`);
+    }
+  }, [newLocale]);
 
   React.useEffect(() => {
     if (!tvWidget) return;

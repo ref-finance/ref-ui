@@ -67,7 +67,7 @@ export default function TableHeader({
           }}
         >
           <span
-            className="hidden md:flex lg:flex items-center"
+            className="hidden md:flex lg:flex items-center whitespace"
             style={{
               color:
                 JSON.stringify(sort[0]) === JSON.stringify(sortKey) ||

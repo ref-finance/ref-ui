@@ -178,7 +178,7 @@ function LiquidationHistoryModal(
                 </div>
               </th>
 
-              <th align="left" className="pb-3 relative right-4">
+              <th align="left" className="pb-3 relative right-2">
                 <FormattedMessage
                   id="quantity"
                   defaultMessage={'Quantity'}

@@ -1436,5 +1436,7 @@ const en_US = {
   settlements: 'Settlements',
   funding_annual_rate: 'Funding Rate / Annual Rate',
   insufficient_margin: 'Insufficient Margin',
+  taker_maker_fee: 'Taker/Maker Fee',
+  taker_maker_fee_rate: 'Taker/Maker Fee Rate',
 };
 export default Object.assign(en_US, en_US_in_risks_page);
