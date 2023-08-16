@@ -1024,7 +1024,7 @@ const vi = {
   all_side: 'Tất cả các Mặt',
   both_side: 'Cả hai Mặt',
   both: 'Cả hai',
-  filled_qty: 'Đã Thực Hiện / Số lượng',
+  filled_qty: 'Filled / Qty',
   fill_qty: 'Fill / Qty',
   est_total: 'Est.Total',
   avg_price: 'Avg.Price',

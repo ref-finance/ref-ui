@@ -429,7 +429,7 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
         {['spot', 'perps'].map((type) => {
           return (
             <div
-              className={`px-2.5 py-1 rounded-lg ${
+              className={`px-2.5 py-1 rounded-lg whitespace-nowrap ${
                 type.indexOf(symbolType.toString().toLowerCase()) > -1
                   ? 'bg-mobileOrderBg text-white'
                   : 'text-primaryText'

@@ -907,7 +907,7 @@ const zh_CN = {
   est_total: '预估总额',
   avg_price: '平均价格',
   create_time: '创建时间',
-  spot: 'Spot',
+  spot: '现货',
   futures: '期货',
   All: '全部',
   Filled: '已成交',
