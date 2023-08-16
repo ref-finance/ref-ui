@@ -994,7 +994,7 @@ const zh_CN = {
   insufficient_en: ' ',
   the_all_data_orderly_tip:
     '这里的数据不仅仅限于在Ref上产生的数据，也包含了您账户中所有的资产和记录。',
-  at_orderly: '，价格',
+  at_orderly: '价格',
   change_the_quantity_of: '改变',
   change_the_price_of: '改变',
   market_order_filled: '市价单已成交',
