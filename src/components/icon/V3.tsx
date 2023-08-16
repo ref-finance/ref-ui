@@ -687,7 +687,7 @@ export const FarmBoardInDetailDCLPool = (props: any) => {
     <svg
       width={isClientMobie() ? '100%' : '390'}
       height={isClientMobie() ? '105' : '105'}
-      viewBox={`0 0 390 ${isClientMobie() ? '92' : '100'}`}
+      viewBox={`0 0 390 100`}
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       {...props}
@@ -695,8 +695,8 @@ export const FarmBoardInDetailDCLPool = (props: any) => {
       <rect
         x="1"
         y="1"
-        width={isClientMobie() ? '338' : '380'}
-        height={isClientMobie() ? '90' : '100'}
+        width={isClientMobie() ? 'calc(100% - 5px)' : '380'}
+        height={'100'}
         rx="11"
         fill="url(#paint0_radial_2166_3074)"
         stroke="url(#paint1_linear_2166_3074)"

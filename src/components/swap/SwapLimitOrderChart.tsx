@@ -20,6 +20,7 @@ import { toRealSymbol } from '../../utils/token';
 import { SwapProContext } from '../../pages/SwapPage';
 import Big from 'big.js';
 import * as d3 from 'd3';
+import { isMobile } from '~utils/device';
 const LimitOrderChartData = createContext(null);
 export default function SwapLimitOrderChart() {
   // CONST start
@@ -41,6 +42,7 @@ export default function SwapLimitOrderChart() {
   const [sell_list, set_sell_list] = useState<IOrderPointItem[]>();
   const [market_loading, set_market_loading] = useState<boolean>(false);
   const [pair_is_reverse, set_pair_is_reverse] = useState<boolean>(false);
+  const [show_view_all, set_show_view_all] = useState<boolean>(false);
   const { dcl_pool_id } = useContext(SwapProContext);
   const GEARS = [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
   const [zoom, setZoom] = useState<number>(GEARS[0]);
@@ -48,6 +50,7 @@ export default function SwapLimitOrderChart() {
   const left_point = -800000;
   const right_point = 800000;
   const sellBoxRef = useRef(null);
+  const is_mobile = isMobile();
   useEffect(() => {
     if (pool_id) {
       set_fetch_data_done(false);
@@ -86,6 +89,14 @@ export default function SwapLimitOrderChart() {
       sellBoxRef.current.scrollTop = 10000;
     }
   }, [sellBoxRef, sell_list]);
+  useEffect(() => {
+    debugger;
+    if (show_view_all && is_mobile) {
+      document.documentElement.style.overflow = 'hidden';
+    } else {
+      document.documentElement.style.overflow = 'auto';
+    }
+  }, [show_view_all]);
   const [cur_pairs, cur_pairs_price_mode, cur_token_symbol, cur_pair_icons] =
     useMemo(() => {
       if (pool) {
@@ -312,6 +323,29 @@ export default function SwapLimitOrderChart() {
       );
     }
   }
+  function get_rate_element_mobile() {
+    if (pool) {
+      const { current_point, token_x_metadata, token_y_metadata } = pool;
+      const current_price_x = get_price_by_point(current_point);
+      const current_price_y = Big(current_price_x).gt(0)
+        ? Big(1).div(current_price_x).toFixed()
+        : '0';
+      return (
+        <div className="flex items-center">
+          <span className="text-2xl text-senderHot gotham_bold mx-1.5">
+            {switch_token == 'X'
+              ? formatPriceWithCommas(current_price_x)
+              : formatPriceWithCommas(current_price_y)}
+          </span>
+          <span className="text-sm text-primaryText">
+            {switch_token == 'X'
+              ? token_y_metadata.symbol + '/' + token_x_metadata.symbol
+              : token_x_metadata.symbol + '/' + token_y_metadata.symbol}
+          </span>
+        </div>
+      );
+    }
+  }
   function marketRefresh() {
     set_market_loading(true);
   }
@@ -346,7 +380,7 @@ export default function SwapLimitOrderChart() {
         GEARS,
       }}
     >
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between xsm:mt-5">
         <div className="flex items-center">
           <div className="flex items-center mr-2">{cur_pair_icons}</div>
           <span className="text-base text-white gotham_bold">
@@ -357,12 +391,140 @@ export default function SwapLimitOrderChart() {
       </div>
       <div className="flex items-stretch justify-between mt-4">
         {/* chart area */}
-        <div className="flex-grow pr-3">
+        <div className="flex-grow lg:pr-3 xsm:w-full">
           {/* base data */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-end">{get_rate_element()}</div>
-            <div className="flex items-center gap-2.5">
-              <div className="flex items-center">
+          <div className="flex items-center xsm:items-start justify-between xsm:flex-col-reverse">
+            <div className="flex items-end xsm:hidden">
+              {get_rate_element()}
+            </div>
+            <div className="flex items-end lg:hidden mt-2.5">
+              {get_rate_element_mobile()}
+            </div>
+            <div className="flex items-center justify-between xsm:w-full">
+              <div className="flex items-center gap-2.5">
+                <div className="flex items-center">
+                  <div
+                    className={`flex items-center justify-between border border-v3GreyColor rounded-lg p-0.5 mr-2.5 ${
+                      pair_is_reverse ? 'flex-row-reverse' : ''
+                    }`}
+                  >
+                    <span
+                      onClick={() => {
+                        set_switch_token('X');
+                      }}
+                      className={`flex items-center justify-center cursor-pointer rounded-md px-1.5 py-0.5 text-xs ${
+                        switch_token == 'X'
+                          ? 'bg-proTabBgColor text-white'
+                          : 'text-primaryText'
+                      }`}
+                    >
+                      {pool?.token_x_metadata?.symbol}
+                    </span>
+                    <span
+                      onClick={() => {
+                        set_switch_token('Y');
+                      }}
+                      className={`flex items-center justify-center cursor-pointer  rounded-md px-1.5 py-0.5 text-xs ${
+                        switch_token == 'Y'
+                          ? 'bg-proTabBgColor text-white'
+                          : 'text-primaryText'
+                      }`}
+                    >
+                      {pool?.token_y_metadata?.symbol}
+                    </span>
+                  </div>
+                </div>
+                {/* control button*/}
+                <div className="control flex items-center border border-v3GreyColor rounded-lg py-px h-6 w-16">
+                  {/* <div
+                    className="flex items-center justify-center w-1 h-full flex-grow border-r border-chartBorderColor cursor-pointer"
+                    onClick={clickToLeft}
+                  >
+                    <LeftArrowIcon></LeftArrowIcon>
+                  </div> */}
+                  <div
+                    className={`flex items-center justify-center w-1 h-full flex-grow border-r border-chartBorderColor ${
+                      zoom == GEARS[GEARS.length - 1]
+                        ? 'text-chartBorderColor cursor-not-allowed'
+                        : 'text-v3SwapGray cursor-pointer'
+                    }`}
+                    onClick={zoomOut}
+                  >
+                    <AddIcon></AddIcon>
+                  </div>
+                  <div
+                    className={`flex items-center justify-center w-1 h-full flex-grow ${
+                      zoom == GEARS[0]
+                        ? 'text-chartBorderColor cursor-not-allowed'
+                        : 'text-v3SwapGray cursor-pointer'
+                    }`}
+                    onClick={zoomIn}
+                  >
+                    <SubIcon></SubIcon>
+                  </div>
+                  {/* <div
+                    className="flex items-center justify-center w-1 h-full flex-grow cursor-pointer"
+                    onClick={clickToRight}
+                  >
+                    <RightArrowIcon></RightArrowIcon>
+                  </div> */}
+                </div>
+              </div>
+              <div
+                onClick={() => {
+                  set_show_view_all(true);
+                }}
+                className="text-xs text-white px-2 py-1 border border-v3SwapGray border-opacity-20 rounded-md lg:hidden"
+              >
+                View All
+              </div>
+            </div>
+          </div>
+          {/* chart */}
+          {is_empty ? (
+            <div
+              className="flex flex-col items-center justify-center gap-5"
+              style={{ height: '400px' }}
+            >
+              <EmptyIcon></EmptyIcon>
+              <span className="text-sm text-limitOrderInputColor">
+                Not enough data for the chart right now.
+              </span>
+            </div>
+          ) : (
+            <OrderChart></OrderChart>
+          )}
+        </div>
+        {/* table area */}
+        <div>
+          {is_mobile && show_view_all && (
+            <div
+              className="fixed w-screen h-screen top-0 left-0"
+              style={{
+                zIndex: 150,
+                background: 'rgba(0, 19, 32, 0.8)',
+                position: 'fixed',
+              }}
+              onClick={() => {
+                debugger;
+                set_show_view_all(false);
+              }}
+            ></div>
+          )}
+          <div
+            className={`lg:border-l lg:border-r lg:border-limitOrderFeeTiersBorderColor xsm:fixed xsm:bottom-8 xsm:bg-cardBg xsm:rounded-t-xl xsm:left-0 xsm:border xsm:border-bottomBoxBorderColor xsm:pt-5 ${
+              (show_view_all && is_mobile) || !is_mobile ? '' : 'hidden'
+            }`}
+            style={{
+              width: is_mobile ? '100%' : '260px',
+              zIndex: is_mobile ? '999' : '',
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-white gotham_bold pl-3">
+                Limit Orders
+              </div>
+              <div className="flex items-center lg:hidden">
                 <div
                   className={`flex items-center justify-between border border-v3GreyColor rounded-lg p-0.5 mr-2.5 ${
                     pair_is_reverse ? 'flex-row-reverse' : ''
@@ -394,169 +556,120 @@ export default function SwapLimitOrderChart() {
                   </span>
                 </div>
               </div>
-              {/* control button*/}
-              <div className="control flex items-center border border-v3GreyColor rounded-lg py-px h-6 w-16">
-                {/* <div
-                  className="flex items-center justify-center w-1 h-full flex-grow border-r border-chartBorderColor cursor-pointer"
-                  onClick={clickToLeft}
+            </div>
+            <div className="flex items-center justify-between p-3 xsm:px-5 border-b border-limitOrderFeeTiersBorderColor">
+              <div className="flex flex-col">
+                <span className="text-sm text-primaryText">Price</span>
+                <span
+                  className="text-xs text-primaryText"
+                  style={{ zoom: 0.85 }}
                 >
-                  <LeftArrowIcon></LeftArrowIcon>
-                </div> */}
+                  {cur_pairs}
+                </span>
+              </div>
+              <div className="flex flex-col items-end">
+                <span className="text-sm text-primaryText">Qty</span>
+                <span
+                  className="text-xs text-primaryText"
+                  style={{ zoom: 0.85 }}
+                >
+                  {cur_token_symbol}
+                </span>
+              </div>
+              <div className="flex flex-col items-end">
+                <span className="text-sm text-primaryText whitespace-nowrap">
+                  Total Qty
+                </span>
+                <span
+                  className="text-xs text-primaryText"
+                  style={{ zoom: 0.85 }}
+                >
+                  {cur_token_symbol}
+                </span>
+              </div>
+            </div>
+            {is_empty ? (
+              <div
+                className="text-sm text-limitOrderInputColor flex items-center justify-center"
+                style={{ marginTop: '100px' }}
+              >
+                No order yet
+              </div>
+            ) : (
+              <div>
                 <div
-                  className={`flex items-center justify-center w-1 h-full flex-grow border-r border-chartBorderColor ${
-                    zoom == GEARS[GEARS.length - 1]
-                      ? 'text-chartBorderColor cursor-not-allowed'
-                      : 'text-v3SwapGray cursor-pointer'
-                  }`}
-                  onClick={zoomOut}
+                  ref={sellBoxRef}
+                  className={`font-nunito ${
+                    sell_list?.length ? 'p-3 xsm:px-5' : 'p-1'
+                  } pr-0 overflow-auto`}
+                  style={{ maxHeight: `${limitOrderContainerHeight}px` }}
                 >
-                  <AddIcon></AddIcon>
+                  {sell_list?.map((item: IOrderPointItem, index) => {
+                    return (
+                      <div
+                        key={item.point + index}
+                        className="grid grid-cols-3  justify-items-end text-xs py-1.5 pr-2"
+                      >
+                        <span className="text-sellColorNew justify-self-start">
+                          {formatPriceWithCommas(item.price)}
+                        </span>
+                        <span className="text-white pr-3">
+                          {formatNumber(
+                            item.amount_x_readable || item.amount_y_readable
+                          )}
+                        </span>
+                        <span className="text-white">
+                          {formatNumber(
+                            item.accumulated_x_readable ||
+                              item.accumulated_y_readable
+                          )}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="flex items-center mt-2.5 pl-3 xsm:pl-5 font-nunito">
+                  <span className="text-xs text-white mr-2">Market Pirce</span>
+                  <RefreshIcon
+                    className={`cursor-pointer ${
+                      market_loading ? 'refresh-loader' : ''
+                    }`}
+                    onClick={marketRefresh}
+                  ></RefreshIcon>
                 </div>
                 <div
-                  className={`flex items-center justify-center w-1 h-full flex-grow ${
-                    zoom == GEARS[0]
-                      ? 'text-chartBorderColor cursor-not-allowed'
-                      : 'text-v3SwapGray cursor-pointer'
-                  }`}
-                  onClick={zoomIn}
+                  className={`font-nunito ${
+                    buy_list?.length ? 'p-3 xsm:px-5' : 'p-1'
+                  } pr-0 overflow-auto`}
+                  style={{ maxHeight: `${limitOrderContainerHeight}px` }}
                 >
-                  <SubIcon></SubIcon>
+                  {buy_list?.map((item: IOrderPointItem, index) => {
+                    return (
+                      <div
+                        key={item.point + index}
+                        className="grid grid-cols-3 justify-items-end text-xs py-1.5 pr-2"
+                      >
+                        <span className="text-gradientFromHover justify-self-start">
+                          {formatPriceWithCommas(item.price)}
+                        </span>
+                        <span className="text-white pr-3">
+                          {formatNumber(
+                            item.amount_x_readable || item.amount_y_readable
+                          )}
+                        </span>
+                        <span className="text-white">
+                          {formatNumber(
+                            item.accumulated_x_readable ||
+                              item.accumulated_y_readable
+                          )}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
-                {/* <div
-                  className="flex items-center justify-center w-1 h-full flex-grow cursor-pointer"
-                  onClick={clickToRight}
-                >
-                  <RightArrowIcon></RightArrowIcon>
-                </div> */}
               </div>
-            </div>
+            )}
           </div>
-          {/* chart */}
-          {is_empty ? (
-            <div
-              className="flex flex-col items-center justify-center gap-5"
-              style={{ height: '400px' }}
-            >
-              <EmptyIcon></EmptyIcon>
-              <span className="text-sm text-limitOrderInputColor">
-                Not enough data for the chart right now.
-              </span>
-            </div>
-          ) : (
-            <OrderChart></OrderChart>
-          )}
-        </div>
-        {/* table area */}
-        <div
-          className="border-l border-r border-limitOrderFeeTiersBorderColor"
-          style={{ width: '260px' }}
-        >
-          <div className="text-sm text-white gotham_bold pl-3">
-            Limit Orders
-          </div>
-          <div className="flex items-center justify-between p-3 border-b border-limitOrderFeeTiersBorderColor">
-            <div className="flex flex-col">
-              <span className="text-sm text-primaryText">Price</span>
-              <span className="text-xs text-primaryText" style={{ zoom: 0.85 }}>
-                {cur_pairs}
-              </span>
-            </div>
-            <div className="flex flex-col items-end">
-              <span className="text-sm text-primaryText">Qty</span>
-              <span className="text-xs text-primaryText" style={{ zoom: 0.85 }}>
-                {cur_token_symbol}
-              </span>
-            </div>
-            <div className="flex flex-col items-end">
-              <span className="text-sm text-primaryText whitespace-nowrap">
-                Total Qty
-              </span>
-              <span className="text-xs text-primaryText" style={{ zoom: 0.85 }}>
-                {cur_token_symbol}
-              </span>
-            </div>
-          </div>
-          {is_empty ? (
-            <div
-              className="text-sm text-limitOrderInputColor flex items-center justify-center"
-              style={{ marginTop: '100px' }}
-            >
-              No order yet
-            </div>
-          ) : (
-            <div>
-              <div
-                ref={sellBoxRef}
-                className={`font-nunito ${
-                  sell_list?.length ? 'p-3' : 'p-1'
-                } pr-0 overflow-auto`}
-                style={{ maxHeight: `${limitOrderContainerHeight}px` }}
-              >
-                {sell_list?.map((item: IOrderPointItem, index) => {
-                  return (
-                    <div
-                      key={item.point + index}
-                      className="grid grid-cols-3  justify-items-end text-xs py-1.5 pr-2"
-                    >
-                      <span className="text-sellColorNew justify-self-start">
-                        {formatPriceWithCommas(item.price)}
-                      </span>
-                      <span className="text-white pr-3">
-                        {formatNumber(
-                          item.amount_x_readable || item.amount_y_readable
-                        )}
-                      </span>
-                      <span className="text-white">
-                        {formatNumber(
-                          item.accumulated_x_readable ||
-                            item.accumulated_y_readable
-                        )}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="flex items-center mt-2.5 pl-3 font-nunito">
-                <span className="text-xs text-white mr-2">Market Pirce</span>
-                <RefreshIcon
-                  className={`cursor-pointer ${
-                    market_loading ? 'refresh-loader' : ''
-                  }`}
-                  onClick={marketRefresh}
-                ></RefreshIcon>
-              </div>
-              <div
-                className={`font-nunito ${
-                  buy_list?.length ? 'p-3' : 'p-1'
-                } pr-0 overflow-auto`}
-                style={{ maxHeight: `${limitOrderContainerHeight}px` }}
-              >
-                {buy_list?.map((item: IOrderPointItem, index) => {
-                  return (
-                    <div
-                      key={item.point + index}
-                      className="grid grid-cols-3 justify-items-end text-xs py-1.5 pr-2"
-                    >
-                      <span className="text-gradientFromHover justify-self-start">
-                        {formatPriceWithCommas(item.price)}
-                      </span>
-                      <span className="text-white pr-3">
-                        {formatNumber(
-                          item.amount_x_readable || item.amount_y_readable
-                        )}
-                      </span>
-                      <span className="text-white">
-                        {formatNumber(
-                          item.accumulated_x_readable ||
-                            item.accumulated_y_readable
-                        )}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </LimitOrderChartData.Provider>
@@ -588,11 +701,12 @@ function OrderChart() {
   const [foucsOrderPoint, setFoucsOrderPoint] = useState<IOrderPointItem>();
   const [side, setSide] = useState<ISide>();
   // CONST start
-  const svg_width = 600;
+  const svg_width = isMobile() ? 360 : 600;
   const svg_height = 400;
   const svg_padding = 40;
   const axisRightWidth = 60;
   const disFromHoverBoxToPointer = 20;
+  const is_mobile = isMobile();
   // CONST end
   useEffect(() => {
     if (sell_list?.length || buy_list?.length) {
@@ -1054,21 +1168,32 @@ function OrderChart() {
     if (offsetX > 380) {
       translate_x = offsetX - 235;
     }
-    d3.select('.hoverBox').attr(
-      'style',
-      `visibility:visible;transform:translate(${translate_x}px, ${
-        offsetY - disFromHoverBoxToPointer
-      }px)`
-    );
+    if (is_mobile) {
+      d3.select('.hoverBox').attr('style', 'display:block');
+    } else {
+      d3.select('.hoverBox').attr(
+        'style',
+        `visibility:visible;transform:translate(${translate_x}px, ${
+          offsetY - disFromHoverBoxToPointer
+        }px)`
+      );
+    }
   }
   function hideCrossDot() {
     d3.select('.verticalDashLine').attr('opacity', '0');
     d3.select('.horizontalDashLine').attr('opacity', '0');
     d3.select('.dot').attr('opacity', '0');
-    d3.select('.hoverBox').attr('style', `visibility:invisible`);
+    if (is_mobile) {
+      d3.select('.hoverBox').attr('style', `display:hidden`);
+    } else {
+      d3.select('.hoverBox').attr('style', `visibility:invisible`);
+    }
   }
   return (
-    <div className="relative" style={{ width: `${svg_width}px` }}>
+    <div
+      className="relative xsm:flex xsm:flex-col xsm:w-full xsm:items-center"
+      style={{ width: is_mobile ? 'auto' : `${svg_width}px` }}
+    >
       <svg width={`${svg_width}`} height={`${svg_height}`}>
         <g transform={`translate(${svg_padding}, ${svg_padding})`}>
           {/* 横坐标 */}
@@ -1134,7 +1259,7 @@ function OrderChart() {
         </defs>
       </svg>
       {/* hover上去的悬浮框 */}
-      <div className="hoverBox absolute px-2 py-3 invisible left-0 top-0 bg-toolTipBoxBgColor border border-toolTipBoxBorderColor rounded-md">
+      <div className="hoverBox xsm:w-full xsm:mt-3 lg:absolute px-2 py-3 lg:invisible xsm:hidden left-0 top-0 bg-toolTipBoxBgColor border border-toolTipBoxBorderColor rounded-md">
         <div className="flex items-center justify-between gap-5 mb-3">
           <span className="text-xs text-primaryText">Side</span>
           <span

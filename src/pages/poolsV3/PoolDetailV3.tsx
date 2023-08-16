@@ -296,67 +296,69 @@ export default function PoolDetailV3() {
             },
           ]}
         />
-        <div className="flex items-center justify-between mt-4 mb-3">
-          <div className="relative flex xsm:flex-col mr-4 lg:w-1/2 lg:flex-grow items-center xsm:w-full">
-            <div className="flex items-center">
-              <div className="flex items-center mr-2.5">
-                <img
-                  src={tokens[0]?.icon}
-                  className="w-10 h-10 rounded-full bg-cardBg"
-                  style={{ border: '4px solid rgb(61, 68, 81)' }}
-                ></img>
-                <img
-                  src={tokens[1]?.icon}
-                  className="w-10 h-10 rounded-full bg-cardBg -ml-1"
-                  style={{ border: '4px solid rgb(61, 68, 81)' }}
-                ></img>
-              </div>
-              <div className="flex items-center text-lg font-gothamBold text-white lg:hidden">
-                {tokens[0]?.symbol}-{tokens[1]?.symbol}
-              </div>
-            </div>
-
-            <div className="w-full frcb">
-              <div className="flex flex-col gap-1 ml-2 justify-between">
-                <div className="flex items-center text-lg font-gothamBold text-white mr-3.5 xsm:hidden">
-                  {tokens[0]?.symbol}-{tokens[1]?.symbol}
+        <div className="flex  items-start flex-row w-full m-auto xs:flex-col-reverse md:flex-col-reverse">
+          <div className="mr-4 xsm:w-full lg:flex-grow lg:w-1/2">
+            {/* title for pc */}
+            <div className="relative flex items-center justify-between mb-3 mr-4 flex-grow xsm:hidden">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="flex items-center mr-2.5">
+                    <img
+                      src={tokens[0]?.icon}
+                      className="w-10 h-10 rounded-full bg-cardBg"
+                      style={{ border: '4px solid rgb(61, 68, 81)' }}
+                    ></img>
+                    <img
+                      src={tokens[1]?.icon}
+                      className="w-10 h-10 rounded-full bg-cardBg -ml-1"
+                      style={{ border: '4px solid rgb(61, 68, 81)' }}
+                    ></img>
+                  </div>
                 </div>
-                <div className="flex items-center text-sm text-farmText ">
-                  <span className=" ">
-                    <FormattedMessage id="fee" />:{' '}
-                    <span className="font-gothamBold text-white">
-                      {poolDetail.fee / 10000}%
+                <div className="flex flex-col gap-1 ml-2 xsm:ml-1 xsm:w-full justify-between">
+                  <div className="flex items-center text-lg font-gothamBold text-white mr-3.5 xsm:hidden">
+                    {tokens[0]?.symbol}-{tokens[1]?.symbol}
+                  </div>
+                  <div className="flex items-center text-sm text-farmText xsm:justify-between">
+                    <span>
+                      <FormattedMessage id="fee" />:{' '}
+                      <span className="font-gothamBold text-white">
+                        {poolDetail.fee / 10000}%
+                      </span>
                     </span>
-                  </span>
+                    <div className="flex items-center">
+                      <div
+                        className="mx-4 bg-farmText"
+                        style={{
+                          height: '13px',
+                          width: '1px',
+                        }}
+                      ></div>
 
-                  <div
-                    className="mx-4 bg-farmText"
-                    style={{
-                      height: '13px',
-                      width: '1px',
-                    }}
-                  ></div>
+                      <span className="">
+                        <FormattedMessage
+                          id="top_bin_apr_24h"
+                          defaultMessage={'Top Bin APR (24h)'}
+                        />
+                        :{' '}
+                        <span className="font-gothamBold text-white">
+                          {topBinApr}
+                        </span>
+                      </span>
+                    </div>
 
-                  <span className="">
-                    <FormattedMessage
-                      id="top_bin_apr_24h"
-                      defaultMessage={'Top Bin APR (24h)'}
-                    />
-                    :{' '}
-                    <span className="font-gothamBold text-white">
-                      {topBinApr}
-                    </span>
-                  </span>
-
-                  {isMobile && sole_seed && (
-                    <FarmStampNewDCL multi={sole_seed.farmList?.length > 1} />
-                  )}
+                    {isMobile && sole_seed && (
+                      <FarmStampNewDCL multi={sole_seed.farmList?.length > 1} />
+                    )}
+                  </div>
                 </div>
               </div>
-
-              <div className="frcs">
+              <div className="flex items-center">
+                {sole_seed && (
+                  <FarmStampNewDCL multi={sole_seed.farmList?.length > 1} />
+                )}
                 <span
-                  className="flex items-center justify-center rounded-lg cursor-pointer  xsm:absolute xsm:right-0"
+                  className="flex items-center justify-center rounded-lg cursor-pointer ml-2.5"
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -413,18 +415,8 @@ export default function PoolDetailV3() {
                     </div>
                   )}
                 </span>
-                <div className="xsm:hidden">
-                  {sole_seed && (
-                    <FarmStampNewDCL multi={sole_seed.farmList?.length > 1} />
-                  )}
-                </div>
               </div>
             </div>
-          </div>
-        </div>
-
-        <div className="flex  items-start flex-row w-full m-auto xs:flex-col-reverse md:flex-col-reverse">
-          <div className="mr-4 xsm:w-full lg:flex-grow lg:w-1/2">
             <Chart
               poolDetail={poolDetail}
               tokenPriceList={tokenPriceList}
@@ -439,7 +431,7 @@ export default function PoolDetailV3() {
             ></TablePool>
           </div>
           <div
-            className="xsm:mb-4 lg:-mt-14"
+            className="xsm:mb-4"
             style={{
               width: isClientMobie() ? '100%' : '380px',
             }}
@@ -482,6 +474,119 @@ export default function PoolDetailV3() {
               tokenPriceList={tokenPriceList}
               sole_seed={sole_seed}
             ></RelatedFarmsBox>
+          </div>
+          {/* title for mobile */}
+          <div className="relative flex flex-col items-center w-full mb-3 xsm:mb-6 lg:hidden">
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center">
+                <div className="flex items-center mr-2.5">
+                  <img
+                    src={tokens[0]?.icon}
+                    className="w-10 h-10 rounded-full bg-cardBg"
+                    style={{ border: '4px solid rgb(61, 68, 81)' }}
+                  ></img>
+                  <img
+                    src={tokens[1]?.icon}
+                    className="w-10 h-10 rounded-full bg-cardBg -ml-1"
+                    style={{ border: '4px solid rgb(61, 68, 81)' }}
+                  ></img>
+                </div>
+                <div className="flex items-center text-lg font-gothamBold text-white">
+                  {tokens[0]?.symbol}-{tokens[1]?.symbol}
+                </div>
+              </div>
+              <span
+                className="flex items-center justify-center rounded-lg cursor-pointer"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  showFullStart
+                    ? handleRemoveFromWatchList()
+                    : handleSaveWatchList();
+                }}
+                style={{
+                  background: '#172534',
+                  width: '30px',
+                  height: '30px',
+                }}
+              >
+                {showFullStart ? (
+                  <div
+                    className="text-sm "
+                    data-type="info"
+                    data-place="right"
+                    data-multiline={true}
+                    data-class="reactTip"
+                    data-html={true}
+                    data-tip={isMobile ? '' : remove_from_watchlist_tip()}
+                    data-for="fullstar-tip"
+                  >
+                    <WatchListStartFull />
+
+                    <ReactTooltip
+                      id="fullstar-tip"
+                      backgroundColor="#1D2932"
+                      border
+                      borderColor="#7e8a93"
+                      effect="solid"
+                    />
+                  </div>
+                ) : (
+                  <div
+                    className="text-sm "
+                    data-type="info"
+                    data-place="right"
+                    data-multiline={true}
+                    data-class="reactTip"
+                    data-html={true}
+                    data-tip={isMobile ? '' : add_to_watchlist_tip()}
+                    data-for="emptystar-tip"
+                  >
+                    <WatchListStartEmpty />
+                    <ReactTooltip
+                      id="emptystar-tip"
+                      backgroundColor="#1D2932"
+                      border
+                      borderColor="#7e8a93"
+                      effect="solid"
+                    />
+                  </div>
+                )}
+              </span>
+            </div>
+            <div className="flex items-center w-full mt-1.5 pl-1.5 text-sm text-farmText justify-between">
+              <div className="flex items-center">
+                <span>
+                  <FormattedMessage id="fee" />:{' '}
+                  <span className="font-gothamBold text-white">
+                    {poolDetail.fee / 10000}%
+                  </span>
+                </span>
+                <div className="flex items-center">
+                  <div
+                    className="mx-4 bg-farmText"
+                    style={{
+                      height: '13px',
+                      width: '1px',
+                    }}
+                  ></div>
+
+                  <span className="">
+                    <FormattedMessage
+                      id="top_bin_apr_24h"
+                      defaultMessage={'Top Bin APR (24h)'}
+                    />
+                    :{' '}
+                    <span className="font-gothamBold text-white">
+                      {topBinApr}
+                    </span>
+                  </span>
+                </div>
+              </div>
+              {sole_seed && (
+                <FarmStampNewDCL multi={sole_seed.farmList?.length > 1} />
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -1110,7 +1215,7 @@ function YourLiquidityBox(props: {
           <div
             className={`${
               removeButtonTip ? '' : 'hidden'
-            } absolute z-50 left-20 border border-primaryText rounded-md px-2 py-1.5 text-xs text-farmText w-56 bg-cardBg`}
+            } absolute z-50 -right-2 -top-12 border border-primaryText rounded-md px-2 py-1.5 text-xs text-farmText w-56 bg-cardBg`}
           >
             You have liquidity in farm, please unstake from{' '}
             <a
@@ -1224,37 +1329,83 @@ function UnclaimedFeesBox(props: any) {
   const { display_amount_x, display_amount_y, total_amount_x_y } =
     getTotalFeeAmount();
   return (
-    <div className="p-5 bg-cardBg rounded-xl mt-3.5 xsm:p-0">
-      <div className="flex  font-gothamBold text-white text-base items-start justify-between xsm:hidden">
-        <span className="">
-          <FormattedMessage id="unclaimed_fees" />
-        </span>
-        <span className="text-white font-gothamBold">
-          {getTotalLiquditiesFee()}
-        </span>
-      </div>
-      <div className="flex items-center justify-center text-xl text-white my-2 xsm:flex-col">
-        {liquidities?.length > 1 ? (
-          <span className="text-gradientFromHover text-xs bg-black bg-opacity-25 border border-greenColor rounded-3xl px-2 mt-0.5 lg:hidden">
-            {liquidities.length} NFTs
+    <>
+      {/* for pc */}
+      <div className="p-5 bg-cardBg rounded-xl mt-3.5 xsm:hidden">
+        <div className="flex  font-gothamBold text-white text-base items-start justify-between xsm:hidden">
+          <span className="">
+            <FormattedMessage id="unclaimed_fees" />
           </span>
-        ) : null}
-      </div>
-
-      <div className="frcb">
-        <div className="frcs gap-6 text-sm text-white">
-          <div className="frcs">
-            <Icon icon={token_x_metadata.icon} className="h-7 w-7 mr-2"></Icon>
-            <span className=" ">{display_amount_x}</span>
+          <span className="text-white font-gothamBold">
+            {getTotalLiquditiesFee()}
+          </span>
+        </div>
+        <div className="frcb mt-4">
+          <div className="frcs gap-6 text-sm text-white">
+            <div className="frcs">
+              <Icon
+                icon={token_x_metadata.icon}
+                className="h-7 w-7 mr-2"
+              ></Icon>
+              <span className=" ">{display_amount_x}</span>
+            </div>
+            <div className="frcs ">
+              <Icon
+                icon={token_y_metadata.icon}
+                className="h-7 w-7 mr-2"
+              ></Icon>
+              <span className=" ">{display_amount_y}</span>
+            </div>
           </div>
-          <div className="frcs ">
-            <Icon icon={token_y_metadata.icon} className="h-7 w-7 mr-2"></Icon>
-            <span className=" ">{display_amount_y}</span>
+
+          <div
+            className={`flex items-center font-gothamBold justify-center h-10 rounded-lg text-sm px-6 py-1  ${
+              total_amount_x_y == 0
+                ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
+                : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
+            }`}
+            onClick={claimRewards}
+            style={{
+              background: 'linear-gradient(180deg, #646DF4 0%, #371BE4 100%)',
+            }}
+          >
+            <ButtonTextWrapper
+              loading={cliam_loading}
+              Text={() => <FormattedMessage id={'claim'} />}
+            />
           </div>
         </div>
-
+      </div>
+      {/* for mobile */}
+      <div className="flex flex-col items-center lg:hidden">
+        <div className="flex items-center w-full justify-between mt-5">
+          <span className="text-sm text-white">
+            <FormattedMessage id="unclaimed_fees" />
+          </span>
+          <span className="text-white font-gothamBold">
+            {getTotalLiquditiesFee()}
+          </span>
+        </div>
+        <div className="flex items-center justify-between w-full mt-5">
+          <div className="flex items-center">
+            <Icon icon={token_x_metadata.icon} className="h-7 w-7 mr-2"></Icon>
+            <span className="text-white text-sm">
+              {token_x_metadata.symbol}
+            </span>
+          </div>
+          <span className="text-white text-sm">{display_amount_x}</span>
+        </div>
+        <div className="flex items-center justify-between w-full mt-5">
+          <div className="flex items-center">
+            <Icon icon={token_x_metadata.icon} className="h-7 w-7 mr-2"></Icon>
+            <span className="text-white text-sm">
+              {token_y_metadata.symbol}
+            </span>
+          </div>
+          <span className="text-white text-sm">{display_amount_y}</span>
+        </div>
         <div
-          className={`flex items-center font-gothamBold justify-center h-10 rounded-lg text-sm px-6 py-1  ${
+          className={`flex items-center font-gothamBold justify-center h-10 rounded-lg text-sm px-6 py-1 w-full mt-6 ${
             total_amount_x_y == 0
               ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
               : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
@@ -1270,7 +1421,7 @@ function UnclaimedFeesBox(props: any) {
           />
         </div>
       </div>
-    </div>
+    </>
   );
 }
 function get_unClaimed_fee_data(
@@ -1654,7 +1805,7 @@ function Chart(props: any) {
       padding="px-7 py-5 xsm:px-4"
       bgcolor={'bg-transparent'}
       style={{
-        height: isClientMobie() ? '390px' : '470px',
+        height: isClientMobie() ? 'auto' : '470px',
       }}
     >
       {chartDisplay === 'volume' ? (
@@ -1851,8 +2002,8 @@ export function RecentTransactions({
     );
 
     return (
-      <tr className="text-sm text-primaryText grid w-full grid-cols-5 hover:text-white hover:bg-poolRecentHover">
-        <td className=" gap-1 p-4 col-span-1">
+      <tr className="text-sm text-primaryText lg:grid w-full lg:grid-cols-5 hover:text-white hover:bg-poolRecentHover">
+        <td className="gap-1 p-4 col-span-1">
           <span className="text-white" title={swapInAmount}>
             {displayInAmount}
           </span>
@@ -1862,7 +2013,7 @@ export function RecentTransactions({
           </span>
         </td>
 
-        <td className=" gap-1 col-span-2 frcs">
+        <td className=" gap-1 col-span-2 lg:flex items-center">
           <span className="text-white" title={swapOutAmount}>
             {displayOutAmount}
           </span>
@@ -1872,9 +2023,9 @@ export function RecentTransactions({
           </span>
         </td>
 
-        <td className=" relative  py-4 pr-4 flex items-center justify-end col-span-2">
+        <td className=" relative  py-4 pr-4 lg:flex items-center justify-end col-span-2">
           <span
-            className="inline-flex items-center cursor-pointer"
+            className="inline-flex items-center cursor-pointer xsm:whitespace-nowrap"
             onClick={() => {
               openUrl(`${getConfig().explorerUrl}/txns/${tx.tx_id}`);
             }}
@@ -1920,8 +2071,8 @@ export function RecentTransactions({
     );
 
     return (
-      <tr className="text-sm text-primaryText grid grid-cols-5 hover:text-white hover:bg-poolRecentHover">
-        <td className=" gap-1 p-4  col-span-1">
+      <tr className="text-sm text-primaryText lg:grid lg:grid-cols-5 hover:text-white hover:bg-poolRecentHover">
+        <td className="gap-1 p-4  col-span-1">
           <span className="text-white">
             {(tx.method_name.toLowerCase().indexOf('add') > -1 ||
               tx.method_name.toLowerCase().indexOf('append') > -1) &&
@@ -1931,7 +2082,7 @@ export function RecentTransactions({
           </span>
         </td>
 
-        <td className="text-white col-span-2 frcs whitespace-nowrap">
+        <td className="text-white col-span-2 lg:flex items-center whitespace-nowrap">
           {Big(AmountIn || 0).gt(0) ? (
             <>
               <span className="text-white" title={AmountIn}>
@@ -1959,9 +2110,9 @@ export function RecentTransactions({
           ) : null}
         </td>
 
-        <td className=" relative py-4 pr-4 flex items-center justify-end col-span-2">
+        <td className="relative py-4 pr-4 lg:flex items-center justify-end col-span-2">
           <span
-            className="inline-flex items-center cursor-pointer"
+            className="inline-flex items-center cursor-pointer xsm:whitespace-nowrap"
             onClick={() => {
               openUrl(`${getConfig().explorerUrl}/txns/${tx.tx_id}`);
             }}
@@ -2020,14 +2171,14 @@ export function RecentTransactions({
     );
     const display_price = reverse ? reverse_price(price) : price;
     return (
-      <tr className="hover:text-white grid grid-cols-5 overflow-hidden hover:bg-poolRecentHover text-sm text-primaryText">
-        <td className=" gap-1 p-4 frcs text-white">
+      <tr className="hover:text-white lg:grid lg:grid-cols-5 lg:overflow-hidden hover:bg-poolRecentHover text-sm text-primaryText">
+        <td className=" gap-1 p-4 lg:flex items-center text-white">
           {tx.method_name.toLowerCase().indexOf('cancelled') > -1 && 'Cancel'}
 
           {tx.method_name.toLowerCase().indexOf('add') > -1 && 'Place'}
         </td>
 
-        <td className="text-white frcs">
+        <td className="text-white lg:flex items-center">
           <div className="frcs flex-wrap">
             <span className="text-white mr-1" title={AmountIn}>
               {displayInAmount}
@@ -2039,7 +2190,7 @@ export function RecentTransactions({
           </div>
         </td>
 
-        <td className="frcs">
+        <td className="lg:flex items-center">
           <div className="frcs flex-wrap">
             <span className="text-white mr-1" title={AmountOut}>
               {displayOutAmount}
@@ -2051,7 +2202,7 @@ export function RecentTransactions({
           </div>
         </td>
 
-        <td className="frcs">
+        <td className="lg:flex items-center">
           <div className="frcs flex-wrap">
             <span className="text-white mr-1" title={price}>
               {numberWithCommas(toPrecision(display_price, 4))}
@@ -2064,9 +2215,9 @@ export function RecentTransactions({
           </div>
         </td>
 
-        <td className=" relative py-4 flex items-center justify-end pr-2">
+        <td className="relative py-4 lg:flex items-center justify-end pr-2">
           <span
-            className="inline-flex items-center cursor-pointer"
+            className="inline-flex items-center cursor-pointer xsm:whitespace-nowrap xsm:pl-3"
             onClick={() => {
               openUrl(`${getConfig().explorerUrl}/txns/${tx.tx_id}`);
             }}
@@ -2089,15 +2240,15 @@ export function RecentTransactions({
       : renderLimitOrderTransactions;
   return (
     <>
-      <div className="frcb w-full mb-3 mt-7">
-        <div className="text-white font-gothamBold text-base  ">
+      <div className="flex items-center lg:justify-between xsm:flex-col xsm:items-start w-full mb-3 mt-7">
+        <div className="text-white font-gothamBold text-base">
           <FormattedMessage
             id="recent_transactions"
             defaultMessage={'Recent Transactions'}
           />
         </div>
 
-        <div className="frcs gap-2 h-8 text-sm text-primaryText">
+        <div className="flex items-center justify-between gap-2 h-8 text-sm text-primaryText xsm:mt-4">
           <div
             className={`rounded-lg frcc cursor-pointer h-full w-28 text-center align-middle ${
               tab === 'swap'
@@ -2155,85 +2306,87 @@ export function RecentTransactions({
       </div>
 
       <div className="text-sm rounded-lg overflow-hidden w-full text-primaryText bg-detailCardBg">
-        <tr className="text-left grid grid-cols-5 border-b border-gray1">
-          <th className={`p-4 ${'col-span-1'} pb-3`}>
-            {tab === 'liquidity' && (
-              <FormattedMessage
-                id="action"
-                defaultMessage={'Action'}
-              ></FormattedMessage>
+        <table className="w-full xsm:hidden">
+          <tr className="text-left grid grid-cols-5 border-b border-gray1">
+            <th className={`p-4 ${'col-span-1'} pb-3`}>
+              {tab === 'liquidity' && (
+                <FormattedMessage
+                  id="action"
+                  defaultMessage={'Action'}
+                ></FormattedMessage>
+              )}
+
+              {tab === 'limit_order' && (
+                <FormattedMessage
+                  id="action"
+                  defaultMessage={'Action'}
+                ></FormattedMessage>
+              )}
+
+              {tab === 'swap' && (
+                <FormattedMessage
+                  id="from"
+                  defaultMessage={'From'}
+                ></FormattedMessage>
+              )}
+            </th>
+
+            <th
+              className={`py-4 pb-3 ${
+                tab === 'limit_order' ? 'col-span-1' : 'col-span-2'
+              }`}
+            >
+              {tab === 'liquidity' && (
+                <FormattedMessage
+                  id="amount"
+                  defaultMessage={'Amount'}
+                ></FormattedMessage>
+              )}
+              {tab === 'swap' && (
+                <FormattedMessage
+                  id="to"
+                  defaultMessage={'To'}
+                ></FormattedMessage>
+              )}
+
+              {tab === 'limit_order' && (
+                <FormattedMessage
+                  id="from"
+                  defaultMessage={'From'}
+                ></FormattedMessage>
+              )}
+            </th>
+
+            {tab === 'limit_order' && (
+              <th className="py-4 pb-3 col-span-1">
+                <FormattedMessage
+                  id="to"
+                  defaultMessage={'To'}
+                ></FormattedMessage>
+              </th>
             )}
 
             {tab === 'limit_order' && (
-              <FormattedMessage
-                id="action"
-                defaultMessage={'Action'}
-              ></FormattedMessage>
+              <th className="py-4 pb-3 col-span-1">
+                <FormattedMessage
+                  id="price"
+                  defaultMessage={'Price'}
+                ></FormattedMessage>
+              </th>
             )}
 
-            {tab === 'swap' && (
+            <th
+              className={`p-4 text-right pb-3 ${
+                tab === 'limit_order' ? 'col-span-1' : 'col-span-2'
+              }`}
+            >
               <FormattedMessage
-                id="from"
-                defaultMessage={'From'}
-              ></FormattedMessage>
-            )}
-          </th>
-
-          <th
-            className={`py-4 pb-3 ${
-              tab === 'limit_order' ? 'col-span-1' : 'col-span-2'
-            }`}
-          >
-            {tab === 'liquidity' && (
-              <FormattedMessage
-                id="amount"
-                defaultMessage={'Amount'}
-              ></FormattedMessage>
-            )}
-            {tab === 'swap' && (
-              <FormattedMessage
-                id="to"
-                defaultMessage={'To'}
-              ></FormattedMessage>
-            )}
-
-            {tab === 'limit_order' && (
-              <FormattedMessage
-                id="from"
-                defaultMessage={'From'}
-              ></FormattedMessage>
-            )}
-          </th>
-
-          {tab === 'limit_order' && (
-            <th className="py-4 pb-3 col-span-1">
-              <FormattedMessage
-                id="to"
-                defaultMessage={'To'}
+                id="time"
+                defaultMessage={'Time'}
               ></FormattedMessage>
             </th>
-          )}
-
-          {tab === 'limit_order' && (
-            <th className="py-4 pb-3 col-span-1">
-              <FormattedMessage
-                id="price"
-                defaultMessage={'Price'}
-              ></FormattedMessage>
-            </th>
-          )}
-
-          <th
-            className={`p-4 text-right pb-3 ${
-              tab === 'limit_order' ? 'col-span-1' : 'col-span-2'
-            }`}
-          >
-            <FormattedMessage
-              id="time"
-              defaultMessage={'Time'}
-            ></FormattedMessage>
-          </th>
-        </tr>
+          </tr>
+        </table>
 
         <div
           className="overflow-auto "
@@ -2241,7 +2394,88 @@ export function RecentTransactions({
             maxHeight: '700px',
           }}
         >
-          {renderTransactions}
+          <table className="w-full">
+            <tr className="text-left border-b border-gray1 lg:hidden">
+              <th className={`p-4 ${'col-span-1'} pb-3`}>
+                {tab === 'liquidity' && (
+                  <FormattedMessage
+                    id="action"
+                    defaultMessage={'Action'}
+                  ></FormattedMessage>
+                )}
+
+                {tab === 'limit_order' && (
+                  <FormattedMessage
+                    id="action"
+                    defaultMessage={'Action'}
+                  ></FormattedMessage>
+                )}
+
+                {tab === 'swap' && (
+                  <FormattedMessage
+                    id="from"
+                    defaultMessage={'From'}
+                  ></FormattedMessage>
+                )}
+              </th>
+
+              <th
+                className={`py-4 pb-3 ${
+                  tab === 'limit_order' ? 'col-span-1' : 'col-span-2'
+                }`}
+              >
+                {tab === 'liquidity' && (
+                  <FormattedMessage
+                    id="amount"
+                    defaultMessage={'Amount'}
+                  ></FormattedMessage>
+                )}
+                {tab === 'swap' && (
+                  <FormattedMessage
+                    id="to"
+                    defaultMessage={'To'}
+                  ></FormattedMessage>
+                )}
+
+                {tab === 'limit_order' && (
+                  <FormattedMessage
+                    id="from"
+                    defaultMessage={'From'}
+                  ></FormattedMessage>
+                )}
+              </th>
+
+              {tab === 'limit_order' && (
+                <th className="py-4 pb-3 col-span-1">
+                  <FormattedMessage
+                    id="to"
+                    defaultMessage={'To'}
+                  ></FormattedMessage>
+                </th>
+              )}
+
+              {tab === 'limit_order' && (
+                <th className="py-4 pb-3 col-span-1">
+                  <FormattedMessage
+                    id="price"
+                    defaultMessage={'Price'}
+                  ></FormattedMessage>
+                </th>
+              )}
+
+              <th
+                className={`p-4 pb-3 ${
+                  tab === 'limit_order' ? 'col-span-1' : 'col-span-2'
+                }`}
+              >
+                <FormattedMessage
+                  id="time"
+                  defaultMessage={'Time'}
+                ></FormattedMessage>
+              </th>
+            </tr>
+            {renderTransactions}
+          </table>
         </div>
       </div>
     </>
@@ -2427,14 +2661,14 @@ function Icon(props: { icon?: string; className?: string; style?: any }) {
 }
 let timer: any;
 function LiquidityChart(props: any) {
-  const svgDefaultWidth = 750;
   const { data, chartDisplay, setChartDisplay } = props;
   const { poolDetail, depthData } = data;
+  const isMobile = isClientMobie();
+  const svgDefaultWidth = isMobile ? '380' : 750;
   const [chartLoading, setChartLoading] = useState<boolean>(true);
   const [noData, setNoData] = useState<boolean>(true);
   const [rateDirection, setRateDirection] = useState(true);
   const [svgWidth, setSvgWidth] = useState(svgDefaultWidth);
-  const isMobile = isClientMobie();
   const refDom = useRef(null);
   useEffect(() => {
     if (poolDetail?.token_x_metadata) {
@@ -2546,7 +2780,11 @@ function LiquidityChart(props: any) {
         <div className="mt-16">
           <DclChart
             pool_id={poolDetail?.pool_id}
-            config={{ controlHidden: true, svgWidth, svgHeight: '300' }}
+            config={{
+              controlHidden: true,
+              svgWidth,
+              svgHeight: isMobile ? '250' : '300',
+            }}
             reverse={!rateDirection}
           ></DclChart>
         </div>

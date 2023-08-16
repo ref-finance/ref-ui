@@ -410,6 +410,7 @@ module.exports = {
         proTabBgColor: '#324451',
         dclTabBorderColor:'#3F4A52',
         dclYourLiquidityColor:'#283945',
+        bottomBoxBorderColor:'#2F3A39',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

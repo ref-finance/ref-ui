@@ -1443,9 +1443,9 @@ export function RecentTransactions({
 
     return (
       <tr
-        className={`text-sm grid grid-cols-3 text-primaryText hover:text-white hover:bg-poolRecentHover`}
+        className={`text-sm lg:grid lg:grid-cols-3 text-primaryText hover:text-white hover:bg-poolRecentHover`}
       >
-        <td className=" gap-1 p-4 frcs">
+        <td className="gap-1 p-4 lg:flex items-center">
           <span className="col-span-1 text-white" title={swapInAmount}>
             {displayInAmount}
           </span>
@@ -1455,7 +1455,7 @@ export function RecentTransactions({
           </span>
         </td>
 
-        <td className="col-span-1 gap-1 frcs">
+        <td className="col-span-1 gap-1 lg:flex items-center">
           <span className="text-white" title={swapOutAmount}>
             {displayOutAmount}
           </span>
@@ -1472,7 +1472,7 @@ export function RecentTransactions({
               openUrl(`${getConfig().explorerUrl}/txns/${tx.tx_id}`);
             }}
           >
-            <span className="hover:underline cursor-pointer">
+            <span className="hover:underline cursor-pointer xsm:whitespace-nowrap">
               {tx.timestamp}
             </span>
             {txLink}
@@ -1505,7 +1505,7 @@ export function RecentTransactions({
 
     return (
       <tr
-        className={`text-sm grid  overflow-hidden grid-cols-${
+        className={`text-sm lg:grid  overflow-hidden lg:grid-cols-${
           tab == 'swap' ? 3 : 5
         } text-primaryText hover:text-white hover:bg-poolRecentHover`}
       >
@@ -1520,7 +1520,7 @@ export function RecentTransactions({
         <td
           className={`col-span-${
             tab == 'swap' ? 1 : 2
-          } text-white frcs flex-wrap`}
+          } text-white lg:flex items-center flex-wrap`}
         >
           {renderTokens.map((renderToken, index) => {
             return (
@@ -1543,7 +1543,7 @@ export function RecentTransactions({
         <td
           className={`col-span-${
             tab == 'swap' ? 1 : 2
-          } relative py-4 pr-4 flex items-center justify-end`}
+          } relative py-4 pr-4 lg:flex items-center justify-end`}
         >
           <span
             className="inline-flex items-center cursor-pointer"
@@ -1551,7 +1551,7 @@ export function RecentTransactions({
               openUrl(`${getConfig().explorerUrl}/txns/${tx.tx_id}`);
             }}
           >
-            <span className="hover:underline cursor-pointer">
+            <span className="hover:underline cursor-pointer xsm:whitespace-nowrap">
               {tx.timestamp}
             </span>
             {txLink}
@@ -1566,15 +1566,15 @@ export function RecentTransactions({
 
   return (
     <>
-      <div className="frcb w-full mb-3 mt-7">
-        <div className="text-white font-gothamBold text-base  ">
+      <div className="flex lg:items-center lg:justify-between xsm:flex-col xsm:items-start  w-full mb-3 mt-7">
+        <div className="text-white font-gothamBold text-base">
           <FormattedMessage
             id="recent_transactions"
             defaultMessage={'Recent Transactions'}
           />
         </div>
 
-        <div className="frcs gap-2 h-8 text-sm text-primaryText">
+        <div className="frcs gap-2 h-8 text-sm text-primaryText xsm:mt-4">
           <div
             className={`rounded-lg frcc cursor-pointer h-full w-28 text-center align-middle ${
               tab === 'swap'
@@ -1613,9 +1613,9 @@ export function RecentTransactions({
         </div>
       </div>
 
-      <div className="text-sm overflow-hidden rounded-lg w-full text-primaryText bg-detailCardBg ">
+      <div className="text-sm overflow-hidden rounded-lg w-full text-primaryText bg-detailCardBg">
         <div
-          className={`text-left grid grid-cols-${5} w-full border-b border-gray1`}
+          className={`text-left grid grid-cols-${5} w-full border-b border-gray1 xsm:hidden`}
         >
           <div className={`p-4 pb-3 col-span-${tab == 'swap' ? 2 : 1}`}>
             {tab === 'liquidity' && (
@@ -1661,7 +1661,47 @@ export function RecentTransactions({
             maxHeight: '700px',
           }}
         >
-          {renderTx}
+          <table className="w-full">
+            <tr className={`text-left w-full border-b border-gray1 lg:hidden`}>
+              <th className={`p-4 pb-3 col-span-${tab == 'swap' ? 2 : 1}`}>
+                {tab === 'liquidity' && (
+                  <FormattedMessage
+                    id="action"
+                    defaultMessage={'Action'}
+                  ></FormattedMessage>
+                )}
+                {tab === 'swap' && (
+                  <FormattedMessage
+                    id="from"
+                    defaultMessage={'From'}
+                  ></FormattedMessage>
+                )}
+              </th>
+
+              <th className={`py-4 pb-3 col-span-${tab == 'swap' ? 1 : 2}`}>
+                {tab === 'liquidity' && (
+                  <FormattedMessage
+                    id="amount"
+                    defaultMessage={'Amount'}
+                  ></FormattedMessage>
+                )}
+                {tab === 'swap' && (
+                  <FormattedMessage
+                    id="to"
+                    defaultMessage={'To'}
+                  ></FormattedMessage>
+                )}
+              </th>
+
+              <th className="pr-6 col-span-2 py-4 pb-3">
+                <FormattedMessage
+                  id="time"
+                  defaultMessage={'Time'}
+                ></FormattedMessage>
+              </th>
+            </tr>
+            {renderTx}
+          </table>
         </div>
       </div>
     </>
@@ -1746,28 +1786,10 @@ export const MobileChartChangeButton = ({
   return (
     <div className="relative mb-4">
       <div className="flex items-center relative z-10">
-        <span
-          onClick={() => setChartDisplay('tvl')}
-          className={`text-sm text-white text-opacity-60 pb-2.5 border-b-4 pr-2.5 ${
-            chartDisplay === 'tvl' ? 'border-senderHot' : 'border-transparent'
-          }`}
-        >
-          <FormattedMessage id="tvl" defaultMessage="TVL" />
-        </span>
-        <span
-          onClick={() => setChartDisplay('volume')}
-          className={`text-sm text-white text-opacity-60 pb-2.5 border-b-4 px-2.5 ml-3 ${
-            chartDisplay === 'volume'
-              ? 'border-senderHot'
-              : 'border-transparent'
-          }`}
-        >
-          <FormattedMessage id="volume" defaultMessage="Volume" />
-        </span>
         {showLiqudityButton ? (
           <span
             onClick={() => setChartDisplay('liquidity')}
-            className={`text-sm text-white text-opacity-60 pb-2.5 border-b-4 border-transparent px-2.5 ml-3 ${
+            className={`text-sm text-white text-opacity-60 pb-2.5 border-b-4 border-transparent px-2.5 ${
               chartDisplay === 'liquidity'
                 ? 'border-senderHot'
                 : 'border-transparent'
@@ -1776,6 +1798,24 @@ export const MobileChartChangeButton = ({
             <FormattedMessage id="liquidity" defaultMessage="Liquidity" />
           </span>
         ) : null}
+        <span
+          onClick={() => setChartDisplay('tvl')}
+          className={`text-sm text-white text-opacity-60 pb-2.5 border-b-4 px-2.5 mx-3 ${
+            chartDisplay === 'tvl' ? 'border-senderHot' : 'border-transparent'
+          }`}
+        >
+          <FormattedMessage id="tvl" defaultMessage="TVL" />
+        </span>
+        <span
+          onClick={() => setChartDisplay('volume')}
+          className={`text-sm text-white text-opacity-60 pb-2.5 border-b-4 px-2.5 ${
+            chartDisplay === 'volume'
+              ? 'border-senderHot'
+              : 'border-transparent'
+          }`}
+        >
+          <FormattedMessage id="volume" defaultMessage="Volume" />
+        </span>
         <div className="border-b border-menuMoreBoxBorderColor"></div>
       </div>
       <div className="h-px w-full absolute bottom-px left-0 bg-menuMoreBoxBorderColor"></div>

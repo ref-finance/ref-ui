@@ -1452,8 +1452,8 @@ export default function FarmsDclDetail(props: {
               </span>
             </div>
           </div>
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col">
+          <div className="flex xsm:flex-col items-center justify-between">
+            <div className="flex flex-col xsm:items-center">
               <div className="text-sm text-primaryText">
                 <span
                   className={`text-white ${
@@ -1465,12 +1465,14 @@ export default function FarmsDclDetail(props: {
                 available to stake
               </div>
               {!isEnded && !canStake && (
-                <div className={`text-sm text-dclFarmYellowColor mt-1 `}>
+                <div
+                  className={`text-sm text-dclFarmYellowColor mt-1 xsm:text-center`}
+                >
                   {get_unavailable_text()}
                 </div>
               )}
             </div>
-            <div className="flex items-center">
+            <div className="flex items-center xsm:w-full xsm:mt-6">
               {!isEnded && (
                 <GradientButton
                   color="#fff"
@@ -1478,7 +1480,7 @@ export default function FarmsDclDetail(props: {
                   btnClassName={stakeDisabled ? 'cursor-not-allowed' : ''}
                   minWidth="6rem"
                   onClick={batchStakeNFT}
-                  className={`h-8 px-4 text-center text-sm text-white focus:outline-none ${
+                  className={`h-8 px-4 text-center text-sm text-white focus:outline-none xsm:flex-grow ${
                     stakeDisabled ? 'opacity-40' : ''
                   }`}
                 >
@@ -1497,7 +1499,7 @@ export default function FarmsDclDetail(props: {
                   minWidth="6rem"
                   disabled={nft_unStake_loading ? true : false}
                   onClick={batchUnStakeNFT}
-                  className={`flex items-center justify-center h-8 px-4 ml-2 text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
+                  className={`flex items-center xsm:flex-grow justify-center h-8 px-4 ml-2 text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
                     nft_unStake_loading ? 'opacity-40' : ''
                   }`}
                 >
