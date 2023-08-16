@@ -327,6 +327,8 @@ export function useLeverage() {
         leverage: curLeverage as any,
       });
 
+      console.log('intl: ', intl);
+
       if (!updateRes.success) {
         setCurLeverage(userInfo?.max_leverage);
         setChangeTrigger(undefined);
@@ -364,13 +366,13 @@ export function useLeverage() {
 
       await requestLeverage();
     },
-    []
+    [intl, intl.locale]
   );
 
-  const changeLeverageDebounce = useCallback(
-    _.debounce(changeLeverage, 500),
-    []
-  );
+  const changeLeverageDebounce = useCallback(_.debounce(changeLeverage, 500), [
+    intl,
+    intl.locale,
+  ]);
 
   useEffect(() => {
     if (futureLeverage !== undefined) {
