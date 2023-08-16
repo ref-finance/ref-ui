@@ -48,6 +48,7 @@ export function MarginRatioText() {
               className="underline text-v3Blue"
               href="https://docs.orderly.network/perpetual-futures/margin-leverage-and-pnl"
               rel="noopener noreferrer nofollow"
+              target='_blank'
             >
               {intl.formatMessage({
                 id: 'learn_more',
