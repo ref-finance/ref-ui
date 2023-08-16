@@ -618,45 +618,39 @@ function TableWithTabs({
                   </div>
                 )}
 
-                {!!accountId &&
-                  validContract() &&
-                  (!storageEnough || !tradingKeySet || !keyAnnounced) && (
-                    <div className="w-half md:w-full lg:w-full flex justify-center flex-col items-center">
-                      <div className="md:hidden lg:hidden text-center mb-6">
-                        <p>Welcome!</p>
-                        <p>Connect your orderly account to start</p>
-                      </div>
-                      <RegisterButton
-                        userExist={userExist}
-                        onClick={() => {
-                          if (!agreeCheck) {
-                            setRegisterModalOpen(true);
-
-                            return;
-                          }
-                          if (!accountId || storageEnough) return;
-
-                          if (!userExist) {
-                            localStorage.setItem(
-                              REF_ORDERLY_AGREE_CHECK,
-                              'true'
-                            );
-                          }
-
-                          storageDeposit(accountId);
-                        }}
-                        setCheck={setAgreeCheck}
-                        check={agreeCheck}
-                        storageEnough={!!storageEnough}
-                        spin={
-                          (storageEnough &&
-                            (!tradingKeySet || !keyAnnounced)) ||
-                          agreeCheck
-                        }
-                        onPortfolio
-                      />
+                {!!accountId && !validAccountSig && !storedValid && (
+                  <div className="w-half md:w-full lg:w-full flex justify-center flex-col items-center">
+                    <div className="md:hidden lg:hidden text-center mb-6">
+                      <p>Welcome!</p>
+                      <p>Connect your orderly account to start</p>
                     </div>
-                  )}
+                    <RegisterButton
+                      userExist={userExist}
+                      onClick={() => {
+                        if (!agreeCheck) {
+                          setRegisterModalOpen(true);
+
+                          return;
+                        }
+                        if (!accountId || storageEnough) return;
+
+                        if (!userExist) {
+                          localStorage.setItem(REF_ORDERLY_AGREE_CHECK, 'true');
+                        }
+
+                        storageDeposit(accountId);
+                      }}
+                      setCheck={setAgreeCheck}
+                      check={agreeCheck}
+                      storageEnough={!!storageEnough}
+                      spin={
+                        (storageEnough && (!tradingKeySet || !keyAnnounced)) ||
+                        agreeCheck
+                      }
+                      onPortfolio
+                    />
+                  </div>
+                )}
               </div>
             )}
             <Table
