@@ -1413,7 +1413,7 @@ const ko = {
   est_liquidation_price: '예상 청산가',
   liquidation_price_tip:
     '이 값은 참고자료일 뿐입니다. 주문이 체결 된 이후에 Orderly 포트폴리오에서 당신의 청산 가격을 볼 수 있습니다.',
-  futures_leverage_saved: '배 레버리지 선물 저장됨',
+  futures_leverage_saved: '레버리지 선물 저장됨',
   maintenance_margin_ratio: '유지증거금 비율',
   liquidation_fee: '청산 수수료',
   ins_fund_transfer: 'Ins. Fund Transfer',
