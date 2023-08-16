@@ -1467,5 +1467,7 @@ const es = {
   taker_maker_fee: 'Taker/Maker Fee',
   funding: 'Funding',
   taker_maker_fee_rate: 'Taker/Maker Fee Rate',
+  spot_nav: 'Spot',
+  perps_nav: 'Perps',
 };
 export default Object.assign(es, es_in_risks_page);

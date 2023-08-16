@@ -1364,5 +1364,7 @@ const zh_CN = {
   insufficient_margin: '保证金不足',
   taker_maker_fee: 'Taker/Maker Fee',
   funding: '资金费率',
+  spot_nav: 'Spot',
+  perps_nav: 'Perps',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

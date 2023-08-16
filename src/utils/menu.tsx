@@ -309,10 +309,11 @@ export const useMenus = (cb?: () => void) => {
                       : 'border'
                   }`}
                 >
-                  <FormattedMessage
+                  {/* <FormattedMessage
                     id="spot"
                     defaultMessage={'Spot'}
-                  ></FormattedMessage>
+                  ></FormattedMessage> */}
+                  Spot
                 </button>
 
                 <button
@@ -333,10 +334,11 @@ export const useMenus = (cb?: () => void) => {
                       : 'border'
                   }`}
                 >
-                  <FormattedMessage
+                  {/* <FormattedMessage
                     id="perpetual"
                     defaultMessage={'Perpetual'}
-                  ></FormattedMessage>
+                  ></FormattedMessage> */}
+                  Perpetual
                 </button>
               </div>
             </div>
@@ -678,10 +680,11 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
                     width: '104px',
                   }}
                 >
-                  <FormattedMessage
+                  {/* <FormattedMessage
                     id="spot"
                     defaultMessage={'Spot'}
-                  ></FormattedMessage>
+                  ></FormattedMessage> */}
+                  Spot
                 </button>
 
                 <button
@@ -705,10 +708,11 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
                       : 'border'
                   }   text-white border-white border-opacity-30 w-1/2 rounded-lg py-2`}
                 >
-                  <FormattedMessage
+                  {/* <FormattedMessage
                     id="perpetual"
                     defaultMessage={'Perpetual'}
-                  ></FormattedMessage>
+                  ></FormattedMessage> */}
+                  Perpetual
                 </button>
               </div>
             </div>

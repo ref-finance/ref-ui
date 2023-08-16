@@ -470,7 +470,7 @@ function ChartHeader(props?: any) {
               }}
             >
               <FormattedMessage
-                id={type}
+                id={type + '_nav'}
                 defaultMessage={type.charAt(0).toUpperCase() + type.slice(1)}
               ></FormattedMessage>
             </div>
