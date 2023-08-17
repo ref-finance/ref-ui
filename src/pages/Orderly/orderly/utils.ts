@@ -69,6 +69,12 @@ export const generateTradingKeyPair = () => {
 };
 
 export const getNormalizeTradingKey = () => {
+  const storedKey = localStorage.getItem(REF_ORDERLY_NORMALIZED_KEY);
+
+  if (!storedKey) {
+    generateTradingKeyPair();
+  }
+
   return localStorage.getItem(REF_ORDERLY_NORMALIZED_KEY);
 };
 
