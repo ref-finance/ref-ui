@@ -112,17 +112,20 @@ const uk_UA_in_risks_page = {
   Locked_paragraph_6:
     'Якщо на обліковому записі контракта зареєстровано, хоча б один ключ повного доступу, контракт не блокується.',
   audited_first_sentence:
-    'Розумні контракти Ref Finance пройшли <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://guide.ref.finance/developers/audits')" +
-    '>аудит</label>.',
+    'Розумні контракти Ref Finance пройшли <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://guide.ref.finance/developers/audits" ' +
+    '>аудит</a>.',
   admin_first_sentence:
-    'Управління Ref Finance здійснюється<label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-    '> Ref Finance Sputnik DAO</label>. Існують <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://gov.ref.finance/t/introducing-the-guardians/253')" +
-    '>Guardians</label>, конкретні адреси NEAR, які можуть призупинити контракт. Тільки DAO може відновити контракт у будь-який час.',
+    'Управління Ref Finance здійснюється<a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://app.astrodao.com/dao/ref-finance.sputnik-dao.near"' +
+    '> Ref Finance Sputnik DAO</a>. Існують <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    '>Guardians</a>, конкретні адреси NEAR, які можуть призупинити контракт. Тільки DAO може відновити контракт у будь-який час.',
   risks_of_using_ref_finance:
     '<label class="text-greenColor">Risks</label> Використання Ref. finance',
+  third_party_wallet: 'Сторонній гаманець',
+  third_party_wallet_1: 'Ref Finance інтегрує гаманці сторонніх розробників.',
+  third_party_wallet_2:
+    'Незважаючи на те, що ми вжили заходів для вибору авторитетних постачальників гаманців, ми не можемо гарантувати їхню безпеку чи продуктивність. Ви повинні ознайомитися з ризиками, пов’язаними з конкретним постачальником гаманця, а також зрозуміти його умови обслуговування, політику конфіденційності та методи безпеки.',
+  third_party_wallet_3:
+    'Користуйтеся цими послугами на власний ризик і будьте обережні.',
 };
 const uk_UA = {
   deposit: 'депозит',
@@ -514,13 +517,11 @@ const uk_UA = {
   mapping_account: 'Картографічний обліковий запис',
   mapping_account_tip: 'У вас є маркери в картографічному обліковому записі',
   admin_sentence_1:
-    'Ref Finance керується  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-    '>Ref Finance Sputnik DAO</label> і незабаром перейде до повністю децентралізованої DAO.',
+    'Ref Finance керується  <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://app.astrodao.com/dao/ref-finance.sputnik-dao.near"' +
+    '>Ref Finance Sputnik DAO</a> і незабаром перейде до повністю децентралізованої DAO.',
   admin_sentence_2:
-    'Для отримання додаткової інформації щодо контрактів та адрес, які безпосередньо керували або зараз керують справами Ref Finance, будь ласка, ознайомтесь з нашою  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://guide.ref.finance/developers/contracts')" +
-    '>Документацією.</label>.',
+    'Для отримання додаткової інформації щодо контрактів та адрес, які безпосередньо керували або зараз керують справами Ref Finance, будь ласка, ознайомтесь з нашою  <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://guide.ref.finance/developers/contracts"' +
+    '>Документацією.</a>.',
   cumulative_ref_buyback: 'Cumulative REF Buyback',
   yearly_revenue_booster: 'Yearly Revenue Booster',
   Confirm: 'Підтвердьте',
@@ -757,12 +758,12 @@ const uk_UA = {
   no_farm_need_to_migrate: 'Немає ферм для переносу',
   v1_farms: 'Classic Ферми',
   has_rewards_tip:
-    'Вам все ще потрібно отримати винагороди в  <a class="text-greenColor text-base cursor-pointer underline hover:text-senderHot"  href="/farms" >Legacy Farms</a>. The rewards are not going anywhere, you can withdraw anytime.</div>',
+    'Вам все ще потрібно отримати винагороди в  <a rel="noopener noreferrer nofollow" class="text-greenColor text-base cursor-pointer underline hover:text-senderHot"  href="/farms" >Legacy Farms</a>. The rewards are not going anywhere, you can withdraw anytime.</div>',
   love: 'LOVE',
   Available_to_stake: 'Доступно для Стейкінгу',
   you_staked: 'Застейкано',
   has_rewards_tip_in_v2:
-    'Legacy rewards to be withdraw in <a href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> Legacy Farms</a>.',
+    'Legacy rewards to be withdraw in <a rel="noopener noreferrer nofollow" href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> Legacy Farms</a>.',
   how_to_get: 'Як отримати?',
   get_booster: 'отримати Booster',
   ended_farms: 'Закінчені ферми',
@@ -917,8 +918,7 @@ const uk_UA = {
   maket_price_outside_single_only_tip:
     'Ринкова ціна знаходиться за межами вашого цінового діапазону. Внесіть тільки один актив.',
   login_risk_tip:
-    'By checking this box and moving forward, you confirm that you fully understand the <a class="text-greenColor text-sm font-bold cursor-pointer hover:underline" onclick="window.open(' +
-    "'/risks'" +
+    'By checking this box and moving forward, you confirm that you fully understand the <a class="text-greenColor text-sm font-bold cursor-pointer hover:underline" href="/risks" ' +
     ')">risks</a> of using Ref Finance.',
   no_pool_tip: 'Oops! The pool does not exist.',
   total_ref_week: 'Total REF/week',
@@ -1067,5 +1067,96 @@ const uk_UA = {
   real_time_executed_orders: 'real-time executed orders',
   real_time_executed_orders_tip:
     'When placing a sell order above market price or a buy order below market price using limit order function, Ref will attempt to execute a swap-with-stop-point action first, and if there is any remaining amount, a limit order will be created to fill the rest.<br> Real-time executed orders refer to orders placed using the limit order function but executed through swapping. In the "History" section, you can view real-time executed orders between the earliest displayed limit order in History up to the present time.',
+  ledger_guide_tip_1:
+    'To successfully use your Ledger wallet for transactions, the ',
+
+  ledger_guide_tip_2: 'feature has been automatically activated.',
+  ledger_guide_tip_3: 'Please be aware',
+  support_ledger_tip_new: '"Support Ledger"',
+
+  ledger_guide_tip_4:
+    'that due to Ledger wallet constraints, the current rate provided by the swap function',
+  ledger_guide_tip_5: 'may not be the best price.',
+  view_dcl_pool: 'View DCL Pool',
+  your_trade_route: 'Your Trade Route',
+  markets: 'Markets',
+  exchanges: 'Exchanges',
+  output_est: 'Output (est.)',
+  go_to_orderbook: 'Go to Orderbook',
+  new_swap_order_tip:
+    'The price is from the Ref AMM offer and for reference only. There is no guarente that your limit order will be immediately filled. ',
+  instants_swap: 'Instant Swap',
+  swappped: 'Swapped',
+  claimed: 'Claimed',
+  executing_capital: 'Executing',
+  record: 'Record',
+  trade_route: 'Trade Route',
+  settings: 'Settings',
+  cross_chain_options: 'Cross-chain Options',
+  no_trade_routes: 'No Trade Routes',
+  steps_in_the_route: 'Steps in the Route',
+  swap_chart_no_data: 'Not enough data for the chart right now.',
+  last_updated: 'Last Updated',
+  steps_in_the_route_zh: '',
+  has_tri_pool_tip:
+    ' in Ref. Enable Trisolaris in Cross-chain Options to find more.',
+
+  Overview: 'Overview',
+  RefFinance: 'Ref.finance',
+  Orderly: 'Orderly',
+  Burrow: 'Burrow',
+  Supplied: 'Supplied',
+  Borrowed: 'Borrowed',
+  NetAPY: 'Net APY',
+  UnclaimedRewards: 'Unclaimed Rewards',
+  YouSupplied: 'You Supplied',
+  SupplyMarket: 'Supply Market',
+  YouBorrowed: 'You Borrowed',
+  BorrowMarket: 'Borrow Market',
+  NetAPYTip:
+    'Net APY of all supply and borrow positions, including base APYs and incentives',
+  Market: 'Market',
+  TotalSupplied: 'Total Supplied',
+  TotalBorrowed: 'Total Borrowed',
+  AvailableLiquidities: 'Available Liquidity',
+  DailyRewards: 'Daily Rewards',
+  SupplyAPY: 'Supply APY',
+  BorrowAPY: 'Borrow APY',
+  Collateral: 'Collateral',
+  Adjust: 'Adjust',
+  Supply: 'Supply',
+  Repay: 'Repay',
+  Borrow: 'Borrow',
+  HealthFactor: 'Health Factor',
+  CollateralFactor: 'Collateral Factor',
+  AdjustCollateral: 'Adjust Collateral',
+  UseAsCollateral: 'Use as Collateral',
+  RemainingCollateral: 'Remaining Collateral',
+  RemainingBorrow: 'Remaining Borrow',
+  NoSupplyTip: 'Your supplied assets will apear here.',
+  NoBorrowTip: 'Your borrowed assets will apear here.',
+  APY: 'APY',
+  CF: 'C.F.',
+  burrowErrorTip:
+    'The current balance is below the minimum token decimals, so that it cannot be processed by the contract.',
+  healthErrorTip:
+    "Your health factor will be dangerously low and you're at risk of liquidation.",
+  Summary: 'Summary',
+  Welcome: 'Welcome!',
+  ConnectView: 'Connect your wallet to view',
+  TotalSuppliedMarket: 'Total Supplied',
+
+  NetWorth: 'Net Worth',
+  Claimable: 'Claimable',
+  TotalDebts: 'Total Debt',
+  WalletAssets: 'Wallet Assets',
+  TotalInvested: 'Total Invested',
+  TotalAssets: 'Total Assets',
+  TokenAllocation: 'Token Allocation',
+  bridge_pure: 'Міст',
+  pool_refresh: 'Something wrong with the server, please try again later.',
+
+  netWorthTip:
+    'Total value of investments in Ref (including claimable rewards) + Total value of Orderly assets + Total value of Burrow assets + Total assets in wallet',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

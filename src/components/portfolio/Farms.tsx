@@ -50,6 +50,8 @@ import {
   get_intersection_icon_by_radio,
   get_liquidity_value,
   get_all_seeds,
+  get_pool_name,
+  openUrl,
 } from '~services/commonV3';
 import { NFTIdIcon } from '~components/icon/FarmBoost';
 import { PortfolioData } from '../../pages/Portfolio';
@@ -292,7 +294,12 @@ export default function Farms(props: any) {
       >
         <div className="xsm:border-b xsm:border-cardBg">
           {/* for mobile banner */}
-          <div className="flex items-center justify-between lg:hidden p-5">
+          <div
+            className="flex items-center justify-between lg:hidden p-5"
+            onClick={() => {
+              setActiveTab(activeTab == '3' ? '' : '3');
+            }}
+          >
             <span className="text-base text-white gotham_bold">
               <FormattedMessage id="yield_farming" /> ({total_farms_quantity})
             </span>
@@ -1097,8 +1104,9 @@ function LiquidityLine(props: {
     }
   }
   function goYourLiquidityDetail(liquidity: UserLiquidityInfo) {
-    const url_params = liquidity.lpt_id.replace(/\|/g, '@').replace(/#/g, '@');
-    window.open(`/yoursLiquidityDetailV2/${url_params}`);
+    const pool_id = liquidity.lpt_id.split('#')[0];
+    const lpt_index = liquidity.lpt_id.split('#')[1];
+    openUrl(`/yoursLiquidityDetailV2/${get_pool_name(pool_id)}@${lpt_index}`);
   }
   return (
     <>
@@ -1789,9 +1797,9 @@ function goFarmDetailPage(seed: Seed) {
   if (is_dcl_pool) {
     const [fixRange, pool_id, left_point, right_point] =
       temp_pool_id.split('&');
-    mft_id = `${pool_id}&${left_point}&${right_point}`;
+    mft_id = `${get_pool_name(pool_id)}[${left_point}-${right_point}]`;
   }
-  window.open(`/v2farms/${mft_id}-${status}`);
+  openUrl(`/v2farms/${mft_id}-${status}`);
 }
 function getPoolIdBySeedId(seed_id: string) {
   const [contractId, temp_pool_id] = seed_id.split('@');

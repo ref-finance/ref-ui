@@ -41,6 +41,8 @@ import XrefPage from './pages/xref/XrefPage';
 import RiskPage from './pages/RiskPage';
 import USNPage from './pages/USNPage';
 import Portfolio from './pages/Portfolio';
+import Burrow from './pages/Burrow';
+import Overview from './pages/Overview';
 import {
   auroraAddr,
   getAuroraPool,
@@ -88,6 +90,7 @@ import OrderlyContextProvider, {
   OrderlyContext,
 } from '~pages/Orderly/orderly/OrderlyContext';
 import { list_seeds_info } from './services/farm';
+import { ORDERLY_ASSET_MANAGER } from './pages/Orderly/near';
 import {
   get_orderly_public_key_path,
   generateTradingKeyPair,
@@ -171,7 +174,15 @@ export function Content() {
           globalStatedispatch({ type: 'signIn' });
         }
       })
-      .catch((e) => {});
+      .catch(async (e) => {
+        alert(
+          `Account ID: ${accountId} has not been found. Please transfer some NEAR to this account and try again.`
+        );
+        const wallet = await selector.wallet();
+        await wallet.signOut();
+
+        window.location.reload();
+      });
   }, [accountId, getAccount]);
 
   useEffect(() => {
@@ -189,7 +200,7 @@ export function Content() {
       const senderWallet = (await senderModule.wallet()) as InjectedWallet;
 
       await senderWallet.signIn({
-        contractId: REF_FARM_BOOST_CONTRACT_ID,
+        contractId: ORDERLY_ASSET_MANAGER,
       });
 
       window.location.reload();
@@ -263,6 +274,8 @@ export function Content() {
           <Route path="/farmsMigrate" component={AutoHeight(FarmsMigrate)} />
           <Route path="/poolV2/:id" component={AutoHeight(PoolDetailV3)} />
           <Route path="/portfolio" component={AutoHeight(Portfolio)} />
+          <Route path="/burrow" component={AutoHeight(Burrow)} />
+          <Route path="/overview" component={AutoHeight(Overview)} />
           <Route path="/" component={AutoHeight(SwapPage)} />
         </Switch>
       </OrderlyContextProvider>

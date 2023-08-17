@@ -10,24 +10,7 @@ import { matchPath } from 'react-router';
 import { Context } from '~components/wrapper';
 import getConfig from '~services/config';
 import ReactTooltip from 'react-tooltip';
-import {
-  Logo,
-  Near,
-  IconBubble,
-  IconMyLiquidity,
-  IconCreateNew,
-  IconPools,
-  IconAirDropGreenTip,
-  WrapNearEnter,
-  WrapNearIconDark,
-  GreenArrowIcon,
-  MoreMenuIcon,
-  NavLogo,
-  NavLogoSimple,
-  AuroraIconSwapNav,
-  NavLogoIcon,
-} from '~components/icon';
-import { SmallWallet } from '~components/icon/SmallWallet';
+import { Logo, Near, IconAirDropGreenTip, NavLogoIcon } from '~components/icon';
 import {
   AccountIcon,
   ActivityIcon,
@@ -49,6 +32,7 @@ import {
   useLanguageItems,
   useMenus,
   menuItemType,
+  BridgeButton,
 } from '~utils/menu';
 import { MobileNavBar } from './MobileNav';
 import WrapNear from '~components/forms/WrapNear';
@@ -109,12 +93,17 @@ import {
   get_orderly_private_key_path,
 } from '../../pages/Orderly/orderly/utils';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../../pages/Orderly/components/UserBoard/index';
-import { tradingKeyMap } from '../../pages/Orderly/orderly/utils';
+import {
+  tradingKeyMap,
+  REF_FI_SENDER_WALLET_ACCESS_KEY,
+} from '../../pages/Orderly/orderly/utils';
+import { ORDERLY_ASSET_MANAGER } from '../../pages/Orderly/near';
 import {
   MoreIcon,
   ArrowDownIcon,
   DownTriangleIcon,
 } from '~components/icon/Nav';
+import { openUrl } from '../../services/commonV3';
 
 const config = getConfig();
 
@@ -134,183 +123,6 @@ export function AccountTipDownByAccountID({ show }: { show: boolean }) {
         defaultMessage="You have token(s) in your REF Account"
       />
     </div>
-  );
-}
-
-function Anchor({
-  to,
-  pattern,
-  name,
-  className,
-  newFuntion,
-  subMenu,
-}: {
-  to?: string;
-  pattern: string;
-  name: string;
-  className?: string;
-  newFuntion?: boolean;
-  subMenu?: {
-    name: string;
-    display?: string | JSX.Element;
-    path?: string;
-    click: (e?: any) => void;
-    chosen?: boolean;
-  }[];
-}) {
-  const location = useLocation();
-  let isSelected;
-
-  const [hover, setHover] = useState<boolean>(false);
-
-  const defaultChosed = subMenu?.find((m) => !!m.chosen)?.name;
-
-  const { pathname } = useLocation();
-
-  const isSwap =
-    pathname === '/' || pathname === '/swap' || pathname === '/myOrder';
-
-  const [chosenSub, setChosenSub] = useState<string>(
-    isSwap ? defaultChosed : null
-  );
-
-  useEffect(() => {
-    if (!isSwap) {
-      setChosenSub(null);
-    }
-  }, [isSwap, pathname]);
-
-  useEffect(() => {
-    if (!isSwap) return;
-
-    if (pathname === '/myOrder') {
-      setChosenSub('limit');
-    }
-
-    window.addEventListener('setItemEvent', (e: any) => {
-      const storageSwapTab = localStorage
-        .getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY)
-        ?.toString();
-
-      const storageSwapMode = localStorage.getItem(SWAP_MODE_KEY)?.toString();
-      if (typeof e?.[SWAP_MODE_KEY] === 'string') {
-        const curMode = e?.[SWAP_MODE_KEY];
-
-        if (curMode == SWAP_MODE.NORMAL && storageSwapTab === 'normal') {
-          setChosenSub('swap');
-        } else if (
-          e[SWAP_MODE_KEY] == SWAP_MODE.STABLE &&
-          storageSwapTab === 'normal'
-        ) {
-          setChosenSub('stable');
-        } else if (
-          e[SWAP_MODE_KEY] == SWAP_MODE.LIMIT &&
-          storageSwapTab === 'normal'
-        ) {
-          setChosenSub('limit');
-        }
-      }
-      if (typeof e?.[REF_FI_SWAP_SWAPPAGE_TAB_KEY] === 'string') {
-        const curTab = e?.[REF_FI_SWAP_SWAPPAGE_TAB_KEY];
-
-        console.log(e);
-
-        if (curTab === 'normal') {
-          setChosenSub(storageSwapMode);
-        } else {
-          setChosenSub('pro');
-        }
-      }
-    });
-  }, [isSwap]);
-
-  if (pattern == '/pools') {
-    isSelected =
-      location.pathname.startsWith('/pools') ||
-      location.pathname.startsWith('/pool') ||
-      location.pathname.startsWith('/more_pools') ||
-      location.pathname.startsWith('/yourliquidity') ||
-      location.pathname.startsWith('/addLiquidityV2') ||
-      location.pathname.startsWith('/yoursLiquidityDetailV2');
-  } else if (pattern == '/') {
-    isSelected = location.pathname === '/' || location.pathname === '/swap';
-  } else if (pattern === '/sauce' || pattern === '/v2farms') {
-    isSelected = matchPath(location.pathname, {
-      path: pattern,
-      exact: false,
-      strict: false,
-    });
-  } else {
-    isSelected = matchPath(location.pathname, {
-      path: pattern,
-      exact: true,
-      strict: false,
-    });
-  }
-
-  return (
-    <>
-      <Link
-        to={to}
-        className={`relative flex items-center justify-center h-full  mx-4 `}
-        onMouseLeave={() => setHover(false)}
-        onMouseEnter={() => setHover(true)}
-      >
-        <span
-          className={`link hover:text-white text-base font-bold py-4 cursor-pointer relative z-10 ${className} ${
-            isSelected ? 'text-white' : 'text-gray-400'
-          }`}
-        >
-          <FormattedMessage id={name} defaultMessage={name} />
-          {newFuntion ? (
-            <span className="absolute top-5 right-2">
-              <IconAirDropGreenTip />
-            </span>
-          ) : null}
-        </span>
-
-        {!!subMenu && hover && (
-          <span
-            className="top-10 pt-2 absolute"
-            style={{
-              zIndex: 9999,
-            }}
-          >
-            <div
-              className="py-2  px-1.5 rounded-xl min-w-28 flex flex-col"
-              style={{
-                background: 'rgba(23,32,38)',
-                border: '1px solid #415462',
-              }}
-            >
-              {subMenu.map((m) => {
-                return (
-                  <span
-                    className={`${
-                      (chosenSub === m.name && isSwap) ||
-                      pathname.toLocaleLowerCase().indexOf(m.path) > -1
-                        ? 'bg-primaryText bg-opacity-30 text-white'
-                        : 'text-primaryText'
-                    } hover:bg-primaryText hover:bg-opacity-30 items-center
-                    flex justify-center py-0.5 h-11 mb-0.5 hover:text-white rounded-lg 
-                   text-center text-base cursor-pointer my-auto whitespace-nowrap px-2`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      m.click();
-                      setChosenSub(m.name);
-                      setHover(false);
-                    }}
-                  >
-                    {m.display || <FormattedMessage id={m.name} />}
-                  </span>
-                );
-              })}
-            </div>
-          </span>
-        )}
-      </Link>
-    </>
   );
 }
 
@@ -366,7 +178,27 @@ function AccountEntry({
   const signOut = async () => {
     const curWallet = await wallet.wallet();
 
-    await curWallet.signOut();
+    if (curWallet.id === 'sender') {
+      try {
+        const senderAccessKey = localStorage.getItem(
+          REF_FI_SENDER_WALLET_ACCESS_KEY
+        );
+
+        const allKeys = Object.keys(JSON.parse(senderAccessKey)['allKeys']);
+
+        //@ts-ignore
+
+        await window.near.signOut({
+          contractId: allKeys.includes(ORDERLY_ASSET_MANAGER)
+            ? ORDERLY_ASSET_MANAGER
+            : allKeys[0],
+        });
+      } catch (error) {
+        await window.near.signOut();
+      }
+    } else {
+      await curWallet.signOut();
+    }
 
     localStorage.removeItem(ACCOUNT_ID_KEY);
 
@@ -414,11 +246,10 @@ function AccountEntry({
       textId: 'go_to_near_wallet',
       // subIcon: <HiOutlineExternalLink />,
       click: () => {
-        window.open(
+        openUrl(
           selector.store.getState().selectedWalletId === 'my-near-wallet'
             ? config.myNearWalletUrl
-            : config.walletUrl,
-          '_blank'
+            : config.walletUrl
         );
       },
     },
@@ -575,7 +406,7 @@ function AccountEntry({
                   <button
                     className="hover:text-gradientFrom text-primaryText ml-2"
                     onClick={() => {
-                      window.open(
+                      openUrl(
                         `https://${
                           getConfig().networkId === 'testnet' ? 'testnet.' : ''
                         }nearblocks.io/address/${wallet.getAccountId()}#transaction`
@@ -712,12 +543,12 @@ export function AuroraEntry({
         e.preventDefault();
         extraClick && extraClick();
         if (!isMobile) {
-          window.open('/account?tab=aurora', '_blank');
+          openUrl('/account?tab=aurora');
           return;
         }
         if (isMobile) {
           if (!hasBalanceOnAurora) {
-            window.open('/account?tab=aurora', '_blank');
+            openUrl('/account?tab=aurora');
           } else {
             setHover(!hover);
           }
@@ -737,7 +568,7 @@ export function AuroraEntry({
         <div
           className=" absolute pt-2 right-0 lg:top-14 xs:top-8 md:top-8"
           onClick={(e) => {
-            window.open('/account?tab=aurora', '_blank');
+            openUrl('/account?tab=aurora');
             e.stopPropagation();
           }}
         >
@@ -804,6 +635,7 @@ export function AuroraEntry({
               }}
               onClick={(e) => e.stopPropagation()}
               target="_blank"
+              rel="noopener noreferrer nofollow"
               className={`w-full px-3 py-1 text-xs bg-auroraGreen text-chartBg flex items-center justify-center cursor-pointer ${
                 hasBalanceOnAurora ? 'block' : 'hidden'
               }`}
@@ -822,142 +654,6 @@ export function AuroraEntry({
   );
 }
 
-function Xref() {
-  const history = useHistory();
-  const location = useLocation();
-  // const [hover, setHover] = useState(false);
-  const goXrefPage = () => {
-    history.push('/xref');
-  };
-  return (
-    <div
-      className={`h-full flex items-center justify-center z-20 relative py-4 mx-4 cursor-pointer hover:opacity-100 ${
-        location.pathname == '/xref' ? 'opacity-100' : 'opacity-60'
-      }`}
-      onClick={goXrefPage}
-    >
-      <XrefIcon className="relative -top-px cursor-pointer"></XrefIcon>
-      {/* <GreenArrow hover={hover}></GreenArrow> */}
-    </div>
-  );
-}
-
-function MoreMenu() {
-  const [showWrapNear, setShowWrapNear] = useState(false);
-  const [hover, setHover] = useState(false);
-  const [sauceHover, setSauceHover] = useState(false);
-  const [parentLabel, setParentLabel] = useState('');
-  const { menuData } = useMenuItems();
-  const [curMenuItems, setCurMenuItems] = useState(menuData);
-  const location = useLocation();
-  const history = useHistory();
-  const { globalState } = useContext(WalletContext);
-  const onClickMenuItem = (items: any[], label: string) => {
-    setCurMenuItems(items);
-    setParentLabel(label);
-  };
-  const handleMoreMenuClick = (
-    url: string,
-    isExternal: boolean,
-    label: string,
-    children?: any
-  ) => {
-    if (url) {
-      if (isExternal) {
-        window.open(url);
-      } else {
-        history.push(url);
-      }
-    } else if (children) {
-      onClickMenuItem?.(children, label);
-    }
-  };
-  const hasSubMenu = curMenuItems.some(({ children }) => !!children?.length);
-  return (
-    <>
-      <div
-        className="relative z-30"
-        onMouseOver={() => setHover(true)}
-        onMouseLeave={() => {
-          setHover(false);
-          onClickMenuItem?.(menuData, '');
-        }}
-        style={{ zIndex: 599 }}
-      >
-        <div
-          className={`rounded-xl p-3 mx-4 cursor-pointer xsm:bg-transparent ${
-            hover ? 'text-white bg-menuMoreBgColor' : 'text-primaryText'
-          }`}
-        >
-          <MoreIcon></MoreIcon>
-        </div>
-        <div
-          className={`${
-            hover ? 'block' : 'block'
-          } absolute top-7 pt-3 -right-20 rounded-md`}
-        >
-          <Card
-            rounded="rounded-md"
-            className="p-2.5 w-full rounded-2xl border border-menuMoreBoxBorderColor bg-priceBoardColor"
-          >
-            {!hasSubMenu && parentLabel && (
-              <div
-                className="whitespace-nowrap hover:text-white text-left items-center flex justify-start text-sm font-semibold text-primaryText cursor-pointer pt-4 pb-2"
-                onClick={() => onClickMenuItem?.(menuData, '')}
-              >
-                <IoChevronBack className="text-xl " />
-                <span className="ml-3">{parentLabel}</span>
-              </div>
-            )}
-            {curMenuItems.map(
-              ({ url, children, label, icon, logo, isExternal }, index) => {
-                const isSelected =
-                  url &&
-                  !isExternal &&
-                  matchPath(location.pathname, {
-                    path: url,
-                    exact: true,
-                    strict: false,
-                  });
-                return (
-                  <div
-                    key={index}
-                    className={`flex items-center rounded-xl whitespace-nowrap hover:bg-menuMoreBgColor hover:text-white text-sm font-semibold py-3 my-1.5 cursor-pointer ${
-                      !hasSubMenu && parentLabel ? 'px-5' : 'px-2'
-                    }
-                    ${
-                      isSelected
-                        ? 'bg-menuMoreBgColor text-white'
-                        : 'text-primaryText'
-                    }`}
-                    onClick={() =>
-                      handleMoreMenuClick(url, isExternal, label, children)
-                    }
-                  >
-                    {logo && (
-                      <span
-                        className={`text-xl w-8 text-left flex justify-center mr-2`}
-                      >
-                        {logo}
-                      </span>
-                    )}
-                    {label}
-                    <span className="ml-4 text-xl">{icon}</span>
-                    {children && (
-                      <span className="text-xl">
-                        <FiChevronRight />
-                      </span>
-                    )}
-                  </div>
-                );
-              }
-            )}
-          </Card>
-        </div>
-      </div>
-    </>
-  );
-}
 function NavigationBar() {
   const { globalState } = useContext(WalletContext);
 
@@ -1065,8 +761,6 @@ function NavigationBar() {
 
   const dclAccountBalances = useDCLAccountBalance(isSignedIn);
 
-  const historyInit = useHistory();
-
   useEffect(() => {
     if (!refAccountBalances || !dclAccountBalances) return;
 
@@ -1150,7 +844,7 @@ function NavigationBar() {
             className={`${
               hoverClick ? 'font-bold' : 'font-normal'
             } underline cursor-pointer mx-1`}
-            onClick={() => window.open('/account?tab=ref', '_blank')}
+            onClick={() => openUrl('/account?tab=ref')}
             onMouseEnter={() => setHoverClick(true)}
             onMouseLeave={() => setHoverClick(false)}
           >
@@ -1173,7 +867,7 @@ function NavigationBar() {
               <NavLogoIcon
                 className="cursor-pointer"
                 onClick={() => {
-                  window.open('https://www.ref.finance/');
+                  openUrl('https://www.ref.finance/');
                 }}
               />
             </div>
@@ -1182,6 +876,10 @@ function NavigationBar() {
             </div>
           </div>
           <div className="flex items-center justify-end">
+            <div className="mr-3">
+              <BridgeButton></BridgeButton>
+            </div>
+
             {isMobile() ? null : <BuyNearButton />}
 
             <div className="flex items-center mx-3">
@@ -1421,23 +1119,7 @@ function MenuBar() {
           }
         }
       }
-      // if (!one_level_selected_id) {
-      //   // no matched router than redirect to swap page
-      //   const { id, children } = menus[0];
-      //   const second_children_temp: any = children;
-      //   if (second_children_temp) {
-      //     const two_level_menu = second_children_temp.find(
-      //       (item: menuItemType) => {
-      //         const { swap_mode } = item;
-      //         return swap_mode_in_localstorage == swap_mode;
-      //       }
-      //     );
-      //     if (two_level_menu) {
-      //       two_level_selected_id = two_level_menu.id;
-      //     }
-      //   }
-      //   one_level_selected_id = id;
-      // }
+
       set_one_level_selected(one_level_selected_id);
       set_two_level_selected(two_level_selected_id);
     }
@@ -1460,7 +1142,7 @@ function MenuBar() {
       clickEvent();
     } else if (url) {
       if (isExternal) {
-        window.open(url);
+        openUrl(url);
       } else {
         history.push(url);
       }
@@ -1479,7 +1161,7 @@ function MenuBar() {
         clickEvent();
       } else if (url) {
         if (isExternal) {
-          window.open(url);
+          openUrl(url);
         } else {
           history.push(url);
         }

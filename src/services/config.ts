@@ -157,9 +157,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         },
         USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '1381490.62',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '1972847.31',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '1833249.40',
+          process.env.CUMULATIVE_REF_BUYBACK || '2621724.09',
         BLACKLIST_POOL_IDS: ['3699', '3734', '3563', '3613', '3620', '3625'],
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['10%', '10%'],
@@ -171,11 +171,13 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           '3612#0',
           '3612#1',
         ],
+        DCL_POOL_BLACK_LIST: ['usdt.tether-token.near|wrap.near|2000'],
         REF_UNI_V3_SWAP_CONTRACT_ID:
           process.env.REF_UNI_V3_SWAP_CONTRACT_ID || 'dclv2.ref-labs.near',
         REF_UNI_SWAP_CONTRACT_ID:
           process.env.REF_UNI_SWAP_CONTRACT_ID || 'dcl.ref-labs.near',
         switch_on_dcl_farms: 'off',
+        BURROW_CONTRACT_ID: 'contract.main.burrow.near',
       };
     case 'pub-testnet':
       return {
@@ -228,9 +230,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'dai.fakes.testnet': 2,
         },
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '1381490.62',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '1972847.31',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '1833249.40',
+          process.env.CUMULATIVE_REF_BUYBACK || '2621724.09',
         BLACKLIST_POOL_IDS: ['1752', '1760'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID ||
@@ -238,6 +240,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['10%', '10%'],
         kitWalletOn: true,
+        DCL_POOL_BLACK_LIST: ['usdt.fakes.testnet|wrap.testnet|100'],
         REF_UNI_V3_SWAP_CONTRACT_ID:
           process.env.REF_UNI_V3_SWAP_CONTRACT_ID || 'dclv2.ref-dev.testnet',
         REF_UNI_SWAP_CONTRACT_ID:
@@ -248,6 +251,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           '1760#1',
         ],
         switch_on_dcl_farms: 'on',
+        BURROW_CONTRACT_ID: 'contract.1638481328.burrow.testnet',
       };
     case 'testnet':
       return {
@@ -299,10 +303,12 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'usdc.fakes.testnet': 1,
           'dai.fakes.testnet': 2,
         },
+        DCL_POOL_BLACK_LIST: ['usdt.fakes.testnet|wrap.testnet|100'],
+
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '1381490.62',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '1972847.31',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '1833249.40',
+          process.env.CUMULATIVE_REF_BUYBACK || '2621724.09',
         BLACKLIST_POOL_IDS: ['686'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID ||
@@ -318,6 +324,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         FARM_BLACK_LIST_V2: process.env.FARM_BLACK_LIST_V2 || ['666'],
         boostBlackList: process.env.FARM__BOOST_BLACK_LIST || [''],
         switch_on_dcl_farms: 'on',
+        BURROW_CONTRACT_ID: 'contract.1638481328.burrow.testnet',
       };
     default:
       return {
@@ -380,9 +387,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         },
         USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '1381490.62',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '1972847.31',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '1833249.40',
+          process.env.CUMULATIVE_REF_BUYBACK || '2621724.09',
 
         BLACKLIST_POOL_IDS: ['3699', '3734', '3563', '3613', '3620', '3625'],
 
@@ -401,6 +408,8 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         REF_UNI_SWAP_CONTRACT_ID:
           process.env.REF_UNI_SWAP_CONTRACT_ID || 'dcl.ref-labs.near',
         switch_on_dcl_farms: 'off',
+        DCL_POOL_BLACK_LIST: ['usdt.tether-token.near|wrap.near|2000'],
+        BURROW_CONTRACT_ID: 'contract.main.burrow.near',
       };
   }
 }

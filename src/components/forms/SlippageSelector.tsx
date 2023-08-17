@@ -1,11 +1,18 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Slider } from '../icon/Info';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { isMobile } from '../../utils/device';
 import { IoCloseOutline, IoWarning } from 'react-icons/io5';
 import { QuestionTip } from '../../components/layout/TipWrapper';
 import { SUPPORT_LEDGER_KEY } from '../swap/SwapCard';
-import { SWAP_MODE } from '../../pages/SwapPage';
+import { SWAP_MODE, SWAP_TYPE, SwapProContext } from '../../pages/SwapPage';
+import {
+  Inch1IconAndAurora,
+  TriAndAurora,
+} from '../../components/icon/CrossSwapIcons';
+import { useWalletSelector } from '../../context/WalletSelectorContext';
+import { SupportLedgerGuide } from '../../components/layout/SupportLedgerGuide';
+import { TriAndAuroraLedger } from '../icon/CrossSwapIcons';
 
 export function CustomSwitch({
   isOpen,
@@ -53,15 +60,17 @@ function CustomSwitchSwap({
   isOpen,
   setIsOpen,
   storageKey,
+  forLedger,
 }: {
   isOpen: boolean;
-  setIsOpen: (e?: any) => void;
+  setIsOpen?: (e?: any) => void;
   storageKey?: string;
+  forLedger?: boolean;
 }) {
   return (
     <div
-      className={`ml-3 cursor-pointer ${
-        isOpen ? 'bg-gradientFrom' : 'bg-black bg-opacity-20'
+      className={`ml-3 ${!setIsOpen ? '' : 'cursor-pointer'}  ${
+        isOpen ? 'bg-gradientFromHover' : 'bg-black bg-opacity-20'
       }  p-0.5 flex items-center`}
       style={{
         height: '16px',
@@ -69,17 +78,24 @@ function CustomSwitchSwap({
         borderRadius: '20px',
       }}
       onClick={() => {
+        if (!setIsOpen) return;
         if (isOpen) {
           setIsOpen(false);
-          localStorage.removeItem(storageKey || SUPPORT_LEDGER_KEY);
+          if (forLedger) {
+            localStorage.removeItem(storageKey || SUPPORT_LEDGER_KEY);
+          }
         } else {
           setIsOpen(true);
-          localStorage.setItem(storageKey || SUPPORT_LEDGER_KEY, '1');
+          if (forLedger) {
+            localStorage.setItem(storageKey || SUPPORT_LEDGER_KEY, '1');
+          }
         }
       }}
     >
       <div
-        className={`rounded-full bg-white transition-all ${
+        className={`rounded-full ${
+          !setIsOpen ? 'bg-limitOrderInputColor' : 'bg-white'
+        } transition-all ${
           isOpen ? 'transform translate-x-3 relative left-px' : ''
         }`}
         style={{
@@ -97,16 +113,16 @@ export default function SlippageSelector({
   validSlippageList,
   supportLedger,
   setSupportLedger,
-  hideLedger,
   swapMode,
+  setReEstimateTrigger,
 }: {
   slippageTolerance: number;
   onChange: (slippage: number) => void;
   validSlippageList?: number[];
   supportLedger?: boolean;
   setSupportLedger?: (e?: any) => void;
-  hideLedger?: boolean;
   swapMode?: SWAP_MODE;
+  setReEstimateTrigger?: (e?: any) => void;
 }) {
   const ref = useRef<HTMLInputElement>();
   const validSlippages = validSlippageList || [0.1, 0.5, 1.0];
@@ -115,6 +131,27 @@ export default function SlippageSelector({
   const [invalid, setInvalid] = useState(false);
   const [warn, setWarn] = useState(false);
   const [symbolsArr] = useState(['e', 'E', '+', '-']);
+
+  const { enableTri, setEnableTri, swapType } = useContext(SwapProContext);
+  const { isLedger } = useWalletSelector();
+
+  const [ledgerGuide, setLedgerGuide] = useState<boolean>(false);
+
+  useEffect(() => {
+    let timer: any;
+
+    if (isLedger && !supportLedger) {
+      setShowSlip(true);
+      setLedgerGuide(true);
+      localStorage.setItem(SUPPORT_LEDGER_KEY, '1');
+
+      timer = setTimeout(() => {
+        setSupportLedger(true);
+        setReEstimateTrigger(true);
+      }, 500);
+    }
+    return () => clearTimeout(timer);
+  }, [isLedger, swapType]);
 
   const openToolTip = (e: any) => {
     e.nativeEvent.stopImmediatePropagation();
@@ -137,7 +174,10 @@ export default function SlippageSelector({
   };
 
   const closeToolTip = (e: any) => {
-    if (!invalid) setShowSlip(false);
+    if (!invalid) {
+      setLedgerGuide(false);
+      setShowSlip(false);
+    }
   };
 
   const handleBtnChange = (slippage: number) => {
@@ -178,10 +218,14 @@ export default function SlippageSelector({
   return (
     <div className="relative z-50 font-normal">
       <div
-        className="p-1 w-8 h-8 hover:bg-black flex items-center justify-center hover:bg-opacity-20 border border-opacity-20 border-primaryText rounded-xl text-2xl text-white cursor-pointer"
+        className="p-1  xsm:border xsm:rounded-lg xsm:border-limitOrderFeeTiersBorderColor hover:bg-v3SwapGray flex items-center justify-center hover:bg-opacity-10  rounded-lg text-2xl text-white cursor-pointer"
         onClick={(e) => openToolTip(e)}
         onMouseEnter={() => setHoverSlider(true)}
         onMouseLeave={() => setHoverSlider(false)}
+        style={{
+          height: '26px',
+          width: '26px',
+        }}
       >
         <Slider shrink showSlip={showSlip || hoverSlider} />
       </div>
@@ -190,7 +234,7 @@ export default function SlippageSelector({
           className={`xs:fixed xs:z-50 xs:top-0 xs:left-0 xs:backdrop-filter xs:right-0 xs:bottom-0 xs:bg-black xs:bg-opacity-60`}
         >
           <fieldset
-            className="absolute top-10 text-newSlippageColor -right-32 xs:relative xs:mx-5 xs:top-40 xs:right-0 px-4 py-6 bg-cardBg rounded-lg flex flex-col mb-4"
+            className="absolute top-10 text-newSlippageColor right-0 xs:relative xs:mx-5 xs:top-40 xs:right-0 px-4 py-6 bg-cardBg rounded-lg flex flex-col mb-4"
             style={{
               background: '#2E3D47',
               border: '1px solid rgba(126, 138, 147, 0.2)',
@@ -201,16 +245,18 @@ export default function SlippageSelector({
               openToolTip(e);
             }}
           >
-            <div className="text-newSlippageColor">
+            <div
+              className="text-newSlippageColor"
+              style={{
+                color: '',
+              }}
+            >
               <label className=" text-base font-bold text-center ">
-                <FormattedMessage
-                  id="slippage_title"
-                  defaultMessage="Transaction Settings"
-                />
+                <FormattedMessage id="settings" defaultMessage="Settings" />
               </label>
             </div>
             <div className="flex items-center">
-              <label className="text-sm py-5 text-center ">
+              <label className="text-sm py-5 text-text-newSlippageColor text-center ">
                 <FormattedMessage
                   id="slippage"
                   defaultMessage="Slippage tolerance"
@@ -275,35 +321,78 @@ export default function SlippageSelector({
                 <span className="ml-2">%</span>
               </div>
             </div>
-            {hideLedger ? null : (
-              <div
-                className={
-                  'flex items-center text-newSlippageColor mt-6 justify-between text-sm'
-                }
-              >
-                <div className="flex items-center">
-                  <label>
-                    <FormattedMessage
-                      id="support_ledger"
-                      defaultMessage={'Support Ledger'}
-                    />
-                  </label>
 
-                  <QuestionTip
-                    id="support_ledger_tip"
-                    defaultMessage="By design, Ledger cannot handle large transactions (i.e. Auto Router: trade across multiple pools at once) because of its memory limitation. When activated, the 'Support Ledger' option will limit transactions to their simplest form (to the detriment of better prices), so transactions of a reasonable size can be signed."
-                    dataPlace="bottom"
-                    uniquenessId="supportId"
-                    width="w-60"
+            {swapType === SWAP_TYPE.Pro && (
+              <>
+                <div className="text-sm mt-3 text-newSlippageColor">
+                  <FormattedMessage
+                    id="cross_chain_options"
+                    defaultMessage={'Cross chain options'}
+                  ></FormattedMessage>
+                </div>
+
+                <div className="frcb w-full my-2 text-sm">
+                  <div className="frcs">
+                    <TriAndAuroraLedger />
+
+                    <span className="ml-2 text-white text-sm">Trisolaris</span>
+                  </div>
+
+                  <CustomSwitchSwap
+                    isOpen={enableTri}
+                    setIsOpen={setEnableTri}
                   />
                 </div>
 
-                <CustomSwitchSwap
-                  isOpen={supportLedger}
-                  setIsOpen={setSupportLedger}
+                <div className="frcb w-full  text-sm">
+                  <div className="frcs">
+                    <Inch1IconAndAurora></Inch1IconAndAurora>
+
+                    <span className="ml-2 text-primaryText text-sm">
+                      1 inch
+                    </span>
+                  </div>
+
+                  <CustomSwitchSwap isOpen={false} />
+                </div>
+              </>
+            )}
+
+            <div
+              className={
+                'flex items-center relative text-newSlippageColor mt-6 justify-between text-sm'
+              }
+            >
+              {ledgerGuide && (
+                <SupportLedgerGuide
+                  handleClose={() => {
+                    setLedgerGuide(false);
+                  }}
+                />
+              )}
+              <div className="flex items-center">
+                <label>
+                  <FormattedMessage
+                    id="support_ledger"
+                    defaultMessage={'Support Ledger'}
+                  />
+                </label>
+
+                <QuestionTip
+                  id="support_ledger_tip"
+                  defaultMessage="By design, Ledger cannot handle large transactions (i.e. Auto Router: trade across multiple pools at once) because of its memory limitation. When activated, the 'Support Ledger' option will limit transactions to their simplest form (to the detriment of better prices), so transactions of a reasonable size can be signed."
+                  dataPlace="bottom"
+                  uniquenessId="supportId"
+                  width="w-60"
                 />
               </div>
-            )}
+
+              <CustomSwitchSwap
+                forLedger
+                isOpen={supportLedger}
+                setIsOpen={setSupportLedger}
+              />
+            </div>
 
             <div className={`${invalid || warn ? 'block' : 'hidden'}`}>
               {invalid ? (
@@ -431,7 +520,7 @@ export function PoolSlippageSelectorV3({
   );
 }
 
-export function StableSlipSelecter({
+export function StableSlipSelector({
   slippageTolerance,
   onChange,
   setInvalid,

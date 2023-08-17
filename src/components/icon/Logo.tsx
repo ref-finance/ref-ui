@@ -2,6 +2,7 @@ import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useHistory } from 'react-router-dom';
 import { VEARROW } from './Referendum';
+import { openUrl } from '../../services/commonV3';
 
 export function Logo() {
   return (
@@ -3699,7 +3700,7 @@ export const PoolDaoBannerMobile = () => {
 
       <button
         onClick={() => {
-          window.open('/referendum');
+          openUrl('/referendum');
         }}
         className="text-white text-base relative bottom-10"
       >

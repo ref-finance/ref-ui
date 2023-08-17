@@ -1,6 +1,6 @@
 import React, { useContext, createContext, useState, useEffect } from 'react';
 import { useOrderlyMarketData, useOrderlyPrivateData } from './off-chain-ws';
-import { useAccountExist } from './state';
+import { useAccountExist, useOrderlySystemAvailable } from './state';
 import { useAllSymbolInfo } from '../components/AllOrders/state';
 import { SymbolInfo } from './type';
 import {
@@ -20,9 +20,12 @@ import {
   useAllOrdersSymbol,
   useStorageEnough,
 } from './state';
+import { TokenMetadata } from '~services/ft-contract';
+import { parseSymbol } from '../components/RecentTrade';
 
 interface OrderlyContextValue {
   orders: Orders | undefined;
+  requestOrders: Orders | undefined;
   marketTrade: MarketTrade[] | undefined;
   lastJsonMessage: any;
   symbol: string;
@@ -45,6 +48,9 @@ interface OrderlyContextValue {
   ordersUpdate: Orders | undefined;
   userExist: undefined | boolean;
   availableSymbols: SymbolInfo[];
+  systemAvailable: boolean;
+  requestSymbol: string;
+  setRequestSymbol: (symbol: string) => void;
 }
 
 export const REF_ORDERLY_SYMBOL_KEY = 'REF_ORDERLY_SYMBOL_KEY';
@@ -52,17 +58,30 @@ export const REF_ORDERLY_SYMBOL_KEY = 'REF_ORDERLY_SYMBOL_KEY';
 export const OrderlyContext = createContext<OrderlyContextValue | null>(null);
 
 const OrderlyContextProvider: React.FC<any> = ({ children }) => {
+  let storedSymbol = localStorage.getItem(REF_ORDERLY_SYMBOL_KEY);
+
+  if (!!storedSymbol && storedSymbol.indexOf('SPOT') === -1) {
+    localStorage.setItem(REF_ORDERLY_SYMBOL_KEY, 'SPOT_NEAR_USDC');
+    storedSymbol = 'SPOT_NEAR_USDC';
+  }
+
   const [symbol, setSymbol] = useState<string>(
-    localStorage.getItem(REF_ORDERLY_SYMBOL_KEY) || 'SPOT_NEAR_USDC'
+    storedSymbol || 'SPOT_NEAR_USDC'
   );
+
+  const [requestSymbol, setRequestSymbol] = useState<string>();
 
   const value = useOrderlyMarketData({
     symbol,
+    requestSymbol,
   });
 
   const storageEnough = useStorageEnough();
 
   const userExist = useAccountExist();
+
+  const systemAvailable = useOrderlySystemAvailable();
+  const tokenInfo = useTokenInfo();
 
   const [validAccountSig, setValidAccountSig] = useState<boolean>(false);
 
@@ -77,12 +96,6 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
 
   const privateValue = useOrderlyPrivateData({ validAccountSig });
 
-  // const pendingOrders = usePendingOrders({
-  //   symbol,
-  //   refreshingTag: myPendingOrdersRefreshing,
-  //   validAccountSig,
-  // });
-
   const availableSymbols = useAllSymbolInfo();
 
   const allOrdersSymbol = useAllOrdersSymbol({
@@ -90,11 +103,6 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
     refreshingTag: myPendingOrdersRefreshing,
     validAccountSig,
   });
-
-  // const { trades: recentTrades, setTrades } = useMarketTrades({
-  //   symbol,
-  //   limit: 50,
-  // });
 
   const [recentTrades, setTrades] = useState<Trade[]>();
 
@@ -113,13 +121,14 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
     );
   }, [JSON.stringify(value.marketTrade)]);
 
-  const tokenInfo = useTokenInfo();
-
   return (
     <OrderlyContext.Provider
       value={{
         ...value,
         ...privateValue,
+        systemAvailable,
+        requestSymbol,
+        setRequestSymbol,
         symbol,
         setSymbol: (symbol: string) => {
           setSymbol(symbol);

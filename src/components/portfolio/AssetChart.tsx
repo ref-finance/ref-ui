@@ -202,9 +202,11 @@ function UnloginArea() {
     >
       <DotTopArea className="absolute left-0 top-0 xsm:transform xsm:scale-50 xsm:origin-top-left"></DotTopArea>
       <DotBottomArea className="absolute right-0 bottom-0 xsm:transform xsm:scale-50 xsm:origin-bottom-right"></DotBottomArea>
-      <span className="text-sm text-primaryText">Welcome!</span>
+      <span className="text-sm text-primaryText">
+        <FormattedMessage id="Welcome"></FormattedMessage>
+      </span>
       <span className="text-sm text-primaryText mt-0.5">
-        Connect your wallet to view
+        <FormattedMessage id="ConnectView"></FormattedMessage>
       </span>
       <div className="mt-4 w-60 relative z-10">
         <ConnectToNearBtn></ConnectToNearBtn>

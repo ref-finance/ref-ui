@@ -2024,6 +2024,13 @@
   dependencies:
     rxjs "^7.8.0"
 
+"@near-wallet-selector/core@7.9.3":
+  version "7.9.3"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/core/-/core-7.9.3.tgz#5a51b72064c9e018c0f0eb97db06b70cd58b8358"
+  integrity sha512-SNIgLnI/LeU1mwBHc5wcyOrVAqhWmFXJfVIfB1P16ziH3EKMsbs/gxcKUSPuvDagm9dZm11k+FA7bxSspavibA==
+  dependencies:
+    rxjs "^7.8.0"
+
 "@near-wallet-selector/here-wallet@^7.9.0":
   version "7.9.2"
   resolved "https://registry.yarnpkg.com/@near-wallet-selector/here-wallet/-/here-wallet-7.9.2.tgz#febc3fc8ab67e8eb4764d65be2f3096bebcd9b40"
@@ -2102,6 +2109,15 @@
     is-mobile "^3.1.1"
     near-seed-phrase "^0.2.0"
 
+"@near-wallet-selector/nightly@^7.0.2":
+  version "7.9.3"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/nightly/-/nightly-7.9.3.tgz#f4a42d750213f3fc2cee4843bd4bc9b4b7a03d91"
+  integrity sha512-ssIjArHISadq51ivQYz+AEXvsRYS2nUrwqWKDzj2UH8p6DssFMCLZjmuhE2c6RgLgVYgIZj5jAbMh8RLs6OOqA==
+  dependencies:
+    "@near-wallet-selector/core" "7.9.3"
+    "@near-wallet-selector/wallet-utils" "7.9.3"
+    is-mobile "^3.1.1"
+
 "@near-wallet-selector/sender@^7.0.0":
   version "7.9.2"
   resolved "https://registry.yarnpkg.com/@near-wallet-selector/sender/-/sender-7.9.2.tgz#422ebf68012406f85a1fd99310f608ae5a58636a"
@@ -2126,6 +2142,14 @@
   integrity sha512-fS/zjPg50kZGz7janbN3v9D+F+grJE3/zkeWnTJQOGxBY/HcbRSYI4oABKko9zQ3mwdfVdt83SWIXECTZanw4A==
   dependencies:
     "@near-wallet-selector/core" "7.9.2"
+    bn.js "^5.2.0"
+
+"@near-wallet-selector/wallet-utils@7.9.3":
+  version "7.9.3"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/wallet-utils/-/wallet-utils-7.9.3.tgz#35a098f29080041fc83daa6b48a7e005fa441fa1"
+  integrity sha512-uH99A7K0eibZeWVHb+fFgP/rpaDskEfHQXZiAOuIzaDmWnm8KSG4VxA+l5GAR/X+OTpaYwNSd+AB/v3PdeH0Ug==
+  dependencies:
+    "@near-wallet-selector/core" "7.9.3"
     bn.js "^5.2.0"
 
 "@nicolo-ribaudo/eslint-scope-5-internals@5.1.1-v1":
@@ -10357,6 +10381,11 @@ react-use-websocket@^4.3.1:
   version "4.3.1"
   resolved "https://registry.yarnpkg.com/react-use-websocket/-/react-use-websocket-4.3.1.tgz#13cd2fd2e0fb90010482ab2858f8ae81f2ce85c2"
   integrity sha512-zHPLWrgcqydJaak2O5V9hiz4q2dwkwqNQqpgFVmSuPxLZdsZlnDs8DVHy3WtHH+A6ms/8aHIyX7+7ulOcrnR0Q==
+
+react-useinterval@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/react-useinterval/-/react-useinterval-1.0.2.tgz#d9537b7e1a823422c70cb3dc226d07835ff15569"
+  integrity sha512-aC0ATWbm1HaQjp7ILQzn6qge0K70cAgVzIhdUtDXPo9ho7W84MJ7/KOJIKMoi1hFwMp8lQDMYuVUDDk/3mn6sw==
 
 react@18.2.0:
   version "18.2.0"

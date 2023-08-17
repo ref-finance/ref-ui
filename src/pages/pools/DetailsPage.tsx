@@ -13,6 +13,7 @@ import {
   TVLDataType,
   TVLType,
   useDayVolume,
+  useIndexerStatus,
 } from '~state/pool';
 import {
   addLiquidityToPool,
@@ -101,8 +102,6 @@ import {
 import _ from 'lodash';
 import moment from 'moment';
 import { ChartNoData } from '~components/icon/ChartNoData';
-import { WarnTriangle } from '~components/icon/SwapRefresh';
-import { RefIcon } from '~components/icon/Common';
 import {
   getCurrentWallet,
   WalletContext,
@@ -123,7 +122,6 @@ import {
   getURLInfo,
   checkAccountTip,
 } from '../../components/layout/transactionTipPopUp';
-import { checkTransaction } from '../../services/swap';
 
 export const REF_FI_PRE_LIQUIDITY_ID_KEY = 'REF_FI_PRE_LIQUIDITY_ID_VALUE';
 
@@ -172,6 +170,9 @@ import { useFarmStake } from '../../state/farm';
 import { VEARROW } from '../../components/icon/Referendum';
 import Big from 'big.js';
 import { getEffectiveFarmList, sort_tokens_by_base } from '~services/commonV3';
+import { openUrl } from '../../services/commonV3';
+import { numberWithCommas } from '../Orderly/utiles';
+import { PoolRefreshModal } from './PoolRefreshModal';
 
 interface ParamTypes {
   id: string;
@@ -205,7 +206,7 @@ export function getPoolFee24h(dayVolume: string, pool: Pool) {
   if (dayVolume) {
     const { fee } = pool;
 
-    const revenu24h = (fee / 10000) * 0.5 * Number(dayVolume) * 0.8;
+    const revenu24h = (fee / 10000) * Number(dayVolume) * 0.8;
 
     result = revenu24h;
   }
@@ -238,16 +239,16 @@ export const GetExchangeRate = ({
   token0Price?: string;
 }) => {
   const first_token_num = toReadableNumber(
-    tokens[0].decimals || 24,
+    tokens[0].decimals ?? 24,
     pool.supplies[tokens[0].id]
   );
   const second_token_num = toReadableNumber(
-    tokens[1].decimals || 24,
+    tokens[1].decimals ?? 24,
     pool.supplies[tokens[1].id]
   );
   const rate = Number(second_token_num) / Number(first_token_num);
 
-  const showRate = rate < 0.001 ? '< 0.001' : rate.toFixed(3);
+  const showRate = rate < 0.001 ? '< 0.001' : numberWithCommas(rate.toFixed(3));
 
   return Number(first_token_num) === 0 ? (
     <div className="px-1 border border-transparent">&nbsp;</div>
@@ -309,7 +310,7 @@ function DetailSymbol({
 
       <span
         className="cursor-pointer pl-2 py-0.5 text-gradientFrom"
-        onClick={() => window.open(`/pool/${id}`, '_blank')}
+        onClick={() => openUrl(`/pool/${id}`)}
       >
         <ExternalLinkIcon />
       </span>
@@ -393,11 +394,15 @@ function PoolDetailCard({
                 defaultMessage={'TVL'}
               ></FormattedMessage>
             }
-            value={`$${
-              Number(poolTVL) < 0.01 && Number(poolTVL) > 0
-                ? '< 0.01'
-                : toInternationalCurrencySystem(poolTVL || '0', 2)
-            }`}
+            value={
+              !poolTVL
+                ? '-'
+                : `$${
+                    Number(poolTVL) < 0.01 && Number(poolTVL) > 0
+                      ? '< 0.01'
+                      : toInternationalCurrencySystem(poolTVL || '0', 2)
+                  }`
+            }
             valueTitle={poolTVL}
           />
           <DetailRow
@@ -1091,6 +1096,7 @@ export function RemoveLiquidityModal(
                 pathname: '/farms',
               }}
               target="_blank"
+              rel="noopener noreferrer nofollow"
               onClick={(e) => {
                 e.stopPropagation();
               }}
@@ -1129,6 +1135,7 @@ export function RemoveLiquidityModal(
                 }`,
               }}
               target="_blank"
+              rel="noopener noreferrer nofollow"
               onClick={(e) => {
                 e.stopPropagation();
               }}
@@ -1166,7 +1173,7 @@ export function RemoveLiquidityModal(
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
-                window.open('/referendum');
+                openUrl('/referendum');
               }}
               className="hover:text-gradientFrom mb-1.5 cursor-pointer flex rounded-lg py-1.5 px-2 bg-black bg-opacity-20"
             >
@@ -1830,6 +1837,7 @@ export function PoolDetailsPage() {
   const { id } = useParams<ParamTypes>();
   const { state } = useLocation<LocationTypes>();
   const { pool, shares, finalStakeList: stakeList } = usePool(id);
+  const { fail: indexerFail } = useIndexerStatus();
 
   const [farmVersion, setFarmVersion] = useState<string>('');
 
@@ -2149,6 +2157,7 @@ export function PoolDetailsPage() {
                       farmVersion === 'V1' ? '/farms' : `/v2farms/${id}-r`,
                   }}
                   target="_blank"
+                  rel="noopener noreferrer nofollow"
                 >
                   <FarmStampNew multi={farmCount > 1} />
                 </Link>
@@ -2266,6 +2275,7 @@ export function PoolDetailsPage() {
                       farmVersion === 'V1' ? '/farms' : `/v2farms/${id}-r`,
                   }}
                   target="_blank"
+                  rel="noopener noreferrer nofollow"
                 >
                   <FarmStampNew multi={farmCount > 1} />
                 </Link>
@@ -2314,14 +2324,18 @@ export function PoolDetailsPage() {
                   ></FormattedMessage>
                 }
                 id="tvl"
-                value={`$${
-                  Number(poolTVL) < 0.01 && Number(poolTVL) > 0
-                    ? '< 0.01'
-                    : toInternationalCurrencySystem(
-                        poolTVL?.toString() || '0',
-                        2
-                      )
-                }`}
+                value={
+                  !poolTVL
+                    ? '-'
+                    : `$${
+                        Number(poolTVL) < 0.01 && Number(poolTVL) > 0
+                          ? '< 0.01'
+                          : toInternationalCurrencySystem(
+                              poolTVL?.toString() || '0',
+                              2
+                            )
+                      }`
+                }
                 valueTitle={poolTVL?.toString()}
               />
 
@@ -2384,14 +2398,19 @@ export function PoolDetailsPage() {
                     data-tip={getPoolListFarmAprTip()}
                     data-for={'pool_list_pc_apr' + pool.id}
                   >
-                    {dayVolume
+                    {!poolTVL
+                      ? '-'
+                      : dayVolume
                       ? `${getPoolFeeApr(dayVolume, pool, poolTVL)}%`
                       : '-'}
-                    {dayVolume && seedFarms && BaseApr().rawApr > 0 && (
-                      <span className="text-xs text-gradientFrom">
-                        {` +` + BaseApr().displayApr}
-                      </span>
-                    )}
+                    {poolTVL &&
+                      dayVolume &&
+                      seedFarms &&
+                      BaseApr().rawApr > 0 && (
+                        <span className="text-xs text-gradientFrom">
+                          {` +` + BaseApr().displayApr}
+                        </span>
+                      )}
 
                     {!!seedFarms &&
                       !isMobile() &&
@@ -2483,7 +2502,7 @@ export function PoolDetailsPage() {
                                 className=""
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  window.open(TokenLinks[token.symbol]);
+                                  openUrl(TokenLinks[token.symbol]);
                                 }}
                               >
                                 <FiArrowUpRight className="text-primaryText hover:text-greenColor cursor-pointer" />
@@ -2500,6 +2519,7 @@ export function PoolDetailsPage() {
                         </div>
                         <a
                           target="_blank"
+                          rel="noopener noreferrer nofollow"
                           href={`/swap/#${
                             tokens[0].id == WRAP_NEAR_CONTRACT_ID
                               ? 'near'
@@ -2767,7 +2787,7 @@ export function PoolDetailsPage() {
                   <SolidButton
                     className="py-1.5 pb-1.5 px-4 flex rounded-lg items-center justify-center"
                     onClick={() => {
-                      window.open(`/v2farms/${id}-r`, '_blank');
+                      openUrl(`/v2farms/${id}-r`);
                     }}
                   >
                     <FormattedMessage
@@ -2818,6 +2838,9 @@ export function PoolDetailsPage() {
           },
         }}
       />
+      {indexerFail && (
+        <PoolRefreshModal isOpen={indexerFail}></PoolRefreshModal>
+      )}
     </>
   );
 }

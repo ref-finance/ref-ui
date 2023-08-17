@@ -107,25 +107,26 @@ const ko_in_risks_page = {
   Locked_paragraph_6:
     '만약 하나라도 풀 액세스 키가 계약 계정에 등록되어 있는 경우, 그 계약은 잠기지 않습니다. ',
   audited_first_sentence:
-    'Ref Finance 스마트 계약은 <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://guide.ref.finance/developers/audits')" +
-    '>감사</label> 되었습니다.',
+    'Ref Finance 스마트 계약은 <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://guide.ref.finance/developers/audits"' +
+    '>감사</a> 되었습니다.',
   admin_first_sentence:
-    'Ref Finance 는 이 사람들이 관리합니다 <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-    '>Ref Finance Sputnik DAO</label>. Ref에는 <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://gov.ref.finance/t/introducing-the-guardians/253')" +
-    '>가디언</label>,이라는게 있으며, 이 특정 NEAR 주소들(=가디언)들은 계약을 멈추는게 가능합니다. 이렇게 멈춘 계약은 DAO에 의해서만, 시간에 구애받지 않고 재개 될 수 있습니다. ',
+    'Ref Finance 는 이 사람들이 관리합니다 <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://app.astrodao.com/dao/ref-finance.sputnik-dao.near"' +
+    '>Ref Finance Sputnik DAO</a>. Ref에는 <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://gov.ref.finance/t/introducing-the-guardians/253"' +
+    '>가디언</a>,이라는게 있으며, 이 특정 NEAR 주소들(=가디언)들은 계약을 멈추는게 가능합니다. 이렇게 멈춘 계약은 DAO에 의해서만, 시간에 구애받지 않고 재개 될 수 있습니다. ',
   risks_of_using_ref_finance:
     '<label class="text-greenColor">리스크</label> , Ref. finance 사용시의',
   admin_sentence_1:
-    'Ref Finance는 <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-    '>Ref Finance Sputnik DAO</label> 가 운영합니다. 우리 DAO는 완전 탈중앙화 DAO로 전환할 예정입니다.',
+    'Ref Finance는 <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://app.astrodao.com/dao/ref-finance.sputnik-dao.near"' +
+    '>Ref Finance Sputnik DAO</a> 가 운영합니다. 우리 DAO는 완전 탈중앙화 DAO로 전환할 예정입니다.',
   admin_sentence_2:
-    'Ref Finance의 전/현 담당자들의 계약 및 연락 정보를 알고 싶으시다면, <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://guide.ref.finance/developers/contracts')" +
-    '>문서</label> 쪽에서 확인해 주세요.',
+    'Ref Finance의 전/현 담당자들의 계약 및 연락 정보를 알고 싶으시다면, <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://guide.ref.finance/developers/contracts"' +
+    '>문서</a> 쪽에서 확인해 주세요.',
+  third_party_wallet: '타사 지갑',
+  third_party_wallet_1: 'Ref Finance는 타사 지갑을 통합합니다.',
+  third_party_wallet_2:
+    '평판이 좋은 지갑 공급자를 선택하기 위한 조치를 취했지만 보안이나 성능을 보장할 수는 없습니다. 특정 지갑 공급자와 관련된 위험을 숙지하고 서비스 약관, 개인 정보 보호 정책 및 보안 관행을 이해해야 합니다.',
+  third_party_wallet_3:
+    '이러한 서비스를 자신의 책임 하에 사용하고 주의를 기울여 주십시오.',
 };
 const ko = {
   deposit: '입금',
@@ -775,12 +776,12 @@ const ko = {
   no_farm_need_to_migrate: '이주해야하는 농장은 없습니다.',
   v1_farms: 'Classic 농장',
   has_rewards_tip:
-    '출금할 리워드가 다음 농장들에 남아있습니다: <a class="text-greenColor text-base cursor-pointer underline hover:text-senderHot"  href="/farms" >Legacy Farms</a>. 보상이 사라지진 않습니다. 언제든 출금할 수 있습니다.</div>',
+    '출금할 리워드가 다음 농장들에 남아있습니다: <a rel="noopener noreferrer nofollow" class="text-greenColor text-base cursor-pointer underline hover:text-senderHot"  href="/farms" >Legacy Farms</a>. 보상이 사라지진 않습니다. 언제든 출금할 수 있습니다.</div>',
   love: 'LOVE',
   Available_to_stake: '스테이킹 가능한 양은:',
   you_staked: '당신이 스테이킹한 양은:',
   has_rewards_tip_in_v2:
-    '출금가능한 레거시 보상들이 기다립니다 <a href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> Legacy Farms</a>.',
+    '출금가능한 레거시 보상들이 기다립니다 <a rel="noopener noreferrer nofollow"  href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> Legacy Farms</a>.',
   how_to_get: '어떻게 받나요?',
   get_booster: '부스터 받기',
   ended_farms: '부스팅 종료된 농장',
@@ -934,8 +935,7 @@ const ko = {
   out_of: 'out of',
   value_must_be_less_than_or_equal_to: 'Value must be less than or equal to',
   login_risk_tip:
-    'By checking this box and moving forward, you confirm that you fully understand the <a class="text-greenColor text-sm font-bold cursor-pointer hover:underline" onclick="window.open(' +
-    "'/risks'" +
+    'By checking this box and moving forward, you confirm that you fully understand the <a rel="noopener noreferrer nofollow" target="_blank" class="text-greenColor text-sm font-bold cursor-pointer hover:underline" href="/risks"' +
     ')">risks</a> of using Ref Finance.',
   no_pool_tip: 'Oops! The pool does not exist.',
   total_ref_week: 'Total REF/week',
@@ -1084,5 +1084,96 @@ const ko = {
   real_time_executed_orders: 'real-time executed orders',
   real_time_executed_orders_tip:
     'When placing a sell order above market price or a buy order below market price using limit order function, Ref will attempt to execute a swap-with-stop-point action first, and if there is any remaining amount, a limit order will be created to fill the rest.<br> Real-time executed orders refer to orders placed using the limit order function but executed through swapping. In the "History" section, you can view real-time executed orders between the earliest displayed limit order in History up to the present time.',
+  ledger_guide_tip_1:
+    'To successfully use your Ledger wallet for transactions, the ',
+
+  ledger_guide_tip_2: 'feature has been automatically activated.',
+  ledger_guide_tip_3: 'Please be aware',
+  support_ledger_tip_new: '"Support Ledger"',
+
+  ledger_guide_tip_4:
+    'that due to Ledger wallet constraints, the current rate provided by the swap function',
+  ledger_guide_tip_5: 'may not be the best price.',
+  view_dcl_pool: 'View DCL Pool',
+  your_trade_route: 'Your Trade Route',
+  markets: 'Markets',
+  exchanges: 'Exchanges',
+  output_est: 'Output (est.)',
+  go_to_orderbook: 'Go to Orderbook',
+  new_swap_order_tip:
+    'The price is from the Ref AMM offer and for reference only. There is no guarente that your limit order will be immediately filled. ',
+  instants_swap: 'Instant Swap',
+  swappped: 'Swapped',
+  claimed: 'Claimed',
+  executing_capital: 'Executing',
+  record: 'Record',
+  trade_route: 'Trade Route',
+  settings: 'Settings',
+  cross_chain_options: 'Cross-chain Options',
+  no_trade_routes: 'No Trade Routes',
+  steps_in_the_route: 'Steps in the Route',
+  swap_chart_no_data: 'Not enough data for the chart right now.',
+  last_updated: 'Last Updated',
+  steps_in_the_route_zh: '',
+  has_tri_pool_tip:
+    ' in Ref. Enable Trisolaris in Cross-chain Options to find more.',
+
+  Overview: 'Overview',
+  RefFinance: 'Ref.finance',
+  Orderly: 'Orderly',
+  Burrow: 'Burrow',
+  Supplied: 'Supplied',
+  Borrowed: 'Borrowed',
+  NetAPY: 'Net APY',
+  UnclaimedRewards: 'Unclaimed Rewards',
+  YouSupplied: 'You Supplied',
+  SupplyMarket: 'Supply Market',
+  YouBorrowed: 'You Borrowed',
+  BorrowMarket: 'Borrow Market',
+  NetAPYTip:
+    'Net APY of all supply and borrow positions, including base APYs and incentives',
+  Market: 'Market',
+  TotalSupplied: 'Total Supplied',
+  TotalBorrowed: 'Total Borrowed',
+  AvailableLiquidities: 'Available Liquidity',
+  DailyRewards: 'Daily Rewards',
+  SupplyAPY: 'Supply APY',
+  BorrowAPY: 'Borrow APY',
+  Collateral: 'Collateral',
+  Adjust: 'Adjust',
+  Supply: 'Supply',
+  Repay: 'Repay',
+  Borrow: 'Borrow',
+  HealthFactor: 'Health Factor',
+  CollateralFactor: 'Collateral Factor',
+  AdjustCollateral: 'Adjust Collateral',
+  UseAsCollateral: 'Use as Collateral',
+  RemainingCollateral: 'Remaining Collateral',
+  RemainingBorrow: 'Remaining Borrow',
+  NoSupplyTip: 'Your supplied assets will apear here.',
+  NoBorrowTip: 'Your borrowed assets will apear here.',
+  APY: 'APY',
+  CF: 'C.F.',
+  burrowErrorTip:
+    'The current balance is below the minimum token decimals, so that it cannot be processed by the contract.',
+  healthErrorTip:
+    "Your health factor will be dangerously low and you're at risk of liquidation.",
+  Summary: 'Summary',
+  Welcome: 'Welcome!',
+  ConnectView: 'Connect your wallet to view',
+  TotalSuppliedMarket: 'Total Supplied',
+
+  NetWorth: 'Net Worth',
+  Claimable: 'Claimable',
+  TotalDebts: 'Total Debt',
+  WalletAssets: 'Wallet Assets',
+  TotalInvested: 'Total Invested',
+  TotalAssets: 'Total Assets',
+  TokenAllocation: 'Token Allocation',
+  bridge_pure: '브릿지',
+
+  netWorthTip:
+    'Total value of investments in Ref (including claimable rewards) + Total value of Orderly assets + Total value of Burrow assets + Total assets in wallet',
+  pool_refresh: 'Something wrong with the server, please try again later.',
 };
 export default Object.assign(ko, ko_in_risks_page);

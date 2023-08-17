@@ -896,6 +896,46 @@ export const getAllTriPools = async (pair?: [string, string]) => {
   return allPools.filter((p) => p);
 };
 
+export const hasTriPools = (pair?: [string, string]) => {
+  const allSupportPairs = getAuroraConfig().Pairs;
+  const auroraTokens = defaultTokenList.tokens;
+  const address = auroraAddr(getCurrentWallet()?.wallet?.getAccountId());
+  const symbolToAddress = auroraTokens.reduce((pre, cur, i) => {
+    return {
+      ...pre,
+      [cur.symbol]: cur.address,
+    };
+  }, {});
+  const pairAddresses = Object.keys(allSupportPairs)
+    .map((pairName: string) => {
+      const names = pairName.split('-');
+      return {
+        ids: names.map((n) => {
+          if (n === 'ETH') return getAuroraConfig().WETH;
+          else return symbolToAddress[n];
+        }),
+        pairName,
+        pairAdd: allSupportPairs[pairName],
+        names,
+      };
+    })
+    .filter((p) => {
+      let showPair = pair.map((p) => {
+        if (p === 'USDT.e') return 'USDT';
+        if (p === 'USDC.e') return 'USDC';
+
+        return p;
+      });
+
+      return (
+        !showPair ||
+        (p.names.includes(showPair?.[0]) && p.names.includes(showPair?.[1]))
+      );
+    });
+
+  return pairAddresses?.length > 0;
+};
+
 // not deposit to aurora
 export const auroraSwapTransactions = async ({
   tokenIn_id,
@@ -960,10 +1000,7 @@ export const auroraSwapTransactions = async ({
             to: tokenOut_id,
             decimalIn,
             decimalOut,
-            readableAmountIn: toReadableNumber(
-              decimalIn,
-              todo.pool.partialAmountIn
-            ),
+            readableAmountIn: toReadableNumber(decimalIn, todo.partialAmountIn),
             readableAmountOut: percentLess(slippageTolerance, todo.estimate),
             address,
           });

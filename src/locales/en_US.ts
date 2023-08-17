@@ -109,26 +109,27 @@ const en_US_in_risks_page = {
   Locked_paragraph_6:
     'If there is at least one full-access key registered on the contract account, the contract is not locked.',
   audited_first_sentence:
-    'Ref Finance smart contracts have been <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://guide.ref.finance/developers/audits')" +
-    '>audited</label>.',
+    'Ref Finance smart contracts have been <a rel="noopener noreferrer nofollow" target="_blank" href="https://guide.ref.finance/developers/audits" class="underline cursor-pointer text-riskTextColor hover:text-white"' +
+    '>audited</a>.',
 
   admin_first_sentence:
-    'Ref Finance is managed by the <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-    '>Ref Finance Sputnik DAO</label>. There are <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://gov.ref.finance/t/introducing-the-guardians/253')" +
-    '>Guardians</label>, specific NEAR addresses, which are able to pause the contract. Only the DAO can resume the contract, at any time.',
+    'Ref Finance is managed by the <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://app.astrodao.com/dao/ref-finance.sputnik-dao.near"' +
+    '>Ref Finance Sputnik DAO</a>. There are <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://gov.ref.finance/t/introducing-the-guardians/253"' +
+    '>Guardians</a>, specific NEAR addresses, which are able to pause the contract. Only the DAO can resume the contract, at any time.',
   risks_of_using_ref_finance:
     '<label class="text-greenColor">Risks</label> of Using Ref. finance',
   admin_sentence_1:
-    'Ref Finance is managed by the  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-    '>Ref Finance Sputnik DAO</label> and will be transitioning to a fully decentralized DAO.',
+    'Ref Finance is managed by the  <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://app.astrodao.com/dao/ref-finance.sputnik-dao.near"' +
+    '>Ref Finance Sputnik DAO</a> and will be transitioning to a fully decentralized DAO.',
   admin_sentence_2:
-    'For more information relating to the contracts and addresses that have directly managed or currently manage the affairs of Ref Finance, please check our <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://guide.ref.finance/developers/contracts')" +
-    '>Documentation</label>.',
+    'For more information relating to the contracts and addresses that have directly managed or currently manage the affairs of Ref Finance, please check our <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://guide.ref.finance/developers/contracts"' +
+    '>Documentation</a>.',
+  third_party_wallet: 'Third-party wallet',
+  third_party_wallet_1: 'Ref Finance integrates third-party wallets.',
+  third_party_wallet_2:
+    'While we have taken measures to select wallet providers, we cannot guarantee their security or performance. You should familiarize yourself with the risks associated with the specific wallet provider and understand their terms of service, privacy policy, and security practices.',
+  third_party_wallet_3:
+    'Please use these services at your own risk and exercise caution.',
 };
 const en_US = {
   deposit: 'Deposit',
@@ -473,6 +474,7 @@ const en_US = {
   bridged_tokens: 'Bridged',
   gaming: 'Gaming',
   nft: 'NFT',
+
   bridge: 'Bridge to/from',
   from_ethereum: 'Ethereum',
   from_aurora: 'Aurora',
@@ -765,12 +767,12 @@ const en_US = {
   no_farm_need_to_migrate: 'No Farm need to Migrate',
   v1_farms: 'Legacy Farms',
   has_rewards_tip:
-    'You have claimed rewards in <a class="text-greenColor text-base cursor-pointer underline hover:text-senderHot"  href="/farms" >Legacy Farms</a>. You can withdraw them at any time.</div>',
+    'You have claimed rewards in <a rel="noopener noreferrer nofollow" class="text-greenColor text-base cursor-pointer underline hover:text-senderHot"  href="/farms" >Legacy Farms</a>. You can withdraw them at any time.</div>',
   love: 'LOVE',
   Available_to_stake: 'Available to stake',
   you_staked: 'You staked',
   has_rewards_tip_in_v2:
-    'Withdraw legacy rewards from <a href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> Legacy Farms</a>.',
+    'Withdraw legacy rewards from <a rel="noopener noreferrer nofollow" href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> Legacy Farms</a>.',
   how_to_get: 'How to get?',
   get_booster: 'Get Booster',
   ended_farms: 'ended farms',
@@ -882,8 +884,8 @@ const en_US = {
   your_orders: 'Your Orders',
   active: 'Active',
   history: 'History',
-  you_sell: 'You sell',
-  you_buy: 'You buy',
+  you_sell: 'You Sell',
+  you_buy: 'You Buy',
   fee_tiers: 'Fee tiers',
   order_rates: 'Order rates',
   created: 'Created',
@@ -936,8 +938,7 @@ const en_US = {
   range: 'Range',
   unclaimed_fee: 'Unclaimed Fee',
   login_risk_tip:
-    'By checking this box and moving forward, you confirm that you fully understand the <a class="text-greenColor text-sm font-bold cursor-pointer hover:underline" onclick="window.open(' +
-    "'/risks'" +
+    'By checking this box and moving forward, you confirm that you fully understand the <a rel="noopener noreferrer nofollow" target="_blank" class="text-greenColor text-sm font-bold cursor-pointer hover:underline" href="/risks"' +
     ')">risks</a> of using Ref Finance.',
   no_pool_tip: 'Oops! The pool does not exist.',
   total_ref_week: 'Total REF/week',
@@ -1001,7 +1002,7 @@ const en_US = {
   h24Range: '24h Range',
   chart: 'Chart',
   deposit_assets_to_begin_your_trading_journey:
-    'Deposit assets to begin your <br> trading journey.',
+    'Deposit assets to begin your {br} trading journey.',
   open_orders: 'Open Orders',
   Side: 'Side',
   both: 'Both',
@@ -1035,7 +1036,7 @@ const en_US = {
     '* This Orderbook page is a graphical user interface for trading on Orderly Network, and is provided as a convenience to users of Ref Finance.',
   learn_more_orderly: 'Learn more',
   more_order_book_page_detail:
-    'This Orderbook page is a graphical user interface for trading on Orderly Network, and is provided as a convenience to users of Ref Finance. Orderly Network is fully responsible for the security of their systems, smart contracts, and any funds deposited or sent to those systems and contracts. Users are strongly encouraged to do their own research before connecting their wallet and/or placing any orders.',
+    'This Orderbook page is powered by Orderly Network, users are strongly encouraged to do their own research before connecting their wallet and/or placing any orders.{br} Ref Finance does not guarantee the security of the systems, smart contracts, and any funds deposited or sent to those systems and contracts.{br} Neither Ref Finance nor Orderly Network is responsible for any profit or loss of investment users made through this Orderbook page.',
   learn_more_about: 'Learn more about',
   by_click_confirm:
     'By clicking "Confirm", you confirm that you have comprehensively reviewed and comprehended the contents aforementioned',
@@ -1234,5 +1235,99 @@ const en_US = {
     'When placing a sell order above market price or a buy order below market price using limit order function, Ref will attempt to execute a swap-with-stop-point action first, and if there is any remaining amount, a limit order will be created to fill the rest.<br> Real-time executed orders refer to orders placed using the limit order function but executed through swapping. In the "History" section, you can view real-time executed orders between the earliest displayed limit order in History up to the present time.',
 
   swapped_history_order: 'Swapped',
+  ledger_guide_tip_1:
+    'To successfully use your Ledger wallet for transactions, the ',
+
+  ledger_guide_tip_2: 'feature has been automatically activated.',
+  ledger_guide_tip_3: 'Please be aware',
+  ledger_guide_tip_quote: '"',
+
+  support_ledger_tip_new: 'Support Ledger',
+  ledger_guide_tip_4:
+    'that due to Ledger wallet constraints, the current rate provided by the swap function',
+  ledger_guide_tip_5: 'may not be the best price',
+  ledger_guide_tip_6: '.',
+  view_dcl_pool: 'View DCL Pool',
+  your_trade_route: 'Your Trade Route',
+  markets: 'Markets',
+  exchanges: 'Exchanges',
+  output_est: 'Output (est.)',
+  go_to_orderbook: 'Go to Orderbook',
+  new_swap_order_tip:
+    'The price is from the Ref AMM and for reference only. There is no guarente that your limit order will be immediately filled. ',
+  instants_swap: 'Instant Swap',
+  swappped: 'Swapped',
+  claimed: 'Claimed',
+  executing_capital: 'Executing',
+  record: 'Record',
+  trade_route: 'Trade Route',
+  settings: 'Settings',
+  cross_chain_options: 'Cross-chain Options',
+  no_trade_routes: 'No Trade Routes',
+  steps_in_the_route: 'Steps in the Route',
+  swap_chart_no_data: 'Not enough data for the chart right now.',
+  go_to_orderbook_tip:
+    'This price is for reference only. {br} Please proceed to <strong>Orderbook</strong> to place the order.',
+  last_updated: 'Last Updated',
+  steps_in_the_route_zh: '',
+  has_tri_pool_tip:
+    ' in Ref. Enable Trisolaris in Cross-chain Options to find more.',
+
+  Overview: 'Overview',
+  RefFinance: 'Ref.finance',
+  Orderly: 'Orderly',
+  Burrow: 'Burrow',
+  Supplied: 'Supplied',
+  Borrowed: 'Borrowed',
+  NetAPY: 'Net APY',
+  UnclaimedRewards: 'Unclaimed Rewards',
+  YouSupplied: 'You Supplied',
+  SupplyMarket: 'Supply Market',
+  YouBorrowed: 'You Borrowed',
+  BorrowMarket: 'Borrow Market',
+  NetAPYTip:
+    'Net APY of all supply and borrow positions, including base APYs and incentives',
+  Market: 'Market',
+  TotalSupplied: 'Total Supplied',
+  TotalBorrowed: 'Total Borrowed',
+  AvailableLiquidities: 'Available Liquidity',
+  DailyRewards: 'Daily Rewards',
+  SupplyAPY: 'Supply APY',
+  BorrowAPY: 'Borrow APY',
+  Collateral: 'Collateral',
+  Adjust: 'Adjust',
+  Supply: 'Supply',
+  Repay: 'Repay',
+  Borrow: 'Borrow',
+  HealthFactor: 'Health Factor',
+  CollateralFactor: 'Collateral Factor',
+  AdjustCollateral: 'Adjust Collateral',
+  UseAsCollateral: 'Use as Collateral',
+  RemainingCollateral: 'Remaining Collateral',
+  RemainingBorrow: 'Remaining Borrow',
+  NoSupplyTip: 'Your supplied assets will apear here.',
+  NoBorrowTip: 'Your borrowed assets will apear here.',
+  APY: 'APY',
+  CF: 'C.F.',
+  burrowErrorTip:
+    'The current balance is below the minimum token decimals, so that it cannot be processed by the contract.',
+  healthErrorTip:
+    "Your health factor will be dangerously low and you're at risk of liquidation.",
+  Summary: 'Summary',
+  Welcome: 'Welcome!',
+  ConnectView: 'Connect your wallet to view',
+  TotalSuppliedMarket: 'Total Supplied',
+
+  NetWorth: 'Net Worth',
+  Claimable: 'Claimable',
+  TotalDebts: 'Total Debt',
+  WalletAssets: 'Wallet Assets',
+  TotalInvested: 'Total Invested',
+  TotalAssets: 'Total Assets',
+  TokenAllocation: 'Token Allocation',
+  bridge_pure: 'Bridge',
+  pool_refresh: 'Something wrong with the server, please try again later.',
+  netWorthTip:
+    'Total value of investments in Ref (including claimable rewards) + Total value of Orderly assets + Total value of Burrow assets + Total assets in wallet',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

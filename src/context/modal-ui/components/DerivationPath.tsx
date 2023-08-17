@@ -167,6 +167,7 @@ export const DerivationPath: React.FC<DerivationPathProps> = ({
                   : 'app'
               }.mynearwallet.com/create`}
               target="_blank"
+              rel="noopener noreferrer nofollow"
               style={{
                 color: 'rgba(0, 148, 255, 1)',
               }}
@@ -255,8 +256,6 @@ export const DerivationPath: React.FC<DerivationPathProps> = ({
       })
       .then(() => onConnected())
       .catch((err) => {
-        console.log(err);
-
         setError(`Error: ${err.message}`);
         setRoute('ErrorRoute');
       });

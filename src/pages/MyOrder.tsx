@@ -496,6 +496,7 @@ function HistoryLine({
           className="flex items-center hover:text-white"
           href={`${getConfig().explorerUrl}/txns/${orderTx}`}
           target="_blank"
+          rel="noopener noreferrer nofollow"
         >
           Tx
           <span className="ml-1.5">
@@ -687,6 +688,7 @@ function HistoryLine({
                 className="flex items-center bg-black text-primaryText px-1.5  bg-opacity-20 rounded "
                 href={`${getConfig().explorerUrl}/txns/${orderTx}`}
                 target="_blank"
+                rel="noopener noreferrer nofollow"
               >
                 <span className="mr-1.5">
                   <HiOutlineExternalLink></HiOutlineExternalLink>
@@ -917,6 +919,7 @@ function HistorySwapInfoLine({
           className="flex items-center hover:text-white"
           href={`${getConfig().explorerUrl}/txns/${orderTx}`}
           target="_blank"
+          rel="noopener noreferrer nofollow"
         >
           Tx
           <span className="ml-1.5">
@@ -1001,6 +1004,7 @@ function HistorySwapInfoLine({
                 className="flex items-center bg-black text-primaryText px-1.5  bg-opacity-20 rounded "
                 href={`${getConfig().explorerUrl}/txns/${orderTx}`}
                 target="_blank"
+                rel="noopener noreferrer nofollow"
               >
                 <span className="mr-1.5">
                   <HiOutlineExternalLink></HiOutlineExternalLink>
@@ -3315,11 +3319,6 @@ function MyOrderPage() {
       [cur.id]: cur,
     };
   }, {});
-  function getTipForOrders() {
-    const n = intl.formatMessage({ id: 'orderTip' });
-    const result: string = `<div class="text-navHighLightText text-xs text-left xsm:w-40 whitespace-normal" >${n}</div>`;
-    return result;
-  }
 
   return (
     <div className="max-w-7xl mx-auto flex flex-col xs:w-11/12 md:5/6 lg:w-1000px">
@@ -3339,27 +3338,6 @@ function MyOrderPage() {
           </span>
           <div className="flex items-center">
             <FormattedMessage id="your_orders" defaultMessage={'Your Orders'} />
-            <div
-              className="text-white text-right ml-1"
-              data-class="reactTip"
-              data-for={'orderNumberTip'}
-              data-place="top"
-              data-html={true}
-              data-tip={getTipForOrders()}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-              }}
-            >
-              <QuestionMark></QuestionMark>
-              <ReactTooltip
-                id={'orderNumberTip'}
-                backgroundColor="#1D2932"
-                border
-                borderColor="#7e8a93"
-                effect="solid"
-              />
-            </div>
           </div>
         </button>
 

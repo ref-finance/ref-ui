@@ -130,7 +130,8 @@ export function ExclamationTip({
         id={uniquenessId || 'exclaimaton_tip' + 'id'}
         backgroundColor="#1D2932"
         border
-        place={'right'}
+        // @ts-ignore
+        place={dataPlace || 'bottom'}
         borderColor="#7e8a93"
         effect="solid"
         textColor="#1D2932"

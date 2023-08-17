@@ -158,13 +158,23 @@ export function useStorageEnough() {
 
     if (!accountId) return;
 
-    //   setStorageEnough(false);
-    // } else {
     checkStorageDeposit(accountId).then(setStorageEnough);
-    // }
   }, [accountId]);
 
   return storageEnough;
+}
+
+export function useOrderlySystemAvailable() {
+  const [systemAvailable, setSystemAvailable] = useState<boolean>(undefined);
+
+  useEffect(() => {
+    getOrderlyPublic('/v1/public/system_info').then((res) => {
+      const status = res?.data?.status;
+      setSystemAvailable(status === 0);
+    });
+  }, []);
+
+  return systemAvailable;
 }
 
 export function useAccountExist() {

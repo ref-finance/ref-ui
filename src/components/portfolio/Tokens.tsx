@@ -36,6 +36,8 @@ import {
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { isMobile } from '~utils/device';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { openUrl } from '../../services/commonV3';
+
 const is_mobile = isMobile();
 export default function Tokens() {
   const { tokenPriceList } = useContext(PortfolioData);
@@ -479,7 +481,7 @@ export default function Tokens() {
                 localStorage.setItem('REF_FI_ACCOUNT_TAB_KEY', activeTab);
               }
 
-              window.open('/account');
+              openUrl('/account');
             }}
             extraClass={`flex-shrink-0 ${isSignedIn ? '' : 'hidden'}`}
           ></ArrowJumpLarge>

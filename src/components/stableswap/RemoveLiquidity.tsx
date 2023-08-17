@@ -14,10 +14,7 @@ import { Card } from '../../components/card/Card';
 import InputAmount from '../../components/forms/InputAmount';
 import QuestionMark from '~components/farm/QuestionMark';
 
-import {
-  PoolSlippageSelector,
-  StableSlipSelecter,
-} from '../../components/forms/SlippageSelector';
+import { StableSlipSelector } from '../../components/forms/SlippageSelector';
 import { TokenMetadata } from '../../services/ft-contract';
 import {
   Pool,
@@ -400,7 +397,7 @@ export function RemoveLiquidityComponent(props: {
 
       <div className="mt-4 px-8 w-full border-primaryText border-opacity-30 border-t">
         <div className="text-xs pt-2">
-          <StableSlipSelecter
+          <StableSlipSelector
             slippageTolerance={slippageTolerance}
             onChange={(slippage) => {
               setSlippageTolerance(slippage);

@@ -263,6 +263,7 @@ export default function AirdropView() {
                 className="text-gray font-semibold"
                 href={`${getConfig().explorerUrl}/txns/${txHash}`}
                 target="_blank"
+                rel="noopener noreferrer nofollow"
               >
                 <FormattedMessage
                   id="claim_failed_click_to_view"
@@ -281,6 +282,7 @@ export default function AirdropView() {
                 className="text-primary font-semibold"
                 href={`${getConfig().explorerUrl}/txns/${txHash}`}
                 target="_blank"
+                rel="noopener noreferrer nofollow"
               >
                 <FormattedMessage
                   id="claim_successful_click_to_view"

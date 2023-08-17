@@ -21,14 +21,19 @@ import { setupNeth } from '@near-wallet-selector/neth';
 
 import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet';
 
-import { setupWalletConnect } from '@near-wallet-selector/wallet-connect';
+import { setupNightly } from '@near-wallet-selector/nightly';
 
-import { InjectedWallet } from '@near-wallet-selector/core';
+import { setupWalletConnect } from '@near-wallet-selector/wallet-connect';
 
 import getConfig from '../services/config';
 
 import './modal-ui/components/styles.css';
-import { REF_FARM_BOOST_CONTRACT_ID } from '../services/near';
+import {
+  REF_FARM_CONTRACT_ID,
+  wallet,
+  REF_FARM_BOOST_CONTRACT_ID,
+  near,
+} from '../services/near';
 import { walletIcons } from './walletIcons';
 import { getWSNetworkConfig } from '../services/config';
 import { getOrderlyConfig } from '../pages/Orderly/config';
@@ -42,6 +47,9 @@ import {
   get_orderly_private_key_path,
   get_orderly_public_key_path,
 } from '../pages/Orderly/orderly/utils';
+import { isMobile } from '../utils/device';
+import { AccountView } from 'near-api-js/lib/providers/provider';
+import { Account, providers } from 'near-api-js';
 
 const CONTRACT_ID = getOrderlyConfig().ORDERLY_ASSET_MANAGER;
 
@@ -63,6 +71,7 @@ interface WalletSelectorContextValue {
   accounts: Array<AccountState>;
   accountId: string | null;
   setAccountId: (accountId: string) => void;
+  isLedger: boolean;
 }
 
 const WalletSelectorContext =
@@ -73,6 +82,8 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
   const [modal, setModal] = useState<WalletSelectorModal | null>(null);
   const [accountId, setAccountId] = useState<string | null>(null);
   const [accounts, setAccounts] = useState<Array<AccountState>>([]);
+
+  const [isLedger, setIsLedger] = useState<boolean>(undefined);
 
   const syncAccountState = (
     currentAccountId: string | null,
@@ -112,9 +123,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         setupSender({
           iconUrl: walletIcons['sender'],
         }),
-        setupLedger({
-          iconUrl: walletIcons['ledger'],
-        }),
+        // @ts-ignore
         setupMeteorWallet({
           iconUrl: walletIcons['meteor-wallet'],
         }),
@@ -146,6 +155,14 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         //   iconUrl: walletIcons['nightly'],
         // }),
 
+        // @ts-ignore
+        setupNightly({
+          iconUrl: walletIcons['nightly'],
+        }),
+        setupLedger({
+          iconUrl: walletIcons['ledger'],
+        }),
+        // @ts-ignore
         setupHereWallet(),
         // setupNightlyConnect({
         //   url: 'wss://ncproxy.nightly.app/app',
@@ -176,8 +193,6 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
   useEffect(() => {
     init()
       .catch((err) => {
-        console.error(err);
-        console.log(err);
         alert('Failed to initialise wallet selector');
       })
       .then(() => {
@@ -209,7 +224,63 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
     return () => subscription.unsubscribe();
   }, [selector, accountId]);
 
-  if (!selector || !modal) {
+  const getAllKeys = async (accountId: string) => {
+    const account = await near.account(accountId);
+
+    const allKeys = await account.getAccessKeys();
+
+    const isWalletMeta = allKeys.some((k) => {
+      if (k.access_key.permission === 'FullAccess') return false;
+      const meta =
+        k.access_key.permission.FunctionCall.method_names.includes(
+          '__wallet__metadata'
+        );
+      return meta;
+    });
+
+    const isSelectLedger =
+      selector.store.getState().selectedWalletId === 'ledger';
+
+    setIsLedger(isSelectLedger || isWalletMeta);
+  };
+
+  useEffect(() => {
+    if (!accountId || !selector) return;
+
+    getAllKeys(accountId);
+  }, [accountId, selector]);
+
+  // const getAccount = useCallback(async (): Promise<Account | null> => {
+  //   if (!accountId) {
+  //     return null;
+  //   }
+
+  //   const provider = new providers.JsonRpcProvider({
+  //     url: getConfig().nodeUrl,
+  //   });
+
+  //   return provider
+  //     .query<AccountView>({
+  //       request_type: 'view_account',
+  //       finality: 'final',
+  //       account_id: accountId,
+  //     })
+  //     .then((data: any) => ({
+  //       ...data,
+  //       account_id: accountId,
+  //     }));
+  // }, [accountId]);
+
+  // useEffect(() => {
+  //   if (!selector || !accountId) return;
+
+  //   getAccount().catch((e) => {
+  //     alert(e?.message);
+  //     selector.wallet().then((wallet) => wallet.signOut());
+  //   });
+  // }, [selector, accountId]);
+
+  if (!selector || !modal || (!!accountId && isLedger === undefined)) {
     return null;
   }
 
@@ -223,6 +294,32 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
     localStorage.removeItem(REF_FI_SENDER_WALLET_ACCESS_KEY);
   });
 
+  if (!isMobile() && !!window.near) {
+    window.near.on('signOut', () => {
+      localStorage.removeItem(get_orderly_private_key_path());
+      localStorage.removeItem(get_orderly_public_key_path());
+      localStorage.removeItem(REF_ORDERLY_ACCOUNT_VALID);
+      localStorage.removeItem(REF_ORDERLY_NORMALIZED_KEY);
+      localStorage.removeItem(REF_FI_SENDER_WALLET_ACCESS_KEY);
+    });
+
+    window.near.on('signIn', () => {
+      //@ts-ignore
+      const keyStoreSender = window?.near?.authData;
+
+      if (
+        keyStoreSender &&
+        !!keyStoreSender?.['accountId'] &&
+        !!keyStoreSender?.['accessKey']
+      ) {
+        localStorage.setItem(
+          REF_FI_SENDER_WALLET_ACCESS_KEY,
+          JSON.stringify(keyStoreSender)
+        );
+      }
+    });
+  }
+
   return (
     <WalletSelectorContext.Provider
       value={{
@@ -231,6 +328,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         accounts,
         accountId,
         setAccountId,
+        isLedger,
       }}
     >
       {children}

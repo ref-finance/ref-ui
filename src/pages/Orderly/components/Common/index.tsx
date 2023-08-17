@@ -162,7 +162,7 @@ export function ConnectWallet({ onClick }: { onClick: () => void }) {
   return (
     <button
       className="text-base min-w-fit py-3 px-10 relative w-p240 xs:w-full xs:py-2 bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center
-      
+
     "
       onClick={(e) => {
         e.preventDefault();
@@ -187,7 +187,7 @@ export function ConfirmButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       className="text-base min-w-fit py-3 px-10 relative w-p240 xs:w-full xs:py-2 bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center
-      
+
     "
       onClick={(e) => {
         e.preventDefault();
@@ -270,11 +270,15 @@ export function RegisterButton({
             }
           >
             <div>
-              {intl.formatMessage({
-                id: 'more_order_book_page_detail',
-                defaultMessage:
-                  'This Orderbook page is a graphical user interface for trading on Orderly Network, and is provided as a convenience to users of Ref Finance. Orderly Network is fully responsible for the security of their systems, smart contracts, and any funds deposited or sent to those systems and contracts. Users are strongly encouraged to do their own research before connecting their wallet and/or placing any orders.',
-              })}
+              <FormattedMessage
+                id="more_order_book_page_detail"
+                values={{
+                  br: <br />,
+                }}
+                defaultMessage={
+                  'This Orderbook page is powered by Orderly Network, users are strongly encouraged to do their own research before connecting their wallet and/or placing any orders.{br} Ref Finance does not guarantee the security of the systems, smart contracts, and any funds deposited or sent to those systems and contracts.{br} Neither Ref Finance nor Orderly Network is responsible for any profit or loss of investment users made through this Orderbook page.'
+                }
+              />
             </div>
 
             <div className="py-5">
@@ -295,6 +299,7 @@ export function RegisterButton({
                 className="underline text-primary ml-1"
                 href="https://orderly.network/"
                 target="_blank"
+                rel="noopener noreferrer nofollow"
               >
                 Orderly Network
               </a>

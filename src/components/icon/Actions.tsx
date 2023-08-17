@@ -185,6 +185,24 @@ export function CloseIcon({
     </svg>
   );
 }
+export function CloseIconBold() {
+  return (
+    <svg
+      width="10"
+      height="10"
+      viewBox="0 0 10 10"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M0.302046 7.59408C-0.100682 7.99681 -0.100682 8.64977 0.302046 9.05249C0.704774 9.45522 1.35773 9.45522 1.76045 9.05249L4.6774 6.13555L7.59434 9.05249C7.99707 9.45522 8.65002 9.45522 9.05274 9.05249C9.45547 8.64977 9.45547 7.99681 9.05274 7.59408L6.1358 4.67714L9.05249 1.76045C9.45522 1.35773 9.45522 0.704774 9.05249 0.302046C8.64976 -0.100682 7.99681 -0.100682 7.59408 0.302046L4.6774 3.21874L1.76071 0.302046C1.35798 -0.100682 0.705027 -0.100682 0.302299 0.302046C-0.100429 0.704774 -0.100429 1.35773 0.302299 1.76045L3.21899 4.67714L0.302046 7.59408Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
 
 export function AddLiquidity() {
   return (
@@ -743,6 +761,11 @@ const viewMap = {
   'Append Liquidity': AddLiquidity,
   'Burn Liquidity': RemoveLiquidity,
   'Mint Liquidity': AddLiquidity,
+  Adjust: Swap,
+  Borrow: Deposit,
+  Repay: Withdraw,
+  Supply: AddLiquidity,
+  Claim: Withdraw,
 };
 
 const blackViewMap = {
@@ -791,6 +814,11 @@ const blackViewMap = {
   'Append Liquidity': AddLiquidityBlack,
   'Burn Liquidity': RemoveLiquidityBlack,
   'Mint Liquidity': AddLiquidityBlack,
+  Adjust: SwapBlack,
+  Borrow: DepositBlack,
+  Repay: WithdrawBlack,
+  Supply: AddLiquidityBlack,
+  Claim: WithdrawBlack,
 };
 
 export function mapToView(action: string, black = false): JSX.Element {

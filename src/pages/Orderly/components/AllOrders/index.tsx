@@ -1627,6 +1627,8 @@ function HistoryOrderLine({
               style={{
                 width: showCurSymbol ? '75%' : '66%',
               }}
+              // @ts-ignore
+              align="right"
             >
               <thead
                 className={`w-full   text-xs grid-cols-6 justify-items-start  border-white mt-2 pb-3 pt-1 border-opacity-10  `}
@@ -1654,7 +1656,7 @@ function HistoryOrderLine({
                   </td>
 
                   <td className="">
-                    <div className="flex items-center">
+                    <div className="flex items-center justify-end">
                       {intl.formatMessage({
                         id: 'fee_orderly',
                         defaultMessage: 'Fee',
@@ -3932,7 +3934,7 @@ function HistoryOrders({
   );
 }
 
-function AllOrderBoard() {
+function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
   const {
     symbol,
     myPendingOrdersRefreshing,
@@ -3975,7 +3977,8 @@ function AllOrderBoard() {
     typeof allOrders === 'undefined' &&
     !!accountId &&
     storageEnough &&
-    !!localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
+    !!localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID) &&
+    !maintenance;
 
   const [tab, setTab] = useState<'open' | 'history'>('open');
 

@@ -7,6 +7,7 @@ import { useClientMobile } from '../../../utils/device';
 import { BeatLoading } from 'respinner';
 import { walletIcons } from '../../walletIcons';
 import getConfig from '../../../services/config';
+import { openUrl } from '../../../services/commonV3';
 
 export const MetaMaskTip = ({ inMeta }: { inMeta?: boolean }) => {
   const clientMobie = useClientMobile();
@@ -53,9 +54,7 @@ export const MetaMaskTip = ({ inMeta }: { inMeta?: boolean }) => {
               marginBottom: '5px',
             }}
             onClick={() => {
-              window.open(
-                `https://metamask.app.link/dapp/${window.location.host}`
-              );
+              openUrl(`https://metamask.app.link/dapp/${window.location.host}`);
 
               return;
             }}

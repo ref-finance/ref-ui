@@ -6,6 +6,7 @@ import {
   REF_FI_CONTRACT_ID,
   Transaction,
   RefFiFunctionCallOptions,
+  BLACKLIST_POOL_IDS,
 } from './near';
 import db from '../store/RefDatabase';
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
@@ -18,7 +19,11 @@ import {
   storageDepositAction,
   storageDepositForFTAction,
 } from './creators/storage';
-import { getTopPools, getTopPoolsIndexer } from '../services/indexer';
+import {
+  getTopPools,
+  getTopPoolsIndexer,
+  getTopPoolsIndexerRaw,
+} from '../services/indexer';
 import { PoolRPCView } from './api';
 import {
   checkTokenNeedsStorageDeposit,
@@ -48,9 +53,9 @@ import {
 } from './wrap-near';
 import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity';
 import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
-import { getAllPoolsIndexer } from './indexer';
-import { getExtendConfig } from './config';
+
 import { cacheAllDCLPools } from './swapV3';
+import { REF_DCL_POOL_CACHE_KEY } from '../state/swap';
 const explorerType = getExplorer();
 export const DEFAULT_PAGE_LIMIT = 500;
 const getStablePoolKey = (id: string) => `STABLE_POOL_VALUE_${id}`;
@@ -279,9 +284,155 @@ export const isNotStablePool = (pool: Pool) => {
   return !isStablePool(pool.id);
 };
 
-const REF_FI_ACTIVE_TRI_POOL = 'REF_FI_ACTIVE_TRI_POOL_VALUE';
+const fetchPoolsRPC = async () => {
+  const totalPools = await getTotalPools();
+  const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
+
+  const res = (
+    await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
+  )
+    .flat()
+    .map((p) => ({ ...p, Dex: 'ref' }));
+
+  return res;
+};
+
+const fetchPoolsIndexer = async () => {
+  return await getTopPoolsIndexerRaw();
+};
+
+const REF_FI_POOL_PROTOCOL = 'REF_FI_POOL_PROTOCOL_KEY';
+
+const fetchTopPools = async () => {
+  try {
+    return {
+      pools: await getTopPoolsIndexerRaw(),
+      protocol: 'indexer',
+    };
+  } catch (error) {
+    sessionStorage.setItem(REF_FI_POOL_PROTOCOL, 'rpc');
+
+    await db.topPools.clear();
+
+    await db.poolsTokens.clear();
+
+    const res = await fetchPoolsRPC();
+
+    return {
+      pools: res,
+      protocol: 'rpc',
+    };
+  }
+};
 
 export const getPoolsByTokens = async ({
+  tokenInId,
+  tokenOutId,
+  setLoadingData,
+  loadingTrigger,
+  proGetCachePool,
+  tokenIn,
+  tokenOut,
+}: GetPoolOptions): Promise<{
+  filteredPools: Pool[];
+  pool_protocol: string;
+}> => {
+  let pools;
+
+  let pool_protocol = 'indexer';
+
+  const cachePools = async (pools: any) => {
+    await db.cachePoolsByTokens(
+      pools.filter(filterBlackListPools).filter((p: any) => isNotStablePool(p))
+    );
+  };
+
+  if (loadingTrigger) {
+    const { pools: poolsRaw, protocol } = await fetchTopPools();
+    pool_protocol = protocol;
+
+    if (protocol === 'indexer') {
+      await db.cacheTopPools(poolsRaw);
+      pools = poolsRaw.map((p: any) => {
+        return {
+          ...parsePool(p),
+          Dex: 'ref',
+        };
+      });
+
+      sessionStorage.setItem(REF_FI_POOL_PROTOCOL, 'indexer');
+    } else {
+      pools = poolsRaw;
+
+      sessionStorage.setItem(REF_FI_POOL_PROTOCOL, 'rpc');
+    }
+
+    await cachePools(pools);
+
+    await cacheAllDCLPools();
+  } else {
+    if (!localStorage.getItem(REF_DCL_POOL_CACHE_KEY)) {
+      await cacheAllDCLPools();
+    }
+
+    const cachedPoolProtocol = sessionStorage.getItem(REF_FI_POOL_PROTOCOL);
+    pool_protocol = cachedPoolProtocol || 'indexer';
+
+    if (cachedPoolProtocol === 'rpc') {
+      pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
+
+      if (!pools || pools.length === 0) {
+        pools = await fetchPoolsRPC();
+        await cachePools(pools);
+      }
+    } else {
+      const poolsRaw = await db.queryTopPools();
+
+      if (poolsRaw && poolsRaw?.length > 0 && cachedPoolProtocol !== 'rpc') {
+        pools = poolsRaw.map((p) => {
+          const parsedP = parsePool({
+            ...p,
+            share: p.shares_total_supply,
+            id: Number(p.id),
+            tvl: Number(p.tvl),
+          });
+
+          return {
+            ...parsedP,
+            Dex: 'ref',
+          };
+        });
+      } else {
+        const poolsRaw = await fetchPoolsIndexer();
+
+        await db.cacheTopPools(poolsRaw);
+
+        pools = poolsRaw.map((p: any) => {
+          return {
+            ...parsePool(p),
+            Dex: 'ref',
+          };
+        });
+
+        await cachePools(pools);
+      }
+    }
+  }
+
+  const filteredPools = pools
+    .filter(filterBlackListPools)
+    .filter((pool: any) => {
+      return (
+        pool.tokenIds.includes(tokenInId) &&
+        pool.tokenIds.includes(tokenOutId) &&
+        isNotStablePool(pool)
+      );
+    });
+
+  return { filteredPools, pool_protocol };
+};
+
+export const getPoolsByTokensAurora = async ({
   tokenInId,
   tokenOutId,
   setLoadingData,
@@ -294,7 +445,8 @@ export const getPoolsByTokens = async ({
   let filtered_pools;
   const [cacheForPair, cacheTimeLimit] = await db.checkPoolsByTokens(
     tokenInId,
-    tokenOutId
+    tokenOutId,
+    true
   );
 
   const PAIR_NAME = [
@@ -305,64 +457,12 @@ export const getPoolsByTokens = async ({
   ].join('-');
 
   if ((!loadingTrigger && cacheTimeLimit) || !cacheForPair) {
-    filtered_pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
+    filtered_pools = await db.getPoolsByTokens(tokenInId, tokenOutId, true);
 
-    let triPools;
-    if (crossSwap) {
-      triPools = sessionStorage.getItem(`REF_FI_TRI_POOL_` + PAIR_NAME);
-      if (triPools) {
-        triPools = JSON.parse(triPools);
-      } else {
-        triPools = await getAllTriPools(
-          tokenIn && tokenOut
-            ? [
-                tokenIn.id === WRAP_NEAR_CONTRACT_ID ? 'wNEAR' : tokenIn.symbol,
-                tokenOut.id === WRAP_NEAR_CONTRACT_ID
-                  ? 'wNEAR'
-                  : tokenOut.symbol,
-              ]
-            : null
-        );
-      }
-      filtered_pools = filtered_pools.concat(triPools || []);
-    }
-  }
-  if (
-    (crossSwap && proGetCachePool) ||
-    loadingTrigger ||
-    (!cacheTimeLimit && cacheForPair)
-  ) {
-    setLoadingData && setLoadingData(true);
-
-    const isCacheFromIndexer =
-      getExtendConfig().pool_protocol &&
-      getExtendConfig().pool_protocol === 'indexer';
-
-    const isCacheFromRPC = !isCacheFromIndexer;
-
-    let pools;
-
-    if (isCacheFromIndexer) {
-      pools = (await getTopPoolsIndexer()).map((p: any) => ({
-        ...p,
-        Dex: 'ref',
-      }));
-    } else if (isCacheFromRPC) {
-      const totalPools = await getTotalPools();
-      const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
-
-      pools = (
-        await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
-      )
-        .flat()
-        .map((p) => ({ ...p, Dex: 'ref' }));
-    }
-
-    // const totalPools = await getTotalPools();
-    // const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
-
-    let triPools;
-    if (crossSwap) {
+    let triPools: any = sessionStorage.getItem(`REF_FI_TRI_POOL_` + PAIR_NAME);
+    if (triPools) {
+      triPools = JSON.parse(triPools);
+    } else {
       triPools = await getAllTriPools(
         tokenIn && tokenOut
           ? [
@@ -372,6 +472,23 @@ export const getPoolsByTokens = async ({
           : null
       );
     }
+    filtered_pools = filtered_pools.concat(triPools || []);
+  }
+  if (
+    (crossSwap && proGetCachePool) ||
+    loadingTrigger ||
+    (!cacheTimeLimit && cacheForPair)
+  ) {
+    setLoadingData && setLoadingData(true);
+
+    let triPools = await getAllTriPools(
+      tokenIn && tokenOut
+        ? [
+            tokenIn.id === WRAP_NEAR_CONTRACT_ID ? 'wNEAR' : tokenIn.symbol,
+            tokenOut.id === WRAP_NEAR_CONTRACT_ID ? 'wNEAR' : tokenOut.symbol,
+          ]
+        : null
+    );
 
     if (triPools && triPools.length > 0) {
       sessionStorage.setItem(
@@ -380,23 +497,18 @@ export const getPoolsByTokens = async ({
       );
     }
 
-    filtered_pools = pools
-      // .concat(triPools || [])
-      .filter(isNotStablePool)
-      .filter(filterBlackListPools);
+    filtered_pools = triPools;
 
-    await db.cachePoolsByTokens(filtered_pools);
-    filtered_pools = filtered_pools
-      .concat(triPools || [])
-      .filter((p: any) => p.supplies[tokenInId] && p.supplies[tokenOutId]);
-    await getAllStablePoolsFromCache();
-    await cacheAllDCLPools();
+    await db.cachePoolsByTokensAurora(filtered_pools);
+    filtered_pools = filtered_pools.filter(
+      (p: any) => p.supplies[tokenInId] && p.supplies[tokenOutId]
+    );
   }
 
   setLoadingData && setLoadingData(false);
 
   // @ts-ignore
-  return filtered_pools.filter((p) => crossSwap || !p?.Dex || p.Dex !== 'tri');
+  return filtered_pools;
 };
 
 export const getRefPoolsByToken1ORToken2 = async (
@@ -1164,28 +1276,22 @@ export const getStablePoolFromCache = async (
     Number(stablePoolInfoCache.update_time) >
       Number(moment().unix() - Number(POOL_TOKEN_REFRESH_INTERVAL));
 
-  const loadingTriggerSig =
-    typeof loadingTrigger === 'undefined' ||
-    (typeof loadingTrigger !== 'undefined' && loadingTrigger);
+  const stablePool = isStablePoolCached
+    ? stablePoolCache
+    : await getPool(Number(stable_pool_id));
 
-  const stablePool =
-    isStablePoolCached || !loadingTriggerSig
-      ? stablePoolCache
-      : await getPool(Number(stable_pool_id));
+  const stablePoolInfo = isStablePoolInfoCached
+    ? stablePoolInfoCache
+    : await getStablePool(Number(stable_pool_id));
 
-  const stablePoolInfo =
-    isStablePoolInfoCached || !loadingTriggerSig
-      ? stablePoolInfoCache
-      : await getStablePool(Number(stable_pool_id));
-
-  if (!isStablePoolCached && loadingTriggerSig) {
+  if (!isStablePoolCached) {
     localStorage.setItem(
       pool_key,
       JSON.stringify({ ...stablePool, update_time: moment().unix() })
     );
   }
 
-  if (!isStablePoolInfoCached && loadingTriggerSig) {
+  if (!isStablePoolInfoCached) {
     localStorage.setItem(
       info,
       JSON.stringify({ ...stablePoolInfo, update_time: moment().unix() })
@@ -1207,9 +1313,9 @@ export const getStablePoolFromCache = async (
 
 export const getAllStablePoolsFromCache = async (loadingTriger?: boolean) => {
   const res = await Promise.all(
-    ALL_STABLE_POOL_IDS.map((id) =>
-      getStablePoolFromCache(id.toString(), loadingTriger)
-    )
+    ALL_STABLE_POOL_IDS.filter((id) => {
+      return !BLACKLIST_POOL_IDS.includes(id.toString());
+    }).map((id) => getStablePoolFromCache(id.toString(), loadingTriger))
   );
 
   const allStablePoolsById = res.reduce((pre, cur, i) => {

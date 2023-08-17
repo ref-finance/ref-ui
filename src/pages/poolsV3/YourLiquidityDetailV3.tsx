@@ -47,6 +47,9 @@ import {
   pause_old_dcl_claim_tip,
   get_all_seeds,
   displayNumberToAppropriateDecimals,
+  get_pool_id,
+  get_pool_name,
+  openUrl,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import {
@@ -93,9 +96,26 @@ export default function YourLiquidityDetail(props: any) {
   // callBack handle
   useAddAndRemoveUrlHandle();
   const { id, status } = props.match.params || {};
+  let is_old_dcl: boolean;
+  let tokenXId, tokenYId, feeV, lId;
   const paramsId = id || '';
-  const is_old_dcl = status == '1';
-  const [tokenXId, tokenYId, feeV, lId] = paramsId.split('@');
+  if (paramsId.indexOf('<>') > -1) {
+    // new link
+    try {
+      const layer1 = paramsId.split('@');
+      const pool_id = get_pool_id(`${layer1[0]}@${layer1[1]}`);
+      const layer3 = pool_id.split('|');
+      tokenXId = layer3[0];
+      tokenYId = layer3[1];
+      feeV = layer3[2];
+      lId = layer1[2];
+      is_old_dcl = status == '1';
+    } catch (error) {}
+  } else {
+    // old link
+    is_old_dcl = status == '1';
+    [tokenXId, tokenYId, feeV, lId] = paramsId.split('@');
+  }
   const hashId = lId;
   const poolId = `${tokenXId}|${tokenYId}|${feeV}`;
   const [token_x, token_y, fee] = poolId.split('|');
@@ -490,7 +510,9 @@ export default function YourLiquidityDetail(props: any) {
   function go_farm() {
     const [fixRange, pool_id, left_point, right_point] =
       userLiquidity.mft_id.split('&');
-    const link_params = `${pool_id}&${left_point}&${right_point}`;
+    const link_params = `${get_pool_name(
+      pool_id
+    )}[${left_point}-${right_point}]`;
     const actives = related_farms.filter((farm: FarmBoost) => {
       return farm.status != 'Ended';
     });
@@ -500,10 +522,11 @@ export default function YourLiquidityDetail(props: any) {
     } else {
       url = `/v2farms/${link_params}-r`;
     }
-    window.open(url);
+    openUrl(url);
   }
   const goPoolPage = () => {
-    window.open(`/poolV2/${poolId}`);
+    const params_str = get_pool_name(poolId);
+    openUrl(`/poolV2/${params_str}`);
   };
   const {
     Icon: Liquidity_icon,
@@ -593,7 +616,7 @@ export default function YourLiquidityDetail(props: any) {
                   onClick={(e) => {
                     e.stopPropagation();
                     if (liquidity_link) {
-                      window.open(liquidity_link);
+                      openUrl(liquidity_link);
                     }
                   }}
                   className={`flex items-center justify-center border border-greenColor rounded-lg px-1 ml-2 ${
@@ -640,7 +663,7 @@ export default function YourLiquidityDetail(props: any) {
             <div
               className="flex items-center justify-center text-white cursor-pointer"
               onClick={() => {
-                window.open(liquidity_link);
+                openUrl(liquidity_link);
               }}
             >
               <a className="text-sm text-white mr-1 underline">

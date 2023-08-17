@@ -25,7 +25,7 @@ import ReactTooltip from 'react-tooltip';
 import { toRealSymbol } from '../../utils/token';
 import { ExclamationTip } from '../../components/layout/TipWrapper';
 import { MyOrderInstantSwapArrowRight } from '../../components/icon/swapV3';
-import { TOKEN_LIST_FOR_RATE } from '../../services/commonV3';
+import { TOKEN_LIST_FOR_RATE, openUrl } from '../../services/commonV3';
 import { getLimitOrderLogsByAccount } from '../../services/indexer';
 import {
   PurpleCircleIcon,
@@ -582,7 +582,7 @@ function OrderCard({
         <LinkIcon
           onClick={() => {
             const txHash = activeOrderTxMap[order.order_id];
-            window.open(`${explorerUrl}/txns/${txHash}`);
+            openUrl(`${explorerUrl}/txns/${txHash}`);
           }}
           className={`ml-1.5 text-v3SwapGray cursor-pointer hover:text-white ${
             tx_record ? '' : 'hidden'
@@ -1051,7 +1051,7 @@ function OrderCard({
             </span>
             <span
               onClick={() => {
-                window.open('/myOrder');
+                openUrl('/myOrder');
               }}
               className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md px-1.5 cursor-pointer hover:text-white py-0.5"
             >
@@ -1063,7 +1063,12 @@ function OrderCard({
       </div>
       <div className="xsm:border-b xsm:border-cardBg">
         {/* for mobile banner */}
-        <div className="flex items-center justify-between lg:hidden p-5">
+        <div
+          className="flex items-center justify-between lg:hidden p-5"
+          onClick={() => {
+            setActiveTab(activeTab == '1' ? '' : '1');
+          }}
+        >
           <span className="text-base text-white gotham_bold">
             <FormattedMessage id="active_orders" /> (
             {total_active_orders_quanity})
@@ -1100,7 +1105,7 @@ function OrderCard({
         >
           <span
             onClick={() => {
-              window.open('/myOrder');
+              openUrl('/myOrder');
             }}
             className="flex items-center justify-center text-xs text-v3SwapGray relative -top-3 "
           >

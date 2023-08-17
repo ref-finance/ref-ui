@@ -3,82 +3,118 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/swiper.min.css';
 import SwiperCore, { Autoplay } from 'swiper';
 import { isMobile } from '../../utils/device';
+import { SwiperCloseButton } from '../../components/icon/Common';
+
 SwiperCore.use([Autoplay]);
 
 export default function AdSwiper() {
+  const [closeStatus, setCloseStatus] = useState(true);
+  useEffect(() => {
+    const popupSwiper = localStorage.getItem('ad-announcement');
+    if (popupSwiper == '3') {
+      setCloseStatus(true);
+    } else {
+      setCloseStatus(false);
+    }
+  }, []);
+  const closePop = (e: any) => {
+    localStorage.setItem('ad-announcement', '3');
+    e.stopPropagation();
+    setCloseStatus(true);
+  };
   const is_mobile = isMobile();
   return (
-    <div>
-      <Swiper
-        spaceBetween={30}
-        centeredSlides={true}
-        autoHeight={false}
-        autoplay={{
-          delay: 3500,
-          disableOnInteraction: false,
-        }}
-        loop={true}
-      >
-        <SwiperSlide>
-          <div className="relative">
-            <div
-              onClick={() => {
-                location.href = '/orderbook';
-              }}
-              className="flex items-center justify-center absolute bg-black bg-opacity-50 rounded-2xl h-5
+    <>
+      {closeStatus ? null : (
+        <div>
+          <Swiper
+            spaceBetween={30}
+            centeredSlides={true}
+            autoHeight={false}
+            autoplay={{
+              delay: 10000,
+              disableOnInteraction: false,
+            }}
+            loop={true}
+          >
+            <SwiperSlide>
+              <div
+                onClick={closePop}
+                className="flex justify-end items-center absolute top-0 right-0 cursor-pointer z-10"
+              >
+                <SwiperCloseButton className="cursor-pointer"></SwiperCloseButton>
+              </div>
+              <div className="relative">
+                <div
+                  onClick={() => {
+                    location.href = '/orderbook';
+                  }}
+                  className="flex items-center justify-center absolute bg-black bg-opacity-50 rounded-2xl h-5
              text-xs text-white cursor-pointer pl-2.5 pr-1.5 left-5 bottom-3 xsm:bottom-2 xsm:left-4"
-            >
-              Place Order
-              <ArrowRightIcon className="ml-1"></ArrowRightIcon>
-            </div>
-            {is_mobile ? (
-              <OrderBookMobile></OrderBookMobile>
-            ) : (
-              <OrderBook></OrderBook>
-            )}
-          </div>
-        </SwiperSlide>
-        <SwiperSlide>
-          <div className="relative">
-            <div
-              onClick={() => {
-                location.href = '/portfolio';
-              }}
-              className="flex items-center justify-center absolute bg-black bg-opacity-50 rounded-2xl h-5
+                >
+                  Place Order
+                  <ArrowRightIcon className="ml-1"></ArrowRightIcon>
+                </div>
+                {is_mobile ? (
+                  <OrderBookMobile></OrderBookMobile>
+                ) : (
+                  <OrderBook></OrderBook>
+                )}
+              </div>
+            </SwiperSlide>
+            <SwiperSlide>
+              <div
+                onClick={closePop}
+                className="flex justify-end items-center absolute top-0 right-0 cursor-pointer z-10"
+              >
+                <SwiperCloseButton className="cursor-pointer"></SwiperCloseButton>
+              </div>
+              <div className="relative">
+                <div
+                  onClick={() => {
+                    location.href = '/portfolio';
+                  }}
+                  className="flex items-center justify-center absolute bg-black bg-opacity-50 rounded-2xl h-5
              text-xs text-white cursor-pointer pl-2.5 pr-1.5 left-5 bottom-3 xsm:bottom-2 xsm:left-4"
-            >
-              Check your portfolio
-              <ArrowRightIcon className="ml-1"></ArrowRightIcon>
-            </div>
+                >
+                  Check your portfolio
+                  <ArrowRightIcon className="ml-1"></ArrowRightIcon>
+                </div>
 
-            {is_mobile ? (
-              <PortfolioMobile></PortfolioMobile>
-            ) : (
-              <Portfolio></Portfolio>
-            )}
-          </div>
-        </SwiperSlide>
-        <SwiperSlide>
-          <div className="relative cursor-pointer">
-            {is_mobile ? (
-              <DCLPNearMobile
-                onClick={() => {
-                  location.href =
-                    '/v2farms/phoenix-bonds.near%7Cwrap.near%7C2000&2760&3720-r';
-                }}
-              ></DCLPNearMobile>
-            ) : (
-              <DCLPNear
-                onClick={() => {
-                  location.href =
-                    '/v2farms/phoenix-bonds.near%7Cwrap.near%7C2000&2760&3720-r';
-                }}
-              ></DCLPNear>
-            )}
-          </div>
-        </SwiperSlide>
-      </Swiper>
-    </div>
+                {is_mobile ? (
+                  <PortfolioMobile></PortfolioMobile>
+                ) : (
+                  <Portfolio></Portfolio>
+                )}
+              </div>
+            </SwiperSlide>
+            <SwiperSlide>
+              <div
+                onClick={closePop}
+                className="flex justify-end items-center absolute top-0 right-0 cursor-pointer z-10"
+              >
+                <SwiperCloseButton className="cursor-pointer"></SwiperCloseButton>
+              </div>
+              <div className="relative cursor-pointer">
+                {is_mobile ? (
+                  <DCLPNearMobile
+                    onClick={() => {
+                      location.href = '/v2farms/pNEAR<>NEAR@2000[5000-5880]-r';
+                    }}
+                  ></DCLPNearMobile>
+                ) : (
+                  <DCLPNear
+                    onClick={() => {
+                      location.href = '/v2farms/pNEAR<>NEAR@2000[5000-5880]-r';
+                    }}
+                  ></DCLPNear>
+                )}
+              </div>
+            </SwiperSlide>
+          </Swiper>
+        </div>
+      )}
+    </>
   );
 }
 function OrderBook(props: any) {

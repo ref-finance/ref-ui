@@ -143,7 +143,9 @@ function PoolRow({
         data-for={'pool_list_pc_apr' + pool.id}
       >
         <span className="ml-2">
-          {toPrecision(pool?.baseApr?.toString() || '0', 2)}%
+          {!pool?.baseApr
+            ? '-'
+            : `${toPrecision(pool?.baseApr?.toString() || '0', 2)}%`}
         </span>
         {supportFarm &&
           farmApr !== undefined &&
@@ -336,7 +338,7 @@ export function getPoolFeeAprTitleRPCView(
   dayVolume: string,
   pool: PoolRPCView
 ) {
-  let result = '0';
+  let result = '';
   if (dayVolume) {
     const { total_fee: fee, tvl } = pool;
     const revenu24h = (fee / 10000) * 0.8 * Number(dayVolume);

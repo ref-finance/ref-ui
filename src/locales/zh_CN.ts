@@ -98,17 +98,19 @@ const zh_CN_in_risks_page = {
   Locked_paragraph_6:
     '如果合约账户上至少注册了一个完全访问密钥，则合约不会被锁定。',
   audited_first_sentence:
-    'Ref Finance 智能合约已经过<label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://guide.ref.finance/developers/audits')" +
-    '>审计</label>。',
+    'Ref Finance 智能合约已经过<a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://guide.ref.finance/developers/audits"' +
+    '>审计</a>。',
   admin_first_sentence:
-    'Ref Finance 由 <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-    '>Ref Finance Sputnik DAO</label> 管理。有<label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://gov.ref.finance/t/introducing-the-guardians/253')" +
-    '>监护人</label>，特定的 NEAR 地址，可以暂停合约。 只有 DAO 可以随时恢复合约。',
+    'Ref Finance 由 <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://app.astrodao.com/dao/ref-finance.sputnik-dao.near"' +
+    '>Ref Finance Sputnik DAO</a> 管理。有<a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://gov.ref.finance/t/introducing-the-guardians/253"' +
+    '>监护人</a>，特定的 NEAR 地址，可以暂停合约。 只有 DAO 可以随时恢复合约。',
   risks_of_using_ref_finance:
     'Ref. finance的使用<label class="text-greenColor">风险</label>',
+  third_party_wallet: '第三方钱包',
+  third_party_wallet_1: 'Ref Finance 集成了第三方钱包。',
+  third_party_wallet_2:
+    '尽管我们已采取措施选择钱包提供商，但我们无法保证其安全性或性能。 您应该熟悉与特定钱包提供商相关的风险，并了解他们的服务条款、隐私政策和安全实践。',
+  third_party_wallet_3: '请您自行承担使用这些服务的风险并谨慎行事。',
 };
 const zh_CN = {
   deposit: '存入',
@@ -500,13 +502,11 @@ const zh_CN = {
   pool_fee_cross_swap: '流动池/跨链费用',
   mapping_account_tip: '你的映射账户中存在代币',
   admin_sentence_1:
-    'Ref Finance 由  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-    '>Ref Finance Sputnik DAO</label> 管理，并将过渡到完全去中心化的 DAO。',
+    'Ref Finance 由  <a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://app.astrodao.com/dao/ref-finance.sputnik-dao.near"' +
+    '>Ref Finance Sputnik DAO</a> 管理，并将过渡到完全去中心化的 DAO。',
   admin_sentence_2:
-    '有关直接管理或目前管理 Ref Finance 事务的合约和地址的更多信息，请查看我们的<label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://guide.ref.finance/developers/contracts')" +
-    '>文档</label>。',
+    '有关直接管理或目前管理 Ref Finance 事务的合约和地址的更多信息，请查看我们的<a rel="noopener noreferrer nofollow" target="_blank" class="underline cursor-pointer text-riskTextColor hover:text-white" href="https://guide.ref.finance/developers/contracts"' +
+    '>文档</a>。',
   cumulative_ref_buyback: '累计 REF 回购',
   yearly_revenue_booster: '年度收入加速器',
   Confirm: '确认',
@@ -731,12 +731,12 @@ const zh_CN = {
   no_farm_need_to_migrate: '没有需要升级的农场',
   v1_farms: '经典 农场',
   has_rewards_tip:
-    '在<a class="text-greenColor text-base cursor-pointer underline hover:text-senderHot"  href="/farms" >遗产农场</a>中您还有未提取的奖励。奖励不会去任何地方，您可以随时提取。</div>',
+    '在<a rel="noopener noreferrer nofollow" class="text-greenColor text-base cursor-pointer underline hover:text-senderHot"  href="/farms" >遗产农场</a>中您还有未提取的奖励。奖励不会去任何地方，您可以随时提取。</div>',
   love: 'LOVE',
   Available_to_stake: '可供质押',
   you_staked: '你已质押',
   has_rewards_tip_in_v2:
-    '从<a href="/farms" class="text-sm text-greenColor cursor-pointer underline hover:text-senderHot mr-1"> 遗产农场</a>中提取遗留奖励。',
+    '从<a rel="noopener noreferrer nofollow" href="/farms" class="text-sm text-greenColor cursor-pointer underline hover:text-senderHot mr-1"> 遗产农场</a>中提取遗留奖励。',
   how_to_get: '如何获取?',
   get_booster: '获得加速器',
   ended_farms: '已结束农场',
@@ -889,8 +889,7 @@ const zh_CN = {
   range: '范围',
   unclaimed_fee: '未领取的费',
   login_risk_tip:
-    '通过勾选这个框并继续前进，您确认您完全了解使用Ref Finance的 <a class="text-greenColor text-sm font-bold cursor-pointer hover:underline" onclick="window.open(' +
-    "'/risks'" +
+    '通过勾选这个框并继续前进，您确认您完全了解使用Ref Finance的 <a  rel="noopener noreferrer nofollow" target="_blank" class="text-greenColor text-sm font-bold cursor-pointer hover:underline" href="/risks"' +
     ')">风险</a>。',
   no_pool_tip: '哦!池子不存在。',
   total_ref_week: 'REF/周',
@@ -986,7 +985,7 @@ const zh_CN = {
     '* 此订单簿页面是基于Orderly Network 的图形用户界面，旨在为 Ref Finance 的用户提供便利。',
   learn_more_orderly: '了解更多',
   more_order_book_page_detail:
-    '此订单簿页面是基于Orderly Network 的图形用户界面，旨在为 Ref Finance 的用户提供便利。 Orderly Network 对其系统、智能合约以及存入或发送到这些系统和合约的资金安全负全部责任。强烈建议您在连接钱包和/或下任何订单之前对相应内容进行研究。',
+    '此订单簿页面由Orderly Network提供支持。用户在连接其钱包和/或下订单之前，应自己进行调查。{br}Ref Finance不提供有关该系统、智能合约以及通过该系统和合约存入或传输的资金安全性的任何保证。{br}Ref Finance和Orderly Network都不对用户通过此订单簿页面进行的任何投资的盈亏负责。',
   no_orders_found: '没有找到订单',
   learn_more_about: '了解有关',
   learn_more_about_zh: ' 的更多信息。',
@@ -1181,5 +1180,88 @@ const zh_CN = {
     '当用户在限价单功能中下达一个高于市场价格的卖单或低于市场价格的买单时，Ref会首先尝试执行swap-with-stop-point操作。如果执行完毕，订单数量仍有剩余，则会为剩余部分创建限价单。<br> 实时成交订单指使用限价单功能下单但通过swap完成的订单。在“历史”中，你可以查看自最早展示的限价单记录至今的实时成交订单。',
 
   swapped_history_order: '已成交',
+
+  ledger_guide_tip_zh:
+    '为保障交易完成，已为你打开support ledger功能。受ledger功能所限，当前价格可能不是最佳价格。',
+  view_dcl_pool: '查看流动池',
+  go_to_orderbook_tip:
+    '该价格仅供参考。{br} 请至<strong>订单簿</strong>页面下单。',
+
+  your_trade_route: '你的交易路径',
+  markets: '市场',
+  exchanges: '交易所',
+  output_est: '预计获得',
+  go_to_orderbook: '跳转到订单簿',
+  new_swap_order_tip:
+    '价格来自于REF AMM，仅供参考，不保证限价单能以某特定价格立即成交。',
+  instants_swap: '即时成交',
+  swappped: '已成交',
+  claimed: '已领取',
+  executing_capital: '执行中',
+  record: '记录',
+  trade_route: '交易路径',
+  settings: '设置',
+  cross_chain_options: '跨链选项',
+  no_trade_routes: '无交易路径',
+  steps_in_the_route_zh: '交易路径中共',
+  steps_in_the_route: '步',
+  swap_chart_no_data: '目前该图表没有数据。',
+  last_updated: '上次更新于',
+  has_tri_pool_tip: '。在跨链选项中启用Trisolaris寻找更多路径。',
+
+  Overview: '概述',
+  RefFinance: 'Ref.finance',
+  Orderly: 'Orderly',
+  Burrow: 'Burrow',
+  Supplied: '存款',
+  Borrowed: '贷款',
+  NetAPY: 'Net APY',
+  UnclaimedRewards: '未领取奖励',
+  YouSupplied: '你的存款',
+  SupplyMarket: '存款市场',
+  YouBorrowed: '你的贷款',
+  BorrowMarket: '贷款市场',
+  NetAPYTip: '所有供应和借贷的净年利率，包括基本年利率和激励',
+  Market: '市场',
+  TotalSupplied: '资产',
+  TotalBorrowed: '总借出',
+  AvailableLiquidities: '可贷流动性',
+  DailyRewards: '每日奖励',
+  SupplyAPY: '存款APY',
+  BorrowAPY: '贷款APY',
+  Collateral: '抵押',
+  Adjust: '调整',
+  Supply: '存入',
+  Repay: '偿还',
+  Borrow: '贷款',
+  HealthFactor: '健康因子',
+  CollateralFactor: '抵押因子',
+  AdjustCollateral: '调整抵押',
+  UseAsCollateral: '用作抵押',
+  RemainingCollateral: '剩余抵押',
+  RemainingBorrow: '剩余借出',
+  NoSupplyTip: '你供应的资产将在这里展示。',
+  NoBorrowTip: '你借出的资产将在这里展示。',
+  APY: 'APY',
+  CF: 'C.F.',
+  burrowErrorTip: '当前余额小于token最小精度，合约无法处理。',
+  healthErrorTip: '你的健康值将下降至危险区域，面临清算风险。',
+  Summary: '概要',
+  Welcome: '欢迎!',
+  ConnectView: '连接钱包去查看',
+  TotalSuppliedMarket: '市场总存款',
+
+  NetWorth: '净资产',
+  Claimable: '可领取',
+  TotalDebts: '总负债',
+  WalletAssets: '钱包资产',
+  TotalInvested: '投资',
+  TotalAssets: '资产',
+  TokenAllocation: '代币分布',
+  bridge_pure: '桥',
+  pool_refresh: 'Something wrong with the server, please try again later.',
+
+  netWorthTip:
+    'Ref中的投资总价值(包括可领取奖励)+Orderly资产总价值+ Burrow资产总价值+钱包中的总资产',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

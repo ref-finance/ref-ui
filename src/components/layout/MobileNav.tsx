@@ -18,7 +18,7 @@ import { FiChevronUp, FiChevronDown } from 'react-icons/fi';
 import { RiLogoutCircleRLine } from 'react-icons/ri';
 import { useRefPrice } from '~state/account';
 import { toPrecision } from '~utils/numbers';
-import { moreLinks, useMenusMobile, menuItemType } from '~utils/menu';
+import { useMenusMobile, menuItemType, bridgeData } from '~utils/menu';
 import getConfig from '~services/config';
 import {
   AccountIcon,
@@ -29,6 +29,7 @@ import {
 
 import { WalletContext } from '../../utils/wallets-integration';
 
+import Modal from 'react-modal';
 const config = getConfig();
 import { isMobile } from '~utils/device';
 import {
@@ -71,6 +72,7 @@ import {
   get_orderly_public_key_path,
 } from '../../pages/Orderly/orderly/utils';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../../pages/Orderly/components/UserBoard/index';
+import { openUrl } from '../../services/commonV3';
 
 export function Logout() {
   const { wallet } = getCurrentWallet();
@@ -145,11 +147,10 @@ export function AccountModel(props: any) {
       textId: 'go_to_near_wallet',
       subIcon: <HiOutlineExternalLink />,
       click: () => {
-        window.open(
+        openUrl(
           selector.store.getState().selectedWalletId === 'my-near-wallet'
             ? config.myNearWalletUrl
-            : config.walletUrl,
-          '_blank'
+            : config.walletUrl
         );
       },
     },
@@ -245,7 +246,7 @@ export function AccountModel(props: any) {
             <button
               className="hover:text-gradientFrom text-primaryText w-6 h-6 flex items-center justify-center ml-2 p-0.5 rounded-xl bg-black bg-opacity-30"
               onClick={() => {
-                window.open(
+                openUrl(
                   `https://${
                     getConfig().networkId === 'testnet' ? 'testnet.' : ''
                   }nearblocks.io/address/${wallet.getAccountId()}#transaction`
@@ -506,9 +507,9 @@ export function MobileNavBar(props: any) {
       set_one_level_selected(id);
     } else if (url) {
       if (isExternal) {
-        window.open(url);
+        openUrl(url);
       } else {
-        window.open(url, '_self');
+        openUrl(url);
       }
     }
     if (clickEvent || url) {
@@ -533,9 +534,9 @@ export function MobileNavBar(props: any) {
       set_two_level_selected(id);
     } else if (url) {
       if (isExternal) {
-        window.open(url);
+        openUrl(url);
       } else {
-        window.open(url, '_self');
+        openUrl(url);
       }
     }
     if (clickEvent || url) {
@@ -554,15 +555,19 @@ export function MobileNavBar(props: any) {
       clickEvent();
     } else if (url) {
       if (isExternal) {
-        window.open(url);
+        openUrl(url);
       } else {
-        window.open(url, '_self');
+        openUrl(url);
       }
     }
     if (clickEvent || url) {
       close();
     }
   }
+
+  const [showBridgeModalMobile, setShowBridgeModalMobile] =
+    useState<boolean>(false);
+
   return (
     <>
       <div
@@ -582,7 +587,7 @@ export function MobileNavBar(props: any) {
         {` `}
         <span
           className={`font-bold underline cursor-pointer mx-1`}
-          onClick={() => window.open('/account?tab=ref', '_blank')}
+          onClick={() => openUrl('/account?tab=ref')}
         >
           <FormattedMessage id="click" defaultMessage="Click" />
         </span>
@@ -591,14 +596,14 @@ export function MobileNavBar(props: any) {
       <div
         className="nav-wrap lg:hidden md:show relative xs:mb-6 md:mb-6"
         style={{
-          zIndex: show ? 200 : 51,
+          zIndex: show ? 200 : 91,
         }}
       >
         {showTip ? <AccountTipDownByAccountID show={showTip} /> : null}
         <div className="flex items-center text-2xl text-white justify-between p-4">
           <NavLogoSimple
             onClick={() => {
-              window.open('https://www.ref.finance/');
+              openUrl('https://www.ref.finance/');
             }}
           />
           <div className="flex items-center">
@@ -681,20 +686,32 @@ export function MobileNavBar(props: any) {
           >
             <div className={`${showLanguage ? 'hidden' : ''}`}>
               <div className="flex text-white items-center justify-between p-4 border-b border-menuBorderColor">
-                <div className="transform scale-90 origin-left">
-                  <NavLogoSimple
-                    onClick={() => {
-                      window.open('https://www.ref.finance/');
-                    }}
-                  />
+                <div className="flex items-center  bg-priceBgColor rounded-2xl p-1">
+                  <RefIcon className="mr-1"></RefIcon>
+                  <span className="text-white text-sm">
+                    ${data && data !== '-' ? toPrecision(data, 2) : '-'}
+                  </span>
                 </div>
-                <div className="flex items-center">
+                <div className="flex items-center gap-2">
                   <BuyNearButton />
-                  <div className="flex items-center ml-2.5 bg-priceBgColor rounded-2xl p-1">
-                    <RefIcon className="mr-1"></RefIcon>
-                    <span className="text-white text-sm">
-                      ${data && data !== '-' ? toPrecision(data, 2) : '-'}
-                    </span>
+
+                  <div
+                    className={`frcc text-xs     rounded-lg py-1.5 px-3
+                  
+                  ${
+                    showBridgeModalMobile
+                      ? 'text-white  bg-priceBgColor'
+                      : 'text-cardBg bg-primaryText font-gothamBold'
+                  }
+                  `}
+                    onClick={() => {
+                      setShowBridgeModalMobile(true);
+                    }}
+                  >
+                    <FormattedMessage
+                      id="bridge_pure"
+                      defaultMessage={'Bridge'}
+                    ></FormattedMessage>
                   </div>
                 </div>
               </div>
@@ -824,7 +841,7 @@ export function MobileNavBar(props: any) {
                 <div className="flex items-center">
                   <div
                     className=" transform scale-75 origin-left"
-                    onClick={() => window.open('https://stats.ref.finance/')}
+                    onClick={() => openUrl('https://stats.ref.finance/')}
                   >
                     <RefAnalyticsGary />
                   </div>
@@ -861,9 +878,90 @@ export function MobileNavBar(props: any) {
         ) : null}
       </div>
       {isMobile ? <Marquee></Marquee> : null}
+
+      <MobileBridgeModal
+        isOpen={showBridgeModalMobile}
+        onRequestClose={() => {
+          setShowBridgeModalMobile(false);
+        }}
+      ></MobileBridgeModal>
     </>
   );
 }
+
+function MobileBridgeModal(props: Modal.Props) {
+  return (
+    <Modal
+      {...props}
+      style={{
+        overlay: {
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          zIndex: 9999999,
+          outline: 'none',
+        },
+        content: {
+          position: 'absolute',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          bottom: 0,
+          left: '50%',
+          top: 'none',
+          transform: 'translate(-50%, 0)',
+          outline: 'none',
+          width: '100%',
+        },
+      }}
+    >
+      <div
+        className="border rounded-2xl w-full pb-10 bg-cardBg p-2 text-base flex flex-col gap-4 text-white"
+        style={{
+          border: '1px solid #27343E',
+        }}
+      >
+        <div className="pl-4">
+          <FormattedMessage
+            id="bridge_pure"
+            defaultMessage={'Bridge'}
+          ></FormattedMessage>
+        </div>
+        {bridgeData.map((item) => {
+          return (
+            <div className="flex flex-col gap-2 pl-1 text-primaryText ">
+              <div className="frcs gap-2 pl-3">
+                <item.icon></item.icon>
+
+                {item.name}
+              </div>
+
+              {item.children.map((sub) => {
+                return (
+                  <div
+                    className="rounded-xl  py-1.5 pl-1 text-white bg-primaryText bg-opacity-20 cursor-pointer frcs"
+                    onClick={() => {
+                      openUrl(sub.link);
+                    }}
+                  >
+                    <div className="frcs pl-3 gap-2">
+                      <sub.icon></sub.icon>
+                      {sub.name}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
+      </div>
+    </Modal>
+  );
+}
+
 function MobileLanguage(props: any) {
   const context = useContext(Context);
   const lans = useLanguageItems();

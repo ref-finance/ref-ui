@@ -45,6 +45,7 @@ import {
   pause_old_dcl_claim_tip,
   getEffectiveFarmList,
   sort_tokens_by_base,
+  get_pool_name,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import { FarmBoost, getBoostTokenPrices, Seed } from '../../services/farm';
@@ -184,14 +185,6 @@ export default function YourLiquidityPageV3() {
   }
   function switchButton(type: string) {
     setCheckedStatus(type);
-  }
-  function getTipForV2Pool() {
-    const n = intl.formatMessage({
-      id: 'v2PoolTip2',
-      defaultMessage: 'You can have up to 16 positions in DCL pools',
-    });
-    const result: string = `<div class="text-navHighLightText text-xs text-left">${n}</div>`;
-    return result;
   }
 
   const { txHash } = getURLInfo();
@@ -379,23 +372,6 @@ export default function YourLiquidityPageV3() {
                     <span className="gotham_bold">
                       DCL ({+v2LiquidityQuantity})
                     </span>
-                    <div
-                      className="text-white text-right ml-1"
-                      data-class="reactTip"
-                      data-for={'v2PoolNumberTip'}
-                      data-place="right"
-                      data-html={true}
-                      data-tip={getTipForV2Pool()}
-                    >
-                      <QuestionMark></QuestionMark>
-                      <ReactTooltip
-                        id={'v2PoolNumberTip'}
-                        backgroundColor="#1D2932"
-                        border
-                        borderColor="#7e8a93"
-                        effect="solid"
-                      />
-                    </div>
                   </div>
                   <p className="text-sm text-farmText">
                     <FormattedMessage id="v2_your_pool_introduction"></FormattedMessage>
@@ -606,7 +582,9 @@ export function get_detail_the_liquidity_refer_to_seed({
     }
     Icon = get_intersection_icon_by_radio(radio);
     inRange = +radio > 0;
-    const link_params = `${dcl_pool_id}&${left_point_seed}&${right_point_seed}`;
+    const link_params = `${get_pool_name(
+      dcl_pool_id
+    )}[${left_point_seed}-${right_point_seed}]`;
     link = `/v2farms/${link_params}-r`;
     status = 'run';
   }
@@ -934,8 +912,13 @@ function UserLiquidityLine_old({
     });
   }
   function goYourLiquidityDetailPage() {
-    const id = lpt_id.replace(/\|/g, '@').replace('#', '@');
-    history.push(`/yoursLiquidityDetailV2/${id}${isLegacy ? '/1' : ''}`);
+    const pool_id = lpt_id.split('#')[0];
+    const lpt_index = lpt_id.split('#')[1];
+    history.push(
+      `/yoursLiquidityDetailV2/${get_pool_name(pool_id)}@${lpt_index}${
+        isLegacy ? '/1' : ''
+      }`
+    );
   }
   function getTokenFeeAmount(p: string) {
     if (liquidityDetail && tokenMetadata_x_y && tokenPriceList) {

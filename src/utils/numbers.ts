@@ -229,12 +229,12 @@ export const calculateSmartRoutingPriceImpact = (
     `${tokenInAmount} / ${tokenOutReceived}`
   );
 
-  const PriceImpact = percent(
+  const priceImpact = percent(
     subtraction(newMarketPrice, generalMarketPrice),
     newMarketPrice
   ).toString();
 
-  return scientificNotationToString(PriceImpact);
+  return scientificNotationToString(priceImpact);
 };
 
 export const calculatePriceImpact = (
@@ -556,7 +556,7 @@ export function calculateSmartRoutesV2PriceImpact(
   const priceImpactForRoutes = routes.map((r, i) => {
     const readablePartialAmountIn = toReadableNumber(
       tokenIn.decimals,
-      r[0].pool.partialAmountIn
+      r[0].partialAmountIn
     );
 
     if (r.length > 1) {
@@ -593,7 +593,7 @@ export function calculateSmartRoutesV2PriceImpact(
   const rawRes = priceImpactForRoutes.reduce(
     (pre, cur, i) => {
       return pre.plus(
-        new Big(routes[i][0].pool.partialAmountIn)
+        new Big(routes[i][0].partialAmountIn)
           .div(new Big(totalInputAmount))
           .mul(cur)
       );

@@ -358,8 +358,6 @@ export const executeMultipleTransactions = async (
       window.location.href = newHref;
     })
     .catch((e: Error) => {
-      console.log(e);
-
       if (extraWalletsError.includes(e.message)) {
         return;
       }
@@ -395,8 +393,6 @@ export const refFarmFunctionCall = async ({
         getAmount(amount)
       )
       .catch(async (e: any) => {
-        console.log(e);
-
         return (await wallet.wallet())
           .signAndSendTransaction({
             signerId: wallet.getAccountId()!,
@@ -414,8 +410,6 @@ export const refFarmFunctionCall = async ({
             ],
           })
           .catch((e: Error) => {
-            console.log(e);
-
             if (extraWalletsError.includes(e.message)) {
               return;
             }
@@ -448,8 +442,6 @@ export const refFarmFunctionCall = async ({
         ],
       })
       .catch((e: Error) => {
-        console.log(e);
-
         if (extraWalletsError.includes(e.message)) {
           return;
         }
@@ -562,4 +554,16 @@ export const refFarmBoostFunctionCall = async ({
   };
 
   return await executeMultipleTransactions([transaction]);
+};
+
+export const ftGetNearBalance = async () => {
+  const nearConnection = await near.account(
+    getCurrentWallet().wallet.getAccountId()
+  );
+  return nearConnection
+    .getAccountBalance()
+    .then(({ available }) => available)
+    .catch((e) => {
+      return '0';
+    });
 };
