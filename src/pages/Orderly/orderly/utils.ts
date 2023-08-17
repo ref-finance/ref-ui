@@ -114,6 +114,20 @@ export const getPublicKey = async (accountId: string) => {
     return getSenderAccessKey()?.['publicKey'];
   }
 
+  if (selectedWalletId == 'wallet-connect') {
+    const privateKey = localStorage.getItem(
+      `near-wallet-selector:wallet-connect:keystore:${accountId}:${
+        getConfig().networkId
+      }`
+    );
+
+    if (!privateKey) {
+      throw new Error(`No wallet-connect key`);
+    }
+    console.log('privateKey', privateKey);
+    return KeyPair.fromString(privateKey!).getPublicKey().toString();
+  }
+
   if (selectedWalletId === 'meteor-wallet') {
     const keyStore = new keyStores.BrowserLocalStorageKeyStore(
       window.localStorage,
@@ -180,6 +194,18 @@ export const generateRequestSignatureHeader = async ({
           '_meteor_wallet' + accountId + `:${getConfig().networkId}`
         )
       );
+    }
+
+    if (selectedWalletId === 'wallet-connect') {
+      const privateKey = localStorage.getItem(
+        `near-wallet-selector:wallet-connect:keystore:${accountId}:${
+          getConfig().networkId
+        }`
+      );
+      if (!privateKey) {
+        throw new Error(`No wallet-connect key`);
+      }
+      keyPair = KeyPair.fromString(privateKey!);
     } else {
       keyPair = await keyStore.getKey(getConfig().networkId, accountId);
     }

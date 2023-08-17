@@ -77,7 +77,7 @@ const is_orderly_key_announced = async (
   if (
     selectedWalletId === 'ledger' ||
     selectedWalletId === 'here-wallet' ||
-    selectedWalletId === 'wallet-connect' ||
+    // selectedWalletId === 'wallet-connect' ||
     selectedWalletId === 'nightly'
   ) {
     if (!valid) {
@@ -105,7 +105,7 @@ const is_trading_key_set = async (user: string) => {
   if (
     selectedWalletId === 'ledger' ||
     selectedWalletId === 'here-wallet' ||
-    selectedWalletId === 'wallet-connect' ||
+    // selectedWalletId === 'wallet-connect' ||
     selectedWalletId === 'nightly'
   ) {
     const valid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
