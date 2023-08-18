@@ -2408,6 +2408,14 @@ function OrderCard({
     <div className="flex flex-col">
       {OrderTab()}
 
+      {orderType === 'history' &&
+        (!historyOrder || historyOrder.length === 0) && (
+          <NoOrderCard text="history" />
+        )}
+      {orderType === 'active' && (!activeOrder || activeOrder.length === 0) && (
+        <NoOrderCard text="active" />
+      )}
+
       <table
         className="border-separate xsm:block"
         style={{
@@ -2613,14 +2621,6 @@ function OrderCard({
             </tr>
           </>
         )}
-        {orderType === 'history' &&
-          (!historyOrder || historyOrder.length === 0) && (
-            <NoOrderCard text="history" />
-          )}
-        {orderType === 'active' &&
-          (!activeOrder || activeOrder.length === 0) && (
-            <NoOrderCard text="active" />
-          )}
 
         {orderType === 'active' &&
           activeOrder &&
