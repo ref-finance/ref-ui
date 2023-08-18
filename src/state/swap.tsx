@@ -701,11 +701,34 @@ export const useSwap = ({
     swapError,
     makeSwap,
     avgFee,
-    tokenInAmount,
+    tokenInAmount: !swapsToDo
+      ? '1'
+      : toReadableNumber(
+          tokenIn.decimals,
+          swapsToDo
+            .reduce(
+              (acc, cur) => acc.plus(cur?.partialAmountIn || 0),
+              new Big(0)
+            )
+            .toFixed()
+        ),
     pools: swapsToDo?.map((estimate) => estimate.pool),
     swapsToDo,
     isParallelSwap: swapsToDo?.every((e) => e.status === PoolMode.PARALLEL),
-    quoteDone,
+    quoteDone:
+      quoteDone &&
+      !estimating &&
+      estimateValidator(
+        swapsToDo,
+        tokenIn,
+        toNonDivisibleNumber(
+          tokenIn?.decimals === null || tokenIn?.decimals === undefined
+            ? 24
+            : tokenIn.decimals,
+          tokenInAmount
+        ),
+        tokenOut
+      ),
     priceImpactValue: scientificNotationToString(
       new Big(priceImpactValue).minus(new Big((avgFee || 0) / 100)).toString()
     ),

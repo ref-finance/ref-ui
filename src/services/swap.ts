@@ -418,21 +418,6 @@ export const estimateSwap = async ({
     );
   };
 
-  // let pools = (
-  //   await getPoolsByTokens({
-  //     tokenInId: tokenIn.id,
-  //     tokenOutId: tokenOut.id,
-  //     amountIn: parsedAmountIn,
-  //     setLoadingData,
-  //     loadingTrigger,
-  //     tokenIn,
-  //     tokenOut,
-  //     proGetCachePool,
-  //   })
-  // ).filter((p) => {
-  //   return getLiquidity(p, tokenIn, tokenOut) > 0;
-  // });
-
   let { filteredPools: pools, pool_protocol } = await getPoolsByTokens({
     tokenInId: tokenIn.id,
     tokenOutId: tokenOut.id,
