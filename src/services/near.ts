@@ -358,6 +358,7 @@ export const executeMultipleTransactions = async (
       window.location.href = newHref;
     })
     .catch((e: Error) => {
+      alert(e.message);
       if (extraWalletsError.includes(e.message)) {
         return;
       }
