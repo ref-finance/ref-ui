@@ -1366,5 +1366,8 @@ const zh_CN = {
   funding: '资金费率',
   spot_nav: 'Spot',
   perps_nav: 'Perps',
+  set: 'Set',
+  max_leverage_tip:
+    'Max account leverage cannot be lower than your current leverage.',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

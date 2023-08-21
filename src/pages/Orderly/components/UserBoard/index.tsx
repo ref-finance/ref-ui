@@ -547,8 +547,6 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     (orderTypeUrl as 'Market' | 'Limit') || 'Limit'
   );
 
-  const history = useHistory();
-
   // const [holdings, setHoldings] = useState<Holding[]>();
 
   const symbolType = PerpOrSpot(symbol);

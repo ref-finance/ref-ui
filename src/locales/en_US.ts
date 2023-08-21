@@ -1440,5 +1440,8 @@ const en_US = {
   taker_maker_fee_rate: 'Taker/Maker Fee Rate',
   spot_nav: 'Spot',
   perps_nav: 'Perps',
+  set: 'Set',
+  max_leverage_tip:
+    'Max account leverage cannot be lower than your current leverage.',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

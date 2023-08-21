@@ -129,12 +129,13 @@ import {
 } from './math';
 import { LeverageSlider } from './components/LeverageSlider';
 import { useLeverage } from '~pages/Orderly/orderly/state';
-import { DetailBox } from './components/DetailBox';
+import { DetailBox, DetailBoxMobile } from './components/DetailBox';
 import { LiquidationButton } from './components/LiquidationHistory';
 import { executeMultipleTransactions } from '~services/near';
 import { openUrl } from '~services/commonV3';
 import SettlePnlModal from '../TableWithTabs/SettlePnlModal';
 import { useTokensBalances } from '../UserBoard/state';
+import { SetLeverageButton } from './components/SetLeverageButton';
 const REF_ORDERLY_LIMIT_ORDER_ADVANCE = 'REF_ORDERLY_LIMIT_ORDER_ADVANCE';
 
 function getTipFOK() {
@@ -708,18 +709,42 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     ? orders.asks?.[0]?.[0]
     : orders?.bids?.[0]?.[0];
 
-  const total =
-    orderType === 'Limit'
-      ? !limitPrice || !userInfo
-        ? '-'
-        : new Big(inputValue || 0)
-            .times(new Big(Number(limitPrice || 0)))
-            .toNumber()
-      : !orders || !userInfo || !marketPrice
-      ? '-'
-      : new Big(inputValue || 0)
+  const reloadTotal = () => {
+    if (orderType === 'Limit') {
+      if (!limitPrice) {
+        return '-';
+      } else {
+        return new Big(inputValue || 0)
+          .times(new Big(Number(limitPrice || 0)))
+          .toNumber()
+          .toString();
+      }
+    } else {
+      if (!marketPrice) {
+        return '-';
+      } else {
+        return new Big(inputValue || 0)
           .times(new Big(Number(marketPrice || 0)))
-          .toNumber();
+          .toNumber()
+          .toString();
+      }
+    }
+  };
+  const [total, setTotal] = useState<string>(reloadTotal());
+
+  const [onTotalFocus, setOnTotalFocus] = useState<boolean>(false);
+
+  useEffect(() => {
+    const total = reloadTotal();
+    setTotal(total);
+  }, [orderType]);
+
+  useEffect(() => {
+    if (onTotalFocus) return;
+
+    const total = reloadTotal();
+    setTotal(total);
+  }, [marketPrice]);
 
   const maxOrderSize = useMemo(() => {
     const res = getMaxQuantity(
@@ -1197,6 +1222,28 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
             ? '-'
             : numberWithCommas(totalCollateral)}
         </span>
+      </div>
+
+      <div className="frcb">
+        <FormattedMessage
+          id="leverage_max_leverage"
+          defaultMessage={'Max Account Leverage:'}
+        />
+
+        <SetLeverageButton
+          curLeverage={userInfo?.max_leverage || '-'}
+          value={leverageMap(curLeverage)}
+          onChange={(v) => {
+            setCurLeverage(leverageMap(v, true));
+          }}
+          marginRatio={Number(marginRatio)}
+          min={0}
+          className={`orderly-leverage-slider ${
+            side === 'Buy'
+              ? 'orderly-leverage-slider-buy'
+              : 'orderly-leverage-slider-sell'
+          }`}
+        />
       </div>
 
       <div className="frcb">
@@ -1716,9 +1763,43 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                 className="text-white text-left ml-2 text-xl w-full"
                 value={limitPrice}
                 onChange={(e) => {
-                  priceAndSizeValidator(e.target.value, inputValue);
+                  const price = e.target.value;
 
-                  setLimitPrice(e.target.value);
+                  priceAndSizeValidator(price, inputValue);
+
+                  setLimitPrice(price);
+
+                  if (ONLY_ZEROS.test(price)) {
+                    setTotal('0');
+
+                    return;
+                  }
+
+                  if (!ONLY_ZEROS.test(price) && !ONLY_ZEROS.test(inputValue)) {
+                    const total = new Big(price || 0)
+                      .times(inputValue)
+                      .toNumber()
+                      .toString();
+                    setTotal(total);
+
+                    return;
+                  }
+
+                  console.log('total: ', total, price);
+
+                  if (!ONLY_ZEROS.test(total) && !ONLY_ZEROS.test(price)) {
+                    // change input value
+                    const qty = new Big(total || 0)
+                      .div(price)
+                      .toNumber()
+                      .toString();
+
+                    setInputValue(qty);
+
+                    priceAndSizeValidator(price, qty);
+
+                    return;
+                  }
                 }}
                 inputMode="decimal"
                 onKeyDown={(e) =>
@@ -1774,6 +1855,12 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
               step="any"
               min={0}
               onChange={(e) => {
+                const displayAmount = e.target.value;
+                let price =
+                  orderType === 'Limit'
+                    ? limitPrice
+                    : marketPrice?.toString() || '0';
+
                 priceAndSizeValidator(
                   orderType === 'Limit'
                     ? limitPrice
@@ -1782,6 +1869,40 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                 );
 
                 setInputValue(e.target.value);
+
+                if (ONLY_ZEROS.test(displayAmount)) {
+                  setTotal('0');
+                  return;
+                }
+
+                if (
+                  !ONLY_ZEROS.test(price) &&
+                  !ONLY_ZEROS.test(displayAmount)
+                ) {
+                  const total = new Big(price)
+                    .times(displayAmount || '0')
+                    .toNumber()
+                    .toString();
+
+                  setTotal(total);
+
+                  return;
+                } else if (
+                  !ONLY_ZEROS.test(total) &&
+                  ONLY_ZEROS.test(price) &&
+                  orderType === 'Limit'
+                ) {
+                  price = new Big(total)
+                    .div(new Big(displayAmount || 0))
+                    .toNumber()
+                    .toString();
+
+                  setLimitPrice(price);
+
+                  priceAndSizeValidator(price, displayAmount, 'maxinput');
+
+                  return;
+                }
               }}
               onKeyDown={(e) =>
                 symbolsArr.includes(e.key) && e.preventDefault()
@@ -1812,13 +1933,41 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
                 setInputValue(displayAmount);
 
-                priceAndSizeValidator(
+                let price =
                   orderType == 'Market'
                     ? marketPrice?.toString() || '0'
-                    : limitPrice,
-                  displayAmount,
-                  'maxinput'
-                );
+                    : limitPrice;
+
+                priceAndSizeValidator(price, displayAmount, 'maxinput');
+
+                if (
+                  !ONLY_ZEROS.test(price) &&
+                  !ONLY_ZEROS.test(displayAmount)
+                ) {
+                  const total = new Big(price)
+                    .times(displayAmount || '0')
+                    .toNumber()
+                    .toString();
+
+                  setTotal(total);
+
+                  return;
+                } else if (
+                  !ONLY_ZEROS.test(total) &&
+                  ONLY_ZEROS.test(price) &&
+                  orderType === 'Limit'
+                ) {
+                  price = new Big(total)
+                    .div(new Big(displayAmount || 0))
+                    .toNumber()
+                    .toString();
+
+                  setLimitPrice(price);
+
+                  priceAndSizeValidator(price, displayAmount, 'maxinput');
+
+                  return;
+                }
               }}
             >
               Max
@@ -1826,7 +1975,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           </div>
         </div>
 
-        <LeverageSlider
+        {/* <LeverageSlider
           className={`orderly-leverage-slider ${
             side === 'Buy'
               ? 'orderly-leverage-slider-buy'
@@ -1839,7 +1988,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           }}
           marginRatio={Number(marginRatio)}
           min={0}
-        />
+        /> */}
 
         {showErrorTip && (
           <ErrorTip className={'relative top-3'} text={errorTipMsg} />
@@ -2004,24 +2153,85 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           )}
 
           <div className={'flex flex-col gap-2'}>
-            <div className="frcb">
-              <span className="text-primaryOrderly">
-                {intl.formatMessage({
-                  id: 'total',
-                  defaultMessage: 'Total',
-                })}
-              </span>
+            <div className="frcb  ">
+              <div className="text-primaryOrderly px-4 py-2 w-full border border-inputV3BorderColor rounded-xl bg-perpCardBg mr-2 frcb">
+                <div className="frcs">
+                  <span>
+                    {intl.formatMessage({
+                      id: 'total',
+                      defaultMessage: 'Total',
+                    })}
+                  </span>
 
-              <div className="frcs gap-2">
-                <span className="text-white">
-                  {total === '-'
-                    ? '-'
-                    : digitWrapper(new Big(total).toFixed(), 3)}{' '}
-                </span>
-                <span className="text-primaryText">USDC</span>
+                  <span className="font-sans">&nbsp;{'≈'}</span>
+                </div>
 
-                <DetailBox show={showTotal} setShow={setShowTotal} />
+                <div className="frcs gap-2">
+                  <input
+                    type="number"
+                    step="any"
+                    inputMode="decimal"
+                    className="text-white text-right"
+                    value={total}
+                    min={0}
+                    onKeyDown={(e) =>
+                      symbolsArr.includes(e.key) && e.preventDefault()
+                    }
+                    onChange={(e) => {
+                      const value = e.target.value;
+
+                      setTotal(value);
+
+                      let qty = '';
+
+                      if (ONLY_ZEROS.test(value)) {
+                        setInputValue('');
+                        // return;
+                      }
+
+                      const price =
+                        orderType === 'Limit'
+                          ? limitPrice
+                          : marketPrice?.toString() || '0';
+
+                      if (
+                        orderType === 'Limit' &&
+                        !ONLY_ZEROS.test(limitPrice) &&
+                        !ONLY_ZEROS.test(value)
+                      ) {
+                        qty = new Big(value)
+                          .div(new Big(limitPrice))
+                          .toNumber()
+                          .toString();
+
+                        setInputValue(qty);
+                      } else if (
+                        orderType === 'Market' &&
+                        !ONLY_ZEROS.test(marketPrice.toString()) &&
+                        !ONLY_ZEROS.test(value)
+                      ) {
+                        qty = new Big(value)
+                          .div(new Big(marketPrice))
+                          .toNumber()
+                          .toString();
+                      }
+
+                      setInputValue(qty);
+
+                      priceAndSizeValidator(price, qty);
+                    }}
+                    onFocus={() => {
+                      setOnTotalFocus(true);
+                    }}
+                    onBlur={() => {
+                      setOnTotalFocus(false);
+                    }}
+                  />
+                  <span className="text-primaryText">USDC</span>
+                </div>
               </div>
+
+              <DetailBox show={showTotal} setShow={setShowTotal} />
             </div>
 
             <div className={!showTotal ? 'hidden' : 'flex flex-col gap-2'}>
@@ -2177,7 +2387,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         price={
           orderType === 'Limit' ? limitPrice : marketPrice?.toString() || '0'
         }
-        totalCost={total}
+        totalCost={ONLY_ZEROS.test(total) ? '-' : Number(total)}
         onClick={handleSubmit}
         userInfo={userInfo}
       ></ConfirmOrderModal>
@@ -3213,8 +3423,6 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
 
   const { accountId, modal, selector } = useWalletSelector();
 
-  const [operationType, setOperationType] = useState<'deposit' | 'withdraw'>();
-
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
 
   const sideUrl = new URLSearchParams(window.location.search).get('side');
@@ -3222,8 +3430,6 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
   const orderTypeUrl = new URLSearchParams(window.location.search).get(
     'orderType'
   );
-
-  const [settleModalOpen, setSettleModalOpen] = useState<boolean>(false);
 
   const [side, setSide] = useState<'Buy' | 'Sell'>(
     (sideUrl as 'Buy' | 'Sell') || 'Buy'
@@ -3233,15 +3439,9 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
     (orderTypeUrl as 'Market' | 'Limit') || 'Limit'
   );
 
-  const history = useHistory();
-
   // const [holdings, setHoldings] = useState<Holding[]>();
 
   const tokenIn = useTokenMetaFromSymbol(symbolFrom, tokenInfo);
-
-  const tokenOut = useTokenMetaFromSymbol(symbolTo, tokenInfo);
-
-  const [operationId, setOperationId] = useState<string>(tokenIn?.id || '');
 
   const [inputValue, setInputValue] = useState<string>('');
 
@@ -3356,14 +3556,42 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
     curSymbolMarkPrice,
   ]);
 
-  const total =
-    orderType === 'Limit'
-      ? !limitPrice || !userInfo
-        ? '-'
-        : Number(inputValue || 0) * Number(limitPrice || 0)
-      : !orders || !userInfo || !marketPrice
-      ? '-'
-      : Number(inputValue || 0) * Number(marketPrice || 0);
+  const reloadTotal = () => {
+    if (orderType === 'Limit') {
+      if (!limitPrice) {
+        return '-';
+      } else {
+        return new Big(inputValue || 0)
+          .times(new Big(Number(limitPrice || 0)))
+          .toNumber()
+          .toString();
+      }
+    } else {
+      if (!marketPrice) {
+        return '-';
+      } else {
+        return new Big(inputValue || 0)
+          .times(new Big(Number(marketPrice || 0)))
+          .toNumber()
+          .toString();
+      }
+    }
+  };
+  const [total, setTotal] = useState<string>(reloadTotal());
+
+  const [onTotalFocus, setOnTotalFocus] = useState<boolean>(false);
+
+  useEffect(() => {
+    const total = reloadTotal();
+    setTotal(total);
+  }, [orderType]);
+
+  useEffect(() => {
+    if (onTotalFocus) return;
+
+    const total = reloadTotal();
+    setTotal(total);
+  }, [marketPrice]);
 
   const handleSubmit = async () => {
     if (!accountId) return;
@@ -3507,11 +3735,6 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
   }, [tradingKeySet, keyAnnounced]);
 
   const intl = useIntl();
-
-  // const isInsufficientBalance =
-  //   maxOrderSize !== '-' &&
-  //   Number(inputValue || 0) > 0 &&
-  //   Number(inputValue) > Number(maxOrderSize);
 
   const isInsufficientBalance =
     Number(inputValue || 0) > 0 &&
@@ -3997,9 +4220,43 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
                 className="text-white text-left ml-2 text-xl w-full"
                 value={limitPrice}
                 onChange={(e) => {
-                  priceAndSizeValidator(e.target.value, inputValue);
+                  const price = e.target.value;
 
-                  setLimitPrice(e.target.value);
+                  priceAndSizeValidator(price, inputValue);
+
+                  setLimitPrice(price);
+
+                  if (ONLY_ZEROS.test(price)) {
+                    setTotal('0');
+
+                    return;
+                  }
+
+                  if (!ONLY_ZEROS.test(price) && !ONLY_ZEROS.test(inputValue)) {
+                    const total = new Big(price || 0)
+                      .times(inputValue)
+                      .toNumber()
+                      .toString();
+                    setTotal(total);
+
+                    return;
+                  }
+
+                  console.log('total: ', total, price);
+
+                  if (!ONLY_ZEROS.test(total) && !ONLY_ZEROS.test(price)) {
+                    // change input value
+                    const qty = new Big(total || 0)
+                      .div(price)
+                      .toNumber()
+                      .toString();
+
+                    setInputValue(qty);
+
+                    priceAndSizeValidator(price, qty);
+
+                    return;
+                  }
                 }}
                 inputMode="decimal"
                 onKeyDown={(e) =>
@@ -4054,6 +4311,12 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
               step="any"
               min={0}
               onChange={(e) => {
+                const displayAmount = e.target.value;
+                let price =
+                  orderType === 'Limit'
+                    ? limitPrice
+                    : marketPrice?.toString() || '0';
+
                 priceAndSizeValidator(
                   orderType === 'Limit'
                     ? limitPrice
@@ -4062,6 +4325,40 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
                 );
 
                 setInputValue(e.target.value);
+
+                if (ONLY_ZEROS.test(displayAmount)) {
+                  setTotal('0');
+                  return;
+                }
+
+                if (
+                  !ONLY_ZEROS.test(price) &&
+                  !ONLY_ZEROS.test(displayAmount)
+                ) {
+                  const total = new Big(price)
+                    .times(displayAmount || '0')
+                    .toNumber()
+                    .toString();
+
+                  setTotal(total);
+
+                  return;
+                } else if (
+                  !ONLY_ZEROS.test(total) &&
+                  ONLY_ZEROS.test(price) &&
+                  orderType === 'Limit'
+                ) {
+                  price = new Big(total)
+                    .div(new Big(displayAmount || 0))
+                    .toNumber()
+                    .toString();
+
+                  setLimitPrice(price);
+
+                  priceAndSizeValidator(price, displayAmount, 'maxinput');
+
+                  return;
+                }
               }}
               onKeyDown={(e) =>
                 symbolsArr.includes(e.key) && e.preventDefault()
@@ -4092,13 +4389,41 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
 
                 setInputValue(displayAmount);
 
-                priceAndSizeValidator(
+                let price =
                   orderType == 'Market'
                     ? marketPrice?.toString() || '0'
-                    : limitPrice,
-                  displayAmount,
-                  'maxinput'
-                );
+                    : limitPrice;
+
+                priceAndSizeValidator(price, displayAmount, 'maxinput');
+
+                if (
+                  !ONLY_ZEROS.test(price) &&
+                  !ONLY_ZEROS.test(displayAmount)
+                ) {
+                  const total = new Big(price)
+                    .times(displayAmount || '0')
+                    .toNumber()
+                    .toString();
+
+                  setTotal(total);
+
+                  return;
+                } else if (
+                  !ONLY_ZEROS.test(total) &&
+                  ONLY_ZEROS.test(price) &&
+                  orderType === 'Limit'
+                ) {
+                  price = new Big(total)
+                    .div(new Big(displayAmount || 0))
+                    .toNumber()
+                    .toString();
+
+                  setLimitPrice(price);
+
+                  priceAndSizeValidator(price, displayAmount, 'maxinput');
+
+                  return;
+                }
               }}
             >
               Max
@@ -4106,7 +4431,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
           </div>
         </div>
 
-        <LeverageSlider
+        {/* <LeverageSlider
           className={`orderly-leverage-slider ${
             side === 'Buy'
               ? 'orderly-leverage-slider-buy'
@@ -4119,15 +4444,166 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
           }}
           marginRatio={Number(marginRatio)}
           min={0}
-        />
+        /> */}
 
         {showErrorTip && (
           <ErrorTip className={'relative top-3'} text={errorTipMsg} />
         )}
 
-        <div className="rounded-lg text-sm px-0 pt-1 relative flex flex-col gap-2 z-10 pb-2.5">
+        <div className="rounded-lg text-sm px-0 pt-2.5 border-t border-white border-opacity-10 relative flex flex-col gap-2 z-10 pb-2.5 ">
+          <div className="text-primaryOrderly px-4 py-2 w-full border border-inputV3BorderColor rounded-xl bg-perpCardBg mr-2 flex flex-col">
+            <div className="frcb">
+              <span className="frcs">
+                {intl.formatMessage({
+                  id: 'total',
+                  defaultMessage: 'Total',
+                })}
+
+                <span className="font-sans">&nbsp;{'≈'}</span>
+              </span>
+
+              <TextWrapper
+                className="text-10px py-0 px-1"
+                value={'USDC'}
+                textC="text-primaryText"
+              />
+            </div>
+
+            <div className="frcs gap-2">
+              <input
+                type="number"
+                step="any"
+                inputMode="decimal"
+                className="text-white text-left"
+                value={total}
+                min={0}
+                onKeyDown={(e) =>
+                  symbolsArr.includes(e.key) && e.preventDefault()
+                }
+                onChange={(e) => {
+                  const value = e.target.value;
+
+                  setTotal(value);
+
+                  let qty = '';
+
+                  if (ONLY_ZEROS.test(value)) {
+                    setInputValue('');
+                    // return;
+                  }
+
+                  const price =
+                    orderType === 'Limit'
+                      ? limitPrice
+                      : marketPrice?.toString() || '0';
+
+                  if (
+                    orderType === 'Limit' &&
+                    !ONLY_ZEROS.test(limitPrice) &&
+                    !ONLY_ZEROS.test(value)
+                  ) {
+                    qty = new Big(value)
+                      .div(new Big(limitPrice))
+                      .toFixed(tickToPrecision(curSymbol.base_tick));
+
+                    setInputValue(qty);
+                  } else if (
+                    orderType === 'Market' &&
+                    !ONLY_ZEROS.test(marketPrice.toString()) &&
+                    !ONLY_ZEROS.test(value)
+                  ) {
+                    qty = new Big(value)
+                      .div(new Big(marketPrice))
+                      .toFixed(tickToPrecision(curSymbol.base_tick));
+                  }
+
+                  setInputValue(qty);
+
+                  priceAndSizeValidator(price, qty);
+                }}
+                onFocus={() => {
+                  setOnTotalFocus(true);
+                }}
+                onBlur={() => {
+                  setOnTotalFocus(false);
+                }}
+              />
+            </div>
+          </div>
+
+          <div className={'flex flex-col gap-2'}>
+            <div className="frcb text-primaryOrderly ">
+              {intl.formatMessage({
+                id: 'detail',
+                defaultMessage: 'Detail',
+              })}
+
+              <DetailBoxMobile show={showTotal} setShow={setShowTotal} />
+            </div>
+            <div className={!showTotal ? 'hidden' : 'flex flex-col gap-2'}>
+              <div className="frcb text-xs">
+                <LiquidationPriceText></LiquidationPriceText>
+                <div className="frcs gap-2">
+                  <span className="text-white">{lqPrice}</span>
+
+                  <span className="text-primaryText">USDC</span>
+                </div>
+              </div>
+              <div className="frcb text-xs">
+                <span className="text-primaryOrderly">
+                  {intl.formatMessage({
+                    id: 'margin_required',
+                    defaultMessage: 'Margin Required',
+                  })}
+                </span>
+
+                <div className="frcs gap-2">
+                  <span className="text-white">
+                    {!inputValue
+                      ? '-'
+                      : digitWrapper(
+                          (
+                            (Number(inputValue) *
+                              (curSymbolMarkPrice.price || 0)) /
+                            curLeverage
+                          ).toString(),
+                          3
+                        )}{' '}
+                  </span>
+
+                  <span className="text-primaryText">USDC</span>
+                </div>
+              </div>
+
+              <div className="frcb text-xs">
+                <span className="text-primaryOrderly">
+                  {intl.formatMessage({
+                    id: 'taker_maker_fee',
+                    defaultMessage: 'Taker/Maker Fee',
+                  })}
+                </span>
+
+                <FlexRow className="text-white">
+                  <span className="  ">
+                    {Number(
+                      (userInfo?.futures_taker_fee_rate || 0) / 100
+                    ).toFixed(3)}
+                    %
+                  </span>
+                  /
+                  <span className=" ">
+                    {Number(
+                      (userInfo?.futures_maker_fee_rate || 0) / 100
+                    ).toFixed(3)}
+                    %
+                  </span>
+                </FlexRow>
+              </div>
+            </div>
+          </div>
+
           {orderType === 'Limit' && (
-            <div className="text-white text-sm mt-2 border-b pb-3 border-white border-opacity-10">
+            <div className="text-white text-sm mt-2  pb-3 border-white border-opacity-10">
               <div className="frcb ">
                 <span className="text-primaryOrderly">
                   {intl.formatMessage({
@@ -4136,7 +4612,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
                   })}
                 </span>
 
-                <DetailBox
+                <DetailBoxMobile
                   show={showLimitAdvance}
                   setShow={setShowLimitAdvance}
                 />
@@ -4282,105 +4758,6 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
               </div>
             </div>
           )}
-
-          <div className={!showAdvance ? 'hidden' : 'flex flex-col gap-2'}>
-            <div className="frcb">
-              <span className="text-primaryOrderly">
-                {intl.formatMessage({
-                  id: 'total',
-                  defaultMessage: 'Total',
-                })}
-              </span>
-
-              <div className="frcs gap-2">
-                <span className="text-white">
-                  {total === '-' ? '-' : digitWrapper(total.toString(), 3)}{' '}
-                </span>
-                <span className="text-primaryText">USDC</span>
-
-                <DetailBox show={showTotal} setShow={setShowTotal} />
-              </div>
-            </div>
-          </div>
-          <div className={'flex flex-col gap-2'}>
-            <div className="frcb">
-              <span className="text-primaryOrderly">
-                {intl.formatMessage({
-                  id: 'total',
-                  defaultMessage: 'Total',
-                })}
-              </span>
-
-              <div className="frcs gap-2">
-                <span className="text-white">
-                  {total === '-' ? '-' : digitWrapper(total.toString(), 3)}{' '}
-                </span>
-                <span className="text-primaryText">USDC</span>
-
-                <DetailBox show={showTotal} setShow={setShowTotal} />
-              </div>
-            </div>
-            <div className={!showTotal ? 'hidden' : 'flex flex-col gap-2'}>
-              <div className="frcb text-xs">
-                <LiquidationPriceText></LiquidationPriceText>
-                <div className="frcs gap-2">
-                  <span className="text-white">{lqPrice}</span>
-
-                  <span className="text-primaryText">USDC</span>
-                </div>
-              </div>
-              <div className="frcb text-xs">
-                <span className="text-primaryOrderly">
-                  {intl.formatMessage({
-                    id: 'margin_required',
-                    defaultMessage: 'Margin Required',
-                  })}
-                </span>
-
-                <div className="frcs gap-2">
-                  <span className="text-white">
-                    {!inputValue
-                      ? '-'
-                      : digitWrapper(
-                          (
-                            (Number(inputValue) *
-                              (curSymbolMarkPrice.price || 0)) /
-                            curLeverage
-                          ).toString(),
-                          3
-                        )}{' '}
-                  </span>
-
-                  <span className="text-primaryText">USDC</span>
-                </div>
-              </div>
-
-              <div className="frcb text-xs">
-                <span className="text-primaryOrderly">
-                  {intl.formatMessage({
-                    id: 'taker_maker_fee',
-                    defaultMessage: 'Taker/Maker Fee',
-                  })}
-                </span>
-
-                <FlexRow className="text-white">
-                  <span className="  ">
-                    {Number(
-                      (userInfo?.futures_taker_fee_rate || 0) / 100
-                    ).toFixed(3)}
-                    %
-                  </span>
-                  /
-                  <span className=" ">
-                    {Number(
-                      (userInfo?.futures_maker_fee_rate || 0) / 100
-                    ).toFixed(3)}
-                    %
-                  </span>
-                </FlexRow>
-              </div>
-            </div>
-          </div>
         </div>
 
         <button
@@ -4430,7 +4807,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
         price={
           orderType === 'Limit' ? limitPrice : marketPrice?.toString() || '0'
         }
-        totalCost={total}
+        totalCost={ONLY_ZEROS.test(total) ? '-' : Number(total)}
         onClick={handleSubmit}
         userInfo={userInfo}
       ></ConfirmOrderModal>

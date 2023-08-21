@@ -1044,7 +1044,7 @@ export const usePortableOrderlyTable = ({
             render: ({ symbol }) => (
               <div className={`pr-2 text-white`}>
                 {markPrices
-                  .find((i) => i.symbol === symbol)
+                  ?.find((i) => i.symbol === symbol)
                   ?.price.toFixed(3) || '-'}
               </div>
             ),
@@ -1832,7 +1832,7 @@ export const usePortableOrderlyTablePositions = ({
             render: ({ symbol }) => (
               <div className={`pr-2 text-white`}>
                 {markPrices
-                  .find((i) => i.symbol === symbol)
+                  ?.find((i) => i.symbol === symbol)
                   ?.price.toFixed(3) || '-'}
               </div>
             ),

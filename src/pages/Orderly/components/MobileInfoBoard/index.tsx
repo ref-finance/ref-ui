@@ -115,6 +115,7 @@ import {
   getRiskLevel,
   getTotalCollateral,
   getTotaluPnl,
+  leverageMap,
 } from '../UserBoardPerp/math';
 import { useLeverage } from '../../orderly/state';
 import {
@@ -125,6 +126,7 @@ import {
 import { usePerpData } from '../UserBoardPerp/state';
 import { executeMultipleTransactions } from '../../../../services/near';
 import SettlePnlModal from '../TableWithTabs/SettlePnlModal';
+import { SetLeverageButton } from '../UserBoardPerp/components/SetLeverageButton';
 
 export const MOBILE_TAB = 'REF_ORDERLY_MOBILE_TAB';
 
@@ -474,6 +476,8 @@ export function PerpAccountBoard() {
     totaluPnl,
     unsettle,
     mmr,
+    setCurLeverage,
+    curLeverage,
   } = usePerpData();
 
   const intl = useIntl();
@@ -489,16 +493,6 @@ export function PerpAccountBoard() {
     <div className="flex flex-col text-primaryText gap-2 px-2 text-13px">
       <div className="frcb">
         <FormattedMessage
-          id="leverage_max_leverage"
-          defaultMessage={`Max Account Leverage `}
-        ></FormattedMessage>
-
-        <span className="font-nunito text-white">
-          {!userInfo ? '-' : userInfo.max_leverage + 'x'}
-        </span>
-      </div>
-      <div className="frcb">
-        <FormattedMessage
           id="total_collateral"
           defaultMessage={`Total Collateral`}
         ></FormattedMessage>
@@ -508,6 +502,24 @@ export function PerpAccountBoard() {
             ? '-'
             : numberWithCommas(totalCollateral)}
         </span>
+      </div>
+
+      <div className="frcb">
+        <FormattedMessage
+          id="leverage_max_leverage"
+          defaultMessage={'Max Account Leverage:'}
+        />
+
+        <SetLeverageButton
+          curLeverage={userInfo?.max_leverage || '-'}
+          value={leverageMap(curLeverage)}
+          onChange={(v) => {
+            setCurLeverage(leverageMap(v, true));
+          }}
+          marginRatio={Number(marginRatio)}
+          min={0}
+          className={`orderly-leverage-slider ${'orderly-leverage-slider-buy'}`}
+        />
       </div>
 
       <div className="frcb">
@@ -590,7 +602,7 @@ export function PerpAccountBoard() {
           </span>
 
           <button
-            className={`font-gotham  px-1 text-xs rounded-md border border-inputV3BorderColor ${
+            className={`font-gotham  px-1 text-xs rounded-md border border-primaryText ${
               ONLY_ZEROS.test(unsettle)
                 ? 'cursor-not-allowed text-primaryText opacity-70'
                 : 'text-white'
