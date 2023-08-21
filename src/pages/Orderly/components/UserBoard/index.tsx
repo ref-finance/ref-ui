@@ -359,7 +359,7 @@ function UserBoardFoot() {
         </>
       )}
 
-      <div className={`flex items-center justify-center  relative `}>
+      <div className={`flex items-center justify-center h-12 relative `}>
         <span className="text-primaryText  ">
           <FormattedMessage
             id="powered_by"
