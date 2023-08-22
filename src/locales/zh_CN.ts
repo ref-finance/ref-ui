@@ -1371,5 +1371,7 @@ const zh_CN = {
   set: 'Set',
   max_leverage_tip:
     'Max account leverage cannot be lower than your current leverage.',
+
+  to_begin_your_trading_journey: 'to begin your trading journey.',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

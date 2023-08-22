@@ -136,6 +136,7 @@ import { openUrl } from '~services/commonV3';
 import SettlePnlModal from '../TableWithTabs/SettlePnlModal';
 import { useTokensBalances } from '../UserBoard/state';
 import { SetLeverageButton } from './components/SetLeverageButton';
+import { DepositTip } from './components/DepositTip';
 const REF_ORDERLY_LIMIT_ORDER_ADVANCE = 'REF_ORDERLY_LIMIT_ORDER_ADVANCE';
 
 function getTipFOK() {
@@ -1765,7 +1766,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
               </span>
             </div>
 
-            <div className="flex items-center mt-3 justify-between">
+            <div className="flex items-center mt-1 justify-between">
               <input
                 type="number"
                 step="any"
@@ -1777,7 +1778,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                 }
                 min={0}
                 placeholder="0"
-                className="text-white text-left ml-2 text-xl w-full"
+                className="text-white text-left ml-2 text-lg  w-full"
                 value={limitPrice}
                 onChange={(e) => {
                   const price = e.target.value;
@@ -1846,7 +1847,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         )}
 
         <div className="w-full text-primaryOrderly text-sm  bg-perpCardBg rounded-xl border border-boxBorder p-3">
-          <div className="mb-2 text-left flex items-center justify-between">
+          <div className=" text-left flex items-center justify-between">
             <span>
               {intl.formatMessage({
                 id: 'quantity',
@@ -1857,7 +1858,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
             <span className="">{symbolFrom}</span>
           </div>
 
-          <div className="flex items-center mt-2">
+          <div className="flex items-center mt-1">
             <input
               autoFocus
               inputMode="decimal"
@@ -1865,7 +1866,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
               onWheel={(e) =>
                 inputAmountRef.current ? inputAmountRef.current.blur() : null
               }
-              className="text-white ml-2 text-xl w-full"
+              className="text-white ml-2 text-lg w-full"
               value={inputValue}
               placeholder="0"
               type="number"
@@ -1991,21 +1992,6 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
             </span>
           </div>
         </div>
-
-        {/* <LeverageSlider
-          className={`orderly-leverage-slider ${
-            side === 'Buy'
-              ? 'orderly-leverage-slider-buy'
-              : 'orderly-leverage-slider-sell'
-          }`}
-          curLeverage={userInfo?.max_leverage || '-'}
-          value={leverageMap(curLeverage)}
-          onChange={(v) => {
-            setCurLeverage(leverageMap(v, true));
-          }}
-          marginRatio={Number(marginRatio)}
-          min={0}
-        /> */}
 
         {showErrorTip && (
           <ErrorTip className={'relative top-3'} text={errorTipMsg} />
@@ -2171,7 +2157,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
           <div className={'flex flex-col gap-2'}>
             <div className="frcb  ">
-              <div className="text-primaryOrderly px-4 py-2 w-full border border-inputV3BorderColor rounded-xl bg-perpCardBg mr-2 frcb">
+              <div className="text-primaryOrderly px-4 py-1 w-full border border-inputV3BorderColor rounded-xl bg-perpCardBg mr-2 frcb">
                 <div className="frcs">
                   <span>
                     {intl.formatMessage({
@@ -2183,12 +2169,12 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                   <span className="font-sans">&nbsp;{'≈'}</span>
                 </div>
 
-                <div className="frcs gap-2">
+                <div className="frcs gap-2 py-1">
                   <input
                     type="number"
                     step="any"
                     inputMode="decimal"
-                    className="text-white text-right"
+                    className="text-white text-right text-lg"
                     value={total}
                     min={0}
                     onKeyDown={(e) =>
@@ -2347,6 +2333,16 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                 defaultMessage: side,
               })} ${symbolFrom}`}
         </button>
+
+        {isInsufficientBalance && (
+          <DepositTip
+            onClick={() => {
+              setOperationType('deposit');
+              setOperationId(tokenOut?.id || '');
+            }}
+            type="perp"
+          />
+        )}
       </div>
 
       <UserBoardFoot />
@@ -2439,7 +2435,7 @@ export function AssetManagerModal(
     type: 'deposit' | 'withdraw' | undefined;
     onClick: (amount: string, tokenId?: string) => Promise<void>;
     tokenId: string | undefined;
-    accountBalance: number | string;
+    accountBalance?: number | string;
     walletBalance?: number | string;
     standAlone?: boolean;
     tokenInfo: TokenInfo[] | undefined;
@@ -3434,13 +3430,15 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
     holdings,
   } = useOrderlyContext();
 
-  const { marginRatio, newPositions } = usePerpData();
+  const { marginRatio, newPositions, freeCollateral } = usePerpData();
 
   const curSymbolMarkPrice = markPrices?.find((item) => item.symbol === symbol);
 
   const { accountId, modal, selector } = useWalletSelector();
 
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
+
+  const tokenOut = useTokenMetaFromSymbol(symbolTo, tokenInfo);
 
   const sideUrl = new URLSearchParams(window.location.search).get('side');
 
@@ -3985,6 +3983,9 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
     return true;
   };
 
+  const [operationId, setOperationId] = useState<string>(tokenIn?.id || '');
+  const [operationType, setOperationType] = useState<'deposit' | 'withdraw'>();
+
   const priceAndSizeValidator = (
     price: string,
     size: string,
@@ -4234,7 +4235,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
                 }
                 min={0}
                 placeholder="0"
-                className="text-white text-left ml-2 text-xl w-full"
+                className="text-white text-left ml-2 text-lg w-full"
                 value={limitPrice}
                 onChange={(e) => {
                   const price = e.target.value;
@@ -4321,7 +4322,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
               onWheel={(e) =>
                 inputAmountRef.current ? inputAmountRef.current.blur() : null
               }
-              className="text-white ml-2 text-xl w-full"
+              className="text-white ml-2 text-lg w-full"
               value={inputValue}
               placeholder="0"
               type="number"
@@ -4476,7 +4477,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
                 type="number"
                 step="any"
                 inputMode="decimal"
-                className="text-white text-left"
+                className="text-white text-left text-lg ml-2"
                 value={total}
                 min={0}
                 onKeyDown={(e) =>
@@ -4506,7 +4507,8 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
                   ) {
                     qty = new Big(value)
                       .div(new Big(limitPrice))
-                      .toFixed(tickToPrecision(curSymbol.base_tick));
+                      .toNumber()
+                      .toString();
 
                     setInputValue(qty);
                   } else if (
@@ -4516,7 +4518,8 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
                   ) {
                     qty = new Big(value)
                       .div(new Big(marketPrice))
-                      .toFixed(tickToPrecision(curSymbol.base_tick));
+                      .toNumber()
+                      .toString();
                   }
 
                   setInputValue(qty);
@@ -4795,6 +4798,31 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
                 defaultMessage: side,
               })} ${symbolFrom}`}
         </button>
+
+        {isInsufficientBalance && (
+          <DepositTip
+            onClick={() => {
+              setOperationType('deposit');
+              setOperationId(tokenOut?.id || '');
+            }}
+            type="perp"
+          />
+        )}
+
+        <AssetManagerModal
+          isOpen={operationType === 'deposit'}
+          onRequestClose={() => {
+            setOperationType(undefined);
+          }}
+          type={operationType}
+          onClick={(amount: string, tokenId: string) => {
+            if (!tokenId) return;
+            return depositOrderly(tokenId, amount);
+          }}
+          tokenId={operationId}
+          tokenInfo={tokenInfo}
+          freeCollateral={freeCollateral}
+        />
       </div>
 
       <ConfirmOrderModal

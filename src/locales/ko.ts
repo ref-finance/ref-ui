@@ -1433,5 +1433,6 @@ const ko = {
   set: 'Set',
   max_leverage_tip:
     'Max account leverage cannot be lower than your current leverage.',
+  to_begin_your_trading_journey: 'to begin your trading journey.',
 };
 export default Object.assign(ko, ko_in_risks_page);

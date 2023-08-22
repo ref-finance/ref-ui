@@ -106,6 +106,8 @@ import { REF_FI_SENDER_WALLET_ACCESS_KEY } from '../../orderly/utils';
 import { useHistory } from 'react-router-dom';
 import { usePerpData } from '../UserBoardPerp/state';
 import { tickToPrecision } from '../UserBoardPerp/math';
+import { DetailBox } from '../UserBoardPerp/components/DetailBox';
+import { DepositTip } from '../UserBoardPerp/components/DepositTip';
 
 function getTipFOK() {
   const intl = useIntl();
@@ -657,14 +659,43 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     ? orders.asks?.[0]?.[0]
     : orders?.bids?.[0]?.[0];
 
-  const total =
-    orderType === 'Limit'
-      ? !limitPrice || !userInfo || fee === '-'
-        ? '-'
-        : Number(inputValue || 0) * Number(limitPrice || 0)
-      : !orders || !userInfo || fee === '-' || !marketPrice
-      ? '-'
-      : Number(inputValue || 0) * Number(marketPrice || 0);
+  const reloadTotal = () => {
+    if (orderType === 'Limit') {
+      if (!limitPrice) {
+        return '-';
+      } else {
+        return new Big(inputValue || 0)
+          .times(new Big(Number(limitPrice || 0)))
+          .toNumber()
+          .toString();
+      }
+    } else {
+      if (!marketPrice) {
+        return '-';
+      } else {
+        return new Big(inputValue || 0)
+          .times(new Big(Number(marketPrice || 0)))
+          .toNumber()
+          .toString();
+      }
+    }
+  };
+
+  const [total, setTotal] = useState<string>(reloadTotal());
+
+  const [onTotalFocus, setOnTotalFocus] = useState<boolean>(false);
+
+  useEffect(() => {
+    const total = reloadTotal();
+    setTotal(total);
+  }, [orderType]);
+
+  useEffect(() => {
+    if (onTotalFocus) return;
+
+    const total = reloadTotal();
+    setTotal(total);
+  }, [marketPrice]);
 
   const handleSubmit = () => {
     if (!accountId) return;
@@ -1314,7 +1345,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       </div>
 
       {/* operations board */}
-      <div className="flex flex-col w-full bg-orderLineHover">
+      <div className="flex flex-col w-full bg-orderLineHover pb-20">
         <div className="frcb   px-6  bg-orderLineHover py-2.5 pb-2 border-b border-t border-white border-opacity-10 text-primaryText ">
           <button
             className={`  w-1/2 frcc relative`}
@@ -1403,7 +1434,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
               </span>
             </div>
 
-            <div className="flex items-center mt-3 justify-between">
+            <div className="flex items-center mt-1 justify-between">
               <input
                 type="number"
                 step="any"
@@ -1415,12 +1446,44 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                 }
                 min={0}
                 placeholder="0"
-                className="text-white text-left ml-2 text-xl w-full"
+                className="text-white text-left ml-2 text-lg  w-full"
                 value={limitPrice}
                 onChange={(e) => {
-                  priceAndSizeValidator(e.target.value, inputValue);
+                  const price = e.target.value;
 
-                  setLimitPrice(e.target.value);
+                  priceAndSizeValidator(price, inputValue);
+
+                  setLimitPrice(price);
+
+                  if (ONLY_ZEROS.test(price)) {
+                    setTotal('0');
+
+                    return;
+                  }
+
+                  if (!ONLY_ZEROS.test(price) && !ONLY_ZEROS.test(inputValue)) {
+                    const total = new Big(price || 0)
+                      .times(inputValue)
+                      .toNumber()
+                      .toString();
+                    setTotal(total);
+
+                    return;
+                  }
+
+                  if (!ONLY_ZEROS.test(total) && !ONLY_ZEROS.test(price)) {
+                    // change input value
+                    const qty = new Big(total || 0)
+                      .div(price)
+                      .toNumber()
+                      .toString();
+
+                    setInputValue(qty);
+
+                    priceAndSizeValidator(price, qty);
+
+                    return;
+                  }
                 }}
                 inputMode="decimal"
                 onKeyDown={(e) =>
@@ -1450,7 +1513,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         )}
 
         <div className="mx-6  text-primaryOrderly mt-3 bg-perpCardBg text-sm  rounded-xl border border-boxBorder p-3">
-          <div className="mb-2 text-left flex items-center justify-between">
+          <div className=" text-left flex items-center justify-between">
             <span>
               {intl.formatMessage({
                 id: 'quantity',
@@ -1461,7 +1524,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
             <span className="">{symbolFrom}</span>
           </div>
 
-          <div className="flex items-center mt-2">
+          <div className="flex items-center mt-1">
             <input
               autoFocus
               inputMode="decimal"
@@ -1469,13 +1532,19 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
               onWheel={(e) =>
                 inputAmountRef.current ? inputAmountRef.current.blur() : null
               }
-              className="text-white ml-2 text-xl w-full"
+              className="text-white ml-2 text-lg w-full"
               value={inputValue}
               placeholder="0"
               type="number"
               step="any"
               min={0}
               onChange={(e) => {
+                const displayAmount = e.target.value;
+                let price =
+                  orderType === 'Limit'
+                    ? limitPrice
+                    : marketPrice?.toString() || '0';
+
                 priceAndSizeValidator(
                   orderType === 'Limit'
                     ? limitPrice
@@ -1484,6 +1553,40 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                 );
 
                 setInputValue(e.target.value);
+
+                if (ONLY_ZEROS.test(displayAmount)) {
+                  setTotal('0');
+                  return;
+                }
+
+                if (
+                  !ONLY_ZEROS.test(price) &&
+                  !ONLY_ZEROS.test(displayAmount)
+                ) {
+                  const total = new Big(price)
+                    .times(displayAmount || '0')
+                    .toNumber()
+                    .toString();
+
+                  setTotal(total);
+
+                  return;
+                } else if (
+                  !ONLY_ZEROS.test(total) &&
+                  ONLY_ZEROS.test(price) &&
+                  orderType === 'Limit'
+                ) {
+                  price = new Big(total)
+                    .div(new Big(displayAmount || 0))
+                    .toNumber()
+                    .toString();
+
+                  setLimitPrice(price);
+
+                  priceAndSizeValidator(price, displayAmount, 'maxinput');
+
+                  return;
+                }
               }}
               onKeyDown={(e) =>
                 symbolsArr.includes(e.key) && e.preventDefault()
@@ -1496,13 +1599,6 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                 e.preventDefault();
                 e.stopPropagation();
 
-                if (
-                  orderType === 'Limit' &&
-                  new Big(limitPrice || 0).lte(0) &&
-                  side === 'Buy'
-                ) {
-                  return;
-                }
                 const symbolInfo = availableSymbols?.find(
                   (s) => s.symbol === symbol
                 );
@@ -1528,13 +1624,41 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
                 setInputValue(displayAmount);
 
-                priceAndSizeValidator(
+                let price =
                   orderType == 'Market'
                     ? marketPrice?.toString() || '0'
-                    : limitPrice,
-                  displayAmount,
-                  'maxinput'
-                );
+                    : limitPrice;
+
+                priceAndSizeValidator(price, displayAmount, 'maxinput');
+
+                if (
+                  !ONLY_ZEROS.test(price) &&
+                  !ONLY_ZEROS.test(displayAmount)
+                ) {
+                  const total = new Big(price)
+                    .times(displayAmount || '0')
+                    .toNumber()
+                    .toString();
+
+                  setTotal(total);
+
+                  return;
+                } else if (
+                  !ONLY_ZEROS.test(total) &&
+                  ONLY_ZEROS.test(price) &&
+                  orderType === 'Limit'
+                ) {
+                  price = new Big(total)
+                    .div(new Big(displayAmount || 0))
+                    .toNumber()
+                    .toString();
+
+                  setLimitPrice(price);
+
+                  priceAndSizeValidator(price, displayAmount, 'maxinput');
+
+                  return;
+                }
               }}
             >
               Max
@@ -1543,6 +1667,106 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         </div>
 
         {/* limit order advance mode */}
+
+        <div className="h-1 mx-6 border-b pt-3 border-white border-opacity-10"></div>
+
+        <div className="text-primaryOrderly mx-6 px-4 py-1 mt-4 border border-inputV3BorderColor rounded-xl bg-perpCardBg frcb">
+          <div className="frcs">
+            <span>
+              {intl.formatMessage({
+                id: 'total',
+                defaultMessage: 'Total',
+              })}
+            </span>
+
+            <span className="font-sans">&nbsp;{'≈'}</span>
+          </div>
+
+          <div className="frcs gap-2 py-1">
+            <input
+              type="number"
+              step="any"
+              inputMode="decimal"
+              className="text-white text-right text-lg"
+              value={total}
+              min={0}
+              onKeyDown={(e) =>
+                symbolsArr.includes(e.key) && e.preventDefault()
+              }
+              onChange={(e) => {
+                const value = e.target.value;
+
+                setTotal(value);
+
+                let qty = '';
+
+                if (ONLY_ZEROS.test(value)) {
+                  setInputValue('');
+                  // return;
+                }
+
+                const price =
+                  orderType === 'Limit'
+                    ? limitPrice
+                    : marketPrice?.toString() || '0';
+
+                if (
+                  orderType === 'Limit' &&
+                  !ONLY_ZEROS.test(limitPrice) &&
+                  !ONLY_ZEROS.test(value)
+                ) {
+                  qty = new Big(value)
+                    .div(new Big(limitPrice))
+                    .toNumber()
+                    .toString();
+
+                  setInputValue(qty);
+                } else if (
+                  orderType === 'Market' &&
+                  !ONLY_ZEROS.test(marketPrice.toString()) &&
+                  !ONLY_ZEROS.test(value)
+                ) {
+                  qty = new Big(value)
+                    .div(new Big(marketPrice))
+                    .toNumber()
+                    .toString();
+                }
+
+                setInputValue(qty);
+
+                priceAndSizeValidator(price, qty);
+              }}
+              onFocus={() => {
+                setOnTotalFocus(true);
+              }}
+              onBlur={() => {
+                setOnTotalFocus(false);
+              }}
+            />
+            <span className="text-primaryText">USDC</span>
+          </div>
+        </div>
+
+        <div className=" px-6  rounded-lg text-sm  pt-4 pb-2 relative z-10 ">
+          <div className="flex items-center justify-between">
+            <span className="text-primaryOrderly">
+              {intl.formatMessage({
+                id: 'taker_maker_fee',
+                defaultMessage: 'Taker/Maker Fee',
+              })}
+            </span>
+
+            <FlexRow className="text-white">
+              <span className="">
+                {Number((userInfo?.taker_fee_rate || 0) / 100).toFixed(2)}%
+              </span>
+              /
+              <span className="">
+                {Number((userInfo?.maker_fee_rate || 0) / 100).toFixed(2)}%
+              </span>
+            </FlexRow>
+          </div>
+        </div>
 
         {orderType === 'Limit' && (
           <div className="text-white text-sm mt-2 px-6 ">
@@ -1555,16 +1779,10 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                 })}
               </span>
 
-              <span
-                className={`${
-                  showLimitAdvance ? 'text-white' : 'text-primaryOrderly'
-                } cursor-pointer `}
-                onClick={() => {
-                  setShowLimitAdvance(!showLimitAdvance);
-                }}
-              >
-                {showLimitAdvance ? <IoIosArrowUp /> : <IoIosArrowDown />}
-              </span>
+              <DetailBox
+                setShow={setShowLimitAdvance}
+                show={showLimitAdvance}
+              ></DetailBox>
             </div>
 
             <div
@@ -1709,42 +1927,11 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         )}
 
         {showErrorTip && (
-          <ErrorTip className={'relative top-3 px-6 '} text={errorTipMsg} />
+          <ErrorTip
+            className={'relative top-3 mx-6 mb-3 '}
+            text={errorTipMsg}
+          />
         )}
-
-        <div className="mt-6 px-6  rounded-lg text-sm  pt-1 relative z-10 pb-6">
-          <div className="flex items-center justify-between">
-            <span className="text-primaryOrderly">
-              {intl.formatMessage({
-                id: 'taker_maker_fee',
-                defaultMessage: 'Taker/Maker Fee',
-              })}
-            </span>
-
-            <FlexRow className="text-white">
-              <span className="">
-                {Number((userInfo?.taker_fee_rate || 0) / 100).toFixed(2)}%
-              </span>
-              /
-              <span className="">
-                {Number((userInfo?.maker_fee_rate || 0) / 100).toFixed(2)}%
-              </span>
-            </FlexRow>
-          </div>
-
-          <div className="flex items-center mt-2 justify-between">
-            <span className="text-primaryOrderly">
-              {intl.formatMessage({
-                id: 'total',
-                defaultMessage: 'Total',
-              })}
-            </span>
-            <span className="text-white">
-              {total === '-' ? '-' : digitWrapper(total.toString(), 3)}{' '}
-              <span className="text-primaryText">{` ${symbolTo}`}</span>
-            </span>
-          </div>
-        </div>
 
         <button
           className={`rounded-lg mx-6 ${
@@ -1757,7 +1944,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
             isInsufficientBalance
               ? 'text-redwarningColor cursor-not-allowed'
               : 'text-white'
-          }  py-2.5 relative bottom-3  flex z-20 items-center justify-center text-base ${
+          }  py-2.5 mt-4 mb-2 flex z-20 items-center justify-center text-base ${
             submitDisable || showErrorTip ? 'opacity-60 cursor-not-allowed' : ''
           } `}
           onClick={(e) => {
@@ -1781,6 +1968,18 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
               })}
           {` ${isInsufficientBalance ? '' : symbolFrom}`}
         </button>
+
+        {isInsufficientBalance && (
+          <DepositTip
+            onClick={() => {
+              setOperationType('deposit');
+              setOperationId(
+                side === 'Buy' ? tokenOut?.id || '' : tokenIn?.id || ''
+              );
+            }}
+            type="spot"
+          />
+        )}
       </div>
 
       <UserBoardFoot />
@@ -1839,7 +2038,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           orderType === 'Limit' ? limitPrice : marketPrice?.toString() || '0'
         }
         fee={fee}
-        totalCost={total}
+        totalCost={ONLY_ZEROS.test(total) ? '-' : Number(total)}
         onClick={handleSubmit}
         userInfo={userInfo}
       ></ConfirmOrderModal>
@@ -1965,14 +2164,6 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
 
   const inputAmountRef = useRef<HTMLInputElement>(null);
 
-  // useEffect(() => {
-  //   if (!accountId || !validAccountSig) return;
-
-  //   getCurrentHolding({ accountId }).then((res) => {
-  //     setHoldings(res.data.holding);
-  //   });
-  // }, [accountId, myPendingOrdersRefreshing, validAccountSig]);
-
   useEffect(() => {
     if (!accountId || !validAccountSig) return;
 
@@ -2031,14 +2222,42 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
     ? orders.asks?.[0]?.[0]
     : orders?.bids?.[0]?.[0];
 
-  const total =
-    orderType === 'Limit'
-      ? !limitPrice || !userInfo || fee === '-'
-        ? '-'
-        : Number(inputValue || 0) * Number(limitPrice || 0)
-      : !orders || !userInfo || fee === '-' || !marketPrice
-      ? '-'
-      : Number(inputValue || 0) * Number(marketPrice || 0);
+  const reloadTotal = () => {
+    if (orderType === 'Limit') {
+      if (!limitPrice) {
+        return '-';
+      } else {
+        return new Big(inputValue || 0)
+          .times(new Big(Number(limitPrice || 0)))
+          .toNumber()
+          .toString();
+      }
+    } else {
+      if (!marketPrice) {
+        return '-';
+      } else {
+        return new Big(inputValue || 0)
+          .times(new Big(Number(marketPrice || 0)))
+          .toNumber()
+          .toString();
+      }
+    }
+  };
+  const [total, setTotal] = useState<string>(reloadTotal());
+
+  const [onTotalFocus, setOnTotalFocus] = useState<boolean>(false);
+
+  useEffect(() => {
+    const total = reloadTotal();
+    setTotal(total);
+  }, [orderType]);
+
+  useEffect(() => {
+    if (onTotalFocus) return;
+
+    const total = reloadTotal();
+    setTotal(total);
+  }, [marketPrice]);
 
   const handleSubmit = () => {
     if (!accountId) return;
@@ -2619,7 +2838,7 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
       {/* input box */}
 
       {orderType === 'Limit' && (
-        <div className="w-full text-primaryOrderly mt-3 text-sm bg-black bg-opacity-10 rounded-xl border border-boxBorder p-3">
+        <div className="w-full text-primaryOrderly bg-perpCardBg mt-3 text-xs  rounded-xl border border-boxBorder p-1.5">
           <div className="flex items-center justify-between">
             <span>
               {intl.formatMessage({
@@ -2645,12 +2864,46 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
               }
               min={0}
               placeholder="0"
-              className="text-white text-left ml-2 text-xl w-full"
+              className="text-white text-left ml-2 text-lg w-full"
               value={limitPrice}
               onChange={(e) => {
-                priceAndSizeValidator(e.target.value, inputValue);
+                const price = e.target.value;
 
-                setLimitPrice(e.target.value);
+                priceAndSizeValidator(price, inputValue);
+
+                setLimitPrice(price);
+
+                if (ONLY_ZEROS.test(price)) {
+                  setTotal('0');
+
+                  return;
+                }
+
+                if (!ONLY_ZEROS.test(price) && !ONLY_ZEROS.test(inputValue)) {
+                  const total = new Big(price || 0)
+                    .times(inputValue)
+                    .toNumber()
+                    .toString();
+                  setTotal(total);
+
+                  return;
+                }
+
+                console.log('total: ', total, price);
+
+                if (!ONLY_ZEROS.test(total) && !ONLY_ZEROS.test(price)) {
+                  // change input value
+                  const qty = new Big(total || 0)
+                    .div(price)
+                    .toNumber()
+                    .toString();
+
+                  setInputValue(qty);
+
+                  priceAndSizeValidator(price, qty);
+
+                  return;
+                }
               }}
               inputMode="decimal"
               onKeyDown={(e) =>
@@ -2679,7 +2932,7 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
         </div>
       )}
 
-      <div className="w-full text-primaryOrderly mt-3 bg-black text-sm bg-opacity-10 rounded-xl border border-boxBorder p-3">
+      <div className="w-full mt-3 text-primaryOrderly text-xs  bg-perpCardBg rounded-xl border border-boxBorder p-1.5">
         <div className="mb-2 text-left flex items-center justify-between">
           <span>
             {intl.formatMessage({
@@ -2698,13 +2951,19 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
             onWheel={(e) =>
               inputAmountRef.current ? inputAmountRef.current.blur() : null
             }
-            className="text-white ml-2 text-xl w-full"
+            className="text-white ml-2 text-lg w-full"
             value={inputValue}
             placeholder="0"
             type="number"
             step="any"
             min={0}
             onChange={(e) => {
+              const displayAmount = e.target.value;
+              let price =
+                orderType === 'Limit'
+                  ? limitPrice
+                  : marketPrice?.toString() || '0';
+
               priceAndSizeValidator(
                 orderType === 'Limit'
                   ? limitPrice
@@ -2713,6 +2972,37 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
               );
 
               setInputValue(e.target.value);
+
+              if (ONLY_ZEROS.test(displayAmount)) {
+                setTotal('0');
+                return;
+              }
+
+              if (!ONLY_ZEROS.test(price) && !ONLY_ZEROS.test(displayAmount)) {
+                const total = new Big(price)
+                  .times(displayAmount || '0')
+                  .toNumber()
+                  .toString();
+
+                setTotal(total);
+
+                return;
+              } else if (
+                !ONLY_ZEROS.test(total) &&
+                ONLY_ZEROS.test(price) &&
+                orderType === 'Limit'
+              ) {
+                price = new Big(total)
+                  .div(new Big(displayAmount || 0))
+                  .toNumber()
+                  .toString();
+
+                setLimitPrice(price);
+
+                priceAndSizeValidator(price, displayAmount, 'maxinput');
+
+                return;
+              }
             }}
             onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
           />
@@ -2723,13 +3013,6 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
               e.preventDefault();
               e.stopPropagation();
 
-              if (
-                orderType === 'Limit' &&
-                new Big(limitPrice || 0).lte(0) &&
-                side === 'Buy'
-              ) {
-                return;
-              }
               const symbolInfo = availableSymbols?.find(
                 (s) => s.symbol === symbol
               );
@@ -2755,13 +3038,38 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
 
               setInputValue(displayAmount);
 
-              priceAndSizeValidator(
+              let price =
                 orderType == 'Market'
                   ? marketPrice?.toString() || '0'
-                  : limitPrice,
-                displayAmount,
-                'maxinput'
-              );
+                  : limitPrice;
+
+              priceAndSizeValidator(price, displayAmount, 'maxinput');
+
+              if (!ONLY_ZEROS.test(price) && !ONLY_ZEROS.test(displayAmount)) {
+                const total = new Big(price)
+                  .times(displayAmount || '0')
+                  .toNumber()
+                  .toString();
+
+                setTotal(total);
+
+                return;
+              } else if (
+                !ONLY_ZEROS.test(total) &&
+                ONLY_ZEROS.test(price) &&
+                orderType === 'Limit'
+              ) {
+                price = new Big(total)
+                  .div(new Big(displayAmount || 0))
+                  .toNumber()
+                  .toString();
+
+                setLimitPrice(price);
+
+                priceAndSizeValidator(price, displayAmount, 'maxinput');
+
+                return;
+              }
             }}
           >
             Max
@@ -2769,11 +3077,135 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
         </div>
       </div>
 
-      {/* limit order advance mode */}
+      <div className="mt-2   text-sm px-0 relative z-10 pb-2 pt-3 border-t border-white border-opacity-10">
+        <div className="text-primaryOrderly px-1.5 py-2 w-full border border-inputV3BorderColor rounded-xl bg-perpCardBg mr-2 flex flex-col">
+          <div className="frcb">
+            <span className="frcs">
+              {intl.formatMessage({
+                id: 'total',
+                defaultMessage: 'Total',
+              })}
+
+              <span className="font-sans">&nbsp;{'≈'}</span>
+            </span>
+
+            <TextWrapper
+              className="text-10px py-0 px-1"
+              value={'USDC'}
+              textC="text-primaryText"
+            />
+          </div>
+
+          <div className="frcs gap-2">
+            <input
+              type="number"
+              step="any"
+              inputMode="decimal"
+              className="text-white text-left text-lg ml-2"
+              value={total}
+              min={0}
+              onKeyDown={(e) =>
+                symbolsArr.includes(e.key) && e.preventDefault()
+              }
+              onChange={(e) => {
+                const value = e.target.value;
+
+                setTotal(value);
+
+                let qty = '';
+
+                if (ONLY_ZEROS.test(value)) {
+                  setInputValue('');
+                  // return;
+                }
+
+                const price =
+                  orderType === 'Limit'
+                    ? limitPrice
+                    : marketPrice?.toString() || '0';
+
+                if (
+                  orderType === 'Limit' &&
+                  !ONLY_ZEROS.test(limitPrice) &&
+                  !ONLY_ZEROS.test(value)
+                ) {
+                  qty = new Big(value)
+                    .div(new Big(limitPrice))
+                    .toNumber()
+                    .toString();
+
+                  setInputValue(qty);
+                } else if (
+                  orderType === 'Market' &&
+                  !ONLY_ZEROS.test(marketPrice.toString()) &&
+                  !ONLY_ZEROS.test(value)
+                ) {
+                  qty = new Big(value)
+                    .div(new Big(marketPrice))
+                    .toNumber()
+                    .toString();
+                }
+
+                setInputValue(qty);
+
+                priceAndSizeValidator(price, qty);
+              }}
+              onFocus={() => {
+                setOnTotalFocus(true);
+              }}
+              onBlur={() => {
+                setOnTotalFocus(false);
+              }}
+            />
+          </div>
+        </div>
+        <div className="flex items-center justify-between pt-3">
+          <span className="text-primaryOrderly ">
+            {intl.formatMessage({
+              id: 'Fees',
+              defaultMessage: 'Fees',
+            })}
+          </span>
+
+          <FlexRow className="">
+            <span className="flex items-center mr-1.5 xs:mr-1">
+              <span className=" mr-2 text-white xs:mr-1">
+                {Number((userInfo?.taker_fee_rate || 0) / 100).toFixed(2)}%
+              </span>
+              <TextWrapper
+                textC="text-primaryText "
+                className="text-xs py-0 px-1"
+                value={intl.formatMessage({
+                  id: 'Taker',
+                  defaultMessage: 'Taker',
+                })}
+              ></TextWrapper>
+            </span>
+
+            <span className="flex items-center">
+              <span className=" mr-2 xs:mr-1 text-white">
+                {Number((userInfo?.maker_fee_rate || 0) / 100).toFixed(2)}%
+              </span>
+              <TextWrapper
+                textC="text-primaryText"
+                value={intl.formatMessage({
+                  id: 'Maker',
+                  defaultMessage: 'Maker',
+                })}
+                className="text-xs py-0 px-1"
+              ></TextWrapper>
+            </span>
+          </FlexRow>
+        </div>
+      </div>
+
+      {showErrorTip && (
+        <ErrorTip className={'relative top-3'} text={errorTipMsg} />
+      )}
 
       {orderType === 'Limit' && (
-        <div className="text-white text-sm mt-2">
-          <div className="flex items-center justify-between">
+        <div className="text-white text-sm ">
+          <div className="flex items-center pt-2 justify-between">
             <span className="text-primaryOrderly">
               {' '}
               {intl.formatMessage({
@@ -2935,64 +3367,6 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
         </div>
       )}
 
-      {showErrorTip && (
-        <ErrorTip className={'relative top-3'} text={errorTipMsg} />
-      )}
-
-      <div className="mt-2  rounded-lg text-sm px-0 pt-1 relative z-10 pb-6">
-        <div className="flex items-center justify-between">
-          <span className="text-primaryOrderly ">
-            {intl.formatMessage({
-              id: 'Fees',
-              defaultMessage: 'Fees',
-            })}
-          </span>
-
-          <FlexRow className="">
-            <span className="flex items-center mr-1.5 xs:mr-1">
-              <span className=" mr-2 text-white xs:mr-1">
-                {Number((userInfo?.taker_fee_rate || 0) / 100).toFixed(2)}%
-              </span>
-              <TextWrapper
-                textC="text-primaryText "
-                className="text-xs py-0 px-1"
-                value={intl.formatMessage({
-                  id: 'Taker',
-                  defaultMessage: 'Taker',
-                })}
-              ></TextWrapper>
-            </span>
-
-            <span className="flex items-center">
-              <span className=" mr-2 xs:mr-1 text-white">
-                {Number((userInfo?.maker_fee_rate || 0) / 100).toFixed(2)}%
-              </span>
-              <TextWrapper
-                textC="text-primaryText"
-                value={intl.formatMessage({
-                  id: 'Maker',
-                  defaultMessage: 'Maker',
-                })}
-                className="text-xs py-0 px-1"
-              ></TextWrapper>
-            </span>
-          </FlexRow>
-        </div>
-
-        <div className="flex items-center mt-2 justify-between">
-          <span className="text-primaryOrderly">
-            {intl.formatMessage({
-              id: 'total',
-              defaultMessage: 'Total',
-            })}
-          </span>
-          <span className="text-white">
-            {total === '-' ? '-' : digitWrapper(total.toString(), 3)}{' '}
-            {` ${symbolTo}`}
-          </span>
-        </div>
-      </div>
-
       <button
         className={`rounded-lg ${
           isInsufficientBalance
@@ -3004,7 +3378,7 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
           isInsufficientBalance
             ? 'text-redwarningColor cursor-not-allowed'
             : 'text-white'
-        }  py-2.5 relative bottom-3  flex z-20 items-center justify-center text-base ${
+        }  py-2.5 mt-4 bottom-3 mb-3 flex z-20 items-center justify-center text-base ${
           submitDisable || showErrorTip ? 'opacity-60 cursor-not-allowed' : ''
         } `}
         onClick={(e) => {
@@ -3029,6 +3403,34 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
         {` ${isInsufficientBalance ? '' : symbolFrom}`}
       </button>
 
+      {isInsufficientBalance && (
+        <DepositTip
+          onClick={() => {
+            setOperationType('deposit');
+            setOperationId(
+              side === 'Buy' ? tokenOut?.id || '' : tokenIn?.id || ''
+            );
+          }}
+          type="spot"
+        />
+      )}
+
+      <AssetManagerModal
+        isOpen={operationType === 'deposit'}
+        onRequestClose={() => {
+          setOperationType(undefined);
+        }}
+        type={operationType}
+        onClick={(amount: string, tokenId: string) => {
+          if (!tokenId) return;
+          return depositOrderly(tokenId, amount);
+        }}
+        tokenId={operationId}
+        accountBalance={tokenInHolding || 0}
+        tokenInfo={tokenInfo}
+        freeCollateral={freeCollateral}
+      />
+
       {showAllAssets && (
         <AssetModal
           isOpen={showAllAssets}
@@ -3051,7 +3453,7 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
           orderType === 'Limit' ? limitPrice : marketPrice?.toString() || '0'
         }
         fee={fee}
-        totalCost={total}
+        totalCost={ONLY_ZEROS.test(total) ? '-' : Number(total)}
         onClick={handleSubmit}
         userInfo={userInfo}
       ></ConfirmOrderModal>
