@@ -919,6 +919,8 @@ const vi = {
   not_enough_balance: 'Không đủ số dư',
   set_price_range: 'Đặt phạm vi giá',
   current_price: 'Giá hiện tại',
+  current_leverage: 'Current Leverage',
+
   pool_creation: 'Tạo pool',
   pool_creation_tip:
     'Không có pool tồn tại cho tokens đã chọn. Để tạo pool, bạn phải đặt tỉ lệ pool, bằng cách cung cấp một số lượng phù hợp',
@@ -1377,7 +1379,8 @@ const vi = {
   mark_price: 'Giá đánh dấu',
   last_price: 'Giá cuối cùng',
   mark_price_tip: 'Giá đánh dấu được sử dụng để tính toán PnL và thanh lý.',
-  total_collateral: 'Tổng Tài sản đảm bảo',
+  total_collateral: 'Total Collateral (Equity)',
+
   free_collateral: 'Tài sản đảm bảo tự do',
   total_upnl: 'Tổng uPnL',
   perps: 'Perps',
@@ -1389,6 +1392,8 @@ const vi = {
   high_risk: 'Rủi ro cao',
   liquidations: 'Thanh lý',
   leverage_max_leverage: 'Đòn bẩy tài khoản tối đa:',
+  leverage_max_leverage_raw: 'Đòn bẩy tài khoản tối đa',
+
   marker_taker_fee_rate: 'Tỷ lệ Phí Đặt lệnh/Tạo lệnh',
   liquidation_price: 'Giá thanh lý',
   margin_required: 'Yêu cầu Tiền đảm bảo',

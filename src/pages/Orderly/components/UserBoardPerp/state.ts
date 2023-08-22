@@ -288,6 +288,9 @@ export function usePerpData(deps?: {
     }
   }, [markPrices, newPositions, totaluPnl]);
 
+  const accountCurLeverage =
+    marginRatio === '-' ? '-' : new Big(1).div(marginRatio).toFixed(2);
+
   const unsettle = useMemo(() => {
     try {
       const res = getUnsettle(newPositions, markPrices);
@@ -339,10 +342,6 @@ export function usePerpData(deps?: {
   const lastPrices = useMemo(() => {
     return everyTickers?.map(({ symbol, close }) => ({ symbol, close }));
   }, [everyTickers]);
-
-  const perpOrders = useMemo(() => {
-    return;
-  }, [newPositions]);
 
   const totalEst = useMemo(() => {
     try {
@@ -418,5 +417,6 @@ export function usePerpData(deps?: {
     totalAvailable,
     totalEst,
     holdings,
+    accountCurLeverage,
   };
 }

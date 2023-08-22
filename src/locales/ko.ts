@@ -1372,7 +1372,9 @@ const ko = {
   mark_price: '표시가',
   last_price: '최종가',
   mark_price_tip: '손익분석(PnL) 계산과 청산에는 표시가를 사용합니다.',
-  total_collateral: '총 담보',
+  total_collateral: 'Total Collateral (Equity)',
+  current_leverage: 'Current Leverage',
+
   free_collateral: '남은Free 담보',
   total_upnl: '총 미실현손익 (uPnL)',
   perps: 'Perps',
@@ -1384,6 +1386,7 @@ const ko = {
   high_risk: '리스크 높음',
   liquidations: '청산',
   leverage_max_leverage: '게정 최대 레버리지:',
+  leverage_max_leverage_raw: '게정 최대 레버리지',
   marker_taker_fee_rate: 'Maker/Taker 수수료 요율',
   liquidation_price: '청산 가격',
   margin_required: '마진 필요함',

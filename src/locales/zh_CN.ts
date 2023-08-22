@@ -1230,7 +1230,9 @@ const zh_CN = {
   mark_price: '标记价格',
   last_price: '最新价格',
   mark_price_tip: '标记价格用于盈亏计算和清算。',
-  total_collateral: '总抵押资产',
+  total_collateral: 'Total Collateral (Equity)',
+  current_leverage: 'Current Leverage',
+
   free_collateral: '可用抵押资产',
   total_upnl: '未实现盈亏',
   perps: 'Perps',

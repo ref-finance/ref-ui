@@ -1412,7 +1412,9 @@ const es = {
   last_price: 'Último Precio',
   mark_price_tip:
     'El precio de marca se utiliza para calcular las ganancias y pérdidas no realizadas y para liquidación.',
-  total_collateral: 'Colateral Total',
+  total_collateral: 'Total Collateral (Equity)',
+  current_leverage: 'Current Leverage',
+
   free_collateral: 'Colateral Libre',
   total_upnl: 'uPnL Total',
   perps: 'Perpetuos',
@@ -1424,6 +1426,7 @@ const es = {
   high_risk: 'Alto Riesgo',
   liquidations: 'Liquidaciones',
   leverage_max_leverage: 'Apalancamiento Máximo de la Cuenta:',
+  leverage_max_leverage_raw: 'Apalancamiento Máximo de la Cuenta:',
   marker_taker_fee_rate: 'Tasa de Comisión Maker/Taker',
   liquidation_price: 'Precio de Liquidación',
   margin_required: 'Margen Requerido',

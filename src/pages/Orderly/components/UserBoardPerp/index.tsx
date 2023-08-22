@@ -553,9 +553,9 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     curLeverage,
     error,
     setCurLeverage,
-    setCurLeverageRaw,
     userInfo,
     newPositions,
+    accountCurLeverage,
   } = usePerpData();
 
   const [registerModalOpen, setRegisterModalOpen] = useState<boolean>(false);
@@ -1211,6 +1211,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
   const PerpAccountInfo = (
     <div className="flex gap-4 px-6 py-4 flex-col bg-perpCardBg text-primaryText text-13px">
+      {/* total colleteral  */}
       <div className="frcb">
         <FormattedMessage
           id="total_collateral"
@@ -1224,10 +1225,11 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         </span>
       </div>
 
+      {/* max account leverage */}
       <div className="frcb">
         <FormattedMessage
-          id="leverage_max_leverage"
-          defaultMessage={'Max Account Leverage:'}
+          id="leverage_max_leverage_raw"
+          defaultMessage={'Max Account Leverage'}
         />
 
         <SetLeverageButton
@@ -1246,23 +1248,17 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         />
       </div>
 
+      {/* current leverage */}
       <div className="frcb">
         <FormattedMessage
-          id="free_collateral"
-          defaultMessage={`Free Collateral`}
+          id="current_leverage"
+          defaultMessage={`Current Leverage`}
         />
 
-        <span className="font-nunito">
-          {freeCollateral === '-' ? '-' : numberWithCommas(freeCollateral)}
-        </span>
+        <span className="font-nunito  text-white">{accountCurLeverage}x</span>
       </div>
 
-      <div className="frcb">
-        <TotaluPNLText></TotaluPNLText>
-
-        <span className="font-nunito">{totaluPnl}</span>
-      </div>
-
+      {/* margin ratio */}
       <div className="frcb">
         <MarginRatioText></MarginRatioText>
 
@@ -1307,6 +1303,27 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         </div>
       </div>
 
+      {/* free collateral */}
+
+      <div className="frcb">
+        <FormattedMessage
+          id="free_collateral"
+          defaultMessage={`Free Collateral`}
+        />
+
+        <span className="font-nunito">
+          {freeCollateral === '-' ? '-' : numberWithCommas(freeCollateral)}
+        </span>
+      </div>
+
+      {/* Total uPnL */}
+      <div className="frcb">
+        <TotaluPNLText></TotaluPNLText>
+
+        <span className="font-nunito">{totaluPnl}</span>
+      </div>
+
+      {/* unsettle */}
       <div className="frcb">
         <UnsettlePnl></UnsettlePnl>
 
@@ -4430,7 +4447,6 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
             </span>
           </div>
         </div>
-
 
         {showErrorTip && (
           <ErrorTip className={'relative top-3'} text={errorTipMsg} />

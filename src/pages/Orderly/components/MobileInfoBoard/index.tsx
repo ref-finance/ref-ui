@@ -478,6 +478,7 @@ export function PerpAccountBoard() {
     mmr,
     setCurLeverage,
     curLeverage,
+    accountCurLeverage,
   } = usePerpData();
 
   const intl = useIntl();
@@ -491,6 +492,7 @@ export function PerpAccountBoard() {
 
   return (
     <div className="flex flex-col text-primaryText gap-2 px-2 text-13px">
+      {/* total collateral */}
       <div className="frcb">
         <FormattedMessage
           id="total_collateral"
@@ -504,10 +506,11 @@ export function PerpAccountBoard() {
         </span>
       </div>
 
+      {/* max account leverage */}
       <div className="frcb">
         <FormattedMessage
-          id="leverage_max_leverage"
-          defaultMessage={'Max Account Leverage:'}
+          id="leverage_max_leverage_raw"
+          defaultMessage={'Max Account Leverage'}
         />
 
         <SetLeverageButton
@@ -522,23 +525,17 @@ export function PerpAccountBoard() {
         />
       </div>
 
+      {/* account current leverage */}
       <div className="frcb">
         <FormattedMessage
-          id="free_collateral"
-          defaultMessage={`Free Collateral`}
+          id="current_leverage"
+          defaultMessage={`Current Leverage`}
         />
 
-        <span className="font-nunito text-white">
-          {!positions ? '-' : numberWithCommas(freeCollateral)}
-        </span>
+        <span className="font-nunito  text-white">{accountCurLeverage}x</span>
       </div>
 
-      <div className="frcb">
-        <TotaluPNLText></TotaluPNLText>
-
-        <span className="font-nunito text-white">{totaluPnl}</span>
-      </div>
-
+      {/* margin ratio */}
       <div className="frcb">
         <MarginRatioText></MarginRatioText>
 
@@ -581,6 +578,25 @@ export function PerpAccountBoard() {
                 ) + '%'}
           </span>
         </div>
+      </div>
+
+      {/* free collateral */}
+      <div className="frcb">
+        <FormattedMessage
+          id="free_collateral"
+          defaultMessage={`Free Collateral`}
+        />
+
+        <span className="font-nunito text-white">
+          {!positions ? '-' : numberWithCommas(freeCollateral)}
+        </span>
+      </div>
+
+      {/* total upnl */}
+      <div className="frcb">
+        <TotaluPNLText></TotaluPNLText>
+
+        <span className="font-nunito text-white">{totaluPnl}</span>
       </div>
 
       <div className="frcb">
