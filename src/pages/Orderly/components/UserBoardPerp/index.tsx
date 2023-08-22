@@ -4431,27 +4431,13 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
           </div>
         </div>
 
-        {/* <LeverageSlider
-          className={`orderly-leverage-slider ${
-            side === 'Buy'
-              ? 'orderly-leverage-slider-buy'
-              : 'orderly-leverage-slider-sell'
-          }`}
-          curLeverage={userInfo?.max_leverage || '-'}
-          value={leverageMap(curLeverage)}
-          onChange={(v) => {
-            setCurLeverage(leverageMap(v, true));
-          }}
-          marginRatio={Number(marginRatio)}
-          min={0}
-        /> */}
 
         {showErrorTip && (
           <ErrorTip className={'relative top-3'} text={errorTipMsg} />
         )}
 
         <div className="rounded-lg text-sm px-0 pt-2.5 border-t border-white border-opacity-10 relative flex flex-col gap-2 z-10 pb-2.5 ">
-          <div className="text-primaryOrderly px-4 py-2 w-full border border-inputV3BorderColor rounded-xl bg-perpCardBg mr-2 flex flex-col">
+          <div className="text-primaryOrderly px-1.5 py-2 w-full border border-inputV3BorderColor rounded-xl bg-perpCardBg mr-2 flex flex-col">
             <div className="frcb">
               <span className="frcs">
                 {intl.formatMessage({
