@@ -221,6 +221,10 @@ export function Content() {
     }
   }, [accountId]);
 
+  if (isMobile()) {
+    document.body.style.setProperty('overflow-x', 'hidden');
+  }
+
   return (
     <WalletContext.Provider value={{ globalState, globalStatedispatch }}>
       <NavigationBar />

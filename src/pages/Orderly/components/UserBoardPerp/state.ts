@@ -289,7 +289,11 @@ export function usePerpData(deps?: {
   }, [markPrices, newPositions, totaluPnl]);
 
   const accountCurLeverage =
-    marginRatio === '-' ? '-' : new Big(1).div(marginRatio).toFixed(2);
+    marginRatio === '-'
+      ? '-'
+      : marginRatio === 10
+      ? new Big(0).toFixed(2)
+      : new Big(1).div(marginRatio).toFixed(2, 3);
 
   const unsettle = useMemo(() => {
     try {

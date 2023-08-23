@@ -30,6 +30,7 @@ import { OrderlyUnderMaintainIcon } from './components/Common/Icons';
 import { useOrderlyContext } from './orderly/OrderlyContext';
 import { PerpOrSpot } from './utiles';
 import { FormattedMessage } from 'react-intl';
+import { NewUserTip } from './components/Common/NewUserTip';
 
 function TradingBoard() {
   const isLarge = useLargeScreen();
@@ -170,6 +171,7 @@ function MobileTradingBoard() {
                 id="assets"
                 defaultMessage={'Assets'}
               ></FormattedMessage>
+              <NewUserTip type="spot-mobile"></NewUserTip>
 
               {displayTab === 'assets' && (
                 <div
@@ -189,8 +191,6 @@ function MobileTradingBoard() {
           )}
 
           {displayTab === 'assets' && <CurAsset></CurAsset>}
-
-          {}
         </>
       )}
 

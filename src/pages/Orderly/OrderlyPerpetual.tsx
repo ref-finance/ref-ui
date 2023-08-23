@@ -48,6 +48,7 @@ import { usePerpData } from './components/UserBoardPerp/state';
 import PositionsTable from './components/AllOrders/PositionsTable';
 import { CheckBox } from './components/Common';
 import { parseSymbol } from './components/RecentTrade';
+import { NewUserTip } from './components/Common/NewUserTip';
 
 export const REF_ORDERLY_PERP_TIP_SIG = 'REF_ORDERLY_PERP_TIP_SIG';
 
@@ -312,6 +313,7 @@ function MobileTradingBoard() {
                 setDisplayTab('assets');
               }}
             >
+              <NewUserTip type="perp-mobile"></NewUserTip>
               <FormattedMessage
                 id="assets"
                 defaultMessage={'Assets'}

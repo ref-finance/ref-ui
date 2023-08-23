@@ -137,6 +137,7 @@ import SettlePnlModal from '../TableWithTabs/SettlePnlModal';
 import { useTokensBalances } from '../UserBoard/state';
 import { SetLeverageButton } from './components/SetLeverageButton';
 import { DepositTip } from './components/DepositTip';
+import { NewUserTip } from '../Common/NewUserTip';
 const REF_ORDERLY_LIMIT_ORDER_ADVANCE = 'REF_ORDERLY_LIMIT_ORDER_ADVANCE';
 
 function getTipFOK() {
@@ -741,6 +742,13 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
   }, [orderType]);
 
   useEffect(() => {
+    setLimitPrice('');
+    setTotal('');
+    setInputValue('');
+    setShowErrorTip(false);
+  }, [symbol]);
+
+  useEffect(() => {
     if (onTotalFocus) return;
 
     const total = reloadTotal();
@@ -1212,20 +1220,6 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
   const PerpAccountInfo = (
     <div className="flex gap-4 px-6 py-4 flex-col bg-perpCardBg text-primaryText text-13px">
-      {/* total colleteral  */}
-      <div className="frcb">
-        <FormattedMessage
-          id="total_collateral"
-          defaultMessage={`Total Collateral`}
-        ></FormattedMessage>
-
-        <span className="font-nunito">
-          {!newPositions || totalCollateral === '-'
-            ? '-'
-            : numberWithCommas(totalCollateral)}
-        </span>
-      </div>
-
       {/* max account leverage */}
       <div className="frcb">
         <FormattedMessage
@@ -1304,6 +1298,16 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         </div>
       </div>
 
+      {/* Maintenance Margin Ratio */}
+      <div className="frcb">
+        <FormattedMessage
+          id="maintenance_margin_ratio"
+          defaultMessage={'Maintenance Margin Ratio'}
+        />
+
+        <span className="font-nunito">{mmr}</span>
+      </div>
+
       {/* free collateral */}
 
       <div className="frcb">
@@ -1314,6 +1318,20 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
         <span className="font-nunito">
           {freeCollateral === '-' ? '-' : numberWithCommas(freeCollateral)}
+        </span>
+      </div>
+
+      {/* total colleteral  */}
+      <div className="frcb">
+        <FormattedMessage
+          id="total_collateral"
+          defaultMessage={`Total Collateral`}
+        ></FormattedMessage>
+
+        <span className="font-nunito">
+          {!newPositions || totalCollateral === '-'
+            ? '-'
+            : numberWithCommas(totalCollateral)}
         </span>
       </div>
 
@@ -1361,14 +1379,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           </button>
         </div>
       </div>
-      <div className="frcb">
-        <FormattedMessage
-          id="maintenance_margin_ratio"
-          defaultMessage={'Maintenance Margin Ratio'}
-        />
 
-        <span className="font-nunito">{mmr}</span>
-      </div>
       <div className="frcb w-full gap-2 text-white">
         <button
           className="frcc w-1/2 py-2 rounded-lg border border-orderTypeBg gap-2"
@@ -1519,7 +1530,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         </div>
 
         <div
-          className={`cursor-pointer w-1/2 frcc relative ${
+          className={`cursor-pointer relative w-1/2 frcc  ${
             perpBoardTab === 'balance' ? 'text-white' : ''
           } `}
           onClick={() => {
@@ -1527,6 +1538,8 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           }}
         >
           {intl.formatMessage({ id: 'balances', defaultMessage: 'Balances' })}
+
+          <NewUserTip type="perp-pc"></NewUserTip>
 
           {perpBoardTab === 'balance' && (
             <div className="w-full absolute -bottom-3 h-0.5 bg-gradientFromHover"></div>
@@ -1542,7 +1555,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       {perpBoardTab == 'balance' && (
         <div className="flex bg-perpCardBg flex-col p-6 pb-3">
           <div className="text-sm text-white font-bold mb-4 text-left flex items-center justify-between">
-            <span>
+            <span className="relative">
               {intl.formatMessage({
                 id: 'balances',
                 defaultMessage: 'Balances',
@@ -1997,9 +2010,157 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           <ErrorTip className={'relative top-3'} text={errorTipMsg} />
         )}
 
+        <div className="h-1 border-b pt-3 border-white border-opacity-10"></div>
+
         <div className="rounded-lg text-sm px-0 pt-1 relative flex flex-col gap-2 z-10 pb-6">
+          <div className={'flex flex-col gap-2'}>
+            <div className="frcb  ">
+              <div className="text-primaryOrderly px-4 py-1 w-full border border-inputV3BorderColor rounded-xl bg-perpCardBg mr-2 frcb">
+                <div className="frcs">
+                  <span>
+                    {intl.formatMessage({
+                      id: 'total',
+                      defaultMessage: 'Total',
+                    })}
+                  </span>
+
+                  <span className="font-sans">&nbsp;{'≈'}</span>
+                </div>
+
+                <div className="frcs gap-2 py-1">
+                  <input
+                    type="number"
+                    step="any"
+                    inputMode="decimal"
+                    className="text-white text-right text-lg"
+                    value={total}
+                    min={0}
+                    onKeyDown={(e) =>
+                      symbolsArr.includes(e.key) && e.preventDefault()
+                    }
+                    onChange={(e) => {
+                      const value = e.target.value;
+
+                      setTotal(value);
+
+                      let qty = '';
+
+                      if (ONLY_ZEROS.test(value)) {
+                        setInputValue('');
+                        // return;
+                      }
+
+                      const price =
+                        orderType === 'Limit'
+                          ? limitPrice
+                          : marketPrice?.toString() || '0';
+
+                      if (
+                        orderType === 'Limit' &&
+                        !ONLY_ZEROS.test(limitPrice) &&
+                        !ONLY_ZEROS.test(value)
+                      ) {
+                        qty = new Big(value)
+                          .div(new Big(limitPrice))
+                          .toFixed(
+                            tickToPrecision(curSymbol?.base_tick || 0.1)
+                          );
+
+                        setInputValue(qty);
+                      } else if (
+                        orderType === 'Market' &&
+                        !ONLY_ZEROS.test(marketPrice.toString()) &&
+                        !ONLY_ZEROS.test(value)
+                      ) {
+                        qty = new Big(value)
+                          .div(new Big(marketPrice))
+                          .toFixed(
+                            tickToPrecision(curSymbol?.base_tick || 0.1)
+                          );
+                      }
+
+                      setInputValue(qty);
+
+                      priceAndSizeValidator(price, qty);
+                    }}
+                    onFocus={() => {
+                      setOnTotalFocus(true);
+                    }}
+                    onBlur={() => {
+                      setOnTotalFocus(false);
+                    }}
+                  />
+                  <span className="text-primaryText">USDC</span>
+                </div>
+              </div>
+
+              <DetailBox show={showTotal} setShow={setShowTotal} />
+            </div>
+
+            <div className={!showTotal ? 'hidden' : 'flex flex-col gap-2'}>
+              <div className="frcb">
+                <LiquidationPriceText></LiquidationPriceText>
+                <div className="frcs gap-2">
+                  <span className="text-white">{lqPrice}</span>
+
+                  <span className="text-primaryText">USDC</span>
+                </div>
+              </div>
+              <div className="frcb">
+                <span className="text-primaryOrderly">
+                  {intl.formatMessage({
+                    id: 'margin_required',
+                    defaultMessage: 'Margin Required',
+                  })}
+                </span>
+
+                <div className="frcs gap-2">
+                  <span className="text-white">
+                    {!inputValue
+                      ? '-'
+                      : digitWrapper(
+                          (
+                            (Number(inputValue) *
+                              (curSymbolMarkPrice.price || 0)) /
+                            curLeverage
+                          ).toString(),
+                          3
+                        )}{' '}
+                  </span>
+
+                  <span className="text-primaryText">USDC</span>
+                </div>
+              </div>
+
+              <div className="frcb">
+                <span className="text-primaryOrderly">
+                  {intl.formatMessage({
+                    id: 'taker_maker_fee_rate',
+                    defaultMessage: 'Taker/Maker Fee Rate',
+                  })}
+                </span>
+
+                <FlexRow className="text-white">
+                  <span className=" ">
+                    {Number(
+                      (userInfo?.futures_taker_fee_rate || 0) / 100
+                    ).toFixed(3)}
+                    %
+                  </span>
+                  /
+                  <span className="  ">
+                    {Number(
+                      (userInfo?.futures_maker_fee_rate || 0) / 100
+                    ).toFixed(3)}
+                    %
+                  </span>
+                </FlexRow>
+              </div>
+            </div>
+          </div>
+
           {orderType === 'Limit' && (
-            <div className="text-white text-sm mt-2 border-b pb-3 border-white border-opacity-10">
+            <div className="text-white text-sm mt-2 pb-3">
               <div className="frcb ">
                 <span className="text-primaryOrderly">
                   {intl.formatMessage({
@@ -2154,164 +2315,12 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
               </div>
             </div>
           )}
-
-          <div className={'flex flex-col gap-2'}>
-            <div className="frcb  ">
-              <div className="text-primaryOrderly px-4 py-1 w-full border border-inputV3BorderColor rounded-xl bg-perpCardBg mr-2 frcb">
-                <div className="frcs">
-                  <span>
-                    {intl.formatMessage({
-                      id: 'total',
-                      defaultMessage: 'Total',
-                    })}
-                  </span>
-
-                  <span className="font-sans">&nbsp;{'≈'}</span>
-                </div>
-
-                <div className="frcs gap-2 py-1">
-                  <input
-                    type="number"
-                    step="any"
-                    inputMode="decimal"
-                    className="text-white text-right text-lg"
-                    value={total}
-                    min={0}
-                    onKeyDown={(e) =>
-                      symbolsArr.includes(e.key) && e.preventDefault()
-                    }
-                    onChange={(e) => {
-                      const value = e.target.value;
-
-                      setTotal(value);
-
-                      let qty = '';
-
-                      if (ONLY_ZEROS.test(value)) {
-                        setInputValue('');
-                        // return;
-                      }
-
-                      const price =
-                        orderType === 'Limit'
-                          ? limitPrice
-                          : marketPrice?.toString() || '0';
-
-                      if (
-                        orderType === 'Limit' &&
-                        !ONLY_ZEROS.test(limitPrice) &&
-                        !ONLY_ZEROS.test(value)
-                      ) {
-                        qty = new Big(value)
-                          .div(new Big(limitPrice))
-                          .toNumber()
-                          .toString();
-
-                        setInputValue(qty);
-                      } else if (
-                        orderType === 'Market' &&
-                        !ONLY_ZEROS.test(marketPrice.toString()) &&
-                        !ONLY_ZEROS.test(value)
-                      ) {
-                        qty = new Big(value)
-                          .div(new Big(marketPrice))
-                          .toNumber()
-                          .toString();
-                      }
-
-                      setInputValue(qty);
-
-                      priceAndSizeValidator(price, qty);
-                    }}
-                    onFocus={() => {
-                      setOnTotalFocus(true);
-                    }}
-                    onBlur={() => {
-                      setOnTotalFocus(false);
-                    }}
-                  />
-                  <span className="text-primaryText">USDC</span>
-                </div>
-              </div>
-
-              <DetailBox show={showTotal} setShow={setShowTotal} />
-            </div>
-
-            <div className={!showTotal ? 'hidden' : 'flex flex-col gap-2'}>
-              <div className="frcb">
-                <LiquidationPriceText></LiquidationPriceText>
-                <div className="frcs gap-2">
-                  <span className="text-white">{lqPrice}</span>
-
-                  <span className="text-primaryText">USDC</span>
-                </div>
-              </div>
-              <div className="frcb">
-                <span className="text-primaryOrderly">
-                  {intl.formatMessage({
-                    id: 'margin_required',
-                    defaultMessage: 'Margin Required',
-                  })}
-                </span>
-
-                <div className="frcs gap-2">
-                  <span className="text-white">
-                    {!inputValue
-                      ? '-'
-                      : digitWrapper(
-                          (
-                            (Number(inputValue) *
-                              (curSymbolMarkPrice.price || 0)) /
-                            curLeverage
-                          ).toString(),
-                          3
-                        )}{' '}
-                  </span>
-
-                  <span className="text-primaryText">USDC</span>
-                </div>
-              </div>
-
-              <div className="frcb">
-                <span className="text-primaryOrderly">
-                  {intl.formatMessage({
-                    id: 'taker_maker_fee_rate',
-                    defaultMessage: 'Taker/Maker Fee Rate',
-                  })}
-                </span>
-
-                <FlexRow className="text-white">
-                  <span className=" ">
-                    {Number(
-                      (userInfo?.futures_taker_fee_rate || 0) / 100
-                    ).toFixed(3)}
-                    %
-                  </span>
-                  /
-                  <span className="  ">
-                    {Number(
-                      (userInfo?.futures_maker_fee_rate || 0) / 100
-                    ).toFixed(3)}
-                    %
-                  </span>
-                </FlexRow>
-              </div>
-            </div>
-          </div>
         </div>
 
         <button
           className={`rounded-lg ${
-            isInsufficientBalance
-              ? 'bg-errorTip'
-              : side === 'Buy'
-              ? 'bg-buyGradientGreen'
-              : 'bg-sellGradientRed'
-          } ${
-            isInsufficientBalance
-              ? 'text-redwarningColor cursor-not-allowed'
-              : 'text-white'
-          }  py-2.5 relative bottom-3  flex z-20 items-center justify-center text-base ${
+            side === 'Buy' ? 'bg-buyGradientGreen' : 'bg-sellGradientRed'
+          } text-white  py-2.5 relative bottom-3  flex z-20 items-center justify-center text-base ${
             submitDisable || showErrorTip ? 'opacity-60 cursor-not-allowed' : ''
           } `}
           onClick={(e) => {
@@ -3594,6 +3603,13 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
   };
   const [total, setTotal] = useState<string>(reloadTotal());
 
+  useEffect(() => {
+    setLimitPrice('');
+    setTotal('');
+    setInputValue('');
+    setShowErrorTip(false);
+  }, [symbol]);
+
   const [onTotalFocus, setOnTotalFocus] = useState<boolean>(false);
 
   useEffect(() => {
@@ -4507,8 +4523,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
                   ) {
                     qty = new Big(value)
                       .div(new Big(limitPrice))
-                      .toNumber()
-                      .toString();
+                      .toFixed(tickToPrecision(curSymbol?.base_tick || 0.01));
 
                     setInputValue(qty);
                   } else if (
@@ -4518,8 +4533,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
                   ) {
                     qty = new Big(value)
                       .div(new Big(marketPrice))
-                      .toNumber()
-                      .toString();
+                      .toFixed(tickToPrecision(curSymbol?.base_tick || 0.01));
                   }
 
                   setInputValue(qty);
@@ -4767,16 +4781,8 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
 
         <button
           className={`rounded-lg ${
-            isInsufficientBalance
-              ? 'bg-errorTip'
-              : side === 'Buy'
-              ? 'bg-buyGradientGreen'
-              : 'bg-sellGradientRed'
-          } ${
-            isInsufficientBalance
-              ? 'text-redwarningColor cursor-not-allowed'
-              : 'text-white'
-          }  py-2.5 relative bottom-3  flex z-20 items-center justify-center text-base ${
+            side === 'Buy' ? 'bg-buyGradientGreen' : 'bg-sellGradientRed'
+          } ${'text-white'}  py-2.5 relative bottom-3  flex z-20 items-center justify-center text-base ${
             submitDisable || showErrorTip ? 'opacity-60 cursor-not-allowed' : ''
           } `}
           onClick={(e) => {

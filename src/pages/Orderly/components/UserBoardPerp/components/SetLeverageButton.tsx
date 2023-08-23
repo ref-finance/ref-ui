@@ -78,8 +78,8 @@ export function SetLeverageButton(
         >
           <div className="text-white ">
             <FormattedMessage
-              id="leverage_max_leverage"
-              defaultMessage={'Max Account Leverage:'}
+              id="leverage_max_leverage_raw"
+              defaultMessage={'Max Account Leverage'}
             />
           </div>
 

@@ -79,6 +79,7 @@ import {
   OrderlyLoading,
   OrderlyIconBalance,
   RefToOrderlyMobile,
+  ArrowCurve,
 } from '../Common/Icons';
 
 import { MdKeyboardArrowDown } from 'react-icons/md';
@@ -108,6 +109,7 @@ import { usePerpData } from '../UserBoardPerp/state';
 import { tickToPrecision } from '../UserBoardPerp/math';
 import { DetailBox } from '../UserBoardPerp/components/DetailBox';
 import { DepositTip } from '../UserBoardPerp/components/DepositTip';
+import { NewUserTip } from '../Common/NewUserTip';
 
 function getTipFOK() {
   const intl = useIntl();
@@ -686,6 +688,13 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
   const [onTotalFocus, setOnTotalFocus] = useState<boolean>(false);
 
   useEffect(() => {
+    setLimitPrice('');
+    setTotal('');
+    setInputValue('');
+    setShowErrorTip(false);
+  }, [symbol]);
+
+  useEffect(() => {
     const total = reloadTotal();
     setTotal(total);
   }, [orderType]);
@@ -845,8 +854,9 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
   const isInsufficientBalance =
     side === 'Buy'
-      ? new Big(total === '-' ? '0' : total).gt(tokenOutHolding || '0') ||
-        new Big(tokenOutHolding || 0).eq(0)
+      ? new Big(total === '-' || !total ? '0' : total).gt(
+          tokenOutHolding || '0'
+        ) || new Big(tokenOutHolding || 0).eq(0)
       : new Big(inputValue || '0').gt(tokenInHolding || '0');
 
   const loading =
@@ -1099,6 +1109,8 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     );
   }, [side, orderType, symbol, orders]);
   const isMobile = useClientMobile();
+  const curSymbol = availableSymbols?.find((s) => s.symbol === symbol);
+
   const validator =
     !accountId ||
     !storageEnough ||
@@ -1211,26 +1223,25 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
       {/* balances board */}
 
-      <div className="px-6 pt-6 w-full flex  bg-perpCardBg flex-col">
+      <div className="px-6 pt-3 w-full flex  bg-perpCardBg flex-col">
         <div className="text-sm text-white font-bold mb-4 text-left flex items-center justify-between">
           <span>
             {intl.formatMessage({ id: 'balances', defaultMessage: 'Balances' })}
           </span>
-
-          <div className="flex items-center">
-            <DepositButton
-              onClick={() => {
-                setOperationType('deposit');
-                setOperationId(tokenIn?.id || '');
+          <div className="inline-flex text-primaryOrderly justify-end ">
+            <span
+              className="text-sm py-1.5  px-3 rounded-lg bg-symbolHover hover:text-white cursor-pointer"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setShowAllAssets(true);
               }}
-            ></DepositButton>
-
-            <WithdrawButton
-              onClick={() => {
-                setOperationType('withdraw');
-                setOperationId(tokenIn?.id || '');
-              }}
-            ></WithdrawButton>
+            >
+              {intl.formatMessage({
+                id: 'see_all',
+                defaultMessage: 'See all',
+              })}
+            </span>
           </div>
         </div>
 
@@ -1327,20 +1338,39 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           </div>
         </div>
 
-        <div className="inline-flex text-primaryOrderly justify-end  mt-3">
-          <span
-            className="text-sm py-1.5  mb-3 px-3 rounded-lg bg-symbolHover hover:text-white cursor-pointer"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setShowAllAssets(true);
+        <div className="frcb w-full gap-2 py-3 text-white">
+          <button
+            className="frcc w-1/2 py-2 relative rounded-lg border border-orderTypeBg gap-2"
+            onClick={() => {
+              setOperationType('deposit');
+              setOperationId(tokenIn?.id || '');
             }}
           >
-            {intl.formatMessage({
-              id: 'see_all',
-              defaultMessage: 'See all',
-            })}
-          </span>
+            <NewUserTip type="spot-pc"></NewUserTip>
+            <FormattedMessage
+              id="deposit"
+              defaultMessage={'Deposit'}
+            ></FormattedMessage>
+
+            <span className="transform rotate-180">
+              <ArrowCurve />
+            </span>
+          </button>
+
+          <button
+            className="frcc w-1/2 py-2 rounded-lg border border-orderTypeBg gap-2"
+            onClick={() => {
+              setOperationType('withdraw');
+              setOperationId(tokenIn?.id || '');
+            }}
+          >
+            <FormattedMessage
+              id="withdraw"
+              defaultMessage={'Withdraw'}
+            ></FormattedMessage>
+
+            <ArrowCurve />
+          </button>
         </div>
       </div>
 
@@ -1420,7 +1450,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         {/* input box */}
 
         {orderType === 'Limit' && (
-          <div className="mx-6  text-primaryOrderly mt-3 text-sm  bg-perpCardBg rounded-xl border border-boxBorder p-3">
+          <div className="mx-6  text-primaryOrderly mt-3 text-sm  bg-perpCardBg rounded-xl border border-boxBorder p-3 py-2">
             <div className="flex items-center justify-between">
               <span>
                 {intl.formatMessage({
@@ -1512,7 +1542,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           </div>
         )}
 
-        <div className="mx-6  text-primaryOrderly mt-3 bg-perpCardBg text-sm  rounded-xl border border-boxBorder p-3">
+        <div className="mx-6  text-primaryOrderly mt-3 bg-perpCardBg text-sm  rounded-xl border border-boxBorder p-3 py-2">
           <div className=" text-left flex items-center justify-between">
             <span>
               {intl.formatMessage({
@@ -1670,7 +1700,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
         <div className="h-1 mx-6 border-b pt-3 border-white border-opacity-10"></div>
 
-        <div className="text-primaryOrderly mx-6 px-4 py-1 mt-4 border border-inputV3BorderColor rounded-xl bg-perpCardBg frcb">
+        <div className="text-primaryOrderly mx-6 px-4 py-0.5 mt-4 border border-inputV3BorderColor rounded-xl bg-perpCardBg frcb">
           <div className="frcs">
             <span>
               {intl.formatMessage({
@@ -1717,8 +1747,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                 ) {
                   qty = new Big(value)
                     .div(new Big(limitPrice))
-                    .toNumber()
-                    .toString();
+                    .toFixed(tickToPrecision(curSymbol?.base_tick || 0.01));
 
                   setInputValue(qty);
                 } else if (
@@ -1728,8 +1757,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                 ) {
                   qty = new Big(value)
                     .div(new Big(marketPrice))
-                    .toNumber()
-                    .toString();
+                    .toFixed(tickToPrecision(curSymbol?.base_tick || 0.01));
                 }
 
                 setInputValue(qty);
@@ -1935,16 +1963,8 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
         <button
           className={`rounded-lg mx-6 ${
-            isInsufficientBalance
-              ? 'bg-errorTip'
-              : side === 'Buy'
-              ? 'bg-buyGradientGreen'
-              : 'bg-sellGradientRed'
-          } ${
-            isInsufficientBalance
-              ? 'text-redwarningColor cursor-not-allowed'
-              : 'text-white'
-          }  py-2.5 mt-4 mb-2 flex z-20 items-center justify-center text-base ${
+            side === 'Buy' ? 'bg-buyGradientGreen' : 'bg-sellGradientRed'
+          } ${'text-white'}  py-2.5 mt-4 mb-2 flex z-20 items-center justify-center text-base ${
             submitDisable || showErrorTip ? 'opacity-60 cursor-not-allowed' : ''
           } `}
           onClick={(e) => {
@@ -2407,8 +2427,9 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
 
   const isInsufficientBalance =
     side === 'Buy'
-      ? new Big(total === '-' ? '0' : total).gt(tokenOutHolding || '0') ||
-        new Big(tokenOutHolding || 0).eq(0)
+      ? new Big(total === '-' || !total ? '0' : total).gt(
+          tokenOutHolding || '0'
+        ) || new Big(tokenOutHolding || 0).eq(0)
       : new Big(inputValue || '0').gt(tokenInHolding || '0');
 
   const loading =
@@ -2646,6 +2667,8 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
     }
   };
 
+  const curSymbol = availableSymbols?.find((s) => s.symbol === symbol);
+
   useEffect(() => {
     const marketPrice = !orders
       ? 0
@@ -2658,6 +2681,12 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
       inputValue
     );
   }, [side, orderType, symbol, orders]);
+  useEffect(() => {
+    setLimitPrice('');
+    setTotal('');
+    setInputValue('');
+    setShowErrorTip(false);
+  }, [symbol]);
 
   const validator =
     !accountId ||
@@ -3131,8 +3160,7 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
                 ) {
                   qty = new Big(value)
                     .div(new Big(limitPrice))
-                    .toNumber()
-                    .toString();
+                    .toFixed(tickToPrecision(curSymbol?.base_tick || 0.01));
 
                   setInputValue(qty);
                 } else if (
@@ -3142,8 +3170,7 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
                 ) {
                   qty = new Big(value)
                     .div(new Big(marketPrice))
-                    .toNumber()
-                    .toString();
+                    .toFixed(tickToPrecision(curSymbol?.base_tick || 0.01));
                 }
 
                 setInputValue(qty);
@@ -3200,7 +3227,7 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
       </div>
 
       {showErrorTip && (
-        <ErrorTip className={'relative top-3'} text={errorTipMsg} />
+        <ErrorTip className={'relative top-0'} text={errorTipMsg} />
       )}
 
       {orderType === 'Limit' && (
@@ -3369,16 +3396,8 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
 
       <button
         className={`rounded-lg ${
-          isInsufficientBalance
-            ? 'bg-errorTip'
-            : side === 'Buy'
-            ? 'bg-buyGradientGreen'
-            : 'bg-sellGradientRed'
-        } ${
-          isInsufficientBalance
-            ? 'text-redwarningColor cursor-not-allowed'
-            : 'text-white'
-        }  py-2.5 mt-4 bottom-3 mb-3 flex z-20 items-center justify-center text-base ${
+          side === 'Buy' ? 'bg-buyGradientGreen' : 'bg-sellGradientRed'
+        } ${'text-white'}  py-2.5 mt-4 bottom-3 mb-3 flex z-20 items-center justify-center text-base ${
           submitDisable || showErrorTip ? 'opacity-60 cursor-not-allowed' : ''
         } `}
         onClick={(e) => {

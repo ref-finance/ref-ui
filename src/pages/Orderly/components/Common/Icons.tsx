@@ -899,9 +899,9 @@ export function OrderPopUpCheck(props: any) {
 }
 
 export function OrderlyLoading({
-  className = "animate-spin top-1/2 absolute left-1/2 transform translate-x-1/2 translate-y-1/2"
+  className = 'animate-spin top-1/2 absolute left-1/2 transform translate-x-1/2 translate-y-1/2',
 }: {
-  className?: string
+  className?: string;
 }) {
   return (
     <svg

@@ -42,6 +42,7 @@ import { getAccountInformation, getOrderlySystemInfo } from './off-chain-api';
 import { PerpOrSpot } from '../utiles';
 import { useWalletSelector } from '~context/WalletSelectorContext';
 import { useHistory } from 'react-router-dom';
+import { REF_ORDERLY_NEW_USER_TIP } from '../components/Common/NewUserTip';
 
 interface OrderlyContextValue {
   orders: Orders | undefined;
@@ -75,6 +76,7 @@ interface OrderlyContextValue {
   availableSymbols: SymbolInfo[];
   systemAvailable: boolean;
   requestSymbol: string;
+  newUserTip: boolean;
   setRequestSymbol: (symbol: string) => void;
   estFundingRate: EstFundingrate | undefined;
   positions: PositionsType | undefined;
@@ -270,6 +272,9 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
     );
   }, [JSON.stringify(value.marketTrade)]);
 
+  const newUserTip =
+    localStorage.getItem(REF_ORDERLY_NEW_USER_TIP) === '1' && validAccountSig;
+
   return (
     <OrderlyContext.Provider
       value={{
@@ -287,6 +292,7 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
         systemAvailable,
         requestSymbol,
         setRequestSymbol,
+        newUserTip,
         symbol,
         setSymbol: (symbol: string) => {
           setSymbol(symbol);

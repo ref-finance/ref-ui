@@ -1446,5 +1446,8 @@ const en_US = {
   to_begin_your_trading_journey: 'to begin your trading journey.',
   max_leverage_tip:
     'Max account leverage cannot be lower than your current leverage.',
+  orderly_new_usr_spot_tip: 'Deposit assets to begin your trading journey.',
+  orderly_new_user_tip:
+    'Check Balance and deposit <strong>USDC</strong>  to begin your trading journey.',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

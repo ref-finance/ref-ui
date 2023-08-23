@@ -492,20 +492,6 @@ export function PerpAccountBoard() {
 
   return (
     <div className="flex flex-col text-primaryText gap-2 px-2 text-13px">
-      {/* total collateral */}
-      <div className="frcb">
-        <FormattedMessage
-          id="total_collateral"
-          defaultMessage={`Total Collateral`}
-        ></FormattedMessage>
-
-        <span className="font-nunito text-white">
-          {!positions || totalCollateral === '-'
-            ? '-'
-            : numberWithCommas(totalCollateral)}
-        </span>
-      </div>
-
       {/* max account leverage */}
       <div className="frcb">
         <FormattedMessage
@@ -580,6 +566,16 @@ export function PerpAccountBoard() {
         </div>
       </div>
 
+      {/* Maintenance Margin Ratio */}
+      <div className="frcb">
+        <FormattedMessage
+          id="maintenance_margin_ratio"
+          defaultMessage={'Maintenance Margin Ratio'}
+        />
+
+        <span className="font-nunito">{mmr}</span>
+      </div>
+
       {/* free collateral */}
       <div className="frcb">
         <FormattedMessage
@@ -592,12 +588,28 @@ export function PerpAccountBoard() {
         </span>
       </div>
 
+      {/* total collateral */}
+      <div className="frcb">
+        <FormattedMessage
+          id="total_collateral"
+          defaultMessage={`Total Collateral`}
+        ></FormattedMessage>
+
+        <span className="font-nunito text-white">
+          {!positions || totalCollateral === '-'
+            ? '-'
+            : numberWithCommas(totalCollateral)}
+        </span>
+      </div>
+
       {/* total upnl */}
       <div className="frcb">
         <TotaluPNLText></TotaluPNLText>
 
         <span className="font-nunito text-white">{totaluPnl}</span>
       </div>
+
+      {/* unsettle unpnl */}
 
       <div className="frcb">
         <UnsettlePnl></UnsettlePnl>
@@ -639,15 +651,6 @@ export function PerpAccountBoard() {
             ></FormattedMessage>
           </button>
         </div>
-      </div>
-
-      <div className="frcb">
-        <FormattedMessage
-          id="maintenance_margin_ratio"
-          defaultMessage={'Maintenance Margin Ratio'}
-        />
-
-        <span className="font-nunito">{mmr}</span>
       </div>
 
       <SettlePnlModal
