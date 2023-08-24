@@ -1450,7 +1450,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         {/* input box */}
 
         {orderType === 'Limit' && (
-          <div className="mx-6  text-primaryOrderly mt-3 text-sm  bg-perpCardBg rounded-xl border border-boxBorder p-3 py-2">
+          <div className="mx-6  text-primaryOrderly mt-3 text-sm  bg-perpCardBg rounded-xl border border-boxBorder p-3 py-1.5">
             <div className="flex items-center justify-between">
               <span>
                 {intl.formatMessage({
@@ -1464,7 +1464,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
               </span>
             </div>
 
-            <div className="flex items-center mt-1 justify-between">
+            <div className="flex items-center mt-0.5 justify-between">
               <input
                 type="number"
                 step="any"
@@ -1542,7 +1542,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           </div>
         )}
 
-        <div className="mx-6  text-primaryOrderly mt-3 bg-perpCardBg text-sm  rounded-xl border border-boxBorder p-3 py-2">
+        <div className="mx-6  text-primaryOrderly mt-3 bg-perpCardBg text-sm  rounded-xl border border-boxBorder p-3 py-1.5">
           <div className=" text-left flex items-center justify-between">
             <span>
               {intl.formatMessage({
@@ -1554,7 +1554,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
             <span className="">{symbolFrom}</span>
           </div>
 
-          <div className="flex items-center mt-1">
+          <div className="flex items-center mt-0.5">
             <input
               autoFocus
               inputMode="decimal"

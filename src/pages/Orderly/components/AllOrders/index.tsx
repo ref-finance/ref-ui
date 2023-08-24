@@ -4209,9 +4209,13 @@ function HistoryOrders({
 function AllOrderBoard({
   maintenance,
   defaultOpen,
+  subOrderTab,
+  setSubOrderTab,
 }: {
   maintenance?: boolean;
   defaultOpen?: boolean;
+  subOrderTab?: 'open' | 'history';
+  setSubOrderTab?: (c: 'open' | 'history') => void;
 }) {
   const {
     symbol,
@@ -4267,6 +4271,7 @@ function AllOrderBoard({
   useEffect(() => {
     if (symbolType === 'SPOT' && tab === 'positions') {
       setTab('open');
+      setSubOrderTab && setSubOrderTab('open');
     }
     if (symbolType === 'PERP' && !defaultOpen) {
       setTab('positions');
@@ -4377,6 +4382,7 @@ function AllOrderBoard({
             <FlexRow
               onClick={() => {
                 setTab('open');
+                setSubOrderTab && setSubOrderTab('open');
               }}
               className={`font-gothamBold justify-center  xs:py-0.5 xs:px-2 xs:rounded-lg ${
                 tab === 'open' ? 'xs:bg-mobileOrderBg ' : ''
@@ -4417,6 +4423,7 @@ function AllOrderBoard({
             <FlexRow
               onClick={() => {
                 setTab('history');
+                setSubOrderTab && setSubOrderTab('history');
               }}
               className={`font-gothamBold justify-center  xs:py-0.5 xs:px-2 xs:rounded-lg ${
                 tab === 'history' ? 'xs:bg-mobileOrderBg ' : ''

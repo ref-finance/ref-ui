@@ -128,13 +128,21 @@ function MobileTradingBoard() {
   const [displayTab, setDisplayTab] = useState<
     'orders' | 'assets' | 'liquidations' | 'positions'
   >('positions');
-  // const allOrders = useAllOrders({
-  //   refreshingTag: myPendingOrdersRefreshing,
-  //   type: symbolType,
-  // });
 
-  const pendingOrders = allOrders?.filter((order) => {
-    return order.status === 'PARTIAL_FILLED' || order.status === 'NEW';
+  const [showCurSymbol, setShowCurSymbol] = useState<boolean>(false);
+
+  const openOrders = allOrders?.filter((o) => {
+    return (
+      (o.status === 'NEW' || o.status === 'PARTIAL_FILLED') &&
+      (!showCurSymbol || o.symbol === symbol)
+    );
+  });
+
+  const historyOrders = allOrders?.filter((o) => {
+    return (
+      openOrders?.map((o) => o.order_id).indexOf(o.order_id) === -1 &&
+      (!showCurSymbol || o.symbol === symbol)
+    );
   });
 
   const storedUnRead = localStorage.getItem(REF_FI_ORDERLY_LIQUIDATION_UNREAD);
@@ -159,7 +167,7 @@ function MobileTradingBoard() {
     }
   }, [maintenance]);
 
-  const [showCurSymbol, setShowCurSymbol] = useState<boolean>(false);
+  const [subOrderTab, setSubOrderTab] = useState<'open' | 'history'>('open');
 
   const intl = useIntl();
 
@@ -293,7 +301,13 @@ function MobileTradingBoard() {
                 id="orders"
                 defaultMessage={'Orders'}
               ></FormattedMessage>
-              {!!pendingOrders && `(${pendingOrders.length})`}
+              {subOrderTab === 'open' &&
+                !!openOrders &&
+                `(${openOrders.length})`}
+
+              {subOrderTab === 'history' &&
+                !!historyOrders &&
+                `(${historyOrders.length})`}
 
               {displayTab === 'orders' && (
                 <div
@@ -341,17 +355,6 @@ function MobileTradingBoard() {
                 id="liquidations"
                 defaultMessage={'Liquidations'}
               ></FormattedMessage>
-              {/* {unReadCount > 0 && (
-                <div
-                  className="rounded-full text-10px text-chartBg  bg-sellRed frcc"
-                  style={{
-                    width: '14px',
-                    height: '14px',
-                  }}
-                >
-                  {unReadCount}
-                </div>
-              )} */}
 
               {displayTab === 'liquidations' && (
                 <div
@@ -366,7 +369,12 @@ function MobileTradingBoard() {
 
           {displayTab === 'orders' && (
             <div className="w-full flex flex-col ">
-              <AllOrderBoard maintenance={maintenance} defaultOpen={true} />
+              <AllOrderBoard
+                subOrderTab={subOrderTab}
+                setSubOrderTab={setSubOrderTab}
+                maintenance={maintenance}
+                defaultOpen={true}
+              />
             </div>
           )}
 

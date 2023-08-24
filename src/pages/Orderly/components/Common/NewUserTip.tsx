@@ -52,7 +52,7 @@ export function NewUserTip(props: {
 
   const [show, setShow] = useState<boolean>(!haveCheck);
 
-  if (!show || !newUserTip) return null;
+  if (haveCheck || !newUserTip || !show) return null;
 
   return (
     <div

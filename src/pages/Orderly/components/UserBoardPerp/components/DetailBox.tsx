@@ -65,17 +65,6 @@ export function DetailBoxMobile({
       }}
     >
       {!show && (
-        <IoIosArrowUp
-          size={18}
-          style={{
-            position: 'relative',
-            right: '5px',
-            top: '-4px',
-          }}
-        ></IoIosArrowUp>
-      )}
-
-      {show && (
         <IoIosArrowDown
           size={18}
           style={{
@@ -84,6 +73,18 @@ export function DetailBoxMobile({
             top: '-4px',
           }}
         ></IoIosArrowDown>
+        // IoIosArrowDown
+      )}
+
+      {show && (
+        <IoIosArrowUp
+          size={18}
+          style={{
+            position: 'relative',
+            right: '5px',
+            top: '-4px',
+          }}
+        ></IoIosArrowUp>
       )}
     </button>
   );

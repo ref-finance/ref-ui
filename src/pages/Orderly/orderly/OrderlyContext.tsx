@@ -273,7 +273,9 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
   }, [JSON.stringify(value.marketTrade)]);
 
   const newUserTip =
-    localStorage.getItem(REF_ORDERLY_NEW_USER_TIP) === '1' && validAccountSig;
+    validAccountSig &&
+    holdings &&
+    holdings.every((h) => Number(h.holding) == 0);
 
   return (
     <OrderlyContext.Provider

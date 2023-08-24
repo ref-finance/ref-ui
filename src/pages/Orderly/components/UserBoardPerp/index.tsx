@@ -1765,7 +1765,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         </div>
 
         {orderType === 'Limit' && (
-          <div className="w-full text-primaryOrderly bg-perpCardBg mt-3 text-sm  rounded-xl border border-boxBorder p-3">
+          <div className="w-full text-primaryOrderly bg-perpCardBg mt-3 text-sm  rounded-xl border border-boxBorder px-3 py-1.5">
             <div className="flex items-center justify-between">
               <span>
                 {intl.formatMessage({
@@ -1779,7 +1779,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
               </span>
             </div>
 
-            <div className="flex items-center mt-1 justify-between">
+            <div className="flex items-center mt-0.5 justify-between">
               <input
                 type="number"
                 step="any"
@@ -1859,7 +1859,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           </div>
         )}
 
-        <div className="w-full text-primaryOrderly text-sm  bg-perpCardBg rounded-xl border border-boxBorder p-3">
+        <div className="w-full text-primaryOrderly text-sm  bg-perpCardBg rounded-xl border border-boxBorder px-3 py-1.5">
           <div className=" text-left flex items-center justify-between">
             <span>
               {intl.formatMessage({
@@ -1871,7 +1871,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
             <span className="">{symbolFrom}</span>
           </div>
 
-          <div className="flex items-center mt-1">
+          <div className="flex items-center mt-0.5">
             <input
               autoFocus
               inputMode="decimal"
@@ -2015,7 +2015,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         <div className="rounded-lg text-sm px-0 pt-1 relative flex flex-col gap-2 z-10 pb-6">
           <div className={'flex flex-col gap-2'}>
             <div className="frcb  ">
-              <div className="text-primaryOrderly px-4 py-1 w-full border border-inputV3BorderColor rounded-xl bg-perpCardBg mr-2 frcb">
+              <div className="text-primaryOrderly px-4 py-0.5 w-full border border-inputV3BorderColor rounded-xl bg-perpCardBg mr-2 frcb">
                 <div className="frcs">
                   <span>
                     {intl.formatMessage({

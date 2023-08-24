@@ -92,16 +92,9 @@ function MobileTradingBoard() {
   const { myPendingOrdersRefreshing, symbol, maintenance, allOrders } =
     useOrderlyContext();
 
-  const symbolType = PerpOrSpot(symbol);
-
   const [route, setRoute] = useState<'user_board' | 'chart'>('user_board');
 
   const [displayTab, setDisplayTab] = useState<'orders' | 'assets'>('orders');
-
-  // const allOrders = useAllOrders({
-  //   refreshingTag: myPendingOrdersRefreshing,
-  //   type: symbolType,
-  // });
 
   React.useEffect(() => {
     if (maintenance) {
