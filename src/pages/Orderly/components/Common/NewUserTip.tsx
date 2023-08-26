@@ -50,7 +50,7 @@ export function NewUserTip(props: {
 
   const haveCheck = localStorage.getItem('REF_FI_NEW_USER_TIP_CHECK') === '1';
 
-  const [show, setShow] = useState<boolean>(!haveCheck);
+  const [show, setShow] = useState<boolean>(true);
 
   if (haveCheck || !newUserTip || !show) return null;
 

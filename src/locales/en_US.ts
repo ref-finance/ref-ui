@@ -1385,7 +1385,7 @@ const en_US = {
   mark_price: 'Mark Price',
   last_price: 'Last Price',
   mark_price_tip: 'Mark price is used for PnL calculating and liquidation.',
-  total_collateral: 'Total Collateral (Equity)',
+  total_collateral: 'Total Collateral',
   current_leverage: 'Current Leverage',
   free_collateral: 'Free Collateral',
   total_upnl: 'Total uPnL',

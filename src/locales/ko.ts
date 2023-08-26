@@ -469,7 +469,7 @@ const ko = {
   go_to_your_account_to: '당신의 계정으로 이동해서',
   deposit_l: '입금',
   withdraw_l: '출금',
-  got_it: '확인함',
+  got_it: '확인했습니다',
   check_the_transaction_settings: '트랜잭션 설정을 확인하세요',
   filter_by: '(으)로 필터함',
   allOption: '전부',
@@ -1372,9 +1372,8 @@ const ko = {
   mark_price: '표시가',
   last_price: '최종가',
   mark_price_tip: '손익분석(PnL) 계산과 청산에는 표시가를 사용합니다.',
-  total_collateral: 'Total Collateral (Equity)',
-  current_leverage: 'Current Leverage',
-
+  total_collateral: '총 담보',
+  current_leverage: '현재 레버리지',
   free_collateral: '남은Free 담보',
   total_upnl: '총 미실현손익 (uPnL)',
   perps: 'Perps',
@@ -1433,6 +1432,10 @@ const ko = {
   set: 'Set',
   max_leverage_tip:
     'Max account leverage cannot be lower than your current leverage.',
-  to_begin_your_trading_journey: 'to begin your trading journey.',
+  to_begin_your_trading_journey: '를 예치하여 거래를 시작해 봅시다',
+
+  orderly_new_usr_spot_tip: '자산을 예치하여 거래를 시작해 봅시다',
+  orderly_new_user_tip:
+    '잔고를 확인하고 <strong>USDC</strong>를 예치하여 거래를 시작해 봅시다',
 };
 export default Object.assign(ko, ko_in_risks_page);

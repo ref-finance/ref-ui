@@ -92,9 +92,22 @@ function MobileTradingBoard() {
   const { myPendingOrdersRefreshing, symbol, maintenance, allOrders } =
     useOrderlyContext();
 
+  const [subOrderTab, setSubOrderTab] = useState<'open' | 'history'>('open');
+  console.log('subOrderTab: ', subOrderTab);
+
   const [route, setRoute] = useState<'user_board' | 'chart'>('user_board');
 
   const [displayTab, setDisplayTab] = useState<'orders' | 'assets'>('orders');
+
+  const openOrders = allOrders?.filter((o) => {
+    return o.status === 'NEW' || o.status === 'PARTIAL_FILLED';
+  });
+
+  const historyOrders = allOrders?.filter((o) => {
+    return openOrders?.map((o) => o.order_id).indexOf(o.order_id) === -1;
+  });
+
+  console.log('historyOrders: ', historyOrders);
 
   React.useEffect(() => {
     if (maintenance) {
@@ -140,7 +153,14 @@ function MobileTradingBoard() {
                 id="orders"
                 defaultMessage={'Orders'}
               ></FormattedMessage>
-              {!!allOrders && `(${allOrders.length})`}
+
+              {subOrderTab === 'open' &&
+                !!openOrders &&
+                `(${openOrders.length})`}
+
+              {subOrderTab === 'history' &&
+                !!historyOrders &&
+                `(${historyOrders.length})`}
 
               {displayTab === 'orders' && (
                 <div
@@ -179,7 +199,11 @@ function MobileTradingBoard() {
 
           {displayTab === 'orders' && (
             <div className="w-full flex flex-col ">
-              <AllOrderBoard maintenance={maintenance} />
+              <AllOrderBoard
+                subOrderTab={subOrderTab}
+                setSubOrderTab={setSubOrderTab}
+                maintenance={maintenance}
+              />
             </div>
           )}
 

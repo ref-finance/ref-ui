@@ -378,7 +378,7 @@ const zh_CN = {
   go_to_your_account_to: '去你的账户',
   deposit_l: '存储',
   withdraw_l: '提取',
-  got_it: '知道了',
+  got_it: '确认',
   check_the_transaction_settings: '查看交易设置',
   filter_by: '过滤',
   allOption: '全部',
@@ -1230,8 +1230,8 @@ const zh_CN = {
   mark_price: '标记价格',
   last_price: '最新价格',
   mark_price_tip: '标记价格用于盈亏计算和清算。',
-  total_collateral: 'Total Collateral (Equity)',
-  current_leverage: 'Current Leverage',
+  total_collateral: '总抵押物价值',
+  current_leverage: '当前杠杆率',
 
   free_collateral: '可用抵押资产',
   total_upnl: '未实现盈亏',
@@ -1243,6 +1243,7 @@ const zh_CN = {
   high_risk: '高风险',
   liquidations: '清算',
   leverage_max_leverage: '最大账户杠杠率',
+  leverage_max_leverage_raw: '账户最大杠杆率',
   marker_taker_fee_rate: '挂单/吃单费率',
   liquidation_price: '清算价格',
   margin_required: '保证金',
@@ -1372,6 +1373,10 @@ const zh_CN = {
   max_leverage_tip:
     'Max account leverage cannot be lower than your current leverage.',
 
-  to_begin_your_trading_journey: 'to begin your trading journey.',
+  to_begin_your_trading_journey: '以开启你的交易之旅。',
+
+  orderly_new_usr_spot_tip: '存入资产以开启你的交易之旅。',
+  orderly_new_user_tip:
+    '查看账户余额，存入<strong>USDC</strong>以开启你的交易之旅。',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

@@ -536,10 +536,6 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
   const [limitPrice, setLimitPrice] = useState<string>('');
 
-  useEffect(() => {
-    setLimitPrice(bridgePrice);
-  }, [bridgePrice]);
-
   const [showAllAssets, setShowAllAssets] = useState<boolean>(false);
 
   const [confirmModalOpen, setConfirmModalOpen] = useState<boolean>(false);
@@ -1218,6 +1214,38 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       ? null
       : getRiskLevel(Number(marginRatio), userInfo?.max_leverage || 10);
 
+  useEffect(() => {
+    setLimitPrice(bridgePrice);
+    priceAndSizeValidator(bridgePrice, inputValue);
+
+    if (!ONLY_ZEROS.test(bridgePrice) && !ONLY_ZEROS.test(inputValue)) {
+      const total = new Big(bridgePrice || 0)
+        .times(inputValue)
+        .toNumber()
+        .toString();
+      setTotal(total);
+
+      return;
+    }
+
+    if (
+      !ONLY_ZEROS.test(total) &&
+      !ONLY_ZEROS.test(bridgePrice) &&
+      total !== '-' &&
+      curSymbol
+    ) {
+      // change input value
+      const qty = new Big(total || 0)
+        .div(bridgePrice)
+        .toFixed(tickToPrecision(curSymbol.base_tick));
+      setInputValue(qty);
+
+      priceAndSizeValidator(bridgePrice, qty);
+
+      return;
+    }
+  }, [bridgePrice]);
+
   const PerpAccountInfo = (
     <div className="flex gap-4 px-6 py-4 flex-col bg-perpCardBg text-primaryText text-13px">
       {/* max account leverage */}
@@ -1822,8 +1850,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                     // change input value
                     const qty = new Big(total || 0)
                       .div(price)
-                      .toNumber()
-                      .toString();
+                      .toFixed(tickToPrecision(curSymbol.base_tick));
 
                     setInputValue(qty);
 
@@ -2016,7 +2043,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           <div className={'flex flex-col gap-2'}>
             <div className="frcb  ">
               <div className="text-primaryOrderly px-4 py-0.5 w-full border border-inputV3BorderColor rounded-xl bg-perpCardBg mr-2 frcb">
-                <div className="frcs">
+                <div className="frcs whitespace-nowrap">
                   <span>
                     {intl.formatMessage({
                       id: 'total',
@@ -3469,21 +3496,15 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
 
   const [inputValue, setInputValue] = useState<string>('');
 
-  const [showAdvance, setShowAdvance] = useState<boolean>(false);
-
   const [showTotal, setShowTotal] = useState<boolean>(false);
 
   const [limitPrice, setLimitPrice] = useState<string>('');
-
-  useEffect(() => {
-    setLimitPrice(bridgePrice);
-  }, [bridgePrice]);
 
   const [confirmModalOpen, setConfirmModalOpen] = useState<boolean>(false);
 
   const [agreeCheck, setAgreeCheck] = useState<boolean>(false);
 
-  const { userInfo, curLeverage, setCurLeverage } = useLeverage();
+  const { userInfo, curLeverage } = useLeverage();
 
   const [registerModalOpen, setRegisterModalOpen] = useState<boolean>(false);
 
@@ -4035,8 +4056,6 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
     }
 
     if (resPrice === true && resSize === true) {
-      // price validator
-
       setShowErrorTip(false);
       setErrorTipMsg('');
     }
@@ -4053,6 +4072,38 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
       inputValue
     );
   }, [side, orderType, symbol, orders, limitPrice]);
+
+  useEffect(() => {
+    setLimitPrice(bridgePrice);
+
+    priceAndSizeValidator(bridgePrice, inputValue);
+
+    if (!ONLY_ZEROS.test(bridgePrice) && !ONLY_ZEROS.test(inputValue)) {
+      const total = new Big(bridgePrice || 0)
+        .times(inputValue)
+        .toNumber()
+        .toString();
+      setTotal(total);
+
+      return;
+    }
+
+    if (
+      !ONLY_ZEROS.test(total) &&
+      !ONLY_ZEROS.test(bridgePrice) &&
+      total !== '-' &&
+      curSymbol
+    ) {
+      const qty = new Big(total || 0)
+        .div(bridgePrice)
+        .toFixed(tickToPrecision(curSymbol.base_tick));
+      setInputValue(qty);
+
+      priceAndSizeValidator(bridgePrice, qty);
+
+      return;
+    }
+  }, [bridgePrice]);
 
   const validator =
     !accountId ||
@@ -4276,14 +4327,11 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
                     return;
                   }
 
-                  console.log('total: ', total, price);
-
                   if (!ONLY_ZEROS.test(total) && !ONLY_ZEROS.test(price)) {
                     // change input value
                     const qty = new Big(total || 0)
                       .div(price)
-                      .toNumber()
-                      .toString();
+                      .toFixed(tickToPrecision(curSymbol.base_tick));
 
                     setInputValue(qty);
 

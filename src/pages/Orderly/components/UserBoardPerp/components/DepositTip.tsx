@@ -51,9 +51,11 @@ export function DepositTip(props: {
             textUnderlineOffset: '3px',
           }}
         >
-          <span className="">
-            <FormattedMessage id="deposit" defaultMessage="Deposit" />
-          </span>
+          {intl.locale === 'ko' ? null : (
+            <span className="">
+              <FormattedMessage id="deposit" defaultMessage="Deposit" />
+            </span>
+          )}
 
           <span className={` font-gothamBold`}>
             {props.type === 'perp' && ` USDC`}

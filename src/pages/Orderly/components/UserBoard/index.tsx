@@ -569,10 +569,6 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
   const [limitPrice, setLimitPrice] = useState<string>('');
 
-  useEffect(() => {
-    setLimitPrice(bridgePrice);
-  }, [bridgePrice]);
-
   const [userInfo, setUserInfo] = useState<ClientInfo>();
 
   const [showAllAssets, setShowAllAssets] = useState<boolean>(false);
@@ -1111,6 +1107,41 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
   const isMobile = useClientMobile();
   const curSymbol = availableSymbols?.find((s) => s.symbol === symbol);
 
+  useEffect(() => {
+    setLimitPrice(bridgePrice);
+    priceAndSizeValidator(bridgePrice, inputValue);
+
+    if (!ONLY_ZEROS.test(bridgePrice) && !ONLY_ZEROS.test(inputValue)) {
+      const total = new Big(bridgePrice || 0)
+        .times(inputValue)
+        .toNumber()
+        .toString();
+      setTotal(total);
+
+      return;
+    }
+
+    console.log('bridgePrice: ', bridgePrice, total);
+
+    if (
+      !ONLY_ZEROS.test(total) &&
+      !ONLY_ZEROS.test(bridgePrice) &&
+      total !== '-' &&
+      curSymbol
+    ) {
+      // change input value
+      const qty = new Big(total || 0)
+        .div(bridgePrice)
+        .toFixed(tickToPrecision(curSymbol.base_tick));
+
+      setInputValue(qty);
+
+      priceAndSizeValidator(bridgePrice, qty);
+
+      return;
+    }
+  }, [bridgePrice]);
+
   const validator =
     !accountId ||
     !storageEnough ||
@@ -1503,10 +1534,10 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
                   if (!ONLY_ZEROS.test(total) && !ONLY_ZEROS.test(price)) {
                     // change input value
+
                     const qty = new Big(total || 0)
                       .div(price)
-                      .toNumber()
-                      .toString();
+                      .toFixed(tickToPrecision(curSymbol.base_tick));
 
                     setInputValue(qty);
 
@@ -1701,7 +1732,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         <div className="h-1 mx-6 border-b pt-3 border-white border-opacity-10"></div>
 
         <div className="text-primaryOrderly mx-6 px-4 py-0.5 mt-4 border border-inputV3BorderColor rounded-xl bg-perpCardBg frcb">
-          <div className="frcs">
+          <div className="frcs whitespace-nowrap">
             <span>
               {intl.formatMessage({
                 id: 'total',
@@ -2159,10 +2190,6 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
   const [inputValue, setInputValue] = useState<string>('');
 
   const [limitPrice, setLimitPrice] = useState<string>('');
-
-  useEffect(() => {
-    setLimitPrice(bridgePrice);
-  }, [bridgePrice]);
 
   const [userInfo, setUserInfo] = useState<ClientInfo>();
 
@@ -2670,6 +2697,40 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
   const curSymbol = availableSymbols?.find((s) => s.symbol === symbol);
 
   useEffect(() => {
+    setLimitPrice(bridgePrice);
+    priceAndSizeValidator(bridgePrice, inputValue);
+
+    if (!ONLY_ZEROS.test(bridgePrice) && !ONLY_ZEROS.test(inputValue)) {
+      const total = new Big(bridgePrice || 0)
+        .times(inputValue)
+        .toNumber()
+        .toString();
+      setTotal(total);
+
+      return;
+    }
+
+    console.log('bridgePrice: ', bridgePrice, total);
+
+    if (
+      !ONLY_ZEROS.test(total) &&
+      !ONLY_ZEROS.test(bridgePrice) &&
+      total !== '-' &&
+      curSymbol
+    ) {
+      // change input value
+      const qty = new Big(total || 0)
+        .div(bridgePrice)
+        .toFixed(tickToPrecision(curSymbol.base_tick));
+      setInputValue(qty);
+
+      priceAndSizeValidator(bridgePrice, qty);
+
+      return;
+    }
+  }, [bridgePrice]);
+
+  useEffect(() => {
     const marketPrice = !orders
       ? 0
       : side === 'Buy'
@@ -2924,9 +2985,7 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
                   // change input value
                   const qty = new Big(total || 0)
                     .div(price)
-                    .toNumber()
-                    .toString();
-
+                    .toFixed(tickToPrecision(curSymbol.base_tick));
                   setInputValue(qty);
 
                   priceAndSizeValidator(price, qty);

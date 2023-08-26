@@ -471,7 +471,7 @@ const vi = {
   go_to_your_account_to: 'Go to your account to',
   deposit_l: 'Nạp',
   withdraw_l: 'Rút',
-  got_it: 'Đã rõ',
+  got_it: 'Hiểu rồi',
   check_the_transaction_settings: 'Kiểm tra cài đặt giao dịch',
   filter_by: 'Bộ lọc',
   allOption: 'Tất cả',
@@ -919,7 +919,7 @@ const vi = {
   not_enough_balance: 'Không đủ số dư',
   set_price_range: 'Đặt phạm vi giá',
   current_price: 'Giá hiện tại',
-  current_leverage: 'Current Leverage',
+  current_leverage: 'Đòn bẩy hiện tại',
 
   pool_creation: 'Tạo pool',
   pool_creation_tip:
@@ -1379,7 +1379,7 @@ const vi = {
   mark_price: 'Giá đánh dấu',
   last_price: 'Giá cuối cùng',
   mark_price_tip: 'Giá đánh dấu được sử dụng để tính toán PnL và thanh lý.',
-  total_collateral: 'Total Collateral (Equity)',
+  total_collateral: 'Tổng tài sản đảm bảo',
 
   free_collateral: 'Tài sản đảm bảo tự do',
   total_upnl: 'Tổng uPnL',
@@ -1442,6 +1442,11 @@ const vi = {
   set: 'Set',
   max_leverage_tip:
     'Max account leverage cannot be lower than your current leverage.',
-  to_begin_your_trading_journey: 'to begin your trading journey.',
+  to_begin_your_trading_journey: 'để bắt đầu hành trình giao dịch của bạn',
+
+  orderly_new_usr_spot_tip:
+    'Gửi tài sản để bắt đầu hành trình giao dịch của bạn.',
+  orderly_new_user_tip:
+    'Kiểm tra số dư và gửi <strong>USDC</strong> để bắt đầu hành trình giao dịch của bạn.',
 };
 export default Object.assign(vi, vi_in_risks_page);

@@ -489,7 +489,7 @@ const es = {
   go_to_your_account_to: 'Ve a tu cuenta para',
   deposit_l: 'depositar',
   withdraw_l: 'retirar',
-  got_it: 'Entendido',
+  got_it: 'Got it',
   check_the_transaction_settings:
     'Verifique la configuración de la transacción',
   filter_by: 'Filtrar por',
@@ -1412,8 +1412,8 @@ const es = {
   last_price: 'Último Precio',
   mark_price_tip:
     'El precio de marca se utiliza para calcular las ganancias y pérdidas no realizadas y para liquidación.',
-  total_collateral: 'Total Collateral (Equity)',
-  current_leverage: 'Current Leverage',
+  total_collateral: 'Colateral total',
+  current_leverage: 'Apalancamiento actual',
 
   free_collateral: 'Colateral Libre',
   total_upnl: 'uPnL Total',
@@ -1473,8 +1473,13 @@ const es = {
   spot_nav: 'Spot',
   perps_nav: 'Perps',
   set: 'Set',
+
+  to_begin_your_trading_journey: 'para comenzar tu experiencia de trading.',
   max_leverage_tip:
     'Max account leverage cannot be lower than your current leverage.',
-  to_begin_your_trading_journey: 'to begin your trading journey.',
+  orderly_new_usr_spot_tip:
+    'Deposita activos para comenzar tu experiencia de trading.',
+  orderly_new_user_tip:
+    'Verifica el saldo y deposita <strong>USDC</strong>  to para comenzar.',
 };
 export default Object.assign(es, es_in_risks_page);
