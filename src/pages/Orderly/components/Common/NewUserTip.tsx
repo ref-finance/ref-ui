@@ -95,11 +95,11 @@ export function NewUserTip(props: {
             : type === 'spot-pc'
             ? 'transform rotate-180 -translate-x-1/2'
             : type === 'perp-mobile'
-            ? 'transform translate-x-1/2'
-            : ''
+            ? '  max-w-max -right-1/2 relative'
+            : ' max-w-max relative -right-1/2'
         }
         style={{
-          transform: type == 'spot-mobile' ? 'translateX(60%)' : '',
+          right: type === 'spot-mobile' ? '-60%' : '',
         }}
       >
         <GuideLine></GuideLine>

@@ -223,6 +223,7 @@ export function Content() {
 
   if (isMobile()) {
     document.body.style.setProperty('overflow-x', 'hidden');
+    document.documentElement.style.setProperty('overflow-x', 'hidden');
   }
 
   return (
