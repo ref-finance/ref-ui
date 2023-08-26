@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
+import { useWalletSelector } from '~context/WalletSelectorContext';
 
 export const REF_ORDERLY_NEW_USER_TIP = 'REF_ORDERLY_NEW_USER_TIP_KEY';
 
@@ -46,9 +47,13 @@ export function NewUserTip(props: {
 }) {
   const { type } = props;
 
+  const { accountId } = useWalletSelector();
+
+  const tipKey = 'REF_FI_NEW_USER_TIP_CHECK' + ':' + accountId;
+
   const { newUserTip } = useOrderlyContext();
 
-  const haveCheck = localStorage.getItem('REF_FI_NEW_USER_TIP_CHECK') === '1';
+  const haveCheck = localStorage.getItem(tipKey) === '1';
 
   const [show, setShow] = useState<boolean>(true);
 
@@ -106,7 +111,7 @@ export function NewUserTip(props: {
           e.preventDefault();
           e.stopPropagation();
           setShow(false);
-          localStorage.setItem('REF_FI_NEW_USER_TIP_CHECK', '1');
+          localStorage.setItem(tipKey, '1');
         }}
       >
         {(type == 'perp-pc' || type == 'perp-mobile') && (

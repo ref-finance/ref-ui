@@ -1378,5 +1378,7 @@ const zh_CN = {
   orderly_new_usr_spot_tip: '存入资产以开启你的交易之旅。',
   orderly_new_user_tip:
     '查看账户余额，存入<strong>USDC</strong>以开启你的交易之旅。',
+
+  deposit_on_tip: '质押',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

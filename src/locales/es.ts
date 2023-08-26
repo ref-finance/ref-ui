@@ -1425,8 +1425,8 @@ const es = {
   mid_risk: 'Riesgo Medio',
   high_risk: 'Alto Riesgo',
   liquidations: 'Liquidaciones',
-  leverage_max_leverage: 'Apalancamiento Máximo de la Cuenta:',
-  leverage_max_leverage_raw: 'Apalancamiento Máximo de la Cuenta:',
+  leverage_max_leverage: 'Apalancamiento Máximo de la Cuenta',
+  leverage_max_leverage_raw: 'Apalancamiento Máximo de la Cuenta',
   marker_taker_fee_rate: 'Tasa de Comisión Maker/Taker',
   liquidation_price: 'Precio de Liquidación',
   margin_required: 'Margen Requerido',
@@ -1481,5 +1481,6 @@ const es = {
     'Deposita activos para comenzar tu experiencia de trading.',
   orderly_new_user_tip:
     'Verifica el saldo y deposita <strong>USDC</strong>  to para comenzar.',
+  deposit_on_tip: 'Depósito',
 };
 export default Object.assign(es, es_in_risks_page);

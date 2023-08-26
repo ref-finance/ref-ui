@@ -1384,7 +1384,7 @@ const ko = {
   mid_risk: '리스크 중간',
   high_risk: '리스크 높음',
   liquidations: '청산',
-  leverage_max_leverage: '게정 최대 레버리지:',
+  leverage_max_leverage: '게정 최대 레버리지',
   leverage_max_leverage_raw: '게정 최대 레버리지',
   marker_taker_fee_rate: 'Maker/Taker 수수료 요율',
   liquidation_price: '청산 가격',
@@ -1433,9 +1433,11 @@ const ko = {
   max_leverage_tip:
     'Max account leverage cannot be lower than your current leverage.',
   to_begin_your_trading_journey: '를 예치하여 거래를 시작해 봅시다',
-
+  to_begin_your_trading_journey_2: '을 예치하여 거래를 시작해 봅시다',
   orderly_new_usr_spot_tip: '자산을 예치하여 거래를 시작해 봅시다',
   orderly_new_user_tip:
     '잔고를 확인하고 <strong>USDC</strong>를 예치하여 거래를 시작해 봅시다',
+  deposit_on_tip: '자',
+  assets: '산',
 };
 export default Object.assign(ko, ko_in_risks_page);

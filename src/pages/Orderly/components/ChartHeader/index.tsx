@@ -380,7 +380,7 @@ export function SymbolSelectorMobileModal(
 }
 
 function ChartHeader(props?: any) {
-  const { symbol, setSymbol, tokenInfo, ticker, maintenance } =
+  const { symbol, setSymbol, tokenInfo, ticker, maintenance, setBridgePrice } =
     useOrderlyContext();
 
   const { setRoute, route } = props;
@@ -464,8 +464,12 @@ function ChartHeader(props?: any) {
               onClick={() => {
                 if (type === 'spot') {
                   history.push('/orderbook/spot');
+
+                  setBridgePrice('');
                 } else {
                   history.push('/orderbook/perps');
+
+                  setBridgePrice('');
                 }
               }}
             >

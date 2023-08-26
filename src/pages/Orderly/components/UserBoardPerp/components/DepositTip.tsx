@@ -24,7 +24,7 @@ export function DepositTip(props: {
               textUnderlineOffset: '3px',
             }}
           >
-            <FormattedMessage id="deposit" defaultMessage="Deposit" />
+            <FormattedMessage id="deposit_on_tip" defaultMessage="Deposit" />
           </span>
 
           <span className={`pl-1 text-white`}>
@@ -53,7 +53,7 @@ export function DepositTip(props: {
         >
           {intl.locale === 'ko' ? null : (
             <span className="">
-              <FormattedMessage id="deposit" defaultMessage="Deposit" />
+              <FormattedMessage id="deposit_on_tip" defaultMessage="Deposit" />
             </span>
           )}
 
@@ -65,7 +65,11 @@ export function DepositTip(props: {
 
       <span className="ml-1">
         <FormattedMessage
-          id="to_begin_your_trading_journey"
+          id={
+            intl.locale === 'ko' && type === 'spot'
+              ? 'to_begin_your_trading_journey_2'
+              : 'to_begin_your_trading_journey'
+          }
           defaultMessage={'to begin your trading journey.'}
         ></FormattedMessage>
       </span>

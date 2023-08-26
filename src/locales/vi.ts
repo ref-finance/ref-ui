@@ -1391,7 +1391,7 @@ const vi = {
   mid_risk: 'Rủi ro trung bình',
   high_risk: 'Rủi ro cao',
   liquidations: 'Thanh lý',
-  leverage_max_leverage: 'Đòn bẩy tài khoản tối đa:',
+  leverage_max_leverage: 'Đòn bẩy tài khoản tối đa',
   leverage_max_leverage_raw: 'Đòn bẩy tài khoản tối đa',
 
   marker_taker_fee_rate: 'Tỷ lệ Phí Đặt lệnh/Tạo lệnh',
@@ -1448,5 +1448,6 @@ const vi = {
     'Gửi tài sản để bắt đầu hành trình giao dịch của bạn.',
   orderly_new_user_tip:
     'Kiểm tra số dư và gửi <strong>USDC</strong> để bắt đầu hành trình giao dịch của bạn.',
+  deposit_on_tip: 'Gửi',
 };
 export default Object.assign(vi, vi_in_risks_page);

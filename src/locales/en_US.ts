@@ -1397,7 +1397,7 @@ const en_US = {
   mid_risk: 'Mid Risk',
   high_risk: 'High Risk',
   liquidations: 'Liquidations',
-  leverage_max_leverage: 'Max Account Leverage:',
+  leverage_max_leverage: 'Max Account Leverage',
   leverage_max_leverage_raw: 'Max Account Leverage',
   marker_taker_fee_rate: 'Maker/Taker Fee Rate',
   liquidation_price: 'Liquidation Price',
@@ -1449,5 +1449,7 @@ const en_US = {
   orderly_new_usr_spot_tip: 'Deposit assets to begin your trading journey.',
   orderly_new_user_tip:
     'Check Balance and deposit <strong>USDC</strong>  to begin your trading journey.',
+
+  deposit_on_tip: 'Deposit',
 };
 export default Object.assign(en_US, en_US_in_risks_page);
