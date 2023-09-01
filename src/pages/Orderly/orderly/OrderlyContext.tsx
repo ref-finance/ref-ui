@@ -113,9 +113,6 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
       } else {
         setMaintenance(false);
       }
-
-      // mock maintenance
-      // setMaintenance(true);
     });
   }, []);
 
@@ -125,7 +122,7 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
 
   const [userInfo, setUserInfo] = useState<ClientInfo>();
 
-  const pathname = window.location.pathname;
+  const pathname = useHistory().location.pathname;
 
   const symbolType = PerpOrSpot(symbol);
 
@@ -171,8 +168,11 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
   });
 
   const isPerp = pathname.includes('perp');
+  console.log('pathnameOut: ', pathname);
 
   useEffect(() => {
+    console.log('pathname: ', pathname, symbol, isPerp);
+
     if (
       (isPerp && symbol.indexOf('PERP') > -1) ||
       (!isPerp && symbol.indexOf('SPOT') > -1)
@@ -239,7 +239,7 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
       setSymbol(newSymbol);
       localStorage.setItem(REF_ORDERLY_SYMBOL_KEY, newSymbol);
     }
-  }, [symbol, isPerp, availableSymbols]);
+  }, [symbol, isPerp, availableSymbols, pathname]);
 
   const allOrdersSymbol = allOrders?.filter((o) => o.symbol === symbol);
 

@@ -523,9 +523,7 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
               <MoreRouterButton></MoreRouterButton>
             </span>
             <div className="flex items-center mt-0.5">
-              <span className="text-white font-bold">
-                {digitWrapper(ticker.close.toString(), 3)}
-              </span>
+              <span className="text-white font-bold">{ticker.close}</span>
 
               <span
                 className={`${
@@ -558,7 +556,7 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
             </span>
 
             <span className="text-white mt-0.5 font-bold">
-              {curMarkPrice && digitWrapper(curMarkPrice.price.toString(), 3)}
+              {curMarkPrice && curMarkPrice.price}
             </span>
           </div>
 
@@ -570,9 +568,7 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
               })}
             </span>
 
-            <span className="text-white mt-0.5 font-bold">
-              {digitWrapper(ticker.high.toString(), 3)}
-            </span>
+            <span className="text-white mt-0.5 font-bold">{ticker.high}</span>
           </div>
 
           <div className="flex items-start xs:hidden md:hidden flex-col">
@@ -583,9 +579,7 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
               })}
             </span>
 
-            <span className="text-white mt-0.5 font-bold">
-              {digitWrapper(ticker.low.toString(), 3)}
-            </span>
+            <span className="text-white mt-0.5 font-bold">{ticker.low}</span>
           </div>
 
           <div className="flex items-start xs:hidden md:hidden  flex-col">

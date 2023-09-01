@@ -660,7 +660,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
   const reloadTotal = () => {
     if (orderType === 'Limit') {
       if (!limitPrice) {
-        return '-';
+        return '0';
       } else {
         return new Big(inputValue || 0)
           .times(new Big(Number(limitPrice || 0)))
@@ -669,7 +669,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       }
     } else {
       if (!marketPrice) {
-        return '-';
+        return '0';
       } else {
         return new Big(inputValue || 0)
           .times(new Big(Number(marketPrice || 0)))
@@ -852,8 +852,16 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     side === 'Buy'
       ? new Big(total === '-' || !total ? '0' : total).gt(
           tokenOutHolding || '0'
-        ) || new Big(tokenOutHolding || 0).eq(0)
+        )
       : new Big(inputValue || '0').gt(tokenInHolding || '0');
+
+  console.log(
+    'isInsufficientBalance: ',
+    isInsufficientBalance,
+    total,
+    tokenOutHolding,
+    tokenInHolding
+  );
 
   const loading =
     ((!!accountId && storageEnough === undefined) ||
@@ -1994,9 +2002,19 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
         <button
           className={`rounded-lg mx-6 ${
-            side === 'Buy' ? 'bg-buyGradientGreen' : 'bg-sellGradientRed'
-          } ${'text-white'}  py-2.5 mt-4 mb-2 flex z-20 items-center justify-center text-base ${
-            submitDisable || showErrorTip ? 'opacity-60 cursor-not-allowed' : ''
+            side === 'Buy'
+              ? 'bg-buyGradientGreen'
+              : isInsufficientBalance
+              ? 'bg-errorTip'
+              : 'bg-sellGradientRed'
+          } ${
+            isInsufficientBalance && side === 'Sell'
+              ? 'text-redwarningColor'
+              : 'text-white'
+          }   py-2.5 mt-4 mb-2 flex z-20 items-center justify-center text-base ${
+            submitDisable || showErrorTip || isInsufficientBalance
+              ? 'opacity-60 cursor-not-allowed'
+              : ''
           } `}
           onClick={(e) => {
             e.preventDefault();
@@ -2272,7 +2290,7 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
   const reloadTotal = () => {
     if (orderType === 'Limit') {
       if (!limitPrice) {
-        return '-';
+        return '0';
       } else {
         return new Big(inputValue || 0)
           .times(new Big(Number(limitPrice || 0)))
@@ -2281,7 +2299,7 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
       }
     } else {
       if (!marketPrice) {
-        return '-';
+        return '0';
       } else {
         return new Big(inputValue || 0)
           .times(new Big(Number(marketPrice || 0)))
@@ -2760,12 +2778,7 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
   const intl = useIntl();
 
   return (
-    <div
-      className=" mr-4 relative flex flex-col  "
-      style={{
-        width: 'calc(60% + 20px)',
-      }}
-    >
+    <div className=" relative flex flex-col  ">
       {/* not signed in wrapper */}
       {maintenance && (
         <div
@@ -2909,7 +2922,7 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
       </div>
 
       {/* sell and buy button  */}
-      <div className="flex items-center justify-center mt-3">
+      <div className="flex px-2 items-center justify-center mt-3">
         <BuyButton
           onClick={() => {
             setSide('Buy');
@@ -3455,9 +3468,19 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
 
       <button
         className={`rounded-lg ${
-          side === 'Buy' ? 'bg-buyGradientGreen' : 'bg-sellGradientRed'
-        } ${'text-white'}  py-2.5 mt-4 bottom-3 mb-3 flex z-20 items-center justify-center text-base ${
-          submitDisable || showErrorTip ? 'opacity-60 cursor-not-allowed' : ''
+          side === 'Buy'
+            ? 'bg-buyGradientGreen'
+            : isInsufficientBalance
+            ? 'bg-errorTip'
+            : 'bg-sellGradientRed'
+        } ${
+          isInsufficientBalance && side === 'Sell'
+            ? 'text-redwarningColor'
+            : 'text-white'
+        }   py-2.5 mt-4 bottom-3 mb-3 flex z-20 items-center justify-center text-base ${
+          submitDisable || showErrorTip || isInsufficientBalance
+            ? 'opacity-60 cursor-not-allowed'
+            : ''
         } `}
         onClick={(e) => {
           e.preventDefault();

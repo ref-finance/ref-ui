@@ -2034,8 +2034,8 @@ export const useMarketlist = () => {
           );
 
           const textRender = (
-            <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
-              <span className="xs:text-white xs:ml-2 xs:font-bold">
+            <div className="flex items-center p-0.5 pl-0 pr-4 text-white text-sm my-0.5">
+              <span className="xs:text-white  xs:font-bold">
                 {symbolFrom} / {symbolTo}
               </span>
             </div>

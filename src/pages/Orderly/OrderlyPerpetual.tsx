@@ -171,56 +171,6 @@ function MobileTradingBoard() {
 
   const intl = useIntl();
 
-  const SymbolShowComp = (
-    <div className="text-primaryText text-13px mt-5 w-full flex items-center justify-end gap-6">
-      <div className="frcs">
-        <CheckBox
-          check={showCurSymbol}
-          setCheck={() => {
-            setShowCurSymbol(true);
-          }}
-        ></CheckBox>
-
-        <span
-          className="ml-2 cursor-pointer"
-          onClick={() => {
-            setShowCurSymbol(true);
-          }}
-        >
-          {intl.formatMessage({
-            id: 'current_orderly',
-            defaultMessage: 'Current',
-          })}
-          : <span className="text-white">{parseSymbol(symbol).symbolFrom}</span>
-          {symbolType === 'SPOT' ? '/' : ' '}
-          <span>
-            {symbolType === 'SPOT' ? parseSymbol(symbol).symbolTo : 'PERP'}
-          </span>
-        </span>
-      </div>
-
-      <div className="frcs">
-        <CheckBox
-          check={!showCurSymbol}
-          setCheck={() => {
-            setShowCurSymbol(false);
-          }}
-        ></CheckBox>
-
-        <span
-          className="ml-2 cursor-pointer"
-          onClick={() => {
-            setShowCurSymbol(false);
-          }}
-        >
-          {intl.formatMessage({
-            id: 'All',
-            defaultMessage: 'All',
-          })}
-        </span>
-      </div>
-    </div>
-  );
   if (maintenance === undefined) return null;
 
   return (
@@ -380,9 +330,7 @@ function MobileTradingBoard() {
 
           {displayTab === 'positions' && (
             <div className="text-primaryText">
-              {SymbolShowComp}
-
-              <PositionsTable hidden={false} showCurSymbol={showCurSymbol} />
+              <PositionsTable hidden={false} showCurSymbol={true} />
             </div>
           )}
 

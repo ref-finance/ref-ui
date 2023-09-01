@@ -19,6 +19,7 @@ import { useClientMobile } from '../../../../utils/device';
 
 import { FormattedMessage, useIntl } from 'react-intl';
 import ReactTooltip from 'react-tooltip';
+import { tickToPrecision } from '../UserBoardPerp/math';
 
 function getMarkPrice() {
   const intl = useIntl();
@@ -495,7 +496,12 @@ function OrderBook({ maintenance }: { maintenance: boolean }) {
     setCurMedian(newMedian);
   }, [recentTrades, ask_0, bid_0]);
 
-  const displayMedian = numberWithCommas(curMedian || 0);
+  const displayMedian = numberWithCommasPadding(
+    curMedian || 0,
+    tickToPrecision(symbolInfo.quote_tick)
+  );
+
+  // const displayMedian = numberWithCommas(curMedian || 0);
 
   const diff = preMedian === undefined ? 0 : curMedian - preMedian || 0;
 
@@ -520,7 +526,11 @@ function OrderBook({ maintenance }: { maintenance: boolean }) {
             textDecorationColor: '#7E8A93',
           }}
         >
-          {numberWithCommas(curMarkPrice)}
+          {/* {numberWithCommas(curMarkPrice)} */}
+          {numberWithCommasPadding(
+            curMarkPrice,
+            tickToPrecision(symbolInfo.quote_tick)
+          )}
         </span>
       )}
     </div>
@@ -1303,7 +1313,12 @@ export function OrderBookShrink({ maintenance }: { maintenance: boolean }) {
     setCurMedian(newMedian);
   }, [recentTrades, ask_0, bid_0]);
 
-  const displayMedian = numberWithCommas(curMedian || 0);
+  // const displayMedian = numberWithCommas(curMedian || 0);
+
+  const displayMedian = numberWithCommasPadding(
+    curMedian || 0,
+    tickToPrecision(symbolInfo.quote_tick)
+  );
 
   const diff = preMedian === undefined ? 0 : curMedian - preMedian || 0;
 
@@ -1328,7 +1343,12 @@ export function OrderBookShrink({ maintenance }: { maintenance: boolean }) {
             textDecorationColor: '#7E8A93',
           }}
         >
-          {numberWithCommas(curMarkPrice)}
+          {/* {numberWithCommas(curMarkPrice)} */}
+
+          {numberWithCommasPadding(
+            curMarkPrice,
+            tickToPrecision(symbolInfo.quote_tick)
+          )}
         </span>
       )}
     </div>

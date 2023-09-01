@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useOrderlyContext } from '../../orderly/OrderlyContext';
+import {
+  REF_ORDERLY_SYMBOL_KEY,
+  useOrderlyContext,
+} from '../../orderly/OrderlyContext';
 import Modal from 'react-modal';
 import { parseSymbol } from '../RecentTrade';
 import { nearMetadata, getFTmetadata, toPrecision } from '../../near';
@@ -32,7 +35,10 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { TextWrapper } from '../UserBoard';
 import Big from 'big.js';
 import moment from 'moment';
-import { MoBileMoreRouterButton } from '../ChartHeaderPerp/components/MoreRouterButton';
+import {
+  MoBileMoreRouterButton,
+  MoreRouterButton,
+} from '../ChartHeaderPerp/components/MoreRouterButton';
 import { useHistory } from 'react-router-dom';
 
 function tickerToDisplayDiff(ticker: Ticker | undefined) {
@@ -380,8 +386,15 @@ export function SymbolSelectorMobileModal(
 }
 
 function ChartHeader(props?: any) {
-  const { symbol, setSymbol, tokenInfo, ticker, maintenance, setBridgePrice } =
-    useOrderlyContext();
+  const {
+    symbol,
+    setSymbol,
+    availableSymbols,
+    tokenInfo,
+    ticker,
+    maintenance,
+    setBridgePrice,
+  } = useOrderlyContext();
 
   const { setRoute, route } = props;
 
@@ -444,6 +457,69 @@ function ChartHeader(props?: any) {
 
   const history = useHistory();
 
+  const pathname = history.location.pathname;
+
+  const changeSymbolToPerp = () => {
+    // find if PERP_{token}_{USDC} exist  in availableSymbols, if exist, set to this symbol else set to PERP_NEAR_USDC
+
+    let newSymbol = 'PERP_NEAR_USDC';
+
+    const perpSymbol = availableSymbols?.find((s) => {
+      const storedSymbol = localStorage.getItem(REF_ORDERLY_SYMBOL_KEY);
+      if (!storedSymbol) return false;
+
+      const type = s.symbol.split('_')[0];
+
+      if (type === 'SPOT') return false;
+
+      const symbolFrom = s.symbol.split('_')[1];
+
+      const symbolFromStored = storedSymbol.split('_')[1];
+
+      if (symbolFrom.indexOf('BTC') > -1) {
+        return symbolFromStored.indexOf('BTC') > -1;
+      } else {
+        return symbolFromStored === symbolFrom;
+      }
+    });
+
+    if (perpSymbol) {
+      newSymbol = perpSymbol.symbol;
+    }
+
+    setSymbol(newSymbol);
+    localStorage.setItem(REF_ORDERLY_SYMBOL_KEY, newSymbol);
+  };
+
+  const changeSymbolToSpot = () => {
+    let newSymbol = 'SPOT_NEAR_USDC';
+
+    const spotSymbol = availableSymbols?.find((s) => {
+      const storedSymbol = localStorage.getItem(REF_ORDERLY_SYMBOL_KEY);
+      if (!storedSymbol) return false;
+
+      const type = s.symbol.split('_')[0];
+
+      if (type === 'PERP') return false;
+
+      const symbolFrom = s.symbol.split('_')[1];
+
+      const symbolFromStored = storedSymbol.split('_')[1];
+
+      if (symbolFrom.indexOf('BTC') > -1) {
+        return symbolFromStored.indexOf('BTC') > -1;
+      } else {
+        return symbolFromStored === symbolFrom;
+      }
+    });
+    if (spotSymbol) {
+      newSymbol = spotSymbol.symbol;
+    }
+
+    setSymbol(newSymbol);
+    localStorage.setItem(REF_ORDERLY_SYMBOL_KEY, newSymbol);
+  };
+
   return (
     <div
       className="flex orderly-chart-header items-center  text-white text-sm xs:sticky xs:top-0 xs:z-50 lg:py-2 lg:px-3 lg:mb-3 lg:mr-3"
@@ -463,12 +539,13 @@ function ChartHeader(props?: any) {
               } cursor-pointer`}
               onClick={() => {
                 if (type === 'spot') {
+                  changeSymbolToSpot();
                   history.push('/orderbook/spot');
 
                   setBridgePrice('');
                 } else {
                   history.push('/orderbook/perps');
-
+                  changeSymbolToPerp();
                   setBridgePrice('');
                 }
               }}
@@ -520,28 +597,6 @@ function ChartHeader(props?: any) {
             : `${symbolFrom} PERP`}
         </span>
 
-        {/* {isMobile && ticker && (
-          <span
-            className={`${
-              diff < 0
-                ? 'text-sellRed bg-sellRed'
-                : diff > 0
-                ? 'text-buyGreen bg-buyGreen'
-                : 'text-white'
-            } bg-opacity-10 text-xs flex items-center  rounded-md ml-2 px-1 py-0.5`}
-          >
-            {' '}
-            <span className="relative ">
-              {diff > 0 ? (
-                <IoArrowUpOutline />
-              ) : diff < 0 ? (
-                <IoArrowDownOutline />
-              ) : null}
-            </span>
-            <span>{disPlayDiff}%</span>
-          </span>
-        )} */}
-
         <IoMdArrowDropdown
           color={!hoverSymbol ? '#566069' : '#FFFFFF'}
           size={20}
@@ -577,16 +632,15 @@ function ChartHeader(props?: any) {
             justify-between xs:justify-end md:justify-end  text-primaryOrderly`}
         >
           <div className="flex xs:justify-end md:justify-end  items-start flex-col xs:flex-row md:flex-row xs:items-center md:items-center">
-            <span className="xs:hidden md:hidden">
+            <span className="xs:hidden md:hidden frcs gap-2">
               {intl.formatMessage({
                 id: 'price',
                 defaultMessage: 'Price',
               })}
+              <MoreRouterButton></MoreRouterButton>
             </span>
             <div className="flex xs:hidden md:hidden items-center mt-0.5">
-              <span className="text-white font-bold">
-                {digitWrapper(ticker.close.toString(), 3)}
-              </span>
+              <span className="text-white font-bold">{ticker.close}</span>
 
               <span
                 className={`${
@@ -618,9 +672,7 @@ function ChartHeader(props?: any) {
               })}
             </span>
 
-            <span className="text-white mt-0.5 font-bold">
-              {digitWrapper(ticker.high.toString(), 3)}
-            </span>
+            <span className="text-white mt-0.5 font-bold">{ticker.high}</span>
           </div>
 
           <div className="flex items-start xs:hidden md:hidden flex-col">
@@ -631,9 +683,7 @@ function ChartHeader(props?: any) {
               })}
             </span>
 
-            <span className="text-white mt-0.5 font-bold">
-              {digitWrapper(ticker.low.toString(), 3)}
-            </span>
+            <span className="text-white mt-0.5 font-bold">{ticker.low}</span>
           </div>
 
           <div className="flex items-start xs:hidden md:hidden  flex-col">
@@ -649,7 +699,7 @@ function ChartHeader(props?: any) {
             </span>
           </div>
 
-          <div className="frcs lg:hidden gap-4">
+          <div className="frcs lg:hidden gap-2">
             <div
               onClick={() => {
                 setRoute && setRoute('chart');

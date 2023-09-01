@@ -94,7 +94,7 @@ const priceValidator = (
   if (
     price &&
     size &&
-    side === 'Buy' &&
+    side === 'Sell' &&
     orderType === 'Limit' &&
     markPrice &&
     new Big(price || 0).gt(
@@ -129,7 +129,7 @@ const priceValidator = (
   if (
     price &&
     size &&
-    side === 'Sell' &&
+    side === 'Buy' &&
     orderType === 'Limit' &&
     markPrice &&
     new Big(price || 0).lt(
@@ -164,7 +164,7 @@ const priceValidator = (
   if (
     price &&
     size &&
-    side === 'Sell' &&
+    side === 'Buy' &&
     orderType === 'Limit' &&
     markPrice &&
     new Big(price || 0).gt(
@@ -199,7 +199,7 @@ const priceValidator = (
   if (
     price &&
     size &&
-    side === 'Buy' &&
+    side === 'Sell' &&
     orderType === 'Limit' &&
     markPrice &&
     new Big(price || 0).lt(

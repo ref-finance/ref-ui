@@ -75,7 +75,7 @@ export function PerpOrderlyTipMobile() {
 
   return (
     <div
-      className="w-screen px-4  xs:pb-20 xs:pt-2 h-9 xs:rounded-2xl   xs:bottom-0 bg-gradientFromHover  lg:frcc "
+      className="w-screen px-4 xs:pr-8 xs:pb-20 xs:pt-2 h-9 xs:rounded-2xl   xs:bottom-0 bg-gradientFromHover  lg:frcc "
       style={{
         fontSize: '13px',
         color: '#111F29',
@@ -97,7 +97,7 @@ export function PerpOrderlyTipMobile() {
               target="_blank"
               href="https://docs.orderly.network/perpetual-futures/introduction"
             >
-              {isMobile && <br />}
+              {/* {isMobile && <br />} */}
               <FormattedMessage
                 id="perpTipLink"
                 defaultMessage="[Perpetual-futures Introduction]"

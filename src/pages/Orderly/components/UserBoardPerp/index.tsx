@@ -710,7 +710,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
   const reloadTotal = () => {
     if (orderType === 'Limit') {
       if (!limitPrice) {
-        return '-';
+        return '0';
       } else {
         return new Big(inputValue || 0)
           .times(new Big(Number(limitPrice || 0)))
@@ -719,7 +719,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       }
     } else {
       if (!marketPrice) {
-        return '-';
+        return '0';
       } else {
         return new Big(inputValue || 0)
           .times(new Big(Number(marketPrice || 0)))
@@ -1263,11 +1263,9 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           }}
           marginRatio={Number(marginRatio)}
           min={0}
-          className={`orderly-leverage-slider ${
-            side === 'Buy'
-              ? 'orderly-leverage-slider-buy'
-              : 'orderly-leverage-slider-sell'
-          }`}
+          className={`orderly-leverage-slider
+             orderly-leverage-slider-buy
+          `}
         />
       </div>
 
@@ -2346,9 +2344,19 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
         <button
           className={`rounded-lg ${
-            side === 'Buy' ? 'bg-buyGradientGreen' : 'bg-sellGradientRed'
-          } text-white  py-2.5 relative bottom-3  flex z-20 items-center justify-center text-base ${
-            submitDisable || showErrorTip ? 'opacity-60 cursor-not-allowed' : ''
+            side === 'Buy'
+              ? 'bg-buyGradientGreen'
+              : isInsufficientBalance
+              ? 'bg-errorTip'
+              : 'bg-sellGradientRed'
+          } ${
+            isInsufficientBalance && side === 'Sell'
+              ? 'text-redwarningColor'
+              : 'text-white'
+          }   py-2.5 relative bottom-3  flex z-20 items-center justify-center text-base ${
+            submitDisable || showErrorTip || isInsufficientBalance
+              ? 'opacity-60 cursor-not-allowed'
+              : ''
           } `}
           onClick={(e) => {
             e.preventDefault();
@@ -3604,7 +3612,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
   const reloadTotal = () => {
     if (orderType === 'Limit') {
       if (!limitPrice) {
-        return '-';
+        return '0';
       } else {
         return new Big(inputValue || 0)
           .times(new Big(Number(limitPrice || 0)))
@@ -3613,7 +3621,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
       }
     } else {
       if (!marketPrice) {
-        return '-';
+        return '0';
       } else {
         return new Big(inputValue || 0)
           .times(new Big(Number(marketPrice || 0)))
@@ -4829,9 +4837,19 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
 
         <button
           className={`rounded-lg ${
-            side === 'Buy' ? 'bg-buyGradientGreen' : 'bg-sellGradientRed'
-          } ${'text-white'}  py-2.5 relative bottom-3  flex z-20 items-center justify-center text-base ${
-            submitDisable || showErrorTip ? 'opacity-60 cursor-not-allowed' : ''
+            side === 'Buy'
+              ? 'bg-buyGradientGreen'
+              : isInsufficientBalance
+              ? 'bg-errorTip'
+              : 'bg-sellGradientRed'
+          } ${
+            isInsufficientBalance && side === 'Sell'
+              ? 'text-redwarningColor'
+              : 'text-white'
+          }   py-2.5 relative bottom-3  flex z-20 items-center justify-center text-base ${
+            submitDisable || showErrorTip || isInsufficientBalance
+              ? 'opacity-60 cursor-not-allowed'
+              : ''
           } `}
           onClick={(e) => {
             e.preventDefault();

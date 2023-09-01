@@ -658,7 +658,14 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
                 <FormattedMessage id="orderbook_mobile"></FormattedMessage>
               </div>
 
-              <div className="w-full font-gotham frcs gap-3 text-white text-base ">
+              <div
+                className={`w-full font-gotham frcs border ${
+                  window.location.pathname === '/orderbook/spot' ||
+                  window.location.pathname === '/orderbook/perps'
+                    ? 'bg-cardBg'
+                    : ''
+                } border-v3SwapGray border-opacity-30 gap-3 text-primaryText text-base rounded-xl p-1`}
+              >
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -669,21 +676,17 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
                   }}
                   className={`frcc bg-symbolHover2 ${
                     window.location.pathname === '/orderbook/spot'
-                      ? ''
-                      : 'border'
-                  }  text-white border-white border-opacity-30 w-1/2 rounded-lg py-2`}
+                      ? 'text-white'
+                      : ''
+                  }    w-1/2 rounded-lg py-1`}
                   style={{
                     background:
                       window.location.pathname === '/orderbook/spot'
-                        ? 'rgba(79,101,116,0.5)'
+                        ? '#324451'
                         : '',
-                    width: '104px',
+                    width: '95px',
                   }}
                 >
-                  {/* <FormattedMessage
-                    id="spot"
-                    defaultMessage={'Spot'}
-                  ></FormattedMessage> */}
                   Spot
                 </button>
 
@@ -698,20 +701,16 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
                   style={{
                     background:
                       window.location.pathname === '/orderbook/perps'
-                        ? 'rgba(79,101,116,0.5)'
+                        ? '#324451'
                         : '',
-                    width: '104px',
+                    width: '95px',
                   }}
                   className={`frcc bg-symbolHover2 ${
                     window.location.pathname === '/orderbook/perps'
-                      ? ''
-                      : 'border'
-                  }   text-white border-white border-opacity-30 w-1/2 rounded-lg py-2`}
+                      ? 'text-white'
+                      : ''
+                  }   w-1/2 rounded-lg py-1`}
                 >
-                  {/* <FormattedMessage
-                    id="perpetual"
-                    defaultMessage={'Perpetual'}
-                  ></FormattedMessage> */}
                   Perpetual
                 </button>
               </div>
@@ -934,54 +933,7 @@ export const bridgeData = [
       },
     ],
   },
-  {
-    name: (
-      <FormattedMessage
-        id="allbridge"
-        defaultMessage={'Allbridge'}
-      ></FormattedMessage>
-    ),
-    id: '1',
-    label: 'allbridge',
-    icon: Allbridge,
-    children: [
-      {
-        name: (
-          <FormattedMessage
-            id="from_solana"
-            defaultMessage={'Solana'}
-          ></FormattedMessage>
-        ),
-        icon: Solana,
-        link: 'https://app.allbridge.io/bridge?from=SOL&to=NEAR',
-        id: '1-0',
-      },
-      {
-        name: (
-          <FormattedMessage
-            id="from_terra"
-            defaultMessage={'Terra'}
-          ></FormattedMessage>
-        ),
-        icon: Terra,
-        id: '1-1',
 
-        link: 'https://app.allbridge.io/bridge?from=TRA&to=NEAR',
-      },
-      {
-        name: (
-          <FormattedMessage
-            id="from_celo"
-            defaultMessage={'Celo'}
-          ></FormattedMessage>
-        ),
-        icon: Celo,
-        id: '1-2',
-
-        link: 'https://app.allbridge.io/bridge?from=CELO&to=NEAR',
-      },
-    ],
-  },
   {
     name: (
       <FormattedMessage

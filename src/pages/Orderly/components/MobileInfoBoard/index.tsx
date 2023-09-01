@@ -573,7 +573,7 @@ export function PerpAccountBoard() {
           defaultMessage={'Maintenance Margin Ratio'}
         />
 
-        <span className="font-nunito">{mmr}</span>
+        <span className="font-nunito text-white">{mmr}</span>
       </div>
 
       {/* free collateral */}
