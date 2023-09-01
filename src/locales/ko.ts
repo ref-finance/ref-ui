@@ -1439,5 +1439,7 @@ const ko = {
     '잔고를 확인하고 <strong>USDC</strong>를 예치하여 거래를 시작해 봅시다',
   deposit_on_tip: '자',
   assets: '산',
+  display_all_orders_dexes:
+    'Display orders placed through all channels on Orderly.',
 };
 export default Object.assign(ko, ko_in_risks_page);

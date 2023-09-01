@@ -1219,7 +1219,7 @@ const zh_CN = {
   TotalAssets: '资产',
   TokenAllocation: '代币分布',
   perpTip: '欢迎来到永续期货交易！请阅读 {perpTipLink} 以开始交易！',
-  perpTipLink: '[永续期货介绍链接]',
+  perpTipLink: '[永续期货介绍]',
   perpetual: 'Perpetual',
   pred_funding_rate: '预测资金费率',
   open_interest: '未平仓量',
@@ -1380,5 +1380,7 @@ const zh_CN = {
     '查看账户余额，存入<strong>USDC</strong>以开启你的交易之旅。',
 
   deposit_on_tip: '质押',
+  display_all_orders_dexes:
+    'Display orders placed through all channels on Orderly.',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

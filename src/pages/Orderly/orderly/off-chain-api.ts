@@ -322,7 +322,6 @@ export const getAllOrders = async (props: {
       ...props.OrderProps,
       page: 1,
       size: 500,
-      broker_id: 'ref_dex',
     },
   });
 
@@ -342,7 +341,6 @@ export const getAllOrders = async (props: {
           ...props.OrderProps,
           page,
           size: 500,
-          broker_id: 'ref_dex',
         },
       });
 

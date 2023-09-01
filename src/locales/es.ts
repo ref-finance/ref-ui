@@ -1482,5 +1482,7 @@ const es = {
   orderly_new_user_tip:
     'Verifica el saldo y deposita <strong>USDC</strong>  to para comenzar.',
   deposit_on_tip: 'Depósito',
+  display_all_orders_dexes:
+    'Display orders placed through all channels on Orderly.',
 };
 export default Object.assign(es, es_in_risks_page);

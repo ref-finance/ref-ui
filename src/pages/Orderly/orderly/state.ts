@@ -155,7 +155,6 @@ export function useAllOrders({
         accountId,
         OrderProps: {
           size: 200,
-          broker_id: 'ref_dex',
         },
       });
 

@@ -330,7 +330,7 @@ function MobileTradingBoard() {
 
           {displayTab === 'positions' && (
             <div className="text-primaryText">
-              <PositionsTable hidden={false} showCurSymbol={true} />
+              <PositionsTable hidden={false} showCurSymbol={false} />
             </div>
           )}
 

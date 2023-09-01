@@ -1449,5 +1449,7 @@ const vi = {
   orderly_new_user_tip:
     'Kiểm tra số dư và gửi <strong>USDC</strong> để bắt đầu hành trình giao dịch của bạn.',
   deposit_on_tip: 'Gửi',
+  display_all_orders_dexes:
+    'Display orders placed through all channels on Orderly.',
 };
 export default Object.assign(vi, vi_in_risks_page);

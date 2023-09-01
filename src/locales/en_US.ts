@@ -1036,7 +1036,7 @@ const en_US = {
   Fees: 'Fees',
   Cancelled: 'Cancelled',
   Rejected: 'Rejected',
-  all_instrument: 'All Instrument',
+  all_instrument: 'Instrument',
   available_orderly: 'Available',
   history_orderly: 'History',
   settle_pnl: 'Settle PnL',
@@ -1451,5 +1451,8 @@ const en_US = {
     'Check Balance and deposit <strong>USDC</strong>  to begin your trading journey.',
 
   deposit_on_tip: 'Deposit',
+  all_dexes: 'All Dexes',
+  display_all_orders_dexes:
+    'Display orders placed through all channels on Orderly.',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

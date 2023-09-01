@@ -40,6 +40,7 @@ import {
   MoreRouterButton,
 } from '../ChartHeaderPerp/components/MoreRouterButton';
 import { useHistory } from 'react-router-dom';
+import { tickToPrecision } from '../UserBoardPerp/math';
 
 function tickerToDisplayDiff(ticker: Ticker | undefined) {
   const diff = ticker ? ((ticker.close - ticker.open) * 100) / ticker.open : 0;
@@ -396,7 +397,7 @@ function ChartHeader(props?: any) {
     setBridgePrice,
   } = useOrderlyContext();
 
-  const { setRoute, route } = props;
+  const { setRoute } = props;
 
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
 
@@ -456,8 +457,6 @@ function ChartHeader(props?: any) {
   const intl = useIntl();
 
   const history = useHistory();
-
-  const pathname = history.location.pathname;
 
   const changeSymbolToPerp = () => {
     // find if PERP_{token}_{USDC} exist  in availableSymbols, if exist, set to this symbol else set to PERP_NEAR_USDC
@@ -519,6 +518,8 @@ function ChartHeader(props?: any) {
     setSymbol(newSymbol);
     localStorage.setItem(REF_ORDERLY_SYMBOL_KEY, newSymbol);
   };
+
+  const curSymbol = availableSymbols?.find((s) => s.symbol === symbol);
 
   return (
     <div
@@ -626,7 +627,7 @@ function ChartHeader(props?: any) {
         />
       )}
 
-      {ticker && !maintenance && (
+      {ticker && !maintenance && curSymbol && (
         <div
           className={`flex  items-center  mr-2 max-w-full xs:w-full lg:w-p460
             justify-between xs:justify-end md:justify-end  text-primaryOrderly`}
@@ -640,7 +641,12 @@ function ChartHeader(props?: any) {
               <MoreRouterButton></MoreRouterButton>
             </span>
             <div className="flex xs:hidden md:hidden items-center mt-0.5">
-              <span className="text-white font-bold">{ticker.close}</span>
+              <span className="text-white font-bold">
+                {numberWithCommasPadding(
+                  ticker.close,
+                  tickToPrecision(curSymbol.quote_tick)
+                )}
+              </span>
 
               <span
                 className={`${
@@ -672,7 +678,12 @@ function ChartHeader(props?: any) {
               })}
             </span>
 
-            <span className="text-white mt-0.5 font-bold">{ticker.high}</span>
+            <span className="text-white mt-0.5 font-bold">
+              {numberWithCommasPadding(
+                ticker.high,
+                tickToPrecision(curSymbol.quote_tick)
+              )}
+            </span>
           </div>
 
           <div className="flex items-start xs:hidden md:hidden flex-col">
@@ -683,7 +694,12 @@ function ChartHeader(props?: any) {
               })}
             </span>
 
-            <span className="text-white mt-0.5 font-bold">{ticker.low}</span>
+            <span className="text-white mt-0.5 font-bold">
+              {numberWithCommasPadding(
+                ticker.low,
+                tickToPrecision(curSymbol.quote_tick)
+              )}
+            </span>
           </div>
 
           <div className="flex items-start xs:hidden md:hidden  flex-col">

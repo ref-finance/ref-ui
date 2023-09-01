@@ -6,7 +6,7 @@ import { IoIosClose } from 'react-icons/io';
 
 import { IoClose } from 'react-icons/io5';
 
-import { FlexRow, FlexRowBetween } from '../Common';
+import { FlexRow, FlexRowBetween, QuestionMark } from '../Common';
 import { parseSymbol } from '../RecentTrade';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
@@ -86,6 +86,7 @@ import _ from 'lodash';
 import { tickToPrecision } from '../UserBoardPerp/math';
 import PositionsTable from './PositionsTable';
 import { usePerpData } from '../UserBoardPerp/state';
+import { QuestionTip } from '../../../../components/layout/TipWrapper';
 
 export function getTranslateList(
   key: 'type' | 'side' | 'status' | 'instrument'
@@ -742,7 +743,7 @@ function OrderLine({
   const intl = useIntl();
   const isMobile = useClientMobile();
 
-  function handleEditOrder(value?: string, type?: 'price' | 'quantity') {
+  async function handleEditOrder(value?: string, type?: 'price' | 'quantity') {
     if (!accountId) return;
 
     if (
@@ -1114,6 +1115,18 @@ function OrderLine({
         </td>
 
         <td
+          className={`col-span-1 font-nunito relative transform translate-x-2/3 whitespace-nowrap justify-self-end right-2 text-end text-primaryOrderly  ${
+            openEdit ? 'items-start ' : 'items-center'
+          }`}
+        >
+          {order.broker_id === 'ref_dex'
+            ? 'REF'
+            : order.broker_id === 'woofi_dex'
+            ? 'Woofi'
+            : ''}
+        </td>
+
+        <td
           className={`col-span-1 py-4 justify-self-center pr-4 ${
             openEdit ? ' items-start' : 'items-center'
           }`}
@@ -1296,8 +1309,25 @@ function OrderLine({
           </div>
         </div>
 
-        <div className="whitespace-nowrap font-nunito text-primaryText text-xs">
-          {formatTimeDate(order.created_time)}
+        <div className="whitespace-nowrap font-nunito text-primaryText text-xs frcb">
+          <span>{formatTimeDate(order.created_time)}</span>
+
+          <div className="frcs gap-2">
+            <span>
+              <FormattedMessage
+                id="from"
+                defaultMessage={'From'}
+              ></FormattedMessage>
+            </span>
+
+            <span>
+              {order.broker_id === 'ref_dex'
+                ? 'Ref'
+                : order.broker_id === 'woofi_dex'
+                ? 'Woofi'
+                : ''}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -1680,6 +1710,15 @@ function HistoryOrderLine({
           >
             {formatTimeDate(order.created_time)}
           </td>
+          <td
+            className={`col-span-1 font-nunito py-4 right-2 whitespace-nowrap text-primaryOrderly justify-self-end relative transform translate-x-1/2  text-left`}
+          >
+            {order.broker_id === 'ref_dex'
+              ? 'Ref'
+              : order.broker_id === 'woofi_dex'
+              ? 'Woofi'
+              : ''}
+          </td>
 
           <td className="pr-6" align="right">
             <div className="flex items-center justify-end text-white">
@@ -1955,8 +1994,26 @@ function HistoryOrderLine({
         </div>
 
         {/* ok  */}
-        <div className="whitespace-nowrap text-primaryText font-nunito text-xs">
-          {formatTimeDate(order.created_time)}
+
+        <div className="whitespace-nowrap font-nunito text-primaryText text-xs frcb">
+          <span>{formatTimeDate(order.created_time)}</span>
+
+          <div className="frcs gap-2">
+            <span>
+              <FormattedMessage
+                id="from"
+                defaultMessage={'From'}
+              ></FormattedMessage>
+            </span>
+
+            <span>
+              {order.broker_id === 'ref_dex'
+                ? 'REF'
+                : order.broker_id === 'woofi_dex'
+                ? 'Woofi'
+                : ''}
+            </span>
+          </div>
         </div>
 
         {order.status === 'CANCELLED' && <CancelStamp></CancelStamp>}
@@ -2140,6 +2197,8 @@ function MobileFilterModal(
     setStatus?: (value: any) => void;
     setInstrument?: (value: string) => void;
     setShowCurSymbol?: (value: boolean) => void;
+    showRefOnly: boolean;
+    setShowRefOnly: (c: boolean) => void;
   } & Modal.Props
 ) {
   const {
@@ -2156,6 +2215,8 @@ function MobileFilterModal(
     curSymbol,
     setInstrument,
     setShowCurSymbol,
+    showRefOnly,
+    setShowRefOnly,
   } = props;
 
   const [showSymbolSelector, setShowSymbolSelector] = useState<boolean>(false);
@@ -2204,6 +2265,54 @@ function MobileFilterModal(
               </div>
             );
           })}
+        </div>
+      </div>
+    );
+  }
+
+  function SelectListDex({ listKey }: { listKey: string }) {
+    return (
+      <div className="mb-5 flex items-start w-full justify-between">
+        <div className="text-gray2">{listKey}</div>
+
+        <div className={` flex-shrink-0 items-center ${'flex'}  grid-cols-2`}>
+          <div
+            className="flex items-center ml-4 mb-1"
+            onClick={() => {
+              setShowRefOnly(true);
+            }}
+          >
+            <CheckBox
+              check={showRefOnly}
+              setCheck={() => setShowRefOnly(true)}
+            ></CheckBox>
+
+            <span className="ml-2">
+              {intl.formatMessage({
+                id: 'ref_order',
+                defaultMessage: 'REF Dex only',
+              })}
+            </span>
+          </div>
+
+          <div
+            className="flex items-center ml-4 mb-1"
+            onClick={() => {
+              setShowRefOnly(false);
+            }}
+          >
+            <CheckBox
+              check={!showRefOnly}
+              setCheck={() => setShowRefOnly(false)}
+            ></CheckBox>
+
+            <span className="ml-2">
+              {intl.formatMessage({
+                id: 'all',
+                defaultMessage: 'All',
+              })}
+            </span>
+          </div>
         </div>
       </div>
     );
@@ -2315,6 +2424,13 @@ function MobileFilterModal(
               keyTranslate="status"
             />
           )}
+
+          <SelectListDex
+            listKey={intl.formatMessage({
+              id: 'dex',
+              defaultMessage: 'Dex',
+            })}
+          />
         </div>
       </Modal>
 
@@ -2719,6 +2835,8 @@ function OpenOrders({
   setMobileFilterSize,
   mobileFilterSize,
   tab,
+  showRefOnly,
+  setShowRefOnly,
 }: {
   orders: MyOrder[];
   symbol: string;
@@ -2736,6 +2854,8 @@ function OpenOrders({
   setMobileFilterOpen: (c: 'open' | 'history' | undefined) => void;
   setShowCurSymbol: (c: boolean) => void;
   loading: boolean;
+  showRefOnly: boolean;
+  setShowRefOnly: (c: boolean) => void;
 }) {
   const [showSideSelector, setShowSideSelector] = useState<boolean>(false);
 
@@ -2762,10 +2882,11 @@ function OpenOrders({
     const count =
       (chooseMarketSymbol !== 'all_markets' ? 1 : 0) +
       (chooseSide !== 'Both' ? 1 : 0) +
-      (chooseStatus !== 'All' ? 1 : 0);
+      (chooseStatus !== 'All' ? 1 : 0) +
+      (showRefOnly ? 1 : 0);
 
     setMobileFilterSize(count);
-  }, [chooseMarketSymbol, chooseSide, tab, chooseStatus]);
+  }, [chooseMarketSymbol, chooseSide, tab, chooseStatus, showRefOnly]);
 
   const [timeSorting, setTimeSorting] = useState<'asc' | 'dsc'>(
     loading ? undefined : 'dsc'
@@ -2883,9 +3004,7 @@ function OpenOrders({
               borderStyle="border-gradientFrom"
             />
 
-            <span className="xs:text-white xs:ml-2 xs:font-bold">
-              {symbolFrom}
-            </span>
+            <span className="xs:text-white  xs:font-bold">{symbolFrom}</span>
 
             <span className="text-primaryOrderly xs:text-white xs:font-bold">
               {symbolType === 'SPOT' ? '/' : ' '}
@@ -3041,6 +3160,26 @@ function OpenOrders({
                   className="ml-2 flex items-center justify-center rounded-full w-4 h-4 bg-mobileOrderListTab text-primaryText"
                   onClick={() => {
                     setChooseStatus('All');
+                  }}
+                >
+                  <IoIosClose></IoIosClose>
+                </span>
+              </div>
+            )}
+
+            {showRefOnly && (
+              <div className="flex items-center mr-2">
+                <span>
+                  {intl.formatMessage({
+                    id: 'ref_order',
+                    defaultMessage: 'REF Dex only',
+                  })}
+                </span>
+
+                <span
+                  className="ml-2 flex items-center justify-center rounded-full w-4 h-4 bg-mobileOrderListTab text-primaryText"
+                  onClick={() => {
+                    setShowRefOnly(false);
                   }}
                 >
                   <IoIosClose></IoIosClose>
@@ -3308,6 +3447,20 @@ function OpenOrders({
                 }
               </div>
             </th>
+
+            <th>
+              <div
+                className={`cursor-pointe text-left transform translate-x-2/3`}
+              >
+                <span>
+                  {intl.formatMessage({
+                    id: 'dex',
+                    defaultMessage: 'Dex',
+                  })}
+                </span>
+              </div>
+            </th>
+
             <th align="right">
               <span className="pr-6">
                 {' '}
@@ -3387,6 +3540,8 @@ function OpenOrders({
         statusList={['All', 'New', 'Partial Filled']}
         setStatus={setChooseStatus}
         curStatus={chooseStatus}
+        showRefOnly={showRefOnly}
+        setShowRefOnly={setShowRefOnly}
       ></MobileFilterModal>
     </>
   );
@@ -3407,6 +3562,8 @@ function HistoryOrders({
   setMobileFilterSize,
   mobileFilterSize,
   tab,
+  showRefOnly,
+  setShowRefOnly,
 }: {
   orders: MyOrder[];
   symbol: string;
@@ -3414,6 +3571,8 @@ function HistoryOrders({
   allTokens: {
     [key: string]: TokenMetadata;
   };
+  showRefOnly: boolean;
+  setShowRefOnly: (c: boolean) => void;
   mobileFilterOpen: 'open' | 'history' | undefined;
   availableSymbols: SymbolInfo[] | undefined;
   setHistoryCount: (c: number) => void;
@@ -3505,10 +3664,18 @@ function HistoryOrders({
       (chooseMarketSymbol !== 'all_markets' ? 1 : 0) +
       (chooseSide !== 'Both' ? 1 : 0) +
       (chooseStatus !== 'All' ? 1 : 0) +
-      (chooseType !== 'All' ? 1 : 0);
+      (chooseType !== 'All' ? 1 : 0) +
+      (showRefOnly ? 1 : 0);
 
     setMobileFilterSize(count);
-  }, [chooseMarketSymbol, chooseSide, chooseStatus, chooseType, tab]);
+  }, [
+    chooseMarketSymbol,
+    chooseSide,
+    chooseStatus,
+    chooseType,
+    tab,
+    showRefOnly,
+  ]);
 
   useEffect(() => {
     if (
@@ -3579,9 +3746,7 @@ function HistoryOrders({
               borderStyle="border-gradientFrom"
             />
 
-            <span className="xs:text-white xs:ml-2 xs:font-bold">
-              {symbolFrom}
-            </span>
+            <span className="xs:text-white  xs:font-bold">{symbolFrom}</span>
 
             <span className="text-primaryOrderly xs:text-white xs:font-bold">
               {symbolType === 'SPOT' ? '/' : ' '}
@@ -3776,6 +3941,26 @@ function HistoryOrders({
                   className="ml-2 flex items-center justify-center rounded-full w-4 h-4 bg-mobileOrderListTab text-primaryText"
                   onClick={() => {
                     setChooseStatus('All');
+                  }}
+                >
+                  <IoIosClose></IoIosClose>
+                </span>
+              </div>
+            )}
+
+            {showRefOnly && (
+              <div className="flex items-center mr-2">
+                <span>
+                  {intl.formatMessage({
+                    id: 'ref_order',
+                    defaultMessage: 'REF Dex only',
+                  })}
+                </span>
+
+                <span
+                  className="ml-2 flex items-center justify-center rounded-full w-4 h-4 bg-mobileOrderListTab text-primaryText"
+                  onClick={() => {
+                    setShowRefOnly(false);
                   }}
                 >
                   <IoIosClose></IoIosClose>
@@ -4070,6 +4255,18 @@ function HistoryOrders({
                 }
               </div>
             </th>
+            <th>
+              <div
+                className={`cursor-pointer text-left transform translate-x-1/2`}
+              >
+                <span>
+                  {intl.formatMessage({
+                    id: 'dex',
+                    defaultMessage: 'Dex',
+                  })}
+                </span>
+              </div>
+            </th>
 
             <th className="pr-6" align="right">
               <div className="flex relative items-center justify-end">
@@ -4201,6 +4398,8 @@ function HistoryOrders({
         setStatus={setChooseStatus}
         statusList={['All', 'Cancelled', 'Filled', 'Rejected']}
         setShowCurSymbol={setShowCurSymbol}
+        showRefOnly={showRefOnly}
+        setShowRefOnly={setShowRefOnly}
       ></MobileFilterModal>
     </>
   );
@@ -4219,7 +4418,6 @@ function AllOrderBoard({
 }) {
   const {
     symbol,
-    myPendingOrdersRefreshing,
     tokenInfo,
     availableSymbols: AllAvailableSymbols,
     allOrders,
@@ -4280,21 +4478,23 @@ function AllOrderBoard({
 
   const { newPositions } = usePerpData();
 
-  const [showCurSymbol, setShowCurSymbol] = useState<boolean>(
-    !!isMobile ? false : true
-  );
+  const [showCurSymbol, setShowCurSymbol] = useState<boolean>(false);
+
+  const [showRefOnly, setShowRefOnly] = useState<boolean>(false);
 
   const openOrders = allOrders?.filter((o) => {
     return (
       (o.status === 'NEW' || o.status === 'PARTIAL_FILLED') &&
-      (!showCurSymbol || o.symbol === symbol)
+      o.symbol === symbol &&
+      (!showRefOnly || o.broker_id === 'ref_dex')
     );
   });
 
   const historyOrders = allOrders?.filter((o) => {
     return (
       openOrders?.map((o) => o.order_id).indexOf(o.order_id) === -1 &&
-      (!showCurSymbol || o.symbol === symbol)
+      o.symbol === symbol &&
+      (!showRefOnly || o.broker_id === 'ref_dex')
     );
   });
 
@@ -4463,58 +4663,58 @@ function AllOrderBoard({
             </FlexRow>
           </FlexRow>
 
-          <FlexRow className={!accountId || isMobile ? 'hidden' : ''}>
-            <FlexRow>
+          <FlexRow
+            className={
+              !accountId || isMobile || tab === 'positions' ? 'hidden' : ''
+            }
+          >
+            <div className="frcs gap-2">
               <CheckBox
-                check={showCurSymbol}
+                check={showRefOnly}
                 setCheck={() => {
-                  setShowCurSymbol(true);
+                  setShowRefOnly(true);
                 }}
-              ></CheckBox>
+              />
 
               <span
-                className="ml-2 cursor-pointer"
+                className=" cursor-pointer"
                 onClick={() => {
-                  setShowCurSymbol(true);
+                  setShowRefOnly(true);
                 }}
               >
                 {intl.formatMessage({
-                  id: 'current_orderly',
-                  defaultMessage: 'Current',
+                  id: 'ref_order',
+                  defaultMessage: 'REF Dex only',
                 })}
-                :{' '}
-                <span className="text-white">
-                  {parseSymbol(symbol).symbolFrom}
-                </span>
-                {symbolType === 'SPOT' ? '/' : ' '}
-                <span>
-                  {symbolType === 'SPOT'
-                    ? parseSymbol(symbol).symbolTo
-                    : 'PERP'}
-                </span>
               </span>
-            </FlexRow>
+            </div>
 
-            <FlexRow className="ml-6">
+            <div className="ml-6 frcs">
               <CheckBox
-                check={!showCurSymbol}
+                check={!showRefOnly}
                 setCheck={() => {
-                  setShowCurSymbol(false);
+                  setShowRefOnly(false);
                 }}
               ></CheckBox>
 
               <span
-                className="ml-2 cursor-pointer"
+                className="ml-2 frcs cursor-pointer"
                 onClick={() => {
-                  setShowCurSymbol(false);
+                  setShowRefOnly(false);
                 }}
               >
                 {intl.formatMessage({
                   id: 'All',
                   defaultMessage: 'All',
                 })}
+
+                <QuestionTip
+                  id="display_all_orders_dexes"
+                  defaultMessage="Display orders placed through all channels on Orderly."
+                  uniquenessId="display_all_orders_dexes"
+                ></QuestionTip>
               </span>
-            </FlexRow>
+            </div>
           </FlexRow>
 
           <FlexRow className={'lg:hidden'}>
@@ -4550,6 +4750,8 @@ function AllOrderBoard({
           setMobileFilterSize={setMobileFilterSize}
           mobileFilterSize={mobileFilterSize}
           tab={tab}
+          showRefOnly={showRefOnly}
+          setShowRefOnly={setShowRefOnly}
         />
         <HistoryOrders
           tab={tab}
@@ -4566,6 +4768,8 @@ function AllOrderBoard({
           setShowCurSymbol={setShowCurSymbol}
           setMobileFilterSize={setMobileFilterSize}
           mobileFilterSize={mobileFilterSize}
+          showRefOnly={showRefOnly}
+          setShowRefOnly={setShowRefOnly}
         />
 
         <PositionsTable

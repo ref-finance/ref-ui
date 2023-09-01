@@ -29,6 +29,7 @@ import moment from 'moment';
 import Big from 'big.js';
 import { MoreRouterButton } from './components/MoreRouterButton';
 import { useHistory } from 'react-router-dom';
+import { tickToPrecision } from '../UserBoardPerp/math';
 
 export function tickerToDisplayDiff(ticker: Ticker | undefined) {
   const diff = ticker ? ((ticker.close - ticker.open) * 100) / ticker.open : 0;
@@ -348,6 +349,7 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
     openinterests,
     estFundingRate,
     markPrices,
+    availableSymbols,
   } = useOrderlyContext();
 
   const curOpenInterest = openinterests?.find((o) => o.symbol === symbol);
@@ -422,6 +424,8 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
   const intl = useIntl();
 
   const history = useHistory();
+
+  const curSymbol = availableSymbols?.find((s) => s.symbol === symbol);
 
   return (
     <div className="flex items-center  mb-3 mr-3 px-3 py-2 rounded-lg  text-white text-sm">
@@ -508,7 +512,7 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
         />
       )}
 
-      {ticker && !maintenance && (
+      {ticker && !maintenance && curSymbol && (
         <div
           className={`flex  items-center  mr-2 w-full 
             justify-between xs:justify-end md:justify-end  text-primaryOrderly`}
@@ -523,7 +527,12 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
               <MoreRouterButton></MoreRouterButton>
             </span>
             <div className="flex items-center mt-0.5">
-              <span className="text-white font-bold">{ticker.close}</span>
+              <span className="text-white font-bold">
+                {numberWithCommasPadding(
+                  ticker.close,
+                  tickToPrecision(curSymbol.quote_tick)
+                )}
+              </span>
 
               <span
                 className={`${
@@ -556,7 +565,11 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
             </span>
 
             <span className="text-white mt-0.5 font-bold">
-              {curMarkPrice && curMarkPrice.price}
+              {curMarkPrice &&
+                numberWithCommasPadding(
+                  curMarkPrice.price,
+                  tickToPrecision(curSymbol.quote_tick)
+                )}
             </span>
           </div>
 
@@ -568,7 +581,12 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
               })}
             </span>
 
-            <span className="text-white mt-0.5 font-bold">{ticker.high}</span>
+            <span className="text-white mt-0.5 font-bold">
+              {numberWithCommasPadding(
+                ticker.high,
+                tickToPrecision(curSymbol.quote_tick)
+              )}
+            </span>
           </div>
 
           <div className="flex items-start xs:hidden md:hidden flex-col">
@@ -579,7 +597,12 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
               })}
             </span>
 
-            <span className="text-white mt-0.5 font-bold">{ticker.low}</span>
+            <span className="text-white mt-0.5 font-bold">
+              {numberWithCommasPadding(
+                ticker.low,
+                tickToPrecision(curSymbol.quote_tick)
+              )}
+            </span>
           </div>
 
           <div className="flex items-start xs:hidden md:hidden  flex-col">

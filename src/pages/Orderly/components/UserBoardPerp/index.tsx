@@ -1331,7 +1331,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           defaultMessage={'Maintenance Margin Ratio'}
         />
 
-        <span className="font-nunito">{mmr}</span>
+        <span className="font-nunito text-white">{mmr}</span>
       </div>
 
       {/* free collateral */}
@@ -1342,7 +1342,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           defaultMessage={`Free Collateral`}
         />
 
-        <span className="font-nunito">
+        <span className="font-nunito text-white">
           {freeCollateral === '-' ? '-' : numberWithCommas(freeCollateral)}
         </span>
       </div>
@@ -1354,7 +1354,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           defaultMessage={`Total Collateral`}
         ></FormattedMessage>
 
-        <span className="font-nunito">
+        <span className="font-nunito text-white">
           {!newPositions || totalCollateral === '-'
             ? '-'
             : numberWithCommas(totalCollateral)}
@@ -1365,7 +1365,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       <div className="frcb">
         <TotaluPNLText></TotaluPNLText>
 
-        <span className="font-nunito">{totaluPnl}</span>
+        <span className="font-nunito text-white">{totaluPnl}</span>
       </div>
 
       {/* unsettle */}

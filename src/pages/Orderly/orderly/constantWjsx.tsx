@@ -1185,14 +1185,14 @@ export const usePortableOrderlyTable = ({
             style={{ backgroundColor: '#7E8A931A' }}
           >
             <div className="w-full inline-block text-white">
-              <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
+              <div className="flex items-center p-0.5 pl-0 pr-4 text-white text-sm my-0.5">
                 <img
                   src={allTokens[token]?.icon}
                   alt=""
                   className="rounded-full flex-shrink-0 w-5 h-5 mr-0.5 md:mr-2.5 lg:mr-2.5"
                 />
 
-                <span className="xs:text-white xs:ml-2 xs:font-bold">
+                <span className="xs:text-white  xs:font-bold">
                   {allTokens[token]?.symbol}
                 </span>
               </div>
@@ -1243,14 +1243,14 @@ export const usePortableOrderlyTable = ({
             key: 'token',
             header: 'Token',
             render: ({ token }) => (
-              <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
+              <div className="flex items-center p-0.5 pl-0 pr-4 text-white text-sm my-0.5">
                 <img
                   src={allTokens[token]?.icon}
                   alt=""
                   className="rounded-full flex-shrink-0 w-5 h-5 mr-0.5 md:mr-2.5 lg:mr-2.5"
                 />
 
-                <span className="xs:text-white xs:ml-2 xs:font-bold">
+                <span className="xs:text-white  xs:font-bold">
                   {allTokens[token]?.symbol}
                 </span>
               </div>
@@ -1308,14 +1308,14 @@ export const usePortableOrderlyTable = ({
             style={{ backgroundColor: '#7E8A931A' }}
           >
             <div className="w-full inline-block text-white">
-              <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
+              <div className="flex items-center p-0.5 pl-0 pr-4 text-white text-sm my-0.5">
                 <img
                   src={allTokens[token]?.icon}
                   alt=""
                   className="rounded-full flex-shrink-0 w-5 h-5 mr-0.5 md:mr-2.5 lg:mr-2.5"
                 />
 
-                <span className="xs:text-white xs:ml-2 xs:font-bold">
+                <span className="xs:text-white  xs:font-bold">
                   {allTokens[token]?.symbol}
                 </span>
               </div>
@@ -1366,14 +1366,14 @@ export const usePortableOrderlyTable = ({
             key: 'token',
             header: 'Token',
             render: ({ token }) => (
-              <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
+              <div className="flex items-center p-0.5 pl-0 pr-4 text-white text-sm my-0.5">
                 <img
                   src={allTokens[token]?.icon}
                   alt=""
                   className="rounded-full flex-shrink-0 w-5 h-5 mr-0.5 md:mr-2.5 lg:mr-2.5"
                 />
 
-                <span className="xs:text-white xs:ml-2 xs:font-bold">
+                <span className="xs:text-white  xs:font-bold">
                   {allTokens[token]?.symbol}
                 </span>
               </div>
@@ -2020,14 +2020,14 @@ export const useMarketlist = () => {
           const fromToken = allTokens[symbolFrom];
 
           const symbolRender = (
-            <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
+            <div className="flex items-center p-0.5 pl-0 pr-4 text-white text-sm my-0.5">
               <img
                 src={fromToken?.icon}
                 alt=""
                 className="rounded-full flex-shrink-0 w-5 h-5 mr-0.5 md:mr-2.5 lg:mr-2.5"
               />
 
-              <span className="xs:text-white xs:ml-2 xs:font-bold">
+              <span className="xs:text-white  xs:font-bold">
                 {symbolFrom} / {symbolTo}
               </span>
             </div>
@@ -2060,22 +2060,22 @@ export const useMarketlist = () => {
           const toToken = allTokens[symbolFrom === 'BTC' ? 'WBTC' : symbolFrom];
 
           const symbolRender = (
-            <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
+            <div className="flex items-center p-0.5 pl-0 pr-4 text-white text-sm my-0.5">
               <img
                 src={toToken?.icon}
                 alt=""
                 className="rounded-full flex-shrink-0 w-5 h-5 mr-0.5 md:mr-2.5 lg:mr-2.5"
               />
 
-              <span className="xs:text-white xs:ml-2 xs:font-bold">
+              <span className="xs:text-white  xs:font-bold">
                 {symbolFrom} PERP
               </span>
             </div>
           );
 
           const textRender = (
-            <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
-              <span className="xs:text-white xs:ml-2 xs:font-bold">
+            <div className="flex items-center p-0.5 pl-0 pr-4 text-white text-sm my-0.5">
+              <span className="xs:text-white  xs:font-bold">
                 {symbolFrom} PERP
               </span>
             </div>
