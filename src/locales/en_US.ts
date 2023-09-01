@@ -1036,7 +1036,7 @@ const en_US = {
   Fees: 'Fees',
   Cancelled: 'Cancelled',
   Rejected: 'Rejected',
-  all_instrument: 'Instrument',
+  all_instrument: 'All Instrument',
   available_orderly: 'Available',
   history_orderly: 'History',
   settle_pnl: 'Settle PnL',

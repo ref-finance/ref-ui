@@ -3216,15 +3216,19 @@ function OpenOrders({
                   <span className="flex items-center">
                     {chooseMarketSymbol === 'all_markets' ? (
                       intl.formatMessage({
-                        id: 'all_instrument',
-                        defaultMessage: 'All Instrument',
+                        id: 'instrument',
+                        defaultMessage: 'Instrument',
                       })
                     ) : (
                       <>
                         <span className="text-white">
                           {parseSymbol(chooseMarketSymbol).symbolFrom}
                         </span>
-                        /{parseSymbol(chooseMarketSymbol).symbolTo}
+                        <span className={symbolType === 'PERP' ? 'ml-1' : ''}>
+                          {symbolType === 'PERP'
+                            ? ` PERP`
+                            : `/${parseSymbol(chooseMarketSymbol).symbolTo}`}
+                        </span>
                       </>
                     )}
                   </span>
@@ -3997,15 +4001,19 @@ function HistoryOrders({
                     <span className="flex items-center">
                       {chooseMarketSymbol === 'all_markets' ? (
                         intl.formatMessage({
-                          id: 'all_instrument',
-                          defaultMessage: 'All Instrument',
+                          id: 'instrument',
+                          defaultMessage: 'Instrument',
                         })
                       ) : (
                         <>
                           <span className="text-white">
                             {parseSymbol(chooseMarketSymbol).symbolFrom}
                           </span>
-                          /{parseSymbol(chooseMarketSymbol).symbolTo}
+                          <span className={symbolType === 'PERP' ? 'ml-1' : ''}>
+                            {symbolType === 'PERP'
+                              ? ` PERP`
+                              : `/${parseSymbol(chooseMarketSymbol).symbolTo}`}
+                          </span>
                         </>
                       )}
                     </span>
@@ -4485,7 +4493,7 @@ function AllOrderBoard({
   const openOrders = allOrders?.filter((o) => {
     return (
       (o.status === 'NEW' || o.status === 'PARTIAL_FILLED') &&
-      o.symbol === symbol &&
+      // o.symbol === symbol &&
       (!showRefOnly || o.broker_id === 'ref_dex')
     );
   });
@@ -4493,7 +4501,7 @@ function AllOrderBoard({
   const historyOrders = allOrders?.filter((o) => {
     return (
       openOrders?.map((o) => o.order_id).indexOf(o.order_id) === -1 &&
-      o.symbol === symbol &&
+      // o.symbol === symbol &&
       (!showRefOnly || o.broker_id === 'ref_dex')
     );
   });

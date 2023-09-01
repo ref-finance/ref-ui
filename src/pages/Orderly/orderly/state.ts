@@ -165,6 +165,7 @@ export function useAllOrders({
   useEffect(() => {
     setFunc();
   }, [refreshingTag]);
+  console.log('type: ', type);
 
   return liveOrders?.filter((o) => o.symbol.indexOf(type || 'SPOT') > -1);
 }

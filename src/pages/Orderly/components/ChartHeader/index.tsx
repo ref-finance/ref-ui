@@ -854,7 +854,10 @@ export function ChartHeaderDetail(props?: any) {
     openinterests,
     estFundingRate,
     symbolType,
+    availableSymbols,
   } = useOrderlyContext();
+
+  const curSymbol = availableSymbols?.find((s) => s.symbol === symbol);
 
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
 
@@ -945,7 +948,7 @@ export function ChartHeaderDetail(props?: any) {
     >
       {/* icon */}
 
-      {ticker && !maintenance && (
+      {ticker && !maintenance && curSymbol && (
         <div
           className={`flex justify-between w-full text-xs text-primaryText text-10px`}
         >
@@ -965,7 +968,10 @@ export function ChartHeaderDetail(props?: any) {
                   : 'text-white'
               } font-gothamBold text-base`}
             >
-              {digitWrapper(ticker.close.toString(), 3)}
+              {numberWithCommasPadding(
+                ticker.close,
+                tickToPrecision(curSymbol.quote_tick)
+              )}
             </span>
 
             <span
@@ -996,7 +1002,10 @@ export function ChartHeaderDetail(props?: any) {
 
                 <span className="text-white">
                   {curMarkPrice &&
-                    digitWrapper(curMarkPrice.price.toString(), 3)}
+                    numberWithCommasPadding(
+                      curMarkPrice.price,
+                      tickToPrecision(curSymbol.quote_tick)
+                    )}
                 </span>
               </div>
             )}
@@ -1025,8 +1034,15 @@ export function ChartHeaderDetail(props?: any) {
               </span>
 
               <span className="text-white mt-0.5 font-bold">
-                {digitWrapper(ticker.low.toString(), 3)}-{' '}
-                {digitWrapper(ticker.high.toString(), 3)}
+                {numberWithCommasPadding(
+                  ticker.low,
+                  tickToPrecision(curSymbol.quote_tick)
+                )}
+                -{' '}
+                {numberWithCommasPadding(
+                  ticker.high,
+                  tickToPrecision(curSymbol.quote_tick)
+                )}
               </span>
             </div>
 

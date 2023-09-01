@@ -1752,6 +1752,7 @@ export const usePortableOrderlyTablePositions = ({
   const intl = useIntl();
   const { accountId } = useWalletSelector();
   const { marketList, allTokens } = useMarketlist();
+  console.log('marketList: ', marketList);
   const { curLeverage } = useLeverage();
 
   const assetsTables: PortfolioTable = {
@@ -1951,8 +1952,8 @@ export const usePortableOrderlyTablePositions = ({
 };
 
 export const useMarketlist = () => {
-  const { tokenInfo } = useOrderlyContext();
-  const availableSymbols = useAllSymbolInfo();
+  const { tokenInfo, availableSymbols } = useOrderlyContext();
+
   const intl = useIntl();
 
   const allTokenSymbols = [
@@ -2109,8 +2110,7 @@ export const useMarketlist = () => {
 };
 
 export const useMarketlistPerp = () => {
-  const { tokenInfo } = useOrderlyContext();
-  const availableSymbols = useAllSymbolInfo();
+  const { tokenInfo, availableSymbols } = useOrderlyContext();
   const intl = useIntl();
 
   const allTokenSymbols = [
@@ -2150,6 +2150,8 @@ export const useMarketlistPerp = () => {
         textId: 'all_markets',
       },
     ];
+
+    console.log('availableSymbols: ', availableSymbols);
 
     availableSymbols
       .filter((s) => s.symbol.toLowerCase().includes('perp'))
