@@ -37,6 +37,7 @@ import { getCurrentWallet } from '../../../utils/wallets-integration';
 import { useWalletSelector } from '../../../context/WalletSelectorContext';
 import { NearTip } from '../../../pages/AccountPage';
 import getConfig from '../../../services/config';
+import { Images } from '../../../components/stableswap/CommonComp';
 import {
   Checkbox,
   CheckboxSelected,
@@ -1790,7 +1791,7 @@ export const usePortableOrderlyTablePositions = ({
           {
             key: 'instrument',
             header: 'Instrument',
-
+            extras: ['filter_instrument'],
             colSpan: 3,
             render: ({ symbol }) => (
               <div className="flex items-center ">
@@ -2099,6 +2100,98 @@ export const useMarketlist = () => {
     return marketList;
   };
 
+  const marketList = generateMarketList();
+
+  return {
+    marketList,
+    allTokens,
+  };
+};
+
+export const useMarketlistPerp = () => {
+  const { tokenInfo } = useOrderlyContext();
+  const availableSymbols = useAllSymbolInfo();
+  const intl = useIntl();
+
+  const allTokenSymbols = [
+    ...new Set(
+      !availableSymbols
+        ? []
+        : availableSymbols.flatMap((s) => {
+            const { symbolFrom, symbolTo } = parseSymbol(s.symbol);
+
+            return [symbolFrom, symbolTo];
+          })
+    ),
+  ];
+
+  const allTokens = useBatchTokenMetaFromSymbols(
+    allTokenSymbols.length >= 0 ? allTokenSymbols : null,
+    tokenInfo
+  );
+
+  const generateMarketList = () => {
+    if (!availableSymbols || !allTokens) return [];
+    const marketList = [
+      {
+        text: (
+          <div className="flex items-center p-0.5 pr-4 my-0.5">
+            <div className="mr-2 ml-1 text-white text-sm ">
+              <AllMarketIcon />
+            </div>
+            <span className="text-white">
+              {intl.formatMessage({
+                id: 'all_instrument',
+                defaultMessage: 'All Instrument',
+              })}
+            </span>
+          </div>
+        ),
+        textId: 'all_markets',
+      },
+    ];
+
+    availableSymbols
+      .filter((s) => s.symbol.toLowerCase().includes('perp'))
+      .sort((a, b) => (a.symbol > b.symbol ? 1 : -1))
+      .forEach((symbol) => {
+        const { symbolFrom, symbolTo } = parseSymbol(symbol.symbol);
+
+        const fromToken = allTokens[symbolFrom === 'BTC' ? 'WBTC' : symbolFrom];
+
+        const tokenList = [fromToken];
+
+        const render = (
+          <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
+            <img
+              src={fromToken?.icon}
+              alt=""
+              className="rounded-full xs:hidden md:hidden flex-shrink-0 w-5 h-5 mr-2.5"
+            />
+
+            <Images
+              tokens={tokenList}
+              size="5"
+              className="lg:hidden"
+              borderStyle="border-gradientFrom"
+            />
+
+            <span className="xs:text-white  xs:font-bold">{symbolFrom}</span>
+
+            <span className="text-primaryOrderly xs:text-white xs:font-bold">
+              <span className={'ml-1'}>{` PERP`}</span>
+            </span>
+          </div>
+        );
+
+        marketList.push({
+          text: render,
+          textId: symbol.symbol,
+        });
+      });
+
+    return marketList;
+  };
   const marketList = generateMarketList();
 
   return {

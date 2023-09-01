@@ -324,6 +324,8 @@ function Table({
     loading ? undefined : 'dsc',
   ]);
 
+  const [marketFilter, setMarketFilter] = useState<string>('all_markets');
+
   useEffect(() => {
     defaultSort &&
       setSort([defaultSort ? defaultSort : '', loading ? undefined : 'dsc']);
@@ -390,7 +392,13 @@ function Table({
       b = order.position_qty > 0 || order.position_qty < 0;
     }
 
-    return a && b;
+    let c = true;
+
+    if (marketFilter !== 'all_markets') {
+      c = order.symbol === marketFilter;
+    }
+
+    return a && b && c;
   };
 
   const pagingFunc = (order: MyOrder, index: number) => {
@@ -444,6 +452,8 @@ function Table({
                     loading={loading}
                     sort={sort}
                     setSort={setSort}
+                    marketFilter={marketFilter}
+                    setMarketFilter={setMarketFilter}
                   />
                 ) : (
                   <React.Fragment key={`${tableKey}-form-header`}>

@@ -3,17 +3,22 @@ import { MdArrowDropDown } from 'react-icons/md';
 import { useIntl } from 'react-intl';
 import { CheckSelector } from '../Common/Icons';
 import { PortfolioTableColumns } from '../../orderly/type';
+import { useMarketlist, useMarketlistPerp } from '../../orderly/constantWjsx';
 
 export default function TableHeader({
   column,
   loading,
   sort,
   setSort,
+  setMarketFilter,
+  marketFilter,
 }: {
   loading: boolean;
   column: PortfolioTableColumns;
   sort: [string | string[], 'asc' | 'dsc'];
   setSort: (s: [string | string[], 'asc' | 'dsc']) => void;
+  setMarketFilter: (s: string) => void;
+  marketFilter: string;
 }) {
   const {
     colSpan = 1,
@@ -30,16 +35,23 @@ export default function TableHeader({
     select,
   } = column;
 
+  console.log('marketFilter: ', marketFilter);
+
   const [showSelector, setShowSelector] = useState<boolean>(false);
 
+  const [showSelectInstrument, setShowSelectInstrument] =
+    useState<boolean>(false);
   const intl = useIntl();
 
   useEffect(() => {
-    if (showSelector)
+    if (showSelector || showSelectInstrument)
       document.addEventListener('click', () => {
         setShowSelector(false);
+        setShowSelectInstrument(false);
       });
-  }, [showSelector]);
+  }, [showSelector, showSelectInstrument]);
+
+  const { marketList } = useMarketlistPerp();
 
   return (
     <>
@@ -63,6 +75,12 @@ export default function TableHeader({
               e.preventDefault();
               e.stopPropagation();
               setShowSelector(true);
+            }
+
+            if (extras?.includes('filter_instrument')) {
+              e.preventDefault();
+              e.stopPropagation();
+              setShowSelectInstrument(!showSelectInstrument);
             }
           }}
         >
@@ -115,7 +133,8 @@ export default function TableHeader({
           </span>
           {(extras?.includes('sort') ||
             extras?.includes('select') ||
-            extras?.includes('radio')) && (
+            extras?.includes('radio') ||
+            extras?.includes('filter_instrument')) && (
             <MdArrowDropDown
               className={`
                 ${
@@ -130,7 +149,8 @@ export default function TableHeader({
               size={22}
               color={
                 JSON.stringify(sort[0]) === JSON.stringify(sortKey) ||
-                showSelector
+                showSelector ||
+                showSelectInstrument
                   ? 'white'
                   : '#7E8A93'
               }
@@ -187,6 +207,36 @@ export default function TableHeader({
                       {extras?.includes('select') && select === item.textId && (
                         <CheckSelector />
                       )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {showSelectInstrument && (
+            <div className="absolute top-full z-50">
+              <div
+                className={`flex flex-col min-w-28 items-start py-2 px-1.5 rounded-lg border border-borderC text-sm  bg-darkBg `}
+              >
+                {marketList.map((item, index) => {
+                  return (
+                    <div
+                      className={`whitespace-nowrap hover:bg-symbolHover2 frcs cursor-pointer min-w-fit my-0.5 text-left px-1 py-1 w-full rounded-md  ${
+                        marketFilter === item.textId ? 'bg-symbolHover2' : ''
+                      }`}
+                      key={item.textId + index}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setMarketFilter(item.textId);
+
+                        setShowSelectInstrument(false);
+                      }}
+                    >
+                      <span className="whitespace-nowrap pr-2">
+                        {item.text}
+                      </span>
                     </div>
                   );
                 })}
