@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import { SlArrowUp } from 'react-icons/sl';
 
@@ -2952,8 +2958,6 @@ function OpenOrders({
   }, [showCurSymbol, symbol]);
   const intl = useIntl();
 
-  if (hidden) return null;
-
   const generateMarketList = () => {
     if (!availableSymbols || !allTokens) return [];
     const marketList = [
@@ -3023,7 +3027,10 @@ function OpenOrders({
 
     return marketList;
   };
-  const marketList = generateMarketList();
+  const marketList = useMemo(
+    () => generateMarketList(),
+    [JSON.stringify(availableSymbols), JSON.stringify(allTokens)]
+  );
 
   const symbolType = PerpOrSpot(symbol);
 
@@ -3093,6 +3100,7 @@ function OpenOrders({
             className: 'text-white',
           },
         ];
+  if (hidden) return null;
 
   return (
     <>
@@ -3770,7 +3778,10 @@ function HistoryOrders({
     return marketList;
   };
 
-  const marketList = generateMarketList();
+  const marketList = useMemo(
+    () => generateMarketList(),
+    [JSON.stringify(availableSymbols), JSON.stringify(allTokens)]
+  );
 
   const data = orders
     .sort(sortingFunc)
