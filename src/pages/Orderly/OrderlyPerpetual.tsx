@@ -131,19 +131,7 @@ function MobileTradingBoard() {
 
   const [showCurSymbol, setShowCurSymbol] = useState<boolean>(false);
 
-  const openOrders = allOrders?.filter((o) => {
-    return (
-      (o.status === 'NEW' || o.status === 'PARTIAL_FILLED') &&
-      (!showCurSymbol || o.symbol === symbol)
-    );
-  });
-
-  const historyOrders = allOrders?.filter((o) => {
-    return (
-      openOrders?.map((o) => o.order_id).indexOf(o.order_id) === -1 &&
-      (!showCurSymbol || o.symbol === symbol)
-    );
-  });
+  const [displayOrderCount, setDisplayOrderCount] = useState<number>();
 
   const storedUnRead = localStorage.getItem(REF_FI_ORDERLY_LIQUIDATION_UNREAD);
 
@@ -251,13 +239,7 @@ function MobileTradingBoard() {
                 id="orders"
                 defaultMessage={'Orders'}
               ></FormattedMessage>
-              {subOrderTab === 'open' &&
-                !!openOrders &&
-                `(${openOrders.length})`}
-
-              {subOrderTab === 'history' &&
-                !!historyOrders &&
-                `(${historyOrders.length})`}
+              {displayOrderCount !== undefined && `(${displayOrderCount})`}
 
               {displayTab === 'orders' && (
                 <div
@@ -317,16 +299,21 @@ function MobileTradingBoard() {
             </div>
           </div>
 
-          {displayTab === 'orders' && (
-            <div className="w-full flex flex-col ">
-              <AllOrderBoard
-                subOrderTab={subOrderTab}
-                setSubOrderTab={setSubOrderTab}
-                maintenance={maintenance}
-                defaultOpen={true}
-              />
-            </div>
-          )}
+          <div
+            className="w-full flex flex-col  "
+            style={{
+              display: displayTab !== 'orders' ? 'none' : '',
+            }}
+          >
+            <AllOrderBoard
+              subOrderTab={subOrderTab}
+              setSubOrderTab={setSubOrderTab}
+              maintenance={maintenance}
+              defaultOpen={true}
+              setDisplayOrderCount={setDisplayOrderCount}
+              displayOrderCount={displayOrderCount}
+            />
+          </div>
 
           {displayTab === 'positions' && (
             <div className="text-primaryText">

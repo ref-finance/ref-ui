@@ -93,21 +93,18 @@ function MobileTradingBoard() {
     useOrderlyContext();
 
   const [subOrderTab, setSubOrderTab] = useState<'open' | 'history'>('open');
-  console.log('subOrderTab: ', subOrderTab);
+
+  const [displayOrderCount, setDisplayOrderCount] = useState<number>();
 
   const [route, setRoute] = useState<'user_board' | 'chart'>('user_board');
 
   const [displayTab, setDisplayTab] = useState<'orders' | 'assets'>('orders');
 
-  const openOrders = allOrders?.filter((o) => {
-    return o.status === 'NEW' || o.status === 'PARTIAL_FILLED';
-  });
-
-  const historyOrders = allOrders?.filter((o) => {
-    return openOrders?.map((o) => o.order_id).indexOf(o.order_id) === -1;
-  });
-
-  console.log('historyOrders: ', historyOrders);
+  useEffect(() => {
+    if (displayTab !== 'assets') {
+      setSubOrderTab('open');
+    }
+  }, [displayTab]);
 
   React.useEffect(() => {
     if (maintenance) {
@@ -154,13 +151,7 @@ function MobileTradingBoard() {
                 defaultMessage={'Orders'}
               ></FormattedMessage>
 
-              {subOrderTab === 'open' &&
-                !!openOrders &&
-                `(${openOrders.length})`}
-
-              {subOrderTab === 'history' &&
-                !!historyOrders &&
-                `(${historyOrders.length})`}
+              {displayOrderCount !== undefined && `(${displayOrderCount})`}
 
               {displayTab === 'orders' && (
                 <div
@@ -203,6 +194,8 @@ function MobileTradingBoard() {
                 subOrderTab={subOrderTab}
                 setSubOrderTab={setSubOrderTab}
                 maintenance={maintenance}
+                setDisplayOrderCount={setDisplayOrderCount}
+                displayOrderCount={displayOrderCount}
               />
             </div>
           )}

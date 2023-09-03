@@ -78,7 +78,7 @@ export function Selector({
   className,
   width,
   style,
-  top = 6
+  top = 6,
 }: {
   list: { text: JSX.Element | string; textId: string; className?: string }[];
   selected: string;
@@ -94,6 +94,10 @@ export function Selector({
         className={`${className}  flex flex-col ${
           width || 'min-w-28'
         }  items-start py-2 px-1.5 rounded-lg border border-borderC text-sm  bg-darkBg `}
+        style={{
+          maxHeight: '275px',
+          overflowY: 'auto',
+        }}
       >
         {list.map((item, index) => {
           return (

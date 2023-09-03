@@ -2941,7 +2941,7 @@ function OpenOrders({
     if (!orders) return;
 
     setOpenCount(orders.filter(filterFunc).length);
-  }, [chooseSide, chooseMarketSymbol, !!orders, chooseType]);
+  }, [chooseSide, chooseMarketSymbol, !!orders, chooseType, showRefOnly]);
 
   useEffect(() => {
     if (showCurSymbol) {
@@ -2965,8 +2965,8 @@ function OpenOrders({
             </div>
             <span className="text-white">
               {intl.formatMessage({
-                id: 'all_instrument',
-                defaultMessage: 'All Instrument',
+                id: 'all',
+                defaultMessage: 'All',
               })}
             </span>
           </div>
@@ -3713,8 +3713,8 @@ function HistoryOrders({
             </div>
             <span className="text-white">
               {intl.formatMessage({
-                id: 'all_instrument',
-                defaultMessage: 'All Instrument',
+                id: 'all',
+                defaultMessage: 'All',
               })}
             </span>
           </div>
@@ -4418,11 +4418,15 @@ function AllOrderBoard({
   defaultOpen,
   subOrderTab,
   setSubOrderTab,
+  setDisplayOrderCount,
+  displayOrderCount,
 }: {
   maintenance?: boolean;
   defaultOpen?: boolean;
   subOrderTab?: 'open' | 'history';
   setSubOrderTab?: (c: 'open' | 'history') => void;
+  displayOrderCount?: number;
+  setDisplayOrderCount?: (c: number) => void;
 }) {
   const {
     symbol,
@@ -4509,8 +4513,20 @@ function AllOrderBoard({
   const [openCount, setOpenCount] = useState<number>();
 
   const [historyCount, setHistoryCount] = useState<number>();
+
+  useEffect(() => {
+    if (subOrderTab && subOrderTab === 'open') {
+      setDisplayOrderCount && setDisplayOrderCount(openCount);
+    }
+  }, [openCount, subOrderTab]);
+
+  useEffect(() => {
+    if (subOrderTab && subOrderTab === 'history') {
+      setDisplayOrderCount && setDisplayOrderCount(historyCount);
+    }
+  }, [historyCount, subOrderTab]);
+
   const intl = useIntl();
-  const history = useHistory();
 
   const [mobileFilterSize, setMobileFilterSize] = useState<number>(0);
 
