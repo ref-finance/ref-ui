@@ -1381,7 +1381,7 @@ function OrderLine({
           }}
         ></EditOrderModalMobile>
       )}
-      {showMobileOrderDetail && isMobile && (
+      {showMobileOrderDetail && (
         <MobileOpenOrderDetail
           isOpen={showMobileOrderDetail}
           onRequestClose={() => {
@@ -2463,6 +2463,42 @@ function MobileFilterModal(
     </>
   );
 }
+function InfoLineOpenOrder({
+  value,
+  title,
+  editType,
+  setMobileEditType,
+}: {
+  value: JSX.Element | string;
+  title: string;
+  editType?: 'price' | 'quantity';
+  setMobileEditType: (value: 'price' | 'quantity') => void;
+}) {
+  return (
+    <div className="flex items-center justify-between mt-4 text-base">
+      <div className="text-primaryText">{title}</div>
+
+      <div
+        className={`text-white flex items-center ${
+          title === 'Instrument' ? 'relative left-2' : ''
+        } `}
+      >
+        {value}
+
+        <span
+          className="pl-2"
+          onClick={() => {
+            if (editType) {
+              setMobileEditType(editType);
+            }
+          }}
+        >
+          {editType && <MobileEdit></MobileEdit>}
+        </span>
+      </div>
+    </div>
+  );
+}
 
 function MobileOpenOrderDetail(
   props: Modal.Props & {
@@ -2478,41 +2514,6 @@ function MobileOpenOrderDetail(
     order: MyOrder;
   }
 ) {
-  function InfoLine({
-    value,
-    title,
-    editType,
-  }: {
-    value: JSX.Element | string;
-    title: string;
-    editType?: 'price' | 'quantity';
-  }) {
-    return (
-      <div className="flex items-center justify-between mt-4 text-base">
-        <div className="text-primaryText">{title}</div>
-
-        <div
-          className={`text-white flex items-center ${
-            title === 'Instrument' ? 'relative left-2' : ''
-          } `}
-        >
-          {value}
-
-          <span
-            className="pl-2"
-            onClick={() => {
-              if (editType) {
-                setMobileEditType(editType);
-              }
-            }}
-          >
-            {editType && <MobileEdit></MobileEdit>}
-          </span>
-        </div>
-      </div>
-    );
-  }
-
   const {
     editValidator,
     order,
@@ -2555,13 +2556,14 @@ function MobileOpenOrderDetail(
 
           {titleList.map((title, index) => {
             return (
-              <InfoLine
+              <InfoLineOpenOrder
                 key={'mobile-detail-list-' + title}
                 title={title}
                 value={valueList[index]}
                 editType={
                   index === 3 ? 'quantity' : index === 4 ? 'price' : undefined
                 }
+                setMobileEditType={setMobileEditType}
               />
             );
           })}
@@ -3100,6 +3102,34 @@ function OpenOrders({
             className: 'text-white',
           },
         ];
+
+  const orderData = orders
+    .sort(sortingFunc)
+    .filter(filterFunc)
+    .map((order) => {
+      return (
+        <OrderLine
+          marketInfo={marketList.find((m) => m.textId === order.symbol)?.text}
+          setOtherLineOpenTrigger={setOtherLineOpenTrigger}
+          otherLineOpenTrigger={otherLineOpenTrigger}
+          holdingFrom={curHoldings?.find((h) => {
+            const token = parseSymbol(order.symbol).symbolFrom;
+
+            return h.token === token;
+          })}
+          holdingTo={curHoldings?.find((h) => {
+            const token = parseSymbol(order.symbol).symbolTo;
+
+            return h.token === token;
+          })}
+          showCurSymbol={showCurSymbol}
+          order={order}
+          key={order.order_id}
+          availableSymbols={availableSymbols}
+        />
+      );
+    });
+
   if (hidden) return null;
 
   return (
@@ -3499,34 +3529,7 @@ function OpenOrders({
               })}
             </div>
           ) : (
-            orders
-              .sort(sortingFunc)
-              .filter(filterFunc)
-              .map((order) => {
-                return (
-                  <OrderLine
-                    marketInfo={
-                      marketList.find((m) => m.textId === order.symbol)?.text
-                    }
-                    setOtherLineOpenTrigger={setOtherLineOpenTrigger}
-                    otherLineOpenTrigger={otherLineOpenTrigger}
-                    holdingFrom={curHoldings?.find((h) => {
-                      const token = parseSymbol(order.symbol).symbolFrom;
-
-                      return h.token === token;
-                    })}
-                    holdingTo={curHoldings?.find((h) => {
-                      const token = parseSymbol(order.symbol).symbolTo;
-
-                      return h.token === token;
-                    })}
-                    showCurSymbol={showCurSymbol}
-                    order={order}
-                    key={order.order_id}
-                    availableSymbols={availableSymbols}
-                  />
-                );
-              })
+            orderData
           )}
         </tbody>
       </table>
