@@ -351,7 +351,7 @@ export const usePortableOrderlyTable = ({
                 <div
                   className={`p-0.5 text-xs my-1 flex justify-end items-center`}
                 >
-                  from {broker_name.split(' DEX')[0]}
+                  from {broker_name}
                 </div>
               </div>
             </div>
@@ -647,7 +647,7 @@ export const usePortableOrderlyTable = ({
                 <div
                   className={`p-0.5 text-xs my-1 flex justify-end items-center`}
                 >
-                  from {broker_name.split(' DEX')[0]}
+                  from {broker_name}
                 </div>
               </div>
             </div>
@@ -805,7 +805,9 @@ export const usePortableOrderlyTable = ({
             key: 'dex',
             colSpan: 2,
             header: 'Dex',
-            render: ({ broker_name }) => renderLogo(broker_name),
+            render: ({ broker_name }) => (
+              <span className="relative ">{broker_name}</span>
+            ),
           },
         ],
       },
