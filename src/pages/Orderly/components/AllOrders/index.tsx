@@ -1126,11 +1126,7 @@ function OrderLine({
             openEdit ? 'items-start ' : 'items-center'
           }`}
         >
-          {order.broker_id === 'ref_dex'
-            ? 'REF'
-            : order.broker_id === 'woofi_dex'
-            ? 'Woofi'
-            : ''}
+          {order.broker_name}
         </td>
 
         <td
@@ -1327,13 +1323,7 @@ function OrderLine({
               ></FormattedMessage>
             </span>
 
-            <span>
-              {order.broker_id === 'ref_dex'
-                ? 'Ref'
-                : order.broker_id === 'woofi_dex'
-                ? 'Woofi'
-                : ''}
-            </span>
+            <span>{order.broker_name}</span>
           </div>
         </div>
       </div>
@@ -1718,13 +1708,9 @@ function HistoryOrderLine({
             {formatTimeDate(order.created_time)}
           </td>
           <td
-            className={`col-span-1 font-nunito py-4 right-2 whitespace-nowrap text-primaryOrderly justify-self-end relative transform translate-x-1/2  text-left`}
+            className={`col-span-1 font-nunito py-4  whitespace-nowrap text-primaryOrderly justify-self-end relative transform translate-x-1/2  text-left`}
           >
-            {order.broker_id === 'ref_dex'
-              ? 'Ref'
-              : order.broker_id === 'woofi_dex'
-              ? 'Woofi'
-              : ''}
+            {order.broker_name}
           </td>
 
           <td className="pr-6" align="right">
@@ -2013,13 +1999,7 @@ function HistoryOrderLine({
               ></FormattedMessage>
             </span>
 
-            <span>
-              {order.broker_id === 'ref_dex'
-                ? 'REF'
-                : order.broker_id === 'woofi_dex'
-                ? 'Woofi'
-                : ''}
-            </span>
+            <span>{order.broker_name}</span>
           </div>
         </div>
 

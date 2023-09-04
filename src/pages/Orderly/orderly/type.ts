@@ -36,6 +36,7 @@ export interface MyOrder {
   client_order_id?: any;
   average_executed_price: number;
   broker_id: string;
+  broker_name: string;
   created_time: number;
   updated_time: number;
 }

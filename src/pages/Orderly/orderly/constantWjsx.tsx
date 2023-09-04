@@ -497,7 +497,9 @@ export const usePortableOrderlyTable = ({
           {
             key: 'dex',
             header: 'Dex',
-            render: ({ broker_name }) => renderLogo(broker_name),
+            render: ({ broker_name }) => (
+              <span className="relative right-2">{broker_name}</span>
+            ),
           },
         ],
       },
