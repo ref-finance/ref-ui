@@ -404,8 +404,6 @@ export const estimateValidator = (
   parsedAmountIn: string,
   tokenOut: TokenMetadata
 ) => {
-  if (!swapTodos) return false;
-
   if (swapTodos && swapTodos?.[0]?.pool === null) return true;
 
   const tokenInId = swapTodos[0]?.inputToken;
@@ -717,21 +715,7 @@ export const useSwap = ({
     pools: swapsToDo?.map((estimate) => estimate.pool),
     swapsToDo,
     isParallelSwap: swapsToDo?.every((e) => e.status === PoolMode.PARALLEL),
-    quoteDone:
-      quoteDone &&
-      swapsToDo &&
-      !estimating &&
-      estimateValidator(
-        swapsToDo,
-        tokenIn,
-        toNonDivisibleNumber(
-          tokenIn?.decimals === null || tokenIn?.decimals === undefined
-            ? 24
-            : tokenIn.decimals,
-          tokenInAmount
-        ),
-        tokenOut
-      ),
+    quoteDone: quoteDone && !estimating,
     priceImpactValue: scientificNotationToString(
       new Big(priceImpactValue).minus(new Big((avgFee || 0) / 100)).toString()
     ),
