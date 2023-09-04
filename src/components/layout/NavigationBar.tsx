@@ -1257,6 +1257,7 @@ function MenuBar() {
   function hover_off_one_level_item() {
     set_hover_two_level_items([]);
     set_back_one_level_item(null);
+    set_hover_two_level_id(undefined);
     set_hover_one_level_id('');
   }
   function click_one_level_item(item: menuItemType) {
