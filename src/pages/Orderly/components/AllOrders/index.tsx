@@ -474,6 +474,7 @@ function OrderLine({
     }
 
     if (
+      holdingTo &&
       new Big(price || 0)
         .minus(order.price)
         .times(new Big(quantity || 0))
