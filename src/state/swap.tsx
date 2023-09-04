@@ -404,10 +404,12 @@ export const estimateValidator = (
   parsedAmountIn: string,
   tokenOut: TokenMetadata
 ) => {
-  const tokenInId = swapTodos[0]?.inputToken;
-  const tokenOutId = swapTodos[swapTodos.length - 1]?.outputToken;
+  if (!swapTodos) return false;
 
   if (swapTodos && swapTodos?.[0]?.pool === null) return true;
+
+  const tokenInId = swapTodos[0]?.inputToken;
+  const tokenOutId = swapTodos[swapTodos.length - 1]?.outputToken;
 
   if (
     tokenInId !== tokenIn.id ||
@@ -717,6 +719,7 @@ export const useSwap = ({
     isParallelSwap: swapsToDo?.every((e) => e.status === PoolMode.PARALLEL),
     quoteDone:
       quoteDone &&
+      swapsToDo &&
       !estimating &&
       estimateValidator(
         swapsToDo,
