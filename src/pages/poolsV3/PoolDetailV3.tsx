@@ -1326,7 +1326,7 @@ function SelectLiquidityBox(props: any) {
   return (
     <Modal isOpen={isOpen} onRequestClose={onRequestClose} style={style}>
       <Card
-        style={{ maxHeight: '95vh', minWidth: isMobile ? '' : '730px' }}
+        style={{ maxHeight:  isMobile ? '75vh': '95vh', minWidth: isMobile ? '' : '730px' }}
         padding="px-0 py-6"
         className="outline-none border border-gradientFrom border-opacity-50 overflow-auto xs:w-90vw md:w-90vw lg:w-50vw"
       >
