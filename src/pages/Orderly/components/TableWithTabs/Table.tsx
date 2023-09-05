@@ -318,6 +318,7 @@ function Table({
   unrealMode: 'mark_price' | 'last_price';
 }) {
   const { accountId } = useWalletSelector();
+  console.log('tableKey: ', tableKey);
 
   const [sort, setSort] = useState<[string | string[], 'asc' | 'dsc']>([
     defaultSort ? defaultSort : '',
@@ -432,7 +433,9 @@ function Table({
           >
             <tr
               className={`w-full ${
-                tableRowType === 'card' ? 'pl-8 pr-12' : 'px-5'
+                tableRowType === 'card'
+                  ? `pl-8 ${tableKey === 'history' ? 'pr-10' : 'pr-12'}`
+                  : 'px-5'
               } table-fixed grid gap-4`}
               style={{
                 gridTemplateColumns: `repeat(${gridCol}, minmax(0, 1fr))`,
