@@ -432,7 +432,7 @@ function Table({
           >
             <tr
               className={`w-full ${
-                tableRowType === 'card' ? 'px-8' : 'px-5'
+                tableRowType === 'card' ? 'pl-8 pr-12' : 'px-5'
               } table-fixed grid gap-4`}
               style={{
                 gridTemplateColumns: `repeat(${gridCol}, minmax(0, 1fr))`,
