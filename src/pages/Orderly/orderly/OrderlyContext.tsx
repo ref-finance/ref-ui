@@ -168,11 +168,8 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
   });
 
   const isPerp = pathname.includes('perp');
-  console.log('pathnameOut: ', pathname);
 
   useEffect(() => {
-    console.log('pathname: ', pathname, symbol, isPerp);
-
     if (
       (isPerp && symbol.indexOf('PERP') > -1) ||
       (!isPerp && symbol.indexOf('SPOT') > -1)

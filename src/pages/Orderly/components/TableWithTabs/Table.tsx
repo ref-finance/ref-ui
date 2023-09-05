@@ -318,7 +318,6 @@ function Table({
   unrealMode: 'mark_price' | 'last_price';
 }) {
   const { accountId } = useWalletSelector();
-  console.log('tableKey: ', tableKey);
 
   const [sort, setSort] = useState<[string | string[], 'asc' | 'dsc']>([
     defaultSort ? defaultSort : '',

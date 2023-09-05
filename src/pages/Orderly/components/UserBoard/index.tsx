@@ -855,14 +855,6 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         )
       : new Big(inputValue || '0').gt(tokenInHolding || '0');
 
-  console.log(
-    'isInsufficientBalance: ',
-    isInsufficientBalance,
-    total,
-    tokenOutHolding,
-    tokenInHolding
-  );
-
   const loading =
     ((!!accountId && storageEnough === undefined) ||
       (!!storedValid && !validAccountSig)) &&
@@ -1128,8 +1120,6 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
       return;
     }
-
-    console.log('bridgePrice: ', bridgePrice, total);
 
     if (
       !ONLY_ZEROS.test(total) &&
@@ -2728,8 +2718,6 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
       return;
     }
 
-    console.log('bridgePrice: ', bridgePrice, total);
-
     if (
       !ONLY_ZEROS.test(total) &&
       !ONLY_ZEROS.test(bridgePrice) &&
@@ -2991,8 +2979,6 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
 
                   return;
                 }
-
-                console.log('total: ', total, price);
 
                 if (!ONLY_ZEROS.test(total) && !ONLY_ZEROS.test(price)) {
                   // change input value

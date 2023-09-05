@@ -120,10 +120,8 @@ export const usePrivateOrderlyWS = () => {
       const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
       storedValid && setNeedRefresh(true);
     },
-    onClose: (e) => {
-      console.log(`websocket closed ${e.code} ${e.reason}`);
-    },
-    onError: (e) => console.log(`websocket error ${e.type}`),
+    onClose: (e) => {},
+    onError: (e) => {},
   });
 
   useEffect(() => {

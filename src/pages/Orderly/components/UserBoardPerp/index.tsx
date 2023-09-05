@@ -895,15 +895,6 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     setValidAccountSig(true);
   }, [tradingKeySet, keyAnnounced]);
 
-  console.log(
-    'user register log',
-    keyAnnounced,
-    tradingKeySet,
-    userExist,
-    validAccountSig,
-    agreeCheck
-  );
-
   const intl = useIntl();
 
   const isInsufficientBalance =
@@ -1841,8 +1832,6 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
                     return;
                   }
-
-                  console.log('total: ', total, price);
 
                   if (!ONLY_ZEROS.test(total) && !ONLY_ZEROS.test(price)) {
                     // change input value

@@ -165,7 +165,6 @@ export function useAllOrders({
   useEffect(() => {
     setFunc();
   }, [refreshingTag]);
-  console.log('type: ', type);
 
   return liveOrders?.filter((o) => o.symbol.indexOf(type || 'SPOT') > -1);
 }
@@ -326,8 +325,6 @@ export function useLeverage() {
         accountId,
         leverage: curLeverage as any,
       });
-
-      console.log('intl: ', intl);
 
       if (!updateRes.success) {
         setCurLeverage(userInfo?.max_leverage);
