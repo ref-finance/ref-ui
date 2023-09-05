@@ -775,7 +775,7 @@ function OrderLine({
           type === 'quantity' ? value : quantity || order.quantity.toString()
         ),
         order_type: order.type,
-        broker_id: 'ref_dex',
+        broker_id: order.broker_id || 'ref_dex',
       },
     })
       .then((res) => {
