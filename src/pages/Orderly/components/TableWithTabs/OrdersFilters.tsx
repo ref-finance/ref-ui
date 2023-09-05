@@ -95,6 +95,7 @@ const OrdersFilters = ({
             key={tab}
             onClick={() => {
               setOrderType(index);
+              setChooseMarketSymbol('all_markets');
             }}
             className={`flex items-center justify-center h-25 text-base rounded-md font-bold  ${
               orderType === index
