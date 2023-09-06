@@ -389,7 +389,7 @@ export const usePortableOrderlyTable = ({
                 chooseMarketSymbol === 'all_markets' ? '' : chooseMarketSymbol,
               // @ts-ignore
               side:
-                chooseOrderSide === 'both_side' || chooseOrderSide === 'all'
+                chooseOrderSide === 'both_side'
                   ? ''
                   : chooseOrderSide.toUpperCase(),
               order_type:
@@ -685,7 +685,7 @@ export const usePortableOrderlyTable = ({
                 chooseMarketSymbol === 'all_markets' ? '' : chooseMarketSymbol,
               // @ts-ignore
               side:
-                chooseOrderSide === 'both_side' || chooseOrderSide === 'all'
+                chooseOrderSide === 'both_side'
                   ? ''
                   : chooseOrderSide.toUpperCase(),
               order_type:

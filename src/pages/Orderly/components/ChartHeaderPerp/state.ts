@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { TokenInfo, TokenMetadata } from '../../orderly/type';
 import { getFTmetadata } from '../../near';
 import { useRefSwap } from '../../../../state/swap';
-import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
+import { WRAP_NEAR_CONTRACT_ID } from '../../../../services/wrap-near';
 import { ExchangeEstimate, SWAP_MODE } from '../../../SwapPage';
 
 export function useTokenMetaFromSymbol(
@@ -43,12 +43,17 @@ export function useBatchTokenMetaFromSymbols(
     if (!symbols || !tokenInfo) return;
 
     const tokens =
-      tokenInfo && tokenInfo.filter((t) => symbols.includes(t.token) || (symbols.includes('BTC') && t.token === 'WBTC' ));
+      tokenInfo &&
+      tokenInfo.filter(
+        (t) =>
+          symbols.includes(t.token) ||
+          (symbols.includes('BTC') && t.token === 'WBTC')
+      );
 
     if (!tokens) return;
 
     Promise.all(
-      tokens.map((t, i) => 
+      tokens.map((t, i) =>
         getFTmetadata(t.token_account_id).then((meta) => {
           return {
             ...meta,

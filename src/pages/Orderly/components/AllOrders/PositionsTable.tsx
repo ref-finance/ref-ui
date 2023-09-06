@@ -3,59 +3,39 @@ import Big from 'big.js';
 import ReactTooltip from 'react-tooltip';
 import _ from 'lodash';
 import { useIntl } from 'react-intl';
-import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
-import { isMobile } from '~utils/device';
-import { executeMultipleTransactions } from '~services/near';
-
-import { numberWithCommas } from '~pages/Orderly/utiles';
-
-import { toPrecision } from '~utils/numbers';
+import { isMobile } from '../../../../utils/device';
 
 import TableWithTabs, { TableWithOutTabs } from '../TableWithTabs';
-
-import { MobileFilterModal } from '../TableWithTabs/OrdersFilters';
 
 import { ClosingModal } from '../TableWithTabs/FuturesControls';
 
 import {
-  usePortableOrderlyTable,
   useMarketlist,
   usePortableOrderlyTablePositions,
-} from '~pages/Orderly/orderly/constantWjsx';
+} from '../../../../pages/Orderly/orderly/constantWjsx';
 
 import {
-  getOrderlySystemInfo,
   createOrder,
   getOrderByOrderId,
   getOrderTrades,
   getPortfolioAllOrders,
 } from '../../orderly/off-chain-api';
-import { OrderlyUnderMaintain } from '../../OrderlyTradingBoard';
 import { FlexRow, orderEditPopUpFailure } from '../../components/Common';
 import { orderPopUp } from '../../components/Common/index';
-import { AssetManagerModal, TextWrapper } from '../../components/UserBoard';
-import Navigation, {
-  NavigationMobile,
-} from '../../../../components/portfolio/Navigation';
-import QuestionMark from '../../../../components/farm/QuestionMark';
-import { WarningIcon } from '../../../../components/icon';
+
 import { usePerpData } from '../../components/UserBoardPerp/state';
 
 import { useTokenMetaFromSymbol } from '../ChartHeader/state';
 
 import { parseSymbol } from '../RecentTrade';
 
-import { useTokenInfo } from '~pages/Orderly/orderly/state';
+import { useTokenInfo } from '../../../../pages/Orderly/orderly/state';
 
 import {
   OrderAsset,
   useOrderlyPortfolioAssets,
 } from '../../components/AssetModal/state';
-import {
-  depositOrderly,
-  withdrawOrderly,
-  perpSettlementTx,
-} from '../../orderly/api';
+
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import { Holding, MyOrder, OrderTrade } from '../../orderly/type';
 import { WalletContext } from '../../../../utils/wallets-integration';

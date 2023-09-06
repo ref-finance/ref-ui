@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
-import { useWalletSelector } from '~context/WalletSelectorContext';
+import { useWalletSelector } from '../../../../context/WalletSelectorContext';
 import { PerpOrSpot } from '../../utiles';
 
 export const REF_ORDERLY_NEW_USER_TIP = 'REF_ORDERLY_NEW_USER_TIP_KEY';
@@ -48,9 +48,9 @@ export function NewUserTip(props: {
 }) {
   const { type } = props;
 
-  const {symbol} = useOrderlyContext()
+  const { symbol } = useOrderlyContext();
 
-  const symbolType = PerpOrSpot(symbol)
+  const symbolType = PerpOrSpot(symbol);
 
   const { accountId } = useWalletSelector();
 

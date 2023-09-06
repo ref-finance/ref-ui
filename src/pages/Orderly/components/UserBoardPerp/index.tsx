@@ -50,11 +50,7 @@ import Modal from 'react-modal';
 import Big from 'big.js';
 import { IoClose } from 'react-icons/io5';
 import { MdArrowDropDown } from 'react-icons/md';
-import {
-  IoIosArrowForward,
-  IoIosArrowDown,
-  IoIosArrowUp,
-} from 'react-icons/io';
+
 import {
   CheckBox,
   ConnectWallet,
@@ -101,14 +97,12 @@ import ReactTooltip from 'react-tooltip';
 import { ButtonTextWrapper } from '../../../../components/button/Button';
 import { FlexRow, orderEditPopUpFailure } from '../Common/index';
 import { ONLY_ZEROS } from '../../../../utils/numbers';
-import * as math from 'mathjs';
 import { NearWalletIcon, OrderlyNetworkIcon } from '../Common/Icons';
 import {
   getSelectedWalletId,
   generateTradingKeyPair,
 } from '../../orderly/utils';
 import { useClientMobile, isMobile } from '../../../../utils/device';
-import { QuestionTip } from '../../../../components/layout/TipWrapper';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { REF_FI_SENDER_WALLET_ACCESS_KEY } from '../../orderly/utils';
 import { useHistory } from 'react-router-dom';
@@ -127,12 +121,11 @@ import {
   leverageMap,
   tickToPrecision,
 } from './math';
-import { LeverageSlider } from './components/LeverageSlider';
-import { useLeverage } from '~pages/Orderly/orderly/state';
+import { useLeverage } from '../../../../pages/Orderly/orderly/state';
 import { DetailBox, DetailBoxMobile } from './components/DetailBox';
 import { LiquidationButton } from './components/LiquidationHistory';
-import { executeMultipleTransactions } from '~services/near';
-import { openUrl } from '~services/commonV3';
+import { executeMultipleTransactions } from '../../../../services/near';
+import { openUrl } from '../../../../services/commonV3';
 import SettlePnlModal from '../TableWithTabs/SettlePnlModal';
 import { useTokensBalances } from '../UserBoard/state';
 import { SetLeverageButton } from './components/SetLeverageButton';
@@ -1249,7 +1242,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         <SetLeverageButton
           curLeverage={userInfo?.max_leverage || '-'}
           value={leverageMap(curLeverage)}
-          onChange={(v) => {
+          onChange={(v: any) => {
             setCurLeverage(leverageMap(v, true));
           }}
           marginRatio={Number(marginRatio)}

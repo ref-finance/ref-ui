@@ -1,13 +1,13 @@
-import { PositionPushType, PositionsType } from '~pages/Orderly/orderly/type';
+import {
+  PositionPushType,
+  PositionsType,
+} from '../../../../pages/Orderly/orderly/type';
 import Big from 'big.js';
 
 import BigNumber from 'bignumber.js';
 
-import math from 'mathjs';
-import { numberWithCommas } from '~pages/Orderly/utiles';
-import { numberWithCommasPadding } from '../../utiles';
-import { toPrecision } from '~pages/Orderly/near';
-import { getMax } from '../../../../utils/numbers';
+import { numberWithCommas } from '../../../../pages/Orderly/utiles';
+
 import { SymbolInfo } from '../../orderly/type';
 import {
   MarkPrice,
@@ -16,7 +16,6 @@ import {
   MyOrder,
   Ticker,
 } from '../../orderly/type';
-import { getPortfolioAllOrders } from '../../orderly/off-chain-api';
 import { OrderAsset } from '../AssetModal/state';
 import Decimal from 'decimal.js';
 import { parseSymbol } from '../RecentTrade';

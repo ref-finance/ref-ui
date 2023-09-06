@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { QuestionMark } from '../../Common';
-import { isMobile } from '~utils/device';
+import { isMobile } from '../../../../../utils/device';
 import { useClientMobile } from '../../../../../utils/device';
 import ReactTooltip from 'react-tooltip';
 
@@ -48,7 +48,7 @@ export function MarginRatioText() {
               className="underline text-v3Blue"
               href="https://docs.orderly.network/perpetual-futures/margin-leverage-and-pnl"
               rel="noopener noreferrer nofollow"
-              target='_blank'
+              target="_blank"
             >
               {intl.formatMessage({
                 id: 'learn_more',

@@ -7,15 +7,13 @@ import { useClientMobile } from '../../../../../utils/device';
 import { IoClose } from 'react-icons/io5';
 import { TextWrapper } from '../../UserBoard';
 import { MdArrowDropDown } from 'react-icons/md';
-import { useLiquidationHistoryAll } from '~pages/Orderly/orderly/state';
+import { useLiquidationHistoryAll } from '../../../../../pages/Orderly/orderly/state';
 import { useBatchTokenMetaFromSymbols } from '../../ChartHeader/state';
 import { parseSymbol } from '../../RecentTrade';
 import _ from 'lodash';
 import { formatTimeDate } from '../../OrderBoard';
-import { TokenIcon } from '../../Common';
-import { numberWithCommas } from '~pages/Orderly/utiles';
+import { numberWithCommas } from '../../../../../pages/Orderly/utiles';
 import { NoOrderEmpty, OrderlyLoading } from '../../Common/Icons';
-import { LiquidationPushType } from '../../../orderly/type';
 
 export const REF_FI_ORDERLY_LIQUIDATION_UNREAD =
   'REF_FI_ORDERLY_LIQUIDATION_UNREAD';

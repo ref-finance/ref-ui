@@ -17,17 +17,15 @@ import {
   PerpSpotIcon,
   PerpSwapIcon,
 } from '../../Common/Icons';
-import { useOrderlyContext } from '~pages/Orderly/orderly/OrderlyContext';
+import { useOrderlyContext } from '../../../../../pages/Orderly/orderly/OrderlyContext';
 import { parseSymbol } from '../../RecentTrade';
 import { useTokenMetaFromSymbol } from '../../ChartHeader/state';
-import { useRefSwap } from '../../../../../state/swap';
 import { useTokenRate24h } from '../../../../../state/tokenRate';
 import { tickerToDisplayDiff } from '..';
 import { BsArrowRight } from 'react-icons/bs';
-import { openUrl } from '~services/commonV3';
-import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
+import { openUrl } from '../../../../../services/commonV3';
+import { WRAP_NEAR_CONTRACT_ID } from '../../../../../services/wrap-near';
 import { SWAP_MODE, SWAP_MODE_KEY, SWAP_TYPE_KEY } from '../../../../SwapPage';
-import { useRefQuery } from '../state';
 
 function MoreRouteBox(props: Modal.Props) {
   const isMobile = useClientMobile();

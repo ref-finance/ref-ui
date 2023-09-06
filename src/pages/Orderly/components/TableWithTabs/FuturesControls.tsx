@@ -5,7 +5,7 @@ import { IoClose } from 'react-icons/io5';
 import { useIntl, IntlShape } from 'react-intl';
 import Modal from 'react-modal';
 import { debounce } from 'lodash';
-import { useWalletSelector } from '~context/WalletSelectorContext';
+import { useWalletSelector } from '../../../../context/WalletSelectorContext';
 import { OrderlyLoading } from '../Common/Icons';
 import { TextWrapper } from '../UserBoard';
 import { tickToPrecision } from '../UserBoardPerp/math';

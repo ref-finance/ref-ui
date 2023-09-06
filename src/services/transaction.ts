@@ -157,7 +157,7 @@ export const parseAction = async (
       return await borrow_claim_all(params);
     }
     case 'user_request_settlement': {
-      return await parse_user_request_settlement();
+      return await parse_user_request_settlement(params);
     }
     default: {
       return await parseDefault();

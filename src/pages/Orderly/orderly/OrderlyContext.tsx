@@ -40,9 +40,8 @@ import {
 import { useTokenInfo, useAllOrdersSymbol, useStorageEnough } from './state';
 import { getAccountInformation, getOrderlySystemInfo } from './off-chain-api';
 import { PerpOrSpot } from '../utiles';
-import { useWalletSelector } from '~context/WalletSelectorContext';
+import { useWalletSelector } from '../../../context/WalletSelectorContext';
 import { useHistory } from 'react-router-dom';
-import { REF_ORDERLY_NEW_USER_TIP } from '../components/Common/NewUserTip';
 
 interface OrderlyContextValue {
   orders: Orders | undefined;

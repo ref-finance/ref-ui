@@ -2,10 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { nearMetadata, getFTmetadata, ftGetBalance } from '../../near';
 import { toReadableNumber } from '../../orderly/utils';
 import { Holding, TokenInfo, TokenMetadata, MyOrder } from '../../orderly/type';
-import {
-  getCurrentHolding,
-  getPortfolioAllOrders,
-} from '../../orderly/off-chain-api';
+
 import { useWalletSelector } from '../../../../context/WalletSelectorContext';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import { OrderAsset, useOrderlyPortfolioAssets } from '../AssetModal/state';
@@ -25,7 +22,10 @@ import {
   getLqPriceFloat,
 } from './math';
 import { parseSymbol } from '../RecentTrade';
-import { useLeverage, useTokenInfo } from '~pages/Orderly/orderly/state';
+import {
+  useLeverage,
+  useTokenInfo,
+} from '../../../../pages/Orderly/orderly/state';
 
 export function useTokenBalance(tokenId: string | undefined, deps?: any) {
   const [tokenMeta, setTokenMeta] = useState<TokenMetadata>();
