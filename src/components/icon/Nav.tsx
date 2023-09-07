@@ -2257,7 +2257,7 @@ export function OrderlyIcon(props: any) {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-     <g opacity={props.activeMenu ? 1 : 0.5}>
+      <g opacity={props.activeMenu ? 1 : 0.5}>
         <circle cx="9.23804" cy="9.23804" r="9.23804" fill="#4627FF" />
         <path
           fillRule="evenodd"

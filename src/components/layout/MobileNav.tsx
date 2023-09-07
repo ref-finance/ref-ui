@@ -750,7 +750,8 @@ export function MobileNavBar(props: any) {
                           className={`${openMenu === id ? 'block' : 'hidden'}`}
                         >
                           {children?.map((link: menuItemType) => {
-                            const { id, label, logo, children, renderLogo } = link;
+                            const { id, label, logo, children, renderLogo } =
+                              link;
                             const isSubMenuSelected = two_level_selected == id;
                             return (
                               <div
@@ -774,7 +775,11 @@ export function MobileNavBar(props: any) {
                                   <div className="flex items-center whitespace-nowrap">
                                     {(renderLogo || logo) && (
                                       <span className="text-xl text-left w-8 flex justify-center mr-2">
-                                        {renderLogo ? renderLogo({ activeMenu: isSubMenuSelected }) : logo}
+                                        {renderLogo
+                                          ? renderLogo({
+                                              activeMenu: isSubMenuSelected,
+                                            })
+                                          : logo}
                                       </span>
                                     )}
                                     {label}

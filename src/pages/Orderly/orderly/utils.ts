@@ -297,10 +297,10 @@ export const shortenAddress = (address: string, length = 4) => {
 
 export function formatDecimalToTwoOrMore(number: number) {
   const decimalCount = (number.toString().split('.')[1] || '').length;
-  
+
   if (decimalCount < 2) {
     return number.toFixed(2);
   }
-  
+
   return number.toString();
 }
