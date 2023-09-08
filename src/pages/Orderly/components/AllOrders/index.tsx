@@ -763,6 +763,7 @@ function OrderLine({
     setShowEditModal(false);
 
     return editOrder({
+      order,
       accountId,
       orderlyProps: {
         order_id: order.order_id,
@@ -776,6 +777,8 @@ function OrderLine({
         ),
         order_type: order.type,
         broker_id: order.broker_id || 'ref_dex',
+        visible_quantity: order.visible,
+        reduce_only: order.reduce_only,
       },
     })
       .then((res) => {

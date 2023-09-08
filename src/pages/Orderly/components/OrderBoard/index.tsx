@@ -164,6 +164,7 @@ function OrderLine({
       return;
 
     editOrder({
+      order,
       accountId,
       orderlyProps: {
         order_id: order.order_id,

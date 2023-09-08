@@ -17,6 +17,7 @@ export interface OrderlyOrder {
   side: 'BUY' | 'SELL';
   broker_id?: string;
   visible_quantity?: number;
+  reduce_only?: boolean;
 }
 
 export interface MyOrder {
@@ -39,6 +40,7 @@ export interface MyOrder {
   broker_name: string;
   created_time: number;
   updated_time: number;
+  reduce_only?: boolean;
 }
 
 export interface EditOrderlyOrder extends OrderlyOrder {

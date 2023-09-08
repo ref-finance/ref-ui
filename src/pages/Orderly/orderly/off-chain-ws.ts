@@ -139,7 +139,15 @@ export const usePrivateOrderlyWS = () => {
 
       sessionStorage.removeItem('targetTime');
     };
-  }, []);
+  }, [readyState]);
+
+  const connectionStatus = {
+    [ReadyState.CONNECTING]: 'Connecting',
+    [ReadyState.OPEN]: 'Open',
+    [ReadyState.CLOSING]: 'Closing',
+    [ReadyState.CLOSED]: 'Closed',
+    [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
+  }[readyState];
 
   const handleVisibilityChange = () => {
     if (document.visibilityState === 'visible') {
@@ -147,7 +155,11 @@ export const usePrivateOrderlyWS = () => {
 
       if (savedTime && Date.now() - Number(savedTime) > 5 * 60 * 1000) {
         const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
-        storedValid && setNeedRefresh(true);
+
+        connectionStatus !== 'Open' &&
+          connectionStatus !== 'Connecting' &&
+          storedValid &&
+          setNeedRefresh(true);
       }
       sessionStorage.setItem('targetTime', Date.now().toString());
     } else {
@@ -167,14 +179,6 @@ export const usePrivateOrderlyWS = () => {
       storedValid && setNeedRefresh(true);
     }
   }, [readyState, refreshTrigger]);
-
-  const connectionStatus = {
-    [ReadyState.CONNECTING]: 'Connecting',
-    [ReadyState.OPEN]: 'Open',
-    [ReadyState.CLOSING]: 'Closing',
-    [ReadyState.CLOSED]: 'Closed',
-    [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
-  }[readyState];
 
   return {
     connectionStatus,

@@ -1733,7 +1733,7 @@ const FutureMobileRow: React.FC<{
               </div>
             </div>
             <span className="text-white">
-              {markPrices.find((i) => i.symbol === symbol)?.price.toFixed(3) ||
+              {markPrices?.find((i) => i.symbol === symbol)?.price.toFixed(3) ||
                 '-'}
             </span>
           </div>
@@ -1835,10 +1835,12 @@ const FutureMobileRow: React.FC<{
               </div>
             </div>
             <span className="text-white">
-              {Math.abs(
-                markPrices.find((i) => i.symbol === symbol)?.price *
-                  position_qty
-              )?.toFixed(2) || '-'}
+              {!markPrices
+                ? '-'
+                : Math.abs(
+                    markPrices?.find((i) => i.symbol === symbol)?.price *
+                      position_qty
+                  )?.toFixed(2) || '-'}
             </span>
           </div>
           <div className="col-span-1 my-3">
