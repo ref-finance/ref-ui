@@ -711,10 +711,9 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           side: side === 'Buy' ? 'BUY' : 'SELL',
           symbol: symbol,
           order_type: 'MARKET',
-          order_amount: parseFloat(
-            side === 'Buy' ? new Big(total).toFixed(3, 0) : ''
-          ),
-          order_quantity: parseFloat(side === 'Sell' ? inputValue : ''),
+          order_amount:
+            side === 'Buy' ? parseFloat(new Big(total).toFixed(3, 0)) : '',
+          order_quantity: side === 'Buy' ? '' : parseFloat(inputValue),
           broker_id: 'ref_dex',
         },
       }).then(async (res) => {
@@ -2323,10 +2322,9 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
           side: side === 'Buy' ? 'BUY' : 'SELL',
           symbol: symbol,
           order_type: 'MARKET',
-          order_amount: parseFloat(
-            side === 'Buy' ? new Big(total).toFixed(3, 0) : ''
-          ),
-          order_quantity: parseFloat(side === 'Sell' ? inputValue : ''),
+          order_amount:
+            side === 'Buy' ? parseFloat(new Big(total).toFixed(3, 0)) : '',
+          order_quantity: side === 'Buy' ? '' : parseFloat(inputValue),
           broker_id: 'ref_dex',
         },
       }).then(async (res) => {
