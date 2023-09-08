@@ -149,6 +149,8 @@ export const usePrivateOrderlyWS = () => {
     [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
   }[readyState];
 
+  console.log('connectionStatus out: ', connectionStatus);
+
   const handleVisibilityChange = () => {
     if (document.visibilityState === 'visible') {
       const savedTime = sessionStorage.getItem('targetTime');
