@@ -74,8 +74,6 @@ import {
   removePoolFromWatchList,
 } from '~services/pool';
 import ReactTooltip from 'react-tooltip';
-import { TokenLinks } from '~components/tokens/Token';
-import { FiArrowUpRight } from 'react-icons/fi';
 import {
   VolumeChart,
   TVLChart,
@@ -1328,7 +1326,10 @@ function SelectLiquidityBox(props: any) {
   return (
     <Modal isOpen={isOpen} onRequestClose={onRequestClose} style={style}>
       <Card
-        style={{ maxHeight: '95vh', minWidth: isMobile ? '' : '730px' }}
+        style={{
+          maxHeight: isMobile ? '75vh' : '95vh',
+          minWidth: isMobile ? '' : '730px',
+        }}
         padding="px-0 py-6"
         className="outline-none border border-gradientFrom border-opacity-50 overflow-auto xs:w-90vw md:w-90vw lg:w-50vw"
       >
@@ -1893,35 +1894,6 @@ function TablePool(props: any) {
                   <span className="text-white text-base">
                     {toRealSymbol(token.meta.symbol)}
                   </span>
-                  {TokenLinks[token.meta.symbol] ? (
-                    <div
-                      className="ml-0.5 text-sm"
-                      data-type="info"
-                      data-place="right"
-                      data-multiline={true}
-                      data-class="reactTip"
-                      data-html={true}
-                      data-tip={valueOfNearTokenTip()}
-                      data-for={'nearVerifiedId1' + i}
-                    >
-                      <a
-                        className=""
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openUrl(TokenLinks[token.meta.symbol]);
-                        }}
-                      >
-                        <FiArrowUpRight className="text-primaryText hover:text-greenColor cursor-pointer" />
-                      </a>
-                      <ReactTooltip
-                        id={'nearVerifiedId1' + i}
-                        backgroundColor="#1D2932"
-                        border
-                        borderColor="#7e8a93"
-                        effect="solid"
-                      />
-                    </div>
-                  ) : null}
                 </div>
                 <a
                   target="_blank"

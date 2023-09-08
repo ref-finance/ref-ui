@@ -120,10 +120,7 @@ export function subscribeOnStream(
 ) {
   const parsedSymbol = parseFullSymbol(symbolInfo.full_name);
   const channelString = `0~${parsedSymbol.exchange}~${parsedSymbol.fromSymbol}~${parsedSymbol.toSymbol}`;
-
-  const topic = `SPOT_${parsedSymbol.fromSymbol}_${
-    parsedSymbol.toSymbol
-  }@kline_${parseResolution(resolution)}`;
+  const topic = `${symbolInfo.ticker}@kline_${parseResolution(resolution)}`;
 
   const handler = {
     id: subscriberUID,

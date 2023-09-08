@@ -12,6 +12,7 @@ import {
   storage_cost_of_token_balance,
   storage_balance_of_orderly,
   is_trading_key_set,
+  user_request_settlement,
 } from './on-chain-api';
 import { Transaction as WSTransaction } from '@near-wallet-selector/core';
 
@@ -21,6 +22,7 @@ import { getNormalizeTradingKey, toNonDivisibleNumber } from './utils';
 import {
   getAddFunctionCallKeyTransaction,
   keyStore,
+  ONE_YOCTO_NEAR,
   ORDERLY_ASSET_MANAGER,
 } from '../near';
 import {
@@ -40,13 +42,11 @@ import { ftViewFunction } from '../../../services/ft-contract';
 import { executeMultipleTransactions } from '../../../services/near';
 import getConfig from '../config';
 import { ledgerTipTrigger } from '../../../utils/wallets-integration';
+import { REF_ORDERLY_NEW_USER_TIP } from '../components/Common/NewUserTip';
 
 const signAndSendTransactions = async (transactions: Transaction[]) => {
   return executeMultipleTransactions(transactions);
 };
-
-// account_exist = await user_account_exists(accountId);
-// no account_exist to call registerOrderly.
 
 const announceLedgerAccessKey = async (accountId: string) => {
   const keyPairLedger = KeyPair.fromRandom('ed25519');
@@ -234,9 +234,6 @@ const storageDeposit = async (accountId: string) => {
 
   const min_amount = await storage_balance_bounds();
 
-  const announce_key_amount = await get_cost_of_announce_key();
-
-  // if (storage_amount !== null) {
   const deposit_functionCall_register = orderly_storage_deposit(
     accountId,
     utils.format.formatNearAmount(min_amount.min),
@@ -248,14 +245,15 @@ const storageDeposit = async (accountId: string) => {
     '0.01'
   );
 
-  // await account.functionCall(ORDERLY_ASSET_MANAGER, 'storage_deposit', {}, new BN(deposit_functionCall.gas), new BN(deposit_functionCall.));
+  if (!user_exists) {
+    localStorage.setItem(REF_ORDERLY_NEW_USER_TIP, '1');
+  }
 
   if (
     !user_exists ||
     storage_balance === null ||
     new Big(storage_balance.total || 0).lt(min_amount.min)
   ) {
-    // functionCallList.push(deposit_functionCall_register);
     transactions.push({
       receiverId: ORDERLY_ASSET_MANAGER,
       functionCalls: [deposit_functionCall_register],
@@ -282,10 +280,6 @@ const storageDeposit = async (accountId: string) => {
 };
 
 const checkStorageDeposit = async (accountId: string) => {
-  // const storage_amount = await get_storage_deposit_amount(accountId);
-
-  // const storage_amount = await get_storage_deposit_amount(accountId);
-
   const functionCallList: any = [];
 
   const user_exists = await user_account_exists(accountId);
@@ -501,6 +495,15 @@ const withdrawOrderly = async (token: string, amount: string) => {
   return signAndSendTransactions(transactions);
 };
 
+const perpSettlementTx = async () => {
+  const transaction: Transaction = {
+    receiverId: ORDERLY_ASSET_MANAGER,
+    functionCalls: [await user_request_settlement()],
+  };
+
+  return transaction;
+};
+
 export {
   signAndSendTransactions,
   withdrawOrderly,
@@ -511,4 +514,5 @@ export {
   depositFT,
   checkStorageDeposit,
   setTradingKey,
+  perpSettlementTx,
 };

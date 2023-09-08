@@ -128,6 +128,7 @@ module.exports = {
         darkBlueColor:
           'linear-gradient(360deg, #1A2B35 0%, rgba(19, 33, 42, 0) 100%)',
         purpleBgColor: 'linear-gradient(180deg, #C3BDAD 0%, #AF9773 100%)',
+        pendingBgColor: 'linear-gradient(180deg, #2F3A39 0%, #1D2932 100%)',
       }),
       gridTemplateColumns: {
         farmSearch: '2fr 1fr',
@@ -159,7 +160,9 @@ module.exports = {
         blackLight: '#003648',
         greenLight1: '#01C08B',
         cardBg: '#1D2932',
+        portfolioCardBg: '#172833',
         chartBg: '#001320',
+        perpCardBg: '#01101d',
         warn: '#DEA550',
         error: '#DE5050',
         gradientFrom: '#00c6a2',
@@ -371,6 +374,8 @@ module.exports = {
         portfolioGreenColor: '#63C441',
         portfolioLightGreyColor: 'rgba(48, 68, 82, 0.5)',
         portfolioLightGreenColor: '#5FAB43',
+        portfolioHoverSelectColor: '#1C272F',
+        portfolioOrderCardColor: '#7E8A931A',
         navGreyColor: '#2B3741',
         selectBg: '#031928',
         mobileOrderListTab: '#182935',
@@ -396,6 +401,12 @@ module.exports = {
         overviewMaskColor: 'rgba(13, 29, 39, 0.5)',
         overviewPurpleColor: '#816CFF',
         overviewGreyColor: '#314758',
+        liquidationBorder: '#5B2E39',
+        mobileOrderBg: '#324451',
+        orderbookBase: '#4F6574',
+        marginRedBg:'#904247',
+        marginGrayBg:'#334049'
+        
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
@@ -450,6 +461,9 @@ module.exports = {
       },
       minHeight: {
         8: '2rem',
+        '80': '350px',
+        'screen': '100vh',
+        'max': 'max-content'
       },
       minWidth: {
         p72: '72px',

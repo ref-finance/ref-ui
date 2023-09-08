@@ -3861,3 +3861,10 @@ html.theme-dark
   font-weight: 400;
   src: url(b1a63a011fd92dfb93db6db243bb036c.woff2) format('woff2');
 }
+
+.chart-widget.chart-widget--themed-dark.chart-widget__top--themed-dark.chart-widget__bottom--themed-dark
+  table
+  tr:first-child
+  .buttons-1WIwNaDF {
+  visibility: hidden;
+}

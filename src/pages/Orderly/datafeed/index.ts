@@ -32,15 +32,8 @@ const configurationData = {
       desc: 'Orderly',
     },
   ],
-  // symbols_types: [
-  //   {
-  //     name: 'crypto',
-
-  //     // `symbolType` argument for the `searchSymbols` method, if a user selects this symbol type
-  //     value: 'crypto',
-  //   },
-  // ...
-  // ],
+  supports_marks: true,
+  supports_timescale_marks: true,
 };
 
 async function getAllSymbols() {
@@ -126,6 +119,7 @@ const datafeed = {
       supported_resolutions: configurationData.supported_resolutions,
       volume_precision: 2,
       data_status: 'streaming',
+      volume_field: 'volume',
     };
     onSymbolResolvedCallback(symbolInfo);
   },
@@ -138,9 +132,9 @@ const datafeed = {
     onErrorCallback
   ) => {
     const { from, to, firstDataRequest } = periodParams;
-    const parsedSymbol = parseFullSymbol(symbolInfo.full_name);
+
     const urlParameters = {
-      symbol: `SPOT_${parsedSymbol?.fromSymbol}_${parsedSymbol?.toSymbol}`,
+      symbol: symbolInfo.ticker,
       resolution,
       from,
       to,
@@ -170,6 +164,7 @@ const datafeed = {
               high: data['h'][i],
               open: data['o'][i],
               close: data['c'][i],
+              volume: data['v'][i],
             },
           ];
         }

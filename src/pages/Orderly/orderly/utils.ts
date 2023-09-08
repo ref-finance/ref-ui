@@ -1,4 +1,5 @@
 import { ec } from 'elliptic';
+import moment from 'moment';
 import { near, config, orderlyViewFunction, keyStore } from '../near';
 import getConfig from '../config';
 import bs58 from 'bs58';
@@ -282,3 +283,24 @@ export const getAccountName = (accountId: string) => {
 
   return account.length > 10 ? niceAccountId : accountId;
 };
+
+export function formatTimeDate(ts: number) {
+  return moment(ts).format('YYYY-MM-DD HH:mm:ss');
+}
+
+export const shortenAddress = (address: string, length = 4) => {
+  if (!address) return '';
+  const start = address.slice(0, length);
+  const end = address.slice(-length);
+  return `${start}...${end}`;
+};
+
+export function formatDecimalToTwoOrMore(number: number) {
+  const decimalCount = (number.toString().split('.')[1] || '').length;
+
+  if (decimalCount < 2) {
+    return number.toFixed(2);
+  }
+
+  return number.toString();
+}

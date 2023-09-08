@@ -11,11 +11,12 @@ import {
   OrderStateOutlineBlack,
   OrderPopUpCheck,
   GrayBgBoxMobile,
+  RefToOrderlyPortFolio,
 } from './Icons';
 import { useTokenMetaFromSymbol } from '../ChartHeader/state';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import { parseFullSymbol } from '../../datafeed/helpers';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast, ToastContainer, cssTransition } from 'react-toastify';
 import { TokenMetadata } from '../../orderly/type';
 import { parseSymbol } from '../RecentTrade';
 import 'react-toastify/dist/ReactToastify.css';
@@ -170,7 +171,35 @@ export function ConnectWallet({ onClick }: { onClick: () => void }) {
         onClick();
       }}
     >
-      <NearIcon />
+      <div className="flex-shrink-0">
+        <NearIcon />
+      </div>
+
+      <span className="whitespace-nowrap ml-3  hover:bg-">
+        {intl.formatMessage({
+          id: 'connect_wallet',
+          defaultMessage: 'Connect Wallet',
+        })}
+      </span>
+    </button>
+  );
+}
+
+export function ConnectWalletPorfolio({ onClick }: { onClick: () => void }) {
+  const intl = useIntl();
+
+  return (
+    <button
+      className="text-base min-w-fit py-3 px-6 relative  xs:w-full xs:py-2 bg-buyGradientGreen rounded-3xl text-white font-bold flex items-center justify-center"
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onClick();
+      }}
+    >
+      <div className="flex-shrink-0">
+        <NearIcon />
+      </div>
 
       <span className="whitespace-nowrap ml-3  hover:bg-">
         {intl.formatMessage({
@@ -214,6 +243,7 @@ export function RegisterButton({
   setIsOpenMobile,
   userExist,
   setCheck,
+  onPortfolio,
 }: {
   onClick: () => void;
   spin?: boolean;
@@ -223,6 +253,7 @@ export function RegisterButton({
   isOpenMobile?: boolean;
   setIsOpenMobile?: (isOpen: boolean) => void;
   userExist: boolean;
+  onPortfolio?: boolean;
 }) {
   const [spinNow, setSpinNow] = useState<boolean>(!!spin);
 
@@ -233,7 +264,6 @@ export function RegisterButton({
   useEffect(() => {
     if (check) {
       setSpinNow(true);
-
       onClick();
     }
   }, [check]);
@@ -244,7 +274,7 @@ export function RegisterButton({
   const intl = useIntl();
   return (
     <div className="flex flex-col items-center xs:w-full  relative ">
-      {isMobile && !isOpenMobile ? null : (
+      {!isOpenMobile ? null : (
         <>
           <div className="lg:px-6 xs:font-bold text-white pb-5 text-center text-base">
             {spinNow
@@ -363,24 +393,16 @@ export function RegisterButton({
       <button
         className={`text-base min-w-fit xs:w-full xs:py-2  ${
           isMobile && !isOpenMobile ? 'mb-2' : 'mb-5 xs:mb-3'
-        } py-3   relative w-p240 ${
+        } py-3   relative  ${
           spinNow ? 'opacity-30 cursor-not-allowed' : ''
-        } bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center
+        } bg-buyGradientGreen  ${
+          onPortfolio ? 'rounded-3xl w-p200' : 'rounded-lg w-p240'
+        } text-white font-bold flex items-center justify-center
       
     `}
         onClick={(e) => {
           e.stopPropagation();
           e.preventDefault();
-
-          if (isMobile) {
-            if (!isOpenMobile) {
-              setIsOpenMobile(true);
-              return;
-            } else {
-              setCheck(true);
-              return;
-            }
-          }
 
           onClick();
 
@@ -393,35 +415,43 @@ export function RegisterButton({
         type="button"
         disabled={spinNow}
       >
-        {spinNow && <SpinIcon />}
-        <span className={`whitespace-nowrap ml-3  `}>
-          {userExist && !storedAgree
-            ? !check
-              ? isOpenMobile && !check
+        {onPortfolio && !spinNow ? (
+          <>
+            <RefToOrderlyPortFolio />
+          </>
+        ) : (
+          <>
+            {spinNow && <SpinIcon />}
+            <span className={`whitespace-nowrap ml-3  `}>
+              {userExist && !storedAgree
+                ? !check
+                  ? isOpenMobile && !check
+                    ? intl.formatMessage({
+                        id: 'confirm',
+                        defaultMessage: 'Confirm',
+                      })
+                    : intl.formatMessage({
+                        id: 'connect_to_orderly',
+                        defaultMessage: 'Connect to Orderly',
+                      })
+                  : intl.formatMessage({
+                      id: 'Connecting',
+                      defaultMessage: 'Connecting',
+                    })
+                : isOpenMobile && !check
                 ? intl.formatMessage({
                     id: 'confirm',
                     defaultMessage: 'Confirm',
                   })
                 : intl.formatMessage({
-                    id: 'connect_to_orderly',
-                    defaultMessage: 'Connect to Orderly',
-                  })
-              : intl.formatMessage({
-                  id: 'Connecting',
-                  defaultMessage: 'Connecting',
-                })
-            : isOpenMobile && !check
-            ? intl.formatMessage({
-                id: 'confirm',
-                defaultMessage: 'Confirm',
-              })
-            : intl.formatMessage({
-                id: 'register',
-                defaultMessage: 'Register',
-              })}
-        </span>
+                    id: 'register',
+                    defaultMessage: 'Register',
+                  })}
+            </span>
+          </>
+        )}
       </button>
-      {isMobile && !isOpenMobile ? null : (
+      {isMobile || onPortfolio ? null : (
         <div className="text-sm  text-center text-white flex items-center lg:px-6 justify-center">
           {spinNow
             ? null
@@ -530,7 +560,7 @@ export function orderPopUp({
       <FlexRowBetween className="relative bottom-3 w-full">
         <div className="flex text-sm items-center">
           <div
-            className={`border border-dark5 rounded-lg font-bold px-2 mr-1.5  ${
+            className={`border border-dark5 whitespace-nowrap rounded-lg font-bold px-2 mr-1.5  ${
               side === 'Buy' ? 'bg-greenLight' : 'bg-redLight'
             }`}
           >
@@ -645,6 +675,7 @@ export function orderPopUp({
       },
     }
   );
+
   if (
     (order.type === 'FOK' ||
       order.type === 'IOC' ||
@@ -1007,4 +1038,63 @@ export function orderEditPopUpFailure({ tip }: { tip: string }) {
       },
     }
   );
+}
+
+export function usePortfolioFailure() {
+  const mobileDevice = isMobile();
+
+  const openToast = ({ tip }: { tip: string }) => {
+    toast(
+      <div className={`flex-col flex px-2  text-sm   w-full`}>
+        <span className="text-textRed">{tip}</span>
+        <div className="absolute w-1 bg-textRed bottom-0 h-full left-0"></div>
+      </div>,
+      {
+        toastId: 'future-error',
+        closeOnClick: true,
+        hideProgressBar: true,
+        position: mobileDevice ? 'top-center' : 'bottom-right',
+        autoClose: 3000,
+        // autoClose: false,
+        closeButton: false,
+
+        style: {
+          boxShadow: '0px -5px 10px rgba(0, 0, 0, 0.25)',
+          borderRadius: '4px',
+          zIndex: 9999,
+          right: mobileDevice ? '0px' : '-40px',
+          overflow: 'hidden',
+          width: mobileDevice ? '100%' : '90%',
+          background: 'rgba(30, 41, 49, 1)',
+          bottom:
+            !mobileDevice &&
+            !!document.getElementsByClassName('orderly-order-toast')?.[0]
+              ? '-70px'
+              : '0px',
+        },
+      }
+    );
+  };
+
+  const updateToast = ({ tip }: { tip: string }) =>
+    toast.update('future-error', {
+      render: () => (
+        <div className={`flex-col flex px-2  text-sm   w-full`}>
+          <span className="text-textRed">{tip}</span>
+
+          <div className="absolute w-1 bg-textRed bottom-0 h-full left-0"></div>
+        </div>
+      ),
+      autoClose: 3000,
+    });
+
+  const onToast = ({ tip }: { tip: string }) => {
+    if (!toast.isActive('future-error')) {
+      openToast({ tip });
+    } else {
+      updateToast({ tip });
+    }
+  };
+
+  return onToast;
 }

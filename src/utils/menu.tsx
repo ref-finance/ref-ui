@@ -3,7 +3,7 @@ import { AiOutlineMedium } from 'react-icons/ai';
 import { FaDiscord, FaTelegramPlane, FaTwitter } from 'react-icons/fa';
 import { HiOutlineExternalLink } from 'react-icons/hi';
 import { FormattedMessage, useIntl } from 'react-intl';
-
+import { useLocation } from 'react-router-dom';
 import {
   Rainbow,
   Ethereum,
@@ -60,6 +60,7 @@ import {
   REFSmallIcon,
   PurpleCircleIcon,
   PortfolioIcon,
+  OrderlyIcon,
   BorrowIcon,
   OverviewIcon,
 } from '~components/icon/Nav';
@@ -94,6 +95,7 @@ export type MenuItem = {
 };
 export const useMenuItems = () => {
   const intl = useIntl();
+
   const menuData: any[] = [
     // {
     //   label: intl.formatMessage({ id: 'stable_pool' }),
@@ -194,21 +196,7 @@ export const useLanguageItems = () => {
       language: 'vi',
       logo: <IconVi />,
     },
-    {
-      label: 'Українська',
-      language: 'uk',
-      logo: <UkIcon />,
-    },
-    {
-      label: 'Pусский',
-      language: 'ru',
-      logo: <RuIcon />,
-    },
-    {
-      label: '日本語',
-      language: 'ja',
-      logo: <JaIcon />,
-    },
+
     {
       label: '한국어',
       language: 'ko',
@@ -242,9 +230,14 @@ export type MobileMenuItem = {
   specialMenuKey?: string;
   defaultClick?: (e?: any) => void;
 };
-export const useMenus = () => {
+export const useMenus = (cb?: () => void) => {
   const history = useHistory();
   const intl = useIntl();
+
+  const location = useLocation();
+
+  const pathName = location.pathname;
+
   const menuData = [
     {
       id: '1',
@@ -291,15 +284,74 @@ export const useMenus = () => {
         },
         {
           id: '1-3',
-          label: (
-            <>
-              <FormattedMessage id="orderbook_mobile"></FormattedMessage>
-            </>
+          hoverLabel: (
+            <div className="w-full">
+              <div className="frcs gap-6 mb-2">
+                <OrderBookIcon />
+                <FormattedMessage id="orderbook_mobile"></FormattedMessage>
+              </div>
+
+              <div className="w-full frcs gap-3 text-white text-base ">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    cb && cb();
+
+                    history.push('/orderbook/spot');
+                  }}
+                  style={{
+                    width: '120px',
+                  }}
+                  className={`frcc  hover:bg-v3SwapGray  border-v3SwapGray border-opacity-10 hover:bg-opacity-10 w-1/2 rounded-xl py-2 ${
+                    pathName.startsWith('/orderbook/spot')
+                      ? ' bg-hoverSubBridge bg-opacity-50'
+                      : 'border'
+                  }`}
+                >
+                  {/* <FormattedMessage
+                    id="spot"
+                    defaultMessage={'Spot'}
+                  ></FormattedMessage> */}
+                  Spot
+                </button>
+
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    cb && cb();
+
+                    history.push('/orderbook/perps');
+                  }}
+                  style={{
+                    width: '120px',
+                  }}
+                  className={`frcc  hover:bg-v3SwapGray hover:bg-opacity-10  border-v3SwapGray border-opacity-10 w-1/2 rounded-xl py-2  ${
+                    pathName.startsWith('/orderbook/perps')
+                      ? ' bg-hoverSubBridge bg-opacity-50'
+                      : 'border'
+                  }`}
+                >
+                  {/* <FormattedMessage
+                    id="perpetual"
+                    defaultMessage={'Perpetual'}
+                  ></FormattedMessage> */}
+                  Perpetual
+                </button>
+              </div>
+            </div>
           ),
-          logo: <OrderBookIcon />,
-          url: '/orderbook',
+
+          label: (
+            <div className="frcs gap-6 mb-2">
+              <OrderBookIcon />
+              <FormattedMessage id="orderbook_mobile"></FormattedMessage>
+            </div>
+          ),
+
           isExternal: false,
-          links: ['/orderbook'],
         },
       ],
     },
@@ -386,7 +438,7 @@ export const useMenus = () => {
       ),
       url: '',
       isExternal: false,
-      links: ['/portfolio', '/burrow', '/overview'],
+      links: ['/portfolio', '/burrow', '/overview', '/orderly'],
       children: [
         {
           id: '3-1',
@@ -416,6 +468,20 @@ export const useMenus = () => {
           id: '3-3',
           label: (
             <>
+              <FormattedMessage id="Orderly" />
+            </>
+          ),
+          renderLogo: ({ activeMenu }: { activeMenu: boolean }) => (
+            <OrderlyIcon activeMenu={activeMenu} />
+          ),
+          url: '/orderly',
+          isExternal: false,
+          links: ['/orderly'],
+        },
+        {
+          id: '3-4',
+          label: (
+            <>
               <FormattedMessage id="Burrow" />
             </>
           ),
@@ -426,17 +492,7 @@ export const useMenus = () => {
         },
       ],
     },
-    // {
-    //   id: '4',
-    //   logo: (
-    //     <>
-    //       <REFSmallIcon className="mt-0.5"></REFSmallIcon>
-    //     </>
-    //   ),
-    //   label: <>Anylatics</>,
-    //   url: '',
-    //   isExternal: false,
-    // },
+
     {
       id: '6',
       label: (
@@ -546,7 +602,7 @@ export const useMenus = () => {
   ];
   return menuData;
 };
-export const useMenusMobile = () => {
+export const useMenusMobile = (setShow: (show: boolean) => void) => {
   const history = useHistory();
   const intl = useIntl();
   const menuData = [
@@ -596,12 +652,71 @@ export const useMenusMobile = () => {
         {
           id: '1-3',
           label: (
-            <>
-              <FormattedMessage id="orderbook_mobile"></FormattedMessage>
-            </>
+            <div className="w-full pl-2">
+              <div className="frcs gap-4 mb-2">
+                <OrderBookIcon />
+                <FormattedMessage id="orderbook_mobile"></FormattedMessage>
+              </div>
+
+              <div
+                className={`w-full font-gotham frcs border ${
+                  window.location.pathname === '/orderbook/spot' ||
+                  window.location.pathname === '/orderbook/perps'
+                    ? 'bg-cardBg'
+                    : ''
+                } border-v3SwapGray border-opacity-30 gap-3 text-primaryText text-base rounded-xl p-1`}
+              >
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+
+                    history.push('/orderbook/spot');
+                    setShow(false);
+                  }}
+                  className={`frcc bg-symbolHover2 ${
+                    window.location.pathname === '/orderbook/spot'
+                      ? 'text-white'
+                      : ''
+                  }    w-1/2 rounded-lg py-1`}
+                  style={{
+                    background:
+                      window.location.pathname === '/orderbook/spot'
+                        ? '#324451'
+                        : '',
+                    width: '95px',
+                  }}
+                >
+                  Spot
+                </button>
+
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    history.push('/orderbook/perps');
+                    setShow(false);
+                  }}
+                  style={{
+                    background:
+                      window.location.pathname === '/orderbook/perps'
+                        ? '#324451'
+                        : '',
+                    width: '95px',
+                  }}
+                  className={`frcc bg-symbolHover2 ${
+                    window.location.pathname === '/orderbook/perps'
+                      ? 'text-white'
+                      : ''
+                  }   w-1/2 rounded-lg py-1`}
+                >
+                  Perpetual
+                </button>
+              </div>
+            </div>
           ),
-          logo: <OrderBookIcon />,
-          url: '/orderbook',
+
           isExternal: false,
           links: ['/orderbook'],
         },
@@ -690,7 +805,7 @@ export const useMenusMobile = () => {
       ),
       url: '',
       isExternal: false,
-      links: ['/portfolio', '/burrow', '/overview'],
+      links: ['/portfolio', '/burrow', '/overview', '/orderly'],
       children: [
         {
           id: '3-1',
@@ -710,6 +825,16 @@ export const useMenusMobile = () => {
         },
         {
           id: '3-3',
+          label: <FormattedMessage id="Orderly" />,
+          renderLogo: ({ activeMenu }: { activeMenu: boolean }) => (
+            <OrderlyIcon activeMenu={activeMenu} />
+          ),
+          url: '/orderly',
+          isExternal: false,
+          links: ['/orderly'],
+        },
+        {
+          id: '3-4',
           label: <FormattedMessage id="Burrow" />,
           logo: <BorrowIcon />,
           url: '/burrow',
@@ -718,17 +843,6 @@ export const useMenusMobile = () => {
         },
       ],
     },
-    // {
-    //   id: '4',
-    //   logo: (
-    //     <>
-    //       <REFSmallIcon className="mt-0.5"></REFSmallIcon>
-    //     </>
-    //   ),
-    //   label: <>Anylatics</>,
-    //   url: '',
-    //   isExternal: false,
-    // },
     {
       id: '6',
       label: (
@@ -819,54 +933,7 @@ export const bridgeData = [
       },
     ],
   },
-  {
-    name: (
-      <FormattedMessage
-        id="allbridge"
-        defaultMessage={'Allbridge'}
-      ></FormattedMessage>
-    ),
-    id: '1',
-    label: 'allbridge',
-    icon: Allbridge,
-    children: [
-      {
-        name: (
-          <FormattedMessage
-            id="from_solana"
-            defaultMessage={'Solana'}
-          ></FormattedMessage>
-        ),
-        icon: Solana,
-        link: 'https://app.allbridge.io/bridge?from=SOL&to=NEAR',
-        id: '1-0',
-      },
-      {
-        name: (
-          <FormattedMessage
-            id="from_terra"
-            defaultMessage={'Terra'}
-          ></FormattedMessage>
-        ),
-        icon: Terra,
-        id: '1-1',
 
-        link: 'https://app.allbridge.io/bridge?from=TRA&to=NEAR',
-      },
-      {
-        name: (
-          <FormattedMessage
-            id="from_celo"
-            defaultMessage={'Celo'}
-          ></FormattedMessage>
-        ),
-        icon: Celo,
-        id: '1-2',
-
-        link: 'https://app.allbridge.io/bridge?from=CELO&to=NEAR',
-      },
-    ],
-  },
   {
     name: (
       <FormattedMessage
@@ -998,6 +1065,7 @@ export interface menuItemType {
   id?: string;
   label: JSX.Element;
   logo?: JSX.Element;
+  renderLogo?: (prop: any) => JSX.Element;
   url?: string;
   isExternal?: boolean;
   children?: menuItemType[];
@@ -1006,4 +1074,5 @@ export interface menuItemType {
   swap_mode?: string;
   icon?: JSX.Element;
   hidden?: boolean;
+  hoverLabel?: JSX.Element;
 }

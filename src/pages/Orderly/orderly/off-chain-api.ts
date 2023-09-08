@@ -168,20 +168,6 @@ export const createOrder = async (props: {
     visible_quantity,
   } = props.orderlyProps;
 
-  //Note for DELETE requests, the parameters are not in the json body.
-  // const message = Object.entries(props.orderlyProps)
-  //   .filter(([k, v], i) => {
-  //     return v !== undefined && v !== null;
-  //   })
-  //   .map(([k, v], i) => {
-  //     if (typeof v === 'number') {
-  //       return `${k}=${parseFloat(v.toString())}`;
-  //     }
-  //     return `${k}=${v}`;
-  //   })
-  //   .sort()
-  //   .join('&');
-
   const message = formateParams(props.orderlyProps);
 
   const signature = generateOrderSignature(message);
@@ -227,6 +213,16 @@ export const getCurrentHolding = async (props: { accountId: string }) => {
     accountId: props.accountId,
   });
 
+  const wbtcHolding = res?.data?.holding.find((h: any) => h.token === 'WBTC');
+
+  if (wbtcHolding) {
+    const btcholding = {
+      ...wbtcHolding,
+      token: 'BTC',
+    };
+    res.data.holding.push(btcholding);
+  }
+
   return res;
 };
 
@@ -253,23 +249,8 @@ export const getAssetHistory = async (props: {
   return res;
 };
 
-export const getOpenOrders = async (props: {
-  accountId: string;
-  // OrderProps?: {
-  //   symbol?: string;
-  //   side?: 'BUY' | 'SELL';
-  //   order_type?: 'LIMIT' | 'MARKET';
-  //   order_tag?: string;
-  //   status?: 'NEW' | 'CANCELLED' | 'REJECTED' | 'COMPLETED' | 'FILLED' | 'PARTIAL_FILLED' | 'INCOMPLETE';
-  //   start_t?: number;
-  //   end_t?: number;
-  //   page?: number;
-  //   size?: number;
-  // };
-}) => {
-  const url = `/orderservice/v1/merge/orders/pending?${formateParams({
-    broker_id: 'ref_dex',
-  })}`;
+export const getOpenOrders = async (props: { accountId: string }) => {
+  const url = `/orderservice/v1/merge/orders/pending`;
 
   const res = requestOrderly({
     url,
@@ -341,7 +322,6 @@ export const getAllOrders = async (props: {
       ...props.OrderProps,
       page: 1,
       size: 500,
-      broker_id: 'ref_dex',
     },
   });
 
@@ -361,7 +341,6 @@ export const getAllOrders = async (props: {
           ...props.OrderProps,
           page,
           size: 500,
-          broker_id: 'ref_dex',
         },
       });
 
@@ -632,4 +611,110 @@ export const getMarketTrades = async ({
   return await getOrderlyPublic(
     `/v1/public/market_trades?symbol=${symbol}&limit=${limit}`
   );
+};
+
+export const getFundingFee = async ({
+  page = 1,
+  accountId,
+}: {
+  accountId: string;
+  page: number;
+}) => {
+  const url = `/v1/funding_fee/history?size=10&page=${page}`;
+
+  const res = requestOrderly({
+    url,
+    accountId,
+  });
+
+  return res;
+};
+
+export const getPortfolioAssetHistory = async ({
+  page = 1,
+  side,
+  accountId,
+}: {
+  accountId: string;
+  side: string;
+  page: number;
+}) => {
+  const url = `/v1/asset/history?size=10&page=${page}&side=${side}`;
+
+  const res = requestOrderly({
+    url,
+    accountId,
+  });
+
+  return res;
+};
+
+export const getPortfolioSettlements = async ({
+  page = 1,
+  accountId,
+}: {
+  accountId: string;
+  page: number;
+}) => {
+  const url = `/v1/pnl_settlement/history?size=10&page=${page}`;
+
+  const res = requestOrderly({
+    url,
+    accountId,
+  });
+
+  return res;
+};
+
+export const getPortfolioPosition = async ({
+  accountId,
+}: {
+  accountId: string;
+}) => {
+  const url = `/v1/positions`;
+
+  const res = await requestOrderly({
+    url,
+    accountId,
+  });
+
+  if (res?.data?.rows) {
+    const newRows = res.data.rows.map((r: any) => {
+      return {
+        ...r,
+        display_est_liq_price: r.est_liq_price,
+      };
+    });
+    res.data.rows = newRows;
+  }
+
+  return res;
+};
+
+export const getPortfolioAllOrders = async (props: {
+  accountId: string;
+  OrderProps?: {
+    symbol?: string;
+    page?: number;
+    size?: number;
+    status?:
+      | 'NEW'
+      | 'CANCELLED'
+      | 'PARTIAL_FILLED'
+      | 'FILLED'
+      | 'REJECTED'
+      | 'INCOMPLETE'
+      | 'COMPLETED';
+    broker_id?: string;
+    side?: 'BUY' | 'SELL';
+  };
+}) => {
+  const res = await getOrders({
+    accountId: props.accountId,
+    OrderProps: {
+      ...props.OrderProps,
+    },
+  });
+
+  return res;
 };

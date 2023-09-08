@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SymbolInfo, Holding } from '../../orderly/type';
+import { SymbolInfo, Holding, Balance } from '../../orderly/type';
 import { getOrderlyConfig } from '../../config';
 
 import { RequestOrder } from '../../orderly/type';
@@ -19,17 +19,28 @@ export function useAllSymbolInfo() {
       .catch((e) => {
         setAvailableSymbols([
           {
-            created_time: 1575441595650, // Unix epoch time in milliseconds
-            updated_time: 1575441595650, // Unix epoch time in milliseconds
-            symbol: 'SPOT_BTC_USDT',
-            quote_min: 100,
+            symbol: 'PERP_BTC_USDC',
+            quote_min: 0,
             quote_max: 100000,
-            quote_tick: 0.01,
-            base_min: 0.0001,
+            quote_tick: 0.1,
+            base_min: 0.00001,
             base_max: 20,
-            base_tick: 0.0001,
-            min_notional: 0.02,
-            price_range: 0.99,
+            base_tick: 0.00001,
+            min_notional: 1,
+            price_range: 0.02,
+            price_scope: 0.4,
+            std_liquidation_fee: 0.03,
+            liquidator_fee: 0.015,
+            claim_insurance_fund_discount: 0.0075,
+            funding_period: 8,
+            cap_funding: 0.000375,
+            floor_funding: -0.000375,
+            interest_rate: 0.0001,
+            created_time: 1684140107326,
+            updated_time: 1685345968053,
+            imr_factor: 0.0000002512,
+            base_mmr: 0.05,
+            base_imr: 0.1,
           },
         ]);
       });
@@ -59,20 +70,60 @@ export function useOrderBook({
   return orderBook;
 }
 
-export function useCurHoldings() {
+export function useCurHoldings(
+  validAccountSig: boolean,
+  balances: Record<string, Balance>
+) {
   const [holdings, setHoldings] = useState<Holding[]>();
-
-  const { myPendingOrdersRefreshing, validAccountSig } = useOrderlyContext();
 
   const { accountId } = useWalletSelector();
 
   useEffect(() => {
-    if (!accountId || !validAccountSig) return;
+    if (!accountId) return;
 
     getCurrentHolding({ accountId }).then((res) => {
       setHoldings(res.data.holding);
     });
-  }, [accountId, myPendingOrdersRefreshing, validAccountSig]);
+  }, [accountId, validAccountSig]);
+
+  useEffect(() => {
+    if (balances && holdings) {
+      const updatedHoldings = holdings.map((holding) => {
+        const newBalance = balances[holding.token];
+
+        if (newBalance) {
+          holding.holding = newBalance.holding;
+          holding.pending_short = newBalance.pendingShortQty;
+          holding.frozen = newBalance.frozen;
+        }
+
+        return holding;
+      });
+
+      const balancesKeyList = Object.keys(balances);
+
+      const holdingKeyList = holdings.map((h) => h.token);
+
+      balancesKeyList.forEach((key) => {
+        const notFoundBalance =
+          holdingKeyList.findIndex((h) => h === key) === -1;
+
+        if (notFoundBalance) {
+          const newBalance = balances[key];
+
+          updatedHoldings.push({
+            token: key,
+            holding: newBalance.holding,
+            pending_short: newBalance.pendingShortQty,
+            frozen: newBalance.frozen,
+            updated_time: Date.now(),
+          });
+        }
+      });
+
+      setHoldings(updatedHoldings);
+    }
+  }, [balances]);
 
   return holdings;
 }

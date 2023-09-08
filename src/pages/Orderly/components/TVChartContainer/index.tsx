@@ -122,13 +122,17 @@ export function ChartContainer({ maintenance }: { maintenance: boolean }) {
 
   const ref = React.useRef<HTMLDivElement>(null);
 
+  const storedInterval = localStorage.getItem(
+    'tradingview.chart.lastUsedTimeBasedResolution'
+  );
+
   const widgetOptions: ChartingLibraryWidgetOptions = {
     symbol: symbol,
     // BEWARE: no trailing slash is expected in feed URL
     // tslint:disable-next-line:no-any
     theme: 'Dark',
     datafeed: datafeed,
-    interval: 'D' as ResolutionString,
+    interval: (storedInterval || 'D') as ResolutionString,
     container: 'TVChartContainer',
     library_path: '/charting_library/',
     locale: getLanguageFromURL() || 'en',
@@ -156,18 +160,85 @@ export function ChartContainer({ maintenance }: { maintenance: boolean }) {
     },
   };
 
+  const [reloadTrigger, setReloadTrigger] = React.useState<boolean>(false);
+
   React.useEffect(() => {
     if (maintenance) return;
 
     const tvWidget = new widget(widgetOptions);
 
+    const volumeParam = {
+      id: 'volume',
+      visible: true,
+    };
+
+    const checkVolumeIndicator = () => {
+      if (tvWidget) {
+        const chart = tvWidget.chart();
+
+        const studies = chart.getAllStudies();
+
+        const hasVolumeIndicator = studies.some(
+          (study) => study.name === 'Volume'
+        );
+
+        return hasVolumeIndicator;
+      }
+    };
+
+    tvWidget.onChartReady(() => {
+      tvWidget
+        .chart()
+        .onDataLoaded()
+        .subscribe(null, () => {
+          if (!checkVolumeIndicator()) {
+            tvWidget.chart().createStudy('Volume', false, false, volumeParam);
+          }
+        });
+    });
+
     setTvWidget(tvWidget);
-  }, [maintenance]);
+  }, [maintenance, reloadTrigger]);
+
+  const [newLocale, setNewLocale] = React.useState(null);
+
+  React.useEffect(() => {
+    window.addEventListener('setItemEvent', (e: any) => {
+      if (typeof e?.local === 'string') {
+        setNewLocale(e.local);
+      }
+    });
+
+    return () => window.removeEventListener('setItemEvent', null);
+  }, []);
+
+  React.useEffect(() => {
+    if (!newLocale || !tvWidget || !ref) return;
+    const cur_lang_code = tvWidget.getLanguage();
+
+    const new_lang_code = newLocale.split('-')?.[0];
+
+    if (cur_lang_code !== new_lang_code) {
+      // @ts-ignore
+      setReloadTrigger((b) => !b);
+      // alert(`${cur_lang_code} + ${new_lang_code}`);
+    }
+  }, [newLocale]);
 
   React.useEffect(() => {
     if (!tvWidget) return;
 
-    tvWidget.setSymbol(symbol, 'D' as ResolutionString, () => {});
+    tvWidget.onChartReady(() => {
+      const storedInterval = localStorage.getItem(
+        'tradingview.chart.lastUsedTimeBasedResolution'
+      );
+
+      tvWidget.setSymbol(
+        symbol,
+        (storedInterval || 'D') as ResolutionString,
+        () => {}
+      );
+    });
   }, [symbol]);
 
   return (

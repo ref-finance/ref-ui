@@ -43,6 +43,7 @@ import USNPage from './pages/USNPage';
 import Portfolio from './pages/Portfolio';
 import Burrow from './pages/Burrow';
 import Overview from './pages/Overview';
+import PortfolioOrderly from './pages/Orderly/PorfolioOrderly';
 import {
   auroraAddr,
   getAuroraPool,
@@ -85,7 +86,10 @@ import { AccountView } from 'near-api-js/lib/providers/provider';
 import { InjectedWallet } from '@near-wallet-selector/core';
 import { REF_FARM_BOOST_CONTRACT_ID, wallet } from './services/near';
 import { LedgerTransactionModal } from './context/modal-ui/modal';
-import View from './pages/Orderly/OrderlyTradingBoard';
+import OrderlyTradingBoard from './pages/Orderly/OrderlyTradingBoard';
+
+import { OrderlyPerpetual } from './pages/Orderly/OrderlyPerpetual';
+
 import OrderlyContextProvider, {
   OrderlyContext,
 } from '~pages/Orderly/orderly/OrderlyContext';
@@ -217,17 +221,34 @@ export function Content() {
     }
   }, [accountId]);
 
+  if (isMobile()) {
+    document.body.style.setProperty('overflow-x', 'hidden');
+    document.documentElement.style.setProperty('overflow-x', 'hidden');
+  }
+
   return (
     <WalletContext.Provider value={{ globalState, globalStatedispatch }}>
       <NavigationBar />
       <ToastContainer
-        newestOnTop={window.location.pathname === '/orderbook' ? true : false}
+        newestOnTop={
+          window.location.pathname.startsWith('/orderbook') ? true : false
+        }
         style={{
           marginTop: isMobile() ? 'none' : '44px',
         }}
       />
       <OrderlyContextProvider>
         <Switch>
+          <Route
+            path="/orderbook/perps"
+            component={AutoHeightNoOffset(OrderlyPerpetual)}
+          />
+
+          <Route
+            path="/orderbook/spot"
+            component={AutoHeightNoOffset(OrderlyTradingBoard)}
+          />
+
           <Route path="/account" component={AccountPage} />
           <Route path="/recent" component={RecentActivityPage} />
           <Route
@@ -242,8 +263,6 @@ export function Content() {
           <Route path={`/sauce/:id`} component={AutoHeight(StableSwapRouter)} />
           <Route path={'/myOrder'} component={AutoHeight(MyOrderPage)} />
 
-          <Route path={'/orderly/all-orders'} component={AllOrders} />
-
           <Route
             path="/yourliquidity"
             component={AutoHeight(YourLiquidityPageV3)}
@@ -253,7 +272,6 @@ export function Content() {
             component={AutoHeight(YourLiquidityDetailV3)}
           />
 
-          <Route path="/orderbook" component={View} />
           <Route
             path="/addLiquidityV2"
             component={AutoHeight(AddYourLiquidityPageV3)}
@@ -276,6 +294,15 @@ export function Content() {
           <Route path="/portfolio" component={AutoHeight(Portfolio)} />
           <Route path="/burrow" component={AutoHeight(Burrow)} />
           <Route path="/overview" component={AutoHeight(Overview)} />
+
+          <Route
+            path="/orderbook"
+            component={AutoHeightNoOffset(OrderlyTradingBoard)}
+            exact
+          />
+
+          <Route path="/overview" component={AutoHeight(Overview)} />
+          <Route path="/orderly" component={AutoHeight(PortfolioOrderly)} />
           <Route path="/" component={AutoHeight(SwapPage)} />
         </Switch>
       </OrderlyContextProvider>
@@ -289,7 +316,17 @@ export function Content() {
 function AutoHeight(Comp: any) {
   return (props: any) => {
     return (
-      <div className="xs:flex xs:flex-col md:flex md:flex-col justify-center h-4/5 lg:mt-12 relative">
+      <div className="xs:flex xs:flex-col md:flex md:flex-col justify-center h-4/5 lg:mt-12 relative xs:pb-14">
+        <Comp {...props} />
+      </div>
+    );
+  };
+}
+
+function AutoHeightNoOffset(Comp: any) {
+  return (props: any) => {
+    return (
+      <div className="xs:flex xs:flex-col md:flex md:flex-col justify-center h-4/5 relative lg:mt-9 xs:pb-14">
         <Comp {...props} />
       </div>
     );

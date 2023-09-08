@@ -563,7 +563,7 @@ export const getErrorMessage = (res: any) => {
   }
 };
 
-export const normalFailToast = (text: string) => {
+export const normalFailToast = (text: string, autoClose?: number) => {
   toast(
     <div
       className="text-error w-full h-full pl-1.5 py-1  flex-col text-sm"
@@ -575,7 +575,7 @@ export const normalFailToast = (text: string) => {
       <span>{text}</span>
     </div>,
     {
-      autoClose: false,
+      autoClose: typeof autoClose === 'undefined' ? false : autoClose,
       closeOnClick: true,
       hideProgressBar: false,
       closeButton: <CloseIcon />,
@@ -592,6 +592,7 @@ export const normalFailToast = (text: string) => {
     }
   );
 };
+
 export const normalSuccessToast = (text: string) => {
   toast(
     <div
@@ -766,4 +767,57 @@ export const LimitOrderFailPopUp = (txHash: string) => {
       },
     }
   );
+};
+
+const TOAST_ID_KEY = 'ref-orderly-toast-id-key';
+
+export const marginPopUp = (tip: string, type: 'error' | 'success') => {
+  const mobileDevice = isMobile();
+
+  const pre_id = sessionStorage.getItem(TOAST_ID_KEY);
+
+  const preActive = toast.isActive(pre_id);
+
+  if (preActive) {
+    toast.dismiss();
+  }
+
+  const cur_id = toast(
+    <div
+      className={`flex-col flex px-2  text-sm  ${
+        type === 'success' ? 'text-marginGrayBg' : 'text-marginRedBg'
+      }  w-full`}
+    >
+      <span className="text-white  text-sm">{tip}</span>
+
+      <div
+        className={`absolute w-1  ${
+          type === 'error' ? 'bg-textRed' : 'bg-buyGreen'
+        } bottom-0 h-full left-0`}
+      ></div>
+    </div>,
+    {
+      autoClose: 3000,
+      closeOnClick: true,
+      hideProgressBar: true,
+      closeButton: false,
+      position: mobileDevice ? 'top-center' : 'bottom-right',
+      style: {
+        boxShadow: '0px -5px 10px rgba(0, 0, 0, 0.25)',
+        borderRadius: '4px',
+        zIndex: 9999,
+        // right: mobileDevice ? '0px' : '-40px',
+        left: mobileDevice ? '12.5%' : '',
+        overflow: 'hidden',
+        width: mobileDevice ? '75%' : '90%',
+        background: type === 'success' ? '#334049' : '#904247',
+        // bottom: !mobileDevice ? '-70px' : '0px',
+        minHeight: '40px',
+        top: mobileDevice ? '50px' : '',
+        // height: '40px',
+      },
+    }
+  );
+
+  sessionStorage.setItem(TOAST_ID_KEY, cur_id.toString());
 };

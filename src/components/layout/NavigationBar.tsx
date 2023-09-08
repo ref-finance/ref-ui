@@ -126,6 +126,176 @@ export function AccountTipDownByAccountID({ show }: { show: boolean }) {
   );
 }
 
+function Anchor({
+  to,
+  pattern,
+  name,
+  className,
+  newFuntion,
+  subMenu,
+}: {
+  to?: string;
+  pattern: string;
+  name: string;
+  className?: string;
+  newFuntion?: boolean;
+  subMenu?: {
+    name: string;
+    display?: string | JSX.Element;
+    path?: string;
+    click: (e?: any) => void;
+    chosen?: boolean;
+  }[];
+}) {
+  const location = useLocation();
+  let isSelected;
+
+  const [hover, setHover] = useState<boolean>(false);
+
+  const defaultChosed = subMenu?.find((m) => !!m.chosen)?.name;
+
+  const { pathname } = useLocation();
+
+  const isSwap =
+    pathname === '/' || pathname === '/swap' || pathname === '/myOrder';
+
+  const [chosenSub, setChosenSub] = useState<string>(
+    isSwap ? defaultChosed : null
+  );
+
+  useEffect(() => {
+    if (!isSwap) {
+      setChosenSub(null);
+    }
+  }, [isSwap, pathname]);
+
+  useEffect(() => {
+    if (!isSwap) return;
+
+    if (pathname === '/myOrder') {
+      setChosenSub('limit');
+    }
+
+    window.addEventListener('setItemEvent', (e: any) => {
+      const storageSwapTab = localStorage
+        .getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY)
+        ?.toString();
+
+      const storageSwapMode = localStorage.getItem(SWAP_MODE_KEY)?.toString();
+      if (typeof e?.[SWAP_MODE_KEY] === 'string') {
+        const curMode = e?.[SWAP_MODE_KEY];
+
+        if (curMode == SWAP_MODE.NORMAL && storageSwapTab === 'normal') {
+          setChosenSub('swap');
+        } else if (
+          e[SWAP_MODE_KEY] == SWAP_MODE.LIMIT &&
+          storageSwapTab === 'normal'
+        ) {
+          setChosenSub('limit');
+        }
+      }
+      if (typeof e?.[REF_FI_SWAP_SWAPPAGE_TAB_KEY] === 'string') {
+        const curTab = e?.[REF_FI_SWAP_SWAPPAGE_TAB_KEY];
+
+        if (curTab === 'normal') {
+          setChosenSub(storageSwapMode);
+        } else {
+          setChosenSub('pro');
+        }
+      }
+    });
+  }, [isSwap]);
+
+  if (pattern == '/pools') {
+    isSelected =
+      location.pathname.startsWith('/pools') ||
+      location.pathname.startsWith('/pool') ||
+      location.pathname.startsWith('/more_pools') ||
+      location.pathname.startsWith('/yourliquidity') ||
+      location.pathname.startsWith('/addLiquidityV2') ||
+      location.pathname.startsWith('/yoursLiquidityDetailV2');
+  } else if (pattern == '/') {
+    isSelected = location.pathname === '/' || location.pathname === '/swap';
+  } else if (pattern === '/sauce' || pattern === '/v2farms') {
+    isSelected = matchPath(location.pathname, {
+      path: pattern,
+      exact: false,
+      strict: false,
+    });
+  } else {
+    isSelected = matchPath(location.pathname, {
+      path: pattern,
+      exact: true,
+      strict: false,
+    });
+  }
+
+  return (
+    <>
+      <Link
+        to={to}
+        className={`relative flex items-center justify-center h-full  mx-4 `}
+        onMouseLeave={() => setHover(false)}
+        onMouseEnter={() => setHover(true)}
+      >
+        <span
+          className={`link hover:text-white text-base font-bold py-4 cursor-pointer relative z-10 ${className} ${
+            isSelected ? 'text-white' : 'text-gray-400'
+          }`}
+        >
+          <FormattedMessage id={name} defaultMessage={name} />
+          {newFuntion ? (
+            <span className="absolute top-5 right-2">
+              <IconAirDropGreenTip />
+            </span>
+          ) : null}
+        </span>
+
+        {!!subMenu && hover && (
+          <span
+            className="top-10 pt-2 absolute"
+            style={{
+              zIndex: 9999,
+            }}
+          >
+            <div
+              className="py-2  px-1.5 rounded-xl min-w-28 flex flex-col"
+              style={{
+                background: 'rgba(23,32,38)',
+                border: '1px solid #415462',
+              }}
+            >
+              {subMenu.map((m) => {
+                return (
+                  <span
+                    className={`${
+                      (chosenSub === m.name && isSwap) ||
+                      pathname.toLocaleLowerCase().indexOf(m.path) > -1
+                        ? 'bg-primaryText bg-opacity-30 text-white'
+                        : 'text-primaryText'
+                    } hover:bg-primaryText hover:bg-opacity-30 items-center
+                    flex justify-center py-0.5 h-11 mb-0.5 hover:text-white rounded-lg 
+                   text-center text-base cursor-pointer my-auto whitespace-nowrap px-2`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      m.click();
+                      setChosenSub(m.name);
+                      setHover(false);
+                    }}
+                  >
+                    {m.display || <FormattedMessage id={m.name} />}
+                  </span>
+                );
+              })}
+            </div>
+          </span>
+        )}
+      </Link>
+    </>
+  );
+}
+
 function AccountEntry({
   setShowWalletSelector,
   showWalletSelector,
@@ -918,16 +1088,7 @@ function NavigationBar() {
     </>
   );
 }
-export const commonLangKey = [
-  'en',
-  'zh-CN',
-  'vi',
-  'uk',
-  'ru',
-  'ja',
-  'ko',
-  'es',
-];
+export const commonLangKey = ['en', 'zh-CN', 'vi', 'ko', 'es'];
 export function formatItem(local: string) {
   if (commonLangKey.indexOf(local) > -1) {
     return local;
@@ -1073,7 +1234,78 @@ export function USNCard({
   );
 }
 function MenuBar() {
-  const menus_temp = useMenus();
+  const history = useHistory();
+  const [hover_two_level_items, set_hover_two_level_items] = useState<
+    menuItemType[]
+  >([]);
+  const [hover_one_level_id, set_hover_one_level_id] = useState<string>();
+
+  const [hover_two_level_id, set_hover_two_level_id] = useState<string>();
+
+  const [back_one_level_item, set_back_one_level_item] =
+    useState<JSX.Element>();
+  const [one_level_selected, set_one_level_selected] = useState<string>('');
+  const [two_level_selected, set_two_level_selected] = useState<string>('');
+
+  function hover_on_one_level_item(item: menuItemType) {
+    const { children, id } = item;
+    if (children) {
+      set_hover_two_level_items(children);
+    }
+    set_hover_one_level_id(id);
+  }
+  function hover_off_one_level_item() {
+    set_hover_two_level_items([]);
+    set_back_one_level_item(null);
+    set_hover_two_level_id(undefined);
+    set_hover_one_level_id('');
+  }
+  function click_one_level_item(item: menuItemType) {
+    const { clickEvent, url, isExternal } = item;
+    if (clickEvent) {
+      clickEvent();
+    } else if (url) {
+      if (isExternal) {
+        openUrl(url);
+      } else {
+        history.push(url);
+      }
+    }
+    if (clickEvent && url) {
+      hover_off_one_level_item();
+    }
+  }
+  function click_two_level_item(item: menuItemType) {
+    const { children, label, clickEvent, url, isExternal } = item;
+    if (children) {
+      set_hover_two_level_items(children);
+      set_back_one_level_item(label);
+    } else {
+      if (clickEvent) {
+        clickEvent();
+      } else if (url) {
+        if (isExternal) {
+          openUrl(url);
+        } else {
+          history.push(url);
+        }
+      }
+
+      if (clickEvent) {
+        hover_off_one_level_item();
+      }
+    }
+  }
+  function click_three_level_title_to_back(menuItem: menuItemType) {
+    const { children } = menuItem;
+    set_hover_two_level_items(children);
+    set_back_one_level_item(null);
+  }
+
+  const menus_temp = useMenus(() => {
+    hover_off_one_level_item();
+    set_hover_two_level_id(undefined);
+  });
   const menus = useMemo(() => {
     if (menus_temp) {
       const menus_final = menus_temp.filter((m: menuItemType) => {
@@ -1082,15 +1314,6 @@ function MenuBar() {
       return menus_final;
     }
   }, [menus_temp]);
-  const history = useHistory();
-  const [hover_two_level_items, set_hover_two_level_items] = useState<
-    menuItemType[]
-  >([]);
-  const [hover_one_level_id, set_hover_one_level_id] = useState<string>();
-  const [back_one_level_item, set_back_one_level_item] =
-    useState<JSX.Element>();
-  const [one_level_selected, set_one_level_selected] = useState<string>('');
-  const [two_level_selected, set_two_level_selected] = useState<string>('');
   useEffect(() => {
     const pathname = '/' + location.pathname.split('/')[1];
     let one_level_selected_id = '';
@@ -1125,61 +1348,10 @@ function MenuBar() {
       set_two_level_selected(two_level_selected_id);
     }
   }, [location.pathname, menus]);
-  function hover_on_one_level_item(item: menuItemType) {
-    const { children, id } = item;
-    if (children) {
-      set_hover_two_level_items(children);
-    }
-    set_hover_one_level_id(id);
-  }
-  function hover_off_one_level_item() {
-    set_hover_two_level_items([]);
-    set_back_one_level_item(null);
-    set_hover_one_level_id('');
-  }
-  function click_one_level_item(item: menuItemType) {
-    const { clickEvent, url, isExternal } = item;
-    if (clickEvent) {
-      clickEvent();
-    } else if (url) {
-      if (isExternal) {
-        openUrl(url);
-      } else {
-        history.push(url);
-      }
-    }
-    if (clickEvent && url) {
-      hover_off_one_level_item();
-    }
-  }
-  function click_two_level_item(item: menuItemType) {
-    const { children, label, clickEvent, url, isExternal } = item;
-    if (children) {
-      set_hover_two_level_items(children);
-      set_back_one_level_item(label);
-    } else {
-      if (clickEvent) {
-        clickEvent();
-      } else if (url) {
-        if (isExternal) {
-          openUrl(url);
-        } else {
-          history.push(url);
-        }
-      }
-      hover_off_one_level_item();
-    }
-  }
-  function click_three_level_title_to_back(menuItem: menuItemType) {
-    const { children } = menuItem;
-    set_hover_two_level_items(children);
-    set_back_one_level_item(null);
-  }
-
   return (
     <div className="flex items-center h-full z-50">
       {menus?.map((menuItem: menuItemType, indexP) => {
-        const { label, logo, children, id } = menuItem;
+        const { label, logo, children, id, hoverLabel } = menuItem;
         return (
           <div
             id={`menu-${id}`}
@@ -1202,21 +1374,21 @@ function MenuBar() {
               }`}
             >
               {logo ? <span className="mr-1">{logo}</span> : null}
-              <div className={`text-base`}>{label}</div>
+              <div className={`text-base `}>{label}</div>
               {children ? (
                 <DownTriangleIcon className="ml-1 mt-1"></DownTriangleIcon>
               ) : null}
             </div>
             {/* two-level */}
             <div
-              className={`absolute rounded-2xl border border-menuMoreBoxBorderColor bg-priceBoardColor top-12 cursor-pointer px-2.5 py-1 ${
+              className={`absolute rounded-2xl border border-menuMoreBoxBorderColor bg-priceBoardColor top-12 cursor-pointer px-2.5 py-1 pc-menu-bar-one-level ${
                 hover_one_level_id == id &&
                 children &&
                 hover_two_level_items.length > 0
                   ? ''
                   : 'hidden'
               }`}
-              style={{ minWidth: '220px' }}
+              style={{ minWidth: '220px', left: '-80px' }}
             >
               {back_one_level_item && (
                 <div
@@ -1230,21 +1402,47 @@ function MenuBar() {
                 </div>
               )}
               {hover_two_level_items?.map((item: menuItemType, indexC) => {
-                const { label, logo, children, id, icon } = item;
+                const {
+                  label,
+                  logo,
+                  children,
+                  id: id_two_level,
+                  icon,
+                  hoverLabel,
+                  renderLogo,
+                } = item;
                 return (
                   <div
                     key={indexC}
                     onClick={() => {
                       click_two_level_item(item);
                     }}
+                    onMouseEnter={() => {
+                      set_hover_two_level_id(id_two_level);
+                    }}
+                    onMouseLeave={() => {
+                      set_hover_two_level_id(id_two_level);
+                    }}
                     className={`flex items-center rounded-xl whitespace-nowrap hover:bg-menuMoreBgColor hover:text-white text-sm py-3 my-1.5 px-2 cursor-pointer ${
-                      two_level_selected == id
+                      two_level_selected == id_two_level
                         ? 'bg-menuMoreBgColor text-white'
                         : 'text-primaryText'
                     }`}
                   >
-                    {logo ? <div className="w-8 mr-2">{logo}</div> : null}
-                    <div className="text-base">{label}</div>
+                    {logo || renderLogo ? (
+                      <div className="w-8 mr-2">
+                        {renderLogo
+                          ? renderLogo({
+                              activeMenu: two_level_selected == id_two_level,
+                            })
+                          : logo}
+                      </div>
+                    ) : null}
+                    <div className="text-base ">
+                      {hover_two_level_id == id_two_level && hoverLabel
+                        ? hoverLabel
+                        : label}
+                    </div>
                     {children ? (
                       <span className="text-xl ml-2">
                         <FiChevronRight />

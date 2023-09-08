@@ -404,10 +404,10 @@ export const estimateValidator = (
   parsedAmountIn: string,
   tokenOut: TokenMetadata
 ) => {
+  if (swapTodos && swapTodos?.[0]?.pool === null) return true;
+
   const tokenInId = swapTodos[0]?.inputToken;
   const tokenOutId = swapTodos[swapTodos.length - 1]?.outputToken;
-
-  if (swapTodos && swapTodos?.[0]?.pool === null) return true;
 
   if (
     tokenInId !== tokenIn.id ||
@@ -582,9 +582,9 @@ export const useSwap = ({
           // }
         })
         .finally(() => {
-          setForceEstimate(false);
-          setLoadingTrigger(false);
-          setEstimating(false);
+          setForceEstimate && setForceEstimate(false);
+          setLoadingTrigger && setLoadingTrigger(false);
+          setEstimating && setEstimating(false);
         });
     } else if (
       tokenIn &&
@@ -625,8 +625,8 @@ export const useSwap = ({
   }, [
     loadingTrigger,
     loadingPause,
-    tokenIn,
-    tokenOut,
+    tokenIn?.id,
+    tokenOut?.id,
     tokenInAmount,
     reEstimateTrigger,
     enableTri,
@@ -701,11 +701,21 @@ export const useSwap = ({
     swapError,
     makeSwap,
     avgFee,
-    tokenInAmount,
+    tokenInAmount: !swapsToDo
+      ? '1'
+      : toReadableNumber(
+          tokenIn.decimals,
+          swapsToDo
+            .reduce(
+              (acc, cur) => acc.plus(cur?.partialAmountIn || 0),
+              new Big(0)
+            )
+            .toFixed()
+        ),
     pools: swapsToDo?.map((estimate) => estimate.pool),
     swapsToDo,
     isParallelSwap: swapsToDo?.every((e) => e.status === PoolMode.PARALLEL),
-    quoteDone,
+    quoteDone: quoteDone && !estimating,
     priceImpactValue: scientificNotationToString(
       new Big(priceImpactValue).minus(new Big((avgFee || 0) / 100)).toString()
     ),
@@ -820,7 +830,7 @@ export const useSwapV3 = ({
         setBestPool(bestPool);
       })
       .finally(() => {});
-  }, [bestFee, tokenIn, tokenOut, poolReFetch]);
+  }, [bestFee, tokenIn?.id, tokenOut?.id, poolReFetch]);
 
   useEffect(() => {
     if (!tokenIn || !tokenOut || !tokenInAmount || wrapOperation) return;
@@ -872,8 +882,8 @@ export const useSwapV3 = ({
         setLoadingTrigger && setLoadingTrigger(false);
       });
   }, [
-    tokenIn,
-    tokenOut,
+    tokenIn?.id,
+    tokenOut?.id,
     tokenInAmount,
     loadingTrigger,
     swapError?.message,
@@ -1884,7 +1894,7 @@ export const useOrderlySwap = ({
   ]);
 
   const makeSwap = () => {
-    openUrl(`/orderbook?side=${side}&orderType=Market`);
+    openUrl(`/orderbook/spot?side=${side}&orderType=Market`);
   };
 
   return {
@@ -2075,14 +2085,12 @@ export const useRefSwapPro = ({
 
       if (
         sessionStorage.getItem('loadingTrigger') === 'true' &&
-        sessionStorage.getItem('enableTri') === enableTri.toString() &&
-        !forceEstimatePro
+        !!selectMarket
       ) {
         setQuoting(false);
 
         return;
       }
-      sessionStorage.setItem('enableTri', 'true');
 
       if (trades[bestMarket].availableRoute === true) {
         setSelectMarket(bestMarket as SwapMarket);

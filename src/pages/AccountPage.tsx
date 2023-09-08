@@ -799,7 +799,7 @@ function AccountTable(props: any) {
                 <td className="pl-6">
                   <div className="flex items-center">
                     <div className="h-10 w-10 rounded-full border border-gradientFromHover mr-2.5 overflow-hidden flex-shrink-0">
-                      <img src={item.icon} className="w-full h-full"></img>
+                      <img src={item.icon} className="w-full h-full"></img>s
                     </div>
                     <div className="flex flex-col">
                       <div className="flex items-center">
