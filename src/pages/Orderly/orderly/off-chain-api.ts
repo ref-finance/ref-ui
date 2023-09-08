@@ -11,6 +11,7 @@ import {
   ClientInfo,
   orderStatus,
   Balance,
+  MyOrder,
 } from './type';
 import { get_user_trading_key } from './on-chain-api';
 import { ec } from 'elliptic';
@@ -487,10 +488,11 @@ export const cancelOrderByClientId = async (props: {
 };
 
 export const editOrder = async (props: {
+  order: MyOrder;
   accountId: string;
   orderlyProps: EditOrderlyOrder;
 }) => {
-  const { accountId } = props;
+  const { accountId, order } = props;
 
   const {
     symbol,
@@ -517,7 +519,7 @@ export const editOrder = async (props: {
     broker_id,
     order_id,
     visible_quantity:
-      visible_quantity !== order_quantity ? visible_quantity : '',
+      visible_quantity !== order.quantity ? visible_quantity : '',
   };
 
   const message = formateParams(sendParams);

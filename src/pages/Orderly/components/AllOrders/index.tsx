@@ -765,6 +765,7 @@ function OrderLine({
     console.log('order: ', order);
 
     return editOrder({
+      order,
       accountId,
       orderlyProps: {
         order_id: order.order_id,
