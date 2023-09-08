@@ -148,7 +148,7 @@ export const usePrivateOrderlyWS = () => {
       if (savedTime && Date.now() - Number(savedTime) > 5 * 60 * 1000) {
         const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
 
-        connectionStatus !== 'open' && storedValid && setNeedRefresh(true);
+        connectionStatus !== 'Open' && storedValid && setNeedRefresh(true);
       }
       sessionStorage.setItem('targetTime', Date.now().toString());
     } else {
