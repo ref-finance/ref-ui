@@ -505,7 +505,6 @@ export const editOrder = async (props: {
     broker_id,
     order_id,
     visible_quantity,
-    reduce_only,
   } = props.orderlyProps;
 
   const sendParams = {
@@ -528,7 +527,6 @@ export const editOrder = async (props: {
 
   const body = {
     ...sendParams,
-    reduce_only,
 
     signature,
   };
