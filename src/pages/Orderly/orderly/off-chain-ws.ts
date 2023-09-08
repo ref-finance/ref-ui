@@ -139,7 +139,7 @@ export const usePrivateOrderlyWS = () => {
 
       sessionStorage.removeItem('targetTime');
     };
-  }, []);
+  }, [readyState]);
 
   const connectionStatus = {
     [ReadyState.CONNECTING]: 'Connecting',
