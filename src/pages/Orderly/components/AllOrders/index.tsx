@@ -762,8 +762,6 @@ function OrderLine({
 
     setShowEditModal(false);
 
-    console.log('order: ', order);
-
     return editOrder({
       order,
       accountId,
