@@ -501,15 +501,12 @@ export const editOrder = async (props: {
     order_amount,
     side,
     broker_id,
-    visible_quantity,
     order_id,
+    visible_quantity,
+    reduce_only,
   } = props.orderlyProps;
 
-  const message = formateParams(props.orderlyProps);
-
-  const signature = generateOrderSignature(message);
-
-  const body = {
+  const sendParams = {
     symbol,
     client_order_id,
     order_type,
@@ -517,9 +514,20 @@ export const editOrder = async (props: {
     order_quantity,
     order_amount,
     side,
-    order_id,
     broker_id,
-    visible_quantity,
+    order_id,
+    visible_quantity:
+      visible_quantity !== order_quantity ? visible_quantity : '',
+  };
+
+  const message = formateParams(sendParams);
+
+  const signature = generateOrderSignature(message);
+
+  const body = {
+    ...sendParams,
+    reduce_only,
+
     signature,
   };
 
