@@ -353,12 +353,12 @@ function Table({
       if (sort[0][0] === 'symbol') {
         const priceA =
           unrealMode === 'mark_price'
-            ? markPrices.find((i) => i.symbol === a[sort[0][0]])?.price
-            : lastPrices.find((i) => i.symbol === a[sort[0][0]])?.close;
+            ? markPrices?.find((i) => i.symbol === a[sort[0][0]])?.price || 0
+            : lastPrices?.find((i) => i.symbol === a[sort[0][0]])?.close || 0;
         const priceB =
           unrealMode === 'mark_price'
-            ? markPrices.find((i) => i.symbol === b[sort[0][0]])?.price
-            : lastPrices.find((i) => i.symbol === b[sort[0][0]])?.close;
+            ? markPrices?.find((i) => i.symbol === b[sort[0][0]])?.price || 0
+            : lastPrices?.find((i) => i.symbol === b[sort[0][0]])?.close || 0;
         const c =
           a[sort[0][2]] >= 0
             ? (priceA - a[sort[0][1]]) * a[sort[0][2]]
