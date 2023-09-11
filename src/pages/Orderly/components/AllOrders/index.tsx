@@ -1884,14 +1884,16 @@ function HistoryOrderLine({
           ) : (
             <div className="flex items-center ">
               <span className="font-nunito">
-                {order.executed > 0 && order.executed / order.quantity < 0.01
-                  ? '1'
-                  : order.quantity > 0
-                  ? new Big(new Big(order.executed || 0))
-                      .div(new Big(order.quantity || 1))
-                      .times(100)
-                      .toFixed()
-                  : 0}
+                {parseFloat(
+                  order.executed > 0 && order.executed / order.quantity < 0.01
+                    ? '1'
+                    : order.quantity > 0
+                    ? new Big(new Big(order.executed || 0))
+                        .div(new Big(order.quantity || 1))
+                        .times(100)
+                        .toFixed(2)
+                    : '0'
+                )}
                 %
               </span>
 
