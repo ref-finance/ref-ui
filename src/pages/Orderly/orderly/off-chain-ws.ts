@@ -39,7 +39,9 @@ import { REF_ORDERLY_ACCOUNT_VALID } from '../components/UserBoardPerp';
 export const REF_ORDERLY_WS_ID_PREFIX = 'orderly_ws_';
 
 export const useOrderlyWS = () => {
-  const [socketUrl, setSocketUrl] = useState(getOrderlyWss(false));
+  const orderlySocketUrl = getOrderlyWss(false);
+
+  const [socketUrl, setSocketUrl] = useState(orderlySocketUrl);
 
   const [messageHistory, setMessageHistory] = useState<any>([]);
 
@@ -67,6 +69,15 @@ export const useOrderlyWS = () => {
     return clearInterval(id);
   }, []);
 
+  useEffect(() => {
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+
+      sessionStorage.removeItem('targetTime');
+    };
+  }, [readyState]);
+
   const connectionStatus = {
     [ReadyState.CONNECTING]: 'Connecting',
     [ReadyState.OPEN]: 'Open',
@@ -74,6 +85,16 @@ export const useOrderlyWS = () => {
     [ReadyState.CLOSED]: 'Closed',
     [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
   }[readyState];
+
+  console.log('connectionStatus: ', connectionStatus);
+
+  const handleVisibilityChange = () => {
+    if (document.visibilityState === 'visible') {
+      setSocketUrl(orderlySocketUrl);
+    } else {
+      setSocketUrl(null);
+    }
+  };
 
   return {
     connectionStatus,
@@ -86,6 +107,10 @@ export const useOrderlyWS = () => {
 };
 export const usePrivateOrderlyWS = () => {
   const { accountId } = useWalletSelector();
+
+  const orderlySocketUrl =
+    getOrderlyConfig().ORDERLY_WS_ENDPOINT_PRIVATE + `/${accountId}`;
+
   const [socketUrl, setSocketUrl] = useState(
     getOrderlyConfig().ORDERLY_WS_ENDPOINT_PRIVATE + `/${accountId}`
   );
@@ -149,8 +174,14 @@ export const usePrivateOrderlyWS = () => {
     [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
   }[readyState];
 
+  console.log('connectionStatus: ', connectionStatus);
+
   const handleVisibilityChange = () => {
     if (document.visibilityState === 'visible') {
+      // resend
+
+      setSocketUrl(orderlySocketUrl);
+
       const savedTime = sessionStorage.getItem('targetTime');
 
       if (savedTime && Date.now() - Number(savedTime) > 5 * 60 * 1000) {
@@ -163,6 +194,8 @@ export const usePrivateOrderlyWS = () => {
       }
       sessionStorage.setItem('targetTime', Date.now().toString());
     } else {
+      setSocketUrl(null);
+
       sessionStorage.setItem('targetTime', Date.now().toString());
     }
   };
