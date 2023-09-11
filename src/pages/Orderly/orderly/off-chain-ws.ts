@@ -198,7 +198,7 @@ export const usePrivateOrderlyWS = () => {
 
       setTimeout(() => {
         handleNeedRefresh();
-      }, 10 * 1000);
+      }, 15 * 1000);
 
       // if (savedTime && Date.now() - Number(savedTime) > 5 * 60 * 1000) {
       //   const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
@@ -210,6 +210,8 @@ export const usePrivateOrderlyWS = () => {
       // }
 
       // sessionStorage.setItem('targetTime', Date.now().toString());
+    } else {
+      setSocketUrl(null);
     }
 
     // alert(document.visibilityState);
