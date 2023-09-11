@@ -35,6 +35,7 @@ import { useWalletSelector } from '../../../context/WalletSelectorContext';
 import useInterval from 'react-useinterval';
 import { getFundingRateSymbol } from './perp-off-chain-api';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../components/UserBoardPerp';
+import { JsonValue } from 'react-use-websocket/dist/lib/types';
 
 export const REF_ORDERLY_WS_ID_PREFIX = 'orderly_ws_';
 
@@ -128,7 +129,7 @@ export const usePrivateOrderlyWS = () => {
     }
   }, [accountId]);
 
-  const [messageHistory, setMessageHistory] = useState<any>([]);
+  const [messageHistory, setMessageHistory] = useState<JsonValue[]>([]);
 
   const {
     lastMessage,
@@ -174,37 +175,49 @@ export const usePrivateOrderlyWS = () => {
     [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
   }[readyState];
 
-  console.log('connectionStatus: ', connectionStatus);
+  useEffect(() => {
+    if (lastJsonMessage !== null) {
+      setMessageHistory((prev: any) => prev.concat(lastJsonMessage));
+    }
+  }, [lastJsonMessage, setMessageHistory]);
 
-  const handleVisibilityChange = () => {
-    if (document.visibilityState === 'visible') {
-      // resend
+  const handleNeedRefresh = () => {
+    const lastPong = messageHistory
+      ?.filter((m: any) => m['event'] === 'pong')
+      ?.at(-1);
 
-      setSocketUrl(orderlySocketUrl);
-
-      const savedTime = sessionStorage.getItem('targetTime');
-
-      if (savedTime && Date.now() - Number(savedTime) > 5 * 60 * 1000) {
-        const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
-
-        connectionStatus !== 'Open' &&
-          connectionStatus !== 'Connecting' &&
-          storedValid &&
-          setNeedRefresh(true);
-      }
-      sessionStorage.setItem('targetTime', Date.now().toString());
-    } else {
-      setSocketUrl(null);
-
-      sessionStorage.setItem('targetTime', Date.now().toString());
+    if (lastPong && Date.now() - Number(lastPong['ts']) > 10 * 1000) {
+      const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
+      storedValid && setNeedRefresh(true);
     }
   };
 
-  useEffect(() => {
-    if (lastMessage !== null) {
-      setMessageHistory((prev: any) => prev.concat(lastMessage));
+  const handleVisibilityChange = () => {
+    if (document.visibilityState === 'visible') {
+      setSocketUrl(orderlySocketUrl);
+
+      setTimeout(() => {
+        handleNeedRefresh();
+      }, 10 * 1000);
+
+      // if (savedTime && Date.now() - Number(savedTime) > 5 * 60 * 1000) {
+      //   const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
+
+      //   connectionStatus !== 'Open' &&
+      //     connectionStatus !== 'Connecting' &&
+      //     storedValid &&
+      //     setNeedRefresh(true);
+      // }
+
+      // sessionStorage.setItem('targetTime', Date.now().toString());
+    } else {
+      setSocketUrl(null);
+
+      // sessionStorage.setItem('targetTime', Date.now().toString());
     }
-  }, [lastMessage, setMessageHistory]);
+
+    // alert(document.visibilityState);
+  };
 
   useEffect(() => {
     if (refreshTrigger === true && readyState === ReadyState.CLOSED) {
