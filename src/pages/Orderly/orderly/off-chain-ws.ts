@@ -210,10 +210,6 @@ export const usePrivateOrderlyWS = () => {
       // }
 
       // sessionStorage.setItem('targetTime', Date.now().toString());
-    } else {
-      setSocketUrl(null);
-
-      // sessionStorage.setItem('targetTime', Date.now().toString());
     }
 
     // alert(document.visibilityState);
