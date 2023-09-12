@@ -254,6 +254,13 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         ],
         switch_on_dcl_farms: 'on',
         BURROW_CONTRACT_ID: 'contract.1638481328.burrow.testnet',
+        USDTT_USDCC_USDT_USDC_POOL_ID: process.env.USDTT_USDCC_USDT_USDC_POOL_ID || 711,
+        USDTT_USDCC_USDT_USDC_TOKEN_IDS: [
+          'usdtt.fakes.testnet',
+          'usdcc.fakes.testnet',
+          'usdt.fakes.testnet',
+          'usdc.fakes.testnet'
+        ],
       };
     case 'testnet':
       return {
@@ -296,6 +303,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'usdc.fakes.testnet',
           'dai.fakes.testnet',
         ],
+       
         STABLE_TOKEN_USN_IDS: ['usdn.testnet', 'usdt.fakes.testnet'],
         STABLE_TOKEN_USN_INDEX: {
           'usdn.testnet': 0,
@@ -328,6 +336,13 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         boostBlackList: process.env.FARM__BOOST_BLACK_LIST || [''],
         switch_on_dcl_farms: 'on',
         BURROW_CONTRACT_ID: 'contract.1638481328.burrow.testnet',
+        USDTT_USDCC_USDT_USDC_POOL_ID: process.env.USDTT_USDCC_USDT_USDC_POOL_ID || 711,
+        USDTT_USDCC_USDT_USDC_TOKEN_IDS: [
+          'usdtt.fakes.testnet',
+          'usdcc.fakes.testnet',
+          'usdt.fakes.testnet',
+          'usdc.fakes.testnet'
+        ],
       };
     default:
       return {
@@ -520,8 +535,7 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'usdt.fakes.testnet': 0,
           'usdtt.fakes.testnet': 1,
         },
-
-        RATED_POOLS_IDS: ['568', '571', '1044', '1751', '1752'],
+        RATED_POOLS_IDS: ['568', '571', '1044', '1751', '1752', '711'],
       };
     case 'testnet':
       return {
@@ -568,7 +582,7 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'usdtt.fakes.testnet': 1,
         },
 
-        RATED_POOLS_IDS: ['621', '622', '666', '685', '686'],
+        RATED_POOLS_IDS: ['621', '622', '666', '685', '686', '711'],
       };
     default:
       return {

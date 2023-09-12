@@ -44,7 +44,11 @@ export const REF_VE_CONTRACT_ID = config.REF_VE_CONTRACT_ID;
 
 export const STABLE_TOKEN_IDS = config.STABLE_TOKEN_IDS;
 
+export const USDTT_USDCC_USDT_USDC_TOKEN_IDS = config.USDTT_USDCC_USDT_USDC_TOKEN_IDS;
+
 export const STABLE_POOL_ID = config.STABLE_POOL_ID;
+
+export const USDTT_USDCC_USDT_USDC_POOL_ID = config.USDTT_USDCC_USDT_USDC_POOL_ID;
 
 export const STABLE_POOL_USN_ID = config.STABLE_POOL_USN_ID;
 
@@ -91,7 +95,7 @@ export const isRatedPool = (id: string | number) => {
 
 export const AllStableTokenIds = new Array(
   ...new Set(
-    STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS).concat(extraStableTokenIds)
+    STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS).concat(extraStableTokenIds).concat(USDTT_USDCC_USDT_USDC_TOKEN_IDS)
   )
 );
 
@@ -102,6 +106,7 @@ export const isStableToken = (id: string) => {
 export const TOKEN_BLACK_LIST = [NEARXIDS[0]];
 
 export const ALL_STABLE_POOL_IDS = [
+  USDTT_USDCC_USDT_USDC_POOL_ID,
   STABLE_POOL_ID,
   STABLE_POOL_USN_ID,
   BTC_STABLE_POOL_ID,
@@ -174,6 +179,7 @@ export const USD_CLASS_STABLE_POOL_IDS = [
   STABLE_POOL_USN_ID.toString(),
   CUSD_STABLE_POOL_ID,
   USDT_POOL_ID,
+  USDTT_USDCC_USDT_USDC_POOL_ID.toString(),
 ];
 
 export const BTC_CLASS_STABLE_TOKEN_IDS = BTCIDS;

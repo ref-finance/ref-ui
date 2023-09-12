@@ -3624,7 +3624,7 @@ function StablePoolCard({
               : ''
           }  flex items-center   xs:justify-between md:justify-between`}
         >
-          <Images tokens={poolData.tokens} size="8" className="mr-4" />
+          <Images tokens={poolData.tokens} size="8" className="mr-4" layout="vertical" layoutSize="16" />
 
           <div className="flex xs:flex-col xs:items-end items-center">
             <div className="flex items-center">
