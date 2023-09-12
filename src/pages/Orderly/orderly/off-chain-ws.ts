@@ -185,7 +185,7 @@ export const usePrivateOrderlyWS = () => {
   const pathname = history.location.pathname;
 
   useEffect(() => {
-    if (pathname.indexOf('perp') > -1) {
+    if (pathname.indexOf('perp') > -1 || pathname.indexOf('orderly') > -1) {
       handleVisibilityChange();
     }
   }, [pathname]);
