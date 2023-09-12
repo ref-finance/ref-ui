@@ -312,7 +312,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '1972847.31',
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '2621724.09',
-        BLACKLIST_POOL_IDS: ['686'],
+        BLACKLIST_POOL_IDS: ['686','711'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID ||
           'boostfarm-dev.ref-dev.testnet',
