@@ -70,13 +70,6 @@ export const useOrderlyWS = () => {
     return clearInterval(id);
   }, []);
 
-  useEffect(() => {
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [readyState]);
-
   const connectionStatus = {
     [ReadyState.CONNECTING]: 'Connecting',
     [ReadyState.OPEN]: 'Open',
@@ -84,14 +77,6 @@ export const useOrderlyWS = () => {
     [ReadyState.CLOSED]: 'Closed',
     [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
   }[readyState];
-
-  const handleVisibilityChange = () => {
-    if (document.visibilityState === 'visible') {
-      setSocketUrl(orderlySocketUrl);
-    } else {
-      setSocketUrl(null);
-    }
-  };
 
   return {
     connectionStatus,
@@ -182,7 +167,7 @@ export const usePrivateOrderlyWS = () => {
       ?.filter((m: any) => m['event'] === 'pong')
       ?.at(-1);
 
-    if (lastPong && Date.now() - Number(lastPong['ts']) > 10 * 1000) {
+    if (lastPong && Date.now() - Number(lastPong['ts']) > 15 * 1000) {
       const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
       storedValid && setNeedRefresh(true);
     }
@@ -190,23 +175,8 @@ export const usePrivateOrderlyWS = () => {
 
   const handleVisibilityChange = () => {
     if (document.visibilityState === 'visible') {
-      setSocketUrl(orderlySocketUrl);
-
-      // if (savedTime && Date.now() - Number(savedTime) > 5 * 60 * 1000) {
-      //   const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
-
-      //   connectionStatus !== 'Open' &&
-      //     connectionStatus !== 'Connecting' &&
-      //     storedValid &&
-      //     setNeedRefresh(true);
-      // }
-
-      // sessionStorage.setItem('targetTime', Date.now().toString());
-    } else {
-      setSocketUrl(null);
+      handleNeedRefresh();
     }
-
-    // alert(document.visibilityState);
   };
 
   useEffect(() => {
