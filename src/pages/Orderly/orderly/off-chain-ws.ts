@@ -50,7 +50,7 @@ export const useOrderlyWS = () => {
 
   const { lastMessage, readyState, lastJsonMessage, sendMessage } =
     useWebSocket(socketUrl, {
-      shouldReconnect: (closeEvent) => true,
+      shouldReconnect: (closeEvent) => document.visibilityState === 'visible',
       reconnectAttempts: 15,
       reconnectInterval: 10000,
       share: true,
@@ -74,8 +74,6 @@ export const useOrderlyWS = () => {
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-
-      sessionStorage.removeItem('targetTime');
     };
   }, [readyState]);
 
@@ -138,7 +136,7 @@ export const usePrivateOrderlyWS = () => {
     sendMessage,
     getWebSocket,
   } = useWebSocket(!accountId ? null : socketUrl, {
-    shouldReconnect: (closeEvent) => true,
+    shouldReconnect: (closeEvent) => document.visibilityState === 'visible',
     reconnectAttempts: 15,
     reconnectInterval: 10000,
     share: true,
@@ -152,7 +150,9 @@ export const usePrivateOrderlyWS = () => {
 
   useEffect(() => {
     const id = setInterval(() => {
-      sendMessage(JSON.stringify({ event: 'ping', ts: Date.now(), id: '' }));
+      sendMessage(
+        JSON.stringify({ event: 'ping', ts: Date.now(), id: 'ping-server' })
+      );
     }, 5000);
 
     return () => clearInterval(id);
@@ -162,8 +162,6 @@ export const usePrivateOrderlyWS = () => {
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-
-      sessionStorage.removeItem('targetTime');
     };
   }, [readyState]);
 
@@ -195,10 +193,6 @@ export const usePrivateOrderlyWS = () => {
   const handleVisibilityChange = () => {
     if (document.visibilityState === 'visible') {
       setSocketUrl(orderlySocketUrl);
-
-      setTimeout(() => {
-        handleNeedRefresh();
-      }, 15 * 1000);
 
       // if (savedTime && Date.now() - Number(savedTime) > 5 * 60 * 1000) {
       //   const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
