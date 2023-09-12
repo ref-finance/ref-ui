@@ -85,8 +85,6 @@ export const useOrderlyWS = () => {
     [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
   }[readyState];
 
-  console.log('connectionStatus: ', connectionStatus);
-
   const handleVisibilityChange = () => {
     if (document.visibilityState === 'visible') {
       setSocketUrl(orderlySocketUrl);
