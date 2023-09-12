@@ -36,6 +36,7 @@ import useInterval from 'react-useinterval';
 import { getFundingRateSymbol } from './perp-off-chain-api';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../components/UserBoardPerp';
 import { JsonValue } from 'react-use-websocket/dist/lib/types';
+import { useHistory } from 'react-router-dom';
 
 export const REF_ORDERLY_WS_ID_PREFIX = 'orderly_ws_';
 
@@ -178,6 +179,16 @@ export const usePrivateOrderlyWS = () => {
       handleNeedRefresh();
     }
   };
+
+  const history = useHistory();
+
+  const pathname = history.location.pathname;
+
+  useEffect(() => {
+    if (pathname.indexOf('perp') > -1) {
+      handleVisibilityChange();
+    }
+  }, [pathname]);
 
   useEffect(() => {
     if (refreshTrigger === true && readyState === ReadyState.CLOSED) {
