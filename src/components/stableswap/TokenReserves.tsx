@@ -73,6 +73,7 @@ function TokenChart({
     'USDT.e': '#167356',
     USDT: '#167356',
     'USDC.e': 'rgba(0, 163, 255, 0.45)',
+    USDC: 'rgba(0, 163, 255, 0.45)',
     USN: 'rgba(255, 255, 255, 0.45)',
     cUSD: 'rgba(69, 205, 133, 0.6)',
     HBTC: '#4D85F8',
