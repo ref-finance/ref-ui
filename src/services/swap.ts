@@ -893,8 +893,11 @@ export async function getHybridStableSmart(
             }
 
             const [tmpPool1, tmpPool2] = poolPair;
-            const tokenMidId = poolPair[0].tokenIds.find((t: string) =>
-              poolPair[1].tokenIds.includes(t)
+            const tokenMidId = poolPair[0].tokenIds.find(
+              (t: string) =>
+                poolPair[1].tokenIds.includes(t) &&
+                t !== tokenIn.id &&
+                t != tokenOut.id
             );
 
             const tokenMidMeta = tokensMedata[tokenMidId];
@@ -955,6 +958,7 @@ export async function getHybridStableSmart(
       });
 
       estimate.pool.partialAmountIn = parsedAmountIn;
+      console.log('estimate: ', estimate);
 
       return {
         actions: [
@@ -974,8 +978,11 @@ export async function getHybridStableSmart(
     // two pool case get best price
     [pool1, pool2] = BestPoolPair;
 
-    const tokenMidId = BestPoolPair[0].tokenIds.find((t: string) =>
-      BestPoolPair[1].tokenIds.includes(t)
+    const tokenMidId = BestPoolPair[0].tokenIds.find(
+      (t: string) =>
+        BestPoolPair[1].tokenIds.includes(t) &&
+        t !== tokenIn.id &&
+        t != tokenOut.id
     );
 
     const tokenMidMeta = await ftGetTokenMetadata(tokenMidId);
@@ -1021,6 +1028,8 @@ export async function getHybridStableSmart(
       outputToken: tokenOut.id,
       totalInputAmount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
     };
+
+    console.log('estimate1, estimate2: ', estimate1, estimate2);
 
     return { actions: [estimate1, estimate2], estimate: estimate2.estimate };
   }

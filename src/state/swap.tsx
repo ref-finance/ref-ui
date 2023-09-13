@@ -2029,6 +2029,8 @@ export const useRefSwapPro = ({
         ['orderly']: resOrderly,
       };
 
+      console.log('trades: ', trades);
+
       const tradeList = [resRef, resAurora];
 
       //  reValidate trades
