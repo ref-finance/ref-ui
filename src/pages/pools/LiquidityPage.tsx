@@ -3888,6 +3888,8 @@ function StablePoolList({
 
   const [sortBy, setSortBy] = useState<string>('tvl');
 
+  const [clicked, setClicked] = useState<boolean>(false);
+
   const allStablePoolData = useAllStablePoolData();
 
   if (!allStablePoolData || allStablePoolData.some((pd) => !pd))
@@ -3915,6 +3917,13 @@ function StablePoolList({
 
     const vol1 = Number(volumes[p1.pool.id.toString()] || '0');
     const vol2 = Number(volumes[p2.pool.id.toString()] || '0');
+
+    const is_p1_sort_top =
+      p1.pool.id == USDTT_USDCC_USDT_USDC_POOL_ID && !clicked;
+    const is_p2_sort_top =
+      p2.pool.id == USDTT_USDCC_USDT_USDC_POOL_ID && !clicked;
+    if (is_p1_sort_top) return 1;
+    if (is_p2_sort_top) return 1;
 
     if (orderStable === 'desc') {
       if (sortBy === 'tvl') {
@@ -3967,6 +3976,7 @@ function StablePoolList({
     
               `}
               onClick={() => {
+                setClicked(true);
                 setSortBy('volume_24h');
 
                 setorderStable(
@@ -3983,6 +3993,7 @@ function StablePoolList({
                 sortBy !== 'volume_24h' ? 'hidden' : ''
               } `}
               onClick={() => {
+                setClicked(true);
                 setSortBy('volume_24h');
                 setorderStable(
                   orderStable === 'desc' && sortBy === 'volume_24h'
@@ -4007,6 +4018,7 @@ function StablePoolList({
               ${sortBy !== 'tvl' ? 'hover:text-white' : 'text-gradientFrom'}
               `}
               onClick={() => {
+                setClicked(true);
                 setSortBy('tvl');
 
                 setorderStable(
@@ -4019,6 +4031,7 @@ function StablePoolList({
             <span
               className={`cursor-pointer ${sortBy !== 'tvl' ? 'hidden' : ''}`}
               onClick={() => {
+                setClicked(true);
                 setSortBy('tvl');
 
                 setorderStable(
