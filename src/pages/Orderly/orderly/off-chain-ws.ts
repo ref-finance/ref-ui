@@ -37,6 +37,7 @@ import { getFundingRateSymbol } from './perp-off-chain-api';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../components/UserBoardPerp';
 import { JsonValue } from 'react-use-websocket/dist/lib/types';
 import { useHistory } from 'react-router-dom';
+import { useMobile } from '../../../utils/device';
 
 export const REF_ORDERLY_WS_ID_PREFIX = 'orderly_ws_';
 
@@ -54,7 +55,7 @@ export const useOrderlyWS = () => {
       shouldReconnect: (closeEvent) => true,
       reconnectAttempts: 15,
       reconnectInterval: 10000,
-      share: true,
+      share: false,
     });
 
   useEffect(() => {
@@ -94,20 +95,14 @@ export const usePrivateOrderlyWS = () => {
   const orderlySocketUrl =
     getOrderlyConfig().ORDERLY_WS_ENDPOINT_PRIVATE + `/${accountId}`;
 
-  const [socketUrl, setSocketUrl] = useState(
-    getOrderlyConfig().ORDERLY_WS_ENDPOINT_PRIVATE + `/${accountId}`
-  );
+  const [socketUrl, setSocketUrl] = useState(orderlySocketUrl);
   const [needRefresh, setNeedRefresh] = useState(false);
-
-  const [refreshTrigger, setRefreshTrigger] = useState<boolean>(false);
 
   useEffect(() => {
     if (!accountId) {
       return;
     } else {
-      setSocketUrl(
-        getOrderlyConfig().ORDERLY_WS_ENDPOINT_PRIVATE + `/${accountId}`
-      );
+      setSocketUrl(orderlySocketUrl);
     }
   }, [accountId]);
 
@@ -123,7 +118,7 @@ export const usePrivateOrderlyWS = () => {
     shouldReconnect: (closeEvent) => true,
     reconnectAttempts: 15,
     reconnectInterval: 10000,
-    share: true,
+    share: false,
     onReconnectStop: (numAttempts) => {
       const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
       storedValid && setNeedRefresh(true);
@@ -131,6 +126,35 @@ export const usePrivateOrderlyWS = () => {
     onClose: (e) => {},
     onError: (e) => {},
   });
+
+  const isMobile = useMobile();
+
+  const checePongMsg = () => {
+    //  find pong event in history messages
+
+    const pongEvent = messageHistory
+      .filter(
+        (msg) => msg?.['event'] == 'pong' && msg?.['id'] === 'ping-server'
+      )
+      .at(-1);
+
+    const lastPongTs = pongEvent?.['ts'];
+
+    if (Date.now() - Number(lastPongTs) > 1000 * 20) {
+      const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
+      storedValid && setNeedRefresh(true);
+    }
+  };
+
+  useEffect(() => {
+    if (isMobile) {
+      document.addEventListener('visibilitychange', () => checePongMsg());
+    } else {
+      document.removeEventListener('visibilitychange', () => null);
+    }
+
+    return () => document.removeEventListener('visibilitychange', () => null);
+  }, [isMobile]);
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -141,13 +165,6 @@ export const usePrivateOrderlyWS = () => {
 
     return () => clearInterval(id);
   }, []);
-
-  useEffect(() => {
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [readyState]);
 
   const connectionStatus = {
     [ReadyState.CONNECTING]: 'Connecting',
@@ -162,40 +179,6 @@ export const usePrivateOrderlyWS = () => {
       setMessageHistory((prev: any) => prev.concat(lastJsonMessage));
     }
   }, [lastJsonMessage, setMessageHistory]);
-
-  const handleNeedRefresh = () => {
-    const lastPong = messageHistory
-      ?.filter((m: any) => m['event'] === 'pong')
-      ?.at(-1);
-
-    if (lastPong && Date.now() - Number(lastPong['ts']) > 15 * 1000) {
-      const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
-      storedValid && setNeedRefresh(true);
-    }
-  };
-
-  const handleVisibilityChange = () => {
-    if (document.visibilityState === 'visible') {
-      handleNeedRefresh();
-    }
-  };
-
-  const history = useHistory();
-
-  const pathname = history.location.pathname;
-
-  useEffect(() => {
-    if (pathname.indexOf('perp') > -1 || pathname.indexOf('orderly') > -1) {
-      handleVisibilityChange();
-    }
-  }, [pathname]);
-
-  useEffect(() => {
-    if (refreshTrigger === true && readyState === ReadyState.CLOSED) {
-      const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
-      storedValid && setNeedRefresh(true);
-    }
-  }, [readyState, refreshTrigger]);
 
   return {
     connectionStatus,
