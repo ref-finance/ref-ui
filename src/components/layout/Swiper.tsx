@@ -4,6 +4,7 @@ import 'swiper/swiper.min.css';
 import SwiperCore, { Autoplay } from 'swiper';
 import { isMobile } from '../../utils/device';
 import { SwiperCloseButton } from '../../components/icon/Common';
+import { GradientButton } from '~components/button/Button';
 
 SwiperCore.use([Autoplay]);
 
@@ -11,14 +12,14 @@ export default function AdSwiper() {
   const [closeStatus, setCloseStatus] = useState(true);
   useEffect(() => {
     const popupSwiper = localStorage.getItem('ad-announcement');
-    if (popupSwiper == '3') {
+    if (popupSwiper == '4') {
       setCloseStatus(true);
     } else {
       setCloseStatus(false);
     }
   }, []);
   const closePop = (e: any) => {
-    localStorage.setItem('ad-announcement', '3');
+    localStorage.setItem('ad-announcement', '4');
     e.stopPropagation();
     setCloseStatus(true);
   };
@@ -45,20 +46,20 @@ export default function AdSwiper() {
                 <SwiperCloseButton className="cursor-pointer"></SwiperCloseButton>
               </div>
               <div className="relative">
-                {/* <div
+                <GradientButton
+                  color="#fff"
+                  borderRadius="6px"
                   onClick={() => {
-                    location.href = '/orderbook';
+                    location.href = '/orderbook/perps';
                   }}
-                  className="flex items-center justify-center absolute bg-black bg-opacity-50 rounded-2xl h-5
-             text-xs text-white cursor-pointer pl-2.5 pr-1.5 left-5 bottom-3 xsm:bottom-2 xsm:left-4"
+                  className={`absolute right-3.5 bottom-3.5 flex-shrink-0 px-2.5 h-7 text-center text-sm text-white focus:outline-none `}
                 >
-                  Place Order
-                  <ArrowRightIcon className="ml-1"></ArrowRightIcon>
-                </div> */}
+                  Trade now!
+                </GradientButton>
                 {is_mobile ? (
-                  <StablePool></StablePool>
+                  <Perp></Perp>
                 ) : (
-                  <StablePool></StablePool>
+                  <Perp></Perp>
                 )}
               </div>
             </SwiperSlide>
@@ -70,20 +71,10 @@ export default function AdSwiper() {
                 <SwiperCloseButton className="cursor-pointer"></SwiperCloseButton>
               </div>
               <div className="relative">
-                {/* <div
-                  onClick={() => {
-                    location.href = '/orderbook';
-                  }}
-                  className="flex items-center justify-center absolute bg-black bg-opacity-50 rounded-2xl h-5
-             text-xs text-white cursor-pointer pl-2.5 pr-1.5 left-5 bottom-3 xsm:bottom-2 xsm:left-4"
-                >
-                  Place Order
-                  <ArrowRightIcon className="ml-1"></ArrowRightIcon>
-                </div> */}
                 {is_mobile ? (
-                  <Perp></Perp>
+                  <StablePool></StablePool>
                 ) : (
-                  <Perp></Perp>
+                  <StablePool></StablePool>
                 )}
               </div>
             </SwiperSlide>
