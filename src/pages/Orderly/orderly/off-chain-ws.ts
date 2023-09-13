@@ -51,7 +51,7 @@ export const useOrderlyWS = () => {
 
   const { lastMessage, readyState, lastJsonMessage, sendMessage } =
     useWebSocket(socketUrl, {
-      shouldReconnect: (closeEvent) => document.visibilityState === 'visible',
+      shouldReconnect: (closeEvent) => true,
       reconnectAttempts: 15,
       reconnectInterval: 10000,
       share: true,
@@ -120,7 +120,7 @@ export const usePrivateOrderlyWS = () => {
     sendMessage,
     getWebSocket,
   } = useWebSocket(!accountId ? null : socketUrl, {
-    shouldReconnect: (closeEvent) => document.visibilityState === 'visible',
+    shouldReconnect: (closeEvent) => true,
     reconnectAttempts: 15,
     reconnectInterval: 10000,
     share: true,
