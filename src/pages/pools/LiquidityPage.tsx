@@ -445,7 +445,8 @@ function MobilePoolRow({
                     {curRowTokens[0].symbol +
                       '-' +
                       curRowTokens[1].symbol +
-                      `${curRowTokens[2] ? '-' + curRowTokens[2].symbol : ''}`}
+                      `${curRowTokens[2] ? '-' + curRowTokens[2].symbol : ''}` +
+                      `${curRowTokens[3] ? '-' + curRowTokens[3].symbol : ''}`}
                   </div>
                 </div>
                 {watched && !watchPool && (
@@ -1622,7 +1623,8 @@ function PoolRow({
                 {tokens[0].symbol +
                   '-' +
                   tokens[1].symbol +
-                  `${tokens[2] ? '-' + tokens[2]?.symbol : ''}`}
+                  `${tokens[2] ? '-' + tokens[2]?.symbol : ''}` +
+                  `${tokens[3] ? '-' + tokens[3]?.symbol : ''}`}
               </div>
               {mark ? (
                 <span className="text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2">
@@ -3374,10 +3376,7 @@ function TokenChart({
   });
   const color = {
     DAI: 'rgba(255, 199, 0, 0.45)',
-    'USDT.e': '#167356',
     USDT: '#167356',
-    'USDC.e': 'rgba(0, 163, 255, 0.45)',
-    USDC: 'rgba(0, 163, 255, 0.45)',
     USN: 'rgba(255, 255, 255, 0.45)',
     cUSD: 'rgba(69, 205, 133, 0.6)',
     HBTC: '#4D85F8',
@@ -3388,7 +3387,10 @@ function TokenChart({
     NEARXC: '#4d5971',
     NearXC: '#4d5971',
     NearX: '#00676D',
-    USDt: '#0E8585',
+    'USDT.e': '#19936D',
+    'USDC.e': '#2B6EB7',
+    USDC: '#2FA7DB',
+    USDt: '#45D0C0',
   };
 
   const colorLight = {
@@ -3502,7 +3504,7 @@ const RenderDisplayTokensAmounts = ({
   setChartActiveToken?: (token: string) => void;
 }) => {
   return (
-    <div className="flex items-center  flex-shrink-0 xs:-mr-1.5 md:-mr-1.5">
+    <div className="flex items-center  flex-shrink-0 xs:-mr-1.5 md:-mr-1.5 flex-wrap xsm:justify-end lg:w-80">
       {tokens.map((token, i) => {
         return (
           <span
@@ -3635,9 +3637,10 @@ function StablePoolCard({
           <div className="flex xs:flex-col xs:items-end items-center">
             <div className="flex items-center">
               <Symbols
-                fontSize="xs:text-sm md:text-sm lg:text-lg lg:font-bold "
+                fontSize="xs:text-sm md:text-sm lg:text-lg lg:font-bold"
                 tokens={poolData.tokens}
                 separator="-"
+                className="lg:w-48 lg:flex-wrap"
               />
               {watched && (
                 <div className="ml-2">

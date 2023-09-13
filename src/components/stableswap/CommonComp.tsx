@@ -165,9 +165,9 @@ export const Symbols = ({
 }) => {
   return (
     <div
-      className={`${className} text-white ${fontSize || 'font-bold'}  ${
-        withArrow ? 'cursor-pointer' : null
-      } ${size}`}
+      className={`${className} flex items-center  text-white ${
+        fontSize || 'font-bold'
+      }  ${withArrow ? 'cursor-pointer' : null} ${size}`}
     >
       {tokens?.map((token, index) => (
         <span key={token?.id + '-' + index}>
@@ -291,7 +291,11 @@ export const StableTokens = ({
       <div className="flex items-center">
         <Images tokens={tokens} />
         <span className="ml-4">
-          <Symbols tokens={tokens} size="text-2xl xsm:text-xl" />
+          <Symbols
+            tokens={tokens}
+            size="text-2xl xsm:text-xl"
+            className="xsm:w-48 xsm:flex-wrap"
+          />
         </span>
       </div>
       <div
