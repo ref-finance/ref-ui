@@ -202,8 +202,8 @@ async function getXrefPrice(tokenPriceList: Record<string, any>) {
 const cacheBoost_Seed_Farms_Pools = async () => {
   // get all seeds
   let list_seeds = await get_list_seeds_info();
-   // not the classic and dcl seeds would be filtered
-   list_seeds = list_seeds.filter((seed: Seed) => {
+  // not the classic and dcl seeds would be filtered
+  list_seeds = list_seeds.filter((seed: Seed) => {
     const contract_id = seed.seed_id.split('@')?.[0];
     return (
       contract_id == REF_UNI_V3_SWAP_CONTRACT_ID ||

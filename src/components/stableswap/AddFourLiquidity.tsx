@@ -107,7 +107,12 @@ export default function AddFourLiquidityComponent(props: {
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
   const predicedShares = usePredictShares({
     poolId: pool.id,
-    tokenAmounts: [firstTokenAmount, secondTokenAmount, thirdTokenAmount, fourTokenAmount],
+    tokenAmounts: [
+      firstTokenAmount,
+      secondTokenAmount,
+      thirdTokenAmount,
+      fourTokenAmount,
+    ],
     stablePool,
   });
   const [slippageInvalid, setSlippageInvalid] = useState(false);
@@ -483,9 +488,16 @@ export default function AddFourLiquidityComponent(props: {
       0
     );
 
-    const amounts = [firstTokenAmount, secondTokenAmount, thirdTokenAmount, fourTokenAmount].map(
-      (amount, i) => toNonDivisibleNumber(tokens[i].decimals, amount)
-    ) as [string, string, string];
+    const amounts = [
+      firstTokenAmount,
+      secondTokenAmount,
+      thirdTokenAmount,
+      fourTokenAmount,
+    ].map((amount, i) => toNonDivisibleNumber(tokens[i].decimals, amount)) as [
+      string,
+      string,
+      string
+    ];
 
     return addLiquidityToStablePool({
       tokens: tokens,

@@ -134,7 +134,12 @@ export function RemoveFourLiquidityComponent(props: {
   const [error, setError] = useState<Error>(null);
   const [sharePercentage, setSharePercentage] = useState<string>('0');
   const progressBarIndex = [0, 25, 50, 75, 100];
-  const [receiveAmounts, setReceiveAmounts] = useState<string[]>(['', '', '', '']);
+  const [receiveAmounts, setReceiveAmounts] = useState<string[]>([
+    '',
+    '',
+    '',
+    '',
+  ]);
   const intl = useIntl();
 
   const { globalState } = useContext(WalletContext);
@@ -150,7 +155,12 @@ export function RemoveFourLiquidityComponent(props: {
   ];
 
   const { predictedRemoveShares, canSubmitByToken } = usePredictRemoveShares({
-    amounts: [firstTokenAmount, secondTokenAmount, thirdTokenAmount, fourTokenAmount],
+    amounts: [
+      firstTokenAmount,
+      secondTokenAmount,
+      thirdTokenAmount,
+      fourTokenAmount,
+    ],
     setError,
     shares,
     stablePool,
@@ -214,7 +224,10 @@ export function RemoveFourLiquidityComponent(props: {
       toReadableNumber(RATED_POOL_LP_TOKEN_DECIMALS, predictedRemoveShares)
     );
 
-    const myReadableShare = toReadableNumber(RATED_POOL_LP_TOKEN_DECIMALS, shares);
+    const myReadableShare = toReadableNumber(
+      RATED_POOL_LP_TOKEN_DECIMALS,
+      shares
+    );
 
     if (error) return '0';
 
@@ -229,7 +242,10 @@ export function RemoveFourLiquidityComponent(props: {
 
   useEffect(() => {
     setCanSubmitByShare(true);
-    const readableShares = toReadableNumber(RATED_POOL_LP_TOKEN_DECIMALS, shares);
+    const readableShares = toReadableNumber(
+      RATED_POOL_LP_TOKEN_DECIMALS,
+      shares
+    );
 
     const shareParam = toNonDivisibleNumber(
       RATED_POOL_LP_TOKEN_DECIMALS,
@@ -280,7 +296,7 @@ export function RemoveFourLiquidityComponent(props: {
 
     setAmountByShare(sharePercentOfValue);
   };
-  
+
   return (
     <Card
       padding="pt-6 px-0 pb-16"

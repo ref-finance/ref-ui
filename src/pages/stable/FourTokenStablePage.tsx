@@ -70,11 +70,11 @@ function FourTokenStablePage({ pool }: { pool: Pool }) {
   }, []);
 
   const allTokens = useWhitelistStableTokens();
-  let tokens:TokenMetadata[];
+  let tokens: TokenMetadata[];
   if (allTokens && allTokens.length > 0) {
     tokens = USDTT_USDCC_USDT_USDC_TOKEN_IDS.map((id) => {
       return allTokens.find((item) => item.id == id);
-    })
+    });
   }
   const nearBalances = useWalletTokenBalances(
     tokens?.map((token) => token.id) || []

@@ -61,7 +61,7 @@ export const Images = ({
   uId,
   allowSameToken,
   layout,
-  layoutSize
+  layoutSize,
 }: {
   tokens: TokenMetadata[];
   size?: string;
@@ -82,52 +82,56 @@ export const Images = ({
       );
   const is_vertical = layout == 'vertical' && displayTokens?.length == 4;
   return (
-    <div className={`${className} flex items-center flex-shrink-0 ${is_vertical ? `w-${+layoutSize} flex-wrap`: ''}`}>
-        {tokens &&
-          displayTokens
-            ?.slice(0, isRewardDisplay ? 5 : displayTokens.length)
-            ?.map((token, index) => {
-              const icon = token?.icon;
-              const id = token?.id;
-              if (icon)
-                return (
-                  <img
-                    key={
-                      (id || 0) +
-                      '-' +
-                      index +
-                      '-' +
-                      token?.id +
-                      '-' +
-                      uId +
-                      Date.now()
-                    }
-                    className={`inline-block flex-shrink-0 ${is_vertical && index > 1 ? '-mt-3': 'relative z-10'}  h-${size || 10} w-${
-                      size || 10
-                    } rounded-full border ${
-                      border ? 'border' : ''
-                    } border-gradientFromHover ${
-                      tokens?.length > 1 ? (noverlap ? 'ml-0' : '-ml-1') : ''
-                    } bg-cardBg`}
-                    src={icon}
-                    style={{
-                      border: borderStyle || 'none',
-                    }}
-                  />
-                );
+    <div
+      className={`${className} flex items-center flex-shrink-0 ${
+        is_vertical ? `w-${+layoutSize} flex-wrap` : ''
+      }`}
+    >
+      {tokens &&
+        displayTokens
+          ?.slice(0, isRewardDisplay ? 5 : displayTokens.length)
+          ?.map((token, index) => {
+            const icon = token?.icon;
+            const id = token?.id;
+            if (icon)
               return (
-                <div
-                  key={id || 0 + index}
-                  className={`inline-block h-${size || 10} flex-shrink-0 w-${
-                    size || 10
-                  } rounded-full bg-cardBg border border-gradientFromHover -ml-1 `}
+                <img
+                  key={
+                    (id || 0) +
+                    '-' +
+                    index +
+                    '-' +
+                    token?.id +
+                    '-' +
+                    uId +
+                    Date.now()
+                  }
+                  className={`inline-block flex-shrink-0 ${
+                    is_vertical && index > 1 ? '-mt-3' : 'relative z-10'
+                  }  h-${size || 10} w-${size || 10} rounded-full border ${
+                    border ? 'border' : ''
+                  } border-gradientFromHover ${
+                    tokens?.length > 1 ? (noverlap ? 'ml-0' : '-ml-1') : ''
+                  } bg-cardBg`}
+                  src={icon}
                   style={{
                     border: borderStyle || 'none',
                   }}
-                ></div>
+                />
               );
-            })}
-        
+            return (
+              <div
+                key={id || 0 + index}
+                className={`inline-block h-${size || 10} flex-shrink-0 w-${
+                  size || 10
+                } rounded-full bg-cardBg border border-gradientFromHover -ml-1 `}
+                style={{
+                  border: borderStyle || 'none',
+                }}
+              ></div>
+            );
+          })}
+
       {displayTokens.length > 5 && (
         <div
           key={5 + '-more-extra-tokens'}

@@ -44,11 +44,13 @@ export const REF_VE_CONTRACT_ID = config.REF_VE_CONTRACT_ID;
 
 export const STABLE_TOKEN_IDS = config.STABLE_TOKEN_IDS;
 
-export const USDTT_USDCC_USDT_USDC_TOKEN_IDS = config.USDTT_USDCC_USDT_USDC_TOKEN_IDS;
+export const USDTT_USDCC_USDT_USDC_TOKEN_IDS =
+  config.USDTT_USDCC_USDT_USDC_TOKEN_IDS;
 
 export const STABLE_POOL_ID = config.STABLE_POOL_ID;
 
-export const USDTT_USDCC_USDT_USDC_POOL_ID = config.USDTT_USDCC_USDT_USDC_POOL_ID;
+export const USDTT_USDCC_USDT_USDC_POOL_ID =
+  config.USDTT_USDCC_USDT_USDC_POOL_ID;
 
 export const STABLE_POOL_USN_ID = config.STABLE_POOL_USN_ID;
 
@@ -78,6 +80,7 @@ export const {
   USDTIDS,
   USDT_POOL_ID,
   USDT_POOL_INDEX,
+  USDTT_USDCC_USDT_USDC_POOL_INDEX,
 } = getExtraStablePoolConfig();
 
 export const extraStableTokenIds = BTCIDS.concat(LINEARIDS)
@@ -95,7 +98,9 @@ export const isRatedPool = (id: string | number) => {
 
 export const AllStableTokenIds = new Array(
   ...new Set(
-    STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS).concat(extraStableTokenIds).concat(USDTT_USDCC_USDT_USDC_TOKEN_IDS)
+    STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS)
+      .concat(extraStableTokenIds)
+      .concat(USDTT_USDCC_USDT_USDC_TOKEN_IDS)
   )
 );
 
@@ -153,6 +158,8 @@ export const getStableTokenIndex = (stable_pool_id: string | number) => {
 
     case USDT_POOL_ID:
       return USDT_POOL_INDEX;
+    case USDTT_USDCC_USDT_USDC_POOL_ID.toString():
+      return USDTT_USDCC_USDT_USDC_POOL_INDEX;
   }
 };
 
