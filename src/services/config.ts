@@ -254,7 +254,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         ],
         switch_on_dcl_farms: 'on',
         BURROW_CONTRACT_ID: 'contract.1638481328.burrow.testnet',
-        USDTT_USDCC_USDT_USDC_POOL_ID: process.env.USDTT_USDCC_USDT_USDC_POOL_ID || 711,
+        USDTT_USDCC_USDT_USDC_POOL_ID: process.env.USDTT_USDCC_USDT_USDC_POOL_ID || 1842,
         USDTT_USDCC_USDT_USDC_TOKEN_IDS: [
           'usdtt.fakes.testnet',
           'usdcc.fakes.testnet',
@@ -535,7 +535,7 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'usdt.fakes.testnet': 0,
           'usdtt.fakes.testnet': 1,
         },
-        RATED_POOLS_IDS: ['568', '571', '1044', '1751', '1752', '711'],
+        RATED_POOLS_IDS: ['568', '571', '1044', '1751', '1752', '1842'],
       };
     case 'testnet':
       return {
