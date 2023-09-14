@@ -377,7 +377,7 @@ function MobilePoolRow({
       </span>
     </button>
   );
-
+  const is_muti_tokens = curRowTokens?.length > 3;
   return (
     <div className="w-full hover:bg-poolRowHover overflow-x-hidden">
       <Link
@@ -393,11 +393,11 @@ function MobilePoolRow({
           <div className="flex items-center">
             <div
               className={`flex items-center ${
-                !!morePoolButton ? 'relative bottom-1' : ''
-              }`}
+                is_muti_tokens ? 'flex-wrap w-12' : ''
+              } ${!!morePoolButton ? 'relative bottom-1' : ''}`}
             >
               <div
-                className="h-6 w-6  border-2 border-watchMarkBackgroundColor rounded-full"
+                className="h-6 w-6  border-2 border-watchMarkBackgroundColor rounded-full relative z-10"
                 style={{
                   height: '26px',
                   width: '26px',
@@ -411,7 +411,7 @@ function MobilePoolRow({
               </div>
 
               <div
-                className="h-6 w-6   border-watchMarkBackgroundColor border-2 rounded-full -ml-1.5"
+                className="h-6 w-6 border-watchMarkBackgroundColor border-2 rounded-full -ml-1.5 relative z-10"
                 style={{
                   height: '26px',
                   width: '26px',
@@ -425,7 +425,9 @@ function MobilePoolRow({
               </div>
               {curRowTokens?.[2] ? (
                 <div
-                  className="h-6 w-6 z-30 border border-watchMarkBackgroundColor rounded-full -ml-1.5 "
+                  className={`h-6 w-6 z-30 border border-watchMarkBackgroundColor rounded-full ${
+                    is_muti_tokens ? '-mt-2' : '-ml-1.5'
+                  }`}
                   style={{
                     height: '26px',
                     width: '26px',
@@ -440,7 +442,9 @@ function MobilePoolRow({
               ) : null}
               {curRowTokens?.[3] ? (
                 <div
-                  className="h-6 w-6 z-30 border border-watchMarkBackgroundColor rounded-full -ml-1.5 "
+                  className={`h-6 w-6 z-30 border border-watchMarkBackgroundColor rounded-full -ml-1.5 ${
+                    is_muti_tokens ? '-mt-2' : ''
+                  }`}
                   style={{
                     height: '26px',
                     width: '26px',
