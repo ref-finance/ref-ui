@@ -44,6 +44,11 @@ const walletOfficialMark = {
     mark: true,
     link: 'https://github.com/NearDeFi/neth/blob/main/audit/near-eth-audit-public.pdf',
   },
+
+  Nightly: {
+    mark: true,
+    link: 'https://wallet.nightly.app/Security_Audit_NEAR.pdf',
+  },
   // 'Here Wallet': {
   //   mark: true,
   //   link: 'https://docs.herewallet.app/technology-description/readme/security-audit',
@@ -105,6 +110,8 @@ const notSupportingIcons = [
   // walletIcons['nightly'],
   walletIcons['ledger'],
   walletIcons['neth'],
+
+  walletIcons['nightly'],
 
   // walletIcons['nightly-connect'],
   // walletIcons['wallet-connect'],
@@ -295,8 +302,6 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
                 module.metadata.available &&
                 module.id !== 'meteor-wallet' &&
                 module.id !== 'here-wallet';
-
-              const isBeta = module.metadata.name === 'MyNearWallet';
 
               result.push(
                 <li

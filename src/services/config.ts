@@ -113,6 +113,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
 
         helperUrl: 'https://api.kitwallet.app',
         explorerUrl: 'https://nearblocks.io',
+        nearExplorerUrl: 'https://explorer.near.org/',
         indexerUrl: 'https://mainnet-indexer.ref-finance.com',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3', '2769#2'],
@@ -157,10 +158,18 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         },
         USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '1838138.65',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '1972847.31',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '2442113.43',
-        BLACKLIST_POOL_IDS: ['3699', '3734', '3563', '3613', '3620', '3625'],
+          process.env.CUMULATIVE_REF_BUYBACK || '2621724.09',
+        BLACKLIST_POOL_IDS: [
+          '3699',
+          '3734',
+          '3563',
+          '3613',
+          '3620',
+          '3625',
+          '4179',
+        ],
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['10%', '10%'],
         REF_FARM_BOOST_CONTRACT_ID:
@@ -187,6 +196,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         myNearWalletUrl: 'https://testnet.mynearwallet.com/',
         helperUrl: 'https://testnet-api.kitwallet.app',
         explorerUrl: 'https://testnet.nearblocks.io',
+        nearExplorerUrl: 'https://explorer.testnet.near.org/',
         indexerUrl: 'https://testnet-indexer.ref-finance.com',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
@@ -230,9 +240,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'dai.fakes.testnet': 2,
         },
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '1838138.65',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '1972847.31',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '2442113.43',
+          process.env.CUMULATIVE_REF_BUYBACK || '2621724.09',
         BLACKLIST_POOL_IDS: ['1752', '1760'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID ||
@@ -305,9 +315,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         DCL_POOL_BLACK_LIST: ['usdt.fakes.testnet|wrap.testnet|100'],
 
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '1838138.65',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '1972847.31',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '2442113.43',
+          process.env.CUMULATIVE_REF_BUYBACK || '2621724.09',
         BLACKLIST_POOL_IDS: ['686'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID ||
@@ -333,6 +343,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         myNearWalletUrl: 'https://app.mynearwallet.com/',
         helperUrl: 'https://api.kitwallet.app',
         explorerUrl: 'https://nearblocks.io',
+        nearExplorerUrl: 'https://explorer.near.org/',
         indexerUrl: 'https://indexer.ref.finance',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3', '2769#2'],
@@ -386,11 +397,19 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         },
         USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '1838138.65',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '1972847.31',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '2442113.43',
+          process.env.CUMULATIVE_REF_BUYBACK || '2621724.09',
 
-        BLACKLIST_POOL_IDS: ['3699', '3734', '3563', '3613', '3620', '3625'],
+        BLACKLIST_POOL_IDS: [
+          '3699',
+          '3734',
+          '3563',
+          '3613',
+          '3620',
+          '3625',
+          '4179',
+        ],
 
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['10%', '10%'],

@@ -77,19 +77,27 @@ export function Selector({
   setSelect,
   className,
   width,
+  style,
+  top = 6,
 }: {
   list: { text: JSX.Element | string; textId: string; className?: string }[];
   selected: string;
   setSelect: (value: any) => void;
   className?: string;
   width?: string;
+  style?: any;
+  top?: number;
 }) {
   return (
-    <div className="absolute top-6 z-50">
+    <div className={`absolute top-${top} z-50`} style={style}>
       <div
         className={`${className}  flex flex-col ${
           width || 'min-w-28'
         }  items-start py-2 px-1.5 rounded-lg border border-borderC text-sm  bg-darkBg `}
+        style={{
+          maxHeight: '275px',
+          overflowY: 'auto',
+        }}
       >
         {list.map((item, index) => {
           return (
@@ -156,6 +164,7 @@ function OrderLine({
       return;
 
     editOrder({
+      order,
       accountId,
       orderlyProps: {
         order_id: order.order_id,

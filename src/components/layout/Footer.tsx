@@ -8,6 +8,8 @@ import { toPrecision } from '~utils/numbers';
 import RpcList from '~components/rpc/index';
 import { IconForum, MailBoxIcon } from '~components/icon/Nav';
 import ReactTooltip from 'react-tooltip';
+import { useLocation } from 'react-router-dom';
+import { useClientMobile } from '~utils/device';
 
 const CommunityLinks = [
   {
@@ -46,12 +48,30 @@ function openUrl(url: string) {
 function Footer() {
   const { data } = useRefPrice('Footer');
   const [hoverLogo, setHoverLogo] = useState(false);
+
+  const location = useLocation();
+
+  const mobilePortfolioPathNames = [
+    '/orderly',
+    '/portfolio',
+    '/burrow',
+    '/overview',
+  ];
+
+  const isMobile = useClientMobile();
+
   if (!data) return null;
 
   return (
     <>
       <div className="absolute w-full bottom-6 xs:bottom-0 md:bottom-0">
-        <footer className="flex items-center justify-center pl-9 pr-9 xs:pb-9 md:pb-9">
+        <footer
+          className={`flex items-center justify-center pl-9 pr-9 ${
+            isMobile && mobilePortfolioPathNames.indexOf(location.pathname) > -1
+              ? 'xs:pb-24'
+              : 'xs:pb-9'
+          } md:pb-9`}
+        >
           <div className="fixed left-8 bottom-5 md:hidden xs:hidden">
             <div className="flex items-center bg-cardBg rounded-2xl p-0.5 w-24">
               <FooterLogoREF

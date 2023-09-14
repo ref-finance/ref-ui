@@ -13,6 +13,7 @@ import {
   TVLDataType,
   TVLType,
   useDayVolume,
+  useIndexerStatus,
 } from '~state/pool';
 import {
   addLiquidityToPool,
@@ -101,8 +102,6 @@ import {
 import _ from 'lodash';
 import moment from 'moment';
 import { ChartNoData } from '~components/icon/ChartNoData';
-import { WarnTriangle } from '~components/icon/SwapRefresh';
-import { RefIcon } from '~components/icon/Common';
 import {
   getCurrentWallet,
   WalletContext,
@@ -123,12 +122,9 @@ import {
   getURLInfo,
   checkAccountTip,
 } from '../../components/layout/transactionTipPopUp';
-import { checkTransaction } from '../../services/swap';
 
 export const REF_FI_PRE_LIQUIDITY_ID_KEY = 'REF_FI_PRE_LIQUIDITY_ID_VALUE';
 
-import { TokenLinks } from '~components/tokens/Token';
-import { OutLinkIcon } from '~components/icon/Common';
 import ReactTooltip from 'react-tooltip';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
@@ -174,6 +170,7 @@ import Big from 'big.js';
 import { getEffectiveFarmList, sort_tokens_by_base } from '~services/commonV3';
 import { openUrl } from '../../services/commonV3';
 import { numberWithCommas } from '../Orderly/utiles';
+import { PoolRefreshModal } from './PoolRefreshModal';
 
 interface ParamTypes {
   id: string;
@@ -395,11 +392,15 @@ function PoolDetailCard({
                 defaultMessage={'TVL'}
               ></FormattedMessage>
             }
-            value={`$${
-              Number(poolTVL) < 0.01 && Number(poolTVL) > 0
-                ? '< 0.01'
-                : toInternationalCurrencySystem(poolTVL || '0', 2)
-            }`}
+            value={
+              !poolTVL
+                ? '-'
+                : `$${
+                    Number(poolTVL) < 0.01 && Number(poolTVL) > 0
+                      ? '< 0.01'
+                      : toInternationalCurrencySystem(poolTVL || '0', 2)
+                  }`
+            }
             valueTitle={poolTVL}
           />
           <DetailRow
@@ -1834,6 +1835,7 @@ export function PoolDetailsPage() {
   const { id } = useParams<ParamTypes>();
   const { state } = useLocation<LocationTypes>();
   const { pool, shares, finalStakeList: stakeList } = usePool(id);
+  const { fail: indexerFail } = useIndexerStatus();
 
   const [farmVersion, setFarmVersion] = useState<string>('');
 
@@ -2320,14 +2322,18 @@ export function PoolDetailsPage() {
                   ></FormattedMessage>
                 }
                 id="tvl"
-                value={`$${
-                  Number(poolTVL) < 0.01 && Number(poolTVL) > 0
-                    ? '< 0.01'
-                    : toInternationalCurrencySystem(
-                        poolTVL?.toString() || '0',
-                        2
-                      )
-                }`}
+                value={
+                  !poolTVL
+                    ? '-'
+                    : `$${
+                        Number(poolTVL) < 0.01 && Number(poolTVL) > 0
+                          ? '< 0.01'
+                          : toInternationalCurrencySystem(
+                              poolTVL?.toString() || '0',
+                              2
+                            )
+                      }`
+                }
                 valueTitle={poolTVL?.toString()}
               />
 
@@ -2390,14 +2396,19 @@ export function PoolDetailsPage() {
                     data-tip={getPoolListFarmAprTip()}
                     data-for={'pool_list_pc_apr' + pool.id}
                   >
-                    {dayVolume
+                    {!poolTVL
+                      ? '-'
+                      : dayVolume
                       ? `${getPoolFeeApr(dayVolume, pool, poolTVL)}%`
                       : '-'}
-                    {dayVolume && seedFarms && BaseApr().rawApr > 0 && (
-                      <span className="text-xs text-gradientFrom">
-                        {` +` + BaseApr().displayApr}
-                      </span>
-                    )}
+                    {poolTVL &&
+                      dayVolume &&
+                      seedFarms &&
+                      BaseApr().rawApr > 0 && (
+                        <span className="text-xs text-gradientFrom">
+                          {` +` + BaseApr().displayApr}
+                        </span>
+                      )}
 
                     {!!seedFarms &&
                       !isMobile() &&
@@ -2474,35 +2485,6 @@ export function PoolDetailsPage() {
                               />
                             </span>
                           }
-                          {TokenLinks[token.symbol] ? (
-                            <div
-                              className="ml-0.5 text-sm"
-                              data-type="info"
-                              data-place="right"
-                              data-multiline={true}
-                              data-class="reactTip"
-                              data-html={true}
-                              data-tip={valueOfNearTokenTip()}
-                              data-for="nearVerifiedId1"
-                            >
-                              <a
-                                className=""
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  openUrl(TokenLinks[token.symbol]);
-                                }}
-                              >
-                                <FiArrowUpRight className="text-primaryText hover:text-greenColor cursor-pointer" />
-                              </a>
-                              <ReactTooltip
-                                id="nearVerifiedId1"
-                                backgroundColor="#1D2932"
-                                border
-                                borderColor="#7e8a93"
-                                effect="solid"
-                              />
-                            </div>
-                          ) : null}
                         </div>
                         <a
                           target="_blank"
@@ -2825,6 +2807,9 @@ export function PoolDetailsPage() {
           },
         }}
       />
+      {indexerFail && (
+        <PoolRefreshModal isOpen={indexerFail}></PoolRefreshModal>
+      )}
     </>
   );
 }

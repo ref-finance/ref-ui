@@ -5,6 +5,7 @@ import React, {
   useCallback,
   useMemo,
   useContext,
+  createContext,
 } from 'react';
 import { FaRegQuestionCircle, FaSearch } from 'react-icons/fa';
 
@@ -30,6 +31,7 @@ import {
   useAllWatchList,
   useWatchPools,
   useV3VolumesPools,
+  useIndexerStatus,
 } from '../../state/pool';
 import Loading from '../../components/layout/Loading';
 
@@ -149,6 +151,7 @@ import { useTokenPriceList } from '../../state/token';
 import { useSeedFarmsByPools } from '../../state/pool';
 
 import { RiArrowRightSLine } from 'react-icons/ri';
+import { PoolRefreshModal } from './PoolRefreshModal';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -156,6 +159,7 @@ const REF_FI_FARM_ONLY = 'REF_FI_FARM_ONLY';
 
 const REF_POOL_ID_SEARCHING_KEY = 'REF_POOL_ID_SEARCHING_KEY';
 const { switch_on_dcl_farms } = getConfig();
+const TokenPriceListContext = createContext(null);
 
 export function getPoolFeeApr(
   dayVolume: string,
@@ -310,6 +314,7 @@ function MobilePoolRow({
   const { ref } = useInView();
 
   const curRowTokens = useTokens(pool.tokenIds, tokens);
+  const { indexFail } = useContext(TokenPriceListContext);
 
   const history = useHistory();
 
@@ -325,7 +330,7 @@ function MobilePoolRow({
     value?: number;
   }) => {
     if (sortBy === 'tvl')
-      return toInternationalCurrencySystem(value.toString());
+      return indexFail ? '-' : toInternationalCurrencySystem(value.toString());
     else if (sortBy === 'fee') return `${calculateFeePercent(value)}%`;
     else if (sortBy === 'volume_24h')
       return !h24volume
@@ -526,7 +531,9 @@ function MobilePoolRowV2({
     value?: number;
   }) => {
     if (sortBy === 'tvl')
-      return toInternationalCurrencySystem(value.toString());
+      return pool.tvlUnreal
+        ? '-'
+        : toInternationalCurrencySystem(value.toString());
     else if (sortBy === 'fee') return `${calculateFeePercent(value / 100)}%`;
     else if (sortBy === 'volume_24h') {
       return geth24volume();
@@ -1586,6 +1593,8 @@ function PoolRow({
   const history = useHistory();
   const [showLinkArrow, setShowLinkArrow] = useState(false);
 
+  const { indexFail } = useContext(TokenPriceListContext);
+
   if (!curRowTokens) return <></>;
 
   tokens = sort_tokens_by_base(curRowTokens);
@@ -1690,7 +1699,9 @@ function PoolRow({
             0
           )}
         >
-          ${toInternationalCurrencySystem(pool.tvl.toString())}
+          {indexFail
+            ? '-'
+            : `${toInternationalCurrencySystem(pool.tvl.toString())}`}
         </div>
 
         <div
@@ -1826,7 +1837,9 @@ function PoolRowV2({
             0
           )}
         >
-          {'$' + toInternationalCurrencySystem(pool.tvl.toString())}
+          {pool.tvlUnreal
+            ? '-'
+            : '$' + toInternationalCurrencySystem(pool.tvl.toString())}
         </div>
       </div>
     </div>
@@ -3000,6 +3013,8 @@ export function LiquidityPage() {
     order,
   });
 
+  const tokenPriceList = useTokenPriceList();
+
   const [farmOnly, setFarmOnly] = useState<boolean>(
     localStorage.getItem(REF_FI_FARM_ONLY) === '1' || false
   );
@@ -3142,6 +3157,8 @@ export function LiquidityPage() {
   const v3PoolVolumes = useV3VolumesPools();
   const [h24VolumeV2, setH24VolumeV2] = useState<string>();
 
+  const { fail: indexerFail } = useIndexerStatus();
+
   const { farmAprById } = useSeedFarmsByPools([...pools, ...watchPools]);
 
   useEffect(() => {
@@ -3167,7 +3184,11 @@ export function LiquidityPage() {
     return <Loading />;
 
   return (
-    <>
+    <TokenPriceListContext.Provider
+      value={{
+        indexFail: Object.keys(tokenPriceList).length == 0,
+      }}
+    >
       {!clientMobileDevice && (
         <LiquidityPage_
           farmAprById={farmAprById}
@@ -3240,7 +3261,10 @@ export function LiquidityPage() {
           farmAprById={farmAprById}
         />
       )}
-    </>
+      {indexerFail && (
+        <PoolRefreshModal isOpen={indexerFail}></PoolRefreshModal>
+      )}
+    </TokenPriceListContext.Provider>
   );
 }
 
@@ -3651,11 +3675,16 @@ function StablePoolCard({
             <div
               className="col-span-1 py-1 text-lg "
               title={toPrecision(
-                scientificNotationToString(poolData.poolTVL.toString()),
+                poolData.poolTVL === undefined
+                  ? '-'
+                  : scientificNotationToString(poolData.poolTVL.toString()),
                 0
               )}
             >
-              ${toInternationalCurrencySystem(poolData.poolTVL.toString())}
+              $
+              {poolData.poolTVL === undefined
+                ? '-'
+                : toInternationalCurrencySystem(poolData.poolTVL.toString())}
             </div>
 
             <RenderDisplayTokensAmounts
@@ -3692,12 +3721,19 @@ function StablePoolCard({
 
           <div className="flex flex-col items-end ">
             <span
-              title={toPrecision(
-                scientificNotationToString(poolData.poolTVL.toString()),
-                0
-              )}
+              title={
+                poolData.poolTVL === undefined
+                  ? '-'
+                  : toPrecision(
+                      scientificNotationToString(poolData.poolTVL.toString()),
+                      0
+                    )
+              }
             >
-              ${toInternationalCurrencySystem(poolData.poolTVL.toString())}
+              $
+              {poolData.poolTVL === undefined
+                ? '-'
+                : toInternationalCurrencySystem(poolData.poolTVL.toString())}
             </span>
 
             <RenderDisplayTokensAmounts
@@ -3831,8 +3867,8 @@ function StablePoolList({
   };
 
   const sortingFunc = (p1: PoolData, p2: PoolData) => {
-    const v1 = Number(p1.poolTVL.toString());
-    const v2 = Number(p2.poolTVL.toString());
+    const v1 = Number(p1?.poolTVL?.toString() || 0);
+    const v2 = Number(p2?.poolTVL?.toString() || 0);
 
     const vol1 = Number(volumes[p1.pool.id.toString()] || '0');
     const vol2 = Number(volumes[p2.pool.id.toString()] || '0');

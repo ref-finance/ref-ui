@@ -106,6 +106,7 @@ import { SUPPORT_LEDGER_KEY } from '../components/swap/SwapCard';
 import { openUrl } from '../services/commonV3';
 import { hasTriPools } from '../services/aurora/aurora';
 import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
+import { useIndexerStatus } from './pool';
 const ONLY_ZEROS = /^0*\.?0*$/;
 
 export const REF_DCL_POOL_CACHE_KEY = 'REF_DCL_POOL_CACHE_VALUE';
@@ -403,10 +404,10 @@ export const estimateValidator = (
   parsedAmountIn: string,
   tokenOut: TokenMetadata
 ) => {
+  if (swapTodos && swapTodos?.[0]?.pool === null) return true;
+
   const tokenInId = swapTodos[0]?.inputToken;
   const tokenOutId = swapTodos[swapTodos.length - 1]?.outputToken;
-
-  if (swapTodos && swapTodos?.[0]?.pool === null) return true;
 
   if (
     tokenInId !== tokenIn.id ||
@@ -581,9 +582,9 @@ export const useSwap = ({
           // }
         })
         .finally(() => {
-          setForceEstimate(false);
-          setLoadingTrigger(false);
-          setEstimating(false);
+          setForceEstimate && setForceEstimate(false);
+          setLoadingTrigger && setLoadingTrigger(false);
+          setEstimating && setEstimating(false);
         });
     } else if (
       tokenIn &&
@@ -624,8 +625,8 @@ export const useSwap = ({
   }, [
     loadingTrigger,
     loadingPause,
-    tokenIn,
-    tokenOut,
+    tokenIn?.id,
+    tokenOut?.id,
     tokenInAmount,
     reEstimateTrigger,
     enableTri,
@@ -700,11 +701,21 @@ export const useSwap = ({
     swapError,
     makeSwap,
     avgFee,
-    tokenInAmount,
+    tokenInAmount: !swapsToDo
+      ? '1'
+      : toReadableNumber(
+          tokenIn.decimals,
+          swapsToDo
+            .reduce(
+              (acc, cur) => acc.plus(cur?.partialAmountIn || 0),
+              new Big(0)
+            )
+            .toFixed()
+        ),
     pools: swapsToDo?.map((estimate) => estimate.pool),
     swapsToDo,
     isParallelSwap: swapsToDo?.every((e) => e.status === PoolMode.PARALLEL),
-    quoteDone,
+    quoteDone: quoteDone && !estimating,
     priceImpactValue: scientificNotationToString(
       new Big(priceImpactValue).minus(new Big((avgFee || 0) / 100)).toString()
     ),
@@ -819,7 +830,7 @@ export const useSwapV3 = ({
         setBestPool(bestPool);
       })
       .finally(() => {});
-  }, [bestFee, tokenIn, tokenOut, poolReFetch]);
+  }, [bestFee, tokenIn?.id, tokenOut?.id, poolReFetch]);
 
   useEffect(() => {
     if (!tokenIn || !tokenOut || !tokenInAmount || wrapOperation) return;
@@ -871,8 +882,8 @@ export const useSwapV3 = ({
         setLoadingTrigger && setLoadingTrigger(false);
       });
   }, [
-    tokenIn,
-    tokenOut,
+    tokenIn?.id,
+    tokenOut?.id,
     tokenInAmount,
     loadingTrigger,
     swapError?.message,
@@ -1026,6 +1037,8 @@ export const useLimitOrder = ({
 
   const [mostPoolDetail, setMostPoolDetail] = useState<PoolInfo>();
 
+  const { fail: indexerFail } = useIndexerStatus();
+
   const [poolToOrderCounts, setPoolToOrderCounts] = useState<{
     [key: string]: string | null;
   }>();
@@ -1135,7 +1148,8 @@ export const useLimitOrder = ({
           res?.some(
             (r) => !!r && (Number(r?.total_x) > 0 || Number(r?.total_y) > 0)
           ) &&
-          percents.every((p) => Number(p) === 0)
+          percents.every((p) => Number(p) === 0) &&
+          !indexerFail
         )
           return;
         const temp = {};
@@ -1151,7 +1165,7 @@ export const useLimitOrder = ({
         );
         setSelectedV3LimitPool(allPoolsForThisPair[2]);
       });
-  }, [tokenIn?.id, tokenOut?.id, tokenPriceList, swapMode]);
+  }, [tokenIn?.id, tokenOut?.id, tokenPriceList, swapMode, indexerFail]);
 
   useEffect(() => {
     if (!poolToOrderCounts) return null;
@@ -1756,7 +1770,8 @@ export const useOrderlySwap = ({
     const canSwapSymbol = availableSymbolsWithTokens?.find((symbol) => {
       return (
         symbol.token_ids.includes(tokenIn.id) &&
-        symbol.token_ids.includes(tokenOut.id)
+        symbol.token_ids.includes(tokenOut.id) &&
+        symbol.symbol.indexOf('SPOT') > -1
       );
     });
 
@@ -1879,7 +1894,7 @@ export const useOrderlySwap = ({
   ]);
 
   const makeSwap = () => {
-    openUrl(`/orderbook?side=${side}&orderType=Market`);
+    openUrl(`/orderbook/spot?side=${side}&orderType=Market`);
   };
 
   return {
@@ -2070,14 +2085,12 @@ export const useRefSwapPro = ({
 
       if (
         sessionStorage.getItem('loadingTrigger') === 'true' &&
-        sessionStorage.getItem('enableTri') === enableTri.toString() &&
-        !forceEstimatePro
+        !!selectMarket
       ) {
         setQuoting(false);
 
         return;
       }
-      sessionStorage.setItem('enableTri', 'true');
 
       if (trades[bestMarket].availableRoute === true) {
         setSelectMarket(bestMarket as SwapMarket);

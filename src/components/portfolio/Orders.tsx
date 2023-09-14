@@ -746,7 +746,7 @@ function OrderCard({
                   title={sellAmountToUnClaimedAmount}
                   className="text-white text-sm"
                 >
-                  {display_amount(sellAmountToUnClaimedAmount)}
+                  {sellAmountToUnClaimedAmount}
                 </span>
                 <span className="ml-1.5 text-v3SwapGray text-sm">
                   {toRealSymbol(sellToken.symbol)}
@@ -876,7 +876,7 @@ function OrderCard({
             >
               <PurpleCircleIcon className="flex-shrink-0"></PurpleCircleIcon>
               <span className="text-white text-sm whitespace-nowrap">
-                {display_amount(sellAmountToUnClaimedAmount)}
+                {sellAmountToUnClaimedAmount}
               </span>
             </div>
             <span className="mx-2 text-v3SwapGray">

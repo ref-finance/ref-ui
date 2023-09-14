@@ -43,7 +43,6 @@ import {
   STABLE_POOL_TYPE,
   USD_CLASS_STABLE_POOL_IDS,
 } from '../../services/near';
-import { TokenLinks } from '../../components/tokens/Token';
 import {
   OutLinkIcon,
   DefaultTokenImg,
@@ -111,17 +110,6 @@ export function SingleToken({
           <span className="text-sm text-white">
             {toRealSymbol(token.symbol)}
           </span>
-          {TokenLinks[token.symbol] ? (
-            <a
-              className="ml-1.5"
-              onClick={(e) => {
-                e.stopPropagation();
-                openUrl(TokenLinks[token.symbol]);
-              }}
-            >
-              <OutLinkIcon className="text-primaryText hover:text-white cursor-pointer"></OutLinkIcon>
-            </a>
-          ) : null}
         </div>
         <span className="text-xs text-primaryText">
           {price ? tokenPrice(price) : null}

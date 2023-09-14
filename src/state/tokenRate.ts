@@ -57,7 +57,7 @@ export const useTokenRate24h = ({
   useEffect(() => {
     if (!token || !base_token) return null;
     func();
-  }, [base_token, token]);
+  }, [base_token?.id, token?.id]);
 
   useInterval(func, 1000 * 60 * 10);
 

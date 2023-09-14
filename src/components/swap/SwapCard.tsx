@@ -981,6 +981,18 @@ export default function SwapCard(props: {
     }
   }, [swapMode]);
 
+  const throwNoPoolError = () => {
+    return new Error(
+      `${intl.formatMessage({
+        id: 'no_pool_available_to_make_a_swap_from',
+      })} ${tokenIn?.symbol} -> ${tokenOut?.symbol} ${intl.formatMessage({
+        id: 'for_the_amount',
+      })} ${tokenInAmount} ${intl.formatMessage({
+        id: 'no_pool_eng_for_chinese',
+      })}`
+    );
+  };
+
   function wrapButtonCheck() {
     if (!wrapOperation) return false;
     if (
@@ -1323,11 +1335,11 @@ export default function SwapCard(props: {
                 swapType === SWAP_TYPE.Pro &&
                 !enableTri &&
                 !!selectTrade.hasTriPool
-                  ? selectTrade?.swapError.message +
+                  ? throwNoPoolError().message +
                     intl.formatMessage({
                       id: 'has_tri_pool_tip',
                     })
-                  : selectTrade?.swapError.message
+                  : throwNoPoolError().message
               }
             />
           </div>

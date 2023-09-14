@@ -51,6 +51,7 @@ import { isClientMobie, useClientMobile } from '../../../../utils/device';
 import { TipIconAsset } from '../Common/Icons';
 import ReactTooltip from 'react-tooltip';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { usePerpData } from '../UserBoardPerp/state';
 
 function getTipAsset() {
   const intl = useIntl();
@@ -100,11 +101,13 @@ function AssetButton({
 function AssetLine(
   props: OrderAsset & {
     tokenInfo: TokenInfo[] | undefined;
+    freeCollateral: string;
   }
 ) {
   const [showManagerModal, setShowManagerModal] = useState<boolean>(false);
 
   const [type, setType] = useState<'deposit' | 'withdraw'>();
+  const { freeCollateral } = props;
 
   return (
     <div
@@ -189,6 +192,7 @@ function AssetLine(
           walletBalance={props.near}
           accountBalance={Number(props.available)}
           tokenInfo={props.tokenInfo}
+          freeCollateral={freeCollateral}
         ></AssetManagerModal>
       )}
     </div>
@@ -222,8 +226,11 @@ function RecordLine(
           {digitWrapperAsset(props.amount.toString(), 3)}
         </FlexRow>
 
-        <FlexRow className="col-span-1 justify-self-end relative right-14">
-          {window.selectorAccountId}
+        <FlexRow
+          className="col-span-1 justify-self-end relative right-14"
+          title={window.selectorAccountId}
+        >
+          {getAccountName(window.selectorAccountId)}
         </FlexRow>
 
         <div className="flex items-center relative right-8 justify-self-end">
@@ -333,7 +340,9 @@ export function AssetModal(props: Modal.Props) {
 
   const tokenInfo = useTokenInfo();
 
-  const displayBalances = useOrderAssets(tokenInfo);
+  const { freeCollateral } = usePerpData();
+
+  const displayBalances = useOrderAssets(tokenInfo, freeCollateral);
 
   const sortedBalances = lodashOrderBy(
     displayBalances,
@@ -354,7 +363,8 @@ export function AssetModal(props: Modal.Props) {
 
   const loading =
     (tag === 'records' ? records === undefined : sortedBalances.length == 0) ||
-    !tokenInfo;
+    !tokenInfo ||
+    freeCollateral === '-';
 
   useEffect(() => {
     if (
@@ -725,7 +735,13 @@ export function AssetModal(props: Modal.Props) {
               }}
             >
               {sortedBalances.map((b: OrderAsset) => {
-                return <AssetLine tokenInfo={tokenInfo} {...b} />;
+                return (
+                  <AssetLine
+                    tokenInfo={tokenInfo}
+                    {...b}
+                    freeCollateral={freeCollateral}
+                  />
+                );
               })}
             </section>
           )}
@@ -859,6 +875,7 @@ export function AssetModal(props: Modal.Props) {
                   )?.available || 0
                 )}
                 tokenInfo={tokenInfo}
+                freeCollateral={freeCollateral}
               />
 
               <AssetManagerModal
@@ -878,6 +895,7 @@ export function AssetModal(props: Modal.Props) {
                   )?.available || 0
                 )}
                 tokenInfo={tokenInfo}
+                freeCollateral={freeCollateral}
               />
             </div>
           )}

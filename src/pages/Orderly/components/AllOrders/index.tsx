@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import { SlArrowUp } from 'react-icons/sl';
 
@@ -6,7 +12,7 @@ import { IoIosClose } from 'react-icons/io';
 
 import { IoClose } from 'react-icons/io5';
 
-import { FlexRow, FlexRowBetween } from '../Common';
+import { FlexRow, FlexRowBetween, QuestionMark } from '../Common';
 import { parseSymbol } from '../RecentTrade';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
@@ -28,6 +34,7 @@ import {
   CheckSelectorWhite,
   MobileEdit,
   MobileFilter,
+  NoOrderEmpty,
   OrderStateOutline,
   RejectStamp,
 } from '../Common/Icons';
@@ -52,8 +59,7 @@ import {
   editOrder,
   getOrderTrades,
 } from '../../orderly/off-chain-api';
-import { useAllOrders } from '../../orderly/state';
-import { useAllSymbolInfo, useOrderBook, useCurHoldings } from './state';
+import { useOrderBook, useCurHoldings } from './state';
 import { useBatchTokenMetaFromSymbols } from '../ChartHeader/state';
 import Modal from 'react-modal';
 
@@ -65,7 +71,7 @@ import {
   FilledStamp,
   HistoryOrderDetailIcon,
 } from '../Common/Icons';
-import { digitWrapper, numberWithCommas } from '../../utiles';
+import { digitWrapper, numberWithCommas, PerpOrSpot } from '../../utiles';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../UserBoard/index';
 import {
   ONLY_ZEROS,
@@ -83,8 +89,14 @@ import { Images } from '../../../../components/stableswap/CommonComp';
 import { SymbolSelectorMobileModal } from '../ChartHeader';
 import { FormattedMessage, useIntl } from 'react-intl';
 import _ from 'lodash';
+import { tickToPrecision } from '../UserBoardPerp/math';
+import PositionsTable from './PositionsTable';
+import { usePerpData } from '../UserBoardPerp/state';
+import { QuestionTip } from '../../../../components/layout/TipWrapper';
 
-function getTranslateList(key: 'type' | 'side' | 'status' | 'instrument') {
+export function getTranslateList(
+  key: 'type' | 'side' | 'status' | 'instrument'
+) {
   const intl = useIntl();
   return {
     type: {
@@ -122,6 +134,10 @@ function getTranslateList(key: 'type' | 'side' | 'status' | 'instrument') {
         defaultMessage: 'Rejected',
       }),
       Both: intl.formatMessage({ id: 'both', defaultMessage: 'Both' }),
+
+      New: 'New',
+
+      'Partial Filled': 'Partial Filled',
     },
     instrument: {
       All: intl.formatMessage({
@@ -377,7 +393,7 @@ function OrderLine({
 
   const { accountId } = useWalletSelector();
 
-  const { handlePendingOrderRefreshing } = useOrderlyContext();
+  const { handlePendingOrderRefreshing, markPrices } = useOrderlyContext();
 
   const [price, setPrice] = useState<string>(order.price.toString());
 
@@ -424,6 +440,10 @@ function OrderLine({
 
     if (!symbolInfo) return;
 
+    const symbolType = PerpOrSpot(symbolInfo.symbol);
+
+    const markPrice = markPrices.find((m) => m.symbol === symbolInfo.symbol);
+
     if (
       new Big(order.price).eq(new Big(price || 0)) &&
       new Big(order.quantity).eq(new Big(quantity || 0))
@@ -454,11 +474,13 @@ function OrderLine({
     }
 
     if (
+      holdingTo &&
       new Big(price || 0)
         .minus(order.price)
         .times(new Big(quantity || 0))
         .gt(new Big(holdingTo.holding + holdingTo.pending_short)) &&
-      order.side === 'BUY'
+      order.side === 'BUY' &&
+      symbolType === 'SPOT'
     ) {
       errorTipMsg = `${intl.formatMessage({
         id: 'insufficient_en',
@@ -482,7 +504,8 @@ function OrderLine({
     if (
       new Big(quantity || 0).gt(order.quantity || 0) &&
       holdingFrom &&
-      holdingTo
+      holdingTo &&
+      symbolType === 'SPOT'
     ) {
       let diff = new Big(quantity || 0).minus(new Big(order.quantity || 0));
 
@@ -508,14 +531,14 @@ function OrderLine({
       }
     }
 
-    if (new Big(price || 0).lt(symbolInfo.quote_min)) {
+    if (new Big(price || 0).lt(symbolInfo.quote_min) && symbolType === 'SPOT') {
       errorTipMsg = `${intl.formatMessage({
         id: 'min_price_should_be_higher_than_or_equal_to',
         defaultMessage: 'Min price should be higher than or equal to',
       })} ${symbolInfo.quote_min}`;
     }
 
-    if (new Big(price || 0).gt(symbolInfo.quote_max)) {
+    if (new Big(price || 0).gt(symbolInfo.quote_max) && symbolType === 'SPOT') {
       errorTipMsg = `${intl.formatMessage({
         id: 'price_should_be_lower_than_or_equal_to',
         defaultMessage: 'Price should be lower than or equal to',
@@ -545,7 +568,8 @@ function OrderLine({
       new Big(price || 0).gt(
         new Big(marketPrice || 0).times(1 + symbolInfo.price_range)
       ) &&
-      order.side === 'BUY'
+      order.side === 'BUY' &&
+      symbolType === 'SPOT'
     ) {
       errorTipMsg = `${intl.formatMessage({
         id: 'price_should_be_lower_than_or_equal_to',
@@ -557,12 +581,13 @@ function OrderLine({
       new Big(price || 0).lt(
         new Big(marketPrice || 0).times(1 - symbolInfo.price_range)
       ) &&
-      order.side === 'SELL'
+      order.side === 'SELL' &&
+      symbolType === 'SPOT'
     ) {
       errorTipMsg = `${intl.formatMessage({
         id: 'price_should_be_greater_than_or_equal_to',
         defaultMessage: 'Price should be greater than or equal to',
-      })} ${new Big(marketPrice || 0).times(1 - symbolInfo.price_range)}`;
+      })} ${(new Big(marketPrice || 0).times(1 - symbolInfo.price_range), 3)}`;
     }
 
     if (
@@ -594,7 +619,7 @@ function OrderLine({
       } ${symbolInfo.base_min}`;
     }
 
-    if (new Big(size || 0).gt(symbolInfo.base_max)) {
+    if (new Big(size || 0).gt(symbolInfo.base_max) && symbolType === 'SPOT') {
       errorTipMsg = `${
         order.side === 'BUY'
           ? intl.formatMessage({
@@ -634,6 +659,84 @@ function OrderLine({
       })} ${symbolInfo.min_notional}`;
     }
 
+    if (
+      price &&
+      size &&
+      order.side === 'BUY' &&
+      markPrice &&
+      new Big(price || 0).gt(
+        new Big(markPrice.price || 0).mul(1 + symbolInfo.price_range)
+      )
+    ) {
+      errorTipMsg = `${intl.formatMessage({
+        id: 'perp_buy_limit_order_range',
+        defaultMessage:
+          'The price of buy limit orders should be less than or equal to',
+      })} ${new Big(markPrice.price || 0)
+        .mul(1 + symbolInfo.price_range)
+        .toFixed(tickToPrecision(symbolInfo.quote_tick))}`;
+    }
+
+    if (
+      price &&
+      size &&
+      order.side === 'SELL' &&
+      markPrice &&
+      new Big(price || 0).lt(
+        new Big(markPrice.price || 0).mul(1 - symbolInfo.price_range)
+      )
+    ) {
+      errorTipMsg = `${intl.formatMessage({
+        id: 'perp_sell_limit_order_range',
+        defaultMessage:
+          'The price of sell limit orders should be greater than or equal to',
+      })} ${
+        (new Big(markPrice.price || 0)
+          .mul(1 - symbolInfo.price_range)
+          .toFixed(tickToPrecision(symbolInfo.quote_tick)),
+        3)
+      }`;
+    }
+
+    if (
+      price &&
+      size &&
+      order.side === 'SELL' &&
+      markPrice &&
+      symbolInfo.price_scope &&
+      new Big(price || 0).gt(
+        new Big(markPrice.price || 0).mul(1 + symbolInfo.price_scope)
+      )
+    ) {
+      errorTipMsg = `${intl.formatMessage({
+        id: 'perp_sell_limit_order_scope',
+        defaultMessage: 'The price of a sell limit order cannot be higher than',
+      })} ${new Big(markPrice.price || 0)
+        .mul(1 + symbolInfo.price_scope)
+        .toFixed(tickToPrecision(symbolInfo.quote_tick))}`;
+    }
+
+    if (
+      price &&
+      size &&
+      order.side === 'BUY' &&
+      markPrice &&
+      symbolInfo?.price_scope &&
+      new Big(price || 0).lt(
+        new Big(markPrice.price || 0).mul(1 - symbolInfo.price_scope)
+      )
+    ) {
+      errorTipMsg = `${intl.formatMessage({
+        id: 'perp_buy_limit_order_scope',
+        defaultMessage: 'The price of a buy limit order cannot be lower than',
+      })} ${
+        (new Big(markPrice.price || 0)
+          .mul(1 - symbolInfo.price_scope)
+          .toFixed(tickToPrecision(symbolInfo.quote_tick)),
+        3)
+      }`;
+    }
+
     if (!!errorTipMsg && !noPop) {
       orderEditPopUpFailure({
         tip: errorTipMsg,
@@ -647,7 +750,7 @@ function OrderLine({
   const intl = useIntl();
   const isMobile = useClientMobile();
 
-  function handleEditOrder(value?: string, type?: 'price' | 'quantity') {
+  async function handleEditOrder(value?: string, type?: 'price' | 'quantity') {
     if (!accountId) return;
 
     if (
@@ -660,6 +763,7 @@ function OrderLine({
     setShowEditModal(false);
 
     return editOrder({
+      order,
       accountId,
       orderlyProps: {
         order_id: order.order_id,
@@ -672,7 +776,9 @@ function OrderLine({
           type === 'quantity' ? value : quantity || order.quantity.toString()
         ),
         order_type: order.type,
-        broker_id: 'ref_dex',
+        broker_id: order.broker_id || 'ref_dex',
+        visible_quantity: order.visible,
+        reduce_only: order.reduce_only,
       },
     })
       .then((res) => {
@@ -833,8 +939,10 @@ function OrderLine({
 
             <div
               className={`flex flex-col font-nunito overflow-hidden mb-0.5  rounded-lg ${
-                openEditQuantity ? 'border bg-dark2 relative bottom-1.5' : ''
-              }  border-border2 text-sm  w-14 text-white`}
+                openEditQuantity
+                  ? 'border bg-dark2 relative bottom-1.5 w-14'
+                  : ''
+              }  border-border2 text-sm   text-white`}
             >
               <input
                 ref={inputRef}
@@ -844,6 +952,7 @@ function OrderLine({
                 onChange={(e) => {
                   setQuantity(e.target.value);
                 }}
+                autoFocus={openEditQuantity}
                 onFocus={() => {
                   setOpenEditQuantity(true);
                   setOpenEditPrice(false);
@@ -854,7 +963,7 @@ function OrderLine({
                   !openEditQuantity ? 'hidden' : 'text-center'
                 }`}
                 style={{
-                  width: `${order.quantity.toString().length * 12}px`,
+                  // width: `${order.quantity.toString().length * 12}px`,
                   minWidth: '48px',
                 }}
               />
@@ -1013,6 +1122,14 @@ function OrderLine({
           }`}
         >
           {formatTimeDate(order.created_time)}
+        </td>
+
+        <td
+          className={`col-span-1 font-nunito relative transform translate-x-2/3 whitespace-nowrap justify-self-end right-2 text-end text-primaryOrderly  ${
+            openEdit ? 'items-start ' : 'items-center'
+          }`}
+        >
+          {order.broker_name}
         </td>
 
         <td
@@ -1198,8 +1315,19 @@ function OrderLine({
           </div>
         </div>
 
-        <div className="whitespace-nowrap font-nunito text-primaryText text-xs">
-          {formatTimeDate(order.created_time)}
+        <div className="whitespace-nowrap font-nunito text-primaryText text-xs frcb">
+          <span>{formatTimeDate(order.created_time)}</span>
+
+          <div className="frcs gap-2">
+            <span>
+              <FormattedMessage
+                id="from"
+                defaultMessage={'From'}
+              ></FormattedMessage>
+            </span>
+
+            <span>{order.broker_name}</span>
+          </div>
         </div>
       </div>
 
@@ -1247,7 +1375,7 @@ function OrderLine({
           }}
         ></EditOrderModalMobile>
       )}
-      {showMobileOrderDetail && isMobile && (
+      {showMobileOrderDetail && (
         <MobileOpenOrderDetail
           isOpen={showMobileOrderDetail}
           onRequestClose={() => {
@@ -1582,6 +1710,11 @@ function HistoryOrderLine({
           >
             {formatTimeDate(order.created_time)}
           </td>
+          <td
+            className={`col-span-1 font-nunito py-4  whitespace-nowrap text-primaryOrderly justify-self-end relative transform translate-x-1/2  text-left`}
+          >
+            {order.broker_name}
+          </td>
 
           <td className="pr-6" align="right">
             <div className="flex items-center justify-end text-white">
@@ -1857,8 +1990,20 @@ function HistoryOrderLine({
         </div>
 
         {/* ok  */}
-        <div className="whitespace-nowrap text-primaryText font-nunito text-xs">
-          {formatTimeDate(order.created_time)}
+
+        <div className="whitespace-nowrap font-nunito text-primaryText text-xs frcb">
+          <span>{formatTimeDate(order.created_time)}</span>
+
+          <div className="frcs gap-2">
+            <span>
+              <FormattedMessage
+                id="from"
+                defaultMessage={'From'}
+              ></FormattedMessage>
+            </span>
+
+            <span>{order.broker_name}</span>
+          </div>
         </div>
 
         {order.status === 'CANCELLED' && <CancelStamp></CancelStamp>}
@@ -2042,6 +2187,8 @@ function MobileFilterModal(
     setStatus?: (value: any) => void;
     setInstrument?: (value: string) => void;
     setShowCurSymbol?: (value: boolean) => void;
+    showRefOnly: boolean;
+    setShowRefOnly: (c: boolean) => void;
   } & Modal.Props
 ) {
   const {
@@ -2058,6 +2205,8 @@ function MobileFilterModal(
     curSymbol,
     setInstrument,
     setShowCurSymbol,
+    showRefOnly,
+    setShowRefOnly,
   } = props;
 
   const [showSymbolSelector, setShowSymbolSelector] = useState<boolean>(false);
@@ -2106,6 +2255,54 @@ function MobileFilterModal(
               </div>
             );
           })}
+        </div>
+      </div>
+    );
+  }
+
+  function SelectListDex({ listKey }: { listKey: string }) {
+    return (
+      <div className="mb-5 flex items-start w-full justify-between">
+        <div className="text-gray2">{listKey}</div>
+
+        <div className={` flex-shrink-0 items-center ${'flex'}  grid-cols-2`}>
+          <div
+            className="flex items-center ml-4 mb-1"
+            onClick={() => {
+              setShowRefOnly(true);
+            }}
+          >
+            <CheckBox
+              check={showRefOnly}
+              setCheck={() => setShowRefOnly(true)}
+            ></CheckBox>
+
+            <span className="ml-2">
+              {intl.formatMessage({
+                id: 'ref_order',
+                defaultMessage: 'REF Dex only',
+              })}
+            </span>
+          </div>
+
+          <div
+            className="flex items-center ml-4 mb-1"
+            onClick={() => {
+              setShowRefOnly(false);
+            }}
+          >
+            <CheckBox
+              check={!showRefOnly}
+              setCheck={() => setShowRefOnly(false)}
+            ></CheckBox>
+
+            <span className="ml-2">
+              {intl.formatMessage({
+                id: 'all',
+                defaultMessage: 'All',
+              })}
+            </span>
+          </div>
         </div>
       </div>
     );
@@ -2217,6 +2414,13 @@ function MobileFilterModal(
               keyTranslate="status"
             />
           )}
+
+          <SelectListDex
+            listKey={intl.formatMessage({
+              id: 'dex',
+              defaultMessage: 'Dex',
+            })}
+          />
         </div>
       </Modal>
 
@@ -2243,6 +2447,42 @@ function MobileFilterModal(
     </>
   );
 }
+function InfoLineOpenOrder({
+  value,
+  title,
+  editType,
+  setMobileEditType,
+}: {
+  value: JSX.Element | string;
+  title: string;
+  editType?: 'price' | 'quantity';
+  setMobileEditType: (value: 'price' | 'quantity') => void;
+}) {
+  return (
+    <div className="flex items-center justify-between mt-4 text-base">
+      <div className="text-primaryText">{title}</div>
+
+      <div
+        className={`text-white flex items-center ${
+          title === 'Instrument' ? 'relative left-2' : ''
+        } `}
+      >
+        {value}
+
+        <span
+          className="pl-2"
+          onClick={() => {
+            if (editType) {
+              setMobileEditType(editType);
+            }
+          }}
+        >
+          {editType && <MobileEdit></MobileEdit>}
+        </span>
+      </div>
+    </div>
+  );
+}
 
 function MobileOpenOrderDetail(
   props: Modal.Props & {
@@ -2258,41 +2498,6 @@ function MobileOpenOrderDetail(
     order: MyOrder;
   }
 ) {
-  function InfoLine({
-    value,
-    title,
-    editType,
-  }: {
-    value: JSX.Element | string;
-    title: string;
-    editType?: 'price' | 'quantity';
-  }) {
-    return (
-      <div className="flex items-center justify-between mt-4 text-base">
-        <div className="text-primaryText">{title}</div>
-
-        <div
-          className={`text-white flex items-center ${
-            title === 'Instrument' ? 'relative left-2' : ''
-          } `}
-        >
-          {value}
-
-          <span
-            className="pl-2"
-            onClick={() => {
-              if (editType) {
-                setMobileEditType(editType);
-              }
-            }}
-          >
-            {editType && <MobileEdit></MobileEdit>}
-          </span>
-        </div>
-      </div>
-    );
-  }
-
   const {
     editValidator,
     order,
@@ -2335,13 +2540,14 @@ function MobileOpenOrderDetail(
 
           {titleList.map((title, index) => {
             return (
-              <InfoLine
+              <InfoLineOpenOrder
                 key={'mobile-detail-list-' + title}
                 title={title}
                 value={valueList[index]}
                 editType={
                   index === 3 ? 'quantity' : index === 4 ? 'price' : undefined
                 }
+                setMobileEditType={setMobileEditType}
               />
             );
           })}
@@ -2509,7 +2715,7 @@ function DetailTable({
   );
 }
 
-function MobileHistoryOrderDetail(
+export function MobileHistoryOrderDetail(
   props: Modal.Props & {
     valueList: (JSX.Element | string)[];
 
@@ -2517,9 +2723,17 @@ function MobileHistoryOrderDetail(
     orderTradesHistory: OrderTrade[];
     symbol: string;
     order: MyOrder;
+    type?: string;
   }
 ) {
-  const { titleList, order, valueList, symbol, orderTradesHistory } = props;
+  const {
+    titleList,
+    order,
+    valueList,
+    symbol,
+    orderTradesHistory,
+    type = 'history',
+  } = props;
 
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
 
@@ -2546,7 +2760,7 @@ function MobileHistoryOrderDetail(
       <div className="bg-darkBg  pb-6 overflow-auto  xs:w-screen  xs:fixed xs:bottom-0 xs:left-0 rounded-t-2xl  text-base   rounded-lg   border-t border-borderC  py-4 text-white">
         <div className="text-left px-5 font-bold">
           {intl.formatMessage({
-            id: 'history_order_detail',
+            id: `${type}_order_detail`,
             defaultMessage: 'History Order Detail',
           })}
         </div>
@@ -2613,6 +2827,8 @@ function OpenOrders({
   setMobileFilterSize,
   mobileFilterSize,
   tab,
+  showRefOnly,
+  setShowRefOnly,
 }: {
   orders: MyOrder[];
   symbol: string;
@@ -2620,7 +2836,7 @@ function OpenOrders({
   allTokens: {
     [key: string]: TokenMetadata;
   };
-  tab: 'open' | 'history';
+  tab: 'open' | 'history' | 'positions';
   mobileFilterSize: number;
   setMobileFilterSize: (s: number) => void;
   mobileFilterOpen: 'open' | 'history' | undefined;
@@ -2630,12 +2846,14 @@ function OpenOrders({
   setMobileFilterOpen: (c: 'open' | 'history' | undefined) => void;
   setShowCurSymbol: (c: boolean) => void;
   loading: boolean;
+  showRefOnly: boolean;
+  setShowRefOnly: (c: boolean) => void;
 }) {
   const [showSideSelector, setShowSideSelector] = useState<boolean>(false);
 
   const [otherLineOpenTrigger, setOtherLineOpenTrigger] = useState<number>();
 
-  const curHoldings = useCurHoldings();
+  const { holdings: curHoldings } = useOrderlyContext();
 
   const [chooseSide, setChooseSide] = useState<'Both' | 'Buy' | 'Sell'>('Both');
 
@@ -2644,6 +2862,9 @@ function OpenOrders({
   const [chooseMarketSymbol, setChooseMarketSymbol] = useState<string>(
     showCurSymbol && !isMobile() ? symbol : 'all_markets'
   );
+  const [chooseStatus, setChooseStatus] = useState<
+    'All' | 'New' | 'Partial Filled'
+  >('All');
 
   const [showMarketSelector, setShowMarketSelector] = useState<boolean>(false);
 
@@ -2652,10 +2873,12 @@ function OpenOrders({
 
     const count =
       (chooseMarketSymbol !== 'all_markets' ? 1 : 0) +
-      (chooseSide !== 'Both' ? 1 : 0);
+      (chooseSide !== 'Both' ? 1 : 0) +
+      (chooseStatus !== 'All' ? 1 : 0) +
+      (showRefOnly ? 1 : 0);
 
     setMobileFilterSize(count);
-  }, [chooseMarketSymbol, chooseSide, tab]);
+  }, [chooseMarketSymbol, chooseSide, tab, chooseStatus, showRefOnly]);
 
   const [timeSorting, setTimeSorting] = useState<'asc' | 'dsc'>(
     loading ? undefined : 'dsc'
@@ -2689,7 +2912,12 @@ function OpenOrders({
       (order.type === 'LIMIT' && chooseType === 'Limit') ||
       (order.type === 'POST_ONLY' && chooseType === 'Post Only');
 
-    return a && b && c;
+    const d =
+      chooseStatus === 'All' ||
+      (order.status === 'NEW' && chooseStatus === 'New') ||
+      (chooseStatus === 'Partial Filled' && order.status === 'PARTIAL_FILLED');
+
+    return a && b && c && d;
   };
 
   useEffect(() => {
@@ -2705,7 +2933,7 @@ function OpenOrders({
     if (!orders) return;
 
     setOpenCount(orders.filter(filterFunc).length);
-  }, [chooseSide, chooseMarketSymbol, !!orders, chooseType]);
+  }, [chooseSide, chooseMarketSymbol, !!orders, chooseType, showRefOnly]);
 
   useEffect(() => {
     if (showCurSymbol) {
@@ -2715,8 +2943,6 @@ function OpenOrders({
     }
   }, [showCurSymbol, symbol]);
   const intl = useIntl();
-
-  if (hidden) return null;
 
   const generateMarketList = () => {
     if (!availableSymbols || !allTokens) return [];
@@ -2729,8 +2955,8 @@ function OpenOrders({
             </div>
             <span className="text-white">
               {intl.formatMessage({
-                id: 'all_instrument',
-                defaultMessage: 'All Instrument',
+                id: 'all',
+                defaultMessage: 'All',
               })}
             </span>
           </div>
@@ -2743,7 +2969,15 @@ function OpenOrders({
       .sort((a, b) => (a.symbol > b.symbol ? 1 : -1))
       .forEach((symbol) => {
         const { symbolFrom, symbolTo } = parseSymbol(symbol.symbol);
-        const fromToken = allTokens[symbolFrom];
+
+        const symbolType = PerpOrSpot(symbol.symbol);
+
+        const fromToken = allTokens[symbolFrom === 'BTC' ? 'WBTC' : symbolFrom];
+
+        const tokenList =
+          isMobile() && symbolType === 'PERP'
+            ? [fromToken]
+            : [fromToken, allTokens[symbolTo]];
 
         const render = (
           <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
@@ -2754,18 +2988,19 @@ function OpenOrders({
             />
 
             <Images
-              tokens={[fromToken, allTokens[symbolTo]]}
+              tokens={tokenList}
               size="5"
               className="lg:hidden"
               borderStyle="border-gradientFrom"
             />
 
-            <span className="xs:text-white xs:ml-2 xs:font-bold">
-              {symbolFrom}
-            </span>
+            <span className="xs:text-white  xs:font-bold">{symbolFrom}</span>
 
             <span className="text-primaryOrderly xs:text-white xs:font-bold">
-              /{symbolTo}
+              {symbolType === 'SPOT' ? '/' : ' '}
+              <span className={symbolType === 'PERP' ? 'ml-1' : ''}>
+                {symbolType === 'SPOT' ? symbolTo : ` PERP`}
+              </span>
             </span>
           </div>
         );
@@ -2778,7 +3013,108 @@ function OpenOrders({
 
     return marketList;
   };
-  const marketList = generateMarketList();
+  const marketList = useMemo(
+    () => generateMarketList(),
+    [JSON.stringify(availableSymbols), JSON.stringify(allTokens)]
+  );
+
+  const symbolType = PerpOrSpot(symbol);
+
+  const typeList =
+    symbolType === 'SPOT'
+      ? [
+          {
+            text: intl.formatMessage({
+              id: 'All',
+              defaultMessage: 'All',
+            }),
+            textId: 'All',
+            className: 'text-white',
+          },
+          {
+            text: intl.formatMessage({
+              id: 'limit_orderly',
+              defaultMessage: 'Limit',
+            }),
+            textId: 'Limit',
+            className: 'text-white',
+          },
+          {
+            text: intl.formatMessage({
+              id: 'market',
+              defaultMessage: 'Market',
+            }),
+            textId: 'Market',
+            className: 'text-white',
+          },
+          {
+            text: 'IOC',
+            textId: 'IOC',
+            className: 'text-white',
+          },
+          {
+            text: 'FOK',
+            textId: 'FOK',
+            className: 'text-white',
+          },
+          {
+            text: 'Post Only',
+            textId: 'Post Only',
+            className: 'text-white',
+          },
+        ]
+      : [
+          {
+            text: intl.formatMessage({
+              id: 'All',
+              defaultMessage: 'All',
+            }),
+            textId: 'All',
+            className: 'text-white',
+          },
+          {
+            text: intl.formatMessage({
+              id: 'limit_orderly',
+              defaultMessage: 'Limit',
+            }),
+            textId: 'Limit',
+            className: 'text-white',
+          },
+          {
+            text: 'Post Only',
+            textId: 'Post Only',
+            className: 'text-white',
+          },
+        ];
+
+  const orderData = orders
+    .sort(sortingFunc)
+    .filter(filterFunc)
+    .map((order) => {
+      return (
+        <OrderLine
+          marketInfo={marketList.find((m) => m.textId === order.symbol)?.text}
+          setOtherLineOpenTrigger={setOtherLineOpenTrigger}
+          otherLineOpenTrigger={otherLineOpenTrigger}
+          holdingFrom={curHoldings?.find((h) => {
+            const token = parseSymbol(order.symbol).symbolFrom;
+
+            return h.token === token;
+          })}
+          holdingTo={curHoldings?.find((h) => {
+            const token = parseSymbol(order.symbol).symbolTo;
+
+            return h.token === token;
+          })}
+          showCurSymbol={showCurSymbol}
+          order={order}
+          key={order.order_id}
+          availableSymbols={availableSymbols}
+        />
+      );
+    });
+
+  if (hidden) return null;
 
   return (
     <>
@@ -2788,18 +3124,24 @@ function OpenOrders({
             {intl.formatMessage({
               id: 'filter',
               defaultMessage: 'Filter',
-            })}{' '}
+            })}
             :
           </div>
 
           <div className="flex flex-wrap items-center justify-end">
             {chooseMarketSymbol !== 'all_markets' && (
               <div className="flex items-center mr-2">
-                <span>
-                  {parseSymbol(chooseMarketSymbol).symbolFrom}-
-                  {parseSymbol(chooseMarketSymbol).symbolTo}
-                </span>
-
+                {symbolType === 'SPOT' && (
+                  <span>
+                    {parseSymbol(chooseMarketSymbol).symbolFrom}-
+                    {parseSymbol(chooseMarketSymbol).symbolTo}
+                  </span>
+                )}
+                {symbolType === 'PERP' && (
+                  <span>
+                    {`${parseSymbol(chooseMarketSymbol).symbolFrom} PERP`}
+                  </span>
+                )}
                 <span
                   className="ml-2 flex items-center justify-center rounded-full w-4 h-4 bg-mobileOrderListTab text-primaryText"
                   onClick={() => {
@@ -2825,6 +3167,41 @@ function OpenOrders({
                   className="ml-2 flex items-center justify-center rounded-full w-4 h-4 bg-mobileOrderListTab text-primaryText"
                   onClick={() => {
                     setChooseSide('Both');
+                  }}
+                >
+                  <IoIosClose></IoIosClose>
+                </span>
+              </div>
+            )}
+
+            {chooseStatus !== 'All' && (
+              <div className="flex items-center mr-2">
+                <span>{getTranslateList('status')[chooseStatus]}</span>
+
+                <span
+                  className="ml-2 flex items-center justify-center rounded-full w-4 h-4 bg-mobileOrderListTab text-primaryText"
+                  onClick={() => {
+                    setChooseStatus('All');
+                  }}
+                >
+                  <IoIosClose></IoIosClose>
+                </span>
+              </div>
+            )}
+
+            {showRefOnly && (
+              <div className="flex items-center mr-2">
+                <span>
+                  {intl.formatMessage({
+                    id: 'ref_order',
+                    defaultMessage: 'REF Dex only',
+                  })}
+                </span>
+
+                <span
+                  className="ml-2 flex items-center justify-center rounded-full w-4 h-4 bg-mobileOrderListTab text-primaryText"
+                  onClick={() => {
+                    setShowRefOnly(false);
                   }}
                 >
                   <IoIosClose></IoIosClose>
@@ -2861,15 +3238,19 @@ function OpenOrders({
                   <span className="flex items-center">
                     {chooseMarketSymbol === 'all_markets' ? (
                       intl.formatMessage({
-                        id: 'all_instrument',
-                        defaultMessage: 'All Instrument',
+                        id: 'instrument',
+                        defaultMessage: 'Instrument',
                       })
                     ) : (
                       <>
                         <span className="text-white">
                           {parseSymbol(chooseMarketSymbol).symbolFrom}
                         </span>
-                        /{parseSymbol(chooseMarketSymbol).symbolTo}
+                        <span className={symbolType === 'PERP' ? 'ml-1' : ''}>
+                          {symbolType === 'PERP'
+                            ? ` PERP`
+                            : `/${parseSymbol(chooseMarketSymbol).symbolTo}`}
+                        </span>
                       </>
                     )}
                   </span>
@@ -2970,17 +3351,48 @@ function OpenOrders({
 
             <th>
               <FlexRow className="col-span-1 relative">
-                <span>
-                  {chooseType === 'All'
-                    ? intl.formatMessage({
-                        id: 'type',
-                        defaultMessage: 'Type',
-                      })
-                    : intl.formatMessage({
-                        id: chooseSide.toLocaleLowerCase(),
-                        defaultMessage: chooseSide,
-                      })}
-                </span>
+                <div
+                  className="cursor-pointer flex items-center"
+                  onClick={(e) => {
+                    if (symbolType === 'SPOT') return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowTypeSelector(!showTypeSelector);
+                    setShowMarketSelector(false);
+                    setShowSideSelector(false);
+                  }}
+                >
+                  <span>
+                    {chooseType === 'All'
+                      ? intl.formatMessage({
+                          id: 'type',
+                          defaultMessage: 'Type',
+                        })
+                      : chooseType === 'Limit'
+                      ? intl.formatMessage({
+                          id: 'limit_orderly',
+                          defaultMessage: 'Limit',
+                        })
+                      : chooseType}
+                  </span>
+
+                  {symbolType === 'PERP' && (
+                    <MdArrowDropDown
+                      size={22}
+                      color={showTypeSelector ? 'white' : '#7E8A93'}
+                    />
+                  )}
+                </div>
+                {showTypeSelector && (
+                  <Selector
+                    selected={chooseType}
+                    setSelect={(value: any) => {
+                      setChooseType(value);
+                      setShowTypeSelector(false);
+                    }}
+                    list={typeList}
+                  />
+                )}
               </FlexRow>
             </th>
 
@@ -3061,6 +3473,20 @@ function OpenOrders({
                 }
               </div>
             </th>
+
+            <th>
+              <div
+                className={`cursor-pointe text-left transform translate-x-2/3`}
+              >
+                <span>
+                  {intl.formatMessage({
+                    id: 'dex',
+                    defaultMessage: 'Dex',
+                  })}
+                </span>
+              </div>
+            </th>
+
             <th align="right">
               <span className="pr-6">
                 {' '}
@@ -3079,41 +3505,15 @@ function OpenOrders({
           {loading ? (
             <OrderlyLoading></OrderlyLoading>
           ) : orders.filter(filterFunc).length === 0 ? (
-            <div className="text-dark4 mt-10 mb-4 text-center text-sm">
+            <div className="text-primaryText text-opacity-30 mt-10 mb-4 text-center text-sm flex flex-col justify-center items-center gap-2">
+              {isMobile() && <NoOrderEmpty></NoOrderEmpty>}
               {intl.formatMessage({
                 id: 'no_orders_found',
                 defaultMessage: 'No orders found',
               })}
             </div>
           ) : (
-            orders
-              .sort(sortingFunc)
-              .filter(filterFunc)
-              .map((order) => {
-                return (
-                  <OrderLine
-                    marketInfo={
-                      marketList.find((m) => m.textId === order.symbol)?.text
-                    }
-                    setOtherLineOpenTrigger={setOtherLineOpenTrigger}
-                    otherLineOpenTrigger={otherLineOpenTrigger}
-                    holdingFrom={curHoldings?.find((h) => {
-                      const token = parseSymbol(order.symbol).symbolFrom;
-
-                      return h.token === token;
-                    })}
-                    holdingTo={curHoldings?.find((h) => {
-                      const token = parseSymbol(order.symbol).symbolTo;
-
-                      return h.token === token;
-                    })}
-                    showCurSymbol={showCurSymbol}
-                    order={order}
-                    key={order.order_id}
-                    availableSymbols={availableSymbols}
-                  />
-                );
-              })
+            orderData
           )}
         </tbody>
       </table>
@@ -3136,6 +3536,11 @@ function OpenOrders({
           setChooseMarketSymbol(value);
         }}
         setShowCurSymbol={setShowCurSymbol}
+        statusList={['All', 'New', 'Partial Filled']}
+        setStatus={setChooseStatus}
+        curStatus={chooseStatus}
+        showRefOnly={showRefOnly}
+        setShowRefOnly={setShowRefOnly}
       ></MobileFilterModal>
     </>
   );
@@ -3156,6 +3561,8 @@ function HistoryOrders({
   setMobileFilterSize,
   mobileFilterSize,
   tab,
+  showRefOnly,
+  setShowRefOnly,
 }: {
   orders: MyOrder[];
   symbol: string;
@@ -3163,12 +3570,14 @@ function HistoryOrders({
   allTokens: {
     [key: string]: TokenMetadata;
   };
+  showRefOnly: boolean;
+  setShowRefOnly: (c: boolean) => void;
   mobileFilterOpen: 'open' | 'history' | undefined;
   availableSymbols: SymbolInfo[] | undefined;
   setHistoryCount: (c: number) => void;
   showCurSymbol: boolean;
   loading: boolean;
-  tab: 'open' | 'history';
+  tab: 'open' | 'history' | 'positions';
   mobileFilterSize: number;
   setMobileFilterSize: (s: number) => void;
   setMobileFilterOpen: (c: 'open' | 'history' | undefined) => void;
@@ -3246,7 +3655,7 @@ function HistoryOrders({
     if (!orders) return;
 
     setHistoryCount(orders.filter(filterFunc).length);
-  }, [chooseSide, chooseType, chooseStatus, !!orders, chooseMarketSymbol]);
+  }, [chooseSide, chooseType, chooseStatus, orders, chooseMarketSymbol]);
 
   useEffect(() => {
     if (tab !== 'history') return;
@@ -3254,10 +3663,18 @@ function HistoryOrders({
       (chooseMarketSymbol !== 'all_markets' ? 1 : 0) +
       (chooseSide !== 'Both' ? 1 : 0) +
       (chooseStatus !== 'All' ? 1 : 0) +
-      (chooseType !== 'All' ? 1 : 0);
+      (chooseType !== 'All' ? 1 : 0) +
+      (showRefOnly ? 1 : 0);
 
     setMobileFilterSize(count);
-  }, [chooseMarketSymbol, chooseSide, chooseStatus, chooseType, tab]);
+  }, [
+    chooseMarketSymbol,
+    chooseSide,
+    chooseStatus,
+    chooseType,
+    tab,
+    showRefOnly,
+  ]);
 
   useEffect(() => {
     if (
@@ -3291,8 +3708,8 @@ function HistoryOrders({
             </div>
             <span className="text-white">
               {intl.formatMessage({
-                id: 'all_instrument',
-                defaultMessage: 'All Instrument',
+                id: 'all',
+                defaultMessage: 'All',
               })}
             </span>
           </div>
@@ -3305,7 +3722,13 @@ function HistoryOrders({
       .sort((a, b) => (a.symbol > b.symbol ? 1 : -1))
       .forEach((symbol) => {
         const { symbolFrom, symbolTo } = parseSymbol(symbol.symbol);
-        const fromToken = allTokens[symbolFrom];
+        const fromToken = allTokens[symbolFrom === 'BTC' ? 'WBTC' : symbolFrom];
+
+        const symbolType = PerpOrSpot(symbol.symbol);
+        const tokenList =
+          isMobile() && symbolType === 'PERP'
+            ? [fromToken]
+            : [fromToken, allTokens[symbolTo]];
 
         const render = (
           <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
@@ -3316,18 +3739,19 @@ function HistoryOrders({
             />
 
             <Images
-              tokens={[fromToken, allTokens[symbolTo]]}
+              tokens={tokenList}
               size="5"
               className="lg:hidden"
               borderStyle="border-gradientFrom"
             />
 
-            <span className="xs:text-white xs:ml-2 xs:font-bold">
-              {symbolFrom}
-            </span>
+            <span className="xs:text-white  xs:font-bold">{symbolFrom}</span>
 
             <span className="text-primaryOrderly xs:text-white xs:font-bold">
-              /{symbolTo}
+              {symbolType === 'SPOT' ? '/' : ' '}
+              <span className={symbolType === 'PERP' ? 'ml-1' : ''}>
+                {symbolType === 'SPOT' ? symbolTo : ` PERP`}
+              </span>
             </span>
           </div>
         );
@@ -3341,7 +3765,10 @@ function HistoryOrders({
     return marketList;
   };
 
-  const marketList = generateMarketList();
+  const marketList = useMemo(
+    () => generateMarketList(),
+    [JSON.stringify(availableSymbols), JSON.stringify(allTokens)]
+  );
 
   const data = orders
     .sort(sortingFunc)
@@ -3371,6 +3798,50 @@ function HistoryOrders({
     }
   };
 
+  const symbolType = PerpOrSpot(symbol);
+
+  const typeList = [
+    {
+      text: intl.formatMessage({
+        id: 'All',
+        defaultMessage: 'All',
+      }),
+      textId: 'All',
+      className: 'text-white',
+    },
+    {
+      text: intl.formatMessage({
+        id: 'limit_orderly',
+        defaultMessage: 'Limit',
+      }),
+      textId: 'Limit',
+      className: 'text-white',
+    },
+    {
+      text: intl.formatMessage({
+        id: 'market',
+        defaultMessage: 'Market',
+      }),
+      textId: 'Market',
+      className: 'text-white',
+    },
+    {
+      text: 'IOC',
+      textId: 'IOC',
+      className: 'text-white',
+    },
+    {
+      text: 'FOK',
+      textId: 'FOK',
+      className: 'text-white',
+    },
+    {
+      text: 'Post Only',
+      textId: 'Post Only',
+      className: 'text-white',
+    },
+  ];
+
   return (
     <>
       {mobileFilterSize > 0 && isMobile() && tab === 'history' && (
@@ -3387,10 +3858,17 @@ function HistoryOrders({
           <div className="flex flex-wrap items-center justify-end">
             {chooseMarketSymbol !== 'all_markets' && (
               <div className="flex items-center mr-2 ">
-                <span>
-                  {parseSymbol(chooseMarketSymbol).symbolFrom}-
-                  {parseSymbol(chooseMarketSymbol).symbolTo}
-                </span>
+                {symbolType === 'SPOT' && (
+                  <span>
+                    {parseSymbol(chooseMarketSymbol).symbolFrom}-
+                    {parseSymbol(chooseMarketSymbol).symbolTo}
+                  </span>
+                )}
+                {symbolType === 'PERP' && (
+                  <span>
+                    {`${parseSymbol(chooseMarketSymbol).symbolFrom} PERP`}
+                  </span>
+                )}
 
                 <span
                   className="ml-2 flex items-center justify-center rounded-full w-4 h-4 bg-mobileOrderListTab text-primaryText"
@@ -3471,6 +3949,26 @@ function HistoryOrders({
                 </span>
               </div>
             )}
+
+            {showRefOnly && (
+              <div className="flex items-center mr-2">
+                <span>
+                  {intl.formatMessage({
+                    id: 'ref_order',
+                    defaultMessage: 'REF Dex only',
+                  })}
+                </span>
+
+                <span
+                  className="ml-2 flex items-center justify-center rounded-full w-4 h-4 bg-mobileOrderListTab text-primaryText"
+                  onClick={() => {
+                    setShowRefOnly(false);
+                  }}
+                >
+                  <IoIosClose></IoIosClose>
+                </span>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -3501,15 +3999,19 @@ function HistoryOrders({
                     <span className="flex items-center">
                       {chooseMarketSymbol === 'all_markets' ? (
                         intl.formatMessage({
-                          id: 'all_instrument',
-                          defaultMessage: 'All Instrument',
+                          id: 'instrument',
+                          defaultMessage: 'Instrument',
                         })
                       ) : (
                         <>
                           <span className="text-white">
                             {parseSymbol(chooseMarketSymbol).symbolFrom}
                           </span>
-                          /{parseSymbol(chooseMarketSymbol).symbolTo}
+                          <span className={symbolType === 'PERP' ? 'ml-1' : ''}>
+                            {symbolType === 'PERP'
+                              ? ` PERP`
+                              : `/${parseSymbol(chooseMarketSymbol).symbolTo}`}
+                          </span>
                         </>
                       )}
                     </span>
@@ -3655,47 +4157,7 @@ function HistoryOrders({
                       setChooseType(value);
                       setShowTypeSelector(false);
                     }}
-                    list={[
-                      {
-                        text: intl.formatMessage({
-                          id: 'All',
-                          defaultMessage: 'All',
-                        }),
-                        textId: 'All',
-                        className: 'text-white',
-                      },
-                      {
-                        text: intl.formatMessage({
-                          id: 'limit_orderly',
-                          defaultMessage: 'Limit',
-                        }),
-                        textId: 'Limit',
-                        className: 'text-white',
-                      },
-                      {
-                        text: intl.formatMessage({
-                          id: 'market',
-                          defaultMessage: 'Market',
-                        }),
-                        textId: 'Market',
-                        className: 'text-white',
-                      },
-                      {
-                        text: 'IOC',
-                        textId: 'IOC',
-                        className: 'text-white',
-                      },
-                      {
-                        text: 'FOK',
-                        textId: 'FOK',
-                        className: 'text-white',
-                      },
-                      {
-                        text: 'Post Only',
-                        textId: 'Post Only',
-                        className: 'text-white',
-                      },
-                    ]}
+                    list={typeList}
                   />
                 )}
               </FlexRow>
@@ -3799,6 +4261,18 @@ function HistoryOrders({
                 }
               </div>
             </th>
+            <th>
+              <div
+                className={`cursor-pointer text-left transform translate-x-1/2`}
+              >
+                <span>
+                  {intl.formatMessage({
+                    id: 'dex',
+                    defaultMessage: 'Dex',
+                  })}
+                </span>
+              </div>
+            </th>
 
             <th className="pr-6" align="right">
               <div className="flex relative items-center justify-end">
@@ -3885,7 +4359,8 @@ function HistoryOrders({
           {loading ? (
             <OrderlyLoading></OrderlyLoading>
           ) : orders.filter(filterFunc).length === 0 ? (
-            <div className="text-dark4 mt-10 mb-4 text-center text-sm">
+            <div className="text-primaryText text-opacity-30 mt-10 mb-4 text-center text-sm flex flex-col justify-center items-center gap-2">
+              {isMobile() && <NoOrderEmpty></NoOrderEmpty>}
               {intl.formatMessage({
                 id: 'no_orders_found',
                 defaultMessage: 'No orders found',
@@ -3929,21 +4404,40 @@ function HistoryOrders({
         setStatus={setChooseStatus}
         statusList={['All', 'Cancelled', 'Filled', 'Rejected']}
         setShowCurSymbol={setShowCurSymbol}
+        showRefOnly={showRefOnly}
+        setShowRefOnly={setShowRefOnly}
       ></MobileFilterModal>
     </>
   );
 }
 
-function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
+function AllOrderBoard({
+  maintenance,
+  defaultOpen,
+  subOrderTab,
+  setSubOrderTab,
+  setDisplayOrderCount,
+  displayOrderCount,
+}: {
+  maintenance?: boolean;
+  defaultOpen?: boolean;
+  subOrderTab?: 'open' | 'history';
+  setSubOrderTab?: (c: 'open' | 'history') => void;
+  displayOrderCount?: number;
+  setDisplayOrderCount?: (c: number) => void;
+}) {
   const {
     symbol,
-    myPendingOrdersRefreshing,
-    handlePendingOrderRefreshing,
     tokenInfo,
-    validAccountSig,
+    availableSymbols: AllAvailableSymbols,
+    allOrders,
   } = useOrderlyContext();
+  const symbolType = PerpOrSpot(symbol);
 
-  const availableSymbols = useAllSymbolInfo();
+  const availableSymbols = AllAvailableSymbols?.filter(
+    (s) => s.symbol.indexOf(symbolType) > -1
+  );
+
   const [mobileFilterOpen, setMobileFilterOpen] = useState<
     'open' | 'history' | undefined
   >(undefined);
@@ -3955,7 +4449,7 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
         : availableSymbols.flatMap((s) => {
             const { symbolFrom, symbolTo } = parseSymbol(s.symbol);
 
-            return [symbolFrom, symbolTo];
+            return [symbolFrom === 'BTC' ? 'WBTC' : symbolFrom, symbolTo];
           })
     ),
   ];
@@ -3969,8 +4463,6 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
 
   const isMobile = useClientMobile();
 
-  const allOrders = useAllOrders({ refreshingTag: myPendingOrdersRefreshing });
-
   const { accountId } = useWalletSelector();
 
   const loading =
@@ -3980,31 +4472,59 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
     !!localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID) &&
     !maintenance;
 
-  const [tab, setTab] = useState<'open' | 'history'>('open');
-
-  const [showCurSymbol, setShowCurSymbol] = useState<boolean>(
-    !!isMobile ? false : true
+  const [tab, setTab] = useState<'open' | 'history' | 'positions'>(
+    symbolType === 'PERP' ? (defaultOpen ? 'open' : 'positions') : 'open'
   );
+
+  useEffect(() => {
+    if (symbolType === 'SPOT' && tab === 'positions') {
+      setTab('open');
+      setSubOrderTab && setSubOrderTab('open');
+    }
+    if (symbolType === 'PERP' && !defaultOpen) {
+      setTab('positions');
+    }
+  }, [symbolType]);
+
+  const { newPositions } = usePerpData();
+
+  const [showCurSymbol, setShowCurSymbol] = useState<boolean>(false);
+
+  const [showRefOnly, setShowRefOnly] = useState<boolean>(false);
 
   const openOrders = allOrders?.filter((o) => {
     return (
       (o.status === 'NEW' || o.status === 'PARTIAL_FILLED') &&
-      (!showCurSymbol || o.symbol === symbol)
+      // o.symbol === symbol &&
+      (!showRefOnly || o.broker_id === 'ref_dex')
     );
   });
 
   const historyOrders = allOrders?.filter((o) => {
     return (
       openOrders?.map((o) => o.order_id).indexOf(o.order_id) === -1 &&
-      (!showCurSymbol || o.symbol === symbol)
+      // o.symbol === symbol &&
+      (!showRefOnly || o.broker_id === 'ref_dex')
     );
   });
 
   const [openCount, setOpenCount] = useState<number>();
 
   const [historyCount, setHistoryCount] = useState<number>();
+
+  useEffect(() => {
+    if (subOrderTab && subOrderTab === 'open') {
+      setDisplayOrderCount && setDisplayOrderCount(openCount);
+    }
+  }, [openCount, subOrderTab]);
+
+  useEffect(() => {
+    if (subOrderTab && subOrderTab === 'history') {
+      setDisplayOrderCount && setDisplayOrderCount(historyCount);
+    }
+  }, [historyCount, subOrderTab]);
+
   const intl = useIntl();
-  const history = useHistory();
 
   const [mobileFilterSize, setMobileFilterSize] = useState<number>(0);
 
@@ -4016,27 +4536,79 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
     if (historyOrders !== undefined) {
       setHistoryCount(historyOrders.length);
     }
-  }, [allOrders, openOrders?.length, historyOrders?.length]);
+  }, [openOrders?.length, historyOrders?.length]);
 
   return (
     <>
       <div
-        className="w-full relative  xs:mt-5 lg:rounded-2xl shadow-sm  xs:bg-mobileOrderListBg lg:border md:border-none xs:border-none  text-primaryOrderly border-boxBorder    text-sm lg:bg-black  lg:bg-opacity-10 pb-4"
+        className="w-full relative  xs:mt-6 lg:rounded-2xl shadow-sm  lg:border md:border-none xs:border-none  text-primaryOrderly border-boxBorder    text-sm lg:bg-black  lg:bg-opacity-10 pb-4"
         style={{
           minHeight: isMobile ? '' : 'calc(100vh - 680px)',
         }}
       >
-        <FlexRowBetween className="pb-3 xs:mb-5 xs:bg-mobileOrderListTab py-3 rounded-t-2xl lg:border-b xs:px-0 xs:py-0 px-5 mt-0 border-white border-opacity-10">
-          <FlexRow className={`min-h-8 `}>
+        <FlexRowBetween className="pb-1.5 xs:mb-5 py-3  rounded-t-2xl lg:border-b xs:px-0 xs:py-0 px-5 mt-0 border-white border-opacity-10">
+          <FlexRow
+            className={`min-h-8 xs:ml-3 xs:p-1 xs:py-0.5 xs:border lg:gap-8 border-white border-opacity-10 xs:rounded-xl`}
+          >
+            <FlexRow
+              onClick={() => {
+                setTab('positions');
+              }}
+              className={`font-gothamBold justify-center  xs:py-0.5 xs:px-2 xs:rounded-lg ${
+                tab === 'positions' ? 'xs:bg-mobileOrderBg ' : ''
+              } ${
+                symbolType === 'SPOT' || !!isMobile ? 'hidden' : ''
+              } cursor-pointer`}
+            >
+              <span
+                className={
+                  tab === 'positions'
+                    ? 'text-white relative'
+                    : 'text-primaryOrderly relative'
+                }
+              >
+                {intl.formatMessage({
+                  id: 'positions',
+                  defaultMessage: 'Positions',
+                })}
+
+                {tab === 'positions' && !isMobile && (
+                  <div className="h-0.5 bg-gradientFromHover rounded-lg w-full absolute -bottom-3 left-0"></div>
+                )}
+              </span>
+
+              <span
+                className={`flex items-center justify-center h-4 px-1.5 min-w-fit text-xs rounded-md  ml-2 ${
+                  tab === 'positions'
+                    ? 'text-white bg-grayBgLight'
+                    : 'text-primaryOrderly bg-symbolHover'
+                } 
+                  ${isMobile ? 'hidden' : ''}
+                `}
+              >
+                {!newPositions ||
+                newPositions?.rows?.filter(
+                  (p) =>
+                    p.position_qty !== 0 &&
+                    (showCurSymbol ? p.symbol === symbol : true)
+                )?.length === undefined
+                  ? '-'
+                  : newPositions?.rows?.filter(
+                      (p) =>
+                        p.position_qty !== 0 &&
+                        (showCurSymbol ? p.symbol === symbol : true)
+                    )?.length}
+              </span>
+            </FlexRow>
+
             <FlexRow
               onClick={() => {
                 setTab('open');
+                setSubOrderTab && setSubOrderTab('open');
               }}
-              className={`justify-center xs:py-3 xs:px-5 ${
-                tab === 'open'
-                  ? 'xs:bg-mobileOrderListBg'
-                  : 'xs:bg-mobileOrderListTab'
-              } cursor-pointer`}
+              className={`font-gothamBold justify-center  xs:py-0.5 xs:px-2 xs:rounded-lg ${
+                tab === 'open' ? 'xs:bg-mobileOrderBg ' : ''
+              } cursor-pointer `}
             >
               <span
                 className={
@@ -4051,7 +4623,7 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
                 })}
 
                 {tab === 'open' && !isMobile && (
-                  <div className="h-0.5 bg-gradientFromHover rounded-lg w-full absolute -bottom-5 left-0"></div>
+                  <div className="h-0.5 bg-gradientFromHover rounded-lg w-full absolute -bottom-3 left-0"></div>
                 )}
               </span>
 
@@ -4062,7 +4634,9 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
                       ? 'text-white bg-grayBgLight'
                       : 'bg-baseGreen text-black'
                     : 'text-primaryOrderly bg-symbolHover'
-                } `}
+                } 
+                  ${isMobile ? 'hidden' : ''}
+                `}
               >
                 {allOrders === undefined || loading ? '-' : openCount}
               </span>
@@ -4071,17 +4645,16 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
             <FlexRow
               onClick={() => {
                 setTab('history');
+                setSubOrderTab && setSubOrderTab('history');
               }}
-              className={`justify-center xs:py-3 xs:px-5 ${
-                tab === 'history'
-                  ? 'xs:bg-mobileOrderListBg'
-                  : 'xs:bg-mobileOrderListTab'
-              } cursor-pointer ml-4`}
+              className={`font-gothamBold justify-center  xs:py-0.5 xs:px-2 xs:rounded-lg ${
+                tab === 'history' ? 'xs:bg-mobileOrderBg ' : ''
+              } cursor-pointer `}
             >
               <span
                 className={
                   tab === 'history'
-                    ? 'text-whites relative'
+                    ? 'text-white relative'
                     : 'text-primaryOrderly relative'
                 }
               >
@@ -4091,78 +4664,85 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
                 })}
 
                 {tab === 'history' && !isMobile && (
-                  <div className="h-0.5 bg-gradientFromHover rounded-lg w-full absolute -bottom-5 left-0"></div>
+                  <div className="h-0.5 bg-gradientFromHover rounded-lg w-full absolute -bottom-3 left-0"></div>
                 )}
               </span>
 
               <span
-                className={`flex items-center justify-center px-1.5 min-w-fit  text-xs rounded-md  ml-2 ${
+                className={`flex items-center justify-center xs:h-6 px-1.5 min-w-fit  text-xs rounded-md  ml-2 ${
                   tab === 'history'
                     ? allOrders === undefined || loading
                       ? 'text-white bg-grayBgLight'
                       : 'bg-baseGreen text-black'
                     : 'text-primaryOrderly bg-symbolHover'
-                } `}
+                } 
+                
+                ${isMobile ? 'hidden' : ''}
+                `}
               >
                 {allOrders === undefined || loading ? '-' : historyCount}
               </span>
             </FlexRow>
           </FlexRow>
 
-          <FlexRow className={!accountId || isMobile ? 'hidden' : ''}>
-            <FlexRow>
+          <FlexRow
+            className={
+              !accountId || isMobile || tab === 'positions' ? 'hidden' : ''
+            }
+          >
+            <div className="frcs gap-2">
               <CheckBox
-                check={showCurSymbol}
+                check={showRefOnly}
                 setCheck={() => {
-                  setShowCurSymbol(true);
+                  setShowRefOnly(true);
                 }}
-              ></CheckBox>
+              />
 
               <span
-                className="ml-2 cursor-pointer"
+                className=" cursor-pointer"
                 onClick={() => {
-                  setShowCurSymbol(true);
+                  setShowRefOnly(true);
                 }}
               >
                 {intl.formatMessage({
-                  id: 'current_orderly',
-                  defaultMessage: 'Current',
+                  id: 'ref_order',
+                  defaultMessage: 'REF Dex only',
                 })}
-                :{' '}
-                <span className="text-white">
-                  {parseSymbol(symbol).symbolFrom}
-                </span>
-                /<span>{parseSymbol(symbol).symbolTo}</span>
               </span>
-            </FlexRow>
+            </div>
 
-            <FlexRow className="ml-6">
+            <div className="ml-6 frcs">
               <CheckBox
-                check={!showCurSymbol}
+                check={!showRefOnly}
                 setCheck={() => {
-                  setShowCurSymbol(false);
+                  setShowRefOnly(false);
                 }}
               ></CheckBox>
 
               <span
-                className="ml-2 cursor-pointer"
+                className="ml-2 frcs cursor-pointer"
                 onClick={() => {
-                  setShowCurSymbol(false);
+                  setShowRefOnly(false);
                 }}
               >
                 {intl.formatMessage({
                   id: 'All',
                   defaultMessage: 'All',
                 })}
+
+                <QuestionTip
+                  id="display_all_orders_dexes"
+                  defaultMessage="Display orders placed through all channels on Orderly."
+                  uniquenessId="display_all_orders_dexes"
+                ></QuestionTip>
               </span>
-            </FlexRow>
+            </div>
           </FlexRow>
 
           <FlexRow className={'lg:hidden'}>
             <div
               className="flex relative items-center justify-center pr-5"
               onClick={() => {
-                // todo
                 tab === 'open'
                   ? setMobileFilterOpen('open')
                   : setMobileFilterOpen('history');
@@ -4177,42 +4757,47 @@ function AllOrderBoard({ maintenance }: { maintenance?: boolean }) {
             </div>
           </FlexRow>
         </FlexRowBetween>
-        {
-          <OpenOrders
-            availableSymbols={availableSymbols}
-            allTokens={allTokens}
-            orders={openOrders || []}
-            setOpenCount={setOpenCount}
-            symbol={symbol}
-            hidden={tab === 'history'}
-            showCurSymbol={showCurSymbol}
-            loading={loading}
-            mobileFilterOpen={mobileFilterOpen}
-            setMobileFilterOpen={setMobileFilterOpen}
-            setShowCurSymbol={setShowCurSymbol}
-            setMobileFilterSize={setMobileFilterSize}
-            mobileFilterSize={mobileFilterSize}
-            tab={tab}
-          />
-        }
-        {
-          <HistoryOrders
-            tab={tab}
-            availableSymbols={availableSymbols}
-            allTokens={allTokens}
-            setHistoryCount={setHistoryCount}
-            orders={historyOrders || []}
-            symbol={symbol}
-            hidden={tab === 'open'}
-            showCurSymbol={showCurSymbol}
-            loading={loading}
-            mobileFilterOpen={mobileFilterOpen}
-            setMobileFilterOpen={setMobileFilterOpen}
-            setShowCurSymbol={setShowCurSymbol}
-            setMobileFilterSize={setMobileFilterSize}
-            mobileFilterSize={mobileFilterSize}
-          />
-        }
+        <OpenOrders
+          availableSymbols={availableSymbols}
+          allTokens={allTokens}
+          orders={openOrders || []}
+          setOpenCount={setOpenCount}
+          symbol={symbol}
+          hidden={tab !== 'open'}
+          showCurSymbol={showCurSymbol}
+          loading={loading}
+          mobileFilterOpen={mobileFilterOpen}
+          setMobileFilterOpen={setMobileFilterOpen}
+          setShowCurSymbol={setShowCurSymbol}
+          setMobileFilterSize={setMobileFilterSize}
+          mobileFilterSize={mobileFilterSize}
+          tab={tab}
+          showRefOnly={showRefOnly}
+          setShowRefOnly={setShowRefOnly}
+        />
+        <HistoryOrders
+          tab={tab}
+          availableSymbols={availableSymbols}
+          allTokens={allTokens}
+          setHistoryCount={setHistoryCount}
+          orders={historyOrders || []}
+          symbol={symbol}
+          hidden={tab !== 'history'}
+          showCurSymbol={showCurSymbol}
+          loading={loading}
+          mobileFilterOpen={mobileFilterOpen}
+          setMobileFilterOpen={setMobileFilterOpen}
+          setShowCurSymbol={setShowCurSymbol}
+          setMobileFilterSize={setMobileFilterSize}
+          mobileFilterSize={mobileFilterSize}
+          showRefOnly={showRefOnly}
+          setShowRefOnly={setShowRefOnly}
+        />
+
+        <PositionsTable
+          hidden={tab !== 'positions' || !!isMobile}
+          showCurSymbol={showCurSymbol}
+        />
       </div>
     </>
   );
