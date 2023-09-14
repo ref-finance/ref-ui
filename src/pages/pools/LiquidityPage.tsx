@@ -3660,7 +3660,7 @@ function StablePoolCard({
                 fontSize="xs:text-sm md:text-sm lg:text-lg lg:font-bold"
                 tokens={poolData.tokens}
                 separator="-"
-                className="lg:w-48 lg:flex-wrap"
+                className="lg:max-w-44 lg:flex-wrap"
               />
               {watched && (
                 <div className="ml-2">
