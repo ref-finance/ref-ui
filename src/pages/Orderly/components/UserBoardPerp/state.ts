@@ -142,6 +142,7 @@ export function usePerpData(deps?: {
 
       if (diffSymbols && diffSymbols.length > 0) {
         setPositionTrigger((b) => !b);
+        console.log('setPositionTrigger: ', diffSymbols);
 
         diffSymbols.forEach((s) => {
           const item = positionPush?.find((p) => p.symbol === s);
@@ -185,7 +186,7 @@ export function usePerpData(deps?: {
 
   const noPosition = newPositions?.rows?.length === 0;
 
-  const { symbolFrom, symbolTo } = parseSymbol(symbol);
+  const { symbolTo } = parseSymbol(symbol);
 
   const { userInfo, curLeverage, error, setCurLeverage, setCurLeverageRaw } =
     useLeverage();
@@ -369,7 +370,6 @@ export function usePerpData(deps?: {
   }, [newPositions, markPrices, displayBalances]);
 
   newPositions?.rows?.forEach((r) => {
-    // update lq price
     const cur_lq_price = r.est_liq_price;
 
     const cur_mark_price =

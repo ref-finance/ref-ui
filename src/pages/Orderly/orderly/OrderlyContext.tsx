@@ -152,9 +152,7 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
   const privateValue = useOrderlyPrivateData({
     validAccountSig,
   });
-  const { positions, setPositionTrigger } = useAllPositions(validAccountSig, [
-    privateValue?.balanceTimeStamp,
-  ]);
+  const { positions, setPositionTrigger } = useAllPositions(validAccountSig);
 
   const holdings = useCurHoldings(validAccountSig, privateValue?.balances);
 
@@ -176,7 +174,6 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
       return;
     }
 
-    //  pathname is perp
     if (isPerp) {
       // find if PERP_{token}_{USDC} exist  in availableSymbols, if exist, set to this symbol else set to PERP_NEAR_USDC
 

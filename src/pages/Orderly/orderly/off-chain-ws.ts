@@ -35,11 +35,16 @@ import { useWalletSelector } from '../../../context/WalletSelectorContext';
 import useInterval from 'react-useinterval';
 import { getFundingRateSymbol } from './perp-off-chain-api';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../components/UserBoardPerp';
+import { JsonValue } from 'react-use-websocket/dist/lib/types';
+import { useHistory } from 'react-router-dom';
+import { useMobile } from '../../../utils/device';
 
 export const REF_ORDERLY_WS_ID_PREFIX = 'orderly_ws_';
 
 export const useOrderlyWS = () => {
-  const [socketUrl, setSocketUrl] = useState(getOrderlyWss(false));
+  const orderlySocketUrl = getOrderlyWss(false);
+
+  const [socketUrl, setSocketUrl] = useState(orderlySocketUrl);
 
   const [messageHistory, setMessageHistory] = useState<any>([]);
 
@@ -50,7 +55,7 @@ export const useOrderlyWS = () => {
       shouldReconnect: (closeEvent) => true,
       reconnectAttempts: 15,
       reconnectInterval: 10000,
-      share: true,
+      share: false,
     });
 
   useEffect(() => {
@@ -86,24 +91,22 @@ export const useOrderlyWS = () => {
 };
 export const usePrivateOrderlyWS = () => {
   const { accountId } = useWalletSelector();
-  const [socketUrl, setSocketUrl] = useState(
-    getOrderlyConfig().ORDERLY_WS_ENDPOINT_PRIVATE + `/${accountId}`
-  );
-  const [needRefresh, setNeedRefresh] = useState(false);
 
-  const [refreshTrigger, setRefreshTrigger] = useState<boolean>(false);
+  const orderlySocketUrl =
+    getOrderlyConfig().ORDERLY_WS_ENDPOINT_PRIVATE + `/${accountId}`;
+
+  const [socketUrl, setSocketUrl] = useState(orderlySocketUrl);
+  const [needRefresh, setNeedRefresh] = useState(false);
 
   useEffect(() => {
     if (!accountId) {
       return;
     } else {
-      setSocketUrl(
-        getOrderlyConfig().ORDERLY_WS_ENDPOINT_PRIVATE + `/${accountId}`
-      );
+      setSocketUrl(orderlySocketUrl);
     }
   }, [accountId]);
 
-  const [messageHistory, setMessageHistory] = useState<any>([]);
+  const [messageHistory, setMessageHistory] = useState<JsonValue[]>([]);
 
   const {
     lastMessage,
@@ -115,7 +118,7 @@ export const usePrivateOrderlyWS = () => {
     shouldReconnect: (closeEvent) => true,
     reconnectAttempts: 15,
     reconnectInterval: 10000,
-    share: true,
+    share: false,
     onReconnectStop: (numAttempts) => {
       const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
       storedValid && setNeedRefresh(true);
@@ -124,22 +127,44 @@ export const usePrivateOrderlyWS = () => {
     onError: (e) => {},
   });
 
+  const isMobile = useMobile();
+
+  const checePongMsg = () => {
+    //  find pong event in history messages
+
+    const pongEvent = messageHistory
+      .filter(
+        (msg) => msg?.['event'] == 'pong' && msg?.['id'] === 'ping-server'
+      )
+      .at(-1);
+
+    const lastPongTs = pongEvent?.['ts'];
+
+    if (Date.now() - Number(lastPongTs) > 1000 * 20) {
+      const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
+      storedValid && setNeedRefresh(true);
+    }
+  };
+
+  useEffect(() => {
+    if (isMobile) {
+      document.addEventListener('visibilitychange', () => checePongMsg());
+    } else {
+      document.removeEventListener('visibilitychange', () => null);
+    }
+
+    return () => document.removeEventListener('visibilitychange', () => null);
+  }, [isMobile]);
+
   useEffect(() => {
     const id = setInterval(() => {
-      sendMessage(JSON.stringify({ event: 'ping', ts: Date.now(), id: '' }));
+      sendMessage(
+        JSON.stringify({ event: 'ping', ts: Date.now(), id: 'ping-server' })
+      );
     }, 5000);
 
     return () => clearInterval(id);
   }, []);
-
-  useEffect(() => {
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-
-      sessionStorage.removeItem('targetTime');
-    };
-  }, [readyState]);
 
   const connectionStatus = {
     [ReadyState.CONNECTING]: 'Connecting',
@@ -149,36 +174,11 @@ export const usePrivateOrderlyWS = () => {
     [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
   }[readyState];
 
-  const handleVisibilityChange = () => {
-    if (document.visibilityState === 'visible') {
-      const savedTime = sessionStorage.getItem('targetTime');
-
-      if (savedTime && Date.now() - Number(savedTime) > 5 * 60 * 1000) {
-        const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
-
-        connectionStatus !== 'Open' &&
-          connectionStatus !== 'Connecting' &&
-          storedValid &&
-          setNeedRefresh(true);
-      }
-      sessionStorage.setItem('targetTime', Date.now().toString());
-    } else {
-      sessionStorage.setItem('targetTime', Date.now().toString());
-    }
-  };
-
   useEffect(() => {
-    if (lastMessage !== null) {
-      setMessageHistory((prev: any) => prev.concat(lastMessage));
+    if (lastJsonMessage !== null) {
+      setMessageHistory((prev: any) => prev.concat(lastJsonMessage));
     }
-  }, [lastMessage, setMessageHistory]);
-
-  useEffect(() => {
-    if (refreshTrigger === true && readyState === ReadyState.CLOSED) {
-      const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
-      storedValid && setNeedRefresh(true);
-    }
-  }, [readyState, refreshTrigger]);
+  }, [lastJsonMessage, setMessageHistory]);
 
   return {
     connectionStatus,

@@ -256,10 +256,7 @@ export function useOrderlyRegistered() {
   return registered;
 }
 
-export function useAllPositions(
-  validAccountSig: boolean,
-  refreshingTag: any[]
-) {
+export function useAllPositions(validAccountSig: boolean) {
   const { accountId } = useWalletSelector();
 
   const [positions, setPositions] = useState<PositionsType>();
@@ -279,7 +276,7 @@ export function useAllPositions(
 
       setPositions({ ...res.data, timestamp: res.timestamp });
     });
-  }, [accountId, positionTrigger, validAccountSig, ...refreshingTag]);
+  }, [accountId, positionTrigger, validAccountSig]);
 
   return {
     positions,
