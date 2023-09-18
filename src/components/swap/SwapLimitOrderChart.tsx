@@ -90,7 +90,6 @@ export default function SwapLimitOrderChart() {
     }
   }, [sellBoxRef, sell_list]);
   useEffect(() => {
-    debugger;
     if (show_view_all && is_mobile) {
       document.documentElement.style.overflow = 'hidden';
     } else {
@@ -351,6 +350,7 @@ export default function SwapLimitOrderChart() {
   }
   // 缩小坐标轴区间范围
   function zoomOut() {
+    if (is_empty) return;
     const targetPercent = GEARS.find((item) => item < zoom);
     if (targetPercent) {
       setZoom(targetPercent);
@@ -359,6 +359,7 @@ export default function SwapLimitOrderChart() {
   }
   // 放大坐标轴区间范围
   function zoomIn() {
+    if (is_empty) return;
     const GEARSCOPY: number[] = JSON.parse(JSON.stringify(GEARS)).reverse();
     const targetPercent = GEARSCOPY.find((item) => item > zoom);
     if (targetPercent) {
@@ -444,7 +445,7 @@ export default function SwapLimitOrderChart() {
                   </div> */}
                   <div
                     className={`flex items-center justify-center w-1 h-full flex-grow border-r border-chartBorderColor ${
-                      zoom == GEARS[GEARS.length - 1]
+                      zoom == GEARS[GEARS.length - 1] || is_empty
                         ? 'text-chartBorderColor cursor-not-allowed'
                         : 'text-v3SwapGray cursor-pointer'
                     }`}
@@ -454,7 +455,7 @@ export default function SwapLimitOrderChart() {
                   </div>
                   <div
                     className={`flex items-center justify-center w-1 h-full flex-grow ${
-                      zoom == GEARS[0]
+                      zoom == GEARS[0] || is_empty
                         ? 'text-chartBorderColor cursor-not-allowed'
                         : 'text-v3SwapGray cursor-pointer'
                     }`}
@@ -496,7 +497,7 @@ export default function SwapLimitOrderChart() {
           )}
         </div>
         {/* table area */}
-        <div>
+        <div className="lg:border-l lg:border-r lg:border-limitOrderFeeTiersBorderColor">
           {is_mobile && show_view_all && (
             <div
               className="fixed w-screen h-screen top-0 left-0"
@@ -506,13 +507,12 @@ export default function SwapLimitOrderChart() {
                 position: 'fixed',
               }}
               onClick={() => {
-                debugger;
                 set_show_view_all(false);
               }}
             ></div>
           )}
           <div
-            className={`lg:border-l lg:border-r lg:border-limitOrderFeeTiersBorderColor xsm:fixed xsm:bottom-8 xsm:bg-cardBg xsm:rounded-t-xl xsm:left-0 xsm:border xsm:border-bottomBoxBorderColor xsm:pt-5 ${
+            className={`xsm:fixed xsm:bottom-8 xsm:bg-cardBg xsm:rounded-t-xl xsm:left-0 xsm:border xsm:border-bottomBoxBorderColor xsm:pt-5 ${
               (show_view_all && is_mobile) || !is_mobile ? '' : 'hidden'
             }`}
             style={{
@@ -629,13 +629,23 @@ export default function SwapLimitOrderChart() {
                   })}
                 </div>
                 <div className="flex items-center mt-2.5 pl-3 xsm:pl-5 font-nunito">
-                  <span className="text-xs text-white mr-2">Market Pirce</span>
-                  <RefreshIcon
-                    className={`cursor-pointer ${
-                      market_loading ? 'refresh-loader' : ''
-                    }`}
+                  <div className="flex items-center xsm:hidden">
+                    <span className="text-xs text-white mr-2">
+                      Market Pirce
+                    </span>
+                    <RefreshIcon
+                      className={`cursor-pointer ${
+                        market_loading ? 'refresh-loader' : ''
+                      }`}
+                      onClick={marketRefresh}
+                    ></RefreshIcon>
+                  </div>
+                  <span
+                    className="lg:hidden text-sm text-white underline"
                     onClick={marketRefresh}
-                  ></RefreshIcon>
+                  >
+                    Refresh Market Price
+                  </span>
                 </div>
                 <div
                   className={`font-nunito ${

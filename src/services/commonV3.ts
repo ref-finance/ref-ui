@@ -205,7 +205,7 @@ export function useRemoveLiquidityUrlHandle() {
   useEffect(() => {
     if (txHash && isSignedIn) {
       checkTransaction(txHash).then((res: any) => {
-        const { transaction, receipts, receipts_outcome } = res;
+        const { transaction, receipts, status, receipts_outcome } = res;
         receipts_outcome?.[1]?.outcome?.status?.SuccessValue;
         const isNeth =
           transaction?.actions?.[0]?.FunctionCall?.method_name === 'execute';
@@ -220,7 +220,14 @@ export function useRemoveLiquidityUrlHandle() {
           methodName == 'batch_update_liquidity' ||
           methodName == 'withdraw_asset'
         ) {
-          history.replace('/yourliquidity');
+          const pool_id = sessionStorage.getItem('REMOVE_POOL_ID');
+          sessionStorage.removeItem('REMOVE_POOL_ID');
+          if (pool_id) {
+            const pool_name = get_pool_name(pool_id);
+            history.replace(`/poolV2/${pool_name}`);
+          } else {
+            history.replace('/yourliquidity');
+          }
         } else {
           history.replace(`${location.pathname}`);
         }

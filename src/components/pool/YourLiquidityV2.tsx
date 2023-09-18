@@ -835,10 +835,10 @@ function UserLiquidityLineStyleGroup({
             } else {
               if (latest_seed.seed_id == seed.seed_id) {
                 joined_seed_info.seed_status = 'run';
-                joined_seed_info.seed_status_num == 1;
+                joined_seed_info.seed_status_num = 1;
               } else {
                 joined_seed_info.seed_status = 'would_ended';
-                joined_seed_info.seed_status_num == 2;
+                joined_seed_info.seed_status_num = 2;
               }
             }
             joined_seed_info.go_farm_url_link = get_go_seed_link_url(seed);

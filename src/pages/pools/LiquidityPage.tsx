@@ -3001,7 +3001,7 @@ function LiquidityPage_({
               </header>
               <div className="max-h-96 overflow-y-auto  pool-list-container-pc">
                 {allPoolsV2
-                  // .sort(poolv2ReSortingFunc)
+                  .sort(poolv2ReSortingFunc)
                   .filter(poolv2FilterFunc)
                   .map((pool, i) => (
                     <PoolRowV2

@@ -279,7 +279,7 @@ function SwapPage() {
   const [swapMode, setSwapMode] = useState<SWAP_MODE>(
     storageMode || SWAP_MODE.NORMAL
   );
-  const dcl_pool_id = useDclPoolIdByUrl();
+  const dcl_pool_id = useDclPoolIdByUrl('all');
   useEffect(() => {
     if (swapMode === SWAP_MODE.LIMIT) {
       setLimitTokenTrigger(!limitTokenTrigger ? true : false);

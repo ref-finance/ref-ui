@@ -1527,7 +1527,7 @@ export default function FarmsDclDetail(props: {
       </div>
 
       {/* unClaimed Rewards for Mobile */}
-      <div
+      {/* <div
         className={`bg-dclFarmBlueColor rounded-xl p-4 mt-4 lg:hidden ${
           user_seeds_map[detailData.seed_id] ? '' : 'hidden'
         }`}
@@ -1650,7 +1650,7 @@ export default function FarmsDclDetail(props: {
             }
           )}
         </div>
-      </div>
+      </div> */}
       {/* caculator */}
       {seedDclCalcVisible ? (
         <CalcModelDcl

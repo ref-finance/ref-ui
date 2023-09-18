@@ -48,6 +48,7 @@ import {
 } from '../../utils/wallets-integration';
 import getConfig from '~services/config';
 import { isMobile } from '~utils/device';
+import { SWAP_MODE_KEY, SWAP_MODE } from '../../pages/SwapPage';
 const is_mobile = isMobile();
 const { explorerUrl } = getConfig();
 
@@ -1051,7 +1052,8 @@ function OrderCard({
             </span>
             <span
               onClick={() => {
-                openUrl('/myOrder');
+                localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.LIMIT);
+                openUrl('/');
               }}
               className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md px-1.5 cursor-pointer hover:text-white py-0.5"
             >

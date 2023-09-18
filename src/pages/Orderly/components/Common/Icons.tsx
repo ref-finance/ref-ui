@@ -1778,31 +1778,63 @@ export const PolygonRight = () => {
 export function SpotShape() {
   return (
     <svg
-      width="12"
+      width="24"
       height="29"
-      viewBox="0 0 12 29"
+      viewBox="0 0 24 29"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
       <line
-        x1="5.5"
+        x1="11.5"
         y1="29"
-        x2="5.5"
+        x2="11.5"
         y2="2"
         stroke="#7E8A93"
         stroke-dasharray="2 2"
       />
       <path
-        d="M12 6C12 2.68629 9.31371 -8.54225e-08 6 0C2.68629 8.54225e-08 -2.4561e-07 2.68629 0 6L12 6ZM0 6L1.70474e-06 29L12 29L12 6L0 6Z"
-        fill="url(#paint0_linear_24_5537)"
+        d="M15 3C15 1.34315 13.6569 -7.24234e-08 12 0C10.3431 7.24234e-08 9 1.34315 9 3L15 3ZM9 3L9 29L15 29L15 3L9 3Z"
+        fill="url(#paint0_linear_19_1690)"
+      />
+      <path
+        opacity="0.5"
+        d="M6 3C6 1.34315 4.65685 -7.24234e-08 3 0C1.34315 7.24234e-08 -7.24234e-08 1.34315 0 3L6 3ZM0 3L1.1365e-06 29L6 29L6 3L0 3Z"
+        fill="url(#paint1_linear_19_1690)"
+      />
+      <path
+        opacity="0.5"
+        d="M24 3C24 1.34315 22.6569 -7.24234e-08 21 0C19.3431 7.24234e-08 18 1.34315 18 3L24 3ZM18 3L18 29L24 29L24 3L18 3Z"
+        fill="url(#paint2_linear_19_1690)"
       />
       <defs>
         <linearGradient
-          id="paint0_linear_24_5537"
-          x1="4.5"
-          y1="6"
-          x2="4.34264"
-          y2="30.1242"
+          id="paint0_linear_19_1690"
+          x1="10.5"
+          y1="3"
+          x2="10.2989"
+          y2="30.2705"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#00C6A2" />
+          <stop offset="1" stop-color="#00C6A2" stop-opacity="0" />
+        </linearGradient>
+        <linearGradient
+          id="paint1_linear_19_1690"
+          x1="1.5"
+          y1="3"
+          x2="1.29892"
+          y2="30.2705"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#00C6A2" />
+          <stop offset="1" stop-color="#00C6A2" stop-opacity="0" />
+        </linearGradient>
+        <linearGradient
+          id="paint2_linear_19_1690"
+          x1="19.5"
+          y1="3"
+          x2="19.2989"
+          y2="30.2705"
           gradientUnits="userSpaceOnUse"
         >
           <stop stop-color="#00C6A2" />

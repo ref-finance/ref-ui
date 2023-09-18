@@ -537,6 +537,8 @@ export const RemovePoolV3 = (props: any) => {
       batch_remove_liquidity,
       batch_update_liquidity,
       mint_liquidities,
+    }).then(() => {
+      sessionStorage.setItem('REMOVE_POOL_ID', pool_id);
     });
   }
   function get_minimum_received_data() {
@@ -966,10 +968,7 @@ export const RemovePoolV3 = (props: any) => {
                 {min_received_x_amount}
               </span>
             </div>
-            <div
-              className="frcs gap-2 "
-              style={{ borderLeft: '1px solid rgba(255, 255, 255, 0.08)' }}
-            >
+            <div className="frcs gap-2 ">
               <img
                 src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
                 className="w-5 h-5 border border-greenColor rounded-full"

@@ -15,7 +15,8 @@ import BigNumber from 'bignumber.js';
 import { getDCLTopBinFee } from '../services/indexer';
 import { list_pools } from '../services/swapV3';
 import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
-import Big from 'big.js';
+import { getStorageTokenId } from '../components/swap/swap';
+import { wrapTokenId } from '../components/swap/LimitOrderCard';
 
 export const useMyOrders = () => {
   const [activeOrder, setActiveOrder] = useState<UserOrderInfo[]>();
@@ -90,23 +91,34 @@ export const useAllPoolsV2 = () => {
   return allPools;
 };
 
-export const useDclPoolIdByUrl = () => {
+export const useDclPoolIdByUrl = (source?: 'all' | 'url' | 'local') => {
   const [pool_id, set_pool_id] = useState<string>();
   const location = useLocation();
   const hash = location.hash;
   useEffect(() => {
-    get_all_dcl_pools_by_url();
+    get_dcl_pool_by_Ids();
   }, [hash]);
+  const [in_id, out_id] = getStorageTokenId();
 
-  async function get_all_dcl_pools_by_url() {
+  async function get_dcl_pool_by_Ids() {
     const dcl_pools: PoolInfo[] = await list_pools();
     const [urlTokenIn, urlTokenOut] = decodeURIComponent(
       location.hash.slice(1)
     ).split('|');
-    const url_token_in =
-      urlTokenIn == 'near' ? WRAP_NEAR_CONTRACT_ID : urlTokenIn;
-    const url_token_out =
-      urlTokenOut == 'near' ? WRAP_NEAR_CONTRACT_ID : urlTokenOut;
+    let url_token_in: string;
+    let url_token_out: string;
+    if (source == 'all') {
+      url_token_in = urlTokenIn || in_id;
+      url_token_out = urlTokenOut || out_id;
+    } else if (source == 'local') {
+      url_token_in = in_id;
+      url_token_out = out_id;
+    } else {
+      url_token_in = urlTokenIn;
+      url_token_out = urlTokenOut;
+    }
+    url_token_in = wrapTokenId(url_token_in);
+    url_token_out = wrapTokenId(url_token_out);
     const target: PoolInfo = dcl_pools.find((pool: PoolInfo) => {
       const { token_x, token_y } = pool;
       return (

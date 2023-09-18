@@ -2107,20 +2107,20 @@ export default function AddYourLiquidityPageV3() {
                           {index === 0 && (
                             <FormattedMessage
                               id="spot"
-                              defaultMessage={'Spot'}
+                              defaultMessage={'Uniform'}
                             ></FormattedMessage>
                           )}
                           {index === 1 && (
                             <FormattedMessage
                               id="curve"
-                              defaultMessage={'Curve'}
+                              defaultMessage={'Normal'}
                             ></FormattedMessage>
                           )}
 
                           {index === 2 && (
                             <FormattedMessage
                               id="bid_ask"
-                              defaultMessage={'Bid-ask'}
+                              defaultMessage={'Skewed'}
                             ></FormattedMessage>
                           )}
                         </span>

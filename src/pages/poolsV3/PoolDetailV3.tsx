@@ -2002,7 +2002,7 @@ export function RecentTransactions({
     );
 
     return (
-      <tr className="text-sm text-primaryText lg:grid w-full lg:grid-cols-5 hover:text-white hover:bg-poolRecentHover">
+      <tr className="text-sm text-primaryText lg:grid w-full lg:grid-cols-3 hover:text-white hover:bg-poolRecentHover">
         <td className="gap-1 p-4 col-span-1">
           <span className="text-white" title={swapInAmount}>
             {displayInAmount}
@@ -2013,7 +2013,7 @@ export function RecentTransactions({
           </span>
         </td>
 
-        <td className=" gap-1 col-span-2 lg:flex items-center">
+        <td className=" gap-1 col-span-1 lg:flex items-center">
           <span className="text-white" title={swapOutAmount}>
             {displayOutAmount}
           </span>
@@ -2023,7 +2023,7 @@ export function RecentTransactions({
           </span>
         </td>
 
-        <td className=" relative  py-4 pr-4 lg:flex items-center justify-end col-span-2">
+        <td className=" relative  py-4 pr-4 lg:flex items-center justify-end col-span-1">
           <span
             className="inline-flex items-center cursor-pointer xsm:whitespace-nowrap"
             onClick={() => {
@@ -2307,7 +2307,11 @@ export function RecentTransactions({
 
       <div className="text-sm rounded-lg overflow-hidden w-full text-primaryText bg-detailCardBg">
         <table className="w-full xsm:hidden">
-          <tr className="text-left grid grid-cols-5 border-b border-gray1">
+          <tr
+            className={`text-left grid grid-cols-${
+              tab === 'swap' ? 3 : 5
+            } border-b border-gray1`}
+          >
             <th className={`p-4 ${'col-span-1'} pb-3`}>
               {tab === 'liquidity' && (
                 <FormattedMessage
@@ -2333,7 +2337,9 @@ export function RecentTransactions({
 
             <th
               className={`py-4 pb-3 ${
-                tab === 'limit_order' ? 'col-span-1' : 'col-span-2'
+                tab === 'limit_order' || tab === 'swap'
+                  ? 'col-span-1'
+                  : 'col-span-2'
               }`}
             >
               {tab === 'liquidity' && (
@@ -2377,7 +2383,9 @@ export function RecentTransactions({
 
             <th
               className={`p-4 text-right pb-3 ${
-                tab === 'limit_order' ? 'col-span-1' : 'col-span-2'
+                tab === 'limit_order' || tab === 'swap'
+                  ? 'col-span-1'
+                  : 'col-span-2'
               }`}
             >
               <FormattedMessage
@@ -2771,9 +2779,6 @@ function LiquidityChart(props: any) {
           />
         )}
       </div>
-      {chartLoading ? (
-        <BlueCircleLoading className="absolute top-1/3"></BlueCircleLoading>
-      ) : null}
       {!chartLoading && noData ? (
         <EmptyLiquidityChart></EmptyLiquidityChart>
       ) : (
