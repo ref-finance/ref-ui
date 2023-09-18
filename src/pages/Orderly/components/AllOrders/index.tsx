@@ -1129,7 +1129,7 @@ function OrderLine({
             openEdit ? 'items-start ' : 'items-center'
           }`}
         >
-          {order.broker_name}
+          {order.broker_name.replace('DEX', '')}
         </td>
 
         <td
@@ -1326,7 +1326,7 @@ function OrderLine({
               ></FormattedMessage>
             </span>
 
-            <span>{order.broker_name}</span>
+            <span>{order.broker_name.replace('DEX', '')}</span>
           </div>
         </div>
       </div>
@@ -1713,7 +1713,7 @@ function HistoryOrderLine({
           <td
             className={`col-span-1 font-nunito py-4  whitespace-nowrap text-primaryOrderly justify-self-end relative transform translate-x-1/2  text-left`}
           >
-            {order.broker_name}
+            {order.broker_name.replace('DEX', '')}
           </td>
 
           <td className="pr-6" align="right">
@@ -1884,14 +1884,16 @@ function HistoryOrderLine({
           ) : (
             <div className="flex items-center ">
               <span className="font-nunito">
-                {order.executed > 0 && order.executed / order.quantity < 0.01
-                  ? '1'
-                  : order.quantity > 0
-                  ? new Big(new Big(order.executed || 0))
-                      .div(new Big(order.quantity || 1))
-                      .times(100)
-                      .toFixed()
-                  : 0}
+                {parseFloat(
+                  order.executed > 0 && order.executed / order.quantity < 0.01
+                    ? '1'
+                    : order.quantity > 0
+                    ? new Big(new Big(order.executed || 0))
+                        .div(new Big(order.quantity || 1))
+                        .times(100)
+                        .toFixed(2)
+                    : '0'
+                )}
                 %
               </span>
 
@@ -2002,7 +2004,7 @@ function HistoryOrderLine({
               ></FormattedMessage>
             </span>
 
-            <span>{order.broker_name}</span>
+            <span>{order.broker_name.replace('DEX', '')}</span>
           </div>
         </div>
 

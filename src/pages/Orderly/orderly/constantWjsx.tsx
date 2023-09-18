@@ -43,6 +43,7 @@ import {
   CheckboxSelected,
   ArrowGrey,
 } from '../../../components/icon';
+import Big from 'big.js';
 
 const OrderlyIcon = () => (
   <svg
@@ -273,8 +274,12 @@ export const usePortableOrderlyTable = ({
                   className={`p-0.5 text-xs my-1 flex justify-end items-center`}
                 >
                   <span className="mr-1">
-                    {((executed / (quantity || executed)) * 100).toFixed(0)}%
-                    filled
+                    {parseFloat(
+                      new Big(
+                        (executed / (quantity || executed)) * 100
+                      ).toFixed(2)
+                    )}
+                    % filled
                   </span>
 
                   <div className="flex justify-end items-center relative">
@@ -351,7 +356,7 @@ export const usePortableOrderlyTable = ({
                 <div
                   className={`p-0.5 text-xs my-1 flex justify-end items-center`}
                 >
-                  from {broker_name}
+                  from {broker_name.replace('DEX', '')}
                 </div>
               </div>
             </div>
@@ -498,7 +503,9 @@ export const usePortableOrderlyTable = ({
             key: 'dex',
             header: 'Dex',
             render: ({ broker_name }) => (
-              <span className="relative right-2">{broker_name}</span>
+              <span className="relative right-2">
+                {broker_name.replace('DEX', '')}
+              </span>
             ),
           },
         ],
@@ -550,13 +557,11 @@ export const usePortableOrderlyTable = ({
                   className={`p-0.5 text-xs my-1 flex justify-end items-center`}
                 >
                   <span className="mr-1">
-                    {(
-                      ((!quantity && status === 'CANCELLED'
-                        ? 0
-                        : executed || 0) /
-                        (quantity || executed)) *
-                      100
-                    ).toFixed(0)}
+                    {parseFloat(
+                      new Big(
+                        (executed / (quantity || executed)) * 100
+                      ).toFixed(2)
+                    )}
                     % filled
                   </span>
 
@@ -647,7 +652,7 @@ export const usePortableOrderlyTable = ({
                 <div
                   className={`p-0.5 text-xs my-1 flex justify-end items-center`}
                 >
-                  from {broker_name}
+                  from {broker_name.replace('DEX', '')}
                 </div>
               </div>
             </div>
@@ -806,7 +811,9 @@ export const usePortableOrderlyTable = ({
             colSpan: 2,
             header: 'Dex',
             render: ({ broker_name }) => (
-              <span className="relative ">{broker_name}</span>
+              <span className="relative ">
+                {broker_name.replace('DEX', '')}
+              </span>
             ),
           },
         ],
