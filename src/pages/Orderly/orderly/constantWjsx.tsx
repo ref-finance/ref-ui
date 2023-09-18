@@ -356,7 +356,7 @@ export const usePortableOrderlyTable = ({
                 <div
                   className={`p-0.5 text-xs my-1 flex justify-end items-center`}
                 >
-                  from {broker_name.replace('DEX', '')}
+                  {broker_name ? `from ${broker_name.replace('DEX', '')}` : ''}
                 </div>
               </div>
             </div>
@@ -652,7 +652,7 @@ export const usePortableOrderlyTable = ({
                 <div
                   className={`p-0.5 text-xs my-1 flex justify-end items-center`}
                 >
-                  from {broker_name.replace('DEX', '')}
+                  {broker_name ? `from ${broker_name.replace('DEX', '')}` : ''}
                 </div>
               </div>
             </div>
