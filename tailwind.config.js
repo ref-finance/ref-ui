@@ -4,7 +4,9 @@ const defaultTheme = require('tailwindcss/defaultTheme');
 const plugin = require('tailwindcss/plugin');
 
 module.exports = {
-  purge: false,
+  purge: [
+    './src/**/*.{js,jsx,ts,tsx}',
+  ],
   darkMode: false, // or 'media' or 'class'
   plugins: [
     plugin(function ({ addUtilities }) {
