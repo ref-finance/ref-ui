@@ -38,7 +38,7 @@ import SubmitButton, { InsufficientButton } from '../forms/SubmitButton';
 import Alert from '../alert/Alert';
 import { toRealSymbol } from '../../utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
+import { FaAngleUp, FaAngleDown, FaExchangeAlt } from '../reactIcons';
 import { ConnectToNearBtnSwap } from '../button/Button';
 
 import SwapFormWrap from '../forms/SwapFormWrap';

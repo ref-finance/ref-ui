@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MdArrowDropDown } from 'react-icons/md';
+import { MdArrowDropDown } from '../../../../components/reactIcons';
 import { useIntl } from 'react-intl';
 import { CheckSelector } from '../Common/Icons';
 import { PortfolioTableColumns } from '../../orderly/type';

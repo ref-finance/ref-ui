@@ -23,7 +23,7 @@ import {
   CartesianGrid,
 } from 'recharts';
 
-import { IoArrowUpOutline } from '@react-icons/all-files/io5/IoArrowUpOutline';
+import { IoArrowUpOutline } from '../reactIcons';
 import { displayNumberToAppropriateDecimals } from '~services/commonV3';
 import moment from 'moment';
 import { ChartNoData } from '../../components/icon/ChartNoData';
@@ -427,11 +427,16 @@ export default function SwapRateChart(props: SwapRateChartProps) {
           `}
             >
               {diff.direction !== 'unChange' && (
-                <IoArrowUpOutline
-                  className={`${
-                    diff.direction === 'down' ? 'transform  rotate-180  ' : ''
-                  } `}
-                />
+                <div>
+<div>1231231</div>
+                  <IoArrowUpOutline
+                    className={`${
+                      diff.direction === 'down' ? 'transform  rotate-180  ' : ''
+                    } `}
+                  />
+                  <div>456456</div>
+                </div>
+
               )}
 
               {diff.percent}

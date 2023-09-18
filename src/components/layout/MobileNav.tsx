@@ -4,7 +4,7 @@ import React, {
   useEffect,
   useMemo,
   useRef,
-  useState,
+  useState
 } from 'react';
 import { matchPath } from 'react-router';
 import { Context } from '~components/wrapper';
@@ -12,10 +12,8 @@ import { Near, NavLogoSimple } from '~components/icon';
 import { Link, useLocation } from 'react-router-dom';
 import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { HiOutlineExternalLink } from 'react-icons/hi';
+import { HiOutlineExternalLink, RiLogoutCircleRLine } from '../reactIcons';
 
-import { FiChevronUp, FiChevronDown } from 'react-icons/fi';
-import { RiLogoutCircleRLine } from 'react-icons/ri';
 import { useRefPrice } from '~state/account';
 import { toPrecision } from '~utils/numbers';
 import { useMenusMobile, menuItemType, bridgeData } from '~utils/menu';
@@ -24,17 +22,18 @@ import {
   AccountIcon,
   ActivityIcon,
   WalletIcon,
-  SignoutIcon,
+  SignoutIcon
 } from '~components/icon/Common';
 
 import { WalletContext } from '../../utils/wallets-integration';
 
 import Modal from 'react-modal';
+
 const config = getConfig();
 import { isMobile } from '~utils/device';
 import {
   getCurrentWallet,
-  getAccountName,
+  getAccountName
 } from '../../utils/wallets-integration';
 import { FarmDot } from '../icon/FarmStamp';
 import { AccountTipDownByAccountID, AuroraEntry } from './NavigationBar';
@@ -42,12 +41,12 @@ import { ConnectDot, CopyIcon } from '../icon/CrossSwapIcons';
 import {
   REF_FI_SWAP_SWAPPAGE_TAB_KEY,
   SWAP_MODE_KEY,
-  SWAP_MODE,
+  SWAP_MODE
 } from '../../pages/SwapPage';
 import Marquee from '~components/layout/Marquee';
 import {
   useWalletSelector,
-  ACCOUNT_ID_KEY,
+  ACCOUNT_ID_KEY
 } from '../../context/WalletSelectorContext';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { openTransak } from '../alert/Transak';
@@ -61,7 +60,7 @@ import {
   ArrowLeftIcon,
   ArrowDownIcon,
   HiMenuIcon,
-  ArrowDownLargeIcon,
+  ArrowDownLargeIcon
 } from '~components/icon/Nav';
 import { RefAnalytics, RefAnalyticsGary } from '~components/icon/RefAnalytics';
 import { useLanguageItems } from '~utils/menu';
@@ -69,7 +68,7 @@ import { commonLangKey, formatItem } from './NavigationBar';
 import {
   tradingKeyMap,
   get_orderly_private_key_path,
-  get_orderly_public_key_path,
+  get_orderly_public_key_path
 } from '../../pages/Orderly/orderly/utils';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../../pages/Orderly/components/UserBoard/index';
 import { openUrl } from '../../services/commonV3';
@@ -104,8 +103,8 @@ export function Logout() {
           }
         }}
       >
-        <RiLogoutCircleRLine className="text-2xl text-primaryText mr-3" />
-        <FormattedMessage id="sign_out" defaultMessage="Sign out" />
+        <RiLogoutCircleRLine className='text-2xl text-primaryText mr-3' />
+        <FormattedMessage id='sign_out' defaultMessage='Sign out' />
       </div>
     )
   );
@@ -132,7 +131,7 @@ export function AccountModel(props: any) {
         } else {
           history.push('/account?tab=ref');
         }
-      },
+      }
     },
     {
       icon: <ActivityIcon />,
@@ -140,7 +139,7 @@ export function AccountModel(props: any) {
       selected: location.pathname == '/recent',
       click: () => {
         history.push('/recent');
-      },
+      }
     },
     {
       icon: <WalletIcon />,
@@ -152,8 +151,8 @@ export function AccountModel(props: any) {
             ? config.myNearWalletUrl
             : config.walletUrl
         );
-      },
-    },
+      }
+    }
   ];
 
   const [currentWalletName, setCurrentWalletName] = useState<string>();
@@ -196,36 +195,36 @@ export function AccountModel(props: any) {
   }, []);
   return (
     <div
-      className="fixed left-0 bottom-0 w-screen bg-black bg-opacity-70"
+      className='fixed left-0 bottom-0 w-screen bg-black bg-opacity-70'
       style={{
         backdropFilter: 'blur(15px)',
         WebkitBackdropFilter: 'blur(15px)',
         top:
           hasBalanceOnRefAccount && window.location.pathname !== '/account'
             ? '6.3rem'
-            : '4.2rem',
+            : '4.2rem'
       }}
     >
-      <div className="w-full bg-cardBg" ref={accountWrapRef}>
-        <div className="mx-7 pt-4 flex justify-between items-start">
-          <div className="text-white text-lg text-left flex-col flex">
+      <div className='w-full bg-cardBg' ref={accountWrapRef}>
+        <div className='mx-7 pt-4 flex justify-between items-start'>
+          <div className='text-white text-lg text-left flex-col flex'>
             <span>{getAccountName(wallet.getAccountId())}</span>
 
-            <span className="flex items-center ">
-              <span className="mr-1">
+            <span className='flex items-center '>
+              <span className='mr-1'>
                 {!currentWalletIcon ? (
-                  <div className="w-3 h-3"></div>
+                  <div className='w-3 h-3'></div>
                 ) : (
-                  <img src={currentWalletIcon} className="w-3 h-3" alt="" />
+                  <img src={currentWalletIcon} className='w-3 h-3' alt='' />
                 )}
               </span>
-              <span className="text-xs text-primaryText">
+              <span className='text-xs text-primaryText'>
                 {currentWalletName || '-'}
               </span>
             </span>
           </div>
 
-          <div className="flex items-center">
+          <div className='flex items-center'>
             <CopyToClipboard text={wallet.getAccountId()}>
               <div
                 className={`bg-black bg-opacity-30  rounded-xl flex items-center justify-center p-1 cursor-pointer`}
@@ -244,7 +243,7 @@ export function AccountModel(props: any) {
             </CopyToClipboard>
 
             <button
-              className="hover:text-gradientFrom text-primaryText w-6 h-6 flex items-center justify-center ml-2 p-0.5 rounded-xl bg-black bg-opacity-30"
+              className='hover:text-gradientFrom text-primaryText w-6 h-6 flex items-center justify-center ml-2 p-0.5 rounded-xl bg-black bg-opacity-30'
               onClick={() => {
                 openUrl(
                   `https://${
@@ -258,23 +257,23 @@ export function AccountModel(props: any) {
           </div>
         </div>
 
-        <div className="flex mx-7 my-3 items-center text-xs justify-center">
+        <div className='flex mx-7 my-3 items-center text-xs justify-center'>
           <button
-            className="text-BTCColor mr-2 w-1/2 py-2.5 border rounded-lg hover:border-transparent hover:bg-BTCColor hover:bg-opacity-20 border-BTCColor border-opacity-30"
+            className='text-BTCColor mr-2 w-1/2 py-2.5 border rounded-lg hover:border-transparent hover:bg-BTCColor hover:bg-opacity-20 border-BTCColor border-opacity-30'
             onClick={() => {
               signOut();
             }}
           >
-            <FormattedMessage id="disconnect" defaultMessage={'Disconnect'} />
+            <FormattedMessage id='disconnect' defaultMessage={'Disconnect'} />
           </button>
 
           <button
-            className="text-gradientFrom ml-2 w-1/2 py-2.5 border rounded-lg hover:border-transparent hover:bg-gradientFrom hover:bg-opacity-20 border-gradientFrom border-opacity-30"
+            className='text-gradientFrom ml-2 w-1/2 py-2.5 border rounded-lg hover:border-transparent hover:bg-gradientFrom hover:bg-opacity-20 border-gradientFrom border-opacity-30'
             onClick={async () => {
               modal.show();
             }}
           >
-            <FormattedMessage id="change" defaultMessage={'Change'} />
+            <FormattedMessage id='change' defaultMessage={'Change'} />
           </button>
         </div>
 
@@ -293,33 +292,33 @@ export function AccountModel(props: any) {
                     : 'text-primaryText'
                 }`}
               >
-                <label className="w-9 text-left cursor-pointer">
+                <label className='w-9 text-left cursor-pointer'>
                   {item.icon}
                 </label>
-                <label className="cursor-pointer">
+                <label className='cursor-pointer'>
                   <FormattedMessage id={item.textId}></FormattedMessage>
                 </label>
-                <label htmlFor="" className="ml-1.5">
+                <label htmlFor='' className='ml-1.5'>
                   {item.textId === 'your_assets' && hasBalanceOnRefAccount ? (
                     <FarmDot inFarm={hasBalanceOnRefAccount} />
                   ) : null}
                 </label>
 
                 {item.subIcon ? (
-                  <label className="text-lg ml-2">{item.subIcon}</label>
+                  <label className='text-lg ml-2'>{item.subIcon}</label>
                 ) : null}
               </div>
               {hasBalanceOnRefAccount && item.textId === 'your_assets' ? (
                 <div
-                  className="text-center py-0.5 font-normal bg-gradientFrom w-full cursor-pointer text-xs"
+                  className='text-center py-0.5 font-normal bg-gradientFrom w-full cursor-pointer text-xs'
                   onClick={item.click}
                   style={{
-                    color: '#001320',
+                    color: '#001320'
                   }}
                 >
                   <FormattedMessage
-                    id="ref_account_tip_2"
-                    defaultMessage="You have token(s) in your REF Account"
+                    id='ref_account_tip_2'
+                    defaultMessage='You have token(s) in your REF Account'
                   />
                 </div>
               ) : null}
@@ -330,6 +329,7 @@ export function AccountModel(props: any) {
     </div>
   );
 }
+
 export function MobileNavBar(props: any) {
   const [show, setShow] = useState(false);
   const intl = useIntl();
@@ -347,7 +347,7 @@ export function MobileNavBar(props: any) {
     setShowWalletSelector,
     showWalletSelector,
     hasBalanceOnRefAccount,
-    hasAuroraBalance,
+    hasAuroraBalance
   } = props;
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -447,17 +447,18 @@ export function MobileNavBar(props: any) {
     document.addEventListener('click', handleClick, false);
 
     return () => {
-      document.removeEventListener('click', () => {}, false);
+      document.removeEventListener('click', () => {
+      }, false);
     };
   }, []);
   const setPatheState = () =>
     setPathnameState(window.location.pathname !== '/account');
 
   useEffect(() => {
-    const _historyWrap = function (type: any) {
+    const _historyWrap = function(type: any) {
       const orig = history[type];
       const e = new Event(type);
-      return function () {
+      return function() {
         const rv = orig.apply(this, arguments);
         //@ts-ignore
         e.arguments = arguments;
@@ -470,10 +471,10 @@ export function MobileNavBar(props: any) {
     window.addEventListener('popstate', (e) => {
       setPatheState();
     });
-    window.addEventListener('pushState', function (e) {
+    window.addEventListener('pushState', function(e) {
       setPatheState();
     });
-    window.addEventListener('replaceState', function (e) {
+    window.addEventListener('replaceState', function(e) {
       setPatheState();
     });
   }, []);
@@ -499,6 +500,7 @@ export function MobileNavBar(props: any) {
   function close() {
     setShow(false);
   }
+
   function handleMenuClick(linkInfo: menuItemType) {
     const { children, clickEvent, url, isExternal, id } = linkInfo;
     if (clickEvent) {
@@ -522,6 +524,7 @@ export function MobileNavBar(props: any) {
       }
     }
   }
+
   function handleChildMenuClick(
     linkInfo_parent: menuItemType,
     linkInfo: menuItemType
@@ -548,6 +551,7 @@ export function MobileNavBar(props: any) {
       }
     }
   }
+
   function handleGrandsonMenuClick(linkInfo: menuItemType) {
     const { children, clickEvent, url, isExternal, id } = linkInfo;
     if (clickEvent) {
@@ -575,37 +579,37 @@ export function MobileNavBar(props: any) {
         } text-xs py-1.5 px-2 lg:hidden text-center`}
         style={{
           backgroundColor: 'rgb(255, 201, 64)',
-          zIndex: 100,
+          zIndex: 100
         }}
       >
         👀 &nbsp;
         <FormattedMessage
-          id="ref_account_balance_tip_mobile"
-          defaultMessage="You have tokens in your ref account."
+          id='ref_account_balance_tip_mobile'
+          defaultMessage='You have tokens in your ref account.'
         />
         {` `}
         <span
           className={`font-bold underline cursor-pointer mx-1`}
           onClick={() => openUrl('/account?tab=ref')}
         >
-          <FormattedMessage id="click" defaultMessage="Click" />
+          <FormattedMessage id='click' defaultMessage='Click' />
         </span>
-        <FormattedMessage id="to_recover" defaultMessage="to recover." />
+        <FormattedMessage id='to_recover' defaultMessage='to recover.' />
       </div>
       <div
-        className="nav-wrap lg:hidden md:show relative xs:mb-6 md:mb-6"
+        className='nav-wrap lg:hidden md:show relative xs:mb-6 md:mb-6'
         style={{
-          zIndex: show ? 200 : 91,
+          zIndex: show ? 200 : 91
         }}
       >
         {showTip ? <AccountTipDownByAccountID show={showTip} /> : null}
-        <div className="flex items-center text-2xl text-white justify-between p-4">
+        <div className='flex items-center text-2xl text-white justify-between p-4'>
           <NavLogoSimple
             onClick={() => {
               openUrl('https://www.ref.finance/');
             }}
           />
-          <div className="flex items-center">
+          <div className='flex items-center'>
             <div
               className={`flex px-1 py-1 items-center justify-center rounded-lg border border-gray-700 hover:border-gradientFrom hover:bg-opacity-0 pl-3 pr-3 ${
                 isSignedIn
@@ -618,10 +622,10 @@ export function MobileNavBar(props: any) {
                   isSignedIn ? 'text-white' : 'text-gradientFrom'
                 } mr-1.5`}
               />
-              <div className="overflow-ellipsis overflow-hidden text-sm whitespace-nowrap account-name relative">
+              <div className='overflow-ellipsis overflow-hidden text-sm whitespace-nowrap account-name relative'>
                 {isSignedIn ? (
                   <div
-                    className="flex items-center"
+                    className='flex items-center'
                     onClick={() => {
                       setAccountVisible(!accountVisible);
                       setShowTip(false);
@@ -630,20 +634,20 @@ export function MobileNavBar(props: any) {
                     <div>{getAccountName(wallet.getAccountId())}</div>
 
                     {hasBalanceOnRefAccount ? (
-                      <span className="ml-1.5">
+                      <span className='ml-1.5'>
                         <FarmDot inFarm={hasBalanceOnRefAccount} />
                       </span>
                     ) : null}
 
                     {accountVisible ? (
-                      <ArrowDownIcon className="transform rotate-180 ml-2" />
+                      <ArrowDownIcon className='transform rotate-180 ml-2' />
                     ) : (
-                      <ArrowDownIcon className="ml-2" />
+                      <ArrowDownIcon className='ml-2' />
                     )}
                   </div>
                 ) : (
                   <span
-                    className="text-xs"
+                    className='text-xs'
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
@@ -651,8 +655,8 @@ export function MobileNavBar(props: any) {
                     }}
                   >
                     <FormattedMessage
-                      id="connect_to_near"
-                      defaultMessage="Connect to NEAR"
+                      id='connect_to_near'
+                      defaultMessage='Connect to NEAR'
                     />
                   </span>
                 )}
@@ -666,7 +670,7 @@ export function MobileNavBar(props: any) {
                 extraClick={() => setAccountVisible(false)}
               />
             </div>
-            <span className="ml-4" ref={iconRef} onClick={() => setShow(true)}>
+            <span className='ml-4' ref={iconRef} onClick={() => setShow(true)}>
               <HiMenuIcon />
             </span>
           </div>
@@ -676,50 +680,50 @@ export function MobileNavBar(props: any) {
             show ? 'block' : 'hidden'
           }`}
           style={{
-            zIndex: '300',
+            zIndex: '300'
           }}
         >
           <div
             ref={popupRef}
-            className="h-full w-4/6 float-right bg-cardBg shadow-4xl z-30 overflow-y-auto"
+            className='h-full w-4/6 float-right bg-cardBg shadow-4xl z-30 overflow-y-auto'
           >
             <div className={`${showLanguage ? 'hidden' : ''}`}>
-              <div className="flex text-white items-center justify-between p-4 border-b border-menuBorderColor">
-                <div className="flex items-center  bg-priceBgColor rounded-2xl p-1">
-                  <RefIcon className="mr-1"></RefIcon>
-                  <span className="text-white text-sm">
+              <div className='flex text-white items-center justify-between p-4 border-b border-menuBorderColor'>
+                <div className='flex items-center  bg-priceBgColor rounded-2xl p-1'>
+                  <RefIcon className='mr-1'></RefIcon>
+                  <span className='text-white text-sm'>
                     ${data && data !== '-' ? toPrecision(data, 2) : '-'}
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className='flex items-center gap-2'>
                   <BuyNearButton />
 
                   <div
                     className={`frcc text-xs     rounded-lg py-1.5 px-3
                   
                   ${
-                    showBridgeModalMobile
-                      ? 'text-white  bg-priceBgColor'
-                      : 'text-cardBg bg-primaryText font-gothamBold'
-                  }
+                      showBridgeModalMobile
+                        ? 'text-white  bg-priceBgColor'
+                        : 'text-cardBg bg-primaryText font-gothamBold'
+                    }
                   `}
                     onClick={() => {
                       setShowBridgeModalMobile(true);
                     }}
                   >
                     <FormattedMessage
-                      id="bridge_pure"
+                      id='bridge_pure'
                       defaultMessage={'Bridge'}
                     ></FormattedMessage>
                   </div>
                 </div>
               </div>
-              <div className="text-primaryText gotham_bold pb-24">
+              <div className='text-primaryText gotham_bold pb-24'>
                 {menusMobile?.map((linkInfo: menuItemType) => {
                   const { id, label, children } = linkInfo;
                   const isSelected = one_level_selected == id;
                   return (
-                    <div key={id} className="border-b border-menuBorderColor">
+                    <div key={id} className='border-b border-menuBorderColor'>
                       {/* one level menu */}
                       <div
                         className={`flex px-4 py-3.5 items-center text-base justify-between ${
@@ -731,9 +735,9 @@ export function MobileNavBar(props: any) {
                       >
                         {label}
                         {children && (
-                          <span className="ml-1">
+                          <span className='ml-1'>
                             {openMenu == id ? (
-                              <ArrowDownLargeIcon className="transform rotate-180 text-white"></ArrowDownLargeIcon>
+                              <ArrowDownLargeIcon className='transform rotate-180 text-white'></ArrowDownLargeIcon>
                             ) : (
                               <ArrowDownLargeIcon
                                 className={`${
@@ -772,13 +776,13 @@ export function MobileNavBar(props: any) {
                                     handleChildMenuClick(linkInfo, link);
                                   }}
                                 >
-                                  <div className="flex items-center whitespace-nowrap">
+                                  <div className='flex items-center whitespace-nowrap'>
                                     {(renderLogo || logo) && (
-                                      <span className="text-xl text-left w-8 flex justify-center mr-2">
+                                      <span className='text-xl text-left w-8 flex justify-center mr-2'>
                                         {renderLogo
                                           ? renderLogo({
-                                              activeMenu: isSubMenuSelected,
-                                            })
+                                            activeMenu: isSubMenuSelected
+                                          })
                                           : logo}
                                       </span>
                                     )}
@@ -786,11 +790,12 @@ export function MobileNavBar(props: any) {
                                   </div>
 
                                   {children && (
-                                    <span className="ml-1">
+                                    <span className='ml-1'>
                                       {openChildMenu === id ? (
-                                        <ArrowDownLargeIcon className="transform rotate-180 text-white"></ArrowDownLargeIcon>
+                                        <ArrowDownLargeIcon
+                                          className='transform rotate-180 text-white'></ArrowDownLargeIcon>
                                       ) : (
-                                        <ArrowDownLargeIcon className="text-primaryText"></ArrowDownLargeIcon>
+                                        <ArrowDownLargeIcon className='text-primaryText'></ArrowDownLargeIcon>
                                       )}
                                     </span>
                                   )}
@@ -808,7 +813,7 @@ export function MobileNavBar(props: any) {
                                         label,
                                         logo,
                                         url,
-                                        isExternal,
+                                        isExternal
                                       } = grandson;
                                       return (
                                         <div
@@ -818,9 +823,9 @@ export function MobileNavBar(props: any) {
                                             handleGrandsonMenuClick(grandson);
                                           }}
                                         >
-                                          <div className="flex items-center">
+                                          <div className='flex items-center'>
                                             {logo && (
-                                              <span className="text-xl mr-2">
+                                              <span className='text-xl mr-2'>
                                                 {logo}
                                               </span>
                                             )}
@@ -841,10 +846,10 @@ export function MobileNavBar(props: any) {
                   );
                 })}
               </div>
-              <div className="w-4/6 fixed bottom-7 right-0 flex items-center justify-between bg-cardBg px-4 py-3">
-                <div className="flex items-center">
+              <div className='w-4/6 fixed bottom-7 right-0 flex items-center justify-between bg-cardBg px-4 py-3'>
+                <div className='flex items-center'>
                   <div
-                    className=" transform scale-75 origin-left"
+                    className=' transform scale-75 origin-left'
                     onClick={() => openUrl('https://stats.ref.finance/')}
                   >
                     <RefAnalyticsGary />
@@ -857,9 +862,9 @@ export function MobileNavBar(props: any) {
                   style={{
                     width: '30px',
                     height: '30px',
-                    borderRadius: '10px',
+                    borderRadius: '10px'
                   }}
-                  className="flex items-center justify-center text-cardBg text-xs bg-primaryText"
+                  className='flex items-center justify-center text-cardBg text-xs bg-primaryText'
                 >
                   {displayLanguage()}
                 </div>
@@ -906,7 +911,7 @@ function MobileBridgeModal(props: Modal.Props) {
           bottom: 0,
           backgroundColor: 'rgba(0, 0, 0, 0.7)',
           zIndex: 9999999,
-          outline: 'none',
+          outline: 'none'
         },
         content: {
           position: 'absolute',
@@ -918,26 +923,26 @@ function MobileBridgeModal(props: Modal.Props) {
           top: 'none',
           transform: 'translate(-50%, 0)',
           outline: 'none',
-          width: '100%',
-        },
+          width: '100%'
+        }
       }}
     >
       <div
-        className="border rounded-2xl w-full pb-10 bg-cardBg p-2 text-base flex flex-col gap-4 text-white"
+        className='border rounded-2xl w-full pb-10 bg-cardBg p-2 text-base flex flex-col gap-4 text-white'
         style={{
-          border: '1px solid #27343E',
+          border: '1px solid #27343E'
         }}
       >
-        <div className="pl-4">
+        <div className='pl-4'>
           <FormattedMessage
-            id="bridge_pure"
+            id='bridge_pure'
             defaultMessage={'Bridge'}
           ></FormattedMessage>
         </div>
         {bridgeData.map((item) => {
           return (
-            <div className="flex flex-col gap-2 pl-1 text-primaryText ">
-              <div className="frcs gap-2 pl-3">
+            <div className='flex flex-col gap-2 pl-1 text-primaryText '>
+              <div className='frcs gap-2 pl-3'>
                 <item.icon></item.icon>
 
                 {item.name}
@@ -946,12 +951,12 @@ function MobileBridgeModal(props: Modal.Props) {
               {item.children.map((sub) => {
                 return (
                   <div
-                    className="rounded-xl  py-1.5 pl-1 text-white bg-primaryText bg-opacity-20 cursor-pointer frcs"
+                    className='rounded-xl  py-1.5 pl-1 text-white bg-primaryText bg-opacity-20 cursor-pointer frcs'
                     onClick={() => {
                       openUrl(sub.link);
                     }}
                   >
-                    <div className="frcs pl-3 gap-2">
+                    <div className='frcs pl-3 gap-2'>
                       <sub.icon></sub.icon>
                       {sub.name}
                     </div>
@@ -976,17 +981,17 @@ function MobileLanguage(props: any) {
   return (
     <div>
       <div
-        className="flex items-center pl-5 py-3.5"
+        className='flex items-center pl-5 py-3.5'
         onClick={() => {
           props.setShowLanguage(false);
         }}
       >
-        <ArrowLeftIcon className="mr-4"></ArrowLeftIcon>
-        <span className="text-base text-white gotham_bold">
-          <FormattedMessage id="language"></FormattedMessage>
+        <ArrowLeftIcon className='mr-4'></ArrowLeftIcon>
+        <span className='text-base text-white gotham_bold'>
+          <FormattedMessage id='language'></FormattedMessage>
         </span>
       </div>
-      <div className="px-3.5">
+      <div className='px-3.5'>
         {lans.map(({ label, language, logo }, index) => {
           return (
             <div

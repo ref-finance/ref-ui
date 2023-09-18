@@ -3,14 +3,12 @@ import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import Modal from 'react-modal';
 import { parseSymbol } from '../RecentTrade';
 import { nearMetadata, getFTmetadata, toPrecision } from '../../near';
-
 import {
+  IoMdArrowDropdown,
   IoArrowDownOutline,
   IoArrowUpOutline,
-  IoCloseSharp,
-} from 'react-icons/io5';
-
-import { IoMdArrowDropdown } from 'react-icons/io';
+  IoCloseSharp
+} from '../../../../components/reactIcons';
 import { useTokenMetaFromSymbol } from './state';
 import { Ticker, TokenInfo, OpenInterest } from '../../orderly/type';
 import { TokenIcon } from '../Common';
@@ -19,7 +17,7 @@ import {
   PerpOrSpot,
   digitWrapper,
   numberWithCommas,
-  numberWithCommasPadding,
+  numberWithCommasPadding
 } from '../../utiles';
 import { AllMarketIcon, CheckSelector } from '../Common/Icons';
 import { useClientMobile } from '../../../../utils/device';
@@ -43,9 +41,9 @@ export function tickerToDisplayDiff(ticker: Ticker | undefined) {
 }
 
 function TickerDisplayComponent({
-  ticker,
-  showBg,
-}: {
+                                  ticker,
+                                  showBg
+                                }: {
   ticker: Ticker;
   showBg?: boolean;
 }) {
@@ -58,7 +56,7 @@ function TickerDisplayComponent({
       }  text-xs flex items-center  rounded-md ml-2  py-0.5`}
     >
       {' '}
-      <span className="relative ">
+      <span className='relative '>
         {diff > 0 ? (
           <IoArrowUpOutline />
         ) : diff < 0 ? (
@@ -71,10 +69,10 @@ function TickerDisplayComponent({
 }
 
 function SymbolLine({
-  ticker,
-  tokenInfo,
-  setSymbol,
-}: {
+                      ticker,
+                      tokenInfo,
+                      setSymbol
+                    }: {
   ticker: Ticker;
   tokenInfo: TokenInfo[];
   setSymbol: (symbol: string) => void;
@@ -93,14 +91,14 @@ function SymbolLine({
         setSymbol(ticker.symbol);
       }}
     >
-      <div className="flex items-center">
+      <div className='flex items-center'>
         <TokenIcon src={tokenIn?.icon} />
 
-        <div className="ml-3 whitespace-nowrap">
+        <div className='ml-3 whitespace-nowrap'>
           <span>{symbolFrom}&nbsp;PERP</span>
         </div>
       </div>
-      <div className="flex flex-col text-xs items-end">
+      <div className='flex flex-col text-xs items-end'>
         <span>${ticker.close}</span>
         <TickerDisplayComponent ticker={ticker} />
       </div>
@@ -144,26 +142,26 @@ function SymbolSelector(props: {
   const intl = useIntl();
 
   return (
-    <div className="absolute left-0 top-8 pt-4 z-50">
+    <div className='absolute left-0 top-8 pt-4 z-50'>
       <div
-        className="bg-darkBg  rounded-lg   border border-borderC px-2 py-3  "
+        className='bg-darkBg  rounded-lg   border border-borderC px-2 py-3  '
         style={{
-          width: '220px',
+          width: '220px'
         }}
         onMouseLeave={() => {
           mouseLeave();
         }}
       >
         {SymbolList && (
-          <div className="text-sm ml-2  mb-2 text-primaryText">
+          <div className='text-sm ml-2  mb-2 text-primaryText'>
             <FormattedMessage
-              id="instrument"
-              defaultMessage="Instrument"
+              id='instrument'
+              defaultMessage='Instrument'
             ></FormattedMessage>
           </div>
         )}
 
-        <section className="">{SymbolList}</section>
+        <section className=''>{SymbolList}</section>
       </div>
     </div>
   );
@@ -201,29 +199,30 @@ export function SymbolSelectorMobileModal(
           props.onRequestClose && props.onRequestClose(e);
         }}
       >
-        <div className="flex items-center">
+        <div className='flex items-center'>
           <TokenIcon src={tokenIn?.icon} />
 
-          <div className="ml-2 whitespace-nowrap">
+          <div className='ml-2 whitespace-nowrap'>
             <span>{symbolFrom}</span>
 
-            <span className="text-primaryOrderly">{`/${symbolTo}`} </span>
+            <span className='text-primaryOrderly'>{`/${symbolTo}`} </span>
           </div>
 
           {curSymbol === ticker.symbol && !all && (
-            <span className="ml-2">
+            <span className='ml-2'>
               <CheckSelector></CheckSelector>
             </span>
           )}
         </div>
 
-        <div className="flex flex-col text-xs items-end">
+        <div className='flex flex-col text-xs items-end'>
           <span>${ticker.close}</span>
           <TickerDisplayComponent ticker={ticker} />
         </div>
       </div>
     );
   }
+
   const [searchValue, setSearchValue] = useState<string>();
   const intl = useIntl();
 
@@ -242,18 +241,18 @@ export function SymbolSelectorMobileModal(
                 props.onRequestClose && props.onRequestClose(e);
               }}
             >
-              <div className="mr-2 ml-1 text-white text-sm ">
+              <div className='mr-2 ml-1 text-white text-sm '>
                 <AllMarketIcon />
               </div>
-              <span className="text-white mr-2">
+              <span className='text-white mr-2'>
                 {intl.formatMessage({
                   id: 'All',
-                  defaultMessage: 'All',
+                  defaultMessage: 'All'
                 })}
                 {intl.locale !== 'zh-CN' ? ' ' : ''}
                 {intl.formatMessage({
                   id: 'instrument',
-                  defaultMessage: 'Instrument',
+                  defaultMessage: 'Instrument'
                 })}
               </span>
 
@@ -289,35 +288,36 @@ export function SymbolSelectorMobileModal(
           left: '0px',
           transform: 'translate(-50%, -20px)',
           outline: 'none',
-          height: '60vh',
-        },
+          height: '60vh'
+        }
       }}
     >
       <div
-        className="bg-darkBg overflow-auto  xs:w-screen xs:fixed xs:bottom-0 xs:left-0 rounded-t-2xl  text-sm text-white  rounded-lg   border border-borderC  py-4  w-p240"
+        className='bg-darkBg overflow-auto  xs:w-screen xs:fixed xs:bottom-0 xs:left-0 rounded-t-2xl  text-sm text-white  rounded-lg   border border-borderC  py-4  w-p240'
         style={{
-          height: '60vh',
+          height: '60vh'
         }}
       >
         {/* search filed */}
-        <div className="font-bold mb-2 px-5">
+        <div className='font-bold mb-2 px-5'>
           {intl.formatMessage({
             id: 'select_orderly',
-            defaultMessage: 'Select',
+            defaultMessage: 'Select'
           })}
           {intl.formatMessage({
             id: 'instrument',
-            defaultMessage: 'Instrument',
+            defaultMessage: 'Instrument'
           })}
         </div>
 
-        <div className="border border-borderC mx-5 mb-2 px-2 flex items-center justify-between bg-black bg-opacity-20  rounded-lg py-2">
+        <div
+          className='border border-borderC mx-5 mb-2 px-2 flex items-center justify-between bg-black bg-opacity-20  rounded-lg py-2'>
           <input
-            type="text"
-            className="bg-transparent w-full text-white "
+            type='text'
+            className='bg-transparent w-full text-white '
             placeholder={intl.formatMessage({
               id: 'token_orderly',
-              defaultMessage: 'Token',
+              defaultMessage: 'Token'
             })}
             onChange={(e) => {
               setSearchValue(e.target.value);
@@ -330,7 +330,7 @@ export function SymbolSelectorMobileModal(
             onClick={() => {
               setSearchValue('');
             }}
-            color="#7E8A93"
+            color='#7E8A93'
           />
         </div>
 
@@ -349,7 +349,7 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
     openinterests,
     estFundingRate,
     markPrices,
-    availableSymbols,
+    availableSymbols
   } = useOrderlyContext();
 
   const curOpenInterest = openinterests?.find((o) => o.symbol === symbol);
@@ -428,8 +428,8 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
   const curSymbol = availableSymbols?.find((s) => s.symbol === symbol);
 
   return (
-    <div className="flex items-center  mb-3 mr-3 px-3 py-2 rounded-lg  text-white text-sm">
-      <div className="rounded-xl frcs mr-2 gap-1 text-13px border border-v3SwapGray p-1 border-opacity-20 ">
+    <div className='flex items-center  mb-3 mr-3 px-3 py-2 rounded-lg  text-white text-sm'>
+      <div className='rounded-xl frcs mr-2 gap-1 text-13px border border-v3SwapGray p-1 border-opacity-20 '>
         {['spot', 'perps'].map((type) => {
           return (
             <div
@@ -477,16 +477,16 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
           setHoverSymbol(false);
         }}
       >
-        {<img src={iconIn} alt="" className="rounded-full relative  h-6 w-6" />}
+        {<img src={iconIn} alt='' className='rounded-full relative  h-6 w-6' />}
 
-        <span className="text-base ml-4 font-gothamBold">
+        <span className='text-base ml-4 font-gothamBold'>
           {symbolFrom} PERP
         </span>
 
         <IoMdArrowDropdown
           color={!hoverSymbol ? '#566069' : '#FFFFFF'}
           size={20}
-          className="ml-2"
+          className='ml-2'
         />
         {hoverSymbol && !isMobile && (
           <SymbolSelector
@@ -517,17 +517,18 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
           className={`flex  items-center  mr-2 w-full 
             justify-between xs:justify-end md:justify-end  text-primaryOrderly`}
         >
-          <div className="flex xs:justify-end md:justify-end  items-start flex-col xs:flex-row md:flex-row xs:items-center md:items-center">
-            <span className="xs:hidden md:hidden frcs gap-2">
+          <div
+            className='flex xs:justify-end md:justify-end  items-start flex-col xs:flex-row md:flex-row xs:items-center md:items-center'>
+            <span className='xs:hidden md:hidden frcs gap-2'>
               {intl.formatMessage({
                 id: 'price',
-                defaultMessage: 'Price',
+                defaultMessage: 'Price'
               })}
 
               <MoreRouterButton></MoreRouterButton>
             </span>
-            <div className="flex items-center mt-0.5">
-              <span className="text-white font-bold">
+            <div className='flex items-center mt-0.5'>
+              <span className='text-white font-bold'>
                 {numberWithCommasPadding(
                   ticker.close,
                   tickToPrecision(curSymbol.quote_tick)
@@ -539,12 +540,12 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
                   diff < 0
                     ? 'text-sellRed bg-sellRed'
                     : diff > 0
-                    ? 'text-buyGreen bg-buyGreen'
-                    : 'text-white'
+                      ? 'text-buyGreen bg-buyGreen'
+                      : 'text-white'
                 } bg-opacity-10 text-xs flex items-center  rounded-md ml-2 px-1 py-0.5`}
               >
                 {' '}
-                <span className="relative ">
+                <span className='relative '>
                   {diff > 0 ? (
                     <IoArrowUpOutline />
                   ) : diff < 0 ? (
@@ -556,15 +557,15 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
             </div>
           </div>
 
-          <div className="flex  xs:hidden md:hidden  items-start flex-col">
+          <div className='flex  xs:hidden md:hidden  items-start flex-col'>
             <span>
               {intl.formatMessage({
                 id: 'mark_price',
-                defaultMessage: 'Mark Price',
+                defaultMessage: 'Mark Price'
               })}
             </span>
 
-            <span className="text-white mt-0.5 font-bold">
+            <span className='text-white mt-0.5 font-bold'>
               {curMarkPrice &&
                 numberWithCommasPadding(
                   curMarkPrice.price,
@@ -573,15 +574,15 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
             </span>
           </div>
 
-          <div className="flex  xs:hidden md:hidden  items-start flex-col">
+          <div className='flex  xs:hidden md:hidden  items-start flex-col'>
             <span>
               {intl.formatMessage({
                 id: 'h24_high',
-                defaultMessage: '24h High',
+                defaultMessage: '24h High'
               })}
             </span>
 
-            <span className="text-white mt-0.5 font-bold">
+            <span className='text-white mt-0.5 font-bold'>
               {numberWithCommasPadding(
                 ticker.high,
                 tickToPrecision(curSymbol.quote_tick)
@@ -589,15 +590,15 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
             </span>
           </div>
 
-          <div className="flex items-start xs:hidden md:hidden flex-col">
+          <div className='flex items-start xs:hidden md:hidden flex-col'>
             <span>
               {intl.formatMessage({
                 id: 'h24_low',
-                defaultMessage: '24h Low',
+                defaultMessage: '24h Low'
               })}
             </span>
 
-            <span className="text-white mt-0.5 font-bold">
+            <span className='text-white mt-0.5 font-bold'>
               {numberWithCommasPadding(
                 ticker.low,
                 tickToPrecision(curSymbol.quote_tick)
@@ -605,28 +606,28 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
             </span>
           </div>
 
-          <div className="flex items-start xs:hidden md:hidden  flex-col">
+          <div className='flex items-start xs:hidden md:hidden  flex-col'>
             <span>
               {intl.formatMessage({
                 id: 'h24_Volume',
-                defaultMessage: '24h Volume',
+                defaultMessage: '24h Volume'
               })}
             </span>
 
-            <span className="text-white mt-0.5 font-bold">
+            <span className='text-white mt-0.5 font-bold'>
               ${toPrecision(ticker.amount.toString(), 3, true)}
             </span>
           </div>
 
-          <div className="flex items-start xs:hidden md:hidden  flex-col">
+          <div className='flex items-start xs:hidden md:hidden  flex-col'>
             <span>
               {intl.formatMessage({
                 id: 'open_interest',
-                defaultMessage: 'Open Interest',
+                defaultMessage: 'Open Interest'
               })}
             </span>
 
-            <span className="text-white mt-0.5 font-bold frcs gap-2">
+            <span className='text-white mt-0.5 font-bold frcs gap-2'>
               <span>
                 {curOpenInterest?.openInterest
                   ? numberWithCommas(curOpenInterest?.openInterest)
@@ -635,25 +636,25 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
 
               <TextWrapper
                 value={symbolFrom}
-                textC="text-primaryText"
-                className="text-10px px-1"
+                textC='text-primaryText'
+                className='text-10px px-1'
               ></TextWrapper>
             </span>
           </div>
 
-          <div className="flex items-start xs:hidden md:hidden  flex-col">
+          <div className='flex items-start xs:hidden md:hidden  flex-col'>
             <span>
               {intl.formatMessage({
                 id: 'pred_funding_rate',
-                defaultMessage: 'Pred. Funding Rate',
+                defaultMessage: 'Pred. Funding Rate'
               })}
             </span>
 
-            <span className="text-white mt-0.5 font-bold">
-              <span className="text-white mt-0.5 font-bold frcs gap-2 whitespace-nowrap">
+            <span className='text-white mt-0.5 font-bold'>
+              <span className='text-white mt-0.5 font-bold frcs gap-2 whitespace-nowrap'>
                 <span
                   style={{
-                    color: estFundingRate?.fundingRate ? '#FFAA47' : '',
+                    color: estFundingRate?.fundingRate ? '#FFAA47' : ''
                   }}
                   title={numberWithCommasPadding(
                     estFundingRate?.fundingRate * 100,
@@ -662,18 +663,18 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
                 >
                   {estFundingRate?.fundingRate
                     ? numberWithCommasPadding(
-                        Number(
-                          new Big(estFundingRate.fundingRate * 100).toFixed(4)
-                        ),
-                        4
-                      ) + '%'
+                    Number(
+                      new Big(estFundingRate.fundingRate * 100).toFixed(4)
+                    ),
+                    4
+                  ) + '%'
                     : '-'}
                 </span>
 
                 <TextWrapper
                   value={displayCountDown || '-'}
-                  textC="text-primaryText"
-                  className="text-10px px-1 font-nunito"
+                  textC='text-primaryText'
+                  className='text-10px px-1 font-nunito'
                 ></TextWrapper>
               </span>
             </span>

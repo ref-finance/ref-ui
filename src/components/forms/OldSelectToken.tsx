@@ -6,7 +6,7 @@ import { ArrowDownGreen } from '../icon';
 import { isMobile } from '~utils/device';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { TokenBalancesView } from '~services/token';
-import { IoCloseOutline } from 'react-icons/io5';
+import { IoCloseOutline } from '../reactIcons';
 import CommonBasses from '~components/tokens/CommonBasses';
 import Table from '~components/table/Table';
 import {

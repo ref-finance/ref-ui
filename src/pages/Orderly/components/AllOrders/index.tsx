@@ -3,29 +3,30 @@ import React, {
   useEffect,
   useMemo,
   useRef,
-  useState,
+  useState
 } from 'react';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
-import { SlArrowUp } from 'react-icons/sl';
-
-import { IoIosClose } from 'react-icons/io';
-
-import { IoClose } from 'react-icons/io5';
-
+import {
+  IoIosClose,
+  IoClose,
+  MdArrowDropDown,
+  RiArrowDownSFill,
+  AiOutlineClose,
+  AiOutlineCheck
+} from '../../../../components/reactIcons';
 import { FlexRow, FlexRowBetween, QuestionMark } from '../Common';
 import { parseSymbol } from '../RecentTrade';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-import { MdArrowDropDown, MdArrowDropUp } from 'react-icons/md';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { RiArrowDownSFill } from 'react-icons/ri';
+
 import {
   MyOrder,
   EditOrderlyOrder,
   orderStatus,
   OrderTrade,
   TokenMetadata,
-  SymbolInfo,
+  SymbolInfo
 } from '../../orderly/type';
 import {
   AllMarketIcon,
@@ -46,43 +47,42 @@ import { formatTimeDate } from '../OrderBoard';
 
 import { Selector } from '../OrderBoard';
 
-import { AiOutlineClose, AiOutlineCheck } from 'react-icons/ai';
+
 import {
   FlexRowStart,
   CheckBox,
   orderEditPopUpSuccess,
-  ErrorTip,
+  ErrorTip
 } from '../Common/index';
 import {
   cancelOrder,
   cancelOrders,
   editOrder,
-  getOrderTrades,
+  getOrderTrades
 } from '../../orderly/off-chain-api';
 import { useOrderBook, useCurHoldings } from './state';
 import { useBatchTokenMetaFromSymbols } from '../ChartHeader/state';
 import Modal from 'react-modal';
 
-import { IoChevronBackOutline } from 'react-icons/io5';
-import { useHistory } from 'react-router-dom';
+
 import { useWalletSelector } from '../../../../context/WalletSelectorContext';
 import {
   OrderlyLoading,
   FilledStamp,
-  HistoryOrderDetailIcon,
+  HistoryOrderDetailIcon
 } from '../Common/Icons';
 import { digitWrapper, numberWithCommas, PerpOrSpot } from '../../utiles';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../UserBoard/index';
 import {
   ONLY_ZEROS,
-  scientificNotationToString,
+  scientificNotationToString
 } from '../../../../utils/numbers';
 import { orderEditPopUpFailure } from '../Common/index';
 import { Holding } from '../../orderly/type';
 import {
   useLargeScreen,
   useClientMobile,
-  isMobile,
+  isMobile
 } from '../../../../utils/device';
 import { Images } from '../../../../components/stableswap/CommonComp';
 

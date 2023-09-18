@@ -2,23 +2,23 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Slider } from '../icon/Info';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { isMobile } from '../../utils/device';
-import { IoCloseOutline, IoWarning } from 'react-icons/io5';
+import { IoWarning } from '../reactIcons';
 import { QuestionTip } from '../../components/layout/TipWrapper';
 import { SUPPORT_LEDGER_KEY } from '../swap/SwapCard';
 import { SWAP_MODE, SWAP_TYPE, SwapProContext } from '../../pages/SwapPage';
 import {
   Inch1IconAndAurora,
-  TriAndAurora,
+  TriAndAurora
 } from '../../components/icon/CrossSwapIcons';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { SupportLedgerGuide } from '../../components/layout/SupportLedgerGuide';
 import { TriAndAuroraLedger } from '../icon/CrossSwapIcons';
 
 export function CustomSwitch({
-  isOpen,
-  setIsOpen,
-  storageKey,
-}: {
+                               isOpen,
+                               setIsOpen,
+                               storageKey
+                             }: {
   isOpen: boolean;
   setIsOpen: (e?: any) => void;
   storageKey?: string;

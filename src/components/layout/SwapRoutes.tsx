@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { TokenMetadata, ftGetTokenMetadata } from '../../services/ft-contract';
 
-import { FaAngleRight } from 'react-icons/fa';
+import { FaAngleRight } from '../reactIcons';
 
 import {
   calculateFeePercent,
@@ -17,7 +17,7 @@ import { EstimateSwapView } from '~services/swap';
 
 import { getPoolAllocationPercents, percent } from '../../utils/numbers';
 import { Pool } from '../../services/pool';
-import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
+import { FaAngleUp, FaAngleDown } from '../reactIcons';
 import { Card } from '../card/Card';
 import {
   FlashAction,
@@ -49,7 +49,7 @@ import { useTokenPriceList } from '../../state/token';
 import { PopUpContainer, PopUpContainerMulti } from '../icon/Info';
 import { percentLess, multiply, divide } from '../../utils/numbers';
 import { QuestionTip } from './TipWrapper';
-import { HiOutlineExternalLink } from 'react-icons/hi';
+import { HiOutlineExternalLink } from '../reactIcons';
 import { Images } from '../stableswap/CommonComp';
 import { getAuroraConfig } from '../../services/aurora/config';
 import { isMobile, useClientMobile } from '../../utils/device';

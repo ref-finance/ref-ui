@@ -38,7 +38,7 @@ import {
   scientificNotationToString,
   calculateSmartRoutesV2PriceImpact,
   separateRoutes,
-  calcStableSwapPriceImpact,
+  calcStableSwapPriceImpact
 } from '../../utils/numbers';
 import ReactDOMServer from 'react-dom/server';
 import TokenAmount from '../forms/TokenAmount';
@@ -46,7 +46,7 @@ import SubmitButton, { InsufficientButton } from '../forms/SubmitButton';
 import Alert from '../alert/Alert';
 import { toRealSymbol } from '../../utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
+
 import db from '../../store/RefDatabase';
 import { ConnectToNearBtnSwap } from '../button/Button';
 
@@ -120,54 +120,48 @@ import {
   unwrapedNear,
   nearDeposit,
   nearWithdraw,
-  wnearMetadata,
+  wnearMetadata
 } from '../../services/wrap-near';
 import getConfig, { getExtraStablePoolConfig } from '../../services/config';
 import { SwapMinReceiveCheck, LimitOrderMask } from '../icon/swapV3';
 import {
   TokenAmountV3,
   TokenCardIn,
-  LimitOrderRateSetBox,
+  LimitOrderRateSetBox
 } from '../forms/TokenAmount';
 import Big from 'big.js';
 import { Slider } from '../icon/Info';
 import {
   regularizedPoint,
   regularizedPrice,
-  feeToPointDelta,
+  feeToPointDelta
 } from '../../services/swapV3';
 import { DoubleCheckModalLimit } from '../layout/SwapDoubleCheck';
 import {
   toInternationalCurrencySystemLongString,
   toRoundedReadableNumber,
-  toInternationalCurrencySystem,
+  toInternationalCurrencySystem
 } from '../../utils/numbers';
 import {
   pointToPrice,
   priceToPoint,
   v3Swap,
-  create_pool,
+  create_pool
 } from '../../services/swapV3';
 import {
   V3_POOL_FEE_LIST,
   getV3PoolId,
-  V3_POOL_SPLITER,
+  V3_POOL_SPLITER
 } from '../../services/swapV3';
 import { SkyWardModal } from '../layout/SwapDoubleCheck';
 import {
   NEAR_CLASS_STABLE_TOKEN_IDS,
-  BTC_CLASS_STABLE_TOKEN_IDS,
+  BTC_CLASS_STABLE_TOKEN_IDS
 } from '../../services/near';
 
-import { TiRefresh } from 'react-icons/ti';
-
-import { MdOutlineRefresh } from 'react-icons/md';
+import { FaAngleUp, FaAngleDown, FaExchangeAlt, MdOutlineRefresh } from '../reactIcons';
 import { getMax } from '../../utils/numbers';
-import { RefreshIcon } from '../icon/swapV3';
-import { useWalletTokenBalances } from '../../state/token';
-import { TokenBalancesView } from '../../services/token';
-import { Images } from '../stableswap/CommonComp';
-import { ArrowRight } from '../layout/SwapRoutes';
+
 import { YellowTipIcon, RedTipIcon, SelectedIcon } from '../icon/swapV3';
 import * as math from 'mathjs';
 import { NEAR_WITHDRAW_KEY } from '../forms/WrapNear';

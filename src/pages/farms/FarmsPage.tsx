@@ -82,7 +82,6 @@ import moment from 'moment';
 import { Link, useHistory, useLocation } from 'react-router-dom';
 import _ from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { FaArrowCircleRight, FaRegQuestionCircle } from 'react-icons/fa';
 import OldInputAmount from '~components/forms/OldInputAmount';
 import { BigNumber } from 'bignumber.js';
 import getConfig from '~services/config';

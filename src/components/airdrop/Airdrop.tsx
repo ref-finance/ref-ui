@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FaExclamationCircle, FaRegQuestionCircle } from 'react-icons/fa';
+import { FaExclamationCircle, FaRegQuestionCircle } from '../reactIcons';
 import { wallet } from '~services/near';
 import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 import Loading from '~components/layout/Loading';
