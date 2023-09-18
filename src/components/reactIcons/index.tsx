@@ -58,7 +58,7 @@ import { TiArrowSortedUp } from '@react-icons/all-files/ti/TiArrowSortedUp';
 
 import { BiCopy } from '@react-icons/all-files/bi/BiCopy';
 
-// all files 没有的图标
+// all-files missing icons
 const MdOutlineRefresh = MdRefresh;
 
 
