@@ -302,7 +302,7 @@ export const getOrders = async (props: {
   if (res?.data?.rows) {
     res.data.rows.forEach((r: any) => {
       if (!r?.broker_name) {
-        r.broker_name = ' ';
+        r.broker_name = '';
       }
     });
   }
