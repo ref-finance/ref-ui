@@ -293,11 +293,19 @@ export const getOrders = async (props: {
 }) => {
   const url = `/v1/orders?${formateParams(props.OrderProps || {})}`;
 
-  const res = requestOrderly({
+  const res = await requestOrderly({
     url,
     accountId: props.accountId,
     ct: 'application/json;charset=utf-8',
   });
+
+  if (res?.data?.rows) {
+    res.data.rows.forEach((r: any) => {
+      if (!r?.broker_name) {
+        r.broker_name = ' ';
+      }
+    });
+  }
 
   return res;
 };
