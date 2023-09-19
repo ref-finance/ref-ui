@@ -959,7 +959,6 @@ export async function getHybridStableSmart(
       });
 
       estimate.pool.partialAmountIn = parsedAmountIn;
-      console.log('estimate: ', estimate);
 
       return {
         actions: [
@@ -1029,8 +1028,6 @@ export async function getHybridStableSmart(
       outputToken: tokenOut.id,
       totalInputAmount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
     };
-
-    console.log('estimate1, estimate2: ', estimate1, estimate2);
 
     return { actions: [estimate1, estimate2], estimate: estimate2.estimate };
   }
