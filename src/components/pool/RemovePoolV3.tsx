@@ -701,12 +701,28 @@ export const RemovePoolV3 = (props: any) => {
   }
   const isRemoveLiquidityDisabled = minBoxPoint == maxBoxPoint;
   const is_mobile = isMobile();
-  const cardWidth = is_mobile ? '95vw' : '550px';
+  const cardWidth = is_mobile ? '100vw' : '550px';
   return (
-    <Modal {...restProps}>
+    <Modal
+      {...restProps}
+      style={{
+        overlay: {
+          backdropFilter: 'blur(15px)',
+          WebkitBackdropFilter: 'blur(15px)',
+        },
+        content: {
+          outline: 'none',
+          top: is_mobile ? 'auto' : '50%',
+          left: is_mobile ? 'auto' : '50%',
+          transform: is_mobile ? 'none' : 'translate(-50%, -50%)',
+          bottom: is_mobile ? '32px' : 'auto',
+          width: is_mobile ? '100%' : 'auto',
+        },
+      }}
+    >
       <Card
         style={{ maxHeight: '95vh', minWidth: cardWidth }}
-        className={`outline-none border border-gradientFrom border-opacity-50 overflow-auto xsm:p-3`}
+        className={`outline-none border lg:border-gradientFrom border-opacity-50 overflow-auto xsm:p-3 xsm:rounded-t-2xl xsm:rounded-b-none xsm:border-bottomBoxBorderColor`}
       >
         {/* Title */}
         <div className="flex items-center justify-between">
