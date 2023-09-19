@@ -446,8 +446,6 @@ export const estimateSwap = async ({
       parsedAmountIn
     );
 
-    console.log('supportLedgerRes: ', supportLedgerRes);
-
     return { estimates: supportLedgerRes, tag };
   }
 
@@ -654,8 +652,6 @@ export const getOneSwapActionResult = async (
    *
    */
   if (supportLedger) {
-    console.log('pools: ', pools);
-
     if (pools.length === 0 && supportLedger) {
       throwNoPoolError();
     }
@@ -688,8 +684,6 @@ export const getOneSwapActionResult = async (
         amountIn: parsedAmountIn,
         Pool: bestPricePool,
       });
-
-      console.log('estimateRes: ', estimateRes);
 
       const res = [
         {
