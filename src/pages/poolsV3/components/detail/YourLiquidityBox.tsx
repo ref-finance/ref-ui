@@ -419,11 +419,11 @@ export function YourLiquidityBox(props: {
 
   return (
     <div className="p-5 bg-cardBg rounded-xl xsm:p-0">
-      <div className="flex items-start justify-between xsm:hidden">
-        <span className="text-white font-gothamBold text-base">
+      <div className="flex items-start justify-between xsm:mt-5">
+        <span className="text-white lg:font-gothamBold lg:text-base xsm:text-sm">
           <FormattedMessage id="your_liquidity"></FormattedMessage>
         </span>
-        <span className="text-white font-gothamBold">
+        <span className="text-white font-gothamBold xsm:text-sm">
           {getTotalLiquditiesTvl()}
         </span>
       </div>

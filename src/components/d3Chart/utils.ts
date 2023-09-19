@@ -28,7 +28,7 @@ export const formatPercentage = (v: string | number) => {
     return big.toFixed(2, 1) + '%';
   }
 };
-export const formatNumber = (v: string | number) => {
+export const formatNumber = (v: string | number, type?: 'down' | 'both') => {
   if (isInvalid(v)) return '-';
   const big = Big(v);
   if (big.eq(0)) {
@@ -36,7 +36,7 @@ export const formatNumber = (v: string | number) => {
   } else if (big.lt(0.01)) {
     return '<0.01';
   } else {
-    return big.toFixed(2, 1);
+    return type == 'down' ? big.toFixed(2, 0) : big.toFixed(2, 1);
   }
 };
 export const formatWithCommas_number = (v: string | number) => {

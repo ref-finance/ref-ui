@@ -488,7 +488,7 @@ export const getDCLTopBinFee = async (props: {
 }): Promise<DCLPoolFee> => {
   const { pool_id, bin, start_point, end_point } = props;
   const result = await getDclPoolPoints(pool_id, bin, start_point, end_point);
-  return result?.top_bin_fee_data || {};
+  return result?.top_bin_fee_data;
 };
 
 export const getDCLAccountFee = async (props: {

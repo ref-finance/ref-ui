@@ -123,7 +123,7 @@ function UserTabBox(props: {
           show ? '' : 'hidden'
         }`}
       >
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between border-b border-menuMoreBoxBorderColor -mx-5 px-5">
           <div
             className="flex flex-col items-center w-1 flex-grow mr-3"
             onClick={() => {

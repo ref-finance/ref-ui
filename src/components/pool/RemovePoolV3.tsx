@@ -127,8 +127,8 @@ export const RemovePoolV3 = (props: any) => {
       const { total_token_x_amount, total_token_y_amount, total_value } =
         get_minimum_received_data();
       return [
-        formatNumber(total_token_x_amount),
-        formatNumber(total_token_y_amount),
+        formatNumber(total_token_x_amount, 'down'),
+        formatNumber(total_token_y_amount, 'down'),
         formatWithCommas_usd(total_value),
       ];
     }
