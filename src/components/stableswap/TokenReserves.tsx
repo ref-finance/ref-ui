@@ -70,9 +70,7 @@ function TokenChart({
   });
   const color = {
     DAI: 'rgba(255, 199, 0, 0.45)',
-    'USDT.e': '#167356',
     USDT: '#167356',
-    'USDC.e': 'rgba(0, 163, 255, 0.45)',
     USN: 'rgba(255, 255, 255, 0.45)',
     cUSD: 'rgba(69, 205, 133, 0.6)',
     HBTC: '#4D85F8',
@@ -83,7 +81,10 @@ function TokenChart({
     NEARXC: '#4d5971',
     NearXC: '#4d5971',
     NearX: '#00676D',
-    USDt: '#0E8585',
+    'USDT.e': '#19936D',
+    'USDC.e': '#2B6EB7',
+    USDC: '#2FA7DB',
+    USDt: '#45D0C0',
   };
 
   const noBorderTokens = ['LINEAR', 'USDt'];

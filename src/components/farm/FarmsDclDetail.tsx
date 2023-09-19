@@ -927,7 +927,7 @@ export default function FarmsDclDetail(props: {
           onClick={goPoolPage}
         >
           <label className="mx-2 text-sm cursor-pointer">
-            <FormattedMessage id="dcl_pool_detail" />
+            <FormattedMessage id="Pool" />
           </label>
           <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
         </div>
@@ -994,7 +994,7 @@ export default function FarmsDclDetail(props: {
           onClick={goPoolPage}
         >
           <label className="mx-2 text-sm cursor-pointer">
-            <FormattedMessage id="dcl_pool_detail" />
+            <FormattedMessage id="Pool" />
           </label>
           <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
         </div>

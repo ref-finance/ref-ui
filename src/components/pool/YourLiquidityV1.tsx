@@ -671,9 +671,9 @@ function YourClassicLiquidityLine(props: any) {
   const Symbols = tokens.map((token: TokenMetadata, index: number) => {
     const { symbol } = token;
     if (index == tokens.length - 1) {
-      return <>{symbol}</>;
+      return <label>{symbol}</label>;
     } else {
-      return <>{symbol}/</>;
+      return <label>{symbol}/</label>;
     }
   });
   // get lp amount in farm
@@ -832,7 +832,9 @@ function YourClassicLiquidityLineMobile() {
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <div className="flex items-center mr-1.5">{Images}</div>
-            <span className="text-sm text-white gotham_bold">{Symbols}</span>
+            <span className="flex flex-wrap text-sm text-white gotham_bold">
+              {Symbols}
+            </span>
           </div>
           <span className="text-sm text-white gotham_bold">
             {display_value(lp_total_value)}

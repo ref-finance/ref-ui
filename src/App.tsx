@@ -48,7 +48,7 @@ function App() {
             <Content />
 
             <Footer />
-            {/* <ExternalPopUp></ExternalPopUp> */}
+            <ExternalPopUp></ExternalPopUp>
             <Guider></Guider>
           </div>
         </XmasActivityContextProvider>

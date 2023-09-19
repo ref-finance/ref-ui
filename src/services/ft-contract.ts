@@ -12,7 +12,8 @@ import { getCurrentWallet, WALLET_TYPE } from '../utils/wallets-integration';
 import getConfig from './config';
 import { nearMetadata, WRAP_NEAR_CONTRACT_ID } from './wrap-near';
 import { REF_TOKEN_ID, getAccountNearBalance } from './near';
-import { getExtraStablePoolConfig } from './config';
+import getConfigV2 from './configV2';
+const configV2 = getConfigV2();
 
 export const NEAR_ICON =
   'https://near.org/wp-content/themes/near-19/assets/img/brand-icon.png';
@@ -69,8 +70,32 @@ export const ftGetStorageBalance = (
   tokenId: string,
   accountId = getCurrentWallet()?.wallet?.getAccountId()
 ): Promise<FTStorageBalance | null> => {
+  if (configV2.NO_REQUIRED_REGISTRATION_TOKEN_IDS.includes(tokenId)) {
+    return check_registration(tokenId).then((is_registration) => {
+      if (is_registration) {
+        return new Promise((resove) => {
+          resove({ available: '1', total: '1' });
+        });
+      } else {
+        return new Promise((resove) => {
+          resove(null);
+        });
+      }
+    });
+  }
   return ftViewFunction(tokenId, {
     methodName: 'storage_balance_of',
+    args: { account_id: accountId },
+  });
+};
+
+// todo usdc
+export const check_registration = (
+  tokenId: string,
+  accountId = getCurrentWallet()?.wallet?.getAccountId()
+): Promise<FTStorageBalance | null> => {
+  return ftViewFunction(tokenId, {
+    methodName: 'check_registration',
     args: { account_id: accountId },
   });
 };
