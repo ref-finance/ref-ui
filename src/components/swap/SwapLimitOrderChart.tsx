@@ -116,7 +116,7 @@ export default function SwapLimitOrderChart() {
           return [
             `${y_symbol}/${x_symbol}`,
             `${x_symbol}-${y_symbol}`,
-            `${y_symbol}`,
+            `${x_symbol}`,
             y_icons,
           ];
         } else if (switch_token == 'Y') {
@@ -132,7 +132,7 @@ export default function SwapLimitOrderChart() {
           return [
             `${x_symbol}/${y_symbol}`,
             `${y_symbol}-${x_symbol}`,
-            `${x_symbol}`,
+            `${y_symbol}`,
             x_icons,
           ];
         }
