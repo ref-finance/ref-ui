@@ -71,12 +71,31 @@ export const ftGetStorageBalance = (
   accountId = getCurrentWallet()?.wallet?.getAccountId()
 ): Promise<FTStorageBalance | null> => {
   if (configV2.NO_REQUIRED_REGISTRATION_TOKEN_IDS.includes(tokenId)) {
-    return new Promise((resove) => {
-      resove({ available: '1', total: '1' });
+    return check_registration(tokenId).then((is_registration) => {
+      if (is_registration) {
+        return new Promise((resove) => {
+          resove({ available: '1', total: '1' });
+        });
+      } else {
+        return new Promise((resove) => {
+          resove(null);
+        });
+      }
     });
   }
   return ftViewFunction(tokenId, {
     methodName: 'storage_balance_of',
+    args: { account_id: accountId },
+  });
+};
+
+// todo usdc
+export const check_registration = (
+  tokenId: string,
+  accountId = getCurrentWallet()?.wallet?.getAccountId()
+): Promise<FTStorageBalance | null> => {
+  return ftViewFunction(tokenId, {
+    methodName: 'check_registration',
     args: { account_id: accountId },
   });
 };

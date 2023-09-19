@@ -89,8 +89,9 @@ import {
 import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
 import { percentLess, percent } from '../utils/numbers';
 import { getTokenFlow } from './indexer';
-import getConfig from './config';
+import getConfigV2 from './configV2';
 export const REF_FI_SWAP_SIGNAL = 'REF_FI_SWAP_SIGNAL_KEY';
+const { NO_REQUIRED_REGISTRATION_TOKEN_IDS } = getConfigV2();
 
 // Big.strict = false;
 const FEE_DIVISOR = 10000;
@@ -1111,18 +1112,27 @@ SwapOptions) => {
     const tokenRegistered = await ftGetStorageBalance(token.id).catch(() => {
       throw new Error(`${token.id} doesn't exist.`);
     });
-
+    // todo usdc
     if (tokenRegistered === null) {
-      tokenOutActions.push({
-        methodName: 'storage_deposit',
-        args: {
-          registration_only: true,
-          account_id: getCurrentWallet()?.wallet?.getAccountId(),
-        },
-        gas: '30000000000000',
-        amount: STORAGE_TO_REGISTER_WITH_MFT,
-      });
-
+      if (NO_REQUIRED_REGISTRATION_TOKEN_IDS.includes(token.id)) {
+        tokenOutActions.push({
+          methodName: 'register_account',
+          args: {
+            account_id: getCurrentWallet()?.wallet?.getAccountId(),
+          },
+          gas: '10000000000000',
+        });
+      } else {
+        tokenOutActions.push({
+          methodName: 'storage_deposit',
+          args: {
+            registration_only: true,
+            account_id: getCurrentWallet()?.wallet?.getAccountId(),
+          },
+          gas: '30000000000000',
+          amount: STORAGE_TO_REGISTER_WITH_MFT,
+        });
+      }
       transactions.push({
         receiverId: token.id,
         functionCalls: tokenOutActions,
@@ -1268,7 +1278,6 @@ export const crossInstantSwap = async ({
       throw new Error(`${tokenId} doesn't exist.`);
     });
     const tokenOutActions: RefFiFunctionCallOptions[] = [];
-
     if (tokenRegistered === null) {
       tokenOutActions.push({
         methodName: 'storage_deposit',
