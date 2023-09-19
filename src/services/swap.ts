@@ -433,18 +433,18 @@ export const estimateSwap = async ({
     return getLiquidity(p, tokenIn, tokenOut) > 0;
   });
 
-  if (supportLedger || pool_protocol === 'rpc') {
-    const { supportLedgerRes } = await getOneSwapActionResult(
-      pools,
-      loadingTrigger,
-      tokenIn,
-      tokenOut,
-      supportLedger || pool_protocol === 'rpc',
-      throwNoPoolError,
-      amountIn,
-      parsedAmountIn
-    );
+  const { supportLedgerRes } = await getOneSwapActionResult(
+    pools,
+    loadingTrigger,
+    tokenIn,
+    tokenOut,
+    pool_protocol === 'rpc',
+    throwNoPoolError,
+    amountIn,
+    parsedAmountIn
+  );
 
+  if (supportLedger || pool_protocol === 'rpc') {
     return { estimates: supportLedgerRes, tag };
   }
 
@@ -474,18 +474,43 @@ export const estimateSwap = async ({
       loadingTrigger
     );
 
-    let hybridStableSmartOutputEstimate = hybridStableSmart.estimate.toString();
+    const hybridStableSmartOutputEstimate =
+      hybridStableSmart.estimate.toString();
 
     if (
       new Big(
         hybridStableSmartOutputEstimate === 'NaN'
           ? '0'
           : hybridStableSmartOutputEstimate
-      ).gt(new Big(smartRouteV2OutputEstimate))
+      ).gt(new Big(smartRouteV2OutputEstimate || 0))
     ) {
-      res = hybridStableSmart.actions;
+      if (
+        supportLedgerRes &&
+        supportLedgerRes?.length === 1 &&
+        new Big(supportLedgerRes[0].estimate).gt(
+          new Big(
+            hybridStableSmartOutputEstimate === 'NaN'
+              ? '0'
+              : hybridStableSmartOutputEstimate
+          )
+        )
+      ) {
+        res = supportLedgerRes;
+      } else {
+        res = hybridStableSmart.actions;
+      }
     } else {
-      res = stableSmartActionsV2;
+      if (
+        supportLedgerRes &&
+        supportLedgerRes?.length === 1 &&
+        new Big(supportLedgerRes[0].estimate).gt(
+          new Big(smartRouteV2OutputEstimate || 0)
+        )
+      ) {
+        res = supportLedgerRes;
+      } else {
+        res = stableSmartActionsV2.actions;
+      }
     }
   }
 
@@ -690,6 +715,7 @@ export const getOneSwapActionResult = async (
           tokens: [tokenIn, tokenOut],
           inputToken: tokenIn.id,
           outputToken: tokenOut.id,
+          parsedAmountIn: parsedAmountIn,
         },
       ];
 
