@@ -446,25 +446,34 @@ export const estimateSwap = async ({
       parsedAmountIn
     );
 
+    console.log('supportLedgerRes: ', supportLedgerRes);
+
     return { estimates: supportLedgerRes, tag };
   }
 
   const orpools = await getRefPoolsByToken1ORToken2(tokenIn.id, tokenOut.id);
 
-  let stableSmartActionsV2 = await stableSmart(
-    orpools.filter((p) => !p?.Dex || p.Dex !== 'tri'),
-    tokenIn.id,
-    tokenOut.id,
-    parsedAmountIn
-  );
+  let stableSmartActionsV2;
 
-  let res = stableSmartActionsV2;
+  let res;
+  let smartRouteV2OutputEstimate;
 
-  let smartRouteV2OutputEstimate = stableSmartActionsV2
-    .filter((a: any) => a.outputToken == a.routeOutputToken)
-    .map((a: any) => new Big(a.estimate))
-    .reduce((a: any, b: any) => a.plus(b), new Big(0))
-    .toString();
+  try {
+    stableSmartActionsV2 = await stableSmart(
+      orpools.filter((p) => !p?.Dex || p.Dex !== 'tri'),
+      tokenIn.id,
+      tokenOut.id,
+      parsedAmountIn
+    );
+
+    res = stableSmartActionsV2;
+
+    smartRouteV2OutputEstimate = stableSmartActionsV2
+      .filter((a: any) => a.outputToken == a.routeOutputToken)
+      .map((a: any) => new Big(a.estimate))
+      .reduce((a: any, b: any) => a.plus(b), new Big(0))
+      .toString();
+  } catch (error) {}
 
   // hybrid smart routing
   if (isStableToken(tokenIn.id) || isStableToken(tokenOut.id)) {
@@ -482,7 +491,7 @@ export const estimateSwap = async ({
         hybridStableSmartOutputEstimate === 'NaN'
           ? '0'
           : hybridStableSmartOutputEstimate
-      ).gt(new Big(smartRouteV2OutputEstimate))
+      ).gt(new Big(smartRouteV2OutputEstimate || 0))
     ) {
       res = hybridStableSmart.actions;
     } else {
@@ -645,6 +654,8 @@ export const getOneSwapActionResult = async (
    *
    */
   if (supportLedger) {
+    console.log('pools: ', pools);
+
     if (pools.length === 0 && supportLedger) {
       throwNoPoolError();
     }
@@ -677,6 +688,8 @@ export const getOneSwapActionResult = async (
         amountIn: parsedAmountIn,
         Pool: bestPricePool,
       });
+
+      console.log('estimateRes: ', estimateRes);
 
       const res = [
         {
