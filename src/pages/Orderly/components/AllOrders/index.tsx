@@ -1319,12 +1319,14 @@ function OrderLine({
           <span>{formatTimeDate(order.created_time)}</span>
 
           <div className="frcs gap-2">
-            <span>
-              <FormattedMessage
-                id="from"
-                defaultMessage={'From'}
-              ></FormattedMessage>
-            </span>
+            {order.broker_name && (
+              <span>
+                <FormattedMessage
+                  id="from"
+                  defaultMessage={'From'}
+                ></FormattedMessage>
+              </span>
+            )}
 
             <span>{order.broker_name.replace('DEX', '')}</span>
           </div>
@@ -1997,12 +1999,14 @@ function HistoryOrderLine({
           <span>{formatTimeDate(order.created_time)}</span>
 
           <div className="frcs gap-2">
-            <span>
-              <FormattedMessage
-                id="from"
-                defaultMessage={'From'}
-              ></FormattedMessage>
-            </span>
+            {order.broker_name && (
+              <span>
+                <FormattedMessage
+                  id="from"
+                  defaultMessage={'From'}
+                ></FormattedMessage>
+              </span>
+            )}
 
             <span>{order.broker_name.replace('DEX', '')}</span>
           </div>
