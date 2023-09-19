@@ -573,6 +573,7 @@ export const useSwap = ({
           setPool(estimates[0].pool);
         })
         .catch((err) => {
+          console.log('err: ', err);
           // if (!loadingTrigger) {
           setCanSwap(false);
           setTokenOutAmount('');
