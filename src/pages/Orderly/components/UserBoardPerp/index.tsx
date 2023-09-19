@@ -5,11 +5,10 @@ import React, {
   useDebugValue,
   useMemo,
 } from 'react';
-import { BsArrowRight, BsWrenchAdjustableCircleFill } from 'react-icons/bs';
+
 
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import { parseSymbol } from '../RecentTrade/index';
-import { useInView } from 'react-intersection-observer';
 
 import {
   nearMetadata,
@@ -45,11 +44,8 @@ import {
 } from '../../orderly/type';
 import { BuyButton, BuyButtonPerp, SellButton, SellButtonPerp } from './Button';
 import './index.css';
-import { FaMinus, FaPlus } from 'react-icons/fa';
 import Modal from 'react-modal';
 import Big from 'big.js';
-import { IoClose } from 'react-icons/io5';
-import { MdArrowDropDown } from 'react-icons/md';
 
 import {
   CheckBox,
@@ -73,7 +69,8 @@ import {
   numberWithCommas,
 } from '../../utiles';
 
-import { FiSearch } from 'react-icons/fi';
+
+import { FiSearch, BsArrowRight, MdArrowDropDown, IoClose} from '../../../../components/reactIcons';
 import {
   NearIConSelectModal,
   OutLinkIcon,
@@ -85,7 +82,7 @@ import {
   OrderlyNetworkIconGray,
 } from '../Common/Icons';
 
-import { MdKeyboardArrowDown } from 'react-icons/md';
+import { MdKeyboardArrowDown } from '../../../../components/reactIcons';
 import {
   is_orderly_key_announced,
   is_trading_key_set,

@@ -9,7 +9,7 @@ import {
 } from '../../services/swapV3';
 import { calculateFeePercent, ONLY_ZEROS, toPrecision } from '~utils/numbers';
 
-import { BsCheckCircle } from 'react-icons/bs';
+import { BsCheckCircle } from '../reactIcons';
 
 import {
   toReadableNumber,

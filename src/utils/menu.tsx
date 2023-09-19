@@ -1,7 +1,5 @@
 import React, { ReactNode, useContext, useState, useEffect } from 'react';
-import { AiOutlineMedium } from 'react-icons/ai';
-import { FaDiscord, FaTelegramPlane, FaTwitter } from 'react-icons/fa';
-import { HiOutlineExternalLink } from 'react-icons/hi';
+import { HiOutlineExternalLink } from '../components/reactIcons';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useLocation } from 'react-router-dom';
 import {

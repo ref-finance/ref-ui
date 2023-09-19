@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Modal from 'react-modal';
 
-import { AiFillCloseCircle } from 'react-icons/ai';
+import { AiFillCloseCircle } from '../components/reactIcons';
 import { useWalletSelector } from './WalletSelectorContext';
 import { list_liquidities } from '../services/swapV3';
 import { REF_FI_POOL_ACTIVE_TAB } from '../pages/pools/LiquidityPage';

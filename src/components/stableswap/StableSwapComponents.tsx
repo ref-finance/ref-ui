@@ -8,9 +8,7 @@ import { useIntl } from 'react-intl';
 import {
   FaAngleUp,
   FaAngleDown,
-  FaExchangeAlt,
-  FaServicestack,
-} from 'react-icons/fa';
+} from '../reactIcons';
 import {
   PriceImpactWarning,
   SwapDetail,

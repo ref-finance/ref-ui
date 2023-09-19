@@ -30,7 +30,7 @@ import {
 } from '../components/icon/swapV3';
 import { calculateFeePercent, ONLY_ZEROS, toPrecision } from '~utils/numbers';
 
-import { BsCheckCircle } from 'react-icons/bs';
+import { BsCheckCircle } from '../components/reactIcons';
 
 import {
   toReadableNumber,
@@ -56,7 +56,7 @@ import { isMobile } from '../utils/device';
 import { refSwapV3ViewFunction } from '../services/near';
 import { useWalletSelector } from '../context/WalletSelectorContext';
 import { useHistoryOrderTx, useHistoryOrderSwapInfo } from '../state/myOrder';
-import { HiOutlineExternalLink } from 'react-icons/hi';
+import { HiOutlineExternalLink } from '../components/reactIcons';
 import getConfig from '~services/config';
 import _ from 'lodash';
 import { HistoryOrderSwapInfo } from '../services/indexer';

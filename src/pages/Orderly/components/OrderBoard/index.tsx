@@ -4,13 +4,12 @@ import { FlexRow, FlexRowBetween } from '../Common';
 import { parseSymbol } from '../RecentTrade';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-import { MdArrowDropDown, MdArrowDropUp } from 'react-icons/md';
 import {
   MyOrder,
   EditOrderlyOrder,
   orderStatus,
   OrderTrade,
-  TokenInfo,
+  TokenInfo
 } from '../../orderly/type';
 import { OrderStateOutline, CheckSelector } from '../Common/Icons';
 import { TextWrapper } from '../UserBoard';
@@ -18,13 +17,13 @@ import Big from 'big.js';
 
 import moment from 'moment';
 
-import { AiOutlineClose, AiOutlineCheck } from 'react-icons/ai';
+import { AiOutlineClose, AiOutlineCheck, MdArrowDropDown } from '../../../../components/reactIcons';
 import { FlexRowStart } from '../Common/index';
 import {
   cancelOrder,
   cancelOrders,
   editOrder,
-  getOrderTrades,
+  getOrderTrades
 } from '../../orderly/off-chain-api';
 import { EditConfirmOrderModal } from '../AllOrders/index';
 import { useTokenMetaFromSymbol } from '../ChartHeader/state';

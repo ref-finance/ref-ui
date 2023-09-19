@@ -16,23 +16,21 @@ import {
   ActivityIcon,
   WalletIcon,
   SignoutIcon,
-  WNEARExchngeIcon,
+  WNEARExchngeIcon
 } from '~components/icon/Common';
 import { Link, useLocation, useHistory } from 'react-router-dom';
 import { NEARXIDS, wallet } from '~services/near';
 import { Card } from '~components/card/Card';
 
 import { FormattedMessage, useIntl, FormattedRelativeTime } from 'react-intl';
-import { HiOutlineExternalLink } from 'react-icons/hi';
-import { IoChevronBack, IoClose } from 'react-icons/io5';
+import { HiOutlineExternalLink, IoChevronBack, FiChevronRight } from '../reactIcons';
 
-import { FiChevronDown, FiChevronRight } from 'react-icons/fi';
 import {
   useMenuItems,
   useLanguageItems,
   useMenus,
   menuItemType,
-  BridgeButton,
+  BridgeButton
 } from '~utils/menu';
 import { MobileNavBar } from './MobileNav';
 import WrapNear from '~components/forms/WrapNear';

@@ -10,7 +10,7 @@ import {
 import { SWAP_MODE } from '../../pages/SwapPage';
 import QuestionMark from '~components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
-import { IoClose } from 'react-icons/io5';
+import { IoClose } from '../reactIcons';
 import { isMobile } from '~utils/device';
 
 interface USNFormWrapProps {

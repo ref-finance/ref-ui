@@ -13,7 +13,7 @@ import SubmitButton from '../forms/SubmitButton';
 import Alert from '../alert/Alert';
 import { toRealSymbol } from '../../utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
+import { FaAngleUp, FaAngleDown, FaExchangeAlt } from '../reactIcons';
 import USNFormWrap from '../forms/USNFormWrap';
 import BigNumber from 'bignumber.js';
 import { senderWallet, WalletContext } from '../../utils/wallets-integration';
