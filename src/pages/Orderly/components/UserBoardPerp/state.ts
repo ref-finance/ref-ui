@@ -142,7 +142,7 @@ export function usePerpData(deps?: {
 
       if (diffSymbols && diffSymbols.length > 0) {
         setPositionTrigger((b) => !b);
-        console.log('setPositionTrigger: ', diffSymbols);
+        // console.log('setPositionTrigger: ', diffSymbols);
 
         diffSymbols.forEach((s) => {
           const item = positionPush?.find((p) => p.symbol === s);

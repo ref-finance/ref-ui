@@ -5,6 +5,7 @@ import { Loading } from '../../components/icon/Loading';
 import StableSwapPage from './StableSwapPage';
 import { StableSwapPageEntry } from './StableSwapEntry';
 import StableSwapPageUSN from './StableSwapPageUSN';
+import FourTokenStablePage from './FourTokenStablePage';
 import { NEARX_POOL_ID } from '~services/near';
 
 interface ParamTypes {
@@ -22,6 +23,7 @@ export const StableSwapRouter = () => {
 
   if (!pool) return <Loading />;
 
-  if (pool.tokenIds.length > 2) return <StableSwapPage pool={pool} />;
+  if (pool.tokenIds.length == 3) return <StableSwapPage pool={pool} />;
+  if (pool.tokenIds.length == 4) return <FourTokenStablePage pool={pool} />;
   else return <StableSwapPageUSN pool={pool} />;
 };

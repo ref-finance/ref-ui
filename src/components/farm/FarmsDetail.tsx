@@ -285,7 +285,7 @@ export default function FarmsDetail(props: {
             </div>
             <div className="flex items-center lg:hidden" onClick={goPoolPage}>
               <label className="mr-1 text-xs text-greenColor">
-                <FormattedMessage id="get_lp_token"></FormattedMessage>
+                <FormattedMessage id="Pool"></FormattedMessage>
               </label>
               <VEARROW className="text-greenColor"></VEARROW>
             </div>
@@ -297,7 +297,7 @@ export default function FarmsDetail(props: {
           onClick={goPoolPage}
         >
           <label className="mx-2 text-sm text-primaryText hover:text-framBorder cursor-pointer">
-            <FormattedMessage id="get_lp_token"></FormattedMessage>
+            <FormattedMessage id="Pool"></FormattedMessage>
           </label>
           <LinkIcon></LinkIcon>
         </div>

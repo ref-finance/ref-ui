@@ -60,6 +60,8 @@ export const Images = ({
   border,
   uId,
   allowSameToken,
+  layout,
+  layoutSize,
 }: {
   tokens: TokenMetadata[];
   size?: string;
@@ -70,15 +72,21 @@ export const Images = ({
   border?: boolean;
   uId?: string;
   allowSameToken?: boolean;
+  layout?: 'vertical' | 'horizontal';
+  layoutSize?: string;
 }) => {
   const displayTokens = allowSameToken
     ? tokens
     : [...new Set<string>(tokens?.map((t) => t?.id))].map((id) =>
         tokens.find((t) => t?.id === id)
       );
-
+  const is_vertical = layout == 'vertical' && displayTokens?.length == 4;
   return (
-    <div className={`${className} flex items-center flex-shrink-0`}>
+    <div
+      className={`${className} flex items-center flex-shrink-0 ${
+        is_vertical ? `w-${+layoutSize} flex-wrap` : ''
+      }`}
+    >
       {tokens &&
         displayTokens
           ?.slice(0, isRewardDisplay ? 5 : displayTokens.length)
@@ -98,9 +106,9 @@ export const Images = ({
                     uId +
                     Date.now()
                   }
-                  className={`inline-block flex-shrink-0 h-${size || 10} w-${
-                    size || 10
-                  } rounded-full border ${
+                  className={`inline-block flex-shrink-0 ${
+                    is_vertical && index > 1 ? '-mt-3' : 'relative z-10'
+                  }  h-${size || 10} w-${size || 10} rounded-full border ${
                     border ? 'border' : ''
                   } border-gradientFromHover ${
                     tokens?.length > 1 ? (noverlap ? 'ml-0' : '-ml-1') : ''
@@ -123,6 +131,7 @@ export const Images = ({
               ></div>
             );
           })}
+
       {displayTokens.length > 5 && (
         <div
           key={5 + '-more-extra-tokens'}
@@ -156,9 +165,9 @@ export const Symbols = ({
 }) => {
   return (
     <div
-      className={`${className} text-white ${fontSize || 'font-bold'}  ${
-        withArrow ? 'cursor-pointer' : null
-      } ${size}`}
+      className={`${className} flex items-center  text-white ${
+        fontSize || 'font-bold'
+      }  ${withArrow ? 'cursor-pointer' : null} ${size}`}
     >
       {tokens?.map((token, index) => (
         <span key={token?.id + '-' + index}>
@@ -282,7 +291,11 @@ export const StableTokens = ({
       <div className="flex items-center">
         <Images tokens={tokens} />
         <span className="ml-4">
-          <Symbols tokens={tokens} size="text-2xl xsm:text-xl" />
+          <Symbols
+            tokens={tokens}
+            size="text-2xl xsm:text-xl"
+            className="xsm:w-48 xsm:flex-wrap"
+          />
         </span>
       </div>
       <div
