@@ -42,7 +42,7 @@ import {
   MobileliquidationList,
   REF_FI_ORDERLY_LIQUIDATION_UNREAD,
 } from './components/UserBoardPerp/components/LiquidationHistory';
-import { BsArrowRight } from 'react-icons/bs';
+import { BsArrowRight } from '../../components/reactIcons';
 import { openUrl } from '~services/commonV3';
 import { usePerpData } from './components/UserBoardPerp/state';
 import PositionsTable from './components/AllOrders/PositionsTable';

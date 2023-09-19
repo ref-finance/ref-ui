@@ -1,8 +1,5 @@
 import React from 'react';
-import { MdArrowDropDown, MdArrowDropUp } from 'react-icons/md';
-
-import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
-
+import { IoIosArrowDown, IoIosArrowUp, MdArrowDropDown, MdArrowDropUp } from '../../../../../components/reactIcons';
 export function DetailBox({
   show,
   setShow,

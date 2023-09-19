@@ -1,5 +1,4 @@
 import { NearIConSelectModal, OrderlyIconBalance } from '../Common/Icons';
-import { BsArrowRight, BsWrenchAdjustableCircleFill } from 'react-icons/bs';
 
 import {
   digitWrapper,
@@ -23,7 +22,6 @@ import {
 } from '../UserBoard/index';
 import { ChartContainer } from '../TVChartContainer';
 import OrderBook, { OrderBookShrink } from '../OrderBook';
-import { OrderlyLoading } from '../Common/Icons';
 
 import React, {
   useState,
@@ -45,7 +43,7 @@ import {
   percentOfBigNumber,
 } from '../../near';
 import { useWalletSelector } from '../../../../context/WalletSelectorContext';
-import { HiDownload } from 'react-icons/hi';
+import { HiDownload } from '../../../../components/reactIcons';
 import {
   announceKey,
   depositFT,
@@ -66,30 +64,12 @@ import {
   TokenInfo,
   TokenMetadata,
 } from '../../orderly/type';
-import { FaMinus, FaPlus } from 'react-icons/fa';
-import Modal from 'react-modal';
 import Big from 'big.js';
-import { IoClose } from 'react-icons/io5';
-import { MdArrowDropDown } from 'react-icons/md';
-import {
-  IoIosArrowForward,
-  IoIosArrowDown,
-  IoIosArrowUp,
-} from 'react-icons/io';
 import { CheckBox, ConnectWallet, ErrorTip, RegisterButton } from '../Common';
 
 import { ConfirmButton, QuestionMark } from '../Common/index';
 
-import { FiSearch } from 'react-icons/fi';
-import {
-  OrderlyNetworkIcon,
-  OutLinkIcon,
-  PowerByOrderly,
-  RefToOrderly,
-  Agree,
-} from '../Common/Icons';
 
-import { MdKeyboardArrowDown } from 'react-icons/md';
 import {
   is_orderly_key_announced,
   is_trading_key_set,
@@ -100,7 +80,6 @@ import ReactTooltip from 'react-tooltip';
 import { ButtonTextWrapper } from '~components/button/Button';
 import { ONLY_ZEROS } from '../../../../utils/numbers';
 import * as math from 'mathjs';
-import { NearWalletIcon } from '../Common/Icons';
 import { getSelectedWalletId } from '../../orderly/utils';
 import { BuyButton, SellButton } from '../UserBoard/Button';
 import AllOrderBoard from '../AllOrders';

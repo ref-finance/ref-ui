@@ -1,19 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   REF_ORDERLY_SYMBOL_KEY,
-  useOrderlyContext,
+  useOrderlyContext
 } from '../../orderly/OrderlyContext';
 import Modal from 'react-modal';
 import { parseSymbol } from '../RecentTrade';
 import { nearMetadata, getFTmetadata, toPrecision } from '../../near';
-import { RiArrowLeftSLine } from 'react-icons/ri';
-import {
-  IoArrowDownOutline,
-  IoArrowUpOutline,
-  IoCloseSharp,
-} from 'react-icons/io5';
 
-import { IoMdArrowDropdown } from 'react-icons/io';
+import { IoCloseSharp,IoArrowUpOutline,IoArrowDownOutline,RiArrowLeftSLine,IoMdArrowDropdown } from '../../../../components/reactIcons';
+
 import { useTokenMetaFromSymbol } from './state';
 import { Ticker, TokenInfo } from '../../orderly/type';
 import { TokenIcon } from '../Common';

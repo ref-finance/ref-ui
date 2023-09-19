@@ -12,10 +12,8 @@ import { Near, NavLogoSimple } from '~components/icon';
 import { Link, useLocation } from 'react-router-dom';
 import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { HiOutlineExternalLink } from 'react-icons/hi';
+import { HiOutlineExternalLink, RiLogoutCircleRLine } from '../reactIcons';
 
-import { FiChevronUp, FiChevronDown } from 'react-icons/fi';
-import { RiLogoutCircleRLine } from 'react-icons/ri';
 import { useRefPrice } from '~state/account';
 import { toPrecision } from '~utils/numbers';
 import { useMenusMobile, menuItemType, bridgeData } from '~utils/menu';

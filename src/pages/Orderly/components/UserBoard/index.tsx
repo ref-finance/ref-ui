@@ -36,16 +36,9 @@ import {
 } from '../../orderly/type';
 import { BuyButton, SellButton } from './Button';
 import './index.css';
-import { FaMinus, FaPlus } from 'react-icons/fa';
 import Modal from 'react-modal';
 import Big from 'big.js';
-import { IoClose } from 'react-icons/io5';
-import { MdArrowDropDown } from 'react-icons/md';
-import {
-  IoIosArrowForward,
-  IoIosArrowDown,
-  IoIosArrowUp,
-} from 'react-icons/io';
+import {  IoIosArrowDown, IoIosArrowUp,IoClose,MdArrowDropDown,FiSearch,MdKeyboardArrowDown } from '../../../../components/reactIcons';
 import {
   CheckBox,
   ConnectWallet,
@@ -68,7 +61,6 @@ import {
   numberWithCommas,
 } from '../../utiles';
 
-import { FiSearch } from 'react-icons/fi';
 import {
   NearIConSelectModal,
   OrderlyNetworkIcon,
@@ -82,7 +74,7 @@ import {
   ArrowCurve,
 } from '../Common/Icons';
 
-import { MdKeyboardArrowDown } from 'react-icons/md';
+
 import {
   is_orderly_key_announced,
   is_trading_key_set,

@@ -16,7 +16,7 @@ import {
 } from '~components/button/Button';
 import BigNumber from 'bignumber.js';
 import { isMobile } from '~utils/device';
-import { FaExchangeAlt } from 'react-icons/fa';
+import { FaExchangeAlt } from '../../components/reactIcons';
 import {
   toReadableNumber,
   toPrecision,
