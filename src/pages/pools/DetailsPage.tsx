@@ -2110,7 +2110,6 @@ export function PoolDetailsPage() {
   const haveLiquidity = Number(pool.shareSupply) > 0;
 
   const haveShare = Number(userTotalShareToString) > 0;
-
   return (
     <>
       <div className="md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-1050px m-auto">
@@ -2369,7 +2368,6 @@ export function PoolDetailsPage() {
                   dayVolume ? `$${getPoolFee24h(dayVolume, pool)}` : '-'
                 }
               />
-
               <InfoCard
                 title={
                   <>
@@ -2401,13 +2399,13 @@ export function PoolDetailsPage() {
                       ? `${getPoolFeeApr(dayVolume, pool, poolTVL)}%`
                       : '-'}
                     {poolTVL &&
-                      dayVolume &&
-                      seedFarms &&
-                      BaseApr().rawApr > 0 && (
-                        <span className="text-xs text-gradientFrom">
-                          {` +` + BaseApr().displayApr}
-                        </span>
-                      )}
+                    dayVolume &&
+                    seedFarms &&
+                    BaseApr().rawApr > 0 ? (
+                      <span className="text-xs text-gradientFrom">
+                        {` +` + BaseApr().displayApr}
+                      </span>
+                    ) : null}
 
                     {!!seedFarms &&
                       !isMobile() &&

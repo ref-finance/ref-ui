@@ -453,6 +453,7 @@ module.exports = {
         p212: '212px',
         '1000px': '1000px',
         '1280px': '1280px',
+        44: '11rem',
       },
       height: {
         vh90: '90vh',

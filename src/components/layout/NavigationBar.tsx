@@ -320,6 +320,9 @@ function AccountEntry({
   const { selector, modal, accounts, accountId, setAccountId } =
     useWalletSelector();
 
+  const [showTip, setShowTip] = useState<boolean>(false);
+  const [copyButtonDisabled, setCopyButtonDisabled] = useState<boolean>(false);
+
   const isSignedIn = globalState.isSignedIn;
 
   useEffect(() => {
@@ -422,6 +425,15 @@ function AccountEntry({
       },
     },
   ];
+  function showToast() {
+    if (copyButtonDisabled) return;
+    setCopyButtonDisabled(true);
+    setShowTip(true);
+    setTimeout(() => {
+      setShowTip(false);
+      setCopyButtonDisabled(false);
+    }, 1000);
+  }
 
   const isMobile = useClientMobile();
 
@@ -546,30 +558,40 @@ function AccountEntry({
                 </div>
 
                 <div className="flex items-center">
-                  <CopyToClipboard text={wallet.getAccountId()}>
-                    <div
-                      className={` bg-opacity-20 rounded-lg flex items-center justify-center p-1.5 cursor-pointer`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                      }}
-                      onMouseEnter={() => {
-                        !isMobile && setCopyIconHover(true);
-                      }}
-                      onMouseLeave={() => {
-                        !isMobile && setCopyIconHover(false);
-                      }}
-                      onTouchStart={() => {
-                        setCopyIconHover(true);
-                      }}
-                      onTouchEnd={() => {
-                        setCopyIconHover(false);
-                      }}
+                  <div className="flex items-center justify-center relative">
+                    <CopyToClipboard
+                      text={wallet.getAccountId()}
+                      onCopy={showToast}
                     >
-                      <CopyIcon
-                        fillColor={copyIconHover ? '#4075FF' : '#7E8A93'}
-                      />
-                    </div>
-                  </CopyToClipboard>
+                      <div
+                        className={` bg-opacity-20 rounded-lg flex items-center justify-center p-1.5 cursor-pointer`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                        onMouseEnter={() => {
+                          !isMobile && setCopyIconHover(true);
+                        }}
+                        onMouseLeave={() => {
+                          !isMobile && setCopyIconHover(false);
+                        }}
+                        onTouchStart={() => {
+                          setCopyIconHover(true);
+                        }}
+                        onTouchEnd={() => {
+                          setCopyIconHover(false);
+                        }}
+                      >
+                        <CopyIcon
+                          fillColor={copyIconHover ? '#4075FF' : '#7E8A93'}
+                        />
+                      </div>
+                    </CopyToClipboard>
+                    {showTip ? (
+                      <span className="text-xs text-white rounded-lg px-2.5 py-1.5 absolute bottom-8 bg-mobileOrderBg z-50">
+                        Copied!
+                      </span>
+                    ) : null}
+                  </div>
 
                   <button
                     className="hover:text-gradientFrom text-primaryText ml-2"

@@ -89,8 +89,9 @@ import {
 import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
 import { percentLess, percent } from '../utils/numbers';
 import { getTokenFlow } from './indexer';
-import getConfig from './config';
+import getConfigV2 from './configV2';
 export const REF_FI_SWAP_SIGNAL = 'REF_FI_SWAP_SIGNAL_KEY';
+const { NO_REQUIRED_REGISTRATION_TOKEN_IDS } = getConfigV2();
 
 // Big.strict = false;
 const FEE_DIVISOR = 10000;
@@ -450,20 +451,27 @@ export const estimateSwap = async ({
 
   const orpools = await getRefPoolsByToken1ORToken2(tokenIn.id, tokenOut.id);
 
-  let stableSmartActionsV2 = await stableSmart(
-    orpools.filter((p) => !p?.Dex || p.Dex !== 'tri'),
-    tokenIn.id,
-    tokenOut.id,
-    parsedAmountIn
-  );
+  let stableSmartActionsV2;
 
-  let res = stableSmartActionsV2;
+  let res;
+  let smartRouteV2OutputEstimate;
 
-  let smartRouteV2OutputEstimate = stableSmartActionsV2
-    .filter((a: any) => a.outputToken == a.routeOutputToken)
-    .map((a: any) => new Big(a.estimate))
-    .reduce((a: any, b: any) => a.plus(b), new Big(0))
-    .toString();
+  try {
+    stableSmartActionsV2 = await stableSmart(
+      orpools.filter((p) => !p?.Dex || p.Dex !== 'tri'),
+      tokenIn.id,
+      tokenOut.id,
+      parsedAmountIn
+    );
+
+    res = stableSmartActionsV2;
+
+    smartRouteV2OutputEstimate = stableSmartActionsV2
+      .filter((a: any) => a.outputToken == a.routeOutputToken)
+      .map((a: any) => new Big(a.estimate))
+      .reduce((a: any, b: any) => a.plus(b), new Big(0))
+      .toString();
+  } catch (error) {}
 
   // hybrid smart routing
   if (isStableToken(tokenIn.id) || isStableToken(tokenOut.id)) {
@@ -481,7 +489,7 @@ export const estimateSwap = async ({
         hybridStableSmartOutputEstimate === 'NaN'
           ? '0'
           : hybridStableSmartOutputEstimate
-      ).gt(new Big(smartRouteV2OutputEstimate))
+      ).gt(new Big(smartRouteV2OutputEstimate || 0))
     ) {
       res = hybridStableSmart.actions;
     } else {
@@ -893,8 +901,11 @@ export async function getHybridStableSmart(
             }
 
             const [tmpPool1, tmpPool2] = poolPair;
-            const tokenMidId = poolPair[0].tokenIds.find((t: string) =>
-              poolPair[1].tokenIds.includes(t)
+            const tokenMidId = poolPair[0].tokenIds.find(
+              (t: string) =>
+                poolPair[1].tokenIds.includes(t) &&
+                t !== tokenIn.id &&
+                t != tokenOut.id
             );
 
             const tokenMidMeta = tokensMedata[tokenMidId];
@@ -974,8 +985,11 @@ export async function getHybridStableSmart(
     // two pool case get best price
     [pool1, pool2] = BestPoolPair;
 
-    const tokenMidId = BestPoolPair[0].tokenIds.find((t: string) =>
-      BestPoolPair[1].tokenIds.includes(t)
+    const tokenMidId = BestPoolPair[0].tokenIds.find(
+      (t: string) =>
+        BestPoolPair[1].tokenIds.includes(t) &&
+        t !== tokenIn.id &&
+        t != tokenOut.id
     );
 
     const tokenMidMeta = await ftGetTokenMetadata(tokenMidId);
@@ -1102,18 +1116,27 @@ SwapOptions) => {
     const tokenRegistered = await ftGetStorageBalance(token.id).catch(() => {
       throw new Error(`${token.id} doesn't exist.`);
     });
-
+    // todo usdc
     if (tokenRegistered === null) {
-      tokenOutActions.push({
-        methodName: 'storage_deposit',
-        args: {
-          registration_only: true,
-          account_id: getCurrentWallet()?.wallet?.getAccountId(),
-        },
-        gas: '30000000000000',
-        amount: STORAGE_TO_REGISTER_WITH_MFT,
-      });
-
+      if (NO_REQUIRED_REGISTRATION_TOKEN_IDS.includes(token.id)) {
+        tokenOutActions.push({
+          methodName: 'register_account',
+          args: {
+            account_id: getCurrentWallet()?.wallet?.getAccountId(),
+          },
+          gas: '10000000000000',
+        });
+      } else {
+        tokenOutActions.push({
+          methodName: 'storage_deposit',
+          args: {
+            registration_only: true,
+            account_id: getCurrentWallet()?.wallet?.getAccountId(),
+          },
+          gas: '30000000000000',
+          amount: STORAGE_TO_REGISTER_WITH_MFT,
+        });
+      }
       transactions.push({
         receiverId: token.id,
         functionCalls: tokenOutActions,
@@ -1259,7 +1282,6 @@ export const crossInstantSwap = async ({
       throw new Error(`${tokenId} doesn't exist.`);
     });
     const tokenOutActions: RefFiFunctionCallOptions[] = [];
-
     if (tokenRegistered === null) {
       tokenOutActions.push({
         methodName: 'storage_deposit',
