@@ -61,7 +61,12 @@ export default function AdSwiper() {
               >
                 <SwiperCloseButton className="cursor-pointer"></SwiperCloseButton>
               </div>
-              <div className="relative">
+              <div
+                className="relative cursor-pointer"
+                onClick={() => {
+                  window.open('/v2farms/4179-r');
+                }}
+              >
                 {is_mobile ? <StablePoolMobile /> : <StablePool />}
               </div>
             </SwiperSlide>
