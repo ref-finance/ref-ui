@@ -1779,7 +1779,7 @@ export default function AddYourLiquidityPageV3() {
       >
         {/* head */}
         <div
-          className=" xs:w-full max-w-max  md:w-full xs:px-3 md:px-3 text-farmText flex items-center mb-5 cursor-pointer hover:text-white"
+          className=" xs:w-full max-w-max text-farmText flex items-center mb-5 cursor-pointer hover:text-white"
           onClick={() => {
             history.goBack();
           }}
@@ -1796,29 +1796,22 @@ export default function AddYourLiquidityPageV3() {
         </div>
 
         {/* content */}
-        <div
-          className="relative z-10 py-5 px-7 xs:px-3 md:px-3 rounded-2xl"
-          style={{
-            background: 'linear-gradient(180deg, #213441 0%, #15242F 100%)',
-          }}
-        >
+        <div className="relative z-10 py-5 px-7 xsm:px-3 rounded-2xl bg-swapCardGradient">
           <div className="flex items-start justify-between xs:flex-col md:flex-col">
-            {/* no Data */}
-            {currentSelectedPool ? null : <NoDataComponent></NoDataComponent>}
+            <div className="w-full mr-6">
+              {/* no Data */}
+              {(currentSelectedPool &&
+                !currentSelectedPool.pool_id &&
+                !OPEN_CREATE_POOL_ENTRY) ||
+              !currentSelectedPool ? (
+                <NoDataComponent />
+              ) : null}
 
-            {/* empty pool */}
-            {currentSelectedPool &&
-            !currentSelectedPool.pool_id &&
-            !OPEN_CREATE_POOL_ENTRY ? (
-              <NoDataComponent></NoDataComponent>
-            ) : null}
-
-            {/* add Liquidity part */}
-
-            {/* left area */}
-            {currentSelectedPool && currentSelectedPool.pool_id ? (
-              <PointsComponent></PointsComponent>
-            ) : null}
+              {/* left area */}
+              {currentSelectedPool && currentSelectedPool.pool_id ? (
+                <PointsComponent></PointsComponent>
+              ) : null}
+            </div>
 
             {/* right area */}
             <div

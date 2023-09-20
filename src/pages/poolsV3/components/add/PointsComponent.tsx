@@ -320,9 +320,7 @@ export function PointsComponent() {
   }
   const is_mobile = isMobile();
   return (
-    <div
-      className={`w-full xs:w-full md:w-full flex  mr-6 flex-col self-stretch xs:mt-5 md:mt-5`}
-    >
+    <div className={`w-full xs:w-full md:w-full flex flex-col self-stretch`}>
       {/* chart area */}
       <div
         className="relative mb-5 mt-24 pt-4"

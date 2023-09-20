@@ -181,13 +181,13 @@ export function TablePool(props: any) {
           </div>
         ))}
       </div>
-      {
-              isMobile ? <RelatedFarmsBox
-              poolDetail={poolDetail}
-              tokenPriceList={tokenPriceList}
-              sole_seed={sole_seed}
-            ></RelatedFarmsBox> : null
-            }
+      {isMobile ? (
+        <RelatedFarmsBox
+          poolDetail={poolDetail}
+          tokenPriceList={tokenPriceList}
+          sole_seed={sole_seed}
+        ></RelatedFarmsBox>
+      ) : null}
       <RecentTransactions
         tokens={tokens.map((t) => t.meta)}
         pool_id={poolDetail.pool_id}

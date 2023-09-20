@@ -10,12 +10,10 @@ export function NoDataComponent() {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   return (
-    <div
-      className={`w-full xs:w-full md:w-full flex  mr-6 flex-col self-stretch xs:mt-5 md:mt-5`}
-    >
+    <div className={`w-full xs:w-full md:w-full flex flex-col self-stretch`}>
       {/* chart area */}
-      <div className="relative mb-5 mt-24" style={{ height: '250px' }}>
-        <div className="absolute left-0 -top-28 inline-flex items-center justify-between bg-detailCardBg rounded-lg border border-dclTabBorderColor p-0.5">
+      <div className="relative mb-5 mt-24" style={{ height: '270px' }}>
+        <div className="absolute left-0 -top-24 inline-flex items-center justify-between bg-detailCardBg rounded-lg border border-dclTabBorderColor p-0.5">
           <span
             onClick={() => {
               setChartTab('liquidity');

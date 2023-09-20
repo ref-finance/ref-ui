@@ -140,10 +140,6 @@ export const RemovePoolV3 = (props: any) => {
     maxBoxPoint,
     slippageTolerance,
   ]);
-  /**
-   * NOTE 删除一个点的场景暂时不考虑
-   * @returns
-   */
   function get_will_deleted_nfts() {
     let whole_deleted_nfts: UserLiquidityInfo[] = [];
     let broken_deleted_nfts: UserLiquidityInfo[] = [];
@@ -461,7 +457,7 @@ export const RemovePoolV3 = (props: any) => {
         const { amount, lpt_id, left_point, right_point, mft_id } = l;
         const [new_left_point, new_right_point] = get_un_deleted_range(l);
         const [new_token_x_amount, new_token_y_amount] =
-          get_x_y_amount_of_liquidity({
+          get_min_x_y_amount_of_liquidity({
             left_point: new_left_point,
             right_point: new_right_point,
             amount,

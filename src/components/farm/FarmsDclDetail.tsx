@@ -1696,7 +1696,8 @@ function AddLiquidityEntryBar(props: {
     //   tip =
     //     'The price range of your liquidity is out of reward range. Please add liquidity within reward range.';
     // }
-    tip = "You don't have liquidity during the farm reward range, click 'Add Liquidity' to start farming.";
+    tip =
+      "You don't have liquidity during the farm reward range, click 'Add Liquidity' to start farming.";
   }
   if (loading || !tip || isEnded) return null;
   return (

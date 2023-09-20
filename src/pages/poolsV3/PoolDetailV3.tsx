@@ -379,14 +379,13 @@ export default function PoolDetailV3() {
                 </>
               )
             ) : null}
-            {
-              !isMobile ?  <RelatedFarmsBox
-              poolDetail={poolDetail}
-              tokenPriceList={tokenPriceList}
-              sole_seed={sole_seed}
-            ></RelatedFarmsBox> : null
-            }
-           
+            {!isMobile ? (
+              <RelatedFarmsBox
+                poolDetail={poolDetail}
+                tokenPriceList={tokenPriceList}
+                sole_seed={sole_seed}
+              ></RelatedFarmsBox>
+            ) : null}
           </div>
           {/* title for mobile */}
           <div className="relative flex flex-col items-center w-full mb-3 xsm:mb-6 lg:hidden">

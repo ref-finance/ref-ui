@@ -148,7 +148,7 @@ export function UnclaimedFeesBox(props: any) {
         </div>
         <div className="flex items-center justify-between w-full mt-5">
           <div className="flex items-center">
-            <Icon icon={token_x_metadata.icon} className="h-7 w-7 mr-2"></Icon>
+            <Icon icon={token_y_metadata.icon} className="h-7 w-7 mr-2"></Icon>
             <span className="text-white text-sm">
               {token_y_metadata.symbol}
             </span>
