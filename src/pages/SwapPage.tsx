@@ -348,12 +348,15 @@ function SwapPage() {
               maxWidth: '850px',
             }}
           >
-            {((dcl_pool_id && proTab == 'PRICE') || !dcl_pool_id) && (
+            {(swapMode === SWAP_MODE.NORMAL ||
+              (SWAP_MODE.LIMIT && dcl_pool_id && proTab == 'PRICE')) && (
               <SwapRateChart tokenIn={tokenIn} tokenOut={tokenOut} />
             )}
-            {dcl_pool_id && proTab == 'ORDER' && (
-              <SwapLimitOrderChart></SwapLimitOrderChart>
-            )}
+            {dcl_pool_id &&
+              proTab == 'ORDER' &&
+              swapMode === SWAP_MODE.LIMIT && (
+                <SwapLimitOrderChart></SwapLimitOrderChart>
+              )}
             {swapMode === SWAP_MODE.NORMAL ? (
               <>
                 <div
