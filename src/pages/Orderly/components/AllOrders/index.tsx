@@ -561,8 +561,8 @@ function OrderLine({
 
     const marketPrice =
       order.side === 'SELL'
-        ? orderBookThisSymbol.bids[0].price
-        : orderBookThisSymbol.asks[0].price;
+        ? orderBookThisSymbol?.bids?.[0]?.price
+        : orderBookThisSymbol?.asks?.[0]?.price;
 
     if (
       new Big(price || 0).gt(
