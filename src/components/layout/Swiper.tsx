@@ -62,7 +62,7 @@ export default function AdSwiper() {
                 <SwiperCloseButton className="cursor-pointer"></SwiperCloseButton>
               </div>
               <div
-                className="relative"
+                className="relative cursor-pointer"
                 onClick={() => {
                   window.open('/v2farms/4179-r');
                 }}
