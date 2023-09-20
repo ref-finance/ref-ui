@@ -357,7 +357,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
             }}
           />
         </div>
-        <SwapProTab></SwapProTab>
+        <SwapProTab />
       </div>
 
       <div className="frcs mb-2 lg:hidden">

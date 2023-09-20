@@ -415,6 +415,8 @@ export default function FarmsDclDetail(props: {
       set_listLiquidities_unFarimg(temp_free_final);
       set_listLiquidities_unavailable(temp_unavailable_final);
       setListLiquidities(matched_liquidities);
+    }
+    if (!user_data_loading) {
       setListLiquiditiesLoading(false);
     }
   }
@@ -1688,12 +1690,13 @@ function AddLiquidityEntryBar(props: {
   const { loading, inFarimg, unFarimg, unavailable, detailData, isEnded } =
     props;
   if (!loading && inFarimg.length == 0 && unFarimg.length == 0) {
-    if (unavailable.length == 0) {
-      tip = <FormattedMessage id="add_lp_tokens_tip" />;
-    } else {
-      tip =
-        'The price range of your liquidity is out of reward range. Please add liquidity within reward range.';
-    }
+    // if (unavailable.length == 0) {
+    //   tip = <FormattedMessage id="add_lp_tokens_tip" />;
+    // } else {
+    //   tip =
+    //     'The price range of your liquidity is out of reward range. Please add liquidity within reward range.';
+    // }
+    tip = "You don't have liquidity during the farm reward range, click 'Add Liquidity' to start farming.";
   }
   if (loading || !tip || isEnded) return null;
   return (
@@ -1712,7 +1715,7 @@ function AddLiquidityEntryBar(props: {
           }}
           color="#fff"
           minWidth="9rem"
-          className={`flex-shrink-0 px-1 h-8 ml-5 text-center text-sm text-white focus:outline-none font-semibold `}
+          className={`flex-shrink-0 px-1 h-8 lg:ml-5 text-center text-sm text-white focus:outline-none font-semibold xsm:w-full `}
         >
           <FormattedMessage id="add_liquidity" defaultMessage="Add Liquidity" />
         </GradientButton>

@@ -24,9 +24,11 @@ import {
   reverse_price,
 } from '~services/commonV3';
 import { pointToPrice } from '~services/swapV3';
+import { RelatedFarmsBox } from './RelatedFarmsBox';
+import { isClientMobie } from '../../../../utils/device';
 
 export function TablePool(props: any) {
-  const { poolDetail, tokenPriceList } = props;
+  const { poolDetail, tokenPriceList, sole_seed } = props;
   const [tokens, setTokens] = useState([]);
   const intl = useIntl();
   useEffect(() => {
@@ -88,6 +90,7 @@ export function TablePool(props: any) {
       return '$' + toInternationalCurrencySystem(tvl.toString(), 2);
     }
   }
+  const isMobile = isClientMobie();
   return (
     <div className="mt-8">
       <div className="text-white font-gothamBold text-base mb-3 w-full">
@@ -178,7 +181,13 @@ export function TablePool(props: any) {
           </div>
         ))}
       </div>
-
+      {
+              isMobile ? <RelatedFarmsBox
+              poolDetail={poolDetail}
+              tokenPriceList={tokenPriceList}
+              sole_seed={sole_seed}
+            ></RelatedFarmsBox> : null
+            }
       <RecentTransactions
         tokens={tokens.map((t) => t.meta)}
         pool_id={poolDetail.pool_id}

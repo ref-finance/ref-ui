@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { SwapProContext } from '../../pages/SwapPage';
+import { SwapProContext, SWAP_MODE } from '../../pages/SwapPage';
 export default function ProTab() {
-  const { proTab, setProTab, dcl_pool_id } = useContext(SwapProContext);
-  if (!dcl_pool_id) return null;
+  const { proTab, setProTab, dcl_pool_id, swapMode } = useContext(SwapProContext);
+  if (!dcl_pool_id || swapMode == SWAP_MODE.NORMAL) return null;
   return (
     <div className="inline-flex items-center justify-between border border-limitOrderFeeTiersBorderColor rounded-lg p-1">
       <div

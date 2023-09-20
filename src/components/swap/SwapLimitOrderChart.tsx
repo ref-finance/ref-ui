@@ -388,7 +388,7 @@ export default function SwapLimitOrderChart() {
             {cur_pairs_price_mode}
           </span>
         </div>
-        <SwapProTab></SwapProTab>
+        <SwapProTab />
       </div>
       <div className="flex items-stretch justify-between mt-4">
         {/* chart area */}
