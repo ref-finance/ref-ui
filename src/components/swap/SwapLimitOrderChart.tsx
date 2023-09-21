@@ -355,7 +355,6 @@ export default function SwapLimitOrderChart() {
     if (targetPercent) {
       setZoom(targetPercent);
     }
-    console.log('缩小中- targetPercent', targetPercent);
   }
   // 放大坐标轴区间范围
   function zoomIn() {
@@ -1175,29 +1174,25 @@ function OrderChart() {
       .attr('opacity', '1')
       .attr('fill', dotFillColor);
     let translate_x = offsetX + disFromHoverBoxToPointer;
+    let translate_y = is_mobile
+      ? offsetY + disFromHoverBoxToPointer
+      : offsetY - disFromHoverBoxToPointer;
     if (offsetX > 380) {
       translate_x = offsetX - 235;
     }
     if (is_mobile) {
-      d3.select('.hoverBox').attr('style', 'display:block');
-    } else {
-      d3.select('.hoverBox').attr(
-        'style',
-        `visibility:visible;transform:translate(${translate_x}px, ${
-          offsetY - disFromHoverBoxToPointer
-        }px)`
-      );
+      translate_x = Math.min(140, translate_x);
     }
+    d3.select('.hoverBox').attr(
+      'style',
+      `visibility:visible;transform:translate(${translate_x}px, ${translate_y}px)`
+    );
   }
   function hideCrossDot() {
     d3.select('.verticalDashLine').attr('opacity', '0');
     d3.select('.horizontalDashLine').attr('opacity', '0');
     d3.select('.dot').attr('opacity', '0');
-    if (is_mobile) {
-      d3.select('.hoverBox').attr('style', `display:hidden`);
-    } else {
-      d3.select('.hoverBox').attr('style', `visibility:invisible`);
-    }
+    d3.select('.hoverBox').attr('style', `visibility:invisible`);
   }
   return (
     <div
@@ -1269,7 +1264,8 @@ function OrderChart() {
         </defs>
       </svg>
       {/* hover上去的悬浮框 */}
-      <div className="hoverBox xsm:w-full xsm:mt-3 lg:absolute px-2 py-3 lg:invisible xsm:hidden left-0 top-0 bg-toolTipBoxBgColor border border-toolTipBoxBorderColor rounded-md">
+      {/* lg:invisible xsm:hidden */}
+      <div className="hoverBox absolute px-2 py-3 invisible left-0 top-0 bg-toolTipBoxBgColor border border-toolTipBoxBorderColor rounded-md">
         <div className="flex items-center justify-between gap-5 mb-3">
           <span className="text-xs text-primaryText">Side</span>
           <span
