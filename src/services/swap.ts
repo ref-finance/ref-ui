@@ -471,8 +471,6 @@ export const estimateSwap = async ({
       .map((a: any) => new Big(a.estimate))
       .reduce((a: any, b: any) => a.plus(b), new Big(0))
       .toString();
-
-    console.log('smartRouteV2OutputEstimate: ', smartRouteV2OutputEstimate);
   } catch (error) {}
 
   let bestEstimate = smartRouteV2OutputEstimate || 0;
