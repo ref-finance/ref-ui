@@ -513,6 +513,7 @@ export const editOrder = async (props: {
     broker_id,
     order_id,
     visible_quantity,
+    reduce_only,
   } = props.orderlyProps;
 
   const sendParams = {
@@ -527,6 +528,7 @@ export const editOrder = async (props: {
     order_id,
     visible_quantity:
       visible_quantity !== order.quantity ? visible_quantity : '',
+    reduce_only,
   };
 
   const message = formateParams(sendParams);

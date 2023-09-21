@@ -13,12 +13,12 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
       };
     case 'pub-testnet':
       return {
-        NO_REQUIRED_REGISTRATION_TOKEN_IDS: ['usdcc.fakes.testnet'],
+        NO_REQUIRED_REGISTRATION_TOKEN_IDS: [],
         NATIVE_TOKENS: ['usdtt.fakes.testnet', 'usdcc.fakes.testnet'],
       };
     case 'testnet':
       return {
-        NO_REQUIRED_REGISTRATION_TOKEN_IDS: ['usdcc.fakes.testnet'],
+        NO_REQUIRED_REGISTRATION_TOKEN_IDS: [],
         NATIVE_TOKENS: ['usdtt.fakes.testnet', 'usdcc.fakes.testnet'],
       };
     default:
