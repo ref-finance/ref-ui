@@ -350,12 +350,13 @@ export default function SwapRateChart(props: SwapRateChartProps) {
             tokens={[displayTokenIn, displayTokenOut]}
             separator="/"
           />
-
-          <SwapRateExchange
-            onChange={() => {
-              setReverseToken(!reverseToken);
-            }}
-          />
+          <div className="xsm:hidden">
+            <SwapRateExchange
+              onChange={() => {
+                setReverseToken(!reverseToken);
+              }}
+            />
+          </div>
         </div>
         <SwapProTab />
       </div>
@@ -418,6 +419,13 @@ export default function SwapRateChart(props: SwapRateChartProps) {
                 {diff.percent}
               </span>
             )}
+            <div className="lg:hidden ml-1">
+              <SwapRateExchange
+                onChange={() => {
+                  setReverseToken(!reverseToken);
+                }}
+              />
+            </div>
           </div>
           {diff && (
             <div className=" lg:hidden text-primaryText  flex  items-end text-10px text-right ">

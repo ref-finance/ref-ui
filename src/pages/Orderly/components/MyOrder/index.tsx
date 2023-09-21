@@ -2208,6 +2208,8 @@ function OrderCard({
   const [select_type, set_select_type] = useState<'all' | 'current'>('all');
   const [activeOrderList, setActiveOrderList] = useState<UserOrderInfo[]>();
   const [historyOrderList, setHistoryOrderList] = useState<UserOrderInfo[]>();
+  const [historySwapInfoList, setHistorySwapInfoList] =
+    useState<HistoryOrderSwapInfo[]>();
 
   const tokenIds = useMemo(() => {
     if (pool_id_by_url) {
@@ -2244,9 +2246,23 @@ function OrderCard({
       }
     }
   }, [historyOrder, select_type, pool_id_by_url]);
+  useEffect(() => {
+    if (historySwapInfo.length) {
+      if (select_type == 'all') {
+        setHistorySwapInfoList(historySwapInfo);
+      } else {
+        setHistorySwapInfoList(getCurrentPairSwapOrders(historySwapInfo));
+      }
+    }
+  }, [historySwapInfo, select_type, pool_id_by_url]);
 
   function getCurrentPairOrders(orders: UserOrderInfo[]) {
     return orders.filter((order: UserOrderInfo) => {
+      return order.pool_id == pool_id_by_url;
+    });
+  }
+  function getCurrentPairSwapOrders(orders: HistoryOrderSwapInfo[]) {
+    return orders.filter((order: HistoryOrderSwapInfo) => {
       return order.pool_id == pool_id_by_url;
     });
   }
@@ -2796,9 +2812,9 @@ function OrderCard({
           )}
         {orderType === 'history' &&
           showHistoryInfo &&
-          historySwapInfo &&
-          historySwapInfo.length > 0 &&
-          historySwapInfo
+          historySwapInfoList &&
+          historySwapInfoList.length > 0 &&
+          historySwapInfoList
             .sort((a, b) => Number(b.timestamp) - Number(a.timestamp))
             .map((sf, i) => {
               return (
