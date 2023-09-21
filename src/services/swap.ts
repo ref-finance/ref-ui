@@ -434,18 +434,18 @@ export const estimateSwap = async ({
     return getLiquidity(p, tokenIn, tokenOut) > 0;
   });
 
-  if (supportLedger || pool_protocol === 'rpc') {
-    const { supportLedgerRes } = await getOneSwapActionResult(
-      pools,
-      loadingTrigger,
-      tokenIn,
-      tokenOut,
-      supportLedger || pool_protocol === 'rpc',
-      throwNoPoolError,
-      amountIn,
-      parsedAmountIn
-    );
+  const { supportLedgerRes } = await getOneSwapActionResult(
+    pools,
+    loadingTrigger,
+    tokenIn,
+    tokenOut,
+    pool_protocol === 'rpc',
+    throwNoPoolError,
+    amountIn,
+    parsedAmountIn
+  );
 
+  if (supportLedger || pool_protocol === 'rpc') {
     return { estimates: supportLedgerRes, tag };
   }
 
@@ -473,30 +473,38 @@ export const estimateSwap = async ({
       .toString();
   } catch (error) {}
 
+  let bestEstimate = smartRouteV2OutputEstimate || 0;
+
   // hybrid smart routing
   if (isStableToken(tokenIn.id) || isStableToken(tokenOut.id)) {
-    let hybridStableSmart = await getHybridStableSmart(
+    const hybridStableSmart = await getHybridStableSmart(
       tokenIn,
       tokenOut,
       amountIn,
       loadingTrigger
     );
 
-    let hybridStableSmartOutputEstimate = hybridStableSmart.estimate.toString();
+    const hybridStableSmartOutputEstimate =
+      hybridStableSmart.estimate.toString();
 
     if (
       new Big(
         hybridStableSmartOutputEstimate === 'NaN'
           ? '0'
           : hybridStableSmartOutputEstimate
-      ).gt(new Big(smartRouteV2OutputEstimate || 0))
+      ).gt(bestEstimate)
     ) {
+      bestEstimate = hybridStableSmartOutputEstimate || 0;
+
       res = hybridStableSmart.actions;
-    } else {
-      res = stableSmartActionsV2;
     }
   }
 
+  if (
+    new Big(supportLedgerRes?.[0]?.estimate || 0).gt(new Big(bestEstimate || 0))
+  ) {
+    res = supportLedgerRes;
+  }
   if (!res?.length) {
     throwNoPoolError();
   }
@@ -651,61 +659,60 @@ export const getOneSwapActionResult = async (
    *  single swap action estimate for support ledger and swap pro mode
    *
    */
-  if (supportLedger) {
-    if (pools.length === 0 && supportLedger) {
-      throwNoPoolError();
-    }
-
-    if (pools.length > 0) {
-      const bestPricePool =
-        pools.length === 1
-          ? pools[0]
-          : _.maxBy(pools, (p) => {
-              if (isStablePool(p.id)) {
-                return Number(
-                  getStablePoolEstimate({
-                    tokenIn,
-                    tokenOut,
-                    stablePool: allStablePoolsById[p.id][0],
-                    stablePoolInfo: allStablePoolsById[p.id][1],
-                    amountIn,
-                  }).estimate
-                );
-              }
-              return Number(
-                getSinglePoolEstimate(tokenIn, tokenOut, p, parsedAmountIn)
-                  .estimate
-              );
-            });
-
-      const estimateRes = await getPoolEstimate({
-        tokenIn,
-        tokenOut,
-        amountIn: parsedAmountIn,
-        Pool: bestPricePool,
-      });
-
-      const res = [
-        {
-          ...estimateRes,
-          status: PoolMode.PARALLEL,
-          routeInputToken: tokenIn.id,
-          totalInputAmount: parsedAmountIn,
-          pool: {
-            ...bestPricePool,
-            partialAmountIn: parsedAmountIn,
-          },
-          tokens: [tokenIn, tokenOut],
-          inputToken: tokenIn.id,
-          outputToken: tokenOut.id,
-        },
-      ];
-
-      supportLedgerRes = res;
-    }
-
-    // get result on tri pools but just one swap action
+  if (pools.length === 0 && supportLedger) {
+    throwNoPoolError();
   }
+
+  if (pools.length > 0) {
+    const bestPricePool =
+      pools.length === 1
+        ? pools[0]
+        : _.maxBy(pools, (p) => {
+            if (isStablePool(p.id)) {
+              return Number(
+                getStablePoolEstimate({
+                  tokenIn,
+                  tokenOut,
+                  stablePool: allStablePoolsById[p.id][0],
+                  stablePoolInfo: allStablePoolsById[p.id][1],
+                  amountIn,
+                }).estimate
+              );
+            }
+            return Number(
+              getSinglePoolEstimate(tokenIn, tokenOut, p, parsedAmountIn)
+                .estimate
+            );
+          });
+
+    const estimateRes = await getPoolEstimate({
+      tokenIn,
+      tokenOut,
+      amountIn: parsedAmountIn,
+      Pool: bestPricePool,
+    });
+
+    const res = [
+      {
+        ...estimateRes,
+        status: PoolMode.PARALLEL,
+        routeInputToken: tokenIn.id,
+        totalInputAmount: parsedAmountIn,
+        pool: {
+          ...bestPricePool,
+          partialAmountIn: parsedAmountIn,
+        },
+        tokens: [tokenIn, tokenOut],
+        inputToken: tokenIn.id,
+        outputToken: tokenOut.id,
+        parsedAmountIn: parsedAmountIn,
+      },
+    ];
+
+    supportLedgerRes = res;
+  }
+
+  // get result on tri pools but just one swap action
 
   return {
     supportLedgerRes,
