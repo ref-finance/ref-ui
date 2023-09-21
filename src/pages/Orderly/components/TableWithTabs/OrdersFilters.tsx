@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useIntl } from 'react-intl';
-import { IoClose,IoCloseSharp,RiArrowDownSFill,MdArrowDropDown } from '../../../../components/reactIcons';
+import {
+  IoClose,
+  IoCloseSharp,
+  RiArrowDownSFill,
+  MdArrowDropDown,
+} from '../../../../components/reactIcons';
 import Modal from 'react-modal';
 import { FlexRow, CheckBox, TokenIcon } from '../Common';
 import { AllMarketIcon, CheckSelector } from '../Common/Icons';

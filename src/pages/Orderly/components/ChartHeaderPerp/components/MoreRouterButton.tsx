@@ -6,8 +6,11 @@ import { FormattedMessage } from 'react-intl';
 import Modal from 'react-modal';
 
 import { useClientMobile } from '../../../../../utils/device';
-import { IoClose,IoArrowDownOutline,IoArrowUpOutline } from '../../../../../components/reactIcons';
-
+import {
+  IoClose,
+  IoArrowDownOutline,
+  IoArrowUpOutline,
+} from '../../../../../components/reactIcons';
 
 import {
   MobileMoreRouteIcon,

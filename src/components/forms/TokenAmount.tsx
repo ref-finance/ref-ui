@@ -49,7 +49,7 @@ import { WalletContext } from '../../utils/wallets-integration';
 
 interface TokenAmountProps {
   amount?: string;
-  amountInput?:string;
+  amountInput?: string;
   max?: string;
   total?: string;
   tokens?: TokenMetadata[];

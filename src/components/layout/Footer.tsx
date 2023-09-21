@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { FaDiscord, FaTelegramPlane, FaTwitter,AiOutlineMedium } from '../reactIcons';
+import {
+  FaDiscord,
+  FaTelegramPlane,
+  FaTwitter,
+  AiOutlineMedium,
+} from '../reactIcons';
 import { FooterLogo, FooterLogoREF } from '~components/icon/FooterLogo';
 import { RefAnalytics, RefAnalyticsGary } from '~components/icon/RefAnalytics';
 import { useRefPrice } from '~state/account';

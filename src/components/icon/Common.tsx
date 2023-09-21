@@ -83,21 +83,25 @@ const RateExchangeMobile = () => {
 };
 
 export const USNIcon = () => {
-  return <USNIconSvg />
-}
+  return <USNIconSvg />;
+};
 const SnowBar = () => {
   const isMobile = useClientMobile();
 
-  return <SnowBarSvg style={{
-    width: isMobile ? '97vw' : ''
-  }} />
-}
+  return (
+    <SnowBarSvg
+      style={{
+        width: isMobile ? '97vw' : '',
+      }}
+    />
+  );
+};
 const XmasSmallTree = () => {
-  return <XmasSmallTreeSvg />
-}
+  return <XmasSmallTreeSvg />;
+};
 const XmasTree = () => {
-  return <XmasTreeSvg />
-}
+  return <XmasTreeSvg />;
+};
 
 const CloseBtn = (props: any) => {
   const {

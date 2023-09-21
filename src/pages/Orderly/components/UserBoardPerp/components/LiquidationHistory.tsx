@@ -5,7 +5,7 @@ import Modal from 'react-modal';
 
 import { useClientMobile } from '../../../../../utils/device';
 import { TextWrapper } from '../../UserBoard';
-import { MdArrowDropDown,IoClose } from '../../../../../components/reactIcons';
+import { MdArrowDropDown, IoClose } from '../../../../../components/reactIcons';
 import { useLiquidationHistoryAll } from '../../../../../pages/Orderly/orderly/state';
 import { useBatchTokenMetaFromSymbols } from '../../ChartHeader/state';
 import { parseSymbol } from '../../RecentTrade';

@@ -38,7 +38,14 @@ import { BuyButton, SellButton } from './Button';
 import './index.css';
 import Modal from 'react-modal';
 import Big from 'big.js';
-import {  IoIosArrowDown, IoIosArrowUp,IoClose,MdArrowDropDown,FiSearch,MdKeyboardArrowDown } from '../../../../components/reactIcons';
+import {
+  IoIosArrowDown,
+  IoIosArrowUp,
+  IoClose,
+  MdArrowDropDown,
+  FiSearch,
+  MdKeyboardArrowDown,
+} from '../../../../components/reactIcons';
 import {
   CheckBox,
   ConnectWallet,
@@ -73,7 +80,6 @@ import {
   RefToOrderlyMobile,
   ArrowCurve,
 } from '../Common/Icons';
-
 
 import {
   is_orderly_key_announced,

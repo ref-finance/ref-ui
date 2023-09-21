@@ -8,17 +8,17 @@ import { SUPPORT_LEDGER_KEY } from '../swap/SwapCard';
 import { SWAP_MODE, SWAP_TYPE, SwapProContext } from '../../pages/SwapPage';
 import {
   Inch1IconAndAurora,
-  TriAndAurora
+  TriAndAurora,
 } from '../../components/icon/CrossSwapIcons';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { SupportLedgerGuide } from '../../components/layout/SupportLedgerGuide';
 import { TriAndAuroraLedger } from '../icon/CrossSwapIcons';
 
 export function CustomSwitch({
-                               isOpen,
-                               setIsOpen,
-                               storageKey
-                             }: {
+  isOpen,
+  setIsOpen,
+  storageKey,
+}: {
   isOpen: boolean;
   setIsOpen: (e?: any) => void;
   storageKey?: string;

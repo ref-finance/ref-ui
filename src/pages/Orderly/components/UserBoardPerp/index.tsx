@@ -6,7 +6,6 @@ import React, {
   useMemo,
 } from 'react';
 
-
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import { parseSymbol } from '../RecentTrade/index';
 
@@ -69,8 +68,12 @@ import {
   numberWithCommas,
 } from '../../utiles';
 
-
-import { FiSearch, BsArrowRight, MdArrowDropDown, IoClose} from '../../../../components/reactIcons';
+import {
+  FiSearch,
+  BsArrowRight,
+  MdArrowDropDown,
+  IoClose,
+} from '../../../../components/reactIcons';
 import {
   NearIConSelectModal,
   OutLinkIcon,

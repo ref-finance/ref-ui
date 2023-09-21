@@ -701,7 +701,7 @@ export default function SwapCard(props: {
     tokenInAmountInput,
     setTokenInAmountInput,
     swapTab,
-    globalWhiteListTokens
+    globalWhiteListTokens,
   } = props;
 
   const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
@@ -995,11 +995,11 @@ export default function SwapCard(props: {
   const throwNoPoolError = () => {
     return new Error(
       `${intl.formatMessage({
-        id: 'no_pool_available_to_make_a_swap_from'
+        id: 'no_pool_available_to_make_a_swap_from',
       })} ${tokenIn?.symbol} -> ${tokenOut?.symbol} ${intl.formatMessage({
-        id: 'for_the_amount'
+        id: 'for_the_amount',
       })} ${tokenInAmount} ${intl.formatMessage({
-        id: 'no_pool_eng_for_chinese'
+        id: 'no_pool_eng_for_chinese',
       })}`
     );
   };
@@ -1229,8 +1229,8 @@ export default function SwapCard(props: {
             wrapOperation
               ? tokenInAmount
               : tokenIn?.id === tokenOut?.id
-                ? ''
-                : selectTrade?.tokenOutAmount || ''
+              ? ''
+              : selectTrade?.tokenOutAmount || ''
           }
           forCross={enableTri}
           total={tokenOutTotal}

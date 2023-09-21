@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Big from 'big.js';
-import { IoClose,MdArrowDropDown } from '../../../../components/reactIcons';
+import { IoClose, MdArrowDropDown } from '../../../../components/reactIcons';
 import { useIntl, IntlShape } from 'react-intl';
 import Modal from 'react-modal';
 import { debounce } from 'lodash';

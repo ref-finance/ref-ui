@@ -46,162 +46,162 @@ import GoToOrderbookTipMobileDotSvg from '../../../../assets/svg/GoToOrderbookTi
 import PerpSpotIconSvg from '../../../../assets/svg/PerpSpotIcon.svg';
 
 export function NearIcon() {
-  return NearIconSvg
+  return NearIconSvg;
 }
 
 export function OrderStateOutline() {
-  return OrderStateOutlineSvg
+  return OrderStateOutlineSvg;
 }
 
 export function ArrowCurve() {
-  return <ArrowCurveSvg className='ml-1'/>
+  return <ArrowCurveSvg className="ml-1" />;
 }
 
 export function NearIConSelectModal() {
-  return NearIConSelectModalSvg
+  return NearIConSelectModalSvg;
 }
 
 export function SpinIcon() {
-  return <SpinIconSvg className='animate-spin' />
+  return <SpinIconSvg className="animate-spin" />;
 }
 
 export function UnCheckedFlow() {
-  return UnCheckedFlowSvg
+  return UnCheckedFlowSvg;
 }
 
 export function AllMarketIcon() {
-  return AllMarketIconSvg
+  return AllMarketIconSvg;
 }
 
 export function PowerByOrderly() {
-  return PowerByOrderlySvg
+  return PowerByOrderlySvg;
 }
 
 export function OrderlyNetworkIcon() {
-  return OrderlyNetworkIconSvg
+  return OrderlyNetworkIconSvg;
 }
 
 export function OrderlyNetworkIconGray() {
-  return OrderlyNetworkIconGraySvg
+  return OrderlyNetworkIconGraySvg;
 }
 
 export function NearWalletIcon() {
-  return NearWalletIconSvg
+  return NearWalletIconSvg;
 }
 
 export function FirstPage() {
-  return FirstPageSvg
+  return FirstPageSvg;
 }
 
 export function NextPage() {
-  return NextPageSvg
+  return NextPageSvg;
 }
 
 export function PrePage() {
-  return PrePageSvg
+  return PrePageSvg;
 }
 
 export function LastPage() {
-  return <LastPageSvg className='transform rotate-180' />
+  return <LastPageSvg className="transform rotate-180" />;
 }
 
 export function RefToOrderly() {
-  return <RefToOrderlySvg className='mb-6' />
+  return <RefToOrderlySvg className="mb-6" />;
 }
 
 export function RefToOrderlyPortFolio() {
-  return RefToOrderlyPortFolioSvg
+  return RefToOrderlyPortFolioSvg;
 }
 
 export function RefToOrderlyMobile() {
-  return <RefToOrderlyMobileSvg className='mb-6' />
+  return <RefToOrderlyMobileSvg className="mb-6" />;
 }
 
 export function AgreeCheck() {
-  return AgreeCheckSvg
+  return AgreeCheckSvg;
 }
 
 export function AgreeNotCheck() {
-  return AgreeNotCheckSvg
+  return AgreeNotCheckSvg;
 }
 
 export function CheckSelector() {
-  return CheckSelectorSvg
+  return CheckSelectorSvg;
 }
 
 export function CheckSelectorWhite() {
-  return CheckSelectorWhiteSvg
+  return CheckSelectorWhiteSvg;
 }
 
 export function OrderlyIconBalance() {
-  return OrderlyIconBalanceSvg
+  return OrderlyIconBalanceSvg;
 }
 
 export function BalanceIcon() {
-  return BalanceIconSvg
+  return BalanceIconSvg;
 }
 
 export function ChartIcon() {
-  return ChartIconSvg
+  return ChartIconSvg;
 }
 
 export function BookIcon() {
-  return BookIconSvg
+  return BookIconSvg;
 }
 
 export function InOrderIcon() {
-  return InOrderIconSvg
+  return InOrderIconSvg;
 }
 
 export function MobileFilter() {
-  return MobileFilterSvg
+  return MobileFilterSvg;
 }
 
 export function MobileEdit() {
-  return MobileEditSvg
+  return MobileEditSvg;
 }
 
 export function HistoryOrderDetailIcon() {
-  return HistoryOrderDetailIconSvg
+  return HistoryOrderDetailIconSvg;
 }
 
 export function TipIconAsset() {
-  return TipIconAssetSvg
+  return TipIconAssetSvg;
 }
 
 export const GoToOrderbookTipMobileText = () => {
-  return <GoToOrderbookTipMobileTextSvg className='relative bottom-10' />
-}
+  return <GoToOrderbookTipMobileTextSvg className="relative bottom-10" />;
+};
 export const GoToOrderbookTipMobileDot = () => {
-  return GoToOrderbookTipMobileDotSvg
-}
+  return GoToOrderbookTipMobileDotSvg;
+};
 export const OrderBookArrowRight = () => {
-  return OrderBookArrowRightSvg
-}
+  return OrderBookArrowRightSvg;
+};
 export const PolygonRight = () => {
-  return PolygonRightSvg
-}
+  return PolygonRightSvg;
+};
 export const MarkPriceFlag = () => {
-  return MarkPriceFlagSvg
-}
+  return MarkPriceFlagSvg;
+};
 export const PerpSwapIcon = () => {
-  return PerpSwapIconSvg
-}
+  return PerpSwapIconSvg;
+};
 export const PerpSpotIcon = () => {
-  return PerpSpotIconSvg
-}
+  return PerpSpotIconSvg;
+};
 export const PerpPerpIcon = () => {
-  return PerpPerpIconSvg
-}
+  return PerpPerpIconSvg;
+};
 export const MobileChartIcon = () => {
-  return MobileChartIconSvg
-}
+  return MobileChartIconSvg;
+};
 export const MobileMoreRouteIcon = () => {
-  return MobileMoreRouteIconSvg
-}
+  return MobileMoreRouteIconSvg;
+};
 export const NoOrderEmpty = () => {
-  return NoOrderEmptySvg
-}
+  return NoOrderEmptySvg;
+};
 
 export function OrderStateOutlineBlack() {
   return (

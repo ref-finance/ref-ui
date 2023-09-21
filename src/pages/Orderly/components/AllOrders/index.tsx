@@ -3,7 +3,7 @@ import React, {
   useEffect,
   useMemo,
   useRef,
-  useState
+  useState,
 } from 'react';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import {
@@ -12,7 +12,7 @@ import {
   MdArrowDropDown,
   RiArrowDownSFill,
   AiOutlineClose,
-  AiOutlineCheck
+  AiOutlineCheck,
 } from '../../../../components/reactIcons';
 import { FlexRow, FlexRowBetween, QuestionMark } from '../Common';
 import { parseSymbol } from '../RecentTrade';
@@ -26,7 +26,7 @@ import {
   orderStatus,
   OrderTrade,
   TokenMetadata,
-  SymbolInfo
+  SymbolInfo,
 } from '../../orderly/type';
 import {
   AllMarketIcon,
@@ -47,42 +47,40 @@ import { formatTimeDate } from '../OrderBoard';
 
 import { Selector } from '../OrderBoard';
 
-
 import {
   FlexRowStart,
   CheckBox,
   orderEditPopUpSuccess,
-  ErrorTip
+  ErrorTip,
 } from '../Common/index';
 import {
   cancelOrder,
   cancelOrders,
   editOrder,
-  getOrderTrades
+  getOrderTrades,
 } from '../../orderly/off-chain-api';
 import { useOrderBook, useCurHoldings } from './state';
 import { useBatchTokenMetaFromSymbols } from '../ChartHeader/state';
 import Modal from 'react-modal';
 
-
 import { useWalletSelector } from '../../../../context/WalletSelectorContext';
 import {
   OrderlyLoading,
   FilledStamp,
-  HistoryOrderDetailIcon
+  HistoryOrderDetailIcon,
 } from '../Common/Icons';
 import { digitWrapper, numberWithCommas, PerpOrSpot } from '../../utiles';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../UserBoard/index';
 import {
   ONLY_ZEROS,
-  scientificNotationToString
+  scientificNotationToString,
 } from '../../../../utils/numbers';
 import { orderEditPopUpFailure } from '../Common/index';
 import { Holding } from '../../orderly/type';
 import {
   useLargeScreen,
   useClientMobile,
-  isMobile
+  isMobile,
 } from '../../../../utils/device';
 import { Images } from '../../../../components/stableswap/CommonComp';
 

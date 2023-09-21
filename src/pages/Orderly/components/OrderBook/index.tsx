@@ -10,7 +10,10 @@ import {
   numberWithCommas,
   numberWithCommasPadding,
 } from '../../utiles';
-import { MdArrowDropDown,IoArrowUpOutline } from '../../../../components/reactIcons';
+import {
+  MdArrowDropDown,
+  IoArrowUpOutline,
+} from '../../../../components/reactIcons';
 import { Selector } from '../OrderBoard';
 
 import Big from 'big.js';

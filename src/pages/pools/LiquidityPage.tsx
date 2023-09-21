@@ -146,7 +146,7 @@ import {
   openUrl,
 } from '../../services/commonV3';
 
-import { AiFillStar,RiArrowRightSLine } from '../../components/reactIcons';
+import { AiFillStar, RiArrowRightSLine } from '../../components/reactIcons';
 import { useTokenPriceList } from '../../state/token';
 import { useSeedFarmsByPools } from '../../state/pool';
 

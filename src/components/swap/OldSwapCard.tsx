@@ -38,7 +38,7 @@ import {
   scientificNotationToString,
   calculateSmartRoutesV2PriceImpact,
   separateRoutes,
-  calcStableSwapPriceImpact
+  calcStableSwapPriceImpact,
 } from '../../utils/numbers';
 import ReactDOMServer from 'react-dom/server';
 import TokenAmount from '../forms/TokenAmount';
@@ -120,46 +120,51 @@ import {
   unwrapedNear,
   nearDeposit,
   nearWithdraw,
-  wnearMetadata
+  wnearMetadata,
 } from '../../services/wrap-near';
 import getConfig, { getExtraStablePoolConfig } from '../../services/config';
 import { SwapMinReceiveCheck, LimitOrderMask } from '../icon/swapV3';
 import {
   TokenAmountV3,
   TokenCardIn,
-  LimitOrderRateSetBox
+  LimitOrderRateSetBox,
 } from '../forms/TokenAmount';
 import Big from 'big.js';
 import { Slider } from '../icon/Info';
 import {
   regularizedPoint,
   regularizedPrice,
-  feeToPointDelta
+  feeToPointDelta,
 } from '../../services/swapV3';
 import { DoubleCheckModalLimit } from '../layout/SwapDoubleCheck';
 import {
   toInternationalCurrencySystemLongString,
   toRoundedReadableNumber,
-  toInternationalCurrencySystem
+  toInternationalCurrencySystem,
 } from '../../utils/numbers';
 import {
   pointToPrice,
   priceToPoint,
   v3Swap,
-  create_pool
+  create_pool,
 } from '../../services/swapV3';
 import {
   V3_POOL_FEE_LIST,
   getV3PoolId,
-  V3_POOL_SPLITER
+  V3_POOL_SPLITER,
 } from '../../services/swapV3';
 import { SkyWardModal } from '../layout/SwapDoubleCheck';
 import {
   NEAR_CLASS_STABLE_TOKEN_IDS,
-  BTC_CLASS_STABLE_TOKEN_IDS
+  BTC_CLASS_STABLE_TOKEN_IDS,
 } from '../../services/near';
 
-import { FaAngleUp, FaAngleDown, FaExchangeAlt, MdOutlineRefresh } from '../reactIcons';
+import {
+  FaAngleUp,
+  FaAngleDown,
+  FaExchangeAlt,
+  MdOutlineRefresh,
+} from '../reactIcons';
 import { getMax } from '../../utils/numbers';
 
 import { YellowTipIcon, RedTipIcon, SelectedIcon } from '../icon/swapV3';

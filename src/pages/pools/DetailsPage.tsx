@@ -161,7 +161,6 @@ import {
   QuestionTip,
 } from '../../components/layout/TipWrapper';
 
-
 import { NoLiquidityDetailPageIcon } from '../../components/icon/Pool';
 import { useFarmStake } from '../../state/farm';
 import { VEARROW } from '../../components/icon/Referendum';

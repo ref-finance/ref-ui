@@ -7,7 +7,7 @@ import {
   IoMdArrowDropdown,
   IoArrowDownOutline,
   IoArrowUpOutline,
-  IoCloseSharp
+  IoCloseSharp,
 } from '../../../../components/reactIcons';
 import { useTokenMetaFromSymbol } from './state';
 import { Ticker, TokenInfo, OpenInterest } from '../../orderly/type';

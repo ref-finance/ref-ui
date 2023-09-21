@@ -35,7 +35,6 @@ import { MdArrowDropUp } from '@react-icons/all-files/md/MdArrowDropUp';
 import { MdRefresh } from '@react-icons/all-files/md/MdRefresh';
 import { MdKeyboardArrowDown } from '@react-icons/all-files/md/MdKeyboardArrowDown';
 
-
 import { IoIosClose } from '@react-icons/all-files/io/IoIosClose';
 import { IoIosArrowDown } from '@react-icons/all-files/io/IoIosArrowDown';
 import { IoIosArrowUp } from '@react-icons/all-files/io/IoIosArrowUp';
@@ -61,30 +60,63 @@ import { BiCopy } from '@react-icons/all-files/bi/BiCopy';
 // all-files missing icons
 const MdOutlineRefresh = MdRefresh;
 
-
 export {
   //fa
-  FaExclamationCircle, FaRegQuestionCircle, FaSearch, FaCheck,
-  FaAngleUp, FaAngleDown, FaAngleRight, FaExchangeAlt, FaExclamationTriangle,
-  FaDiscord, FaTelegramPlane, FaTwitter,
+  FaExclamationCircle,
+  FaRegQuestionCircle,
+  FaSearch,
+  FaCheck,
+  FaAngleUp,
+  FaAngleDown,
+  FaAngleRight,
+  FaExchangeAlt,
+  FaExclamationTriangle,
+  FaDiscord,
+  FaTelegramPlane,
+  FaTwitter,
   //fi
-  FiChevronDown, FiChevronRight, FiSearch,
+  FiChevronDown,
+  FiChevronRight,
+  FiSearch,
   // hi
-  HiOutlineExternalLink, HiDownload,
+  HiOutlineExternalLink,
+  HiDownload,
   // ai
-  AiOutlineMedium, AiOutlineClose, AiFillCloseCircle, AiOutlineCheck, AiFillStar,
+  AiOutlineMedium,
+  AiOutlineClose,
+  AiFillCloseCircle,
+  AiOutlineCheck,
+  AiFillStar,
   //ri
-  RiArrowRightSLine, RiArrowDownSFill, RiLogoutCircleRLine, RiArrowLeftSLine,
+  RiArrowRightSLine,
+  RiArrowDownSFill,
+  RiLogoutCircleRLine,
+  RiArrowLeftSLine,
   // md
-  MdArrowDropUp, MdArrowDropDown, MdOutlineRefresh, MdKeyboardArrowDown,
+  MdArrowDropUp,
+  MdArrowDropDown,
+  MdOutlineRefresh,
+  MdKeyboardArrowDown,
   //io
-  IoIosClose, IoMdArrowDropdown, IoIosArrowDown, IoIosArrowUp, IoMdClose,
+  IoIosClose,
+  IoMdArrowDropdown,
+  IoIosArrowDown,
+  IoIosArrowUp,
+  IoMdClose,
   //io5
-  IoClose, IoArrowDownOutline, IoArrowUpOutline, IoCloseSharp, IoCloseOutline, IoWarning, IoChevronBack,
+  IoClose,
+  IoArrowDownOutline,
+  IoArrowUpOutline,
+  IoCloseSharp,
+  IoCloseOutline,
+  IoWarning,
+  IoChevronBack,
   //bs
-  BsArrowUpRight, BsArrowRight, BsCheckCircle,
+  BsArrowUpRight,
+  BsArrowRight,
+  BsCheckCircle,
   //ti
   TiArrowSortedUp,
   //bi
-  BiCopy
+  BiCopy,
 };

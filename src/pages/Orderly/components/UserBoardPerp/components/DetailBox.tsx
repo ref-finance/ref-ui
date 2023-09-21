@@ -1,5 +1,10 @@
 import React from 'react';
-import { IoIosArrowDown, IoIosArrowUp, MdArrowDropDown, MdArrowDropUp } from '../../../../../components/reactIcons';
+import {
+  IoIosArrowDown,
+  IoIosArrowUp,
+  MdArrowDropDown,
+  MdArrowDropUp,
+} from '../../../../../components/reactIcons';
 export function DetailBox({
   show,
   setShow,

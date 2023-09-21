@@ -9,7 +9,7 @@ import {
   EditOrderlyOrder,
   orderStatus,
   OrderTrade,
-  TokenInfo
+  TokenInfo,
 } from '../../orderly/type';
 import { OrderStateOutline, CheckSelector } from '../Common/Icons';
 import { TextWrapper } from '../UserBoard';
@@ -17,13 +17,17 @@ import Big from 'big.js';
 
 import moment from 'moment';
 
-import { AiOutlineClose, AiOutlineCheck, MdArrowDropDown } from '../../../../components/reactIcons';
+import {
+  AiOutlineClose,
+  AiOutlineCheck,
+  MdArrowDropDown,
+} from '../../../../components/reactIcons';
 import { FlexRowStart } from '../Common/index';
 import {
   cancelOrder,
   cancelOrders,
   editOrder,
-  getOrderTrades
+  getOrderTrades,
 } from '../../orderly/off-chain-api';
 import { EditConfirmOrderModal } from '../AllOrders/index';
 import { useTokenMetaFromSymbol } from '../ChartHeader/state';

@@ -69,7 +69,6 @@ import { CheckBox, ConnectWallet, ErrorTip, RegisterButton } from '../Common';
 
 import { ConfirmButton, QuestionMark } from '../Common/index';
 
-
 import {
   is_orderly_key_announced,
   is_trading_key_set,
