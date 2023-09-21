@@ -894,10 +894,10 @@ export const RemovePoolV3 = (props: any) => {
             </span>
 
             <input
-              className={`ml-2 font-gothamBold ${
+              className={`ml-2 font-gothamBold xsm:text-right ${
                 removeType !== 'right' ? 'text-primaryText' : 'text-white'
               }`}
-              value={minBoxPrice}
+              value={minBoxPrice !== '' ? toPrecision(minBoxPrice, 8) : ''}
               onChange={(e) => {
                 const value = e.target.value;
                 setMinBoxPrice(value);
@@ -918,14 +918,14 @@ export const RemovePoolV3 = (props: any) => {
               ></FormattedMessage>
             </span>
             <input
-              className={`ml-2 font-gothamBold ${
+              className={`ml-2 font-gothamBold xsm:text-right ${
                 removeType !== 'left' ? 'text-primaryText' : 'text-white'
               }`}
               onChange={(e) => {
                 const value = e.target.value;
                 setMaxBoxPrice(value);
               }}
-              value={maxBoxPrice}
+              value={maxBoxPrice !== '' ? toPrecision(maxBoxPrice, 8) : ''}
               inputMode="decimal"
               onBlur={() => {
                 handleMaxBoxPriceToAppropriatePoint();
@@ -971,7 +971,7 @@ export const RemovePoolV3 = (props: any) => {
               pair_is_reverse ? 'flex-row-reverse' : ''
             }`}
           >
-            <div className="frcs gap-2">
+            <div className="frcs gap-2 xsm:flex-row-reverse">
               <img
                 src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
                 className="w-5 h-5 border border-greenColor rounded-full"
@@ -981,7 +981,7 @@ export const RemovePoolV3 = (props: any) => {
                 {min_received_x_amount}
               </span>
             </div>
-            <div className="frcs gap-2 ">
+            <div className="frcs gap-2 xsm:flex-row-reverse">
               <img
                 src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
                 className="w-5 h-5 border border-greenColor rounded-full"
