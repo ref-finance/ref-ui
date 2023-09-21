@@ -925,7 +925,7 @@ export const batch_add_liquidity = async ({
           args: {
             add_liquidity_infos: liquidityInfos,
           },
-          gas: '150000000000000',
+          gas: '300000000000000',
         },
       ],
     },
