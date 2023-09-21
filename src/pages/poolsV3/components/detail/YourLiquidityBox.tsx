@@ -153,14 +153,19 @@ export function YourLiquidityBox(props: {
       account_id: accountId,
     });
     if (dcl_fee_result) {
-      // 24h profit
-      apr_24 = get_account_24_apr(dcl_fee_result, poolDetail, tokenPriceList);
       // total unClaimed fee
       const [
         unClaimed_tvl_fee,
         unClaimed_amount_x_fee,
         unClaimed_amount_y_fee,
       ] = get_unClaimed_fee_data(liquidities, poolDetail, tokenPriceList);
+      // 24h profit
+      apr_24 = get_account_24_apr(
+        unClaimed_tvl_fee,
+        dcl_fee_result,
+        poolDetail,
+        tokenPriceList
+      );
       // total earned fee
       const { total_fee_x, total_fee_y } = dcl_fee_result.total_earned_fee;
       total_earned_fee_x = toReadableNumber(
@@ -185,9 +190,6 @@ export function YourLiquidityBox(props: {
       const total_earned_fee_y_value = Big(total_earned_fee_y).mul(price_y);
       total_fee_earned = total_earned_fee_x_value
         .plus(total_earned_fee_y_value)
-        .toFixed();
-      total_fee_earned = Big(total_fee_earned)
-        .plus(unClaimed_tvl_fee)
         .toFixed();
     }
     set_earned_fee_y_amount(formatNumber(total_earned_fee_y));

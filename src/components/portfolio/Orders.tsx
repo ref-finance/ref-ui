@@ -1107,7 +1107,8 @@ function OrderCard({
         >
           <span
             onClick={() => {
-              openUrl('/myOrder');
+              localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.LIMIT);
+              openUrl('/');
             }}
             className="flex items-center justify-center text-xs text-v3SwapGray relative -top-3 "
           >

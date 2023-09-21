@@ -58,14 +58,6 @@ export function AddLiquidityButton() {
      *  最小的bin的高度就是等差的值 为dis
      **/
     setAddLiquidityButtonLoading(true);
-    const tokenXAmount_nonDivisible = toNonDivisibleNumber(
-      tokenX.decimals,
-      tokenXAmount || '0'
-    );
-    const tokenYAmount_nonDivisible = toNonDivisibleNumber(
-      tokenY.decimals,
-      tokenYAmount || '0'
-    );
     let nftList: IAddLiquidityInfo[] = [];
     nftList = getLiquidityForCurveAndBidAskMode();
     if (!nftList) {

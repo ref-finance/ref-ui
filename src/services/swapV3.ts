@@ -1283,7 +1283,7 @@ export const batch_remove_liquidity_contract = async ({
           args: {
             lpt_ids,
           },
-          gas: '250000000000000',
+          gas: '300000000000000',
         },
       ],
     });
@@ -1307,7 +1307,7 @@ export const batch_remove_liquidity_contract = async ({
             args: {
               remove_liquidity_infos: batch_remove_liquidity_i,
             },
-            gas: '250000000000000',
+            gas: '300000000000000',
           },
         ],
       });
@@ -1335,7 +1335,7 @@ export const batch_remove_liquidity_contract = async ({
           {
             methodName: 'batch_update_liquidity',
             args: batch_update_liquidity_i,
-            gas: '250000000000000',
+            gas: '300000000000000',
           },
         ],
       });

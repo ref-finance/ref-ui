@@ -77,6 +77,7 @@ import {
   formatWithCommas_usd_down,
 } from './utils';
 import { FarmStampNew } from '~components/icon/FarmStamp';
+import { get_unClaimed_fee_data } from '../../pages/poolsV3/components/detail/DetailFun';
 const is_mobile = isMobile();
 const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
 const LiquidityContext = createContext(null);
@@ -729,10 +730,15 @@ function UserLiquidityLineStyleGroup({
   const { accountId } = useWalletSelector();
   const history = useHistory();
   useEffect(() => {
-    if (poolDetail && tokenPriceList && tokenMetadata_x_y) {
+    if (
+      poolDetail &&
+      tokenPriceList &&
+      tokenMetadata_x_y &&
+      liquidities_list.length
+    ) {
       get_24_apr();
     }
-  }, [poolDetail, tokenPriceList, tokenMetadata_x_y]);
+  }, [poolDetail, tokenPriceList, tokenMetadata_x_y, liquidities_list]);
   useEffect(() => {
     if (
       all_seeds.length &&
@@ -894,10 +900,21 @@ function UserLiquidityLineStyleGroup({
       account_id: accountId,
     });
     if (dcl_fee_result) {
-      // 24h 利润 中文
+      // 24h profit
       poolDetail.token_x_metadata = tokenMetadata_x_y[0];
       poolDetail.token_y_metadata = tokenMetadata_x_y[1];
-      apr_24 = get_account_24_apr(dcl_fee_result, poolDetail, tokenPriceList);
+      // total unClaimed fee
+      const [unClaimed_tvl_fee] = get_unClaimed_fee_data(
+        liquidities_list,
+        poolDetail,
+        tokenPriceList
+      );
+      apr_24 = get_account_24_apr(
+        unClaimed_tvl_fee,
+        dcl_fee_result,
+        poolDetail,
+        tokenPriceList
+      );
     }
     setAccountAPR(formatPercentage(apr_24));
   }

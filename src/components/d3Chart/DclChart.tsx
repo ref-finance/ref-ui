@@ -7,6 +7,7 @@ import {
   PoolInfo,
   list_liquidities,
   get_pool_marketdepth,
+  get_liquidity,
 } from '../../services/swapV3';
 import {
   getPriceByPoint,
@@ -52,6 +53,7 @@ import { getBoostTokenPrices } from '../../services/farm';
 import { toReadableNumber, formatWithCommas } from '~utils/numbers';
 import { ILiquidityInfoPool, IOrderInfoPool } from '../../services/commonV3';
 import { BlueCircleLoading } from '../../components/layout/Loading';
+import { get_unClaimed_fee_data } from '../../pages/poolsV3/components/detail/DetailFun';
 export default function DclChart({
   pool_id,
   leftPoint,
@@ -336,19 +338,34 @@ export default function DclChart({
     let total_value = Big(0);
     let total_fee_earned = Big(0);
     let apr_24 = '';
+    let total_earned_fee_x = '0';
+    let total_earned_fee_y = '0';
     if (dcl_fee_result) {
+      // total unClaimed fee
+      const [
+        unClaimed_tvl_fee,
+        unClaimed_amount_x_fee,
+        unClaimed_amount_y_fee,
+      ] = get_unClaimed_fee_data(user_liquidities, pool, tokenPriceList);
       const dclAccountFee: IDCLAccountFee = dcl_fee_result;
       const { total_earned_fee } = dclAccountFee;
       // total earned fee
       const { total_fee_x, total_fee_y } = total_earned_fee || {};
-      const total_earned_fee_x = toReadableNumber(
+      total_earned_fee_x = toReadableNumber(
         token_x_metadata.decimals,
         Big(total_fee_x || 0).toFixed()
       );
-      const total_earned_fee_y = toReadableNumber(
+      total_earned_fee_x = Big(total_earned_fee_x)
+        .plus(unClaimed_amount_x_fee)
+        .toFixed();
+
+      total_earned_fee_y = toReadableNumber(
         token_y_metadata.decimals,
         Big(total_fee_y || 0).toFixed()
       );
+      total_earned_fee_y = Big(total_earned_fee_y)
+        .plus(unClaimed_amount_y_fee)
+        .toFixed();
       const total_earned_fee_x_value = Big(total_earned_fee_x).mul(price_x);
       const total_earned_fee_y_value = Big(total_earned_fee_y).mul(price_y);
       total_fee_earned = total_earned_fee_x_value.plus(
@@ -356,7 +373,12 @@ export default function DclChart({
       );
       // 24h profit
       apr_24 = formatPercentage(
-        get_account_24_apr(dcl_fee_result, pool, tokenPriceList)
+        get_account_24_apr(
+          unClaimed_tvl_fee,
+          dcl_fee_result,
+          pool,
+          tokenPriceList
+        )
       );
     }
     user_liquidities.forEach((l: UserLiquidityInfo) => {
@@ -452,7 +474,11 @@ export default function DclChart({
         const nfts = liquidities.filter((l: UserLiquidityInfo) => {
           return l.pool_id == pool_id;
         });
-        set_user_liquidities(nfts);
+        const liquiditiesPromise = nfts.map((liquidity: UserLiquidityInfo) => {
+          return get_liquidity(liquidity.lpt_id);
+        });
+        const nft_details = await Promise.all(liquiditiesPromise);
+        set_user_liquidities(nft_details);
         list = divide_liquidities_into_bins_user({
           liquidities: nfts,
           slot_number_in_a_bin: bin_final,

@@ -698,6 +698,7 @@ export const RemovePoolV3 = (props: any) => {
   const isRemoveLiquidityDisabled = minBoxPoint == maxBoxPoint;
   const is_mobile = isMobile();
   const cardWidth = is_mobile ? '100vw' : '550px';
+  const cardHeight = is_mobile ? '70vh' : '95vh';
   return (
     <Modal
       {...restProps}
@@ -717,7 +718,7 @@ export const RemovePoolV3 = (props: any) => {
       }}
     >
       <Card
-        style={{ maxHeight: '95vh', minWidth: cardWidth }}
+        style={{ maxHeight: cardHeight, minWidth: cardWidth }}
         className={`outline-none border lg:border-gradientFrom border-opacity-50 overflow-auto xsm:p-3 xsm:rounded-t-2xl xsm:rounded-b-none xsm:border-bottomBoxBorderColor`}
       >
         {/* Title */}

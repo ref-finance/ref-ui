@@ -1724,6 +1724,7 @@ export function get_o_l_amount_by_condition({
 
 const second24 = 24 * 60 * 60;
 export function get_account_24_apr(
+  unClaimed_fee$: string | number,
   dclAccountFee: IDCLAccountFee | any,
   pool: PoolInfo,
   tokenPriceList: any
@@ -1749,7 +1750,9 @@ export function get_account_24_apr(
   );
   const fee_x_24_value = Big(fee_x_24).mul(price_x);
   const fee_y_24_value = Big(fee_y_24).mul(price_y);
-  const total_fee_24_value = fee_x_24_value.plus(fee_y_24_value);
+  const total_fee_24_value = fee_x_24_value
+    .plus(fee_y_24_value)
+    .plus(unClaimed_fee$ || 0);
 
   // 24小时平均本金
   const processed_change_log: IProcessedLogData[] = [];
@@ -1797,8 +1800,6 @@ export function get_account_24_apr(
     );
   });
   const principal = total_processed_log_value.div(second24);
-  console.log('processed_change_log', processed_change_log);
-  console.log('processed_change_log-principal', principal.toFixed());
   if (principal.gt(0)) {
     apr_24 = total_fee_24_value.div(principal).mul(365).mul(100).toFixed();
   }
