@@ -677,6 +677,8 @@ export default function SwapCard(props: {
   swapMode: SWAP_MODE;
   tokenInAmount: string;
   setTokenInAmount: (value: string) => void;
+  tokenInAmountInput: string;
+  setTokenInAmountInput: (value: string) => void;
   swapTab?: JSX.Element;
   globalWhiteListTokens: TokenMetadata[];
   setTokenIn: (value: TokenMetadata) => void;
@@ -696,8 +698,10 @@ export default function SwapCard(props: {
     swapMode,
     tokenInAmount,
     setTokenInAmount,
+    tokenInAmountInput,
+    setTokenInAmountInput,
     swapTab,
-    globalWhiteListTokens,
+    globalWhiteListTokens
   } = props;
 
   const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
@@ -981,14 +985,21 @@ export default function SwapCard(props: {
     }
   }, [swapMode]);
 
+  useEffect(() => {
+    const delayInput = setTimeout(() => {
+      setTokenInAmount(tokenInAmountInput);
+    }, 500);
+    return () => clearTimeout(delayInput);
+  }, [tokenInAmountInput]);
+
   const throwNoPoolError = () => {
     return new Error(
       `${intl.formatMessage({
-        id: 'no_pool_available_to_make_a_swap_from',
+        id: 'no_pool_available_to_make_a_swap_from'
       })} ${tokenIn?.symbol} -> ${tokenOut?.symbol} ${intl.formatMessage({
-        id: 'for_the_amount',
+        id: 'for_the_amount'
       })} ${tokenInAmount} ${intl.formatMessage({
-        id: 'no_pool_eng_for_chinese',
+        id: 'no_pool_eng_for_chinese'
       })}`
     );
   };
@@ -1151,6 +1162,7 @@ export default function SwapCard(props: {
           forCross={enableTri}
           swapMode={swapMode}
           amount={tokenInAmount}
+          amountInput={tokenInAmountInput}
           total={tokenInMax}
           max={tokenInMax}
           tokens={allTokens}
@@ -1167,7 +1179,7 @@ export default function SwapCard(props: {
           }}
           useNearBalance={useNearBalance}
           onChangeAmount={(v) => {
-            setTokenInAmount(v);
+            setTokenInAmountInput(v);
           }}
           tokenPriceList={tokenPriceList}
           isError={tokenIn?.id === tokenOut?.id}
@@ -1213,12 +1225,12 @@ export default function SwapCard(props: {
           forSwap
           isOut
           swapMode={swapMode}
-          amount={
+          amountInput={
             wrapOperation
               ? tokenInAmount
               : tokenIn?.id === tokenOut?.id
-              ? ''
-              : selectTrade?.tokenOutAmount || ''
+                ? ''
+                : selectTrade?.tokenOutAmount || ''
           }
           forCross={enableTri}
           total={tokenOutTotal}
