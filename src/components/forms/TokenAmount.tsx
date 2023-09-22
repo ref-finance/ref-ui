@@ -49,7 +49,6 @@ import { WalletContext } from '../../utils/wallets-integration';
 
 interface TokenAmountProps {
   amount?: string;
-  amountInput?: string;
   max?: string;
   total?: string;
   tokens?: TokenMetadata[];
@@ -484,7 +483,6 @@ export default function TokenAmount({
 
 export function TokenAmountV3({
   amount,
-  amountInput,
   max,
   total,
   tokens,
@@ -719,7 +717,7 @@ export function TokenAmountV3({
           id="inputAmount"
           name={selectedToken?.id}
           max={onChangeAmount ? curMax : null}
-          value={limitOrderDisable ? '' : amountInput}
+          value={limitOrderDisable ? '' : amount}
           onChangeAmount={onChangeAmount}
           forLimitOrder={limitOrderDisable}
           disabled={

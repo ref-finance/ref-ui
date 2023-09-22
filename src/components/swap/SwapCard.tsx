@@ -1161,8 +1161,7 @@ export default function SwapCard(props: {
           forSwap
           forCross={enableTri}
           swapMode={swapMode}
-          amount={tokenInAmount}
-          amountInput={tokenInAmountInput}
+          amount={tokenInAmountInput}
           total={tokenInMax}
           max={tokenInMax}
           tokens={allTokens}
@@ -1225,7 +1224,7 @@ export default function SwapCard(props: {
           forSwap
           isOut
           swapMode={swapMode}
-          amountInput={
+          amount={
             wrapOperation
               ? tokenInAmount
               : tokenIn?.id === tokenOut?.id
