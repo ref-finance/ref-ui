@@ -1029,6 +1029,7 @@ export default function AddYourLiquidityPageV3() {
       const slot_number_in_a_bin = SLOT_NUMBER;
       const binWidth = slot_number_in_a_bin * point_delta;
       const bin_number_left = (current_point - leftPoint) / binWidth;
+      const bin_number_right = (rightPoint - current_point) / binWidth;
       set_token_amount_tip(null);
       if (liquidityShape == 'Curve') {
         if (bin_number_left > 1) {
@@ -1044,6 +1045,7 @@ export default function AddYourLiquidityPageV3() {
           const remain_token_x_amount = Big(tokenXAmount).minus(
             min_token_x_amount_needed
           );
+
           if (remain_token_x_amount.lt(0)) {
             // 给出提示 token x 数量太少不能添加 1
             const a = formatWithCommas_for_tip(min_token_x_amount_needed);
@@ -1067,6 +1069,32 @@ export default function AddYourLiquidityPageV3() {
             );
             set_token_amount_tip(tip);
             return;
+          } else if (bin_number_right < 1) {
+            // 给出提示 token x 数量太多，给用户提示只需要输入指定数量
+            const a = formatWithCommas_for_tip(min_token_x_amount_needed);
+            if (Big(tokenXAmount).gt(a)) {
+              const a_display = formatWithCommas_for_tip(
+                min_token_x_amount_needed,
+                true
+              );
+              const tip = (
+                <span>
+                  Based on the price range you've selected, you only need to
+                  provide
+                  <a
+                    onClick={() => {
+                      setTokenXAmount(a);
+                    }}
+                    className="mx-0.5 cursor-pointer underline"
+                  >
+                    {a_display}
+                  </a>
+                  {tokenX.symbol}
+                </span>
+              );
+              set_token_amount_tip(tip);
+              return;
+            }
           } else {
             nftList_x = get_decline_pattern_nfts({
               left_point: current_r_point,
@@ -1115,6 +1143,32 @@ export default function AddYourLiquidityPageV3() {
             );
             set_token_amount_tip(tip);
             return;
+          } else if (bin_number_left < 1) {
+            // 给出提示 token y 数量太多，给用户提示只需要输入指定数量
+            const a = formatWithCommas_for_tip(min_token_y_amount_needed);
+            if (Big(tokenYAmount).gt(a)) {
+              const a_display = formatWithCommas_for_tip(
+                min_token_y_amount_needed,
+                true
+              );
+              const tip = (
+                <span>
+                  Based on the price range you've selected, you only need to
+                  provide
+                  <a
+                    onClick={() => {
+                      setTokenYAmount(a);
+                    }}
+                    className="mx-0.5 cursor-pointer underline"
+                  >
+                    {a_display}
+                  </a>
+                  {tokenY.symbol}
+                </span>
+              );
+              set_token_amount_tip(tip);
+              return;
+            }
           } else {
             nftList_y = get_rise_pattern_nfts({
               left_point: leftPoint,
@@ -1164,6 +1218,32 @@ export default function AddYourLiquidityPageV3() {
             );
             set_token_amount_tip(tip);
             return;
+          } else if (bin_number_right < 1) {
+            // 给出提示 token x 数量太多，给用户提示只需要输入指定数量
+            const a = formatWithCommas_for_tip(min_token_x_amount_needed);
+            if (Big(tokenXAmount).gt(a)) {
+              const a_display = formatWithCommas_for_tip(
+                min_token_x_amount_needed,
+                true
+              );
+              const tip = (
+                <span>
+                  Based on the price range you've selected, you only need to
+                  provide
+                  <a
+                    onClick={() => {
+                      setTokenXAmount(a);
+                    }}
+                    className="mx-0.5 cursor-pointer underline"
+                  >
+                    {a_display}
+                  </a>
+                  {tokenX.symbol}
+                </span>
+              );
+              set_token_amount_tip(tip);
+              return;
+            }
           } else {
             nftList_x = get_rise_pattern_nfts({
               left_point: current_r_point,
@@ -1212,6 +1292,32 @@ export default function AddYourLiquidityPageV3() {
             );
             set_token_amount_tip(tip);
             return;
+          } else if (bin_number_left < 1) {
+            // 给出提示 token y 数量太多，给用户提示只需要输入指定数量
+            const a = formatWithCommas_for_tip(min_token_y_amount_needed);
+            if (Big(tokenYAmount).gt(a)) {
+              const a_display = formatWithCommas_for_tip(
+                min_token_y_amount_needed,
+                true
+              );
+              const tip = (
+                <span>
+                  Based on the price range you've selected, you only need to
+                  provide
+                  <a
+                    onClick={() => {
+                      setTokenYAmount(a);
+                    }}
+                    className="mx-0.5 cursor-pointer underline"
+                  >
+                    {a_display}
+                  </a>
+                  {tokenY.symbol}
+                </span>
+              );
+              set_token_amount_tip(tip);
+              return;
+            }
           } else {
             nftList_y = get_decline_pattern_nfts({
               left_point: leftPoint,
@@ -1891,8 +1997,8 @@ export default function AddYourLiquidityPageV3() {
                 ></InputAmount>
               </div>
               {token_amount_tip ? (
-                <div className="flex items-center text-sm text-warnColor mt-2.5">
-                  <WarningIcon className="ml-2.5 mr-2"></WarningIcon>
+                <div className="flex items-start text-sm text-warnColor mt-2.5">
+                  <WarningIcon className="ml-2.5 mr-2 relative top-px flex-shrink-0"></WarningIcon>
                   {token_amount_tip}
                 </div>
               ) : null}
