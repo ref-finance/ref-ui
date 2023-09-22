@@ -1768,7 +1768,7 @@ function PoolRowV2({
     >
       <div
         className={`grid ${
-          mark ? 'grid-cols-7' : 'grid-cols-10'
+          mark ? 'grid-cols-7' : 'grid-cols-9'
         } py-3.5 text-white content-center text-sm text-left mx-8 border-b border-gray-700 border-opacity-70 hover:opacity-80`}
       >
         <div
@@ -1833,8 +1833,7 @@ function PoolRowV2({
         >
           {'$' + toInternationalCurrencySystem(pool.tvl.toString())}
         </div>
-        {/* 缩略图 中文*/}
-        {!mark && (
+        {/* {!mark && (
           <div className="justify-center ml-2">
             <DclChart
               pool_id={pool?.pool_id}
@@ -1850,7 +1849,7 @@ function PoolRowV2({
               }}
             ></DclChart>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );
@@ -2836,7 +2835,7 @@ function LiquidityPage_({
         {activeTab === 'v2' && (
           <Card width="w-full" className="bg-cardBg" padding="py-7 px-0">
             <section className="">
-              <header className="grid  grid-cols-10 py-2 pb-4 text-left text-sm text-primaryText mx-8 border-b border-gray-700 border-opacity-70">
+              <header className="grid grid-cols-9 py-2 pb-4 text-left text-sm text-primaryText mx-8 border-b border-gray-700 border-opacity-70">
                 <div className="col-span-4 flex">
                   <FormattedMessage id="pair" defaultMessage="Pair" />
                 </div>
@@ -2997,7 +2996,6 @@ function LiquidityPage_({
                     )}
                   </span>
                 </div>
-                <div className="col-span-1"></div>
               </header>
               <div className="max-h-96 overflow-y-auto  pool-list-container-pc">
                 {allPoolsV2

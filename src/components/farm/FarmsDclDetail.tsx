@@ -1466,13 +1466,13 @@ export default function FarmsDclDetail(props: {
                 </span>{' '}
                 available to stake
               </div>
-              {!isEnded && !canStake && (
+              {/* {!isEnded && !canStake && (
                 <div
                   className={`text-sm text-dclFarmYellowColor mt-1 xsm:text-center`}
                 >
                   {get_unavailable_text()}
                 </div>
-              )}
+              )} */}
             </div>
             <div className="flex items-center xsm:w-full xsm:mt-6">
               {!isEnded && (
