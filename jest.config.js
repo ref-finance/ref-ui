@@ -4,6 +4,7 @@ module.exports = {
       './babelTransformImportExport.js',
     '^.+\\.tsx?$': 'ts-jest',
     '^.+\\.jsx?$': 'babel-jest',
+    '^.+\\.svg$': './svgTransform.js'
   },
   setupFilesAfterEnv: ['./src/setupTests.js'],
   transformIgnorePatterns: [

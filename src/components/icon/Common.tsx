@@ -2,30 +2,30 @@ import React, { useState } from 'react';
 import { WrapNearDefault, WrapNearHover, WrapNearMobile } from './Nav';
 import { isClientMobie, useClientMobile, isMobile } from '../../utils/device';
 
-import CloseBtn_whiteSvg from '../../assets/svg/CloseBtn_white.svg';
-import ActivityIconSvg from '../../assets/svg/ActivityIcon.svg';
-import WalletIconSvg from '../../assets/svg/WalletIcon.svg';
-import SignoutIconSvg from '../../assets/svg/SignoutIcon.svg';
-import TipBoxBigSvg from '../../assets/svg/TipBoxBig.svg';
-import Learn_more_mSvg from '../../assets/svg/Learn_more_m.svg';
-import SwitchIconSvg from '../../assets/svg/SwitchIcon.svg';
-import LiquidityIconSvg from '../../assets/svg/LiquidityIcon.svg';
-import SureIconSvg from '../../assets/svg/SureIcon.svg';
-import AccountIconSvg from '../../assets/svg/AccountIcon.svg';
-import NearIconDirectlySvg from '../../assets/svg/NearIconDirectly.svg';
-import GoodBgSvg from '../../assets/svg/GoodBg.svg';
-import GoodThumbSvg from '../../assets/svg/GoodThumb.svg';
-import RefIconSvg from '../../assets/svg/RefIcon.svg';
-import CloseRadiusIconSvg from '../../assets/svg/CloseRadiusIcon.svg';
-import RateExchangeMobileSvg from '../../assets/svg/RateExchangeMobile.svg';
-import PriceBoardIconSvg from '../../assets/svg/PriceBoardIcon.svg';
-import Learn_moreSvg from '../../assets/svg/Learn_more.svg';
-import PriceFloatUpIconSvg from '../../assets/svg/PriceFloatUpIcon.svg';
+import { ReactComponent as CloseBtn_whiteSvg } from '../../assets/svg/CloseBtn_white.svg';
+import { ReactComponent as ActivityIconSvg } from '../../assets/svg/ActivityIcon.svg';
+import { ReactComponent as WalletIconSvg } from '../../assets/svg/WalletIcon.svg';
+import { ReactComponent as SignoutIconSvg } from '../../assets/svg/SignoutIcon.svg';
+import { ReactComponent as TipBoxBigSvg } from '../../assets/svg/TipBoxBig.svg';
+import { ReactComponent as Learn_more_mSvg } from '../../assets/svg/Learn_more_m.svg';
+import { ReactComponent as SwitchIconSvg } from '../../assets/svg/SwitchIcon.svg';
+import { ReactComponent as LiquidityIconSvg } from '../../assets/svg/LiquidityIcon.svg';
+import { ReactComponent as SureIconSvg } from '../../assets/svg/SureIcon.svg';
+import { ReactComponent as AccountIconSvg } from '../../assets/svg/AccountIcon.svg';
+import { ReactComponent as NearIconDirectlySvg } from '../../assets/svg/NearIconDirectly.svg';
+import { ReactComponent as GoodBgSvg } from '../../assets/svg/GoodBg.svg';
+import { ReactComponent as GoodThumbSvg } from '../../assets/svg/GoodThumb.svg';
+import { ReactComponent as RefIconSvg } from '../../assets/svg/RefIcon.svg';
+import { ReactComponent as CloseRadiusIconSvg } from '../../assets/svg/CloseRadiusIcon.svg';
+import { ReactComponent as RateExchangeMobileSvg } from '../../assets/svg/RateExchangeMobile.svg';
+import { ReactComponent as PriceBoardIconSvg } from '../../assets/svg/PriceBoardIcon.svg';
+import { ReactComponent as Learn_moreSvg } from '../../assets/svg/Learn_more.svg';
+import { ReactComponent as PriceFloatUpIconSvg } from '../../assets/svg/PriceFloatUpIcon.svg';
 
-import USNIconSvg from '../../assets/svg/USNIcon.svg';
-import SnowBarSvg from '../../assets/svg/SnowBar.svg';
-import XmasSmallTreeSvg from '../../assets/svg/XmasSmallTree.svg';
-import XmasTreeSvg from '../../assets/svg/XmasTree.svg';
+import { ReactComponent as USNIconSvg } from '../../assets/svg/USNIcon.svg';
+import { ReactComponent as SnowBarSvg } from '../../assets/svg/SnowBar.svg';
+import { ReactComponent as XmasSmallTreeSvg } from '../../assets/svg/XmasSmallTree.svg';
+import { ReactComponent as XmasTreeSvg } from '../../assets/svg/XmasTree.svg';
 
 const Learn_more = () => {
   return <Learn_moreSvg />;
@@ -1142,6 +1142,7 @@ export const DefaultTokenImg = (props: any) => {
     </svg>
   );
 };
+
 export function PopupCloseButton(props: any) {
   return (
     <svg
@@ -1514,6 +1515,7 @@ function XmasTreeWithText() {
     </div>
   );
 }
+
 export function SwiperCloseButton(props: any) {
   return (
     <svg

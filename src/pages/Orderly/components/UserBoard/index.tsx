@@ -93,7 +93,6 @@ import { ButtonTextWrapper } from '../../../../components/button/Button';
 import { FlexRow, orderEditPopUpFailure } from '../Common/index';
 import { ONLY_ZEROS } from '../../../../utils/numbers';
 import * as math from 'mathjs';
-import { NearWalletIcon } from '../Common/Icons';
 import {
   getSelectedWalletId,
   generateTradingKeyPair,
@@ -1292,7 +1291,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           </span>
 
           <span className="justify-self-end flex items-center">
-            <OrderlyIconBalance></OrderlyIconBalance>
+            <OrderlyIconBalance />
             <span className="ml-2 whitespace-nowrap">
               {intl.formatMessage({
                 id: 'available_orderly',
@@ -4224,7 +4223,7 @@ function SelectTokenModal(
                 setSortByBalance('orderly');
               }}
             >
-              <OrderlyIconBalance></OrderlyIconBalance>
+              <OrderlyIconBalance />
               <span className="ml-2 ">
                 {intl.formatMessage({
                   id: 'available_orderly',

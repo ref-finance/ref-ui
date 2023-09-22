@@ -1,56 +1,55 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useClientMobile } from '../../../../utils/device';
+import { ReactComponent as NearIConSelectModalSvg } from '../../../../assets/svg/NearIConSelectModal.svg';
+import { ReactComponent as SpinIconSvg } from '../../../../assets/svg/SpinIcon.svg';
+import { ReactComponent as AllMarketIconSvg } from '../../../../assets/svg/AllMarketIcon.svg';
+import { ReactComponent as UnCheckedFlowSvg } from '../../../../assets/svg/UnCheckedFlow.svg';
+import { ReactComponent as PowerByOrderlySvg } from '../../../../assets/svg/PowerByOrderly.svg';
+import { ReactComponent as NearWalletIconSvg } from '../../../../assets/svg/NearWalletIcon.svg';
+import { ReactComponent as OrderlyNetworkIconGraySvg } from '../../../../assets/svg/OrderlyNetworkIconGray.svg';
+import { ReactComponent as NextPageSvg } from '../../../../assets/svg/NextPage.svg';
+import { ReactComponent as FirstPageSvg } from '../../../../assets/svg/FirstPage.svg';
+import { ReactComponent as PrePageSvg } from '../../../../assets/svg/PrePage.svg';
+import { ReactComponent as OrderlyNetworkIconSvg } from '../../../../assets/svg/OrderlyNetworkIcon.svg';
+import { ReactComponent as LastPageSvg } from '../../../../assets/svg/LastPage.svg';
+import { ReactComponent as RefToOrderlySvg } from '../../../../assets/svg/RefToOrderly.svg';
+import { ReactComponent as NearIconSvg } from '../../../../assets/svg/NearIcon.svg';
+import { ReactComponent as RefToOrderlyMobileSvg } from '../../../../assets/svg/RefToOrderlyMobile.svg';
+import { ReactComponent as AgreeNotCheckSvg } from '../../../../assets/svg/AgreeNotCheck.svg';
+import { ReactComponent as AgreeCheckSvg } from '../../../../assets/svg/AgreeCheck.svg';
+import { ReactComponent as CheckSelectorWhiteSvg } from '../../../../assets/svg/CheckSelectorWhite.svg';
+import { ReactComponent as CheckSelectorSvg } from '../../../../assets/svg/CheckSelector.svg';
+import { ReactComponent as OrderlyIconBalanceSvg } from '../../../../assets/svg/OrderlyIconBalance.svg';
+import { ReactComponent as ChartIconSvg } from '../../../../assets/svg/ChartIcon.svg';
+import { ReactComponent as BookIconSvg } from '../../../../assets/svg/BookIcon.svg';
+import { ReactComponent as MobileFilterSvg } from '../../../../assets/svg/MobileFilter.svg';
+import { ReactComponent as MobileEditSvg } from '../../../../assets/svg/MobileEdit.svg';
+import { ReactComponent as HistoryOrderDetailIconSvg } from '../../../../assets/svg/HistoryOrderDetailIcon.svg';
+import { ReactComponent as BalanceIconSvg } from '../../../../assets/svg/BalanceIcon.svg';
+import { ReactComponent as OrderStateOutlineSvg } from '../../../../assets/svg/OrderStateOutline.svg';
+import { ReactComponent as ArrowCurveSvg } from '../../../../assets/svg/ArrowCurve.svg';
+import { ReactComponent as RefToOrderlyPortFolioSvg } from '../../../../assets/svg/RefToOrderlyPortFolio.svg';
+import { ReactComponent as TipIconAssetSvg } from '../../../../assets/svg/TipIconAsset.svg';
+import { ReactComponent as InOrderIconSvg } from '../../../../assets/svg/InOrderIcon.svg';
 
-import NearIConSelectModalSvg from '../../../../assets/svg/NearIConSelectModal.svg';
-import SpinIconSvg from '../../../../assets/svg/SpinIcon.svg';
-import AllMarketIconSvg from '../../../../assets/svg/AllMarketIcon.svg';
-import UnCheckedFlowSvg from '../../../../assets/svg/UnCheckedFlow.svg';
-import PowerByOrderlySvg from '../../../../assets/svg/PowerByOrderly.svg';
-import NearWalletIconSvg from '../../../../assets/svg/NearWalletIcon.svg';
-import OrderlyNetworkIconGraySvg from '../../../../assets/svg/OrderlyNetworkIconGray.svg';
-import NextPageSvg from '../../../../assets/svg/NextPage.svg';
-import FirstPageSvg from '../../../../assets/svg/FirstPage.svg';
-import PrePageSvg from '../../../../assets/svg/PrePage.svg';
-import OrderlyNetworkIconSvg from '../../../../assets/svg/OrderlyNetworkIcon.svg';
-import LastPageSvg from '../../../../assets/svg/LastPage.svg';
-import RefToOrderlySvg from '../../../../assets/svg/RefToOrderly.svg';
-import NearIconSvg from '../../../../assets/svg/NearIcon.svg';
-import RefToOrderlyMobileSvg from '../../../../assets/svg/RefToOrderlyMobile.svg';
-import AgreeNotCheckSvg from '../../../../assets/svg/AgreeNotCheck.svg';
-import AgreeCheckSvg from '../../../../assets/svg/AgreeCheck.svg';
-import CheckSelectorWhiteSvg from '../../../../assets/svg/CheckSelectorWhite.svg';
-import CheckSelectorSvg from '../../../../assets/svg/CheckSelector.svg';
-import OrderlyIconBalanceSvg from '../../../../assets/svg/OrderlyIconBalance.svg';
-import ChartIconSvg from '../../../../assets/svg/ChartIcon.svg';
-import BookIconSvg from '../../../../assets/svg/BookIcon.svg';
-import MobileFilterSvg from '../../../../assets/svg/MobileFilter.svg';
-import MobileEditSvg from '../../../../assets/svg/MobileEdit.svg';
-import HistoryOrderDetailIconSvg from '../../../../assets/svg/HistoryOrderDetailIcon.svg';
-import BalanceIconSvg from '../../../../assets/svg/BalanceIcon.svg';
-import OrderStateOutlineSvg from '../../../../assets/svg/OrderStateOutline.svg';
-import ArrowCurveSvg from '../../../../assets/svg/ArrowCurve.svg';
-import RefToOrderlyPortFolioSvg from '../../../../assets/svg/RefToOrderlyPortFolio.svg';
-import TipIconAssetSvg from '../../../../assets/svg/TipIconAsset.svg';
-import InOrderIconSvg from '../../../../assets/svg/InOrderIcon.svg';
-
-import GoToOrderbookTipMobileTextSvg from '../../../../assets/svg/GoToOrderbookTipMobileText.svg';
-import MarkPriceFlagSvg from '../../../../assets/svg/MarkPriceFlag.svg';
-import PerpSwapIconSvg from '../../../../assets/svg/PerpSwapIcon.svg';
-import MobileChartIconSvg from '../../../../assets/svg/MobileChartIcon.svg';
-import PerpPerpIconSvg from '../../../../assets/svg/PerpPerpIcon.svg';
-import MobileMoreRouteIconSvg from '../../../../assets/svg/MobileMoreRouteIcon.svg';
-import NoOrderEmptySvg from '../../../../assets/svg/NoOrderEmpty.svg';
-import PolygonRightSvg from '../../../../assets/svg/PolygonRight.svg';
-import OrderBookArrowRightSvg from '../../../../assets/svg/OrderBookArrowRight.svg';
-import GoToOrderbookTipMobileDotSvg from '../../../../assets/svg/GoToOrderbookTipMobileDot.svg';
-import PerpSpotIconSvg from '../../../../assets/svg/PerpSpotIcon.svg';
+import { ReactComponent as GoToOrderbookTipMobileTextSvg } from '../../../../assets/svg/GoToOrderbookTipMobileText.svg';
+import { ReactComponent as MarkPriceFlagSvg } from '../../../../assets/svg/MarkPriceFlag.svg';
+import { ReactComponent as PerpSwapIconSvg } from '../../../../assets/svg/PerpSwapIcon.svg';
+import { ReactComponent as MobileChartIconSvg } from '../../../../assets/svg/MobileChartIcon.svg';
+import { ReactComponent as PerpPerpIconSvg } from '../../../../assets/svg/PerpPerpIcon.svg';
+import { ReactComponent as MobileMoreRouteIconSvg } from '../../../../assets/svg/MobileMoreRouteIcon.svg';
+import { ReactComponent as NoOrderEmptySvg } from '../../../../assets/svg/NoOrderEmpty.svg';
+import { ReactComponent as PolygonRightSvg } from '../../../../assets/svg/PolygonRight.svg';
+import { ReactComponent as OrderBookArrowRightSvg } from '../../../../assets/svg/OrderBookArrowRight.svg';
+import { ReactComponent as GoToOrderbookTipMobileDotSvg } from '../../../../assets/svg/GoToOrderbookTipMobileDot.svg';
+import { ReactComponent as PerpSpotIconSvg } from '../../../../assets/svg/PerpSpotIcon.svg';
 
 export function NearIcon() {
-  return NearIconSvg;
+  return <NearIconSvg />;
 }
 
 export function OrderStateOutline() {
-  return OrderStateOutlineSvg;
+  return <OrderStateOutlineSvg />;
 }
 
 export function ArrowCurve() {
@@ -58,7 +57,7 @@ export function ArrowCurve() {
 }
 
 export function NearIConSelectModal() {
-  return NearIConSelectModalSvg;
+  return <NearIConSelectModalSvg />;
 }
 
 export function SpinIcon() {
@@ -66,39 +65,39 @@ export function SpinIcon() {
 }
 
 export function UnCheckedFlow() {
-  return UnCheckedFlowSvg;
+  return <UnCheckedFlowSvg />;
 }
 
 export function AllMarketIcon() {
-  return AllMarketIconSvg;
+  return <AllMarketIconSvg />;
 }
 
 export function PowerByOrderly() {
-  return PowerByOrderlySvg;
+  return <PowerByOrderlySvg />;
 }
 
 export function OrderlyNetworkIcon() {
-  return OrderlyNetworkIconSvg;
+  return <OrderlyNetworkIconSvg />;
 }
 
 export function OrderlyNetworkIconGray() {
-  return OrderlyNetworkIconGraySvg;
+  return <OrderlyNetworkIconGraySvg />;
 }
 
 export function NearWalletIcon() {
-  return NearWalletIconSvg;
+  return <NearWalletIconSvg />;
 }
 
 export function FirstPage() {
-  return FirstPageSvg;
+  return <FirstPageSvg />;
 }
 
 export function NextPage() {
-  return NextPageSvg;
+  return <NextPageSvg />;
 }
 
 export function PrePage() {
-  return PrePageSvg;
+  return <PrePageSvg />;
 }
 
 export function LastPage() {
@@ -110,7 +109,7 @@ export function RefToOrderly() {
 }
 
 export function RefToOrderlyPortFolio() {
-  return RefToOrderlyPortFolioSvg;
+  return <RefToOrderlyPortFolioSvg />;
 }
 
 export function RefToOrderlyMobile() {
@@ -118,89 +117,89 @@ export function RefToOrderlyMobile() {
 }
 
 export function AgreeCheck() {
-  return AgreeCheckSvg;
+  return <AgreeCheckSvg />;
 }
 
 export function AgreeNotCheck() {
-  return AgreeNotCheckSvg;
+  return <AgreeNotCheckSvg />;
 }
 
 export function CheckSelector() {
-  return CheckSelectorSvg;
+  return <CheckSelectorSvg />;
 }
 
 export function CheckSelectorWhite() {
-  return CheckSelectorWhiteSvg;
+  return <CheckSelectorWhiteSvg />;
 }
 
 export function OrderlyIconBalance() {
-  return OrderlyIconBalanceSvg;
+  return <OrderlyIconBalanceSvg />;
 }
 
 export function BalanceIcon() {
-  return BalanceIconSvg;
+  return <BalanceIconSvg />;
 }
 
 export function ChartIcon() {
-  return ChartIconSvg;
+  return <ChartIconSvg />;
 }
 
 export function BookIcon() {
-  return BookIconSvg;
+  return <BookIconSvg />;
 }
 
 export function InOrderIcon() {
-  return InOrderIconSvg;
+  return <InOrderIconSvg />;
 }
 
 export function MobileFilter() {
-  return MobileFilterSvg;
+  return <MobileFilterSvg />;
 }
 
 export function MobileEdit() {
-  return MobileEditSvg;
+  return <MobileEditSvg />;
 }
 
 export function HistoryOrderDetailIcon() {
-  return HistoryOrderDetailIconSvg;
+  return <HistoryOrderDetailIconSvg />;
 }
 
 export function TipIconAsset() {
-  return TipIconAssetSvg;
+  return <TipIconAssetSvg />;
 }
 
 export const GoToOrderbookTipMobileText = () => {
   return <GoToOrderbookTipMobileTextSvg className="relative bottom-10" />;
 };
 export const GoToOrderbookTipMobileDot = () => {
-  return GoToOrderbookTipMobileDotSvg;
+  return <GoToOrderbookTipMobileDotSvg />;
 };
 export const OrderBookArrowRight = () => {
-  return OrderBookArrowRightSvg;
+  return <OrderBookArrowRightSvg />;
 };
 export const PolygonRight = () => {
-  return PolygonRightSvg;
+  return <PolygonRightSvg />;
 };
 export const MarkPriceFlag = () => {
-  return MarkPriceFlagSvg;
+  return <MarkPriceFlagSvg />;
 };
 export const PerpSwapIcon = () => {
-  return PerpSwapIconSvg;
+  return <PerpSwapIconSvg />;
 };
 export const PerpSpotIcon = () => {
-  return PerpSpotIconSvg;
+  return <PerpSpotIconSvg />;
 };
 export const PerpPerpIcon = () => {
-  return PerpPerpIconSvg;
+  return <PerpPerpIconSvg />;
 };
 export const MobileChartIcon = () => {
-  return MobileChartIconSvg;
+  return <MobileChartIconSvg />;
 };
 export const MobileMoreRouteIcon = () => {
-  return MobileMoreRouteIconSvg;
+  return <MobileMoreRouteIconSvg />;
 };
 export const NoOrderEmpty = () => {
-  return NoOrderEmptySvg;
+  return <NoOrderEmptySvg />;
 };
 
 export function OrderStateOutlineBlack() {
@@ -955,7 +954,7 @@ export const GoToOrderbookTipMobile = (props: any) => {
         top: '140px',
       }}
     >
-      <GoToOrderbookTipMobileDot></GoToOrderbookTipMobileDot>
+      <GoToOrderbookTipMobileDot />
 
       <GoToOrderbookTipMobileText></GoToOrderbookTipMobileText>
     </div>

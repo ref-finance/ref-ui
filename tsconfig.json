@@ -20,6 +20,6 @@
     "skipLibCheck": true, /* Skip type checking of declaration files. */
     "suppressImplicitAnyIndexErrors": true
   },
-  "include": ["src/"],
+  "include": ["src/", "globals.d.ts"],
   "exclude": ["node_modules/*", "**/*.spec.ts", "src/index.tsx"]
 }
