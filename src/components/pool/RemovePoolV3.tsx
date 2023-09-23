@@ -53,6 +53,9 @@ import {
 } from '~pages/poolsV3/interfaces';
 import DclChart from '../../components/d3Chart/DclChart';
 import { isMobile } from '~utils/device';
+import { WarningIcon } from '~components/icon/V3';
+import QuestionMark from '~components/farm/QuestionMark';
+import ReactTooltip from 'react-tooltip';
 
 export type RemoveType = 'left' | 'right' | 'all';
 
@@ -95,6 +98,8 @@ export const RemovePoolV3 = (props: any) => {
   const [minBoxPoint, setMinBoxPoint] = useState<number>();
   const [maxBoxPoint, setMaxBoxPoint] = useState<number>();
   const [binBoxAmount, setBinBoxAmount] = useState<string>('');
+  const [show_boundary_tip, set_show_boundary_tip] = useState<boolean>(false);
+  const [boundary_is_diff, set_boundary_is_diff] = useState<boolean>(false);
 
   useEffect(() => {
     // init
@@ -118,6 +123,13 @@ export const RemovePoolV3 = (props: any) => {
       handleBinAmountToAppropriateAmount(+binBoxAmount);
     }
   }, [binBoxAmount]);
+  useEffect(() => {
+    if (boundary_is_diff && removeType == 'all') {
+      set_show_boundary_tip(true);
+    } else {
+      set_show_boundary_tip(false);
+    }
+  }, [boundary_is_diff, removeType]);
   const [
     min_received_x_amount,
     min_received_y_amount,
@@ -206,11 +218,13 @@ export const RemovePoolV3 = (props: any) => {
       user_points.push(l.left_point, l.right_point);
     });
     user_points.sort((b, a) => b - a);
-    const min_point = get_bin_point_by_point(user_points[0], 'floor');
-    const max_point = get_bin_point_by_point(
-      user_points[user_points.length - 1],
-      'ceil'
-    );
+    const user_min_point = user_points[0];
+    const user_max_point = user_points[user_points.length - 1];
+    const min_point = get_bin_point_by_point(user_min_point, 'floor');
+    const max_point = get_bin_point_by_point(user_max_point, 'ceil');
+    if (min_point !== user_min_point || max_point !== user_max_point) {
+      set_boundary_is_diff(true);
+    }
     let min_price, max_price;
     if (pair_is_reverse) {
       min_price = reverse_price(get_bin_price_by_point(max_point));
@@ -695,6 +709,12 @@ export const RemovePoolV3 = (props: any) => {
       .toFixed();
     return [min_token_x_amount, min_token_y_amount];
   }
+  function get_boundary_tip() {
+    const tip =
+      'The Min Price and Max price displayed here correspond to the boundaries of the bins. Since you added liquidity before the upgrade, the liquidity boundaries are within the bins containing the Min Price or  Max price. Therefore, your actual price range may differ from the the Min Price or Max price displayed here.';
+    let result: string = `<div class="text-farmText text-xs text-left xsm:w-52 lg:w-80">${tip}</div>`;
+    return result;
+  }
   const isRemoveLiquidityDisabled = minBoxPoint == maxBoxPoint;
   const is_mobile = isMobile();
   const cardWidth = is_mobile ? '100vw' : '550px';
@@ -948,6 +968,34 @@ export const RemovePoolV3 = (props: any) => {
             />
           </div>
         </div>
+        {/* Tip */}
+        {show_boundary_tip ? (
+          <div className="flex items-start mt-2.5 text-sm text-warnColor">
+            {/* <WarningIcon className="ml-2.5 mr-2 relative top-px flex-shrink-0" /> */}
+            <div
+              className="text-white text-right mr-1 relative top-1"
+              data-class="reactTip"
+              data-for="rewardRangeTipId"
+              data-place="top"
+              data-html={true}
+              data-tip={get_boundary_tip()}
+            >
+              <QuestionMark></QuestionMark>
+              <ReactTooltip
+                id="rewardRangeTipId"
+                backgroundColor="#1D2932"
+                border
+                borderColor="#7e8a93"
+                effect="solid"
+              />
+            </div>
+            <span>
+              Why the Min Price or Max price here differ from my actual price
+              range?
+            </span>
+          </div>
+        ) : null}
+
         {/* Slippage */}
         <div>
           <PoolSlippageSelectorV3
