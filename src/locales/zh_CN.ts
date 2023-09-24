@@ -1255,5 +1255,6 @@ const zh_CN = {
   TokenAllocation: '代币分布',
   netWorthTip:
     'Ref中的投资总价值(包括可领取奖励)+Orderly资产总价值+ Burrow资产总价值+钱包中的总资产',
+  top_bin_apr: 'Top Bin APR (24h)',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

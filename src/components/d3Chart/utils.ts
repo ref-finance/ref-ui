@@ -79,6 +79,6 @@ export const formatToInternationalCurrencySystem$ = (v: string | number) => {
   return '$' + toInternationalCurrencySystem(Big(v || 0).toFixed(), 2);
 };
 export const isInvalid = function (v: any) {
-  if (v === '' || v === undefined || v === null) return true;
+  if (v === '' || v === undefined || v === null || v === '-') return true;
   return false;
 };

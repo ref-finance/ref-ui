@@ -146,11 +146,10 @@ import {
 } from '../../services/commonV3';
 
 import { AiFillStar } from 'react-icons/ai';
-import { useTokenPriceList } from '../../state/token';
 import { useSeedFarmsByPools } from '../../state/pool';
 
 import { RiArrowRightSLine } from 'react-icons/ri';
-import DclChart from '../../components/d3Chart/DclChart';
+import { formatPercentage } from '../../components/d3Chart/utils';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -514,6 +513,11 @@ function MobilePoolRowV2({
   const { ref } = useInView();
 
   const curRowTokens = useTokens([pool.token_x, pool.token_y], tokens);
+  const displayOfTopBinApr = useDCLTopBinFee({
+    pool,
+    way: 'value',
+  });
+  pool.top_bin_apr = displayOfTopBinApr;
 
   const history = useHistory();
 
@@ -532,6 +536,8 @@ function MobilePoolRowV2({
     else if (sortBy === 'fee') return `${calculateFeePercent(value / 100)}%`;
     else if (sortBy === 'volume_24h') {
       return geth24volume();
+    } else if (sortBy === 'top_bin_apr') {
+      return value?.toString() == '-' ? '-' : formatPercentage(value);
     } else return '/';
   };
   function goDetailV2() {
@@ -849,6 +855,8 @@ function MobileLiquidityPage({
 
     const v2 = volumes[p2.pool_id] ? parseFloat(volumes[p2.pool_id]) : 0;
 
+    const top1 = +(p1.top_bin_apr == '-' ? '0' : p1.top_bin_apr);
+    const top2 = +(p2.top_bin_apr == '-' ? '0' : p2.top_bin_apr);
     if (v2Order === 'desc') {
       if (v2SortBy === 'tvl') {
         return tvl2 - tvl1;
@@ -856,6 +864,8 @@ function MobileLiquidityPage({
         return f2 - f1;
       } else if (v2SortBy === 'volume_24h') {
         return v2 - v1;
+      } else if (v2SortBy == 'top_bin_apr') {
+        return top2 - top1;
       }
     } else if (v2Order === 'asc') {
       if (v2SortBy === 'tvl') {
@@ -864,6 +874,8 @@ function MobileLiquidityPage({
         return f1 - f2;
       } else if (v2SortBy === 'volume_24h') {
         return v1 - v2;
+      } else if (v2SortBy == 'top_bin_apr') {
+        return top1 - top2;
       }
     }
   };
@@ -1495,7 +1507,7 @@ function MobileLiquidityPage({
                       pool={pool}
                       sortBy={v2SortBy}
                       watched={!!find(watchV2Pools, { pool_id: pool.pool_id })}
-                      key={i + '-mobile-pool-row-v2'}
+                      key={pool.pool_id + '-mobile-pool-row-v2'}
                       h24volume={volumes[pool.pool_id]}
                       relatedSeed={do_farms_v2_poos[pool.pool_id]}
                     />
@@ -3004,7 +3016,7 @@ function LiquidityPage_({
                   .map((pool, i) => (
                     <PoolRowV2
                       tokens={[pool.token_x_metadata, pool.token_y_metadata]}
-                      key={i}
+                      key={pool.pool_id}
                       pool={pool}
                       watched={!!find(watchV2Pools, { pool_id: pool.pool_id })}
                       index={i + 1}

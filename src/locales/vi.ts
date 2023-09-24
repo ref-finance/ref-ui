@@ -1178,5 +1178,6 @@ const vi = {
   TokenAllocation: 'Token Allocation',
   netWorthTip:
     'Total value of investments in Ref (including claimable rewards) + Total value of Orderly assets + Total value of Burrow assets + Total assets in wallet',
+  top_bin_apr: 'Top Bin APR (24h)',
 };
 export default Object.assign(vi, vi_in_risks_page);

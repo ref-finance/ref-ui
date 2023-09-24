@@ -1430,7 +1430,13 @@ export const useDCLPoolTransaction = ({
   };
 };
 
-export const useDCLTopBinFee = ({ pool }: { pool: PoolInfo }) => {
+export const useDCLTopBinFee = ({
+  pool,
+  way,
+}: {
+  pool: PoolInfo;
+  way?: 'value' | 'display';
+}) => {
   const [topBinApr, setTopBinApr] = useState<string>('-');
   useEffect(() => {
     if (!pool) return;
@@ -1442,14 +1448,17 @@ export const useDCLTopBinFee = ({ pool }: { pool: PoolInfo }) => {
       end_point,
     }).then((res) => {
       if (!res || ONLY_ZEROS.test(res.total_liquidity)) return;
-      const apr = formatPercentage(
-        new Big(res.total_fee)
-          .div(res.total_liquidity)
-          .mul(365)
-          .mul(100)
-          .toFixed()
-      );
-      setTopBinApr(apr);
+      const apr = new Big(res.total_fee)
+        .div(res.total_liquidity)
+        .mul(365)
+        .mul(100)
+        .toFixed();
+      const apr_display = formatPercentage(apr);
+      if (way == 'value') {
+        setTopBinApr(apr);
+      } else {
+        setTopBinApr(apr_display);
+      }
     });
   }, [pool]);
 
