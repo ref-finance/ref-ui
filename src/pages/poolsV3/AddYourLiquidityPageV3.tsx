@@ -68,6 +68,8 @@ import { PointsComponent } from './components/add/PointsComponent';
 import { AddLiquidityButton } from './components/add/AddLiquidityButton';
 import { NoDataComponent } from './components/add/NoDataComponent';
 import { InputAmount } from './components/add/InputAmount';
+import { PairComponent } from './components/add/PairComponent';
+import { SelectFeeTiers } from './components/add/SelectFeeTiers';
 
 export const LiquidityProviderData = createContext(null);
 export default function AddYourLiquidityPageV3() {
@@ -108,6 +110,7 @@ export default function AddYourLiquidityPageV3() {
     UserLiquidityInfo[]
   >([]);
   const [pair_is_reverse, set_pair_is_reverse] = useState<boolean>(false);
+  const [show_chart, set_show_chart] = useState<boolean>(true);
 
   // callBack handle
   useAddLiquidityUrlHandle();
@@ -1865,6 +1868,8 @@ export default function AddYourLiquidityPageV3() {
         token_amount_tip,
         set_token_amount_tip,
         switch_pool_loading,
+        currentPools,
+        switchSelectedFee,
 
         get_y_nfts_contain_current_curve,
         get_x_nfts_contain_current_curve,
@@ -1877,11 +1882,14 @@ export default function AddYourLiquidityPageV3() {
 
         getLiquiditySpot,
         getLiquidityForCurveAndBidAskMode,
+
+        show_chart,
+        set_show_chart,
       }}
     >
       <div
         style={{ width: mobileDevice ? '' : '1020px' }}
-        className="relative flex flex-col  lg:w-4/5 2xl:w-3/5 xs:w-full md:w-full xs:px-3 md:px-3 m-auto text-white rounded-2xl "
+        className="relative flex flex-col  lg:w-4/5 2xl:w-3/5 xs:w-full md:w-full xsm:px-0 m-auto text-white rounded-2xl "
       >
         {/* head */}
         <div
@@ -1902,9 +1910,16 @@ export default function AddYourLiquidityPageV3() {
         </div>
 
         {/* content */}
-        <div className="relative z-10 py-5 px-7 xsm:px-3 rounded-2xl bg-swapCardGradient">
+        <div className="relative z-10 py-5 px-7 xsm:px-0 rounded-2xl lg:bg-swapCardGradient">
           <div className="flex items-start justify-between xs:flex-col md:flex-col">
-            <div className="w-full mr-6">
+            {/* only mobile */}
+            {mobileDevice ? (
+              <>
+                <PairComponent /> <SelectFeeTiers />
+              </>
+            ) : null}
+            {/* left area */}
+            <div className="w-full lg:mr-6">
               {/* no Data */}
               {(currentSelectedPool &&
                 !currentSelectedPool.pool_id &&
@@ -1913,7 +1928,6 @@ export default function AddYourLiquidityPageV3() {
                 <NoDataComponent />
               ) : null}
 
-              {/* left area */}
               {currentSelectedPool && currentSelectedPool.pool_id ? (
                 <PointsComponent></PointsComponent>
               ) : null}
@@ -1922,56 +1936,68 @@ export default function AddYourLiquidityPageV3() {
             {/* right area */}
             <div
               style={{ width: mobileDevice ? '' : '400px' }}
-              className="flex-shrink-0 xs:w-full md:w-full"
+              className="flex-shrink-0 xsm:w-full xsm:px-4"
             >
-              <div className="flex items-center justify-between xsm:mt-4">
-                <div className="text-white text-sm">
-                  <FormattedMessage
-                    id="select_token_pair"
-                    defaultMessage={'Select Token Pair'}
-                  ></FormattedMessage>
-                </div>
+              {!mobileDevice ? (
+                <div className="flex items-center justify-between xsm:mt-4">
+                  <div className="text-white text-sm">
+                    <FormattedMessage
+                      id="select_token_pair"
+                      defaultMessage={'Select Token Pair'}
+                    ></FormattedMessage>
+                  </div>
 
-                <SelectTokenDCL
-                  selectTokenIn={(token) => {
-                    setTokenX(token);
-                  }}
-                  selectTokenOut={(token: TokenMetadata) => {
-                    setTokenY(token);
-                  }}
-                  notNeedSortToken={true}
-                  className="pt-6  absolute top-5 outline-none   right-0    xs:text-white xs:font-bold xs:fixed xs:bottom-0 xs:w-full "
-                  selected={
-                    <div
-                      className={` text-sm rounded-lg frcc cursor-pointer p-3 bg-v3SwapGray bg-opacity-10 ${
-                        selectHover ? 'text-white' : 'text-primaryText'
-                      }`}
-                      onMouseEnter={() => {
-                        if (!mobileDevice) {
-                          setSelectHover(true);
-                        }
-                      }}
-                      onMouseLeave={() => {
-                        if (!mobileDevice) {
-                          setSelectHover(false);
-                        }
-                      }}
-                      onClick={() => {
-                        if (mobileDevice) {
-                          setSelectHover(!selectHover);
-                        }
-                      }}
-                      onBlur={() => {
-                        if (mobileDevice) {
-                          setSelectHover(false);
-                        }
-                      }}
-                    >
-                      <ArrowDownV3 />
-                    </div>
-                  }
-                />
-              </div>
+                  <SelectTokenDCL
+                    selectTokenIn={(token) => {
+                      setTokenX(token);
+                    }}
+                    selectTokenOut={(token: TokenMetadata) => {
+                      setTokenY(token);
+                    }}
+                    notNeedSortToken={true}
+                    className="pt-6  absolute top-5 outline-none   right-0    xs:text-white xs:font-bold xs:fixed xs:bottom-0 xs:w-full "
+                    selected={
+                      <div
+                        className={` text-sm rounded-lg frcc cursor-pointer p-3 bg-v3SwapGray bg-opacity-10 ${
+                          selectHover ? 'text-white' : 'text-primaryText'
+                        }`}
+                        onMouseEnter={() => {
+                          if (!mobileDevice) {
+                            setSelectHover(true);
+                          }
+                        }}
+                        onMouseLeave={() => {
+                          if (!mobileDevice) {
+                            setSelectHover(false);
+                          }
+                        }}
+                        onClick={() => {
+                          if (mobileDevice) {
+                            setSelectHover(!selectHover);
+                          }
+                        }}
+                        onBlur={() => {
+                          if (mobileDevice) {
+                            setSelectHover(false);
+                          }
+                        }}
+                      >
+                        <ArrowDownV3 />
+                      </div>
+                    }
+                  />
+                </div>
+              ) : null}
+              {mobileDevice ? (
+                <div
+                  className={`text-base text-white font-gothamBold ${
+                    show_chart ? '' : 'hidden'
+                  }`}
+                >
+                  Input Token Amount
+                </div>
+              ) : null}
+
               <div
                 className={`flex flex-col ${
                   pair_is_reverse ? 'flex-col-reverse' : ''
@@ -2002,126 +2028,8 @@ export default function AddYourLiquidityPageV3() {
                   {token_amount_tip}
                 </div>
               ) : null}
-
-              <div className="frcb mt-6 mb-7">
-                <div className="text-white text-sm">
-                  <FormattedMessage
-                    id="select_fee_tiers"
-                    defaultMessage={'Select Fee Tiers'}
-                  ></FormattedMessage>
-                </div>
-
-                <div className="frcs gap-2">
-                  <span className="text-sm text-white">
-                    {!!currentSelectedPool?.fee
-                      ? `${currentSelectedPool.fee / 10000}%`
-                      : ''}
-                  </span>
-
-                  <div
-                    className="w-7 h-7 rounded-lg relative bg-v3SwapGray z-50 bg-opacity-10 hover:bg-opacity-30 text-primaryText hover:text-white frcc"
-                    onMouseLeave={() => {
-                      // if (mobileDevice) return;
-                      setHoverFeeBox(false);
-                    }}
-                    onMouseEnter={() => {
-                      if (mobileDevice) return;
-                      setHoverFeeBox(true);
-                    }}
-                    onClick={() => {
-                      if (mobileDevice) {
-                        setHoverFeeBox(!hoverFeeBox);
-                      }
-                    }}
-                  >
-                    <div>
-                      <SliderCurColor></SliderCurColor>
-                    </div>
-                    {hoverFeeBox && (
-                      <div className="absolute right-0 top-5 pt-4">
-                        <div
-                          className="rounded-xl  right-0 top-3 px-4 py-3  xs:px-2 md:px-2"
-                          style={{
-                            border: '1.2px solid rgba(145, 162, 174, 0.2)',
-                            width: mobileDevice ? '300px' : '418px',
-                            background:
-                              'linear-gradient(rgb(34, 47, 55) 0%, rgb(25, 34, 41) 100%)',
-                          }}
-                        >
-                          <div className="text-sm text-white font-gothamBold">
-                            <FormattedMessage
-                              id="fee_Tiers"
-                              defaultMessage="Fee Tiers"
-                            />
-                          </div>
-                          <div
-                            className={`lg:items-stretch lg:justify-between xsm:grid-cols-2 xsm:gap-1.5 mt-5 xsm:mt-2.5 ${
-                              feeBoxStatus ? 'lg:flex xsm:grid' : 'hidden'
-                            }`}
-                          >
-                            {FEELIST.map((feeItem, index) => {
-                              const { fee, text } = feeItem;
-                              const isNoPool =
-                                currentPools && !currentPools[fee];
-                              return (
-                                <div
-                                  onClick={() => {
-                                    switchSelectedFee(fee);
-                                  }}
-                                  key={fee + index}
-                                  className={`relative xsm:w-full flex flex-col px-2 py-1.5 xsm:py-1 rounded-lg w-1 flex-grow ${
-                                    tokenX && tokenY ? 'cursor-pointer' : ''
-                                  } ${index == 3 ? '' : 'mr-2.5 xsm:mr-1'} ${
-                                    isNoPool
-                                      ? 'border border-v3GreyColor'
-                                      : currentSelectedPool?.fee == fee
-                                      ? 'bg-feeBoxBgLiqudityColor'
-                                      : 'bg-v3GreyColor'
-                                  }`}
-                                >
-                                  <span
-                                    className={`text-sm font-gothamBold ${
-                                      isNoPool ||
-                                      !(tokenX && tokenY && currentPools)
-                                        ? 'text-primaryText text-opacity-60'
-                                        : 'text-white'
-                                    }`}
-                                  >
-                                    {fee / 10000}%
-                                  </span>
-                                  {tokenX && tokenY && currentPools ? (
-                                    <span
-                                      className={`transform scale-90 origin-left text-xs text-primaryText whitespace-nowrap ${
-                                        isNoPool ? 'text-opacity-60' : ''
-                                      }`}
-                                    >
-                                      {isNoPool ? (
-                                        'No Pool'
-                                      ) : Object.keys(tokenPriceList).length >
-                                        0 ? (
-                                        <span>
-                                          {displayTvl(currentPools[fee].tvl)}
-                                        </span>
-                                      ) : (
-                                        'Loading...'
-                                      )}
-                                    </span>
-                                  ) : null}
-                                  {currentSelectedPool?.fee == fee ? (
-                                    <SelectedIcon className="absolute top-0 right-0"></SelectedIcon>
-                                  ) : null}
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className="text-sm mb-2.5 text-white">
+              {!mobileDevice ? <SelectFeeTiers /> : null}
+              <div className="text-sm mb-2.5 text-white xsm:text-base xsm:font-gothamBold xsm:mt-6">
                 <FormattedMessage
                   id="choose_liquidity_shape"
                   defaultMessage={'Choose Liquidity Shape'}
@@ -2194,7 +2102,7 @@ export default function AddYourLiquidityPageV3() {
               {/* user chart part */}
               <div className="lg:mt-4 xsm:mt-8">
                 <div className="flex items-center justify-between">
-                  <div className="text-sm text-white">
+                  <div className="text-sm text-white xsm:text-base xsm:font-gothamBold">
                     <FormattedMessage
                       id="Simulate_liquidity_distribution"
                       defaultMessage={'Simulate Liquidity Distribution'}

@@ -44,6 +44,7 @@ export function PointsComponent() {
     onlyAddYToken,
     invalidRange,
     currentPoint,
+    show_chart,
   } = useContext(LiquidityProviderData);
   const [priceRangeMode, setPriceRangeMode] = useState<
     'by_range' | 'by_radius'
@@ -320,85 +321,91 @@ export function PointsComponent() {
   }
   const is_mobile = isMobile();
   return (
-    <div className={`w-full xs:w-full md:w-full flex flex-col self-stretch`}>
+    <div
+      className={`w-full xs:w-full md:w-full flex flex-col self-stretch ${
+        show_chart ? '' : 'hidden'
+      }`}
+    >
       {/* chart area */}
-      <div
-        className="relative mb-5 mt-24 pt-4"
-        style={{ height: is_mobile ? 'auto' : '270px' }}
-      >
-        <div className="absolute left-0 -top-24 inline-flex items-center justify-between bg-detailCardBg rounded-lg border border-dclTabBorderColor p-0.5">
-          <span
-            onClick={() => {
-              setChartTab('liquidity');
-            }}
-            className={`w-20 frcc text-xs gotham_bold px-3 py-1.5 rounded-md cursor-pointer ${
-              chartTab == 'liquidity'
-                ? 'text-black bg-gradientFromHover'
-                : 'text-primaryText'
-            }`}
-          >
-            Liquidity
-          </span>
-          <span
-            className={`w-20 frcc ${
-              isSignedIn ? 'cursor-pointer' : 'cursor-not-allowed'
-            } text-xs gotham_bold px-3 py-1.5 rounded-md ${
-              chartTab == 'yours'
-                ? 'text-black bg-gradientFromHover'
-                : 'text-primaryText'
-            }`}
-            onClick={() => {
-              if (isSignedIn) {
-                setChartTab('yours');
-              }
-            }}
-          >
-            Yours
-          </span>
-        </div>
-        <div className={`${chartTab == 'liquidity' ? '' : 'hidden'}`}>
-          {!isInvalid(leftPoint) &&
+      <div className={`xsm:bg-mobileOrderListBg xsm:py-2.5 xsm:px-4`}>
+        <div
+          className="flex justify-center relative mb-5 mt-24 pt-4"
+          style={{ height: is_mobile ? 'auto' : '270px' }}
+        >
+          <div className="absolute left-0 -top-24 inline-flex items-center justify-between bg-detailCardBg rounded-lg border border-dclTabBorderColor p-0.5">
+            <span
+              onClick={() => {
+                setChartTab('liquidity');
+              }}
+              className={`w-20 frcc text-xs gotham_bold px-3 py-1.5 rounded-md cursor-pointer ${
+                chartTab == 'liquidity'
+                  ? 'text-black bg-gradientFromHover'
+                  : 'text-primaryText'
+              }`}
+            >
+              Liquidity
+            </span>
+            <span
+              className={`w-20 frcc ${
+                isSignedIn ? 'cursor-pointer' : 'cursor-not-allowed'
+              } text-xs gotham_bold px-3 py-1.5 rounded-md ${
+                chartTab == 'yours'
+                  ? 'text-black bg-gradientFromHover'
+                  : 'text-primaryText'
+              }`}
+              onClick={() => {
+                if (isSignedIn) {
+                  setChartTab('yours');
+                }
+              }}
+            >
+              Yours
+            </span>
+          </div>
+          <div className={`${chartTab == 'liquidity' ? '' : 'hidden'}`}>
+            {!isInvalid(leftPoint) &&
+              !isInvalid(rightPoint) &&
+              !switch_pool_loading && (
+                <DclChart
+                  pool_id={currentSelectedPool?.pool_id}
+                  leftPoint={leftPoint}
+                  rightPoint={rightPoint}
+                  setLeftPoint={setLeftPoint}
+                  setRightPoint={setRightPoint}
+                  setTargetPoint={setTargetPoint}
+                  targetPoint={targetPoint}
+                  radius={radius}
+                  config={{
+                    radiusMode: priceRangeMode == 'by_radius',
+                    svgWidth: is_mobile ? '330' : '',
+                  }}
+                  reverse={pair_is_reverse}
+                ></DclChart>
+              )}
+          </div>
+          {isSignedIn &&
+            !isInvalid(leftPoint) &&
             !isInvalid(rightPoint) &&
             !switch_pool_loading && (
-              <DclChart
-                pool_id={currentSelectedPool?.pool_id}
-                leftPoint={leftPoint}
-                rightPoint={rightPoint}
-                setLeftPoint={setLeftPoint}
-                setRightPoint={setRightPoint}
-                setTargetPoint={setTargetPoint}
-                targetPoint={targetPoint}
-                radius={radius}
-                config={{
-                  radiusMode: priceRangeMode == 'by_radius',
-                  svgWidth: is_mobile ? '330' : '',
-                }}
-                reverse={pair_is_reverse}
-              ></DclChart>
+              <div className={`${chartTab == 'yours' ? '' : 'hidden'}`}>
+                <DclChart
+                  pool_id={currentSelectedPool?.pool_id}
+                  config={{
+                    controlHidden: true,
+                    svgWidth: is_mobile ? '330' : '',
+                  }}
+                  chartType="USER"
+                  reverse={pair_is_reverse}
+                ></DclChart>
+              </div>
             )}
         </div>
-        {isSignedIn &&
-          !isInvalid(leftPoint) &&
-          !isInvalid(rightPoint) &&
-          !switch_pool_loading && (
-            <div className={`${chartTab == 'yours' ? '' : 'hidden'}`}>
-              <DclChart
-                pool_id={currentSelectedPool?.pool_id}
-                config={{
-                  controlHidden: true,
-                  svgWidth: is_mobile ? '330' : '',
-                }}
-                chartType="USER"
-                reverse={pair_is_reverse}
-              ></DclChart>
-            </div>
-          )}
       </div>
       {/* set price range area */}
-      <div className="border border-limitOrderFeeTiersBorderColor rounded-xl p-4">
+      <div className="lg:border lg:border-limitOrderFeeTiersBorderColor lg:rounded-xl p-4">
         {/* price range mode area */}
         <div className="frcb">
-          <div className="text-white flex flex-col text-sm ">
+          <div className="text-white flex flex-col text-sm xsm:text-base font-gothamBold">
             <FormattedMessage
               id="set_price_range"
               defaultMessage="Set Price Range"

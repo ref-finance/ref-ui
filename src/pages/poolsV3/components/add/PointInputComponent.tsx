@@ -15,12 +15,12 @@ export function PointInputComponent({
   disbaled,
 }: any) {
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between xsm:flex-grow">
       <input
         type="number"
         placeholder="0.0"
         step="any"
-        className={`text-base font-gothamBold mx-2 text-left ${
+        className={`text-base font-gothamBold mx-2 text-left xsm:text-right ${
           disbaled ? 'text-primaryText' : 'text-white'
         }`}
         onBlur={() => {

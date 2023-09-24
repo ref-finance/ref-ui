@@ -12,39 +12,41 @@ export function NoDataComponent() {
   return (
     <div className={`w-full xs:w-full md:w-full flex flex-col self-stretch`}>
       {/* chart area */}
-      <div className="relative mb-5 mt-24" style={{ height: '270px' }}>
-        <div className="absolute left-0 -top-24 inline-flex items-center justify-between bg-detailCardBg rounded-lg border border-dclTabBorderColor p-0.5">
-          <span
-            onClick={() => {
-              setChartTab('liquidity');
-            }}
-            className={`w-20 frcc text-xs gotham_bold px-3 py-1.5 rounded-md cursor-pointer ${
-              chartTab == 'liquidity'
-                ? 'text-black bg-gradientFromHover'
-                : 'text-primaryText'
-            }`}
-          >
-            Liquidity
-          </span>
-          <span
-            className={`w-20 frcc text-xs gotham_bold px-3 py-1.5 rounded-md ${
-              isSignedIn ? 'cursor-pointer' : 'cursor-not-allowed'
-            } ${
-              chartTab == 'yours'
-                ? 'text-black bg-gradientFromHover'
-                : 'text-primaryText'
-            }`}
-            onClick={() => {
-              if (isSignedIn) {
-                setChartTab('yours');
-              }
-            }}
-          >
-            Yours
-          </span>
-        </div>
-        <div className="flex items-center justify-center text-ms text-primaryText mt-20">
-          Oops! The Pool doesn’t exist
+      <div className="xsm:bg-mobileOrderListBg xsm:py-2.5 xsm:px-4">
+        <div className="relative mb-5 mt-24 pt-px" style={{ height: '270px' }}>
+          <div className="absolute left-0 -top-24 inline-flex items-center justify-between bg-detailCardBg rounded-lg border border-dclTabBorderColor p-0.5">
+            <span
+              onClick={() => {
+                setChartTab('liquidity');
+              }}
+              className={`w-20 frcc text-xs gotham_bold px-3 py-1.5 rounded-md cursor-pointer ${
+                chartTab == 'liquidity'
+                  ? 'text-black bg-gradientFromHover'
+                  : 'text-primaryText'
+              }`}
+            >
+              Liquidity
+            </span>
+            <span
+              className={`w-20 frcc text-xs gotham_bold px-3 py-1.5 rounded-md ${
+                isSignedIn ? 'cursor-pointer' : 'cursor-not-allowed'
+              } ${
+                chartTab == 'yours'
+                  ? 'text-black bg-gradientFromHover'
+                  : 'text-primaryText'
+              }`}
+              onClick={() => {
+                if (isSignedIn) {
+                  setChartTab('yours');
+                }
+              }}
+            >
+              Yours
+            </span>
+          </div>
+          <div className="flex items-center justify-center text-ms text-primaryText mt-20">
+            Oops! The Pool doesn’t exist
+          </div>
         </div>
       </div>
       {/* set price range area */}

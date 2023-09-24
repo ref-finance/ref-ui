@@ -1494,7 +1494,7 @@ export default function DclChart({
   return (
     <>
       <div
-        className={`relative inline-flex flex-col justify-between ${
+        className={`relative inline-flex flex-col justify-between items-center ${
           (chartType !== 'USER' && chartDataList) ||
           (chartType == 'USER' && chartDataList?.length)
             ? ''
