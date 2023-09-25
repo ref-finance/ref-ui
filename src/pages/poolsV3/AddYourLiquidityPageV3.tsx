@@ -90,9 +90,7 @@ export default function AddYourLiquidityPageV3() {
   const [tokenXBalanceFromNear, setTokenXBalanceFromNear] = useState<string>();
   const [tokenYBalanceFromNear, setTokenYBalanceFromNear] = useState<string>();
 
-  const [feeBoxStatus, setFeeBoxStatus] = useState(true);
   const [selectHover, setSelectHover] = useState(false);
-  const [hoverFeeBox, setHoverFeeBox] = useState<boolean>(false);
 
   const [binNumber, setBinNumber] = useState();
   const [liquidityShape, setLiquidityShape] = useState<LiquidityShape>('Spot');
@@ -376,8 +374,19 @@ export default function AddYourLiquidityPageV3() {
     if (tokenx_id && tokeny_id && pool_fee) {
       const tokenx = await ftGetTokenMetadata(tokenx_id);
       const tokeny = await ftGetTokenMetadata(tokeny_id);
-      setTokenX(tokenx);
-      setTokenY(tokeny);
+      listPool.find((pool: PoolInfo) => {
+        const { token_x, token_y } = pool;
+        if (token_x == tokenx.id && token_y == tokeny.id) {
+          setTokenX(tokenx);
+          setTokenY(tokeny);
+          return true;
+        }
+        if (token_x == tokeny.id && token_y == tokenx.id) {
+          setTokenX(tokeny);
+          setTokenY(tokenx);
+          return true;
+        }
+      });
     }
   }
   function searchPools() {
@@ -564,18 +573,6 @@ export default function AddYourLiquidityPageV3() {
       token_x: tokenX,
       token_y: tokenY,
     };
-  }
-
-  function displayTvl(tvl: any) {
-    if (!tokenPriceList) {
-      return '-';
-    } else if (!tvl || +tvl == 0) {
-      return '$0';
-    } else if (+tvl < 1) {
-      return '<$1';
-    } else {
-      return `$${toInternationalCurrencySystem(tvl.toString(), 0)}`;
-    }
   }
   /**
    * curve 模式下，右侧（x）包含当前点位的 nfts划分

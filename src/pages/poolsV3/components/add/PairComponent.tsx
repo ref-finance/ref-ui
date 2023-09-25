@@ -20,10 +20,7 @@ export function PairComponent() {
       <div className="flex items-center gap-2.5">
         {!tokenX || !tokenY ? (
           <span className="text-lg gotham_bold text-white">
-            <FormattedMessage
-              id="select_fee_tiers"
-              defaultMessage={'Select Fee Tiers'}
-            ></FormattedMessage>
+            Select Token Pair
           </span>
         ) : (
           <div className="flex items-center gap-1.5">
