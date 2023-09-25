@@ -545,7 +545,9 @@ export default function AddYourLiquidityPageV3() {
     if (
       !isInvalid(leftPoint) &&
       !isInvalid(rightPoint) &&
-      (+tokenXAmount > 0 || +tokenYAmount > 0)
+      ((onlyAddXToken && +tokenXAmount > 0) ||
+        (onlyAddYToken && +tokenYAmount > 0) ||
+        (+tokenXAmount > 0 && +tokenYAmount > 0))
     ) {
       let new_nfts: any;
       if (liquidityShape == 'Spot') {

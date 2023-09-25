@@ -1078,12 +1078,26 @@ export default function DclChart({
       .attr('fill', 'rgba(255,255,255,0.1)');
   }
   function draw_current_bar({ scale }: { scale: Function }) {
+    const x = scale(+get_current_price()) + svgPaddingX;
     d3.select(`${randomId} .currentLine`).attr(
       'style',
-      `transform:translate(${
-        scale(+get_current_price()) + svgPaddingX
-      }px, -${axisHeight}px)`
+      `transform:translate(${x}px, -${axisHeight}px)`
     );
+    if (is_mobile) {
+      if (x > 290) {
+        const tx = x > 320 ? '-95%' : x > 300 ? '-80%' : '-70%';
+        d3.select(`${randomId} .currentLineDetail`).attr(
+          'style',
+          `transform:translateX(${tx})`
+        );
+      } else if (x < 50) {
+        const tx = x < 10 ? '-10%' : x < 20 ? '-20%' : '-30%';
+        d3.select(`${randomId} .currentLineDetail`).attr(
+          'style',
+          `transform:translateX(${tx})`
+        );
+      }
+    }
   }
   function draw_drag_left({ scale }: { scale: any }) {
     const price = get_current_price();
@@ -1833,7 +1847,7 @@ export default function DclChart({
             style={{ height: svgHeight + 'px' }}
           ></div>
           <div
-            className={`top-0 left-0 bg-senderHot rounded-lg p-2 absolute transform -translate-x-1/2 -translate-y-full flex flex-col ${
+            className={`currentLineDetail top-0 left-0 bg-senderHot rounded-lg p-2 absolute transform -translate-x-1/2 -translate-y-full flex flex-col ${
               reverse ? 'flex-col-reverse' : ''
             }`}
           >
