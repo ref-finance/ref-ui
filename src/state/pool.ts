@@ -58,6 +58,8 @@ import {
   LimitOrderRecentTransaction,
   getDCLAccountFee,
   getDCLTopBinFee,
+  getTokenPriceList,
+  getIndexerStatus,
 } from '../services/indexer';
 import { parsePoolView, PoolRPCView } from '../services/api';
 import {
@@ -1511,3 +1513,20 @@ function get_point_by_price(price: string, pool: PoolInfo) {
   const point = getPointByPrice(point_delta, price, decimalRate_point);
   return point;
 }
+export const useIndexerStatus = (dep?: any) => {
+  const [indexerStatus, setIndexerStatus] = useState<boolean>();
+
+  useEffect(() => {
+    getIndexerStatus()
+      .then((res) => {
+        setIndexerStatus(!!res);
+      })
+      .catch(() => {
+        setIndexerStatus(false);
+      });
+  }, []);
+
+  return {
+    fail: typeof indexerStatus === 'boolean' && !indexerStatus,
+  };
+};

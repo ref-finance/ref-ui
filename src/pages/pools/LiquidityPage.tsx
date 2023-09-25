@@ -5,6 +5,7 @@ import React, {
   useCallback,
   useMemo,
   useContext,
+  createContext,
 } from 'react';
 import { FaRegQuestionCircle, FaSearch } from 'react-icons/fa';
 
@@ -31,6 +32,7 @@ import {
   useWatchPools,
   useV3VolumesPools,
   useDCLTopBinFee,
+  useIndexerStatus,
 } from '../../state/pool';
 import Loading from '../../components/layout/Loading';
 
@@ -67,6 +69,7 @@ import {
   NEAR_CLASS_STABLE_POOL_IDS,
   wallet,
   REF_UNI_V3_SWAP_CONTRACT_ID,
+  USDTT_USDCC_USDT_USDC_POOL_ID,
 } from '../../services/near';
 import { WatchListStartFull } from '../../components/icon/WatchListStar';
 import { PolygonGrayDown } from '../../components/icon/Polygon';
@@ -150,6 +153,8 @@ import { useSeedFarmsByPools } from '../../state/pool';
 
 import { RiArrowRightSLine } from 'react-icons/ri';
 import { formatPercentage } from '../../components/d3Chart/utils';
+import { PoolRefreshModal } from './PoolRefreshModal';
+import { useTokenPriceList } from '../../state/token';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -157,6 +162,7 @@ const REF_FI_FARM_ONLY = 'REF_FI_FARM_ONLY';
 
 const REF_POOL_ID_SEARCHING_KEY = 'REF_POOL_ID_SEARCHING_KEY';
 const { switch_on_dcl_farms } = getConfig();
+const TokenPriceListContext = createContext(null);
 
 export function getPoolFeeApr(
   dayVolume: string,
@@ -311,6 +317,7 @@ function MobilePoolRow({
   const { ref } = useInView();
 
   const curRowTokens = useTokens(pool.tokenIds, tokens);
+  const { indexFail } = useContext(TokenPriceListContext);
 
   const history = useHistory();
 
@@ -326,7 +333,7 @@ function MobilePoolRow({
     value?: number;
   }) => {
     if (sortBy === 'tvl')
-      return toInternationalCurrencySystem(value.toString());
+      return indexFail ? '-' : toInternationalCurrencySystem(value.toString());
     else if (sortBy === 'fee') return `${calculateFeePercent(value)}%`;
     else if (sortBy === 'volume_24h')
       return !h24volume
@@ -372,12 +379,12 @@ function MobilePoolRow({
       </span>
     </button>
   );
-
+  const is_muti_tokens = curRowTokens?.length > 3;
   return (
     <div className="w-full hover:bg-poolRowHover overflow-x-hidden">
       <Link
         ref={ref}
-        className="flex flex-col border-b border-gray-700 border-opacity-70 bg-cardBg w-full px-2.5 py-5 text-white"
+        className="flex flex-col border-b border-gray-700 border-opacity-70 bg-cardBg w-full px-1.5 py-5 text-white"
         onClick={() => localStorage.setItem('fromMorePools', 'n')}
         to={{
           pathname: `/pool/${pool.id}`,
@@ -388,11 +395,11 @@ function MobilePoolRow({
           <div className="flex items-center">
             <div
               className={`flex items-center ${
-                !!morePoolButton ? 'relative bottom-1' : ''
-              }`}
+                is_muti_tokens ? 'flex-wrap w-12' : ''
+              } ${!!morePoolButton ? 'relative bottom-1' : ''}`}
             >
               <div
-                className="h-6 w-6  border-2 border-watchMarkBackgroundColor rounded-full"
+                className="h-6 w-6  border-2 border-watchMarkBackgroundColor rounded-full relative z-10"
                 style={{
                   height: '26px',
                   width: '26px',
@@ -406,7 +413,7 @@ function MobilePoolRow({
               </div>
 
               <div
-                className="h-6 w-6   border-watchMarkBackgroundColor border-2 rounded-full -ml-1.5"
+                className="h-6 w-6 border-watchMarkBackgroundColor border-2 rounded-full -ml-1.5 relative z-10"
                 style={{
                   height: '26px',
                   width: '26px',
@@ -420,7 +427,9 @@ function MobilePoolRow({
               </div>
               {curRowTokens?.[2] ? (
                 <div
-                  className="h-6 w-6 z-30 border border-watchMarkBackgroundColor rounded-full -ml-1.5 "
+                  className={`h-6 w-6 z-30 border border-watchMarkBackgroundColor rounded-full ${
+                    is_muti_tokens ? '-mt-2' : '-ml-1.5'
+                  }`}
                   style={{
                     height: '26px',
                     width: '26px',
@@ -433,6 +442,23 @@ function MobilePoolRow({
                   />
                 </div>
               ) : null}
+              {curRowTokens?.[3] ? (
+                <div
+                  className={`h-6 w-6 z-30 border border-watchMarkBackgroundColor rounded-full -ml-1.5 ${
+                    is_muti_tokens ? '-mt-2' : ''
+                  }`}
+                  style={{
+                    height: '26px',
+                    width: '26px',
+                  }}
+                >
+                  <img
+                    key={curRowTokens[3].id}
+                    className="w-full rounded-full"
+                    src={curRowTokens[3].icon}
+                  />
+                </div>
+              ) : null}
             </div>
             <div className="flex flex-col">
               <div className="flex items-center justify-start">
@@ -441,7 +467,8 @@ function MobilePoolRow({
                     {curRowTokens[0].symbol +
                       '-' +
                       curRowTokens[1].symbol +
-                      `${curRowTokens[2] ? '-' + curRowTokens[2].symbol : ''}`}
+                      `${curRowTokens[2] ? '-' + curRowTokens[2].symbol : ''}` +
+                      `${curRowTokens[3] ? '-' + curRowTokens[3].symbol : ''}`}
                   </div>
                 </div>
                 {watched && !watchPool && (
@@ -532,7 +559,9 @@ function MobilePoolRowV2({
     value?: number;
   }) => {
     if (sortBy === 'tvl')
-      return toInternationalCurrencySystem(value.toString());
+      return pool.tvlUnreal
+        ? '-'
+        : toInternationalCurrencySystem(value.toString());
     else if (sortBy === 'fee') return `${calculateFeePercent(value / 100)}%`;
     else if (sortBy === 'volume_24h') {
       return geth24volume();
@@ -1600,6 +1629,8 @@ function PoolRow({
   const history = useHistory();
   const [showLinkArrow, setShowLinkArrow] = useState(false);
 
+  const { indexFail } = useContext(TokenPriceListContext);
+
   if (!curRowTokens) return <></>;
 
   tokens = sort_tokens_by_base(curRowTokens);
@@ -1623,11 +1654,11 @@ function PoolRow({
           <div className="flex items-center">
             <Images tokens={tokens} size="8" />
             <div className="flex items-center">
-              <div className="text-sm ml-3">
-                {tokens[0].symbol +
-                  '-' +
-                  tokens[1].symbol +
-                  `${tokens[2] ? '-' + tokens[2]?.symbol : ''}`}
+              <div className="flex flex-wrap max-w-48 text-sm ml-3">
+                <label>{tokens[0].symbol}</label>-
+                <label>{tokens[1].symbol}</label>
+                {tokens[2] ? <label>-{tokens[2]?.symbol}</label> : null}
+                {tokens[3] ? <label>-{tokens[3]?.symbol}</label> : null}
               </div>
               {mark ? (
                 <span className="text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2">
@@ -1704,7 +1735,9 @@ function PoolRow({
             0
           )}
         >
-          ${toInternationalCurrencySystem(pool.tvl.toString())}
+          {indexFail
+            ? '-'
+            : `${toInternationalCurrencySystem(pool.tvl.toString())}`}
         </div>
 
         <div
@@ -1843,7 +1876,9 @@ function PoolRowV2({
             0
           )}
         >
-          {'$' + toInternationalCurrencySystem(pool.tvl.toString())}
+          {pool.tvlUnreal
+            ? '-'
+            : '$' + toInternationalCurrencySystem(pool.tvl.toString())}
         </div>
         {/* {!mark && (
           <div className="justify-center ml-2">
@@ -3079,6 +3114,8 @@ export function LiquidityPage() {
     order,
   });
 
+  const tokenPriceList = useTokenPriceList();
+
   const [farmOnly, setFarmOnly] = useState<boolean>(
     localStorage.getItem(REF_FI_FARM_ONLY) === '1' || false
   );
@@ -3221,6 +3258,8 @@ export function LiquidityPage() {
   const v3PoolVolumes = useV3VolumesPools();
   const [h24VolumeV2, setH24VolumeV2] = useState<string>();
 
+  const { fail: indexerFail } = useIndexerStatus();
+
   const { farmAprById } = useSeedFarmsByPools([...pools, ...watchPools]);
 
   useEffect(() => {
@@ -3246,7 +3285,11 @@ export function LiquidityPage() {
     return <Loading />;
 
   return (
-    <>
+    <TokenPriceListContext.Provider
+      value={{
+        indexFail: Object.keys(tokenPriceList).length == 0,
+      }}
+    >
       {!clientMobileDevice && (
         <LiquidityPage_
           farmAprById={farmAprById}
@@ -3319,7 +3362,10 @@ export function LiquidityPage() {
           farmAprById={farmAprById}
         />
       )}
-    </>
+      {indexerFail && (
+        <PoolRefreshModal isOpen={indexerFail}></PoolRefreshModal>
+      )}
+    </TokenPriceListContext.Provider>
   );
 }
 
@@ -3429,10 +3475,7 @@ function TokenChart({
   });
   const color = {
     DAI: 'rgba(255, 199, 0, 0.45)',
-    'USDT.e': '#167356',
     USDT: '#167356',
-    'USDC.e': 'rgba(0, 163, 255, 0.45)',
-    USDC: 'rgba(0, 163, 255, 0.45)',
     USN: 'rgba(255, 255, 255, 0.45)',
     cUSD: 'rgba(69, 205, 133, 0.6)',
     HBTC: '#4D85F8',
@@ -3443,7 +3486,10 @@ function TokenChart({
     NEARXC: '#4d5971',
     NearXC: '#4d5971',
     NearX: '#00676D',
-    USDt: '#0E8585',
+    'USDT.e': '#19936D',
+    'USDC.e': '#2B6EB7',
+    USDC: '#2FA7DB',
+    USDt: '#45D0C0',
   };
 
   const colorLight = {
@@ -3557,7 +3603,7 @@ const RenderDisplayTokensAmounts = ({
   setChartActiveToken?: (token: string) => void;
 }) => {
   return (
-    <div className="flex items-center  flex-shrink-0 xs:-mr-1.5 md:-mr-1.5">
+    <div className="flex items-center  flex-shrink-0 xs:-mr-1.5 md:-mr-1.5 flex-wrap xsm:justify-end lg:w-80">
       {tokens.map((token, i) => {
         return (
           <span
@@ -3654,7 +3700,7 @@ function StablePoolCard({
   const history = useHistory();
 
   const isMobile = useClientMobile();
-
+  const is_new_pool = poolData.pool.id == USDTT_USDCC_USDT_USDC_POOL_ID;
   return (
     <div
       className="mb-4 xs:mb-2 md:mb-2"
@@ -3666,11 +3712,12 @@ function StablePoolCard({
         to={`/sauce/${poolData.pool.id}`}
         className={`${
           hover || isMobile ? 'bg-v3HoverDarkBgColor' : 'bg-cardBg'
-        } relative z-20 rounded-xl xs:rounded-t-xl md:rounded-t-xl xs:rounded-b-none md:rounded-b-none px-8 xs:px-5 md:px-5 w-full h-28 xs:h-20 md:h-20 flex items-center justify-between`}
+        } relative z-20 rounded-xl xs:rounded-t-xl md:rounded-t-xl xs:rounded-b-none md:rounded-b-none px-8 xs:px-5 md:px-5 w-full h-28 xs:h-20 md:h-20 flex items-center justify-between overflow-hidden`}
         onMouseEnter={() => {
           setHover(true);
         }}
       >
+        {is_new_pool ? <NewTag /> : null}
         <StablePoolClassIcon id={poolData.pool.id.toString()} />
         <div
           className={`w-5/12 xs:w-full md:w-full ${
@@ -3679,14 +3726,21 @@ function StablePoolCard({
               : ''
           }  flex items-center   xs:justify-between md:justify-between`}
         >
-          <Images tokens={poolData.tokens} size="8" className="mr-4" />
+          <Images
+            tokens={poolData.tokens}
+            size="8"
+            className={`mr-4 ${is_new_pool ? 'xsm:ml-4 xsm:mr-0' : ''}`}
+            layout="vertical"
+            layoutSize="16"
+          />
 
           <div className="flex xs:flex-col xs:items-end items-center">
             <div className="flex items-center">
               <Symbols
-                fontSize="xs:text-sm md:text-sm lg:text-lg lg:font-bold "
+                fontSize="xs:text-sm md:text-sm lg:text-lg lg:font-bold"
                 tokens={poolData.tokens}
                 separator="-"
+                className="lg:max-w-44 lg:flex-wrap"
               />
               {watched && (
                 <div className="ml-2">
@@ -3730,11 +3784,16 @@ function StablePoolCard({
             <div
               className="col-span-1 py-1 text-lg "
               title={toPrecision(
-                scientificNotationToString(poolData.poolTVL.toString()),
+                poolData.poolTVL === undefined
+                  ? '-'
+                  : scientificNotationToString(poolData.poolTVL.toString()),
                 0
               )}
             >
-              ${toInternationalCurrencySystem(poolData.poolTVL.toString())}
+              $
+              {poolData.poolTVL === undefined
+                ? '-'
+                : toInternationalCurrencySystem(poolData.poolTVL.toString())}
             </div>
 
             <RenderDisplayTokensAmounts
@@ -3771,12 +3830,19 @@ function StablePoolCard({
 
           <div className="flex flex-col items-end ">
             <span
-              title={toPrecision(
-                scientificNotationToString(poolData.poolTVL.toString()),
-                0
-              )}
+              title={
+                poolData.poolTVL === undefined
+                  ? '-'
+                  : toPrecision(
+                      scientificNotationToString(poolData.poolTVL.toString()),
+                      0
+                    )
+              }
             >
-              ${toInternationalCurrencySystem(poolData.poolTVL.toString())}
+              $
+              {poolData.poolTVL === undefined
+                ? '-'
+                : toInternationalCurrencySystem(poolData.poolTVL.toString())}
             </span>
 
             <RenderDisplayTokensAmounts
@@ -3872,6 +3938,24 @@ function StablePoolCard({
     </div>
   );
 }
+function NewTag() {
+  return (
+    <svg
+      className="absolute left-0 top-0"
+      width="50"
+      height="50"
+      viewBox="0 0 50 50"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M0 12C0 5.37258 5.37258 0 12 0H50L0 50V12Z" fill="#00FFD1" />
+      <path
+        d="M12.9744 28.9164L6.36159 22.3036L7.45053 21.2146L16.1027 22.8975L10.9352 17.73L11.935 16.7302L18.5479 23.343L17.449 24.4419L8.78696 22.749L13.9644 27.9265L12.9744 28.9164ZM22.3763 19.7126C21.9077 20.1812 21.3929 20.5112 20.8319 20.7026C20.271 20.8807 19.7034 20.9005 19.1292 20.762C18.5485 20.6168 17.9974 20.2835 17.476 19.7621C16.981 19.2671 16.6544 18.7359 16.496 18.1683C16.3442 17.5941 16.3442 17.0331 16.496 16.4854C16.6544 15.931 16.9513 15.436 17.3869 15.0004C17.8489 14.5385 18.334 14.2316 18.8421 14.0798C19.3503 13.9148 19.8486 13.8917 20.337 14.0105C20.8253 14.1293 21.2609 14.3801 21.6437 14.7629C21.7559 14.8751 21.8615 15.0136 21.9605 15.1786C22.0661 15.337 22.1321 15.4822 22.1585 15.6142L18.6936 19.079C19.017 19.3364 19.3503 19.4981 19.6935 19.5641C20.0367 19.6301 20.3766 19.6004 20.7131 19.475C21.0431 19.343 21.3599 19.1252 21.6635 18.8217C21.9671 18.5181 22.1882 18.2046 22.3268 17.8812C22.472 17.5512 22.5677 17.1915 22.6138 16.8022L23.6434 17.1585C23.5972 17.6271 23.4685 18.0792 23.2573 18.5148C23.0461 18.9371 22.7524 19.3364 22.3763 19.7126ZM17.971 18.3564L20.634 15.6934C20.6274 15.6736 20.6175 15.6571 20.6043 15.6439C20.5845 15.6241 20.5647 15.6043 20.5449 15.5845C20.3271 15.3667 20.0928 15.2248 19.842 15.1588C19.5846 15.0862 19.3173 15.0961 19.0401 15.1885C18.7629 15.2809 18.4825 15.469 18.1987 15.7528C17.9743 15.9772 17.8126 16.2379 17.7136 16.5349C17.6146 16.8187 17.5849 17.1189 17.6245 17.4357C17.6641 17.7393 17.7796 18.0462 17.971 18.3564ZM26.322 15.5689L20.0358 12.5496L21.0357 11.5497L25.629 13.9256L23.3125 9.27282L24.1837 8.40166L28.8266 10.728L26.4606 6.12478L27.4703 5.11503L30.4798 11.4111L29.5591 12.3318L24.9361 10.0252L27.2426 14.6482L26.322 15.5689Z"
+        fill="#181A27"
+      />
+    </svg>
+  );
+}
 
 function StablePoolList({
   searchBy,
@@ -3887,6 +3971,8 @@ function StablePoolList({
   const [orderStable, setorderStable] = useState<string>('desc');
 
   const [sortBy, setSortBy] = useState<string>('tvl');
+
+  const [clicked, setClicked] = useState<boolean>(false);
 
   const allStablePoolData = useAllStablePoolData();
 
@@ -3910,11 +3996,18 @@ function StablePoolList({
   };
 
   const sortingFunc = (p1: PoolData, p2: PoolData) => {
-    const v1 = Number(p1.poolTVL.toString());
-    const v2 = Number(p2.poolTVL.toString());
+    const v1 = Number(p1?.poolTVL?.toString() || 0);
+    const v2 = Number(p2?.poolTVL?.toString() || 0);
 
     const vol1 = Number(volumes[p1.pool.id.toString()] || '0');
     const vol2 = Number(volumes[p2.pool.id.toString()] || '0');
+
+    const is_p1_sort_top =
+      p1.pool.id == USDTT_USDCC_USDT_USDC_POOL_ID && !clicked;
+    const is_p2_sort_top =
+      p2.pool.id == USDTT_USDCC_USDT_USDC_POOL_ID && !clicked;
+    if (is_p1_sort_top) return 1;
+    if (is_p2_sort_top) return 1;
 
     if (orderStable === 'desc') {
       if (sortBy === 'tvl') {
@@ -3967,6 +4060,7 @@ function StablePoolList({
     
               `}
               onClick={() => {
+                setClicked(true);
                 setSortBy('volume_24h');
 
                 setorderStable(
@@ -3983,6 +4077,7 @@ function StablePoolList({
                 sortBy !== 'volume_24h' ? 'hidden' : ''
               } `}
               onClick={() => {
+                setClicked(true);
                 setSortBy('volume_24h');
                 setorderStable(
                   orderStable === 'desc' && sortBy === 'volume_24h'
@@ -4007,6 +4102,7 @@ function StablePoolList({
               ${sortBy !== 'tvl' ? 'hover:text-white' : 'text-gradientFrom'}
               `}
               onClick={() => {
+                setClicked(true);
                 setSortBy('tvl');
 
                 setorderStable(
@@ -4019,6 +4115,7 @@ function StablePoolList({
             <span
               className={`cursor-pointer ${sortBy !== 'tvl' ? 'hidden' : ''}`}
               onClick={() => {
+                setClicked(true);
                 setSortBy('tvl');
 
                 setorderStable(

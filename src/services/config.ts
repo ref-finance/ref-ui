@@ -113,6 +113,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
 
         helperUrl: 'https://api.kitwallet.app',
         explorerUrl: 'https://nearblocks.io',
+        nearExplorerUrl: 'https://explorer.near.org/',
         indexerUrl: 'https://mainnet-indexer.ref-finance.com',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3', '2769#2'],
@@ -157,9 +158,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         },
         USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '1838138.65',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '1972847.31',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '2442113.43',
+          process.env.CUMULATIVE_REF_BUYBACK || '2621724.09',
         BLACKLIST_POOL_IDS: ['3699', '3734', '3563', '3613', '3620', '3625'],
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['10%', '10%'],
@@ -178,6 +179,14 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.REF_UNI_SWAP_CONTRACT_ID || 'dcl.ref-labs.near',
         switch_on_dcl_farms: 'off',
         BURROW_CONTRACT_ID: 'contract.main.burrow.near',
+        USDTT_USDCC_USDT_USDC_POOL_ID:
+          process.env.USDTT_USDCC_USDT_USDC_POOL_ID || 4179,
+        USDTT_USDCC_USDT_USDC_TOKEN_IDS: [
+          'usdt.tether-token.near',
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
+          'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near',
+          'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near',
+        ],
       };
     case 'pub-testnet':
       return {
@@ -187,6 +196,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         myNearWalletUrl: 'https://testnet.mynearwallet.com/',
         helperUrl: 'https://testnet-api.kitwallet.app',
         explorerUrl: 'https://testnet.nearblocks.io',
+        nearExplorerUrl: 'https://explorer.testnet.near.org/',
         indexerUrl: 'https://testnet-indexer.ref-finance.com',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
@@ -230,9 +240,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'dai.fakes.testnet': 2,
         },
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '1838138.65',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '1972847.31',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '2442113.43',
+          process.env.CUMULATIVE_REF_BUYBACK || '2621724.09',
         BLACKLIST_POOL_IDS: ['1752', '1760'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID ||
@@ -252,6 +262,14 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         ],
         switch_on_dcl_farms: 'on',
         BURROW_CONTRACT_ID: 'contract.1638481328.burrow.testnet',
+        USDTT_USDCC_USDT_USDC_POOL_ID:
+          process.env.USDTT_USDCC_USDT_USDC_POOL_ID || 1842,
+        USDTT_USDCC_USDT_USDC_TOKEN_IDS: [
+          'usdtt.fakes.testnet',
+          'usdcc.fakes.testnet',
+          'usdt.fakes.testnet',
+          'usdc.fakes.testnet',
+        ],
       };
     case 'testnet':
       return {
@@ -261,6 +279,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         myNearWalletUrl: 'https://testnet.mynearwallet.com/',
         helperUrl: 'https://testnet-api.kitwallet.app',
         explorerUrl: 'https://testnet.nearblocks.io',
+        nearExplorerUrl: 'https://explorer.testnet.near.org/',
         indexerUrl: 'https://dev-indexer.ref-finance.com',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
@@ -293,6 +312,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'usdc.fakes.testnet',
           'dai.fakes.testnet',
         ],
+
         STABLE_TOKEN_USN_IDS: ['usdn.testnet', 'usdt.fakes.testnet'],
         STABLE_TOKEN_USN_INDEX: {
           'usdn.testnet': 0,
@@ -306,9 +326,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         DCL_POOL_BLACK_LIST: ['usdt.fakes.testnet|wrap.testnet|100'],
 
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '1838138.65',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '1972847.31',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '2442113.43',
+          process.env.CUMULATIVE_REF_BUYBACK || '2621724.09',
         BLACKLIST_POOL_IDS: ['686'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID ||
@@ -325,6 +345,14 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         boostBlackList: process.env.FARM__BOOST_BLACK_LIST || [''],
         switch_on_dcl_farms: 'on',
         BURROW_CONTRACT_ID: 'contract.1638481328.burrow.testnet',
+        USDTT_USDCC_USDT_USDC_POOL_ID:
+          process.env.USDTT_USDCC_USDT_USDC_POOL_ID || 711,
+        USDTT_USDCC_USDT_USDC_TOKEN_IDS: [
+          'usdtt.fakes.testnet',
+          'usdcc.fakes.testnet',
+          'usdt.fakes.testnet',
+          'usdc.fakes.testnet',
+        ],
       };
     default:
       return {
@@ -334,6 +362,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         myNearWalletUrl: 'https://app.mynearwallet.com/',
         helperUrl: 'https://api.kitwallet.app',
         explorerUrl: 'https://nearblocks.io',
+        nearExplorerUrl: 'https://explorer.near.org/',
         indexerUrl: 'https://indexer.ref.finance',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3', '2769#2'],
@@ -387,9 +416,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         },
         USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '1838138.65',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '1972847.31',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '2442113.43',
+          process.env.CUMULATIVE_REF_BUYBACK || '2621724.09',
 
         BLACKLIST_POOL_IDS: ['3699', '3734', '3563', '3613', '3620', '3625'],
 
@@ -410,6 +439,14 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         switch_on_dcl_farms: 'off',
         DCL_POOL_BLACK_LIST: ['usdt.tether-token.near|wrap.near|2000'],
         BURROW_CONTRACT_ID: 'contract.main.burrow.near',
+        USDTT_USDCC_USDT_USDC_POOL_ID:
+          process.env.USDTT_USDCC_USDT_USDC_POOL_ID || 4179,
+        USDTT_USDCC_USDT_USDC_TOKEN_IDS: [
+          'usdt.tether-token.near',
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
+          'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near',
+          'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near',
+        ],
       };
   }
 }
@@ -468,7 +505,13 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'usdt.tether-token.near': 1,
         },
 
-        RATED_POOLS_IDS: ['3514', '3515', '3612', '3688', '3689'],
+        RATED_POOLS_IDS: ['3514', '3515', '3612', '3688', '3689', '4179'],
+        USDTT_USDCC_USDT_USDC_POOL_INDEX: {
+          'usdt.tether-token.near': 0,
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
+          'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near': 2,
+          'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near': 3,
+        },
       };
     case 'development':
     case 'pub-testnet':
@@ -516,8 +559,13 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'usdt.fakes.testnet': 0,
           'usdtt.fakes.testnet': 1,
         },
-
-        RATED_POOLS_IDS: ['568', '571', '1044', '1751', '1752'],
+        RATED_POOLS_IDS: ['568', '571', '1044', '1751', '1752', '1842'],
+        USDTT_USDCC_USDT_USDC_POOL_INDEX: {
+          'usdtt.fakes.testnet': 0,
+          'usdcc.fakes.testnet': 1,
+          'usdt.fakes.testnet': 2,
+          'usdc.fakes.testnet': 3,
+        },
       };
     case 'testnet':
       return {
@@ -564,7 +612,13 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'usdtt.fakes.testnet': 1,
         },
 
-        RATED_POOLS_IDS: ['621', '622', '666', '685', '686'],
+        RATED_POOLS_IDS: ['621', '622', '666', '685', '686', '711'],
+        USDTT_USDCC_USDT_USDC_POOL_INDEX: {
+          'usdtt.fakes.testnet': 0,
+          'usdcc.fakes.testnet': 1,
+          'usdt.fakes.testnet': 2,
+          'usdc.fakes.testnet': 3,
+        },
       };
     default:
       return {
@@ -617,7 +671,13 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'usdt.tether-token.near': 1,
         },
 
-        RATED_POOLS_IDS: ['3514', '3515', '3612', '3688', '3689'],
+        RATED_POOLS_IDS: ['3514', '3515', '3612', '3688', '3689', '4179'],
+        USDTT_USDCC_USDT_USDC_POOL_INDEX: {
+          'usdt.tether-token.near': 0,
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
+          'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near': 2,
+          'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near': 3,
+        },
       };
   }
 }

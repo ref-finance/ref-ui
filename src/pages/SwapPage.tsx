@@ -137,6 +137,7 @@ const ChangeSwapMode = ({
           onClick={() => {
             setSwapMode(SWAP_MODE.NORMAL);
             localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.NORMAL);
+            changeSwapType(SWAP_TYPE.LITE);
           }}
         >
           Swap
@@ -158,7 +159,6 @@ const ChangeSwapMode = ({
             setSwapMode(SWAP_MODE.LIMIT);
             localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.LIMIT);
             setLimitTokenTrigger(!limitTokenTrigger ? true : false);
-            changeSwapType(SWAP_TYPE.Pro);
           }}
           style={{
             fontSize: '15px',
@@ -221,12 +221,13 @@ function SwapPage() {
     sessionStorage.getItem(SWAP_ENABLE_TRI) === 'true' || false
   );
 
+  const storedType =
+    (sessionStorage.getItem(SWAP_TYPE_KEY) as SWAP_TYPE) || null;
+
   const [selectMarket, setSelectMarket] = useState<SwapMarket>(undefined);
 
-  const storedType = sessionStorage.getItem(SWAP_TYPE_KEY) as SWAP_TYPE | null;
-
   const [swapType, setSwapType] = useState<SWAP_TYPE>(
-    storedType || SWAP_TYPE.Pro
+    storedType || SWAP_TYPE.LITE
   );
 
   const [forceEstimatePro, setForceEstimatePro] = useState<boolean>(false);
@@ -283,6 +284,7 @@ function SwapPage() {
   useEffect(() => {
     if (swapMode === SWAP_MODE.LIMIT) {
       setLimitTokenTrigger(!limitTokenTrigger ? true : false);
+      changeSwapType(SWAP_TYPE.Pro);
     }
   }, [swapMode]);
 

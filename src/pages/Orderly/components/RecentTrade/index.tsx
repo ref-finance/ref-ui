@@ -15,8 +15,8 @@ import { useIntl } from 'react-intl';
 
 export function parseSymbol(fullName: string) {
   return {
-    symbolFrom: fullName.split('_')[1],
-    symbolTo: fullName.split('_')[2],
+    symbolFrom: fullName?.split('_')[1],
+    symbolTo: fullName?.split('_')[2],
   };
 }
 
@@ -44,10 +44,6 @@ function RecentTrade() {
       ? 0
       : -Math.log10(symbolInfo.base_tick);
 
-  // if (symbolInfo.symbol.toLowerCase().includes('woo')) {
-  //   quantityDecimal = 0;
-  // }
-
   useEffect(() => {
     if (!!recentTrades || !symbolInfo) {
       setLoading(false);
@@ -58,7 +54,7 @@ function RecentTrade() {
 
   return (
     <>
-      <div className="flex px-4 mr-4 mb-1 items-center text-xs text-primaryOrderly justify-between ">
+      <div className="flex px-4 xs:px-2 xs:border-b xs:border-white xs:border-opacity-10 xs:pb-1.5 xs:mr-0   mr-4 mb-1 items-center text-xs text-primaryOrderly justify-between ">
         <div className="flex items-center">
           <span>
             {intl.formatMessage({
@@ -94,7 +90,7 @@ function RecentTrade() {
       </div>
 
       <section
-        className="overflow-auto w-full px-4 text-xs"
+        className="overflow-auto w-full px-4 xs:px-1.5 text-xs"
         style={{
           height: 'calc(100% - 56px)',
         }}

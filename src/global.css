@@ -571,7 +571,7 @@ input[type='range']::-webkit-slider-runnable-track {
 .menu-max-height {
   max-height: calc(100vh - 80px);
   overflew-y: scroll;
-  overflow-x: hidden;
+  /* overflow-x: hidden; */
 }
 
 .recharts-text.recharts-cartesian-axis-tick-value {
@@ -629,6 +629,15 @@ input[type='range']::-webkit-slider-runnable-track {
   to {
     width: 15px;
   }
+}
+
+.woofidex-logo {
+  width: 26px;
+  height: 26px;
+  background: url('./assets/imgs/woofi-logo.png') center no-repeat;
+  background-color: #121925;
+  background-size: 20px 20px;
+  border-radius: 8px;
 }
 
 .crossSwap-requesting-loading::after {

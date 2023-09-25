@@ -150,6 +150,7 @@ export default function Token({
     </div>
   );
 }
+
 export const TokenLinks = {
   NEAR: 'https://awesomenear.com/near-protocol',
   wNEAR: 'https://awesomenear.com/near-protocol',

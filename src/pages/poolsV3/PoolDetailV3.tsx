@@ -38,7 +38,33 @@ import {
 } from '~services/pool';
 import ReactTooltip from 'react-tooltip';
 import { useDCLTopBinFee } from '~state/pool';
-import { list_farmer_seeds } from '../../services/farm';
+import {
+  VolumeChart,
+  TVLChart,
+  ChartType,
+  ChartChangeButton,
+  MobileChartChangeButton,
+} from '../pools/DetailsPage';
+import { BlueCircleLoading } from '../../components/layout/Loading';
+import { ChartNoData } from '~components/icon/ChartNoData';
+import {
+  GradientButton,
+  OprationButton,
+  ButtonTextWrapper,
+  BorderButton,
+  SolidButton,
+} from '~components/button/Button';
+import { RemovePoolV3 } from '~components/pool/RemovePoolV3';
+import { AddPoolV3 } from '~components/pool/AddPoolV3';
+import Modal from 'react-modal';
+import { ModalClose } from '~components/icon';
+import { useV3VolumeChart, useV3TvlChart } from '~state/pool';
+import { getV3Pool24VolumeById } from '~services/indexer';
+import {
+  list_farmer_seeds,
+  list_seed_farms,
+  UserSeedInfo,
+} from '../../services/farm';
 import getConfig from '../../services/config';
 import _ from 'lodash';
 import { FarmStampNewDCL } from '../../components/icon/FarmStamp';

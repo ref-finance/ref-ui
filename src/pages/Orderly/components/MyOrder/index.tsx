@@ -1622,7 +1622,7 @@ function ActiveLine({
         });
       }}
       style={{
-        height: '38px',
+        height: '34px',
       }}
     >
       <ButtonTextWrapper
@@ -2504,6 +2504,14 @@ function OrderCard({
         </div>
       </div>
 
+      {orderType === 'history' &&
+        (!historyOrder || historyOrder.length === 0) && (
+          <NoOrderCard text="history" />
+        )}
+      {orderType === 'active' && (!activeOrder || activeOrder.length === 0) && (
+        <NoOrderCard text="active" />
+      )}
+
       <table
         className="border-separate xsm:block"
         style={{
@@ -2709,14 +2717,6 @@ function OrderCard({
             </tr>
           </>
         )}
-        {orderType === 'history' &&
-          (!historyOrder || historyOrder.length === 0) && (
-            <NoOrderCard text="history" />
-          )}
-        {orderType === 'active' &&
-          (!activeOrder || activeOrder.length === 0) && (
-            <NoOrderCard text="active" />
-          )}
 
         {orderType === 'active' &&
           activeOrderList &&
@@ -3874,11 +3874,6 @@ function MyOrderComponent() {
     };
   }, {});
 
-  // function getTipForOrders() {
-  //   const n = intl.formatMessage({ id: 'orderTip' });
-  //   const result: string = `<div class="text-navHighLightText text-xs text-left xsm:w-40 whitespace-normal" >${n}</div>`;
-  //   return result;
-  // }
   return (
     <div className="max-w-7xl mx-auto flex flex-col xs:w-full md:5/6 lg:w-full">
       <PriceContext.Provider value={tokenPriceList}>

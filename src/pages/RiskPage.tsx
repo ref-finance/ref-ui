@@ -228,6 +228,19 @@ export default function RiskPage() {
             </p>
           </div>
         </ModuleTemplate>
+        <ModuleTemplate
+          title={intl.formatMessage({ id: 'third_party_wallet' })}
+        >
+          <p className="text-sm text-riskTextColor mb-4">
+            <FormattedMessage id="third_party_wallet_1" />
+          </p>
+          <p className="text-sm text-riskTextColor mb-4">
+            <FormattedMessage id="third_party_wallet_2" />{' '}
+          </p>
+          <p className="text-sm text-riskTextColor mb-4">
+            <FormattedMessage id="third_party_wallet_3" />
+          </p>
+        </ModuleTemplate>
       </div>
     </div>
   );

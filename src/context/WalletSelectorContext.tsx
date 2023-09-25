@@ -20,9 +20,7 @@ import { setupNeth } from '@near-wallet-selector/neth';
 
 import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet';
 
-import { setupWalletConnect } from '@near-wallet-selector/wallet-connect';
-
-import { InjectedWallet } from '@near-wallet-selector/core';
+import { setupNightly } from '@near-wallet-selector/nightly';
 
 import getConfig from '../services/config';
 
@@ -46,6 +44,8 @@ import {
   get_orderly_public_key_path,
 } from '../pages/Orderly/orderly/utils';
 import { isMobile } from '../utils/device';
+import { AccountView } from 'near-api-js/lib/providers/provider';
+import { Account, providers } from 'near-api-js';
 
 const CONTRACT_ID = getOrderlyConfig().ORDERLY_ASSET_MANAGER;
 
@@ -119,6 +119,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         setupSender({
           iconUrl: walletIcons['sender'],
         }),
+        // @ts-ignore
         setupMeteorWallet({
           iconUrl: walletIcons['meteor-wallet'],
         }),
@@ -127,18 +128,14 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
           gas: '300000000000000',
           bundle: false,
         }),
-        // setupMeteorWallet({
-        //   iconUrl: walletIcons['meteor-wallet'],
-        // }),
-        // setupMathWallet({
-        //   iconUrl: walletIcons['math-wallet'],
-        // }),
-        // setupNightly({
-        //   iconUrl: walletIcons['nightly'],
-        // }),
+        // @ts-ignore
+        setupNightly({
+          iconUrl: walletIcons['nightly'],
+        }),
         setupLedger({
           iconUrl: walletIcons['ledger'],
         }),
+        // @ts-ignore
         setupHereWallet(),
         // setupNightlyConnect({
         //   url: 'wss://ncproxy.nightly.app/app',
@@ -236,6 +233,36 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
 
     getAllKeys(accountId);
   }, [accountId, selector]);
+
+  // const getAccount = useCallback(async (): Promise<Account | null> => {
+  //   if (!accountId) {
+  //     return null;
+  //   }
+
+  //   const provider = new providers.JsonRpcProvider({
+  //     url: getConfig().nodeUrl,
+  //   });
+
+  //   return provider
+  //     .query<AccountView>({
+  //       request_type: 'view_account',
+  //       finality: 'final',
+  //       account_id: accountId,
+  //     })
+  //     .then((data: any) => ({
+  //       ...data,
+  //       account_id: accountId,
+  //     }));
+  // }, [accountId]);
+
+  // useEffect(() => {
+  //   if (!selector || !accountId) return;
+
+  //   getAccount().catch((e) => {
+  //     alert(e?.message);
+  //     selector.wallet().then((wallet) => wallet.signOut());
+  //   });
+  // }, [selector, accountId]);
 
   if (!selector || !modal || (!!accountId && isLedger === undefined)) {
     return null;

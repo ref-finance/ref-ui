@@ -6,6 +6,7 @@ import {
   REF_FI_CONTRACT_ID,
   Transaction,
   RefFiFunctionCallOptions,
+  BLACKLIST_POOL_IDS,
 } from './near';
 import db from '../store/RefDatabase';
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
@@ -55,6 +56,9 @@ import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
 
 import { cacheAllDCLPools } from './swapV3';
 import { REF_DCL_POOL_CACHE_KEY } from '../state/swap';
+import getConfigV2 from '../services/configV2';
+const { NO_REQUIRED_REGISTRATION_TOKEN_IDS } = getConfigV2();
+
 const explorerType = getExplorer();
 export const DEFAULT_PAGE_LIMIT = 500;
 const getStablePoolKey = (id: string) => `STABLE_POOL_VALUE_${id}`;
@@ -283,6 +287,47 @@ export const isNotStablePool = (pool: Pool) => {
   return !isStablePool(pool.id);
 };
 
+const fetchPoolsRPC = async () => {
+  const totalPools = await getTotalPools();
+  const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
+
+  const res = (
+    await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
+  )
+    .flat()
+    .map((p) => ({ ...p, Dex: 'ref' }));
+
+  return res;
+};
+
+const fetchPoolsIndexer = async () => {
+  return await getTopPoolsIndexerRaw();
+};
+
+const REF_FI_POOL_PROTOCOL = 'REF_FI_POOL_PROTOCOL_KEY';
+
+const fetchTopPools = async () => {
+  try {
+    return {
+      pools: await getTopPoolsIndexerRaw(),
+      protocol: 'indexer',
+    };
+  } catch (error) {
+    sessionStorage.setItem(REF_FI_POOL_PROTOCOL, 'rpc');
+
+    await db.topPools.clear();
+
+    await db.poolsTokens.clear();
+
+    const res = await fetchPoolsRPC();
+
+    return {
+      pools: res,
+      protocol: 'rpc',
+    };
+  }
+};
+
 export const getPoolsByTokens = async ({
   tokenInId,
   tokenOutId,
@@ -291,8 +336,13 @@ export const getPoolsByTokens = async ({
   proGetCachePool,
   tokenIn,
   tokenOut,
-}: GetPoolOptions): Promise<Pool[]> => {
+}: GetPoolOptions): Promise<{
+  filteredPools: Pool[];
+  pool_protocol: string;
+}> => {
   let pools;
+
+  let pool_protocol = 'indexer';
 
   const cachePools = async (pools: any) => {
     await db.cachePoolsByTokens(
@@ -301,46 +351,11 @@ export const getPoolsByTokens = async ({
   };
 
   if (loadingTrigger) {
-    const poolsRaw = await getTopPoolsIndexerRaw();
+    const { pools: poolsRaw, protocol } = await fetchTopPools();
+    pool_protocol = protocol;
 
-    await db.cacheTopPools(poolsRaw);
-
-    pools = poolsRaw.map((p: any) => {
-      return {
-        ...parsePool(p),
-        Dex: 'ref',
-      };
-    });
-
-    await cachePools(pools);
-
-    await cacheAllDCLPools();
-  } else {
-    const poolsRaw = await db.queryTopPools();
-
-    if (!localStorage.getItem(REF_DCL_POOL_CACHE_KEY)) {
-      await cacheAllDCLPools();
-    }
-
-    if (poolsRaw && poolsRaw?.length > 0) {
-      pools = poolsRaw.map((p) => {
-        const parsedP = parsePool({
-          ...p,
-          share: p.shares_total_supply,
-          id: Number(p.id),
-          tvl: Number(p.tvl),
-        });
-
-        return {
-          ...parsedP,
-          Dex: 'ref',
-        };
-      });
-    } else {
-      const poolsRaw = await getTopPoolsIndexerRaw();
-
+    if (protocol === 'indexer') {
       await db.cacheTopPools(poolsRaw);
-
       pools = poolsRaw.map((p: any) => {
         return {
           ...parsePool(p),
@@ -348,7 +363,62 @@ export const getPoolsByTokens = async ({
         };
       });
 
-      await cachePools(pools);
+      sessionStorage.setItem(REF_FI_POOL_PROTOCOL, 'indexer');
+    } else {
+      pools = poolsRaw;
+
+      sessionStorage.setItem(REF_FI_POOL_PROTOCOL, 'rpc');
+    }
+
+    await cachePools(pools);
+
+    await cacheAllDCLPools();
+  } else {
+    if (!localStorage.getItem(REF_DCL_POOL_CACHE_KEY)) {
+      await cacheAllDCLPools();
+    }
+
+    const cachedPoolProtocol = sessionStorage.getItem(REF_FI_POOL_PROTOCOL);
+    pool_protocol = cachedPoolProtocol || 'indexer';
+
+    if (cachedPoolProtocol === 'rpc') {
+      pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
+
+      if (!pools || pools.length === 0) {
+        pools = await fetchPoolsRPC();
+        await cachePools(pools);
+      }
+    } else {
+      const poolsRaw = await db.queryTopPools();
+
+      if (poolsRaw && poolsRaw?.length > 0 && cachedPoolProtocol !== 'rpc') {
+        pools = poolsRaw.map((p) => {
+          const parsedP = parsePool({
+            ...p,
+            share: p.shares_total_supply,
+            id: Number(p.id),
+            tvl: Number(p.tvl),
+          });
+
+          return {
+            ...parsedP,
+            Dex: 'ref',
+          };
+        });
+      } else {
+        const poolsRaw = await fetchPoolsIndexer();
+
+        await db.cacheTopPools(poolsRaw);
+
+        pools = poolsRaw.map((p: any) => {
+          return {
+            ...parsePool(p),
+            Dex: 'ref',
+          };
+        });
+
+        await cachePools(pools);
+      }
     }
   }
 
@@ -362,7 +432,7 @@ export const getPoolsByTokens = async ({
       );
     });
 
-  return filteredPools;
+  return { filteredPools, pool_protocol };
 };
 
 export const getPoolsByTokensAurora = async ({
@@ -819,15 +889,31 @@ export const removeLiquidityFromPool = async ({
 
     const ftBalance = await ftGetStorageBalance(tokenId);
     if (ftBalance === null) {
-      withDrawTransactions.unshift({
-        receiverId: tokenId,
-        functionCalls: [
-          storageDepositAction({
-            registrationOnly: true,
-            amount: STORAGE_TO_REGISTER_WITH_FT,
-          }),
-        ],
-      });
+      // todo usdc
+      if (NO_REQUIRED_REGISTRATION_TOKEN_IDS.includes(tokenId)) {
+        withDrawTransactions.unshift({
+          receiverId: tokenId,
+          functionCalls: [
+            {
+              methodName: 'register_account',
+              args: {
+                account_id: getCurrentWallet()?.wallet?.getAccountId(),
+              },
+              gas: '10000000000000',
+            },
+          ],
+        });
+      } else {
+        withDrawTransactions.unshift({
+          receiverId: tokenId,
+          functionCalls: [
+            storageDepositAction({
+              registrationOnly: true,
+              amount: STORAGE_TO_REGISTER_WITH_FT,
+            }),
+          ],
+        });
+      }
     }
   }
 
@@ -926,20 +1012,35 @@ export const removeLiquidityFromStablePool = async ({
 
   const withDrawTransactions: Transaction[] = [];
 
+  // todo usdc
   for (let i = 0; i < tokenIds.length; i++) {
     const tokenId = tokenIds[i];
-
     const ftBalance = await ftGetStorageBalance(tokenId);
     if (ftBalance === null) {
-      withDrawTransactions.unshift({
-        receiverId: tokenId,
-        functionCalls: [
-          storageDepositAction({
-            registrationOnly: true,
-            amount: STORAGE_TO_REGISTER_WITH_FT,
-          }),
-        ],
-      });
+      if (NO_REQUIRED_REGISTRATION_TOKEN_IDS.includes(tokenId)) {
+        withDrawTransactions.unshift({
+          receiverId: tokenId,
+          functionCalls: [
+            {
+              methodName: 'register_account',
+              args: {
+                account_id: getCurrentWallet()?.wallet?.getAccountId(),
+              },
+              gas: '10000000000000',
+            },
+          ],
+        });
+      } else {
+        withDrawTransactions.unshift({
+          receiverId: tokenId,
+          functionCalls: [
+            storageDepositAction({
+              registrationOnly: true,
+              amount: STORAGE_TO_REGISTER_WITH_FT,
+            }),
+          ],
+        });
+      }
     }
   }
 
@@ -1035,6 +1136,7 @@ export const removeLiquidityByTokensFromStablePool = async ({
   tokens,
   unregister = false,
 }: RemoveLiquidityByTokensFromStablePoolOptions) => {
+  debugger;
   const tokenIds = tokens.map((token) => token.id);
 
   const withDrawTransactions: Transaction[] = [];
@@ -1046,15 +1148,31 @@ export const removeLiquidityByTokensFromStablePool = async ({
 
     const ftBalance = await ftGetStorageBalance(tokenId);
     if (ftBalance === null) {
-      withDrawTransactions.unshift({
-        receiverId: tokenId,
-        functionCalls: [
-          storageDepositAction({
-            registrationOnly: true,
-            amount: STORAGE_TO_REGISTER_WITH_FT,
-          }),
-        ],
-      });
+      // todo usdc
+      if (NO_REQUIRED_REGISTRATION_TOKEN_IDS.includes(tokenId)) {
+        withDrawTransactions.unshift({
+          receiverId: tokenId,
+          functionCalls: [
+            {
+              methodName: 'register_account',
+              args: {
+                account_id: getCurrentWallet()?.wallet?.getAccountId(),
+              },
+              gas: '10000000000000',
+            },
+          ],
+        });
+      } else {
+        withDrawTransactions.unshift({
+          receiverId: tokenId,
+          functionCalls: [
+            storageDepositAction({
+              registrationOnly: true,
+              amount: STORAGE_TO_REGISTER_WITH_FT,
+            }),
+          ],
+        });
+      }
     }
   }
 
@@ -1246,9 +1364,9 @@ export const getStablePoolFromCache = async (
 
 export const getAllStablePoolsFromCache = async (loadingTriger?: boolean) => {
   const res = await Promise.all(
-    ALL_STABLE_POOL_IDS.map((id) =>
-      getStablePoolFromCache(id.toString(), loadingTriger)
-    )
+    ALL_STABLE_POOL_IDS.filter((id) => {
+      return !BLACKLIST_POOL_IDS.includes(id.toString());
+    }).map((id) => getStablePoolFromCache(id.toString(), loadingTriger))
   );
 
   const allStablePoolsById = res.reduce((pre, cur, i) => {

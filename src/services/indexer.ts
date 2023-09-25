@@ -165,23 +165,36 @@ export const get24hVolume = async (pool_id: string): Promise<string> => {
     .then((res) => res.json())
     .then((monthTVL) => {
       return monthTVL.toString();
+    })
+    .catch(() => {
+      return undefined;
     });
 };
 
 export const get24hVolumes = async (
   pool_ids: (string | number)[]
 ): Promise<string[]> => {
-  return await fetch(
-    config.sodakiApiUrl +
-      `/poollist/${pool_ids.join('|')}/rolling24hvolume/sum`,
-    {
-      method: 'GET',
-    }
-  )
-    .then((res) => res.json())
-    .then((res) => {
-      return res.map((r: any) => r.toString());
-    });
+  const batchSize = 300;
+  const numBatches = Math.ceil(pool_ids.length / batchSize);
+  const promises: Promise<string[]>[] = [];
+
+  for (let i = 0; i < numBatches; i++) {
+    const batchIds = pool_ids.slice(i * batchSize, (i + 1) * batchSize);
+    const promise = fetch(
+      config.sodakiApiUrl +
+        `/poollist/${batchIds.join('|')}/rolling24hvolume/sum`,
+      {
+        method: 'GET',
+      }
+    )
+      .then((res) => res.json())
+      .then((batchData) => batchData.map((r: any) => r.toString()));
+
+    promises.push(promise);
+  }
+
+  const results = await Promise.all(promises);
+  return results.flat();
 };
 
 const parseActionView = async (action: any) => {
@@ -223,10 +236,34 @@ export const getTopPoolsIndexer = async () => {
 };
 
 export const getTopPoolsIndexerRaw = async () => {
-  return await fetch(config.indexerUrl + '/list-top-pools', {
-    method: 'GET',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
-  }).then((res) => res.json());
+  const timeoutDuration = 20000; // 20 seconds in milliseconds
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => {
+    controller.abort();
+  }, timeoutDuration);
+
+  try {
+    const response = await fetch(config.indexerUrl + '/list-top-pools', {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeout);
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+
+    return await response.json();
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      throw new Error('Request timed out');
+    } else {
+      throw error;
+    }
+  }
 };
 
 export const getTopPools = async (): Promise<PoolRPCView[]> => {
@@ -566,6 +603,13 @@ export const getTokenPriceList = async (): Promise<any> => {
     .then((list) => {
       return list;
     });
+};
+
+export const getIndexerStatus = async (): Promise<any> => {
+  return await fetch(config.indexerUrl + '/get-service-version', {
+    method: 'GET',
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  }).then((res) => res.status !== 502);
 };
 
 export const _search = (args: any, pools: PoolRPCView[]) => {

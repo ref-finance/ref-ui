@@ -63,10 +63,8 @@ const get_sqrt_price = (point: number) => {
   if (point < 0) abs_point = -point;
 
   let value = new BigNumber('0x100000000000000000000000000000000');
-  //console.log(value.toFixed());
   if ((point & 1) != 0) {
     value = new BigNumber('0xfffcb933bd6fad37aa2d162d1a594001');
-    //console.log(value.toFixed());
   }
 
   value = update_value(
@@ -314,6 +312,3 @@ export const compute_liquidity = (
 
   return liquidity.toFixed();
 };
-
-// console.log('888888888--1', compute_liquidity(-316480,  -314480,  -315440, "1000000000000000000", "21680"));// 151070858
-// console.log('888888888--2', compute_liquidity(-317680,  -313600,  -315440, "1000000000000000000", "24148"));// 80512545

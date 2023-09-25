@@ -43,7 +43,6 @@ import {
   STABLE_POOL_TYPE,
   USD_CLASS_STABLE_POOL_IDS,
 } from '../../services/near';
-import { TokenLinks } from '../../components/tokens/Token';
 import {
   OutLinkIcon,
   DefaultTokenImg,
@@ -63,6 +62,8 @@ import { Images, Symbols } from '../../components/stableswap/CommonComp';
 import { IconLeftV3 } from '../tokens/Icon';
 import { PoolInfo } from '../../services/swapV3';
 import { sort_tokens_by_base, openUrl } from '../../services/commonV3';
+import getConfigV2 from '../../services/configV2';
+const configV2 = getConfigV2();
 
 export const USER_COMMON_TOKEN_LIST = 'USER_COMMON_TOKEN_LIST';
 
@@ -94,6 +95,7 @@ export function SingleToken({
   token: TokenMetadata;
   price: string;
 }) {
+  const is_native_token = configV2.NATIVE_TOKENS.includes(token?.id);
   return (
     <>
       {token.icon ? (
@@ -111,16 +113,10 @@ export function SingleToken({
           <span className="text-sm text-white">
             {toRealSymbol(token.symbol)}
           </span>
-          {TokenLinks[token.symbol] ? (
-            <a
-              className="ml-1.5"
-              onClick={(e) => {
-                e.stopPropagation();
-                openUrl(TokenLinks[token.symbol]);
-              }}
-            >
-              <OutLinkIcon className="text-primaryText hover:text-white cursor-pointer"></OutLinkIcon>
-            </a>
+          {is_native_token ? (
+            <span className="text-gradientFromHover bg-gradientFromHover bg-opacity-30 text-sm px-1 rounded-md ml-2 border border-gradientFromHover">
+              Native
+            </span>
           ) : null}
         </div>
         <span className="text-xs text-primaryText">

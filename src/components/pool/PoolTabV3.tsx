@@ -258,7 +258,7 @@ export const PoolTabV3 = ({
                           {toInternationalCurrencySystem(
                             new Big(YourLpValueV1)
                               .plus(YourLpValueV2)
-                              .toFixed(2),
+                              .toFixed(),
                             2
                           )}
                         </span>

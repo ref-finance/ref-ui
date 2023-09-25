@@ -41,6 +41,8 @@ import {
   NEAR_CLASS_STABLE_POOL_IDS,
 } from '../../services/near';
 import Big from 'big.js';
+import { useIndexerStatus } from '../../state/pool';
+import { PoolRefreshModal } from '../../pages/pools/PoolRefreshModal';
 
 export function OnlyTokenReserves() {}
 
@@ -68,9 +70,7 @@ function TokenChart({
   });
   const color = {
     DAI: 'rgba(255, 199, 0, 0.45)',
-    'USDT.e': '#167356',
     USDT: '#167356',
-    'USDC.e': 'rgba(0, 163, 255, 0.45)',
     USN: 'rgba(255, 255, 255, 0.45)',
     cUSD: 'rgba(69, 205, 133, 0.6)',
     HBTC: '#4D85F8',
@@ -81,7 +81,10 @@ function TokenChart({
     NEARXC: '#4d5971',
     NearXC: '#4d5971',
     NearX: '#00676D',
-    USDt: '#0E8585',
+    'USDT.e': '#19936D',
+    'USDC.e': '#2B6EB7',
+    USDC: '#2FA7DB',
+    USDt: '#45D0C0',
   };
 
   const noBorderTokens = ['LINEAR', 'USDt'];
@@ -392,6 +395,8 @@ export default function ({
   const [showReserves, setShowReserves] = useState<boolean>(true);
   const [chart, setChart] = useState(null);
 
+  const { fail: indexerFail } = useIndexerStatus();
+
   const poolIds =
     !type || forPool
       ? inputPools.map((p) => p.id.toString())
@@ -415,9 +420,9 @@ export default function ({
     : inputTokens.filter((t) => NEAR_CLASS_STABLE_TOKEN_IDS.includes(t.id));
 
   const ids = pools.map((p) => p.id);
-  const [volume, setVolume] = useState<string>(null);
+  const [volume, setVolume] = useState<string>(undefined);
 
-  const [tvl, setTvl] = useState<number>(null);
+  const [tvl, setTvl] = useState<number>(undefined);
 
   let utilisationDisplay;
 
@@ -448,8 +453,8 @@ export default function ({
       : 'StableCoin Value';
 
   useEffect(() => {
-    setTvl(null);
-    setVolume(null);
+    setTvl(undefined);
+    setVolume(undefined);
   }, [type]);
 
   useEffect(() => {
@@ -461,12 +466,16 @@ export default function ({
           }
         );
       } else {
-        get24hVolume(ids[0].toString()).then(setVolume);
+        get24hVolume(ids[0].toString()).then((res) => {
+          setVolume(res);
+        });
       }
 
       getPoolsByIds({ pool_ids: ids.map((id) => id.toString()) }).then(
         (pools) => {
-          setTvl(_.sumBy(pools, (o) => o.tvl));
+          if (pools?.length > 0) {
+            setTvl(_.sumBy(pools, (o) => o.tvl));
+          }
         }
       );
     }
@@ -646,15 +655,21 @@ export default function ({
         <InfoLine
           title={intl.formatMessage({ id: totalCoinsId })}
           value={
-            toInternationalCurrencySystem(
-              forPool ? tvl?.toString() : calTotalStableCoins,
-              3
-            ) || '0'
+            tvl === undefined
+              ? '-'
+              : toInternationalCurrencySystem(
+                  forPool ? tvl?.toString() : calTotalStableCoins,
+                  3
+                ) || '0'
           }
-          valueTitle={toPrecision(
-            forPool ? tvl?.toString() || '0' : calTotalStableCoins,
-            0
-          )}
+          valueTitle={
+            tvl === undefined
+              ? '-'
+              : toPrecision(
+                  forPool ? tvl?.toString() || '0' : calTotalStableCoins,
+                  0
+                )
+          }
         />
         {type !== 'USD' && (
           <InfoLine
@@ -684,6 +699,9 @@ export default function ({
           value={volume ? toInternationalCurrencySystem(volume) : '-'}
         />
       </Card>
+      {indexerFail && (
+        <PoolRefreshModal isOpen={indexerFail}></PoolRefreshModal>
+      )}
     </div>
   );
 }

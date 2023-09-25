@@ -107,8 +107,12 @@ export default function Marquee() {
     '/risks',
     '/portfolio',
     '/orderbook',
+    '/orderbook/perps',
+    '/orderbook/spot',
+
     '/burrow',
     '/overview',
+    '/orderly',
   ];
   return (
     <div

@@ -32,6 +32,7 @@ import {
   useLanguageItems,
   useMenus,
   menuItemType,
+  BridgeButton,
 } from '~utils/menu';
 import { MobileNavBar } from './MobileNav';
 import WrapNear from '~components/forms/WrapNear';
@@ -187,11 +188,6 @@ function Anchor({
         if (curMode == SWAP_MODE.NORMAL && storageSwapTab === 'normal') {
           setChosenSub('swap');
         } else if (
-          e[SWAP_MODE_KEY] == SWAP_MODE.STABLE &&
-          storageSwapTab === 'normal'
-        ) {
-          setChosenSub('stable');
-        } else if (
           e[SWAP_MODE_KEY] == SWAP_MODE.LIMIT &&
           storageSwapTab === 'normal'
         ) {
@@ -326,6 +322,9 @@ function AccountEntry({
   const { selector, modal, accounts, accountId, setAccountId } =
     useWalletSelector();
 
+  const [showTip, setShowTip] = useState<boolean>(false);
+  const [copyButtonDisabled, setCopyButtonDisabled] = useState<boolean>(false);
+
   const isSignedIn = globalState.isSignedIn;
 
   useEffect(() => {
@@ -428,6 +427,15 @@ function AccountEntry({
       },
     },
   ];
+  function showToast() {
+    if (copyButtonDisabled) return;
+    setCopyButtonDisabled(true);
+    setShowTip(true);
+    setTimeout(() => {
+      setShowTip(false);
+      setCopyButtonDisabled(false);
+    }, 1000);
+  }
 
   const isMobile = useClientMobile();
 
@@ -552,30 +560,40 @@ function AccountEntry({
                 </div>
 
                 <div className="flex items-center">
-                  <CopyToClipboard text={wallet.getAccountId()}>
-                    <div
-                      className={` bg-opacity-20 rounded-lg flex items-center justify-center p-1.5 cursor-pointer`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                      }}
-                      onMouseEnter={() => {
-                        !isMobile && setCopyIconHover(true);
-                      }}
-                      onMouseLeave={() => {
-                        !isMobile && setCopyIconHover(false);
-                      }}
-                      onTouchStart={() => {
-                        setCopyIconHover(true);
-                      }}
-                      onTouchEnd={() => {
-                        setCopyIconHover(false);
-                      }}
+                  <div className="flex items-center justify-center relative">
+                    <CopyToClipboard
+                      text={wallet.getAccountId()}
+                      onCopy={showToast}
                     >
-                      <CopyIcon
-                        fillColor={copyIconHover ? '#4075FF' : '#7E8A93'}
-                      />
-                    </div>
-                  </CopyToClipboard>
+                      <div
+                        className={` bg-opacity-20 rounded-lg flex items-center justify-center p-1.5 cursor-pointer`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                        onMouseEnter={() => {
+                          !isMobile && setCopyIconHover(true);
+                        }}
+                        onMouseLeave={() => {
+                          !isMobile && setCopyIconHover(false);
+                        }}
+                        onTouchStart={() => {
+                          setCopyIconHover(true);
+                        }}
+                        onTouchEnd={() => {
+                          setCopyIconHover(false);
+                        }}
+                      >
+                        <CopyIcon
+                          fillColor={copyIconHover ? '#4075FF' : '#7E8A93'}
+                        />
+                      </div>
+                    </CopyToClipboard>
+                    {showTip ? (
+                      <span className="text-xs text-white rounded-lg px-2.5 py-1.5 absolute bottom-8 bg-mobileOrderBg z-50">
+                        Copied!
+                      </span>
+                    ) : null}
+                  </div>
 
                   <button
                     className="hover:text-gradientFrom text-primaryText ml-2"
@@ -828,142 +846,6 @@ export function AuroraEntry({
   );
 }
 
-function Xref() {
-  const history = useHistory();
-  const location = useLocation();
-  // const [hover, setHover] = useState(false);
-  const goXrefPage = () => {
-    history.push('/xref');
-  };
-  return (
-    <div
-      className={`h-full flex items-center justify-center z-20 relative py-4 mx-4 cursor-pointer hover:opacity-100 ${
-        location.pathname == '/xref' ? 'opacity-100' : 'opacity-60'
-      }`}
-      onClick={goXrefPage}
-    >
-      <XrefIcon className="relative -top-px cursor-pointer"></XrefIcon>
-      {/* <GreenArrow hover={hover}></GreenArrow> */}
-    </div>
-  );
-}
-
-function MoreMenu() {
-  const [showWrapNear, setShowWrapNear] = useState(false);
-  const [hover, setHover] = useState(false);
-  const [sauceHover, setSauceHover] = useState(false);
-  const [parentLabel, setParentLabel] = useState('');
-  const { menuData } = useMenuItems();
-  const [curMenuItems, setCurMenuItems] = useState(menuData);
-  const location = useLocation();
-  const history = useHistory();
-  const { globalState } = useContext(WalletContext);
-  const onClickMenuItem = (items: any[], label: string) => {
-    setCurMenuItems(items);
-    setParentLabel(label);
-  };
-  const handleMoreMenuClick = (
-    url: string,
-    isExternal: boolean,
-    label: string,
-    children?: any
-  ) => {
-    if (url) {
-      if (isExternal) {
-        openUrl(url);
-      } else {
-        history.push(url);
-      }
-    } else if (children) {
-      onClickMenuItem?.(children, label);
-    }
-  };
-  const hasSubMenu = curMenuItems.some(({ children }) => !!children?.length);
-  return (
-    <>
-      <div
-        className="relative z-30"
-        onMouseOver={() => setHover(true)}
-        onMouseLeave={() => {
-          setHover(false);
-          onClickMenuItem?.(menuData, '');
-        }}
-        style={{ zIndex: 599 }}
-      >
-        <div
-          className={`rounded-xl p-3 mx-4 cursor-pointer xsm:bg-transparent ${
-            hover ? 'text-white bg-menuMoreBgColor' : 'text-primaryText'
-          }`}
-        >
-          <MoreIcon></MoreIcon>
-        </div>
-        <div
-          className={`${
-            hover ? 'block' : 'block'
-          } absolute top-7 pt-3 -right-20 rounded-md`}
-        >
-          <Card
-            rounded="rounded-md"
-            className="p-2.5 w-full rounded-2xl border border-menuMoreBoxBorderColor bg-priceBoardColor"
-          >
-            {!hasSubMenu && parentLabel && (
-              <div
-                className="whitespace-nowrap hover:text-white text-left items-center flex justify-start text-sm font-semibold text-primaryText cursor-pointer pt-4 pb-2"
-                onClick={() => onClickMenuItem?.(menuData, '')}
-              >
-                <IoChevronBack className="text-xl " />
-                <span className="ml-3">{parentLabel}</span>
-              </div>
-            )}
-            {curMenuItems.map(
-              ({ url, children, label, icon, logo, isExternal }, index) => {
-                const isSelected =
-                  url &&
-                  !isExternal &&
-                  matchPath(location.pathname, {
-                    path: url,
-                    exact: true,
-                    strict: false,
-                  });
-                return (
-                  <div
-                    key={index}
-                    className={`flex items-center rounded-xl whitespace-nowrap hover:bg-menuMoreBgColor hover:text-white text-sm font-semibold py-3 my-1.5 cursor-pointer ${
-                      !hasSubMenu && parentLabel ? 'px-5' : 'px-2'
-                    }
-                    ${
-                      isSelected
-                        ? 'bg-menuMoreBgColor text-white'
-                        : 'text-primaryText'
-                    }`}
-                    onClick={() =>
-                      handleMoreMenuClick(url, isExternal, label, children)
-                    }
-                  >
-                    {logo && (
-                      <span
-                        className={`text-xl w-8 text-left flex justify-center mr-2`}
-                      >
-                        {logo}
-                      </span>
-                    )}
-                    {label}
-                    <span className="ml-4 text-xl">{icon}</span>
-                    {children && (
-                      <span className="text-xl">
-                        <FiChevronRight />
-                      </span>
-                    )}
-                  </div>
-                );
-              }
-            )}
-          </Card>
-        </div>
-      </div>
-    </>
-  );
-}
 function NavigationBar() {
   const { globalState } = useContext(WalletContext);
 
@@ -1187,6 +1069,10 @@ function NavigationBar() {
             </div>
           </div>
           <div className="flex items-center justify-end">
+            <div className="mr-3">
+              <BridgeButton></BridgeButton>
+            </div>
+
             {isMobile() ? null : <BuyNearButton />}
 
             <div className="flex items-center mx-3">
@@ -1224,16 +1110,7 @@ function NavigationBar() {
     </>
   );
 }
-export const commonLangKey = [
-  'en',
-  'zh-CN',
-  'vi',
-  'uk',
-  'ru',
-  'ja',
-  'ko',
-  'es',
-];
+export const commonLangKey = ['en', 'zh-CN', 'vi', 'ko', 'es'];
 export function formatItem(local: string) {
   if (commonLangKey.indexOf(local) > -1) {
     return local;
@@ -1379,7 +1256,78 @@ export function USNCard({
   );
 }
 function MenuBar() {
-  const menus_temp = useMenus();
+  const history = useHistory();
+  const [hover_two_level_items, set_hover_two_level_items] = useState<
+    menuItemType[]
+  >([]);
+  const [hover_one_level_id, set_hover_one_level_id] = useState<string>();
+
+  const [hover_two_level_id, set_hover_two_level_id] = useState<string>();
+
+  const [back_one_level_item, set_back_one_level_item] =
+    useState<JSX.Element>();
+  const [one_level_selected, set_one_level_selected] = useState<string>('');
+  const [two_level_selected, set_two_level_selected] = useState<string>('');
+
+  function hover_on_one_level_item(item: menuItemType) {
+    const { children, id } = item;
+    if (children) {
+      set_hover_two_level_items(children);
+    }
+    set_hover_one_level_id(id);
+  }
+  function hover_off_one_level_item() {
+    set_hover_two_level_items([]);
+    set_back_one_level_item(null);
+    set_hover_two_level_id(undefined);
+    set_hover_one_level_id('');
+  }
+  function click_one_level_item(item: menuItemType) {
+    const { clickEvent, url, isExternal } = item;
+    if (clickEvent) {
+      clickEvent();
+    } else if (url) {
+      if (isExternal) {
+        openUrl(url);
+      } else {
+        history.push(url);
+      }
+    }
+    if (clickEvent && url) {
+      hover_off_one_level_item();
+    }
+  }
+  function click_two_level_item(item: menuItemType) {
+    const { children, label, clickEvent, url, isExternal } = item;
+    if (children) {
+      set_hover_two_level_items(children);
+      set_back_one_level_item(label);
+    } else {
+      if (clickEvent) {
+        clickEvent();
+      } else if (url) {
+        if (isExternal) {
+          openUrl(url);
+        } else {
+          history.push(url);
+        }
+      }
+
+      if (clickEvent) {
+        hover_off_one_level_item();
+      }
+    }
+  }
+  function click_three_level_title_to_back(menuItem: menuItemType) {
+    const { children } = menuItem;
+    set_hover_two_level_items(children);
+    set_back_one_level_item(null);
+  }
+
+  const menus_temp = useMenus(() => {
+    hover_off_one_level_item();
+    set_hover_two_level_id(undefined);
+  });
   const menus = useMemo(() => {
     if (menus_temp) {
       const menus_final = menus_temp.filter((m: menuItemType) => {
@@ -1388,15 +1336,6 @@ function MenuBar() {
       return menus_final;
     }
   }, [menus_temp]);
-  const history = useHistory();
-  const [hover_two_level_items, set_hover_two_level_items] = useState<
-    menuItemType[]
-  >([]);
-  const [hover_one_level_id, set_hover_one_level_id] = useState<string>();
-  const [back_one_level_item, set_back_one_level_item] =
-    useState<JSX.Element>();
-  const [one_level_selected, set_one_level_selected] = useState<string>('');
-  const [two_level_selected, set_two_level_selected] = useState<string>('');
   useEffect(() => {
     const pathname = '/' + location.pathname.split('/')[1];
     let one_level_selected_id = '';
@@ -1431,61 +1370,10 @@ function MenuBar() {
       set_two_level_selected(two_level_selected_id);
     }
   }, [location.pathname, menus]);
-  function hover_on_one_level_item(item: menuItemType) {
-    const { children, id } = item;
-    if (children) {
-      set_hover_two_level_items(children);
-    }
-    set_hover_one_level_id(id);
-  }
-  function hover_off_one_level_item() {
-    set_hover_two_level_items([]);
-    set_back_one_level_item(null);
-    set_hover_one_level_id('');
-  }
-  function click_one_level_item(item: menuItemType) {
-    const { clickEvent, url, isExternal } = item;
-    if (clickEvent) {
-      clickEvent();
-    } else if (url) {
-      if (isExternal) {
-        openUrl(url);
-      } else {
-        history.push(url);
-      }
-    }
-    if (clickEvent && url) {
-      hover_off_one_level_item();
-    }
-  }
-  function click_two_level_item(item: menuItemType) {
-    const { children, label, clickEvent, url, isExternal } = item;
-    if (children) {
-      set_hover_two_level_items(children);
-      set_back_one_level_item(label);
-    } else {
-      if (clickEvent) {
-        clickEvent();
-      } else if (url) {
-        if (isExternal) {
-          openUrl(url);
-        } else {
-          history.push(url);
-        }
-      }
-      hover_off_one_level_item();
-    }
-  }
-  function click_three_level_title_to_back(menuItem: menuItemType) {
-    const { children } = menuItem;
-    set_hover_two_level_items(children);
-    set_back_one_level_item(null);
-  }
-
   return (
     <div className="flex items-center h-full z-50">
       {menus?.map((menuItem: menuItemType, indexP) => {
-        const { label, logo, children, id } = menuItem;
+        const { label, logo, children, id, hoverLabel } = menuItem;
         return (
           <div
             id={`menu-${id}`}
@@ -1508,21 +1396,21 @@ function MenuBar() {
               }`}
             >
               {logo ? <span className="mr-1">{logo}</span> : null}
-              <div className={`text-base`}>{label}</div>
+              <div className={`text-base `}>{label}</div>
               {children ? (
                 <DownTriangleIcon className="ml-1 mt-1"></DownTriangleIcon>
               ) : null}
             </div>
             {/* two-level */}
             <div
-              className={`absolute rounded-2xl border border-menuMoreBoxBorderColor bg-priceBoardColor top-12 cursor-pointer px-2.5 py-1 ${
+              className={`absolute rounded-2xl border border-menuMoreBoxBorderColor bg-priceBoardColor top-12 cursor-pointer px-2.5 py-1 pc-menu-bar-one-level ${
                 hover_one_level_id == id &&
                 children &&
                 hover_two_level_items.length > 0
                   ? ''
                   : 'hidden'
               }`}
-              style={{ minWidth: '220px' }}
+              style={{ minWidth: '220px', left: '-80px' }}
             >
               {back_one_level_item && (
                 <div
@@ -1536,21 +1424,47 @@ function MenuBar() {
                 </div>
               )}
               {hover_two_level_items?.map((item: menuItemType, indexC) => {
-                const { label, logo, children, id, icon } = item;
+                const {
+                  label,
+                  logo,
+                  children,
+                  id: id_two_level,
+                  icon,
+                  hoverLabel,
+                  renderLogo,
+                } = item;
                 return (
                   <div
                     key={indexC}
                     onClick={() => {
                       click_two_level_item(item);
                     }}
+                    onMouseEnter={() => {
+                      set_hover_two_level_id(id_two_level);
+                    }}
+                    onMouseLeave={() => {
+                      set_hover_two_level_id(id_two_level);
+                    }}
                     className={`flex items-center rounded-xl whitespace-nowrap hover:bg-menuMoreBgColor hover:text-white text-sm py-3 my-1.5 px-2 cursor-pointer ${
-                      two_level_selected == id
+                      two_level_selected == id_two_level
                         ? 'bg-menuMoreBgColor text-white'
                         : 'text-primaryText'
                     }`}
                   >
-                    {logo ? <div className="w-8 mr-2 pl-2">{logo}</div> : null}
-                    <div className="text-base">{label}</div>
+                    {logo || renderLogo ? (
+                      <div className="w-8 mr-2">
+                        {renderLogo
+                          ? renderLogo({
+                              activeMenu: two_level_selected == id_two_level,
+                            })
+                          : logo}
+                      </div>
+                    ) : null}
+                    <div className="text-base ">
+                      {hover_two_level_id == id_two_level && hoverLabel
+                        ? hoverLabel
+                        : label}
+                    </div>
                     {children ? (
                       <span className="text-xl ml-2">
                         <FiChevronRight />
