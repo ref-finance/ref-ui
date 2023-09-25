@@ -1737,9 +1737,8 @@ export function get_account_24_apr(
   // 24小时平均利润
   const { fee_data, user_token, change_log_data } = apr;
   const { fee_x, fee_y } = fee_data;
-  // 针对后端接口 fee_x、fee_y 会有负值处理成0
-  const fee_x_final = Big(fee_x || 0).lt(0) ? 0 : fee_x;
-  const fee_y_final = Big(fee_y || 0).lt(0) ? 0 : fee_y;
+  const fee_x_final = Big(fee_x).abs();
+  const fee_y_final = Big(fee_y).abs();
   const fee_x_24 = toReadableNumber(
     token_x_metadata.decimals,
     Big(fee_x_final || 0).toFixed()
@@ -1748,8 +1747,15 @@ export function get_account_24_apr(
     token_y_metadata.decimals,
     Big(fee_y_final || 0).toFixed()
   );
-  const fee_x_24_value = Big(fee_x_24).mul(price_x);
-  const fee_y_24_value = Big(fee_y_24).mul(price_y);
+  let fee_x_24_value = Big(fee_x_24).mul(price_x);
+  let fee_y_24_value = Big(fee_y_24).mul(price_y);
+  if (Big(fee_x).lt(0)) {
+    fee_x_24_value = fee_x_24_value.neg();
+  }
+  if (Big(fee_y).lt(0)) {
+    fee_y_24_value = fee_y_24_value.neg();
+  }
+
   const total_fee_24_value = fee_x_24_value
     .plus(fee_y_24_value)
     .plus(unClaimed_fee$ || 0);
@@ -1806,6 +1812,53 @@ export function get_account_24_apr(
   return apr_24;
 }
 
+export function get_total_earned_fee({
+  total_earned_fee,
+  token_x_metadata,
+  token_y_metadata,
+  unClaimed_amount_x_fee,
+  unClaimed_amount_y_fee,
+  tokenPriceList,
+}: any) {
+  let total_earned_fee_x;
+  let total_earned_fee_y;
+  let total_fee_earned;
+  // total earned fee
+  const { total_fee_x, total_fee_y } = total_earned_fee || {};
+  const total_fee_x_final = Big(total_fee_x || 0).abs();
+  const total_fee_y_final = Big(total_fee_y || 0).abs();
+
+  total_earned_fee_x = toReadableNumber(
+    token_x_metadata.decimals,
+    total_fee_x_final.toFixed()
+  );
+  total_earned_fee_x = Big(total_fee_x || 0).lt(0)
+    ? Big(total_earned_fee_x).neg()
+    : Big(total_earned_fee_x);
+  total_earned_fee_x = total_earned_fee_x.plus(unClaimed_amount_x_fee);
+
+  total_earned_fee_y = toReadableNumber(
+    token_y_metadata.decimals,
+    total_fee_y_final.toFixed()
+  );
+  total_earned_fee_y = Big(total_fee_y || 0).lt(0)
+    ? Big(total_earned_fee_y).neg()
+    : Big(total_earned_fee_y);
+  total_earned_fee_y = total_earned_fee_y.plus(unClaimed_amount_y_fee);
+
+  const price_x = tokenPriceList[token_x_metadata.id]?.price || 0;
+  const price_y = tokenPriceList[token_y_metadata.id]?.price || 0;
+  const total_earned_fee_x_value = Big(total_earned_fee_x).mul(price_x);
+  const total_earned_fee_y_value = Big(total_earned_fee_y).mul(price_y);
+  total_fee_earned = total_earned_fee_x_value
+    .plus(total_earned_fee_y_value)
+    .toFixed();
+  return {
+    total_earned_fee_x_amount: total_earned_fee_x?.toFixed(),
+    total_earned_fee_y_amount: total_earned_fee_y?.toFixed(),
+    total_fee_earned_money: total_fee_earned,
+  };
+}
 /**
  *
  * @param log 这笔log的本金

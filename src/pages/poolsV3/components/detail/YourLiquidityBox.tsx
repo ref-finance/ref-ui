@@ -23,6 +23,7 @@ import {
   get_pool_name,
   openUrl,
   get_account_24_apr,
+  get_total_earned_fee,
   get_token_amount_in_user_liquidities,
 } from '~services/commonV3';
 import { Seed } from '../../../../services/farm';
@@ -167,33 +168,24 @@ export function YourLiquidityBox(props: {
         tokenPriceList
       );
       // total earned fee
-      const { total_fee_x, total_fee_y } = dcl_fee_result.total_earned_fee;
-      total_earned_fee_x = toReadableNumber(
-        token_x_metadata.decimals,
-        Big(total_fee_x || 0).toFixed()
-      );
-      total_earned_fee_x = Big(total_earned_fee_x)
-        .plus(unClaimed_amount_x_fee)
-        .toFixed();
-
-      total_earned_fee_y = toReadableNumber(
-        token_y_metadata.decimals,
-        Big(total_fee_y || 0).toFixed()
-      );
-      total_earned_fee_y = Big(total_earned_fee_y)
-        .plus(unClaimed_amount_y_fee)
-        .toFixed();
-
-      const price_x = tokenPriceList[token_x_metadata.id]?.price || 0;
-      const price_y = tokenPriceList[token_y_metadata.id]?.price || 0;
-      const total_earned_fee_x_value = Big(total_earned_fee_x).mul(price_x);
-      const total_earned_fee_y_value = Big(total_earned_fee_y).mul(price_y);
-      total_fee_earned = total_earned_fee_x_value
-        .plus(total_earned_fee_y_value)
-        .toFixed();
+      const {
+        total_earned_fee_x_amount,
+        total_earned_fee_y_amount,
+        total_fee_earned_money,
+      } = get_total_earned_fee({
+        total_earned_fee: dcl_fee_result.total_earned_fee,
+        token_x_metadata,
+        token_y_metadata,
+        unClaimed_amount_x_fee,
+        unClaimed_amount_y_fee,
+        tokenPriceList,
+      });
+      total_fee_earned = total_fee_earned_money;
+      total_earned_fee_x = total_earned_fee_x_amount;
+      total_earned_fee_y = total_earned_fee_y_amount;
     }
-    set_earned_fee_y_amount(formatNumber(total_earned_fee_y));
     set_earned_fee_x_amount(formatNumber(total_earned_fee_x));
+    set_earned_fee_y_amount(formatNumber(total_earned_fee_y));
     set_earned_fee(formatWithCommas_usd(total_fee_earned));
     setAccountAPR(formatPercentage(apr_24));
   }

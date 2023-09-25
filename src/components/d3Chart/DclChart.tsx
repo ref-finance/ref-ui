@@ -21,6 +21,7 @@ import {
   get_account_24_apr,
   divide_liquidities_into_bins_pool,
   reverse_price,
+  get_total_earned_fee,
 } from '../../services/commonV3';
 import { getDclPoolPoints, getDCLAccountFee } from '../../services/indexer';
 import { sortBy, debounce } from 'lodash';
@@ -338,8 +339,6 @@ export default function DclChart({
     let total_value = Big(0);
     let total_fee_earned = Big(0);
     let apr_24 = '';
-    let total_earned_fee_x = '0';
-    let total_earned_fee_y = '0';
     if (dcl_fee_result) {
       // total unClaimed fee
       const [
@@ -350,27 +349,15 @@ export default function DclChart({
       const dclAccountFee: IDCLAccountFee = dcl_fee_result;
       const { total_earned_fee } = dclAccountFee;
       // total earned fee
-      const { total_fee_x, total_fee_y } = total_earned_fee || {};
-      total_earned_fee_x = toReadableNumber(
-        token_x_metadata.decimals,
-        Big(total_fee_x || 0).toFixed()
-      );
-      total_earned_fee_x = Big(total_earned_fee_x)
-        .plus(unClaimed_amount_x_fee)
-        .toFixed();
-
-      total_earned_fee_y = toReadableNumber(
-        token_y_metadata.decimals,
-        Big(total_fee_y || 0).toFixed()
-      );
-      total_earned_fee_y = Big(total_earned_fee_y)
-        .plus(unClaimed_amount_y_fee)
-        .toFixed();
-      const total_earned_fee_x_value = Big(total_earned_fee_x).mul(price_x);
-      const total_earned_fee_y_value = Big(total_earned_fee_y).mul(price_y);
-      total_fee_earned = total_earned_fee_x_value.plus(
-        total_earned_fee_y_value
-      );
+      const { total_fee_earned_money } = get_total_earned_fee({
+        total_earned_fee,
+        token_x_metadata,
+        token_y_metadata,
+        unClaimed_amount_x_fee,
+        unClaimed_amount_y_fee,
+        tokenPriceList,
+      });
+      total_fee_earned = Big(total_fee_earned_money);
       // 24h profit
       apr_24 = formatPercentage(
         get_account_24_apr(
