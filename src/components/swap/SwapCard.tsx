@@ -1224,7 +1224,7 @@ export default function SwapCard(props: {
             localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
             setTokenOut(tokenIn);
             localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
-            setTokenInAmount(toPrecision('1', 6));
+            setTokenInAmountInput(toPrecision('1', 6));
             localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
             localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
           }}
