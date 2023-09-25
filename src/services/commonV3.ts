@@ -1749,14 +1749,13 @@ export function get_account_24_apr(
   );
   let fee_x_24_value = Big(fee_x_24).mul(price_x);
   let fee_y_24_value = Big(fee_y_24).mul(price_y);
-  debugger;
   if (Big(fee_x).lt(0)) {
     fee_x_24_value = Big(-fee_x_24_value.toNumber());
   }
   if (Big(fee_y).lt(0)) {
     fee_y_24_value = Big(-fee_y_24_value.toNumber());
   }
-
+  const t = fee_x_24_value.plus(fee_y_24_value).toFixed();
   const total_fee_24_value = fee_x_24_value
     .plus(fee_y_24_value)
     .plus(unClaimed_fee$ || 0);

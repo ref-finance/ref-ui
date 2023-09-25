@@ -321,13 +321,13 @@ export function PointsComponent() {
   }
   const is_mobile = isMobile();
   return (
-    <div
-      className={`w-full xs:w-full md:w-full flex flex-col self-stretch ${
-        show_chart ? '' : 'hidden'
-      }`}
-    >
+    <div className={`w-full xs:w-full md:w-full flex flex-col self-stretch`}>
       {/* chart area */}
-      <div className={`xsm:bg-mobileOrderListBg xsm:py-2.5 xsm:px-4`}>
+      <div
+        className={`xsm:bg-mobileOrderListBg xsm:py-2.5 xsm:px-4  ${
+          show_chart ? '' : 'hidden'
+        }`}
+      >
         <div
           className="flex justify-center relative mb-5 mt-24 pt-4"
           style={{ height: is_mobile ? 'auto' : '270px' }}

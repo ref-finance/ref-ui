@@ -32,9 +32,7 @@ export function SelectFeeTiers() {
   const mobileDevice = isMobile();
   return (
     <div
-      className={`flex items-center justify-between mt-6 mb-7 xsm:px-4 xsm:mt-0 xsm:mb-3 xsm:w-full ${
-        show_chart ? '' : 'hidden'
-      }`}
+      className={`flex items-center justify-between mt-6 mb-7 xsm:px-4 xsm:mt-0 xsm:mb-3 xsm:w-full`}
     >
       <div className="text-white text-sm xsm:text-base xsm:font-gothamBold">
         <FormattedMessage

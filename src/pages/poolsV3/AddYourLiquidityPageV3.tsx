@@ -1989,11 +1989,7 @@ export default function AddYourLiquidityPageV3() {
                 </div>
               ) : null}
               {mobileDevice ? (
-                <div
-                  className={`text-base text-white font-gothamBold ${
-                    show_chart ? '' : 'hidden'
-                  }`}
-                >
+                <div className={`text-base text-white font-gothamBold`}>
                   Input Token Amount
                 </div>
               ) : null}

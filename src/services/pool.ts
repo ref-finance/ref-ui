@@ -1136,7 +1136,6 @@ export const removeLiquidityByTokensFromStablePool = async ({
   tokens,
   unregister = false,
 }: RemoveLiquidityByTokensFromStablePoolOptions) => {
-  debugger;
   const tokenIds = tokens.map((token) => token.id);
 
   const withDrawTransactions: Transaction[] = [];

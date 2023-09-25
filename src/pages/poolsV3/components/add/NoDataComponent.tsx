@@ -1,18 +1,24 @@
 import React, { useEffect, useState, useContext, useMemo, useRef } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { WalletContext } from '../../../../utils/wallets-integration';
+import { LiquidityProviderData } from '../../AddYourLiquidityPageV3';
 
 export function NoDataComponent() {
   const [chartTab, setChartTab] = useState<'liquidity' | 'yours'>('liquidity');
   const [priceRangeMode, setPriceRangeMode] = useState<
     'by_range' | 'by_radius'
   >('by_range');
+  const { show_chart } = useContext(LiquidityProviderData);
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   return (
     <div className={`w-full xs:w-full md:w-full flex flex-col self-stretch`}>
       {/* chart area */}
-      <div className="xsm:bg-mobileOrderListBg xsm:py-2.5 xsm:px-4">
+      <div
+        className={`xsm:bg-mobileOrderListBg xsm:py-2.5 xsm:px-4 ${
+          show_chart ? '' : 'hidden'
+        }`}
+      >
         <div className="relative mb-5 mt-24 pt-px" style={{ height: '270px' }}>
           <div className="absolute left-0 -top-24 inline-flex items-center justify-between bg-detailCardBg rounded-lg border border-dclTabBorderColor p-0.5">
             <span
@@ -50,7 +56,7 @@ export function NoDataComponent() {
         </div>
       </div>
       {/* set price range area */}
-      <div className=" border border-limitOrderFeeTiersBorderColor rounded-xl p-4">
+      <div className="lg:border lg:border-limitOrderFeeTiersBorderColor lg:rounded-xl p-4 xsm:mb-3">
         {/* price range mode area */}
         <div className="frcb">
           <div className="text-white flex flex-col text-sm ">
