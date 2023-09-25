@@ -17,7 +17,6 @@ import { list_pools, PoolInfo } from '../../services/swapV3';
 import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import {
   CONSTANT_D,
-  FEELIST,
   DEFAULTSELECTEDFEE,
   useAddLiquidityUrlHandle,
   get_pool_id,
@@ -42,7 +41,6 @@ import { isMobile } from '../../utils/device';
 import { SelectedIcon, ArrowDownV3 } from '../../components/icon/swapV3';
 import Big from 'big.js';
 import { SelectTokenDCL } from '../../components/forms/SelectToken';
-import { SliderCurColor } from '~components/icon/Info';
 import {
   CurveShape,
   SpotShape,
@@ -2072,7 +2070,7 @@ export default function AddYourLiquidityPageV3() {
                         <span className="text-white text-xs font-gothamBold">
                           {index === 0 && (
                             <FormattedMessage
-                              id="spot"
+                              id="uniform"
                               defaultMessage={'Uniform'}
                             ></FormattedMessage>
                           )}

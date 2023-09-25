@@ -111,11 +111,6 @@ export function PointsComponent() {
         pointChange({ leftPoint, rightPoint });
       }
     }
-    console.log(
-      '00000000--leftPoint, rightPoint--00000000',
-      leftPoint,
-      rightPoint
-    );
   }, [leftPoint, rightPoint, BIN_WIDTH]);
 
   useEffect(() => {

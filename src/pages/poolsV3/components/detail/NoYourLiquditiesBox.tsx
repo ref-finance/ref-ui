@@ -1,22 +1,30 @@
 import React from 'react';
 import { useHistory } from 'react-router';
-import { TOKEN_LIST_FOR_RATE, get_pool_name } from '~services/commonV3';
+import { get_pool_name, sort_tokens_by_base } from '~services/commonV3';
 import { GradientButton } from '~components/button/Button';
-import { FormattedMessage, useIntl } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 import { NoLiquidityIcon } from '../../../../components/icon/V3';
 
 export function NoYourLiquditiesBox(props: any) {
   const { poolDetail } = props;
-  const { token_x_metadata, pool_id } = poolDetail;
+  const { pool_id } = poolDetail;
   const history = useHistory();
   function goAddLiqudityPage() {
     const [token_x, token_y, fee] = pool_id.split('|');
     let url_hash = pool_id;
-    if (TOKEN_LIST_FOR_RATE.indexOf(token_x_metadata?.symbol) > -1) {
+    if (!is_reverse_fun()) {
       url_hash = `${token_y}|${token_x}|${fee}`;
     }
     const pool_name = get_pool_name(url_hash);
     history.push(`/addLiquidityV2#${pool_name}`);
+  }
+  function is_reverse_fun() {
+    const { token_x_metadata, token_y_metadata } = poolDetail;
+    if (token_x_metadata && token_y_metadata) {
+      const tokens = sort_tokens_by_base([token_x_metadata, token_y_metadata]);
+      return tokens[0].id !== token_x_metadata.id;
+    }
+    return false;
   }
   return (
     <div className="flex flex-col items-center px-10 py-6 bg-cardBg rounded-xl">
