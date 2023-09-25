@@ -1375,7 +1375,7 @@ const vi = {
   bridge_pure: 'Cầu nối',
   pool_refresh: 'Có sự cố với máy chủ, vui lòng thử lại sau.',
   netWorthTip:
-  'Tổng giá trị của đầu tư trong Ref (bao gồm phần thưởng có thể yêu cầu) + Tổng giá trị tài sản Orderly + Tổng giá trị tài sản Burrow + Tổng tài sản trong ví',
+    'Tổng giá trị của đầu tư trong Ref (bao gồm phần thưởng có thể yêu cầu) + Tổng giá trị tài sản Orderly + Tổng giá trị tài sản Burrow + Tổng tài sản trong ví',
   top_bin_apr: 'Top Bin APR (24h)',
   mark_price: 'Giá đánh dấu',
   last_price: 'Giá cuối cùng',

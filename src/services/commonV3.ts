@@ -1749,11 +1749,12 @@ export function get_account_24_apr(
   );
   let fee_x_24_value = Big(fee_x_24).mul(price_x);
   let fee_y_24_value = Big(fee_y_24).mul(price_y);
+  debugger;
   if (Big(fee_x).lt(0)) {
-    fee_x_24_value = fee_x_24_value.neg();
+    fee_x_24_value = Big(-fee_x_24_value.toNumber());
   }
   if (Big(fee_y).lt(0)) {
-    fee_y_24_value = fee_y_24_value.neg();
+    fee_y_24_value = Big(-fee_y_24_value.toNumber());
   }
 
   const total_fee_24_value = fee_x_24_value
@@ -1833,7 +1834,7 @@ export function get_total_earned_fee({
     total_fee_x_final.toFixed()
   );
   total_earned_fee_x = Big(total_fee_x || 0).lt(0)
-    ? Big(total_earned_fee_x).neg()
+    ? Big(-Number(total_earned_fee_x))
     : Big(total_earned_fee_x);
   total_earned_fee_x = total_earned_fee_x.plus(unClaimed_amount_x_fee);
 
@@ -1842,7 +1843,7 @@ export function get_total_earned_fee({
     total_fee_y_final.toFixed()
   );
   total_earned_fee_y = Big(total_fee_y || 0).lt(0)
-    ? Big(total_earned_fee_y).neg()
+    ? Big(-Number(total_earned_fee_y))
     : Big(total_earned_fee_y);
   total_earned_fee_y = total_earned_fee_y.plus(unClaimed_amount_y_fee);
 
