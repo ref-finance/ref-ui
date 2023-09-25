@@ -1,6 +1,6 @@
-import React, { useState} from 'react';
-import { WrapNearDefault, WrapNearHover, WrapNearMobile} from './Nav';
-import { isClientMobie, useClientMobile, isMobile} from '../../utils/device';
+import React, { useState } from 'react';
+import { WrapNearDefault, WrapNearHover, WrapNearMobile } from './Nav';
+import { isClientMobie, useClientMobile, isMobile } from '../../utils/device';
 
 import CloseBtn_whiteSvg from '../../assets/svg/CloseBtn_white.svg';
 import ActivityIconSvg from '../../assets/svg/ActivityIcon.svg';

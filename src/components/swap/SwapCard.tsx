@@ -511,6 +511,7 @@ export function DetailView_near_wnear({
     </div>
   );
 }
+
 function DetailView({
   trade,
   show,
@@ -913,6 +914,7 @@ export default function SwapCard(props: {
       setWrapOperation(false);
     }
   }, [tokenIn, tokenOut, useNearBalance, isSignedIn, nearBalance]);
+
   function getStorageTokenId() {
     const in_key = localStorage.getItem(SWAP_IN_KEY);
     const in_key_symbol = localStorage.getItem(SWAP_IN_KEY_SYMBOL);
@@ -939,6 +941,7 @@ export default function SwapCard(props: {
     }
     return result;
   }
+
   const getSlippageTolerance = () => {
     return {
       slippageValue: slippageToleranceNormal,
@@ -1035,6 +1038,7 @@ export default function SwapCard(props: {
       !quoting
     );
   }
+
   function satisfyCondition2() {
     return (
       new Big(tokenInAmount || '0').gt('0') &&
@@ -1108,6 +1112,12 @@ export default function SwapCard(props: {
         ONLY_ZEROS.test(tokenInMax))
     );
   }
+
+  const handleInputAmountChange = (v: string) => {
+    setLoadingTrigger(true);
+    setTokenInAmountInput(v);
+  };
+
   const isInsufficientBalance = judgeBalance();
 
   return (
@@ -1178,7 +1188,7 @@ export default function SwapCard(props: {
           }}
           useNearBalance={useNearBalance}
           onChangeAmount={(v) => {
-            setTokenInAmountInput(v);
+            handleInputAmountChange(v);
           }}
           tokenPriceList={tokenPriceList}
           isError={tokenIn?.id === tokenOut?.id}

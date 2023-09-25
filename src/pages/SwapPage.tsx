@@ -421,8 +421,6 @@ function SwapPage() {
                 swapMode={swapMode}
                 tokenInAmount={tokenInAmount}
                 setTokenInAmount={setTokenInAmount}
-                tokenInAmountInput={tokenInAmountInput}
-                setTokenInAmountInput={setTokenInAmountInput}
                 limitTokenTrigger={limitTokenTrigger}
                 tokenIn={tokenIn}
                 setTokenIn={setTokenIn}
