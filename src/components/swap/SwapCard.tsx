@@ -1115,7 +1115,9 @@ export default function SwapCard(props: {
   }
 
   const handleInputAmountChange = (v: string) => {
-    setShowSwapLoading(true);
+    if (Number(v) > 0) {
+      setShowSwapLoading(true);
+    }
     setTokenInAmountInput(v);
   };
 
