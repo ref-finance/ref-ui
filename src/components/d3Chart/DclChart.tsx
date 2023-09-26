@@ -105,6 +105,8 @@ export default function DclChart({
     useState<IUserLiquiditiesDetail>();
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>();
   const [chartDataListDone, setChartDataListDone] = useState<boolean>(false);
+  const [dclPoolPoints, setDclPoolPoints] = useState<IChartData[]>();
+  const [dclPoolPointsDone, setDclPoolPointsDone] = useState<boolean>(false);
   /** constant start */
   const appearanceConfig: IPoolChartConfig = config || {};
   let [timerObj, setTimerObj] = useState<any>({
@@ -159,6 +161,12 @@ export default function DclChart({
       get_chart_data();
     }
   }, [pool, accountId]);
+  useEffect(() => {
+    if (dclPoolPointsDone && chartDataListDone) {
+      const combineList = combine_data(dclPoolPoints, chartDataList);
+      setChartDataList(combineList);
+    }
+  }, [dclPoolPointsDone, chartDataListDone]);
   useEffect(() => {
     if (chartDataList) {
       init_price_range();
@@ -429,10 +437,11 @@ export default function DclChart({
     setPool(p);
   }
   async function get_chart_data() {
+    get_dcl_pool_points();
     const list = await get_data_from_back_end();
     setChartDataList(list);
-    setChartDataListDone(true);
     init_price_range();
+    setChartDataListDone(true);
   }
   function init_price_range() {
     const { range } = getConfig();
@@ -447,13 +456,23 @@ export default function DclChart({
       set_price_range(range);
     }
   }
-  async function get_data_from_back_end() {
-    setChartDataListDone(false);
-    const { token_x_metadata, token_y_metadata, pool_id } = pool;
+  function get_dcl_pool_points() {
+    const { pool_id } = pool;
     const { bin: bin_final, rangeGear } = getConfig();
     const [price_l, price_r] = get_price_range_by_percent(rangeGear[0], true);
     const point_l = get_point_by_price(price_l);
     const point_r = get_point_by_price(price_r);
+    getDclPoolPoints(pool_id, bin_final, point_l, point_r).then(
+      (pointsData_apr) => {
+        setDclPoolPoints(pointsData_apr?.point_data);
+        setDclPoolPointsDone(true);
+      }
+    );
+  }
+  async function get_data_from_back_end() {
+    setChartDataListDone(false);
+    const { token_x_metadata, token_y_metadata, pool_id } = pool;
+    const { bin: bin_final, rangeGear } = getConfig();
     let list: any[] = [];
     if (chartType == 'USER') {
       if (accountId) {
@@ -475,12 +494,6 @@ export default function DclChart({
         });
       }
     } else {
-      const pointsData_apr = await getDclPoolPoints(
-        pool_id,
-        bin_final,
-        point_l,
-        point_r
-      );
       const marketdepthData = await get_pool_marketdepth(pool_id);
       const { liquidities, orders } = marketdepthData;
       let liquidities_array: ILiquidityInfoPool[] = Object.values(liquidities);
@@ -525,7 +538,7 @@ export default function DclChart({
         tokenY: token_y_metadata,
         poolDetail: pool,
       });
-      list = combine_data(pointsData_apr?.point_data, pointsData_l);
+      list = combine_data([], pointsData_l);
     }
     return list;
   }
