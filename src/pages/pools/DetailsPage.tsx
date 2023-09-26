@@ -1506,11 +1506,11 @@ export function RecentTransactions({
 
     return (
       <tr
-        className={`text-sm lg:grid  overflow-hidden lg:grid-cols-${
+        className={`text-sm lg:grid  overflow-hidden py-3 lg:grid-cols-${
           tab == 'swap' ? 3 : 5
         } text-primaryText hover:text-white hover:bg-poolRecentHover`}
       >
-        <td className="col-span-1 gap-1 p-4">
+        <td className="col-span-1 gap-1 px-4">
           <span className="text-white">
             {tx.method_name.toLowerCase().indexOf('add') > -1 && 'Add'}
 
@@ -1544,10 +1544,10 @@ export function RecentTransactions({
         <td
           className={`col-span-${
             tab == 'swap' ? 1 : 2
-          } relative py-4 pr-4 lg:flex items-center justify-end`}
+          } relative pr-4 lg:flex justify-end`}
         >
           <span
-            className="inline-flex items-center cursor-pointer"
+            className="inline-flex cursor-pointer"
             onClick={() => {
               openUrl(`${getConfig().explorerUrl}/txns/${tx.tx_id}`);
             }}
