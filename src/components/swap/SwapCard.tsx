@@ -972,6 +972,7 @@ export default function SwapCard(props: {
     setLoadingData,
     loadingTrigger,
     setLoadingTrigger,
+    setShowSwapLoading,
     loadingPause,
     reEstimateTrigger,
     supportLedger,
@@ -991,7 +992,7 @@ export default function SwapCard(props: {
   useEffect(() => {
     const delayInput = setTimeout(() => {
       setTokenInAmount(tokenInAmountInput);
-    }, 500);
+    }, 300);
     return () => clearTimeout(delayInput);
   }, [tokenInAmountInput]);
 
@@ -1114,7 +1115,7 @@ export default function SwapCard(props: {
   }
 
   const handleInputAmountChange = (v: string) => {
-    setLoadingTrigger(true);
+    setShowSwapLoading(true);
     setTokenInAmountInput(v);
   };
 
