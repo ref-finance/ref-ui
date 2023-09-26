@@ -1,7 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { FormattedMessage } from 'react-intl';
+import React, { useState, useEffect } from 'react';
 import { isMobile } from '../../utils/device';
-import { TokenMetadata, ftGetTokenMetadata } from '../../services/ft-contract';
+import { ftGetTokenMetadata } from '../../services/ft-contract';
 import {
   get_pool,
   PoolInfo,
@@ -36,7 +35,6 @@ import {
   IRMTYPE,
 } from './interfaces';
 import {
-  formatPrice,
   formatNumber,
   formatPercentage,
   formatWithCommas_usd,
@@ -51,10 +49,12 @@ import Big from 'big.js';
 import * as d3 from 'd3';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { getBoostTokenPrices } from '../../services/farm';
-import { toReadableNumber, formatWithCommas } from '~utils/numbers';
+import { formatWithCommas } from '~utils/numbers';
 import { ILiquidityInfoPool, IOrderInfoPool } from '../../services/commonV3';
 import { BlueCircleLoading } from '../../components/layout/Loading';
 import { get_unClaimed_fee_data } from '../../pages/poolsV3/components/detail/DetailFun';
+import { AddIcon, SubIcon } from './Icon';
+import { isValid, createRandomString } from './utils';
 export default function DclChart({
   pool_id,
   leftPoint,
@@ -1342,20 +1342,6 @@ export default function DclChart({
     }
     return point_int_bin;
   }
-  function clickToLeft() {
-    const { bin } = getConfig();
-    const newPoint = dragLeftPoint - pool.point_delta * (bin + 1);
-    const newPoint_nearby_bin = get_bin_point_by_point(newPoint, 'floor');
-    setDragLeftPoint(newPoint_nearby_bin);
-    setLeftPoint && setLeftPoint(newPoint_nearby_bin);
-  }
-  function clickToRight() {
-    const { bin } = getConfig();
-    const newPoint = dragRightPoint + pool.point_delta * (bin + 1);
-    const newPoint_nearby_bin = get_bin_point_by_point(newPoint, 'ceil');
-    setDragRightPoint(newPoint_nearby_bin);
-    setRightPoint && setRightPoint(newPoint_nearby_bin);
-  }
   function get_bin_point_by_point(point: number, type?: IRMTYPE) {
     const { point_delta } = pool;
     const slot_num = getConfig().bin;
@@ -1907,116 +1893,5 @@ export default function DclChart({
           </div>
         )}
     </>
-  );
-}
-function isValid(n: number) {
-  if (n !== undefined && n !== null) return true;
-  return false;
-}
-function AddIcon(props: any) {
-  return (
-    <svg
-      {...props}
-      width="9"
-      height="9"
-      viewBox="0 0 9 9"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <line
-        x1="0.75"
-        y1="4.43054"
-        x2="8.09615"
-        y2="4.43054"
-        stroke="currentColor"
-        stroke-width="1.5"
-        stroke-linecap="round"
-      />
-      <line
-        x1="4.49268"
-        y1="0.826904"
-        x2="4.49268"
-        y2="8.17306"
-        stroke="currentColor"
-        stroke-width="1.5"
-        stroke-linecap="round"
-      />
-    </svg>
-  );
-}
-function SubIcon(props: any) {
-  return (
-    <svg
-      {...props}
-      width="9"
-      height="2"
-      viewBox="0 0 9 2"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <line
-        x1="0.75"
-        y1="1.25"
-        x2="8.09615"
-        y2="1.25"
-        stroke="currentColor"
-        stroke-width="1.5"
-        stroke-linecap="round"
-      />
-    </svg>
-  );
-}
-function createRandomChar(c = 'a-z') {
-  switch (c) {
-    case 'A-Z':
-      return String.fromCharCode(Math.trunc(Math.random() * 25) + 65);
-    case 'a-z':
-      return String.fromCharCode(Math.trunc(Math.random() * 25) + 97);
-    case '0-9':
-    default:
-      return String.fromCharCode(Math.trunc(Math.random() * 10) + 48);
-  }
-}
-function createRandomString(length = 4) {
-  let str = '';
-  for (let i = 0; i < length; i++) str += createRandomChar();
-  return str;
-}
-function LeftArrowIcon(props: any) {
-  return (
-    <svg
-      {...props}
-      width="5"
-      height="9"
-      viewBox="0 0 5 9"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M4 1L1 4.5L4 8"
-        stroke="#91A2AE"
-        stroke-width="1.5"
-        stroke-linecap="round"
-      />
-    </svg>
-  );
-}
-function RightArrowIcon(props: any) {
-  return (
-    <svg
-      {...props}
-      width="7"
-      height="9"
-      viewBox="0 0 7 9"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M1 8L5 4.5L1 1"
-        stroke="#91A2AE"
-        stroke-width="1.5"
-        stroke-linecap="round"
-      />
-    </svg>
   );
 }

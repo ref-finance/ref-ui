@@ -82,3 +82,24 @@ export const isInvalid = function (v: any) {
   if (v === '' || v === undefined || v === null || v === '-') return true;
   return false;
 };
+
+export function isValid(n: number) {
+  if (n !== undefined && n !== null) return true;
+  return false;
+}
+export function createRandomChar(c = 'a-z') {
+  switch (c) {
+    case 'A-Z':
+      return String.fromCharCode(Math.trunc(Math.random() * 25) + 65);
+    case 'a-z':
+      return String.fromCharCode(Math.trunc(Math.random() * 25) + 97);
+    case '0-9':
+    default:
+      return String.fromCharCode(Math.trunc(Math.random() * 10) + 48);
+  }
+}
+export function createRandomString(length = 4) {
+  let str = '';
+  for (let i = 0; i < length; i++) str += createRandomChar();
+  return str;
+}
