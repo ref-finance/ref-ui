@@ -93,7 +93,7 @@ export const useAllPoolsV2 = () => {
   return allPools;
 };
 
-export const useDclPoolIdByUrl = (source?: 'all' | 'url' | 'local') => {
+export const useDclPoolIdByCondition = (source?: 'all' | 'url' | 'local') => {
   const [pool_id, set_pool_id] = useState<string>();
   const location = useLocation();
   const hash = location.hash;

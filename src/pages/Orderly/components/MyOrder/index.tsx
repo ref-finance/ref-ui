@@ -81,7 +81,7 @@ import { HiOutlineExternalLink } from 'react-icons/hi';
 import getConfig from '../../../../services/config';
 import _ from 'lodash';
 import { HistoryOrderSwapInfo } from '../../../../services/indexer';
-import { useDclPoolIdByUrl } from '../../../../state/swapV3';
+import { useDclPoolIdByCondition } from '../../../../state/swapV3';
 
 const ORDER_TYPE_KEY = 'REF_FI_ORDER_TYPE_VALUE';
 
@@ -2130,7 +2130,7 @@ function OrderCard({
       sessionStorage.removeItem(REF_FI_MY_ORDER_SHOW_HISTORY_SWAP_INFO);
     }
   };
-  const pool_id_by_url = useDclPoolIdByUrl();
+  const pool_id_by_url = useDclPoolIdByCondition('all');
 
   const [orderType, setOrderType] = useState<'active' | 'history'>(
     sessionStorage.getItem(ORDER_TYPE_KEY) ||

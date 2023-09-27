@@ -31,7 +31,7 @@ import MyOrderPage from './MyOrder';
 import MyOrderComponent from './Orderly/components/MyOrder';
 import { useWalletSelector } from '../context/WalletSelectorContext';
 import { useClientMobile } from '../utils/device';
-import { useDclPoolIdByUrl } from '../state/swapV3';
+import { useDclPoolIdByCondition } from '../state/swapV3';
 
 export const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';
 
@@ -280,7 +280,7 @@ function SwapPage() {
   const [swapMode, setSwapMode] = useState<SWAP_MODE>(
     storageMode || SWAP_MODE.NORMAL
   );
-  const dcl_pool_id = useDclPoolIdByUrl('all');
+  const dcl_pool_id = useDclPoolIdByCondition('all');
   useEffect(() => {
     if (swapMode === SWAP_MODE.LIMIT) {
       setLimitTokenTrigger(!limitTokenTrigger ? true : false);
