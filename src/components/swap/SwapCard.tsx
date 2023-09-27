@@ -1208,7 +1208,7 @@ export default function SwapCard(props: {
               Number(tokenInAmount || '0') <
               0 &&
             !ONLY_ZEROS.test(tokenInMax || '0') &&
-            !ONLY_ZEROS.test(tokenInAmount || '0') &&
+            !ONLY_ZEROS.test(tokenInAmountInput || '0') &&
             tokenIn.id === WRAP_NEAR_CONTRACT_ID &&
             tokenIn.symbol === 'NEAR' && (
               <Alert
