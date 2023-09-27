@@ -18,7 +18,7 @@
           cy="29.5"
           r="18.5"
           stroke="url(#paint1_linear_14247_1959)"
-          strokeWidth="2"
+          stroke-width="2"
           shapeRendering="crispEdges"
         />
       </g>
@@ -42,9 +42,9 @@
           width="59"
           height="59"
           filterUnits="userSpaceOnUse"
-          colorInterpolationFilters="sRGB"
+          color-interpolation-filters="sRGB"
         >
-          <feFlood floodOpacity="0" result="BackgroundImageFix" />
+          <feFlood flood-opacity="0" result="BackgroundImageFix" />
           <feGaussianBlur in="BackgroundImage" stdDeviation="5" />
           <feComposite
             in2="SourceAlpha"
@@ -83,9 +83,9 @@
           width="40"
           height="25"
           filterUnits="userSpaceOnUse"
-          colorInterpolationFilters="sRGB"
+          color-interpolation-filters="sRGB"
         >
-          <feFlood floodOpacity="0" result="BackgroundImageFix" />
+          <feFlood flood-opacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"
@@ -118,9 +118,9 @@
           width="40.0059"
           height="25.5"
           filterUnits="userSpaceOnUse"
-          colorInterpolationFilters="sRGB"
+          color-interpolation-filters="sRGB"
         >
-          <feFlood floodOpacity="0" result="BackgroundImageFix" />
+          <feFlood flood-opacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"
@@ -154,8 +154,8 @@
           y2="31.4283"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0.0641396" stopColor="white" stopOpacity="0.15" />
-          <stop offset="1" stopColor="white" stopOpacity="0.22" />
+          <stop offset="0.0641396" stop-color="white" stop-opacity="0.15" />
+          <stop offset="1" stop-color="white" stop-opacity="0.22" />
         </linearGradient>
         <linearGradient
           id="paint1_linear_14247_1959"
@@ -165,9 +165,9 @@
           y2="27.3835"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stopColor="#C1FFF4" />
-          <stop offset="0.588542" stopColor="white" stopOpacity="0.56" />
-          <stop offset="1" stopColor="#BFCDFF" />
+          <stop stop-color="#C1FFF4" />
+          <stop offset="0.588542" stop-color="white" stop-opacity="0.56" />
+          <stop offset="1" stop-color="#BFCDFF" />
         </linearGradient>
         <linearGradient
           id="paint2_linear_14247_1959"
@@ -177,8 +177,8 @@
           y2="35.4399"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stopColor="#00D6AF" />
-          <stop offset="1" stopColor="#1AA289" />
+          <stop stop-color="#00D6AF" />
+          <stop offset="1" stop-color="#1AA289" />
         </linearGradient>
         <linearGradient
           id="paint3_linear_14247_1959"
@@ -188,8 +188,8 @@
           y2="34.8005"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stopColor="#00D6AF" />
-          <stop offset="1" stopColor="#1AA289" />
+          <stop stop-color="#00D6AF" />
+          <stop offset="1" stop-color="#1AA289" />
         </linearGradient>
       </defs>
     </svg>

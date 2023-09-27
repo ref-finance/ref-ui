@@ -8,11 +8,11 @@
       <path
         d="M9.00002 1.12695L1 9"
         stroke="currentColor"
-        strokeLinecap="round"
+        stroke-linecap="round"
       />
       <path
         d="M2.33398 1H9.00067V7.66668"
         stroke="currentColor"
-        strokeLinecap="round"
+        stroke-linecap="round"
       />
     </svg>

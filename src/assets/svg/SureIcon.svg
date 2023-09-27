@@ -8,7 +8,7 @@
       <path
         d="M2 8.15385L8.92308 15.0769L22 2"
         stroke="white"
-        strokeWidth="3"
-        strokeLinecap="round"
+        stroke-width="3"
+        stroke-linecap="round"
       />
     </svg>
