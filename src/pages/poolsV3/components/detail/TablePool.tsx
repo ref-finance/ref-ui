@@ -554,7 +554,9 @@ function RecentTransactions({
       <div className="text-sm rounded-lg overflow-hidden w-full text-primaryText bg-detailCardBg">
         <table className="w-full xsm:hidden">
           <tr
-            className={`text-left grid ${tab === 'swap' ? 'grid-cols-3': 'grid-cols-5'} border-b border-gray1`}
+            className={`text-left grid ${
+              tab === 'swap' ? 'grid-cols-3' : 'grid-cols-5'
+            } border-b border-gray1`}
           >
             <th className={`p-4 ${'col-span-1'} pb-3`}>
               {tab === 'liquidity' && (

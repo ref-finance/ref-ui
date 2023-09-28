@@ -164,7 +164,7 @@ export function YourLiquidityBox(props: {
         'unClaimed from contract-unClaimed_amount_x_fee_amount, unClaimed_amount_y_fee_amount, unClaimed_tvl_fee',
         unClaimed_amount_x_fee,
         unClaimed_amount_y_fee,
-        '$' + unClaimed_tvl_fee,
+        '$' + unClaimed_tvl_fee
       );
       // 24h profit
       apr_24 = get_account_24_apr(

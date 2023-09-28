@@ -347,7 +347,7 @@ function SwapPage() {
       <div className="frsc xsm:flex   xsm:flex-col-reverse">
         {swapType === SWAP_TYPE.Pro && (
           <div
-            className="lg:w-full  mr-8 xsm:w-95vw xsm:mx-auto "
+            className="lg:w-full  mr-8 xsm:w-95vw xsm:mx-auto xsm:overflow-x-hidden"
             style={{
               maxWidth: '850px',
             }}

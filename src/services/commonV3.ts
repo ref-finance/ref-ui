@@ -1763,7 +1763,7 @@ export function get_account_24_apr(
     fee_x_24_value.toFixed(),
     fee_y_24_value.toFixed(),
     '$' + unClaimed_fee$,
-    '$' + total_fee_24_value.toFixed(),
+    '$' + total_fee_24_value.toFixed()
   );
   // 24小时平均本金
   const processed_change_log: IProcessedLogData[] = [];
