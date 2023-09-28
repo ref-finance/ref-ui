@@ -496,7 +496,7 @@ export default function PoolDetailV3() {
               <div className="flex items-center">
                 <span>
                   <FormattedMessage id="fee" />:{' '}
-                  <span className="font-gothamBold text-white">
+                  <span className="lg:font-gothamBold lg:text-white">
                     {poolDetail.fee / 10000}%
                   </span>
                 </span>

@@ -1676,7 +1676,7 @@ export default function DclChart({
           </g>
         </svg>
         {/* show hover box then hover on the bin */}
-        <div className="overBox lg:absolute rounded-xl bg-chartHoverBoxBg border border-assetsBorder px-3 py-2 xsm:hidden xsm:mt-4 lg:invisible z-10">
+        <div className="overBox xsm:w-full lg:absolute rounded-xl bg-chartHoverBoxBg border border-assetsBorder px-3 py-2 xsm:hidden xsm:mt-4 lg:invisible z-10">
           <div className="flex items-center justify-between my-2">
             <span className="text-xs text-white">APR(24h)</span>
             <span className="text-xs text-white gotham_bold">
