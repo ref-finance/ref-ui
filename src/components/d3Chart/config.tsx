@@ -47,7 +47,7 @@ export function get_custom_config_for_chart(): IChartConfig {
       'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near|aurora|2000':
         // ETH<>USDC.e@2000
         {
-          bin: 4,
+          bin: 2,
           range: 50,
           rangeGear: [130, 110, 90, 70, 50, 30, 20, 10],
           colors: ['#626CA3', '#2775CA'],
@@ -55,7 +55,7 @@ export function get_custom_config_for_chart(): IChartConfig {
       'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near|aaaaaa20d9e0e2461697782ef11675f668207961.factory.bridge.near|2000':
         // AURORA<>USDC.e@2000
         {
-          bin: 10,
+          bin: 5,
           range: 100,
           rangeGear: [180, 160, 140, 120, 100, 80, 60, 40, 20, 10],
           colors: ['#79BD84', '#2775CA'],
@@ -63,7 +63,7 @@ export function get_custom_config_for_chart(): IChartConfig {
       'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near|wrap.near|2000':
         // NEAR<>USDC.e@2000
         {
-          bin: 10,
+          bin: 5,
           range: 100,
           rangeGear: [180, 160, 140, 120, 100, 80, 60, 40, 20, 10],
           colors: ['#707C84', '#2775CA'],
