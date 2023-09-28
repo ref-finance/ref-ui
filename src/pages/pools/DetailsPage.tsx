@@ -1614,7 +1614,7 @@ export function RecentTransactions({
 
       <div className="text-sm overflow-hidden rounded-lg w-full text-primaryText bg-detailCardBg">
         <div
-          className={`text-left grid grid-cols-${5} w-full border-b border-gray1 xsm:hidden`}
+          className={`text-left grid grid-cols-5 w-full border-b border-gray1 xsm:hidden`}
         >
           <div className={`p-4 pb-3 col-span-${tab == 'swap' ? 2 : 1}`}>
             {tab === 'liquidity' && (
