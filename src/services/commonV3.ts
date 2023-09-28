@@ -1760,10 +1760,10 @@ export function get_account_24_apr(
     .plus(unClaimed_fee$ || 0);
   console.log(
     'Claimed_fee_x_24_value,  Claimed_fee_y_24_value, unClaimed_fee$, total_fee_24_value',
-    fee_x_24_value,
-    fee_y_24_value,
+    fee_x_24_value.toFixed(),
+    fee_y_24_value.toFixed(),
     unClaimed_fee$,
-    total_fee_24_value
+    total_fee_24_value.toFixed(),
   );
   // 24小时平均本金
   const processed_change_log: IProcessedLogData[] = [];
@@ -1814,7 +1814,7 @@ export function get_account_24_apr(
   if (principal.gt(0)) {
     apr_24 = total_fee_24_value.div(principal).mul(365).mul(100).toFixed();
   }
-  console.log('24小时平均本金', principal);
+  console.log('24小时平均本金', principal.toFixed());
   return apr_24;
 }
 
