@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useClientMobile, isMobile } from '../../../../utils/device';
 
-import { IoMdClose } from 'react-icons/io';
+import { IoMdClose } from '../../../../components/reactIcons';
 import { REF_ORDERLY_PERP_TIP_SIG } from '~pages/Orderly/OrderlyPerpetual';
 
 export function PerpOrderlyTip() {

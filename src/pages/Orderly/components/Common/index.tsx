@@ -21,7 +21,7 @@ import { TokenMetadata } from '../../orderly/type';
 import { parseSymbol } from '../RecentTrade';
 import 'react-toastify/dist/ReactToastify.css';
 
-import { HiDownload } from 'react-icons/hi';
+import { HiDownload } from '../../../../components/reactIcons';
 import { formatTimeDate } from '../OrderBoard/index';
 import { MyOrder } from '../../orderly/type';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';

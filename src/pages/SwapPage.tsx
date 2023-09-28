@@ -212,6 +212,8 @@ function getAllTokens(refTokens: TokenMetadata[], triTokens: TokenMetadata[]) {
 
 function SwapPage() {
   const [tokenInAmount, setTokenInAmount] = useState<string>('1');
+  const [tokenInAmountInput, setTokenInAmountInput] = useState<string>('1');
+
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
 
@@ -422,6 +424,8 @@ function SwapPage() {
                 setTokenOut={setTokenOut}
                 tokenInAmount={tokenInAmount}
                 setTokenInAmount={setTokenInAmount}
+                tokenInAmountInput={tokenInAmountInput}
+                setTokenInAmountInput={setTokenInAmountInput}
                 swapTab={SwapNav}
                 globalWhiteListTokens={globalWhiteListTokens}
               />

@@ -46,7 +46,7 @@ import SubmitButton, { InsufficientButton } from '../forms/SubmitButton';
 import Alert from '../alert/Alert';
 import { toRealSymbol } from '../../utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
+
 import db from '../../store/RefDatabase';
 import { ConnectToNearBtnSwap } from '../button/Button';
 
@@ -159,15 +159,14 @@ import {
   BTC_CLASS_STABLE_TOKEN_IDS,
 } from '../../services/near';
 
-import { TiRefresh } from 'react-icons/ti';
-
-import { MdOutlineRefresh } from 'react-icons/md';
+import {
+  FaAngleUp,
+  FaAngleDown,
+  FaExchangeAlt,
+  MdOutlineRefresh,
+} from '../reactIcons';
 import { getMax } from '../../utils/numbers';
-import { RefreshIcon } from '../icon/swapV3';
-import { useWalletTokenBalances } from '../../state/token';
-import { TokenBalancesView } from '../../services/token';
-import { Images } from '../stableswap/CommonComp';
-import { ArrowRight } from '../layout/SwapRoutes';
+
 import { YellowTipIcon, RedTipIcon, SelectedIcon } from '../icon/swapV3';
 import * as math from 'mathjs';
 import { NEAR_WITHDRAW_KEY } from '../forms/WrapNear';

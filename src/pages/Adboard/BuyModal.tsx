@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { FaCheck } from 'react-icons/fa';
-import { AiOutlineClose } from 'react-icons/ai';
+import { FaCheck, AiOutlineClose } from '../../components/reactIcons';
 import { useSwap } from '../../state/swap';
 import SelectToken from '../../components/forms/SelectToken';
 import Icon from '../../components/tokens/Icon';

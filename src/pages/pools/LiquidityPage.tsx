@@ -7,7 +7,6 @@ import React, {
   useContext,
   createContext,
 } from 'react';
-import { FaRegQuestionCircle, FaSearch } from 'react-icons/fa';
 
 import db from '../../store/RefDatabase';
 
@@ -138,7 +137,7 @@ import { FarmStampNew } from '../../components/icon/FarmStamp';
 import { ALL_STABLE_POOL_IDS } from '../../services/near';
 import { BoostSeeds, WatchList } from '../../store/RefDatabase';
 import { REF_FI_CONTRACT_ID } from '../../services/near';
-import { AiOutlineStar } from 'react-icons/ai';
+
 import {
   get_all_seeds,
   getLatestStartTime,
@@ -148,11 +147,10 @@ import {
   openUrl,
 } from '../../services/commonV3';
 
-import { AiFillStar } from 'react-icons/ai';
+import { formatPercentage } from '../../components/d3Chart/utils';
+import { AiFillStar, RiArrowRightSLine } from '../../components/reactIcons';
 import { useSeedFarmsByPools } from '../../state/pool';
 
-import { RiArrowRightSLine } from 'react-icons/ri';
-import { formatPercentage } from '../../components/d3Chart/utils';
 import { PoolRefreshModal } from './PoolRefreshModal';
 import { useTokenPriceList } from '../../state/token';
 

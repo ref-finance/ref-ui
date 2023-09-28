@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Card } from '../../components/card/Card';
 import { FormattedMessage } from 'react-intl';
-import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
+import { FaAngleUp, FaAngleDown } from '../reactIcons';
 import { TokenMetadata } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
 import { useIntl } from 'react-intl';

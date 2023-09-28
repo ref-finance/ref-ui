@@ -34,7 +34,6 @@ import {
 import { InsufficientButton } from '../forms/SubmitButton';
 import Alert from '../alert/Alert';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import { ConnectToNearBtnSwap } from '../button/Button';
 
 import SwapFormWrap from '../forms/SwapFormWrap';
@@ -84,7 +83,7 @@ import {
 } from '../../services/swapV3';
 import { SkyWardModal } from '../layout/SwapDoubleCheck';
 
-import { MdOutlineRefresh } from 'react-icons/md';
+import { MdOutlineRefresh } from '../reactIcons';
 import { getMax } from '../../utils/numbers';
 
 import { SelectedIcon } from '../icon/swapV3';

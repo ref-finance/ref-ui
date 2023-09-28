@@ -120,6 +120,7 @@ interface SwapOptions {
   loadingData?: boolean;
   loadingTrigger?: boolean;
   setLoadingTrigger?: (loadingTrigger: boolean) => void;
+  setShowSwapLoading?: (showSwapLoading: boolean) => void;
   stablePool?: StablePool;
   loadingPause?: boolean;
   setLoadingPause?: (pause: boolean) => void;
@@ -424,6 +425,7 @@ export const estimateValidator = (
 export const useSwap = ({
   tokenIn,
   tokenInAmount,
+  setShowSwapLoading,
   tokenOut,
   slippageTolerance,
   loadingTrigger,
@@ -585,6 +587,7 @@ export const useSwap = ({
           setForceEstimate && setForceEstimate(false);
           setLoadingTrigger && setLoadingTrigger(false);
           setEstimating && setEstimating(false);
+          setShowSwapLoading && setShowSwapLoading(false);
         });
     } else if (
       tokenIn &&
@@ -1521,6 +1524,7 @@ export const useRefSwap = ({
   setLoadingData,
   loadingTrigger,
   setLoadingTrigger,
+  setShowSwapLoading,
   loadingPause,
   swapMode,
   reEstimateTrigger,
@@ -1546,6 +1550,7 @@ export const useRefSwap = ({
     setLoadingData,
     loadingTrigger,
     setLoadingTrigger,
+    setShowSwapLoading,
     loadingData,
     loadingPause,
     swapMode,
@@ -1946,6 +1951,7 @@ export const useRefSwapPro = ({
   setLoadingData,
   loadingTrigger,
   setLoadingTrigger,
+  setShowSwapLoading,
   loadingPause,
   reEstimateTrigger,
   supportLedger,
@@ -1976,6 +1982,7 @@ export const useRefSwapPro = ({
     setLoadingData,
     loadingTrigger,
     setLoadingTrigger,
+    setShowSwapLoading,
     loadingPause,
     reEstimateTrigger,
     supportLedger,

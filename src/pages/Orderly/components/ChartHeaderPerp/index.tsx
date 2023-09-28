@@ -3,14 +3,12 @@ import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import Modal from 'react-modal';
 import { parseSymbol } from '../RecentTrade';
 import { nearMetadata, getFTmetadata, toPrecision } from '../../near';
-
 import {
+  IoMdArrowDropdown,
   IoArrowDownOutline,
   IoArrowUpOutline,
   IoCloseSharp,
-} from 'react-icons/io5';
-
-import { IoMdArrowDropdown } from 'react-icons/io';
+} from '../../../../components/reactIcons';
 import { useTokenMetaFromSymbol } from './state';
 import { Ticker, TokenInfo, OpenInterest } from '../../orderly/type';
 import { TokenIcon } from '../Common';

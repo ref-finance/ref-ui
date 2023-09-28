@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import Modal from 'react-modal';
 
-import { IoClose } from 'react-icons/io5';
+import { IoClose } from '../../../../components/reactIcons';
 import { useTokenInfo } from '../../orderly/state';
 import {
   NearIcon,
@@ -19,7 +19,7 @@ import {
 
 import InfiniteScroll from 'react-infinite-scroll-component';
 
-import { MdArrowDropDown, MdArrowDropUp } from 'react-icons/md';
+import { MdArrowDropDown } from '../../../../components/reactIcons';
 import { OrderAsset, useOrderAssets } from './state';
 import {
   FlexRow,
@@ -44,7 +44,7 @@ import { formatTimeDate } from '../OrderBoard/index';
 import { getAssetHistory } from '../../orderly/off-chain-api';
 import getConfig from '../../config';
 
-import { TbCopy } from 'react-icons/tb';
+import { BiCopy } from '../../../../components/reactIcons';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { NearTip } from '../../../../pages/AccountPage';
 import { isClientMobie, useClientMobile } from '../../../../utils/device';
@@ -243,7 +243,7 @@ function RecordLine(
             {parseTxDisplay(props.tx_id)}
           </a>
           <CopyToClipboard text={props.tx_id}>
-            <TbCopy className="ml-1 transform hover:opacity-80 cursor-pointer text-txBlue rotate-270" />
+            <BiCopy className="ml-1 transform hover:opacity-80 cursor-pointer text-txBlue rotate-270" />
           </CopyToClipboard>
         </div>
 

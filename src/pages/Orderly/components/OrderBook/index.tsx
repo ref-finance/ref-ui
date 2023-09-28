@@ -10,9 +10,12 @@ import {
   numberWithCommas,
   numberWithCommasPadding,
 } from '../../utiles';
-import { MdArrowDropDown, MdArrowDropUp } from 'react-icons/md';
+import {
+  MdArrowDropDown,
+  IoArrowUpOutline,
+} from '../../../../components/reactIcons';
 import { Selector } from '../OrderBoard';
-import { IoArrowUpOutline } from 'react-icons/io5';
+
 import Big from 'big.js';
 import { MarkPriceFlag, OrderlyLoading } from '../Common/Icons';
 import { useClientMobile } from '../../../../utils/device';
