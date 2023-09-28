@@ -5,12 +5,7 @@ import { FormattedMessage } from 'react-intl';
 import { TokenMetadata } from '~services/ft-contract';
 import { UnCheckedRadio, CheckedRadio, Radio } from '~components/icon';
 import { useIntl } from 'react-intl';
-import {
-  FaAngleUp,
-  FaAngleDown,
-  FaExchangeAlt,
-  FaServicestack,
-} from 'react-icons/fa';
+import { FaAngleUp, FaAngleDown } from '../reactIcons';
 import {
   PriceImpactWarning,
   SwapDetail,

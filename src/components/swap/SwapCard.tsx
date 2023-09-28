@@ -38,7 +38,7 @@ import SubmitButton, { InsufficientButton } from '../forms/SubmitButton';
 import Alert from '../alert/Alert';
 import { toRealSymbol } from '../../utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
+import { FaAngleUp, FaAngleDown, FaExchangeAlt } from '../reactIcons';
 import { ConnectToNearBtnSwap } from '../button/Button';
 
 import SwapFormWrap from '../forms/SwapFormWrap';
@@ -511,6 +511,7 @@ export function DetailView_near_wnear({
     </div>
   );
 }
+
 function DetailView({
   trade,
   show,
@@ -677,6 +678,8 @@ export default function SwapCard(props: {
   swapMode: SWAP_MODE;
   tokenInAmount: string;
   setTokenInAmount: (value: string) => void;
+  tokenInAmountInput: string;
+  setTokenInAmountInput: (value: string) => void;
   swapTab?: JSX.Element;
   globalWhiteListTokens: TokenMetadata[];
   setTokenIn: (value: TokenMetadata) => void;
@@ -696,6 +699,8 @@ export default function SwapCard(props: {
     swapMode,
     tokenInAmount,
     setTokenInAmount,
+    tokenInAmountInput,
+    setTokenInAmountInput,
     swapTab,
     globalWhiteListTokens,
   } = props;
@@ -909,6 +914,7 @@ export default function SwapCard(props: {
       setWrapOperation(false);
     }
   }, [tokenIn, tokenOut, useNearBalance, isSignedIn, nearBalance]);
+
   function getStorageTokenId() {
     const in_key = localStorage.getItem(SWAP_IN_KEY);
     const in_key_symbol = localStorage.getItem(SWAP_IN_KEY_SYMBOL);
@@ -935,6 +941,7 @@ export default function SwapCard(props: {
     }
     return result;
   }
+
   const getSlippageTolerance = () => {
     return {
       slippageValue: slippageToleranceNormal,
@@ -965,6 +972,7 @@ export default function SwapCard(props: {
     setLoadingData,
     loadingTrigger,
     setLoadingTrigger,
+    setShowSwapLoading,
     loadingPause,
     reEstimateTrigger,
     supportLedger,
@@ -980,6 +988,13 @@ export default function SwapCard(props: {
       setLoadingTrigger(true);
     }
   }, [swapMode]);
+
+  useEffect(() => {
+    const delayInput = setTimeout(() => {
+      setTokenInAmount(tokenInAmountInput);
+    }, 300);
+    return () => clearTimeout(delayInput);
+  }, [tokenInAmountInput]);
 
   const throwNoPoolError = () => {
     return new Error(
@@ -1024,6 +1039,7 @@ export default function SwapCard(props: {
       !quoting
     );
   }
+
   function satisfyCondition2() {
     return (
       new Big(tokenInAmount || '0').gt('0') &&
@@ -1097,6 +1113,14 @@ export default function SwapCard(props: {
         ONLY_ZEROS.test(tokenInMax))
     );
   }
+
+  const handleInputAmountChange = (v: string) => {
+    if (Number(v) > 0) {
+      setShowSwapLoading(true);
+    }
+    setTokenInAmountInput(v);
+  };
+
   const isInsufficientBalance = judgeBalance();
 
   return (
@@ -1150,7 +1174,7 @@ export default function SwapCard(props: {
           forSwap
           forCross={enableTri}
           swapMode={swapMode}
-          amount={tokenInAmount}
+          amount={tokenInAmountInput}
           total={tokenInMax}
           max={tokenInMax}
           tokens={allTokens}
@@ -1167,7 +1191,7 @@ export default function SwapCard(props: {
           }}
           useNearBalance={useNearBalance}
           onChangeAmount={(v) => {
-            setTokenInAmount(v);
+            handleInputAmountChange(v);
           }}
           tokenPriceList={tokenPriceList}
           isError={tokenIn?.id === tokenOut?.id}
@@ -1184,7 +1208,7 @@ export default function SwapCard(props: {
               Number(tokenInAmount || '0') <
               0 &&
             !ONLY_ZEROS.test(tokenInMax || '0') &&
-            !ONLY_ZEROS.test(tokenInAmount || '0') &&
+            !ONLY_ZEROS.test(tokenInAmountInput || '0') &&
             tokenIn.id === WRAP_NEAR_CONTRACT_ID &&
             tokenIn.symbol === 'NEAR' && (
               <Alert
@@ -1203,7 +1227,7 @@ export default function SwapCard(props: {
             localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
             setTokenOut(tokenIn);
             localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
-            setTokenInAmount(toPrecision('1', 6));
+            setTokenInAmountInput(toPrecision('1', 6));
             localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
             localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
           }}

@@ -6,9 +6,11 @@ import { FormattedMessage } from 'react-intl';
 import Modal from 'react-modal';
 
 import { useClientMobile } from '../../../../../utils/device';
-import { IoArrowDownOutline, IoArrowUpOutline, IoClose } from 'react-icons/io5';
-
-import _ from 'lodash';
+import {
+  IoClose,
+  IoArrowDownOutline,
+  IoArrowUpOutline,
+} from '../../../../../components/reactIcons';
 
 import {
   MobileMoreRouteIcon,
@@ -22,7 +24,7 @@ import { parseSymbol } from '../../RecentTrade';
 import { useTokenMetaFromSymbol } from '../../ChartHeader/state';
 import { useTokenRate24h } from '../../../../../state/tokenRate';
 import { tickerToDisplayDiff } from '..';
-import { BsArrowRight } from 'react-icons/bs';
+import { BsArrowRight } from '../../../../../components/reactIcons';
 import { openUrl } from '../../../../../services/commonV3';
 import { WRAP_NEAR_CONTRACT_ID } from '../../../../../services/wrap-near';
 import { SWAP_MODE, SWAP_MODE_KEY, SWAP_TYPE_KEY } from '../../../../SwapPage';

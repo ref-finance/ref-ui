@@ -133,7 +133,7 @@ import { getVEPoolId } from '../ReferendumPage';
 import getConfig from '../../services/config';
 import { BoostInputAmount } from '../../components/forms/InputAmount';
 import { ExternalLinkIcon } from '~components/icon/Risk';
-import { FaAngleDown, FaAngleUp } from 'react-icons/fa';
+import { FaAngleDown, FaAngleUp } from '../../components/reactIcons';
 import { useClientMobile, isClientMobie } from '../../utils/device';
 import {
   getPoolFeeApr,
@@ -145,7 +145,6 @@ import { useTokenPriceList } from '../../state/token';
 import { ExchangeArrow } from '../../components/icon/Arrows';
 import { multiply, divide, calculateFeeCharge } from '../../utils/numbers';
 
-import { BsArrowUpRight } from 'react-icons/bs';
 import {
   useSeedFarms,
   useSeedDetail,
@@ -162,7 +161,6 @@ import {
   QuestionTip,
 } from '../../components/layout/TipWrapper';
 
-import { FiArrowUpRight } from 'react-icons/fi';
 import { NoLiquidityDetailPageIcon } from '../../components/icon/Pool';
 import { useFarmStake } from '../../state/farm';
 import { VEARROW } from '../../components/icon/Referendum';

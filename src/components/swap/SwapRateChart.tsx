@@ -23,7 +23,7 @@ import {
   CartesianGrid,
 } from 'recharts';
 
-import { IoArrowUpOutline } from '@react-icons/all-files/io5/IoArrowUpOutline';
+import { IoArrowUpOutline } from '../reactIcons';
 import { displayNumberToAppropriateDecimals } from '~services/commonV3';
 import moment from 'moment';
 import { ChartNoData } from '../../components/icon/ChartNoData';

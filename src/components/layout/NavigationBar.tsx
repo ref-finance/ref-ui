@@ -23,10 +23,12 @@ import { NEARXIDS, wallet } from '~services/near';
 import { Card } from '~components/card/Card';
 
 import { FormattedMessage, useIntl, FormattedRelativeTime } from 'react-intl';
-import { HiOutlineExternalLink } from 'react-icons/hi';
-import { IoChevronBack, IoClose } from 'react-icons/io5';
+import {
+  HiOutlineExternalLink,
+  IoChevronBack,
+  FiChevronRight,
+} from '../reactIcons';
 
-import { FiChevronDown, FiChevronRight } from 'react-icons/fi';
 import {
   useMenuItems,
   useLanguageItems,

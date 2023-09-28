@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaAngleDown } from 'react-icons/fa';
+import { FaAngleDown } from '../reactIcons';
 import { wallet } from '../../services/near';
 
 export default function Dropdown() {

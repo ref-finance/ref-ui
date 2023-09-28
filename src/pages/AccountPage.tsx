@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import Modal from 'react-modal';
 import { Card } from '../components/card/Card';
-import { TiArrowSortedUp } from 'react-icons/ti';
+import { TiArrowSortedUp } from '../components/reactIcons';
 import { TokenMetadata } from '../services/ft-contract';
 import { GreenLButton } from '../components/button/Button';
 import {
@@ -46,7 +46,7 @@ import {
 import { nearMetadata, wrapNear } from '../services/wrap-near';
 import { BeatLoading } from '../components/layout/Loading';
 import { STORAGE_PER_TOKEN } from '../services/creators/storage';
-import { IoCloseOutline, IoFlower } from 'react-icons/io5';
+import { IoCloseOutline } from '../components/reactIcons';
 import ReactTooltip from 'react-tooltip';
 import QuestionMark from '../components/farm/QuestionMark';
 import { useHistory, useLocation, useParams } from 'react-router';

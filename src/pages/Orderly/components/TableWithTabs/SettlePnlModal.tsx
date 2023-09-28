@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Modal from 'react-modal';
-import { IoClose } from 'react-icons/io5';
+import { IoClose } from '../../../../components/reactIcons';
 import { useIntl } from 'react-intl';
 import { digitWrapper } from '../../utiles';
 import { usePerpData } from '../UserBoardPerp/state';
