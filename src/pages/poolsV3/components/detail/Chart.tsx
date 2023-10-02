@@ -31,14 +31,20 @@ export function Chart(props: any) {
   }
   const monthVolume = useV3VolumeChart(poolDetail.pool_id);
   const monthTVL = useV3TvlChart(poolDetail.pool_id);
+  let mobileHeight;
+  if (chartDisplay == 'liquidity') {
+    mobileHeight = 'auto';
+  } else {
+    mobileHeight = '400px';
+  }
   return (
     <Card
       width="w-full"
       className="relative rounded-2xl mr-4 mb-4 h-full flex flex-col items-center"
-      padding="px-7 py-5 xsm:px-4"
+      padding="px-7 py-5 xsm:px-1 xsm:pt-0"
       bgcolor={'bg-transparent'}
       style={{
-        height: isClientMobie() ? 'auto' : '470px',
+        height: isClientMobie() ? mobileHeight : '470px',
       }}
     >
       {chartDisplay === 'volume' ? (

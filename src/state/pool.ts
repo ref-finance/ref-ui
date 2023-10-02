@@ -698,17 +698,25 @@ export const useWatchPools = () => {
     const poolListDealt = await Promise.all(poolListPromise);
     return poolListDealt;
   }
-
   function getV2Poolsfinal() {
     watchV2Pools.forEach((pool: PoolInfo) => {
       const { token_x, token_y } = pool;
       const pricex = tokenPriceList[token_x]?.price || 0;
       const pricey = tokenPriceList[token_y]?.price || 0;
+      const { total_x, total_y, total_fee_x_charged, total_fee_y_charged } =
+        pool;
+      const totalX = new BigNumber(total_x)
+        .minus(total_fee_x_charged)
+        .toFixed();
+      const totalY = new BigNumber(total_y)
+        .minus(total_fee_y_charged)
+        .toFixed();
+
       const tvlx =
-        Number(toReadableNumber(pool.token_x_metadata.decimals, pool.total_x)) *
+        Number(toReadableNumber(pool.token_x_metadata.decimals, totalX)) *
         Number(pricex);
       const tvly =
-        Number(toReadableNumber(pool.token_y_metadata.decimals, pool.total_y)) *
+        Number(toReadableNumber(pool.token_y_metadata.decimals, totalY)) *
         Number(pricey);
       pool.tvl = tvlx + tvly;
     });

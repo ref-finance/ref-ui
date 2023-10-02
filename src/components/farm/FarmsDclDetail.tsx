@@ -1433,7 +1433,17 @@ export default function FarmsDclDetail(props: {
         unFarimg={listLiquidities_unFarimg}
         unavailable={listLiquidities_unavailable}
       ></AddLiquidityEntryBar>
-      <div className="mt-4">
+      <div
+        className={`mt-4 ${
+          !isSignedIn ||
+          listLiquiditiesLoading ||
+          (!listLiquiditiesLoading &&
+            listLiquidities_inFarimg.length == 0 &&
+            listLiquidities_unFarimg.length == 0)
+            ? 'hidden'
+            : ''
+        }`}
+      >
         {/* Your Farming Position */}
         <div
           className={`bg-cardBg rounded-2xl p-4 ${
@@ -1516,8 +1526,7 @@ export default function FarmsDclDetail(props: {
             </div>
           </div>
         </div>
-        {/* unClaimed Rewards for PC */}
-        {/* {user_seeds_map[detailData.seed_id] ? ( */}
+        {/* unClaimed Rewards*/}
         <UserTotalUnClaimBlock
           detailData={detailData}
           tokenPriceList={tokenPriceList}
@@ -1525,134 +1534,7 @@ export default function FarmsDclDetail(props: {
           user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
           user_unclaimed_map={user_unclaimed_map}
         ></UserTotalUnClaimBlock>
-        {/* ) : null} */}
       </div>
-
-      {/* unClaimed Rewards for Mobile */}
-      {/* <div
-        className={`bg-dclFarmBlueColor rounded-xl p-4 mt-4 lg:hidden ${
-          user_seeds_map[detailData.seed_id] ? '' : 'hidden'
-        }`}
-      >
-        <div className="flex items-center justify-between text-sm text-white">
-          <div className="flex items-center">
-            <FormattedMessage id="unclaimed_rewards"></FormattedMessage>
-            <div
-              className="text-white text-right ml-1"
-              data-class="reactTip"
-              data-for={'unclaimedRewardQIdx'}
-              data-place="top"
-              data-html={true}
-              data-tip={valueOfRewardsTip()}
-            >
-              <QuestionMark></QuestionMark>
-              <ReactTooltip
-                id={'unclaimedRewardQIdx'}
-                backgroundColor="#1D2932"
-                border
-                borderColor="#7e8a93"
-                effect="solid"
-              />
-            </div>
-          </div>
-
-          <div
-            className="text-white text-right"
-            data-class="reactTip"
-            data-for={'unclaimedRewardId' + detailData.seed_id}
-            data-place="top"
-            data-html={true}
-            data-tip={unclaimedRewardsData.tip}
-          >
-            <span className="text-base text-white gotham_bold">
-              {unclaimedRewardsData.worth}
-            </span>
-            <ReactTooltip
-              id={'unclaimedRewardId' + detailData.seed_id}
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
-          </div>
-        </div>
-        {unclaimedRewardsData.showClaimButton ? (
-          <div className="flex justify-between items-center mt-3">
-            <div
-              onClick={switchDetailButton}
-              className={`flex items-center text-xs bg-lightBGreyColor bg-opacity-20 rounded-full px-4 py-0.5 cursor-pointer ${
-                showDetail ? 'text-greenColor' : 'text-white'
-              }`}
-            >
-              <FormattedMessage id="detail" />
-              <UpArrowIcon
-                className={`ml-1 transform ${
-                  showDetail ? 'text-greenColor' : 'text-primaryText rotate-180'
-                }`}
-              ></UpArrowIcon>
-            </div>
-            <span
-              className="flex items-center justify-center bg-deepBlue hover:bg-deepBlueHover rounded-lg text-sm text-white h-8 w-36 cursor-pointer"
-              onClick={(e) => {
-                e.stopPropagation();
-                claimReward();
-              }}
-            >
-              <ButtonTextWrapper
-                loading={claimLoading}
-                Text={() => <FormattedMessage id="claim" />}
-              />
-            </span>
-          </div>
-        ) : null}
-
-        <div
-          className={`grid grid-cols-1 gap-y-4 mt-4 pt-4 border-t border-borderGreyColor border-opacity-20 ${
-            showDetail ? '' : 'hidden'
-          }`}
-        >
-          {unclaimedRewardsData.list.map(
-            (
-              {
-                token,
-                amount,
-                preAmount,
-              }: { token: TokenMetadata; amount: string; preAmount: string },
-              index: number
-            ) => {
-              return (
-                <div
-                  className="flex items-center xs:justify-between md:justify-between"
-                  key={index}
-                >
-                  <div className="flex items-center w-28">
-                    <img
-                      className="w-5 h-5 rounded-full border border-greenColor"
-                      src={token.icon}
-                    ></img>
-                    <span className="text-white text-sm ml-1.5">
-                      {toRealSymbol(token.symbol)}
-                    </span>
-                  </div>
-                  <div className="flex items-center">
-                    {preAmount ? (
-                      <>
-                        <span className="text-sm text-white">{preAmount}</span>
-                        <span className="mx-3.5">
-                          <BoostRightArrowIcon></BoostRightArrowIcon>
-                        </span>
-                        <span className={`text-sm text-white`}>{amount}</span>
-                      </>
-                    ) : (
-                      <span className={`text-sm text-white`}>{amount}</span>
-                    )}
-                  </div>
-                </div>
-              );
-            }
-          )}
-        </div>
-      </div> */}
       {/* caculator */}
       {seedDclCalcVisible ? (
         <CalcModelDcl

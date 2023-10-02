@@ -1220,16 +1220,14 @@ function UserLiquidityLineStyleGroupStyle1Mobile() {
   } = useContext(GroupData);
   return (
     <>
-      <div className="bg-cardBg rounded-lg overflow-hidden mb-3.5">
+      <div
+        className="bg-cardBg rounded-lg overflow-hidden mb-3.5"
+        onClick={(e) => {
+          goDetailV2();
+        }}
+      >
         {/* head */}
-        <div
-          className="bg-orderMobileTop flex items-start p-3"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            goDetailV2();
-          }}
-        >
+        <div className="bg-orderMobileTop flex items-start p-3">
           <div className="flex items-center flex-shrink-0">
             <img
               src={tokens[0]?.icon}
@@ -1406,9 +1404,9 @@ function UserLiquidityLineStyleGroupStyle1Mobile() {
                         if (length == 1) {
                           return (
                             <div className="frcs  whitespace-nowrap">
-                              {value_of_investment} in{' '}
+                              {value_of_investment} in
                               <a
-                                className="cursor-pointer underline"
+                                className="cursor-pointer underline ml-1"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   openUrl(go_farm_url_link);
@@ -1421,9 +1419,9 @@ function UserLiquidityLineStyleGroupStyle1Mobile() {
                         } else {
                           return (
                             <div className="frcs gap-1 whitespace-nowrap">
-                              {value_of_investment} in{' '}
+                              {value_of_investment} in
                               <a
-                                className={`cursor-pointer underline`}
+                                className={`cursor-pointer underline ml-1`}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   openUrl(go_farm_url_link);
@@ -1444,9 +1442,9 @@ function UserLiquidityLineStyleGroupStyle1Mobile() {
                   </div>
                 ) : tip_seed ? (
                   <div className="frcs justify-end gap-1 text-xs text-v3SwapGray">
-                    0% in{' '}
+                    0% in
                     <a
-                      className="cursor-pointer underline"
+                      className="cursor-pointer underline ml-1"
                       onClick={(e) => {
                         e.stopPropagation();
                         openUrl(tip_seed.go_farm_url_link);
@@ -1465,7 +1463,10 @@ function UserLiquidityLineStyleGroupStyle1Mobile() {
                     ? 'bg-deepBlue text-white opacity-30 cursor-not-allowed'
                     : 'bg-deepBlue text-white hover:bg-lightBlue cursor-pointer'
                 }`}
-                onClick={claimRewards}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  claimRewards();
+                }}
               >
                 <ButtonTextWrapper
                   loading={claim_loading}
@@ -1499,8 +1500,9 @@ function UserLiquidityLineStyleGroupStyle1Mobile() {
                     setRemoveButtonTip(false);
                   }
                 }}
-                onClick={() => {
+                onClick={(e) => {
                   if (is_mobile) {
+                    e.stopPropagation();
                     setRemoveButtonTip(!removeButtonTip);
                   }
                 }}

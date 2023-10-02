@@ -378,7 +378,7 @@ export default function PoolDetailV3() {
             ></TablePool>
           </div>
           <div
-            className="xsm:mb-4"
+            className="xsm:hidden"
             style={{
               width: isClientMobie() ? '100%' : '380px',
             }}

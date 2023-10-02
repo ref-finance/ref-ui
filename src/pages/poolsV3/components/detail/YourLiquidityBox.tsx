@@ -545,7 +545,13 @@ export function YourLiquidityBox(props: {
                 </div>
               )}
             </div>
-            {earned_fee || '-'}
+            <span
+              className={`${
+                earned_fee ? 'border-b border-dashed border-primaryText' : ''
+              }`}
+            >
+              {earned_fee || '-'}
+            </span>
           </div>
         </div>
       </div>
@@ -592,19 +598,21 @@ export function YourLiquidityBox(props: {
           <div
             className={`${
               removeButtonTip ? '' : 'hidden'
-            } absolute z-50 -right-2 -top-12 border border-primaryText rounded-md px-2 py-1.5 text-xs text-farmText w-56 bg-cardBg`}
+            } absolute z-50 -right-2 -top-12 pb-2`}
           >
-            You have liquidity in farm, please unstake from{' '}
-            <a
-              className="underline cursor-pointer"
-              onClick={() => {
-                localStorage.setItem('BOOST_FARM_TAB', 'yours');
-                openUrl('/v2farms');
-              }}
-            >
-              Your Farm
-            </a>{' '}
-            first.
+            <div className="border border-primaryText rounded-md px-2 py-1.5 text-xs text-farmText w-56 bg-cardBg">
+              You have liquidity in farm, please unstake from{' '}
+              <a
+                className="underline cursor-pointer"
+                onClick={() => {
+                  localStorage.setItem('BOOST_FARM_TAB', 'yours');
+                  openUrl('/v2farms');
+                }}
+              >
+                Your Farm
+              </a>{' '}
+              first.
+            </div>
           </div>
         </div>
       </div>

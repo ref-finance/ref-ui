@@ -32,6 +32,7 @@ export function UserButtonBox(props: {
         matched_seeds={matched_seeds}
         show={show}
         tab={tab}
+        setTab={setTab}
         setShow={setShow}
       />
       <div
@@ -74,6 +75,7 @@ function UserTabBox(props: {
   show: boolean;
   setShow: Function;
   tab: number;
+  setTab: Function;
 }) {
   const {
     poolDetail,
@@ -83,15 +85,12 @@ function UserTabBox(props: {
     show,
     setShow,
     tab,
+    setTab,
   } = props;
-  const [tabActive, setTabActive] = useState(1);
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
-  useEffect(() => {
-    setTabActive(tab);
-  }, [tab]);
   function switchTab(tabIndex: number) {
-    setTabActive(tabIndex);
+    setTab(tabIndex);
   }
   function onRequestClose() {
     setShow(false);
@@ -132,14 +131,14 @@ function UserTabBox(props: {
           >
             <span
               className={`text-base ${
-                tabActive == 1 ? 'text-white' : 'text-primaryText'
+                tab == 1 ? 'text-white' : 'text-primaryText'
               }`}
             >
               <FormattedMessage id="your_liquidity" />
             </span>
             <label
               className={`bg-senderHot w-full rounded-full h-1 mt-3 ${
-                tabActive == 1 ? 'bg-opacity-100' : 'bg-opacity-0'
+                tab == 1 ? 'bg-opacity-100' : 'bg-opacity-0'
               }`}
             ></label>
           </div>
@@ -151,14 +150,14 @@ function UserTabBox(props: {
           >
             <span
               className={`text-base ${
-                tabActive == 2 ? 'text-white' : 'text-primaryText'
+                tab == 2 ? 'text-white' : 'text-primaryText'
               }`}
             >
               <FormattedMessage id="unclaimed_fees" />
             </span>
             <label
               className={`bg-senderHot w-full rounded-full h-1 mt-3 ${
-                tabActive == 2 ? 'bg-opacity-100' : 'bg-opacity-0'
+                tab == 2 ? 'bg-opacity-100' : 'bg-opacity-0'
               }`}
             ></label>
           </div>
@@ -167,7 +166,7 @@ function UserTabBox(props: {
           <NoYourLiquditiesBox poolDetail={poolDetail} />
         ) : (
           <>
-            {tabActive == 1 ? (
+            {tab == 1 ? (
               <YourLiquidityBox
                 poolDetail={poolDetail}
                 tokenPriceList={tokenPriceList}

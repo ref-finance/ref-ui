@@ -563,7 +563,7 @@ function MobilePoolRowV2({
     else if (sortBy === 'fee') return `${calculateFeePercent(value / 100)}%`;
     else if (sortBy === 'volume_24h') {
       return geth24volume();
-    } else if (sortBy === 'top_bin_apr') {
+    } else if (sortBy === 'top_bin_apr' || (sortBy == 'apr' && mark)) {
       return value?.toString() == '-' ? '-' : formatPercentage(value);
     } else return '/';
   };
@@ -643,12 +643,19 @@ function MobilePoolRowV2({
               </div>
             </div>
           </div>
-          <div>{showSortedValue({ sortBy, value: pool[sortBy] })}</div>
+          <div>
+            {showSortedValue({
+              sortBy,
+              value:
+                sortBy == 'apr' && mark ? pool['top_bin_apr'] : pool[sortBy],
+            })}
+          </div>
         </div>
       </div>
     </div>
   );
 }
+
 function MobileWatchListCard({
   watchPools,
   poolTokenMetas,
@@ -758,7 +765,7 @@ function MobileWatchListCard({
           {watchAllPools.map((pool: any, i: number) => {
             if (pool.id?.toString()) {
               return (
-                <div className="w-full hover:bg-poolRowHover" key={i}>
+                <div className="w-full hover:bg-poolRowHover" key={pool.id}>
                   <MobilePoolRow
                     tokens={poolTokenMetas[pool.id]}
                     sortBy={sortBy}
@@ -781,7 +788,7 @@ function MobileWatchListCard({
                   pool={pool}
                   sortBy={sortBy}
                   mark={true}
-                  key={i + '-mobile-pool-row-v2'}
+                  key={pool.pool_id + '-mobile-pool-row-v2'}
                   h24volume={volumes[pool.pool_id]}
                   relatedSeed={do_farms_v2_poos[pool.pool_id]}
                 />
@@ -1783,7 +1790,6 @@ function PoolRowV2({
 }) {
   const curRowTokens = useTokens([pool.token_x, pool.token_y], tokens);
   const history = useHistory();
-
   const displayOfTopBinApr = useDCLTopBinFee({
     pool,
   });
@@ -1878,23 +1884,6 @@ function PoolRowV2({
             ? '-'
             : '$' + toInternationalCurrencySystem(pool.tvl.toString())}
         </div>
-        {/* {!mark && (
-          <div className="justify-center ml-2">
-            <DclChart
-              pool_id={pool?.pool_id}
-              config={{
-                axisHidden: true,
-                controlHidden: true,
-                currentBarHidden: true,
-                hoverBoxHidden: true,
-                svgWidth: '80',
-                svgHeight: '32',
-                svgPaddingX: '0',
-                smallChart: true,
-              }}
-            ></DclChart>
-          </div>
-        )} */}
       </div>
     </div>
   );
