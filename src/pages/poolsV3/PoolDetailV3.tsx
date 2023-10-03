@@ -231,7 +231,7 @@ export default function PoolDetailV3() {
   ]);
   return (
     <>
-      <div className="md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-1200px m-auto xsm:pb-8">
+      <div className="w-4/6 lg:w-5/6 xl:w-1200px m-auto xsm:pb-8 xsm:w-full xsm:px-4">
         <BreadCrumb
           routes={[
             { id: 'top_pools', msg: 'Top Pools', pathname: '/pools' },
@@ -243,7 +243,7 @@ export default function PoolDetailV3() {
           ]}
         />
         <div className="flex  items-start flex-row w-full m-auto xs:flex-col-reverse md:flex-col-reverse">
-          <div className="mr-4 xsm:w-full lg:flex-grow lg:w-1/2">
+          <div className="lg:mr-4 xsm:w-full lg:flex-grow lg:w-1/2">
             {/* title for pc */}
             <div className="relative flex items-center justify-between mb-3 mr-4 flex-grow xsm:hidden">
               <div className="flex items-center justify-between">

@@ -40,7 +40,7 @@ export function Chart(props: any) {
   return (
     <Card
       width="w-full"
-      className="relative rounded-2xl mr-4 mb-4 h-full flex flex-col items-center"
+      className="relative rounded-2xl lg:mr-4 mb-4 h-full flex flex-col items-center"
       padding="px-7 py-5 xsm:px-1 xsm:pt-0"
       bgcolor={'bg-transparent'}
       style={{
@@ -76,7 +76,7 @@ function LiquidityChart(props: any) {
   const { data, chartDisplay, setChartDisplay } = props;
   const { poolDetail, depthData } = data;
   const isMobile = isClientMobie();
-  const svgDefaultWidth = isMobile ? '380' : 750;
+  const svgDefaultWidth = isMobile ? window.screen.width - 32 || '330' : 750;
   const [chartLoading, setChartLoading] = useState<boolean>(true);
   const [noData, setNoData] = useState<boolean>(true);
   const [rateDirection, setRateDirection] = useState(true);

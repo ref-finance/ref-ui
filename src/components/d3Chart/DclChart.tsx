@@ -1794,7 +1794,7 @@ export default function DclChart({
             </>
           ) : null}
         </div>
-        <div className="wholeOverBox lg:absolute rounded-xl bg-chartHoverBoxBg border border-assetsBorder px-3 py-2 z-10  xsm:hidden xsm:mt-4 lg:invisible">
+        <div className="wholeOverBox xsm:w-full lg:absolute rounded-xl bg-chartHoverBoxBg border border-assetsBorder px-3 py-2 z-10  xsm:hidden xsm:mt-4 lg:invisible">
           <div className="flex items-center justify-between my-2">
             <span className="text-xs text-white">Your Liquidity</span>
             <span className="text-xs text-white gotham_bold">

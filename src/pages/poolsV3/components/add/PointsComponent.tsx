@@ -315,6 +315,7 @@ export function PointsComponent() {
     }
   }
   const is_mobile = isMobile();
+
   return (
     <div className={`w-full xs:w-full md:w-full flex flex-col self-stretch`}>
       {/* chart area */}
@@ -372,7 +373,9 @@ export function PointsComponent() {
                   radius={radius}
                   config={{
                     radiusMode: priceRangeMode == 'by_radius',
-                    svgWidth: is_mobile ? '330' : '',
+                    svgWidth: is_mobile
+                      ? window.screen.width - 32 || '330'
+                      : '',
                   }}
                   reverse={pair_is_reverse}
                 ></DclChart>
@@ -387,7 +390,9 @@ export function PointsComponent() {
                   pool_id={currentSelectedPool?.pool_id}
                   config={{
                     controlHidden: true,
-                    svgWidth: is_mobile ? '330' : '',
+                    svgWidth: is_mobile
+                      ? window.screen.width - 32 || '330'
+                      : '',
                   }}
                   chartType="USER"
                   reverse={pair_is_reverse}
