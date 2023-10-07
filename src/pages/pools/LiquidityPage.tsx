@@ -1790,9 +1790,13 @@ function PoolRowV2({
 }) {
   const curRowTokens = useTokens([pool.token_x, pool.token_y], tokens);
   const history = useHistory();
-  const displayOfTopBinApr = useDCLTopBinFee({
+  const topBinApr = useDCLTopBinFee({
     pool,
+    way: 'value',
   });
+  const displayOfTopBinApr =
+    topBinApr == '-' ? '-' : formatPercentage(topBinApr);
+  pool.top_bin_apr = topBinApr;
 
   if (!curRowTokens) return <></>;
   tokens = sort_tokens_by_base(tokens);
@@ -2220,7 +2224,6 @@ function LiquidityPage_({
 
     const top_bin_apr1 = p1.top_bin_apr;
     const top_bin_apr2 = p2.top_bin_apr;
-
     if (v2Order === 'desc') {
       if (v2SortBy === 'tvl') {
         return tvl2 - tvl1;
@@ -3277,6 +3280,7 @@ export function LiquidityPage() {
         indexFail: Object.keys(tokenPriceList).length == 0,
       }}
     >
+      {/* todo */}
       {!clientMobileDevice && (
         <LiquidityPage_
           farmAprById={farmAprById}
