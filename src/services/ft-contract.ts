@@ -89,7 +89,6 @@ export const ftGetStorageBalance = (
   });
 };
 
-// todo usdc
 export const check_registration = (
   tokenId: string,
   accountId = getCurrentWallet()?.wallet?.getAccountId()

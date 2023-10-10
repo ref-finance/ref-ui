@@ -17,6 +17,7 @@ import {
   ButtonTextWrapper,
   ConnectToNearBtn,
 } from '~components/button/Button';
+import { useWalletSelector } from '../../../../context/WalletSelectorContext';
 
 /**
  * 双边 最小token数量不满足 提示
@@ -43,6 +44,7 @@ export function AddLiquidityButton() {
     useState(false);
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+  const { selector } = useWalletSelector();
 
   function addLiquiditySpot() {
     setAddLiquidityButtonLoading(true);
@@ -86,6 +88,7 @@ export function AddLiquidityButton() {
       token_y: tokenY,
       amount_x: last_total_needed_token_x_amount.toFixed(),
       amount_y: last_total_needed_token_y_amount.toFixed(),
+      selectedWalletId: selector.store.getState().selectedWalletId,
     });
   }
   function getMax(token: TokenMetadata, balance: string) {

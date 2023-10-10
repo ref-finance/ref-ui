@@ -889,7 +889,6 @@ export const removeLiquidityFromPool = async ({
 
     const ftBalance = await ftGetStorageBalance(tokenId);
     if (ftBalance === null) {
-      // todo usdc
       if (NO_REQUIRED_REGISTRATION_TOKEN_IDS.includes(tokenId)) {
         withDrawTransactions.unshift({
           receiverId: tokenId,
@@ -1012,7 +1011,6 @@ export const removeLiquidityFromStablePool = async ({
 
   const withDrawTransactions: Transaction[] = [];
 
-  // todo usdc
   for (let i = 0; i < tokenIds.length; i++) {
     const tokenId = tokenIds[i];
     const ftBalance = await ftGetStorageBalance(tokenId);
@@ -1147,7 +1145,6 @@ export const removeLiquidityByTokensFromStablePool = async ({
 
     const ftBalance = await ftGetStorageBalance(tokenId);
     if (ftBalance === null) {
-      // todo usdc
       if (NO_REQUIRED_REGISTRATION_TOKEN_IDS.includes(tokenId)) {
         withDrawTransactions.unshift({
           receiverId: tokenId,

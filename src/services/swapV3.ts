@@ -909,27 +909,57 @@ export const batch_add_liquidity = async ({
   token_y,
   amount_x,
   amount_y,
+  selectedWalletId = window.selector?.store?.getState()?.selectedWalletId,
 }: {
   liquidityInfos: IAddLiquidityInfo[];
   token_x: TokenMetadata;
   token_y: TokenMetadata;
   amount_x: string;
   amount_y: string;
+  selectedWalletId: string;
 }) => {
-  const transactions: Transaction[] = [
-    {
+  // todo test
+  let split_num = 10;
+  if (
+    selectedWalletId == 'ledger' ||
+    selectedWalletId == 'neth' ||
+    selectedWalletId == 'nightly'
+  ) {
+    split_num = 2;
+  }
+  const transactions: Transaction[] = [];
+  const n = Math.ceil(liquidityInfos.length / split_num);
+  for (let i = 0; i < n; i++) {
+    const start_index = i * split_num;
+    const end_index = start_index + split_num;
+    const arr_i = liquidityInfos.slice(start_index, end_index);
+    transactions.push({
       receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
       functionCalls: [
         {
           methodName: 'batch_add_liquidity',
           args: {
-            add_liquidity_infos: liquidityInfos,
+            add_liquidity_infos: arr_i,
           },
           gas: '300000000000000',
         },
       ],
-    },
-  ];
+    });
+  }
+  // const transactions: Transaction[] = [
+  //   {
+  //     receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+  //     functionCalls: [
+  //       {
+  //         methodName: 'batch_add_liquidity',
+  //         args: {
+  //           add_liquidity_infos: liquidityInfos,
+  //         },
+  //         gas: '300000000000000',
+  //       },
+  //     ],
+  //   },
+  // ];
 
   if (+amount_x > 0) {
     transactions.unshift({
