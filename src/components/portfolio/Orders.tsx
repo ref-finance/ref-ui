@@ -202,7 +202,8 @@ function OrderCard({
       .div(p)
       .toFixed(tokensMap[order.buy_token].decimals);
 
-    return scientificNotationToString(sell_amount);
+    // return scientificNotationToString(sell_amount);
+    return display_amount(sell_amount);
   };
   function display_amount(amount: string) {
     if (new Big(amount).eq(0)) {
@@ -434,7 +435,6 @@ function OrderCard({
       displayPercents[1] == '100'
         ? display_amount(orderIn)
         : buyAmountToSellAmount(order.unclaimed_amount || '0', order, price);
-
     const sellTokenAmount = (
       <div className="flex items-center whitespace-nowrap w-28 justify-between xsm:w-1 xsm:flex-grow">
         <span className="flex flex-shrink-0 items-center">
