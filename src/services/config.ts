@@ -261,7 +261,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           '1760#1',
         ],
         switch_on_dcl_farms: 'on',
-        BURROW_CONTRACT_ID: 'contract.1638481328.burrow.testnet',
+        BURROW_CONTRACT_ID: 'contract.1689937928.burrow.testnet',
         USDTT_USDCC_USDT_USDC_POOL_ID:
           process.env.USDTT_USDCC_USDT_USDC_POOL_ID || 1843,
         USDTT_USDCC_USDT_USDC_TOKEN_IDS: [

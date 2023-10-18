@@ -66,17 +66,18 @@ export interface FTStorageBalance {
   total: string;
   available: string;
 }
-export const ftGetStorageBalance = (
+export const ftGetStorageBalance = async (
   tokenId: string,
   accountId = getCurrentWallet()?.wallet?.getAccountId()
 ): Promise<FTStorageBalance | null> => {
   if (configV2.NO_REQUIRED_REGISTRATION_TOKEN_IDS.includes(tokenId)) {
-    try {
+    const r = await native_usdc_has_upgrated(tokenId);
+    if (r) {
       return ftViewFunction(tokenId, {
         methodName: 'storage_balance_of',
         args: { account_id: accountId },
       });
-    } catch (error) {
+    } else {
       return check_registration(tokenId).then((is_registration) => {
         if (is_registration) {
           return new Promise((resove) => {

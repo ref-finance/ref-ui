@@ -823,7 +823,6 @@ export const addLiquidityToStablePool = async ({
   tokens,
 }: AddLiquidityToStablePoolOptions) => {
   // const transactions: Transaction[] = [];
-
   const depositTransactions = await getDepositTransactions({
     tokens,
     amounts: amounts.map((amount, i) =>
@@ -1166,7 +1165,6 @@ export const removeLiquidityByTokensFromStablePool = async ({
   tokens,
   unregister = false,
 }: RemoveLiquidityByTokensFromStablePoolOptions) => {
-  debugger;
   const tokenIds = tokens.map((token) => token.id);
 
   const withDrawTransactions: Transaction[] = [];
