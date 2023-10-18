@@ -918,13 +918,8 @@ export const batch_add_liquidity = async ({
   amount_y: string;
   selectedWalletId: string;
 }) => {
-  // todo test
   let split_num = 10;
-  if (
-    selectedWalletId == 'ledger' ||
-    selectedWalletId == 'neth' ||
-    selectedWalletId == 'nightly'
-  ) {
+  if (selectedWalletId == 'ledger' || selectedWalletId == 'neth') {
     split_num = 2;
   }
   const transactions: Transaction[] = [];
@@ -941,26 +936,11 @@ export const batch_add_liquidity = async ({
           args: {
             add_liquidity_infos: arr_i,
           },
-          gas: '300000000000000',
+          gas: split_num == 2 ? '200000000000000' : '300000000000000',
         },
       ],
     });
   }
-  // const transactions: Transaction[] = [
-  //   {
-  //     receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
-  //     functionCalls: [
-  //       {
-  //         methodName: 'batch_add_liquidity',
-  //         args: {
-  //           add_liquidity_infos: liquidityInfos,
-  //         },
-  //         gas: '300000000000000',
-  //       },
-  //     ],
-  //   },
-  // ];
-
   if (+amount_x > 0) {
     transactions.unshift({
       receiverId: token_x.id,
@@ -1291,14 +1271,19 @@ export const batch_remove_liquidity_contract = async ({
   batch_remove_liquidity,
   batch_update_liquidity,
   mint_liquidities,
+  selectedWalletId = window.selector?.store?.getState()?.selectedWalletId,
 }: {
   token_x: TokenMetadata;
   token_y: TokenMetadata;
   batch_remove_liquidity: IRemoveLiquidityInfo[];
   batch_update_liquidity: IBatchUpdateiquidityInfo;
   mint_liquidities: UserLiquidityInfo[];
+  selectedWalletId: string;
 }) => {
-  const max_number = 10;
+  let max_number = 10;
+  if (selectedWalletId == 'ledger' || selectedWalletId == 'neth') {
+    max_number = 5;
+  }
   const transactions: Transaction[] = [];
   if (mint_liquidities.length) {
     const lpt_ids: any[] = [];
@@ -1313,7 +1298,7 @@ export const batch_remove_liquidity_contract = async ({
           args: {
             lpt_ids,
           },
-          gas: '300000000000000',
+          gas: '250000000000000',
         },
       ],
     });
@@ -1337,7 +1322,7 @@ export const batch_remove_liquidity_contract = async ({
             args: {
               remove_liquidity_infos: batch_remove_liquidity_i,
             },
-            gas: '300000000000000',
+            gas: max_number == 5 ? '250000000000000' : '300000000000000',
           },
         ],
       });
@@ -1365,7 +1350,7 @@ export const batch_remove_liquidity_contract = async ({
           {
             methodName: 'batch_update_liquidity',
             args: batch_update_liquidity_i,
-            gas: '300000000000000',
+            gas: max_number == 5 ? '250000000000000' : '300000000000000',
           },
         ],
       });

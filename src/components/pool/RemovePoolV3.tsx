@@ -56,6 +56,7 @@ import { isMobile } from '~utils/device';
 import { WarningIcon } from '~components/icon/V3';
 import QuestionMark from '~components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
+import { useWalletSelector } from '../../context/WalletSelectorContext';
 
 export type RemoveType = 'left' | 'right' | 'all';
 
@@ -101,6 +102,7 @@ export const RemovePoolV3 = (props: any) => {
   const [show_boundary_tip, set_show_boundary_tip] = useState<boolean>(false);
   const [boundary_is_diff, set_boundary_is_diff] = useState<boolean>(false);
 
+  const { selector } = useWalletSelector();
   useEffect(() => {
     // init
     if (tokens && poolDetail && listLiquidities) {
@@ -547,6 +549,7 @@ export const RemovePoolV3 = (props: any) => {
       batch_remove_liquidity,
       batch_update_liquidity,
       mint_liquidities,
+      selectedWalletId: selector.store.getState().selectedWalletId,
     }).then(() => {
       sessionStorage.setItem('REMOVE_POOL_ID', pool_id);
     });
