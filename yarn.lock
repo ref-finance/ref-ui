@@ -2324,7 +2324,7 @@
   dependencies:
     "@lit-labs/ssr-dom-shim" "^1.0.0"
 
-"@metamask/detect-provider@2.0.0", "@metamask/detect-provider@^2.0.0":
+"@metamask/detect-provider@^2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@metamask/detect-provider/-/detect-provider-2.0.0.tgz#4bc2795e5e6f7d8b84b2e845058d2f222c99917d"
   integrity sha512-sFpN+TX13E9fdBDh9lvQeZdJn4qYoRb/6QF2oZZK/Pn559IhCFacPMU1rMuqyXoFQF3JSJfii2l98B87QDPeCQ==
@@ -2414,6 +2414,13 @@
     call-me-maybe "^1.0.1"
     glob-to-regexp "^0.3.0"
 
+"@near-wallet-selector/core@7.9.1":
+  version "7.9.1"
+  resolved "https://registry.npmjs.org/@near-wallet-selector/core/-/core-7.9.1.tgz#d13d20724bd105e85b141bb2c7f35f4c07a37cad"
+  integrity sha512-BJGsTK0snZAU1Je+W9TFJG5KW+jk+Ots9LuxsALZ/wZpqSeGT+w4xw36TZt3QsEm+I84im1+L+PIIW/bM2A9rQ==
+  dependencies:
+    rxjs "^7.8.0"
+
 "@near-wallet-selector/core@8.5.4", "@near-wallet-selector/core@^8.5.4":
   version "8.5.4"
   resolved "https://registry.npmjs.org/@near-wallet-selector/core/-/core-8.5.4.tgz#5783a835ea7422709e5643775fee61a2b81500e6"
@@ -2491,17 +2498,17 @@
     "@near-wallet-selector/core" "8.5.4"
     "@near-wallet-selector/my-near-wallet" "8.5.4"
 
-"@near-wallet-selector/neth@^8.5.4":
-  version "8.5.4"
-  resolved "https://registry.npmjs.org/@near-wallet-selector/neth/-/neth-8.5.4.tgz#08002bc148331d0ebd3dc4dc16ba81a9469adf04"
-  integrity sha512-zmmXGKC4u8MNs4RDhURa4xntlxLv0Ih8VcnFW0oe++hfuqFxp3dASbO1o37Mfz1A6Fc14ed0da/FhPM3T+jAfw==
+"@near-wallet-selector/neth@7.9.1":
+  version "7.9.1"
+  resolved "https://registry.npmjs.org/@near-wallet-selector/neth/-/neth-7.9.1.tgz#e67718a004e990ddbb85ee3c1ac3bf113123792f"
+  integrity sha512-1QW5Fifg0iASobZKf/fyLKeIJCwEve1UnUqWqQPdIJHjMll7PsvXXPoRadIGozQ1iM1Pk4qKAnC6llOeFuij5w==
   dependencies:
-    "@metamask/detect-provider" "2.0.0"
-    "@near-wallet-selector/core" "8.5.4"
-    bn.js "5.2.1"
-    ethers "5.7.2"
-    is-mobile "4.0.0"
-    near-seed-phrase "0.2.0"
+    "@metamask/detect-provider" "^2.0.0"
+    "@near-wallet-selector/core" "7.9.1"
+    bn.js "^5.2.0"
+    ethers "^5.7.2"
+    is-mobile "^3.1.1"
+    near-seed-phrase "^0.2.0"
 
 "@near-wallet-selector/nightly@^8.5.4":
   version "8.5.4"
@@ -8032,7 +8039,7 @@ ethereumjs-util@^7.1.0:
     ethereum-cryptography "^0.1.3"
     rlp "^2.2.4"
 
-ethers@5.7.2, ethers@^5.7.2:
+ethers@^5.7.2:
   version "5.7.2"
   resolved "https://registry.npmjs.org/ethers/-/ethers-5.7.2.tgz#3a7deeabbb8c030d4126b24f84e525466145872e"
   integrity sha512-wswUsmWo1aOK8rR7DIKiWSw9DbLWe6x98Jrn8wcTflTVvaXhAMaB5zGAXy0GYQEQp9iO1iSHWVyARQm11zUtyg==
@@ -9695,6 +9702,11 @@ is-mobile@4.0.0:
   version "4.0.0"
   resolved "https://registry.npmjs.org/is-mobile/-/is-mobile-4.0.0.tgz#bba396eb9656e2739afde3053d7191da310fc758"
   integrity sha512-mlcHZA84t1qLSuWkt2v0I2l61PYdyQDt4aG1mLIXF5FDMm4+haBCxCPYSr/uwqQNRk1MiTizn0ypEuRAOLRAew==
+
+is-mobile@^3.1.1:
+  version "3.1.1"
+  resolved "https://registry.npmjs.org/is-mobile/-/is-mobile-3.1.1.tgz#3b9e48f40068e4ea2da411f5009779844ce8d6aa"
+  integrity sha512-RRoXXR2HNFxNkUnxtaBdGBXtFlUMFa06S0NUKf/LCF+MuGLu13gi9iBCkoEmc6+rpXuwi5Mso5V8Zf7mNynMBQ==
 
 is-module@^1.0.0:
   version "1.0.0"
@@ -11759,7 +11771,7 @@ near-hd-key@^1.2.1:
     create-hmac "1.1.7"
     tweetnacl "1.0.3"
 
-near-seed-phrase@0.2.0, near-seed-phrase@^0.2.0:
+near-seed-phrase@^0.2.0:
   version "0.2.0"
   resolved "https://registry.npmjs.org/near-seed-phrase/-/near-seed-phrase-0.2.0.tgz#fb7cf89682112b1160ab68abb50dc821f49be18a"
   integrity sha512-NpmrnejpY1AdlRpDZ0schJQJtfBaoUheRfiYtQpcq9TkwPgqKZCRULV5L3hHmLc0ep7KRtikbPQ9R2ztN/3cyQ==
@@ -14779,7 +14791,7 @@ rxjs@6:
   dependencies:
     tslib "^1.9.0"
 
-rxjs@7.8.1:
+rxjs@7.8.1, rxjs@^7.8.0:
   version "7.8.1"
   resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-7.8.1.tgz#6f6f3d99ea8044291efd92e7c7fcf562c4057543"
   integrity sha512-AA3TVj+0A2iuIoQkWEK/tqFjBq2j+6PO6Y0zJcvzLAFhEFIO3HL0vls9hWLncZbAAbK0mar7oZ4V079I/qPMxg==
