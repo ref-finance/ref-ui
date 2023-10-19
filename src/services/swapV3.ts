@@ -1280,8 +1280,13 @@ export const batch_remove_liquidity_contract = async ({
   mint_liquidities: UserLiquidityInfo[];
   selectedWalletId: string;
 }) => {
+  console.log('9999999-selectedWalletId', selectedWalletId);
   let max_number = 10;
-  if (selectedWalletId == 'ledger' || selectedWalletId == 'neth') {
+  if (
+    selectedWalletId == 'ledger' ||
+    selectedWalletId == 'neth' ||
+    selectedWalletId == 'here-wallet'
+  ) {
     max_number = 5;
   }
   const transactions: Transaction[] = [];
