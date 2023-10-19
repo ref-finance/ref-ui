@@ -9,7 +9,11 @@ import {
   BLACKLIST_POOL_IDS,
 } from './near';
 import db from '../store/RefDatabase';
-import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
+import {
+  ftGetStorageBalance,
+  TokenMetadata,
+  native_usdc_has_upgrated,
+} from './ft-contract';
 import {
   toNonDivisibleNumber,
   toReadableNumber,
@@ -819,7 +823,6 @@ export const addLiquidityToStablePool = async ({
   tokens,
 }: AddLiquidityToStablePoolOptions) => {
   // const transactions: Transaction[] = [];
-
   const depositTransactions = await getDepositTransactions({
     tokens,
     amounts: amounts.map((amount, i) =>
@@ -891,18 +894,31 @@ export const removeLiquidityFromPool = async ({
     if (ftBalance === null) {
       // todo usdc
       if (NO_REQUIRED_REGISTRATION_TOKEN_IDS.includes(tokenId)) {
-        withDrawTransactions.unshift({
-          receiverId: tokenId,
-          functionCalls: [
-            {
-              methodName: 'register_account',
-              args: {
-                account_id: getCurrentWallet()?.wallet?.getAccountId(),
+        const r = await native_usdc_has_upgrated(tokenId);
+        if (r) {
+          withDrawTransactions.unshift({
+            receiverId: tokenId,
+            functionCalls: [
+              storageDepositAction({
+                registrationOnly: true,
+                amount: STORAGE_TO_REGISTER_WITH_FT,
+              }),
+            ],
+          });
+        } else {
+          withDrawTransactions.unshift({
+            receiverId: tokenId,
+            functionCalls: [
+              {
+                methodName: 'register_account',
+                args: {
+                  account_id: getCurrentWallet()?.wallet?.getAccountId(),
+                },
+                gas: '10000000000000',
               },
-              gas: '10000000000000',
-            },
-          ],
-        });
+            ],
+          });
+        }
       } else {
         withDrawTransactions.unshift({
           receiverId: tokenId,
@@ -1018,18 +1034,31 @@ export const removeLiquidityFromStablePool = async ({
     const ftBalance = await ftGetStorageBalance(tokenId);
     if (ftBalance === null) {
       if (NO_REQUIRED_REGISTRATION_TOKEN_IDS.includes(tokenId)) {
-        withDrawTransactions.unshift({
-          receiverId: tokenId,
-          functionCalls: [
-            {
-              methodName: 'register_account',
-              args: {
-                account_id: getCurrentWallet()?.wallet?.getAccountId(),
+        const r = await native_usdc_has_upgrated(tokenId);
+        if (r) {
+          withDrawTransactions.unshift({
+            receiverId: tokenId,
+            functionCalls: [
+              storageDepositAction({
+                registrationOnly: true,
+                amount: STORAGE_TO_REGISTER_WITH_FT,
+              }),
+            ],
+          });
+        } else {
+          withDrawTransactions.unshift({
+            receiverId: tokenId,
+            functionCalls: [
+              {
+                methodName: 'register_account',
+                args: {
+                  account_id: getCurrentWallet()?.wallet?.getAccountId(),
+                },
+                gas: '10000000000000',
               },
-              gas: '10000000000000',
-            },
-          ],
-        });
+            ],
+          });
+        }
       } else {
         withDrawTransactions.unshift({
           receiverId: tokenId,
@@ -1136,7 +1165,6 @@ export const removeLiquidityByTokensFromStablePool = async ({
   tokens,
   unregister = false,
 }: RemoveLiquidityByTokensFromStablePoolOptions) => {
-  debugger;
   const tokenIds = tokens.map((token) => token.id);
 
   const withDrawTransactions: Transaction[] = [];
@@ -1150,18 +1178,31 @@ export const removeLiquidityByTokensFromStablePool = async ({
     if (ftBalance === null) {
       // todo usdc
       if (NO_REQUIRED_REGISTRATION_TOKEN_IDS.includes(tokenId)) {
-        withDrawTransactions.unshift({
-          receiverId: tokenId,
-          functionCalls: [
-            {
-              methodName: 'register_account',
-              args: {
-                account_id: getCurrentWallet()?.wallet?.getAccountId(),
+        const r = await native_usdc_has_upgrated(tokenId);
+        if (r) {
+          withDrawTransactions.unshift({
+            receiverId: tokenId,
+            functionCalls: [
+              storageDepositAction({
+                registrationOnly: true,
+                amount: STORAGE_TO_REGISTER_WITH_FT,
+              }),
+            ],
+          });
+        } else {
+          withDrawTransactions.unshift({
+            receiverId: tokenId,
+            functionCalls: [
+              {
+                methodName: 'register_account',
+                args: {
+                  account_id: getCurrentWallet()?.wallet?.getAccountId(),
+                },
+                gas: '10000000000000',
               },
-              gas: '10000000000000',
-            },
-          ],
-        });
+            ],
+          });
+        }
       } else {
         withDrawTransactions.unshift({
           receiverId: tokenId,
