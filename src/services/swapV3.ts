@@ -919,7 +919,11 @@ export const batch_add_liquidity = async ({
   selectedWalletId: string;
 }) => {
   let split_num = 10;
-  if (selectedWalletId == 'ledger' || selectedWalletId == 'neth') {
+  if (
+    selectedWalletId == 'ledger' ||
+    selectedWalletId == 'neth' ||
+    selectedWalletId == 'here-wallet'
+  ) {
     split_num = 2;
   }
   const transactions: Transaction[] = [];
@@ -1280,7 +1284,6 @@ export const batch_remove_liquidity_contract = async ({
   mint_liquidities: UserLiquidityInfo[];
   selectedWalletId: string;
 }) => {
-  console.log('9999999-selectedWalletId', selectedWalletId);
   let max_number = 10;
   if (
     selectedWalletId == 'ledger' ||
