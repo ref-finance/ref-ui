@@ -61,7 +61,7 @@ import {
   getAddLiquidityShares,
   getRemoveLiquidityByTokens,
 } from '../services/stable-swap';
-import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
+import { STABLE_LP_TOKEN_DECIMALS } from 'src/components/stableswap/AddLiquidity';
 import BigNumber from 'bignumber.js';
 import moment from 'moment';
 import {

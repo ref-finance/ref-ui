@@ -1,23 +1,23 @@
 import React, { useContext } from 'react';
-import { ModalClose, SwitchBtn, HandIcon, LinkIcon } from '~components/icon';
+import { ModalClose, SwitchBtn, HandIcon, LinkIcon } from 'src/components/icon';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useState, useEffect, useRef } from 'react';
 import { BigNumber } from 'bignumber.js';
-import { mftGetBalance } from '~services/mft-contract';
+import { mftGetBalance } from 'src/services/mft-contract';
 import Modal from 'react-modal';
 import { Link } from 'react-router-dom';
-import { getMftTokenId } from '~utils/token';
-import { Card } from '~components/card/Card';
-import { LP_TOKEN_DECIMALS, LP_STABLE_TOKEN_DECIMALS } from '~services/m-token';
-import { FarmInfo } from '~services/farm';
+import { getMftTokenId } from 'src/utils/token';
+import { Card } from 'src/components/card/Card';
+import { LP_TOKEN_DECIMALS, LP_STABLE_TOKEN_DECIMALS } from 'src/services/m-token';
+import { FarmInfo } from 'src/services/farm';
 import {
   toPrecision,
   toReadableNumber,
   toInternationalCurrencySystem,
-} from '~utils/numbers';
-import { isMobile } from '~utils/device';
-import { useTokens } from '~state/token';
-import getConfig from '~services/config';
+} from 'src/utils/numbers';
+import { isMobile } from 'src/utils/device';
+import { useTokens } from 'src/state/token';
+import getConfig from 'src/services/config';
 import {
   getCurrentWallet,
   WalletContext,

@@ -7,20 +7,20 @@ import React, {
   useCallback,
 } from 'react';
 import { matchPath } from 'react-router';
-import { Context } from '~components/wrapper';
-import getConfig from '~services/config';
+import { Context } from 'src/components/wrapper';
+import getConfig from 'src/services/config';
 import ReactTooltip from 'react-tooltip';
-import { Logo, Near, IconAirDropGreenTip, NavLogoIcon } from '~components/icon';
+import { Logo, Near, IconAirDropGreenTip, NavLogoIcon } from 'src/components/icon';
 import {
   AccountIcon,
   ActivityIcon,
   WalletIcon,
   SignoutIcon,
   WNEARExchngeIcon,
-} from '~components/icon/Common';
+} from 'src/components/icon/Common';
 import { Link, useLocation, useHistory } from 'react-router-dom';
-import { NEARXIDS, wallet } from '~services/near';
-import { Card } from '~components/card/Card';
+import { NEARXIDS, wallet } from 'src/services/near';
+import { Card } from 'src/components/card/Card';
 
 import { FormattedMessage, useIntl, FormattedRelativeTime } from 'react-intl';
 import {
@@ -35,11 +35,11 @@ import {
   useMenus,
   menuItemType,
   BridgeButton,
-} from '~utils/menu';
+} from 'src/utils/menu';
 import { MobileNavBar } from './MobileNav';
-import WrapNear from '~components/forms/WrapNear';
+import WrapNear from 'src/components/forms/WrapNear';
 import { WrapNearIcon } from './WrapNear';
-import { XrefIcon } from '~components/icon/Xref';
+import { XrefIcon } from 'src/components/icon/Xref';
 import { getAccount } from '../../services/airdrop';
 import {
   senderWallet,
@@ -74,18 +74,17 @@ import { getAuroraConfig } from '../../services/aurora/config';
 import { ETH_DECIMAL } from '../../services/aurora/aurora';
 import { useAuroraBalances } from '../../services/aurora/aurora';
 import { getURLInfo } from './transactionTipPopUp';
-import USNBuyComponent from '~components/forms/USNBuyComponent';
-import USNPage, { BorrowLinkCard } from '~components/usn/USNPage';
+import USNBuyComponent from 'src/components/forms/USNBuyComponent';
+import USNPage, { BorrowLinkCard } from 'src/components/usn/USNPage';
 import {
-  REF_FI_SWAP_SWAPPAGE_TAB_KEY,
   SWAP_MODE_KEY,
 } from '../../pages/SwapPage';
-import Marquee from '~components/layout/Marquee';
+import Marquee from 'src/components/layout/Marquee';
 
 import {
   useWalletSelector,
   ACCOUNT_ID_KEY,
-} from '~context/WalletSelectorContext';
+} from 'src/context/WalletSelectorContext';
 
 import { SWAP_MODE } from '../../pages/SwapPage';
 import { useDCLAccountBalance } from '../../services/aurora/aurora';
@@ -104,8 +103,9 @@ import {
   MoreIcon,
   ArrowDownIcon,
   DownTriangleIcon,
-} from '~components/icon/Nav';
+} from 'src/components/icon/Nav';
 import { openUrl } from '../../services/commonV3';
+import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from '~src/constants';
 
 const config = getConfig();
 
@@ -241,9 +241,8 @@ function Anchor({
         onMouseEnter={() => setHover(true)}
       >
         <span
-          className={`link hover:text-white text-base font-bold py-4 cursor-pointer relative z-10 ${className} ${
-            isSelected ? 'text-white' : 'text-gray-400'
-          }`}
+          className={`link hover:text-white text-base font-bold py-4 cursor-pointer relative z-10 ${className} ${isSelected ? 'text-white' : 'text-gray-400'
+            }`}
         >
           <FormattedMessage id={name} defaultMessage={name} />
           {newFuntion ? (
@@ -270,12 +269,11 @@ function Anchor({
               {subMenu.map((m) => {
                 return (
                   <span
-                    className={`${
-                      (chosenSub === m.name && isSwap) ||
-                      pathname.toLocaleLowerCase().indexOf(m.path) > -1
+                    className={`${(chosenSub === m.name && isSwap) ||
+                        pathname.toLocaleLowerCase().indexOf(m.path) > -1
                         ? 'bg-primaryText bg-opacity-30 text-white'
                         : 'text-primaryText'
-                    } hover:bg-primaryText hover:bg-opacity-30 items-center
+                      } hover:bg-primaryText hover:bg-opacity-30 items-center
                     flex justify-center py-0.5 h-11 mb-0.5 hover:text-white rounded-lg 
                    text-center text-base cursor-pointer my-auto whitespace-nowrap px-2`}
                     onClick={(e) => {
@@ -462,15 +460,14 @@ function AccountEntry({
         }}
       >
         <div
-          className={`flex items-center justify-center rounded-xl ${
-            isSignedIn
+          className={`flex items-center justify-center rounded-xl ${isSignedIn
               ? hover
                 ? 'py-1.5 text-white text-opacity-50 px-3 bg-accountHoverBgColor'
                 : 'py-1.5 text-white text-opacity-50 px-3 bg-accountBgColor'
               : hover
-              ? 'py-2 text-white px-5 bg-buttonGradientBg'
-              : 'py-2 text-white px-5 bg-unLoginButtonBgColor'
-          }`}
+                ? 'py-2 text-white px-5 bg-buttonGradientBg'
+                : 'py-2 text-white px-5 bg-unLoginButtonBgColor'
+            }`}
         >
           <div className="pr-1">
             <Near
@@ -480,17 +477,16 @@ function AccountEntry({
                     ? '#fff'
                     : 'rgba(255,255,255,0.5)'
                   : hover
-                  ? '#fff'
-                  : '#00C6A2'
+                    ? '#fff'
+                    : '#00C6A2'
               }
             />
           </div>
           <div className="overflow-ellipsis overflow-hidden whitespace-nowrap account-name">
             {isSignedIn ? (
               <span
-                className={`flex ml-1 items-center text-sm ${
-                  hover ? 'text-white text-opacity-100' : ''
-                }`}
+                className={`flex ml-1 items-center text-sm ${hover ? 'text-white text-opacity-100' : ''
+                  }`}
               >
                 {getAccountName(wallet.getAccountId())}
                 {hasBalanceOnRefAccount ? (
@@ -499,9 +495,8 @@ function AccountEntry({
                   </span>
                 ) : null}
                 <ArrowDownIcon
-                  className={`flex-shrink-0 ml-2 text-white ${
-                    hover ? '' : 'text-opacity-50'
-                  }`}
+                  className={`flex-shrink-0 ml-2 text-white ${hover ? '' : 'text-opacity-50'
+                    }`}
                 />
               </span>
             ) : (
@@ -516,9 +511,8 @@ function AccountEntry({
                 type="button"
               >
                 <span
-                  className={`ml-1 text-xs gotham_bold ${
-                    hover ? 'text-white' : 'text-greenColor'
-                  }`}
+                  className={`ml-1 text-xs gotham_bold ${hover ? 'text-white' : 'text-greenColor'
+                    }`}
                 >
                   <FormattedMessage
                     id="connect_to_wallet"
@@ -601,8 +595,7 @@ function AccountEntry({
                     className="hover:text-gradientFrom text-primaryText ml-2"
                     onClick={() => {
                       openUrl(
-                        `https://${
-                          getConfig().networkId === 'testnet' ? 'testnet.' : ''
+                        `https://${getConfig().networkId === 'testnet' ? 'testnet.' : ''
                         }nearblocks.io/address/${wallet.getAccountId()}#transaction`
                       );
                     }}
@@ -648,11 +641,10 @@ function AccountEntry({
                     <div
                       onClick={item.click}
                       key={item.textId + index}
-                      className={`flex items-center mx-3 text-sm cursor-pointer font-semibold py-4 pl-3 hover:text-white hover:bg-black rounded-lg hover:bg-opacity-10 ${
-                        item.selected
+                      className={`flex items-center mx-3 text-sm cursor-pointer font-semibold py-4 pl-3 hover:text-white hover:bg-black rounded-lg hover:bg-opacity-10 ${item.selected
                           ? 'text-white bg-black bg-opacity-10'
                           : 'text-primaryText'
-                      }`}
+                        }`}
                     >
                       <label className="w-9 text-left cursor-pointer">
                         {item.icon}
@@ -662,7 +654,7 @@ function AccountEntry({
                       </label>
                       <label htmlFor="" className="ml-1.5">
                         {item.textId === 'your_assets' &&
-                        hasBalanceOnRefAccount ? (
+                          hasBalanceOnRefAccount ? (
                           <FarmDot inFarm={hasBalanceOnRefAccount} />
                         ) : null}
                       </label>
@@ -724,7 +716,7 @@ export function AuroraEntry({
     document.addEventListener('click', () => {
       if (hover) setHover(false);
     });
-    return () => document.removeEventListener('click', () => {});
+    return () => document.removeEventListener('click', () => { });
   }, [hover]);
 
   return (
@@ -750,9 +742,8 @@ export function AuroraEntry({
       }}
     >
       <div
-        className={`flex items-center rounded-lg px-2 py-2 ml-px relative ${
-          hover ? 'bg-auroraGreen' : 'bg-white bg-opacity-20'
-        }`}
+        className={`flex items-center rounded-lg px-2 py-2 ml-px relative ${hover ? 'bg-auroraGreen' : 'bg-white bg-opacity-20'
+          }`}
       >
         <AuroraIcon hover={hover} />
 
@@ -830,9 +821,8 @@ export function AuroraEntry({
               onClick={(e) => e.stopPropagation()}
               target="_blank"
               rel="noopener noreferrer nofollow"
-              className={`w-full px-3 py-1 text-xs bg-auroraGreen text-chartBg flex items-center justify-center cursor-pointer ${
-                hasBalanceOnAurora ? 'block' : 'hidden'
-              }`}
+              className={`w-full px-3 py-1 text-xs bg-auroraGreen text-chartBg flex items-center justify-center cursor-pointer ${hasBalanceOnAurora ? 'block' : 'hidden'
+                }`}
             >
               <span>
                 <FormattedMessage
@@ -1017,9 +1007,8 @@ function NavigationBar() {
         style={{ zIndex: '91' }}
       >
         <div
-          className={`relative z-10 ${
-            hasBalanceOnRefAccount && pathnameState ? 'block' : 'hidden'
-          } text-xs py-1.5`}
+          className={`relative z-10 ${hasBalanceOnRefAccount && pathnameState ? 'block' : 'hidden'
+            } text-xs py-1.5`}
           style={{
             backgroundColor: '#FFC940',
           }}
@@ -1036,9 +1025,8 @@ function NavigationBar() {
           />
           {`.`}
           <span
-            className={`${
-              hoverClick ? 'font-bold' : 'font-normal'
-            } underline cursor-pointer mx-1`}
+            className={`${hoverClick ? 'font-bold' : 'font-normal'
+              } underline cursor-pointer mx-1`}
             onClick={() => openUrl('/account?tab=ref')}
             onMouseEnter={() => setHoverClick(true)}
             onMouseLeave={() => setHoverClick(false)}
@@ -1149,18 +1137,16 @@ function Language() {
       style={{ zIndex: '99' }}
     >
       <span
-        className={`flex items-center justify-center w-7 h-7 text-xs rounded-lg text-primaryText cursor-pointer ${
-          hover
+        className={`flex items-center justify-center w-7 h-7 text-xs rounded-lg text-primaryText cursor-pointer ${hover
             ? 'border border-transparent bg-menuMoreBgColor'
             : 'border border-laguageBorderColor bg-transparent'
-        }`}
+          }`}
       >
         {displayLanguage()}
       </span>
       <div
-        className={`${
-          hover ? 'block' : 'hidden'
-        } absolute top-5 pt-5 right-0 rounded-md`}
+        className={`${hover ? 'block' : 'hidden'
+          } absolute top-5 pt-5 right-0 rounded-md`}
         style={{ minWidth: '180px' }}
       >
         <Card
@@ -1171,11 +1157,10 @@ function Language() {
             return (
               <div
                 key={index}
-                className={`rounded-xl whitespace-nowrap text-left items-center flex justify-start hover:bg-menuMoreBgColor hover:text-white text-sm font-semibold py-3 my-1.5 cursor-pointer px-2 ${
-                  currentLocal === language
+                className={`rounded-xl whitespace-nowrap text-left items-center flex justify-start hover:bg-menuMoreBgColor hover:text-white text-sm font-semibold py-3 my-1.5 cursor-pointer px-2 ${currentLocal === language
                     ? 'bg-navHighLightBg text-white'
                     : 'text-primaryText'
-                }`}
+                  }`}
                 onClick={() => {
                   switchLanuage(language);
                 }}
@@ -1389,13 +1374,11 @@ function MenuBar() {
               onClick={() => {
                 click_one_level_item(menuItem);
               }}
-              className={`flex items-center h-full  ${
-                indexP != menus.length - 1 ? 'mr-10' : ''
-              } ${
-                one_level_selected == id || hover_one_level_id == id
+              className={`flex items-center h-full  ${indexP != menus.length - 1 ? 'mr-10' : ''
+                } ${one_level_selected == id || hover_one_level_id == id
                   ? 'text-white'
                   : 'text-primaryText'
-              }`}
+                }`}
             >
               {logo ? <span className="mr-1">{logo}</span> : null}
               <div className={`text-base `}>{label}</div>
@@ -1405,13 +1388,12 @@ function MenuBar() {
             </div>
             {/* two-level */}
             <div
-              className={`absolute rounded-2xl border border-menuMoreBoxBorderColor bg-priceBoardColor top-12 cursor-pointer px-2.5 py-1 pc-menu-bar-one-level ${
-                hover_one_level_id == id &&
-                children &&
-                hover_two_level_items.length > 0
+              className={`absolute rounded-2xl border border-menuMoreBoxBorderColor bg-priceBoardColor top-12 cursor-pointer px-2.5 py-1 pc-menu-bar-one-level ${hover_one_level_id == id &&
+                  children &&
+                  hover_two_level_items.length > 0
                   ? ''
                   : 'hidden'
-              }`}
+                }`}
               style={{ minWidth: '220px', left: '-80px' }}
             >
               {back_one_level_item && (
@@ -1447,18 +1429,17 @@ function MenuBar() {
                     onMouseLeave={() => {
                       set_hover_two_level_id(id_two_level);
                     }}
-                    className={`flex items-center rounded-xl whitespace-nowrap hover:bg-menuMoreBgColor hover:text-white text-sm py-3 my-1.5 px-2 cursor-pointer ${
-                      two_level_selected == id_two_level
+                    className={`flex items-center rounded-xl whitespace-nowrap hover:bg-menuMoreBgColor hover:text-white text-sm py-3 my-1.5 px-2 cursor-pointer ${two_level_selected == id_two_level
                         ? 'bg-menuMoreBgColor text-white'
                         : 'text-primaryText'
-                    }`}
+                      }`}
                   >
                     {logo || renderLogo ? (
                       <div className="w-8 mr-2">
                         {renderLogo
                           ? renderLogo({
-                              activeMenu: two_level_selected == id_two_level,
-                            })
+                            activeMenu: two_level_selected == id_two_level,
+                          })
                           : logo}
                       </div>
                     ) : null}

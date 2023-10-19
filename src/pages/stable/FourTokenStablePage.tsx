@@ -7,12 +7,12 @@ import {
 } from '../../state/token';
 import AddFourLiquidityComponent from '../../components/stableswap/AddFourLiquidity';
 import { usePool, useStablePool } from '../../state/pool';
-import { isMobile } from '~utils/device';
+import { isMobile } from 'src/utils/device';
 import { RemoveFourLiquidityComponent } from '../../components/stableswap/RemoveFourLiquidity';
 import TokenReserves from '../../components/stableswap/TokenReserves';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import getConfig from '../../services/config';
-import { StableSwapLogo } from '~components/icon/StableSwap';
+import { StableSwapLogo } from 'src/components/icon/StableSwap';
 import { useWalletTokenBalances } from '../../state/token';
 import { useLocation, useParams } from 'react-router-dom';
 import {

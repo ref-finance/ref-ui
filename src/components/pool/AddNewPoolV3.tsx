@@ -2,25 +2,25 @@ import { path } from 'animejs';
 import React, { useEffect, useMemo, useState, useContext, useRef } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useHistory } from 'react-router-dom';
-import { Card } from '~components/card/Card';
-import { isMobile } from '~utils/device';
-import { ModalClose } from '~components/icon';
+import { Card } from 'src/components/card/Card';
+import { isMobile } from 'src/utils/device';
+import { ModalClose } from 'src/components/icon';
 import {
   BoxDarkBg,
   SideIcon,
   AddButton,
   ReduceButton,
   InvalidIcon,
-} from '~components/icon/V3';
-import { ArrowDownV3 } from '~components/icon/swapV3';
+} from 'src/components/icon/V3';
+import { ArrowDownV3 } from 'src/components/icon/swapV3';
 import {
   GradientButton,
   ButtonTextWrapper,
   ConnectToNearBtn,
 } from '../../components/button/Button';
 
-import { WalletContext } from '~utils/wallets-integration';
-import { PoolSlippageSelectorV3 } from '~components/forms/SlippageSelector';
+import { WalletContext } from 'src/utils/wallets-integration';
+import { PoolSlippageSelectorV3 } from 'src/components/forms/SlippageSelector';
 import Modal from 'react-modal';
 import BigNumber from 'bignumber.js';
 import {
@@ -28,7 +28,7 @@ import {
   toPrecision,
   toReadableNumber,
   toNonDivisibleNumber,
-} from '~utils/numbers';
+} from 'src/utils/numbers';
 import {
   getPriceByPoint,
   getPointByPrice,
@@ -56,7 +56,7 @@ import { toRealSymbol } from '../../utils/token';
 import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import { TokenMetadata, ftGetBalance } from '../../services/ft-contract';
 import { useDepositableBalance } from '../../state/token';
-import { Seed, FarmBoost } from '~services/farm';
+import { Seed, FarmBoost } from 'src/services/farm';
 import { compute_liquidity } from '../../services/compute_liquidity';
 import _ from 'lodash';
 export const AddNewPoolV3 = (props: any) => {

@@ -841,7 +841,7 @@ async function getFarmDataList(initData: any) {
       const [token_x, token_y, fee] = poolId.split('|');
       token_ids.push(token_x, token_y);
     } else {
-      const { token_account_ids } = pool;
+      const { token_account_ids } = pool || {};
       token_ids = token_account_ids;
     }
     const promise_token_meta_data: Promise<any>[] = [];
@@ -900,7 +900,7 @@ async function getFarmDataList(initData: any) {
       .multipliedBy(single_lp_value)
       .toFixed();
     // get apr per farm
-    farmList.forEach((farm: FarmBoost) => {
+    farmList?.forEach((farm: FarmBoost) => {
       const { token_meta_data } = farm;
       const { daily_reward, reward_token } = farm.terms;
       const readableNumber = toReadableNumber(

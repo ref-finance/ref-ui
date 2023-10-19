@@ -11,7 +11,7 @@ import {
   IAssetRewardDetail,
   IBurrowConfig,
   IRepayWay,
-} from '~services/burrow-interfaces';
+} from 'src/services/burrow-interfaces';
 import {
   computeAdjustMaxAmount,
   computeWithdrawMaxAmount,
@@ -28,24 +28,24 @@ import {
   get_as_collateral_adjust,
   get_remain_borrow_repay,
   get_remain_collateral_withdraw,
-} from '~services/burrow-business';
+} from 'src/services/burrow-business';
 import {
   formatPercentage,
   isInvalid,
   formatNumber,
   formatWithCommas_usd,
   expandToken,
-} from '~services/burrow-utils';
+} from 'src/services/burrow-utils';
 import {
   submitAdjust,
   submitSupply,
   submitWithdraw,
   submitRepay,
   submitBorrow,
-} from '~services/burrow';
+} from 'src/services/burrow';
 import { BurrowData } from '../../pages/Burrow';
-import { WarningIcon } from '~components/icon/V3';
-import { ButtonTextWrapper, ConnectToNearBtn } from '~components/button/Button';
+import { WarningIcon } from 'src/components/icon/V3';
+import { ButtonTextWrapper, ConnectToNearBtn } from 'src/components/button/Button';
 import { WalletContext } from '../../utils/wallets-integration';
 import Big from 'big.js';
 import { FormattedMessage, useIntl } from 'react-intl';

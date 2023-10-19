@@ -7,10 +7,10 @@ import React, {
 } from 'react';
 import { ftGetTokenMetadata } from '../../services/ft-contract';
 import BigNumber from 'bignumber.js';
-import { toReadableNumber } from '~utils/numbers';
+import { toReadableNumber } from 'src/utils/numbers';
 import QuestionMark from '../../components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
-import { ftGetBalance } from '~services/ft-contract';
+import { ftGetBalance } from 'src/services/ft-contract';
 import { REF_FI_POOL_ACTIVE_TAB } from '../../pages/pools/LiquidityPage';
 import { PortfolioData } from '../../pages/Portfolio';
 import {
@@ -27,7 +27,7 @@ import {
   display_number_ordinary,
   getAccountId,
 } from './Tool';
-import { isMobile } from '~utils/device';
+import { isMobile } from 'src/utils/device';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { openUrl } from '../../services/commonV3';
 const is_mobile = isMobile();

@@ -6,7 +6,7 @@ import StableSwapPage from './StableSwapPage';
 import { StableSwapPageEntry } from './StableSwapEntry';
 import StableSwapPageUSN from './StableSwapPageUSN';
 import FourTokenStablePage from './FourTokenStablePage';
-import { NEARX_POOL_ID } from '~services/near';
+import { NEARX_POOL_ID } from 'src/services/near';
 
 interface ParamTypes {
   id: string;

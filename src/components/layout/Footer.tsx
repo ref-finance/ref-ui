@@ -5,15 +5,15 @@ import {
   FaTwitter,
   AiOutlineMedium,
 } from '../reactIcons';
-import { FooterLogo, FooterLogoREF } from '~components/icon/FooterLogo';
-import { RefAnalytics, RefAnalyticsGary } from '~components/icon/RefAnalytics';
-import { useRefPrice } from '~state/account';
-import { toPrecision } from '~utils/numbers';
-import RpcList from '~components/rpc/index';
-import { IconForum, MailBoxIcon } from '~components/icon/Nav';
+import { FooterLogo, FooterLogoREF } from 'src/components/icon/FooterLogo';
+import { RefAnalytics, RefAnalyticsGary } from 'src/components/icon/RefAnalytics';
+import { useRefPrice } from 'src/state/account';
+import { toPrecision } from 'src/utils/numbers';
+import RpcList from 'src/components/rpc/index';
+import { IconForum, MailBoxIcon } from 'src/components/icon/Nav';
 import ReactTooltip from 'react-tooltip';
 import { useLocation } from 'react-router-dom';
-import { useClientMobile } from '~utils/device';
+import { useClientMobile } from 'src/utils/device';
 
 const CommunityLinks = [
   {

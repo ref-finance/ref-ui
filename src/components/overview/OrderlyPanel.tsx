@@ -21,7 +21,7 @@ import {
 } from '../../services/overview/interfaces';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { getCurrentHolding } from '../../pages/Orderly/orderly/off-chain-api';
-import { toReadableNumber } from '~utils/numbers';
+import { toReadableNumber } from 'src/utils/numbers';
 import { OverviewData } from '../../pages/Overview';
 import {
   formatWithCommas_usd,
@@ -44,7 +44,7 @@ import getConfig from '../../pages/Orderly/config';
 import { getOrderlySystemInfo } from '../../pages/Orderly/orderly/off-chain-api';
 import { useHistory } from 'react-router-dom';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { useOrderlyContext } from '~pages/Orderly/orderly/OrderlyContext';
+import { useOrderlyContext } from 'src/pages/Orderly/orderly/OrderlyContext';
 import {
   OrderAsset,
   useOrderlyPortfolioAssets,

@@ -130,7 +130,7 @@ import { Cell, Pie, PieChart, Sector } from 'recharts';
 import { OutlineButton } from '../../components/button/Button';
 import { BTC_TEXT } from '../../components/icon/Logo';
 import { useAllPoolsV2 } from '../../state/swapV3';
-import { PoolInfo } from '~services/swapV3';
+import { PoolInfo } from 'src/services/swapV3';
 import { SelectModalV2 } from '../../components/layout/SelectModal';
 import { FarmStampNew } from '../../components/icon/FarmStamp';
 import { ALL_STABLE_POOL_IDS } from '../../services/near';
@@ -3009,7 +3009,7 @@ export const REF_FI_POOL_ACTIVE_TAB = 'REF_FI_POOL_ACTIVE_TAB_VALUE';
 
 export const REF_FI_POOL_SEARCH_BY = 'REF_FI_POOL_SEARCH_BY_VALUE';
 
-export function LiquidityPage() {
+export default function LiquidityPage() {
   window.onunload = () => {
     sessionStorage.removeItem(REF_FI_POOL_SEARCH_BY);
   };

@@ -45,7 +45,7 @@ import {
   BTC_CLASS_STABLE_POOL_IDS,
   NEAR_CLASS_STABLE_POOL_IDS,
 } from '../../services/near';
-import { useClientMobile } from '~utils/device';
+import { useClientMobile } from 'src/utils/device';
 import ReactTooltip from 'react-tooltip';
 import { REF_FI_POOL_ACTIVE_TAB } from '../pools/LiquidityPage';
 import {
@@ -481,7 +481,7 @@ const SauceSelector = ({
 
 const REF_SAUCE_PAGE_STABLE_CLASS_KEY = 'REF_SAUCE_PAGE_STABLE_CLASS_VALUE';
 
-export function StableSwapPageEntry() {
+export default function StableSwapPageEntry() {
   const [reserveType, setReserveType] = useState<STABLE_POOL_TYPE>(
     STABLE_POOL_TYPE[
       localStorage.getItem(REF_SAUCE_PAGE_STABLE_CLASS_KEY)?.toString()

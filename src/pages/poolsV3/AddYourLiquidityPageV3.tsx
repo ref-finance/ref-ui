@@ -17,15 +17,15 @@ import {
   SwitchLRButton,
   SwitchArrowL,
   SwitchArrowR,
-} from '~components/icon/V3';
+} from 'src/components/icon/V3';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useHistory } from 'react-router-dom';
 import {
   GradientButton,
   ButtonTextWrapper,
   ConnectToNearBtn,
-} from '~components/button/Button';
-import SelectToken from '~components/forms/SelectToken';
+} from 'src/components/button/Button';
+import SelectToken from 'src/components/forms/SelectToken';
 import { useTriTokens, useWhitelistTokens } from '../../state/token';
 import { useTriTokenIdsOnRef } from '../../services/aurora/aurora';
 import {
@@ -36,7 +36,7 @@ import {
 import { getTokenPriceList } from '../../services/indexer';
 import { getBoostTokenPrices, Seed, FarmBoost } from '../../services/farm';
 import { useTokenBalances, useDepositableBalance } from '../../state/token';
-import Loading from '~components/layout/Loading';
+import Loading from 'src/components/layout/Loading';
 import {
   list_pools,
   add_liquidity,
@@ -73,7 +73,7 @@ import {
   scientificNotationToString,
   getAllocationsLeastOne,
   toInternationalCurrencySystem,
-} from '~utils/numbers';
+} from 'src/utils/numbers';
 import { WalletContext } from '../../utils/wallets-integration';
 import _ from 'lodash';
 import BigNumber from 'bignumber.js';

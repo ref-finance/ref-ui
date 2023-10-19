@@ -61,8 +61,8 @@ import {
   OrderlyIcon,
   BorrowIcon,
   OverviewIcon,
-} from '~components/icon/Nav';
-// import { XrefIcon } from '~components/icon/Xref';
+} from 'src/components/icon/Nav';
+// import { XrefIcon } from 'src/components/icon/Xref';
 import getConfig from '../services/config';
 import { MobileNavLimitOrder, IconMyLiquidity } from '../components/icon/Nav';
 import {
@@ -78,8 +78,7 @@ import {
 } from '../components/icon/Nav';
 import { WalletContext } from '../utils/wallets-integration';
 import { useHistory } from 'react-router';
-import { jsx } from '@emotion/react';
-import { openUrl } from '~services/commonV3';
+import { openUrl } from 'src/services/commonV3';
 
 export type MenuItem = {
   id: number;

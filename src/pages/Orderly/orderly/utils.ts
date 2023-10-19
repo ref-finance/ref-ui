@@ -182,14 +182,14 @@ export const generateRequestSignatureHeader = async ({
     signature = keyPair?.sign(Buffer.from(message))?.signature;
   }
 
-  return new Buffer(signature)
+  return Buffer.from(signature)
     .toString('base64')
     .replace(/\+/g, '-')
     .replace(/\//g, '_');
 };
 
 export const generateOrderSignature = (message: string) => {
-  const msgHash = new Buffer(keccak256(message)).toString('hex');
+  const msgHash = Buffer.from(keccak256(message)).toString('hex');
 
   const storedPrivateKey = localStorage.getItem(get_orderly_private_key_path());
 
@@ -207,14 +207,14 @@ export const generateOrderSignature = (message: string) => {
   const keyPair = EC.keyFromPrivate(priKey, 'hex');
 
   const signature = keyPair.sign(msgHash, 'hex', { canonical: true });
-
-  const finalSignature =
-    signature.r.toString('hex', 64) +
+  if (signature && signature.r && signature.s && signature.recoveryParam !== undefined) {
+    return signature.r.toString('hex', 64) +
     signature.s.toString('hex', 64) +
     '0' +
     signature.recoveryParam;
 
-  return finalSignature;
+  }
+  return '';
 };
 
 export const formateParams = (props: object) => {

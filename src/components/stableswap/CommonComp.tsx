@@ -10,7 +10,7 @@ import { useCanFarm, useCanFarmV1, useCanFarmV2 } from '../../state/farm';
 import { useFarmStake } from '../../state/farm';
 import { Pool, canFarmV1, canFarmV2 } from '../../services/pool';
 import { Link, useHistory } from 'react-router-dom';
-import { FarmDot } from '~components/icon';
+import { FarmDot } from 'src/components/icon';
 import { ShareInFarmV2 } from '../layout/ShareInFarm';
 import { useYourliquidity } from '../../state/pool';
 import {

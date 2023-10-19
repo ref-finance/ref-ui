@@ -11,7 +11,7 @@ import _ from 'lodash';
 import { parsePoolView, PoolRPCView, getCurrentUnixTime } from './api';
 import moment from 'moment/moment';
 import { parseAction } from '../services/transaction';
-import { volumeType, TVLType } from '~state/pool';
+import { volumeType, TVLType } from 'src/state/pool';
 import db from '../store/RefDatabase';
 import { getCurrentWallet } from '../utils/wallets-integration';
 import { parsePool } from './pool';

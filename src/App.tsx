@@ -24,18 +24,18 @@ import Modal from 'react-modal';
 
 import './global.css';
 import 'react-toastify/dist/ReactToastify.css';
-import { FarmsPage } from '~pages/farms/FarmsPage';
-import { AirdropPage } from '~pages/AirdropPage';
-import PopUpSwiper from '~components/layout/PopUp';
-import ExternalPopUp from '~components/layout/ExternalPopUp';
-import Guider from '~components/layout/Guider';
+import { FarmsPage } from 'src/pages/farms/FarmsPage';
+import { AirdropPage } from 'src/pages/AirdropPage';
+import PopUpSwiper from 'src/components/layout/PopUp';
+import ExternalPopUp from 'src/components/layout/ExternalPopUp';
+import Guider from 'src/components/layout/Guider';
 
 import {
   WalletSelectorContextProvider,
   useWalletSelector,
 } from './context/WalletSelectorContext';
 
-import { Content } from '~Content';
+import { Content } from 'src/Content';
 import { LedgerTransactionModal } from './context/modal-ui/modal';
 import { XmasActivityContextProvider } from './context/XmasActivity';
 

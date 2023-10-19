@@ -1,5 +1,5 @@
 import React from 'react';
-import { isMobile } from '~utils/device';
+import { isMobile } from 'src/utils/device';
 const RiskLogo = (props: any) => {
   const { width, height, className, ...rest } = props;
   return (

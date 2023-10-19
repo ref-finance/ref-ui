@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useContext, useMemo } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import Modal from 'react-modal';
-import { Card } from '~components/card/Card';
-import { ActionModel } from '~pages/AccountPage';
+import { Card } from 'src/components/card/Card';
+import { ActionModel } from 'src/pages/AccountPage';
 import {
   useMonthTVL,
   useMonthVolume,
@@ -14,7 +14,7 @@ import {
   TVLType,
   useDayVolume,
   useIndexerStatus,
-} from '~state/pool';
+} from 'src/state/pool';
 import {
   addLiquidityToPool,
   addPoolToWatchList,
@@ -22,25 +22,25 @@ import {
   Pool,
   PoolDetails,
   removePoolFromWatchList,
-} from '~services/pool';
+} from 'src/services/pool';
 import {
   useTokenBalances,
   useTokens,
   getDepositableBalance,
-} from '~state/token';
-import Loading from '~components/layout/Loading';
-import { FarmMiningIcon } from '~components/icon/FarmMining';
-import { FarmStamp, FarmStampNew } from '~components/icon/FarmStamp';
-import { ChartLoading } from '~components/icon/Loading';
+} from 'src/state/token';
+import Loading from 'src/components/layout/Loading';
+import { FarmMiningIcon } from 'src/components/icon/FarmMining';
+import { FarmStamp, FarmStampNew } from 'src/components/icon/FarmStamp';
+import { ChartLoading } from 'src/components/icon/Loading';
 import {
   REF_FARM_CONTRACT_ID,
   REF_FI_CONTRACT_ID,
   STABLE_POOL_ID,
   REF_FARM_BOOST_CONTRACT_ID,
-} from '~services/near';
-import { PoolSlippageSelector } from '~components/forms/SlippageSelector';
+} from 'src/services/near';
+import { PoolSlippageSelector } from 'src/components/forms/SlippageSelector';
 import { Link } from 'react-router-dom';
-import { canFarm } from '~services/pool';
+import { canFarm } from 'src/services/pool';
 import {
   calculateFairShare,
   calculateFeePercent,
@@ -52,36 +52,36 @@ import {
   toRoundedReadableNumber,
   percentOf,
 } from '../../utils/numbers';
-import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
-import Alert from '~components/alert/Alert';
-import InputAmount from '~components/forms/InputAmount';
-import { isMobile } from '~utils/device';
+import { ftGetTokenMetadata, TokenMetadata } from 'src/services/ft-contract';
+import Alert from 'src/components/alert/Alert';
+import InputAmount from 'src/components/forms/InputAmount';
+import { isMobile } from 'src/utils/device';
 import ReactModal from 'react-modal';
-import { toRealSymbol } from '~utils/token';
+import { toRealSymbol } from 'src/utils/token';
 
 import {
   BackArrowWhite,
   BackArrowGray,
   ModalClose,
   Near,
-} from '~components/icon';
+} from 'src/components/icon';
 import { useHistory } from 'react-router';
-import { getPool } from '~services/indexer';
+import { getPool } from 'src/services/indexer';
 import { BigNumber } from 'bignumber.js';
 import { FormattedMessage, useIntl, FormattedRelativeTime } from 'react-intl';
 import {
   WatchListStartFull,
   WatchListStartFullMobile,
-} from '~components/icon/WatchListStar';
+} from 'src/components/icon/WatchListStar';
 import {
   OutlineButton,
   SolidButton,
   FarmButton,
   ButtonTextWrapper,
   ConnectToNearBtn,
-} from '~components/button/Button';
-import { wallet } from '~services/near';
-import { BreadCrumb } from '~components/layout/BreadCrumb';
+} from 'src/components/button/Button';
+import { wallet } from 'src/services/near';
+import { BreadCrumb } from 'src/components/layout/BreadCrumb';
 import { LP_TOKEN_DECIMALS } from '../../services/m-token';
 import {
   ResponsiveContainer,
@@ -101,7 +101,7 @@ import {
 
 import _ from 'lodash';
 import moment from 'moment';
-import { ChartNoData } from '~components/icon/ChartNoData';
+import { ChartNoData } from 'src/components/icon/ChartNoData';
 import {
   getCurrentWallet,
   WalletContext,
@@ -127,12 +127,12 @@ export const REF_FI_PRE_LIQUIDITY_ID_KEY = 'REF_FI_PRE_LIQUIDITY_ID_VALUE';
 
 import ReactTooltip from 'react-tooltip';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
-import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
+import { WRAP_NEAR_CONTRACT_ID } from 'src/services/wrap-near';
 import { useAccountInfo, LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import { getVEPoolId } from '../ReferendumPage';
 import getConfig from '../../services/config';
 import { BoostInputAmount } from '../../components/forms/InputAmount';
-import { ExternalLinkIcon } from '~components/icon/Risk';
+import { ExternalLinkIcon } from 'src/components/icon/Risk';
 import { FaAngleDown, FaAngleUp } from '../../components/reactIcons';
 import { useClientMobile, isClientMobie } from '../../utils/device';
 import {
@@ -165,7 +165,7 @@ import { NoLiquidityDetailPageIcon } from '../../components/icon/Pool';
 import { useFarmStake } from '../../state/farm';
 import { VEARROW } from '../../components/icon/Referendum';
 import Big from 'big.js';
-import { getEffectiveFarmList, sort_tokens_by_base } from '~services/commonV3';
+import { getEffectiveFarmList, sort_tokens_by_base } from 'src/services/commonV3';
 import { openUrl } from '../../services/commonV3';
 import { numberWithCommas } from '../Orderly/utiles';
 import { PoolRefreshModal } from './PoolRefreshModal';

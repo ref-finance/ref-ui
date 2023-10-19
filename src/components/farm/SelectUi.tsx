@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useState } from 'react';
-import { ArrowDown } from '~components/icon';
+import { ArrowDown } from 'src/components/icon';
 
 export default function SelectUi(props: any) {
   const { id, onChange, list, className, shrink, Icon } = props;

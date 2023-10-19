@@ -1,5 +1,5 @@
 import React from 'react';
-import AirdropView from '~components/airdrop/Airdrop';
+import AirdropView from 'src/components/airdrop/Airdrop';
 import { FormattedMessage } from 'react-intl';
 
 export function AirdropPage() {
