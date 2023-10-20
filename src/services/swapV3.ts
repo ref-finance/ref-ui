@@ -1293,10 +1293,11 @@ export const batch_remove_liquidity_contract = async ({
     need_split = true;
   }
   if (selectedWalletId == 'here-wallet') {
-    max_number = 10;
-    max_batch_update_number = 5;
+    max_number = 4;
+    max_batch_update_number = 2;
     need_split = true;
   }
+  console.log('666666666666-max_number, max_batch_update_number, need_split', max_number, max_batch_update_number, need_split);
   const transactions: Transaction[] = [];
   if (mint_liquidities.length) {
     const lpt_ids: any[] = [];
