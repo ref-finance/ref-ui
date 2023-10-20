@@ -9,8 +9,6 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { HiOutlineExternalLink, IoClose } from '../reactIcons';
 import QuestionMark from 'src/components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
-import { Burrow } from 'src/components/icon';
-import Alert from '../alert/Alert';
 import { TokenAmountV2 } from '../forms/TokenAmount';
 import { SwapExchange } from '../icon/Arrows';
 import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';
@@ -29,6 +27,7 @@ import { getTokenPriceList } from '../../services/indexer';
 import BigNumber from 'bignumber.js';
 import { GradientButton, ButtonTextWrapper } from 'src/components/button/Button';
 import { openUrl } from '../../services/commonV3';
+import Burrow from '../icon/logos/Burrow';
 
 function USNPage(props: ReactModal.Props) {
   const intl = useIntl();
@@ -197,9 +196,8 @@ function USNPage(props: ReactModal.Props) {
             {isSignedIn ? (
               <GradientButton
                 color="#fff"
-                className={`w-full h-10 text-center text-base text-white mt-7 focus:outline-none font-semibold ${
-                  !canSubmit ? 'opacity-40' : ''
-                }`}
+                className={`w-full h-10 text-center text-base text-white mt-7 focus:outline-none font-semibold ${!canSubmit ? 'opacity-40' : ''
+                  }`}
                 onClick={handleSubmit}
                 disabled={!canSubmit || showBuyLoading}
                 btnClassName={!canSubmit ? 'cursor-not-allowed' : ''}

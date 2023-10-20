@@ -75,7 +75,6 @@ import { ETH_DECIMAL } from '../../services/aurora/aurora';
 import { useAuroraBalances } from '../../services/aurora/aurora';
 import { getURLInfo } from './transactionTipPopUp';
 import USNBuyComponent from 'src/components/forms/USNBuyComponent';
-import USNPage, { BorrowLinkCard } from 'src/components/usn/USNPage';
 import {
   SWAP_MODE_KEY,
 } from '../../pages/SwapPage';
@@ -1183,65 +1182,7 @@ function Language() {
 }
 export default NavigationBar;
 
-export function USNCard({
-  showUSN,
-  setShowUSN,
-  showeBorrowCard,
-  setShowBorrowCard,
-}: {
-  showUSN: boolean;
-  setShowUSN: (e: boolean) => void;
-  showeBorrowCard: boolean;
-  setShowBorrowCard: (e: boolean) => void;
-}) {
-  return (
-    <>
-      <USNPage
-        isOpen={showUSN}
-        onRequestClose={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          setShowUSN(false);
-          setShowBorrowCard(false);
-        }}
-        style={{
-          overlay: {
-            backdropFilter: 'blur(15px)',
-            WebkitBackdropFilter: 'blur(15px)',
-          },
-          content: {
-            outline: 'none',
-            position: 'fixed',
-            width: isMobile() ? '98%' : 550,
-            bottom: '50%',
-            left: '1%',
-            transform: null,
-          },
-        }}
-      ></USNPage>
 
-      <BorrowLinkCard
-        isOpen={showeBorrowCard}
-        onRequestClose={(e) => {
-          setShowBorrowCard(false);
-        }}
-        style={{
-          overlay: {
-            backdropFilter: 'blur(15px)',
-            WebkitBackdropFilter: 'blur(15px)',
-          },
-          content: {
-            outline: 'none',
-            position: 'fixed',
-            width: isMobile() ? '98%' : 550,
-
-            bottom: '50%',
-          },
-        }}
-      />
-    </>
-  );
-}
 function MenuBar() {
   const history = useHistory();
   const [hover_two_level_items, set_hover_two_level_items] = useState<

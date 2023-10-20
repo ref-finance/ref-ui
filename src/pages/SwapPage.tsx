@@ -23,7 +23,6 @@ import SwapRateChart from '../components/swap/SwapRateChart';
 import { EstimateSwapView } from '../services/swap';
 import { TradeRoute } from '../components/layout/SwapRoutes';
 import { MarketList } from '../components/layout/SwapRoutes';
-import MyOrderPage from './MyOrder';
 import MyOrderComponent from './Orderly/components/MyOrder';
 import { useWalletSelector } from '../context/WalletSelectorContext';
 import { useClientMobile } from '../utils/device';

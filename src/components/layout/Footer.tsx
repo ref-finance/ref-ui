@@ -5,13 +5,12 @@ import {
   FaTwitter,
   AiOutlineMedium,
 } from '../reactIcons';
-import { FooterLogo, FooterLogoREF } from 'src/components/icon/FooterLogo';
+import { FooterLogoREF } from 'src/components/icon/FooterLogo';
 import { RefAnalytics, RefAnalyticsGary } from 'src/components/icon/RefAnalytics';
 import { useRefPrice } from 'src/state/account';
 import { toPrecision } from 'src/utils/numbers';
 import RpcList from 'src/components/rpc/index';
-import { IconForum, MailBoxIcon } from 'src/components/icon/Nav';
-import ReactTooltip from 'react-tooltip';
+import { IconForum } from 'src/components/icon/Nav';
 import { useLocation } from 'react-router-dom';
 import { useClientMobile } from 'src/utils/device';
 
