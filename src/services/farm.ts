@@ -1342,6 +1342,12 @@ export const batch_unStake_boost_nft = async ({
   withdraw_amount,
   liquidities,
 }: IStakeInfo) => {
+  let need_split = false;
+  const max_length = 2;
+  const selectedWalletId = window.selector?.store?.getState()?.selectedWalletId;
+  if (selectedWalletId == 'ledger' || selectedWalletId == 'neth') {
+    need_split = true;
+  }
   const transactions: Transaction[] = [];
   if (new BigNumber(withdraw_amount).isGreaterThan('0')) {
     transactions.push({
@@ -1365,18 +1371,39 @@ export const batch_unStake_boost_nft = async ({
     lpt_ids.push(l.lpt_id);
   });
   if (lpt_ids.length) {
-    transactions.push({
-      receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
-      functionCalls: [
-        {
-          methodName: 'batch_burn_v_liquidity',
-          args: {
-            lpt_ids,
+    if (need_split) {
+      const num = Math.ceil(lpt_ids.length / max_length);
+      for (let i = 0; i < num; i++) {
+        const startIndex = i * max_length;
+        const endIndex = startIndex + max_length;
+        const lpt_ids_i = lpt_ids.slice(startIndex, endIndex);
+        transactions.push({
+          receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+          functionCalls: [
+            {
+              methodName: 'batch_burn_v_liquidity',
+              args: {
+                lpt_ids: lpt_ids_i,
+              },
+              gas: '250000000000000',
+            },
+          ],
+        });
+      }
+    } else {
+      transactions.push({
+        receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+        functionCalls: [
+          {
+            methodName: 'batch_burn_v_liquidity',
+            args: {
+              lpt_ids,
+            },
+            gas: '250000000000000',
           },
-          gas: '250000000000000',
-        },
-      ],
-    });
+        ],
+      });
+    }
   }
   const neededStorage = await checkTokenNeedsStorageDeposit_boost();
   if (neededStorage) {
@@ -1394,6 +1421,12 @@ export const batch_stake_boost_nft = async ({
   withdraw_amount,
   seed_id,
 }: IStakeInfo) => {
+  let need_split = false;
+  const selectedWalletId = window.selector?.store?.getState()?.selectedWalletId;
+  if (selectedWalletId == 'ledger' || selectedWalletId == 'neth') {
+    need_split = true;
+  }
+  const max_length = 2;
   const [contractId, temp_pool_id] = seed_id.split('@');
   const [fixRange, dcl_pool_id, left_point, right_point] =
     temp_pool_id.split('&');
@@ -1447,16 +1480,35 @@ export const batch_stake_boost_nft = async ({
     }
   });
   if (mint_infos.length) {
-    transactions.push({
-      receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
-      functionCalls: [
-        {
-          methodName: 'batch_mint_v_liquidity',
-          args: { mint_infos },
-          gas: '200000000000000',
-        },
-      ],
-    });
+    if (need_split) {
+      const num = Math.ceil(mint_infos.length / max_length);
+      for (let i = 0; i < num; i++) {
+        const startIndex = i * max_length;
+        const endIndex = startIndex + max_length;
+        const mint_infos_i = mint_infos.slice(startIndex, endIndex);
+        transactions.push({
+          receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+          functionCalls: [
+            {
+              methodName: 'batch_mint_v_liquidity',
+              args: { mint_infos: mint_infos_i },
+              gas: '200000000000000',
+            },
+          ],
+        });
+      }
+    } else {
+      transactions.push({
+        receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+        functionCalls: [
+          {
+            methodName: 'batch_mint_v_liquidity',
+            args: { mint_infos },
+            gas: '200000000000000',
+          },
+        ],
+      });
+    }
   }
   transactions.push({
     receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
