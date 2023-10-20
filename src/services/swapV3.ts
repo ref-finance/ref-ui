@@ -1286,6 +1286,7 @@ export const batch_remove_liquidity_contract = async ({
   selectedWalletId: string;
 }) => {
   let max_number = 10;
+  let max_batch_update_number = 10;
   let need_split = false;
   if (
     selectedWalletId == 'ledger' ||
@@ -1293,6 +1294,7 @@ export const batch_remove_liquidity_contract = async ({
     selectedWalletId == 'here-wallet'
   ) {
     max_number = 2;
+    max_batch_update_number = 1;
     need_split = true;
   }
   const transactions: Transaction[] = [];
@@ -1343,11 +1345,11 @@ export const batch_remove_liquidity_contract = async ({
     const { add_liquidity_infos, remove_liquidity_infos } =
       batch_update_liquidity;
     const length = add_liquidity_infos.length;
-    const ts_length = Math.ceil(length / max_number);
+    const ts_length = Math.ceil(length / max_batch_update_number);
     for (let i = 0; i < ts_length; i++) {
       let batch_update_liquidity_i;
-      const startIndex = i * max_number;
-      const endIndex = startIndex + max_number;
+      const startIndex = i * max_batch_update_number;
+      const endIndex = startIndex + max_batch_update_number;
       batch_update_liquidity_i = {
         add_liquidity_infos: add_liquidity_infos.slice(startIndex, endIndex),
         remove_liquidity_infos: remove_liquidity_infos.slice(
@@ -1418,7 +1420,7 @@ export const batch_remove_liquidity_contract = async ({
       ],
     });
   }
-  console.log('888888888888888-transactions', transactions);
+  console.log('8888888888888888-transactions', transactions);
   return executeMultipleTransactions(transactions);
 };
 

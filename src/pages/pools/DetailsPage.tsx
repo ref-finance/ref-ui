@@ -153,7 +153,10 @@ import { NoLiquidityDetailPageIcon } from '../../components/icon/Pool';
 import { useFarmStake } from '../../state/farm';
 import { VEARROW } from '../../components/icon/Referendum';
 import Big from 'big.js';
-import { getEffectiveFarmList, sort_tokens_by_base } from '../../services/commonV3';
+import {
+  getEffectiveFarmList,
+  sort_tokens_by_base,
+} from '../../services/commonV3';
 import { openUrl } from '../../services/commonV3';
 import { numberWithCommas } from '../Orderly/utiles';
 import { HiOutlineExternalLink, HiOutlineLink } from 'react-icons/hi';
