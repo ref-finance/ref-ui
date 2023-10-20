@@ -37,14 +37,10 @@ import {
   XREF_TOKEN_DECIMALS,
   XrefMetaData,
 } from 'src/services/xref';
-import { wallet } from 'src/services/near';
 import QuestionMark from 'src/components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
-import { index } from 'mathjs';
 import {
-  senderWallet,
   WalletContext,
-  getCurrentWallet,
 } from '../../utils/wallets-integration';
 const {
   XREF_TOKEN_ID,
