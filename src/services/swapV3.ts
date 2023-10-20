@@ -1285,12 +1285,14 @@ export const batch_remove_liquidity_contract = async ({
   selectedWalletId: string;
 }) => {
   let max_number = 10;
+  let need_split = false;
   if (
     selectedWalletId == 'ledger' ||
     selectedWalletId == 'neth' ||
     selectedWalletId == 'here-wallet'
   ) {
     max_number = 2;
+    need_split = true;
   }
   const transactions: Transaction[] = [];
   if (mint_liquidities.length) {
@@ -1330,7 +1332,7 @@ export const batch_remove_liquidity_contract = async ({
             args: {
               remove_liquidity_infos: batch_remove_liquidity_i,
             },
-            gas: max_number == 5 ? '250000000000000' : '300000000000000',
+            gas: need_split ? '250000000000000' : '300000000000000',
           },
         ],
       });
@@ -1358,7 +1360,7 @@ export const batch_remove_liquidity_contract = async ({
           {
             methodName: 'batch_update_liquidity',
             args: batch_update_liquidity_i,
-            gas: max_number == 5 ? '250000000000000' : '300000000000000',
+            gas: need_split ? '250000000000000' : '300000000000000',
           },
         ],
       });
