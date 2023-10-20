@@ -1418,6 +1418,7 @@ export const batch_remove_liquidity_contract = async ({
       ],
     });
   }
+  console.log('888888888888888-transactions', transactions);
   return executeMultipleTransactions(transactions);
 };
 
