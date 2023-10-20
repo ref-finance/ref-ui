@@ -926,7 +926,6 @@ export const batch_add_liquidity = async ({
   ) {
     split_num = 2;
   }
-  debugger;
   const transactions: Transaction[] = [];
   const n = Math.ceil(liquidityInfos.length / split_num);
   for (let i = 0; i < n; i++) {
@@ -1288,13 +1287,14 @@ export const batch_remove_liquidity_contract = async ({
   let max_number = 10;
   let max_batch_update_number = 10;
   let need_split = false;
-  if (
-    selectedWalletId == 'ledger' ||
-    selectedWalletId == 'neth' ||
-    selectedWalletId == 'here-wallet'
-  ) {
+  if (selectedWalletId == 'ledger' || selectedWalletId == 'neth') {
     max_number = 2;
     max_batch_update_number = 1;
+    need_split = true;
+  }
+  if (selectedWalletId == 'here-wallet') {
+    max_number = 10;
+    max_batch_update_number = 5;
     need_split = true;
   }
   const transactions: Transaction[] = [];
