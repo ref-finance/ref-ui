@@ -39,7 +39,7 @@ import { useClientMobile } from '../../utils/device';
 import { PoolTabV3 } from '../../components/pool/PoolTabV3';
 import Loading from '../../components/layout/Loading';
 import { FarmStampNew } from '../../components/icon/FarmStamp';
-import { getPoolListFarmAprTip } from './LiquidityPage';
+import { getPoolListFarmAprTip } from './utils';
 import ReactTooltip from 'react-tooltip';
 
 interface ParamTypes {

@@ -47,7 +47,7 @@ import {
 } from '../../services/near';
 import { useClientMobile } from 'src/utils/device';
 import ReactTooltip from 'react-tooltip';
-import { REF_FI_POOL_ACTIVE_TAB } from '../pools/LiquidityPage';
+import { REF_FI_POOL_ACTIVE_TAB } from '../pools/utils';
 import {
   ForbiddenIcon,
   ForbiddenIconLarge,

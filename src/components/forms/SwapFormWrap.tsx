@@ -16,7 +16,7 @@ import { EstimateSwapView } from '../../services/swap';
 import { get_pool_name, openUrl } from '../../services/commonV3';
 import { PoolInfo } from 'src/services/swapV3';
 import { OutLinkIcon } from '../../components/icon/Common';
-import { REF_FI_POOL_ACTIVE_TAB } from '../../pages/pools/LiquidityPage';
+import { REF_FI_POOL_ACTIVE_TAB } from '../../pages/pools/utils';
 
 interface SwapFormWrapProps {
   title?: string;

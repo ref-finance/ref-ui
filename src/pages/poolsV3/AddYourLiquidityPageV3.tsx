@@ -84,7 +84,7 @@ import { BlueCircleLoading } from '../../components/layout/Loading';
 import { isMobile } from '../../utils/device';
 import { SelectedIcon, ArrowDownV3 } from '../../components/icon/swapV3';
 import { OutLinkIcon } from '../../components/icon/Common';
-import { REF_FI_POOL_ACTIVE_TAB } from '../pools/LiquidityPage';
+import { REF_FI_POOL_ACTIVE_TAB } from '../pools/utils';
 import getConfig from '../../services/config';
 import QuestionMark from '../../components/farm/QuestionMark';
 const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();

@@ -137,9 +137,8 @@ import { FaAngleDown, FaAngleUp } from '../../components/reactIcons';
 import { useClientMobile, isClientMobie } from '../../utils/device';
 import {
   getPoolFeeApr,
-  getPoolFeeAprTitle,
   getPoolListFarmAprTip,
-} from './LiquidityPage';
+} from './utils';
 import { Images, Symbols } from '../../components/stableswap/CommonComp';
 import { useTokenPriceList } from '../../state/token';
 import { ExchangeArrow } from '../../components/icon/Arrows';

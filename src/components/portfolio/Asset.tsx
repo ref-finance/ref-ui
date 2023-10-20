@@ -11,7 +11,7 @@ import { toReadableNumber } from 'src/utils/numbers';
 import QuestionMark from '../../components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 import { ftGetBalance } from 'src/services/ft-contract';
-import { REF_FI_POOL_ACTIVE_TAB } from '../../pages/pools/LiquidityPage';
+import { REF_FI_POOL_ACTIVE_TAB } from '../../pages/pools/utils';
 import { PortfolioData } from '../../pages/Portfolio';
 import {
   WalletContext,

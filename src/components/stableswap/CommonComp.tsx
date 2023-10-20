@@ -26,7 +26,7 @@ import {
 } from '../../services/pool';
 import { isClientMobie } from '../../utils/device';
 import ReactTooltip from 'react-tooltip';
-import { REF_FI_POOL_ACTIVE_TAB } from '../../pages/pools/LiquidityPage';
+import { REF_FI_POOL_ACTIVE_TAB } from '../../pages/pools/utils';
 
 export function BackToStablePoolList() {
   const history = useHistory();
