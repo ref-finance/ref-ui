@@ -1042,8 +1042,6 @@ export const batch_add_liquidity = async ({
       ],
     });
   }
-  console.log('888888888888888888-transactions', transactions)
-  debugger;
   return executeMultipleTransactions(transactions);
 };
 
