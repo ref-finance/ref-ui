@@ -1,74 +1,55 @@
 import React, {
-  createContext,
-  useContext,
   useReducer,
   useEffect,
   useCallback,
-  useState,
   lazy,
   Suspense,
 } from 'react';
-import Loading, { BeatLoading } from 'src/components/layout/Loading';
+import Loading from 'src/components/layout/Loading';
 
-import { ReferendumPage } from 'src/pages/ReferendumPage';
-
-import YourLiquidityPageV3 from './pages/poolsV3/YourLiquidityPageV3';
-import AddYourLiquidityPageV3 from './pages/poolsV3/AddYourLiquidityPageV3';
-import YourLiquidityDetailV3 from './pages/poolsV3/YourLiquidityDetailV3';
-import MyOrderPage from 'src/pages/MyOrder';
+const ReferendumPage = lazy(() =>
+  import('src/pages/ReferendumPage')
+)
 
 import {
   Switch,
   Route,
 } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
-import { PoolDetailsPage } from './pages/pools/DetailsPage';
 
-import { RecentActivityPage } from './pages/RecentActivityPage';
-import { AddTokenPage } from './pages/pools/AddTokenPage';
+import { ToastContainer } from 'react-toastify';
+
 import NavigationBar from './components/layout/NavigationBar';
-import { MorePoolsPage } from 'src/pages/pools/MorePoolsPage';
 
 import Modal from 'react-modal';
 
 import './global.css';
 import 'react-toastify/dist/ReactToastify.css';
-import { FarmsPage } from 'src/pages/farms/FarmsPage';
-import { AirdropPage } from 'src/pages/AirdropPage';
 
 import { isMobile } from 'src/utils/device';
-
 
 import {
   WalletContext,
   globalStateReducer,
-  removeSenderLoginRes,
 } from './utils/wallets-integration';
 
-import { StableSwapRouter } from './pages/stable/StableSwapRouter';
 
 import { useGlobalPopUp } from './state/popUp';
 import { providers } from 'near-api-js';
 import {
-  ACCOUNT_ID_KEY,
   useWalletSelector,
 } from './context/WalletSelectorContext';
 import getConfig from './services/config';
 import { AccountView } from 'near-api-js/lib/providers/provider';
 import { InjectedWallet } from '@near-wallet-selector/core';
-import { REF_FARM_BOOST_CONTRACT_ID, wallet } from './services/near';
-import { LedgerTransactionModal } from './context/modal-ui/modal';
+import { REF_FARM_BOOST_CONTRACT_ID } from './services/near';
 
-import OrderlyContextProvider, {
-  OrderlyContext,
-} from 'src/pages/Orderly/orderly/OrderlyContext';
-import { list_seeds_info } from './services/farm';
+import OrderlyContextProvider from 'src/pages/Orderly/orderly/OrderlyContext';
 import { ORDERLY_ASSET_MANAGER } from './pages/Orderly/near';
 import {
   get_orderly_public_key_path,
   generateTradingKeyPair,
 } from './pages/Orderly/orderly/utils';
-import navs from './navs';
+import routes from './routes';
 
 export type Account = AccountView & {
   account_id: string;
@@ -210,51 +191,19 @@ export function Content() {
       <OrderlyContextProvider>
         <Suspense fallback={<Loading />}>
           <Switch>
-            
 
-
-            <Route path="/recent" component={RecentActivityPage} />
-            <Route
-              path="/more_pools/:tokenIds"
-              component={AutoHeight(MorePoolsPage)}
-            />
-            <Route path="/pool/:id" component={AutoHeight(PoolDetailsPage)} />
-            <Route path="/pools/add-token" component={AutoHeight(AddTokenPage)} />
-            <Route path="/airdrop" component={AutoHeight(AirdropPage)} />
-            <Route path="/farms" component={AutoHeight(FarmsPage)} />
-            <Route path={`/sauce/:id`} component={AutoHeight(StableSwapRouter)} />
-            <Route path={'/myOrder'} component={AutoHeight(MyOrderPage)} />
-
-            <Route
-              path="/yourliquidity"
-              component={AutoHeight(YourLiquidityPageV3)}
-            />
-            <Route
-              path="/yoursLiquidityDetailV2/:id/:status?"
-              component={AutoHeight(YourLiquidityDetailV3)}
-            />
-
-            <Route
-              path="/addLiquidityV2"
-              component={AutoHeight(AddYourLiquidityPageV3)}
-            />
-
-
-            
             {!!getConfig().REF_VE_CONTRACT_ID ? (
               <Route path="/referendum" component={AutoHeight(ReferendumPage)} />
             ) : null}
 
-           
-
-            {navs.map(nav => {
+            {routes.map(route => {
               return <Route
-                key={nav.path}
-                path={nav.path}
-                component={Wrapper(nav.element, nav.wrapper)}
+                key={route.path}
+                path={route.path}
+                component={Wrapper(route.element, route.wrapper)}
               />
             })}
-            
+
           </Switch>
         </Suspense>
       </OrderlyContextProvider>

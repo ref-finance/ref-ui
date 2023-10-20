@@ -82,7 +82,6 @@ import {
   getRefPoolsByToken1ORToken2,
 } from '../services/pool';
 import Big from 'big.js';
-import { getPoolFeeAprTitle } from '../pages/pools/LiquidityPage';
 import { getPoolFeeAprTitleRPCView } from '../pages/pools/MorePoolsPage';
 import { PoolInfo, get_pool } from '../services/swapV3';
 import { useTokenPriceList } from './token';

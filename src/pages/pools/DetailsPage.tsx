@@ -1829,7 +1829,7 @@ export function TVLChart({
   );
 }
 
-export function PoolDetailsPage() {
+export default function PoolDetailsPage() {
   const { id } = useParams<ParamTypes>();
   const { state } = useLocation<LocationTypes>();
   const { pool, shares, finalStakeList: stakeList } = usePool(id);

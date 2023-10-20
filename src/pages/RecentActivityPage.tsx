@@ -32,7 +32,7 @@ function useLastActions() {
 
   return actions;
 }
-export function RecentActivityPage() {
+export default function RecentActivityPage() {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
 

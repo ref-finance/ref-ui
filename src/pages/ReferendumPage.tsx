@@ -192,9 +192,8 @@ export const RewardCard = ({
       <div className="flex items-center justify-between text-white text-sm pb-2.5">
         <div className="flex items-center px-2">
           <button
-            className={`mr-2 w-4 h-4 rounded bg-opacity-30 ${
-              checkList?.indexOf(id) !== -1 ? 'bg-black' : 'bg-white'
-            } flex items-center justify-center`}
+            className={`mr-2 w-4 h-4 rounded bg-opacity-30 ${checkList?.indexOf(id) !== -1 ? 'bg-black' : 'bg-white'
+              } flex items-center justify-center`}
             onClick={() => {
               if (checkList?.indexOf(id) == -1 && checkList.length < 5) {
                 setCheckList([...checkList, id]);
@@ -314,17 +313,16 @@ export const RewardCard = ({
                 }}
               >
                 <button
-                  className={`mr-2 h-4 w-4 rounded bg-opacity-30 flex items-center justify-center ${
-                    (tokens?.length > 0 &&
+                  className={`mr-2 h-4 w-4 rounded bg-opacity-30 flex items-center justify-center ${(tokens?.length > 0 &&
                       tokens?.every((token) => checkList.includes(token.id))) ||
-                    checkList.length === length_at_once
+                      checkList.length === length_at_once
                       ? 'bg-black'
                       : 'bg-white'
-                  }`}
+                    }`}
                 >
                   {(tokens?.length > 0 &&
                     tokens?.every((token) => checkList.includes(token.id))) ||
-                  checkList.length === length_at_once ? (
+                    checkList.length === length_at_once ? (
                     <RewardCheck />
                   ) : null}
                 </button>
@@ -535,11 +533,10 @@ export const LockPopUp = ({
         return (
           <button
             key={d}
-            className={`rounded-lg text-center  mr-2.5 hover:bg-gradientFrom  ${
-              duration === d
+            className={`rounded-lg text-center  mr-2.5 hover:bg-gradientFrom  ${duration === d
                 ? 'text-chartBg bg-gradientFrom'
                 : 'text-farmText bg-black bg-opacity-20'
-            } hover:text-chartBg px-3 xsm:px-1.5 py-1 text-xs`}
+              } hover:text-chartBg px-3 xsm:px-1.5 py-1 text-xs`}
             onClick={() => setDuration(d)}
           >
             {' '}
@@ -584,9 +581,8 @@ export const LockPopUp = ({
             &nbsp;
             <Symbols withArrow={false} tokens={tokens} size="text-base" />
             <button
-              className={`hover:text-senderHot ${
-                ONLY_ZEROS.test(lpShare) ? 'hidden' : ''
-              } text-gradientFrom pl-1 py-1`}
+              className={`hover:text-senderHot ${ONLY_ZEROS.test(lpShare) ? 'hidden' : ''
+                } text-gradientFrom pl-1 py-1`}
               onClick={() => openUrl(`/pool/${getVEPoolId()}`)}
             >
               <VEARROW />
@@ -685,9 +681,8 @@ export const LockPopUp = ({
                 transform:
                   !showVeAmount || finalAmount.length < 17
                     ? 'none'
-                    : `scale(${17 / finalAmount.length},${
-                        17 / finalAmount.length
-                      })`,
+                    : `scale(${17 / finalAmount.length},${17 / finalAmount.length
+                    })`,
               }}
             >
               {preLocked && showVeAmount ? (
@@ -702,15 +697,14 @@ export const LockPopUp = ({
                 </>
               ) : null}
               <span
-                className={`${
-                  finalAmount.length < 10
+                className={`${finalAmount.length < 10
                     ? 'text-lg'
                     : finalAmount.length > 14
-                    ? finalAmount.length >= 16
-                      ? 'text-xs'
-                      : 'text-sm'
-                    : 'text-base'
-                } ${showVeAmount ? 'text-white' : 'text-farmText'} `}
+                      ? finalAmount.length >= 16
+                        ? 'text-xs'
+                        : 'text-sm'
+                      : 'text-base'
+                  } ${showVeAmount ? 'text-white' : 'text-farmText'} `}
               >
                 {showVeAmount ? finalAmount : '0'}
               </span>
@@ -760,9 +754,8 @@ export const LockPopUp = ({
                 transform:
                   !showVeAmount || finalLoveAmount.length < 17
                     ? 'none'
-                    : `scale(${17 / finalLoveAmount.length},${
-                        17 / finalLoveAmount.length
-                      })`,
+                    : `scale(${17 / finalLoveAmount.length},${17 / finalLoveAmount.length
+                    })`,
               }}
             >
               {preLocked && showVeAmount ? (
@@ -776,15 +769,14 @@ export const LockPopUp = ({
                 </>
               ) : null}
               <span
-                className={`${
-                  finalLoveAmount.length < 10
+                className={`${finalLoveAmount.length < 10
                     ? 'text-lg'
                     : finalLoveAmount.length > 13
-                    ? finalLoveAmount.length >= 16
-                      ? 'text-xs'
-                      : 'text-sm'
-                    : 'text-base'
-                } ${showVeAmount ? 'text-white' : 'text-farmText'}`}
+                      ? finalLoveAmount.length >= 16
+                        ? 'text-xs'
+                        : 'text-sm'
+                      : 'text-base'
+                  } ${showVeAmount ? 'text-white' : 'text-farmText'}`}
               >
                 {showVeAmount ? finalLoveAmount : '0'}
               </span>
@@ -1001,24 +993,24 @@ const UnLockPopUp = ({
 
   const multiplier = preLocked
     ? new Big(accountInfo?.ve_lpt_amount).div(
-        new Big(accountInfo?.lpt_amount || 1).div(1000000)
-      )
+      new Big(accountInfo?.lpt_amount || 1).div(1000000)
+    )
     : new Big(1);
 
   const currentMaxUnlock = preLocked
     ? new Big(
-        new Big(
-          toReadableNumber(
-            LOVE_TOKEN_DECIMAL,
-            accountInfo?.ve_lpt_amount || '0'
-          )
-        ).lt(balance)
-          ? toReadableNumber(
-              LOVE_TOKEN_DECIMAL,
-              accountInfo?.ve_lpt_amount || '0'
-            )
-          : balance
-      ).div(multiplier)
+      new Big(
+        toReadableNumber(
+          LOVE_TOKEN_DECIMAL,
+          accountInfo?.ve_lpt_amount || '0'
+        )
+      ).lt(balance)
+        ? toReadableNumber(
+          LOVE_TOKEN_DECIMAL,
+          accountInfo?.ve_lpt_amount || '0'
+        )
+        : balance
+    ).div(multiplier)
     : new Big('0');
 
   const reduced = new Big(toUnlockAmount || '0').times(multiplier);
@@ -1093,9 +1085,9 @@ const UnLockPopUp = ({
             <span className="pb-1 text-white">
               {currentMaxUnlock.gt(0)
                 ? toPrecision(
-                    scientificNotationToString(currentMaxUnlock.toString()),
-                    2
-                  )
+                  scientificNotationToString(currentMaxUnlock.toString()),
+                  2
+                )
                 : 0}
               <span className="text-primaryText ml-2">
                 {' '}
@@ -1132,11 +1124,10 @@ const UnLockPopUp = ({
               style={{
                 transform:
                   ONLY_ZEROS.test(toUnlockAmount) ||
-                  toPrecision(finalve, 2).length < 17
+                    toPrecision(finalve, 2).length < 17
                     ? 'none'
-                    : `scale(${17 / toPrecision(finalve, 2).length},${
-                        17 / toPrecision(finalve, 2).length
-                      })`,
+                    : `scale(${17 / toPrecision(finalve, 2).length},${17 / toPrecision(finalve, 2).length
+                    })`,
               }}
             >
               <span className="text-farmText text-xs">{currentVeAmount}</span>
@@ -1146,15 +1137,14 @@ const UnLockPopUp = ({
                     <RightArrowVE />
                   </span>
                   <span
-                    className={`${
-                      toPrecision(finalve, 2).length < 10
+                    className={`${toPrecision(finalve, 2).length < 10
                         ? 'text-lg'
                         : toPrecision(finalve, 2).length > 14
-                        ? toPrecision(finalve, 2).length >= 16
-                          ? 'text-xs'
-                          : 'text-sm'
-                        : 'text-base'
-                    } ${Number(finalve) >= 0 ? 'text-white' : 'text-warn'} `}
+                          ? toPrecision(finalve, 2).length >= 16
+                            ? 'text-xs'
+                            : 'text-sm'
+                          : 'text-base'
+                      } ${Number(finalve) >= 0 ? 'text-white' : 'text-warn'} `}
                   >
                     {ONLY_ZEROS.test(
                       toNonDivisibleNumber(LOVE_TOKEN_DECIMAL, finalve)
@@ -1211,11 +1201,10 @@ const UnLockPopUp = ({
               style={{
                 transform:
                   ONLY_ZEROS.test(toUnlockAmount) ||
-                  toPrecision(finalLove, 2).length < 17
+                    toPrecision(finalLove, 2).length < 17
                     ? 'none'
-                    : `scale(${17 / toPrecision(finalLove, 2).length},${
-                        17 / toPrecision(finalLove, 2).length
-                      })`,
+                    : `scale(${17 / toPrecision(finalLove, 2).length},${17 / toPrecision(finalLove, 2).length
+                    })`,
               }}
             >
               <span className="text-farmText text-xs">
@@ -1227,15 +1216,14 @@ const UnLockPopUp = ({
                     <RightArrowVE />
                   </span>
                   <span
-                    className={`${
-                      toPrecision(finalLove, 2).length < 10
+                    className={`${toPrecision(finalLove, 2).length < 10
                         ? 'text-lg'
                         : toPrecision(finalLove, 2).length > 14
-                        ? toPrecision(finalLove, 2).length >= 16
-                          ? 'text-xs'
-                          : 'text-sm'
-                        : 'text-base'
-                    } ${Number(finalLove) >= 0 ? 'text-white' : 'text-warn'} `}
+                          ? toPrecision(finalLove, 2).length >= 16
+                            ? 'text-xs'
+                            : 'text-sm'
+                          : 'text-base'
+                      } ${Number(finalLove) >= 0 ? 'text-white' : 'text-warn'} `}
                   >
                     {ONLY_ZEROS.test(
                       toNonDivisibleNumber(LOVE_TOKEN_DECIMAL, finalLove)
@@ -1520,9 +1508,8 @@ const VotingPowerCard = ({
         </span>
       </div>
       <div
-        className={`${
-          isClientMobile ? 'opacity-30' : ''
-        } absolute xsm:right-24 lg:bottom-11 lg:left-40 lg:-top-6 xsm:top-6 xsm:transform`}
+        className={`${isClientMobile ? 'opacity-30' : ''
+          } absolute xsm:right-24 lg:bottom-11 lg:left-40 lg:-top-6 xsm:top-6 xsm:transform`}
         style={{
           transform: isClientMobile ? 'scale(0.4,0.4)' : '',
         }}
@@ -1605,9 +1592,8 @@ const FarmBoosterCard = ({
               <div class="text-xs">
   
                 <div 
-                  style="max-width: ${
-                    isClientMobile ? '200px' : '250px'
-                  };font-weight:400;white-space: initial;",
+                  style="max-width: ${isClientMobile ? '200px' : '250px'
+                    };font-weight:400;white-space: initial;",
                 >
                 ${intl.formatMessage({ id: 'loveTip' })}
                              </div>
@@ -1631,9 +1617,8 @@ const FarmBoosterCard = ({
         </span>
       </div>
       <div
-        className={` ${
-          isClientMobile ? 'opacity-30' : ''
-        } absolute   lg:left-40 lg:-top-6 xsm:right-24 xsm:top-6 xsm:transform`}
+        className={` ${isClientMobile ? 'opacity-30' : ''
+          } absolute   lg:left-40 lg:-top-6 xsm:right-24 xsm:top-6 xsm:transform`}
         style={{
           transform: isClientMobile ? 'scale(0.4,0.4)' : '',
         }}
@@ -1745,9 +1730,8 @@ export const FarmStakeTipHomePage = ({
         >
           <span className="underline mr-1 ">
             <FormattedMessage id="farm" defaultMessage={'farm'} />{' '}
-            <span className="text-xs">{`${
-              version === 1 ? 'Legacy' : 'Classic'
-            }`}</span>
+            <span className="text-xs">{`${version === 1 ? 'Legacy' : 'Classic'
+              }`}</span>
           </span>
           <span className="relative top-1.5">
             <VEARROW />
@@ -1863,7 +1847,7 @@ const UserReferendumCard = ({
                 </span>
 
                 {!isSignedIn ||
-                !(Number(farmStakeV1) > 0 || Number(farmStakeV2) > 0) ? null : (
+                  !(Number(farmStakeV1) > 0 || Number(farmStakeV2) > 0) ? null : (
                   <div
                     className={`ml-2 relative  flex items-start  pl-1 py-0.5`}
                     onMouseEnter={() => setHoverTip(true)}
@@ -1912,11 +1896,10 @@ const UserReferendumCard = ({
           </div>
           <div className="flex flex-col w-1/2">
             <div
-              className={`text-2xl font-bold text-gradientFromHover ${
-                ONLY_ZEROS.test(lockedLpShare) || !isSignedIn
+              className={`text-2xl font-bold text-gradientFromHover ${ONLY_ZEROS.test(lockedLpShare) || !isSignedIn
                   ? 'opacity-20'
                   : ''
-              }`}
+                }`}
             >
               <span title={lockedLpShare}>
                 {isSignedIn
@@ -1936,9 +1919,8 @@ const UserReferendumCard = ({
         {isSignedIn ? (
           <div className={`text-base flex items-center w-full xsm:text-sm `}>
             <NewGradientButton
-              className={`${
-                ONLY_ZEROS.test(veShare) ? 'w-full' : 'w-1/2'
-              } mr-2 h-11`}
+              className={`${ONLY_ZEROS.test(veShare) ? 'w-full' : 'w-1/2'
+                } mr-2 h-11`}
               padding="p-0"
               text={
                 <FormattedMessage
@@ -2054,9 +2036,8 @@ const UserReferendumCard = ({
         </div>
 
         <div
-          className={`w-11/12 rounded-2xl mt-3 flex flex-col p-3 ${
-            !showMobileLocker ? 'hidden' : ''
-          }  mx-auto`}
+          className={`w-11/12 rounded-2xl mt-3 flex flex-col p-3 ${!showMobileLocker ? 'hidden' : ''
+            }  mx-auto`}
           style={{
             background:
               'linear-gradient(360deg, rgba(0,19,32,0.5) 50%, rgba(0,19,32,0.5) 100%)',
@@ -2085,9 +2066,9 @@ const UserReferendumCard = ({
                   </span>
 
                   {!isSignedIn ||
-                  !(
-                    Number(farmStakeV1) > 0 || Number(farmStakeV2) > 0
-                  ) ? null : (
+                    !(
+                      Number(farmStakeV1) > 0 || Number(farmStakeV2) > 0
+                    ) ? null : (
                     <div
                       className={`ml-2 relative  flex items-start  pl-1 py-0.5`}
                       onMouseEnter={() => setHoverTip(true)}
@@ -2138,11 +2119,10 @@ const UserReferendumCard = ({
             </div>
             <div className="flex flex-col items-center w-1/2">
               <div
-                className={`text-base font-bold text-white ${
-                  ONLY_ZEROS.test(lockedLpShare) || !isSignedIn
+                className={`text-base font-bold text-white ${ONLY_ZEROS.test(lockedLpShare) || !isSignedIn
                     ? 'opacity-20'
                     : ''
-                }`}
+                  }`}
               >
                 <span title={lockedLpShare}>
                   {isSignedIn
@@ -2163,9 +2143,8 @@ const UserReferendumCard = ({
             className={`text-base flex items-center w-full  xsm:text-sm mt-3`}
           >
             <NewGradientButton
-              className={`${
-                ONLY_ZEROS.test(veShare) ? 'w-full' : 'w-1/2'
-              } mr-2 h-11 xsm:h-8`}
+              className={`${ONLY_ZEROS.test(veShare) ? 'w-full' : 'w-1/2'
+                } mr-2 h-11 xsm:h-8`}
               padding="p-0"
               text={
                 <span className="flex items-center">
@@ -2276,12 +2255,12 @@ export const ProposalThumbnail = ({ proposal }: { proposal: Proposal }) => {
 
   const totalVE = !isFarmProposal
     ? scientificNotationToString(
-        BigNumber.sum(
-          ...(proposal?.kind?.Common
-            ? proposal?.votes?.slice(0, 2)
-            : proposal?.votes || [])
-        ).toString()
-      )
+      BigNumber.sum(
+        ...(proposal?.kind?.Common
+          ? proposal?.votes?.slice(0, 2)
+          : proposal?.votes || [])
+      ).toString()
+    )
     : new BigNumber(proposal.votes?.[votedIndex]);
 
   const tokens = useTokens(
@@ -2318,7 +2297,7 @@ export const ProposalThumbnail = ({ proposal }: { proposal: Proposal }) => {
   const [base, setBase] = useState<number>(
     Math.floor(
       Number(status === 'InProgress' ? proposal?.end_at : proposal?.start_at) /
-        TIMESTAMP_DIVISOR
+      TIMESTAMP_DIVISOR
     )
   );
 
@@ -2346,8 +2325,8 @@ export const ProposalThumbnail = ({ proposal }: { proposal: Proposal }) => {
             status === 'InProgress' ? proposal?.end_at : proposal?.start_at
           ) / TIMESTAMP_DIVISOR
         ) +
-          60 -
-          moment().unix(),
+        60 -
+        moment().unix(),
         'seconds'
       )
     );
@@ -2424,7 +2403,7 @@ export const ProposalThumbnail = ({ proposal }: { proposal: Proposal }) => {
   );
 };
 
-export const ReferendumPage = () => {
+export default function ReferendumPage() {
   const id = getVEPoolId();
   const lpShare = usePoolShare(id, LOVE_TOKEN_DECIMAL);
 
@@ -2434,7 +2413,7 @@ export const ReferendumPage = () => {
   const allowUnlock =
     Number(accountInfo?.unlock_timestamp || 0) > 0 &&
     Math.floor(Number(accountInfo?.unlock_timestamp || 0) / TIMESTAMP_DIVISOR) <
-      moment().unix();
+    moment().unix();
 
   const isClientMobie = useClientMobile();
   const VEmeta = useVEmeta();
@@ -2459,8 +2438,8 @@ export const ReferendumPage = () => {
             isClientMobie
               ? 'p-0'
               : allowUnlock
-              ? 'px-6 xsm:px-3 xsm:py-4 xsm:pb-10 pb-12 py-6'
-              : 'p-6 xsm:px-3 py-4'
+                ? 'px-6 xsm:px-3 xsm:py-4 xsm:pb-10 pb-12 py-6'
+                : 'p-6 xsm:px-3 py-4'
           }
           rounded="xsm:rounded-none lg:rounded-2xl"
         >

@@ -6,7 +6,7 @@ import Alert from 'src/components/alert/Alert';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { ConnectToNearBtn } from 'src/components/button/Button';
 
-export function AddTokenPage() {
+export default function AddTokenPage() {
   const [addr, setAddr] = useState('');
   const [error, setError] = useState<string>();
   const intl = useIntl();

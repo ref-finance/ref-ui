@@ -110,7 +110,7 @@ interface SearchData {
   coin: string;
 }
 
-export function FarmsPage() {
+export default function FarmsPage() {
   const intl = useIntl();
   const location = useLocation();
   const sortList = {

@@ -66,9 +66,6 @@ import {
 import getConfig from '../services/config';
 import { MobileNavLimitOrder, IconMyLiquidity } from '../components/icon/Nav';
 import {
-  SWAP_MODE_KEY,
-  SWAP_MODE,
-  REF_FI_SWAP_SWAPPAGE_TAB_KEY,
   SWAP_TYPE_KEY,
 } from '../pages/SwapPage';
 import {
