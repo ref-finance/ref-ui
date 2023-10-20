@@ -1290,7 +1290,7 @@ export const batch_remove_liquidity_contract = async ({
     selectedWalletId == 'neth' ||
     selectedWalletId == 'here-wallet'
   ) {
-    max_number = 5;
+    max_number = 2;
   }
   const transactions: Transaction[] = [];
   if (mint_liquidities.length) {
