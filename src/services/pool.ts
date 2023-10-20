@@ -1102,12 +1102,6 @@ export const removeLiquidityFromStablePool = async ({
     },
   ];
 
-  if (explorerType !== ExplorerType.Firefox) {
-    withdrawActions.forEach((item) => {
-      actions.push(item);
-    });
-  }
-
   const transactions: Transaction[] = [
     ...withDrawTransactions,
     {
@@ -1115,6 +1109,13 @@ export const removeLiquidityFromStablePool = async ({
       functionCalls: [...actions],
     },
   ];
+
+  if (explorerType !== ExplorerType.Firefox) {
+    transactions.push({
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: withdrawActions,
+    });
+  }
 
   if (explorerType === ExplorerType.Firefox) {
     transactions.push({
