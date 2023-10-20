@@ -7,7 +7,6 @@ import {
 } from '../../state/token';
 import AddLiquidityComponent from '../../components/stableswap/AddLiquidity';
 import { usePool, useStablePool } from '../../state/pool';
-import { isMobile } from '~utils/device';
 import { RemoveLiquidityComponent } from '../../components/stableswap/RemoveLiquidity';
 import TokenReserves from '../../components/stableswap/TokenReserves';
 import { useWalletTokenBalances } from '../../state/token';
@@ -16,18 +15,15 @@ import {
   SharesCard,
   StableTokens,
 } from '../../components/stableswap/CommonComp';
-import { TokenMetadata } from '../../services/ft-contract';
-import { useFarmStake } from '../../state/farm';
 import {
   BackToStablePoolList,
   Images,
 } from '../../components/stableswap/CommonComp';
-import BigNumber from 'bignumber.js';
 import { getStablePoolFromCache, Pool, StablePool } from '../../services/pool';
 import { getStableSwapTabKey } from './StableSwapPageUSN';
 import { STABLE_TOKEN_IDS } from '../../services/near';
 import { RecentTransactions } from '../pools/DetailsPage';
-import { useTokens } from '~state/token';
+import { useTokens } from '../../state/token';
 
 export const DEFAULT_ACTIONS = ['add_liquidity', 'remove_liquidity'];
 const STABLE_TOKENS = ['USDT.e', 'USDC', 'DAI'];

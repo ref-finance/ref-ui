@@ -926,6 +926,7 @@ export const batch_add_liquidity = async ({
   ) {
     split_num = 2;
   }
+  debugger;
   const transactions: Transaction[] = [];
   const n = Math.ceil(liquidityInfos.length / split_num);
   for (let i = 0; i < n; i++) {
@@ -1041,6 +1042,8 @@ export const batch_add_liquidity = async ({
       ],
     });
   }
+  console.log('888888888888888888-transactions', transactions)
+  debugger;
   return executeMultipleTransactions(transactions);
 };
 

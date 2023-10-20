@@ -7,25 +7,22 @@ import {
 } from '../../state/token';
 import { usePool, useStablePool } from '../../state/pool';
 import TokenReserves from '../../components/stableswap/TokenReserves';
-import getConfig from '~services/config';
 import { useWalletTokenBalances } from '../../state/token';
 import { useLocation, useParams } from 'react-router-dom';
 import {
   SharesCard,
   StableTokens,
 } from '../../components/stableswap/CommonComp';
-import { useFarmStake } from '../../state/farm';
 import {
   BackToStablePoolList,
   Images,
 } from '../../components/stableswap/CommonComp';
-import BigNumber from 'bignumber.js';
 import { Pool, StablePool, getStablePoolFromCache } from '../../services/pool';
 import AddLiquidityComponentUSN from '../../components/stableswap/AddLiquidityUSN';
 import { RemoveLiquidityComponentUSN } from '../../components/stableswap/RemoveLiquidityUSN';
 import { NEARX_POOL_ID, STABLE_TOKEN_USN_IDS } from '../../services/near';
 import { RecentTransactions } from '../pools/DetailsPage';
-import { useTokens } from '~state/token';
+import { useTokens } from '../../state/token';
 export const DEFAULT_ACTIONS = ['add_liquidity', 'remove_liquidity'];
 
 export const getStableSwapTabKey = (id: string | number) =>

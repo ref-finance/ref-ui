@@ -15,12 +15,12 @@ import {
   toReadableNumber,
   toInternationalCurrencySystem,
   formatWithCommas,
-} from '~utils/numbers';
+} from '../../utils/numbers';
 import { toRealSymbol } from '../../utils/token';
 import { SwapProContext } from '../../pages/SwapPage';
 import Big from 'big.js';
 import * as d3 from 'd3';
-import { isMobile } from '~utils/device';
+import { isMobile } from '../../utils/device';
 const LimitOrderChartData = createContext(null);
 export default function SwapLimitOrderChart() {
   // CONST start
