@@ -66,12 +66,49 @@ export interface FTStorageBalance {
   total: string;
   available: string;
 }
-export const ftGetStorageBalance = (
+export const ftGetStorageBalance = async (
   tokenId: string,
   accountId = getCurrentWallet()?.wallet?.getAccountId()
 ): Promise<FTStorageBalance | null> => {
   if (configV2.NO_REQUIRED_REGISTRATION_TOKEN_IDS.includes(tokenId)) {
-    return check_registration(tokenId).then((is_registration) => {
+    const r = await native_usdc_has_upgrated(tokenId);
+    if (r) {
+      return ftViewFunction(tokenId, {
+        methodName: 'storage_balance_of',
+        args: { account_id: accountId },
+      });
+    } else {
+      return check_registration(tokenId).then((is_registration) => {
+        if (is_registration) {
+          return new Promise((resove) => {
+            resove({ available: '1', total: '1' });
+          });
+        } else {
+          return new Promise((resove) => {
+            resove(null);
+          });
+        }
+      });
+    }
+  }
+  return ftViewFunction(tokenId, {
+    methodName: 'storage_balance_of',
+    args: { account_id: accountId },
+  });
+};
+
+export const native_usdc_has_upgrated = async (
+  tokenId: string,
+  accountId = getCurrentWallet()?.wallet?.getAccountId()
+) => {
+  try {
+    await ftViewFunction(tokenId, {
+      methodName: 'storage_balance_of',
+      args: { account_id: accountId },
+    });
+    return true;
+  } catch (error) {
+    await check_registration(tokenId).then((is_registration) => {
       if (is_registration) {
         return new Promise((resove) => {
           resove({ available: '1', total: '1' });
@@ -82,11 +119,8 @@ export const ftGetStorageBalance = (
         });
       }
     });
+    return false;
   }
-  return ftViewFunction(tokenId, {
-    methodName: 'storage_balance_of',
-    args: { account_id: accountId },
-  });
 };
 
 export const check_registration = (

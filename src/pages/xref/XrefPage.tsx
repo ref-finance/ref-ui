@@ -132,7 +132,7 @@ function XrefPage() {
         2,
         true
       )}`;
-      const revenueBooster = 'x2';
+      const revenueBooster = 'x1';
       setTotalDataArray([
         joinAmount,
         totalFee,

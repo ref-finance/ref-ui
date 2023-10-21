@@ -90,6 +90,7 @@ import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
 import { percentLess, percent } from '../utils/numbers';
 import { getTokenFlow } from './indexer';
 import getConfigV2 from './configV2';
+import { native_usdc_has_upgrated } from './ft-contract';
 export const REF_FI_SWAP_SIGNAL = 'REF_FI_SWAP_SIGNAL_KEY';
 const { NO_REQUIRED_REGISTRATION_TOKEN_IDS } = getConfigV2();
 
@@ -1126,13 +1127,26 @@ SwapOptions) => {
 
     if (tokenRegistered === null) {
       if (NO_REQUIRED_REGISTRATION_TOKEN_IDS.includes(token.id)) {
-        tokenOutActions.push({
-          methodName: 'register_account',
-          args: {
-            account_id: getCurrentWallet()?.wallet?.getAccountId(),
-          },
-          gas: '10000000000000',
-        });
+        const r = await native_usdc_has_upgrated(token.id);
+        if (r) {
+          tokenOutActions.push({
+            methodName: 'storage_deposit',
+            args: {
+              registration_only: true,
+              account_id: getCurrentWallet()?.wallet?.getAccountId(),
+            },
+            gas: '30000000000000',
+            amount: STORAGE_TO_REGISTER_WITH_MFT,
+          });
+        } else {
+          tokenOutActions.push({
+            methodName: 'register_account',
+            args: {
+              account_id: getCurrentWallet()?.wallet?.getAccountId(),
+            },
+            gas: '10000000000000',
+          });
+        }
       } else {
         tokenOutActions.push({
           methodName: 'storage_deposit',
