@@ -44,6 +44,7 @@ import {
   IRemoveLiquidityInfo,
 } from '../pages/poolsV3/interfaces';
 import getConfig from './config';
+import de from 'date-fns/esm/locale/de/index.js';
 const LOG_BASE = 1.0001;
 
 export const V3_POOL_FEE_LIST = [100, 400, 2000, 10000];
@@ -919,12 +920,15 @@ export const batch_add_liquidity = async ({
   selectedWalletId: string;
 }) => {
   let split_num = 10;
-  if (
-    selectedWalletId == 'ledger' ||
-    selectedWalletId == 'neth' ||
-    selectedWalletId == 'here-wallet'
-  ) {
+  let need_split = false;
+  if (selectedWalletId == 'ledger') {
     split_num = 2;
+    need_split = true;
+  } else if (selectedWalletId == 'neth') {
+    split_num = 5;
+    need_split = true;
+  } else if (selectedWalletId == 'here-wallet') {
+
   }
   const transactions: Transaction[] = [];
   const n = Math.ceil(liquidityInfos.length / split_num);
@@ -940,7 +944,7 @@ export const batch_add_liquidity = async ({
           args: {
             add_liquidity_infos: arr_i,
           },
-          gas: split_num == 2 ? '200000000000000' : '300000000000000',
+          gas: need_split ? '200000000000000' : '300000000000000',
         },
       ],
     });
@@ -1041,6 +1045,7 @@ export const batch_add_liquidity = async ({
       ],
     });
   }
+  console.log('55555555555555555-transactions', transactions)
   return executeMultipleTransactions(transactions);
 };
 
@@ -1287,16 +1292,20 @@ export const batch_remove_liquidity_contract = async ({
   let max_number = 10;
   let max_batch_update_number = 10;
   let need_split = false;
-  if (selectedWalletId == 'ledger' || selectedWalletId == 'neth') {
+  if (selectedWalletId == 'ledger') {
     max_number = 2;
     max_batch_update_number = 1;
     need_split = true;
-  }
-  if (selectedWalletId == 'here-wallet') {
+  } else if (selectedWalletId == 'neth') {
+    max_number = 5;
+    max_batch_update_number = 2;
+    need_split = true;
+  } else if (selectedWalletId == 'here-wallet') {
     max_number = 4;
     max_batch_update_number = 2;
     need_split = true;
   }
+  debugger;
   console.log('666666666666-max_number, max_batch_update_number, need_split', max_number, max_batch_update_number, need_split);
   const transactions: Transaction[] = [];
   if (mint_liquidities.length) {

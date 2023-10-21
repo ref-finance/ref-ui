@@ -1345,7 +1345,7 @@ export const batch_unStake_boost_nft = async ({
   let need_split = false;
   const max_length = 2;
   const selectedWalletId = window.selector?.store?.getState()?.selectedWalletId;
-  if (selectedWalletId == 'ledger' || selectedWalletId == 'neth') {
+  if (selectedWalletId == 'ledger') {
     need_split = true;
   }
   const transactions: Transaction[] = [];
@@ -1423,7 +1423,7 @@ export const batch_stake_boost_nft = async ({
 }: IStakeInfo) => {
   let need_split = false;
   const selectedWalletId = window.selector?.store?.getState()?.selectedWalletId;
-  if (selectedWalletId == 'ledger' || selectedWalletId == 'neth') {
+  if (selectedWalletId == 'ledger') {
     need_split = true;
   }
   const max_length = 2;
