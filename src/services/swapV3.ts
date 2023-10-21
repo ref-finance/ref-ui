@@ -930,6 +930,7 @@ export const batch_add_liquidity = async ({
   } else if (selectedWalletId == 'here-wallet') {
 
   }
+  debugger;
   const transactions: Transaction[] = [];
   const n = Math.ceil(liquidityInfos.length / split_num);
   for (let i = 0; i < n; i++) {
