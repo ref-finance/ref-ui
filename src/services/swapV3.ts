@@ -924,13 +924,10 @@ export const batch_add_liquidity = async ({
   if (selectedWalletId == 'ledger') {
     split_num = 2;
     need_split = true;
-  } else if (selectedWalletId == 'neth') {
+  } else if (selectedWalletId == 'neth' || selectedWalletId == 'here-wallet') {
     split_num = 5;
     need_split = true;
-  } else if (selectedWalletId == 'here-wallet') {
-
   }
-  debugger;
   const transactions: Transaction[] = [];
   const n = Math.ceil(liquidityInfos.length / split_num);
   for (let i = 0; i < n; i++) {
@@ -945,7 +942,7 @@ export const batch_add_liquidity = async ({
           args: {
             add_liquidity_infos: arr_i,
           },
-          gas: need_split ? '200000000000000' : '300000000000000',
+          gas: need_split ? '250000000000000' : '300000000000000',
         },
       ],
     });
@@ -1046,7 +1043,6 @@ export const batch_add_liquidity = async ({
       ],
     });
   }
-  console.log('55555555555555555-transactions', transactions)
   return executeMultipleTransactions(transactions);
 };
 
@@ -1302,12 +1298,10 @@ export const batch_remove_liquidity_contract = async ({
     max_batch_update_number = 2;
     need_split = true;
   } else if (selectedWalletId == 'here-wallet') {
-    max_number = 4;
-    max_batch_update_number = 2;
+    max_number = 10;
+    max_batch_update_number = 5;
     need_split = true;
   }
-  debugger;
-  console.log('666666666666-max_number, max_batch_update_number, need_split', max_number, max_batch_update_number, need_split);
   const transactions: Transaction[] = [];
   if (mint_liquidities.length) {
     const lpt_ids: any[] = [];
@@ -1379,21 +1373,45 @@ export const batch_remove_liquidity_contract = async ({
         ],
       });
     }
-    const widthdrawActions: any[] = [];
-    widthdrawActions.push({
-      methodName: 'withdraw_asset',
-      args: { token_id: token_x.id },
-      gas: '55000000000000',
-    });
-    widthdrawActions.push({
-      methodName: 'withdraw_asset',
-      args: { token_id: token_y.id },
-      gas: '55000000000000',
-    });
-    transactions.push({
-      receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
-      functionCalls: widthdrawActions,
-    });
+
+    if (need_split) {
+      transactions.push({
+        receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+        functionCalls: [
+          {
+            methodName: 'withdraw_asset',
+            args: { token_id: token_x.id },
+            gas: '250000000000000',
+          },
+        ],
+      });
+      transactions.push({
+        receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+        functionCalls: [
+          {
+            methodName: 'withdraw_asset',
+            args: { token_id: token_y.id },
+            gas: '250000000000000',
+          },
+        ],
+      });
+    } else {
+      const widthdrawActions: any[] = [];
+      widthdrawActions.push({
+        methodName: 'withdraw_asset',
+        args: { token_id: token_x.id },
+        gas: '100000000000000',
+      });
+      widthdrawActions.push({
+        methodName: 'withdraw_asset',
+        args: { token_id: token_y.id },
+        gas: '100000000000000',
+      });
+      transactions.push({
+        receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+        functionCalls: widthdrawActions,
+      });
+    }
   }
   const ftBalance_x = await ftGetStorageBalance(token_x.id);
   if (!ftBalance_x) {
@@ -1431,7 +1449,6 @@ export const batch_remove_liquidity_contract = async ({
       ],
     });
   }
-  console.log('8888888888888888-transactions', transactions);
   return executeMultipleTransactions(transactions);
 };
 
