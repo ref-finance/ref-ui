@@ -2414,10 +2414,10 @@
     call-me-maybe "^1.0.1"
     glob-to-regexp "^0.3.0"
 
-"@near-wallet-selector/core@7.9.1":
-  version "7.9.1"
-  resolved "https://registry.npmjs.org/@near-wallet-selector/core/-/core-7.9.1.tgz#d13d20724bd105e85b141bb2c7f35f4c07a37cad"
-  integrity sha512-BJGsTK0snZAU1Je+W9TFJG5KW+jk+Ots9LuxsALZ/wZpqSeGT+w4xw36TZt3QsEm+I84im1+L+PIIW/bM2A9rQ==
+"@near-wallet-selector/core@7.9.3":
+  version "7.9.3"
+  resolved "https://registry.npmjs.org/@near-wallet-selector/core/-/core-7.9.3.tgz#5a51b72064c9e018c0f0eb97db06b70cd58b8358"
+  integrity sha512-SNIgLnI/LeU1mwBHc5wcyOrVAqhWmFXJfVIfB1P16ziH3EKMsbs/gxcKUSPuvDagm9dZm11k+FA7bxSspavibA==
   dependencies:
     rxjs "^7.8.0"
 
@@ -2498,13 +2498,13 @@
     "@near-wallet-selector/core" "8.5.4"
     "@near-wallet-selector/my-near-wallet" "8.5.4"
 
-"@near-wallet-selector/neth@7.9.1":
-  version "7.9.1"
-  resolved "https://registry.npmjs.org/@near-wallet-selector/neth/-/neth-7.9.1.tgz#e67718a004e990ddbb85ee3c1ac3bf113123792f"
-  integrity sha512-1QW5Fifg0iASobZKf/fyLKeIJCwEve1UnUqWqQPdIJHjMll7PsvXXPoRadIGozQ1iM1Pk4qKAnC6llOeFuij5w==
+"@near-wallet-selector/neth@^7.9.1":
+  version "7.9.3"
+  resolved "https://registry.npmjs.org/@near-wallet-selector/neth/-/neth-7.9.3.tgz#d9991b136225e577c569622e1ffb64b34fdd6006"
+  integrity sha512-v5tJdb8HOCOenW+nd5dyH/aF3ISFB/Wf+PK9Qy9UL4abvLsfBam75vqiI8cMe/15pfuqF7CHC3h9Wt2/BDt4Yg==
   dependencies:
     "@metamask/detect-provider" "^2.0.0"
-    "@near-wallet-selector/core" "7.9.1"
+    "@near-wallet-selector/core" "7.9.3"
     bn.js "^5.2.0"
     ethers "^5.7.2"
     is-mobile "^3.1.1"
@@ -14795,13 +14795,6 @@ rxjs@7.8.1, rxjs@^7.8.0:
   version "7.8.1"
   resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-7.8.1.tgz#6f6f3d99ea8044291efd92e7c7fcf562c4057543"
   integrity sha512-AA3TVj+0A2iuIoQkWEK/tqFjBq2j+6PO6Y0zJcvzLAFhEFIO3HL0vls9hWLncZbAAbK0mar7oZ4V079I/qPMxg==
-  dependencies:
-    tslib "^2.1.0"
-
-rxjs@^7.5.5:
-  version "7.8.0"
-  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-7.8.0.tgz#90a938862a82888ff4c7359811a595e14e1e09a4"
-  integrity sha512-F2+gxDshqmIub1KdvZkaEfGDwLNpPvk9Fs6LD/MyQxNgMds/WH9OdDDXOmxUZpME+iSK3rQCctkL0DYyytUqMg==
   dependencies:
     tslib "^2.1.0"
 

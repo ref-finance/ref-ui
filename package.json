@@ -149,7 +149,7 @@
     "recharts": "^2.1.6",
     "reconnecting-websocket": "^4.4.0",
     "respinner": "^3.0.8",
-    "rxjs": "^7.5.5",
+    "rxjs": "7.8.1",
     "socket.io-client": "^4.5.4",
     "swiper": "^6.8.4"
   },
