@@ -70,7 +70,7 @@ import {
 } from '../../pages/Orderly/orderly/utils';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../../pages/Orderly/components/UserBoard/index';
 import { openUrl } from '../../services/commonV3';
-import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from '~src/constants';
+import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from 'src/constants';
 
 export function Logout() {
   const { wallet } = getCurrentWallet();

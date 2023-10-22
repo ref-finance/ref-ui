@@ -104,7 +104,7 @@ import {
   DownTriangleIcon,
 } from 'src/components/icon/Nav';
 import { openUrl } from '../../services/commonV3';
-import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from '~src/constants';
+import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from 'src/constants';
 
 const config = getConfig();
 

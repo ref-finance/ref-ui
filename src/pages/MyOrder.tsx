@@ -59,7 +59,7 @@ import { HiOutlineExternalLink } from '../components/reactIcons';
 import getConfig from 'src/services/config';
 import _ from 'lodash';
 import { HistoryOrderSwapInfo } from '../services/indexer';
-import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from '~src/constants';
+import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from 'src/constants';
 
 const ORDER_TYPE_KEY = 'REF_FI_ORDER_TYPE_VALUE';
 

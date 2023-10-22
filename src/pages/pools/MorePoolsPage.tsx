@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { PoolDb } from '~store/RefDatabase';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { Card } from '../../components/card/Card';
 import {
