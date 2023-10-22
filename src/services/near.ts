@@ -2,7 +2,6 @@ import {
   Near,
   keyStores,
   utils,
-  WalletConnection,
   providers,
 } from 'near-api-js';
 import { functionCall } from 'near-api-js/lib/transaction';

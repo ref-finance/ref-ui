@@ -5,8 +5,6 @@ import {
   Near,
   keyStores,
   utils,
-  WalletConnection,
-  providers,
 } from 'near-api-js';
 import {
   Transaction as WSTransaction,
