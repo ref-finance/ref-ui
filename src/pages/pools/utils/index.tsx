@@ -1,5 +1,5 @@
-import { Pool } from "~src/services/pool";
-import { scientificNotationToString, toPrecision } from "~src/utils/numbers";
+import { Pool } from "src/services/pool";
+import { scientificNotationToString, toPrecision } from "src/utils/numbers";
 
 export const REF_FI_POOL_ACTIVE_TAB = 'REF_FI_POOL_ACTIVE_TAB_VALUE';
 
