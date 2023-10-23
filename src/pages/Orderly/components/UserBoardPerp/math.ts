@@ -262,7 +262,7 @@ const getTotalCollateral = (
 
   const total_collateral_value = new Big(
     curHoldingOut.holding + curHoldingOut.pending_short
-  ).plus(unsettle);
+  );
 
   return total_collateral_value;
 };
