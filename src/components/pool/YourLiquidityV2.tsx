@@ -55,7 +55,7 @@ import { WalletContext } from '../../utils/wallets-integration';
 import { list_farmer_seeds, list_seed_farms } from '../../services/farm';
 import getConfig from '../../services/config';
 import { LinkArrowIcon, NFTIdIcon } from 'src/components/icon/FarmBoost';
-import { get_detail_the_liquidity_refer_to_seed } from '../../pages/poolsV3/YourLiquidityPageV3';
+import { get_detail_the_liquidity_refer_to_seed } from '../../pages/poolsV3/utils';
 import { LinkIcon, WaterDropIcon } from '../../components/icon/Portfolio';
 import { UpDownButton } from '../portfolio/Tool';
 import { ftGetTokenMetadata, TokenMetadata } from 'src/services/ft-contract';

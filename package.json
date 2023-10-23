@@ -159,9 +159,7 @@
     "swiper": "^6.8.4",
     "web3-eth-abi": "1.8.2"
   },
-  "browserslist": [
-    "last 2 Chrome versions"
-  ],
+  "browserslist": "last 2 versions",
   "resolutions": {
     "@types/react": "17.0.2",
     "@types/react-dom": "17.0.2",

@@ -174,7 +174,6 @@ input[type='number'] {
   background: rgba(0, 0, 0, 0.9);
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.9);
   backdrop-filter: blur(8.5px);
-  -webkit-backdrop-filter: blur(8.5px);
 }
 
 .tooltip {
@@ -367,7 +366,6 @@ input[type='number'] {
 
 .filter-blur {
   backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
 }
 input.normal-input:focus {
   border: 1px solid #00c6a2;
