@@ -68,7 +68,7 @@ import {
   sort_tokens_by_base,
 } from 'src/services/commonV3';
 import { LinkArrowIcon } from 'src/components/icon/FarmBoost';
-import { get_detail_the_liquidity_refer_to_seed } from './YourLiquidityPageV3';
+import { get_detail_the_liquidity_refer_to_seed } from './utils';
 const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
 import ReactTooltip from 'react-tooltip';
 import { isMobile } from 'src/utils/device';
