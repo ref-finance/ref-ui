@@ -72,7 +72,7 @@
     "@near-wallet-selector/modal-ui": "^8.5.4",
     "@near-wallet-selector/my-near-wallet": "^8.5.4",
     "@near-wallet-selector/near-wallet": "^8.5.4",
-    "@near-wallet-selector/neth": "^8.5.4",
+    "@near-wallet-selector/neth": "^7.9.1",
     "@near-wallet-selector/nightly": "^8.5.4",
     "@near-wallet-selector/sender": "^8.5.4",
     "@near-wallet-selector/wallet-connect": "^8.5.4",
@@ -149,7 +149,7 @@
     "recharts": "^2.1.6",
     "reconnecting-websocket": "^4.4.0",
     "respinner": "^3.0.8",
-    "rxjs": "^7.5.5",
+    "rxjs": "^7.8.1",
     "socket.io-client": "^4.5.4",
     "swiper": "^6.8.4"
   },

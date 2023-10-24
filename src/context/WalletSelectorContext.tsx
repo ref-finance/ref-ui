@@ -127,7 +127,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
           iconUrl: walletIcons['neth'],
           gas: '300000000000000',
           bundle: false,
-        }),
+        }) as any,
         // @ts-ignore
         setupNightly({
           iconUrl: walletIcons['nightly'],
