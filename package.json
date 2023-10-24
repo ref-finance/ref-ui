@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "license": "MIT OR Apache-2.0",
   "scripts": {
-    "build": "parcel build src/index.html",
+    "build": "parcel build src/index.html && gzip -k dist/*.js dist/*.css",
     "build:testnet": "NEAR_ENV=testnet parcel build src/index.html && gzip -k dist/*.js dist/*.css",
     "build:pub-testnet": "NEAR_ENV=pub-testnet parcel build src/index.html && gzip -k dist/*.js dist/*.css",
     "build:mainnet": "NEAR_ENV=mainnet parcel build src/index.html && gzip -k dist/*.js dist/*.css",
