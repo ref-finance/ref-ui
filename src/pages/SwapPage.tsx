@@ -11,8 +11,6 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { useTriTokenIdsOnRef } from '../services/aurora/aurora';
 import { TokenMetadata } from '../services/ft-contract';
 
-export const REF_FI_SWAP_SWAPPAGE_TAB_KEY = 'REF_FI_SWAP_SWAPPAGE_TAB_VALUE';
-
 import {
   nearMetadata,
   WRAP_NEAR_CONTRACT_ID,
@@ -25,7 +23,6 @@ import SwapRateChart from '../components/swap/SwapRateChart';
 import { EstimateSwapView } from '../services/swap';
 import { TradeRoute } from '../components/layout/SwapRoutes';
 import { MarketList } from '../components/layout/SwapRoutes';
-import MyOrderPage from './MyOrder';
 import MyOrderComponent from './Orderly/components/MyOrder';
 import { useWalletSelector } from '../context/WalletSelectorContext';
 import { useClientMobile } from '../utils/device';

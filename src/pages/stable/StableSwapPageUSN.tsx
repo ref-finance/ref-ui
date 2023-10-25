@@ -7,7 +7,7 @@ import {
 } from '../../state/token';
 import { usePool, useStablePool } from '../../state/pool';
 import TokenReserves from '../../components/stableswap/TokenReserves';
-import getConfig from '~services/config';
+import getConfig from 'src/services/config';
 import { useWalletTokenBalances } from '../../state/token';
 import { useLocation, useParams } from 'react-router-dom';
 import {

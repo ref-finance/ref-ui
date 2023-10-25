@@ -61,7 +61,7 @@ import {
   getAddLiquidityShares,
   getRemoveLiquidityByTokens,
 } from '../services/stable-swap';
-import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
+import { STABLE_LP_TOKEN_DECIMALS } from 'src/components/stableswap/AddLiquidity';
 import BigNumber from 'bignumber.js';
 import moment from 'moment';
 import {
@@ -82,7 +82,6 @@ import {
   getRefPoolsByToken1ORToken2,
 } from '../services/pool';
 import Big from 'big.js';
-import { getPoolFeeAprTitle } from '../pages/pools/LiquidityPage';
 import { getPoolFeeAprTitleRPCView } from '../pages/pools/MorePoolsPage';
 import { PoolInfo, get_pool } from '../services/swapV3';
 import { useTokenPriceList } from './token';

@@ -7,7 +7,7 @@ import {
 } from '../../state/token';
 import AddLiquidityComponent from '../../components/stableswap/AddLiquidity';
 import { usePool, useStablePool } from '../../state/pool';
-import { isMobile } from '~utils/device';
+import { isMobile } from 'src/utils/device';
 import { RemoveLiquidityComponent } from '../../components/stableswap/RemoveLiquidity';
 import TokenReserves from '../../components/stableswap/TokenReserves';
 import { useWalletTokenBalances } from '../../state/token';

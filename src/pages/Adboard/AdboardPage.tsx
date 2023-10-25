@@ -8,7 +8,7 @@ import Loading from '../../components/layout/Loading';
 import { AdboardMetadata } from '../../services/adboard';
 import Icon from '../../components/tokens/Icon';
 import { toReadableNumber } from '../../utils/numbers';
-import { toRealSymbol } from '~utils/token';
+import { toRealSymbol } from 'src/utils/token';
 
 export default function AdboardPage() {
   const adboardCanvasRef = useRef<HTMLCanvasElement>();

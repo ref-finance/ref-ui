@@ -7,19 +7,19 @@ import {
   IAssetRewardDetail,
   IBurrowConfig,
   IModalProps,
-} from '~services/burrow-interfaces';
-import { getExtraApy, getPortfolioRewards } from '~services/burrow-business';
+} from 'src/services/burrow-interfaces';
+import { getExtraApy, getPortfolioRewards } from 'src/services/burrow-business';
 import Big from 'big.js';
 import {
   shrinkToken,
   toAPY,
   formatNumber,
   formatWithCommas_usd,
-} from '~services/burrow-utils';
+} from 'src/services/burrow-utils';
 import ModalBox from './ModalBox';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
-import { ConnectToNearBtn } from '~components/button/Button';
-import { isMobile } from '~utils/device';
+import { ConnectToNearBtn } from 'src/components/button/Button';
+import { isMobile } from 'src/utils/device';
 import { FormattedMessage, useIntl } from 'react-intl';
 const is_mobile = isMobile();
 export default function YourBorrowed() {

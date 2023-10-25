@@ -76,7 +76,7 @@ import {
 import getConfig from '../../config';
 import { AssetModal } from '../AssetModal';
 import ReactTooltip from 'react-tooltip';
-import { ButtonTextWrapper } from '~components/button/Button';
+import { ButtonTextWrapper } from 'src/components/button/Button';
 import { ONLY_ZEROS } from '../../../../utils/numbers';
 import * as math from 'mathjs';
 import { getSelectedWalletId } from '../../orderly/utils';

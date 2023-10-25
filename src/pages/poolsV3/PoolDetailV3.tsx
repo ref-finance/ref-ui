@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext, useMemo, useRef } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import { Card } from '~components/card/Card';
+import { Card } from 'src/components/card/Card';
 import { Link } from 'react-router-dom';
 import {
   calculateFairShare,
@@ -14,14 +14,14 @@ import {
   formatWithCommas,
 } from '../../utils/numbers';
 import { useClientMobile, isClientMobie } from '../../utils/device';
-import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
-import { isMobile } from '~utils/device';
-import { toRealSymbol } from '~utils/token';
+import { ftGetTokenMetadata, TokenMetadata } from 'src/services/ft-contract';
+import { isMobile } from 'src/utils/device';
+import { toRealSymbol } from 'src/utils/token';
 import { useHistory } from 'react-router';
 import { BigNumber } from 'bignumber.js';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { PoolTabV3 } from '../../components/pool/PoolTabV3';
-import { BreadCrumb } from '~components/layout/BreadCrumb';
+import { BreadCrumb } from 'src/components/layout/BreadCrumb';
 import {
   get_pool,
   PoolInfo,
@@ -30,7 +30,7 @@ import {
   get_pool_marketdepth,
   claim_all_liquidity_fee,
   get_metadata,
-} from '~services/swapV3';
+} from 'src/services/swapV3';
 import {
   UserLiquidityInfo,
   getPriceByPoint,
@@ -49,13 +49,13 @@ import {
   get_pool_id,
   get_pool_name,
   openUrl,
-} from '~services/commonV3';
+} from 'src/services/commonV3';
 import { ftGetTokensMetadata } from '../../services/ft-contract';
 import {
   WatchListStartEmpty,
   WatchListStartFull,
 } from '../../components/icon/WatchListStar';
-import Loading from '~components/layout/Loading';
+import Loading from 'src/components/layout/Loading';
 import { useTokenPriceList } from '../../state/token';
 import {
   getBoostTokenPrices,
@@ -72,7 +72,7 @@ import {
   Pool,
   PoolDetails,
   removePoolFromWatchList,
-} from '~services/pool';
+} from 'src/services/pool';
 import ReactTooltip from 'react-tooltip';
 import {
   VolumeChart,
@@ -82,20 +82,20 @@ import {
   MobileChartChangeButton,
 } from '../pools/DetailsPage';
 import { BlueCircleLoading } from '../../components/layout/Loading';
-import { ChartNoData } from '~components/icon/ChartNoData';
+import { ChartNoData } from 'src/components/icon/ChartNoData';
 import {
   GradientButton,
   OprationButton,
   ButtonTextWrapper,
   BorderButton,
   SolidButton,
-} from '~components/button/Button';
-import { RemovePoolV3 } from '~components/pool/RemovePoolV3';
-import { AddPoolV3 } from '~components/pool/AddPoolV3';
+} from 'src/components/button/Button';
+import { RemovePoolV3 } from 'src/components/pool/RemovePoolV3';
+import { AddPoolV3 } from 'src/components/pool/AddPoolV3';
 import Modal from 'react-modal';
-import { ModalClose } from '~components/icon';
-import { useV3VolumeChart, useV3TvlChart } from '~state/pool';
-import { getV3Pool24VolumeById } from '~services/indexer';
+import { ModalClose } from 'src/components/icon';
+import { useV3VolumeChart, useV3TvlChart } from 'src/state/pool';
+import { getV3Pool24VolumeById } from 'src/services/indexer';
 import {
   list_farmer_seeds,
   list_seed_farms,

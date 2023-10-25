@@ -3,17 +3,17 @@ import React, { useEffect, useMemo, useState, useContext, useRef } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { WalletContext } from '../../utils/wallets-integration';
 import { useHistory } from 'react-router-dom';
-import { Card } from '~components/card/Card';
-import { isMobile } from '~utils/device';
-import { ModalClose } from '~components/icon';
+import { Card } from 'src/components/card/Card';
+import { isMobile } from 'src/utils/device';
+import { ModalClose } from 'src/components/icon';
 import { TokenMetadata } from '../../services/ft-contract';
-import { SwitchButton, Slider } from '~components/icon/V3';
+import { SwitchButton, Slider } from 'src/components/icon/V3';
 import {
   GradientButton,
   ButtonTextWrapper,
   ConnectToNearBtn,
 } from '../../components/button/Button';
-import { PoolSlippageSelectorV3 } from '~components/forms/SlippageSelector';
+import { PoolSlippageSelectorV3 } from 'src/components/forms/SlippageSelector';
 import Modal from 'react-modal';
 import BigNumber from 'bignumber.js';
 import {
@@ -21,7 +21,7 @@ import {
   toReadableNumber,
   toNonDivisibleNumber,
   formatWithCommas,
-} from '~utils/numbers';
+} from 'src/utils/numbers';
 import {
   getPriceByPoint,
   CONSTANT_D,

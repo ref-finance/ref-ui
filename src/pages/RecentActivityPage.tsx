@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import ActionSheet, { ActionSheetRef } from 'actionsheet-react';
-import { getLatestActions, ActionData } from '~services/indexer';
-import Loading from '~components/layout/Loading';
-import { Card } from '~components/card/Card';
+import { getLatestActions, ActionData } from 'src/services/indexer';
+import Loading from 'src/components/layout/Loading';
+import { Card } from 'src/components/card/Card';
 import { FormattedMessage } from 'react-intl';
-import { mapToView } from '~components/icon/Actions';
+import { mapToView } from 'src/components/icon/Actions';
 import moment from 'moment';
-import { wallet as webWallet } from '~services/near';
-import getConfig from '~services/config';
-import { GradientButton, GrayButton } from '~components/button/Button';
+import { wallet as webWallet } from 'src/services/near';
+import getConfig from 'src/services/config';
+import { GradientButton, GrayButton } from 'src/components/button/Button';
 import Modal from 'react-modal';
-import { isMobile } from '~utils/device';
+import { isMobile } from 'src/utils/device';
 const config = getConfig();
 import { useHistory } from 'react-router';
 import { getCurrentWallet, WalletContext } from '../utils/wallets-integration';
@@ -32,7 +32,7 @@ function useLastActions() {
 
   return actions;
 }
-export function RecentActivityPage() {
+export default function RecentActivityPage() {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
 

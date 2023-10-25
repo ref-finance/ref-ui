@@ -3,7 +3,7 @@ import YourSupplied from './your-suppiled';
 import YourBorrowed from './your-borrowed';
 import SuppliedMarket from './supplied-market';
 import BorrowedMarket from './borrowed-market';
-import { isMobile } from '~utils/device';
+import { isMobile } from 'src/utils/device';
 const is_mobile = isMobile();
 export default function TableBox(props: any) {
   const { activeTab } = props;

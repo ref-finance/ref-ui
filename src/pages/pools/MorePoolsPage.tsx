@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { PoolDb } from '~store/RefDatabase';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { Card } from '../../components/card/Card';
 import {
@@ -39,7 +38,7 @@ import { useClientMobile } from '../../utils/device';
 import { PoolTabV3 } from '../../components/pool/PoolTabV3';
 import Loading from '../../components/layout/Loading';
 import { FarmStampNew } from '../../components/icon/FarmStamp';
-import { getPoolListFarmAprTip } from './LiquidityPage';
+import { getPoolListFarmAprTip } from './utils';
 import ReactTooltip from 'react-tooltip';
 
 interface ParamTypes {
@@ -174,10 +173,10 @@ function PoolRow({
         {!pool.h24volume
           ? '-'
           : Number(pool.h24volume) == 0
-          ? '$0'
-          : Number(pool.h24volume) < 0.01
-          ? '$ <0.01'
-          : `$${toInternationalCurrencySystem(pool.h24volume)}`}
+            ? '$0'
+            : Number(pool.h24volume) < 0.01
+              ? '$ <0.01'
+              : `$${toInternationalCurrencySystem(pool.h24volume)}`}
       </div>
 
       <div
@@ -315,10 +314,10 @@ const MobileRow = ({
               {!pool.h24volume
                 ? '-'
                 : Number(pool.h24volume) == 0
-                ? '$0'
-                : Number(pool.h24volume) < 0.01
-                ? '$ <0.01'
-                : `$${toInternationalCurrencySystem(pool.h24volume)}`}
+                  ? '$0'
+                  : Number(pool.h24volume) < 0.01
+                    ? '$ <0.01'
+                    : `$${toInternationalCurrencySystem(pool.h24volume)}`}
             </div>
           </div>
 
@@ -350,7 +349,7 @@ export function getPoolFeeAprTitleRPCView(
   return Number(result);
 }
 
-export const MorePoolsPage = () => {
+export default function MorePoolsPage() {
   const { state } = useLocation<LocationTypes>();
   const [sortBy, setSortBy] = useState('tvl');
   const [order, setOrder] = useState<boolean | 'desc' | 'asc'>('desc');
@@ -449,9 +448,8 @@ export const MorePoolsPage = () => {
               >
                 <div
                   className={`mr-1 cursor-pointer
-                ${sortBy !== 'total_fee' ? 'hover:text-white' : ''} ${
-                    sortBy === 'total_fee' ? 'text-gradientFrom' : ''
-                  }
+                ${sortBy !== 'total_fee' ? 'hover:text-white' : ''} ${sortBy === 'total_fee' ? 'text-gradientFrom' : ''
+                    }
                 
                 `}
                 >
@@ -491,9 +489,8 @@ export const MorePoolsPage = () => {
               >
                 <span
                   className={`mr-1 cursor-pointer
-                         ${sortBy !== 'apr' ? 'hover:text-white' : ''} ${
-                    sortBy === 'apr' ? 'text-gradientFrom' : ''
-                  }
+                         ${sortBy !== 'apr' ? 'hover:text-white' : ''} ${sortBy === 'apr' ? 'text-gradientFrom' : ''
+                    }
                 `}
                 >
                   <FormattedMessage id="apr" defaultMessage="APR" />
@@ -533,9 +530,8 @@ export const MorePoolsPage = () => {
                 <div
                   className={`mr-1 cursor-pointer whitespace-nowrap
                 
-                ${sortBy !== 'h24volume' ? 'hover:text-white' : ''} ${
-                    sortBy === 'h24volume' ? 'text-gradientFrom' : ''
-                  }
+                ${sortBy !== 'h24volume' ? 'hover:text-white' : ''} ${sortBy === 'h24volume' ? 'text-gradientFrom' : ''
+                    }
                 `}
                 >
                   <FormattedMessage
@@ -557,9 +553,8 @@ export const MorePoolsPage = () => {
 
               <div
                 className={`col-span-1 flex justify-self-end relative right-6 items-center cursor-pointer
-                ${sortBy !== 'tvl' ? 'hover:text-white' : ''} ${
-                  sortBy === 'tvl' ? 'text-gradientFrom' : ''
-                }
+                ${sortBy !== 'tvl' ? 'hover:text-white' : ''} ${sortBy === 'tvl' ? 'text-gradientFrom' : ''
+                  }
                 `}
                 onClick={() => {
                   setSortBy('tvl');

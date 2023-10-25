@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useHistory } from 'react-router-dom';
-import { isClientMobie, useClientMobile } from '~utils/device';
+import { isClientMobie, useClientMobile } from 'src/utils/device';
 import { SolidButton, ButtonTextWrapper } from '../components/button/Button';
 import { useMyOrders } from '../state/swapV3';
 import { refSwapV3OldVersionViewFunction } from '../services/near';
@@ -19,8 +19,7 @@ import {
 import { useToken, useTokens, useTokenPriceList } from '../state/token';
 import {
   SWAP_MODE,
-  SWAP_MODE_KEY,
-  REF_FI_SWAP_SWAPPAGE_TAB_KEY,
+  SWAP_MODE_KEY
 } from './SwapPage';
 import {
   MobileHistoryOrderStamp,
@@ -28,7 +27,7 @@ import {
   MyOrderMask,
   MyOrderMask2,
 } from '../components/icon/swapV3';
-import { calculateFeePercent, ONLY_ZEROS, toPrecision } from '~utils/numbers';
+import { calculateFeePercent, ONLY_ZEROS, toPrecision } from 'src/utils/numbers';
 
 import { BsCheckCircle } from '../components/reactIcons';
 
@@ -43,7 +42,7 @@ import { cancel_order, cancel_order_old } from '../services/swapV3';
 import { TIMESTAMP_DIVISOR } from '../components/layout/Proposal';
 import moment from 'moment';
 import { DownArrowVE, UpArrowVE } from '../components/icon/Referendum';
-import { Loading } from '~components/icon/Loading';
+import { Loading } from 'src/components/icon/Loading';
 import { RouterArrowLeft, MyOrderMobileArrow } from '../components/icon/Arrows';
 import QuestionMark from '../components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
@@ -57,9 +56,10 @@ import { refSwapV3ViewFunction } from '../services/near';
 import { useWalletSelector } from '../context/WalletSelectorContext';
 import { useHistoryOrderTx, useHistoryOrderSwapInfo } from '../state/myOrder';
 import { HiOutlineExternalLink } from '../components/reactIcons';
-import getConfig from '~services/config';
+import getConfig from 'src/services/config';
 import _ from 'lodash';
 import { HistoryOrderSwapInfo } from '../services/indexer';
+import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from 'src/constants';
 
 const ORDER_TYPE_KEY = 'REF_FI_ORDER_TYPE_VALUE';
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { TokenMetadata } from '~services/ft-contract';
-import { TokenBalancesView } from '~services/token';
+import { TokenMetadata } from 'src/services/ft-contract';
+import { TokenBalancesView } from 'src/services/token';
 import { tokenPrice } from './SelectToken';
 import {
   multiply,

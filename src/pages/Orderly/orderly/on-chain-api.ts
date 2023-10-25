@@ -1,19 +1,4 @@
 import {
-  providers,
-  KeyPair,
-  connect,
-  WalletConnection,
-  utils,
-} from 'near-api-js';
-
-import {
-  addKey,
-  AddKey,
-  functionCallAccessKey,
-} from 'near-api-js/lib/transaction';
-
-import { PublicKey } from 'near-api-js/lib/utils';
-import {
   near,
   orderlyViewFunction,
   config,

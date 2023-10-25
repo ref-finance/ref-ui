@@ -10,11 +10,11 @@ import { toPrecision, toReadableNumber } from '../../utils/numbers';
 import { Card } from '../card/Card';
 import TokenAmount from '../forms/TokenAmount';
 import { TokenBalancesView, withdraw } from '../../services/token';
-import { REF_FARM_CONTRACT_ID, wallet } from '~services/near';
-import { isMobile } from '~utils/device';
-import { toRealSymbol } from '~utils/token';
+import { REF_FARM_CONTRACT_ID, wallet } from 'src/services/near';
+import { isMobile } from 'src/utils/device';
+import { toRealSymbol } from 'src/utils/token';
 import { FormattedMessage } from 'react-intl';
-import { ButtonTextWrapper, GradientButton } from '~components/button/Button';
+import { ButtonTextWrapper, GradientButton } from 'src/components/button/Button';
 import { IoCloseOutline } from '../reactIcons';
 import BigNumber from 'bignumber.js';
 

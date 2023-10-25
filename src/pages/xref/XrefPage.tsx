@@ -1,34 +1,34 @@
 import React, { useEffect, useState, useContext } from 'react';
-import Loading from '~components/layout/Loading';
+import Loading from 'src/components/layout/Loading';
 import {
   XrefLogo,
   XrefSymbol,
   RefSymbol,
   XrefIconWhole,
-} from '~components/icon/Xref';
-import { SmallWallet } from '~components/icon/SmallWallet';
-import OldInputAmount from '~components/forms/OldInputAmount';
+} from 'src/components/icon/Xref';
+import { SmallWallet } from 'src/components/icon/SmallWallet';
+import OldInputAmount from 'src/components/forms/OldInputAmount';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
   GradientButton,
   ButtonTextWrapper,
   ConnectToNearBtn,
-} from '~components/button/Button';
+} from 'src/components/button/Button';
 import BigNumber from 'bignumber.js';
-import { isMobile } from '~utils/device';
+import { isMobile } from 'src/utils/device';
 import { FaExchangeAlt } from '../../components/reactIcons';
 import {
   toReadableNumber,
   toPrecision,
   niceDecimals,
   formatWithCommas,
-} from '~utils/numbers';
-import getConfig from '~services/config';
+} from 'src/utils/numbers';
+import getConfig from 'src/services/config';
 import {
   ftGetBalance,
   ftGetTokenMetadata,
   TokenMetadata,
-} from '~services/ft-contract';
+} from 'src/services/ft-contract';
 import {
   metadata,
   getPrice,
@@ -36,15 +36,11 @@ import {
   unstake,
   XREF_TOKEN_DECIMALS,
   XrefMetaData,
-} from '~services/xref';
-import { wallet } from '~services/near';
-import QuestionMark from '~components/farm/QuestionMark';
+} from 'src/services/xref';
+import QuestionMark from 'src/components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
-import { index } from 'mathjs';
 import {
-  senderWallet,
   WalletContext,
-  getCurrentWallet,
 } from '../../utils/wallets-integration';
 const {
   XREF_TOKEN_ID,

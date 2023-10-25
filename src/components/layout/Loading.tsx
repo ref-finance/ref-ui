@@ -1,7 +1,7 @@
 import React from 'react';
 import { BeatLoader, ClipLoader } from 'react-spinners';
 import Loader from 'react-spinners/ClipLoader';
-// import { Loading } from '~components/icon/Loading';
+// import { Loading } from 'src/components/icon/Loading';
 import { Loading, RefreshTrangle } from './../icon/Loading';
 
 export default function () {

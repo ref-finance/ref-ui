@@ -5,13 +5,13 @@ import React, {
   useContext,
   useMemo,
 } from 'react';
-import { isMobile } from '~utils/device';
+import { isMobile } from 'src/utils/device';
 import Navigation, {
   NavigationMobile,
 } from '../components/portfolio/Navigation';
 
 import { WalletContext } from '../utils/wallets-integration';
-import { getBoostTokenPrices } from '~services/farm';
+import { getBoostTokenPrices } from 'src/services/farm';
 import OrderlyPanel from '../components/overview/OrderlyPanel';
 import RefPanel from '../components/overview/RefPanel';
 import BurrowPanel from '../components/overview/BurrowPanel';
@@ -21,7 +21,7 @@ import { useWalletSelector } from '../context/WalletSelectorContext';
 import Big from 'big.js';
 export const OverviewData = createContext(null);
 const is_mobile = isMobile();
-function Overview() {
+export default function Overview() {
   const { globalState } = useContext(WalletContext);
   const { accountId } = useWalletSelector();
   const isSignedIn = globalState.isSignedIn;
@@ -140,7 +140,6 @@ function Overview() {
     </OverviewData.Provider>
   );
 }
-export default Overview;
 
 function OverviewPc() {
   return (

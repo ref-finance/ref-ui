@@ -1,7 +1,7 @@
 import React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useState, useEffect } from 'react';
-import { ArrowDownHollow } from '~components/icon';
+import { ArrowDownHollow } from 'src/components/icon';
 
 export default function UnClaim(props: { unclaimed: any }) {
   const [showClaim, setShowClaim] = useState(false);

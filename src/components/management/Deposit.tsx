@@ -9,7 +9,7 @@ import { nearMetadata, wrapNear } from '../../services/wrap-near';
 import { useCurrentStorageBalance } from '../../state/account';
 import { ACCOUNT_MIN_STORAGE_AMOUNT } from '../../services/account';
 import { STORAGE_PER_TOKEN } from '../../services/creators/storage';
-import { toRealSymbol } from '~utils/token';
+import { toRealSymbol } from 'src/utils/token';
 import { useIntl } from 'react-intl';
 
 export default function Deposit({ tokens }: { tokens: TokenMetadata[] }) {

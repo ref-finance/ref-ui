@@ -14,7 +14,7 @@ import { REF_ADBOARD_CONTRACT_ID } from '../../services/near';
 import Alert from '../../components/alert/Alert';
 import { toNonDivisibleNumber, toReadableNumber } from '../../utils/numbers';
 import db from '../../store/RefDatabase';
-import { toRealSymbol } from '~utils/token';
+import { toRealSymbol } from 'src/utils/token';
 
 interface BuyModalProps {
   metadata: AdboardMetadata;

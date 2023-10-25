@@ -7,7 +7,7 @@ import React, {
   createContext,
 } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { isMobile } from '~utils/device';
+import { isMobile } from 'src/utils/device';
 import {
   ArrowLeftIcon,
   UpArrowIcon,
@@ -18,12 +18,12 @@ import {
   LinkArrowIcon,
   NewTag,
   CalcIcon,
-} from '~components/icon/FarmBoost';
-import { RefreshIcon } from '~components/icon/swapV3';
-import { AddButtonIcon } from '~components/icon/V3';
+} from 'src/components/icon/FarmBoost';
+import { RefreshIcon } from 'src/components/icon/swapV3';
+import { AddButtonIcon } from 'src/components/icon/V3';
 import { useHistory, useLocation } from 'react-router-dom';
 import getConfig from '../../services/config';
-import { LinkIcon, ArrowDownHollow } from '~components/icon';
+import { LinkIcon, ArrowDownHollow } from 'src/components/icon';
 import {
   FarmBoost,
   Seed,
@@ -31,7 +31,7 @@ import {
   BoostConfig,
   stake_boost_nft,
   unStake_boost_nft,
-} from '~services/farm';
+} from 'src/services/farm';
 import { WalletContext } from '../../utils/wallets-integration';
 import {
   toPrecision,
@@ -47,10 +47,10 @@ import {
   ButtonTextWrapper,
   OprationButton,
   ConnectToNearBtn,
-} from '~components/button/Button';
-import { getMftTokenId, toRealSymbol } from '~utils/token';
+} from 'src/components/button/Button';
+import { getMftTokenId, toRealSymbol } from 'src/utils/token';
 import ReactTooltip from 'react-tooltip';
-import QuestionMark from '~components/farm/QuestionMark';
+import QuestionMark from 'src/components/farm/QuestionMark';
 import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import {
   getPriceByPoint,
@@ -68,10 +68,10 @@ import {
   sort_tokens_by_base,
   get_pool_name,
   openUrl,
-} from '~services/commonV3';
+} from 'src/services/commonV3';
 import { list_liquidities, dcl_mft_balance_of } from '../../services/swapV3';
-import { AddNewPoolV3 } from '~components/pool/AddNewPoolV3';
-import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
+import { AddNewPoolV3 } from 'src/components/pool/AddNewPoolV3';
+import { ftGetTokenMetadata, TokenMetadata } from 'src/services/ft-contract';
 import CalcModelDcl from '../../components/farm/CalcModelDcl';
 import moment from 'moment';
 const ONLY_ZEROS = /^0*\.?0*$/;

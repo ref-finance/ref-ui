@@ -12,11 +12,11 @@ import { nearMetadata, wrapNear } from '../services/wrap-near';
 import { useDepositableBalance } from '../state/token';
 import TokenAmount from '../components/forms/TokenAmount';
 import { deposit } from '../services/token';
-import { wallet } from '~services/near';
+import { wallet } from 'src/services/near';
 import { Balances } from '../components/deposit/Deposit';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { ConnectToNearBtn, ButtonTextWrapper } from '~components/button/Button';
-import { STORAGE_PER_TOKEN } from '~services/creators/storage';
+import { ConnectToNearBtn, ButtonTextWrapper } from 'src/components/button/Button';
+import { STORAGE_PER_TOKEN } from 'src/services/creators/storage';
 import { BigNumber } from 'bignumber.js';
 
 function DepositBtn(props: {

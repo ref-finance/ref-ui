@@ -1,6 +1,6 @@
 import React from 'react';
-import { LightBulb, Setting } from '~components/icon/Near';
-import { ModalClose } from '~components/icon';
+import { LightBulb, Setting } from 'src/components/icon/Near';
+import { ModalClose } from 'src/components/icon';
 import { FormattedMessage } from 'react-intl';
 import { useState, useEffect } from 'react';
 

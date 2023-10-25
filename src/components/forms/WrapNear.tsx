@@ -10,7 +10,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import Modal from 'react-modal';
 import Alert from '../../components/alert/Alert';
 import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';
-import { wallet } from '~services/near';
+import { wallet } from 'src/services/near';
 import {
   nearMetadata,
   nearDeposit,

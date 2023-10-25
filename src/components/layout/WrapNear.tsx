@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { WrapNearIconDark, WrapNearIconLight } from '~components/icon';
+import { WrapNearIconDark, WrapNearIconLight } from 'src/components/icon';
 
 export function WrapNearIcon() {
   const [hover, setHover] = useState<boolean>(false);

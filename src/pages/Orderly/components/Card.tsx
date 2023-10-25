@@ -6,11 +6,11 @@ import React, {
   useMemo,
 } from 'react';
 import { list_farmer_seeds, get_unclaimed_rewards } from '../../services/farm';
-import { PoolRPCView } from '~services/api';
+import { PoolRPCView } from 'src/services/api';
 import { isStablePool, ALL_STABLE_POOL_IDS } from '../../services/near';
-import { getStablePoolDecimal } from '~pages/stable/StableSwapEntry';
-import { useAccountInfo } from '~state/referendum';
-import { TokenMetadata } from '~services/ft-contract';
+import { getStablePoolDecimal } from 'src/pages/stable/StableSwapEntry';
+import { useAccountInfo } from 'src/state/referendum';
+import { TokenMetadata } from 'src/services/ft-contract';
 import {
   list_liquidities,
   get_pool,
@@ -21,14 +21,14 @@ import { useStakeListByAccountId, useBatchTotalShares } from '../../state/pool';
 import { getVEPoolId } from '../../pages/ReferendumPage';
 import { UserLiquidityInfo } from '../../services/commonV3';
 import { ftGetTokenMetadata } from '../../services/ft-contract';
-import { getYourPools } from '~services/indexer';
-import { NEARX_POOL_ID } from '~services/near';
-import { ftGetBalance } from '~services/ft-contract';
+import { getYourPools } from 'src/services/indexer';
+import { NEARX_POOL_ID } from 'src/services/near';
+import { ftGetBalance } from 'src/services/ft-contract';
 import BigNumber from 'bignumber.js';
-import { toReadableNumber } from '~utils/numbers';
+import { toReadableNumber } from 'src/utils/numbers';
 import getConfig from '../../services/config';
 import { getPoolsByIds } from '../../services/indexer';
-import { LP_TOKEN_DECIMALS } from '~services/m-token';
+import { LP_TOKEN_DECIMALS } from 'src/services/m-token';
 import { get_liquidity_value } from '../../services/commonV3';
 import { OverviewData } from '../../pages/Overview';
 import { formatWithCommas_usd } from '../../services/overview/utils';

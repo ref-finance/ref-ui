@@ -43,7 +43,7 @@ import {
   REF_FI_ORDERLY_LIQUIDATION_UNREAD,
 } from './components/UserBoardPerp/components/LiquidationHistory';
 import { BsArrowRight } from '../../components/reactIcons';
-import { openUrl } from '~services/commonV3';
+import { openUrl } from 'src/services/commonV3';
 import { usePerpData } from './components/UserBoardPerp/state';
 import PositionsTable from './components/AllOrders/PositionsTable';
 import { CheckBox } from './components/Common';
@@ -386,7 +386,7 @@ function OrderlyUnderMaintain() {
   );
 }
 
-export function OrderlyPerpetual() {
+export default function OrderlyPerpetual() {
   const priKeyPath = get_orderly_private_key_path();
 
   const pubKeyPath = get_orderly_public_key_path();

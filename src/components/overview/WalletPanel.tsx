@@ -9,7 +9,7 @@ import React, {
 import BigNumber from 'bignumber.js';
 import { useUserRegisteredTokensAllAndNearBalance } from '../../state/token';
 import { TokenMetadata } from '../../services/ft-contract';
-import { toReadableNumber } from '~utils/numbers';
+import { toReadableNumber } from 'src/utils/numbers';
 import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import ReactECharts from 'echarts-for-react';
 import Big from 'big.js';
@@ -17,9 +17,9 @@ import {
   auroraAddr,
   useAuroraBalancesNearMapping,
   useDCLAccountBalance,
-} from '~services/aurora/aurora';
-import { useTokenBalances } from '~state/token';
-import { NEARXIDS } from '~services/near';
+} from 'src/services/aurora/aurora';
+import { useTokenBalances } from 'src/state/token';
+import { NEARXIDS } from 'src/services/near';
 import {
   display_percentage_2,
   display_value,
@@ -38,7 +38,7 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { OverviewData } from '../../pages/Overview';
 import { TriangleIcon, EmptyCircle, EmptyLeftBg, EmptyRightBg } from './Icons';
-import { ConnectToNearBtn } from '~components/button/Button';
+import { ConnectToNearBtn } from 'src/components/button/Button';
 const WalletData = createContext(null);
 export default function WalletPanel() {
   const {
