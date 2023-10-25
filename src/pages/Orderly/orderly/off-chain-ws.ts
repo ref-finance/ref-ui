@@ -57,7 +57,6 @@ export const useOrderlyWS = () => {
       reconnectInterval: 10000,
       share: false,
     });
-  console.log('99999999999-lastJsonMessage', lastJsonMessage);
   useEffect(() => {
     if (lastMessage !== null) {
       setMessageHistory((prev: any) => prev.concat(lastMessage));
