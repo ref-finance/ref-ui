@@ -374,7 +374,8 @@ const getMMR = (
   userInfo: ClientInfo,
   position_notional: number
 ) => {
-  const { symbolFrom } = parseSymbol(symbol.symbol);
+  // const { symbolFrom } = parseSymbol(symbol.symbol);
+  const symbolFrom = symbol.symbol;
   const base_mmr = symbol.base_mmr;
 
   const base_imr = symbol.base_imr;
