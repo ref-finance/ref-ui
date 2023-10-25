@@ -40,7 +40,7 @@ export function MarginRatioText() {
             <FormattedMessage
               id="margin_ratio_tip"
               defaultMessage={
-                'The margin ratio of an account is equal to the total collateral value (ie the USDC.e balance + any unrealized profit/loss) divided by the total open notional of the account (the sum of the absolute notional value of all positions)'
+                'The margin ratio of an account is equal to the total collateral value (ie the USDC.e.e balance + any unrealized profit/loss) divided by the total open notional of the account (the sum of the absolute notional value of all positions)'
               }
             ></FormattedMessage>
             <br />

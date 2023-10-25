@@ -1529,7 +1529,7 @@ export const usePortableOrderlyTable = ({
                 className="text-[10px] px-1.5 py-0.5 ml-1 rounded-md"
                 style={{ backgroundColor: 'rgba(126, 138, 147, 0.15)' }}
               >
-                USDC
+                USDC.e
               </div>
             ),
             colSpan: 2,
