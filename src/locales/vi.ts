@@ -1367,7 +1367,7 @@ const vi = {
   TotalAssets: 'Tổng tài sản',
   TokenAllocation: 'Phân bổ Token',
   perpTip:
-    'Chào mừng bạn đến với giao dịch Hợp đồng tương lai vĩnh viễn! Vui lòng đọc {perpTipLink} để bắt đầu!',
+    'We will be conducting a system update from 06:00 to 09:00 (UTC) on October 31, 2023. Please check our Twitter for update details. During this time, deposits and withdrawals will be temporarily unavailable, and spot and perp trading will be disabled. Due to the unique nature of this update, we kindly request that you cancel all your orders before this period.',
   perpTipLink: '[Giới thiệu Hợp đồng tương lai vĩnh viễn]',
   perpetual: 'Perpetual',
   pred_funding_rate: 'Tỷ lệ Dự định đòn bẩy',

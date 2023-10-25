@@ -1372,7 +1372,7 @@ const en_US = {
   TotalAssets: 'Total Assets',
   TokenAllocation: 'Token Allocation',
   perpTip:
-    'Welcome to Perpetual Futures trading! Please read {perpTipLink} to get started!',
+    'We will be conducting a system update from 06:00 to 09:00 (UTC) on October 31, 2023. Please check our Twitter for update details. During this time, deposits and withdrawals will be temporarily unavailable, and spot and perp trading will be disabled. Due to the unique nature of this update, we kindly request that you cancel all your orders before this period.',
   perpTipLink: '[Perpetual Futures Introduction]  ',
   perpetual: 'Perpetual',
   pred_funding_rate: 'Pred. Funding Rate',

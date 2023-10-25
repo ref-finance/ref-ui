@@ -1218,7 +1218,8 @@ const zh_CN = {
   TotalInvested: '投资',
   TotalAssets: '资产',
   TokenAllocation: '代币分布',
-  perpTip: '欢迎来到永续期货交易！请阅读 {perpTipLink} 以开始交易！',
+  perpTip:
+    'We will be conducting a system update from 06:00 to 09:00 (UTC) on October 31, 2023. Please check our Twitter for update details. During this time, deposits and withdrawals will be temporarily unavailable, and spot and perp trading will be disabled. Due to the unique nature of this update, we kindly request that you cancel all your orders before this period.',
   perpTipLink: '[永续期货介绍]',
   perpetual: 'Perpetual',
   pred_funding_rate: '预测资金费率',
