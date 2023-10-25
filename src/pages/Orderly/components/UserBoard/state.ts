@@ -148,7 +148,7 @@ export function useTokensBalances(
 
   if (showbalances.length > 0 && freeCollateral !== '-') {
     showbalances.forEach((sb) => {
-      if (sb.name === 'USDC') {
+      if (sb.name === 'USDC' || sb.name === 'USDC.e') {
         sb.holding = Number(freeCollateral);
       }
     });
@@ -257,7 +257,7 @@ export function useTokensOrderlyBalances(
 
   if (showbalances.length > 0 && freeCollateral !== '-') {
     showbalances.forEach((sb) => {
-      if (sb.name === 'USDC') {
+      if (sb.name === 'USDC' || sb.name === 'USDC.e') {
         sb.holding = Number(freeCollateral);
       }
     });
@@ -267,7 +267,7 @@ export function useTokensOrderlyBalances(
     showbalances.forEach((sb) => {
       const curBalance = balances[sb.name];
 
-      if (curBalance && sb.name !== 'USDC') {
+      if (curBalance && sb.name !== 'USDC' && sb.name !== 'USDC.e') {
         sb.holding = Number(
           new Big(curBalance.holding + curBalance.pendingShortQty).toFixed(
             Math.min(8, sb.meta.decimals || 9),

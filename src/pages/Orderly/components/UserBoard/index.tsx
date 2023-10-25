@@ -1796,7 +1796,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                 setOnTotalFocus(false);
               }}
             />
-            <span className="text-primaryText">USDC</span>
+            <span className="text-primaryText">USDC.e</span>
           </div>
         </div>
 
@@ -3173,7 +3173,7 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
 
             <TextWrapper
               className="text-10px py-0 px-1"
-              value={'USDC'}
+              value={'USDC.e'}
               textC="text-primaryText"
             />
           </div>

@@ -155,7 +155,7 @@ export function CurAsset(props?: any) {
   const { freeCollateral } = usePerpData();
 
   const tokenOutHolding =
-    symbolTo === 'USDC' && freeCollateral !== '-'
+    (symbolTo === 'USDC' || symbolTo === 'USDC.e') && freeCollateral !== '-'
       ? freeCollateral
       : curHoldingOut
       ? curHoldingOut.holding + curHoldingOut.pending_short

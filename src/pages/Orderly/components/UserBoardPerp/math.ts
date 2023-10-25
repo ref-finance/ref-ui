@@ -96,7 +96,7 @@ const getAvailable = (
   const available = displayBalances.reduce((acc, cur, index) => {
     const markPrice =
       markPrices?.find(
-        (item) => item.symbol === `SPOT_${cur.tokenMeta.symbol}_USDC`
+        (item) => item.symbol === `SPOT_${cur.tokenMeta.symbol}_USDC.e`
       )?.price || 1;
 
     const value =
@@ -123,7 +123,7 @@ const getTotalEst = (
   const availables = displayBalances.reduce((acc, cur, index) => {
     const markPrice =
       markPrices?.find(
-        (item) => item.symbol === `SPOT_${cur.tokenMeta.symbol}_USDC`
+        (item) => item.symbol === `SPOT_${cur.tokenMeta.symbol}_USDC.e`
       )?.price || 1;
 
     const value =

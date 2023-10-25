@@ -124,7 +124,7 @@ export function NewUserTip(props: {
             <FormattedMessage
               id="orderly_new_user_tip"
               defaultMessage={
-                'Check Balance and deposit <strong>USDC</strong>  to begin your trading journey.'
+                'Check Balance and deposit <strong>USDC.e</strong>  to begin your trading journey.'
               }
               values={{
                 //   @ts-ignore

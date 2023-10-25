@@ -2097,7 +2097,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                       setOnTotalFocus(false);
                     }}
                   />
-                  <span className="text-primaryText">USDC</span>
+                  <span className="text-primaryText">USDC.e</span>
                 </div>
               </div>
 
@@ -2110,7 +2110,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                 <div className="frcs gap-2">
                   <span className="text-white">{lqPrice}</span>
 
-                  <span className="text-primaryText">USDC</span>
+                  <span className="text-primaryText">USDC.e</span>
                 </div>
               </div>
               <div className="frcb">
@@ -2135,7 +2135,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                         )}{' '}
                   </span>
 
-                  <span className="text-primaryText">USDC</span>
+                  <span className="text-primaryText">USDC.e</span>
                 </div>
               </div>
 
@@ -4521,7 +4521,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
 
               <TextWrapper
                 className="text-10px py-0 px-1"
-                value={'USDC'}
+                value={'USDC.e'}
                 textC="text-primaryText"
               />
             </div>
@@ -4603,7 +4603,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
                 <div className="frcs gap-2">
                   <span className="text-white">{lqPrice}</span>
 
-                  <span className="text-primaryText">USDC</span>
+                  <span className="text-primaryText">USDC.e</span>
                 </div>
               </div>
               <div className="frcb text-xs">
@@ -4628,7 +4628,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
                         )}{' '}
                   </span>
 
-                  <span className="text-primaryText">USDC</span>
+                  <span className="text-primaryText">USDC.e</span>
                 </div>
               </div>
 

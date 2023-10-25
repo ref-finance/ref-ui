@@ -40,7 +40,7 @@ export function MarginRatioText() {
             <FormattedMessage
               id="margin_ratio_tip"
               defaultMessage={
-                'The margin ratio of an account is equal to the total collateral value (ie the USDC balance + any unrealized profit/loss) divided by the total open notional of the account (the sum of the absolute notional value of all positions)'
+                'The margin ratio of an account is equal to the total collateral value (ie the USDC.e balance + any unrealized profit/loss) divided by the total open notional of the account (the sum of the absolute notional value of all positions)'
               }
             ></FormattedMessage>
             <br />
@@ -140,7 +140,7 @@ export function UnsettlePnl() {
             <FormattedMessage
               id="unsettle_pnl_tip"
               defaultMessage={
-                'Move a profit or loss from perp markets into the USDC token balance. This has no impact on your open positions or health.'
+                'Move a profit or loss from perp markets into the USDC.e token balance. This has no impact on your open positions or health.'
               }
             ></FormattedMessage>
           </div>
