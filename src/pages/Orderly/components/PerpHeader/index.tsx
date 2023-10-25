@@ -77,7 +77,7 @@ export function PerpOrderlyTipMobile() {
     <div
       className="w-screen px-4 xs:pr-8 xs:pb-9 xs:pt-2  xs:rounded-2xl   xs:bottom-0 bg-gradientFromHover  lg:frcc "
       style={{
-        fontSize: '13px',
+        fontSize: '14px',
         color: '#111F29',
         top: isMobile ? 'none' : '-48px',
         zIndex: isMobile ? 51 : '',
