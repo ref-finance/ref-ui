@@ -50,7 +50,6 @@ import {
   toInternationalCurrencySystem,
 } from '../../utils/numbers';
 import { CheckedTick, CheckedEmpty } from '../../components/icon/CheckBox';
-import { toRealSymbol } from '../../utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
   DownArrowLight,
@@ -58,12 +57,7 @@ import {
   UpArrowDeep,
   UpArrowLight,
 } from '../../components/icon';
-import { FarmStamp } from '../../components/icon/FarmStamp';
-import {
-  SolidButton,
-  FarmButton,
-  GradientButton,
-} from '../../components/button/Button';
+import { SolidButton } from '../../components/button/Button';
 import {
   NEAR_CLASS_STABLE_POOL_IDS,
   wallet,
@@ -71,17 +65,11 @@ import {
   USDTT_USDCC_USDT_USDC_POOL_ID,
 } from '../../services/near';
 import { WatchListStartFull } from '../../components/icon/WatchListStar';
-import { PolygonGrayDown } from '../../components/icon/Polygon';
 import _, { orderBy, sortBy, filter } from 'lodash';
-import QuestionMark from '../../components/farm/QuestionMark';
 import { useInView } from 'react-intersection-observer';
 import { QuestionTip } from '../../components/layout/TipWrapper';
 import { FilterIcon } from '../../components/icon/PoolFilter';
-import {
-  TokenMetadata,
-  REF_META_DATA,
-  ftGetTokenMetadata,
-} from '../../services/ft-contract';
+import { TokenMetadata, REF_META_DATA } from '../../services/ft-contract';
 import {
   scientificNotationToString,
   percent,
@@ -137,6 +125,7 @@ import { FarmStampNew } from '../../components/icon/FarmStamp';
 import { ALL_STABLE_POOL_IDS } from '../../services/near';
 import { BoostSeeds, WatchList } from '../../store/RefDatabase';
 import { REF_FI_CONTRACT_ID } from '../../services/near';
+import { FarmBoost } from '../../services/farm';
 
 import {
   get_all_seeds,
@@ -581,6 +570,27 @@ function MobilePoolRowV2({
       return '$' + toInternationalCurrencySystem(v.toString(), 2);
     }
   }
+  function getFarmApr() {
+    if (relatedSeed) {
+      const farms = relatedSeed.farmList;
+      let apr = 0;
+      const allPendingFarms = isPending(relatedSeed);
+      farms.forEach(function (item: FarmBoost) {
+        const pendingFarm =
+          item.status == 'Created' || item.status == 'Pending';
+        if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
+          apr = +new BigNumber(apr).plus(item.apr).toFixed();
+        }
+      });
+      apr = apr * 100;
+      if (+apr == 0) {
+        return '-';
+      } else {
+        return '+' + toPrecision(apr.toString(), 2) + '%';
+      }
+    }
+    return '';
+  }
   return (
     <div className="w-full hover:bg-poolRowHover" onClick={goDetailV2}>
       <div
@@ -643,12 +653,19 @@ function MobilePoolRowV2({
               </div>
             </div>
           </div>
-          <div>
+          <div className="flex flex-col items-end">
             {showSortedValue({
               sortBy,
               value:
                 sortBy == 'apr' && mark ? pool['top_bin_apr'] : pool[sortBy],
             })}
+
+            {relatedSeed &&
+              (sortBy == 'top_bin_apr' || (sortBy == 'apr' && mark)) && (
+                <span className="text-xs text-gradientFrom">
+                  {getFarmApr()}
+                </span>
+              )}
           </div>
         </div>
       </div>
@@ -1592,6 +1609,25 @@ export const getPoolListFarmAprTip = () => {
     </div>
 `;
 };
+export const getPoolListV2FarmAprTip = () => {
+  return `
+    <div 
+      class="flex flex-col text-xs min-w-36 text-farmText z-50"
+    >
+      <div>
+      Top Bin APR
+      </div>
+
+      <div>
+      
+      + Farm Rewards APR
+      </div>
+    
+   
+
+    </div>
+`;
+};
 
 const PoolIdNotExist = () => {
   const intl = useIntl();
@@ -1684,7 +1720,6 @@ function PoolRow({
         <div className="col-span-1 flex items-center justify-center justify-self-center py-1 md:hidden ">
           {calculateFeePercent(pool.fee)}%
         </div>
-
         <div
           className="col-span-1 flex flex-col items-center justify-self-center py-1"
           data-type="info"
@@ -1814,6 +1849,27 @@ function PoolRowV2({
       return '$' + toInternationalCurrencySystem(v.toString(), 2);
     }
   }
+  function getFarmApr() {
+    if (relatedSeed) {
+      const farms = relatedSeed.farmList;
+      let apr = 0;
+      const allPendingFarms = isPending(relatedSeed);
+      farms.forEach(function (item: FarmBoost) {
+        const pendingFarm =
+          item.status == 'Created' || item.status == 'Pending';
+        if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
+          apr = +new BigNumber(apr).plus(item.apr).toFixed();
+        }
+      });
+      apr = apr * 100;
+      if (+apr == 0) {
+        return '-';
+      } else {
+        return '+' + toPrecision(apr.toString(), 2) + '%';
+      }
+    }
+    return '';
+  }
   return (
     <div
       className="w-full hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20 cursor-pointer"
@@ -1861,11 +1917,37 @@ function PoolRowV2({
           {calculateFeePercent(pool.fee / 100)}%
         </div>
         <div
-          className={`${mark ? 'justify-self-center' : ''} py-1 ${
-            mark ? 'col-span-1' : 'col-span-2'
+          className={`${
+            mark ? 'col-span-1 justify-self-center' : 'col-span-2'
           }`}
         >
-          {displayOfTopBinApr}
+          <div
+            className={`inline-flex flex-col items-center py-1`}
+            data-type="info"
+            data-place="right"
+            data-multiline={true}
+            data-class={'reactTip'}
+            data-html={true}
+            data-tip={getPoolListV2FarmAprTip()}
+            data-for={'pool_list_v2_pc_apr' + pool.pool_id}
+          >
+            {displayOfTopBinApr}
+            {relatedSeed && (
+              <span className="text-xs text-gradientFrom">{getFarmApr()}</span>
+            )}
+            {relatedSeed && (
+              <ReactTooltip
+                className="w-20"
+                id={'pool_list_v2_pc_apr' + pool.pool_id}
+                backgroundColor="#1D2932"
+                place="right"
+                border
+                borderColor="#7e8a93"
+                textColor="#C6D1DA"
+                effect="solid"
+              />
+            )}
+          </div>
         </div>
 
         <div
@@ -3280,7 +3362,6 @@ export function LiquidityPage() {
         indexFail: Object.keys(tokenPriceList).length == 0,
       }}
     >
-      {/* todo */}
       {!clientMobileDevice && (
         <LiquidityPage_
           farmAprById={farmAprById}
