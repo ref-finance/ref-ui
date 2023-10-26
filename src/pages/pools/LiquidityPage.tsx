@@ -774,7 +774,7 @@ function MobileWatchListCard({
         </header>
         {sortBy === 'apr' && (
           <div className="text-right text-farmText text-xs mr-3 mb-0.5">
-            *Pool Fee APY + Farm Rewards APR
+            *Pool Fee APY/Top Bin APR + Farm Rewards APR
           </div>
         )}
         <div className="border-b border-gray-700 border-opacity-70" />
@@ -1448,7 +1448,7 @@ function MobileLiquidityPage({
               </header>
               {sortBy === 'apr' && (
                 <div className="text-right text-farmText text-xs mr-3 mb-0.5">
-                  *Pool Fee APY + Farm Rewards APR
+                  *Pool Fee APY/Top Bin APR + Farm Rewards APR
                 </div>
               )}
               <div className="border-b border-gray-700 border-opacity-70" />
