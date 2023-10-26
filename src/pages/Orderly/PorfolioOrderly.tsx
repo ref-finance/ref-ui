@@ -273,7 +273,7 @@ function PortfolioOrderly() {
         status: 'INCOMPLETE',
       },
     });
-    const filterOrders: MyOrder[] = data.rows.filter((order: MyOrder) =>
+    const filterOrders: MyOrder[] = data?.rows?.filter((order: MyOrder) =>
       order.symbol.includes('PERP')
     );
 
