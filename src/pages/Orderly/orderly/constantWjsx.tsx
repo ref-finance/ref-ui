@@ -742,7 +742,7 @@ export const usePortableOrderlyTable = ({
           {
             key: 'fill_qty',
             header: 'Fill / Qty',
-            colSpan: 5,
+            colSpan: 4,
             render: ({ executed, quantity, side, status }) => (
               <div>
                 <span
@@ -790,7 +790,7 @@ export const usePortableOrderlyTable = ({
           },
           {
             key: 'status',
-            colSpan: 3,
+            colSpan: 4,
             header: 'Status',
             render: ({ status }) => (
               <span className="capitalize">{status.toLocaleLowerCase()}</span>
