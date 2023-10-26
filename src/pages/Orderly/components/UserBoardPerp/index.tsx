@@ -131,6 +131,7 @@ import { useTokensBalances } from '../UserBoard/state';
 import { SetLeverageButton } from './components/SetLeverageButton';
 import { DepositTip } from './components/DepositTip';
 import { NewUserTip } from '../Common/NewUserTip';
+import { OrderType } from '~charting_library/charting_library';
 const REF_ORDERLY_LIMIT_ORDER_ADVANCE = 'REF_ORDERLY_LIMIT_ORDER_ADVANCE';
 
 function getTipFOK() {
@@ -2423,6 +2424,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         symbolTo={symbolTo}
         side={side}
         quantity={inputValue}
+        orderType={orderType}
         price={
           orderType === 'Limit' ? limitPrice : marketPrice?.toString() || '0'
         }
@@ -3216,6 +3218,7 @@ function ConfirmOrderModal(
     totalCost: number | '-';
     onClick: () => Promise<any>;
     userInfo: ClientInfo;
+    orderType: string;
   }
 ) {
   const {
@@ -3228,6 +3231,7 @@ function ConfirmOrderModal(
     totalCost,
     onClick,
     userInfo,
+    orderType,
   } = props;
 
   const [loading, setLoading] = useState<boolean>(false);
@@ -3269,10 +3273,12 @@ function ConfirmOrderModal(
 
           <div className="flex items-center mb-5 justify-between">
             <span>
-              {intl.formatMessage({
-                id: 'limit_order',
-                defaultMessage: 'Limit Order',
-              })}
+              {orderType == 'Limit'
+                ? intl.formatMessage({
+                    id: 'limit_order',
+                    defaultMessage: 'Limit Order',
+                  })
+                : 'Market Order'}
             </span>
 
             <span className="flex">
@@ -4887,6 +4893,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
         symbolFrom={symbolFrom}
         symbolTo={symbolTo}
         side={side}
+        orderType={orderType}
         quantity={inputValue}
         price={
           orderType === 'Limit' ? limitPrice : marketPrice?.toString() || '0'

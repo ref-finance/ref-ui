@@ -2092,6 +2092,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         price={
           orderType === 'Limit' ? limitPrice : marketPrice?.toString() || '0'
         }
+        orderType={orderType}
         fee={fee}
         totalCost={ONLY_ZEROS.test(total) ? '-' : Number(total)}
         onClick={handleSubmit}
@@ -3534,6 +3535,7 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
         price={
           orderType === 'Limit' ? limitPrice : marketPrice?.toString() || '0'
         }
+        orderType={orderType}
         fee={fee}
         totalCost={ONLY_ZEROS.test(total) ? '-' : Number(total)}
         onClick={handleSubmit}
@@ -4314,6 +4316,7 @@ function ConfirmOrderModal(
     totalCost: number | '-';
     onClick: () => Promise<any>;
     userInfo: ClientInfo;
+    orderType: string;
   }
 ) {
   const {
@@ -4327,6 +4330,7 @@ function ConfirmOrderModal(
     totalCost,
     onClick,
     userInfo,
+    orderType,
   } = props;
 
   const [loading, setLoading] = useState<boolean>(false);
@@ -4368,10 +4372,12 @@ function ConfirmOrderModal(
 
           <div className="flex items-center mb-5 justify-between">
             <span>
-              {intl.formatMessage({
-                id: 'limit_order',
-                defaultMessage: 'Limit Order',
-              })}
+              {orderType == 'Limit'
+                ? intl.formatMessage({
+                    id: 'limit_order',
+                    defaultMessage: 'Limit Order',
+                  })
+                : 'Market Order'}
             </span>
 
             <span className="flex">
