@@ -97,11 +97,13 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
       network: getConfig().networkId as NetworkId,
       debug: false,
       modules: [
-        setupNearWallet({
-          // iconUrl: walletIcons['near-wallet'],
-        }),
         setupMyNearWallet({
           // iconUrl: walletIcons['my-near-wallet'],
+        }),
+        // @ts-ignore
+        setupHereWallet(),
+        setupNearWallet({
+          // iconUrl: walletIcons['near-wallet'],
         }),
         setupSender({
           // iconUrl: walletIcons['sender'],
@@ -122,8 +124,6 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         setupLedger({
           // iconUrl: walletIcons['ledger'],
         }),
-        // @ts-ignore
-        setupHereWallet(),
       ],
     });
     const _modal = setupModal(_selector, {
