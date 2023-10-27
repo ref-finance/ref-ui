@@ -1,18 +1,16 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { map, distinctUntilChanged, windowWhen } from 'rxjs';
+import { map, distinctUntilChanged } from 'rxjs';
 
 import {
   NetworkId,
   setupWalletSelector,
-  waitFor,
 } from '@near-wallet-selector/core';
 import type { WalletSelector, AccountState } from '@near-wallet-selector/core';
-import { setupModal } from './modal-ui';
-import type { WalletSelectorModal } from './modal-ui';
+import { setupModal } from '@near-wallet-selector/modal-ui';
+import type { WalletSelectorModal } from '@near-wallet-selector/modal-ui';
 import { setupNearWallet } from '@near-wallet-selector/near-wallet';
 import { setupMyNearWallet } from '@near-wallet-selector/my-near-wallet';
 import { setupSender } from '@near-wallet-selector/sender';
-import { setupMathWallet } from '@near-wallet-selector/math-wallet';
 import { setupLedger } from '@near-wallet-selector/ledger';
 
 import { setupHereWallet } from '@near-wallet-selector/here-wallet';
@@ -24,11 +22,8 @@ import { setupNightly } from '@near-wallet-selector/nightly';
 
 import getConfig from '../services/config';
 
-import './modal-ui/components/styles.css';
+import '@near-wallet-selector/modal-ui/styles.css';
 import {
-  REF_FARM_CONTRACT_ID,
-  wallet,
-  REF_FARM_BOOST_CONTRACT_ID,
   near,
 } from '../services/near';
 import { walletIcons } from './walletIcons';
@@ -37,15 +32,12 @@ import { REF_ORDERLY_ACCOUNT_VALID } from '../pages/Orderly/components/UserBoard
 import {
   REF_FI_SENDER_WALLET_ACCESS_KEY,
   REF_ORDERLY_NORMALIZED_KEY,
-  generateTradingKeyPair,
 } from '../pages/Orderly/orderly/utils';
 import {
   get_orderly_private_key_path,
   get_orderly_public_key_path,
 } from '../pages/Orderly/orderly/utils';
 import { isMobile } from '../utils/device';
-import { AccountView } from 'near-api-js/lib/providers/provider';
-import { Account, providers } from 'near-api-js';
 
 const CONTRACT_ID = getOrderlyConfig().ORDERLY_ASSET_MANAGER;
 
@@ -137,28 +129,6 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         }),
         // @ts-ignore
         setupHereWallet(),
-        // setupNightlyConnect({
-        //   url: 'wss://ncproxy.nightly.app/app',
-        //   appMetadata: {
-        //     additionalInfo: '',
-        //     application: 'ref fiannce',
-        //     description: 'Example dApp used by NEAR Wallet Selector',
-        //     icon: 'https://near.org/wp-content/uploads/2020/09/cropped-favicon-192x192.png',
-        //   },
-        //   iconUrl: walletIcons['nightly-connect'],
-        // }),
-        // setupWalletConnect({
-        //   projectId: '423baa464ffaeca9d7165ab4222d534f',
-        //   relayUrl: 'wss://relay.walletconnect.com',
-        //   metadata: {
-        //     name: 'ref_finance',
-        //     description: 'Example dApp used by NEAR Wallet Selector',
-        //     url: 'https://github.com/near/wallet-selector',
-        //     icons: walletIcons['wallet-connect'],
-        //   },
-        //   chainId: `near:${getConfig().networkId}}`,
-        //   iconUrl: walletIcons['wallet-connect'],
-        // }),
       ],
     });
     const _modal = setupModal(_selector, {
