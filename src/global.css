@@ -35,7 +35,13 @@ html {
   /* font-family: 'gotham'; */
 }
 .gotham_bold {
-  font-family: 'gothamBold';
+  /* font-family: 'gothamBold'; */
+}
+body .font-gotham {
+  font-family: 'sans-serif';
+}
+body .font-gothamBold {
+  font-family: 'sans-serif';
 }
 .arial_font {
   font-family: 'arial';

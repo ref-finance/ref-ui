@@ -4,6 +4,7 @@ interface Route {
   path: string;
   element: any;
   wrapper?: 'AutoHeight' | 'AutoHeightNoOffset' | '';
+  exact?: boolean;
 }
 // 路由
 const routes: Route[] = [
@@ -35,6 +36,7 @@ const routes: Route[] = [
           /* webpackChunkName: "orderbook" */ 'src/pages/Orderly/OrderlyTradingBoard'
         )
     ),
+    exact: true,
     wrapper: 'AutoHeightNoOffset',
   },
   {
@@ -95,7 +97,7 @@ const routes: Route[] = [
     wrapper: 'AutoHeight',
   },
   {
-    path: '/v2farms/:id',
+    path: '/v2farms/:id?',
     element: lazy(
       () =>
         import(
@@ -118,7 +120,7 @@ const routes: Route[] = [
     ),
     wrapper: 'AutoHeight',
   },
-  
+
   {
     path: '/recent',
     element: lazy(
@@ -217,7 +219,7 @@ const routes: Route[] = [
     wrapper: 'AutoHeight',
   },
   {
-    path: '/yoursLiquidityDetailV2/:id/:status',
+    path: '/yoursLiquidityDetailV2/:id/:status?',
     element: lazy(
       () =>
         import(

@@ -186,7 +186,7 @@ export function Content() {
                   key={route.path}
                   path={route.path}
                   component={Wrapper(route.element, route.wrapper)}
-                  exact
+                  exact={route.exact}
                 />
               );
             })}
