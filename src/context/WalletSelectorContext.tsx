@@ -1,10 +1,7 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { map, distinctUntilChanged } from 'rxjs';
 
-import {
-  NetworkId,
-  setupWalletSelector,
-} from '@near-wallet-selector/core';
+import { NetworkId, setupWalletSelector } from '@near-wallet-selector/core';
 import type { WalletSelector, AccountState } from '@near-wallet-selector/core';
 import { setupModal } from '@near-wallet-selector/modal-ui';
 import type { WalletSelectorModal } from '@near-wallet-selector/modal-ui';
@@ -23,9 +20,7 @@ import { setupNightly } from '@near-wallet-selector/nightly';
 import getConfig from '../services/config';
 
 import '@near-wallet-selector/modal-ui/styles.css';
-import {
-  near,
-} from '../services/near';
+import { near } from '../services/near';
 import { walletIcons } from './walletIcons';
 import { getOrderlyConfig } from '../pages/Orderly/config';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../pages/Orderly/components/UserBoard/index';
@@ -103,29 +98,29 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
       debug: false,
       modules: [
         setupNearWallet({
-          iconUrl: walletIcons['near-wallet'],
+          // iconUrl: walletIcons['near-wallet'],
         }),
         setupMyNearWallet({
-          iconUrl: walletIcons['my-near-wallet'],
+          // iconUrl: walletIcons['my-near-wallet'],
         }),
         setupSender({
-          iconUrl: walletIcons['sender'],
+          // iconUrl: walletIcons['sender'],
         }),
         // @ts-ignore
         setupMeteorWallet({
-          iconUrl: walletIcons['meteor-wallet'],
+          // iconUrl: walletIcons['meteor-wallet'],
         }),
         setupNeth({
-          iconUrl: walletIcons['neth'],
+          // iconUrl: walletIcons['neth'],
           gas: '300000000000000',
           bundle: false,
         }) as any,
         // @ts-ignore
         setupNightly({
-          iconUrl: walletIcons['nightly'],
+          // iconUrl: walletIcons['nightly'],
         }),
         setupLedger({
-          iconUrl: walletIcons['ledger'],
+          // iconUrl: walletIcons['ledger'],
         }),
         // @ts-ignore
         setupHereWallet(),
@@ -203,36 +198,6 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
 
     getAllKeys(accountId);
   }, [accountId, selector]);
-
-  // const getAccount = useCallback(async (): Promise<Account | null> => {
-  //   if (!accountId) {
-  //     return null;
-  //   }
-
-  //   const provider = new providers.JsonRpcProvider({
-  //     url: getConfig().nodeUrl,
-  //   });
-
-  //   return provider
-  //     .query<AccountView>({
-  //       request_type: 'view_account',
-  //       finality: 'final',
-  //       account_id: accountId,
-  //     })
-  //     .then((data: any) => ({
-  //       ...data,
-  //       account_id: accountId,
-  //     }));
-  // }, [accountId]);
-
-  // useEffect(() => {
-  //   if (!selector || !accountId) return;
-
-  //   getAccount().catch((e) => {
-  //     alert(e?.message);
-  //     selector.wallet().then((wallet) => wallet.signOut());
-  //   });
-  // }, [selector, accountId]);
 
   if (!selector || !modal || (!!accountId && isLedger === undefined)) {
     return null;

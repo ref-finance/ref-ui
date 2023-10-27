@@ -190,27 +190,27 @@ export function Content() {
       });
   }, [accountId, getAccount]);
 
-  useEffect(() => {
-    if (
-      !window?.near?.isSender ||
-      selector?.store?.getState()?.selectedWalletId !== 'sender'
-    )
-      return;
+  // useEffect(() => {
+  //   if (
+  //     !window?.near?.isSender ||
+  //     selector?.store?.getState()?.selectedWalletId !== 'sender'
+  //   )
+  //     return;
 
-    window.near.on('accountChanged', async (changedAccountId: string) => {
-      const senderModule = selector.store
-        .getState()
-        .modules.find((m) => m.id === 'sender');
+  //   window.near.on('accountChanged', async (changedAccountId: string) => {
+  //     const senderModule = selector.store
+  //       .getState()
+  //       .modules.find((m) => m.id === 'sender');
 
-      const senderWallet = (await senderModule.wallet()) as InjectedWallet;
+  //     const senderWallet = (await senderModule.wallet()) as InjectedWallet;
 
-      await senderWallet.signIn({
-        contractId: ORDERLY_ASSET_MANAGER,
-      });
+  //     await senderWallet.signIn({
+  //       contractId: ORDERLY_ASSET_MANAGER,
+  //     });
 
-      window.location.reload();
-    });
-  }, [window.near]);
+  //     window.location.reload();
+  //   });
+  // }, [window.near]);
 
   useGlobalPopUp(globalState);
 

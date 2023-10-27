@@ -1373,3 +1373,90 @@ input[type='range']::-webkit-slider-runnable-track {
   animation: spin 1s linear infinite;
   transform-origin: center;
 }
+
+/*  */
+
+.nws-modal-wrapper {
+  z-index: 999999;
+}
+.nws-modal-wrapper .nws-modal-overlay {
+  backdrop-filter: blur(20px);
+}
+.nws-modal-wrapper .nws-modal {
+  border: 1px solid rgba(0, 198, 162, 0.5);
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #626486;
+  border-radius: 2px;
+}
+
+:root {
+  --wallet-selector-backdrop-bg: rgba(0, 0, 0, 0.5);
+  --wallet-selector-content-bg: rgb(29, 41, 50);
+  --wallet-selector-heading-color: #ffffff;
+  --wallet-selector-text-color: #c0c4e9;
+  --gradient-dark-icon: #ffffff;
+  --wallet-selector-close-button-bg-color: transparent;
+  --wallet-selector-sidebar-border-color: rgba(79, 81, 120, 0.5);
+  --wallet-selector-selected-wallet-bg: #3f4162;
+  --wallet-selector-mobile-bottom-section: #2e304b;
+}
+
+#near-wallet-selector-modal {
+  --gradient-dark-icon: #ffffff;
+  --what-wallet-icon-color: #000;
+  --get-wallet-option-bg-color-hover: rgba(255, 255, 255, 0.9);
+}
+
+/*  */
+.nws-modal-wrapper .nws-modal {
+  border: 1px solid #4f5178;
+}
+
+.nws-modal-wrapper .nws-modal .modal-left::-webkit-scrollbar,
+options-list::-webkit-scrollbar {
+  width: 0px;
+  border-radius: 2px;
+}
+
+.nws-modal-wrapper .nws-modal .modal-left::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 2px;
+}
+
+.wallet-options-wrapper .options-list::-webkit-scrollbar-thumb {
+  background: #626486;
+  border-radius: 2px;
+}
+
+.nws-modal-wrapper .nws-modal .nws-modal-body button.middleButton {
+  color: #000;
+  background-color: #d2ff3a;
+  border: none;
+}
+
+.nws-modal-wrapper .nws-modal .nws-modal-body button.middleButton:hover {
+  opacity: 0.8;
+}
+
+.nws-modal-wrapper .nws-modal .nws-modal-header .close-button svg {
+  fill: #fff;
+}
+
+.nws-modal-wrapper
+  .nws-modal
+  .wallet-options-wrapper
+  .options-list
+  .single-wallet.sidebar:hover {
+  background-color: #3f4162;
+}
+
+.nws-modal-wrapper .nws-modal .connecting-details span {
+  color: #fff;
+}
