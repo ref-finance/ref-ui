@@ -1377,7 +1377,7 @@ input[type='range']::-webkit-slider-runnable-track {
 /*  */
 
 .nws-modal-wrapper {
-  z-index: 999999;
+  z-index: 9999;
 }
 .nws-modal-wrapper .nws-modal-overlay {
   backdrop-filter: blur(20px);
