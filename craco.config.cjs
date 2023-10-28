@@ -106,7 +106,7 @@ module.exports = {
               },
             },
             'css-loader',
-            'postcss-loader'
+            'postcss-loader',
           ],
         },
         {
@@ -137,12 +137,7 @@ module.exports = {
 
         {
           test: /\.(eot|otf|ttf|woff|woff2)$/,
-          use: {
-            loader: 'file-loader',
-            options: {
-              name: 'static/fonts/[name].[hash:8].[ext]',
-            },
-          },
+          type: 'asset',
         },
         {
           test: /\.svg$/i,
