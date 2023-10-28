@@ -1,17 +1,11 @@
 {
   "presets": [
-    ["@babel/preset-env", {
-      "modules": false
-    }],
-    ["@babel/typescript"],
-    ["@babel/preset-react"]
+    "@babel/preset-env",
+    "@babel/preset-react",
+    "@babel/preset-typescript"
   ],
-  "plugins": [],
-  "env": {
-    "production": {
-      "plugins": [
-        "transform-react-remove-prop-types"
-      ]
-    }
-  }
+  "plugins": [
+    "@emotion",
+    "@babel/plugin-proposal-optional-chaining"
+  ]
 }
