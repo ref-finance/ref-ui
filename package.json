@@ -138,7 +138,7 @@
     "mathjs": "^9.3.0",
     "mini-css-extract-plugin": "2.7.6",
     "moment": "^2.29.1",
-    "near-api-js": "1.0.0",
+    "near-api-js": "0.44.2",
     "near-seed-phrase": "^0.2.0",
     "path-browserify": "1.0.1",
     "postcss-cli": "^9.1.0",
