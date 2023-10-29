@@ -7,20 +7,25 @@ import React, {
   useCallback,
 } from 'react';
 import { matchPath } from 'react-router';
-import { Context } from '~components/wrapper';
-import getConfig from '~services/config';
+import { Context } from 'src/components/wrapper';
+import getConfig from 'src/services/config';
 import ReactTooltip from 'react-tooltip';
-import { Logo, Near, IconAirDropGreenTip, NavLogoIcon } from '~components/icon';
+import {
+  Logo,
+  Near,
+  IconAirDropGreenTip,
+  NavLogoIcon,
+} from 'src/components/icon';
 import {
   AccountIcon,
   ActivityIcon,
   WalletIcon,
   SignoutIcon,
   WNEARExchngeIcon,
-} from '~components/icon/Common';
+} from 'src/components/icon/Common';
 import { Link, useLocation, useHistory } from 'react-router-dom';
-import { NEARXIDS, wallet } from '~services/near';
-import { Card } from '~components/card/Card';
+import { NEARXIDS, wallet } from 'src/services/near';
+import { Card } from 'src/components/card/Card';
 
 import { FormattedMessage, useIntl, FormattedRelativeTime } from 'react-intl';
 import {
@@ -35,11 +40,11 @@ import {
   useMenus,
   menuItemType,
   BridgeButton,
-} from '~utils/menu';
+} from 'src/utils/menu';
 import { MobileNavBar } from './MobileNav';
-import WrapNear from '~components/forms/WrapNear';
+import WrapNear from 'src/components/forms/WrapNear';
 import { WrapNearIcon } from './WrapNear';
-import { XrefIcon } from '~components/icon/Xref';
+import { XrefIcon } from 'src/components/icon/Xref';
 import { getAccount } from '../../services/airdrop';
 import {
   senderWallet,
@@ -74,18 +79,14 @@ import { getAuroraConfig } from '../../services/aurora/config';
 import { ETH_DECIMAL } from '../../services/aurora/aurora';
 import { useAuroraBalances } from '../../services/aurora/aurora';
 import { getURLInfo } from './transactionTipPopUp';
-import USNBuyComponent from '~components/forms/USNBuyComponent';
-import USNPage, { BorrowLinkCard } from '~components/usn/USNPage';
-import {
-  REF_FI_SWAP_SWAPPAGE_TAB_KEY,
-  SWAP_MODE_KEY,
-} from '../../pages/SwapPage';
-import Marquee from '~components/layout/Marquee';
+import USNBuyComponent from 'src/components/forms/USNBuyComponent';
+import { SWAP_MODE_KEY } from '../../pages/SwapPage';
+import Marquee from 'src/components/layout/Marquee';
 
 import {
   useWalletSelector,
   ACCOUNT_ID_KEY,
-} from '~context/WalletSelectorContext';
+} from 'src/context/WalletSelectorContext';
 
 import { SWAP_MODE } from '../../pages/SwapPage';
 import { useDCLAccountBalance } from '../../services/aurora/aurora';
@@ -104,8 +105,9 @@ import {
   MoreIcon,
   ArrowDownIcon,
   DownTriangleIcon,
-} from '~components/icon/Nav';
+} from 'src/components/icon/Nav';
 import { openUrl } from '../../services/commonV3';
+import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from 'src/constants';
 
 const config = getConfig();
 
@@ -1198,65 +1200,6 @@ function Language() {
 }
 export default NavigationBar;
 
-export function USNCard({
-  showUSN,
-  setShowUSN,
-  showeBorrowCard,
-  setShowBorrowCard,
-}: {
-  showUSN: boolean;
-  setShowUSN: (e: boolean) => void;
-  showeBorrowCard: boolean;
-  setShowBorrowCard: (e: boolean) => void;
-}) {
-  return (
-    <>
-      <USNPage
-        isOpen={showUSN}
-        onRequestClose={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          setShowUSN(false);
-          setShowBorrowCard(false);
-        }}
-        style={{
-          overlay: {
-            backdropFilter: 'blur(15px)',
-            WebkitBackdropFilter: 'blur(15px)',
-          },
-          content: {
-            outline: 'none',
-            position: 'fixed',
-            width: isMobile() ? '98%' : 550,
-            bottom: '50%',
-            left: '1%',
-            transform: null,
-          },
-        }}
-      ></USNPage>
-
-      <BorrowLinkCard
-        isOpen={showeBorrowCard}
-        onRequestClose={(e) => {
-          setShowBorrowCard(false);
-        }}
-        style={{
-          overlay: {
-            backdropFilter: 'blur(15px)',
-            WebkitBackdropFilter: 'blur(15px)',
-          },
-          content: {
-            outline: 'none',
-            position: 'fixed',
-            width: isMobile() ? '98%' : 550,
-
-            bottom: '50%',
-          },
-        }}
-      />
-    </>
-  );
-}
 function MenuBar() {
   const history = useHistory();
   const [hover_two_level_items, set_hover_two_level_items] = useState<

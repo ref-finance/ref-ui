@@ -5,12 +5,12 @@ import React, {
   useContext,
   createContext,
 } from 'react';
-import { getAssets, getAccount } from '~services/burrow';
+import { getAssets, getAccount } from 'src/services/burrow';
 import {
   IAsset,
   IAccount,
   IUnclaimedReward,
-} from '~services/burrow-interfaces';
+} from 'src/services/burrow-interfaces';
 import Big from 'big.js';
 import { OverviewData } from '../../pages/Overview';
 import {

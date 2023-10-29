@@ -4,7 +4,7 @@ import { FormattedMessage } from 'react-intl';
 import { useClientMobile, isMobile } from '../../../../utils/device';
 
 import { IoMdClose } from '../../../../components/reactIcons';
-import { REF_ORDERLY_PERP_TIP_SIG } from '~pages/Orderly/OrderlyPerpetual';
+import { REF_ORDERLY_PERP_TIP_SIG } from 'src/pages/Orderly/OrderlyPerpetual';
 
 export function PerpOrderlyTip() {
   const [show, setShow] = useState<boolean>(

@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { toPrecision } from '~utils/numbers';
+import { toPrecision } from 'src/utils/numbers';
 import Big from 'big.js';
 export default function RangeSlider(props: any) {
   const {

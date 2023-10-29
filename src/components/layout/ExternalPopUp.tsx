@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { isMobile } from '~utils/device';
+import { isMobile } from 'src/utils/device';
 import { useHistory, useLocation } from 'react-router-dom';
 export default function ExternalPopUp() {
   const location = useLocation();

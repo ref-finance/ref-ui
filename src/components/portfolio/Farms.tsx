@@ -31,8 +31,8 @@ import { ftGetTokenMetadata } from '../../services/ft-contract';
 import { BigNumber } from 'bignumber.js';
 
 import { TokenMetadata } from '../../services/ft-contract';
-import { useTokens } from '~state/token';
-import { toRealSymbol } from '~utils/token';
+import { useTokens } from 'src/state/token';
+import { toRealSymbol } from 'src/utils/token';
 import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import { LinkIcon, FarmMiningIcon } from '../../components/icon/Portfolio';
 import QuestionMark from '../../components/farm/QuestionMark';
@@ -52,8 +52,8 @@ import {
   get_all_seeds,
   get_pool_name,
   openUrl,
-} from '~services/commonV3';
-import { NFTIdIcon } from '~components/icon/FarmBoost';
+} from 'src/services/commonV3';
+import { NFTIdIcon } from 'src/components/icon/FarmBoost';
 import { PortfolioData } from '../../pages/Portfolio';
 import { BlueCircleLoading } from '../../components/layout/Loading';
 const { REF_VE_CONTRACT_ID, REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
@@ -65,7 +65,7 @@ import {
   useTotalFarmData,
   getAccountId,
 } from './Tool';
-import { isMobile } from '~utils/device';
+import { isMobile } from 'src/utils/device';
 const is_mobile = isMobile();
 const FarmCommonDatas = createContext(null);
 export default function Farms(props: any) {

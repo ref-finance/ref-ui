@@ -11,7 +11,7 @@ import { nearMetadata, wrapNear } from '../../services/wrap-near';
 import { useDepositableBalance } from '../../state/token';
 import { toPrecision, toReadableNumber } from '../../utils/numbers';
 import TokenAmount from '../forms/TokenAmount';
-import { toRealSymbol } from '~utils/token';
+import { toRealSymbol } from 'src/utils/token';
 import { getCurrentWallet } from '../../utils/wallets-integration';
 
 function FirstDepositForm() {

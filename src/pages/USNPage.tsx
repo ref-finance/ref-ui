@@ -3,7 +3,7 @@ import USNCard from '../components/usn/USNCard';
 import Loading from '../components/layout/Loading';
 import getConfig from '../services/config';
 import { nearMetadata } from '../services/wrap-near';
-import { useTokens } from '~state/token';
+import { useTokens } from 'src/state/token';
 function USNPage() {
   const extraTokens =
     getConfig().networkId === 'mainnet' ? ['usn'] : ['usdn.testnet'];

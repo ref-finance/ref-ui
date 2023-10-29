@@ -1,6 +1,6 @@
 import React, { useState, createContext, useEffect, useContext } from 'react';
-import { TokenMetadata } from '~services/ft-contract';
-import { isMobile } from '~utils/device';
+import { TokenMetadata } from 'src/services/ft-contract';
+import { isMobile } from 'src/utils/device';
 import Navigation, {
   NavigationMobile,
 } from '../components/portfolio/Navigation';
@@ -12,17 +12,17 @@ import {
   getRewards,
   getFarm,
   getGlobalConfig,
-} from '~services/burrow';
+} from 'src/services/burrow';
 import {
   IAsset,
   IAccount,
   IAssetRewardDetail,
   INetTvlFarm,
   IBurrowConfig,
-} from '~services/burrow-interfaces';
-import { ftGetNearBalance } from '~services/near';
+} from 'src/services/burrow-interfaces';
+import { ftGetNearBalance } from 'src/services/near';
 import { WalletContext } from '../utils/wallets-integration';
-import { toReadableNumber } from '~utils/numbers';
+import { toReadableNumber } from 'src/utils/numbers';
 import { FormattedMessage, useIntl } from 'react-intl';
 const is_mobile = isMobile();
 export const BurrowData = createContext(null);

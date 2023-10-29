@@ -7,29 +7,29 @@ import React, {
   useState,
 } from 'react';
 import { matchPath } from 'react-router';
-import { Context } from '~components/wrapper';
-import { Near, NavLogoSimple } from '~components/icon';
+import { Context } from 'src/components/wrapper';
+import { Near, NavLogoSimple } from 'src/components/icon';
 import { Link, useLocation } from 'react-router-dom';
 import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { HiOutlineExternalLink, RiLogoutCircleRLine } from '../reactIcons';
 
-import { useRefPrice } from '~state/account';
-import { toPrecision } from '~utils/numbers';
-import { useMenusMobile, menuItemType, bridgeData } from '~utils/menu';
-import getConfig from '~services/config';
+import { useRefPrice } from 'src/state/account';
+import { toPrecision } from 'src/utils/numbers';
+import { useMenusMobile, menuItemType, bridgeData } from 'src/utils/menu';
+import getConfig from 'src/services/config';
 import {
   AccountIcon,
   ActivityIcon,
   WalletIcon,
   SignoutIcon,
-} from '~components/icon/Common';
+} from 'src/components/icon/Common';
 
 import { WalletContext } from '../../utils/wallets-integration';
 
 import Modal from 'react-modal';
 const config = getConfig();
-import { isMobile } from '~utils/device';
+import { isMobile } from 'src/utils/device';
 import {
   getCurrentWallet,
   getAccountName,
@@ -37,12 +37,8 @@ import {
 import { FarmDot } from '../icon/FarmStamp';
 import { AccountTipDownByAccountID, AuroraEntry } from './NavigationBar';
 import { ConnectDot, CopyIcon } from '../icon/CrossSwapIcons';
-import {
-  REF_FI_SWAP_SWAPPAGE_TAB_KEY,
-  SWAP_MODE_KEY,
-  SWAP_MODE,
-} from '../../pages/SwapPage';
-import Marquee from '~components/layout/Marquee';
+import { SWAP_MODE_KEY, SWAP_MODE } from '../../pages/SwapPage';
+import Marquee from 'src/components/layout/Marquee';
 import {
   useWalletSelector,
   ACCOUNT_ID_KEY,
@@ -60,9 +56,12 @@ import {
   ArrowDownIcon,
   HiMenuIcon,
   ArrowDownLargeIcon,
-} from '~components/icon/Nav';
-import { RefAnalytics, RefAnalyticsGary } from '~components/icon/RefAnalytics';
-import { useLanguageItems } from '~utils/menu';
+} from 'src/components/icon/Nav';
+import {
+  RefAnalytics,
+  RefAnalyticsGary,
+} from 'src/components/icon/RefAnalytics';
+import { useLanguageItems } from 'src/utils/menu';
 import { commonLangKey, formatItem } from './NavigationBar';
 import {
   tradingKeyMap,
@@ -71,6 +70,7 @@ import {
 } from '../../pages/Orderly/orderly/utils';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../../pages/Orderly/components/UserBoard/index';
 import { openUrl } from '../../services/commonV3';
+import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from 'src/constants';
 
 export function Logout() {
   const { wallet } = getCurrentWallet();

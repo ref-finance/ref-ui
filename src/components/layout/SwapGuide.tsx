@@ -5,8 +5,8 @@ import {
   SwitchIcon,
   LiquidityIcon,
   SureIcon,
-} from '~components/icon/Common';
-import { isMobile } from '~utils/device';
+} from 'src/components/icon/Common';
+import { isMobile } from 'src/utils/device';
 import Modal from 'react-modal';
 
 export default function SwapGuide() {

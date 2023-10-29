@@ -1,8 +1,8 @@
 import React from 'react';
-import { Pool } from '~services/pool';
+import { Pool } from 'src/services/pool';
 import { toReadableNumber } from './numbers';
 import Big from 'big.js';
-import { TokenMetadata } from '~services/ft-contract';
+import { TokenMetadata } from 'src/services/ft-contract';
 
 export const getLiquidity = (
   pool: Pool,

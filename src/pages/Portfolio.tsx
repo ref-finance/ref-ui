@@ -13,8 +13,8 @@ import Navigation, {
 import MainTab from '../components/portfolio/MainTab';
 import { getBoostTokenPrices } from '../services/farm';
 import { UserLiquidityInfo } from '../services/commonV3';
-import { TokenMetadata } from '~services/ft-contract';
-import { isMobile } from '~utils/device';
+import { TokenMetadata } from 'src/services/ft-contract';
+import { isMobile } from 'src/utils/device';
 const is_mobile = isMobile();
 export const PortfolioData = createContext(null);
 function Portfolio() {

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import RangeSlider from './RangeSlider';
-import { IAsset } from '~services/burrow-interfaces';
+import { IAsset } from 'src/services/burrow-interfaces';
 import {
   formatWithCommas_usd,
   formatNumber,
   isInvalid,
-} from '~services/burrow-utils';
-import { toPrecision } from '~utils/numbers';
+} from 'src/services/burrow-utils';
+import { toPrecision } from 'src/utils/numbers';
 import Big from 'big.js';
 export default function InputBox(props: any) {
   const {

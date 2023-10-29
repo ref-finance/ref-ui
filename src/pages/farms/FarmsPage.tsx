@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState, useContext } from 'react';
 import Modal from 'react-modal';
-import { Card } from '~components/card/Card';
-import Alert from '~components/alert/Alert';
-import TipsBox from '~components/farm/TipsBox';
-import CalcModel, { CalcEle, LinkPool } from '~components/farm/CalcModel';
-import UnClaim from '~components/farm/UnClaim';
-import QuestionMark from '~components/farm/QuestionMark';
-import SelectUi from '~components/farm/SelectUi';
+import { Card } from 'src/components/card/Card';
+import Alert from 'src/components/alert/Alert';
+import TipsBox from 'src/components/farm/TipsBox';
+import CalcModel, { CalcEle, LinkPool } from 'src/components/farm/CalcModel';
+import UnClaim from 'src/components/farm/UnClaim';
+import QuestionMark from 'src/components/farm/QuestionMark';
+import SelectUi from 'src/components/farm/SelectUi';
 import {
   FarmMiningIcon,
   ModalClose,
@@ -20,14 +20,14 @@ import {
   SortIcon,
   NoDataIcon,
   LightSmall,
-} from '~components/icon';
+} from 'src/components/icon';
 import {
   GreenLButton,
   BorderButton,
   GradientButton,
   ButtonTextWrapper,
   BlacklightConnectToNearBtn,
-} from '~components/button/Button';
+} from 'src/components/button/Button';
 import {
   getFarms,
   claimRewardByFarm,
@@ -46,14 +46,14 @@ import {
   frontConfig,
   get_seed_info,
   useMigrate_user_data,
-} from '~services/farm';
+} from 'src/services/farm';
 import {
   stake,
   unstake,
   LP_TOKEN_DECIMALS,
   withdrawAllReward,
   LP_STABLE_TOKEN_DECIMALS,
-} from '~services/m-token';
+} from 'src/services/m-token';
 import {
   formatWithCommas,
   toPrecision,
@@ -63,36 +63,36 @@ import {
   calculateFairShare,
   toNonDivisibleNumber,
   percent,
-} from '~utils/numbers';
-import { mftGetBalance } from '~services/mft-contract';
-import { wallet } from '~services/near';
-import Loading, { BeatLoading } from '~components/layout/Loading';
-import { ConnectToNearBtn } from '~components/button/Button';
-import { useTokens } from '~state/token';
-import { Info } from '~components/icon/Info';
+} from 'src/utils/numbers';
+import { mftGetBalance } from 'src/services/mft-contract';
+import { wallet } from 'src/services/near';
+import Loading, { BeatLoading } from 'src/components/layout/Loading';
+import { ConnectToNearBtn } from 'src/components/button/Button';
+import { useTokens } from 'src/state/token';
+import { Info } from 'src/components/icon/Info';
 import ReactTooltip from 'react-tooltip';
-import { getMftTokenId, toRealSymbol } from '~utils/token';
+import { getMftTokenId, toRealSymbol } from 'src/utils/token';
 import ReactModal from 'react-modal';
-import { isMobile } from '~utils/device';
+import { isMobile } from 'src/utils/device';
 import ClipLoader from 'react-spinners/ClipLoader';
-import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
-import { getTokenPriceList } from '~services/indexer';
+import { ftGetTokenMetadata, TokenMetadata } from 'src/services/ft-contract';
+import { getTokenPriceList } from 'src/services/indexer';
 import Countdown, { zeroPad } from 'react-countdown';
 import moment from 'moment';
 import { Link, useHistory, useLocation } from 'react-router-dom';
 import _ from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl';
-import OldInputAmount from '~components/forms/OldInputAmount';
+import OldInputAmount from 'src/components/forms/OldInputAmount';
 import { BigNumber } from 'bignumber.js';
-import getConfig from '~services/config';
+import getConfig from 'src/services/config';
 import {
   getCurrentWallet,
   WalletContext,
 } from '../../utils/wallets-integration';
 import { scientificNotationToString } from '../../utils/numbers';
-import { getPrice } from '~services/xref';
-import { get24hVolume } from '~services/indexer';
-import { PoolRPCView } from '~services/api';
+import { getPrice } from 'src/services/xref';
+import { get24hVolume } from 'src/services/indexer';
+import { PoolRPCView } from 'src/services/api';
 import { checkTransaction } from '../../services/swap';
 import {
   getURLInfo,
@@ -110,7 +110,7 @@ interface SearchData {
   coin: string;
 }
 
-export function FarmsPage() {
+export default function FarmsPage() {
   const intl = useIntl();
   const location = useLocation();
   const sortList = {

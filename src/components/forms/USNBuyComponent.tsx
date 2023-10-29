@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { USNIcon } from '~components/icon/Common';
+import { USNIcon } from 'src/components/icon/Common';
 import { FormattedMessage } from 'react-intl';
 import { GetUSNHover, GetUSNDefault, GetUSNMobile } from '../icon/Nav';
 import { isClientMobie, useClientMobile } from '../../utils/device';

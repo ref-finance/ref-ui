@@ -13,7 +13,6 @@ import {
 import getConfig from './config';
 const { BURROW_CONTRACT_ID, WRAP_NEAR_CONTRACT_ID } = getConfig();
 import { getCurrentWallet, WalletContext } from '../utils/wallets-integration';
-import { useWalletSelector } from 'context/WalletSelectorContext';
 import {
   shrinkToken,
   expandToken,
