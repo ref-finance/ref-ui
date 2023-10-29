@@ -1,9 +1,9 @@
 @font-face {
-  font-family: 'gotham';
+  font-family: 'gothamRef';
   src: url('./assets/Gotham-Book.ttf');
 }
 @font-face {
-  font-family: 'gothamBold';
+  font-family: 'gothamBoldRef';
   src: url('./assets/Gotham-Bold.otf');
 }
 @font-face {
@@ -32,10 +32,16 @@ html {
   line-height: 1.3;
 }
 .gotham_font {
-  font-family: 'gotham';
+  font-family: 'gothamRef';
 }
 .gotham_bold {
-  font-family: 'gothamBold';
+  font-family: 'gothamBoldRef';
+}
+body .font-gotham {
+  font-family: 'gothamRef';
+}
+body .font-gothamBold {
+  font-family: 'gothamBoldRef';
 }
 .arial_font {
   font-family: 'arial';

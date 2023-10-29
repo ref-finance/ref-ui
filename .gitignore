@@ -8,6 +8,7 @@ package-lock.json
 /out
 .cache
 .parcel-cache
+parcel-bundle-reports
 
 /dist
 

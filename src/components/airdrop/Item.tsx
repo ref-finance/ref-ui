@@ -1,7 +1,7 @@
 import React from 'react';
-import { TokenMetadata } from '~services/ft-contract';
-import { toPrecision } from '~utils/numbers';
-import { toRealSymbol } from '~utils/token';
+import { TokenMetadata } from 'src/services/ft-contract';
+import { toPrecision } from 'src/utils/numbers';
+import { toRealSymbol } from 'src/utils/token';
 import { FormattedMessage } from 'react-intl';
 
 export function Item(props: {

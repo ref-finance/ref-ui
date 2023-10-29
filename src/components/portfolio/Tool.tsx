@@ -5,13 +5,13 @@ import {
   toInternationalCurrencySystem,
   toInternationalCurrencySystemNature,
   toInternationalCurrencySystemLongString,
-} from '~utils/numbers';
+} from 'src/utils/numbers';
 import BigNumber from 'bignumber.js';
 import { ArrowRightIcon } from '../../components/icon/V3';
 import { ArrowRIcon, WavyLine, CircleBg } from '../icon/Portfolio';
 import { TriangleIcon } from '../../components/icon/Portfolio';
 import { getCurrentWallet } from '../../utils/wallets-integration';
-import { isMobile } from '~utils/device';
+import { isMobile } from 'src/utils/device';
 import { FormattedMessage, useIntl } from 'react-intl';
 const is_mobile = isMobile();
 export function ArrowJump(props: any) {

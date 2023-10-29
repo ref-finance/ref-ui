@@ -18,7 +18,7 @@ import {
 import { InfoLine } from './LiquidityComponents';
 import _ from 'lodash';
 import BigNumber from 'bignumber.js';
-import { useDayVolume } from '~state/pool';
+import { useDayVolume } from 'src/state/pool';
 import {
   scientificNotationToString,
   checkAllocations,

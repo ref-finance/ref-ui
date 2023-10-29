@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { PoolDb } from '~store/RefDatabase';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { Card } from '../../components/card/Card';
 import {
@@ -39,7 +38,7 @@ import { useClientMobile } from '../../utils/device';
 import { PoolTabV3 } from '../../components/pool/PoolTabV3';
 import Loading from '../../components/layout/Loading';
 import { FarmStampNew } from '../../components/icon/FarmStamp';
-import { getPoolListFarmAprTip } from './LiquidityPage';
+import { getPoolListFarmAprTip } from './utils';
 import ReactTooltip from 'react-tooltip';
 
 interface ParamTypes {
@@ -350,7 +349,7 @@ export function getPoolFeeAprTitleRPCView(
   return Number(result);
 }
 
-export const MorePoolsPage = () => {
+export default function MorePoolsPage() {
   const { state } = useLocation<LocationTypes>();
   const [sortBy, setSortBy] = useState('tvl');
   const [order, setOrder] = useState<boolean | 'desc' | 'asc'>('desc');
@@ -665,4 +664,4 @@ export const MorePoolsPage = () => {
       )}
     </>
   );
-};
+}

@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import Wrapper from './components/wrapper';
+import './shim';
 
 ReactDOM.render(
   <Wrapper>
@@ -10,4 +11,7 @@ ReactDOM.render(
   document.querySelector('#root')
 );
 
-new Worker('./worker.ts');
+new Worker(
+  new URL(/* webpackChunkName: "worker" */ 'worker.ts', import.meta.url),
+  { type: 'module' }
+);

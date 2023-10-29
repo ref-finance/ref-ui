@@ -2424,7 +2424,7 @@ export const ProposalThumbnail = ({ proposal }: { proposal: Proposal }) => {
   );
 };
 
-export const ReferendumPage = () => {
+export default function ReferendumPage() {
   const id = getVEPoolId();
   const lpShare = usePoolShare(id, LOVE_TOKEN_DECIMAL);
 
@@ -2490,7 +2490,7 @@ export const ReferendumPage = () => {
       </div>
     </ReferendumPageContext.Provider>
   );
-};
+}
 
 export const CalenderIcon = () => {
   return (

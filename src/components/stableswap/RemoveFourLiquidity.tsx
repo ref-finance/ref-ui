@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js';
 import React, { useEffect, useState, useRef, useContext } from 'react';
 import ReactTooltip from 'react-tooltip';
-import { wallet } from '~services/near';
+import { wallet } from 'src/services/near';
 import { FaRegQuestionCircle, FaSearch } from 'react-icons/fa';
 import { FormattedMessage, useIntl } from 'react-intl';
 import Alert from '../../components/alert/Alert';
@@ -12,7 +12,7 @@ import {
 } from '../../components/button/Button';
 import { Card } from '../../components/card/Card';
 import InputAmount from '../../components/forms/InputAmount';
-import QuestionMark from '~components/farm/QuestionMark';
+import QuestionMark from 'src/components/farm/QuestionMark';
 
 import { StableSlipSelector } from '../../components/forms/SlippageSelector';
 import { TokenMetadata } from '../../services/ft-contract';
@@ -43,14 +43,14 @@ import {
   percentIncrese,
   scientificNotationToString,
 } from '../../utils/numbers';
-import { toRealSymbol } from '~utils/token';
+import { toRealSymbol } from 'src/utils/token';
 import { RATED_POOL_LP_TOKEN_DECIMALS } from './AddFourLiquidity';
 import { InfoLine } from './LiquidityComponents';
 import StableTokenList, {
   FlexibleStableTokenList,
   StableTokensSymbol,
 } from './StableTokenListFour';
-import { ShareInFarm } from '~components/layout/ShareInFarm';
+import { ShareInFarm } from 'src/components/layout/ShareInFarm';
 import { Link } from 'react-router-dom';
 import {
   LP_STABLE_TOKEN_DECIMALS,

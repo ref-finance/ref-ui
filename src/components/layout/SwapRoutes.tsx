@@ -13,7 +13,7 @@ import {
 } from '../../utils/numbers';
 import { toRealSymbol } from '../../utils/token';
 
-import { EstimateSwapView } from '~services/swap';
+import { EstimateSwapView } from 'src/services/swap';
 
 import { getPoolAllocationPercents, percent } from '../../utils/numbers';
 import { Pool } from '../../services/pool';

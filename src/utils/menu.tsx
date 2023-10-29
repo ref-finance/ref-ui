@@ -61,16 +61,11 @@ import {
   OrderlyIcon,
   BorrowIcon,
   OverviewIcon,
-} from '~components/icon/Nav';
-// import { XrefIcon } from '~components/icon/Xref';
+} from 'src/components/icon/Nav';
+// import { XrefIcon } from 'src/components/icon/Xref';
 import getConfig from '../services/config';
 import { MobileNavLimitOrder, IconMyLiquidity } from '../components/icon/Nav';
-import {
-  SWAP_MODE_KEY,
-  SWAP_MODE,
-  REF_FI_SWAP_SWAPPAGE_TAB_KEY,
-  SWAP_TYPE_KEY,
-} from '../pages/SwapPage';
+import { SWAP_TYPE_KEY } from '../pages/SwapPage';
 import {
   MobileNavSwap,
   MobileNavStable,
@@ -78,8 +73,7 @@ import {
 } from '../components/icon/Nav';
 import { WalletContext } from '../utils/wallets-integration';
 import { useHistory } from 'react-router';
-import { jsx } from '@emotion/react';
-import { openUrl } from '~services/commonV3';
+import { openUrl } from 'src/services/commonV3';
 
 export type MenuItem = {
   id: number;

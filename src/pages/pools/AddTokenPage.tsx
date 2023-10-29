@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Card } from '~components/card/Card';
-import { wallet } from '~services/near';
-import { registerTokenAndExchange } from '~services/token';
-import Alert from '~components/alert/Alert';
+import { Card } from 'src/components/card/Card';
+import { wallet } from 'src/services/near';
+import { registerTokenAndExchange } from 'src/services/token';
+import Alert from 'src/components/alert/Alert';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { ConnectToNearBtn } from '~components/button/Button';
+import { ConnectToNearBtn } from 'src/components/button/Button';
 
-export function AddTokenPage() {
+export default function AddTokenPage() {
   const [addr, setAddr] = useState('');
   const [error, setError] = useState<string>();
   const intl = useIntl();

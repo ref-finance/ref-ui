@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { AccountStorageView, currentStorageBalance } from '../services/account';
 import { wallet } from '../services/near';
-import { currentRefPrice } from '~services/api';
-import { useMobile } from '~utils/device';
+import { currentRefPrice } from 'src/services/api';
+import { useMobile } from 'src/utils/device';
 import { getCurrentWallet } from '../utils/wallets-integration';
 
 const REFRESH_TIME = 60 * 1000;

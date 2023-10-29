@@ -4,7 +4,7 @@ import 'swiper/swiper.min.css';
 import SwiperCore, { Autoplay } from 'swiper';
 import { isMobile } from '../../utils/device';
 import { SwiperCloseButton } from '../../components/icon/Common';
-import { GradientButton } from '~components/button/Button';
+import { GradientButton } from 'src/components/button/Button';
 
 SwiperCore.use([Autoplay]);
 

@@ -4,14 +4,16 @@ module.exports = {
       './babelTransformImportExport.js',
     '^.+\\.tsx?$': 'ts-jest',
     '^.+\\.jsx?$': 'babel-jest',
-    '^.+\\.svg$': './svgTransform.js'
+    '^.+\\.svg$': './svgTransform.js',
   },
   setupFilesAfterEnv: ['./src/setupTests.js'],
   transformIgnorePatterns: [
-    'node_modules[/\\\\](?!@aurora-is-near[/\\\\]engine[/\\\\])',
+    'node_modules/(?!(@aurora-is-near/engine/|ethereumjs-util/|web3-eth-abi/|ethereum-cryptography/))',
   ],
-  "moduleNameMapper": {
-    "\\.(css|less)$": "<rootDir>/src/__mocks__/styleMock.js",
-    "d3": "<rootDir>/src/__mocks__/styleMock.js",
-  }
+  moduleNameMapper: {
+    '\\.(css|less)$': '<rootDir>/src/__mocks__/styleMock.js',
+    d3: '<rootDir>/src/__mocks__/styleMock.js',
+    '^src/(.*)$': '<rootDir>/src/$1',
+  },
+  moduleDirectories: ['node_modules', 'src'],
 };

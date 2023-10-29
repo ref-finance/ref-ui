@@ -13,7 +13,7 @@ import {
   useTotalLiquidityData,
   getAccountId,
 } from './Tool';
-import { isMobile } from '~utils/device';
+import { isMobile } from 'src/utils/device';
 import { FormattedMessage, useIntl } from 'react-intl';
 const is_mobile = isMobile();
 export default function Positions(props: any) {

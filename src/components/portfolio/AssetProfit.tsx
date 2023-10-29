@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import BigNumber from 'bignumber.js';
 import { UserLiquidityInfo, openUrl } from '../../services/commonV3';
-import { toReadableNumber } from '~utils/numbers';
+import { toReadableNumber } from 'src/utils/numbers';
 import QuestionMark from '../../components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 import { PortfolioData } from '../../pages/Portfolio';

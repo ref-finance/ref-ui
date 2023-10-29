@@ -1,5 +1,5 @@
 import React from 'react';
-import { toRealSymbol } from '~utils/token';
+import { toRealSymbol } from 'src/utils/token';
 import { TokenMetadata } from '../../services/ft-contract';
 
 export default function Icon({

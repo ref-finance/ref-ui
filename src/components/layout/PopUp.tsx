@@ -8,8 +8,8 @@ import {
   CloseBtn_white,
   CircleCloseBtn,
   PopupCloseButton,
-} from '~components/icon/Common';
-import { isMobile } from '~utils/device';
+} from 'src/components/icon/Common';
+import { isMobile } from 'src/utils/device';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import getConfig from '../../services/config';
 import 'swiper/swiper.min.css';

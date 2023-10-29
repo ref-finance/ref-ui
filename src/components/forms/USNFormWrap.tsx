@@ -8,10 +8,10 @@ import {
   WalletContext,
 } from '../../utils/wallets-integration';
 import { SWAP_MODE } from '../../pages/SwapPage';
-import QuestionMark from '~components/farm/QuestionMark';
+import QuestionMark from 'src/components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 import { IoClose } from '../reactIcons';
-import { isMobile } from '~utils/device';
+import { isMobile } from 'src/utils/device';
 
 interface USNFormWrapProps {
   title?: string;
