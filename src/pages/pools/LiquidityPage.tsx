@@ -1040,7 +1040,7 @@ function MobileLiquidityPage({
         {!!getConfig().REF_VE_CONTRACT_ID ? (
           <div className="mt-1 mb-5">
             <div className="flex items-center">
-              <span className="text-white text-lg ml-4 mr-2">
+              <span className="text-white text-sm ml-4 mr-2">
                 <FormattedMessage
                   id="start_pool"
                   defaultMessage={'Star Pool'}
@@ -1573,6 +1573,8 @@ function MobileLiquidityPage({
             searchBy={tokenName}
             volumes={volumes}
             watchPools={watchPools}
+            farmCounts={farmCounts}
+            farmAprById={farmAprById}
           />
         )}
       </div>
@@ -2391,7 +2393,7 @@ function LiquidityPage_({
               </div>
               <div className="absolute flex items-center right-0 bottom-0">
                 <button
-                  className="text-white hover:text-gradientFrom text-lg z-30 relative top-6 right-0 flex items-center"
+                  className="text-white hover:text-gradientFrom text-sm z-30 relative top-6 right-0 flex items-center"
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
@@ -3142,6 +3144,8 @@ function LiquidityPage_({
             searchBy={tokenName}
             volumes={volumes}
             watchPools={watchPools}
+            farmCounts={farmCounts}
+            farmAprById={farmAprById}
           />
         )}
       </div>
@@ -3675,7 +3679,7 @@ const RenderDisplayTokensAmounts = ({
   setChartActiveToken?: (token: string) => void;
 }) => {
   return (
-    <div className="flex items-center  flex-shrink-0 xs:-mr-1.5 md:-mr-1.5 flex-wrap xsm:justify-end lg:w-80">
+    <div className="flex items-center  flex-shrink-0 xs:-mr-1.5 md:-mr-1.5 flex-wrap xsm:justify-end lg:w-60">
       {tokens.map((token, i) => {
         return (
           <span
@@ -3743,12 +3747,18 @@ function StablePoolCard({
   poolData,
   h24volume,
   watched,
+  supportFarm,
+  farmApr,
 }: {
   poolData: PoolData;
   h24volume: string;
   watched?: boolean;
+  supportFarm: boolean;
+  farmApr: number;
 }) {
   const formattedPool = formatePoolData(poolData);
+  const standPool = poolData.pool;
+  standPool.tvl = poolData.poolTVL;
 
   const [hover, setHover] = useState<boolean>(false);
 
@@ -3784,7 +3794,7 @@ function StablePoolCard({
         to={`/sauce/${poolData.pool.id}`}
         className={`${
           hover || isMobile ? 'bg-v3HoverDarkBgColor' : 'bg-cardBg'
-        } relative z-20 rounded-xl xs:rounded-t-xl md:rounded-t-xl xs:rounded-b-none md:rounded-b-none px-8 xs:px-5 md:px-5 w-full h-28 xs:h-20 md:h-20 flex items-center justify-between overflow-hidden`}
+        } relative z-20 rounded-xl  xsm:rounded-t-xl xsm:rounded-b-none w-full h-28 xsm:h-20 lg:grid lg:grid-cols-6 overflow-hidden xsm:flex xsm:items-center xsm:justify-between xsm:pr-3`}
         onMouseEnter={() => {
           setHover(true);
         }}
@@ -3792,7 +3802,7 @@ function StablePoolCard({
         {is_new_pool ? <NewTag /> : null}
         <StablePoolClassIcon id={poolData.pool.id.toString()} />
         <div
-          className={`w-5/12 xs:w-full md:w-full ${
+          className={`col-span-2 pl-8 xsm:pl-4 xs:w-full md:w-full ${
             haveFarm
               ? 'xs:relative xs:top-1 xs:items-start md:relative md:top-1 md:items-start'
               : ''
@@ -3809,20 +3819,20 @@ function StablePoolCard({
           <div className="flex xs:flex-col xs:items-end items-center">
             <div className="flex items-center">
               <Symbols
-                fontSize="xs:text-sm md:text-sm lg:text-lg lg:font-bold"
+                fontSize="text-sm"
                 tokens={poolData.tokens}
                 separator="-"
-                className="lg:max-w-44 lg:flex-wrap"
+                className="lg:min-w-48 lg:flex-wrap"
               />
               {watched && (
-                <div className="ml-2">
+                <div className="xsm:ml-1">
                   <WatchListStartFull />
                 </div>
               )}
             </div>
 
             <span
-              className="ml-1 xs:relative md:relative xs:top-1 md:top-1 cursor-pointer"
+              className="xs:relative md:relative xs:top-1 md:top-1 cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -3838,9 +3848,31 @@ function StablePoolCard({
           </div>
         </div>
 
-        <div className="w-7/12 flex  xs:hidden md:hidden items-center">
+        <div className="col-span-4 grid grid-cols-5 items-center xs:hidden md:hidden">
           <div
-            className="col-span-1 w-32 py-1 text-lg relative right-3"
+            className="col-span-1 flex flex-col items-center justify-self-center"
+            data-type="info"
+            data-place="right"
+            data-multiline={true}
+            data-class={'reactTip'}
+            data-html={true}
+            data-tip={getPoolListFarmAprTip()}
+            data-for={'pool_list_pc_apr' + poolData.pool.id}
+          >
+            {!h24volume ? '-' : `${getPoolFeeApr(h24volume, standPool)}%`}
+            {supportFarm &&
+              !Number.isNaN(farmApr) &&
+              farmApr !== null &&
+              farmApr !== undefined &&
+              farmApr > 0 &&
+              h24volume && (
+                <span className="text-xs text-gradientFrom">
+                  {`+${toPrecision((farmApr * 100).toString(), 2)}%`}
+                </span>
+              )}
+          </div>
+          <div
+            className="col-span-1 justify-self-center text-sm"
             title={h24volume}
           >
             {!h24volume
@@ -3852,9 +3884,9 @@ function StablePoolCard({
               : `$${toInternationalCurrencySystem(h24volume)}`}
           </div>
 
-          <div className="flex flex-col   flex-shrink-0 relative lg:right-12 lg2:right-8   2xl:-right-4">
+          <div className="col-span-2 flex flex-col flex-shrink-0 relative lg:pl-4">
             <div
-              className="col-span-1 py-1 text-lg "
+              className="col-span-1 py-1 text-sm "
               title={toPrecision(
                 poolData.poolTVL === undefined
                   ? '-'
@@ -3896,6 +3928,26 @@ function StablePoolCard({
         }`}
       >
         <div className="lg:hidden w-full flex  justify-between text-sm text-white">
+          <div className="text-xs text-v3SwapGray">
+            <FormattedMessage id="apr" defaultMessage={'APR'} />
+          </div>
+
+          <div className="flex flex-col items-end ">
+            {!h24volume ? '-' : `${getPoolFeeApr(h24volume, standPool)}%`}{' '}
+            {supportFarm}
+            {supportFarm &&
+              !Number.isNaN(farmApr) &&
+              farmApr !== null &&
+              farmApr !== undefined &&
+              farmApr > 0 &&
+              h24volume && (
+                <span className="text-xs text-gradientFrom">
+                  {`+${toPrecision((farmApr * 100).toString(), 2)}%`}
+                </span>
+              )}
+          </div>
+        </div>
+        <div className="lg:hidden w-full mt-2 flex  justify-between text-sm text-white">
           <div className="text-xs text-v3SwapGray">
             <FormattedMessage id="tvl" defaultMessage={'TVL'} />
           </div>
@@ -3945,7 +3997,7 @@ function StablePoolCard({
             <FormattedMessage id="your_shares" defaultMessage="Your Shares" />
           </div>
 
-          <div className="text-lg ml-5 mr-2.5 text-white">
+          <div className="text-sm ml-5 mr-2.5 text-white">
             {formattedPool.displayMyShareAmount}
           </div>
           <div className="text-primaryText mr-4">
@@ -4033,10 +4085,14 @@ function StablePoolList({
   searchBy,
   volumes,
   watchPools,
+  farmCounts,
+  farmAprById,
 }: {
   searchBy: string;
   volumes: Record<string, string>;
   watchPools: Pool[];
+  farmCounts: Record<string, number>;
+  farmAprById: Record<string, number>;
 }) {
   const [option, setOption] = useState<string>('ALL');
 
@@ -4074,22 +4130,41 @@ function StablePoolList({
     const vol1 = Number(volumes[p1.pool.id.toString()] || '0');
     const vol2 = Number(volumes[p2.pool.id.toString()] || '0');
 
+    const standPool1 = p1.pool;
+    standPool1.tvl = p1.poolTVL;
+
+    const standPool2 = p2.pool;
+    standPool2.tvl = p2.poolTVL;
+
+    const apr1 =
+      getPoolFeeAprTitle(vol1.toString(), standPool1) +
+      (farmAprById?.[p1.pool.id] || 0) * 100;
+
+    const apr2 =
+      getPoolFeeAprTitle(vol2.toString(), standPool2) +
+      (farmAprById?.[p2.pool.id] || 0) * 100;
+
     const is_p1_sort_top =
       p1.pool.id == USDTT_USDCC_USDT_USDC_POOL_ID && !clicked;
     const is_p2_sort_top =
       p2.pool.id == USDTT_USDCC_USDT_USDC_POOL_ID && !clicked;
+
     if (is_p1_sort_top) return 1;
     if (is_p2_sort_top) return 1;
 
     if (orderStable === 'desc') {
       if (sortBy === 'tvl') {
         return v2 - v1;
+      } else if (sortBy == 'apr') {
+        return apr2 - apr1;
       } else {
         return vol2 - vol1;
       }
     } else {
       if (sortBy === 'tvl') {
         return v1 - v2;
+      } else if (sortBy == 'apr') {
+        return apr1 - apr2;
       } else {
         return vol1 - vol2;
       }
@@ -4098,8 +4173,8 @@ function StablePoolList({
 
   return (
     <>
-      <div className="flex relative mb-4 xs:mb-2 md:mb-2 items-center">
-        <div className="flex items-center w-5/12 xs:w-full md:w-full xs:justify-between md:justify-between">
+      <div className=" grid grid-cols-6 relative mb-4 xs:mb-2 md:mb-2 items-center">
+        <div className="flex items-center col-span-2 xsm:w-full">
           {['ALL', 'USD', 'BTC', 'NEAR'].map((o) => {
             return (
               <button
@@ -4119,8 +4194,43 @@ function StablePoolList({
           })}
         </div>
 
-        <div className="w-7/12 xs:hidden md:hidden flex items-center text-primaryText ">
-          <div className="w-32 relative xl:right-8 lg:right-12 flex items-center">
+        <div className="col-span-4 grid grid-cols-5 items-center xsm:hidden text-primaryText ">
+          <div className="col-span-1 relative flex items-center justify-self-center ">
+            <span
+              className={`pr-1 cursor-pointer
+              
+              ${sortBy !== 'apr' ? 'hover:text-white' : 'text-gradientFrom'}
+    
+              `}
+              onClick={() => {
+                setClicked(true);
+                setSortBy('apr');
+
+                setorderStable(
+                  orderStable === 'desc' && sortBy === 'apr' ? 'asc' : 'desc'
+                );
+              }}
+            >
+              <FormattedMessage id="apr" defaultMessage="APR" />
+            </span>
+            <span
+              className={`cursor-pointer ${sortBy !== 'apr' ? 'hidden' : ''} `}
+              onClick={() => {
+                setClicked(true);
+                setSortBy('apr');
+                setorderStable(
+                  orderStable === 'desc' && sortBy === 'apr' ? 'asc' : 'desc'
+                );
+              }}
+            >
+              {orderStable === 'desc' && sortBy === 'apr' ? (
+                <DownArrowLight />
+              ) : (
+                <UpArrowLight />
+              )}
+            </span>
+          </div>
+          <div className="col-span-1 relative flex items-center justify-self-center">
             <span
               className={`pr-1 cursor-pointer
               
@@ -4166,9 +4276,7 @@ function StablePoolList({
             </span>
           </div>
 
-          <div
-            className={`relative lg:right-12 lg2:right-8   2xl:-right-4    inline-flex items-center`}
-          >
+          <div className={`col-span-3 pl-4 relative inline-flex items-center`}>
             <span
               className={`pr-1 cursor-pointer
               ${sortBy !== 'tvl' ? 'hover:text-white' : 'text-gradientFrom'}
@@ -4216,6 +4324,8 @@ function StablePoolList({
                 poolData={pd}
                 h24volume={volumes[pd.pool.id.toString()]}
                 watched={!!find(watchPools, { id: pd.pool.id })}
+                supportFarm={farmCounts && !!farmCounts[pd.pool.id]}
+                farmApr={farmAprById ? farmAprById[pd.pool.id] : null}
               />
             );
           })}

@@ -481,6 +481,7 @@ module.exports = {
       },
       minHeight: {
         8: '2rem',
+        '60': '280px',
         '80': '350px',
         'screen': '100vh',
         'max': 'max-content'
@@ -493,6 +494,7 @@ module.exports = {
         36: '9rem',
         24: '6rem',
         40: '10rem',
+        48: '150px',
         32: '8rem',
         '420px': '420px',
         p240: '240px',
