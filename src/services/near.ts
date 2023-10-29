@@ -1,9 +1,4 @@
-import {
-  Near,
-  keyStores,
-  utils,
-  providers,
-} from 'near-api-js';
+import { Near, keyStores, utils, providers } from 'near-api-js';
 import { functionCall } from 'near-api-js/lib/transaction';
 import BN from 'bn.js';
 import getConfig, { getExtraStablePoolConfig } from './config';

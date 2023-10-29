@@ -1,7 +1,5 @@
 import React from 'react';
-import {
-  BrowserRouter as Router,
-} from 'react-router-dom';
+import { BrowserRouter as Router } from 'react-router-dom';
 
 import Footer from './components/layout/Footer';
 
@@ -11,9 +9,7 @@ import './app.css';
 import ExternalPopUp from 'src/components/layout/ExternalPopUp';
 import Guider from 'src/components/layout/Guider';
 
-import {
-  WalletSelectorContextProvider,
-} from './context/WalletSelectorContext';
+import { WalletSelectorContextProvider } from './context/WalletSelectorContext';
 
 import { Content } from 'src/Content';
 import { LedgerTransactionModal } from './context/modal-ui/modal';

@@ -7,7 +7,11 @@ import {
   V3_POOL_SPLITER,
   pointToPrice,
 } from '../../services/swapV3';
-import { calculateFeePercent, ONLY_ZEROS, toPrecision } from 'src/utils/numbers';
+import {
+  calculateFeePercent,
+  ONLY_ZEROS,
+  toPrecision,
+} from 'src/utils/numbers';
 
 import { BsCheckCircle } from '../reactIcons';
 

@@ -37,10 +37,7 @@ import {
 import { FarmDot } from '../icon/FarmStamp';
 import { AccountTipDownByAccountID, AuroraEntry } from './NavigationBar';
 import { ConnectDot, CopyIcon } from '../icon/CrossSwapIcons';
-import {
-  SWAP_MODE_KEY,
-  SWAP_MODE,
-} from '../../pages/SwapPage';
+import { SWAP_MODE_KEY, SWAP_MODE } from '../../pages/SwapPage';
 import Marquee from 'src/components/layout/Marquee';
 import {
   useWalletSelector,
@@ -60,7 +57,10 @@ import {
   HiMenuIcon,
   ArrowDownLargeIcon,
 } from 'src/components/icon/Nav';
-import { RefAnalytics, RefAnalyticsGary } from 'src/components/icon/RefAnalytics';
+import {
+  RefAnalytics,
+  RefAnalyticsGary,
+} from 'src/components/icon/RefAnalytics';
 import { useLanguageItems } from 'src/utils/menu';
 import { commonLangKey, formatItem } from './NavigationBar';
 import {

@@ -45,7 +45,10 @@ import {
 } from 'src/services/burrow';
 import { BurrowData } from '../../pages/Burrow';
 import { WarningIcon } from 'src/components/icon/V3';
-import { ButtonTextWrapper, ConnectToNearBtn } from 'src/components/button/Button';
+import {
+  ButtonTextWrapper,
+  ConnectToNearBtn,
+} from 'src/components/button/Button';
 import { WalletContext } from '../../utils/wallets-integration';
 import Big from 'big.js';
 import { FormattedMessage, useIntl } from 'react-intl';

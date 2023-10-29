@@ -124,7 +124,6 @@ export const buildInput = (abi: any[], methodName: string, params: any) => {
     return null;
   }
 
-  //@ts-ignore
   return AbiCoder.encodeFunctionCall(abiItem, params);
 };
 
@@ -133,8 +132,11 @@ export const decodeOutput = (abi: any[], methodName: string, buffer: any) => {
   if (!abiItem) {
     return null;
   }
-
-  //@ts-ignore
+  console.log(
+    'xx',
+    abiItem.outputs,
+    AbiCoder.decodeParameters(abiItem.outputs, `0x${buffer.toString('hex')}`)
+  );
   return AbiCoder.decodeParameters(
     abiItem.outputs,
     `0x${buffer.toString('hex')}`

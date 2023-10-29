@@ -65,9 +65,7 @@ import {
 // import { XrefIcon } from 'src/components/icon/Xref';
 import getConfig from '../services/config';
 import { MobileNavLimitOrder, IconMyLiquidity } from '../components/icon/Nav';
-import {
-  SWAP_TYPE_KEY,
-} from '../pages/SwapPage';
+import { SWAP_TYPE_KEY } from '../pages/SwapPage';
 import {
   MobileNavSwap,
   MobileNavStable,

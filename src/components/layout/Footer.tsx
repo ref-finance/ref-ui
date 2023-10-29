@@ -6,7 +6,10 @@ import {
   AiOutlineMedium,
 } from '../reactIcons';
 import { FooterLogoREF } from 'src/components/icon/FooterLogo';
-import { RefAnalytics, RefAnalyticsGary } from 'src/components/icon/RefAnalytics';
+import {
+  RefAnalytics,
+  RefAnalyticsGary,
+} from 'src/components/icon/RefAnalytics';
 import { useRefPrice } from 'src/state/account';
 import { toPrecision } from 'src/utils/numbers';
 import RpcList from 'src/components/rpc/index';

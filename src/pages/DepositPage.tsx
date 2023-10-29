@@ -15,7 +15,10 @@ import { deposit } from '../services/token';
 import { wallet } from 'src/services/near';
 import { Balances } from '../components/deposit/Deposit';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { ConnectToNearBtn, ButtonTextWrapper } from 'src/components/button/Button';
+import {
+  ConnectToNearBtn,
+  ButtonTextWrapper,
+} from 'src/components/button/Button';
 import { STORAGE_PER_TOKEN } from 'src/services/creators/storage';
 import { BigNumber } from 'bignumber.js';
 

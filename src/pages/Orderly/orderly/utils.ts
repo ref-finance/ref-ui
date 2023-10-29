@@ -181,7 +181,7 @@ export const generateRequestSignatureHeader = async ({
 
     signature = keyPair?.sign(Buffer.from(message))?.signature;
   }
-  
+
   return Buffer.from(signature ?? '')
     .toString('base64')
     .replace(/\+/g, '-')
@@ -207,12 +207,18 @@ export const generateOrderSignature = (message: string) => {
   const keyPair = EC.keyFromPrivate(priKey, 'hex');
 
   const signature = keyPair.sign(msgHash, 'hex', { canonical: true });
-  if (signature && signature.r && signature.s && signature.recoveryParam !== undefined) {
-    return signature.r.toString('hex', 64) +
-    signature.s.toString('hex', 64) +
-    '0' +
-    signature.recoveryParam;
-
+  if (
+    signature &&
+    signature.r &&
+    signature.s &&
+    signature.recoveryParam !== undefined
+  ) {
+    return (
+      signature.r.toString('hex', 64) +
+      signature.s.toString('hex', 64) +
+      '0' +
+      signature.recoveryParam
+    );
   }
   return '';
 };

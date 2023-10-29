@@ -25,4 +25,4 @@ export default function StableSwapRouter() {
   if (pool.tokenIds.length == 3) return <StableSwapPage pool={pool} />;
   if (pool.tokenIds.length == 4) return <FourTokenStablePage pool={pool} />;
   else return <StableSwapPageUSN pool={pool} />;
-};
+}

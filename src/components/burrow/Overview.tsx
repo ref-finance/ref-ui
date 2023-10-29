@@ -5,7 +5,10 @@ import React, {
   useContext,
   createContext,
 } from 'react';
-import { GradientButton, ButtonTextWrapper } from 'src/components/button/Button';
+import {
+  GradientButton,
+  ButtonTextWrapper,
+} from 'src/components/button/Button';
 import { FormattedMessage, useIntl } from 'react-intl';
 import QuestionMark from 'src/components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';

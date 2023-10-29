@@ -8,7 +8,10 @@ import Modal from 'react-modal';
 import { Link } from 'react-router-dom';
 import { getMftTokenId } from 'src/utils/token';
 import { Card } from 'src/components/card/Card';
-import { LP_TOKEN_DECIMALS, LP_STABLE_TOKEN_DECIMALS } from 'src/services/m-token';
+import {
+  LP_TOKEN_DECIMALS,
+  LP_STABLE_TOKEN_DECIMALS,
+} from 'src/services/m-token';
 import { FarmInfo } from 'src/services/farm';
 import {
   toPrecision,

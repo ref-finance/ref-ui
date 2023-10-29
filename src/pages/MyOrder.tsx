@@ -17,17 +17,18 @@ import {
   pointToPrice,
 } from '../services/swapV3';
 import { useToken, useTokens, useTokenPriceList } from '../state/token';
-import {
-  SWAP_MODE,
-  SWAP_MODE_KEY
-} from './SwapPage';
+import { SWAP_MODE, SWAP_MODE_KEY } from './SwapPage';
 import {
   MobileHistoryOrderStamp,
   MyOrderCircle,
   MyOrderMask,
   MyOrderMask2,
 } from '../components/icon/swapV3';
-import { calculateFeePercent, ONLY_ZEROS, toPrecision } from 'src/utils/numbers';
+import {
+  calculateFeePercent,
+  ONLY_ZEROS,
+  toPrecision,
+} from 'src/utils/numbers';
 
 import { BsCheckCircle } from '../components/reactIcons';
 

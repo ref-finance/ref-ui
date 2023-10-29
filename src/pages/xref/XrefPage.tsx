@@ -39,9 +39,7 @@ import {
 } from 'src/services/xref';
 import QuestionMark from 'src/components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
-import {
-  WalletContext,
-} from '../../utils/wallets-integration';
+import { WalletContext } from '../../utils/wallets-integration';
 const {
   XREF_TOKEN_ID,
   REF_TOKEN_ID,

@@ -13,5 +13,5 @@ ReactDOM.render(
 
 new Worker(
   new URL(/* webpackChunkName: "worker" */ 'worker.ts', import.meta.url),
-  {type: 'module'}
+  { type: 'module' }
 );

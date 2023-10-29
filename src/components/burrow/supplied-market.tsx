@@ -12,7 +12,10 @@ import {
 } from 'src/services/burrow-interfaces';
 import Big from 'big.js';
 import { shrinkToken, toAPY } from 'src/services/burrow-utils';
-import { sortSupplyMarketData, hiddenAssets } from 'src/services/burrow-business';
+import {
+  sortSupplyMarketData,
+  hiddenAssets,
+} from 'src/services/burrow-business';
 import ModalBox from './ModalBox';
 import { isMobile } from 'src/utils/device';
 import { ArrowUpIcon, ArrowDownIcon } from './icons';

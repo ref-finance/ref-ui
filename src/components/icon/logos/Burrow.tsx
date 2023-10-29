@@ -2524,4 +2524,4 @@ export default function Burrow() {
       />
     </svg>
   );
-};
+}

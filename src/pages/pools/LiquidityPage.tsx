@@ -151,7 +151,11 @@ import { useTokenPriceList } from '../../state/token';
 import { useSeedFarmsByPools } from '../../state/pool';
 
 import { PoolRefreshModal } from './PoolRefreshModal';
-import { REF_FI_POOL_ACTIVE_TAB, getPoolFeeApr, getPoolListFarmAprTip } from './utils';
+import {
+  REF_FI_POOL_ACTIVE_TAB,
+  getPoolFeeApr,
+  getPoolListFarmAprTip,
+} from './utils';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -160,7 +164,6 @@ const REF_FI_FARM_ONLY = 'REF_FI_FARM_ONLY';
 const REF_POOL_ID_SEARCHING_KEY = 'REF_POOL_ID_SEARCHING_KEY';
 const { switch_on_dcl_farms } = getConfig();
 const TokenPriceListContext = createContext(null);
-
 
 export function getPoolFeeAprTitle(
   dayVolume: string,
@@ -1529,8 +1532,6 @@ function MobileLiquidityPage({
     </>
   );
 }
-
-
 
 const PoolIdNotExist = () => {
   const intl = useIntl();
@@ -2965,8 +2966,6 @@ function LiquidityPage_({
     </>
   );
 }
-
-
 
 export const REF_FI_POOL_SEARCH_BY = 'REF_FI_POOL_SEARCH_BY_VALUE';
 

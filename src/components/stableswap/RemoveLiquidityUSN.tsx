@@ -51,7 +51,10 @@ import StableTokenList, {
 } from './StableTokenList';
 import { ShareInFarm } from 'src/components/layout/ShareInFarm';
 import { Link } from 'react-router-dom';
-import { LP_STABLE_TOKEN_DECIMALS, LP_TOKEN_DECIMALS } from 'src/services/m-token';
+import {
+  LP_STABLE_TOKEN_DECIMALS,
+  LP_TOKEN_DECIMALS,
+} from 'src/services/m-token';
 import { QuestionTip } from '../../components/layout/TipWrapper';
 import {
   WalletContext,

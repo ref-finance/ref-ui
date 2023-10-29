@@ -135,10 +135,7 @@ import { BoostInputAmount } from '../../components/forms/InputAmount';
 import { ExternalLinkIcon } from 'src/components/icon/Risk';
 import { FaAngleDown, FaAngleUp } from '../../components/reactIcons';
 import { useClientMobile, isClientMobie } from '../../utils/device';
-import {
-  getPoolFeeApr,
-  getPoolListFarmAprTip,
-} from './utils';
+import { getPoolFeeApr, getPoolListFarmAprTip } from './utils';
 import { Images, Symbols } from '../../components/stableswap/CommonComp';
 import { useTokenPriceList } from '../../state/token';
 import { ExchangeArrow } from '../../components/icon/Arrows';
@@ -164,7 +161,10 @@ import { NoLiquidityDetailPageIcon } from '../../components/icon/Pool';
 import { useFarmStake } from '../../state/farm';
 import { VEARROW } from '../../components/icon/Referendum';
 import Big from 'big.js';
-import { getEffectiveFarmList, sort_tokens_by_base } from 'src/services/commonV3';
+import {
+  getEffectiveFarmList,
+  sort_tokens_by_base,
+} from 'src/services/commonV3';
 import { openUrl } from '../../services/commonV3';
 import { numberWithCommas } from '../Orderly/utiles';
 import { PoolRefreshModal } from './PoolRefreshModal';
