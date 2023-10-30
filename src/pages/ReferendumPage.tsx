@@ -388,7 +388,7 @@ const timeStampToDate = (ts: number) => {
   return moment(ts * 1000).format('YYYY-MM-DD');
 };
 
-export const getVEPoolId = (env: string = process.env.NEAR_ENV) => {
+export const getVEPoolId = (env: string = process.env.REACT_APP_NEAR_ENV) => {
   switch (env) {
     case 'pub-testnet':
       return 17;
