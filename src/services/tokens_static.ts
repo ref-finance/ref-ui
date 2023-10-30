@@ -138,7 +138,7 @@ const testnet_tokens = {
 };
 
 export function getTokens() {
-  const env: string = process.env.NEAR_ENV;
+  const env: string = process.env.REACT_APP_NEAR_ENV;
   if (env == 'testnet') return dev_tokens;
   if (env == 'pub-testnet') return testnet_tokens;
   return main_tokens;
