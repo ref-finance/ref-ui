@@ -5,9 +5,12 @@ import React, {
   useContext,
   createContext,
 } from 'react';
-import { GradientButton, ButtonTextWrapper } from '~components/button/Button';
+import {
+  GradientButton,
+  ButtonTextWrapper,
+} from 'src/components/button/Button';
 import { FormattedMessage, useIntl } from 'react-intl';
-import QuestionMark from '~components/farm/QuestionMark';
+import QuestionMark from 'src/components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 import { BurrowData } from '../../pages/Burrow';
 import {
@@ -16,13 +19,13 @@ import {
   IAssetRewardDetail,
   INetTvlFarm,
   IUnclaimedReward,
-} from '~services/burrow-interfaces';
+} from 'src/services/burrow-interfaces';
 import {
   getGains,
   getProtocolRewards,
   getTotalBalance,
-} from '~services/burrow-business';
-import { accountFarmClaimAll } from '~services/burrow';
+} from 'src/services/burrow-business';
+import { accountFarmClaimAll } from 'src/services/burrow';
 import Big from 'big.js';
 import {
   shrinkToken,
@@ -31,9 +34,9 @@ import {
   formatPercentage,
   formatNumber,
   formatToInternationalCurrencySystem$,
-} from '~services/burrow-utils';
+} from 'src/services/burrow-utils';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
-import { isMobile } from '~utils/device';
+import { isMobile } from 'src/utils/device';
 const is_mobile = isMobile();
 const OverviewData = createContext(null);
 export default function Overview() {

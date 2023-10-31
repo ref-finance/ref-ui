@@ -96,7 +96,7 @@ import Countdown, { zeroPad } from 'react-countdown';
 import { MoreButtonIcon } from '../../components/icon/Common';
 
 import _ from 'lodash';
-import { PoolInfo } from '~services/swapV3';
+import { PoolInfo } from 'src/services/swapV3';
 import {
   getPriceByPoint,
   get_total_value_by_liquidity_amount_dcl,

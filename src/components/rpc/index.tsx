@@ -9,14 +9,17 @@ import {
   SetButtonIcon,
   ReturnArrowButtonIcon,
   DeleteButtonIcon,
-} from '~components/icon/Common';
-import { getExtendConfig, getCustomConfig } from '~services/config';
-import { isMobile } from '~utils/device';
+} from 'src/components/icon/Common';
+import { getExtendConfig, getCustomConfig } from 'src/services/config';
+import { isMobile } from 'src/utils/device';
 import Modal from 'react-modal';
-import { ModalClose, Checkbox, CheckboxSelected } from '~components/icon';
-import { BeatLoading } from '~components/layout/Loading';
+import { ModalClose, Checkbox, CheckboxSelected } from 'src/components/icon';
+import { BeatLoading } from 'src/components/layout/Loading';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { GradientButton, ButtonTextWrapper } from '~components/button/Button';
+import {
+  GradientButton,
+  ButtonTextWrapper,
+} from 'src/components/button/Button';
 const MAXELOADTIMES = 3;
 const RpcList = () => {
   const rpclist = getRpcList();
@@ -383,7 +386,7 @@ const ModalAddCustomNetWork = (props: any) => {
       }
     }
     // do not support testnet
-    const env = process.env.NEAR_ENV;
+    const env = process.env.REACT_APP_NEAR_ENV;
     if (env == 'testnet' || env == 'pub-testnet') {
       setNotSupportTestnetError(true);
       setCustomLoading(false);
@@ -788,7 +791,7 @@ async function pingChain(url: string) {
     chain_id,
   };
 }
-const isPrd = (env: string = process.env.NEAR_ENV) => {
+const isPrd = (env: string = process.env.REACT_APP_NEAR_ENV) => {
   if (env != 'pub-testnet' && env != 'testnet') return true;
 };
 function trimStr(str: string = '') {

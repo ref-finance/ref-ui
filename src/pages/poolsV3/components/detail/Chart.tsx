@@ -6,12 +6,12 @@ import {
   ChartChangeButton,
   MobileChartChangeButton,
 } from '../../../pools/DetailsPage';
-import { get_pool_marketdepth } from '~services/swapV3';
-import { useV3VolumeChart, useV3TvlChart } from '~state/pool';
-import { Card } from '~components/card/Card';
+import { get_pool_marketdepth } from 'src/services/swapV3';
+import { useV3VolumeChart, useV3TvlChart } from 'src/state/pool';
+import { Card } from 'src/components/card/Card';
 import { isClientMobie } from '../../../../utils/device';
-import { ChartNoData } from '~components/icon/ChartNoData';
-import { getPriceByPoint, TOKEN_LIST_FOR_RATE } from '~services/commonV3';
+import { ChartNoData } from 'src/components/icon/ChartNoData';
+import { getPriceByPoint, TOKEN_LIST_FOR_RATE } from 'src/services/commonV3';
 import { BigNumber } from 'bignumber.js';
 import { toPrecision, formatWithCommas } from '../../../../utils/numbers';
 import { SwitchButtonIcon } from '../../../../components/icon/V3';

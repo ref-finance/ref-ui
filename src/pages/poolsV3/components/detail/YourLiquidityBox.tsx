@@ -7,11 +7,11 @@ import {
   toInternationalCurrencySystem,
 } from '../../../../utils/numbers';
 import { TokenMetadata } from '~services/ft-contract';
-import { toRealSymbol } from '~utils/token';
+import { toRealSymbol } from 'src/utils/token';
 import { useHistory } from 'react-router';
 import { BigNumber } from 'bignumber.js';
 import { FormattedMessage } from 'react-intl';
-import { PoolInfo } from '~services/swapV3';
+import { PoolInfo } from 'src/services/swapV3';
 import {
   UserLiquidityInfo,
   getPriceByPoint,
@@ -25,11 +25,11 @@ import {
   get_account_24_apr,
   get_total_earned_fee,
   get_token_amount_in_user_liquidities,
-} from '~services/commonV3';
+} from 'src/services/commonV3';
 import { Seed } from '../../../../services/farm';
 import { useWalletSelector } from '../../../../context/WalletSelectorContext';
-import { GradientButton, OprationButton } from '~components/button/Button';
-import { findRangeIntersection } from '~components/pool/YourLiquidityV2';
+import { GradientButton, OprationButton } from 'src/components/button/Button';
+import { findRangeIntersection } from 'src/components/pool/YourLiquidityV2';
 import DclChart from '../../../../components/d3Chart/DclChart';
 import { IDCLAccountFee } from '../../../../components/d3Chart/interfaces';
 import {

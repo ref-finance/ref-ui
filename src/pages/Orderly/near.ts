@@ -1,13 +1,7 @@
 // @ts-nocheck
 
 import getConfig from './config';
-import {
-  Near,
-  keyStores,
-  utils,
-  WalletConnection,
-  providers,
-} from 'near-api-js';
+import { Near, keyStores, utils } from 'near-api-js';
 import {
   Transaction as WSTransaction,
   AddKeyAction,

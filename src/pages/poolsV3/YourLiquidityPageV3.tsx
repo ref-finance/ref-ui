@@ -15,18 +15,17 @@ import {
   AddButtonIcon,
   WarningTip,
   MobileWarningTip,
-} from '~components/icon/V3';
+} from 'src/components/icon/V3';
 import {
   GradientButton,
   BorderButton,
   ButtonTextWrapper,
-} from '~components/button/Button';
+} from 'src/components/button/Button';
 import {
   toPrecision,
   toReadableNumber,
   formatWithCommas,
-  scientificNotationToString,
-} from '~utils/numbers';
+} from 'src/utils/numbers';
 import { TokenMetadata } from '../../services/ft-contract';
 import { useTokens } from '../../state/token';
 import {
@@ -49,10 +48,9 @@ import {
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import { FarmBoost, getBoostTokenPrices, Seed } from '../../services/farm';
-import { RemovePoolV3 } from '~components/pool/RemovePoolV3';
-import { RemoveOldPoolV3 } from '~components/pool/RemoveOldPoolV3';
-import { AddPoolV3 } from '~components/pool/AddPoolV3';
-import { PoolTabV3 } from '~components/pool/PoolTabV3';
+import { RemoveOldPoolV3 } from 'src/components/pool/RemoveOldPoolV3';
+import { AddPoolV3 } from 'src/components/pool/AddPoolV3';
+import { PoolTabV3 } from 'src/components/pool/PoolTabV3';
 import {
   YourLiquidityAddLiquidityModal,
   YourLiquidityV1,
@@ -66,12 +64,12 @@ import {
   MyOrderCircle,
   MyOrderMask,
   MyOrderMask2,
-} from '~components/icon/swapV3';
+} from 'src/components/icon/swapV3';
 import { PoolRPCView } from '../../services/api';
 import { ALL_STABLE_POOL_IDS, REF_FI_CONTRACT_ID } from '../../services/near';
 import { getPoolsByIds } from '../../services/indexer';
 import { BlueCircleLoading } from '../../components/layout/Loading';
-import QuestionMark from '~components/farm/QuestionMark';
+import QuestionMark from 'src/components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 import Big from 'big.js';
 import { ConnectToNearBtnSwap } from '../../components/button/Button';
@@ -79,9 +77,9 @@ import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { checkTransactionStatus } from '../../services/swap';
 import { REF_POOL_NAV_TAB_KEY } from '../../components/pool/PoolTabV3';
-import { NFTIdIcon } from '~components/icon/FarmBoost';
-import { YourLiquidityV2 } from '~components/pool/YourLiquidityV2';
-import { isMobile } from '~utils/device';
+import { NFTIdIcon } from 'src/components/icon/FarmBoost';
+import { YourLiquidityV2 } from 'src/components/pool/YourLiquidityV2';
+import { isMobile } from 'src/utils/device';
 
 export default function YourLiquidityPageV3() {
   const clearState = () => {

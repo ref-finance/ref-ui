@@ -1,7 +1,7 @@
 import React from 'react';
 import { useHistory } from 'react-router';
-import { get_pool_name, sort_tokens_by_base } from '~services/commonV3';
-import { GradientButton } from '~components/button/Button';
+import { get_pool_name, sort_tokens_by_base } from 'src/services/commonV3';
+import { GradientButton } from 'src/components/button/Button';
 import { FormattedMessage } from 'react-intl';
 import { NoLiquidityIcon } from '../../../../components/icon/V3';
 

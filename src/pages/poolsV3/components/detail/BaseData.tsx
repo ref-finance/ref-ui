@@ -5,8 +5,8 @@ import {
   toReadableNumber,
   toInternationalCurrencySystem,
 } from '../../../../utils/numbers';
-import { getV3Pool24VolumeById } from '~services/indexer';
-import { get_metadata } from '~services/swapV3';
+import { getV3Pool24VolumeById } from 'src/services/indexer';
+import { get_metadata } from 'src/services/swapV3';
 export function BaseData(props: any) {
   const { poolDetail, tokenPriceList } = props;
   const [volume24, setVolume24] = useState('0');

@@ -1,58 +1,45 @@
 import {
+  AccountID,
   Address,
-  FunctionCallArgsV1,
+  CallArgs,
+  Engine,
   FunctionCallArgsV2,
   parseHexString,
-  Engine,
-  AccountID,
-  CallArgs,
 } from '@aurora-is-near/engine';
-
+import Big from 'big.js';
 import { toBufferBE } from 'bigint-buffer';
+import BigNumber from 'bignumber.js';
+import { WalletConnection } from 'near-api-js';
+import { useContext, useEffect, useState } from 'react';
+import AbiCoder from 'web3-eth-abi';
 
-import { Erc20Abi } from './abi/erc20';
-
+import { getURLInfo } from '../../components/layout/transactionTipPopUp';
+import { useWalletSelector } from '../../context/WalletSelectorContext';
+import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
+import {
+  percentLess,
+  scientificNotationToString,
+  toReadableNumber,
+} from '../../utils/numbers';
+import { toNonDivisibleNumber } from '../../utils/numbers';
 import {
   getCurrentWallet,
   WalletContext,
 } from '../../utils/wallets-integration';
-
-import { UniswapRouterAbi } from './abi/IUniswapV2Router02';
-
-import { UniswapPairAbi } from './abi/IUniswapV2Pair';
-
-import AbiCoder from 'web3-eth-abi';
-
-import Big from 'big.js';
-import { getAuroraConfig, defaultTokenList } from './config';
-import { near, keyStore, Transaction, RefFiFunctionCallOptions } from '../near';
 import getConfig from '../config';
-import { BN } from 'bn.js';
-import { Pool } from '../pool';
-import {
-  ftGetTokenMetadata,
-  TokenMetadata,
-  ftGetBalance,
-} from '../ft-contract';
-import { useContext, useEffect, useState } from 'react';
-import {
-  scientificNotationToString,
-  toReadableNumber,
-  percentLess,
-} from '../../utils/numbers';
-import { utils, WalletConnection } from 'near-api-js';
-import { EstimateSwapView } from '../swap';
-import BigNumber from 'bignumber.js';
-import { toNonDivisibleNumber } from '../../utils/numbers';
-import { functionCall } from 'near-api-js/lib/transaction';
-import { ONE_YOCTO_NEAR, executeMultipleTransactions, wallet } from '../near';
-import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { STORAGE_TO_REGISTER_WITH_MFT } from '../creators/storage';
+import { ftGetTokenMetadata, TokenMetadata } from '../ft-contract';
 import { ftGetStorageBalance } from '../ft-contract';
-import { useWalletSelector } from '../../context/WalletSelectorContext';
+import { keyStore, near, RefFiFunctionCallOptions, Transaction } from '../near';
+import { executeMultipleTransactions, ONE_YOCTO_NEAR, wallet } from '../near';
+import { Pool } from '../pool';
+import { EstimateSwapView } from '../swap';
 import { list_user_assets } from '../swapV3';
-import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import { nearWithdrawTransaction } from '../wrap-near';
+import { Erc20Abi } from './abi/erc20';
+import { UniswapPairAbi } from './abi/IUniswapV2Pair';
+import { UniswapRouterAbi } from './abi/IUniswapV2Router02';
+import { defaultTokenList, getAuroraConfig } from './config';
 
 const trisolaris = getAuroraConfig().trisolarisAddress;
 
@@ -137,7 +124,6 @@ export const buildInput = (abi: any[], methodName: string, params: any) => {
     return null;
   }
 
-  //@ts-ignore
   return AbiCoder.encodeFunctionCall(abiItem, params);
 };
 
@@ -146,8 +132,11 @@ export const decodeOutput = (abi: any[], methodName: string, buffer: any) => {
   if (!abiItem) {
     return null;
   }
-
-  //@ts-ignore
+  // console.log(
+  //   'xx',
+  //   abiItem.outputs,
+  //   AbiCoder.decodeParameters(abiItem.outputs, `0x${buffer.toString('hex')}`)
+  // );
   return AbiCoder.decodeParameters(
     abiItem.outputs,
     `0x${buffer.toString('hex')}`
@@ -261,7 +250,7 @@ export async function getAuroraPool(
       ? getAuroraConfig().WETH
       : await getErc20Addr(tokenB.id);
 
-  const shares = (await getTotalSupply(pairAdd, address))?.[0];
+  const shares: any = (await getTotalSupply(pairAdd, address))?.[0];
 
   const res = (
     await getAurora().view(toAddress(address), toAddress(pairAdd), 0, input)
@@ -539,7 +528,7 @@ export const fetchAllowance = async (address: string, tokenAddress: string) => {
       )
     ).unwrap();
     const out = decodeOutput(Erc20Abi, 'allowance', res);
-    return Big(out[0]);
+    return Big(out[0] as any);
   } catch (e) {
     return new Big(0);
   }
@@ -648,7 +637,7 @@ export const fetchErc20Balance = async (
 
     const out = decodeOutput(Erc20Abi, 'balanceOf', res);
 
-    return Big(out[0]);
+    return Big(out[0] as any);
   } catch (e) {
     return false;
   }
@@ -860,7 +849,7 @@ export const getAllTriPools = async (pair?: [string, string]) => {
       };
     })
     .filter((p) => {
-      let showPair = pair.map((p) => {
+      const showPair = pair.map((p) => {
         // if (p === 'USDT.e') return 'USDT';
         // if (p === 'USDC.e') return 'USDC';
 
@@ -920,7 +909,7 @@ export const hasTriPools = (pair?: [string, string]) => {
       };
     })
     .filter((p) => {
-      let showPair = pair.map((p) => {
+      const showPair = pair.map((p) => {
         // if (p === 'USDT.e') return 'USDT';
         // if (p === 'USDC.e') return 'USDC';
 

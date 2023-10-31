@@ -1,6 +1,6 @@
 import Big from 'big.js';
-import { UserLiquidityInfo } from '~services/commonV3';
-import { PoolInfo } from '~services/swapV3';
+import { UserLiquidityInfo } from 'src/services/commonV3';
+import { PoolInfo } from 'src/services/swapV3';
 import { toReadableNumber } from '../../../../utils/numbers';
 
 export function get_unClaimed_fee_data(

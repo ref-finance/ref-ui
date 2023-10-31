@@ -31,6 +31,7 @@ import { useOrderlyContext } from './orderly/OrderlyContext';
 import { PerpOrSpot } from './utiles';
 import { FormattedMessage } from 'react-intl';
 import { NewUserTip } from './components/Common/NewUserTip';
+import { PerpOrderlyTip, PerpOrderlyTipMobile } from './components/PerpHeader';
 
 function TradingBoard() {
   const isLarge = useLargeScreen();
@@ -265,6 +266,7 @@ function OrderlyTradingBoard() {
       {!isMobile && <TradingBoard></TradingBoard>}
 
       {isMobile && <MobileTradingBoard></MobileTradingBoard>}
+      {isMobile && <PerpOrderlyTipMobile></PerpOrderlyTipMobile>}
     </div>
   );
 }

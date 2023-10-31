@@ -74,7 +74,6 @@ import {
   auroraAddr,
   useAuroraTokens,
 } from '../services/aurora/aurora';
-import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from './SwapPage';
 import { useWalletSelector } from '../context/WalletSelectorContext';
 import {
   NewProIcon,
@@ -88,6 +87,7 @@ import {
   useTriTokenIdsOnRef,
 } from '../services/aurora/aurora';
 import Big from 'big.js';
+import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from 'src/constants';
 
 const ACCOUNT_PAGE_AURORA_SHOW = REF_FI_SWAP_SWAPPAGE_TAB_KEY;
 const REF_ACCOUNT_WITHDRAW_TIP = 'REF_ACCOUNT_WITHDRAW_TIP';
@@ -2279,7 +2279,7 @@ export function ActionModel(props: any) {
     </Modal>
   );
 }
-export function AccountPage() {
+export default function AccountPage() {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const history = useHistory();

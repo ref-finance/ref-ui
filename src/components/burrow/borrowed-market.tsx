@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { TokenMetadata } from '~services/ft-contract';
+import { TokenMetadata } from 'src/services/ft-contract';
 import { BurrowData } from '../../pages/Burrow';
 import { PurpleButton } from './burrow-button';
 import { toInternationalCurrencySystem } from '../../utils/numbers';
@@ -10,16 +10,16 @@ import {
   IBurrowConfig,
   IModalProps,
   ISort,
-} from '~services/burrow-interfaces';
+} from 'src/services/burrow-interfaces';
 import {
   getExtraApy,
   sortBorrowedMarketData,
   hiddenAssets,
-} from '~services/burrow-business';
+} from 'src/services/burrow-business';
 import Big from 'big.js';
-import { toAPY } from '~services/burrow-utils';
+import { toAPY } from 'src/services/burrow-utils';
 import ModalBox from './ModalBox';
-import { isMobile } from '~utils/device';
+import { isMobile } from 'src/utils/device';
 import { ArrowUpIcon, ArrowDownIcon } from './icons';
 import { FormattedMessage, useIntl } from 'react-intl';
 const is_mobile = isMobile();

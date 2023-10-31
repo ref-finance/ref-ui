@@ -6,7 +6,7 @@ import React, {
   createContext,
 } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import QuestionMark from '~components/farm/QuestionMark';
+import QuestionMark from 'src/components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 import { OverviewData } from '../../pages/Overview';
 import { formatWithCommas_usd } from '../../services/overview/utils';

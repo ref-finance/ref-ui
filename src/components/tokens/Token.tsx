@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { toRealSymbol } from '~utils/token';
+import { toRealSymbol } from 'src/utils/token';
 import { TokenMetadata } from '../../services/ft-contract';
-import { toInternationalCurrencySystem } from '~utils/numbers';
+import { toInternationalCurrencySystem } from 'src/utils/numbers';
 import { toPrecision } from '../../utils/numbers';
 import { SingleToken } from '../forms/SelectToken';
 import { RefIcon } from '../../components/icon/DexIcon';

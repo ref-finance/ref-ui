@@ -49,7 +49,7 @@ import Big from 'big.js';
 import * as d3 from 'd3';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { getBoostTokenPrices } from '../../services/farm';
-import { formatWithCommas } from '~utils/numbers';
+import { formatWithCommas } from 'src/utils/numbers';
 import { ILiquidityInfoPool, IOrderInfoPool } from '../../services/commonV3';
 import { BlueCircleLoading } from '../../components/layout/Loading';
 import { get_unClaimed_fee_data } from '../../pages/poolsV3/components/detail/DetailFun';

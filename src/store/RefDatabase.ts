@@ -1,10 +1,10 @@
 import Dexie from 'dexie';
 import _ from 'lodash';
 import moment from 'moment';
-import { isNotStablePool, parsePool, PoolDetails } from '~services/pool';
+import { isNotStablePool, parsePool, PoolDetails } from 'src/services/pool';
 import getConfig from '../services/config';
-import { PoolRPCView } from '~services/api';
-import { Seed, FarmBoost } from '~services/farm';
+import { PoolRPCView } from 'src/services/api';
+import { Seed, FarmBoost } from 'src/services/farm';
 const checkCacheSeconds = 300;
 interface Pool {
   id: number;

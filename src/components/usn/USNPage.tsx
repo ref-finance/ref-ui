@@ -1,16 +1,14 @@
 import React, { useEffect, useState, useContext } from 'react';
 import Loading from '../layout/Loading';
 import getConfig from '../../services/config';
-import { useTokens } from '~state/token';
+import { useTokens } from 'src/state/token';
 import Modal from 'react-modal';
 import { isMobile } from '../../utils/device';
 import { SolidButton, ConnectToNearBtn } from '../button/Button';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { HiOutlineExternalLink, IoClose } from '../reactIcons';
-import QuestionMark from '~components/farm/QuestionMark';
+import QuestionMark from 'src/components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
-import { Burrow } from '~components/icon';
-import Alert from '../alert/Alert';
 import { TokenAmountV2 } from '../forms/TokenAmount';
 import { SwapExchange } from '../icon/Arrows';
 import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';
@@ -27,8 +25,12 @@ import {
 } from '../../services/buy-sell-usn';
 import { getTokenPriceList } from '../../services/indexer';
 import BigNumber from 'bignumber.js';
-import { GradientButton, ButtonTextWrapper } from '~components/button/Button';
+import {
+  GradientButton,
+  ButtonTextWrapper,
+} from 'src/components/button/Button';
 import { openUrl } from '../../services/commonV3';
+import Burrow from '../icon/logos/Burrow';
 
 function USNPage(props: ReactModal.Props) {
   const intl = useIntl();

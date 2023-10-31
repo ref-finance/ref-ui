@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState, useContext, useRef } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { WalletContext } from '../../utils/wallets-integration';
-import { Card } from '~components/card/Card';
-import { ModalClose } from '~components/icon';
+import { Card } from 'src/components/card/Card';
+import { ModalClose } from 'src/components/icon';
 import { TokenMetadata } from '../../services/ft-contract';
 import ReactSlider from 'react-slider';
 import {
@@ -10,14 +10,14 @@ import {
   ButtonTextWrapper,
   ConnectToNearBtn,
 } from '../../components/button/Button';
-import { PoolSlippageSelectorV3 } from '~components/forms/SlippageSelector';
+import { PoolSlippageSelectorV3 } from 'src/components/forms/SlippageSelector';
 import Modal from 'react-modal';
 import BigNumber from 'bignumber.js';
 import {
   toPrecision,
   toReadableNumber,
   toNonDivisibleNumber,
-} from '~utils/numbers';
+} from 'src/utils/numbers';
 import {
   getPriceByPoint,
   CONSTANT_D,
@@ -50,11 +50,10 @@ import {
   IAddLiquidityInfo,
   IRemoveLiquidityInfo,
   IBatchUpdateiquidityInfo,
-} from '~pages/poolsV3/interfaces';
+} from 'src/pages/poolsV3/interfaces';
 import DclChart from '../../components/d3Chart/DclChart';
-import { isMobile } from '~utils/device';
-import { WarningIcon } from '~components/icon/V3';
-import QuestionMark from '~components/farm/QuestionMark';
+import { isMobile } from 'src/utils/device';
+import QuestionMark from 'src/components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 

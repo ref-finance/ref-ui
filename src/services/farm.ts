@@ -1662,7 +1662,7 @@ export const frontConfigBoost = {
 };
 
 export function getFarmClassification(): any {
-  const env: string = process.env.NEAR_ENV;
+  const env: string = process.env.REACT_APP_NEAR_ENV;
   if (env == 'pub-testnet') {
     return {
       near: [

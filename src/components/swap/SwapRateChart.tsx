@@ -24,7 +24,7 @@ import {
 } from 'recharts';
 
 import { IoArrowUpOutline } from '../reactIcons';
-import { displayNumberToAppropriateDecimals } from '~services/commonV3';
+import { displayNumberToAppropriateDecimals } from 'src/services/commonV3';
 import moment from 'moment';
 import { ChartNoData } from '../../components/icon/ChartNoData';
 import { FormattedMessage } from 'react-intl';

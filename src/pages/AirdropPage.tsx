@@ -1,8 +1,8 @@
 import React from 'react';
-import AirdropView from '~components/airdrop/Airdrop';
+import AirdropView from 'src/components/airdrop/Airdrop';
 import { FormattedMessage } from 'react-intl';
 
-export function AirdropPage() {
+export default function AirdropPage() {
   return (
     <div className="airdrop">
       <div className="title text-center text-3xl pb-3 text-white font-semibold">

@@ -5,21 +5,21 @@ import React, {
   useMemo,
   createContext,
 } from 'react';
-import { Card } from '~components/card/Card';
-import Alert from '~components/alert/Alert';
+import { Card } from 'src/components/card/Card';
+import Alert from 'src/components/alert/Alert';
 import Modal from 'react-modal';
 
 import {
   ConnectToNearBtn,
   SolidButton,
   OutlineButton,
-} from '~components/button/Button';
+} from 'src/components/button/Button';
 import {
   AllStableTokenIds,
   NEARX_POOL_ID,
   wallet as webWallet,
-} from '~services/near';
-import { PoolRPCView } from '~services/api';
+} from 'src/services/near';
+import { PoolRPCView } from 'src/services/api';
 import {
   toRoundedReadableNumber,
   percent,
@@ -30,25 +30,25 @@ import {
   ONLY_ZEROS,
   calculateFeePercent,
   formatWithCommas,
-} from '~utils/numbers';
+} from 'src/utils/numbers';
 import {
   RemoveLiquidityModal,
   AddLiquidityModal,
   REF_FI_PRE_LIQUIDITY_ID_KEY,
 } from '../../pages/pools/DetailsPage';
-import { getTokenPriceList, getYourPools } from '~services/indexer';
-import { toRealSymbol } from '~utils/token';
+import { getTokenPriceList, getYourPools } from 'src/services/indexer';
+import { toRealSymbol } from 'src/utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { Link, useHistory } from 'react-router-dom';
 import BigNumber from 'bignumber.js';
-import { LP_TOKEN_DECIMALS } from '~services/m-token';
+import { LP_TOKEN_DECIMALS } from 'src/services/m-token';
 
-import { addLiquidityToPool, canFarm, Pool } from '~services/pool';
+import { addLiquidityToPool, canFarm, Pool } from 'src/services/pool';
 import {
   ftGetTokensMetadata,
   REF_META_DATA,
   TokenMetadata,
-} from '~services/ft-contract';
+} from 'src/services/ft-contract';
 import {
   multiply,
   divide,
@@ -64,10 +64,10 @@ import {
   getRealEndedFarmsCount,
 } from '../../services/pool';
 import { useFarmStake, useAllFarms } from '../../state/farm';
-import { getStablePoolDecimal } from '~pages/stable/StableSwapEntry';
+import { getStablePoolDecimal } from 'src/pages/stable/StableSwapEntry';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { getVEPoolId } from '../../pages/ReferendumPage';
-import { useAccountInfo } from '~state/referendum';
+import { useAccountInfo } from 'src/state/referendum';
 import { VEARROW, RewardCheck } from '../../components/icon/Referendum';
 import { toNonDivisibleNumber } from '../../utils/numbers';
 import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
@@ -82,7 +82,7 @@ import {
 } from '../../components/button/Button';
 import ReactModal from 'react-modal';
 import { ModalClose } from '../../components/icon/ModalClose';
-import { unwrapedNear, WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
+import { unwrapedNear, WRAP_NEAR_CONTRACT_ID } from 'src/services/wrap-near';
 import { BoostInputAmount } from '../../components/forms/InputAmount';
 import SelectToken from '../../components/forms/SelectToken';
 import { useRainbowWhitelistTokens, useTokenBalances } from '../../state/token';
@@ -92,11 +92,11 @@ import {
   useWalletTokenBalances,
   useDepositableBalance,
 } from '../../state/token';
-import { WarnTriangle } from '~components/icon';
-import { StableSwapLogo } from '~components/icon/StableSwap';
+import { WarnTriangle } from 'src/components/icon';
+import { StableSwapLogo } from 'src/components/icon/StableSwap';
 import { GoodIcon } from '../../components/icon/Common';
 import { AddPoolModal } from '../../pages/pools/AddPoolPage';
-import { getStableSwapTabKey } from '~pages/stable/StableSwapPageUSN';
+import { getStableSwapTabKey } from 'src/pages/stable/StableSwapPageUSN';
 import { LinkIcon } from '../../components/icon/Portfolio';
 import ReactTooltip from 'react-tooltip';
 import { checkFarmStake } from '../../state/farm';
@@ -105,7 +105,7 @@ import {
   UpDownButton,
   display_value,
 } from '../portfolio/Tool';
-import { PortfolioData } from '~pages/Portfolio';
+import { PortfolioData } from 'src/pages/Portfolio';
 import { openUrl } from '../../services/commonV3';
 const is_mobile = isMobile();
 export const StakeListContext = createContext(null);

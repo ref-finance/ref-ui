@@ -13,7 +13,7 @@ import {
   getSlotPointByPoint,
 } from '../../../../services/commonV3';
 import BigNumber from 'bignumber.js';
-import { toPrecision } from '~utils/numbers';
+import { toPrecision } from 'src/utils/numbers';
 import { isMobile } from '../../../../utils/device';
 import { FormattedMessage } from 'react-intl';
 import DclChart from '../../../../components/d3Chart/DclChart';

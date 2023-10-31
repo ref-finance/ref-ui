@@ -388,7 +388,7 @@ const timeStampToDate = (ts: number) => {
   return moment(ts * 1000).format('YYYY-MM-DD');
 };
 
-export const getVEPoolId = (env: string = process.env.NEAR_ENV) => {
+export const getVEPoolId = (env: string = process.env.REACT_APP_NEAR_ENV) => {
   switch (env) {
     case 'pub-testnet':
       return 17;
@@ -2424,7 +2424,7 @@ export const ProposalThumbnail = ({ proposal }: { proposal: Proposal }) => {
   );
 };
 
-export const ReferendumPage = () => {
+export default function ReferendumPage() {
   const id = getVEPoolId();
   const lpShare = usePoolShare(id, LOVE_TOKEN_DECIMAL);
 
@@ -2490,7 +2490,7 @@ export const ReferendumPage = () => {
       </div>
     </ReferendumPageContext.Provider>
   );
-};
+}
 
 export const CalenderIcon = () => {
   return (

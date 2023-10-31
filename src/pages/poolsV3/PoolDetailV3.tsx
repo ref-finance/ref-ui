@@ -1,33 +1,31 @@
 import React, { useEffect, useState, useContext, useMemo, useRef } from 'react';
-import { useParams } from 'react-router-dom';
-import { isClientMobie } from '../../utils/device';
+import { useLocation, useParams } from 'react-router-dom';
+import { useClientMobile, isClientMobie } from '../../utils/device';
 import { useHistory } from 'react-router';
 import { BigNumber } from 'bignumber.js';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { BreadCrumb } from '~components/layout/BreadCrumb';
+import { BreadCrumb } from 'src/components/layout/BreadCrumb';
 import {
   get_pool,
   PoolInfo,
   list_liquidities,
   get_liquidity,
-} from '~services/swapV3';
+} from 'src/services/swapV3';
 import {
   UserLiquidityInfo,
-  TOKEN_LIST_FOR_RATE,
   allocation_rule_liquidities,
   get_matched_seeds_for_dcl_pool,
   get_all_seeds,
   sort_tokens_by_base,
   get_pool_id,
-  get_pool_name,
   useRemoveLiquidityUrlHandle,
-} from '~services/commonV3';
+} from 'src/services/commonV3';
 import { ftGetTokensMetadata } from '../../services/ft-contract';
 import {
   WatchListStartEmpty,
   WatchListStartFull,
 } from '../../components/icon/WatchListStar';
-import Loading from '~components/layout/Loading';
+import Loading from 'src/components/layout/Loading';
 import { getBoostTokenPrices, Seed, get_seed } from '../../services/farm';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { WalletContext } from '../../utils/wallets-integration';
@@ -35,36 +33,10 @@ import {
   addPoolToWatchList,
   getWatchListFromDb,
   removePoolFromWatchList,
-} from '~services/pool';
+} from 'src/services/pool';
 import ReactTooltip from 'react-tooltip';
-import { useDCLTopBinFee } from '~state/pool';
-import {
-  VolumeChart,
-  TVLChart,
-  ChartType,
-  ChartChangeButton,
-  MobileChartChangeButton,
-} from '../pools/DetailsPage';
-import { BlueCircleLoading } from '../../components/layout/Loading';
-import { ChartNoData } from '~components/icon/ChartNoData';
-import {
-  GradientButton,
-  OprationButton,
-  ButtonTextWrapper,
-  BorderButton,
-  SolidButton,
-} from '~components/button/Button';
-import { RemovePoolV3 } from '~components/pool/RemovePoolV3';
-import { AddPoolV3 } from '~components/pool/AddPoolV3';
-import Modal from 'react-modal';
-import { ModalClose } from '~components/icon';
-import { useV3VolumeChart, useV3TvlChart } from '~state/pool';
-import { getV3Pool24VolumeById } from '~services/indexer';
-import {
-  list_farmer_seeds,
-  list_seed_farms,
-  UserSeedInfo,
-} from '../../services/farm';
+import { useDCLTopBinFee } from '../../state/pool';
+import { list_farmer_seeds } from '../../services/farm';
 import getConfig from '../../services/config';
 import _ from 'lodash';
 import { FarmStampNewDCL } from '../../components/icon/FarmStamp';

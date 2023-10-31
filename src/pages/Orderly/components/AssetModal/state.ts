@@ -16,7 +16,8 @@ export interface OrderAsset {
 
 export function useOrderAssets(
   tokenInfo: TokenInfo[] | undefined,
-  freeCollateral: string
+  freeCollateral: string,
+  curHoldingOut
 ) {
   const tokens = tokenInfo
     ? tokenInfo.map((t) => ({
@@ -25,8 +26,13 @@ export function useOrderAssets(
       }))
     : [];
 
-  const balances = useTokensBalances(tokens, tokenInfo, null, freeCollateral);
-
+  const balances = useTokensBalances(
+    tokens,
+    tokenInfo,
+    null,
+    freeCollateral,
+    curHoldingOut
+  );
   const displayBalances = balances.map((b, i) => {
     return {
       near: b.wallet_balance,

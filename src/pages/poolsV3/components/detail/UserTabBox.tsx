@@ -1,14 +1,14 @@
 import React, { useEffect, useState, useContext } from 'react';
 import Modal from 'react-modal';
 import { FormattedMessage } from 'react-intl';
-import { PoolInfo } from '~services/swapV3';
-import { UserLiquidityInfo } from '~services/commonV3';
+import { PoolInfo } from 'src/services/swapV3';
+import { UserLiquidityInfo } from 'src/services/commonV3';
 import { Seed } from '../../../../services/farm';
 import _ from 'lodash';
 import { YourLiquidityBox } from './YourLiquidityBox';
 import { UnclaimedFeesBox } from './UnclaimedFeesBox';
 import { NoYourLiquditiesBox } from './NoYourLiquditiesBox';
-import { GradientButton } from '~components/button/Button';
+import { GradientButton } from 'src/components/button/Button';
 import { WalletContext } from '../../../../utils/wallets-integration';
 
 export function UserButtonBox(props: {

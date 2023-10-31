@@ -3,13 +3,13 @@ import {
   getGas,
   REF_AIRDRAOP_CONTRACT_ID,
   wallet,
-} from '~services/near';
+} from 'src/services/near';
 import { functionCall } from 'near-api-js/lib/transaction';
 import {
   NEW_ACCOUNT_STORAGE_COST,
   WRAP_NEAR_CONTRACT_ID,
-} from '~services/wrap-near';
-import { ftGetStorageBalance } from '~services/ft-contract';
+} from 'src/services/wrap-near';
+import { ftGetStorageBalance } from 'src/services/ft-contract';
 
 const AIRDROP_STORAGE_AMOUNT = '0.01';
 

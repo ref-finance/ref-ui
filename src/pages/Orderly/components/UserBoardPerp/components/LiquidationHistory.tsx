@@ -169,7 +169,7 @@ function LiquidationHistoryModal(
 
                   <TextWrapper
                     className="text-10px px-1"
-                    value="USDC"
+                    value="USDC.e"
                     textC="text-primaryText"
                   ></TextWrapper>
                 </div>
@@ -191,7 +191,7 @@ function LiquidationHistoryModal(
 
                   <TextWrapper
                     className="text-10px px-1"
-                    value="USDC"
+                    value="USDC.e"
                     textC="text-primaryText"
                   ></TextWrapper>
                 </div>
@@ -215,7 +215,7 @@ function LiquidationHistoryModal(
 
                   <TextWrapper
                     className="text-10px px-1"
-                    value="USDC"
+                    value="USDC.e"
                     textC="text-primaryText"
                   ></TextWrapper>
 
@@ -526,7 +526,7 @@ export function MobileliquidationList({
 
                     <TextWrapper
                       className="text-10px px-1"
-                      value="USDC"
+                      value="USDC.e"
                       textC="text-primaryText"
                     ></TextWrapper>
                   </div>
@@ -555,7 +555,7 @@ export function MobileliquidationList({
 
                     <TextWrapper
                       className="text-10px px-1"
-                      value="USDC"
+                      value="USDC.e"
                       textC="text-primaryText"
                     ></TextWrapper>
                   </div>
@@ -573,7 +573,7 @@ export function MobileliquidationList({
 
                     <TextWrapper
                       className="text-10px px-1"
-                      value="USDC"
+                      value="USDC.e"
                       textC="text-primaryText"
                     ></TextWrapper>
                   </div>

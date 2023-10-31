@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import metadata from '~utils/metadata';
+import metadata from 'src/utils/metadata';
 import { AdboardState, getAdboardState } from '../services/adboard';
 import { wallet } from '../services/near';
 import { getCurrentWallet } from '../utils/wallets-integration';

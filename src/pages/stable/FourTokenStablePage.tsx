@@ -7,12 +7,12 @@ import {
 } from '../../state/token';
 import AddFourLiquidityComponent from '../../components/stableswap/AddFourLiquidity';
 import { usePool, useStablePool } from '../../state/pool';
-import { isMobile } from '~utils/device';
+import { isMobile } from 'src/utils/device';
 import { RemoveFourLiquidityComponent } from '../../components/stableswap/RemoveFourLiquidity';
 import TokenReserves from '../../components/stableswap/TokenReserves';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import getConfig from '../../services/config';
-import { StableSwapLogo } from '~components/icon/StableSwap';
+import { StableSwapLogo } from 'src/components/icon/StableSwap';
 import { useWalletTokenBalances } from '../../state/token';
 import { useLocation, useParams } from 'react-router-dom';
 import {
@@ -30,7 +30,7 @@ import { getStablePoolFromCache, Pool, StablePool } from '../../services/pool';
 import { getStableSwapTabKey } from './StableSwapPageUSN';
 import { USDTT_USDCC_USDT_USDC_TOKEN_IDS } from '../../services/near';
 import { RecentTransactions } from '../pools/DetailsPage';
-import { useTokens } from '~state/token';
+import { useTokens } from 'src/state/token';
 export const DEFAULT_ACTIONS = ['add_liquidity', 'remove_liquidity'];
 
 interface LocationTypes {

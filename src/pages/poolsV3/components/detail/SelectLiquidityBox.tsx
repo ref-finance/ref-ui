@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { UserLiquidityInfo } from '~services/commonV3';
-import { RemovePoolV3 } from '~components/pool/RemovePoolV3';
+import { UserLiquidityInfo } from 'src/services/commonV3';
+import { RemovePoolV3 } from 'src/components/pool/RemovePoolV3';
 
 export function SelectLiquidityBox(props: any) {
   const {

@@ -96,7 +96,7 @@ const getAvailable = (
   const available = displayBalances.reduce((acc, cur, index) => {
     const markPrice =
       markPrices?.find(
-        (item) => item.symbol === `SPOT_${cur.tokenMeta.symbol}_USDC`
+        (item) => item.symbol === `SPOT_${cur.tokenMeta.symbol}_USDC.e`
       )?.price || 1;
 
     const value =
@@ -123,7 +123,7 @@ const getTotalEst = (
   const availables = displayBalances.reduce((acc, cur, index) => {
     const markPrice =
       markPrices?.find(
-        (item) => item.symbol === `SPOT_${cur.tokenMeta.symbol}_USDC`
+        (item) => item.symbol === `SPOT_${cur.tokenMeta.symbol}_USDC.e`
       )?.price || 1;
 
     const value =
@@ -319,6 +319,25 @@ const getFreeCollateral = (
 
   return freeCollateral;
 };
+function getCollateralTokenAvailableBalance(
+  positions: PositionsType,
+  markprices: MarkPrice[],
+  userInfo: ClientInfo,
+  curHoldingOut: Holding
+) {
+  const freeCollateral = getFreeCollateral(
+    positions,
+    markprices,
+    userInfo,
+    curHoldingOut
+  );
+  const balance = new Big(curHoldingOut.holding + curHoldingOut.pending_short);
+  if (balance.lt(freeCollateral)) {
+    return balance;
+  } else {
+    return freeCollateral;
+  }
+}
 
 const getTotalnotional = (
   markPrices: MarkPrice[],
@@ -374,7 +393,8 @@ const getMMR = (
   userInfo: ClientInfo,
   position_notional: number
 ) => {
-  const { symbolFrom } = parseSymbol(symbol.symbol);
+  // const { symbolFrom } = parseSymbol(symbol.symbol);
+  const symbolFrom = symbol.symbol;
   const base_mmr = symbol.base_mmr;
 
   const base_imr = symbol.base_imr;
@@ -750,4 +770,5 @@ export {
   getAvailable,
   getTotalEst,
   getLqPriceFloat,
+  getCollateralTokenAvailableBalance,
 };

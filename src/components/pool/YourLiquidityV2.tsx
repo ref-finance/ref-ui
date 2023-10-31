@@ -14,18 +14,17 @@ import {
   PoolInfo,
   claim_all_liquidity_fee,
 } from '../../services/swapV3';
-import { ColorsBox, TipIon } from '~components/icon/V3';
+import { ColorsBox, TipIon } from 'src/components/icon/V3';
 import {
   GradientButton,
   BorderButton,
   ButtonTextWrapper,
-} from '~components/button/Button';
+} from 'src/components/button/Button';
 import {
   toPrecision,
   toReadableNumber,
   scientificNotationToString,
-} from '~utils/numbers';
-import { useTokens } from '../../state/token';
+} from 'src/utils/numbers';
 import {
   getPriceByPoint,
   CONSTANT_D,
@@ -55,20 +54,20 @@ import {
   Seed,
   get_seed,
 } from '../../services/farm';
-import { RemovePoolV3 } from '~components/pool/RemovePoolV3';
+import { RemovePoolV3 } from 'src/components/pool/RemovePoolV3';
 import { WalletContext } from '../../utils/wallets-integration';
 import { list_farmer_seeds, list_seed_farms } from '../../services/farm';
 import getConfig from '../../services/config';
-import { LinkArrowIcon, NFTIdIcon } from '~components/icon/FarmBoost';
+import { LinkArrowIcon } from 'src/components/icon/FarmBoost';
 import { get_detail_the_liquidity_refer_to_seed } from '../../pages/poolsV3/YourLiquidityPageV3';
 import { LinkIcon, WaterDropIcon } from '../../components/icon/Portfolio';
 import { UpDownButton } from '../portfolio/Tool';
-import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
+import { ftGetTokenMetadata, TokenMetadata } from 'src/services/ft-contract';
 import { PortfolioData } from '../../pages/Portfolio';
-import { isMobile } from '~utils/device';
+import { isMobile } from 'src/utils/device';
 import Big from 'big.js';
-import { useWalletSelector } from '~context/WalletSelectorContext';
-import { IDCLAccountFee } from '../../components/d3Chart/interfaces';
+import { useWalletSelector } from 'src/context/WalletSelectorContext';
+import { IDCLAccountFee } from 'src/components/d3Chart/interfaces';
 import { getDCLAccountFee } from '../../services/indexer';
 import {
   formatNumber,
@@ -76,11 +75,10 @@ import {
   formatPercentage,
   formatWithCommas_usd_down,
 } from './utils';
-import { FarmStampNew } from '~components/icon/FarmStamp';
+import { FarmStampNew } from 'src/components/icon/FarmStamp';
 import { get_unClaimed_fee_data } from '../../pages/poolsV3/components/detail/DetailFun';
 const is_mobile = isMobile();
 const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
-const LiquidityContext = createContext(null);
 export function YourLiquidityV2(props: any) {
   const {
     set_dcl_liquidities_list,
@@ -94,7 +92,6 @@ export function YourLiquidityV2(props: any) {
     setLiquidityLoadingDone,
     setLiquidityQuantity,
     styleType,
-    liquidityLoadingDone,
   } = props;
   const [all_seeds, set_all_seeds] = useState<Seed[]>([]);
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});

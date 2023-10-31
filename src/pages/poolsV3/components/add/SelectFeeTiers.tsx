@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useContext, useMemo, useRef } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { SliderCurColor } from '~components/icon/Info';
+import { SliderCurColor } from 'src/components/icon/Info';
 import { LiquidityProviderData } from '../../AddYourLiquidityPageV3';
 import { isMobile } from '../../../../utils/device';
 import { FEELIST } from '../../../../services/commonV3';
-import { toInternationalCurrencySystem } from '~utils/numbers';
+import { toInternationalCurrencySystem } from 'src/utils/numbers';
 import { SelectedIcon } from '../../../../components/icon/swapV3';
 
 export function SelectFeeTiers() {

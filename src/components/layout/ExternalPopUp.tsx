@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { isMobile } from '~utils/device';
+import { isMobile } from 'src/utils/device';
 import { useHistory, useLocation } from 'react-router-dom';
 export default function ExternalPopUp() {
   const location = useLocation();
-  const env = process.env.NEAR_ENV || '';
+  const env = process.env.REACT_APP_NEAR_ENV || '';
   const is_test_env = env == 'testnet' || env == 'pub-testnet';
   const dom_id = is_test_env ? 'pr3sence' : 'ref-mainnet';
   const is_mobile = isMobile();

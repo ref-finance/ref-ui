@@ -1,6 +1,5 @@
 import React, { useState, useContext, useEffect, createContext } from 'react';
-
-import { ReturnIcon, WarningIcon } from '~components/icon/V3';
+import { ReturnIcon, WarningIcon } from 'src/components/icon/V3';
 import { FormattedMessage } from 'react-intl';
 import { useHistory } from 'react-router-dom';
 import { useTriTokens, useWhitelistTokens } from '../../state/token';
@@ -12,7 +11,7 @@ import {
 } from '../../services/ft-contract';
 import { getBoostTokenPrices } from '../../services/farm';
 import { useDepositableBalance } from '../../state/token';
-import Loading from '~components/layout/Loading';
+import Loading from 'src/components/layout/Loading';
 import { list_pools, PoolInfo } from '../../services/swapV3';
 import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import {
@@ -32,13 +31,13 @@ import {
   toNonDivisibleNumber,
   scientificNotationToString,
   getAllocationsLeastOne,
-  toInternationalCurrencySystem,
-} from '~utils/numbers';
+} from 'src/utils/numbers';
 import { WalletContext } from '../../utils/wallets-integration';
 import _, { forEach, set } from 'lodash';
 import BigNumber from 'bignumber.js';
 import { isMobile } from '../../utils/device';
-import { SelectedIcon, ArrowDownV3 } from '../../components/icon/swapV3';
+import { ArrowDownV3 } from '../../components/icon/swapV3';
+
 import Big from 'big.js';
 import { SelectTokenDCL } from '../../components/forms/SelectToken';
 import {

@@ -3,31 +3,24 @@ import React, {
   useEffect,
   useRef,
   useCallback,
-  useMemo,
   useContext,
   createContext,
 } from 'react';
-
-import db from '../../store/RefDatabase';
-
 import ReactTooltip from 'react-tooltip';
-import InfiniteScroll from 'react-infinite-scroll-component';
 import { ShareInFarm } from '../../components/layout/ShareInFarm';
 import {
   classificationOfCoins_key,
   classificationOfCoins,
   Seed,
 } from '../../services/farm';
-import { ArrowDown, ArrowDownLarge } from '../../components/icon';
+import { ArrowDownLarge } from '../../components/icon';
 import { useHistory } from 'react-router';
 import { Card } from '../../components/card/Card';
-import { find, isNumber, runInContext, values } from 'lodash';
+import { find } from 'lodash';
 import { SelectModal } from '../../components/layout/SelectModal';
 import {
   useAllPools,
   usePools,
-  useMorePoolIds,
-  useAllWatchList,
   useWatchPools,
   useV3VolumesPools,
   useDCLTopBinFee,
@@ -46,7 +39,6 @@ import { canFarm, Pool, isNotStablePool, canFarms } from '../../services/pool';
 import {
   calculateFeePercent,
   toPrecision,
-  toReadableNumber,
   toInternationalCurrencySystem,
 } from '../../utils/numbers';
 import { CheckedTick, CheckedEmpty } from '../../components/icon/CheckBox';
@@ -60,7 +52,6 @@ import {
 import { SolidButton } from '../../components/button/Button';
 import {
   NEAR_CLASS_STABLE_POOL_IDS,
-  wallet,
   REF_UNI_V3_SWAP_CONTRACT_ID,
   USDTT_USDCC_USDT_USDC_POOL_ID,
 } from '../../services/near';
@@ -101,10 +92,7 @@ import { VEARROW } from '../../components/icon/Referendum';
 import getConfig from '../../services/config';
 import { AddPoolModal } from './AddPoolPage';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
-import {
-  checkAccountTip,
-  getURLInfo,
-} from '../../components/layout/transactionTipPopUp';
+import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { checkTransactionStatus } from '../../services/swap';
 import { useCanFarmV2 } from '../../state/farm';
 import { PoolData, useAllStablePoolData } from '../../state/sauce';
@@ -119,11 +107,11 @@ import { Cell, Pie, PieChart, Sector } from 'recharts';
 import { OutlineButton } from '../../components/button/Button';
 import { BTC_TEXT } from '../../components/icon/Logo';
 import { useAllPoolsV2 } from '../../state/swapV3';
-import { PoolInfo } from '~services/swapV3';
+import { PoolInfo } from 'src/services/swapV3';
 import { SelectModalV2 } from '../../components/layout/SelectModal';
 import { FarmStampNew } from '../../components/icon/FarmStamp';
 import { ALL_STABLE_POOL_IDS } from '../../services/near';
-import { BoostSeeds, WatchList } from '../../store/RefDatabase';
+import { WatchList } from '../../store/RefDatabase';
 import { REF_FI_CONTRACT_ID } from '../../services/near';
 import { FarmBoost } from '../../services/farm';
 
@@ -142,6 +130,11 @@ import { useSeedFarmsByPools } from '../../state/pool';
 
 import { PoolRefreshModal } from './PoolRefreshModal';
 import { useTokenPriceList } from '../../state/token';
+import {
+  REF_FI_POOL_ACTIVE_TAB,
+  getPoolFeeApr,
+  getPoolListFarmAprTip,
+} from './utils';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -150,29 +143,6 @@ const REF_FI_FARM_ONLY = 'REF_FI_FARM_ONLY';
 const REF_POOL_ID_SEARCHING_KEY = 'REF_POOL_ID_SEARCHING_KEY';
 const { switch_on_dcl_farms } = getConfig();
 const TokenPriceListContext = createContext(null);
-
-export function getPoolFeeApr(
-  dayVolume: string,
-  pool: Pool,
-  tvlInput?: number
-) {
-  let result = '0';
-  if (dayVolume) {
-    const { fee, tvl } = pool;
-
-    const newTvl = tvlInput || tvl;
-
-    const revenu24h = (fee / 10000) * 0.8 * Number(dayVolume);
-    if (newTvl > 0 && revenu24h > 0) {
-      const annualisedFeesPrct = ((revenu24h * 365) / newTvl) * 100;
-      result = toPrecision(
-        scientificNotationToString(annualisedFeesPrct.toString()),
-        2
-      );
-    }
-  }
-  return Number(result);
-}
 
 export function getPoolFeeAprTitle(
   dayVolume: string,
@@ -1592,25 +1562,6 @@ function MobileLiquidityPage({
   );
 }
 
-export const getPoolListFarmAprTip = () => {
-  return `
-    <div 
-      class="flex flex-col text-xs min-w-36 text-farmText z-50"
-    >
-      <div>
-      Pool Fee APY
-      </div>
-
-      <div>
-      
-      + Farm Rewards APR
-      </div>
-    
-   
-
-    </div>
-`;
-};
 export const getPoolListV2FarmAprTip = () => {
   return `
     <div 
@@ -3163,11 +3114,9 @@ function LiquidityPage_({
   );
 }
 
-export const REF_FI_POOL_ACTIVE_TAB = 'REF_FI_POOL_ACTIVE_TAB_VALUE';
-
 export const REF_FI_POOL_SEARCH_BY = 'REF_FI_POOL_SEARCH_BY_VALUE';
 
-export function LiquidityPage() {
+export default function LiquidityPage() {
   window.onunload = () => {
     sessionStorage.removeItem(REF_FI_POOL_SEARCH_BY);
   };

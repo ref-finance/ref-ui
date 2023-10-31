@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { isMobile } from '~utils/device';
+import { isMobile } from 'src/utils/device';
 export default function Guider() {
   const [currentStep, setCurrentStep] = useState(1); // 1, 2, 3
   const [guiderStatus, setGuiderStatus] = useState(

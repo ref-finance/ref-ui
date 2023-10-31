@@ -58,7 +58,7 @@ export function DepositTip(props: {
           )}
 
           <span className={` font-gothamBold`}>
-            {props.type === 'perp' && ` USDC`}
+            {props.type === 'perp' && ` USDC.e`}
           </span>
         </span>
       )}

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { toPrecision, formatWithCommas } from '../../../../utils/numbers';
 import { FormattedMessage } from 'react-intl';
-import { claim_all_liquidity_fee } from '~services/swapV3';
-import { UserLiquidityInfo } from '~services/commonV3';
-import { ButtonTextWrapper } from '~components/button/Button';
+import { claim_all_liquidity_fee } from 'src/services/swapV3';
+import { UserLiquidityInfo } from 'src/services/commonV3';
+import { ButtonTextWrapper } from 'src/components/button/Button';
 import _ from 'lodash';
 import { Icon } from './Icon';
 import { get_unClaimed_fee_data } from './DetailFun';

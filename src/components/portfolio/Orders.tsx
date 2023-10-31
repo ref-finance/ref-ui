@@ -7,7 +7,11 @@ import {
   V3_POOL_SPLITER,
   pointToPrice,
 } from '../../services/swapV3';
-import { calculateFeePercent, ONLY_ZEROS, toPrecision } from '~utils/numbers';
+import {
+  calculateFeePercent,
+  ONLY_ZEROS,
+  toPrecision,
+} from 'src/utils/numbers';
 
 import { BsCheckCircle } from '../reactIcons';
 
@@ -42,12 +46,9 @@ import {
   useTotalOrderData,
   getAccountId,
 } from './Tool';
-import {
-  WalletContext,
-  getCurrentWallet,
-} from '../../utils/wallets-integration';
-import getConfig from '~services/config';
-import { isMobile } from '~utils/device';
+import { WalletContext } from '../../utils/wallets-integration';
+import getConfig from 'src/services/config';
+import { isMobile } from 'src/utils/device';
 import { SWAP_MODE_KEY, SWAP_MODE } from '../../pages/SwapPage';
 const is_mobile = isMobile();
 const { explorerUrl } = getConfig();

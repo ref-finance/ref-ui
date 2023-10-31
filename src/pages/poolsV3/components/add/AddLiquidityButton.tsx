@@ -8,7 +8,7 @@ import {
   add_liquidity,
   batch_add_liquidity,
 } from '../../../../services/swapV3';
-import { toNonDivisibleNumber } from '~utils/numbers';
+import { toNonDivisibleNumber } from 'src/utils/numbers';
 import { IAddLiquidityInfo } from '../../interfaces';
 import { TokenMetadata } from '../../../../services/ft-contract';
 import { WRAP_NEAR_CONTRACT_ID } from '../../../../services/wrap-near';
@@ -16,7 +16,7 @@ import {
   GradientButton,
   ButtonTextWrapper,
   ConnectToNearBtn,
-} from '~components/button/Button';
+} from 'src/components/button/Button';
 import { useWalletSelector } from '../../../../context/WalletSelectorContext';
 
 /**

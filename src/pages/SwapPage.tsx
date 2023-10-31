@@ -12,8 +12,6 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { useTriTokenIdsOnRef } from '../services/aurora/aurora';
 import { TokenMetadata } from '../services/ft-contract';
 
-export const REF_FI_SWAP_SWAPPAGE_TAB_KEY = 'REF_FI_SWAP_SWAPPAGE_TAB_VALUE';
-
 import {
   nearMetadata,
   WRAP_NEAR_CONTRACT_ID,
@@ -27,7 +25,6 @@ import SwapLimitOrderChart from '../components/swap/SwapLimitOrderChart';
 import { EstimateSwapView } from '../services/swap';
 import { TradeRoute } from '../components/layout/SwapRoutes';
 import { MarketList } from '../components/layout/SwapRoutes';
-import MyOrderPage from './MyOrder';
 import MyOrderComponent from './Orderly/components/MyOrder';
 import { useWalletSelector } from '../context/WalletSelectorContext';
 import { useClientMobile } from '../utils/device';
@@ -446,19 +443,19 @@ function SwapPage() {
               />
             )}
           </section>
-          {!isMobile && (
+          {/* {!isMobile && (
             <div className="lg:w-480px  text-white mt-5">
               <AdSwiper />
             </div>
-          )}
+          )} */}
         </div>
       </div>
 
-      {isMobile && (
+      {/* {isMobile && (
         <div className="lg:w-480px xsm:mx-3  m-auto relative text-white mt-5">
           <AdSwiper />
         </div>
-      )}
+      )} */}
     </SwapProContext.Provider>
   );
 }

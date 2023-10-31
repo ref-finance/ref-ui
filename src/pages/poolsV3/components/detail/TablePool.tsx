@@ -8,13 +8,13 @@ import {
   toInternationalCurrencySystem,
 } from '../../../../utils/numbers';
 import { Icon } from './Icon';
-import { toRealSymbol } from '~utils/token';
-import { TokenLinks } from '~components/tokens/Token';
+import { toRealSymbol } from 'src/utils/token';
+import { TokenLinks } from 'src/components/tokens/Token';
 import { FiArrowUpRight } from 'react-icons/fi';
 import { TokenMetadata } from '~services/ft-contract';
 import { RencentTabKey } from './type';
-import { useDCLPoolTransaction } from '~state/pool';
-import { numberWithCommas } from '~pages/Orderly/utiles';
+import { useDCLPoolTransaction } from 'src/state/pool';
+import { numberWithCommas } from 'src/pages/Orderly/utiles';
 import { HiOutlineExternalLink } from 'react-icons/hi';
 import getConfig from '../../../../services/config';
 import Big from 'big.js';
@@ -22,8 +22,8 @@ import {
   sort_tokens_by_base,
   openUrl,
   reverse_price,
-} from '~services/commonV3';
-import { pointToPrice } from '~services/swapV3';
+} from 'src/services/commonV3';
+import { pointToPrice } from 'src/services/swapV3';
 import { RelatedFarmsBox } from './RelatedFarmsBox';
 import { isClientMobie } from '../../../../utils/device';
 

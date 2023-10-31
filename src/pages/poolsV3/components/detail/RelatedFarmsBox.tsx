@@ -3,7 +3,7 @@ import {
   getEffectiveFarmList,
   get_pool_name,
   openUrl,
-} from '~services/commonV3';
+} from 'src/services/commonV3';
 import { FarmBoost, Seed } from '../../../../services/farm';
 import {
   toPrecision,
@@ -12,7 +12,7 @@ import {
 } from '../../../../utils/numbers';
 import { BigNumber } from 'bignumber.js';
 import { Fire, FarmBoardInDetailDCLPool } from '../../../../components/icon/V3';
-import { SolidButton } from '~components/button/Button';
+import { SolidButton } from 'src/components/button/Button';
 import { FormattedMessage, useIntl } from 'react-intl';
 
 export function RelatedFarmsBox(props: any) {

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useContext, useMemo } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { isMobile } from '~utils/device';
+import { isMobile } from 'src/utils/device';
 import {
   ArrowLeftIcon,
   FreeIcon,
@@ -19,10 +19,10 @@ import {
   BoostOptIcon,
   LightningBase64,
   LightningBase64Grey,
-} from '~components/icon/FarmBoost';
+} from 'src/components/icon/FarmBoost';
 import { useHistory, useLocation } from 'react-router-dom';
 import getConfig from '../../services/config';
-import { LinkIcon, ArrowDownHollow } from '~components/icon';
+import { LinkIcon, ArrowDownHollow } from 'src/components/icon';
 import {
   FarmBoost,
   Seed,
@@ -36,7 +36,7 @@ import {
   BoostConfig,
   UserSeedInfo,
   getVeSeedShare,
-} from '~services/farm';
+} from 'src/services/farm';
 import { WalletContext } from '../../utils/wallets-integration';
 import {
   toPrecision,
@@ -54,37 +54,37 @@ import {
   OprationButton,
   ConnectToNearBtn,
   SolidButton,
-} from '~components/button/Button';
+} from 'src/components/button/Button';
 import Modal from 'react-modal';
-import { usePool } from '~state/pool';
-import { ModalClose, Calc } from '~components/icon';
+import { usePool } from 'src/state/pool';
+import { ModalClose, Calc } from 'src/components/icon';
 import { TokenMetadata } from '../../services/ft-contract';
-import { addLiquidityToPool, Pool } from '~services/pool';
+import { addLiquidityToPool, Pool } from 'src/services/pool';
 import {
   useWalletTokenBalances,
   useDepositableBalance,
 } from '../../state/token';
-import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
-import { useTokens, getDepositableBalance } from '~state/token';
+import { WRAP_NEAR_CONTRACT_ID } from 'src/services/wrap-near';
+import { useTokens, getDepositableBalance } from 'src/state/token';
 import { scientificNotationToString, divide } from '../../utils/numbers';
-import { BoostInputAmount } from '~components/forms/InputAmount';
-import Alert from '~components/alert/Alert';
-import { mftGetBalance } from '~services/mft-contract';
-import { getMftTokenId, toRealSymbol } from '~utils/token';
+import { BoostInputAmount } from 'src/components/forms/InputAmount';
+import Alert from 'src/components/alert/Alert';
+import { mftGetBalance } from 'src/services/mft-contract';
+import { getMftTokenId, toRealSymbol } from 'src/utils/token';
 import {
   LP_TOKEN_DECIMALS,
   LP_STABLE_TOKEN_DECIMALS,
 } from '../../services/m-token';
-import { Checkbox, CheckboxSelected } from '~components/icon';
-import { CalcEle } from '~components/farm/CalcModelBooster';
+import { Checkbox, CheckboxSelected } from 'src/components/icon';
+import { CalcEle } from 'src/components/farm/CalcModelBooster';
 import ReactTooltip from 'react-tooltip';
-import QuestionMark from '~components/farm/QuestionMark';
-import { ExternalLinkIcon } from '~components/icon/Risk';
+import QuestionMark from 'src/components/farm/QuestionMark';
+import { ExternalLinkIcon } from 'src/components/icon/Risk';
 import { FaAngleUp, FaAngleDown } from '../../components/reactIcons';
 import { useDayVolume } from '../../state/pool';
-import { getPool } from '~services/indexer';
-import CalcModelBooster from '~components/farm/CalcModelBooster';
-import { get24hVolume } from '~services/indexer';
+import { getPool } from 'src/services/indexer';
+import CalcModelBooster from 'src/components/farm/CalcModelBooster';
+import { get24hVolume } from 'src/services/indexer';
 import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import { VEARROW } from '../icon/Referendum';
 import { isStablePool } from '../../services/near';
@@ -93,7 +93,7 @@ import {
   getEffectiveFarmList,
   sort_tokens_by_base,
   openUrl,
-} from '~services/commonV3';
+} from 'src/services/commonV3';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 const {

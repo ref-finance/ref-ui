@@ -1,9 +1,9 @@
 import { keyStores, Near } from 'near-api-js';
 import db, { FarmDexie, TokenPrice } from './store/RefDatabase';
 import getConfig from './services/config';
-import { TokenMetadata } from '~services/ft-contract';
-import { Farm, Seed, FarmBoost } from '~services/farm';
-import { PoolRPCView } from '~services/api';
+import { TokenMetadata } from 'src/services/ft-contract';
+import { Farm, Seed, FarmBoost } from 'src/services/farm';
+import { PoolRPCView } from 'src/services/api';
 import { BigNumber } from 'bignumber.js';
 import { STABLE_POOL_ID, STABLE_POOL_USN_ID } from './services/near';
 import { PoolInfo } from './services/swapV3';

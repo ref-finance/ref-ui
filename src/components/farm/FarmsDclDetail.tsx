@@ -1,29 +1,24 @@
 import React, {
   useEffect,
-  useRef,
   useState,
   useContext,
   useMemo,
   createContext,
 } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { isMobile } from '~utils/device';
 import {
   ArrowLeftIcon,
   UpArrowIcon,
   BoostRightArrowIcon,
   BoostOptIcon,
   DclFarmIcon,
-  NFTIdIcon,
   LinkArrowIcon,
   NewTag,
   CalcIcon,
-} from '~components/icon/FarmBoost';
-import { RefreshIcon } from '~components/icon/swapV3';
-import { AddButtonIcon } from '~components/icon/V3';
-import { useHistory, useLocation } from 'react-router-dom';
+} from 'src/components/icon/FarmBoost';
+import { RefreshIcon } from 'src/components/icon/swapV3';
+import { useHistory } from 'react-router-dom';
 import getConfig from '../../services/config';
-import { LinkIcon, ArrowDownHollow } from '~components/icon';
 import {
   FarmBoost,
   Seed,
@@ -33,15 +28,13 @@ import {
   batch_unStake_boost_nft,
   IStakeInfo,
   UserSeedInfo,
-} from '~services/farm';
+} from 'src/services/farm';
 import { WalletContext } from '../../utils/wallets-integration';
 import {
   toPrecision,
   toReadableNumber,
-  toNonDivisibleNumber,
   toInternationalCurrencySystem,
   formatWithCommas,
-  calculateFairShare,
 } from '../../utils/numbers';
 import BigNumber from 'bignumber.js';
 import {
@@ -49,10 +42,10 @@ import {
   ButtonTextWrapper,
   OprationButton,
   ConnectToNearBtn,
-} from '~components/button/Button';
-import { getMftTokenId, toRealSymbol } from '~utils/token';
+} from 'src/components/button/Button';
+import { toRealSymbol } from 'src/utils/token';
 import ReactTooltip from 'react-tooltip';
-import QuestionMark from '~components/farm/QuestionMark';
+import QuestionMark from 'src/components/farm/QuestionMark';
 import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import {
   getPriceByPoint,
@@ -64,23 +57,18 @@ import {
   TOKEN_LIST_FOR_RATE,
   get_matched_seeds_for_dcl_pool,
   displayNumberToAppropriateDecimals,
-  get_intersection_radio,
-  get_intersection_icon_by_radio,
   getEffectiveFarmList,
   sort_tokens_by_base,
   get_pool_name,
   openUrl,
-} from '~services/commonV3';
+} from 'src/services/commonV3';
 import { list_liquidities, dcl_mft_balance_of } from '../../services/swapV3';
-import { AddNewPoolV3 } from '~components/pool/AddNewPoolV3';
-import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
+import { TokenMetadata } from 'src/services/ft-contract';
 import CalcModelDcl from '../../components/farm/CalcModelDcl';
 import { formatWithCommas_usd, formatPercentage } from './utils';
 import moment from 'moment';
 import Big from 'big.js';
-const ONLY_ZEROS = /^0*\.?0*$/;
 const { REF_VE_CONTRACT_ID, REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
-const FarmContext = createContext(null);
 export default function FarmsDclDetail(props: {
   detailData: Seed;
   emptyDetailData: Function;
@@ -100,7 +88,6 @@ export default function FarmsDclDetail(props: {
     boostConfig,
     user_data,
     user_data_loading,
-    dayVolumeMap,
     all_seeds,
   } = props;
   const [listLiquidities, setListLiquidities] = useState<UserLiquidityInfo[]>(

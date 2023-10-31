@@ -3,11 +3,11 @@ import { TokenMetadata } from '../../../../services/ft-contract';
 import { FormattedMessage } from 'react-intl';
 import BigNumber from 'bignumber.js';
 import { PoolInfo } from '../../../../services/swapV3';
-import { formatWithCommas, toPrecision } from '~utils/numbers';
+import { formatWithCommas, toPrecision } from 'src/utils/numbers';
 import { WalletContext } from '../../../../utils/wallets-integration';
 import { WRAP_NEAR_CONTRACT_ID } from '../../../../services/wrap-near';
 import { toRealSymbol } from '../../../../utils/token';
-import { WarningIcon } from '~components/icon/V3';
+import { WarningIcon } from 'src/components/icon/V3';
 
 export function InputAmount({
   token,
