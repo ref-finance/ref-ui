@@ -57,7 +57,8 @@ export function useTokensBalances(
   tokens: TokenWithDecimals[] | undefined,
   tokenInfo: TokenInfo[] | undefined,
   trigger: any,
-  freeCollateral: string
+  freeCollateral: string,
+  curHoldingOut
 ) {
   const [showbalances, setShowBalances] = useState<BalanceType[]>([]);
 
@@ -146,10 +147,11 @@ export function useTokensBalances(
     holdings,
   ]);
 
-  if (showbalances.length > 0 && freeCollateral !== '-') {
+  if (showbalances.length > 0 && freeCollateral !== '-' && curHoldingOut) {
     showbalances.forEach((sb) => {
-      if (sb.name === 'USDC') {
-        sb.holding = Number(freeCollateral);
+      if (sb.name === 'USDC' || sb.name === 'USDC.e') {
+        const usdcBalance = curHoldingOut.holding + curHoldingOut.pending_short;
+        sb.holding = Math.min(Number(freeCollateral), Number(usdcBalance));
       }
     });
   }
@@ -257,7 +259,7 @@ export function useTokensOrderlyBalances(
 
   if (showbalances.length > 0 && freeCollateral !== '-') {
     showbalances.forEach((sb) => {
-      if (sb.name === 'USDC') {
+      if (sb.name === 'USDC' || sb.name === 'USDC.e') {
         sb.holding = Number(freeCollateral);
       }
     });
@@ -267,7 +269,7 @@ export function useTokensOrderlyBalances(
     showbalances.forEach((sb) => {
       const curBalance = balances[sb.name];
 
-      if (curBalance && sb.name !== 'USDC') {
+      if (curBalance && sb.name !== 'USDC' && sb.name !== 'USDC.e') {
         sb.holding = Number(
           new Big(curBalance.holding + curBalance.pendingShortQty).toFixed(
             Math.min(8, sb.meta.decimals || 9),

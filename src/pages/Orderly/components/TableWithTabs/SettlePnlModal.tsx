@@ -54,7 +54,7 @@ export default function SettlePnlModal(
               {intl.formatMessage({
                 id: 'settle_pnl_tips',
                 defaultMessage:
-                  'By doing this, we’ll move your profit or loss from perp markets into the USDC token balance. This has no impact on your open positions or health.',
+                  'By doing this, we’ll move your profit or loss from perp markets into the USDC.e token balance. This has no impact on your open positions or health.',
               })}
             </span>
           </div>
@@ -78,7 +78,7 @@ export default function SettlePnlModal(
               >
                 {portfolioUnsettle}
               </span>
-              USDC
+              USDC.e
             </span>
           </div>
 

@@ -896,7 +896,7 @@ export function MobileNavBar(props: any) {
           />
         ) : null}
       </div>
-      {isMobile ? <Marquee></Marquee> : null}
+      {/* {isMobile ? <Marquee></Marquee> : null} */}
 
       <MobileBridgeModal
         isOpen={showBridgeModalMobile}

@@ -7,7 +7,7 @@ export let farmConfig: {
     name: string;
   };
 };
-const env: string = process.env.NEAR_ENV;
+const env: string = process.env.REACT_APP_NEAR_ENV;
 switch (env) {
   case 'mainnet':
     farmConfig = {};

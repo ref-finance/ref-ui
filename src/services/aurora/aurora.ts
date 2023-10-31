@@ -132,11 +132,11 @@ export const decodeOutput = (abi: any[], methodName: string, buffer: any) => {
   if (!abiItem) {
     return null;
   }
-  console.log(
-    'xx',
-    abiItem.outputs,
-    AbiCoder.decodeParameters(abiItem.outputs, `0x${buffer.toString('hex')}`)
-  );
+  // console.log(
+  //   'xx',
+  //   abiItem.outputs,
+  //   AbiCoder.decodeParameters(abiItem.outputs, `0x${buffer.toString('hex')}`)
+  // );
   return AbiCoder.decodeParameters(
     abiItem.outputs,
     `0x${buffer.toString('hex')}`

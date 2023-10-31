@@ -428,19 +428,19 @@ function SwapPage() {
               />
             )}
           </section>
-          {!isMobile && (
+          {/* {!isMobile && (
             <div className="lg:w-480px  text-white mt-5">
               <AdSwiper />
             </div>
-          )}
+          )} */}
         </div>
       </div>
 
-      {isMobile && (
+      {/* {isMobile && (
         <div className="lg:w-480px xsm:mx-3  m-auto relative text-white mt-5">
           <AdSwiper />
         </div>
-      )}
+      )} */}
     </SwapProContext.Provider>
   );
 }

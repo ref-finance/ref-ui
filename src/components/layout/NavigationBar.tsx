@@ -1094,7 +1094,7 @@ function NavigationBar() {
             <Language></Language>
           </div>
         </nav>
-        {isMobile ? null : <Marquee></Marquee>}
+        {/* {isMobile ? null : <Marquee></Marquee>} */}
       </div>
       <MobileNavBar
         hasBalanceOnRefAccount={hasBalanceOnRefAccount}

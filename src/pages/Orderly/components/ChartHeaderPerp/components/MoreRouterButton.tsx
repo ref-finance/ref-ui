@@ -358,7 +358,7 @@ function MoreRouteBox(props: Modal.Props) {
                 <span>
                   <FormattedMessage
                     id="usdc_margined"
-                    defaultMessage={'USDC margined'}
+                    defaultMessage={'USDC.e margined'}
                   ></FormattedMessage>
                 </span>
                 {displayDiffPerp}

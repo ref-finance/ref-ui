@@ -18,7 +18,7 @@ const HardwareWalletAccountsForm: React.FC<FormProps> = ({
   onSubmit,
 }) => {
   return (
-    <div className="choose-ledger-account-form-wrapper">
+    <div className="choose-ledger-account-form-wrapper w-full">
       <p className="text-sm text-center">
         <FormattedMessage id="we_found" defaultMessage={'We found'} />
         <span className="px-1">{accounts.length}</span>
@@ -31,14 +31,17 @@ const HardwareWalletAccountsForm: React.FC<FormProps> = ({
           onSubmit(accounts, e);
         }}
       >
-        <div>
-          <div className="px-10 flex flex-col">
+        <div className="">
+          <div className="px-8 flex flex-col max-h-60 overflow-auto">
             {accounts.map((account, index) => (
               <div
                 key={index}
-                className="w-full mt-3 relative px-4 py-3 bg-black text-sm bg-opacity-10 rounded-md"
+                className="flex items-center w-full mt-3 relative px-2 py-3 bg-black text-sm bg-opacity-10 rounded-md"
               >
-                <label className=" " htmlFor={account.accountId}>
+                <label
+                  className="w-full overflow-hidden whitespace-nowrap overflow-ellipsis"
+                  htmlFor={account.accountId}
+                >
                   {' '}
                   {account.accountId}
                 </label>
@@ -53,7 +56,7 @@ const HardwareWalletAccountsForm: React.FC<FormProps> = ({
               </div>
             ))}
           </div>
-          <div className="px-10">
+          <div className="px-8">
             <button
               className="py-1.5 mt-7 w-full flex items-center justify-center text-sm rounded-lg"
               style={{

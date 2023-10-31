@@ -423,7 +423,7 @@ export const DerivationPath: React.FC<DerivationPathProps> = ({
               key={account.accountId}
               className="pt-10 text-center text-base font-bold"
             >
-              <div className="account">
+              <div className="account w-full overflow-hidden whitespace-nowrap overflow-ellipsis px-6">
                 <span>{account.accountId}</span>
               </div>
             </div>

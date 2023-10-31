@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-export function getExtendConfig(env: string = process.env.NEAR_ENV) {
+export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
   switch (env) {
     case 'production':
     case 'mainnet':
@@ -93,7 +93,8 @@ export function getCustomConfig() {
   return customRpcMap;
 }
 export default function getConfig(
-  env: string = process.env.NEAR_ENV || process.env.REACT_APP_NEAR_ENV
+  env: string = process.env.REACT_APP_NEAR_ENV ||
+    process.env.REACT_APP_REACT_APP_NEAR_ENV
 ) {
   const RPC_LIST_system = getExtendConfig().RPC_LIST;
   const RPC_LIST_custom = getCustomConfig();
@@ -395,7 +396,8 @@ export default function getConfig(
 }
 
 export function getExtraStablePoolConfig(
-  env: string = process.env.NEAR_ENV || process.env.REACT_APP_NEAR_ENV
+  env: string = process.env.REACT_APP_NEAR_ENV ||
+    process.env.REACT_APP_REACT_APP_NEAR_ENV
 ) {
   switch (env) {
     case 'production':
@@ -592,7 +594,8 @@ export function getExtraStablePoolConfig(
 }
 export function getTransakConfig(
   accountId: string,
-  env: string = process.env.NEAR_ENV || process.env.REACT_APP_NEAR_ENV
+  env: string = process.env.REACT_APP_NEAR_ENV ||
+    process.env.REACT_APP_REACT_APP_NEAR_ENV
 ) {
   switch (env) {
     case 'production':
@@ -649,7 +652,8 @@ export function getTransakConfig(
 }
 
 export function getOrderlyConfig(
-  env: string = process.env.NEAR_ENV || process.env.REACT_APP_NEAR_ENV
+  env: string = process.env.REACT_APP_NEAR_ENV ||
+    process.env.REACT_APP_REACT_APP_NEAR_ENV
 ) {
   switch (env) {
     case 'production':

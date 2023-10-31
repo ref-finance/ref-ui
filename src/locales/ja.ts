@@ -1041,7 +1041,7 @@ const ja = {
   history_orderly: 'History',
   settle_pnl: 'Settle PnL',
   settle_pnl_tips:
-    'By doing this, we’ll move your profit or loss from perp markets into the USDC token balance. This has no impact on your open positions or health.',
+    'By doing this, we’ll move your profit or loss from perp markets into the USDC.e token balance. This has no impact on your open positions or health.',
   total_unsettled_pnl: 'Total unsettled PnL',
   fut_unreal_pnl: 'Fut. Unreal. PnL',
   fut_daily_real: 'Fut. Daily Real.',
@@ -1364,7 +1364,7 @@ const ja = {
   TotalAssets: 'Total Assets',
   TokenAllocation: 'Token Allocation',
   perpTip:
-    'We will be conducting a system update from 06:00 to 09:00 (UTC) on October 31, 2023. Please check our Twitter for update details. During this time, deposits and withdrawals will be temporarily unavailable, and spot and perp trading will be disabled. Due to the unique nature of this update, we kindly request that you cancel all your orders before this period.',
+    'Welcome to Perpetual Futures trading! Please read {perpTipLink} to get started!',
   perpTipLink: '[Perpetual Futures Introduction]  ',
   perpetual: 'Perpetual',
   pred_funding_rate: 'Pred. Funding Rate',
@@ -1402,9 +1402,9 @@ const ja = {
   liquidations_fee: 'Liquidations Fee',
   more_trading_price: 'More Trading Price',
   unsettle_pnl_tip:
-    'Move a profit or loss from perp markets into the USDC token balance. This has no impact on your open positions or health.',
+    'Move a profit or loss from perp markets into the USDC.e token balance. This has no impact on your open positions or health.',
   margin_ratio_tip:
-    'The margin ratio of an account is equal to the total collateral value (ie the USDC balance + any unrealized profit/loss) divided by the total open notional of the account (the sum of the absolute notional value of all positions)',
+    'The margin ratio of an account is equal to the total collateral value (ie the USDC.e balance + any unrealized profit/loss) divided by the total open notional of the account (the sum of the absolute notional value of all positions)',
   portfolio_total_est_tip: 'Portfolio value in USD.',
   size: 'Size',
   closing_1: 'Closing',

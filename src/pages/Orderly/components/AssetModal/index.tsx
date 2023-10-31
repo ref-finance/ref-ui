@@ -52,6 +52,10 @@ import { TipIconAsset } from '../Common/Icons';
 import ReactTooltip from 'react-tooltip';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { usePerpData } from '../UserBoardPerp/state';
+import {
+  CollatteralToken,
+  CollatteralTokenAvailableCell,
+} from '../UserBoardPerp/components/HoverText';
 
 function getTipAsset() {
   const intl = useIntl();
@@ -102,13 +106,31 @@ function AssetLine(
   props: OrderAsset & {
     tokenInfo: TokenInfo[] | undefined;
     freeCollateral: string;
+    curHoldingOut;
   }
 ) {
   const [showManagerModal, setShowManagerModal] = useState<boolean>(false);
-
   const [type, setType] = useState<'deposit' | 'withdraw'>();
-  const { freeCollateral } = props;
+  const { freeCollateral, curHoldingOut } = props;
+  const is_usdc = props.tokenMeta.symbol.includes('USDC');
+  let usdcBalance = '-';
+  let finalBalance = '-';
+  if (is_usdc) {
+    usdcBalance = curHoldingOut
+      ? new Big(curHoldingOut.holding + curHoldingOut.pending_short).toFixed(2)
+      : '-';
 
+    if (curHoldingOut && freeCollateral !== '-') {
+      const balance = new Big(
+        curHoldingOut.holding + curHoldingOut.pending_short
+      );
+      if (balance.lt(freeCollateral)) {
+        finalBalance = balance.toFixed(3);
+      } else {
+        finalBalance = Big(freeCollateral).toFixed(3);
+      }
+    }
+  }
   return (
     <div
       className="grid grid-cols-8 xs:grid-cols-3 text-white py-4 pl-5 pr-1 first-letter:first-line:
@@ -121,10 +143,11 @@ function AssetLine(
           className="rounded-full flex-shrink-0 mr-2 w-7 h-7 border border-green-400"
           alt=""
         />
-        <div className="flex flex-col  ">
+        <div className="flex flex-col">
           <div className="text-white flex items-center font-bold">
             {props.tokenMeta.symbol}
             {props?.tokenMeta?.id?.toLowerCase() === 'near' && <NearTip />}
+            {is_usdc && <CollatteralToken d="right" />}
           </div>
 
           <div className="text-primaryOrderly xs:hidden text-xs">
@@ -148,7 +171,15 @@ function AssetLine(
         className="relative justify-self-end right-8 xs:right-0"
         title={props.available}
       >
-        {digitWrapperAsset(props.available, 3)}
+        {is_usdc ? (
+          <CollatteralTokenAvailableCell
+            finalBalance={finalBalance}
+            usdcBalance={usdcBalance}
+            freeCollateral={freeCollateral}
+          />
+        ) : (
+          digitWrapperAsset(props.available, 3)
+        )}
       </FlexRow>
 
       <FlexRow className="justify-center xs:hidden justify-self-center col-span-2">
@@ -193,6 +224,7 @@ function AssetLine(
           accountBalance={Number(props.available)}
           tokenInfo={props.tokenInfo}
           freeCollateral={freeCollateral}
+          curHoldingOut={curHoldingOut}
         ></AssetManagerModal>
       )}
     </div>
@@ -327,8 +359,8 @@ function RecordLine(
   );
 }
 
-export function AssetModal(props: Modal.Props) {
-  const { onRequestClose } = props;
+export function AssetModal(props: Modal.Props & { curHoldingOut }) {
+  const { onRequestClose, curHoldingOut } = props;
 
   const [tag, setTag] = useState<'asset' | 'records'>('asset');
 
@@ -342,7 +374,11 @@ export function AssetModal(props: Modal.Props) {
 
   const { freeCollateral } = usePerpData();
 
-  const displayBalances = useOrderAssets(tokenInfo, freeCollateral);
+  const displayBalances = useOrderAssets(
+    tokenInfo,
+    freeCollateral,
+    curHoldingOut
+  );
 
   const sortedBalances = lodashOrderBy(
     displayBalances,
@@ -740,6 +776,7 @@ export function AssetModal(props: Modal.Props) {
                     tokenInfo={tokenInfo}
                     {...b}
                     freeCollateral={freeCollateral}
+                    curHoldingOut={curHoldingOut}
                   />
                 );
               })}
@@ -876,6 +913,7 @@ export function AssetModal(props: Modal.Props) {
                 )}
                 tokenInfo={tokenInfo}
                 freeCollateral={freeCollateral}
+                curHoldingOut={curHoldingOut}
               />
 
               <AssetManagerModal
@@ -896,6 +934,7 @@ export function AssetModal(props: Modal.Props) {
                 )}
                 tokenInfo={tokenInfo}
                 freeCollateral={freeCollateral}
+                curHoldingOut={curHoldingOut}
               />
             </div>
           )}

@@ -100,6 +100,11 @@ import {
   MarginRatioText,
   TotaluPNLText,
   UnsettlePnl,
+  TotalCollateralText,
+  FreeCollateralText,
+  UsdcAvailableBalanceText,
+  CollatteralToken,
+  CollatteralTokenAvailableCell,
 } from '../UserBoardPerp/components/HoverText';
 import { usePerpData } from '../UserBoardPerp/state';
 import { executeMultipleTransactions } from '../../../../services/near';
@@ -152,14 +157,17 @@ export function CurAsset(props?: any) {
     ? curHoldingIn.holding + curHoldingIn.pending_short
     : balances && balances[symbolFrom]?.holding;
 
-  const { freeCollateral } = usePerpData();
+  const { freeCollateral, collateralTokenAvailableBalance } = usePerpData();
+  // const tokenOutHolding =
+  //   (symbolTo === 'USDC' || symbolTo === 'USDC.e') && freeCollateral !== '-'
+  //     ? freeCollateral
+  //     : curHoldingOut
+  //     ? curHoldingOut.holding + curHoldingOut.pending_short
+  //     : balances && balances[symbolTo]?.holding;
 
-  const tokenOutHolding =
-    symbolTo === 'USDC' && freeCollateral !== '-'
-      ? freeCollateral
-      : curHoldingOut
-      ? curHoldingOut.holding + curHoldingOut.pending_short
-      : balances && balances[symbolTo]?.holding;
+  const usdcAvailableBalance = curHoldingOut
+    ? new Big(curHoldingOut.holding + curHoldingOut.pending_short).toFixed(2)
+    : '-';
 
   const tokenIn = useTokenMetaFromSymbol(symbolFrom, tokenInfo);
 
@@ -346,19 +354,25 @@ export function CurAsset(props?: any) {
                 alt=""
               />
               <span>{symbolTo}</span>
+              {symbolType === 'SPOT' ? null : <CollatteralToken d="right" />}
             </div>
 
             <div className="justify-self-end relative right-10">
               {!!tokenToBalance ? digitWrapperAsset(tokenToBalance, 2) : ''}
             </div>
 
-            <div className="flex items-center justify-self-end">
+            {/* <div className="flex items-center justify-self-end">
               <span>
                 {tokenOutHolding
                   ? digitWrapperAsset(tokenOutHolding.toString(), 2)
                   : 0}
               </span>
-            </div>
+            </div> */}
+            <CollatteralTokenAvailableCell
+              finalBalance={collateralTokenAvailableBalance}
+              usdcBalance={usdcAvailableBalance}
+              freeCollateral={freeCollateral}
+            />
           </div>
 
           <div className="text-sm text-white font-bold pt-4 text-left frcb">
@@ -411,6 +425,7 @@ export function CurAsset(props?: any) {
             accountBalance={tokenInHolding || 0}
             tokenInfo={tokenInfo}
             freeCollateral={freeCollateral}
+            curHoldingOut={curHoldingOut}
           />
 
           <AssetManagerModal
@@ -427,10 +442,12 @@ export function CurAsset(props?: any) {
             accountBalance={tokenInHolding || 0}
             tokenInfo={tokenInfo}
             freeCollateral={freeCollateral}
+            curHoldingOut={curHoldingOut}
           />
           {showAllAssets && (
             <AssetModal
               isOpen={showAllAssets}
+              curHoldingOut={curHoldingOut}
               onRequestClose={() => {
                 setShowAllAssets(false);
               }}
@@ -457,6 +474,7 @@ export function PerpAccountBoard() {
     setCurLeverage,
     curLeverage,
     accountCurLeverage,
+    collateralTokenAvailableBalance,
   } = usePerpData();
 
   const intl = useIntl();
@@ -553,33 +571,31 @@ export function PerpAccountBoard() {
 
         <span className="font-nunito text-white">{mmr}</span>
       </div>
-
-      {/* free collateral */}
+      {/* total colleteral  */}
       <div className="frcb">
-        <FormattedMessage
-          id="free_collateral"
-          defaultMessage={`Free Collateral`}
-        />
-
-        <span className="font-nunito text-white">
-          {!positions ? '-' : numberWithCommas(freeCollateral)}
-        </span>
-      </div>
-
-      {/* total collateral */}
-      <div className="frcb">
-        <FormattedMessage
-          id="total_collateral"
-          defaultMessage={`Total Collateral`}
-        ></FormattedMessage>
-
+        <TotalCollateralText />
         <span className="font-nunito text-white">
           {!positions || totalCollateral === '-'
             ? '-'
             : numberWithCommas(totalCollateral)}
         </span>
       </div>
-
+      {/* Usdc Available Balance */}
+      <div className="frcb">
+        <UsdcAvailableBalanceText />
+        <span className="font-nunito text-white">
+          {collateralTokenAvailableBalance === '-'
+            ? '-'
+            : numberWithCommas(collateralTokenAvailableBalance)}
+        </span>
+      </div>
+      {/* free collateral */}
+      <div className="frcb">
+        <FreeCollateralText />
+        <span className="font-nunito text-white">
+          {!positions ? '-' : numberWithCommas(freeCollateral)}
+        </span>
+      </div>
       {/* total upnl */}
       <div className="frcb">
         <TotaluPNLText></TotaluPNLText>
@@ -588,7 +604,6 @@ export function PerpAccountBoard() {
       </div>
 
       {/* unsettle unpnl */}
-
       <div className="frcb">
         <UnsettlePnl></UnsettlePnl>
 

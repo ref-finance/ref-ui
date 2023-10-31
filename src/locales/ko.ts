@@ -1360,7 +1360,7 @@ const ko = {
   TotalAssets: '총 자산',
   TokenAllocation: '토큰 할당',
   perpTip:
-    'We will be conducting a system update from 06:00 to 09:00 (UTC) on October 31, 2023. Please check our Twitter for update details. During this time, deposits and withdrawals will be temporarily unavailable, and spot and perp trading will be disabled. Due to the unique nature of this update, we kindly request that you cancel all your orders before this period. ',
+    '영구 선물 트레이딩에 오신 걸 환영합니다! 시작 전 {perpTipLink}를 확인해주세요! ',
   perpTipLink: '[영구 선물 소개]  ',
   perpetual: 'Perpetual',
   pred_funding_rate: 'Pred. Funding Rate',

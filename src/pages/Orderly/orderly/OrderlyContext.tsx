@@ -177,7 +177,7 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
     if (isPerp) {
       // find if PERP_{token}_{USDC} exist  in availableSymbols, if exist, set to this symbol else set to PERP_NEAR_USDC
 
-      let newSymbol = 'PERP_NEAR_USDC';
+      let newSymbol = 'PERP_NEAR_USDC.e';
 
       const perpSymbol = availableSymbols?.find((s) => {
         const storedSymbol = localStorage.getItem(REF_ORDERLY_SYMBOL_KEY);
