@@ -263,7 +263,6 @@ function OrderlyTradingBoard() {
 
   return (
     <div className="mx-auto relative xs:bottom-6 bottom-9">
-      {!isMobile && <PerpOrderlyTip />}
       {!isMobile && <TradingBoard></TradingBoard>}
 
       {isMobile && <MobileTradingBoard></MobileTradingBoard>}
