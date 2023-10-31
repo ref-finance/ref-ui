@@ -308,7 +308,7 @@ export function UsdcAvailableBalanceText({
               width: '200px',
             }}
           >
-            USDC.e Available Balance = min(usdc.e Balance, Free Collateral)
+            USDC.e Available Balance = min(USDC.e Balance, Free Collateral)
           </div>
         )}
       </div>
