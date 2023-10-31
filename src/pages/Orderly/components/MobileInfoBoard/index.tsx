@@ -354,7 +354,7 @@ export function CurAsset(props?: any) {
                 alt=""
               />
               <span>{symbolTo}</span>
-              <CollatteralToken d="right" />
+              {symbolType === 'SPOT' ? null : <CollatteralToken d="right" />}
             </div>
 
             <div className="justify-self-end relative right-10">
