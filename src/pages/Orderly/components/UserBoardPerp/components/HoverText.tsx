@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { QuestionMark } from '../../Common';
+import { QuestionMark, CollatteralTokenIcon } from '../../Common';
 import { isMobile } from '../../../../../utils/device';
 import { useClientMobile } from '../../../../../utils/device';
 import ReactTooltip from 'react-tooltip';
+import { numberWithCommas } from '../../../utiles';
 
 export function MarginRatioText() {
   const [hover, setHover] = useState(false);
@@ -194,6 +195,195 @@ export function LiquidationPriceText() {
           />
         </span>
       </span>
+    </div>
+  );
+}
+
+export function TotalCollateralText() {
+  const [hover, setHover] = useState(false);
+
+  const intl = useIntl();
+
+  return (
+    <div className="frcs gap-1 ">
+      <span className="whitespace-nowrap">
+        <FormattedMessage
+          id="total_collateral"
+          defaultMessage={`Total Collateral`}
+        ></FormattedMessage>
+      </span>
+
+      <div
+        className="relative"
+        onMouseEnter={() => {
+          setHover(true);
+        }}
+        onMouseLeave={() => {
+          setHover(false);
+        }}
+      >
+        <QuestionMark></QuestionMark>
+
+        {hover && (
+          <div
+            className=" absolute bg-cardBg z-30 transform translate-y-1/2 right-3 xs:left-3 bottom-3  px-4 py-2 rounded-lg text-xs border border-primaryText"
+            style={{
+              width: '200px',
+            }}
+          >
+            Total Collateral = USDC.e Balance + unsettle PnL
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+export function FreeCollateralText() {
+  const [hover, setHover] = useState(false);
+
+  const intl = useIntl();
+
+  return (
+    <div className="frcs gap-1 ">
+      <span className="whitespace-nowrap">
+        <FormattedMessage
+          id="free_collateral"
+          defaultMessage={`Free Collateral`}
+        ></FormattedMessage>
+      </span>
+
+      <div
+        className="relative"
+        onMouseEnter={() => {
+          setHover(true);
+        }}
+        onMouseLeave={() => {
+          setHover(false);
+        }}
+      >
+        <QuestionMark></QuestionMark>
+
+        {hover && (
+          <div
+            className=" absolute bg-cardBg z-30 transform translate-y-1/2 right-3 xs:left-3 bottom-3  px-4 py-2 rounded-lg 
+            #7E8A93-xs border border-primaryText"
+            style={{
+              width: '200px',
+            }}
+          >
+            Free Collateral = Total Collateral - order/postion
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+export function UsdcAvailableBalanceText({
+  p,
+}: {
+  p?: 'top' | 'right' | 'left' | 'bottom';
+}) {
+  const [hover, setHover] = useState(false);
+
+  const intl = useIntl();
+
+  return (
+    <div className="frcs gap-1 ">
+      <span className="whitespace-nowrap">USDC.e Available Balance</span>
+
+      <div
+        className="relative"
+        onMouseEnter={() => {
+          setHover(true);
+        }}
+        onMouseLeave={() => {
+          setHover(false);
+        }}
+      >
+        <QuestionMark></QuestionMark>
+        {hover && (
+          <div
+            className="absolute bg-cardBg z-30 transform translate-y-1/2 xsm:-right-16 xsm:bottom-12 lg:bottom-3 lg:right-3  px-4 py-2 rounded-lg text-xs border border-primaryText"
+            style={{
+              width: '200px',
+            }}
+          >
+            USDC.e Available Balance = min(usdc.Balance, Free Collateral)
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export function CollatteralToken({
+  d,
+}: {
+  d?: 'top' | 'right' | 'left' | 'bottom';
+}) {
+  const [hover, setHover] = useState(false);
+  return (
+    <div className="frcs ml-1.5">
+      <div
+        className="relative"
+        onMouseEnter={() => {
+          setHover(true);
+        }}
+        onMouseLeave={() => {
+          setHover(false);
+        }}
+      >
+        <CollatteralTokenIcon />
+
+        {hover && (
+          <div
+            className={`absolute bg-cardBg z-30 transform translate-y-1/2 ${
+              d == 'right' ? 'left-5' : d == 'left' ? 'right-5' : 'right-5'
+            }  xs:left-3 bottom-3  px-4 py-2 rounded-lg text-xs text-primaryText border border-primaryText whitespace-nowrap`}
+          >
+            collatteral token
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+export function CollatteralTokenAvailableCell({
+  finalBalance,
+  usdcBalance,
+  freeCollateral,
+}) {
+  const [collateralTokenTip, setCollateralTokenTip] = useState<boolean>(false);
+  return (
+    <div className="flex items-center justify-self-end border-b border-dashed border-primaryText cursor-pointer frcs">
+      <div
+        className="relative"
+        onMouseEnter={() => {
+          setCollateralTokenTip(true);
+        }}
+        onMouseLeave={() => {
+          setCollateralTokenTip(false);
+        }}
+      >
+        {finalBalance}
+
+        {collateralTokenTip && (
+          <div className="absolute bg-cardBg z-30 transform translate-y-1/2 right-full -translate-x-2 bottom-3  px-4 py-2 rounded-lg text-xs text-primaryText border border-primaryText whitespace-nowrap">
+            <div className="flex items-center gap-2  justify-between text-xs text-farmText">
+              <span>Balance</span>
+              <span>{usdcBalance}</span>
+            </div>
+            <div className="flex items-center gap-2 justify-between text-xs text-farmText mt-2">
+              <span>Free Collateral</span>
+              <span>
+                {freeCollateral === '-'
+                  ? '-'
+                  : numberWithCommas(freeCollateral)}
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

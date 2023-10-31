@@ -1,4 +1,10 @@
-import React, { createContext, useEffect, useContext, useState } from 'react';
+import React, {
+  createContext,
+  useEffect,
+  useContext,
+  useState,
+  useMemo,
+} from 'react';
 import Big from 'big.js';
 import ReactTooltip from 'react-tooltip';
 import _ from 'lodash';
@@ -68,6 +74,8 @@ function PortfolioOrderly() {
     needRefresh,
     maintenance,
   } = useOrderlyContext();
+  const { symbolFrom, symbolTo } = parseSymbol(symbol);
+  const curHoldingOut = holdings?.find((h) => h.token === symbolTo);
   const isSignedIn = globalState.isSignedIn;
   // for connect wallet
   const [tradingKeySet, setTradingKeySet] = useState<boolean>(false);
@@ -104,7 +112,6 @@ function PortfolioOrderly() {
 
   // const [holdings, setHoldings] = useState<Holding[]>();
   const [operationType, setOperationType] = useState<'deposit' | 'withdraw'>();
-  const { symbolFrom } = parseSymbol(symbol);
 
   const tokenIn = useTokenMetaFromSymbol(symbolFrom, tokenInfo);
   const [operationId, setOperationId] = useState<string>(tokenIn?.id || '');
@@ -603,6 +610,7 @@ function PortfolioOrderly() {
         accountBalance={tokenInHolding || 0}
         tokenInfo={tokenInfo}
         freeCollateral={freeCollateral}
+        curHoldingOut={curHoldingOut}
       />
 
       <AssetManagerModal
@@ -619,6 +627,7 @@ function PortfolioOrderly() {
         accountBalance={tokenInHolding || 0}
         tokenInfo={tokenInfo}
         freeCollateral={freeCollateral}
+        curHoldingOut={curHoldingOut}
       />
 
       <MobileFilterModal

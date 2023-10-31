@@ -111,6 +111,11 @@ import {
   MarginRatioText,
   TotaluPNLText,
   UnsettlePnl,
+  TotalCollateralText,
+  FreeCollateralText,
+  UsdcAvailableBalanceText,
+  CollatteralToken,
+  CollatteralTokenAvailableCell,
 } from './components/HoverText';
 import {
   getLqPrice,
@@ -131,7 +136,6 @@ import { useTokensBalances } from '../UserBoard/state';
 import { SetLeverageButton } from './components/SetLeverageButton';
 import { DepositTip } from './components/DepositTip';
 import { NewUserTip } from '../Common/NewUserTip';
-import { OrderType } from '~charting_library/charting_library';
 const REF_ORDERLY_LIMIT_ORDER_ADVANCE = 'REF_ORDERLY_LIMIT_ORDER_ADVANCE';
 
 function getTipFOK() {
@@ -535,6 +539,8 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
   const [confirmModalOpen, setConfirmModalOpen] = useState<boolean>(false);
 
   const [agreeCheck, setAgreeCheck] = useState<boolean>(false);
+  const [collateralTokenTip, setCollateralTokenTip] = useState<boolean>(false);
+
   const {
     totalCollateral,
     mmr,
@@ -548,6 +554,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     userInfo,
     newPositions,
     accountCurLeverage,
+    collateralTokenAvailableBalance,
   } = usePerpData();
 
   const [registerModalOpen, setRegisterModalOpen] = useState<boolean>(false);
@@ -681,19 +688,22 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     tokenOut?.id,
     JSON.stringify(balances)
   );
+  // const tokenOutHolding =
+  //   tokenOut?.symbol?.toLowerCase()?.includes('usdc') && freeCollateral !== '-'
+  //     ? freeCollateral
+  //     : curHoldingOut
+  //     ? toPrecision(
+  //         new Big(
+  //           curHoldingOut.holding + curHoldingOut.pending_short
+  //         ).toString(),
+  //         Math.min(8, tokenOut?.decimals || 8),
+  //         false
+  //       )
+  //     : balances && balances[symbolTo]?.holding;
 
-  const tokenOutHolding =
-    tokenOut?.symbol?.toLowerCase()?.includes('usdc') && freeCollateral !== '-'
-      ? freeCollateral
-      : curHoldingOut
-      ? toPrecision(
-          new Big(
-            curHoldingOut.holding + curHoldingOut.pending_short
-          ).toString(),
-          Math.min(8, tokenOut?.decimals || 8),
-          false
-        )
-      : balances && balances[symbolTo]?.holding;
+  const usdcAvailableBalance = curHoldingOut
+    ? new Big(curHoldingOut.holding + curHoldingOut.pending_short).toFixed(2)
+    : '-';
 
   const marketPrice = !orders
     ? 0
@@ -1318,38 +1328,35 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
         <span className="font-nunito text-white">{mmr}</span>
       </div>
-
-      {/* free collateral */}
-
-      <div className="frcb">
-        <FormattedMessage
-          id="free_collateral"
-          defaultMessage={`Free Collateral`}
-        />
-
-        <span className="font-nunito text-white">
-          {freeCollateral === '-' ? '-' : numberWithCommas(freeCollateral)}
-        </span>
-      </div>
-
       {/* total colleteral  */}
       <div className="frcb">
-        <FormattedMessage
-          id="total_collateral"
-          defaultMessage={`Total Collateral`}
-        ></FormattedMessage>
-
+        <TotalCollateralText />
         <span className="font-nunito text-white">
           {!newPositions || totalCollateral === '-'
             ? '-'
             : numberWithCommas(totalCollateral)}
         </span>
       </div>
+      {/* Usdc Available Balance */}
+      <div className="frcb">
+        <UsdcAvailableBalanceText />
+        <span className="font-nunito text-white">
+          {collateralTokenAvailableBalance === '-'
+            ? '-'
+            : numberWithCommas(collateralTokenAvailableBalance)}
+        </span>
+      </div>
+      {/* free collateral */}
+      <div className="frcb">
+        <FreeCollateralText />
+        <span className="font-nunito text-white">
+          {freeCollateral === '-' ? '-' : numberWithCommas(freeCollateral)}
+        </span>
+      </div>
 
       {/* Total uPnL */}
       <div className="frcb">
         <TotaluPNLText></TotaluPNLText>
-
         <span className="font-nunito text-white">{totaluPnl}</span>
       </div>
 
@@ -1559,9 +1566,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       </div>
 
       {/* account  */}
-
       {perpBoardTab === 'account' && PerpAccountInfo}
-
       {/* balance */}
       {perpBoardTab == 'balance' && (
         <div className="flex bg-perpCardBg flex-col p-6 pb-3">
@@ -1660,6 +1665,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                 alt=""
               />
               <span>{symbolTo}</span>
+              <CollatteralToken />
             </div>
 
             <div
@@ -1668,21 +1674,11 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
             >
               {!!tokenToBalance ? digitWrapperAsset(tokenToBalance, 2) : ''}
             </div>
-
-            <div
-              className="flex items-center justify-self-end"
-              title={
-                tokenOutHolding !== undefined || tokenOutHolding !== null
-                  ? scientificNotationToString(
-                      tokenOutHolding?.toString() || ''
-                    )
-                  : ''
-              }
-            >
-              {tokenOutHolding
-                ? digitWrapperAsset(tokenOutHolding.toString(), 2)
-                : 0}
-            </div>
+            <CollatteralTokenAvailableCell
+              finalBalance={collateralTokenAvailableBalance}
+              usdcBalance={usdcAvailableBalance}
+              freeCollateral={freeCollateral}
+            />
           </div>
 
           <div className="inline-flex text-primaryOrderly justify-end  border-white border-opacity-10 mt-3">
@@ -2377,6 +2373,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       {showAllAssets && (
         <AssetModal
           isOpen={showAllAssets}
+          curHoldingOut={curHoldingOut}
           onRequestClose={() => {
             setShowAllAssets(false);
           }}
@@ -2397,6 +2394,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         accountBalance={tokenInHolding || 0}
         tokenInfo={tokenInfo}
         freeCollateral={freeCollateral}
+        curHoldingOut={curHoldingOut}
       />
 
       <AssetManagerModal
@@ -2413,6 +2411,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         accountBalance={tokenInHolding || 0}
         tokenInfo={tokenInfo}
         freeCollateral={freeCollateral}
+        curHoldingOut={curHoldingOut}
       />
 
       <ConfirmOrderModal
@@ -2468,6 +2467,7 @@ export function AssetManagerModal(
     standAlone?: boolean;
     tokenInfo: TokenInfo[] | undefined;
     freeCollateral: string;
+    curHoldingOut;
   }
 ) {
   const {
@@ -2481,6 +2481,7 @@ export function AssetManagerModal(
     tokenInfo,
     isOpen,
     freeCollateral,
+    curHoldingOut,
   } = props;
 
   const [tokenId, setTokenId] = useState<string | undefined>(tokenIdProp);
@@ -2510,9 +2511,9 @@ export function AssetManagerModal(
     }) || [],
     tokenInfo,
     isOpen,
-    freeCollateral
+    freeCollateral,
+    curHoldingOut
   );
-
   const walletBalance =
     balances?.find((b: any) => b.id.toLowerCase() === tokenId.toLowerCase())
       ?.wallet_balance ||
@@ -4882,6 +4883,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
           tokenId={operationId}
           tokenInfo={tokenInfo}
           freeCollateral={freeCollateral}
+          curHoldingOut={curHoldingOut}
         />
       </div>
 

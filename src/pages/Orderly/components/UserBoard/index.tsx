@@ -107,6 +107,7 @@ import { tickToPrecision } from '../UserBoardPerp/math';
 import { DetailBox } from '../UserBoardPerp/components/DetailBox';
 import { DepositTip } from '../UserBoardPerp/components/DepositTip';
 import { NewUserTip } from '../Common/NewUserTip';
+import { CollatteralTokenAvailableCell } from '../UserBoardPerp/components/HoverText';
 
 function getTipFOK() {
   const intl = useIntl();
@@ -501,7 +502,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
   const storedLimitOrderAdvance =
     sessionStorage.getItem(REF_ORDERLY_LIMIT_ORDER_ADVANCE) || '{}';
 
-  const { freeCollateral } = usePerpData();
+  const { freeCollateral, collateralTokenAvailableBalance } = usePerpData();
 
   const parsedAdvance = JSON.parse(storedLimitOrderAdvance);
 
@@ -631,6 +632,9 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         )
       : balances && balances[symbolTo]?.holding;
 
+  const usdcAvailableBalance = curHoldingOut
+    ? new Big(curHoldingOut.holding + curHoldingOut.pending_short).toFixed(2)
+    : '-';
   const fee =
     orderType === 'Limit'
       ? !userInfo || !limitPrice
@@ -1348,19 +1352,11 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
           >
             {!!tokenToBalance ? digitWrapperAsset(tokenToBalance, 2) : ''}
           </div>
-
-          <div
-            className="flex items-center justify-self-end"
-            title={
-              tokenOutHolding !== undefined || tokenOutHolding !== null
-                ? scientificNotationToString(tokenOutHolding?.toString() || '')
-                : ''
-            }
-          >
-            {tokenOutHolding
-              ? digitWrapperAsset(tokenOutHolding.toString(), 2)
-              : 0}
-          </div>
+          <CollatteralTokenAvailableCell
+            finalBalance={collateralTokenAvailableBalance}
+            usdcBalance={usdcAvailableBalance}
+            freeCollateral={freeCollateral}
+          />
         </div>
 
         <div className="frcb w-full gap-2 py-3 text-white">
@@ -2042,6 +2038,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       {showAllAssets && (
         <AssetModal
           isOpen={showAllAssets}
+          curHoldingOut={curHoldingOut}
           onRequestClose={() => {
             setShowAllAssets(false);
           }}
@@ -2062,6 +2059,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         accountBalance={tokenInHolding || 0}
         tokenInfo={tokenInfo}
         freeCollateral={freeCollateral}
+        curHoldingOut={curHoldingOut}
       />
 
       <AssetManagerModal
@@ -2078,6 +2076,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         accountBalance={tokenInHolding || 0}
         tokenInfo={tokenInfo}
         freeCollateral={freeCollateral}
+        curHoldingOut={curHoldingOut}
       />
 
       <ConfirmOrderModal
@@ -3512,11 +3511,13 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
         accountBalance={tokenInHolding || 0}
         tokenInfo={tokenInfo}
         freeCollateral={freeCollateral}
+        curHoldingOut={curHoldingOut}
       />
 
       {showAllAssets && (
         <AssetModal
           isOpen={showAllAssets}
+          curHoldingOut={curHoldingOut}
           onRequestClose={() => {
             setShowAllAssets(false);
           }}
@@ -3567,6 +3568,7 @@ export function AssetManagerModal(
     standAlone?: boolean;
     tokenInfo: TokenInfo[] | undefined;
     freeCollateral: string;
+    curHoldingOut;
   }
 ) {
   const {
@@ -3580,6 +3582,7 @@ export function AssetManagerModal(
     tokenInfo,
     isOpen,
     freeCollateral,
+    curHoldingOut,
   } = props;
 
   const [tokenId, setTokenId] = useState<string | undefined>(tokenIdProp);
@@ -3609,7 +3612,8 @@ export function AssetManagerModal(
     }) || [],
     tokenInfo,
     isOpen,
-    freeCollateral
+    freeCollateral,
+    curHoldingOut
   );
 
   const walletBalance =

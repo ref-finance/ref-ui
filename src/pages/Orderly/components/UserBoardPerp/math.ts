@@ -319,6 +319,25 @@ const getFreeCollateral = (
 
   return freeCollateral;
 };
+function getCollateralTokenAvailableBalance(
+  positions: PositionsType,
+  markprices: MarkPrice[],
+  userInfo: ClientInfo,
+  curHoldingOut: Holding
+) {
+  const freeCollateral = getFreeCollateral(
+    positions,
+    markprices,
+    userInfo,
+    curHoldingOut
+  );
+  const balance = new Big(curHoldingOut.holding + curHoldingOut.pending_short);
+  if (balance.lt(freeCollateral)) {
+    return balance;
+  } else {
+    return freeCollateral;
+  }
+}
 
 const getTotalnotional = (
   markPrices: MarkPrice[],
@@ -751,4 +770,5 @@ export {
   getAvailable,
   getTotalEst,
   getLqPriceFloat,
+  getCollateralTokenAvailableBalance,
 };
