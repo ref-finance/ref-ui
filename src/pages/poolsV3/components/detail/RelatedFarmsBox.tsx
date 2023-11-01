@@ -105,7 +105,7 @@ export function RelatedFarmsBox(props: any) {
   if (farm_loading) return null;
   if (!related_seed) return null;
   return (
-    <div className="relative py-5 px-3 z-10 mt-3">
+    <div className="relative py-5 px-3 z-0 mt-3">
       <FarmBoardInDetailDCLPool
         style={{
           position: 'absolute',
