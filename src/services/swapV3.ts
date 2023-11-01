@@ -922,7 +922,7 @@ export const batch_add_liquidity = async ({
   let split_num = 10;
   let need_split = false;
   if (selectedWalletId == 'ledger') {
-    split_num = 2;
+    split_num = 1;
     need_split = true;
   } else if (selectedWalletId == 'neth' || selectedWalletId == 'here-wallet') {
     split_num = 5;

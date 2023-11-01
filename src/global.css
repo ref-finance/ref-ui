@@ -1494,5 +1494,8 @@ options-list::-webkit-scrollbar {
   font-size: 14px;
   color: #7e8a93;
 }
+#webpack-dev-server-client-overlay {
+  display: none;
+}
 
 /* wallet select modal ui end */
