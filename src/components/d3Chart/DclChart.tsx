@@ -669,7 +669,7 @@ export default function DclChart({
     if (chartType == 'USER' && removeParams) {
       draw_background_bars_for_select_area({ scale, scaleBar });
     } else {
-      d3.select('.remove_bars_background').remove();
+      d3.select(`${randomId} .remove_bars_background`).remove();
     }
 
     // draw current line

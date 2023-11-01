@@ -1758,13 +1758,6 @@ export function get_account_24_apr(
   const total_fee_24_value = fee_x_24_value
     .plus(fee_y_24_value)
     .plus(unClaimed_fee$ || 0);
-  console.log(
-    'Claimed_fee_x_24_value,  Claimed_fee_y_24_value, unClaimed_fee$, total_fee_24_value',
-    fee_x_24_value.toFixed(),
-    fee_y_24_value.toFixed(),
-    '$' + unClaimed_fee$,
-    '$' + total_fee_24_value.toFixed()
-  );
   // 24小时平均本金
   const processed_change_log: IProcessedLogData[] = [];
   const user_token_processed = process_user_token({
