@@ -41,7 +41,7 @@ import {
   IDCLAccountFee,
   IDclLogData,
   IProcessedLogData,
-} from '~components/d3Chart/interfaces';
+} from 'src/components/d3Chart/interfaces';
 const { REF_UNI_V3_SWAP_CONTRACT_ID, boostBlackList } = getConfig();
 
 /**
