@@ -289,14 +289,18 @@ export const useMenus = (cb?: () => void) => {
                     e.stopPropagation();
                     e.preventDefault();
                     cb && cb();
-
-                    history.push('/orderbook/spot');
+                    if (window.location.hostname.includes('bookdev')) {
+                      history.push('/spot');
+                    } else {
+                      history.push('/orderbook/spot');
+                    }
                   }}
                   style={{
                     width: '120px',
                   }}
                   className={`frcc  hover:bg-v3SwapGray  border-v3SwapGray border-opacity-10 hover:bg-opacity-10 w-1/2 rounded-xl py-2 ${
-                    pathName.startsWith('/orderbook/spot')
+                    pathName.startsWith('/orderbook/spot') ||
+                    pathName.startsWith('/spot')
                       ? ' bg-hoverSubBridge bg-opacity-50'
                       : 'border'
                   }`}
@@ -314,14 +318,18 @@ export const useMenus = (cb?: () => void) => {
                     e.stopPropagation();
 
                     cb && cb();
-
-                    history.push('/orderbook/perps');
+                    if (window.location.hostname.includes('bookdev')) {
+                      history.push('/');
+                    } else {
+                      history.push('/orderbook/perps');
+                    }
                   }}
                   style={{
                     width: '120px',
                   }}
                   className={`frcc  hover:bg-v3SwapGray hover:bg-opacity-10  border-v3SwapGray border-opacity-10 w-1/2 rounded-xl py-2  ${
-                    pathName.startsWith('/orderbook/perps')
+                    pathName.startsWith('/orderbook/perps') ||
+                    pathName.startsWith('/')
                       ? ' bg-hoverSubBridge bg-opacity-50'
                       : 'border'
                   }`}
@@ -653,7 +661,9 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
               <div
                 className={`w-full font-gotham frcs border ${
                   window.location.pathname === '/orderbook/spot' ||
-                  window.location.pathname === '/orderbook/perps'
+                  window.location.pathname === '/orderbook/perps' ||
+                  window.location.pathname === '/' ||
+                  window.location.pathname === '/spot'
                     ? 'bg-cardBg'
                     : ''
                 } border-v3SwapGray border-opacity-30 gap-3 text-primaryText text-base rounded-xl p-1`}
@@ -662,18 +672,23 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
-
-                    history.push('/orderbook/spot');
+                    if (location.hostname.includes('bookdev')) {
+                      history.push('/spot');
+                    } else {
+                      history.push('/orderbook/spot');
+                    }
                     setShow(false);
                   }}
                   className={`frcc bg-symbolHover2 ${
-                    window.location.pathname === '/orderbook/spot'
+                    window.location.pathname === '/orderbook/spot' ||
+                    window.location.pathname === '/spot'
                       ? 'text-white'
                       : ''
                   }    w-1/2 rounded-lg py-1`}
                   style={{
                     background:
-                      window.location.pathname === '/orderbook/spot'
+                      window.location.pathname === '/orderbook/spot' ||
+                      window.location.pathname === '/spot'
                         ? '#324451'
                         : '',
                     width: '95px',
@@ -686,19 +701,24 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-
-                    history.push('/orderbook/perps');
+                    if (location.hostname.includes('bookdev')) {
+                      history.push('/');
+                    } else {
+                      history.push('/orderbook/perps');
+                    }
                     setShow(false);
                   }}
                   style={{
                     background:
-                      window.location.pathname === '/orderbook/perps'
+                      window.location.pathname === '/orderbook/perps' ||
+                      window.location.pathname === '/'
                         ? '#324451'
                         : '',
                     width: '95px',
                   }}
                   className={`frcc bg-symbolHover2 ${
-                    window.location.pathname === '/orderbook/perps'
+                    window.location.pathname === '/orderbook/perps' ||
+                    window.location.pathname === '/'
                       ? 'text-white'
                       : ''
                   }   w-1/2 rounded-lg py-1`}

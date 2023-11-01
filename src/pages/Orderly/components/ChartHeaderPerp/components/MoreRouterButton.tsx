@@ -271,7 +271,11 @@ function MoreRouteBox(props: Modal.Props) {
                 if (symbolType === 'SPOT') {
                   props.onRequestClose && props.onRequestClose(e);
                 } else {
-                  openUrl('/orderbook/spot');
+                  if (location.hostname.includes('bookdev')) {
+                    openUrl('/spot');
+                  } else {
+                    openUrl('/orderbook/spot');
+                  }
                 }
               }}
             >
@@ -325,7 +329,11 @@ function MoreRouteBox(props: Modal.Props) {
                 if (symbolType === 'PERP') {
                   props.onRequestClose && props.onRequestClose(e);
                 } else {
-                  openUrl('/orderbook/perps');
+                  if (location.hostname.includes('bookdev')) {
+                    openUrl('/');
+                  } else {
+                    openUrl('/orderbook/perps');
+                  }
                 }
               }}
             >

@@ -48,7 +48,11 @@ export default function AdSwiper() {
               <div
                 className="relative cursor-pointer"
                 onClick={() => {
-                  window.open('/orderbook/perps');
+                  if (location.hostname.includes('bookdev')) {
+                    window.open('/');
+                  } else {
+                    window.open('/orderbook/perps');
+                  }
                 }}
               >
                 {is_mobile ? <PerpMobile /> : <Perp />}

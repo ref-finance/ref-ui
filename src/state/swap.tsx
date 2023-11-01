@@ -1899,7 +1899,11 @@ export const useOrderlySwap = ({
   ]);
 
   const makeSwap = () => {
-    openUrl(`/orderbook/spot?side=${side}&orderType=Market`);
+    if (location.hostname.includes('bookdev')) {
+      openUrl(`/spot?side=${side}&orderType=Market`);
+    } else {
+      openUrl(`/orderbook/spot?side=${side}&orderType=Market`);
+    }
   };
 
   return {

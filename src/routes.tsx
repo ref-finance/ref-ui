@@ -239,11 +239,11 @@ const routes: Route[] = [
     wrapper: 'AutoHeight',
   },
   {
-    path: '/',
+    path: '/spot',
     element: lazy(() => {
       if (location.hostname.includes('bookdev')) {
         return import(
-          /* webpackChunkName: "perps" */ 'src/pages/Orderly/OrderlyPerpetual'
+          /* webpackChunkName: "spot" */ 'src/pages/Orderly/OrderlyTradingBoard'
         );
       } else {
         return import(/* webpackChunkName: "swap" */ 'src/pages/SwapPage');
@@ -252,11 +252,11 @@ const routes: Route[] = [
     wrapper: 'AutoHeight',
   },
   {
-    path: '/spot',
+    path: '/',
     element: lazy(() => {
       if (location.hostname.includes('bookdev')) {
         return import(
-          /* webpackChunkName: "spot" */ 'src/pages/Orderly/OrderlyTradingBoard'
+          /* webpackChunkName: "perps" */ 'src/pages/Orderly/OrderlyPerpetual'
         );
       } else {
         return import(/* webpackChunkName: "swap" */ 'src/pages/SwapPage');
