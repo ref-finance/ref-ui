@@ -598,9 +598,9 @@ function LiquidityContainerStyle2() {
   }, [batchTotalShares]);
   return (
     <div>
-      {vePool ? (
+      {!vePool || !getConfig().REF_VE_CONTRACT_ID ? null : (
         <YourClassicLiquidityLine pool={vePool}></YourClassicLiquidityLine>
-      ) : null}
+      )}
       {stablePoolsFinal.map((pool: PoolRPCView) => {
         return (
           <YourClassicLiquidityLine
