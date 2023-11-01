@@ -1807,7 +1807,6 @@ export function get_account_24_apr(
   if (principal.gt(0)) {
     apr_24 = total_fee_24_value.div(principal).mul(365).mul(100).toFixed();
   }
-  console.log('24小时平均本金', principal.toFixed());
   return apr_24;
 }
 

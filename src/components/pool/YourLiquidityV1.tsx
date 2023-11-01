@@ -583,7 +583,11 @@ function LiquidityContainerStyle2() {
   const simplePoolsFinal = useMemo(() => {
     const activeSimplePools: PoolRPCView[] = pools.filter(
       (p: PoolRPCView, i: number) => {
-        return batchTotalSharesSimplePools[i] !== 0 && p.id !== vePool?.id;
+        if (!vePool || !getConfig().REF_VE_CONTRACT_ID) {
+          return batchTotalSharesSimplePools[i] !== 0;
+        } else {
+          return batchTotalSharesSimplePools[i] !== 0 && p.id !== vePool?.id;
+        }
       }
     );
     return activeSimplePools;
