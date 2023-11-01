@@ -89,6 +89,13 @@ module.exports = {
 
       webpackConfig.module.rules = [
         {
+          test: /\.m?js$/,
+          resolve: {
+            fullySpecified: false, // disable the behaviour
+          },
+          include: [/node_modules/]
+        },
+        {
           test: /\.(js|mjs|jsx|ts|tsx)$/,
           use: {
             loader: 'babel-loader',
