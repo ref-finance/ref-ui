@@ -2074,7 +2074,7 @@ function WatchListCard({
     </>
   );
 }
-function LiquidityPage_({
+function PcLiquidityPage({
   pools,
   sortBy,
   tokenName,
@@ -3316,7 +3316,7 @@ export default function LiquidityPage() {
       }}
     >
       {!clientMobileDevice && (
-        <LiquidityPage_
+        <PcLiquidityPage
           farmAprById={farmAprById}
           poolTokenMetas={poolTokenMetas}
           activeTab={activeTab}
