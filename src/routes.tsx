@@ -238,12 +238,30 @@ const routes: Route[] = [
     ),
     wrapper: 'AutoHeight',
   },
-
   {
     path: '/',
-    element: lazy(
-      () => import(/* webpackChunkName: "swap" */ 'src/pages/SwapPage')
-    ),
+    element: lazy(() => {
+      if (location.hostname.includes('bookdev')) {
+        return import(
+          /* webpackChunkName: "perps" */ 'src/pages/Orderly/OrderlyPerpetual'
+        );
+      } else {
+        return import(/* webpackChunkName: "swap" */ 'src/pages/SwapPage');
+      }
+    }),
+    wrapper: 'AutoHeight',
+  },
+  {
+    path: '/spot',
+    element: lazy(() => {
+      if (location.hostname.includes('bookdev')) {
+        return import(
+          /* webpackChunkName: "spot" */ 'src/pages/Orderly/OrderlyTradingBoard'
+        );
+      } else {
+        return import(/* webpackChunkName: "swap" */ 'src/pages/SwapPage');
+      }
+    }),
     wrapper: 'AutoHeight',
   },
 ];

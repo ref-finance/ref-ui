@@ -542,11 +542,18 @@ function ChartHeader(props?: any) {
               onClick={() => {
                 if (type === 'spot') {
                   changeSymbolToSpot();
-                  history.push('/orderbook/spot');
-
+                  if (location.hostname.includes('bookdev')) {
+                    history.push('/spot');
+                  } else {
+                    history.push('/orderbook/spot');
+                  }
                   setBridgePrice('');
                 } else {
-                  history.push('/orderbook/perps');
+                  if (location.hostname.includes('bookdev')) {
+                    history.push('/');
+                  } else {
+                    history.push('/orderbook/perps');
+                  }
                   changeSymbolToPerp();
                   setBridgePrice('');
                 }

@@ -438,9 +438,17 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
               } cursor-pointer`}
               onClick={() => {
                 if (type === 'spot') {
-                  history.push('/orderbook/spot');
+                  if (location.hostname.includes('bookdev')) {
+                    history.push('/spot');
+                  } else {
+                    history.push('/orderbook/spot');
+                  }
                 } else {
-                  history.push('/orderbook/perps');
+                  if (location.hostname.includes('bookdev')) {
+                    history.push('/');
+                  } else {
+                    history.push('/orderbook/perps');
+                  }
                 }
               }}
             >
