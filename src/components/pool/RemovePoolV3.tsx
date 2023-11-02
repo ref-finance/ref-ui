@@ -1100,10 +1100,12 @@ export function IntegerInputComponent({
   };
 
   return (
-    <div className={`${className} flex items-center justify-between `}>
+    <div
+      className={`${className} flex items-center justify-between xsm:flex-grow `}
+    >
       <input
         type="text"
-        className={`text-base font-gothamBold mx-2 text-left xsm:text-right ${
+        className={`text-base font-gothamBold mx-2 text-left xsm:text-right xsm:mx-0 ${
           disabled ? 'text-primaryText' : 'text-white'
         }`}
         disabled={disabled}

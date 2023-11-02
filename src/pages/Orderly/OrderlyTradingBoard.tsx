@@ -266,7 +266,6 @@ function OrderlyTradingBoard() {
       {!isMobile && <TradingBoard></TradingBoard>}
 
       {isMobile && <MobileTradingBoard></MobileTradingBoard>}
-      {isMobile && <PerpOrderlyTipMobile></PerpOrderlyTipMobile>}
     </div>
   );
 }
