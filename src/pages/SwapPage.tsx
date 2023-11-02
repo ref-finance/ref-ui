@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import SwapCard from '../components/swap/SwapCard';
 
 import Loading from '../components/layout/Loading';
+import { IProTab } from '../components/swap/SwapProTab';
 import {
   useTriTokens,
   useWhitelistTokens,
@@ -20,12 +21,14 @@ import {
 import AdSwiper from '../components/layout/Swiper';
 import LimitOrderCard from '../components/swap/LimitOrderCard';
 import SwapRateChart from '../components/swap/SwapRateChart';
+import SwapLimitOrderChart from '../components/swap/SwapLimitOrderChart';
 import { EstimateSwapView } from '../services/swap';
 import { TradeRoute } from '../components/layout/SwapRoutes';
 import { MarketList } from '../components/layout/SwapRoutes';
 import MyOrderComponent from './Orderly/components/MyOrder';
 import { useWalletSelector } from '../context/WalletSelectorContext';
 import { useClientMobile } from '../utils/device';
+import { useDclPoolIdByCondition } from '../state/swapV3';
 
 export const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';
 
@@ -96,6 +99,9 @@ interface SwapProContextValue {
   swapMode: SWAP_MODE;
   forceEstimatePro?: boolean;
   setForceEstimatePro?: (e?: boolean) => void;
+  proTab?: IProTab;
+  setProTab?: Function;
+  dcl_pool_id?: string;
 }
 
 export const SwapProContext = createContext<SwapProContextValue>(null);
@@ -224,13 +230,13 @@ function SwapPage() {
   );
 
   const [forceEstimatePro, setForceEstimatePro] = useState<boolean>(false);
+  const [proTab, setProTab] = useState<IProTab>('PRICE');
 
   const changeSwapType = (type: SWAP_TYPE) => {
     setSwapType(type);
     sessionStorage.setItem(SWAP_TYPE_KEY, type);
     setForceEstimatePro(true);
   };
-
   useEffect(() => {
     const changeWindowCommonMenuCollapsed = (e: any) => {
       if (e?.[SWAP_TYPE_KEY]) {
@@ -273,7 +279,7 @@ function SwapPage() {
   const [swapMode, setSwapMode] = useState<SWAP_MODE>(
     storageMode || SWAP_MODE.NORMAL
   );
-
+  const dcl_pool_id = useDclPoolIdByCondition('all');
   useEffect(() => {
     if (swapMode === SWAP_MODE.LIMIT) {
       setLimitTokenTrigger(!limitTokenTrigger ? true : false);
@@ -316,7 +322,6 @@ function SwapPage() {
       changeSwapType={changeSwapType}
     />
   );
-
   return (
     <SwapProContext.Provider
       value={{
@@ -331,17 +336,28 @@ function SwapPage() {
         setSelectMarket,
         forceEstimatePro,
         setForceEstimatePro,
+        proTab,
+        setProTab,
+        dcl_pool_id,
       }}
     >
       <div className="frsc xsm:flex   xsm:flex-col-reverse">
         {swapType === SWAP_TYPE.Pro && (
           <div
-            className="lg:w-full  mr-8 xsm:w-95vw xsm:mx-auto "
+            className="lg:w-full  mr-8 xsm:w-95vw xsm:mx-auto xsm:overflow-x-hidden"
             style={{
               maxWidth: '850px',
             }}
           >
-            <SwapRateChart tokenIn={tokenIn} tokenOut={tokenOut} />
+            {(swapMode === SWAP_MODE.NORMAL ||
+              (SWAP_MODE.LIMIT && dcl_pool_id && proTab == 'PRICE')) && (
+              <SwapRateChart tokenIn={tokenIn} tokenOut={tokenOut} />
+            )}
+            {dcl_pool_id &&
+              proTab == 'ORDER' &&
+              swapMode === SWAP_MODE.LIMIT && (
+                <SwapLimitOrderChart></SwapLimitOrderChart>
+              )}
             {swapMode === SWAP_MODE.NORMAL ? (
               <>
                 <div
@@ -393,7 +409,6 @@ function SwapPage() {
             {isSignedIn && swapMode === SWAP_MODE.LIMIT && <MyOrderComponent />}
           </div>
         )}
-
         <div className="swapContainer xsm:w-95vw xsm:mx-auto">
           <section className={`lg:w-480px  relative`}>
             {swapMode === SWAP_MODE.NORMAL && (

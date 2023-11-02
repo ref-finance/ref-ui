@@ -767,6 +767,7 @@ export function SelectTokenDCL({
   onSelect,
   selected,
   className,
+  notNeedSortToken,
 }: {
   selectTokenIn?: (token: TokenMetadata) => void;
   selectTokenOut?: (token: TokenMetadata) => void;
@@ -774,6 +775,7 @@ export function SelectTokenDCL({
   selectedToken?: TokenMetadata;
   selected?: JSX.Element;
   className?: string;
+  notNeedSortToken?: boolean;
 }) {
   const allPools = useAllPoolsV2();
 
@@ -796,7 +798,9 @@ export function SelectTokenDCL({
   const handleSelect = (p: PoolInfo) => {
     // select token in
     const { token_x_metadata, token_y_metadata } = p;
-    const tokens = sort_tokens_by_base([token_x_metadata, token_y_metadata]);
+    const tokens = notNeedSortToken
+      ? [token_x_metadata, token_y_metadata]
+      : sort_tokens_by_base([token_x_metadata, token_y_metadata]);
 
     if (!selectedToken) {
       selectTokenIn(tokens[0]);

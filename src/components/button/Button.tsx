@@ -154,8 +154,7 @@ export function ConnectToNearBtn() {
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          setButtonLoading(true);
-          // setShowWalletSelector(true);
+          // setButtonLoading(true);
           modal.show();
         }}
       >
@@ -211,7 +210,7 @@ export function ConnectToNearBtnGradient({
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          setButtonLoading(true);
+          // setButtonLoading(true);
           modal.show();
         }}
       >
@@ -259,7 +258,7 @@ export function ConnectToNearBtnGradientMoible({
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          setButtonLoading(true);
+          // setButtonLoading(true);
           modal.show();
         }}
       >
@@ -534,8 +533,8 @@ export function OprationButton(props: any) {
         onClick={onClick}
         disabled={disabled}
         className={`flex items-center justify-center  w-full h-full ${
-          btnClassName ? btnClassName : ''
-        }`}
+          disabled ? 'cursor-not-allowed' : ''
+        } ${btnClassName ? btnClassName : ''}`}
       >
         {props.children}
       </button>
@@ -562,8 +561,7 @@ export function ConnectToNearButton(props: any) {
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          setButtonLoading(true);
-          // setShowWalletSelector(true);
+          // setButtonLoading(true);
           modal.show();
         }}
       >
@@ -880,7 +878,7 @@ export function GreenConnectToNearBtn(props: any) {
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          setButtonLoading(true);
+          // setButtonLoading(true);
           modal.show();
         }}
       >
@@ -928,8 +926,7 @@ export function BlacklightConnectToNearBtn(props: any) {
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          setButtonLoading(true);
-          // setShowWalletSelector(true);
+          // setButtonLoading(true);
           modal.show();
         }}
       >
@@ -988,7 +985,7 @@ export function ConnectToNearBtnVotingMobile() {
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          setButtonLoading(true);
+          // setButtonLoading(true);
           modal.show();
         }}
       >
@@ -1066,7 +1063,7 @@ export function ConnectToNearBtnSwap() {
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          setButtonLoading(true);
+          // setButtonLoading(true);
           modal.show();
         }}
         onMouseEnter={() => {

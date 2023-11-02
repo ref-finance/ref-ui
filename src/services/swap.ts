@@ -1124,7 +1124,7 @@ SwapOptions) => {
     const tokenRegistered = await ftGetStorageBalance(token.id).catch(() => {
       throw new Error(`${token.id} doesn't exist.`);
     });
-    // todo usdc
+
     if (tokenRegistered === null) {
       if (NO_REQUIRED_REGISTRATION_TOKEN_IDS.includes(token.id)) {
         const r = await native_usdc_has_upgrated(token.id);

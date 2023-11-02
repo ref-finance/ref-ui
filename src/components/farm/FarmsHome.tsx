@@ -655,7 +655,7 @@ export default function FarmsHome(props: any) {
           const pool_id = get_pool_id(layer2[0]);
           const point_str = layer2[1].substring(0, layer2[1].length - 3);
           const status = layer2[1].substring(layer2[1].length - 1);
-          const p_arr = point_str.split('-');
+          const p_arr = split_point_string(point_str);
           const [lp, rp] = p_arr;
           return `${pool_id}&${lp}&${rp}-${status}`;
         } else {
@@ -668,6 +668,17 @@ export default function FarmsHome(props: any) {
     }
 
     return '';
+  }
+  function split_point_string(str: string) {
+    const arr = Array.from(str);
+    let index;
+    for (let i = 0; i < arr.length; i++) {
+      if (str[i] == '-' && i !== 0) {
+        index = i;
+        break;
+      }
+    }
+    return [str.slice(0, index), str.slice(index + 1)];
   }
   async function get_user_unWithDraw_rewards() {
     if (isSignedIn) {
@@ -3496,12 +3507,14 @@ function WithDrawBox(props: {
       const [key, v] = arr;
       const singlePrice = tokenPriceList[key]?.price;
       const token = rewardTokenList[key];
-      const number: any = toReadableNumber(token.decimals, v);
-      if (singlePrice && singlePrice != 'N/A') {
-        totalUnWithDraw = BigNumber.sum(
-          singlePrice * number,
-          totalUnWithDraw
-        ).toNumber();
+      if (token) {
+        const number: any = toReadableNumber(token.decimals, v);
+        if (singlePrice && singlePrice != 'N/A') {
+          totalUnWithDraw = BigNumber.sum(
+            singlePrice * number,
+            totalUnWithDraw
+          ).toNumber();
+        }
       }
     });
     if (totalUnWithDraw > 0) {
@@ -3751,12 +3764,14 @@ function WithDrawb(props: {
       const [key, v] = arr;
       const singlePrice = tokenPriceList[key]?.price;
       const token = rewardTokenList[key];
-      const number: any = toReadableNumber(token.decimals, v);
-      if (singlePrice && singlePrice != 'N/A') {
-        totalUnWithDraw = BigNumber.sum(
-          singlePrice * number,
-          totalUnWithDraw
-        ).toNumber();
+      if (token) {
+        const number: any = toReadableNumber(token.decimals, v);
+        if (singlePrice && singlePrice != 'N/A') {
+          totalUnWithDraw = BigNumber.sum(
+            singlePrice * number,
+            totalUnWithDraw
+          ).toNumber();
+        }
       }
     });
     if (totalUnWithDraw > 0) {
@@ -4087,12 +4102,14 @@ function WithDrawModal(props: {
       const [key, v] = arr;
       const singlePrice = tokenPriceList[key]?.price;
       const token = rewardTokenList[key];
-      const number: any = toReadableNumber(token.decimals, v);
-      if (singlePrice && singlePrice != 'N/A') {
-        totalUnWithDraw = BigNumber.sum(
-          singlePrice * number,
-          totalUnWithDraw
-        ).toNumber();
+      if (token) {
+        const number: any = toReadableNumber(token.decimals, v);
+        if (singlePrice && singlePrice != 'N/A') {
+          totalUnWithDraw = BigNumber.sum(
+            singlePrice * number,
+            totalUnWithDraw
+          ).toNumber();
+        }
       }
     });
     if (totalUnWithDraw > 0) {

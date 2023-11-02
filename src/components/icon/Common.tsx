@@ -1474,7 +1474,7 @@ function HappyHolidaysText(props: any) {
           width="191.647"
           height="60.1323"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
           <feFlood flood-opacity="0" result="BackgroundImageFix" />
           <feColorMatrix

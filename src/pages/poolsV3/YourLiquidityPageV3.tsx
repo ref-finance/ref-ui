@@ -32,7 +32,6 @@ import {
   getPriceByPoint,
   CONSTANT_D,
   UserLiquidityInfo,
-  useAddAndRemoveUrlHandle,
   getXAmount_per_point_by_Lx,
   getYAmount_per_point_by_Ly,
   TOKEN_LIST_FOR_RATE,
@@ -49,7 +48,7 @@ import {
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import { FarmBoost, getBoostTokenPrices, Seed } from '../../services/farm';
-import { RemovePoolV3 } from 'src/components/pool/RemovePoolV3';
+import { RemoveOldPoolV3 } from 'src/components/pool/RemoveOldPoolV3';
 import { AddPoolV3 } from 'src/components/pool/AddPoolV3';
 import { PoolTabV3 } from 'src/components/pool/PoolTabV3';
 import {
@@ -135,8 +134,6 @@ export default function YourLiquidityPageV3() {
   const [checkedStatus, setCheckedStatus] = useState('all');
   const [addLiqudityHover, setAddLiqudityHover] = useState(false);
   const [all_seeds, set_all_seeds] = useState<Seed[]>([]);
-  // callBack handle
-  useAddAndRemoveUrlHandle();
   const history = useHistory();
   const pool_link = sessionStorage.getItem(REF_POOL_NAV_TAB_KEY);
 
@@ -389,6 +386,7 @@ export default function YourLiquidityPageV3() {
                 setLiquidityLoadingDone={setV2LiquidityLoadingDone}
                 setLiquidityQuantity={setV2LiquidityQuantity}
                 styleType="1"
+                liquidityLoadingDone={v2LiquidityLoadingDone}
               ></YourLiquidityV2>
             </div>
             {/* your v1 liquidity */}
@@ -404,7 +402,7 @@ export default function YourLiquidityPageV3() {
                 </div>
               ) : null}
               {+v1LiquidityQuantity > 0 || showV1EmptyBar ? (
-                <div className="mt-10 mb-3 xsm:-mb-1">
+                <div className="mt-10 mb-3">
                   <span className="text-white text-base gotham_bold">
                     <FormattedMessage id="classic" /> ({v1LiquidityQuantity})
                   </span>
@@ -495,6 +493,50 @@ export function get_your_apr(
     return '-';
   }
 }
+
+export function get_your_apr_raw(
+  liquidity: UserLiquidityInfo,
+  seed: Seed,
+  tokenPriceList: Record<string, any>
+) {
+  const { farmList, total_seed_amount, total_seed_power, seed_id } = seed;
+  // principal
+  const total_principal = get_liquidity_value(liquidity, seed, tokenPriceList);
+  // seed total rewards
+  let total_rewards = '0';
+  const effectiveFarms = getEffectiveFarmList(farmList);
+  effectiveFarms.forEach((farm: FarmBoost) => {
+    const { token_meta_data } = farm;
+    const { daily_reward, reward_token } = farm.terms;
+    const quantity = toReadableNumber(token_meta_data.decimals, daily_reward);
+    const reward_token_price = Number(tokenPriceList[reward_token]?.price || 0);
+    const cur_token_rewards = new BigNumber(quantity)
+      .multipliedBy(reward_token_price)
+      .multipliedBy(365);
+    total_rewards = cur_token_rewards.plus(total_rewards).toFixed();
+  });
+  // lp percent
+  let percent;
+  const mint_amount = mint_liquidity(liquidity, seed_id);
+  const temp_total = new BigNumber(total_seed_power || 0).plus(mint_amount);
+  if (temp_total.isGreaterThan(0)) {
+    percent = new BigNumber(mint_amount).dividedBy(temp_total);
+  }
+  // profit
+  let profit;
+  if (percent) {
+    profit = percent.multipliedBy(total_rewards);
+  }
+
+  // your apr
+  if (profit && +total_principal > 0) {
+    const your_apr = profit.dividedBy(total_principal).multipliedBy(100);
+
+    return your_apr.toFixed();
+  } else {
+    return '';
+  }
+}
 function get_liquidity_value(
   liquidity: UserLiquidityInfo,
   seed: Seed,
@@ -537,6 +579,8 @@ export function get_detail_the_liquidity_refer_to_seed({
   const { mft_id, left_point, right_point, amount } = liquidity;
   let Icon;
   let your_apr;
+  let your_apr_raw;
+
   let link;
   let inRange;
   let status;
@@ -544,6 +588,7 @@ export function get_detail_the_liquidity_refer_to_seed({
     seeds: all_seeds,
     pool_id: liquidity.pool_id,
   });
+
   const canFarmSeed = active_seeds.find((seed: Seed) => {
     const { min_deposit, seed_id } = seed;
     const [fixRange, dcl_pool_id, left_point_seed, right_point_seed] = seed_id
@@ -579,6 +624,7 @@ export function get_detail_the_liquidity_refer_to_seed({
     });
     if (canFarmSeed) {
       your_apr = get_your_apr(liquidity, targetSeed, tokenPriceList);
+      your_apr_raw = get_your_apr_raw(liquidity, targetSeed, tokenPriceList);
     }
     Icon = get_intersection_icon_by_radio(radio);
     inRange = +radio > 0;
@@ -606,6 +652,8 @@ export function get_detail_the_liquidity_refer_to_seed({
     link,
     inRange,
     status,
+    your_apr_raw,
+    targetSeed,
   };
 }
 export function NoLiquidity({
@@ -1367,8 +1415,9 @@ function UserLiquidityLine_old({
           </div>
         </div>
       </div>
+      {/* todo */}
       {showRemoveBox ? (
-        <RemovePoolV3
+        <RemoveOldPoolV3
           isOpen={showRemoveBox}
           onRequestClose={() => {
             setShowRemoveBox(false);
@@ -1388,7 +1437,7 @@ function UserLiquidityLine_old({
               transform: 'translate(-50%, -50%)',
             },
           }}
-        ></RemovePoolV3>
+        ></RemoveOldPoolV3>
       ) : null}
       <AddPoolV3
         isOpen={showAddBox}

@@ -4,6 +4,8 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const isProduction = process.env.NODE_ENV === 'production';
 const { ProvidePlugin } = require('webpack');
+const { RetryChunkLoadPlugin } = require('webpack-retry-chunk-load-plugin');
+
 // Linting and type checking are only necessary as part of development and testing.
 // Omit them from production builds, as they slow down the feedback loop.
 const shouldLintOrTypeCheck = !isProduction;
@@ -47,6 +49,10 @@ module.exports = {
           filename: 'static/css/[name].[contenthash:8].css',
           chunkFilename: 'static/css/[name].[contenthash:8].chunk.css',
         }),
+        new RetryChunkLoadPlugin({
+          retryDelay: 2000,
+          maxRetries: 3,
+        }),
       ],
       remove: ['CaseSensitivePathsPlugin', 'IgnorePlugin'],
     },
@@ -88,6 +94,13 @@ module.exports = {
       webpackConfig.ignoreWarnings = [/Failed to parse source map/];
 
       webpackConfig.module.rules = [
+        {
+          test: /\.m?js$/,
+          resolve: {
+            fullySpecified: false, // disable the behaviour
+          },
+          include: [/node_modules/]
+        },
         {
           test: /\.(js|mjs|jsx|ts|tsx)$/,
           use: {

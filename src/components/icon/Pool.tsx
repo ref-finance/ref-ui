@@ -113,7 +113,7 @@ export const PoolTabBannerMask = () => {
           width="1024"
           height="456"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
           <feFlood flood-opacity="0" result="BackgroundImageFix" />
           <feBlend

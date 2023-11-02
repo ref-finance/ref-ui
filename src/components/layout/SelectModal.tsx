@@ -141,6 +141,19 @@ export const SelectModalV2 = ({
       >
         <FormattedMessage id="volume_24h" defaultMessage="Volume (24h)" />
       </div>
+      <div
+        className={`py-2 px-2   w-full hover:bg-white hover:bg-opacity-10 text-white text-opacity-40 whitespace-nowrap ${
+          sortMode === 'top_bin_apr'
+            ? 'bg-white bg-opacity-10 text-opacity-100'
+            : ''
+        } z-30`}
+        onClick={() => {
+          onSortChange('top_bin_apr');
+          setShowModal(false);
+        }}
+      >
+        Top Bin APR (24h)
+      </div>
     </Card>
   );
 };

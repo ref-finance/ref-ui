@@ -46,6 +46,18 @@ import {
   getV3PoolVolumeById,
   getAllV3Pool24Volume,
   getV3poolTvlById,
+  getClassicPoolSwapRecentTransaction,
+  ClassicPoolSwapTransaction,
+  ClassicPoolLiquidtyRecentTransaction,
+  getClassicPoolLiquidtyRecentTransaction,
+  DCLPoolSwapTransaction,
+  DCLPoolLiquidtyRecentTransaction,
+  getDCLPoolSwapRecentTransaction,
+  getDCLPoolLiquidtyRecentTransaction,
+  getLimitOrderRecentTransaction,
+  LimitOrderRecentTransaction,
+  getDCLAccountFee,
+  getDCLTopBinFee,
   getTokenPriceList,
   getIndexerStatus,
 } from '../services/indexer';
@@ -87,6 +99,17 @@ import { PoolInfo, get_pool } from '../services/swapV3';
 import { useTokenPriceList } from './token';
 import { isStablePool } from '../services/near';
 import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
+import {
+  get_default_config_for_chart,
+  get_custom_config_for_chart,
+} from '../components/d3Chart/config';
+import {
+  IChartItemConfig,
+  IChartConfig,
+} from '../components/d3Chart/interfaces';
+import { getPointByPrice, getPriceByPoint } from '../services/commonV3';
+import { formatPercentage } from '../components/d3Chart/utils';
+
 const REF_FI_STABLE_POOL_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
   getConfig().STABLE_POOL_ID
 }`;
@@ -674,17 +697,25 @@ export const useWatchPools = () => {
     const poolListDealt = await Promise.all(poolListPromise);
     return poolListDealt;
   }
-
   function getV2Poolsfinal() {
     watchV2Pools.forEach((pool: PoolInfo) => {
       const { token_x, token_y } = pool;
       const pricex = tokenPriceList[token_x]?.price || 0;
       const pricey = tokenPriceList[token_y]?.price || 0;
+      const { total_x, total_y, total_fee_x_charged, total_fee_y_charged } =
+        pool;
+      const totalX = new BigNumber(total_x)
+        .minus(total_fee_x_charged)
+        .toFixed();
+      const totalY = new BigNumber(total_y)
+        .minus(total_fee_y_charged)
+        .toFixed();
+
       const tvlx =
-        Number(toReadableNumber(pool.token_x_metadata.decimals, pool.total_x)) *
+        Number(toReadableNumber(pool.token_x_metadata.decimals, totalX)) *
         Number(pricex);
       const tvly =
-        Number(toReadableNumber(pool.token_y_metadata.decimals, pool.total_y)) *
+        Number(toReadableNumber(pool.token_y_metadata.decimals, totalY)) *
         Number(pricey);
       pool.tvl = tvlx + tvly;
     });
@@ -1346,6 +1377,149 @@ export const useV3VolumesPools = () => {
   return volumes;
 };
 
+export const useClassicPoolTransaction = ({
+  pool_id,
+}: {
+  pool_id: string | number;
+}) => {
+  const [swapRecent, setSwapRecent] = useState<ClassicPoolSwapTransaction[]>(
+    []
+  );
+
+  const [lqRecent, setLqRecent] = useState<
+    ClassicPoolLiquidtyRecentTransaction[]
+  >([]);
+
+  useEffect(() => {
+    getClassicPoolSwapRecentTransaction({
+      pool_id,
+    }).then(setSwapRecent);
+
+    getClassicPoolLiquidtyRecentTransaction({
+      pool_id,
+    }).then(setLqRecent);
+  }, []);
+
+  return { swapTransaction: swapRecent, liquidityTransactions: lqRecent };
+};
+
+export const useDCLPoolTransaction = ({
+  pool_id,
+}: {
+  pool_id: string | number;
+}) => {
+  const [swapRecent, setSwapRecent] = useState<DCLPoolSwapTransaction[]>([]);
+
+  const [lqRecent, setLqRecent] = useState<DCLPoolLiquidtyRecentTransaction[]>(
+    []
+  );
+
+  const [limitOrderRecent, setLimitOrderRecent] = useState<
+    LimitOrderRecentTransaction[]
+  >([]);
+
+  useEffect(() => {
+    getDCLPoolSwapRecentTransaction({
+      pool_id,
+    }).then(setSwapRecent);
+
+    getDCLPoolLiquidtyRecentTransaction({
+      pool_id,
+    }).then(setLqRecent);
+
+    getLimitOrderRecentTransaction({
+      pool_id,
+    }).then(setLimitOrderRecent);
+  }, []);
+
+  return {
+    swapTransactions: swapRecent,
+    liquidityTransactions: lqRecent,
+    limitOrderTransactions: limitOrderRecent,
+  };
+};
+
+export const useDCLTopBinFee = ({
+  pool,
+  way,
+}: {
+  pool: PoolInfo;
+  way?: 'value' | 'display';
+}) => {
+  const [topBinApr, setTopBinApr] = useState<string>('-');
+  useEffect(() => {
+    if (!pool) return;
+    const [bin, start_point, end_point] = get_config_of_dcl_pool(pool);
+    getDCLTopBinFee({
+      pool_id: pool.pool_id,
+      bin,
+      start_point,
+      end_point,
+    }).then((res) => {
+      if (!res || ONLY_ZEROS.test(res.total_liquidity)) return;
+      const apr = new Big(res.total_fee)
+        .div(res.total_liquidity)
+        .mul(365)
+        .mul(100)
+        .toFixed();
+      const apr_display = formatPercentage(apr);
+      if (way == 'value') {
+        setTopBinApr(apr);
+      } else {
+        setTopBinApr(apr_display);
+      }
+    });
+  }, [pool]);
+
+  return topBinApr;
+};
+
+function get_config_of_dcl_pool(pool: PoolInfo) {
+  const pool_id = pool.pool_id;
+  const { bin, rangeGear } = get_default_config_for_chart() as IChartItemConfig;
+  const custom_config: IChartConfig = get_custom_config_for_chart();
+  const bin_final = custom_config[pool_id]?.bin || bin;
+  const rangeGear_final = custom_config[pool_id]?.rangeGear || rangeGear;
+  const [price_l, price_r] = get_price_range_by_percent(
+    rangeGear_final[0],
+    pool
+  );
+  const point_l = get_point_by_price(price_l, pool);
+  const point_r = get_point_by_price(price_r, pool);
+  return [bin_final, point_l, point_r];
+}
+
+function get_price_range_by_percent(
+  percent: number,
+  pool: PoolInfo
+): [string, string] {
+  const { current_point } = pool;
+  const p_l_r = percent / 100;
+  const price = get_price_by_point(current_point, pool);
+  const price_l_temp = Big(1 - p_l_r).mul(price);
+  const price_l = price_l_temp.lt(0) ? '0' : price_l_temp.toFixed();
+  const price_r = Big(1 + p_l_r)
+    .mul(price)
+    .toFixed();
+
+  return [price_l, price_r];
+}
+function get_price_by_point(point: number, pool: PoolInfo) {
+  const { token_x_metadata, token_y_metadata } = pool;
+  const decimalRate_point =
+    Math.pow(10, token_x_metadata.decimals) /
+    Math.pow(10, token_y_metadata.decimals);
+  const price = getPriceByPoint(point, decimalRate_point);
+  return price;
+}
+function get_point_by_price(price: string, pool: PoolInfo) {
+  const { point_delta, token_x_metadata, token_y_metadata } = pool;
+  const decimalRate_point =
+    Math.pow(10, token_y_metadata.decimals) /
+    Math.pow(10, token_x_metadata.decimals);
+  const point = getPointByPrice(point_delta, price, decimalRate_point);
+  return point;
+}
 export const useIndexerStatus = (dep?: any) => {
   const [indexerStatus, setIndexerStatus] = useState<boolean>();
 

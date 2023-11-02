@@ -5,8 +5,12 @@ import { WalletContext } from '../utils/wallets-integration';
 import { useHistory } from 'react-router';
 import BigNumber from 'bignumber.js';
 import * as d3 from 'd3';
-import _ from 'lodash';
-import { toReadableNumber, toPrecision } from '../utils/numbers';
+import _, { forEach } from 'lodash';
+import {
+  toReadableNumber,
+  toPrecision,
+  toNonDivisibleNumber,
+} from '../utils/numbers';
 import { TokenMetadata } from '../services/ft-contract';
 import { PoolInfo } from './swapV3';
 import {
@@ -31,6 +35,13 @@ import { useIntl } from 'react-intl';
 import { scientificNotationToString } from '../utils/numbers';
 
 import { getTokens } from './tokens_static';
+import Big from 'big.js';
+import {
+  IChartData,
+  IDCLAccountFee,
+  IDclLogData,
+  IProcessedLogData,
+} from 'src/components/d3Chart/interfaces';
 const { REF_UNI_V3_SWAP_CONTRACT_ID, boostBlackList } = getConfig();
 
 /**
@@ -71,6 +82,22 @@ export function getPointByPrice(
   }
   return point_int_slot;
 }
+/**
+ * caculate point by price
+ * @param pointDelta
+ * @param price
+ * @param decimalRate tokenY/tokenX
+ * @returns
+ */
+export function getSlotPointByPoint(pointDelta: number, point: number) {
+  let point_int_slot = Math.round(point / pointDelta) * pointDelta;
+  if (point_int_slot < POINTLEFTRANGE) {
+    return POINTLEFTRANGE;
+  } else if (point_int_slot > POINTRIGHTRANGE) {
+    return 800000;
+  }
+  return point_int_slot;
+}
 export const CONSTANT_D = 1.0001;
 export const POINTDELTAMAP = {
   100: 1,
@@ -100,24 +127,34 @@ export const FEELIST = [
 export const POINTLEFTRANGE = -800000;
 export const POINTRIGHTRANGE = 800000;
 export interface UserLiquidityInfo {
-  lpt_id: string;
-  owner_id: string;
+  lpt_id?: string;
+  owner_id?: string;
   pool_id: string;
   left_point: number;
   right_point: number;
   amount: string;
-  unclaimed_fee_x: string;
-  unclaimed_fee_y: string;
-  mft_id: string;
-  v_liquidity: string;
+  unclaimed_fee_x?: string;
+  unclaimed_fee_y?: string;
+  mft_id?: string;
+  v_liquidity?: string;
   part_farm_ratio?: string;
   unfarm_part_amount?: string;
   status_in_other_seed?: string;
   less_than_min_deposit?: boolean;
   farmList?: FarmBoost[];
 }
+export interface ILiquidityInfoPool {
+  left_point: number;
+  right_point: number;
+  amount_l: string;
+}
+export interface IOrderInfoPool {
+  point: number;
+  amount_x: string;
+  amount_y: string;
+}
 
-export function useAddAndRemoveUrlHandle() {
+export function useAddLiquidityUrlHandle() {
   const history = useHistory();
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -136,48 +173,63 @@ export function useAddAndRemoveUrlHandle() {
             ?.method_name;
         const methodNameNormal =
           transaction?.actions[0]?.['FunctionCall']?.method_name;
-        const argsNormal = transaction?.actions[0]?.['FunctionCall']?.args;
-        const argsNeth =
-          receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall?.args;
-        const args = isNeth ? argsNeth : argsNormal;
         const methodName = isNeth ? methodNameNeth : methodNameNormal;
         const successValue = isNeth ? successValueNeth : successValueNormal;
         let returnValue;
-        let argsValue;
         if (successValue) {
           const buff = Buffer.from(successValue, 'base64');
           const v = buff.toString('ascii');
           returnValue = v.substring(1, v.length - 1);
         }
-        if (args) {
-          const buff = Buffer.from(args, 'base64');
-          const v = buff.toString('ascii');
-          argsValue = v;
+        let pool_info: string[] = [];
+        if (methodName == 'add_liquidity') {
+          pool_info = returnValue.split('|');
+        } else if (methodName == 'batch_add_liquidity') {
+          pool_info = returnValue.replace(/\"/g, '').split(',')[0]?.split('|');
         }
-        if (methodName == 'append_liquidity' && argsValue) {
-          const parmas = JSON.parse(argsValue);
-          const { lpt_id } = parmas;
-          const [tokenX, tokenY, id] = lpt_id.split('|');
-          const [fee, hashId] = id.split('#');
+        if (pool_info.length) {
+          const [tokenX, tokenY, id] = pool_info;
+          const [fee] = id.split('#');
           const pool_name = get_pool_name(`${tokenX}|${tokenY}|${fee}`);
-          const paramsId = `${pool_name}@${hashId}`;
-          history.replace('/yoursLiquidityDetailV2/' + `${paramsId}`);
-        } else if (methodName == 'add_liquidity' && returnValue) {
-          const [tokenX, tokenY, id] = returnValue.split('|');
-          const [fee, hashId] = id.split('#');
-          const pool_name = get_pool_name(`${tokenX}|${tokenY}|${fee}`);
-          const paramsId = `${pool_name}@${hashId}`;
-          history.replace('/yoursLiquidityDetailV2/' + `${paramsId}`);
-        } else if (methodName == 'remove_liquidity' && argsValue) {
-          const parmas = JSON.parse(argsValue);
-          const { amount, min_amount_x, min_amount_y } = parmas;
-          if (+amount == 0 && +min_amount_x == 0 && +min_amount_y == 0) {
-            history.replace(`${location.pathname}`);
+          history.replace('/poolV2/' + `${pool_name}`);
+        }
+      });
+    }
+  }, [txHash, isSignedIn]);
+}
+export function useRemoveLiquidityUrlHandle() {
+  const history = useHistory();
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
+  const { txHash } = getURLInfo();
+  useEffect(() => {
+    if (txHash && isSignedIn) {
+      checkTransaction(txHash).then((res: any) => {
+        const { transaction, receipts, status, receipts_outcome } = res;
+        receipts_outcome?.[1]?.outcome?.status?.SuccessValue;
+        const isNeth =
+          transaction?.actions?.[0]?.FunctionCall?.method_name === 'execute';
+        const methodNameNeth =
+          receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall
+            ?.method_name;
+        const methodNameNormal =
+          transaction?.actions[0]?.['FunctionCall']?.method_name;
+        const methodName = isNeth ? methodNameNeth : methodNameNormal;
+        if (
+          methodName == 'batch_remove_liquidity' ||
+          methodName == 'batch_update_liquidity' ||
+          methodName == 'withdraw_asset'
+        ) {
+          const pool_id = sessionStorage.getItem('REMOVE_POOL_ID');
+          sessionStorage.removeItem('REMOVE_POOL_ID');
+          if (pool_id) {
+            const pool_name = get_pool_name(pool_id);
+            history.replace(`/poolV2/${pool_name}`);
           } else {
             history.replace('/yourliquidity');
           }
-        } else if (methodName == 'create_pool' && returnValue) {
-          history.replace(`${location.pathname}#${returnValue}`);
+        } else {
+          history.replace(`${location.pathname}`);
         }
       });
     }
@@ -198,6 +250,31 @@ export function getYAmount_per_point_by_Ly(L: string, point: number) {
   return yAmount;
 }
 
+/**
+ *
+ * @param amount  NonDivisible
+ * @param point
+ * @returns
+ */
+export function get_Lx_per_point_by_XAmount(amount: string, point: number) {
+  const L = Big(amount)
+    .mul(Math.pow(Math.sqrt(CONSTANT_D), point))
+    .toFixed();
+  return L;
+}
+
+/**
+ *
+ * @param amount NonDivisible
+ * @param point
+ * @returns
+ */
+export function get_Ly_per_point_by_YAmount(amount: string, point: number) {
+  const L = Big(amount)
+    .div(Math.pow(Math.sqrt(CONSTANT_D), point))
+    .toFixed();
+  return L;
+}
 export function drawChartData({
   depthData,
   chartDom,
@@ -549,6 +626,47 @@ function getX(
   );
   return x.shiftedBy(-token.decimals).toFixed();
 }
+/**
+ *
+ * @param leftPoint
+ * @param rightPoint
+ * @param token_x_amount NonDivisible
+ */
+function getLByTokenX(
+  leftPoint: number,
+  rightPoint: number,
+  token_x_amount: string
+) {
+  const L = Big(token_x_amount)
+    .div(
+      (Math.pow(Math.sqrt(CONSTANT_D), rightPoint - leftPoint) - 1) /
+        (Math.pow(Math.sqrt(CONSTANT_D), rightPoint) -
+          Math.pow(Math.sqrt(CONSTANT_D), rightPoint - 1))
+    )
+    .toFixed(0);
+  return L;
+}
+/**
+ *
+ * @param leftPoint
+ * @param rightPoint
+ * @param token_y_amount NonDivisible
+ * @returns
+ */
+function getLByTokenY(
+  leftPoint: number,
+  rightPoint: number,
+  token_y_amount: string
+) {
+  const L = Big(token_y_amount)
+    .div(
+      (Math.pow(Math.sqrt(CONSTANT_D), rightPoint) -
+        Math.pow(Math.sqrt(CONSTANT_D), leftPoint)) /
+        (Math.sqrt(CONSTANT_D) - 1)
+    )
+    .toFixed(0);
+  return L;
+}
 function get_X_Y_In_CurrentPoint(
   tokenX: TokenMetadata,
   tokenY: TokenMetadata,
@@ -658,13 +776,22 @@ export function allocation_rule_liquidities({
   });
   const temp_free_final: UserLiquidityInfo[] = [];
   temp_free = temp_unFarming.concat(temp_free);
+  // const temp_too_little_in_free: UserLiquidityInfo[] = temp_free.filter(
+  //   (liquidity: UserLiquidityInfo) => {
+  //     const v_liquidity = mint_liquidity(liquidity, seed_id);
+  //     if (new BigNumber(v_liquidity).isLessThan(min_deposit)) {
+  //       liquidity.less_than_min_deposit = true;
+  //       return true;
+  //     }
+  //     temp_free_final.push(liquidity);
+  //   }
+  // );
   const temp_too_little_in_free: UserLiquidityInfo[] = temp_free.filter(
     (liquidity: UserLiquidityInfo) => {
-      const v_liquidity = mint_liquidity(liquidity, seed_id);
-      if (new BigNumber(v_liquidity).isLessThan(min_deposit)) {
-        liquidity.less_than_min_deposit = true;
-        return true;
-      }
+      // too little to mint
+      const { amount } = liquidity;
+      const amount_is_little = new BigNumber(amount).isLessThan(1000000);
+      if (amount_is_little) return true;
       temp_free_final.push(liquidity);
     }
   );
@@ -738,6 +865,46 @@ export function get_matched_seeds_for_dcl_pool({
   }
   return activeSeeds;
 }
+// contain run and ended seed
+export function get_matched_all_seeds_of_a_dcl_pool({
+  seeds,
+  pool_id,
+}: {
+  seeds: Seed[];
+  pool_id: string;
+}) {
+  const matchedSeeds = seeds.filter((seed: Seed) => {
+    const { seed_id, farmList } = seed;
+    const [contractId, mft_id] = seed_id.split('@');
+    if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) {
+      const [fixRange, pool_id_from_seed, left_point, right_point] =
+        mft_id.split('&');
+      return pool_id_from_seed == pool_id;
+    }
+  });
+
+  // sort by the latest
+  matchedSeeds.sort((b: Seed, a: Seed) => {
+    const b_latest = getLatestStartTime(b);
+    const a_latest = getLatestStartTime(a);
+    if (b_latest == 0) return -1;
+    if (a_latest == 0) return 1;
+    return a_latest - b_latest;
+  });
+  const activeSeeds: Seed[] = [];
+  const endedSeeds: Seed[] = [];
+  matchedSeeds.forEach((seed: Seed) => {
+    const { farmList } = seed;
+    if (farmList[0].status != 'Ended') {
+      activeSeeds.push(seed);
+    } else {
+      endedSeeds.push(seed);
+    }
+  });
+
+  return [activeSeeds, endedSeeds, matchedSeeds];
+}
+
 export function isPending(seed: Seed) {
   let pending: boolean = true;
   const farms = seed.farmList;
@@ -1059,6 +1226,8 @@ export const TOKEN_LIST_FOR_RATE = [
   'USDt',
 ];
 
+export const TOKEN_LIST_FOR_RATE_EXTRA = ['NEAR'];
+
 export const PAUSE_DCL = true;
 
 export function pause_v2_tip() {
@@ -1079,6 +1248,11 @@ export function pause_old_dcl_claim_tip() {
 }
 export function sort_tokens_by_base(tokens: TokenMetadata[]) {
   const tokens_temp = JSON.parse(JSON.stringify(tokens || []));
+  tokens_temp.sort((item2: TokenMetadata, item1: TokenMetadata) => {
+    if (TOKEN_LIST_FOR_RATE_EXTRA.indexOf(item2.symbol) > -1) return 1;
+    if (TOKEN_LIST_FOR_RATE_EXTRA.indexOf(item1.symbol) > -1) return -1;
+    return 0;
+  });
   tokens_temp.sort((item2: TokenMetadata, item1: TokenMetadata) => {
     if (TOKEN_LIST_FOR_RATE.indexOf(item2.symbol) > -1) return 1;
     if (TOKEN_LIST_FOR_RATE.indexOf(item1.symbol) > -1) return -1;
@@ -1115,6 +1289,56 @@ export function get_liquidity_value({
   });
   return v;
 }
+/**
+ * caculate bin point by price
+ * @param pointDelta
+ * @param price
+ * @param decimalRate tokenY/tokenX
+ * @returns
+ */
+export function getBinPointByPrice(
+  pointDelta: number,
+  price: string,
+  decimalRate: number,
+  slotNumber: number
+) {
+  const point = Math.log(+price * decimalRate) / Math.log(CONSTANT_D);
+  const point_int = Math.round(point);
+  const point_int_bin = getBinPointByPoint(pointDelta, slotNumber, point_int);
+  return point_int_bin;
+}
+
+/**
+ *  caculate bin point by point
+ * @param pointDelta
+ * @param point
+ * @param slotNumber
+ * @returns
+ */
+export function getBinPointByPoint(
+  pointDelta: number,
+  slotNumber: number,
+  point: number,
+  type?: 'round' | 'floor' | 'ceil'
+) {
+  const binWidth = pointDelta * slotNumber;
+  let int;
+  if (type == 'floor') {
+    int = Math.floor(point / binWidth);
+  } else if (type == 'ceil') {
+    int = Math.ceil(point / binWidth);
+  } else {
+    int = Math.round(point / binWidth);
+  }
+  const point_in_bin = int * binWidth;
+  if (point_in_bin < POINTLEFTRANGE) {
+    return POINTLEFTRANGE;
+  } else if (point_in_bin > POINTRIGHTRANGE) {
+    return 800000;
+  }
+  return point_in_bin;
+}
+
 // processing of pool id and farm id
 const FEE_TIER = [100, 400, 2000, 10000];
 const TOKENS = getTokens();
@@ -1177,4 +1401,799 @@ export function openUrl(url: string) {
   var newTab = window.open();
   newTab.opener = null;
   newTab.location = url;
+}
+
+/**
+ * 中文
+ * @param nfts
+ * @param slot_number_in_a_bin
+ * step1 遍历每个nft，按照slot拆分，把每个slot的 liquidity 和 tokenx amount token y amount 放入 map集合里
+ * step2 根据step1 得到的slot，再按照bin划分，每个bin的宽度根据参数拿到，高度 根据 这个bin 里token x token y的数量 应用公式拿到
+ */
+export function divide_liquidities_into_bins_user({
+  liquidities,
+  slot_number_in_a_bin,
+  tokenX,
+  tokenY,
+  poolDetail,
+}: {
+  liquidities: UserLiquidityInfo[];
+  slot_number_in_a_bin: number;
+  tokenX: TokenMetadata;
+  tokenY: TokenMetadata;
+  poolDetail: PoolInfo;
+}) {
+  if (!liquidities?.length) return [];
+  // split data to slots
+  const liquidities_in_slot_unit: { [point: number]: IChartData } = {};
+  const { point_delta, pool_id, current_point } = poolDetail;
+  liquidities.forEach((liquidity: UserLiquidityInfo) => {
+    const { left_point, right_point, amount } = liquidity;
+    const slots_in_a_nft = (right_point - left_point) / point_delta;
+    for (let i = 0; i < slots_in_a_nft; i++) {
+      const left_point_i = left_point + i * point_delta;
+      const right_point_i = left_point_i + point_delta;
+      const { total_x, total_y } = get_x_y_amount_by_condition({
+        left_point: left_point_i,
+        right_point: right_point_i,
+        amount,
+        tokenX,
+        tokenY,
+        poolDetail,
+      });
+      const {
+        token_x: token_x_amount,
+        token_y: token_y_amount,
+        liquidity: L,
+      } = liquidities_in_slot_unit[left_point_i] || {};
+      liquidities_in_slot_unit[left_point_i] = {
+        pool_id,
+        point: left_point_i,
+        liquidity: Big(amount || 0)
+          .plus(L || 0)
+          .toFixed(),
+        token_x: Big(total_x || 0)
+          .plus(token_x_amount || 0)
+          .toFixed(),
+        token_y: Big(total_y || 0)
+          .plus(token_y_amount || 0)
+          .toFixed(),
+      };
+    }
+  });
+  // 如果有包含当前点位的slot，这个slot里面的 token_x token_y 累计的amount，重新计算 token的数量
+  const contain_current_point = getBinPointByPoint(
+    point_delta,
+    1,
+    current_point,
+    'floor'
+  );
+  const contain_current_point_slot =
+    liquidities_in_slot_unit[contain_current_point];
+  if (contain_current_point_slot) {
+    const { total_x, total_y } = get_x_y_amount_by_condition({
+      left_point: contain_current_point,
+      right_point: contain_current_point + point_delta,
+      amount: contain_current_point_slot.liquidity,
+      tokenX,
+      tokenY,
+      poolDetail,
+    });
+    liquidities_in_slot_unit[contain_current_point]['token_x'] = total_x;
+    liquidities_in_slot_unit[contain_current_point]['token_y'] = total_y;
+  }
+  // split slots to bin
+  const liquidities_in_bin_unit: IChartData[] = [];
+  const slots: IChartData[] = Object.values(liquidities_in_slot_unit);
+  slots.sort((b: IChartData, a: IChartData) => {
+    return b.point - a.point;
+  });
+  const min_point = slots[0].point;
+  const max_point = slots[slots.length - 1].point + point_delta;
+
+  const min_bin_point = getBinPointByPoint(
+    point_delta,
+    slot_number_in_a_bin,
+    min_point,
+    'floor'
+  );
+  const max_bin_point = getBinPointByPoint(
+    point_delta,
+    slot_number_in_a_bin,
+    max_point,
+    'ceil'
+  );
+  const binWidth = slot_number_in_a_bin * point_delta;
+  const bins_number = (max_bin_point - min_bin_point) / binWidth;
+  for (let i = 0; i < bins_number; i++) {
+    // search slots in this bin
+    const bin_i_point_start = min_bin_point + i * binWidth;
+    const bin_i_point_end = min_bin_point + (i + 1) * binWidth;
+    const slots_in_bin_i = slots.filter((slot: IChartData) => {
+      const { point } = slot;
+      const point_start = point;
+      const point_end = point + point_delta;
+      return point_start >= bin_i_point_start && point_end <= bin_i_point_end;
+    });
+    // get tokenx tokeny amount in this bin
+    let total_x_amount_in_bin_i = Big(0);
+    let total_y_amount_in_bin_i = Big(0);
+    slots_in_bin_i.forEach((slot: IChartData) => {
+      const { token_x, token_y } = slot;
+      total_x_amount_in_bin_i = total_x_amount_in_bin_i.plus(token_x);
+      total_y_amount_in_bin_i = total_y_amount_in_bin_i.plus(token_y);
+    });
+    // get L in this bin
+    const bin_i_L = get_l_amount_by_condition({
+      left_point: bin_i_point_start,
+      right_point: bin_i_point_end,
+      token_x_amount: toNonDivisibleNumber(
+        tokenX.decimals,
+        total_x_amount_in_bin_i.toFixed()
+      ),
+      token_y_amount: toNonDivisibleNumber(
+        tokenY.decimals,
+        total_y_amount_in_bin_i.toFixed()
+      ),
+      poolDetail,
+      slots: slots_in_bin_i,
+      binWidth,
+    });
+
+    //
+    liquidities_in_bin_unit.push({
+      pool_id,
+      point: bin_i_point_start,
+      liquidity: bin_i_L,
+      token_x: total_x_amount_in_bin_i.toFixed(),
+      token_y: total_y_amount_in_bin_i.toFixed(),
+    });
+  }
+  // filter empty bin
+  const bins_final = liquidities_in_bin_unit.filter((bin: IChartData) => {
+    const { token_x, token_y } = bin;
+    return Big(token_x || 0).gt(0) || Big(token_y || 0).gt(0);
+  });
+  bins_final.sort((b: IChartData, a: IChartData) => {
+    return b.point - a.point;
+  });
+  // last bins
+  return bins_final;
+}
+// 根据 point 区间和 L 高度，获得这段区间里的token x 和 token y的数量
+export function get_x_y_amount_by_condition({
+  left_point,
+  right_point,
+  amount,
+  tokenX,
+  tokenY,
+  poolDetail,
+}: {
+  left_point: number;
+  right_point: number;
+  amount: string;
+  tokenX: TokenMetadata;
+  tokenY: TokenMetadata;
+  poolDetail: PoolInfo;
+}) {
+  const { current_point } = poolDetail;
+  let total_x = '0';
+  let total_y = '0';
+  //  in range
+  if (current_point >= left_point && right_point > current_point) {
+    const tokenYAmount = getY(left_point, current_point, amount, tokenY);
+    const tokenXAmount = getX(current_point + 1, right_point, amount, tokenX);
+    const { amountx, amounty } = get_X_Y_In_CurrentPoint(
+      tokenX,
+      tokenY,
+      amount,
+      poolDetail
+    );
+    total_x = new BigNumber(tokenXAmount).plus(amountx).toFixed();
+    total_y = new BigNumber(tokenYAmount).plus(amounty).toFixed();
+  }
+  // only y token
+  if (current_point >= right_point) {
+    const tokenYAmount = getY(left_point, right_point, amount, tokenY);
+    total_y = tokenYAmount;
+  }
+  // only x token
+  if (left_point > current_point) {
+    const tokenXAmount = getX(left_point, right_point, amount, tokenX);
+    total_x = tokenXAmount;
+  }
+  return {
+    total_x,
+    total_y,
+  };
+}
+
+// 根据 区间和这段区间里的token x tokeny的数量，获得这段区间的高度
+/**
+ *
+ * @param param0
+ * @returns bin
+ * token_x_amount、token_y_amount ---> NonDivisible
+ */
+export function get_l_amount_by_condition({
+  left_point,
+  right_point,
+  token_x_amount,
+  token_y_amount,
+  poolDetail,
+  slots,
+  binWidth,
+}: {
+  left_point: number;
+  right_point: number;
+  token_x_amount: string;
+  token_y_amount: string;
+  poolDetail: PoolInfo;
+  slots?: IChartData[];
+  binWidth?: number;
+}) {
+  let L;
+  const { current_point, point_delta } = poolDetail;
+  //  in range
+  if (current_point >= left_point && right_point > current_point) {
+    // 中文 已知这个 bin 里每一个slot的高度，直接加权算
+    if (slots) {
+      let L_temp = Big(0);
+      slots.forEach((slot: IChartData) => {
+        const { liquidity } = slot;
+        L_temp = L_temp.plus(Big(liquidity || 0).mul(point_delta));
+      });
+      L = L_temp.div(binWidth).toFixed();
+    } else {
+      let lx = '0';
+      let ly = '0';
+      if (Big(token_y_amount).gt(0)) {
+        ly = getLByTokenY(left_point, current_point + 1, token_y_amount);
+      }
+      if (Big(token_x_amount).gt(0)) {
+        lx = getLByTokenX(current_point, right_point, token_x_amount);
+      }
+      if (Big(lx).gt(0)) {
+        L = lx;
+      }
+      if (Big(ly).gt(0)) {
+        L = ly;
+      }
+    }
+  }
+  // only y token
+  if (current_point >= right_point) {
+    L = getLByTokenY(left_point, right_point, token_y_amount);
+  }
+  // only x token
+  if (left_point > current_point) {
+    L = getLByTokenX(left_point, right_point, token_x_amount);
+  }
+  return L;
+}
+/**
+ * 根据区间和这段区间里的 order的数据，获得order在这段区间的平均高度
+ * @param param0
+ * @returns
+ */
+export function get_o_l_amount_by_condition({
+  left_point,
+  right_point,
+  token_x_amount,
+  token_y_amount,
+  poolDetail,
+  orders,
+  binWidth,
+}: {
+  left_point: number;
+  right_point: number;
+  token_x_amount: string;
+  token_y_amount: string;
+  poolDetail: PoolInfo;
+  orders?: IOrderInfoPool[];
+  binWidth?: number;
+}) {
+  let L;
+  const { current_point } = poolDetail;
+  //  in range
+  if (current_point >= left_point && right_point > current_point) {
+    // 算出这个bin里每一个order的高度，直接加权求平均
+    let L_O_temp = Big(0);
+    orders.forEach((order: IOrderInfoPool) => {
+      const { amount_x, amount_y, point } = order;
+      if (amount_x) {
+        const lx = get_Lx_per_point_by_XAmount(amount_x, point);
+        L_O_temp.plus(lx || 0);
+      } else if (amount_y) {
+        const ly = get_Ly_per_point_by_YAmount(amount_y, point);
+        L_O_temp.plus(ly || 0);
+      }
+    });
+    L = L_O_temp.div(binWidth).toFixed();
+  }
+  // only y token
+  if (current_point >= right_point) {
+    L = getLByTokenY(left_point, right_point, token_y_amount);
+  }
+  // only x token
+  if (left_point > current_point) {
+    L = getLByTokenX(left_point, right_point, token_x_amount);
+  }
+  return L;
+}
+
+const second24 = 24 * 60 * 60;
+export function get_account_24_apr(
+  unClaimed_fee$: string | number,
+  dclAccountFee: IDCLAccountFee | any,
+  pool: PoolInfo,
+  tokenPriceList: any
+) {
+  const { token_x_metadata, token_y_metadata } = pool;
+  const price_x = tokenPriceList?.[token_x_metadata.id]?.price || 0;
+  const price_y = tokenPriceList?.[token_y_metadata.id]?.price || 0;
+  let apr_24 = '0';
+  const { apr } = dclAccountFee;
+  // 24小时平均利润
+  const { fee_data, user_token, change_log_data } = apr;
+  const { fee_x, fee_y } = fee_data;
+  const fee_x_final = Big(fee_x).abs();
+  const fee_y_final = Big(fee_y).abs();
+  const fee_x_24 = toReadableNumber(
+    token_x_metadata.decimals,
+    Big(fee_x_final || 0).toFixed()
+  );
+  const fee_y_24 = toReadableNumber(
+    token_y_metadata.decimals,
+    Big(fee_y_final || 0).toFixed()
+  );
+  let fee_x_24_value = Big(fee_x_24).mul(price_x);
+  let fee_y_24_value = Big(fee_y_24).mul(price_y);
+  if (Big(fee_x).lt(0)) {
+    fee_x_24_value = Big(-fee_x_24_value.toNumber());
+  }
+  if (Big(fee_y).lt(0)) {
+    fee_y_24_value = Big(-fee_y_24_value.toNumber());
+  }
+  const total_fee_24_value = fee_x_24_value
+    .plus(fee_y_24_value)
+    .plus(unClaimed_fee$ || 0);
+  // 24小时平均本金
+  const processed_change_log: IProcessedLogData[] = [];
+  const user_token_processed = process_user_token({
+    user_token,
+    pool,
+    tokenPriceList,
+  });
+  const before24Time = Big(user_token.timestamp).minus(second24).toFixed(0); // 秒
+  processed_change_log.push(user_token_processed);
+
+  if (change_log_data?.length) {
+    change_log_data.sort((b: IDclLogData, a: IDclLogData) => {
+      return Big(a.timestamp).minus(b.timestamp).toNumber();
+    });
+    change_log_data.forEach((log: IDclLogData) => {
+      const preLog = processed_change_log[processed_change_log.length - 1];
+      const processed_log: IProcessedLogData = process_log_data({
+        preLog,
+        log,
+        before24Time,
+        pool,
+        tokenPriceList,
+      });
+      processed_change_log.push(processed_log);
+    });
+    // for 加权
+    processed_change_log.forEach((log: IProcessedLogData, index: number) => {
+      const { distance_from_24 } = log;
+      if (index !== processed_change_log.length - 1) {
+        const next_log = processed_change_log[index + 1];
+        const dis = Big(distance_from_24)
+          .minus(next_log.distance_from_24)
+          .toFixed();
+        log.distance_from_24 = dis;
+      }
+    });
+  }
+  // 24小时apr
+  let total_processed_log_value = Big(0);
+  processed_change_log.forEach((log: IProcessedLogData) => {
+    const { total_value, distance_from_24 } = log;
+    total_processed_log_value = total_processed_log_value.plus(
+      Big(total_value).mul(distance_from_24)
+    );
+  });
+  const principal = total_processed_log_value.div(second24);
+  if (principal.gt(0)) {
+    apr_24 = total_fee_24_value.div(principal).mul(365).mul(100).toFixed();
+  }
+  return apr_24;
+}
+
+export function get_total_earned_fee({
+  total_earned_fee,
+  token_x_metadata,
+  token_y_metadata,
+  unClaimed_amount_x_fee,
+  unClaimed_amount_y_fee,
+  tokenPriceList,
+}: any) {
+  let total_earned_fee_x;
+  let total_earned_fee_y;
+  let total_fee_earned;
+  // total earned fee
+  const { total_fee_x, total_fee_y } = total_earned_fee || {};
+  const total_fee_x_final = Big(total_fee_x || 0).abs();
+  const total_fee_y_final = Big(total_fee_y || 0).abs();
+
+  total_earned_fee_x = toReadableNumber(
+    token_x_metadata.decimals,
+    total_fee_x_final.toFixed()
+  );
+  total_earned_fee_x = Big(total_fee_x || 0).lt(0)
+    ? Big(-Number(total_earned_fee_x))
+    : Big(total_earned_fee_x);
+  total_earned_fee_x = total_earned_fee_x.plus(unClaimed_amount_x_fee);
+
+  total_earned_fee_y = toReadableNumber(
+    token_y_metadata.decimals,
+    total_fee_y_final.toFixed()
+  );
+  total_earned_fee_y = Big(total_fee_y || 0).lt(0)
+    ? Big(-Number(total_earned_fee_y))
+    : Big(total_earned_fee_y);
+  total_earned_fee_y = total_earned_fee_y.plus(unClaimed_amount_y_fee);
+
+  const price_x = tokenPriceList[token_x_metadata.id]?.price || 0;
+  const price_y = tokenPriceList[token_y_metadata.id]?.price || 0;
+  const total_earned_fee_x_value = Big(total_earned_fee_x).mul(price_x);
+  const total_earned_fee_y_value = Big(total_earned_fee_y).mul(price_y);
+  total_fee_earned = total_earned_fee_x_value
+    .plus(total_earned_fee_y_value)
+    .toFixed();
+  return {
+    total_earned_fee_x_amount: total_earned_fee_x?.toFixed(),
+    total_earned_fee_y_amount: total_earned_fee_y?.toFixed(),
+    total_fee_earned_money: total_fee_earned,
+  };
+}
+/**
+ *
+ * @param log 这笔log的本金
+ * @param before24Time 秒
+ * timestamp 秒
+ * @returns
+ */
+function process_log_data({
+  preLog,
+  log,
+  before24Time,
+  pool,
+  tokenPriceList,
+}: {
+  preLog: IProcessedLogData;
+  log: IDclLogData;
+  before24Time: string;
+  pool: PoolInfo;
+  tokenPriceList: any;
+}) {
+  let total_value = Big(0);
+  let distance_from_24;
+  const { token_x_metadata, token_y_metadata } = pool;
+  // get current log changed total value
+  const { token_x, token_y } = log;
+  const token_x_abs = Big(token_x || 0).abs();
+  const token_y_abs = Big(token_y || 0).abs();
+
+  const token_x_amount = toReadableNumber(
+    token_x_metadata.decimals,
+    Big(token_x_abs).toFixed()
+  );
+  const token_y_amount = toReadableNumber(
+    token_y_metadata.decimals,
+    Big(token_y_abs).toFixed()
+  );
+  const price_x = tokenPriceList[token_x_metadata.id]?.price || 0;
+  const price_y = tokenPriceList[token_y_metadata.id]?.price || 0;
+  const token_x_value = Big(token_x_amount).mul(price_x);
+  const token_y_value = Big(token_y_amount).mul(price_y);
+
+  total_value = token_x_value.plus(token_y_value);
+
+  distance_from_24 = Big(log.timestamp)
+    .div(1000000000)
+    .minus(before24Time)
+    .toFixed(0); // 秒
+
+  if (Big(token_x).lt(0) || Big(token_y).lt(0)) {
+    total_value = Big(preLog.total_value).plus(total_value);
+  } else {
+    total_value = Big(preLog.total_value).minus(total_value);
+  }
+
+  return {
+    distance_from_24,
+    total_value: total_value.lt(0) ? '0' : total_value.toFixed(),
+  };
+}
+
+function process_user_token({
+  user_token,
+  pool,
+  tokenPriceList,
+}: {
+  user_token: IDclLogData;
+  pool: PoolInfo;
+  tokenPriceList: any;
+}) {
+  const { token_x_metadata, token_y_metadata } = pool;
+  const { token_x, token_y } = user_token;
+
+  const price_x = tokenPriceList?.[token_x_metadata.id]?.price || 0;
+  const price_y = tokenPriceList?.[token_y_metadata.id]?.price || 0;
+
+  const token_x_value = Big(token_x || 0).mul(price_x);
+  const token_y_value = Big(token_y || 0).mul(price_y);
+  const total_value = token_x_value.plus(token_y_value).toFixed();
+
+  return {
+    total_value,
+    distance_from_24: Big(second24).toFixed(),
+  };
+}
+
+export function whether_liquidity_can_farm_in_seed(
+  liquidity: UserLiquidityInfo,
+  seed: Seed
+) {
+  const { mft_id, left_point, right_point, amount } = liquidity;
+  const { min_deposit, seed_id } = seed;
+  const [fixRange, dcl_pool_id, left_point_seed, right_point_seed] = seed_id
+    .split('@')[1]
+    .split('&');
+  const v_liquidity = mint_liquidity(liquidity, seed_id);
+  const radio = get_intersection_radio({
+    left_point_liquidity: left_point,
+    right_point_liquidity: right_point,
+    left_point_seed,
+    right_point_seed,
+  });
+  const condition1 = new BigNumber(v_liquidity).isGreaterThanOrEqualTo(
+    min_deposit
+  );
+  const condition2 = +radio > 0;
+  const condition3 =
+    mft_id ||
+    (!mft_id && new BigNumber(amount).isGreaterThanOrEqualTo(1000000));
+  if (condition1 && condition2 && condition3) return true;
+}
+
+/**
+ * 中文
+ * @param nfts
+ * @param slot_number_in_a_bin
+ * 获取这个池子的所有liquidity 和 order数据
+ * liquidity划分成slot。
+ * 找到这个slot和order的最小point 和最大point
+ * 根据 区间范围 划分bin
+ *
+ *
+ * step1 遍历每个nft，按照slot拆分，把每个slot的 liquidity 和 tokenx amount token y amount 放入 map集合里
+ * step2 根据step1 得到的slot，再按照bin划分，每个bin的宽度根据参数拿到，高度 根据 这个bin 里token x token y的数量 应用公式拿到
+ */
+export function divide_liquidities_into_bins_pool({
+  liquidities,
+  orders,
+  slot_number_in_a_bin,
+  tokenX,
+  tokenY,
+  poolDetail,
+}: {
+  liquidities: ILiquidityInfoPool[];
+  orders: IOrderInfoPool[];
+  slot_number_in_a_bin: number;
+  tokenX: TokenMetadata;
+  tokenY: TokenMetadata;
+  poolDetail: PoolInfo;
+}) {
+  if (!liquidities?.length && !orders?.length) return [];
+  // split data to slots
+  const liquidities_in_slot_unit: { [point: number]: IChartData } = {};
+  const { point_delta, pool_id } = poolDetail;
+  liquidities.forEach((liquidity: ILiquidityInfoPool, index) => {
+    const { left_point, right_point, amount_l } = liquidity;
+    const slots_in_a_nft = (right_point - left_point) / point_delta;
+    for (let i = 0; i < slots_in_a_nft; i++) {
+      const left_point_i = left_point + i * point_delta;
+      const right_point_i = left_point_i + point_delta;
+      const { total_x, total_y } = get_x_y_amount_by_condition({
+        left_point: left_point_i,
+        right_point: right_point_i,
+        amount: amount_l,
+        tokenX,
+        tokenY,
+        poolDetail,
+      });
+      const {
+        token_x: token_x_amount,
+        token_y: token_y_amount,
+        liquidity: L,
+      } = liquidities_in_slot_unit[left_point_i] || {};
+      liquidities_in_slot_unit[left_point_i] = {
+        pool_id,
+        point: left_point_i,
+        liquidity: Big(amount_l || 0)
+          .plus(L || 0)
+          .toFixed(),
+        token_x: Big(total_x || 0)
+          .plus(token_x_amount || 0)
+          .toFixed(),
+        token_y: Big(total_y || 0)
+          .plus(token_y_amount || 0)
+          .toFixed(),
+      };
+    }
+  });
+  // split slots to bin
+  const liquidities_in_bin_unit: IChartData[] = [];
+  const slots: IChartData[] = Object.values(liquidities_in_slot_unit);
+  slots.sort((b: IChartData, a: IChartData) => {
+    return b.point - a.point;
+  });
+  orders.sort((b: IOrderInfoPool, a: IOrderInfoPool) => {
+    return b.point - a.point;
+  });
+  let min_point, max_point;
+  if (slots.length && orders.length) {
+    min_point = Math.min(slots[0].point, orders[0].point);
+    max_point = Math.max(
+      slots[slots.length - 1].point + point_delta,
+      orders[orders.length - 1].point + point_delta
+    );
+  } else if (slots.length) {
+    min_point = slots[0].point;
+    max_point = slots[slots.length - 1].point + point_delta;
+  } else if (orders.length) {
+    min_point = orders[0].point;
+    max_point = orders[orders.length - 1].point + point_delta;
+  }
+
+  const min_bin_point = getBinPointByPoint(
+    point_delta,
+    slot_number_in_a_bin,
+    min_point,
+    'floor'
+  );
+  const max_bin_point = getBinPointByPoint(
+    point_delta,
+    slot_number_in_a_bin,
+    max_point,
+    'ceil'
+  );
+  const binWidth = slot_number_in_a_bin * point_delta;
+  const bins_number = (max_bin_point - min_bin_point) / binWidth;
+  for (let i = 0; i < bins_number; i++) {
+    // search slots and orders in this bin
+    const bin_i_point_start = min_bin_point + i * binWidth;
+    const bin_i_point_end = min_bin_point + (i + 1) * binWidth;
+    const slots_in_bin_i = slots.filter((slot: IChartData) => {
+      const { point } = slot;
+      const point_start = point;
+      const point_end = point + point_delta;
+      return point_start >= bin_i_point_start && point_end <= bin_i_point_end;
+    });
+    const orders_in_bin_i = orders.filter((order: IOrderInfoPool) => {
+      const { point } = order;
+      return point >= bin_i_point_start && point < bin_i_point_end;
+    });
+    // get tokenx tokeny amount in this bin ===>liquidity
+    let total_x_amount_in_bin_i = Big(0);
+    let total_y_amount_in_bin_i = Big(0);
+    slots_in_bin_i.forEach((slot: IChartData) => {
+      const { token_x, token_y } = slot;
+      total_x_amount_in_bin_i = total_x_amount_in_bin_i.plus(token_x);
+      total_y_amount_in_bin_i = total_y_amount_in_bin_i.plus(token_y);
+    });
+
+    // get L in this bin =====>liquidity
+    const bin_i_L = get_l_amount_by_condition({
+      left_point: bin_i_point_start,
+      right_point: bin_i_point_end,
+      token_x_amount: toNonDivisibleNumber(
+        tokenX.decimals,
+        total_x_amount_in_bin_i.toFixed()
+      ),
+      token_y_amount: toNonDivisibleNumber(
+        tokenY.decimals,
+        total_y_amount_in_bin_i.toFixed()
+      ),
+      poolDetail,
+      slots: slots_in_bin_i,
+      binWidth,
+    });
+
+    // get tokenx tokeny amount in this bin ===>order
+    let total_o_x_amount_in_bin_i = Big(0);
+    let total_o_y_amount_in_bin_i = Big(0);
+    orders_in_bin_i.forEach((order: IOrderInfoPool) => {
+      const { amount_x, amount_y } = order;
+      total_o_x_amount_in_bin_i = total_o_x_amount_in_bin_i.plus(amount_x);
+      total_o_y_amount_in_bin_i = total_o_y_amount_in_bin_i.plus(amount_y);
+    });
+
+    const o_bin_i_L = get_o_l_amount_by_condition({
+      left_point: bin_i_point_start,
+      right_point: bin_i_point_end,
+      token_x_amount: total_o_x_amount_in_bin_i.toFixed(),
+      token_y_amount: total_o_y_amount_in_bin_i.toFixed(),
+      orders: orders_in_bin_i,
+      poolDetail,
+      binWidth,
+    });
+
+    liquidities_in_bin_unit.push({
+      pool_id,
+      point: bin_i_point_start,
+      liquidity: bin_i_L,
+      token_x: total_x_amount_in_bin_i.toFixed(),
+      token_y: total_y_amount_in_bin_i.toFixed(),
+      order_x: toReadableNumber(
+        tokenX.decimals,
+        total_o_x_amount_in_bin_i.toFixed()
+      ),
+      order_y: toReadableNumber(
+        tokenY.decimals,
+        total_o_y_amount_in_bin_i.toFixed()
+      ),
+      order_liquidity: o_bin_i_L,
+    });
+  }
+  // filter empty bin
+  const bins_final = liquidities_in_bin_unit.filter((bin: IChartData) => {
+    const { token_x, token_y, order_x, order_y } = bin;
+    return (
+      Big(token_x || 0).gt(0) ||
+      Big(token_y || 0).gt(0) ||
+      Big(order_x || 0).gt(0) ||
+      Big(order_y || 0).gt(0)
+    );
+  });
+  bins_final.sort((b: IChartData, a: IChartData) => {
+    return b.point - a.point;
+  });
+  // last bins
+  return bins_final;
+}
+
+export function get_token_amount_in_user_liquidities({
+  user_liquidities,
+  pool,
+  token_x_metadata,
+  token_y_metadata,
+}: {
+  user_liquidities: UserLiquidityInfo[];
+  pool: PoolInfo;
+  token_x_metadata: TokenMetadata;
+  token_y_metadata: TokenMetadata;
+}) {
+  let total_x_amount = Big(0);
+  let total_y_amount = Big(0);
+  const list = divide_liquidities_into_bins_user({
+    liquidities: user_liquidities,
+    slot_number_in_a_bin: 1,
+    tokenX: token_x_metadata,
+    tokenY: token_y_metadata,
+    poolDetail: pool,
+  });
+
+  list.forEach((l: IChartData) => {
+    const { token_x, token_y } = l;
+    total_x_amount = total_x_amount.plus(token_x);
+    total_y_amount = total_y_amount.plus(token_y);
+  });
+  return [total_x_amount.toFixed(), total_y_amount.toFixed()];
+}
+export function reverse_price(price: string) {
+  if (Big(price).eq(0)) return '999999999999999999999';
+  return Big(1).div(price).toFixed();
 }

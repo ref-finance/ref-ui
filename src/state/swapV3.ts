@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { useLocation } from 'react-router';
 import {
   UserOrderInfo,
   list_active_orders,
@@ -9,8 +10,13 @@ import {
 import { WalletContext } from '../utils/wallets-integration';
 import { useTokenPriceList } from './token';
 import { ftGetTokenMetadata } from '../services/ft-contract';
-import { toReadableNumber } from '../utils/numbers';
+import { ONLY_ZEROS, toReadableNumber } from '../utils/numbers';
 import BigNumber from 'bignumber.js';
+import { getDCLTopBinFee } from '../services/indexer';
+import { list_pools } from '../services/swapV3';
+import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
+import { getStorageTokenId } from '../components/swap/swap';
+import { wrapTokenId } from '../components/swap/LimitOrderCard';
 
 export const useMyOrders = () => {
   const [activeOrder, setActiveOrder] = useState<UserOrderInfo[]>();
@@ -85,4 +91,49 @@ export const useAllPoolsV2 = () => {
       .then(setAllPools);
   }, [tokenPriceList]);
   return allPools;
+};
+
+export const useDclPoolIdByCondition = (source?: 'all' | 'url' | 'local') => {
+  const [pool_id, set_pool_id] = useState<string>();
+  const location = useLocation();
+  const hash = location.hash;
+  useEffect(() => {
+    get_dcl_pool_by_Ids();
+  }, [hash]);
+  const [in_id, out_id] = getStorageTokenId();
+
+  async function get_dcl_pool_by_Ids() {
+    const dcl_pools: PoolInfo[] = await list_pools();
+    const [urlTokenIn, urlTokenOut] = decodeURIComponent(
+      location.hash.slice(1)
+    ).split('|');
+    let url_token_in: string;
+    let url_token_out: string;
+    if (source == 'all') {
+      url_token_in = urlTokenIn || in_id;
+      url_token_out = urlTokenOut || out_id;
+    } else if (source == 'local') {
+      url_token_in = in_id;
+      url_token_out = out_id;
+    } else {
+      url_token_in = urlTokenIn;
+      url_token_out = urlTokenOut;
+    }
+    url_token_in = wrapTokenId(url_token_in);
+    url_token_out = wrapTokenId(url_token_out);
+    const target: PoolInfo = dcl_pools.find((pool: PoolInfo) => {
+      const { token_x, token_y } = pool;
+      return (
+        (url_token_in == token_x && url_token_out == token_y) ||
+        (url_token_in == token_y && url_token_out == token_x)
+      );
+    });
+    if (target) {
+      set_pool_id(target.pool_id);
+    } else {
+      set_pool_id('');
+    }
+  }
+
+  return pool_id;
 };

@@ -1376,6 +1376,7 @@ const vi = {
   pool_refresh: 'Có sự cố với máy chủ, vui lòng thử lại sau.',
   netWorthTip:
     'Tổng giá trị của đầu tư trong Ref (bao gồm phần thưởng có thể yêu cầu) + Tổng giá trị tài sản Orderly + Tổng giá trị tài sản Burrow + Tổng tài sản trong ví',
+  top_bin_apr: 'Top Bin APR (24h)',
   mark_price: 'Giá đánh dấu',
   last_price: 'Giá cuối cùng',
   mark_price_tip: 'Giá đánh dấu được sử dụng để tính toán PnL và thanh lý.',

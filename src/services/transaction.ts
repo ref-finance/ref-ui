@@ -159,6 +159,21 @@ export const parseAction = async (
     case 'user_request_settlement': {
       return await parse_user_request_settlement(params);
     }
+    case 'batch_add_liquidity': {
+      return await parse_batch_add_liquidity(params, tokenId);
+    }
+    case 'batch_remove_liquidity': {
+      return await parse_batch_remove_liquidity(params, tokenId);
+    }
+    case 'batch_update_liquidity': {
+      return await parse_batch_update_liquidity(params, tokenId);
+    }
+    case 'batch_mint_v_liquidity': {
+      return await parse_batch_mint_v_liquidity(params, tokenId);
+    }
+    case 'batch_burn_v_liquidity': {
+      return await parse_batch_burn_v_liquidity(params, tokenId);
+    }
     default: {
       return await parseDefault();
     }
@@ -1266,6 +1281,67 @@ const parse_user_request_settlement = async (params: any) => {
   } catch (error) {
     return {
       Action: 'Settle PnL',
+    };
+  }
+};
+
+const parse_batch_add_liquidity = async (params: any, tokenId: string) => {
+  try {
+    return {
+      Action: 'Batch Add Liquidity',
+      'Receiver ID': tokenId,
+    };
+  } catch (error) {
+    return {
+      Action: 'Batch Add Liquidity',
+    };
+  }
+};
+const parse_batch_remove_liquidity = async (params: any, tokenId: string) => {
+  try {
+    return {
+      Action: 'Batch Remove Liquidity',
+      'Receiver ID': tokenId,
+    };
+  } catch (error) {
+    return {
+      Action: 'Batch Remove Liquidity',
+    };
+  }
+};
+const parse_batch_update_liquidity = async (params: any, tokenId: string) => {
+  try {
+    return {
+      Action: 'Batch Update Liquidity',
+      'Receiver ID': tokenId,
+    };
+  } catch (error) {
+    return {
+      Action: 'Batch Update Liquidity',
+    };
+  }
+};
+const parse_batch_mint_v_liquidity = async (params: any, tokenId: string) => {
+  try {
+    return {
+      Action: 'Batch Mint Liquidity',
+      'Receiver ID': tokenId,
+    };
+  } catch (error) {
+    return {
+      Action: 'Batch Mint Liquidity',
+    };
+  }
+};
+const parse_batch_burn_v_liquidity = async (params: any, tokenId: string) => {
+  try {
+    return {
+      Action: 'Batch Burn Liquidity',
+      'Receiver ID': tokenId,
+    };
+  } catch (error) {
+    return {
+      Action: 'Batch Burn Liquidity',
     };
   }
 };

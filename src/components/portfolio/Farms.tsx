@@ -708,7 +708,8 @@ function DclFarmRowMobile() {
           switch_off ? 'hidden' : ''
         }`}
       >
-        <div className="border-b border-limitOrderFeeTiersBorderColor pb-5 px-2.5">
+        {/* border-b border-limitOrderFeeTiersBorderColor  */}
+        <div className="pb-5 px-2.5">
           <div className="flex items-center justify-between">
             <span className="text-sm text-primaryText">
               <FormattedMessage id="farm_reward_range" />
@@ -762,23 +763,6 @@ function DclFarmRowMobile() {
               )}
             </div>
           </div>
-        </div>
-        <div className="mt-5 px-2.5">
-          {listLiquidities_inFarimg.length > 0 ? (
-            <>
-              {listLiquidities_inFarimg.map((liquidity: UserLiquidityInfo) => {
-                return (
-                  <LiquidityLine
-                    liquidity={liquidity}
-                    seed={seed}
-                    key={liquidity.lpt_id}
-                    tokens={tokens}
-                    rate_need_to_reverse_display={rate_need_to_reverse_display}
-                  ></LiquidityLine>
-                );
-              })}
-            </>
-          ) : null}
         </div>
       </div>
     </div>
@@ -845,7 +829,8 @@ function DclFarmRowPc() {
         </div>
       </div>
       <div className={`${switch_off ? 'hidden' : ''}`}>
-        <div className="border-b border-gray1 pb-5">
+        {/* border-b border-gray1  */}
+        <div className="pb-5">
           <div className="flex items-center justify-between">
             <span className="text-sm text-primaryText">
               <FormattedMessage id="farm_reward_range" />
@@ -896,26 +881,6 @@ function DclFarmRowPc() {
               </span>
             </div>
           </div>
-        </div>
-        <div className="mt-5">
-          <p className="text-sm text-primaryText mb-5">
-            <FormattedMessage id="your_positions" />
-          </p>
-          {listLiquidities_inFarimg.length > 0 ? (
-            <>
-              {listLiquidities_inFarimg.map((liquidity: UserLiquidityInfo) => {
-                return (
-                  <LiquidityLine
-                    liquidity={liquidity}
-                    seed={seed}
-                    key={liquidity.lpt_id}
-                    tokens={tokens}
-                    rate_need_to_reverse_display={rate_need_to_reverse_display}
-                  ></LiquidityLine>
-                );
-              })}
-            </>
-          ) : null}
         </div>
       </div>
     </div>

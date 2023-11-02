@@ -27,6 +27,12 @@ import { TokenMetadata } from './ft-contract';
 
 const config = getConfig();
 
+const genUrlParams = (props: Record<string, string | number>) => {
+  return Object.keys(props)
+    .map((key) => key + '=' + props[key])
+    .join('&');
+};
+
 export const getPoolsByTokensIndexer = async ({
   token0,
   token1,
@@ -347,8 +353,198 @@ export const getPool = async (pool_id: string): Promise<PoolRPCView> => {
       return parsePoolView(pool);
     });
 };
+const parsePoolTxTimeStamp = (ts: string) => {
+  return moment(Math.floor(Number(ts) / 1000000)).format('YYYY-MM-DD HH:mm:ss');
+};
 
-// https://testnet-indexer.ref-finance.com/get-proposal-hash-by-id?proposal_id=11|12
+export interface ClassicPoolSwapTransaction {
+  token_in: string;
+  token_out: string;
+  swap_in: string;
+  swap_out: string;
+  timestamp: string;
+  tx_id: string;
+}
+
+export const getClassicPoolSwapRecentTransaction = async (props: {
+  pool_id: string | number;
+}) => {
+  const paramString = genUrlParams(props);
+
+  return await fetch(
+    config.indexerUrl + `/get-recent-transaction-swap?${paramString}`,
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  )
+    .then((res) => res.json())
+    .then((res: ClassicPoolSwapTransaction[]) => {
+      return res.map((tx) => {
+        return {
+          ...tx,
+          timestamp: parsePoolTxTimeStamp(tx.timestamp),
+        };
+      });
+    });
+};
+
+export interface DCLPoolSwapTransaction {
+  token_in: string;
+  token_out: string;
+  amount_in: string;
+  amount_out: string;
+  timestamp: string;
+  tx_id: string;
+}
+
+export const getDCLPoolSwapRecentTransaction = async (props: {
+  pool_id: string | number;
+}) => {
+  const paramString = genUrlParams(props);
+
+  return await fetch(
+    config.indexerUrl + `/get-recent-transaction-dcl-swap?${paramString}`,
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  )
+    .then((res) => res.json())
+    .then((res: DCLPoolSwapTransaction[]) => {
+      return res.map((t) => ({
+        ...t,
+        timestamp: parsePoolTxTimeStamp(t.timestamp),
+      }));
+    });
+};
+
+export interface ClassicPoolLiquidtyRecentTransaction {
+  method_name: string;
+  timestamp: string;
+  token_in: string;
+  token_out: string;
+  amount_in: string;
+  amount_out: string;
+  tx_id: string;
+  shares?: string;
+  pool_id?: string;
+  amounts?: string;
+}
+
+export const getClassicPoolLiquidtyRecentTransaction = async (props: {
+  pool_id: string | number;
+}) => {
+  const paramString = genUrlParams(props);
+
+  return await fetch(
+    config.indexerUrl + `/get-recent-transaction-liquidity?${paramString}`,
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  )
+    .then((res) => res.json())
+    .then((res: ClassicPoolLiquidtyRecentTransaction[]) => {
+      return res.map((t) => ({
+        ...t,
+        timestamp: parsePoolTxTimeStamp(t.timestamp),
+      }));
+    });
+};
+
+export interface DCLPoolLiquidtyRecentTransaction {
+  method_name: string;
+  amount_x: string;
+  amount_y: string;
+  timestamp: string;
+  tx_id: string;
+}
+
+export const getDCLPoolLiquidtyRecentTransaction = async (props: {
+  pool_id: string | number;
+}) => {
+  const paramString = genUrlParams(props);
+
+  return await fetch(
+    config.indexerUrl + `/get-recent-transaction-dcl-liquidity?${paramString}`,
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  )
+    .then((res) => res.json())
+    .then((res: DCLPoolLiquidtyRecentTransaction[]) => {
+      return res.map((t) => ({
+        ...t,
+        timestamp: parsePoolTxTimeStamp(t.timestamp),
+      }));
+    });
+};
+
+export interface LimitOrderRecentTransaction {
+  method_name: string;
+  timestamp: string;
+  amount: string;
+  tx_id: string;
+  point: string;
+  sell_token: string;
+}
+
+export const getLimitOrderRecentTransaction = async (props: {
+  pool_id: string | number;
+}) => {
+  const paramString = genUrlParams(props);
+
+  return await fetch(
+    config.indexerUrl + `/get-recent-transaction-limit-order?${paramString}`,
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  )
+    .then((res) => res.json())
+    .then((res: LimitOrderRecentTransaction[]) => {
+      return res.map((t) => ({
+        ...t,
+        timestamp: parsePoolTxTimeStamp(t.timestamp),
+      }));
+    });
+};
+
+export interface DCLPoolFee {
+  total_fee: string;
+  total_liquidity: string;
+}
+
+export const getDCLTopBinFee = async (props: {
+  pool_id: string;
+  bin: number;
+  start_point: number;
+  end_point: number;
+}): Promise<DCLPoolFee> => {
+  const { pool_id, bin, start_point, end_point } = props;
+  const result = await getDclPoolPoints(pool_id, bin, start_point, end_point);
+  return result?.top_bin_fee_data;
+};
+
+export const getDCLAccountFee = async (props: {
+  pool_id: string | number;
+  account_id: string | number;
+}): Promise<DCLPoolFee> => {
+  const paramString = genUrlParams(props);
+  try {
+    return await fetch(
+      config.indexerUrl + `/get-fee-by-account?${paramString}`,
+      {
+        method: 'GET',
+        headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      }
+    ).then((res) => res.json());
+  } catch (error) {
+    return;
+  }
+};
 
 export interface ProposalHash {
   proposal_id: string;
@@ -652,5 +848,41 @@ export const getTokenPairRate = async ({
         contract_address: token.id,
         price_list: [],
       };
+    });
+};
+
+export const getDclPoolPoints = async (
+  pool_id: string,
+  bin: number,
+  start_point: number,
+  end_point: number
+) => {
+  return await fetch(
+    config.indexerUrl +
+      `/get-dcl-points?pool_id=${pool_id}&slot_number=${bin}&start_point=${start_point}&end_point=${end_point}`
+  )
+    .then(async (res) => {
+      const data = await res.json();
+      return data;
+    })
+    .catch(() => {
+      return {};
+    });
+};
+export const getDclUserPoints = async (
+  pool_id: string,
+  bin: number,
+  account_id: string
+) => {
+  return await fetch(
+    config.indexerUrl +
+      `/get-dcl-points-by-account?pool_id=${pool_id}&slot_number=${bin}&account_id=${account_id}`
+  )
+    .then(async (res) => {
+      const data = await res.json();
+      return data;
+    })
+    .catch(() => {
+      return [];
     });
 };

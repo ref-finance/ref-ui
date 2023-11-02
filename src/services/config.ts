@@ -339,9 +339,9 @@ export default function getConfig(
         VotingGauge: ['5%', '10%'],
         REF_UNI_V3_SWAP_CONTRACT_ID:
           process.env.REF_UNI_V3_SWAP_CONTRACT_ID ||
-          'dclv2-dev.ref-dev.testnet',
+          'refv2-dev.ref-dev.testnet',
         REF_UNI_SWAP_CONTRACT_ID:
-          process.env.REF_UNI_SWAP_CONTRACT_ID || 'dclv1-dev.ref-dev.testnet',
+          process.env.REF_UNI_SWAP_CONTRACT_ID || 'refv2-dev.ref-dev.testnet',
         kitWalletOn: true,
         FARM_BLACK_LIST_V2: process.env.FARM_BLACK_LIST_V2 || ['666'],
         boostBlackList: process.env.FARM__BOOST_BLACK_LIST || [''],

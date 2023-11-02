@@ -46,12 +46,10 @@ import {
   useTotalOrderData,
   getAccountId,
 } from './Tool';
-import {
-  WalletContext,
-  getCurrentWallet,
-} from '../../utils/wallets-integration';
+import { WalletContext } from '../../utils/wallets-integration';
 import getConfig from 'src/services/config';
 import { isMobile } from 'src/utils/device';
+import { SWAP_MODE_KEY, SWAP_MODE } from '../../pages/SwapPage';
 const is_mobile = isMobile();
 const { explorerUrl } = getConfig();
 
@@ -205,7 +203,8 @@ function OrderCard({
       .div(p)
       .toFixed(tokensMap[order.buy_token].decimals);
 
-    return scientificNotationToString(sell_amount);
+    // return scientificNotationToString(sell_amount);
+    return display_amount(sell_amount);
   };
   function display_amount(amount: string) {
     if (new Big(amount).eq(0)) {
@@ -437,7 +436,6 @@ function OrderCard({
       displayPercents[1] == '100'
         ? display_amount(orderIn)
         : buyAmountToSellAmount(order.unclaimed_amount || '0', order, price);
-
     const sellTokenAmount = (
       <div className="flex items-center whitespace-nowrap w-28 justify-between xsm:w-1 xsm:flex-grow">
         <span className="flex flex-shrink-0 items-center">
@@ -1055,7 +1053,8 @@ function OrderCard({
             </span>
             <span
               onClick={() => {
-                openUrl('/myOrder');
+                localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.LIMIT);
+                openUrl('/');
               }}
               className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md px-1.5 cursor-pointer hover:text-white py-0.5"
             >
@@ -1109,7 +1108,8 @@ function OrderCard({
         >
           <span
             onClick={() => {
-              openUrl('/myOrder');
+              localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.LIMIT);
+              openUrl('/');
             }}
             className="flex items-center justify-center text-xs text-v3SwapGray relative -top-3 "
           >

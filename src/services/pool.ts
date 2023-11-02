@@ -1187,7 +1187,6 @@ export const removeLiquidityByTokensFromStablePool = async ({
 
     const ftBalance = await ftGetStorageBalance(tokenId);
     if (ftBalance === null) {
-      // todo usdc
       if (NO_REQUIRED_REGISTRATION_TOKEN_IDS.includes(tokenId)) {
         const r = await native_usdc_has_upgrated(tokenId);
         if (r) {
