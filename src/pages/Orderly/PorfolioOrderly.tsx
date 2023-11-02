@@ -23,7 +23,6 @@ import { MobileHistoryOrderDetail } from './components/AllOrders';
 import { formatTimeDate } from './components/OrderBoard';
 import { usePortableOrderlyTable, useMarketlist } from './orderly/constantWjsx';
 import {
-  getOrderlySystemInfo,
   createOrder,
   getOrderByOrderId,
   getOrderTrades,

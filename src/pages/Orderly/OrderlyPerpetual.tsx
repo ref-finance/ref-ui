@@ -32,7 +32,6 @@ import MobileInfoBoard, {
 } from './components/MobileInfoBoard';
 
 import { OrderlyUnderMaintainIcon } from './components/Common/Icons';
-import { getOrderlySystemInfo } from './orderly/off-chain-api';
 import { PerpOrderlyTip, PerpOrderlyTipMobile } from './components/PerpHeader';
 import { useOrderlyContext } from './orderly/OrderlyContext';
 import { PerpOrSpot } from './utiles';
