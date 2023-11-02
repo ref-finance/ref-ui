@@ -9,7 +9,7 @@ import { setupNearWallet } from '@near-wallet-selector/near-wallet';
 import { setupMyNearWallet } from '@near-wallet-selector/my-near-wallet';
 import { setupSender } from '@near-wallet-selector/sender';
 import { setupLedger } from '@near-wallet-selector/ledger';
-
+import { setupNearMobileWallet } from "@near-wallet-selector/near-mobile-wallet";
 import { setupHereWallet } from '@near-wallet-selector/here-wallet';
 import { setupNeth } from '@near-wallet-selector/neth';
 
@@ -124,6 +124,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         setupLedger({
           // iconUrl: walletIcons['ledger'],
         }),
+        setupNearMobileWallet(),
       ],
     });
     const _modal = setupModal(_selector, {
