@@ -1674,7 +1674,7 @@ function PoolRow({
           {calculateFeePercent(pool.fee)}%
         </div>
         <div
-          className="col-span-1 flex flex-col items-center justify-self-center py-1"
+          className="col-span-1 flex flex-col items-center justify-self-center text-sm py-1"
           data-type="info"
           data-place="right"
           data-multiline={true}
@@ -3799,7 +3799,7 @@ function StablePoolCard({
 
         <div className="col-span-4 grid grid-cols-5 items-center xs:hidden md:hidden">
           <div
-            className="col-span-1 flex flex-col items-center justify-self-center"
+            className="col-span-1 flex flex-col items-center justify-self-center text-sm"
             data-type="info"
             data-place="right"
             data-multiline={true}
@@ -4144,7 +4144,7 @@ function StablePoolList({
         </div>
 
         <div className="col-span-4 grid grid-cols-5 items-center xsm:hidden text-primaryText ">
-          <div className="col-span-1 relative flex items-center justify-self-center ">
+          <div className="col-span-1 relative flex items-center justify-self-center text-sm">
             <span
               className={`pr-1 cursor-pointer
               
@@ -4179,7 +4179,7 @@ function StablePoolList({
               )}
             </span>
           </div>
-          <div className="col-span-1 relative flex items-center justify-self-center">
+          <div className="col-span-1 relative flex items-center justify-self-center text-sm">
             <span
               className={`pr-1 cursor-pointer
               
