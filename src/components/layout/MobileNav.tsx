@@ -124,36 +124,31 @@ export function AccountModel(props: any) {
     {
       icon: <AccountIcon />,
       textId: 'your_assets',
-      selected: location.pathname == '/account',
+      selected: location.pathname == '/overview',
       click: () => {
-        if (location.pathname == '/account') {
-          localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
-          window.location.reload();
-        } else {
-          history.push('/account?tab=ref');
-        }
+        history.push('/overview');
       },
     },
-    {
-      icon: <ActivityIcon />,
-      textId: 'recent_activity',
-      selected: location.pathname == '/recent',
-      click: () => {
-        history.push('/recent');
-      },
-    },
-    {
-      icon: <WalletIcon />,
-      textId: 'go_to_near_wallet',
-      subIcon: <HiOutlineExternalLink />,
-      click: () => {
-        openUrl(
-          selector.store.getState().selectedWalletId === 'my-near-wallet'
-            ? config.myNearWalletUrl
-            : config.walletUrl
-        );
-      },
-    },
+    // {
+    //   icon: <ActivityIcon />,
+    //   textId: 'recent_activity',
+    //   selected: location.pathname == '/recent',
+    //   click: () => {
+    //     history.push('/recent');
+    //   },
+    // },
+    // {
+    //   icon: <WalletIcon />,
+    //   textId: 'go_to_near_wallet',
+    //   subIcon: <HiOutlineExternalLink />,
+    //   click: () => {
+    //     openUrl(
+    //       selector.store.getState().selectedWalletId === 'my-near-wallet'
+    //         ? config.myNearWalletUrl
+    //         : config.walletUrl
+    //     );
+    //   },
+    // },
   ];
 
   const [currentWalletName, setCurrentWalletName] = useState<string>();
@@ -673,14 +668,14 @@ export function MobileNavBar(props: any) {
                 )}
               </div>
             </div>
-            <div className={!isSignedIn ? 'hidden' : ' flex items-center'}>
-              <ConnectDot />
-              <ConnectDot />
-              <AuroraEntry
-                hasBalanceOnAurora={hasAuroraBalance}
-                extraClick={() => setAccountVisible(false)}
-              />
-            </div>
+            {/*<div className={!isSignedIn ? 'hidden' : ' flex items-center'}>*/}
+            {/*  <ConnectDot />*/}
+            {/*  <ConnectDot />*/}
+            {/*  <AuroraEntry*/}
+            {/*    hasBalanceOnAurora={hasAuroraBalance}*/}
+            {/*    extraClick={() => setAccountVisible(false)}*/}
+            {/*  />*/}
+            {/*</div>*/}
             <span className="ml-4" ref={iconRef} onClick={() => setShow(true)}>
               <HiMenuIcon />
             </span>

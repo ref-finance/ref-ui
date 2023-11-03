@@ -360,7 +360,7 @@ export const useMenus = (cb?: () => void) => {
         '/poolV2',
         '/sauce',
         '/more_pools',
-        '/yourliquidity',
+        // '/yourliquidity',
         '/farms',
         '/xref',
         '/v2farms',
@@ -379,22 +379,22 @@ export const useMenus = (cb?: () => void) => {
           isExternal: false,
           links: ['/pools', '/pool', '/poolV2', '/sauce', '/more_pools'],
         },
-        {
-          id: '2-2',
-          label: (
-            <>
-              <FormattedMessage id="your_liquidity" />
-            </>
-          ),
-          logo: <YourliquidityIcon />,
-          url: '/yourliquidity',
-          isExternal: false,
-          clickEvent: () => {
-            sessionStorage.setItem('REF_POOL_NAV_TAB_VALUE', '/yourliquidity');
-            history.push('/yourliquidity');
-          },
-          links: ['/yourliquidity', '/yoursLiquidityDetailV2'],
-        },
+        // {
+        //   id: '2-2',
+        //   label: (
+        //     <>
+        //       <FormattedMessage id="your_liquidity" />
+        //     </>
+        //   ),
+        //   logo: <YourliquidityIcon />,
+        //   url: '/yourliquidity',
+        //   isExternal: false,
+        //   clickEvent: () => {
+        //     sessionStorage.setItem('REF_POOL_NAV_TAB_VALUE', '/yourliquidity');
+        //     history.push('/yourliquidity');
+        //   },
+        //   links: ['/yourliquidity', '/yoursLiquidityDetailV2'],
+        // },
         {
           id: '2-3',
           label: (
@@ -430,7 +430,7 @@ export const useMenus = (cb?: () => void) => {
       ),
       url: '',
       isExternal: false,
-      links: ['/portfolio', '/burrow', '/overview', '/orderly'],
+      links: ['/portfolio', '/overview', '/orderly'],
       children: [
         {
           id: '3-1',
@@ -469,18 +469,6 @@ export const useMenus = (cb?: () => void) => {
           url: '/orderly',
           isExternal: false,
           links: ['/orderly'],
-        },
-        {
-          id: '3-4',
-          label: (
-            <>
-              <FormattedMessage id="Burrow" />
-            </>
-          ),
-          logo: <BorrowIcon />,
-          url: '/burrow',
-          isExternal: false,
-          links: ['/burrow'],
         },
       ],
     },
@@ -797,7 +785,7 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
       ),
       url: '',
       isExternal: false,
-      links: ['/portfolio', '/burrow', '/overview', '/orderly'],
+      links: ['/portfolio', '/overview', '/orderly'],
       children: [
         {
           id: '3-1',
@@ -824,15 +812,7 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
           url: '/orderly',
           isExternal: false,
           links: ['/orderly'],
-        },
-        {
-          id: '3-4',
-          label: <FormattedMessage id="Burrow" />,
-          logo: <BorrowIcon />,
-          url: '/burrow',
-          isExternal: false,
-          links: ['/burrow'],
-        },
+        }
       ],
     },
     {

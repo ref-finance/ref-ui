@@ -400,36 +400,31 @@ function AccountEntry({
     {
       icon: <AccountIcon />,
       textId: 'your_assets',
-      selected: location.pathname == '/account',
+      selected: location.pathname == '/overview',
       click: () => {
-        if (location.pathname == '/account') {
-          localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
-          window.location.href = '/account?tab=ref';
-        } else {
-          history.push('/account?tab=ref');
-        }
+        history.push('/overview');
       },
     },
-    {
-      icon: <ActivityIcon />,
-      textId: 'recent_activity',
-      selected: location.pathname == '/recent',
-      click: () => {
-        history.push('/recent');
-      },
-    },
-    {
-      icon: <WalletIcon />,
-      textId: 'go_to_near_wallet',
-      // subIcon: <HiOutlineExternalLink />,
-      click: () => {
-        openUrl(
-          selector.store.getState().selectedWalletId === 'my-near-wallet'
-            ? config.myNearWalletUrl
-            : config.walletUrl
-        );
-      },
-    },
+    // {
+    //   icon: <ActivityIcon />,
+    //   textId: 'recent_activity',
+    //   selected: location.pathname == '/recent',
+    //   click: () => {
+    //     history.push('/recent');
+    //   },
+    // },
+    // {
+    //   icon: <WalletIcon />,
+    //   textId: 'go_to_near_wallet',
+    //   // subIcon: <HiOutlineExternalLink />,
+    //   click: () => {
+    //     openUrl(
+    //       selector.store.getState().selectedWalletId === 'my-near-wallet'
+    //         ? config.myNearWalletUrl
+    //         : config.walletUrl
+    //     );
+    //   },
+    // },
   ];
   function showToast() {
     if (copyButtonDisabled) return;
@@ -1085,11 +1080,11 @@ function NavigationBar() {
                 setShowWalletSelector={setShowWalletSelector}
                 showWalletSelector={showWalletSelector}
               />
-              <div className={isSignedIn ? 'flex items-center' : 'hidden'}>
-                <ConnectDot />
-                <ConnectDot />
-                <AuroraEntry hasBalanceOnAurora={hasAuroraBalance} />
-              </div>
+              {/*<div className={isSignedIn ? 'flex items-center' : 'hidden'}>*/}
+              {/*  <ConnectDot />*/}
+              {/*  <ConnectDot />*/}
+              {/*  <AuroraEntry hasBalanceOnAurora={hasAuroraBalance} />*/}
+              {/*</div>*/}
             </div>
             <Language></Language>
           </div>
