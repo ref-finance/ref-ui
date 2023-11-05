@@ -34,7 +34,7 @@ export default function Navigation(props: any) {
       id: 'orderly',
       url: '/orderly',
       borderColor: '#4527FF',
-    }
+    },
   ]);
   const [activeMenu, setActiveMenu] = useState('');
   useEffect(() => {
@@ -114,13 +114,14 @@ export function NavigationMobile(props: any) {
       name: 'Orderly',
       id: 'orderly',
       url: '/orderly',
-    }
+    },
   ]);
   const [activeMenu, setActiveMenu] = useState('');
   useEffect(() => {
     if (location.pathname.includes('portfolio')) {
       setActiveMenu('ref');
-    } if (location.pathname.includes('orderly')) {
+    }
+    if (location.pathname.includes('orderly')) {
       setActiveMenu('orderly');
     } else if (location.pathname.includes('overview')) {
       setActiveMenu('overview');

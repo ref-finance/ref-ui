@@ -812,7 +812,7 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
           url: '/orderly',
           isExternal: false,
           links: ['/orderly'],
-        }
+        },
       ],
     },
     {

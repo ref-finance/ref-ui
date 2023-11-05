@@ -155,15 +155,15 @@ export default function BurrowPanel() {
     }
   }, [unclaimedRewards$, burrow_data_done, supplied, borrowed]);
 
-  const handleBurrowClick=()=>{
-    window.open("https://app.burrow.finance/","_blank")
-  }
+  const handleBurrowClick = () => {
+    window.open('https://app.burrow.finance/', '_blank');
+  };
 
   return (
     <div
       onClick={() => {
         if (!is_mobile) {
-          handleBurrowClick()
+          handleBurrowClick();
         }
       }}
       style={{ height: is_mobile ? '115px' : '176px' }}
