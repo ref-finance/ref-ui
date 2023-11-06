@@ -39,6 +39,8 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { OverviewData } from '../../pages/Overview';
 import { TriangleIcon, EmptyCircle, EmptyLeftBg, EmptyRightBg } from './Icons';
 import { ConnectToNearBtn } from 'src/components/button/Button';
+import { WalletTokenList } from './WalletTokenList';
+
 const WalletData = createContext(null);
 export default function WalletPanel() {
   const {
@@ -596,107 +598,46 @@ function WalletPanelPc() {
             <div
               className="overflow-auto"
               style={{
-                height: is_mobile ? '160px' : '220px',
+                height: is_mobile ? "160px" : "220px"
               }}
             >
-              <div className={`${activeTab == 'near' ? '' : 'hidden'}`}>
+              <div className={`${activeTab == "near" ? "" : "hidden"}`}>
                 {near_tokens.map((token: TokenMetadata) => {
                   return (
-                    <div
-                      key={token.id + 'near'}
-                      className="grid grid-cols-6 px-3 hover:bg-symbolHover rounded-md py-3 col-span-3 text-sm"
-                    >
-                      <div className="flex items-center col-span-3">
-                        <img
-                          className="w-4 h-4 border border-gradientFrom rounded-full mr-2.5"
-                          src={token.icon}
-                        />
-                        <span className="text-sm text-primaryText">
-                          {token.symbol}
-                        </span>
-                      </div>
-                      <div className="col-span-1 text-white">
-                        {display_number_internationalCurrencySystemLongString(
-                          Big(token.near || 0).toFixed()
-                        )}
-                      </div>
-                      <div className="col-span-1 text-white">
-                        {showTokenPrice(token)}
-                      </div>
-                      <span className="text-sm text-white col-span-1">
-                        {display_value(token.t_value)}
-                      </span>
-                    </div>
+                    <WalletTokenList key={token.id + "near"}
+                                     token={token}
+                                     tokenBalance={token?.near}
+                                     showTokenPrice={showTokenPrice} />
                   );
                 })}
               </div>
-              <div className={`${activeTab == 'ref' ? '' : 'hidden'}`}>
+              <div className={`${activeTab == "ref" ? "" : "hidden"}`}>
                 {ref_tokens.map((token: TokenMetadata) => {
                   return (
-                    <div
-                      key={token.id + 'ref'}
-                      className="grid grid-cols-6 px-3 hover:bg-symbolHover rounded-md  py-3 text-sm"
-                    >
-                      <div className="flex items-center col-span-3">
-                        <img
-                          className="w-4 h-4 border border-gradientFrom rounded-full mr-2.5"
-                          src={token.icon}
-                        />
-                        <span className="text-sm text-primaryText">
-                          {token.symbol}
-                        </span>
-                      </div>
-                      <div className="col-span-1 text-white">
-                        {display_number_internationalCurrencySystemLongString(
-                          Big(token.ref || 0).toFixed()
-                        )}
-                      </div>
-                      <div className="col-span-1 text-white">
-                        {showTokenPrice(token)}
-                      </div>
-                      <span className="text-sm text-white">
-                        {display_value(token.t_value)}
-                      </span>
-                    </div>
+                    <WalletTokenList key={token.id + "ref"}
+                                     token={token}
+                                     tokenBalance={token?.ref}
+                                     showWithdraw={true}
+                                     showTokenPrice={showTokenPrice} />
                   );
                 })}
               </div>
-              <div className={`${activeTab == 'dcl' ? '' : 'hidden'}`}>
+              <div className={`${activeTab == "dcl" ? "" : "hidden"}`}>
                 {dcl_tokens.map((token: TokenMetadata) => {
                   return (
-                    <div
-                      key={token.id + 'dcl'}
-                      className="grid grid-cols-6 px-3 hover:bg-symbolHover rounded-md py-3 text-sm"
-                    >
-                      <div className="flex items-center col-span-3">
-                        <img
-                          className="w-4 h-4 border border-gradientFrom rounded-full mr-2.5"
-                          src={token.icon}
-                        />
-                        <span className="text-sm text-primaryText">
-                          {token.symbol}
-                        </span>
-                      </div>
-                      <div className="col-span-1 text-white">
-                        {display_number_internationalCurrencySystemLongString(
-                          Big(token.dcl || 0).toFixed()
-                        )}
-                      </div>
-                      <div className="col-span-1 text-white">
-                        {showTokenPrice(token)}
-                      </div>
-                      <span className="text-sm text-white">
-                        {display_value(token.t_value)}
-                      </span>
-                    </div>
+                    <WalletTokenList key={token.id + "dcl"}
+                                     token={token}
+                                     tokenBalance={token?.dcl}
+                                     showWithdraw={true}
+                                     showTokenPrice={showTokenPrice} />
                   );
                 })}
               </div>
-              <div className={`${activeTab == 'aurora' ? '' : 'hidden'}`}>
+              <div className={`${activeTab == "aurora" ? "" : "hidden"}`}>
                 {aurora_tokens.map((token: TokenMetadata) => {
                   return (
                     <div
-                      key={token.id + 'aurora'}
+                      key={token.id + "aurora"}
                       className="grid grid-cols-6 px-3 hover:bg-symbolHover rounded-md py-3 text-sm"
                     >
                       <div className="flex items-center col-span-3">
