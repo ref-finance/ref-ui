@@ -91,6 +91,7 @@ import { SelectedIcon } from '../icon/swapV3';
 import { PoolInfo, get_pool_from_cache } from '../../services/swapV3';
 import { nearMetadata } from '../../services/wrap-near';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
+import { InfoIcon } from 'src/components/icon/Common';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -146,6 +147,7 @@ function DetailViewLimit({
   const isMobile = useClientMobile();
   const [hoverSlider, setHoverSlider] = useState(false);
   const [mobileShowFees, setMobileShowFees] = useState(false);
+
   function SelectPercent({ fee, poolId }: { fee?: number; poolId?: string }) {
     const id = poolId ? poolId : getV3PoolId(tokenIn.id, tokenOut.id, fee);
     const count = poolPercents?.[id];
@@ -171,6 +173,7 @@ function DetailViewLimit({
       </span>
     );
   }
+
   function SelectTvl({
     fee,
     poolId,
@@ -213,6 +216,7 @@ function DetailViewLimit({
         );
       }
     }
+
     return (
       <div
         className={`transform scale-90 inline-flex items-center text-xs whitespace-nowrap ${className}`}
@@ -221,6 +225,7 @@ function DetailViewLimit({
       </div>
     );
   }
+
   function isAllFeesNoPools() {
     const target = V3_POOL_FEE_LIST.find((fee) => {
       const pool_id = getV3PoolId(tokenIn.id, tokenOut.id, fee);
@@ -232,6 +237,7 @@ function DetailViewLimit({
       return true;
     }
   }
+
   if (!(tokenIn && tokenOut)) return null;
   return (
     <>
@@ -251,28 +257,37 @@ function DetailViewLimit({
             <span className="text-xs text-primaryText whitespace-nowrap mr-1.5">
               <FormattedMessage id="fee_tiers" defaultMessage={'Fee Tiers'} />
             </span>
-            <button
-              onMouseEnter={(e) => {
-                if (!isMobile) {
-                  setHoverSlider(true);
-                  setFeeTiersShowFull(true);
+            <div className={'flex items-center gap-1'}>
+              <InfoIcon
+                tooltip={
+                  'Please note: when the order is filled by instant swap, you will be a liquidity taker. Meanwhile, no fee will be charged when you are a liquidity maker.'
                 }
-              }}
-              className={`p-0.5 rounded-md ${
-                feeTiersShowFull || hoverSlider || mobileShowFees
-                  ? 'bg-selectTokenV3BgColor'
-                  : ''
-              }`}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (isMobile) {
-                  setMobileShowFees(!mobileShowFees);
-                }
-              }}
-            >
-              <Slider shrink showSlip={feeTiersShowFull || hoverSlider} />
-            </button>
+                style={{ maxWidth: 220 }}
+              />
+
+              <button
+                onMouseEnter={(e) => {
+                  if (!isMobile) {
+                    setHoverSlider(true);
+                    setFeeTiersShowFull(true);
+                  }
+                }}
+                className={`p-0.5 rounded-md ${
+                  feeTiersShowFull || hoverSlider || mobileShowFees
+                    ? 'bg-selectTokenV3BgColor'
+                    : ''
+                }`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (isMobile) {
+                    setMobileShowFees(!mobileShowFees);
+                  }
+                }}
+              >
+                <Slider shrink showSlip={feeTiersShowFull || hoverSlider} />
+              </button>
+            </div>
           </div>
           <div
             className={`flex items-center mt-2 ${
@@ -432,6 +447,7 @@ function ArrowToIcon(props: any) {
     ></img>
   );
 }
+
 function NoLimitPoolCard() {
   return (
     <div className="relative  text-sm mt-6 xsm:mt-8 text-center text-warn z-50">
@@ -701,6 +717,7 @@ export default function LimitOrderCard(props: {
       }
     }
   }, [tokenIn, tokenOut, useNearBalance, isSignedIn, nearBalance]);
+
   function getStorageTokenId() {
     const in_key = localStorage.getItem(SWAP_IN_KEY);
     const in_key_symbol = localStorage.getItem(SWAP_IN_KEY_SYMBOL);
@@ -727,6 +744,7 @@ export default function LimitOrderCard(props: {
     }
     return result;
   }
+
   const getSlippageTolerance = () => {
     return {
       slippageValue: slippageToleranceLimit,
@@ -926,6 +944,7 @@ export default function LimitOrderCard(props: {
         ONLY_ZEROS.test(tokenInMax))
     );
   }
+
   const isInsufficientBalance = judgeBalance();
 
   return (

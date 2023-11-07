@@ -598,46 +598,52 @@ function WalletPanelPc() {
             <div
               className="overflow-auto"
               style={{
-                height: is_mobile ? "160px" : "220px"
+                height: is_mobile ? '160px' : '220px',
               }}
             >
-              <div className={`${activeTab == "near" ? "" : "hidden"}`}>
+              <div className={`${activeTab == 'near' ? '' : 'hidden'}`}>
                 {near_tokens.map((token: TokenMetadata) => {
                   return (
-                    <WalletTokenList key={token.id + "near"}
-                                     token={token}
-                                     tokenBalance={token?.near}
-                                     showTokenPrice={showTokenPrice} />
+                    <WalletTokenList
+                      key={token.id + 'near'}
+                      token={token}
+                      tokenBalance={token?.near}
+                      showTokenPrice={showTokenPrice}
+                    />
                   );
                 })}
               </div>
-              <div className={`${activeTab == "ref" ? "" : "hidden"}`}>
+              <div className={`${activeTab == 'ref' ? '' : 'hidden'}`}>
                 {ref_tokens.map((token: TokenMetadata) => {
                   return (
-                    <WalletTokenList key={token.id + "ref"}
-                                     token={token}
-                                     tokenBalance={token?.ref}
-                                     showWithdraw={true}
-                                     showTokenPrice={showTokenPrice} />
+                    <WalletTokenList
+                      key={token.id + 'ref'}
+                      token={token}
+                      tokenBalance={token?.ref}
+                      showWithdraw={true}
+                      showTokenPrice={showTokenPrice}
+                    />
                   );
                 })}
               </div>
-              <div className={`${activeTab == "dcl" ? "" : "hidden"}`}>
+              <div className={`${activeTab == 'dcl' ? '' : 'hidden'}`}>
                 {dcl_tokens.map((token: TokenMetadata) => {
                   return (
-                    <WalletTokenList key={token.id + "dcl"}
-                                     token={token}
-                                     tokenBalance={token?.dcl}
-                                     showWithdraw={true}
-                                     showTokenPrice={showTokenPrice} />
+                    <WalletTokenList
+                      key={token.id + 'dcl'}
+                      token={token}
+                      tokenBalance={token?.dcl}
+                      showWithdraw={true}
+                      showTokenPrice={showTokenPrice}
+                    />
                   );
                 })}
               </div>
-              <div className={`${activeTab == "aurora" ? "" : "hidden"}`}>
+              <div className={`${activeTab == 'aurora' ? '' : 'hidden'}`}>
                 {aurora_tokens.map((token: TokenMetadata) => {
                   return (
                     <div
-                      key={token.id + "aurora"}
+                      key={token.id + 'aurora'}
                       className="grid grid-cols-6 px-3 hover:bg-symbolHover rounded-md py-3 text-sm"
                     >
                       <div className="flex items-center col-span-3">

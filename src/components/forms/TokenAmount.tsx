@@ -46,6 +46,7 @@ import {
 } from '../icon/swapV3';
 import BigNumber from 'bignumber.js';
 import { WalletContext } from '../../utils/wallets-integration';
+import ReactTooltip from 'react-tooltip';
 
 interface TokenAmountProps {
   amount?: string;
@@ -624,6 +625,7 @@ export function TokenAmountV3({
     !ONLY_ZEROS.test(curRate) &&
     marketPriceLimitOrder &&
     swapMode === SWAP_MODE.LIMIT;
+
   function RateDiffDOM_newline(props: any) {
     const { over } = props;
     return (
@@ -652,6 +654,7 @@ export function TokenAmountV3({
       </div>
     );
   }
+
   function RateDiffDOM(props: any) {
     const [left, setLeft] = useState(0);
     const { over, setOver } = props;
@@ -699,6 +702,7 @@ export function TokenAmountV3({
       </div>
     );
   }
+
   return (
     <div
       className={`flex flex-col text-xs bg-opacity-20 ${
@@ -1053,6 +1057,7 @@ export function CrossSwapTokens({
     </div>
   );
 }
+
 export function TokenAmountV2({
   amount,
   max,
@@ -1119,6 +1124,7 @@ export function TokenAmountV2({
     </>
   );
 }
+
 export function LimitOrderRateSetBox({
   tokenIn,
   tokenOut,
@@ -1153,17 +1159,21 @@ export function LimitOrderRateSetBox({
     toPrecision(regularizedPrice(curRate, tokenIn, tokenOut, limitFee, -1), 8);
 
   const [symbolsArr] = useState(['e', 'E', '+', '-']);
+
   function switchLockStatus() {
     setHasLockedRate(!hasLockedRate);
   }
+
   function getTokenASymbol() {
     if (rateSort) return tokenIn?.symbol;
     else return tokenOut?.symbol;
   }
+
   function getTokenBSymbol() {
     if (rateSort) return tokenOut?.symbol;
     else return tokenIn?.symbol;
   }
+
   const displayInputValue = useMemo(() => {
     if (!curPrice) {
       return '-';
@@ -1291,15 +1301,27 @@ export function LimitOrderRateSetBox({
                 isMobile ? '' : 'hover:bg-selectTokenV3BgColor'
               }`}
             >
-              {hasLockedRate ? (
-                <LockInIcon></LockInIcon>
-              ) : (
-                <LockIcon></LockIcon>
-              )}
+              <span data-tip={true} data-for="lockratehint">
+                {hasLockedRate ? <LockInIcon /> : <LockIcon />}
+              </span>
             </div>
           </div>
         </div>
       </div>
+
+      <ReactTooltip
+        id={'lockratehint'}
+        backgroundColor="#1D2932"
+        border
+        borderColor="#7e8a93"
+        effect="solid"
+        textColor="#C6D1DA"
+      >
+        <div style={{ maxWidth: 240 }}>
+          Lock the rate field to get your buy amount automatically adjusted when
+          changing your sell amount.
+        </div>
+      </ReactTooltip>
     </>
   );
 }
