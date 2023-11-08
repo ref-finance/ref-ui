@@ -1,16 +1,64 @@
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import Big from 'big.js';
+import BigNumber from 'bignumber.js';
+import _ from 'lodash';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
+import { useIntl } from 'react-intl';
+import { useHistory } from 'react-router';
+
+import {
+  failToast,
+  getURLInfo,
+  swapToast,
+} from '../components/layout/transactionTipPopUp';
+import {
+  getErrorMessage,
+  parsedArgs,
+} from '../components/layout/transactionTipPopUp';
+import { checkCrossSwapTransactions } from '../components/layout/transactionTipPopUp';
+import {
+  LimitOrderFailPopUp,
+  LimitOrderPopUp,
+} from '../components/layout/transactionTipPopUp';
+import { parsedTransactionSuccessValue } from '../components/layout/transactionTipPopUp';
+import { SUPPORT_LEDGER_KEY } from '../components/swap/SwapCard';
+import { useWalletSelector } from '../context/WalletSelectorContext';
+import { parseSymbol } from '../pages/Orderly/components/RecentTrade';
+import { getAccountInformation } from '../pages/Orderly/orderly/off-chain-api';
+import { useOrderlyContext } from '../pages/Orderly/orderly/OrderlyContext';
+import { ClientInfo, Orders } from '../pages/Orderly/orderly/type';
+import {
+  ExchangeEstimate,
+  SWAP_MODE,
+  SWAP_TYPE,
+  SwapMarket,
+  SwapProContext,
+} from '../pages/SwapPage';
+import { hasTriPools } from '../services/aurora/aurora';
+import { openUrl } from '../services/commonV3';
+import getConfig from '../services/config';
+import { ftGetTokenMetadata, TokenMetadata } from '../services/ft-contract';
+import { isStablePool, POOL_TOKEN_REFRESH_INTERVAL } from '../services/near';
 import { Pool, StablePool } from '../services/pool';
-
+import {
+  checkTransaction,
+  estimateSwap,
+  estimateSwapAurora,
+  PoolMode,
+  REF_FI_SWAP_SIGNAL,
+} from '../services/swap';
+import { EstimateSwapView, swap } from '../services/swap';
+import {
+  get_pool,
+  PoolInfo,
+  quote,
+  V3_POOL_FEE_LIST,
+  V3_POOL_SPLITER,
+  v3Swap,
+} from '../services/swapV3';
+import { pointToPrice } from '../services/swapV3';
+import { get_pool_from_cache, getV3PoolId } from '../services/swapV3';
+import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
 import db from '../store/RefDatabase';
-
-import { TokenMetadata, ftGetTokenMetadata } from '../services/ft-contract';
 import {
   calculateMarketPrice,
   percentLess,
@@ -19,94 +67,11 @@ import {
   toNonDivisibleNumber,
   toReadableNumber,
 } from '../utils/numbers';
-
-import {
-  checkTransaction,
-  estimateSwap,
-  estimateSwapAurora,
-  estimateSwapFlow,
-  PoolMode,
-  REF_FI_SWAP_SIGNAL,
-} from '../services/swap';
-
-import { useHistory, useLocation } from 'react-router';
-import getConfig from '../services/config';
-import { FormattedMessage, useIntl } from 'react-intl';
-
-import { getCurrentWallet, WalletContext } from '../utils/wallets-integration';
-import { POOL_TOKEN_REFRESH_INTERVAL, isStablePool } from '../services/near';
-
-import {
-  failToast,
-  getURLInfo,
-  swapToast,
-} from '../components/layout/transactionTipPopUp';
-import {
-  ExchangeEstimate,
-  SWAP_MODE,
-  SWAP_TYPE,
-  SwapMarket,
-  SwapProContext,
-  TradeEstimates,
-} from '../pages/SwapPage';
-import {
-  getErrorMessage,
-  parsedArgs,
-} from '../components/layout/transactionTipPopUp';
-import {
-  checkTransactionStatus,
-  EstimateSwapView,
-  swap,
-} from '../services/swap';
-import { checkCrossSwapTransactions } from '../components/layout/transactionTipPopUp';
-import {
-  getLimitOrderRangeCountAndPool,
-  get_pool,
-  PoolInfo,
-  quote,
-  v3Swap,
-  V3_POOL_FEE_LIST,
-  V3_POOL_SPLITER,
-  cacheAllDCLPools,
-} from '../services/swapV3';
-import {
-  pointToPrice,
-  get_pointorder_range,
-  find_order,
-} from '../services/swapV3';
-import _, { orderBy, toArray } from 'lodash';
-import {
-  getV3PoolId,
-  get_pool_from_cache,
-  BLACK_POOL,
-} from '../services/swapV3';
-import {
-  checkAllocations,
-  toPrecision,
-  getAllocationsLeastOne,
-} from '../utils/numbers';
-import conformsTo from 'lodash';
-import {
-  LimitOrderFailPopUp,
-  LimitOrderPopUp,
-} from '../components/layout/transactionTipPopUp';
+import { getAllocationsLeastOne, toPrecision } from '../utils/numbers';
 import { toRealSymbol } from '../utils/token';
-import { useTokenPriceList } from './token';
-import Big from 'big.js';
-import BigNumber from 'bignumber.js';
-import { parsedTransactionSuccessValue } from '../components/layout/transactionTipPopUp';
-
-import { useOrderlyContext } from '../pages/Orderly/orderly/OrderlyContext';
-import { useWalletSelector } from '../context/WalletSelectorContext';
-import { getAccountInformation } from '../pages/Orderly/orderly/off-chain-api';
-import { ClientInfo, Orders } from '../pages/Orderly/orderly/type';
-import { parseSymbol } from '../pages/Orderly/components/RecentTrade';
-import { getTopPoolsIndexer, getTopPoolsIndexerRaw } from '../services/indexer';
-import { SUPPORT_LEDGER_KEY } from '../components/swap/SwapCard';
-import { openUrl } from '../services/commonV3';
-import { hasTriPools } from '../services/aurora/aurora';
-import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
+import { getCurrentWallet, WalletContext } from '../utils/wallets-integration';
 import { useIndexerStatus } from './pool';
+import { useTokenPriceList } from './token';
 const ONLY_ZEROS = /^0*\.?0*$/;
 
 export const REF_DCL_POOL_CACHE_KEY = 'REF_DCL_POOL_CACHE_VALUE';
@@ -220,13 +185,13 @@ export const useSwapPopUp = () => {
       ft_on_transfer_log.slice(idx) || ''
     );
 
-    const order_id = parsed_ft_on_transfer_log?.['data']?.[0]?.['order_id'];
+    const order_id = parsed_ft_on_transfer_log?.data?.[0]?.order_id;
 
     const original_amount =
-      parsed_ft_on_transfer_log?.['data']?.[0]?.['original_amount'];
+      parsed_ft_on_transfer_log?.data?.[0]?.original_amount;
 
     const original_deposit_amount =
-      parsed_ft_on_transfer_log?.['data']?.[0]?.['original_deposit_amount'];
+      parsed_ft_on_transfer_log?.data?.[0]?.original_deposit_amount;
 
     const { point, pool_id, buy_token } = LimitOrderWithSwap;
 
@@ -268,7 +233,7 @@ export const useSwapPopUp = () => {
       let swapAmountOut =
         Number(swapAmount) == 0
           ? '0'
-          : parsed_ft_on_transfer_log_swap?.['data']?.[0]?.['amount_out'];
+          : parsed_ft_on_transfer_log_swap?.data?.[0]?.amount_out;
 
       const buyToken = await ftGetTokenMetadata(buy_token);
 
@@ -295,7 +260,7 @@ export const useSwapPopUp = () => {
       let swapAmountOut =
         Number(swapAmount) == 0
           ? '0'
-          : parsed_ft_on_transfer_log_swap?.['data']?.[0]?.['amount_out'];
+          : parsed_ft_on_transfer_log_swap?.data?.[0]?.amount_out;
 
       const buyToken = await ftGetTokenMetadata(buy_token);
 
@@ -346,15 +311,14 @@ export const useSwapPopUp = () => {
               ?.method_name === 'near_withdraw';
           return {
             isSwap:
-              (transaction?.actions[1]?.['FunctionCall']?.method_name ===
+              (transaction?.actions[1]?.FunctionCall?.method_name ===
                 'ft_transfer_call' ||
-                transaction?.actions[0]?.['FunctionCall']?.method_name ===
+                transaction?.actions[0]?.FunctionCall?.method_name ===
                   'ft_transfer_call' ||
-                transaction?.actions[0]?.['FunctionCall']?.method_name ===
-                  'swap' ||
-                transaction?.actions[0]?.['FunctionCall']?.method_name ===
+                transaction?.actions[0]?.FunctionCall?.method_name === 'swap' ||
+                transaction?.actions[0]?.FunctionCall?.method_name ===
                   'near_deposit' ||
-                transaction?.actions[0]?.['FunctionCall']?.method_name ===
+                transaction?.actions[0]?.FunctionCall?.method_name ===
                   'near_withdraw' ||
                 (isSwapNeth && byNeth)) &&
               !isLimitOrder,
@@ -456,7 +420,7 @@ export const useSwap = ({
 
   const [count, setCount] = useState<number>(0);
 
-  let minAmountOut = tokenOutAmount
+  const minAmountOut = tokenOutAmount
     ? toPrecision(
         percentLess(
           slippageTolerance,
@@ -541,7 +505,7 @@ export const useSwap = ({
               new Big(0)
             );
 
-            const tokenPriceListForCal = !!tokenPriceList?.['NEAR']
+            const tokenPriceListForCal = !!tokenPriceList?.NEAR
               ? tokenPriceList
               : (await getTokenPriceListFromCache()).reduce(
                   (acc, cur) => ({
@@ -980,7 +944,7 @@ export const useSwapV3 = ({
     tokenOutAmount,
     tokenInAmount,
     canSwapPro: quoteDone && tagValidator(bestEstimate, tokenIn, tokenInAmount),
-    priceImpact: priceImpact,
+    priceImpact,
     minAmountOut: tokenOutAmount
       ? toPrecision(
           percentLess(
@@ -1605,7 +1569,7 @@ export const useRefSwap = ({
   if (bestSwap === 'v1') {
     return {
       quoteDone: true,
-      canSwap: canSwap,
+      canSwap,
       makeSwap: makeSwapV1,
       estimates: swapsToDo?.map((s) => ({ ...s, contract: 'Ref_Classic' })),
       tokenOutAmount:
@@ -1615,8 +1579,8 @@ export const useRefSwap = ({
               tokenOutAmount || '0',
               Math.min(8, tokenOut?.decimals ?? 8)
             ),
-      minAmountOut: minAmountOut,
-      fee: fee,
+      minAmountOut,
+      fee,
       priceImpact: priceImpactValue,
       swapError,
       availableRoute: !swapError,
@@ -1910,7 +1874,7 @@ export const useOrderlySwap = ({
       : [
           {
             contract: 'Orderly',
-            estimate: estimate,
+            estimate,
             tokens: [tokenIn, tokenOut],
             outputToken: tokenOut?.id,
             inputToken: tokenIn?.id,
