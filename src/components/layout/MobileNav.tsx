@@ -1,76 +1,56 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import { matchPath } from 'react-router';
-import { Context } from 'src/components/wrapper';
-import { Near, NavLogoSimple } from 'src/components/icon';
-import { Link, useLocation } from 'react-router-dom';
-import { useHistory } from 'react-router';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { HiOutlineExternalLink, RiLogoutCircleRLine } from '../reactIcons';
-
-import { useRefPrice } from 'src/state/account';
-import { toPrecision } from 'src/utils/numbers';
-import { useMenusMobile, menuItemType, bridgeData } from 'src/utils/menu';
-import getConfig from 'src/services/config';
+import Modal from 'react-modal';
+import { useHistory } from 'react-router';
+import { useLocation } from 'react-router-dom';
+import { NavLogoSimple, Near } from 'src/components/icon';
 import {
   AccountIcon,
   ActivityIcon,
   WalletIcon,
-  SignoutIcon,
 } from 'src/components/icon/Common';
+import { Context } from 'src/components/wrapper';
+import getConfig from 'src/services/config';
+import { useRefPrice } from 'src/state/account';
+import { bridgeData, menuItemType, useMenusMobile } from 'src/utils/menu';
+import { toPrecision } from 'src/utils/numbers';
 
 import { WalletContext } from '../../utils/wallets-integration';
-
-import Modal from 'react-modal';
+import { HiOutlineExternalLink, RiLogoutCircleRLine } from '../reactIcons';
 const config = getConfig();
-import { isMobile } from 'src/utils/device';
-import {
-  getCurrentWallet,
-  getAccountName,
-} from '../../utils/wallets-integration';
-import { FarmDot } from '../icon/FarmStamp';
-import { AccountTipDownByAccountID, AuroraEntry } from './NavigationBar';
-import { ConnectDot, CopyIcon } from '../icon/CrossSwapIcons';
-import { SWAP_MODE_KEY, SWAP_MODE } from '../../pages/SwapPage';
-import Marquee from 'src/components/layout/Marquee';
-import {
-  useWalletSelector,
-  ACCOUNT_ID_KEY,
-} from '../../context/WalletSelectorContext';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import { openTransak } from '../alert/Transak';
-import { BuyNearButton } from '../button/Button';
-import { RefIcon, MailBoxIcon } from '../icon/Nav';
 import {
-  MoreIcon,
-  SauceIcon,
-  SauceText,
-  OutLinkIcon,
-  ArrowLeftIcon,
   ArrowDownIcon,
-  HiMenuIcon,
   ArrowDownLargeIcon,
+  ArrowLeftIcon,
+  HiMenuIcon,
+  OutLinkIcon,
 } from 'src/components/icon/Nav';
-import {
-  RefAnalytics,
-  RefAnalyticsGary,
-} from 'src/components/icon/RefAnalytics';
+import { RefAnalyticsGary } from 'src/components/icon/RefAnalytics';
+import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from 'src/constants';
 import { useLanguageItems } from 'src/utils/menu';
-import { commonLangKey, formatItem } from './NavigationBar';
+
 import {
-  tradingKeyMap,
+  ACCOUNT_ID_KEY,
+  useWalletSelector,
+} from '../../context/WalletSelectorContext';
+import { REF_ORDERLY_ACCOUNT_VALID } from '../../pages/Orderly/components/UserBoard/index';
+import {
   get_orderly_private_key_path,
   get_orderly_public_key_path,
+  tradingKeyMap,
 } from '../../pages/Orderly/orderly/utils';
-import { REF_ORDERLY_ACCOUNT_VALID } from '../../pages/Orderly/components/UserBoard/index';
 import { openUrl } from '../../services/commonV3';
-import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from 'src/constants';
+import {
+  getAccountName,
+  getCurrentWallet,
+} from '../../utils/wallets-integration';
+import { BuyNearButton } from '../button/Button';
+import { ConnectDot, CopyIcon } from '../icon/CrossSwapIcons';
+import { FarmDot } from '../icon/FarmStamp';
+import { RefIcon } from '../icon/Nav';
+import { AccountTipDownByAccountID, AuroraEntry } from './NavigationBar';
+import { commonLangKey, formatItem } from './NavigationBar';
 
 export function Logout() {
   const { wallet } = getCurrentWallet();
@@ -405,7 +385,7 @@ export function MobileNavBar(props: any) {
       if (one_level_menu) {
         const { id, children } = one_level_menu;
         one_level_selected_id = id;
-        let second_children: any = children;
+        const second_children: any = children;
         if (second_children) {
           const two_level_menu = second_children.find((item: menuItemType) => {
             const { links, swap_mode } = item;
@@ -859,11 +839,19 @@ export function MobileNavBar(props: any) {
               <div className="w-4/6 fixed bottom-7 right-0 flex items-center justify-between bg-cardBg px-4 py-3">
                 <div className="flex items-center">
                   <div
-                    className=" transform scale-75 origin-left"
+                    className=" transform scale-75 origin-left -mr-9"
                     onClick={() => openUrl('https://stats.ref.finance/')}
                   >
                     <RefAnalyticsGary />
                   </div>
+                </div>
+                <div
+                  onClick={() =>
+                    window.open('https://guide.ref.finance/developers/audits')
+                  }
+                  className="text-primaryText text-xs cursor-pointer underline md:flex-auto md:ml-3"
+                >
+                  Security
                 </div>
                 <div
                   onClick={() => {
