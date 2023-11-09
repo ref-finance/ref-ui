@@ -92,6 +92,7 @@ export const getHistoryOrder = async (
     }
   ).then((res) => res.json());
 };
+
 export interface HistoryOrderSwapInfo {
   tx_id: string;
   token_in: string;
@@ -266,69 +267,99 @@ export const getTopPoolsIndexerRaw = async () => {
   }
 };
 
-export const getTopPools = async (): Promise<PoolRPCView[]> => {
+export const getTopPools = async (
+  page = 1,
+  size = 10
+): Promise<{ rawData: any; pools: PoolRPCView[] }> => {
   try {
     let pools: any;
-
-    if (await db.checkTopPools()) {
-      pools = await db.queryTopPools();
+    let rawData: any;
+    let isCached = await db.checkTopPools();
+    console.log('isCachedisCached', isCached);
+    if (isCached) {
+      const [topPools, count] = await Promise.all([
+        db.queryTopPools(page, size),
+        db.countTopPools(),
+      ]);
+      pools = topPools;
+      rawData = {
+        items: topPools,
+        page,
+        size,
+        pages: Math.ceil(count / size),
+        total: count,
+      };
     } else {
-      pools = await fetch(config.indexerUrl + '/list-top-pools', {
-        method: 'GET',
-        headers: { 'Content-type': 'application/json; charset=UTF-8' },
-      }).then((res) => res.json());
-
-      // include non-stable pools on top pool list
-      // TODO:
-
-      await Promise.all(
-        ALL_STABLE_POOL_IDS.concat(BLACKLIST_POOL_IDS)
-          .filter((id) => Number(id) !== Number(STABLE_POOL_ID))
-          .filter((_) => _)
-          .map(async (id) => {
-            const pool = await getPoolRPC(Number(id));
-
-            const ids = pool.tokenIds;
-
-            const twoTokenStablePoolIds = (
-              await getPoolsByTokensIndexer({
-                token0: ids[0],
-                token1: ids[1],
-              })
-            ).map((p: any) => p.id.toString());
-
-            const twoTokenStablePools = await getPoolsByIds({
-              pool_ids: twoTokenStablePoolIds,
-            });
-
-            if (twoTokenStablePools.length > 0) {
-              const maxTVLPool = _.maxBy(twoTokenStablePools, (p) => p.tvl);
-
-              if (
-                pools.find(
-                  (pool: any) => Number(pool.id) === Number(maxTVLPool.id)
-                )
-              )
-                return;
-
-              pools.push(_.maxBy(twoTokenStablePools, (p) => p.tvl));
-            }
-          })
-      );
-
-      await db.cacheTopPools(pools);
+      rawData = await fetch(
+        `${config.indexerUrl}/list-top-pool-page?page=${page}&size=${size}`,
+        {
+          method: 'GET',
+          headers: { 'Content-type': 'application/json; charset=UTF-8' },
+        }
+      ).then((res) => res.json());
+      if (Array.isArray(rawData) && rawData?.length === 0) {
+        rawData = {
+          items: [],
+          page,
+          size,
+          pages: 1,
+          total: 0,
+        };
+      }
+      pools = rawData?.items;
+      await appendNonStablePools(pools);
+      await db.cacheTopPoolsAppend(pools);
     }
-
-    pools = pools.map((pool: any) => parsePoolView(pool));
-
-    return pools
+    // remove unstable and blacklist pool
+    pools = pools
       .filter((pool: { token_account_ids: string | any[]; id: any }) => {
         return !isStablePool(pool.id) && pool.token_account_ids.length < 3;
       })
       .filter(filterBlackListPools);
+    pools = pools.map((pool: any) => parsePoolView(pool));
+    return {
+      pools,
+      rawData,
+    };
   } catch (error) {
-    return [];
+    console.log('err', error);
+    return { pools: [], rawData: {} };
   }
+};
+
+const appendNonStablePools = async (pools) => {
+  // include non-stable pools on top pool list
+  // TODO:
+  const nonStablePools = ALL_STABLE_POOL_IDS.concat(BLACKLIST_POOL_IDS)
+    .filter((id) => Number(id) !== Number(STABLE_POOL_ID))
+    .filter((_) => _);
+  await Promise.all(
+    nonStablePools.map(async (id) => {
+      const pool = await getPoolRPC(Number(id));
+      const ids = pool.tokenIds;
+
+      const twoTokenStablePoolIds = (
+        await getPoolsByTokensIndexer({
+          token0: ids[0],
+          token1: ids[1],
+        })
+      ).map((p: any) => p.id.toString());
+
+      const twoTokenStablePools = await getPoolsByIds({
+        pool_ids: twoTokenStablePoolIds,
+      });
+      if (twoTokenStablePools.length > 0) {
+        const maxTVLPool = _.maxBy(twoTokenStablePools, (p) => p.tvl);
+
+        if (
+          pools.find((pool: any) => Number(pool.id) === Number(maxTVLPool.id))
+        )
+          return;
+        const toPush = _.maxBy(twoTokenStablePools, (p) => p.tvl);
+        pools.push(toPush);
+      }
+    })
+  );
 };
 
 export const getAllPoolsIndexer = async (amountThresh?: string) => {
