@@ -580,7 +580,7 @@ function WalletPanelPc() {
         </div>
         {/* tokens */}
         <div className="flex-grow p-4">
-          <div className="grid grid-cols-6 pb-4 px-3 mr-1.5">
+          <div className="grid grid-cols-7 pb-4 px-3 mr-1.5">
             <span className="col-span-3 text-sm text-primaryText">
               <FormattedMessage id="token" />
             </span>
@@ -592,6 +592,9 @@ function WalletPanelPc() {
             </span>
             <span className="col-span-1 text-sm text-primaryText">
               <FormattedMessage id="value" />
+            </span>
+            <span className="col-span-1 text-sm text-primaryText">
+
             </span>
           </div>
           {accountId ? (
