@@ -270,11 +270,11 @@ export const usePools = (props: {
   order?: string;
 }) => {
   const [page, setPage] = useState<number>(1);
-  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [hasMore, setHasMore] = useState<boolean>(false);
   const [pools, setPools] = useState<Pool[]>([]);
   const [rawPools, setRawPools] = useState<PoolRPCView[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isFetching, setIsFetching] = useState(false);
+
   const [requestPoolList, setRequestPoolList] = useState<string[]>();
 
   useEffect(() => {
@@ -287,41 +287,7 @@ export const usePools = (props: {
 
   const volumes = useDayVolumesPools(requestPoolList);
 
-  const nextPage = () => {
-    setPage((page) => page + 1);
-  };
-
-  const fetchPools = async ({ page, size, tokenName, sortBy, order }) => {
-    setIsFetching(true);
-    let poolsData, hasMore;
-    const { rawData, pools } = await getTopPools(page, size);
-    if (pools) {
-      hasMore = rawData?.pages > page;
-      poolsData = pools;
-    } else {
-      const [cachedPools, count] = await Promise.all([
-        getPoolsFromCache({
-          page: page,
-          perPage: size,
-          tokenName: tokenName,
-          column: sortBy,
-          order: order,
-        }),
-        db.countPools(),
-      ]);
-      poolsData = cachedPools;
-      const pages = Math.ceil(count / size);
-      hasMore = pages > page;
-    }
-    setRawPools((d) => {
-      return [...d, ...poolsData];
-    });
-    setHasMore(hasMore);
-    if (loading) {
-      setLoading(false);
-    }
-    setIsFetching(false);
-  };
+  const nextPage = () => setPage((page) => page + 1);
 
   function _loadPools({
     accumulate = true,
@@ -329,10 +295,8 @@ export const usePools = (props: {
     sortBy,
     order,
   }: LoadPoolsOpts) {
-    setIsFetching(true);
-    getTopPools(page, 99999)
-      .then(async (data) => {
-        const rawPools = data?.pools;
+    getTopPools()
+      .then(async (rawPools) => {
         const pools =
           rawPools.length > 0
             ? rawPools.map((rawPool) => parsePool(rawPool))
@@ -366,15 +330,10 @@ export const usePools = (props: {
           )
         );
       })
-      .finally(() => {
-        if (loading) {
-          setLoading(false);
-        }
-        setIsFetching(false);
-      });
+      .finally(() => setLoading(false));
   }
 
-  const loadPools = useCallback(debounce(fetchPools, 500), []);
+  const loadPools = useCallback(debounce(_loadPools, 500), []);
 
   useEffect(() => {
     const args = {
@@ -384,6 +343,7 @@ export const usePools = (props: {
       column: props.sortBy,
       order: props.order,
     };
+
     const newPools = _order(args, _search(args, rawPools)).map((rawPool) =>
       parsePool(rawPool)
     );
@@ -391,9 +351,9 @@ export const usePools = (props: {
   }, [props.sortBy, props.order, props.tokenName, rawPools]);
 
   useEffect(() => {
+    setLoading(true);
     loadPools({
-      page,
-      size: 50,
+      accumulate: true,
       tokenName: props.tokenName,
       sortBy: props.sortBy,
       order: props.order,
@@ -406,7 +366,6 @@ export const usePools = (props: {
     nextPage,
     loading,
     volumes,
-    isFetching,
   };
 };
 

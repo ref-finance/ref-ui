@@ -196,10 +196,6 @@ class RefDatabase extends Dexie {
     );
   }
 
-  public async countPools() {
-    return this.allPoolsTokens().count();
-  }
-
   public searchTokens(args: any, tokens: TokenMetadata[]): TokenMetadata[] {
     if (args.tokenName === '') return tokens;
     return _.filter(tokens, (token: TokenMetadata) => {
@@ -496,26 +492,6 @@ class RefDatabase extends Dexie {
     );
   }
 
-  public async cacheTopPoolsAppend(pools: any) {
-    const ori = (await this.topPools.toArray()) || [];
-    pools.forEach((topPool: TopPool) => {
-      const obj = {
-        ...topPool,
-        id: topPool.id.toString(),
-        update_time: moment().unix(),
-        token1Id: topPool.token_account_ids[0],
-        token2Id: topPool.token_account_ids[1],
-      };
-      const oriIndex = ori.findIndex((d) => d.id === obj.id);
-      if (oriIndex >= 0) {
-        ori[oriIndex] = obj;
-      } else {
-        ori.push(obj);
-      }
-    });
-    await this.topPools.bulkPut(ori);
-  }
-
   public async checkTopPools() {
     const pools = await this.topPools.limit(10).toArray();
     return (
@@ -529,25 +505,13 @@ class RefDatabase extends Dexie {
     );
   }
 
-  public async queryTopPools(page?: number, size?: number) {
-    let pools = [];
-    if (page && size) {
-      pools = await this.topPools
-        .offset((page - 1) * size)
-        .limit(size)
-        .toArray();
-    } else {
-      pools = await this.topPools.toArray();
-    }
+  public async queryTopPools() {
+    const pools = await this.topPools.toArray();
 
     return pools.map((pool) => {
       const { update_time, ...poolInfo } = pool;
       return poolInfo;
     });
-  }
-
-  public async countTopPools() {
-    return this.topPools.count();
   }
 
   // public async queryTopPoolsByIds({ poolIds }: { poolIds: string[] }) {
