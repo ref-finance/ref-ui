@@ -715,7 +715,7 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
         '/poolV2',
         '/sauce',
         '/more_pools',
-        '/yourliquidity',
+        // '/yourliquidity',
         '/farms',
         '/xref',
         '/v2farms',
@@ -734,22 +734,22 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
           isExternal: false,
           links: ['/pools', '/pool', '/poolV2', '/sauce', '/more_pools'],
         },
-        {
-          id: '2-2',
-          label: (
-            <>
-              <FormattedMessage id="your_liquidity" />
-            </>
-          ),
-          logo: <YourliquidityIcon />,
-          url: '/yourliquidity',
-          isExternal: false,
-          clickEvent: () => {
-            sessionStorage.setItem('REF_POOL_NAV_TAB_VALUE', '/yourliquidity');
-            history.push('/yourliquidity');
-          },
-          links: ['/yourliquidity', '/yoursLiquidityDetailV2'],
-        },
+        // {
+        //   id: '2-2',
+        //   label: (
+        //     <>
+        //       <FormattedMessage id="your_liquidity" />
+        //     </>
+        //   ),
+        //   logo: <YourliquidityIcon />,
+        //   url: '/yourliquidity',
+        //   isExternal: false,
+        //   clickEvent: () => {
+        //     sessionStorage.setItem('REF_POOL_NAV_TAB_VALUE', '/yourliquidity');
+        //     history.push('/yourliquidity');
+        //   },
+        //   links: ['/yourliquidity', '/yoursLiquidityDetailV2'],
+        // },
         {
           id: '2-3',
           label: (
