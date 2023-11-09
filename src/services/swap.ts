@@ -47,7 +47,10 @@ import {
   Pool,
   StablePool,
 } from './pool';
-import SmartRouteLogicWorker from './smartRouteLogicWorker';
+import {
+  createSmartRouteLogicWorker,
+  transformWorkerResult,
+} from './smartRouteLogicWorker';
 import { getSwappedAmount } from './stable-swap';
 import { round } from './token';
 import {
@@ -59,7 +62,7 @@ import {
 export const REF_FI_SWAP_SIGNAL = 'REF_FI_SWAP_SIGNAL_KEY';
 const { NO_REQUIRED_REGISTRATION_TOKEN_IDS } = getConfigV2();
 
-const smartRouteLogicWorker = new SmartRouteLogicWorker();
+const smartRouteLogicWorker = createSmartRouteLogicWorker();
 
 // Big.strict = false;
 const FEE_DIVISOR = 10000;
@@ -423,14 +426,14 @@ export const estimateSwap = async ({
   let smartRouteV2OutputEstimate;
 
   try {
-    const stableSmartResult = await smartRouteLogicWorker.getStableSmart({
-      pools: orpools.filter((p) => !p?.Dex || p.Dex !== 'tri'),
-      inputToken: tokenIn.id,
-      outputToken: tokenOut.id,
-      totalInput: parsedAmountIn,
-    });
-    const stableSmartActionsV2: EstimateSwapView[] =
-      JSON.parse(stableSmartResult);
+    const stableSmartActionsV2 = transformWorkerResult(
+      await smartRouteLogicWorker.getStableSmart({
+        pools: orpools.filter((p) => !p?.Dex || p.Dex !== 'tri'),
+        inputToken: tokenIn.id,
+        outputToken: tokenOut.id,
+        totalInput: parsedAmountIn,
+      })
+    );
     // stableSmartActionsV2 = await stableSmart(
     // orpools.filter((p) => !p?.Dex || p.Dex !== 'tri'),
     // tokenIn.id,

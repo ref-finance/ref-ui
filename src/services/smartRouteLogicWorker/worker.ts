@@ -1,18 +1,33 @@
+import { expose } from 'comlink';
+
 import { stableSmart } from './smartRouteLogicSimple.js';
 
-export async function getStableSmart({
-  pools,
-  inputToken,
-  outputToken,
-  totalInput,
-  slippageTolerance,
-}) {
-  const result = await stableSmart({
+export type StableSmartParams = {
+  pools: import('./../../store/RefDatabase').PoolsTokens[];
+  inputToken: string;
+  outputToken: string;
+  totalInput: string;
+  slippageTolerance?: string;
+};
+const worker = {
+  async getStableSmart({
     pools,
     inputToken,
     outputToken,
     totalInput,
     slippageTolerance,
-  });
-  return JSON.stringify(result);
-}
+  }: StableSmartParams) {
+    const result = await stableSmart({
+      pools,
+      inputToken,
+      outputToken,
+      totalInput,
+      slippageTolerance,
+    });
+    return JSON.stringify(result);
+  },
+};
+
+expose(worker);
+
+export default worker;
