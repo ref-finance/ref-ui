@@ -593,9 +593,7 @@ function WalletPanelPc() {
             <span className="col-span-1 text-sm text-primaryText">
               <FormattedMessage id="value" />
             </span>
-            <span className="col-span-1 text-sm text-primaryText">
-
-            </span>
+            <span className="col-span-1 text-sm text-primaryText"></span>
           </div>
           {accountId ? (
             <div

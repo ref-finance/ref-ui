@@ -108,6 +108,8 @@ import {
 } from 'src/components/icon/Nav';
 import { openUrl } from '../../services/commonV3';
 import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from 'src/constants';
+import { WalletRiskCheckBoxModal } from 'src/context/modal-ui/components/WalletOptions/WalletRiskCheckBox';
+import { CONST_ACKNOWLEDGE_WALLET_RISK } from 'src/constants/constLocalStorage';
 
 const config = getConfig();
 
@@ -329,6 +331,25 @@ function AccountEntry({
   const [showTip, setShowTip] = useState<boolean>(false);
   const [copyButtonDisabled, setCopyButtonDisabled] = useState<boolean>(false);
 
+  const [showWalletRisk, setShowWalletRisk] = useState<boolean>(false);
+  const handleWalletModalOpen = () => {
+    const isAcknowledgeWalletRisk = localStorage.getItem(
+      CONST_ACKNOWLEDGE_WALLET_RISK
+    );
+    if (!isAcknowledgeWalletRisk) {
+      setShowWalletRisk(true);
+    } else {
+      modal.show();
+    }
+  };
+  const handleAcknowledgeClick = (status) => {
+    if (status === true) {
+      setShowWalletRisk(false);
+      localStorage.setItem(CONST_ACKNOWLEDGE_WALLET_RISK, '1');
+      modal.show();
+    }
+  };
+
   const isSignedIn = globalState.isSignedIn;
 
   useEffect(() => {
@@ -506,8 +527,8 @@ function AccountEntry({
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  modal.show();
-
+                  //modal.show();
+                  handleWalletModalOpen();
                   setHover(false);
                 }}
                 type="button"
@@ -524,6 +545,12 @@ function AccountEntry({
                 </span>
               </button>
             )}
+
+            <WalletRiskCheckBoxModal
+              isOpen={showWalletRisk}
+              setCheckedStatus={handleAcknowledgeClick}
+              onClose={() => setShowWalletRisk(false)}
+            />
           </div>
         </div>
         {isSignedIn && hover ? (

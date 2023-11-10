@@ -32,6 +32,8 @@ import { MarkPrice, MyOrder, PortfolioTable } from '../../orderly/type';
 import { useClientMobile } from '../../../../utils/device';
 
 import 'react-circular-progressbar/dist/styles.css';
+import { CONST_ACKNOWLEDGE_WALLET_RISK } from 'src/constants/constLocalStorage';
+import { WalletRiskCheckBoxModal } from 'src/context/modal-ui/components/WalletOptions/WalletRiskCheckBox';
 
 export function SymbolWrapper({ symbol }: { symbol: string }) {
   return (
@@ -119,6 +121,24 @@ function TableWithTabs({
   const [tradingKeySet, setTradingKeySet] = useState<boolean>(false);
   const [keyAnnounced, setKeyAnnounced] = useState<boolean>(false);
   // const [agreeCheck, setAgreeCheck] = useState<boolean>(false);
+  const [showWalletRisk, setShowWalletRisk] = useState<boolean>(false);
+  const handleWalletModalOpen = () => {
+    const isAcknowledgeWalletRisk = localStorage.getItem(
+      CONST_ACKNOWLEDGE_WALLET_RISK
+    );
+    if (!isAcknowledgeWalletRisk) {
+      setShowWalletRisk(true);
+    } else {
+      modal.show();
+    }
+  };
+  const handleAcknowledgeClick = (status) => {
+    if (status === true) {
+      setShowWalletRisk(false);
+      localStorage.setItem(CONST_ACKNOWLEDGE_WALLET_RISK, '1');
+      modal.show();
+    }
+  };
 
   useEffect(() => {
     const rootElement = document.getElementById('root');
@@ -592,10 +612,12 @@ function TableWithTabs({
                       <p>Connect your wallet to start</p>
                     </div>
 
-                    <ConnectWalletPorfolio
-                      onClick={() => {
-                        modal.show();
-                      }}
+                    <ConnectWalletPorfolio onClick={handleWalletModalOpen} />
+
+                    <WalletRiskCheckBoxModal
+                      isOpen={showWalletRisk}
+                      setCheckedStatus={handleAcknowledgeClick}
+                      onClose={() => setShowWalletRisk(false)}
                     />
                   </div>
                 )}
