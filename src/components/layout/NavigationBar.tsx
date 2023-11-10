@@ -894,6 +894,7 @@ function NavigationBar() {
   const [hasAuroraBalance, setHasAuroraBalance] = useState(false);
 
   const { txHash } = getURLInfo();
+  const isMobile = useMobile();
 
   useEffect(() => {
     if (!auroraBalances || !isSignedIn) return;
@@ -1099,7 +1100,7 @@ function NavigationBar() {
               <BridgeButton></BridgeButton>
             </div>
 
-            {isMobile() ? null : <BuyNearButton />}
+            {isMobile ? null : <BuyNearButton />}
 
             <div className="flex items-center mx-3">
               <AccountEntry
@@ -1118,13 +1119,17 @@ function NavigationBar() {
         </nav>
         {/* {isMobile ? null : <Marquee></Marquee>} */}
       </div>
-      <MobileNavBar
-        hasBalanceOnRefAccount={hasBalanceOnRefAccount}
-        isSignedIn={isSignedIn}
-        setShowWalletSelector={setShowWalletSelector}
-        showWalletSelector={showWalletSelector}
-        hasAuroraBalance={hasAuroraBalance}
-      />
+
+      {isMobile && (
+        <MobileNavBar
+          hasBalanceOnRefAccount={hasBalanceOnRefAccount}
+          isSignedIn={isSignedIn}
+          setShowWalletSelector={setShowWalletSelector}
+          showWalletSelector={showWalletSelector}
+          hasAuroraBalance={hasAuroraBalance}
+        />
+      )}
+
       <WalletSelectorModal
         setShowWalletSelector={setShowWalletSelector}
         isOpen={showWalletSelector}

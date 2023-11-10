@@ -210,7 +210,7 @@ function DetailViewLimit({
       } else {
         return (
           <>
-            <span className="mr-1.5 xsm:mr-0 xsm:hidden">TVL</span>
+            <span className="mr-1.5 xsm:mr-0 xsm:hidden select-none">TVL</span>
             {displayTvl()}
           </>
         );
@@ -219,7 +219,7 @@ function DetailViewLimit({
 
     return (
       <div
-        className={`transform scale-90 inline-flex items-center text-xs whitespace-nowrap ${className}`}
+        className={`transform scale-90 inline-flex items-center text-xs whitespace-nowrap select-none ${className}`}
       >
         {displayTvlAndNoPool()}
       </div>
@@ -254,15 +254,24 @@ function DetailViewLimit({
       >
         <div className="">
           <div className="flex items-center justify-between ">
-            <span className="text-xs text-primaryText whitespace-nowrap mr-1.5">
+            <span className="text-xs text-primaryText whitespace-nowrap mr-1.5 select-none">
               <FormattedMessage id="fee_tiers" defaultMessage={'Fee Tiers'} />
             </span>
             <div className={'flex items-center gap-1'}>
               <InfoIcon
-                tooltip={
-                  'Please note: when the order is filled by instant swap, you will be a liquidity taker. Meanwhile, no fee will be charged when you are a liquidity maker.'
+                tooltipNode={
+                  <div style={{ maxWidth: 220 }}>
+                    <div>
+                      Please note: when the order is filled by instant swap, you
+                      will be a liquidity taker.
+                    </div>
+                    <div>
+                      {' '}
+                      Meanwhile, no fee will be charged when you are a liquidity
+                      maker.
+                    </div>
+                  </div>
                 }
-                style={{ maxWidth: 220 }}
               />
 
               <button
@@ -300,7 +309,7 @@ function DetailViewLimit({
               </span>
             ) : (
               <>
-                <span className="whitespace-nowrap text-sm text-primaryText mr-1">
+                <span className="whitespace-nowrap text-sm text-primaryText mr-1 select-none">
                   {toPrecision(
                     calculateFeePercent(
                       Number(v3Pool?.split(V3_POOL_SPLITER)[2] || 2000) / 100
@@ -1132,7 +1141,7 @@ export default function LimitOrderCard(props: {
           />
           <div
             className="relative flex items-stretch justify-between mt-2.5"
-            style={{ zIndex: '60' }}
+            style={{ zIndex: '9999' }}
           >
             <LimitOrderRateSetBox
               tokenIn={tokenIn}

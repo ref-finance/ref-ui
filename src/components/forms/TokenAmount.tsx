@@ -1213,7 +1213,7 @@ export function LimitOrderRateSetBox({
           </div>
           <div className="flex items-center text-xs text-greenColor hover:text-senderHot">
             <span
-              className="cursor-pointer"
+              className="cursor-pointer select-none"
               onClick={() => {
                 setRate(curPrice);
                 if (triggerFetch) triggerFetch();
@@ -1309,14 +1309,7 @@ export function LimitOrderRateSetBox({
         </div>
       </div>
 
-      <ReactTooltip
-        id={'lockratehint'}
-        backgroundColor="#1D2932"
-        border
-        borderColor="#7e8a93"
-        effect="solid"
-        textColor="#C6D1DA"
-      >
+      <ReactTooltip id={'lockratehint'}>
         <div style={{ maxWidth: 240 }}>
           Lock the rate field to get your buy amount automatically adjusted when
           changing your sell amount.

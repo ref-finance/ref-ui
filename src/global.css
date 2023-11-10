@@ -297,7 +297,14 @@ input[type='number'] {
   content: none !important;
 }
 .__react_component_tooltip {
-  z-index: 99999 !important;
+  z-index: 9999999 !important;
+  background: #1d2932 !important;
+  border: 1px solid #7e8a93 !important;
+  border-radius: 6px !important;
+  color: #73818b !important;
+}
+.__react_component_tooltip.show {
+  opacity: 1 !important;
 }
 
 .farmChartScreenWidth {
@@ -1608,3 +1615,9 @@ options-list::-webkit-scrollbar {
   width: 2px;
 }
 /* wallet select modal ui end */
+.info-icon svg {
+  fill: #7e8a93;
+}
+.info-icon:hover svg {
+  fill: #c4c4c4;
+}

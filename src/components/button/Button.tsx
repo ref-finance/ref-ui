@@ -135,7 +135,7 @@ export function WithdrawButton(
   );
 }
 
-export function ConnectToNearBtn({ children }) {
+export function ConnectToNearBtn() {
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
 
   const [showWalletSelector, setShowWalletSelector] = useState(false);

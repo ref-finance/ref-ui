@@ -33,26 +33,25 @@ import ReactTooltip from 'react-tooltip';
 export const InfoIcon = ({
   tooltip,
   style,
+  tooltipNode,
 }: {
   tooltip?: string;
   style?: any;
+  tooltipNode?: any;
 }) => {
   const tooltipId = tooltip?.slice(0, 50)?.replaceAll(' ', '');
   return (
     <>
-      <span data-tip={true} data-for={tooltipId}>
+      <span
+        data-tip={true}
+        data-for={tooltipId}
+        className={'cursor-pointer info-icon'}
+      >
         <InfoSvg />
       </span>
-      {tooltip && (
-        <ReactTooltip
-          id={tooltipId}
-          backgroundColor="#1D2932"
-          border
-          borderColor="#7e8a93"
-          effect="solid"
-          textColor="#C6D1DA"
-        >
-          <div style={style}>{tooltip}</div>
+      {(tooltip || tooltipNode) && (
+        <ReactTooltip id={tooltipId}>
+          {tooltipNode ? tooltipNode : <div style={style}>{tooltip}</div>}
         </ReactTooltip>
       )}
     </>
