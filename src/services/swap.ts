@@ -453,7 +453,7 @@ export const estimateSwap = async ({
   }
 
   let bestEstimate = smartRouteV2OutputEstimate || 0;
-  console.log('bestEstimate', bestEstimate);
+  // console.log('bestEstimate', bestEstimate);
   // hybrid smart routing
   if (isStableToken(tokenIn.id) || isStableToken(tokenOut.id)) {
     const hybridStableSmart = await getHybridStableSmart(
