@@ -1,14 +1,14 @@
 import { ConnectedWalletAccount, WalletConnection } from 'near-api-js';
 import { FinalExecutionOutcome } from 'near-api-js/lib/providers';
 import { Action, createTransaction } from 'near-api-js/lib/transaction';
-import { KeyPair, PublicKey } from 'near-api-js/lib/utils';
+import { KeyPair } from 'near-api-js/lib/utils';
 
 const views: { [key: string]: any } = {};
 
 export default class SpecialWallet extends WalletConnection {
   static transactions = jest.fn();
 
-  _connectedAccount: SpecialWalletAccount;
+  declare _connectedAccount: SpecialWalletAccount;
 
   static addView(contractId: string, methodName: string, result: any) {
     views[`${contractId}-${methodName}`] = result;

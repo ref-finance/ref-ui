@@ -1,98 +1,68 @@
 import Big from 'big.js';
-import db from '../store/RefDatabase';
+import { BigNumber } from 'bignumber.js';
+import _ from 'lodash';
+import { JsonRpcProvider } from 'near-api-js/lib/providers';
 
-import { getLiquidity } from '../utils/pool';
-
+import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
+import { SWAP_MODE, SwapContractType, SwapMarket } from '../pages/SwapPage';
 import {
   ONLY_ZEROS,
+  percentLess,
   scientificNotationToString,
+  separateRoutes,
   toNonDivisibleNumber,
   toPrecision,
   toReadableNumber,
 } from '../utils/numbers';
-import {
-  executeMultipleTransactions,
-  near,
-  ONE_YOCTO_NEAR,
-  REF_FI_CONTRACT_ID,
-  RefFiFunctionCallOptions,
-  refFiManyFunctionCalls,
-  Transaction,
-  wallet,
-  STABLE_TOKEN_IDS,
-  BTCIDS,
-  BTC_STABLE_POOL_ID,
-} from './near';
-import {
-  calculateOptimalOutput,
-  calculate_dx_float,
-  calculate_dy_float,
-  formatPoolNew,
-  checkIntegerSumOfAllocations,
-} from './parallelSwapLogic';
-
+import { getLiquidity } from '../utils/pool';
+import { getCurrentWallet } from '../utils/wallets-integration';
+import { auroraSwapTransactions } from './aurora/aurora';
+import getConfigV2 from './configV2';
+import { STORAGE_TO_REGISTER_WITH_MFT } from './creators/storage';
+import { registerAccountOnToken } from './creators/token';
 import {
   ftGetStorageBalance,
   ftGetTokenMetadata,
   ftGetTokensMetadata,
+  native_usdc_has_upgrated,
   TokenMetadata,
 } from './ft-contract';
+import { getTokenFlow } from './indexer';
 import {
-  getPoolsByTokens,
-  StablePool,
-  getRefPoolsByToken1ORToken2,
-  getPoolsByTokensAurora,
-} from './pool';
-import {
-  checkTokenNeedsStorageDeposit,
-  getWhitelistedTokens,
-  round,
-} from './token';
-import { JsonRpcProvider } from 'near-api-js/lib/providers';
-import {
-  storageDepositAction,
-  STORAGE_TO_REGISTER_WITH_MFT,
-} from './creators/storage';
-import { registerTokenAction, registerAccountOnToken } from './creators/token';
-import { BigNumber } from 'bignumber.js';
-import _ from 'lodash';
-import { getSwappedAmount, restShare } from './stable-swap';
-import { isStablePool, isStableToken } from './near';
-import { SWAP_MODE, SwapContractType, SwapMarket } from '../pages/SwapPage';
-import { STABLE_TOKEN_USN_IDS, STABLE_POOL_USN_ID } from './near';
-import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity';
-import {
-  getSmartRouteSwapActions,
-  stableSmart,
-  getExpectedOutputFromActions,
-  //@ts-ignore
-} from './smartRouteLogic';
-import { getCurrentWallet } from '../utils/wallets-integration';
-import {
-  multiply,
-  separateRoutes,
-  toRoundedReadableNumber,
-} from '../utils/numbers';
-import { auroraSwapTransactions } from './aurora/aurora';
+  executeMultipleTransactions,
+  isStablePool,
+  isStableToken,
+  near,
+  ONE_YOCTO_NEAR,
+  REF_FI_CONTRACT_ID,
+  RefFiFunctionCallOptions,
+  Transaction,
+} from './near';
 import {
   getAllStablePoolsFromCache,
-  Pool,
+  getPoolsByTokens,
+  getPoolsByTokensAurora,
+  getRefPoolsByToken1ORToken2,
   getStablePoolFromCache,
+  Pool,
+  StablePool,
 } from './pool';
 import {
-  WRAP_NEAR_CONTRACT_ID,
-  nearWithdraw,
-  nearMetadata,
+  createSmartRouteLogicWorker,
+  transformWorkerResult,
+} from './smartRouteLogicWorker';
+import { getSwappedAmount } from './stable-swap';
+import { round } from './token';
+import {
   nearDepositTransaction,
   nearWithdrawTransaction,
+  WRAP_NEAR_CONTRACT_ID,
 } from './wrap-near';
-import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
-import { percentLess, percent } from '../utils/numbers';
-import { getTokenFlow } from './indexer';
-import getConfigV2 from './configV2';
-import { native_usdc_has_upgrated } from './ft-contract';
+
 export const REF_FI_SWAP_SIGNAL = 'REF_FI_SWAP_SIGNAL_KEY';
 const { NO_REQUIRED_REGISTRATION_TOKEN_IDS } = getConfigV2();
+
+const smartRouteLogicWorker = createSmartRouteLogicWorker();
 
 // Big.strict = false;
 const FEE_DIVISOR = 10000;
@@ -452,30 +422,38 @@ export const estimateSwap = async ({
 
   const orpools = await getRefPoolsByToken1ORToken2(tokenIn.id, tokenOut.id);
 
-  let stableSmartActionsV2;
-
   let res;
   let smartRouteV2OutputEstimate;
 
   try {
-    stableSmartActionsV2 = await stableSmart(
-      orpools.filter((p) => !p?.Dex || p.Dex !== 'tri'),
-      tokenIn.id,
-      tokenOut.id,
-      parsedAmountIn
+    const stableSmartActionsV2 = transformWorkerResult(
+      await smartRouteLogicWorker.getStableSmart({
+        pools: orpools.filter((p) => !p?.Dex || p.Dex !== 'tri'),
+        inputToken: tokenIn.id,
+        outputToken: tokenOut.id,
+        totalInput: parsedAmountIn,
+      })
     );
+    // stableSmartActionsV2 = await stableSmart(
+    // orpools.filter((p) => !p?.Dex || p.Dex !== 'tri'),
+    // tokenIn.id,
+    // tokenOut.id,
+    // parsedAmountIn
+    // );
 
     res = stableSmartActionsV2;
 
     smartRouteV2OutputEstimate = stableSmartActionsV2
-      .filter((a: any) => a.outputToken == a.routeOutputToken)
-      .map((a: any) => new Big(a.estimate))
-      .reduce((a: any, b: any) => a.plus(b), new Big(0))
+      .filter((a) => a.outputToken == a.routeOutputToken)
+      .map((a) => new Big(a.estimate))
+      .reduce((a, b) => a.plus(b), new Big(0))
       .toString();
-  } catch (error) {}
+  } catch (error) {
+    console.error('smartRouteV2OutputEstimate error', error);
+  }
 
   let bestEstimate = smartRouteV2OutputEstimate || 0;
-
+  // console.log('bestEstimate', bestEstimate);
   // hybrid smart routing
   if (isStableToken(tokenIn.id) || isStableToken(tokenOut.id)) {
     const hybridStableSmart = await getHybridStableSmart(
@@ -544,7 +522,7 @@ export const estimateSwapAurora = async ({
     );
   };
 
-  let pools = (
+  const pools = (
     await getPoolsByTokensAurora({
       tokenInId: tokenIn.id,
       tokenOutId: tokenOut.id,
@@ -560,7 +538,7 @@ export const estimateSwapAurora = async ({
     return getLiquidity(p, tokenIn, tokenOut) > 0;
   });
 
-  let { triTodos } = await getOneSwapActionResultAurora(
+  const { triTodos } = await getOneSwapActionResultAurora(
     pools,
     tokenIn,
     tokenOut,
@@ -579,7 +557,7 @@ export const getOneSwapActionResultAurora = async (
   parsedAmountIn: string
 ) => {
   let triTodos;
-  let pools: Pool[] = poolsOneSwap;
+  const pools: Pool[] = poolsOneSwap;
 
   const triPoolThisPair = pools.find(
     (p) =>
@@ -706,7 +684,7 @@ export const getOneSwapActionResult = async (
         tokens: [tokenIn, tokenOut],
         inputToken: tokenIn.id,
         outputToken: tokenOut.id,
-        parsedAmountIn: parsedAmountIn,
+        parsedAmountIn,
       },
     ];
 
@@ -732,15 +710,15 @@ export async function getHybridStableSmart(
   let pool1: Pool, pool2: Pool;
 
   let pools1: Pool[] = [];
-  let pools2: Pool[] = [];
+  const pools2: Pool[] = [];
 
-  let pools1Right: Pool[] = [];
+  const pools1Right: Pool[] = [];
   let pools2Right: Pool[] = [];
 
   const { allStablePools, allStablePoolsById, allStablePoolsInfo } =
     await getAllStablePoolsFromCache(loadingTrigger);
 
-  let candidatePools: Pool[][] = [];
+  const candidatePools: Pool[][] = [];
 
   /**
    * find possible routes for this pair
@@ -757,14 +735,14 @@ export async function getHybridStableSmart(
       .map((pool) => pool.tokenIds.filter((id) => id !== tokenIn.id))
       .flat();
 
-    for (var otherStable of otherStables) {
-      let stablePools = getStablePoolThisPair({
+    for (const otherStable of otherStables) {
+      const stablePools = getStablePoolThisPair({
         tokenInId: otherStable,
         tokenOutId: tokenOut.id,
         stablePools: allStablePools,
       });
 
-      let { filteredPools: tmpPools } = await getPoolsByTokens({
+      const { filteredPools: tmpPools } = await getPoolsByTokens({
         tokenInId: otherStable,
         tokenOutId: tokenOut.id,
         amountIn: parsedAmountIn,
@@ -789,14 +767,14 @@ export async function getHybridStableSmart(
     const otherStables = pools2Right
       .map((pool) => pool.tokenIds.filter((id) => id !== tokenOut.id))
       .flat();
-    for (var otherStable of otherStables) {
-      let stablePools = getStablePoolThisPair({
+    for (const otherStable of otherStables) {
+      const stablePools = getStablePoolThisPair({
         tokenInId: tokenIn.id,
         tokenOutId: otherStable,
         stablePools: allStablePools,
       });
 
-      let { filteredPools: tmpPools } = await getPoolsByTokens({
+      const { filteredPools: tmpPools } = await getPoolsByTokens({
         tokenInId: tokenIn.id,
         tokenOutId: otherStable,
         amountIn: parsedAmountIn,
@@ -816,10 +794,10 @@ export async function getHybridStableSmart(
 
   // find candidate pools
 
-  for (let p1 of pools1) {
-    let middleTokens = p1.tokenIds.filter((id: string) => id !== tokenIn.id);
-    for (let middleToken of middleTokens) {
-      let p2s = pools2.filter(
+  for (const p1 of pools1) {
+    const middleTokens = p1.tokenIds.filter((id: string) => id !== tokenIn.id);
+    for (const middleToken of middleTokens) {
+      const p2s = pools2.filter(
         (p) =>
           p.tokenIds.includes(middleToken) &&
           p.tokenIds.includes(tokenOut.id) &&
@@ -841,10 +819,10 @@ export async function getHybridStableSmart(
       }
     }
   }
-  for (let p1 of pools1Right) {
-    let middleTokens = p1.tokenIds.filter((id: string) => id !== tokenIn.id);
-    for (let middleToken of middleTokens) {
-      let p2s = pools2Right.filter(
+  for (const p1 of pools1Right) {
+    const middleTokens = p1.tokenIds.filter((id: string) => id !== tokenIn.id);
+    for (const middleToken of middleTokens) {
+      const p2s = pools2Right.filter(
         (p) =>
           p.tokenIds.includes(middleToken) &&
           p.tokenIds.includes(tokenOut.id) &&
@@ -1174,7 +1152,7 @@ SwapOptions) => {
   const actionsList = [];
   const allSwapsTokens = swapsToDo.map((s) => [s.inputToken, s.outputToken]); // to get the hop tokens
 
-  for (let i in allSwapsTokens) {
+  for (const i in allSwapsTokens) {
     const swapTokens = allSwapsTokens[i];
     if (swapTokens[0] == tokenIn.id && swapTokens[1] == tokenOut.id) {
       // direct pool
@@ -1248,7 +1226,7 @@ SwapOptions) => {
     transactions.unshift(nearDepositTransaction(amountIn));
   }
   if (tokenOut.id === WRAP_NEAR_CONTRACT_ID) {
-    let outEstimate = new Big(0);
+    const outEstimate = new Big(0);
     const routes = separateRoutes(swapsToDo, tokenOut.id);
 
     const bigEstimate = routes.reduce((acc, cur) => {
@@ -1414,7 +1392,7 @@ export const crossInstantSwap = async ({
       transactions.unshift(nearDepositTransaction(amountIn));
     }
     if (tokenOut.id === WRAP_NEAR_CONTRACT_ID) {
-      let outEstimate = new Big(0);
+      const outEstimate = new Big(0);
       const routes = separateRoutes(swapsToDo, tokenOut.id);
 
       const bigEstimate = routes.reduce((acc, cur) => {
@@ -1497,10 +1475,10 @@ export const parallelSwapCase = async ({
 
   if (refSwapTodos.length > 0) {
     const refSwapActions = refSwapTodos.map((s2d) => {
-      let minTokenOutAmount = s2d.estimate
+      const minTokenOutAmount = s2d.estimate
         ? percentLess(slippageTolerance, s2d.estimate)
         : '0';
-      let allocation = toReadableNumber(
+      const allocation = toReadableNumber(
         tokenIn.decimals,
         scientificNotationToString(s2d.pool.partialAmountIn)
       );
