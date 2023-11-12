@@ -14,6 +14,7 @@ module.exports = {
     '\\.(css|less)$': '<rootDir>/src/__mocks__/styleMock.js',
     d3: '<rootDir>/src/__mocks__/styleMock.js',
     '^src/(.*)$': '<rootDir>/src/$1',
+    '.*smartRouteLogicWorker': './smartRouteLogicWorker/index.mock.ts',
   },
   moduleDirectories: ['node_modules', 'src'],
 };
