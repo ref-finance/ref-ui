@@ -13,3 +13,32 @@
 .modal-ga br {
   margin-bottom: 20px;
 }
+
+.ga-content {
+  overflow-y: scroll;
+  height: 70vh;
+  font-size: 12px;
+}
+
+@media (max-width: 767.98px) {
+  .modal-title {
+  }
+  .modal-ga .modal-content {
+    background: #d2d8dd;
+  }
+
+  .modal-ga .modal-title,
+  .ga-content.text-primaryText,
+  .modal-ga h2 {
+    color: #000;
+  }
+
+  .ga-content {
+    max-height: 60vh;
+  }
+
+  .modal-ga .btn-outline {
+    background: #000;
+    color: #fff;
+  }
+}

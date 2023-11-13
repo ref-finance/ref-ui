@@ -58,6 +58,7 @@ export const WalletRiskCheckBoxModal: React.FC<ModalProps> = ({
       onOutsideClick={onClose}
       className={'modal-style1x'}
       title={'Connect Wallet'}
+      width={470}
     >
       <WalletRiskCheckBox setCheckedStatus={setCheckedStatus} />
       <WalletSelectorFooter />

@@ -42,14 +42,7 @@ export const ModalGAPrivacy = () => {
       className="modal-ga"
       title={'PRIVACY POLICY FOR REF.FINANCE'}
     >
-      <div
-        className="text-primaryText"
-        style={{
-          overflowY: 'scroll',
-          height: '70vh',
-          fontSize: 12,
-        }}
-      >
+      <div className="text-primaryText ga-content">
         <p>
           This Privacy Policy outlines the practices of Ref Protocol Foundation
           (Folio No. 25049150) (the "Company"), its related corporations,
@@ -182,7 +175,6 @@ export const ModalGAPrivacy = () => {
         personal data and dealt with in accordance with the provisions of this
         Privacy Policy.
         <h2>
-          {' '}
           Purposes for collection, use and disclosure of your personal data
         </h2>
         We may collect, use and/or disclose your personal data for its
@@ -415,23 +407,31 @@ export const ModalGAPrivacy = () => {
         We may update our Privacy Policy from time to time. Any changes will be
         posted on this page with a revised "Last Updated" date.
         <h2>Governing Law and Jurisdiction</h2>
-        This Privacy Policy and your use of the Website shall be governed and
-        construed in accordance with the laws of Singapore. All disputes arising
-        out of or in connection with this Privacy Policy (including without
-        limitation the enforceability of this Section or any question regarding
-        its existence, validity or termination, your access or use of the
-        services shall be referred to and finally resolved by arbitration
-        administered by the Singapore International Arbitration Centre ("SIAC")
-        in accordance with the Arbitration Rules of the Singapore International
-        Arbitration Centre ("SIAC Rules") for the time being in force, which
-        rules are deemed to be incorporated by reference in this Section. The
-        seat of the arbitration shall be Singapore. The Tribunal shall consist
-        of 1 arbitrator. The language of the arbitration shall be English. The
-        award of the arbitrator will be final and binding, and any judgment on
-        the award rendered by the arbitrator may be entered in any court of
-        competent jurisdiction. Each party irrevocably submits to the
-        jurisdiction and venue of such tribunal. Further, each party will cover
-        its own fees and costs associated with the arbitration proceedings.
+        <p>
+          This Privacy Policy and your use of the Website shall be governed and
+          construed in accordance with the laws of Singapore. All disputes
+          arising out of or in connection with this Privacy Policy (including
+          without limitation the enforceability of this Section or any question
+          regarding its existence, validity or termination, your access or use
+          of the services shall be referred to and finally resolved by
+          arbitration administered by the Singapore International Arbitration
+          Centre ("SIAC") in accordance with the Arbitration Rules of the
+          Singapore International Arbitration Centre ("SIAC Rules") for the time
+          being in force, which rules are deemed to be incorporated by reference
+          in this Section. The seat of the arbitration shall be Singapore. The
+          Tribunal shall consist of 1 arbitrator. The language of the
+          arbitration shall be English. The award of the arbitrator will be
+          final and binding, and any judgment on the award rendered by the
+          arbitrator may be entered in any court of competent jurisdiction. Each
+          party irrevocably submits to the jurisdiction and venue of such
+          tribunal. Further, each party will cover its own fees and costs
+          associated with the arbitration proceedings.
+        </p>
+        <h2>Contact Us</h2>
+        <p>
+          If you have any questions or concerns about this Privacy Policy, you
+          can contact us at support@ref.finance.
+        </p>
       </div>
       <div
         className={'flex justify-end mt-6 text-primaryText'}

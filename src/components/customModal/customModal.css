@@ -13,7 +13,7 @@
 }
 
 .modal.show {
-  z-index: 999999;
+  z-index: 999990;
 }
 
 .modal-dialog {
@@ -37,6 +37,7 @@
   left: 0;
   position: fixed;
   background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px);
 }
 
 .modal-title {
@@ -281,6 +282,17 @@
 
   .modal-fullscreen-md-down .modal-footer {
     border-radius: 0;
+  }
+
+  .modal-dialog {
+    width: 100%;
+    margin: 0;
+    position: fixed;
+    bottom: 32px;
+  }
+
+  .modal-content {
+    max-width: 100% !important;
   }
 }
 

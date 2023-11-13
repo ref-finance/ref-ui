@@ -40,6 +40,7 @@ import { OverviewData } from '../../pages/Overview';
 import { TriangleIcon, EmptyCircle, EmptyLeftBg, EmptyRightBg } from './Icons';
 import { ConnectToNearBtn } from 'src/components/button/Button';
 import { WalletTokenList } from './WalletTokenList';
+import { RefAndDCLWithdrawButton } from 'src/components/overview/ActionButtons';
 
 const WalletData = createContext(null);
 export default function WalletPanel() {
@@ -645,7 +646,7 @@ function WalletPanelPc() {
                   return (
                     <div
                       key={token.id + 'aurora'}
-                      className="grid grid-cols-6 px-3 hover:bg-symbolHover rounded-md py-3 text-sm"
+                      className="grid grid-cols-7 px-3 hover:bg-symbolHover rounded-md py-3 text-sm items-center"
                     >
                       <div className="flex items-center col-span-3">
                         <img
@@ -667,6 +668,9 @@ function WalletPanelPc() {
                       <span className="text-sm text-white">
                         {display_value(token.t_value)}
                       </span>
+                      <div className="col-span-1 cursor-pointer relative z-10">
+                        <RefAndDCLWithdrawButton token={token} isAurora />
+                      </div>
                     </div>
                   );
                 })}

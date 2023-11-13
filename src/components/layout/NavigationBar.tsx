@@ -447,6 +447,7 @@ function AccountEntry({
     //   },
     // },
   ];
+
   function showToast() {
     if (copyButtonDisabled) return;
     setCopyButtonDisabled(true);
@@ -1141,7 +1142,9 @@ function NavigationBar() {
     </>
   );
 }
+
 export const commonLangKey = ['en', 'zh-CN', 'vi', 'ko', 'es'];
+
 export function formatItem(local: string) {
   if (commonLangKey.indexOf(local) > -1) {
     return local;
@@ -1149,6 +1152,7 @@ export function formatItem(local: string) {
     return 'en';
   }
 }
+
 function Language() {
   const context = useContext(Context);
   const [hover, setHover] = useState(false);
@@ -1225,6 +1229,7 @@ function Language() {
     </div>
   );
 }
+
 export default NavigationBar;
 
 function MenuBar() {
@@ -1248,12 +1253,14 @@ function MenuBar() {
     }
     set_hover_one_level_id(id);
   }
+
   function hover_off_one_level_item() {
     set_hover_two_level_items([]);
     set_back_one_level_item(null);
     set_hover_two_level_id(undefined);
     set_hover_one_level_id('');
   }
+
   function click_one_level_item(item: menuItemType) {
     const { clickEvent, url, isExternal } = item;
     if (clickEvent) {
@@ -1269,6 +1276,7 @@ function MenuBar() {
       hover_off_one_level_item();
     }
   }
+
   function click_two_level_item(item: menuItemType) {
     const { children, label, clickEvent, url, isExternal } = item;
     if (children) {
@@ -1290,6 +1298,7 @@ function MenuBar() {
       }
     }
   }
+
   function click_three_level_title_to_back(menuItem: menuItemType) {
     const { children } = menuItem;
     set_hover_two_level_items(children);
@@ -1314,6 +1323,7 @@ function MenuBar() {
     let two_level_selected_id = '';
     const swap_mode_in_localstorage =
       localStorage.getItem('SWAP_MODE_VALUE') || 'normal';
+
     if (menus) {
       const one_level_menu = menus.find((item: menuItemType) => {
         const { links } = item;
@@ -1336,6 +1346,19 @@ function MenuBar() {
             two_level_selected_id = two_level_menu.id;
           }
         }
+      } else {
+        menus.find((d) => {
+          let match = d.links.includes(pathname);
+          if (!match && Array.isArray(d.children)) {
+            const level2Match = d.children.find((c) =>
+              c.links?.includes(pathname)
+            );
+            if (level2Match) {
+              two_level_selected_id = level2Match.id;
+            }
+          }
+          return match;
+        });
       }
 
       set_one_level_selected(one_level_selected_id);

@@ -739,7 +739,14 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
           logo: <PoolsIcon />,
           url: '/pools',
           isExternal: false,
-          links: ['/pools', '/pool', '/poolV2', '/sauce', '/more_pools'],
+          links: [
+            '/pools',
+            '/pool',
+            '/poolV2',
+            '/sauce',
+            '/more_pools',
+            '/yourliquidity',
+          ],
         },
         // {
         //   id: '2-2',

@@ -51,6 +51,8 @@ import { FarmDot } from '../icon/FarmStamp';
 import { RefIcon } from '../icon/Nav';
 import { AccountTipDownByAccountID, AuroraEntry } from './NavigationBar';
 import { commonLangKey, formatItem } from './NavigationBar';
+import { CONST_ACKNOWLEDGE_WALLET_RISK } from 'src/constants/constLocalStorage';
+import { WalletRiskCheckBoxModal } from 'src/context/modal-ui/components/WalletOptions/WalletRiskCheckBox';
 
 export function Logout() {
   const { wallet } = getCurrentWallet();
@@ -346,6 +348,25 @@ export function MobileNavBar(props: any) {
   const [showLanguage, setShowLanguage] = useState<boolean>(false);
   const [one_level_selected, set_one_level_selected] = useState<string>('');
   const [two_level_selected, set_two_level_selected] = useState<string>('');
+  const [showWalletRisk, setShowWalletRisk] = useState<boolean>(false);
+  const handleWalletModalOpen = () => {
+    const isAcknowledgeWalletRisk = localStorage.getItem(
+      CONST_ACKNOWLEDGE_WALLET_RISK
+    );
+    if (!isAcknowledgeWalletRisk) {
+      setShowWalletRisk(true);
+    } else {
+      modal.show();
+    }
+  };
+  const handleAcknowledgeClick = (status) => {
+    if (status === true) {
+      setShowWalletRisk(false);
+      localStorage.setItem(CONST_ACKNOWLEDGE_WALLET_RISK, '1');
+      modal.show();
+    }
+  };
+
   const displayLanguage = () => {
     const currentLocal = localStorage.getItem('local');
     if (commonLangKey.indexOf(currentLocal) > -1) {
@@ -395,6 +416,19 @@ export function MobileNavBar(props: any) {
             two_level_selected_id = two_level_menu.id;
           }
         }
+      } else {
+        menusMobile.find((d) => {
+          let match = d.links.includes(pathname);
+          if (!match && Array.isArray(d.children)) {
+            const level2Match = d.children.find((c) =>
+              c.links?.includes(pathname)
+            );
+            if (level2Match) {
+              two_level_selected_id = level2Match.id;
+            }
+          }
+          return match;
+        });
       }
       // if (!one_level_selected_id) {
       //   // no matched router than redirect to swap page
@@ -637,7 +671,8 @@ export function MobileNavBar(props: any) {
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      modal.show();
+                      //modal.show();
+                      handleWalletModalOpen();
                     }}
                   >
                     <FormattedMessage
@@ -880,6 +915,12 @@ export function MobileNavBar(props: any) {
         ) : null}
       </div>
       {/* {isMobile ? <Marquee></Marquee> : null} */}
+
+      <WalletRiskCheckBoxModal
+        isOpen={showWalletRisk}
+        setCheckedStatus={handleAcknowledgeClick}
+        onClose={() => setShowWalletRisk(false)}
+      />
 
       <MobileBridgeModal
         isOpen={showBridgeModalMobile}

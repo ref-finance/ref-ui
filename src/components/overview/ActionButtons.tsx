@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { batchWithdraw, batchWithdrawDCL } from 'src/services/token';
+import { batchWithdrawFromAurora } from 'src/services/aurora/aurora';
 
-export const RefAndDCLWithdrawButton = ({ token }) => {
+export const RefAndDCLWithdrawButton = ({ token, isAurora }) => {
   const [withdrawLoading, setWithdrawLoading] = useState<boolean>(false);
-  const { ref, dcl, id, decimals } = token || {};
+  const { ref, dcl, aurora, id, decimals } = token || {};
   const isRefClassic = Number(ref) > 0;
   const isDCL = Number(dcl) > 0;
 
@@ -11,7 +12,15 @@ export const RefAndDCLWithdrawButton = ({ token }) => {
     if (!withdrawLoading) {
       try {
         setWithdrawLoading(true);
-        if (isRefClassic) {
+        if (isAurora) {
+          await batchWithdrawFromAurora({
+            [id]: {
+              amount: aurora,
+              decimals,
+              id,
+            },
+          });
+        } else if (isRefClassic) {
           await batchWithdraw({
             [id]: {
               amount: ref,
