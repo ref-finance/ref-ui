@@ -1141,7 +1141,7 @@ export default function LimitOrderCard(props: {
           />
           <div
             className="relative flex items-stretch justify-between mt-2.5"
-            style={{ zIndex: '9999' }}
+            style={{ zIndex: '71' }}
           >
             <LimitOrderRateSetBox
               tokenIn={tokenIn}

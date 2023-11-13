@@ -13,7 +13,7 @@
 }
 
 .modal.show {
-  z-index: 1055;
+  z-index: 999999;
 }
 
 .modal-dialog {
