@@ -47,12 +47,14 @@ const CustomModal = ({
   return (
     <Portal>
       <div
-        className={`modal fade ${show && 'show'} ${className}`}
+        className={`modal fade ${show && 'show'} ${className || ''}`}
         style={show ? { display: 'block' } : {}}
       >
         <div className="overlay" onClick={onOutsideClick} />
         <div
-          className={`modal-dialog background-paper ${size && `modal-${size}`}`}
+          className={`modal-dialog background-paper ${
+            size ? `modal-${size}` : ''
+          }`}
         >
           <div className="modal-content" style={styles}>
             {title && (
@@ -65,7 +67,9 @@ const CustomModal = ({
                 )}
               </div>
             )}
-            <div className={`modal-body ${canScroll && 'modal-body-scroll'}`}>
+            <div
+              className={`modal-body ${canScroll ? 'modal-body-scroll' : ''}`}
+            >
               {children}
             </div>
           </div>

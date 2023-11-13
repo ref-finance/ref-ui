@@ -1621,3 +1621,10 @@ options-list::-webkit-scrollbar {
 .info-icon:hover svg {
   fill: #c4c4c4;
 }
+
+.btn-outline {
+  color: #fff;
+  border-radius: 8px;
+  border: 1px solid #7e8a93;
+  padding: 5px 10px;
+}
