@@ -43,6 +43,8 @@
 .modal-title {
   font-weight: 600;
   font-size: 1.2em;
+  margin-bottom: 0;
+  line-height: 1.5;
 }
 
 .modal-body-scroll {
@@ -51,7 +53,7 @@
 }
 
 .modal-open {
-  overflow: hidden;
+  overflow: hidden !important;
   max-height: 100vh;
 }
 
@@ -145,11 +147,6 @@
   margin: -0.5rem -0.5rem -0.5rem auto;
 }
 
-.modal-title {
-  margin-bottom: 0;
-  line-height: 1.5;
-}
-
 .modal-body {
   position: relative;
   flex: 1 1 auto;
@@ -231,7 +228,7 @@
   border-radius: 0;
 }
 
-@media (max-width: 575.98px) {
+@media (max-width: 576px) {
   .modal-fullscreen-sm-down {
     width: 100vw;
     max-width: none;
@@ -258,7 +255,7 @@
   }
 }
 
-@media (max-width: 767.98px) {
+@media (max-width: 768px) {
   .modal-fullscreen-md-down {
     width: 100vw;
     max-width: none;
@@ -294,9 +291,19 @@
   .modal-content {
     max-width: 100% !important;
   }
+
+  .modal-header,
+  .modal-body {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  .modal-title {
+    font-size: 1.1em;
+  }
 }
 
-@media (max-width: 991.98px) {
+@media (max-width: 992px) {
   .modal-fullscreen-lg-down {
     width: 100vw;
     max-width: none;
@@ -323,7 +330,7 @@
   }
 }
 
-@media (max-width: 1199.98px) {
+@media (max-width: 1200px) {
   .modal-fullscreen-xl-down {
     width: 100vw;
     max-width: none;
@@ -350,7 +357,7 @@
   }
 }
 
-@media (max-width: 1399.98px) {
+@media (max-width: 1400px) {
   .modal-fullscreen-xxl-down {
     width: 100vw;
     max-width: none;

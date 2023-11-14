@@ -46,11 +46,15 @@ body .font-gothamBold {
 .arial_font {
   font-family: 'arial';
 }
+
 body {
   margin: 0;
-  background: #001220;
   scrollbar-width: thin;
   scrollbar-color: darkgrey transparent;
+}
+html,
+body {
+  background: #001220;
 }
 
 main {

@@ -7,16 +7,17 @@ import CustomModal from 'src/components/customModal/customModal';
 import './modalGAPrivacy.css';
 
 export const ModalGAPrivacy = () => {
+  const [showBottomGA, setShowBottomGA] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const ga = localStorage.getItem(CONST_ACKNOWLEDGE_GA);
 
   useEffect(() => {
-    if (ga) {
+    if (ga === CONST_GA_ACTION.ACCEPT) {
       require('../../../ga4');
     } else {
       setTimeout(() => {
-        setShowModal(true);
-      }, 500);
+        setShowBottomGA(true);
+      }, 1500);
     }
   }, []);
 
@@ -27,22 +28,79 @@ export const ModalGAPrivacy = () => {
   const handleAcceptClick = () => {
     require('../../../ga4');
     localStorage.setItem(CONST_ACKNOWLEDGE_GA, CONST_GA_ACTION.ACCEPT);
-    setShowModal(false);
+    showModal && setShowModal(false);
+    showBottomGA && setShowBottomGA(false);
   };
 
   const handleRejectClick = () => {
     localStorage.setItem(CONST_ACKNOWLEDGE_GA, CONST_GA_ACTION.REJECT);
-    setShowModal(false);
+    showModal && setShowModal(false);
+    showBottomGA && setShowBottomGA(false);
   };
+
+  const handleModalOpen = () => {
+    setShowModal(true);
+    setShowBottomGA(false);
+  };
+
+  const handleModalClose = () => {
+    setShowModal(false);
+    setShowBottomGA(true);
+  };
+
+  const buttonNode = (
+    <div className={'flex gap-6 ga-btns'}>
+      <button onClick={handleRejectClick} className={'text-white ga-reject'}>
+        Reject
+      </button>
+      <button
+        onClick={handleAcceptClick}
+        className={'btn-outline'}
+        style={{ width: 125 }}
+      >
+        Accept
+      </button>
+    </div>
+  );
+
+  if (!showModal) {
+    return (
+      <div className={`bottom-ga ${showBottomGA ? '_show' : ''}`}>
+        <div className={'md:flex justify-between gap-6'}>
+          <div
+            style={{ maxWidth: 680 }}
+            className={'mb-4 md:mb-0 text-primaryText'}
+          >
+            By clicking “Accept Cookies”, you agree to the storing of cookies on
+            your device to enhance site navigation, analyze site usage, and
+            assist in our marketing efforts. Read{' '}
+            <span className="underline" onClick={handleModalOpen}>
+              Privacy Policy.
+            </span>
+          </div>
+          <div className={'flex gap-6 items-center'}>
+            {buttonNode}
+            <div
+              className={'bottom-ga-close cursor-pointer text-primaryText'}
+              onClick={() => setShowBottomGA(false)}
+            >
+              X
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <CustomModal
       isOpen={showModal}
-      onClose={() => setShowModal(false)}
+      onClose={handleModalClose}
       className="modal-ga"
-      title={'PRIVACY POLICY FOR REF.FINANCE'}
+      title={'Privacy Policy for Ref.finance'}
     >
       <div className="text-primaryText ga-content">
+        <p className={'mb-2'}>Last Updated: 14 NOV 2023</p>
         <p>
           This Privacy Policy outlines the practices of Ref Protocol Foundation
           (Folio No. 25049150) (the "Company"), its related corporations,
@@ -378,21 +436,22 @@ export const ModalGAPrivacy = () => {
         </div>
         <div>
           (c) wish to withdraw your consent to our collection, use or disclosure
-          of your personal data,
+          of your personal data, please submit a written request (with
+          supporting documents, (if any) to our Data Protection Officer at:
+          support@ref.finance. Our Data Protection Officer shall respond to you
+          within 30 days of your submission. Please note that if you withdraw
+          your consent to any or all use or disclosure of your personal data,
+          depending on the nature of your request, we may not be in a position
+          to continue to provide our services or products to you or administer
+          any contractual relationship in place. Such withdrawal may also result
+          in the termination of any agreement you may have with us. Our legal
+          rights and remedies are expressly reserved in such event.
         </div>
-        please submit a written request (with supporting documents, (if any) to
-        our Data Protection Officer at: [contact email address]. Our Data
-        Protection Officer shall respond to you within 30 days of your
-        submission. Please note that if you withdraw your consent to any or all
-        use or disclosure of your personal data, depending on the nature of your
-        request, we may not be in a position to continue to provide our services
-        or products to you or administer any contractual relationship in place.
-        Such withdrawal may also result in the termination of any agreement you
-        may have with us. Our legal rights and remedies are expressly reserved
-        in such event. We may charge you a fee for processing your request for
-        access. Such a fee depends on the nature and complexity of your access
-        request. Information on the processing fee will be made available to
-        you.
+        <p>
+          We may charge you a fee for processing your request for access. Such a
+          fee depends on the nature and complexity of your access request.
+          Information on the processing fee will be made available to you.
+        </p>
         <h2>Your Choices</h2>
         You can control the collection and use of your information by adjusting
         your browser settings, such as disabling cookies. You can also opt-out
@@ -437,16 +496,7 @@ export const ModalGAPrivacy = () => {
         className={'flex justify-end mt-6 text-primaryText'}
         style={{ fontSize: 14 }}
       >
-        <div className={'flex gap-4'}>
-          <button onClick={handleRejectClick}>Reject</button>
-          <button
-            onClick={handleAcceptClick}
-            className={'btn-outline'}
-            style={{ width: 125 }}
-          >
-            Accept
-          </button>
-        </div>
+        {buttonNode}
       </div>
     </CustomModal>
   );

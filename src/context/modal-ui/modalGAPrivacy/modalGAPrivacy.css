@@ -1,3 +1,19 @@
+.bottom-ga {
+  background: #213441;
+  position: fixed;
+  bottom: 32px;
+  width: 100%;
+  z-index: 999999;
+  padding: 12px 30px 12px 15px;
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.bottom-ga._show {
+  opacity: 1;
+}
+
 .modal-ga {
   color: #91a2ae;
 }
@@ -20,17 +36,34 @@
   font-size: 12px;
 }
 
-@media (max-width: 767.98px) {
+.bottom-ga .btn-outline {
+  background: #fff;
+  color: #000;
+}
+
+@media (min-width: 769px) {
+  .bottom-ga {
+    background: #fff;
+    padding: 20px 30px;
+  }
+
+  .bottom-ga .ga-reject {
+    color: #000;
+  }
+}
+
+@media (max-width: 768px) {
   .modal-title {
   }
+
   .modal-ga .modal-content {
-    background: #d2d8dd;
+    /*background: #d2d8dd;*/
   }
 
   .modal-ga .modal-title,
   .ga-content.text-primaryText,
   .modal-ga h2 {
-    color: #000;
+    /*color: #fff;*/
   }
 
   .ga-content {
@@ -38,7 +71,24 @@
   }
 
   .modal-ga .btn-outline {
-    background: #000;
+    background: #fff;
+    color: #000;
+  }
+
+  .bottom-ga-close {
+    position: absolute;
+    top: 12px;
+    right: 10px;
+    font-size: 18px;
+  }
+
+  .ga-btns {
+    justify-content: space-around;
+    flex: 1;
+  }
+
+  .ga-btns button {
+    flex: 1;
     color: #fff;
   }
 }
