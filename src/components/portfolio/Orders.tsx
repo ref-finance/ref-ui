@@ -547,6 +547,7 @@ function OrderCard({
 
             return (
               <div
+                key={i}
                 className={`mx-px h-1 xs:h-2 rounded-lg ${bgColor}`}
                 style={{
                   width: p + '%',

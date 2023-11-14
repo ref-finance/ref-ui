@@ -338,6 +338,7 @@ function DetailViewLimit({
               const isNoPool = everyPoolTvl?.[pool_id] == null;
               return (
                 <button
+                  key={i + '-' + pool_id}
                   className={`relative rounded-xl ${
                     v3Pool === pool_id && !isNoPool
                       ? 'bg-feeBoxSelectedBg'
@@ -356,7 +357,6 @@ function DetailViewLimit({
                   }}
                 >
                   <div
-                    key={i + '-' + pool_id}
                     className={`flex-col flex items-start p-2`}
                   >
                     <span
@@ -403,6 +403,7 @@ function DetailViewLimit({
           const isNoPool = everyPoolTvl?.[pool_id] == null;
           return (
             <button
+              key={i + '-' + pool_id}
               className={`relative bg-feeSubBoxBgColor rounded-xl ${
                 v3Pool === pool_id && !isNoPool
                   ? 'bg-opacity-100'
@@ -420,7 +421,6 @@ function DetailViewLimit({
               }}
             >
               <div
-                key={i + '-' + pool_id}
                 className={`flex-col flex items-start p-1`}
               >
                 <span
