@@ -1,0 +1,101 @@
+name: deploy-aws-us
+
+on:
+  push:
+    branches: [testmain]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: 设置 Node.js 版本
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.15.0'
+
+      - run: |
+          yarn install
+          yarn build
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v3
+        with:
+          name: mydist
+          path: ./build  # 调整路径以匹配你的构建输出目录
+
+  deploy-aws-us:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: mydist
+          path: mydist
+
+      - name: deploy to remote server [44.202.226.33]
+        uses: easingthemes/ssh-deploy@v2.2.11
+        with:
+          # 服务器私钥
+          SSH_PRIVATE_KEY:  ${{ secrets.SSH_PRIVATE_KEY_PROD_01 }}
+          # Server IP
+          REMOTE_HOST:  44.202.226.33
+          # Username
+          REMOTE_USER:  root
+          # Port
+          REMOTE_PORT: 60022
+          # Source Path
+          SOURCE: "mydist/"
+          # Target Path
+          TARGET: "/opt/ref-ui"
+          #  rsync
+          ARGS: "-rltgoDzvO"
+          # An array of folder to exclude
+          EXCLUDE: ".git, .github"
+
+
+      - name: Execute SSH commmands on remote server[44.202.226.33]
+        uses: appleboy/ssh-action@master
+        with:
+          host: 44.202.226.33
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY_PROD_01 }}
+          port: 60022
+          script: |
+            cd /opt/ref-ui
+            chown -R root:root /opt/ref-ui
+
+            
+      - name: deploy to remote server [3.238.218.91]
+        uses: easingthemes/ssh-deploy@v2.2.11
+        with:
+          # Private Key
+          SSH_PRIVATE_KEY:  ${{ secrets.SSH_PRIVATE_KEY_PROD_02 }}
+          # Server IP
+          REMOTE_HOST:  3.238.218.91
+          # Useranme
+          REMOTE_USER:  root
+          # Port
+          REMOTE_PORT: 60022
+          # Source Path
+          SOURCE: "mydist/"
+          # Target Path
+          TARGET: "/opt/ref-ui"
+          #  rsync
+          ARGS: "-rltgoDzvO"
+          # An array of folder to exclude
+          EXCLUDE: ".git, .github"
+
+
+      - name: Execute SSH commmands on remote server[3.238.218.91]
+        uses: appleboy/ssh-action@master
+        with:
+          host: 3.238.218.91
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY_PROD_02 }}
+          port: 60022
+          script: |
+            cd /opt/ref-ui
+            chown -R root:root /opt/ref-ui
