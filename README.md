@@ -4,7 +4,7 @@ This is the front-end for [ref.finance](https://app.ref.finance).
 
 ## Quick Start
 
-To run this project locally:
+To run this project locally: 
 
 1. Prerequisites: Make sure you've installed [Node.js] ≥ 12
 2. Install dependencies: `yarn`
