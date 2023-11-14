@@ -3,15 +3,16 @@
   position: fixed;
   bottom: 32px;
   width: 100%;
-  z-index: 99999;
   padding: 12px 30px 12px 15px;
   font-size: 12px;
   opacity: 0;
   transition: opacity 0.3s ease-in-out;
+  z-index: -99;
 }
 
 .bottom-ga._show {
   opacity: 1;
+  z-index: 99999;
 }
 
 .modal-ga {
