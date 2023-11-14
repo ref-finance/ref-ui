@@ -38,17 +38,26 @@
 
 .bottom-ga .btn-outline {
   background: #fff;
+  border-color: #fff;
   color: #000;
 }
 
 @media (min-width: 769px) {
   .bottom-ga {
-    background: #fff;
+    background: #D2D8DD;
     padding: 20px 30px;
+    bottom: 0;
+    color: #000!important;
   }
 
   .bottom-ga .ga-reject {
     color: #000;
+  }
+
+  .bottom-ga .btn-outline {
+    background: #000;
+    border-color: #000;
+    color: #fff;
   }
 }
 

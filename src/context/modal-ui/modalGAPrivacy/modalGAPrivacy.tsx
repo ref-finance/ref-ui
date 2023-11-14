@@ -66,10 +66,10 @@ export const ModalGAPrivacy = () => {
   if (!showModal) {
     return (
       <div className={`bottom-ga ${showBottomGA ? '_show' : ''}`}>
-        <div className={'md:flex justify-between gap-6'}>
+        <div className={'sm:flex justify-between gap-6'}>
           <div
             style={{ maxWidth: 680 }}
-            className={'mb-4 md:mb-0 text-primaryText'}
+            className={'mb-4 sm:mb-0 text-primaryText sm:text-black'}
           >
             By clicking “Accept Cookies”, you agree to the storing of cookies on
             your device to enhance site navigation, analyze site usage, and
