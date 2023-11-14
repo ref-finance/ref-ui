@@ -2,7 +2,7 @@ name: deploy-aws-us
 
 on:
   push:
-    branches: [testmain]
+    branches: [caozm599-patch-1]
 
 jobs:
   build:
