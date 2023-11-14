@@ -883,12 +883,13 @@ function WalletPanelMobile() {
               <span className="col-span-2 text-sm text-primaryText">
                 <FormattedMessage id="token" />
               </span>
-              <span className="col-span-1 text-sm text-primaryText">
-                <FormattedMessage id="balance" />
-              </span>
-              <span className="col-span-1 text-sm text-primaryText">
+              <span className="col-span-2 text-sm text-primaryText">
+                <FormattedMessage id="balance" /> &{' '}
                 <FormattedMessage id="value" />
               </span>
+              {/*<span className="col-span-1 text-sm text-primaryText">*/}
+              {/*  <FormattedMessage id="value" />*/}
+              {/*</span>*/}
             </div>
             <div
               className="overflow-auto"
@@ -921,10 +922,10 @@ function WalletPanelMobile() {
                         {display_number_internationalCurrencySystemLongString(
                           Big(token.near || 0).toFixed()
                         )}
+                        <div className="text-sm text-primaryText">
+                          {display_value(token.t_value)}
+                        </div>
                       </div>
-                      <span className="text-sm text-white col-span-1">
-                        {display_value(token.t_value)}
-                      </span>
                     </div>
                   );
                 })}
@@ -954,10 +955,15 @@ function WalletPanelMobile() {
                         {display_number_internationalCurrencySystemLongString(
                           Big(token.ref || 0).toFixed()
                         )}
+
+                        <div className="text-sm text-primaryText">
+                          {display_value(token.t_value)}
+                        </div>
                       </div>
-                      <span className="text-sm text-white">
-                        {display_value(token.t_value)}
-                      </span>
+
+                      <div>
+                        <RefAndDCLWithdrawButton token={token} />
+                      </div>
                     </div>
                   );
                 })}
@@ -987,10 +993,14 @@ function WalletPanelMobile() {
                         {display_number_internationalCurrencySystemLongString(
                           Big(token.dcl || 0).toFixed()
                         )}
+
+                        <div className="text-sm text-primaryText">
+                          {display_value(token.t_value)}
+                        </div>
                       </div>
-                      <span className="text-sm text-white">
-                        {display_value(token.t_value)}
-                      </span>
+                      <div>
+                        <RefAndDCLWithdrawButton token={token} />
+                      </div>
                     </div>
                   );
                 })}
@@ -1020,10 +1030,16 @@ function WalletPanelMobile() {
                         {display_number_internationalCurrencySystemLongString(
                           Big(token.aurora || 0).toFixed()
                         )}
+                        <div className="text-sm text-primaryText">
+                          {display_value(token.t_value)}
+                        </div>
                       </div>
-                      <span className="text-sm text-white">
-                        {display_value(token.t_value)}
-                      </span>
+                      <div>
+                        <RefAndDCLWithdrawButton
+                          token={token}
+                          isAurora={true}
+                        />
+                      </div>
                     </div>
                   );
                 })}

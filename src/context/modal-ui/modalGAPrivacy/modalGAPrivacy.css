@@ -44,10 +44,10 @@
 
 @media (min-width: 769px) {
   .bottom-ga {
-    background: #D2D8DD;
+    background: #d2d8dd;
     padding: 20px 30px;
     bottom: 0;
-    color: #000!important;
+    color: #000 !important;
   }
 
   .bottom-ga .ga-reject {

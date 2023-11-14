@@ -356,9 +356,7 @@ function DetailViewLimit({
                     }
                   }}
                 >
-                  <div
-                    className={`flex-col flex items-start p-2`}
-                  >
+                  <div className={`flex-col flex items-start p-2`}>
                     <span
                       className={`text-sm ${
                         isNoPool
@@ -420,9 +418,7 @@ function DetailViewLimit({
                 }
               }}
             >
-              <div
-                className={`flex-col flex items-start p-1`}
-              >
+              <div className={`flex-col flex items-start p-1`}>
                 <span
                   className={`text-sm ${
                     isNoPool ? 'text-primaryText text-opacity-60' : 'text-white'

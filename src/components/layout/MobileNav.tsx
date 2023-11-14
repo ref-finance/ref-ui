@@ -425,6 +425,8 @@ export function MobileNavBar(props: any) {
             );
             if (level2Match) {
               two_level_selected_id = level2Match.id;
+              one_level_selected_id = d.id;
+              setOpenMenu(d.id);
             }
           }
           return match;

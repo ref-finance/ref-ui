@@ -1353,8 +1353,10 @@ function MenuBar() {
             const level2Match = d.children.find((c) =>
               c.links?.includes(pathname)
             );
+
             if (level2Match) {
               two_level_selected_id = level2Match.id;
+              one_level_selected_id = d.id;
             }
           }
           return match;
