@@ -253,6 +253,13 @@ const routes: Route[] = [
     wrapper: 'AutoHeight',
   },
   {
+    path: '/swap',
+    element: lazy(() => {
+      return import(/* webpackChunkName: "swap" */ 'src/pages/SwapPage');
+    }),
+    wrapper: 'AutoHeight',
+  },
+  {
     path: '/',
     element: lazy(() => {
       if (isNewHostName) {

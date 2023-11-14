@@ -1,79 +1,80 @@
-import React, { ReactNode, useContext, useState, useEffect } from 'react';
-import { HiOutlineExternalLink } from '../components/reactIcons';
+import React, { ReactNode, useContext, useEffect, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { useHistory } from 'react-router';
 import { useLocation } from 'react-router-dom';
 import {
-  Rainbow,
-  Ethereum,
-  Celo,
-  Allbridge,
-  Aurora,
-  Terra,
-  Solana,
-  ElectronLabs,
-  BridgeIconMenu,
-} from '../components/icon/Menu';
-
-import {
+  AuroraIconSwapNav,
+  BorrowIcon,
+  BridgeIcon,
+  EsIcon,
+  FarmsIcon,
   IconAirDrop,
+  IconAurora,
+  IconBridge,
+  IconCelo,
   IconCommunity,
   IconCreateNew,
   IconDocs,
   IconEn,
+  IconEthereum,
   IconForum,
   IconLanguage,
   IconPools,
   IconRainbow,
-  IconZh,
-  IconVi,
-  IconBridge,
-  IconEthereum,
-  IconAurora,
+  IconRisk,
   IconSolana,
   IconTerra,
-  IconCelo,
-  UkIcon,
-  RuIcon,
+  IconVi,
+  IconZh,
+  InquiriesIcon,
   JaIcon,
   KoIcon,
-  IconRisk,
-  AuroraIconSwapNav,
-  MobileYourLiqudityIcon,
-  MobilePoolsIcon,
-  BridgeIcon,
-  RisksIcon,
-  EsIcon,
-  WrapNearIcon,
-  MobileBridgeIcon,
-  InquiriesIcon,
-  SwapIcon,
-  XswapIcon,
   LimitOrderIcon,
+  MobileBridgeIcon,
+  MobilePoolsIcon,
+  MobileYourLiqudityIcon,
   OrderBookIcon,
+  OrderlyIcon,
+  OverviewIcon,
   PoolsIcon,
-  YourliquidityIcon,
-  FarmsIcon,
+  PortfolioIcon,
+  PurpleCircleIcon,
+  REFSmallIcon,
+  RisksIcon,
+  RuIcon,
+  SwapIcon,
+  UkIcon,
+  WrapNearIcon,
   XrefEarnIcon,
   XrefIcon,
-  REFSmallIcon,
-  PurpleCircleIcon,
-  PortfolioIcon,
-  OrderlyIcon,
-  BorrowIcon,
-  OverviewIcon,
+  XswapIcon,
+  YourliquidityIcon,
 } from 'src/components/icon/Nav';
-// import { XrefIcon } from 'src/components/icon/Xref';
-import getConfig from '../services/config';
-import { MobileNavLimitOrder, IconMyLiquidity } from '../components/icon/Nav';
-import { SWAP_TYPE_KEY } from '../pages/SwapPage';
+import { openUrl } from 'src/services/commonV3';
+
 import {
-  MobileNavSwap,
+  Allbridge,
+  Aurora,
+  BridgeIconMenu,
+  Celo,
+  ElectronLabs,
+  Ethereum,
+  Rainbow,
+  Solana,
+  Terra,
+} from '../components/icon/Menu';
+import { IconMyLiquidity, MobileNavLimitOrder } from '../components/icon/Nav';
+import {
   MobileNavStable,
+  MobileNavSwap,
   MobileNavSwapPro,
 } from '../components/icon/Nav';
+import { HiOutlineExternalLink } from '../components/reactIcons';
+import { SWAP_TYPE_KEY } from '../pages/SwapPage';
+// import { XrefIcon } from 'src/components/icon/Xref';
+import getConfig from '../services/config';
+import { isNewHostName } from '../services/config';
 import { WalletContext } from '../utils/wallets-integration';
-import { useHistory } from 'react-router';
-import { openUrl } from 'src/services/commonV3';
 
 export type MenuItem = {
   id: number;
@@ -250,10 +251,13 @@ export const useMenus = (cb?: () => void) => {
           clickEvent: () => {
             sessionStorage.setItem(SWAP_TYPE_KEY, 'Lite');
             localStorage.setItem('SWAP_MODE_VALUE', 'normal');
-
-            history.push('/');
+            if (isNewHostName) {
+              history.push('/swap');
+            } else {
+              history.push('/');
+            }
           },
-          links: ['/', '/swap'],
+          links: isNewHostName ? ['/swap'] : ['/', '/swap'],
         },
         {
           id: '1-2',
@@ -615,12 +619,16 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
           isExternal: false,
           swap_mode: 'normal',
           clickEvent: () => {
-            history.push('/');
+            if (isNewHostName) {
+              history.push('/swap');
+            } else {
+              history.push('/');
+            }
 
             sessionStorage.setItem(SWAP_TYPE_KEY, 'Lite');
             localStorage.setItem('SWAP_MODE_VALUE', 'normal');
           },
-          links: ['/', '/swap'],
+          links: isNewHostName ? ['/swap'] : ['/', '/swap'],
         },
 
         {
