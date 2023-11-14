@@ -99,7 +99,7 @@ const RpcList = () => {
       ) : (
         <>
           <div
-            style={{ zIndex: 999999 }}
+            style={{ zIndex: 99998 }}
             className="flex items-end fixed right-8 bottom-0"
           >
             <div
