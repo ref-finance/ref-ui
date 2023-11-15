@@ -47,10 +47,11 @@ import {
   Pool,
   StablePool,
 } from './pool';
-import {
-  createSmartRouteLogicWorker,
-  transformWorkerResult,
-} from './smartRouteLogicWorker';
+// import {
+//   createSmartRouteLogicWorker,
+//   transformWorkerResult,
+// } from './smartRouteLogicWorker';
+import { stableSmart } from './smartRouteLogic';
 import { getSwappedAmount } from './stable-swap';
 import { round } from './token';
 import {
@@ -62,7 +63,7 @@ import {
 export const REF_FI_SWAP_SIGNAL = 'REF_FI_SWAP_SIGNAL_KEY';
 const { NO_REQUIRED_REGISTRATION_TOKEN_IDS } = getConfigV2();
 
-const smartRouteLogicWorker = createSmartRouteLogicWorker();
+// const smartRouteLogicWorker = createSmartRouteLogicWorker();
 
 // Big.strict = false;
 const FEE_DIVISOR = 10000;
@@ -426,20 +427,21 @@ export const estimateSwap = async ({
   let smartRouteV2OutputEstimate;
 
   try {
-    const stableSmartActionsV2 = transformWorkerResult(
-      await smartRouteLogicWorker.getStableSmart({
-        pools: orpools.filter((p) => !p?.Dex || p.Dex !== 'tri'),
-        inputToken: tokenIn.id,
-        outputToken: tokenOut.id,
-        totalInput: parsedAmountIn,
-      })
-    );
-    // stableSmartActionsV2 = await stableSmart(
-    // orpools.filter((p) => !p?.Dex || p.Dex !== 'tri'),
-    // tokenIn.id,
-    // tokenOut.id,
-    // parsedAmountIn
+    // TODO 2023.11.12生产上线异常，chunk load failed,暂时隐藏
+    // const stableSmartActionsV2 = transformWorkerResult(
+    //   await smartRouteLogicWorker.getStableSmart({
+    //     pools: orpools.filter((p) => !p?.Dex || p.Dex !== 'tri'),
+    //     inputToken: tokenIn.id,
+    //     outputToken: tokenOut.id,
+    //     totalInput: parsedAmountIn,
+    //   })
     // );
+    const stableSmartActionsV2 = await stableSmart(
+      orpools.filter((p) => !p?.Dex || p.Dex !== 'tri'),
+      tokenIn.id,
+      tokenOut.id,
+      parsedAmountIn
+    );
 
     res = stableSmartActionsV2;
 
