@@ -5,6 +5,7 @@ import {
 } from 'src/constants/constLocalStorage';
 import CustomModal from 'src/components/customModal/customModal';
 import './modalGAPrivacy.css';
+import { CloseButton } from "src/context/modal-ui/components/CloseButton";
 
 export const ModalGAPrivacy = () => {
   const [showBottomGA, setShowBottomGA] = useState(false);
@@ -78,11 +79,8 @@ export const ModalGAPrivacy = () => {
           </div>
           <div className={'flex gap-6 items-center'}>
             {buttonNode}
-            <div
-              className={'bottom-ga-close cursor-pointer text-primaryText'}
-              onClick={() => setShowBottomGA(false)}
-            >
-              X
+            <div className={'bottom-ga-close cursor-pointer text-primaryText'}>
+              <CloseButton onClick={() => setShowBottomGA(false)}/>
             </div>
           </div>
         </div>
