@@ -10,7 +10,6 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { FormattedMessage, FormattedRelativeTime, useIntl } from 'react-intl';
 import { matchPath } from 'react-router';
 import { Link, useHistory, useLocation } from 'react-router-dom';
-import ReactTooltip from 'react-tooltip';
 import { Card } from 'src/components/card/Card';
 import {
   IconAirDropGreenTip,

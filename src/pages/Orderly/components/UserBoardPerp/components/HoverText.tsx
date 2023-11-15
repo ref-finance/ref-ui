@@ -1,7 +1,7 @@
 import Big from 'big.js';
 import React, { useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 
 import { isMobile } from '../../../../../utils/device';
 import { useClientMobile } from '../../../../../utils/device';
@@ -182,22 +182,16 @@ export function LiquidationPriceText() {
         />
         <span
           data-class="reactTip"
-          data-for={'user_lq_price'}
-          data-html={true}
+          data-tooltip-id={'user_lq_price'}
           data-place={'top'}
-          data-tip={getLqPriceTip()}
+          data-tooltip-html={getLqPriceTip()}
           className="inline-block pl-1 relative top-0.5"
         >
           <QuestionMark />
 
           <ReactTooltip
             id={'user_lq_price'}
-            backgroundColor="#1D2932"
             place="right"
-            border
-            borderColor="#7e8a93"
-            textColor="#C6D1DA"
-            effect="solid"
           />
         </span>
       </span>

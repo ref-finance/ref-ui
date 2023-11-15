@@ -1355,14 +1355,6 @@ function UserLiquidityLine_old({
                       Text={() => <FormattedMessage id="claim" />}
                     />
                   </div>
-                  {/* <ReactTooltip
-                      id={`mobile_pause_dcl_tip_claim_${liquidity.lpt_id}`}
-                      backgroundColor="#1D2932"
-                      border
-                      borderColor="#7e8a93"
-                      effect="solid"
-                    />
-                  </div> */}
                 </div>
               </div>
             </div>

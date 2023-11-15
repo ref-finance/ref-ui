@@ -125,10 +125,9 @@ function Footer() {
               {/* <div
                 className={`text-white text-right`}
                 data-class="reactTip"
-                data-for={'mailBoxId'}
+                data-tooltip-id={'mailBoxId'}
                 data-place="right"
-                data-html={true}
-                data-tip={`<div class="opacity-50 text-xs text-left">Business Inquiries</div>`}
+                data-tooltip-html={`<div class="opacity-50 text-xs text-left">Business Inquiries</div>`}
               >
                 <MailBoxIcon
                   className="relative cursor-pointer ml-5 -mt-1"

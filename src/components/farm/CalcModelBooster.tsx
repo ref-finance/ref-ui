@@ -46,7 +46,6 @@ import {
 import { getLoveAmount } from '../../services/referendum';
 import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import { VEARROW } from '../icon/Referendum';
-import ReactTooltip from 'react-tooltip';
 import { openUrl } from '../../services/commonV3';
 
 const config = getConfig();

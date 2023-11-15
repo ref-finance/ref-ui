@@ -414,9 +414,7 @@ function WithDrawBox(props: { userRewardList: any; tokenPriceList: any }) {
                 data-tooltip-html={valueOfWithDrawLimitTip()}
               >
                 <QuestionMark></QuestionMark>
-                <ReactTooltip
-                  id="selectAllId"
-                />
+                <ReactTooltip id="selectAllId" />
               </div>
             </div>
           ) : (
