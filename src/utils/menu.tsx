@@ -239,7 +239,9 @@ export const useMenus = (cb?: () => void) => {
           <FormattedMessage id="trade" />
         </>
       ),
-      links: ['/', '/orderbook', '/myOrder', '/swap'],
+      links: isNewHostName
+        ? ['/', '/spot', '/orderbook', '/myOrder', '/swap']
+        : ['/', '/orderbook', '/myOrder', '/swap'],
       children: [
         {
           id: '1-1',
@@ -303,7 +305,11 @@ export const useMenus = (cb?: () => void) => {
                     width: '120px',
                   }}
                   className={`frcc  hover:bg-v3SwapGray  border-v3SwapGray border-opacity-10 hover:bg-opacity-10 w-1/2 rounded-xl py-2 ${
-                    pathName.startsWith('/orderbook/spot')
+                    (
+                      isNewHostName
+                        ? pathName.includes('/spot')
+                        : pathName.startsWith('/orderbook/spot')
+                    )
                       ? ' bg-hoverSubBridge bg-opacity-50'
                       : 'border'
                   }`}
@@ -328,7 +334,12 @@ export const useMenus = (cb?: () => void) => {
                     width: '120px',
                   }}
                   className={`frcc  hover:bg-v3SwapGray hover:bg-opacity-10  border-v3SwapGray border-opacity-10 w-1/2 rounded-xl py-2  ${
-                    pathName.startsWith('/orderbook/perps')
+                    (
+                      isNewHostName
+                        ? pathName === '/' ||
+                          pathName.startsWith('/orderbook/perps')
+                        : pathName.startsWith('/orderbook/perps')
+                    )
                       ? ' bg-hoverSubBridge bg-opacity-50'
                       : 'border'
                   }`}
@@ -612,7 +623,9 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
           <FormattedMessage id="trade" />
         </>
       ),
-      links: ['/', '/orderbook', '/myOrder', '/swap'],
+      links: isNewHostName
+        ? ['/', '/spot', '/orderbook', '/myOrder', '/swap']
+        : ['/', '/orderbook', '/myOrder', '/swap'],
       children: [
         {
           id: '1-1',
@@ -668,7 +681,11 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
               <div
                 className={`w-full font-gotham frcs border ${
                   window.location.pathname === '/orderbook/spot' ||
-                  window.location.pathname === '/orderbook/perps'
+                  window.location.pathname === '/orderbook/perps' ||
+                  (isNewHostName
+                    ? window.location.pathname === '/spot' ||
+                      window.location.pathname === '/'
+                    : '')
                     ? 'bg-cardBg'
                     : ''
                 } border-v3SwapGray border-opacity-30 gap-3 text-primaryText text-base rounded-xl p-1`}
@@ -682,13 +699,17 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
                     setShow(false);
                   }}
                   className={`frcc bg-symbolHover2 ${
-                    window.location.pathname === '/orderbook/spot'
+                    window.location.pathname === '/orderbook/spot' ||
+                    (isNewHostName ? window.location.pathname === '/spot' : '')
                       ? 'text-white'
                       : ''
                   }    w-1/2 rounded-lg py-1`}
                   style={{
                     background:
-                      window.location.pathname === '/orderbook/spot'
+                      window.location.pathname === '/orderbook/spot' ||
+                      (isNewHostName
+                        ? window.location.pathname === '/spot'
+                        : '')
                         ? '#324451'
                         : '',
                     width: '95px',
@@ -707,13 +728,15 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
                   }}
                   style={{
                     background:
-                      window.location.pathname === '/orderbook/perps'
+                      window.location.pathname === '/orderbook/perps' ||
+                      (isNewHostName ? window.location.pathname === '/' : '')
                         ? '#324451'
                         : '',
                     width: '95px',
                   }}
                   className={`frcc bg-symbolHover2 ${
-                    window.location.pathname === '/orderbook/perps'
+                    window.location.pathname === '/orderbook/perps' ||
+                    (isNewHostName ? window.location.pathname === '/' : '')
                       ? 'text-white'
                       : ''
                   }   w-1/2 rounded-lg py-1`}
