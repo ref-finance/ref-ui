@@ -239,9 +239,7 @@ export const useMenus = (cb?: () => void) => {
           <FormattedMessage id="trade" />
         </>
       ),
-      links: isNewHostName
-        ? ['/', '/spot', '/orderbook', '/myOrder', '/swap']
-        : ['/', '/orderbook', '/myOrder', '/swap'],
+      links: ['/', '/spot', '/orderbook', '/myOrder', '/swap'],
       children: [
         {
           id: '1-1',
@@ -623,9 +621,7 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
           <FormattedMessage id="trade" />
         </>
       ),
-      links: isNewHostName
-        ? ['/', '/spot', '/orderbook', '/myOrder', '/swap']
-        : ['/', '/orderbook', '/myOrder', '/swap'],
+      links: ['/', '/spot', '/orderbook', '/myOrder', '/swap'],
       children: [
         {
           id: '1-1',
@@ -748,7 +744,7 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
           ),
 
           isExternal: false,
-          links: ['/orderbook'],
+          links: ['/', '/spot', '/orderbook'],
         },
       ],
     },
