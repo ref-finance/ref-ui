@@ -34,6 +34,7 @@ import { PoolTab } from '../../components/pool/PoolTab';
 import { useClientMobile } from '../../utils/device';
 import { TokenBalancesView } from '../../services/token';
 import { ModalClose } from '../../components/icon/ModalClose';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 export function AddPoolModal(
   props: ReactModal.Props & {
@@ -241,7 +242,7 @@ export function AddPoolModal(
                 data-tooltip-id="feeDetail"
               >
                 <QuestionMark />
-                <ReactTooltip className="w-20" id="feeDetail" />
+                <CustomTooltip className="w-20" id="feeDetail" />
               </div>
             </div>
             <Toggle

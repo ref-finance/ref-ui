@@ -5,6 +5,7 @@ import QuestionMark from '../../components/farm/QuestionMark';
 
 import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { VETip } from '../icon/Referendum';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 export function QuestionTip({
   id,
@@ -56,7 +57,7 @@ export function QuestionTip({
       <span className={`${opacity}`}>
         <QuestionMark colorhex={colorhex} color={color}></QuestionMark>
       </span>
-      <ReactTooltip id={uniquenessId || 'auto_router'} />
+      <CustomTooltip id={uniquenessId || 'auto_router'} />
     </div>
   );
 }
@@ -117,7 +118,7 @@ export function ExclamationTip({
       >
         <VETip />
       </div>
-      <ReactTooltip
+      <CustomTooltip
         id={uniquenessId || 'exclaimaton_tip' + 'id'}
         // @ts-ignore
         place={dataPlace || 'bottom'}

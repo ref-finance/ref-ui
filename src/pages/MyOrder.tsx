@@ -61,6 +61,7 @@ import getConfig from 'src/services/config';
 import _ from 'lodash';
 import { HistoryOrderSwapInfo } from '../services/indexer';
 import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from 'src/constants';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 const ORDER_TYPE_KEY = 'REF_FI_ORDER_TYPE_VALUE';
 
@@ -414,7 +415,7 @@ function HistoryLine({
           );
         })}
       </div>
-      <ReactTooltip
+      <CustomTooltip
         className="w-20"
         id={'claim_tip_' + order.order_id}
         place="bottom"
@@ -1392,7 +1393,7 @@ function ActiveLine({
           );
         })}
       </div>
-      <ReactTooltip
+      <CustomTooltip
         className="w-20"
         id={'unclaim_tip_' + order.order_id}
         place="bottom"
@@ -2220,7 +2221,7 @@ function OrderCard({
                 defaultMessage: 'real-time executed orders',
               })}
             </span>
-            <ReactTooltip id={'real_time_order_tip'} place="top" />
+            <CustomTooltip id={'real_time_order_tip'} place="top" />
           </div>
         )}
       {orderType === 'history' &&
@@ -2647,7 +2648,7 @@ function OrderCardOld({
             );
           })}
         </div>
-        <ReactTooltip
+        <CustomTooltip
           className="w-20"
           id={'unclaim_tip_' + order.order_id}
           place="bottom"
@@ -2808,7 +2809,7 @@ function OrderCardOld({
           />
         </button>
 
-        <ReactTooltip
+        <CustomTooltip
           className="w-20"
           id="v2_paused_pool_tip_cancel_old"
           place={isMobile() ? 'right' : 'top'}

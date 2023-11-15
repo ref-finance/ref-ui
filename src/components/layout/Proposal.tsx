@@ -151,6 +151,7 @@ import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { DownArrowLightMobile } from '../icon/Arrows';
 import { getProposalHashes, ProposalHash } from '../../services/indexer';
 import { openUrl } from '../../services/commonV3';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 const VotedOnlyKey = 'REF_FI_GOV_PROPOSAL_VOTED_ONLY';
 const BonusOnlyKey = 'REF_FI_GOV_PROPOSAL_BONUS_ONLY';
@@ -5666,7 +5667,7 @@ export const GovProposal = ({
                   padding="px-3 py-0"
                 />
               )}
-              <ReactTooltip className="w-20" id="create_propopsal_tip" />
+              <CustomTooltip className="w-20" id="create_propopsal_tip" />
             </div>
 
             {/* <FilterSelector

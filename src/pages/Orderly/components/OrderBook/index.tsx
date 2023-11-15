@@ -783,7 +783,7 @@ function OrderBook({ maintenance }: { maintenance: boolean }) {
                 data-multiline={true}
               >
                 {orders && curMarkPrice && displayMarkPrice}
-                <ReactTooltip id={'orderbook_mark_price'} place="top" />
+                <CustomTooltip id={'orderbook_mark_price'} place="top" />
               </div>
             </div>
           )}
@@ -1458,7 +1458,7 @@ export function OrderBookShrink({ maintenance }: { maintenance: boolean }) {
                 data-multiline={true}
               >
                 {orders && curMarkPrice && displayMarkPrice}
-                <ReactTooltip id={'orderbook_mark_price'} place="top" />
+                <CustomTooltip id={'orderbook_mark_price'} place="top" />
               </div>
             </div>
           )}

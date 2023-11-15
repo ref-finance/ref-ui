@@ -4,6 +4,7 @@ import { FormattedMessage } from 'react-intl';
 import { UnCheckedRadio, CheckedRadio, Radio } from '../../components/icon';
 import QuestionMark from '../../components/farm/QuestionMark';
 import { Tooltip as ReactTooltip } from 'react-tooltip';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 // stable swap exchange rate
 export function ChooseAddType({
@@ -93,7 +94,7 @@ export function InfoLine({
             data-tooltip-id="tipId"
           >
             <QuestionMark />
-            <ReactTooltip className="w-20" id="tipId" />
+            <CustomTooltip className="w-20" id="tipId" />
           </div>
         ) : null}
       </div>

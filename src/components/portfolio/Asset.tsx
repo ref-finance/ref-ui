@@ -30,6 +30,7 @@ import {
 import { isMobile } from 'src/utils/device';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { openUrl } from '../../services/commonV3';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 const is_mobile = isMobile();
 const AssetData = createContext(null);
 export default function Asset() {
@@ -240,7 +241,7 @@ function AssetPc() {
             data-tooltip-html={getTip()}
           >
             <QuestionMark></QuestionMark>
-            <ReactTooltip id="selectAllId" />
+            <CustomTooltip id="selectAllId" />
           </div>
         </div>
         <div className="text-2xl text-white gotham_bold my-1.5">
@@ -352,7 +353,7 @@ function AssetMobile() {
             data-tooltip-html={getTip()}
           >
             <QuestionMark></QuestionMark>
-            <ReactTooltip id="selectAllId" />
+            <CustomTooltip id="selectAllId" />
           </div>
         </div>
         <div className="text-2xl text-white gotham_bold my-1.5">

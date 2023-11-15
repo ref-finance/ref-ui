@@ -23,6 +23,7 @@ import { REF_FI_SENDER_WALLET_ACCESS_KEY } from '../../../../pages/Orderly/order
 import { ORDERLY_ASSET_MANAGER } from '../../../../pages/Orderly/near';
 import { openUrl } from '../../../../services/commonV3';
 import { WalletRiskCheckBox } from 'src/context/modal-ui/components/WalletOptions/WalletRiskCheckBox';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 const walletOfficialUrl = {
   'NEAR Wallet': 'wallet.near.org',
@@ -364,9 +365,7 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
                                 }
                               }}
                             ></AuthenticationIcon>
-                            <ReactTooltip
-                              id={`walletOptionId_${module.id}`}
-                            />
+                            <CustomTooltip id={`walletOptionId_${module.id}`} />
                           </div>
                         ) : null}
                       </div>

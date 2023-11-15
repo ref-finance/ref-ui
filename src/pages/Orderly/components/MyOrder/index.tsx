@@ -82,6 +82,7 @@ import getConfig from '../../../../services/config';
 import _ from 'lodash';
 import { HistoryOrderSwapInfo } from '../../../../services/indexer';
 import { useDclPoolIdByCondition } from '../../../../state/swapV3';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 const ORDER_TYPE_KEY = 'REF_FI_ORDER_TYPE_VALUE';
 
@@ -424,7 +425,7 @@ function HistoryLine({
           );
         })}
       </div>
-      <ReactTooltip
+      <CustomTooltip
         className="w-20"
         id={'claim_tip_' + order.order_id}
         place="bottom"
@@ -1535,7 +1536,7 @@ function ActiveLine({
           );
         })}
       </div>
-      <ReactTooltip
+      <CustomTooltip
         className="w-20"
         id={'unclaim_tip_' + order.order_id}
         place="bottom"
@@ -2741,7 +2742,7 @@ function OrderCard({
                       defaultMessage: 'real-time executed orders',
                     })}
                   </span>
-                  <ReactTooltip id={'real_time_order_tip'} place="top" />
+                  <CustomTooltip id={'real_time_order_tip'} place="top" />
                 </div>
               </td>
             </tr>

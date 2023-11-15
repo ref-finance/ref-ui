@@ -37,6 +37,7 @@ import {
 } from 'src/services/burrow-utils';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { isMobile } from 'src/utils/device';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 const is_mobile = isMobile();
 const OverviewData = createContext(null);
 export default function Overview() {
@@ -545,7 +546,7 @@ const Template = (props: {
             data-tooltip-html={tip}
           >
             <QuestionMark></QuestionMark>
-            <ReactTooltip id="tipId" />
+            <CustomTooltip id="tipId" />
           </div>
         )}
       </div>

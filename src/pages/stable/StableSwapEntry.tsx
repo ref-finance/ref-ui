@@ -52,6 +52,7 @@ import {
   ForbiddenIcon,
   ForbiddenIconLarge,
 } from '../../components/icon/FarmBoost';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 export const getStablePoolDecimal = (id: string | number) => {
   if (isRatedPool(id)) return RATED_POOL_LP_TOKEN_DECIMALS;
@@ -308,7 +309,7 @@ function StablePoolCard({
               </span>
             </Link>
             {needForbidden ? (
-              <ReactTooltip id={'forbiddenTip' + 'sauce_' + stablePool.id} />
+              <CustomTooltip id={'forbiddenTip' + 'sauce_' + stablePool.id} />
             ) : null}
           </div>
         </div>

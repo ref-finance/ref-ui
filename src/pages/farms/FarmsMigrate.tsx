@@ -33,6 +33,7 @@ import {
   WalletContext,
 } from '../../utils/wallets-integration';
 import Loading from 'src/components/layout/Loading';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 const { STABLE_POOL_IDS, REF_VE_CONTRACT_ID } = getConfig();
 export default function FarmsMigrate() {
   const [all_token_price_list, set_all_token_price_list] = useState({});
@@ -414,7 +415,7 @@ function WithDrawBox(props: { userRewardList: any; tokenPriceList: any }) {
                 data-tooltip-html={valueOfWithDrawLimitTip()}
               >
                 <QuestionMark></QuestionMark>
-                <ReactTooltip id="selectAllId" />
+                <CustomTooltip id="selectAllId" />
               </div>
             </div>
           ) : (

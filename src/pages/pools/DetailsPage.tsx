@@ -121,7 +121,6 @@ import { isStablePool, BLACKLIST_POOL_IDS } from '../../services/near';
 
 export const REF_FI_PRE_LIQUIDITY_ID_KEY = 'REF_FI_PRE_LIQUIDITY_ID_VALUE';
 
-import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { WRAP_NEAR_CONTRACT_ID } from 'src/services/wrap-near';
 import { useAccountInfo, LOVE_TOKEN_DECIMAL } from '../../state/referendum';
@@ -169,6 +168,7 @@ import { PoolRefreshModal } from './PoolRefreshModal';
 import { useTransactionResult } from 'src/components/toast/useTransactionResult';
 import showToast from 'src/components/toast/showToast';
 import { CONST_SWAP_CALLBACK_ERROR_CODE } from 'src/constants/constSwap';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 interface ParamTypes {
   id: string;
@@ -2543,7 +2543,7 @@ export default function PoolDetailsPage() {
                       <WatchListStartFull />
                     )}
 
-                    <ReactTooltip id="fullstar-tip" />
+                    <CustomTooltip id="fullstar-tip" />
                   </div>
                 ) : (
                   <div
@@ -2563,7 +2563,7 @@ export default function PoolDetailsPage() {
                       <WatchListStartEmpty />
                     )}
 
-                    <ReactTooltip id="emptystar-tip" />
+                    <CustomTooltip id="emptystar-tip" />
                   </div>
                 )}
               </div>
@@ -2749,7 +2749,7 @@ export default function PoolDetailsPage() {
                       !isMobile() &&
                       seedFarms &&
                       BaseApr().rawApr > 0 && (
-                        <ReactTooltip
+                        <CustomTooltip
                           className="w-20"
                           id={'pool_list_pc_apr' + pool.id}
                           place="right"

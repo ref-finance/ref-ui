@@ -6,7 +6,6 @@ import React, {
   useMemo,
 } from 'react';
 import Big from 'big.js';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
 import _ from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
@@ -56,6 +55,7 @@ import { WalletContext } from '../../utils/wallets-integration';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import getConfigV2 from '../../services/configV2';
 const configV2 = getConfigV2();
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 export const PortfolioOrderlyData = createContext(null);
 const is_mobile = isMobile();
 
@@ -354,7 +354,7 @@ function PortfolioOrderly() {
                       `}
                     >
                       <QuestionMark />
-                      <ReactTooltip id="selectAllId" place="top" />
+                      <CustomTooltip id="selectAllId" place="top" />
                     </div>
                   </span>
                 </div>

@@ -31,6 +31,7 @@ import {
 } from 'src/components/button/Button';
 import { openUrl } from '../../services/commonV3';
 import Burrow from '../icon/logos/Burrow';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 function USNPage(props: ReactModal.Props) {
   const intl = useIntl();
@@ -136,7 +137,7 @@ function USNPage(props: ReactModal.Props) {
                   data-tooltip-id="buyUSNTip"
                 >
                   <QuestionMark />
-                  <ReactTooltip className="w-20" id="buyUSNTip" />
+                  <CustomTooltip className="w-20" id="buyUSNTip" />
                 </div>
               </div>
               <IoClose

@@ -135,7 +135,7 @@ function Footer() {
                     window.open('https://form.typeform.com/to/onOPhJ6Y');
                   }}
                 ></MailBoxIcon>
-                <ReactTooltip
+                <CustomTooltip
                   id={'mailBoxId'}
                   backgroundColor="#1D2932"
                   border

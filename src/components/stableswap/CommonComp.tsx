@@ -27,6 +27,7 @@ import {
 import { isClientMobie } from '../../utils/device';
 import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { REF_FI_POOL_ACTIVE_TAB } from '../../pages/pools/utils';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 export function BackToStablePoolList() {
   const history = useHistory();
@@ -323,7 +324,7 @@ export const StableTokens = ({
           >
             <WatchListStartFull />
 
-            <ReactTooltip id="fullstar-tip" />
+            <CustomTooltip id="fullstar-tip" />
           </div>
         ) : (
           <div
@@ -336,7 +337,7 @@ export const StableTokens = ({
             data-tooltip-id="emptystar-tip"
           >
             <WatchListStartEmpty />
-            <ReactTooltip id="emptystar-tip" />
+            <CustomTooltip id="emptystar-tip" />
           </div>
         )}
       </div>

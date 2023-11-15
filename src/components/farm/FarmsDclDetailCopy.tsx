@@ -482,7 +482,7 @@ export default function FarmsDclDetail(props: {
               <BoostOptIcon className="mr-0.5"></BoostOptIcon>
               <FormattedMessage id="boost"></FormattedMessage>
             </div>
-            <ReactTooltip
+            <CustomTooltip
               id="boostFarmTipId"
               backgroundColor="#1D2932"
               border
@@ -840,7 +840,7 @@ export default function FarmsDclDetail(props: {
               }
             )}
           </div>
-          <ReactTooltip
+          <CustomTooltip
             id={'rewardPerWeekId' + detailData?.farmList[0]?.farm_id}
             backgroundColor="#1D2932"
             border
@@ -857,7 +857,7 @@ export default function FarmsDclDetail(props: {
           data-tip={getRewardsPerWeekTip()}
         >
           <span>{totalPriceDisplay}</span>
-          <ReactTooltip
+          <CustomTooltip
             id={'rewardPerWeekId1' + detailData?.farmList[0]?.farm_id}
             backgroundColor="#1D2932"
             border
@@ -1048,7 +1048,7 @@ export default function FarmsDclDetail(props: {
               data-class="reactTip"
             >
               <span>{get_total_apr()}</span>
-              <ReactTooltip
+              <CustomTooltip
                 id={'aprId' + detailData.farmList[0].farm_id + 'your'}
                 backgroundColor="#1D2932"
                 border
@@ -1071,7 +1071,7 @@ export default function FarmsDclDetail(props: {
                 data-tip={rewardRangeTip()}
               >
                 <QuestionMark></QuestionMark>
-                <ReactTooltip
+                <CustomTooltip
                   id="rewardRangeTipId"
                   backgroundColor="#1D2932"
                   border
@@ -1106,7 +1106,7 @@ export default function FarmsDclDetail(props: {
               data-tip={valueOfRewardsTip()}
             >
               <QuestionMark></QuestionMark>
-              <ReactTooltip
+              <CustomTooltip
                 id={'rewardPerWeekQId'}
                 backgroundColor="#1D2932"
                 border
@@ -1152,7 +1152,7 @@ export default function FarmsDclDetail(props: {
                 data-tip={rewardRangeTip()}
               >
                 <QuestionMark></QuestionMark>
-                <ReactTooltip
+                <CustomTooltip
                   id="rewardRangeTipId2"
                   backgroundColor="#1D2932"
                   border
@@ -1176,7 +1176,7 @@ export default function FarmsDclDetail(props: {
               data-tip={valueOfRewardsTip()}
             >
               <QuestionMark></QuestionMark>
-              <ReactTooltip
+              <CustomTooltip
                 id={'rewardPerWeekQId2'}
                 backgroundColor="#1D2932"
                 border
@@ -1209,7 +1209,7 @@ export default function FarmsDclDetail(props: {
             data-tip={valueOfRewardsTip()}
           >
             <QuestionMark></QuestionMark>
-            <ReactTooltip
+            <CustomTooltip
               id={'unclaimedRewardQIdx'}
               backgroundColor="#1D2932"
               border
@@ -1230,7 +1230,7 @@ export default function FarmsDclDetail(props: {
             <span className="text-base text-white">
               {unclaimedRewardsData.worth}
             </span>
-            <ReactTooltip
+            <CustomTooltip
               id={'unclaimedRewardId' + detailData.seed_id}
               backgroundColor="#1D2932"
               border
@@ -1275,7 +1275,7 @@ export default function FarmsDclDetail(props: {
               data-tip={valueOfRewardsTip()}
             >
               <QuestionMark></QuestionMark>
-              <ReactTooltip
+              <CustomTooltip
                 id={'unclaimedRewardQIdx'}
                 backgroundColor="#1D2932"
                 border
@@ -1296,7 +1296,7 @@ export default function FarmsDclDetail(props: {
             <span className="text-base text-white gotham_bold">
               {unclaimedRewardsData.worth}
             </span>
-            <ReactTooltip
+            <CustomTooltip
               id={'unclaimedRewardId' + detailData.seed_id}
               backgroundColor="#1D2932"
               border
@@ -1728,7 +1728,7 @@ function LiquidityLine(props: {
             {icon}
             <label className="ml-1 xsm:hidden">{displayP(p)}</label>
           </span>
-          <ReactTooltip
+          <CustomTooltip
             id={'rewardPerWeekQId'}
             backgroundColor="#1D2932"
             border
@@ -2232,7 +2232,7 @@ function LiquidityLine(props: {
                 >
                   {display_your_apr()}
                 </span>
-                <ReactTooltip
+                <CustomTooltip
                   id={'your_aprId' + liquidity.lpt_id}
                   backgroundColor="#1D2932"
                   border
@@ -2324,7 +2324,7 @@ function LiquidityLine(props: {
                     )}
                   />
                 </GradientButton>
-                <ReactTooltip
+                <CustomTooltip
                   id={`stakeTipId_${liquidity.lpt_id}`}
                   backgroundColor="#1D2932"
                   border
@@ -2474,7 +2474,7 @@ function LiquidityLine(props: {
                   )}
                 />
               </GradientButton>
-              <ReactTooltip
+              <CustomTooltip
                 id={`stakeTipId_m_${liquidity.lpt_id}`}
                 backgroundColor="#1D2932"
                 border

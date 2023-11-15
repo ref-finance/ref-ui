@@ -107,6 +107,7 @@ import {
 } from '../portfolio/Tool';
 import { PortfolioData } from 'src/pages/Portfolio';
 import { openUrl } from '../../services/commonV3';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 const is_mobile = isMobile();
 export const StakeListContext = createContext(null);
 export function YourLiquidityV1(props: any) {
@@ -1543,7 +1544,7 @@ function PoolRow(props: {
                 <FormattedMessage id="add" defaultMessage="Add" />
               </SolidButton>
               {needForbidden ? (
-                <ReactTooltip
+                <CustomTooltip
                   id={'forbiddenTip' + 'your_lp' + pool.id}
                   place="bottom"
                 />
@@ -1813,7 +1814,7 @@ function PoolRow(props: {
                 <FormattedMessage id="add" defaultMessage="Add" />
               </SolidButton>
               {needForbidden ? (
-                <ReactTooltip id={'forbiddenTip' + 'your_lp' + pool.id} />
+                <CustomTooltip id={'forbiddenTip' + 'your_lp' + pool.id} />
               ) : null}
             </div>
 

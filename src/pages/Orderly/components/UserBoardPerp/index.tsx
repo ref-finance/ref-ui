@@ -136,6 +136,7 @@ import { useTokensBalances } from '../UserBoard/state';
 import { SetLeverageButton } from './components/SetLeverageButton';
 import { DepositTip } from './components/DepositTip';
 import { NewUserTip } from '../Common/NewUserTip';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 const REF_ORDERLY_LIMIT_ORDER_ADVANCE = 'REF_ORDERLY_LIMIT_ORDER_ADVANCE';
 
 function getTipFOK() {
@@ -2211,16 +2212,12 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                   <div
                     data-class="reactTip"
                     data-tooltip-id={'user_board_ioc'}
-                    
                     data-place={'top'}
                     data-tooltip-html={getTipIoc()}
                   >
                     <QuestionMark></QuestionMark>
 
-                    <ReactTooltip
-                      id={'user_board_ioc'}
-                      place="right"
-                    />
+                    <CustomTooltip id={'user_board_ioc'} place="right" />
                   </div>
                 </div>
                 <div className="flex items-center">
@@ -2250,16 +2247,12 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                   <div
                     data-class="reactTip"
                     data-tooltip-id={'user_board_folk'}
-                    
                     data-place={'top'}
                     data-tooltip-html={getTipFOK()}
                   >
                     <QuestionMark></QuestionMark>
 
-                    <ReactTooltip
-                      id={'user_board_folk'}
-                      place="right"
-                    />
+                    <CustomTooltip id={'user_board_folk'} place="right" />
                   </div>
                 </div>
                 <div className="flex items-center">
@@ -2289,16 +2282,12 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                   <div
                     data-class="reactTip"
                     data-tooltip-id={'user_board_post_only'}
-                    
                     data-place={'top'}
                     data-tooltip-html={getTipPostOnly()}
                   >
                     <QuestionMark></QuestionMark>
 
-                    <ReactTooltip
-                      id={'user_board_post_only'}
-                      place="right"
-                    />
+                    <CustomTooltip id={'user_board_post_only'} place="right" />
                   </div>
                 </div>
               </div>
@@ -4699,16 +4688,12 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
                   <div
                     data-class="reactTip"
                     data-tooltip-id={'user_board_ioc'}
-                    
                     data-place={'top'}
                     data-tooltip-html={getTipIoc()}
                   >
                     <QuestionMark></QuestionMark>
 
-                    <ReactTooltip
-                      id={'user_board_ioc'}
-                      place="right"
-                    />
+                    <CustomTooltip id={'user_board_ioc'} place="right" />
                   </div>
                 </div>
                 <div className="flex items-center">
@@ -4738,16 +4723,12 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
                   <div
                     data-class="reactTip"
                     data-tooltip-id={'user_board_folk'}
-                    
                     data-place={'top'}
                     data-tooltip-html={getTipFOK()}
                   >
                     <QuestionMark></QuestionMark>
 
-                    <ReactTooltip
-                      id={'user_board_folk'}
-                      place="right"
-                    />
+                    <CustomTooltip id={'user_board_folk'} place="right" />
                   </div>
                 </div>
                 <div className="flex items-center">
@@ -4777,16 +4758,12 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
                   <div
                     data-class="reactTip"
                     data-tooltip-id={'user_board_post_only'}
-                    
                     data-place={'top'}
                     data-tooltip-html={getTipPostOnly()}
                   >
                     <QuestionMark></QuestionMark>
 
-                    <ReactTooltip
-                      id={'user_board_post_only'}
-                      place="right"
-                    />
+                    <CustomTooltip id={'user_board_post_only'} place="right" />
                   </div>
                 </div>
               </div>

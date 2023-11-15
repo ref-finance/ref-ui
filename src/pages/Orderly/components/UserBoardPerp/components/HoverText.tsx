@@ -11,6 +11,7 @@ import { CollatteralTokenIcon, QuestionMark } from '../../Common';
 import { parseSymbol } from '../../RecentTrade/index';
 import { useTokensBalances } from '../../UserBoard/state';
 import { usePerpData } from '../../UserBoardPerp/state';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 export function MarginRatioText() {
   const [hover, setHover] = useState(false);
@@ -189,10 +190,7 @@ export function LiquidationPriceText() {
         >
           <QuestionMark />
 
-          <ReactTooltip
-            id={'user_lq_price'}
-            place="right"
-          />
+          <CustomTooltip id={'user_lq_price'} place="right" />
         </span>
       </span>
     </div>

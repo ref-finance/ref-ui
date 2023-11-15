@@ -982,7 +982,7 @@ export const RemovePoolV3 = (props: any) => {
               data-tooltip-html={get_boundary_tip()}
             >
               <QuestionMark></QuestionMark>
-              <ReactTooltip id="rewardRangeTipId" />
+              <CustomTooltip id="rewardRangeTipId" />
             </div>
             <span>
               Why the Min Price or Max price here differ from my actual price

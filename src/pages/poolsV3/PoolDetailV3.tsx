@@ -49,6 +49,7 @@ import { Chart } from './components/detail/Chart';
 import { TablePool } from './components/detail/TablePool';
 import { BaseData } from './components/detail/BaseData';
 import { NoYourLiquditiesBox } from './components/detail/NoYourLiquditiesBox';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 const { REF_UNI_V3_SWAP_CONTRACT_ID, DCL_POOL_BLACK_LIST } = getConfig();
 
 export default function PoolDetailV3() {
@@ -304,7 +305,7 @@ export default function PoolDetailV3() {
                     >
                       <WatchListStartFull />
 
-                      <ReactTooltip id="fullstar-tip" />
+                      <CustomTooltip id="fullstar-tip" />
                     </div>
                   ) : (
                     <div
@@ -317,7 +318,7 @@ export default function PoolDetailV3() {
                       data-tooltip-id="emptystar-tip"
                     >
                       <WatchListStartEmpty />
-                      <ReactTooltip id="emptystar-tip" />
+                      <CustomTooltip id="emptystar-tip" />
                     </div>
                   )}
                 </span>
@@ -422,7 +423,7 @@ export default function PoolDetailV3() {
                   >
                     <WatchListStartFull />
 
-                    <ReactTooltip id="fullstar-tip" />
+                    <CustomTooltip id="fullstar-tip" />
                   </div>
                 ) : (
                   <div
@@ -435,7 +436,7 @@ export default function PoolDetailV3() {
                     data-tooltip-id="emptystar-tip"
                   >
                     <WatchListStartEmpty />
-                    <ReactTooltip id="emptystar-tip" />
+                    <CustomTooltip id="emptystar-tip" />
                   </div>
                 )}
               </span>

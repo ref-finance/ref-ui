@@ -19,6 +19,7 @@ import {
 } from '../../utils/wallets-integration';
 import { isMobile } from '../../utils/device';
 import { FormattedMessage, useIntl } from 'react-intl';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 const is_mobile = isMobile();
 const AssetProfitData = createContext(null);
 export default function AssetProfit() {
@@ -185,7 +186,7 @@ function AssetProfitPc() {
             data-tooltip-html={getTip()}
           >
             <QuestionMark></QuestionMark>
-            <ReactTooltip id="selectAllId" />
+            <CustomTooltip id="selectAllId" />
           </div>
         </div>
         <span className="text-2xl gotham_bold text-white mt-1">
@@ -247,7 +248,7 @@ function AssetProfitMobile() {
             data-tooltip-html={getTip()}
           >
             <QuestionMark></QuestionMark>
-            <ReactTooltip id="selectAllId" />
+            <CustomTooltip id="selectAllId" />
           </div>
         </div>
         <span className="text-2xl gotham_bold text-white">

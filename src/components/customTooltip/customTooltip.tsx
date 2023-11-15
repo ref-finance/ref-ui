@@ -1,4 +1,4 @@
-import { Tooltip as ReactTooltip } from 'react-tooltip';
+import { Tooltip as ReactTooltip, PlacesType } from 'react-tooltip';
 import React from 'react';
 import './customTooltip.css';
 import { useClientMobile } from 'src/utils/device';
@@ -10,6 +10,7 @@ type Props = {
   isOpen?: boolean;
   setIsOpen?: any;
   className?: string;
+  place?: PlacesType;
 };
 const CustomTooltip = ({
   id,
@@ -18,6 +19,7 @@ const CustomTooltip = ({
   globalCloseEvents,
   isOpen,
   setIsOpen,
+  place,
 }: Props) => {
   const isMobile = useClientMobile();
 
@@ -29,6 +31,7 @@ const CustomTooltip = ({
       className={`custom-tooltip ${className}`}
       border={'1px solid #7e8a93'}
       isOpen={isOpen}
+      place={place}
       setIsOpen={setIsOpen}
     >
       {children}

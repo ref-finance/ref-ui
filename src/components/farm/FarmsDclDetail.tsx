@@ -68,6 +68,7 @@ import CalcModelDcl from '../../components/farm/CalcModelDcl';
 import { formatWithCommas_usd, formatPercentage } from './utils';
 import moment from 'moment';
 import Big from 'big.js';
+import CustomTooltip from '../customTooltip/customTooltip';
 const { REF_VE_CONTRACT_ID, REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
 export default function FarmsDclDetail(props: {
   detailData: Seed;
@@ -520,7 +521,7 @@ export default function FarmsDclDetail(props: {
               <BoostOptIcon className="mr-0.5"></BoostOptIcon>
               <FormattedMessage id="boost"></FormattedMessage>
             </div>
-            <ReactTooltip id="boostFarmTipId" />
+            <CustomTooltip id="boostFarmTipId" />
           </div>
         </div>
       );
@@ -871,7 +872,7 @@ export default function FarmsDclDetail(props: {
               }
             )}
           </div>
-          <ReactTooltip
+          <CustomTooltip
             id={'rewardPerWeekId' + detailData?.farmList[0]?.farm_id}
           />
         </div>
@@ -885,7 +886,7 @@ export default function FarmsDclDetail(props: {
           data-tooltip-html={getRewardsPerWeekTip()}
         >
           <span>{totalPriceDisplay}</span>
-          <ReactTooltip
+          <CustomTooltip
             id={'rewardPerWeekId1' + detailData?.farmList[0]?.farm_id}
           />
         </div>
@@ -1253,7 +1254,7 @@ export default function FarmsDclDetail(props: {
               data-class="reactTip"
             >
               <span>{get_total_apr()}</span>
-              <ReactTooltip
+              <CustomTooltip
                 id={'aprId' + detailData.farmList[0].farm_id + 'your'}
               />
             </div>
@@ -1271,7 +1272,7 @@ export default function FarmsDclDetail(props: {
                 data-tooltip-html={rewardRangeTip()}
               >
                 <QuestionMark></QuestionMark>
-                <ReactTooltip id="rewardRangeTipId" />
+                <CustomTooltip id="rewardRangeTipId" />
               </div>
             </div>
             <div className="flex items-center mt-3">
@@ -1299,7 +1300,7 @@ export default function FarmsDclDetail(props: {
               data-tooltip-html={valueOfRewardsTip()}
             >
               <QuestionMark></QuestionMark>
-              <ReactTooltip id={'rewardPerWeekQId'} />
+              <CustomTooltip id={'rewardPerWeekQId'} />
             </div>
           </div>
           <div className="flex items-center justify-between">
@@ -1338,7 +1339,7 @@ export default function FarmsDclDetail(props: {
                 data-tooltip-html={rewardRangeTip()}
               >
                 <QuestionMark></QuestionMark>
-                <ReactTooltip id="rewardRangeTipId2" />
+                <CustomTooltip id="rewardRangeTipId2" />
               </div>
             </div>
             {getRange()}
@@ -1355,7 +1356,7 @@ export default function FarmsDclDetail(props: {
               data-tooltip-html={valueOfRewardsTip()}
             >
               <QuestionMark></QuestionMark>
-              <ReactTooltip id={'rewardPerWeekQId2'} />
+              <CustomTooltip id={'rewardPerWeekQId2'} />
             </div>
           </div>
           <div className="flex items-center justify-between mt-3">
@@ -1688,7 +1689,7 @@ function UserTotalUnClaimBlock(props: {
             data-tooltip-html={valueOfRewardsTip()}
           >
             <QuestionMark></QuestionMark>
-            <ReactTooltip id={'unclaimedRewardQIdx'} />
+            <CustomTooltip id={'unclaimedRewardQIdx'} />
           </div>
         </div>
 
@@ -1702,7 +1703,7 @@ function UserTotalUnClaimBlock(props: {
           <span className="text-xl text-white">
             {unclaimedRewardsData.worth}
           </span>
-          <ReactTooltip id={'unclaimedRewardId' + detailData.seed_id} />
+          <CustomTooltip id={'unclaimedRewardId' + detailData.seed_id} />
         </div>
       </div>
       {unclaimedRewardsData.showClaimButton ? (

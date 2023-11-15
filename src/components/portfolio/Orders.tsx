@@ -50,6 +50,7 @@ import { WalletContext } from '../../utils/wallets-integration';
 import getConfig from 'src/services/config';
 import { isMobile } from 'src/utils/device';
 import { SWAP_MODE_KEY, SWAP_MODE } from '../../pages/SwapPage';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 const is_mobile = isMobile();
 const { explorerUrl } = getConfig();
 
@@ -555,7 +556,7 @@ function OrderCard({
             );
           })}
         </div>
-        <ReactTooltip
+        <CustomTooltip
           className="w-20"
           id={'unclaim_tip_' + order.order_id}
           place="bottom"

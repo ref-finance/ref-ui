@@ -1,93 +1,72 @@
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useContext,
-  useCallback,
-} from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Modal from 'react-modal';
 import { Card } from '../components/card/Card';
-import { TiArrowSortedUp } from '../components/reactIcons';
+import { IoCloseOutline, TiArrowSortedUp } from '../components/reactIcons';
 import { TokenMetadata } from '../services/ft-contract';
-import { GreenLButton } from '../components/button/Button';
+import {
+  ButtonTextWrapper,
+  GradientButton,
+  GreenLButton,
+} from '../components/button/Button';
 import {
   useTokenBalances,
+  useTokenPriceList,
   useUserRegisteredTokensAllAndNearBalance,
 } from '../state/token';
-import Loading from '../components/layout/Loading';
-import {
-  NEARXIDS,
-  wallet as webWallet,
-  TOKEN_BLACK_LIST,
-} from '../services/near';
+import Loading, { BeatLoading } from '../components/layout/Loading';
+import { NEARXIDS, TOKEN_BLACK_LIST } from '../services/near';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
+  ArcIcon,
+  MappingAccountIcon,
   NearIcon,
   RefIcon,
   WalletIcon,
-  MappingAccountIcon,
-  ArcIcon,
 } from '../components/icon/Common';
 import {
-  toReadableNumber,
+  scientificNotationToString,
+  toInternationalCurrencySystem,
   toInternationalCurrencySystemNature,
   toPrecision,
-  toInternationalCurrencySystem,
-  scientificNotationToString,
+  toReadableNumber,
 } from '../utils/numbers';
 import BigNumber from 'bignumber.js';
 import OldInputAmount from '../components/forms/OldInputAmount';
 import {
-  deposit,
-  withdraw,
   batchWithdraw,
   batchWithdrawDCL,
+  deposit,
+  withdraw,
 } from '../services/token';
 import { nearMetadata, wrapNear } from '../services/wrap-near';
-import { BeatLoading } from '../components/layout/Loading';
 import { STORAGE_PER_TOKEN } from '../services/creators/storage';
-import { IoCloseOutline } from '../components/reactIcons';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
 import QuestionMark from '../components/farm/QuestionMark';
-import { useHistory, useLocation, useParams } from 'react-router';
-import { WalletContext, getCurrentWallet } from '../utils/wallets-integration';
-
-import { getSenderLoginRes } from '../utils/wallets-integration';
+import { useHistory } from 'react-router';
+import { getCurrentWallet, WalletContext } from '../utils/wallets-integration';
 import { Checkbox, CheckboxSelected, Near } from '../components/icon';
-import { GradientButton, ButtonTextWrapper } from '../components/button/Button';
 import { CloseIcon } from '../components/icon/Actions';
 import { AccountTipMan } from '../components/icon/AccountTipMan';
-import { defaultTokenList } from '../services/aurora/config';
 import {
+  auroraAddr,
   batchWithdrawFromAurora,
   useAuroraBalancesNearMapping,
+  useDCLAccountBalance,
 } from '../services/aurora/aurora';
 import {
-  SwapCross,
-  ConnectDot,
   AuroraIconWhite,
+  ConnectDot,
   CopyIcon,
 } from '../components/icon/CrossSwapIcons';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import {
-  useAuroraBalances,
-  auroraAddr,
-  useAuroraTokens,
-} from '../services/aurora/aurora';
 import { useWalletSelector } from '../context/WalletSelectorContext';
 import {
   NewProIcon,
-  NewPro,
   ProIconClick,
   ProIconHover,
 } from '../components/icon/swapV3';
-import { useTokenPriceList } from '../state/token';
-import {
-  useDCLAccountBalance,
-  useTriTokenIdsOnRef,
-} from '../services/aurora/aurora';
 import Big from 'big.js';
 import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from 'src/constants';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 const ACCOUNT_PAGE_AURORA_SHOW = REF_FI_SWAP_SWAPPAGE_TAB_KEY;
 const REF_ACCOUNT_WITHDRAW_TIP = 'REF_ACCOUNT_WITHDRAW_TIP';
@@ -294,7 +273,7 @@ export const NearTip = () => {
       data-tooltip-id="nearId"
     >
       <QuestionMark />
-      <ReactTooltip className="w-20" id="nearId" />
+      <CustomTooltip className="w-20" id="nearId" />
     </div>
   );
 };
@@ -313,7 +292,7 @@ const WithdrawTip = () => {
       data-tooltip-id="WithdrawTipId"
     >
       <QuestionMark />
-      <ReactTooltip id="WithdrawTipId" />
+      <CustomTooltip id="WithdrawTipId" />
     </div>
   );
 };

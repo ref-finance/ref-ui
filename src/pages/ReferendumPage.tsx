@@ -116,6 +116,7 @@ import { VETip } from '../components/icon/Referendum';
 import { durationFomatter } from '../components/layout/Proposal';
 import BigNumber from 'bignumber.js';
 import { openUrl } from '../services/commonV3';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 export interface AccountInfo {
   duration_sec: number;
@@ -739,7 +740,7 @@ export const LockPopUp = ({
                   data-tooltip-id="tipId_lock_ve"
                 >
                   <QuestionMark color="dark" />
-                  <ReactTooltip className="w-20" id="tipId_lock_ve" />
+                  <CustomTooltip className="w-20" id="tipId_lock_ve" />
                 </div>
               </span>
             </span>
@@ -806,7 +807,7 @@ export const LockPopUp = ({
                 >
                   <QuestionMark color="dark" />
 
-                  <ReactTooltip className="w-20" id="tipId_lock_love" />
+                  <CustomTooltip className="w-20" id="tipId_lock_love" />
                 </div>
               </span>
             </span>
@@ -1173,7 +1174,7 @@ const UnLockPopUp = ({
                 >
                   <QuestionMark color="dark" />
 
-                  <ReactTooltip className="w-20" id="tipId_unlock_ve" />
+                  <CustomTooltip className="w-20" id="tipId_unlock_ve" />
                 </div>
               </span>
             </span>
@@ -1245,7 +1246,7 @@ const UnLockPopUp = ({
                 >
                   <QuestionMark color="dark" />
 
-                  <ReactTooltip className="w-20" id="tipId_unlock_love" />
+                  <CustomTooltip className="w-20" id="tipId_unlock_love" />
                 </div>
               </span>
             </span>
@@ -1467,7 +1468,7 @@ const VotingPowerCard = ({
                   data-tooltip-id="tipId_ve_post_card"
                 >
                   <QuestionMark color="dark" colorhex="#000000" />
-                  <ReactTooltip className="w-20" id="tipId_ve_post_card" />
+                  <CustomTooltip className="w-20" id="tipId_ve_post_card" />
                 </div>
               </>
             </div>
@@ -1569,7 +1570,7 @@ const FarmBoosterCard = ({
                   data-tooltip-id="tipId_love_post_card"
                 >
                   <QuestionMark color="bright" />
-                  <ReactTooltip className="w-20" id="tipId_love_post_card" />
+                  <CustomTooltip className="w-20" id="tipId_love_post_card" />
                 </div>
               </>
             </div>
@@ -1986,7 +1987,7 @@ const UserReferendumCard = ({
                 <div className="text-gradientFrom ml-2">
                   <VETip />
                 </div>
-                <ReactTooltip id="mobile_unlock_tip_lptoken" place="bottom" />
+                <CustomTooltip id="mobile_unlock_tip_lptoken" place="bottom" />
               </div>
             </span>
           )}

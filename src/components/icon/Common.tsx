@@ -28,7 +28,7 @@ import XmasSmallTreeSvg from '../../assets/svg/XmasSmallTree.svg';
 import XmasTreeSvg from '../../assets/svg/XmasTree.svg';
 
 import InfoSvg from '../../assets/svg/infoIcon.svg';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 export const InfoIcon = ({
   tooltip,
@@ -52,9 +52,9 @@ export const InfoIcon = ({
         <InfoSvg />
       </span>
       {(tooltip || tooltipNode) && (
-        <ReactTooltip id={id}>
+        <CustomTooltip id={id}>
           {tooltipNode ? tooltipNode : <div style={style}>{tooltip}</div>}
-        </ReactTooltip>
+        </CustomTooltip>
       )}
     </>
   );

@@ -10,6 +10,7 @@ import QuestionMark from 'src/components/farm/QuestionMark';
 import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { OverviewData } from '../../pages/Overview';
 import { formatWithCommas_usd } from '../../services/overview/utils';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 export default function TotalPanel() {
   const intl = useIntl();
   const { is_mobile } = useContext(OverviewData);
@@ -49,7 +50,7 @@ function TotalPanelPc(props: any) {
             data-tooltip-html={netWorthTip}
           >
             <QuestionMark></QuestionMark>
-            <ReactTooltip id="netWorthId" />
+            <CustomTooltip id="netWorthId" />
           </div>
         </div>
         <span className="text-white text-2xl gotham_bold mt-0.5">
@@ -122,7 +123,7 @@ function TotalPanelMobile(props: any) {
             data-tooltip-html={netWorthTip}
           >
             <QuestionMark></QuestionMark>
-            <ReactTooltip id="netWorthId" />
+            <CustomTooltip id="netWorthId" />
           </div>
         </div>
         <span className="text-white text-2xl gotham_bold">

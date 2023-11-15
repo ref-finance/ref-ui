@@ -31,6 +31,7 @@ import {
   get_pool_name,
   openUrl,
 } from '../../services/commonV3';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 const config = getConfig();
 const { STABLE_POOL_IDS, FARM_LOCK_SWITCH, REF_VE_CONTRACT_ID } = config;
@@ -233,7 +234,7 @@ function SeedInfo() {
             data-tooltip-html={rewardRangeTip()}
           >
             <QuestionMark></QuestionMark>
-            <ReactTooltip id="rewardRangeTipId" />
+            <CustomTooltip id="rewardRangeTipId" />
           </div>
         </div>
         {getRange()}

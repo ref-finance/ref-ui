@@ -8,6 +8,7 @@ import QuestionMark from 'src/components/farm/QuestionMark';
 import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { IoClose } from '../reactIcons';
 import { isMobile } from 'src/utils/device';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 interface USNFormWrapProps {
   title?: string;
@@ -71,7 +72,7 @@ export default function USNFormWrap({
             data-tooltip-id="buyUSNTip"
           >
             <QuestionMark />
-            <ReactTooltip className="w-20" id="buyUSNTip" />
+            <CustomTooltip className="w-20" id="buyUSNTip" />
           </div>
         </div>
         <div className="flex items-center">

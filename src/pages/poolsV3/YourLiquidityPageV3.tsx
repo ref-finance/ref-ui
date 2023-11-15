@@ -80,6 +80,7 @@ import { REF_POOL_NAV_TAB_KEY } from '../../components/pool/PoolTabV3';
 import { NFTIdIcon } from 'src/components/icon/FarmBoost';
 import { YourLiquidityV2 } from 'src/components/pool/YourLiquidityV2';
 import { isMobile } from 'src/utils/device';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 export default function YourLiquidityPageV3() {
   const clearState = () => {
@@ -1228,7 +1229,7 @@ function UserLiquidityLine_old({
                     Text={() => <FormattedMessage id="claim" />}
                   />
                 </div>
-                <ReactTooltip id={`pause_dcl_tip_claim_${liquidity.lpt_id}`} />
+                <CustomTooltip id={`pause_dcl_tip_claim_${liquidity.lpt_id}`} />
               </div>
             </div>
           </div>

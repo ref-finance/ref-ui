@@ -26,6 +26,7 @@ import {
 import { pointToPrice } from 'src/services/swapV3';
 import { RelatedFarmsBox } from './RelatedFarmsBox';
 import { isClientMobie } from '../../../../utils/device';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 export function TablePool(props: any) {
   const { poolDetail, tokenPriceList, sole_seed } = props;
@@ -144,7 +145,7 @@ export function TablePool(props: any) {
                       >
                         <FiArrowUpRight className="text-primaryText hover:text-greenColor cursor-pointer" />
                       </a>
-                      <ReactTooltip id={'nearVerifiedId1' + i} />
+                      <CustomTooltip id={'nearVerifiedId1' + i} />
                     </div>
                   ) : null}
                 </div>

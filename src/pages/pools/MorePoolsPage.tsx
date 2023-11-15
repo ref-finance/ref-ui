@@ -40,6 +40,7 @@ import Loading from '../../components/layout/Loading';
 import { FarmStampNew } from '../../components/icon/FarmStamp';
 import { getPoolListFarmAprTip } from './utils';
 import { Tooltip as ReactTooltip } from 'react-tooltip';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 interface ParamTypes {
   tokenIds: string;
@@ -155,7 +156,7 @@ function PoolRow({
           )}
 
         {supportFarm && farmApr > 0 && (
-          <ReactTooltip
+          <CustomTooltip
             className="w-20"
             id={'pool_list_pc_apr' + pool.id}
             place="right"
