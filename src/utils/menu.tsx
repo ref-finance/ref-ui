@@ -272,11 +272,14 @@ export const useMenus = (cb?: () => void) => {
           swap_mode: 'limit',
           clickEvent: () => {
             sessionStorage.setItem(SWAP_TYPE_KEY, 'Pro');
-
-            history.push('/');
+            if (isNewHostName) {
+              history.push('/swap');
+            } else {
+              history.push('/');
+            }
             localStorage.setItem('SWAP_MODE_VALUE', 'limit');
           },
-          links: ['/', '/myOrder', '/swap'],
+          links: isNewHostName ? ['/swap'] : ['/', '/myOrder', '/swap'],
         },
         {
           id: '1-3',
@@ -643,11 +646,15 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
           isExternal: false,
           swap_mode: 'limit',
           clickEvent: () => {
-            history.push('/');
+            if (isNewHostName) {
+              history.push('/swap');
+            } else {
+              history.push('/');
+            }
             localStorage.setItem('SWAP_MODE_VALUE', 'limit');
             sessionStorage.setItem(SWAP_TYPE_KEY, 'Pro');
           },
-          links: ['/', '/myOrder', '/swap'],
+          links: isNewHostName ? ['/swap'] : ['/', '/myOrder', '/swap'],
         },
         {
           id: '1-3',
