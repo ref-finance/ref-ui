@@ -1,49 +1,79 @@
+import Big from 'big.js';
+import BigNumber from 'bignumber.js';
+import * as math from 'mathjs';
 import React, {
+  createContext,
   useCallback,
+  useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
-  useContext,
-  createContext,
 } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { useHistory, useLocation } from 'react-router-dom';
 
+import { CountdownTimer } from '../../components/icon';
+import { RateExchangeMobile } from '../../components/icon/Common';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
-
-import { useLocation, useHistory } from 'react-router-dom';
+import { TextWrapper } from '../../pages/Orderly/components/UserBoard';
+import { numberWithCommas } from '../../pages/Orderly/utiles';
+import {
+  ExchangeEstimate,
+  SWAP_MODE,
+  SWAP_TYPE,
+  SwapProContext,
+} from '../../pages/SwapPage';
+import getConfig, { getExtraStablePoolConfig } from '../../services/config';
 import {
   ftGetBalance,
-  TokenMetadata,
   REF_META_DATA,
+  TokenMetadata,
 } from '../../services/ft-contract';
-import { useDepositableBalance, useTokenPriceList } from '../../state/token';
+import { USD_CLASS_STABLE_TOKEN_IDS } from '../../services/near';
 import {
-  useSwapPopUp,
-  useRefSwapPro,
+  BTC_CLASS_STABLE_TOKEN_IDS,
+  NEAR_CLASS_STABLE_TOKEN_IDS,
+} from '../../services/near';
+import {
+  nearDeposit,
+  nearWithdraw,
+  unwrapedNear,
+  wnearMetadata,
+  WRAP_NEAR_CONTRACT_ID,
+} from '../../services/wrap-near';
+import {
   useCrossSwapPopUp,
+  useRefSwapPro,
+  useSwapPopUp,
 } from '../../state/swap';
+import { useDepositableBalance, useTokenPriceList } from '../../state/token';
+import { isMobile } from '../../utils/device';
 import {
   calculateExchangeRate,
   calculateFeeCharge,
   calculateFeePercent,
-  toPrecision,
-  toReadableNumber,
-  ONLY_ZEROS,
-  multiply,
   divide,
+  multiply,
+  ONLY_ZEROS,
   scientificNotationToString,
   separateRoutes,
+  toPrecision,
+  toReadableNumber,
 } from '../../utils/numbers';
-import SubmitButton, { InsufficientButton } from '../forms/SubmitButton';
-import Alert from '../alert/Alert';
+import { getPoolAllocationPercents } from '../../utils/numbers';
+import { toInternationalCurrencySystemLongString } from '../../utils/numbers';
+import { getMax } from '../../utils/numbers';
 import { toRealSymbol } from '../../utils/token';
-import { FormattedMessage, useIntl } from 'react-intl';
-import { FaAngleUp, FaAngleDown, FaExchangeAlt } from '../reactIcons';
+import Alert from '../alert/Alert';
 import { ConnectToNearBtnSwap } from '../button/Button';
-
+import SubmitButton, { InsufficientButton } from '../forms/SubmitButton';
 import SwapFormWrap from '../forms/SwapFormWrap';
-
-import BigNumber from 'bignumber.js';
+import { TokenAmountV3 } from '../forms/TokenAmount';
+import { NEAR_WITHDRAW_KEY } from '../forms/WrapNear';
+import { SwapExchange } from '../icon/Arrows';
+import { RedTipIcon, YellowTipIcon } from '../icon/swapV3';
+import { DoubleCheckModal } from '../layout/SwapDoubleCheck';
+import { SkyWardModal } from '../layout/SwapDoubleCheck';
 import {
   AutoRouterText,
   RouterIcon,
@@ -51,47 +81,8 @@ import {
   SwapRouteMoreThan2,
   TradeRouteModal,
 } from '../layout/SwapRoutes';
-
 import { QuestionTip } from '../layout/TipWrapper';
-import { SwapExchange } from '../icon/Arrows';
-import { getPoolAllocationPercents } from '../../utils/numbers';
-import { DoubleCheckModal } from '../layout/SwapDoubleCheck';
-import {
-  ExchangeEstimate,
-  SWAP_MODE,
-  SWAP_TYPE,
-  SwapProContext,
-} from '../../pages/SwapPage';
-import { USD_CLASS_STABLE_TOKEN_IDS } from '../../services/near';
-import {
-  WRAP_NEAR_CONTRACT_ID,
-  unwrapedNear,
-  nearDeposit,
-  nearWithdraw,
-  wnearMetadata,
-} from '../../services/wrap-near';
-import getConfig, { getExtraStablePoolConfig } from '../../services/config';
-import { TokenAmountV3 } from '../forms/TokenAmount';
-import Big from 'big.js';
-
-import { toInternationalCurrencySystemLongString } from '../../utils/numbers';
-
-import { SkyWardModal } from '../layout/SwapDoubleCheck';
-import {
-  NEAR_CLASS_STABLE_TOKEN_IDS,
-  BTC_CLASS_STABLE_TOKEN_IDS,
-} from '../../services/near';
-
-import { getMax } from '../../utils/numbers';
-
-import { YellowTipIcon, RedTipIcon, SelectedIcon } from '../icon/swapV3';
-import * as math from 'mathjs';
-import { NEAR_WITHDRAW_KEY } from '../forms/WrapNear';
-import { CountdownTimer } from '../../components/icon';
-import { TextWrapper } from '../../pages/Orderly/components/UserBoard';
-import { numberWithCommas } from '../../pages/Orderly/utiles';
-import { isMobile } from '../../utils/device';
-import { RateExchangeMobile } from '../../components/icon/Common';
+import { FaAngleDown, FaAngleUp, FaExchangeAlt } from '../reactIcons';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -1123,6 +1114,36 @@ export default function SwapCard(props: {
 
   const isInsufficientBalance = judgeBalance();
 
+  const [tokenExchanging, setTokenExchanging] = useState(false);
+  const toggleTokenExchanging = () => {
+    setTokenExchanging(true);
+    setTimeout(() => setTokenExchanging(false), 500);
+  };
+
+  const isShowNearErrorTip = useMemo(() => {
+    return (
+      !tokenExchanging &&
+      balanceInDone &&
+      balanceOutDone &&
+      tokenIn &&
+      Number(getMax(tokenIn.id, tokenInMax || '0', tokenIn)) -
+        Number(tokenInAmount || '0') <
+        0 &&
+      !ONLY_ZEROS.test(tokenInMax || '0') &&
+      !ONLY_ZEROS.test(tokenInAmountInput || '0') &&
+      tokenIn.id === WRAP_NEAR_CONTRACT_ID &&
+      tokenIn.symbol === 'NEAR'
+    );
+  }, [
+    tokenExchanging,
+    balanceInDone,
+    balanceOutDone,
+    tokenIn,
+    tokenInMax,
+    tokenInAmount,
+    tokenInAmountInput,
+  ]);
+
   return (
     <>
       <SwapFormWrap
@@ -1201,22 +1222,13 @@ export default function SwapCard(props: {
           }}
           allowWNEAR={true}
           nearErrorTip={
-            balanceInDone &&
-            balanceOutDone &&
-            tokenIn &&
-            Number(getMax(tokenIn.id, tokenInMax || '0', tokenIn)) -
-              Number(tokenInAmount || '0') <
-              0 &&
-            !ONLY_ZEROS.test(tokenInMax || '0') &&
-            !ONLY_ZEROS.test(tokenInAmountInput || '0') &&
-            tokenIn.id === WRAP_NEAR_CONTRACT_ID &&
-            tokenIn.symbol === 'NEAR' && (
+            isShowNearErrorTip && (
               <Alert
                 level="warn"
                 message={`${intl.formatMessage({
                   id: 'near_validation_error',
                 })} `}
-                extraClass="px-0 pb-3"
+                extraClass="px-0 pb-3 trans"
               />
             )
           }
@@ -1230,6 +1242,7 @@ export default function SwapCard(props: {
             setTokenInAmountInput(toPrecision('1', 6));
             localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
             localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
+            toggleTokenExchanging();
           }}
         />
 
