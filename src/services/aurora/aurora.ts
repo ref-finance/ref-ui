@@ -850,9 +850,6 @@ export const getAllTriPools = async (pair?: [string, string]) => {
     })
     .filter((p) => {
       const showPair = pair.map((p) => {
-        // if (p === 'USDT.e') return 'USDT';
-        // if (p === 'USDC.e') return 'USDC';
-
         return p;
       });
 
@@ -910,9 +907,6 @@ export const hasTriPools = (pair?: [string, string]) => {
     })
     .filter((p) => {
       const showPair = pair.map((p) => {
-        // if (p === 'USDT.e') return 'USDT';
-        // if (p === 'USDC.e') return 'USDC';
-
         return p;
       });
 

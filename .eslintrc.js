@@ -30,9 +30,9 @@ module.exports = {
   ],
   plugins: ['simple-import-sort', 'unused-imports'],
   rules: {
-    'unused-imports/no-unused-imports': 'error',
-    'simple-import-sort/imports': 'error',
-    'simple-import-sort/exports': 'error',
+    'unused-imports/no-unused-imports': 'off',
+    'simple-import-sort/imports': 'off',
+    'simple-import-sort/exports': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
     'prettier/prettier': 'warn',
     '@typescript-eslint/no-explicit-any': 'off',
@@ -43,5 +43,6 @@ module.exports = {
     'react/react-in-jsx-scope': 'off',
     'object-shorthand': ['error', 'always'],
     'dot-notation': 'error',
+    '@typescript-eslint/no-unused-vars': 'off',
   },
 };

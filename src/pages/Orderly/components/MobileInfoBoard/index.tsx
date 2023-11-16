@@ -158,13 +158,6 @@ export function CurAsset(props?: any) {
     : balances && balances[symbolFrom]?.holding;
 
   const { freeCollateral, collateralTokenAvailableBalance } = usePerpData();
-  // const tokenOutHolding =
-  //   (symbolTo === 'USDC' || symbolTo === 'USDC.e') && freeCollateral !== '-'
-  //     ? freeCollateral
-  //     : curHoldingOut
-  //     ? curHoldingOut.holding + curHoldingOut.pending_short
-  //     : balances && balances[symbolTo]?.holding;
-
   const usdcAvailableBalance = curHoldingOut
     ? new Big(curHoldingOut.holding + curHoldingOut.pending_short).toFixed(2)
     : '-';

@@ -55,6 +55,8 @@ import { useOrderlyContext } from './orderly/OrderlyContext';
 import { Holding, MyOrder, OrderTrade } from './orderly/type';
 import { WalletContext } from '../../utils/wallets-integration';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
+import getConfigV2 from '../../services/configV2';
+const configV2 = getConfigV2();
 export const PortfolioOrderlyData = createContext(null);
 const is_mobile = isMobile();
 
@@ -373,7 +375,8 @@ function PortfolioOrderly() {
                         (parseFloat(row.available) > 0 ||
                           parseFloat(row['in-order']) > 0 ||
                           (newPositions?.rows?.length > 0 &&
-                            row.tokenMeta.symbol.includes('USDC'))) && (
+                            row.tokenMeta.id ==
+                              configV2.ORDRRBOOK_COLLATTERAL_TOKEN)) && (
                           <div
                             key={row.tokenMeta.id}
                             className="flex items-center text-white text-sm -ml-1"
