@@ -118,7 +118,7 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
   }, []);
 
   const [symbol, setSymbol] = useState<string>(
-    storedSymbol || 'SPOT_NEAR_USDC'
+    storedSymbol || 'SPOT_NEAR_USDC.e'
   );
 
   const [userInfo, setUserInfo] = useState<ClientInfo>();
@@ -208,7 +208,7 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
       setSymbol(newSymbol);
       localStorage.setItem(REF_ORDERLY_SYMBOL_KEY, newSymbol);
     } else {
-      let newSymbol = 'SPOT_NEAR_USDC';
+      let newSymbol = 'SPOT_NEAR_USDC.e';
 
       const spotSymbol = availableSymbols?.find((s) => {
         const storedSymbol = localStorage.getItem(REF_ORDERLY_SYMBOL_KEY);
