@@ -1,33 +1,35 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useOrderlyContext } from '../../orderly/OrderlyContext';
+import Big from 'big.js';
+import moment from 'moment';
+import React, { useEffect, useMemo, useState } from 'react';
+import useCallback from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 import Modal from 'react-modal';
-import { parseSymbol } from '../RecentTrade';
-import { nearMetadata, getFTmetadata, toPrecision } from '../../near';
+import { useHistory } from 'react-router-dom';
+
 import {
-  IoMdArrowDropdown,
   IoArrowDownOutline,
   IoArrowUpOutline,
   IoCloseSharp,
+  IoMdArrowDropdown,
 } from '../../../../components/reactIcons';
-import { useTokenMetaFromSymbol } from './state';
-import { Ticker, TokenInfo, OpenInterest } from '../../orderly/type';
-import { TokenIcon } from '../Common';
-import useCallback from 'react';
+import { isNewHostName } from '../../../../services/config';
+import { useClientMobile } from '../../../../utils/device';
+import { getFTmetadata, nearMetadata, toPrecision } from '../../near';
+import { useOrderlyContext } from '../../orderly/OrderlyContext';
+import { OpenInterest, Ticker, TokenInfo } from '../../orderly/type';
 import {
-  PerpOrSpot,
   digitWrapper,
   numberWithCommas,
   numberWithCommasPadding,
+  PerpOrSpot,
 } from '../../utiles';
+import { TokenIcon } from '../Common';
 import { AllMarketIcon, CheckSelector } from '../Common/Icons';
-import { useClientMobile } from '../../../../utils/device';
-import { FormattedMessage, useIntl } from 'react-intl';
+import { parseSymbol } from '../RecentTrade';
 import { TextWrapper } from '../UserBoard';
-import moment from 'moment';
-import Big from 'big.js';
-import { MoreRouterButton } from './components/MoreRouterButton';
-import { useHistory } from 'react-router-dom';
 import { tickToPrecision } from '../UserBoardPerp/math';
+import { MoreRouterButton } from './components/MoreRouterButton';
+import { useTokenMetaFromSymbol } from './state';
 
 export function tickerToDisplayDiff(ticker: Ticker | undefined) {
   const diff = ticker ? ((ticker.close - ticker.open) * 100) / ticker.open : 0;
@@ -424,12 +426,12 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
   const history = useHistory();
 
   const curSymbol = availableSymbols?.find((s) => s.symbol === symbol);
-
   return (
     <div className="flex items-center  mb-3 mr-3 px-3 py-2 rounded-lg  text-white text-sm">
       <div className="rounded-xl frcs mr-2 gap-1 text-13px border border-v3SwapGray p-1 border-opacity-20 ">
         {['spot', 'perps'].map((type) => {
           return (
+            // eslint-disable-next-line react/jsx-key
             <div
               className={`px-2.5 py-1 rounded-lg whitespace-nowrap ${
                 type.indexOf(symbolType.toString().toLowerCase()) > -1
@@ -438,9 +440,17 @@ function ChartHeader({ maintenance }: { maintenance: boolean }) {
               } cursor-pointer`}
               onClick={() => {
                 if (type === 'spot') {
-                  history.push('/orderbook/spot');
+                  if (isNewHostName) {
+                    history.push('/spot');
+                  } else {
+                    history.push('/orderbook/spot');
+                  }
                 } else {
-                  history.push('/orderbook/perps');
+                  if (isNewHostName) {
+                    history.push('/');
+                  } else {
+                    history.push('/orderbook/perps');
+                  }
                 }
               }}
             >

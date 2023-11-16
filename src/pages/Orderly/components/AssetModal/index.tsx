@@ -1,62 +1,57 @@
+import Big from 'big.js';
+import { orderBy as lodashOrderBy } from 'lodash';
 import React, { useEffect, useState } from 'react';
-
+import CopyToClipboard from 'react-copy-to-clipboard';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { FormattedMessage, useIntl } from 'react-intl';
 import Modal from 'react-modal';
+import ReactTooltip from 'react-tooltip';
 
 import { IoClose } from '../../../../components/reactIcons';
-import { useTokenInfo } from '../../orderly/state';
-import {
-  NearIcon,
-  NearWalletIcon,
-  FirstPage,
-  PrePage,
-  NextPage,
-  LastPage,
-  OrderlyLoading,
-  OrderlyIconBalance,
-  InOrderIcon,
-  OutLinkIcon,
-} from '../Common/Icons';
-
-import InfiniteScroll from 'react-infinite-scroll-component';
-
 import { MdArrowDropDown } from '../../../../components/reactIcons';
-import { OrderAsset, useOrderAssets } from './state';
-import {
-  FlexRow,
-  DepositButton,
-  WithdrawButton,
-  WithdrawButtonMobile,
-  DepositButtonMobile,
-} from '../Common/index';
-import { digitWrapper, digitWrapperAsset } from '../../utiles';
-import { AssetManagerModal } from '../UserBoard';
+import { BiCopy } from '../../../../components/reactIcons';
+import { NearTip } from '../../../../pages/AccountPage';
+import getConfigV2 from '../../../../services/configV2';
+import { isClientMobie, useClientMobile } from '../../../../utils/device';
+import getConfig from '../../config';
 import { depositOrderly } from '../../orderly/api';
 import { withdrawOrderly } from '../../orderly/api';
-import { TokenInfo } from '../../orderly/type';
-import Big from 'big.js';
-
-import { UserRecord } from '../../orderly/type';
-
-import { orderBy as lodashOrderBy } from 'lodash';
-import { getAccountName } from '../../orderly/utils';
-import { useTokenMetaFromSymbol } from '../ChartHeader/state';
-import { formatTimeDate } from '../OrderBoard/index';
 import { getAssetHistory } from '../../orderly/off-chain-api';
-import getConfig from '../../config';
-
-import { BiCopy } from '../../../../components/reactIcons';
-import CopyToClipboard from 'react-copy-to-clipboard';
-import { NearTip } from '../../../../pages/AccountPage';
-import { isClientMobie, useClientMobile } from '../../../../utils/device';
+import { useTokenInfo } from '../../orderly/state';
+import { TokenInfo } from '../../orderly/type';
+import { UserRecord } from '../../orderly/type';
+import { getAccountName } from '../../orderly/utils';
+import { digitWrapper, digitWrapperAsset } from '../../utiles';
+import { useTokenMetaFromSymbol } from '../ChartHeader/state';
+import {
+  FirstPage,
+  InOrderIcon,
+  LastPage,
+  NearIcon,
+  NearWalletIcon,
+  NextPage,
+  OrderlyIconBalance,
+  OrderlyLoading,
+  OutLinkIcon,
+  PrePage,
+} from '../Common/Icons';
 import { TipIconAsset } from '../Common/Icons';
-import ReactTooltip from 'react-tooltip';
-import { FormattedMessage, useIntl } from 'react-intl';
-import { usePerpData } from '../UserBoardPerp/state';
+import {
+  DepositButton,
+  DepositButtonMobile,
+  FlexRow,
+  WithdrawButton,
+  WithdrawButtonMobile,
+} from '../Common/index';
+import { formatTimeDate } from '../OrderBoard/index';
+import { AssetManagerModal } from '../UserBoard';
 import {
   CollatteralToken,
   CollatteralTokenAvailableCell,
 } from '../UserBoardPerp/components/HoverText';
-
+import { usePerpData } from '../UserBoardPerp/state';
+import { OrderAsset, useOrderAssets } from './state';
+const configV2 = getConfigV2();
 function getTipAsset() {
   const intl = useIntl();
   return `<div class=" rounded-md w-60 text-primaryOrderly  text-xs  text-left">
@@ -112,7 +107,7 @@ function AssetLine(
   const [showManagerModal, setShowManagerModal] = useState<boolean>(false);
   const [type, setType] = useState<'deposit' | 'withdraw'>();
   const { freeCollateral, curHoldingOut } = props;
-  const is_usdc = props.tokenMeta.symbol.includes('USDC');
+  const is_usdc = props.tokenMeta.id == configV2.ORDRRBOOK_COLLATTERAL_TOKEN;
   let usdcBalance = '-';
   let finalBalance = '-';
   if (is_usdc) {

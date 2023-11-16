@@ -1,113 +1,110 @@
 import React, {
+  useCallback,
   useContext,
-  useState,
   useEffect,
   useMemo,
   useRef,
-  useCallback,
+  useState,
 } from 'react';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { FormattedMessage, FormattedRelativeTime, useIntl } from 'react-intl';
 import { matchPath } from 'react-router';
-import { Context } from 'src/components/wrapper';
-import getConfig from 'src/services/config';
+import { Link, useHistory, useLocation } from 'react-router-dom';
 import ReactTooltip from 'react-tooltip';
+import { Card } from 'src/components/card/Card';
+import USNBuyComponent from 'src/components/forms/USNBuyComponent';
+import WrapNear from 'src/components/forms/WrapNear';
 import {
-  Logo,
-  Near,
   IconAirDropGreenTip,
+  Logo,
   NavLogoIcon,
+  Near,
 } from 'src/components/icon';
 import {
   AccountIcon,
   ActivityIcon,
-  WalletIcon,
   SignoutIcon,
+  WalletIcon,
   WNEARExchngeIcon,
 } from 'src/components/icon/Common';
-import { Link, useLocation, useHistory } from 'react-router-dom';
-import { NEARXIDS, wallet } from 'src/services/near';
-import { Card } from 'src/components/card/Card';
-
-import { FormattedMessage, useIntl, FormattedRelativeTime } from 'react-intl';
 import {
-  HiOutlineExternalLink,
-  IoChevronBack,
-  FiChevronRight,
-} from '../reactIcons';
-
-import {
-  useMenuItems,
-  useLanguageItems,
-  useMenus,
-  menuItemType,
-  BridgeButton,
-} from 'src/utils/menu';
-import { MobileNavBar } from './MobileNav';
-import WrapNear from 'src/components/forms/WrapNear';
-import { WrapNearIcon } from './WrapNear';
+  ArrowDownIcon,
+  DownTriangleIcon,
+  MoreIcon,
+} from 'src/components/icon/Nav';
 import { XrefIcon } from 'src/components/icon/Xref';
+import Marquee from 'src/components/layout/Marquee';
+import { Context } from 'src/components/wrapper';
+import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from 'src/constants';
+import {
+  ACCOUNT_ID_KEY,
+  useWalletSelector,
+} from 'src/context/WalletSelectorContext';
+import getConfig from 'src/services/config';
+import { NEARXIDS, wallet } from 'src/services/near';
+import {
+  BridgeButton,
+  menuItemType,
+  useLanguageItems,
+  useMenuItems,
+  useMenus,
+} from 'src/utils/menu';
+
+import { REF_ORDERLY_ACCOUNT_VALID } from '../../pages/Orderly/components/UserBoard/index';
+import { ORDERLY_ASSET_MANAGER } from '../../pages/Orderly/near';
+import {
+  get_orderly_private_key_path,
+  get_orderly_public_key_path,
+} from '../../pages/Orderly/orderly/utils';
+import {
+  REF_FI_SENDER_WALLET_ACCESS_KEY,
+  tradingKeyMap,
+} from '../../pages/Orderly/orderly/utils';
+import { SWAP_MODE_KEY } from '../../pages/SwapPage';
+import { SWAP_MODE } from '../../pages/SwapPage';
 import { getAccount } from '../../services/airdrop';
 import {
-  senderWallet,
+  auroraAddr,
+  batchCallWithdraw,
+  useAuroraTokens,
+} from '../../services/aurora/aurora';
+import { ETH_DECIMAL } from '../../services/aurora/aurora';
+import { useAuroraBalances } from '../../services/aurora/aurora';
+import { useDCLAccountBalance } from '../../services/aurora/aurora';
+import { getAuroraConfig } from '../../services/aurora/config';
+import { openUrl } from '../../services/commonV3';
+import { ftGetTokensMetadata } from '../../services/ft-contract';
+import { useTokenBalances } from '../../state/token';
+import { isMobile, useClientMobile, useMobile } from '../../utils/device';
+import { toReadableNumber } from '../../utils/numbers';
+import {
   getCurrentWallet,
+  senderWallet,
 } from '../../utils/wallets-integration';
-import { WalletSelectorModal } from './WalletSelector';
 import { WalletContext } from '../../utils/wallets-integration';
 import {
   getAccountName,
   saveSenderLoginRes,
 } from '../../utils/wallets-integration';
-import { ftGetTokensMetadata } from '../../services/ft-contract';
-import { useTokenBalances } from '../../state/token';
-import { toReadableNumber } from '../../utils/numbers';
-import { FarmDot } from '../icon/FarmStamp';
-import {
-  ConnectDot,
-  AuroraIcon,
-  HasBalance,
-  CopyIcon,
-} from '../icon/CrossSwapIcons';
-import { QuestionTip } from './TipWrapper';
-import {
-  auroraAddr,
-  useAuroraTokens,
-  batchCallWithdraw,
-} from '../../services/aurora/aurora';
-
-import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { isMobile, useMobile, useClientMobile } from '../../utils/device';
-import { getAuroraConfig } from '../../services/aurora/config';
-import { ETH_DECIMAL } from '../../services/aurora/aurora';
-import { useAuroraBalances } from '../../services/aurora/aurora';
-import { getURLInfo } from './transactionTipPopUp';
-import USNBuyComponent from 'src/components/forms/USNBuyComponent';
-import { SWAP_MODE_KEY } from '../../pages/SwapPage';
-import Marquee from 'src/components/layout/Marquee';
-
-import {
-  useWalletSelector,
-  ACCOUNT_ID_KEY,
-} from 'src/context/WalletSelectorContext';
-
-import { SWAP_MODE } from '../../pages/SwapPage';
-import { useDCLAccountBalance } from '../../services/aurora/aurora';
 import { BuyNearButton } from '../button/Button';
 import {
-  get_orderly_public_key_path,
-  get_orderly_private_key_path,
-} from '../../pages/Orderly/orderly/utils';
-import { REF_ORDERLY_ACCOUNT_VALID } from '../../pages/Orderly/components/UserBoard/index';
+  AuroraIcon,
+  ConnectDot,
+  CopyIcon,
+  HasBalance,
+} from '../icon/CrossSwapIcons';
+import { FarmDot } from '../icon/FarmStamp';
 import {
-  tradingKeyMap,
-  REF_FI_SENDER_WALLET_ACCESS_KEY,
-} from '../../pages/Orderly/orderly/utils';
-import { ORDERLY_ASSET_MANAGER } from '../../pages/Orderly/near';
-import {
-  MoreIcon,
-  ArrowDownIcon,
-  DownTriangleIcon,
-} from 'src/components/icon/Nav';
-import { openUrl } from '../../services/commonV3';
-import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from 'src/constants';
+  FiChevronRight,
+  HiOutlineExternalLink,
+  IoChevronBack,
+} from '../reactIcons';
+import { MobileNavBar } from './MobileNav';
+import { QuestionTip } from './TipWrapper';
+import { getURLInfo } from './transactionTipPopUp';
+import { WalletSelectorModal } from './WalletSelector';
+import { isNewHostName } from '../../services/config';
+import { WrapNearIcon } from './WrapNear';
 
 const config = getConfig();
 
@@ -127,176 +124,6 @@ export function AccountTipDownByAccountID({ show }: { show: boolean }) {
         defaultMessage="You have token(s) in your REF Account"
       />
     </div>
-  );
-}
-
-function Anchor({
-  to,
-  pattern,
-  name,
-  className,
-  newFuntion,
-  subMenu,
-}: {
-  to?: string;
-  pattern: string;
-  name: string;
-  className?: string;
-  newFuntion?: boolean;
-  subMenu?: {
-    name: string;
-    display?: string | JSX.Element;
-    path?: string;
-    click: (e?: any) => void;
-    chosen?: boolean;
-  }[];
-}) {
-  const location = useLocation();
-  let isSelected;
-
-  const [hover, setHover] = useState<boolean>(false);
-
-  const defaultChosed = subMenu?.find((m) => !!m.chosen)?.name;
-
-  const { pathname } = useLocation();
-
-  const isSwap =
-    pathname === '/' || pathname === '/swap' || pathname === '/myOrder';
-
-  const [chosenSub, setChosenSub] = useState<string>(
-    isSwap ? defaultChosed : null
-  );
-
-  useEffect(() => {
-    if (!isSwap) {
-      setChosenSub(null);
-    }
-  }, [isSwap, pathname]);
-
-  useEffect(() => {
-    if (!isSwap) return;
-
-    if (pathname === '/myOrder') {
-      setChosenSub('limit');
-    }
-
-    window.addEventListener('setItemEvent', (e: any) => {
-      const storageSwapTab = localStorage
-        .getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY)
-        ?.toString();
-
-      const storageSwapMode = localStorage.getItem(SWAP_MODE_KEY)?.toString();
-      if (typeof e?.[SWAP_MODE_KEY] === 'string') {
-        const curMode = e?.[SWAP_MODE_KEY];
-
-        if (curMode == SWAP_MODE.NORMAL && storageSwapTab === 'normal') {
-          setChosenSub('swap');
-        } else if (
-          e[SWAP_MODE_KEY] == SWAP_MODE.LIMIT &&
-          storageSwapTab === 'normal'
-        ) {
-          setChosenSub('limit');
-        }
-      }
-      if (typeof e?.[REF_FI_SWAP_SWAPPAGE_TAB_KEY] === 'string') {
-        const curTab = e?.[REF_FI_SWAP_SWAPPAGE_TAB_KEY];
-
-        if (curTab === 'normal') {
-          setChosenSub(storageSwapMode);
-        } else {
-          setChosenSub('pro');
-        }
-      }
-    });
-  }, [isSwap]);
-
-  if (pattern == '/pools') {
-    isSelected =
-      location.pathname.startsWith('/pools') ||
-      location.pathname.startsWith('/pool') ||
-      location.pathname.startsWith('/more_pools') ||
-      location.pathname.startsWith('/yourliquidity') ||
-      location.pathname.startsWith('/addLiquidityV2') ||
-      location.pathname.startsWith('/yoursLiquidityDetailV2');
-  } else if (pattern == '/') {
-    isSelected = location.pathname === '/' || location.pathname === '/swap';
-  } else if (pattern === '/sauce' || pattern === '/v2farms') {
-    isSelected = matchPath(location.pathname, {
-      path: pattern,
-      exact: false,
-      strict: false,
-    });
-  } else {
-    isSelected = matchPath(location.pathname, {
-      path: pattern,
-      exact: true,
-      strict: false,
-    });
-  }
-
-  return (
-    <>
-      <Link
-        to={to}
-        className={`relative flex items-center justify-center h-full  mx-4 `}
-        onMouseLeave={() => setHover(false)}
-        onMouseEnter={() => setHover(true)}
-      >
-        <span
-          className={`link hover:text-white text-base font-bold py-4 cursor-pointer relative z-10 ${className} ${
-            isSelected ? 'text-white' : 'text-gray-400'
-          }`}
-        >
-          <FormattedMessage id={name} defaultMessage={name} />
-          {newFuntion ? (
-            <span className="absolute top-5 right-2">
-              <IconAirDropGreenTip />
-            </span>
-          ) : null}
-        </span>
-
-        {!!subMenu && hover && (
-          <span
-            className="top-10 pt-2 absolute"
-            style={{
-              zIndex: 9999,
-            }}
-          >
-            <div
-              className="py-2  px-1.5 rounded-xl min-w-28 flex flex-col"
-              style={{
-                background: 'rgba(23,32,38)',
-                border: '1px solid #415462',
-              }}
-            >
-              {subMenu.map((m) => {
-                return (
-                  <span
-                    className={`${
-                      (chosenSub === m.name && isSwap) ||
-                      pathname.toLocaleLowerCase().indexOf(m.path) > -1
-                        ? 'bg-primaryText bg-opacity-30 text-white'
-                        : 'text-primaryText'
-                    } hover:bg-primaryText hover:bg-opacity-30 items-center
-                    flex justify-center py-0.5 h-11 mb-0.5 hover:text-white rounded-lg 
-                   text-center text-base cursor-pointer my-auto whitespace-nowrap px-2`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      m.click();
-                      setChosenSub(m.name);
-                      setHover(false);
-                    }}
-                  >
-                    {m.display || <FormattedMessage id={m.name} />}
-                  </span>
-                );
-              })}
-            </div>
-          </span>
-        )}
-      </Link>
-    </>
   );
 }
 
@@ -1299,7 +1126,10 @@ function MenuBar() {
         if (second_children) {
           const two_level_menu = second_children.find((item: menuItemType) => {
             const { links, swap_mode } = item;
-            if (pathname == '/' || pathname == '/swap') {
+            const condition = isNewHostName
+              ? pathname == '/swap'
+              : pathname == '/' || pathname == '/swap';
+            if (condition) {
               return swap_mode_in_localstorage == swap_mode;
             } else {
               return links?.indexOf(pathname) > -1;

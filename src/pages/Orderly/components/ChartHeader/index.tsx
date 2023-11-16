@@ -1,47 +1,47 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import Big from 'big.js';
+import moment from 'moment';
+import React, { useEffect, useMemo, useState } from 'react';
+import useCallback from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
+import Modal from 'react-modal';
+import { useHistory } from 'react-router-dom';
+
+import {
+  IoArrowDownOutline,
+  IoArrowUpOutline,
+  IoCloseSharp,
+  IoMdArrowDropdown,
+  RiArrowLeftSLine,
+} from '../../../../components/reactIcons';
+import { isNewHostName } from '../../../../services/config';
+import { useClientMobile } from '../../../../utils/device';
+import { getFTmetadata, nearMetadata, toPrecision } from '../../near';
 import {
   REF_ORDERLY_SYMBOL_KEY,
   useOrderlyContext,
 } from '../../orderly/OrderlyContext';
-import Modal from 'react-modal';
-import { parseSymbol } from '../RecentTrade';
-import { nearMetadata, getFTmetadata, toPrecision } from '../../near';
-
-import {
-  IoCloseSharp,
-  IoArrowUpOutline,
-  IoArrowDownOutline,
-  RiArrowLeftSLine,
-  IoMdArrowDropdown,
-} from '../../../../components/reactIcons';
-
-import { useTokenMetaFromSymbol } from './state';
 import { Ticker, TokenInfo } from '../../orderly/type';
-import { TokenIcon } from '../Common';
-import useCallback from 'react';
 import {
-  PerpOrSpot,
   digitWrapper,
   numberWithCommas,
   numberWithCommasPadding,
+  PerpOrSpot,
 } from '../../utiles';
+import {
+  MoBileMoreRouterButton,
+  MoreRouterButton,
+} from '../ChartHeaderPerp/components/MoreRouterButton';
+import { TokenIcon } from '../Common';
 import {
   AllMarketIcon,
   CheckSelector,
   MobileChartIcon,
   MobileMoreRouteIcon,
 } from '../Common/Icons';
-import { useClientMobile } from '../../../../utils/device';
-import { FormattedMessage, useIntl } from 'react-intl';
+import { parseSymbol } from '../RecentTrade';
 import { TextWrapper } from '../UserBoard';
-import Big from 'big.js';
-import moment from 'moment';
-import {
-  MoBileMoreRouterButton,
-  MoreRouterButton,
-} from '../ChartHeaderPerp/components/MoreRouterButton';
-import { useHistory } from 'react-router-dom';
 import { tickToPrecision } from '../UserBoardPerp/math';
+import { useTokenMetaFromSymbol } from './state';
 
 function tickerToDisplayDiff(ticker: Ticker | undefined) {
   const diff = ticker ? ((ticker.close - ticker.open) * 100) / ticker.open : 0;
@@ -533,6 +533,7 @@ function ChartHeader(props?: any) {
       <div className="rounded-xl xs:rounded-lg frcs mr-2 xs:mr-0.5 xs:text-xs gap-1 text-13px border border-v3SwapGray p-1 border-opacity-20  xs:p-0.5 ">
         {['spot', 'perps'].map((type) => {
           return (
+            // eslint-disable-next-line react/jsx-key
             <div
               className={`px-2.5 xs:px-2 xs:py-0.5 py-1 rounded-lg xs:rounded-md ${
                 type.indexOf(symbolType.toString().toLowerCase()) > -1
@@ -542,11 +543,18 @@ function ChartHeader(props?: any) {
               onClick={() => {
                 if (type === 'spot') {
                   changeSymbolToSpot();
-                  history.push('/orderbook/spot');
-
+                  if (isNewHostName) {
+                    history.push('/spot');
+                  } else {
+                    history.push('/orderbook/spot');
+                  }
                   setBridgePrice('');
                 } else {
-                  history.push('/orderbook/perps');
+                  if (isNewHostName) {
+                    history.push('/');
+                  } else {
+                    history.push('/orderbook/perps');
+                  }
                   changeSymbolToPerp();
                   setBridgePrice('');
                 }

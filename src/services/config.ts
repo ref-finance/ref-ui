@@ -742,3 +742,19 @@ export function getTransakConfig(
       };
   }
 }
+
+function getIsNewHostName() {
+  const env = process.env.REACT_APP_NEAR_ENV;
+  switch (env) {
+    case 'production':
+    case 'mainnet':
+      return location.hostname.includes('orderbook');
+    case 'testnet':
+    case 'pub-testnet':
+      return location.hostname.includes('bookdev'); // https://bookdev.ref-finance.com/
+    default:
+      return location.hostname.includes('orderbook'); //  https://orderbook.ref.finance/
+    // return location.hostname.includes('localhost'); //  https://orderbook.ref.finance/
+  }
+}
+export const isNewHostName = getIsNewHostName();

@@ -1,5 +1,6 @@
 import { lazy } from 'react';
 
+import { isNewHostName } from './services/config';
 interface Route {
   path: string;
   element: any;
@@ -8,6 +9,12 @@ interface Route {
 }
 // 路由
 const routes: Route[] = [
+  {
+    path: '/account',
+    element: lazy(
+      () => import(/* webpackChunkName: "account" */ 'src/pages/AccountPage')
+    ),
+  },
   {
     path: '/orderbook/perps',
     element: lazy(
@@ -38,12 +45,6 @@ const routes: Route[] = [
     ),
     exact: true,
     wrapper: 'AutoHeightNoOffset',
-  },
-  {
-    path: '/account',
-    element: lazy(
-      () => import(/* webpackChunkName: "account" */ 'src/pages/AccountPage')
-    ),
   },
   {
     path: '/orderly',
@@ -238,13 +239,38 @@ const routes: Route[] = [
     ),
     wrapper: 'AutoHeight',
   },
-
+  {
+    path: '/spot',
+    element: lazy(() => {
+      if (isNewHostName) {
+        return import(
+          /* webpackChunkName: "spot" */ 'src/pages/Orderly/OrderlyTradingBoard'
+        );
+      } else {
+        return import(/* webpackChunkName: "swap" */ 'src/pages/SwapPage');
+      }
+    }),
+    wrapper: 'AutoHeight',
+  },
+  {
+    path: '/swap',
+    element: lazy(() => {
+      return import(/* webpackChunkName: "swap" */ 'src/pages/SwapPage');
+    }),
+    wrapper: 'AutoHeight',
+  },
   {
     path: '/',
-    element: lazy(
-      () => import(/* webpackChunkName: "swap" */ 'src/pages/SwapPage')
-    ),
-    wrapper: 'AutoHeight',
+    element: lazy(() => {
+      if (isNewHostName) {
+        return import(
+          /* webpackChunkName: "perps" */ 'src/pages/Orderly/OrderlyPerpetual'
+        );
+      } else {
+        return import(/* webpackChunkName: "swap" */ 'src/pages/SwapPage');
+      }
+    }),
+    wrapper: isNewHostName ? 'AutoHeightNoOffset' : 'AutoHeight',
   },
 ];
 
