@@ -443,7 +443,7 @@ function MobilePoolRow({
                       : 'Classic'}
                   </span>
                 ) : null}
-                {morePoolButton}
+                {/*{morePoolButton}*/}
                 <div
                   className="mr-2 relative bottom-0 px"
                   onClick={(e) => {
@@ -1633,7 +1633,7 @@ function PoolRow({
     <div className="w-full hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20">
       <Link
         className={`grid grid-cols-${
-          mark ? 7 : 8
+          mark ? 6 : 7
         } py-3.5 text-white content-center text-sm text-left mx-8 border-b border-gray-700 border-opacity-70 hover:opacity-80`}
         onClick={() => localStorage.setItem('fromMorePools', 'n')}
         to={{
@@ -1733,25 +1733,25 @@ function PoolRow({
             : `${toInternationalCurrencySystem(pool.tvl.toString())}`}
         </div>
 
-        <div
-          className={`col-span-1 justify-self-center flex items-center justify-center py-1 hover:text-green-500 hover:cursor-pointer ${
-            mark ? 'hidden' : ''
-          }`}
-          onMouseEnter={() => setShowLinkArrow(true)}
-          onMouseLeave={() => setShowLinkArrow(false)}
-          onClick={(e) => {
-            e.preventDefault();
-            history.push(`/more_pools/${pool.tokenIds}`, {
-              morePoolIds: morePoolIds,
-              tokens,
-            });
-          }}
-        >
-          <span className="relative left-8">
-            {morePoolIds?.length ? `${morePoolIds?.length}` : '-'}
-            {showLinkArrow && ' >'}
-          </span>
-        </div>
+        {/*<div*/}
+        {/*  className={`col-span-1 justify-self-center flex items-center justify-center py-1 hover:text-green-500 hover:cursor-pointer ${*/}
+        {/*    mark ? 'hidden' : ''*/}
+        {/*  }`}*/}
+        {/*  onMouseEnter={() => setShowLinkArrow(true)}*/}
+        {/*  onMouseLeave={() => setShowLinkArrow(false)}*/}
+        {/*  onClick={(e) => {*/}
+        {/*    e.preventDefault();*/}
+        {/*    history.push(`/more_pools/${pool.tokenIds}`, {*/}
+        {/*      morePoolIds: morePoolIds,*/}
+        {/*      tokens,*/}
+        {/*    });*/}
+        {/*  }}*/}
+        {/*>*/}
+        {/*  <span className="relative left-8">*/}
+        {/*    {morePoolIds?.length ? `${morePoolIds?.length}` : '-'}*/}
+        {/*    {showLinkArrow && ' >'}*/}
+        {/*  </span>*/}
+        {/*</div>*/}
       </Link>
     </div>
   );
@@ -2713,7 +2713,7 @@ function PcLiquidityPage({
             </div>
 
             <section className="">
-              <header className="grid grid-cols-8 py-2 pb-4 text-left text-sm text-primaryText mx-8 border-b border-gray-700 border-opacity-70">
+              <header className="grid grid-cols-7 py-2 pb-4 text-left text-sm text-primaryText mx-8 border-b border-gray-700 border-opacity-70">
                 <div className="col-span-3 md:col-span-4 flex">
                   <FormattedMessage id="pair" defaultMessage="Pair" />
                 </div>
@@ -2875,9 +2875,9 @@ function PcLiquidityPage({
                     )}
                   </span>
                 </div>
-                <p className="col-span-1 justify-self-end relative xs:right-8 lg:right-5">
-                  <FormattedMessage id="pools" defaultMessage="Pools" />
-                </p>
+                {/*<p className="col-span-1 justify-self-end relative xs:right-8 lg:right-5">*/}
+                {/*  <FormattedMessage id="pools" defaultMessage="Pools" />*/}
+                {/*</p>*/}
               </header>
 
               <div className="max-h-96 overflow-y-auto  pool-list-container-pc">
