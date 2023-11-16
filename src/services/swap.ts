@@ -47,6 +47,8 @@ import {
   Pool,
   StablePool,
 } from './pool';
+
+// import { stableSmart } from './smartRouteLogic';
 import {
   createSmartRouteLogicWorker,
   transformWorkerResult,
@@ -434,7 +436,7 @@ export const estimateSwap = async ({
         totalInput: parsedAmountIn,
       })
     );
-    // stableSmartActionsV2 = await stableSmart(
+    //const stableSmartActionsV2 = await stableSmart(
     // orpools.filter((p) => !p?.Dex || p.Dex !== 'tri'),
     // tokenIn.id,
     // tokenOut.id,

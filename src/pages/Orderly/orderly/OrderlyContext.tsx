@@ -1,10 +1,20 @@
 import React, {
-  useContext,
   createContext,
-  useState,
+  useContext,
   useEffect,
   useMemo,
+  useState,
 } from 'react';
+import { useHistory } from 'react-router-dom';
+
+import { useWalletSelector } from '../../../context/WalletSelectorContext';
+import { isNewHostName } from '../../../services/config';
+import {
+  useAllSymbolInfo,
+  useCurHoldings,
+} from '../components/AllOrders/state';
+import { PerpOrSpot } from '../utiles';
+import { getAccountInformation, getOrderlySystemInfo } from './off-chain-api';
 import { useOrderlyMarketData, useOrderlyPrivateData } from './off-chain-ws';
 import {
   useAccountExist,
@@ -12,10 +22,7 @@ import {
   useAllPositions,
   useOrderlySystemAvailable,
 } from './state';
-import {
-  useAllSymbolInfo,
-  useCurHoldings,
-} from '../components/AllOrders/state';
+import { useAllOrdersSymbol, useStorageEnough, useTokenInfo } from './state';
 import {
   ClientInfo,
   EstFundingrate,
@@ -28,20 +35,15 @@ import {
   SymbolInfo,
 } from './type';
 import {
+  Balance,
   MarketTrade,
+  MarkPrice,
+  MyOrder,
   Orders,
+  Ticker,
   TokenInfo,
   Trade,
-  Ticker,
-  MarkPrice,
-  Balance,
-  MyOrder,
 } from './type';
-import { useTokenInfo, useAllOrdersSymbol, useStorageEnough } from './state';
-import { getAccountInformation, getOrderlySystemInfo } from './off-chain-api';
-import { PerpOrSpot } from '../utiles';
-import { useWalletSelector } from '../../../context/WalletSelectorContext';
-import { useHistory } from 'react-router-dom';
 
 interface OrderlyContextValue {
   orders: Orders | undefined;
@@ -116,7 +118,7 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
   }, []);
 
   const [symbol, setSymbol] = useState<string>(
-    storedSymbol || 'SPOT_NEAR_USDC'
+    storedSymbol || 'SPOT_NEAR_USDC.e'
   );
 
   const [userInfo, setUserInfo] = useState<ClientInfo>();
@@ -164,8 +166,9 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
     validAccountSig,
   });
 
-  const isPerp = pathname.includes('perp');
-
+  const isPerp = isNewHostName
+    ? !pathname.includes('spot')
+    : pathname.includes('perp');
   useEffect(() => {
     if (
       (isPerp && symbol.indexOf('PERP') > -1) ||
@@ -205,7 +208,7 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
       setSymbol(newSymbol);
       localStorage.setItem(REF_ORDERLY_SYMBOL_KEY, newSymbol);
     } else {
-      let newSymbol = 'SPOT_NEAR_USDC';
+      let newSymbol = 'SPOT_NEAR_USDC.e';
 
       const spotSymbol = availableSymbols?.find((s) => {
         const storedSymbol = localStorage.getItem(REF_ORDERLY_SYMBOL_KEY);

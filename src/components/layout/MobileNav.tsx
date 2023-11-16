@@ -29,48 +29,50 @@ import { WalletContext } from '../../utils/wallets-integration';
 
 import Modal from 'react-modal';
 const config = getConfig();
-import { isMobile } from 'src/utils/device';
-import {
-  getCurrentWallet,
-  getAccountName,
-} from '../../utils/wallets-integration';
-import { FarmDot } from '../icon/FarmStamp';
-import { AccountTipDownByAccountID, AuroraEntry } from './NavigationBar';
-import { ConnectDot, CopyIcon } from '../icon/CrossSwapIcons';
-import { SWAP_MODE_KEY, SWAP_MODE } from '../../pages/SwapPage';
-import Marquee from 'src/components/layout/Marquee';
-import {
-  useWalletSelector,
-  ACCOUNT_ID_KEY,
-} from '../../context/WalletSelectorContext';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import { openTransak } from '../alert/Transak';
-import { BuyNearButton } from '../button/Button';
-import { RefIcon, MailBoxIcon } from '../icon/Nav';
 import {
+  ArrowDownIcon,
+  ArrowDownLargeIcon,
+  ArrowLeftIcon,
+  HiMenuIcon,
   MoreIcon,
+  OutLinkIcon,
   SauceIcon,
   SauceText,
-  OutLinkIcon,
-  ArrowLeftIcon,
-  ArrowDownIcon,
-  HiMenuIcon,
-  ArrowDownLargeIcon,
 } from 'src/components/icon/Nav';
 import {
   RefAnalytics,
   RefAnalyticsGary,
 } from 'src/components/icon/RefAnalytics';
+import Marquee from 'src/components/layout/Marquee';
+import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from 'src/constants';
+import { isMobile } from 'src/utils/device';
 import { useLanguageItems } from 'src/utils/menu';
-import { commonLangKey, formatItem } from './NavigationBar';
+
 import {
-  tradingKeyMap,
+  ACCOUNT_ID_KEY,
+  useWalletSelector,
+} from '../../context/WalletSelectorContext';
+import { REF_ORDERLY_ACCOUNT_VALID } from '../../pages/Orderly/components/UserBoard/index';
+import {
   get_orderly_private_key_path,
   get_orderly_public_key_path,
+  tradingKeyMap,
 } from '../../pages/Orderly/orderly/utils';
-import { REF_ORDERLY_ACCOUNT_VALID } from '../../pages/Orderly/components/UserBoard/index';
+import { SWAP_MODE, SWAP_MODE_KEY } from '../../pages/SwapPage';
 import { openUrl } from '../../services/commonV3';
-import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from 'src/constants';
+import { isNewHostName } from '../../services/config';
+import {
+  getAccountName,
+  getCurrentWallet,
+} from '../../utils/wallets-integration';
+import { openTransak } from '../alert/Transak';
+import { BuyNearButton } from '../button/Button';
+import { ConnectDot, CopyIcon } from '../icon/CrossSwapIcons';
+import { FarmDot } from '../icon/FarmStamp';
+import { MailBoxIcon, RefIcon } from '../icon/Nav';
+import { AccountTipDownByAccountID, AuroraEntry } from './NavigationBar';
+import { commonLangKey, formatItem } from './NavigationBar';
 
 export function Logout() {
   const { wallet } = getCurrentWallet();
@@ -409,7 +411,10 @@ export function MobileNavBar(props: any) {
         if (second_children) {
           const two_level_menu = second_children.find((item: menuItemType) => {
             const { links, swap_mode } = item;
-            if (pathname == '/' || pathname == '/swap') {
+            const condition = isNewHostName
+              ? pathname == '/swap'
+              : pathname == '/' || pathname == '/swap';
+            if (condition) {
               return swap_mode_in_localstorage == swap_mode;
             } else {
               return links?.indexOf(pathname) > -1;
@@ -421,24 +426,6 @@ export function MobileNavBar(props: any) {
           }
         }
       }
-      // if (!one_level_selected_id) {
-      //   // no matched router than redirect to swap page
-      //   const { id, children } = menusMobile[0];
-      //   const second_children_temp: any = children;
-      //   if (second_children_temp) {
-      //     const two_level_menu = second_children_temp.find(
-      //       (item: menuItemType) => {
-      //         const { swap_mode } = item;
-      //         return swap_mode_in_localstorage == swap_mode;
-      //       }
-      //     );
-      //     if (two_level_menu) {
-      //       two_level_selected_id = two_level_menu.id;
-      //     }
-      //   }
-      //   one_level_selected_id = id;
-      //   setOpenMenu(id);
-      // }
       set_one_level_selected(one_level_selected_id);
       set_two_level_selected(two_level_selected_id);
     }
