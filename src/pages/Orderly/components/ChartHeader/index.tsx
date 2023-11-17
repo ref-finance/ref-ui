@@ -420,7 +420,8 @@ function ChartHeader(props?: any) {
   const symbolType = PerpOrSpot(symbol);
 
   useEffect(() => {
-    const isPerpWindow = window.location.pathname.indexOf('perp') > -1;
+    const isPerpWindow =
+      window.location.pathname.indexOf('perp') > -1 || location.pathname == '/';
 
     if (
       !idFrom ||
