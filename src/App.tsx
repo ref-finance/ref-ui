@@ -24,7 +24,6 @@ function App() {
             <Content />
 
             <Footer />
-            <ExternalPopUp></ExternalPopUp>
             <Guider></Guider>
           </div>
         </XmasActivityContextProvider>
