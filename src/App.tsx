@@ -14,7 +14,6 @@ import { WalletSelectorContextProvider } from './context/WalletSelectorContext';
 import { Content } from 'src/Content';
 import { LedgerTransactionModal } from './context/modal-ui/modal';
 import { XmasActivityContextProvider } from './context/XmasActivity';
-import { ModalGAPrivacy } from 'src/context/modal-ui/modalGAPrivacy/modalGAPrivacy';
 
 function App() {
   return (
@@ -32,7 +31,7 @@ function App() {
       </WalletSelectorContextProvider>
 
       <LedgerTransactionModal />
-      <ModalGAPrivacy />
+      {/*<ModalGAPrivacy />*/}
     </Router>
   );
 }
