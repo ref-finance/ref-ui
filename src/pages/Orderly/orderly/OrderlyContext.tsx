@@ -167,7 +167,7 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
   });
 
   const isPerp = isNewHostName
-    ? !pathname.includes('spot')
+    ? pathname.includes('perp') || pathname == '/'
     : pathname.includes('perp');
   useEffect(() => {
     if (
