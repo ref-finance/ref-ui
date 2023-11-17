@@ -24,10 +24,18 @@ import {
   ArrowDownLargeIcon,
   ArrowLeftIcon,
   HiMenuIcon,
+  MoreIcon,
   OutLinkIcon,
+  SauceIcon,
+  SauceText,
 } from 'src/components/icon/Nav';
-import { RefAnalyticsGary } from 'src/components/icon/RefAnalytics';
+import {
+  RefAnalytics,
+  RefAnalyticsGary,
+} from 'src/components/icon/RefAnalytics';
+import Marquee from 'src/components/layout/Marquee';
 import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from 'src/constants';
+import { isMobile } from 'src/utils/device';
 import { useLanguageItems } from 'src/utils/menu';
 
 import {
@@ -40,15 +48,18 @@ import {
   get_orderly_public_key_path,
   tradingKeyMap,
 } from '../../pages/Orderly/orderly/utils';
+import { SWAP_MODE, SWAP_MODE_KEY } from '../../pages/SwapPage';
 import { openUrl } from '../../services/commonV3';
+import { isNewHostName } from '../../services/config';
 import {
   getAccountName,
   getCurrentWallet,
 } from '../../utils/wallets-integration';
+import { openTransak } from '../alert/Transak';
 import { BuyNearButton } from '../button/Button';
 import { ConnectDot, CopyIcon } from '../icon/CrossSwapIcons';
 import { FarmDot } from '../icon/FarmStamp';
-import { RefIcon } from '../icon/Nav';
+import { MailBoxIcon, RefIcon } from '../icon/Nav';
 import { AccountTipDownByAccountID, AuroraEntry } from './NavigationBar';
 import { commonLangKey, formatItem } from './NavigationBar';
 import { CONST_ACKNOWLEDGE_WALLET_RISK } from 'src/constants/constLocalStorage';
@@ -405,7 +416,10 @@ export function MobileNavBar(props: any) {
         if (second_children) {
           const two_level_menu = second_children.find((item: menuItemType) => {
             const { links, swap_mode } = item;
-            if (pathname == '/' || pathname == '/swap') {
+            const condition = isNewHostName
+              ? pathname == '/swap'
+              : pathname == '/' || pathname == '/swap';
+            if (condition) {
               return swap_mode_in_localstorage == swap_mode;
             } else {
               return links?.indexOf(pathname) > -1;
@@ -432,24 +446,6 @@ export function MobileNavBar(props: any) {
           return match;
         });
       }
-      // if (!one_level_selected_id) {
-      //   // no matched router than redirect to swap page
-      //   const { id, children } = menusMobile[0];
-      //   const second_children_temp: any = children;
-      //   if (second_children_temp) {
-      //     const two_level_menu = second_children_temp.find(
-      //       (item: menuItemType) => {
-      //         const { swap_mode } = item;
-      //         return swap_mode_in_localstorage == swap_mode;
-      //       }
-      //     );
-      //     if (two_level_menu) {
-      //       two_level_selected_id = two_level_menu.id;
-      //     }
-      //   }
-      //   one_level_selected_id = id;
-      //   setOpenMenu(id);
-      // }
       set_one_level_selected(one_level_selected_id);
       set_two_level_selected(two_level_selected_id);
     }
@@ -977,7 +973,10 @@ function MobileBridgeModal(props: Modal.Props) {
         </div>
         {bridgeData.map((item) => {
           return (
-            <div className="flex flex-col gap-2 pl-1 text-primaryText ">
+            <div
+              key={item.id}
+              className="flex flex-col gap-2 pl-1 text-primaryText "
+            >
               <div className="frcs gap-2 pl-3">
                 <item.icon></item.icon>
 
@@ -987,6 +986,7 @@ function MobileBridgeModal(props: Modal.Props) {
               {item.children.map((sub) => {
                 return (
                   <div
+                    key={sub.id}
                     className="rounded-xl  py-1.5 pl-1 text-white bg-primaryText bg-opacity-20 cursor-pointer frcs"
                     onClick={() => {
                       openUrl(sub.link);
