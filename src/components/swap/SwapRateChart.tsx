@@ -365,6 +365,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
         {dimensionList.map((d) => {
           return (
             <div
+              key={d}
               className={`text-xs mx-1 xsm:mx-0.5 p-1 cursor-pointer ${
                 d === displayDimension
                   ? 'text-white rounded-md bg-limitOrderFeeTiersBorderColor'

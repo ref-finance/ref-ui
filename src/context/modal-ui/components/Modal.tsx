@@ -4,7 +4,7 @@ import type { WalletSelector } from '@near-wallet-selector/core';
 import type { ModalOptions, Theme } from '../modal.types';
 import type { ModalRoute } from './Modal.types';
 import { WalletNetworkChanged } from './WalletNetworkChanged';
-import { WalletOptions } from './WalletOptions';
+import { WalletOptions } from './WalletOptions/WalletOptions';
 import { AlertMessage } from './AlertMessage';
 import { CloseButton, CloseButtonWallet } from './CloseButton';
 import { DerivationPath, HardwareRoutes } from './DerivationPath';

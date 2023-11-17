@@ -27,6 +27,37 @@ import SnowBarSvg from '../../assets/svg/SnowBar.svg';
 import XmasSmallTreeSvg from '../../assets/svg/XmasSmallTree.svg';
 import XmasTreeSvg from '../../assets/svg/XmasTree.svg';
 
+import InfoSvg from '../../assets/svg/infoIcon.svg';
+import ReactTooltip from 'react-tooltip';
+
+export const InfoIcon = ({
+  tooltip,
+  style,
+  tooltipNode,
+}: {
+  tooltip?: string;
+  style?: any;
+  tooltipNode?: any;
+}) => {
+  const tooltipId = tooltip?.slice(0, 50)?.replaceAll(' ', '');
+  return (
+    <>
+      <span
+        data-tip={true}
+        data-for={tooltipId}
+        className={'cursor-pointer info-icon'}
+      >
+        <InfoSvg />
+      </span>
+      {(tooltip || tooltipNode) && (
+        <ReactTooltip id={tooltipId}>
+          {tooltipNode ? tooltipNode : <div style={style}>{tooltip}</div>}
+        </ReactTooltip>
+      )}
+    </>
+  );
+};
+
 const Learn_more = () => {
   return <Learn_moreSvg />;
 };

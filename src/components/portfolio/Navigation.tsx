@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState, useContext } from 'react';
 import {
   MenuREFIcon,
   MenuOrderlyIcon,
-  MenuBurrowIcon,
   OverviewMIcon,
   RefMIcon,
   OrderlyMIcon,
@@ -35,13 +34,6 @@ export default function Navigation(props: any) {
       id: 'orderly',
       url: '/orderly',
       borderColor: '#4527FF',
-    },
-    {
-      Icon: MenuBurrowIcon,
-      name: <FormattedMessage id="Burrow" />,
-      id: 'burrow',
-      url: '/burrow',
-      borderColor: '#745F4B',
     },
   ]);
   const [activeMenu, setActiveMenu] = useState('');
@@ -123,20 +115,13 @@ export function NavigationMobile(props: any) {
       id: 'orderly',
       url: '/orderly',
     },
-    {
-      Icon: BurrowMIcon,
-      name: 'Burrow',
-      id: 'burrow',
-      url: '/burrow',
-    },
   ]);
   const [activeMenu, setActiveMenu] = useState('');
   useEffect(() => {
     if (location.pathname.includes('portfolio')) {
       setActiveMenu('ref');
-    } else if (location.pathname.includes('burrow')) {
-      setActiveMenu('burrow');
-    } else if (location.pathname.includes('orderly')) {
+    }
+    if (location.pathname.includes('orderly')) {
       setActiveMenu('orderly');
     } else if (location.pathname.includes('overview')) {
       setActiveMenu('overview');

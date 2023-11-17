@@ -1,33 +1,22 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import { matchPath } from 'react-router';
-import { Context } from 'src/components/wrapper';
-import { Near, NavLogoSimple } from 'src/components/icon';
-import { Link, useLocation } from 'react-router-dom';
-import { useHistory } from 'react-router';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { HiOutlineExternalLink, RiLogoutCircleRLine } from '../reactIcons';
-
-import { useRefPrice } from 'src/state/account';
-import { toPrecision } from 'src/utils/numbers';
-import { useMenusMobile, menuItemType, bridgeData } from 'src/utils/menu';
-import getConfig from 'src/services/config';
+import Modal from 'react-modal';
+import { useHistory } from 'react-router';
+import { useLocation } from 'react-router-dom';
+import { NavLogoSimple, Near } from 'src/components/icon';
 import {
   AccountIcon,
   ActivityIcon,
   WalletIcon,
-  SignoutIcon,
 } from 'src/components/icon/Common';
+import { Context } from 'src/components/wrapper';
+import getConfig from 'src/services/config';
+import { useRefPrice } from 'src/state/account';
+import { bridgeData, menuItemType, useMenusMobile } from 'src/utils/menu';
+import { toPrecision } from 'src/utils/numbers';
 
 import { WalletContext } from '../../utils/wallets-integration';
-
-import Modal from 'react-modal';
+import { HiOutlineExternalLink, RiLogoutCircleRLine } from '../reactIcons';
 const config = getConfig();
 import CopyToClipboard from 'react-copy-to-clipboard';
 import {
@@ -73,6 +62,8 @@ import { FarmDot } from '../icon/FarmStamp';
 import { MailBoxIcon, RefIcon } from '../icon/Nav';
 import { AccountTipDownByAccountID, AuroraEntry } from './NavigationBar';
 import { commonLangKey, formatItem } from './NavigationBar';
+import { CONST_ACKNOWLEDGE_WALLET_RISK } from 'src/constants/constLocalStorage';
+import { WalletRiskCheckBoxModal } from 'src/context/modal-ui/components/WalletOptions/WalletRiskCheckBox';
 
 export function Logout() {
   const { wallet } = getCurrentWallet();
@@ -126,36 +117,31 @@ export function AccountModel(props: any) {
     {
       icon: <AccountIcon />,
       textId: 'your_assets',
-      selected: location.pathname == '/account',
+      selected: location.pathname == '/overview',
       click: () => {
-        if (location.pathname == '/account') {
-          localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
-          window.location.reload();
-        } else {
-          history.push('/account?tab=ref');
-        }
+        history.push('/overview');
       },
     },
-    {
-      icon: <ActivityIcon />,
-      textId: 'recent_activity',
-      selected: location.pathname == '/recent',
-      click: () => {
-        history.push('/recent');
-      },
-    },
-    {
-      icon: <WalletIcon />,
-      textId: 'go_to_near_wallet',
-      subIcon: <HiOutlineExternalLink />,
-      click: () => {
-        openUrl(
-          selector.store.getState().selectedWalletId === 'my-near-wallet'
-            ? config.myNearWalletUrl
-            : config.walletUrl
-        );
-      },
-    },
+    // {
+    //   icon: <ActivityIcon />,
+    //   textId: 'recent_activity',
+    //   selected: location.pathname == '/recent',
+    //   click: () => {
+    //     history.push('/recent');
+    //   },
+    // },
+    // {
+    //   icon: <WalletIcon />,
+    //   textId: 'go_to_near_wallet',
+    //   subIcon: <HiOutlineExternalLink />,
+    //   click: () => {
+    //     openUrl(
+    //       selector.store.getState().selectedWalletId === 'my-near-wallet'
+    //         ? config.myNearWalletUrl
+    //         : config.walletUrl
+    //     );
+    //   },
+    // },
   ];
 
   const [currentWalletName, setCurrentWalletName] = useState<string>();
@@ -373,6 +359,25 @@ export function MobileNavBar(props: any) {
   const [showLanguage, setShowLanguage] = useState<boolean>(false);
   const [one_level_selected, set_one_level_selected] = useState<string>('');
   const [two_level_selected, set_two_level_selected] = useState<string>('');
+  const [showWalletRisk, setShowWalletRisk] = useState<boolean>(false);
+  const handleWalletModalOpen = () => {
+    const isAcknowledgeWalletRisk = localStorage.getItem(
+      CONST_ACKNOWLEDGE_WALLET_RISK
+    );
+    if (!isAcknowledgeWalletRisk) {
+      setShowWalletRisk(true);
+    } else {
+      modal.show();
+    }
+  };
+  const handleAcknowledgeClick = (status) => {
+    if (status === true) {
+      setShowWalletRisk(false);
+      localStorage.setItem(CONST_ACKNOWLEDGE_WALLET_RISK, '1');
+      modal.show();
+    }
+  };
+
   const displayLanguage = () => {
     const currentLocal = localStorage.getItem('local');
     if (commonLangKey.indexOf(currentLocal) > -1) {
@@ -407,7 +412,7 @@ export function MobileNavBar(props: any) {
       if (one_level_menu) {
         const { id, children } = one_level_menu;
         one_level_selected_id = id;
-        let second_children: any = children;
+        const second_children: any = children;
         if (second_children) {
           const two_level_menu = second_children.find((item: menuItemType) => {
             const { links, swap_mode } = item;
@@ -425,6 +430,21 @@ export function MobileNavBar(props: any) {
             two_level_selected_id = two_level_menu.id;
           }
         }
+      } else {
+        menusMobile.find((d) => {
+          let match = d.links.includes(pathname);
+          if (!match && Array.isArray(d.children)) {
+            const level2Match = d.children.find((c) =>
+              c.links?.includes(pathname)
+            );
+            if (level2Match) {
+              two_level_selected_id = level2Match.id;
+              one_level_selected_id = d.id;
+              setOpenMenu(d.id);
+            }
+          }
+          return match;
+        });
       }
       set_one_level_selected(one_level_selected_id);
       set_two_level_selected(two_level_selected_id);
@@ -649,7 +669,8 @@ export function MobileNavBar(props: any) {
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      modal.show();
+                      //modal.show();
+                      handleWalletModalOpen();
                     }}
                   >
                     <FormattedMessage
@@ -660,14 +681,14 @@ export function MobileNavBar(props: any) {
                 )}
               </div>
             </div>
-            <div className={!isSignedIn ? 'hidden' : ' flex items-center'}>
-              <ConnectDot />
-              <ConnectDot />
-              <AuroraEntry
-                hasBalanceOnAurora={hasAuroraBalance}
-                extraClick={() => setAccountVisible(false)}
-              />
-            </div>
+            {/*<div className={!isSignedIn ? 'hidden' : ' flex items-center'}>*/}
+            {/*  <ConnectDot />*/}
+            {/*  <ConnectDot />*/}
+            {/*  <AuroraEntry*/}
+            {/*    hasBalanceOnAurora={hasAuroraBalance}*/}
+            {/*    extraClick={() => setAccountVisible(false)}*/}
+            {/*  />*/}
+            {/*</div>*/}
             <span className="ml-4" ref={iconRef} onClick={() => setShow(true)}>
               <HiMenuIcon />
             </span>
@@ -846,11 +867,19 @@ export function MobileNavBar(props: any) {
               <div className="w-4/6 fixed bottom-7 right-0 flex items-center justify-between bg-cardBg px-4 py-3">
                 <div className="flex items-center">
                   <div
-                    className=" transform scale-75 origin-left"
+                    className=" transform scale-75 origin-left -mr-9"
                     onClick={() => openUrl('https://stats.ref.finance/')}
                   >
                     <RefAnalyticsGary />
                   </div>
+                </div>
+                <div
+                  onClick={() =>
+                    window.open('https://guide.ref.finance/developers/audits')
+                  }
+                  className="text-primaryText text-xs cursor-pointer underline md:flex-auto md:ml-3"
+                >
+                  Security
                 </div>
                 <div
                   onClick={() => {
@@ -884,6 +913,12 @@ export function MobileNavBar(props: any) {
         ) : null}
       </div>
       {/* {isMobile ? <Marquee></Marquee> : null} */}
+
+      <WalletRiskCheckBoxModal
+        isOpen={showWalletRisk}
+        setCheckedStatus={handleAcknowledgeClick}
+        onClose={() => setShowWalletRisk(false)}
+      />
 
       <MobileBridgeModal
         isOpen={showBridgeModalMobile}
@@ -938,7 +973,10 @@ function MobileBridgeModal(props: Modal.Props) {
         </div>
         {bridgeData.map((item) => {
           return (
-            <div className="flex flex-col gap-2 pl-1 text-primaryText ">
+            <div
+              key={item.id}
+              className="flex flex-col gap-2 pl-1 text-primaryText "
+            >
               <div className="frcs gap-2 pl-3">
                 <item.icon></item.icon>
 
@@ -948,6 +986,7 @@ function MobileBridgeModal(props: Modal.Props) {
               {item.children.map((sub) => {
                 return (
                   <div
+                    key={sub.id}
                     className="rounded-xl  py-1.5 pl-1 text-white bg-primaryText bg-opacity-20 cursor-pointer frcs"
                     onClick={() => {
                       openUrl(sub.link);
