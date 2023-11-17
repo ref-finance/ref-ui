@@ -420,9 +420,10 @@ function ChartHeader(props?: any) {
   const symbolType = PerpOrSpot(symbol);
 
   useEffect(() => {
-    const isPerpWindow =
-      window.location.pathname.indexOf('perp') > -1 || location.pathname == '/';
-
+    const isPerpWindow = isNewHostName
+      ? window.location.pathname.indexOf('perp') > -1 ||
+        location.pathname == '/'
+      : window.location.pathname.indexOf('perp') > -1;
     if (
       !idFrom ||
       (isPerpWindow && symbolType === 'SPOT') ||
