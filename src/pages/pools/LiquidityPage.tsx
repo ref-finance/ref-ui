@@ -1201,14 +1201,7 @@ function MobileLiquidityPage({
           <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4">
             <div className="mx-4 flex items-center justify-between my-4">
               <div className="flex items-center">
-                <div className="text-white text-base">Top Pools</div>
-                <QuestionTip id="topPoolsCopy" />
-              </div>
-
-              <div className="text-gray-400 text-xs">
-                {(pools?.length ? pools?.filter(poolFilterFunc).length : '-') +
-                  ' out of ' +
-                  (allPools ? allPools : '-')}
+                <div className="text-white text-base">Pools</div>
               </div>
             </div>
 
@@ -2651,21 +2644,7 @@ function PcLiquidityPage({
               }}
             >
               <div className="flex items-center">
-                <div className="text-white text-lg font-bold">Top Pools</div>
-
-                <div className="flex items-center">
-                  <span className="mr-1">
-                    <QuestionTip id="topPoolsCopy" />
-                  </span>
-
-                  <div className="text-white text-sm">
-                    {(pools?.length
-                      ? pools?.filter(poolFilterFunc).length
-                      : '-') +
-                      ' out of ' +
-                      (allPools ? allPools : '-')}
-                  </div>
-                </div>
+                <div className="text-white text-lg font-bold">Pools</div>
               </div>
 
               <div className="ml-8 justify-between  flex">
