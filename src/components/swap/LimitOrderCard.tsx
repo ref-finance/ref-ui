@@ -91,6 +91,7 @@ import { SelectedIcon } from '../icon/swapV3';
 import { PoolInfo, get_pool_from_cache } from '../../services/swapV3';
 import { nearMetadata } from '../../services/wrap-near';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
+import { InfoIcon } from 'src/components/icon/Common';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -146,6 +147,7 @@ function DetailViewLimit({
   const isMobile = useClientMobile();
   const [hoverSlider, setHoverSlider] = useState(false);
   const [mobileShowFees, setMobileShowFees] = useState(false);
+
   function SelectPercent({ fee, poolId }: { fee?: number; poolId?: string }) {
     const id = poolId ? poolId : getV3PoolId(tokenIn.id, tokenOut.id, fee);
     const count = poolPercents?.[id];
@@ -171,6 +173,7 @@ function DetailViewLimit({
       </span>
     );
   }
+
   function SelectTvl({
     fee,
     poolId,
@@ -207,20 +210,22 @@ function DetailViewLimit({
       } else {
         return (
           <>
-            <span className="mr-1.5 xsm:mr-0 xsm:hidden">TVL</span>
+            <span className="mr-1.5 xsm:mr-0 xsm:hidden select-none">TVL</span>
             {displayTvl()}
           </>
         );
       }
     }
+
     return (
       <div
-        className={`transform scale-90 inline-flex items-center text-xs whitespace-nowrap ${className}`}
+        className={`transform scale-90 inline-flex items-center text-xs whitespace-nowrap select-none ${className}`}
       >
         {displayTvlAndNoPool()}
       </div>
     );
   }
+
   function isAllFeesNoPools() {
     const target = V3_POOL_FEE_LIST.find((fee) => {
       const pool_id = getV3PoolId(tokenIn.id, tokenOut.id, fee);
@@ -232,6 +237,7 @@ function DetailViewLimit({
       return true;
     }
   }
+
   if (!(tokenIn && tokenOut)) return null;
   return (
     <>
@@ -248,31 +254,49 @@ function DetailViewLimit({
       >
         <div className="">
           <div className="flex items-center justify-between ">
-            <span className="text-xs text-primaryText whitespace-nowrap mr-1.5">
+            <span className="text-xs text-primaryText whitespace-nowrap mr-1.5 select-none">
               <FormattedMessage id="fee_tiers" defaultMessage={'Fee Tiers'} />
             </span>
-            <button
-              onMouseEnter={(e) => {
-                if (!isMobile) {
-                  setHoverSlider(true);
-                  setFeeTiersShowFull(true);
+            <div className={'flex items-center gap-1'}>
+              <InfoIcon
+                tooltipNode={
+                  <div style={{ maxWidth: 220 }}>
+                    <div>
+                      Please note: when the order is filled by instant swap, you
+                      will be a liquidity taker.
+                    </div>
+                    <div>
+                      {' '}
+                      Meanwhile, no fee will be charged when you are a liquidity
+                      maker.
+                    </div>
+                  </div>
                 }
-              }}
-              className={`p-0.5 rounded-md ${
-                feeTiersShowFull || hoverSlider || mobileShowFees
-                  ? 'bg-selectTokenV3BgColor'
-                  : ''
-              }`}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (isMobile) {
-                  setMobileShowFees(!mobileShowFees);
-                }
-              }}
-            >
-              <Slider shrink showSlip={feeTiersShowFull || hoverSlider} />
-            </button>
+              />
+
+              <button
+                onMouseEnter={(e) => {
+                  if (!isMobile) {
+                    setHoverSlider(true);
+                    setFeeTiersShowFull(true);
+                  }
+                }}
+                className={`p-0.5 rounded-md ${
+                  feeTiersShowFull || hoverSlider || mobileShowFees
+                    ? 'bg-selectTokenV3BgColor'
+                    : ''
+                }`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (isMobile) {
+                    setMobileShowFees(!mobileShowFees);
+                  }
+                }}
+              >
+                <Slider shrink showSlip={feeTiersShowFull || hoverSlider} />
+              </button>
+            </div>
           </div>
           <div
             className={`flex items-center mt-2 ${
@@ -285,7 +309,7 @@ function DetailViewLimit({
               </span>
             ) : (
               <>
-                <span className="whitespace-nowrap text-sm text-primaryText mr-1">
+                <span className="whitespace-nowrap text-sm text-primaryText mr-1 select-none">
                   {toPrecision(
                     calculateFeePercent(
                       Number(v3Pool?.split(V3_POOL_SPLITER)[2] || 2000) / 100
@@ -314,6 +338,7 @@ function DetailViewLimit({
               const isNoPool = everyPoolTvl?.[pool_id] == null;
               return (
                 <button
+                  key={i + '-' + pool_id}
                   className={`relative rounded-xl ${
                     v3Pool === pool_id && !isNoPool
                       ? 'bg-feeBoxSelectedBg'
@@ -331,10 +356,7 @@ function DetailViewLimit({
                     }
                   }}
                 >
-                  <div
-                    key={i + '-' + pool_id}
-                    className={`flex-col flex items-start p-2`}
-                  >
+                  <div className={`flex-col flex items-start p-2`}>
                     <span
                       className={`text-sm ${
                         isNoPool
@@ -379,6 +401,7 @@ function DetailViewLimit({
           const isNoPool = everyPoolTvl?.[pool_id] == null;
           return (
             <button
+              key={i + '-' + pool_id}
               className={`relative bg-feeSubBoxBgColor rounded-xl ${
                 v3Pool === pool_id && !isNoPool
                   ? 'bg-opacity-100'
@@ -395,10 +418,7 @@ function DetailViewLimit({
                 }
               }}
             >
-              <div
-                key={i + '-' + pool_id}
-                className={`flex-col flex items-start p-1`}
-              >
+              <div className={`flex-col flex items-start p-1`}>
                 <span
                   className={`text-sm ${
                     isNoPool ? 'text-primaryText text-opacity-60' : 'text-white'
@@ -432,6 +452,7 @@ function ArrowToIcon(props: any) {
     ></img>
   );
 }
+
 function NoLimitPoolCard() {
   return (
     <div className="relative  text-sm mt-6 xsm:mt-8 text-center text-warn z-50">
@@ -701,6 +722,7 @@ export default function LimitOrderCard(props: {
       }
     }
   }, [tokenIn, tokenOut, useNearBalance, isSignedIn, nearBalance]);
+
   function getStorageTokenId() {
     const in_key = localStorage.getItem(SWAP_IN_KEY);
     const in_key_symbol = localStorage.getItem(SWAP_IN_KEY_SYMBOL);
@@ -727,6 +749,7 @@ export default function LimitOrderCard(props: {
     }
     return result;
   }
+
   const getSlippageTolerance = () => {
     return {
       slippageValue: slippageToleranceLimit,
@@ -926,6 +949,7 @@ export default function LimitOrderCard(props: {
         ONLY_ZEROS.test(tokenInMax))
     );
   }
+
   const isInsufficientBalance = judgeBalance();
 
   return (
@@ -1113,7 +1137,7 @@ export default function LimitOrderCard(props: {
           />
           <div
             className="relative flex items-stretch justify-between mt-2.5"
-            style={{ zIndex: '60' }}
+            style={{ zIndex: '71' }}
           >
             <LimitOrderRateSetBox
               tokenIn={tokenIn}

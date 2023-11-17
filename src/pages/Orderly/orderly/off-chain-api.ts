@@ -616,7 +616,14 @@ interface Data {
 }
 
 export const getOrderlySystemInfo = async (): Promise<OrderlySystemInfo> => {
-  return await getOrderlyPublic('/v1/public/system_info');
+  try {
+    return await getOrderlyPublic('/v1/public/system_info');
+  } catch (error) {
+    return new Promise((resolve) => {
+      const res = { data: { status: 2 } } as any;
+      resolve(res);
+    });
+  }
 };
 
 export const getMarketTrades = async ({

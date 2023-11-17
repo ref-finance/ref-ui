@@ -25,6 +25,8 @@ import {
 } from '../icon/Nav';
 import { openTransak } from '../alert/Transak';
 import { getCurrentWallet } from '../../utils/wallets-integration';
+import { WalletRiskCheckBoxModal } from 'src/context/modal-ui/components/WalletOptions/WalletRiskCheckBox';
+import { CONST_ACKNOWLEDGE_WALLET_RISK } from 'src/constants/constLocalStorage';
 
 export function BorderlessButton(
   props: HTMLAttributes<HTMLButtonElement> & { disabled?: boolean }
@@ -137,6 +139,24 @@ export function ConnectToNearBtn() {
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
 
   const [showWalletSelector, setShowWalletSelector] = useState(false);
+  const [showWalletRisk, setShowWalletRisk] = useState<boolean>(false);
+  const handleWalletModalOpen = () => {
+    const isAcknowledgeWalletRisk = localStorage.getItem(
+      CONST_ACKNOWLEDGE_WALLET_RISK
+    );
+    if (!isAcknowledgeWalletRisk) {
+      setShowWalletRisk(true);
+    } else {
+      modal.show();
+    }
+  };
+  const handleAcknowledgeClick = (status) => {
+    if (status === true) {
+      setShowWalletRisk(false);
+      localStorage.setItem(CONST_ACKNOWLEDGE_WALLET_RISK, '1');
+      modal.show();
+    }
+  };
 
   const { selector, modal, accounts, accountId, setAccountId } =
     useWalletSelector();
@@ -155,7 +175,8 @@ export function ConnectToNearBtn() {
           e.preventDefault();
           e.stopPropagation();
           // setButtonLoading(true);
-          modal.show();
+          //modal.show();
+          handleWalletModalOpen();
         }}
       >
         {!buttonLoading && (
@@ -176,6 +197,13 @@ export function ConnectToNearBtn() {
           />
         </button>
       </div>
+
+      <WalletRiskCheckBoxModal
+        isOpen={showWalletRisk}
+        setCheckedStatus={handleAcknowledgeClick}
+        onClose={() => setShowWalletRisk(false)}
+      />
+
       <WalletSelectorModal
         isOpen={showWalletSelector}
         onRequestClose={() => {
@@ -1049,8 +1077,29 @@ export function ConnectToNearBtnSwap() {
 
   const [showWalletSelector, setShowWalletSelector] = useState(false);
 
+  const [showWalletRisk, setShowWalletRisk] = useState<boolean>(false);
+
   const { selector, modal, accounts, accountId, setAccountId } =
     useWalletSelector();
+
+  const handleModalOpen = () => {
+    const isAcknowledgeWalletRisk = localStorage.getItem(
+      CONST_ACKNOWLEDGE_WALLET_RISK
+    );
+    if (!isAcknowledgeWalletRisk) {
+      setShowWalletRisk(true);
+    } else {
+      modal.show();
+    }
+  };
+
+  const handleAcknowledgeClick = (status) => {
+    if (status === true) {
+      setShowWalletRisk(false);
+      localStorage.setItem(CONST_ACKNOWLEDGE_WALLET_RISK, '1');
+      modal.show();
+    }
+  };
 
   return (
     <>
@@ -1064,7 +1113,7 @@ export function ConnectToNearBtnSwap() {
           e.preventDefault();
           e.stopPropagation();
           // setButtonLoading(true);
-          modal.show();
+          handleModalOpen();
         }}
         onMouseEnter={() => {
           setHover(true);
@@ -1091,6 +1140,13 @@ export function ConnectToNearBtnSwap() {
           />
         </button>
       </div>
+
+      <WalletRiskCheckBoxModal
+        isOpen={showWalletRisk}
+        setCheckedStatus={handleAcknowledgeClick}
+        onClose={() => setShowWalletRisk(false)}
+      />
+
       <WalletSelectorModal
         isOpen={showWalletSelector}
         onRequestClose={() => {

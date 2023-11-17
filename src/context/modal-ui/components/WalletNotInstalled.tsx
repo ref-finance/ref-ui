@@ -1,7 +1,7 @@
 import React from 'react';
 import { ModuleState } from '@near-wallet-selector/core';
 import { FormattedMessage } from 'react-intl';
-import { WalletSelectorFooter } from './WalletOptions';
+import { WalletSelectorFooter } from './WalletOptions/WalletOptions';
 import { openUrl } from '../../../services/commonV3';
 
 interface WalletNotInstalledProps {

@@ -12,8 +12,6 @@ import { matchPath } from 'react-router';
 import { Link, useHistory, useLocation } from 'react-router-dom';
 import ReactTooltip from 'react-tooltip';
 import { Card } from 'src/components/card/Card';
-import USNBuyComponent from 'src/components/forms/USNBuyComponent';
-import WrapNear from 'src/components/forms/WrapNear';
 import {
   IconAirDropGreenTip,
   Logo,
@@ -27,19 +25,8 @@ import {
   WalletIcon,
   WNEARExchngeIcon,
 } from 'src/components/icon/Common';
-import {
-  ArrowDownIcon,
-  DownTriangleIcon,
-  MoreIcon,
-} from 'src/components/icon/Nav';
 import { XrefIcon } from 'src/components/icon/Xref';
-import Marquee from 'src/components/layout/Marquee';
 import { Context } from 'src/components/wrapper';
-import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from 'src/constants';
-import {
-  ACCOUNT_ID_KEY,
-  useWalletSelector,
-} from 'src/context/WalletSelectorContext';
 import getConfig from 'src/services/config';
 import { NEARXIDS, wallet } from 'src/services/near';
 import {
@@ -49,19 +36,6 @@ import {
   useMenuItems,
   useMenus,
 } from 'src/utils/menu';
-
-import { REF_ORDERLY_ACCOUNT_VALID } from '../../pages/Orderly/components/UserBoard/index';
-import { ORDERLY_ASSET_MANAGER } from '../../pages/Orderly/near';
-import {
-  get_orderly_private_key_path,
-  get_orderly_public_key_path,
-} from '../../pages/Orderly/orderly/utils';
-import {
-  REF_FI_SENDER_WALLET_ACCESS_KEY,
-  tradingKeyMap,
-} from '../../pages/Orderly/orderly/utils';
-import { SWAP_MODE_KEY } from '../../pages/SwapPage';
-import { SWAP_MODE } from '../../pages/SwapPage';
 import { getAccount } from '../../services/airdrop';
 import {
   auroraAddr,
@@ -70,9 +44,7 @@ import {
 } from '../../services/aurora/aurora';
 import { ETH_DECIMAL } from '../../services/aurora/aurora';
 import { useAuroraBalances } from '../../services/aurora/aurora';
-import { useDCLAccountBalance } from '../../services/aurora/aurora';
 import { getAuroraConfig } from '../../services/aurora/config';
-import { openUrl } from '../../services/commonV3';
 import { ftGetTokensMetadata } from '../../services/ft-contract';
 import { useTokenBalances } from '../../state/token';
 import { isMobile, useClientMobile, useMobile } from '../../utils/device';
@@ -86,7 +58,6 @@ import {
   getAccountName,
   saveSenderLoginRes,
 } from '../../utils/wallets-integration';
-import { BuyNearButton } from '../button/Button';
 import {
   AuroraIcon,
   ConnectDot,
@@ -102,6 +73,37 @@ import {
 import { MobileNavBar } from './MobileNav';
 import { QuestionTip } from './TipWrapper';
 import { getURLInfo } from './transactionTipPopUp';
+import USNBuyComponent from 'src/components/forms/USNBuyComponent';
+import { SWAP_MODE_KEY } from '../../pages/SwapPage';
+import Marquee from 'src/components/layout/Marquee';
+
+import {
+  useWalletSelector,
+  ACCOUNT_ID_KEY,
+} from 'src/context/WalletSelectorContext';
+
+import { SWAP_MODE } from '../../pages/SwapPage';
+import { useDCLAccountBalance } from '../../services/aurora/aurora';
+import { BuyNearButton } from '../button/Button';
+import {
+  get_orderly_public_key_path,
+  get_orderly_private_key_path,
+} from '../../pages/Orderly/orderly/utils';
+import { REF_ORDERLY_ACCOUNT_VALID } from '../../pages/Orderly/components/UserBoard/index';
+import {
+  tradingKeyMap,
+  REF_FI_SENDER_WALLET_ACCESS_KEY,
+} from '../../pages/Orderly/orderly/utils';
+import { ORDERLY_ASSET_MANAGER } from '../../pages/Orderly/near';
+import {
+  MoreIcon,
+  ArrowDownIcon,
+  DownTriangleIcon,
+} from 'src/components/icon/Nav';
+import { openUrl } from '../../services/commonV3';
+import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from 'src/constants';
+import { WalletRiskCheckBoxModal } from 'src/context/modal-ui/components/WalletOptions/WalletRiskCheckBox';
+import { CONST_ACKNOWLEDGE_WALLET_RISK } from 'src/constants/constLocalStorage';
 import { WalletSelectorModal } from './WalletSelector';
 import { isNewHostName } from '../../services/config';
 import { WrapNearIcon } from './WrapNear';
@@ -155,6 +157,25 @@ function AccountEntry({
 
   const [showTip, setShowTip] = useState<boolean>(false);
   const [copyButtonDisabled, setCopyButtonDisabled] = useState<boolean>(false);
+
+  const [showWalletRisk, setShowWalletRisk] = useState<boolean>(false);
+  const handleWalletModalOpen = () => {
+    const isAcknowledgeWalletRisk = localStorage.getItem(
+      CONST_ACKNOWLEDGE_WALLET_RISK
+    );
+    if (!isAcknowledgeWalletRisk) {
+      setShowWalletRisk(true);
+    } else {
+      modal.show();
+    }
+  };
+  const handleAcknowledgeClick = (status) => {
+    if (status === true) {
+      setShowWalletRisk(false);
+      localStorage.setItem(CONST_ACKNOWLEDGE_WALLET_RISK, '1');
+      modal.show();
+    }
+  };
 
   const isSignedIn = globalState.isSignedIn;
 
@@ -227,37 +248,33 @@ function AccountEntry({
     {
       icon: <AccountIcon />,
       textId: 'your_assets',
-      selected: location.pathname == '/account',
+      selected: location.pathname == '/overview',
       click: () => {
-        if (location.pathname == '/account') {
-          localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
-          window.location.href = '/account?tab=ref';
-        } else {
-          history.push('/account?tab=ref');
-        }
+        history.push('/overview');
       },
     },
-    {
-      icon: <ActivityIcon />,
-      textId: 'recent_activity',
-      selected: location.pathname == '/recent',
-      click: () => {
-        history.push('/recent');
-      },
-    },
-    {
-      icon: <WalletIcon />,
-      textId: 'go_to_near_wallet',
-      // subIcon: <HiOutlineExternalLink />,
-      click: () => {
-        openUrl(
-          selector.store.getState().selectedWalletId === 'my-near-wallet'
-            ? config.myNearWalletUrl
-            : config.walletUrl
-        );
-      },
-    },
+    // {
+    //   icon: <ActivityIcon />,
+    //   textId: 'recent_activity',
+    //   selected: location.pathname == '/recent',
+    //   click: () => {
+    //     history.push('/recent');
+    //   },
+    // },
+    // {
+    //   icon: <WalletIcon />,
+    //   textId: 'go_to_near_wallet',
+    //   // subIcon: <HiOutlineExternalLink />,
+    //   click: () => {
+    //     openUrl(
+    //       selector.store.getState().selectedWalletId === 'my-near-wallet'
+    //         ? config.myNearWalletUrl
+    //         : config.walletUrl
+    //     );
+    //   },
+    // },
   ];
+
   function showToast() {
     if (copyButtonDisabled) return;
     setCopyButtonDisabled(true);
@@ -338,8 +355,8 @@ function AccountEntry({
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  modal.show();
-
+                  //modal.show();
+                  handleWalletModalOpen();
                   setHover(false);
                 }}
                 type="button"
@@ -356,6 +373,12 @@ function AccountEntry({
                 </span>
               </button>
             )}
+
+            <WalletRiskCheckBoxModal
+              isOpen={showWalletRisk}
+              setCheckedStatus={handleAcknowledgeClick}
+              onClose={() => setShowWalletRisk(false)}
+            />
           </div>
         </div>
         {isSignedIn && hover ? (
@@ -699,6 +722,7 @@ function NavigationBar() {
   const [hasAuroraBalance, setHasAuroraBalance] = useState(false);
 
   const { txHash } = getURLInfo();
+  const isMobile = useMobile();
 
   useEffect(() => {
     if (!auroraBalances || !isSignedIn) return;
@@ -904,7 +928,7 @@ function NavigationBar() {
               <BridgeButton></BridgeButton>
             </div>
 
-            {isMobile() ? null : <BuyNearButton />}
+            {isMobile ? null : <BuyNearButton />}
 
             <div className="flex items-center mx-3">
               <AccountEntry
@@ -912,24 +936,28 @@ function NavigationBar() {
                 setShowWalletSelector={setShowWalletSelector}
                 showWalletSelector={showWalletSelector}
               />
-              <div className={isSignedIn ? 'flex items-center' : 'hidden'}>
-                <ConnectDot />
-                <ConnectDot />
-                <AuroraEntry hasBalanceOnAurora={hasAuroraBalance} />
-              </div>
+              {/*<div className={isSignedIn ? 'flex items-center' : 'hidden'}>*/}
+              {/*  <ConnectDot />*/}
+              {/*  <ConnectDot />*/}
+              {/*  <AuroraEntry hasBalanceOnAurora={hasAuroraBalance} />*/}
+              {/*</div>*/}
             </div>
             <Language></Language>
           </div>
         </nav>
         {/* {isMobile ? null : <Marquee></Marquee>} */}
       </div>
-      <MobileNavBar
-        hasBalanceOnRefAccount={hasBalanceOnRefAccount}
-        isSignedIn={isSignedIn}
-        setShowWalletSelector={setShowWalletSelector}
-        showWalletSelector={showWalletSelector}
-        hasAuroraBalance={hasAuroraBalance}
-      />
+
+      {isMobile && (
+        <MobileNavBar
+          hasBalanceOnRefAccount={hasBalanceOnRefAccount}
+          isSignedIn={isSignedIn}
+          setShowWalletSelector={setShowWalletSelector}
+          showWalletSelector={showWalletSelector}
+          hasAuroraBalance={hasAuroraBalance}
+        />
+      )}
+
       <WalletSelectorModal
         setShowWalletSelector={setShowWalletSelector}
         isOpen={showWalletSelector}
@@ -941,7 +969,9 @@ function NavigationBar() {
     </>
   );
 }
+
 export const commonLangKey = ['en', 'zh-CN', 'vi', 'ko', 'es'];
+
 export function formatItem(local: string) {
   if (commonLangKey.indexOf(local) > -1) {
     return local;
@@ -949,6 +979,7 @@ export function formatItem(local: string) {
     return 'en';
   }
 }
+
 function Language() {
   const context = useContext(Context);
   const [hover, setHover] = useState(false);
@@ -1025,6 +1056,7 @@ function Language() {
     </div>
   );
 }
+
 export default NavigationBar;
 
 function MenuBar() {
@@ -1048,12 +1080,14 @@ function MenuBar() {
     }
     set_hover_one_level_id(id);
   }
+
   function hover_off_one_level_item() {
     set_hover_two_level_items([]);
     set_back_one_level_item(null);
     set_hover_two_level_id(undefined);
     set_hover_one_level_id('');
   }
+
   function click_one_level_item(item: menuItemType) {
     const { clickEvent, url, isExternal } = item;
     if (clickEvent) {
@@ -1069,6 +1103,7 @@ function MenuBar() {
       hover_off_one_level_item();
     }
   }
+
   function click_two_level_item(item: menuItemType) {
     const { children, label, clickEvent, url, isExternal } = item;
     if (children) {
@@ -1090,6 +1125,7 @@ function MenuBar() {
       }
     }
   }
+
   function click_three_level_title_to_back(menuItem: menuItemType) {
     const { children } = menuItem;
     set_hover_two_level_items(children);
@@ -1114,6 +1150,7 @@ function MenuBar() {
     let two_level_selected_id = '';
     const swap_mode_in_localstorage =
       localStorage.getItem('SWAP_MODE_VALUE') || 'normal';
+
     if (menus) {
       const one_level_menu = menus.find((item: menuItemType) => {
         const { links } = item;
@@ -1122,7 +1159,7 @@ function MenuBar() {
       if (one_level_menu) {
         const { id, children } = one_level_menu;
         one_level_selected_id = id;
-        let second_children: any = children;
+        const second_children: any = children;
         if (second_children) {
           const two_level_menu = second_children.find((item: menuItemType) => {
             const { links, swap_mode } = item;
@@ -1139,6 +1176,21 @@ function MenuBar() {
             two_level_selected_id = two_level_menu.id;
           }
         }
+      } else {
+        menus.find((d) => {
+          const match = d.links.includes(pathname);
+          if (!match && Array.isArray(d.children)) {
+            const level2Match = d.children.find((c) =>
+              c.links?.includes(pathname)
+            );
+
+            if (level2Match) {
+              two_level_selected_id = level2Match.id;
+              one_level_selected_id = d.id;
+            }
+          }
+          return match;
+        });
       }
 
       set_one_level_selected(one_level_selected_id);
