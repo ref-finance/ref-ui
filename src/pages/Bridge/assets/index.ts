@@ -1,0 +1,9 @@
+export { default as IconArrowDown } from './arrow-down.svg';
+export { default as IconClose } from './close.svg';
+export { default as IconDisconnect } from './disconnect.svg';
+export { default as IconExchange } from './exchange.svg';
+export { default as IconInfo } from './info.svg';
+export { default as IconRefresh } from './refresh.svg';
+export { default as IconSearch } from './search.svg';
+export { default as IconSetting } from './setting.svg';
+export { default as IconWarning } from './warning.svg';

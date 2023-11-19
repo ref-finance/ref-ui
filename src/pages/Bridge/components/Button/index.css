@@ -1,0 +1,59 @@
+
+.bridge-btn{
+    @apply flex items-center justify-center text-sm text-white border border-solid rounded-md;
+    background: rgba(126, 138, 147, 0.10);
+    color:var(--bridge-default-color);
+    border-color:var(--bridge-border-color);
+}
+.bridge-btn.is-plain{
+    @apply bg-transparent;
+}
+.bridge-btn:hover,.bridge-btn.is-plain:hover,.bridge-btn.is-text:hover{
+    @apply bg-primaryText text-white transition-colors;
+    background: rgba(126, 138, 147, 0.3);
+}
+
+.bridge-btn-size-large{
+    @apply text-base px-3 py-2 rounded-lg;
+}
+.bridge-btn-size-default{
+    @apply text-sm px-2.5 py-1.5 rounded-md;
+}
+.bridge-btn-size-small{
+    @apply text-xs p-1 rounded-md;
+}
+
+.bridge-btn-primary{
+    @apply text-white;
+    background: linear-gradient(180deg, rgba(var(--bridge-primary-color-rgb),0.8) 0%, rgba(var(--bridge-primary-color-hover-rgb)) 100%);
+    border-color: transparent;
+}
+.bridge-btn-primary:hover{
+    @apply text-white;
+    background: linear-gradient(180deg,var(--bridge-primary-color),var(--bridge-primary-color-hover) 100%);
+}
+
+.bridge-btn-primary:disabled{
+    @apply opacity-80;
+}
+
+.bridge-btn-info{
+    @apply bg-gray-400 text-white;
+}
+.bridge-btn.is-text{
+    padding: 0;
+    background: none !important;
+    border:none;
+}
+.bridge-btn-primary.is-text{
+   color: var(--bridge-primary-color);
+}
+.bridge-btn-primary.is-text:hover{
+    color: var(--bridge-primary-color-hover);
+}
+
+
+.bridge-btn.is-rounded{
+    @apply rounded-full;
+}
+

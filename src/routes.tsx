@@ -238,6 +238,12 @@ const routes: Route[] = [
     ),
     wrapper: 'AutoHeight',
   },
+  {
+    path: '/bridge',
+    element: lazy(
+      () => import(/* webpackChunkName: "bridge" */ 'src/pages/Bridge')
+    ),
+  },
 
   {
     path: '/',

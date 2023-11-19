@@ -1,0 +1,84 @@
+:root{
+    --bridge-primary-color: #00C6A2;
+    --bridge-primary-color-rgb: 0,198,162;
+    --bridge-primary-color-hover: #008B72;
+    --bridge-primary-color-hover-rgb: 0,139,114;
+    --bridge-default-color: #7E8A93;
+    --bridge-border-color: #2B3E4C;
+}
+
+
+.bridge-page {
+    color:var(--bridge-default-color);
+    @apply h-full flex-1 text-sm;
+}
+
+
+.bridge-entry-container{
+    @apply  m-auto mt-20;
+    width: 428px; 
+}
+.bridge-history-container{
+    @apply  m-auto mt-20 px-4;
+    max-width: 900px; 
+}
+.bridge-plane{
+    @apply p-4 border rounded-2xl border-solid flex-col gap-4;
+    border-color: var(--bridge-border-color);
+    background: linear-gradient(180deg, #213441 0%, #15242F 100%);
+}
+.bridge-modal{
+    @apply w-full p-4 border rounded-2xl border-solid flex-col gap-4 shadow-4xl;
+    border-color: var(--bridge-border-color);
+    background:#1D2932;
+    color:var(--bridge-default-color);
+}
+
+.bridge-input{
+    @apply flex items-center text-white p-2 rounded-md border border-solid leading-5;
+    background-color: rgba(11, 12, 19, 0.30);
+    border-color: var(--bridge-border-color);
+}
+.bridge-input.small{
+    @apply px-2 py-1;
+}
+.bridge-input:hover{
+    @apply transition-colors;
+    border-color: var(--bridge-default-color);
+}
+.bridge-input:focus{
+    @apply border-primary transition-colors;
+    border-width: 1px;
+}
+
+.bridge-checkbox{
+    @apply w-4 h-4 appearance-none text-green-600  rounded focus:ring-green-600 ring-offset-gray-800 focus:ring-2 bg-gray-900 border border-gray-700;
+}
+.bridge-checkbox:checked{
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg aria-hidden='true' xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 16 12'%3E%3Cpath stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M1 5.917 5.724 10.5 15 1.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-size: 0.55em 0.55em;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background-color: currentColor;
+    background-position: 50%;
+    background-repeat: no-repeat;
+    background-size: 0.55em 0.55em;
+    border-color: transparent;
+}
+
+.bridge-table{
+    @apply w-full;
+    border-collapse: collapse;
+}
+.bridge-table tr{
+    @apply border-b ;
+    border-color: var(--bridge-border-color);
+}
+
+.bridge-table th{
+    @apply text-left text-sm p-2;
+}
+.bridge-table td{
+    @apply text-left text-sm px-2 py-3;
+}

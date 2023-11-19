@@ -1,79 +1,49 @@
-import React, { ReactNode, useContext, useState, useEffect } from 'react';
-import { HiOutlineExternalLink } from '../components/reactIcons';
+import React, { ReactNode, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { useHistory } from 'react-router';
 import { useLocation } from 'react-router-dom';
 import {
-  Rainbow,
-  Ethereum,
-  Celo,
-  Allbridge,
-  Aurora,
-  Terra,
-  Solana,
-  ElectronLabs,
-  BridgeIconMenu,
-} from '../components/icon/Menu';
-
-import {
+  BorrowIcon,
+  BridgeIcon,
+  EsIcon,
+  FarmsIcon,
   IconAirDrop,
-  IconCommunity,
-  IconCreateNew,
+  IconAurora,
+  IconCelo,
   IconDocs,
   IconEn,
-  IconForum,
-  IconLanguage,
-  IconPools,
-  IconRainbow,
-  IconZh,
-  IconVi,
-  IconBridge,
   IconEthereum,
-  IconAurora,
   IconSolana,
   IconTerra,
-  IconCelo,
-  UkIcon,
-  RuIcon,
-  JaIcon,
-  KoIcon,
-  IconRisk,
-  AuroraIconSwapNav,
-  MobileYourLiqudityIcon,
-  MobilePoolsIcon,
-  BridgeIcon,
-  RisksIcon,
-  EsIcon,
-  WrapNearIcon,
-  MobileBridgeIcon,
+  IconVi,
+  IconZh,
   InquiriesIcon,
-  SwapIcon,
-  XswapIcon,
+  KoIcon,
   LimitOrderIcon,
   OrderBookIcon,
+  OrderlyIcon,
+  OverviewIcon,
   PoolsIcon,
-  YourliquidityIcon,
-  FarmsIcon,
+  PortfolioIcon,
+  RisksIcon,
+  SwapIcon,
   XrefEarnIcon,
   XrefIcon,
-  REFSmallIcon,
-  PurpleCircleIcon,
-  PortfolioIcon,
-  OrderlyIcon,
-  BorrowIcon,
-  OverviewIcon,
+  YourliquidityIcon,
 } from 'src/components/icon/Nav';
+import { openUrl } from 'src/services/commonV3';
+
+import {
+  Aurora,
+  BridgeIconMenu,
+  ElectronLabs,
+  Ethereum,
+  Rainbow,
+} from '../components/icon/Menu';
+import { HiOutlineExternalLink } from '../components/reactIcons';
+import { SWAP_TYPE_KEY } from '../pages/SwapPage';
 // import { XrefIcon } from 'src/components/icon/Xref';
 import getConfig from '../services/config';
-import { MobileNavLimitOrder, IconMyLiquidity } from '../components/icon/Nav';
-import { SWAP_TYPE_KEY } from '../pages/SwapPage';
-import {
-  MobileNavSwap,
-  MobileNavStable,
-  MobileNavSwapPro,
-} from '../components/icon/Nav';
-import { WalletContext } from '../utils/wallets-integration';
-import { useHistory } from 'react-router';
-import { openUrl } from 'src/services/commonV3';
 
 export type MenuItem = {
   id: number;
@@ -420,6 +390,17 @@ export const useMenus = (cb?: () => void) => {
           links: ['/xref'],
         },
       ],
+    },
+    {
+      id: '4',
+      label: (
+        <>
+          <FormattedMessage id="bridge_pure" />
+        </>
+      ),
+      url: '/bridge',
+      isExternal: false,
+      links: ['/bridge'],
     },
     {
       id: '3',
@@ -787,6 +768,17 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
           links: ['/xref'],
         },
       ],
+    },
+    {
+      id: '4',
+      label: (
+        <>
+          <FormattedMessage id="bridge_pure" />
+        </>
+      ),
+      url: '/bridge',
+      isExternal: false,
+      links: ['/bridge'],
     },
     {
       id: '3',
