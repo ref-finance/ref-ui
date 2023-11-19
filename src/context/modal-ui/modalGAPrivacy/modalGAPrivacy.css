@@ -1,0 +1,104 @@
+.bottom-ga {
+  background: #213441;
+  position: fixed;
+  bottom: 32px;
+  width: 100%;
+  padding: 12px 30px 12px 15px;
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  z-index: -99;
+}
+
+.bottom-ga._show {
+  opacity: 1;
+  z-index: 99999;
+}
+
+.modal-ga {
+  color: #91a2ae;
+}
+
+.modal-ga h2 {
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 20px;
+  margin-top: 20px;
+  color: #dce2e7;
+}
+
+.modal-ga br {
+  margin-bottom: 20px;
+}
+
+.ga-content {
+  overflow-y: scroll;
+  height: 70vh;
+  font-size: 12px;
+}
+
+.bottom-ga .btn-outline {
+  background: #fff;
+  border-color: #fff;
+  color: #000;
+}
+
+@media (min-width: 769px) {
+  .bottom-ga {
+    background: #d2d8dd;
+    padding: 20px 30px;
+    bottom: 0;
+    color: #000 !important;
+  }
+
+  .bottom-ga .ga-reject {
+    color: #000;
+  }
+
+  .bottom-ga .btn-outline {
+    background: #000;
+    border-color: #000;
+    color: #fff;
+  }
+}
+
+@media (max-width: 768px) {
+  .modal-title {
+  }
+
+  .modal-ga .modal-content {
+    /*background: #d2d8dd;*/
+  }
+
+  .modal-ga .modal-title,
+  .ga-content.text-primaryText,
+  .modal-ga h2 {
+    /*color: #fff;*/
+  }
+
+  .ga-content {
+    max-height: 60vh;
+  }
+
+  .modal-ga .btn-outline {
+    background: #fff;
+    color: #000;
+  }
+
+  .bottom-ga-close {
+    position: absolute;
+    top: 12px;
+    right: 10px;
+    font-size: 18px;
+  }
+
+  .ga-btns {
+    justify-content: space-around;
+    flex: 1;
+  }
+
+  .ga-btns button {
+    flex: 1;
+    color: #fff;
+  }
+}

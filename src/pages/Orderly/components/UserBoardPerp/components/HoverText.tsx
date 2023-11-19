@@ -1,10 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import Big from 'big.js';
+import React, { useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { QuestionMark, CollatteralTokenIcon } from '../../Common';
+import ReactTooltip from 'react-tooltip';
+
 import { isMobile } from '../../../../../utils/device';
 import { useClientMobile } from '../../../../../utils/device';
-import ReactTooltip from 'react-tooltip';
-import { numberWithCommas } from '../../../utiles';
+import { useOrderlyContext } from '../../../orderly/OrderlyContext';
+import { digitWrapperAsset } from '../../../utiles';
+import { CollatteralTokenIcon, QuestionMark } from '../../Common';
+import { parseSymbol } from '../../RecentTrade/index';
+import { useTokensBalances } from '../../UserBoard/state';
+import { usePerpData } from '../../UserBoardPerp/state';
 
 export function MarginRatioText() {
   const [hover, setHover] = useState(false);
@@ -352,8 +358,38 @@ export function CollatteralTokenAvailableCell({
   finalBalance,
   usdcBalance,
   freeCollateral,
-}) {
+}: any) {
   const [collateralTokenTip, setCollateralTokenTip] = useState<boolean>(false);
+  const { tokenInfo, holdings, symbol } = useOrderlyContext();
+  const { totalCollateral, unsettle } = usePerpData();
+  const { symbolTo } = parseSymbol(symbol);
+  const curHoldingOut = holdings?.find((h) => h.token === symbolTo);
+  const balances = useTokensBalances(
+    tokenInfo?.map((token) => {
+      return {
+        id: token.token_account_id,
+        decimals: token.decimals,
+      };
+    }) || [],
+    tokenInfo,
+    true,
+    freeCollateral,
+    curHoldingOut
+  );
+  const usdc = balances?.find((b: any) => b?.name?.includes('USDC'));
+  let in_order: any = '-';
+  let balance: any = '-';
+  let in_perp: any = '-';
+  if (usdc) {
+    in_order = Math.abs(usdc['in-order']);
+    balance =
+      usdcBalance == '-'
+        ? Number(in_order)
+        : Number(in_order) + Number(usdcBalance);
+  }
+  if (totalCollateral !== '-' && freeCollateral !== '-') {
+    in_perp = Number(totalCollateral) - Number(freeCollateral);
+  }
   return (
     <div className="flex items-center justify-self-end border-b border-dashed border-primaryText cursor-pointer frcs">
       <div
@@ -368,18 +404,22 @@ export function CollatteralTokenAvailableCell({
         {finalBalance}
 
         {collateralTokenTip && (
-          <div className="absolute bg-cardBg z-30 transform translate-y-1/2 right-full -translate-x-2 bottom-3  px-4 py-2 rounded-lg text-xs text-primaryText border border-primaryText whitespace-nowrap">
+          <div className="absolute bg-cardBg z-50 transform translate-y-1/2 right-full -translate-x-2 bottom-3  px-4 py-2 rounded-lg text-xs text-primaryText border border-primaryText whitespace-nowrap">
             <div className="flex items-center gap-2  justify-between text-xs text-farmText">
               <span>Balance</span>
-              <span>{usdcBalance}</span>
+              <span>{balance === '-' ? '-' : Big(balance).toFixed(2)}</span>
             </div>
             <div className="flex items-center gap-2 justify-between text-xs text-farmText mt-2">
-              <span>Free Collateral</span>
-              <span>
-                {freeCollateral === '-'
-                  ? '-'
-                  : numberWithCommas(freeCollateral)}
-              </span>
+              <span>Spot Freezing</span>
+              <span>{in_order === '-' ? '-' : Big(in_order).toFixed(2)}</span>
+            </div>
+            <div className="flex items-center gap-2 justify-between text-xs text-farmText mt-2">
+              <span>Perps Positions/Orders Freezing</span>
+              <span>{in_perp === '-' ? '-' : Big(in_perp).toFixed(2)}</span>
+            </div>
+            <div className="flex items-center gap-2 justify-between text-xs text-farmText mt-2">
+              <span>Unsettle PnL</span>
+              <span>{unsettle === '-' ? '-' : Big(unsettle).toFixed(2)}</span>
             </div>
           </div>
         )}

@@ -935,7 +935,7 @@ export function SelectTokenDCL({
             }
           }}
           style={{
-            zIndex: mobileDevice ? 80 : !!selectTokenOut ? 80 : 70,
+            zIndex: mobileDevice ? 80 : !!selectTokenOut ? 80 : 75,
           }}
         >
           {mobileDevice && (

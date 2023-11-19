@@ -18,7 +18,8 @@ import {
 } from '../../orderly/type';
 import { OrderAsset } from '../AssetModal/state';
 import Decimal from 'decimal.js';
-import { parseSymbol } from '../RecentTrade';
+import getConfigV2 from '../../../../services/configV2';
+const configV2 = getConfigV2();
 
 const getTotaluPnl = (positions: PositionsType, markprices: MarkPrice[]) => {
   if (!positions) return '0';
@@ -100,7 +101,7 @@ const getAvailable = (
       )?.price || 1;
 
     const value =
-      cur.tokenMeta.symbol === 'USDC' || cur.tokenMeta.symbol.includes('USDC')
+      cur.tokenMeta.id == configV2.ORDRRBOOK_COLLATTERAL_TOKEN
         ? parseFloat(cur.available)
         : parseFloat(cur.available) * markPrice;
 
@@ -127,11 +128,11 @@ const getTotalEst = (
       )?.price || 1;
 
     const value =
-      cur.tokenMeta.symbol === 'USDC' || cur.tokenMeta.symbol.includes('USDC')
+      cur.tokenMeta.id == configV2.ORDRRBOOK_COLLATTERAL_TOKEN
         ? parseFloat(cur.available)
         : parseFloat(cur.available) * markPrice;
     const inOrder =
-      cur.tokenMeta.symbol === 'USDC' || cur.tokenMeta.symbol.includes('USDC')
+      cur.tokenMeta.id == configV2.ORDRRBOOK_COLLATTERAL_TOKEN
         ? parseFloat(cur['in-order'])
         : parseFloat(cur['in-order']) * markPrice;
 

@@ -15,12 +15,14 @@
 
 
 .bridge-entry-container{
-    @apply  m-auto mt-20;
+    @apply  m-auto mt-20 xs:mt-0;
     width: 428px; 
+    max-width: 90vw;
 }
 .bridge-history-container{
     @apply  m-auto mt-20 px-4;
     max-width: 900px; 
+
 }
 .bridge-plane{
     @apply p-4 border rounded-2xl border-solid flex-col gap-4;
@@ -32,6 +34,7 @@
     border-color: var(--bridge-border-color);
     background:#1D2932;
     color:var(--bridge-default-color);
+    max-width: 90vw;
 }
 
 .bridge-input{

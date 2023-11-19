@@ -154,11 +154,16 @@ export default function BurrowPanel() {
       set_burrow_rewards_value(unclaimedRewards$);
     }
   }, [unclaimedRewards$, burrow_data_done, supplied, borrowed]);
+
+  const handleBurrowClick = () => {
+    window.open('https://app.burrow.finance/', '_blank');
+  };
+
   return (
     <div
       onClick={() => {
         if (!is_mobile) {
-          history.push('/burrow');
+          handleBurrowClick();
         }
       }}
       style={{ height: is_mobile ? '115px' : '176px' }}
@@ -170,9 +175,7 @@ export default function BurrowPanel() {
         </span>
         <ArrowRightIcon
           className={`lg:hidden text-primaryText`}
-          onClick={() => {
-            history.push('/burrow');
-          }}
+          onClick={handleBurrowClick}
         ></ArrowRightIcon>
         <BurrowBgIcon className="absolute right-2 xsm:right-7 top-3"></BurrowBgIcon>
       </div>

@@ -1,13 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { nearMetadata, getFTmetadata, ftGetBalance } from '../../near';
-import { toReadableNumber } from '../../orderly/utils';
-import { Holding, TokenInfo, TokenMetadata } from '../../orderly/type';
-import { getCurrentHolding } from '../../orderly/off-chain-api';
-import { useWalletSelector } from '../../../../context/WalletSelectorContext';
-import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import Big from 'big.js';
+import React, { useEffect, useState } from 'react';
+
+import { useWalletSelector } from '../../../../context/WalletSelectorContext';
+import getConfig from '../../../../services/configV2';
+import { ftGetBalance, getFTmetadata, nearMetadata } from '../../near';
+import { getCurrentHolding } from '../../orderly/off-chain-api';
+import { useOrderlyContext } from '../../orderly/OrderlyContext';
+import { Holding, TokenInfo, TokenMetadata } from '../../orderly/type';
+import { toReadableNumber } from '../../orderly/utils';
 import { usePerpData } from '../UserBoardPerp/state';
 
+const configV2 = getConfig();
 export function useTokenBalance(tokenId: string | undefined, deps?: any) {
   const [tokenMeta, setTokenMeta] = useState<TokenMetadata>();
   const [walletBalance, setWalletBalance] = useState<string>('');
@@ -149,7 +152,7 @@ export function useTokensBalances(
 
   if (showbalances.length > 0 && freeCollateral !== '-' && curHoldingOut) {
     showbalances.forEach((sb) => {
-      if (sb.name === 'USDC' || sb.name === 'USDC.e') {
+      if (sb.id == configV2.ORDRRBOOK_COLLATTERAL_TOKEN) {
         const usdcBalance = curHoldingOut.holding + curHoldingOut.pending_short;
         sb.holding = Math.min(Number(freeCollateral), Number(usdcBalance));
       }
@@ -259,7 +262,7 @@ export function useTokensOrderlyBalances(
 
   if (showbalances.length > 0 && freeCollateral !== '-') {
     showbalances.forEach((sb) => {
-      if (sb.name === 'USDC' || sb.name === 'USDC.e') {
+      if (sb.id == configV2.ORDRRBOOK_COLLATTERAL_TOKEN) {
         sb.holding = Number(freeCollateral);
       }
     });
@@ -269,7 +272,7 @@ export function useTokensOrderlyBalances(
     showbalances.forEach((sb) => {
       const curBalance = balances[sb.name];
 
-      if (curBalance && sb.name !== 'USDC' && sb.name !== 'USDC.e') {
+      if (curBalance && sb.id !== configV2.ORDRRBOOK_COLLATTERAL_TOKEN) {
         sb.holding = Number(
           new Big(curBalance.holding + curBalance.pendingShortQty).toFixed(
             Math.min(8, sb.meta.decimals || 9),

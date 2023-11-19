@@ -46,6 +46,7 @@ module.exports = {
   theme: {
     screens: {
       xs: { min: '300px', max: '600px' },
+      sm: '769px',
       xsm: { min: '300px', max: '1023px' },
       md: { min: '600px', max: '1023px' },
       lg: { min: '1024px' },

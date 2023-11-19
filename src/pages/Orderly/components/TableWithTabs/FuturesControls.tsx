@@ -623,7 +623,7 @@ export const FutureTableFormCells: React.FC<{
   const { availableSymbols, everyTickers } = useOrderlyContext();
   const [orders, setOrders] = useState<MyOrder[]>([]);
   const symbolInfo = availableSymbols?.find((s) => s.symbol === row.symbol);
-  const referenceMark = markPrices.find((m) => m.symbol === row.symbol);
+  const referenceMark = markPrices?.find((m) => m.symbol === row.symbol);
   const portfolioFailure = usePortfolioFailure();
 
   // get close price from everyTickers for this symbol

@@ -19,7 +19,7 @@ const columns = [
 function HistoryTable({ data }: Props) {
 
   return (
-    <div className="bg-dark-800 rounded">
+    <div className="bg-dark-800 rounded overflow-x-auto">
       <table className="bridge-table">
         <thead>
           <tr>

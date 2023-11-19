@@ -108,6 +108,8 @@ import { DetailBox } from '../UserBoardPerp/components/DetailBox';
 import { DepositTip } from '../UserBoardPerp/components/DepositTip';
 import { NewUserTip } from '../Common/NewUserTip';
 import { CollatteralTokenAvailableCell } from '../UserBoardPerp/components/HoverText';
+import getConfigV2 from '../../../../services/configV2';
+const configV2 = getConfigV2();
 
 function getTipFOK() {
   const intl = useIntl();
@@ -618,7 +620,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     : balances && balances[symbolFrom]?.holding;
 
   const tokenOutHolding =
-    tokenOut?.symbol === 'USDC' || tokenOut?.symbol === 'USDC.e'
+    tokenOut?.id == configV2.ORDRRBOOK_COLLATTERAL_TOKEN
       ? freeCollateral === '-'
         ? '0'
         : freeCollateral
@@ -2236,7 +2238,7 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
     : balances && balances[symbolFrom]?.holding;
 
   const tokenOutHolding =
-    tokenOut?.symbol === 'USDC' || tokenOut?.symbol === 'USDC.e'
+    tokenOut?.id == configV2.ORDRRBOOK_COLLATTERAL_TOKEN
       ? freeCollateral === '-'
         ? '0'
         : freeCollateral
