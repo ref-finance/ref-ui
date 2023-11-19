@@ -9,13 +9,7 @@ import { SelectTokenButton } from '../components/TokenSelector';
 import { useBridgeFormContext } from '../providers/bridgeForm';
 import { useRouterViewContext } from '../providers/routerView';
 import { useTokenSelectorContext } from '../providers/selectToken';
-import {
-  IconExchange,
-  IconInfo,
-  IconRefresh,
-  IconSetting,
-  IconWarning,
-} from './../assets';
+import { IconExchange, IconInfo, IconRefresh, IconSetting } from './../assets';
 
 function FormHeader() {
   const { slippageTolerance, setSlippageTolerance } = useBridgeFormContext();
@@ -35,15 +29,6 @@ function FormHeader() {
           </Button>
         </SlippageSelector>
       </div>
-    </div>
-  );
-}
-
-function GasFeeWarning({ className }: { className?: string }) {
-  return (
-    <div className={`flex items-center text-red-400 ${className ?? ''}`}>
-      <IconWarning className="mr-1" />
-      Not enough gas (0.0035 ETH needed)
     </div>
   );
 }
@@ -71,7 +56,7 @@ function CustomToken() {
           type="text"
           className="bridge-input"
           placeholder="Destination address"
-          value={bridgeToValue.customTokenAddress}
+          value={bridgeToValue.customTokenAddress ?? ''}
           onChange={(e) =>
             setBridgeToValue({
               ...bridgeToValue,
@@ -94,6 +79,7 @@ function BridgeEntry() {
     exchangeChain,
     bridgeSubmitStatus,
     bridgeSubmitStatusText,
+    openPreviewModal,
   } = useBridgeFormContext();
 
   const { open: openTokenSelector } = useTokenSelectorContext();
@@ -102,59 +88,62 @@ function BridgeEntry() {
     <div className="bridge-entry-container">
       <form className="bridge-plane shadow-4xl">
         <FormHeader />
-        <div>
-          <div className="flex items-center mb-3">
-            <span className="mr-3">From</span>
-            <ConnectWallet
-              currentChain={bridgeFromValue.chain}
-              className="flex-1 justify-between"
-              onChangeChain={() => exchangeChain()}
-            />
-          </div>
-          <InputToken model={bridgeFromValue} onChange={setBridgeFromValue}>
-            <SelectTokenButton
-              token={bridgeFromValue.token}
-              onClick={() =>
-                openTokenSelector({
-                  chain: bridgeFromValue.chain,
-                  token: bridgeFromValue.token,
-                })
-              }
-            />
-          </InputToken>
-          <GasFeeWarning className="mt-2" />
-          <div className="flex justify-center my-3">
-            <Button text onClick={exchangeChain}>
-              <IconExchange />
-            </Button>
-          </div>
-          <div className="flex items-center mb-3">
-            <span className="mr-3">To</span>
-            <ConnectWallet
-              currentChain={bridgeToValue.chain}
-              className="flex-1 justify-between"
-              onChangeChain={() => exchangeChain()}
-            />
-          </div>
-          <InputToken model={bridgeToValue} onChange={setBridgeToValue}>
-            <SelectTokenButton
-              token={bridgeToValue.token}
-              onClick={() =>
-                openTokenSelector({
-                  chain: bridgeToValue.chain,
-                  token: bridgeToValue.token,
-                })
-              }
-            />
-          </InputToken>
+        <div className="flex items-center mb-3">
+          <span className="mr-3">From</span>
+          <ConnectWallet
+            currentChain={bridgeFromValue.chain}
+            className="flex-1 justify-between"
+            onChangeChain={() => exchangeChain()}
+          />
         </div>
+        <InputToken model={bridgeFromValue} onChange={setBridgeFromValue}>
+          <SelectTokenButton
+            token={bridgeFromValue.token}
+            onClick={() =>
+              openTokenSelector({
+                chain: bridgeFromValue.chain,
+                token: bridgeFromValue.token,
+              })
+            }
+          />
+        </InputToken>
+
+        <div className="flex justify-center my-3">
+          <Button text onClick={exchangeChain}>
+            <IconExchange />
+          </Button>
+        </div>
+        <div className="flex items-center mb-3">
+          <span className="mr-3">To</span>
+          <ConnectWallet
+            currentChain={bridgeToValue.chain}
+            className="flex-1 justify-between"
+            onChangeChain={() => exchangeChain()}
+          />
+        </div>
+        <InputToken
+          model={bridgeToValue}
+          style={{ backgroundColor: 'transparent' }}
+          onChange={setBridgeToValue}
+        >
+          <SelectTokenButton
+            token={bridgeToValue.token}
+            onClick={() =>
+              openTokenSelector({
+                chain: bridgeToValue.chain,
+                token: bridgeToValue.token,
+              })
+            }
+          />
+        </InputToken>
         <CustomToken />
         <BridgeRoutes />
         <Button
           type="primary"
           size="large"
           className="w-full"
-          disabled={bridgeSubmitStatus !== 'preview'}
+          // disabled={bridgeSubmitStatus !== 'preview'}
+          onClick={openPreviewModal}
         >
           {bridgeSubmitStatusText}
         </Button>

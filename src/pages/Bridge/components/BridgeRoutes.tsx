@@ -34,6 +34,7 @@ function BridgeRouteItem({ className }: { className?: string }) {
         <div className="text-right text-slate-500 text-xs font-normal ">
           ~1 min｜Bridge fee
           <span
+            className="underline cursor-pointer ml-1"
             data-for="bridge-gas-fee"
             data-type="info"
             data-place="right"

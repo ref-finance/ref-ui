@@ -20,6 +20,8 @@ function SlippageSelector({
 
   const [innerValue, setInnerValue] = useState(slippageTolerance ?? 0.5);
 
+  const [isInputFocus, setIsInputFocus] = useState(false);
+
   const symbolsArr = ['e', 'E', '+', '-'];
 
   const showStatus = useMemo(() => {
@@ -88,13 +90,19 @@ function SlippageSelector({
                 ))}
               </div>
               <div
-                className={`bridge-input small ${
-                  showStatus === 'warn' && 'border-warn text-warn'
-                } ${showStatus === 'invalid' && 'border-error text-error'}`}
+                className={[
+                  'bridge-input',
+                  'small',
+                  isInputFocus && 'is-focus',
+                  showStatus === 'warn' && 'is-warning',
+                  showStatus === 'invalid' && 'is-error',
+                ]
+                  .filter((v) => !!v)
+                  .join(' ')}
               >
                 <input
                   ref={ref}
-                  className="w-6"
+                  className="w-10 px-2"
                   min={0}
                   max={99.99999}
                   inputMode="decimal"
@@ -106,11 +114,13 @@ function SlippageSelector({
                   required={true}
                   placeholder=""
                   onChange={({ target }) => handleChange(target.value)}
+                  onFocus={() => setIsInputFocus(true)}
+                  onBlur={() => setIsInputFocus(false)}
                   onKeyDown={(e) =>
                     symbolsArr.includes(e.key) && e.preventDefault()
                   }
                 />
-                <span className="ml-2">%</span>
+                <span>%</span>
               </div>
             </div>
             {showStatus !== 'normal' &&

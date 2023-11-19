@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState } from 'react';
 
 type Props = {
-  routerView: 'entry' | 'history' | 'setting';
+  routerView: 'entry' | 'history';
   changeRouterView: (view: Props['routerView']) => void;
 };
 

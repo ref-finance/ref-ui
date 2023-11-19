@@ -16,9 +16,15 @@ export function SelectTokenButton({
 }: Partial<TokenSelectorProps>) {
   return (
     <Button rounded onClick={onClick}>
-      <span className="text-white mr-2">
-        {token ? <div>{token}</div> : `Select token`}
-      </span>
+      {token ? (
+        <>
+          <span className="inline-block w-7 h-7 bg-white rounded-lg mr-2" />{' '}
+          <span className=" text-white mr-2">{token}</span>
+        </>
+      ) : (
+        <span className=" text-white mr-2">Select token </span>
+      )}
+
       <IconArrowDown />
     </Button>
   );

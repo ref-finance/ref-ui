@@ -28,7 +28,7 @@
     background: linear-gradient(180deg, #213441 0%, #15242F 100%);
 }
 .bridge-modal{
-    @apply w-full p-4 border rounded-2xl border-solid flex-col gap-4 shadow-4xl;
+    @apply w-full p-4 border rounded-2xl border-solid flex-col gap-4 shadow-4xl text-sm;
     border-color: var(--bridge-border-color);
     background:#1D2932;
     color:var(--bridge-default-color);
@@ -46,9 +46,15 @@
     @apply transition-colors;
     border-color: var(--bridge-default-color);
 }
-.bridge-input:focus{
+.bridge-input:focus, .bridge-input.is-focus{
     @apply border-primary transition-colors;
     border-width: 1px;
+}
+.bridge-input.is-warning{
+    @apply border-warn;
+}
+.bridge-input.is-error{
+    @apply border-error;
 }
 
 .bridge-checkbox{
@@ -81,4 +87,23 @@
 }
 .bridge-table td{
     @apply text-left text-sm px-2 py-3;
+}
+
+
+.bridge-input-token{
+    @apply flex-col border rounded-xl border-solid border-gray-700 p-3;
+}
+
+.bridge-status-process{
+    @apply relative px-10;
+}
+.bridge-status-process::before{
+    @apply absolute left-1 top-1/2 w-9 h-1;
+    content: "";
+    background: url('./assets/line.svg') no-repeat center;
+}
+.bridge-status-process::after{
+    @apply absolute right-1 top-1/2 w-9 h-1;
+    content: "";
+    background: url('./assets/line.svg') no-repeat center;
 }

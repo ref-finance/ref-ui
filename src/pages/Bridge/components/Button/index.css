@@ -1,6 +1,6 @@
 
 .bridge-btn{
-    @apply flex items-center justify-center text-sm text-white border border-solid rounded-md;
+    @apply inline-flex items-center justify-center text-sm text-white border border-solid rounded-md;
     background: rgba(126, 138, 147, 0.10);
     color:var(--bridge-default-color);
     border-color:var(--bridge-border-color);
