@@ -315,27 +315,6 @@ export const usePools = (props: {
         poolsData = pools;
       }
 
-      // else {
-      //   const [cachedPools, count] = await Promise.all([
-      //     getPoolsFromCache({
-      //       page: page,
-      //       perPage: size,
-      //       tokenName: tokenName,
-      //       column: sortBy,
-      //       order: order,
-      //     }),
-      //     db.countPools(),
-      //   ]);
-      //   poolsData = cachedPools;
-      //
-      //   const pages = Math.ceil(count / size);
-      //   hasMore = pages > page;
-      // }
-      // setPools((d) => {
-      //   return isOverwrite
-      //     ? poolsData
-      //     : uniqueArray([...d, ...poolsData], 'id');
-      // });
       setRawPools((d) => {
         return isOverwrite
           ? poolsData

@@ -92,6 +92,7 @@ export const getHistoryOrder = async (
     }
   ).then((res) => res.json());
 };
+
 export interface HistoryOrderSwapInfo {
   tx_id: string;
   token_in: string;
@@ -274,60 +275,27 @@ export const getTopPools = async (
 ): Promise<{ rawData: any; pools: PoolRPCView[] }> => {
   try {
     let pools: any;
-    let rawData: any;
-    // remove using index db
-    // let isCached = await db.checkTopPools();
-    // console.log('isCachedisCached', isCached);
-    // if (isCached) {
-    //   const [topPools, count] = await Promise.all([
-    //     db.queryTopPools(page, size),
-    //     db.countTopPools(),
-    //   ]);
-    //   pools = topPools;
-    //   rawData = {
-    //     items: topPools,
-    //     page,
-    //     size,
-    //     pages: Math.ceil(count / size),
-    //     total: count,
-    //   };
-    // } else {
-    rawData = await fetch(
+    let rawData = {
+      items: [],
+      page,
+      size,
+      pages: 1,
+      total: 0,
+    };
+    const response = await fetch(
       `${config.poolApiUrl}/api/pools_v1?page=${page}&size=${size}&sort_field=${sort}&sort_type=${sortType}`,
       {
         method: 'GET',
         headers: { 'Content-type': 'application/json; charset=UTF-8' },
       }
-    ).then((res) => res.json());
-
-    let topPools = await fetch(`${config.indexerUrl}/list-top-pools`, {
-      method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
-    }).then((res) => res.json());
-    topPools = topPools.sort((a, b) => {
-      return Number(b.tvl) - Number(a.tvl);
-    });
-
-    if (Array.isArray(rawData) && rawData?.length === 0) {
-      rawData = {
-        items: [],
-        page,
-        size,
-        pages: 1,
-        total: 0,
-      };
+    )
+      .then((res) => res.json())
+      .catch();
+    if (response?.items) {
+      rawData = response;
     }
-    rawData.items = rawData?.items.map((d) => {
-      if (!d.amounts && d.fiat_amount && d.asset_amount) {
-        d.amounts = [d.asset_amount, d.fiat_amount];
-      }
-      d.id = d.pool_id || d.id;
-      return d;
-    });
     pools = rawData?.items;
     // await appendNonStablePools(pools);
-    //   await db.cacheTopPoolsAppend(pools);
-    // }
 
     // remove unstable and blacklist pool
     pools = pools
@@ -335,9 +303,13 @@ export const getTopPools = async (
         return !isStablePool(pool.id) && pool.token_account_ids.length < 3;
       })
       .filter(filterBlackListPools);
-    // const ids=[3514,34]
-    // pools = pools.filter(d=>ids.includes(Number(d.id)))
-    pools = pools.map((pool: any) => parsePoolView(pool));
+    pools = pools.map((d: any) => {
+      if (!d.amounts && d.fiat_amount && d.asset_amount) {
+        d.amounts = [d.asset_amount, d.fiat_amount];
+      }
+      d.id = d.pool_id || d.id;
+      return parsePoolView(d);
+    });
     return {
       pools,
       rawData,
