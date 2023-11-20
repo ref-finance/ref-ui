@@ -46,12 +46,6 @@ const routes: Route[] = [
     exact: true,
     wrapper: 'AutoHeightNoOffset',
   },
-  // {
-  //   path: '/account',
-  //   element: lazy(
-  //     () => import(/* webpackChunkName: "account" */ 'src/pages/AccountPage')
-  //   ),
-  // },
   {
     path: '/orderly',
     element: lazy(
@@ -62,13 +56,6 @@ const routes: Route[] = [
     ),
     wrapper: 'AutoHeight',
   },
-  // {
-  //   path: '/burrow',
-  //   element: lazy(
-  //     () => import(/* webpackChunkName: "burrow" */ 'src/pages/Burrow')
-  //   ),
-  //   wrapper: 'AutoHeight',
-  // },
   {
     path: '/overview',
     element: lazy(
@@ -127,14 +114,6 @@ const routes: Route[] = [
     ),
     wrapper: 'AutoHeight',
   },
-  // {
-  //   path: '/recent',
-  //   element: lazy(
-  //     () =>
-  //       import(/* webpackChunkName: "recent" */ 'src/pages/RecentActivityPage')
-  //   ),
-  //   wrapper: '',
-  // },
   {
     path: '/more_pools/:tokenIds',
     element: lazy(
