@@ -82,7 +82,7 @@ import {
   TradeRouteModal,
 } from '../layout/SwapRoutes';
 import { QuestionTip } from '../layout/TipWrapper';
-import { FaAngleDown, FaAngleUp, FaExchangeAlt } from '../reactIcons';
+import { FaAngleDown, FaAngleUp, FaExchangeAlt, MdOutlineRefresh } from '../reactIcons';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -1284,22 +1284,30 @@ export default function SwapCard(props: {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-
-                  if (loadingPause) {
-                    setLoadingPause(false);
-                    setLoadingTrigger(true);
-                    setLoadingData(true);
-                  } else {
-                    setLoadingPause(true);
-                    setLoadingTrigger(false);
-                  }
+                  setLoadingTrigger(!loadingTrigger)
+                  setReEstimateTrigger(!reEstimateTrigger);
+                  // if (loadingPause) {
+                  //   setLoadingPause(false);
+                  //   setLoadingTrigger(true);
+                  //   setLoadingData(true);
+                  // } else {
+                  //   setLoadingPause(true);
+                  //   setLoadingTrigger(false);
+                  // }
                 }}
                 className="mr-2 cursor-pointer"
               >
-                <CountdownTimer
-                  loadingTrigger={loadingTrigger}
-                  loadingPause={loadingPause}
+                <MdOutlineRefresh
+                  size={18}
+                  className={`text-primaryText cursor-pointer  ${
+                    !canSubmit ? 'rotateInfinite' : ''
+                  } `}
+                  style={!canSubmit && {fill:"#00FFD1"}}
                 />
+                {/*<CountdownTimer*/}
+                {/*  loadingTrigger={loadingTrigger}*/}
+                {/*  loadingPause={loadingPause}*/}
+                {/*/>*/}
               </div>
               <SwapRate
                 from={tokenInAmount}
