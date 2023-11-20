@@ -271,6 +271,7 @@ export const usePools = (props: {
   tokenName?: string;
   sortBy?: string;
   order?: string;
+  hideLowTVL?: Boolean;
 }) => {
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(true);
@@ -280,20 +281,86 @@ export const usePools = (props: {
   const [isFetching, setIsFetching] = useState(false);
   const [init, setInit] = useState(false);
   const [requestPoolList, setRequestPoolList] = useState<string[]>();
+  const [total, setTotal] = useState<number>(0);
+  const [rawData, setRawData] = useState<any>();
+  const { hideLowTVL } = props || {};
 
   useEffect(() => {
-    if (!loading) {
-      setRequestPoolList(
-        rawPools.map((pool) => pool.id.toString()).concat(ALL_STABLE_POOL_IDS)
-      );
+    setRequestPoolList(
+      rawPools.map((pool) => pool.id.toString()).concat(ALL_STABLE_POOL_IDS)
+    );
+    const sortedPools = sortLocalData(rawPools);
+
+    // when hideLowTVL true, we cannot rely on api pagination data as it was filtered by frontend
+    if (hideLowTVL) {
+      const filtered = _.filter(sortedPools, (pool) => pool.tvl > 1000);
+      // @ts-ignore
+      setPools(filtered);
+      if (rawPools?.length > filtered.length) {
+        setHasMore(false);
+      }
+    } else {
+      // @ts-ignore
+      setPools(sortedPools);
+      setHasMore(rawData?.pages > page);
     }
-  }, [loading, rawPools.length]);
+  }, [rawPools]);
+
+  useEffect(() => {
+    if (hideLowTVL) {
+      setPools((d) => {
+        return _.filter(d, (pool) => pool.tvl > 1000);
+      });
+    } else {
+      if (hasMore === false) {
+        fetchPools({
+          page: 1,
+          size: PAGE_SIZE,
+          tokenName: props.tokenName,
+          sortBy: props.sortBy,
+          order: props.order,
+          isOverwrite: true,
+          disableLoading: false,
+        }).then();
+        setPage(1);
+      } else {
+        const sortedPools = sortLocalData(rawPools);
+        // @ts-ignore
+        setPools(sortedPools);
+      }
+    }
+  }, [hideLowTVL]);
+
+  useEffect(() => {
+    fetchPools({
+      page: 1,
+      size: PAGE_SIZE,
+      tokenName: props.tokenName,
+      sortBy: props.sortBy,
+      order: props.order,
+      isOverwrite: true,
+      disableLoading: false,
+    }).then();
+  }, [props.tokenName, props.sortBy, props.order]);
 
   // todo: should we remove this
   const volumes = useDayVolumesPools(requestPoolList);
 
-  const nextPage = () => {
+  const nextPage = async () => {
+    fetchPools({
+      page: page + 1,
+      size: PAGE_SIZE,
+      tokenName: props.tokenName,
+      sortBy: props.sortBy,
+      order: props.order,
+      isOverwrite: false,
+      disableLoading: true,
+    }).then();
     setPage((page) => page + 1);
+  };
+
+  const handlePageChange = (page) => {
+    setPage(page);
   };
 
   const fetchPools = async ({
@@ -312,9 +379,10 @@ export const usePools = (props: {
       const { rawData, pools } = await getTopPools(page, size, sortBy, order);
       if (pools) {
         hasMore = rawData?.pages > page;
-        poolsData = pools;
+        poolsData = pools.map((d) => parsePool(d));
       }
-
+      setRawData(rawData);
+      setTotal(rawData?.total);
       setRawPools((d) => {
         return isOverwrite
           ? poolsData
@@ -326,6 +394,7 @@ export const usePools = (props: {
       }
       !disableLoading && setIsFetching(false);
     } catch (e) {
+      console.error('err', e);
     } finally {
       !init && setInit(true);
     }
@@ -333,7 +402,7 @@ export const usePools = (props: {
 
   const loadPools = useCallback(debounce(fetchPools, 500), []);
 
-  const sortLocalData = () => {
+  const sortLocalData = (arr) => {
     const args = {
       page,
       perPage: DEFAULT_PAGE_LIMIT,
@@ -341,57 +410,8 @@ export const usePools = (props: {
       column: props.sortBy,
       order: props.order,
     };
-    const newPools = _order(args, _search(args, rawPools)).map((rawPool) =>
-      parsePool(rawPool)
-    );
-    setPools(newPools);
+    return _order(args, _search(args, arr));
   };
-
-  useEffect(() => {
-    loadPools({
-      page,
-      size: PAGE_SIZE,
-      tokenName: props.tokenName,
-      sortBy: props.sortBy,
-      order: props.order,
-      isOverwrite: true,
-      disableLoading: false,
-    });
-  }, []);
-
-  useEffect(() => {
-    sortLocalData();
-  }, [rawPools]);
-
-  useEffect(() => {
-    if (init) {
-      fetchPools({
-        page,
-        size: PAGE_SIZE,
-        tokenName: props.tokenName,
-        sortBy: props.sortBy,
-        order: props.order,
-        isOverwrite: false,
-        disableLoading: true,
-      }).then();
-    }
-  }, [page, props.tokenName]);
-
-  useEffect(() => {
-    if (init) {
-      // todo: wait api can sort fee and apr
-
-      fetchPools({
-        page,
-        size: PAGE_SIZE,
-        tokenName: props.tokenName,
-        sortBy: props.sortBy,
-        order: props.order,
-        isOverwrite: true,
-        disableLoading: false,
-      }).then();
-    }
-  }, [props.sortBy, props.order]);
 
   return {
     pools,
@@ -400,6 +420,14 @@ export const usePools = (props: {
     loading,
     volumes,
     isFetching,
+    total,
+    pagination: {
+      page: rawData?.page,
+      pages: rawData?.pages,
+      size: rawData?.size,
+      total: rawData?.total,
+    },
+    handlePageChange,
   };
 };
 

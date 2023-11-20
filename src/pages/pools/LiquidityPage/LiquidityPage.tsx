@@ -1903,7 +1903,6 @@ function WatchListCard({
                         morePoolIds={poolsMorePoolsIds[pool.id]}
                         farmCount={farmCounts[pool.id]}
                         supportFarm={!!farmCounts[pool.id]}
-                        h24volume={volumes[pool.id]}
                         mark={true}
                       />
                     </div>
@@ -1932,7 +1931,6 @@ function WatchListCard({
 
 function PcLiquidityPage({
   pools,
-  isFetching,
   sortBy,
   tokenName,
   order,
@@ -1958,9 +1956,10 @@ function PcLiquidityPage({
   h24VolumeV2,
   do_farms_v2_poos,
   farmAprById,
+  poolsData,
+  poolsScrollRef,
 }: {
   pools: Pool[];
-  isFetching?: boolean;
   switchActiveTab: (tab: string) => void;
   activeTab: string;
   poolTokenMetas: any;
@@ -1986,6 +1985,8 @@ function PcLiquidityPage({
   watchV2Pools: PoolInfo[];
   watchList: WatchList[];
   do_farms_v2_poos: Record<string, Seed>;
+  poolsData?: any;
+  poolsScrollRef?: any;
 }) {
   const intl = useIntl();
   const inputRef = useRef(null);
@@ -2075,6 +2076,7 @@ function PcLiquidityPage({
       setFarmCountStar(count);
     });
   }, []);
+
   const tokensStar = [REF_META_DATA, unwrapedNear];
   const poolReSortingFunc = (p1: Pool, p2: Pool) => {
     const v1 = volumes[p1.id] ? parseFloat(volumes[p1.id]) : 0;
@@ -2157,7 +2159,10 @@ function PcLiquidityPage({
 
   const poolFilterFunc = (p: Pool) => {
     if (selectCoinClass === 'all') return true;
-
+    poolsScrollRef?.current?.scroll({
+      top: 0,
+      behavior: 'auto',
+    });
     return poolTokenMetas?.[p.id]?.some((tk: TokenMetadata) =>
       classificationOfCoins[selectCoinClass].includes(tk.symbol)
     );
@@ -2517,6 +2522,10 @@ function PcLiquidityPage({
                   <div
                     className="flex items-center mr-5 cursor-pointer"
                     onClick={() => {
+                      poolsScrollRef?.current?.scroll({
+                        top: 0,
+                        behavior: 'auto',
+                      });
                       farmOnly && setFarmOnly(false);
                       !farmOnly && setFarmOnly(true);
                     }}
@@ -2531,6 +2540,10 @@ function PcLiquidityPage({
                   <div
                     className="flex items-center mr-5 cursor-pointer"
                     onClick={() => {
+                      poolsScrollRef?.current?.scroll({
+                        top: 0,
+                        behavior: 'auto',
+                      });
                       hideLowTVL && onHide(false);
                       !hideLowTVL && onHide(true);
                     }}
@@ -2575,7 +2588,8 @@ function PcLiquidityPage({
                 setReSortBy,
                 onOrderChange,
                 order,
-                isFetching,
+                poolsData,
+                poolsScrollRef,
               }}
             />
           </Card>
@@ -2798,7 +2812,7 @@ export default function LiquidityPage() {
     sessionStorage.removeItem(REF_FI_POOL_SEARCH_BY);
   };
   const storeTokenName = sessionStorage.getItem(REF_FI_POOL_SEARCH_BY);
-
+  const poolsScrollRef = useRef<HTMLInputElement>();
   const [tokenName, setTokenName] = useState(storeTokenName || '');
   const [sortBy, setSortBy] = useState('tvl');
   const [order, setOrder] = useState('desc');
@@ -2810,11 +2824,13 @@ export default function LiquidityPage() {
   } = useWatchPools();
   const [hideLowTVL, setHideLowTVL] = useState<Boolean>(false);
   const [displayPools, setDisplayPools] = useState<Pool[]>();
-  const { pools, hasMore, nextPage, loading, isFetching, volumes } = usePools({
+  const poolsData = usePools({
+    hideLowTVL,
     tokenName,
     sortBy,
     order,
   });
+  const { pools, hasMore, nextPage, loading, volumes } = poolsData || {};
 
   const tokenPriceList = useTokenPriceList();
 
@@ -2833,6 +2849,7 @@ export default function LiquidityPage() {
   };
 
   const [farmCounts, setFarmCounts] = useState<Record<string, number>>({});
+
   useEffect(() => {
     const pool_ids_v1 = pools.map((p) => p.id);
     const pool_ids_watchPools = watchPools.map((p: Pool) => p.id);
@@ -2900,7 +2917,7 @@ export default function LiquidityPage() {
     setHideLowTVL(JSON.parse(localStorage.getItem(HIDE_LOW_TVL)) || false);
 
     if (hideLowTVL) {
-      tempPools = _.filter(tempPools, (pool) => pool.tvl > 1000);
+      // tempPools = _.filter(tempPools, (pool) => pool.tvl > 1000);
     }
     if (farmOnly) {
       tempPools = _.filter(tempPools, (pool) => !!farmCounts[pool.id]);
@@ -2977,6 +2994,14 @@ export default function LiquidityPage() {
 
   const allVolumes = { ...watchPoolVolumes, ...volumes, ...v3PoolVolumes };
 
+  const handleSortClick = (e) => {
+    poolsScrollRef?.current?.scroll({
+      top: 0,
+      behavior: 'auto',
+    });
+    setSortBy(e);
+  };
+
   if (
     !displayPools ||
     loading ||
@@ -2994,7 +3019,6 @@ export default function LiquidityPage() {
     >
       {!clientMobileDevice && (
         <PcLiquidityPage
-          isFetching={isFetching}
           farmAprById={farmAprById}
           poolTokenMetas={poolTokenMetas}
           activeTab={activeTab}
@@ -3022,11 +3046,13 @@ export default function LiquidityPage() {
           sortBy={sortBy}
           allPools={AllPools}
           onOrderChange={setOrder}
-          onSortChange={setSortBy}
+          onSortChange={handleSortClick}
           onSearch={onSearch}
           hasMore={hasMore}
           nextPage={nextPage}
           do_farms_v2_poos={do_farms_v2_poos}
+          poolsData={poolsData}
+          poolsScrollRef={poolsScrollRef}
         />
       )}
 
@@ -3053,7 +3079,7 @@ export default function LiquidityPage() {
             localStorage.setItem(REF_FI_FARM_ONLY, farmOnly ? '1' : '0');
           }}
           onOrderChange={setOrder}
-          onSortChange={setSortBy}
+          onSortChange={handleSortClick}
           onHide={(isHide) => {
             localStorage.setItem(HIDE_LOW_TVL, isHide.toString());
             setHideLowTVL(isHide);

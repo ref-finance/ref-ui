@@ -14,3 +14,7 @@
   z-index: 99;
   opacity: 1;
 }
+
+#poolscroll {
+  height: 384px;
+}

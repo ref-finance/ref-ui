@@ -2,9 +2,10 @@ import { FormattedMessage } from 'react-intl';
 import { DownArrowLight, UpArrowDeep, UpArrowLight } from 'src/components/icon';
 import { BlueCircleLoading } from 'src/components/layout/Loading';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { find } from 'lodash';
-import React from 'react';
+import _, { find } from 'lodash';
+import React, { useRef } from 'react';
 import PoolRow from 'src/pages/pools/LiquidityPage/PoolRow';
+import CustomPagination from 'src/components/customTable/customPagination';
 
 const LiquidityPoolsTable = ({
   pools,
@@ -25,8 +26,12 @@ const LiquidityPoolsTable = ({
   setReSortBy,
   onOrderChange,
   order,
-  isFetching,
+  poolsData,
+  poolsScrollRef,
 }) => {
+  let poolList = pools?.filter(poolFilterFunc)?.sort(poolReSortingFunc);
+  const { handlePageChange, isFetching } = poolsData || {};
+
   return (
     <section className="">
       <header className="grid grid-cols-7 py-2 pb-4 text-left text-sm text-primaryText mx-8 border-b border-gray-700 border-opacity-70">
@@ -90,7 +95,7 @@ const LiquidityPoolsTable = ({
           <span
             className={reSortBy !== 'apr' ? 'hidden' : 'cursor-pointer'}
             onClick={() => {
-              onSortChange('');
+              onSortChange('apr');
               setReSortBy('apr');
               reSortBy !== 'apr' && onOrderChange('desc');
               reSortBy === 'apr' &&
@@ -195,13 +200,14 @@ const LiquidityPoolsTable = ({
         </div>
 
         <div
+          ref={poolsScrollRef}
           id="poolscroll"
-          className="max-h-96 overflow-y-auto  pool-list-container-pc relative"
+          className="overflow-y-auto pool-list-container-pc relative"
         >
           <InfiniteScroll
             next={nextPage}
             hasMore={hasMore}
-            dataLength={pools?.length}
+            dataLength={poolList?.length}
             loader={
               <div
                 className={
@@ -213,25 +219,34 @@ const LiquidityPoolsTable = ({
             }
             scrollableTarget={'poolscroll'}
           >
-            {pools
-              ?.filter(poolFilterFunc)
-              .sort(poolReSortingFunc)
-              .map((pool, i) => (
-                <PoolRow
-                  tokens={poolTokenMetas[pool.id]}
-                  key={i}
-                  farmApr={farmAprById ? farmAprById[pool.id] : null}
-                  pool={pool}
-                  index={i + 1}
-                  selectCoinClass={selectCoinClass}
-                  morePoolIds={poolsMorePoolsIds[pool.id]}
-                  supportFarm={!!farmCounts[pool.id]}
-                  farmCount={farmCounts[pool.id]}
-                  watched={!!find(watchPools, { id: pool.id })}
-                />
-              ))}
+            {poolList.map((pool, i) => (
+              <PoolRow
+                tokens={poolTokenMetas[pool.id]}
+                key={pool.id}
+                farmApr={farmAprById ? farmAprById[pool.id] : null}
+                pool={pool}
+                index={i + 1}
+                selectCoinClass={selectCoinClass}
+                morePoolIds={poolsMorePoolsIds[pool.id]}
+                supportFarm={!!farmCounts[pool.id]}
+                farmCount={farmCounts[pool.id]}
+                watched={!!find(watchPools, { id: pool.id })}
+              />
+            ))}
           </InfiniteScroll>
         </div>
+        <CustomPagination
+          page={poolsData?.pagination?.page}
+          totalPages={poolsData?.pagination?.pages}
+          nextClick={() => handlePageChange(poolsData?.pagination?.page + 1)}
+          prevClick={() =>
+            handlePageChange(
+              poolsData?.pagination?.page > 1
+                ? poolsData?.pagination?.page - 1
+                : 1
+            )
+          }
+        />
       </div>
     </section>
   );
