@@ -16,7 +16,6 @@ import {
   getAllWatchListFromDb,
   getCachedPoolsByTokenId,
   getPoolDetails,
-  getPools,
   getSharesInPool,
   getTotalPools,
   parsePool,
@@ -61,7 +60,7 @@ import {
   getTokenPriceList,
   getIndexerStatus,
 } from '../services/indexer';
-import { parsePoolView, PoolRPCView } from '../services/api';
+import { PoolRPCView } from '../services/api';
 import {
   ftGetTokenMetadata,
   TokenMetadata,
@@ -109,6 +108,7 @@ import {
 } from '../components/d3Chart/interfaces';
 import { getPointByPrice, getPriceByPoint } from '../services/commonV3';
 import { formatPercentage } from '../components/d3Chart/utils';
+import { uniqueArray } from 'src/utils/commonUtils';
 
 const REF_FI_STABLE_POOL_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
   getConfig().STABLE_POOL_ID
@@ -164,6 +164,7 @@ export const useBatchTotalShares = (
       return undefined;
     getShares();
   }, [ids?.join('-'), finalStakeList, isSignedIn, stakeListDone]);
+
   async function getShares() {
     const shareInPools = await Promise.all(
       ids.map((id) => getSharesInPool(Number(id)))
@@ -173,6 +174,7 @@ export const useBatchTotalShares = (
     setBatchFarmStake(shareInFarms);
     setSharesDone(true);
   }
+
   return {
     sharesDone,
     shares: batchShares,
@@ -263,6 +265,7 @@ interface LoadPoolsOpts {
   order?: string;
 }
 
+const PAGE_SIZE = 50;
 export const usePools = (props: {
   searchTrigger?: Boolean;
   tokenName?: string;
@@ -270,11 +273,12 @@ export const usePools = (props: {
   order?: string;
 }) => {
   const [page, setPage] = useState<number>(1);
-  const [hasMore, setHasMore] = useState<boolean>(false);
+  const [hasMore, setHasMore] = useState<boolean>(true);
   const [pools, setPools] = useState<Pool[]>([]);
   const [rawPools, setRawPools] = useState<PoolRPCView[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const [isFetching, setIsFetching] = useState(false);
+  const [init, setInit] = useState(false);
   const [requestPoolList, setRequestPoolList] = useState<string[]>();
 
   useEffect(() => {
@@ -285,57 +289,72 @@ export const usePools = (props: {
     }
   }, [loading, rawPools.length]);
 
+  // todo: should we remove this
   const volumes = useDayVolumesPools(requestPoolList);
 
-  const nextPage = () => setPage((page) => page + 1);
+  const nextPage = () => {
+    setPage((page) => page + 1);
+  };
 
-  function _loadPools({
-    accumulate = true,
+  const fetchPools = async ({
+    page,
+    size,
     tokenName,
     sortBy,
     order,
-  }: LoadPoolsOpts) {
-    getTopPools()
-      .then(async (rawPools) => {
-        const pools =
-          rawPools.length > 0
-            ? rawPools.map((rawPool) => parsePool(rawPool))
-            : await getPoolsFromCache({
-                page,
-                tokenName: tokenName,
-                column: sortBy,
-                order: order,
-              });
+    isOverwrite,
+    disableLoading,
+  }) => {
+    try {
+      !disableLoading && setIsFetching(true);
+      let poolsData = [],
+        hasMore = false;
+      const { rawData, pools } = await getTopPools(page, size, sortBy, order);
+      if (pools) {
+        hasMore = rawData?.pages > page;
+        poolsData = pools;
+      }
 
-        setRawPools(rawPools);
+      // else {
+      //   const [cachedPools, count] = await Promise.all([
+      //     getPoolsFromCache({
+      //       page: page,
+      //       perPage: size,
+      //       tokenName: tokenName,
+      //       column: sortBy,
+      //       order: order,
+      //     }),
+      //     db.countPools(),
+      //   ]);
+      //   poolsData = cachedPools;
+      //
+      //   const pages = Math.ceil(count / size);
+      //   hasMore = pages > page;
+      // }
+      // setPools((d) => {
+      //   return isOverwrite
+      //     ? poolsData
+      //     : uniqueArray([...d, ...poolsData], 'id');
+      // });
+      setRawPools((d) => {
+        return isOverwrite
+          ? poolsData
+          : uniqueArray([...d, ...poolsData], 'id');
+      });
+      setHasMore(hasMore);
+      if (loading) {
+        setLoading(false);
+      }
+      !disableLoading && setIsFetching(false);
+    } catch (e) {
+    } finally {
+      !init && setInit(true);
+    }
+  };
 
-        setHasMore(pools.length === DEFAULT_PAGE_LIMIT);
-        setPools((currentPools) =>
-          pools.reduce<Pool[]>(
-            (acc: Pool[], pool) => {
-              if (
-                acc.some(
-                  (p) =>
-                    p.fee === pool.fee &&
-                    p.tokenIds.includes(pool.tokenIds[0]) &&
-                    p.tokenIds.includes(pool.tokenIds[1]) &&
-                    p.shareSupply === pool.shareSupply
-                )
-              )
-                return acc;
-              acc.push(pool);
-              return acc;
-            },
-            accumulate ? currentPools.slice() : []
-          )
-        );
-      })
-      .finally(() => setLoading(false));
-  }
+  const loadPools = useCallback(debounce(fetchPools, 500), []);
 
-  const loadPools = useCallback(debounce(_loadPools, 500), []);
-
-  useEffect(() => {
+  const sortLocalData = () => {
     const args = {
       page,
       perPage: DEFAULT_PAGE_LIMIT,
@@ -343,22 +362,57 @@ export const usePools = (props: {
       column: props.sortBy,
       order: props.order,
     };
-
     const newPools = _order(args, _search(args, rawPools)).map((rawPool) =>
       parsePool(rawPool)
     );
     setPools(newPools);
-  }, [props.sortBy, props.order, props.tokenName, rawPools]);
+  };
 
   useEffect(() => {
-    setLoading(true);
     loadPools({
-      accumulate: true,
+      page,
+      size: PAGE_SIZE,
       tokenName: props.tokenName,
       sortBy: props.sortBy,
       order: props.order,
+      isOverwrite: true,
+      disableLoading: false,
     });
-  }, [page]);
+  }, []);
+
+  useEffect(() => {
+    sortLocalData();
+  }, [rawPools]);
+
+  useEffect(() => {
+    if (init) {
+      fetchPools({
+        page,
+        size: PAGE_SIZE,
+        tokenName: props.tokenName,
+        sortBy: props.sortBy,
+        order: props.order,
+        isOverwrite: false,
+        disableLoading: true,
+      }).then();
+    }
+  }, [page, props.tokenName]);
+
+  useEffect(() => {
+    if (init) {
+      // todo: wait api can sort fee and apr
+
+      fetchPools({
+        page,
+        size: PAGE_SIZE,
+        tokenName: props.tokenName,
+        sortBy: props.sortBy,
+        order: props.order,
+        isOverwrite: true,
+        disableLoading: false,
+      }).then();
+    }
+  }, [props.sortBy, props.order]);
 
   return {
     pools,
@@ -366,6 +420,7 @@ export const usePools = (props: {
     nextPage,
     loading,
     volumes,
+    isFetching,
   };
 };
 
@@ -697,6 +752,7 @@ export const useWatchPools = () => {
     const poolListDealt = await Promise.all(poolListPromise);
     return poolListDealt;
   }
+
   function getV2Poolsfinal() {
     watchV2Pools.forEach((pool: PoolInfo) => {
       const { token_x, token_y } = pool;
@@ -721,6 +777,7 @@ export const useWatchPools = () => {
     });
     setWatchV2PoolsFinal(watchV2Pools);
   }
+
   return { watchPools, watchV2PoolsFinal, watchList };
 };
 
@@ -821,6 +878,7 @@ export interface TVLType {
   fiat_tvl: string;
   date: string;
 }
+
 export interface TVLDataType {
   pool_id: string;
   asset_amount: string;
@@ -1504,6 +1562,7 @@ function get_price_range_by_percent(
 
   return [price_l, price_r];
 }
+
 function get_price_by_point(point: number, pool: PoolInfo) {
   const { token_x_metadata, token_y_metadata } = pool;
   const decimalRate_point =
@@ -1512,6 +1571,7 @@ function get_price_by_point(point: number, pool: PoolInfo) {
   const price = getPriceByPoint(point, decimalRate_point);
   return price;
 }
+
 function get_point_by_price(price: string, pool: PoolInfo) {
   const { point_delta, token_x_metadata, token_y_metadata } = pool;
   const decimalRate_point =
@@ -1520,6 +1580,7 @@ function get_point_by_price(price: string, pool: PoolInfo) {
   const point = getPointByPrice(point_delta, price, decimalRate_point);
   return point;
 }
+
 export const useIndexerStatus = (dep?: any) => {
   const [indexerStatus, setIndexerStatus] = useState<boolean>();
 

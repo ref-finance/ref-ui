@@ -112,12 +112,12 @@ export default function getConfig(
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.near.org',
         myNearWalletUrl: 'https://app.mynearwallet.com/',
-
         helperUrl: 'https://api.kitwallet.app',
         explorerUrl: 'https://nearblocks.io',
         nearExplorerUrl: 'https://explorer.near.org/',
         indexerUrl: 'https://mainnet-indexer.ref-finance.com',
         sodakiApiUrl: 'https://dev.data-service.ref-finance.com/api',
+        poolApiUrl: 'https://dev.data-service.ref-finance.com',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3', '2769#2'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'v2.ref-finance.near',
@@ -284,6 +284,7 @@ export default function getConfig(
         nearExplorerUrl: 'https://explorer.testnet.near.org/',
         indexerUrl: 'https://dev-indexer.ref-finance.com',
         sodakiApiUrl: 'https://dev.data-service.ref-finance.com/api',
+        poolApiUrl: 'https://dev.data-service.ref-finance.com',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'exchange.ref-dev.testnet',

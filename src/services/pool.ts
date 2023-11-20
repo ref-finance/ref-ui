@@ -88,6 +88,9 @@ export interface Pool {
   metas?: {
     [id: string]: TokenMetadata;
   };
+  volume24hinUSD?: string;
+  token_symbols?: string[];
+  apr?: string;
 }
 
 export interface StablePool {
@@ -121,25 +124,10 @@ export const parsePool = (pool: PoolRPCView, id?: number): Pool => ({
   tvl: pool.tvl,
   token0_ref_price: pool.token0_ref_price,
   pool_kind: pool?.pool_kind,
+  token_symbols: pool.token_symbols,
+  volume24hinUSD: pool?.volume24hinUSD,
+  apr: Number(pool?.apr).toFixed(2),
 });
-
-export const getPools = async ({
-  page = 1,
-  perPage = DEFAULT_PAGE_LIMIT,
-  tokenName = '',
-  column = '',
-  order = 'desc',
-  uniquePairName = false,
-}: {
-  page?: number;
-  perPage?: number;
-  tokenName?: string;
-  column?: string;
-  order?: string;
-  uniquePairName?: boolean;
-}): Promise<PoolRPCView[]> => {
-  return await getTopPools();
-};
 
 export const getPoolsFromCache = async ({
   page = 1,

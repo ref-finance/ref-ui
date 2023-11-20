@@ -26,8 +26,9 @@ export interface PoolRPCView {
   decimalsHandled?: boolean;
   tokens_meta_data?: TokenMetadata[];
   h24volume?: string;
-  apr?: number;
+  apr?: string;
   baseApr?: string;
+  volume24hinUSD?: string;
 }
 
 export const parsePoolView = (pool: any): PoolRPCView => ({
@@ -47,6 +48,9 @@ export const parsePoolView = (pool: any): PoolRPCView => ({
   ),
   token0_ref_price: pool.token0_ref_price,
   share: pool.share,
+  volume24hinUSD: pool.volume24hinUSD,
+  pool_kind: pool?.pool_kind,
+  apr: pool?.apr,
 });
 
 export const getPoolBalance = async (pool_id: number) => {

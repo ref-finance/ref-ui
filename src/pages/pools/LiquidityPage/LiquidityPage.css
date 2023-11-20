@@ -1,0 +1,16 @@
+.pool-loader {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background: #1d2932cc;
+  z-index: -99;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.pool-loader.pool-loader-show {
+  z-index: 99;
+  opacity: 1;
+}
