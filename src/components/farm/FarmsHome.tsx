@@ -84,7 +84,7 @@ import { useHistory, useLocation } from 'react-router-dom';
 import Alert from '../../components/alert/Alert';
 import Loading, { BeatLoading } from '../../components/layout/Loading';
 import { TokenMetadata, REF_META_DATA } from '../../services/ft-contract';
-import { get24hVolume, getPoolsByIds } from '../../services/indexer';
+import { get24hVolumes, getPoolsByIds } from '../../services/indexer';
 import Modal from 'react-modal';
 import { ModalClose } from '../../components/icon';
 import { LockPopUp, getVEPoolId } from '../../pages/ReferendumPage';
@@ -557,11 +557,8 @@ export default function FarmsHome(props: any) {
       }
     });
     // get24hVolume
-    const promisePoolIds = poolIds.map((poolId: string) => {
-      return get24hVolume(poolId);
-    });
     try {
-      const resolvedResult = await Promise.all(promisePoolIds);
+      const resolvedResult = await get24hVolumes(poolIds);
       poolIds.forEach((poolId: string, index: number) => {
         tempMap[poolId] = resolvedResult[index];
       });
@@ -1002,8 +999,8 @@ export default function FarmsHome(props: any) {
     const sort_v = s || sort;
     if (sort_v == 'apr') {
       farm_display_List.sort((item1: Seed, item2: Seed) => {
-        const item1PoolId = item1.pool.id;
-        const item2PoolId = item2.pool.id;
+        const item1PoolId = item1.pool.id || item1.pool.pool_id;
+        const item2PoolId = item2.pool.id || item2.pool.pool_id;
         const item1Front = frontConfigBoost[item1PoolId];
         const item2Front = frontConfigBoost[item2PoolId];
         if (item1Front || item2Front) {
@@ -1014,8 +1011,8 @@ export default function FarmsHome(props: any) {
         return Number(item2Apr) - Number(item1Apr);
       });
       farm_display_ended_List.sort((item1: Seed, item2: Seed) => {
-        const item1PoolId = item1.pool.id;
-        const item2PoolId = item2.pool.id;
+        const item1PoolId = item1.pool.id || item1.pool.pool_id;
+        const item2PoolId = item2.pool.id || item2.pool.pool_id;
         const item1Front = frontConfigBoost[item1PoolId];
         const item2Front = frontConfigBoost[item2PoolId];
         if (item1Front || item2Front) {
@@ -3010,7 +3007,7 @@ function FarmView(props: {
 
     return (
       <div className="flex items-center">
-        <span className="text-sm text-white gotham_bold">
+        <span className="text-base text-white">
           {display_left_price} ~ {display_right_price}
         </span>
         <span className="text-sm text-farmText ml-2">
@@ -3222,7 +3219,7 @@ function FarmView(props: {
                       data-class="reactTip"
                     >
                       <div
-                        className="flex items-center justify-center bg-deepBlue hover:bg-deepBlueHover rounded-lg text-sm text-white h-7 cursor-pointer gotham_bold"
+                        className="flex items-center justify-center bg-deepBlue hover:bg-deepBlueHover rounded-lg text-sm text-white h-7 cursor-pointer"
                         style={{ minWidth: '4.6rem' }}
                         onClick={(e) => {
                           e.stopPropagation();
