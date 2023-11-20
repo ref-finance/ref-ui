@@ -200,7 +200,7 @@ export default function getConfig(
         explorerUrl: 'https://testnet.nearblocks.io',
         nearExplorerUrl: 'https://explorer.testnet.near.org/',
         indexerUrl: 'https://testnet-indexer.ref-finance.com',
-        sodakiApiUrl: 'https://api.stats.ref.finance/api',
+        sodakiApiUrl: 'https://dev.data-service.ref-finance.com/api',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'ref-finance-101.testnet',
@@ -283,7 +283,7 @@ export default function getConfig(
         explorerUrl: 'https://testnet.nearblocks.io',
         nearExplorerUrl: 'https://explorer.testnet.near.org/',
         indexerUrl: 'https://dev-indexer.ref-finance.com',
-        sodakiApiUrl: 'https://api.stats.ref.finance/api',
+        sodakiApiUrl: 'https://dev.data-service.ref-finance.com/api',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'exchange.ref-dev.testnet',

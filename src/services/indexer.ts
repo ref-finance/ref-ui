@@ -758,7 +758,7 @@ export const getAllTvl = async () => {
 };
 
 export const getAllVolume24h = async () => {
-  return await fetch(config.sodakiApiUrl + '/24h-volume-variation', {
+  return await fetch(config.sodakiApiUrl + '/24h_volume_variation', {
     method: 'GET',
   })
     .then((res) => res.json())
