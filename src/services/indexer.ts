@@ -748,7 +748,7 @@ export const getAllV3Pool24Volume = async (): Promise<any[]> => {
 };
 
 export const getAllTvl = async () => {
-  return await fetch(config.sodakiApiUrl + '/historical-tvl?period=1', {
+  return await fetch(config.sodakiApiUrl + '/historical_tvl?period=1', {
     method: 'GET',
   })
     .then((res) => res.json())
