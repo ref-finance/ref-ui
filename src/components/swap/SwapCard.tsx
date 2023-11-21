@@ -1305,9 +1305,9 @@ export default function SwapCard(props: {
                 <MdOutlineRefresh
                   size={18}
                   className={`text-primaryText cursor-pointer  ${
-                    !canSubmit ? 'rotateInfinite' : ''
+                    quoting? 'rotateInfinite' : ''
                   } `}
-                  style={!canSubmit && { fill: '#00FFD1' }}
+                  style={quoting && { fill: '#00FFD1' }}
                 />
                 {/*<CountdownTimer*/}
                 {/*  loadingTrigger={loadingTrigger}*/}
