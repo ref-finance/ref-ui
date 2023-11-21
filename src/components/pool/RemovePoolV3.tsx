@@ -56,6 +56,7 @@ import { isMobile } from 'src/utils/device';
 import QuestionMark from 'src/components/farm/QuestionMark';
 import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
+import CustomTooltip from '../customTooltip/customTooltip';
 
 export type RemoveType = 'left' | 'right' | 'all';
 

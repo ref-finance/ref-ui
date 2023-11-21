@@ -2820,7 +2820,6 @@ function FarmView(props: {
               <BoostOptIcon></BoostOptIcon>
               <FormattedMessage id="boost"></FormattedMessage>
             </div>
-            <CustomTooltip id={'boostFarmTipId'} />
             <CustomTooltip id="boostFarmTipId" />
           </div>
         </div>

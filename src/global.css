@@ -758,6 +758,7 @@ input[type='range']::-webkit-slider-runnable-track {
   margin-bottom: 10px;
   white-space: pre-line;
   font-size: 12px;
+  display: block;
 }
 
 @keyframes showfrombottom {
