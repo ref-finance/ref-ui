@@ -5,7 +5,6 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import _, { find } from 'lodash';
 import React, { useRef } from 'react';
 import PoolRow from 'src/pages/pools/LiquidityPage/PoolRow';
-import CustomPagination from 'src/components/customTable/customPagination';
 
 const LiquidityPoolsTable = ({
   pools,
@@ -235,18 +234,6 @@ const LiquidityPoolsTable = ({
             ))}
           </InfiniteScroll>
         </div>
-        <CustomPagination
-          page={poolsData?.pagination?.page}
-          totalPages={poolsData?.pagination?.pages}
-          nextClick={() => handlePageChange(poolsData?.pagination?.page + 1)}
-          prevClick={() =>
-            handlePageChange(
-              poolsData?.pagination?.page > 1
-                ? poolsData?.pagination?.page - 1
-                : 1
-            )
-          }
-        />
       </div>
     </section>
   );
