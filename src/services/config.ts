@@ -367,6 +367,7 @@ export default function getConfig(
         explorerUrl: 'https://nearblocks.io',
         nearExplorerUrl: 'https://explorer.near.org/',
         indexerUrl: 'https://indexer.ref.finance',
+        poolApiUrl: 'https://dev.data-service.ref-finance.com',
         sodakiApiUrl: 'https://dev.data-service.ref-finance.com/api',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3', '2769#2'],
         REF_FI_CONTRACT_ID:
