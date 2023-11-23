@@ -1,57 +1,63 @@
-import { Pool } from "src/services/pool";
-import React, { useState } from "react";
-import { PoolData, useAllStablePoolData } from "src/state/sauce";
+import { Pool } from 'src/services/pool';
+import React, { useState } from 'react';
+import { PoolData, useAllStablePoolData } from 'src/state/sauce';
 import {
   BTC_CLASS_STABLE_POOL_IDS,
   NEAR_CLASS_STABLE_POOL_IDS,
   USD_CLASS_STABLE_POOL_IDS,
-  USDTT_USDCC_USDT_USDC_POOL_ID
-} from "src/services/near";
-import _, { find } from "lodash";
-import { FormattedMessage } from "react-intl";
-import { BTC_TEXT, DownArrowLight, FarmStampNew, NEAR_TEXT, UpArrowLight, USD_TEXT } from "src/components/icon";
-import { getPoolFeeAprTitle } from "src/pages/pools/LiquidityPage/LiquidityPage";
-import Loading from "src/components/layout/Loading";
-import { formatePoolData } from "src/pages/stable/StableSwapEntry";
-import { useYourliquidity } from "src/state/pool";
-import { useWalletSelector } from "src/context/WalletSelectorContext";
-import { useCanFarmV2 } from "src/state/farm";
-import { useHistory } from "react-router";
-import { useClientMobile } from "src/utils/device";
-import { Link } from "react-router-dom";
-import { Images, Symbols } from "src/components/stableswap/CommonComp";
-import { WatchListStartFull } from "src/components/icon/WatchListStar";
-import { openUrl } from "src/services/commonV3";
-import { getPoolFeeApr, getPoolListFarmAprTip } from "src/pages/pools/utils";
+  USDTT_USDCC_USDT_USDC_POOL_ID,
+} from 'src/services/near';
+import _, { find } from 'lodash';
+import { FormattedMessage } from 'react-intl';
+import {
+  BTC_TEXT,
+  DownArrowLight,
+  FarmStampNew,
+  NEAR_TEXT,
+  UpArrowLight,
+  USD_TEXT,
+} from 'src/components/icon';
+import { getPoolFeeAprTitle } from 'src/pages/pools/LiquidityPage/LiquidityPage';
+import Loading from 'src/components/layout/Loading';
+import { formatePoolData } from 'src/pages/stable/StableSwapEntry';
+import { useYourliquidity } from 'src/state/pool';
+import { useWalletSelector } from 'src/context/WalletSelectorContext';
+import { useCanFarmV2 } from 'src/state/farm';
+import { useHistory } from 'react-router';
+import { useClientMobile } from 'src/utils/device';
+import { Link } from 'react-router-dom';
+import { Images, Symbols } from 'src/components/stableswap/CommonComp';
+import { WatchListStartFull } from 'src/components/icon/WatchListStar';
+import { openUrl } from 'src/services/commonV3';
+import { getPoolFeeApr, getPoolListFarmAprTip } from 'src/pages/pools/utils';
 import {
   checkAllocations,
   percent,
   scientificNotationToString,
   toInternationalCurrencySystem,
-  toPrecision
-} from "src/utils/numbers";
-import { ShareInFarm } from "src/components/layout/ShareInFarm";
-import { OutlineButton, SolidButton } from "src/components/button/Button";
-import { TokenMetadata } from "src/services/ft-contract";
-import BigNumber from "bignumber.js";
-import { Cell, Pie, PieChart, Sector } from "recharts";
-import getConfig from "src/services/config";
-import Big from "big.js";
+  toPrecision,
+} from 'src/utils/numbers';
+import { ShareInFarm } from 'src/components/layout/ShareInFarm';
+import { OutlineButton, SolidButton } from 'src/components/button/Button';
+import { TokenMetadata } from 'src/services/ft-contract';
+import BigNumber from 'bignumber.js';
+import { Cell, Pie, PieChart, Sector } from 'recharts';
+import getConfig from 'src/services/config';
+import Big from 'big.js';
 
 function StablePoolList({
-                          searchBy,
-                          volumes,
-                          watchPools,
-                          farmCounts,
-                          farmAprById,
-                        }: {
+  searchBy,
+  volumes,
+  watchPools,
+  farmCounts,
+  farmAprById,
+}: {
   searchBy: string;
   volumes: Record<string, string>;
   watchPools: Pool[];
   farmCounts: Record<string, number>;
   farmAprById: Record<string, number>;
-})
-{
+}) {
   const [option, setOption] = useState<string>('ALL');
 
   const [orderStable, setorderStable] = useState<string>('desc');
@@ -70,10 +76,10 @@ function StablePoolList({
       option === 'ALL'
         ? true
         : option === 'NEAR'
-          ? NEAR_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString())
-          : option === 'USD'
-            ? USD_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString())
-            : BTC_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString());
+        ? NEAR_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString())
+        : option === 'USD'
+        ? USD_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString())
+        : BTC_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString());
     const b2 = p.tokens.some((t) =>
       _.includes(t.symbol.toLowerCase(), searchBy.toLowerCase())
     );
@@ -292,14 +298,13 @@ function StablePoolList({
   );
 }
 
-
 function StablePoolCard({
-                          poolData,
-                          h24volume,
-                          watched,
-                          supportFarm,
-                          farmApr,
-                        }: {
+  poolData,
+  h24volume,
+  watched,
+  supportFarm,
+  farmApr,
+}: {
   poolData: PoolData;
   h24volume: string;
   watched?: boolean;
@@ -428,10 +433,10 @@ function StablePoolCard({
             {!h24volume
               ? '-'
               : Number(h24volume) == 0
-                ? '$0'
-                : Number(h24volume) < 0.01
-                  ? '$ <0.01'
-                  : `$${toInternationalCurrencySystem(h24volume)}`}
+              ? '$0'
+              : Number(h24volume) < 0.01
+              ? '$ <0.01'
+              : `$${toInternationalCurrencySystem(h24volume)}`}
           </div>
 
           <div className="col-span-2 flex flex-col flex-shrink-0 relative lg:pl-4">
@@ -508,9 +513,9 @@ function StablePoolCard({
                 poolData.poolTVL === undefined
                   ? '-'
                   : toPrecision(
-                    scientificNotationToString(poolData.poolTVL.toString()),
-                    0
-                  )
+                      scientificNotationToString(poolData.poolTVL.toString()),
+                      0
+                    )
               }
             >
               $
@@ -535,10 +540,10 @@ function StablePoolCard({
             {!h24volume
               ? '-'
               : Number(h24volume) == 0
-                ? '$0'
-                : Number(h24volume) < 0.01
-                  ? '$ <0.01'
-                  : `$${toInternationalCurrencySystem(h24volume)}`}
+              ? '$0'
+              : Number(h24volume) < 0.01
+              ? '$ <0.01'
+              : `$${toInternationalCurrencySystem(h24volume)}`}
           </div>
         </div>
 
@@ -613,13 +618,12 @@ function StablePoolCard({
   );
 }
 
-
 const RenderDisplayTokensAmounts = ({
-                                      tokens,
-                                      coinsAmounts,
-                                      chartActiveToken,
-                                      setChartActiveToken,
-                                    }: {
+  tokens,
+  coinsAmounts,
+  chartActiveToken,
+  setChartActiveToken,
+}: {
   tokens: TokenMetadata[];
   coinsAmounts: { [id: string]: BigNumber };
   chartActiveToken?: string;
@@ -709,13 +713,12 @@ function NewTag() {
   );
 }
 
-
 function TokenChart({
-                      tokens,
-                      coinsAmounts,
-                      tokensMap,
-                      activeToken,
-                    }: {
+  tokens,
+  coinsAmounts,
+  tokensMap,
+  activeToken,
+}: {
   tokens: TokenMetadata[];
   coinsAmounts: { [id: string]: BigNumber };
   tokensMap: { [id: string]: TokenMetadata };
@@ -853,7 +856,6 @@ function TokenChart({
   );
 }
 
-
 const calculateTokenValueAndShare = (
   tokens: TokenMetadata[],
   coinsAmounts: { [id: string]: BigNumber },
@@ -933,4 +935,4 @@ const calculateTokenValueAndShare = (
   return result;
 };
 
-export default StablePoolList
+export default StablePoolList;

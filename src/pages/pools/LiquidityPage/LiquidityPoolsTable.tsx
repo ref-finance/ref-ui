@@ -8,7 +8,7 @@ import {
 import { BlueCircleLoading } from 'src/components/layout/Loading';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import _, { find } from 'lodash';
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import PoolRow from 'src/pages/pools/LiquidityPage/PoolRow';
 import { ChartNoData } from 'src/components/icon/ChartNoData';
 
@@ -34,9 +34,9 @@ const LiquidityPoolsTable = ({
   poolsData,
   poolsScrollRef,
 }) => {
-  let poolList = pools
-    // ?.filter(poolFilterFunc)
-    ?.sort(poolReSortingFunc);
+  let poolList = pools;
+  // ?.filter(poolFilterFunc)
+  //?.sort(poolReSortingFunc);
   const { handlePageChange, isFetching } = poolsData || {};
 
   return (

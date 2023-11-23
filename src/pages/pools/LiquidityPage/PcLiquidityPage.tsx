@@ -1,90 +1,111 @@
-import { canFarm, Pool } from "src/services/pool";
-import { PoolInfo } from "src/services/swapV3";
-import { WatchList } from "src/store/RefDatabase";
-import { classificationOfCoins, classificationOfCoins_key, FarmBoost, Seed } from "src/services/farm";
-import { FormattedMessage, useIntl } from "react-intl";
-import React, { useContext, useEffect, useRef, useState } from "react";
-import { useAllPoolsV2 } from "src/state/swapV3";
-import Big from "big.js";
+import { canFarm, Pool } from 'src/services/pool';
+import { PoolInfo } from 'src/services/swapV3';
+import { WatchList } from 'src/store/RefDatabase';
+import {
+  classificationOfCoins,
+  classificationOfCoins_key,
+  FarmBoost,
+  Seed,
+} from 'src/services/farm';
+import { FormattedMessage, useIntl } from 'react-intl';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { useAllPoolsV2 } from 'src/state/swapV3';
+import Big from 'big.js';
 import {
   calculateFeePercent,
   scientificNotationToString,
   toInternationalCurrencySystem,
-  toPrecision
-} from "src/utils/numbers";
-import { useRainbowWhitelistTokens, useTokenBalances, useTokens } from "src/state/token";
-import { WalletContext } from "src/utils/wallets-integration";
-import { get_pool_name, isPending, openUrl, sort_tokens_by_base } from "src/services/commonV3";
-import { getVEPoolId } from "src/pages/ReferendumPage";
-import { REF_META_DATA, TokenMetadata } from "src/services/ft-contract";
-import { unwrapedNear } from "src/services/wrap-near";
-import _, { find } from "lodash";
-import { PoolTabV3 } from "src/components/pool/PoolTabV3";
-import getConfig from "src/services/config";
-import { Card } from "src/components/card/Card";
-import { StartPoolIcon, WatchListStartFull } from "src/components/icon/WatchListStar";
-import { Images, Symbols } from "src/components/stableswap/CommonComp";
+  toPrecision,
+} from 'src/utils/numbers';
+import {
+  useRainbowWhitelistTokens,
+  useTokenBalances,
+  useTokens,
+} from 'src/state/token';
+import { WalletContext } from 'src/utils/wallets-integration';
+import {
+  get_pool_name,
+  isPending,
+  openUrl,
+  sort_tokens_by_base,
+} from 'src/services/commonV3';
+import { getVEPoolId } from 'src/pages/ReferendumPage';
+import { REF_META_DATA, TokenMetadata } from 'src/services/ft-contract';
+import { unwrapedNear } from 'src/services/wrap-near';
+import _, { find } from 'lodash';
+import { PoolTabV3 } from 'src/components/pool/PoolTabV3';
+import getConfig from 'src/services/config';
+import { Card } from 'src/components/card/Card';
+import {
+  StartPoolIcon,
+  WatchListStartFull,
+} from 'src/components/icon/WatchListStar';
+import { Images, Symbols } from 'src/components/stableswap/CommonComp';
 import {
   CheckedEmpty,
   CheckedTick,
   DownArrowLight,
   FarmStampNew,
-  PoolDaoBanner, UpArrowDeep,
-  UpArrowLight
-} from "src/components/icon";
-import { VEARROW } from "src/components/icon/Referendum";
-import { AiFillStar } from "src/components/reactIcons";
+  PoolDaoBanner,
+  UpArrowDeep,
+  UpArrowLight,
+} from 'src/components/icon';
+import { VEARROW } from 'src/components/icon/Referendum';
+import { AiFillStar } from 'src/components/reactIcons';
 import {
   PoolIdNotExist,
-  SelectUi
-} from "src/pages/pools/LiquidityPage/LiquidityPageComponents/LiquidityPageComponents";
-import { SearchIcon } from "src/components/icon/FarmBoost";
-import { SolidButton } from "src/components/button/Button";
-import ReactTooltip from "react-tooltip";
-import LiquidityPoolsTable from "src/pages/pools/LiquidityPage/LiquidityPoolsTable";
-import StablePoolList from "src/pages/pools/LiquidityPage/LiquidityPageComponents/StablePoolList";
-import { AddPoolModal } from "src/pages/pools/AddPoolPage";
-import { getPoolFeeAprTitle, getPoolListV2FarmAprTip } from "src/pages/pools/LiquidityPage/LiquidityPage";
-import { REF_POOL_ID_SEARCHING_KEY } from "src/pages/pools/LiquidityPage/constLiquidityPage";
-import Loading from "src/components/layout/Loading";
-import PoolRow from "src/pages/pools/LiquidityPage/PoolRow";
-import { useHistory } from "react-router";
-import { useDCLTopBinFee } from "src/state/pool";
-import { formatPercentage } from "src/components/d3Chart/utils";
-import BigNumber from "bignumber.js";
+  SelectUi,
+} from 'src/pages/pools/LiquidityPage/LiquidityPageComponents/LiquidityPageComponents';
+import { SearchIcon } from 'src/components/icon/FarmBoost';
+import { SolidButton } from 'src/components/button/Button';
+import ReactTooltip from 'react-tooltip';
+import LiquidityPoolsTable from 'src/pages/pools/LiquidityPage/LiquidityPoolsTable';
+import StablePoolList from 'src/pages/pools/LiquidityPage/LiquidityPageComponents/StablePoolList';
+import { AddPoolModal } from 'src/pages/pools/AddPoolPage';
+import {
+  getPoolFeeAprTitle,
+  getPoolListV2FarmAprTip,
+} from 'src/pages/pools/LiquidityPage/LiquidityPage';
+import { REF_POOL_ID_SEARCHING_KEY } from 'src/pages/pools/LiquidityPage/constLiquidityPage';
+import Loading from 'src/components/layout/Loading';
+import PoolRow from 'src/pages/pools/LiquidityPage/PoolRow';
+import { useHistory } from 'react-router';
+import { useDCLTopBinFee } from 'src/state/pool';
+import { formatPercentage } from 'src/components/d3Chart/utils';
+import BigNumber from 'bignumber.js';
 
 function PcLiquidityPage({
-                           pools,
-                           sortBy,
-                           tokenName,
-                           order,
-                           hasMore,
-                           watchPools,
-                           onSearch,
-                           onHide,
-                           hideLowTVL,
-                           onSortChange,
-                           onOrderChange,
-                           nextPage,
-                           allPools,
-                           poolTokenMetas,
-                           poolsMorePoolsIds,
-                           farmCounts,
-                           farmOnly,
-                           setFarmOnly,
-                           volumes,
-                           activeTab,
-                           switchActiveTab,
-                           watchV2Pools,
-                           watchList,
-                           h24VolumeV2,
-                           do_farms_v2_poos,
-                           farmAprById,
-                           poolsData,
-                           poolsScrollRef,
-                           selectCoinClass,
-                           setSelectCoinClass,
-                         }: {
+  pools,
+  sortBy,
+  tokenName,
+  order,
+  hasMore,
+  watchPools,
+  onSearch,
+  onHide,
+  hideLowTVL,
+  onSortChange,
+  onOrderChange,
+  nextPage,
+  allPools,
+  poolTokenMetas,
+  poolsMorePoolsIds,
+  farmCounts,
+  farmOnly,
+  setFarmOnly,
+  volumes,
+  activeTab,
+  switchActiveTab,
+  watchV2Pools,
+  watchList,
+  h24VolumeV2,
+  do_farms_v2_poos,
+  farmAprById,
+  poolsData,
+  poolsScrollRef,
+  selectCoinClass,
+  setSelectCoinClass,
+}: {
   pools: Pool[];
   switchActiveTab: (tab: string) => void;
   activeTab: string;
@@ -115,8 +136,7 @@ function PcLiquidityPage({
   poolsScrollRef?: any;
   selectCoinClass?: any;
   setSelectCoinClass?: any;
-})
-{
+}) {
   const intl = useIntl();
   const inputRef = useRef(null);
 
@@ -492,13 +512,13 @@ function PcLiquidityPage({
                 placeholder={
                   enableIdSearch && activeTab !== 'v2'
                     ? intl.formatMessage({
-                      id: 'input_pool_id',
-                      defaultMessage: 'Input pool Id',
-                    })
+                        id: 'input_pool_id',
+                        defaultMessage: 'Input pool Id',
+                      })
                     : intl.formatMessage({
-                      id: 'search_pool_by_token',
-                      defaultMessage: 'Search pool by token...',
-                    })
+                        id: 'search_pool_by_token',
+                        defaultMessage: 'Search pool by token...',
+                      })
                 }
                 inputMode={
                   enableIdSearch && activeTab !== 'v2' ? 'decimal' : 'text'
@@ -739,7 +759,7 @@ function PcLiquidityPage({
                       setV2SortBy('fee');
                       v2SortBy !== 'fee' && setV2Order('desc');
                       v2SortBy === 'fee' &&
-                      setV2Order(v2Order === 'desc' ? 'asc' : 'desc');
+                        setV2Order(v2Order === 'desc' ? 'asc' : 'desc');
                     }}
                   >
                     <FormattedMessage id="fee" defaultMessage="Fee" />
@@ -753,7 +773,7 @@ function PcLiquidityPage({
                       setV2SortBy('fee');
                       v2SortBy !== 'fee' && setV2Order('desc');
                       v2SortBy === 'fee' &&
-                      setV2Order(v2Order === 'desc' ? 'asc' : 'desc');
+                        setV2Order(v2Order === 'desc' ? 'asc' : 'desc');
                     }}
                   >
                     {v2SortBy === 'fee' ? (
@@ -777,7 +797,7 @@ function PcLiquidityPage({
                       setV2SortBy('top_bin_apr');
                       v2SortBy !== 'top_bin_apr' && setV2Order('desc');
                       v2SortBy === 'top_bin_apr' &&
-                      setV2Order(v2Order === 'desc' ? 'asc' : 'desc');
+                        setV2Order(v2Order === 'desc' ? 'asc' : 'desc');
                     }}
                   >
                     <FormattedMessage
@@ -794,7 +814,7 @@ function PcLiquidityPage({
                       setV2SortBy('top_bin_apr');
                       v2SortBy !== 'top_bin_apr' && setV2Order('desc');
                       v2SortBy === 'top_bin_apr' &&
-                      setV2Order(v2Order === 'desc' ? 'asc' : 'desc');
+                        setV2Order(v2Order === 'desc' ? 'asc' : 'desc');
                     }}
                   >
                     {v2SortBy === 'top_bin_apr' ? (
@@ -818,7 +838,7 @@ function PcLiquidityPage({
                       setV2SortBy('volume_24h');
                       v2SortBy !== 'volume_24h' && setV2Order('desc');
                       v2SortBy === 'volume_24h' &&
-                      setV2Order(v2Order === 'desc' ? 'asc' : 'desc');
+                        setV2Order(v2Order === 'desc' ? 'asc' : 'desc');
                     }}
                   >
                     <FormattedMessage
@@ -835,7 +855,7 @@ function PcLiquidityPage({
                       setV2SortBy('volume_24h');
                       v2SortBy !== 'volume_24h' && setV2Order('desc');
                       v2SortBy === 'volume_24h' &&
-                      setV2Order(v2Order === 'desc' ? 'asc' : 'desc');
+                        setV2Order(v2Order === 'desc' ? 'asc' : 'desc');
                     }}
                   >
                     {v2SortBy === 'volume_24h' ? (
@@ -861,7 +881,7 @@ function PcLiquidityPage({
 
                       v2SortBy !== 'tvl' && setV2Order('desc');
                       v2SortBy === 'tvl' &&
-                      setV2Order(v2Order === 'desc' ? 'asc' : 'desc');
+                        setV2Order(v2Order === 'desc' ? 'asc' : 'desc');
                     }}
                   >
                     <FormattedMessage id="tvl" defaultMessage="TVL" />
@@ -873,7 +893,7 @@ function PcLiquidityPage({
                       setReSortBy('');
                       v2SortBy !== 'tvl' && setV2Order('desc');
                       v2SortBy === 'tvl' &&
-                      setV2Order(v2Order === 'desc' ? 'asc' : 'desc');
+                        setV2Order(v2Order === 'desc' ? 'asc' : 'desc');
                     }}
                   >
                     {v2SortBy === 'tvl' ? (
@@ -933,19 +953,18 @@ function PcLiquidityPage({
   );
 }
 
-
 function WatchListCard({
-                         watchPools,
-                         poolTokenMetas,
-                         farmCounts,
-                         volumes,
-                         watchV2Pools,
-                         poolsMorePoolsIds,
-                         watchList,
-                         tokenName,
-                         do_farms_v2_poos,
-                         farmAprById,
-                       }: {
+  watchPools,
+  poolTokenMetas,
+  farmCounts,
+  volumes,
+  watchV2Pools,
+  poolsMorePoolsIds,
+  watchList,
+  tokenName,
+  do_farms_v2_poos,
+  farmAprById,
+}: {
   watchPools: Pool[];
   poolTokenMetas: any;
   farmCounts: Record<string, number>;
@@ -956,8 +975,7 @@ function WatchListCard({
   tokenName: string;
   do_farms_v2_poos: Record<string, Seed>;
   farmAprById: Record<string, number>;
-})
-{
+}) {
   const totalWatchList_length = watchPools?.length + watchV2Pools?.length;
 
   function getAllWatchPools() {
@@ -1084,15 +1102,15 @@ function WatchListCard({
 }
 
 function PoolRowV2({
-                     pool,
-                     index,
-                     tokens,
-                     showCol,
-                     mark,
-                     watched,
-                     h24volume,
-                     relatedSeed,
-                   }: {
+  pool,
+  index,
+  tokens,
+  showCol,
+  mark,
+  watched,
+  h24volume,
+  relatedSeed,
+}: {
   pool: PoolInfo;
   index: number;
   tokens?: TokenMetadata[];
@@ -1101,8 +1119,7 @@ function PoolRowV2({
   watched?: boolean;
   h24volume?: string;
   relatedSeed?: Seed;
-})
-{
+}) {
   const curRowTokens = useTokens([pool.token_x, pool.token_y], tokens);
   const history = useHistory();
   const topBinApr = useDCLTopBinFee({
@@ -1259,4 +1276,4 @@ function PoolRowV2({
   );
 }
 
-export default PcLiquidityPage
+export default PcLiquidityPage;

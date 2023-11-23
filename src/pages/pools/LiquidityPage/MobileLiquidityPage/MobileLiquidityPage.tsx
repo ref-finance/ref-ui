@@ -1,76 +1,95 @@
-import { Pool } from "src/services/pool";
-import { PoolInfo } from "src/services/swapV3";
-import { WatchList } from "src/store/RefDatabase";
-import { classificationOfCoins_key, FarmBoost, Seed } from "src/services/farm";
-import React, { useContext, useRef, useState } from "react";
-import { WalletContext } from "src/utils/wallets-integration";
-import { useHistory } from "react-router";
-import { FormattedMessage, useIntl } from "react-intl";
-import { useRainbowWhitelistTokens, useTokenBalances, useTokens } from "src/state/token";
-import { useAllPoolsV2 } from "src/state/swapV3";
-import _, { find } from "lodash";
-import { REF_META_DATA, TokenMetadata } from "src/services/ft-contract";
-import { unwrapedNear } from "src/services/wrap-near";
-import { get_pool_name, isPending, openUrl, sort_tokens_by_base } from "src/services/commonV3";
-import { getPoolFeeApr } from "src/pages/pools/utils";
-import { PoolTabV3 } from "src/components/pool/PoolTabV3";
-import getConfig from "src/services/config";
-import { StartPoolIcon, WatchListStartFull } from "src/components/icon/WatchListStar";
-import { Card } from "src/components/card/Card";
-import { getVEPoolId } from "src/pages/ReferendumPage";
-import { Images, Symbols } from "src/components/stableswap/CommonComp";
+import { Pool } from 'src/services/pool';
+import { PoolInfo } from 'src/services/swapV3';
+import { WatchList } from 'src/store/RefDatabase';
+import { classificationOfCoins_key, FarmBoost, Seed } from 'src/services/farm';
+import React, { useContext, useRef, useState } from 'react';
+import { WalletContext } from 'src/utils/wallets-integration';
+import { useHistory } from 'react-router';
+import { FormattedMessage, useIntl } from 'react-intl';
+import {
+  useRainbowWhitelistTokens,
+  useTokenBalances,
+  useTokens,
+} from 'src/state/token';
+import { useAllPoolsV2 } from 'src/state/swapV3';
+import _, { find } from 'lodash';
+import { REF_META_DATA, TokenMetadata } from 'src/services/ft-contract';
+import { unwrapedNear } from 'src/services/wrap-near';
+import {
+  get_pool_name,
+  isPending,
+  openUrl,
+  sort_tokens_by_base,
+} from 'src/services/commonV3';
+import { getPoolFeeApr } from 'src/pages/pools/utils';
+import { PoolTabV3 } from 'src/components/pool/PoolTabV3';
+import getConfig from 'src/services/config';
+import {
+  StartPoolIcon,
+  WatchListStartFull,
+} from 'src/components/icon/WatchListStar';
+import { Card } from 'src/components/card/Card';
+import { getVEPoolId } from 'src/pages/ReferendumPage';
+import { Images, Symbols } from 'src/components/stableswap/CommonComp';
 import {
   ArrowDownLarge,
   DownArrowLightMobile,
   FarmStampNew,
   PoolDaoBannerMobile,
-  UpArrowDeep
-} from "src/components/icon";
-import { REF_MOBILE_POOL_ID_INPUT, REF_POOL_ID_SEARCHING_KEY } from "src/pages/pools/LiquidityPage/constLiquidityPage";
-import { PoolIdNotExist } from "src/pages/pools/LiquidityPage/LiquidityPageComponents/LiquidityPageComponents";
-import { SearchIcon } from "src/components/icon/FarmBoost";
-import LiquidityV1PoolsMobile from "src/pages/pools/LiquidityPage/MobileLiquidityPage/LiquidityV1PoolsMobile";
-import { SelectModal, SelectModalV2 } from "src/components/layout/SelectModal";
-import { AddPoolModal } from "src/pages/pools/AddPoolPage";
-import Loading from "src/components/layout/Loading";
-import { QuestionTip } from "src/components/layout/TipWrapper";
-import MobilePoolRow from "src/pages/pools/LiquidityPage/MobileLiquidityPage/MobilePoolRow";
-import StablePoolList from "src/pages/pools/LiquidityPage/LiquidityPageComponents/StablePoolList";
-import { useInView } from "react-intersection-observer";
-import { useDCLTopBinFee } from "src/state/pool";
-import { calculateFeePercent, toInternationalCurrencySystem, toPrecision } from "src/utils/numbers";
-import { formatPercentage } from "src/components/d3Chart/utils";
-import BigNumber from "bignumber.js";
+  UpArrowDeep,
+} from 'src/components/icon';
+import {
+  REF_MOBILE_POOL_ID_INPUT,
+  REF_POOL_ID_SEARCHING_KEY,
+} from 'src/pages/pools/LiquidityPage/constLiquidityPage';
+import { PoolIdNotExist } from 'src/pages/pools/LiquidityPage/LiquidityPageComponents/LiquidityPageComponents';
+import { SearchIcon } from 'src/components/icon/FarmBoost';
+import LiquidityV1PoolsMobile from 'src/pages/pools/LiquidityPage/MobileLiquidityPage/LiquidityV1PoolsMobile';
+import { SelectModal, SelectModalV2 } from 'src/components/layout/SelectModal';
+import { AddPoolModal } from 'src/pages/pools/AddPoolPage';
+import Loading from 'src/components/layout/Loading';
+import { QuestionTip } from 'src/components/layout/TipWrapper';
+import MobilePoolRow from 'src/pages/pools/LiquidityPage/MobileLiquidityPage/MobilePoolRow';
+import StablePoolList from 'src/pages/pools/LiquidityPage/LiquidityPageComponents/StablePoolList';
+import { useInView } from 'react-intersection-observer';
+import { useDCLTopBinFee } from 'src/state/pool';
+import {
+  calculateFeePercent,
+  toInternationalCurrencySystem,
+  toPrecision,
+} from 'src/utils/numbers';
+import { formatPercentage } from 'src/components/d3Chart/utils';
+import BigNumber from 'bignumber.js';
 
 function MobileLiquidityPage({
-                               pools,
-                               tokenName,
-                               order,
-                               watchPools,
-                               hasMore,
-                               onSearch,
-                               onSortChange,
-                               onOrderChange,
-                               nextPage,
-                               sortBy,
-                               onHide,
-                               hideLowTVL,
-                               allPools,
-                               poolTokenMetas,
-                               poolsMorePoolsIds,
-                               farmCounts,
-                               farmOnly,
-                               setFarmOnly,
-                               volumes,
-                               activeTab,
-                               switchActiveTab,
-                               watchV2Pools,
-                               watchList,
-                               do_farms_v2_poos,
-                               farmAprById,
-                               selectCoinClass,
-                               setSelectCoinClass,
-                             }: {
+  pools,
+  tokenName,
+  order,
+  watchPools,
+  hasMore,
+  onSearch,
+  onSortChange,
+  onOrderChange,
+  nextPage,
+  sortBy,
+  onHide,
+  hideLowTVL,
+  allPools,
+  poolTokenMetas,
+  poolsMorePoolsIds,
+  farmCounts,
+  farmOnly,
+  setFarmOnly,
+  volumes,
+  activeTab,
+  switchActiveTab,
+  watchV2Pools,
+  watchList,
+  do_farms_v2_poos,
+  farmAprById,
+  selectCoinClass,
+  setSelectCoinClass,
+}: {
   pools: Pool[];
   poolTokenMetas: any;
   farmOnly: boolean;
@@ -98,8 +117,7 @@ function MobileLiquidityPage({
   farmAprById: Record<string, number>;
   selectCoinClass?: string;
   setSelectCoinClass?: any;
-})
-{
+}) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const history = useHistory();
@@ -384,12 +402,12 @@ function MobileLiquidityPage({
                   placeholder={
                     enableIdSearch
                       ? intl.formatMessage({
-                        id: 'input_pool_id',
-                        defaultMessage: 'Input pool Id',
-                      })
+                          id: 'input_pool_id',
+                          defaultMessage: 'Input pool Id',
+                        })
                       : intl.formatMessage({
-                        id: 'search_by_token',
-                      })
+                          id: 'search_by_token',
+                        })
                   }
                   defaultValue={
                     enableIdSearch
@@ -425,9 +443,9 @@ function MobileLiquidityPage({
                     !enableIdSearch
                       ? onSearch(evt.target.value)
                       : sessionStorage.setItem(
-                        REF_MOBILE_POOL_ID_INPUT,
-                        evt.target.value
-                      );
+                          REF_MOBILE_POOL_ID_INPUT,
+                          evt.target.value
+                        );
                   }}
                 />
                 {showPoolIDTip && <PoolIdNotExist />}
@@ -446,41 +464,43 @@ function MobileLiquidityPage({
           )}
         </div>
         {activeTab === 'v1' && (
-          <LiquidityV1PoolsMobile {...{
-            enableIdSearch,
-            handleEnableIdSearching,
-            inputRef,
-            allPools,
-            setShowPoolIDTip,
-            onSearch,
-            symbolsArr,
-            handleIdSearching,
-            tokenName,
-            isSignedIn,
-            setShowAddPoolModal,
-            showPoolIDTip,
-            onOrderChange,
-            order,
-            showSelectModal,
-            setShowSelectModal,
-            sortBy,
-            onSortChange,
-            pools,
-            poolSortingFunc,
-            selectCoinClass,
-            poolTokenMetas,
-            watchPools,
-            poolsMorePoolsIds,
-            farmCounts,
-            volumes,
-            farmAprById,
-            filterList,
-            setSelectCoinClass,
-            farmOnly,
-            setFarmOnly,
-            hideLowTVL,
-            onHide
-          }}/>
+          <LiquidityV1PoolsMobile
+            {...{
+              enableIdSearch,
+              handleEnableIdSearching,
+              inputRef,
+              allPools,
+              setShowPoolIDTip,
+              onSearch,
+              symbolsArr,
+              handleIdSearching,
+              tokenName,
+              isSignedIn,
+              setShowAddPoolModal,
+              showPoolIDTip,
+              onOrderChange,
+              order,
+              showSelectModal,
+              setShowSelectModal,
+              sortBy,
+              onSortChange,
+              pools,
+              poolSortingFunc,
+              selectCoinClass,
+              poolTokenMetas,
+              watchPools,
+              poolsMorePoolsIds,
+              farmCounts,
+              volumes,
+              farmAprById,
+              filterList,
+              setSelectCoinClass,
+              farmOnly,
+              setFarmOnly,
+              hideLowTVL,
+              onHide,
+            }}
+          />
         )}
 
         {activeTab === 'v2' && (
@@ -599,18 +619,17 @@ function MobileLiquidityPage({
   );
 }
 
-
 function MobileWatchListCard({
-                               watchPools,
-                               poolTokenMetas,
-                               farmCounts,
-                               volumes,
-                               watchV2Pools,
-                               poolsMorePoolsIds,
-                               watchList,
-                               do_farms_v2_poos,
-                               farmAprById,
-                             }: {
+  watchPools,
+  poolTokenMetas,
+  farmCounts,
+  volumes,
+  watchV2Pools,
+  poolsMorePoolsIds,
+  watchList,
+  do_farms_v2_poos,
+  farmAprById,
+}: {
   watchPools: Pool[];
   poolTokenMetas: any;
   farmCounts: Record<string, number>;
@@ -620,8 +639,7 @@ function MobileWatchListCard({
   watchList: WatchList[];
   do_farms_v2_poos: Record<string, Seed>;
   farmAprById: Record<string, number>;
-})
-{
+}) {
   const intl = useIntl();
   const [showSelectModal, setShowSelectModal] = useState<Boolean>(false);
   const [sortBy, onSortChange] = useState<string>('tvl');
@@ -748,16 +766,15 @@ function MobileWatchListCard({
   );
 }
 
-
 function MobilePoolRowV2({
-                           pool,
-                           sortBy,
-                           tokens,
-                           mark,
-                           watched,
-                           h24volume,
-                           relatedSeed,
-                         }: {
+  pool,
+  sortBy,
+  tokens,
+  mark,
+  watched,
+  h24volume,
+  relatedSeed,
+}: {
   pool: PoolInfo;
   sortBy: string;
   tokens?: TokenMetadata[];
@@ -781,9 +798,9 @@ function MobilePoolRowV2({
   tokens = sort_tokens_by_base(tokens);
 
   const showSortedValue = ({
-                             sortBy,
-                             value,
-                           }: {
+    sortBy,
+    value,
+  }: {
     sortBy: string;
     value?: number;
   }) => {
@@ -919,4 +936,4 @@ function MobilePoolRowV2({
   );
 }
 
-export default MobileLiquidityPage
+export default MobileLiquidityPage;

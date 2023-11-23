@@ -1,34 +1,38 @@
-import { Pool } from "src/services/pool";
-import { TokenMetadata } from "src/services/ft-contract";
-import { useInView } from "react-intersection-observer";
-import { useTokens } from "src/state/token";
-import React, { useContext } from "react";
-import { TokenPriceListContext } from "src/pages/pools/LiquidityPage/constLiquidityPage";
-import { useHistory } from "react-router";
-import { openUrl, sort_tokens_by_base } from "src/services/commonV3";
-import { calculateFeePercent, toInternationalCurrencySystem, toPrecision } from "src/utils/numbers";
-import { getPoolFeeApr } from "src/pages/pools/utils";
-import { FormattedMessage } from "react-intl";
-import { RiArrowRightSLine } from "src/components/reactIcons";
-import { Link } from "react-router-dom";
-import { WatchListStartFull } from "src/components/icon/WatchListStar";
-import { ALL_STABLE_POOL_IDS } from "src/services/near";
-import { FarmStampNew } from "src/components/icon";
+import { Pool } from 'src/services/pool';
+import { TokenMetadata } from 'src/services/ft-contract';
+import { useInView } from 'react-intersection-observer';
+import { useTokens } from 'src/state/token';
+import React, { useContext } from 'react';
+import { TokenPriceListContext } from 'src/pages/pools/LiquidityPage/constLiquidityPage';
+import { useHistory } from 'react-router';
+import { openUrl, sort_tokens_by_base } from 'src/services/commonV3';
+import {
+  calculateFeePercent,
+  toInternationalCurrencySystem,
+  toPrecision,
+} from 'src/utils/numbers';
+import { getPoolFeeApr } from 'src/pages/pools/utils';
+import { FormattedMessage } from 'react-intl';
+import { RiArrowRightSLine } from 'src/components/reactIcons';
+import { Link } from 'react-router-dom';
+import { WatchListStartFull } from 'src/components/icon/WatchListStar';
+import { ALL_STABLE_POOL_IDS } from 'src/services/near';
+import { FarmStampNew } from 'src/components/icon';
 
 function MobilePoolRow({
-                         pool,
-                         sortBy,
-                         watched,
-                         selectCoinClass,
-                         tokens,
-                         morePoolIds,
-                         supportFarm,
-                         h24volume,
-                         watchPool,
-                         mark,
-                         farmApr,
-                         farmCount,
-                       }: {
+  pool,
+  sortBy,
+  watched,
+  selectCoinClass,
+  tokens,
+  morePoolIds,
+  supportFarm,
+  h24volume,
+  watchPool,
+  mark,
+  farmApr,
+  farmCount,
+}: {
   pool: Pool;
   sortBy: string;
   watched: Boolean;
@@ -54,9 +58,9 @@ function MobilePoolRow({
   tokens = sort_tokens_by_base(tokens);
 
   const showSortedValue = ({
-                             sortBy,
-                             value,
-                           }: {
+    sortBy,
+    value,
+  }: {
     sortBy: string;
     value?: number;
   }) => {
@@ -67,10 +71,10 @@ function MobilePoolRow({
       return !h24volume
         ? '-'
         : Number(h24volume) == 0
-          ? '$0'
-          : Number(h24volume) < 0.01
-            ? '$ <0.01'
-            : `$${toInternationalCurrencySystem(h24volume)}`;
+        ? '$0'
+        : Number(h24volume) < 0.01
+        ? '$ <0.01'
+        : `$${toInternationalCurrencySystem(h24volume)}`;
     else if (sortBy === 'apr') return `${getPoolFeeApr(h24volume, pool)}%`;
   };
 
@@ -248,4 +252,4 @@ function MobilePoolRow({
   );
 }
 
-export default MobilePoolRow
+export default MobilePoolRow;

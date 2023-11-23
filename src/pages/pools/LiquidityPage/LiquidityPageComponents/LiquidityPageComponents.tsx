@@ -1,7 +1,7 @@
-import { FormattedMessage, useIntl } from "react-intl";
-import React, { useState } from "react";
-import { FilterIcon } from "src/components/icon/PoolFilter";
-import { ArrowDownLarge } from "src/components/icon";
+import { FormattedMessage, useIntl } from 'react-intl';
+import React, { useState } from 'react';
+import { FilterIcon } from 'src/components/icon/PoolFilter';
+import { ArrowDownLarge } from 'src/components/icon';
 
 export const PoolIdNotExist = () => {
   const intl = useIntl();
@@ -16,12 +16,12 @@ export const PoolIdNotExist = () => {
 };
 
 export function SelectUi({
-                    onChange,
-                    list,
-                    curvalue,
-                    shrink,
-                    className,
-                  }: {
+  onChange,
+  list,
+  curvalue,
+  shrink,
+  className,
+}: {
   onChange: (e: any) => void;
   list: any;
   curvalue: string;
