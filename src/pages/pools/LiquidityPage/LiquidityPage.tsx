@@ -187,7 +187,11 @@ export default function LiquidityPage() {
     const pool_ids = pool_ids_v1.concat(pool_ids_watchPools);
     canFarms({
       pool_ids,
-    }).then(setFarmCounts);
+    }).then((d) => {
+      setFarmCounts((c) => {
+        return { ...c, ...d };
+      });
+    });
   }, [pools, watchPools?.map((p) => p.id).join('|')]);
 
   const clientMobileDevice = useClientMobile();
