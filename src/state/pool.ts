@@ -266,7 +266,7 @@ interface LoadPoolsOpts {
   order?: string;
 }
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 50;
 export const usePools = (props: {
   searchTrigger?: Boolean;
   tokenName?: string;
@@ -357,18 +357,18 @@ export const usePools = (props: {
   }) => {
     let poolsFiltered = sortLocalData(rawPools);
     let hasMore = true;
-    if (hideLowTVL) {
-      poolsFiltered = _.filter(pools, (pool) => pool.tvl > 1000);
-      if (rawPools?.length > poolsFiltered.length) {
-        hasMore = false;
-      }
-    }
     if (selectCoinClass && selectCoinClass !== 'all') {
-      poolsFiltered = pools.filter((tk) => {
+      poolsFiltered = poolsFiltered.filter((tk) => {
         return tk.token_symbols.some((d) =>
           classificationOfCoins[selectCoinClass].includes(d)
         );
       });
+    }
+    if (hideLowTVL) {
+      poolsFiltered = _.filter(poolsFiltered, (pool) => pool.tvl > 1000);
+      if (rawPools?.length > poolsFiltered.length) {
+        hasMore = false;
+      }
     }
     // @ts-ignore
     setPools(poolsFiltered);
