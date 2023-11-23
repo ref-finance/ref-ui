@@ -84,17 +84,18 @@ import {
   getPoolFeeApr,
   getPoolListFarmAprTip,
 } from '../utils';
-import { REF_FI_POOL_SEARCH_BY, REF_MOBILE_POOL_ID_INPUT, TokenPriceListContext } from "./constLiquidityPage";
+import {
+  REF_FI_POOL_SEARCH_BY,
+  REF_MOBILE_POOL_ID_INPUT,
+  TokenPriceListContext,
+} from './constLiquidityPage';
 import './LiquidityPage.css';
-import MobileLiquidityPage from "src/pages/pools/LiquidityPage/MobileLiquidityPage/MobileLiquidityPage";
-import PcLiquidityPage from "src/pages/pools/LiquidityPage/PcLiquidityPage";
+import MobileLiquidityPage from 'src/pages/pools/LiquidityPage/MobileLiquidityPage/MobileLiquidityPage';
+import PcLiquidityPage from 'src/pages/pools/LiquidityPage/PcLiquidityPage';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
 const REF_FI_FARM_ONLY = 'REF_FI_FARM_ONLY';
-
-const REF_POOL_ID_SEARCHING_KEY = 'REF_POOL_ID_SEARCHING_KEY';
-const { switch_on_dcl_farms } = getConfig();
 
 export function getPoolFeeAprTitle(
   dayVolume: string,
@@ -152,25 +153,16 @@ export default function LiquidityPage() {
     watchList,
   } = useWatchPools();
   const [hideLowTVL, setHideLowTVL] = useState<Boolean>(false);
-  const [displayPools, setDisplayPools] = useState<Pool[]>();
-  const poolsData = usePools({
-    hideLowTVL,
-    selectCoinClass,
-    tokenName,
-    sortBy,
-    order,
-  });
-  const { pools, hasMore, nextPage, loading, volumes } = poolsData || {};
-
-  const tokenPriceList = useTokenPriceList();
-
+  // const [displayPools, setDisplayPools] = useState<Pool[]>();
   const [farmOnly, setFarmOnly] = useState<boolean>(
     localStorage.getItem(REF_FI_FARM_ONLY) === '1' || false
   );
-
+  const [farmCounts, setFarmCounts] = useState<Record<string, number>>({});
   const [activeTab, setActiveTab] = useState<string>(
     localStorage.getItem(REF_FI_POOL_ACTIVE_TAB) || 'v1'
   );
+
+  const tokenPriceList = useTokenPriceList();
 
   const switchActiveTab = (curTab: string) => {
     setActiveTab(curTab);
@@ -178,7 +170,16 @@ export default function LiquidityPage() {
     localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, curTab);
   };
 
-  const [farmCounts, setFarmCounts] = useState<Record<string, number>>({});
+  const poolsData = usePools({
+    hideLowTVL,
+    selectCoinClass,
+    farmOnly,
+    farmCounts,
+    tokenName,
+    sortBy,
+    order,
+  });
+  const { pools, hasMore, nextPage, loading, volumes } = poolsData || {};
 
   useEffect(() => {
     const pool_ids_v1 = pools.map((p) => p.id);
@@ -240,20 +241,6 @@ export default function LiquidityPage() {
       }
     });
   }, []);
-
-  useEffect(() => {
-    let tempPools = pools;
-
-    setHideLowTVL(JSON.parse(localStorage.getItem(HIDE_LOW_TVL)) || false);
-
-    if (hideLowTVL) {
-      // tempPools = _.filter(tempPools, (pool) => pool.tvl > 1000);
-    }
-    if (farmOnly) {
-      tempPools = _.filter(tempPools, (pool) => !!farmCounts[pool.id]);
-    }
-    setDisplayPools(tempPools);
-  }, [pools, hideLowTVL, farmOnly, farmCounts]);
 
   const poolTokenMetas = usePoolTokens(pools);
   const onSearch = useCallback(
@@ -331,7 +318,7 @@ export default function LiquidityPage() {
     });
     setSortBy(e);
   };
-
+  const displayPools = pools;
   if (
     !displayPools ||
     loading ||

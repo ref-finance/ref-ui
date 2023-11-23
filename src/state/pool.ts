@@ -274,6 +274,8 @@ export const usePools = (props: {
   order?: string;
   hideLowTVL?: Boolean;
   selectCoinClass?: string;
+  farmOnly?: Boolean;
+  farmCounts?: any;
 }) => {
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(true);
@@ -285,37 +287,30 @@ export const usePools = (props: {
   const [requestPoolList, setRequestPoolList] = useState<string[]>();
   const [total, setTotal] = useState<number>(0);
   const [rawData, setRawData] = useState<any>();
-  const { hideLowTVL, selectCoinClass } = props || {};
+  const { hideLowTVL, selectCoinClass, farmOnly, farmCounts } = props || {};
 
   useEffect(() => {
     setRequestPoolList(
       rawPools.map((pool) => pool.id.toString()).concat(ALL_STABLE_POOL_IDS)
     );
-    const sortedPools = sortLocalData(rawPools);
-
-    // when hideLowTVL true, we cannot rely on api pagination data as it was filtered by frontend
-    if (hideLowTVL) {
-      const filtered = _.filter(sortedPools, (pool) => pool.tvl > 1000);
-      // @ts-ignore
-      setPools(filtered);
-      if (rawPools?.length > filtered.length) {
-        setHasMore(false);
-      }
-    } else {
-      // @ts-ignore
-      setPools(sortedPools);
-      setHasMore(rawData?.pages > page);
-    }
+    applyFrontendFilter({
+      rawPools,
+      hideLowTVL,
+      selectCoinClass,
+      farmOnly,
+      farmCounts,
+    });
   }, [rawPools]);
 
   useEffect(() => {
     applyFrontendFilter({
-      pools,
       rawPools,
       hideLowTVL,
       selectCoinClass,
+      farmOnly,
+      farmCounts,
     });
-  }, [hideLowTVL, selectCoinClass]);
+  }, [hideLowTVL, selectCoinClass, farmOnly, farmCounts]);
 
   useEffect(() => {
     fetchPools({
@@ -350,13 +345,19 @@ export const usePools = (props: {
   };
 
   const applyFrontendFilter = ({
-    pools,
     rawPools,
     hideLowTVL,
     selectCoinClass,
+    farmOnly,
+    farmCounts,
   }) => {
     let poolsFiltered = sortLocalData(rawPools);
     let hasMore = true;
+
+    if (farmOnly) {
+      poolsFiltered = _.filter(poolsFiltered, (pool) => !!farmCounts[pool.id]);
+    }
+
     if (selectCoinClass && selectCoinClass !== 'all') {
       poolsFiltered = poolsFiltered.filter((tk) => {
         return tk.token_symbols.some((d) =>
@@ -366,9 +367,15 @@ export const usePools = (props: {
     }
     if (hideLowTVL) {
       poolsFiltered = _.filter(poolsFiltered, (pool) => pool.tvl > 1000);
+    }
+
+    const isApplyFrontendFilter = selectCoinClass || hideLowTVL || farmOnly;
+    if (isApplyFrontendFilter) {
       if (rawPools?.length > poolsFiltered.length) {
         hasMore = false;
       }
+    } else {
+      hasMore = rawData?.pages > page;
     }
     // @ts-ignore
     setPools(poolsFiltered);
