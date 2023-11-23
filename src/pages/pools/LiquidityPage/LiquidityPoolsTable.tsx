@@ -218,7 +218,7 @@ const LiquidityPoolsTable = ({
             loader={
               <div
                 className={
-                  'flex mt-5 flex-1 justify-center text-gray2 infinite-scroll-loading'
+                  'flex mt-7 mb-1 flex-1 justify-center text-gray2 infinite-scroll-loading'
                 }
                 style={{ fontSize: 14 }}
               >
