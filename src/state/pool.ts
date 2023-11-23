@@ -414,8 +414,11 @@ export const usePools = (props: {
         });
       }
 
-      const farmResult = await canFarms({ pool_ids: farmQueryIds });
-      setPoolFarmCounts(farmResult);
+      if (farmQueryIds?.length) {
+        const farmResult = await canFarms({ pool_ids: farmQueryIds });
+        setPoolFarmCounts(farmResult);
+      }
+
       setRawData(rawData);
       setTotal(rawData?.total);
       setRawPools((d) => {
