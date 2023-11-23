@@ -1,10 +1,16 @@
 import { FormattedMessage } from 'react-intl';
-import { DownArrowLight, UpArrowDeep, UpArrowLight } from 'src/components/icon';
+import {
+  DownArrowLight,
+  NoDataIcon,
+  UpArrowDeep,
+  UpArrowLight,
+} from 'src/components/icon';
 import { BlueCircleLoading } from 'src/components/layout/Loading';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import _, { find } from 'lodash';
 import React, { useRef } from 'react';
 import PoolRow from 'src/pages/pools/LiquidityPage/PoolRow';
+import { ChartNoData } from 'src/components/icon/ChartNoData';
 
 const LiquidityPoolsTable = ({
   pools,
@@ -28,7 +34,9 @@ const LiquidityPoolsTable = ({
   poolsData,
   poolsScrollRef,
 }) => {
-  let poolList = pools?.filter(poolFilterFunc)?.sort(poolReSortingFunc);
+  let poolList = pools
+    // ?.filter(poolFilterFunc)
+    ?.sort(poolReSortingFunc);
   const { handlePageChange, isFetching } = poolsData || {};
 
   return (
@@ -210,28 +218,42 @@ const LiquidityPoolsTable = ({
             loader={
               <div
                 className={
-                  'flex justify-center text-white infinite-scroll-loading'
+                  'flex mt-5 flex-1 justify-center text-gray2 infinite-scroll-loading'
                 }
+                style={{ fontSize: 14 }}
               >
                 Loading
               </div>
             }
             scrollableTarget={'poolscroll'}
           >
-            {poolList.map((pool, i) => (
-              <PoolRow
-                tokens={poolTokenMetas[pool.id]}
-                key={pool.id}
-                farmApr={farmAprById ? farmAprById[pool.id] : null}
-                pool={pool}
-                index={i + 1}
-                selectCoinClass={selectCoinClass}
-                morePoolIds={poolsMorePoolsIds[pool.id]}
-                supportFarm={!!farmCounts[pool.id]}
-                farmCount={farmCounts[pool.id]}
-                watched={!!find(watchPools, { id: pool.id })}
-              />
-            ))}
+            {poolList?.length ? (
+              poolList.map((pool, i) => (
+                <PoolRow
+                  tokens={poolTokenMetas[pool.id]}
+                  key={pool.id}
+                  farmApr={farmAprById ? farmAprById[pool.id] : null}
+                  pool={pool}
+                  index={i + 1}
+                  selectCoinClass={selectCoinClass}
+                  morePoolIds={poolsMorePoolsIds[pool.id]}
+                  supportFarm={!!farmCounts[pool.id]}
+                  farmCount={farmCounts[pool.id]}
+                  watched={!!find(watchPools, { id: pool.id })}
+                />
+              ))
+            ) : (
+              <div
+                className={
+                  'flex items-center justify-center flex-col pool-nodata'
+                }
+              >
+                <ChartNoData />
+                <div className={'text-primaryText'}>
+                  <FormattedMessage id="no_data" defaultMessage="No Data" />
+                </div>
+              </div>
+            )}
           </InfiniteScroll>
         </div>
       </div>

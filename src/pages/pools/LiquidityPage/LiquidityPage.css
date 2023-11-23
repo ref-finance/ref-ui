@@ -15,6 +15,7 @@
   opacity: 1;
 }
 
-#poolscroll {
-  height: 384px;
+#poolscroll,
+.pool-nodata {
+  height: 420px;
 }

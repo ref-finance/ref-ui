@@ -1305,7 +1305,7 @@ export default function SwapCard(props: {
                 <MdOutlineRefresh
                   size={18}
                   className={`text-primaryText cursor-pointer  ${
-                    quoting? 'rotateInfinite' : ''
+                    quoting ? 'rotateInfinite' : ''
                   } `}
                   style={quoting && { fill: '#00FFD1' }}
                 />

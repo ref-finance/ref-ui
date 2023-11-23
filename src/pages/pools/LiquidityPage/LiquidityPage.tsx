@@ -835,6 +835,8 @@ function MobileLiquidityPage({
   watchList,
   do_farms_v2_poos,
   farmAprById,
+  selectCoinClass,
+  setSelectCoinClass,
 }: {
   pools: Pool[];
   poolTokenMetas: any;
@@ -861,6 +863,8 @@ function MobileLiquidityPage({
   watchList: WatchList[];
   do_farms_v2_poos: Record<string, Seed>;
   farmAprById: Record<string, number>;
+  selectCoinClass?: string;
+  setSelectCoinClass?: any;
 }) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -938,16 +942,7 @@ function MobileLiquidityPage({
   classificationOfCoins_key.forEach((key) => {
     filterList[key] = intl.formatMessage({ id: key });
   });
-  const [selectCoinClass, setSelectCoinClass] = useState<string>('all');
   const [showAddPoolModal, setShowAddPoolModal] = useState<boolean>(false);
-
-  const poolFilterFunc = (p: Pool) => {
-    if (selectCoinClass === 'all') return true;
-
-    return poolTokenMetas[p.id].some((tk: TokenMetadata) =>
-      classificationOfCoins[selectCoinClass].includes(tk.symbol)
-    );
-  };
   const outOfText = intl.formatMessage({ id: 'out_of' });
   const [symbolsArr] = useState(['e', 'E', '+', '-', '.']);
 
@@ -1436,7 +1431,7 @@ function MobileLiquidityPage({
               <div className="border-b border-gray-700 border-opacity-70" />
               <div className="max-h-96 overflow-y-auto overflow-x-visible pool-list-container-mobile">
                 {pools
-                  ?.filter(poolFilterFunc)
+                  // ?.filter(poolFilterFunc)
                   .sort(poolSortingFunc)
                   .map((pool, i) => (
                     <MobilePoolRow
@@ -1958,6 +1953,8 @@ function PcLiquidityPage({
   farmAprById,
   poolsData,
   poolsScrollRef,
+  selectCoinClass,
+  setSelectCoinClass,
 }: {
   pools: Pool[];
   switchActiveTab: (tab: string) => void;
@@ -1987,6 +1984,8 @@ function PcLiquidityPage({
   do_farms_v2_poos: Record<string, Seed>;
   poolsData?: any;
   poolsScrollRef?: any;
+  selectCoinClass?: any;
+  setSelectCoinClass?: any;
 }) {
   const intl = useIntl();
   const inputRef = useRef(null);
@@ -2028,7 +2027,6 @@ function PcLiquidityPage({
   classificationOfCoins_key.forEach((key) => {
     filterList[key] = intl.formatMessage({ id: key });
   });
-  const [selectCoinClass, setSelectCoinClass] = useState<string>('all');
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
 
@@ -2816,6 +2814,7 @@ export default function LiquidityPage() {
   const [tokenName, setTokenName] = useState(storeTokenName || '');
   const [sortBy, setSortBy] = useState('tvl');
   const [order, setOrder] = useState('desc');
+  const [selectCoinClass, setSelectCoinClass] = useState<string>('all');
   const AllPools = useAllPools();
   const {
     watchPools,
@@ -2826,6 +2825,7 @@ export default function LiquidityPage() {
   const [displayPools, setDisplayPools] = useState<Pool[]>();
   const poolsData = usePools({
     hideLowTVL,
+    selectCoinClass,
     tokenName,
     sortBy,
     order,
@@ -3038,6 +3038,8 @@ export default function LiquidityPage() {
             setFarmOnly(farmOnly);
             localStorage.setItem(REF_FI_FARM_ONLY, farmOnly ? '1' : '0');
           }}
+          selectCoinClass={selectCoinClass}
+          setSelectCoinClass={setSelectCoinClass}
           watchPools={watchPools}
           watchV2Pools={watchV2Pools}
           watchList={watchList}
@@ -3078,6 +3080,8 @@ export default function LiquidityPage() {
             setFarmOnly(farmOnly);
             localStorage.setItem(REF_FI_FARM_ONLY, farmOnly ? '1' : '0');
           }}
+          selectCoinClass={selectCoinClass}
+          setSelectCoinClass={setSelectCoinClass}
           onOrderChange={setOrder}
           onSortChange={handleSortClick}
           onHide={(isHide) => {

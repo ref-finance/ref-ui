@@ -35,7 +35,7 @@ export function BackToStablePoolList() {
     <div className="flex items-center text-base text-farmText ">
       <span
         onClick={() => {
-          localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'stable');
+          localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'v1');
 
           history.push('/pools');
         }}

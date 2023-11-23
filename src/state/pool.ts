@@ -10,6 +10,7 @@ import {
   getStakedListByAccountId,
   get_seed,
   list_seed_farms,
+  classificationOfCoins,
 } from '../services/farm';
 import {
   DEFAULT_PAGE_LIMIT,
@@ -265,13 +266,14 @@ interface LoadPoolsOpts {
   order?: string;
 }
 
-const PAGE_SIZE = 50;
+const PAGE_SIZE = 10;
 export const usePools = (props: {
   searchTrigger?: Boolean;
   tokenName?: string;
   sortBy?: string;
   order?: string;
   hideLowTVL?: Boolean;
+  selectCoinClass?: string;
 }) => {
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(true);
@@ -283,7 +285,7 @@ export const usePools = (props: {
   const [requestPoolList, setRequestPoolList] = useState<string[]>();
   const [total, setTotal] = useState<number>(0);
   const [rawData, setRawData] = useState<any>();
-  const { hideLowTVL } = props || {};
+  const { hideLowTVL, selectCoinClass } = props || {};
 
   useEffect(() => {
     setRequestPoolList(
@@ -307,29 +309,13 @@ export const usePools = (props: {
   }, [rawPools]);
 
   useEffect(() => {
-    if (hideLowTVL) {
-      setPools((d) => {
-        return _.filter(d, (pool) => pool.tvl > 1000);
-      });
-    } else {
-      if (hasMore === false) {
-        fetchPools({
-          page: 1,
-          size: PAGE_SIZE,
-          tokenName: props.tokenName,
-          sortBy: props.sortBy,
-          order: props.order,
-          isOverwrite: true,
-          disableLoading: false,
-        }).then();
-        setPage(1);
-      } else {
-        const sortedPools = sortLocalData(rawPools);
-        // @ts-ignore
-        setPools(sortedPools);
-      }
-    }
-  }, [hideLowTVL]);
+    applyFrontendFilter({
+      pools,
+      rawPools,
+      hideLowTVL,
+      selectCoinClass,
+    });
+  }, [hideLowTVL, selectCoinClass]);
 
   useEffect(() => {
     fetchPools({
@@ -361,6 +347,32 @@ export const usePools = (props: {
 
   const handlePageChange = (page) => {
     setPage(page);
+  };
+
+  const applyFrontendFilter = ({
+    pools,
+    rawPools,
+    hideLowTVL,
+    selectCoinClass,
+  }) => {
+    let poolsFiltered = sortLocalData(rawPools);
+    let hasMore = true;
+    if (hideLowTVL) {
+      poolsFiltered = _.filter(pools, (pool) => pool.tvl > 1000);
+      if (rawPools?.length > poolsFiltered.length) {
+        hasMore = false;
+      }
+    }
+    if (selectCoinClass && selectCoinClass !== 'all') {
+      poolsFiltered = pools.filter((tk) => {
+        return tk.token_symbols.some((d) =>
+          classificationOfCoins[selectCoinClass].includes(d)
+        );
+      });
+    }
+    // @ts-ignore
+    setPools(poolsFiltered);
+    setHasMore(hasMore);
   };
 
   const fetchPools = async ({
