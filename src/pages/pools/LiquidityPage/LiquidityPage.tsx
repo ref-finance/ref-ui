@@ -174,12 +174,18 @@ export default function LiquidityPage() {
     hideLowTVL,
     selectCoinClass,
     farmOnly,
-    farmCounts,
     tokenName,
     sortBy,
     order,
   });
-  const { pools, hasMore, nextPage, loading, volumes } = poolsData || {};
+  const {
+    pools,
+    poolFarmCounts = {},
+    hasMore,
+    nextPage,
+    loading,
+    volumes,
+  } = poolsData || {};
 
   useEffect(() => {
     const pool_ids_v1 = pools.map((p) => p.id);
@@ -192,7 +198,7 @@ export default function LiquidityPage() {
         return { ...c, ...d };
       });
     });
-  }, [pools, watchPools?.map((p) => p.id).join('|')]);
+  }, [watchPools?.map((p) => p.id).join('|')]);
 
   const clientMobileDevice = useClientMobile();
   const [do_farms_v2_poos, set_do_farms_v2_poos] = useState<
@@ -352,7 +358,7 @@ export default function LiquidityPage() {
             localStorage.setItem(HIDE_LOW_TVL, isHide.toString());
             setHideLowTVL(isHide);
           }}
-          farmCounts={farmCounts}
+          farmCounts={{ ...farmCounts, ...poolFarmCounts }}
           hideLowTVL={hideLowTVL}
           farmOnly={farmOnly}
           setFarmOnly={(farmOnly: boolean) => {
@@ -395,7 +401,7 @@ export default function LiquidityPage() {
           volumes={allVolumes}
           order={order}
           sortBy={sortBy}
-          farmCounts={farmCounts}
+          farmCounts={{ ...farmCounts, ...poolFarmCounts }}
           farmOnly={farmOnly}
           setFarmOnly={(farmOnly: boolean) => {
             setFarmOnly(farmOnly);

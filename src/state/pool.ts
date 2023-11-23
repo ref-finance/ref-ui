@@ -28,6 +28,7 @@ import {
   StablePool,
   getStablePool,
   getPoolsFromCache,
+  canFarms,
 } from '../services/pool';
 import db, { PoolDb, WatchList } from '../store/RefDatabase';
 
@@ -275,7 +276,7 @@ export const usePools = (props: {
   hideLowTVL?: Boolean;
   selectCoinClass?: string;
   farmOnly?: Boolean;
-  farmCounts?: any;
+  poolFarmCounts?: any;
 }) => {
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(true);
@@ -287,7 +288,10 @@ export const usePools = (props: {
   const [requestPoolList, setRequestPoolList] = useState<string[]>();
   const [total, setTotal] = useState<number>(0);
   const [rawData, setRawData] = useState<any>();
-  const { hideLowTVL, selectCoinClass, farmOnly, farmCounts } = props || {};
+  const [poolFarmCounts, setPoolFarmCounts] = useState<Record<string, number>>(
+    {}
+  );
+  const { hideLowTVL, selectCoinClass, farmOnly } = props || {};
 
   useEffect(() => {
     setRequestPoolList(
@@ -298,19 +302,19 @@ export const usePools = (props: {
       hideLowTVL,
       selectCoinClass,
       farmOnly,
-      farmCounts,
     });
   }, [rawPools]);
 
   useEffect(() => {
-    applyFrontendFilter({
-      rawPools,
-      hideLowTVL,
-      selectCoinClass,
-      farmOnly,
-      farmCounts,
-    });
-  }, [hideLowTVL, selectCoinClass, farmOnly, farmCounts]);
+    if (init) {
+      applyFrontendFilter({
+        rawPools,
+        hideLowTVL,
+        selectCoinClass,
+        farmOnly,
+      });
+    }
+  }, [hideLowTVL, selectCoinClass, farmOnly]);
 
   useEffect(() => {
     fetchPools({
@@ -349,13 +353,15 @@ export const usePools = (props: {
     hideLowTVL,
     selectCoinClass,
     farmOnly,
-    farmCounts,
   }) => {
     let poolsFiltered = sortLocalData(rawPools);
     let hasMore = true;
 
     if (farmOnly) {
-      poolsFiltered = _.filter(poolsFiltered, (pool) => !!farmCounts[pool.id]);
+      poolsFiltered = _.filter(
+        poolsFiltered,
+        (pool) => !!poolFarmCounts[pool.id]
+      );
     }
 
     if (selectCoinClass && selectCoinClass !== 'all') {
@@ -396,10 +402,20 @@ export const usePools = (props: {
       let poolsData = [],
         hasMore = false;
       const { rawData, pools } = await getTopPools(page, size, sortBy, order);
+      const farmQueryIds = [];
       if (pools) {
         hasMore = rawData?.pages > page;
-        poolsData = pools.map((d) => parsePool(d));
+        poolsData = pools.map((d) => {
+          const farm = poolFarmCounts[d.id];
+          if (!farm) {
+            farmQueryIds.push(d.id);
+          }
+          return parsePool(d);
+        });
       }
+
+      const farmResult = await canFarms({ pool_ids: farmQueryIds });
+      setPoolFarmCounts(farmResult);
       setRawData(rawData);
       setTotal(rawData?.total);
       setRawPools((d) => {
@@ -434,6 +450,7 @@ export const usePools = (props: {
 
   return {
     pools,
+    poolFarmCounts,
     hasMore,
     nextPage,
     loading,
