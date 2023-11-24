@@ -17,7 +17,7 @@ export function PerpOrderlyTip() {
 
   return (
     <div
-      className="w-screen px-10  xs:pb-7 h-12 xs:rounded-2xl lg:relative    xs:bottom-0 bg-gradientFromHover  frcc "
+      className="w-screen px-10  xs:pb-7 h-12 xs:rounded-2xl lg:relative    xs:bottom-0 bg-warnColor  frcc "
       style={{
         fontSize: '13px',
         color: '#111F29',
@@ -25,26 +25,29 @@ export function PerpOrderlyTip() {
       }}
     >
       <FormattedMessage
-        id="perpTip"
+        id="perpTipDown"
         defaultMessage={
-          'Welcome to Perpetual Futures trading! Please  read {perpTipLink} docs to get start!'
+          'Order book system update will be conducted from 2023/11/30 06:00 AM to 2023/11/30 08:00 AM (UTC), during which time Spot and Perps will be temporarily unavailable.'
         }
-        values={{
-          perpTipLink: (
-            <a
-              className="font-gothamBold mx-1 underline"
-              rel="noopener noreferrer nofollow"
-              target="_blank"
-              href="https://docs.orderly.network/perpetual-futures/introduction"
-            >
-              {isMobile && <br />}
-              <FormattedMessage
-                id="perpTipLink"
-                defaultMessage="[Perpetual-futures Introduction]"
-              />
-            </a>
-          ),
-        }}
+        // defaultMessage={
+        //   'Welcome to Perpetual Futures trading!{br} Please  read {perpTipLink} docs to get start!'
+        // }
+        // values={{
+        //   perpTipLink: (
+        //     <a
+        //       className="font-gothamBold mx-1 underline"
+        //       rel="noopener noreferrer nofollow"
+        //       target="_blank"
+        //       href="https://docs.orderly.network/perpetual-futures/introduction"
+        //     >
+        //       {isMobile && <br />}
+        //       <FormattedMessage
+        //         id="perpTipLink"
+        //         defaultMessage="[Perpetual-futures Introduction]"
+        //       />
+        //     </a>
+        //   ),
+        // }}
       />
 
       <div
@@ -75,7 +78,7 @@ export function PerpOrderlyTipMobile() {
 
   return (
     <div
-      className="w-screen px-4 xs:pr-8 xs:pb-9 xs:pt-2  xs:rounded-2xl   xs:bottom-0 bg-gradientFromHover  lg:frcc "
+      className="w-screen px-4 xs:pr-8 xs:pb-9 xs:pt-2  xs:rounded-2xl   xs:bottom-0 bg-warnColor  lg:frcc "
       style={{
         fontSize: '14px',
         color: '#111F29',
@@ -85,26 +88,31 @@ export function PerpOrderlyTipMobile() {
       }}
     >
       <FormattedMessage
-        id="perpTip"
+        id="perpTipDown"
         defaultMessage={
-          'Welcome to Perpetual Futures trading! Please  read {perpTipLink} docs to get start!'
+          'Order book system update will be conducted from 2023/11/30 06:00 AM to 2023/11/30 08:00 AM (UTC), during which time Spot and Perps will be temporarily unavailable.'
         }
-        values={{
-          perpTipLink: (
-            <a
-              className="font-gothamBold mx-1 underline"
-              rel="noopener noreferrer nofollow"
-              target="_blank"
-              href="https://docs.orderly.network/perpetual-futures/introduction"
-            >
-              {/* {isMobile && <br />} */}
-              <FormattedMessage
-                id="perpTipLink"
-                defaultMessage="[Perpetual-futures Introduction]"
-              />
-            </a>
-          ),
-        }}
+        // id="perpTip"
+        // defaultMessage={
+        //   'Welcome to Perpetual Futures trading! Please  read {perpTipLink} docs to get start!'
+        // }
+        // values={{
+        //   perpTipLink: (
+        //     <a
+        //       className="font-gothamBold mx-1 underline"
+        //       rel="noopener noreferrer nofollow"
+        //       target="_blank"
+        //       href="https://docs.orderly.network/perpetual-futures/introduction"
+        //     >
+        //       {/* {isMobile && <br />} */}
+        //       <FormattedMessage
+        //         id="perpTipLink"
+        //         defaultMessage="[Perpetual-futures Introduction]"
+        //       />
+        //     </a>
+        //   ),
+        //   br: <br />
+        // }}
       />
 
       <div
