@@ -1581,17 +1581,21 @@ export function WarnTipIcon(props: any) {
     <svg
       {...props}
       width="18"
-      height="16"
-      viewBox="0 0 18 16"
+      height="18"
+      viewBox="0 0 18 18"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M7.19914 1C7.96894 -0.333333 9.89344 -0.333333 10.6632 1L17.5914 13C18.3612 14.3333 17.399 16 15.8594 16H2.00298C0.463383 16 -0.498867 14.3333 0.270933 13L7.19914 1ZM7.93119 5H9.93119V10H7.93119V5ZM8.93119 13C9.48347 13 9.93119 12.5523 9.93119 12C9.93119 11.4477 9.48347 11 8.93119 11C8.3789 11 7.93119 11.4477 7.93119 12C7.93119 12.5523 8.3789 13 8.93119 13Z"
-        fill="#DB8946"
+      <circle cx="9" cy="9" r="9" fill="#00FFD1" />
+      <rect
+        x="10"
+        y="13"
+        width="2"
+        height="5"
+        transform="rotate(-180 10 13)"
+        fill="#18252E"
       />
+      <circle cx="9" cy="6" r="1" transform="rotate(-180 9 6)" fill="#18252E" />
     </svg>
   );
 }

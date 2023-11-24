@@ -189,6 +189,7 @@ export default function getConfig(
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near',
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near',
         ],
+        BLACK_TOKEN_LIST: ['meta-token.near'],
       };
     case 'pub-testnet':
       return {
@@ -272,6 +273,7 @@ export default function getConfig(
           'usdt.fakes.testnet',
           'usdc.fakes.testnet',
         ],
+        BLACK_TOKEN_LIST: [],
       };
     case 'testnet':
       return {
@@ -355,6 +357,7 @@ export default function getConfig(
           'usdt.fakes.testnet',
           'usdc.fakes.testnet',
         ],
+        BLACK_TOKEN_LIST: [],
       };
     default:
       return {
@@ -449,11 +452,7 @@ export default function getConfig(
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near',
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near',
         ],
-        BLACK_TOKEN_LIST: [
-          'meta-token.near',
-          'token.v2.ref-finance.near',
-          'token.stlb.near',
-        ],
+        BLACK_TOKEN_LIST: ['meta-token.near'],
       };
   }
 }
