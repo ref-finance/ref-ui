@@ -17,7 +17,7 @@ import {
 } from 'src/utils/numbers';
 import { getPoolFeeApr, getPoolListFarmAprTip } from 'src/pages/pools/utils';
 import ReactTooltip from 'react-tooltip';
-import { TokenPriceListContext } from './constLiquidityPage';
+import { TokenPriceListContext } from '../constLiquidityPage';
 
 export default function PoolRow({
   pool,

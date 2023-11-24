@@ -9,7 +9,7 @@ import { BlueCircleLoading } from 'src/components/layout/Loading';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import _, { find } from 'lodash';
 import React, { useEffect, useRef } from 'react';
-import PoolRow from 'src/pages/pools/LiquidityPage/PoolRow';
+import PoolRow from 'src/pages/pools/LiquidityPage/PCLiquidityPage/PoolRow';
 import { ChartNoData } from 'src/components/icon/ChartNoData';
 
 const LiquidityPoolsTable = ({
@@ -18,13 +18,10 @@ const LiquidityPoolsTable = ({
   hasMore,
   sortBy,
   reSortBy,
-  poolFilterFunc,
-  poolReSortingFunc,
   poolTokenMetas,
   farmAprById,
   selectCoinClass,
   poolsMorePoolsIds,
-  volumes,
   watchPools,
   farmCounts,
   onSortChange,
@@ -35,8 +32,6 @@ const LiquidityPoolsTable = ({
   poolsScrollRef,
 }) => {
   let poolList = pools;
-  // ?.filter(poolFilterFunc)
-  //?.sort(poolReSortingFunc);
   const { handlePageChange, isFetching } = poolsData || {};
 
   return (

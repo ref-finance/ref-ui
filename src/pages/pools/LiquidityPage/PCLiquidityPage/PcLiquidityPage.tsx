@@ -59,7 +59,7 @@ import {
 import { SearchIcon } from 'src/components/icon/FarmBoost';
 import { SolidButton } from 'src/components/button/Button';
 import ReactTooltip from 'react-tooltip';
-import LiquidityPoolsTable from 'src/pages/pools/LiquidityPage/LiquidityPoolsTable';
+import LiquidityPoolsTable from 'src/pages/pools/LiquidityPage/PCLiquidityPage/LiquidityPoolsTable';
 import StablePoolList from 'src/pages/pools/LiquidityPage/LiquidityPageComponents/StablePoolList';
 import { AddPoolModal } from 'src/pages/pools/AddPoolPage';
 import {
@@ -68,7 +68,7 @@ import {
 } from 'src/pages/pools/LiquidityPage/LiquidityPage';
 import { REF_POOL_ID_SEARCHING_KEY } from 'src/pages/pools/LiquidityPage/constLiquidityPage';
 import Loading from 'src/components/layout/Loading';
-import PoolRow from 'src/pages/pools/LiquidityPage/PoolRow';
+import PoolRow from 'src/pages/pools/LiquidityPage/PCLiquidityPage/PoolRow';
 import { useHistory } from 'react-router';
 import { useDCLTopBinFee } from 'src/state/pool';
 import { formatPercentage } from 'src/components/d3Chart/utils';
@@ -723,13 +723,10 @@ function PcLiquidityPage({
                 hasMore,
                 sortBy,
                 reSortBy,
-                poolFilterFunc,
-                poolReSortingFunc,
                 poolTokenMetas,
                 farmAprById,
                 selectCoinClass,
                 poolsMorePoolsIds,
-                volumes,
                 watchPools,
                 farmCounts,
                 onSortChange,

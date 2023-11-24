@@ -63,6 +63,7 @@ import BigNumber from 'bignumber.js';
 
 function MobileLiquidityPage({
   pools,
+  poolsData,
   tokenName,
   order,
   watchPools,
@@ -89,8 +90,10 @@ function MobileLiquidityPage({
   farmAprById,
   selectCoinClass,
   setSelectCoinClass,
+  poolsScrollRef,
 }: {
   pools: Pool[];
+  poolsData?: any;
   poolTokenMetas: any;
   farmOnly: boolean;
   setFarmOnly: (farmOnly: boolean) => void;
@@ -117,6 +120,7 @@ function MobileLiquidityPage({
   farmAprById: Record<string, number>;
   selectCoinClass?: string;
   setSelectCoinClass?: any;
+  poolsScrollRef?: any;
 }) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -484,14 +488,12 @@ function MobileLiquidityPage({
               setShowSelectModal,
               sortBy,
               onSortChange,
-              pools,
               poolSortingFunc,
               selectCoinClass,
               poolTokenMetas,
               watchPools,
               poolsMorePoolsIds,
               farmCounts,
-              volumes,
               farmAprById,
               filterList,
               setSelectCoinClass,
@@ -499,6 +501,8 @@ function MobileLiquidityPage({
               setFarmOnly,
               hideLowTVL,
               onHide,
+              poolsData,
+              poolsScrollRef,
             }}
           />
         )}

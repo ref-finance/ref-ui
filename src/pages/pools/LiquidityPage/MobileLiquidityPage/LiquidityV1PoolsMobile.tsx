@@ -11,12 +11,14 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { SelectModal } from 'src/components/layout/SelectModal';
 import MobilePoolRow from 'src/pages/pools/LiquidityPage/MobileLiquidityPage/MobilePoolRow';
 import { find } from 'lodash';
-import React from 'react';
+import React, { useRef } from 'react';
 import { REF_MOBILE_POOL_ID_INPUT } from '../constLiquidityPage';
 import {
   PoolIdNotExist,
   SelectUi,
 } from 'src/pages/pools/LiquidityPage/LiquidityPageComponents/LiquidityPageComponents';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { BlueCircleLoading } from 'src/components/layout/Loading';
 
 const LiquidityV1PoolsMobile = ({
   enableIdSearch,
@@ -37,14 +39,12 @@ const LiquidityV1PoolsMobile = ({
   setShowSelectModal,
   sortBy,
   onSortChange,
-  pools,
   poolSortingFunc,
   selectCoinClass,
   poolTokenMetas,
   watchPools,
   poolsMorePoolsIds,
   farmCounts,
-  volumes,
   farmAprById,
   filterList,
   setSelectCoinClass,
@@ -52,8 +52,42 @@ const LiquidityV1PoolsMobile = ({
   setFarmOnly,
   hideLowTVL,
   onHide,
+  poolsData,
+  poolsScrollRef,
 }) => {
+  const {
+    pools,
+    poolFarmCounts = {},
+    hasMore,
+    nextPage,
+    loading,
+    volumes,
+    isFetching,
+  } = poolsData || {};
   const intl = useIntl();
+  const mobilePoolsScrollRef = useRef<HTMLInputElement>();
+
+  const scrollTableToTop = () => {
+    mobilePoolsScrollRef?.current?.scroll({
+      top: 0,
+      behavior: 'auto',
+    });
+  };
+  const handleFilterSelectChange = (e) => {
+    scrollTableToTop();
+    setSelectCoinClass(e);
+  };
+
+  const handleSortChange = (e) => {
+    scrollTableToTop();
+    onSortChange(e);
+  };
+
+  const handleOrderChange = (e) => {
+    scrollTableToTop();
+    onOrderChange(e);
+  };
+
   return (
     <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4">
       <div className="mx-4 flex items-center justify-between my-4">
@@ -171,7 +205,7 @@ const LiquidityV1PoolsMobile = ({
       <div className="flex items-start justify-between mx-4 mb-2">
         <SelectUi
           list={filterList}
-          onChange={setSelectCoinClass}
+          onChange={handleFilterSelectChange}
           curvalue={selectCoinClass}
         />
 
@@ -179,6 +213,7 @@ const LiquidityV1PoolsMobile = ({
           <div
             className=" inline-flex items-center cursor-pointer"
             onClick={() => {
+              scrollTableToTop();
               farmOnly && setFarmOnly(false);
               !farmOnly && setFarmOnly(true);
             }}
@@ -193,6 +228,7 @@ const LiquidityV1PoolsMobile = ({
           <div
             className=" inline-flex items-center cursor-pointer mt-2"
             onClick={() => {
+              scrollTableToTop();
               hideLowTVL && onHide(false);
               !hideLowTVL && onHide(true);
             }}
@@ -219,11 +255,12 @@ const LiquidityV1PoolsMobile = ({
             <div
               className="mr-2"
               onClick={() => {
-                onOrderChange(order === 'desc' ? 'asc' : 'desc');
+                handleOrderChange(order === 'desc' ? 'asc' : 'desc');
               }}
             >
               {order === 'desc' ? <DownArrowLightMobile /> : <UpArrowDeep />}
             </div>
+
             <div
               className={`relative rounded-full flex items-center border    ${
                 showSelectModal
@@ -248,7 +285,7 @@ const LiquidityV1PoolsMobile = ({
               {showSelectModal && (
                 <SelectModal
                   sortMode={sortBy}
-                  onSortChange={onSortChange}
+                  onSortChange={handleSortChange}
                   setShowModal={setShowSelectModal}
                   className="top-8"
                 />
@@ -262,22 +299,52 @@ const LiquidityV1PoolsMobile = ({
           </div>
         )}
         <div className="border-b border-gray-700 border-opacity-70" />
-        <div className="max-h-96 overflow-y-auto overflow-x-visible pool-list-container-mobile">
-          {pools.sort(poolSortingFunc).map((pool, i) => (
-            <MobilePoolRow
-              selectCoinClass={selectCoinClass}
-              tokens={poolTokenMetas[pool.id]}
-              pool={pool}
-              sortBy={sortBy}
-              watched={!!find(watchPools, { id: pool.id })}
-              key={i}
-              morePoolIds={poolsMorePoolsIds[pool.id]}
-              supportFarm={!!farmCounts[pool.id]}
-              h24volume={volumes[pool.id]}
-              farmApr={farmAprById[pool.id]}
-              farmCount={farmCounts[pool.id]}
-            />
-          ))}
+
+        <div className={'relative'}>
+          <div
+            className={`pool-loader ${isFetching ? 'pool-loader-show' : ''}`}
+          >
+            <BlueCircleLoading />
+          </div>
+
+          <div
+            ref={mobilePoolsScrollRef}
+            id={'poolscroll'}
+            className="max-h-96 overflow-y-auto overflow-x-visible pool-list-container-mobile"
+          >
+            <InfiniteScroll
+              next={nextPage}
+              hasMore={hasMore}
+              dataLength={pools?.length}
+              loader={
+                <div
+                  className={
+                    'flex mt-7 mb-1 flex-1 justify-center text-gray2 infinite-scroll-loading'
+                  }
+                  style={{ fontSize: 14 }}
+                >
+                  Loading
+                </div>
+              }
+              scrollableTarget={'poolscroll'}
+            >
+              {pools.sort(poolSortingFunc).map((pool, i) => (
+                <MobilePoolRow
+                  selectCoinClass={selectCoinClass}
+                  tokens={poolTokenMetas[pool.id]}
+                  pool={pool}
+                  sortBy={sortBy}
+                  watched={!!find(watchPools, { id: pool.id })}
+                  key={i}
+                  morePoolIds={poolsMorePoolsIds[pool.id]}
+                  supportFarm={!!farmCounts[pool.id]}
+                  h24volume={volumes[pool.id]}
+                  farmApr={farmAprById[pool.id]}
+                  farmCount={farmCounts[pool.id]}
+                />
+              ))}
+            </InfiniteScroll>
+          </div>
         </div>
       </section>
     </Card>

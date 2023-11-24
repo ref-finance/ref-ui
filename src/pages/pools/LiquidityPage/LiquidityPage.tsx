@@ -91,7 +91,7 @@ import {
 } from './constLiquidityPage';
 import './LiquidityPage.css';
 import MobileLiquidityPage from 'src/pages/pools/LiquidityPage/MobileLiquidityPage/MobileLiquidityPage';
-import PcLiquidityPage from 'src/pages/pools/LiquidityPage/PcLiquidityPage';
+import PcLiquidityPage from 'src/pages/pools/LiquidityPage/PCLiquidityPage/PcLiquidityPage';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -394,6 +394,7 @@ export default function LiquidityPage() {
           poolsMorePoolsIds={poolsMorePoolsIds}
           tokenName={tokenName}
           pools={displayPools}
+          poolsData={poolsData}
           watchPools={watchPools}
           watchV2Pools={watchV2Pools}
           watchList={watchList}
