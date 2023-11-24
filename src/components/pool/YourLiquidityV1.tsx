@@ -107,7 +107,9 @@ import {
 } from '../portfolio/Tool';
 import { PortfolioData } from 'src/pages/Portfolio';
 import { openUrl } from '../../services/commonV3';
+import BLACKTip from '../../components/pool/BLACKTip';
 const is_mobile = isMobile();
+const { BLACK_TOKEN_LIST } = getConfig();
 export const StakeListContext = createContext(null);
 export function YourLiquidityV1(props: any) {
   const {
@@ -450,6 +452,7 @@ function LiquidityContainerStyle1() {
                     : [vePool].map((p) => {
                         return (
                           <RowRender
+                            key={p.id}
                             p={p}
                             ids={p.token_account_ids}
                             shares={
@@ -468,6 +471,7 @@ function LiquidityContainerStyle1() {
                     stablePools?.map((p: PoolRPCView, i: number) => {
                       return (
                         <RowRender
+                          key={p.id}
                           p={p}
                           ids={p.token_account_ids}
                           shares={batchStableShares?.[i] || ''}
@@ -485,6 +489,7 @@ function LiquidityContainerStyle1() {
                     .map((p: PoolRPCView, i: number) => {
                       return (
                         <RowRender
+                          key={p.id}
                           shares={
                             batchShares?.[
                               pools.findIndex(
@@ -650,7 +655,6 @@ function YourClassicLiquidityLine(props: any) {
   const decimals = isStablePool(poolId)
     ? getStablePoolDecimal(poolId)
     : LP_TOKEN_DECIMALS;
-  // todo token 需要排序
   const Images = tokens.map((token: TokenMetadata, index: number) => {
     const { icon, id } = token;
     if (icon)
@@ -1162,7 +1166,10 @@ function PoolRow(props: {
   const [showFunding, setShowFunding] = useState(false);
   const supportFarmV1 = props.supportFarmV1;
   const supportFarmV2 = props.supportFarmV2;
-
+  const disable_add = useMemo(() => {
+    const tokenIds = tokens?.map((t) => t.id) || [];
+    return !!tokenIds.find((id) => BLACK_TOKEN_LIST.includes(id));
+  }, [tokens]);
   const history = useHistory();
 
   const { stakeList, v2StakeList, finalStakeList } =
@@ -1317,269 +1324,281 @@ function PoolRow(props: {
       id: 'pool_stop_tip',
       defaultMessage: 'This pool has been stopped.',
     });
-    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+    const result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
     return result;
   }
 
   return (
     <>
       {/* PC */}
-      <Link
-        style={{
-          gridTemplateColumns: 'repeat(13, minmax(0, 1fr))',
-        }}
-        className="xs:hidden md:hidden grid  py-5 content-center items-center text-sm text-white px-8 border-t border-gray-700 border-opacity-70 cursor-pointer"
-        to={{ pathname: `/pool/${pool.id}` }}
-      >
-        <div className="col-span-2 inline-flex items-start flex-col relative">
-          <div className="w-16 flex items-center ml-1">{Images}</div>
-          <div className="absolute text-xs top-10 text-primaryText">
-            {isStablePool(pool.id) ? (
-              <FormattedMessage id="stable_pool" defaultMessage="StablePool" />
-            ) : null}
-          </div>
-        </div>
-
-        <div className="col-span-2 inline-flex flex-col text-sm">
-          {tokensSort.map((token, i) => (
-            <TokenInfoPC key={i} token={token} />
-          ))}
-        </div>
-
-        <div className="col-span-3  text-left pl-6">
-          <MyShares
-            shares={shares}
-            totalShares={pool.shareSupply}
-            decimal={2}
-            poolId={pool.id}
-            supportFarmV1={supportFarmV1}
-            userTotalShare={userTotalShare.plus(
-              Number(getVEPoolId()) === Number(pool.id) ? lptAmount : '0'
-            )}
-            farmStakeV1={farmStakeV1}
-            farmStakeV2={farmStakeV2}
-            supportFarmV2={supportFarmV2}
-            onlyEndedFarmV2={props.onlyEndedFarmV2}
-          />
-        </div>
-
-        <div className="col-span-2 flex flex-col text-xs  -ml-12 text-farmText">
-          {(supportFarmV1 > endedFarmV1 || Number(farmStakeV1) > 0) && (
-            <Link
-              to={{
-                pathname: '/farms',
-              }}
-              target="_blank"
-              rel="noopener noreferrer nofollow"
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
-              className="text-primaryText mb-1.5 flex"
-            >
-              <span>
-                {toPrecision(
-                  toReadableNumber(
-                    lpDecimal,
-                    scientificNotationToString(farmStakeV1.toString())
-                  ),
-                  2
-                )}
-              </span>
-              <span className="mx-1">
-                <FormattedMessage id="in" defaultMessage={'in'} />
-              </span>
-              <div className="text-primaryText flex items-center hover:text-gradientFrom flex-shrink-0">
-                <span className="underline">Legacy Farms</span>
-
-                <span className="ml-0.5">
-                  <VEARROW />
-                </span>
-              </div>
-            </Link>
-          )}
-
-          {(supportFarmV2 > endedFarmV2 || Number(farmStakeV2) > 0) && (
-            <Link
-              to={{
-                pathname: `/v2farms/${pool.id}-${
-                  props.onlyEndedFarmV2 ? 'e' : 'r'
-                }`,
-              }}
-              target="_blank"
-              rel="noopener noreferrer nofollow"
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
-              className="text-primaryText mb-1.5 flex"
-            >
-              <span>
-                {toPrecision(
-                  toReadableNumber(
-                    lpDecimal,
-                    scientificNotationToString(farmStakeV2.toString())
-                  ),
-                  2
-                )}
-              </span>
-              <span className="mx-1">
-                <FormattedMessage id="in" defaultMessage={'in'} />
-              </span>
-              <div className="text-primaryText flex items-center hover:text-gradientFrom flex-shrink-0">
-                <span className="underline">
-                  <FormattedMessage id="classic_farms" />
-                </span>
-
-                <span className="ml-0.5">
-                  <VEARROW />
-                </span>
-              </div>
-            </Link>
-          )}
-          {Number(getVEPoolId()) === Number(pool.id) &&
-          !!getConfig().REF_VE_CONTRACT_ID ? (
-            <div
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                openUrl('/referendum');
-              }}
-              className="text-primaryText mb-1.5 flex whitespace-nowrap items-center"
-            >
-              <span>
-                {toPrecision(
-                  ONLY_ZEROS.test(
-                    toNonDivisibleNumber(
-                      LOVE_TOKEN_DECIMAL,
-                      toReadableNumber(24, lptAmount || '0')
-                    )
-                  )
-                    ? '0'
-                    : toReadableNumber(24, lptAmount || '0'),
-                  2
-                )}
-              </span>
-              <span className="mx-1">
-                <FormattedMessage id="locked" defaultMessage={'locked'} />
-              </span>
-              <span className="mr-1">
-                <FormattedMessage id="in" defaultMessage={'in'} />
-              </span>
-              <div className="text-primaryText flex items-center hover:text-gradientFrom flex-shrink-0">
-                <span className="underline">
-                  <FormattedMessage id="vote_capital" defaultMessage={'VOTE'} />
-                </span>
-                <span className="ml-0.5">
-                  <VEARROW />
-                </span>
-              </div>
+      <div className="px-8 pb-2 xsm:hidden">
+        <Link
+          style={{
+            gridTemplateColumns: 'repeat(13, minmax(0, 1fr))',
+          }}
+          className="xs:hidden md:hidden grid  py-5 content-center items-center text-sm text-white border-t border-gray-700 border-opacity-70 cursor-pointer"
+          to={{ pathname: `/pool/${pool.id}` }}
+        >
+          <div className="col-span-2 inline-flex items-start flex-col relative">
+            <div className="w-16 flex items-center ml-1">{Images}</div>
+            <div className="absolute text-xs top-10 text-primaryText">
+              {isStablePool(pool.id) ? (
+                <FormattedMessage
+                  id="stable_pool"
+                  defaultMessage="StablePool"
+                />
+              ) : null}
             </div>
-          ) : null}
+          </div>
 
-          {ONLY_ZEROS.test(shares) ||
-          (supportFarmV1 === 0 && supportFarmV2 === 0) ? null : (
-            <div>
-              <span
-                className={'text-gradientFrom'}
-                title={toReadableNumber(
-                  isStablePool(pool.id) ? getStablePoolDecimal(pool.id) : 24,
-                  shares
-                )}
+          <div className="col-span-2 inline-flex flex-col text-sm">
+            {tokensSort.map((token, i) => (
+              <TokenInfoPC key={i} token={token} />
+            ))}
+          </div>
+
+          <div className="col-span-3  text-left pl-6">
+            <MyShares
+              shares={shares}
+              totalShares={pool.shareSupply}
+              decimal={2}
+              poolId={pool.id}
+              supportFarmV1={supportFarmV1}
+              userTotalShare={userTotalShare.plus(
+                Number(getVEPoolId()) === Number(pool.id) ? lptAmount : '0'
+              )}
+              farmStakeV1={farmStakeV1}
+              farmStakeV2={farmStakeV2}
+              supportFarmV2={supportFarmV2}
+              onlyEndedFarmV2={props.onlyEndedFarmV2}
+            />
+          </div>
+
+          <div className="col-span-2 flex flex-col text-xs  -ml-12 text-farmText">
+            {(supportFarmV1 > endedFarmV1 || Number(farmStakeV1) > 0) && (
+              <Link
+                to={{
+                  pathname: '/farms',
+                }}
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+                className="text-primaryText mb-1.5 flex"
               >
-                {toPrecision(
-                  toReadableNumber(
+                <span>
+                  {toPrecision(
+                    toReadableNumber(
+                      lpDecimal,
+                      scientificNotationToString(farmStakeV1.toString())
+                    ),
+                    2
+                  )}
+                </span>
+                <span className="mx-1">
+                  <FormattedMessage id="in" defaultMessage={'in'} />
+                </span>
+                <div className="text-primaryText flex items-center hover:text-gradientFrom flex-shrink-0">
+                  <span className="underline">Legacy Farms</span>
+
+                  <span className="ml-0.5">
+                    <VEARROW />
+                  </span>
+                </div>
+              </Link>
+            )}
+
+            {(supportFarmV2 > endedFarmV2 || Number(farmStakeV2) > 0) && (
+              <Link
+                to={{
+                  pathname: `/v2farms/${pool.id}-${
+                    props.onlyEndedFarmV2 ? 'e' : 'r'
+                  }`,
+                }}
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+                className="text-primaryText mb-1.5 flex"
+              >
+                <span>
+                  {toPrecision(
+                    toReadableNumber(
+                      lpDecimal,
+                      scientificNotationToString(farmStakeV2.toString())
+                    ),
+                    2
+                  )}
+                </span>
+                <span className="mx-1">
+                  <FormattedMessage id="in" defaultMessage={'in'} />
+                </span>
+                <div className="text-primaryText flex items-center hover:text-gradientFrom flex-shrink-0">
+                  <span className="underline">
+                    <FormattedMessage id="classic_farms" />
+                  </span>
+
+                  <span className="ml-0.5">
+                    <VEARROW />
+                  </span>
+                </div>
+              </Link>
+            )}
+            {Number(getVEPoolId()) === Number(pool.id) &&
+            !!getConfig().REF_VE_CONTRACT_ID ? (
+              <div
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  openUrl('/referendum');
+                }}
+                className="text-primaryText mb-1.5 flex whitespace-nowrap items-center"
+              >
+                <span>
+                  {toPrecision(
+                    ONLY_ZEROS.test(
+                      toNonDivisibleNumber(
+                        LOVE_TOKEN_DECIMAL,
+                        toReadableNumber(24, lptAmount || '0')
+                      )
+                    )
+                      ? '0'
+                      : toReadableNumber(24, lptAmount || '0'),
+                    2
+                  )}
+                </span>
+                <span className="mx-1">
+                  <FormattedMessage id="locked" defaultMessage={'locked'} />
+                </span>
+                <span className="mr-1">
+                  <FormattedMessage id="in" defaultMessage={'in'} />
+                </span>
+                <div className="text-primaryText flex items-center hover:text-gradientFrom flex-shrink-0">
+                  <span className="underline">
+                    <FormattedMessage
+                      id="vote_capital"
+                      defaultMessage={'VOTE'}
+                    />
+                  </span>
+                  <span className="ml-0.5">
+                    <VEARROW />
+                  </span>
+                </div>
+              </div>
+            ) : null}
+
+            {ONLY_ZEROS.test(shares) ||
+            (supportFarmV1 === 0 && supportFarmV2 === 0) ? null : (
+              <div>
+                <span
+                  className={'text-gradientFrom'}
+                  title={toReadableNumber(
                     isStablePool(pool.id) ? getStablePoolDecimal(pool.id) : 24,
                     shares
-                  ),
-                  2
-                )}
-              </span>
+                  )}
+                >
+                  {toPrecision(
+                    toReadableNumber(
+                      isStablePool(pool.id)
+                        ? getStablePoolDecimal(pool.id)
+                        : 24,
+                      shares
+                    ),
+                    2
+                  )}
+                </span>
 
-              <span className="ml-1">
-                <FormattedMessage id="available" />
-              </span>
-            </div>
-          )}
-        </div>
+                <span className="ml-1">
+                  <FormattedMessage id="available" />
+                </span>
+              </div>
+            )}
+          </div>
 
-        <div className="col-span-2 text-left ml-4 xl:ml-8">{usdValue}</div>
+          <div className="col-span-2 text-left ml-4 xl:ml-8">{usdValue}</div>
 
-        <div className="flex items-center justify-end  text-center  col-span-2 ">
-          <div className="flex items-center flex-col justify-end flex-wrap">
-            <div
-              className="text-xl text-white"
-              data-type="info"
-              data-place="top"
-              data-multiline={true}
-              data-tip={getForbiddenTip()}
-              data-html={true}
-              data-for={'forbiddenTip' + 'your_lp' + pool.id}
-              data-class="reactTip"
-            >
-              <SolidButton
+          <div className="flex items-center justify-end  text-center  col-span-2 ">
+            <div className="flex items-center flex-col justify-end flex-wrap">
+              <div
+                className="text-xl text-white"
+                data-type="info"
+                data-place="top"
+                data-multiline={true}
+                data-tip={getForbiddenTip()}
+                data-html={true}
+                data-for={'forbiddenTip' + 'your_lp' + pool.id}
+                data-class="reactTip"
+              >
+                <SolidButton
+                  disabled={disable_add}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+
+                    if (needForbidden) {
+                      return;
+                    }
+
+                    if (isNotStablePool(pool)) {
+                      setShowFunding(true);
+                    } else {
+                      history.push(`/sauce/${pool.id}`, {
+                        stableTab: 'add_liquidity',
+                      });
+                    }
+                  }}
+                  className={`text-sm col-span-2 ${
+                    needForbidden ? 'text-opacity-20' : ''
+                  } px-1.5 py-1.5 text-center whitespace-nowrap mb-3 gotham_bold rounded-lg`}
+                  style={{
+                    minWidth: '104px',
+                    background: needForbidden ? '#314351' : '',
+                    border: needForbidden ? 'none' : '',
+                  }}
+                >
+                  <FormattedMessage id="add" defaultMessage="Add" />
+                </SolidButton>
+                {needForbidden ? (
+                  <ReactTooltip
+                    id={'forbiddenTip' + 'your_lp' + pool.id}
+                    backgroundColor="#1D2932"
+                    border
+                    place="bottom"
+                    borderColor="#7e8a93"
+                    effect="solid"
+                  />
+                ) : null}
+              </div>
+
+              <OutlineButton
                 onClick={(e) => {
                   e.stopPropagation();
                   e.preventDefault();
 
-                  if (needForbidden) {
-                    return;
-                  }
-
                   if (isNotStablePool(pool)) {
-                    setShowFunding(true);
+                    setShowWithdraw(true);
                   } else {
                     history.push(`/sauce/${pool.id}`, {
-                      stableTab: 'add_liquidity',
+                      stableTab: 'remove_liquidity',
                     });
                   }
+
+                  setShowWithdraw(true);
                 }}
-                className={`text-sm col-span-2 ${
-                  needForbidden ? 'text-opacity-20' : ''
-                } px-1.5 py-1.5 text-center whitespace-nowrap mb-3 gotham_bold rounded-lg`}
+                className="text-sm w-full px-4 col-span-2 text-center h-8 mb-1 gotham_bold rounded-lg"
                 style={{
                   minWidth: '104px',
-                  background: needForbidden ? '#314351' : '',
-                  border: needForbidden ? 'none' : '',
                 }}
               >
-                <FormattedMessage id="add" defaultMessage="Add" />
-              </SolidButton>
-              {needForbidden ? (
-                <ReactTooltip
-                  id={'forbiddenTip' + 'your_lp' + pool.id}
-                  backgroundColor="#1D2932"
-                  border
-                  place="bottom"
-                  borderColor="#7e8a93"
-                  effect="solid"
-                />
-              ) : null}
+                <FormattedMessage id="remove" defaultMessage="Remove" />
+              </OutlineButton>
             </div>
-
-            <OutlineButton
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-
-                if (isNotStablePool(pool)) {
-                  setShowWithdraw(true);
-                } else {
-                  history.push(`/sauce/${pool.id}`, {
-                    stableTab: 'remove_liquidity',
-                  });
-                }
-
-                setShowWithdraw(true);
-              }}
-              className="text-sm w-full px-4 col-span-2 text-center h-8 mb-1 gotham_bold rounded-lg"
-              style={{
-                minWidth: '104px',
-              }}
-            >
-              <FormattedMessage id="remove" defaultMessage="Remove" />
-            </OutlineButton>
           </div>
-        </div>
-      </Link>
+        </Link>
+        <BLACKTip tokenIds={tokens?.map((t) => t.id) || []} />
+      </div>
       {/* Mobile */}
 
       <Link
@@ -1793,6 +1812,7 @@ function PoolRow(props: {
               data-class="reactTip"
             >
               <SolidButton
+                disabled={disable_add}
                 onClick={(e) => {
                   e.stopPropagation();
                   e.preventDefault();
@@ -1849,6 +1869,10 @@ function PoolRow(props: {
               <FormattedMessage id="remove" defaultMessage="Remove" />
             </OutlineButton>
           </div>
+          <BLACKTip
+            className="mx-4 mt-2"
+            tokenIds={tokens?.map((t) => t.id) || []}
+          />
         </Card>
       </Link>
       <RemoveLiquidityModal
