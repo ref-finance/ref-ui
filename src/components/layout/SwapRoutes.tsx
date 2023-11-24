@@ -1858,7 +1858,8 @@ export const TradeRoute = ({
                           token={t}
                           contract={route[i].contract}
                         />
-                        {t.id !== route[0].tokens[route[0].tokens.length-1]?.id && (
+                        {t.id !==
+                          route[0].tokens[route[0].tokens.length - 1]?.id && (
                           <div className="mx-3">
                             <PolygonArrow />
                           </div>

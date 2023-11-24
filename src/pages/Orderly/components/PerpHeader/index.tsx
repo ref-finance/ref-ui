@@ -7,8 +7,9 @@ import { IoMdClose } from '../../../../components/reactIcons';
 import { REF_ORDERLY_PERP_TIP_SIG } from 'src/pages/Orderly/OrderlyPerpetual';
 
 export function PerpOrderlyTip() {
-  // const [show, setShow] = useState<boolean>(!!localStorage.getItem(REF_ORDERLY_PERP_TIP_SIG) ? false : true);
-  const [show, setShow] = useState<boolean>(true);
+  const [show, setShow] = useState<boolean>(
+    !localStorage.getItem(REF_ORDERLY_PERP_TIP_SIG)
+  );
 
   const isMobile = useClientMobile();
 
@@ -16,7 +17,7 @@ export function PerpOrderlyTip() {
 
   return (
     <div
-      className="w-screen px-10  xs:pb-7 h-12 xs:rounded-2xl lg:relative    xs:bottom-0 bg-warnColor  frcc "
+      className="w-screen px-10  xs:pb-7 h-12 xs:rounded-2xl lg:relative    xs:bottom-0 bg-gradientFromHover  frcc "
       style={{
         fontSize: '13px',
         color: '#111F29',
@@ -53,7 +54,7 @@ export function PerpOrderlyTip() {
         className="absolute right-3 cursor-pointer top-1 "
         onClick={() => {
           setShow(false);
-          // localStorage.setItem(REF_ORDERLY_PERP_TIP_SIG, '1');
+          localStorage.setItem(REF_ORDERLY_PERP_TIP_SIG, '1');
         }}
         style={{
           color: '#0E1D28',
@@ -66,8 +67,9 @@ export function PerpOrderlyTip() {
 }
 
 export function PerpOrderlyTipMobile() {
-  // const [show, setShow] = useState<boolean>(!!localStorage.getItem(REF_ORDERLY_PERP_TIP_SIG));
-  const [show, setShow] = useState<boolean>(true);
+  const [show, setShow] = useState<boolean>(
+    !localStorage.getItem(REF_ORDERLY_PERP_TIP_SIG)
+  );
 
   const isMobile = useClientMobile();
 
@@ -75,7 +77,7 @@ export function PerpOrderlyTipMobile() {
 
   return (
     <div
-      className="w-screen px-4 xs:pr-8 xs:pb-9 xs:pt-2  xs:rounded-2xl   xs:bottom-0 bg-warnColor  lg:frcc "
+      className="w-screen px-4 xs:pr-8 xs:pb-9 xs:pt-2  xs:rounded-2xl   xs:bottom-0 bg-gradientFromHover  lg:frcc "
       style={{
         fontSize: '14px',
         color: '#111F29',
@@ -116,7 +118,7 @@ export function PerpOrderlyTipMobile() {
         className="absolute right-3 top-1 "
         onClick={() => {
           setShow(false);
-          // localStorage.setItem(REF_ORDERLY_PERP_TIP_SIG, '1');
+          localStorage.setItem(REF_ORDERLY_PERP_TIP_SIG, '1');
         }}
         style={{
           color: '#0E1D28',
