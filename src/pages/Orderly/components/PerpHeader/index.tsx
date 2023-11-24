@@ -7,9 +7,8 @@ import { IoMdClose } from '../../../../components/reactIcons';
 import { REF_ORDERLY_PERP_TIP_SIG } from 'src/pages/Orderly/OrderlyPerpetual';
 
 export function PerpOrderlyTip() {
-  const [show, setShow] = useState<boolean>(
-    !!localStorage.getItem(REF_ORDERLY_PERP_TIP_SIG) ? false : true
-  );
+  // const [show, setShow] = useState<boolean>(!!localStorage.getItem(REF_ORDERLY_PERP_TIP_SIG) ? false : true);
+  const [show, setShow] = useState<boolean>(true);
 
   const isMobile = useClientMobile();
 
@@ -54,8 +53,7 @@ export function PerpOrderlyTip() {
         className="absolute right-3 cursor-pointer top-1 "
         onClick={() => {
           setShow(false);
-
-          localStorage.setItem(REF_ORDERLY_PERP_TIP_SIG, '1');
+          // localStorage.setItem(REF_ORDERLY_PERP_TIP_SIG, '1');
         }}
         style={{
           color: '#0E1D28',
@@ -68,9 +66,8 @@ export function PerpOrderlyTip() {
 }
 
 export function PerpOrderlyTipMobile() {
-  const [show, setShow] = useState<boolean>(
-    !!localStorage.getItem(REF_ORDERLY_PERP_TIP_SIG) ? false : true
-  );
+  // const [show, setShow] = useState<boolean>(!!localStorage.getItem(REF_ORDERLY_PERP_TIP_SIG));
+  const [show, setShow] = useState<boolean>(true);
 
   const isMobile = useClientMobile();
 
@@ -119,7 +116,7 @@ export function PerpOrderlyTipMobile() {
         className="absolute right-3 top-1 "
         onClick={() => {
           setShow(false);
-          localStorage.setItem(REF_ORDERLY_PERP_TIP_SIG, '1');
+          // localStorage.setItem(REF_ORDERLY_PERP_TIP_SIG, '1');
         }}
         style={{
           color: '#0E1D28',
