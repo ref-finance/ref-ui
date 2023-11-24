@@ -518,6 +518,7 @@ function LiquidityContainerStyle1() {
               : [vePool].map((p) => {
                   return (
                     <RowRenderMobile
+                      key={p.id}
                       shares={
                         batchShares?.[
                           pools.findIndex(
@@ -536,6 +537,7 @@ function LiquidityContainerStyle1() {
               stablePools?.map((p: PoolRPCView, i: number) => {
                 return (
                   <RowRenderMobile
+                    key={p.id}
                     shares={batchStableShares?.[i] || ''}
                     p={p}
                     ids={p.token_account_ids}
@@ -553,6 +555,7 @@ function LiquidityContainerStyle1() {
               .map((p: PoolRPCView, i: number) => {
                 return (
                   <RowRenderMobile
+                    key={p.id}
                     shares={
                       batchShares?.[
                         pools.findIndex((p2: PoolRPCView) => p2.id === p.id)
@@ -679,9 +682,9 @@ function YourClassicLiquidityLine(props: any) {
   const Symbols = tokens.map((token: TokenMetadata, index: number) => {
     const { symbol } = token;
     if (index == tokens.length - 1) {
-      return <label>{symbol}</label>;
+      return <label key={symbol}>{symbol}</label>;
     } else {
-      return <label>{symbol}/</label>;
+      return <label key={symbol}>{symbol}/</label>;
     }
   });
   // get lp amount in farm
@@ -2071,6 +2074,10 @@ export function YourLiquidityAddLiquidityModal(
     });
   }, [tokens.map((t) => t.id).join('-')]);
 
+  const disabled_add = useMemo(() => {
+    return !!tokens.find((t) => BLACK_TOKEN_LIST.includes(t.id));
+  }, [tokens]);
+
   const isMobile = useClientMobile();
 
   const cardWidth = isMobile ? '90vw' : '450px';
@@ -2377,7 +2384,11 @@ export function YourLiquidityAddLiquidityModal(
     return (
       <SolidButton
         disabled={
-          !canSubmit || canDeposit || !pool || tokens[0].id === tokens[1].id
+          !canSubmit ||
+          canDeposit ||
+          !pool ||
+          tokens[0].id === tokens[1].id ||
+          disabled_add
         }
         className="focus:outline-none  w-full text-lg"
         onClick={handleClick}
@@ -2737,6 +2748,7 @@ export function YourLiquidityAddLiquidityModal(
               ) : null}
 
               <ButtonRender />
+              <BLACKTip className="mt-2" show={disabled_add} />
             </div>
           </div>
 

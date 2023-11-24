@@ -430,6 +430,11 @@ function SwapPage() {
             {isSignedIn && swapMode === SWAP_MODE.LIMIT && <MyOrderComponent />}
           </div>
         )}
+        {isMobile && swapMode === SWAP_MODE.NORMAL && (
+          <div className="lg:w-480px xsm:mx-3  m-auto relative text-white mt-5">
+            <BLACKTip show={userBlackAssetStore.getHasBlackAsset()} />
+          </div>
+        )}
         <div className="swapContainer xsm:w-95vw xsm:mx-auto">
           <section className={`lg:w-480px  relative`}>
             {swapMode === SWAP_MODE.NORMAL && (
@@ -469,7 +474,7 @@ function SwapPage() {
               <AdSwiper />
             </div>
           )} */}
-          {!isMobile && (
+          {!isMobile && swapMode === SWAP_MODE.NORMAL && (
             <div className="lg:w-480px  text-white mt-5">
               <BLACKTip show={userBlackAssetStore.getHasBlackAsset()} />
             </div>
@@ -482,12 +487,6 @@ function SwapPage() {
           <AdSwiper />
         </div>
       )} */}
-
-      {isMobile && (
-        <div className="lg:w-480px xsm:mx-3  m-auto relative text-white mt-5">
-          <BLACKTip show={userBlackAssetStore.getHasBlackAsset()} />
-        </div>
-      )}
     </SwapProContext.Provider>
   );
 }
