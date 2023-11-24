@@ -401,7 +401,13 @@ export const usePools = (props: {
       !disableLoading && setIsFetching(true);
       let poolsData = [],
         hasMore = false;
-      const { rawData, pools } = await getTopPools(page, size, sortBy, order);
+      const { rawData, pools } = await getTopPools(
+        page,
+        size,
+        sortBy,
+        order,
+        tokenName
+      );
       const farmQueryIds = [];
       if (pools) {
         hasMore = rawData?.pages > page;

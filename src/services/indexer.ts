@@ -271,7 +271,8 @@ export const getTopPools = async (
   page = 1,
   size = 10,
   sort = 'tvl',
-  sortType = 'desc'
+  sortType = 'desc',
+  tokenName
 ): Promise<{ rawData: any; pools: PoolRPCView[] }> => {
   try {
     let pools: any;
@@ -282,13 +283,14 @@ export const getTopPools = async (
       pages: 1,
       total: 0,
     };
-    const response = await fetch(
-      `${config.poolApiUrl}/api/pools_v1?page=${page}&size=${size}&sort_field=${sort}&sort_type=${sortType}`,
-      {
-        method: 'GET',
-        headers: { 'Content-type': 'application/json; charset=UTF-8' },
-      }
-    )
+    let qryString = `${config.poolApiUrl}/api/pools_v1?page=${page}&size=${size}&sort_field=${sort}&sort_type=${sortType}`;
+    if (tokenName) {
+      qryString += `&tokenName=${tokenName}`;
+    }
+    const response = await fetch(qryString, {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    })
       .then((res) => res.json())
       .catch();
     if (response?.items) {

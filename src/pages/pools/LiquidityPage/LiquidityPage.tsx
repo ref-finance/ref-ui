@@ -259,7 +259,7 @@ export default function LiquidityPage() {
         setTokenName(name);
         sessionStorage.setItem(REF_FI_POOL_SEARCH_BY, name);
       },
-      clientMobileDevice ? 50 : 500
+      clientMobileDevice ? 400 : 500
     ),
     [clientMobileDevice]
   );
