@@ -1,9 +1,11 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useRef, useState } from 'react';
 
 import { TokenSelector, TokenSelectorProps } from '../components/TokenSelector';
 
 type Props = {
-  open: (props: TokenSelectorProps) => void;
+  open: (
+    props: Pick<TokenSelectorProps, 'chain' | 'token'>
+  ) => Promise<BridgeModel.BridgeTokenMeta>;
 };
 
 const TokenSelectorContext = createContext<Props>(null);
@@ -15,12 +17,21 @@ export default function TokenSelectorProvider({
 }) {
   const [show, setShow] = useState(false);
   const [chain, setChain] = useState<BridgeModel.BridgeSupportChain>('ETH');
-  const [token, setToken] = useState<string>();
-  function open({ chain, token }: TokenSelectorProps) {
+  const [tokenMeta, setTokenMeta] = useState<BridgeModel.BridgeTokenMeta>();
+
+  const [modalResolve, setModalResolve] =
+    useState<(v: BridgeModel.BridgeTokenMeta) => void>();
+  const [modalReject, setModalReject] = useState<() => void>();
+
+  const open: Props['open'] = ({ chain, token }) => {
     setChain(chain);
-    setToken(token);
+    setTokenMeta(token);
     setShow(true);
-  }
+    return new Promise<BridgeModel.BridgeTokenMeta>((resolve, reject) => {
+      setModalResolve(() => resolve);
+      setModalReject(() => reject);
+    });
+  };
 
   const exposes = {
     open,
@@ -32,7 +43,9 @@ export default function TokenSelectorProvider({
         isOpen={show}
         toggleOpenModal={() => setShow(!show)}
         chain={chain}
-        token={token}
+        token={tokenMeta}
+        onSelected={(item) => modalResolve?.(item)}
+        onCancel={() => modalReject?.()}
       />
     </TokenSelectorContext.Provider>
   );

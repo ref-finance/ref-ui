@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Modal from 'react-modal';
 import ReactTooltip from 'react-tooltip';
 
-import { IconClose, IconExport, IconRefresh, IconWaiting } from '../assets';
+import SvgIcon from './SvgIcon';
 import { useRouterViewContext } from '../providers/routerView';
 import Button from './Button';
 
@@ -24,10 +24,10 @@ export default function BridgePreviewModal({
             <span className="text-base text-white font-medium">Preview</span>
             <div className="flex items-center">
               <Button size="small" className="mr-4" plain>
-                <IconRefresh />
+                <SvgIcon name="IconRefresh" />
               </Button>
               <Button text onClick={toggleOpenModal}>
-                <IconClose />
+                <SvgIcon name="IconClose" />
               </Button>
             </div>
           </div>
@@ -156,14 +156,14 @@ export function BridgeTransactionStatusModal({
             Transaction Detail
           </span>
           <Button text onClick={toggleOpenModal}>
-            <IconClose />
+            <SvgIcon name="IconClose" />
           </Button>
         </div>
         <div className="flex items-center justify-center my-8 gap-2">
           <div className="w-7 h-7 bg-white rounded-md" />
           <div className="bridge-status-process">
-            <IconWaiting />
-            {/* <IconSuccess /> */}
+            <SvgIcon name="IconWaiting" className="text-5xl" />
+            {/* <SvgIcon name="IconSuccessCircle" className="text-5xl"/> */}
           </div>
           <div className="w-7 h-7 bg-white rounded-md" />
         </div>
@@ -180,7 +180,7 @@ export function BridgeTransactionStatusModal({
         <div className="text-center">
           <Button>
             <span className="inline-flex items-center text-primary text-xs">
-              SRC TX <IconExport className="ml-2" />
+              SRC TX <SvgIcon name="IconExport" className="text-xs ml-2" />
             </span>
           </Button>
         </div>

@@ -1,46 +1,102 @@
-import React, { useEffect, useState } from 'react';
+import React, { MouseEventHandler, useEffect, useMemo, useState } from 'react';
 import Modal from 'react-modal';
 
-import { IconArrowDown, IconClose, IconSearch } from '../assets';
 import Button from './Button';
+import { ChainConfig, TokenList } from '../config';
+import SvgIcon from './SvgIcon';
+import useBridgeToken from './../hooks/useBridgeToken';
+import { useBalance, useToken } from 'wagmi';
 
-export type TokenSelectorProps = {
+type TokenSelectorCommonProps = {
   chain: BridgeModel.BridgeSupportChain;
-  token?: string;
-  onClick?: Parameters<typeof Button>[number]['onClick'];
+  token?: BridgeModel.BridgeTokenMeta;
+  onClick?: MouseEventHandler;
 };
 
 export function SelectTokenButton({
   token,
   onClick,
-}: Partial<TokenSelectorProps>) {
+}: Partial<TokenSelectorCommonProps>) {
   return (
     <Button rounded onClick={onClick}>
       {token ? (
         <>
-          <span className="inline-block w-7 h-7 bg-white rounded-lg mr-2" />{' '}
-          <span className=" text-white mr-2">{token}</span>
+          <img className="w-7 h-7 rounded-full mr-2" src={token.icon} />
+          <span className="text-white mr-2">{token.symbol}</span>
         </>
       ) : (
-        <span className=" text-white mr-2">Select token </span>
+        <span className="text-white mr-2">Select token </span>
       )}
-
-      <IconArrowDown />
+      <SvgIcon name="IconArrowDown" />
     </Button>
   );
 }
 
-const chainList: { label: string; value: BridgeModel.BridgeSupportChain }[] = [
-  { label: 'Ethereum NetWork', value: 'ETH' },
-  { label: 'NEAR NetWork', value: 'NEAR' },
-];
+function TokenItem({
+  isSelect,
+  item,
+  onClick,
+}: {
+  isSelect?: boolean;
+  item: BridgeModel.BridgeTokenMeta;
+  onClick?: MouseEventHandler;
+}) {
+  return (
+    <div
+      className="flex items-center justify-between py-3 px-4 -mx-4 cursor-pointer hover:bg-white hover:bg-opacity-10"
+      onClick={onClick}
+    >
+      <div className="flex items-center">
+        <div className="w-9 h-9 relative mr-3">
+          <img className="w-full h-full  rounded-full" src={item.icon} />
+          <SvgIcon
+            name={item.chain === 'ETH' ? 'IconChainEthereum' : 'IconChainNear'}
+            className="absolute right-0 bottom-0"
+          />
+        </div>
+        <div>
+          <div className="text-base text-white mb-1">{item.symbol}</div>
+          <div className="text-xs">{ChainConfig[item.chain].name}</div>
+        </div>
+      </div>
+      <div className="text-white text-opacity-50">
+        <div className="text-right mb-1">
+          {isSelect && (
+            <SvgIcon
+              name="IconSuccess"
+              className="inline-block mr-2 text-primary"
+            />
+          )}
+          <span
+            className="inline-block text-white text-sm"
+            style={{ minWidth: '3rem' }}
+          >
+            0
+          </span>
+        </div>
+        <div className="text-right text-xs">$0.00</div>
+      </div>
+    </div>
+  );
+}
 
+const chainList = Object.entries(ChainConfig).map(([key, { name }]) => ({
+  label: name,
+  value: key as BridgeModel.BridgeSupportChain,
+}));
+export interface TokenSelectorProps
+  extends Modal.Props,
+    TokenSelectorCommonProps {
+  toggleOpenModal: () => void;
+  onSelected?: (v: BridgeModel.BridgeTokenMeta) => void;
+  onCancel?: () => void;
+}
 export function TokenSelector({
   toggleOpenModal,
   chain,
   token,
   ...props
-}: Modal.Props & { toggleOpenModal: () => void } & TokenSelectorProps) {
+}: TokenSelectorProps) {
   const [tokenFilter, setTokenFilter] = useState<{
     text: string;
     chain: BridgeModel.BridgeSupportChain;
@@ -50,20 +106,38 @@ export function TokenSelector({
     setTokenFilter({ text: tokenFilter.text, chain });
   }, [chain, tokenFilter.text]);
 
+  const { filterTokens } = useBridgeToken();
+  const tokenList = useMemo(() => {
+    return filterTokens(tokenFilter.chain, tokenFilter.text);
+  }, [filterTokens, tokenFilter.chain, tokenFilter.text]);
+
+  function handleSelected(item: BridgeModel.BridgeTokenMeta) {
+    props.onSelected?.(item);
+    toggleOpenModal();
+  }
+
+  function handleCancel() {
+    props.onCancel?.();
+    toggleOpenModal();
+  }
+
   return (
-    <Modal {...props} onRequestClose={toggleOpenModal}>
+    <Modal {...props} onRequestClose={handleCancel}>
       <div className="bridge-modal" style={{ width: '428px' }}>
         <div className="flex items-center justify-between">
           <span className="text-base text-white font-medium">
             Select a token
           </span>
-          <Button text onClick={toggleOpenModal}>
-            <IconClose />
+          <Button text onClick={handleCancel}>
+            <SvgIcon name="IconClose" />
           </Button>
         </div>
         <div className="my-3">
           <div className="relative">
-            <IconSearch className="absolute left-3 top-1/2 -mt-2" />
+            <SvgIcon
+              name="IconSearch"
+              className="absolute left-3 top-1/2 -mt-2"
+            />
             <input
               className="bridge-input"
               style={{ paddingLeft: '2.2rem' }}
@@ -87,12 +161,21 @@ export function TokenSelector({
                 }`}
                 onClick={() => setTokenFilter({ ...tokenFilter, chain: value })}
               >
-                {label}
+                {label} Network
               </div>
             ))}
             <div className="absolute bottom-0 left-0 w-full h-px bg-white opacity-20"></div>
           </div>
-          <div>{token}</div>
+          <div>
+            {tokenList.map((item) => (
+              <TokenItem
+                key={item.symbol}
+                isSelect={token?.symbol === item.symbol}
+                item={item}
+                onClick={() => handleSelected(item)}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </Modal>

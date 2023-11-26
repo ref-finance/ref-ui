@@ -1,27 +1,30 @@
 import { useMemo, useState } from 'react';
 
 import { useWalletConnectContext } from '../providers/walletConcent';
+import useRainbowBridge from './useRainbowBridge';
 
 export default function useBridgeForm() {
   const walletCxt = useWalletConnectContext();
 
-  const [bridgeFromValue, setBridgeFromValue] =
-    useState<BridgeModel.BridgeTransaction>({
-      chain: 'ETH',
-      amount: undefined,
-      token: undefined,
-      isCustomToken: false,
-      customTokenAddress: undefined,
-    });
+  const [bridgeFromValue, setBridgeFromValue] = useState<
+    BridgeModel.BridgeTransaction['from']
+  >({
+    chain: 'ETH',
+    tokenMeta: undefined,
+    amount: undefined,
+    isCustomToken: false,
+    customTokenAddress: undefined,
+  });
 
-  const [bridgeToValue, setBridgeToValue] =
-    useState<BridgeModel.BridgeTransaction>({
-      chain: 'NEAR',
-      amount: undefined,
-      token: undefined,
-      isCustomToken: false,
-      customTokenAddress: undefined,
-    });
+  const [bridgeToValue, setBridgeToValue] = useState<
+    BridgeModel.BridgeTransaction['to']
+  >({
+    chain: 'NEAR',
+    tokenMeta: undefined,
+    amount: undefined,
+    isCustomToken: false,
+    customTokenAddress: undefined,
+  });
 
   const [slippageTolerance, setSlippageTolerance] = useState(0.5);
 
@@ -31,7 +34,7 @@ export default function useBridgeForm() {
     if (!walletCxt[bridgeFromValue.chain].isSignedIn) return `unConnectForm`;
     else if (
       !walletCxt[bridgeToValue.chain].isSignedIn ||
-      (!bridgeToValue.isCustomToken && !bridgeToValue.token) ||
+      (!bridgeToValue.isCustomToken && !bridgeToValue.tokenMeta) ||
       (bridgeToValue.isCustomToken && !bridgeToValue.customTokenAddress)
     )
       return `unConnectTo`;

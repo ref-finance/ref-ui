@@ -1,5 +1,8 @@
-import { createWeb3Modal, defaultWagmiConfig } from '@web3modal/wagmi/react';
-import { useWeb3Modal } from '@web3modal/wagmi/react';
+import {
+  createWeb3Modal,
+  defaultWagmiConfig,
+  useWeb3Modal,
+} from '@web3modal/wagmi/react';
 import React, { createContext, useMemo } from 'react';
 import { useWalletSelector } from 'src/context/WalletSelectorContext';
 import { arbitrum, mainnet } from 'viem/chains';
@@ -54,6 +57,7 @@ export function useWalletConnectContext() {
     isSignedIn,
     disconnect: modal.show,
   };
+
   const walletEthHooks = {
     ...web3ModalHooks,
     accountId: address,

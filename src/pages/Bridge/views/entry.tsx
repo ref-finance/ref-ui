@@ -9,7 +9,9 @@ import { SelectTokenButton } from '../components/TokenSelector';
 import { useBridgeFormContext } from '../providers/bridgeForm';
 import { useRouterViewContext } from '../providers/routerView';
 import { useTokenSelectorContext } from '../providers/selectToken';
-import { IconExchange, IconInfo, IconRefresh, IconSetting } from './../assets';
+import SvgIcon from '../components/SvgIcon';
+import useRainbowBridge from '../hooks/useRainbowBridge';
+import { useWalletConnectContext } from '../providers/walletConcent';
 
 function FormHeader() {
   const { slippageTolerance, setSlippageTolerance } = useBridgeFormContext();
@@ -18,14 +20,14 @@ function FormHeader() {
       <div className="text-base text-white">Bridge</div>
       <div className="flex items-center gap-3">
         <Button size="small" plain>
-          <IconRefresh />
+          <SvgIcon name="IconRefresh" />
         </Button>
         <SlippageSelector
           slippageTolerance={slippageTolerance}
           onChange={(val) => setSlippageTolerance(val)}
         >
           <Button size="small" plain>
-            <IconSetting />
+            <SvgIcon name="IconSetting" />
           </Button>
         </SlippageSelector>
       </div>
@@ -82,7 +84,36 @@ function BridgeEntry() {
     openPreviewModal,
   } = useBridgeFormContext();
 
-  const { open: openTokenSelector } = useTokenSelectorContext();
+  const { open } = useTokenSelectorContext();
+
+  async function openTokenSelector({
+    type,
+    ...rest
+  }: Parameters<typeof open>[number] & { type: 'from' | 'to' }) {
+    const tokenMeta = await open(rest);
+    if (type === 'from') {
+      setBridgeFromValue({ ...bridgeFromValue, tokenMeta });
+    } else if (type === 'to') {
+      setBridgeToValue({ ...bridgeToValue, tokenMeta });
+    }
+  }
+
+  const { transfer } = useRainbowBridge();
+  const wallet = useWalletConnectContext();
+
+  async function transferRainbowBridge() {
+    const { tokenMeta, amount, chain: from } = bridgeFromValue;
+    const { chain: to } = bridgeToValue;
+    const res = await transfer({
+      token: tokenMeta,
+      amount: (amount ?? 1).toString(),
+      from,
+      accountId: wallet[to]?.accountId,
+      sender: wallet[from]?.accountId,
+      nearWalletSelector: wallet.NEAR.selector,
+    });
+    console.log('transferRainbowBridge', res);
+  }
 
   return (
     <div className="bridge-entry-container">
@@ -98,11 +129,12 @@ function BridgeEntry() {
         </div>
         <InputToken model={bridgeFromValue} onChange={setBridgeFromValue}>
           <SelectTokenButton
-            token={bridgeFromValue.token}
+            token={bridgeFromValue.tokenMeta}
             onClick={() =>
               openTokenSelector({
+                type: 'from',
                 chain: bridgeFromValue.chain,
-                token: bridgeFromValue.token,
+                token: bridgeFromValue.tokenMeta,
               })
             }
           />
@@ -110,7 +142,7 @@ function BridgeEntry() {
 
         <div className="flex justify-center my-3">
           <Button text onClick={exchangeChain}>
-            <IconExchange />
+            <SvgIcon name="IconExchange" />
           </Button>
         </div>
         <div className="flex items-center mb-3">
@@ -127,11 +159,12 @@ function BridgeEntry() {
           onChange={setBridgeToValue}
         >
           <SelectTokenButton
-            token={bridgeToValue.token}
+            token={bridgeToValue.tokenMeta}
             onClick={() =>
               openTokenSelector({
+                type: 'to',
                 chain: bridgeToValue.chain,
-                token: bridgeToValue.token,
+                token: bridgeToValue.tokenMeta,
               })
             }
           />
@@ -143,7 +176,10 @@ function BridgeEntry() {
           size="large"
           className="w-full"
           // disabled={bridgeSubmitStatus !== 'preview'}
-          onClick={openPreviewModal}
+          onClick={() => {
+            transferRainbowBridge();
+            // openPreviewModal();
+          }}
         >
           {bridgeSubmitStatusText}
         </Button>
@@ -159,7 +195,8 @@ function BridgeEntry() {
             backgroundColor: 'rgba(235, 244, 121, 0.2)',
           }}
         >
-          <IconInfo className="mr-2" />3 transactions to be claimed
+          <SvgIcon name="IconInfo" className="mr-2" />3 transactions to be
+          claimed
         </div>
       </div>
     </div>

@@ -1,11 +1,12 @@
 import React, { useMemo, useState } from 'react';
-
-import { IconWarning } from '../assets';
+import SvgIcon from './SvgIcon';
 
 type Props = {
-  model: BridgeModel.BridgeTransaction;
+  model:
+    | BridgeModel.BridgeTransaction['from']
+    | BridgeModel.BridgeTransaction['to'];
   className?: string;
-  onChange?: (value: BridgeModel.BridgeTransaction) => void;
+  onChange?: (value: Props['model']) => void;
   children?: React.ReactNode;
   style?: React.CSSProperties;
 };
@@ -13,7 +14,7 @@ type Props = {
 function GasFeeWarning({ className }: { className?: string }) {
   return (
     <div className={`flex items-center text-red-400 ${className ?? ''}`}>
-      <IconWarning className="mr-1" />
+      <SvgIcon name="IconWarning" className="mr-1" />
       Not enough gas (0.0035 ETH needed)
     </div>
   );

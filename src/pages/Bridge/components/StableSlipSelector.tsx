@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-
-import { IconWarning } from '../assets';
+import SvgIcon from './SvgIcon';
 
 function SlippageSelector({
   slippageTolerance,
@@ -126,7 +125,7 @@ function SlippageSelector({
             {showStatus !== 'normal' &&
               (showStatus === 'invalid' ? (
                 <div className="flex items-center text-error text-xs py-3">
-                  <IconWarning className="mr-1" />
+                  <SvgIcon name="IconWarning" className="mr-1" />
                   <FormattedMessage
                     id="slip_invalid"
                     defaultMessage="The slippage tolerance is invalid."
@@ -134,7 +133,7 @@ function SlippageSelector({
                 </div>
               ) : (
                 <div className="flex items-center text-warn text-xs py-3">
-                  <IconWarning className="mr-1" />
+                  <SvgIcon name="IconWarning" className="mr-1" />
                   <FormattedMessage
                     id="slip_warn"
                     defaultMessage="Be careful, please check the minimum you can receive."

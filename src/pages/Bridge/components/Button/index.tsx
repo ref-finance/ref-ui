@@ -1,9 +1,9 @@
 import './index.css';
 
-import React, { MouseEvent } from 'react';
+import React, { MouseEvent, MouseEventHandler } from 'react';
 
 interface ButtonProps {
-  onClick?: (e: MouseEvent<HTMLButtonElement>) => void;
+  onClick?: MouseEventHandler<HTMLButtonElement>;
   disabled?: boolean;
   className?: string;
   text?: boolean;
@@ -36,7 +36,7 @@ const Button = ({
     .filter(Boolean)
     .join(' ');
 
-  const _onClick = (e: MouseEvent<HTMLButtonElement>) => {
+  const _onClick: ButtonProps['onClick'] = (e) => {
     e.preventDefault();
     props.onClick?.(e);
   };

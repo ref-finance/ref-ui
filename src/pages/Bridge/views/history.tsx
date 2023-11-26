@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 
-import { IconArrowDown } from '../assets';
 import Button from '../components/Button';
 import ConnectWallet from '../components/ConnectWallet';
 import HistoryTable from '../components/HistoryTable';
 import { useRequest } from '../hooks/useRequest';
 import { useRouterViewContext } from '../providers/routerView';
 import { bridgeHistoryService } from '../services';
+import SvgIcon from '../components/SvgIcon';
 
 type BridgeHistoryFilter = {
   chain: BridgeModel.BridgeSupportChain;
@@ -35,7 +35,7 @@ function BridgeTransactionHistory() {
               text
               onClick={() => changeRouterView('entry')}
             >
-              <IconArrowDown className="transform rotate-90" />
+              <SvgIcon name="IconArrowDown" className="transform rotate-90" />
             </Button>
             Bridge Transaction History
           </div>

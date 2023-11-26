@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { IconDisconnect } from '../assets';
 import { useWalletConnectContext } from '../providers/walletConcent';
 import { formatSortAddress } from '../utils/format';
 import Button from './Button';
+import SvgIcon from './SvgIcon';
 
 type Props = {
   currentChain: BridgeModel.BridgeSupportChain;
@@ -54,7 +54,7 @@ function ConnectWallet({ currentChain, className, onChangeChain }: Props) {
                 disconnect();
               }}
             >
-              <IconDisconnect />
+              <SvgIcon name="IconDisconnect" />
             </div>
           )}
         </Button>

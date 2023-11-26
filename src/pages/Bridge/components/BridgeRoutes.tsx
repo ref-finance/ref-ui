@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import Modal from 'react-modal';
 import ReactTooltip from 'react-tooltip';
 
-import { IconArrowDown, IconClose } from '../assets';
 import Button from './Button';
+import SvgIcon from './SvgIcon';
 
 function BridgeRouteItem({ className }: { className?: string }) {
   return (
@@ -71,7 +71,7 @@ function BridgeSelectRoutesModal({
             3 Bridge Routes
           </span>
           <Button text onClick={toggleOpenModal}>
-            <IconClose />
+            <SvgIcon name="IconClose" />
           </Button>
         </div>
         <div>
@@ -99,7 +99,10 @@ function BridgeRoutes() {
             onClick={toggleOpenModal}
           >
             3 Routes
-            <IconArrowDown className="transform -rotate-90 ml-2" />
+            <SvgIcon
+              name="IconArrowDown"
+              className="transform -rotate-90 ml-2"
+            />
           </Button>
         </div>
         <BridgeRouteItem className="mt-4" />
