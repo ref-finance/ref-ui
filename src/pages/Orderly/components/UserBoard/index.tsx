@@ -3968,7 +3968,7 @@ export function AssetManagerModal(
               </div>
             </div>
             {type === 'deposit' &&
-              !validation() &&
+              (!validation() || +percentage == 100) &&
               tokenId.toLowerCase() === 'near' && (
                 <div className="text-warn text-center mb-2 text-xs xs:-mt-2 lg:whitespace-nowrap">
                   <FormattedMessage
