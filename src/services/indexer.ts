@@ -753,7 +753,7 @@ export const getAllTvl = async () => {
   })
     .then((res) => res.json())
     .then((res) => {
-      return res?.historicalTVL?.at(-1)?.totalUsdTvl;
+      return res?.historicalTVL?.[res?.historicalTVL?.length - 1]?.totalUsdTvl;
     });
 };
 
