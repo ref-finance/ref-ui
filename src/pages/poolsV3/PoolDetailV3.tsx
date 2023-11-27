@@ -206,7 +206,7 @@ export default function PoolDetailV3() {
       <div className="w-4/6 lg:w-5/6 xl:w-1200px m-auto xsm:pb-8 xsm:w-full xsm:px-4">
         <BreadCrumb
           routes={[
-            { id: 'top_pools', msg: 'Top Pools', pathname: '/pools' },
+            { id: 'pools', msg: 'Pools', pathname: '/pools' },
             {
               id: 'details',
               msg: 'Details',
