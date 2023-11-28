@@ -135,6 +135,7 @@ import {
   getPoolFeeApr,
   getPoolListFarmAprTip,
 } from './utils';
+import { PoolsTip } from "src/pages/pools/poolsComponents/poolsTip";
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -2628,6 +2629,7 @@ function PcLiquidityPage({
             ) : null}
           </div>
         </div>
+        <PoolsTip activeTab={activeTab}/>
         {activeTab === 'watchlist' && (
           <WatchListCard
             poolTokenMetas={poolTokenMetas}
