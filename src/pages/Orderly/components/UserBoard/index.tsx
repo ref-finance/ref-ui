@@ -3881,9 +3881,7 @@ export function AssetManagerModal(
                   }}
                   value={percentage}
                   type="range"
-                  className={`w-full cursor-pointer ${
-                    type + '-bar'
-                  } remove-by-share-bar`}
+                  className={`w-full cursor-pointer deposit-bar remove-by-share-bar`}
                   min="0"
                   max="100"
                   step="any"
@@ -3894,11 +3892,9 @@ export function AssetManagerModal(
                 />
 
                 <div
-                  className={`rangeText rounded-lg absolute py-0.5 text-xs ${
-                    type === 'withdraw' ? 'text-white' : 'text-black'
-                  }  font-bold text-center w-10`}
+                  className={`rangeText rounded-lg absolute py-0.5 text-xs text-black font-bold text-center w-10`}
                   style={{
-                    background: type === 'withdraw' ? '#4627FF' : '#00C6A2',
+                    background: '#00C6A2',
                     left: `calc(${percentage}% - 40px * ${percentage} / 100)`,
                     position: 'absolute',
                     top: '20px',
@@ -3931,9 +3927,7 @@ export function AssetManagerModal(
                 buttonLoading
                   ? 'opacity-70 cursor-not-allowed'
                   : ''
-              } items-center justify-center  font-bold text-base text-white py-2.5 rounded-lg ${
-                type === 'deposit' ? 'bg-primaryGradient' : 'bg-withdrawPurple'
-              }`}
+              } items-center justify-center  font-bold text-base text-white py-2.5 rounded-lg bg-primaryGradient`}
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -3957,10 +3951,15 @@ export function AssetManagerModal(
                           defaultMessage: 'Deposit',
                         })
                       : type === 'withdraw'
-                      ? intl.formatMessage({
-                          id: 'withdraw',
-                          defaultMessage: 'Withdraw',
-                        })
+                      ? !validation()
+                        ? intl.formatMessage({
+                            id: 'insufficient_balance',
+                            defaultMessage: 'Insufficient Balance',
+                          })
+                        : intl.formatMessage({
+                            id: 'withdraw',
+                            defaultMessage: 'Withdraw',
+                          })
                       : ''}
                   </span>
                 )}

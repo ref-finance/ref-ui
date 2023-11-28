@@ -82,7 +82,12 @@ import {
   TradeRouteModal,
 } from '../layout/SwapRoutes';
 import { QuestionTip } from '../layout/TipWrapper';
-import { FaAngleDown, FaAngleUp, FaExchangeAlt, MdOutlineRefresh } from '../reactIcons';
+import {
+  FaAngleDown,
+  FaAngleUp,
+  FaExchangeAlt,
+  MdOutlineRefresh,
+} from '../reactIcons';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -1284,7 +1289,7 @@ export default function SwapCard(props: {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  setLoadingTrigger(!loadingTrigger)
+                  setLoadingTrigger(!loadingTrigger);
                   setReEstimateTrigger(!reEstimateTrigger);
                   // if (loadingPause) {
                   //   setLoadingPause(false);
@@ -1300,7 +1305,7 @@ export default function SwapCard(props: {
                 <MdOutlineRefresh
                   size={18}
                   className={`text-primaryText cursor-pointer  ${
-                    quoting? 'rotateInfinite' : ''
+                    quoting ? 'rotateInfinite' : ''
                   } `}
                   style={quoting && { fill: '#00FFD1' }}
                 />

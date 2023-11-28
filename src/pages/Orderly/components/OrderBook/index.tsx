@@ -21,7 +21,7 @@ import { MarkPriceFlag, OrderlyLoading } from '../Common/Icons';
 import { useClientMobile } from '../../../../utils/device';
 
 import { FormattedMessage, useIntl } from 'react-intl';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import { tickToPrecision } from '../UserBoardPerp/math';
 
 function getMarkPrice() {

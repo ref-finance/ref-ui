@@ -2932,8 +2932,10 @@ function PcLiquidityPage({
 
                 <div className="col-span-2  md:hidden flex items-center">
                   <span
-                    data-tooltip-id={"topbinapr"}
-                    data-tooltip-content={"This is the trailing 24hr APR of the top performing bin in this pool."}
+                    data-tooltip-id={'topbinapr'}
+                    data-tooltip-content={
+                      'This is the trailing 24hr APR of the top performing bin in this pool.'
+                    }
                     className={`pr-1  cursor-pointer ${
                       v2SortBy !== 'top_bin_apr' ? 'hover:text-white' : ''
                     } ${v2SortBy === 'top_bin_apr' ? 'text-gradientFrom' : ''}`}
