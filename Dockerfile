@@ -5,13 +5,17 @@ RUN yarn install --frozen-lockfile
 
 FROM deps AS builder
 ARG BUILD_ENV
-# ARG BUILD_ENV=production / test
+# ARG BUILD_ENV= testnet | pub-testnet | mainnet
 ENV BUILD_ENV $BUILD_ENV
 WORKDIR /app
 COPY . .
 COPY --from=deps /app/node_modules ./node_modules
 
-RUN if [ "$BUILD_ENV" = "test" ]; then yarn build:pub-testnet; else yarn build; fi
+RUN if [ "$BUILD_ENV" = "testnet" ] ; then yarn build:testnet ; \
+    elif [ "$BUILD_ENV" = "pub-testnet" ] ; then yarn build:pub-testnet ; \
+    elif [ "$BUILD_ENV" = "mainnet" ] ; then yarn build:mainnet ; \
+    else yarn build ; fi
+
 
 FROM nginx
 RUN mkdir /app
