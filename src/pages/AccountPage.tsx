@@ -47,7 +47,7 @@ import { nearMetadata, wrapNear } from '../services/wrap-near';
 import { BeatLoading } from '../components/layout/Loading';
 import { STORAGE_PER_TOKEN } from '../services/creators/storage';
 import { IoCloseOutline } from '../components/reactIcons';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import QuestionMark from '../components/farm/QuestionMark';
 import { useHistory, useLocation, useParams } from 'react-router';
 import { WalletContext, getCurrentWallet } from '../utils/wallets-integration';
@@ -290,19 +290,11 @@ export const NearTip = () => {
       data-place="right"
       data-multiline={true}
       data-class="reactTip"
-      data-html={true}
-      data-tip={result}
-      data-for="nearId"
+      data-tooltip-html={result}
+      data-tooltip-id="nearId"
     >
       <QuestionMark />
-      <ReactTooltip
-        className="w-20"
-        id="nearId"
-        backgroundColor="#1D2932"
-        border
-        borderColor="#7e8a93"
-        effect="solid"
-      />
+      <ReactTooltip className="w-20" id="nearId" />
     </div>
   );
 };
@@ -317,18 +309,11 @@ const WithdrawTip = () => {
       data-place="right"
       data-multiline={true}
       data-class="reactTip"
-      data-html={true}
-      data-tip={result}
-      data-for="WithdrawTipId"
+      data-tooltip-html={result}
+      data-tooltip-id="WithdrawTipId"
     >
       <QuestionMark />
-      <ReactTooltip
-        id="WithdrawTipId"
-        backgroundColor="#1D2932"
-        border
-        borderColor="#7e8a93"
-        effect="solid"
-      />
+      <ReactTooltip id="WithdrawTipId" />
     </div>
   );
 };

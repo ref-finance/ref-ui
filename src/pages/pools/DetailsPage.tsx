@@ -121,7 +121,7 @@ import { isStablePool, BLACKLIST_POOL_IDS } from '../../services/near';
 
 export const REF_FI_PRE_LIQUIDITY_ID_KEY = 'REF_FI_PRE_LIQUIDITY_ID_VALUE';
 
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { WRAP_NEAR_CONTRACT_ID } from 'src/services/wrap-near';
 import { useAccountInfo, LOVE_TOKEN_DECIMAL } from '../../state/referendum';
@@ -2532,9 +2532,10 @@ export default function PoolDetailsPage() {
                     data-place="right"
                     data-multiline={true}
                     data-class="reactTip"
-                    data-html={true}
-                    data-tip={remove_from_watchlist_tip()}
-                    data-for="fullstar-tip"
+                    data-tooltip-html={
+                      !!isClientMobie() ? '' : remove_from_watchlist_tip()
+                    }
+                    data-tooltip-id="fullstar-tip"
                   >
                     {isClientMobie() ? (
                       <WatchListStartFullMobile />
@@ -2542,14 +2543,7 @@ export default function PoolDetailsPage() {
                       <WatchListStartFull />
                     )}
 
-                    <ReactTooltip
-                      id="fullstar-tip"
-                      backgroundColor="#1D2932"
-                      border
-                      borderColor="#7e8a93"
-                      effect="solid"
-                      disable={!!isClientMobie()}
-                    />
+                    <ReactTooltip id="fullstar-tip" />
                   </div>
                 ) : (
                   <div
@@ -2558,9 +2552,10 @@ export default function PoolDetailsPage() {
                     data-place="right"
                     data-multiline={true}
                     data-class="reactTip"
-                    data-html={true}
-                    data-tip={add_to_watchlist_tip()}
-                    data-for="emptystar-tip"
+                    data-tooltip-html={
+                      !!isClientMobie() ? '' : add_to_watchlist_tip()
+                    }
+                    data-tooltip-id="emptystar-tip"
                   >
                     {isClientMobie() ? (
                       <WatchListStartEmptyMobile />
@@ -2568,14 +2563,7 @@ export default function PoolDetailsPage() {
                       <WatchListStartEmpty />
                     )}
 
-                    <ReactTooltip
-                      disable={!!isClientMobie()}
-                      id="emptystar-tip"
-                      backgroundColor="#1D2932"
-                      border
-                      borderColor="#7e8a93"
-                      effect="solid"
-                    />
+                    <ReactTooltip id="emptystar-tip" />
                   </div>
                 )}
               </div>
@@ -2740,9 +2728,8 @@ export default function PoolDetailsPage() {
                     data-place="left"
                     data-multiline={true}
                     data-class={'reactTip'}
-                    data-html={true}
-                    data-tip={getPoolListFarmAprTip()}
-                    data-for={'pool_list_pc_apr' + pool.id}
+                    data-tooltip-html={getPoolListFarmAprTip()}
+                    data-tooltip-id={'pool_list_pc_apr' + pool.id}
                   >
                     {!poolTVL
                       ? '-'
@@ -2765,12 +2752,7 @@ export default function PoolDetailsPage() {
                         <ReactTooltip
                           className="w-20"
                           id={'pool_list_pc_apr' + pool.id}
-                          backgroundColor="#1D2932"
                           place="right"
-                          border
-                          borderColor="#7e8a93"
-                          textColor="#C6D1DA"
-                          effect="solid"
                         />
                       )}
                   </div>

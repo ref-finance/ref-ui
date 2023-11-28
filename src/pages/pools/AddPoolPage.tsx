@@ -20,7 +20,7 @@ import { toRealSymbol } from '../../utils/token';
 import BigNumber from 'bignumber.js';
 import QuestionMark from '../../components/farm/QuestionMark';
 import Modal from 'react-modal';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import {
   getCurrentWallet,
   WalletContext,
@@ -237,20 +237,11 @@ export function AddPoolModal(
                 data-place="right"
                 data-multiline={true}
                 data-class="reactTip"
-                data-html={true}
-                data-tip={getFeeDetail()}
-                data-for="feeDetail"
+                data-tooltip-html={getFeeDetail()}
+                data-tooltip-id="feeDetail"
               >
                 <QuestionMark />
-                <ReactTooltip
-                  className="w-20"
-                  id="feeDetail"
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                  textColor="#C6D1DA"
-                />
+                <ReactTooltip className="w-20" id="feeDetail" />
               </div>
             </div>
             <Toggle

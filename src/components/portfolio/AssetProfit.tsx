@@ -9,7 +9,7 @@ import BigNumber from 'bignumber.js';
 import { UserLiquidityInfo, openUrl } from '../../services/commonV3';
 import { toReadableNumber } from 'src/utils/numbers';
 import QuestionMark from '../../components/farm/QuestionMark';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { PortfolioData } from '../../pages/Portfolio';
 import { REF_POOL_NAV_TAB_KEY } from '../../components/pool/PoolTabV3';
 import { ArrowJump, display_value, getAccountId } from './Tool';
@@ -180,19 +180,12 @@ function AssetProfitPc() {
           <div
             className="text-white text-right ml-1"
             data-class="reactTip"
-            data-for="selectAllId"
+            data-tooltip-id="selectAllId"
             data-place="top"
-            data-html={true}
-            data-tip={getTip()}
+            data-tooltip-html={getTip()}
           >
             <QuestionMark></QuestionMark>
-            <ReactTooltip
-              id="selectAllId"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            <ReactTooltip id="selectAllId" />
           </div>
         </div>
         <span className="text-2xl gotham_bold text-white mt-1">
@@ -249,19 +242,12 @@ function AssetProfitMobile() {
           <div
             className="text-white text-right ml-1"
             data-class="reactTip"
-            data-for="selectAllId"
+            data-tooltip-id="selectAllId"
             data-place="top"
-            data-html={true}
-            data-tip={getTip()}
+            data-tooltip-html={getTip()}
           >
             <QuestionMark></QuestionMark>
-            <ReactTooltip
-              id="selectAllId"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            <ReactTooltip id="selectAllId" />
           </div>
         </div>
         <span className="text-2xl gotham_bold text-white">

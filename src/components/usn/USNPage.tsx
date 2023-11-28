@@ -8,7 +8,7 @@ import { SolidButton, ConnectToNearBtn } from '../button/Button';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { HiOutlineExternalLink, IoClose } from '../reactIcons';
 import QuestionMark from 'src/components/farm/QuestionMark';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { TokenAmountV2 } from '../forms/TokenAmount';
 import { SwapExchange } from '../icon/Arrows';
 import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';
@@ -132,19 +132,11 @@ function USNPage(props: ReactModal.Props) {
                   data-place="right"
                   data-multiline={true}
                   data-class="reactTip"
-                  data-html={true}
-                  data-tip={buy_nsn_tip()}
-                  data-for="buyUSNTip"
+                  data-tooltip-html={buy_nsn_tip()}
+                  data-tooltip-id="buyUSNTip"
                 >
                   <QuestionMark />
-                  <ReactTooltip
-                    className="w-20"
-                    id="buyUSNTip"
-                    backgroundColor="#1D2932"
-                    border
-                    borderColor="#7e8a93"
-                    effect="solid"
-                  />
+                  <ReactTooltip className="w-20" id="buyUSNTip" />
                 </div>
               </div>
               <IoClose

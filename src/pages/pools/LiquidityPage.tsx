@@ -6,7 +6,7 @@ import React, {
   useContext,
   createContext,
 } from 'react';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { ShareInFarm } from '../../components/layout/ShareInFarm';
 import {
   classificationOfCoins_key,
@@ -1298,8 +1298,7 @@ function MobileLiquidityPage({
                   data-place="top"
                   data-multiline={true}
                   data-class="reactTip"
-                  data-html={true}
-                  data-tip={`
+                  data-tooltip-html={`
               <div className="text-xs">
                 <div 
                   style="max-width: 250px;font-weight:400",
@@ -1308,7 +1307,7 @@ function MobileLiquidityPage({
                 </div>
               </div>
             `}
-                  data-for="add_pool_tip"
+                  data-tooltip-id="add_pool_tip"
                 >
                   <button
                     className={`text-base ml-2 px-3 text-primaryText w-8 h-8 bg-black bg-opacity-20 hover:bg-opacity-40 hover:text-gradientFrom rounded-md flex items-center justify-center`}
@@ -1680,9 +1679,8 @@ function PoolRow({
           data-place="right"
           data-multiline={true}
           data-class={'reactTip'}
-          data-html={true}
-          data-tip={getPoolListFarmAprTip()}
-          data-for={'pool_list_pc_apr' + pool.id}
+          data-tooltip-html={getPoolListFarmAprTip()}
+          data-tooltip-id={'pool_list_pc_apr' + pool.id}
         >
           {!h24volume ? '-' : `${getPoolFeeApr(h24volume, pool)}%`}
           {supportFarm &&
@@ -1699,12 +1697,7 @@ function PoolRow({
             <ReactTooltip
               className="w-20"
               id={'pool_list_pc_apr' + pool.id}
-              backgroundColor="#1D2932"
               place="right"
-              border
-              borderColor="#7e8a93"
-              textColor="#C6D1DA"
-              effect="solid"
             />
           )}
         </div>
@@ -1881,9 +1874,8 @@ function PoolRowV2({
             data-place="right"
             data-multiline={true}
             data-class={'reactTip'}
-            data-html={true}
-            data-tip={getPoolListV2FarmAprTip()}
-            data-for={'pool_list_v2_pc_apr' + pool.pool_id}
+            data-tooltip-html={getPoolListV2FarmAprTip()}
+            data-tooltip-id={'pool_list_v2_pc_apr' + pool.pool_id}
           >
             {displayOfTopBinApr}
             {relatedSeed && (
@@ -1893,12 +1885,7 @@ function PoolRowV2({
               <ReactTooltip
                 className="w-20"
                 id={'pool_list_v2_pc_apr' + pool.pool_id}
-                backgroundColor="#1D2932"
                 place="right"
-                border
-                borderColor="#7e8a93"
-                textColor="#C6D1DA"
-                effect="solid"
               />
             )}
           </div>
@@ -2580,8 +2567,7 @@ function PcLiquidityPage({
                 data-place="top"
                 data-multiline={true}
                 data-class="reactTip"
-                data-html={true}
-                data-tip={`
+                data-tooltip-html={`
               <div class="text-xs opacity-50">
                 <div 
                   style="font-weight:400",
@@ -2595,7 +2581,7 @@ function PcLiquidityPage({
                 </div>
               </div>
             `}
-                data-for="add_pool_tip"
+                data-tooltip-id="add_pool_tip"
               >
                 <SolidButton
                   className={`text-sm ml-2 px-3 text-white rounded-lg flex items-center justify-center`}
@@ -2615,15 +2601,7 @@ function PcLiquidityPage({
                 </SolidButton>
 
                 {activeTab === 'v2' && (
-                  <ReactTooltip
-                    className="w-20"
-                    id="add_pool_tip"
-                    backgroundColor="#1D2932"
-                    border
-                    borderColor="#7e8a93"
-                    textColor="#C6D1DA"
-                    effect="solid"
-                  />
+                  <ReactTooltip className="w-20" id="add_pool_tip" />
                 )}
               </div>
             ) : null}
@@ -3806,9 +3784,8 @@ function StablePoolCard({
             data-place="right"
             data-multiline={true}
             data-class={'reactTip'}
-            data-html={true}
-            data-tip={getPoolListFarmAprTip()}
-            data-for={'pool_list_pc_apr' + poolData.pool.id}
+            data-tooltip-html={getPoolListFarmAprTip()}
+            data-tooltip-id={'pool_list_pc_apr' + poolData.pool.id}
           >
             {!h24volume ? '-' : `${getPoolFeeApr(h24volume, standPool)}%`}
             {supportFarm &&

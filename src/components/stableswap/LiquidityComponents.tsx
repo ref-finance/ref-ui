@@ -3,7 +3,7 @@ import { Icon } from './StableTokenList';
 import { FormattedMessage } from 'react-intl';
 import { UnCheckedRadio, CheckedRadio, Radio } from '../../components/icon';
 import QuestionMark from '../../components/farm/QuestionMark';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 
 // stable swap exchange rate
 export function ChooseAddType({
@@ -89,20 +89,11 @@ export function InfoLine({
             data-place="right"
             data-multiline={true}
             data-class="reactTip"
-            data-html={true}
-            data-tip={tipContent}
-            data-for="tipId"
+            data-tooltip-html={tipContent}
+            data-tooltip-id="tipId"
           >
             <QuestionMark />
-            <ReactTooltip
-              className="w-20"
-              id="tipId"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              textColor="#C6D1DA"
-              effect="solid"
-            />
+            <ReactTooltip className="w-20" id="tipId" />
           </div>
         ) : null}
       </div>

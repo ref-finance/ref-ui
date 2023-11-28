@@ -3,13 +3,9 @@ import Alert from '../alert/Alert';
 import { FormattedMessage, useIntl } from 'react-intl';
 import SlippageSelector from './SlippageSelector';
 import { CountdownTimer } from '../../components/icon';
-import {
-  getCurrentWallet,
-  WalletContext,
-} from '../../utils/wallets-integration';
 import { SWAP_MODE } from '../../pages/SwapPage';
 import QuestionMark from 'src/components/farm/QuestionMark';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { IoClose } from '../reactIcons';
 import { isMobile } from 'src/utils/device';
 
@@ -71,19 +67,11 @@ export default function USNFormWrap({
             data-place="right"
             data-multiline={true}
             data-class="reactTip"
-            data-html={true}
-            data-tip={buy_nsn_tip()}
-            data-for="buyUSNTip"
+            data-tooltip-html={buy_nsn_tip()}
+            data-tooltip-id="buyUSNTip"
           >
             <QuestionMark />
-            <ReactTooltip
-              className="w-20"
-              id="buyUSNTip"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            <ReactTooltip className="w-20" id="buyUSNTip" />
           </div>
         </div>
         <div className="flex items-center">

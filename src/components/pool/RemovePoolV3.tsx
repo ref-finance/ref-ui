@@ -54,7 +54,7 @@ import {
 import DclChart from '../../components/d3Chart/DclChart';
 import { isMobile } from 'src/utils/device';
 import QuestionMark from 'src/components/farm/QuestionMark';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 
 export type RemoveType = 'left' | 'right' | 'all';
@@ -977,19 +977,12 @@ export const RemovePoolV3 = (props: any) => {
             <div
               className="text-white text-right mr-1 relative top-1"
               data-class="reactTip"
-              data-for="rewardRangeTipId"
+              data-tooltip-id="rewardRangeTipId"
               data-place="top"
-              data-html={true}
-              data-tip={get_boundary_tip()}
+              data-tooltip-html={get_boundary_tip()}
             >
               <QuestionMark></QuestionMark>
-              <ReactTooltip
-                id="rewardRangeTipId"
-                backgroundColor="#1D2932"
-                border
-                borderColor="#7e8a93"
-                effect="solid"
-              />
+              <ReactTooltip id="rewardRangeTipId" />
             </div>
             <span>
               Why the Min Price or Max price here differ from my actual price

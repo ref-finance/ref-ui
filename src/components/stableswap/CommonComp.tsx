@@ -25,7 +25,7 @@ import {
   getWatchListFromDb,
 } from '../../services/pool';
 import { isClientMobie } from '../../utils/device';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { REF_FI_POOL_ACTIVE_TAB } from '../../pages/pools/utils';
 
 export function BackToStablePoolList() {
@@ -318,19 +318,12 @@ export const StableTokens = ({
             data-place="right"
             data-multiline={true}
             data-class="reactTip"
-            data-html={true}
-            data-tip={isMobile ? '' : remove_from_watchlist_tip()}
-            data-for="fullstar-tip"
+            data-tooltip-html={isMobile ? '' : remove_from_watchlist_tip()}
+            data-tooltip-id="fullstar-tip"
           >
             <WatchListStartFull />
 
-            <ReactTooltip
-              id="fullstar-tip"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            <ReactTooltip id="fullstar-tip" />
           </div>
         ) : (
           <div
@@ -339,18 +332,11 @@ export const StableTokens = ({
             data-place="right"
             data-multiline={true}
             data-class="reactTip"
-            data-html={true}
-            data-tip={isMobile ? '' : add_to_watchlist_tip()}
-            data-for="emptystar-tip"
+            data-tooltip-html={isMobile ? '' : add_to_watchlist_tip()}
+            data-tooltip-id="emptystar-tip"
           >
             <WatchListStartEmpty />
-            <ReactTooltip
-              id="emptystar-tip"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            <ReactTooltip id="emptystar-tip" />
           </div>
         )}
       </div>

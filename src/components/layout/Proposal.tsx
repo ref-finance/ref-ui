@@ -147,7 +147,7 @@ import {
   ConnectToNearBtnGradient,
   ConnectToNearBtnGradientMoible,
 } from '../button/Button';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { DownArrowLightMobile } from '../icon/Arrows';
 import { getProposalHashes, ProposalHash } from '../../services/indexer';
 import { openUrl } from '../../services/commonV3';
@@ -5619,8 +5619,7 @@ export const GovProposal = ({
               data-place={'top'}
               data-multiline={true}
               data-class="reactTip"
-              data-html={true}
-              data-tip={`
+              data-tooltip-html={`
               <div class="text-xs w-40">
 
                 <div 
@@ -5633,7 +5632,7 @@ export const GovProposal = ({
                                 </div>
               </div>
             `}
-              data-for="create_propopsal_tip"
+              data-tooltip-id="create_propopsal_tip"
             >
               {!VEmeta?.whitelisted_accounts?.includes(
                 getCurrentWallet().wallet.getAccountId()
@@ -5667,15 +5666,7 @@ export const GovProposal = ({
                   padding="px-3 py-0"
                 />
               )}
-              <ReactTooltip
-                className="w-20"
-                id="create_propopsal_tip"
-                backgroundColor="#1D2932"
-                border
-                borderColor="#7e8a93"
-                textColor="#C6D1DA"
-                effect="solid"
-              />
+              <ReactTooltip className="w-20" id="create_propopsal_tip" />
             </div>
 
             {/* <FilterSelector

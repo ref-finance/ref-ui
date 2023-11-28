@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext, useMemo, useRef } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { BigNumber } from 'bignumber.js';
 import {
   toPrecision,
@@ -11,7 +11,7 @@ import { Icon } from './Icon';
 import { toRealSymbol } from 'src/utils/token';
 import { TokenLinks } from 'src/components/tokens/Token';
 import { FiArrowUpRight } from 'react-icons/fi';
-import { TokenMetadata } from '~services/ft-contract';
+import { TokenMetadata } from 'src/services/ft-contract';
 import { RencentTabKey } from './type';
 import { useDCLPoolTransaction } from 'src/state/pool';
 import { numberWithCommas } from 'src/pages/Orderly/utiles';
@@ -132,9 +132,8 @@ export function TablePool(props: any) {
                       data-place="right"
                       data-multiline={true}
                       data-class="reactTip"
-                      data-html={true}
-                      data-tip={valueOfNearTokenTip()}
-                      data-for={'nearVerifiedId1' + i}
+                      data-tooltip-html={valueOfNearTokenTip()}
+                      data-tooltip-id={'nearVerifiedId1' + i}
                     >
                       <a
                         className=""
@@ -145,13 +144,7 @@ export function TablePool(props: any) {
                       >
                         <FiArrowUpRight className="text-primaryText hover:text-greenColor cursor-pointer" />
                       </a>
-                      <ReactTooltip
-                        id={'nearVerifiedId1' + i}
-                        backgroundColor="#1D2932"
-                        border
-                        borderColor="#7e8a93"
-                        effect="solid"
-                      />
+                      <ReactTooltip id={'nearVerifiedId1' + i} />
                     </div>
                   ) : null}
                 </div>

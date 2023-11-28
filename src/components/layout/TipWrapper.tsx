@@ -3,7 +3,7 @@ import React from 'react';
 import { useIntl } from 'react-intl';
 import QuestionMark from '../../components/farm/QuestionMark';
 
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { VETip } from '../icon/Referendum';
 
 export function QuestionTip({
@@ -47,24 +47,16 @@ export function QuestionTip({
     <div
       className="pl-1 text-white text-base"
       {...dataPlaceAttribute}
-      data-for={uniquenessId || 'auto_router'}
+      data-tooltip-id={uniquenessId || 'auto_router'}
       data-class="reactTip"
-      data-html={true}
-      data-tip={getValue()}
+      data-tooltip-html={getValue()}
       data-multiline={true}
       style={style}
     >
       <span className={`${opacity}`}>
         <QuestionMark colorhex={colorhex} color={color}></QuestionMark>
       </span>
-      <ReactTooltip
-        id={uniquenessId || 'auto_router'}
-        backgroundColor="#1D2932"
-        border
-        borderColor="#7e8a93"
-        effect="solid"
-        textColor="#C6D1DA"
-      />
+      <ReactTooltip id={uniquenessId || 'auto_router'} />
     </div>
   );
 }
@@ -107,10 +99,9 @@ export function ExclamationTip({
   return (
     <div
       className={`${className} pl-1 text-white text-base`}
-      data-for={uniquenessId || 'exclaimaton_tip' + 'id'}
+      data-tooltip-id={uniquenessId || 'exclaimaton_tip' + 'id'}
       data-class="reactTip"
-      data-html={true}
-      data-tip={getValue()}
+      data-tooltip-html={getValue()}
       data-multiline={true}
     >
       <div
@@ -128,13 +119,8 @@ export function ExclamationTip({
       </div>
       <ReactTooltip
         id={uniquenessId || 'exclaimaton_tip' + 'id'}
-        backgroundColor="#1D2932"
-        border
         // @ts-ignore
         place={dataPlace || 'bottom'}
-        borderColor="#7e8a93"
-        effect="solid"
-        textColor="#1D2932"
       />
     </div>
   );

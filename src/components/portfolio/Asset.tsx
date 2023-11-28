@@ -9,7 +9,7 @@ import { ftGetTokenMetadata } from '../../services/ft-contract';
 import BigNumber from 'bignumber.js';
 import { toReadableNumber } from 'src/utils/numbers';
 import QuestionMark from '../../components/farm/QuestionMark';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { ftGetBalance } from 'src/services/ft-contract';
 import { REF_FI_POOL_ACTIVE_TAB } from '../../pages/pools/utils';
 import { PortfolioData } from '../../pages/Portfolio';
@@ -235,19 +235,12 @@ function AssetPc() {
           <div
             className="text-white text-right ml-1"
             data-class="reactTip"
-            data-for="selectAllId"
+            data-tooltip-id="selectAllId"
             data-place="top"
-            data-html={true}
-            data-tip={getTip()}
+            data-tooltip-html={getTip()}
           >
             <QuestionMark></QuestionMark>
-            <ReactTooltip
-              id="selectAllId"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            <ReactTooltip id="selectAllId" />
           </div>
         </div>
         <div className="text-2xl text-white gotham_bold my-1.5">
@@ -354,19 +347,12 @@ function AssetMobile() {
           <div
             className="text-white text-right ml-1"
             data-class="reactTip"
-            data-for="selectAllId"
+            data-tooltip-id="selectAllId"
             data-place="top"
-            data-html={true}
-            data-tip={getTip()}
+            data-tooltip-html={getTip()}
           >
             <QuestionMark></QuestionMark>
-            <ReactTooltip
-              id="selectAllId"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            <ReactTooltip id="selectAllId" />
           </div>
         </div>
         <div className="text-2xl text-white gotham_bold my-1.5">

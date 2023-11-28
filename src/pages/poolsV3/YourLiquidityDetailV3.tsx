@@ -69,7 +69,7 @@ import {
 import { LinkArrowIcon } from 'src/components/icon/FarmBoost';
 import { get_detail_the_liquidity_refer_to_seed } from './YourLiquidityPageV3';
 const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { isMobile } from 'src/utils/device';
 export default function YourLiquidityDetail(props: any) {
   const [poolDetail, setPoolDetail] = useState<PoolInfo>();
@@ -837,22 +837,17 @@ export default function YourLiquidityDetail(props: any) {
             }`}
             onClick={claimRewards}
             data-class="reactTip"
-            data-for="pause_v2_tip_3"
+            data-tooltip-id="pause_v2_tip_3"
             data-place="top"
-            data-html={true}
-            data-tip={is_old_dcl && !is_mobile ? pause_old_dcl_claim_tip() : ''}
+            data-tooltip-html={
+              is_old_dcl && !is_mobile ? pause_old_dcl_claim_tip() : ''
+            }
           >
             <ButtonTextWrapper
               loading={claimLoading}
               Text={() => <FormattedMessage id="claim" />}
             />
-            <ReactTooltip
-              id="pause_v2_tip_3"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            <ReactTooltip id="pause_v2_tip_3" />
           </div>
         </div>
       </div>

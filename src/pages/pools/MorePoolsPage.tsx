@@ -39,7 +39,7 @@ import { PoolTabV3 } from '../../components/pool/PoolTabV3';
 import Loading from '../../components/layout/Loading';
 import { FarmStampNew } from '../../components/icon/FarmStamp';
 import { getPoolListFarmAprTip } from './utils';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 
 interface ParamTypes {
   tokenIds: string;
@@ -137,9 +137,8 @@ function PoolRow({
         data-place="left"
         data-multiline={true}
         data-class={'reactTip'}
-        data-html={true}
-        data-tip={getPoolListFarmAprTip()}
-        data-for={'pool_list_pc_apr' + pool.id}
+        data-tooltip-html={getPoolListFarmAprTip()}
+        data-tooltip-id={'pool_list_pc_apr' + pool.id}
       >
         <span className="ml-2">
           {!pool?.baseApr
@@ -159,12 +158,7 @@ function PoolRow({
           <ReactTooltip
             className="w-20"
             id={'pool_list_pc_apr' + pool.id}
-            backgroundColor="#1D2932"
             place="right"
-            border
-            borderColor="#7e8a93"
-            textColor="#C6D1DA"
-            effect="solid"
           />
         )}
       </div>

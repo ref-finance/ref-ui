@@ -25,7 +25,7 @@ import Big from 'big.js';
 import { TIMESTAMP_DIVISOR } from '../../components/layout/Proposal';
 import moment from 'moment';
 import QuestionMark from '../../components/farm/QuestionMark';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { toRealSymbol } from '../../utils/token';
 import { ExclamationTip } from '../../components/layout/TipWrapper';
 import { MyOrderInstantSwapArrowRight } from '../../components/icon/swapV3';
@@ -527,9 +527,8 @@ function OrderCard({
         data-place="bottom"
         data-multiline={true}
         data-class="reactTip"
-        data-html={true}
-        data-tip={getUnclaimAmountTip()}
-        data-for={'unclaim_tip_' + order.order_id}
+        data-tooltip-html={getUnclaimAmountTip()}
+        data-tooltip-id={'unclaim_tip_' + order.order_id}
       >
         <span className="mr-1 xsm:ml-2.5 xsm:mr-3.5">
           <QuestionMark color="dark" />
@@ -559,12 +558,7 @@ function OrderCard({
         <ReactTooltip
           className="w-20"
           id={'unclaim_tip_' + order.order_id}
-          backgroundColor="#1D2932"
           place="bottom"
-          border
-          borderColor="#7e8a93"
-          textColor="#C6D1DA"
-          effect="solid"
         />
       </div>
     );
