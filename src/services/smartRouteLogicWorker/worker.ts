@@ -24,6 +24,7 @@ const worker = {
       totalInput,
       slippageTolerance,
     });
+    // console.log('swap smart route logic result', result);
     return JSON.stringify(result);
   },
 };
