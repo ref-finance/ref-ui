@@ -1,8 +1,8 @@
 import React from 'react';
 import { toast, ToastOptions, Icons } from 'react-toastify';
-import SuccessIcon from '../assets/svg/icon-check.svg';
-import WarningIcon from '../assets/svg/icon-warning.svg';
-import ErrorIcon from '../assets/svg/icon-x.svg';
+import SuccessIcon from '../../assets/svg/icon-check.svg';
+import WarningIcon from '../../assets/svg/icon-warning.svg';
+import ErrorIcon from '../../assets/svg/icon-x.svg';
 
 type Props = {
   title?: string;
