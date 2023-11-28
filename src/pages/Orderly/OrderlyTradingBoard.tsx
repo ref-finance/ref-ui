@@ -262,11 +262,15 @@ function OrderlyTradingBoard() {
   });
 
   return (
-    <div className="mx-auto relative xs:bottom-6 bottom-9">
-      {!isMobile && <TradingBoard></TradingBoard>}
+    <>
+      <div className="mx-auto relative xs:bottom-6 bottom-9">
+        {!isMobile && <PerpOrderlyTip />}
+        {!isMobile && <TradingBoard></TradingBoard>}
 
-      {isMobile && <MobileTradingBoard></MobileTradingBoard>}
-    </div>
+        {isMobile && <MobileTradingBoard></MobileTradingBoard>}
+      </div>
+      {isMobile && <PerpOrderlyTipMobile></PerpOrderlyTipMobile>}
+    </>
   );
 }
 

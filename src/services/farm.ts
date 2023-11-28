@@ -1659,6 +1659,10 @@ export const farmClassification: any = {
 };
 export const frontConfigBoost = {
   '79': '100',
+  '3': '99',
+  '4': '98',
+  'phoenix-bonds.near|wrap.near|2000': '97',
+  '4179': '96',
 };
 
 export function getFarmClassification(): any {
