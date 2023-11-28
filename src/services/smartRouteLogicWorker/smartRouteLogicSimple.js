@@ -324,17 +324,17 @@ function getRoutesFromPoolChain(poolChains) {
 }
 
 function getOutputSingleHop(pool, inputToken, outputToken, totalInput) {
-  var totalInput = new Big(totalInput);
   // check if pool is forward or backward for inputToken/outputToken cf. token1Id/token2Id
+  let reserves = {};
   if (inputToken === pool.token1Id && outputToken === pool.token2Id) {
     // forward Pool
-    var reserves = {
+    reserves = {
       [inputToken]: new Big(pool.token1Supply),
       [outputToken]: new Big(pool.token2Supply),
     };
   } else if (inputToken === pool.token2Id && outputToken === pool.token1Id) {
     // reverse pool
-    var reserves = {
+    reserves = {
       [outputToken]: new Big(pool.token1Supply),
       [inputToken]: new Big(pool.token2Supply),
     };
@@ -342,11 +342,9 @@ function getOutputSingleHop(pool, inputToken, outputToken, totalInput) {
     return new Big(0);
   }
   const gamma = new Big(10000).minus(new Big(pool.fee)).div(new Big(10000));
-  // console.log(totalInput)
-  // console.log(gamma)
-  // console.log(reserves)
-  const num = totalInput.times(gamma).times(reserves[outputToken]);
-  const denom = reserves[inputToken].plus(gamma.times(totalInput));
+  // console.log('getOutputSingleHop', pool, inputToken, outputToken, totalInput);
+  const num = new Big(totalInput).times(gamma).times(reserves[outputToken]);
+  const denom = reserves[inputToken].plus(gamma.times(new Big(totalInput)));
   return num.div(denom);
 }
 
@@ -1034,17 +1032,27 @@ async function getSmartRouteSwapActions(
     const hopInputTokenMeta = await ftGetTokenMetadata(hops[i].inputToken);
     const hopOutputTokenMeta = await ftGetTokenMetadata(hops[i].outputToken);
     const hopOutputTokenDecimals = hopOutputTokenMeta.decimals;
+    const allocation = new Big(hops[i].allocation).round().toString();
+
+    // console.log('allocation', allocation);
 
     const expectedHopOutput = getOutputSingleHop(
       hops[i].pool,
       hops[i].inputToken,
       hops[i].outputToken,
-      hops[i].allocation
-    );
+      allocation
+    )
+      .round(hopOutputTokenDecimals || 8, Big.roundHalfUp)
+      .toString();
     const decimalEstimate = new Big(expectedHopOutput)
       .div(new Big(10).pow(hopOutputTokenDecimals))
+      .round(hopOutputTokenDecimals || 8, Big.roundHalfUp)
       .toString();
-
+    // console.log(
+    //   `===============> ${hopInputTokenMeta.name} decimals:${hopInputTokenMeta.decimals} => ${hopOutputTokenMeta.name} decimals:${hopOutputTokenDecimals}`,
+    //   expectedHopOutput,
+    //   decimalEstimate
+    // );
     // Need to check if expected Hop Output is > 1. If not, then cull the corresponding pool and re-calculate.
     if (new Big(expectedHopOutput).lt(new Big(1))) {
       // purge the pool and recalculate.
@@ -1062,16 +1070,10 @@ async function getSmartRouteSwapActions(
         (decimalsCulledPoolIds = decimalsCulledPoolIds)
       );
     }
-
-    if (
-      hops[i].inputToken == inputToken &&
-      hops[i].outputToken == outputToken
-    ) {
-      var status = 'parallel swap';
-    } else {
-      var status = 'stableSmart';
-    }
-
+    const status =
+      hops[i].inputToken == inputToken && hops[i].outputToken == outputToken
+        ? 'parallel swap'
+        : 'stableSmart';
     const tokens = await Promise.all(
       hops[i].nodeRoute.map(async (t) => await ftGetTokenMetadata(t))
     );
@@ -1114,9 +1116,13 @@ async function getSmartRouteSwapActions(
   // now set partial amount in for second hops equal to zero:
   // also, set the total price impact value.
   const overallPriceImpact = await calculateSmartRouteV2PriceImpact(actions);
+
   for (var i in actions) {
     const action = actions[i];
-    action.overallPriceImpact = overallPriceImpact;
+
+    action.overallPriceImpact = new Big(overallPriceImpact)
+      .round(action.token.decimals, Big.roundHalfUp)
+      .toString();
     if (action.outputToken === outputToken && action.inputToken != inputToken) {
       // only want to set second hop partial amount in to zero
       action.pool.partialAmountIn = '0';
