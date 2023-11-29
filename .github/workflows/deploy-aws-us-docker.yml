@@ -1,0 +1,35 @@
+name: Docker Build and Push
+
+on:
+  push:
+    branches:
+      - deplloy/docker
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    env:
+      IMAGE_TAG: $(date +"%Y%m%d%H%M")
+      ECR_REPOSITORY: ref-ui
+
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Configure AWS CLI
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        run: |
+          echo ${{ secrets.AWS_ECR_PASSWORD }} | docker login --username AWS --password-stdin 046257248069.dkr.ecr.us-east-1.amazonaws.com
+
+      - name: Build and push Docker image
+        run: |
+          docker build -t 046257248069.dkr.ecr.us-east-1.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} .
+          docker push 046257248069.dkr.ecr.us-east-1.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
