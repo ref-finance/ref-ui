@@ -46,7 +46,8 @@ jobs:
           script: |
             docker stop ref-ui
             docker rm ref-ui
-            docker run -d -p 8080:80 --name ref-ui 046257248069.dkr.ecr.us-east-1.amazonaws.com/ref-ui:${{ env.IMAGE_TAG }} 
+            docker pull 046257248069.dkr.ecr.us-east-1.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} 
+            docker run -d -p 8080:80 --name ref-ui 046257248069.dkr.ecr.us-east-1.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} 
 
       - name: Execute SSH commmands on remote server[3.238.218.91]
         uses: appleboy/ssh-action@master
@@ -58,5 +59,5 @@ jobs:
           script: |
             docker stop ref-ui
             docker rm ref-ui
-            docker pull 046257248069.dkr.ecr.us-east-1.amazonaws.com/ref-ui:${{ env.IMAGE_TAG }} 
-            docker run -d -p 8080:80 --name ref-ui 046257248069.dkr.ecr.us-east-1.amazonaws.com/ref-ui:${{ env.IMAGE_TAG }} 
+            docker pull 046257248069.dkr.ecr.us-east-1.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} 
+            docker run -d -p 8080:80 --name ref-ui 046257248069.dkr.ecr.us-east-1.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} 
