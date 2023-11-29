@@ -9,9 +9,11 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
-    env:
-      IMAGE_TAG: ${{ github.run_number }}
-      ECR_REPOSITORY: ref-ui
+    outputs:
+      id: build-and-push
+      values:
+        IMAGE_TAG: ${{ github.run_number }}
+        ECR_REPOSITORY: ref-ui
 
     steps:
       - name: Checkout repository
@@ -24,23 +26,19 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
- 
       - name: Push Docker image
         run: |
-          echo "${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
+          echo "${{ needs.build-and-push.outputs.ECR_REPOSITORY }}:${{ needs.build-and-push.outputs.IMAGE_TAG }}"
+
   deploy:
     runs-on: ubuntu-latest
     needs: build-and-push
-
-    env:
-      IMAGE_TAG: ${{ needs.build-and-push.outputs.IMAGE_TAG }}
-      ECR_REPOSITORY: ${{ needs.build-and-push.outputs.ECR_REPOSITORY }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Execute SSH commmands on remote server[44.202.226.33]
+      - name: Execute SSH commands on remote server[44.202.226.33]
         uses: appleboy/ssh-action@master
         with:
           host: 44.202.226.33
@@ -48,4 +46,4 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY_PROD_01 }}
           port: 60022
           script: |
-            echo " ${{ needs.build-and-push.outputs.IMAGE_TAG }}: ${{ needs.build-and-push.outputs.ECR_REPOSITORY }}"
+            echo " ${{ needs.build-and-push.outputs.ECR_REPOSITORY }}:${{ needs.build-and-push.outputs.IMAGE_TAG }}"
