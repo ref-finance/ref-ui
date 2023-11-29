@@ -137,7 +137,6 @@ export function useTokensBalances(
             [key: string]: BalanceType;
           }
         );
-        orderlyBalanceStore.setBalances(showbalances);
         setShowBalances(Object.values(resMap));
       });
   }, [
@@ -157,6 +156,9 @@ export function useTokensBalances(
       }
     });
   }
+  useMemo(() => {
+    orderlyBalanceStore.setBalances(showbalances);
+  }, [JSON.stringify(showbalances)]);
 
   return showbalances;
 }
