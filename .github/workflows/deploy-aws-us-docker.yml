@@ -9,13 +9,18 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
-    env:
-      IMAGE_TAG: ${{ github.run_number }}
-      ECR_REPOSITORY: ref-ui
+    outputs:
+      id: build-and-push
+      values:
+        IMAGE_TAG: ${{ steps.set-image-tag.outputs.IMAGE_TAG }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+
+      - name: Set Image Tag
+        id: set-image-tag
+        run: echo "IMAGE_TAG=${{ github.run_number }}"
 
       - name: Configure AWS CLI
         uses: aws-actions/configure-aws-credentials@v2
@@ -30,14 +35,16 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t 046257248069.dkr.ecr.us-east-1.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} .
+          docker build -t 046257248069.dkr.ecr.us-east-1.amazonaws.com/ref-ui:${{ steps.set-image-tag.outputs.IMAGE_TAG }} .
       
       - name: Push Docker image
         run: |
-          docker push 046257248069.dkr.ecr.us-east-1.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+          docker push 046257248069.dkr.ecr.us-east-1.amazonaws.com/ref-ui:${{ steps.set-image-tag.outputs.IMAGE_TAG }}
+
   deploy:
     runs-on: ubuntu-latest
     needs: build-and-push
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -52,10 +59,10 @@ jobs:
           script: |
             docker stop ref-ui || true
             docker rm ref-ui || true
-            docker pull 046257248069.dkr.ecr.us-east-1.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} 
+            docker pull 046257248069.dkr.ecr.us-east-1.amazonaws.com/ref-ui:${{ needs.build-and-push.outputs.IMAGE_TAG }} 
             timeout=300
             elapsed=0
-            while ! docker pull 046257248069.dkr.ecr.us-east-1.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} | grep -q "Image is up to date"; do
+            while ! docker pull 046257248069.dkr.ecr.us-east-1.amazonaws.com/ref-ui:${{ needs.build-and-push.outputs.IMAGE_TAG }} | grep -q "Image is up to date"; do
               sleep 10
               elapsed=$((elapsed+10))
               if [ "$elapsed" -ge "$timeout" ]; then
@@ -63,7 +70,7 @@ jobs:
                 exit 1
               fi
             done      
-            docker run -d -p 8080:80 --name ref-ui 046257248069.dkr.ecr.us-east-1.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} 
+            docker run -d -p 8080:80 --name ref-ui 046257248069.dkr.ecr.us-east-1.amazonaws.com/ref-ui:${{ needs.build-and-push.outputs.IMAGE_TAG }}
 
       - name: Execute SSH commmands on remote server[3.238.218.91]
         uses: appleboy/ssh-action@master
@@ -75,10 +82,10 @@ jobs:
           script: |
             docker stop ref-ui || true
             docker rm ref-ui || true
-            docker pull 046257248069.dkr.ecr.us-east-1.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} 
+            docker pull 046257248069.dkr.ecr.us-east-1.amazonaws.com/ref-ui:${{ needs.build-and-push.outputs.IMAGE_TAG }} 
             timeout=300
             elapsed=0
-            while ! docker pull 046257248069.dkr.ecr.us-east-1.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} | grep -q "Image is up to date"; do
+            while ! docker pull 046257248069.dkr.ecr.us-east-1.amazonaws.com/ref-ui:${{ needs.build-and-push.outputs.IMAGE_TAG }} | grep -q "Image is up to date"; do
               sleep 10
               elapsed=$((elapsed+10))
               if [ "$elapsed" -ge "$timeout" ]; then
@@ -86,4 +93,4 @@ jobs:
                 exit 1
               fi
             done   
-            docker run -d -p 8080:80 --name ref-ui 046257248069.dkr.ecr.us-east-1.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} 
+            docker run -d -p 8080:80 --name ref-ui 046257248069.dkr.ecr.us-east-1.amazonaws.com/ref-ui:${{ needs.build-and-push.outputs.IMAGE_TAG }}
