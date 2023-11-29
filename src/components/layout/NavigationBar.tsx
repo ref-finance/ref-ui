@@ -495,7 +495,7 @@ function AccountEntry({
 
               {accountList.map((item, index) => {
                 return (
-                  <>
+                  <React.Fragment key={item.textId + index}>
                     <div
                       onClick={item.click}
                       key={item.textId + index}
@@ -535,7 +535,7 @@ function AccountEntry({
                         />
                       </div>
                     ) : null}
-                  </>
+                  </React.Fragment>
                 );
               })}
             </Card>
