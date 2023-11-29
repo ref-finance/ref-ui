@@ -20,7 +20,7 @@ jobs:
 
       - name: Set Image Tag
         id: set-image-tag
-        run: echo "IMAGE_TAG=${{ github.run_number }}"
+        run: echo "::set-output name=IMAGE_TAG::${{ github.run_number }}"
 
       - name: Configure AWS CLI
         uses: aws-actions/configure-aws-credentials@v2
