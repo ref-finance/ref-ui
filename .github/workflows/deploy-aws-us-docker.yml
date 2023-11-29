@@ -12,7 +12,7 @@ jobs:
     outputs:
       id: build-and-push
       values:
-        IMAGE_TAG: ${{ github.run_number }}
+        IMAGE_TAG: abc
         ECR_REPOSITORY: ref-ui
 
     steps:
