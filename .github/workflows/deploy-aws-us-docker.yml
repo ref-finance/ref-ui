@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      IMAGE_TAG: $(date +"%Y%m%d%H%M")
+      IMAGE_TAG: ${{ github.sha }}
       ECR_REPOSITORY: ref-ui
 
 
