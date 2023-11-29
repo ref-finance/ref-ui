@@ -12,8 +12,8 @@ jobs:
     outputs:
       id: build-and-push
       values:
-        IMAGE_TAG: abc
-        ECR_REPOSITORY: ref-ui
+        IMAGE_TAG: "${{ github.run_number }}"
+        ECR_REPOSITORY: "ref-ui"
 
     steps:
       - name: Checkout repository
