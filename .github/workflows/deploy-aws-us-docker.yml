@@ -20,7 +20,7 @@ jobs:
 
       - name: Set Image Tag
         id: set-image-tag
-        run: echo "IMAGE_TAG=${{ github.run_number }}"
+        run: echo "IMAGE_TAG=${{ github.run_number }}" >> $GITHUB_ENV
 
       - name: Configure AWS CLI
         uses: aws-actions/configure-aws-credentials@v2
@@ -31,15 +31,15 @@ jobs:
 
       - name: Login to Amazon ECR
         run: |
-          aws ecr get-login-password --region us-east-1  | docker login --username AWS --password-stdin 046257248069.dkr.ecr.us-east-1.amazonaws.com
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 046257248069.dkr.ecr.us-east-1.amazonaws.com
 
       - name: Build Docker image
         run: |
-          docker build -t 046257248069.dkr.ecr.us-east-1.amazonaws.com/ref-ui:${{ steps.set-image-tag.outputs.IMAGE_TAG }} .
-      
+          docker build -t 046257248069.dkr.ecr.us-east-1.amazonaws.com/ref-ui:${{ needs.build-and-push.outputs.IMAGE_TAG }} .
+
       - name: Push Docker image
         run: |
-          docker push 046257248069.dkr.ecr.us-east-1.amazonaws.com/ref-ui:${{ steps.set-image-tag.outputs.IMAGE_TAG }}
+          docker push 046257248069.dkr.ecr.us-east-1.amazonaws.com/ref-ui:${{ needs.build-and-push.outputs.IMAGE_TAG }}
 
   deploy:
     runs-on: ubuntu-latest
@@ -49,7 +49,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Execute SSH commmands on remote server[44.202.226.33]
+      - name: Execute SSH commands on remote server[44.202.226.33]
         uses: appleboy/ssh-action@master
         with:
           host: 44.202.226.33
@@ -59,7 +59,7 @@ jobs:
           script: |
             docker stop ref-ui || true
             docker rm ref-ui || true
-            docker pull 046257248069.dkr.ecr.us-east-1.amazonaws.com/ref-ui:${{ needs.build-and-push.outputs.IMAGE_TAG }} 
+            docker pull 046257248069.dkr.ecr.us-east-1.amazonaws.com/ref-ui:${{ needs.build-and-push.outputs.IMAGE_TAG }}
             timeout=300
             elapsed=0
             while ! docker pull 046257248069.dkr.ecr.us-east-1.amazonaws.com/ref-ui:${{ needs.build-and-push.outputs.IMAGE_TAG }} | grep -q "Image is up to date"; do
@@ -69,10 +69,10 @@ jobs:
                 echo "Timeout waiting for Docker pull."
                 exit 1
               fi
-            done      
+            done
             docker run -d -p 8080:80 --name ref-ui 046257248069.dkr.ecr.us-east-1.amazonaws.com/ref-ui:${{ needs.build-and-push.outputs.IMAGE_TAG }}
 
-      - name: Execute SSH commmands on remote server[3.238.218.91]
+      - name: Execute SSH commands on remote server[3.238.218.91]
         uses: appleboy/ssh-action@master
         with:
           host: 3.238.218.91
@@ -82,7 +82,7 @@ jobs:
           script: |
             docker stop ref-ui || true
             docker rm ref-ui || true
-            docker pull 046257248069.dkr.ecr.us-east-1.amazonaws.com/ref-ui:${{ needs.build-and-push.outputs.IMAGE_TAG }} 
+            docker pull 046257248069.dkr.ecr.us-east-1.amazonaws.com/ref-ui:${{ needs.build-and-push.outputs.IMAGE_TAG }}
             timeout=300
             elapsed=0
             while ! docker pull 046257248069.dkr.ecr.us-east-1.amazonaws.com/ref-ui:${{ needs.build-and-push.outputs.IMAGE_TAG }} | grep -q "Image is up to date"; do
@@ -92,5 +92,5 @@ jobs:
                 echo "Timeout waiting for Docker pull."
                 exit 1
               fi
-            done   
+            done
             docker run -d -p 8080:80 --name ref-ui 046257248069.dkr.ecr.us-east-1.amazonaws.com/ref-ui:${{ needs.build-and-push.outputs.IMAGE_TAG }}
