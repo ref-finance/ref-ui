@@ -1,4 +1,4 @@
-name: Docker Build and Push
+name: Docker Build and Push deploy
 
 on:
   push:
@@ -26,7 +26,7 @@ jobs:
 
       - name: Login to Amazon ECR
         run: |
-          echo ${{ secrets.AWS_ECR_PASSWORD }} | docker login --username AWS --password-stdin 046257248069.dkr.ecr.us-east-1.amazonaws.com
+          aws ecr get-login-password --region us-east-1  | docker login --username AWS --password-stdin 046257248069.dkr.ecr.us-east-1.amazonaws.com
 
       - name: Build Docker image
         run: |
