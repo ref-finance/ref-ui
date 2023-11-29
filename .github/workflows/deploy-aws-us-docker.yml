@@ -55,6 +55,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY_PROD_01 }}
           port: 60022
           script: |
+            echo "${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} "
             docker stop ref-ui || true
             docker rm ref-ui || true
             docker pull 046257248069.dkr.ecr.us-east-1.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} 
