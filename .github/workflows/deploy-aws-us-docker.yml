@@ -9,6 +9,11 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
+    outputs:
+      id: build-and-push
+      values:
+        IMAGE_TAG: ${{ steps.set-image-tag.outputs.IMAGE_TAG }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -30,16 +35,11 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t 046257248069.dkr.ecr.us-east-1.amazonaws.com/ref-ui:${{ needs.build-and-push.outputs.IMAGE_TAG }} .
+          docker build -t 046257248069.dkr.ecr.us-east-1.amazonaws.com/ref-ui:${{ steps.set-image-tag.outputs.IMAGE_TAG }} .
       
       - name: Push Docker image
         run: |
-          docker push 046257248069.dkr.ecr.us-east-1.amazonaws.com/ref-ui:${{ needs.build-and-push.outputs.IMAGE_TAG }}
-          
-    outputs:
-      id: build-and-push
-      values:
-        IMAGE_TAG: ${{ steps.set-image-tag.outputs.IMAGE_TAG }}
+          docker push 046257248069.dkr.ecr.us-east-1.amazonaws.com/ref-ui:${{ steps.set-image-tag.outputs.IMAGE_TAG }}
 
   deploy:
     runs-on: ubuntu-latest
