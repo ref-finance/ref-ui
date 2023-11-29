@@ -5,14 +5,15 @@ on:
     branches:
       - main
 
+outputs:
+  id: build
+  values:
+    IMAGE_TAG: ${{ steps.set-image-tag.outputs.IMAGE_TAG }}
 jobs:
   build:
     runs-on: ubuntu-latest
 
-    outputs:
-      id: build
-      values:
-        IMAGE_TAG: ${{ steps.set-image-tag.outputs.IMAGE_TAG }}
+
 
     steps:
       - name: Set Image Tag
