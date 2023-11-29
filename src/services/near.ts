@@ -516,17 +516,26 @@ export const refContractViewFunction = ({
 };
 
 export const getAccountNearBalance = async (accountId: string) => {
-  const provider = new providers.JsonRpcProvider({
-    url: getConfig().nodeUrl,
-  });
+  // const provider = new providers.JsonRpcProvider({
+  //   url: getConfig().nodeUrl,
+  // });
 
-  return provider
-    .query<AccountView>({
-      request_type: 'view_account',
-      finality: 'final',
-      account_id: accountId,
-    })
-    .then((data) => ({ available: data.amount }));
+  // return provider
+  //   .query<AccountView>({
+  //     request_type: 'view_account',
+  //     finality: 'final',
+  //     account_id: accountId,
+  //   })
+  //   .then((data) => ({ available: data.amount }));
+  const nearConnection = await near.account(
+    getCurrentWallet().wallet.getAccountId()
+  );
+  return nearConnection
+    .getAccountBalance()
+    .then(({ available }) => ({ available }))
+    .catch((e) => {
+      return { available: '0' };
+    });
 };
 
 export const refFarmBoostViewFunction = ({
