@@ -34,6 +34,8 @@ export const walletsRejectError = [
   'User cancelled the action', // meteor wallet
   'User closed the window', // meteor wallet
   'User closed the window before completing the action',
+  'userRejected', // mynearwallet cbUrl
+  'User rejected transaction', // mynearwallet cbUrl
 ];
 
 export const extraWalletsError = [

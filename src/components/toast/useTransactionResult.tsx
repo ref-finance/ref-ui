@@ -32,13 +32,14 @@ export const useTransactionResult = () => {
       parseTransactionResult(txHash, urlInfo).then((r) => {
         setTransactionResult(r);
       });
-    } else if (errorType || errorCode || errorMessage) {
-      setTransactionResult({
-        errorMessage:
-          (errorMessage && decodeURI(errorMessage)) || errorCode || errorType,
-        isError: true,
-      });
     }
+    // else if (errorType || errorCode || errorMessage) {
+    //   setTransactionResult({
+    //     errorMessage:
+    //       (errorMessage && decodeURI(errorMessage)) || errorCode || errorType,
+    //     isError: true,
+    //   });
+    // }
   }, [txHash, errorType, errorCode, errorMessage]);
 
   return { transactionResult };
