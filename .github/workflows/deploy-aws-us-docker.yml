@@ -48,4 +48,4 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY_PROD_01 }}
           port: 60022
           script: |
-            echo "${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
+            echo " ${{ needs.build-and-push.outputs.IMAGE_TAG }}: ${{ needs.build-and-push.outputs.ECR_REPOSITORY }}"
