@@ -40,6 +40,7 @@ import { IoIosArrowDown } from '@react-icons/all-files/io/IoIosArrowDown';
 import { IoIosArrowUp } from '@react-icons/all-files/io/IoIosArrowUp';
 import { IoMdArrowDropdown } from '@react-icons/all-files/io/IoMdArrowDropdown';
 import { IoMdClose } from '@react-icons/all-files/io/IoMdClose';
+import { IoIosCheckmarkCircleOutline } from '@react-icons/all-files/io/IoIosCheckmarkCircleOutline';
 
 import { IoArrowDownOutline } from '@react-icons/all-files/io5/IoArrowDownOutline';
 import { IoArrowUpOutline } from '@react-icons/all-files/io5/IoArrowUpOutline';
@@ -103,6 +104,7 @@ export {
   IoIosArrowDown,
   IoIosArrowUp,
   IoMdClose,
+  IoIosCheckmarkCircleOutline,
   //io5
   IoClose,
   IoArrowDownOutline,

@@ -74,6 +74,7 @@ import { useIndexerStatus } from './pool';
 import { useTokenPriceList } from './token';
 import { CONST_SWAP_CALLBACK_ERROR_CODE } from 'src/constants/constSwap';
 import showToast from 'src/components/toast/showToast';
+import { showTransactionErrorToast } from 'src/components/toast/showTransactionToast';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -667,7 +668,7 @@ export const useSwap = ({
   //   };
   // }, [count, loadingTrigger, loadingPause]);
 
-  const makeSwap = () => {
+  const makeSwap = (cb) => {
     swap({
       slippageTolerance,
       swapsToDo,
@@ -675,7 +676,17 @@ export const useSwap = ({
       amountIn: tokenInAmount,
       tokenOut,
       swapMarket: 'ref',
-    }).catch(setSwapError);
+    })
+      .then((d) => {
+        cb && cb(true, d);
+        0;
+      })
+      .catch((e) => {
+        showTransactionErrorToast(e?.message);
+        setShowSwapLoading(false);
+        // setSwapError(e)
+        cb && cb(false, e);
+      });
   };
 
   return {
@@ -1366,7 +1377,10 @@ export const useCrossSwap = ({
       amountIn: tokenInAmount,
       tokenOut,
       swapMarket: 'tri',
-    }).catch(setSwapError);
+    }).catch((e) => {
+      console.error('swapError', e);
+      setSwapError(e);
+    });
   };
 
   return {

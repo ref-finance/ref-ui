@@ -67,7 +67,7 @@ export interface ExchangeEstimate {
   fee?: number;
   priceImpact?: string;
   minAmountOut?: string;
-  makeSwap?: () => void;
+  makeSwap?: any;
   quoteDone: boolean;
   canSwap?: boolean;
   tokenOutAmount?: string;
@@ -259,27 +259,19 @@ function SwapPage() {
   };
 
   const triTokenIds = useTriTokenIdsOnRef();
-
   const refTokens = useWhitelistTokens((triTokenIds || []).concat(['aurora']));
-
   const triTokens = useTriTokens();
-
   const [limitTokenTrigger, setLimitTokenTrigger] = useState<boolean>();
-
   const storageMode = localStorage.getItem(SWAP_MODE_KEY) as SWAP_MODE | null;
-
   const { accountId } = useWalletSelector();
-
   const isMobile = useClientMobile();
-
   const isSignedIn = accountId;
-
   const globalWhiteListTokens = useGlobalWhitelistTokens();
-
   const [swapMode, setSwapMode] = useState<SWAP_MODE>(
     storageMode || SWAP_MODE.NORMAL
   );
   const dcl_pool_id = useDclPoolIdByCondition('all');
+
   useEffect(() => {
     if (swapMode === SWAP_MODE.LIMIT) {
       setLimitTokenTrigger(!limitTokenTrigger ? true : false);
@@ -322,6 +314,7 @@ function SwapPage() {
       changeSwapType={changeSwapType}
     />
   );
+
   return (
     <SwapProContext.Provider
       value={{
