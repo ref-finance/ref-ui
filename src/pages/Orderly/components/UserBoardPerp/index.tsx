@@ -136,6 +136,7 @@ import { useTokensBalances } from '../UserBoard/state';
 import { SetLeverageButton } from './components/SetLeverageButton';
 import { DepositTip } from './components/DepositTip';
 import { NewUserTip } from '../Common/NewUserTip';
+import { useOrderlyBalancesStore } from '../../../../stores/orderlyBalances';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 const REF_ORDERLY_LIMIT_ORDER_ADVANCE = 'REF_ORDERLY_LIMIT_ORDER_ADVANCE';
 
@@ -649,7 +650,8 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     curSymbolMarkPrice,
     availableSymbols,
   ]);
-
+  const orderlyBalancesStore: any = useOrderlyBalancesStore();
+  const orderlyBalances = orderlyBalancesStore.getBalances();
   const storedLimitOrderAdvance =
     sessionStorage.getItem(REF_ORDERLY_LIMIT_ORDER_ADVANCE) || '{}';
 
@@ -682,26 +684,13 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
   const tokenFromBalance = useTokenBalance(
     tokenIn?.id,
-    JSON.stringify(balances)
+    JSON.stringify(orderlyBalances)
   );
 
   const tokenToBalance = useTokenBalance(
     tokenOut?.id,
-    JSON.stringify(balances)
+    JSON.stringify(orderlyBalances)
   );
-  // const tokenOutHolding =
-  //   tokenOut?.symbol?.toLowerCase()?.includes('usdc') && freeCollateral !== '-'
-  //     ? freeCollateral
-  //     : curHoldingOut
-  //     ? toPrecision(
-  //         new Big(
-  //           curHoldingOut.holding + curHoldingOut.pending_short
-  //         ).toString(),
-  //         Math.min(8, tokenOut?.decimals || 8),
-  //         false
-  //       )
-  //     : balances && balances[symbolTo]?.holding;
-
   const usdcAvailableBalance = curHoldingOut
     ? new Big(curHoldingOut.holding + curHoldingOut.pending_short).toFixed(2)
     : '-';

@@ -108,6 +108,7 @@ import { DepositTip } from '../UserBoardPerp/components/DepositTip';
 import { NewUserTip } from '../Common/NewUserTip';
 import { CollatteralTokenAvailableCell } from '../UserBoardPerp/components/HoverText';
 import getConfigV2 from '../../../../services/configV2';
+import { useOrderlyBalancesStore } from '../../../../stores/orderlyBalances';
 const configV2 = getConfigV2();
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
@@ -498,6 +499,8 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     availableSymbols,
     holdings,
   } = useOrderlyContext();
+  const orderlyBalancesStore: any = useOrderlyBalancesStore();
+  const orderlyBalances = orderlyBalancesStore.getBalances();
 
   const { accountId, modal, selector } = useWalletSelector();
 
@@ -551,8 +554,6 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     (orderTypeUrl as 'Market' | 'Limit') || 'Limit'
   );
 
-  // const [holdings, setHoldings] = useState<Holding[]>();
-
   const symbolType = PerpOrSpot(symbol);
 
   const tokenIn = useTokenMetaFromSymbol(
@@ -603,12 +604,11 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
   const tokenFromBalance = useTokenBalance(
     tokenIn?.id,
-    JSON.stringify(balances)
+    JSON.stringify(orderlyBalances)
   );
-
   const tokenToBalance = useTokenBalance(
     tokenOut?.id,
-    JSON.stringify(balances)
+    JSON.stringify(orderlyBalances)
   );
 
   const tokenInHolding = curHoldingIn

@@ -108,6 +108,7 @@ import { usePerpData } from '../UserBoardPerp/state';
 import { executeMultipleTransactions } from '../../../../services/near';
 import SettlePnlModal from '../TableWithTabs/SettlePnlModal';
 import { SetLeverageButton } from '../UserBoardPerp/components/SetLeverageButton';
+import { useOrderlyBalancesStore } from '../../../../stores/orderlyBalances';
 
 export const MOBILE_TAB = 'REF_ORDERLY_MOBILE_TAB';
 
@@ -166,15 +167,17 @@ export function CurAsset(props?: any) {
 
   const [operationId, setOperationId] = useState<string>(tokenIn?.id || '');
   const [showAllAssets, setShowAllAssets] = useState<boolean>(false);
+  const orderlyBalancesStore: any = useOrderlyBalancesStore();
+  const orderlyBalances = orderlyBalancesStore.getBalances();
 
   const tokenFromBalance = useTokenBalance(
     tokenIn?.id,
-    JSON.stringify(balances)
+    JSON.stringify(orderlyBalances)
   );
 
   const tokenToBalance = useTokenBalance(
     tokenOut?.id,
-    JSON.stringify(balances)
+    JSON.stringify(orderlyBalances)
   );
 
   const allHoldings =

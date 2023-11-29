@@ -172,7 +172,8 @@
     "rxjs": "7.8.1",
     "socket.io-client": "^4.5.4",
     "swiper": "^6.8.4",
-    "web3-eth-abi": "1.8.2"
+    "web3-eth-abi": "1.8.2",
+    "zustand": "^4.3.7"
   },
   "browserslist": {
     "production": [
