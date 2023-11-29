@@ -1,4 +1,4 @@
-name: Docker Build and Push deploy
+name: Outputs Example
 
 on:
   push:
@@ -6,44 +6,19 @@ on:
       - main
 
 jobs:
-  build-and-push:
+  example:
     runs-on: ubuntu-latest
 
     outputs:
-      id: build-and-push
-      values:
-        IMAGE_TAG: "${{ github.run_number }}"
-        ECR_REPOSITORY: "ref-ui"
+      # 在这里定义输出变量
+      # 格式为输出名称: ${{ steps.<step-id>.outputs.<output-name> }}
+      id: myoutputs
+      outputs: [example_output]
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - name: Set example output
+        id: set_output
+        run: echo "::set-output name=example_output::Hello from GitHub Actions!"
 
-      - name: Configure AWS CLI
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
-      - name: Push Docker image
-        run: |
-          echo "${{ needs.build-and-push.outputs.ECR_REPOSITORY }}:${{ needs.build-and-push.outputs.IMAGE_TAG }}"
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build-and-push
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Execute SSH commands on remote server[44.202.226.33]
-        uses: appleboy/ssh-action@master
-        with:
-          host: 44.202.226.33
-          username: root
-          key: ${{ secrets.SSH_PRIVATE_KEY_PROD_01 }}
-          port: 60022
-          script: |
-            echo " ${{ needs.build-and-push.outputs.ECR_REPOSITORY }}:${{ needs.build-and-push.outputs.IMAGE_TAG }}"
+      - name: Use example output
+        run: echo "Example output: ${{ needs.example.outputs.example_output }}"
