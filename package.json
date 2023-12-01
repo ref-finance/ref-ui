@@ -66,6 +66,7 @@
     "https-browserify": "1.0.0",
     "jest": "^26.6.3",
     "jest-environment-node": "~26.6.2",
+    "os-browserify": "^0.3.0",
     "postcss": "^8.0.9",
     "postcss-modules": "^4.0.0",
     "prettier": "2.3.1",
@@ -121,7 +122,10 @@
     "@walletconnect/qrcode-modal": "2.0.0-alpha.20",
     "@walletconnect/sign-client": "2.0.0-beta.102-6a30ee7.0",
     "@walletconnect/types": "^2.0.0-beta.102",
-    "@web3modal/wagmi": "^3.3.2",
+    "@web3-onboard/injected-wallets": "^2.10.9",
+    "@web3-onboard/ledger": "^2.5.2",
+    "@web3-onboard/react": "^2.8.13",
+    "@web3-onboard/walletconnect": "^2.5.1",
     "actionsheet-react": "^1.0.12",
     "animejs": "^3.2.1",
     "axios": "^0.21.1",
@@ -179,8 +183,6 @@
     "rxjs": "7.8.1",
     "socket.io-client": "^4.5.4",
     "swiper": "^6.8.4",
-    "viem": "^1.19.3",
-    "wagmi": "^1.4.7",
     "web3-eth-abi": "1.8.2"
   },
   "browserslist": {

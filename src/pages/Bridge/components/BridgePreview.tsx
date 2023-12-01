@@ -5,12 +5,15 @@ import ReactTooltip from 'react-tooltip';
 import SvgIcon from './SvgIcon';
 import { useRouterViewContext } from '../providers/routerView';
 import Button from './Button';
+import useRainbowBridge from '../hooks/useRainbowBridge';
 
 export default function BridgePreviewModal({
   toggleOpenModal,
   ...props
 }: Modal.Props & { toggleOpenModal: () => void }) {
   const [isOpenStatusModal, setIsOpenStatusModal] = useState(false);
+
+  const { checkApprove, approve } = useRainbowBridge();
 
   function handleApprove() {
     toggleOpenModal();

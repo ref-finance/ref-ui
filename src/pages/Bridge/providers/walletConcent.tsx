@@ -1,42 +1,26 @@
-import {
-  createWeb3Modal,
-  defaultWagmiConfig,
-  useWeb3Modal,
-} from '@web3modal/wagmi/react';
-import React, { createContext, useMemo } from 'react';
+import React, { createContext, useEffect, useMemo } from 'react';
 import { useWalletSelector } from 'src/context/WalletSelectorContext';
-import { arbitrum, mainnet } from 'viem/chains';
-import { useAccount, useDisconnect, WagmiConfig } from 'wagmi';
-
 export { WalletSelectorContextProvider as WalletConnectNearProvider } from 'src/context/WalletSelectorContext';
+import { setupWeb3Onboard } from '../hooks/useWeb3Onboard';
+import {
+  Web3OnboardProvider,
+  useConnectWallet,
+  useNotifications,
+} from '@web3-onboard/react';
 
 const WalletConnectContext = createContext(null);
-
-// 1. Get projectId
-const projectId = '669d1b9f59163a92d90a3c1ff78a7326';
-
-// 2. Create wagmiConfig
-const metadata = {
-  name: 'Web3Modal',
-  description: 'Web3Modal Example',
-  url: 'https://web3modal.com',
-  icons: ['https://avatars.githubusercontent.com/u/37784886'],
-};
-
-const chains = [mainnet, arbitrum];
-const wagmiConfig = defaultWagmiConfig({ chains, projectId, metadata });
-
-// 3. Create modal
-createWeb3Modal({ wagmiConfig, projectId, chains, defaultChain: mainnet });
 
 export function WalletConnectProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const web3Onboard = setupWeb3Onboard();
   return (
     <WalletConnectContext.Provider value={null}>
-      <WagmiConfig config={wagmiConfig}>{children}</WagmiConfig>
+      <Web3OnboardProvider web3Onboard={web3Onboard}>
+        {children}
+      </Web3OnboardProvider>
     </WalletConnectContext.Provider>
   );
 }
@@ -44,10 +28,6 @@ export function WalletConnectProvider({
 export function useWalletConnectContext() {
   const { accountId, modal, ...context } = useWalletSelector();
   const isSignedIn = useMemo(() => !!accountId, [accountId]);
-
-  const web3ModalHooks = useWeb3Modal();
-  const { address, isConnected } = useAccount();
-  const { disconnect } = useDisconnect();
 
   const walletNearHooks = {
     ...context,
@@ -58,17 +38,34 @@ export function useWalletConnectContext() {
     disconnect: modal.show,
   };
 
+  const [{ wallet, connecting }, connect, disconnect] = useConnectWallet();
   const walletEthHooks = {
-    ...web3ModalHooks,
-    accountId: address,
-    isSignedIn: isConnected,
-    disconnect,
+    accountId: wallet?.accounts?.[0]?.address,
+    isSignedIn: wallet && !connecting,
+    open: connect,
+    disconnect: () => disconnect({ label: wallet.label }),
   };
 
-  if (!context || !web3ModalHooks) {
+  const [
+    notifications, // the list of all notifications that update when notifications are added, updated or removed
+    customNotification, // a function that takes a customNotification object and allows custom notifications to be shown to the user, returns an update and dismiss callback
+    updateNotify, // a function that takes a Notify object to allow updating of the properties
+    preflightNotifications, // a function that takes a PreflightNotificationsOption to create preflight notifications
+  ] = useNotifications();
+
+  // View notifications as they come in if you would like to handle them independent of the notification display
+  useEffect(() => {
+    console.log('notifications', notifications);
+  }, [notifications]);
+
+  if (!context) {
     throw new Error(
       'useWalletConnectContext must be used within a WalletConnectProvider'
     );
   }
-  return { NEAR: walletNearHooks, ETH: walletEthHooks };
+  return {
+    NEAR: walletNearHooks,
+    ETH: walletEthHooks,
+    ethProvider: wallet?.provider,
+  };
 }

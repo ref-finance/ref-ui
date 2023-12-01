@@ -5,7 +5,6 @@ import Button from './Button';
 import { ChainConfig, TokenList } from '../config';
 import SvgIcon from './SvgIcon';
 import useBridgeToken from './../hooks/useBridgeToken';
-import { useBalance, useToken } from 'wagmi';
 
 type TokenSelectorCommonProps = {
   chain: BridgeModel.BridgeSupportChain;
@@ -34,10 +33,12 @@ export function SelectTokenButton({
 
 function TokenItem({
   isSelect,
+  chain,
   item,
   onClick,
 }: {
   isSelect?: boolean;
+  chain: BridgeModel.BridgeSupportChain;
   item: BridgeModel.BridgeTokenMeta;
   onClick?: MouseEventHandler;
 }) {
@@ -50,13 +51,13 @@ function TokenItem({
         <div className="w-9 h-9 relative mr-3">
           <img className="w-full h-full  rounded-full" src={item.icon} />
           <SvgIcon
-            name={item.chain === 'ETH' ? 'IconChainEthereum' : 'IconChainNear'}
+            name={chain === 'ETH' ? 'IconChainEthereum' : 'IconChainNear'}
             className="absolute right-0 bottom-0"
           />
         </div>
         <div>
           <div className="text-base text-white mb-1">{item.symbol}</div>
-          <div className="text-xs">{ChainConfig[item.chain].name}</div>
+          <div className="text-xs">{ChainConfig[chain].name}</div>
         </div>
       </div>
       <div className="text-white text-opacity-50">
@@ -171,6 +172,7 @@ export function TokenSelector({
               <TokenItem
                 key={item.symbol}
                 isSelect={token?.symbol === item.symbol}
+                chain={chain}
                 item={item}
                 onClick={() => handleSelected(item)}
               />

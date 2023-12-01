@@ -1,35 +1,20 @@
-import { useToken } from 'wagmi';
+import { useCallback } from 'react';
 import { TokenList } from '../config';
 
 export default function useBridgeToken() {
   const tokens = TokenList;
-  function filterTokens(chain: BridgeModel.BridgeSupportChain, text: string) {
-    return tokens
-      .filter((item) => {
-        const _address =
-          chain === 'ETH' ? item.ethereum_address : item.near_address;
+  const filterTokens = useCallback(
+    (chain: BridgeModel.BridgeSupportChain, text: string) => {
+      return tokens.filter((item) => {
         return (
           item.symbol.toLowerCase().includes(text.toLowerCase()) ||
           item.name.toLowerCase().includes(text.toLowerCase()) ||
-          _address.toLowerCase().includes(text.toLowerCase())
+          item.addresses[chain].toLowerCase().includes(text.toLowerCase())
         );
-      })
-      .map((item) => transformTokenMeta(item, chain));
-  }
-
-  function transformTokenMeta(
-    token: typeof TokenList[number],
-    chain: BridgeModel.BridgeSupportChain
-  ): BridgeModel.BridgeTokenMeta {
-    return {
-      chain,
-      symbol: token.symbol,
-      name: token.name,
-      decimals: token.decimals,
-      icon: token.icon,
-      address: chain === 'ETH' ? token.ethereum_address : token.near_address,
-    };
-  }
+      });
+    },
+    [tokens]
+  );
 
   return { filterTokens };
 }

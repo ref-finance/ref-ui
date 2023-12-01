@@ -1,19 +1,20 @@
 declare namespace BridgeModel {
   type BridgeSupportChain = 'ETH' | 'NEAR';
   type BridgeTokenMeta = {
-    chain: BridgeModel.BridgeSupportChain;
     symbol: string;
     name: string;
     decimals: number;
     icon: string;
-    address: string;
+    addresses: {
+      [k in BridgeSupportChain]: string;
+    };
   };
   type BridgeTransaction = {
     from: BridgeTranSactionItem;
     to: BridgeTranSactionItem;
   };
   type BridgeTranSactionItem = {
-    chain: BridgeModel.BridgeSupportChain;
+    chain: BridgeSupportChain;
     tokenMeta?: BridgeTokenMeta;
     amount?: number;
     isCustomToken?: boolean;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import BridgeRoutes from '../components/BridgeRoutes';
 import Button from '../components/Button';
@@ -91,15 +91,17 @@ function BridgeEntry() {
     ...rest
   }: Parameters<typeof open>[number] & { type: 'from' | 'to' }) {
     const tokenMeta = await open(rest);
-    if (type === 'from') {
-      setBridgeFromValue({ ...bridgeFromValue, tokenMeta });
-    } else if (type === 'to') {
-      setBridgeToValue({ ...bridgeToValue, tokenMeta });
-    }
+    console.log('selected tokenMeta', tokenMeta);
+    setBridgeFromValue({ ...bridgeFromValue, tokenMeta });
+    setBridgeToValue({ ...bridgeToValue, tokenMeta });
   }
 
-  const { transfer } = useRainbowBridge();
   const wallet = useWalletConnectContext();
+  const { transfer, setupRainbowBridge } = useRainbowBridge();
+
+  useEffect(() => {
+    setupRainbowBridge();
+  }, [setupRainbowBridge, wallet.ethProvider]);
 
   async function transferRainbowBridge() {
     const { tokenMeta, amount, chain: from } = bridgeFromValue;
@@ -108,9 +110,8 @@ function BridgeEntry() {
       token: tokenMeta,
       amount: (amount ?? 1).toString(),
       from,
-      accountId: wallet[to]?.accountId,
+      recipient: wallet[to]?.accountId,
       sender: wallet[from]?.accountId,
-      nearWalletSelector: wallet.NEAR.selector,
     });
     console.log('transferRainbowBridge', res);
   }
@@ -156,6 +157,7 @@ function BridgeEntry() {
         <InputToken
           model={bridgeToValue}
           style={{ backgroundColor: 'transparent' }}
+          inputReadonly
           onChange={setBridgeToValue}
         >
           <SelectTokenButton

@@ -40,7 +40,7 @@ function ConnectWallet({ currentChain, className, onChangeChain }: Props) {
         <Button
           rounded
           size="small"
-          onClick={() => currentChain === 'ETH' && open({ view: 'Account' })}
+          // onClick={() => currentChain === 'ETH' && open({ view: 'Account' })}
         >
           <span className="inline-flex w-2 h-2 rounded-full bg-primary mr-2"></span>
           <span className="text-white mr-2">
@@ -59,13 +59,7 @@ function ConnectWallet({ currentChain, className, onChangeChain }: Props) {
           )}
         </Button>
       ) : (
-        <Button
-          type="primary"
-          text
-          onClick={() =>
-            currentChain === 'NEAR' ? open() : open({ view: 'Connect' })
-          }
-        >
+        <Button type="primary" text onClick={() => open()}>
           Connect
         </Button>
       )}

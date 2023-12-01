@@ -6,9 +6,10 @@ type Props = {
     | BridgeModel.BridgeTransaction['from']
     | BridgeModel.BridgeTransaction['to'];
   className?: string;
-  onChange?: (value: Props['model']) => void;
   children?: React.ReactNode;
   style?: React.CSSProperties;
+  inputReadonly?: boolean;
+  onChange?: (value: Props['model']) => void;
 };
 
 function GasFeeWarning({ className }: { className?: string }) {
@@ -20,7 +21,14 @@ function GasFeeWarning({ className }: { className?: string }) {
   );
 }
 
-function InputToken({ model, className, onChange, children, style }: Props) {
+function InputToken({
+  model,
+  className,
+  onChange,
+  children,
+  style,
+  inputReadonly,
+}: Props) {
   const [isInputFocus, setIsInputFocus] = useState(false);
   const isError = useMemo(
     () => model.amount && model.amount > 1000,
@@ -41,11 +49,16 @@ function InputToken({ model, className, onChange, children, style }: Props) {
           <input
             type="number"
             inputMode="decimal"
+            min={0}
             className="text-white text-xl bg-transparent flex-1"
             placeholder="0"
+            readOnly={inputReadonly}
             value={model.amount || ''}
             onChange={(e) =>
-              onChange?.({ ...model, amount: Number(e.target.value) })
+              onChange?.({
+                ...model,
+                amount: e.target.value as unknown as number,
+              })
             }
             onFocus={() => setIsInputFocus(true)}
             onBlur={() => setIsInputFocus(false)}

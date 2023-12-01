@@ -1,4 +1,3 @@
-import type { Transfer } from '@near-eth/client';
 import {
   bridgedETH,
   bridgedNEAR,
@@ -6,99 +5,177 @@ import {
   naturalNEAR,
 } from '@near-eth/near-ether';
 import { bridgedNep141, naturalErc20 } from '@near-eth/nep141-erc20';
-import type { WalletSelector } from '@near-wallet-selector/core';
 import Big from 'big.js';
+import { ethers } from 'ethers';
+import type { WalletSelector } from '@near-wallet-selector/core';
+import { BridgeParams } from '../config';
+import erc20Abi from './../abi/Erc20Abi.json';
 
 const rainbowBridgeService = {
-  transfer: async ({
+  async checkApprove({
+    token,
+    amount,
+    from,
+    sender,
+  }: {
+    token: BridgeModel.BridgeTokenMeta;
+    amount: string;
+    from: BridgeModel.BridgeSupportChain;
+    sender: string;
+  }) {
+    if (from === 'NEAR' || !token.addresses.ETH) return true;
+    const signer = await window.ethWeb3Provider?.getSigner();
+    const erc20Contract = new ethers.Contract(
+      token.addresses.ETH,
+      erc20Abi,
+      signer
+    );
+    const allowance = await erc20Contract.allowance(
+      sender,
+      BridgeParams.erc20LockerAddress
+    );
+    console.log('allowance', erc20Contract, allowance);
+    const amountIn = new Big(amount).times(10 ** token.decimals).toFixed();
+    if (allowance.gte(amountIn)) return true;
+    return false;
+  },
+  async approve({
+    token,
+    amount,
+    from,
+  }: {
+    token: BridgeModel.BridgeTokenMeta;
+    amount: string;
+    from: BridgeModel.BridgeSupportChain;
+  }) {
+    if (from === 'NEAR' || !token.addresses.ETH) return;
+    const signer = await window.ethWeb3Provider?.getSigner();
+    const erc20Contract = new ethers.Contract(
+      token.addresses.ETH,
+      erc20Abi,
+      signer
+    );
+    const amountIn = new Big(amount).times(10 ** token.decimals).toFixed();
+    const tx = await erc20Contract.approve(
+      BridgeParams.erc20LockerAddress,
+      amountIn
+    );
+    await tx.wait();
+  },
+  getBridgeInstance({
+    token,
+    from,
+  }: {
+    token: BridgeModel.BridgeTokenMeta;
+    from: BridgeModel.BridgeSupportChain;
+  }) {
+    if (from === 'NEAR' && !token.addresses.ETH && token.symbol === 'ETH')
+      return { bridgedETH };
+    //   nep141 to eth
+    else if (
+      from === 'NEAR' &&
+      !!token.addresses.NEAR &&
+      !!token.addresses.ETH &&
+      token.symbol !== 'NEAR'
+    )
+      return { bridgedNep141 };
+    else if (from === 'NEAR' && token.symbol === 'NEAR') return { naturalNEAR };
+    //   erc20 to nep141
+    else if (
+      from === 'ETH' &&
+      !!token.addresses.ETH &&
+      !!token.addresses.NEAR &&
+      token.symbol !== 'NEAR'
+    )
+      return { naturalErc20 };
+    else if (from === 'ETH' && token.symbol === 'NEAR') return { bridgedNEAR };
+    else if (from === 'ETH' && !token.addresses.ETH && token.symbol === 'ETH')
+      return { naturalETH };
+  },
+  async transfer({
     token,
     amount: amountIn,
     sender,
     from,
-    accountId,
+    recipient,
     nearWalletSelector,
   }: {
-    token: any;
+    token: BridgeModel.BridgeTokenMeta;
     amount: string;
     sender: string;
     from: BridgeModel.BridgeSupportChain;
-    accountId: string;
+    recipient: string;
     nearWalletSelector?: WalletSelector;
-  }) => {
-    let transfer: Transfer | null = null;
-
-    const wallet = (await nearWalletSelector.wallet()) as any;
+  }) {
+    const isApproved = await rainbowBridgeService.checkApprove({
+      token,
+      amount: amountIn,
+      from,
+      sender,
+    });
+    if (!isApproved) {
+      await rainbowBridgeService.approve({
+        token,
+        amount: amountIn,
+        from,
+      });
+    }
+    const nearAccount = (await nearWalletSelector.wallet()) as any;
 
     const amount = new Big(amountIn).times(10 ** token.decimals).toFixed();
+    console.log('amount', amount);
 
-    if (from === 'NEAR' && !token.ethereum_address && token.symbol === 'ETH') {
-      transfer = await bridgedETH.sendToEthereum({
+    const instance = rainbowBridgeService.getBridgeInstance({ token, from });
+    console.log('instance', instance, {
+      token,
+      from,
+      amount,
+      sender,
+      recipient,
+    });
+    if (instance.bridgedETH)
+      return instance.bridgedETH.sendToEthereum({
         amount,
         recipient: sender,
         options: {
-          nearAccount: wallet,
+          nearAccount,
         },
       });
-    }
-
-    //   nep141 to eth
-    if (
-      from === 'NEAR' &&
-      !!token.near_address &&
-      !!token.ethereum_address &&
-      token.symbol !== 'NEAR'
-    ) {
-      transfer = await bridgedNep141.sendToEthereum({
-        erc20Address: token.ethereum_address,
+    else if (instance.bridgedNep141)
+      return instance.bridgedNep141.sendToEthereum({
+        erc20Address: token.addresses.ETH,
         amount,
         recipient: sender,
         options: {
           ...token,
-          nep141Address: token.near_address,
-          nearAccount: wallet,
+          nep141Address: token.addresses.NEAR,
+          nearAccount,
         },
       });
-    }
-
-    if (from === 'NEAR' && token.symbol === 'NEAR') {
-      transfer = await naturalNEAR.sendToEthereum({
+    else if (instance.naturalNEAR)
+      return instance.naturalNEAR.sendToEthereum({
         recipient: sender,
         amount,
         options: {
-          nearAccount: wallet,
+          nearAccount,
         },
       });
-    }
-
-    //   erc20 to nep141
-    if (
-      from === 'ETH' &&
-      !!token.ethereum_address &&
-      !!token.near_address &&
-      token.symbol !== 'NEAR'
-    ) {
-      transfer = await naturalErc20.sendToNear({
-        erc20Address: token.ethereum_address,
+    else if (instance.naturalErc20)
+      return instance.naturalErc20.sendToNear({
+        erc20Address: token.addresses.ETH,
         amount,
-        recipient: accountId,
+        recipient,
       });
-    }
-
-    if (from === 'ETH' && token.symbol === 'NEAR') {
-      transfer = await bridgedNEAR.sendToNear({
+    else if (instance.bridgedNEAR)
+      return instance.bridgedNEAR.sendToNear({
         amount,
-        recipient: accountId,
+        recipient,
       });
-    }
-
-    if (from === 'ETH' && !token.ethereum_address && token.symbol === 'ETH') {
-      transfer = await naturalETH.sendToNear({
+    else if (instance.naturalETH)
+      return instance.naturalETH.sendToNear({
         amount,
-        recipient: accountId,
+        recipient,
       });
-    }
-
-    return transfer;
   },
 };
 

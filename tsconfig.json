@@ -25,7 +25,9 @@
     "downlevelIteration": true,
     "skipLibCheck": true, /* Skip type checking of declaration files. */
     "strictNullChecks": false,
-    "strictPropertyInitialization": false
+    "strictPropertyInitialization": false,
+    "allowSyntheticDefaultImports":true,
+    "resolveJsonModule": true
   },
   "include": ["src/", "*.d.ts","src/**/*.d.ts"],
   "exclude": ["node_modules/*", "**/*.spec.ts", "src/index.tsx"]
