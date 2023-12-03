@@ -5,6 +5,15 @@
     --bridge-primary-color-hover-rgb: 0,139,114;
     --bridge-default-color: #7E8A93;
     --bridge-border-color: #2B3E4C;
+    --toastify-color-success: #32CA82;
+    --toastify-color-dark:#213441;
+   
+}
+
+/** reset toast style */
+.Toastify__toast-body > div:first-child{
+    width: 20px;
+    height: auto;
 }
 
 

@@ -14,8 +14,14 @@ export function useRequest<T>(request: () => Promise<T>, options?: Options<T>) {
   const [data, setData] = useState<T>();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error>();
-  const { refreshDeps, before, manual, onSuccess, onError, debounceOptions } =
-    options || {};
+  const {
+    refreshDeps = [],
+    before,
+    manual,
+    onSuccess,
+    onError,
+    debounceOptions,
+  } = options || {};
   const run = async () => {
     try {
       setLoading(true);
@@ -23,6 +29,7 @@ export function useRequest<T>(request: () => Promise<T>, options?: Options<T>) {
       setData(res);
       onSuccess && onSuccess(res);
     } catch (err) {
+      console.error(err);
       setError(err);
       onError && onError(err);
     } finally {
@@ -39,7 +46,7 @@ export function useRequest<T>(request: () => Promise<T>, options?: Options<T>) {
     if (manual) return;
     if (before && !before()) return;
     run();
-  }, refreshDeps ?? []);
+  }, [...refreshDeps]);
 
   return {
     run: debounceOptions ? debounceRun : run,

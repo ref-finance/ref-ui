@@ -7,11 +7,11 @@ import InputToken from '../components/InputToken';
 import SlippageSelector from '../components/StableSlipSelector';
 import { SelectTokenButton } from '../components/TokenSelector';
 import { useBridgeFormContext } from '../providers/bridgeForm';
-import { useRouterViewContext } from '../providers/routerView';
 import { useTokenSelectorContext } from '../providers/selectToken';
 import SvgIcon from '../components/SvgIcon';
 import useRainbowBridge from '../hooks/useRainbowBridge';
 import { useWalletConnectContext } from '../providers/walletConcent';
+import { useRouter } from '../hooks/useRouter';
 
 function FormHeader() {
   const { slippageTolerance, setSlippageTolerance } = useBridgeFormContext();
@@ -72,7 +72,6 @@ function CustomToken() {
 }
 
 function BridgeEntry() {
-  const { changeRouterView } = useRouterViewContext();
   const {
     bridgeFromValue,
     setBridgeFromValue,
@@ -101,11 +100,12 @@ function BridgeEntry() {
 
   useEffect(() => {
     setupRainbowBridge();
-  }, [setupRainbowBridge, wallet.ethProvider]);
+  }, [setupRainbowBridge, wallet.ETH.accountId]);
 
   async function transferRainbowBridge() {
     const { tokenMeta, amount, chain: from } = bridgeFromValue;
     const { chain: to } = bridgeToValue;
+
     const res = await transfer({
       token: tokenMeta,
       amount: (amount ?? 1).toString(),
@@ -114,6 +114,11 @@ function BridgeEntry() {
       sender: wallet[from]?.accountId,
     });
     console.log('transferRainbowBridge', res);
+  }
+
+  const router = useRouter();
+  function handleOpenHistory() {
+    router.push('/bridge/history');
   }
 
   return (
@@ -177,17 +182,14 @@ function BridgeEntry() {
           type="primary"
           size="large"
           className="w-full"
-          // disabled={bridgeSubmitStatus !== 'preview'}
-          onClick={() => {
-            transferRainbowBridge();
-            // openPreviewModal();
-          }}
+          disabled={bridgeSubmitStatus !== 'preview'}
+          onClick={openPreviewModal}
         >
           {bridgeSubmitStatusText}
         </Button>
       </form>
       <div className="mt-4 flex items-center justify-between">
-        <Button text onClick={() => changeRouterView('history')}>
+        <Button text onClick={handleOpenHistory}>
           Bridge Transaction History
         </Button>
         <div

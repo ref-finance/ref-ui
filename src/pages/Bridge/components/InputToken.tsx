@@ -1,8 +1,13 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import SvgIcon from './SvgIcon';
+import Big from 'big.js';
+import useBridgeForm from '../hooks/useBridgeForm';
+import useBridgeToken from '../hooks/useBridgeToken';
+import { useRequest } from '../hooks/useRequest';
+import { formatBalance, formatDisplayBalance } from '../utils/format';
 
 type Props = {
-  model:
+  model?:
     | BridgeModel.BridgeTransaction['from']
     | BridgeModel.BridgeTransaction['to'];
   className?: string;
@@ -30,10 +35,33 @@ function InputToken({
   inputReadonly,
 }: Props) {
   const [isInputFocus, setIsInputFocus] = useState(false);
-  const isError = useMemo(
-    () => model.amount && model.amount > 1000,
-    [model.amount]
+  const { getTokenBalance } = useBridgeToken();
+
+  const { data: balance, loading } = useRequest(
+    () => getTokenBalance(model.chain, model.tokenMeta),
+    {
+      before: () => !!model?.chain && !!model?.tokenMeta?.symbol,
+      refreshDeps: [model?.chain, model?.tokenMeta?.symbol],
+    }
   );
+  const formattedBalance = useMemo(
+    () => formatBalance(balance, model?.tokenMeta?.decimals),
+    [balance, model.tokenMeta?.decimals]
+  );
+
+  const isError = useMemo(() => {
+    return (
+      model.amount && new Big(model.amount).gte(formattedBalance) && !loading
+    );
+  }, [model.amount, formattedBalance, loading]);
+
+  function handleAllAmount() {
+    !inputReadonly &&
+      onChange?.({
+        ...model,
+        amount: formattedBalance,
+      });
+  }
 
   return (
     <>
@@ -57,7 +85,7 @@ function InputToken({
             onChange={(e) =>
               onChange?.({
                 ...model,
-                amount: e.target.value as unknown as number,
+                amount: e.target.value,
               })
             }
             onFocus={() => setIsInputFocus(true)}
@@ -67,7 +95,21 @@ function InputToken({
         </div>
         <div className="w-full flex items-center justify-between text-xs">
           <span>$0.00</span>
-          <span className="text-gray-400">Balance: </span>
+          <span className="text-gray-400">
+            Balance:
+            <a
+              className={`ml-1 ${
+                formattedBalance && new Big(formattedBalance).gt(0)
+                  ? !inputReadonly
+                    ? 'hover:underline cursor-pointer text-white'
+                    : 'text-white'
+                  : ''
+              }`}
+              onClick={handleAllAmount}
+            >
+              {formatDisplayBalance(balance, model?.tokenMeta?.decimals)}
+            </a>
+          </span>
         </div>
       </div>
       {isError ? <GasFeeWarning className="mt-2" /> : null}

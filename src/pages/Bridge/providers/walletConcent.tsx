@@ -2,20 +2,21 @@ import React, { createContext, useEffect, useMemo } from 'react';
 import { useWalletSelector } from 'src/context/WalletSelectorContext';
 export { WalletSelectorContextProvider as WalletConnectNearProvider } from 'src/context/WalletSelectorContext';
 import { setupWeb3Onboard } from '../hooks/useWeb3Onboard';
-import {
-  Web3OnboardProvider,
-  useConnectWallet,
-  useNotifications,
-} from '@web3-onboard/react';
+import { Web3OnboardProvider, useConnectWallet } from '@web3-onboard/react';
+import { ethers } from 'ethers';
+import getConfig from 'src/services/config';
+import { Near, WalletConnection, keyStores } from 'near-api-js';
+import { APPID } from '../config';
 
 const WalletConnectContext = createContext(null);
+
+const web3Onboard = setupWeb3Onboard();
 
 export function WalletConnectProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const web3Onboard = setupWeb3Onboard();
   return (
     <WalletConnectContext.Provider value={null}>
       <Web3OnboardProvider web3Onboard={web3Onboard}>
@@ -29,16 +30,29 @@ export function useWalletConnectContext() {
   const { accountId, modal, ...context } = useWalletSelector();
   const isSignedIn = useMemo(() => !!accountId, [accountId]);
 
+  const { networkId, helperUrl, walletUrl, nodeUrl } = getConfig();
+  window.Near = new Near({
+    keyStore: new keyStores.BrowserLocalStorageKeyStore(),
+    networkId,
+    nodeUrl,
+    helperUrl,
+    walletUrl,
+    headers: {},
+  });
+
+  window.walletNearConnection = new WalletConnection(window.Near, APPID);
+
   const walletNearHooks = {
     ...context,
     open: modal.show,
     close: modal.hide,
     accountId,
     isSignedIn,
-    disconnect: modal.show,
+    disconnect: window.near?.signOut,
   };
 
   const [{ wallet, connecting }, connect, disconnect] = useConnectWallet();
+
   const walletEthHooks = {
     accountId: wallet?.accounts?.[0]?.address,
     isSignedIn: wallet && !connecting,
@@ -46,17 +60,15 @@ export function useWalletConnectContext() {
     disconnect: () => disconnect({ label: wallet.label }),
   };
 
-  const [
-    notifications, // the list of all notifications that update when notifications are added, updated or removed
-    customNotification, // a function that takes a customNotification object and allows custom notifications to be shown to the user, returns an update and dismiss callback
-    updateNotify, // a function that takes a Notify object to allow updating of the properties
-    preflightNotifications, // a function that takes a PreflightNotificationsOption to create preflight notifications
-  ] = useNotifications();
-
-  // View notifications as they come in if you would like to handle them independent of the notification display
   useEffect(() => {
-    console.log('notifications', notifications);
-  }, [notifications]);
+    if (wallet?.provider && walletEthHooks.accountId) {
+      window.ethProvider = wallet?.provider;
+      window.ethWeb3Provider = new ethers.providers.Web3Provider(
+        wallet?.provider,
+        'any'
+      );
+    }
+  }, [wallet?.provider, walletEthHooks.accountId]);
 
   if (!context) {
     throw new Error(
@@ -66,6 +78,5 @@ export function useWalletConnectContext() {
   return {
     NEAR: walletNearHooks,
     ETH: walletEthHooks,
-    ethProvider: wallet?.provider,
   };
 }

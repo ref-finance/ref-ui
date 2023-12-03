@@ -4,9 +4,9 @@ import Button from '../components/Button';
 import ConnectWallet from '../components/ConnectWallet';
 import HistoryTable from '../components/HistoryTable';
 import { useRequest } from '../hooks/useRequest';
-import { useRouterViewContext } from '../providers/routerView';
 import { bridgeHistoryService } from '../services';
 import SvgIcon from '../components/SvgIcon';
+import { useRouter } from '../hooks/useRouter';
 
 type BridgeHistoryFilter = {
   chain: BridgeModel.BridgeSupportChain;
@@ -14,7 +14,6 @@ type BridgeHistoryFilter = {
 };
 
 function BridgeTransactionHistory() {
-  const { changeRouterView } = useRouterViewContext();
   const [historyFilter, setHistoryFilter] = useState<BridgeHistoryFilter>({
     chain: 'ETH',
     onlyUnclaimed: false,
@@ -25,16 +24,16 @@ function BridgeTransactionHistory() {
     { refreshDeps: [historyFilter] }
   );
 
+  const router = useRouter();
+  function handleOpenHistory() {
+    router.goBack();
+  }
   return (
     <div className="bridge-history-container">
       <div className="bridge-plane shadow-4xl">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center text-white text-base ">
-            <Button
-              className="mr-2"
-              text
-              onClick={() => changeRouterView('entry')}
-            >
+            <Button className="mr-2" text onClick={handleOpenHistory}>
               <SvgIcon name="IconArrowDown" className="transform rotate-90" />
             </Button>
             Bridge Transaction History

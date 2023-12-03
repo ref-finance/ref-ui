@@ -5,6 +5,9 @@ import Button from './Button';
 import { ChainConfig, TokenList } from '../config';
 import SvgIcon from './SvgIcon';
 import useBridgeToken from './../hooks/useBridgeToken';
+import { useRequest } from '../hooks/useRequest';
+import { ethServices, nearServices } from '../services/contract';
+import { formatDisplayBalance } from '../utils/format';
 
 type TokenSelectorCommonProps = {
   chain: BridgeModel.BridgeSupportChain;
@@ -42,6 +45,10 @@ function TokenItem({
   item: BridgeModel.BridgeTokenMeta;
   onClick?: MouseEventHandler;
 }) {
+  const { getTokenBalance } = useBridgeToken();
+  const { data: balance, loading } = useRequest(() =>
+    getTokenBalance(chain, item)
+  );
   return (
     <div
       className="flex items-center justify-between py-3 px-4 -mx-4 cursor-pointer hover:bg-white hover:bg-opacity-10"
@@ -72,7 +79,11 @@ function TokenItem({
             className="inline-block text-white text-sm"
             style={{ minWidth: '3rem' }}
           >
-            0
+            {loading ? (
+              <span className="text-gray-400">...</span>
+            ) : (
+              formatDisplayBalance(balance, item.decimals)
+            )}
           </span>
         </div>
         <div className="text-right text-xs">$0.00</div>
@@ -170,9 +181,9 @@ export function TokenSelector({
           <div>
             {tokenList.map((item) => (
               <TokenItem
-                key={item.symbol}
+                key={tokenFilter.chain + item.symbol}
                 isSelect={token?.symbol === item.symbol}
-                chain={chain}
+                chain={tokenFilter.chain}
                 item={item}
                 onClick={() => handleSelected(item)}
               />

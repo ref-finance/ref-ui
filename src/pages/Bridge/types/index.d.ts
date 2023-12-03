@@ -16,7 +16,7 @@ declare namespace BridgeModel {
   type BridgeTranSactionItem = {
     chain: BridgeSupportChain;
     tokenMeta?: BridgeTokenMeta;
-    amount?: number;
+    amount?: string;
     isCustomToken?: boolean;
     customTokenAddress?: string;
   };

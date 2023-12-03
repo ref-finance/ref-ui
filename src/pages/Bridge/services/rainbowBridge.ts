@@ -9,7 +9,7 @@ import Big from 'big.js';
 import { ethers } from 'ethers';
 import type { WalletSelector } from '@near-wallet-selector/core';
 import { BridgeParams } from '../config';
-import erc20Abi from './../abi/Erc20Abi.json';
+import { ethServices } from './contract';
 
 const rainbowBridgeService = {
   async checkApprove({
@@ -24,12 +24,10 @@ const rainbowBridgeService = {
     sender: string;
   }) {
     if (from === 'NEAR' || !token.addresses.ETH) return true;
-    const signer = await window.ethWeb3Provider?.getSigner();
-    const erc20Contract = new ethers.Contract(
-      token.addresses.ETH,
-      erc20Abi,
-      signer
+    const erc20Contract = await ethServices.getErc20Contract(
+      token.addresses.ETH
     );
+    console.log(sender, BridgeParams.erc20LockerAddress);
     const allowance = await erc20Contract.allowance(
       sender,
       BridgeParams.erc20LockerAddress
@@ -49,11 +47,8 @@ const rainbowBridgeService = {
     from: BridgeModel.BridgeSupportChain;
   }) {
     if (from === 'NEAR' || !token.addresses.ETH) return;
-    const signer = await window.ethWeb3Provider?.getSigner();
-    const erc20Contract = new ethers.Contract(
-      token.addresses.ETH,
-      erc20Abi,
-      signer
+    const erc20Contract = await ethServices.getErc20Contract(
+      token.addresses.ETH
     );
     const amountIn = new Big(amount).times(10 ** token.decimals).toFixed();
     const tx = await erc20Contract.approve(
@@ -136,8 +131,9 @@ const rainbowBridgeService = {
     if (instance.bridgedETH)
       return instance.bridgedETH.sendToEthereum({
         amount,
-        recipient: sender,
+        recipient,
         options: {
+          sender,
           nearAccount,
         },
       });
@@ -145,8 +141,9 @@ const rainbowBridgeService = {
       return instance.bridgedNep141.sendToEthereum({
         erc20Address: token.addresses.ETH,
         amount,
-        recipient: sender,
+        recipient,
         options: {
+          sender,
           ...token,
           nep141Address: token.addresses.NEAR,
           nearAccount,
@@ -154,9 +151,10 @@ const rainbowBridgeService = {
       });
     else if (instance.naturalNEAR)
       return instance.naturalNEAR.sendToEthereum({
-        recipient: sender,
+        recipient,
         amount,
         options: {
+          sender,
           nearAccount,
         },
       });
@@ -165,16 +163,25 @@ const rainbowBridgeService = {
         erc20Address: token.addresses.ETH,
         amount,
         recipient,
+        options: {
+          sender,
+        },
       });
     else if (instance.bridgedNEAR)
       return instance.bridgedNEAR.sendToNear({
         amount,
         recipient,
+        options: {
+          sender,
+        },
       });
     else if (instance.naturalETH)
       return instance.naturalETH.sendToNear({
         amount,
         recipient,
+        options: {
+          sender,
+        },
       });
   },
 };

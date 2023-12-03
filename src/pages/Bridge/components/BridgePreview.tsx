@@ -3,9 +3,11 @@ import Modal from 'react-modal';
 import ReactTooltip from 'react-tooltip';
 
 import SvgIcon from './SvgIcon';
-import { useRouterViewContext } from '../providers/routerView';
 import Button from './Button';
 import useRainbowBridge from '../hooks/useRainbowBridge';
+import { useRouter } from '../hooks/useRouter';
+import { useBridgeFormContext } from '../providers/bridgeForm';
+import { useWalletConnectContext } from '../providers/walletConcent';
 
 export default function BridgePreviewModal({
   toggleOpenModal,
@@ -13,11 +15,23 @@ export default function BridgePreviewModal({
 }: Modal.Props & { toggleOpenModal: () => void }) {
   const [isOpenStatusModal, setIsOpenStatusModal] = useState(false);
 
-  const { checkApprove, approve } = useRainbowBridge();
+  const { transferLoading, transfer } = useRainbowBridge();
 
-  function handleApprove() {
-    toggleOpenModal();
-    setIsOpenStatusModal(true);
+  const { bridgeFromValue, bridgeToValue } = useBridgeFormContext();
+  const wallet = useWalletConnectContext();
+
+  async function handleTransfer() {
+    const { tokenMeta, amount, chain: from } = bridgeFromValue;
+    const { chain: to } = bridgeToValue;
+
+    const res = await transfer({
+      token: tokenMeta,
+      amount: (amount ?? 1).toString(),
+      from,
+      recipient: wallet[to]?.accountId,
+      sender: wallet[from]?.accountId,
+    });
+    console.log('handleTransfer', res);
   }
   return (
     <>
@@ -113,101 +127,16 @@ export default function BridgePreviewModal({
                   type="primary"
                   size="large"
                   className="w-full"
-                  onClick={handleApprove}
+                  disabled={transferLoading}
+                  onClick={handleTransfer}
                 >
-                  Approve
+                  Transfer
                 </Button>
               </div>
             </div>
           </div>
         </div>
       </Modal>
-      <BridgeTransactionStatusModal
-        isOpen={isOpenStatusModal}
-        toggleOpenModal={() => setIsOpenStatusModal(!isOpenStatusModal)}
-      />
     </>
-  );
-}
-
-export function BridgeTransactionStatusModal({
-  toggleOpenModal,
-  ...props
-}: Modal.Props & { toggleOpenModal: () => void }) {
-  const { changeRouterView } = useRouterViewContext();
-
-  function handleOpenHistory() {
-    toggleOpenModal();
-    changeRouterView('history');
-  }
-
-  function handleClaim() {
-    toggleOpenModal();
-    changeRouterView('history');
-  }
-
-  function handleNewTransfer() {
-    toggleOpenModal();
-    changeRouterView('entry');
-  }
-
-  return (
-    <Modal {...props} onRequestClose={toggleOpenModal}>
-      <div className="bridge-modal" style={{ width: '428px' }}>
-        <div className="flex items-center justify-between">
-          <span className="text-base text-white font-medium">
-            Transaction Detail
-          </span>
-          <Button text onClick={toggleOpenModal}>
-            <SvgIcon name="IconClose" />
-          </Button>
-        </div>
-        <div className="flex items-center justify-center my-8 gap-2">
-          <div className="w-7 h-7 bg-white rounded-md" />
-          <div className="bridge-status-process">
-            <SvgIcon name="IconWaiting" className="text-5xl" />
-            {/* <SvgIcon name="IconSuccessCircle" className="text-5xl"/> */}
-          </div>
-          <div className="w-7 h-7 bg-white rounded-md" />
-        </div>
-        <div className="my-6 text-center text-white">
-          Est. Bridging Time: 5 mins / Bridge Completed
-        </div>
-        <div className="text-center mb-6">
-          Transaction completed. You can view your transaction on the{' '}
-          <Button type="primary" text onClick={handleOpenHistory}>
-            bridge transaction history
-          </Button>
-          .
-        </div>
-        <div className="text-center">
-          <Button>
-            <span className="inline-flex items-center text-primary text-xs">
-              SRC TX <SvgIcon name="IconExport" className="text-xs ml-2" />
-            </span>
-          </Button>
-        </div>
-        <div className="mt-6">
-          <Button
-            type="primary"
-            size="large"
-            className="w-full "
-            onClick={handleClaim}
-          >
-            Claim
-          </Button>
-          <br />
-          <br />
-          <Button
-            size="large"
-            plain
-            className="w-full"
-            onClick={handleNewTransfer}
-          >
-            + New Transfer
-          </Button>
-        </div>
-      </div>
-    </Modal>
   );
 }

@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 
 import { useWalletConnectContext } from '../providers/walletConcent';
-import useRainbowBridge from './useRainbowBridge';
 
 export default function useBridgeForm() {
   const walletCxt = useWalletConnectContext();
@@ -60,11 +59,13 @@ export default function useBridgeForm() {
   function exchangeChain() {
     const temp = {
       ...bridgeFromValue,
+      amount: undefined,
       isCustomToken: false,
       customTokenAddress: undefined,
     };
     setBridgeFromValue({
       ...bridgeToValue,
+      amount: '1',
       isCustomToken: false,
       customTokenAddress: undefined,
     });

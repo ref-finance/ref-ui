@@ -3,9 +3,6 @@ import './index.css';
 import React from 'react';
 
 import BridgeFormProvider from './providers/bridgeForm';
-import RouterViewProvider, {
-  useRouterViewContext,
-} from './providers/routerView';
 import TokenSelectorProvider from './providers/selectToken';
 import {
   WalletConnectNearProvider,
@@ -13,30 +10,36 @@ import {
 } from './providers/walletConcent';
 import BridgeEntry from './views/entry';
 import BridgeTransactionHistory from './views/history';
+import { Route, Switch } from 'react-router-dom';
+import BridgeTransactionStatusProvider from './providers/bridgeTransactionStatus';
 
 function Layout() {
-  const { routerView } = useRouterViewContext();
-  return routerView === 'entry' ? (
-    <BridgeEntry />
-  ) : (
-    <BridgeTransactionHistory />
+  return (
+    <Switch>
+      <Route path="/bridge" exact>
+        <BridgeEntry />
+      </Route>
+      <Route path="/bridge/history">
+        <BridgeTransactionHistory />
+      </Route>
+    </Switch>
   );
 }
 
 function BridgePage() {
   return (
     <div className="bridge-page">
-      <RouterViewProvider>
-        <WalletConnectProvider>
-          <WalletConnectNearProvider>
-            <TokenSelectorProvider>
-              <BridgeFormProvider>
+      <WalletConnectProvider>
+        <WalletConnectNearProvider>
+          <TokenSelectorProvider>
+            <BridgeFormProvider>
+              <BridgeTransactionStatusProvider>
                 <Layout />
-              </BridgeFormProvider>
-            </TokenSelectorProvider>
-          </WalletConnectNearProvider>
-        </WalletConnectProvider>
-      </RouterViewProvider>
+              </BridgeTransactionStatusProvider>
+            </BridgeFormProvider>
+          </TokenSelectorProvider>
+        </WalletConnectNearProvider>
+      </WalletConnectProvider>
     </div>
   );
 }

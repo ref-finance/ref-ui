@@ -3,65 +3,61 @@ import {
   setEthProvider,
   setSignerProvider,
 } from '@near-eth/client';
-import { keyStores, Near, WalletConnection } from 'near-api-js';
 import { setNearConnection } from '@near-eth/client';
 import { APPID, BridgeParams } from '../config';
-import getConfig from 'src/services/config';
 import { ethers } from 'ethers';
-import { useEffect, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { rainbowBridgeService } from '../services';
 import { useWalletConnectContext } from '../providers/walletConcent';
+import getConfig from 'src/services/config';
+import { Near, WalletConnection, keyStores } from 'near-api-js';
+import { toast } from 'react-toastify';
 
 export default function useRainbowBridge() {
-  const { networkId, helperUrl, walletUrl, nodeUrl } = getConfig();
-  const { ethProvider, ...wallet } = useWalletConnectContext();
+  const wallet = useWalletConnectContext();
 
   const setupRainbowBridge = useCallback(() => {
-    if (!ethProvider) return;
+    if (!wallet.ETH.accountId) return;
     setBridgeParams(BridgeParams);
-    const nearConnection = new WalletConnection(
-      new Near({
-        keyStore: new keyStores.BrowserLocalStorageKeyStore(),
-        networkId,
-        nodeUrl,
-        helperUrl,
-        walletUrl,
-        headers: {},
-      }),
-      APPID
-    );
-    setNearConnection(nearConnection as any);
 
+    setNearConnection(window.walletNearConnection as any);
     setEthProvider(
       new ethers.providers.JsonRpcProvider('https://rpc.ankr.com/eth')
     );
+    setSignerProvider(window.ethWeb3Provider);
+  }, [wallet.ETH.accountId]);
 
-    const ethWeb3Provider = new ethers.providers.Web3Provider(
-      ethProvider,
-      'any'
-    );
-    window.ethWeb3Provider = setSignerProvider(
-      ethWeb3Provider
-    ) as ethers.providers.Web3Provider;
-    console.log('ethersProvider: ', window.ethWeb3Provider);
-  }, [ethProvider, helperUrl, networkId, nodeUrl, walletUrl]);
+  const [transferLoading, setTransferLoading] = useState(false);
 
   const { checkApprove, approve, transfer: _transfer } = rainbowBridgeService;
 
   async function transfer(
     params: Omit<Parameters<typeof _transfer>[number], 'nearWalletSelector'>
   ) {
-    if (params.from === 'NEAR') {
-      const [sender] = await ethProvider.request({
-        method: 'eth_requestAccounts',
-      });
-      params.sender = sender;
-    }
-    return _transfer({ ...params, nearWalletSelector: wallet.NEAR.selector });
+    // if (params.from === 'NEAR') {
+    //   const [sender] = await window.ethProvider?.request({
+    //     method: 'eth_requestAccounts',
+    //   });
+    //   params.sender = sender;
+    // }
+
+    console.log('params', params);
+    setTransferLoading(true);
+    const result = await _transfer({
+      ...params,
+      nearWalletSelector: wallet.NEAR.selector,
+    }).catch((err) => {
+      console.error(err.message);
+      toast.error(err.message.substring(0, 100), { theme: 'dark' });
+    });
+    console.log('result', result);
+    setTransferLoading(false);
+    return result;
   }
 
   return {
     setupRainbowBridge,
+    transferLoading,
     transfer,
     checkApprove,
     approve,

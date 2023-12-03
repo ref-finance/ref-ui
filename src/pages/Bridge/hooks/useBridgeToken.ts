@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { TokenList } from '../config';
+import { ethServices, nearServices } from '../services/contract';
 
 export default function useBridgeToken() {
   const tokens = TokenList;
@@ -16,5 +17,14 @@ export default function useBridgeToken() {
     [tokens]
   );
 
-  return { filterTokens };
+  function getTokenBalance(
+    chain: BridgeModel.BridgeSupportChain,
+    token: BridgeModel.BridgeTokenMeta
+  ) {
+    return chain === 'ETH'
+      ? ethServices.getBalance(token)
+      : nearServices.getBalance(token);
+  }
+
+  return { filterTokens, getTokenBalance };
 }

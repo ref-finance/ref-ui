@@ -1,15 +1,21 @@
-import erc20Abi from './../abi/Erc20Abi.json';
-import erc20LockerAbi from './../abi/Erc20LockerAbi.json';
-import nearOnEthClientAbi from './../abi/NearOnEthClientAbi.json';
-import auroraErc20Abi from './../abi/AuroraErc20Abi.json';
-import etherCustodianAbi from './../abi/EtherCustodianAbi.json';
-import eNEARAbi from './../abi/eNEARAbi.json';
+import erc20Abi from './../abi/erc20.json';
+import erc20LockerAbi from './../abi/Erc20Locker.json';
+import nearOnEthClientAbi from './../abi/NearOnEthClient.json';
+import auroraErc20Abi from './../abi/AuroraErc20.json';
+import etherCustodianAbi from './../abi/EtherCustodian.json';
+import eNEARAbi from './../abi/eNEAR.json';
 
 export const APPID = 'ref-finance';
 
 export const IS_TESTNET = ['testnet', 'pub-testnet'].includes(
   process.env.REACT_APP_NEAR_ENV
 );
+
+export const NearConfig = {
+  explorerUrl: IS_TESTNET
+    ? 'https://testnet.nearblocks.io'
+    : 'https://nearblocks.io',
+};
 
 export const ChainConfig: Record<
   BridgeModel.BridgeSupportChain,
@@ -106,7 +112,9 @@ export const TokenList: BridgeModel.BridgeTokenMeta[] = [
     decimals: 6,
     addresses: {
       ETH: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-      NEAR: 'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near',
+      NEAR: IS_TESTNET
+        ? 'usdc.fakes.testnet'
+        : 'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near',
     },
     icon: "data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Ccircle cx='16' cy='16' r='16' fill='%232775C9'/%3E%3Cpath d='M15.75 27.5C9.26 27.5 4 22.24 4 15.75S9.26 4 15.75 4 27.5 9.26 27.5 15.75A11.75 11.75 0 0115.75 27.5zm-.7-16.11a2.58 2.58 0 00-2.45 2.47c0 1.21.74 2 2.31 2.33l1.1.26c1.07.25 1.51.61 1.51 1.22s-.77 1.21-1.77 1.21a1.9 1.9 0 01-1.8-.91.68.68 0 00-.61-.39h-.59a.35.35 0 00-.28.41 2.73 2.73 0 002.61 2.08v.84a.705.705 0 001.41 0v-.85a2.62 2.62 0 002.59-2.58c0-1.27-.73-2-2.46-2.37l-1-.22c-1-.25-1.47-.58-1.47-1.14 0-.56.6-1.18 1.6-1.18a1.64 1.64 0 011.59.81.8.8 0 00.72.46h.47a.42.42 0 00.31-.5 2.65 2.65 0 00-2.38-2v-.69a.705.705 0 00-1.41 0v.74zm-8.11 4.36a8.79 8.79 0 006 8.33h.14a.45.45 0 00.45-.45v-.21a.94.94 0 00-.58-.87 7.36 7.36 0 010-13.65.93.93 0 00.58-.86v-.23a.42.42 0 00-.56-.4 8.79 8.79 0 00-6.03 8.34zm17.62 0a8.79 8.79 0 00-6-8.32h-.15a.47.47 0 00-.47.47v.15a1 1 0 00.61.9 7.36 7.36 0 010 13.64 1 1 0 00-.6.89v.17a.47.47 0 00.62.44 8.79 8.79 0 005.99-8.34z' fill='%23FFF'/%3E%3C/g%3E%3C/svg%3E",
   },
@@ -116,7 +124,9 @@ export const TokenList: BridgeModel.BridgeTokenMeta[] = [
     decimals: 18,
     addresses: {
       ETH: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-      NEAR: '6b175474e89094c44da98b954eedeac495271d0f.factory.bridge.near',
+      NEAR: IS_TESTNET
+        ? 'dai.fakes.testnet'
+        : '6b175474e89094c44da98b954eedeac495271d0f.factory.bridge.near',
     },
     icon: "data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Ccircle fill='%23F4B731' fill-rule='nonzero' cx='16' cy='16' r='16'/%3E%3Cpath d='M9.277 8h6.552c3.985 0 7.006 2.116 8.13 5.194H26v1.861h-1.611c.031.294.047.594.047.898v.046c0 .342-.02.68-.06 1.01H26v1.86h-2.08C22.767 21.905 19.77 24 15.83 24H9.277v-5.131H7v-1.86h2.277v-1.954H7v-1.86h2.277V8zm1.831 10.869v3.462h4.72c2.914 0 5.078-1.387 6.085-3.462H11.108zm11.366-1.86H11.108v-1.954h11.37c.041.307.063.622.063.944v.045c0 .329-.023.65-.067.964zM15.83 9.665c2.926 0 5.097 1.424 6.098 3.528h-10.82V9.666h4.72z' fill='%23FFF'/%3E%3C/g%3E%3C/svg%3E",
   },
@@ -126,7 +136,9 @@ export const TokenList: BridgeModel.BridgeTokenMeta[] = [
     decimals: 8,
     addresses: {
       ETH: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
-      NEAR: '2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near',
+      NEAR: IS_TESTNET
+        ? 'wbtc.fakes.testnet'
+        : '2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near',
     },
     icon: "data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Ccircle fill='%23201A2D' cx='16' cy='16' r='16'/%3E%3Cg fill='%23FFF'%3E%3Cpath d='M22.818 9.586l-.6.6a8.494 8.494 0 010 11.464l.6.6a9.352 9.352 0 000-12.678v.014zM10.2 9.638a8.494 8.494 0 0111.464 0l.6-.6a9.352 9.352 0 00-12.678 0l.614.6zm-.562 12.018a8.494 8.494 0 010-11.458l-.6-.6a9.352 9.352 0 000 12.678l.6-.62zm12.018.554a8.494 8.494 0 01-11.464 0l-.6.6a9.352 9.352 0 0012.678 0l-.614-.6zm-1.942-8.286c-.12-1.252-1.2-1.672-2.566-1.8V10.4h-1.056v1.692h-.844V10.4H14.2v1.736h-2.142v1.13s.78-.014.768 0a.546.546 0 01.6.464v4.752a.37.37 0 01-.128.258.366.366 0 01-.272.092c.014.012-.768 0-.768 0l-.2 1.262h2.122v1.764h1.056V20.12h.844v1.73h1.058v-1.744c1.784-.108 3.028-.548 3.184-2.218.126-1.344-.506-1.944-1.516-2.186.614-.302.994-.862.908-1.778zm-1.48 3.756c0 1.312-2.248 1.162-2.964 1.162v-2.328c.716.002 2.964-.204 2.964 1.166zm-.49-3.28c0 1.2-1.876 1.054-2.472 1.054v-2.116c.596 0 2.472-.188 2.472 1.062z'/%3E%3Cpath d='M15.924 26.852C9.89 26.851 5 21.959 5 15.925 5 9.892 9.892 5 15.925 5c6.034 0 10.926 4.89 10.927 10.924a10.926 10.926 0 01-10.928 10.928zm0-21c-5.559.004-10.062 4.513-10.06 10.072.002 5.559 4.51 10.064 10.068 10.064 5.559 0 10.066-4.505 10.068-10.064A10.068 10.068 0 0015.924 5.852z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E",
   },
@@ -136,7 +148,9 @@ export const TokenList: BridgeModel.BridgeTokenMeta[] = [
     decimals: 18,
     addresses: {
       ETH: '0xf5cfbc74057c610c8ef151a439252680ac68c6dc',
-      NEAR: 'f5cfbc74057c610c8ef151a439252680ac68c6dc.factory.bridge.near',
+      NEAR: IS_TESTNET
+        ? 'oct.fakes.testnet'
+        : 'f5cfbc74057c610c8ef151a439252680ac68c6dc.factory.bridge.near',
     },
     icon: "data:image/svg+xml,%3Csvg version='1.1' id='O' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 113.39 113.39' style='enable-background:new 0 0 113.39 113.39;' xml:space='preserve'%3E%3Cstyle type='text/css'%3E .st0%7Bfill:%23014299;%7D .st1%7Bfill:%23FFFFFF;%7D %3C/style%3E%3Ccircle class='st0' cx='56.69' cy='56.69' r='56.69'/%3E%3Cg%3E%3Cpath class='st1' d='M44.25,59.41c-1.43,0-2.59,1.16-2.59,2.59v20.28c0,1.43,1.16,2.59,2.59,2.59c1.43,0,2.59-1.16,2.59-2.59V62 C46.84,60.57,45.68,59.41,44.25,59.41z'/%3E%3Cpath class='st1' d='M56.69,59.41c-1.45,0-2.62,1.17-2.62,2.62v26.47c0,1.45,1.17,2.62,2.62,2.62s2.62-1.17,2.62-2.62V62.02 C59.31,60.58,58.14,59.41,56.69,59.41z'/%3E%3Cpath class='st1' d='M79.26,78.87c-0.33,0.15-0.64,0.28-0.95,0.38c0,0-0.01,0-0.01,0c-0.59,0.19-1.13,0.29-1.63,0.31h-0.06 c-1,0.03-1.84-0.27-2.59-0.75c-0.49-0.32-0.91-0.73-1.25-1.23c-0.3-0.43-0.53-0.93-0.71-1.51c0-0.01-0.01-0.02-0.01-0.03 c-0.22-0.74-0.34-1.61-0.34-2.59V62.02c0-1.45-1.17-2.62-2.62-2.62c-1.45,0-2.62,1.17-2.62,2.62v11.43c0,4.5,1.64,8.03,4.63,9.96 c1.5,0.97,3.21,1.45,5.04,1.45c1.68,0,3.45-0.41,5.25-1.22c1.32-0.59,1.9-2.14,1.31-3.46C82.13,78.86,80.57,78.27,79.26,78.87z'/%3E%3Cpath class='st1' d='M68.33,45.9c0-2.15-1.75-3.9-3.9-3.9c-2.15,0-3.9,1.75-3.9,3.9s1.75,3.9,3.9,3.9 C66.58,49.8,68.33,48.05,68.33,45.9z'/%3E%3Cpath class='st1' d='M48.96,41.99c-2.15,0-3.9,1.75-3.9,3.9s1.75,3.9,3.9,3.9s3.9-1.75,3.9-3.9S51.11,41.99,48.96,41.99z'/%3E%3Cpath class='st1' d='M56.69,22.28c-15.17,0-27.52,12.34-27.52,27.52v15.09c0,1.46,1.18,2.64,2.64,2.64s2.64-1.18,2.64-2.64V49.8 c0-12.26,9.98-22.24,22.24-22.24c12.26,0,22.24,9.98,22.24,22.24v15.09c0,1.46,1.18,2.64,2.64,2.64s2.64-1.18,2.64-2.64V49.8 C84.21,34.62,71.87,22.28,56.69,22.28z'/%3E%3C/g%3E%3C/svg%3E",
   },
@@ -146,7 +160,9 @@ export const TokenList: BridgeModel.BridgeTokenMeta[] = [
     decimals: 18,
     addresses: {
       ETH: '0x4691937a7508860f876c9c0a2a617e7d9e945d4b',
-      NEAR: '4691937a7508860f876c9c0a2a617e7d9e945d4b.factory.bridge.near',
+      NEAR: IS_TESTNET
+        ? 'woo.fakes.testnet'
+        : '4691937a7508860f876c9c0a2a617e7d9e945d4b.factory.bridge.near',
     },
     icon: "data:image/svg+xml,%3Csvg width='125' height='83' viewBox='0 0 125 83' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M102.422 0H122.958L113.203 30.9433H92.9243L102.422 0ZM75.982 29.4048L86.0788 53.3388L89.8436 41.0299H109.951L98.5713 78.0422C97.6301 80.9485 94.9776 82.9145 91.8972 82.9145H80.4314C77.6078 82.9145 75.0408 81.2049 73.9285 78.5551L61.2648 47.8682L48.8578 78.5551C47.831 81.2904 45.2641 83 42.3549 83H30.718C27.6376 83 24.9851 80.9485 24.0439 78.0422L0 5.85842e-05H20.1934L36.2797 53.3388L46.8898 29.3193C49.2857 23.3358 55.0185 19.4038 61.4359 19.4038C67.8533 19.4038 73.6718 23.3358 75.982 29.4048Z' fill='%2320252F'/%3E%3C/svg%3E",
   },

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 import BridgePreviewModal from '../components/BridgePreview';
 import useBridgeForm from './../hooks/useBridgeForm';
@@ -14,7 +14,7 @@ export function useBridgeFormContext() {
 }
 
 export default function BridgeFormProvider({ children }: any) {
-  const formHooks = useBridgeForm();
+  const { bridgeFromValue, bridgeToValue, ...restHooks } = useBridgeForm();
 
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   function toggleOpen() {
@@ -25,7 +25,9 @@ export default function BridgeFormProvider({ children }: any) {
   }
 
   const exposes = {
-    ...formHooks,
+    ...restHooks,
+    bridgeFromValue,
+    bridgeToValue,
     openPreviewModal,
   };
 
