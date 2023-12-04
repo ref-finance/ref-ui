@@ -1,7 +1,12 @@
 import { Pool } from 'src/services/pool';
 import { PoolInfo } from 'src/services/swapV3';
 import { WatchList } from 'src/store/RefDatabase';
-import { classificationOfCoins_key, FarmBoost, Seed } from 'src/services/farm';
+import {
+  classificationOfCoins,
+  classificationOfCoins_key,
+  FarmBoost,
+  Seed,
+} from 'src/services/farm';
 import React, { useContext, useRef, useState } from 'react';
 import { WalletContext } from 'src/utils/wallets-integration';
 import { useHistory } from 'react-router';
@@ -22,6 +27,7 @@ import {
   sort_tokens_by_base,
 } from 'src/services/commonV3';
 import { getPoolFeeApr } from 'src/pages/pools/utils';
+import Loading from '../../../../components/layout/Loading';
 import { PoolTabV3 } from 'src/components/pool/PoolTabV3';
 import getConfig from 'src/services/config';
 import {
@@ -33,22 +39,25 @@ import { getVEPoolId } from 'src/pages/ReferendumPage';
 import { Images, Symbols } from 'src/components/stableswap/CommonComp';
 import {
   ArrowDownLarge,
+  CheckedEmpty,
+  CheckedTick,
   DownArrowLightMobile,
   FarmStampNew,
   PoolDaoBannerMobile,
   UpArrowDeep,
 } from 'src/components/icon';
+import { SearchIcon } from 'src/components/icon/FarmBoost';
+import { QuestionTip } from 'src/components/layout/TipWrapper';
+import { SelectModal, SelectModalV2 } from 'src/components/layout/SelectModal';
+import { AddPoolModal } from 'src/pages/pools/AddPoolPage';
+import {
+  PoolIdNotExist,
+  SelectUi,
+} from 'src/pages/pools/poolsComponents/poolsComponents';
 import {
   REF_MOBILE_POOL_ID_INPUT,
   REF_POOL_ID_SEARCHING_KEY,
 } from 'src/pages/pools/LiquidityPage/constLiquidityPage';
-import { PoolIdNotExist } from 'src/pages/pools/poolsComponents/poolsComponents';
-import { SearchIcon } from 'src/components/icon/FarmBoost';
-import LiquidityV1PoolsMobile from 'src/pages/pools/LiquidityPage/MobileLiquidityPage/LiquidityV1PoolsMobile';
-import { SelectModal, SelectModalV2 } from 'src/components/layout/SelectModal';
-import { AddPoolModal } from 'src/pages/pools/AddPoolPage';
-import Loading from 'src/components/layout/Loading';
-import { QuestionTip } from 'src/components/layout/TipWrapper';
 import MobilePoolRow from 'src/pages/pools/LiquidityPage/MobileLiquidityPage/MobilePoolRow';
 import StablePoolList from 'src/pages/pools/poolsComponents/StablePoolList';
 import { useInView } from 'react-intersection-observer';
@@ -60,10 +69,10 @@ import {
 } from 'src/utils/numbers';
 import { formatPercentage } from 'src/components/d3Chart/utils';
 import BigNumber from 'bignumber.js';
+import LiquidityV1PoolsMobile from 'src/pages/pools/LiquidityPage/MobileLiquidityPage/LiquidityV1PoolsMobile';
 
 function MobileLiquidityPage({
   pools,
-  poolsData,
   tokenName,
   order,
   watchPools,
@@ -88,12 +97,8 @@ function MobileLiquidityPage({
   watchList,
   do_farms_v2_poos,
   farmAprById,
-  selectCoinClass,
-  setSelectCoinClass,
-  poolsScrollRef,
 }: {
   pools: Pool[];
-  poolsData?: any;
   poolTokenMetas: any;
   farmOnly: boolean;
   setFarmOnly: (farmOnly: boolean) => void;
@@ -118,9 +123,6 @@ function MobileLiquidityPage({
   watchList: WatchList[];
   do_farms_v2_poos: Record<string, Seed>;
   farmAprById: Record<string, number>;
-  selectCoinClass?: string;
-  setSelectCoinClass?: any;
-  poolsScrollRef?: any;
 }) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -198,7 +200,16 @@ function MobileLiquidityPage({
   classificationOfCoins_key.forEach((key) => {
     filterList[key] = intl.formatMessage({ id: key });
   });
+  const [selectCoinClass, setSelectCoinClass] = useState<string>('all');
   const [showAddPoolModal, setShowAddPoolModal] = useState<boolean>(false);
+
+  const poolFilterFunc = (p: Pool) => {
+    if (selectCoinClass === 'all') return true;
+
+    return poolTokenMetas[p.id].some((tk: TokenMetadata) =>
+      classificationOfCoins[selectCoinClass].includes(tk.symbol)
+    );
+  };
   const outOfText = intl.formatMessage({ id: 'out_of' });
   const [symbolsArr] = useState(['e', 'E', '+', '-', '.']);
 
@@ -501,8 +512,9 @@ function MobileLiquidityPage({
               setFarmOnly,
               hideLowTVL,
               onHide,
-              poolsData,
-              poolsScrollRef,
+              pools,
+              volumes,
+              poolFilterFunc,
             }}
           />
         )}
@@ -819,12 +831,10 @@ function MobilePoolRowV2({
       return value?.toString() == '-' ? '-' : formatPercentage(value);
     } else return '/';
   };
-
   function goDetailV2() {
     const url_pool_id = get_pool_name(pool.pool_id);
     history.push(`/poolV2/${url_pool_id}`);
   }
-
   function geth24volume() {
     const v = +(h24volume || '0');
     if (v == 0) {
@@ -835,7 +845,6 @@ function MobilePoolRowV2({
       return '$' + toInternationalCurrencySystem(v.toString(), 2);
     }
   }
-
   function getFarmApr() {
     if (relatedSeed) {
       const farms = relatedSeed.farmList;
@@ -857,7 +866,6 @@ function MobilePoolRowV2({
     }
     return '';
   }
-
   return (
     <div className="w-full hover:bg-poolRowHover" onClick={goDetailV2}>
       <div

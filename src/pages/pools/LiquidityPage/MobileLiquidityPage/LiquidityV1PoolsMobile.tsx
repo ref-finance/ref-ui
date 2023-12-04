@@ -1,4 +1,10 @@
 import { Card } from 'src/components/card/Card';
+import { QuestionTip } from 'src/components/layout/TipWrapper';
+import { REF_MOBILE_POOL_ID_INPUT } from 'src/pages/pools/LiquidityPage/constLiquidityPage';
+import {
+  PoolIdNotExist,
+  SelectUi,
+} from 'src/pages/pools/poolsComponents/poolsComponents';
 import { SearchIcon } from 'src/components/icon/FarmBoost';
 import {
   ArrowDownLarge,
@@ -11,13 +17,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { SelectModal } from 'src/components/layout/SelectModal';
 import MobilePoolRow from 'src/pages/pools/LiquidityPage/MobileLiquidityPage/MobilePoolRow';
 import { find } from 'lodash';
-import React, { useRef } from 'react';
-import { REF_MOBILE_POOL_ID_INPUT } from '../constLiquidityPage';
-import {
-  PoolIdNotExist,
-  SelectUi,
-} from 'src/pages/pools/poolsComponents/poolsComponents';
-import { QuestionTip } from 'src/components/layout/TipWrapper';
+import React from 'react';
 
 const LiquidityV1PoolsMobile = ({
   enableIdSearch,
@@ -51,41 +51,11 @@ const LiquidityV1PoolsMobile = ({
   setFarmOnly,
   hideLowTVL,
   onHide,
-  poolsData,
-  poolsScrollRef,
+  pools,
+  volumes,
+  poolFilterFunc,
 }) => {
-  const {
-    pools,
-    poolFarmCounts = {},
-    hasMore,
-    nextPage,
-    loading,
-    volumes,
-    isFetching,
-  } = poolsData || {};
   const intl = useIntl();
-  const mobilePoolsScrollRef = useRef<HTMLInputElement>();
-
-  const scrollTableToTop = () => {
-    mobilePoolsScrollRef?.current?.scroll({
-      top: 0,
-      behavior: 'auto',
-    });
-  };
-  const handleFilterSelectChange = (e) => {
-    scrollTableToTop();
-    setSelectCoinClass(e);
-  };
-
-  const handleSortChange = (e) => {
-    scrollTableToTop();
-    onSortChange(e);
-  };
-
-  const handleOrderChange = (e) => {
-    scrollTableToTop();
-    onOrderChange(e);
-  };
 
   return (
     <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4">
@@ -185,14 +155,14 @@ const LiquidityV1PoolsMobile = ({
             data-multiline={true}
             data-class="reactTip"
             data-tooltip-html={`
-      <div className="text-xs">
-        <div 
-          style="max-width: 250px;font-weight:400",
-        >
-        ${intl.formatMessage({ id: 'create_new_pool' })}
-        </div>
-      </div>
-    `}
+              <div className="text-xs">
+                <div 
+                  style="max-width: 250px;font-weight:400",
+                >
+                ${intl.formatMessage({ id: 'create_new_pool' })}
+                </div>
+              </div>
+            `}
             data-tooltip-id="add_pool_tip"
           >
             <button
@@ -272,8 +242,8 @@ const LiquidityV1PoolsMobile = ({
             >
               <span
                 className={`px-2 w-full text-xs h-5
-              flex items-center justify-between
-            `}
+                      flex items-center justify-between
+                    `}
                 onClick={() => {
                   setShowSelectModal(true);
                 }}
