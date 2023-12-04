@@ -1169,6 +1169,7 @@ export default function SwapCard(props: {
   };
 
   const isInsufficientBalance = judgeBalance();
+  const isQuoteLoading = quoting || (!canSubmit && !isInsufficientBalance && isSignedIn)
 
   const [tokenExchanging, setTokenExchanging] = useState(false);
   const toggleTokenExchanging = () => {
@@ -1340,21 +1341,32 @@ export default function SwapCard(props: {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  if (loadingPause) {
-                    setLoadingPause(false);
-                    setLoadingTrigger(true);
-                    setLoadingData(true);
-                  } else {
-                    setLoadingPause(true);
-                    setLoadingTrigger(false);
-                  }
+                  setLoadingTrigger(true)
+                  setReEstimateTrigger(!reEstimateTrigger);
+
+                  // if (loadingPause) {
+                  //   setLoadingPause(false);
+                  //   setLoadingTrigger(true);
+                  //   setLoadingData(true);
+                  // } else {
+                  //   setLoadingPause(true);
+                  //   setLoadingTrigger(false);
+                  // }
                 }}
                 className="mr-2 cursor-pointer"
               >
-                <CountdownTimer
-                  loadingTrigger={loadingTrigger}
-                  loadingPause={loadingPause}
+                <MdOutlineRefresh
+                  size={18}
+                  className={`text-primaryText cursor-pointer  ${
+                    isQuoteLoading ? 'rotateInfinite' : ''
+                  } `}
+                  style={isQuoteLoading && {fill:"#00FFD1"}}
                 />
+
+                {/*<CountdownTimer*/}
+                {/*  loadingTrigger={loadingTrigger}*/}
+                {/*  loadingPause={loadingPause}*/}
+                {/*/>*/}
               </div>
               <SwapRate
                 from={tokenInAmount}

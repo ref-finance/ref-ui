@@ -2090,8 +2090,8 @@ export const useRefSwapPro = ({
 
       setQuoting(false);
     } else {
-      setQuoting(true);
-      setForceEstimatePro(false);
+      !quoting && setQuoting(true);
+      forceEstimatePro && setForceEstimatePro(false);
     }
   }, [
     resRef.quoteDone,
