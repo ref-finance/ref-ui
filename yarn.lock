@@ -2482,6 +2482,16 @@
   dependencies:
     rxjs "^7.8.0"
 
+"@near-wallet-selector/core@8.5.4":
+  version "8.5.4"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/core/-/core-8.5.4.tgz#5783a835ea7422709e5643775fee61a2b81500e6"
+  integrity sha512-GxoRU7epI4/7JVzJzROgFxwLlbEN/snrc2qGQ2ROYBojvq6YoNq/KIyLXiM8WlAPw3gbKnuLJj4uHquyo/NOJw==
+  dependencies:
+    borsh "0.7.0"
+    events "3.3.0"
+    js-sha256 "0.9.0"
+    rxjs "7.8.1"
+
 "@near-wallet-selector/core@8.7.0", "@near-wallet-selector/core@^8.5.4":
   version "8.7.0"
   resolved "https://registry.npmjs.org/@near-wallet-selector/core/-/core-8.7.0.tgz#65a681c332b46f47bf4ca51b53ee92726b2d9cda"
@@ -2599,6 +2609,14 @@
     "@walletconnect/sign-client" "2.9.1"
     "@walletconnect/types" "2.9.1"
 
+"@near-wallet-selector/wallet-utils@8.5.4":
+  version "8.5.4"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/wallet-utils/-/wallet-utils-8.5.4.tgz#4348d957a09802b22ece5206668df13998f37d26"
+  integrity sha512-mxod9Vf8z9COiBAlKBVVAB2C6fOKKYjatuTPTnHX1h4tIkTjzGTKcqjAz3LK2NEFSFeIiKxjjFwcvSgD//8c1g==
+  dependencies:
+    "@near-wallet-selector/core" "8.5.4"
+    bn.js "5.2.1"
+
 "@near-wallet-selector/wallet-utils@8.7.0":
   version "8.7.0"
   resolved "https://registry.npmjs.org/@near-wallet-selector/wallet-utils/-/wallet-utils-8.7.0.tgz#4348e94596d9872b7d2e0aa579a8d78eb948903c"
@@ -2606,6 +2624,15 @@
   dependencies:
     "@near-wallet-selector/core" "8.7.0"
     bn.js "5.2.1"
+
+"@near-wallet-selector/welldone-wallet@8.5.4":
+  version "8.5.4"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/welldone-wallet/-/welldone-wallet-8.5.4.tgz#536193f27446daed9c1b363b3b88c2f8d4d8a31d"
+  integrity sha512-18Lfa4d2p9SzTQ2IEpzOW1NocADBV7OlDbZXdKuNzFNrOL8jEsGlo3lUscEvYXpiGputTv883I/mq+AhFw0w+Q==
+  dependencies:
+    "@near-wallet-selector/core" "8.5.4"
+    "@near-wallet-selector/wallet-utils" "8.5.4"
+    is-mobile "4.0.0"
 
 "@nicolo-ribaudo/eslint-scope-5-internals@5.1.1-v1":
   version "5.1.1-v1"
