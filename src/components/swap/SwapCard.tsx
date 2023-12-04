@@ -1340,30 +1340,21 @@ export default function SwapCard(props: {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  setLoadingTrigger(!loadingTrigger);
-                  setReEstimateTrigger(!reEstimateTrigger);
-                  // if (loadingPause) {
-                  //   setLoadingPause(false);
-                  //   setLoadingTrigger(true);
-                  //   setLoadingData(true);
-                  // } else {
-                  //   setLoadingPause(true);
-                  //   setLoadingTrigger(false);
-                  // }
+                  if (loadingPause) {
+                    setLoadingPause(false);
+                    setLoadingTrigger(true);
+                    setLoadingData(true);
+                  } else {
+                    setLoadingPause(true);
+                    setLoadingTrigger(false);
+                  }
                 }}
                 className="mr-2 cursor-pointer"
               >
-                <MdOutlineRefresh
-                  size={18}
-                  className={`text-primaryText cursor-pointer  ${
-                    quoting ? 'rotateInfinite' : ''
-                  } `}
-                  style={quoting && { fill: '#00FFD1' }}
+                <CountdownTimer
+                  loadingTrigger={loadingTrigger}
+                  loadingPause={loadingPause}
                 />
-                {/*<CountdownTimer*/}
-                {/*  loadingTrigger={loadingTrigger}*/}
-                {/*  loadingPause={loadingPause}*/}
-                {/*/>*/}
               </div>
               <SwapRate
                 from={tokenInAmount}

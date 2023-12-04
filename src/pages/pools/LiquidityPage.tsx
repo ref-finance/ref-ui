@@ -2932,11 +2932,7 @@ function PcLiquidityPage({
 
                 <div className="col-span-2  md:hidden flex items-center">
                   <span
-                    data-tooltip-id={'topbinapr'}
-                    data-tooltip-content={
-                      'This is the trailing 24hr APR of the top performing bin in this pool.'
-                    }
-                    className={`pr-1  cursor-pointer ${
+                    className={`mr-1 flex items-center ${
                       v2SortBy !== 'top_bin_apr' ? 'hover:text-white' : ''
                     } ${v2SortBy === 'top_bin_apr' ? 'text-gradientFrom' : ''}`}
                     onClick={() => {
@@ -2951,8 +2947,13 @@ function PcLiquidityPage({
                       defaultMessage="Top Bin APR (24h)"
                     />
                   </span>
-                  <CustomTooltip id={'topbinapr'} />
-
+                  <QuestionTip
+                    id="top-bin-apr"
+                    defaultMessage="This is the trailing 24hr APR of the top performing bin in this pool."
+                    uniquenessId="topbinapr"
+                    className={'pr-1'}
+                    maxWidth="210px"
+                  />
                   <span
                     className={`cursor-pointer ${
                       v2SortBy !== 'top_bin_apr' ? 'hidden' : ''

@@ -637,20 +637,20 @@ export const useSwap = ({
     supportLedger,
   ]);
 
-  // useEffect(() => {
-  //   let id: any = null;
-  //   if (!loadingTrigger && !loadingPause) {
-  //     id = setInterval(() => {
-  //       setLoadingTrigger(true);
-  //       setCount(count + 1);
-  //     }, refreshTime);
-  //   } else {
-  //     clearInterval(id);
-  //   }
-  //   return () => {
-  //     clearInterval(id);
-  //   };
-  // }, [count, loadingTrigger, loadingPause]);
+  useEffect(() => {
+    let id: any = null;
+    if (!loadingTrigger && !loadingPause) {
+      id = setInterval(() => {
+        setLoadingTrigger(true);
+        setCount(count + 1);
+      }, refreshTime);
+    } else {
+      clearInterval(id);
+    }
+    return () => {
+      clearInterval(id);
+    };
+  }, [count, loadingTrigger, loadingPause]);
 
   const makeSwap = (cb) => {
     swap({
@@ -1339,20 +1339,20 @@ export const useCrossSwap = ({
     reEstimateTrigger,
   ]);
 
-  // useEffect(() => {
-  //   let id: any = null;
-  //   if (!loadingTrigger && !loadingPause) {
-  //     id = setInterval(() => {
-  //       setLoadingTrigger(true);
-  //       setCount(count + 1);
-  //     }, refreshTime);
-  //   } else {
-  //     clearInterval(id);
-  //   }
-  //   return () => {
-  //     clearInterval(id);
-  //   };
-  // }, [count, loadingTrigger, loadingPause]);
+  useEffect(() => {
+    let id: any = null;
+    if (!loadingTrigger && !loadingPause) {
+      id = setInterval(() => {
+        setLoadingTrigger(true);
+        setCount(count + 1);
+      }, refreshTime);
+    } else {
+      clearInterval(id);
+    }
+    return () => {
+      clearInterval(id);
+    };
+  }, [count, loadingTrigger, loadingPause]);
 
   const makeSwap = () => {
     swap({
