@@ -17,6 +17,8 @@ import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet';
 
 import { setupNightly } from '@near-wallet-selector/nightly';
 
+import { setupWelldoneWallet } from '@near-wallet-selector/welldone-wallet';
+
 import getConfig from '../services/config';
 
 import '@near-wallet-selector/modal-ui/styles.css';
@@ -124,6 +126,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         setupLedger({
           // iconUrl: walletIcons['ledger'],
         }),
+        setupWelldoneWallet({})
       ],
     });
     const _modal = setupModal(_selector, {
