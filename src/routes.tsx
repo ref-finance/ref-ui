@@ -128,7 +128,9 @@ const routes: Route[] = [
     path: '/pools',
     element: lazy(
       () =>
-        import(/* webpackChunkName: "pools" */ 'src/pages/pools/LiquidityPage')
+        import(
+          /* webpackChunkName: "pools" */ 'src/pages/pools/LiquidityPage/LiquidityPage'
+        )
     ),
     wrapper: 'AutoHeight',
   },

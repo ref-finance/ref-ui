@@ -1169,7 +1169,8 @@ export default function SwapCard(props: {
   };
 
   const isInsufficientBalance = judgeBalance();
-  const isQuoteLoading = quoting || (!canSubmit && !isInsufficientBalance && isSignedIn)
+  const isQuoteLoading =
+    quoting || (!canSubmit && !isInsufficientBalance && isSignedIn);
 
   const [tokenExchanging, setTokenExchanging] = useState(false);
   const toggleTokenExchanging = () => {
@@ -1341,8 +1342,8 @@ export default function SwapCard(props: {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  setLoadingTrigger(true)
-                  setReEstimateTrigger(!reEstimateTrigger);
+                  setLoadingTrigger(true);
+                  // setReEstimateTrigger(!reEstimateTrigger);
 
                   // if (loadingPause) {
                   //   setLoadingPause(false);
@@ -1360,7 +1361,7 @@ export default function SwapCard(props: {
                   className={`text-primaryText cursor-pointer  ${
                     isQuoteLoading ? 'rotateInfinite' : ''
                   } `}
-                  style={isQuoteLoading && {fill:"#00FFD1"}}
+                  style={isQuoteLoading && { fill: '#00FFD1' }}
                 />
 
                 {/*<CountdownTimer*/}
