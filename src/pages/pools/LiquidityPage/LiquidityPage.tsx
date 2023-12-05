@@ -1236,7 +1236,7 @@ function PcLiquidityPage({
               }}
             >
               <div className="flex items-center">
-                <div className="text-white text-lg font-bold">Top Pools</div>
+                <div className="text-white text-lg font-bold">Pools</div>
               </div>
 
               <div className="ml-8 justify-between  flex">
