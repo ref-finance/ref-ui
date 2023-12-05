@@ -4,11 +4,7 @@ export const PoolsTip = ({ activeTab }) => {
   const tip = (text, link) => (
     <div className={'text-primaryText mb-6 gotham_font text-14px'}>
       {text}
-      <a
-        href={link}
-        className={'underline ml-2 cursor-pointer'}
-        target={'_blank'}
-      >
+      <a href={link} className={'underline ml-2 cursor-pointer'}>
         Learn more
       </a>
     </div>

@@ -70,6 +70,8 @@ import {
 import { formatPercentage } from 'src/components/d3Chart/utils';
 import BigNumber from 'bignumber.js';
 import LiquidityV1PoolsMobile from 'src/pages/pools/LiquidityPage/MobileLiquidityPage/LiquidityV1PoolsMobile';
+import { PoolsTip } from '../../poolsComponents/poolsTip';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 function MobileLiquidityPage({
   pools,
@@ -143,6 +145,7 @@ function MobileLiquidityPage({
   const [v2SortBy, setV2SortBy] = useState<string>('tvl');
 
   const [v2Order, setV2Order] = useState<string>('desc');
+  const [tooltip, setTooltip] = useState<string>();
 
   const poolv2ReSortingFunc = (p1: PoolInfo, p2: PoolInfo) => {
     const f1 = p1.fee;
@@ -478,6 +481,7 @@ function MobileLiquidityPage({
             </div>
           )}
         </div>
+        <PoolsTip activeTab={activeTab} />
         {activeTab === 'v1' && (
           <LiquidityV1PoolsMobile
             {...{
@@ -530,6 +534,7 @@ function MobileLiquidityPage({
                     id: 'search_by_token',
                   })}
                   value={tokenName}
+                  onFocus={() => tooltip && setTooltip('')}
                   onChange={(evt) => {
                     onSearch(evt.target.value);
                   }}
@@ -556,12 +561,21 @@ function MobileLiquidityPage({
                     )}
                   </div>
                   <div
+                    data-tooltip-id={'top-bin-apr-mobile'}
+                    data-tooltip-content="This is the trailing 24hr APR of the top performing bin in this pool."
                     className={`relative rounded-full flex items-center border    ${
                       showSelectModalV2
                         ? 'border-greenColor text-white'
                         : 'border-farmText text-farmText'
                     } w-36`}
                   >
+                    <CustomTooltip
+                      id={'top-bin-apr-mobile'}
+                      isOpen={
+                        v2SortBy === 'top_bin_apr' && tooltip === 'top_bin_apr'
+                      }
+                    />
+
                     <span
                       className={`px-2 w-full text-xs h-5
                       flex items-center justify-between
@@ -582,7 +596,12 @@ function MobileLiquidityPage({
                     {showSelectModalV2 && (
                       <SelectModalV2
                         sortMode={v2SortBy}
-                        onSortChange={setV2SortBy}
+                        onSortChange={(e) => {
+                          if (e === 'top_bin_apr') {
+                            setTooltip(e);
+                          }
+                          setV2SortBy(e);
+                        }}
                         setShowModal={setShowSelectModalV2}
                         className="top-8"
                       />
