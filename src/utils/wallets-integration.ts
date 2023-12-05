@@ -286,26 +286,6 @@ export const globalStateReducer = (
   }
 };
 
-// export const setCallbackUrl = (res: any) => {
-//   const state = !res?.response?.error
-//     ? TRANSACTION_STATE.SUCCESS
-//     : TRANSACTION_STATE.FAIL;
-
-//   const transactionHashes = getTransactionHashes(res, state);
-
-//   const parsedTransactionHashes = transactionHashes?.join(',');
-
-// const newHref = addQueryParams(
-//   window.location.origin + window.location.pathname,
-//   {
-//     [TRANSACTION_WALLET_TYPE.SENDER_WALLET]: parsedTransactionHashes,
-//     state: parsedTransactionHashes ? state : '',
-//   }
-// );
-
-//   window.location.href = newHref;
-// };
-
 export const ledgerTipTrigger = async (wallet: WalletSelector) => {
   const handlePopTrigger = () => {
     const el = document.getElementsByClassName(

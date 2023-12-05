@@ -1580,7 +1580,7 @@ export const get_liquidity_old_version = async (lpt_id: string) => {
 };
 
 export const list_user_assets = async () => {
-  const account_id = getCurrentWallet().wallet.getAccountId();
+  const account_id = getCurrentWallet()?.wallet?.getAccountId();
 
   if (!account_id) return;
 

@@ -1,5 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { map, distinctUntilChanged } from 'rxjs';
+import { utils } from 'near-api-js';
 
 import { NetworkId, setupWalletSelector } from '@near-wallet-selector/core';
 import type { WalletSelector, AccountState } from '@near-wallet-selector/core';
@@ -18,12 +19,18 @@ import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet';
 import { setupNightly } from '@near-wallet-selector/nightly';
 
 import getConfig from '../services/config';
+import { Transaction as WSTransaction } from '@near-wallet-selector/core';
 
 import '@near-wallet-selector/modal-ui/styles.css';
-import { near } from '../services/near';
-import { walletIcons } from './walletIcons';
+import { Transaction, getGas } from '../services/near';
 import { getOrderlyConfig } from '../pages/Orderly/config';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../pages/Orderly/components/UserBoard/index';
+import {
+  ledgerTipTrigger,
+  addQueryParams,
+  extraWalletsError,
+  walletsRejectError,
+} from '../utils/wallets-integration';
 import {
   REF_FI_SENDER_WALLET_ACCESS_KEY,
   REF_ORDERLY_NORMALIZED_KEY,
@@ -32,7 +39,7 @@ import {
   get_orderly_private_key_path,
   get_orderly_public_key_path,
 } from '../pages/Orderly/orderly/utils';
-import { isMobile } from '../utils/device';
+import { TRANSACTION_WALLET_TYPE } from '../components/layout/transactionTipPopUp';
 
 const CONTRACT_ID = getOrderlyConfig().ORDERLY_ASSET_MANAGER;
 
@@ -55,8 +62,13 @@ interface WalletSelectorContextValue {
   accountId: string | null;
   setAccountId: (accountId: string) => void;
   isLedger: boolean;
+  executeMultipleTransactions: any;
+  setTransactionExcuteStatus: any;
+  transactionExcuteStatus: IExcuteStatus;
+  transactioData: any;
 }
 
+type IExcuteStatus = 'pending' | 'resolved' | 'rejected';
 const WalletSelectorContext =
   React.createContext<WalletSelectorContextValue | null>(null);
 
@@ -65,9 +77,12 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
   const [modal, setModal] = useState<WalletSelectorModal | null>(null);
   const [accountId, setAccountId] = useState<string | null>(null);
   const [accounts, setAccounts] = useState<Array<AccountState>>([]);
-
+  const [transactionExcuteStatus, setTransactionExcuteStatus] =
+    useState<IExcuteStatus>('resolved');
+  const [transactioData, setTransactioData] = useState<any>();
   const [isLedger, setIsLedger] = useState<boolean>(undefined);
 
+  // get Account Id
   const syncAccountState = (
     currentAccountId: string | null,
     newAccounts: Array<AccountState>
@@ -145,7 +160,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         alert('Failed to initialise wallet selector');
       })
       .then(() => {
-        const subscription = window.selector.store.observable
+        window.selector.store.observable
           .pipe(
             map((state) => state.accounts),
             distinctUntilChanged()
@@ -156,64 +171,19 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
       });
   }, [init]);
 
-  useEffect(() => {
-    if (!selector) {
-      return;
-    }
-
-    const subscription = selector.store.observable
-      .pipe(
-        map((state) => state.accounts),
-        distinctUntilChanged()
-      )
-      .subscribe((nextAccounts) => {
-        syncAccountState(accountId, nextAccounts);
-      });
-
-    return () => subscription.unsubscribe();
-  }, [selector, accountId]);
-
-  const getAllKeys = async (accountId: string) => {
-    const account = await near.account(accountId);
-
-    const allKeys = await account.getAccessKeys();
-
-    const isWalletMeta = allKeys.some((k) => {
-      if (k.access_key.permission === 'FullAccess') return false;
-      const meta =
-        k.access_key.permission.FunctionCall.method_names.includes(
-          '__wallet__metadata'
-        );
-      return meta;
-    });
-
-    const isSelectLedger =
-      selector.store.getState().selectedWalletId === 'ledger';
-
-    setIsLedger(isSelectLedger || isWalletMeta);
-  };
+  // todoxxxx 此处有删除
 
   useEffect(() => {
     if (!accountId || !selector) return;
+    const isSelectLedger =
+      selector.store.getState().selectedWalletId === 'ledger';
 
-    getAllKeys(accountId);
+    setIsLedger(isSelectLedger);
   }, [accountId, selector]);
 
-  if (!selector || !modal || (!!accountId && isLedger === undefined)) {
-    return null;
-  }
-
   window.selectorAccountId = accountId;
-
-  selector.on('signedOut', () => {
-    localStorage.removeItem(get_orderly_private_key_path());
-    localStorage.removeItem(get_orderly_public_key_path());
-    localStorage.removeItem(REF_ORDERLY_ACCOUNT_VALID);
-    localStorage.removeItem(REF_ORDERLY_NORMALIZED_KEY);
-    localStorage.removeItem(REF_FI_SENDER_WALLET_ACCESS_KEY);
-  });
-
-  if (!isMobile() && !!window.near) {
+  // localStorage todoxxxx 可以去掉
+  if (!!window.near) {
     window.near.on('signOut', () => {
       localStorage.removeItem(get_orderly_private_key_path());
       localStorage.removeItem(get_orderly_public_key_path());
@@ -228,8 +198,8 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
 
       if (
         keyStoreSender &&
-        !!keyStoreSender?.['accountId'] &&
-        !!keyStoreSender?.['accessKey']
+        !!keyStoreSender?.accountId &&
+        !!keyStoreSender?.accessKey
       ) {
         localStorage.setItem(
           REF_FI_SENDER_WALLET_ACCESS_KEY,
@@ -238,6 +208,64 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
       }
     });
   }
+
+  const executeMultipleTransactions = async (
+    transactions: Transaction[],
+    callbackUrl?: string
+  ) => {
+    const wallet = window.selector;
+    const wstransactions: WSTransaction[] = [];
+    transactions.forEach((transaction) => {
+      wstransactions.push({
+        signerId: wallet.getAccountId()!,
+        receiverId: transaction.receiverId,
+        actions: transaction.functionCalls.map((fc) => {
+          return {
+            type: 'FunctionCall',
+            params: {
+              methodName: fc.methodName,
+              args: fc.args,
+              gas: getGas(fc.gas).toNumber().toFixed(),
+              deposit: utils.format.parseNearAmount(fc.amount || '0')!,
+            },
+          };
+        }),
+      });
+    });
+    await ledgerTipTrigger(wallet);
+    return (await wallet.wallet())
+      .signAndSendTransactions({
+        transactions: wstransactions,
+        callbackUrl,
+      })
+      .then((res) => {
+        if (!res) return;
+        const transactionHashes = (Array.isArray(res) ? res : [res])?.map(
+          (r) => r.transaction.hash
+        );
+        const parsedTransactionHashes = transactionHashes?.join(',');
+        const newHref = addQueryParams(
+          window.location.origin + window.location.pathname,
+          {
+            [TRANSACTION_WALLET_TYPE.WalletSelector]: parsedTransactionHashes,
+          }
+        );
+        setTransactionExcuteStatus('resolved');
+        setTransactioData(newHref);
+      })
+      .catch((e: Error) => {
+        if (extraWalletsError.includes(e.message)) {
+          return;
+        }
+        if (
+          !walletsRejectError.includes(e.message) &&
+          !extraWalletsError.includes(e.message)
+        ) {
+          sessionStorage.setItem('WALLETS_TX_ERROR', e.message);
+        }
+        setTransactionExcuteStatus('rejected');
+      });
+  };
 
   return (
     <WalletSelectorContext.Provider
@@ -248,6 +276,10 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         accountId,
         setAccountId,
         isLedger,
+        executeMultipleTransactions,
+        setTransactionExcuteStatus,
+        transactionExcuteStatus,
+        transactioData,
       }}
     >
       {children}

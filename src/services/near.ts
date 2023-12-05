@@ -360,7 +360,6 @@ export const executeMultipleTransactions = async (
           [TRANSACTION_WALLET_TYPE.WalletSelector]: parsedTransactionHashes,
         }
       );
-
       window.location.href = newHref;
     })
     .catch((e: Error) => {

@@ -3,6 +3,7 @@ import React, {
   Suspense,
   useCallback,
   useEffect,
+  useMemo,
   useReducer,
 } from 'react';
 import Loading from 'src/components/layout/Loading';
@@ -91,9 +92,12 @@ export function Content() {
         account_id: accountId,
       }));
   }, [accountId]);
-
   useEffect(() => {
-    if (!accountId) {
+    // todoxxxx
+    console.log('99999999999999-content 重新load');
+  }, []);
+  useEffect(() => {
+    if (!accountId || !selector) {
       return null;
     }
 
@@ -120,7 +124,7 @@ export function Content() {
 
         window.location.reload();
       });
-  }, [accountId, getAccount]);
+  }, [accountId, getAccount, selector]);
 
   useEffect(() => {
     if (
@@ -158,7 +162,29 @@ export function Content() {
     document.body.style.setProperty('overflow-x', 'hidden');
     document.documentElement.style.setProperty('overflow-x', 'hidden');
   }
+  function RouteRenderCall() {
+    return (
+      <Switch>
+        {!!getConfig().REF_VE_CONTRACT_ID ? (
+          <Route path="/referendum" component={AutoHeight(ReferendumPage)} />
+        ) : null}
 
+        {routes.map((route) => {
+          return (
+            <Route
+              key={route.path}
+              path={route.path}
+              component={Wrapper(route.element, route.wrapper)}
+              exact={route.exact}
+            />
+          );
+        })}
+      </Switch>
+    );
+  }
+  const RouteRender = useMemo(() => {
+    return RouteRenderCall();
+  }, []);
   return (
     <WalletContext.Provider value={{ globalState, globalStatedispatch }}>
       <NavigationBar />
@@ -171,27 +197,7 @@ export function Content() {
         }}
       />
       <OrderlyContextProvider>
-        <Suspense fallback={<Loading />}>
-          <Switch>
-            {!!getConfig().REF_VE_CONTRACT_ID ? (
-              <Route
-                path="/referendum"
-                component={AutoHeight(ReferendumPage)}
-              />
-            ) : null}
-
-            {routes.map((route) => {
-              return (
-                <Route
-                  key={route.path}
-                  path={route.path}
-                  component={Wrapper(route.element, route.wrapper)}
-                  exact={route.exact}
-                />
-              );
-            })}
-          </Switch>
-        </Suspense>
+        <Suspense fallback={<Loading />}>{RouteRender}</Suspense>
       </OrderlyContextProvider>
     </WalletContext.Provider>
   );

@@ -82,8 +82,8 @@ export const stake = async ({ amount, msg = '' }: StakeOptions) => {
       functionCalls: [storageDepositAction({ amount: needDeposit })],
     });
   }
-
-  return executeMultipleTransactions(transactions);
+  return transactions;
+  // return executeMultipleTransactions(transactions);
 };
 
 interface UnstakeOptions {
@@ -133,7 +133,8 @@ export const unstake = async ({ amount, msg = '' }: UnstakeOptions) => {
     });
   }
 
-  return executeMultipleTransactions(transactions);
+  // return executeMultipleTransactions(transactions);
+  return transactions;
 };
 export interface XrefMetaData {
   version: string;

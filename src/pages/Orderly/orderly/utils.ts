@@ -74,7 +74,7 @@ export const getNormalizeTradingKey = () => {
 };
 
 export const getSelectedWalletId = () => {
-  return window.selector.store.getState().selectedWalletId;
+  return window.selector?.store.getState().selectedWalletId;
 };
 
 export const REF_FI_SENDER_WALLET_ACCESS_KEY =

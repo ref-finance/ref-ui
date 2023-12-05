@@ -40,6 +40,7 @@ import {
 import QuestionMark from 'src/components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 import { WalletContext } from '../../utils/wallets-integration';
+import { useWalletSelector } from '../../context/WalletSelectorContext';
 const {
   XREF_TOKEN_ID,
   REF_TOKEN_ID,
@@ -58,7 +59,7 @@ function XrefPage() {
   const [refToken, setRefToken] = useState<TokenMetadata>();
   const [xrefMetaData, setXrefMetaData] = useState<XrefMetaData>();
   const intl = useIntl();
-
+  const { transactionExcuteStatus } = useWalletSelector();
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const displayBalance = (max: string) => {
@@ -71,8 +72,8 @@ function XrefPage() {
       return toPrecision(max, 3, true);
     }
   };
-
   useEffect(() => {
+    if (transactionExcuteStatus == 'pending') return;
     ftGetBalance(XREF_TOKEN_ID).then(async (data: any) => {
       const token = await ftGetTokenMetadata(XREF_TOKEN_ID);
       const { decimals } = token;
@@ -140,7 +141,7 @@ function XrefPage() {
       const rate = toReadableNumber(DECIMALS_XREF_REF_TRANSTER, data);
       setRate(rate);
     });
-  }, [isSignedIn]);
+  }, [isSignedIn, transactionExcuteStatus]);
   const isM = isMobile();
   const switchTab = (tab: number) => {
     setTab(tab);
@@ -448,22 +449,35 @@ function InputView(props: any) {
   const [loading, setLoading] = useState(false);
   const { tab, max, hidden, isM, rate } = props;
   const [forward, setForward] = useState(true);
+  const {
+    executeMultipleTransactions,
+    setTransactionExcuteStatus,
+    transactionExcuteStatus,
+  } = useWalletSelector();
   useEffect(() => {
     setForward(true);
   }, [tab]);
+  useEffect(() => {
+    if (transactionExcuteStatus !== 'pending') {
+      setLoading(false);
+    }
+  }, [transactionExcuteStatus]);
 
   const { globalState } = useContext(WalletContext);
-
   const isSignedIn = globalState.isSignedIn;
-
   const onSubmit = () => {
     setLoading(true);
+    setTransactionExcuteStatus('pending');
     if (tab == 0) {
       // stake
-      stake({ amount });
+      stake({ amount }).then((transactions) => {
+        executeMultipleTransactions(transactions);
+      });
     } else if (tab == 1) {
       // unstake
-      unstake({ amount });
+      unstake({ amount }).then((transactions) => {
+        executeMultipleTransactions(transactions);
+      });
     }
   };
   const buttonStatus =

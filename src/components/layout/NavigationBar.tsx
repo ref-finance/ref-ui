@@ -180,7 +180,7 @@ function AccountEntry({
   const isSignedIn = globalState.isSignedIn;
 
   useEffect(() => {
-    wallet.wallet().then((res) => {
+    wallet?.wallet().then((res) => {
       setCurrentWalletName(res.metadata.name);
       setCurrentWalletIcon(res.metadata.iconUrl);
     });
