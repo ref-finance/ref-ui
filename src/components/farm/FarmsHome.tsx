@@ -94,7 +94,11 @@ import { useAccountInfo, LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import { VEARROW } from '../icon/Referendum';
 import Countdown, { zeroPad } from 'react-countdown';
 import { MoreButtonIcon } from '../../components/icon/Common';
-import { useWalletSelector } from '../../context/WalletSelectorContext';
+import {
+  useTranstionsExcuteDataStore,
+  IExcuteStatus,
+} from '../../stores/transtionsExcuteData';
+import { executeMultipleTransactionsV2 } from '../../services/near';
 
 import _ from 'lodash';
 import { PoolInfo } from 'src/services/swapV3';
@@ -209,16 +213,18 @@ export default function FarmsHome(props: any) {
   const [has_dcl_farms_in_display_list, set_has_dcl_farms_in_display_list] =
     useState(true);
   const [your_seeds_quantity, set_your_seeds_quantity] = useState('-');
-  const { transactionExcuteStatus } = useWalletSelector();
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+  const actionStatus: IExcuteStatus =
+    transtionsExcuteDataStore.getActionStatus();
   /** search area options end **/
   useEffect(() => {
-    init();
-    getConfig();
-    get_user_unWithDraw_rewards();
-    get_user_seeds_and_unClaimedRewards();
-    getLoveTokenBalance();
-    get_ve_seed_share();
-  }, [isSignedIn, transactionExcuteStatus]);
+    initCall();
+  }, [isSignedIn]);
+  useEffect(() => {
+    if (actionStatus == 'resolved' || actionStatus == 'rejected') {
+      initCall();
+    }
+  }, [actionStatus]);
   useEffect(() => {
     if (count > 0) {
       init();
@@ -242,6 +248,14 @@ export default function FarmsHome(props: any) {
       getYourFarmsQuantity();
     }
   }, [farm_display_List]);
+  function initCall() {
+    init();
+    getConfig();
+    get_user_unWithDraw_rewards();
+    get_user_seeds_and_unClaimedRewards();
+    getLoveTokenBalance();
+    get_ve_seed_share();
+  }
   async function get_ve_seed_share() {
     const result = await getVeSeedShare();
     const maxShareObj = result?.accounts?.accounts[0] || {};
@@ -2302,6 +2316,7 @@ function FarmView(props: {
   const unClaimedTokens = useTokens(
     Object.keys(user_unclaimed_map[seed_id] || {})
   );
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
   const history = useHistory();
   const intl = useIntl();
   const rate_need_to_reverse_display = useMemo(() => {
@@ -2762,12 +2777,19 @@ function FarmView(props: {
     if (claimLoading) return;
     setClaimLoading(true);
     claimRewardBySeed_boost(seed.seed_id)
-      // .then(() => {
-      //   window.location.reload();
-      // })
+      .then((transactions) => {
+        executeMultipleTransactionsV2(transactions)
+          .then(() => {
+            transtionsExcuteDataStore.setActionStatus('resolved');
+            setClaimLoading(false);
+          })
+          .catch(() => {
+            transtionsExcuteDataStore.setActionStatus('rejected');
+            setClaimLoading(false);
+          });
+      })
       .catch((error) => {
         setClaimLoading(false);
-        setError(error);
       });
   }
   function getBoostMutil() {

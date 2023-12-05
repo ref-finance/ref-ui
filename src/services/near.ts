@@ -377,6 +377,70 @@ export const executeMultipleTransactions = async (
       window.location.reload();
     });
 };
+export const executeMultipleTransactionsV2 = async (
+  transactions: Transaction[],
+  callbackUrl?: string
+) => {
+  const { wallet } = getCurrentWallet();
+
+  const wstransactions: WSTransaction[] = [];
+
+  transactions.forEach((transaction) => {
+    wstransactions.push({
+      signerId: wallet.getAccountId()!,
+      receiverId: transaction.receiverId,
+      actions: transaction.functionCalls.map((fc) => {
+        return {
+          type: 'FunctionCall',
+          params: {
+            methodName: fc.methodName,
+            args: fc.args,
+            gas: getGas(fc.gas).toNumber().toFixed(),
+            deposit: utils.format.parseNearAmount(fc.amount || '0')!,
+          },
+        };
+      }),
+    });
+  });
+
+  await ledgerTipTrigger(wallet);
+
+  return (await wallet.wallet())
+    .signAndSendTransactions({
+      transactions: wstransactions,
+      callbackUrl,
+    })
+    .then((res) => {
+      if (!res) return;
+
+      const transactionHashes = (Array.isArray(res) ? res : [res])?.map(
+        (r) => r.transaction.hash
+      );
+      const parsedTransactionHashes = transactionHashes?.join(',');
+      const newHref = addQueryParams(
+        window.location.origin + window.location.pathname,
+        {
+          [TRANSACTION_WALLET_TYPE.WalletSelector]: parsedTransactionHashes,
+        }
+      );
+      return newHref;
+      // window.location.href = newHref;
+    })
+    .catch((e: Error) => {
+      if (extraWalletsError.includes(e.message)) {
+        return;
+      }
+
+      if (
+        !walletsRejectError.includes(e.message) &&
+        !extraWalletsError.includes(e.message)
+      ) {
+        sessionStorage.setItem('WALLETS_TX_ERROR', e.message);
+      }
+
+      // window.location.reload();
+    });
+};
 
 export const refFarmFunctionCall = async ({
   methodName,
@@ -558,7 +622,8 @@ export const refFarmBoostFunctionCall = async ({
     ],
   };
 
-  return await executeMultipleTransactions([transaction]);
+  // return await executeMultipleTransactions([transaction]);
+  return [transaction];
 };
 
 export const ftGetNearBalance = async () => {

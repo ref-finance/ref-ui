@@ -731,7 +731,7 @@ export const claimRewardBySeed_boost = async (
 ): Promise<any> => {
   return refFarmBoostFunctionCall({
     methodName: 'claim_reward_by_seed',
-    args: { seed_id: seed_id },
+    args: { seed_id },
   });
 };
 export const lock_free_seed = async ({

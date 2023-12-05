@@ -40,7 +40,8 @@ import {
 import QuestionMark from 'src/components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 import { WalletContext } from '../../utils/wallets-integration';
-import { useWalletSelector } from '../../context/WalletSelectorContext';
+import { executeMultipleTransactionsV2 } from '../../services/near';
+import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
 const {
   XREF_TOKEN_ID,
   REF_TOKEN_ID,
@@ -59,9 +60,10 @@ function XrefPage() {
   const [refToken, setRefToken] = useState<TokenMetadata>();
   const [xrefMetaData, setXrefMetaData] = useState<XrefMetaData>();
   const intl = useIntl();
-  const { transactionExcuteStatus } = useWalletSelector();
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+  const actionStatus = transtionsExcuteDataStore.getActionStatus();
   const displayBalance = (max: string) => {
     const formattedMax = new BigNumber(max);
     if (!isSignedIn) {
@@ -73,7 +75,7 @@ function XrefPage() {
     }
   };
   useEffect(() => {
-    if (transactionExcuteStatus == 'pending') return;
+    if (actionStatus == 'pending') return;
     ftGetBalance(XREF_TOKEN_ID).then(async (data: any) => {
       const token = await ftGetTokenMetadata(XREF_TOKEN_ID);
       const { decimals } = token;
@@ -141,7 +143,7 @@ function XrefPage() {
       const rate = toReadableNumber(DECIMALS_XREF_REF_TRANSTER, data);
       setRate(rate);
     });
-  }, [isSignedIn, transactionExcuteStatus]);
+  }, [isSignedIn, actionStatus]);
   const isM = isMobile();
   const switchTab = (tab: number) => {
     setTab(tab);
@@ -449,34 +451,43 @@ function InputView(props: any) {
   const [loading, setLoading] = useState(false);
   const { tab, max, hidden, isM, rate } = props;
   const [forward, setForward] = useState(true);
-  const {
-    executeMultipleTransactions,
-    setTransactionExcuteStatus,
-    transactionExcuteStatus,
-  } = useWalletSelector();
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+  const actionStatus = transtionsExcuteDataStore.getActionStatus();
   useEffect(() => {
     setForward(true);
   }, [tab]);
   useEffect(() => {
-    if (transactionExcuteStatus !== 'pending') {
+    if (actionStatus !== 'pending') {
       setLoading(false);
     }
-  }, [transactionExcuteStatus]);
+  }, [actionStatus]);
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const onSubmit = () => {
     setLoading(true);
-    setTransactionExcuteStatus('pending');
+    transtionsExcuteDataStore.setActionStatus('pending');
     if (tab == 0) {
       // stake
       stake({ amount }).then((transactions) => {
-        executeMultipleTransactions(transactions);
+        executeMultipleTransactionsV2(transactions)
+          .then(() => {
+            transtionsExcuteDataStore.setActionStatus('resolved');
+          })
+          .catch(() => {
+            transtionsExcuteDataStore.setActionStatus('rejected');
+          });
       });
     } else if (tab == 1) {
       // unstake
       unstake({ amount }).then((transactions) => {
-        executeMultipleTransactions(transactions);
+        executeMultipleTransactionsV2(transactions)
+          .then(() => {
+            transtionsExcuteDataStore.setActionStatus('resolved');
+          })
+          .catch(() => {
+            transtionsExcuteDataStore.setActionStatus('rejected');
+          });
       });
     }
   };

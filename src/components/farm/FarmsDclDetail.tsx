@@ -68,15 +68,17 @@ import CalcModelDcl from '../../components/farm/CalcModelDcl';
 import { formatWithCommas_usd, formatPercentage } from './utils';
 import moment from 'moment';
 import Big from 'big.js';
+import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
+import { executeMultipleTransactionsV2 } from '../../services/near';
 const { REF_VE_CONTRACT_ID, REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
 export default function FarmsDclDetail(props: {
   detailData: Seed;
-  emptyDetailData: Function;
+  emptyDetailData: () => void;
   tokenPriceList: any;
   loveSeed: Seed;
   boostConfig: BoostConfig;
   user_data: Record<string, any>;
-  user_data_loading: Boolean;
+  user_data_loading: () => void;
   dayVolumeMap: Record<string, string>;
   all_seeds: Seed[];
 }) {
@@ -145,7 +147,7 @@ export default function FarmsDclDetail(props: {
       get_list_liquidities();
       get_mft_balance_of();
     }
-  }, [isSignedIn, user_data_loading, all_seeds, transactionExcuteStatus]);
+  }, [isSignedIn, user_data_loading, all_seeds]);
   useEffect(() => {
     if (rate_need_to_reverse_display) {
       setRangeSort(false);

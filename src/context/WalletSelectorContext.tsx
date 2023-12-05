@@ -62,13 +62,8 @@ interface WalletSelectorContextValue {
   accountId: string | null;
   setAccountId: (accountId: string) => void;
   isLedger: boolean;
-  executeMultipleTransactions: any;
-  setTransactionExcuteStatus: any;
-  transactionExcuteStatus: IExcuteStatus;
-  transactioData: any;
 }
 
-type IExcuteStatus = 'pending' | 'resolved' | 'rejected';
 const WalletSelectorContext =
   React.createContext<WalletSelectorContextValue | null>(null);
 
@@ -77,9 +72,6 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
   const [modal, setModal] = useState<WalletSelectorModal | null>(null);
   const [accountId, setAccountId] = useState<string | null>(null);
   const [accounts, setAccounts] = useState<Array<AccountState>>([]);
-  const [transactionExcuteStatus, setTransactionExcuteStatus] =
-    useState<IExcuteStatus>('resolved');
-  const [transactioData, setTransactioData] = useState<any>();
   const [isLedger, setIsLedger] = useState<boolean>(undefined);
 
   // get Account Id
@@ -208,65 +200,6 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
       }
     });
   }
-
-  const executeMultipleTransactions = async (
-    transactions: Transaction[],
-    callbackUrl?: string
-  ) => {
-    const wallet = window.selector;
-    const wstransactions: WSTransaction[] = [];
-    transactions.forEach((transaction) => {
-      wstransactions.push({
-        signerId: wallet.getAccountId()!,
-        receiverId: transaction.receiverId,
-        actions: transaction.functionCalls.map((fc) => {
-          return {
-            type: 'FunctionCall',
-            params: {
-              methodName: fc.methodName,
-              args: fc.args,
-              gas: getGas(fc.gas).toNumber().toFixed(),
-              deposit: utils.format.parseNearAmount(fc.amount || '0')!,
-            },
-          };
-        }),
-      });
-    });
-    await ledgerTipTrigger(wallet);
-    return (await wallet.wallet())
-      .signAndSendTransactions({
-        transactions: wstransactions,
-        callbackUrl,
-      })
-      .then((res) => {
-        if (!res) return;
-        const transactionHashes = (Array.isArray(res) ? res : [res])?.map(
-          (r) => r.transaction.hash
-        );
-        const parsedTransactionHashes = transactionHashes?.join(',');
-        const newHref = addQueryParams(
-          window.location.origin + window.location.pathname,
-          {
-            [TRANSACTION_WALLET_TYPE.WalletSelector]: parsedTransactionHashes,
-          }
-        );
-        setTransactionExcuteStatus('resolved');
-        setTransactioData(newHref);
-      })
-      .catch((e: Error) => {
-        if (extraWalletsError.includes(e.message)) {
-          return;
-        }
-        if (
-          !walletsRejectError.includes(e.message) &&
-          !extraWalletsError.includes(e.message)
-        ) {
-          sessionStorage.setItem('WALLETS_TX_ERROR', e.message);
-        }
-        setTransactionExcuteStatus('rejected');
-      });
-  };
-
   return (
     <WalletSelectorContext.Provider
       value={{
@@ -276,10 +209,6 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         accountId,
         setAccountId,
         isLedger,
-        executeMultipleTransactions,
-        setTransactionExcuteStatus,
-        transactionExcuteStatus,
-        transactioData,
       }}
     >
       {children}

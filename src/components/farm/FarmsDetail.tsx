@@ -66,7 +66,7 @@ import {
 } from '../../state/token';
 import { WRAP_NEAR_CONTRACT_ID } from 'src/services/wrap-near';
 import { useTokens, getDepositableBalance } from 'src/state/token';
-import { scientificNotationToString, divide } from '../../utils/numbers';
+import { scientificNotationToString } from '../../utils/numbers';
 import { BoostInputAmount } from 'src/components/forms/InputAmount';
 import Alert from 'src/components/alert/Alert';
 import { mftGetBalance } from 'src/services/mft-contract';
@@ -94,7 +94,8 @@ import {
   sort_tokens_by_base,
   openUrl,
 } from 'src/services/commonV3';
-import { useWalletSelector } from '../../context/WalletSelectorContext';
+import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
+import { executeMultipleTransactionsV2 } from '../../services/near';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 const {
@@ -105,12 +106,12 @@ const {
 } = getConfig();
 export default function FarmsDetail(props: {
   detailData: Seed;
-  emptyDetailData: Function;
+  emptyDetailData: () => void;
   tokenPriceList: any;
   loveSeed: Seed;
   boostConfig: BoostConfig;
   user_data: Record<string, any>;
-  user_data_loading: Boolean;
+  user_data_loading: boolean;
   dayVolumeMap: Record<string, string>;
 }) {
   const {
@@ -128,6 +129,7 @@ export default function FarmsDetail(props: {
     user_unclaimed_map = {},
     user_unclaimed_token_meta_map = {},
   } = user_data;
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
   const history = useHistory();
   const intl = useIntl();
   const pool = detailData.pool;
@@ -327,7 +329,7 @@ function StakeContainer(props: {
   user_unclaimed_token_meta_map: Record<string, any>;
   user_unclaimed_map: Record<string, any>;
   radio: string | number;
-  user_data_loading: Boolean;
+  user_data_loading: boolean;
   dayVolumeMap: Record<string, string>;
 }) {
   const { globalState } = useContext(WalletContext);
@@ -351,9 +353,10 @@ function StakeContainer(props: {
     user_data_loading,
     dayVolumeMap,
   } = props;
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+  const actionStatus = transtionsExcuteDataStore.getActionStatus();
   const pool = detailData.pool;
   const intl = useIntl();
-  const { transactionExcuteStatus } = useWalletSelector();
   function totalTvlPerWeekDisplay() {
     const farms = detailData.farmList;
     const rewardTokenIconMap = {};
@@ -534,7 +537,7 @@ function StakeContainer(props: {
   useEffect(() => {
     getPoolFee();
     get_ve_seed_share();
-  }, []);
+  }, [actionStatus]);
   async function get_ve_seed_share() {
     const result = await getVeSeedShare();
     const maxShareObj = result?.accounts?.accounts[0] || {};
@@ -548,13 +551,13 @@ function StakeContainer(props: {
   }
   useEffect(() => {
     getStakeBalance();
-  }, [Object.keys(user_seeds_map).length, user_data_loading]);
+  }, [Object.keys(user_seeds_map).length, user_data_loading, actionStatus]);
   useEffect(() => {
     const yourApr = getYourApr();
     if (yourApr) {
       setYourApr(yourApr);
     }
-  }, [boostConfig, user_seeds_map]);
+  }, [boostConfig, user_seeds_map, actionStatus]);
   async function getPoolFee() {
     const feeCache = dayVolumeMap && dayVolumeMap[pool.id];
     if (feeCache) {
@@ -1375,15 +1378,16 @@ function PoolDetailCard({
     return 0;
   });
   const [showDetail, setShowDetail] = useState(false);
-
   const [poolTVL, setPoolTVl] = useState<string>('');
   const h24Volume = useDayVolume(pool.id.toString());
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+  const actionStatus = transtionsExcuteDataStore.getActionStatus();
 
   useEffect(() => {
     getPool(pool.id.toString()).then((pool) => {
       setPoolTVl(pool.tvl.toString());
     });
-  }, []);
+  }, [actionStatus]);
 
   const DetailRow = ({
     value,
@@ -1955,16 +1959,24 @@ function UserTotalUnClaimBlock(props: {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const intl = useIntl();
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
   function claimReward() {
     if (claimLoading) return;
     setClaimLoading(true);
     claimRewardBySeed_boost(detailData.seed_id)
-      // .then(() => {
-      //   window.location.reload();
-      // })
+      .then((transactions) => {
+        executeMultipleTransactionsV2(transactions)
+          .then(() => {
+            transtionsExcuteDataStore.setActionStatus('resolved');
+            setClaimLoading(false);
+          })
+          .catch(() => {
+            transtionsExcuteDataStore.setActionStatus('rejected');
+            setClaimLoading(false);
+          });
+      })
       .catch((error) => {
         setClaimLoading(false);
-        // setError(error);
       });
   }
   function getTotalUnclaimedRewards() {
@@ -2253,31 +2265,38 @@ function UserStakeBlock(props: {
   const xlocked_amount = toReadableNumber(DECIMALS, x_locked_amount);
   const slashRate = slash_rate / 10000;
   const intl = useIntl();
-  const { transactionExcuteStatus } = useWalletSelector();
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+  const actionStatus = transtionsExcuteDataStore.getActionStatus();
   useEffect(() => {
     get_server_time();
-  }, []);
-  useEffect(() => {
-    const { free_amount, locked_amount } = user_seeds_map[seed_id] || {};
-    const yourLp = toReadableNumber(
-      seed_decimal,
-      new BigNumber(free_amount || 0).plus(locked_amount || 0).toFixed()
-    );
-    const { tvl, id, shares_total_supply } = pool;
-    const DECIMALS = new Set(STABLE_POOL_IDS || []).has(id?.toString())
-      ? LP_STABLE_TOKEN_DECIMALS
-      : LP_TOKEN_DECIMALS;
-    const poolShares = Number(toReadableNumber(DECIMALS, shares_total_supply));
-    const yourTvl =
-      poolShares == 0
-        ? 0
-        : Number(
-            toPrecision(((Number(yourLp) * tvl) / poolShares).toString(), 2)
-          );
-    if (yourTvl) {
-      setYourTvl(yourTvl.toString());
-    }
-  }, [Object.keys(user_seeds_map || {})]);
+  }, [actionStatus]);
+  useEffect(
+    () => {
+      const { free_amount, locked_amount } = user_seeds_map[seed_id] || {};
+      const yourLp = toReadableNumber(
+        seed_decimal,
+        new BigNumber(free_amount || 0).plus(locked_amount || 0).toFixed()
+      );
+      const { tvl, id, shares_total_supply } = pool;
+      const DECIMALS = new Set(STABLE_POOL_IDS || []).has(id?.toString())
+        ? LP_STABLE_TOKEN_DECIMALS
+        : LP_TOKEN_DECIMALS;
+      const poolShares = Number(
+        toReadableNumber(DECIMALS, shares_total_supply)
+      );
+      const yourTvl =
+        poolShares == 0
+          ? 0
+          : Number(
+              toPrecision(((Number(yourLp) * tvl) / poolShares).toString(), 2)
+            );
+      if (yourTvl) {
+        setYourTvl(yourTvl.toString());
+      }
+    },
+    [Object.keys(user_seeds_map || {})],
+    actionStatus
+  );
 
   const get_server_time = async () => {
     const timestamp = await getServerTime();
@@ -2339,25 +2358,6 @@ function UserStakeBlock(props: {
       }
     }
     return result;
-  }
-  function showLpWorth() {
-    const poolLpAmount = Number(
-      toReadableNumber(DECIMALS, shares_total_supply)
-    );
-    const userLpAmount = Number(userTotalStake);
-    if (poolLpAmount == 0 || userLpAmount == 0) {
-      return <label className="opacity-30">{isSignedIn ? '$0' : '-'}</label>;
-    } else {
-      const userLpWorth = ((userLpAmount * tvl) / poolLpAmount).toString();
-      const userLpWorthBigNumber = new BigNumber(userLpWorth);
-      if (userLpWorthBigNumber.isEqualTo(0)) {
-        return '$0';
-      } else if (userLpWorthBigNumber.isLessThan(0.001)) {
-        return '<$0.001';
-      } else {
-        return '$' + toPrecision(userLpWorth, 3);
-      }
-    }
   }
   function displayLpBalance() {
     if (lpBalance) {
@@ -2980,18 +2980,15 @@ export function StakeModal(props: {
   const [ROI, setROI] = useState('');
   const [estimatedRewards, setEstimatedRewards] = useState<any[]>();
   const intl = useIntl();
-  const {
-    executeMultipleTransactions,
-    setTransactionExcuteStatus,
-    transactionExcuteStatus,
-  } = useWalletSelector();
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+  const actionStatus = transtionsExcuteDataStore.getActionStatus();
   useEffect(() => {
     if (stakeType !== 'free') {
       const goldList = [
-        <GoldLevel1></GoldLevel1>,
-        <GoldLevel2></GoldLevel2>,
-        <GoldLevel3></GoldLevel3>,
-        <GoldLevel4></GoldLevel4>,
+        <GoldLevel1 key={1} />,
+        <GoldLevel2 key={2} />,
+        <GoldLevel3 key={3} />,
+        <GoldLevel4 key={4} />,
       ];
       const lockable_duration_month = [1, 3, 6, 12];
       const lockable_duration_second = lockable_duration_month.map(
@@ -3034,10 +3031,10 @@ export function StakeModal(props: {
         setSelectedLockData(list[0]);
       });
     }
-  }, [stakeType]);
+  }, [stakeType, actionStatus]);
   useEffect(() => {
     getSelectedLockRewardsData();
-  }, [amount, selectedLockData]);
+  }, [amount, selectedLockData, actionStatus]);
   const displaySymbols = () => {
     let result = '';
     const tokens = sort_tokens_by_base(pool.tokens_meta_data);
@@ -3222,11 +3219,16 @@ export function StakeModal(props: {
         amount: toNonDivisibleNumber(DECIMALS, amount),
         msg,
       }).then((transactions) => {
-        // todo
-        setTransactionExcuteStatus(false);
-        executeMultipleTransactions(transactions).then(() => {
-          onRequestClose();
-        });
+        transtionsExcuteDataStore.setActionStatus('pending');
+        executeMultipleTransactionsV2(transactions)
+          .then(() => {
+            transtionsExcuteDataStore.setActionStatus('resolved');
+            onRequestClose();
+          })
+          .catch(() => {
+            transtionsExcuteDataStore.setActionStatus('rejected');
+            onRequestClose();
+          });
       });
     }
   }
@@ -3713,9 +3715,7 @@ export function UnStakeModal(props: {
   const lockStatus = new BigNumber(unlock_timestamp).isLessThan(serverTime);
   const slashRate = slash_rate / 10000;
   const intl = useIntl();
-  const { executeMultipleTransactions, setTransactionExcuteStatus } =
-    useWalletSelector();
-
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
   function changeAmount(value: string) {
     setAmount(value);
   }
@@ -3727,11 +3727,16 @@ export function UnStakeModal(props: {
         unlock_amount: '0',
         withdraw_amount: toNonDivisibleNumber(DECIMALS, amount),
       }).then((transactions) => {
-        // todo
-        setTransactionExcuteStatus(false);
-        executeMultipleTransactions(transactions).then(() => {
-          onRequestClose();
-        });
+        transtionsExcuteDataStore.setActionStatus('pending');
+        executeMultipleTransactionsV2(transactions)
+          .then(() => {
+            transtionsExcuteDataStore.setActionStatus('resolved');
+            onRequestClose();
+          })
+          .catch(() => {
+            transtionsExcuteDataStore.setActionStatus('rejected');
+            onRequestClose();
+          });
       });
     } else if (lockStatus) {
       unStake_boost({
@@ -3739,11 +3744,16 @@ export function UnStakeModal(props: {
         unlock_amount: toNonDivisibleNumber(DECIMALS, amount),
         withdraw_amount: '0',
       }).then((transactions) => {
-        // todo
-        setTransactionExcuteStatus(false);
-        executeMultipleTransactions(transactions).then(() => {
-          onRequestClose();
-        });
+        transtionsExcuteDataStore.setActionStatus('pending');
+        executeMultipleTransactionsV2(transactions)
+          .then(() => {
+            transtionsExcuteDataStore.setActionStatus('resolved');
+            onRequestClose();
+          })
+          .catch(() => {
+            transtionsExcuteDataStore.setActionStatus('rejected');
+            onRequestClose();
+          });
       });
     } else {
       force_unlock({
