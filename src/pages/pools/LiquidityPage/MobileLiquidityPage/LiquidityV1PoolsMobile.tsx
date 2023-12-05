@@ -61,14 +61,7 @@ const LiquidityV1PoolsMobile = ({
     <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4">
       <div className="mx-4 flex items-center justify-between my-4">
         <div className="flex items-center">
-          <div className="text-white text-base">Top Pools</div>
-          <QuestionTip id="topPoolsCopy" />
-        </div>
-
-        <div className="text-gray-400 text-xs">
-          {(pools?.length ? pools?.filter(poolFilterFunc).length : '-') +
-            ' out of ' +
-            (allPools ? allPools : '-')}
+          <div className="text-white text-base">Pools</div>
         </div>
       </div>
 

@@ -1237,20 +1237,6 @@ function PcLiquidityPage({
             >
               <div className="flex items-center">
                 <div className="text-white text-lg font-bold">Top Pools</div>
-
-                <div className="flex items-center">
-                  <span className="mr-1">
-                    <QuestionTip id="topPoolsCopy" />
-                  </span>
-
-                  <div className="text-white text-sm">
-                    {(pools?.length
-                      ? pools?.filter(poolFilterFunc).length
-                      : '-') +
-                      ' out of ' +
-                      (allPools ? allPools : '-')}
-                  </div>
-                </div>
               </div>
 
               <div className="ml-8 justify-between  flex">
