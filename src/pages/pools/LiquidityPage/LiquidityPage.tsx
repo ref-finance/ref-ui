@@ -238,7 +238,7 @@ function PoolRow({
     <div className="w-full hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20">
       <Link
         className={`grid grid-cols-${
-          mark ? 6 : 7
+          mark ? 7 : 7
         } py-3.5 text-white content-center text-sm text-left mx-8 border-b border-gray-700 border-opacity-70 hover:opacity-80`}
         onClick={() => localStorage.setItem('fromMorePools', 'n')}
         to={{
@@ -474,7 +474,7 @@ function PoolRowV2({
           }`}
         >
           <div
-            className={`inline-flex flex-col items-center py-1`}
+            className={`inline-flex flex-col py-1`}
             data-type="info"
             data-place="right"
             data-multiline={true}
