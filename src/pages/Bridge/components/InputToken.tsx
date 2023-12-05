@@ -1,19 +1,18 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import SvgIcon from './SvgIcon';
 import Big from 'big.js';
-import useBridgeForm from '../hooks/useBridgeForm';
-import useBridgeToken from '../hooks/useBridgeToken';
-import { useRequest } from '../hooks/useRequest';
-import { formatBalance, formatDisplayBalance } from '../utils/format';
+import { formatBalance } from '../utils/format';
 
 type Props = {
   model?:
-    | BridgeModel.BridgeTransaction['from']
-    | BridgeModel.BridgeTransaction['to'];
+    | BridgeModel.BridgeTransferFormData['from']
+    | BridgeModel.BridgeTransferFormData['to'];
+  balance?: string;
   className?: string;
   children?: React.ReactNode;
   style?: React.CSSProperties;
   inputReadonly?: boolean;
+  isError?: boolean;
   onChange?: (value: Props['model']) => void;
 };
 
@@ -21,45 +20,28 @@ function GasFeeWarning({ className }: { className?: string }) {
   return (
     <div className={`flex items-center text-red-400 ${className ?? ''}`}>
       <SvgIcon name="IconWarning" className="mr-1" />
-      Not enough gas (0.0035 ETH needed)
+      Not enough gas fee
     </div>
   );
 }
 
 function InputToken({
   model,
+  balance,
   className,
   onChange,
   children,
   style,
   inputReadonly,
+  isError,
 }: Props) {
   const [isInputFocus, setIsInputFocus] = useState(false);
-  const { getTokenBalance } = useBridgeToken();
-
-  const { data: balance, loading } = useRequest(
-    () => getTokenBalance(model.chain, model.tokenMeta),
-    {
-      before: () => !!model?.chain && !!model?.tokenMeta?.symbol,
-      refreshDeps: [model?.chain, model?.tokenMeta?.symbol],
-    }
-  );
-  const formattedBalance = useMemo(
-    () => formatBalance(balance, model?.tokenMeta?.decimals),
-    [balance, model.tokenMeta?.decimals]
-  );
-
-  const isError = useMemo(() => {
-    return (
-      model.amount && new Big(model.amount).gte(formattedBalance) && !loading
-    );
-  }, [model.amount, formattedBalance, loading]);
 
   function handleAllAmount() {
     !inputReadonly &&
       onChange?.({
         ...model,
-        amount: formattedBalance,
+        amount: balance,
       });
   }
 
@@ -93,13 +75,13 @@ function InputToken({
           />
           {children}
         </div>
-        <div className="w-full flex items-center justify-between text-xs">
-          <span>$0.00</span>
+        <div className="w-full flex items-center justify-end text-xs">
+          {/* <span>$0.00</span> */}
           <span className="text-gray-400">
             Balance:
             <a
               className={`ml-1 ${
-                formattedBalance && new Big(formattedBalance).gt(0)
+                balance && new Big(balance).gt(0)
                   ? !inputReadonly
                     ? 'hover:underline cursor-pointer text-white'
                     : 'text-white'
@@ -107,7 +89,7 @@ function InputToken({
               }`}
               onClick={handleAllAmount}
             >
-              {formatDisplayBalance(balance, model?.tokenMeta?.decimals)}
+              {formatBalance(balance)}
             </a>
           </span>
         </div>

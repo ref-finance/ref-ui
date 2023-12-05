@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import erc20Abi from '../abi/erc20.json';
+import { formatBalanceRaw } from '../utils/format';
 
 export const ethServices = {
   async getErc20Contract(address: string) {
@@ -13,24 +14,21 @@ export const ethServices = {
         method: 'eth_requestAccounts',
       });
 
+      let balance = '0';
       if (token.symbol === 'ETH' && !token.addresses.ETH) {
-        const balance = await window.ethWeb3Provider?.getBalance(sender);
-        console.log('balance', balance.toString());
-        return balance.toString();
+        balance = (await window.ethWeb3Provider?.getBalance(sender)).toString();
+      } else {
+        const Interface = new ethers.utils.Interface(erc20Abi);
+        const data = Interface.encodeFunctionData('balanceOf', [sender]);
+        const rawBalance = await window.ethWeb3Provider?.call({
+          to: token.addresses.ETH,
+          data,
+        });
+        balance = Interface.decodeFunctionResult('balanceOf', rawBalance)[0];
       }
-
-      const Interface = new ethers.utils.Interface(erc20Abi);
-      const data = Interface.encodeFunctionData('balanceOf', [sender]);
-      const rawBalance = await window.ethWeb3Provider?.call({
-        to: token.addresses.ETH,
-        data,
-      });
-      const balance = Interface.decodeFunctionResult(
-        'balanceOf',
-        rawBalance
-      )[0];
-      console.log('balance', balance.toString());
-      return balance.toString();
+      const formattedBalance = formatBalanceRaw(balance, token.decimals);
+      console.log(`${token.symbol} balance on eth`, formattedBalance);
+      return formattedBalance;
     } catch (error) {
       console.error(error);
       console.log(token.symbol, token.addresses.ETH);
@@ -47,19 +45,19 @@ export const nearServices = {
         accountId || window.walletNearConnection.getAccountId();
       console.log('_accountId', _accountId);
       const account = await window.Near.account(_accountId);
+      let balance = '0';
       if (token.symbol === 'NEAR') {
-        const balance = await account.getAccountBalance();
-        console.log('balance', balance);
-        return balance.available;
+        balance = (await account.getAccountBalance()).available;
       } else {
-        const balance = await account.viewFunction(
+        balance = await account.viewFunction(
           token.addresses.NEAR,
           'ft_balance_of',
           { account_id: _accountId }
         );
-        console.log('balance', token.symbol, token.addresses.NEAR, balance);
-        return balance;
       }
+      const formattedBalance = formatBalanceRaw(balance, token.decimals);
+      console.log(`${token.symbol} balance on near`, formattedBalance);
+      return formattedBalance;
     } catch (error) {
       console.error(error);
       return '0';

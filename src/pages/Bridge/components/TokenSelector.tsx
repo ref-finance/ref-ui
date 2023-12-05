@@ -2,12 +2,11 @@ import React, { MouseEventHandler, useEffect, useMemo, useState } from 'react';
 import Modal from 'react-modal';
 
 import Button from './Button';
-import { ChainConfig, TokenList } from '../config';
+import { SupportChains } from '../config';
 import SvgIcon from './SvgIcon';
 import useBridgeToken from './../hooks/useBridgeToken';
-import { useRequest } from '../hooks/useRequest';
-import { ethServices, nearServices } from '../services/contract';
-import { formatDisplayBalance } from '../utils/format';
+import { useRequest } from '../hooks/useHooks';
+import { formatChainName, formatBalance } from '../utils/format';
 
 type TokenSelectorCommonProps = {
   chain: BridgeModel.BridgeSupportChain;
@@ -64,7 +63,7 @@ function TokenItem({
         </div>
         <div>
           <div className="text-base text-white mb-1">{item.symbol}</div>
-          <div className="text-xs">{ChainConfig[chain].name}</div>
+          <div className="text-xs">{formatChainName(chain)}</div>
         </div>
       </div>
       <div className="text-white text-opacity-50">
@@ -76,26 +75,22 @@ function TokenItem({
             />
           )}
           <span
-            className="inline-block text-white text-sm"
+            className="inline-flex justify-end text-white text-sm text-right"
             style={{ minWidth: '3rem' }}
           >
             {loading ? (
-              <span className="text-gray-400">...</span>
+              <SvgIcon name="IconLoading" className="text-gray-400" />
             ) : (
-              formatDisplayBalance(balance, item.decimals)
+              formatBalance(balance)
             )}
           </span>
         </div>
-        <div className="text-right text-xs">$0.00</div>
+        {/* <div className="text-right text-xs">$0.00</div> */}
       </div>
     </div>
   );
 }
 
-const chainList = Object.entries(ChainConfig).map(([key, { name }]) => ({
-  label: name,
-  value: key as BridgeModel.BridgeSupportChain,
-}));
 export interface TokenSelectorProps
   extends Modal.Props,
     TokenSelectorCommonProps {
@@ -163,17 +158,17 @@ export function TokenSelector({
         </div>
         <div>
           <div className="relative flex items-center">
-            {chainList.map(({ label, value }) => (
+            {SupportChains.map((item) => (
               <div
-                key={value}
+                key={item}
                 className={`leading-10 w-full text-center border-b-2 cursor-pointer ${
-                  tokenFilter.chain === value
+                  tokenFilter.chain === item
                     ? `text-white  border-primary `
                     : 'border-transparent'
                 }`}
-                onClick={() => setTokenFilter({ ...tokenFilter, chain: value })}
+                onClick={() => setTokenFilter({ ...tokenFilter, chain: item })}
               >
-                {label} Network
+                {formatChainName(item)} Network
               </div>
             ))}
             <div className="absolute bottom-0 left-0 w-full h-px bg-white opacity-20"></div>

@@ -1,13 +1,18 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import Modal from 'react-modal';
 import ReactTooltip from 'react-tooltip';
 
 import SvgIcon from './SvgIcon';
 import Button from './Button';
 import useRainbowBridge from '../hooks/useRainbowBridge';
-import { useRouter } from '../hooks/useRouter';
 import { useBridgeFormContext } from '../providers/bridgeForm';
-import { useWalletConnectContext } from '../providers/walletConcent';
+import {
+  formatAmount,
+  formatChainName,
+  formatSortAddress,
+} from '../utils/format';
+import { RainbowConfig } from '../config';
+import { useBridgeTransactionContext } from '../providers/bridgeTransaction';
 
 export default function BridgePreviewModal({
   toggleOpenModal,
@@ -15,23 +20,53 @@ export default function BridgePreviewModal({
 }: Modal.Props & { toggleOpenModal: () => void }) {
   const [isOpenStatusModal, setIsOpenStatusModal] = useState(false);
 
-  const { transferLoading, transfer } = useRainbowBridge();
+  const { actionLoading, transfer } = useRainbowBridge();
 
   const { bridgeFromValue, bridgeToValue } = useBridgeFormContext();
-  const wallet = useWalletConnectContext();
+
+  const { openBridgeTransactionStatusModal } = useBridgeTransactionContext();
+
+  const sender = bridgeFromValue?.accountAddress;
+  const recipient =
+    bridgeToValue.isCustomAccountAddress && bridgeToValue.customAccountAddress
+      ? bridgeToValue.customAccountAddress
+      : bridgeToValue.accountAddress;
+
+  const confirmInfo = useMemo(
+    () => ({
+      tokenMeta: bridgeFromValue?.tokenMeta,
+      amount: bridgeFromValue?.amount,
+      from: bridgeFromValue?.chain,
+      to: bridgeToValue?.chain,
+      recipient,
+      sender,
+      constTime: RainbowConfig.wait,
+      bridgeFee: RainbowConfig.gas,
+      output: bridgeToValue.amount,
+      minimumReceived: bridgeFromValue.amount,
+    }),
+    [
+      bridgeFromValue.amount,
+      bridgeFromValue?.chain,
+      bridgeFromValue?.tokenMeta,
+      bridgeToValue.amount,
+      bridgeToValue?.chain,
+      recipient,
+      sender,
+    ]
+  );
 
   async function handleTransfer() {
-    const { tokenMeta, amount, chain: from } = bridgeFromValue;
-    const { chain: to } = bridgeToValue;
+    const { tokenMeta: token, amount, chain: from } = bridgeFromValue;
 
-    const res = await transfer({
-      token: tokenMeta,
-      amount: (amount ?? 1).toString(),
+    const result = await transfer({
+      token,
+      amount,
       from,
-      recipient: wallet[to]?.accountId,
-      sender: wallet[from]?.accountId,
+      recipient,
+      sender,
     });
-    console.log('handleTransfer', res);
+    openBridgeTransactionStatusModal(result);
   }
   return (
     <>
@@ -51,7 +86,11 @@ export default function BridgePreviewModal({
           <div>
             <div className="text-center mb-3">You will send</div>
             <div className="flex items-center justify-center text-white mb-4">
-              <div className="w-7 h-7 bg-white rounded-full mr-3" />1 ETH
+              <div className="w-7 h-7 bg-white rounded-full mr-3 overflow-hidden">
+                <img src={confirmInfo?.tokenMeta?.icon} />
+              </div>
+              {formatAmount(confirmInfo?.amount)}{' '}
+              {confirmInfo?.tokenMeta?.symbol}
             </div>
             <div className="flex items-center gap-5 mb-7">
               <div
@@ -59,34 +98,46 @@ export default function BridgePreviewModal({
                 style={{ backgroundColor: 'rgba(126, 138, 147, 0.10)' }}
               >
                 <div className="mb-2">
-                  From <span className="text-white">Ethereum</span>
+                  From{' '}
+                  <span className="text-white">
+                    {formatChainName(confirmInfo?.from)}
+                  </span>
                 </div>
-                <div className="text-white">0x3bCB...7AB717</div>
+                <div className="text-white">
+                  {formatSortAddress(confirmInfo.sender)}
+                </div>
               </div>
               <div
                 className="flex-1 p-3 rounded-lg"
                 style={{ backgroundColor: 'rgba(126, 138, 147, 0.10)' }}
               >
                 <div className="mb-2">
-                  To <span className="text-white">NEAR</span>
+                  To{' '}
+                  <span className="text-white">
+                    {formatChainName(confirmInfo?.to)}
+                  </span>
                 </div>
-                <div className="text-white">0x3bCB...7AB717</div>
+                <div className="text-white">{formatSortAddress(recipient)}</div>
               </div>
             </div>
             <div className="flex flex-col gap-5">
               <div className="flex justify-between">
                 <div>Est. Output</div>
                 <div>
-                  <div className="text-white text-right">0.00035 ETH</div>
-                  <div className="text-xs text-right">(~$1885.23)</div>
+                  <div className="text-white text-right">
+                    {confirmInfo.output} {confirmInfo?.tokenMeta?.symbol}
+                  </div>
+                  {/* <div className="text-xs text-right">(~$1885.23)</div> */}
                 </div>
               </div>
               <div className="flex justify-between">
                 <div>Bridge Fee</div>
                 <div>
-                  <div className="text-white text-right">0.00035 ETH</div>
+                  <div className="text-white text-right">
+                    {confirmInfo?.bridgeFee}
+                  </div>
                   <div className="text-xs text-right">
-                    <span
+                    {/* <span
                       className="underline cursor-pointer ml-1"
                       data-for="bridge-gas-fee"
                       data-type="info"
@@ -105,21 +156,25 @@ export default function BridgePreviewModal({
                         effect="solid"
                         textColor="#C6D1DA"
                       />
-                    </span>
+                    </span> */}
                   </div>
                 </div>
               </div>
               <div className="flex justify-between">
                 <div>Minimum Received</div>
                 <div>
-                  <div className="text-white text-right">0.00035 ETH</div>
-                  <div className="text-xs text-right">(~$1885.23)</div>
+                  <div className="text-white text-right">
+                    {confirmInfo.minimumReceived} {confirmInfo.tokenMeta.symbol}
+                  </div>
+                  {/* <div className="text-xs text-right">(~$1885.23)</div> */}
                 </div>
               </div>
               <div className="flex justify-between">
                 <div>Cost Time</div>
                 <div>
-                  <div className="text-white text-right">{`< 5 mins`}</div>
+                  <div className="text-white text-right">
+                    {confirmInfo.constTime}
+                  </div>
                 </div>
               </div>
               <div>
@@ -127,7 +182,7 @@ export default function BridgePreviewModal({
                   type="primary"
                   size="large"
                   className="w-full"
-                  disabled={transferLoading}
+                  loading={actionLoading}
                   onClick={handleTransfer}
                 >
                   Transfer

@@ -8,7 +8,7 @@
 .bridge-btn.is-plain{
     @apply bg-transparent;
 }
-.bridge-btn:hover,.bridge-btn.is-plain:hover,.bridge-btn.is-text:hover{
+.bridge-btn:not(.is-disabled):hover,.bridge-btn.is-plain:not(.is-disabled):hover,.bridge-btn.is-text:not(.is-disabled):hover{
     @apply bg-primaryText text-white transition-colors;
     background: rgba(126, 138, 147, 0.3);
 }
@@ -28,13 +28,13 @@
     background: linear-gradient(180deg, rgba(var(--bridge-primary-color-rgb),0.8) 0%, rgba(var(--bridge-primary-color-hover-rgb)) 100%);
     border-color: transparent;
 }
-.bridge-btn-primary:hover{
+.bridge-btn-primary:not(.is-disabled):hover{
     @apply text-white;
     background: linear-gradient(180deg,var(--bridge-primary-color),var(--bridge-primary-color-hover) 100%);
 }
 
-.bridge-btn-primary:disabled{
-    @apply opacity-80;
+.bridge-btn-primary:disabled,.bridge-btn-primary.is-disabled{
+    @apply opacity-60 cursor-not-allowed;
 }
 
 .bridge-btn-info{
@@ -48,7 +48,7 @@
 .bridge-btn-primary.is-text{
    color: var(--bridge-primary-color);
 }
-.bridge-btn-primary.is-text:hover{
+.bridge-btn-primary.is-text:not(.is-disabled):hover{
     color: var(--bridge-primary-color-hover);
 }
 

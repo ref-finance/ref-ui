@@ -1,9 +1,14 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { TokenList } from '../config';
 import { ethServices, nearServices } from '../services/contract';
+import { chain } from 'lodash';
 
 export default function useBridgeToken() {
-  const tokens = TokenList;
+  const tokens = useMemo(
+    () =>
+      TokenList.filter((item) => item.addresses.ETH || item.symbol === 'ETH'),
+    []
+  );
   const filterTokens = useCallback(
     (chain: BridgeModel.BridgeSupportChain, text: string) => {
       return tokens.filter((item) => {
@@ -17,6 +22,10 @@ export default function useBridgeToken() {
     [tokens]
   );
 
+  function getTokenBySymbol(symbol: string) {
+    return tokens.find((item) => item.symbol === symbol);
+  }
+
   function getTokenBalance(
     chain: BridgeModel.BridgeSupportChain,
     token: BridgeModel.BridgeTokenMeta
@@ -26,5 +35,5 @@ export default function useBridgeToken() {
       : nearServices.getBalance(token);
   }
 
-  return { filterTokens, getTokenBalance };
+  return { filterTokens, getTokenBySymbol, getTokenBalance };
 }

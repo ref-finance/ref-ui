@@ -14,3 +14,7 @@ export { default as IconWaiting } from './../../assets/waiting.svg';
 export { default as IconWarning } from './../../assets/warning.svg';
 export { default as IconChainEthereum } from './../../assets/chain-ethereum.svg';
 export { default as IconChainNear } from './../../assets/chain-near.svg';
+export { default as IconDirection } from './../../assets/direction.svg';
+export { default as IconLoading } from './../../assets/loading.svg';
+export { default as IconEmpty } from './../../assets/empty.svg';
+export { default as IconErrorCircle } from './../../assets/error-circle.svg';

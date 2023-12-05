@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import Button from '../components/Button';
 import ConnectWallet from '../components/ConnectWallet';
 import HistoryTable from '../components/HistoryTable';
-import { useRequest } from '../hooks/useRequest';
+import { useRequest } from '../hooks/useHooks';
 import { bridgeHistoryService } from '../services';
 import SvgIcon from '../components/SvgIcon';
 import { useRouter } from '../hooks/useRouter';

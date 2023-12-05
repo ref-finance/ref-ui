@@ -11,7 +11,7 @@ import {
 import BridgeEntry from './views/entry';
 import BridgeTransactionHistory from './views/history';
 import { Route, Switch } from 'react-router-dom';
-import BridgeTransactionStatusProvider from './providers/bridgeTransactionStatus';
+import BridgeTransactionProvider from './providers/bridgeTransaction';
 
 function Layout() {
   return (
@@ -32,11 +32,11 @@ function BridgePage() {
       <WalletConnectProvider>
         <WalletConnectNearProvider>
           <TokenSelectorProvider>
-            <BridgeFormProvider>
-              <BridgeTransactionStatusProvider>
+            <BridgeTransactionProvider>
+              <BridgeFormProvider>
                 <Layout />
-              </BridgeTransactionStatusProvider>
-            </BridgeFormProvider>
+              </BridgeFormProvider>
+            </BridgeTransactionProvider>
           </TokenSelectorProvider>
         </WalletConnectNearProvider>
       </WalletConnectProvider>

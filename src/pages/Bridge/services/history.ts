@@ -1,33 +1,28 @@
-export type BridgeTransaction = Partial<{
-  id: string;
-  from: string;
-  to: string;
-  amount: number;
-  status: string;
-  sendingAddress: string;
-  receivingAddress: string;
-  createdAt: number;
-  updatedAt: string;
-}>;
+import rainbowBridgeService from './rainbowBridge';
 
 const bridgeHistoryService = {
   async query(params?: {
-    chain: BridgeModel.BridgeSupportChain;
-    onlyUnclaimed: boolean;
+    chain?: BridgeModel.BridgeSupportChain;
+    onlyUnclaimed?: boolean;
+    hash?: string;
   }) {
-    console.log('bridgeHistory query', params);
-    return [
-      {
-        id: '1',
-        createdAt: Date.now(),
-        status: 'success',
-        from: 'ETH',
-        to: 'BSC',
-        sendingAddress: '0x1234567890',
-        receivingAddress: '0x0987654321',
-        amount: 100,
+    const result = await rainbowBridgeService.query({
+      filter: (v) => {
+        if (params?.onlyUnclaimed) {
+          if (v.status !== 'action-needed') return false;
+        }
+        if (params?.hash) {
+          return (
+            v.lockHashes.includes(params.hash) ||
+            v.unlockHashes.includes(params.hash) ||
+            v.burnHashes.includes(params.hash) ||
+            v.mintHashes.includes(params.hash)
+          );
+        }
+        return true;
       },
-    ] as BridgeTransaction[];
+    });
+    return result;
   },
 };
 

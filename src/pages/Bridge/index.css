@@ -29,7 +29,7 @@
     max-width: 90vw;
 }
 .bridge-history-container{
-    @apply  m-auto mt-20 px-4;
+    @apply  m-auto mt-20 px-4 box-content;
     max-width: 900px; 
 
 }
@@ -98,7 +98,7 @@
     @apply text-left text-sm p-2;
 }
 .bridge-table td{
-    @apply text-left text-sm px-2 py-3;
+    @apply text-left text-sm px-2 py-3 text-white;
 }
 
 

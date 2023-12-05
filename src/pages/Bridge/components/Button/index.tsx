@@ -1,3 +1,4 @@
+import SvgIcon from '../SvgIcon';
 import './index.css';
 
 import React, { MouseEvent, MouseEventHandler } from 'react';
@@ -11,6 +12,7 @@ interface ButtonProps {
   rounded?: boolean;
   size?: 'large' | 'default' | 'small';
   type?: 'primary' | 'default' | 'info';
+  loading?: boolean;
   children?: React.ReactNode;
 }
 
@@ -21,6 +23,8 @@ const Button = ({
   rounded,
   size,
   className,
+  loading,
+  disabled,
   children,
   ...props
 }: ButtonProps) => {
@@ -31,6 +35,7 @@ const Button = ({
     text && 'is-text',
     plain && 'is-plain',
     rounded && 'is-rounded',
+    (loading || disabled) && 'is-disabled',
     className,
   ]
     .filter(Boolean)
@@ -41,7 +46,13 @@ const Button = ({
     props.onClick?.(e);
   };
   return (
-    <button className={_className} {...props} onClick={_onClick}>
+    <button
+      className={_className}
+      {...props}
+      disabled={disabled || loading}
+      onClick={_onClick}
+    >
+      {loading && <SvgIcon name="IconLoading" className="mr-1" />}
       {children}
     </button>
   );

@@ -9,15 +9,19 @@ declare namespace BridgeModel {
       [k in BridgeSupportChain]: string;
     };
   };
-  type BridgeTransaction = {
-    from: BridgeTranSactionItem;
-    to: BridgeTranSactionItem;
+  type BridgeTransferFormData = {
+    from: BridgeTransfer;
+    to: BridgeTransfer & {
+      isCustomAccountAddress?: boolean;
+      customAccountAddress?: string;
+    };
   };
-  type BridgeTranSactionItem = {
+  type BridgeTransfer = {
     chain: BridgeSupportChain;
     tokenMeta?: BridgeTokenMeta;
     amount?: string;
-    isCustomToken?: boolean;
-    customTokenAddress?: string;
+    accountAddress?: string;
   };
+  type BridgeTransaction = import('@near-eth/client').Transfer &
+    import('@near-eth/client').UnsavedTransfer;
 }

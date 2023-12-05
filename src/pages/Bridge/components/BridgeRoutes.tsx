@@ -4,8 +4,12 @@ import ReactTooltip from 'react-tooltip';
 
 import Button from './Button';
 import SvgIcon from './SvgIcon';
+import LogoRainbow from './../assets/logo-rainbow.png';
+import { SupportBridgeChannels, RainbowConfig } from './../config';
+import { useBridgeFormContext } from '../providers/bridgeForm';
 
 function BridgeRouteItem({ className }: { className?: string }) {
+  const { bridgeFromValue } = useBridgeFormContext();
   return (
     <div
       className={`bg-opacity-10 rounded-xl p-4 ${className ?? ''}`}
@@ -13,8 +17,10 @@ function BridgeRouteItem({ className }: { className?: string }) {
     >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-white rounded-lg" />
-          <div className="text-slate-500 text-base font-medium ">Stargate</div>
+          <div className="w-7 h-7 bg-white rounded-lg">
+            <img src={LogoRainbow} alt="" />
+          </div>
+          <div className="text-slate-500 text-base font-medium ">Rainbow</div>
         </div>
         <div className="flex items-center gap-2">
           <div className="px-2 py-0.5 bg-black rounded-md">
@@ -30,10 +36,12 @@ function BridgeRouteItem({ className }: { className?: string }) {
         </div>
       </div>
       <div className="flex items-center justify-between">
-        <div className="text-white text-sm font-medium">~0.99997 ETH</div>
+        <div className="text-white text-sm font-medium">
+          ~{bridgeFromValue.amount} {bridgeFromValue.tokenMeta.symbol}
+        </div>
         <div className="text-right text-slate-500 text-xs font-normal ">
-          ~1 min｜Bridge fee
-          <span
+          {RainbowConfig.wait}｜Bridge fee {RainbowConfig.gas}
+          {/* <span
             className="underline cursor-pointer ml-1"
             data-for="bridge-gas-fee"
             data-type="info"
@@ -52,7 +60,7 @@ function BridgeRouteItem({ className }: { className?: string }) {
               effect="solid"
               textColor="#C6D1DA"
             />
-          </span>
+          </span> */}
         </div>
       </div>
     </div>
@@ -68,7 +76,7 @@ function BridgeSelectRoutesModal({
       <div className="bridge-modal" style={{ width: '428px' }}>
         <div className="flex items-center justify-between">
           <span className="text-base text-white font-medium">
-            3 Bridge Routes
+            {SupportBridgeChannels.length} Bridge Routes
           </span>
           <Button text onClick={toggleOpenModal}>
             <SvgIcon name="IconClose" />
@@ -87,6 +95,10 @@ function BridgeRoutes() {
   function toggleOpenModal() {
     setIsOpen(!isOpen);
   }
+  const { bridgeFromValue } = useBridgeFormContext();
+
+  const hasAmount = bridgeFromValue.amount && bridgeFromValue.amount !== '0';
+
   return (
     <>
       <div className="mb-4">
@@ -98,14 +110,14 @@ function BridgeRoutes() {
             text
             onClick={toggleOpenModal}
           >
-            3 Routes
+            {hasAmount ? `${SupportBridgeChannels.length} Routes` : '-'}
             <SvgIcon
               name="IconArrowDown"
               className="transform -rotate-90 ml-2"
             />
           </Button>
         </div>
-        <BridgeRouteItem className="mt-4" />
+        {hasAmount && <BridgeRouteItem className="mt-4" />}
       </div>
       <BridgeSelectRoutesModal
         isOpen={isOpen}

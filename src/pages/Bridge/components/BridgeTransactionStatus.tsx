@@ -1,16 +1,28 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import Modal from 'react-modal';
 
 import SvgIcon from './SvgIcon';
 import Button from './Button';
 import { useRouter } from '../hooks/useRouter';
-import { NearConfig } from '../config';
+import useRainbowBridge from '../hooks/useRainbowBridge';
+import { formatTxExplorerUrl } from '../utils/format';
 
 export default function BridgeTransactionStatusModal({
+  transaction,
   toggleOpenModal,
-  tx,
   ...props
-}: Modal.Props & { tx: string; toggleOpenModal: () => void }) {
+}: Modal.Props & {
+  transaction: BridgeModel.BridgeTransaction;
+  toggleOpenModal: () => void;
+}) {
+  const { getDecodedTransaction, callAction, actionLoading } =
+    useRainbowBridge();
+
+  const _transaction = useMemo(
+    () => getDecodedTransaction(transaction),
+    [transaction]
+  );
+
   const router = useRouter();
 
   function handleOpenHistory() {
@@ -18,9 +30,8 @@ export default function BridgeTransactionStatusModal({
     router.push('/bridge/history');
   }
 
-  function handleClaim() {
-    toggleOpenModal();
-    router.push('/bridge/history');
+  function handleAction() {
+    callAction(_transaction.id);
   }
 
   function handleNewTransfer() {
@@ -29,7 +40,16 @@ export default function BridgeTransactionStatusModal({
   }
 
   function handleOpenTx() {
-    window.open(`${NearConfig.explorerUrl}/txns/${tx}`, '_blank');
+    const ethTxHash =
+      _transaction.lockHashes?.[0] || _transaction.unlockHashes?.[0];
+    const nearTxHash =
+      _transaction.burnHashes?.[0] || _transaction.mintHashes?.[0];
+    window.open(
+      formatTxExplorerUrl(
+        _transaction.sourceNetwork === 'near' ? 'NEAR' : 'ETH',
+        ethTxHash || nearTxHash
+      )
+    );
   }
 
   return (
@@ -44,18 +64,36 @@ export default function BridgeTransactionStatusModal({
           </Button>
         </div>
         <div className="flex items-center justify-center my-8 gap-2">
-          <div className="w-7 h-7 bg-white rounded-md" />
+          <SvgIcon
+            name={
+              _transaction.sourceNetwork === 'ethereum'
+                ? 'IconChainEthereum'
+                : 'IconChainNear'
+            }
+            className="text-2xl"
+          />
           <div className="bridge-status-process">
-            <SvgIcon name="IconWaiting" className="text-5xl" />
-            {/* <SvgIcon name="IconSuccessCircle" className="text-5xl"/> */}
+            {transaction.status === 'completed' ? (
+              <SvgIcon name="IconSuccessCircle" className="text-5xl" />
+            ) : (
+              <SvgIcon name="IconWaiting" className="text-5xl" />
+            )}
           </div>
-          <div className="w-7 h-7 bg-white rounded-md" />
+          <SvgIcon
+            name={
+              _transaction.sourceNetwork === 'near'
+                ? 'IconChainEthereum'
+                : 'IconChainNear'
+            }
+            className="text-2xl"
+          />
         </div>
         <div className="my-6 text-center text-white">
           Est. Bridging Time: 5 mins / Bridge Completed
         </div>
         <div className="text-center mb-6">
-          Transaction completed. You can view your transaction on the{' '}
+          Transaction {_transaction.status}. You can view your transaction on
+          the{' '}
           <Button type="primary" text onClick={handleOpenHistory}>
             bridge transaction history
           </Button>
@@ -69,24 +107,28 @@ export default function BridgeTransactionStatusModal({
           </Button>
         </div>
         <div className="mt-6">
-          <Button
-            type="primary"
-            size="large"
-            className="w-full "
-            onClick={handleClaim}
-          >
-            Claim
-          </Button>
-          <br />
-          <br />
-          <Button
-            size="large"
-            plain
-            className="w-full"
-            onClick={handleNewTransfer}
-          >
-            + New Transfer
-          </Button>
+          {_transaction.callToAction && (
+            <Button
+              type="primary"
+              size="large"
+              className="w-full "
+              loading={actionLoading}
+              onClick={handleAction}
+            >
+              {_transaction.callToAction}
+            </Button>
+          )}
+
+          {_transaction.status === 'completed' && (
+            <Button
+              size="large"
+              plain
+              className="w-full"
+              onClick={handleNewTransfer}
+            >
+              + New Transfer
+            </Button>
+          )}
         </div>
       </div>
     </Modal>

@@ -9,9 +9,9 @@ import { SelectTokenButton } from '../components/TokenSelector';
 import { useBridgeFormContext } from '../providers/bridgeForm';
 import { useTokenSelectorContext } from '../providers/selectToken';
 import SvgIcon from '../components/SvgIcon';
-import useRainbowBridge from '../hooks/useRainbowBridge';
-import { useWalletConnectContext } from '../providers/walletConcent';
 import { useRouter } from '../hooks/useRouter';
+import { isValidEthereumAddress, isValidNearAddress } from '../utils/validate';
+import { useBridgeTransactionContext } from '../providers/bridgeTransaction';
 
 function FormHeader() {
   const { slippageTolerance, setSlippageTolerance } = useBridgeFormContext();
@@ -35,36 +35,48 @@ function FormHeader() {
   );
 }
 
-function CustomToken() {
+function CustomAccountAddress() {
   const { bridgeToValue, setBridgeToValue } = useBridgeFormContext();
+  const [customAccountAddress, setCustomAccountAddress] = React.useState('');
+
+  function handleChangeAddress(value: string) {
+    setCustomAccountAddress(value);
+    if (
+      bridgeToValue.chain === 'ETH'
+        ? isValidEthereumAddress(value)
+        : isValidNearAddress(value)
+    ) {
+      setBridgeToValue({
+        ...bridgeToValue,
+        customAccountAddress: value,
+      });
+    }
+  }
+
   return (
     <div className="my-5">
       <label className="flex items-center select-none mb-3">
         <input
           type="checkbox"
           className="bridge-checkbox mr-2"
-          checked={bridgeToValue.isCustomToken}
+          checked={bridgeToValue.isCustomAccountAddress}
           onChange={(e) =>
             setBridgeToValue({
               ...bridgeToValue,
-              isCustomToken: e.target.checked,
+              isCustomAccountAddress: e.target.checked,
+              customAccountAddress: '',
             })
           }
         />
         I&apos;m transferring to a destination address
       </label>
-      {bridgeToValue.isCustomToken && (
+      {bridgeToValue.isCustomAccountAddress && (
         <input
           type="text"
           className="bridge-input"
           placeholder="Destination address"
-          value={bridgeToValue.customTokenAddress ?? ''}
-          onChange={(e) =>
-            setBridgeToValue({
-              ...bridgeToValue,
-              customTokenAddress: e.target.value,
-            })
-          }
+          value={customAccountAddress ?? ''}
+          onChange={(e) => handleChangeAddress(e.target.value)}
         />
       )}
     </div>
@@ -75,45 +87,29 @@ function BridgeEntry() {
   const {
     bridgeFromValue,
     setBridgeFromValue,
+    bridgeFromBalance,
     bridgeToValue,
     setBridgeToValue,
+    bridgeToBalance,
     exchangeChain,
     bridgeSubmitStatus,
     bridgeSubmitStatusText,
     openPreviewModal,
   } = useBridgeFormContext();
 
-  const { open } = useTokenSelectorContext();
+  const { open: selectToken } = useTokenSelectorContext();
+
+  const { unclaimedTransactions, openBridgeTransactionStatusModal } =
+    useBridgeTransactionContext();
 
   async function openTokenSelector({
     type,
     ...rest
-  }: Parameters<typeof open>[number] & { type: 'from' | 'to' }) {
-    const tokenMeta = await open(rest);
+  }: Parameters<typeof selectToken>[number] & { type: 'from' | 'to' }) {
+    const tokenMeta = await selectToken(rest);
     console.log('selected tokenMeta', tokenMeta);
     setBridgeFromValue({ ...bridgeFromValue, tokenMeta });
     setBridgeToValue({ ...bridgeToValue, tokenMeta });
-  }
-
-  const wallet = useWalletConnectContext();
-  const { transfer, setupRainbowBridge } = useRainbowBridge();
-
-  useEffect(() => {
-    setupRainbowBridge();
-  }, [setupRainbowBridge, wallet.ETH.accountId]);
-
-  async function transferRainbowBridge() {
-    const { tokenMeta, amount, chain: from } = bridgeFromValue;
-    const { chain: to } = bridgeToValue;
-
-    const res = await transfer({
-      token: tokenMeta,
-      amount: (amount ?? 1).toString(),
-      from,
-      recipient: wallet[to]?.accountId,
-      sender: wallet[from]?.accountId,
-    });
-    console.log('transferRainbowBridge', res);
   }
 
   const router = useRouter();
@@ -133,7 +129,12 @@ function BridgeEntry() {
             onChangeChain={() => exchangeChain()}
           />
         </div>
-        <InputToken model={bridgeFromValue} onChange={setBridgeFromValue}>
+        <InputToken
+          model={bridgeFromValue}
+          balance={bridgeFromBalance}
+          isError={bridgeSubmitStatus === 'noEnoughGas'}
+          onChange={setBridgeFromValue}
+        >
           <SelectTokenButton
             token={bridgeFromValue.tokenMeta}
             onClick={() =>
@@ -161,6 +162,7 @@ function BridgeEntry() {
         </div>
         <InputToken
           model={bridgeToValue}
+          balance={bridgeToBalance}
           style={{ backgroundColor: 'transparent' }}
           inputReadonly
           onChange={setBridgeToValue}
@@ -176,7 +178,7 @@ function BridgeEntry() {
             }
           />
         </InputToken>
-        <CustomToken />
+        <CustomAccountAddress />
         <BridgeRoutes />
         <Button
           type="primary"
@@ -192,16 +194,23 @@ function BridgeEntry() {
         <Button text onClick={handleOpenHistory}>
           Bridge Transaction History
         </Button>
-        <div
-          className="flex items-center rounded-lg px-2 py-1"
-          style={{
-            color: '#EBF479',
-            backgroundColor: 'rgba(235, 244, 121, 0.2)',
-          }}
-        >
-          <SvgIcon name="IconInfo" className="mr-2" />3 transactions to be
-          claimed
-        </div>
+        {unclaimedTransactions.length ? (
+          <div
+            className="flex items-center rounded-lg px-2 py-1 cursor-pointer"
+            style={{
+              color: '#EBF479',
+              backgroundColor: 'rgba(235, 244, 121, 0.2)',
+            }}
+            onClick={() =>
+              unclaimedTransactions.length === 1
+                ? openBridgeTransactionStatusModal(unclaimedTransactions[0])
+                : handleOpenHistory()
+            }
+          >
+            <SvgIcon name="IconInfo" className="mr-2" />
+            {unclaimedTransactions.length} transactions to be claimed
+          </div>
+        ) : null}
       </div>
     </div>
   );

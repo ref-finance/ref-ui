@@ -6,10 +6,10 @@ import {
 } from '@near-eth/near-ether';
 import { bridgedNep141, naturalErc20 } from '@near-eth/nep141-erc20';
 import Big from 'big.js';
-import { ethers } from 'ethers';
 import type { WalletSelector } from '@near-wallet-selector/core';
 import { BridgeParams } from '../config';
 import { ethServices } from './contract';
+import { get } from '@near-eth/client';
 
 const rainbowBridgeService = {
   async checkApprove({
@@ -183,6 +183,12 @@ const rainbowBridgeService = {
           sender,
         },
       });
+    return undefined;
+  },
+  async query(params: Parameters<typeof get>[number]) {
+    const result = await get(params);
+    console.log('queryTransactions', result);
+    return result;
   },
 };
 
