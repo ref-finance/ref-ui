@@ -1,11 +1,6 @@
 .modal-transaction-submitting .modal-dialog {
   text-align: center;
 }
-.modal-transaction-submitting .modal-content {
-  min-width: 350px;
-  width: auto;
-  display: inline-block;
-}
 
 .modal-transaction-submitting .modal-body {
   min-height: 300px;
@@ -27,4 +22,12 @@
 
 .modal-transaction-submitting .-token-info {
   font-size: 14px;
+}
+
+@media (min-width:769px) {
+  .modal-transaction-submitting .modal-content {
+    min-width: 350px;
+    width: auto;
+    display: inline-block;
+  }
 }

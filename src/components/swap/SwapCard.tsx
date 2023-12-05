@@ -1130,6 +1130,7 @@ export default function SwapCard(props: {
   };
 
   const handleModalClose = () => {
+    updateTransactionSubmitting(false)
     setModal({
       name: '',
       data: null,

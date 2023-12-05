@@ -25,7 +25,7 @@ const showToast = ({
 }: Props) => {
   const toastOptions: ToastOptions = {
     position: 'bottom-right',
-    autoClose: 50000,
+    autoClose: 5000,
     className: 'custom-toast',
     icon: false,
     ...options,
