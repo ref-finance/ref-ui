@@ -614,7 +614,8 @@ export const stake_boost = async ({
     });
   }
 
-  return executeFarmMultipleTransactions(transactions);
+  // return executeFarmMultipleTransactions(transactions);
+  return transactions;
 };
 export const unStake_boost = async ({
   seed_id,
@@ -647,7 +648,8 @@ export const unStake_boost = async ({
     });
   }
 
-  return executeFarmMultipleTransactions(transactions);
+  // return executeFarmMultipleTransactions(transactions);
+  return transactions;
 };
 export const checkTokenNeedsStorageDeposit_boost = async () => {
   let storageNeeded;

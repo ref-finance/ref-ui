@@ -94,6 +94,7 @@ import {
   sort_tokens_by_base,
   openUrl,
 } from 'src/services/commonV3';
+import { useWalletSelector } from '../../context/WalletSelectorContext';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 const {
@@ -352,6 +353,7 @@ function StakeContainer(props: {
   } = props;
   const pool = detailData.pool;
   const intl = useIntl();
+  const { transactionExcuteStatus } = useWalletSelector();
   function totalTvlPerWeekDisplay() {
     const farms = detailData.farmList;
     const rewardTokenIconMap = {};
@@ -2251,6 +2253,7 @@ function UserStakeBlock(props: {
   const xlocked_amount = toReadableNumber(DECIMALS, x_locked_amount);
   const slashRate = slash_rate / 10000;
   const intl = useIntl();
+  const { transactionExcuteStatus } = useWalletSelector();
   useEffect(() => {
     get_server_time();
   }, []);
@@ -2977,6 +2980,11 @@ export function StakeModal(props: {
   const [ROI, setROI] = useState('');
   const [estimatedRewards, setEstimatedRewards] = useState<any[]>();
   const intl = useIntl();
+  const {
+    executeMultipleTransactions,
+    setTransactionExcuteStatus,
+    transactionExcuteStatus,
+  } = useWalletSelector();
   useEffect(() => {
     if (stakeType !== 'free') {
       const goldList = [
@@ -3213,6 +3221,12 @@ export function StakeModal(props: {
         token_id: getMftTokenId(pool.id.toString()),
         amount: toNonDivisibleNumber(DECIMALS, amount),
         msg,
+      }).then((transactions) => {
+        // todo
+        setTransactionExcuteStatus(false);
+        executeMultipleTransactions(transactions).then(() => {
+          onRequestClose();
+        });
       });
     }
   }
@@ -3699,6 +3713,8 @@ export function UnStakeModal(props: {
   const lockStatus = new BigNumber(unlock_timestamp).isLessThan(serverTime);
   const slashRate = slash_rate / 10000;
   const intl = useIntl();
+  const { executeMultipleTransactions, setTransactionExcuteStatus } =
+    useWalletSelector();
 
   function changeAmount(value: string) {
     setAmount(value);
@@ -3707,19 +3723,31 @@ export function UnStakeModal(props: {
     setUnStakeLoading(true);
     if (unStakeType == 'free') {
       unStake_boost({
-        seed_id: seed_id,
+        seed_id,
         unlock_amount: '0',
         withdraw_amount: toNonDivisibleNumber(DECIMALS, amount),
+      }).then((transactions) => {
+        // todo
+        setTransactionExcuteStatus(false);
+        executeMultipleTransactions(transactions).then(() => {
+          onRequestClose();
+        });
       });
     } else if (lockStatus) {
       unStake_boost({
-        seed_id: seed_id,
+        seed_id,
         unlock_amount: toNonDivisibleNumber(DECIMALS, amount),
         withdraw_amount: '0',
+      }).then((transactions) => {
+        // todo
+        setTransactionExcuteStatus(false);
+        executeMultipleTransactions(transactions).then(() => {
+          onRequestClose();
+        });
       });
     } else {
       force_unlock({
-        seed_id: seed_id,
+        seed_id,
         unlock_amount: toNonDivisibleNumber(DECIMALS, amount),
       });
     }

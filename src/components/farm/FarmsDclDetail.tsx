@@ -145,7 +145,7 @@ export default function FarmsDclDetail(props: {
       get_list_liquidities();
       get_mft_balance_of();
     }
-  }, [isSignedIn, user_data_loading, all_seeds]);
+  }, [isSignedIn, user_data_loading, all_seeds, transactionExcuteStatus]);
   useEffect(() => {
     if (rate_need_to_reverse_display) {
       setRangeSort(false);
@@ -1463,13 +1463,6 @@ export default function FarmsDclDetail(props: {
                 </span>{' '}
                 available to stake
               </div>
-              {/* {!isEnded && !canStake && (
-                <div
-                  className={`text-sm text-dclFarmYellowColor mt-1 xsm:text-center`}
-                >
-                  {get_unavailable_text()}
-                </div>
-              )} */}
             </div>
             <div className="flex items-center xsm:w-full xsm:mt-6">
               {!isEnded && (
