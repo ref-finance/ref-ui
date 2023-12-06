@@ -442,7 +442,7 @@ export const v3Swap = async ({
     }
   }
 
-  return executeMultipleTransactions(transactions);
+  return executeMultipleTransactions(transactions, undefined, true);
 };
 
 export const list_history_orders = () => {

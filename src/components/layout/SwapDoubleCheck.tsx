@@ -58,9 +58,15 @@ export function DoubleCheckModal(
     priceImpactValue: string;
   }
 ) {
-  const { tokenIn, tokenOut, from, onSwap, priceImpactValue } = props;
+  const { tokenIn, tokenOut, from, onSwap, priceImpactValue, isOpen } = props;
 
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!isOpen) {
+      buttonLoading && setButtonLoading(false);
+    }
+  }, [isOpen]);
 
   if (!from || !tokenIn || !tokenOut) return null;
 

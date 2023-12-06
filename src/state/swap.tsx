@@ -649,14 +649,14 @@ export const useSwap = ({
   }, [count, loadingTrigger, loadingPause]);
 
   const makeSwap = () => {
-    swap({
+    return swap({
       slippageTolerance,
       swapsToDo,
       tokenIn,
       amountIn: tokenInAmount,
       tokenOut,
       swapMarket: 'ref',
-    }).catch(setSwapError);
+    });
   };
 
   return {
@@ -861,7 +861,7 @@ export const useSwapV3 = ({
   const makeSwap = () => {
     if (!tagValidator(bestEstimate, tokenIn, tokenInAmount)) return;
 
-    v3Swap({
+    return v3Swap({
       Swap: {
         pool_ids: [getV3PoolId(tokenIn.id, tokenOut.id, bestFee)],
         min_output_amount: percentLess(slippageTolerance, bestEstimate.amount),
