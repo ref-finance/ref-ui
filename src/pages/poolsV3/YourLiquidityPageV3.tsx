@@ -70,7 +70,7 @@ import { ALL_STABLE_POOL_IDS, REF_FI_CONTRACT_ID } from '../../services/near';
 import { getPoolsByIds } from '../../services/indexer';
 import { BlueCircleLoading } from '../../components/layout/Loading';
 import QuestionMark from 'src/components/farm/QuestionMark';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
+
 import Big from 'big.js';
 import { ConnectToNearBtnSwap } from '../../components/button/Button';
 import { getURLInfo } from '../../components/layout/transactionTipPopUp';

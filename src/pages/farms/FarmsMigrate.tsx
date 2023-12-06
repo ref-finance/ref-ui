@@ -20,7 +20,7 @@ import {
 } from 'src/utils/numbers';
 import { ArrowLeftIcon, MigrateIcon } from 'src/components/icon/FarmBoost';
 import { useTokens } from 'src/state/token';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
+
 import { toRealSymbol } from 'src/utils/token';
 import { ftGetTokenMetadata, TokenMetadata } from 'src/services/ft-contract';
 import { Link, useHistory, useLocation } from 'react-router-dom';

@@ -46,7 +46,7 @@ import { DownArrowVE, UpArrowVE } from '../components/icon/Referendum';
 import { Loading } from 'src/components/icon/Loading';
 import { RouterArrowLeft, MyOrderMobileArrow } from '../components/icon/Arrows';
 import QuestionMark from '../components/farm/QuestionMark';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
+
 import { toRealSymbol } from '../utils/token';
 import { QuestionTip, ExclamationTip } from '../components/layout/TipWrapper';
 import { MyOrderInstantSwapArrowRight } from '../components/icon/swapV3';

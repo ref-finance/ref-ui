@@ -8,7 +8,7 @@ import { SolidButton, ConnectToNearBtn } from '../button/Button';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { HiOutlineExternalLink, IoClose } from '../reactIcons';
 import QuestionMark from 'src/components/farm/QuestionMark';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
+
 import { TokenAmountV2 } from '../forms/TokenAmount';
 import { SwapExchange } from '../icon/Arrows';
 import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';

@@ -69,7 +69,7 @@ import {
 import { LinkArrowIcon } from 'src/components/icon/FarmBoost';
 import { get_detail_the_liquidity_refer_to_seed } from './YourLiquidityPageV3';
 const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
-import { Tooltip as ReactTooltip } from 'react-tooltip';
+
 import { isMobile } from 'src/utils/device';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 export default function YourLiquidityDetail(props: any) {

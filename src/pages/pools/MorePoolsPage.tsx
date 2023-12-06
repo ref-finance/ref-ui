@@ -39,7 +39,7 @@ import { PoolTabV3 } from '../../components/pool/PoolTabV3';
 import Loading from '../../components/layout/Loading';
 import { FarmStampNew } from '../../components/icon/FarmStamp';
 import { getPoolListFarmAprTip } from './utils';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
+
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 interface ParamTypes {

@@ -59,7 +59,7 @@ import {
   MyOrderMobileArrow,
 } from '../../../../components/icon/Arrows';
 import QuestionMark from '../../../../components/farm/QuestionMark';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
+
 import { toRealSymbol } from '../../../../utils/token';
 import {
   QuestionTip,

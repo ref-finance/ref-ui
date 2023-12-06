@@ -1,7 +1,6 @@
 import Big from 'big.js';
 import React, { useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
 
 import { isMobile } from '../../../../../utils/device';
 import { useClientMobile } from '../../../../../utils/device';

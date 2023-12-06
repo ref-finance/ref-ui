@@ -9,7 +9,7 @@ import { ftGetTokenMetadata } from '../../services/ft-contract';
 import BigNumber from 'bignumber.js';
 import { toReadableNumber } from 'src/utils/numbers';
 import QuestionMark from '../../components/farm/QuestionMark';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
+
 import { ftGetBalance } from 'src/services/ft-contract';
 import { REF_FI_POOL_ACTIVE_TAB } from '../../pages/pools/utils';
 import { PortfolioData } from '../../pages/Portfolio';

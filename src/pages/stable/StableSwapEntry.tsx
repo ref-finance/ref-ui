@@ -46,7 +46,7 @@ import {
   NEAR_CLASS_STABLE_POOL_IDS,
 } from '../../services/near';
 import { useClientMobile } from 'src/utils/device';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
+
 import { REF_FI_POOL_ACTIVE_TAB } from '../pools/utils';
 import {
   ForbiddenIcon,

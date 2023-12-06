@@ -34,7 +34,7 @@ import {
   getWatchListFromDb,
   removePoolFromWatchList,
 } from 'src/services/pool';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
+
 import { useDCLTopBinFee } from '../../state/pool';
 import { list_farmer_seeds } from '../../services/farm';
 import getConfig from '../../services/config';

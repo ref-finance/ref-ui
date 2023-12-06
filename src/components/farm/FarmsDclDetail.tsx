@@ -44,7 +44,7 @@ import {
   ConnectToNearBtn,
 } from 'src/components/button/Button';
 import { toRealSymbol } from 'src/utils/token';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
+
 import QuestionMark from 'src/components/farm/QuestionMark';
 import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import {

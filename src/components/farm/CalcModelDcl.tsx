@@ -15,7 +15,7 @@ import { isMobile } from '../../utils/device';
 import getConfig from '../../services/config';
 import { TokenMetadata, unWrapToken } from '../../services/ft-contract';
 import { LinkArrowIcon } from '../../components/icon/FarmBoost';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
+
 import QuestionMark from '../../components/farm/QuestionMark';
 import { RefreshIcon } from '../../components/icon/swapV3';
 import {

@@ -3,7 +3,7 @@ import { Icon } from './StableTokenList';
 import { FormattedMessage } from 'react-intl';
 import { UnCheckedRadio, CheckedRadio, Radio } from '../../components/icon';
 import QuestionMark from '../../components/farm/QuestionMark';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
+
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 // stable swap exchange rate

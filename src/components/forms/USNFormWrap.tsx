@@ -5,7 +5,7 @@ import SlippageSelector from './SlippageSelector';
 import { CountdownTimer } from '../../components/icon';
 import { SWAP_MODE } from '../../pages/SwapPage';
 import QuestionMark from 'src/components/farm/QuestionMark';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
+
 import { IoClose } from '../reactIcons';
 import { isMobile } from 'src/utils/device';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';

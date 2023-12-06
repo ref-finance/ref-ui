@@ -18,7 +18,7 @@ import {
   CheckboxSelected,
   AuthenticationIcon,
 } from '../../../../components/icon';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
+
 import { REF_FI_SENDER_WALLET_ACCESS_KEY } from '../../../../pages/Orderly/orderly/utils';
 import { ORDERLY_ASSET_MANAGER } from '../../../../pages/Orderly/near';
 import { openUrl } from '../../../../services/commonV3';

@@ -147,7 +147,7 @@ import {
   ConnectToNearBtnGradient,
   ConnectToNearBtnGradientMoible,
 } from '../button/Button';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
+
 import { DownArrowLightMobile } from '../icon/Arrows';
 import { getProposalHashes, ProposalHash } from '../../services/indexer';
 import { openUrl } from '../../services/commonV3';

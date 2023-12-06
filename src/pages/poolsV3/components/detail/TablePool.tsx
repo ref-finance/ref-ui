@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext, useMemo, useRef } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
+
 import { BigNumber } from 'bignumber.js';
 import {
   toPrecision,

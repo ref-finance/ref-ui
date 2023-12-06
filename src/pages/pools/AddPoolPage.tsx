@@ -20,7 +20,7 @@ import { toRealSymbol } from '../../utils/token';
 import BigNumber from 'bignumber.js';
 import QuestionMark from '../../components/farm/QuestionMark';
 import Modal from 'react-modal';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
+
 import {
   getCurrentWallet,
   WalletContext,

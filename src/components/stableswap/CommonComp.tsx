@@ -25,7 +25,7 @@ import {
   getWatchListFromDb,
 } from '../../services/pool';
 import { isClientMobie } from '../../utils/device';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
+
 import { REF_FI_POOL_ACTIVE_TAB } from '../../pages/pools/utils';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 

@@ -25,7 +25,7 @@ import Big from 'big.js';
 import { TIMESTAMP_DIVISOR } from '../../components/layout/Proposal';
 import moment from 'moment';
 import QuestionMark from '../../components/farm/QuestionMark';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
+
 import { toRealSymbol } from '../../utils/token';
 import { ExclamationTip } from '../../components/layout/TipWrapper';
 import { MyOrderInstantSwapArrowRight } from '../../components/icon/swapV3';

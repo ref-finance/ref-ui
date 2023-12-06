@@ -110,7 +110,7 @@ import {
 } from '../state/referendum';
 import { QuestionTip, ExclamationTip } from '../components/layout/TipWrapper';
 import QuestionMark from '../components/farm/QuestionMark';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
+
 import { createContext } from 'react';
 import { VETip } from '../components/icon/Referendum';
 import { durationFomatter } from '../components/layout/Proposal';

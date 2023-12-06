@@ -3,7 +3,6 @@ import React from 'react';
 import { useIntl } from 'react-intl';
 import QuestionMark from '../../components/farm/QuestionMark';
 
-import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { VETip } from '../icon/Referendum';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 

@@ -9,7 +9,7 @@ import BigNumber from 'bignumber.js';
 import { UserLiquidityInfo, openUrl } from '../../services/commonV3';
 import { toReadableNumber } from 'src/utils/numbers';
 import QuestionMark from '../../components/farm/QuestionMark';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
+
 import { PortfolioData } from '../../pages/Portfolio';
 import { REF_POOL_NAV_TAB_KEY } from '../../components/pool/PoolTabV3';
 import { ArrowJump, display_value, getAccountId } from './Tool';

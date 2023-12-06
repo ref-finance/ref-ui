@@ -11,7 +11,7 @@ import {
 } from 'src/components/button/Button';
 import { FormattedMessage, useIntl } from 'react-intl';
 import QuestionMark from 'src/components/farm/QuestionMark';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
+
 import { BurrowData } from '../../pages/Burrow';
 import {
   IAccount,

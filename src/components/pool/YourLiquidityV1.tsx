@@ -98,7 +98,7 @@ import { GoodIcon } from '../../components/icon/Common';
 import { AddPoolModal } from '../../pages/pools/AddPoolPage';
 import { getStableSwapTabKey } from 'src/pages/stable/StableSwapPageUSN';
 import { LinkIcon } from '../../components/icon/Portfolio';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
+
 import { checkFarmStake } from '../../state/farm';
 import {
   display_number_withCommas,
