@@ -44,7 +44,7 @@ import {
   ConnectToNearBtn,
 } from 'src/components/button/Button';
 import { toRealSymbol } from 'src/utils/token';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import QuestionMark from 'src/components/farm/QuestionMark';
 import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import {
@@ -70,6 +70,7 @@ import moment from 'moment';
 import Big from 'big.js';
 import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
 import { executeMultipleTransactionsV2 } from '../../services/near';
+import CustomTooltip from '../customTooltip/customTooltip';
 const { REF_VE_CONTRACT_ID, REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
 export default function FarmsDclDetail(props: {
   detailData: Seed;
@@ -514,22 +515,15 @@ export default function FarmsDclDetail(props: {
           <div
             className="text-white text-right"
             data-class="reactTip"
-            data-for="boostFarmTipId"
+            data-tooltip-id="boostFarmTipId"
             data-place="top"
-            data-html={true}
-            data-tip={result}
+            data-tooltip-html={result}
           >
             <div className="flex items-center justify-center">
               <BoostOptIcon className="mr-0.5"></BoostOptIcon>
               <FormattedMessage id="boost"></FormattedMessage>
             </div>
-            <ReactTooltip
-              id="boostFarmTipId"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            <CustomTooltip id="boostFarmTipId" />
           </div>
         </div>
       );
@@ -861,10 +855,9 @@ export default function FarmsDclDetail(props: {
         <div
           className="text-white text-right"
           data-class="reactTip"
-          data-for={'rewardPerWeekId' + detailData?.farmList[0]?.farm_id}
+          data-tooltip-id={'rewardPerWeekId' + detailData?.farmList[0]?.farm_id}
           data-place="top"
-          data-html={true}
-          data-tip={getRewardsPerWeekTip()}
+          data-tooltip-html={getRewardsPerWeekTip()}
         >
           <div className="flex items-center">
             {Object.values(rewardTokenIconMap).map(
@@ -881,29 +874,22 @@ export default function FarmsDclDetail(props: {
               }
             )}
           </div>
-          <ReactTooltip
+          <CustomTooltip
             id={'rewardPerWeekId' + detailData?.farmList[0]?.farm_id}
-            backgroundColor="#1D2932"
-            border
-            borderColor="#7e8a93"
-            effect="solid"
           />
         </div>
         <div
           className="text-white text-right"
           data-class="reactTip"
-          data-for={'rewardPerWeekId1' + detailData?.farmList[0]?.farm_id}
+          data-tooltip-id={
+            'rewardPerWeekId1' + detailData?.farmList[0]?.farm_id
+          }
           data-place="top"
-          data-html={true}
-          data-tip={getRewardsPerWeekTip()}
+          data-tooltip-html={getRewardsPerWeekTip()}
         >
           <span>{totalPriceDisplay}</span>
-          <ReactTooltip
+          <CustomTooltip
             id={'rewardPerWeekId1' + detailData?.farmList[0]?.farm_id}
-            backgroundColor="#1D2932"
-            border
-            borderColor="#7e8a93"
-            effect="solid"
           />
         </div>
       </>
@@ -1263,18 +1249,15 @@ export default function FarmsDclDetail(props: {
               data-type="info"
               data-place="top"
               data-multiline={true}
-              data-tip={getAprTip()}
-              data-html={true}
-              data-for={'aprId' + detailData.farmList[0].farm_id + 'your'}
+              data-tooltip-html={getAprTip()}
+              data-tooltip-id={
+                'aprId' + detailData.farmList[0].farm_id + 'your'
+              }
               data-class="reactTip"
             >
               <span>{get_total_apr()}</span>
-              <ReactTooltip
+              <CustomTooltip
                 id={'aprId' + detailData.farmList[0].farm_id + 'your'}
-                backgroundColor="#1D2932"
-                border
-                borderColor="#7e8a93"
-                effect="solid"
               />
             </div>
           </div>
@@ -1286,19 +1269,12 @@ export default function FarmsDclDetail(props: {
               <div
                 className="text-white text-right ml-1"
                 data-class="reactTip"
-                data-for="rewardRangeTipId"
+                data-tooltip-id="rewardRangeTipId"
                 data-place="top"
-                data-html={true}
-                data-tip={rewardRangeTip()}
+                data-tooltip-html={rewardRangeTip()}
               >
                 <QuestionMark></QuestionMark>
-                <ReactTooltip
-                  id="rewardRangeTipId"
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                />
+                <CustomTooltip id="rewardRangeTipId" />
               </div>
             </div>
             <div className="flex items-center mt-3">
@@ -1321,19 +1297,12 @@ export default function FarmsDclDetail(props: {
             <div
               className="text-white text-right ml-1"
               data-class="reactTip"
-              data-for={'rewardPerWeekQId'}
+              data-tooltip-id={'rewardPerWeekQId'}
               data-place="top"
-              data-html={true}
-              data-tip={valueOfRewardsTip()}
+              data-tooltip-html={valueOfRewardsTip()}
             >
               <QuestionMark></QuestionMark>
-              <ReactTooltip
-                id={'rewardPerWeekQId'}
-                backgroundColor="#1D2932"
-                border
-                borderColor="#7e8a93"
-                effect="solid"
-              />
+              <CustomTooltip id={'rewardPerWeekQId'} />
             </div>
           </div>
           <div className="flex items-center justify-between">
@@ -1367,19 +1336,12 @@ export default function FarmsDclDetail(props: {
               <div
                 className="text-white text-right ml-1"
                 data-class="reactTip"
-                data-for="rewardRangeTipId2"
+                data-tooltip-id="rewardRangeTipId2"
                 data-place="top"
-                data-html={true}
-                data-tip={rewardRangeTip()}
+                data-tooltip-html={rewardRangeTip()}
               >
                 <QuestionMark></QuestionMark>
-                <ReactTooltip
-                  id="rewardRangeTipId2"
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                />
+                <CustomTooltip id="rewardRangeTipId2" />
               </div>
             </div>
             {getRange()}
@@ -1391,19 +1353,12 @@ export default function FarmsDclDetail(props: {
             <div
               className="text-white text-right ml-1"
               data-class="reactTip"
-              data-for={'rewardPerWeekQId2'}
+              data-tooltip-id={'rewardPerWeekQId2'}
               data-place="top"
-              data-html={true}
-              data-tip={valueOfRewardsTip()}
+              data-tooltip-html={valueOfRewardsTip()}
             >
               <QuestionMark></QuestionMark>
-              <ReactTooltip
-                id={'rewardPerWeekQId2'}
-                backgroundColor="#1D2932"
-                border
-                borderColor="#7e8a93"
-                effect="solid"
-              />
+              <CustomTooltip id={'rewardPerWeekQId2'} />
             </div>
           </div>
           <div className="flex items-center justify-between mt-3">
@@ -1724,40 +1679,26 @@ function UserTotalUnClaimBlock(props: {
           <div
             className="text-white text-right ml-1"
             data-class="reactTip"
-            data-for={'unclaimedRewardQIdx'}
+            data-tooltip-id={'unclaimedRewardQIdx'}
             data-place="top"
-            data-html={true}
-            data-tip={valueOfRewardsTip()}
+            data-tooltip-html={valueOfRewardsTip()}
           >
             <QuestionMark></QuestionMark>
-            <ReactTooltip
-              id={'unclaimedRewardQIdx'}
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            <CustomTooltip id={'unclaimedRewardQIdx'} />
           </div>
         </div>
 
         <div
           className="text-white text-right"
           data-class="reactTip"
-          data-for={'unclaimedRewardId' + detailData.seed_id}
+          data-tooltip-id={'unclaimedRewardId' + detailData.seed_id}
           data-place="top"
-          data-html={true}
-          data-tip={unclaimedRewardsData.tip}
+          data-tooltip-html={unclaimedRewardsData.tip}
         >
           <span className="text-xl text-white">
             {unclaimedRewardsData.worth}
           </span>
-          <ReactTooltip
-            id={'unclaimedRewardId' + detailData.seed_id}
-            backgroundColor="#1D2932"
-            border
-            borderColor="#7e8a93"
-            effect="solid"
-          />
+          <CustomTooltip id={'unclaimedRewardId' + detailData.seed_id} />
         </div>
       </div>
       {unclaimedRewardsData.showClaimButton ? (

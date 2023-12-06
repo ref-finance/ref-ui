@@ -5,8 +5,6 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FormattedMessage, useIntl } from 'react-intl';
 import Modal from 'react-modal';
-import ReactTooltip from 'react-tooltip';
-
 import { IoClose } from '../../../../components/reactIcons';
 import { MdArrowDropDown } from '../../../../components/reactIcons';
 import { BiCopy } from '../../../../components/reactIcons';
@@ -52,6 +50,8 @@ import {
 import { usePerpData } from '../UserBoardPerp/state';
 import { OrderAsset, useOrderAssets } from './state';
 const configV2 = getConfigV2();
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
+
 function getTipAsset() {
   const intl = useIntl();
   return `<div class=" rounded-md w-60 text-primaryOrderly  text-xs  text-left">
@@ -546,10 +546,9 @@ export function AssetModal(props: Modal.Props & { curHoldingOut }) {
 
               <div
                 data-class="reactTip"
-                data-for={'mobile_tip_asset_orderly'}
-                data-html={true}
+                data-tooltip-id={'mobile_tip_asset_orderly'}
                 data-place={'bottom'}
-                data-tip={`<div class=" rounded-md w-60 text-primaryOrderly  text-xs  text-left">
+                data-tooltip-html={`<div class=" rounded-md w-60 text-primaryOrderly  text-xs  text-left">
                 ${intl.formatMessage({
                   id: 'the_all_data_orderly_tip',
                   defaultMessage:
@@ -560,15 +559,7 @@ export function AssetModal(props: Modal.Props & { curHoldingOut }) {
               >
                 <TipIconAsset></TipIconAsset>
 
-                <ReactTooltip
-                  id={'mobile_tip_asset_orderly'}
-                  backgroundColor="#1D2932"
-                  place="bottom"
-                  border
-                  borderColor="#7e8a93"
-                  textColor="#C6D1DA"
-                  effect="solid"
-                />
+                <CustomTooltip id={'mobile_tip_asset_orderly'} place="bottom" />
               </div>
             </div>
 

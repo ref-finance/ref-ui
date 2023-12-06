@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import QuestionMark from 'src/components/farm/QuestionMark';
-import ReactTooltip from 'react-tooltip';
 import {
   RiskLogo,
   ExternalLinkIcon,

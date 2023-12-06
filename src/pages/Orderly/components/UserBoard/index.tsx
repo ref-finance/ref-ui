@@ -88,7 +88,6 @@ import {
 import getConfig from '../../config';
 import { useTokenMetaFromSymbol } from '../ChartHeader/state';
 import { AssetModal } from '../AssetModal';
-import ReactTooltip from 'react-tooltip';
 import { ButtonTextWrapper } from '../../../../components/button/Button';
 import { FlexRow, orderEditPopUpFailure } from '../Common/index';
 import { ONLY_ZEROS } from '../../../../utils/numbers';
@@ -110,6 +109,7 @@ import { NewUserTip } from '../Common/NewUserTip';
 import { CollatteralTokenAvailableCell } from '../UserBoardPerp/components/HoverText';
 import getConfigV2 from '../../../../services/configV2';
 const configV2 = getConfigV2();
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 function getTipFOK() {
   const intl = useIntl();
@@ -1867,22 +1867,13 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
                 <div
                   data-class="reactTip"
-                  data-for={'user_board_ioc'}
-                  data-html={true}
+                  data-tooltip-id={'user_board_ioc'}
                   data-place={'top'}
-                  data-tip={getTipIoc()}
+                  data-tooltip-html={getTipIoc()}
                 >
                   <QuestionMark></QuestionMark>
 
-                  <ReactTooltip
-                    id={'user_board_ioc'}
-                    backgroundColor="#1D2932"
-                    place="right"
-                    border
-                    borderColor="#7e8a93"
-                    textColor="#C6D1DA"
-                    effect="solid"
-                  />
+                  <CustomTooltip id={'user_board_ioc'} place="right" />
                 </div>
               </div>
               <div className="flex items-center">
@@ -1911,22 +1902,13 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
                 <div
                   data-class="reactTip"
-                  data-for={'user_board_folk'}
-                  data-html={true}
+                  data-tooltip-id={'user_board_folk'}
                   data-place={'top'}
-                  data-tip={getTipFOK()}
+                  data-tooltip-html={getTipFOK()}
                 >
                   <QuestionMark></QuestionMark>
 
-                  <ReactTooltip
-                    id={'user_board_folk'}
-                    backgroundColor="#1D2932"
-                    place="right"
-                    border
-                    borderColor="#7e8a93"
-                    textColor="#C6D1DA"
-                    effect="solid"
-                  />
+                  <CustomTooltip id={'user_board_folk'} place="right" />
                 </div>
               </div>
               <div className="flex items-center">
@@ -1955,22 +1937,13 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
                 <div
                   data-class="reactTip"
-                  data-for={'user_board_post_only'}
-                  data-html={true}
+                  data-tooltip-id={'user_board_post_only'}
                   data-place={'top'}
-                  data-tip={getTipPostOnly()}
+                  data-tooltip-html={getTipPostOnly()}
                 >
                   <QuestionMark></QuestionMark>
 
-                  <ReactTooltip
-                    id={'user_board_post_only'}
-                    backgroundColor="#1D2932"
-                    place="right"
-                    border
-                    borderColor="#7e8a93"
-                    textColor="#C6D1DA"
-                    effect="solid"
-                  />
+                  <CustomTooltip id={'user_board_post_only'} place="right" />
                 </div>
               </div>
             </div>
@@ -3339,22 +3312,13 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
 
               <div
                 data-class="reactTip"
-                data-for={'user_board_ioc'}
-                data-html={true}
+                data-tooltip-id={'user_board_ioc'}
                 data-place={'top'}
-                data-tip={getTipIoc()}
+                data-tooltip-html={getTipIoc()}
               >
                 <QuestionMark></QuestionMark>
 
-                <ReactTooltip
-                  id={'user_board_ioc'}
-                  backgroundColor="#1D2932"
-                  place="right"
-                  border
-                  borderColor="#7e8a93"
-                  textColor="#C6D1DA"
-                  effect="solid"
-                />
+                <CustomTooltip id={'user_board_ioc'} place="right" />
               </div>
             </div>
             <div className="flex items-center">
@@ -3383,22 +3347,13 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
 
               <div
                 data-class="reactTip"
-                data-for={'user_board_folk'}
-                data-html={true}
+                data-tooltip-id={'user_board_folk'}
                 data-place={'top'}
-                data-tip={getTipFOK()}
+                data-tooltip-html={getTipFOK()}
               >
                 <QuestionMark></QuestionMark>
 
-                <ReactTooltip
-                  id={'user_board_folk'}
-                  backgroundColor="#1D2932"
-                  place="right"
-                  border
-                  borderColor="#7e8a93"
-                  textColor="#C6D1DA"
-                  effect="solid"
-                />
+                <CustomTooltip id={'user_board_folk'} place="right" />
               </div>
             </div>
             <div className="flex items-center">
@@ -3427,22 +3382,13 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
 
               <div
                 data-class="reactTip"
-                data-for={'user_board_post_only'}
-                data-html={true}
+                data-tooltip-id={'user_board_post_only'}
                 data-place={'top'}
-                data-tip={getTipPostOnly()}
+                data-tooltip-html={getTipPostOnly()}
               >
                 <QuestionMark></QuestionMark>
 
-                <ReactTooltip
-                  id={'user_board_post_only'}
-                  backgroundColor="#1D2932"
-                  place="right"
-                  border
-                  borderColor="#7e8a93"
-                  textColor="#C6D1DA"
-                  effect="solid"
-                />
+                <CustomTooltip id={'user_board_post_only'} place="right" />
               </div>
             </div>
           </div>

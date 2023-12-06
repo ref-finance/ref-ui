@@ -46,12 +46,13 @@ import {
   NEAR_CLASS_STABLE_POOL_IDS,
 } from '../../services/near';
 import { useClientMobile } from 'src/utils/device';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { REF_FI_POOL_ACTIVE_TAB } from '../pools/utils';
 import {
   ForbiddenIcon,
   ForbiddenIconLarge,
 } from '../../components/icon/FarmBoost';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 export const getStablePoolDecimal = (id: string | number) => {
   if (isRatedPool(id)) return RATED_POOL_LP_TOKEN_DECIMALS;
@@ -283,9 +284,8 @@ function StablePoolCard({
             data-type="info"
             data-place="top"
             data-multiline={true}
-            data-tip={getForbiddenTip()}
-            data-html={true}
-            data-for={'forbiddenTip' + 'sauce_' + stablePool.id}
+            data-tooltip-html={getForbiddenTip()}
+            data-tooltip-id={'forbiddenTip' + 'sauce_' + stablePool.id}
             data-class="reactTip"
           >
             <Link
@@ -309,13 +309,7 @@ function StablePoolCard({
               </span>
             </Link>
             {needForbidden ? (
-              <ReactTooltip
-                id={'forbiddenTip' + 'sauce_' + stablePool.id}
-                backgroundColor="#1D2932"
-                border
-                borderColor="#7e8a93"
-                effect="solid"
-              />
+              <CustomTooltip id={'forbiddenTip' + 'sauce_' + stablePool.id} />
             ) : null}
           </div>
         </div>

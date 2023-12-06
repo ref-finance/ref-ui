@@ -6,7 +6,6 @@ import React, {
   useMemo,
 } from 'react';
 import Big from 'big.js';
-import ReactTooltip from 'react-tooltip';
 import _ from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
@@ -56,6 +55,7 @@ import { WalletContext } from '../../utils/wallets-integration';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import getConfigV2 from '../../services/configV2';
 const configV2 = getConfigV2();
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 export const PortfolioOrderlyData = createContext(null);
 const is_mobile = isMobile();
 
@@ -342,10 +342,9 @@ function PortfolioOrderly() {
                     <div
                       className="text-white text-right ml-1"
                       data-class="reactTip"
-                      data-for="selectAllId"
+                      data-tooltip-id="selectAllId"
                       data-place="top"
-                      data-html={true}
-                      data-tip={`
+                      data-tooltip-html={`
                         <div class="text-navHighLightText text-xs text-left w-64 xsm:w-52">
                           ${intl.formatMessage({
                             id: 'portfolio_total_est_tip',
@@ -355,14 +354,7 @@ function PortfolioOrderly() {
                       `}
                     >
                       <QuestionMark />
-                      <ReactTooltip
-                        id="selectAllId"
-                        backgroundColor="#1D2932"
-                        border
-                        borderColor="#7e8a93"
-                        effect="solid"
-                        place="top"
-                      />
+                      <CustomTooltip id="selectAllId" place="top" />
                     </div>
                   </span>
                 </div>

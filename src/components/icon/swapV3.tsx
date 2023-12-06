@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import ReactTooltip from 'react-tooltip';
 import { useClientMobile, isClientMobie } from '../../utils/device';
 
 export const SwapMinReceiveCheck = () => {
