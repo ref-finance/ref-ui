@@ -1,8 +1,8 @@
 import erc20Abi from './../abi/erc20.json';
-import erc20LockerAbi from './../abi/Erc20Locker.json';
-import nearOnEthClientAbi from './../abi/NearOnEthClient.json';
-import auroraErc20Abi from './../abi/AuroraErc20.json';
-import etherCustodianAbi from './../abi/EtherCustodian.json';
+import erc20LockerAbi from './../abi/erc20Locker.json';
+import nearOnEthClientAbi from './../abi/nearOnEthClient.json';
+import auroraErc20Abi from './../abi/auroraErc20.json';
+import etherCustodianAbi from './../abi/etherCustodian.json';
 import eNEARAbi from './../abi/eNEAR.json';
 
 export const APPID = 'ref-finance';
