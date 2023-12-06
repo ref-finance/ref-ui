@@ -424,11 +424,11 @@ export const executeMultipleTransactionsV2 = async (
       };
     })
     .catch((e: Error) => {
-      if (extraWalletsError.includes(e.message)) {
-        return;
+      if (!extraWalletsError.includes(e.message)) {
+        sessionStorage.setItem('WALLETS_TX_ERROR', e.message);
       }
 
-      sessionStorage.setItem('WALLETS_TX_ERROR', e.message);
+      throw e;
     });
 };
 

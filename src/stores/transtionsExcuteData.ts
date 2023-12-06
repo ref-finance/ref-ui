@@ -1,6 +1,12 @@
 import { create } from 'zustand';
 
-export type IExcuteStatus = 'pending' | 'resolved' | 'rejected' | 'none';
+export type IExcuteStatus =
+  | 'pending'
+  | 'success'
+  | 'error'
+  | 'resolved'
+  | 'rejected'
+  | 'none';
 
 type ITranstionsExcuteDataStore = {
   actionPage: string;

@@ -613,7 +613,7 @@ export const stake_boost = async ({
     });
   }
 
-  return await executeMultipleTransactionsV2(transactions);
+  return executeMultipleTransactionsV2(transactions);
 };
 export const unStake_boost = async ({
   seed_id,
@@ -646,7 +646,7 @@ export const unStake_boost = async ({
     });
   }
 
-  return await executeMultipleTransactionsV2(transactions);
+  return executeMultipleTransactionsV2(transactions);
 };
 export const checkTokenNeedsStorageDeposit_boost = async () => {
   let storageNeeded;
@@ -1412,7 +1412,7 @@ export const batch_unStake_boost_nft = async ({
     });
   }
 
-  return await executeMultipleTransactionsV2(transactions);
+  return executeMultipleTransactionsV2(transactions);
 };
 export const batch_stake_boost_nft = async ({
   liquidities,
@@ -1532,7 +1532,7 @@ export const batch_stake_boost_nft = async ({
       functionCalls: [storageDepositAction({ amount: neededStorage })],
     });
   }
-  return await executeMultipleTransactionsV2(transactions);
+  return executeMultipleTransactionsV2(transactions);
 };
 function liquidity_is_in_other_seed(seed_id: string, mft_id: string) {
   const [contractId, temp_pool_id] = seed_id.split('@');
