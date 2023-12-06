@@ -107,7 +107,6 @@ export default function AddYourLiquidityPageV3() {
   const [pair_is_reverse, set_pair_is_reverse] = useState<boolean>(false);
   const [show_chart, set_show_chart] = useState<boolean>(true);
 
-  // callBack handle
   useAddLiquidityUrlHandle();
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -235,9 +234,9 @@ export default function AddYourLiquidityPageV3() {
     if (!onlyAddXToken && liquidityShape === 'Spot') {
       const amount_result = getTokenYAmountByCondition({
         amount,
-        leftPoint: leftPoint,
-        rightPoint: rightPoint,
-        currentPoint: currentPoint,
+        leftPoint,
+        rightPoint,
+        currentPoint,
       });
       setTokenYAmount(amount_result);
     }

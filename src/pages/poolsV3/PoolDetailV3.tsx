@@ -63,11 +63,6 @@ export default function PoolDetailV3() {
     // old link
     pool_id_from_url = id.replace(/@/g, '|');
   }
-  const history = useHistory();
-  if (DCL_POOL_BLACK_LIST.includes(pool_id_from_url)) {
-    history.push('/pools');
-    return null;
-  }
   const [poolDetail, setPoolDetail] = useState<PoolInfo>(null);
   const [user_liquidities, set_user_liquidities] =
     useState<UserLiquidityInfo[]>();
@@ -91,6 +86,11 @@ export default function PoolDetailV3() {
     });
     get_matched_seeds();
   }, []);
+  const history = useHistory();
+  if (DCL_POOL_BLACK_LIST.includes(pool_id_from_url)) {
+    history.push('/pools');
+    return null;
+  }
   async function get_matched_seeds() {
     const all_seeds = await get_all_seeds();
     const matched_seeds = get_matched_seeds_for_dcl_pool({

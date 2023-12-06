@@ -416,15 +416,13 @@ export const executeMultipleTransactionsV2 = async (
       const transactionHashes = (Array.isArray(res) ? res : [res])?.map(
         (r) => r.transaction.hash
       );
-      const parsedTransactionHashes = transactionHashes?.join(',');
-      const newHref = addQueryParams(
-        window.location.origin + window.location.pathname,
-        {
-          [TRANSACTION_WALLET_TYPE.WalletSelector]: parsedTransactionHashes,
-        }
-      );
-      return newHref;
-      // window.location.href = newHref;
+      return {
+        txHash:
+          transactionHashes && transactionHashes.length > 0
+            ? transactionHashes[transactionHashes.length - 1]
+            : '',
+        txHashes: transactionHashes,
+      };
     })
     .catch((e: Error) => {
       if (extraWalletsError.includes(e.message)) {
@@ -437,8 +435,6 @@ export const executeMultipleTransactionsV2 = async (
       ) {
         sessionStorage.setItem('WALLETS_TX_ERROR', e.message);
       }
-
-      // window.location.reload();
     });
 };
 

@@ -8,7 +8,6 @@ import {
   add_liquidity,
   batch_add_liquidity,
 } from '../../../../services/swapV3';
-import { toNonDivisibleNumber } from 'src/utils/numbers';
 import { IAddLiquidityInfo } from '../../interfaces';
 import { TokenMetadata } from '../../../../services/ft-contract';
 import { WRAP_NEAR_CONTRACT_ID } from '../../../../services/wrap-near';
@@ -18,6 +17,10 @@ import {
   ConnectToNearBtn,
 } from 'src/components/button/Button';
 import { useWalletSelector } from '../../../../context/WalletSelectorContext';
+import { useTranstionsExcuteDataStore } from '../../../../stores/transtionsExcuteData';
+import { executeMultipleTransactionsV2 } from '../../../../services/near';
+import { addLiquidityTxHashHandle } from '../../../../services/commonV3';
+import { useHistory } from 'react-router-dom';
 
 /**
  * 双边 最小token数量不满足 提示
@@ -45,11 +48,25 @@ export function AddLiquidityButton() {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const { selector } = useWalletSelector();
-
+  const history = useHistory();
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
   function addLiquiditySpot() {
     setAddLiquidityButtonLoading(true);
     const new_liquidity = getLiquiditySpot();
-    add_liquidity(new_liquidity);
+    add_liquidity(new_liquidity).then((transactions) => {
+      executeMultipleTransactionsV2(transactions)
+        .then(({ txHash }: any) => {
+          transtionsExcuteDataStore.setActionStatus('resolved');
+          addLiquidityTxHashHandle(txHash).then((link) => {
+            setAddLiquidityButtonLoading(false);
+            history.replace(link);
+          });
+        })
+        .catch(() => {
+          transtionsExcuteDataStore.setActionStatus('rejected');
+          setAddLiquidityButtonLoading(false);
+        });
+    });
   }
   function addLiquidityForCurveAndBidAskMode() {
     /**
@@ -89,6 +106,19 @@ export function AddLiquidityButton() {
       amount_x: last_total_needed_token_x_amount.toFixed(),
       amount_y: last_total_needed_token_y_amount.toFixed(),
       selectedWalletId: selector.store.getState().selectedWalletId,
+    }).then((transactions) => {
+      executeMultipleTransactionsV2(transactions)
+        .then(({ txHash }: any) => {
+          transtionsExcuteDataStore.setActionStatus('resolved');
+          addLiquidityTxHashHandle(txHash).then((link) => {
+            setAddLiquidityButtonLoading(false);
+            history.replace(link);
+          });
+        })
+        .catch(() => {
+          transtionsExcuteDataStore.setActionStatus('rejected');
+          setAddLiquidityButtonLoading(false);
+        });
     });
   }
   function getMax(token: TokenMetadata, balance: string) {

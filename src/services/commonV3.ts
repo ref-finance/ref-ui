@@ -197,6 +197,40 @@ export function useAddLiquidityUrlHandle() {
     }
   }, [txHash, isSignedIn]);
 }
+export async function addLiquidityTxHashHandle(txHash) {
+  return checkTransaction(txHash).then((res: any) => {
+    const { transaction, status, receipts, receipts_outcome } = res;
+    const successValueNormal: string | undefined = status?.SuccessValue;
+    const successValueNeth: string | undefined =
+      receipts_outcome?.[1]?.outcome?.status?.SuccessValue;
+    const isNeth =
+      transaction?.actions?.[0]?.FunctionCall?.method_name === 'execute';
+    const methodNameNeth =
+      receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall?.method_name;
+    const methodNameNormal = transaction?.actions[0]?.FunctionCall?.method_name;
+    const methodName = isNeth ? methodNameNeth : methodNameNormal;
+    const successValue = isNeth ? successValueNeth : successValueNormal;
+    let returnValue;
+    if (successValue) {
+      const buff = Buffer.from(successValue, 'base64');
+      const v = buff.toString('ascii');
+      returnValue = v.substring(1, v.length - 1);
+    }
+    let pool_info: string[] = [];
+    if (methodName == 'add_liquidity') {
+      pool_info = returnValue.split('|');
+    } else if (methodName == 'batch_add_liquidity') {
+      pool_info = returnValue.replace(/\"/g, '').split(',')[0]?.split('|');
+    }
+    if (pool_info.length) {
+      const [tokenX, tokenY, id] = pool_info;
+      const [fee] = id.split('#');
+      const pool_name = get_pool_name(`${tokenX}|${tokenY}|${fee}`);
+      const link = '/poolV2/' + `${pool_name}`;
+      return link;
+    }
+  });
+}
 export function useRemoveLiquidityUrlHandle() {
   const history = useHistory();
   const { globalState } = useContext(WalletContext);

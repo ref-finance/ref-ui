@@ -901,7 +901,8 @@ export const add_liquidity = async ({
       ],
     });
   }
-  return executeMultipleTransactions(transactions);
+  // return executeMultipleTransactions(transactions);
+  return transactions;
 };
 
 export const batch_add_liquidity = async ({
@@ -1043,7 +1044,8 @@ export const batch_add_liquidity = async ({
       ],
     });
   }
-  return executeMultipleTransactions(transactions);
+  // return executeMultipleTransactions(transactions);
+  return transactions;
 };
 
 export const append_liquidity = async ({
