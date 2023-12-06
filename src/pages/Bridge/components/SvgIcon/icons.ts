@@ -17,4 +17,5 @@ export { default as IconChainNear } from './../../assets/chain-near.svg';
 export { default as IconDirection } from './../../assets/direction.svg';
 export { default as IconLoading } from './../../assets/loading.svg';
 export { default as IconEmpty } from './../../assets/empty.svg';
-export { default as IconErrorCircle } from './../../assets/error-circle.svg';
+export { default as IconErrorCircleFill } from './../../assets/error-circle-fill.svg';
+export { default as IconSuccessCircleFill } from './../../assets/success-circle-fill.svg';

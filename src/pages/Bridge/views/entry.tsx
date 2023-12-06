@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
 import BridgeRoutes from '../components/BridgeRoutes';
 import Button from '../components/Button';
@@ -38,19 +38,34 @@ function FormHeader() {
 function CustomAccountAddress() {
   const { bridgeToValue, setBridgeToValue } = useBridgeFormContext();
   const [customAccountAddress, setCustomAccountAddress] = React.useState('');
+  const isValidCustomAddress = useMemo(
+    () =>
+      bridgeToValue.chain === 'ETH'
+        ? isValidEthereumAddress(customAccountAddress)
+        : isValidNearAddress(customAccountAddress),
+    [bridgeToValue.chain, customAccountAddress]
+  );
 
   function handleChangeAddress(value: string) {
     setCustomAccountAddress(value);
-    if (
-      bridgeToValue.chain === 'ETH'
-        ? isValidEthereumAddress(value)
-        : isValidNearAddress(value)
-    ) {
+    console.log('isValidCustomAddress', isValidCustomAddress);
+    if (isValidCustomAddress) {
       setBridgeToValue({
         ...bridgeToValue,
         customAccountAddress: value,
       });
     }
+  }
+
+  function handlePasteAddress() {
+    navigator.clipboard
+      .readText()
+      .then((text) => {
+        handleChangeAddress(text);
+      })
+      .catch((err) => {
+        console.log('Something went wrong', err);
+      });
   }
 
   return (
@@ -71,13 +86,42 @@ function CustomAccountAddress() {
         I&apos;m transferring to a destination address
       </label>
       {bridgeToValue.isCustomAccountAddress && (
-        <input
-          type="text"
-          className="bridge-input"
-          placeholder="Destination address"
-          value={customAccountAddress ?? ''}
-          onChange={(e) => handleChangeAddress(e.target.value)}
-        />
+        <div className="relative">
+          <input
+            type="text"
+            className="bridge-input w-full"
+            placeholder="Destination address"
+            value={customAccountAddress ?? ''}
+            onChange={(e) => handleChangeAddress(e.target.value)}
+          />
+          <div
+            className="absolute top-1/2 right-3 transform -translate-y-1/2"
+            onClick={() =>
+              customAccountAddress &&
+              !isValidCustomAddress &&
+              setCustomAccountAddress('')
+            }
+          >
+            {!customAccountAddress ? (
+              <Button
+                size="small"
+                type="primary"
+                text
+                onClick={handlePasteAddress}
+              >
+                Paste
+              </Button>
+            ) : (
+              <SvgIcon
+                name={
+                  isValidCustomAddress
+                    ? 'IconSuccessCircleFill'
+                    : 'IconErrorCircleFill'
+                }
+              />
+            )}
+          </div>
+        </div>
       )}
     </div>
   );

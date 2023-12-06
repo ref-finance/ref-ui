@@ -6,12 +6,11 @@ import {
   setSignerProvider,
   setNearConnection,
   act,
-  decorate,
 } from '@near-eth/client';
-import { BridgeParams, EthereumConfig } from '../config';
+import { BridgeConfig, EthereumConfig } from '../config';
 import { ethers } from 'ethers';
 import { useCallback, useEffect, useState } from 'react';
-import { rainbowBridgeService } from '../services';
+import rainbowBridgeService from '../services/rainbowBridge';
 import { useWalletConnectContext } from '../providers/walletConcent';
 import { toast } from 'react-toastify';
 
@@ -24,7 +23,7 @@ export default function useRainbowBridge(params?: {
 
   const setupRainbowBridge = useCallback(() => {
     if (!wallet.ETH.isSignedIn && !wallet.NEAR.isSignedIn) return;
-    setBridgeParams(BridgeParams);
+    setBridgeParams(BridgeConfig.Rainbow.bridgeParams);
 
     setNearConnection(window.walletNearConnection as any);
     setEthProvider(
@@ -40,13 +39,6 @@ export default function useRainbowBridge(params?: {
     console.log('setup rainbow bridge');
   }, [wallet.ETH.isSignedIn, wallet.NEAR.isSignedIn]);
 
-  const {
-    checkApprove,
-    approve,
-    transfer: _transfer,
-    query: queryTransactions,
-  } = rainbowBridgeService;
-
   const [unclaimedTransactions, setUnclaimedTransactions] = useState<
     BridgeModel.BridgeTransaction[]
   >([]);
@@ -54,13 +46,15 @@ export default function useRainbowBridge(params?: {
   useEffect(() => {
     if (params?.enableSubscribeUnclaimed) {
       function onSubscribeUnclaimedTransactions() {
-        queryTransactions({ filter: (v) => v.status === 'action-needed' }).then(
-          (data) => setUnclaimedTransactions(data)
-        );
+        rainbowBridgeService
+          .query({ filter: (v) => v.status === 'action-needed' })
+          .then((data) => setUnclaimedTransactions(data));
         onChange(() =>
-          queryTransactions({
-            filter: (v) => v.status === 'action-needed',
-          }).then((data) => setUnclaimedTransactions(data))
+          rainbowBridgeService
+            .query({
+              filter: (v) => v.status === 'action-needed',
+            })
+            .then((data) => setUnclaimedTransactions(data))
         );
       }
       onSubscribeUnclaimedTransactions();
@@ -68,17 +62,22 @@ export default function useRainbowBridge(params?: {
   }, [params?.enableSubscribeUnclaimed]);
 
   async function transfer(
-    params: Omit<Parameters<typeof _transfer>[number], 'nearWalletSelector'>
+    params: Omit<
+      Parameters<typeof rainbowBridgeService.transfer>[number],
+      'nearWalletSelector'
+    >
   ) {
     console.log('transfer params', params);
     setActionLoading(true);
-    const result = await _transfer({
-      ...params,
-      nearWalletSelector: wallet.NEAR.selector,
-    }).catch((err) => {
-      console.error(err.message);
-      toast.error(err.message.substring(0, 100), { theme: 'dark' });
-    });
+    const result = await rainbowBridgeService
+      .transfer({
+        ...params,
+        nearWalletSelector: wallet.NEAR.selector,
+      })
+      .catch((err) => {
+        console.error(err.message);
+        toast.error(err.message.substring(0, 100), { theme: 'dark' });
+      });
     setActionLoading(false);
     console.log('transfer result', result);
     return result as BridgeModel.BridgeTransaction;
@@ -93,19 +92,11 @@ export default function useRainbowBridge(params?: {
     return result;
   }
 
-  function getDecodedTransaction(data: BridgeModel.BridgeTransaction) {
-    const result = decorate(data, { locale: 'en_US' });
-    return result;
-  }
-
   return {
     setupRainbowBridge,
     actionLoading,
     transfer,
     callAction,
-    checkApprove,
-    approve,
     unclaimedTransactions,
-    getDecodedTransaction,
   };
 }

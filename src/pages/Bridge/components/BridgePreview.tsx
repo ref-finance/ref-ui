@@ -11,15 +11,13 @@ import {
   formatChainName,
   formatSortAddress,
 } from '../utils/format';
-import { RainbowConfig } from '../config';
+import { BridgeConfig } from '../config';
 import { useBridgeTransactionContext } from '../providers/bridgeTransaction';
 
 export default function BridgePreviewModal({
   toggleOpenModal,
   ...props
 }: Modal.Props & { toggleOpenModal: () => void }) {
-  const [isOpenStatusModal, setIsOpenStatusModal] = useState(false);
-
   const { actionLoading, transfer } = useRainbowBridge();
 
   const { bridgeFromValue, bridgeToValue } = useBridgeFormContext();
@@ -40,8 +38,8 @@ export default function BridgePreviewModal({
       to: bridgeToValue?.chain,
       recipient,
       sender,
-      constTime: RainbowConfig.wait,
-      bridgeFee: RainbowConfig.gas,
+      constTime: BridgeConfig.Rainbow.wait,
+      bridgeFee: BridgeConfig.Rainbow.gas,
       output: bridgeToValue.amount,
       minimumReceived: bridgeFromValue.amount,
     }),

@@ -15,13 +15,6 @@ export const IS_TESTNET = ['testnet', 'pub-testnet'].includes(
   process.env.REACT_APP_NEAR_ENV
 );
 
-export const SupportBridgeChannels = ['Rainbow'] as const;
-
-export const RainbowConfig = {
-  wait: '~ 20 min',
-  gas: '336,847 gas',
-};
-
 const INFURA_KEY = '45ad2962c1b5465bb6fe62db0d35b42f';
 const ETH_NETWORK = IS_MAINNET ? 'mainnet' : 'goerli';
 export const EthereumConfig = {
@@ -56,7 +49,9 @@ export const NearConfig = {
 
 export const SupportChains: BridgeModel.BridgeSupportChain[] = ['ETH', 'NEAR'];
 
-const BridgeDefaultParams = {
+export const SupportBridgeChannels = ['Rainbow', 'Stargate'] as const;
+
+const RainbowBridgeDefaultParams = {
   nearEventRelayerMargin: 10, // blocks
   sendToNearSyncInterval: 60000, // check light client sync interval (ms)
   sendToEthereumSyncInterval: 60000, // check light client sync interval (ms)
@@ -73,34 +68,39 @@ const BridgeDefaultParams = {
   eNEARAbi,
   ethChainId: EthereumConfig.chainId,
 };
-
-export const BridgeParams = IS_MAINNET
-  ? {
-      ...BridgeDefaultParams,
-      auroraChainId: 1313161554,
-      erc20LockerAddress: '0x23ddd3e3692d1861ed57ede224608875809e127f',
-      nep141Factory: 'factory.bridge.near',
-      etherCustodianAddress: '0x6BFaD42cFC4EfC96f529D786D643Ff4A8B89FA52',
-      ethClientAddress: '0x0151568af92125fb289f1dd81d9d8f7484efc362',
-      nearClientAccount: 'client.bridge.near',
-      eNEARAddress: '0x85F17Cf997934a597031b2E18a9aB6ebD4B9f6a4',
-      nativeNEARLockerAddress: 'e-near.near',
-      wNearNep141: 'wrap.near',
-      eventRelayerAccount: 'event-relayer.near',
-    }
-  : {
-      ...BridgeDefaultParams,
-      auroraChainId: 1313161555,
-      erc20LockerAddress: '0xC115851CA60Aed2CCc6EE3D5343F590834e4a3aB',
-      nep141Factory: 'factory.goerli.testnet',
-      etherCustodianAddress: '0x84a82Bb39c83989D5Dc07e1310281923D2544dC2',
-      ethClientAddress: '0x37C2d89b55Bfd95532637554711441017eFabFef',
-      nearClientAccount: 'client-eth2.goerli.testnet',
-      eNEARAddress: '0xe6b7C088Da1c2BfCf84aaE03fd6DE3C4f28629dA',
-      nativeNEARLockerAddress: 'enear.goerli.testnet',
-      wNearNep141: 'wrap.testnet',
-      eventRelayerAccount: 'event-relayer.goerli.testnet',
-    };
+export const BridgeConfig = {
+  Rainbow: {
+    wait: '~ 20 min',
+    gas: '336,847 gas',
+    bridgeParams: IS_MAINNET
+      ? {
+          ...RainbowBridgeDefaultParams,
+          auroraChainId: 1313161554,
+          erc20LockerAddress: '0x23ddd3e3692d1861ed57ede224608875809e127f',
+          nep141Factory: 'factory.bridge.near',
+          etherCustodianAddress: '0x6BFaD42cFC4EfC96f529D786D643Ff4A8B89FA52',
+          ethClientAddress: '0x0151568af92125fb289f1dd81d9d8f7484efc362',
+          nearClientAccount: 'client.bridge.near',
+          eNEARAddress: '0x85F17Cf997934a597031b2E18a9aB6ebD4B9f6a4',
+          nativeNEARLockerAddress: 'e-near.near',
+          wNearNep141: 'wrap.near',
+          eventRelayerAccount: 'event-relayer.near',
+        }
+      : {
+          ...RainbowBridgeDefaultParams,
+          auroraChainId: 1313161555,
+          erc20LockerAddress: '0xC115851CA60Aed2CCc6EE3D5343F590834e4a3aB',
+          nep141Factory: 'factory.goerli.testnet',
+          etherCustodianAddress: '0x84a82Bb39c83989D5Dc07e1310281923D2544dC2',
+          ethClientAddress: '0x37C2d89b55Bfd95532637554711441017eFabFef',
+          nearClientAccount: 'client-eth2.goerli.testnet',
+          eNEARAddress: '0xe6b7C088Da1c2BfCf84aaE03fd6DE3C4f28629dA',
+          nativeNEARLockerAddress: 'enear.goerli.testnet',
+          wNearNep141: 'wrap.testnet',
+          eventRelayerAccount: 'event-relayer.goerli.testnet',
+        },
+  },
+};
 
 export const TokenList: BridgeModel.BridgeTokenMeta[] = [
   {
@@ -113,7 +113,7 @@ export const TokenList: BridgeModel.BridgeTokenMeta[] = [
         : '0xe6b7C088Da1c2BfCf84aaE03fd6DE3C4f28629dA',
       NEAR: IS_MAINNET ? 'wrap.near' : 'wrap.testnet',
     },
-    icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 288 288'%3E%3Cg id='Layer_1' data-name='Layer 1'%3E%3Cpath d='M187.58,79.81l-30.1,44.69a3.2,3.2,0,0,0,4.75,4.2L191.86,103a1.2,1.2,0,0,1,2,.91v80.46a1.2,1.2,0,0,1-2.12.77L102.18,77.93A15.35,15.35,0,0,0,90.47,72.5H87.34A15.34,15.34,0,0,0,72,87.84V201.16A15.34,15.34,0,0,0,87.34,216.5h0a15.35,15.35,0,0,0,13.08-7.31l30.1-44.69a3.2,3.2,0,0,0-4.75-4.2L96.14,186a1.2,1.2,0,0,1-2-.91V104.61a1.2,1.2,0,0,1,2.12-.77l89.55,107.23a15.35,15.35,0,0,0,11.71,5.43h3.13A15.34,15.34,0,0,0,216,201.16V87.84A15.34,15.34,0,0,0,200.66,72.5h0A15.35,15.35,0,0,0,187.58,79.81Z'/%3E%3C/g%3E%3C/svg%3E",
+    icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' style='background-color:%23fff' viewBox='0 0 288 288'%3E%3Cg id='Layer_1' data-name='Layer 1'%3E%3Cpath d='M187.58,79.81l-30.1,44.69a3.2,3.2,0,0,0,4.75,4.2L191.86,103a1.2,1.2,0,0,1,2,.91v80.46a1.2,1.2,0,0,1-2.12.77L102.18,77.93A15.35,15.35,0,0,0,90.47,72.5H87.34A15.34,15.34,0,0,0,72,87.84V201.16A15.34,15.34,0,0,0,87.34,216.5h0a15.35,15.35,0,0,0,13.08-7.31l30.1-44.69a3.2,3.2,0,0,0-4.75-4.2L96.14,186a1.2,1.2,0,0,1-2-.91V104.61a1.2,1.2,0,0,1,2.12-.77l89.55,107.23a15.35,15.35,0,0,0,11.71,5.43h3.13A15.34,15.34,0,0,0,216,201.16V87.84A15.34,15.34,0,0,0,200.66,72.5h0A15.35,15.35,0,0,0,187.58,79.81Z'/%3E%3C/g%3E%3C/svg%3E",
   },
   {
     name: 'ETH',

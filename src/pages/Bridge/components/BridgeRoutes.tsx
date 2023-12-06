@@ -5,7 +5,7 @@ import ReactTooltip from 'react-tooltip';
 import Button from './Button';
 import SvgIcon from './SvgIcon';
 import LogoRainbow from './../assets/logo-rainbow.png';
-import { SupportBridgeChannels, RainbowConfig } from './../config';
+import { SupportBridgeChannels, BridgeConfig } from './../config';
 import { useBridgeFormContext } from '../providers/bridgeForm';
 
 function BridgeRouteItem({ className }: { className?: string }) {
@@ -40,7 +40,7 @@ function BridgeRouteItem({ className }: { className?: string }) {
           ~{bridgeFromValue.amount} {bridgeFromValue.tokenMeta.symbol}
         </div>
         <div className="text-right text-slate-500 text-xs font-normal ">
-          {RainbowConfig.wait}｜Bridge fee {RainbowConfig.gas}
+          {BridgeConfig.Rainbow.wait}｜Bridge fee {BridgeConfig.Rainbow.gas}
           {/* <span
             className="underline cursor-pointer ml-1"
             data-for="bridge-gas-fee"

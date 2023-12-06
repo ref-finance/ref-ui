@@ -13,10 +13,18 @@ const bridgeHistoryService = {
         }
         if (params?.hash) {
           return (
-            v.lockHashes.includes(params.hash) ||
-            v.unlockHashes.includes(params.hash) ||
-            v.burnHashes.includes(params.hash) ||
-            v.mintHashes.includes(params.hash)
+            ('lockHashes' in v &&
+              Array.isArray(v.lockHashes) &&
+              v.lockHashes?.includes(params.hash)) ||
+            ('unlockHashes' in v &&
+              Array.isArray(v.unlockHashes) &&
+              v.unlockHashes?.includes(params.hash)) ||
+            ('burnHashes' in v &&
+              Array.isArray(v.burnHashes) &&
+              v.burnHashes?.includes(params.hash)) ||
+            ('mintHashes' in v &&
+              Array.isArray(v.mintHashes) &&
+              v.mintHashes?.includes(params.hash))
           );
         }
         return true;

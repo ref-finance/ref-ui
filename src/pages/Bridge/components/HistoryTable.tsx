@@ -23,10 +23,12 @@ const columns = [
   { label: 'Status', prop: 'status', width: '15%' },
 ];
 
-function TableItem({ item }: { item: BridgeModel.BridgeTransaction }) {
-  const { getDecodedTransaction, callAction, actionLoading } =
-    useRainbowBridge();
-  const transaction = useMemo(() => getDecodedTransaction(item), [item]);
+function TableItem({
+  item: transaction,
+}: {
+  item: BridgeModel.BridgeTransaction;
+}) {
+  const { callAction, actionLoading } = useRainbowBridge();
 
   const { getTokenBySymbol } = useBridgeToken();
 
@@ -34,8 +36,6 @@ function TableItem({ item }: { item: BridgeModel.BridgeTransaction }) {
     () => getTokenBySymbol(transaction.symbol),
     [transaction.symbol]
   );
-
-  useEffect(() => console.log('transaction', transaction), [transaction]);
 
   function handleAction() {
     callAction(transaction.id);
@@ -73,16 +73,37 @@ function TableItem({ item }: { item: BridgeModel.BridgeTransaction }) {
       </td>
       <td>
         <div>{formatSortAddress(transaction.sender)}</div>
-        {formatSortAddress(
-          transaction.lockHashes?.[0] || transaction.unlockHashes?.[0]
-        )}
+        <a
+          href={formatTxExplorerUrl(
+            transaction.sourceNetwork,
+            transaction.lockHashes?.[0] || transaction.unlockHashes?.[0]
+          )}
+          target="_blank"
+          rel="noreferrer"
+          style={{ color: '#99B0FF' }}
+          className="hover:underline"
+        >
+          {formatSortAddress(
+            transaction.lockHashes?.[0] || transaction.unlockHashes?.[0]
+          )}
+        </a>
       </td>
       <td>
         <div>{formatSortAddress(transaction.recipient)}</div>
-        <div>
-          {formatSortAddress(transaction.burnHashes?.[0]) ||
-            transaction.mintHashs?.[0]}
-        </div>
+        <a
+          href={formatTxExplorerUrl(
+            transaction.sourceNetwork === 'near' ? 'ethereum' : 'near',
+            transaction.burnHashes?.[0] || transaction.mintHashes?.[0]
+          )}
+          target="_blank"
+          rel="noreferrer"
+          style={{ color: '#99B0FF' }}
+          className="hover:underline"
+        >
+          {formatSortAddress(
+            transaction.burnHashes?.[0] || transaction.mintHashes?.[0]
+          )}
+        </a>
       </td>
       <td>
         {transaction.status === 'action-needed' && transaction.callToAction ? (

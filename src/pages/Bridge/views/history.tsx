@@ -4,7 +4,7 @@ import Button from '../components/Button';
 import ConnectWallet from '../components/ConnectWallet';
 import HistoryTable from '../components/HistoryTable';
 import { useRequest } from '../hooks/useHooks';
-import { bridgeHistoryService } from '../services';
+import bridgeHistoryService from '../services/history';
 import SvgIcon from '../components/SvgIcon';
 import { useRouter } from '../hooks/useRouter';
 

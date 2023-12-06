@@ -7,9 +7,9 @@ import {
 import { bridgedNep141, naturalErc20 } from '@near-eth/nep141-erc20';
 import Big from 'big.js';
 import type { WalletSelector } from '@near-wallet-selector/core';
-import { BridgeParams } from '../config';
+import { BridgeConfig } from '../config';
 import { ethServices } from './contract';
-import { get } from '@near-eth/client';
+import { decorate, get, Transfer } from '@near-eth/client';
 
 const rainbowBridgeService = {
   async checkApprove({
@@ -27,10 +27,9 @@ const rainbowBridgeService = {
     const erc20Contract = await ethServices.getErc20Contract(
       token.addresses.ETH
     );
-    console.log(sender, BridgeParams.erc20LockerAddress);
     const allowance = await erc20Contract.allowance(
       sender,
-      BridgeParams.erc20LockerAddress
+      BridgeConfig.Rainbow.bridgeParams.erc20LockerAddress
     );
     console.log('allowance', erc20Contract, allowance);
     const amountIn = new Big(amount).times(10 ** token.decimals).toFixed();
@@ -52,7 +51,7 @@ const rainbowBridgeService = {
     );
     const amountIn = new Big(amount).times(10 ** token.decimals).toFixed();
     const tx = await erc20Contract.approve(
-      BridgeParams.erc20LockerAddress,
+      BridgeConfig.Rainbow.bridgeParams.erc20LockerAddress,
       amountIn
     );
     await tx.wait();
@@ -118,18 +117,19 @@ const rainbowBridgeService = {
     const nearAccount = (await nearWalletSelector.wallet()) as any;
 
     const amount = new Big(amountIn).times(10 ** token.decimals).toFixed();
-    console.log('amount', amount);
 
     const instance = rainbowBridgeService.getBridgeInstance({ token, from });
-    console.log('instance', instance, {
+    console.log('rainbow bridge instance', instance);
+    console.log('rainbow bridge params', {
       token,
       from,
       amount,
       sender,
       recipient,
     });
+    let result;
     if (instance.bridgedETH)
-      return instance.bridgedETH.sendToEthereum({
+      result = await instance.bridgedETH.sendToEthereum({
         amount,
         recipient,
         options: {
@@ -138,7 +138,7 @@ const rainbowBridgeService = {
         },
       });
     else if (instance.bridgedNep141)
-      return instance.bridgedNep141.sendToEthereum({
+      result = await instance.bridgedNep141.sendToEthereum({
         erc20Address: token.addresses.ETH,
         amount,
         recipient,
@@ -150,7 +150,7 @@ const rainbowBridgeService = {
         },
       });
     else if (instance.naturalNEAR)
-      return instance.naturalNEAR.sendToEthereum({
+      result = await instance.naturalNEAR.sendToEthereum({
         recipient,
         amount,
         options: {
@@ -159,7 +159,7 @@ const rainbowBridgeService = {
         },
       });
     else if (instance.naturalErc20)
-      return instance.naturalErc20.sendToNear({
+      result = await instance.naturalErc20.sendToNear({
         erc20Address: token.addresses.ETH,
         amount,
         recipient,
@@ -168,7 +168,7 @@ const rainbowBridgeService = {
         },
       });
     else if (instance.bridgedNEAR)
-      return instance.bridgedNEAR.sendToNear({
+      result = await instance.bridgedNEAR.sendToNear({
         amount,
         recipient,
         options: {
@@ -176,19 +176,46 @@ const rainbowBridgeService = {
         },
       });
     else if (instance.naturalETH)
-      return instance.naturalETH.sendToNear({
+      result = await instance.naturalETH.sendToNear({
         amount,
         recipient,
         options: {
           sender,
         },
       });
-    return undefined;
+    if (result) return rainbowBridgeService.transformRawData(result);
   },
-  async query(params: Parameters<typeof get>[number]) {
+  async query(params?: Parameters<typeof get>[number]) {
     const result = await get(params);
-    console.log('queryTransactions', result);
-    return result;
+    const sortedResult =
+      (result as BridgeModel.BridgeTransaction[])?.sort(
+        (a, b) =>
+          new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
+      ) ?? [];
+
+    const decodedResult = sortedResult.map((item) =>
+      rainbowBridgeService.transformRawData(item)
+    );
+    console.log('decodedResult', decodedResult);
+    return decodedResult as BridgeModel.BridgeTransaction[];
+  },
+  async getById(id: string) {
+    const result = await rainbowBridgeService.query({
+      filter: (t) => t.id === id,
+    });
+    return result?.[0];
+  },
+  transformRawData(data: Transfer) {
+    try {
+      const result = decorate(data, {
+        locale: 'en_US',
+      }) as BridgeModel.BridgeTransaction;
+      if (result.callToAction === 'Deposit') result.callToAction = 'Claim';
+      return result;
+    } catch (error) {
+      console.error(error);
+      return data as BridgeModel.BridgeTransaction;
+    }
   },
 };
 

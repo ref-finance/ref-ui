@@ -22,6 +22,15 @@ declare namespace BridgeModel {
     amount?: string;
     accountAddress?: string;
   };
-  type BridgeTransaction = import('@near-eth/client').Transfer &
-    import('@near-eth/client').UnsavedTransfer;
+  type BridgeTransaction = import('@near-eth/client').DecoratedTransfer & {
+    amount?: string;
+    decimals?: number;
+    startTime: string;
+    sourceNetwork: 'ethereum' | 'near';
+    symbol?: string;
+    lockHashes?: string[];
+    unlockHashes?: string[];
+    burnHashes?: string[];
+    mintHashes?: string[];
+  };
 }

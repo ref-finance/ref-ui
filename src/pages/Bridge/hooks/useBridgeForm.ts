@@ -32,8 +32,8 @@ export default function useBridgeForm() {
   });
 
   const walletCxt = useWalletConnectContext();
-  // sync account address from wallet context
 
+  // sync account address from wallet context
   useEffect(() => {
     setBridgeFromValue({
       ...bridgeFromValue,
@@ -53,11 +53,13 @@ export default function useBridgeForm() {
   const { getTokenBalance } = useBridgeToken();
   const bridgeFromBalance = useAsyncMemo(
     () => getTokenBalance(bridgeFromValue.chain, bridgeFromValue.tokenMeta),
-    [bridgeFromValue.chain, bridgeFromValue.tokenMeta]
+    [bridgeFromValue.chain, bridgeFromValue.tokenMeta],
+    '0'
   );
   const bridgeToBalance = useAsyncMemo(
     () => getTokenBalance(bridgeToValue.chain, bridgeToValue.tokenMeta),
-    [bridgeToValue.chain, bridgeToValue.tokenMeta]
+    [bridgeToValue.chain, bridgeToValue.tokenMeta],
+    '0'
   );
 
   const [slippageTolerance, setSlippageTolerance] = useState(0.5);

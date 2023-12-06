@@ -4,7 +4,7 @@ import BridgeTransactionStatusModal from '../components/BridgeTransactionStatus'
 import { useRoute, useRouter } from '../hooks/useRouter';
 import { toast } from 'react-toastify';
 import useRainbowBridge from '../hooks/useRainbowBridge';
-import { bridgeHistoryService } from '../services';
+import bridgeHistoryService from '../services/history';
 
 type Props = {
   openBridgeTransactionStatusModal: (

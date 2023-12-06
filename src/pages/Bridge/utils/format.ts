@@ -36,10 +36,10 @@ export function formatChainName(chain: BridgeModel.BridgeSupportChain) {
 }
 
 export function formatTxExplorerUrl(
-  chain: BridgeModel.BridgeSupportChain,
+  chain: BridgeModel.BridgeSupportChain | 'near' | 'ethereum',
   hash: string
 ) {
-  return chain === 'NEAR'
+  return chain === 'NEAR' || chain === 'near'
     ? `${NearConfig.explorerUrl}/txns/${hash}`
     : `${EthereumConfig.explorerUrl}/tx/${hash}`;
 }
