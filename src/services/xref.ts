@@ -1,11 +1,9 @@
 import {
-  executeMultipleTransactions,
   ONE_YOCTO_NEAR,
   REF_FI_CONTRACT_ID,
   REF_TOKEN_ID,
   refContractViewFunction,
   Transaction,
-  wallet,
 } from '../services/near';
 import { toNonDivisibleNumber } from '../utils/numbers';
 import { storageDepositAction } from '../services/creators/storage';
@@ -14,6 +12,7 @@ import { checkTokenNeedsStorageDeposit } from './token';
 import { ftGetStorageBalance } from '../services/ft-contract';
 import { NEW_ACCOUNT_STORAGE_COST } from '../services/wrap-near';
 import { getCurrentWallet } from '../utils/wallets-integration';
+import { executeMultipleTransactionsV2 } from '../services/near';
 
 const XREF_TOKEN_ID = getConfig().XREF_TOKEN_ID;
 export const XREF_TOKEN_DECIMALS = 18;
@@ -82,8 +81,7 @@ export const stake = async ({ amount, msg = '' }: StakeOptions) => {
       functionCalls: [storageDepositAction({ amount: needDeposit })],
     });
   }
-  return transactions;
-  // return executeMultipleTransactions(transactions);
+  return await executeMultipleTransactionsV2(transactions);
 };
 
 interface UnstakeOptions {
@@ -133,8 +131,7 @@ export const unstake = async ({ amount, msg = '' }: UnstakeOptions) => {
     });
   }
 
-  // return executeMultipleTransactions(transactions);
-  return transactions;
+  return await executeMultipleTransactionsV2(transactions);
 };
 export interface XrefMetaData {
   version: string;

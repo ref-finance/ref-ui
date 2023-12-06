@@ -69,7 +69,6 @@ import { formatWithCommas_usd, formatPercentage } from './utils';
 import moment from 'moment';
 import Big from 'big.js';
 import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
-import { executeMultipleTransactionsV2 } from '../../services/near';
 import CustomTooltip from '../customTooltip/customTooltip';
 const { REF_VE_CONTRACT_ID, REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
 export default function FarmsDclDetail(props: {
@@ -1009,32 +1008,28 @@ export default function FarmsDclDetail(props: {
       total_v_liquidity,
       withdraw_amount,
       seed_id: detailData.seed_id,
-    }).then((transactions) => {
-      executeMultipleTransactionsV2(transactions)
-        .then(() => {
-          transtionsExcuteDataStore.setActionStatus('resolved');
-          set_nft_stake_loading(false);
-        })
-        .catch(() => {
-          transtionsExcuteDataStore.setActionStatus('rejected');
-          set_nft_stake_loading(false);
-        });
-    });
+    })
+      .then(() => {
+        transtionsExcuteDataStore.setActionStatus('resolved');
+        set_nft_stake_loading(false);
+      })
+      .catch(() => {
+        transtionsExcuteDataStore.setActionStatus('rejected');
+        set_nft_stake_loading(false);
+      });
   }
   function batchUnStakeNFT() {
     set_nft_unStake_loading(true);
     const unStake_info: IStakeInfo = get_unStake_info();
-    batch_unStake_boost_nft(unStake_info).then((transactions) => {
-      executeMultipleTransactionsV2(transactions)
-        .then(() => {
-          transtionsExcuteDataStore.setActionStatus('resolved');
-          set_nft_unStake_loading(false);
-        })
-        .catch(() => {
-          transtionsExcuteDataStore.setActionStatus('rejected');
-          set_nft_unStake_loading(false);
-        });
-    });
+    batch_unStake_boost_nft(unStake_info)
+      .then(() => {
+        transtionsExcuteDataStore.setActionStatus('resolved');
+        set_nft_unStake_loading(false);
+      })
+      .catch(() => {
+        transtionsExcuteDataStore.setActionStatus('rejected');
+        set_nft_unStake_loading(false);
+      });
   }
   function get_stake_info(): IStakeInfo {
     const { seed_id, min_deposit } = detailData;
@@ -1577,17 +1572,15 @@ function UserTotalUnClaimBlock(props: {
   function claimReward() {
     if (claimLoading) return;
     setClaimLoading(true);
-    claimRewardBySeed_boost(detailData.seed_id).then((transactions) => {
-      executeMultipleTransactionsV2(transactions)
-        .then(() => {
-          transtionsExcuteDataStore.setActionStatus('resolved');
-          setClaimLoading(false);
-        })
-        .catch(() => {
-          transtionsExcuteDataStore.setActionStatus('rejected');
-          setClaimLoading(false);
-        });
-    });
+    claimRewardBySeed_boost(detailData.seed_id)
+      .then(() => {
+        transtionsExcuteDataStore.setActionStatus('resolved');
+        setClaimLoading(false);
+      })
+      .catch(() => {
+        transtionsExcuteDataStore.setActionStatus('rejected');
+        setClaimLoading(false);
+      });
   }
   function getTotalUnclaimedRewards() {
     let totalPrice = 0;

@@ -94,7 +94,6 @@ import { VEARROW } from '../icon/Referendum';
 import Countdown, { zeroPad } from 'react-countdown';
 import { MoreButtonIcon } from '../../components/icon/Common';
 import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
-import { executeMultipleTransactionsV2 } from '../../services/near';
 
 import _ from 'lodash';
 import { PoolInfo } from 'src/services/swapV3';
@@ -2753,18 +2752,12 @@ function FarmView(props: {
     if (claimLoading) return;
     setClaimLoading(true);
     claimRewardBySeed_boost(seed.seed_id)
-      .then((transactions) => {
-        executeMultipleTransactionsV2(transactions)
-          .then(() => {
-            transtionsExcuteDataStore.setActionStatus('resolved');
-            setClaimLoading(false);
-          })
-          .catch(() => {
-            transtionsExcuteDataStore.setActionStatus('rejected');
-            setClaimLoading(false);
-          });
+      .then(() => {
+        transtionsExcuteDataStore.setActionStatus('resolved');
+        setClaimLoading(false);
       })
-      .catch((error) => {
+      .catch(() => {
+        transtionsExcuteDataStore.setActionStatus('rejected');
         setClaimLoading(false);
       });
   }

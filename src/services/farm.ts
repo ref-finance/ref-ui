@@ -8,7 +8,6 @@ import {
   ONE_YOCTO_NEAR,
   REF_FI_CONTRACT_ID,
   near,
-  refVeViewFunction,
   REF_FARM_CONTRACT_ID,
   refFarmBoostFunctionCall,
 } from './near';
@@ -56,6 +55,7 @@ import { useEffect, useContext, useState } from 'react';
 import { getPoolIdBySeedId } from '../components/farm/FarmsHome';
 import { listPools, PoolInfo } from './swapV3';
 import { mint_liquidity, UserLiquidityInfo } from './commonV3';
+import { executeMultipleTransactionsV2 } from '../services/near';
 
 const config = getConfig();
 const { REF_VE_CONTRACT_ID, REF_UNI_V3_SWAP_CONTRACT_ID } = config;
@@ -613,8 +613,7 @@ export const stake_boost = async ({
     });
   }
 
-  // return executeFarmMultipleTransactions(transactions);
-  return transactions;
+  return await executeMultipleTransactionsV2(transactions);
 };
 export const unStake_boost = async ({
   seed_id,
@@ -647,8 +646,7 @@ export const unStake_boost = async ({
     });
   }
 
-  // return executeFarmMultipleTransactions(transactions);
-  return transactions;
+  return await executeMultipleTransactionsV2(transactions);
 };
 export const checkTokenNeedsStorageDeposit_boost = async () => {
   let storageNeeded;
@@ -728,7 +726,7 @@ export const withdrawAllReward_boost = async (
 export const claimRewardBySeed_boost = async (
   seed_id: string
 ): Promise<any> => {
-  return refFarmBoostFunctionCall({
+  return await refFarmBoostFunctionCall({
     methodName: 'claim_reward_by_seed',
     args: { seed_id },
   });
@@ -1414,8 +1412,7 @@ export const batch_unStake_boost_nft = async ({
     });
   }
 
-  // return executeFarmMultipleTransactions(transactions);
-  return transactions;
+  return await executeMultipleTransactionsV2(transactions);
 };
 export const batch_stake_boost_nft = async ({
   liquidities,
@@ -1535,8 +1532,7 @@ export const batch_stake_boost_nft = async ({
       functionCalls: [storageDepositAction({ amount: neededStorage })],
     });
   }
-  // return executeFarmMultipleTransactions(transactions);
-  return transactions;
+  return await executeMultipleTransactionsV2(transactions);
 };
 function liquidity_is_in_other_seed(seed_id: string, mft_id: string) {
   const [contractId, temp_pool_id] = seed_id.split('@');

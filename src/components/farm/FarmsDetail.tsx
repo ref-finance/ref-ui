@@ -94,7 +94,6 @@ import {
   openUrl,
 } from 'src/services/commonV3';
 import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
-import { executeMultipleTransactionsV2 } from '../../services/near';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
@@ -1906,18 +1905,12 @@ function UserTotalUnClaimBlock(props: {
     if (claimLoading) return;
     setClaimLoading(true);
     claimRewardBySeed_boost(detailData.seed_id)
-      .then((transactions) => {
-        executeMultipleTransactionsV2(transactions)
-          .then(() => {
-            transtionsExcuteDataStore.setActionStatus('resolved');
-            setClaimLoading(false);
-          })
-          .catch(() => {
-            transtionsExcuteDataStore.setActionStatus('rejected');
-            setClaimLoading(false);
-          });
+      .then(() => {
+        transtionsExcuteDataStore.setActionStatus('resolved');
+        setClaimLoading(false);
       })
-      .catch((error) => {
+      .catch(() => {
+        transtionsExcuteDataStore.setActionStatus('rejected');
         setClaimLoading(false);
       });
   }
@@ -3109,18 +3102,15 @@ export function StakeModal(props: {
         token_id: getMftTokenId(pool.id.toString()),
         amount: toNonDivisibleNumber(DECIMALS, amount),
         msg,
-      }).then((transactions) => {
-        transtionsExcuteDataStore.setActionStatus('pending');
-        executeMultipleTransactionsV2(transactions)
-          .then(() => {
-            transtionsExcuteDataStore.setActionStatus('resolved');
-            onRequestClose();
-          })
-          .catch(() => {
-            transtionsExcuteDataStore.setActionStatus('rejected');
-            onRequestClose();
-          });
-      });
+      })
+        .then(() => {
+          transtionsExcuteDataStore.setActionStatus('resolved');
+          onRequestClose();
+        })
+        .catch(() => {
+          transtionsExcuteDataStore.setActionStatus('rejected');
+          onRequestClose();
+        });
     }
   }
   function getMultiplier(muti: number) {
@@ -3603,35 +3593,29 @@ export function UnStakeModal(props: {
         seed_id,
         unlock_amount: '0',
         withdraw_amount: toNonDivisibleNumber(DECIMALS, amount),
-      }).then((transactions) => {
-        transtionsExcuteDataStore.setActionStatus('pending');
-        executeMultipleTransactionsV2(transactions)
-          .then(() => {
-            transtionsExcuteDataStore.setActionStatus('resolved');
-            onRequestClose();
-          })
-          .catch(() => {
-            transtionsExcuteDataStore.setActionStatus('rejected');
-            onRequestClose();
-          });
-      });
+      })
+        .then(() => {
+          transtionsExcuteDataStore.setActionStatus('resolved');
+          onRequestClose();
+        })
+        .catch(() => {
+          transtionsExcuteDataStore.setActionStatus('rejected');
+          onRequestClose();
+        });
     } else if (lockStatus) {
       unStake_boost({
         seed_id,
         unlock_amount: toNonDivisibleNumber(DECIMALS, amount),
         withdraw_amount: '0',
-      }).then((transactions) => {
-        transtionsExcuteDataStore.setActionStatus('pending');
-        executeMultipleTransactionsV2(transactions)
-          .then(() => {
-            transtionsExcuteDataStore.setActionStatus('resolved');
-            onRequestClose();
-          })
-          .catch(() => {
-            transtionsExcuteDataStore.setActionStatus('rejected');
-            onRequestClose();
-          });
-      });
+      })
+        .then(() => {
+          transtionsExcuteDataStore.setActionStatus('resolved');
+          onRequestClose();
+        })
+        .catch(() => {
+          transtionsExcuteDataStore.setActionStatus('rejected');
+          onRequestClose();
+        });
     } else {
       force_unlock({
         seed_id,

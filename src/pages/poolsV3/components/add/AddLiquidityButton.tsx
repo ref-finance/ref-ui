@@ -18,7 +18,6 @@ import {
 } from 'src/components/button/Button';
 import { useWalletSelector } from '../../../../context/WalletSelectorContext';
 import { useTranstionsExcuteDataStore } from '../../../../stores/transtionsExcuteData';
-import { executeMultipleTransactionsV2 } from '../../../../services/near';
 import { addLiquidityTxHashHandle } from '../../../../services/commonV3';
 import { useHistory } from 'react-router-dom';
 
@@ -53,20 +52,18 @@ export function AddLiquidityButton() {
   function addLiquiditySpot() {
     setAddLiquidityButtonLoading(true);
     const new_liquidity = getLiquiditySpot();
-    add_liquidity(new_liquidity).then((transactions) => {
-      executeMultipleTransactionsV2(transactions)
-        .then(({ txHash }: any) => {
-          transtionsExcuteDataStore.setActionStatus('resolved');
-          addLiquidityTxHashHandle(txHash).then((link) => {
-            setAddLiquidityButtonLoading(false);
-            history.replace(link);
-          });
-        })
-        .catch(() => {
-          transtionsExcuteDataStore.setActionStatus('rejected');
+    add_liquidity(new_liquidity)
+      .then(({ txHash }: any) => {
+        transtionsExcuteDataStore.setActionStatus('resolved');
+        addLiquidityTxHashHandle(txHash).then((link) => {
           setAddLiquidityButtonLoading(false);
+          history.replace(link);
         });
-    });
+      })
+      .catch(() => {
+        transtionsExcuteDataStore.setActionStatus('rejected');
+        setAddLiquidityButtonLoading(false);
+      });
   }
   function addLiquidityForCurveAndBidAskMode() {
     /**
@@ -106,20 +103,18 @@ export function AddLiquidityButton() {
       amount_x: last_total_needed_token_x_amount.toFixed(),
       amount_y: last_total_needed_token_y_amount.toFixed(),
       selectedWalletId: selector.store.getState().selectedWalletId,
-    }).then((transactions) => {
-      executeMultipleTransactionsV2(transactions)
-        .then(({ txHash }: any) => {
-          transtionsExcuteDataStore.setActionStatus('resolved');
-          addLiquidityTxHashHandle(txHash).then((link) => {
-            setAddLiquidityButtonLoading(false);
-            history.replace(link);
-          });
-        })
-        .catch(() => {
-          transtionsExcuteDataStore.setActionStatus('rejected');
+    })
+      .then(({ txHash }: any) => {
+        transtionsExcuteDataStore.setActionStatus('resolved');
+        addLiquidityTxHashHandle(txHash).then((link) => {
           setAddLiquidityButtonLoading(false);
+          history.replace(link);
         });
-    });
+      })
+      .catch(() => {
+        transtionsExcuteDataStore.setActionStatus('rejected');
+        setAddLiquidityButtonLoading(false);
+      });
   }
   function getMax(token: TokenMetadata, balance: string) {
     return token.id !== WRAP_NEAR_CONTRACT_ID

@@ -7,6 +7,7 @@ import {
   REF_UNI_V3_SWAP_CONTRACT_ID,
   ONE_YOCTO_NEAR,
   refSwapV3OldVersionViewFunction,
+  executeMultipleTransactionsV2,
 } from './near';
 import {
   toNonDivisibleNumber,
@@ -901,8 +902,7 @@ export const add_liquidity = async ({
       ],
     });
   }
-  // return executeMultipleTransactions(transactions);
-  return transactions;
+  return await executeMultipleTransactionsV2(transactions);
 };
 
 export const batch_add_liquidity = async ({
@@ -1044,8 +1044,7 @@ export const batch_add_liquidity = async ({
       ],
     });
   }
-  // return executeMultipleTransactions(transactions);
-  return transactions;
+  return await executeMultipleTransactionsV2(transactions);
 };
 
 export const append_liquidity = async ({

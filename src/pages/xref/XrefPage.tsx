@@ -39,7 +39,6 @@ import {
 } from 'src/services/xref';
 import QuestionMark from 'src/components/farm/QuestionMark';
 import { WalletContext } from '../../utils/wallets-integration';
-import { executeMultipleTransactionsV2 } from '../../services/near';
 import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
@@ -449,26 +448,22 @@ function InputView(props: any) {
     transtionsExcuteDataStore.setActionStatus('pending');
     if (tab == 0) {
       // stake
-      stake({ amount }).then((transactions) => {
-        executeMultipleTransactionsV2(transactions)
-          .then(() => {
-            transtionsExcuteDataStore.setActionStatus('resolved');
-          })
-          .catch(() => {
-            transtionsExcuteDataStore.setActionStatus('rejected');
-          });
-      });
+      stake({ amount })
+        .then(() => {
+          transtionsExcuteDataStore.setActionStatus('resolved');
+        })
+        .catch(() => {
+          transtionsExcuteDataStore.setActionStatus('rejected');
+        });
     } else if (tab == 1) {
       // unstake
-      unstake({ amount }).then((transactions) => {
-        executeMultipleTransactionsV2(transactions)
-          .then(() => {
-            transtionsExcuteDataStore.setActionStatus('resolved');
-          })
-          .catch(() => {
-            transtionsExcuteDataStore.setActionStatus('rejected');
-          });
-      });
+      unstake({ amount })
+        .then(() => {
+          transtionsExcuteDataStore.setActionStatus('resolved');
+        })
+        .catch(() => {
+          transtionsExcuteDataStore.setActionStatus('rejected');
+        });
     }
   };
   const buttonStatus =
