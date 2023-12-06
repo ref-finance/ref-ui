@@ -39,7 +39,7 @@ import {
   get_orderly_private_key_path,
   get_orderly_public_key_path,
 } from '../pages/Orderly/orderly/utils';
-import { TRANSACTION_WALLET_TYPE } from '../components/layout/transactionTipPopUp';
+import { useLoginAccountDataStore } from '../stores/loginAccountData';
 
 const CONTRACT_ID = getOrderlyConfig().ORDERLY_ASSET_MANAGER;
 
@@ -58,10 +58,6 @@ declare global {
 interface WalletSelectorContextValue {
   selector: WalletSelector;
   modal: WalletSelectorModal;
-  accounts: Array<AccountState>;
-  accountId: string | null;
-  setAccountId: (accountId: string) => void;
-  isLedger: boolean;
 }
 
 const WalletSelectorContext =
@@ -73,7 +69,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
   const [accountId, setAccountId] = useState<string | null>(null);
   const [accounts, setAccounts] = useState<Array<AccountState>>([]);
   const [isLedger, setIsLedger] = useState<boolean>(undefined);
-
+  const loginAccountDataStore = useLoginAccountDataStore();
   // get Account Id
   const syncAccountState = (
     currentAccountId: string | null,
@@ -83,7 +79,8 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
       localStorage.removeItem(ACCOUNT_ID_KEY);
       setAccountId(null);
       setAccounts([]);
-
+      loginAccountDataStore.setAccountId(null);
+      loginAccountDataStore.setAccounts([]);
       return;
     }
 
@@ -97,6 +94,8 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
     localStorage.setItem(ACCOUNT_ID_KEY, newAccountId);
     setAccountId(newAccountId);
     setAccounts(newAccounts);
+    loginAccountDataStore.setAccountId(newAccountId);
+    loginAccountDataStore.setAccounts(newAccounts);
   };
 
   const init = useCallback(async () => {
@@ -162,15 +161,14 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
           });
       });
   }, [init]);
-
   // todoxxxx 此处有删除
-
   useEffect(() => {
     if (!accountId || !selector) return;
     const isSelectLedger =
       selector.store.getState().selectedWalletId === 'ledger';
 
     setIsLedger(isSelectLedger);
+    loginAccountDataStore.setIsLedger(isSelectLedger);
   }, [accountId, selector]);
 
   window.selectorAccountId = accountId;
@@ -200,15 +198,14 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
       }
     });
   }
+  if (!selector || !modal) {
+    return null;
+  }
   return (
     <WalletSelectorContext.Provider
       value={{
         selector,
         modal,
-        accounts,
-        accountId,
-        setAccountId,
-        isLedger,
       }}
     >
       {children}
@@ -218,12 +215,21 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
 
 export function useWalletSelector() {
   const context = useContext(WalletSelectorContext);
-
+  const loginAccountDataStore = useLoginAccountDataStore();
   if (!context) {
     throw new Error(
       'useWalletSelector must be used within a WalletSelectorContextProvider'
     );
   }
-
-  return context;
+  const accountId = loginAccountDataStore.getAccountId();
+  const accounts = loginAccountDataStore.getAccounts();
+  const isLedger = loginAccountDataStore.getIsLedger();
+  const setAccountId = loginAccountDataStore.setAccountId;
+  return {
+    ...context,
+    accountId,
+    accounts,
+    isLedger,
+    setAccountId,
+  };
 }

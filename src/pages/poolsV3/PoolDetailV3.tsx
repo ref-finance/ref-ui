@@ -79,13 +79,15 @@ export default function PoolDetailV3() {
   useRemoveLiquidityUrlHandle();
   useEffect(() => {
     get_pool_detail();
-    get_user_list_liquidities();
     getBoostTokenPrices().then(setTokenPriceList);
     getWatchListFromDb({ pool_id: pool_id_from_url }).then((watchlist) => {
       setShowFullStar(watchlist.length > 0);
     });
     get_matched_seeds();
   }, []);
+  useEffect(() => {
+    get_user_list_liquidities();
+  }, [isSignedIn]);
   const history = useHistory();
   if (DCL_POOL_BLACK_LIST.includes(pool_id_from_url)) {
     history.push('/pools');
