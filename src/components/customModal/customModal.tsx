@@ -57,9 +57,9 @@ const CustomModal = ({
           }`}
         >
           <div className="modal-content" style={styles}>
-            {title && (
-              <div className="modal-header flex text-white gap-4">
-                {title && <div className={'modal-title'}>{title}</div>}
+            {(title || onClose) && (
+              <div className={`modal-header flex text-white gap-4`}>
+                <div className={'modal-title'}>{title}</div>
                 {onClose && (
                   <div onClick={onClose} style={{ cursor: 'pointer' }}>
                     <CloseButtonWallet />

@@ -82,7 +82,10 @@ export function useCurHoldings(
     if (!accountId) return;
 
     getCurrentHolding({ accountId }).then((res) => {
-      setHoldings(res.data.holding);
+      if (!res?.data?.holding) {
+        console.info('getCurrentHoldingFailed', res?.message);
+      }
+      setHoldings(res?.data?.holding);
     });
   }, [accountId, validAccountSig]);
 
