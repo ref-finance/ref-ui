@@ -179,7 +179,7 @@ export default function FarmsDclDetail(props: {
     listLiquidities_inFarimg.length,
     listLiquidities_unFarimg.length,
   ]);
-
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
   const canStake = useMemo(() => {
     if (!listLiquiditiesLoading) {
       const { canStake } = get_stake_info();
@@ -895,18 +895,6 @@ export default function FarmsDclDetail(props: {
       </>
     );
   }
-  function claimReward() {
-    if (claimLoading) return;
-    setClaimLoading(true);
-    claimRewardBySeed_boost(detailData.seed_id)
-      // .then(() => {
-      //   window.location.reload();
-      // })
-      .catch((error) => {
-        setClaimLoading(false);
-        // setError(error);
-      });
-  }
   function rewardRangeTip() {
     const tip = intl.formatMessage({ id: 'reward_range_tip' });
     let result: string = `<div class="text-farmText text-xs text-left">${tip}</div>`;
@@ -1021,12 +1009,32 @@ export default function FarmsDclDetail(props: {
       total_v_liquidity,
       withdraw_amount,
       seed_id: detailData.seed_id,
+    }).then((transactions) => {
+      executeMultipleTransactionsV2(transactions)
+        .then(() => {
+          transtionsExcuteDataStore.setActionStatus('resolved');
+          set_nft_stake_loading(false);
+        })
+        .catch(() => {
+          transtionsExcuteDataStore.setActionStatus('rejected');
+          set_nft_stake_loading(false);
+        });
     });
   }
   function batchUnStakeNFT() {
     set_nft_unStake_loading(true);
     const unStake_info: IStakeInfo = get_unStake_info();
-    batch_unStake_boost_nft(unStake_info);
+    batch_unStake_boost_nft(unStake_info).then((transactions) => {
+      executeMultipleTransactionsV2(transactions)
+        .then(() => {
+          transtionsExcuteDataStore.setActionStatus('resolved');
+          set_nft_unStake_loading(false);
+        })
+        .catch(() => {
+          transtionsExcuteDataStore.setActionStatus('rejected');
+          set_nft_unStake_loading(false);
+        });
+    });
   }
   function get_stake_info(): IStakeInfo {
     const { seed_id, min_deposit } = detailData;
@@ -1563,13 +1571,22 @@ function UserTotalUnClaimBlock(props: {
   const [showDetail, setShowDetail] = useState(false);
   const { seed_id } = detailData;
   const { globalState } = useContext(WalletContext);
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
   const isSignedIn = globalState.isSignedIn;
   const intl = useIntl();
   function claimReward() {
     if (claimLoading) return;
     setClaimLoading(true);
-    claimRewardBySeed_boost(detailData.seed_id).catch((error) => {
-      setClaimLoading(false);
+    claimRewardBySeed_boost(detailData.seed_id).then((transactions) => {
+      executeMultipleTransactionsV2(transactions)
+        .then(() => {
+          transtionsExcuteDataStore.setActionStatus('resolved');
+          setClaimLoading(false);
+        })
+        .catch(() => {
+          transtionsExcuteDataStore.setActionStatus('rejected');
+          setClaimLoading(false);
+        });
     });
   }
   function getTotalUnclaimedRewards() {

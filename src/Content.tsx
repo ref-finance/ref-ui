@@ -93,10 +93,6 @@ export function Content() {
       }));
   }, [accountId]);
   useEffect(() => {
-    // todoxxxx
-    console.log('99999999999999-content 重新load');
-  }, []);
-  useEffect(() => {
     if (!accountId || !selector) {
       return null;
     }

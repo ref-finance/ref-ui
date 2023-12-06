@@ -93,10 +93,7 @@ import { useAccountInfo, LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import { VEARROW } from '../icon/Referendum';
 import Countdown, { zeroPad } from 'react-countdown';
 import { MoreButtonIcon } from '../../components/icon/Common';
-import {
-  useTranstionsExcuteDataStore,
-  IExcuteStatus,
-} from '../../stores/transtionsExcuteData';
+import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
 import { executeMultipleTransactionsV2 } from '../../services/near';
 
 import _ from 'lodash';
@@ -213,18 +210,10 @@ export default function FarmsHome(props: any) {
   const [has_dcl_farms_in_display_list, set_has_dcl_farms_in_display_list] =
     useState(true);
   const [your_seeds_quantity, set_your_seeds_quantity] = useState('-');
-  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
-  const actionStatus: IExcuteStatus =
-    transtionsExcuteDataStore.getActionStatus();
   /** search area options end **/
   useEffect(() => {
     initCall();
   }, [isSignedIn]);
-  useEffect(() => {
-    if (actionStatus == 'resolved' || actionStatus == 'rejected') {
-      initCall();
-    }
-  }, [actionStatus]);
   useEffect(() => {
     if (count > 0) {
       init();
@@ -2309,7 +2298,6 @@ function FarmView(props: {
   const [dclCalcVisible, setDclCalcVisible] = useState(false);
   const [error, setError] = useState<Error>();
   const [aprSwitchStatus, setAprSwitchStatus] = useState('1');
-  const [lpSwitchStatus, setLpSwitchStatus] = useState('1');
   const [yourApr, setYourApr] = useState('');
   const [yourActualAprRate, setYourActualAprRate] = useState('1');
   const tokens = sortTokens(seed.pool.tokens_meta_data);
@@ -2366,18 +2354,6 @@ function FarmView(props: {
       const pendingFarm = item.status == 'Created' || item.status == 'Pending';
       if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
         apr = new BigNumber(apr).plus(item.apr).toFixed();
-      }
-    });
-    return apr;
-  }
-  function getActualTotalBaseApr() {
-    const farms = seed.farmList;
-    let apr = 0;
-    const allPendingFarms = isPending();
-    farms.forEach(function (item: FarmBoost) {
-      const pendingFarm = item.status == 'Created' || item.status == 'Pending';
-      if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
-        apr = +new BigNumber(apr).plus(item.baseApr).toFixed();
       }
     });
     return apr;

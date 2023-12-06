@@ -129,7 +129,6 @@ export default function FarmsDetail(props: {
     user_unclaimed_map = {},
     user_unclaimed_token_meta_map = {},
   } = user_data;
-  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
   const history = useHistory();
   const intl = useIntl();
   const pool = detailData.pool;
@@ -346,8 +345,6 @@ function StakeContainer(props: {
     user_data_loading,
     dayVolumeMap,
   } = props;
-  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
-  const actionStatus = transtionsExcuteDataStore.getActionStatus();
   const pool = detailData.pool;
   const intl = useIntl();
   function totalTvlPerWeekDisplay() {
@@ -522,7 +519,7 @@ function StakeContainer(props: {
   useEffect(() => {
     getPoolFee();
     get_ve_seed_share();
-  }, [actionStatus]);
+  }, []);
   async function get_ve_seed_share() {
     const result = await getVeSeedShare();
     const maxShareObj = result?.accounts?.accounts[0] || {};
@@ -536,13 +533,13 @@ function StakeContainer(props: {
   }
   useEffect(() => {
     getStakeBalance();
-  }, [Object.keys(user_seeds_map).length, user_data_loading, actionStatus]);
+  }, [Object.keys(user_seeds_map).length, user_data_loading]);
   useEffect(() => {
     const yourApr = getYourApr();
     if (yourApr) {
       setYourApr(yourApr);
     }
-  }, [boostConfig, user_seeds_map, actionStatus]);
+  }, [boostConfig, user_seeds_map]);
   async function getPoolFee() {
     const feeCache = dayVolumeMap && dayVolumeMap[pool.id];
     if (feeCache) {
@@ -1327,14 +1324,12 @@ function PoolDetailCard({
   const [showDetail, setShowDetail] = useState(false);
   const [poolTVL, setPoolTVl] = useState<string>('');
   const h24Volume = useDayVolume(pool.id.toString());
-  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
-  const actionStatus = transtionsExcuteDataStore.getActionStatus();
 
   useEffect(() => {
     getPool(pool.id.toString()).then((pool) => {
       setPoolTVl(pool.tvl.toString());
     });
-  }, [actionStatus]);
+  }, []);
 
   const DetailRow = ({
     value,
@@ -2198,38 +2193,30 @@ function UserStakeBlock(props: {
   const xlocked_amount = toReadableNumber(DECIMALS, x_locked_amount);
   const slashRate = slash_rate / 10000;
   const intl = useIntl();
-  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
-  const actionStatus = transtionsExcuteDataStore.getActionStatus();
   useEffect(() => {
     get_server_time();
-  }, [actionStatus]);
-  useEffect(
-    () => {
-      const { free_amount, locked_amount } = user_seeds_map[seed_id] || {};
-      const yourLp = toReadableNumber(
-        seed_decimal,
-        new BigNumber(free_amount || 0).plus(locked_amount || 0).toFixed()
-      );
-      const { tvl, id, shares_total_supply } = pool;
-      const DECIMALS = new Set(STABLE_POOL_IDS || []).has(id?.toString())
-        ? LP_STABLE_TOKEN_DECIMALS
-        : LP_TOKEN_DECIMALS;
-      const poolShares = Number(
-        toReadableNumber(DECIMALS, shares_total_supply)
-      );
-      const yourTvl =
-        poolShares == 0
-          ? 0
-          : Number(
-              toPrecision(((Number(yourLp) * tvl) / poolShares).toString(), 2)
-            );
-      if (yourTvl) {
-        setYourTvl(yourTvl.toString());
-      }
-    },
-    [Object.keys(user_seeds_map || {})],
-    actionStatus
-  );
+  }, []);
+  useEffect(() => {
+    const { free_amount, locked_amount } = user_seeds_map[seed_id] || {};
+    const yourLp = toReadableNumber(
+      seed_decimal,
+      new BigNumber(free_amount || 0).plus(locked_amount || 0).toFixed()
+    );
+    const { tvl, id, shares_total_supply } = pool;
+    const DECIMALS = new Set(STABLE_POOL_IDS || []).has(id?.toString())
+      ? LP_STABLE_TOKEN_DECIMALS
+      : LP_TOKEN_DECIMALS;
+    const poolShares = Number(toReadableNumber(DECIMALS, shares_total_supply));
+    const yourTvl =
+      poolShares == 0
+        ? 0
+        : Number(
+            toPrecision(((Number(yourLp) * tvl) / poolShares).toString(), 2)
+          );
+    if (yourTvl) {
+      setYourTvl(yourTvl.toString());
+    }
+  }, [Object.keys(user_seeds_map || {})]);
 
   const get_server_time = async () => {
     const timestamp = await getServerTime();
@@ -2886,7 +2873,6 @@ export function StakeModal(props: {
   const [estimatedRewards, setEstimatedRewards] = useState<any[]>();
   const intl = useIntl();
   const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
-  const actionStatus = transtionsExcuteDataStore.getActionStatus();
   useEffect(() => {
     if (stakeType !== 'free') {
       const goldList = [
@@ -2936,10 +2922,10 @@ export function StakeModal(props: {
         setSelectedLockData(list[0]);
       });
     }
-  }, [stakeType, actionStatus]);
+  }, [stakeType]);
   useEffect(() => {
     getSelectedLockRewardsData();
-  }, [amount, selectedLockData, actionStatus]);
+  }, [amount, selectedLockData]);
   const displaySymbols = () => {
     let result = '';
     const tokens = sort_tokens_by_base(pool.tokens_meta_data);

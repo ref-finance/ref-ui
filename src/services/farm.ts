@@ -1415,7 +1415,8 @@ export const batch_unStake_boost_nft = async ({
     });
   }
 
-  return executeFarmMultipleTransactions(transactions);
+  // return executeFarmMultipleTransactions(transactions);
+  return transactions;
 };
 export const batch_stake_boost_nft = async ({
   liquidities,
@@ -1535,7 +1536,8 @@ export const batch_stake_boost_nft = async ({
       functionCalls: [storageDepositAction({ amount: neededStorage })],
     });
   }
-  return executeFarmMultipleTransactions(transactions);
+  // return executeFarmMultipleTransactions(transactions);
+  return transactions;
 };
 function liquidity_is_in_other_seed(seed_id: string, mft_id: string) {
   const [contractId, temp_pool_id] = seed_id.split('@');
