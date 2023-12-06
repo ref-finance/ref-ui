@@ -9,6 +9,7 @@ import {
   IoIosCheckmarkCircleOutline,
 } from 'src/components/reactIcons';
 import getConfig from 'src/services/config';
+import { useTranstionsExcuteDataStore } from 'src/stores/transtionsExcuteData';
 
 const { explorerUrl } = getConfig();
 export const modalTransactionSubmitting = () => {
@@ -39,9 +40,30 @@ export const modalTransactionSubmitting = () => {
 };
 
 export const ModalTransactionSubmitting = ({ isOpen, onClose, data }) => {
-  const { selectTrade, transactionResponse, isSuccess } = data || {};
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+  //console.info('ModalTransactionSubmitting', transtionsExcuteDataStore);
+  const { actionStatus, actionData, setActionStatus } =
+    transtionsExcuteDataStore || {};
+  const { selectTrade, transactionResponse } = actionData || {};
 
-  let node;
+  const isComplete = actionStatus === 'resolved';
+  const canClose = actionStatus === 'resolved';
+  const isOpenModal = ['pending', 'resolved'].includes(actionStatus);
+
+  useEffect(() => {
+    switch (actionStatus) {
+      case 'pending':
+        localStorage.setItem(CONST_TRANSACTION_SUBMITTING, '1');
+        break;
+      case 'none':
+      case 'rejected':
+      case 'resolved':
+        localStorage.removeItem(CONST_TRANSACTION_SUBMITTING);
+        break;
+    }
+  }, [actionStatus]);
+
+  let node = null;
   let headerNode = 'Transaction Confirming';
   let footerNode = <div>Confirm the transaction in your wallet.</div>;
   let loadingNode = <BlueCircleLoading />;
@@ -71,7 +93,7 @@ export const ModalTransactionSubmitting = ({ isOpen, onClose, data }) => {
       </>
     );
   }
-  if (isSuccess) {
+  if (isComplete) {
     headerNode = 'Transaction Complete';
     loadingNode = (
       <div className={'text-greenColor'} style={{ fontSize: 60 }}>
@@ -94,11 +116,14 @@ export const ModalTransactionSubmitting = ({ isOpen, onClose, data }) => {
     );
   }
 
-  const canClose = isSuccess;
+  const handleClose = () => {
+    setActionStatus('none');
+  };
+
   return (
     <CustomModal
-      isOpen={isOpen}
-      onClose={canClose && onClose}
+      isOpen={isOpenModal}
+      onClose={canClose && handleClose}
       className={'modal-transaction-submitting'}
     >
       <div className={'-loading-info'}>

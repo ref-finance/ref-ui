@@ -140,11 +140,13 @@ export default function SwapFormWrap({
           setShowSwapLoading &&
           setLoadingPause(true);
         onSubmit(event);
+        setShowSwapLoading(false);
       } catch (err) {
         setError(err);
       }
     }
   };
+
   function goPoolsPage() {
     const poolId = mostPoolDetail?.pool_id;
     if (poolId) {

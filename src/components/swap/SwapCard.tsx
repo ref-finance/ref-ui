@@ -89,11 +89,9 @@ import {
   MdOutlineRefresh,
   BsArrowRight,
 } from '../reactIcons';
-import {
-  ModalTransactionSubmitting,
-  modalTransactionSubmitting,
-} from 'src/components/transaction/modalTransactionSubmitting';
+
 import { showTransactionErrorToast } from 'src/components/toast/showTransactionToast';
+import { useTranstionsExcuteDataStore } from 'src/stores/transtionsExcuteData';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -738,17 +736,12 @@ export default function SwapCard(props: {
   const [balanceInDone, setBalanceInDone] = useState<boolean>(false);
   const [balanceOutDone, setBalanceOutDone] = useState<boolean>(false);
   const [quoting, setQuoting] = useState<boolean>(true);
-  const [modal, setModal] = useState({
-    name: '',
-    data: null,
-  });
 
   const intl = useIntl();
   const location = useLocation();
   const history = useHistory();
 
-  const { transactionSubmitting, updateTransactionSubmitting } =
-    modalTransactionSubmitting();
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
 
   const { selectMarket, trades, enableTri, swapType } =
     useContext(SwapProContext);
@@ -1102,60 +1095,26 @@ export default function SwapCard(props: {
 
   const handleSwapSubmit = async () => {
     if (selectTrade) {
-      updateTransactionSubmitting(true);
-      setModal({
-        name: 'transactionModal',
-        data: { selectTrade },
-      });
+      transtionsExcuteDataStore.setActionStatus('pending');
+      transtionsExcuteDataStore.setActionData({ selectTrade });
       try {
         const swapRes = await selectTrade.makeSwap();
         doubleCheckOpen && setDoubleCheckOpen(false);
         setShowSwapLoading(false);
-        setModal({
-          name: 'transactionModal',
-          data: {
-            isSuccess: true,
-            selectTrade,
-            transactionResponse: swapRes?.response,
-          },
+        transtionsExcuteDataStore.setActionStatus('resolved');
+        transtionsExcuteDataStore.setActionData({
+          isSuccess: true,
+          selectTrade,
+          transactionResponse: swapRes?.response,
         });
       } catch (e) {
         doubleCheckOpen && setDoubleCheckOpen(false);
         showTransactionErrorToast(e?.message);
         setShowSwapLoading(false);
-        updateTransactionSubmitting(false);
-        setModal({
-          name: '',
-          data: null,
-        });
-      }
-      // selectTrade.makeSwap((isSuccess, data) => {
-      //   doubleCheckOpen && setDoubleCheckOpen(false);
-      //   if (isSuccess) {
-      //     setModal({
-      //       name: 'transactionModal',
-      //       data: {
-      //         isSuccess: true,
-      //         selectTrade,
-      //         transactionResponse: data?.response,
-      //       },
-      //     });
-      //   } else {
-      //     updateTransactionSubmitting(false);
-      //     setModal({
-      //       name: '',
-      //       data: null,
-      //     });
-      //   }
-      // });
-    }
-  };
 
-  const handleModalClose = () => {
-    setModal({
-      name: '',
-      data: null,
-    });
+        transtionsExcuteDataStore.setActionStatus('none');
+      }
+    }
   };
 
   const handleSubmit_wrap = (e: any) => {
@@ -1479,12 +1438,6 @@ export default function SwapCard(props: {
           setShowSkywardTip(false);
         }}
         isOpen={showSkywardTip}
-      />
-
-      <ModalTransactionSubmitting
-        isOpen={modal?.name === 'transactionModal'}
-        onClose={handleModalClose}
-        data={modal?.data}
       />
     </>
   );

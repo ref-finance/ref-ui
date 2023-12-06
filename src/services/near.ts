@@ -612,7 +612,7 @@ export const refFarmBoostFunctionCall = async ({
     ],
   };
 
-  return await executeMultipleTransactionsV2([transaction]);
+  return executeMultipleTransactionsV2([transaction]);
 };
 
 export const ftGetNearBalance = async () => {
