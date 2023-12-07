@@ -3094,10 +3094,8 @@ function FarmView(props: {
                   {totalTvlPerWeekDisplay()}/<FormattedMessage id="week" />
                 </span>
               </div>
-              <CustomTooltip
-                id={'rewardPerWeekId' + seed?.farmList[0]?.farm_id}
-              />
             </div>
+
             <div className="flex items-center justify-between">
               {error ? <Alert level="warn" message={error.message} /> : null}
             </div>
@@ -3355,6 +3353,7 @@ function FarmView(props: {
             </div>
           ) : null}
         </div>
+        <CustomTooltip id={'rewardPerWeekId' + seed?.farmList[0]?.farm_id} />
       </div>
       {calcVisible ? (
         <CalcModelBooster
