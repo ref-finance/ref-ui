@@ -2,16 +2,13 @@ import React, { useEffect, useState, useContext, useMemo } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import Modal from 'react-modal';
 import { Card } from 'src/components/card/Card';
-import { ActionModel } from 'src/pages/AccountPage';
 import {
   useMonthTVL,
   useMonthVolume,
   usePool,
   useRemoveLiquidity,
   volumeDataType,
-  volumeType,
   TVLDataType,
-  TVLType,
   useDayVolume,
   useClassicPoolTransaction,
   useIndexerStatus,
@@ -21,24 +18,12 @@ import {
   addPoolToWatchList,
   getWatchListFromDb,
   Pool,
-  PoolDetails,
   removePoolFromWatchList,
 } from 'src/services/pool';
-import {
-  useTokenBalances,
-  useTokens,
-  getDepositableBalance,
-} from 'src/state/token';
+import { useTokens, getDepositableBalance } from 'src/state/token';
 import Loading from 'src/components/layout/Loading';
-import { FarmMiningIcon } from 'src/components/icon/FarmMining';
 import { FarmStamp, FarmStampNew } from 'src/components/icon/FarmStamp';
 import { ChartLoading } from 'src/components/icon/Loading';
-import {
-  REF_FARM_CONTRACT_ID,
-  REF_FI_CONTRACT_ID,
-  STABLE_POOL_ID,
-  REF_FARM_BOOST_CONTRACT_ID,
-} from 'src/services/near';
 import { PoolSlippageSelector } from 'src/components/forms/SlippageSelector';
 import { Link } from 'react-router-dom';
 import { canFarm } from 'src/services/pool';
@@ -51,7 +36,6 @@ import {
   toReadableNumber,
   toInternationalCurrencySystem,
   toRoundedReadableNumber,
-  percentOf,
 } from '../../utils/numbers';
 import { ftGetTokenMetadata, TokenMetadata } from 'src/services/ft-contract';
 import Alert from 'src/components/alert/Alert';
@@ -60,12 +44,7 @@ import { isMobile } from 'src/utils/device';
 import ReactModal from 'react-modal';
 import { toRealSymbol } from 'src/utils/token';
 
-import {
-  BackArrowWhite,
-  BackArrowGray,
-  ModalClose,
-  Near,
-} from 'src/components/icon';
+import { ModalClose } from 'src/components/icon';
 import { useHistory } from 'react-router';
 import { getPool } from 'src/services/indexer';
 import { BigNumber } from 'bignumber.js';
@@ -75,9 +54,7 @@ import {
   WatchListStartFullMobile,
 } from 'src/components/icon/WatchListStar';
 import {
-  OutlineButton,
   SolidButton,
-  FarmButton,
   ButtonTextWrapper,
   ConnectToNearBtn,
 } from 'src/components/button/Button';
@@ -163,9 +140,18 @@ import {
 import { openUrl } from '../../services/commonV3';
 import { numberWithCommas } from '../Orderly/utiles';
 import { HiOutlineExternalLink, HiOutlineLink } from 'react-icons/hi';
-const STABLE_POOL_IDS = getConfig().STABLE_POOL_IDS;
 import { PoolRefreshModal } from './PoolRefreshModal';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
+import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
+import { PageContainer } from '../../components/layout/PageContainer';
+
+export default function Container(props: any) {
+  return (
+    <PageContainer>
+      <PoolDetailsPage {...props} />
+    </PageContainer>
+  );
+}
 
 interface ParamTypes {
   id: string;
@@ -461,6 +447,7 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
   const isSignedIn = globalState.isSignedIn;
 
   balances && (balances[WRAP_NEAR_CONTRACT_ID] = nearBalance);
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
 
   const changeFirstTokenAmount = (amount: string) => {
     setError(null);
@@ -631,8 +618,6 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
 
     if (secondTokenAmountBN.isGreaterThan(secondTokenBalanceBN)) {
       setCanDeposit(true);
-      // setMessageId('deposit_to_add_liquidity');
-      // setDefaultMessage('Deposit to Add Liquidity');
       const { id, decimals } = tokens[1];
       const modalData: any = {
         token: tokens[1],
@@ -688,7 +673,13 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
         { token: tokens[0], amount: firstTokenAmount },
         { token: tokens[1], amount: secondTokenAmount },
       ],
-    });
+    })
+      .then(() => {
+        transtionsExcuteDataStore.setActionStatus('resolved');
+      })
+      .catch(() => {
+        transtionsExcuteDataStore.setActionStatus('rejected');
+      });
   }
 
   const ButtonRender = () => {
@@ -991,7 +982,7 @@ export function RemoveLiquidityModal(
   });
 
   const { stakeList, v2StakeList, finalStakeList } = useYourliquidity(poolId);
-
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
   const farmStakeV1 = useFarmStake({ poolId, stakeList });
   const farmStakeV2 = useFarmStake({ poolId, stakeList: v2StakeList });
   const farmStakeTotal = useFarmStake({ poolId, stakeList: finalStakeList });
@@ -1021,7 +1012,13 @@ export function RemoveLiquidityModal(
     }
     setButtonLoading(true);
     localStorage.setItem(REF_FI_PRE_LIQUIDITY_ID_KEY, pool.id.toString());
-    return removeLiquidity();
+    return removeLiquidity()
+      .then(() => {
+        transtionsExcuteDataStore.setActionStatus('resolved');
+      })
+      .catch(() => {
+        transtionsExcuteDataStore.setActionStatus('rejected');
+      });
   }
 
   function handleChangeAmount(value: string) {
@@ -2142,7 +2139,7 @@ export function TVLChart({
   );
 }
 
-export default function PoolDetailsPage() {
+function PoolDetailsPage() {
   const { id } = useParams<ParamTypes>();
   const { state } = useLocation<LocationTypes>();
   const { pool, shares, finalStakeList: stakeList } = usePool(id);

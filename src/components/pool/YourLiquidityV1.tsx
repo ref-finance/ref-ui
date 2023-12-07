@@ -2422,7 +2422,6 @@ export function YourLiquidityAddLiquidityModal(
     );
   };
 
-  // if (!selectTokens) return <Loading />;
   if (!selectTokens) return null;
 
   return (

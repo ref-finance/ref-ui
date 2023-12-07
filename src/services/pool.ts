@@ -7,6 +7,7 @@ import {
   Transaction,
   RefFiFunctionCallOptions,
   BLACKLIST_POOL_IDS,
+  executeMultipleTransactionsV2,
 } from './near';
 import db from '../store/RefDatabase';
 import {
@@ -753,8 +754,6 @@ export const addLiquidityToPool = async ({
   id,
   tokenAmounts,
 }: AddLiquidityToPoolOptions) => {
-  // const transactions:Transaction[] = []
-
   const amounts = tokenAmounts.map(({ token, amount }) =>
     toNonDivisibleNumber(token.decimals, amount)
   );
@@ -794,8 +793,7 @@ export const addLiquidityToPool = async ({
       });
     }
   }
-
-  return executeMultipleTransactions(transactions);
+  return await executeMultipleTransactionsV2(transactions);
 };
 
 export const predictLiquidityShares = async (
@@ -805,7 +803,7 @@ export const predictLiquidityShares = async (
 ): Promise<string> => {
   return refFiViewFunction({
     methodName: 'predict_add_stable_liquidity',
-    args: { pool_id: pool_id, amounts },
+    args: { pool_id, amounts },
   });
 };
 
@@ -995,7 +993,7 @@ export const removeLiquidityFromPool = async ({
     );
   }
 
-  return executeMultipleTransactions(transactions);
+  return await executeMultipleTransactionsV2(transactions);
 };
 
 export const predictRemoveLiquidity = async (
