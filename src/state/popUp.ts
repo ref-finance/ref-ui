@@ -17,15 +17,8 @@ import { NEAR_WITHDRAW_KEY } from '../components/forms/WrapNear';
 import showToast from 'src/components/toast/showToast';
 
 export const useGlobalPopUp = (globalState: any) => {
-  const {
-    txHash,
-    pathname,
-    errorType,
-    errorCode,
-    errorMessage,
-    signInErrorType,
-    txHashes,
-  } = getURLInfo();
+  const { txHash, pathname, errorType, signInErrorType, txHashes } =
+    getURLInfo();
   const isSignedIn = globalState.isSignedIn;
 
   const walletsTXError = sessionStorage.getItem('WALLETS_TX_ERROR');
@@ -105,20 +98,15 @@ export const useGlobalPopUp = (globalState: any) => {
   }, [txHash, isSignedIn]);
 
   useEffect(() => {
-    let txError = walletsTXError;
-    if (errorCode) {
-      txError =
-        (errorMessage && decodeURI(errorMessage)) || errorCode || errorType;
-    }
-    if (txError) {
+    if (walletsTXError) {
       let toast = {
         title: 'Error',
-        desc: txError,
+        desc: walletsTXError,
         isError: true,
         isWarning: false,
       };
 
-      if (walletsRejectError.includes(txError)) {
+      if (walletsRejectError.includes(walletsTXError)) {
         toast.isError = false;
         toast.isWarning = true;
         // toast.desc =
@@ -129,5 +117,5 @@ export const useGlobalPopUp = (globalState: any) => {
       showToast(toast);
       sessionStorage.removeItem('WALLETS_TX_ERROR');
     }
-  }, [walletsTXError, errorCode]);
+  }, [walletsTXError]);
 };

@@ -2207,6 +2207,26 @@ export default function PoolDetailsPage() {
           search: '',
         });
       }
+      if (isError) {
+        let toast = {
+          title: 'Error',
+          desc: errorMessage,
+          isError: true,
+          isWarning: false,
+        };
+        if (errorCode === CONST_SWAP_CALLBACK_ERROR_CODE.userRejected) {
+          toast.desc =
+            'User rejected the request. Details: \n' +
+            'NearWallet Tx Signature: User denied transaction signature. ';
+          toast.isWarning = true;
+          toast.isError = false;
+        }
+
+        showToast(toast);
+        history.replace({
+          search: '',
+        });
+      }
     }
   }, [transactionResult]);
 

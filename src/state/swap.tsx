@@ -338,6 +338,22 @@ export const useSwapPopUp = () => {
         });
     }
   }, [txHash]);
+
+  useEffect(() => {
+    if (errorCode) {
+      let toast = {
+        title: 'Error',
+        desc: errorMessage || errorCode,
+        isWarning: true,
+      };
+      if (errorCode === CONST_SWAP_CALLBACK_ERROR_CODE.userRejected) {
+        toast.desc =
+          'User rejected the request. Details: \n' +
+          'NearWallet Tx Signature: User denied transaction signature. ';
+      }
+      showToast(toast);
+    }
+  }, [errorCode]);
 };
 
 export const useCrossSwapPopUp = () => {
@@ -662,9 +678,8 @@ export const useSwap = ({
       swapMarket: 'ref',
     })
       .then((d) => {
-        if (d) {
-          cb && cb(true, d);
-        }
+        cb && cb(true, d);
+        0;
       })
       .catch((e) => {
         showTransactionErrorToast(e?.message);
