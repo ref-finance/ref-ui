@@ -316,10 +316,10 @@ export interface Transaction {
 
 export const executeMultipleTransactions = async (
   transactions: Transaction[],
-  callbackUrl?: string,
-  isThrowError?: boolean
+  callbackUrl?: string
 ) => {
   const { wallet } = getCurrentWallet();
+
   const wstransactions: WSTransaction[] = [];
 
   transactions.forEach((transaction) => {
@@ -341,39 +341,42 @@ export const executeMultipleTransactions = async (
   });
 
   await ledgerTipTrigger(wallet);
-  try {
-    const walletRes = await wallet.wallet();
-    const res = await walletRes.signAndSendTransactions({
+
+  return (await wallet.wallet())
+    .signAndSendTransactions({
       transactions: wstransactions,
       callbackUrl,
-    });
-    if (!res) return;
-    const transactionHashes = (Array.isArray(res) ? res : [res])?.map(
-      (r) => r.transaction.hash
-    );
-    const parsedTransactionHashes = transactionHashes?.join(',');
-    const newHref = addQueryParams(
-      window.location.origin + window.location.pathname,
-      {
-        [TRANSACTION_WALLET_TYPE.WalletSelector]: parsedTransactionHashes,
-      }
-    );
-    if (isThrowError) {
-      return {
-        response: res,
-        callbackUrl: newHref,
-      };
-    } else {
+    })
+    .then((res) => {
+      if (!res) return;
+
+      const transactionHashes = (Array.isArray(res) ? res : [res])?.map(
+        (r) => r.transaction.hash
+      );
+      const parsedTransactionHashes = transactionHashes?.join(',');
+      const newHref = addQueryParams(
+        window.location.origin + window.location.pathname,
+        {
+          [TRANSACTION_WALLET_TYPE.WalletSelector]: parsedTransactionHashes,
+        }
+      );
+
       window.location.href = newHref;
-    }
-  } catch (e) {
-    if (isThrowError) {
-      throw e;
-    } else {
-      sessionStorage.setItem('WALLETS_TX_ERROR', e.message);
+    })
+    .catch((e: Error) => {
+      if (extraWalletsError.includes(e.message)) {
+        return;
+      }
+
+      if (
+        !walletsRejectError.includes(e.message) &&
+        !extraWalletsError.includes(e.message)
+      ) {
+        sessionStorage.setItem('WALLETS_TX_ERROR', e.message);
+      }
+
       window.location.reload();
-    }
-  }
+    });
 };
 
 export const refFarmFunctionCall = async ({

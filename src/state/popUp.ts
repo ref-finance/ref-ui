@@ -9,19 +9,16 @@ import {
   failToast,
 } from '../components/layout/transactionTipPopUp';
 import { senderSignedInToast } from '../components/layout/senderSignInPopUp';
-import {
-  removeSenderLoginRes,
-  walletsRejectError,
-} from '../utils/wallets-integration';
+import { removeSenderLoginRes } from '../utils/wallets-integration';
 import { NEAR_WITHDRAW_KEY } from '../components/forms/WrapNear';
-import showToast from 'src/components/toast/showToast';
+import { failToastAccount } from '../components/layout/transactionTipPopUp';
 
 export const useGlobalPopUp = (globalState: any) => {
   const { txHash, pathname, errorType, signInErrorType, txHashes } =
     getURLInfo();
   const isSignedIn = globalState.isSignedIn;
 
-  const walletsTXError = sessionStorage.getItem('WALLETS_TX_ERROR');
+  const isWalletsTXError = !!sessionStorage.getItem('WALLETS_TX_ERROR');
 
   useEffect(() => {
     if (txHash && isSignedIn) {
@@ -50,7 +47,6 @@ export const useGlobalPopUp = (globalState: any) => {
       window.history.replaceState({}, '', window.location.origin + pathname);
     }
   }, [signInErrorType, txHash, isSignedIn]);
-
   useEffect(() => {
     if (txHash && isSignedIn) {
       checkTransaction(txHash)
@@ -98,24 +94,9 @@ export const useGlobalPopUp = (globalState: any) => {
   }, [txHash, isSignedIn]);
 
   useEffect(() => {
-    if (walletsTXError) {
-      let toast = {
-        title: 'Error',
-        desc: walletsTXError,
-        isError: true,
-        isWarning: false,
-      };
-
-      if (walletsRejectError.includes(walletsTXError)) {
-        toast.isError = false;
-        toast.isWarning = true;
-        // toast.desc =
-        //   'User rejected the request. Details: \n' +
-        //   'NearWallet Tx Signature: User denied transaction signature. ';
-      }
-
-      showToast(toast);
+    if (isWalletsTXError) {
+      failToastAccount();
       sessionStorage.removeItem('WALLETS_TX_ERROR');
     }
-  }, [walletsTXError]);
+  }, [isWalletsTXError]);
 };

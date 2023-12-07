@@ -1049,7 +1049,7 @@ export const swap = async ({
   swapMarket,
 }: SwapOptions) => {
   if (swapsToDo) {
-    return instantSwap({
+    await instantSwap({
       tokenIn,
       tokenOut,
       amountIn,
@@ -1262,7 +1262,7 @@ SwapOptions) => {
     }
   }
 
-  return executeMultipleTransactions(transactions, undefined, true);
+  return executeMultipleTransactions(transactions);
 };
 
 export const crossInstantSwap = async ({

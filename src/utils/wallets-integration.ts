@@ -31,8 +31,7 @@ export const walletsRejectError = [
   'User rejected the signature request',
   'Invalid message. Only transactions can be signed',
   'Ledger device: Condition of use not satisfied (denied by the user?) (0x6985)',
-  'User cancelled the action', // meteor wallet
-  'User closed the window', // meteor wallet
+  'User cancelled the action',
   'User closed the window before completing the action',
 ];
 

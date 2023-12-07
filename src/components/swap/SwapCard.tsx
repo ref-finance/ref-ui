@@ -87,13 +87,7 @@ import {
   FaAngleUp,
   FaExchangeAlt,
   MdOutlineRefresh,
-  BsArrowRight,
 } from '../reactIcons';
-import {
-  ModalTransactionSubmitting,
-  modalTransactionSubmitting,
-} from 'src/components/transaction/modalTransactionSubmitting';
-import { DisplayIcon, IconLeft } from 'src/components/tokens/Icon';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -737,18 +731,10 @@ export default function SwapCard(props: {
 
   const [balanceInDone, setBalanceInDone] = useState<boolean>(false);
   const [balanceOutDone, setBalanceOutDone] = useState<boolean>(false);
-  const [quoting, setQuoting] = useState<boolean>(true);
-  const [modal, setModal] = useState({
-    name: '',
-    data: null,
-  });
 
   const intl = useIntl();
   const location = useLocation();
   const history = useHistory();
-
-  const { transactionSubmitting, updateTransactionSubmitting } =
-    modalTransactionSubmitting();
 
   const { selectMarket, trades, enableTri, swapType } =
     useContext(SwapProContext);
@@ -960,6 +946,8 @@ export default function SwapCard(props: {
     };
   };
 
+  const [quoting, setQuoting] = useState<boolean>(true);
+
   const onChangeSlippage = (slippage: number) => {
     const { setSlippageValue, slippageKey } = getSlippageTolerance();
     setSlippageValue(slippage);
@@ -1093,49 +1081,10 @@ export default function SwapCard(props: {
       new BigNumber(tokenInAmount || 0).isLessThanOrEqualTo(
         new BigNumber(tokenInMax || 0)
       ) && Number(selectTrade?.priceImpact || 0) > 2;
-    if (ifDoubleCheck) {
-      setDoubleCheckOpen(true);
-    } else if (selectTrade) {
-      handleSwapSubmit();
-    }
-  };
 
-  const handleSwapSubmit = () => {
-    if (selectTrade) {
-      updateTransactionSubmitting(true);
-      setModal({
-        name: 'transactionModal',
-        data: { selectTrade },
-      });
-      selectTrade.makeSwap((isSuccess, data) => {
-        doubleCheckOpen && setDoubleCheckOpen(false);
-        if (isSuccess) {
-          setModal({
-            name: 'transactionModal',
-            data: {
-              isSuccess: true,
-              selectTrade,
-              transactionResponse: data?.response,
-            },
-          });
-        } else {
-          updateTransactionSubmitting(false);
-          setModal({
-            name: '',
-            data: null,
-          });
-        }
-      });
-    }
+    if (ifDoubleCheck) setDoubleCheckOpen(true);
+    else selectTrade && selectTrade.makeSwap();
   };
-
-  const handleModalClose = () => {
-    setModal({
-      name: '',
-      data: null,
-    });
-  };
-
   const handleSubmit_wrap = (e: any) => {
     e.preventDefault();
 
@@ -1460,7 +1409,7 @@ export default function SwapCard(props: {
         tokenIn={tokenIn}
         tokenOut={tokenOut}
         from={tokenInAmount}
-        onSwap={handleSwapSubmit}
+        onSwap={() => selectTrade && selectTrade.makeSwap()}
         priceImpactValue={selectTrade?.priceImpact || '0'}
       />
 
@@ -1469,12 +1418,6 @@ export default function SwapCard(props: {
           setShowSkywardTip(false);
         }}
         isOpen={showSkywardTip}
-      />
-
-      <ModalTransactionSubmitting
-        isOpen={modal?.name === 'transactionModal'}
-        onClose={handleModalClose}
-        data={modal?.data}
       />
     </>
   );
