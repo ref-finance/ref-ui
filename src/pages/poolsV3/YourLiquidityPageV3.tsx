@@ -79,18 +79,14 @@ import { REF_POOL_NAV_TAB_KEY } from '../../components/pool/PoolTabV3';
 import { NFTIdIcon } from 'src/components/icon/FarmBoost';
 import { YourLiquidityV2 } from 'src/components/pool/YourLiquidityV2';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
-import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
+import { PageContainer } from '../../components/layout/PageContainer';
 
-export default function YourLiquidityPageV3Global() {
-  const [key, setkey] = useState(0);
-  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
-  const actionStatus = transtionsExcuteDataStore.getActionStatus();
-  useEffect(() => {
-    if (actionStatus == 'resolved') {
-      setkey(Math.random());
-    }
-  }, [actionStatus]);
-  return <YourLiquidityPageV3 key={key} />;
+export default function Container(props: any) {
+  return (
+    <PageContainer>
+      <YourLiquidityPageV3 {...props} />
+    </PageContainer>
+  );
 }
 function YourLiquidityPageV3() {
   const clearState = () => {

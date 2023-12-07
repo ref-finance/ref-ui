@@ -5,17 +5,14 @@ import FarmsDclDetail from 'src/components/farm/FarmsDclDetail';
 import Loading, { BeatLoading } from 'src/components/layout/Loading';
 import { Seed, BoostConfig, UserSeedInfo } from 'src/services/farm';
 import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
+import { PageContainer } from '../../components/layout/PageContainer';
 
-export default function FarmsBoosterPageContainer(props: any) {
-  const [key, setKey] = useState(1);
-  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
-  const transtionsExcuteStatus = transtionsExcuteDataStore.getActionStatus();
-  useEffect(() => {
-    if (transtionsExcuteStatus == 'resolved') {
-      setKey(Math.random());
-    }
-  }, [transtionsExcuteStatus]);
-  return <FarmsBoosterPage {...props} key={key} />;
+export default function Container(props: any) {
+  return (
+    <PageContainer>
+      <FarmsBoosterPage {...props} />
+    </PageContainer>
+  );
 }
 function FarmsBoosterPage(props: any) {
   const [detailData, setDetailData] = useState(null);

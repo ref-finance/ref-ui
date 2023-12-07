@@ -51,8 +51,16 @@ import { BaseData } from './components/detail/BaseData';
 import { NoYourLiquditiesBox } from './components/detail/NoYourLiquditiesBox';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 const { REF_UNI_V3_SWAP_CONTRACT_ID, DCL_POOL_BLACK_LIST } = getConfig();
+import { PageContainer } from '../../components/layout/PageContainer';
 
-export default function PoolDetailV3() {
+export default function Container(props: any) {
+  return (
+    <PageContainer>
+      <PoolDetailV3 {...props} />
+    </PageContainer>
+  );
+}
+function PoolDetailV3() {
   const { id } = useParams<ParamTypes>();
   let pool_id_from_url: string;
   const params_str = decodeURIComponent(id);
@@ -67,8 +75,7 @@ export default function PoolDetailV3() {
   const [user_liquidities, set_user_liquidities] =
     useState<UserLiquidityInfo[]>();
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
-  const [currentRateDirection, setCurrentRateDirection] = useState(true);
-  const [showFullStart, setShowFullStar] = useState<Boolean>(false);
+  const [showFullStart, setShowFullStar] = useState<boolean>(false);
   const [matched_seeds, set_matched_seeds] = useState<Seed[]>([]);
   const [sole_seed, set_sole_seed] = useState<Seed>();
   const { modal } = useWalletSelector();
@@ -89,10 +96,6 @@ export default function PoolDetailV3() {
     get_user_list_liquidities();
   }, [isSignedIn]);
   const history = useHistory();
-  if (DCL_POOL_BLACK_LIST.includes(pool_id_from_url)) {
-    history.push('/pools');
-    return null;
-  }
   async function get_matched_seeds() {
     const all_seeds = await get_all_seeds();
     const matched_seeds = get_matched_seeds_for_dcl_pool({
@@ -184,20 +187,23 @@ export default function PoolDetailV3() {
   };
   function add_to_watchlist_tip() {
     const tip = intl.formatMessage({ id: 'add_to_watchlist' });
-    let result: string = `<div class="text-navHighLightText text-xs text-left font-normal">${tip}</div>`;
+    const result: string = `<div class="text-navHighLightText text-xs text-left font-normal">${tip}</div>`;
     return result;
   }
 
   function remove_from_watchlist_tip() {
     const tip = intl.formatMessage({ id: 'remove_from_watchlist' });
-    let result: string = `<div class="text-navHighLightText text-xs text-left font-normal">${tip}</div>`;
+    const result: string = `<div class="text-navHighLightText text-xs text-left font-normal">${tip}</div>`;
     return result;
   }
 
   const topBinApr = useDCLTopBinFee({
     pool: poolDetail,
   });
-
+  if (DCL_POOL_BLACK_LIST.includes(pool_id_from_url)) {
+    history.push('/pools');
+    return null;
+  }
   if (!poolDetail) return <Loading></Loading>;
   const isMobile = isClientMobie();
   const tokens = sort_tokens_by_base([
