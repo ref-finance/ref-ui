@@ -47,7 +47,7 @@ const CustomModal = ({
   return (
     <Portal>
       <div
-        className={`modal fade ${show && 'show'} ${className || ''}`}
+        className={`customModal fade ${show && 'show'} ${className || ''}`}
         style={show ? { display: 'block' } : {}}
       >
         <div className="overlay" onClick={onOutsideClick} />
