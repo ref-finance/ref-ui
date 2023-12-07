@@ -309,6 +309,7 @@ export function DoubleCheckModalLimit(
     tokenOutAmount,
     rate,
     selectedPool,
+    isOpen,
   } = props;
 
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
@@ -320,6 +321,12 @@ export function DoubleCheckModalLimit(
       setPoolDetail(pool);
     });
   }, [selectedPool]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setButtonLoading(false);
+    }
+  }, [isOpen]);
 
   if (!from || !tokenIn || !tokenOut || !poolDetail) return null;
 

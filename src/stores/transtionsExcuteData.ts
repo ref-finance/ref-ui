@@ -8,6 +8,11 @@ export type IExcuteStatus =
   | 'rejected'
   | 'none';
 
+type IActionCallBackData = {
+  transactionResponse?: any;
+  transactionError?: any;
+};
+
 type ITranstionsExcuteDataStore = {
   actionPage: string;
   actionStatus: IExcuteStatus;
@@ -16,7 +21,7 @@ type ITranstionsExcuteDataStore = {
   setActionPage: (p: string) => void;
   setActionStatus: (p: IExcuteStatus) => void;
   setActionData: (p: any) => void;
-  setactionCallBackData: (p: any) => void;
+  setactionCallBackData: (p: IActionCallBackData) => void;
   getActionPage: () => any;
   getActionStatus: () => any;
   getActionData: () => any;

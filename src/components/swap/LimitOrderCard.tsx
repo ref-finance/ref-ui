@@ -92,6 +92,7 @@ import { PoolInfo, get_pool_from_cache } from '../../services/swapV3';
 import { nearMetadata } from '../../services/wrap-near';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { InfoIcon } from 'src/components/icon/Common';
+import { useTranstionsExcuteDataStore } from 'src/stores/transtionsExcuteData';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -564,6 +565,8 @@ export default function LimitOrderCard(props: {
 
   const tokenPriceList = useTokenPriceList();
 
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+
   const skywardId =
     getConfig().networkId === 'mainnet'
       ? 'token.skyward.near'
@@ -903,18 +906,41 @@ export default function LimitOrderCard(props: {
     );
   };
 
-  const limitSwap = () =>
-    v3Swap({
-      swapInfo: {
-        tokenA: tokenIn,
-        tokenB: tokenOut,
-        amountA: tokenInAmount,
-        amountB: limitAmountOut,
-      },
-      LimitOrderWithSwap: {
-        pool_id: selectedV3LimitPool,
-      },
-    });
+  const limitSwap = async () => {
+    try {
+      transtionsExcuteDataStore.setActionStatus('pending');
+      transtionsExcuteDataStore.setActionData({
+        selectTrade: {
+          tokenIn,
+          tokenOut,
+          tokenInAmount,
+          tokenOutAmount: limitAmountOut,
+        },
+      });
+      const swapRes = await v3Swap({
+        swapInfo: {
+          tokenA: tokenIn,
+          tokenB: tokenOut,
+          amountA: tokenInAmount,
+          amountB: limitAmountOut,
+        },
+        LimitOrderWithSwap: {
+          pool_id: selectedV3LimitPool,
+        },
+      });
+      transtionsExcuteDataStore.setActionStatus('resolved');
+      transtionsExcuteDataStore.setactionCallBackData({
+        transactionResponse: swapRes?.response,
+      });
+      setShowSwapLoading(false);
+      setDoubleCheckOpenLimit(false);
+    } catch (e) {
+      setShowSwapLoading(false);
+      setDoubleCheckOpenLimit(false);
+      transtionsExcuteDataStore.setActionStatus('none');
+      transtionsExcuteDataStore.setactionCallBackData({ transactionError: e });
+    }
+  };
 
   const tokenInMax = tokenInBalanceFromNear || '0';
 

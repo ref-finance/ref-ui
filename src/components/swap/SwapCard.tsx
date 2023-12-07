@@ -90,7 +90,6 @@ import {
   BsArrowRight,
 } from '../reactIcons';
 
-import { showTransactionErrorToast } from 'src/components/toast/showTransactionToast';
 import { useTranstionsExcuteDataStore } from 'src/stores/transtionsExcuteData';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
@@ -742,6 +741,9 @@ export default function SwapCard(props: {
   const history = useHistory();
 
   const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+  const transactionActionStatus = transtionsExcuteDataStore.getActionStatus();
+  const transactionActionCallBackData =
+    transtionsExcuteDataStore.getActionCallBackData();
 
   const { selectMarket, trades, enableTri, swapType } =
     useContext(SwapProContext);
@@ -916,7 +918,14 @@ export default function SwapCard(props: {
     } else {
       setWrapOperation(false);
     }
-  }, [tokenIn, tokenOut, useNearBalance, isSignedIn, nearBalance]);
+  }, [
+    tokenIn,
+    tokenOut,
+    useNearBalance,
+    isSignedIn,
+    nearBalance,
+    transactionActionCallBackData,
+  ]);
 
   function getStorageTokenId() {
     const in_key = localStorage.getItem(SWAP_IN_KEY);
@@ -1101,17 +1110,18 @@ export default function SwapCard(props: {
         const swapRes = await selectTrade.makeSwap();
         doubleCheckOpen && setDoubleCheckOpen(false);
         setShowSwapLoading(false);
-        transtionsExcuteDataStore.setActionStatus('resolved');
-        transtionsExcuteDataStore.setActionData({
-          isSuccess: true,
-          selectTrade,
-          transactionResponse: swapRes?.response,
-        });
+        if (swapRes) {
+          transtionsExcuteDataStore.setActionStatus('resolved');
+          transtionsExcuteDataStore.setactionCallBackData({
+            transactionResponse: swapRes?.response,
+          });
+        }
       } catch (e) {
         doubleCheckOpen && setDoubleCheckOpen(false);
-        showTransactionErrorToast(e?.message);
         setShowSwapLoading(false);
-
+        transtionsExcuteDataStore.setactionCallBackData({
+          transactionError: e,
+        });
         transtionsExcuteDataStore.setActionStatus('none');
       }
     }

@@ -14,7 +14,7 @@ type ResultProps = {
   errorCode?: string;
 };
 
-export const useTransactionResult = () => {
+export const useTransactionCallbackUrlResult = () => {
   const [transactionResult, setTransactionResult] = useState<ResultProps>();
   const urlInfo = getURLInfo();
   const {

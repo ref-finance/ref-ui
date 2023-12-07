@@ -50,7 +50,7 @@ export const getURLInfo = () => {
   const pathname = window.location.pathname;
 
   const errorType = new URLSearchParams(search).get('errorType');
-
+  const errorMessage = new URLSearchParams(search).get('errorMessage');
   const errorCode = new URLSearchParams(search).get('errorCode');
 
   const signInErrorType = new URLSearchParams(search).get('signInErrorType');
@@ -66,6 +66,7 @@ export const getURLInfo = () => {
       txHashes && txHashes.length > 0 ? txHashes[txHashes.length - 1] : '',
     pathname,
     errorType,
+    errorMessage,
     signInErrorType,
     errorCode,
     txHashes,

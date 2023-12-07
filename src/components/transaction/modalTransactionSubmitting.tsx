@@ -10,56 +10,85 @@ import {
 } from 'src/components/reactIcons';
 import getConfig from 'src/services/config';
 import { useTranstionsExcuteDataStore } from 'src/stores/transtionsExcuteData';
+import showToast from '../toast/showToast';
+import { walletsRejectError } from 'src/utils/wallets-integration';
 
 const { explorerUrl } = getConfig();
-export const modalTransactionSubmitting = () => {
-  const [transactionSubmitting, setTransactionSubmitting] = useState(false);
+
+export const ToastTransaction = () => {
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+  const actionStatus = transtionsExcuteDataStore.getActionStatus();
+  const actionCallBackData = transtionsExcuteDataStore.getActionCallBackData();
+
+  const { transactionResponse, transactionError } = actionCallBackData || {};
+
+  let errorObj = transactionError;
+  if (typeof transactionError === 'string') {
+    errorObj = {
+      message: transactionError,
+    };
+  }
+  const { walletsTXError, message } = errorObj || {};
 
   useEffect(() => {
-    if (getTransactionSubmitting()) {
-      setTransactionSubmitting(true);
-      updateTransactionSubmitting(false);
+    console.info('ToastTransaction', actionStatus, actionCallBackData);
+    if (actionStatus === 'success') {
+      showToast({
+        desc: 'Transaction Success',
+      });
     }
-  }, []);
 
-  const updateTransactionSubmitting = (status: boolean) => {
-    if (status) {
-      localStorage.setItem(CONST_TRANSACTION_SUBMITTING, '1');
-      setTransactionSubmitting(true);
-    } else {
-      localStorage.removeItem(CONST_TRANSACTION_SUBMITTING);
-      setTransactionSubmitting(false);
+    if (actionStatus === 'rejected' || actionStatus === 'none') {
+      const errorMsg = walletsTXError || message;
+      if (errorMsg) {
+        let toast = {
+          title: 'Error',
+          desc: errorMsg,
+          isError: true,
+          isWarning: false,
+        };
+
+        if (walletsRejectError.includes(errorMsg)) {
+          toast.isError = false;
+          toast.isWarning = true;
+          // toast.desc =
+          //   'User rejected the request. Details: \n' +
+          //   'NearWallet Tx Signature: User denied transaction signature. ';
+        }
+
+        showToast(toast);
+      }
     }
-  };
+  }, [actionStatus]);
 
-  const getTransactionSubmitting = () => {
-    return localStorage.getItem(CONST_TRANSACTION_SUBMITTING);
-  };
-
-  return { transactionSubmitting, updateTransactionSubmitting };
+  return null;
 };
 
-export const ModalTransactionSubmitting = ({ isOpen, onClose, data }) => {
+export const ModalTransactionSubmitting = () => {
   const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
-  //console.info('ModalTransactionSubmitting', transtionsExcuteDataStore);
-  const { actionStatus, actionData, setActionStatus } =
-    transtionsExcuteDataStore || {};
-  const { selectTrade, transactionResponse } = actionData || {};
+  const actionStatus = transtionsExcuteDataStore.getActionStatus();
+  const actionData = transtionsExcuteDataStore.getActionData();
+  const actionCallBackData = transtionsExcuteDataStore.getActionCallBackData();
 
+  const { setactionCallBackData, setActionData, setActionStatus } =
+    transtionsExcuteDataStore || {};
+  const { selectTrade } = actionData || {};
+  const { transactionResponse } = actionCallBackData || {};
   const isComplete = actionStatus === 'resolved';
   const canClose = actionStatus === 'resolved';
   const isOpenModal = ['pending', 'resolved'].includes(actionStatus);
 
   useEffect(() => {
-    switch (actionStatus) {
-      case 'pending':
-        localStorage.setItem(CONST_TRANSACTION_SUBMITTING, '1');
-        break;
-      case 'none':
-      case 'rejected':
-      case 'resolved':
-        localStorage.removeItem(CONST_TRANSACTION_SUBMITTING);
-        break;
+    console.info('ModalTransactionSubmitting', actionStatus, actionData);
+    if (actionStatus === 'pending') {
+      localStorage.setItem(CONST_TRANSACTION_SUBMITTING, '1');
+    } else {
+      localStorage.removeItem(CONST_TRANSACTION_SUBMITTING);
+    }
+
+    if (actionStatus === 'none') {
+      setActionData(null);
+      setactionCallBackData(null);
     }
   }, [actionStatus]);
 

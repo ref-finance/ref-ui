@@ -1340,14 +1340,14 @@ export const useCrossSwap = ({
   }, [count, loadingTrigger, loadingPause]);
 
   const makeSwap = () => {
-    swap({
+    return swap({
       slippageTolerance,
       swapsToDo,
       tokenIn,
       amountIn: tokenInAmount,
       tokenOut,
       swapMarket: 'tri',
-    }).catch(setSwapError);
+    });
   };
 
   return {
