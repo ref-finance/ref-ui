@@ -57,6 +57,7 @@ import QuestionMark from 'src/components/farm/QuestionMark';
 
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import CustomTooltip from '../customTooltip/customTooltip';
+import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
 
 export type RemoveType = 'left' | 'right' | 'all';
 
@@ -101,7 +102,7 @@ export const RemovePoolV3 = (props: any) => {
   const [binBoxAmount, setBinBoxAmount] = useState<string>('');
   const [show_boundary_tip, set_show_boundary_tip] = useState<boolean>(false);
   const [boundary_is_diff, set_boundary_is_diff] = useState<boolean>(false);
-
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
   const { selector } = useWalletSelector();
   useEffect(() => {
     // init
@@ -458,7 +459,7 @@ export const RemovePoolV3 = (props: any) => {
     sessionStorage.setItem(REF_POOL_NAV_TAB_KEY, '/yourliquidity');
     let batch_remove_liquidity: IRemoveLiquidityInfo[];
     let batch_update_liquidity: IBatchUpdateiquidityInfo;
-    let mint_liquidities: UserLiquidityInfo[] = [];
+    const mint_liquidities: UserLiquidityInfo[] = [];
     const { whole_deleted_nfts, broken_deleted_nfts } = get_will_deleted_nfts();
     const { pool_id } = poolDetail;
     /**
@@ -480,8 +481,8 @@ export const RemovePoolV3 = (props: any) => {
           });
         const [min_token_x_amount, min_token_y_amount] =
           get_min_x_y_amount_of_liquidity({
-            left_point: left_point,
-            right_point: right_point,
+            left_point,
+            right_point,
             amount,
           });
         addLiquidityInfoList.push({
@@ -521,8 +522,8 @@ export const RemovePoolV3 = (props: any) => {
         const { amount, lpt_id, left_point, right_point, mft_id } = l;
         const [min_token_x_amount, min_token_y_amount] =
           get_min_x_y_amount_of_liquidity({
-            left_point: left_point,
-            right_point: right_point,
+            left_point,
+            right_point,
             amount,
           });
         batchRemoveLiquidity.push({
@@ -550,9 +551,14 @@ export const RemovePoolV3 = (props: any) => {
       batch_update_liquidity,
       mint_liquidities,
       selectedWalletId: selector.store.getState().selectedWalletId,
-    }).then(() => {
-      sessionStorage.setItem('REMOVE_POOL_ID', pool_id);
-    });
+    })
+      .then(() => {
+        transtionsExcuteDataStore.setActionStatus('resolved');
+        sessionStorage.setItem('REMOVE_POOL_ID', pool_id);
+      })
+      .catch(() => {
+        transtionsExcuteDataStore.setActionStatus('rejected');
+      });
   }
   function get_minimum_received_data() {
     /**
@@ -569,8 +575,8 @@ export const RemovePoolV3 = (props: any) => {
         const { amount, left_point, right_point } = l;
         const [min_token_x_amount, min_token_y_amount] =
           get_min_x_y_amount_of_liquidity({
-            left_point: left_point,
-            right_point: right_point,
+            left_point,
+            right_point,
             amount,
           });
         total_token_x_amount = total_token_x_amount.plus(
@@ -593,8 +599,8 @@ export const RemovePoolV3 = (props: any) => {
           });
         const [min_token_x_amount, min_token_y_amount] =
           get_min_x_y_amount_of_liquidity({
-            left_point: left_point,
-            right_point: right_point,
+            left_point,
+            right_point,
             amount,
           });
         const broken_min_token_x_amount =
@@ -715,7 +721,7 @@ export const RemovePoolV3 = (props: any) => {
   function get_boundary_tip() {
     const tip =
       'The Min Price and Max price displayed here correspond to the boundaries of the bins. Since you added liquidity before the upgrade, the liquidity boundaries are within the bins containing the Min Price or  Max price. Therefore, your actual price range may differ from the the Min Price or Max price displayed here.';
-    let result: string = `<div class="text-farmText text-xs text-left xsm:w-52 lg:w-80">${tip}</div>`;
+    const result: string = `<div class="text-farmText text-xs text-left xsm:w-52 lg:w-80">${tip}</div>`;
     return result;
   }
   const isRemoveLiquidityDisabled = minBoxPoint == maxBoxPoint;

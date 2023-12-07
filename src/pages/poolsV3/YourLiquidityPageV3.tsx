@@ -69,7 +69,6 @@ import { PoolRPCView } from '../../services/api';
 import { ALL_STABLE_POOL_IDS, REF_FI_CONTRACT_ID } from '../../services/near';
 import { getPoolsByIds } from '../../services/indexer';
 import { BlueCircleLoading } from '../../components/layout/Loading';
-import QuestionMark from 'src/components/farm/QuestionMark';
 
 import Big from 'big.js';
 import { ConnectToNearBtnSwap } from '../../components/button/Button';
@@ -79,10 +78,21 @@ import { checkTransactionStatus } from '../../services/swap';
 import { REF_POOL_NAV_TAB_KEY } from '../../components/pool/PoolTabV3';
 import { NFTIdIcon } from 'src/components/icon/FarmBoost';
 import { YourLiquidityV2 } from 'src/components/pool/YourLiquidityV2';
-import { isMobile } from 'src/utils/device';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
+import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
 
-export default function YourLiquidityPageV3() {
+export default function YourLiquidityPageV3Global() {
+  const [key, setkey] = useState(0);
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+  const actionStatus = transtionsExcuteDataStore.getActionStatus();
+  useEffect(() => {
+    if (actionStatus == 'resolved') {
+      setkey(Math.random());
+    }
+  }, [actionStatus]);
+  return <YourLiquidityPageV3 key={key} />;
+}
+function YourLiquidityPageV3() {
   const clearState = () => {
     sessionStorage.removeItem('REF_FI_LP_V2_OLD_VALUE');
     sessionStorage.removeItem('REF_FI_LP_VALUE_OLD_COUNT');
@@ -138,17 +148,6 @@ export default function YourLiquidityPageV3() {
   const history = useHistory();
   const pool_link = sessionStorage.getItem(REF_POOL_NAV_TAB_KEY);
 
-  if (pool_link === '/pools') {
-    history.push(pool_link);
-    return null;
-  }
-
-  if (!pool_link) {
-    history.push('/pools');
-
-    return null;
-  }
-
   useEffect(() => {
     const ids = ALL_STABLE_POOL_IDS;
     getPoolsByIds({ pool_ids: ids }).then((res) => {
@@ -184,11 +183,8 @@ export default function YourLiquidityPageV3() {
   function switchButton(type: string) {
     setCheckedStatus(type);
   }
-
   const { txHash } = getURLInfo();
-
   const { accountId } = useWalletSelector();
-
   useEffect(() => {
     if (txHash && getCurrentWallet()?.wallet?.isSignedIn()) {
       checkTransactionStatus(txHash).then((res) => {
@@ -235,6 +231,16 @@ export default function YourLiquidityPageV3() {
       });
     }
   }, [txHash]);
+  if (pool_link === '/pools') {
+    history.push(pool_link);
+    return null;
+  }
+
+  if (!pool_link) {
+    history.push('/pools');
+
+    return null;
+  }
   const showV2EmptyBar =
     v2LiquidityLoadingDone &&
     +v2LiquidityQuantity == 0 &&
@@ -1087,7 +1093,7 @@ function UserLiquidityLine_old({
                   ></img>
                 </div>
                 <span className="text-white font-bold mx-2.5 text-sm gotham_bold">
-                  {tokens[0]?.['symbol']}-{tokens[1]?.['symbol']}
+                  {tokens[0]?.symbol}-{tokens[1]?.symbol}
                 </span>
                 <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5">
                   <span className="text-xs text-v3SwapGray whitespace-nowrap mr-1.5">
@@ -1261,7 +1267,7 @@ function UserLiquidityLine_old({
                   ></img>
                 </div>
                 <span className="text-white text-sm ml-1.5">
-                  {tokens[0]?.['symbol']}-{tokens[1]?.['symbol']}
+                  {tokens[0]?.symbol}-{tokens[1]?.symbol}
                 </span>
               </div>
               <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5">

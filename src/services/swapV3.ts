@@ -7,7 +7,6 @@ import {
   REF_UNI_V3_SWAP_CONTRACT_ID,
   ONE_YOCTO_NEAR,
   refSwapV3OldVersionViewFunction,
-  executeMultipleTransactionsV2,
 } from './near';
 import {
   toNonDivisibleNumber,
@@ -21,7 +20,7 @@ import Big from 'big.js';
 import {
   Transaction,
   executeMultipleTransactions,
-  refVeViewFunction,
+  executeMultipleTransactionsV2,
 } from './near';
 import {
   storageDepositAction,
@@ -1326,10 +1325,9 @@ export const batch_remove_liquidity_contract = async ({
     const length = batch_remove_liquidity.length;
     const ts_length = Math.ceil(length / max_number);
     for (let i = 0; i < ts_length; i++) {
-      let batch_remove_liquidity_i;
       const startIndex = i * max_number;
       const endIndex = startIndex + max_number;
-      batch_remove_liquidity_i = batch_remove_liquidity.slice(
+      const batch_remove_liquidity_i = batch_remove_liquidity.slice(
         startIndex,
         endIndex
       );
@@ -1353,10 +1351,9 @@ export const batch_remove_liquidity_contract = async ({
     const length = add_liquidity_infos.length;
     const ts_length = Math.ceil(length / max_batch_update_number);
     for (let i = 0; i < ts_length; i++) {
-      let batch_update_liquidity_i;
       const startIndex = i * max_batch_update_number;
       const endIndex = startIndex + max_batch_update_number;
-      batch_update_liquidity_i = {
+      const batch_update_liquidity_i = {
         add_liquidity_infos: add_liquidity_infos.slice(startIndex, endIndex),
         remove_liquidity_infos: remove_liquidity_infos.slice(
           startIndex,
@@ -1450,7 +1447,7 @@ export const batch_remove_liquidity_contract = async ({
       ],
     });
   }
-  return executeMultipleTransactions(transactions);
+  return await executeMultipleTransactionsV2(transactions);
 };
 
 export const claim_all_liquidity_fee = async ({
