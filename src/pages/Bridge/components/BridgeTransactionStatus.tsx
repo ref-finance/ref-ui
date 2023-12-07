@@ -86,8 +86,7 @@ export default function BridgeTransactionStatusModal({
             ) : (
               <SvgIcon
                 name="IconWaiting"
-                className="text-5xl animate-spin"
-                style={{ animationDuration: '2s' }}
+                className="text-5xl animate-waiting"
               />
             )}
           </div>

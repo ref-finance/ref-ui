@@ -119,3 +119,18 @@
     content: "";
     background: url('./assets/line.svg') no-repeat center;
 }
+
+.animate-waiting{
+    animation: animate-waiting  3s ease-in-out infinite;
+}
+@keyframes animate-waiting {
+    0% {
+        transform: rotate(0deg);
+    }
+    60% {
+        transform: rotate(360deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
