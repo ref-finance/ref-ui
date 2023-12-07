@@ -8,6 +8,14 @@ export function formatTimestamp(timestamp: string | number | Date) {
 
 export function formatSortAddress(address: string | undefined) {
   if (!address) return '';
+  else if (
+    (address.endsWith('.near') ||
+      address.endsWith('.testnet') ||
+      address.endsWith('.betanet') ||
+      address.endsWith('.mainnet')) &&
+    address.length < 64
+  )
+    return address;
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 }
 
@@ -42,4 +50,11 @@ export function formatTxExplorerUrl(
   return chain === 'NEAR' || chain === 'near'
     ? `${NearConfig.explorerUrl}/txns/${hash}`
     : `${EthereumConfig.explorerUrl}/tx/${hash}`;
+}
+
+export function formatUSDCurrency(val: string | number | undefined) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  }).format(Number(val));
 }

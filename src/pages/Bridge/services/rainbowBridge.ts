@@ -205,6 +205,16 @@ const rainbowBridgeService = {
     });
     return result?.[0];
   },
+  async getByHash(hash: string) {
+    const result = await rainbowBridgeService.query({
+      filter: (t: any) =>
+        t.lockHashes?.includes(hash) ||
+        t.unlockHashes?.includes(hash) ||
+        t.burnHashes?.includes(hash) ||
+        t.mintHashes?.includes(hash),
+    });
+    return result?.[0];
+  },
   transformRawData(data: Transfer) {
     try {
       const result = decorate(data, {

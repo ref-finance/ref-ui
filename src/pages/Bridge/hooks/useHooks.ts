@@ -1,5 +1,6 @@
 import { DependencyList, useEffect, useState } from 'react';
 import { debounce, DebounceSettings } from 'lodash';
+import { safeJSONParse, safeJSONStringify } from '../utils/common';
 
 type Options<T> = {
   refreshDeps?: React.DependencyList;
@@ -88,4 +89,36 @@ export function useAsyncMemo<T>(
     };
   }, deps);
   return val;
+}
+
+export function useStorageState<T>(
+  key: string,
+  defaultValue?: T
+): [T, (value: T) => void] {
+  const [state, setState] = useState<T>(() => {
+    const value = localStorage.getItem(key);
+    if (value) {
+      return safeJSONParse(value);
+    }
+    return defaultValue;
+  });
+  const setStorage = (value: T) => {
+    setState(value);
+    localStorage.setItem(key, safeJSONStringify(value));
+  };
+  return [state, setStorage];
+}
+
+export function useAutoResetState<T>(
+  defaultValue: T,
+  wait?: number
+): [T, (value: T) => void] {
+  const [state, setState] = useState<T>(defaultValue);
+  const setStorage = (value: T) => {
+    setState(value);
+    setTimeout(() => {
+      setState(defaultValue);
+    }, wait || 1000);
+  };
+  return [state, setStorage];
 }

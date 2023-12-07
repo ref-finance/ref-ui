@@ -1,7 +1,5 @@
 import { useCallback, useMemo } from 'react';
 import { TokenList } from '../config';
-import { ethServices, nearServices } from '../services/contract';
-import { chain } from 'lodash';
 
 export default function useBridgeToken() {
   const tokens = useMemo(
@@ -26,14 +24,5 @@ export default function useBridgeToken() {
     return tokens.find((item) => item.symbol === symbol);
   }
 
-  function getTokenBalance(
-    chain: BridgeModel.BridgeSupportChain,
-    token: BridgeModel.BridgeTokenMeta
-  ) {
-    return chain === 'ETH'
-      ? ethServices.getBalance(token)
-      : nearServices.getBalance(token);
-  }
-
-  return { filterTokens, getTokenBySymbol, getTokenBalance };
+  return { tokens, filterTokens, getTokenBySymbol };
 }

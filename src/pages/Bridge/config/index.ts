@@ -49,7 +49,7 @@ export const NearConfig = {
 
 export const SupportChains: BridgeModel.BridgeSupportChain[] = ['ETH', 'NEAR'];
 
-export const SupportBridgeChannels = ['Rainbow', 'Stargate'] as const;
+export const SupportBridgeChannels = ['Rainbow'] as const;
 
 const RainbowBridgeDefaultParams = {
   nearEventRelayerMargin: 10, // blocks
@@ -70,8 +70,10 @@ const RainbowBridgeDefaultParams = {
 };
 export const BridgeConfig = {
   Rainbow: {
-    wait: '~ 20 min',
-    gas: '336,847 gas',
+    /** estimated 20 minutes */
+    wait: 20,
+    gas: '336847',
+    bridgeFee: '0',
     bridgeParams: IS_MAINNET
       ? {
           ...RainbowBridgeDefaultParams,

@@ -10,9 +10,11 @@ import {
   formatAmount,
   formatChainName,
   formatSortAddress,
+  formatUSDCurrency,
 } from '../utils/format';
 import { BridgeConfig } from '../config';
 import { useBridgeTransactionContext } from '../providers/bridgeTransaction';
+import { useAutoResetState } from '../hooks/useHooks';
 
 export default function BridgePreviewModal({
   toggleOpenModal,
@@ -20,7 +22,10 @@ export default function BridgePreviewModal({
 }: Modal.Props & { toggleOpenModal: () => void }) {
   const { actionLoading, transfer } = useRainbowBridge();
 
-  const { bridgeFromValue, bridgeToValue } = useBridgeFormContext();
+  const { bridgeFromValue, bridgeToValue, estimatedGasFee } =
+    useBridgeFormContext();
+
+  const [loading, setLoading] = useAutoResetState(false, 1000);
 
   const { openBridgeTransactionStatusModal } = useBridgeTransactionContext();
 
@@ -39,7 +44,7 @@ export default function BridgePreviewModal({
       recipient,
       sender,
       constTime: BridgeConfig.Rainbow.wait,
-      bridgeFee: BridgeConfig.Rainbow.gas,
+      bridgeFee: formatUSDCurrency(estimatedGasFee),
       output: bridgeToValue.amount,
       minimumReceived: bridgeFromValue.amount,
     }),
@@ -49,6 +54,7 @@ export default function BridgePreviewModal({
       bridgeFromValue?.tokenMeta,
       bridgeToValue.amount,
       bridgeToValue?.chain,
+      estimatedGasFee,
       recipient,
       sender,
     ]
@@ -65,6 +71,7 @@ export default function BridgePreviewModal({
       sender,
     });
     openBridgeTransactionStatusModal(result);
+    toggleOpenModal();
   }
   return (
     <>
@@ -73,10 +80,13 @@ export default function BridgePreviewModal({
           <div className="flex items-center justify-between mb-4">
             <span className="text-base text-white font-medium">Preview</span>
             <div className="flex items-center">
-              <Button size="small" className="mr-4" plain>
-                <SvgIcon name="IconRefresh" />
+              <Button size="small" plain onClick={() => setLoading(true)}>
+                <SvgIcon
+                  name="IconRefresh"
+                  className={loading ? 'animate-spin text-primary' : ''}
+                />
               </Button>
-              <Button text onClick={toggleOpenModal}>
+              <Button className="ml-4" text onClick={toggleOpenModal}>
                 <SvgIcon name="IconClose" />
               </Button>
             </div>
@@ -132,10 +142,7 @@ export default function BridgePreviewModal({
                 <div>Bridge Fee</div>
                 <div>
                   <div className="text-white text-right">
-                    {confirmInfo?.bridgeFee}
-                  </div>
-                  <div className="text-xs text-right">
-                    {/* <span
+                    <span
                       className="underline cursor-pointer ml-1"
                       data-for="bridge-gas-fee"
                       data-type="info"
@@ -143,9 +150,9 @@ export default function BridgePreviewModal({
                       data-multiline={true}
                       data-class="reactTip"
                       data-html={true}
-                      data-tip={`<div>$2.52 Gas + </div><div>$0.73 Stargate fee</div>`}
+                      data-tip={`<div>${confirmInfo?.bridgeFee} Gas + </div><div>$0.00 Rainbow fee</div>`}
                     >
-                      ($3.25)
+                      {confirmInfo?.bridgeFee}
                       <ReactTooltip
                         id="bridge-gas-fee"
                         backgroundColor="#1D2932"
@@ -154,7 +161,7 @@ export default function BridgePreviewModal({
                         effect="solid"
                         textColor="#C6D1DA"
                       />
-                    </span> */}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -171,7 +178,7 @@ export default function BridgePreviewModal({
                 <div>Cost Time</div>
                 <div>
                   <div className="text-white text-right">
-                    {confirmInfo.constTime}
+                    {confirmInfo.constTime} mins
                   </div>
                 </div>
               </div>

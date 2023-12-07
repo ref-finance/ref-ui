@@ -5,6 +5,7 @@ import { useRoute, useRouter } from '../hooks/useRouter';
 import { toast } from 'react-toastify';
 import useRainbowBridge from '../hooks/useRainbowBridge';
 import bridgeHistoryService from '../services/history';
+import { useWalletConnectContext } from './walletConcent';
 
 type Props = {
   openBridgeTransactionStatusModal: (
@@ -48,13 +49,15 @@ export default function BridgeTransactionProvider({ children }: any) {
   const [transaction, setTransaction] =
     useState<BridgeModel.BridgeTransaction>();
 
+  const wallet = useWalletConnectContext();
   useEffect(() => {
     async function handleTransactionStatus() {
       if (query.transactionHashes) {
-        const result = await bridgeHistoryService.query({
-          hash: query.transactionHashes,
-        });
-        if (result?.[0]) openBridgeTransactionStatusModal(result[0]);
+        const result = await bridgeHistoryService.getByHash(
+          query.transactionHashes
+        );
+        console.log('has transactionHashes', query.transactionHashes, result);
+        if (result) openBridgeTransactionStatusModal(result);
 
         router.replace({ search: '' });
       }

@@ -29,7 +29,7 @@
     max-width: 90vw;
 }
 .bridge-history-container{
-    @apply  m-auto mt-20 px-4 box-content;
+    @apply  m-auto mt-20 px-4 box-content xs:mt-2;
     max-width: 900px; 
 
 }
@@ -89,7 +89,7 @@
     @apply w-full;
     border-collapse: collapse;
 }
-.bridge-table tr{
+.bridge-table tr:not(:last-child){
     @apply border-b ;
     border-color: var(--bridge-border-color);
 }

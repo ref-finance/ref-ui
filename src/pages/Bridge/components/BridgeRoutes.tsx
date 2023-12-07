@@ -7,9 +7,10 @@ import SvgIcon from './SvgIcon';
 import LogoRainbow from './../assets/logo-rainbow.png';
 import { SupportBridgeChannels, BridgeConfig } from './../config';
 import { useBridgeFormContext } from '../providers/bridgeForm';
+import { formatUSDCurrency } from '../utils/format';
 
 function BridgeRouteItem({ className }: { className?: string }) {
-  const { bridgeFromValue } = useBridgeFormContext();
+  const { bridgeFromValue, estimatedGasFee } = useBridgeFormContext();
   return (
     <div
       className={`bg-opacity-10 rounded-xl p-4 ${className ?? ''}`}
@@ -40,8 +41,8 @@ function BridgeRouteItem({ className }: { className?: string }) {
           ~{bridgeFromValue.amount} {bridgeFromValue.tokenMeta.symbol}
         </div>
         <div className="text-right text-slate-500 text-xs font-normal ">
-          {BridgeConfig.Rainbow.wait}｜Bridge fee {BridgeConfig.Rainbow.gas}
-          {/* <span
+          {BridgeConfig.Rainbow.wait} mins ｜Bridge fee{' '}
+          <span
             className="underline cursor-pointer ml-1"
             data-for="bridge-gas-fee"
             data-type="info"
@@ -49,9 +50,11 @@ function BridgeRouteItem({ className }: { className?: string }) {
             data-multiline={true}
             data-class="reactTip"
             data-html={true}
-            data-tip={`<div>$2.52 Gas + </div><div>$0.73 Stargate fee</div>`}
+            data-tip={`<div>${formatUSDCurrency(
+              estimatedGasFee
+            )} Gas + </div><div>$0.00 Rainbow fee</div>`}
           >
-            $3.25
+            {formatUSDCurrency(estimatedGasFee)}
             <ReactTooltip
               id="bridge-gas-fee"
               backgroundColor="#1D2932"
@@ -60,7 +63,7 @@ function BridgeRouteItem({ className }: { className?: string }) {
               effect="solid"
               textColor="#C6D1DA"
             />
-          </span> */}
+          </span>
         </div>
       </div>
     </div>

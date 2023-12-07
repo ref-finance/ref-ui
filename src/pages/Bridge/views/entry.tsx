@@ -12,15 +12,20 @@ import SvgIcon from '../components/SvgIcon';
 import { useRouter } from '../hooks/useRouter';
 import { isValidEthereumAddress, isValidNearAddress } from '../utils/validate';
 import { useBridgeTransactionContext } from '../providers/bridgeTransaction';
+import { useAutoResetState } from '../hooks/useHooks';
 
 function FormHeader() {
   const { slippageTolerance, setSlippageTolerance } = useBridgeFormContext();
+  const [loading, setLoading] = useAutoResetState(false, 1000);
   return (
     <div className="flex items-center justify-between mb-5">
       <div className="text-base text-white">Bridge</div>
       <div className="flex items-center gap-3">
-        <Button size="small" plain>
-          <SvgIcon name="IconRefresh" />
+        <Button size="small" plain onClick={() => setLoading(true)}>
+          <SvgIcon
+            name="IconRefresh"
+            className={loading ? 'animate-spin text-primary' : ''}
+          />
         </Button>
         <SlippageSelector
           slippageTolerance={slippageTolerance}

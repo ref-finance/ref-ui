@@ -10,10 +10,6 @@ import Button from './Button';
 import useRainbowBridge from '../hooks/useRainbowBridge';
 import useBridgeToken from '../hooks/useBridgeToken';
 
-type Props = {
-  data?: BridgeModel.BridgeTransaction[];
-};
-
 const columns = [
   { label: 'Time', prop: 'time', width: '15%' },
   { label: 'Direction', prop: 'direction', width: '15%' },
@@ -25,8 +21,10 @@ const columns = [
 
 function TableItem({
   item: transaction,
+  onRefresh,
 }: {
   item: BridgeModel.BridgeTransaction;
+  onRefresh?: () => void;
 }) {
   const { callAction, actionLoading } = useRainbowBridge();
 
@@ -37,8 +35,9 @@ function TableItem({
     [transaction.symbol]
   );
 
-  function handleAction() {
-    callAction(transaction.id);
+  async function handleAction() {
+    await callAction(transaction.id);
+    onRefresh();
   }
   return (
     <tr>
@@ -76,7 +75,9 @@ function TableItem({
         <a
           href={formatTxExplorerUrl(
             transaction.sourceNetwork,
-            transaction.lockHashes?.[0] || transaction.unlockHashes?.[0]
+            transaction.burnHashes?.[0] ||
+              transaction.lockHashes?.[0] ||
+              transaction.unlockHashes?.[0]
           )}
           target="_blank"
           rel="noreferrer"
@@ -84,7 +85,9 @@ function TableItem({
           className="hover:underline"
         >
           {formatSortAddress(
-            transaction.lockHashes?.[0] || transaction.unlockHashes?.[0]
+            transaction.burnHashes?.[0] ||
+              transaction.lockHashes?.[0] ||
+              transaction.unlockHashes?.[0]
           )}
         </a>
       </td>
@@ -93,16 +96,14 @@ function TableItem({
         <a
           href={formatTxExplorerUrl(
             transaction.sourceNetwork === 'near' ? 'ethereum' : 'near',
-            transaction.burnHashes?.[0] || transaction.mintHashes?.[0]
+            transaction.mintHashes?.[0]
           )}
           target="_blank"
           rel="noreferrer"
           style={{ color: '#99B0FF' }}
           className="hover:underline"
         >
-          {formatSortAddress(
-            transaction.burnHashes?.[0] || transaction.mintHashes?.[0]
-          )}
+          {formatSortAddress(transaction.mintHashes?.[0])}
         </a>
       </td>
       <td>
@@ -131,9 +132,25 @@ function TableItem({
   );
 }
 
-function HistoryTable({ data }: Props) {
+type Props = {
+  data?: BridgeModel.BridgeTransaction[];
+  loading?: boolean;
+  onRefresh?: () => void;
+};
+function HistoryTable({ data, loading, onRefresh }: Props) {
   return (
-    <div className="bg-dark-800 rounded overflow-x-auto">
+    <div
+      className="relative overflow-auto"
+      style={{
+        minHeight: 'calc(100vh - 500px)',
+        maxHeight: 'calc(100vh - 420px)',
+      }}
+    >
+      {loading && (
+        <div className="absolute left-0 top-0 right-0 bottom-0 flex items-center justify-center">
+          <SvgIcon name="IconLoading" className="text-6xl" />
+        </div>
+      )}
       <table className="bridge-table">
         <thead>
           <tr>
@@ -145,20 +162,24 @@ function HistoryTable({ data }: Props) {
           </tr>
         </thead>
         <tbody>
-          {data?.length ? (
-            data?.map((item, index) => (
-              <TableItem key={index} item={item}></TableItem>
-            ))
-          ) : (
-            <tr>
-              <td colSpan={6}>
-                <div className="flex flex-col items-center justify-center p-10 gap-3 text-gray-400">
-                  <SvgIcon name="IconEmpty" className="text-4xl" />
-                  No result
-                </div>
-              </td>
-            </tr>
-          )}
+          {data?.length
+            ? data?.map((item, index) => (
+                <TableItem
+                  key={index}
+                  item={item}
+                  onRefresh={onRefresh}
+                ></TableItem>
+              ))
+            : !loading && (
+                <tr>
+                  <td colSpan={6}>
+                    <div className="flex flex-col items-center justify-center p-10 gap-3 text-gray-400">
+                      <SvgIcon name="IconEmpty" className="text-4xl" />
+                      No result
+                    </div>
+                  </td>
+                </tr>
+              )}
         </tbody>
       </table>
     </div>

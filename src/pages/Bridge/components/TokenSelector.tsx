@@ -7,6 +7,7 @@ import SvgIcon from './SvgIcon';
 import useBridgeToken from './../hooks/useBridgeToken';
 import { useRequest } from '../hooks/useHooks';
 import { formatChainName, formatBalance } from '../utils/format';
+import { tokenServices } from '../services/contract';
 
 type TokenSelectorCommonProps = {
   chain: BridgeModel.BridgeSupportChain;
@@ -44,9 +45,8 @@ function TokenItem({
   item: BridgeModel.BridgeTokenMeta;
   onClick?: MouseEventHandler;
 }) {
-  const { getTokenBalance } = useBridgeToken();
   const { data: balance, loading } = useRequest(() =>
-    getTokenBalance(chain, item)
+    tokenServices.getBalance(chain, item)
   );
   return (
     <div

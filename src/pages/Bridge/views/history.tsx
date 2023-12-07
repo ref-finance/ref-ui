@@ -7,6 +7,7 @@ import { useRequest } from '../hooks/useHooks';
 import bridgeHistoryService from '../services/history';
 import SvgIcon from '../components/SvgIcon';
 import { useRouter } from '../hooks/useRouter';
+import { useWalletConnectContext } from '../providers/walletConcent';
 
 type BridgeHistoryFilter = {
   chain: BridgeModel.BridgeSupportChain;
@@ -18,9 +19,18 @@ function BridgeTransactionHistory() {
     chain: 'ETH',
     onlyUnclaimed: false,
   });
+  const wallet = useWalletConnectContext();
 
-  const { data, loading, run } = useRequest(
-    () => bridgeHistoryService.query(historyFilter),
+  const {
+    data,
+    loading,
+    run: refresh,
+  } = useRequest(
+    () =>
+      bridgeHistoryService.query({
+        ...historyFilter,
+        accountAddress: wallet?.[historyFilter.chain]?.accountId,
+      }),
     { refreshDeps: [historyFilter] }
   );
 
@@ -32,11 +42,11 @@ function BridgeTransactionHistory() {
     <div className="bridge-history-container">
       <div className="bridge-plane shadow-4xl">
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center text-white text-base ">
-            <Button className="mr-2" text onClick={handleOpenHistory}>
+          <div className="flex items-center ">
+            <Button text onClick={handleOpenHistory}>
               <SvgIcon name="IconArrowDown" className="transform rotate-90" />
+              <span className="text-base ml-2">Bridge Transaction History</span>
             </Button>
-            Bridge Transaction History
           </div>
           <input
             className="bridge-input w-1/2"
@@ -70,7 +80,7 @@ function BridgeTransactionHistory() {
           </div>
         </div>
         <div className="bg-dark-800 rounded">
-          <HistoryTable data={data} />
+          <HistoryTable data={data} loading={loading} onRefresh={refresh} />
         </div>
       </div>
     </div>

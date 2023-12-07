@@ -1,6 +1,6 @@
 import React from 'react';
 import { init } from '@web3-onboard/react';
-import injectedModule from '@web3-onboard/injected-wallets';
+import injectedModule, { ProviderLabel } from '@web3-onboard/injected-wallets';
 import walletConnectModule from '@web3-onboard/walletconnect';
 import ledgerModule from '@web3-onboard/ledger';
 import { APP_HOST, EthereumConfig } from '../config';
@@ -14,7 +14,25 @@ const WALLET_CONNECT_OPTION: Parameters<
 };
 
 export function setupWeb3Onboard() {
-  const injected = injectedModule();
+  const injected = injectedModule({
+    displayUnavailable: [
+      ProviderLabel.MathWallet,
+      ProviderLabel.Coinbase,
+      ProviderLabel.OKXWallet,
+      ProviderLabel.Trust,
+      ProviderLabel.Binance,
+    ],
+    sort: (wallets) => {
+      const metaMask = wallets.find(
+        ({ label }) => label === ProviderLabel.MetaMask
+      );
+
+      return [
+        metaMask,
+        ...wallets.filter(({ label }) => label !== ProviderLabel.MetaMask),
+      ].filter((wallet) => wallet);
+    },
+  });
   const walletConnect = walletConnectModule(WALLET_CONNECT_OPTION);
   const ledger = ledgerModule({
     ...WALLET_CONNECT_OPTION,

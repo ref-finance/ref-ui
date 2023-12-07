@@ -2,12 +2,19 @@ import rainbowBridgeService from './rainbowBridge';
 
 const bridgeHistoryService = {
   async query(params?: {
-    chain?: BridgeModel.BridgeSupportChain;
     onlyUnclaimed?: boolean;
     hash?: string;
+    accountAddress: string;
   }) {
     const result = await rainbowBridgeService.query({
       filter: (v) => {
+        if (
+          !(
+            v.sender === params.accountAddress ||
+            v.recipient === params.accountAddress
+          )
+        )
+          return false;
         if (params?.onlyUnclaimed) {
           if (v.status !== 'action-needed') return false;
         }
@@ -27,10 +34,14 @@ const bridgeHistoryService = {
               v.mintHashes?.includes(params.hash))
           );
         }
+
         return true;
       },
     });
     return result;
+  },
+  async getByHash(hash: string) {
+    return rainbowBridgeService.getByHash(hash);
   },
 };
 

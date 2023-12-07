@@ -8,6 +8,7 @@ import useRainbowBridge from '../hooks/useRainbowBridge';
 import { formatTxExplorerUrl } from '../utils/format';
 import rainbowBridgeService from '../services/rainbowBridge';
 import { BridgeConfig } from '../config';
+import moment from 'moment';
 
 export default function BridgeTransactionStatusModal({
   transaction: _transaction,
@@ -21,6 +22,12 @@ export default function BridgeTransactionStatusModal({
 
   const [transaction, setTransaction] =
     useState<BridgeModel.BridgeTransaction>(_transaction);
+
+  const estimateTime = useMemo(() => {
+    const waiting = moment().diff(transaction.startTime, 'm');
+    const estimate = BridgeConfig.Rainbow.wait - waiting;
+    return estimate > 0 ? estimate : 0;
+  }, [transaction.startTime]);
 
   const router = useRouter();
 
@@ -45,9 +52,9 @@ export default function BridgeTransactionStatusModal({
     window.open(
       formatTxExplorerUrl(
         transaction.sourceNetwork,
-        transaction.lockHashes?.[0] ||
+        transaction.burnHashes?.[0] ||
+          transaction.lockHashes?.[0] ||
           transaction.unlockHashes?.[0] ||
-          transaction.burnHashes?.[0] ||
           transaction.mintHashes?.[0]
       )
     );
@@ -77,7 +84,11 @@ export default function BridgeTransactionStatusModal({
             {transaction.status === 'completed' ? (
               <SvgIcon name="IconSuccessCircle" className="text-5xl" />
             ) : (
-              <SvgIcon name="IconWaiting" className="text-5xl" />
+              <SvgIcon
+                name="IconWaiting"
+                className="text-5xl animate-spin"
+                style={{ animationDuration: '2s' }}
+              />
             )}
           </div>
           <SvgIcon
@@ -92,7 +103,7 @@ export default function BridgeTransactionStatusModal({
         <div className="my-6 text-center text-white">
           {transaction.status === 'completed' && `Bridge Completed`}
           {transaction.status === 'in-progress' &&
-            `Est. Bridging Time: ${BridgeConfig.Rainbow.wait}`}
+            `Est. Bridging Time: ${estimateTime} mins`}
         </div>
         <div className="text-center mb-6">
           Transaction {transaction.status}. You can view your transaction on the{' '}

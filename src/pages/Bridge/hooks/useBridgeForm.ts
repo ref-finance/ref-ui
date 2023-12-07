@@ -1,63 +1,109 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useWalletConnectContext } from '../providers/walletConcent';
 import useBridgeToken from './useBridgeToken';
-import { useAsyncMemo } from './useHooks';
+import { useAsyncMemo, useStorageState } from './useHooks';
 import Big from 'big.js';
+import { debounce } from 'lodash';
+import { ethServices, tokenServices } from '../services/contract';
+import { BridgeConfig } from '../config';
 
 export default function useBridgeForm() {
   const { getTokenBySymbol } = useBridgeToken();
 
-  const defaultTokenMeta = useMemo(
-    () => getTokenBySymbol('NEAR'),
-    [getTokenBySymbol]
-  );
-
-  const [bridgeFromValue, setBridgeFromValue] = useState<
-    BridgeModel.BridgeTransferFormData['from']
-  >({
-    chain: 'ETH',
-    tokenMeta: defaultTokenMeta,
-    amount: undefined,
+  const [storageState, setStorageState] = useStorageState<{
+    fromChain: BridgeModel.BridgeSupportChain;
+    toChain: BridgeModel.BridgeSupportChain;
+    fromToken: string;
+    toToken: string;
+  }>('REF_BRIDGE_FORM', {
+    fromChain: 'ETH',
+    toChain: 'NEAR',
+    fromToken: 'NEAR',
+    toToken: 'NEAR',
   });
 
-  const [bridgeToValue, setBridgeToValue] = useState<
+  const [bridgeFromValue, _setBridgeFromValue] = useState<
+    BridgeModel.BridgeTransferFormData['from']
+  >(() => ({
+    chain: storageState.fromChain,
+    tokenMeta: getTokenBySymbol(storageState.fromToken),
+    amount: undefined,
+  }));
+
+  const [bridgeToValue, _setBridgeToValue] = useState<
     BridgeModel.BridgeTransferFormData['to']
-  >({
-    chain: 'NEAR',
-    tokenMeta: defaultTokenMeta,
+  >(() => ({
+    chain: storageState.toChain,
+    tokenMeta: getTokenBySymbol(storageState.toToken),
     amount: undefined,
     isCustomAccountAddress: false,
     customAccountAddress: undefined,
-  });
+  }));
 
   const walletCxt = useWalletConnectContext();
 
-  // sync account address from wallet context
-  useEffect(() => {
-    setBridgeFromValue({
-      ...bridgeFromValue,
-      accountAddress: walletCxt?.[bridgeFromValue.chain]?.accountId,
-    });
-    setBridgeToValue({
-      ...bridgeToValue,
-      accountAddress: walletCxt?.[bridgeToValue.chain]?.accountId,
-    });
-  }, [
-    bridgeFromValue.chain,
-    bridgeToValue.chain,
-    walletCxt.ETH.accountId,
-    walletCxt.NEAR.accountId,
-  ]);
+  const setBridgeFromValue = useCallback(
+    (value: BridgeModel.BridgeTransferFormData['from']) => {
+      if (walletCxt?.[value.chain]?.accountId)
+        value.accountAddress = walletCxt?.[value.chain]?.accountId;
+      _setBridgeFromValue(value);
+      setStorageState({
+        ...storageState,
+        fromChain: bridgeFromValue.chain,
+        fromToken: bridgeFromValue.tokenMeta?.symbol,
+      });
+    },
+    []
+  );
 
-  const { getTokenBalance } = useBridgeToken();
+  const setBridgeToValue = useCallback(
+    (value: BridgeModel.BridgeTransferFormData['to']) => {
+      if (walletCxt?.[value.chain]?.accountId)
+        value.accountAddress = walletCxt?.[value.chain]?.accountId;
+      _setBridgeToValue(value);
+      setStorageState({
+        ...storageState,
+        toChain: bridgeToValue.chain,
+        toToken: bridgeToValue.tokenMeta?.symbol,
+      });
+    },
+    []
+  );
+
+  const countEstimateOutAmount = useCallback(
+    debounce(async () => {
+      const amountOut = bridgeFromValue.amount;
+
+      setBridgeToValue({
+        ...bridgeToValue,
+        amount: amountOut,
+      });
+    }, 500),
+    [bridgeFromValue.amount]
+  );
+  useEffect(() => {
+    countEstimateOutAmount();
+  }, [countEstimateOutAmount]);
+
+  const estimatedGasFee = useAsyncMemo(
+    () => ethServices.calculateGasInUSD(BridgeConfig.Rainbow.gas),
+    [BridgeConfig.Rainbow.gas],
+    '0'
+  );
+
   const bridgeFromBalance = useAsyncMemo(
-    () => getTokenBalance(bridgeFromValue.chain, bridgeFromValue.tokenMeta),
+    () =>
+      tokenServices.getBalance(
+        bridgeFromValue.chain,
+        bridgeFromValue.tokenMeta
+      ),
     [bridgeFromValue.chain, bridgeFromValue.tokenMeta],
     '0'
   );
   const bridgeToBalance = useAsyncMemo(
-    () => getTokenBalance(bridgeToValue.chain, bridgeToValue.tokenMeta),
+    () =>
+      tokenServices.getBalance(bridgeToValue.chain, bridgeToValue.tokenMeta),
     [bridgeToValue.chain, bridgeToValue.tokenMeta],
     '0'
   );
@@ -119,12 +165,6 @@ export default function useBridgeForm() {
     });
   }
 
-  useEffect(
-    () => console.log('bridgeFromValue', bridgeFromValue),
-    [bridgeFromValue]
-  );
-  useEffect(() => console.log('bridgeToValue', bridgeToValue), [bridgeToValue]);
-
   return {
     bridgeFromValue,
     setBridgeFromValue,
@@ -137,5 +177,6 @@ export default function useBridgeForm() {
     bridgeSubmitStatusText,
     slippageTolerance,
     setSlippageTolerance,
+    estimatedGasFee,
   };
 }
