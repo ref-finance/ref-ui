@@ -7,7 +7,7 @@ import {
   FarmBoost,
   Seed,
 } from 'src/services/farm';
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { WalletContext } from 'src/utils/wallets-integration';
 import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -146,6 +146,24 @@ function MobileLiquidityPage({
 
   const [v2Order, setV2Order] = useState<string>('desc');
   const [tooltip, setTooltip] = useState<string>();
+
+  const topBinTooltipRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        tooltip &&
+        topBinTooltipRef.current &&
+        !topBinTooltipRef.current.contains(event.target)
+      ) {
+        setTooltip('');
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [topBinTooltipRef]);
 
   const poolv2ReSortingFunc = (p1: PoolInfo, p2: PoolInfo) => {
     const f1 = p1.fee;
@@ -561,6 +579,7 @@ function MobileLiquidityPage({
                     )}
                   </div>
                   <div
+                    ref={topBinTooltipRef}
                     data-tooltip-id={'top-bin-apr-mobile'}
                     data-tooltip-content="This is the trailing 24hr APR of the top performing bin in this pool."
                     className={`relative rounded-full flex items-center border    ${
