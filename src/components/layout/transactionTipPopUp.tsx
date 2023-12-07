@@ -10,7 +10,6 @@ import { ErrorTriangle } from '../icon/SwapRefresh';
 import { ONLY_ZEROS } from '../../utils/numbers';
 
 import { BsArrowUpRight } from '../reactIcons';
-import showToast from 'src/components/showToast';
 
 export enum TRANSACTION_WALLET_TYPE {
   NEAR_WALLET = 'transactionHashes',
@@ -53,7 +52,6 @@ export const getURLInfo = () => {
   const errorType = new URLSearchParams(search).get('errorType');
 
   const errorCode = new URLSearchParams(search).get('errorCode');
-  const errorMessage = new URLSearchParams(search).get('errorMessage');
 
   const signInErrorType = new URLSearchParams(search).get('signInErrorType');
 
@@ -70,7 +68,6 @@ export const getURLInfo = () => {
     errorType,
     signInErrorType,
     errorCode,
-    errorMessage,
     txHashes,
   };
 };
@@ -95,143 +92,109 @@ export function SwapCheckIcon() {
 }
 
 export const swapToast = (txHash: string) => {
-  return showToast({
-    title: 'Transaction Successful',
-  });
-  //todo: delete after testing
-  // toast(
-  //   <a
-  //     className="text-white w-full h-full pl-1.5 text-sm flex flex-wrap items-center"
-  //     href={`${getConfig().explorerUrl}/txns/${txHash}`}
-  //     target="_blank"
-  //     rel="noopener noreferrer nofollow"
-  //     style={{
-  //       lineHeight: '40px',
-  //     }}
-  //   >
-  //     <span className="mr-2.5 ">
-  //       <SwapCheckIcon />
-  //     </span>
-  //     <span className="mr-1">
-  //       <FormattedMessage
-  //         id="swap_successful"
-  //         defaultMessage="Swap successful. "
-  //       />
-  //     </span>
-  //     <span
-  //       className="underline"
-  //       style={{
-  //         textDecorationThickness: '1px',
-  //       }}
-  //     >
-  //       <FormattedMessage id="click_to_view" defaultMessage="Click to view" />
-  //     </span>
-  //   </a>,
-  //   {
-  //     autoClose: 8000,
-  //     closeOnClick: true,
-  //     hideProgressBar: false,
-  //     closeButton: <CloseIcon />,
-  //     progressStyle: {
-  //       background: '#00FFD1',
-  //       borderRadius: '8px',
-  //     },
-  //     style: {
-  //       background: '#1D2932',
-  //       boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
-  //       borderRadius: '8px',
-  //       minHeight: '0px',
-  //     },
-  //   }
-  // );
+  toast(
+    <a
+      className="text-white w-full h-full pl-1.5 text-sm flex flex-wrap items-center"
+      href={`${getConfig().explorerUrl}/txns/${txHash}`}
+      target="_blank"
+      rel="noopener noreferrer nofollow"
+      style={{
+        lineHeight: '40px',
+      }}
+    >
+      <span className="mr-2.5 ">
+        <SwapCheckIcon />
+      </span>
+      <span className="mr-1">
+        <FormattedMessage
+          id="swap_successful"
+          defaultMessage="Swap successful. "
+        />
+      </span>
+      <span
+        className="underline"
+        style={{
+          textDecorationThickness: '1px',
+        }}
+      >
+        <FormattedMessage id="click_to_view" defaultMessage="Click to view" />
+      </span>
+    </a>,
+    {
+      autoClose: 8000,
+      closeOnClick: true,
+      hideProgressBar: false,
+      closeButton: <CloseIcon />,
+      progressStyle: {
+        background: '#00FFD1',
+        borderRadius: '8px',
+      },
+      style: {
+        background: '#1D2932',
+        boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
+        borderRadius: '8px',
+        minHeight: '0px',
+      },
+    }
+  );
 };
 
 export const failToast = (txHash: string, errorType?: string) => {
-  return showToast({
-    title: errorType,
-    descNode: (
-      <div className={'custom-toast-desc'}>
-        This transaction has failed. Your assets has been returned to your Ref
-        account.
-        <div>
-          <a
-            href={`${getConfig().explorerUrl}/txns/${txHash}`}
-            target="_blank"
-            rel="noopener noreferrer nofollow"
-          >
-            <span
-              className="underline decoration-1"
-              style={{
-                textDecorationThickness: '1px',
-              }}
-            >
-              <FormattedMessage
-                id="click_to_view"
-                defaultMessage="Click to view"
-              />
-            </span>
-          </a>
-        </div>
-      </div>
-    ),
-    isError: true,
-  });
-  //todo: delete after testing
-  // toast(
-  //   <a
-  //     className="text-error w-full h-full pl-1.5 py-1 flex flex-col text-sm"
-  //     href={`${getConfig().explorerUrl}/txns/${txHash}`}
-  //     target="_blank"
-  //     rel="noopener noreferrer nofollow"
-  //     style={{
-  //       lineHeight: '20px',
-  //     }}
-  //   >
-  //     <span className=" flex items-center">
-  //       <span className="mr-2.5">
-  //         <ErrorTriangle />
-  //       </span>
-  //
-  //       <span>
-  //         <FormattedMessage
-  //           id="transaction_failed"
-  //           defaultMessage="Transaction failed"
-  //         />
-  //         {'. '}
-  //       </span>
-  //     </span>
-  //
-  //     <span>
-  //       <FormattedMessage id="Type" defaultMessage="Type" />: {` `}
-  //       <span className="whitespace-nowrap">{errorType}</span>
-  //       {'. '}
-  //       <span
-  //         className="underline decoration-1"
-  //         style={{
-  //           textDecorationThickness: '1px',
-  //         }}
-  //       >
-  //         <FormattedMessage id="click_to_view" defaultMessage="Click to view" />
-  //       </span>
-  //     </span>
-  //   </a>,
-  //   {
-  //     autoClose: false,
-  //     closeOnClick: true,
-  //     hideProgressBar: false,
-  //     closeButton: <CloseIcon />,
-  //     progressStyle: {
-  //       background: '#FF7575',
-  //       borderRadius: '8px',
-  //     },
-  //     style: {
-  //       background: '#1D2932',
-  //       boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
-  //       border: '1px solid #FF7575',
-  //       borderRadius: '8px',
-  //     },
-  //   }
-  // );
+  toast(
+    <a
+      className="text-error w-full h-full pl-1.5 py-1 flex flex-col text-sm"
+      href={`${getConfig().explorerUrl}/txns/${txHash}`}
+      target="_blank"
+      rel="noopener noreferrer nofollow"
+      style={{
+        lineHeight: '20px',
+      }}
+    >
+      <span className=" flex items-center">
+        <span className="mr-2.5">
+          <ErrorTriangle />
+        </span>
+
+        <span>
+          <FormattedMessage
+            id="transaction_failed"
+            defaultMessage="Transaction failed"
+          />
+          {'. '}
+        </span>
+      </span>
+
+      <span>
+        <FormattedMessage id="Type" defaultMessage="Type" />: {` `}
+        <span className="whitespace-nowrap">{errorType}</span>
+        {'. '}
+        <span
+          className="underline decoration-1"
+          style={{
+            textDecorationThickness: '1px',
+          }}
+        >
+          <FormattedMessage id="click_to_view" defaultMessage="Click to view" />
+        </span>
+      </span>
+    </a>,
+    {
+      autoClose: false,
+      closeOnClick: true,
+      hideProgressBar: false,
+      closeButton: <CloseIcon />,
+      progressStyle: {
+        background: '#FF7575',
+        borderRadius: '8px',
+      },
+      style: {
+        background: '#1D2932',
+        boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
+        border: '1px solid #FF7575',
+        borderRadius: '8px',
+      },
+    }
+  );
 };
 
 export const failToastAccount = (errorMsg?: string) => {

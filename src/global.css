@@ -1447,17 +1447,7 @@ input[type='range']::-webkit-slider-runnable-track {
   --wallet-selector-selected-wallet-bg: #42525c;
   --wallet-selector-mobile-bottom-section: #42525c;
   --sidebar-border-color: #42525c;
-
-  --toastify-icon-color-info: #23dad4;
-  --toastify-icon-color-success: #32ca82;
-  --toastify-icon-color-warning: #e7b24b;
-  --toastify-icon-color-error: #ff6a8e;
-
-  --toastify-color-progress-success: #32ca82;
-  --toastify-color-progress-warning: #e7b24b;
-  --toastify-color-progress-error: #ff6a8e;
 }
-
 .nws-modal-wrapper
   .nws-modal
   .modal-right

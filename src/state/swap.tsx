@@ -72,9 +72,6 @@ import { toRealSymbol } from '../utils/token';
 import { getCurrentWallet, WalletContext } from '../utils/wallets-integration';
 import { useIndexerStatus } from './pool';
 import { useTokenPriceList } from './token';
-import { CONST_SWAP_CALLBACK_ERROR_CODE } from 'src/constants/constSwap';
-import showToast from 'src/components/showToast';
-
 const ONLY_ZEROS = /^0*\.?0*$/;
 
 export const REF_DCL_POOL_CACHE_KEY = 'REF_DCL_POOL_CACHE_VALUE';
@@ -125,7 +122,7 @@ const getTokenPriceListFromCache = async () => {
 };
 
 export const useSwapPopUp = () => {
-  const { txHash, pathname, errorType, errorMessage, errorCode } = getURLInfo();
+  const { txHash, pathname, errorType } = getURLInfo();
   const history = useHistory();
 
   const parseLimitOrderPopUp = async (res: any) => {
@@ -337,24 +334,6 @@ export const useSwapPopUp = () => {
         });
     }
   }, [txHash]);
-
-  useEffect(() => {
-    if (errorCode) {
-      let toast = {
-        title: 'Error',
-        desc: errorMessage || errorCode,
-        isWarning: true,
-      };
-      console.log('errorCodeerrorCode', errorCode);
-      if (errorCode === CONST_SWAP_CALLBACK_ERROR_CODE.userRejected) {
-        toast.desc =
-          'User rejected the request. Details: \n' +
-          'NearWallet Tx Signature: User denied transaction signature. ';
-      }
-      console.log('toasttoast', toast);
-      showToast(toast);
-    }
-  }, [errorCode]);
 };
 
 export const useCrossSwapPopUp = () => {
