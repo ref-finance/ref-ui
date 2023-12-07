@@ -165,9 +165,6 @@ import { numberWithCommas } from '../Orderly/utiles';
 import { HiOutlineExternalLink, HiOutlineLink } from 'react-icons/hi';
 const STABLE_POOL_IDS = getConfig().STABLE_POOL_IDS;
 import { PoolRefreshModal } from './PoolRefreshModal';
-import { useTransactionResult } from 'src/components/toast/useTransactionResult';
-import showToast from 'src/components/toast/showToast';
-import { CONST_SWAP_CALLBACK_ERROR_CODE } from 'src/constants/constSwap';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 interface ParamTypes {
