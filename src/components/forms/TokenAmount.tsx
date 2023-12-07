@@ -79,7 +79,7 @@ interface TokenAmountProps {
   onSelectPost?: (token: TokenMetadata) => void;
   onSelectPre?: (token: TokenMetadata) => void;
   forWrap?: boolean;
-  showQuickButton?: Boolean;
+  showQuickButton?: boolean;
   ExtraElement?: JSX.Element;
   forLimitOrder?: boolean;
   marketPriceLimitOrder?: string;
@@ -100,7 +100,7 @@ interface TokenAmountProps {
 export function getTextWidth(str: string, fontSize: string) {
   let result = 10;
   const mobile = isMobile();
-  let ele = document.createElement('span');
+  const ele = document.createElement('span');
 
   ele.innerText = str;
   ele.style.fontSize = fontSize;
@@ -920,7 +920,6 @@ export function TokenCardIn({
         step="any"
         inputMode="decimal"
       />
-
       <fieldset className="relative flex  align-center items-center my-2">
         <InputAmountV3
           className="border border-transparent rounded w-full mr-2"
@@ -930,9 +929,9 @@ export function TokenCardIn({
           onChangeAmount={onChangeAmount}
           openClear
         />
+
         {ExtraElement}
       </fieldset>
-
       <div className="flex items-center justify-between">
         {tokenPrice(
           price && !ONLY_ZEROS.test(amount) ? multiply(price, amount) : null
