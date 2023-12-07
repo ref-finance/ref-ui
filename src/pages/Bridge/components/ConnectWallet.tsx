@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { useWalletConnectContext } from '../providers/walletConcent';
 import { formatSortAddress } from '../utils/format';
 import Button from './Button';
 import SvgIcon from './SvgIcon';
+import CopyToClipboard from 'react-copy-to-clipboard';
+import { useAutoResetState } from '../hooks/useHooks';
 
 type Props = {
   currentChain: BridgeModel.BridgeSupportChain;
@@ -20,6 +22,8 @@ function ConnectWallet({ currentChain, className, onChangeChain }: Props) {
   const {
     [currentChain]: { isSignedIn, accountId, open, disconnect },
   } = useWalletConnectContext();
+
+  const [showToast, setShowToast] = useAutoResetState(false, 2000);
 
   return (
     <div className={`inline-flex items-center ${className}`}>
@@ -43,8 +47,15 @@ function ConnectWallet({ currentChain, className, onChangeChain }: Props) {
           // onClick={() => currentChain === 'ETH' && open({ view: 'Account' })}
         >
           <span className="inline-flex w-2 h-2 rounded-full bg-primary mr-2"></span>
-          <span className="text-white mr-2">
-            {formatSortAddress(accountId)}
+          <span className="relative text-white mr-2">
+            <CopyToClipboard text={accountId} onCopy={() => setShowToast(true)}>
+              <span> {formatSortAddress(accountId)}</span>
+            </CopyToClipboard>
+            {showToast && (
+              <span className="text-xs text-white rounded-lg px-2.5 py-1.5 absolute -top-10 left-0 bg-black z-50">
+                Copied!
+              </span>
+            )}
           </span>
           {currentChain === 'ETH' && (
             <div
