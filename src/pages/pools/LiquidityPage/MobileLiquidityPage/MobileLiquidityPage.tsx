@@ -158,12 +158,13 @@ function MobileLiquidityPage({
       ) {
         setTooltip('');
       }
-    };
+    }
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [topBinTooltipRef]);
+  }, [tooltip]);
 
   const poolv2ReSortingFunc = (p1: PoolInfo, p2: PoolInfo) => {
     const f1 = p1.fee;
