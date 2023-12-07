@@ -2502,10 +2502,20 @@
   dependencies:
     rxjs "^7.8.0"
 
-"@near-wallet-selector/core@8.7.0", "@near-wallet-selector/core@^8.5.4":
+"@near-wallet-selector/core@8.7.0":
   version "8.7.0"
   resolved "https://registry.npmjs.org/@near-wallet-selector/core/-/core-8.7.0.tgz#65a681c332b46f47bf4ca51b53ee92726b2d9cda"
   integrity sha512-H1Mc0xyWsy5Vjscn8gjK8y0X1wG5EBH9VuVQ+mFOtdyt8y+7Pttf/0dD91oAIwCo7Pu/ryPukcr6IGAz1R05cA==
+  dependencies:
+    borsh "0.7.0"
+    events "3.3.0"
+    js-sha256 "0.9.0"
+    rxjs "7.8.1"
+
+"@near-wallet-selector/core@8.9.1", "@near-wallet-selector/core@^8.9.1":
+  version "8.9.1"
+  resolved "https://registry.npmjs.org/@near-wallet-selector/core/-/core-8.9.1.tgz#7d4de41ff18cde6530d0153e8335d5e366c07452"
+  integrity sha512-EY8PmKyNoW/pWsZFZM9V2sluSMn1DPQ8PDj+veiOCbuMP2USJ5j9qxJd1iJy07JbmI/40EuCA6IAZ6SbukzaUQ==
   dependencies:
     borsh "0.7.0"
     events "3.3.0"
@@ -2521,15 +2531,15 @@
     "@near-wallet-selector/core" "8.7.0"
     bn.js "5.2.1"
 
-"@near-wallet-selector/ledger@^8.5.4":
-  version "8.7.0"
-  resolved "https://registry.npmjs.org/@near-wallet-selector/ledger/-/ledger-8.7.0.tgz#3d95804fb4ef5e47efc55735c0c7633695a00a0e"
-  integrity sha512-m//xBs9P2j3caUhHYYqV1JcIHW+xJde13N45ohiWHl00S7iVtysZvIt1FArJ/ZhWooJzJSZb+pIFEBmli88Jlg==
+"@near-wallet-selector/ledger@^8.9.1":
+  version "8.9.1"
+  resolved "https://registry.npmjs.org/@near-wallet-selector/ledger/-/ledger-8.9.1.tgz#dcc949a9f821e72bb85e13d34b8b76d02cf5dd03"
+  integrity sha512-kckcSoRqDV8jONsvUnKiyp1TDvAmljMfbW+IueiC9I/qfg1Om1X3xN24toz92dAiLCYrciKgY2uZsTP54yGNIA==
   dependencies:
     "@ledgerhq/hw-transport" "6.27.1"
     "@ledgerhq/hw-transport-webhid" "6.27.1"
-    "@near-wallet-selector/core" "8.7.0"
-    "@near-wallet-selector/wallet-utils" "8.7.0"
+    "@near-wallet-selector/core" "8.9.1"
+    "@near-wallet-selector/wallet-utils" "8.9.1"
     bn.js "5.2.1"
     is-mobile "4.0.0"
     ts-essentials "7.0.3"
@@ -2625,6 +2635,14 @@
   integrity sha512-iS/RYnsmih/lEbPt90hGld6h967Iq3KYC+CESyxDw4bPKeadLB7d6nqnN7r6WarYeTG1iwkkbHsM52/eQmSdoQ==
   dependencies:
     "@near-wallet-selector/core" "8.7.0"
+    bn.js "5.2.1"
+
+"@near-wallet-selector/wallet-utils@8.9.1":
+  version "8.9.1"
+  resolved "https://registry.npmjs.org/@near-wallet-selector/wallet-utils/-/wallet-utils-8.9.1.tgz#69087d180a85b7fcd5325970f456946aee4776cb"
+  integrity sha512-T7KXOLfeFXc+LL3hMvmqBEVB4LhlQD4l8VSNM+AuaZIBAg16gPbT1Q1580oH6kH3SILogvIjIDetLIVtdhGi7w==
+  dependencies:
+    "@near-wallet-selector/core" "8.9.1"
     bn.js "5.2.1"
 
 "@nicolo-ribaudo/eslint-scope-5-internals@5.1.1-v1":
