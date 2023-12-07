@@ -27,7 +27,7 @@ function App() {
       </WalletSelectorContextProvider>
 
       <LedgerTransactionModal />
-      {/* <ModalTransactionSubmitting /> todo*/}
+      <ModalTransactionSubmitting />
       {/*<ModalGAPrivacy />*/}
     </Router>
   );
