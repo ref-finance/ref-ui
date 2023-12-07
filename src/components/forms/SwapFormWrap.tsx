@@ -140,7 +140,6 @@ export default function SwapFormWrap({
           setShowSwapLoading &&
           setLoadingPause(true);
         onSubmit(event);
-        setShowSwapLoading(false)
       } catch (err) {
         setError(err);
       }

@@ -1670,9 +1670,3 @@ options-list::-webkit-scrollbar {
 #top-bin-apr-mobile {
   width: 230px;
 }
-
-@media (max-width: 768px){
-  .Toastify__toast-container--bottom-right{
-  bottom:32px!important;
-  }
-}
