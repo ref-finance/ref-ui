@@ -150,7 +150,7 @@ function MobileLiquidityPage({
   const topBinTooltipRef = useRef(null);
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
+    function handleClickOutside(event) {
       if (
         tooltip &&
         topBinTooltipRef.current &&
