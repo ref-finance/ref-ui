@@ -27,7 +27,6 @@ import { RecentTransactions } from '../pools/DetailsPage';
 import { useTokens } from '../../state/token';
 
 export const DEFAULT_ACTIONS = ['add_liquidity', 'remove_liquidity'];
-const STABLE_TOKENS = ['USDT.e', 'USDC', 'DAI'];
 
 interface LocationTypes {
   stableTab?: string;

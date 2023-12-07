@@ -6,11 +6,20 @@ import StableSwapPage from './StableSwapPage';
 import StableSwapPageUSN from './StableSwapPageUSN';
 import FourTokenStablePage from './FourTokenStablePage';
 import { NEARX_POOL_ID } from 'src/services/near';
+import { PageContainer } from '../../components/layout/PageContainer';
 
 interface ParamTypes {
   id: string;
 }
-export default function StableSwapRouter() {
+
+export default function Container(props: any) {
+  return (
+    <PageContainer>
+      <StableSwapRouter {...props} />
+    </PageContainer>
+  );
+}
+function StableSwapRouter() {
   const { id } = useParams<ParamTypes>();
   const { pool } = usePool(id);
 

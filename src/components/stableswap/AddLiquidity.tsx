@@ -33,15 +33,11 @@ import { ChooseAddType } from './LiquidityComponents';
 import StableTokenList from './StableTokenList';
 import { WarnTriangle } from '../icon/SwapRefresh';
 import { ActionModel } from '../../pages/AccountPage';
-import { getDepositableBalance, useTokenBalances } from '../../state/token';
-import {
-  getCurrentWallet,
-  WalletContext,
-} from '../../utils/wallets-integration';
+import { getDepositableBalance } from '../../state/token';
+import { WalletContext } from '../../utils/wallets-integration';
 import SquareRadio from '../radio/SquareRadio';
 import { DEFAULT_ACTIONS } from '../../pages/stable/StableSwapPage';
-import { checkAccountTip, getURLInfo } from '../layout/transactionTipPopUp';
-import { checkTransaction } from '../../services/swap';
+import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
 
 export const STABLE_LP_TOKEN_DECIMALS = 18;
 export const RATED_POOL_LP_TOKEN_DECIMALS = 24;
@@ -115,6 +111,7 @@ export default function AddLiquidityComponent(props: {
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
 
   useEffect(() => {
     const firstAmount = toReadableNumber(
@@ -406,11 +403,17 @@ export default function AddLiquidityComponent(props: {
     ) as [string, string, string];
 
     return addLiquidityToStablePool({
-      tokens: tokens,
+      tokens,
       id: Number(STABLE_POOL_ID),
       amounts,
       min_shares,
-    });
+    })
+      .then(() => {
+        transtionsExcuteDataStore.setActionStatus('resolved');
+      })
+      .catch(() => {
+        transtionsExcuteDataStore.setActionStatus('rejected');
+      });
   }
 
   const canSubmit = canAddLP && !slippageInvalid;

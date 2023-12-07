@@ -8,6 +8,7 @@ export function PageContainer({ children }: any) {
   useEffect(() => {
     if (transtionsExcuteStatus == 'resolved') {
       setKey(Math.random());
+      transtionsExcuteDataStore.setActionStatus('none');
     }
   }, [transtionsExcuteStatus]);
   return <div key={key}>{children}</div>;

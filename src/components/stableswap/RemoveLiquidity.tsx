@@ -15,24 +15,16 @@ import { StableSlipSelector } from '../../components/forms/SlippageSelector';
 import { TokenMetadata } from '../../services/ft-contract';
 import {
   Pool,
-  predictRemoveLiquidity,
   removeLiquidityFromStablePool,
   removeLiquidityByTokensFromStablePool,
-  removeLiquidityFromPool,
   StablePool,
 } from '../../services/pool';
-import {
-  GetAmountToBalances,
-  getRemoveLiquidityByShare,
-} from '../../services/stable-swap';
+import { getRemoveLiquidityByShare } from '../../services/stable-swap';
 import { TokenBalancesView } from '../../services/token';
 import { usePredictRemoveShares, useRemoveLiquidity } from '../../state/pool';
 import {
   percent,
   percentLess,
-  percentOf,
-  subtraction,
-  toInternationalCurrencySystem,
   toNonDivisibleNumber,
   toPrecision,
   toReadableNumber,
@@ -47,12 +39,7 @@ import StableTokenList, {
   FlexibleStableTokenList,
   StableTokensSymbol,
 } from './StableTokenList';
-import { ShareInFarm } from 'src/components/layout/ShareInFarm';
-import { Link } from 'react-router-dom';
-import {
-  LP_STABLE_TOKEN_DECIMALS,
-  LP_TOKEN_DECIMALS,
-} from '../../services/m-token';
+import { LP_STABLE_TOKEN_DECIMALS } from '../../services/m-token';
 import { QuestionTip } from '../../components/layout/TipWrapper';
 import {
   WalletContext,
@@ -61,10 +48,8 @@ import {
 import { percentOfBigNumber } from '../../utils/numbers';
 import SquareRadio from '../radio/SquareRadio';
 import { DEFAULT_ACTIONS } from '../../pages/stable/StableSwapPage';
-import { useTokenBalances } from '../../state/token';
-import { getURLInfo, checkAccountTip } from '../layout/transactionTipPopUp';
 import { getStablePoolDecimal } from '../../pages/stable/StableSwapEntry';
-
+import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE';
 
 export function shareToUserTotal({
@@ -135,6 +120,7 @@ export function RemoveLiquidityComponent(props: {
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
 
   const byShareRangeRef = useRef(null);
 
@@ -174,7 +160,13 @@ export function RemoveLiquidityComponent(props: {
         id: pool.id,
         min_amounts: min_amounts as [string, string, string],
         shares: removeShares,
-      });
+      })
+        .then(() => {
+          transtionsExcuteDataStore.setActionStatus('resolved');
+        })
+        .catch(() => {
+          transtionsExcuteDataStore.setActionStatus('rejected');
+        });
     } else {
       const amounts = [
         firstTokenAmount,
@@ -198,7 +190,13 @@ export function RemoveLiquidityComponent(props: {
         id: pool.id,
         amounts,
         max_burn_shares,
-      });
+      })
+        .then(() => {
+          transtionsExcuteDataStore.setActionStatus('resolved');
+        })
+        .catch(() => {
+          transtionsExcuteDataStore.setActionStatus('rejected');
+        });
     }
   }
 

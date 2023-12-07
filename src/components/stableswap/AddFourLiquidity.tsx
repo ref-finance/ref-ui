@@ -40,8 +40,7 @@ import {
 } from '../../utils/wallets-integration';
 import SquareRadio from '../radio/SquareRadio';
 import { DEFAULT_ACTIONS } from '../../pages/stable/StableSwapPage';
-import { checkAccountTip, getURLInfo } from '../layout/transactionTipPopUp';
-import { checkTransaction } from '../../services/swap';
+import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
 
 export const STABLE_LP_TOKEN_DECIMALS = 18;
 export const RATED_POOL_LP_TOKEN_DECIMALS = 24;
@@ -121,6 +120,7 @@ export default function AddFourLiquidityComponent(props: {
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
 
   useEffect(() => {
     const firstAmount = toReadableNumber(
@@ -500,11 +500,17 @@ export default function AddFourLiquidityComponent(props: {
     ];
 
     return addLiquidityToStablePool({
-      tokens: tokens,
+      tokens,
       id: Number(USDTT_USDCC_USDT_USDC_POOL_ID),
       amounts,
       min_shares,
-    });
+    })
+      .then(() => {
+        transtionsExcuteDataStore.setActionStatus('resolved');
+      })
+      .catch(() => {
+        transtionsExcuteDataStore.setActionStatus('rejected');
+      });
   }
 
   const canSubmit = canAddLP && !slippageInvalid;

@@ -15,24 +15,16 @@ import { StableSlipSelector } from '../../components/forms/SlippageSelector';
 import { TokenMetadata } from '../../services/ft-contract';
 import {
   Pool,
-  predictRemoveLiquidity,
   removeLiquidityFromStablePool,
   removeLiquidityByTokensFromStablePool,
-  removeLiquidityFromPool,
   StablePool,
 } from '../../services/pool';
-import {
-  GetAmountToBalances,
-  getRemoveLiquidityByShare,
-} from '../../services/stable-swap';
+import { getRemoveLiquidityByShare } from '../../services/stable-swap';
 import { TokenBalancesView } from '../../services/token';
 import { usePredictRemoveShares, useRemoveLiquidity } from '../../state/pool';
 import {
   percent,
   percentLess,
-  percentOf,
-  subtraction,
-  toInternationalCurrencySystem,
   toNonDivisibleNumber,
   toPrecision,
   toReadableNumber,
@@ -61,9 +53,8 @@ import {
 import { percentOfBigNumber } from '../../utils/numbers';
 import SquareRadio from '../radio/SquareRadio';
 import { DEFAULT_ACTIONS } from '../../pages/stable/StableSwapPage';
-import { useTokenBalances } from '../../state/token';
-import { getURLInfo, checkAccountTip } from '../layout/transactionTipPopUp';
 import { getStablePoolDecimal } from '../../pages/stable/StableSwapEntry';
+import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
 
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE';
 
@@ -150,7 +141,7 @@ export function RemoveFourLiquidityComponent(props: {
     setThirdTokenAmount,
     setFourTokenAmount,
   ];
-
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
   const { predictedRemoveShares, canSubmitByToken } = usePredictRemoveShares({
     amounts: [
       firstTokenAmount,
@@ -186,7 +177,13 @@ export function RemoveFourLiquidityComponent(props: {
         id: pool.id,
         min_amounts: min_amounts as [string, string, string],
         shares: removeShares,
-      });
+      })
+        .then(() => {
+          transtionsExcuteDataStore.setActionStatus('resolved');
+        })
+        .catch(() => {
+          transtionsExcuteDataStore.setActionStatus('rejected');
+        });
     } else {
       const amounts = [
         firstTokenAmount,
@@ -211,7 +208,13 @@ export function RemoveFourLiquidityComponent(props: {
         id: pool.id,
         amounts,
         max_burn_shares,
-      });
+      })
+        .then(() => {
+          transtionsExcuteDataStore.setActionStatus('resolved');
+        })
+        .catch(() => {
+          transtionsExcuteDataStore.setActionStatus('rejected');
+        });
     }
   }
 

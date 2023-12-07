@@ -820,7 +820,6 @@ export const addLiquidityToStablePool = async ({
   min_shares,
   tokens,
 }: AddLiquidityToStablePoolOptions) => {
-  // const transactions: Transaction[] = [];
   const depositTransactions = await getDepositTransactions({
     tokens,
     amounts: amounts.map((amount, i) =>
@@ -861,7 +860,7 @@ export const addLiquidityToStablePool = async ({
     }
   }
 
-  return executeMultipleTransactions(transactions);
+  return await executeMultipleTransactionsV2(transactions);
 };
 
 interface RemoveLiquidityOptions {
@@ -1013,7 +1012,6 @@ interface RemoveLiquidityFromStablePoolOptions {
   tokens: TokenMetadata[];
   unregister?: boolean;
 }
-// todo by shares
 export const removeLiquidityFromStablePool = async ({
   id,
   shares,
@@ -1145,7 +1143,7 @@ export const removeLiquidityFromStablePool = async ({
     );
   }
 
-  return executeMultipleTransactions(transactions);
+  return await executeMultipleTransactionsV2(transactions);
 };
 
 export const predictRemoveLiquidityByTokens = async (
@@ -1299,7 +1297,7 @@ export const removeLiquidityByTokensFromStablePool = async ({
     );
   }
 
-  return executeMultipleTransactions(transactions);
+  return await executeMultipleTransactionsV2(transactions);
 };
 
 export const addSimpleLiquidityPool = async (
