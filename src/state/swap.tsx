@@ -73,7 +73,7 @@ import { getCurrentWallet, WalletContext } from '../utils/wallets-integration';
 import { useIndexerStatus } from './pool';
 import { useTokenPriceList } from './token';
 import { CONST_SWAP_CALLBACK_ERROR_CODE } from 'src/constants/constSwap';
-import showToast from 'src/components/toast/showToast';
+import showToast from 'src/components/showToast';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -345,11 +345,13 @@ export const useSwapPopUp = () => {
         desc: errorMessage || errorCode,
         isWarning: true,
       };
+      console.log('errorCodeerrorCode', errorCode);
       if (errorCode === CONST_SWAP_CALLBACK_ERROR_CODE.userRejected) {
         toast.desc =
           'User rejected the request. Details: \n' +
           'NearWallet Tx Signature: User denied transaction signature. ';
       }
+      console.log('toasttoast', toast);
       showToast(toast);
     }
   }, [errorCode]);

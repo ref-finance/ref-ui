@@ -2194,42 +2194,6 @@ export default function PoolDetailsPage() {
   };
   const farmStakeTotal = useFarmStake({ poolId: Number(id), stakeList });
 
-  const { transactionResult } = useTransactionResult();
-
-  useEffect(() => {
-    if (transactionResult) {
-      const { isSuccess, isError, errorMessage, errorCode } = transactionResult;
-      if (isSuccess) {
-        showToast({
-          title: 'Transaction Successful',
-        });
-        history.replace({
-          search: '',
-        });
-      }
-      if (isError) {
-        let toast = {
-          title: 'Error',
-          desc: errorMessage,
-          isError: true,
-          isWarning: false,
-        };
-        if (errorCode === CONST_SWAP_CALLBACK_ERROR_CODE.userRejected) {
-          toast.desc =
-            'User rejected the request. Details: \n' +
-            'NearWallet Tx Signature: User denied transaction signature. ';
-          toast.isWarning = true;
-          toast.isError = false;
-        }
-
-        showToast(toast);
-        history.replace({
-          search: '',
-        });
-      }
-    }
-  }, [transactionResult]);
-
   const { lptAmount } = !!getConfig().REF_VE_CONTRACT_ID
     ? useAccountInfo()
     : { lptAmount: '0' };

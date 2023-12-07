@@ -10,7 +10,7 @@ import { ErrorTriangle } from '../icon/SwapRefresh';
 import { ONLY_ZEROS } from '../../utils/numbers';
 
 import { BsArrowUpRight } from '../reactIcons';
-import showToast from 'src/components/toast/showToast';
+import showToast from 'src/components/showToast';
 
 export enum TRANSACTION_WALLET_TYPE {
   NEAR_WALLET = 'transactionHashes',
@@ -97,31 +97,8 @@ export function SwapCheckIcon() {
 export const swapToast = (txHash: string) => {
   return showToast({
     title: 'Transaction Successful',
-    descNode: (
-      <a
-        className="custom-toast-desc"
-        href={`${getConfig().explorerUrl}/txns/${txHash}`}
-        target="_blank"
-        rel="noopener noreferrer nofollow"
-      >
-        <span className="mr-1">
-          <FormattedMessage
-            id="swap_successful"
-            defaultMessage="Swap successful. "
-          />
-        </span>
-        <span
-          className="underline"
-          style={{
-            textDecorationThickness: '1px',
-          }}
-        >
-          <FormattedMessage id="click_to_view" defaultMessage="Click to view" />
-        </span>
-      </a>
-    ),
   });
-  // todo: delete after testing
+  //todo: delete after testing
   // toast(
   //   <a
   //     className="text-white w-full h-full pl-1.5 text-sm flex flex-wrap items-center"
@@ -199,7 +176,7 @@ export const failToast = (txHash: string, errorType?: string) => {
     ),
     isError: true,
   });
-  // todo: delete after testing
+  //todo: delete after testing
   // toast(
   //   <a
   //     className="text-error w-full h-full pl-1.5 py-1 flex flex-col text-sm"
