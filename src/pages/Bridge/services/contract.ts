@@ -55,7 +55,7 @@ export const ethServices = {
         balance = Interface.decodeFunctionResult('balanceOf', rawBalance)[0];
       }
       const formattedBalance = formatBalanceRaw(balance, token.decimals);
-      console.log(`${token.symbol} balance on eth`, formattedBalance);
+      console.log(`bridge: ${token.symbol} balance on eth`, formattedBalance);
       return formattedBalance;
     } catch (error) {
       console.error(error);
@@ -73,11 +73,11 @@ export const ethServices = {
       .times(ethPriceInUSD)
       .toFixed(4);
     console.log(
-      `Gas Price: ${ethers.utils.formatUnits(gasPrice, 'gwei')} GWei`
+      `bridge: Gas Price: ${ethers.utils.formatUnits(gasPrice, 'gwei')} GWei`
     );
-    console.log(`Gas Limit: ${gasLimit.toString()}`);
-    console.log(`Total Gas Cost: ${totalGasCostEth} ETH`);
-    console.log(`Total Gas Cost: ${totalGasCostUSD} USD`);
+    console.log(`bridge: Gas Limit: ${gasLimit.toString()}`);
+    console.log(`bridge: Total Gas Cost: ${totalGasCostEth} ETH`);
+    console.log(`bridge: Total Gas Cost: ${totalGasCostUSD} USD`);
     return totalGasCostUSD;
   },
 };
@@ -89,7 +89,7 @@ export const nearServices = {
       if (!token.addresses.NEAR || !window.Near) return balance;
       const _accountId =
         accountId || window.walletNearConnection.getAccountId();
-      console.log('_accountId', _accountId);
+
       const account = await window.Near.account(_accountId);
 
       if (token.symbol === 'NEAR') {
@@ -102,7 +102,7 @@ export const nearServices = {
         );
       }
       const formattedBalance = formatBalanceRaw(balance, token.decimals);
-      console.log(`${token.symbol} balance on near`, formattedBalance);
+      console.log(`bridge: ${token.symbol} balance on near`, formattedBalance);
       return formattedBalance;
     } catch (error) {
       console.error(error);

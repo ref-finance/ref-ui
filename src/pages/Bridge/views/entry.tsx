@@ -53,7 +53,6 @@ function CustomAccountAddress() {
 
   function handleChangeAddress(value: string) {
     setCustomAccountAddress(value);
-    console.log('isValidCustomAddress', isValidCustomAddress);
     if (isValidCustomAddress) {
       setBridgeToValue({
         ...bridgeToValue,
@@ -69,7 +68,7 @@ function CustomAccountAddress() {
         handleChangeAddress(text);
       })
       .catch((err) => {
-        console.log('Something went wrong', err);
+        console.warn('Failed to read clipboard contents: ', err);
       });
   }
 
@@ -156,7 +155,6 @@ function BridgeEntry() {
     ...rest
   }: Parameters<typeof selectToken>[number] & { type: 'from' | 'to' }) {
     const tokenMeta = await selectToken(rest);
-    console.log('selected tokenMeta', tokenMeta);
     setBridgeFromValue({ ...bridgeFromValue, tokenMeta });
     setBridgeToValue({ ...bridgeToValue, tokenMeta });
   }

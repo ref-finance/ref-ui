@@ -1,20 +1,31 @@
-import { DependencyList, useEffect, useState } from 'react';
+import {
+  DependencyList,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { debounce, DebounceSettings } from 'lodash';
 import { safeJSONParse, safeJSONStringify } from '../utils/common';
 
-type Options<T> = {
+type DebounceOptions = number | ({ wait: number } & Partial<DebounceSettings>);
+type RequestOptions<T> = {
   refreshDeps?: React.DependencyList;
   before?: () => boolean | undefined;
   manual?: boolean;
   onSuccess?: (res: T) => void;
   onError?: (err: Error) => void;
-  debounceOptions?: number | ({ wait: number } & Partial<DebounceSettings>);
+  debounceOptions?: DebounceOptions;
 };
 
-export function useRequest<T>(request: () => Promise<T>, options?: Options<T>) {
-  const [data, setData] = useState<T>();
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<Error>();
+export function useRequest<T>(
+  request: () => Promise<T>,
+  options?: RequestOptions<T>
+) {
+  const [data, setData] = useState<T | undefined>(undefined);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<Error | undefined>(undefined);
+
   const {
     refreshDeps = [],
     before,
@@ -23,34 +34,35 @@ export function useRequest<T>(request: () => Promise<T>, options?: Options<T>) {
     onError,
     debounceOptions,
   } = options || {};
-  const run = async () => {
+
+  const run = useCallback(async () => {
     try {
       setLoading(true);
       const res = await request();
+
       setData(res);
-      onSuccess && onSuccess(res);
+      onSuccess?.(res);
     } catch (err) {
       console.error(err);
-      setError(err);
-      onError && onError(err);
+      setError(err instanceof Error ? err : new Error(String(err)));
+      onError?.(err instanceof Error ? err : new Error(String(err)));
     } finally {
       setLoading(false);
     }
-  };
-  const debounceRun = debounce(
-    run,
-    typeof debounceOptions === 'number'
-      ? debounceOptions
-      : debounceOptions?.wait || 0
+  }, [request, onSuccess, onError]);
+
+  useDebouncedEffect(
+    () => {
+      if (manual) return;
+      if (before && !before()) return;
+      run();
+    },
+    [...refreshDeps],
+    debounceOptions
   );
-  useEffect(() => {
-    if (manual) return;
-    if (before && !before()) return;
-    run();
-  }, [...refreshDeps]);
 
   return {
-    run: debounceOptions ? debounceRun : run,
+    run,
     data,
     setData,
     loading,
@@ -58,6 +70,23 @@ export function useRequest<T>(request: () => Promise<T>, options?: Options<T>) {
     error,
     setError,
   };
+}
+
+export function useDebouncedEffect(
+  effect: () => void,
+  deps: React.DependencyList,
+  debounceOptions?: DebounceOptions
+) {
+  useEffect(() => {
+    const debouncedEffect =
+      typeof debounceOptions === 'number'
+        ? debounce(effect, debounceOptions)
+        : debounce(effect, debounceOptions?.wait, debounceOptions);
+
+    debouncedEffect();
+
+    return () => debouncedEffect.cancel();
+  }, [...deps, debounceOptions]);
 }
 
 export function useAsyncMemo<T>(

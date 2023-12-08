@@ -36,7 +36,7 @@ export default function useRainbowBridge(params?: {
 
     checkStatusAll({ loop: 15000 });
 
-    console.log('setup rainbow bridge');
+    console.log('bridge: setup rainbow');
   }, [wallet.ETH.isSignedIn, wallet.NEAR.isSignedIn]);
 
   const [unclaimedTransactions, setUnclaimedTransactions] = useState<
@@ -67,7 +67,7 @@ export default function useRainbowBridge(params?: {
       'nearWalletSelector'
     >
   ) {
-    console.log('transfer params', params);
+    console.log('bridge: transfer params', params);
     setActionLoading(true);
     const result = await rainbowBridgeService
       .transfer({
@@ -79,7 +79,7 @@ export default function useRainbowBridge(params?: {
         toast.error(err.message.substring(0, 100), { theme: 'dark' });
       });
     setActionLoading(false);
-    console.log('transfer result', result);
+    console.log('bridge: transfer result', result);
     return result as BridgeModel.BridgeTransaction;
   }
   async function callAction(id: string) {

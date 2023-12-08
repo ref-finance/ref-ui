@@ -147,7 +147,7 @@ function HistoryTable({ data, loading, onRefresh }: Props) {
       }}
     >
       {loading && (
-        <div className="absolute left-0 top-0 right-0 bottom-0 flex items-center justify-center">
+        <div className="absolute left-0 top-0 right-0 bottom-0  z-1 flex items-center justify-center">
           <SvgIcon name="IconLoading" className="text-6xl" />
         </div>
       )}

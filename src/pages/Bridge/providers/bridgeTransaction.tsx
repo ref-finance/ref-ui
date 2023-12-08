@@ -56,7 +56,6 @@ export default function BridgeTransactionProvider({ children }: any) {
         const result = await bridgeHistoryService.getByHash(
           query.transactionHashes
         );
-        console.log('has transactionHashes', query.transactionHashes, result);
         if (result) openBridgeTransactionStatusModal(result);
 
         router.replace({ search: '' });

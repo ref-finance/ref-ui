@@ -31,7 +31,6 @@ const rainbowBridgeService = {
       sender,
       BridgeConfig.Rainbow.bridgeParams.erc20LockerAddress
     );
-    console.log('allowance', erc20Contract, allowance);
     const amountIn = new Big(amount).times(10 ** token.decimals).toFixed();
     if (allowance.gte(amountIn)) return true;
     return false;
@@ -119,8 +118,8 @@ const rainbowBridgeService = {
     const amount = new Big(amountIn).times(10 ** token.decimals).toFixed();
 
     const instance = rainbowBridgeService.getBridgeInstance({ token, from });
-    console.log('rainbow bridge instance', instance);
-    console.log('rainbow bridge params', {
+    console.log('bridge: rainbow instance', instance);
+    console.log('bridge: rainbow params', {
       token,
       from,
       amount,
@@ -196,7 +195,7 @@ const rainbowBridgeService = {
     const decodedResult = sortedResult.map((item) =>
       rainbowBridgeService.transformRawData(item)
     );
-    console.log('decodedResult', decodedResult);
+    console.log('bridge: rainbow decodedResult', decodedResult);
     return decodedResult as BridgeModel.BridgeTransaction[];
   },
   async getById(id: string) {

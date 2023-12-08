@@ -118,9 +118,19 @@ export default function useBridgeForm() {
     | 'insufficientBalance'
     | 'noEnoughGas'
   >(() => {
-    if (!bridgeFromValue.accountAddress) return `unConnectForm`;
+    if (
+      !(
+        bridgeFromValue.accountAddress ||
+        walletCxt?.[bridgeFromValue.chain]?.accountId
+      )
+    )
+      return `unConnectForm`;
     else if (
-      !(bridgeToValue.accountAddress || bridgeToValue.customAccountAddress)
+      !(
+        bridgeToValue.accountAddress ||
+        walletCxt?.[bridgeFromValue.chain]?.accountId ||
+        bridgeToValue.customAccountAddress
+      )
     )
       return `unConnectTo`;
     else if (!bridgeFromValue.amount) return `enterAmount`;
@@ -128,7 +138,15 @@ export default function useBridgeForm() {
     else if (new Big(bridgeFromBalance).lt(bridgeFromValue.amount))
       return `noEnoughGas`;
     else return `preview`;
-  }, [bridgeFromValue, bridgeToValue, bridgeFromBalance]);
+  }, [
+    bridgeFromValue.accountAddress,
+    bridgeFromValue.chain,
+    bridgeFromValue.amount,
+    walletCxt,
+    bridgeToValue.accountAddress,
+    bridgeToValue.customAccountAddress,
+    bridgeFromBalance,
+  ]);
 
   const bridgeSubmitStatusText = useMemo(() => {
     switch (bridgeSubmitStatus) {

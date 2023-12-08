@@ -11,6 +11,7 @@ import { useWalletConnectContext } from '../providers/walletConcent';
 
 type BridgeHistoryFilter = {
   chain: BridgeModel.BridgeSupportChain;
+  hash?: string;
   onlyUnclaimed: boolean;
 };
 
@@ -31,7 +32,7 @@ function BridgeTransactionHistory() {
         ...historyFilter,
         accountAddress: wallet?.[historyFilter.chain]?.accountId,
       }),
-    { refreshDeps: [historyFilter] }
+    { refreshDeps: [historyFilter], debounceOptions: 1000 }
   );
 
   const router = useRouter();
@@ -51,6 +52,10 @@ function BridgeTransactionHistory() {
           <input
             className="bridge-input w-1/2"
             placeholder="Transaction Hash"
+            value={historyFilter.hash}
+            onChange={(e) =>
+              setHistoryFilter({ ...historyFilter, hash: e.target.value })
+            }
           />
         </div>
         <div className="flex items-center justify-between mb-6">
@@ -59,7 +64,6 @@ function BridgeTransactionHistory() {
             <ConnectWallet
               currentChain={historyFilter.chain}
               onChangeChain={(val) => {
-                console.log(val);
                 setHistoryFilter({ ...historyFilter, chain: val });
               }}
             />
