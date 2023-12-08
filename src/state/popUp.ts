@@ -15,10 +15,19 @@ import {
 } from '../utils/wallets-integration';
 import { NEAR_WITHDRAW_KEY } from '../components/forms/WrapNear';
 import showToast from 'src/components/toast/showToast';
+import { useTranstionsExcuteDataStore } from 'src/stores/transtionsExcuteData';
 
 export const useGlobalPopUp = (globalState: any) => {
-  const { txHash, pathname, errorType, signInErrorType, txHashes } =
-    getURLInfo();
+  const {
+    txHash,
+    pathname,
+    errorType,
+    errorCode,
+    errorMessage,
+    signInErrorType,
+    txHashes,
+  } = getURLInfo();
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
   const isSignedIn = globalState.isSignedIn;
 
   const walletsTXError = sessionStorage.getItem('WALLETS_TX_ERROR');
@@ -53,6 +62,7 @@ export const useGlobalPopUp = (globalState: any) => {
 
   useEffect(() => {
     if (txHash && isSignedIn) {
+      console.log('txHashtxHash', txHash);
       checkTransaction(txHash)
         .then((res: any) => {
           const transaction = res.transaction;
@@ -85,28 +95,48 @@ export const useGlobalPopUp = (globalState: any) => {
           };
         })
         .then(({ isWrapNear }) => {
-          if (isWrapNear) {
-            !errorType && swapToast(txHash);
+          if (!errorType) {
+            transtionsExcuteDataStore.setActionData({
+              status: 'success',
+              transactionResponse: {
+                response: {},
+                txHash,
+              },
+            });
             window.history.replaceState(
               {},
               '',
               window.location.origin + pathname
             );
           }
+
+          // if (isWrapNear) {
+          //   !errorType && swapToast(txHash);
+          //   window.history.replaceState(
+          //     {},
+          //     '',
+          //     window.location.origin + pathname
+          //   );
+          // }
         });
     }
   }, [txHash, isSignedIn]);
 
   useEffect(() => {
-    if (walletsTXError) {
+    let txError = walletsTXError;
+    if (errorCode) {
+      txError =
+        (errorMessage && decodeURI(errorMessage)) || errorCode || errorType;
+    }
+    if (txError) {
       let toast = {
         title: 'Error',
-        desc: walletsTXError,
+        desc: txError,
         isError: true,
         isWarning: false,
       };
 
-      if (walletsRejectError.includes(walletsTXError)) {
+      if (walletsRejectError.includes(txError)) {
         toast.isError = false;
         toast.isWarning = true;
         // toast.desc =
@@ -117,5 +147,5 @@ export const useGlobalPopUp = (globalState: any) => {
       showToast(toast);
       sessionStorage.removeItem('WALLETS_TX_ERROR');
     }
-  }, [walletsTXError]);
+  }, [walletsTXError, errorCode]);
 };

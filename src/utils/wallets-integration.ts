@@ -29,6 +29,7 @@ export const SENDER_WALLET_SIGNEDIN_STATE_KEY =
 export const walletsRejectError = [
   'User reject',
   'User rejected the signature request',
+  'User rejected transaction', // myNearWallet
   'Invalid message. Only transactions can be signed',
   'Ledger device: Condition of use not satisfied (denied by the user?) (0x6985)',
   'User cancelled the action', // meteor wallet

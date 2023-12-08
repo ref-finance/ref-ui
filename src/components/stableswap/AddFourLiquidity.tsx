@@ -40,7 +40,10 @@ import {
 } from '../../utils/wallets-integration';
 import SquareRadio from '../radio/SquareRadio';
 import { DEFAULT_ACTIONS } from '../../pages/stable/StableSwapPage';
-import { constTransactionPage, useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
+import {
+  constTransactionPage,
+  useTranstionsExcuteDataStore,
+} from '../../stores/transtionsExcuteData';
 
 export const STABLE_LP_TOKEN_DECIMALS = 18;
 export const RATED_POOL_LP_TOKEN_DECIMALS = 24;
@@ -508,8 +511,8 @@ export default function AddFourLiquidityComponent(props: {
       amounts,
       min_shares,
     })
-      .then(({response}) => {
-        setButtonLoading(false)
+      .then(({ response }) => {
+        setButtonLoading(false);
         transtionsExcuteDataStore.setActionData({
           status: 'success',
           transactionResponse: response,
@@ -517,7 +520,7 @@ export default function AddFourLiquidityComponent(props: {
         transtionsExcuteDataStore.setActionStatus('resolved');
       })
       .catch((e) => {
-        setButtonLoading(false)
+        setButtonLoading(false);
         transtionsExcuteDataStore.setActionData({
           status: 'error',
           transactionError: e,
@@ -558,7 +561,6 @@ export default function AddFourLiquidityComponent(props: {
         <ChooseAddType addType={addType} setAddType={setAddType} />
 
         <div className="fourlp text-xs px-8 pt-2 mt-6 border-t border-primaryText border-opacity-30">
-        
           <StableSlipSelector
             slippageTolerance={slippageTolerance}
             onChange={(slippage) => {

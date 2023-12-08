@@ -30,11 +30,11 @@ export const ToastTransaction = () => {
   const { walletsTXError, message } = errorObj || {};
 
   useEffect(() => {
-    if (status === 'success') {
-      showToast({
-        desc: 'Transaction Success',
-      });
-    }
+    // if (status === 'success') {
+    //   showToast({
+    //     desc: 'Transaction Success',
+    //   });
+    // }
 
     if (status === 'error') {
       const errorMsg = walletsTXError || message;
@@ -137,18 +137,25 @@ export const ModalTransactionSubmitting = () => {
     footerNode = <div>Success</div>;
   }
   if (transactionResponse) {
-    console.log('=>transactionResponse', transactionResponse);
-    const hash = Array.isArray(transactionResponse)
-      ? transactionResponse[0].transaction?.hash
-      : transactionResponse?.transaction?.hash;
-    footerNode = (
-      <div>
-        View on{' '}
-        <a className={'underline'} href={`${explorerUrl}/txns/${hash}`}>
-          Nearblock
-        </a>
-      </div>
-    );
+    let hash;
+    if (transactionResponse?.txHash) {
+      hash = transactionResponse?.txHash;
+    } else if (Array.isArray(transactionResponse)) {
+      hash = transactionResponse[0].transaction?.hash;
+    } else if (transactionResponse?.transaction?.hash) {
+      hash = transactionResponse?.transaction?.hash;
+    }
+
+    if (hash) {
+      footerNode = (
+        <div>
+          View on{' '}
+          <a className={'underline'} href={`${explorerUrl}/txns/${hash}`}>
+            Nearblock
+          </a>
+        </div>
+      );
+    }
   }
 
   const handleClose = () => {
