@@ -17,7 +17,10 @@ import {
   ConnectToNearBtn,
 } from 'src/components/button/Button';
 import { useWalletSelector } from '../../../../context/WalletSelectorContext';
-import { useTranstionsExcuteDataStore } from '../../../../stores/transtionsExcuteData';
+import {
+  constTransactionPage,
+  useTranstionsExcuteDataStore,
+} from '../../../../stores/transtionsExcuteData';
 import { addLiquidityTxHashHandle } from '../../../../services/commonV3';
 import { useHistory } from 'react-router-dom';
 
@@ -51,17 +54,29 @@ export function AddLiquidityButton() {
   const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
   function addLiquiditySpot() {
     setAddLiquidityButtonLoading(true);
+    transtionsExcuteDataStore.setActionData({
+      status: 'pending',
+      page: constTransactionPage.liquidity,
+    });
     const new_liquidity = getLiquiditySpot();
     add_liquidity(new_liquidity)
-      .then(({ txHash }: any) => {
-        transtionsExcuteDataStore.setActionStatus('resolved');
+      .then(({ txHash, response }: any) => {
         addLiquidityTxHashHandle(txHash).then((link) => {
           setAddLiquidityButtonLoading(false);
-          history.replace(link);
+          transtionsExcuteDataStore.setActionStatus('resolved');
+          transtionsExcuteDataStore.setActionData({
+            status: 'success',
+            transactionResponse: response,
+            onClose: () => history.replace(link),
+          });
         });
       })
-      .catch(() => {
+      .catch((e) => {
         transtionsExcuteDataStore.setActionStatus('rejected');
+        transtionsExcuteDataStore.setActionData({
+          status: 'error',
+          transactionError: e,
+        });
         setAddLiquidityButtonLoading(false);
       });
   }

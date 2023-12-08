@@ -666,20 +666,32 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
     setDefaultMessage('Add Liquidity');
   }
 
-  function submit() {
-    return addLiquidityToPool({
-      id: pool.id,
-      tokenAmounts: [
-        { token: tokens[0], amount: firstTokenAmount },
-        { token: tokens[1], amount: secondTokenAmount },
-      ],
-    })
-      .then(() => {
-        transtionsExcuteDataStore.setActionStatus('resolved');
-      })
-      .catch(() => {
-        transtionsExcuteDataStore.setActionStatus('rejected');
+  async function submit() {
+    try {
+      transtionsExcuteDataStore.setActionData({
+        status: 'pending',
       });
+      const { response } = await addLiquidityToPool({
+        id: pool.id,
+        tokenAmounts: [
+          { token: tokens[0], amount: firstTokenAmount },
+          { token: tokens[1], amount: secondTokenAmount },
+        ],
+      });
+      transtionsExcuteDataStore.setActionData({
+        status: 'success',
+        transactionResponse: response,
+      });
+      transtionsExcuteDataStore.setActionStatus('resolved');
+      setButtonLoading(false);
+    } catch (e) {
+      transtionsExcuteDataStore.setActionData({
+        status: 'error',
+        transactionError: e,
+      });
+      transtionsExcuteDataStore.setActionStatus('rejected');
+      setButtonLoading(false);
+    }
   }
 
   const ButtonRender = () => {

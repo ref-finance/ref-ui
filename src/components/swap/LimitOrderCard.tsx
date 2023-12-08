@@ -92,7 +92,10 @@ import { PoolInfo, get_pool_from_cache } from '../../services/swapV3';
 import { nearMetadata } from '../../services/wrap-near';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { InfoIcon } from 'src/components/icon/Common';
-import { useTranstionsExcuteDataStore } from 'src/stores/transtionsExcuteData';
+import {
+  constTransactionPage,
+  useTranstionsExcuteDataStore,
+} from 'src/stores/transtionsExcuteData';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -910,11 +913,15 @@ export default function LimitOrderCard(props: {
     try {
       transtionsExcuteDataStore.setActionStatus('pending');
       transtionsExcuteDataStore.setActionData({
-        selectTrade: {
-          tokenIn,
-          tokenOut,
-          tokenInAmount,
-          tokenOutAmount: limitAmountOut,
+        status: 'pending',
+        page: constTransactionPage.swap,
+        data: {
+          selectTrade: {
+            tokenIn,
+            tokenOut,
+            tokenInAmount,
+            tokenOutAmount: limitAmountOut,
+          },
         },
       });
       const swapRes = await v3Swap({
@@ -929,7 +936,8 @@ export default function LimitOrderCard(props: {
         },
       });
       transtionsExcuteDataStore.setActionStatus('resolved');
-      transtionsExcuteDataStore.setactionCallBackData({
+      transtionsExcuteDataStore.setActionData({
+        status: 'success',
         transactionResponse: swapRes?.response,
       });
       setShowSwapLoading(false);
@@ -938,7 +946,10 @@ export default function LimitOrderCard(props: {
       setShowSwapLoading(false);
       setDoubleCheckOpenLimit(false);
       transtionsExcuteDataStore.setActionStatus('none');
-      transtionsExcuteDataStore.setactionCallBackData({ transactionError: e });
+      transtionsExcuteDataStore.setActionData({
+        status: 'error',
+        transactionError: e,
+      });
     }
   };
 

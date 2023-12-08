@@ -1,14 +1,18 @@
 import { create } from 'zustand';
 
-export type IExcuteStatus =
-  | 'pending'
-  | 'success'
-  | 'error'
-  | 'resolved'
-  | 'rejected'
-  | 'none';
+export const constTransactionPage = {
+  swap: 'swap',
+  liquidity: 'liquidity',
+  farm: 'farm',
+};
 
-type IActionCallBackData = {
+export type IExcuteStatus = 'pending' | 'resolved' | 'rejected' | 'none';
+
+type IActionData = {
+  status: 'pending' | 'success' | 'error';
+  page?: string;
+  data?: any;
+  onClose?: () => any;
   transactionResponse?: any;
   transactionError?: any;
 };
@@ -20,8 +24,8 @@ type ITranstionsExcuteDataStore = {
   actionCallBackData: any;
   setActionPage: (p: string) => void;
   setActionStatus: (p: IExcuteStatus) => void;
-  setActionData: (p: any) => void;
-  setactionCallBackData: (p: IActionCallBackData) => void;
+  setActionData: (p: IActionData) => void;
+  removeActionData: () => void;
   getActionPage: () => any;
   getActionStatus: () => any;
   getActionData: () => any;
@@ -35,8 +39,9 @@ export const useTranstionsExcuteDataStore = create<ITranstionsExcuteDataStore>(
     actionCallBackData: undefined,
     setActionPage: (name) => set({ actionPage: name }),
     setActionStatus: (status: IExcuteStatus) => set({ actionStatus: status }),
-    setActionData: (data) => set({ actionData: data }),
-    setactionCallBackData: (data) => set({ actionCallBackData: data }),
+    setActionData: (data) =>
+      set((state) => ({ actionData: { ...state.actionData, ...data } })),
+    removeActionData: () => set({ actionData: null }),
     getActionPage: () => get().actionPage,
     getActionStatus: () => get().actionStatus,
     getActionData: () => get().actionData,

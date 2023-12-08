@@ -17,10 +17,9 @@ const { explorerUrl } = getConfig();
 
 export const ToastTransaction = () => {
   const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
-  const actionStatus = transtionsExcuteDataStore.getActionStatus();
-  const actionCallBackData = transtionsExcuteDataStore.getActionCallBackData();
+  const actionData = transtionsExcuteDataStore.getActionData();
 
-  const { transactionResponse, transactionError } = actionCallBackData || {};
+  const { transactionResponse, transactionError, status } = actionData || {};
 
   let errorObj = transactionError;
   if (typeof transactionError === 'string') {
@@ -31,14 +30,13 @@ export const ToastTransaction = () => {
   const { walletsTXError, message } = errorObj || {};
 
   useEffect(() => {
-    console.info('ToastTransaction', actionStatus, actionCallBackData);
-    if (actionStatus === 'success') {
+    if (status === 'success') {
       showToast({
         desc: 'Transaction Success',
       });
     }
 
-    if (actionStatus === 'rejected' || actionStatus === 'none') {
+    if (status === 'error') {
       const errorMsg = walletsTXError || message;
       if (errorMsg) {
         let toast = {
@@ -57,40 +55,46 @@ export const ToastTransaction = () => {
         }
 
         showToast(toast);
+        transtionsExcuteDataStore.removeActionData();
       }
     }
-  }, [actionStatus]);
+  }, [status]);
 
   return null;
 };
 
 export const ModalTransactionSubmitting = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
   const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
-  const actionStatus = transtionsExcuteDataStore.getActionStatus();
   const actionData = transtionsExcuteDataStore.getActionData();
   const actionCallBackData = transtionsExcuteDataStore.getActionCallBackData();
+  const { setActionData, removeActionData } = transtionsExcuteDataStore || {};
+  const { status, page, data, transactionResponse, onClose } = actionData || {};
+  const { selectTrade } = data || {};
 
-  const { setactionCallBackData, setActionData, setActionStatus } =
-    transtionsExcuteDataStore || {};
-  const { selectTrade } = actionData || {};
-  const { transactionResponse } = actionCallBackData || {};
-  const isComplete = actionStatus === 'resolved';
-  const canClose = actionStatus === 'resolved';
-  const isOpenModal = ['pending', 'resolved'].includes(actionStatus);
+  const isComplete = status === 'success';
+  const canClose = status === 'success';
 
   useEffect(() => {
-    console.info('ModalTransactionSubmitting', actionStatus, actionData);
-    if (actionStatus === 'pending') {
-      localStorage.setItem(CONST_TRANSACTION_SUBMITTING, '1');
-    } else {
-      localStorage.removeItem(CONST_TRANSACTION_SUBMITTING);
+    console.log('statusstatus', status);
+    const isOpenModal = ['pending', 'success'].includes(status);
+    const isCloseModal = ['error', undefined].includes(status);
+    if (isOpenModal) {
+      setIsOpen(true);
+    }
+    if (isOpen && isCloseModal) {
+      setIsOpen(false);
     }
 
-    if (actionStatus === 'none') {
-      setActionData(null);
-      setactionCallBackData(null);
+    if (status === 'pending') {
+      console.info('ModalTransactionSubmitting', status, actionData);
+      localStorage.setItem(CONST_TRANSACTION_SUBMITTING, '1');
+    } else {
+      console.info('ModalTransactionDone', status);
+      localStorage.removeItem(CONST_TRANSACTION_SUBMITTING);
     }
-  }, [actionStatus]);
+  }, [status]);
 
   let node = null;
   let headerNode = 'Transaction Confirming';
@@ -132,6 +136,7 @@ export const ModalTransactionSubmitting = () => {
     footerNode = <div>Success</div>;
   }
   if (transactionResponse) {
+    console.log('=>transactionResponse', transactionResponse);
     const hash = Array.isArray(transactionResponse)
       ? transactionResponse[0].transaction?.hash
       : transactionResponse?.transaction?.hash;
@@ -146,12 +151,16 @@ export const ModalTransactionSubmitting = () => {
   }
 
   const handleClose = () => {
-    setActionStatus('none');
+    removeActionData();
+    setIsOpen(false);
+    if (typeof onClose === 'function') {
+      onClose();
+    }
   };
 
   return (
     <CustomModal
-      isOpen={isOpenModal}
+      isOpen={isOpen}
       onClose={canClose && handleClose}
       className={'modal-transaction-submitting'}
     >

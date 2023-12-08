@@ -925,7 +925,7 @@ export default function SwapCard(props: {
     isSignedIn,
     nearBalance,
     transactionActionCallBackData,
-    loadingTrigger
+    loadingTrigger,
   ]);
 
   function getStorageTokenId() {
@@ -1106,24 +1106,30 @@ export default function SwapCard(props: {
   const handleSwapSubmit = async () => {
     if (selectTrade) {
       transtionsExcuteDataStore.setActionStatus('pending');
-      transtionsExcuteDataStore.setActionData({ selectTrade });
+      transtionsExcuteDataStore.setActionData({
+        status: 'pending',
+        page: 'swap',
+        data: { selectTrade },
+      });
       try {
         const swapRes = await selectTrade.makeSwap();
         doubleCheckOpen && setDoubleCheckOpen(false);
         setShowSwapLoading(false);
         if (swapRes) {
           transtionsExcuteDataStore.setActionStatus('resolved');
-          transtionsExcuteDataStore.setactionCallBackData({
+          transtionsExcuteDataStore.setActionData({
+            status: 'success',
             transactionResponse: swapRes?.response,
           });
         }
       } catch (e) {
         doubleCheckOpen && setDoubleCheckOpen(false);
         setShowSwapLoading(false);
-        transtionsExcuteDataStore.setactionCallBackData({
+        transtionsExcuteDataStore.setActionData({
+          status: 'error',
           transactionError: e,
         });
-        transtionsExcuteDataStore.setActionStatus('none');
+        transtionsExcuteDataStore.setActionStatus('rejected');
       }
     }
   };

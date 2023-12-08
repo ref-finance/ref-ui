@@ -403,33 +403,32 @@ export const executeMultipleTransactionsV2 = async (
   });
 
   await ledgerTipTrigger(wallet);
-
-  return (await wallet.wallet())
-    .signAndSendTransactions({
+  try {
+    const walletRes = await wallet.wallet();
+    const res = await walletRes.signAndSendTransactions({
       transactions: wstransactions,
       callbackUrl,
-    })
-    .then((res) => {
-      if (!res) return;
-
-      const transactionHashes = (Array.isArray(res) ? res : [res])?.map(
-        (r) => r.transaction.hash
-      );
-      return {
-        txHash:
-          transactionHashes && transactionHashes.length > 0
-            ? transactionHashes[transactionHashes.length - 1]
-            : '',
-        txHashes: transactionHashes,
-      };
-    })
-    .catch((e: Error) => {
-      if (!extraWalletsError.includes(e.message)) {
-        sessionStorage.setItem('WALLETS_TX_ERROR', e.message);
-      }
-
-      throw e;
     });
+    if (!res) return { response: null };
+
+    const transactionHashes = (Array.isArray(res) ? res : [res])?.map(
+      (r) => r.transaction.hash
+    );
+    return {
+      response: res,
+      txHash:
+        transactionHashes && transactionHashes.length > 0
+          ? transactionHashes[transactionHashes.length - 1]
+          : '',
+      txHashes: transactionHashes,
+    };
+  } catch (e) {
+    if (!extraWalletsError.includes(e.message)) {
+      sessionStorage.setItem('WALLETS_TX_ERROR', e.message);
+    }
+
+    throw e;
+  }
 };
 
 export const refFarmFunctionCall = async ({

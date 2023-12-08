@@ -24,6 +24,7 @@ const showToast = ({
   options = {},
 }: Props) => {
   const toastOptions: ToastOptions = {
+    theme: 'light',
     position: 'bottom-right',
     autoClose: 5000,
     className: 'custom-toast',
