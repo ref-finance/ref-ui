@@ -1448,7 +1448,7 @@ export const batch_remove_liquidity_contract = async ({
       ],
     });
   }
-  return await executeMultipleTransactionsV2(transactions);
+  return executeMultipleTransactionsV2(transactions);
 };
 
 export const claim_all_liquidity_fee = async ({
