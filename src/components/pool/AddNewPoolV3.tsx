@@ -816,7 +816,7 @@ export const AddNewPoolV3 = (props: any) => {
               {get_your_apr()}
             </span>
           </div>
-
+          aaaaa
           {/* button area */}
           {isSignedIn ? (
             <GradientButton

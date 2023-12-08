@@ -39,7 +39,10 @@ import {
 } from 'src/services/xref';
 import QuestionMark from 'src/components/farm/QuestionMark';
 import { WalletContext } from '../../utils/wallets-integration';
-import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
+import {
+  constTransactionPage,
+  useTranstionsExcuteDataStore,
+} from '../../stores/transtionsExcuteData';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 const {
@@ -443,29 +446,51 @@ function InputView(props: any) {
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+
   const onSubmit = () => {
     setLoading(true);
+    transtionsExcuteDataStore.setActionData({
+      status: 'pending',
+      page: constTransactionPage.xref,
+    });
     transtionsExcuteDataStore.setActionStatus('pending');
     if (tab == 0) {
       // stake
       stake({ amount })
-        .then(() => {
+        .then(({ response }) => {
+          transtionsExcuteDataStore.setActionData({
+            status: 'success',
+            transactionResponse: response,
+          });
           transtionsExcuteDataStore.setActionStatus('resolved');
         })
-        .catch(() => {
+        .catch((e) => {
+          transtionsExcuteDataStore.setActionData({
+            status: 'error',
+            transactionError: e,
+          });
           transtionsExcuteDataStore.setActionStatus('rejected');
         });
     } else if (tab == 1) {
       // unstake
       unstake({ amount })
-        .then(() => {
+        .then(({ response }) => {
+          transtionsExcuteDataStore.setActionData({
+            status: 'success',
+            transactionResponse: response,
+          });
           transtionsExcuteDataStore.setActionStatus('resolved');
         })
-        .catch(() => {
+        .catch((e) => {
+          transtionsExcuteDataStore.setActionData({
+            status: 'error',
+            transactionError: e,
+          });
           transtionsExcuteDataStore.setActionStatus('rejected');
         });
     }
   };
+
   const buttonStatus =
     !amount ||
     new BigNumber(amount).isEqualTo(0) ||

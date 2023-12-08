@@ -56,7 +56,7 @@ export function AddLiquidityButton() {
     setAddLiquidityButtonLoading(true);
     transtionsExcuteDataStore.setActionData({
       status: 'pending',
-      page: constTransactionPage.liquidity,
+      page: constTransactionPage.pool,
     });
     const new_liquidity = getLiquiditySpot();
     add_liquidity(new_liquidity)

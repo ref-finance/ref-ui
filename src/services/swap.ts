@@ -30,6 +30,7 @@ import {
 import { getTokenFlow } from './indexer';
 import {
   executeMultipleTransactions,
+  executeMultipleTransactionsV2,
   isStablePool,
   isStableToken,
   near,
@@ -1262,7 +1263,7 @@ SwapOptions) => {
     }
   }
 
-  return executeMultipleTransactions(transactions, undefined, true);
+  return executeMultipleTransactionsV2(transactions);
 };
 
 export const crossInstantSwap = async ({
@@ -1421,7 +1422,7 @@ export const crossInstantSwap = async ({
       }
     }
 
-    return executeMultipleTransactions(transactions);
+    return executeMultipleTransactionsV2(transactions);
   }
 };
 

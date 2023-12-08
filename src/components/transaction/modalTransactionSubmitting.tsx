@@ -56,6 +56,7 @@ export const ToastTransaction = () => {
 
         showToast(toast);
         transtionsExcuteDataStore.removeActionData();
+        sessionStorage.removeItem('WALLETS_TX_ERROR');
       }
     }
   }, [status]);
@@ -73,11 +74,11 @@ export const ModalTransactionSubmitting = () => {
   const { status, page, data, transactionResponse, onClose } = actionData || {};
   const { selectTrade } = data || {};
 
-  const isComplete = status === 'success';
-  const canClose = status === 'success';
+  const isRedirectWalletPage = status === 'success' && !transactionResponse; // myNearWallet
+  const isComplete = status === 'success' && transactionResponse;
+  const canClose = status === 'success' && transactionResponse;
 
   useEffect(() => {
-    console.log('statusstatus', status);
     const isOpenModal = ['pending', 'success'].includes(status);
     const isCloseModal = ['error', undefined].includes(status);
     if (isOpenModal) {

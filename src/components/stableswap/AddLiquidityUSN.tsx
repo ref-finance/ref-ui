@@ -46,6 +46,10 @@ import { STABLE_LP_TOKEN_DECIMALS } from './AddLiquidity';
 import { getMax } from '../../utils/numbers';
 import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import { toRealSymbol } from '../../utils/token';
+import {
+  constTransactionPage,
+  useTranstionsExcuteDataStore,
+} from 'src/stores/transtionsExcuteData';
 
 const getSwapSlippageKey = (id: string | number) =>
   `REF_FI_STABLE_SWAP_ADD_LIQUIDITY_SLIPPAGE_VALUE_${id}`;
@@ -121,6 +125,8 @@ export default function AddLiquidityComponentUSN(props: {
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
 
   useEffect(() => {
     const firstAmount = getMax(
@@ -329,27 +335,49 @@ export default function AddLiquidityComponentUSN(props: {
     setDefaultMessage('Add Liquidity');
   }
 
-  function submit() {
+  async function submit() {
+    console.info('alUSN', canDeposit);
     if (canDeposit) {
       history.push('/deposit');
       return;
     }
+    try {
+      transtionsExcuteDataStore.setActionData({
+        status: 'pending',
+        page: constTransactionPage.pool,
+      });
 
-    const min_shares = toPrecision(
-      percentLess(slippageTolerance, predicedShares),
-      0
-    );
+      const min_shares = toPrecision(
+        percentLess(slippageTolerance, predicedShares),
+        0
+      );
 
-    const amounts = [firstTokenAmount, secondTokenAmount].map((amount, i) =>
-      toNonDivisibleNumber(tokens[i].decimals, amount)
-    ) as [string, string];
+      const amounts = [firstTokenAmount, secondTokenAmount].map((amount, i) =>
+        toNonDivisibleNumber(tokens[i].decimals, amount)
+      ) as [string, string];
 
-    return addLiquidityToStablePool({
-      tokens: tokens,
-      id: Number(pool.id),
-      amounts,
-      min_shares,
-    });
+      const res = await addLiquidityToStablePool({
+        tokens: tokens,
+        id: Number(pool.id),
+        amounts,
+        min_shares,
+      });
+      setButtonLoading(false);
+      if (res) {
+        transtionsExcuteDataStore.setActionStatus('resolved');
+        transtionsExcuteDataStore.setActionData({
+          status: 'success',
+          transactionResponse: res?.response,
+        });
+      }
+    } catch (e) {
+      setButtonLoading(false);
+      transtionsExcuteDataStore.setActionData({
+        status: 'error',
+        transactionError: e,
+      });
+      transtionsExcuteDataStore.setActionStatus('rejected');
+    }
   }
 
   const canSubmit = canAddLP && !slippageInvalid;

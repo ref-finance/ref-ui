@@ -40,7 +40,7 @@ import {
 } from '../../utils/wallets-integration';
 import SquareRadio from '../radio/SquareRadio';
 import { DEFAULT_ACTIONS } from '../../pages/stable/StableSwapPage';
-import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
+import { constTransactionPage, useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
 
 export const STABLE_LP_TOKEN_DECIMALS = 18;
 export const RATED_POOL_LP_TOKEN_DECIMALS = 24;
@@ -482,7 +482,10 @@ export default function AddFourLiquidityComponent(props: {
       history.push('/deposit');
       return;
     }
-
+    transtionsExcuteDataStore.setActionData({
+      status: 'pending',
+      page: constTransactionPage.pool,
+    });
     const min_shares = toPrecision(
       percentLess(slippageTolerance, predicedShares),
       0
@@ -505,10 +508,20 @@ export default function AddFourLiquidityComponent(props: {
       amounts,
       min_shares,
     })
-      .then(() => {
+      .then(({response}) => {
+        setButtonLoading(false)
+        transtionsExcuteDataStore.setActionData({
+          status: 'success',
+          transactionResponse: response,
+        });
         transtionsExcuteDataStore.setActionStatus('resolved');
       })
-      .catch(() => {
+      .catch((e) => {
+        setButtonLoading(false)
+        transtionsExcuteDataStore.setActionData({
+          status: 'error',
+          transactionError: e,
+        });
         transtionsExcuteDataStore.setActionStatus('rejected');
       });
   }
@@ -544,7 +557,8 @@ export default function AddFourLiquidityComponent(props: {
 
         <ChooseAddType addType={addType} setAddType={setAddType} />
 
-        <div className="text-xs px-8 pt-2 mt-6 border-t border-primaryText border-opacity-30">
+        <div className="fourlp text-xs px-8 pt-2 mt-6 border-t border-primaryText border-opacity-30">
+        
           <StableSlipSelector
             slippageTolerance={slippageTolerance}
             onChange={(slippage) => {
@@ -554,7 +568,6 @@ export default function AddFourLiquidityComponent(props: {
             setInvalid={setSlippageInvalid}
             invalid={slippageInvalid}
           />
-
           <div className="flex items-center justify-between text-xs  lg:pt-2 pb-6 xs:pt-5 md:pt-5">
             <div className="text-primaryText">
               <FormattedMessage

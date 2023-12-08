@@ -68,7 +68,10 @@ import CalcModelDcl from '../../components/farm/CalcModelDcl';
 import { formatWithCommas_usd, formatPercentage } from './utils';
 import moment from 'moment';
 import Big from 'big.js';
-import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
+import {
+  constTransactionPage,
+  useTranstionsExcuteDataStore,
+} from '../../stores/transtionsExcuteData';
 import CustomTooltip from '../customTooltip/customTooltip';
 const { REF_VE_CONTRACT_ID, REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
 export default function FarmsDclDetail(props: {
@@ -1001,6 +1004,10 @@ export default function FarmsDclDetail(props: {
   }
   function batchStakeNFT() {
     set_nft_stake_loading(true);
+    transtionsExcuteDataStore.setActionData({
+      status: 'pending',
+      page: constTransactionPage.farm,
+    });
     const { liquidities, total_v_liquidity, withdraw_amount } =
       get_stake_info();
     batch_stake_boost_nft({
@@ -1009,28 +1016,50 @@ export default function FarmsDclDetail(props: {
       withdraw_amount,
       seed_id: detailData.seed_id,
     })
-      .then(() => {
+      .then(({ response }) => {
+        transtionsExcuteDataStore.setActionData({
+          status: 'success',
+          transactionResponse: response,
+        });
         transtionsExcuteDataStore.setActionStatus('resolved');
         set_nft_stake_loading(false);
       })
-      .catch(() => {
+      .catch((e) => {
+        transtionsExcuteDataStore.setActionData({
+          status: 'success',
+          transactionError: e,
+        });
         transtionsExcuteDataStore.setActionStatus('rejected');
         set_nft_stake_loading(false);
       });
   }
+
   function batchUnStakeNFT() {
     set_nft_unStake_loading(true);
+    transtionsExcuteDataStore.setActionData({
+      status: 'pending',
+      page: constTransactionPage.xref,
+    });
     const unStake_info: IStakeInfo = get_unStake_info();
     batch_unStake_boost_nft(unStake_info)
-      .then(() => {
+      .then(({ response }) => {
+        transtionsExcuteDataStore.setActionData({
+          status: 'success',
+          transactionResponse: response,
+        });
         transtionsExcuteDataStore.setActionStatus('resolved');
         set_nft_unStake_loading(false);
       })
-      .catch(() => {
+      .catch((e) => {
+        transtionsExcuteDataStore.setActionData({
+          status: 'error',
+          transactionError: e,
+        });
         transtionsExcuteDataStore.setActionStatus('rejected');
         set_nft_unStake_loading(false);
       });
   }
+
   function get_stake_info(): IStakeInfo {
     const { seed_id, min_deposit } = detailData;
     let total_v_liquidity = Big(0);
@@ -1569,15 +1598,28 @@ function UserTotalUnClaimBlock(props: {
   const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
   const isSignedIn = globalState.isSignedIn;
   const intl = useIntl();
+
   function claimReward() {
     if (claimLoading) return;
     setClaimLoading(true);
+    transtionsExcuteDataStore.setActionData({
+      status: 'pending',
+      page: constTransactionPage.farm,
+    });
     claimRewardBySeed_boost(detailData.seed_id)
-      .then(() => {
+      .then(({ response }) => {
+        transtionsExcuteDataStore.setActionData({
+          status: 'success',
+          transactionResponse: response,
+        });
         transtionsExcuteDataStore.setActionStatus('resolved');
         setClaimLoading(false);
       })
-      .catch(() => {
+      .catch((e) => {
+        transtionsExcuteDataStore.setActionData({
+          status: 'error',
+          transactionError: e,
+        });
         transtionsExcuteDataStore.setActionStatus('rejected');
         setClaimLoading(false);
       });

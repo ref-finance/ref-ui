@@ -1975,6 +1975,7 @@ function LoveStakeModal(props: {
             </div>
           );
         })}
+      wwwwwww
       {isSignedIn ? (
         <GradientButton
           onClick={loveStake}
@@ -2194,7 +2195,7 @@ function LoveUnStakeModal(props: {
           })}
         </>
       ) : null}
-
+      qqqqqqq
       <GradientButton
         onClick={loveUnstake}
         color="#fff"

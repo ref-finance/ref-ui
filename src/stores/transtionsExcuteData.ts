@@ -2,8 +2,9 @@ import { create } from 'zustand';
 
 export const constTransactionPage = {
   swap: 'swap',
-  liquidity: 'liquidity',
+  pool: 'pool',
   farm: 'farm',
+  xref: 'xref',
 };
 
 export type IExcuteStatus = 'pending' | 'resolved' | 'rejected' | 'none';

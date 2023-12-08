@@ -93,7 +93,10 @@ import {
   sort_tokens_by_base,
   openUrl,
 } from 'src/services/commonV3';
-import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
+import {
+  constTransactionPage,
+  useTranstionsExcuteDataStore,
+} from '../../stores/transtionsExcuteData';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
@@ -1901,19 +1904,33 @@ function UserTotalUnClaimBlock(props: {
   const isSignedIn = globalState.isSignedIn;
   const intl = useIntl();
   const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+
   function claimReward() {
     if (claimLoading) return;
     setClaimLoading(true);
+    transtionsExcuteDataStore.setActionData({
+      status: 'pending',
+      page: constTransactionPage.xref,
+    });
     claimRewardBySeed_boost(detailData.seed_id)
-      .then(() => {
+      .then(({ response }) => {
+        transtionsExcuteDataStore.setActionData({
+          status: 'success',
+          transactionResponse: response,
+        });
         transtionsExcuteDataStore.setActionStatus('resolved');
         setClaimLoading(false);
       })
-      .catch(() => {
+      .catch((e) => {
+        transtionsExcuteDataStore.setActionData({
+          status: 'error',
+          transactionError: e,
+        });
         transtionsExcuteDataStore.setActionStatus('rejected');
         setClaimLoading(false);
       });
   }
+
   function getTotalUnclaimedRewards() {
     let totalPrice = 0;
     let resultTip = '';
@@ -3077,6 +3094,11 @@ export function StakeModal(props: {
   }
   function operationStake() {
     setStakeLoading(true);
+    transtionsExcuteDataStore.setActionStatus('pending');
+    transtionsExcuteDataStore.setActionData({
+      status: 'pending',
+      page: constTransactionPage.farm,
+    });
     if (stakeType == 'freeToLock') {
       lock_free_seed({
         seed_id: detailData.seed_id,
@@ -3103,11 +3125,21 @@ export function StakeModal(props: {
         amount: toNonDivisibleNumber(DECIMALS, amount),
         msg,
       })
-        .then(() => {
+        .then(({ response }) => {
+          setStakeLoading(false);
+          transtionsExcuteDataStore.setActionData({
+            status: 'success',
+            transactionResponse: response,
+          });
           transtionsExcuteDataStore.setActionStatus('resolved');
           onRequestClose();
         })
-        .catch(() => {
+        .catch((e) => {
+          setStakeLoading(false);
+          transtionsExcuteDataStore.setActionData({
+            status: 'error',
+            transactionError: e,
+          });
           transtionsExcuteDataStore.setActionStatus('rejected');
           onRequestClose();
         });
@@ -3588,18 +3620,33 @@ export function UnStakeModal(props: {
   }
   function operationUnStake() {
     setUnStakeLoading(true);
+    transtionsExcuteDataStore.setActionData({
+      status: 'pending',
+      page: constTransactionPage.farm,
+    });
     if (unStakeType == 'free') {
       unStake_boost({
         seed_id,
         unlock_amount: '0',
         withdraw_amount: toNonDivisibleNumber(DECIMALS, amount),
       })
-        .then(() => {
+        .then(({ response }) => {
+          transtionsExcuteDataStore.setActionData({
+            status: 'success',
+            transactionResponse: response,
+          });
+
           transtionsExcuteDataStore.setActionStatus('resolved');
+          setUnStakeLoading(false);
           onRequestClose();
         })
-        .catch(() => {
+        .catch((e) => {
+          transtionsExcuteDataStore.setActionData({
+            status: 'error',
+            transactionError: e,
+          });
           transtionsExcuteDataStore.setActionStatus('rejected');
+          setUnStakeLoading(false);
           onRequestClose();
         });
     } else if (lockStatus) {
@@ -3608,11 +3655,20 @@ export function UnStakeModal(props: {
         unlock_amount: toNonDivisibleNumber(DECIMALS, amount),
         withdraw_amount: '0',
       })
-        .then(() => {
+        .then(({ response }) => {
+          transtionsExcuteDataStore.setActionData({
+            status: 'success',
+            transactionResponse: response,
+          });
+
           transtionsExcuteDataStore.setActionStatus('resolved');
           onRequestClose();
         })
-        .catch(() => {
+        .catch((e) => {
+          transtionsExcuteDataStore.setActionData({
+            status: 'error',
+            transactionError: e,
+          });
           transtionsExcuteDataStore.setActionStatus('rejected');
           onRequestClose();
         });

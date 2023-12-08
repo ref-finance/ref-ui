@@ -1516,7 +1516,7 @@ export const claim_all_liquidity_fee = async ({
       ],
     });
   }
-  return executeMultipleTransactions(transactions);
+  return executeMultipleTransactionsV2(transactions);
 };
 
 export const checkTokenNeedsStorageDeposit_v3 = async () => {

@@ -7,12 +7,19 @@ import { ButtonTextWrapper } from 'src/components/button/Button';
 import _ from 'lodash';
 import { Icon } from './Icon';
 import { get_unClaimed_fee_data } from './DetailFun';
+import {
+  constTransactionPage,
+  useTranstionsExcuteDataStore,
+} from 'src/stores/transtionsExcuteData';
+
 export function UnclaimedFeesBox(props: any) {
   const { poolDetail, liquidities, tokenPriceList } = props;
   const { token_x_metadata, token_y_metadata } = poolDetail;
   const [user_liquidities_total, set_user_liquidities_total] =
     useState<Record<string, any>>();
   const [cliam_loading, set_cliam_loading] = useState(false);
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+
   useEffect(() => {
     if (liquidities) {
       const [total_tvl_fee, total_amount_x_fee, total_amount_y_fee] =
@@ -24,6 +31,7 @@ export function UnclaimedFeesBox(props: any) {
       });
     }
   }, [liquidities, Object.keys(tokenPriceList).length]);
+
   function getTotalLiquditiesFee() {
     const total_tvl = user_liquidities_total?.total_tvl_fee || 0;
     if (total_tvl == 0) {
@@ -61,22 +69,45 @@ export function UnclaimedFeesBox(props: any) {
       total_amount_x_y,
     };
   }
-  function claimRewards() {
-    if (total_amount_x_y == 0) return;
-    set_cliam_loading(true);
-    const lpt_ids: string[] = [];
-    liquidities.forEach((liquidity: UserLiquidityInfo) => {
-      const { unclaimed_fee_x, unclaimed_fee_y } = liquidity;
-      if (+unclaimed_fee_x > 0 || +unclaimed_fee_y > 0) {
-        lpt_ids.push(liquidity.lpt_id);
-      }
-    });
-    claim_all_liquidity_fee({
-      token_x: token_x_metadata,
-      token_y: token_y_metadata,
-      lpt_ids,
-    });
+  async function claimRewards() {
+    try {
+      if (total_amount_x_y == 0) return;
+      set_cliam_loading(true);
+      transtionsExcuteDataStore.setActionStatus('pending');
+      transtionsExcuteDataStore.setActionData({
+        status: 'pending',
+        page: constTransactionPage.pool,
+      });
+
+      const lpt_ids: string[] = [];
+      liquidities.forEach((liquidity: UserLiquidityInfo) => {
+        const { unclaimed_fee_x, unclaimed_fee_y } = liquidity;
+        if (+unclaimed_fee_x > 0 || +unclaimed_fee_y > 0) {
+          lpt_ids.push(liquidity.lpt_id);
+        }
+      });
+      const { response } = await claim_all_liquidity_fee({
+        token_x: token_x_metadata,
+        token_y: token_y_metadata,
+        lpt_ids,
+      });
+      set_cliam_loading(false);
+
+      transtionsExcuteDataStore.setActionData({
+        status: 'success',
+        transactionResponse: response,
+      });
+      transtionsExcuteDataStore.setActionStatus('resolved');
+    } catch (e) {
+      set_cliam_loading(false);
+      transtionsExcuteDataStore.setActionData({
+        status: 'error',
+        transactionError: e,
+      });
+      transtionsExcuteDataStore.setActionStatus('rejected');
+    }
   }
+
   const { display_amount_x, display_amount_y, total_amount_x_y } =
     getTotalFeeAmount();
   return (

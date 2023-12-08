@@ -57,7 +57,10 @@ import QuestionMark from 'src/components/farm/QuestionMark';
 
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import CustomTooltip from '../customTooltip/customTooltip';
-import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
+import {
+  constTransactionPage,
+  useTranstionsExcuteDataStore,
+} from '../../stores/transtionsExcuteData';
 
 export type RemoveType = 'left' | 'right' | 'all';
 
@@ -455,6 +458,10 @@ export const RemovePoolV3 = (props: any) => {
   }
   function batch_remove_nfts() {
     setRemoveLoading(true);
+    transtionsExcuteDataStore.setActionData({
+      status: 'pending',
+      page: constTransactionPage.pool,
+    });
     const [tokenX, tokenY] = tokenMetadata_x_y;
     sessionStorage.setItem(REF_POOL_NAV_TAB_KEY, '/yourliquidity');
     let batch_remove_liquidity: IRemoveLiquidityInfo[];
@@ -552,11 +559,21 @@ export const RemovePoolV3 = (props: any) => {
       mint_liquidities,
       selectedWalletId: selector.store.getState().selectedWalletId,
     })
-      .then(() => {
+      .then(({ response }) => {
+        setRemoveLoading(false);
+        transtionsExcuteDataStore.setActionData({
+          status: 'success',
+          transactionResponse: response,
+        });
         transtionsExcuteDataStore.setActionStatus('resolved');
         sessionStorage.setItem('REMOVE_POOL_ID', pool_id);
       })
-      .catch(() => {
+      .catch((e) => {
+        setRemoveLoading(false);
+        transtionsExcuteDataStore.setActionData({
+          status: 'error',
+          transactionError: e,
+        });
         transtionsExcuteDataStore.setActionStatus('rejected');
       });
   }

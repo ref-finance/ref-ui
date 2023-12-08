@@ -90,7 +90,10 @@ import {
   BsArrowRight,
 } from '../reactIcons';
 
-import { useTranstionsExcuteDataStore } from 'src/stores/transtionsExcuteData';
+import {
+  constTransactionPage,
+  useTranstionsExcuteDataStore,
+} from 'src/stores/transtionsExcuteData';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -1108,20 +1111,18 @@ export default function SwapCard(props: {
       transtionsExcuteDataStore.setActionStatus('pending');
       transtionsExcuteDataStore.setActionData({
         status: 'pending',
-        page: 'swap',
+        page: constTransactionPage.swap,
         data: { selectTrade },
       });
       try {
-        const swapRes = await selectTrade.makeSwap();
+        const { response } = await selectTrade.makeSwap();
         doubleCheckOpen && setDoubleCheckOpen(false);
         setShowSwapLoading(false);
-        if (swapRes) {
-          transtionsExcuteDataStore.setActionStatus('resolved');
-          transtionsExcuteDataStore.setActionData({
-            status: 'success',
-            transactionResponse: swapRes?.response,
-          });
-        }
+        transtionsExcuteDataStore.setActionData({
+          status: 'success',
+          transactionResponse: response,
+        });
+        transtionsExcuteDataStore.setActionStatus('resolved');
       } catch (e) {
         doubleCheckOpen && setDoubleCheckOpen(false);
         setShowSwapLoading(false);
