@@ -103,7 +103,11 @@ import { useWalletSelector } from '../../../context/WalletSelectorContext';
 import { getURLInfo } from '../../../components/layout/transactionTipPopUp';
 import { checkTransactionStatus } from '../../../services/swap';
 import { useCanFarmV2 } from '../../../state/farm';
-import { PoolData, useAllStablePoolData } from '../../../state/sauce';
+import {
+  PoolData,
+  useAllStablePoolData,
+  useAllStablePools,
+} from '../../../state/sauce';
 import { formatePoolData } from '../../stable/StableSwapEntry';
 import {
   USD_CLASS_STABLE_POOL_IDS,
@@ -116,7 +120,6 @@ import { OutlineButton } from '../../../components/button/Button';
 import { BTC_TEXT } from '../../../components/icon/Logo';
 import { useAllPoolsV2 } from '../../../state/swapV3';
 import { PoolInfo } from 'src/services/swapV3';
-import { SelectModalV2 } from '../../../components/layout/SelectModal';
 import { FarmStampNew } from '../../../components/icon/FarmStamp';
 import { ALL_STABLE_POOL_IDS } from '../../../services/near';
 import { WatchList } from '../../../store/RefDatabase';
@@ -157,8 +160,6 @@ import {
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
 const REF_FI_FARM_ONLY = 'REF_FI_FARM_ONLY';
-
-const { switch_on_dcl_farms } = getConfig();
 
 export function getPoolFeeAprTitle(
   dayVolume: string,
@@ -1706,7 +1707,7 @@ export default function LiquidityPage() {
     watchV2PoolsFinal: watchV2Pools,
     watchList,
   } = useWatchPools();
-  const [hideLowTVL, setHideLowTVL] = useState<Boolean>(false);
+  const [hideLowTVL, setHideLowTVL] = useState<boolean>(false);
   const [displayPools, setDisplayPools] = useState<Pool[]>();
   const { pools, hasMore, nextPage, loading, volumes } = usePools({
     tokenName,
@@ -1729,17 +1730,7 @@ export default function LiquidityPage() {
 
     localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, curTab);
   };
-
   const [farmCounts, setFarmCounts] = useState<Record<string, number>>({});
-  useEffect(() => {
-    const pool_ids_v1 = pools.map((p) => p.id);
-    const pool_ids_watchPools = watchPools.map((p: Pool) => p.id);
-    const pool_ids = pool_ids_v1.concat(pool_ids_watchPools);
-    canFarms({
-      pool_ids,
-    }).then(setFarmCounts);
-  }, [pools, watchPools?.map((p) => p.id).join('|')]);
-
   const clientMobileDevice = useClientMobile();
   const [do_farms_v2_poos, set_do_farms_v2_poos] = useState<
     Record<string, Seed>
@@ -1856,11 +1847,25 @@ export default function LiquidityPage() {
 
   const watchPoolVolumes = useDayVolumesPools(watchPools.map((p) => p.id));
   const v3PoolVolumes = useV3VolumesPools();
+  const stablePools = useAllStablePools();
   const [h24VolumeV2, setH24VolumeV2] = useState<string>();
-
   const { fail: indexerFail } = useIndexerStatus();
-
-  const { farmAprById } = useSeedFarmsByPools([...pools, ...watchPools]);
+  const { farmAprById } = useSeedFarmsByPools([
+    ...pools,
+    ...watchPools,
+    ...stablePools,
+  ]);
+  useEffect(() => {
+    const pool_ids_v1 = pools.map((p) => p.id);
+    const pool_ids_watchPools = watchPools.map((p: Pool) => p.id);
+    const pool_ids_stablePools = stablePools.map((p: Pool) => p.id);
+    const pool_ids = pool_ids_v1
+      .concat(pool_ids_watchPools)
+      .concat(pool_ids_stablePools);
+    canFarms({
+      pool_ids,
+    }).then(setFarmCounts);
+  }, [pools, watchPools?.map((p) => p.id).join('|'), stablePools]);
 
   useEffect(() => {
     if (Object.keys(v3PoolVolumes).length > 0) {
