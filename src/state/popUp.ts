@@ -62,7 +62,6 @@ export const useGlobalPopUp = (globalState: any) => {
 
   useEffect(() => {
     if (txHash && isSignedIn) {
-      console.log('txHashtxHash', txHash);
       checkTransaction(txHash)
         .then((res: any) => {
           const transaction = res.transaction;
@@ -144,7 +143,7 @@ export const useGlobalPopUp = (globalState: any) => {
         //   'NearWallet Tx Signature: User denied transaction signature. ';
       }
 
-      showToast(toast);
+      // showToast(toast);
       sessionStorage.removeItem('WALLETS_TX_ERROR');
     }
   }, [walletsTXError, errorCode]);

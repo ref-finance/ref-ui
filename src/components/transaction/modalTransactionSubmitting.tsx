@@ -28,7 +28,6 @@ export const ToastTransaction = () => {
     };
   }
   const { walletsTXError, message } = errorObj || {};
-
   useEffect(() => {
     // if (status === 'success') {
     //   showToast({
@@ -37,8 +36,12 @@ export const ToastTransaction = () => {
     // }
 
     if (status === 'error') {
-      const errorMsg = walletsTXError || message;
-      if (errorMsg) {
+      let errorMsg = walletsTXError || message;
+      if (typeof errorMsg==="string") {
+        const isUserRejected = errorMsg.toLowerCase().startsWith("user reject") || walletsRejectError.includes(errorMsg)
+        if (isUserRejected && errorMsg.length > 50) {
+          errorMsg = 'User rejected the request'
+        }
         let toast = {
           title: 'Error',
           desc: errorMsg,
@@ -46,7 +49,7 @@ export const ToastTransaction = () => {
           isWarning: false,
         };
 
-        if (walletsRejectError.includes(errorMsg)) {
+        if (isUserRejected) {
           toast.isError = false;
           toast.isWarning = true;
           // toast.desc =
@@ -69,7 +72,6 @@ export const ModalTransactionSubmitting = () => {
 
   const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
   const actionData = transtionsExcuteDataStore.getActionData();
-  const actionCallBackData = transtionsExcuteDataStore.getActionCallBackData();
   const { setActionData, removeActionData } = transtionsExcuteDataStore || {};
   const { status, page, data, transactionResponse, onClose } = actionData || {};
   const { selectTrade } = data || {};
@@ -77,10 +79,10 @@ export const ModalTransactionSubmitting = () => {
   const isRedirectWalletPage = status === 'success' && !transactionResponse; // myNearWallet
   const isComplete = status === 'success' && transactionResponse;
   const canClose = status === 'success' && transactionResponse;
+  const isOpenModal = ['pending', 'success'].includes(status) || isRedirectWalletPage;
+  const isCloseModal = ['error', undefined].includes(status);
 
   useEffect(() => {
-    const isOpenModal = ['pending', 'success'].includes(status);
-    const isCloseModal = ['error', undefined].includes(status);
     if (isOpenModal) {
       setIsOpen(true);
     }
@@ -88,7 +90,7 @@ export const ModalTransactionSubmitting = () => {
       setIsOpen(false);
     }
 
-    if (status === 'pending') {
+    if (status === 'pending' || isRedirectWalletPage) {
       console.info('ModalTransactionSubmitting', status, actionData);
       localStorage.setItem(CONST_TRANSACTION_SUBMITTING, '1');
     } else {

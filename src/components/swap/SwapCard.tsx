@@ -744,9 +744,7 @@ export default function SwapCard(props: {
   const history = useHistory();
 
   const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
-  const transactionActionStatus = transtionsExcuteDataStore.getActionStatus();
-  const transactionActionCallBackData =
-    transtionsExcuteDataStore.getActionCallBackData();
+  const transactionActionData = transtionsExcuteDataStore.getActionData();
 
   const { selectMarket, trades, enableTri, swapType } =
     useContext(SwapProContext);
@@ -927,7 +925,7 @@ export default function SwapCard(props: {
     useNearBalance,
     isSignedIn,
     nearBalance,
-    transactionActionCallBackData,
+    transactionActionData?.status,
     loadingTrigger,
   ]);
 
