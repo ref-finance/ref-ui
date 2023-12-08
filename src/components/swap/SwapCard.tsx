@@ -925,6 +925,7 @@ export default function SwapCard(props: {
     isSignedIn,
     nearBalance,
     transactionActionCallBackData,
+    loadingTrigger
   ]);
 
   function getStorageTokenId() {
