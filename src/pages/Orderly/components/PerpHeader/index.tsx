@@ -8,7 +8,7 @@ import { REF_ORDERLY_PERP_TIP_SIG } from 'src/pages/Orderly/OrderlyPerpetual';
 
 export function PerpOrderlyTip() {
   const [show, setShow] = useState<boolean>(
-    !!localStorage.getItem(REF_ORDERLY_PERP_TIP_SIG) ? false : true
+    !localStorage.getItem(REF_ORDERLY_PERP_TIP_SIG)
   );
 
   const isMobile = useClientMobile();
@@ -27,7 +27,7 @@ export function PerpOrderlyTip() {
       <FormattedMessage
         id="perpTip"
         defaultMessage={
-          'Welcome to Perpetual Futures trading! Please  read {perpTipLink} docs to get start!'
+          'Welcome to Perpetual Futures trading!{br} Please  read {perpTipLink} docs to get start!'
         }
         values={{
           perpTipLink: (
@@ -51,7 +51,6 @@ export function PerpOrderlyTip() {
         className="absolute right-3 cursor-pointer top-1 "
         onClick={() => {
           setShow(false);
-
           localStorage.setItem(REF_ORDERLY_PERP_TIP_SIG, '1');
         }}
         style={{
@@ -66,7 +65,7 @@ export function PerpOrderlyTip() {
 
 export function PerpOrderlyTipMobile() {
   const [show, setShow] = useState<boolean>(
-    !!localStorage.getItem(REF_ORDERLY_PERP_TIP_SIG) ? false : true
+    !localStorage.getItem(REF_ORDERLY_PERP_TIP_SIG)
   );
 
   const isMobile = useClientMobile();
@@ -104,6 +103,7 @@ export function PerpOrderlyTipMobile() {
               />
             </a>
           ),
+          br: <br />,
         }}
       />
 
