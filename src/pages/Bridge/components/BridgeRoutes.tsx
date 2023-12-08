@@ -51,10 +51,11 @@ function BridgeRouteItem({ className }: { className?: string }) {
             data-class="reactTip"
             data-html={true}
             data-tip={`<div>${formatUSDCurrency(
-              estimatedGasFee
+              estimatedGasFee,
+              '0.01'
             )} Gas + </div><div>$0.00 Rainbow fee</div>`}
           >
-            {formatUSDCurrency(estimatedGasFee)}
+            {formatUSDCurrency(estimatedGasFee, '0.01')}
             <ReactTooltip
               id="bridge-gas-fee"
               backgroundColor="#1D2932"

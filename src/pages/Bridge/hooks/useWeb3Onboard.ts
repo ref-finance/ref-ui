@@ -49,6 +49,7 @@ export function setupWeb3Onboard() {
       description: 'Where your DeFi journey on NEAR starts',
       explore: APP_HOST,
     },
+    accountCenter: { desktop: { enabled: false }, mobile: { enabled: false } },
     connect: {
       /**
        * If set to true, the most recently connected wallet will store in

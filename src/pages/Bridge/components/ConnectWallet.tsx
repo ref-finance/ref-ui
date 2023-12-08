@@ -57,7 +57,7 @@ function ConnectWallet({ currentChain, className, onChangeChain }: Props) {
               </span>
             )}
           </span>
-          {currentChain === 'ETH' && (
+          {
             <div
               className="inline-flex transform hover:opacity-80 hover:shadow-lg hover:scale-125"
               onClick={(e) => {
@@ -67,7 +67,7 @@ function ConnectWallet({ currentChain, className, onChangeChain }: Props) {
             >
               <SvgIcon name="IconDisconnect" />
             </div>
-          )}
+          }
         </Button>
       ) : (
         <Button type="primary" text onClick={() => open()}>

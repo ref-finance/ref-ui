@@ -2,7 +2,6 @@ import React, { MouseEventHandler, useEffect, useMemo, useState } from 'react';
 import Modal from 'react-modal';
 
 import Button from './Button';
-import { SupportChains } from '../config';
 import SvgIcon from './SvgIcon';
 import useBridgeToken from './../hooks/useBridgeToken';
 import { useRequest } from '../hooks/useHooks';
@@ -12,6 +11,7 @@ import { tokenServices } from '../services/contract';
 type TokenSelectorCommonProps = {
   chain: BridgeModel.BridgeSupportChain;
   token?: BridgeModel.BridgeTokenMeta;
+  chains?: BridgeModel.BridgeSupportChain[];
   onClick?: MouseEventHandler;
 };
 
@@ -101,6 +101,7 @@ export interface TokenSelectorProps
 export function TokenSelector({
   toggleOpenModal,
   chain,
+  chains,
   token,
   ...props
 }: TokenSelectorProps) {
@@ -158,7 +159,7 @@ export function TokenSelector({
         </div>
         <div>
           <div className="relative flex items-center">
-            {SupportChains.map((item) => (
+            {chains.map((item) => (
               <div
                 key={item}
                 className={`leading-10 w-full text-center border-b-2 cursor-pointer ${

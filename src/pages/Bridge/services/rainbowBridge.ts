@@ -100,12 +100,21 @@ const rainbowBridgeService = {
     recipient: string;
     nearWalletSelector?: WalletSelector;
   }) {
+    console.log('bridge: transfer params', {
+      token,
+      amount: amountIn,
+      sender,
+      from,
+      recipient,
+      nearWalletSelector,
+    });
     const isApproved = await rainbowBridgeService.checkApprove({
       token,
       amount: amountIn,
       from,
       sender,
     });
+    console.log('bridge: isApproved', isApproved);
     if (!isApproved) {
       await rainbowBridgeService.approve({
         token,
@@ -113,7 +122,10 @@ const rainbowBridgeService = {
         from,
       });
     }
-    const nearAccount = (await nearWalletSelector.wallet()) as any;
+    console.log('bridge: approve', isApproved);
+    const nearAccount = nearWalletSelector
+      ? ((await nearWalletSelector?.wallet()) as any)
+      : undefined;
 
     const amount = new Big(amountIn).times(10 ** token.decimals).toFixed();
 

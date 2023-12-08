@@ -13,6 +13,9 @@ import { useCallback, useEffect, useState } from 'react';
 import rainbowBridgeService from '../services/rainbowBridge';
 import { useWalletConnectContext } from '../providers/walletConcent';
 import { toast } from 'react-toastify';
+import { WalletConnection } from 'near-api-js';
+import { APPID } from '../config';
+import { nearServices } from '../services/contract';
 
 export default function useRainbowBridge(params?: {
   enableSubscribeUnclaimed?: boolean;
@@ -25,7 +28,9 @@ export default function useRainbowBridge(params?: {
     if (!wallet.ETH.isSignedIn && !wallet.NEAR.isSignedIn) return;
     setBridgeParams(BridgeConfig.Rainbow.bridgeParams);
 
-    setNearConnection(window.walletNearConnection as any);
+    setNearConnection(
+      new WalletConnection(nearServices.getNear(), APPID) as any
+    );
     setEthProvider(
       new ethers.providers.InfuraProvider(
         EthereumConfig.network,
@@ -67,12 +72,13 @@ export default function useRainbowBridge(params?: {
       'nearWalletSelector'
     >
   ) {
-    console.log('bridge: transfer params', params);
     setActionLoading(true);
     const result = await rainbowBridgeService
       .transfer({
         ...params,
-        nearWalletSelector: wallet.NEAR.selector,
+        nearWalletSelector: wallet.NEAR.isSignedIn
+          ? wallet?.NEAR?.selector
+          : undefined,
       })
       .catch((err) => {
         console.error(err.message);

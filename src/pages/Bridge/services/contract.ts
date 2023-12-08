@@ -4,6 +4,8 @@ import { formatBalanceRaw } from '../utils/format';
 import request from '../utils/request';
 import { IS_MAINNET, TokenList } from '../config';
 import Big from 'big.js';
+import getConfig from 'src/services/config';
+import { Near, keyStores } from 'near-api-js';
 
 export const tokenServices = {
   getBalance(
@@ -64,6 +66,7 @@ export const ethServices = {
     }
   },
   async calculateGasInUSD(gas: string | number) {
+    if (!window.ethWeb3Provider) return '0';
     const gasPrice = await window.ethWeb3Provider.getGasPrice();
     const gasLimit = ethers.BigNumber.from(gas);
     const totalGasCostWei = gasPrice.mul(gasLimit);
@@ -83,14 +86,24 @@ export const ethServices = {
 };
 
 export const nearServices = {
+  getNear() {
+    const { networkId, helperUrl, walletUrl, nodeUrl } = getConfig();
+    return new Near({
+      keyStore: new keyStores.BrowserLocalStorageKeyStore(),
+      networkId,
+      nodeUrl,
+      helperUrl,
+      walletUrl,
+      headers: {},
+    });
+  },
   async getBalance(token: BridgeModel.BridgeTokenMeta, accountId?: string) {
     try {
       let balance = '0';
-      if (!token.addresses.NEAR || !window.Near) return balance;
-      const _accountId =
-        accountId || window.walletNearConnection.getAccountId();
+      const _accountId = accountId || window.selector?.getAccountId();
+      if (!token.addresses.NEAR || !_accountId) return balance;
 
-      const account = await window.Near.account(_accountId);
+      const account = await nearServices.getNear().account(_accountId);
 
       if (token.symbol === 'NEAR') {
         balance = (await account.getAccountBalance()).available;

@@ -44,7 +44,7 @@ export default function BridgePreviewModal({
       recipient,
       sender,
       constTime: BridgeConfig.Rainbow.wait,
-      bridgeFee: formatUSDCurrency(estimatedGasFee),
+      bridgeFee: formatUSDCurrency(estimatedGasFee, '0.01'),
       output: bridgeToValue.amount,
       minimumReceived: bridgeFromValue.amount,
     }),

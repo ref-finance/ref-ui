@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import BridgeRoutes from '../components/BridgeRoutes';
 import Button from '../components/Button';
@@ -13,6 +13,7 @@ import { useRouter } from '../hooks/useRouter';
 import { isValidEthereumAddress, isValidNearAddress } from '../utils/validate';
 import { useBridgeTransactionContext } from '../providers/bridgeTransaction';
 import { useAutoResetState } from '../hooks/useHooks';
+import { useWalletConnectContext } from '../providers/walletConcent';
 
 function FormHeader() {
   const { slippageTolerance, setSlippageTolerance } = useBridgeFormContext();
@@ -42,18 +43,20 @@ function FormHeader() {
 
 function CustomAccountAddress() {
   const { bridgeToValue, setBridgeToValue } = useBridgeFormContext();
-  const [customAccountAddress, setCustomAccountAddress] = React.useState('');
-  const isValidCustomAddress = useMemo(
-    () =>
-      bridgeToValue.chain === 'ETH'
-        ? isValidEthereumAddress(customAccountAddress)
-        : isValidNearAddress(customAccountAddress),
-    [bridgeToValue.chain, customAccountAddress]
+  const [customAccountAddress, setCustomAccountAddress] = useState(
+    bridgeToValue.customAccountAddress
   );
+  const [isValidCustomAddress, setIsValidCustomAddress] = useState(false);
 
   function handleChangeAddress(value: string) {
+    const isValid =
+      !value ||
+      (bridgeToValue.chain === 'ETH'
+        ? isValidEthereumAddress(value)
+        : isValidNearAddress(value));
     setCustomAccountAddress(value);
-    if (isValidCustomAddress) {
+    setIsValidCustomAddress(isValid);
+    if (isValid) {
       setBridgeToValue({
         ...bridgeToValue,
         customAccountAddress: value,
@@ -100,11 +103,7 @@ function CustomAccountAddress() {
           />
           <div
             className="absolute top-1/2 right-3 transform -translate-y-1/2"
-            onClick={() =>
-              customAccountAddress &&
-              !isValidCustomAddress &&
-              setCustomAccountAddress('')
-            }
+            onClick={() => !isValidCustomAddress && setCustomAccountAddress('')}
           >
             {!customAccountAddress ? (
               <Button
@@ -150,11 +149,10 @@ function BridgeEntry() {
   const { unclaimedTransactions, openBridgeTransactionStatusModal } =
     useBridgeTransactionContext();
 
-  async function openTokenSelector({
-    type,
-    ...rest
-  }: Parameters<typeof selectToken>[number] & { type: 'from' | 'to' }) {
-    const tokenMeta = await selectToken(rest);
+  async function openTokenSelector(
+    params: Parameters<typeof selectToken>[number]
+  ) {
+    const tokenMeta = await selectToken(params);
     setBridgeFromValue({ ...bridgeFromValue, tokenMeta });
     setBridgeToValue({ ...bridgeToValue, tokenMeta });
   }
@@ -162,6 +160,15 @@ function BridgeEntry() {
   const router = useRouter();
   function handleOpenHistory() {
     router.push('/bridge/history');
+  }
+
+  const walletCtx = useWalletConnectContext();
+  function handleConfirm() {
+    if (bridgeSubmitStatus === 'unConnectForm')
+      return walletCtx?.[bridgeFromValue.chain]?.open();
+    else if (bridgeSubmitStatus === 'unConnectTo')
+      return walletCtx?.[bridgeToValue.chain]?.open();
+    else openPreviewModal();
   }
 
   return (
@@ -186,8 +193,8 @@ function BridgeEntry() {
             token={bridgeFromValue.tokenMeta}
             onClick={() =>
               openTokenSelector({
-                type: 'from',
                 chain: bridgeFromValue.chain,
+                chains: [bridgeFromValue.chain, bridgeToValue.chain],
                 token: bridgeFromValue.tokenMeta,
               })
             }
@@ -218,8 +225,8 @@ function BridgeEntry() {
             token={bridgeToValue.tokenMeta}
             onClick={() =>
               openTokenSelector({
-                type: 'to',
                 chain: bridgeToValue.chain,
+                chains: [bridgeFromValue.chain, bridgeToValue.chain],
                 token: bridgeToValue.tokenMeta,
               })
             }
@@ -231,8 +238,12 @@ function BridgeEntry() {
           type="primary"
           size="large"
           className="w-full"
-          disabled={bridgeSubmitStatus !== 'preview'}
-          onClick={openPreviewModal}
+          disabled={[
+            'insufficientBalance',
+            'enterAmount',
+            'noEnoughGas',
+          ].includes(bridgeSubmitStatus)}
+          onClick={handleConfirm}
         >
           {bridgeSubmitStatusText}
         </Button>

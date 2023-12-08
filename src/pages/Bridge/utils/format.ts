@@ -52,7 +52,11 @@ export function formatTxExplorerUrl(
     : `${EthereumConfig.explorerUrl}/tx/${hash}`;
 }
 
-export function formatUSDCurrency(val: string | number | undefined) {
+export function formatUSDCurrency(
+  val: string | number | undefined,
+  min?: string | number
+) {
+  if (min && new Big(val).lt(min)) return `< $${min}`;
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',

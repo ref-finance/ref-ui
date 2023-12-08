@@ -7,6 +7,7 @@ import {
 } from 'react';
 import { debounce, DebounceSettings } from 'lodash';
 import { safeJSONParse, safeJSONStringify } from '../utils/common';
+import moment from 'moment';
 
 type DebounceOptions = number | ({ wait: number } & Partial<DebounceSettings>);
 type RequestOptions<T> = {
@@ -150,4 +151,20 @@ export function useAutoResetState<T>(
     }, wait || 1000);
   };
   return [state, setStorage];
+}
+
+export function useTime(step?: 'second' | 'minute') {
+  const [time, setTime] = useState(moment());
+
+  useEffect(() => {
+    const updateTime = () => setTime(moment());
+
+    const interval = step === 'minute' ? 60000 : 1000;
+
+    const timer = setInterval(updateTime, interval);
+
+    return () => clearInterval(timer);
+  }, [step]);
+
+  return time;
 }

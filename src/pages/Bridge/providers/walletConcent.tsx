@@ -1,12 +1,12 @@
 import React, { createContext, useEffect, useMemo } from 'react';
-import { useWalletSelector } from 'src/context/WalletSelectorContext';
+import {
+  ACCOUNT_ID_KEY,
+  useWalletSelector,
+} from 'src/context/WalletSelectorContext';
 export { WalletSelectorContextProvider as WalletConnectNearProvider } from 'src/context/WalletSelectorContext';
 import { setupWeb3Onboard } from '../hooks/useWeb3Onboard';
 import { Web3OnboardProvider, useConnectWallet } from '@web3-onboard/react';
 import { ethers } from 'ethers';
-import getConfig from 'src/services/config';
-import { Near, WalletConnection, keyStores } from 'near-api-js';
-import { APPID } from '../config';
 
 const WalletConnectContext = createContext(null);
 
@@ -30,25 +30,22 @@ export function useWalletConnectContext() {
   const { accountId, modal, ...context } = useWalletSelector();
   const isSignedIn = useMemo(() => !!accountId, [accountId]);
 
-  const { networkId, helperUrl, walletUrl, nodeUrl } = getConfig();
-  window.Near = new Near({
-    keyStore: new keyStores.BrowserLocalStorageKeyStore(),
-    networkId,
-    nodeUrl,
-    helperUrl,
-    walletUrl,
-    headers: {},
-  });
-
-  window.walletNearConnection = new WalletConnection(window.Near, APPID);
-
   const walletNearHooks = {
     ...context,
     open: modal.show,
     close: modal.hide,
     accountId,
     isSignedIn,
-    disconnect: window.near?.signOut,
+    async disconnect() {
+      try {
+        localStorage.removeItem(ACCOUNT_ID_KEY);
+        (await window.selector.wallet()).signOut();
+
+        window.location.reload();
+      } catch (error) {
+        console.error('disconnect error: ', error);
+      }
+    },
   };
 
   const [{ wallet, connecting }, connect, disconnect] = useConnectWallet();
