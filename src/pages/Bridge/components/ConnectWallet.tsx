@@ -28,11 +28,13 @@ function ConnectWallet({ currentChain, className, onChangeChain }: Props) {
   return (
     <div className={`inline-flex items-center ${className}`}>
       <select
-        className="bg-transparent text-white mr-3"
+        className="text-white mr-3"
+        style={{ background: '#213441' }}
         value={currentChain}
         onChange={(e) =>
           onChangeChain?.(e.target.value as BridgeModel.BridgeSupportChain)
         }
+        onFocus={(e) => e.target.blur()}
       >
         {chainList.map(({ label, value }) => (
           <option key={value} value={value}>

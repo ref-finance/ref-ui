@@ -4,8 +4,7 @@ export const isValidEthereumAddress = (address: string) => {
 
 export const isValidNearAddress = (address: string) => {
   return (
-    /^[a-z0-9](?:[a-z0-9-_]{0,61}[a-z0-9])?(?:\.(?:[a-z0-9](?:[a-z0-9-_]{0,61}[a-z0-9])?))*$/.test(
-      address
-    ) || /^[0-9a-fA-F]{64}$/.test(address)
+    /^[a-z0-9](?:[a-z0-9-_]*[a-z0-9])?\.(near|testnet)$/.test(address) ||
+    /^[0-9a-fA-F]{64}$/.test(address)
   );
 };

@@ -9,10 +9,8 @@ import {
   useTime,
 } from './useHooks';
 import Big from 'big.js';
-import { debounce } from 'lodash';
 import { ethServices, tokenServices } from '../services/contract';
 import { BridgeConfig, SupportChains } from '../config';
-import moment from 'moment';
 
 export default function useBridgeForm() {
   const { getTokenBySymbol } = useBridgeToken();
@@ -25,8 +23,8 @@ export default function useBridgeForm() {
   }>('REF_BRIDGE_FORM', {
     fromChain: SupportChains[0],
     toChain: SupportChains[1],
-    fromToken: 'NEAR',
-    toToken: 'NEAR',
+    fromToken: 'ETH',
+    toToken: 'ETH',
   });
 
   const [bridgeFromValue, _setBridgeFromValue] = useState<
@@ -132,7 +130,6 @@ export default function useBridgeForm() {
     | 'enterAmount'
     | 'preview'
     | 'insufficientBalance'
-    | 'noEnoughGas'
   >(() => {
     if (
       !(
@@ -150,9 +147,11 @@ export default function useBridgeForm() {
     )
       return `unConnectTo`;
     else if (!bridgeFromValue.amount) return `enterAmount`;
-    else if (new Big(bridgeFromBalance).eq(0)) return `insufficientBalance`;
-    else if (new Big(bridgeFromBalance).lt(bridgeFromValue.amount))
-      return `noEnoughGas`;
+    else if (
+      new Big(bridgeFromBalance).eq(0) ||
+      new Big(bridgeFromBalance).lt(bridgeFromValue.amount)
+    )
+      return `insufficientBalance`;
     else return `preview`;
   }, [
     bridgeFromValue.accountAddress,
@@ -168,13 +167,12 @@ export default function useBridgeForm() {
   const bridgeSubmitStatusText = useMemo(() => {
     switch (bridgeSubmitStatus) {
       case `unConnectForm`:
-        return `Connect your wallet`;
+        return `Connect wallet`;
       case `unConnectTo`:
         return `Connect / Enter destination address`;
       case `enterAmount`:
         return `Enter amount`;
       case `insufficientBalance`:
-      case `noEnoughGas`:
         return `Insufficient balance`;
       case `preview`:
         return `Preview`;
@@ -182,6 +180,41 @@ export default function useBridgeForm() {
         return ``;
     }
   }, [bridgeSubmitStatus]);
+
+  const gasWarning = useMemo(() => {
+    if (!bridgeFromValue.amount || !bridgeFromBalance) return false;
+    if (
+      (bridgeFromValue.chain === 'ETH' &&
+        bridgeFromValue.tokenMeta?.symbol === 'ETH') ||
+      (bridgeFromValue.chain === 'NEAR' &&
+        bridgeFromValue.tokenMeta?.symbol === 'NEAR')
+    )
+      return new Big(bridgeFromValue.amount).gte(bridgeFromBalance);
+    return false;
+  }, [
+    bridgeFromValue.amount,
+    bridgeFromValue.chain,
+    bridgeFromValue.tokenMeta?.symbol,
+    bridgeFromBalance,
+  ]);
+
+  function changeFromChain(chain: BridgeModel.BridgeSupportChain) {
+    if (bridgeToValue.chain === chain) exchangeChain();
+    else
+      setBridgeFromValue({
+        ...bridgeFromValue,
+        chain,
+      });
+  }
+
+  function changeToChain(chain: BridgeModel.BridgeSupportChain) {
+    if (bridgeFromValue.chain === chain) exchangeChain();
+    else
+      setBridgeToValue({
+        ...bridgeToValue,
+        chain,
+      });
+  }
 
   function exchangeChain() {
     const {
@@ -215,9 +248,12 @@ export default function useBridgeForm() {
     bridgeToValue,
     setBridgeToValue,
     bridgeToBalance,
+    changeFromChain,
+    changeToChain,
     exchangeChain,
     bridgeSubmitStatus,
     bridgeSubmitStatusText,
+    gasWarning,
     slippageTolerance,
     setSlippageTolerance,
     estimatedGasFee,

@@ -5,6 +5,7 @@
     --bridge-primary-color-hover-rgb: 0,139,114;
     --bridge-default-color: #7E8A93;
     --bridge-border-color: #2B3E4C;
+    --bridge-danger-color: #E77078;
     --toastify-color-success: #32CA82;
     --toastify-color-dark:#213441;
    
@@ -16,6 +17,12 @@
     height: auto;
 }
 
+.text-primary{
+    color: var(--bridge-primary-color) !important;
+}
+.bg-primary{
+    background-color: var(--bridge-primary-color) !important;
+}
 
 .bridge-page {
     color:var(--bridge-default-color);
@@ -66,7 +73,7 @@
     @apply border-warn;
 }
 .bridge-input.is-error{
-    @apply border-error;
+    border-color: var(--bridge-danger-color)
 }
 
 .bridge-checkbox{

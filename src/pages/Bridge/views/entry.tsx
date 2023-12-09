@@ -77,7 +77,7 @@ function CustomAccountAddress() {
 
   return (
     <div className="my-5">
-      <label className="flex items-center select-none mb-3">
+      <label className="inline-flex items-center select-none mb-3 cursor-pointer">
         <input
           type="checkbox"
           className="bridge-checkbox mr-2"
@@ -138,10 +138,13 @@ function BridgeEntry() {
     bridgeToValue,
     setBridgeToValue,
     bridgeToBalance,
+    changeFromChain,
+    changeToChain,
     exchangeChain,
     bridgeSubmitStatus,
     bridgeSubmitStatusText,
     openPreviewModal,
+    gasWarning,
   } = useBridgeFormContext();
 
   const { open: selectToken } = useTokenSelectorContext();
@@ -180,13 +183,13 @@ function BridgeEntry() {
           <ConnectWallet
             currentChain={bridgeFromValue.chain}
             className="flex-1 justify-between"
-            onChangeChain={() => exchangeChain()}
+            onChangeChain={changeFromChain}
           />
         </div>
         <InputToken
           model={bridgeFromValue}
           balance={bridgeFromBalance}
-          isError={bridgeSubmitStatus === 'noEnoughGas'}
+          isError={gasWarning}
           onChange={setBridgeFromValue}
         >
           <SelectTokenButton
@@ -211,7 +214,7 @@ function BridgeEntry() {
           <ConnectWallet
             currentChain={bridgeToValue.chain}
             className="flex-1 justify-between"
-            onChangeChain={() => exchangeChain()}
+            onChangeChain={changeToChain}
           />
         </div>
         <InputToken
@@ -238,11 +241,9 @@ function BridgeEntry() {
           type="primary"
           size="large"
           className="w-full"
-          disabled={[
-            'insufficientBalance',
-            'enterAmount',
-            'noEnoughGas',
-          ].includes(bridgeSubmitStatus)}
+          disabled={['insufficientBalance', 'enterAmount'].includes(
+            bridgeSubmitStatus
+          )}
           onClick={handleConfirm}
         >
           {bridgeSubmitStatusText}
