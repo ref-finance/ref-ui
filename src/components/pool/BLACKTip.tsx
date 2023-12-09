@@ -22,11 +22,11 @@ const BLACKTip = ({
     >
       <WarnTipIcon className="flex-shrink-0 relative top-0.5" />
       <div className="text-sm text-greenLight">
-        Due to $META token Reset for the Meta Pool DAO, $META related pools
-        canbe removed during Dec.1st-14th. Meanwhile, they will no longer able
-        to add liquidity.{' '}
+        Allow $META token transfers from December 12th to 14th. This window will
+        give Ref Finance users the opportunity to withdraw and lock their $META
+        tokens within the mpDAO Governance framework.{' '}
         <a
-          href="https://blog.metapool.app/2023/10/02/token-reset-for-the-meta-pool-dao"
+          href="https://near.org/meta-pool-official.near/widget/ImprovementProposals?tab=proposal&mpip_id=6&transactionHashes=FTBUSsyT3ULHfsNnaGMkNMF2ERFrE12epvapcc2KFGmj"
           target="_blank"
           rel="noreferrer"
           className="underline"
