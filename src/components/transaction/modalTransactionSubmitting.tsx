@@ -37,10 +37,12 @@ export const ToastTransaction = () => {
 
     if (status === 'error') {
       let errorMsg = walletsTXError || message;
-      if (typeof errorMsg==="string") {
-        const isUserRejected = errorMsg.toLowerCase().startsWith("user reject") || walletsRejectError.includes(errorMsg)
+      if (typeof errorMsg === 'string') {
+        const isUserRejected =
+          errorMsg.toLowerCase().startsWith('user reject') ||
+          walletsRejectError.includes(errorMsg);
         if (isUserRejected && errorMsg.length > 50) {
-          errorMsg = 'User rejected the request'
+          errorMsg = 'User rejected the request';
         }
         let toast = {
           title: 'Error',
@@ -79,7 +81,8 @@ export const ModalTransactionSubmitting = () => {
   const isRedirectWalletPage = status === 'success' && !transactionResponse; // myNearWallet
   const isComplete = status === 'success' && transactionResponse;
   const canClose = status === 'success' && transactionResponse;
-  const isOpenModal = ['pending', 'success'].includes(status) || isRedirectWalletPage;
+  const isOpenModal =
+    ['pending', 'success'].includes(status) || isRedirectWalletPage;
   const isCloseModal = ['error', undefined].includes(status);
 
   useEffect(() => {

@@ -110,6 +110,7 @@ import { CollatteralTokenAvailableCell } from '../UserBoardPerp/components/Hover
 import getConfigV2 from '../../../../services/configV2';
 const configV2 = getConfigV2();
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
+import { useTranstionsExcuteDataStore } from '../../../../stores/transtionsExcuteData';
 
 function getTipFOK() {
   const intl = useIntl();
@@ -712,7 +713,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         accountId,
         orderlyProps: {
           side: side === 'Buy' ? 'BUY' : 'SELL',
-          symbol: symbol,
+          symbol,
           order_type: 'MARKET',
           order_amount:
             side === 'Buy' ? parseFloat(new Big(total).toFixed(3, 0)) : '',
@@ -735,10 +736,10 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         return orderPopUp({
           orderType: 'Market',
           symbolName: symbol,
-          side: side,
+          side,
           size: parseFloat(inputValue).toString(),
 
-          tokenIn: tokenIn,
+          tokenIn,
           price: parseFloat(marketPrice?.toString() || '0' || '').toString(),
           timeStamp: res.timestamp,
           order,
@@ -749,7 +750,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         accountId,
         orderlyProps: {
           side: side === 'Buy' ? 'BUY' : 'SELL',
-          symbol: symbol,
+          symbol,
           order_price: parseFloat(limitPrice),
           order_type:
             typeof advanceLimitMode !== 'undefined'
@@ -774,10 +775,10 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         return orderPopUp({
           orderType: 'Limit',
           symbolName: symbol,
-          side: side,
+          side,
           size: parseFloat(inputValue).toString(),
 
-          tokenIn: tokenIn,
+          tokenIn,
           price: parseFloat(limitPrice || '').toString(),
 
           timeStamp: res.timestamp,
@@ -797,6 +798,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
   const [errorTipMsg, setErrorTipMsg] = useState<string>('');
 
   const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
 
   useEffect(() => {
     if (!accountId || !storageEnough) return;
@@ -2028,7 +2030,13 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         type={operationType}
         onClick={(amount: string, tokenId: string) => {
           if (!tokenId) return;
-          return depositOrderly(tokenId, amount);
+          return depositOrderly(tokenId, amount)
+            .then(() => {
+              transtionsExcuteDataStore.setActionStatus('resolved');
+            })
+            .catch(() => {
+              transtionsExcuteDataStore.setActionStatus('rejected');
+            });
         }}
         tokenId={operationId}
         accountBalance={tokenInHolding || 0}
@@ -2045,7 +2053,13 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         type={operationType}
         onClick={(amount: string, tokenId: string) => {
           if (!tokenId) return;
-          return withdrawOrderly(tokenId, amount);
+          return withdrawOrderly(tokenId, amount)
+            .then(() => {
+              transtionsExcuteDataStore.setActionStatus('resolved');
+            })
+            .catch(() => {
+              transtionsExcuteDataStore.setActionStatus('rejected');
+            });
         }}
         tokenId={operationId}
         accountBalance={tokenInHolding || 0}

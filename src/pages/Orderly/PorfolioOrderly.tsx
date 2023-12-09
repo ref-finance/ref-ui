@@ -10,7 +10,7 @@ import _ from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import { isMobile } from 'src/utils/device';
-import { executeMultipleTransactions } from 'src/services/near';
+import { executeMultipleTransactionsV2 } from 'src/services/near';
 import { numberWithCommas } from './utiles';
 import { toPrecision } from './near';
 import TableWithTabs from './components/TableWithTabs';
@@ -56,8 +56,18 @@ import { useWalletSelector } from '../../context/WalletSelectorContext';
 import getConfigV2 from '../../services/configV2';
 const configV2 = getConfigV2();
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
+import { PageContainer } from '../../components/layout/PageContainer';
+import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
+
 export const PortfolioOrderlyData = createContext(null);
 const is_mobile = isMobile();
+export default function Container(props: any) {
+  return (
+    <PageContainer>
+      <PortfolioOrderly {...props} />
+    </PageContainer>
+  );
+}
 
 function PortfolioOrderly() {
   const intl = useIntl();
@@ -221,11 +231,17 @@ function PortfolioOrderly() {
     totalNotional,
     newPositions,
   });
-
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
   const handleSettlePnl = async () => {
     if (!accountId) return;
 
-    return executeMultipleTransactions([await perpSettlementTx()]);
+    return executeMultipleTransactionsV2([await perpSettlementTx()])
+      .then(() => {
+        transtionsExcuteDataStore.setActionStatus('resolved');
+      })
+      .catch(() => {
+        transtionsExcuteDataStore.setActionStatus('rejected');
+      });
   };
 
   const handleCloseOrder = async () => {
@@ -258,7 +274,7 @@ function PortfolioOrderly() {
         symbolName: closeOrderRow.symbol,
         side: closeOrderRow.position_qty < 0 ? 'Buy' : 'Sell',
         size: closeOrderQuantity.toString(),
-        tokenIn: tokenIn,
+        tokenIn,
         price: parseFloat(
           order.data.price || order.data.average_executed_price
         ).toString(),
@@ -293,11 +309,6 @@ function PortfolioOrderly() {
 
     setTotalEstFinal(numberWithCommas(totalEstimate.toFixed(2)));
   };
-
-  /* useEffect(() => {
-    getFutureOrders();
-  }, [myPendingOrdersRefreshing]); */
-
   useEffect(() => {
     getFutureOrders();
   }, [myPendingOrdersRefreshing, triggerPositionBasedData]);
@@ -598,7 +609,13 @@ function PortfolioOrderly() {
         type={operationType}
         onClick={(amount: string, tokenId: string) => {
           if (!tokenId) return;
-          return depositOrderly(tokenId, amount);
+          return depositOrderly(tokenId, amount)
+            .then(() => {
+              transtionsExcuteDataStore.setActionStatus('resolved');
+            })
+            .catch(() => {
+              transtionsExcuteDataStore.setActionStatus('rejected');
+            });
         }}
         tokenId={operationId}
         accountBalance={tokenInHolding || 0}
@@ -615,7 +632,13 @@ function PortfolioOrderly() {
         type={operationType}
         onClick={(amount: string, tokenId: string) => {
           if (!tokenId) return;
-          return withdrawOrderly(tokenId, amount);
+          return withdrawOrderly(tokenId, amount)
+            .then(() => {
+              transtionsExcuteDataStore.setActionStatus('resolved');
+            })
+            .catch(() => {
+              transtionsExcuteDataStore.setActionStatus('rejected');
+            });
         }}
         tokenId={operationId}
         accountBalance={tokenInHolding || 0}
@@ -813,5 +836,3 @@ function PortfolioOrderly() {
     </PortfolioOrderlyData.Provider>
   );
 }
-
-export default PortfolioOrderly;

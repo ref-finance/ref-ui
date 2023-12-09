@@ -31,7 +31,12 @@ import { STORAGE_TO_REGISTER_WITH_MFT } from '../creators/storage';
 import { ftGetTokenMetadata, TokenMetadata } from '../ft-contract';
 import { ftGetStorageBalance } from '../ft-contract';
 import { keyStore, near, RefFiFunctionCallOptions, Transaction } from '../near';
-import { executeMultipleTransactions, ONE_YOCTO_NEAR, wallet } from '../near';
+import {
+  executeMultipleTransactions,
+  executeMultipleTransactionsV2,
+  ONE_YOCTO_NEAR,
+  wallet,
+} from '../near';
 import { Pool } from '../pool';
 import { EstimateSwapView } from '../swap';
 import { list_user_assets } from '../swapV3';
@@ -1041,11 +1046,7 @@ export const auroraSwapTransactions = async ({
 };
 
 // TODO: error on sender
-export const batchWithdrawFromAurora = async (
-  // tokens: TokenMetadata[],
-  // readableAmounts: []
-  tokenMap: any
-) => {
+export const batchWithdrawFromAurora = async (tokenMap: any) => {
   const tokenIdList = Object.keys(tokenMap);
 
   const transactions: Transaction[] = [];
@@ -1103,7 +1104,7 @@ export const batchWithdrawFromAurora = async (
     );
   }
 
-  return executeMultipleTransactions(transactions);
+  return executeMultipleTransactionsV2(transactions);
 };
 
 export const batchCallWithdraw = async (

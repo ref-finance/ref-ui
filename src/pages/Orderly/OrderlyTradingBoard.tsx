@@ -32,7 +32,15 @@ import { PerpOrSpot } from './utiles';
 import { FormattedMessage } from 'react-intl';
 import { NewUserTip } from './components/Common/NewUserTip';
 import { PerpOrderlyTip, PerpOrderlyTipMobile } from './components/PerpHeader';
+import { PageContainer } from '../../components/layout/PageContainer';
 
+export default function Container(props: any) {
+  return (
+    <PageContainer>
+      <OrderlyTradingBoard {...props} />
+    </PageContainer>
+  );
+}
 function TradingBoard() {
   const isLarge = useLargeScreen();
 
@@ -273,5 +281,3 @@ function OrderlyTradingBoard() {
     </>
   );
 }
-
-export default OrderlyTradingBoard;

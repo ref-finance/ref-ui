@@ -18,10 +18,20 @@ import BurrowPanel from '../components/overview/BurrowPanel';
 import WalletPanel from '../components/overview/WalletPanel';
 import TotalPanel from '../components/overview/TotalPanel';
 import { useWalletSelector } from '../context/WalletSelectorContext';
+import { PageContainer } from '../components/layout/PageContainer';
 import Big from 'big.js';
 export const OverviewData = createContext(null);
+
+export default function Container(props: any) {
+  return (
+    <PageContainer>
+      <Overview {...props} />
+    </PageContainer>
+  );
+}
+
 const is_mobile = isMobile();
-export default function Overview() {
+function Overview() {
   const { globalState } = useContext(WalletContext);
   const { accountId } = useWalletSelector();
   const isSignedIn = globalState.isSignedIn;

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { batchWithdraw, batchWithdrawDCL } from 'src/services/token';
 import { batchWithdrawFromAurora } from 'src/services/aurora/aurora';
+import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
 
 type Props = {
   token: any;
@@ -12,6 +13,7 @@ export const RefAndDCLWithdrawButton = ({ token, isAurora }: Props) => {
   const { ref, dcl, aurora, id, decimals } = token || {};
   const isRefClassic = Number(ref) > 0;
   const isDCL = Number(dcl) > 0;
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
 
   const doWithDraw = async () => {
     if (!withdrawLoading) {
@@ -24,7 +26,13 @@ export const RefAndDCLWithdrawButton = ({ token, isAurora }: Props) => {
               decimals,
               id,
             },
-          });
+          })
+            .then(() => {
+              transtionsExcuteDataStore.setActionStatus('resolved');
+            })
+            .catch(() => {
+              transtionsExcuteDataStore.setActionStatus('rejected');
+            });
         } else if (isRefClassic) {
           await batchWithdraw({
             [id]: {
@@ -32,7 +40,13 @@ export const RefAndDCLWithdrawButton = ({ token, isAurora }: Props) => {
               decimals,
               id,
             },
-          });
+          })
+            .then(() => {
+              transtionsExcuteDataStore.setActionStatus('resolved');
+            })
+            .catch(() => {
+              transtionsExcuteDataStore.setActionStatus('rejected');
+            });
         } else if (isDCL) {
           await batchWithdrawDCL({
             [id]: {
@@ -40,7 +54,13 @@ export const RefAndDCLWithdrawButton = ({ token, isAurora }: Props) => {
               decimals,
               id,
             },
-          });
+          })
+            .then(() => {
+              transtionsExcuteDataStore.setActionStatus('resolved');
+            })
+            .catch(() => {
+              transtionsExcuteDataStore.setActionStatus('rejected');
+            });
         }
       } catch (e) {
       } finally {

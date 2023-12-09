@@ -39,13 +39,16 @@ import Big from 'big.js';
 import { getOrderlyConfig } from '../config';
 import { registerAccountOnToken } from '../../../services/creators/token';
 import { ftViewFunction } from '../../../services/ft-contract';
-import { executeMultipleTransactions } from '../../../services/near';
+import {
+  executeMultipleTransactions,
+  executeMultipleTransactionsV2,
+} from '../../../services/near';
 import getConfig from '../config';
 import { ledgerTipTrigger } from '../../../utils/wallets-integration';
 import { REF_ORDERLY_NEW_USER_TIP } from '../components/Common/NewUserTip';
 
 const signAndSendTransactions = async (transactions: Transaction[]) => {
-  return executeMultipleTransactions(transactions);
+  return executeMultipleTransactionsV2(transactions);
 };
 
 const announceLedgerAccessKey = async (accountId: string) => {

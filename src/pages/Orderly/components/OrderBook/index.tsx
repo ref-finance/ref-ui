@@ -6,7 +6,6 @@ import { MyOrder, Orders, SymbolInfo } from '../../orderly/type';
 import { MyOrderTip } from '../Common';
 import {
   PerpOrSpot,
-  digitWrapper,
   numberWithCommas,
   numberWithCommasPadding,
 } from '../../utiles';
@@ -15,14 +14,12 @@ import {
   IoArrowUpOutline,
 } from '../../../../components/reactIcons';
 import { Selector } from '../OrderBoard';
-
 import Big from 'big.js';
 import { MarkPriceFlag, OrderlyLoading } from '../Common/Icons';
 import { useClientMobile } from '../../../../utils/device';
-
 import { FormattedMessage, useIntl } from 'react-intl';
-
 import { tickToPrecision } from '../UserBoardPerp/math';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 function getMarkPrice() {
   const intl = useIntl();

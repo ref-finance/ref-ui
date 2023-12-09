@@ -129,7 +129,7 @@ import {
 import { useLeverage } from '../../../../pages/Orderly/orderly/state';
 import { DetailBox, DetailBoxMobile } from './components/DetailBox';
 import { LiquidationButton } from './components/LiquidationHistory';
-import { executeMultipleTransactions } from '../../../../services/near';
+import { executeMultipleTransactionsV2 } from '../../../../services/near';
 import { openUrl } from '../../../../services/commonV3';
 import SettlePnlModal from '../TableWithTabs/SettlePnlModal';
 import { useTokensBalances } from '../UserBoard/state';
@@ -137,6 +137,7 @@ import { SetLeverageButton } from './components/SetLeverageButton';
 import { DepositTip } from './components/DepositTip';
 import { NewUserTip } from '../Common/NewUserTip';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
+import { useTranstionsExcuteDataStore } from '../../../../stores/transtionsExcuteData';
 const REF_ORDERLY_LIMIT_ORDER_ADVANCE = 'REF_ORDERLY_LIMIT_ORDER_ADVANCE';
 
 function getTipFOK() {
@@ -559,7 +560,6 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
   } = usePerpData();
 
   const [registerModalOpen, setRegisterModalOpen] = useState<boolean>(false);
-
   const submitDisable =
     !inputValue ||
     Number(inputValue) === 0 ||
@@ -689,19 +689,6 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     tokenOut?.id,
     JSON.stringify(balances)
   );
-  // const tokenOutHolding =
-  //   tokenOut?.symbol?.toLowerCase()?.includes('usdc') && freeCollateral !== '-'
-  //     ? freeCollateral
-  //     : curHoldingOut
-  //     ? toPrecision(
-  //         new Big(
-  //           curHoldingOut.holding + curHoldingOut.pending_short
-  //         ).toString(),
-  //         Math.min(8, tokenOut?.decimals || 8),
-  //         false
-  //       )
-  //     : balances && balances[symbolTo]?.holding;
-
   const usdcAvailableBalance = curHoldingOut
     ? new Big(curHoldingOut.holding + curHoldingOut.pending_short).toFixed(2)
     : '-';
@@ -837,6 +824,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
   const [errorTipMsg, setErrorTipMsg] = useState<string>('');
 
   const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
 
   useEffect(() => {
     if (!accountId || !storageEnough) return;
@@ -2362,7 +2350,13 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         type={operationType}
         onClick={(amount: string, tokenId: string) => {
           if (!tokenId) return;
-          return depositOrderly(tokenId, amount);
+          return depositOrderly(tokenId, amount)
+            .then(() => {
+              transtionsExcuteDataStore.setActionStatus('resolved');
+            })
+            .catch(() => {
+              transtionsExcuteDataStore.setActionStatus('rejected');
+            });
         }}
         tokenId={operationId}
         accountBalance={tokenInHolding || 0}
@@ -2379,7 +2373,13 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         type={operationType}
         onClick={(amount: string, tokenId: string) => {
           if (!tokenId) return;
-          return withdrawOrderly(tokenId, amount);
+          return withdrawOrderly(tokenId, amount)
+            .then(() => {
+              transtionsExcuteDataStore.setActionStatus('resolved');
+            })
+            .catch(() => {
+              transtionsExcuteDataStore.setActionStatus('rejected');
+            });
         }}
         tokenId={operationId}
         accountBalance={tokenInHolding || 0}
@@ -2419,7 +2419,13 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
       <SettlePnlModal
         onClick={async () => {
-          return executeMultipleTransactions([await perpSettlementTx()]);
+          return executeMultipleTransactionsV2([await perpSettlementTx()])
+            .then(() => {
+              transtionsExcuteDataStore.setActionStatus('resolved');
+            })
+            .catch(() => {
+              transtionsExcuteDataStore.setActionStatus('rejected');
+            });
         }}
         onRequestClose={() => {
           setSettleModalOpen(false);
@@ -3704,7 +3710,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
   }, [showLimitAdvance, advanceLimitMode]);
 
   const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
-
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
   useEffect(() => {
     if (!accountId || !storageEnough) return;
 
@@ -4825,7 +4831,13 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
           type={operationType}
           onClick={(amount: string, tokenId: string) => {
             if (!tokenId) return;
-            return depositOrderly(tokenId, amount);
+            return depositOrderly(tokenId, amount)
+              .then(() => {
+                transtionsExcuteDataStore.setActionStatus('resolved');
+              })
+              .catch(() => {
+                transtionsExcuteDataStore.setActionStatus('rejected');
+              });
           }}
           tokenId={operationId}
           tokenInfo={tokenInfo}

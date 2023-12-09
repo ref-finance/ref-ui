@@ -34,7 +34,6 @@ import MobileInfoBoard, {
 import { OrderlyUnderMaintainIcon } from './components/Common/Icons';
 import { PerpOrderlyTip, PerpOrderlyTipMobile } from './components/PerpHeader';
 import { useOrderlyContext } from './orderly/OrderlyContext';
-import { PerpOrSpot } from './utiles';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { OrderBookMobile } from './components/OrderBook/index';
 import {
@@ -45,9 +44,16 @@ import { BsArrowRight } from '../../components/reactIcons';
 import { openUrl } from 'src/services/commonV3';
 import { usePerpData } from './components/UserBoardPerp/state';
 import PositionsTable from './components/AllOrders/PositionsTable';
-import { CheckBox } from './components/Common';
-import { parseSymbol } from './components/RecentTrade';
 import { NewUserTip } from './components/Common/NewUserTip';
+import { PageContainer } from '../../components/layout/PageContainer';
+
+export default function Container(props: any) {
+  return (
+    <PageContainer>
+      <OrderlyPerpetual {...props} />
+    </PageContainer>
+  );
+}
 
 export const REF_ORDERLY_PERP_TIP_SIG = 'REF_ORDERLY_PERP_TIP_SIGN2';
 
@@ -385,7 +391,7 @@ function OrderlyUnderMaintain() {
   );
 }
 
-export default function OrderlyPerpetual() {
+function OrderlyPerpetual() {
   const priKeyPath = get_orderly_private_key_path();
 
   const pubKeyPath = get_orderly_public_key_path();

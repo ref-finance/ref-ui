@@ -10,6 +10,7 @@ import {
   REF_FI_CONTRACT_ID,
   wallet,
   executeMultipleTransactions,
+  executeMultipleTransactionsV2,
 } from './near';
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
 import { ACCOUNT_MIN_STORAGE_AMOUNT, currentStorageBalance } from './account';
@@ -397,7 +398,7 @@ export const batchWithdraw = async (tokenMap: any) => {
   if (wNEARAction) {
     transactions.push(wNEARAction);
   }
-  return executeMultipleTransactions(transactions);
+  return executeMultipleTransactionsV2(transactions);
 };
 
 export const batchWithdrawDCL = async (tokenMap: any) => {
@@ -445,7 +446,7 @@ export const batchWithdrawDCL = async (tokenMap: any) => {
     functionCalls: widthdrawActions,
   });
 
-  return executeMultipleTransactions(transactions);
+  return executeMultipleTransactionsV2(transactions);
 };
 
 export interface TokenBalancesView {
