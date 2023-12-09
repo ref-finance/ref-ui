@@ -56,20 +56,12 @@ import { useWalletSelector } from '../../context/WalletSelectorContext';
 import getConfigV2 from '../../services/configV2';
 const configV2 = getConfigV2();
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
-import { PageContainer } from '../../components/layout/PageContainer';
 import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
 
 export const PortfolioOrderlyData = createContext(null);
 const is_mobile = isMobile();
-export default function Container(props: any) {
-  return (
-    <PageContainer>
-      <PortfolioOrderly {...props} />
-    </PageContainer>
-  );
-}
 
-function PortfolioOrderly() {
+export default function PortfolioOrderly() {
   const intl = useIntl();
   const { marketList, allTokens } = useMarketlist();
   const { globalState } = useContext(WalletContext);

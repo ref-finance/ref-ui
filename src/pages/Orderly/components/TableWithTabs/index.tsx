@@ -34,6 +34,7 @@ import { useClientMobile } from '../../../../utils/device';
 import 'react-circular-progressbar/dist/styles.css';
 import { CONST_ACKNOWLEDGE_WALLET_RISK } from 'src/constants/constLocalStorage';
 import { WalletRiskCheckBoxModal } from 'src/context/modal-ui/components/WalletOptions/WalletRiskCheckBox';
+import { useTranstionsExcuteDataStore } from '../../../../stores/transtionsExcuteData';
 
 export function SymbolWrapper({ symbol }: { symbol: string }) {
   return (
@@ -122,6 +123,8 @@ function TableWithTabs({
   const [keyAnnounced, setKeyAnnounced] = useState<boolean>(false);
   // const [agreeCheck, setAgreeCheck] = useState<boolean>(false);
   const [showWalletRisk, setShowWalletRisk] = useState<boolean>(false);
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+
   const handleWalletModalOpen = () => {
     const isAcknowledgeWalletRisk = localStorage.getItem(
       CONST_ACKNOWLEDGE_WALLET_RISK
@@ -660,7 +663,17 @@ function TableWithTabs({
                           localStorage.setItem(REF_ORDERLY_AGREE_CHECK, 'true');
                         }
 
-                        storageDeposit(accountId);
+                        storageDeposit(accountId)
+                          .then(() => {
+                            transtionsExcuteDataStore.setActionStatus(
+                              'resolved'
+                            );
+                          })
+                          .catch(() => {
+                            transtionsExcuteDataStore.setActionStatus(
+                              'rejected'
+                            );
+                          });
                       }}
                       setCheck={setAgreeCheck}
                       check={agreeCheck}

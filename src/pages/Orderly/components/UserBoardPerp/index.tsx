@@ -1486,7 +1486,6 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                 ></ConfirmButton>
               </div>
             )}
-
             {!!accountId &&
               validContract() &&
               (!storageEnough || !tradingKeySet || !keyAnnounced) && (
@@ -1503,7 +1502,13 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                       localStorage.setItem(REF_ORDERLY_AGREE_CHECK, 'true');
                     }
 
-                    storageDeposit(accountId);
+                    storageDeposit(accountId)
+                      .then(() => {
+                        transtionsExcuteDataStore.setActionStatus('resolved');
+                      })
+                      .catch(() => {
+                        transtionsExcuteDataStore.setActionStatus('rejected');
+                      });
                   }}
                   check={agreeCheck}
                   storageEnough={!!storageEnough}
@@ -4158,7 +4163,6 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
               ></ConfirmButton>
             </div>
           )}
-
           {!!accountId &&
             validContract() &&
             (!storageEnough || !tradingKeySet || !keyAnnounced) && (
@@ -4175,7 +4179,13 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
                     localStorage.setItem(REF_ORDERLY_AGREE_CHECK, 'true');
                   }
 
-                  storageDeposit(accountId);
+                  storageDeposit(accountId)
+                    .then(() => {
+                      transtionsExcuteDataStore.setActionStatus('resolved');
+                    })
+                    .catch(() => {
+                      transtionsExcuteDataStore.setActionStatus('rejected');
+                    });
                 }}
                 check={agreeCheck}
                 storageEnough={!!storageEnough}

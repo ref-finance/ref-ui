@@ -32,15 +32,7 @@ import { PerpOrSpot } from './utiles';
 import { FormattedMessage } from 'react-intl';
 import { NewUserTip } from './components/Common/NewUserTip';
 import { PerpOrderlyTip, PerpOrderlyTipMobile } from './components/PerpHeader';
-import { PageContainer } from '../../components/layout/PageContainer';
 
-export default function Container(props: any) {
-  return (
-    <PageContainer>
-      <OrderlyTradingBoard {...props} />
-    </PageContainer>
-  );
-}
 function TradingBoard() {
   const isLarge = useLargeScreen();
 
@@ -253,7 +245,7 @@ export function OrderlyUnderMaintain() {
   );
 }
 
-function OrderlyTradingBoard() {
+export default function OrderlyTradingBoard() {
   const priKeyPath = get_orderly_private_key_path();
 
   const pubKeyPath = get_orderly_public_key_path();

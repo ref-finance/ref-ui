@@ -1240,7 +1240,13 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                     localStorage.setItem(REF_ORDERLY_AGREE_CHECK, 'true');
                   }
 
-                  storageDeposit(accountId);
+                  storageDeposit(accountId)
+                    .then(() => {
+                      transtionsExcuteDataStore.setActionStatus('resolved');
+                    })
+                    .catch(() => {
+                      transtionsExcuteDataStore.setActionStatus('rejected');
+                    });
                 }}
                 isOpenMobile={isMobile && registerModalOpen}
                 check={agreeCheck}
@@ -2834,7 +2840,13 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
                     localStorage.setItem(REF_ORDERLY_AGREE_CHECK, 'true');
                   }
 
-                  storageDeposit(accountId);
+                  storageDeposit(accountId)
+                    .then(() => {
+                      transtionsExcuteDataStore.setActionStatus('resolved');
+                    })
+                    .catch(() => {
+                      transtionsExcuteDataStore.setActionStatus('rejected');
+                    });
                 }}
                 check={agreeCheck}
                 storageEnough={!!storageEnough}

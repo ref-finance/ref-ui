@@ -10,7 +10,7 @@ import Guider from 'src/components/layout/Guider';
 
 import { WalletSelectorContextProvider } from './context/WalletSelectorContext';
 
-import { Content } from 'src/Content';
+import Content from 'src/Content';
 import { LedgerTransactionModal } from './context/modal-ui/modal';
 import {
   ModalTransactionSubmitting,

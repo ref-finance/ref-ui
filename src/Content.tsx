@@ -34,6 +34,7 @@ import getConfig from './services/config';
 import { REF_FARM_BOOST_CONTRACT_ID } from './services/near';
 import { useGlobalPopUp } from './state/popUp';
 import { globalStateReducer, WalletContext } from './utils/wallets-integration';
+import { PageContainerHighHighLevel } from './components/layout/PageContainer';
 
 export type Account = AccountView & {
   account_id: string;
@@ -64,7 +65,14 @@ Modal.defaultStyles = {
 
 Modal.setAppElement('#root');
 
-export function Content() {
+export default function Container(props: any) {
+  return (
+    <PageContainerHighHighLevel>
+      <Content {...props} />
+    </PageContainerHighHighLevel>
+  );
+}
+function Content() {
   const GlobalStateReducer = useReducer(globalStateReducer, {
     isSignedIn: false,
   });

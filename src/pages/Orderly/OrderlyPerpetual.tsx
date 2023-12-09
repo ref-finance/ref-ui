@@ -45,15 +45,6 @@ import { openUrl } from 'src/services/commonV3';
 import { usePerpData } from './components/UserBoardPerp/state';
 import PositionsTable from './components/AllOrders/PositionsTable';
 import { NewUserTip } from './components/Common/NewUserTip';
-import { PageContainer } from '../../components/layout/PageContainer';
-
-export default function Container(props: any) {
-  return (
-    <PageContainer>
-      <OrderlyPerpetual {...props} />
-    </PageContainer>
-  );
-}
 
 export const REF_ORDERLY_PERP_TIP_SIG = 'REF_ORDERLY_PERP_TIP_SIGN2';
 
@@ -391,7 +382,7 @@ function OrderlyUnderMaintain() {
   );
 }
 
-function OrderlyPerpetual() {
+export default function OrderlyPerpetual() {
   const priKeyPath = get_orderly_private_key_path();
 
   const pubKeyPath = get_orderly_public_key_path();
