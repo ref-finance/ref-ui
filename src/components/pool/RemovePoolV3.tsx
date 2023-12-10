@@ -803,7 +803,7 @@ export const RemovePoolV3 = (props: any) => {
             {min_received_total_value}
           </span>
         </div>
-        <div className="flex flex-col relative items-center justify-center border border-v3SwapGray border-opacity-20 rounded-xl pb-4 pt-10">
+        <div className="flex flex-col relative border-opacity-20 rounded-xl pb-4 pt-10">
           <span className="absolute right-4 top-2 text-primaryText text-xs font-bold">
             (
             {pair_is_reverse
