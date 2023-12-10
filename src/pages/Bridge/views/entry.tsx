@@ -138,8 +138,7 @@ function BridgeEntry() {
     bridgeToValue,
     setBridgeToValue,
     bridgeToBalance,
-    changeFromChain,
-    changeToChain,
+    changeBridgeChain,
     exchangeChain,
     bridgeSubmitStatus,
     bridgeSubmitStatusText,
@@ -183,7 +182,7 @@ function BridgeEntry() {
           <ConnectWallet
             currentChain={bridgeFromValue.chain}
             className="flex-1 justify-between"
-            onChangeChain={changeFromChain}
+            onChangeChain={(chain) => changeBridgeChain('from', chain)}
           />
         </div>
         <InputToken
@@ -205,7 +204,7 @@ function BridgeEntry() {
         </InputToken>
 
         <div className="flex justify-center my-3">
-          <Button text onClick={exchangeChain}>
+          <Button text onClick={() => exchangeChain()}>
             <SvgIcon name="IconExchange" />
           </Button>
         </div>
@@ -214,7 +213,7 @@ function BridgeEntry() {
           <ConnectWallet
             currentChain={bridgeToValue.chain}
             className="flex-1 justify-between"
-            onChangeChain={changeToChain}
+            onChangeChain={(chain) => changeBridgeChain('to', chain)}
           />
         </div>
         <InputToken

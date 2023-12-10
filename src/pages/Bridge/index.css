@@ -20,6 +20,9 @@
 .text-primary{
     color: var(--bridge-primary-color) !important;
 }
+.text-danger{
+    color: var(--bridge-danger-color) !important;
+}
 .bg-primary{
     background-color: var(--bridge-primary-color) !important;
 }
@@ -139,5 +142,16 @@
     }
     100% {
         transform: rotate(360deg);
+    }
+}
+.animate-fadeIn {
+    opacity: 0;
+    animation: animation-fadeIn 0.3s forwards;
+    animation-delay: 0.2s;
+}
+
+@keyframes animation-fadeIn {
+    to {
+        opacity: 1;
     }
 }

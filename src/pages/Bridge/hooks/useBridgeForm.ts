@@ -20,26 +20,21 @@ export default function useBridgeForm() {
     toChain: BridgeModel.BridgeSupportChain;
     fromToken: string;
     toToken: string;
-  }>('REF_BRIDGE_FORM', {
-    fromChain: SupportChains[0],
-    toChain: SupportChains[1],
-    fromToken: 'ETH',
-    toToken: 'ETH',
-  });
+  }>('REF_BRIDGE_FORM');
 
-  const [bridgeFromValue, _setBridgeFromValue] = useState<
+  const [bridgeFromValue, setBridgeFromValue] = useState<
     BridgeModel.BridgeTransferFormData['from']
   >(() => ({
-    chain: storageState.fromChain,
-    tokenMeta: getTokenBySymbol(storageState.fromToken),
+    chain: storageState?.fromChain ?? 'ETH',
+    tokenMeta: getTokenBySymbol(storageState?.fromToken ?? 'ETH'),
     amount: undefined,
   }));
 
-  const [bridgeToValue, _setBridgeToValue] = useState<
+  const [bridgeToValue, setBridgeToValue] = useState<
     BridgeModel.BridgeTransferFormData['to']
   >(() => ({
-    chain: storageState.toChain,
-    tokenMeta: getTokenBySymbol(storageState.toToken),
+    chain: storageState?.toChain ?? 'NEAR',
+    tokenMeta: getTokenBySymbol(storageState?.toToken ?? 'ETH'),
     amount: undefined,
     isCustomAccountAddress: false,
     customAccountAddress: undefined,
@@ -47,33 +42,44 @@ export default function useBridgeForm() {
 
   const walletCxt = useWalletConnectContext();
 
-  const setBridgeFromValue = useCallback(
-    (value: BridgeModel.BridgeTransferFormData['from']) => {
-      if (walletCxt?.[value.chain]?.accountId)
-        value.accountAddress = walletCxt?.[value.chain]?.accountId;
-      _setBridgeFromValue(value);
-      setStorageState({
-        ...storageState,
-        fromChain: value.chain,
-        fromToken: value.tokenMeta?.symbol,
-      });
-    },
-    []
-  );
+  useDebouncedEffect(
+    () => {
+      const fromValue = { ...bridgeFromValue };
+      const toValue = { ...bridgeToValue };
 
-  const setBridgeToValue = useCallback(
-    (value: BridgeModel.BridgeTransferFormData['to']) => {
-      if (walletCxt?.[value.chain]?.accountId)
-        value.accountAddress = walletCxt?.[value.chain]?.accountId;
-      _setBridgeToValue(value);
-      setStorageState({
-        ...storageState,
-        toChain: value.chain,
-        toToken: value.tokenMeta?.symbol,
-      });
-      console.log('to value', value);
+      // sync account address
+      if (walletCxt?.[fromValue.chain]?.accountId)
+        fromValue.accountAddress = walletCxt?.[fromValue.chain]?.accountId;
+      if (walletCxt?.[bridgeToValue.chain]?.accountId)
+        toValue.accountAddress = walletCxt?.[bridgeToValue.chain]?.accountId;
+
+      // sync local storage
+      if (bridgeFromValue.chain !== bridgeToValue.chain) {
+        setStorageState({
+          fromChain: fromValue.chain,
+          fromToken: fromValue.tokenMeta?.symbol,
+          toChain: toValue.chain,
+          toToken: toValue.tokenMeta?.symbol,
+        });
+      }
+
+      // sync amount out
+      const amountOut = fromValue.amount;
+      toValue.amount = amountOut;
+
+      setBridgeFromValue(fromValue);
+      setBridgeToValue(toValue);
     },
-    []
+    [
+      walletCxt?.[bridgeFromValue.chain]?.accountId,
+      walletCxt?.[bridgeToValue.chain]?.accountId,
+      bridgeFromValue.chain,
+      bridgeToValue.chain,
+      bridgeFromValue.tokenMeta?.symbol,
+      bridgeToValue.tokenMeta?.symbol,
+      bridgeFromValue.amount,
+    ],
+    500
   );
 
   // Sync every minute
@@ -108,18 +114,6 @@ export default function useBridgeForm() {
       time.format(),
     ],
     '0'
-  );
-
-  useDebouncedEffect(
-    async () => {
-      const amountOut = bridgeFromValue.amount;
-      setBridgeToValue({
-        ...bridgeToValue,
-        amount: amountOut,
-      });
-    },
-    [bridgeFromValue.amount],
-    1500
   );
 
   const [slippageTolerance, setSlippageTolerance] = useState(0.5);
@@ -167,7 +161,7 @@ export default function useBridgeForm() {
   const bridgeSubmitStatusText = useMemo(() => {
     switch (bridgeSubmitStatus) {
       case `unConnectForm`:
-        return `Connect wallet`;
+        return `Connect Wallet`;
       case `unConnectTo`:
         return `Connect / Enter destination address`;
       case `enterAmount`:
@@ -182,14 +176,15 @@ export default function useBridgeForm() {
   }, [bridgeSubmitStatus]);
 
   const gasWarning = useMemo(() => {
-    if (!bridgeFromValue.amount || !bridgeFromBalance) return false;
+    if (!bridgeFromValue.amount || new Big(bridgeFromBalance).eq(0))
+      return false;
     if (
       (bridgeFromValue.chain === 'ETH' &&
         bridgeFromValue.tokenMeta?.symbol === 'ETH') ||
       (bridgeFromValue.chain === 'NEAR' &&
         bridgeFromValue.tokenMeta?.symbol === 'NEAR')
     )
-      return new Big(bridgeFromValue.amount).gte(bridgeFromBalance);
+      return new Big(bridgeFromValue.amount).eq(bridgeFromBalance);
     return false;
   }, [
     bridgeFromValue.amount,
@@ -198,25 +193,14 @@ export default function useBridgeForm() {
     bridgeFromBalance,
   ]);
 
-  function changeFromChain(chain: BridgeModel.BridgeSupportChain) {
-    if (bridgeToValue.chain === chain) exchangeChain();
-    else
-      setBridgeFromValue({
-        ...bridgeFromValue,
-        chain,
-      });
+  function changeBridgeChain(
+    type: 'from' | 'to',
+    chain: BridgeModel.BridgeSupportChain
+  ) {
+    exchangeChain(true);
   }
 
-  function changeToChain(chain: BridgeModel.BridgeSupportChain) {
-    if (bridgeFromValue.chain === chain) exchangeChain();
-    else
-      setBridgeToValue({
-        ...bridgeToValue,
-        chain,
-      });
-  }
-
-  function exchangeChain() {
+  function exchangeChain(restToken?: boolean) {
     const {
       chain: fromChain,
       tokenMeta: fromTokenMeta,
@@ -227,18 +211,28 @@ export default function useBridgeForm() {
       tokenMeta: toTokenMeta,
       accountAddress: toAccount,
     } = bridgeToValue;
-    setBridgeFromValue({
+
+    const fromValue = {
       chain: toChain,
       tokenMeta: toTokenMeta,
       accountAddress: toAccount,
-    });
-    setBridgeToValue({
+    };
+    const toValue = {
       chain: fromChain,
       tokenMeta: fromTokenMeta,
       accountAddress: fromAccount,
       isCustomAccountAddress: false,
       customAccountAddress: undefined,
-    });
+    };
+
+    if (restToken) {
+      const tokenMeta = getTokenBySymbol(fromValue.chain);
+      fromValue.tokenMeta = tokenMeta;
+      toValue.tokenMeta = tokenMeta;
+    }
+
+    setBridgeFromValue(fromValue);
+    setBridgeToValue(toValue);
   }
 
   return {
@@ -248,8 +242,7 @@ export default function useBridgeForm() {
     bridgeToValue,
     setBridgeToValue,
     bridgeToBalance,
-    changeFromChain,
-    changeToChain,
+    changeBridgeChain,
     exchangeChain,
     bridgeSubmitStatus,
     bridgeSubmitStatusText,

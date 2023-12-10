@@ -18,7 +18,7 @@ type Props = {
 
 function GasFeeWarning({ className }: { className?: string }) {
   return (
-    <div className={`flex items-center text-red-400 ${className ?? ''}`}>
+    <div className={`flex items-center text-danger ${className ?? ''}`}>
       <SvgIcon name="IconWarning" className="mr-1" />
       Not enough gas fee
     </div>
@@ -94,7 +94,7 @@ function InputToken({
           </span>
         </div>
       </div>
-      {isError ? <GasFeeWarning className="mt-2" /> : null}
+      {isError ? <GasFeeWarning className="animate-fadeIn mt-2" /> : null}
     </>
   );
 }
