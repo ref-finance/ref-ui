@@ -93,7 +93,7 @@ module.exports = {
                 .split('/')
                 .reduceRight((item) => item);
               const chunkName = moduleFileName.replace(/\.tsx$/, '');
-              console.log('chunkName', chunkName);
+              // console.log('chunkName', chunkName);
               return `icon-${chunkName}`;
             },
           },

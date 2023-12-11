@@ -2,7 +2,7 @@ const GA_ID = window.location.hostname.startsWith('app.')
   ? 'G-GL2STL8WB4'
   : 'G-MJNEGMP1NR';
 
-console.log('GA_ID', GA_ID);
+// console.log('GA_ID', GA_ID);
 window.dataLayer = window.dataLayer || [];
 window.gtag = (...args) => window.dataLayer.push(args);
 window.gtag('js', new Date());
