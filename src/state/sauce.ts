@@ -13,7 +13,7 @@ export interface PoolData {
   pool: Pool;
   shares: string;
   farmStake: string | number;
-  farmCount: number;
+  farmCount: Number;
   userTotalShare: BigNumber;
   tokens: TokenMetadata[];
   poolTVL: number;
