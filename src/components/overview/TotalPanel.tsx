@@ -7,9 +7,10 @@ import React, {
 } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import QuestionMark from 'src/components/farm/QuestionMark';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { OverviewData } from '../../pages/Overview';
 import { formatWithCommas_usd } from '../../services/overview/utils';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 export default function TotalPanel() {
   const intl = useIntl();
   const { is_mobile } = useContext(OverviewData);
@@ -44,19 +45,12 @@ function TotalPanelPc(props: any) {
           <div
             className="text-white text-right ml-1"
             data-class="reactTip"
-            data-for="netWorthId"
+            data-tooltip-id="netWorthId"
             data-place="top"
-            data-html={true}
-            data-tip={netWorthTip}
+            data-tooltip-html={netWorthTip}
           >
             <QuestionMark></QuestionMark>
-            <ReactTooltip
-              id="netWorthId"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            <CustomTooltip id="netWorthId" />
           </div>
         </div>
         <span className="text-white text-2xl gotham_bold mt-0.5">
@@ -124,19 +118,12 @@ function TotalPanelMobile(props: any) {
           <div
             className="text-white text-right ml-1"
             data-class="reactTip"
-            data-for="netWorthId"
+            data-tooltip-id="netWorthId"
             data-place="top"
-            data-html={true}
-            data-tip={netWorthTip}
+            data-tooltip-html={netWorthTip}
           >
             <QuestionMark></QuestionMark>
-            <ReactTooltip
-              id="netWorthId"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            <CustomTooltip id="netWorthId" />
           </div>
         </div>
         <span className="text-white text-2xl gotham_bold">

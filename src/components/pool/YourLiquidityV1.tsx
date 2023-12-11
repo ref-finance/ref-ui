@@ -98,7 +98,7 @@ import { GoodIcon } from '../../components/icon/Common';
 import { AddPoolModal } from '../../pages/pools/AddPoolPage';
 import { getStableSwapTabKey } from 'src/pages/stable/StableSwapPageUSN';
 import { LinkIcon } from '../../components/icon/Portfolio';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { checkFarmStake } from '../../state/farm';
 import {
   display_number_withCommas,
@@ -107,6 +107,7 @@ import {
 } from '../portfolio/Tool';
 import { PortfolioData } from 'src/pages/Portfolio';
 import { openUrl } from '../../services/commonV3';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import BLACKTip from '../../components/pool/BLACKTip';
 const is_mobile = isMobile();
 const { BLACK_TOKEN_LIST } = getConfig();
@@ -1529,9 +1530,8 @@ function PoolRow(props: {
                 data-type="info"
                 data-place="top"
                 data-multiline={true}
-                data-tip={getForbiddenTip()}
-                data-html={true}
-                data-for={'forbiddenTip' + 'your_lp' + pool.id}
+                data-tooltip-html={getForbiddenTip()}
+                data-tooltip-id={'forbiddenTip' + 'your_lp' + pool.id}
                 data-class="reactTip"
               >
                 <SolidButton
@@ -1564,13 +1564,9 @@ function PoolRow(props: {
                   <FormattedMessage id="add" defaultMessage="Add" />
                 </SolidButton>
                 {needForbidden ? (
-                  <ReactTooltip
+                  <CustomTooltip
                     id={'forbiddenTip' + 'your_lp' + pool.id}
-                    backgroundColor="#1D2932"
-                    border
                     place="bottom"
-                    borderColor="#7e8a93"
-                    effect="solid"
                   />
                 ) : null}
               </div>
@@ -1809,9 +1805,8 @@ function PoolRow(props: {
               data-type="info"
               data-place="top"
               data-multiline={true}
-              data-tip={getForbiddenTip()}
-              data-html={true}
-              data-for={'forbiddenTip' + 'your_lp' + pool.id}
+              data-tooltip-html={getForbiddenTip()}
+              data-tooltip-id={'forbiddenTip' + 'your_lp' + pool.id}
               data-class="reactTip"
             >
               <SolidButton
@@ -1842,13 +1837,7 @@ function PoolRow(props: {
                 <FormattedMessage id="add" defaultMessage="Add" />
               </SolidButton>
               {needForbidden ? (
-                <ReactTooltip
-                  id={'forbiddenTip' + 'your_lp' + pool.id}
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                />
+                <CustomTooltip id={'forbiddenTip' + 'your_lp' + pool.id} />
               ) : null}
             </div>
 

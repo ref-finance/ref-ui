@@ -340,7 +340,6 @@ function TableWithTabs({
         setLoading(false);
         return;
       }
-
       setData(res.data?.rows || []);
       setTotal(res.data?.meta?.total || 0);
       if (id === 'open_orders' && tab === 0)
@@ -348,7 +347,6 @@ function TableWithTabs({
       setLoading(false);
     }
   };
-
   return (
     <>
       <div className="w-full relative mt-10 xs:mt-5 lg:rounded-2xl shadow-sm text-primaryOrderly text-sm lg:bg-opacity-10 pb-4">
@@ -799,26 +797,11 @@ export function TableWithOutTabs({
     userExist,
     symbol,
   } = useOrderlyContext();
-
-  const { accountId, modal } = useWalletSelector();
-  const [registerModalOpen, setRegisterModalOpen] = useState<boolean>(false);
-  const [openOrderCount, setOpenOrderCount] = useState<number>(0);
-
-  const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
-
-  // const [data, setData] = useState<any>([]);
   const [total, setTotal] = useState(0);
-
   const isMobile = useClientMobile();
-
   const [tab, setTab] = useState<number>(0);
   const [page, setPage] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
-
-  // useEffect(() => {
-  //   if (!!newPositions?.rows) setData(newPositions?.rows);
-  // }, [newPositions]);
-
   const filterFunc = useCallback(
     (row: any) => {
       if (!showCurSymbol) return true;

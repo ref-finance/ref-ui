@@ -38,8 +38,8 @@ import {
   XrefMetaData,
 } from 'src/services/xref';
 import QuestionMark from 'src/components/farm/QuestionMark';
-import ReactTooltip from 'react-tooltip';
 import { WalletContext } from '../../utils/wallets-integration';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 const {
   XREF_TOKEN_ID,
   REF_TOKEN_ID,
@@ -285,21 +285,14 @@ function XrefPage() {
               <div
                 className="text-white text-left"
                 data-class="reactTip"
-                data-for={'xrefAprId'}
+                data-tooltip-id={'xrefAprId'}
                 data-place="top"
-                data-html={true}
-                data-tip={getXrefAprTip()}
+                data-tooltip-html={getXrefAprTip()}
               >
                 <span className="text-2xl text-white">
                   {displayApr() + '%'}
                 </span>
-                <ReactTooltip
-                  id={'xrefAprId'}
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                />
+                <CustomTooltip id={'xrefAprId'} />
               </div>
             </div>
           </div>
@@ -330,20 +323,13 @@ function XrefPage() {
                   <div
                     className="text-white text-left"
                     data-class="reactTip"
-                    data-for={'youGetId'}
+                    data-tooltip-id={'youGetId'}
                     data-place="top"
-                    data-html={true}
-                    data-tip={getYourRewardsTip()}
+                    data-tooltip-html={getYourRewardsTip()}
                   >
                     {displayTotalREF()}{' '}
                     <FormattedMessage id="ref"></FormattedMessage>
-                    <ReactTooltip
-                      id={'youGetId'}
-                      backgroundColor="#1D2932"
-                      border
-                      borderColor="#7e8a93"
-                      effect="solid"
-                    />
+                    <CustomTooltip id={'youGetId'} />
                   </div>
                 </div>
               </div>
@@ -367,20 +353,13 @@ function XrefPage() {
                   <div
                     className="text-white text-left"
                     data-class="reactTip"
-                    data-for={'youGetMId'}
+                    data-tooltip-id={'youGetMId'}
                     data-place="top"
-                    data-html={true}
-                    data-tip={getYourRewardsTip()}
+                    data-tooltip-html={getYourRewardsTip()}
                   >
                     {displayTotalREF()}{' '}
                     <FormattedMessage id="ref"></FormattedMessage>
-                    <ReactTooltip
-                      id={'youGetMId'}
-                      backgroundColor="#1D2932"
-                      border
-                      borderColor="#7e8a93"
-                      effect="solid"
-                    />
+                    <CustomTooltip id={'youGetMId'} />
                   </div>
                 </div>
               </div>
@@ -658,20 +637,12 @@ function InfoBox(props: any) {
               data-place="right"
               data-multiline={true}
               data-class="reactTip"
-              data-html={true}
-              data-tip={tip}
-              data-for="yourRewardsId"
+              data-tooltip-html={tip}
+              data-tooltip-id="yourRewardsId"
             >
               <QuestionMark />
             </span>
-            <ReactTooltip
-              className="w-20"
-              id="yourRewardsId"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            <CustomTooltip className="w-20" id="yourRewardsId" />
           </>
         ) : null}
       </div>

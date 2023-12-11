@@ -46,12 +46,6 @@ const routes: Route[] = [
     exact: true,
     wrapper: 'AutoHeightNoOffset',
   },
-  // {
-  //   path: '/account',
-  //   element: lazy(
-  //     () => import(/* webpackChunkName: "account" */ 'src/pages/AccountPage')
-  //   ),
-  // },
   {
     path: '/orderly',
     element: lazy(
@@ -62,13 +56,6 @@ const routes: Route[] = [
     ),
     wrapper: 'AutoHeight',
   },
-  // {
-  //   path: '/burrow',
-  //   element: lazy(
-  //     () => import(/* webpackChunkName: "burrow" */ 'src/pages/Burrow')
-  //   ),
-  //   wrapper: 'AutoHeight',
-  // },
   {
     path: '/overview',
     element: lazy(
@@ -127,24 +114,6 @@ const routes: Route[] = [
     ),
     wrapper: 'AutoHeight',
   },
-  // {
-  //   path: '/recent',
-  //   element: lazy(
-  //     () =>
-  //       import(/* webpackChunkName: "recent" */ 'src/pages/RecentActivityPage')
-  //   ),
-  //   wrapper: '',
-  // },
-  {
-    path: '/more_pools/:tokenIds',
-    element: lazy(
-      () =>
-        import(
-          /* webpackChunkName: "morePoolsDetail" */ 'src/pages/pools/MorePoolsPage'
-        )
-    ),
-    wrapper: 'AutoHeight',
-  },
   {
     path: '/pools/add-token',
     element: lazy(
@@ -159,7 +128,9 @@ const routes: Route[] = [
     path: '/pools',
     element: lazy(
       () =>
-        import(/* webpackChunkName: "pools" */ 'src/pages/pools/LiquidityPage')
+        import(
+          /* webpackChunkName: "pools" */ 'src/pages/pools/LiquidityPage/LiquidityPage'
+        )
     ),
     wrapper: 'AutoHeight',
   },
@@ -204,13 +175,6 @@ const routes: Route[] = [
         import(
           /* webpackChunkName: "sauce" */ 'src/pages/stable/StableSwapEntry'
         )
-    ),
-    wrapper: 'AutoHeight',
-  },
-  {
-    path: '/myOrder',
-    element: lazy(
-      () => import(/* webpackChunkName: "myOrder" */ 'src/pages/MyOrder')
     ),
     wrapper: 'AutoHeight',
   },

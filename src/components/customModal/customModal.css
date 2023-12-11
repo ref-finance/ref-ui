@@ -1,4 +1,4 @@
-.modal {
+.customModal {
   position: fixed;
   top: 0;
   left: 0;
@@ -12,7 +12,7 @@
   outline: 0;
 }
 
-.modal.show {
+.customModal.show {
   z-index: 999990;
 }
 
@@ -23,14 +23,14 @@
   pointer-events: none;
 }
 
-.modal.fade .modal-dialog {
+.customModal.fade .modal-dialog {
   /*transition: transform 0.3s ease-out;*/
   /*transform: translateY(-50px);*/
   transition: opacity 0.3s ease-out;
   opacity: 0;
 }
 
-.modal .overlay {
+.customModal .overlay {
   width: 100%;
   height: 100%;
   top: 0;
@@ -58,12 +58,12 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .modal.fade .modal-dialog {
+  .customModal.fade .modal-dialog {
     transition: none;
   }
 }
 
-.modal.show .modal-dialog {
+.customModal.show .modal-dialog {
   /*transform: none;*/
   opacity: 1;
 }

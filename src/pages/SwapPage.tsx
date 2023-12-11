@@ -186,6 +186,7 @@ const ChangeSwapMode = ({
                   e.stopPropagation();
                   changeSwapType(type as SWAP_TYPE);
                 }}
+                key={type}
               >
                 {type}
               </div>

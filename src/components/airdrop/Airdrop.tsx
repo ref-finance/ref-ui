@@ -15,7 +15,6 @@ import {
 import { toReadableNumber } from 'src/utils/numbers';
 import moment from 'moment';
 import { SmallConnectToNearBtn } from 'src/components/button/Button';
-import ReactTooltip from 'react-tooltip';
 import copy from 'src/utils/copy';
 import { getCurrentUnixTime } from 'src/services/api';
 import { useHistory, useLocation } from 'react-router';
@@ -197,7 +196,6 @@ function participateAirdropView(
         >
           <FormattedMessage id="claim" defaultMessage="Claim" />
         </button>
-        <ReactTooltip className="text-xs font-light" />
       </div>
     </div>
   );
@@ -240,7 +238,6 @@ export default function AirdropView() {
             data-tip={intl.formatMessage({ id: 'airdropCopy' })}
             className="inline-block	ml-2 text-xs font-semibold text-secondaryScale-500"
           />
-          <ReactTooltip className="text-xs font-light" />
         </div>
       );
     }

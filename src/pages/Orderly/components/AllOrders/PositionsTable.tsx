@@ -1,7 +1,4 @@
 import React, { createContext, useEffect, useContext, useState } from 'react';
-import Big from 'big.js';
-import ReactTooltip from 'react-tooltip';
-import _ from 'lodash';
 import { useIntl } from 'react-intl';
 import { isMobile } from '../../../../utils/device';
 
