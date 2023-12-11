@@ -507,6 +507,7 @@ module.exports = {
       fontSize: {
         '13px': '13px',
         '10px': '10px',
+        '14px':'14px',
       },
 
       maxHeight: {

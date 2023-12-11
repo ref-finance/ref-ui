@@ -224,7 +224,6 @@ export default function SwapFormWrap({
           ) : (
             <InsufficientButton divClassName="h-12 mt-2 w-full"></InsufficientButton>
           )}
-          {viewPool}
         </div>
       )}
     </form>

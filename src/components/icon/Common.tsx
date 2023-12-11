@@ -28,13 +28,15 @@ import XmasSmallTreeSvg from '../../assets/svg/XmasSmallTree.svg';
 import XmasTreeSvg from '../../assets/svg/XmasTree.svg';
 
 import InfoSvg from '../../assets/svg/infoIcon.svg';
-import ReactTooltip from 'react-tooltip';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 export const InfoIcon = ({
   tooltip,
   style,
   tooltipNode,
+  id,
 }: {
+  id: string;
   tooltip?: string;
   style?: any;
   tooltipNode?: any;
@@ -44,15 +46,15 @@ export const InfoIcon = ({
     <>
       <span
         data-tip={true}
-        data-for={tooltipId}
+        data-tooltip-id={id}
         className={'cursor-pointer info-icon'}
       >
         <InfoSvg />
       </span>
       {(tooltip || tooltipNode) && (
-        <ReactTooltip id={tooltipId}>
+        <CustomTooltip id={id}>
           {tooltipNode ? tooltipNode : <div style={style}>{tooltip}</div>}
-        </ReactTooltip>
+        </CustomTooltip>
       )}
     </>
   );

@@ -225,7 +225,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
     );
   };
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const SwapRateCustomTooltip = ({ active, payload, label }: any) => {
     if (!active || !payload || !payload?.[1]) return null;
 
     const price = payload[1].payload.price;
@@ -664,7 +664,7 @@ export default function SwapRateChart(props: SwapRateChartProps) {
                   fill: diff.direction === 'down' ? '#FF6A8e' : '#00c6a2',
                   strokeDasharray: '2, 2',
                 }}
-                content={<CustomTooltip />}
+                content={<SwapRateCustomTooltip />}
               />
               <Line
                 dataKey="stickLast"

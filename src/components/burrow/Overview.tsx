@@ -11,7 +11,7 @@ import {
 } from 'src/components/button/Button';
 import { FormattedMessage, useIntl } from 'react-intl';
 import QuestionMark from 'src/components/farm/QuestionMark';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { BurrowData } from '../../pages/Burrow';
 import {
   IAccount,
@@ -37,6 +37,7 @@ import {
 } from 'src/services/burrow-utils';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { isMobile } from 'src/utils/device';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 const is_mobile = isMobile();
 const OverviewData = createContext(null);
 export default function Overview() {
@@ -540,19 +541,12 @@ const Template = (props: {
           <div
             className="text-white text-right ml-1.5"
             data-class="reactTip"
-            data-for="tipId"
+            data-tooltip-id="tipId"
             data-place="top"
-            data-html={true}
-            data-tip={tip}
+            data-tooltip-html={tip}
           >
             <QuestionMark></QuestionMark>
-            <ReactTooltip
-              id="tipId"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            <CustomTooltip id="tipId" />
           </div>
         )}
       </div>

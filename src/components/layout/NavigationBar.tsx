@@ -10,7 +10,6 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { FormattedMessage, FormattedRelativeTime, useIntl } from 'react-intl';
 import { matchPath } from 'react-router';
 import { Link, useHistory, useLocation } from 'react-router-dom';
-import ReactTooltip from 'react-tooltip';
 import { Card } from 'src/components/card/Card';
 import {
   IconAirDropGreenTip,
@@ -496,7 +495,7 @@ function AccountEntry({
 
               {accountList.map((item, index) => {
                 return (
-                  <>
+                  <React.Fragment key={item.textId + index}>
                     <div
                       onClick={item.click}
                       key={item.textId + index}
@@ -536,7 +535,7 @@ function AccountEntry({
                         />
                       </div>
                     ) : null}
-                  </>
+                  </React.Fragment>
                 );
               })}
             </Card>

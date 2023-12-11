@@ -281,40 +281,40 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
       // include non-stable pools on top pool list
       // TODO:
 
-      await Promise.all(
-        ALL_STABLE_POOL_IDS.concat(BLACKLIST_POOL_IDS)
-          .filter((id) => Number(id) !== Number(STABLE_POOL_ID))
-          .filter((_) => _)
-          .map(async (id) => {
-            const pool = await getPoolRPC(Number(id));
+      // await Promise.all(
+      //   ALL_STABLE_POOL_IDS.concat(BLACKLIST_POOL_IDS)
+      //     .filter((id) => Number(id) !== Number(STABLE_POOL_ID))
+      //     .filter((_) => _)
+      //     .map(async (id) => {
+      //       const pool = await getPoolRPC(Number(id));
 
-            const ids = pool.tokenIds;
+      //       const ids = pool.tokenIds;
 
-            const twoTokenStablePoolIds = (
-              await getPoolsByTokensIndexer({
-                token0: ids[0],
-                token1: ids[1],
-              })
-            ).map((p: any) => p.id.toString());
+      //       const twoTokenStablePoolIds = (
+      //         await getPoolsByTokensIndexer({
+      //           token0: ids[0],
+      //           token1: ids[1],
+      //         })
+      //       ).map((p: any) => p.id.toString());
 
-            const twoTokenStablePools = await getPoolsByIds({
-              pool_ids: twoTokenStablePoolIds,
-            });
+      //       const twoTokenStablePools = await getPoolsByIds({
+      //         pool_ids: twoTokenStablePoolIds,
+      //       });
 
-            if (twoTokenStablePools.length > 0) {
-              const maxTVLPool = _.maxBy(twoTokenStablePools, (p) => p.tvl);
+      //       if (twoTokenStablePools.length > 0) {
+      //         const maxTVLPool = _.maxBy(twoTokenStablePools, (p) => p.tvl);
 
-              if (
-                pools.find(
-                  (pool: any) => Number(pool.id) === Number(maxTVLPool.id)
-                )
-              )
-                return;
+      //         if (
+      //           pools.find(
+      //             (pool: any) => Number(pool.id) === Number(maxTVLPool.id)
+      //           )
+      //         )
+      //           return;
 
-              pools.push(_.maxBy(twoTokenStablePools, (p) => p.tvl));
-            }
-          })
-      );
+      //         pools.push(_.maxBy(twoTokenStablePools, (p) => p.tvl));
+      //       }
+      //     })
+      // );
 
       await db.cacheTopPools(pools);
     }

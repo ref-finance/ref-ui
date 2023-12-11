@@ -44,5 +44,6 @@ module.exports = {
     'object-shorthand': ['error', 'always'],
     'dot-notation': 'error',
     '@typescript-eslint/no-unused-vars': 'off',
+    '@typescript-eslint/ban-types': 'off',
   },
 };

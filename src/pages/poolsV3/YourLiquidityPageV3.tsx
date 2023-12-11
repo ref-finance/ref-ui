@@ -70,7 +70,7 @@ import { ALL_STABLE_POOL_IDS, REF_FI_CONTRACT_ID } from '../../services/near';
 import { getPoolsByIds } from '../../services/indexer';
 import { BlueCircleLoading } from '../../components/layout/Loading';
 import QuestionMark from 'src/components/farm/QuestionMark';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import Big from 'big.js';
 import { ConnectToNearBtnSwap } from '../../components/button/Button';
 import { getURLInfo } from '../../components/layout/transactionTipPopUp';
@@ -80,6 +80,7 @@ import { REF_POOL_NAV_TAB_KEY } from '../../components/pool/PoolTabV3';
 import { NFTIdIcon } from 'src/components/icon/FarmBoost';
 import { YourLiquidityV2 } from 'src/components/pool/YourLiquidityV2';
 import { isMobile } from 'src/utils/device';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 export default function YourLiquidityPageV3() {
   const clearState = () => {
@@ -1211,10 +1212,9 @@ function UserLiquidityLine_old({
               <div
                 className="text-white text-right"
                 data-class="reactTip"
-                data-for={`pause_dcl_tip_claim_${liquidity.lpt_id}`}
+                data-tooltip-id={`pause_dcl_tip_claim_${liquidity.lpt_id}`}
                 data-place="top"
-                data-html={true}
-                data-tip={isLegacy ? pause_old_dcl_claim_tip() : ''}
+                data-tooltip-html={isLegacy ? pause_old_dcl_claim_tip() : ''}
               >
                 <div
                   className={`flex items-center justify-center  rounded-lg text-sm px-2 py-1 ml-5 gotham_bold ${
@@ -1229,13 +1229,7 @@ function UserLiquidityLine_old({
                     Text={() => <FormattedMessage id="claim" />}
                   />
                 </div>
-                <ReactTooltip
-                  id={`pause_dcl_tip_claim_${liquidity.lpt_id}`}
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                />
+                <CustomTooltip id={`pause_dcl_tip_claim_${liquidity.lpt_id}`} />
               </div>
             </div>
           </div>
@@ -1345,10 +1339,9 @@ function UserLiquidityLine_old({
                   {/* <div
                     className="text-white text-right"
                     data-class="reactTip"
-                    data-for={`mobile_pause_dcl_tip_claim_${liquidity.lpt_id}`}
+                    data-tooltip-id={`mobile_pause_dcl_tip_claim_${liquidity.lpt_id}`}
                     data-place="top"
-                    data-html={true}
-                    data-tip={isLegacy ? pause_old_dcl_claim_tip() : ''}
+                    data-tooltip-html={isLegacy ? pause_old_dcl_claim_tip() : ''}
                   > */}
                   <div
                     className={`flex items-center justify-center  rounded-lg text-sm px-2 py-1 ${
@@ -1363,14 +1356,6 @@ function UserLiquidityLine_old({
                       Text={() => <FormattedMessage id="claim" />}
                     />
                   </div>
-                  {/* <ReactTooltip
-                      id={`mobile_pause_dcl_tip_claim_${liquidity.lpt_id}`}
-                      backgroundColor="#1D2932"
-                      border
-                      borderColor="#7e8a93"
-                      effect="solid"
-                    />
-                  </div> */}
                 </div>
               </div>
             </div>

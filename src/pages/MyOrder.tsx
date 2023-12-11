@@ -46,7 +46,7 @@ import { DownArrowVE, UpArrowVE } from '../components/icon/Referendum';
 import { Loading } from 'src/components/icon/Loading';
 import { RouterArrowLeft, MyOrderMobileArrow } from '../components/icon/Arrows';
 import QuestionMark from '../components/farm/QuestionMark';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { toRealSymbol } from '../utils/token';
 import { QuestionTip, ExclamationTip } from '../components/layout/TipWrapper';
 import { MyOrderInstantSwapArrowRight } from '../components/icon/swapV3';
@@ -61,6 +61,7 @@ import getConfig from 'src/services/config';
 import _ from 'lodash';
 import { HistoryOrderSwapInfo } from '../services/indexer';
 import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from 'src/constants';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 const ORDER_TYPE_KEY = 'REF_FI_ORDER_TYPE_VALUE';
 
@@ -392,9 +393,8 @@ function HistoryLine({
       data-place="bottom"
       data-multiline={true}
       data-class="reactTip"
-      data-html={true}
-      data-tip={getClaimAmountTip()}
-      data-for={'claim_tip_' + order.order_id}
+      data-tooltip-html={getClaimAmountTip()}
+      data-tooltip-id={'claim_tip_' + order.order_id}
     >
       <span className="mr-1 xs:ml-2">
         <QuestionMark color="dark" />
@@ -415,15 +415,10 @@ function HistoryLine({
           );
         })}
       </div>
-      <ReactTooltip
+      <CustomTooltip
         className="w-20"
         id={'claim_tip_' + order.order_id}
-        backgroundColor="#1D2932"
         place="bottom"
-        border
-        borderColor="#7e8a93"
-        textColor="#C6D1DA"
-        effect="solid"
       />
     </div>
   );
@@ -1371,9 +1366,8 @@ function ActiveLine({
       data-place="bottom"
       data-multiline={true}
       data-class="reactTip"
-      data-html={true}
-      data-tip={getUnclaimAmountTip()}
-      data-for={'unclaim_tip_' + order.order_id}
+      data-tooltip-html={getUnclaimAmountTip()}
+      data-tooltip-id={'unclaim_tip_' + order.order_id}
     >
       <span className="mr-1 xs:ml-2">
         <QuestionMark color="dark" />
@@ -1399,15 +1393,10 @@ function ActiveLine({
           );
         })}
       </div>
-      <ReactTooltip
+      <CustomTooltip
         className="w-20"
         id={'unclaim_tip_' + order.order_id}
-        backgroundColor="#1D2932"
         place="bottom"
-        border
-        borderColor="#7e8a93"
-        textColor="#C6D1DA"
-        effect="solid"
       />
     </div>
   );
@@ -1419,8 +1408,7 @@ function ActiveLine({
       data-multiline={true}
       data-class="reactTip"
       className="xs:w-1/2"
-      data-html={true}
-      data-tip={`
+      data-tooltip-html={`
             <div class="text-xs opacity-50">
               <div 
                 style="font-weight:400",
@@ -1433,7 +1421,7 @@ function ActiveLine({
               </div>
             </div>
           `}
-      data-for="v2_paused_pool_tip_claim"
+      data-tooltip-id="v2_paused_pool_tip_claim"
     >
       <button
         className={`rounded-lg    text-xs xs:text-sm xs:w-full ml-1.5 p-1.5 ${
@@ -1463,16 +1451,6 @@ function ActiveLine({
           loading={claimLoading}
         ></ButtonTextWrapper>
       </button>
-
-      {/* <ReactTooltip
-        className="w-20"
-        id="v2_paused_pool_tip_claim"
-        backgroundColor="#1D2932"
-        border
-        borderColor="#7e8a93"
-        textColor="#C6D1DA"
-        effect="solid"
-      /> */}
     </div>
   );
 
@@ -1528,8 +1506,7 @@ function ActiveLine({
       className="justify-self-end xs:w-1/2"
       data-multiline={true}
       data-class="reactTip"
-      data-html={true}
-      data-tip={`
+      data-tooltip-html={`
           <div class="text-xs opacity-50">
             <div 
               style="font-weight:400",
@@ -1542,7 +1519,7 @@ function ActiveLine({
             </div>
           </div>
         `}
-      data-for="v2_paused_pool_tip_cancel"
+      data-tooltip-id="v2_paused_pool_tip_cancel"
     >
       <button
         className={`border col-span-1 rounded-lg xs:text-sm xs:w-full text-xs justify-self-end p-1.5 ${
@@ -1572,17 +1549,6 @@ function ActiveLine({
           loading={cancelLoading}
         />
       </button>
-
-      {/* <ReactTooltip
-        className="w-20"
-        id="v2_paused_pool_tip_cancel"
-        backgroundColor="#1D2932"
-        border
-        borderColor="#7e8a93"
-        textColor="#C6D1DA"
-        effect="solid"
-        place={isMobile() ? 'right' : 'top'}
-      /> */}
     </div>
   );
 
@@ -2227,7 +2193,7 @@ function OrderCard({
           <div
             className="inline-flex max-w-max items-center ml-4 text-primaryText mt-7  mb-3"
             data-class="reactTip"
-            data-for={'real_time_order_tip'}
+            data-tooltip-id={'real_time_order_tip'}
             data-html={true}
             data-place={'top'}
             data-tip={getRealTimeOrderTip()}
@@ -2255,15 +2221,7 @@ function OrderCard({
                 defaultMessage: 'real-time executed orders',
               })}
             </span>
-            <ReactTooltip
-              id={'real_time_order_tip'}
-              backgroundColor="#1D2932"
-              place="top"
-              border
-              borderColor="#7e8a93"
-              textColor="#C6D1DA"
-              effect="solid"
-            />
+            <CustomTooltip id={'real_time_order_tip'} place="top" />
           </div>
         )}
       {orderType === 'history' &&
@@ -2663,9 +2621,8 @@ function OrderCardOld({
         data-place="bottom"
         data-multiline={true}
         data-class="reactTip"
-        data-html={true}
-        data-tip={getUnclaimAmountTip()}
-        data-for={'unclaim_tip_' + order.order_id}
+        data-tooltip-html={getUnclaimAmountTip()}
+        data-tooltip-id={'unclaim_tip_' + order.order_id}
       >
         <span className="mr-1 xs:ml-2">
           <QuestionMark color="dark" />
@@ -2691,15 +2648,10 @@ function OrderCardOld({
             );
           })}
         </div>
-        <ReactTooltip
+        <CustomTooltip
           className="w-20"
           id={'unclaim_tip_' + order.order_id}
-          backgroundColor="#1D2932"
           place="bottom"
-          border
-          borderColor="#7e8a93"
-          textColor="#C6D1DA"
-          effect="solid"
         />
       </div>
     );
@@ -2711,8 +2663,7 @@ function OrderCardOld({
         data-multiline={true}
         data-class="reactTip"
         className="xs:w-1/2"
-        data-html={true}
-        data-tip={`
+        data-tooltip-html={`
               <div class="text-xs opacity-50">
                 <div 
                   style="font-weight:400",
@@ -2725,7 +2676,7 @@ function OrderCardOld({
                 </div>
               </div>
             `}
-        data-for="v2_paused_pool_tip_claim"
+        data-tooltip-id="v2_paused_pool_tip_claim"
       >
         <button
           className={`rounded-lg    text-xs xs:text-sm xs:w-full ml-1.5 p-1.5 ${
@@ -2757,16 +2708,6 @@ function OrderCardOld({
             loading={claimLoading}
           ></ButtonTextWrapper>
         </button>
-
-        {/* <ReactTooltip
-          className="w-20"
-          id="v2_paused_pool_tip_claim"
-          backgroundColor="#1D2932"
-          border
-          borderColor="#7e8a93"
-          textColor="#C6D1DA"
-          effect="solid"
-        /> */}
       </div>
     );
 
@@ -2828,8 +2769,7 @@ function OrderCardOld({
         className="justify-self-end xs:w-1/2"
         data-multiline={true}
         data-class="reactTip"
-        data-html={true}
-        data-tip={`
+        data-tooltip-html={`
             <div class="text-xs opacity-50">
               <div 
                 style="font-weight:400; max-width: 178px",
@@ -2838,7 +2778,7 @@ function OrderCardOld({
               </div>
             </div>
           `}
-        data-for="v2_paused_pool_tip_cancel_old"
+        data-tooltip-id="v2_paused_pool_tip_cancel_old"
       >
         <button
           className={`border col-span-1 rounded-lg xs:text-sm xs:w-full text-xs justify-self-end p-1.5 ${
@@ -2869,14 +2809,9 @@ function OrderCardOld({
           />
         </button>
 
-        <ReactTooltip
+        <CustomTooltip
           className="w-20"
           id="v2_paused_pool_tip_cancel_old"
-          backgroundColor="#1D2932"
-          border
-          borderColor="#7e8a93"
-          textColor="#C6D1DA"
-          effect="solid"
           place={isMobile() ? 'right' : 'top'}
         />
       </div>
@@ -3347,8 +3282,7 @@ function MyOrderPage() {
           data-place="top"
           data-multiline={true}
           data-class="reactTip"
-          data-html={true}
-          data-tip={`
+          data-tooltip-html={`
               <div class="text-xs opacity-50">
                 <div 
                   style="font-weight:400",
@@ -3361,7 +3295,7 @@ function MyOrderPage() {
                 </div>
               </div>
             `}
-          data-for="v2_paused_pool_tip"
+          data-tooltip-id="v2_paused_pool_tip"
         >
           <SolidButton
             padding="px-4 py-2"
@@ -3380,15 +3314,6 @@ function MyOrderPage() {
               defaultMessage={'Create Order'}
             />
           </SolidButton>
-          {/* <ReactTooltip
-            className="w-20"
-            id="v2_paused_pool_tip"
-            backgroundColor="#1D2932"
-            border
-            borderColor="#7e8a93"
-            textColor="#C6D1DA"
-            effect="solid"
-          /> */}
         </div>
       </div>
       <PriceContext.Provider value={tokenPriceList}>

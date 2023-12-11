@@ -228,8 +228,8 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
 
       if (
         keyStoreSender &&
-        !!keyStoreSender?.['accountId'] &&
-        !!keyStoreSender?.['accessKey']
+        !!keyStoreSender?.accountId &&
+        !!keyStoreSender?.accessKey
       ) {
         localStorage.setItem(
           REF_FI_SENDER_WALLET_ACCESS_KEY,
