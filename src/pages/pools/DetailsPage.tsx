@@ -222,7 +222,8 @@ export const GetExchangeRate = ({
   );
   const rate = Number(second_token_num) / Number(first_token_num);
 
-  const showRate = rate < 0.001 ? '< 0.001' : numberWithCommas(rate.toFixed(3));
+  const showRate =
+    rate < 0.001 ? '< 0.001' : '= ' + numberWithCommas(rate.toFixed(3));
 
   return Number(first_token_num) === 0 ? (
     <div className="px-1 border border-transparent">&nbsp;</div>
@@ -237,7 +238,7 @@ export const GetExchangeRate = ({
         )}
         &nbsp;
         <span title={`${rate}`} className="font-sans">
-          {rate < 0.01 ? '' : '='} {showRate}
+          {showRate}
         </span>
         &nbsp;{toRealSymbol(tokens[1].symbol)}
       </span>
