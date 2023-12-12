@@ -16,6 +16,7 @@ import { XmasActivityContextProvider } from './context/XmasActivity';
 import { ModalGAPrivacy } from 'src/context/modal-ui/modalGAPrivacy/modalGAPrivacy';
 
 function App() {
+  console.log('hello kity');
   return (
     <Router>
       <WalletSelectorContextProvider>
