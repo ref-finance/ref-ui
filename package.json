@@ -153,6 +153,7 @@
     "react-countdown": "^2.3.2",
     "react-datepicker": "^4.8.0",
     "react-dom": "^16.9.0 || ^17",
+    "react-ga4": "^2.1.0",
     "react-icons": "^4.7.1",
     "react-infinite-scroll-component": "^6.1.0",
     "react-intersection-observer": "^8.33.1",
