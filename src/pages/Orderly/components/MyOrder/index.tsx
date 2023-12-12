@@ -59,7 +59,7 @@ import {
   MyOrderMobileArrow,
 } from '../../../../components/icon/Arrows';
 import QuestionMark from '../../../../components/farm/QuestionMark';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { toRealSymbol } from '../../../../utils/token';
 import {
   QuestionTip,
@@ -82,6 +82,7 @@ import getConfig from '../../../../services/config';
 import _ from 'lodash';
 import { HistoryOrderSwapInfo } from '../../../../services/indexer';
 import { useDclPoolIdByCondition } from '../../../../state/swapV3';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 const ORDER_TYPE_KEY = 'REF_FI_ORDER_TYPE_VALUE';
 
@@ -402,9 +403,8 @@ function HistoryLine({
       data-place="bottom"
       data-multiline={true}
       data-class="reactTip"
-      data-html={true}
-      data-tip={getClaimAmountTip()}
-      data-for={'claim_tip_' + order.order_id}
+      data-tooltip-html={getClaimAmountTip()}
+      data-tooltip-id={'claim_tip_' + order.order_id}
     >
       <span className="mr-1 xs:ml-2">
         <QuestionMark color="dark" />
@@ -425,15 +425,10 @@ function HistoryLine({
           );
         })}
       </div>
-      <ReactTooltip
+      <CustomTooltip
         className="w-20"
         id={'claim_tip_' + order.order_id}
-        backgroundColor="#1D2932"
         place="bottom"
-        border
-        borderColor="#7e8a93"
-        textColor="#C6D1DA"
-        effect="solid"
       />
     </div>
   );
@@ -1514,9 +1509,8 @@ function ActiveLine({
       data-place="bottom"
       data-multiline={true}
       data-class="reactTip"
-      data-html={true}
-      data-tip={getUnclaimAmountTip()}
-      data-for={'unclaim_tip_' + order.order_id}
+      data-tooltip-html={getUnclaimAmountTip()}
+      data-tooltip-id={'unclaim_tip_' + order.order_id}
     >
       <span className="mr-1 xs:ml-2">
         <QuestionMark color="dark" />
@@ -1542,15 +1536,10 @@ function ActiveLine({
           );
         })}
       </div>
-      <ReactTooltip
+      <CustomTooltip
         className="w-20"
         id={'unclaim_tip_' + order.order_id}
-        backgroundColor="#1D2932"
         place="bottom"
-        border
-        borderColor="#7e8a93"
-        textColor="#C6D1DA"
-        effect="solid"
       />
     </div>
   );
@@ -2726,10 +2715,9 @@ function OrderCard({
                 <div
                   className="inline-flex max-w-max items-center ml-4 text-primaryText mt-7  mb-3"
                   data-class="reactTip"
-                  data-for={'real_time_order_tip'}
-                  data-html={true}
+                  data-tooltip-id={'real_time_order_tip'}
                   data-place={'top'}
-                  data-tip={getRealTimeOrderTip()}
+                  data-tooltip-html={getRealTimeOrderTip()}
                 >
                   <span
                     className={`underline cursor-pointer ${'lg:hover:text-white'} `}
@@ -2754,15 +2742,7 @@ function OrderCard({
                       defaultMessage: 'real-time executed orders',
                     })}
                   </span>
-                  <ReactTooltip
-                    id={'real_time_order_tip'}
-                    backgroundColor="#1D2932"
-                    place="top"
-                    border
-                    borderColor="#7e8a93"
-                    textColor="#C6D1DA"
-                    effect="solid"
-                  />
+                  <CustomTooltip id={'real_time_order_tip'} place="top" />
                 </div>
               </td>
             </tr>

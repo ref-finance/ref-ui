@@ -51,6 +51,7 @@ export default function WalletPanel() {
     is_mobile,
     set_wallet_assets_value_done,
     set_wallet_assets_value,
+    setUserTokens,
   } = useContext(OverviewData);
   const [pieOption, setPieOption] = useState(null);
   const [activeTab, setActiveTab] = useState('near'); // near,ref,dcl,aurora
@@ -278,6 +279,11 @@ export default function WalletPanel() {
       setPieOption(pieOption);
     }
   }, [activeTab, tokenRef, ref_tokens, near_tokens, dcl_tokens, aurora_tokens]);
+  useEffect(() => {
+    if (userTokens) {
+      setUserTokens(userTokens);
+    }
+  }, [userTokens]);
   useMemo(() => {
     // for fixing mobile issue (may be have a better way)
     if (pieOption) {

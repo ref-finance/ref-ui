@@ -1,0 +1,10 @@
+.react-tooltip.custom-tooltip {
+  border-radius: 5px;
+  border: 1px solid #7e8a93;
+  background: #1d2932;
+  box-shadow: 0 0 10px 4px rgba(0, 0, 0, 0.15);
+  font-size: 12px;
+  z-index: 99;
+
+  padding: 8px;
+}

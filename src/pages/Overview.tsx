@@ -17,6 +17,7 @@ import RefPanel from '../components/overview/RefPanel';
 import BurrowPanel from '../components/overview/BurrowPanel';
 import WalletPanel from '../components/overview/WalletPanel';
 import TotalPanel from '../components/overview/TotalPanel';
+import BLACKTip from '../components/pool/BLACKTip';
 import { useWalletSelector } from '../context/WalletSelectorContext';
 import Big from 'big.js';
 export const OverviewData = createContext(null);
@@ -49,6 +50,7 @@ export default function Overview() {
   const [wallet_assets_value, set_wallet_assets_value] = useState<string>('0');
   const [wallet_assets_value_done, set_wallet_assets_value_done] =
     useState<boolean>(false);
+  const [userTokens, setUserTokens] = useState([]);
 
   const [netWorth, netWorthDone] = useMemo(() => {
     let netWorth = '0';
@@ -118,6 +120,8 @@ export default function Overview() {
 
         set_wallet_assets_value,
         set_wallet_assets_value_done,
+        userTokens,
+        setUserTokens,
 
         netWorth,
         netWorthDone,
@@ -142,6 +146,12 @@ export default function Overview() {
 }
 
 function OverviewPc() {
+  const { userTokens } = useContext(OverviewData);
+  const tokenIds = useMemo(() => {
+    return userTokens
+      .filter((t) => +t.aurora > 0 || +t.dcl > 0 || +t.near > 0 || +t.ref > 0)
+      .map((t) => t.id);
+  }, [userTokens]);
   return (
     <div className="flex items-stretch justify-between w-full h-full lg:-mt-12">
       {/* Navigation */}
@@ -151,6 +161,7 @@ function OverviewPc() {
       {/* content */}
       <div className="flex-grow border-l border-r border-boxBorder px-5 pt-9">
         <div className="lg:max-w-1000px 3xl:max-w-1280px m-auto">
+          <BLACKTip tokenIds={tokenIds} className="mb-5" />
           <TotalPanel></TotalPanel>
           <div className="flex  items-stretch justify-between gap-4 mt-7">
             <RefPanel></RefPanel>
@@ -164,9 +175,16 @@ function OverviewPc() {
   );
 }
 function OverviewMobile() {
+  const { userTokens } = useContext(OverviewData);
+  const tokenIds = useMemo(() => {
+    return userTokens
+      .filter((t) => +t.aurora > 0 || +t.dcl > 0 || +t.near > 0 || +t.ref > 0)
+      .map((t) => t.id);
+  }, [userTokens]);
   return (
     <>
       <div>
+        <BLACKTip tokenIds={tokenIds} className="mb-5 mx-4" />
         <TotalPanel></TotalPanel>
         <div className="flex flex-col px-2.5 mt-5">
           <RefPanel></RefPanel>

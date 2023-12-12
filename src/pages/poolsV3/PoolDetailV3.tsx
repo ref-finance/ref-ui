@@ -34,7 +34,7 @@ import {
   getWatchListFromDb,
   removePoolFromWatchList,
 } from 'src/services/pool';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { useDCLTopBinFee } from '../../state/pool';
 import { list_farmer_seeds } from '../../services/farm';
 import getConfig from '../../services/config';
@@ -49,6 +49,7 @@ import { Chart } from './components/detail/Chart';
 import { TablePool } from './components/detail/TablePool';
 import { BaseData } from './components/detail/BaseData';
 import { NoYourLiquditiesBox } from './components/detail/NoYourLiquditiesBox';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 const { REF_UNI_V3_SWAP_CONTRACT_ID, DCL_POOL_BLACK_LIST } = getConfig();
 
 export default function PoolDetailV3() {
@@ -297,19 +298,14 @@ export default function PoolDetailV3() {
                       data-place="right"
                       data-multiline={true}
                       data-class="reactTip"
-                      data-html={true}
-                      data-tip={isMobile ? '' : remove_from_watchlist_tip()}
-                      data-for="fullstar-tip"
+                      data-tooltip-html={
+                        isMobile ? '' : remove_from_watchlist_tip()
+                      }
+                      data-tooltip-id="fullstar-tip"
                     >
                       <WatchListStartFull />
 
-                      <ReactTooltip
-                        id="fullstar-tip"
-                        backgroundColor="#1D2932"
-                        border
-                        borderColor="#7e8a93"
-                        effect="solid"
-                      />
+                      <CustomTooltip id="fullstar-tip" />
                     </div>
                   ) : (
                     <div
@@ -318,18 +314,11 @@ export default function PoolDetailV3() {
                       data-place="right"
                       data-multiline={true}
                       data-class="reactTip"
-                      data-html={true}
-                      data-tip={isMobile ? '' : add_to_watchlist_tip()}
-                      data-for="emptystar-tip"
+                      data-tooltip-html={isMobile ? '' : add_to_watchlist_tip()}
+                      data-tooltip-id="emptystar-tip"
                     >
                       <WatchListStartEmpty />
-                      <ReactTooltip
-                        id="emptystar-tip"
-                        backgroundColor="#1D2932"
-                        border
-                        borderColor="#7e8a93"
-                        effect="solid"
-                      />
+                      <CustomTooltip id="emptystar-tip" />
                     </div>
                   )}
                 </span>
@@ -427,19 +416,14 @@ export default function PoolDetailV3() {
                     data-place="right"
                     data-multiline={true}
                     data-class="reactTip"
-                    data-html={true}
-                    data-tip={isMobile ? '' : remove_from_watchlist_tip()}
-                    data-for="fullstar-tip"
+                    data-tooltip-html={
+                      isMobile ? '' : remove_from_watchlist_tip()
+                    }
+                    data-tooltip-id="fullstar-tip"
                   >
                     <WatchListStartFull />
 
-                    <ReactTooltip
-                      id="fullstar-tip"
-                      backgroundColor="#1D2932"
-                      border
-                      borderColor="#7e8a93"
-                      effect="solid"
-                    />
+                    <CustomTooltip id="fullstar-tip" />
                   </div>
                 ) : (
                   <div
@@ -448,18 +432,11 @@ export default function PoolDetailV3() {
                     data-place="right"
                     data-multiline={true}
                     data-class="reactTip"
-                    data-html={true}
-                    data-tip={isMobile ? '' : add_to_watchlist_tip()}
-                    data-for="emptystar-tip"
+                    data-tooltip-html={isMobile ? '' : add_to_watchlist_tip()}
+                    data-tooltip-id="emptystar-tip"
                   >
                     <WatchListStartEmpty />
-                    <ReactTooltip
-                      id="emptystar-tip"
-                      backgroundColor="#1D2932"
-                      border
-                      borderColor="#7e8a93"
-                      effect="solid"
-                    />
+                    <CustomTooltip id="emptystar-tip" />
                   </div>
                 )}
               </span>

@@ -259,6 +259,7 @@ function DetailViewLimit({
             </span>
             <div className={'flex items-center gap-1'}>
               <InfoIcon
+                id={'infoIcon'}
                 tooltipNode={
                   <div style={{ maxWidth: 220 }}>
                     <div>

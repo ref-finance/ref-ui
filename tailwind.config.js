@@ -425,8 +425,8 @@ module.exports = {
         mobileOrderBg: '#324451',
         orderbookBase: '#4F6574',
         marginRedBg:'#904247',
-        marginGrayBg:'#334049'
-        
+        marginGrayBg:'#334049',
+        warnYellowColor: '#DB8946',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
@@ -507,6 +507,7 @@ module.exports = {
       fontSize: {
         '13px': '13px',
         '10px': '10px',
+        '14px':'14px',
       },
 
       maxHeight: {

@@ -737,6 +737,30 @@ input[type='range']::-webkit-slider-runnable-track {
   display: flex;
 }
 
+.custom-toast {
+  background: #213441;
+  color: #fff;
+}
+
+.custom-toast .Toastify__close-button--light {
+  color: #7e8a93;
+  opacity: 1;
+}
+
+.custom-toast .Toastify__toast-body > div:first-child {
+  height: auto;
+  width: 20px;
+  display: block;
+}
+
+.custom-toast-desc {
+  color: #7e8a93;
+  margin-bottom: 10px;
+  white-space: pre-line;
+  font-size: 12px;
+  display: block;
+}
+
 @keyframes showfrombottom {
   from {
     bottom: -190px;
@@ -1631,4 +1655,8 @@ options-list::-webkit-scrollbar {
   border-radius: 8px;
   border: 1px solid #7e8a93;
   padding: 5px 10px;
+}
+
+#top-bin-apr-mobile {
+  width: 230px;
 }
