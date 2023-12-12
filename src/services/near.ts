@@ -102,7 +102,7 @@ export const isStableToken = (id: string) => {
   return AllStableTokenIds.includes(id);
 };
 
-export const TOKEN_BLACK_LIST = [NEARXIDS[0]];
+export const TOKEN_BLACK_LIST = [NEARXIDS[0], 'meta-token.near'];
 
 export const ALL_STABLE_POOL_IDS = [
   USDTT_USDCC_USDT_USDC_POOL_ID,

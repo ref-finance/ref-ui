@@ -11,6 +11,7 @@ const BLACKTip = ({
   className?: string;
   show?: boolean;
 }) => {
+  return null;
   const { BLACK_TOKEN_LIST } = config;
   if (!show && !tokenIds?.find((tokenId) => BLACK_TOKEN_LIST.includes(tokenId)))
     return null;
