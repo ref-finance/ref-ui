@@ -425,8 +425,8 @@ module.exports = {
         mobileOrderBg: '#324451',
         orderbookBase: '#4F6574',
         marginRedBg:'#904247',
-        marginGrayBg:'#334049'
-        
+        marginGrayBg:'#334049',
+        warnYellowColor: '#DB8946',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
