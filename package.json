@@ -149,6 +149,7 @@
     "react-burger-menu": "^3.0.6",
     "react-circular-progressbar": "^2.1.0",
     "react-color": "^2.19.3",
+    "react-cookie-consent": "^9.0.0",
     "react-copy-to-clipboard": "^5.1.0",
     "react-countdown": "^2.3.2",
     "react-datepicker": "^4.8.0",

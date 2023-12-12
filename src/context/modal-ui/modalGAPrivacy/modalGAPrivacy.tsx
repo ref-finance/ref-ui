@@ -6,19 +6,33 @@ import {
 import CustomModal from 'src/components/customModal/customModal';
 import './modalGAPrivacy.css';
 import { CloseButton } from 'src/context/modal-ui/components/CloseButton';
+import CookieConsent,{getCookieConsentValue,Cookies} from "react-cookie-consent";
+import ReactGA from "react-ga4";
+
+const GA_ID = window.location.hostname.startsWith('app.')
+  ? 'G-GL2STL8WB4'
+  : 'G-MJNEGMP1NR';
 
 export const ModalGAPrivacy = () => {
   const [showBottomGA, setShowBottomGA] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const ga = localStorage.getItem(CONST_ACKNOWLEDGE_GA);
 
+  // useEffect(() => {
+  //   if (ga === CONST_GA_ACTION.ACCEPT) {
+  //     require('../../../ga4');
+  //   } else {
+  //     setTimeout(() => {
+  //       setShowBottomGA(true);
+  //     }, 1500);
+  //   }
+  // }, []);
+
   useEffect(() => {
-    if (ga === CONST_GA_ACTION.ACCEPT) {
-      require('../../../ga4');
-    } else {
-      setTimeout(() => {
-        setShowBottomGA(true);
-      }, 1500);
+    const isConsent = getCookieConsentValue();
+    if (isConsent === "true") {
+      console.log("GA_ID",GA_ID)
+      ReactGA.initialize(GA_ID)
     }
   }, []);
 
@@ -27,16 +41,20 @@ export const ModalGAPrivacy = () => {
   }
 
   const handleAcceptClick = () => {
-    require('../../../ga4');
+    console.log("GA_ID",GA_ID)
+    ReactGA.initialize(GA_ID)
     localStorage.setItem(CONST_ACKNOWLEDGE_GA, CONST_GA_ACTION.ACCEPT);
-    showModal && setShowModal(false);
-    showBottomGA && setShowBottomGA(false);
+    // showModal && setShowModal(false);
+    // showBottomGA && setShowBottomGA(false);
   };
 
   const handleRejectClick = () => {
     localStorage.setItem(CONST_ACKNOWLEDGE_GA, CONST_GA_ACTION.REJECT);
-    showModal && setShowModal(false);
-    showBottomGA && setShowBottomGA(false);
+    Cookies.remove("_ga");
+    Cookies.remove("_gat");
+    Cookies.remove("_gid");
+    // showModal && setShowModal(false);
+    // showBottomGA && setShowBottomGA(false);
   };
 
   const handleModalOpen = () => {
@@ -61,6 +79,15 @@ export const ModalGAPrivacy = () => {
       </button>
     </div>
   );
+
+  return (
+    <CookieConsent
+      enableDeclineButton
+      onAccept={handleAcceptClick}
+    >
+      This website uses cookies to enhance the user experience.
+    </CookieConsent>
+  )
 
   return (
     <>
