@@ -127,23 +127,14 @@ export const useGlobalPopUp = (globalState: any) => {
       txError =
         (errorMessage && decodeURI(errorMessage)) || errorCode || errorType;
     }
+
     if (txError) {
-      let toast = {
-        title: 'Error',
-        desc: txError,
-        isError: true,
-        isWarning: false,
-      };
-
-      if (walletsRejectError.includes(txError)) {
-        toast.isError = false;
-        toast.isWarning = true;
-        // toast.desc =
-        //   'User rejected the request. Details: \n' +
-        //   'NearWallet Tx Signature: User denied transaction signature. ';
-      }
-
-      // showToast(toast);
+      transtionsExcuteDataStore.setActionData({
+        status: 'error',
+        transactionError: {
+          message: txError,
+        },
+      });
       sessionStorage.removeItem('WALLETS_TX_ERROR');
     }
   }, [walletsTXError, errorCode]);

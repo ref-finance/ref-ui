@@ -442,8 +442,7 @@ export const v3Swap = async ({
       });
     }
   }
-
-  return executeMultipleTransactions(transactions, undefined, true);
+  return executeMultipleTransactionsV2(transactions);
 };
 
 export const list_history_orders = () => {

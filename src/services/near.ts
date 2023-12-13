@@ -25,6 +25,7 @@ import {
   TRANSACTION_WALLET_TYPE,
   failToastAccount,
 } from '../components/layout/transactionTipPopUp';
+import { useTranstionsExcuteDataStore } from 'src/stores/transtionsExcuteData';
 
 const config = getConfig();
 
@@ -212,7 +213,7 @@ export const ONE_YOCTO_NEAR = '0.000000000000000000000001';
 
 export const keyStore = new keyStores.BrowserLocalStorageKeyStore();
 //@ts-ignore
-keyStore.reKey = () => {};
+keyStore.reKey = () => { };
 
 export const near = new Near({
   keyStore,
@@ -380,10 +381,11 @@ export const executeMultipleTransactionsV2 = async (
   transactions: Transaction[],
   callbackUrl?: string
 ) => {
+  let walletId, firstMethod;
   const { wallet } = getCurrentWallet();
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore.getState();
 
   const wstransactions: WSTransaction[] = [];
-
   transactions.forEach((transaction) => {
     wstransactions.push({
       signerId: wallet.getAccountId()!,
@@ -402,18 +404,31 @@ export const executeMultipleTransactionsV2 = async (
     });
   });
 
-  await ledgerTipTrigger(wallet);
+  try {
+    await ledgerTipTrigger(wallet);
+  } catch (e) {
+    console.error('ledgerErr', e);
+  }
+
   try {
     const walletRes = await wallet.wallet();
+    walletId = walletRes?.id;
+    firstMethod = transactions?.[0]?.functionCalls?.[0]?.methodName;
+    if (walletId === 'here-wallet' && firstMethod === 'ft_transfer_call') {
+      transtionsExcuteDataStore.setActionData({
+        status: null,
+      });
+    }
     const res = await walletRes.signAndSendTransactions({
       transactions: wstransactions,
       callbackUrl,
     });
-    if (!res) return { response: null };
 
+    if (!res) return { response: null };
     const transactionHashes = (Array.isArray(res) ? res : [res])?.map(
       (r) => r.transaction.hash
     );
+
     return {
       response: res,
       txHash:
@@ -423,6 +438,13 @@ export const executeMultipleTransactionsV2 = async (
       txHashes: transactionHashes,
     };
   } catch (e) {
+    if (
+      walletId === 'here-wallet' &&
+      firstMethod === 'ft_transfer_call' &&
+      !e.message
+    ) {
+      throw new Error('User rejected');
+    }
     if (!extraWalletsError.includes(e.message)) {
       sessionStorage.setItem('WALLETS_TX_ERROR', e.message);
     }
