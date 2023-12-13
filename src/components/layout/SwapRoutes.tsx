@@ -71,9 +71,10 @@ import { ModalWrapper } from '../../pages/ReferendumPage';
 import { displayNumberToAppropriateDecimals } from '../../services/commonV3';
 import { numberWithCommas } from '../../pages/Orderly/utiles';
 import { get_pool_name, openUrl } from '../../services/commonV3';
+import getConfigV2 from '../../services/configV2';
 import { REF_FI_BEST_MARKET_ROUTE } from '../../state/swap';
 import { PolygonRight } from '../../pages/Orderly/components/Common/Icons';
-
+const configV2 = getConfigV2();
 export const GetPriceImpact = (
   value: string,
   tokenIn?: TokenMetadata,
@@ -1681,7 +1682,6 @@ export const TradeRouteHub = ({
     if (contract.toLowerCase().includes('orderly')) return 'orderly';
     if (contract.toLowerCase().includes('trisolaris')) return 'tri';
   };
-
   return (
     <div
       className="flex flex-col justify-center  relative z-10 text-primaryText text-xs rounded-md px-2.5 py-1 border border-swapCardBorder bg-swapCardGradient"
@@ -1708,9 +1708,12 @@ export const TradeRouteHub = ({
         </div>
 
         <span className="ml-1 mr-1">{contract}</span>
-
         <span
-          className="cursor-pointer block mr-1.5"
+          className={`cursor-pointer block mr-1.5 ${
+            configV2.ONLY_LIMIT_ORDER_DCL_POOL_IDS.includes(poolId?.toString())
+              ? 'hidden'
+              : ''
+          }`}
           onClick={() => {
             if (typeof poolId === 'undefined' || poolId === null) return;
 
