@@ -33,7 +33,10 @@ export default function getConfig(
         NO_REQUIRED_REGISTRATION_TOKEN_IDS: [],
         NATIVE_TOKENS: ['usdtt.fakes.testnet', 'usdcc.fakes.testnet'],
         ORDRRBOOK_COLLATTERAL_TOKEN: 'usdc.orderly.testnet',
-        ONLY_LIMIT_ORDER_DCL_POOL_IDS: [],
+        ONLY_LIMIT_ORDER_DCL_POOL_IDS: [
+          'usdtt.fakes.testnet|wrap.testnet|400',
+          'ref.fakes.testnet|wrap.testnet|400',
+        ],
       };
     default:
       return {
