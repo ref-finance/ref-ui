@@ -4,7 +4,6 @@ import FarmsDetail from 'src/components/farm/FarmsDetail';
 import FarmsDclDetail from 'src/components/farm/FarmsDclDetail';
 import Loading, { BeatLoading } from 'src/components/layout/Loading';
 import { Seed, BoostConfig, UserSeedInfo } from 'src/services/farm';
-import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
 import { PageContainer } from '../../components/layout/PageContainer';
 
 export default function Container(props: any) {
@@ -25,10 +24,6 @@ function FarmsBoosterPage(props: any) {
   const [all_seeds, set_all_seeds] = useState<Seed[]>([]);
   const paramId = decodeURIComponent(props.match.params.id || '');
   const is_dcl = paramId.indexOf('<>') > -1 || paramId.indexOf('|') > -1;
-  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
-  useEffect(() => {
-    transtionsExcuteDataStore.setActionStatus('none');
-  }, []);
   const getDetailData_user_data = (data: {
     user_seeds_map: Record<string, UserSeedInfo>;
     user_unclaimed_token_meta_map: Record<string, any>;

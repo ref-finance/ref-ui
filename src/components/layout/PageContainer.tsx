@@ -7,7 +7,10 @@ export function PageContainer({ children }: any) {
   const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
   const transtionsExcuteStatus = transtionsExcuteDataStore.getActionStatus();
   useEffect(() => {
-    if (transtionsExcuteStatus == 'resolved') {
+    if (
+      transtionsExcuteStatus == 'resolved' ||
+      transtionsExcuteStatus == 'rejected'
+    ) {
       setKey(Math.random());
       transtionsExcuteDataStore.setActionStatus('none');
     }
@@ -25,7 +28,11 @@ export function PageContainerHighHighLevel({ children }: any) {
     ? pathname == '/' || pathname == '/spot' || pathname == '/orderly'
     : pathnames.includes(pathname);
   useEffect(() => {
-    if (transtionsExcuteStatus == 'resolved' && isOrderlyPage) {
+    if (
+      (transtionsExcuteStatus == 'resolved' ||
+        transtionsExcuteStatus == 'rejected') &&
+      isOrderlyPage
+    ) {
       setKey(Math.random());
       transtionsExcuteDataStore.setActionStatus('none');
     }
