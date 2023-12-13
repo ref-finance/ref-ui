@@ -47,6 +47,10 @@ const showToast = ({
     descEle = <div className={'custom-toast-desc'}>{desc}</div>;
   }
 
+  if (!descEle) {
+    toastOptions.className += ' _without-desc';
+  }
+
   const node = (
     <div>
       <div className={'flex gap-2'}>

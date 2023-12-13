@@ -7,6 +7,7 @@ import { DisplayIcon } from 'src/components/tokens/Icon';
 import {
   BsArrowRight,
   IoIosCheckmarkCircleOutline,
+  TbExternalLink,
 } from 'src/components/reactIcons';
 import getConfig from 'src/services/config';
 import { useTranstionsExcuteDataStore } from 'src/stores/transtionsExcuteData';
@@ -153,10 +154,10 @@ export const ModalTransactionSubmitting = () => {
 
     if (hash) {
       footerNode = (
-        <div>
+        <div className='flex items-center justify-center'>
           View on{' '}
-          <a className={'underline'} href={`${explorerUrl}/txns/${hash}`}>
-            Nearblock
+          <a className={'ml-2 text-baseGreen flex items-center gap-1'} href={`${explorerUrl}/txns/${hash}`} target='_blank'>
+            Nearblock<TbExternalLink style={{fontSize:16}}/>
           </a>
         </div>
       );

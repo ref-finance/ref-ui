@@ -30,6 +30,8 @@ import XmasTreeSvg from '../../assets/svg/XmasTree.svg';
 import InfoSvg from '../../assets/svg/infoIcon.svg';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
+import ExternalLinkSvg from "../../assets/svg/icon-union.svg"
+
 export const InfoIcon = ({
   tooltip,
   style,
@@ -59,6 +61,8 @@ export const InfoIcon = ({
     </>
   );
 };
+
+const IconExternalLink=()=><ExternalLinkSvg/>
 
 const Learn_more = () => {
   return <Learn_moreSvg />;
@@ -1605,4 +1609,5 @@ export {
   XmasTreeWithText,
   XmasSmallTree,
   RateExchangeMobile,
+  IconExternalLink
 };

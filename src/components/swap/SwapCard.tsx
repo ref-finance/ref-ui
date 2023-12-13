@@ -926,8 +926,16 @@ export default function SwapCard(props: {
     isSignedIn,
     nearBalance,
     transactionActionData?.status,
+    swapType,
     loadingTrigger,
   ]);
+
+  useEffect(() => {
+    if(["success","error"].includes(transactionActionData?.status)){
+      loadingPause && setLoadingPause(false)
+    }
+    setTokenInAmountInput("1")
+  }, [transactionActionData?.status]);
 
   function getStorageTokenId() {
     const in_key = localStorage.getItem(SWAP_IN_KEY);

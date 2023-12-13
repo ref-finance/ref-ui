@@ -58,6 +58,8 @@ import { TiArrowSortedUp } from '@react-icons/all-files/ti/TiArrowSortedUp';
 
 import { BiCopy } from '@react-icons/all-files/bi/BiCopy';
 
+import {TbExternalLink} from '@react-icons/all-files/tb/TbExternalLink';
+
 // all-files missing icons
 const MdOutlineRefresh = MdRefresh;
 
@@ -121,4 +123,6 @@ export {
   TiArrowSortedUp,
   //bi
   BiCopy,
+  //tb
+  TbExternalLink
 };
