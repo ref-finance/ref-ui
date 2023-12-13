@@ -44,6 +44,7 @@ import {
   constTransactionPage,
   useTranstionsExcuteDataStore,
 } from '../../stores/transtionsExcuteData';
+import { HiOutlinePlusSm } from '../reactIcons';
 
 export const STABLE_LP_TOKEN_DECIMALS = 18;
 export const RATED_POOL_LP_TOKEN_DECIMALS = 24;
@@ -485,10 +486,6 @@ export default function AddFourLiquidityComponent(props: {
       history.push('/deposit');
       return;
     }
-    transtionsExcuteDataStore.setActionData({
-      status: 'pending',
-      page: constTransactionPage.pool,
-    });
     const min_shares = toPrecision(
       percentLess(slippageTolerance, predicedShares),
       0
@@ -504,6 +501,25 @@ export default function AddFourLiquidityComponent(props: {
       string,
       string
     ];
+    const tokensNode = [];
+    tokens.forEach((d, i) => {
+      tokensNode.push({
+        token: d,
+        amount: toReadableNumber(d.decimals, amounts[i]),
+      });
+      tokensNode.push({
+        node: <HiOutlinePlusSm />,
+      });
+    });
+    tokensNode.pop();
+    transtionsExcuteDataStore.setActionData({
+      status: 'pending',
+      page: constTransactionPage.pool,
+      data: {
+        pretext: 'Supplying',
+        tokens: tokensNode,
+      },
+    });
 
     return addLiquidityToStablePool({
       tokens,

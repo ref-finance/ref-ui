@@ -32,7 +32,7 @@ export const ToastTransaction = () => {
   useEffect(() => {
     // if (status === 'success') {
     //   showToast({
-    //     desc: 'Transaction Success',
+    //     title: 'Transaction Success',
     //   });
     // }
 

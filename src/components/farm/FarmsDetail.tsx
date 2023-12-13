@@ -79,7 +79,11 @@ import { Checkbox, CheckboxSelected } from 'src/components/icon';
 import { CalcEle } from 'src/components/farm/CalcModelBooster';
 import QuestionMark from 'src/components/farm/QuestionMark';
 import { ExternalLinkIcon } from 'src/components/icon/Risk';
-import { FaAngleUp, FaAngleDown } from '../../components/reactIcons';
+import {
+  FaAngleUp,
+  FaAngleDown,
+  HiOutlinePlusSm,
+} from '../../components/reactIcons';
 import { useDayVolume } from '../../state/pool';
 import { getPool } from 'src/services/indexer';
 import CalcModelBooster from 'src/components/farm/CalcModelBooster';
@@ -3093,11 +3097,23 @@ export function StakeModal(props: {
     }
   }
   function operationStake() {
+    console.log('hihihi', pool);
     setStakeLoading(true);
+    const tokensNode = [];
+    // @ts-ignore
+    pool?.tokens_meta_data?.forEach((d, i) => {
+      tokensNode.push({
+        token: d,
+      });
+    });
     transtionsExcuteDataStore.setActionStatus('pending');
     transtionsExcuteDataStore.setActionData({
       status: 'pending',
       page: constTransactionPage.farm,
+      data: {
+        pretext: `Supplying ${amount}`,
+        tokens: tokensNode,
+      },
     });
     if (stakeType == 'freeToLock') {
       lock_free_seed({
@@ -3145,6 +3161,7 @@ export function StakeModal(props: {
         });
     }
   }
+
   function getMultiplier(muti: number) {
     if (muti) {
       return Number(toPrecision(muti.toString(), 2)) + 1;
@@ -3618,6 +3635,7 @@ export function UnStakeModal(props: {
   function changeAmount(value: string) {
     setAmount(value);
   }
+
   function operationUnStake() {
     setUnStakeLoading(true);
     transtionsExcuteDataStore.setActionData({

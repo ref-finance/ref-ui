@@ -54,7 +54,10 @@ import { percentOfBigNumber } from '../../utils/numbers';
 import SquareRadio from '../radio/SquareRadio';
 import { DEFAULT_ACTIONS } from '../../pages/stable/StableSwapPage';
 import { getStablePoolDecimal } from '../../pages/stable/StableSwapEntry';
-import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
+import {
+  constTransactionPage,
+  useTranstionsExcuteDataStore,
+} from '../../stores/transtionsExcuteData';
 
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE';
 
@@ -171,17 +174,30 @@ export function RemoveFourLiquidityComponent(props: {
           )
         )
       );
-
+      transtionsExcuteDataStore.setActionData({
+        status: 'pending',
+        page: constTransactionPage.pool,
+      });
       return removeLiquidityFromStablePool({
         tokens,
         id: pool.id,
         min_amounts: min_amounts as [string, string, string],
         shares: removeShares,
       })
-        .then(() => {
+        .then(({ response }) => {
+          setButtonLoading(false);
+          transtionsExcuteDataStore.setActionData({
+            status: 'success',
+            transactionResponse: response,
+          });
           transtionsExcuteDataStore.setActionStatus('resolved');
         })
-        .catch(() => {
+        .catch((e) => {
+          setButtonLoading(false);
+          transtionsExcuteDataStore.setActionData({
+            status: 'error',
+            transactionError: e,
+          });
           transtionsExcuteDataStore.setActionStatus('rejected');
         });
     } else {
@@ -202,17 +218,30 @@ export function RemoveFourLiquidityComponent(props: {
       const max_burn_shares = new BigNumber(predict_burn).isGreaterThan(shares)
         ? shares
         : predict_burn;
-
+      transtionsExcuteDataStore.setActionData({
+        status: 'pending',
+        page: constTransactionPage.pool,
+      });
       return removeLiquidityByTokensFromStablePool({
         tokens,
         id: pool.id,
         amounts,
         max_burn_shares,
       })
-        .then(() => {
+        .then(({ response }) => {
+          setButtonLoading(false);
+          transtionsExcuteDataStore.setActionData({
+            status: 'success',
+            transactionResponse: response,
+          });
           transtionsExcuteDataStore.setActionStatus('resolved');
         })
-        .catch(() => {
+        .catch((e) => {
+          setButtonLoading(false);
+          transtionsExcuteDataStore.setActionData({
+            status: 'error',
+            transactionError: e,
+          });
           transtionsExcuteDataStore.setActionStatus('rejected');
         });
     }
