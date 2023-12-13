@@ -23,6 +23,8 @@ import {
 } from '../../../../stores/transtionsExcuteData';
 import { addLiquidityTxHashHandle } from '../../../../services/commonV3';
 import { useHistory } from 'react-router-dom';
+import { HiOutlinePlusSm } from 'src/components/reactIcons';
+import { toReadableNumber } from 'src/utils/numbers';
 
 /**
  * 双边 最小token数量不满足 提示
@@ -52,13 +54,37 @@ export function AddLiquidityButton() {
   const { selector } = useWalletSelector();
   const history = useHistory();
   const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+
   function addLiquiditySpot() {
     setAddLiquidityButtonLoading(true);
+    const new_liquidity = getLiquiditySpot();
     transtionsExcuteDataStore.setActionData({
       status: 'pending',
       page: constTransactionPage.pool,
+      data: {
+        pretext: 'Supplying',
+        tokens: [
+          {
+            token: new_liquidity?.token_x,
+            amount: toReadableNumber(
+              new_liquidity?.token_x?.decimals,
+              new_liquidity?.amount_x
+            ),
+          },
+          {
+            node: <HiOutlinePlusSm />,
+          },
+          {
+            token: new_liquidity?.token_y,
+            amount: toReadableNumber(
+              new_liquidity?.amount_y?.decimals,
+              new_liquidity?.amount_y
+            ),
+          },
+        ],
+      },
     });
-    const new_liquidity = getLiquiditySpot();
+
     add_liquidity(new_liquidity)
       .then(({ txHash, response }: any) => {
         addLiquidityTxHashHandle(txHash).then((link) => {
@@ -80,6 +106,7 @@ export function AddLiquidityButton() {
         setAddLiquidityButtonLoading(false);
       });
   }
+
   function addLiquidityForCurveAndBidAskMode() {
     /**
      *  已知条件:
@@ -111,6 +138,7 @@ export function AddLiquidityButton() {
         amount_y || 0
       );
     });
+
     batch_add_liquidity({
       liquidityInfos: nftList,
       token_x: tokenX,
@@ -131,6 +159,7 @@ export function AddLiquidityButton() {
         setAddLiquidityButtonLoading(false);
       });
   }
+
   function getMax(token: TokenMetadata, balance: string) {
     return token.id !== WRAP_NEAR_CONTRACT_ID
       ? balance

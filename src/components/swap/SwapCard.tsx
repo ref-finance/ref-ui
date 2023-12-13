@@ -931,10 +931,10 @@ export default function SwapCard(props: {
   ]);
 
   useEffect(() => {
-    if(["success","error"].includes(transactionActionData?.status)){
-      loadingPause && setLoadingPause(false)
+    if (['success', 'error'].includes(transactionActionData?.status)) {
+      loadingPause && setLoadingPause(false);
     }
-    setTokenInAmountInput("1")
+    setTokenInAmountInput('1');
   }, [transactionActionData?.status]);
 
   function getStorageTokenId() {

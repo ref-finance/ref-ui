@@ -105,7 +105,11 @@ import { getVEPoolId } from '../ReferendumPage';
 import getConfig from '../../services/config';
 import { BoostInputAmount } from '../../components/forms/InputAmount';
 import { ExternalLinkIcon } from 'src/components/icon/Risk';
-import { FaAngleDown, FaAngleUp } from '../../components/reactIcons';
+import {
+  FaAngleDown,
+  FaAngleUp,
+  HiOutlinePlusSm,
+} from '../../components/reactIcons';
 import { useClientMobile, isClientMobie } from '../../utils/device';
 import { getPoolFeeApr, getPoolListFarmAprTip } from './utils';
 import { Images, Symbols } from '../../components/stableswap/CommonComp';
@@ -142,7 +146,10 @@ import { numberWithCommas } from '../Orderly/utiles';
 import { HiOutlineExternalLink, HiOutlineLink } from 'react-icons/hi';
 import { PoolRefreshModal } from './PoolRefreshModal';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
-import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
+import {
+  constTransactionPage,
+  useTranstionsExcuteDataStore,
+} from '../../stores/transtionsExcuteData';
 import { PageContainer } from '../../components/layout/PageContainer';
 
 export default function Container(props: any) {
@@ -671,6 +678,22 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
     try {
       transtionsExcuteDataStore.setActionData({
         status: 'pending',
+        data: {
+          pretext: 'Supplying',
+          tokens: [
+            {
+              token: tokens[0],
+              amount: firstTokenAmount,
+            },
+            {
+              node: <HiOutlinePlusSm />,
+            },
+            {
+              token: tokens[1],
+              amount: secondTokenAmount,
+            },
+          ],
+        },
       });
       const { response } = await addLiquidityToPool({
         id: pool.id,
@@ -807,7 +830,6 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
           />
         </div>
       </div>
-
       <div className="my-8">
         <div className="flex justify-end items-center text-sm text-right mb-1.5 text-farmText">
           <FormattedMessage id="balance" defaultMessage="Balance" />
@@ -867,9 +889,12 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
           </span>
         </div>
       </div>
-
+      cccc
       {canDeposit ? (
-        <div className="rounded-md mb-6 px-4 text-center xs:px-2  text-base">
+        <div
+          id="classic-pool-add-liquidity"
+          className="rounded-md mb-6 px-4 text-center xs:px-2  text-base"
+        >
           <label className="text-warnColor ">
             <FormattedMessage id="oops" defaultMessage="Oops" />!
           </label>
@@ -889,7 +914,6 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
           </label>
         </div>
       ) : null}
-
       <ButtonRender />
     </div>
   );
@@ -1024,12 +1048,26 @@ export function RemoveLiquidityModal(
       );
     }
     setButtonLoading(true);
+    transtionsExcuteDataStore.setActionData({
+      status: 'pending',
+      page: constTransactionPage.pool,
+    });
     localStorage.setItem(REF_FI_PRE_LIQUIDITY_ID_KEY, pool.id.toString());
     return removeLiquidity()
-      .then(() => {
+      .then(({ response }) => {
+        setButtonLoading(false);
+        transtionsExcuteDataStore.setActionData({
+          status: 'success',
+          transactionResponse: response,
+        });
         transtionsExcuteDataStore.setActionStatus('resolved');
       })
-      .catch(() => {
+      .catch((e) => {
+        setButtonLoading(false);
+        transtionsExcuteDataStore.setActionData({
+          status: 'error',
+          transactionError: e,
+        });
         transtionsExcuteDataStore.setActionStatus('rejected');
       });
   }
@@ -2998,7 +3036,7 @@ function PoolDetailsPage() {
                       }}
                       disabled={Number(userTotalShareToString) == 0}
                       disabledColor={'bg-lockedBg'}
-                      className={`w-full ${
+                      className={`btn-remove-liq w-full ${
                         Number(userTotalShareToString) == 0
                           ? 'bg-lockedBg text-opacity-30'
                           : 'bg-bgGreyDefault hover:bg-bgGreyHover '

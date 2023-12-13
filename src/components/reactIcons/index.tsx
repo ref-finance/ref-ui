@@ -17,6 +17,7 @@ import { FiSearch } from '@react-icons/all-files/fi/FiSearch';
 
 import { HiOutlineExternalLink } from '@react-icons/all-files/hi/HiOutlineExternalLink';
 import { HiDownload } from '@react-icons/all-files/hi/HiDownload';
+import { HiOutlinePlusSm } from '@react-icons/all-files/hi/HiOutlinePlusSm';
 
 import { AiOutlineMedium } from '@react-icons/all-files/ai/AiOutlineMedium';
 import { AiOutlineClose } from '@react-icons/all-files/ai/AiOutlineClose';
@@ -58,7 +59,7 @@ import { TiArrowSortedUp } from '@react-icons/all-files/ti/TiArrowSortedUp';
 
 import { BiCopy } from '@react-icons/all-files/bi/BiCopy';
 
-import {TbExternalLink} from '@react-icons/all-files/tb/TbExternalLink';
+import { TbExternalLink } from '@react-icons/all-files/tb/TbExternalLink';
 
 // all-files missing icons
 const MdOutlineRefresh = MdRefresh;
@@ -84,6 +85,7 @@ export {
   // hi
   HiOutlineExternalLink,
   HiDownload,
+  HiOutlinePlusSm,
   // ai
   AiOutlineMedium,
   AiOutlineClose,
@@ -124,5 +126,5 @@ export {
   //bi
   BiCopy,
   //tb
-  TbExternalLink
+  TbExternalLink,
 };

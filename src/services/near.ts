@@ -213,7 +213,7 @@ export const ONE_YOCTO_NEAR = '0.000000000000000000000001';
 
 export const keyStore = new keyStores.BrowserLocalStorageKeyStore();
 //@ts-ignore
-keyStore.reKey = () => { };
+keyStore.reKey = () => {};
 
 export const near = new Near({
   keyStore,
@@ -575,7 +575,7 @@ export const executeFarmMultipleTransactions = async (
   transactions: Transaction[],
   callbackUrl?: string
 ) => {
-  return executeMultipleTransactions(transactions, callbackUrl);
+  return executeMultipleTransactionsV2(transactions, callbackUrl);
 };
 
 export interface RefContractViewFunctionOptions

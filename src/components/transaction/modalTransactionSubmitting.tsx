@@ -77,7 +77,7 @@ export const ModalTransactionSubmitting = () => {
   const actionData = transtionsExcuteDataStore.getActionData();
   const { setActionData, removeActionData } = transtionsExcuteDataStore || {};
   const { status, page, data, transactionResponse, onClose } = actionData || {};
-  const { selectTrade } = data || {};
+  const { selectTrade, pretext, tokens } = data || {};
 
   const isRedirectWalletPage = status === 'success' && !transactionResponse; // myNearWallet
   const isComplete = status === 'success' && transactionResponse;
@@ -132,7 +132,27 @@ export const ModalTransactionSubmitting = () => {
         </div>
       </>
     );
+  } else if (Array.isArray(tokens)) {
+    node = tokens.map((d) => {
+      const { token, amount } = d;
+      if (d?.node) {
+        return d.node;
+      } else {
+        let tokenNode, amountNode, symbolNode;
+        if (token) {
+          tokenNode = (
+            <div className={'flex gap-1 items-center'}>
+              <DisplayIcon token={token} height={'20px'} width={'20px'} />
+              {amount && <div>{amount}</div>}
+              <div>{token?.symbol}</div>
+            </div>
+          );
+        }
+        return <div>{tokenNode}</div>;
+      }
+    });
   }
+
   if (isComplete) {
     headerNode = 'Transaction Complete';
     loadingNode = (
@@ -154,10 +174,15 @@ export const ModalTransactionSubmitting = () => {
 
     if (hash) {
       footerNode = (
-        <div className='flex items-center justify-center'>
+        <div className="flex items-center justify-center">
           View on{' '}
-          <a className={'ml-2 text-baseGreen flex items-center gap-1'} href={`${explorerUrl}/txns/${hash}`} target='_blank'>
-            Nearblock<TbExternalLink style={{fontSize:16}}/>
+          <a
+            className={'ml-2 text-baseGreen flex items-center gap-1'}
+            href={`${explorerUrl}/txns/${hash}`}
+            target="_blank"
+          >
+            Nearblock
+            <TbExternalLink style={{ fontSize: 16 }} />
           </a>
         </div>
       );
@@ -185,6 +210,7 @@ export const ModalTransactionSubmitting = () => {
 
       <div className={'flex flex-col justify-between flex-1 w-full'}>
         <div className={'flex justify-evenly items-center -token-info gap-2'}>
+          {pretext}
           {node}
         </div>
         <div

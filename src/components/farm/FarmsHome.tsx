@@ -93,7 +93,10 @@ import { useAccountInfo, LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import { VEARROW } from '../icon/Referendum';
 import Countdown, { zeroPad } from 'react-countdown';
 import { MoreButtonIcon } from '../../components/icon/Common';
-import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
+import {
+  constTransactionPage,
+  useTranstionsExcuteDataStore,
+} from '../../stores/transtionsExcuteData';
 
 import _ from 'lodash';
 import { PoolInfo } from 'src/services/swapV3';
@@ -3417,6 +3420,9 @@ function WithDrawBox(props: {
   const [rewardList, setRewardList] = useState([]);
   const [yourReward, setYourReward] = useState('-');
   const [isOpen, setIsOpen] = useState(false);
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+  const transactionActionStatus = transtionsExcuteDataStore.getActionStatus();
+
   useEffect(() => {
     const tempList = Object.keys(actualRewardList).map(async (key: string) => {
       const rewardToken = await ftGetTokenMetadata(key);
@@ -3443,7 +3449,12 @@ function WithDrawBox(props: {
     ) {
       getTotalUnWithdrawRewardsPrice();
     }
-  }, [actualRewardList, tokenPriceList, farmDisplayList]);
+  }, [
+    actualRewardList,
+    tokenPriceList,
+    farmDisplayList,
+    transactionActionStatus,
+  ]);
 
   function getTotalUnWithdrawRewardsPrice() {
     const rewardTokenList = {};
@@ -3483,6 +3494,7 @@ function WithDrawBox(props: {
       isSignedIn ? setYourReward('$0.00') : '';
     }
   }
+
   return (
     <div
       className={`relative rounded-2xl mb-3.5 z-50 ${
@@ -3594,6 +3606,9 @@ function WithDrawb(props: {
   const rewardRef = useRef(null);
   const intl = useIntl();
   const withdrawNumber = 4;
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+  const transactionActionStatus = transtionsExcuteDataStore.getActionStatus();
+
   useEffect(() => {
     const tempList = Object.keys(actualRewardList).map(async (key: string) => {
       const rewardToken = await ftGetTokenMetadata(key);
@@ -3620,7 +3635,13 @@ function WithDrawb(props: {
     ) {
       getTotalUnWithdrawRewardsPrice();
     }
-  }, [actualRewardList, tokenPriceList, farmDisplayList]);
+  }, [
+    actualRewardList,
+    tokenPriceList,
+    farmDisplayList,
+    transactionActionStatus,
+  ]);
+
   function valueOfWithDrawLimitTip() {
     const tip = intl.formatMessage({ id: 'over_tip' });
     let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
@@ -3699,8 +3720,29 @@ function WithDrawb(props: {
     rewardRef.current.scrollTop = 0;
   }
   async function doWithDraw() {
-    setWithdrawLoading(true);
-    withdrawAllReward_boost(checkedList);
+    try {
+      setWithdrawLoading(true);
+      transtionsExcuteDataStore.setActionStatus('pending');
+      transtionsExcuteDataStore.setActionData({
+        status: 'pending',
+        page: constTransactionPage.farm,
+      });
+      const { response } = await withdrawAllReward_boost(checkedList);
+      setWithdrawLoading(false);
+      transtionsExcuteDataStore.setActionStatus('resolved');
+      transtionsExcuteDataStore.setActionData({
+        status: 'success',
+        page: constTransactionPage.farm,
+        transactionResponse: response,
+      });
+    } catch (e) {
+      setWithdrawLoading(false);
+      transtionsExcuteDataStore.setActionStatus('rejected');
+      transtionsExcuteDataStore.setActionData({
+        status: 'error',
+        transactionError: e,
+      });
+    }
   }
   function getTotalUnWithdrawRewardsPrice() {
     const rewardTokenList = {};

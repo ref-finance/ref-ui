@@ -721,7 +721,7 @@ export const withdrawAllReward_boost = async (
       )
     );
   }
-  return executeFarmMultipleTransactions(transactions);
+  return executeMultipleTransactionsV2(transactions);
 };
 export const claimRewardBySeed_boost = async (
   seed_id: string

@@ -49,7 +49,10 @@ import { percentOfBigNumber } from '../../utils/numbers';
 import SquareRadio from '../radio/SquareRadio';
 import { DEFAULT_ACTIONS } from '../../pages/stable/StableSwapPage';
 import { getStablePoolDecimal } from '../../pages/stable/StableSwapEntry';
-import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
+import {
+  constTransactionPage,
+  useTranstionsExcuteDataStore,
+} from '../../stores/transtionsExcuteData';
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE';
 
 export function shareToUserTotal({
@@ -138,6 +141,11 @@ export function RemoveLiquidityComponent(props: {
   });
 
   function submit() {
+    transtionsExcuteDataStore.setActionData({
+      status: 'pending',
+      page: constTransactionPage.pool,
+    });
+
     if (isPercentage) {
       const removeShares = toNonDivisibleNumber(
         STABLE_LP_TOKEN_DECIMALS,
@@ -161,10 +169,20 @@ export function RemoveLiquidityComponent(props: {
         min_amounts: min_amounts as [string, string, string],
         shares: removeShares,
       })
-        .then(() => {
+        .then(({ response }) => {
+          setButtonLoading(false);
+          transtionsExcuteDataStore.setActionData({
+            status: 'success',
+            transactionResponse: response,
+          });
           transtionsExcuteDataStore.setActionStatus('resolved');
         })
-        .catch(() => {
+        .catch((e) => {
+          setButtonLoading(false);
+          transtionsExcuteDataStore.setActionData({
+            status: 'error',
+            transactionError: e,
+          });
           transtionsExcuteDataStore.setActionStatus('rejected');
         });
     } else {
@@ -191,10 +209,20 @@ export function RemoveLiquidityComponent(props: {
         amounts,
         max_burn_shares,
       })
-        .then(() => {
+        .then(({ response }) => {
+          setButtonLoading(false);
+          transtionsExcuteDataStore.setActionData({
+            status: 'success',
+            transactionResponse: response,
+          });
           transtionsExcuteDataStore.setActionStatus('resolved');
         })
-        .catch(() => {
+        .catch((e) => {
+          setButtonLoading(false);
+          transtionsExcuteDataStore.setActionData({
+            status: 'error',
+            transactionError: e,
+          });
           transtionsExcuteDataStore.setActionStatus('rejected');
         });
     }
@@ -444,7 +472,7 @@ export function RemoveLiquidityComponent(props: {
         {isSignedIn ? (
           <SolidButton
             disabled={!canSubmit || buttonLoading}
-            className={`focus:outline-none px-4 w-full text-lg`}
+            className={`btn-classic-remove-liquidity focus:outline-none px-4 w-full text-lg`}
             onClick={async () => {
               if (canSubmit) {
                 setButtonLoading(true);
