@@ -235,9 +235,9 @@ export default function AddYourLiquidityPageV3() {
     if (!onlyAddXToken && liquidityShape === 'Spot') {
       const amount_result = getTokenYAmountByCondition({
         amount,
-        leftPoint: leftPoint,
-        rightPoint: rightPoint,
-        currentPoint: currentPoint,
+        leftPoint,
+        rightPoint,
+        currentPoint,
       });
       setTokenYAmount(amount_result);
     }

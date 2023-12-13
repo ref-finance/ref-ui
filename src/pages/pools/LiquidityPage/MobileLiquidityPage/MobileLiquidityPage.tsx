@@ -141,7 +141,7 @@ function MobileLiquidityPage({
 
   const selectBalances = useTokenBalances();
 
-  const allPoolsV2 = useAllPoolsV2();
+  const allPoolsV2 = useAllPoolsV2(true);
   const [v2SortBy, setV2SortBy] = useState<string>('tvl');
 
   const [v2Order, setV2Order] = useState<string>('desc');
@@ -251,10 +251,6 @@ function MobileLiquidityPage({
     onSearch('');
     setShowPoolIDTip(false);
   };
-
-  // useEffect(() => {
-  //   if (inputRef.current?.value) inputRef.current.value = tokenName;
-  // }, [activeTab]);
 
   const [showPoolIDTip, setShowPoolIDTip] = useState<boolean>(false);
 
