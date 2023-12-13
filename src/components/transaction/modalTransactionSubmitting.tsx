@@ -84,7 +84,7 @@ export const ModalTransactionSubmitting = () => {
   const canClose = status === 'success' && transactionResponse;
   const isOpenModal =
     ['pending', 'success'].includes(status) || isRedirectWalletPage;
-  const isCloseModal = ['error', undefined].includes(status);
+  const isCloseModal = ['error', undefined, null].includes(status);
 
   useEffect(() => {
     if (isOpenModal) {
