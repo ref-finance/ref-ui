@@ -866,7 +866,7 @@ export default function SwapCard(props: {
     urlTokenOut,
   ]);
 
-  useEffect(() => {
+  const updateTokenBalance = () => {
     if (tokenIn) {
       const tokenInId = tokenIn.id;
       if (tokenInId) {
@@ -919,22 +919,28 @@ export default function SwapCard(props: {
     } else {
       setWrapOperation(false);
     }
+  };
+
+  useEffect(() => {
+    updateTokenBalance();
   }, [
     tokenIn,
     tokenOut,
     useNearBalance,
     isSignedIn,
     nearBalance,
-    transactionActionData?.status,
     swapType,
     loadingTrigger,
   ]);
 
   useEffect(() => {
     if (['success', 'error'].includes(transactionActionData?.status)) {
+      updateTokenBalance();
       loadingPause && setLoadingPause(false);
     }
-    setTokenInAmountInput('1');
+    if (['success'].includes(transactionActionData?.status)) {
+      setTokenInAmountInput('1');
+    }
   }, [transactionActionData?.status]);
 
   function getStorageTokenId() {

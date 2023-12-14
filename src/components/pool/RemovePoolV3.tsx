@@ -105,14 +105,22 @@ export const RemovePoolV3 = (props: any) => {
   const [binBoxAmount, setBinBoxAmount] = useState<string>('');
   const [show_boundary_tip, set_show_boundary_tip] = useState<boolean>(false);
   const [boundary_is_diff, set_boundary_is_diff] = useState<boolean>(false);
-  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+
+  const transactionSetActionData = useTranstionsExcuteDataStore(
+    (state) => state.setActionData
+  );
+  const transactionSetActionStatus = useTranstionsExcuteDataStore(
+    (state) => state.setActionStatus
+  );
+
   const { selector } = useWalletSelector();
   useEffect(() => {
     // init
     if (tokens && poolDetail && listLiquidities) {
       get_user_points_range();
     }
-  }, [tokens, poolDetail, listLiquidities]);
+  }, [JSON.stringify(tokens), poolDetail, listLiquidities]);
+
   useEffect(() => {
     if (minBoxPoint && maxBoxPoint) {
       let bin_amount;
@@ -458,10 +466,6 @@ export const RemovePoolV3 = (props: any) => {
   }
   function batch_remove_nfts() {
     setRemoveLoading(true);
-    transtionsExcuteDataStore.setActionData({
-      status: 'pending',
-      page: constTransactionPage.pool,
-    });
     const [tokenX, tokenY] = tokenMetadata_x_y;
     sessionStorage.setItem(REF_POOL_NAV_TAB_KEY, '/yourliquidity');
     let batch_remove_liquidity: IRemoveLiquidityInfo[];
@@ -551,6 +555,12 @@ export const RemovePoolV3 = (props: any) => {
       });
       batch_remove_liquidity = batchRemoveLiquidity;
     }
+
+    transactionSetActionData({
+      status: 'pending',
+      page: constTransactionPage.pool,
+    });
+
     batch_remove_liquidity_contract({
       token_x: tokenX,
       token_y: tokenY,
@@ -561,20 +571,20 @@ export const RemovePoolV3 = (props: any) => {
     })
       .then(({ response }) => {
         setRemoveLoading(false);
-        transtionsExcuteDataStore.setActionData({
+        transactionSetActionData({
           status: 'success',
           transactionResponse: response,
         });
-        transtionsExcuteDataStore.setActionStatus('resolved');
+        transactionSetActionStatus('resolved');
         sessionStorage.setItem('REMOVE_POOL_ID', pool_id);
       })
       .catch((e) => {
         setRemoveLoading(false);
-        transtionsExcuteDataStore.setActionData({
+        transactionSetActionData({
           status: 'error',
           transactionError: e,
         });
-        transtionsExcuteDataStore.setActionStatus('rejected');
+        transactionSetActionStatus('rejected');
       });
   }
   function get_minimum_received_data() {
@@ -1070,7 +1080,7 @@ export const RemovePoolV3 = (props: any) => {
             btnClassName={`${
               isRemoveLiquidityDisabled ? 'cursor-not-allowed' : ''
             }`}
-            className={`mt-8 w-full h-14 text-center text-lg text-white focus:outline-none font-semibold`}
+            className={`btn-remove-liq mt-8 w-full h-14 text-center text-lg text-white focus:outline-none font-semibold`}
             backgroundImage="linear-gradient(180deg, #C0B1A3 0%, #92877D 100%)"
           >
             <ButtonTextWrapper
