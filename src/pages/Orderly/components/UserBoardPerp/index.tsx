@@ -138,6 +138,8 @@ import { DepositTip } from './components/DepositTip';
 import { NewUserTip } from '../Common/NewUserTip';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import { useTranstionsExcuteDataStore } from '../../../../stores/transtionsExcuteData';
+import { useOrderlyBalancesStore } from '../../../../stores/orderlyBalances';
+
 const REF_ORDERLY_LIMIT_ORDER_ADVANCE = 'REF_ORDERLY_LIMIT_ORDER_ADVANCE';
 
 function getTipFOK() {
@@ -649,7 +651,8 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     curSymbolMarkPrice,
     availableSymbols,
   ]);
-
+  const orderlyBalancesStore: any = useOrderlyBalancesStore();
+  const orderlyBalances = orderlyBalancesStore.getBalances();
   const storedLimitOrderAdvance =
     sessionStorage.getItem(REF_ORDERLY_LIMIT_ORDER_ADVANCE) || '{}';
 
@@ -682,12 +685,12 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
   const tokenFromBalance = useTokenBalance(
     tokenIn?.id,
-    JSON.stringify(balances)
+    JSON.stringify(orderlyBalances)
   );
 
   const tokenToBalance = useTokenBalance(
     tokenOut?.id,
-    JSON.stringify(balances)
+    JSON.stringify(orderlyBalances)
   );
   const usdcAvailableBalance = curHoldingOut
     ? new Big(curHoldingOut.holding + curHoldingOut.pending_short).toFixed(2)
@@ -2816,9 +2819,7 @@ export function AssetManagerModal(
                   }}
                   value={percentage}
                   type="range"
-                  className={`w-full cursor-pointer ${
-                    type + '-bar'
-                  } remove-by-share-bar`}
+                  className={`w-full cursor-pointer deposit-bar remove-by-share-bar`}
                   min="0"
                   max="100"
                   step="any"
@@ -2829,11 +2830,9 @@ export function AssetManagerModal(
                 />
 
                 <div
-                  className={`rangeText rounded-lg absolute py-0.5 text-xs ${
-                    type === 'withdraw' ? 'text-white' : 'text-black'
-                  }  font-bold text-center w-10`}
+                  className={`rangeText rounded-lg absolute py-0.5 text-xs text-black font-bold text-center w-10`}
                   style={{
-                    background: type === 'withdraw' ? '#4627FF' : '#00C6A2',
+                    background: '#00C6A2',
                     left: `calc(${percentage}% - 40px * ${percentage} / 100)`,
                     position: 'absolute',
                     top: '20px',
@@ -2849,7 +2848,7 @@ export function AssetManagerModal(
               </div>
             </div>
             {type === 'deposit' &&
-              !validation() &&
+              (!validation() || +percentage == 100) &&
               tokenId.toLowerCase() === 'near' && (
                 <div className="text-warn text-center mb-2 text-xs xs:-mt-2 lg:whitespace-nowrap">
                   <FormattedMessage
@@ -2866,9 +2865,7 @@ export function AssetManagerModal(
                 buttonLoading
                   ? 'opacity-70 cursor-not-allowed'
                   : ''
-              } items-center justify-center  font-bold text-base text-white py-2.5 rounded-lg ${
-                type === 'deposit' ? 'bg-primaryGradient' : 'bg-withdrawPurple'
-              }`}
+              } items-center justify-center  font-bold text-base text-white py-2.5 rounded-lg bg-primaryGradient`}
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -2892,10 +2889,15 @@ export function AssetManagerModal(
                           defaultMessage: 'Deposit',
                         })
                       : type === 'withdraw'
-                      ? intl.formatMessage({
-                          id: 'withdraw',
-                          defaultMessage: 'Withdraw',
-                        })
+                      ? !validation()
+                        ? intl.formatMessage({
+                            id: 'insufficient_balance',
+                            defaultMessage: 'Insufficient Balance',
+                          })
+                        : intl.formatMessage({
+                            id: 'withdraw',
+                            defaultMessage: 'Withdraw',
+                          })
                       : ''}
                   </span>
                 )}

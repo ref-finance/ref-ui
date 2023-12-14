@@ -1805,3 +1805,7 @@ options-list::-webkit-scrollbar {
   border: 1px solid #7e8a93;
   padding: 5px 10px;
 }
+
+#top-bin-apr-mobile {
+  width: 230px;
+}

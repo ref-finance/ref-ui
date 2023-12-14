@@ -17,6 +17,8 @@ export function QuestionTip({
   opacity,
   style,
   textC,
+  className = '',
+  maxWidth = '200px',
 }: {
   id: string;
   color?: 'bright' | 'dark';
@@ -28,6 +30,8 @@ export function QuestionTip({
   opacity?: string;
   style?: any;
   textC?: string;
+  className?: string;
+  maxWidth?: string;
 }) {
   const intl = useIntl();
 
@@ -39,25 +43,32 @@ export function QuestionTip({
     let result: string = `<div class="${
       textC || 'text-navHighLightText'
     }   whitespace-normal text-xs text-left ${width ? width : ''}"
-      style="max-width: 200px; ">${tip}</div>`;
+      style="max-width: ${maxWidth}; ">${tip}</div>`;
     return result;
   };
   const dataPlaceAttribute = dataPlace ? { 'data-place': dataPlace } : {};
   return (
-    <div
-      className="pl-1 text-white text-base"
-      {...dataPlaceAttribute}
-      data-tooltip-id={uniquenessId || 'auto_router'}
-      data-class="reactTip"
-      data-tooltip-html={getValue()}
-      data-multiline={true}
-      style={style}
-    >
-      <span className={`${opacity}`}>
-        <QuestionMark colorhex={colorhex} color={color}></QuestionMark>
-      </span>
+    <>
+      <div
+        className={`text-white text-base ${className}`}
+        {...dataPlaceAttribute}
+        data-tooltip-id={uniquenessId || 'auto_router'}
+        data-class="reactTip"
+        data-tooltip-html={getValue()}
+        data-multiline={true}
+        style={style}
+      >
+        <span className={`${opacity || ''} cursor-pointer`}>
+          <QuestionMark
+            colorhex={colorhex}
+            color={color}
+            className={'cursor-pointer'}
+          />
+        </span>
+      </div>
       <CustomTooltip id={uniquenessId || 'auto_router'} />
-    </div>
+    </>
+
   );
 }
 

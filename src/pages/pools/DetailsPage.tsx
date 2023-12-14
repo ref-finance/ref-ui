@@ -136,6 +136,7 @@ import {
 import { NoLiquidityDetailPageIcon } from '../../components/icon/Pool';
 import { useFarmStake } from '../../state/farm';
 import { VEARROW } from '../../components/icon/Referendum';
+import BLACKTip from '../../components/pool/BLACKTip';
 import Big from 'big.js';
 import {
   getEffectiveFarmList,
@@ -144,6 +145,7 @@ import {
 import { openUrl } from '../../services/commonV3';
 import { numberWithCommas } from '../Orderly/utiles';
 import { HiOutlineExternalLink, HiOutlineLink } from 'react-icons/hi';
+
 import { PoolRefreshModal } from './PoolRefreshModal';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import {
@@ -159,6 +161,8 @@ export default function Container(props: any) {
     </PageContainer>
   );
 }
+
+const { BLACK_TOKEN_LIST } = getConfig();
 
 interface ParamTypes {
   id: string;
@@ -2465,6 +2469,10 @@ function PoolDetailsPage() {
     }
   }, [poolTVL, userTotalShareToString, pool]);
 
+  const disable_add: boolean = useMemo(() => {
+    const tokenIds = tokens?.map((t) => t.id) || [];
+    return !!tokenIds.find((tokenId) => BLACK_TOKEN_LIST.includes(tokenId));
+  }, [tokens]);
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
   if (BLACKLIST_POOL_IDS.includes(pool.id.toString())) history.push('/');
   if (isStablePool(pool.id)) {
@@ -2491,6 +2499,7 @@ function PoolDetailsPage() {
   const haveLiquidity = Number(pool.shareSupply) > 0;
 
   const haveShare = Number(userTotalShareToString) > 0;
+
   return (
     <>
       <div className="md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-1050px m-auto">
@@ -2910,7 +2919,7 @@ function PoolDetailsPage() {
             }}
           >
             <Card
-              className="rounded-2xl  w-full text-base text-white"
+              className="rounded-2xl  w-full text-base text-white mb-4"
               bgcolor="bg-cardBg"
             >
               {haveShare && (
@@ -3037,6 +3046,7 @@ function PoolDetailsPage() {
                     onClick={() => {
                       setShowFunding(true);
                     }}
+                    disabled={disable_add}
                   >
                     {!haveShare ? (
                       <FormattedMessage
@@ -3069,7 +3079,7 @@ function PoolDetailsPage() {
                 )}
               </div>
             </Card>
-
+            <BLACKTip tokenIds={tokens?.map((t) => t.id) || []} />
             {!seedFarms ? null : (
               <div className="flex flex-col mt-4 relative z-30">
                 <FarmBoardInDetailPool

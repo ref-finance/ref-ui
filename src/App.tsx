@@ -17,6 +17,9 @@ import {
   ToastTransaction,
 } from 'src/components/transaction/modalTransactionSubmitting';
 
+import { ModalGAPrivacy } from 'src/context/modal-ui/modalGAPrivacy/modalGAPrivacy';
+
+
 function App() {
   return (
     <Router>
@@ -30,9 +33,10 @@ function App() {
       </WalletSelectorContextProvider>
 
       <LedgerTransactionModal />
+
       <ToastTransaction />
       <ModalTransactionSubmitting />
-      {/*<ModalGAPrivacy />*/}
+      <ModalGAPrivacy />
     </Router>
   );
 }

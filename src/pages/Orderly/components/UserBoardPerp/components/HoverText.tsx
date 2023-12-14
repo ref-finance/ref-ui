@@ -395,7 +395,7 @@ export function CollatteralTokenAvailableCell({
         {finalBalance}
 
         {collateralTokenTip && (
-          <div className="absolute bg-cardBg z-50 transform translate-y-1/2 right-full -translate-x-2 bottom-3  px-4 py-2 rounded-lg text-xs text-primaryText border border-primaryText whitespace-nowrap">
+          <div className="absolute bg-cardBg z-50 transform translate-y-3/4 right-full -translate-x-2 bottom-3  px-4 py-2 rounded-lg text-xs text-primaryText border border-primaryText whitespace-nowrap">
             <div className="flex items-center gap-2  justify-between text-xs text-farmText">
               <span>Balance</span>
               <span>{balance === '-' ? '-' : Big(balance).toFixed(2)}</span>
