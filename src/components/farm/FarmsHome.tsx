@@ -3351,6 +3351,7 @@ function FarmView(props: {
             </div>
           ) : null}
         </div>
+        <CustomTooltip id={'rewardPerWeekId' + seed?.farmList[0]?.farm_id} />
       </div>
       {calcVisible ? (
         <CalcModelBooster
@@ -3937,6 +3938,389 @@ function WithDrawb(props: {
         </div>
       </div>
     </div>
+  );
+}
+function WithDrawModal(props: {
+  userRewardList: any;
+  tokenPriceList: any;
+  farmDisplayList: Seed[];
+  isOpen: boolean;
+  onRequestClose: any;
+}) {
+  const {
+    userRewardList,
+    tokenPriceList,
+    farmDisplayList,
+    isOpen,
+    onRequestClose,
+  } = props;
+  const actualRewardList = {};
+  Object.entries(userRewardList).forEach(([key, value]) => {
+    if (Number(value) > 0) {
+      actualRewardList[key] = value;
+    }
+  });
+  const [rewardList, setRewardList] = useState([]);
+  const [checkedList, setCheckedList] = useState<Record<string, any>>({});
+  const [selectAll, setSelectAll] = useState(false);
+  const [withdrawLoading, setWithdrawLoading] = useState<boolean>(false);
+  const [yourReward, setYourReward] = useState('$0');
+  const rewardRef = useRef(null);
+  const intl = useIntl();
+  const withdrawNumber = 5;
+  useEffect(() => {
+    const tempList = Object.keys(actualRewardList).map(async (key: string) => {
+      const rewardToken = await ftGetTokenMetadata(key);
+      const price = tokenPriceList[key]?.price;
+      return {
+        tokenId: key,
+        rewardToken,
+        price,
+        number: actualRewardList[key],
+      };
+    });
+    Promise.all(tempList).then((list) => {
+      list.forEach((item: any) => {
+        rewardList[item.tokenId] = item;
+      });
+      setRewardList(rewardList);
+    });
+    if (
+      actualRewardList &&
+      tokenPriceList &&
+      Object.keys(tokenPriceList).length > 0 &&
+      farmDisplayList &&
+      farmDisplayList.length > 0
+    ) {
+      getTotalUnWithdrawRewardsPrice();
+    }
+  }, [actualRewardList, tokenPriceList, farmDisplayList]);
+  function valueOfWithDrawLimitTip() {
+    const tip = intl.formatMessage({ id: 'over_tip' });
+    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+    return result;
+  }
+  function displaySinglePrice(price: string) {
+    let displayPrice = '$-';
+    if (price && price != 'N/A') {
+      if (new BigNumber('0.01').isGreaterThan(price)) {
+        displayPrice = '<$0.01';
+      } else {
+        displayPrice = `$${toInternationalCurrencySystem(price.toString(), 2)}`;
+      }
+    }
+    return displayPrice;
+  }
+  function displayTotalPrice(item: any) {
+    const { rewardToken, number, price } = item;
+    let resultTotalPrice = '0';
+    if (price && price != 'N/A') {
+      const totalPrice = new BigNumber(price).multipliedBy(
+        toReadableNumber(rewardToken.decimals, number)
+      );
+      if (new BigNumber('0.01').isGreaterThan(totalPrice)) {
+        resultTotalPrice = '<$0.01';
+      } else {
+        resultTotalPrice = `$${toInternationalCurrencySystem(
+          totalPrice.toString(),
+          2
+        )}`;
+      }
+    }
+    return resultTotalPrice;
+  }
+  function displayWithDrawTokenNumber(item: any) {
+    const { rewardToken, number } = item;
+    const tokenNumber = toReadableNumber(rewardToken.decimals, number);
+    let resultDisplay = '';
+    if (new BigNumber('0.001').isGreaterThan(tokenNumber)) {
+      resultDisplay = '<0.001';
+    } else {
+      resultDisplay = formatWithCommas(
+        new BigNumber(tokenNumber).toFixed(3, 1).toString()
+      );
+    }
+    return resultDisplay;
+  }
+  function clickCheckBox(tokenId: string) {
+    if (checkedList[tokenId]) {
+      delete checkedList[tokenId];
+      if (selectAll) {
+        setSelectAll(false);
+      }
+    } else if (Object.keys(checkedList).length < withdrawNumber) {
+      checkedList[tokenId] = { value: rewardList[tokenId].number };
+      if (
+        Object.keys(checkedList).length ==
+        Math.min(withdrawNumber, Object.keys(rewardList).length)
+      ) {
+        setSelectAll(true);
+      }
+    }
+    setCheckedList(JSON.parse(JSON.stringify(checkedList)));
+  }
+  function clickAllCheckBox() {
+    const status = !selectAll;
+    const checkedList = {};
+    if (status) {
+      const allAtOneTime = Object.entries(rewardList).slice(0, withdrawNumber);
+      allAtOneTime.forEach(([key, value]) => {
+        checkedList[key] = value.number;
+      });
+    }
+    setCheckedList(checkedList);
+    setSelectAll(status);
+    rewardRef.current.scrollTop = 0;
+  }
+  async function doWithDraw() {
+    setWithdrawLoading(true);
+    withdrawAllReward_boost(checkedList);
+  }
+  function getTotalUnWithdrawRewardsPrice() {
+    const rewardTokenList = {};
+    farmDisplayList.forEach((seed: Seed, index: number) => {
+      seed.farmList.forEach((farm: FarmBoost) => {
+        const { token_meta_data } = farm;
+        rewardTokenList[token_meta_data.id] = token_meta_data;
+      });
+    });
+    let totalUnWithDraw = 0;
+    Object.entries(actualRewardList).forEach((arr: [string, string]) => {
+      const [key, v] = arr;
+      const singlePrice = tokenPriceList[key]?.price;
+      const token = rewardTokenList[key];
+      if (token) {
+        const number: any = toReadableNumber(token.decimals, v);
+        if (singlePrice && singlePrice != 'N/A') {
+          totalUnWithDraw = BigNumber.sum(
+            singlePrice * number,
+            totalUnWithDraw
+          ).toNumber();
+        }
+      }
+    });
+    if (totalUnWithDraw > 0) {
+      let totalUnWithDrawV = toInternationalCurrencySystem(
+        totalUnWithDraw.toString(),
+        2
+      );
+      if (Number(totalUnWithDrawV) == 0) {
+        totalUnWithDrawV = '<$0.01';
+      } else {
+        totalUnWithDrawV = `$${totalUnWithDrawV}`;
+      }
+      setYourReward(totalUnWithDrawV);
+    }
+  }
+  const cardWidth = isMobile() ? '90vw' : '30vw';
+  const cardHeight = isMobile() ? '90vh' : '80vh';
+  return (
+    <Modal
+      isOpen={isOpen}
+      onRequestClose={onRequestClose}
+      style={{
+        overlay: {
+          backdropFilter: 'blur(15px)',
+          WebkitBackdropFilter: 'blur(15px)',
+          overflow: 'auto',
+        },
+        content: {
+          outline: 'none',
+          transform: 'translate(-50%, -50%)',
+        },
+      }}
+    >
+      <div className="flex flex-col">
+        <div className="flex flex-col">
+          <div
+            className="rounded-2xl bg-cardBg overflow-auto"
+            style={{
+              width: cardWidth,
+              maxHeight: cardHeight,
+              border: '1px solid rgba(0, 198, 162, 0.5)',
+            }}
+          >
+            <div
+              className="relative"
+              style={{
+                background:
+                  'linear-gradient(270deg, #7F43FF 0%, #00C6A2 97.06%)',
+              }}
+            >
+              <BoostDotIcon className="absolute right-5"></BoostDotIcon>
+              <div className="relative z-10 px-5 py-3">
+                <div className="flex flex-col items-start px-2">
+                  <div className="flex items-center justify-between w-full">
+                    <span className="text-white text-lg">
+                      <FormattedMessage id="claimed_Rewards"></FormattedMessage>
+                    </span>
+                    <ModalClose
+                      className="cursor-pointer"
+                      fillColor="#fff"
+                      onClick={onRequestClose}
+                    />
+                  </div>
+                  <span className="text-white text-xl font-bold mt-1">
+                    {yourReward}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div
+                className={`pl-3 pr-6 max-h-96 overflow-auto pt-5 px-5 xs:px-3 md:px-3`}
+                ref={rewardRef}
+              >
+                {Object.values(rewardList).map((item) => {
+                  return (
+                    <div
+                      className="flex justify-between py-3.5 select-none"
+                      key={item.tokenId}
+                    >
+                      <div className="flex items-center text-sm text-white">
+                        <div
+                          className="mr-3 cursor-pointer"
+                          onClick={() => {
+                            clickCheckBox(item.tokenId);
+                          }}
+                        >
+                          {checkedList[item.tokenId] ? (
+                            <CheckboxSelected></CheckboxSelected>
+                          ) : (
+                            <Checkbox></Checkbox>
+                          )}
+                        </div>
+                        <img
+                          src={item.rewardToken.icon}
+                          className="w-8 h-8 rounded-full mr-2"
+                        />
+                        <div className="flex flex-col">
+                          <label className="text-sm text-white">
+                            {toRealSymbol(item.rewardToken.symbol)}
+                          </label>
+                          <label className="text-primaryText text-xs">
+                            {displaySinglePrice(item.price)}
+                          </label>
+                        </div>
+                      </div>
+                      <div className="flex flex-col text-right">
+                        <label className="text-sm text-white">
+                          {displayWithDrawTokenNumber(item)}
+                        </label>
+                        <label className="text-primaryText text-xs">
+                          {displayTotalPrice(item)}
+                        </label>
+                      </div>
+                    </div>
+                  );
+                })}
+                {Object.values(rewardList).length == 0 ? (
+                  <div className="flex flex-col items-center justify-center py-6">
+                    <BoostFarmNoDataIcon></BoostFarmNoDataIcon>
+                    <p className="text-sm text-white opacity-50 mt-3">
+                      <FormattedMessage
+                        id="no_claimed_rewards_yet"
+                        defaultMessage="No claimed rewards yet"
+                      ></FormattedMessage>
+                    </p>
+                  </div>
+                ) : null}
+              </div>
+              <div className="flex justify-between items-center pt-4 pb-3 bg-farmV2WithDrawBg pl-3 pr-6 select-none">
+                <div className="flex items-center text-primaryText">
+                  <label
+                    className="mr-3 cursor-pointer"
+                    onClick={clickAllCheckBox}
+                  >
+                    {selectAll ? (
+                      <CheckboxSelected></CheckboxSelected>
+                    ) : (
+                      <Checkbox></Checkbox>
+                    )}
+                  </label>
+                  {Object.keys(rewardList).length > withdrawNumber ? (
+                    <div className="flex items-center ">
+                      <label className="mr-1 text-xs">
+                        <FormattedMessage id="all_4_v2" />
+                      </label>
+                      <div
+                        className="text-white text-right ml-1"
+                        data-class="reactTip"
+                        data-tooltip-id="selectAllId"
+                        data-place="top"
+                        data-html={true}
+                        data-tip={valueOfWithDrawLimitTip()}
+                      >
+                        <QuestionMark></QuestionMark>
+                        <CustomTooltip id="selectAllId" />
+                      </div>
+                    </div>
+                  ) : (
+                    <label className="text-xs">
+                      <FormattedMessage id="all" />
+                    </label>
+                  )}
+                </div>
+                <div className="flex justify-center items-center">
+                  <GradientButton
+                    color="#fff"
+                    className={`w-36 h-9 text-center text-base text-white focus:outline-none font-semibold ${
+                      Object.keys(checkedList).length == 0 ? 'opacity-40' : ''
+                    }`}
+                    onClick={doWithDraw}
+                    disabled={Object.keys(checkedList).length == 0}
+                    btnClassName={
+                      Object.keys(checkedList).length == 0
+                        ? 'cursor-not-allowed'
+                        : ''
+                    }
+                    loading={withdrawLoading}
+                    backgroundImage="linear-gradient(270deg, #7F43FF 0%, #00C6A2 97.06%)"
+                  >
+                    <div>
+                      <ButtonTextWrapper
+                        loading={withdrawLoading}
+                        Text={() => (
+                          <FormattedMessage
+                            id="withdraw"
+                            defaultMessage="Withdraw"
+                          />
+                        )}
+                      />
+                    </div>
+                  </GradientButton>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-col items-start bg-cardBg justify-between rounded-lg mt-3 px-3.5 py-3">
+          <span className="text-white text-sm">
+            <FormattedMessage id="how_to_earn_more"></FormattedMessage>
+          </span>
+          <div className="flex items-center flex-wrap mt-2">
+            <span className="flex items-center text-xs text-primaryText mr-2 mb-1">
+              <label className="flex items-center justify-center w-4 h-4 rounded-full text-white bg-greenColor mr-1.5">
+                1
+              </label>{' '}
+              <FormattedMessage id="withdraw" /> {'>>'}
+            </span>
+            <span className="flex items-center text-xs text-primaryText mr-2 mb-1">
+              <label className="flex items-center justify-center w-4 h-4 rounded-full text-white bg-greenColor mr-1.5">
+                2
+              </label>{' '}
+              <FormattedMessage id="add_liquidity" /> {'>>'}
+            </span>
+            <span className="flex items-center text-xs text-primaryText mb-1">
+              <label className="flex items-center justify-center w-4 h-4 rounded-full text-white bg-greenColor mr-1.5">
+                3
+              </label>
+              <FormattedMessage id="stake" />
+            </span>
+          </div>
+        </div>
+      </div>
+    </Modal>
   );
 }
 export const getPoolIdBySeedId = (seed_id: string) => {
