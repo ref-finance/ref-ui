@@ -14,7 +14,14 @@ export default function getConfig(
         ],
         ORDRRBOOK_COLLATTERAL_TOKEN:
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near',
-        ONLY_LIMIT_ORDER_DCL_POOL_IDS: [''],
+        ONLY_LIMIT_ORDER_DCL_POOL_IDS: [
+          'token.burrow.near|wrap.near|400',
+          'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near|token.burrow.near|400',
+          'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near|token.burrow.near|400',
+          'token.v2.ref-finance.near|wrap.near|400',
+          'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near|token.v2.ref-finance.near|400',
+          'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near|token.v2.ref-finance.near|400',
+        ],
       };
     case 'pub-testnet':
       return {
@@ -49,7 +56,14 @@ export default function getConfig(
         ],
         ORDRRBOOK_COLLATTERAL_TOKEN:
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near',
-        ONLY_LIMIT_ORDER_DCL_POOL_IDS: [''],
+        ONLY_LIMIT_ORDER_DCL_POOL_IDS: [
+          'token.burrow.near|wrap.near|400',
+          'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near|token.burrow.near|400',
+          'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near|token.burrow.near|400',
+          'token.v2.ref-finance.near|wrap.near|400',
+          'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near|token.v2.ref-finance.near|400',
+          'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near|token.v2.ref-finance.near|400',
+        ],
       };
   }
 }
