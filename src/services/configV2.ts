@@ -51,7 +51,15 @@ export default function getConfig(
           'usdtt.fakes.testnet|wrap.testnet|400',
           'ref.fakes.testnet|wrap.testnet|400',
         ],
-        WHITE_LIST_DCL_POOL_IDS_IN_LIMIT_ORDERS: [],
+        WHITE_LIST_DCL_POOL_IDS_IN_LIMIT_ORDERS: [
+          'usdc.fakes.testnet|wrap.testnet|2000',
+          'aurora.fakes.testnet|usdc.fakes.testnet|2000',
+          'eth.fakes.testnet|usdc.fakes.testnet|2000',
+          'phoenix-bonds.testnet|wrap.testnet|2000',
+          'usdt.fakes.testnet|wrap.testnet|2000',
+          'usdcc.fakes.testnet|wrap.testnet|400',
+          'ref.fakes.testnet|usdc.fakes.testnet|400',
+        ],
       };
     default:
       return {
