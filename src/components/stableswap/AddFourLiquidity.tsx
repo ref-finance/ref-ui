@@ -516,7 +516,7 @@ export default function AddFourLiquidityComponent(props: {
       status: 'pending',
       page: constTransactionPage.pool,
       data: {
-        pretext: 'Supplying',
+        prefix: 'Supplying',
         tokens: tokensNode,
       },
     });

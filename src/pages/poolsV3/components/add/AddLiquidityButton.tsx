@@ -62,7 +62,7 @@ export function AddLiquidityButton() {
       status: 'pending',
       page: constTransactionPage.pool,
       data: {
-        pretext: 'Supplying',
+        prefix: 'Supplying',
         tokens: [
           {
             token: new_liquidity?.token_x,

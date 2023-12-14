@@ -77,7 +77,7 @@ export const ModalTransactionSubmitting = () => {
   const actionData = transtionsExcuteDataStore.getActionData();
   const { setActionData, removeActionData } = transtionsExcuteDataStore || {};
   const { status, page, data, transactionResponse, onClose } = actionData || {};
-  const { selectTrade, pretext, tokens } = data || {};
+  const { selectTrade, prefix, suffix, tokens } = data || {};
 
   const isRedirectWalletPage = status === 'success' && !transactionResponse; // myNearWallet
   const isComplete = status === 'success' && transactionResponse;
@@ -134,17 +134,31 @@ export const ModalTransactionSubmitting = () => {
     );
   } else if (Array.isArray(tokens)) {
     node = tokens.map((d) => {
-      const { token, amount } = d;
+      const { token, amount, tokenGroup } = d;
       if (d?.node) {
         return d.node;
       } else {
-        let tokenNode, amountNode, symbolNode;
+        let tokenNode;
         if (token) {
           tokenNode = (
             <div className={'flex gap-1 items-center'}>
               <DisplayIcon token={token} height={'20px'} width={'20px'} />
               {amount && <div>{amount}</div>}
               <div>{token?.symbol}</div>
+            </div>
+          );
+        }
+        if (Array.isArray(tokenGroup)) {
+          tokenNode = (
+            <div className="flex items-center">
+              {tokenGroup.map((d) => (
+                <DisplayIcon
+                  token={d}
+                  height={'20px'}
+                  width={'20px'}
+                  className="-ml-1"
+                />
+              ))}
             </div>
           );
         }
@@ -209,9 +223,10 @@ export const ModalTransactionSubmitting = () => {
       </div>
 
       <div className={'flex flex-col justify-between flex-1 w-full'}>
-        <div className={'flex justify-evenly items-center -token-info gap-2'}>
-          {pretext}
+        <div className={'flex justify-center items-center -token-info gap-2'}>
+          {prefix}
           {node}
+          {suffix}
         </div>
         <div
           className={'text-center text-primaryText'}

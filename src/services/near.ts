@@ -414,7 +414,7 @@ export const executeMultipleTransactionsV2 = async (
     const walletRes = await wallet.wallet();
     walletId = walletRes?.id;
     firstMethod = transactions?.[0]?.functionCalls?.[0]?.methodName;
-    if (walletId === 'here-wallet' && firstMethod === 'ft_transfer_call') {
+    if (walletId === 'here-wallet') {
       transtionsExcuteDataStore.setActionData({
         status: null,
       });
@@ -438,11 +438,7 @@ export const executeMultipleTransactionsV2 = async (
       txHashes: transactionHashes,
     };
   } catch (e) {
-    if (
-      walletId === 'here-wallet' &&
-      firstMethod === 'ft_transfer_call' &&
-      !e.message
-    ) {
+    if (walletId === 'here-wallet' && !e.message) {
       throw new Error('User rejected');
     }
     if (!extraWalletsError.includes(e.message)) {

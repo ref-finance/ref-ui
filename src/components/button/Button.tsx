@@ -360,9 +360,9 @@ export function SolidButton(
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`${disabled ? 'cursor-not-allowed opacity-40' : ''}  ${
-        loading ? 'opacity-40' : ''
-      }
+      className={`${className ? className : ''} ${
+        disabled ? 'cursor-not-allowed opacity-40' : ''
+      }  ${loading ? 'opacity-40' : ''}
         text-white rounded
         ${
           disabled && disabledColor
@@ -371,7 +371,6 @@ export function SolidButton(
         }
        
          ${padding ? padding : 'py-2'}
-        ${className ? className : ''}
       `}
       style={style}
     >

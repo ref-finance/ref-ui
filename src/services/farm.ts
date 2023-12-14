@@ -726,7 +726,7 @@ export const withdrawAllReward_boost = async (
 export const claimRewardBySeed_boost = async (
   seed_id: string
 ): Promise<any> => {
-  return await refFarmBoostFunctionCall({
+  return refFarmBoostFunctionCall({
     methodName: 'claim_reward_by_seed',
     args: { seed_id },
   });

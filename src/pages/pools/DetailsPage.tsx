@@ -679,18 +679,18 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
       transtionsExcuteDataStore.setActionData({
         status: 'pending',
         data: {
-          pretext: 'Supplying',
+          prefix: 'Supplying',
           tokens: [
             {
               token: tokens[0],
-              amount: firstTokenAmount,
+              amount: toReadableNumber(tokens[0]?.decimals, firstTokenAmount),
             },
             {
               node: <HiOutlinePlusSm />,
             },
             {
               token: tokens[1],
-              amount: secondTokenAmount,
+              amount: toReadableNumber(tokens[1]?.decimals, secondTokenAmount),
             },
           ],
         },
@@ -1031,6 +1031,7 @@ export function RemoveLiquidityModal(
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+  const sharePercent = percent(shares || '0', pool.shareSupply || '1');
 
   function submit() {
     const amountBN = new BigNumber(amount?.toString());
@@ -1048,10 +1049,32 @@ export function RemoveLiquidityModal(
       );
     }
     setButtonLoading(true);
+    let tokensNode = [];
+
+    let tokensName = '';
+
+    tokens?.forEach((d, i) => {
+      tokensName += `${i !== 0 ? '-' : ''}${d?.symbol}`;
+    });
+
+    tokensNode = [
+      {
+        tokenGroup: tokens,
+      },
+    ];
     transtionsExcuteDataStore.setActionData({
       status: 'pending',
       page: constTransactionPage.pool,
+      data: {
+        prefix: 'Removing',
+        tokens: tokensNode,
+        suffix: `${toPrecision(
+          toReadableNumber(24, shares),
+          2
+        )} ${tokensName} LP tokens`,
+      },
     });
+
     localStorage.setItem(REF_FI_PRE_LIQUIDITY_ID_KEY, pool.id.toString());
     return removeLiquidity()
       .then(({ response }) => {
@@ -1092,8 +1115,6 @@ export function RemoveLiquidityModal(
     }
     setCanSubmit(true);
   }
-
-  const sharePercent = percent(shares || '0', pool.shareSupply || '1');
 
   return (
     <Modal {...props}>
@@ -1324,7 +1345,7 @@ export function RemoveLiquidityModal(
           {isSignedIn ? (
             <SolidButton
               disabled={!canSubmit || buttonLoading}
-              className={`focus:outline-none px-4 w-full`}
+              className={`btn-detail-remove-liq focus:outline-none px-4 w-full`}
               onClick={async () => {
                 try {
                   await submit();

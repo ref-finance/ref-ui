@@ -1912,9 +1912,20 @@ function UserTotalUnClaimBlock(props: {
   function claimReward() {
     if (claimLoading) return;
     setClaimLoading(true);
+
+    const tokensNode = unclaimedRewardsData.list.map(
+      ({ token, amount, preAmount }, i) => ({
+        token: token,
+        amount: preAmount || amount,
+      })
+    );
+
     transtionsExcuteDataStore.setActionData({
       status: 'pending',
       page: constTransactionPage.xref,
+      data: {
+        tokens: tokensNode,
+      },
     });
     claimRewardBySeed_boost(detailData.seed_id)
       .then(({ response }) => {
@@ -2080,7 +2091,7 @@ function UserTotalUnClaimBlock(props: {
             ></UpArrowIcon>
           </div>
           <span
-            className="flex items-center justify-center bg-deepBlue hover:bg-deepBlueHover rounded-lg text-sm text-white h-8 w-20 cursor-pointer"
+            className="btn-claim-classic flex items-center justify-center bg-deepBlue hover:bg-deepBlueHover rounded-lg text-sm text-white h-8 w-20 cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
               claimReward();
@@ -3097,7 +3108,6 @@ export function StakeModal(props: {
     }
   }
   function operationStake() {
-    console.log('hihihi', pool);
     setStakeLoading(true);
     const tokensNode = [];
     // @ts-ignore
@@ -3111,7 +3121,7 @@ export function StakeModal(props: {
       status: 'pending',
       page: constTransactionPage.farm,
       data: {
-        pretext: `Supplying ${amount}`,
+        prefix: `Supplying ${amount}`,
         tokens: tokensNode,
       },
     });

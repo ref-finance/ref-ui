@@ -435,7 +435,6 @@ function ChartHeader(props?: any) {
       setIconIn(nearMetadata.icon);
     } else {
       getFTmetadata(idFrom).then((res) => {
-        // console.log('res: ', res);
         setIconIn(res.icon);
       });
     }
