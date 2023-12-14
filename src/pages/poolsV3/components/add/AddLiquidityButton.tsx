@@ -192,7 +192,7 @@ export function AddLiquidityButton() {
   }
   const isAddLiquidityDisabled =
     getButtonStatus() ||
-    configV2.ONLY_LIMIT_ORDER_DCL_POOL_IDS.includes(
+    configV2.BLACK_LIST_DCL_POOL_IDS_IN_POOLS.includes(
       currentSelectedPool?.pool_id
     );
 

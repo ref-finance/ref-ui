@@ -1710,7 +1710,9 @@ export const TradeRouteHub = ({
         <span className="ml-1 mr-1">{contract}</span>
         <span
           className={`cursor-pointer block mr-1.5 ${
-            configV2.ONLY_LIMIT_ORDER_DCL_POOL_IDS.includes(poolId?.toString())
+            configV2.BLACK_LIST_DCL_POOL_IDS_IN_POOLS.includes(
+              poolId?.toString()
+            )
               ? 'hidden'
               : ''
           }`}

@@ -45,7 +45,8 @@ export const useMyOrders = () => {
   };
 };
 
-export const useAllPoolsV2 = (hideLimitOrder?: boolean) => {
+export const useAllPoolsV2 = (forPool?: boolean) => {
+  // todo
   const [allPools, setAllPools] = useState<PoolInfo[]>();
 
   const tokenPriceList = useTokenPriceList();
@@ -56,9 +57,14 @@ export const useAllPoolsV2 = (hideLimitOrder?: boolean) => {
     listPools()
       .then((list: PoolInfo[]) => {
         let final = list;
-        if (hideLimitOrder) {
+        if (forPool) {
           final = list.filter(
-            (p) => !configV2.ONLY_LIMIT_ORDER_DCL_POOL_IDS.includes(p.pool_id)
+            (p) =>
+              !configV2.BLACK_LIST_DCL_POOL_IDS_IN_POOLS.includes(p.pool_id)
+          );
+        } else {
+          final = list.filter((p) =>
+            configV2.WHITE_LIST_DCL_POOL_IDS_IN_LIMIT_ORDERS.includes(p.pool_id)
           );
         }
         return Promise.all(
