@@ -135,6 +135,7 @@ const testnet_tokens = {
   'phoenix-bonds.testnet': 'pNEAR',
   'usdt.develop.v1.omomo-finance.testnet': 'USDT',
   'wnear.develop.v1.omomo-finance.testnet': 'WNEAR',
+  'token.1689937928.burrow.testnet': 'BOOSTER-1689937928',
 };
 
 export function getTokens() {
