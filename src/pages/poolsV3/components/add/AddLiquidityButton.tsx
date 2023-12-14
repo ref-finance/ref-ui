@@ -77,7 +77,7 @@ export function AddLiquidityButton() {
           {
             token: new_liquidity?.token_y,
             amount: toReadableNumber(
-              new_liquidity?.amount_y?.decimals,
+              new_liquidity?.token_y?.decimals,
               new_liquidity?.amount_y
             ),
           },
@@ -271,7 +271,7 @@ export function AddLiquidityButton() {
       {isSignedIn ? (
         <GradientButton
           color="#fff"
-          className={`w-full h-12 text-center text-base text-white focus:outline-none ${
+          className={`add_lp_func w-full h-12 text-center text-base text-white focus:outline-none ${
             isAddLiquidityDisabled ? 'opacity-40' : ''
           }`}
           loading={addLiquidityButtonLoading}

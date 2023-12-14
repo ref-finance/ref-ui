@@ -1036,11 +1036,19 @@ export default function FarmsDclDetail(props: {
 
   function batchUnStakeNFT() {
     set_nft_unStake_loading(true);
+    const unStake_info: IStakeInfo = get_unStake_info();
+    console.log('unStake_info', unStake_info);
+    console.log('tokens', tokens);
+    const tokensName = tokens?.map((d) => d.symbol);
     transtionsExcuteDataStore.setActionData({
       status: 'pending',
       page: constTransactionPage.xref,
+      data: {
+        prefix: 'Removing',
+        tokenGroup: tokens,
+        suffix: ` ${tokensName} LP tokens`,
+      },
     });
-    const unStake_info: IStakeInfo = get_unStake_info();
     batch_unStake_boost_nft(unStake_info)
       .then(({ response }) => {
         transtionsExcuteDataStore.setActionData({
@@ -1480,7 +1488,7 @@ export default function FarmsDclDetail(props: {
                   minWidth="6rem"
                   disabled={nft_unStake_loading ? true : false}
                   onClick={batchUnStakeNFT}
-                  className={`flex items-center xsm:flex-grow justify-center h-8 px-4 ml-2 text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
+                  className={`batchUnStakeNFT flex items-center xsm:flex-grow justify-center h-8 px-4 ml-2 text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
                     nft_unStake_loading ? 'opacity-40' : ''
                   }`}
                 >
@@ -1602,9 +1610,20 @@ function UserTotalUnClaimBlock(props: {
   function claimReward() {
     if (claimLoading) return;
     setClaimLoading(true);
+    const tokensNode = unclaimedRewardsData.list.map(
+      ({ token, amount, preAmount }, i) => ({
+        token: token,
+        amount: preAmount || amount,
+      })
+    );
+
     transtionsExcuteDataStore.setActionData({
       status: 'pending',
       page: constTransactionPage.farm,
+      data: {
+        prefix: 'Claiming',
+        tokens: tokensNode,
+      },
     });
     claimRewardBySeed_boost(detailData.seed_id)
       .then(({ response }) => {
@@ -1769,6 +1788,7 @@ function UserTotalUnClaimBlock(props: {
             ></UpArrowIcon>
           </div>
           <span
+            id={'btn-dcl-claim'}
             className="flex items-center justify-center bg-deepBlue hover:bg-deepBlueHover rounded-lg text-sm text-white h-8 w-20 cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();

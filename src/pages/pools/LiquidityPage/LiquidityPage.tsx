@@ -157,7 +157,6 @@ import {
   TokenPriceListContext,
 } from './constLiquidityPage';
 
-
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
 const REF_FI_FARM_ONLY = 'REF_FI_FARM_ONLY';

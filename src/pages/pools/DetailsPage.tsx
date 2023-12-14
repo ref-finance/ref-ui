@@ -687,14 +687,14 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
           tokens: [
             {
               token: tokens[0],
-              amount: toReadableNumber(tokens[0]?.decimals, firstTokenAmount),
+              amount: firstTokenAmount,
             },
             {
               node: <HiOutlinePlusSm />,
             },
             {
               token: tokens[1],
-              amount: toReadableNumber(tokens[1]?.decimals, secondTokenAmount),
+              amount: secondTokenAmount,
             },
           ],
         },
@@ -736,7 +736,7 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
     return (
       <SolidButton
         disabled={!canSubmit || canDeposit}
-        className="focus:outline-none  w-full text-lg"
+        className="btn-add-liq-detail focus:outline-none  w-full text-lg"
         onClick={handleClick}
         loading={buttonLoading}
         padding={'p-4'}
@@ -893,7 +893,6 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
           </span>
         </div>
       </div>
-      cccc
       {canDeposit ? (
         <div
           id="classic-pool-add-liquidity"

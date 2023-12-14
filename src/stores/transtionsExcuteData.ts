@@ -2,6 +2,7 @@ import { create } from 'zustand';
 
 export const constTransactionPage = {
   swap: 'swap',
+  limitOrder: 'limitOrder',
   pool: 'pool',
   farm: 'farm',
   xref: 'xref',

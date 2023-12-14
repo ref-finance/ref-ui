@@ -19,7 +19,6 @@ import {
 
 import { ModalGAPrivacy } from 'src/context/modal-ui/modalGAPrivacy/modalGAPrivacy';
 
-
 function App() {
   return (
     <Router>

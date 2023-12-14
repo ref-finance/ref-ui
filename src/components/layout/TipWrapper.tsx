@@ -68,7 +68,6 @@ export function QuestionTip({
       </div>
       <CustomTooltip id={uniquenessId || 'auto_router'} />
     </>
-
   );
 }
 

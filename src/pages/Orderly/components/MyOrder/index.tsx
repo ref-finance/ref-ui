@@ -83,6 +83,10 @@ import _ from 'lodash';
 import { HistoryOrderSwapInfo } from '../../../../services/indexer';
 import { useDclPoolIdByCondition } from '../../../../state/swapV3';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
+import {
+  constTransactionPage,
+  useTranstionsExcuteDataStore,
+} from 'src/stores/transtionsExcuteData';
 
 const ORDER_TYPE_KEY = 'REF_FI_ORDER_TYPE_VALUE';
 
@@ -1187,8 +1191,13 @@ function ActiveLine({
 
   const [cancelLoading, setCancelLoading] = useState<boolean>(false);
 
+  const transtionsSetActionData = useTranstionsExcuteDataStore(
+    (state) => state.setActionData
+  );
+  const transtionsSetActionStatus = useTranstionsExcuteDataStore(
+    (state) => state.setActionStatus
+  );
   const buyToken = tokensMap[order.buy_token];
-
   const sellToken = tokensMap[order.sell_token];
 
   if (!buyToken || !sellToken) return null;
@@ -1544,8 +1553,85 @@ function ActiveLine({
     </div>
   );
 
+  const handleClaimClick = async (e) => {
+    try {
+      e.preventDefault();
+      e.stopPropagation();
+      setClaimLoading(true);
+      transtionsSetActionData({
+        status: 'pending',
+        page: constTransactionPage.limitOrder,
+        data: {
+          prefix: 'Claiminig',
+          tokens: [
+            {
+              token: buyToken,
+              amount: toPrecision(unClaimedAmount, 2),
+            },
+          ],
+        },
+      });
+      const { response } = await cancel_order({
+        order_id: order.order_id,
+        undecimal_amount: '0',
+      });
+      setClaimLoading(false);
+      transtionsSetActionData({
+        status: 'success',
+        transactionResponse: response,
+      });
+      transtionsSetActionStatus('resolved');
+    } catch (e) {
+      setClaimLoading(false);
+      transtionsSetActionData({
+        status: 'error',
+        transactionError: e,
+      });
+      transtionsSetActionStatus('rejected');
+    }
+  };
+
+  const handleCancelClick = async (e) => {
+    try {
+      e.preventDefault();
+      e.stopPropagation();
+      setCancelLoading(true);
+
+      transtionsSetActionData({
+        status: 'pending',
+        page: constTransactionPage.limitOrder,
+        data: {
+          prefix: 'Cancel buy',
+          tokens: [
+            {
+              token: buyToken,
+              amount: toPrecision(unClaimedAmount, 2),
+            },
+          ],
+        },
+      });
+      const { response } = await cancel_order({
+        order_id: order.order_id,
+      });
+      setCancelLoading(false);
+      transtionsSetActionData({
+        status: 'success',
+        transactionResponse: response,
+      });
+      transtionsSetActionStatus('resolved');
+    } catch (e) {
+      setCancelLoading(false);
+      transtionsSetActionData({
+        status: 'error',
+        transactionError: e,
+      });
+      transtionsSetActionStatus('rejected');
+    }
+  };
+
   const claimButton = (
     <button
+      id="btn-limit-order-claim"
       className={`rounded-lg text-xs xs:text-sm xs:w-full ml-1.5 mr-2 py-2 px-9 ${
         ONLY_ZEROS.test(unClaimedAmount)
           ? 'text-v3SwapGray cursor-not-allowe bg-black opacity-20 cursor-not-allowed'
@@ -1555,18 +1641,7 @@ function ActiveLine({
       }`}
       type="button"
       disabled={ONLY_ZEROS.test(unClaimedAmount)}
-      // disabled
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        setClaimLoading(true);
-
-        cancel_order({
-          order_id: order.order_id,
-          undecimal_amount: '0',
-        });
-      }}
+      onClick={handleClaimClick}
       style={{
         height: '34px',
       }}
@@ -1638,17 +1713,11 @@ function ActiveLine({
 
   const actions = (
     <button
+      id="btn-limit-order-cancel"
       className={`border col-span-1 rounded-lg xs:text-sm xs:w-full text-xs justify-self-end py-2 px-9 ${
         cancelLoading ? 'border border-transparent text-black bg-warn ' : ''
       }  border-warn border-opacity-20 text-warn  ${'hover:border hover:border-transparent hover:text-black hover:bg-warn'}`}
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setCancelLoading(true);
-        cancel_order({
-          order_id: order.order_id,
-        });
-      }}
+      onClick={handleCancelClick}
       // disabled={ONLY_ZEROS.test(order.remain_amount)}
       // disabled
     >

@@ -140,6 +140,7 @@ export default function FarmsDetail(props: {
   const pool = detailData.pool;
   const { token_account_ids } = pool;
   const tokens = sortTokens(useTokens(token_account_ids) || []);
+
   function sortTokens(tokens: TokenMetadata[]) {
     tokens.sort((a: TokenMetadata, b: TokenMetadata) => {
       if (a.symbol === 'NEAR') return 1;
@@ -1924,6 +1925,7 @@ function UserTotalUnClaimBlock(props: {
       status: 'pending',
       page: constTransactionPage.xref,
       data: {
+        prefix: 'Claiming',
         tokens: tokensNode,
       },
     });
@@ -3121,7 +3123,7 @@ export function StakeModal(props: {
       status: 'pending',
       page: constTransactionPage.farm,
       data: {
-        prefix: `Supplying ${amount}`,
+        prefix: `Supplying ${toPrecision(amount, 3)}`,
         tokens: tokensNode,
       },
     });
@@ -3642,17 +3644,28 @@ export function UnStakeModal(props: {
   const slashRate = slash_rate / 10000;
   const intl = useIntl();
   const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+
   function changeAmount(value: string) {
     setAmount(value);
   }
 
   function operationUnStake() {
     setUnStakeLoading(true);
-    transtionsExcuteDataStore.setActionData({
-      status: 'pending',
-      page: constTransactionPage.farm,
-    });
+    const tokensName = pool?.token_symbols?.toString();
     if (unStakeType == 'free') {
+      transtionsExcuteDataStore.setActionData({
+        status: 'pending',
+        page: constTransactionPage.farm,
+        data: {
+          prefix: 'Removing',
+          tokens: [
+            {
+              tokenGroup: pool?.tokens_meta_data,
+            },
+          ],
+          suffix: `${toPrecision(amount, 3)} ${tokensName} LP tokens`,
+        },
+      });
       unStake_boost({
         seed_id,
         unlock_amount: '0',
@@ -3841,7 +3854,7 @@ export function UnStakeModal(props: {
           disabled={unStakeLoading || isDisabled}
           loading={unStakeLoading || isDisabled}
           btnClassName={`${isDisabled ? 'cursor-not-allowed' : ''}`}
-          className={`w-full h-14 text-center text-lg text-white focus:outline-none font-semibold`}
+          className={`btn-v2farm-unstake w-full h-14 text-center text-lg text-white focus:outline-none font-semibold`}
         >
           <ButtonTextWrapper
             loading={unStakeLoading}

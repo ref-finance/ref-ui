@@ -69,16 +69,12 @@ export function UnclaimedFeesBox(props: any) {
       total_amount_x_y,
     };
   }
+  const { display_amount_x, display_amount_y, total_amount_x_y } =
+    getTotalFeeAmount();
   async function claimRewards() {
     try {
       if (total_amount_x_y == 0) return;
       set_cliam_loading(true);
-      transtionsExcuteDataStore.setActionStatus('pending');
-      transtionsExcuteDataStore.setActionData({
-        status: 'pending',
-        page: constTransactionPage.pool,
-      });
-
       const lpt_ids: string[] = [];
       liquidities.forEach((liquidity: UserLiquidityInfo) => {
         const { unclaimed_fee_x, unclaimed_fee_y } = liquidity;
@@ -86,6 +82,26 @@ export function UnclaimedFeesBox(props: any) {
           lpt_ids.push(liquidity.lpt_id);
         }
       });
+
+      transtionsExcuteDataStore.setActionStatus('pending');
+      transtionsExcuteDataStore.setActionData({
+        status: 'pending',
+        page: constTransactionPage.pool,
+        data: {
+          prefix: 'Claiming',
+          tokens: [
+            {
+              token: token_x_metadata,
+              amount: display_amount_x,
+            },
+            {
+              token: token_y_metadata,
+              amount: display_amount_y,
+            },
+          ],
+        },
+      });
+
       const { response } = await claim_all_liquidity_fee({
         token_x: token_x_metadata,
         token_y: token_y_metadata,
@@ -108,8 +124,6 @@ export function UnclaimedFeesBox(props: any) {
     }
   }
 
-  const { display_amount_x, display_amount_y, total_amount_x_y } =
-    getTotalFeeAmount();
   return (
     <>
       {/* for pc */}

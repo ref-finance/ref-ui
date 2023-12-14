@@ -520,7 +520,7 @@ export const cancel_order = ({
     },
   ];
 
-  return executeMultipleTransactions(transactions);
+  return executeMultipleTransactionsV2(transactions);
 };
 
 export const cancel_order_old = ({ order_id }: { order_id: string }) => {

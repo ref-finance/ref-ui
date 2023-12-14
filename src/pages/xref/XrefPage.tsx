@@ -61,6 +61,7 @@ function XrefPage() {
   const [rate, setRate] = useState(null);
   const [totalDataArray, setTotalDataArray] = useState([]);
   const [refToken, setRefToken] = useState<TokenMetadata>();
+  const [xrefToken, setXrefToken] = useState<TokenMetadata>();
   const [xrefMetaData, setXrefMetaData] = useState<XrefMetaData>();
   const intl = useIntl();
   const { globalState } = useContext(WalletContext);
@@ -83,6 +84,7 @@ function XrefPage() {
       const token = await ftGetTokenMetadata(XREF_TOKEN_ID);
       const { decimals } = token;
       const balance = toReadableNumber(decimals, data);
+      setXrefToken(token);
       setXrefBalance(balance);
     });
     metadata().then((data) => {
@@ -164,6 +166,7 @@ function XrefPage() {
       return aprBig.toFixed(2, 1);
     }
   };
+
   const analysisText: any = {
     first: {
       title: intl.formatMessage({ id: 'number_of_unique_stakers' }),
@@ -398,6 +401,7 @@ function XrefPage() {
             isM={isM}
             rate={rate}
             hidden={tab != 0 ? 'hidden' : ''}
+            refToken={refToken}
           ></InputView>
           {/* xref unstake */}
           <InputView
@@ -406,6 +410,7 @@ function XrefPage() {
             isM={isM}
             rate={rate}
             hidden={tab != 1 ? 'hidden' : ''}
+            xrefToken={xrefToken}
           ></InputView>
         </div>
       </div>
@@ -431,7 +436,7 @@ function XrefPage() {
 function InputView(props: any) {
   const [amount, setAmount] = useState('0');
   const [loading, setLoading] = useState(false);
-  const { tab, max, hidden, isM, rate } = props;
+  const { tab, max, hidden, isM, rate, refToken, xrefToken } = props;
   const [forward, setForward] = useState(true);
   const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
   const actionStatus = transtionsExcuteDataStore.getActionStatus();
@@ -449,12 +454,21 @@ function InputView(props: any) {
 
   const onSubmit = () => {
     setLoading(true);
-    transtionsExcuteDataStore.setActionData({
-      status: 'pending',
-      page: constTransactionPage.xref,
-    });
     transtionsExcuteDataStore.setActionStatus('pending');
     if (tab == 0) {
+      transtionsExcuteDataStore.setActionData({
+        status: 'pending',
+        page: constTransactionPage.xref,
+        data: {
+          prefix: 'Stake',
+          tokens: [
+            {
+              token: refToken,
+              amount: toPrecision(amount, 3),
+            },
+          ],
+        },
+      });
       // stake
       stake({ amount })
         .then(({ response }) => {
@@ -472,6 +486,20 @@ function InputView(props: any) {
           transtionsExcuteDataStore.setActionStatus('rejected');
         });
     } else if (tab == 1) {
+      transtionsExcuteDataStore.setActionData({
+        status: 'pending',
+        page: constTransactionPage.xref,
+        data: {
+          prefix: 'Unstake',
+          tokens: [
+            {
+              token: xrefToken,
+              amount: toPrecision(amount, 3),
+            },
+          ],
+        },
+      });
+
       // unstake
       unstake({ amount })
         .then(({ response }) => {
