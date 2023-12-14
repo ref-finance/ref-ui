@@ -768,6 +768,7 @@ export function SelectTokenDCL({
   selected,
   className,
   notNeedSortToken,
+  limitOrder = false,
 }: {
   selectTokenIn?: (token: TokenMetadata) => void;
   selectTokenOut?: (token: TokenMetadata) => void;
@@ -776,8 +777,9 @@ export function SelectTokenDCL({
   selected?: JSX.Element;
   className?: string;
   notNeedSortToken?: boolean;
+  limitOrder?: boolean;
 }) {
-  const allPools = useAllPoolsV2();
+  const allPools = useAllPoolsV2(!limitOrder);
 
   const [hoverSelectToken, setHoverSelectToken] = useState<boolean>(false);
 
