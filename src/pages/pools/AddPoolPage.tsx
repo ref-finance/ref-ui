@@ -21,20 +21,14 @@ import BigNumber from 'bignumber.js';
 import QuestionMark from '../../components/farm/QuestionMark';
 import Modal from 'react-modal';
 
-import {
-  getCurrentWallet,
-  WalletContext,
-} from '../../utils/wallets-integration';
-import { getURLInfo } from '../../components/layout/transactionTipPopUp';
-import { checkTransactionStatus } from '../../services/swap';
+import { WalletContext } from '../../utils/wallets-integration';
 import { useHistory } from 'react-router-dom';
 import { getTokenPriceList } from '../../services/indexer';
-import { useRainbowWhitelistTokens } from '../../state/token';
-import { PoolTab } from '../../components/pool/PoolTab';
 import { useClientMobile } from '../../utils/device';
 import { TokenBalancesView } from '../../services/token';
 import { ModalClose } from '../../components/icon/ModalClose';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
+import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
 
 export function AddPoolModal(
   props: ReactModal.Props & {
@@ -61,10 +55,8 @@ export function AddPoolModal(
   const [buttonLoading, setButtonLoading] = useState(false);
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
-  const history = useHistory();
-
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
-
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
   useEffect(() => {
     getTokenPriceList().then(setTokenPriceList);
   }, []);
@@ -83,10 +75,6 @@ export function AddPoolModal(
       v: intl.formatMessage({ id: 'protocol_fee_referral_fee' }),
       percent: '20',
     },
-    // referral_fee: {
-    //   v: intl.formatMessage({ id: 'referral_fee' }),
-    //   percent: '4',
-    // },
   };
 
   const isMobile = useClientMobile();
@@ -312,7 +300,13 @@ export function AddPoolModal(
                       .multipliedBy(100)
                       .toFixed(0, 1);
                     setButtonLoading(true);
-                    addSimpleLiquidityPool([token1.id, token2.id], Number(v));
+                    addSimpleLiquidityPool([token1.id, token2.id], Number(v))
+                      .then(() => {
+                        transtionsExcuteDataStore.setActionStatus('resolved');
+                      })
+                      .catch((e) => {
+                        transtionsExcuteDataStore.setActionStatus('rejected');
+                      });
                   }
                 }}
               >

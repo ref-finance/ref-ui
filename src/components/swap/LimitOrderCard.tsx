@@ -1235,7 +1235,6 @@ export default function LimitOrderCard(props: {
         isOpen={doubleCheckOpenLimit}
         onRequestClose={() => {
           setDoubleCheckOpenLimit(false);
-          window.location.reload(); // todo x
         }}
         selectedPool={selectedV3LimitPool}
         tokenIn={tokenIn}

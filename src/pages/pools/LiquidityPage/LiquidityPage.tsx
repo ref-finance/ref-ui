@@ -149,6 +149,7 @@ import {
   REF_POOL_ID_SEARCHING_KEY,
   TokenPriceListContext,
 } from './constLiquidityPage';
+import { PageContainer } from '../../../components/layout/PageContainer';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -1684,7 +1685,15 @@ function PcLiquidityPage({
   );
 }
 
-export default function LiquidityPage() {
+export default function Container(props: any) {
+  return (
+    <PageContainer>
+      <LiquidityPage {...props} />
+    </PageContainer>
+  );
+}
+
+function LiquidityPage() {
   window.onunload = () => {
     sessionStorage.removeItem(REF_FI_POOL_SEARCH_BY);
   };

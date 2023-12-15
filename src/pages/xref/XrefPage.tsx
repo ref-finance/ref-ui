@@ -6,7 +6,6 @@ import {
   RefSymbol,
   XrefIconWhole,
 } from 'src/components/icon/Xref';
-import { SmallWallet } from 'src/components/icon/SmallWallet';
 import OldInputAmount from 'src/components/forms/OldInputAmount';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
@@ -434,7 +433,7 @@ function XrefPage() {
 }
 
 function InputView(props: any) {
-  const [amount, setAmount] = useState('0');
+  const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
   const { tab, max, hidden, isM, rate, refToken, xrefToken } = props;
   const [forward, setForward] = useState(true);
@@ -446,6 +445,9 @@ function InputView(props: any) {
   useEffect(() => {
     if (actionStatus !== 'pending') {
       setLoading(false);
+    }
+    if (actionStatus == 'resolved' || actionStatus == 'rejected') {
+      setAmount('');
     }
   }, [actionStatus]);
 
@@ -624,7 +626,7 @@ function InputView(props: any) {
               </span>
             </div>
           </div>
-          <OldInputAmount max={max} onChangeAmount={setAmount} />
+          <OldInputAmount max={max} value={amount} onChangeAmount={setAmount} />
         </div>
         <label className="ml-5 xs:ml-2 ml:mx-2 text-white text-lg xs:text-base md:text-base w-14 text-center">
           {tab == 0 ? (

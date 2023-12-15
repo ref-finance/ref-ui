@@ -10,12 +10,6 @@ interface Route {
 // 路由
 const routes: Route[] = [
   {
-    path: '/account',
-    element: lazy(
-      () => import(/* webpackChunkName: "account" */ 'src/pages/AccountPage')
-    ),
-  },
-  {
     path: '/orderbook/perps',
     element: lazy(
       () =>

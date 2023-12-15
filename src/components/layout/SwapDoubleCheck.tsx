@@ -366,14 +366,14 @@ export function DoubleCheckModalLimit(
         className="text-white border border-gradientFromHover outline-none flex flex-col items-center"
         width="xsm:w-90vw lg:w-25vw lg:min-w-420px"
       >
-        <div
-          className="w-full flex items-center justify-between cursor-pointer"
-          onClick={props.onRequestClose}
-        >
+        <div className="w-full flex items-center justify-between">
           <span className="text-lg text-white gotham_bold">
-            <FormattedMessage id="confirm_order"></FormattedMessage>
+            <FormattedMessage id="confirm_order"></FormattedMessage>2
           </span>
-          <ModalClose />
+          <ModalClose
+            onClick={props.onRequestClose}
+            className="cursor-pointer"
+          />
         </div>
         <div className="flex items-center mt-9">
           <Icon token={tokenIn} size={'8'}></Icon>

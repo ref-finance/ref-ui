@@ -77,6 +77,8 @@ import {
 } from './utils';
 import { FarmStampNew } from 'src/components/icon/FarmStamp';
 import { get_unClaimed_fee_data } from '../../pages/poolsV3/components/detail/DetailFun';
+import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
+
 const is_mobile = isMobile();
 const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
 export function YourLiquidityV2(props: any) {
@@ -726,6 +728,7 @@ function UserLiquidityLineStyleGroup({
   const tokens = sort_tokens_by_base(tokenMetadata_x_y);
   const { accountId } = useWalletSelector();
   const history = useHistory();
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
   useEffect(() => {
     if (
       poolDetail &&
@@ -1075,7 +1078,13 @@ function UserLiquidityLineStyleGroup({
       token_x: tokenMetadata_x_y[0],
       token_y: tokenMetadata_x_y[1],
       lpt_ids,
-    });
+    })
+      .then(() => {
+        transtionsExcuteDataStore.setActionStatus('resolved');
+      })
+      .catch((e) => {
+        transtionsExcuteDataStore.setActionStatus('rejected');
+      });
   }
   function isPending(seed: Seed) {
     let pending: boolean = true;

@@ -32,6 +32,7 @@ import { useDclPoolIdByCondition } from '../state/swapV3';
 import { useUserBlackAssetStore } from '../stores/userBlackAsset';
 import getConfig from '../services/config';
 import BLACKTip from '../components/pool/BLACKTip';
+import { PageContainer } from '../components/layout/PageContainer';
 
 export const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';
 
@@ -484,5 +485,10 @@ function SwapPage() {
     </SwapProContext.Provider>
   );
 }
-
-export default SwapPage;
+export default function Container(props: any) {
+  return (
+    <PageContainer>
+      <SwapPage {...props} />
+    </PageContainer>
+  );
+}

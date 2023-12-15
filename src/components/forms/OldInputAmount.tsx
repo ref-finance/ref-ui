@@ -5,6 +5,7 @@ interface InputAmountProps extends React.InputHTMLAttributes<HTMLInputElement> {
   maxBorder?: boolean;
   showMaxAsBalance?: boolean;
   onChangeAmount?: (amount: string) => void;
+  value?: string;
 }
 
 export default function OldInputAmount({
@@ -13,16 +14,17 @@ export default function OldInputAmount({
   onChangeAmount,
   disabled = false,
   maxBorder = true,
+  value,
   ...rest
 }: InputAmountProps) {
   const ref = useRef<HTMLInputElement>();
-  const [inputValue, setInputValue] = useState<string>('');
+  // const [inputValue, setInputValue] = useState<string>('');
   const [symbolsArr] = useState(['e', 'E', '+', '-']);
 
   const handleChange = (amount: string) => {
     if (onChangeAmount) onChangeAmount(amount);
     // ref.current.value = amount;
-    setInputValue(amount);
+    // setInputValue(amount);
   };
 
   return (
@@ -43,7 +45,7 @@ export default function OldInputAmount({
             }`}
             type="number"
             placeholder="0.0"
-            value={inputValue}
+            value={value}
             onChange={({ target }) => handleChange(target.value)}
             disabled={disabled}
             inputMode="decimal"
@@ -53,7 +55,7 @@ export default function OldInputAmount({
             <a
               className={`flex justify-center items-center bg-black bg-opacity-20 h-full px-3.5 alifocus:outline-none font-semibold
              ${
-               inputValue == max
+               value == max
                  ? 'text-gray-400 hover:text-gray-400'
                  : 'text-greenColor'
              }`}
@@ -62,7 +64,7 @@ export default function OldInputAmount({
             >
               <label
                 className={`text-xs border rounded-sm px-1 cursor-pointer ${
-                  inputValue == max ? 'border-gray-400' : 'border-greenColor'
+                  value == max ? 'border-gray-400' : 'border-greenColor'
                 }`}
                 style={{ zoom: 0.8 }}
               >
