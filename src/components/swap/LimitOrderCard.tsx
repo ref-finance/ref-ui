@@ -96,6 +96,9 @@ import {
   constTransactionPage,
   useTranstionsExcuteDataStore,
 } from 'src/stores/transtionsExcuteData';
+import getConfigV2 from '../../services/configV2';
+const configV2 = getConfigV2();
+
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -965,7 +968,10 @@ export default function LimitOrderCard(props: {
     return (
       new Big(tokenInAmount || '0').gt('0') &&
       new Big(tokenInMax || '0').gt('0') &&
-      new Big(tokenInAmount || '0').lte(tokenInMax || '0')
+      new Big(tokenInAmount || '0').lte(tokenInMax || '0') &&
+      configV2.WHITE_LIST_DCL_POOL_IDS_IN_LIMIT_ORDERS.includes(
+        selectedV3LimitPool
+      )
     );
   }
 

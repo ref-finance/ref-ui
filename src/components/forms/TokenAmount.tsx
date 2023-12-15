@@ -766,6 +766,7 @@ export function TokenAmountV3({
             selectedToken={selectedToken}
             selectTokenIn={onSelectPre}
             selectTokenOut={onSelectPost}
+            limitOrder={true}
           />
         ) : (
           showSelectToken && (

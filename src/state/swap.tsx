@@ -1140,7 +1140,9 @@ export const useLimitOrder = ({
     const countValues = Object.values(poolToOrderCounts);
 
     const maxOrderIndex = countValues.findIndex(
-      (c) => !!c && c === _.maxBy(countValues, (o) => Number(o || 0))
+      (c) =>
+        c !== null &&
+        c === _.maxBy(countValues, (o) => Number(o == null ? '-1' : o))
     );
     const allPoolsForThisPair = V3_POOL_FEE_LIST.map((fee) =>
       getV3PoolId(tokenIn.id, tokenOut.id, fee)

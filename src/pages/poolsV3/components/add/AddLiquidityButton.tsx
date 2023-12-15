@@ -25,6 +25,9 @@ import { addLiquidityTxHashHandle } from '../../../../services/commonV3';
 import { useHistory } from 'react-router-dom';
 import { HiOutlinePlusSm } from 'src/components/reactIcons';
 import { toReadableNumber } from 'src/utils/numbers';
+import getConfigV2 from '../../../../services/configV2';
+
+const configV2 = getConfigV2();
 
 /**
  * 双边 最小token数量不满足 提示
@@ -257,7 +260,11 @@ export function AddLiquidityButton() {
     }
     return !(condition1 && condition2);
   }
-  const isAddLiquidityDisabled = getButtonStatus();
+  const isAddLiquidityDisabled =
+    getButtonStatus() ||
+    configV2.BLACK_LIST_DCL_POOL_IDS_IN_POOLS.includes(
+      currentSelectedPool?.pool_id
+    );
 
   const add_lp_func =
     liquidityShape === 'Spot'

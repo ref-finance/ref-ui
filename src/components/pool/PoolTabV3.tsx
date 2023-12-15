@@ -46,7 +46,6 @@ import {
   scientificNotationToString,
 } from '../../utils/numbers';
 import Big from 'big.js';
-import { useAllPoolsV2 } from '../../state/swapV3';
 
 export const REF_POOL_NAV_TAB_KEY = 'REF_POOL_NAV_TAB_VALUE';
 

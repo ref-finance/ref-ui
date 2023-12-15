@@ -34,12 +34,7 @@ import {
   useTokenBalances,
 } from '../../../state/token';
 import { Link } from 'react-router-dom';
-import {
-  canFarm,
-  Pool,
-  isNotStablePool,
-  canFarms,
-} from '../../../services/pool';
+import { canFarm, Pool, canFarms } from '../../../services/pool';
 import {
   calculateFeePercent,
   toPrecision,
@@ -63,7 +58,6 @@ import { WatchListStartFull } from '../../../components/icon/WatchListStar';
 import _, { orderBy, sortBy, filter } from 'lodash';
 import { useInView } from 'react-intersection-observer';
 import { QuestionTip } from '../../../components/layout/TipWrapper';
-import { FilterIcon } from '../../../components/icon/PoolFilter';
 import { TokenMetadata, REF_META_DATA } from '../../../services/ft-contract';
 import {
   scientificNotationToString,
@@ -92,7 +86,6 @@ import { getVEPoolId } from '../../ReferendumPage';
 import { StartPoolIcon } from '../../../components/icon/WatchListStar';
 import {
   PoolDaoBanner,
-  PoolDaoBannerMobile,
   NEAR_TEXT,
   USD_TEXT,
 } from '../../../components/icon/Logo';
@@ -160,7 +153,6 @@ import {
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
 const REF_FI_FARM_ONLY = 'REF_FI_FARM_ONLY';
-
 export function getPoolFeeAprTitle(
   dayVolume: string,
   pool: Pool,
@@ -726,7 +718,7 @@ function PcLiquidityPage({
   const intl = useIntl();
   const inputRef = useRef(null);
 
-  let allPoolsV2 = useAllPoolsV2();
+  const allPoolsV2 = useAllPoolsV2(true);
 
   const [tvlV2, setTvlV2] = useState<string>();
 
