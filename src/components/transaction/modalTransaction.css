@@ -34,7 +34,6 @@
 @media (max-width: 767px) {
   .modal-transaction-submitting .modal-content {
     width: 100%;
-    border-radius: 0;
     word-break: break-word;
   }
 }
