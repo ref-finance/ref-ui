@@ -256,6 +256,10 @@
 }
 
 @media (max-width: 768px) {
+  .customModal .overlay {
+    backdrop-filter: unset;
+  }
+
   .modal-fullscreen-md-down {
     width: 100vw;
     max-width: none;

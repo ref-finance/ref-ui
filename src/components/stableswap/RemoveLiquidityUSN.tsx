@@ -66,6 +66,11 @@ import { StableTokensSymbolUSN } from './StableTokenListUSN';
 import { useTokenBalances } from '../../state/token';
 import { getURLInfo, checkAccountTip } from '../layout/transactionTipPopUp';
 import { getStablePoolDecimal } from '../../pages/stable/StableSwapEntry';
+import { HiOutlinePlusSm } from '../reactIcons';
+import {
+  constTransactionPage,
+  useTranstionsExcuteDataStore,
+} from 'src/stores/transtionsExcuteData';
 
 const getSlippageKey = (id: string | number) =>
   `REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE_${id}`;
@@ -99,6 +104,13 @@ export function RemoveLiquidityComponentUSN(props: {
   const [receiveAmounts, setReceiveAmounts] = useState<string[]>(['', '', '']);
   const intl = useIntl();
 
+  const transactionSetActionData = useTranstionsExcuteDataStore(
+    (state) => state.setActionData
+  );
+  const transactionSetActionStatus = useTranstionsExcuteDataStore(
+    (state) => state.setActionStatus
+  );
+
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
 
@@ -113,50 +125,127 @@ export function RemoveLiquidityComponentUSN(props: {
     stablePool,
   });
 
-  function submit() {
+  async function submit() {
     if (isPercentage) {
-      const removeShares = toNonDivisibleNumber(
-        STABLE_LP_TOKEN_DECIMALS,
-        amountByShare
-      );
+      try {
+        const removeShares = toNonDivisibleNumber(
+          STABLE_LP_TOKEN_DECIMALS,
+          amountByShare
+        );
 
-      const min_amounts = receiveAmounts.map((amount, i) =>
-        toNonDivisibleNumber(
-          tokens[i].decimals,
-          percentLess(
-            slippageTolerance,
+        const min_amounts = receiveAmounts.map((amount, i) =>
+          toNonDivisibleNumber(
+            tokens[i].decimals,
+            percentLess(
+              slippageTolerance,
 
-            toReadableNumber(tokens[i].decimals, amount)
+              toReadableNumber(tokens[i].decimals, amount)
+            )
           )
-        )
-      );
+        );
 
-      return removeLiquidityFromStablePool({
-        tokens,
-        id: pool.id,
-        min_amounts: min_amounts,
-        shares: removeShares,
-      });
+        const tokensNode = [];
+        tokens.forEach((d, i) => {
+          tokensNode.push({
+            token: d,
+            amount: toPrecision(
+              toReadableNumber(d.decimals, min_amounts[i]),
+              3
+            ),
+          });
+          tokensNode.push({
+            node: <HiOutlinePlusSm />,
+          });
+        });
+        tokensNode.pop();
+        transactionSetActionData({
+          status: 'pending',
+          page: constTransactionPage.pool,
+          data: {
+            prefix: 'Removing',
+            tokens: tokensNode,
+          },
+        });
+
+        const { response } = await removeLiquidityFromStablePool({
+          tokens,
+          id: pool.id,
+          min_amounts: min_amounts,
+          shares: removeShares,
+        });
+        setButtonLoading(false);
+        transactionSetActionData({
+          status: 'success',
+          transactionResponse: response,
+        });
+        transactionSetActionStatus('resolved');
+      } catch (e) {
+        setButtonLoading(false);
+        transactionSetActionData({
+          status: 'error',
+          transactionError: e,
+        });
+        transactionSetActionStatus('rejected');
+      }
     } else {
-      const amounts = [firstTokenAmount, secondTokenAmount].map((amount, i) => {
-        return toNonDivisibleNumber(tokens[i].decimals, amount);
-      });
+      try {
+        const amounts = [firstTokenAmount, secondTokenAmount].map(
+          (amount, i) => {
+            return toNonDivisibleNumber(tokens[i].decimals, amount);
+          }
+        );
 
-      const predict_burn = toPrecision(
-        percentIncrese(slippageTolerance, predictedRemoveShares),
-        0
-      );
+        const predict_burn = toPrecision(
+          percentIncrese(slippageTolerance, predictedRemoveShares),
+          0
+        );
 
-      const max_burn_shares = new BigNumber(predict_burn).isGreaterThan(shares)
-        ? shares
-        : predict_burn;
+        const max_burn_shares = new BigNumber(predict_burn).isGreaterThan(
+          shares
+        )
+          ? shares
+          : predict_burn;
 
-      return removeLiquidityByTokensFromStablePool({
-        tokens,
-        id: pool.id,
-        amounts,
-        max_burn_shares,
-      });
+        const tokensNode = [];
+        tokens.forEach((d, i) => {
+          tokensNode.push({
+            token: d,
+            amount: toPrecision(toReadableNumber(d.decimals, amounts[i]), 3),
+          });
+          tokensNode.push({
+            node: <HiOutlinePlusSm />,
+          });
+        });
+        tokensNode.pop();
+        transactionSetActionData({
+          status: 'pending',
+          page: constTransactionPage.pool,
+          data: {
+            prefix: 'Removing',
+            tokens: tokensNode,
+          },
+        });
+
+        const { response } = await removeLiquidityByTokensFromStablePool({
+          tokens,
+          id: pool.id,
+          amounts,
+          max_burn_shares,
+        });
+        setButtonLoading(false);
+        transactionSetActionData({
+          status: 'success',
+          transactionResponse: response,
+        });
+        transactionSetActionStatus('resolved');
+      } catch (e) {
+        setButtonLoading(false);
+        transactionSetActionData({
+          status: 'error',
+          transactionError: e,
+        });
+        transactionSetActionStatus('rejected');
+      }
     }
   }
 
@@ -412,7 +501,7 @@ export function RemoveLiquidityComponentUSN(props: {
         {isSignedIn ? (
           <SolidButton
             disabled={!canSubmit || buttonLoading}
-            className={`focus:outline-none px-4 w-full text-lg`}
+            className={`RemoveLiquidityComponentUSN focus:outline-none px-4 w-full text-lg`}
             onClick={async () => {
               if (canSubmit) {
                 setButtonLoading(true);

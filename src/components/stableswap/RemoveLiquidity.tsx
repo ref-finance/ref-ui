@@ -53,6 +53,7 @@ import {
   constTransactionPage,
   useTranstionsExcuteDataStore,
 } from '../../stores/transtionsExcuteData';
+import { HiOutlinePlusSm } from '../reactIcons';
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE';
 
 export function shareToUserTotal({
@@ -141,11 +142,6 @@ export function RemoveLiquidityComponent(props: {
   });
 
   function submit() {
-    transtionsExcuteDataStore.setActionData({
-      status: 'pending',
-      page: constTransactionPage.pool,
-    });
-
     if (isPercentage) {
       const removeShares = toNonDivisibleNumber(
         STABLE_LP_TOKEN_DECIMALS,
@@ -163,6 +159,25 @@ export function RemoveLiquidityComponent(props: {
         )
       );
 
+      const tokensNode = [];
+      tokens.forEach((d, i) => {
+        tokensNode.push({
+          token: d,
+          amount: toPrecision(toReadableNumber(d.decimals, min_amounts[i]), 3),
+        });
+        tokensNode.push({
+          node: <HiOutlinePlusSm />,
+        });
+      });
+      tokensNode.pop();
+      transtionsExcuteDataStore.setActionData({
+        status: 'pending',
+        page: constTransactionPage.pool,
+        data: {
+          prefix: 'Removing',
+          tokens: tokensNode,
+        },
+      });
       return removeLiquidityFromStablePool({
         tokens,
         id: pool.id,
@@ -203,6 +218,25 @@ export function RemoveLiquidityComponent(props: {
         ? shares
         : predict_burn;
 
+      const tokensNode = [];
+      tokens.forEach((d, i) => {
+        tokensNode.push({
+          token: d,
+          amount: toPrecision(toReadableNumber(d.decimals, amounts[i]), 3),
+        });
+        tokensNode.push({
+          node: <HiOutlinePlusSm />,
+        });
+      });
+      tokensNode.pop();
+      transtionsExcuteDataStore.setActionData({
+        status: 'pending',
+        page: constTransactionPage.pool,
+        data: {
+          prefix: 'Removing',
+          tokens: tokensNode,
+        },
+      });
       return removeLiquidityByTokensFromStablePool({
         tokens,
         id: pool.id,

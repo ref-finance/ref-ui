@@ -166,6 +166,7 @@ export const RemovePoolV3 = (props: any) => {
     maxBoxPoint,
     slippageTolerance,
   ]);
+
   function get_will_deleted_nfts() {
     let whole_deleted_nfts: UserLiquidityInfo[] = [];
     let broken_deleted_nfts: UserLiquidityInfo[] = [];
@@ -219,6 +220,7 @@ export const RemovePoolV3 = (props: any) => {
       broken_deleted_nfts,
     };
   }
+
   function get_slot_number_in_a_bin() {
     const pool_id = poolDetail?.pool_id;
     const { bin } = get_default_config_for_chart() as IChartItemConfig;
@@ -559,6 +561,19 @@ export const RemovePoolV3 = (props: any) => {
     transactionSetActionData({
       status: 'pending',
       page: constTransactionPage.pool,
+      data: {
+        prefix: 'Removing',
+        tokens: [
+          {
+            token: tokenX,
+            amount: min_received_x_amount,
+          },
+          {
+            token: tokenY,
+            amount: min_received_y_amount,
+          },
+        ],
+      },
     });
 
     batch_remove_liquidity_contract({
@@ -662,6 +677,7 @@ export const RemovePoolV3 = (props: any) => {
       total_value: minimum_total_value.div(rate).toFixed(),
     };
   }
+
   function get_un_deleted_range(liquidity: UserLiquidityInfo) {
     const { left_point, right_point } = liquidity;
     // intersection part
@@ -1080,7 +1096,7 @@ export const RemovePoolV3 = (props: any) => {
             btnClassName={`${
               isRemoveLiquidityDisabled ? 'cursor-not-allowed' : ''
             }`}
-            className={`btn-remove-liq mt-8 w-full h-14 text-center text-lg text-white focus:outline-none font-semibold`}
+            className={`btn-remove-liq-dcl mt-8 w-full h-14 text-center text-lg text-white focus:outline-none font-semibold`}
             backgroundImage="linear-gradient(180deg, #C0B1A3 0%, #92877D 100%)"
           >
             <ButtonTextWrapper

@@ -13,6 +13,7 @@ import getConfig from 'src/services/config';
 import { useTranstionsExcuteDataStore } from 'src/stores/transtionsExcuteData';
 import showToast from '../toast/showToast';
 import { walletsRejectError } from 'src/utils/wallets-integration';
+import IconWithdrawWallet from '../../assets/svg/icon-withdraw-wallet.svg';
 
 const { explorerUrl } = getConfig();
 
@@ -77,7 +78,8 @@ export const ModalTransactionSubmitting = () => {
   const actionData = transtionsExcuteDataStore.getActionData();
   const { setActionData, removeActionData } = transtionsExcuteDataStore || {};
   const { status, page, data, transactionResponse, onClose } = actionData || {};
-  const { selectTrade, prefix, suffix, tokens } = data || {};
+  const { selectTrade, prefix, suffix, tokens, transactionType, headerText } =
+    data || {};
 
   const isRedirectWalletPage = status === 'success' && !transactionResponse; // myNearWallet
   const isComplete = status === 'success' && transactionResponse;
@@ -104,7 +106,7 @@ export const ModalTransactionSubmitting = () => {
   }, [status]);
 
   let node = null;
-  let headerNode = 'Transaction Confirming';
+  let headerNode = headerText || 'Transaction Confirming';
   let footerNode = <div>Confirm the transaction in your wallet.</div>;
   let loadingNode = <BlueCircleLoading />;
 
@@ -133,47 +135,55 @@ export const ModalTransactionSubmitting = () => {
       </>
     );
   } else if (Array.isArray(tokens)) {
-    node = tokens.map((d) => {
-      const { token, amount, tokenGroup } = d;
-      if (d?.node) {
-        return d.node;
-      } else {
-        let tokenNode;
-        if (token) {
-          tokenNode = (
-            <div className={'flex gap-1 items-center'}>
-              <DisplayIcon token={token} height={'20px'} width={'20px'} />
-              {amount && <div>{amount}</div>}
-              <div>{token?.symbol}</div>
-            </div>
-          );
+    if (transactionType === 'withdraw') {
+      node = <WithdrawLayout tokens={tokens} />;
+    } else {
+      node = tokens.map((d) => {
+        const { token, amount, tokenGroup } = d;
+        if (d?.node) {
+          return d.node;
+        } else {
+          let tokenNode;
+          if (token) {
+            tokenNode = (
+              <div className={'flex gap-1 items-center'}>
+                <DisplayIcon token={token} height={'20px'} width={'20px'} />
+                {amount && <div>{amount}</div>}
+                <div>{token?.symbol}</div>
+              </div>
+            );
+          }
+          if (Array.isArray(tokenGroup)) {
+            tokenNode = (
+              <div className="flex items-center">
+                {tokenGroup.map((d) => (
+                  <DisplayIcon
+                    token={d}
+                    height={'20px'}
+                    width={'20px'}
+                    className="-ml-1"
+                  />
+                ))}
+              </div>
+            );
+          }
+          return <div>{tokenNode}</div>;
         }
-        if (Array.isArray(tokenGroup)) {
-          tokenNode = (
-            <div className="flex items-center">
-              {tokenGroup.map((d) => (
-                <DisplayIcon
-                  token={d}
-                  height={'20px'}
-                  width={'20px'}
-                  className="-ml-1"
-                />
-              ))}
-            </div>
-          );
-        }
-        return <div>{tokenNode}</div>;
-      }
-    });
+      });
+    }
   }
 
   if (isComplete) {
-    headerNode = 'Transaction Complete';
-    loadingNode = (
-      <div className={'text-greenColor'} style={{ fontSize: 60 }}>
-        <IoIosCheckmarkCircleOutline />
-      </div>
-    );
+    headerNode = headerText || 'Transaction Complete';
+    if (transactionType === 'withdraw') {
+      loadingNode = <IconWithdrawWallet />;
+    } else {
+      loadingNode = (
+        <div className={'text-greenColor'} style={{ fontSize: 60 }}>
+          <IoIosCheckmarkCircleOutline />
+        </div>
+      );
+    }
     footerNode = <div>Success</div>;
   }
   if (transactionResponse) {
@@ -218,12 +228,14 @@ export const ModalTransactionSubmitting = () => {
       className={'modal-transaction-submitting'}
     >
       <div className={'-loading-info'}>
-        <div className={'mb-4'}>{loadingNode}</div>
+        <div className={'mb-8'}>{loadingNode}</div>
         <div>{headerNode}</div>
       </div>
 
       <div className={'flex flex-col justify-between flex-1 w-full'}>
-        <div className={'flex justify-center items-center -token-info gap-2'}>
+        <div
+          className={'flex justify-center items-center -token-info gap-2 mb-5'}
+        >
           {prefix}
           {node}
           {suffix}
@@ -236,5 +248,27 @@ export const ModalTransactionSubmitting = () => {
         </div>
       </div>
     </CustomModal>
+  );
+};
+
+const WithdrawLayout = ({ tokens }) => {
+  const node = tokens?.map((d) => {
+    const { token, amount } = d || {};
+    return (
+      <div className="flex gap-1">
+        <DisplayIcon token={token} height={'20px'} width={'20px'} /> {amount}{' '}
+        {token?.symbol}
+      </div>
+    );
+  });
+
+  return (
+    <div
+      className={`grid ${
+        tokens?.length === 1 ? 'grid-cols-1' : 'grid-cols-2'
+      } gap-2`}
+    >
+      {node}
+    </div>
   );
 };

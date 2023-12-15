@@ -37,7 +37,11 @@ import { getDepositableBalance } from '../../state/token';
 import { WalletContext } from '../../utils/wallets-integration';
 import SquareRadio from '../radio/SquareRadio';
 import { DEFAULT_ACTIONS } from '../../pages/stable/StableSwapPage';
-import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
+import {
+  constTransactionPage,
+  useTranstionsExcuteDataStore,
+} from '../../stores/transtionsExcuteData';
+import { HiOutlinePlusSm } from '../reactIcons';
 
 export const STABLE_LP_TOKEN_DECIMALS = 18;
 export const RATED_POOL_LP_TOKEN_DECIMALS = 24;
@@ -402,6 +406,26 @@ export default function AddLiquidityComponent(props: {
       (amount, i) => toNonDivisibleNumber(tokens[i].decimals, amount)
     ) as [string, string, string];
 
+    const tokensNode = [];
+    tokens.forEach((d, i) => {
+      tokensNode.push({
+        token: d,
+        amount: toPrecision(toReadableNumber(d.decimals, amounts[i]), 3),
+      });
+      tokensNode.push({
+        node: <HiOutlinePlusSm />,
+      });
+    });
+    tokensNode.pop();
+    transtionsExcuteDataStore.setActionData({
+      status: 'pending',
+      page: constTransactionPage.pool,
+      data: {
+        prefix: 'Supplying',
+        tokens: tokensNode,
+      },
+    });
+
     return addLiquidityToStablePool({
       tokens,
       id: Number(STABLE_POOL_ID),
@@ -501,7 +525,7 @@ export default function AddLiquidityComponent(props: {
           {isSignedIn ? (
             <SolidButton
               disabled={!canSubmit || buttonLoading}
-              className="focus:outline-none px-4 w-full text-lg"
+              className="AddLiquidityComponent focus:outline-none px-4 w-full text-lg"
               loading={buttonLoading}
               onClick={() => {
                 try {

@@ -99,7 +99,6 @@ import {
 import getConfigV2 from '../../services/configV2';
 const configV2 = getConfigV2();
 
-
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
 const SWAP_IN_KEY_SYMBOL = 'REF_FI_SWAP_IN_SYMBOL';

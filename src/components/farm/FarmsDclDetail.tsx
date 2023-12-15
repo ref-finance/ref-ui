@@ -1039,14 +1039,15 @@ export default function FarmsDclDetail(props: {
     const unStake_info: IStakeInfo = get_unStake_info();
     console.log('unStake_info', unStake_info);
     console.log('tokens', tokens);
+
     const tokensName = tokens?.map((d) => d.symbol);
     transtionsExcuteDataStore.setActionData({
       status: 'pending',
       page: constTransactionPage.xref,
       data: {
-        prefix: 'Removing',
+        prefix: 'Unstake',
         tokenGroup: tokens,
-        suffix: ` ${tokensName} LP tokens`,
+        suffix: ` ${tokensName} tokens`,
       },
     });
     batch_unStake_boost_nft(unStake_info)

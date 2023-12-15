@@ -50,6 +50,7 @@ import {
   constTransactionPage,
   useTranstionsExcuteDataStore,
 } from 'src/stores/transtionsExcuteData';
+import { HiOutlinePlusSm } from '../reactIcons';
 
 const getSwapSlippageKey = (id: string | number) =>
   `REF_FI_STABLE_SWAP_ADD_LIQUIDITY_SLIPPAGE_VALUE_${id}`;
@@ -342,11 +343,6 @@ export default function AddLiquidityComponentUSN(props: {
       return;
     }
     try {
-      transtionsExcuteDataStore.setActionData({
-        status: 'pending',
-        page: constTransactionPage.pool,
-      });
-
       const min_shares = toPrecision(
         percentLess(slippageTolerance, predicedShares),
         0
@@ -355,6 +351,26 @@ export default function AddLiquidityComponentUSN(props: {
       const amounts = [firstTokenAmount, secondTokenAmount].map((amount, i) =>
         toNonDivisibleNumber(tokens[i].decimals, amount)
       ) as [string, string];
+
+      const tokensNode = [];
+      tokens.forEach((d, i) => {
+        tokensNode.push({
+          token: d,
+          amount: toPrecision(toReadableNumber(d.decimals, amounts[i]), 3),
+        });
+        tokensNode.push({
+          node: <HiOutlinePlusSm />,
+        });
+      });
+      tokensNode.pop();
+      transtionsExcuteDataStore.setActionData({
+        status: 'pending',
+        page: constTransactionPage.pool,
+        data: {
+          prefix: 'Supplying',
+          tokens: tokensNode,
+        },
+      });
 
       const res = await addLiquidityToStablePool({
         tokens: tokens,

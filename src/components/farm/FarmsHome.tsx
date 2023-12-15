@@ -3723,10 +3723,25 @@ function WithDrawb(props: {
   async function doWithDraw() {
     try {
       setWithdrawLoading(true);
+      const tokens = Object.entries(checkedList)?.map(([key, value]) => {
+        const tokenMeta = rewardList?.[key]?.rewardToken;
+        return {
+          token: tokenMeta || { symbol: key },
+          amount: toPrecision(
+            toReadableNumber(tokenMeta?.decimals, value?.value),
+            3
+          ),
+        };
+      });
       transtionsExcuteDataStore.setActionStatus('pending');
       transtionsExcuteDataStore.setActionData({
         status: 'pending',
         page: constTransactionPage.farm,
+        data: {
+          headerText: 'Withdraw Confirming',
+          tokens: tokens,
+          transactionType: 'withdraw',
+        },
       });
       const { response } = await withdrawAllReward_boost(checkedList);
       setWithdrawLoading(false);
@@ -3735,6 +3750,11 @@ function WithDrawb(props: {
         status: 'success',
         page: constTransactionPage.farm,
         transactionResponse: response,
+        data: {
+          headerText: 'Withdraw Farm Rewards',
+          tokens: tokens,
+          transactionType: 'withdraw',
+        },
       });
     } catch (e) {
       setWithdrawLoading(false);
@@ -3890,7 +3910,7 @@ function WithDrawb(props: {
         <div className="flex justify-center items-center">
           <GradientButton
             color="#fff"
-            className={`w-36 h-9 text-center text-base text-white focus:outline-none font-semibold ${
+            className={`btn-WithDrawb w-36 h-9 text-center text-base text-white focus:outline-none font-semibold ${
               Object.keys(checkedList).length == 0 ? 'opacity-40' : ''
             }`}
             onClick={doWithDraw}
@@ -4264,7 +4284,7 @@ function WithDrawModal(props: {
                 <div className="flex justify-center items-center">
                   <GradientButton
                     color="#fff"
-                    className={`w-36 h-9 text-center text-base text-white focus:outline-none font-semibold ${
+                    className={`farmsHomeWithdraw w-36 h-9 text-center text-base text-white focus:outline-none font-semibold ${
                       Object.keys(checkedList).length == 0 ? 'opacity-40' : ''
                     }`}
                     onClick={doWithDraw}
