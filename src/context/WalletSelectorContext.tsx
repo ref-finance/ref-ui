@@ -16,6 +16,7 @@ import { setupNeth } from '@near-wallet-selector/neth';
 import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet';
 
 import { setupNightly } from '@near-wallet-selector/nightly';
+import { setupWalletConnect } from '@near-wallet-selector/wallet-connect';
 
 import getConfig from '../services/config';
 
@@ -123,6 +124,18 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         }),
         setupLedger({
           // iconUrl: walletIcons['ledger'],
+        }),
+        setupWalletConnect({
+          projectId: '87e549918631f833447b56c15354e450',
+
+          metadata: {
+            name: 'ref_finance',
+            description: 'Example dApp used by NEAR Wallet Selector',
+            url: 'https://github.com/ref-finance/ref-ui',
+            icons: ["https://avatars.githubusercontent.com/u/37784886"],
+          },
+          chainId: `near:${getConfig().networkId}`,
+          // iconUrl: walletIcons['wallet-connect'],
         }),
       ],
     });
