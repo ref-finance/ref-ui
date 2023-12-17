@@ -59,16 +59,18 @@ export const toPrecision = (
   number: string,
   precision: number,
   withCommas: boolean = false,
-  atLeastOne: boolean = true
+  atLeastOne: boolean = true,
+  showFullIfLessPrecision: boolean = false
 ): string => {
   if (typeof number === 'undefined') return '0';
-
   const [whole, decimal = ''] = number.split('.');
+  const str1 = `${withCommas ? formatWithCommas(whole) : whole}`;
+  if (showFullIfLessPrecision && precision < decimal?.length) {
+    return `${str1}.${decimal}`;
+  }
 
-  let str = `${withCommas ? formatWithCommas(whole) : whole}.${decimal.slice(
-    0,
-    precision
-  )}`.replace(/\.$/, '');
+  let str = `${str1}.${decimal.slice(0, precision)}`.replace(/\.$/, '');
+
   if (atLeastOne && Number(str) === 0 && str.length > 1) {
     var n = str.lastIndexOf('0');
     str = str.slice(0, n) + str.slice(n).replace('0', '1');

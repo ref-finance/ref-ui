@@ -431,6 +431,7 @@ export const executeMultipleTransactionsV2 = async (
 
     return {
       response: res,
+      callbackUrl,
       txHash:
         transactionHashes && transactionHashes.length > 0
           ? transactionHashes[transactionHashes.length - 1]

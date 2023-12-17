@@ -102,6 +102,7 @@ import {
   useTranstionsExcuteDataStore,
 } from '../../stores/transtionsExcuteData';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
+import { genTokensSymbolArr } from '../transaction/transactionUtils';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 const {
@@ -1914,18 +1915,18 @@ function UserTotalUnClaimBlock(props: {
     if (claimLoading) return;
     setClaimLoading(true);
 
-    const tokensNode = unclaimedRewardsData.list.map(
+    let tokensNode = unclaimedRewardsData.list.map(
       ({ token, amount, preAmount }, i) => ({
         token: token,
         amount: preAmount || amount,
       })
     );
-
+    tokensNode = genTokensSymbolArr(tokensNode);
     transtionsExcuteDataStore.setActionData({
       status: 'pending',
-      page: constTransactionPage.xref,
+      page: constTransactionPage.farm,
       data: {
-        prefix: 'Claiming',
+        transactionType: 'claimFee',
         tokens: tokensNode,
       },
     });
@@ -1934,6 +1935,9 @@ function UserTotalUnClaimBlock(props: {
         transtionsExcuteDataStore.setActionData({
           status: 'success',
           transactionResponse: response,
+          data: {
+            transactionType: 'claimFee',
+          },
         });
         transtionsExcuteDataStore.setActionStatus('resolved');
         setClaimLoading(false);
@@ -2568,7 +2572,7 @@ function UserStakeBlock(props: {
                   color="#fff"
                   disabled={needForbidden ? true : false}
                   btnClassName={needForbidden ? 'cursor-not-allowed' : ''}
-                  className={`w-36 h-8 text-center text-sm text-white focus:outline-none mr-3 ${
+                  className={`UserStakeBlock-unstake w-36 h-8 text-center text-sm text-white focus:outline-none mr-3 ${
                     needForbidden ? 'opacity-40' : ''
                   } ${isEnded ? 'hidden' : ''}`}
                 >
@@ -3663,7 +3667,13 @@ export function UnStakeModal(props: {
               tokenGroup: pool?.tokens_meta_data,
             },
           ],
-          suffix: `${toPrecision(amount, 3)} ${tokensName} LP tokens`,
+          suffix: `${toPrecision(
+            amount,
+            3,
+            false,
+            false,
+            true
+          )} ${tokensName} LP tokens`,
         },
       });
       unStake_boost({

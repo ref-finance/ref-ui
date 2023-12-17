@@ -113,6 +113,7 @@ import {
   openUrl,
 } from '../../services/commonV3';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
+import { genTokensSymbolArr } from '../transaction/transactionUtils';
 
 const {
   REF_VE_CONTRACT_ID,
@@ -2752,15 +2753,39 @@ function FarmView(props: {
     }
     history.replace(`/v2farms/${mft_id}-${status}`);
   }
-  function claimReward() {
+  function claimReward(tokens, unclaimAmount, poolType) {
     if (claimLoading) return;
     setClaimLoading(true);
+    const tokensNode = genTokensSymbolArr(tokens);
+    transtionsExcuteDataStore.setActionData({
+      status: 'pending',
+      page: constTransactionPage.farm,
+      data: {
+        transactionType: 'claimFee',
+        tokens: tokensNode,
+        suffix: `(${unclaimAmount})`,
+      },
+    });
     claimRewardBySeed_boost(seed.seed_id)
-      .then(() => {
+      .then(({ response }) => {
+        transtionsExcuteDataStore.setActionData({
+          status: 'success',
+          transactionResponse: response,
+          data: {
+            transactionType: 'claimFee',
+          },
+        });
         transtionsExcuteDataStore.setActionStatus('resolved');
         setClaimLoading(false);
       })
-      .catch(() => {
+      .catch((e) => {
+        transtionsExcuteDataStore.setActionData({
+          status: 'error',
+          transactionError: e,
+          data: {
+            transactionType: 'claimFee',
+          },
+        });
         transtionsExcuteDataStore.setActionStatus('rejected');
         setClaimLoading(false);
       });
@@ -3195,11 +3220,15 @@ function FarmView(props: {
                       data-class="reactTip"
                     >
                       <div
-                        className="flex items-center justify-center bg-deepBlue hover:bg-deepBlueHover rounded-lg text-sm text-white h-7 cursor-pointer"
+                        className="btn-FarmView-claim flex items-center justify-center bg-deepBlue hover:bg-deepBlueHover rounded-lg text-sm text-white h-7 cursor-pointer"
                         style={{ minWidth: '4.6rem' }}
                         onClick={(e) => {
                           e.stopPropagation();
-                          claimReward();
+                          claimReward(
+                            tokens_sort,
+                            getTotalUnclaimedRewards(),
+                            'dclPool'
+                          );
                         }}
                       >
                         <ButtonTextWrapper
@@ -3331,7 +3360,11 @@ function FarmView(props: {
                         style={{ width: '4.6rem' }}
                         onClick={(e) => {
                           e.stopPropagation();
-                          claimReward();
+                          claimReward(
+                            tokens_sort,
+                            getTotalUnclaimedRewards(),
+                            'classicPool'
+                          );
                         }}
                       >
                         <ButtonTextWrapper
@@ -3738,7 +3771,6 @@ function WithDrawb(props: {
         status: 'pending',
         page: constTransactionPage.farm,
         data: {
-          headerText: 'Withdraw Confirming',
           tokens: tokens,
           transactionType: 'withdraw',
         },

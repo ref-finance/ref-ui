@@ -159,7 +159,7 @@ export function DisplayIcon({
     width: width,
   };
 
-  if (!token.icon) {
+  if (!token?.icon) {
     return (
       <div
         className={`rounded-full border border-gradientFromHover ${className}`}

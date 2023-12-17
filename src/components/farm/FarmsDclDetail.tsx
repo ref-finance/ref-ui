@@ -1004,12 +1004,19 @@ export default function FarmsDclDetail(props: {
   }
   function batchStakeNFT() {
     set_nft_stake_loading(true);
+    const { liquidities, total_v_liquidity, withdraw_amount } =
+      get_stake_info();
+
+    const tokensName = tokens?.map((d) => d.symbol);
     transtionsExcuteDataStore.setActionData({
       status: 'pending',
       page: constTransactionPage.farm,
+      data: {
+        prefix: 'Stake',
+        tokenGroup: tokens,
+        suffix: ` ${tokensName} tokens (${yp_unFarm_value})`,
+      },
     });
-    const { liquidities, total_v_liquidity, withdraw_amount } =
-      get_stake_info();
     batch_stake_boost_nft({
       liquidities,
       total_v_liquidity,
@@ -1037,9 +1044,6 @@ export default function FarmsDclDetail(props: {
   function batchUnStakeNFT() {
     set_nft_unStake_loading(true);
     const unStake_info: IStakeInfo = get_unStake_info();
-    console.log('unStake_info', unStake_info);
-    console.log('tokens', tokens);
-
     const tokensName = tokens?.map((d) => d.symbol);
     transtionsExcuteDataStore.setActionData({
       status: 'pending',
@@ -1047,7 +1051,7 @@ export default function FarmsDclDetail(props: {
       data: {
         prefix: 'Unstake',
         tokenGroup: tokens,
-        suffix: ` ${tokensName} tokens`,
+        suffix: ` ${tokensName} tokens (${yp_farming_value})`,
       },
     });
     batch_unStake_boost_nft(unStake_info)
@@ -1622,7 +1626,7 @@ function UserTotalUnClaimBlock(props: {
       status: 'pending',
       page: constTransactionPage.farm,
       data: {
-        prefix: 'Claiming',
+        transactionType: 'claimFee',
         tokens: tokensNode,
       },
     });
@@ -1631,6 +1635,9 @@ function UserTotalUnClaimBlock(props: {
         transtionsExcuteDataStore.setActionData({
           status: 'success',
           transactionResponse: response,
+          data: {
+            transactionType: 'claimFee',
+          },
         });
         transtionsExcuteDataStore.setActionStatus('resolved');
         setClaimLoading(false);

@@ -826,6 +826,14 @@ input[type='range']::-webkit-slider-runnable-track {
   align-self: center;
 }
 
+@media (max-width: 768) {
+  .Toastify__toast-container--bottom-left,
+  .Toastify__toast-container--bottom-center,
+  .Toastify__toast-container--bottom-right {
+    bottom: 32px;
+  }
+}
+
 @keyframes showfrombottom {
   from {
     bottom: -190px;

@@ -308,10 +308,12 @@ export function AddPoolModal(
                         checkTransactionStatus(txHash).then((res) => {
                           let status: any = res.status;
                           if (
-                            res.transaction?.actions?.[0]?.FunctionCall?.method_name === 'execute'
+                            res.transaction?.actions?.[0]?.FunctionCall
+                              ?.method_name === 'execute'
                           ) {
                             const receipt = res?.receipts_outcome?.find(
-                              (o: any) => o?.outcome?.executor_id === REF_FI_CONTRACT_ID
+                              (o: any) =>
+                                o?.outcome?.executor_id === REF_FI_CONTRACT_ID
                             );
                             if (receipt) {
                               status = receipt?.outcome?.status;

@@ -45,6 +45,7 @@ import { IoIosCheckmarkCircleOutline } from '@react-icons/all-files/io/IoIosChec
 
 import { IoArrowDownOutline } from '@react-icons/all-files/io5/IoArrowDownOutline';
 import { IoArrowUpOutline } from '@react-icons/all-files/io5/IoArrowUpOutline';
+import { IoArrowUpCircleOutline } from '@react-icons/all-files/io5/IoArrowUpCircleOutline';
 import { IoCloseSharp } from '@react-icons/all-files/io5/IoCloseSharp';
 import { IoClose } from '@react-icons/all-files/io5/IoClose';
 import { IoCloseOutline } from '@react-icons/all-files/io5/IoCloseOutline';
@@ -113,6 +114,7 @@ export {
   IoClose,
   IoArrowDownOutline,
   IoArrowUpOutline,
+  IoArrowUpCircleOutline,
   IoCloseSharp,
   IoCloseOutline,
   IoWarning,

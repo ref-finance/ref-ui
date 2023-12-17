@@ -6,6 +6,8 @@ import './modalTransaction.css';
 import { DisplayIcon } from 'src/components/tokens/Icon';
 import {
   BsArrowRight,
+  HiOutlinePlusSm,
+  IoArrowUpCircleOutline,
   IoIosCheckmarkCircleOutline,
   TbExternalLink,
 } from 'src/components/reactIcons';
@@ -73,11 +75,14 @@ export const ToastTransaction = () => {
 
 export const ModalTransactionSubmitting = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [tokensData, setTokensData] =
+    useState<{ token: any; amount?: string | number; symbol?: string }[]>();
 
   const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
   const actionData = transtionsExcuteDataStore.getActionData();
   const { setActionData, removeActionData } = transtionsExcuteDataStore || {};
   const { status, page, data, transactionResponse, onClose } = actionData || {};
+  const { callbackUrl } = transactionResponse || {};
   const { selectTrade, prefix, suffix, tokens, transactionType, headerText } =
     data || {};
 
@@ -87,9 +92,11 @@ export const ModalTransactionSubmitting = () => {
   const isOpenModal =
     ['pending', 'success'].includes(status) || isRedirectWalletPage;
   const isCloseModal = ['error', undefined, null].includes(status);
+  const isSkipModal = callbackUrl?.includes('orderbook');
+  const transactionTypesToSaveTokens = ['claimFee'];
 
   useEffect(() => {
-    if (isOpenModal) {
+    if (isOpenModal && !isSkipModal) {
       setIsOpen(true);
     }
     if (isOpen && isCloseModal) {
@@ -98,6 +105,12 @@ export const ModalTransactionSubmitting = () => {
 
     if (status === 'pending' || isRedirectWalletPage) {
       console.info('ModalTransactionSubmitting', status, actionData);
+      if (
+        transactionTypesToSaveTokens.includes(transactionType) &&
+        tokens !== undefined
+      ) {
+        setTokensData(tokens);
+      }
       localStorage.setItem(CONST_TRANSACTION_SUBMITTING, '1');
     } else {
       console.info('ModalTransactionDone', status);
@@ -106,11 +119,13 @@ export const ModalTransactionSubmitting = () => {
   }, [status]);
 
   let node = null;
-  let headerNode = headerText || 'Transaction Confirming';
+  let headerNode = headerText || getHeaderText(transactionType, status);
   let footerNode = <div>Confirm the transaction in your wallet.</div>;
   let loadingNode = <BlueCircleLoading />;
 
-  if (selectTrade) {
+  if (transactionType === 'claimFee') {
+    node = <ClaimFeeLayout tokensData={tokensData} />;
+  } else if (selectTrade) {
     node = (
       <>
         <div className={'flex gap-1 items-center'}>
@@ -174,18 +189,27 @@ export const ModalTransactionSubmitting = () => {
   }
 
   if (isComplete) {
-    headerNode = headerText || 'Transaction Complete';
     if (transactionType === 'withdraw') {
       loadingNode = <IconWithdrawWallet />;
+    }
+    if (transactionType === 'claimFee') {
+      loadingNode = (
+        <IoArrowUpCircleOutline
+          className={'text-greenColor'}
+          style={{ fontSize: 60 }}
+        />
+      );
     } else {
       loadingNode = (
-        <div className={'text-greenColor'} style={{ fontSize: 60 }}>
-          <IoIosCheckmarkCircleOutline />
-        </div>
+        <IoIosCheckmarkCircleOutline
+          className={'text-greenColor'}
+          style={{ fontSize: 60 }}
+        />
       );
     }
     footerNode = <div>Success</div>;
   }
+
   if (transactionResponse) {
     let hash;
     if (transactionResponse?.txHash) {
@@ -271,4 +295,40 @@ const WithdrawLayout = ({ tokens }) => {
       {node}
     </div>
   );
+};
+
+const getHeaderText = (transactionType, status) => {
+  let node;
+  switch (transactionType) {
+    case 'claimFee':
+      node = 'Claim Fees';
+      break;
+    case 'withdraw':
+      node = 'Withdraw Farm Rewards';
+      break;
+    default:
+      node =
+        status === 'pending'
+          ? 'Transaction Confirming'
+          : 'Transaction Complete';
+  }
+
+  return node;
+};
+
+const ClaimFeeLayout = ({ tokensData }) => {
+  const node = tokensData?.map((d) => {
+    const { token, amount, symbol } = d || {};
+    if (symbol === '+') {
+      return <HiOutlinePlusSm />;
+    }
+    return (
+      <div className="flex gap-1 items-center">
+        <DisplayIcon token={token} height={'20px'} width={'20px'} /> {amount}{' '}
+        {token?.symbol}
+      </div>
+    );
+  });
+
+  return <div className="flex items-center gap-1">{node}</div>;
 };

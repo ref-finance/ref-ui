@@ -100,6 +100,7 @@ export const useGlobalPopUp = (globalState: any) => {
               transactionResponse: {
                 response: {},
                 txHash,
+                callbackUrl: window.location.origin + pathname,
               },
             });
             window.history.replaceState(

@@ -77,7 +77,11 @@ import {
 } from './utils';
 import { FarmStampNew } from 'src/components/icon/FarmStamp';
 import { get_unClaimed_fee_data } from '../../pages/poolsV3/components/detail/DetailFun';
-import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
+import {
+  constTransactionPage,
+  useTranstionsExcuteDataStore,
+} from '../../stores/transtionsExcuteData';
+import { HiOutlinePlusSm } from '../reactIcons';
 
 const is_mobile = isMobile();
 const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
@@ -729,6 +733,7 @@ function UserLiquidityLineStyleGroup({
   const { accountId } = useWalletSelector();
   const history = useHistory();
   const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+
   useEffect(() => {
     if (
       poolDetail &&
@@ -1074,18 +1079,59 @@ function UserLiquidityLineStyleGroup({
           lpt_ids.push(liquidity.lpt_id);
         }
       });
+
+    transtionsExcuteDataStore.setActionData({
+      status: 'pending',
+      page: constTransactionPage.pool,
+      data: {
+        transactionType: 'claimFee',
+        tokens: [
+          {
+            token: tokenMetadata_x_y[0],
+            amount: tokenFeeLeft,
+          },
+          {
+            symbol: '+',
+          },
+          {
+            token: tokenMetadata_x_y[1],
+            amount: tokenFeeRight,
+          },
+        ],
+      },
+    });
+
     claim_all_liquidity_fee({
       token_x: tokenMetadata_x_y[0],
       token_y: tokenMetadata_x_y[1],
       lpt_ids,
     })
-      .then(() => {
+      .then(({ response }) => {
+        set_claim_loading(false);
+        transtionsExcuteDataStore.setActionData({
+          status: 'success',
+          page: constTransactionPage.pool,
+          transactionResponse: response,
+          data: {
+            transactionType: 'claimFee',
+          },
+        });
         transtionsExcuteDataStore.setActionStatus('resolved');
       })
       .catch((e) => {
+        set_claim_loading(false);
+        transtionsExcuteDataStore.setActionData({
+          status: 'error',
+          page: constTransactionPage.pool,
+          transactionError: e,
+          data: {
+            transactionType: 'claimFee',
+          },
+        });
         transtionsExcuteDataStore.setActionStatus('rejected');
       });
   }
+
   function isPending(seed: Seed) {
     let pending: boolean = true;
     const farms = seed.farmList;
