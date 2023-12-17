@@ -109,6 +109,8 @@ import { PortfolioData } from 'src/pages/Portfolio';
 import { openUrl } from '../../services/commonV3';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import BLACKTip from '../../components/pool/BLACKTip';
+import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
+
 const is_mobile = isMobile();
 const { BLACK_TOKEN_LIST } = getConfig();
 export const StakeListContext = createContext(null);
@@ -1990,7 +1992,7 @@ export function YourLiquidityAddLiquidityModal(
 
   const selectBalances = useTokenBalances();
   const [farmV2Counts, setFarmV2Counts] = useState<Record<string, number>>();
-
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
   useEffect(() => {
     if (!candPools) return;
     Promise.all(candPools.map((p) => canFarmV2(p.id))).then((res) => {
@@ -2349,14 +2351,19 @@ export function YourLiquidityAddLiquidityModal(
       token0.id === tokens[0].id ? firstTokenAmount : secondTokenAmount;
     const amount1 =
       token1.id === tokens[1].id ? secondTokenAmount : firstTokenAmount;
-
     return addLiquidityToPool({
       id: pool.id,
       tokenAmounts: [
         { token: token0, amount: amount0 },
         { token: token1, amount: amount1 },
       ],
-    });
+    })
+      .then(() => {
+        transtionsExcuteDataStore.setActionStatus('resolved');
+      })
+      .catch((e) => {
+        transtionsExcuteDataStore.setActionStatus('rejected');
+      });
   }
 
   const ButtonRender = () => {
