@@ -29,6 +29,8 @@ import { TokenBalancesView } from '../../services/token';
 import { ModalClose } from '../../components/icon/ModalClose';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
+import { checkTransactionStatus } from '../../services/swap';
+import { REF_FI_CONTRACT_ID } from '../../services/near';
 
 export function AddPoolModal(
   props: ReactModal.Props & {
@@ -60,7 +62,7 @@ export function AddPoolModal(
   useEffect(() => {
     getTokenPriceList().then(setTokenPriceList);
   }, []);
-
+  const history = useHistory();
   const tip: any = {
     moreThan: intl.formatMessage({ id: 'more_than' }),
     lessThan: intl.formatMessage({ id: 'less_than' }),
@@ -301,8 +303,27 @@ export function AddPoolModal(
                       .toFixed(0, 1);
                     setButtonLoading(true);
                     addSimpleLiquidityPool([token1.id, token2.id], Number(v))
-                      .then(() => {
-                        transtionsExcuteDataStore.setActionStatus('resolved');
+                      .then(({ txHash }) => {
+                        // todo
+                        checkTransactionStatus(txHash).then((res) => {
+                          let status: any = res.status;
+                          if (
+                            res.transaction?.actions?.[0]?.FunctionCall?.method_name === 'execute'
+                          ) {
+                            const receipt = res?.receipts_outcome?.find(
+                              (o: any) => o?.outcome?.executor_id === REF_FI_CONTRACT_ID
+                            );
+                            if (receipt) {
+                              status = receipt?.outcome?.status;
+                            }
+                          }
+                          const data: string | undefined = status.SuccessValue;
+                          if (data) {
+                            const buff = Buffer.from(data, 'base64');
+                            const pool_id = buff.toString('ascii');
+                            history.push(`/pool/${pool_id}`);
+                          }
+                        });
                       })
                       .catch((e) => {
                         transtionsExcuteDataStore.setActionStatus('rejected');
