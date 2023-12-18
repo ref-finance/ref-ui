@@ -2645,6 +2645,15 @@
     "@near-wallet-selector/core" "8.9.1"
     bn.js "5.2.1"
 
+"@near-wallet-selector/welldone-wallet@^8.5.4":
+  version "8.9.1"
+  resolved "https://registry.npmjs.org/@near-wallet-selector/welldone-wallet/-/welldone-wallet-8.9.1.tgz#78c1e102edc401c154c9221af1ccadea1ca3fd17"
+  integrity sha512-oS/iWmZmfnDP3zKQpo5aC+VuEJbJO+U+xgty6Jddx9yZnDUAXrtfsrC/d79QdN9S2a0UqxS4FtvA+N7I+6EPnQ==
+  dependencies:
+    "@near-wallet-selector/core" "8.9.1"
+    "@near-wallet-selector/wallet-utils" "8.9.1"
+    is-mobile "4.0.0"
+
 "@nicolo-ribaudo/eslint-scope-5-internals@5.1.1-v1":
   version "5.1.1-v1"
   resolved "https://registry.npmjs.org/@nicolo-ribaudo/eslint-scope-5-internals/-/eslint-scope-5-internals-5.1.1-v1.tgz#dbf733a965ca47b1973177dc0bb6c889edcfb129"
