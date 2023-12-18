@@ -18,6 +18,7 @@ import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet';
 import { setupNightly } from '@near-wallet-selector/nightly';
 import { setupWalletConnect } from '@near-wallet-selector/wallet-connect';
 import { setupWelldoneWallet } from '@near-wallet-selector/welldone-wallet';
+import { setupNearSnap } from '@near-wallet-selector/near-snap';
 
 import getConfig from '../services/config';
 
@@ -139,6 +140,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
           // iconUrl: walletIcons['wallet-connect'],
         }),
         setupWelldoneWallet({}),
+        setupNearSnap({}),
       ],
     });
     const _modal = setupModal(_selector, {
