@@ -383,8 +383,6 @@ export const executeMultipleTransactionsV2 = async (
 ) => {
   let walletId, firstMethod;
   const { wallet } = getCurrentWallet();
-  const transtionsExcuteDataStore = useTranstionsExcuteDataStore.getState();
-
   const wstransactions: WSTransaction[] = [];
   transactions.forEach((transaction) => {
     wstransactions.push({
@@ -414,11 +412,6 @@ export const executeMultipleTransactionsV2 = async (
     const walletRes = await wallet.wallet();
     walletId = walletRes?.id;
     firstMethod = transactions?.[0]?.functionCalls?.[0]?.methodName;
-    if (walletId === 'here-wallet') {
-      transtionsExcuteDataStore.setActionData({
-        status: null,
-      });
-    }
     const res = await walletRes.signAndSendTransactions({
       transactions: wstransactions,
       callbackUrl,

@@ -33,7 +33,6 @@ function App() {
 
       <LedgerTransactionModal />
 
-      <ToastTransaction />
       <ModalTransactionSubmitting />
       <ModalGAPrivacy />
     </Router>

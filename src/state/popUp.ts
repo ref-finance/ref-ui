@@ -14,7 +14,6 @@ import {
   walletsRejectError,
 } from '../utils/wallets-integration';
 import { NEAR_WITHDRAW_KEY } from '../components/forms/WrapNear';
-import showToast from 'src/components/toast/showToast';
 import { useTranstionsExcuteDataStore } from 'src/stores/transtionsExcuteData';
 
 export const useGlobalPopUp = (globalState: any) => {
@@ -27,7 +26,13 @@ export const useGlobalPopUp = (globalState: any) => {
     signInErrorType,
     txHashes,
   } = getURLInfo();
-  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+  const processTransactionSuccess = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionSuccess
+  );
+  const processTransactionError = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionError
+  );
+
   const isSignedIn = globalState.isSignedIn;
 
   const walletsTXError = sessionStorage.getItem('WALLETS_TX_ERROR');
@@ -95,19 +100,24 @@ export const useGlobalPopUp = (globalState: any) => {
         })
         .then(({ isWrapNear }) => {
           if (!errorType) {
-            transtionsExcuteDataStore.setActionData({
-              status: 'success',
+            let transactionId = sessionStorage.getItem('TRANSACTION_ID');
+            if (transactionId === 'undefined' || !transactionId) {
+              transactionId = 'redirectId';
+            }
+            processTransactionSuccess({
               transactionResponse: {
                 response: {},
                 txHash,
                 callbackUrl: window.location.origin + pathname,
               },
+              transactionId: transactionId,
             });
             window.history.replaceState(
               {},
               '',
               window.location.origin + pathname
             );
+            sessionStorage.removeItem('TRANSACTION_ID');
           }
 
           // if (isWrapNear) {
@@ -130,11 +140,15 @@ export const useGlobalPopUp = (globalState: any) => {
     }
 
     if (txError) {
-      transtionsExcuteDataStore.setActionData({
-        status: 'error',
-        transactionError: {
+      let transactionId = sessionStorage.getItem('TRANSACTION_ID');
+      if (transactionId === 'undefined' || !transactionId) {
+        transactionId = 'redirectId';
+      }
+      processTransactionError({
+        error: {
           message: txError,
         },
+        transactionId: transactionId,
       });
       sessionStorage.removeItem('WALLETS_TX_ERROR');
     }

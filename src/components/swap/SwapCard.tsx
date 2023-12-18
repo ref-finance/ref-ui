@@ -745,6 +745,15 @@ export default function SwapCard(props: {
 
   const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
   const transactionActionData = transtionsExcuteDataStore.getActionData();
+  const processTransactionPending = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionPending
+  );
+  const processTransactionSuccess = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionSuccess
+  );
+  const processTransactionError = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionError
+  );
 
   const { selectMarket, trades, enableTri, swapType } =
     useContext(SwapProContext);
@@ -1119,30 +1128,39 @@ export default function SwapCard(props: {
   };
 
   const handleSwapSubmit = async () => {
+    const transactionId = String(Date.now());
     if (selectTrade) {
-      transtionsExcuteDataStore.setActionStatus('pending');
-      transtionsExcuteDataStore.setActionData({
-        status: 'pending',
+      processTransactionPending({
+        transactionId,
         page: constTransactionPage.swap,
-        data: { selectTrade },
+        data: {
+          tokens: [
+            {
+              token: selectTrade.tokenIn,
+              amount: selectTrade.tokenInAmount,
+            },
+            {
+              symbol: '>',
+            },
+            {
+              token: selectTrade.tokenOut,
+              amount: selectTrade.tokenOutAmount,
+            },
+          ],
+        },
       });
       try {
         const { response } = await selectTrade.makeSwap();
         doubleCheckOpen && setDoubleCheckOpen(false);
         setShowSwapLoading(false);
-        transtionsExcuteDataStore.setActionData({
-          status: 'success',
+        processTransactionSuccess({
           transactionResponse: response,
+          transactionId,
         });
-        transtionsExcuteDataStore.setActionStatus('resolved');
       } catch (e) {
         doubleCheckOpen && setDoubleCheckOpen(false);
         setShowSwapLoading(false);
-        transtionsExcuteDataStore.setActionData({
-          status: 'error',
-          transactionError: e,
-        });
-        transtionsExcuteDataStore.setActionStatus('rejected');
+        processTransactionError({ error: e, transactionId });
       }
     }
   };
