@@ -19,6 +19,7 @@ import { setupNightly } from '@near-wallet-selector/nightly';
 import { setupWalletConnect } from '@near-wallet-selector/wallet-connect';
 import { setupWelldoneWallet } from '@near-wallet-selector/welldone-wallet';
 import { setupNearSnap } from '@near-wallet-selector/near-snap';
+import { setupNearMobileWallet } from '@near-wallet-selector/near-mobile-wallet';
 
 import getConfig from '../services/config';
 
@@ -36,6 +37,7 @@ import {
   get_orderly_public_key_path,
 } from '../pages/Orderly/orderly/utils';
 import { isMobile } from '../utils/device';
+
 
 const CONTRACT_ID = getOrderlyConfig().ORDERLY_ASSET_MANAGER;
 
@@ -141,6 +143,13 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         }),
         setupWelldoneWallet({}),
         setupNearSnap({}),
+        setupNearMobileWallet({
+          dAppMetadata: {
+            logoUrl:
+              'https://ref-finance-images.s3.amazonaws.com/images/REFIcon.png',
+            name: 'NEAR Wallet Selector',
+          },
+        }),
       ],
     });
     const _modal = setupModal(_selector, {
