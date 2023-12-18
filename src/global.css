@@ -1447,7 +1447,7 @@ input[type='range']::-webkit-slider-runnable-track {
   --wallet-selector-selected-wallet-bg: #42525c;
   --wallet-selector-mobile-bottom-section: #42525c;
   --sidebar-border-color: #42525c;
-  --wcm-z-index: 10000!important;
+  --wcm-z-index: 10000 !important;
 }
 .nws-modal-wrapper
   .nws-modal

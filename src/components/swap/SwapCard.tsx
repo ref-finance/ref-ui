@@ -867,11 +867,14 @@ export default function SwapCard(props: {
               ? 'NEAR'
               : tokenIn.id
           )
-            .then((available: string) =>
-              setTokenInBalanceFromNear(
-                toReadableNumber(tokenIn?.decimals, available)
-              )
-            )
+            .then((available: string) => {
+              return setTokenInBalanceFromNear(
+                toReadableNumber(
+                  tokenIn?.decimals,
+                  Big(available).lt(0) ? '0' : available
+                )
+              );
+            })
             .finally(() => {
               setBalanceInDone(true);
             });
