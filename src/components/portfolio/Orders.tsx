@@ -208,12 +208,16 @@ function OrderCard({
     return display_amount(sell_amount);
   };
   function display_amount(amount: string) {
-    if (new Big(amount).eq(0)) {
-      return '0';
-    } else if (Number(amount) > 0 && Number(amount) < 0.01) {
-      return '< 0.01';
-    } else {
-      return toPrecision(amount, 2);
+    try {
+      if (new Big(amount).eq(0)) {
+        return '0';
+      } else if (Number(amount) > 0 && Number(amount) < 0.01) {
+        return '< 0.01';
+      } else {
+        return toPrecision(amount, 2);
+      }
+    } catch (error) {
+      return amount;
     }
   }
   function display_amount_3_decimal(amount: string) {
