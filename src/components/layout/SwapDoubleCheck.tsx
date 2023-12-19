@@ -462,10 +462,10 @@ export function DoubleCheckModalLimit(
 
               if (buttonLoading) return;
 
-              setButtonLoading(true);
+              // setButtonLoading(true);
               onSwap();
             }}
-            className="text-base text-center rounded-lg h-10 gotham_bold w-full"
+            className="btn-DoubleCheckModalLimit text-base text-center rounded-lg h-10 gotham_bold w-full"
             loading={buttonLoading}
             disabled={buttonLoading}
           >

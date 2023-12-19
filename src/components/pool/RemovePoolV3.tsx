@@ -106,11 +106,14 @@ export const RemovePoolV3 = (props: any) => {
   const [show_boundary_tip, set_show_boundary_tip] = useState<boolean>(false);
   const [boundary_is_diff, set_boundary_is_diff] = useState<boolean>(false);
 
-  const transactionSetActionData = useTranstionsExcuteDataStore(
-    (state) => state.setActionData
+  const processTransactionPending = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionPending
   );
-  const transactionSetActionStatus = useTranstionsExcuteDataStore(
-    (state) => state.setActionStatus
+  const processTransactionSuccess = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionSuccess
+  );
+  const processTransactionError = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionError
   );
 
   const { selector } = useWalletSelector();
@@ -467,6 +470,7 @@ export const RemovePoolV3 = (props: any) => {
     return { amountx: amountX_read, amounty: amountY_read };
   }
   function batch_remove_nfts() {
+    const transactionId = String(Date.now());
     setRemoveLoading(true);
     const [tokenX, tokenY] = tokenMetadata_x_y;
     sessionStorage.setItem(REF_POOL_NAV_TAB_KEY, '/yourliquidity');
@@ -558,8 +562,8 @@ export const RemovePoolV3 = (props: any) => {
       batch_remove_liquidity = batchRemoveLiquidity;
     }
 
-    transactionSetActionData({
-      status: 'pending',
+    processTransactionPending({
+      transactionId,
       page: constTransactionPage.pool,
       data: {
         prefix: 'Removing',
@@ -576,6 +580,7 @@ export const RemovePoolV3 = (props: any) => {
       },
     });
 
+    setRemoveLoading(false);
     batch_remove_liquidity_contract({
       token_x: tokenX,
       token_y: tokenY,
@@ -586,20 +591,18 @@ export const RemovePoolV3 = (props: any) => {
     })
       .then(({ response }) => {
         setRemoveLoading(false);
-        transactionSetActionData({
-          status: 'success',
+        processTransactionSuccess({
+          transactionId,
           transactionResponse: response,
         });
-        transactionSetActionStatus('resolved');
         sessionStorage.setItem('REMOVE_POOL_ID', pool_id);
       })
       .catch((e) => {
         setRemoveLoading(false);
-        transactionSetActionData({
-          status: 'error',
-          transactionError: e,
+        processTransactionError({
+          error: e,
+          transactionId,
         });
-        transactionSetActionStatus('rejected');
       });
   }
   function get_minimum_received_data() {

@@ -56,13 +56,22 @@ export function AddLiquidityButton() {
   const isSignedIn = globalState.isSignedIn;
   const { selector } = useWalletSelector();
   const history = useHistory();
-  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+  const processTransactionPending = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionPending
+  );
+  const processTransactionSuccess = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionSuccess
+  );
+  const processTransactionError = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionError
+  );
 
   function addLiquiditySpot() {
+    const transactionId = String(Date.now());
     setAddLiquidityButtonLoading(true);
     const new_liquidity = getLiquiditySpot();
-    transtionsExcuteDataStore.setActionData({
-      status: 'pending',
+    processTransactionPending({
+      transactionId,
       page: constTransactionPage.pool,
       data: {
         prefix: 'Supplying',
@@ -75,7 +84,7 @@ export function AddLiquidityButton() {
             ),
           },
           {
-            node: <HiOutlinePlusSm />,
+            symbol: '+',
           },
           {
             token: new_liquidity?.token_y,
@@ -92,25 +101,30 @@ export function AddLiquidityButton() {
       .then(({ txHash, response }: any) => {
         addLiquidityTxHashHandle(txHash).then((link) => {
           setAddLiquidityButtonLoading(false);
-          transtionsExcuteDataStore.setActionStatus('resolved');
-          transtionsExcuteDataStore.setActionData({
-            status: 'success',
+          processTransactionSuccess({
+            transactionId,
             transactionResponse: response,
             onClose: () => history.replace(link),
           });
+          // transtionsExcuteDataStore.setActionStatus('resolved');
+          // transtionsExcuteDataStore.setActionData({
+          //   status: 'success',
+          //   transactionResponse: response,
+          //   onClose: () => history.replace(link),
+          // });
         });
       })
       .catch((e) => {
-        transtionsExcuteDataStore.setActionStatus('rejected');
-        transtionsExcuteDataStore.setActionData({
-          status: 'error',
-          transactionError: e,
+        processTransactionError({
+          error: e,
+          transactionId,
         });
         setAddLiquidityButtonLoading(false);
       });
   }
 
   function addLiquidityForCurveAndBidAskMode() {
+    const transactionId = String(Date.now());
     /**
      *  已知条件:
      *  bin的数量、一个bin里 slot的数量、leftPoint、rightPoint、tokenXAmount、tokenYAmount
@@ -141,7 +155,27 @@ export function AddLiquidityButton() {
         amount_y || 0
       );
     });
-
+    console.log('heyyo', tokenX);
+    processTransactionPending({
+      transactionId,
+      page: constTransactionPage.pool,
+      data: {
+        prefix: 'Supplying',
+        tokens: [
+          {
+            token: tokenX,
+            amount: tokenXAmount,
+          },
+          {
+            symbol: '+',
+          },
+          {
+            token: tokenY,
+            amount: tokenYAmount,
+          },
+        ],
+      },
+    });
     batch_add_liquidity({
       liquidityInfos: nftList,
       token_x: tokenX,
@@ -150,16 +184,22 @@ export function AddLiquidityButton() {
       amount_y: last_total_needed_token_y_amount.toFixed(),
       selectedWalletId: selector.store.getState().selectedWalletId,
     })
-      .then(({ txHash }: any) => {
-        transtionsExcuteDataStore.setActionStatus('resolved');
+      .then(({ txHash, response }: any) => {
         addLiquidityTxHashHandle(txHash).then((link) => {
           setAddLiquidityButtonLoading(false);
-          history.replace(link);
+          processTransactionSuccess({
+            transactionId,
+            transactionResponse: response,
+            onClose: () => history.replace(link),
+          });
         });
       })
-      .catch(() => {
-        transtionsExcuteDataStore.setActionStatus('rejected');
+      .catch((e) => {
         setAddLiquidityButtonLoading(false);
+        processTransactionError({
+          error: e,
+          transactionId,
+        });
       });
   }
 

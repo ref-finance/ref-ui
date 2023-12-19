@@ -196,7 +196,10 @@ export function RemoveLiquidityComponent(props: {
           setButtonLoading(false);
           transtionsExcuteDataStore.setActionData({
             status: 'error',
-            transactionError: e,
+            transactionError: {
+              message: e.message,
+              transactionId: e.transactionId,
+            },
           });
           transtionsExcuteDataStore.setActionStatus('rejected');
         });
@@ -255,7 +258,10 @@ export function RemoveLiquidityComponent(props: {
           setButtonLoading(false);
           transtionsExcuteDataStore.setActionData({
             status: 'error',
-            transactionError: e,
+            transactionError: {
+              message: e.message,
+              transactionId: e.transactionId,
+            },
           });
           transtionsExcuteDataStore.setActionStatus('rejected');
         });

@@ -176,6 +176,7 @@ export function RemoveFourLiquidityComponent(props: {
       );
       transtionsExcuteDataStore.setActionData({
         status: 'pending',
+        transactionId: String(Date.now()),
         page: constTransactionPage.pool,
       });
       return removeLiquidityFromStablePool({
@@ -196,7 +197,10 @@ export function RemoveFourLiquidityComponent(props: {
           setButtonLoading(false);
           transtionsExcuteDataStore.setActionData({
             status: 'error',
-            transactionError: e,
+            transactionError: {
+              message: e.message,
+              transactionId: e.transactionId,
+            },
           });
           transtionsExcuteDataStore.setActionStatus('rejected');
         });
@@ -220,6 +224,7 @@ export function RemoveFourLiquidityComponent(props: {
         : predict_burn;
       transtionsExcuteDataStore.setActionData({
         status: 'pending',
+        transactionId: String(Date.now()),
         page: constTransactionPage.pool,
       });
       return removeLiquidityByTokensFromStablePool({
@@ -240,7 +245,10 @@ export function RemoveFourLiquidityComponent(props: {
           setButtonLoading(false);
           transtionsExcuteDataStore.setActionData({
             status: 'error',
-            transactionError: e,
+            transactionError: {
+              message: e.message,
+              transactionId: e.transactionId,
+            },
           });
           transtionsExcuteDataStore.setActionStatus('rejected');
         });

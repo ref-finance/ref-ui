@@ -390,7 +390,10 @@ export default function AddLiquidityComponentUSN(props: {
       setButtonLoading(false);
       transtionsExcuteDataStore.setActionData({
         status: 'error',
-        transactionError: e,
+        transactionError: {
+          message: e.message,
+          transactionId: e.transactionId,
+        },
       });
       transtionsExcuteDataStore.setActionStatus('rejected');
     }

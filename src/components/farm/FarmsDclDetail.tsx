@@ -182,6 +182,17 @@ export default function FarmsDclDetail(props: {
     listLiquidities_unFarimg.length,
   ]);
   const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+
+  const processTransactionPending = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionPending
+  );
+  const processTransactionSuccess = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionSuccess
+  );
+  const processTransactionError = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionError
+  );
+
   const canStake = useMemo(() => {
     if (!listLiquiditiesLoading) {
       const { canStake } = get_stake_info();
@@ -1007,9 +1018,11 @@ export default function FarmsDclDetail(props: {
     const { liquidities, total_v_liquidity, withdraw_amount } =
       get_stake_info();
 
+    const transactionId = String(Date.now());
     const tokensName = tokens?.map((d) => d.symbol);
-    transtionsExcuteDataStore.setActionData({
-      status: 'pending',
+
+    processTransactionPending({
+      transactionId,
       page: constTransactionPage.farm,
       data: {
         prefix: 'Stake',
@@ -1024,19 +1037,17 @@ export default function FarmsDclDetail(props: {
       seed_id: detailData.seed_id,
     })
       .then(({ response }) => {
-        transtionsExcuteDataStore.setActionData({
-          status: 'success',
+        processTransactionSuccess({
           transactionResponse: response,
+          transactionId,
         });
-        transtionsExcuteDataStore.setActionStatus('resolved');
         set_nft_stake_loading(false);
       })
       .catch((e) => {
-        transtionsExcuteDataStore.setActionData({
-          status: 'success',
-          transactionError: e,
+        processTransactionError({
+          error: e,
+          transactionId,
         });
-        transtionsExcuteDataStore.setActionStatus('rejected');
         set_nft_stake_loading(false);
       });
   }
@@ -1045,30 +1056,39 @@ export default function FarmsDclDetail(props: {
     set_nft_unStake_loading(true);
     const unStake_info: IStakeInfo = get_unStake_info();
     const tokensName = tokens?.map((d) => d.symbol);
-    transtionsExcuteDataStore.setActionData({
-      status: 'pending',
-      page: constTransactionPage.xref,
+    const transactionId = String(Date.now());
+    processTransactionPending({
+      page: constTransactionPage.farm,
       data: {
         prefix: 'Unstake',
         tokenGroup: tokens,
         suffix: ` ${tokensName} tokens (${yp_farming_value})`,
       },
+      transactionId,
     });
+    // transtionsExcuteDataStore.setActionData({
+    //   status: 'pending',
+    //   transactionId: String(Date.now()),
+    //   page: constTransactionPage.xref,
+    //   data: {
+    //     prefix: 'Unstake',
+    //     tokenGroup: tokens,
+    //     suffix: ` ${tokensName} tokens (${yp_farming_value})`,
+    //   },
+    // });
     batch_unStake_boost_nft(unStake_info)
       .then(({ response }) => {
-        transtionsExcuteDataStore.setActionData({
-          status: 'success',
+        processTransactionSuccess({
           transactionResponse: response,
+          transactionId,
         });
-        transtionsExcuteDataStore.setActionStatus('resolved');
         set_nft_unStake_loading(false);
       })
       .catch((e) => {
-        transtionsExcuteDataStore.setActionData({
-          status: 'error',
-          transactionError: e,
+        processTransactionError({
+          error: e,
+          transactionId,
         });
-        transtionsExcuteDataStore.setActionStatus('rejected');
         set_nft_unStake_loading(false);
       });
   }
@@ -1624,6 +1644,7 @@ function UserTotalUnClaimBlock(props: {
 
     transtionsExcuteDataStore.setActionData({
       status: 'pending',
+      transactionId: String(Date.now()),
       page: constTransactionPage.farm,
       data: {
         transactionType: 'claimFee',
@@ -1645,7 +1666,10 @@ function UserTotalUnClaimBlock(props: {
       .catch((e) => {
         transtionsExcuteDataStore.setActionData({
           status: 'error',
-          transactionError: e,
+          transactionError: {
+            message: e.message,
+            transactionId: e.transactionId,
+          },
         });
         transtionsExcuteDataStore.setActionStatus('rejected');
         setClaimLoading(false);

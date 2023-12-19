@@ -237,13 +237,13 @@ export const ModalTransactionContent = ({
         console.info('ModalTransactionSubmitting', status, actionData);
         !isHereSubmitting && setIsOpen(true);
         setIsUserCloseModal(false);
-        if (
-          (transactionTypesToSaveTokens.includes(transactionType) ||
-            pageToSaveTokens.includes(page)) &&
-          tokens !== undefined
-        ) {
-          setTokensData(tokens);
-        }
+        // if (
+        //   (transactionTypesToSaveTokens.includes(transactionType) ||
+        //     pageToSaveTokens.includes(page)) &&
+        //   tokens !== undefined
+        // ) {
+        setTokensData(tokens);
+        // }
       }
 
       if (['error'].includes(status)) {
@@ -258,7 +258,7 @@ export const ModalTransactionContent = ({
       if (status === 'success') {
         if (isUserClose) {
           showTransactionToast(actionData);
-        } else {
+        } else if (!isSkipModal) {
           setIsOpen(true);
         }
       }
@@ -283,15 +283,14 @@ export const ModalTransactionContent = ({
   };
 
   let node = null;
-  let headerNode =
-    headerText || getHeaderText(transactionType, actionData.status);
+  let headerNode = headerText || getHeaderText(transactionType, status);
   let footerNode = <div>Confirm the transaction in your wallet.</div>;
   let loadingNode = <BlueCircleLoading />;
 
-  if (pageToSaveTokens.includes(page)) {
-    node = <CommonLayout tokensData={tokensData} />;
-  } else if (transactionType === 'claimFee') {
+  if (transactionType === 'claimFee') {
     node = <ClaimFeeLayout tokensData={tokensData} />;
+  } else if (true || pageToSaveTokens.includes(page)) {
+    node = <CommonLayout tokensData={tokensData} />;
   } else if (selectTrade) {
     node = (
       <>
@@ -406,7 +405,6 @@ export const ModalTransactionContent = ({
 
   return (
     <CustomModal
-      title={transactionId}
       isOpen={isOpen}
       onClose={canClose && handleClose}
       className={'modal-transaction-submitting'}
@@ -505,7 +503,22 @@ const ClaimFeeLayout = ({ tokensData }) => {
 
 const CommonLayout = ({ tokensData }) => {
   const node = tokensData?.map((d) => {
-    const { token, amount, symbol } = d || {};
+    const { token, amount, symbol, tokenGroup } = d || {};
+    if (Array.isArray(tokenGroup)) {
+      return (
+        <div className="flex items-center">
+          {tokenGroup.map((d) => (
+            <DisplayIcon
+              token={d}
+              height={'20px'}
+              width={'20px'}
+              className="-ml-1"
+            />
+          ))}
+        </div>
+      );
+    }
+
     if (symbol === '+') {
       return <HiOutlinePlusSm />;
     }

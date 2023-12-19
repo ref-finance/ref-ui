@@ -3769,6 +3769,7 @@ function WithDrawb(props: {
       transtionsExcuteDataStore.setActionStatus('pending');
       transtionsExcuteDataStore.setActionData({
         status: 'pending',
+        transactionId: String(Date.now()),
         page: constTransactionPage.farm,
         data: {
           tokens: tokens,
@@ -3793,7 +3794,10 @@ function WithDrawb(props: {
       transtionsExcuteDataStore.setActionStatus('rejected');
       transtionsExcuteDataStore.setActionData({
         status: 'error',
-        transactionError: e,
+        transactionError: {
+          message: e.message,
+          transactionId: e.transactionId,
+        },
       });
     }
   }

@@ -1945,7 +1945,10 @@ function UserTotalUnClaimBlock(props: {
       .catch((e) => {
         transtionsExcuteDataStore.setActionData({
           status: 'error',
-          transactionError: e,
+          transactionError: {
+            message: e.message,
+            transactionId: e.transactionId,
+          },
         });
         transtionsExcuteDataStore.setActionStatus('rejected');
         setClaimLoading(false);
@@ -3170,7 +3173,10 @@ export function StakeModal(props: {
           setStakeLoading(false);
           transtionsExcuteDataStore.setActionData({
             status: 'error',
-            transactionError: e,
+            transactionError: {
+              message: e.message,
+              transactionId: e.transactionId,
+            },
           });
           transtionsExcuteDataStore.setActionStatus('rejected');
           onRequestClose();
@@ -3694,7 +3700,10 @@ export function UnStakeModal(props: {
         .catch((e) => {
           transtionsExcuteDataStore.setActionData({
             status: 'error',
-            transactionError: e,
+            transactionError: {
+              message: e.message,
+              transactionId: e.transactionId,
+            },
           });
           transtionsExcuteDataStore.setActionStatus('rejected');
           setUnStakeLoading(false);
@@ -3718,7 +3727,10 @@ export function UnStakeModal(props: {
         .catch((e) => {
           transtionsExcuteDataStore.setActionData({
             status: 'error',
-            transactionError: e,
+            transactionError: {
+              message: e.message,
+              transactionId: e.transactionId,
+            },
           });
           transtionsExcuteDataStore.setActionStatus('rejected');
           onRequestClose();

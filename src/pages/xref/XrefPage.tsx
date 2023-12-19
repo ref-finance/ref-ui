@@ -456,11 +456,13 @@ function InputView(props: any) {
 
   const onSubmit = () => {
     setLoading(true);
+    const transactionId = String(Date.now());
     transtionsExcuteDataStore.setActionStatus('pending');
     if (tab == 0) {
       transtionsExcuteDataStore.setActionData({
         status: 'pending',
         page: constTransactionPage.xref,
+        transactionId,
         data: {
           prefix: 'Stake',
           tokens: [
@@ -483,7 +485,10 @@ function InputView(props: any) {
         .catch((e) => {
           transtionsExcuteDataStore.setActionData({
             status: 'error',
-            transactionError: e,
+            transactionError: {
+              message: e.message,
+              transactionId,
+            },
           });
           transtionsExcuteDataStore.setActionStatus('rejected');
         });
@@ -491,6 +496,7 @@ function InputView(props: any) {
       transtionsExcuteDataStore.setActionData({
         status: 'pending',
         page: constTransactionPage.xref,
+        transactionId,
         data: {
           prefix: 'Unstake',
           tokens: [
@@ -514,7 +520,10 @@ function InputView(props: any) {
         .catch((e) => {
           transtionsExcuteDataStore.setActionData({
             status: 'error',
-            transactionError: e,
+            transactionError: {
+              message: e.message,
+              transactionId,
+            },
           });
           transtionsExcuteDataStore.setActionStatus('rejected');
         });

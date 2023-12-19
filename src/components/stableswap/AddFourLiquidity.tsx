@@ -514,13 +514,14 @@ export default function AddFourLiquidityComponent(props: {
     tokensNode.pop();
     transtionsExcuteDataStore.setActionData({
       status: 'pending',
+      transactionId: String(Date.now()),
       page: constTransactionPage.pool,
       data: {
         prefix: 'Supplying',
         tokens: tokensNode,
       },
     });
-
+setButtonLoading(false)
     return addLiquidityToStablePool({
       tokens,
       id: Number(USDTT_USDCC_USDT_USDC_POOL_ID),
@@ -539,7 +540,10 @@ export default function AddFourLiquidityComponent(props: {
         setButtonLoading(false);
         transtionsExcuteDataStore.setActionData({
           status: 'error',
-          transactionError: e,
+          transactionError: {
+            message: e.message,
+            transactionId: e.transactionId,
+          },
         });
         transtionsExcuteDataStore.setActionStatus('rejected');
       });
@@ -631,7 +635,7 @@ export default function AddFourLiquidityComponent(props: {
           {isSignedIn ? (
             <SolidButton
               disabled={!canSubmit || buttonLoading}
-              className="focus:outline-none px-4 w-full text-lg"
+              className="btn-AddFourLiquidityComponent focus:outline-none px-4 w-full text-lg"
               loading={buttonLoading}
               onClick={() => {
                 try {

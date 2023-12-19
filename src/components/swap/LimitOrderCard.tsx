@@ -569,8 +569,15 @@ export default function LimitOrderCard(props: {
   const [showDetails, setShowDetails] = useState<boolean>(false);
 
   const tokenPriceList = useTokenPriceList();
-
-  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+  const processTransactionPending = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionPending
+  );
+  const processTransactionSuccess = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionSuccess
+  );
+  const processTransactionError = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionError
+  );
 
   const skywardId =
     getConfig().networkId === 'mainnet'
@@ -912,18 +919,26 @@ export default function LimitOrderCard(props: {
   };
 
   const limitSwap = async () => {
+    const transactionId = String(Date.now());
     try {
-      transtionsExcuteDataStore.setActionStatus('pending');
-      transtionsExcuteDataStore.setActionData({
-        status: 'pending',
+      setShowSwapLoading(true);
+      processTransactionPending({
         page: constTransactionPage.swap,
+        transactionId,
         data: {
-          selectTrade: {
-            tokenIn,
-            tokenOut,
-            tokenInAmount,
-            tokenOutAmount: limitAmountOut,
-          },
+          tokens: [
+            {
+              token: tokenIn,
+              amount: tokenInAmount,
+            },
+            {
+              symbol: '>',
+            },
+            {
+              token: tokenOut,
+              amount: limitAmountOut,
+            },
+          ],
         },
       });
       const swapRes = await v3Swap({
@@ -937,20 +952,18 @@ export default function LimitOrderCard(props: {
           pool_id: selectedV3LimitPool,
         },
       });
-      transtionsExcuteDataStore.setActionStatus('resolved');
-      transtionsExcuteDataStore.setActionData({
-        status: 'success',
-        transactionResponse: swapRes?.response,
-      });
       setShowSwapLoading(false);
       setDoubleCheckOpenLimit(false);
+      processTransactionSuccess({
+        transactionResponse: swapRes?.response,
+        transactionId,
+      });
     } catch (e) {
       setShowSwapLoading(false);
-      setDoubleCheckOpenLimit(false);
-      transtionsExcuteDataStore.setActionStatus('none');
-      transtionsExcuteDataStore.setActionData({
-        status: 'error',
-        transactionError: e,
+      // setDoubleCheckOpenLimit(false);
+      processTransactionError({
+        error: e,
+        transactionId,
       });
     }
   };

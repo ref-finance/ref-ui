@@ -36,6 +36,7 @@ type ITranstionsExcuteDataStore = {
   processTransactionSuccess: (p: {
     transactionResponse: any;
     transactionId: string;
+    onClose?: () => any;
   }) => void;
   processTransactionError: (p: { error: any; transactionId: string }) => void;
   removeActionData: () => void;
