@@ -20,8 +20,8 @@ jobs:
       - name: Configure AWS CLI
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_V2 }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_V2 }}
           aws-region: us-east-1
 
       - name: Login to Amazon ECR
@@ -36,7 +36,7 @@ jobs:
         run: |
           docker push 151564965346.dkr.ecr.us-east-1.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
 
-      - name: Execute SSH commmands on remote server[44.202.226.33]
+      - name: Execute SSH commmands on remote server[3.84.91.132]
         uses: appleboy/ssh-action@master
         with:
           host: 3.84.91.132
@@ -60,7 +60,7 @@ jobs:
             done      
             docker run -d -p 8080:80 --name ref-ui 151564965346.dkr.ecr.us-east-1.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} 
 
-      - name: Execute SSH commmands on remote server[3.238.218.91]
+      - name: Execute SSH commmands on remote server[44.204.67.93]
         uses: appleboy/ssh-action@master
         with:
           host: 44.204.67.93
