@@ -36,10 +36,10 @@ jobs:
         run: |
           docker push 151564965346.dkr.ecr.us-east-1.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
 
-      - name: Execute SSH commmands on remote server[3.84.91.132]
+      - name: Execute SSH commmands on remote server[52.54.49.247]
         uses: appleboy/ssh-action@master
         with:
-          host: 3.84.91.132
+          host: 52.54.49.247
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY_PROD_01 }}
           port: 60022
@@ -60,10 +60,10 @@ jobs:
             done      
             docker run -d -p 8080:80 --name ref-ui 151564965346.dkr.ecr.us-east-1.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} 
 
-      - name: Execute SSH commmands on remote server[44.204.67.93]
+      - name: Execute SSH commmands on remote server[34.224.251.142]
         uses: appleboy/ssh-action@master
         with:
-          host: 44.204.67.93
+          host: 34.224.251.142
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY_PROD_02 }}
           port: 60022
