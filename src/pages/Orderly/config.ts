@@ -323,7 +323,7 @@ export default function getConfig(
         myNearWalletUrl: 'https://app.mynearwallet.com/',
         helperUrl: 'https://api.kitwallet.app',
         explorerUrl: 'https://nearblocks.io',
-        indexerUrl: 'https://indexer.ref.finance',
+        indexerUrl: 'https://indexer.ref-finance.fun',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3', '2769#2'],
         REF_FI_CONTRACT_ID:
