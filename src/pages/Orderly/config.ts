@@ -119,7 +119,7 @@ export default function getConfig(
         helperUrl: 'https://api.kitwallet.app',
         explorerUrl: 'https://nearblocks.io',
         indexerUrl: 'https://mainnet-indexer.ref-finance.com',
-        sodakiApiUrl: 'https://api.stats.ref.finance/api',
+        sodakiApiUrl: 'https://api-stats.ref-finance.fun/api',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3', '2769#2'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'v2.ref-finance.near',
@@ -187,7 +187,7 @@ export default function getConfig(
         helperUrl: 'https://testnet-api.kitwallet.app',
         explorerUrl: 'https://testnet.nearblocks.io',
         indexerUrl: 'https://testnet-indexer.ref-finance.com',
-        sodakiApiUrl: 'https://api.stats.ref.finance/api',
+        sodakiApiUrl: 'https://api-stats.ref-finance.fun/api',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'ref-finance-101.testnet',
@@ -257,7 +257,7 @@ export default function getConfig(
         helperUrl: 'https://testnet-api.kitwallet.app',
         explorerUrl: 'https://testnet.nearblocks.io',
         indexerUrl: 'https://dev-indexer.ref-finance.com',
-        sodakiApiUrl: 'https://api.stats.ref.finance/api',
+        sodakiApiUrl: 'https://api-stats.ref-finance.fun/api',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'exchange.ref-dev.testnet',
@@ -324,7 +324,7 @@ export default function getConfig(
         helperUrl: 'https://api.kitwallet.app',
         explorerUrl: 'https://nearblocks.io',
         indexerUrl: 'https://indexer.ref-finance.fun',
-        sodakiApiUrl: 'https://api.stats.ref.finance/api',
+        sodakiApiUrl: 'https://api-stats.ref-finance.fun/api',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3', '2769#2'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'v2.ref-finance.near',
