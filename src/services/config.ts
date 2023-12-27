@@ -337,13 +337,12 @@ export default function getConfig(
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
         REF_FI_CONTRACT_ID:
-          process.env.REF_FI_CONTRACT_ID || 'exchange.ref-dev.testnet',
+          process.env.REF_FI_CONTRACT_ID || 'dev-1702262174571-14898860791369',
         WRAP_NEAR_CONTRACT_ID:
           process.env.WRAP_NEAR_CONTRACT_ID || 'wrap.testnet',
         REF_ADBOARD_CONTRACT_ID: 'ref-adboard.near',
         REF_FARM_CONTRACT_ID:
           process.env.REF_FARM_CONTRACT_ID || 'farm-dev.ref-dev.testnet',
-        // REF_VE_CONTRACT_ID: 'dev-20220623151446-29039416013661',
         REF_TOKEN_ID: 'ref.fakes.testnet',
         XREF_TOKEN_ID: 'xref.ref-dev.testnet',
         REF_AIRDROP_CONTRACT_ID: 'locker002.ref-dev.testnet',
@@ -385,7 +384,7 @@ export default function getConfig(
         BLACKLIST_POOL_IDS: ['686'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID ||
-          'boostfarm-dev.ref-dev.testnet',
+          'dev-1702262397985-62003969987852',
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['5%', '10%'],
         REF_UNI_V3_SWAP_CONTRACT_ID:
