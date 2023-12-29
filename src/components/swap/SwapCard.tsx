@@ -62,7 +62,7 @@ import {
 } from '../../utils/numbers';
 import { getPoolAllocationPercents } from '../../utils/numbers';
 import { toInternationalCurrencySystemLongString } from '../../utils/numbers';
-import { getMax } from '../../utils/numbers';
+import { getMaxMin } from '../../utils/numbers';
 import { toRealSymbol } from '../../utils/token';
 import Alert from '../alert/Alert';
 import { ConnectToNearBtnSwap } from '../button/Button';
@@ -1015,7 +1015,7 @@ export default function SwapCard(props: {
       return false;
     if (tokenIn?.symbol == 'NEAR') {
       if (
-        !new BigNumber(tokenInAmount).plus(0.5).isLessThanOrEqualTo(tokenInMax)
+        !new BigNumber(tokenInAmount).plus(0.05).isLessThanOrEqualTo(tokenInMax)
       )
         return false;
     }
@@ -1103,7 +1103,7 @@ export default function SwapCard(props: {
     const condition1 = tokenIn && balanceInDone && balanceOutDone;
     return (
       condition1 &&
-      (Number(getMax(tokenIn.id, tokenInMax || '0', tokenIn)) -
+      (Number(getMaxMin(tokenIn.id, tokenInMax || '0', tokenIn)) -
         Number(tokenInAmount || '0') <
         0 ||
         ONLY_ZEROS.test(tokenInMax))
@@ -1133,7 +1133,7 @@ export default function SwapCard(props: {
       balanceInDone &&
       balanceOutDone &&
       tokenIn &&
-      Number(getMax(tokenIn.id, tokenInMax || '0', tokenIn)) -
+      Number(getMaxMin(tokenIn.id, tokenInMax || '0', tokenIn)) -
         Number(tokenInAmount || '0') <
         0 &&
       !ONLY_ZEROS.test(tokenInMax || '0') &&
