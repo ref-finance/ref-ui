@@ -1046,7 +1046,7 @@ export default function LimitOrderCard(props: {
               <Alert
                 level="warn"
                 message={`${intl.formatMessage({
-                  id: 'near_validation_error',
+                  id: 'near_min_validation_error',
                 })} `}
                 extraClass="px-0 pb-3"
               />
