@@ -1,4 +1,10 @@
-import React, { useEffect, useRef, useState, useContext, useMemo } from 'react';
+import React, {
+  useEffect,
+  useState,
+  useContext,
+  useMemo,
+  createContext,
+} from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { isMobile } from 'src/utils/device';
 import {
@@ -27,9 +33,11 @@ import {
   FarmBoost,
   Seed,
   getServerTime,
-  stake_boost,
   get_config,
+  stake_boost,
   unStake_boost,
+  stake_boost_shadow,
+  unStake_boost_shadow,
   claimRewardBySeed_boost,
   lock_free_seed,
   force_unlock,
@@ -94,6 +102,8 @@ import {
   openUrl,
 } from 'src/services/commonV3';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
+import getConfigV2 from 'src/services/configV2';
+const configV2 = getConfigV2();
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 const {
@@ -102,6 +112,15 @@ const {
   REF_VE_CONTRACT_ID,
   FARM_BLACK_LIST_V2,
 } = getConfig();
+
+interface IShareInfo {
+  sharesInfo: {
+    sharesInPool: string | number;
+    amountByShadowInFarm: string | number;
+    amountByTransferInFarm: string | number;
+  };
+}
+const FarmsDetailContext = createContext<IShareInfo>(null);
 export default function FarmsDetail(props: {
   detailData: Seed;
   emptyDetailData: Function;
@@ -132,6 +151,34 @@ export default function FarmsDetail(props: {
   const pool = detailData.pool;
   const { token_account_ids } = pool;
   const tokens = sortTokens(useTokens(token_account_ids) || []);
+  const [sharesInfo, setSharesInfo] = useState<{
+    sharesInPool: string | number;
+    amountByShadowInFarm: string | number;
+    amountByTransferInFarm: string | number;
+  }>({
+    sharesInPool: '0',
+    amountByShadowInFarm: '0',
+    amountByTransferInFarm: '0',
+  });
+  useEffect(() => {
+    if (!user_data_loading) {
+      getSharesInfo();
+    }
+  }, [Object.keys(user_seeds_map).length, user_data_loading]);
+  // TODO
+  async function getSharesInfo() {
+    const { seed_id } = detailData;
+    const { free_amount, shadow_amount } = user_seeds_map[seed_id] || {};
+    const poolId = pool.id;
+    const sharesInPool = await mftGetBalance(getMftTokenId(poolId.toString()));
+    const amountByShadowInFarm = shadow_amount;
+    const amountByTransferInFarm = free_amount;
+    setSharesInfo({
+      sharesInPool: sharesInPool || '0',
+      amountByShadowInFarm: amountByShadowInFarm || '0',
+      amountByTransferInFarm: amountByTransferInFarm || '0',
+    });
+  }
   function sortTokens(tokens: TokenMetadata[]) {
     tokens.sort((a: TokenMetadata, b: TokenMetadata) => {
       if (a.symbol === 'NEAR') return 1;
@@ -295,18 +342,20 @@ export default function FarmsDetail(props: {
           <LinkIcon></LinkIcon>
         </div>
       </div>
-      <StakeContainer
-        detailData={detailData}
-        tokenPriceList={tokenPriceList}
-        loveSeed={loveSeed}
-        boostConfig={boostConfig}
-        user_seeds_map={user_seeds_map}
-        user_unclaimed_map={user_unclaimed_map}
-        user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
-        user_data_loading={user_data_loading}
-        radio={radio}
-        dayVolumeMap={dayVolumeMap}
-      ></StakeContainer>
+      <FarmsDetailContext.Provider value={{ sharesInfo }}>
+        <StakeContainer
+          detailData={detailData}
+          tokenPriceList={tokenPriceList}
+          loveSeed={loveSeed}
+          boostConfig={boostConfig}
+          user_seeds_map={user_seeds_map}
+          user_unclaimed_map={user_unclaimed_map}
+          user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
+          user_data_loading={user_data_loading}
+          radio={radio}
+          dayVolumeMap={dayVolumeMap}
+        ></StakeContainer>
+      </FarmsDetailContext.Provider>
     </div>
   );
 }
@@ -343,6 +392,7 @@ function StakeContainer(props: {
     user_data_loading,
     dayVolumeMap,
   } = props;
+  const { sharesInfo } = useContext(FarmsDetailContext);
   const pool = detailData.pool;
   const intl = useIntl();
   function totalTvlPerWeekDisplay() {
@@ -531,7 +581,7 @@ function StakeContainer(props: {
   }
   useEffect(() => {
     getStakeBalance();
-  }, [Object.keys(user_seeds_map).length, user_data_loading]);
+  }, [Object.keys(user_seeds_map).length, user_data_loading, sharesInfo]);
   useEffect(() => {
     const yourApr = getYourApr();
     if (yourApr) {
@@ -552,7 +602,10 @@ function StakeContainer(props: {
       setShowAddLiquidityEntry(false);
     } else {
       const poolId = pool.id;
-      const b = await mftGetBalance(getMftTokenId(poolId.toString()));
+      // TODO
+      const b = new BigNumber(sharesInfo.sharesInPool)
+        .minus(sharesInfo.amountByShadowInFarm)
+        .toFixed();
       if (new Set(STABLE_POOL_IDS || []).has(poolId?.toString())) {
         setLpBalance(toReadableNumber(LP_STABLE_TOKEN_DECIMALS, b));
       } else {
@@ -572,7 +625,7 @@ function StakeContainer(props: {
     if (containPoolFee) {
       day24Volume = +getPoolFeeApr(dayVolume);
     }
-    let apr = getActualTotalApr();
+    const apr = getActualTotalApr();
     if (new BigNumber(apr).isEqualTo(0) && day24Volume == 0) {
       return '-';
     } else {
@@ -761,7 +814,7 @@ function StakeContainer(props: {
     const tempMap = {};
     farms.forEach((farm: FarmBoost) => {
       const { reward_token, daily_reward } = farm.terms;
-      let preMergedfarms: FarmBoost = tempMap[reward_token];
+      const preMergedfarms: FarmBoost = tempMap[reward_token];
       if (preMergedfarms) {
         preMergedfarms.apr = new BigNumber(preMergedfarms.apr || 0)
           .plus(farm.apr)
@@ -814,7 +867,7 @@ function StakeContainer(props: {
   }
   function valueOfRewardsTip() {
     const tip = intl.formatMessage({ id: 'farmRewardsCopy' });
-    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+    const result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
     return result;
   }
   function getYourApr() {
@@ -2005,7 +2058,7 @@ function UserTotalUnClaimBlock(props: {
   }
   function valueOfRewardsTip() {
     const tip = intl.formatMessage({ id: 'farmRewardsCopy' });
-    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+    const result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
     return result;
   }
   return (
@@ -2158,6 +2211,7 @@ function UserStakeBlock(props: {
     detailData;
   const {
     free_amount = '0',
+    shadow_amount = '0',
     locked_amount = '0',
     x_locked_amount = '0',
     unlock_timestamp,
@@ -2170,11 +2224,6 @@ function UserStakeBlock(props: {
   const DECIMALS = new Set(STABLE_POOL_IDS || []).has(pool.id?.toString())
     ? LP_STABLE_TOKEN_DECIMALS
     : LP_TOKEN_DECIMALS;
-
-  const userTotalStake = toReadableNumber(
-    DECIMALS,
-    new BigNumber(free_amount).plus(locked_amount).toFixed()
-  );
   const totalPower = toReadableNumber(
     DECIMALS,
     new BigNumber(free_amount).plus(x_locked_amount).toFixed()
@@ -2188,10 +2237,14 @@ function UserStakeBlock(props: {
     get_server_time();
   }, []);
   useEffect(() => {
-    const { free_amount, locked_amount } = user_seeds_map[seed_id] || {};
+    const { free_amount, shadow_amount, locked_amount } =
+      user_seeds_map[seed_id] || {};
     const yourLp = toReadableNumber(
       seed_decimal,
-      new BigNumber(free_amount || 0).plus(locked_amount || 0).toFixed()
+      new BigNumber(free_amount || 0)
+        .plus(locked_amount || 0)
+        .plus(shadow_amount || 0)
+        .toFixed()
     );
     const { tvl, id, shares_total_supply } = pool;
     const DECIMALS = new Set(STABLE_POOL_IDS || []).has(id?.toString())
@@ -2248,7 +2301,7 @@ function UserStakeBlock(props: {
       }
     }
     const powerBig = new BigNumber(+(realRadio || 1))
-      .multipliedBy(free_amount)
+      .multipliedBy(BigNumber(free_amount).plus(shadow_amount))
       .plus(x_locked_amount);
     const power = toReadableNumber(DECIMALS, powerBig.toFixed(0).toString());
     return power;
@@ -2269,25 +2322,6 @@ function UserStakeBlock(props: {
       }
     }
     return result;
-  }
-  function showLpWorth() {
-    const poolLpAmount = Number(
-      toReadableNumber(DECIMALS, shares_total_supply)
-    );
-    const userLpAmount = Number(userTotalStake);
-    if (poolLpAmount == 0 || userLpAmount == 0) {
-      return <label className="opacity-30">{isSignedIn ? '$0' : '-'}</label>;
-    } else {
-      const userLpWorth = ((userLpAmount * tvl) / poolLpAmount).toString();
-      const userLpWorthBigNumber = new BigNumber(userLpWorth);
-      if (userLpWorthBigNumber.isEqualTo(0)) {
-        return '$0';
-      } else if (userLpWorthBigNumber.isLessThan(0.001)) {
-        return '<$0.001';
-      } else {
-        return '$' + toPrecision(userLpWorth, 3);
-      }
-    }
   }
   function displayLpBalance() {
     if (lpBalance) {
@@ -2451,7 +2485,7 @@ function UserStakeBlock(props: {
     const tip = intl.formatMessage({
       id: base ? 'farm_has_boost_tip' : 'farm_no_boost_tip',
     });
-    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+    const result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
     return result;
   }
   function getPowerDetail() {
@@ -2564,7 +2598,9 @@ function UserStakeBlock(props: {
                   color="#fff"
                   minWidth="9rem"
                   className={`flex items-center justify-center min-w-36 h-8 px-0.5 text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
-                    Number(freeAmount) > 0 ? '' : 'hidden'
+                    Number(freeAmount) > 0 || Number(shadow_amount) > 0
+                      ? ''
+                      : 'hidden'
                   }`}
                 >
                   <FormattedMessage id="unstake" defaultMessage="Unstake" />
@@ -2818,6 +2854,7 @@ function UserStakeBlock(props: {
     </div>
   );
 }
+// TODO
 export function StakeModal(props: {
   title: string;
   isOpen: boolean;
@@ -2864,9 +2901,8 @@ export function StakeModal(props: {
     free_amount = '0',
     locked_amount = '0',
     x_locked_amount = '0',
-    unlock_timestamp,
-    duration_sec,
   } = user_seeds_map[seed_id] || {};
+  const { sharesInfo } = useContext(FarmsDetailContext);
   const freeAmount = toReadableNumber(DECIMALS, free_amount);
   const lockedAmount = toReadableNumber(DECIMALS, locked_amount);
   const [amount, setAmount] = useState(
@@ -2885,10 +2921,10 @@ export function StakeModal(props: {
   useEffect(() => {
     if (stakeType !== 'free') {
       const goldList = [
-        <GoldLevel1></GoldLevel1>,
-        <GoldLevel2></GoldLevel2>,
-        <GoldLevel3></GoldLevel3>,
-        <GoldLevel4></GoldLevel4>,
+        <GoldLevel1 key={1}></GoldLevel1>,
+        <GoldLevel2 key={2}></GoldLevel2>,
+        <GoldLevel3 key={3}></GoldLevel3>,
+        <GoldLevel4 key={4}></GoldLevel4>,
       ];
       const lockable_duration_month = [1, 3, 6, 12];
       const lockable_duration_second = lockable_duration_month.map(
@@ -3060,7 +3096,7 @@ export function StakeModal(props: {
       .multipliedBy(tvl)
       .dividedBy(totalShares)
       .toFixed();
-    let aprActual = new BigNumber(totalPrice)
+    const aprActual = new BigNumber(totalPrice)
       .dividedBy(shareUsd)
       .multipliedBy(100);
     let aprDisplay;
@@ -3114,11 +3150,21 @@ export function StakeModal(props: {
           },
         });
       }
-      stake_boost({
-        token_id: getMftTokenId(pool.id.toString()),
-        amount: toNonDivisibleNumber(DECIMALS, amount),
-        msg,
-      });
+      // TODO
+      if (configV2.SUPPORT_SHADOW_POOL_IDS.includes(pool?.id?.toString())) {
+        stake_boost_shadow({
+          pool_id: +pool.id,
+          amount: toNonDivisibleNumber(DECIMALS, amount),
+          amountByTransferInFarm: sharesInfo.amountByTransferInFarm,
+          seed_id,
+        });
+      } else {
+        stake_boost({
+          token_id: getMftTokenId(pool.id.toString()),
+          amount: toNonDivisibleNumber(DECIMALS, amount),
+          msg,
+        });
+      }
     }
   }
   function getMultiplier(muti: number) {
@@ -3169,12 +3215,11 @@ export function StakeModal(props: {
         .dividedBy(total_locked_amount)
         .toFixed();
       return final_x;
-      // return toPrecision(final_x.toString(), 2);
     }
   }
   function appendTip() {
     const tip = intl.formatMessage({ id: 'appendTip' });
-    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+    const result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
     return result;
   }
   const finalMuti = FinalMuti();
@@ -3199,6 +3244,7 @@ export function StakeModal(props: {
             {displaySymbols()}
           </span>
         </div>
+        {/* TODO */}
         <div className="text-farmText text-sm">
           {stakeType == 'freeToLock'
             ? toPrecision(freeAmount, 6)
@@ -3569,12 +3615,14 @@ export function UnStakeModal(props: {
     user_unclaimed_token_meta_map,
     user_unclaimed_map,
   } = props;
+  const { sharesInfo } = useContext(FarmsDetailContext);
   const [amount, setAmount] = useState('');
   const [unStakeLoading, setUnStakeLoading] = useState(false);
   const [acceptSlashPolicy, setAcceptSlashPolicy] = useState<boolean>(false);
   const { pool, seed_id, slash_rate } = detailData;
   const {
     free_amount = '0',
+    shadow_amount = '0',
     locked_amount = '0',
     x_locked_amount = '0',
     unlock_timestamp,
@@ -3585,7 +3633,10 @@ export function UnStakeModal(props: {
     : LP_TOKEN_DECIMALS;
   const lpBalance =
     unStakeType == 'free'
-      ? toReadableNumber(DECIMALS, free_amount)
+      ? toReadableNumber(
+          DECIMALS,
+          BigNumber(free_amount).plus(shadow_amount).toFixed()
+        )
       : toReadableNumber(DECIMALS, locked_amount);
   const lockStatus = new BigNumber(unlock_timestamp).isLessThan(serverTime);
   const slashRate = slash_rate / 10000;
@@ -3595,22 +3646,33 @@ export function UnStakeModal(props: {
     setAmount(value);
   }
   function operationUnStake() {
+    // TODO
     setUnStakeLoading(true);
     if (unStakeType == 'free') {
-      unStake_boost({
-        seed_id: seed_id,
-        unlock_amount: '0',
-        withdraw_amount: toNonDivisibleNumber(DECIMALS, amount),
-      });
+      if (configV2.SUPPORT_SHADOW_POOL_IDS.includes(pool?.id?.toString())) {
+        unStake_boost_shadow({
+          seed_id,
+          unlock_amount: '0',
+          withdraw_amount: toNonDivisibleNumber(DECIMALS, amount),
+          amountByTransferInFarm: sharesInfo.amountByTransferInFarm,
+        });
+      } else {
+        unStake_boost({
+          seed_id,
+          unlock_amount: '0',
+          withdraw_amount: toNonDivisibleNumber(DECIMALS, amount),
+        });
+      }
     } else if (lockStatus) {
       unStake_boost({
-        seed_id: seed_id,
+        seed_id,
         unlock_amount: toNonDivisibleNumber(DECIMALS, amount),
         withdraw_amount: '0',
+        amountByTransferInFarm: '0',
       });
     } else {
       force_unlock({
-        seed_id: seed_id,
+        seed_id,
         unlock_amount: toNonDivisibleNumber(DECIMALS, amount),
       });
     }
@@ -3655,7 +3717,7 @@ export function UnStakeModal(props: {
   }
   function showSlashTip() {
     const tip = intl.formatMessage({ id: 'slash_tip' });
-    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+    const result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
     return result;
   }
   function getSubChildren() {

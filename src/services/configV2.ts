@@ -34,6 +34,7 @@ export default function getConfig(
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near|token.v2.ref-finance.near|400',
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near|token.v2.ref-finance.near|400',
         ],
+        SUPPORT_SHADOW_POOL_IDS: [],
       };
     case 'pub-testnet':
       return {
@@ -47,6 +48,7 @@ export default function getConfig(
         ORDRRBOOK_COLLATTERAL_TOKEN: 'usdc.orderly.testnet',
         BLACK_LIST_DCL_POOL_IDS_IN_POOLS: [],
         WHITE_LIST_DCL_POOL_IDS_IN_LIMIT_ORDERS: [],
+        SUPPORT_SHADOW_POOL_IDS: [],
       };
     case 'testnet':
       return {
@@ -66,6 +68,7 @@ export default function getConfig(
           'usdcc.fakes.testnet|wrap.testnet|400',
           'ref.fakes.testnet|usdc.fakes.testnet|400',
         ],
+        SUPPORT_SHADOW_POOL_IDS: ['0', '2'],
       };
     default:
       return {
@@ -98,6 +101,7 @@ export default function getConfig(
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near|token.v2.ref-finance.near|400',
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near|token.v2.ref-finance.near|400',
         ],
+        SUPPORT_SHADOW_POOL_IDS: [],
       };
   }
 }
