@@ -583,7 +583,6 @@ export const get_unWithDraw_rewards = async () => {
     args: { farmer_id: accountId },
   });
 };
-// TODO
 export const stake_boost_shadow = async ({
   pool_id,
   amount,
@@ -639,7 +638,6 @@ export const stake_boost_shadow = async ({
 
   return executeFarmMultipleTransactions(transactions);
 };
-// TODO
 export const unStake_boost_shadow = async ({
   seed_id,
   unlock_amount,

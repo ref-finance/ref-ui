@@ -25,6 +25,7 @@ import {
   NewIcon,
   ForbiddonIcon,
   StableOption,
+  BurrowIcon,
 } from '../../components/icon/FarmBoost';
 import {
   GradientButton,
@@ -93,6 +94,7 @@ import { useAccountInfo, LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import { VEARROW } from '../icon/Referendum';
 import Countdown, { zeroPad } from 'react-countdown';
 import { MoreButtonIcon } from '../../components/icon/Common';
+import getConfigV2 from '../../services/configV2';
 
 import _ from 'lodash';
 import { PoolInfo } from 'src/services/swapV3';
@@ -109,6 +111,7 @@ import {
   openUrl,
 } from '../../services/commonV3';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
+import LPTip from './LPTip';
 
 const {
   REF_VE_CONTRACT_ID,
@@ -3017,6 +3020,15 @@ function FarmView(props: {
       </div>
     );
   }
+  function getBurrowLpTip() {
+    const shadow_id = `shadow_ref_v1-${pool?.id}`;
+    const url = `https://app.burrow.finance/tokenDetail/${shadow_id}`;
+
+    const result = `<div class="text-xs text-farmText w-52">
+        Please re-stake to support  double reward from Ref’s farm and <a href=${url} class="text-xs ml-0.5 text-burrowYellowColor underline" target="_blank">Burrow’s LP Supplying.</a>
+      </div>`;
+    return result;
+  }
   const isHaveUnclaimedReward = haveUnclaimedReward();
   const aprUpLimit = getAprUpperLimit();
   const needForbidden =
@@ -3025,6 +3037,10 @@ function FarmView(props: {
     ) > -1;
   const tokens_sort: TokenMetadata[] = sort_tokens_by_base(tokens);
   const is_mobile = isMobile();
+  const configV2 = getConfigV2();
+  const is_support_lp = configV2.SUPPORT_SHADOW_POOL_IDS.includes(
+    pool?.id?.toString()
+  );
   return (
     <>
       <div
@@ -3278,8 +3294,7 @@ function FarmView(props: {
                     data-type="info"
                     data-place="top"
                     data-multiline={true}
-                    data-tip={getAprTip()}
-                    data-html={true}
+                    data-tooltip-html={getAprTip()}
                     data-tooltip-id={'aprId' + seed.farmList[0].farm_id}
                     data-class="reactTip"
                   >
@@ -3303,6 +3318,8 @@ function FarmView(props: {
                     </span>
                     <CustomTooltip id={'aprId' + seed.farmList[0].farm_id} />
                   </div>
+                  {is_support_lp ? <LPTip poolId={pool.id} /> : null}
+
                   <CalcIcon
                     onClick={(e: any) => {
                       e.stopPropagation();

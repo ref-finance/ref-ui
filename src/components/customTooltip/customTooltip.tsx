@@ -12,6 +12,7 @@ type Props = {
   className?: string;
   place?: PlacesType;
   style?: any;
+  clickable?: boolean;
 };
 const CustomTooltip = ({
   id,
@@ -22,6 +23,7 @@ const CustomTooltip = ({
   setIsOpen,
   place,
   style,
+  clickable,
 }: Props) => {
   const isMobile = useClientMobile();
 
@@ -36,6 +38,7 @@ const CustomTooltip = ({
       place={place}
       setIsOpen={setIsOpen}
       style={style}
+      clickable={!!clickable}
     >
       {children}
     </ReactTooltip>

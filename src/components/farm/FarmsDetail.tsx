@@ -165,7 +165,6 @@ export default function FarmsDetail(props: {
       getSharesInfo();
     }
   }, [Object.keys(user_seeds_map).length, user_data_loading]);
-  // TODO
   async function getSharesInfo() {
     const { seed_id } = detailData;
     const { free_amount, shadow_amount } = user_seeds_map[seed_id] || {};
@@ -602,7 +601,6 @@ function StakeContainer(props: {
       setShowAddLiquidityEntry(false);
     } else {
       const poolId = pool.id;
-      // TODO
       const b = new BigNumber(sharesInfo.sharesInPool)
         .minus(sharesInfo.amountByShadowInFarm)
         .toFixed();
@@ -2854,7 +2852,6 @@ function UserStakeBlock(props: {
     </div>
   );
 }
-// TODO
 export function StakeModal(props: {
   title: string;
   isOpen: boolean;
@@ -3150,7 +3147,6 @@ export function StakeModal(props: {
           },
         });
       }
-      // TODO
       if (configV2.SUPPORT_SHADOW_POOL_IDS.includes(pool?.id?.toString())) {
         stake_boost_shadow({
           pool_id: +pool.id,
@@ -3244,7 +3240,6 @@ export function StakeModal(props: {
             {displaySymbols()}
           </span>
         </div>
-        {/* TODO */}
         <div className="text-farmText text-sm">
           {stakeType == 'freeToLock'
             ? toPrecision(freeAmount, 6)
@@ -3646,7 +3641,6 @@ export function UnStakeModal(props: {
     setAmount(value);
   }
   function operationUnStake() {
-    // TODO
     setUnStakeLoading(true);
     if (unStakeType == 'free') {
       if (configV2.SUPPORT_SHADOW_POOL_IDS.includes(pool?.id?.toString())) {
