@@ -1015,7 +1015,7 @@ export default function SwapCard(props: {
       return false;
     if (tokenIn?.symbol == 'NEAR') {
       if (
-        !new BigNumber(tokenInAmount).plus(0.05).isLessThanOrEqualTo(tokenInMax)
+        !new BigNumber(tokenInAmount).plus(0.1).isLessThanOrEqualTo(tokenInMax)
       )
         return false;
     }

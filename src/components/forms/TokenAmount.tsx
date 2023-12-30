@@ -547,11 +547,11 @@ export function TokenAmountV3({
     selectedToken?.id === WRAP_NEAR_CONTRACT_ID &&
     selectedToken?.symbol === 'NEAR' &&
     !forWrap
-      ? Number(max) <= 0.05
+      ? Number(max) <= 0.1
         ? '0'
         : toPrecision(
             scientificNotationToString(
-              new BigNumber(max).minus(0.05).toString()
+              new BigNumber(max).minus(0.1).toString()
             ),
             12
           )
