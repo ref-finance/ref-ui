@@ -109,6 +109,11 @@ import { PortfolioData } from 'src/pages/Portfolio';
 import { openUrl } from '../../services/commonV3';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import BLACKTip from '../../components/pool/BLACKTip';
+import {
+  ClassicFarmAmount,
+  ClassicFarmAmountMobile,
+  ShadowRecordLockedAmount,
+} from 'src/pages/pools/poolsComponents/poolsComponents';
 const is_mobile = isMobile();
 const { BLACK_TOKEN_LIST } = getConfig();
 export const StakeListContext = createContext(null);
@@ -1380,75 +1385,17 @@ function PoolRow(props: {
 
           <div className="col-span-2 flex flex-col text-xs  -ml-12 text-farmText">
             {(supportFarmV1 > endedFarmV1 || Number(farmStakeV1) > 0) && (
-              <Link
-                to={{
-                  pathname: '/farms',
-                }}
-                target="_blank"
-                rel="noopener noreferrer nofollow"
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-                className="text-primaryText mb-1.5 flex"
-              >
-                <span>
-                  {toPrecision(
-                    toReadableNumber(
-                      lpDecimal,
-                      scientificNotationToString(farmStakeV1.toString())
-                    ),
-                    2
-                  )}
-                </span>
-                <span className="mx-1">
-                  <FormattedMessage id="in" defaultMessage={'in'} />
-                </span>
-                <div className="text-primaryText flex items-center hover:text-gradientFrom flex-shrink-0">
-                  <span className="underline">Legacy Farms</span>
-
-                  <span className="ml-0.5">
-                    <VEARROW />
-                  </span>
-                </div>
-              </Link>
+              <ClassicFarmAmount
+                poolId={pool.id}
+                farmVersion={"v1"}
+              />
             )}
-
             {(supportFarmV2 > endedFarmV2 || Number(farmStakeV2) > 0) && (
-              <Link
-                to={{
-                  pathname: `/v2farms/${pool.id}-${
-                    props.onlyEndedFarmV2 ? 'e' : 'r'
-                  }`,
-                }}
-                target="_blank"
-                rel="noopener noreferrer nofollow"
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-                className="text-primaryText mb-1.5 flex"
-              >
-                <span>
-                  {toPrecision(
-                    toReadableNumber(
-                      lpDecimal,
-                      scientificNotationToString(farmStakeV2.toString())
-                    ),
-                    2
-                  )}
-                </span>
-                <span className="mx-1">
-                  <FormattedMessage id="in" defaultMessage={'in'} />
-                </span>
-                <div className="text-primaryText flex items-center hover:text-gradientFrom flex-shrink-0">
-                  <span className="underline">
-                    <FormattedMessage id="classic_farms" />
-                  </span>
-
-                  <span className="ml-0.5">
-                    <VEARROW />
-                  </span>
-                </div>
-              </Link>
+              <ClassicFarmAmount
+                poolId={pool.id}
+                onlyEndedFarmV2={props.onlyEndedFarmV2}
+                farmVersion={"v2"}
+              />
             )}
             {Number(getVEPoolId()) === Number(pool.id) &&
             !!getConfig().REF_VE_CONTRACT_ID ? (
@@ -1492,7 +1439,7 @@ function PoolRow(props: {
                 </div>
               </div>
             ) : null}
-
+            <ShadowRecordLockedAmount poolId={poolId} />
             {ONLY_ZEROS.test(shares) ||
             (supportFarmV1 === 0 && supportFarmV2 === 0) ? null : (
               <div>
@@ -1697,39 +1644,16 @@ function PoolRow(props: {
               )}
 
               {(supportFarmV2 > endedFarmV2 || Number(farmStakeV2) > 0) && (
-                <Link
-                  to={{
-                    pathname: `/v2farms/${pool.id}-${
-                      props.onlyEndedFarmV2 ? 'e' : 'r'
-                    }`,
-                  }}
-                  target="_blank"
-                  rel="noopener noreferrer nofollow"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  className="text-primaryText mb-1.5 flex items-center text-xs"
-                >
-                  <span>
-                    {toPrecision(
-                      toReadableNumber(
-                        lpDecimal,
-                        scientificNotationToString(farmStakeV2.toString())
-                      ),
-                      2
-                    )}
-                  </span>
-                  <span className="mx-1">
-                    <FormattedMessage id="in" defaultMessage={'in'} />
-                  </span>
-                  <span className="border-b border-primaryText">
-                    <FormattedMessage id="classic_farms" />
-                  </span>
-                  <span className="text-gradientFrom ml-0.5">
-                    <VEARROW />
-                  </span>
-                </Link>
+                <ClassicFarmAmount
+                  poolId={pool.id}
+                  onlyEndedFarmV2={props.onlyEndedFarmV2}
+                  farmVersion={"v2"}
+                  linkClass={"text-primaryText mb-1.5 flex items-center text-xs"}
+                />
               )}
+              <ShadowRecordLockedAmount poolId={poolId}
+              linkClass={"text-primaryText mb-1.5 flex items-center text-xs"}
+              />
               {Number(getVEPoolId()) === Number(pool.id) &&
               !!getConfig().REF_VE_CONTRACT_ID ? (
                 <div

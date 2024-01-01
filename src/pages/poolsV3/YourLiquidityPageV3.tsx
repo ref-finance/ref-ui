@@ -81,6 +81,8 @@ import { NFTIdIcon } from 'src/components/icon/FarmBoost';
 import { YourLiquidityV2 } from 'src/components/pool/YourLiquidityV2';
 import { isMobile } from 'src/utils/device';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
+import { getShadowRecords } from 'src/services/shadowRecord';
+import { useShadowRecord } from 'src/stores/liquidityStores';
 
 export default function YourLiquidityPageV3() {
   const clearState = () => {
@@ -148,9 +150,12 @@ export default function YourLiquidityPageV3() {
 
     return null;
   }
-
+  const setShadowRecords = useShadowRecord((state) => state.setShadowRecords);
   useEffect(() => {
     const ids = ALL_STABLE_POOL_IDS;
+    getShadowRecords().then((res) => {
+      setShadowRecords(res);
+    });
     getPoolsByIds({ pool_ids: ids }).then((res) => {
       setStablePools(res);
     });

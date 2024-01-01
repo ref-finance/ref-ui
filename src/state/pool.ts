@@ -165,13 +165,23 @@ export const useBatchTotalShares = (
     getShares();
   }, [ids?.join('-'), finalStakeList, isSignedIn, stakeListDone]);
   async function getShares() {
-    const shareInPools = await Promise.all(
-      ids.map((id) => getSharesInPool(Number(id)))
-    );
-    const shareInFarms = ids.map((id) => getFarmStake(Number(id)));
-    setBatchShares(shareInPools);
-    setBatchFarmStake(shareInFarms);
-    setSharesDone(true);
+    try {
+      const shareInPoolsSettled = await Promise.allSettled(
+        ids.map((id) => getSharesInPool(Number(id)))
+      );
+      const shareInPools = shareInPoolsSettled
+        .filter((d) => d.status === 'fulfilled')
+        .map((v: any) => v.value);
+      // const shareInPools = await Promise.all(
+      //   ids.map((id) => getSharesInPool(Number(id)))
+      // );
+      const shareInFarms = ids.map((id) => getFarmStake(Number(id)));
+      setBatchShares(shareInPools);
+      setBatchFarmStake(shareInFarms);
+      setSharesDone(true);
+    } catch (e) {
+      console.error('getSharesErr', ids, e);
+    }
   }
   return {
     sharesDone,

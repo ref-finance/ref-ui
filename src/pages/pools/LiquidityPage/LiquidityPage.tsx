@@ -149,6 +149,8 @@ import {
   REF_POOL_ID_SEARCHING_KEY,
   TokenPriceListContext,
 } from './constLiquidityPage';
+import { getShadowRecords } from 'src/services/shadowRecord';
+import { useShadowRecord } from 'src/stores/liquidityStores';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -1716,6 +1718,7 @@ export default function LiquidityPage() {
   const [activeTab, setActiveTab] = useState<string>(
     localStorage.getItem(REF_FI_POOL_ACTIVE_TAB) || 'v1'
   );
+  const setShadowRecords = useShadowRecord((state) => state.setShadowRecords);
 
   const switchActiveTab = (curTab: string) => {
     setActiveTab(curTab);
@@ -1727,7 +1730,11 @@ export default function LiquidityPage() {
   const [do_farms_v2_poos, set_do_farms_v2_poos] = useState<
     Record<string, Seed>
   >({});
+
   useEffect(() => {
+    getShadowRecords().then((res) => {
+      setShadowRecords(res);
+    });
     get_all_seeds().then((seeds: Seed[]) => {
       const activeSeeds = seeds.filter((seed: Seed) => {
         const { farmList, seed_id } = seed;

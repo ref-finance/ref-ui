@@ -167,6 +167,10 @@ import { HiOutlineExternalLink, HiOutlineLink } from 'react-icons/hi';
 const { BLACK_TOKEN_LIST } = getConfig();
 import { PoolRefreshModal } from './PoolRefreshModal';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
+import {
+  ClassicFarmAmount,
+  ShadowRecordLockedAmount,
+} from 'src/pages/pools/poolsComponents/poolsComponents';
 
 interface ParamTypes {
   id: string;
@@ -1075,84 +1079,32 @@ export function RemoveLiquidityModal(
         </div>
 
         <div
-          className={`flex items-center flex-wrap mb-4  text-xs text-primaryText  ${
-            Number(farmStakeV1) > 0 || Number(farmStakeV2) > 0 ? '' : 'hidden'
-          }`}
+          className={`flex items-center flex-wrap mb-4 text-xs text-primaryText`}
         >
           {Number(farmStakeV1) > 0 && (
-            <Link
-              to={{
-                pathname: '/farms',
-              }}
-              target="_blank"
-              rel="noopener noreferrer nofollow"
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
-              className="hover:text-gradientFrom rounded-lg py-1.5 px-2 bg-black bg-opacity-20 mb-1.5 flex mr-2"
-            >
-              <span>
-                {toPrecision(
-                  toReadableNumber(
-                    24,
-                    scientificNotationToString(farmStakeV1.toString())
-                  ),
-                  2
-                )}
-              </span>
-              <span className="mx-1">
-                <FormattedMessage id="in" defaultMessage={'in'} />
-              </span>
-              <div className=" flex items-center flex-shrink-0">
-                <span className="">
-                  Legacy &nbsp;
-                  <FormattedMessage id="farm" defaultMessage={'Farm'} />
-                </span>
-
-                <span className="ml-0.5">
-                  <VEARROW />
-                </span>
-              </div>
-            </Link>
+            <ClassicFarmAmount
+              poolId={pool.id}
+              farmVersion={'v1'}
+              onlyEndedFarmV2={endedFarmCountV2 === farmCountV2}
+              linkClass={
+                'hover:text-gradientFrom rounded-lg py-1.5 px-2 bg-black bg-opacity-20 mb-1.5 flex mr-2'
+              }
+              textContainerClassName={'flex items-center  flex-shrink-0'}
+              textClassName={''}
+            />
           )}
 
           {Number(farmStakeV2) > 0 && (
-            <Link
-              to={{
-                pathname: `/v2farms/${pool.id}-${
-                  endedFarmCountV2 === farmCountV2 ? 'e' : 'r'
-                }`,
-              }}
-              target="_blank"
-              rel="noopener noreferrer nofollow"
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
-              className="hover:text-gradientFrom mb-1.5 mr-2 flex rounded-lg py-1.5 px-2 bg-black bg-opacity-20"
-            >
-              <span>
-                {toPrecision(
-                  toReadableNumber(
-                    24,
-                    scientificNotationToString(farmStakeV2.toString())
-                  ),
-                  4
-                )}
-              </span>
-              <span className="mx-1">
-                <FormattedMessage id="in" defaultMessage={'in'} />
-              </span>
-              <div className=" flex items-center  flex-shrink-0">
-                <span className="">
-                  Classic&nbsp;
-                  <FormattedMessage id="farm" defaultMessage={'Farm'} />
-                </span>
-
-                <span className="ml-0.5">
-                  <VEARROW />
-                </span>
-              </div>
-            </Link>
+            <ClassicFarmAmount
+              poolId={pool.id}
+              farmVersion={'v2'}
+              onlyEndedFarmV2={endedFarmCountV2 === farmCountV2}
+              linkClass={
+                'hover:text-gradientFrom mb-1.5 mr-2 flex rounded-lg py-1.5 px-2 bg-black bg-opacity-20'
+              }
+              textContainerClassName={'flex items-center  flex-shrink-0'}
+              textClassName={''}
+            />
           )}
 
           {Number(getVEPoolId()) === Number(pool.id) &&
@@ -1195,6 +1147,15 @@ export function RemoveLiquidityModal(
               </div>
             </div>
           ) : null}
+
+          <ShadowRecordLockedAmount
+            poolId={poolId}
+            linkClass={
+              'cursor-pointer hover:text-gradientFrom rounded-lg py-1.5 px-2 bg-black bg-opacity-20 mb-1.5 flex mr-2'
+            }
+            textClassName={''}
+            textContainerClassName={'flex items-center  flex-shrink-0'}
+          />
         </div>
 
         <div>
@@ -1483,12 +1444,13 @@ export function RecentTransactions({
   const renderLiquidityTransactions = liquidityTransactions.map((tx) => {
     const { amounts } = tx;
     const renderTokens: any[] = [];
-    const amountsObj: any[] = JSON.parse(amounts.replace(/\'/g, '"'));
+    const amountsObj: any[] =
+      amounts === '' ? [] : JSON.parse(amounts.replace(/\'/g, '"'));
     amountsObj.forEach((amount: string, index) => {
       if (Big(amount || 0).gt(0)) {
         renderTokens.push({
           token: tokens[index],
-          amount: toReadableNumber(tokens[index].decimals, amountsObj[index]),
+          amount: toReadableNumber(tokens[index]?.decimals, amountsObj[index]),
         });
       }
     });
@@ -1528,7 +1490,7 @@ export function RecentTransactions({
                 </span>
 
                 <span className="ml-1 text-primaryText">
-                  {toRealSymbol(renderToken.token.symbol)}
+                  {toRealSymbol(renderToken.token?.symbol)}
                 </span>
                 {index !== renderTokens.length - 1 ? (
                   <span className="mx-1">+</span>
