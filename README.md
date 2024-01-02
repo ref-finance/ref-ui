@@ -1,6 +1,6 @@
 # ref-ui
 
-This is the front-end for [ref.finance](https://app.ref.finance).
+This is the front-end for [app.ref.finance](https://app.ref.finance).
 
 ## Quick Start
 
