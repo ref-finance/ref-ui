@@ -25,26 +25,30 @@ export function PerpOrderlyTip() {
       }}
     >
       <FormattedMessage
-        id="perpTip"
+        // id="perpTip"
+        id="perpTipDown"
+        // defaultMessage={
+        //   'Welcome to Perpetual Futures trading!{br} Please  read {perpTipLink} docs to get start!'
+        // }
         defaultMessage={
-          'Welcome to Perpetual Futures trading!{br} Please  read {perpTipLink} docs to get start!'
+          'Order book system update will be conducted from 2024/1/4 07:00 AM to 2024/1/4 09:00 AM (UTC), during which time Spot and Perps will be temporarily unavailable.'
         }
-        values={{
-          perpTipLink: (
-            <a
-              className="font-gothamBold mx-1 underline"
-              rel="noopener noreferrer nofollow"
-              target="_blank"
-              href="https://docs.orderly.network/perpetual-futures/introduction"
-            >
-              {isMobile && <br />}
-              <FormattedMessage
-                id="perpTipLink"
-                defaultMessage="[Perpetual-futures Introduction]"
-              />
-            </a>
-          ),
-        }}
+        // values={{
+        //   perpTipLink: (
+        //     <a
+        //       className="font-gothamBold mx-1 underline"
+        //       rel="noopener noreferrer nofollow"
+        //       target="_blank"
+        //       href="https://docs.orderly.network/perpetual-futures/introduction"
+        //     >
+        //       {isMobile && <br />}
+        //       <FormattedMessage
+        //         id="perpTipLink"
+        //         defaultMessage="[Perpetual-futures Introduction]"
+        //       />
+        //     </a>
+        //   ),
+        // }}
       />
 
       <div
@@ -84,27 +88,31 @@ export function PerpOrderlyTipMobile() {
       }}
     >
       <FormattedMessage
-        id="perpTip"
+        // id="perpTip"
+        id="perpTipDown"
+        // defaultMessage={
+        //   'Welcome to Perpetual Futures trading! Please  read {perpTipLink} docs to get start!'
+        // }
         defaultMessage={
-          'Welcome to Perpetual Futures trading! Please  read {perpTipLink} docs to get start!'
+          'Order book system update will be conducted from 2024/1/4 07:00 AM to 2024/1/4 09:00 AM (UTC), during which time Spot and Perps will be temporarily unavailable.'
         }
-        values={{
-          perpTipLink: (
-            <a
-              className="font-gothamBold mx-1 underline"
-              rel="noopener noreferrer nofollow"
-              target="_blank"
-              href="https://docs.orderly.network/perpetual-futures/introduction"
-            >
-              {/* {isMobile && <br />} */}
-              <FormattedMessage
-                id="perpTipLink"
-                defaultMessage="[Perpetual-futures Introduction]"
-              />
-            </a>
-          ),
-          br: <br />,
-        }}
+        // values={{
+        //   perpTipLink: (
+        //     <a
+        //       className="font-gothamBold mx-1 underline"
+        //       rel="noopener noreferrer nofollow"
+        //       target="_blank"
+        //       href="https://docs.orderly.network/perpetual-futures/introduction"
+        //     >
+        //       {/* {isMobile && <br />} */}
+        //       <FormattedMessage
+        //         id="perpTipLink"
+        //         defaultMessage="[Perpetual-futures Introduction]"
+        //       />
+        //     </a>
+        //   ),
+        //   br: <br />,
+        // }}
       />
 
       <div
