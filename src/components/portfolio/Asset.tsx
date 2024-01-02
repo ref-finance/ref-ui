@@ -7,7 +7,11 @@ import React, {
 } from 'react';
 import { ftGetTokenMetadata } from '../../services/ft-contract';
 import BigNumber from 'bignumber.js';
-import { toReadableNumber } from 'src/utils/numbers';
+import {
+  scientificNotationToString,
+  toPrecision,
+  toReadableNumber,
+} from 'src/utils/numbers';
 import QuestionMark from '../../components/farm/QuestionMark';
 import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { ftGetBalance } from 'src/services/ft-contract';
@@ -31,6 +35,9 @@ import { isMobile } from 'src/utils/device';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { openUrl } from '../../services/commonV3';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
+import { useShadowRecord } from 'src/stores/liquidityStores';
+import { isStablePool } from 'src/services/near';
+import { getStablePoolDecimal } from 'src/pages/stable/StableSwapEntry';
 const is_mobile = isMobile();
 const AssetData = createContext(null);
 export default function Asset() {
@@ -101,7 +108,13 @@ export default function Asset() {
       ? display_value(total_user_invest_value_original)
       : '$-';
   }, [total_user_invest_value_original, total_user_invest_value_done]);
+
   const percent_in_classic_farms = useMemo(() => {
+    console.log(
+      'YourLpValueV1YourLpValueV1YourLpValueV1',
+      YourLpValueV1,
+      classic_farms_value
+    );
     let percent = new BigNumber(0);
     let percent_done = false;
     if (lpValueV1Done && classic_farms_value_done) {
@@ -126,6 +139,7 @@ export default function Asset() {
       ? display_percentage(percent.multipliedBy(100).toFixed()) + '%'
       : '-%';
   }, [lpValueV1Done, classic_farms_value_done]);
+
   const percent_in_dcl_farms = useMemo(() => {
     let percent = new BigNumber(0);
     let percent_done = false;
@@ -299,19 +313,23 @@ function AssetPc() {
             openUrl('/pools');
           }}
         >
-          <div className="flex items-center text-farmText text-xs mt-1 bg-cardBg rounded-md px-2 py-1">
-            {percent_in_classic_farms}{' '}
-            <span
-              onClick={() => {
-                localStorage.setItem('BOOST_FARM_TAB', 'yours');
-                openUrl('/v2farms');
-              }}
-              className="ml-1.5 text-limitOrderInputColor underline hover:text-primaryText cursor-pointer"
-            >
-              <FormattedMessage id="in_farm_2"></FormattedMessage>
-            </span>{' '}
-          </div>
+          <>
+            <div className="flex items-center text-farmText text-xs mt-1 bg-cardBg rounded-md px-2 py-1">
+              {percent_in_classic_farms}{' '}
+              <span
+                onClick={() => {
+                  localStorage.setItem('BOOST_FARM_TAB', 'yours');
+                  openUrl('/v2farms');
+                }}
+                className="ml-1.5 text-limitOrderInputColor underline hover:text-primaryText cursor-pointer"
+              >
+                <FormattedMessage id="in_farm_2"></FormattedMessage>
+              </span>{' '}
+            </div>
+            <ShadowRecordPercentage />
+          </>
         </DataTemplate>
+
         <DataTemplate
           title={intl.formatMessage({ id: 'xref_staking' })}
           value={show_total_xref_value}
@@ -414,7 +432,7 @@ function AssetMobile() {
           className="pl-3 pr-5 w-1 flex-grow py-4"
         >
           <div className="flex items-center text-farmText text-xs mt-1 bg-cardBg rounded-md px-2 py-1">
-            {percent_in_classic_farms}{' '}
+            {percent_in_classic_farms} dddd
             <span
               onClick={() => {
                 localStorage.setItem('BOOST_FARM_TAB', 'yours');
@@ -454,3 +472,52 @@ function DataTemplate(props: any) {
     </div>
   );
 }
+
+const ShadowRecordPercentage = () => {
+  const {
+    tokenPriceList,
+    YourLpValueV1,
+    YourLpValueV2,
+    lpValueV1Done,
+    lpValueV2Done,
+    history_total_asset,
+    history_total_asset_done,
+    your_classic_lp_all_in_farms,
+  } = useContext(PortfolioData);
+  console.log('YourLpValueV2', YourLpValueV2);
+  const shadowRecords = useShadowRecord((state) => state.shadowRecords);
+  let totalShadowValue = 0;
+  if (shadowRecords) {
+    Object.entries(shadowRecords).forEach(([shadowId, value]) => {
+      const inBurrow = shadowRecords?.[Number(shadowId)]?.shadow_in_burrow;
+      const decimal = isStablePool(shadowId)
+        ? getStablePoolDecimal(shadowId)
+        : 24;
+      const amount = toReadableNumber(
+        decimal,
+        scientificNotationToString(inBurrow.toString())
+      );
+      totalShadowValue += Number(amount);
+    });
+  }
+  console.log('YourLpValueV1YourLpValueV1', shadowRecords, totalShadowValue);
+
+  if (totalShadowValue === 0) return null;
+  let percent = new BigNumber(totalShadowValue || 0).dividedBy(YourLpValueV1);
+
+  return (
+    <div>
+      <div className="flex items-center text-farmText text-xs mt-1 bg-cardBg rounded-md px-2 py-1">
+        {display_percentage(percent.multipliedBy(100).toFixed()) + '%'}{' '}
+        <span
+          onClick={() => {
+            openUrl('https://app.burrow.finance/');
+          }}
+          className="ml-1.5 text-limitOrderInputColor underline hover:text-primaryText cursor-pointer"
+        >
+          in Burrow
+        </span>{' '}
+      </div>
+    </div>
+  );
+};

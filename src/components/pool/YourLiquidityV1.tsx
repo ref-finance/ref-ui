@@ -1385,16 +1385,13 @@ function PoolRow(props: {
 
           <div className="col-span-2 flex flex-col text-xs  -ml-12 text-farmText">
             {(supportFarmV1 > endedFarmV1 || Number(farmStakeV1) > 0) && (
-              <ClassicFarmAmount
-                poolId={pool.id}
-                farmVersion={"v1"}
-              />
+              <ClassicFarmAmount poolId={pool.id} farmVersion={'v1'} />
             )}
             {(supportFarmV2 > endedFarmV2 || Number(farmStakeV2) > 0) && (
               <ClassicFarmAmount
                 poolId={pool.id}
                 onlyEndedFarmV2={props.onlyEndedFarmV2}
-                farmVersion={"v2"}
+                farmVersion={'v2'}
               />
             )}
             {Number(getVEPoolId()) === Number(pool.id) &&
@@ -1647,12 +1644,15 @@ function PoolRow(props: {
                 <ClassicFarmAmount
                   poolId={pool.id}
                   onlyEndedFarmV2={props.onlyEndedFarmV2}
-                  farmVersion={"v2"}
-                  linkClass={"text-primaryText mb-1.5 flex items-center text-xs"}
+                  farmVersion={'v2'}
+                  linkClass={
+                    'text-primaryText mb-1.5 flex items-center text-xs'
+                  }
                 />
               )}
-              <ShadowRecordLockedAmount poolId={poolId}
-              linkClass={"text-primaryText mb-1.5 flex items-center text-xs"}
+              <ShadowRecordLockedAmount
+                poolId={poolId}
+                linkClass={'text-primaryText mb-1.5 flex items-center text-xs'}
               />
               {Number(getVEPoolId()) === Number(pool.id) &&
               !!getConfig().REF_VE_CONTRACT_ID ? (

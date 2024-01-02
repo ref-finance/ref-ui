@@ -15,6 +15,8 @@ import { getBoostTokenPrices } from '../services/farm';
 import { UserLiquidityInfo } from '../services/commonV3';
 import { TokenMetadata } from 'src/services/ft-contract';
 import { isMobile } from 'src/utils/device';
+import { getShadowRecords } from 'src/services/shadowRecord';
+import { useShadowRecord } from 'src/stores/liquidityStores';
 const is_mobile = isMobile();
 export const PortfolioData = createContext(null);
 function Portfolio() {
@@ -75,8 +77,12 @@ function Portfolio() {
   const [history_total_asset, set_history_total_asset] = useState<string>('0');
   const [history_total_asset_done, set_history_total_asset_done] =
     useState<boolean>(false);
+  const setShadowRecords = useShadowRecord((state) => state.setShadowRecords);
 
   useEffect(() => {
+    getShadowRecords().then((res) => {
+      setShadowRecords(res);
+    });
     getTokenPriceList();
   }, []);
   async function getTokenPriceList() {
