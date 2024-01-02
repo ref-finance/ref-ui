@@ -438,7 +438,6 @@ export const listRewards = async (
     args: { account_id: accountId },
   });
 };
-// todo1
 export const claimRewardByFarm = async (farm_id: string): Promise<any> => {
   // return refFarmFunctionCall({
   //   methodName: 'claim_reward_by_farm',
@@ -456,7 +455,6 @@ export const claimRewardByFarm = async (farm_id: string): Promise<any> => {
   });
   executeFarmMultipleTransactions(transactions);
 };
-// todo2
 export const claimRewardBySeed = async (seed_id: string): Promise<any> => {
   // return refFarmFunctionCall({
   //   methodName: 'claim_reward_by_seed',
@@ -611,6 +609,7 @@ export const stake_boost_shadow = async ({
       ],
     });
   }
+  const shadowRecords = await get_shadow_records();
   transactions.push({
     receiverId: REF_FI_CONTRACT_ID,
     functionCalls: [
@@ -622,7 +621,7 @@ export const stake_boost_shadow = async ({
           amount: toFarmingAmount,
           msg: '',
         },
-        amount: ONE_YOCTO_NEAR,
+        amount: shadowRecords[pool_id] ? ONE_YOCTO_NEAR : '0.003',
         gas: '200000000000000',
       },
     ],
@@ -683,6 +682,7 @@ export const unStake_boost_shadow = async ({
       ],
     });
   } else if (Big(withdraw_amount).lt(amountByTransferInFarm)) {
+    const shadowRecords = await get_shadow_records();
     transactions.push({
       receiverId: REF_FI_CONTRACT_ID,
       functionCalls: [
@@ -696,7 +696,7 @@ export const unStake_boost_shadow = async ({
               .toFixed(0),
             msg: '',
           },
-          amount: ONE_YOCTO_NEAR,
+          amount: shadowRecords[pool_id] ? ONE_YOCTO_NEAR : '0.003',
           gas: '200000000000000',
         },
       ],
