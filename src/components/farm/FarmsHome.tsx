@@ -3020,15 +3020,6 @@ function FarmView(props: {
       </div>
     );
   }
-  function getBurrowLpTip() {
-    const shadow_id = `shadow_ref_v1-${pool?.id}`;
-    const url = `https://app.burrow.finance/tokenDetail/${shadow_id}`;
-
-    const result = `<div class="text-xs text-farmText w-52">
-        Please re-stake to support  double reward from Ref’s farm and <a href=${url} class="text-xs ml-0.5 text-burrowYellowColor underline" target="_blank">Burrow’s LP Supplying.</a>
-      </div>`;
-    return result;
-  }
   const isHaveUnclaimedReward = haveUnclaimedReward();
   const aprUpLimit = getAprUpperLimit();
   const needForbidden =

@@ -103,6 +103,7 @@ import {
 } from 'src/services/commonV3';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import getConfigV2 from 'src/services/configV2';
+import LPTip from './LPTip';
 const configV2 = getConfigV2();
 
 const ONLY_ZEROS = /^0*\.?0*$/;
@@ -921,7 +922,9 @@ function StakeContainer(props: {
   const mobile = isMobile();
   const needForbidden =
     (FARM_BLACK_LIST_V2 || []).indexOf(pool.id.toString()) > -1;
-
+  const is_support_lp = configV2.SUPPORT_SHADOW_POOL_IDS.includes(
+    pool?.id?.toString()
+  );
   return (
     <div className="mt-5">
       <div
@@ -973,39 +976,42 @@ function StakeContainer(props: {
               }`}
             </span>
             {yourApr && !mobile ? null : (
-              <div
-                className={`text-xl text-white`}
-                data-type="info"
-                data-place="top"
-                data-multiline={true}
-                data-tooltip-html={getAprTip(yourApr ? true : false)}
-                data-tooltip-id={'aprId' + detailData.farmList[0].farm_id}
-                data-class="reactTip"
-              >
-                <span
-                  className={`flex items-center flex-wrap justify-center text-white text-base text-right`}
+              <div className="flex items-center">
+                <div
+                  className={`text-xl text-white`}
+                  data-type="info"
+                  data-place="top"
+                  data-multiline={true}
+                  data-tooltip-html={getAprTip(yourApr ? true : false)}
+                  data-tooltip-id={'aprId' + detailData.farmList[0].farm_id}
+                  data-class="reactTip"
                 >
-                  {' '}
-                  {yourApr ? (
-                    <div className="flex flex-col items-end justify-center">
-                      <label className="text-white">{yourApr}</label>
-                      <span className="text-sm text-primaryText">
-                        ({getTotalApr()}
-                        {aprUpLimit})
-                      </span>
-                    </div>
-                  ) : (
-                    <>
-                      <label
-                        className={`${aprUpLimit ? 'text-xs' : 'text-base'}`}
-                      >
-                        {getTotalApr()}
-                      </label>
-                      {aprUpLimit}
-                    </>
-                  )}
-                </span>
-                <CustomTooltip id={'aprId' + detailData.farmList[0].farm_id} />
+                  <span
+                    className={`flex items-center flex-wrap justify-center text-white text-base text-right`}
+                  >
+                    {' '}
+                    {yourApr ? (
+                      <div className="flex flex-col items-end justify-center">
+                        <label className="text-white">{yourApr}</label>
+                        <span className="text-sm text-primaryText">
+                          ({getTotalApr()}
+                          {aprUpLimit})
+                        </span>
+                      </div>
+                    ) : (
+                      <>
+                        <label
+                          className={`${aprUpLimit ? 'text-xs' : 'text-base'}`}
+                        >
+                          {getTotalApr()}
+                        </label>
+                        {aprUpLimit}
+                      </>
+                    )}
+                  </span>
+                  <CustomTooltip id={'aprId' + detailData.farmList[0].farm_id} />
+                </div>
+                {is_support_lp ? <LPTip poolId={pool.id} /> : null}
               </div>
             )}
           </div>
