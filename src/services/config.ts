@@ -337,7 +337,7 @@ export default function getConfig(
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
         REF_FI_CONTRACT_ID:
-          process.env.REF_FI_CONTRACT_ID || 'dev-1702262174571-14898860791369',
+          process.env.REF_FI_CONTRACT_ID || 'exchange.ref-dev.testnet',
         WRAP_NEAR_CONTRACT_ID:
           process.env.WRAP_NEAR_CONTRACT_ID || 'wrap.testnet',
         REF_ADBOARD_CONTRACT_ID: 'ref-adboard.near',
