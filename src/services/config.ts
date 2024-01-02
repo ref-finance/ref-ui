@@ -384,7 +384,7 @@ export default function getConfig(
         BLACKLIST_POOL_IDS: ['686'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID ||
-          'dev-1702262397985-62003969987852',
+          'boostfarm-dev.ref-dev.testnet',
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['5%', '10%'],
         REF_UNI_V3_SWAP_CONTRACT_ID:
@@ -396,7 +396,7 @@ export default function getConfig(
         FARM_BLACK_LIST_V2: process.env.FARM_BLACK_LIST_V2 || ['666'],
         boostBlackList: process.env.FARM__BOOST_BLACK_LIST || [''],
         switch_on_dcl_farms: 'on',
-        BURROW_CONTRACT_ID: 'contract.1638481328.burrow.testnet',
+        BURROW_CONTRACT_ID: 'contract.1689937928.burrow.testnet',
         USDTT_USDCC_USDT_USDC_POOL_ID:
           process.env.USDTT_USDCC_USDT_USDC_POOL_ID || 711,
         USDTT_USDCC_USDT_USDC_TOKEN_IDS: [
