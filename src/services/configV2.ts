@@ -68,7 +68,7 @@ export default function getConfig(
           'usdcc.fakes.testnet|wrap.testnet|400',
           'ref.fakes.testnet|usdc.fakes.testnet|400',
         ],
-        SUPPORT_SHADOW_POOL_IDS: ['0', '2'],
+        SUPPORT_SHADOW_POOL_IDS: ['269', '711'],
       };
     default:
       return {
