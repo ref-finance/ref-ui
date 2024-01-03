@@ -621,7 +621,7 @@ export const stake_boost_shadow = async ({
           amount: toFarmingAmount,
           msg: '',
         },
-        amount: shadowRecords[pool_id] ? ONE_YOCTO_NEAR : '0.003',
+        amount: shadowRecords[pool_id] ? ONE_YOCTO_NEAR : '0.01',
         gas: '200000000000000',
       },
     ],
