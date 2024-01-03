@@ -1,10 +1,11 @@
 import Dexie from 'dexie';
 import _ from 'lodash';
 import moment from 'moment';
-import { isNotStablePool, parsePool, PoolDetails } from '~services/pool';
+import { PoolRPCView } from 'src/services/api';
+import { FarmBoost, Seed } from 'src/services/farm';
+import { PoolDetails } from 'src/services/pool';
+
 import getConfig from '../services/config';
-import { PoolRPCView } from '~services/api';
-import { Seed, FarmBoost } from '~services/farm';
 const checkCacheSeconds = 300;
 interface Pool {
   id: number;
@@ -24,7 +25,7 @@ interface TokenMetadata {
   icon: string;
 }
 
-interface PoolsTokens {
+export interface PoolsTokens {
   id: number;
   pool_id: string;
   token1Id: string;
@@ -186,7 +187,7 @@ class RefDatabase extends Dexie {
   }
 
   public async queryPools(args: any) {
-    let pools = await this.allPoolsTokens().toArray();
+    const pools = await this.allPoolsTokens().toArray();
     return this.paginationPools(
       args,
       this.orderPools(
@@ -204,12 +205,12 @@ class RefDatabase extends Dexie {
   }
 
   public async queryTokens(args: any) {
-    let tokens = await this.allTokens().toArray();
+    const tokens = await this.allTokens().toArray();
     return this.searchTokens(args, tokens);
   }
 
   public async queryFarms() {
-    let farms = await this.allFarms().toArray();
+    const farms = await this.allFarms().toArray();
     return farms;
   }
   public async cachePoolsByTokens(pools: any) {
@@ -342,7 +343,7 @@ class RefDatabase extends Dexie {
   }
 
   async queryPoolsByTokensTimeLimit(tokenInId: string, tokenOutId: string) {
-    let normalItems = await this.poolsTokens
+    const normalItems = await this.poolsTokens
       .where('token1Id')
       .equals(tokenInId.toString())
       .and((item) => item.token2Id === tokenOutId.toString())
@@ -353,7 +354,7 @@ class RefDatabase extends Dexie {
             Number(getConfig().POOL_TOKEN_REFRESH_INTERVAL)
       )
       .toArray();
-    let reverseItems = await this.poolsTokens
+    const reverseItems = await this.poolsTokens
       .where('token1Id')
       .equals(tokenOutId.toString())
       .and((item) => item.token2Id === tokenInId.toString())
@@ -369,12 +370,12 @@ class RefDatabase extends Dexie {
   }
 
   async queryPoolsByTokens(tokenInId: string, tokenOutId: string) {
-    let normalItems = await this.poolsTokens
+    const normalItems = await this.poolsTokens
       .where('token1Id')
       .equals(tokenInId.toString())
       .and((item) => item.token2Id === tokenOutId.toString())
       .toArray();
-    let reverseItems = await this.poolsTokens
+    const reverseItems = await this.poolsTokens
       .where('token1Id')
       .equals(tokenOutId.toString())
       .and((item) => item.token2Id === tokenInId.toString())
@@ -385,25 +386,25 @@ class RefDatabase extends Dexie {
 
   async queryPoolsByTokens2orig(tokenInId: string, tokenOutId: string) {
     //Queries for any pools that contain either tokenInId OR tokenOutId OR both.
-    let normalItems = await this.poolsTokens
+    const normalItems = await this.poolsTokens
       .where('token1Id')
       .equals(tokenInId.toString())
       .toArray();
-    let reverseItems = await this.poolsTokens
+    const reverseItems = await this.poolsTokens
       .where('token1Id')
       .equals(tokenOutId.toString())
       .toArray();
 
-    let normalItems2 = await this.poolsTokens
+    const normalItems2 = await this.poolsTokens
       .where('token2Id')
       .equals(tokenInId.toString())
       .toArray();
-    let reverseItems2 = await this.poolsTokens
+    const reverseItems2 = await this.poolsTokens
       .where('token2Id')
       .equals(tokenOutId.toString())
       .toArray();
     //note, there might be some overlap... we'll need to remove the duplicates, then sort by pool id:
-    let dup = [
+    const dup = [
       ...normalItems,
       ...reverseItems,
       ...normalItems2,
@@ -412,20 +413,20 @@ class RefDatabase extends Dexie {
     // let result = [...new Set(dup.map(JSON.stringify))]
     //   .map(JSON.parse)
     //   .sort((a, b) => a['id'] - b['id']);
-    let result = dup;
+    const result = dup;
     return result;
   }
 
   async queryPoolsByTokens2(tokenInId: string, tokenOutId: string) {
     //Queries for any pools that contain either tokenInId OR tokenOutId OR both.
-    let normalItems = await this.poolsTokens.toArray();
+    const normalItems = await this.poolsTokens.toArray();
 
     return normalItems;
   }
 
   async queryPoolsByTokens3(tokenInId: string, tokenOutId: string) {
     //Queries for any pools that contain either tokenInId OR tokenOutId OR both.
-    let normalItems = await this.poolsTokens
+    const normalItems = await this.poolsTokens
       .where('token1Id')
       .equals(tokenInId.toString())
       .and(
@@ -435,7 +436,7 @@ class RefDatabase extends Dexie {
             Number(getConfig().POOL_TOKEN_REFRESH_INTERVAL)
       )
       .toArray();
-    let reverseItems = await this.poolsTokens
+    const reverseItems = await this.poolsTokens
       .where('token1Id')
       .equals(tokenOutId.toString())
       .and(
@@ -446,7 +447,7 @@ class RefDatabase extends Dexie {
       )
       .toArray();
 
-    let normalItems2 = await this.poolsTokens
+    const normalItems2 = await this.poolsTokens
       .where('token2Id')
       .equals(tokenInId.toString())
       .and(
@@ -456,7 +457,7 @@ class RefDatabase extends Dexie {
             Number(getConfig().POOL_TOKEN_REFRESH_INTERVAL)
       )
       .toArray();
-    let reverseItems2 = await this.poolsTokens
+    const reverseItems2 = await this.poolsTokens
       .where('token2Id')
       .equals(tokenOutId.toString())
       .and(
@@ -467,15 +468,15 @@ class RefDatabase extends Dexie {
       )
       .toArray();
     //note, there might be some overlap... we'll need to remove the duplicates, then sort by pool id:
-    let dup = [
+    const dup = [
       ...normalItems,
       ...reverseItems,
       ...normalItems2,
       ...reverseItems2,
     ];
-    let result = [...new Set(dup.map((d) => JSON.stringify(d)))]
+    const result = [...new Set(dup.map((d) => JSON.stringify(d)))]
       .map((d) => JSON.parse(d))
-      .sort((a, b) => a['id'] - b['id']);
+      .sort((a, b) => a.id - b.id);
     return result;
   }
 
@@ -537,11 +538,11 @@ class RefDatabase extends Dexie {
   // }
 
   public async queryPoolsBytoken(tokenId: string) {
-    let normalItems = await this.poolsTokens
+    const normalItems = await this.poolsTokens
       .where('token1Id')
       .equals(tokenId)
       .toArray();
-    let reverseItems = await this.poolsTokens
+    const reverseItems = await this.poolsTokens
       .where('token2Id')
       .equals(tokenId)
       .toArray();
@@ -561,7 +562,7 @@ class RefDatabase extends Dexie {
   }
   /***boost start****/
   public async queryBoostFarms() {
-    let farms = await this.allBoostFarms().toArray();
+    const farms = await this.allBoostFarms().toArray();
     return farms;
   }
   public async queryTokenPrices() {

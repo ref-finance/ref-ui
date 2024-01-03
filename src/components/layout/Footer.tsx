@@ -1,15 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { AiOutlineMedium } from 'react-icons/ai';
-import { FaDiscord, FaTelegramPlane, FaTwitter } from 'react-icons/fa';
-import { FooterLogo, FooterLogoREF } from '~components/icon/FooterLogo';
-import { RefAnalytics, RefAnalyticsGary } from '~components/icon/RefAnalytics';
-import { useRefPrice } from '~state/account';
-import { toPrecision } from '~utils/numbers';
-import RpcList from '~components/rpc/index';
-import { IconForum, MailBoxIcon } from '~components/icon/Nav';
-import ReactTooltip from 'react-tooltip';
+import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useClientMobile } from '~utils/device';
+import { FooterLogoREF } from 'src/components/icon/FooterLogo';
+import { IconForum } from 'src/components/icon/Nav';
+import {
+  RefAnalytics,
+  RefAnalyticsGary,
+} from 'src/components/icon/RefAnalytics';
+import RpcList from 'src/components/rpc/index';
+import { useRefPrice } from 'src/state/account';
+import { useClientMobile } from 'src/utils/device';
+import { toPrecision } from 'src/utils/numbers';
+
+import {
+  AiOutlineMedium,
+  FaDiscord,
+  FaTelegramPlane,
+  FaTwitter,
+} from '../reactIcons';
 
 const CommunityLinks = [
   {
@@ -40,7 +47,7 @@ const CommunityLinks = [
 ];
 
 function openUrl(url: string) {
-  var newTab = window.open();
+  const newTab = window.open();
   newTab.opener = null;
   newTab.location = url;
 }
@@ -84,7 +91,7 @@ function Footer() {
             </div>
             <div className="flex items-center mt-5">
               <div
-                className="cursor-pointer"
+                className="cursor-pointer inline-flex items-center"
                 onMouseOver={() => setHoverLogo(true)}
                 onMouseLeave={() => setHoverLogo(false)}
                 onClick={() => window.open('https://stats.ref.finance/')}
@@ -93,7 +100,7 @@ function Footer() {
                   <RefAnalyticsGary
                     style={{
                       transform: 'scale(0.9)',
-                      transformOrigin: '30% 0%',
+                      transformOrigin: '30% center',
                     }}
                   />
                 )}
@@ -101,18 +108,26 @@ function Footer() {
                   <RefAnalytics
                     style={{
                       transform: 'scale(0.9)',
-                      transformOrigin: '30% 0%',
+                      transformOrigin: '30% center',
                     }}
                   />
                 )}
               </div>
+              <div className="w-px h-3 bg-primaryText mr-3"></div>
+              <div
+                onClick={() =>
+                  window.open('https://guide.ref.finance/developers/audits')
+                }
+                className="text-primaryText text-sm cursor-pointer transition-colors hover:text-primary hover:underline"
+              >
+                Security
+              </div>
               {/* <div
                 className={`text-white text-right`}
                 data-class="reactTip"
-                data-for={'mailBoxId'}
+                data-tooltip-id={'mailBoxId'}
                 data-place="right"
-                data-html={true}
-                data-tip={`<div class="opacity-50 text-xs text-left">Business Inquiries</div>`}
+                data-tooltip-html={`<div class="opacity-50 text-xs text-left">Business Inquiries</div>`}
               >
                 <MailBoxIcon
                   className="relative cursor-pointer ml-5 -mt-1"
@@ -120,7 +135,7 @@ function Footer() {
                     window.open('https://form.typeform.com/to/onOPhJ6Y');
                   }}
                 ></MailBoxIcon>
-                <ReactTooltip
+                <CustomTooltip
                   id={'mailBoxId'}
                   backgroundColor="#1D2932"
                   border

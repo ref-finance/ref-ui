@@ -788,6 +788,7 @@ const zh_CN = {
   state: '状态',
   partially: '部分',
   near_validation_error: '需要预留至少0.5NEAR来支付gas费用',
+  near_min_validation_error: '需要预留至少0.2NEAR来支付gas费用',
   no_positons_in_this_pool_yet: '目前在该流动池没有份额',
   no_claimed_rewards_yet: '还没有领取的奖励',
   out_of: 'out of',
@@ -1227,6 +1228,7 @@ const zh_CN = {
   pool_refresh: '服务器出现问题，请稍后重试。',
   netWorthTip:
     'Ref中的投资总价值(包括可领取奖励)+Orderly资产总价值+ Burrow资产总价值+钱包中的总资产',
+  top_bin_apr: 'Top Bin APR (24h)',
   mark_price: '标记价格',
   last_price: '最新价格',
   mark_price_tip: '标记价格用于盈亏计算和清算。',

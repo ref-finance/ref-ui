@@ -293,11 +293,19 @@ export const getOrders = async (props: {
 }) => {
   const url = `/v1/orders?${formateParams(props.OrderProps || {})}`;
 
-  const res = requestOrderly({
+  const res = await requestOrderly({
     url,
     accountId: props.accountId,
     ct: 'application/json;charset=utf-8',
   });
+
+  if (res?.data?.rows) {
+    res.data.rows.forEach((r: any) => {
+      if (!r?.broker_name) {
+        r.broker_name = '';
+      }
+    });
+  }
 
   return res;
 };
@@ -505,6 +513,7 @@ export const editOrder = async (props: {
     broker_id,
     order_id,
     visible_quantity,
+    reduce_only,
   } = props.orderlyProps;
 
   const sendParams = {
@@ -519,6 +528,7 @@ export const editOrder = async (props: {
     order_id,
     visible_quantity:
       visible_quantity !== order.quantity ? visible_quantity : '',
+    reduce_only,
   };
 
   const message = formateParams(sendParams);
@@ -606,7 +616,14 @@ interface Data {
 }
 
 export const getOrderlySystemInfo = async (): Promise<OrderlySystemInfo> => {
-  return await getOrderlyPublic('/v1/public/system_info');
+  try {
+    return await getOrderlyPublic('/v1/public/system_info');
+  } catch (error) {
+    return new Promise((resolve) => {
+      const res = { data: { status: 2 } } as any;
+      resolve(res);
+    });
+  }
 };
 
 export const getMarketTrades = async ({

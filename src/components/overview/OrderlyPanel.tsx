@@ -10,7 +10,6 @@ import {
   useTokenInfo,
   useStorageEnough,
 } from '../../pages/Orderly/orderly/state';
-import { getFTmetadata, ftGetBalance } from '../../pages/Orderly/near';
 import { OrderlyBgIcon } from './Icons';
 import {
   BalanceType,
@@ -19,9 +18,6 @@ import {
   Holding,
   IBalance,
 } from '../../services/overview/interfaces';
-import { useWalletSelector } from '../../context/WalletSelectorContext';
-import { getCurrentHolding } from '../../pages/Orderly/orderly/off-chain-api';
-import { toReadableNumber } from '~utils/numbers';
 import { OverviewData } from '../../pages/Overview';
 import {
   formatWithCommas_usd,
@@ -41,10 +37,9 @@ import {
 } from '../../pages/Orderly/orderly/utils';
 import { announceKey, setTradingKey } from '../../pages/Orderly/orderly/api';
 import getConfig from '../../pages/Orderly/config';
-import { getOrderlySystemInfo } from '../../pages/Orderly/orderly/off-chain-api';
 import { useHistory } from 'react-router-dom';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { useOrderlyContext } from '~pages/Orderly/orderly/OrderlyContext';
+import { useOrderlyContext } from 'src/pages/Orderly/orderly/OrderlyContext';
 import {
   OrderAsset,
   useOrderlyPortfolioAssets,

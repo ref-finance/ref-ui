@@ -25,6 +25,8 @@ import {
 } from '../icon/Nav';
 import { openTransak } from '../alert/Transak';
 import { getCurrentWallet } from '../../utils/wallets-integration';
+import { WalletRiskCheckBoxModal } from 'src/context/modal-ui/components/WalletOptions/WalletRiskCheckBox';
+import { CONST_ACKNOWLEDGE_WALLET_RISK } from 'src/constants/constLocalStorage';
 
 export function BorderlessButton(
   props: HTMLAttributes<HTMLButtonElement> & { disabled?: boolean }
@@ -137,6 +139,24 @@ export function ConnectToNearBtn() {
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
 
   const [showWalletSelector, setShowWalletSelector] = useState(false);
+  const [showWalletRisk, setShowWalletRisk] = useState<boolean>(false);
+  const handleWalletModalOpen = () => {
+    const isAcknowledgeWalletRisk = localStorage.getItem(
+      CONST_ACKNOWLEDGE_WALLET_RISK
+    );
+    if (!isAcknowledgeWalletRisk) {
+      setShowWalletRisk(true);
+    } else {
+      modal.show();
+    }
+  };
+  const handleAcknowledgeClick = (status) => {
+    if (status === true) {
+      setShowWalletRisk(false);
+      localStorage.setItem(CONST_ACKNOWLEDGE_WALLET_RISK, '1');
+      modal.show();
+    }
+  };
 
   const { selector, modal, accounts, accountId, setAccountId } =
     useWalletSelector();
@@ -154,9 +174,9 @@ export function ConnectToNearBtn() {
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          setButtonLoading(true);
-          // setShowWalletSelector(true);
-          modal.show();
+          // setButtonLoading(true);
+          //modal.show();
+          handleWalletModalOpen();
         }}
       >
         {!buttonLoading && (
@@ -177,6 +197,13 @@ export function ConnectToNearBtn() {
           />
         </button>
       </div>
+
+      <WalletRiskCheckBoxModal
+        isOpen={showWalletRisk}
+        setCheckedStatus={handleAcknowledgeClick}
+        onClose={() => setShowWalletRisk(false)}
+      />
+
       <WalletSelectorModal
         isOpen={showWalletSelector}
         onRequestClose={() => {
@@ -211,7 +238,7 @@ export function ConnectToNearBtnGradient({
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          setButtonLoading(true);
+          // setButtonLoading(true);
           modal.show();
         }}
       >
@@ -259,7 +286,7 @@ export function ConnectToNearBtnGradientMoible({
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          setButtonLoading(true);
+          // setButtonLoading(true);
           modal.show();
         }}
       >
@@ -534,8 +561,8 @@ export function OprationButton(props: any) {
         onClick={onClick}
         disabled={disabled}
         className={`flex items-center justify-center  w-full h-full ${
-          btnClassName ? btnClassName : ''
-        }`}
+          disabled ? 'cursor-not-allowed' : ''
+        } ${btnClassName ? btnClassName : ''}`}
       >
         {props.children}
       </button>
@@ -562,8 +589,7 @@ export function ConnectToNearButton(props: any) {
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          setButtonLoading(true);
-          // setShowWalletSelector(true);
+          // setButtonLoading(true);
           modal.show();
         }}
       >
@@ -880,7 +906,7 @@ export function GreenConnectToNearBtn(props: any) {
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          setButtonLoading(true);
+          // setButtonLoading(true);
           modal.show();
         }}
       >
@@ -928,8 +954,7 @@ export function BlacklightConnectToNearBtn(props: any) {
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          setButtonLoading(true);
-          // setShowWalletSelector(true);
+          // setButtonLoading(true);
           modal.show();
         }}
       >
@@ -988,7 +1013,7 @@ export function ConnectToNearBtnVotingMobile() {
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          setButtonLoading(true);
+          // setButtonLoading(true);
           modal.show();
         }}
       >
@@ -1052,8 +1077,29 @@ export function ConnectToNearBtnSwap() {
 
   const [showWalletSelector, setShowWalletSelector] = useState(false);
 
+  const [showWalletRisk, setShowWalletRisk] = useState<boolean>(false);
+
   const { selector, modal, accounts, accountId, setAccountId } =
     useWalletSelector();
+
+  const handleModalOpen = () => {
+    const isAcknowledgeWalletRisk = localStorage.getItem(
+      CONST_ACKNOWLEDGE_WALLET_RISK
+    );
+    if (!isAcknowledgeWalletRisk) {
+      setShowWalletRisk(true);
+    } else {
+      modal.show();
+    }
+  };
+
+  const handleAcknowledgeClick = (status) => {
+    if (status === true) {
+      setShowWalletRisk(false);
+      localStorage.setItem(CONST_ACKNOWLEDGE_WALLET_RISK, '1');
+      modal.show();
+    }
+  };
 
   return (
     <>
@@ -1066,8 +1112,8 @@ export function ConnectToNearBtnSwap() {
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          setButtonLoading(true);
-          modal.show();
+          // setButtonLoading(true);
+          handleModalOpen();
         }}
         onMouseEnter={() => {
           setHover(true);
@@ -1094,6 +1140,13 @@ export function ConnectToNearBtnSwap() {
           />
         </button>
       </div>
+
+      <WalletRiskCheckBoxModal
+        isOpen={showWalletRisk}
+        setCheckedStatus={handleAcknowledgeClick}
+        onClose={() => setShowWalletRisk(false)}
+      />
+
       <WalletSelectorModal
         isOpen={showWalletSelector}
         onRequestClose={() => {

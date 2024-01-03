@@ -1,10 +1,4 @@
-import {
-  Near,
-  keyStores,
-  utils,
-  WalletConnection,
-  providers,
-} from 'near-api-js';
+import { Near, keyStores, utils, providers } from 'near-api-js';
 import { functionCall } from 'near-api-js/lib/transaction';
 import BN from 'bn.js';
 import getConfig, { getExtraStablePoolConfig } from './config';
@@ -44,7 +38,13 @@ export const REF_VE_CONTRACT_ID = config.REF_VE_CONTRACT_ID;
 
 export const STABLE_TOKEN_IDS = config.STABLE_TOKEN_IDS;
 
+export const USDTT_USDCC_USDT_USDC_TOKEN_IDS =
+  config.USDTT_USDCC_USDT_USDC_TOKEN_IDS;
+
 export const STABLE_POOL_ID = config.STABLE_POOL_ID;
+
+export const USDTT_USDCC_USDT_USDC_POOL_ID =
+  config.USDTT_USDCC_USDT_USDC_POOL_ID;
 
 export const STABLE_POOL_USN_ID = config.STABLE_POOL_USN_ID;
 
@@ -74,6 +74,7 @@ export const {
   USDTIDS,
   USDT_POOL_ID,
   USDT_POOL_INDEX,
+  USDTT_USDCC_USDT_USDC_POOL_INDEX,
 } = getExtraStablePoolConfig();
 
 export const extraStableTokenIds = BTCIDS.concat(LINEARIDS)
@@ -91,7 +92,9 @@ export const isRatedPool = (id: string | number) => {
 
 export const AllStableTokenIds = new Array(
   ...new Set(
-    STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS).concat(extraStableTokenIds)
+    STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS)
+      .concat(extraStableTokenIds)
+      .concat(USDTT_USDCC_USDT_USDC_TOKEN_IDS)
   )
 );
 
@@ -99,9 +102,10 @@ export const isStableToken = (id: string) => {
   return AllStableTokenIds.includes(id);
 };
 
-export const TOKEN_BLACK_LIST = [NEARXIDS[0]];
+export const TOKEN_BLACK_LIST = [NEARXIDS[0], 'meta-token.near'];
 
 export const ALL_STABLE_POOL_IDS = [
+  USDTT_USDCC_USDT_USDC_POOL_ID,
   STABLE_POOL_ID,
   STABLE_POOL_USN_ID,
   BTC_STABLE_POOL_ID,
@@ -148,6 +152,8 @@ export const getStableTokenIndex = (stable_pool_id: string | number) => {
 
     case USDT_POOL_ID:
       return USDT_POOL_INDEX;
+    case USDTT_USDCC_USDT_USDC_POOL_ID.toString():
+      return USDTT_USDCC_USDT_USDC_POOL_INDEX;
   }
 };
 
@@ -174,6 +180,7 @@ export const USD_CLASS_STABLE_POOL_IDS = [
   STABLE_POOL_USN_ID.toString(),
   CUSD_STABLE_POOL_ID,
   USDT_POOL_ID,
+  USDTT_USDCC_USDT_USDC_POOL_ID.toString(),
 ];
 
 export const BTC_CLASS_STABLE_TOKEN_IDS = BTCIDS;
@@ -199,7 +206,6 @@ export const REF_AIRDRAOP_CONTRACT_ID = config.REF_AIRDROP_CONTRACT_ID;
 
 export const REF_TOKEN_ID = config.REF_TOKEN_ID;
 const XREF_TOKEN_ID = getConfig().XREF_TOKEN_ID;
-
 export const LP_STORAGE_AMOUNT = '0.01';
 
 export const ONE_YOCTO_NEAR = '0.000000000000000000000001';
@@ -513,17 +519,26 @@ export const refContractViewFunction = ({
 };
 
 export const getAccountNearBalance = async (accountId: string) => {
-  const provider = new providers.JsonRpcProvider({
-    url: getConfig().nodeUrl,
-  });
+  // const provider = new providers.JsonRpcProvider({
+  //   url: getConfig().nodeUrl,
+  // });
 
-  return provider
-    .query<AccountView>({
-      request_type: 'view_account',
-      finality: 'final',
-      account_id: accountId,
-    })
-    .then((data) => ({ available: data.amount }));
+  // return provider
+  //   .query<AccountView>({
+  //     request_type: 'view_account',
+  //     finality: 'final',
+  //     account_id: accountId,
+  //   })
+  //   .then((data) => ({ available: data.amount }));
+  const nearConnection = await near.account(
+    getCurrentWallet().wallet.getAccountId()
+  );
+  return nearConnection
+    .getAccountBalance()
+    .then(({ available }) => ({ available }))
+    .catch((e) => {
+      return { available: '0' };
+    });
 };
 
 export const refFarmBoostViewFunction = ({

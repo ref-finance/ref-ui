@@ -5,13 +5,12 @@ import React, {
   FormEventHandler,
   useContext,
 } from 'react';
-import { IoClose } from 'react-icons/io5';
+import { IoClose } from '../reactIcons';
 import { FormattedMessage, useIntl } from 'react-intl';
 import Modal from 'react-modal';
-import { WrapNearEnter } from '~components/icon/Near';
 import Alert from '../../components/alert/Alert';
 import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';
-import { wallet } from '~services/near';
+import { wallet } from 'src/services/near';
 import {
   nearMetadata,
   nearDeposit,

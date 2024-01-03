@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { PoolDb } from '~store/RefDatabase';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { Card } from '../../components/card/Card';
 import {
@@ -39,8 +38,9 @@ import { useClientMobile } from '../../utils/device';
 import { PoolTabV3 } from '../../components/pool/PoolTabV3';
 import Loading from '../../components/layout/Loading';
 import { FarmStampNew } from '../../components/icon/FarmStamp';
-import { getPoolListFarmAprTip } from './LiquidityPage';
-import ReactTooltip from 'react-tooltip';
+import { getPoolListFarmAprTip } from './utils';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 interface ParamTypes {
   tokenIds: string;
@@ -138,9 +138,8 @@ function PoolRow({
         data-place="left"
         data-multiline={true}
         data-class={'reactTip'}
-        data-html={true}
-        data-tip={getPoolListFarmAprTip()}
-        data-for={'pool_list_pc_apr' + pool.id}
+        data-tooltip-html={getPoolListFarmAprTip()}
+        data-tooltip-id={'pool_list_pc_apr' + pool.id}
       >
         <span className="ml-2">
           {!pool?.baseApr
@@ -157,15 +156,10 @@ function PoolRow({
           )}
 
         {supportFarm && farmApr > 0 && (
-          <ReactTooltip
+          <CustomTooltip
             className="w-20"
             id={'pool_list_pc_apr' + pool.id}
-            backgroundColor="#1D2932"
             place="right"
-            border
-            borderColor="#7e8a93"
-            textColor="#C6D1DA"
-            effect="solid"
           />
         )}
       </div>
@@ -350,7 +344,7 @@ export function getPoolFeeAprTitleRPCView(
   return Number(result);
 }
 
-export const MorePoolsPage = () => {
+export default function MorePoolsPage() {
   const { state } = useLocation<LocationTypes>();
   const [sortBy, setSortBy] = useState('tvl');
   const [order, setOrder] = useState<boolean | 'desc' | 'asc'>('desc');
@@ -665,4 +659,4 @@ export const MorePoolsPage = () => {
       )}
     </>
   );
-};
+}

@@ -15,7 +15,7 @@ import { isMobile } from '../../utils/device';
 import getConfig from '../../services/config';
 import { TokenMetadata, unWrapToken } from '../../services/ft-contract';
 import { LinkArrowIcon } from '../../components/icon/FarmBoost';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import QuestionMark from '../../components/farm/QuestionMark';
 import { RefreshIcon } from '../../components/icon/swapV3';
 import {
@@ -31,6 +31,7 @@ import {
   get_pool_name,
   openUrl,
 } from '../../services/commonV3';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 const config = getConfig();
 const { STABLE_POOL_IDS, FARM_LOCK_SWITCH, REF_VE_CONTRACT_ID } = config;
@@ -228,19 +229,12 @@ function SeedInfo() {
           <div
             className="text-white text-right ml-1"
             data-class="reactTip"
-            data-for="rewardRangeTipId"
+            data-tooltip-id="rewardRangeTipId"
             data-place="top"
-            data-html={true}
-            data-tip={rewardRangeTip()}
+            data-tooltip-html={rewardRangeTip()}
           >
             <QuestionMark></QuestionMark>
-            <ReactTooltip
-              id="rewardRangeTipId"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            <CustomTooltip id="rewardRangeTipId" />
           </div>
         </div>
         {getRange()}

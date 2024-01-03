@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useIntl } from 'react-intl';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
-import { TokenMetadata } from '~services/ft-contract';
+import { TokenMetadata } from 'src/services/ft-contract';
 import {
   getPortfolioAllOrders,
   getFundingFee,
@@ -43,6 +43,7 @@ import {
   CheckboxSelected,
   ArrowGrey,
 } from '../../../components/icon';
+import Big from 'big.js';
 
 const OrderlyIcon = () => (
   <svg
@@ -273,8 +274,12 @@ export const usePortableOrderlyTable = ({
                   className={`p-0.5 text-xs my-1 flex justify-end items-center`}
                 >
                   <span className="mr-1">
-                    {((executed / (quantity || executed)) * 100).toFixed(0)}%
-                    filled
+                    {parseFloat(
+                      new Big(
+                        (executed / (quantity || executed)) * 100
+                      ).toFixed(2)
+                    )}
+                    % filled
                   </span>
 
                   <div className="flex justify-end items-center relative">
@@ -329,7 +334,7 @@ export const usePortableOrderlyTable = ({
                         backgroundColor: 'rgba(126, 138, 147, 0.15)',
                       }}
                     >
-                      USDC
+                      USDC.e
                     </span>
                   </span>
                 </div>
@@ -351,7 +356,7 @@ export const usePortableOrderlyTable = ({
                 <div
                   className={`p-0.5 text-xs my-1 flex justify-end items-center`}
                 >
-                  from {broker_name}
+                  {broker_name ? `from ${broker_name.replace('DEX', '')}` : ''}
                 </div>
               </div>
             </div>
@@ -498,7 +503,9 @@ export const usePortableOrderlyTable = ({
             key: 'dex',
             header: 'Dex',
             render: ({ broker_name }) => (
-              <span className="relative right-2">{broker_name}</span>
+              <span className="relative right-2">
+                {broker_name.replace('DEX', '')}
+              </span>
             ),
           },
         ],
@@ -550,13 +557,11 @@ export const usePortableOrderlyTable = ({
                   className={`p-0.5 text-xs my-1 flex justify-end items-center`}
                 >
                   <span className="mr-1">
-                    {(
-                      ((!quantity && status === 'CANCELLED'
-                        ? 0
-                        : executed || 0) /
-                        (quantity || executed)) *
-                      100
-                    ).toFixed(0)}
+                    {parseFloat(
+                      new Big(
+                        (executed / (quantity || executed)) * 100
+                      ).toFixed(2)
+                    )}
                     % filled
                   </span>
 
@@ -625,7 +630,7 @@ export const usePortableOrderlyTable = ({
                         backgroundColor: 'rgba(126, 138, 147, 0.15)',
                       }}
                     >
-                      USDC
+                      USDC.e
                     </span>
                   </span>
                 </div>
@@ -647,7 +652,7 @@ export const usePortableOrderlyTable = ({
                 <div
                   className={`p-0.5 text-xs my-1 flex justify-end items-center`}
                 >
-                  from {broker_name}
+                  {broker_name ? `from ${broker_name.replace('DEX', '')}` : ''}
                 </div>
               </div>
             </div>
@@ -737,7 +742,7 @@ export const usePortableOrderlyTable = ({
           {
             key: 'fill_qty',
             header: 'Fill / Qty',
-            colSpan: 5,
+            colSpan: 4,
             render: ({ executed, quantity, side, status }) => (
               <div>
                 <span
@@ -785,7 +790,7 @@ export const usePortableOrderlyTable = ({
           },
           {
             key: 'status',
-            colSpan: 3,
+            colSpan: 4,
             header: 'Status',
             render: ({ status }) => (
               <span className="capitalize">{status.toLocaleLowerCase()}</span>
@@ -806,7 +811,9 @@ export const usePortableOrderlyTable = ({
             colSpan: 2,
             header: 'Dex',
             render: ({ broker_name }) => (
-              <span className="relative ">{broker_name}</span>
+              <span className="relative ">
+                {broker_name.replace('DEX', '')}
+              </span>
             ),
           },
         ],
@@ -1493,7 +1500,7 @@ export const usePortableOrderlyTable = ({
                   {settled_amount >= 0 ? '+' : ''}
                   {settled_amount}
                 </span>
-                <span className="text-white">&nbsp;USDC</span>
+                <span className="text-white">&nbsp;USDC.e</span>
               </div>
             </div>
             <div className="w-1/2 inline-block">
@@ -1522,7 +1529,7 @@ export const usePortableOrderlyTable = ({
                 className="text-[10px] px-1.5 py-0.5 ml-1 rounded-md"
                 style={{ backgroundColor: 'rgba(126, 138, 147, 0.15)' }}
               >
-                USDC
+                USDC.e
               </div>
             ),
             colSpan: 2,
@@ -1552,7 +1559,7 @@ export const usePortableOrderlyTable = ({
                 className="text-[10px] px-1.5 py-0.5 ml-1 rounded-md"
                 style={{ backgroundColor: 'rgba(126, 138, 147, 0.15)' }}
               >
-                USDC
+                USDC.e
               </div>
             ),
             colSpan: 2,
@@ -1611,7 +1618,7 @@ export const usePortableOrderlyTable = ({
                   {funding_fee < 0 ? '+' : ''}
                   {(funding_fee * -1).toFixed(4)}
                 </span>
-                &nbsp;USDC
+                &nbsp;USDC.e
               </div>
               <div className={`p-0.5 text-sm my-0.5`}>
                 <span>{formatTimeDate(created_time)}</span>
@@ -1667,7 +1674,7 @@ export const usePortableOrderlyTable = ({
                 >
                   {funding_fee < 0 ? '+' : ''}
                   {funding_fee * -1}
-                  <span className="text-white">&nbsp;USDC</span>
+                  <span className="text-white">&nbsp;USDC.e</span>
                 </span>
               </>
             ),

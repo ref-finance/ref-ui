@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useContext, useMemo } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { isMobile } from '~utils/device';
+import { isMobile } from 'src/utils/device';
 import {
   ArrowLeftIcon,
   FreeIcon,
@@ -19,10 +19,10 @@ import {
   BoostOptIcon,
   LightningBase64,
   LightningBase64Grey,
-} from '~components/icon/FarmBoost';
+} from 'src/components/icon/FarmBoost';
 import { useHistory, useLocation } from 'react-router-dom';
 import getConfig from '../../services/config';
-import { LinkIcon, ArrowDownHollow } from '~components/icon';
+import { LinkIcon, ArrowDownHollow } from 'src/components/icon';
 import {
   FarmBoost,
   Seed,
@@ -36,7 +36,7 @@ import {
   BoostConfig,
   UserSeedInfo,
   getVeSeedShare,
-} from '~services/farm';
+} from 'src/services/farm';
 import { WalletContext } from '../../utils/wallets-integration';
 import {
   toPrecision,
@@ -54,37 +54,36 @@ import {
   OprationButton,
   ConnectToNearBtn,
   SolidButton,
-} from '~components/button/Button';
+} from 'src/components/button/Button';
 import Modal from 'react-modal';
-import { usePool } from '~state/pool';
-import { ModalClose, Calc } from '~components/icon';
+import { usePool } from 'src/state/pool';
+import { ModalClose, Calc } from 'src/components/icon';
 import { TokenMetadata } from '../../services/ft-contract';
-import { addLiquidityToPool, Pool } from '~services/pool';
+import { addLiquidityToPool, Pool } from 'src/services/pool';
 import {
   useWalletTokenBalances,
   useDepositableBalance,
 } from '../../state/token';
-import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
-import { useTokens, getDepositableBalance } from '~state/token';
+import { WRAP_NEAR_CONTRACT_ID } from 'src/services/wrap-near';
+import { useTokens, getDepositableBalance } from 'src/state/token';
 import { scientificNotationToString, divide } from '../../utils/numbers';
-import { BoostInputAmount } from '~components/forms/InputAmount';
-import Alert from '~components/alert/Alert';
-import { mftGetBalance } from '~services/mft-contract';
-import { getMftTokenId, toRealSymbol } from '~utils/token';
+import { BoostInputAmount } from 'src/components/forms/InputAmount';
+import Alert from 'src/components/alert/Alert';
+import { mftGetBalance } from 'src/services/mft-contract';
+import { getMftTokenId, toRealSymbol } from 'src/utils/token';
 import {
   LP_TOKEN_DECIMALS,
   LP_STABLE_TOKEN_DECIMALS,
 } from '../../services/m-token';
-import { Checkbox, CheckboxSelected } from '~components/icon';
-import { CalcEle } from '~components/farm/CalcModelBooster';
-import ReactTooltip from 'react-tooltip';
-import QuestionMark from '~components/farm/QuestionMark';
-import { ExternalLinkIcon } from '~components/icon/Risk';
-import { FaAngleUp, FaAngleDown } from 'react-icons/fa';
+import { Checkbox, CheckboxSelected } from 'src/components/icon';
+import { CalcEle } from 'src/components/farm/CalcModelBooster';
+import QuestionMark from 'src/components/farm/QuestionMark';
+import { ExternalLinkIcon } from 'src/components/icon/Risk';
+import { FaAngleUp, FaAngleDown } from '../../components/reactIcons';
 import { useDayVolume } from '../../state/pool';
-import { getPool } from '~services/indexer';
-import CalcModelBooster from '~components/farm/CalcModelBooster';
-import { get24hVolume } from '~services/indexer';
+import { getPool } from 'src/services/indexer';
+import CalcModelBooster from 'src/components/farm/CalcModelBooster';
+import { get24hVolume } from 'src/services/indexer';
 import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import { VEARROW } from '../icon/Referendum';
 import { isStablePool } from '../../services/near';
@@ -93,7 +92,8 @@ import {
   getEffectiveFarmList,
   sort_tokens_by_base,
   openUrl,
-} from '~services/commonV3';
+} from 'src/services/commonV3';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 const {
@@ -220,22 +220,15 @@ export default function FarmsDetail(props: {
           <div
             className="text-white text-right"
             data-class="reactTip"
-            data-for="boostFarmTipId"
+            data-tooltip-id="boostFarmTipId"
             data-place="top"
-            data-html={true}
-            data-tip={result}
+            data-tooltip-html={result}
           >
             <div className="flex items-center justify-center">
               <BoostOptIcon className="mr-0.5"></BoostOptIcon>
               <FormattedMessage id="boost"></FormattedMessage>
             </div>
-            <ReactTooltip
-              id="boostFarmTipId"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            <CustomTooltip id="boostFarmTipId" />
           </div>
         </div>
       );
@@ -285,7 +278,7 @@ export default function FarmsDetail(props: {
             </div>
             <div className="flex items-center lg:hidden" onClick={goPoolPage}>
               <label className="mr-1 text-xs text-greenColor">
-                <FormattedMessage id="get_lp_token"></FormattedMessage>
+                <FormattedMessage id="Pool"></FormattedMessage>
               </label>
               <VEARROW className="text-greenColor"></VEARROW>
             </div>
@@ -297,7 +290,7 @@ export default function FarmsDetail(props: {
           onClick={goPoolPage}
         >
           <label className="mx-2 text-sm text-primaryText hover:text-framBorder cursor-pointer">
-            <FormattedMessage id="get_lp_token"></FormattedMessage>
+            <FormattedMessage id="Pool"></FormattedMessage>
           </label>
           <LinkIcon></LinkIcon>
         </div>
@@ -382,27 +375,23 @@ function StakeContainer(props: {
         <div
           className="text-white text-right"
           data-class="reactTip"
-          data-for={'rewardPerWeekId1' + detailData?.farmList[0]?.farm_id}
+          data-tooltip-id={
+            'rewardPerWeekId1' + detailData?.farmList[0]?.farm_id
+          }
           data-place="top"
-          data-html={true}
-          data-tip={getRewardsPerWeekTip()}
+          data-tooltip-html={getRewardsPerWeekTip()}
         >
           <span>{totalPriceDisplay}</span>
-          <ReactTooltip
+          <CustomTooltip
             id={'rewardPerWeekId1' + detailData?.farmList[0]?.farm_id}
-            backgroundColor="#1D2932"
-            border
-            borderColor="#7e8a93"
-            effect="solid"
           />
         </div>
         <div
           className="text-white text-right"
           data-class="reactTip"
-          data-for={'rewardPerWeekId' + detailData?.farmList[0]?.farm_id}
+          data-tooltip-id={'rewardPerWeekId' + detailData?.farmList[0]?.farm_id}
           data-place="top"
-          data-html={true}
-          data-tip={getRewardsPerWeekTip()}
+          data-tooltip-html={getRewardsPerWeekTip()}
         >
           <div className="flex items-center">
             {Object.values(rewardTokenIconMap).map(
@@ -419,12 +408,8 @@ function StakeContainer(props: {
               }
             )}
           </div>
-          <ReactTooltip
+          <CustomTooltip
             id={'rewardPerWeekId' + detailData?.farmList[0]?.farm_id}
-            backgroundColor="#1D2932"
-            border
-            borderColor="#7e8a93"
-            effect="solid"
           />
         </div>
       </>
@@ -917,19 +902,12 @@ function StakeContainer(props: {
                   <div
                     className="text-white text-right ml-1"
                     data-class="reactTip"
-                    data-for={'yourAprTipId_m'}
+                    data-tooltip-id={'yourAprTipId_m'}
                     data-place="top"
-                    data-html={true}
-                    data-tip={getAprTitleTip()}
+                    data-tooltip-html={getAprTitleTip()}
                   >
                     <QuestionMark></QuestionMark>
-                    <ReactTooltip
-                      id={'yourAprTipId_m'}
-                      backgroundColor="#1D2932"
-                      border
-                      borderColor="#7e8a93"
-                      effect="solid"
-                    />
+                    <CustomTooltip id={'yourAprTipId_m'} />
                   </div>
                 </div>
               </span>
@@ -949,9 +927,8 @@ function StakeContainer(props: {
                 data-type="info"
                 data-place="top"
                 data-multiline={true}
-                data-tip={getAprTip(yourApr ? true : false)}
-                data-html={true}
-                data-for={'aprId' + detailData.farmList[0].farm_id}
+                data-tooltip-html={getAprTip(yourApr ? true : false)}
+                data-tooltip-id={'aprId' + detailData.farmList[0].farm_id}
                 data-class="reactTip"
               >
                 <span
@@ -977,13 +954,7 @@ function StakeContainer(props: {
                     </>
                   )}
                 </span>
-                <ReactTooltip
-                  id={'aprId' + detailData.farmList[0].farm_id}
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                />
+                <CustomTooltip id={'aprId' + detailData.farmList[0].farm_id} />
               </div>
             )}
           </div>
@@ -1001,19 +972,12 @@ function StakeContainer(props: {
                 <div
                   className="text-white text-right ml-1"
                   data-class="reactTip"
-                  data-for={'yourAprTipId'}
+                  data-tooltip-id={'yourAprTipId'}
                   data-place="top"
-                  data-html={true}
-                  data-tip={getAprTitleTip()}
+                  data-tooltip-html={getAprTitleTip()}
                 >
                   <QuestionMark></QuestionMark>
-                  <ReactTooltip
-                    id={'yourAprTipId'}
-                    backgroundColor="#1D2932"
-                    border
-                    borderColor="#7e8a93"
-                    effect="solid"
-                  />
+                  <CustomTooltip id={'yourAprTipId'} />
                 </div>
               </div>
               <CalcIcon
@@ -1030,9 +994,10 @@ function StakeContainer(props: {
                 data-type="info"
                 data-place="top"
                 data-multiline={true}
-                data-tip={getAprTip(true)}
-                data-html={true}
-                data-for={'aprId' + detailData.farmList[0].farm_id + 'your'}
+                data-tooltip-html={getAprTip(true)}
+                data-tooltip-id={
+                  'aprId' + detailData.farmList[0].farm_id + 'your'
+                }
                 data-class="reactTip"
               >
                 <span
@@ -1040,12 +1005,8 @@ function StakeContainer(props: {
                 >
                   <label className={`text-base`}>{yourApr}</label>
                 </span>
-                <ReactTooltip
+                <CustomTooltip
                   id={'aprId' + detailData.farmList[0].farm_id + 'your'}
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
                 />
               </div>
               <div
@@ -1053,9 +1014,8 @@ function StakeContainer(props: {
                 data-type="info"
                 data-place="top"
                 data-multiline={true}
-                data-tip={getAprTip()}
-                data-html={true}
-                data-for={'aprId' + detailData.farmList[0].farm_id}
+                data-tooltip-html={getAprTip()}
+                data-tooltip-id={'aprId' + detailData.farmList[0].farm_id}
                 data-class="reactTip"
               >
                 <span
@@ -1064,13 +1024,7 @@ function StakeContainer(props: {
                   <label className={'text-xs'}>{getTotalApr()}</label>
                   {aprUpLimit}
                 </span>
-                <ReactTooltip
-                  id={'aprId' + detailData.farmList[0].farm_id}
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                />
+                <CustomTooltip id={'aprId' + detailData.farmList[0].farm_id} />
               </div>
             </div>
           </div>
@@ -1085,19 +1039,12 @@ function StakeContainer(props: {
             <div
               className="text-white text-right ml-1"
               data-class="reactTip"
-              data-for={'rewardPerWeekQId'}
+              data-tooltip-id={'rewardPerWeekQId'}
               data-place="top"
-              data-html={true}
-              data-tip={valueOfRewardsTip()}
+              data-tooltip-html={valueOfRewardsTip()}
             >
               <QuestionMark></QuestionMark>
-              <ReactTooltip
-                id={'rewardPerWeekQId'}
-                backgroundColor="#1D2932"
-                border
-                borderColor="#7e8a93"
-                effect="solid"
-              />
+              <CustomTooltip id={'rewardPerWeekQId'} />
             </div>
           </div>
           <div className="flex items-center justify-between text-white text-base w-full">
@@ -2072,40 +2019,26 @@ function UserTotalUnClaimBlock(props: {
           <div
             className="text-white text-right ml-1"
             data-class="reactTip"
-            data-for={'unclaimedRewardQIdx'}
+            data-tooltip-id={'unclaimedRewardQIdx'}
             data-place="top"
-            data-html={true}
-            data-tip={valueOfRewardsTip()}
+            data-tooltip-html={valueOfRewardsTip()}
           >
             <QuestionMark></QuestionMark>
-            <ReactTooltip
-              id={'unclaimedRewardQIdx'}
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            <CustomTooltip id={'unclaimedRewardQIdx'} />
           </div>
         </div>
 
         <div
           className="text-white text-right"
           data-class="reactTip"
-          data-for={'unclaimedRewardId' + detailData.seed_id}
+          data-tooltip-id={'unclaimedRewardId' + detailData.seed_id}
           data-place="top"
-          data-html={true}
-          data-tip={unclaimedRewardsData.tip}
+          data-tooltip-html={unclaimedRewardsData.tip}
         >
           <span className="text-xl text-white">
             {unclaimedRewardsData.worth}
           </span>
-          <ReactTooltip
-            id={'unclaimedRewardId' + detailData.seed_id}
-            backgroundColor="#1D2932"
-            border
-            borderColor="#7e8a93"
-            effect="solid"
-          />
+          <CustomTooltip id={'unclaimedRewardId' + detailData.seed_id} />
         </div>
       </div>
       {unclaimedRewardsData.showClaimButton ? (
@@ -2436,19 +2369,12 @@ function UserStakeBlock(props: {
           <div
             className="text-white text-right ml-1"
             data-class="reactTip"
-            data-for="duration_start_end_id"
+            data-tooltip-id="duration_start_end_id"
             data-place="top"
-            data-html={true}
-            data-tip={durationData.dom}
+            data-tooltip-html={durationData.dom}
           >
             <QuestionMark></QuestionMark>
-            <ReactTooltip
-              id="duration_start_end_id"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            <CustomTooltip id="duration_start_end_id" />
           </div>
         </div>
       </div>
@@ -2565,28 +2491,20 @@ function UserStakeBlock(props: {
           <div
             className="text-white text-right ml-1"
             data-class="reactTip"
-            data-for="powerTipId"
+            data-tooltip-id="powerTipId"
             data-place="top"
-            data-html={true}
-            data-tip={getPowerTip()}
+            data-tooltip-html={getPowerTip()}
           >
             <QuestionMark></QuestionMark>
-            <ReactTooltip
-              id="powerTipId"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            <CustomTooltip id="powerTipId" />
           </div>
         </div>
         <div className="flex items-center text-xl text-white">
           <div
             data-class="reactTip"
-            data-for="powerDetailId"
+            data-tooltip-id="powerDetailId"
             data-place="top"
-            data-html={true}
-            data-tip={getPowerDetail()}
+            data-tooltip-html={getPowerDetail()}
           >
             <div className="flex items-center">
               <span>{showLpPower()}</span>
@@ -2595,13 +2513,7 @@ function UserStakeBlock(props: {
               </span>
             </div>
 
-            <ReactTooltip
-              id="powerDetailId"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            <CustomTooltip id="powerDetailId" />
           </div>
         </div>
       </div>
@@ -2800,19 +2712,12 @@ function UserStakeBlock(props: {
                             <div
                               className="text-white text-right ml-1"
                               data-class="reactTip"
-                              data-for="exitfeeId"
+                              data-tooltip-id="exitfeeId"
                               data-place="top"
-                              data-html={true}
-                              data-tip={getExitFeeTip()}
+                              data-tooltip-html={getExitFeeTip()}
                             >
                               <QuestionMark></QuestionMark>
-                              <ReactTooltip
-                                id="exitfeeId"
-                                backgroundColor="#1D2932"
-                                border
-                                borderColor="#7e8a93"
-                                effect="solid"
-                              />
+                              <CustomTooltip id="exitfeeId" />
                             </div>
                           </div>
                         </CommonLine>
@@ -3377,19 +3282,12 @@ export function StakeModal(props: {
                         Number(locked_amount) > 0 ? '' : 'hidden'
                       }`}
                       data-class="reactTip"
-                      data-for={'durationId'}
+                      data-tooltip-id={'durationId'}
                       data-place="top"
-                      data-html={true}
-                      data-tip={appendTip()}
+                      data-tooltip-html={appendTip()}
                     >
                       <QuestionMark></QuestionMark>
-                      <ReactTooltip
-                        id={'durationId'}
-                        backgroundColor="#1D2932"
-                        border
-                        borderColor="#7e8a93"
-                        effect="solid"
-                      />
+                      <CustomTooltip id={'durationId'} />
                     </div>
                   </div>
                   <div className="flex items-center px-4">
@@ -3466,19 +3364,12 @@ export function StakeModal(props: {
                           Number(locked_amount) > 0 ? '' : 'hidden'
                         }`}
                         data-class="reactTip"
-                        data-for={'durationId'}
+                        data-tooltip-id={'durationId'}
                         data-place="top"
-                        data-html={true}
-                        data-tip={appendTip()}
+                        data-tooltip-html={appendTip()}
                       >
                         <QuestionMark></QuestionMark>
-                        <ReactTooltip
-                          id={'durationId'}
-                          backgroundColor="#1D2932"
-                          border
-                          borderColor="#7e8a93"
-                          effect="solid"
-                        />
+                        <CustomTooltip id={'durationId'} />
                       </div>
                     </div>
                     <span className="text-white text-sm">
@@ -3891,19 +3782,12 @@ export function UnStakeModal(props: {
           <div
             className="text-white text-right ml-1"
             data-class="reactTip"
-            data-for={'slashTipId' + seed_id}
+            data-tooltip-id={'slashTipId' + seed_id}
             data-place="top"
-            data-html={true}
-            data-tip={showSlashTip()}
+            data-tooltip-html={showSlashTip()}
           >
             <QuestionMark></QuestionMark>
-            <ReactTooltip
-              id={'slashTipId' + seed_id}
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            <CustomTooltip id={'slashTipId' + seed_id} />
           </div>
         </div>
       )}

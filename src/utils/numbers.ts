@@ -760,4 +760,25 @@ export const getMax = function (
       );
 };
 
+export const getMaxMin = function (
+  id: string,
+  max: string,
+  token?: TokenMetadata
+) {
+  let condition;
+  if (token) {
+    condition = id == WRAP_NEAR_CONTRACT_ID && token.symbol == 'NEAR';
+  } else {
+    condition = id == WRAP_NEAR_CONTRACT_ID;
+  }
+  return !condition
+    ? max
+    : Number(max) <= 0.2
+    ? '0'
+    : toPrecision(
+        scientificNotationToString(new Big(max).minus(0.2).toString()),
+        24
+      );
+};
+
 export const getPriceImpact = () => {};

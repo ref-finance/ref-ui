@@ -4,7 +4,6 @@ import { FlexRow, FlexRowBetween } from '../Common';
 import { parseSymbol } from '../RecentTrade';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-import { MdArrowDropDown, MdArrowDropUp } from 'react-icons/md';
 import {
   MyOrder,
   EditOrderlyOrder,
@@ -18,7 +17,11 @@ import Big from 'big.js';
 
 import moment from 'moment';
 
-import { AiOutlineClose, AiOutlineCheck } from 'react-icons/ai';
+import {
+  AiOutlineClose,
+  AiOutlineCheck,
+  MdArrowDropDown,
+} from '../../../../components/reactIcons';
 import { FlexRowStart } from '../Common/index';
 import {
   cancelOrder,

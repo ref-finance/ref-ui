@@ -1,14 +1,20 @@
 {
   "compilerOptions": {
-    "baseUrl": "./src",
+    "baseUrl": ".",
     "paths": {
-      "~*": ["./*"]
+      "~*": ["./*"],
+      "react": [ "./node_modules/@types/react" ]
     },
+    "noEmitOnError": false,
     "noEmit": true,
-    "target": "es6",
-    "lib": ["ES2020", "DOM"],
-    "module": "commonjs",
-    "noImplicitAny": true,
+    "target": "esnext",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "module": "esnext",
+    "noImplicitAny": false,
     "removeComments": true,
     "preserveConstEnums": true,
     "esModuleInterop": true,
@@ -18,8 +24,9 @@
     "forceConsistentCasingInFileNames": true,
     "downlevelIteration": true,
     "skipLibCheck": true, /* Skip type checking of declaration files. */
-    "suppressImplicitAnyIndexErrors": true
+    "strictNullChecks": false,
+    "strictPropertyInitialization": false
   },
-  "include": ["src/"],
+  "include": ["src/", "globals.d.ts"],
   "exclude": ["node_modules/*", "**/*.spec.ts", "src/index.tsx"]
 }

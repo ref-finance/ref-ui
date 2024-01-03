@@ -1,34 +1,34 @@
 import React, { useEffect, useState, useContext } from 'react';
-import Loading from '~components/layout/Loading';
+import Loading from 'src/components/layout/Loading';
 import {
   XrefLogo,
   XrefSymbol,
   RefSymbol,
   XrefIconWhole,
-} from '~components/icon/Xref';
-import { SmallWallet } from '~components/icon/SmallWallet';
-import OldInputAmount from '~components/forms/OldInputAmount';
+} from 'src/components/icon/Xref';
+import { SmallWallet } from 'src/components/icon/SmallWallet';
+import OldInputAmount from 'src/components/forms/OldInputAmount';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
   GradientButton,
   ButtonTextWrapper,
   ConnectToNearBtn,
-} from '~components/button/Button';
+} from 'src/components/button/Button';
 import BigNumber from 'bignumber.js';
-import { isMobile } from '~utils/device';
-import { FaExchangeAlt } from 'react-icons/fa';
+import { isMobile } from 'src/utils/device';
+import { FaExchangeAlt } from '../../components/reactIcons';
 import {
   toReadableNumber,
   toPrecision,
   niceDecimals,
   formatWithCommas,
-} from '~utils/numbers';
-import getConfig from '~services/config';
+} from 'src/utils/numbers';
+import getConfig from 'src/services/config';
 import {
   ftGetBalance,
   ftGetTokenMetadata,
   TokenMetadata,
-} from '~services/ft-contract';
+} from 'src/services/ft-contract';
 import {
   metadata,
   getPrice,
@@ -36,16 +36,10 @@ import {
   unstake,
   XREF_TOKEN_DECIMALS,
   XrefMetaData,
-} from '~services/xref';
-import { wallet } from '~services/near';
-import QuestionMark from '~components/farm/QuestionMark';
-import ReactTooltip from 'react-tooltip';
-import { index } from 'mathjs';
-import {
-  senderWallet,
-  WalletContext,
-  getCurrentWallet,
-} from '../../utils/wallets-integration';
+} from 'src/services/xref';
+import QuestionMark from 'src/components/farm/QuestionMark';
+import { WalletContext } from '../../utils/wallets-integration';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 const {
   XREF_TOKEN_ID,
   REF_TOKEN_ID,
@@ -132,7 +126,7 @@ function XrefPage() {
         2,
         true
       )}`;
-      const revenueBooster = 'x2';
+      const revenueBooster = 'x1';
       setTotalDataArray([
         joinAmount,
         totalFee,
@@ -291,21 +285,14 @@ function XrefPage() {
               <div
                 className="text-white text-left"
                 data-class="reactTip"
-                data-for={'xrefAprId'}
+                data-tooltip-id={'xrefAprId'}
                 data-place="top"
-                data-html={true}
-                data-tip={getXrefAprTip()}
+                data-tooltip-html={getXrefAprTip()}
               >
                 <span className="text-2xl text-white">
                   {displayApr() + '%'}
                 </span>
-                <ReactTooltip
-                  id={'xrefAprId'}
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                />
+                <CustomTooltip id={'xrefAprId'} />
               </div>
             </div>
           </div>
@@ -336,20 +323,13 @@ function XrefPage() {
                   <div
                     className="text-white text-left"
                     data-class="reactTip"
-                    data-for={'youGetId'}
+                    data-tooltip-id={'youGetId'}
                     data-place="top"
-                    data-html={true}
-                    data-tip={getYourRewardsTip()}
+                    data-tooltip-html={getYourRewardsTip()}
                   >
                     {displayTotalREF()}{' '}
                     <FormattedMessage id="ref"></FormattedMessage>
-                    <ReactTooltip
-                      id={'youGetId'}
-                      backgroundColor="#1D2932"
-                      border
-                      borderColor="#7e8a93"
-                      effect="solid"
-                    />
+                    <CustomTooltip id={'youGetId'} />
                   </div>
                 </div>
               </div>
@@ -373,20 +353,13 @@ function XrefPage() {
                   <div
                     className="text-white text-left"
                     data-class="reactTip"
-                    data-for={'youGetMId'}
+                    data-tooltip-id={'youGetMId'}
                     data-place="top"
-                    data-html={true}
-                    data-tip={getYourRewardsTip()}
+                    data-tooltip-html={getYourRewardsTip()}
                   >
                     {displayTotalREF()}{' '}
                     <FormattedMessage id="ref"></FormattedMessage>
-                    <ReactTooltip
-                      id={'youGetMId'}
-                      backgroundColor="#1D2932"
-                      border
-                      borderColor="#7e8a93"
-                      effect="solid"
-                    />
+                    <CustomTooltip id={'youGetMId'} />
                   </div>
                 </div>
               </div>
@@ -664,20 +637,12 @@ function InfoBox(props: any) {
               data-place="right"
               data-multiline={true}
               data-class="reactTip"
-              data-html={true}
-              data-tip={tip}
-              data-for="yourRewardsId"
+              data-tooltip-html={tip}
+              data-tooltip-id="yourRewardsId"
             >
               <QuestionMark />
             </span>
-            <ReactTooltip
-              className="w-20"
-              id="yourRewardsId"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            <CustomTooltip className="w-20" id="yourRewardsId" />
           </>
         ) : null}
       </div>

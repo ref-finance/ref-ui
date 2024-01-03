@@ -1,5 +1,4 @@
 import { NearIConSelectModal, OrderlyIconBalance } from '../Common/Icons';
-import { BsArrowRight, BsWrenchAdjustableCircleFill } from 'react-icons/bs';
 
 import {
   digitWrapper,
@@ -23,7 +22,6 @@ import {
 } from '../UserBoard/index';
 import { ChartContainer } from '../TVChartContainer';
 import OrderBook, { OrderBookShrink } from '../OrderBook';
-import { OrderlyLoading } from '../Common/Icons';
 
 import React, {
   useState,
@@ -45,7 +43,7 @@ import {
   percentOfBigNumber,
 } from '../../near';
 import { useWalletSelector } from '../../../../context/WalletSelectorContext';
-import { HiDownload } from 'react-icons/hi';
+import { HiDownload } from '../../../../components/reactIcons';
 import {
   announceKey,
   depositFT,
@@ -66,41 +64,19 @@ import {
   TokenInfo,
   TokenMetadata,
 } from '../../orderly/type';
-import { FaMinus, FaPlus } from 'react-icons/fa';
-import Modal from 'react-modal';
 import Big from 'big.js';
-import { IoClose } from 'react-icons/io5';
-import { MdArrowDropDown } from 'react-icons/md';
-import {
-  IoIosArrowForward,
-  IoIosArrowDown,
-  IoIosArrowUp,
-} from 'react-icons/io';
 import { CheckBox, ConnectWallet, ErrorTip, RegisterButton } from '../Common';
 
 import { ConfirmButton, QuestionMark } from '../Common/index';
 
-import { FiSearch } from 'react-icons/fi';
-import {
-  OrderlyNetworkIcon,
-  OutLinkIcon,
-  PowerByOrderly,
-  RefToOrderly,
-  Agree,
-} from '../Common/Icons';
-
-import { MdKeyboardArrowDown } from 'react-icons/md';
 import {
   is_orderly_key_announced,
   is_trading_key_set,
 } from '../../orderly/on-chain-api';
 import getConfig from '../../config';
 import { AssetModal } from '../AssetModal';
-import ReactTooltip from 'react-tooltip';
-import { ButtonTextWrapper } from '~components/button/Button';
 import { ONLY_ZEROS } from '../../../../utils/numbers';
 import * as math from 'mathjs';
-import { NearWalletIcon } from '../Common/Icons';
 import { getSelectedWalletId } from '../../orderly/utils';
 import { BuyButton, SellButton } from '../UserBoard/Button';
 import AllOrderBoard from '../AllOrders';
@@ -122,11 +98,17 @@ import {
   MarginRatioText,
   TotaluPNLText,
   UnsettlePnl,
+  TotalCollateralText,
+  FreeCollateralText,
+  UsdcAvailableBalanceText,
+  CollatteralToken,
+  CollatteralTokenAvailableCell,
 } from '../UserBoardPerp/components/HoverText';
 import { usePerpData } from '../UserBoardPerp/state';
 import { executeMultipleTransactions } from '../../../../services/near';
 import SettlePnlModal from '../TableWithTabs/SettlePnlModal';
 import { SetLeverageButton } from '../UserBoardPerp/components/SetLeverageButton';
+import { useOrderlyBalancesStore } from '../../../../stores/orderlyBalances';
 
 export const MOBILE_TAB = 'REF_ORDERLY_MOBILE_TAB';
 
@@ -174,14 +156,10 @@ export function CurAsset(props?: any) {
     ? curHoldingIn.holding + curHoldingIn.pending_short
     : balances && balances[symbolFrom]?.holding;
 
-  const { freeCollateral } = usePerpData();
-
-  const tokenOutHolding =
-    symbolTo === 'USDC' && freeCollateral !== '-'
-      ? freeCollateral
-      : curHoldingOut
-      ? curHoldingOut.holding + curHoldingOut.pending_short
-      : balances && balances[symbolTo]?.holding;
+  const { freeCollateral, collateralTokenAvailableBalance } = usePerpData();
+  const usdcAvailableBalance = curHoldingOut
+    ? new Big(curHoldingOut.holding + curHoldingOut.pending_short).toFixed(2)
+    : '-';
 
   const tokenIn = useTokenMetaFromSymbol(symbolFrom, tokenInfo);
 
@@ -189,15 +167,17 @@ export function CurAsset(props?: any) {
 
   const [operationId, setOperationId] = useState<string>(tokenIn?.id || '');
   const [showAllAssets, setShowAllAssets] = useState<boolean>(false);
+  const orderlyBalancesStore: any = useOrderlyBalancesStore();
+  const orderlyBalances = orderlyBalancesStore.getBalances();
 
   const tokenFromBalance = useTokenBalance(
     tokenIn?.id,
-    JSON.stringify(balances)
+    JSON.stringify(orderlyBalances)
   );
 
   const tokenToBalance = useTokenBalance(
     tokenOut?.id,
-    JSON.stringify(balances)
+    JSON.stringify(orderlyBalances)
   );
 
   const allHoldings =
@@ -368,19 +348,25 @@ export function CurAsset(props?: any) {
                 alt=""
               />
               <span>{symbolTo}</span>
+              {symbolType === 'SPOT' ? null : <CollatteralToken d="right" />}
             </div>
 
             <div className="justify-self-end relative right-10">
               {!!tokenToBalance ? digitWrapperAsset(tokenToBalance, 2) : ''}
             </div>
 
-            <div className="flex items-center justify-self-end">
+            {/* <div className="flex items-center justify-self-end">
               <span>
                 {tokenOutHolding
                   ? digitWrapperAsset(tokenOutHolding.toString(), 2)
                   : 0}
               </span>
-            </div>
+            </div> */}
+            <CollatteralTokenAvailableCell
+              finalBalance={collateralTokenAvailableBalance}
+              usdcBalance={usdcAvailableBalance}
+              freeCollateral={freeCollateral}
+            />
           </div>
 
           <div className="text-sm text-white font-bold pt-4 text-left frcb">
@@ -433,6 +419,7 @@ export function CurAsset(props?: any) {
             accountBalance={tokenInHolding || 0}
             tokenInfo={tokenInfo}
             freeCollateral={freeCollateral}
+            curHoldingOut={curHoldingOut}
           />
 
           <AssetManagerModal
@@ -449,10 +436,12 @@ export function CurAsset(props?: any) {
             accountBalance={tokenInHolding || 0}
             tokenInfo={tokenInfo}
             freeCollateral={freeCollateral}
+            curHoldingOut={curHoldingOut}
           />
           {showAllAssets && (
             <AssetModal
               isOpen={showAllAssets}
+              curHoldingOut={curHoldingOut}
               onRequestClose={() => {
                 setShowAllAssets(false);
               }}
@@ -479,6 +468,7 @@ export function PerpAccountBoard() {
     setCurLeverage,
     curLeverage,
     accountCurLeverage,
+    collateralTokenAvailableBalance,
   } = usePerpData();
 
   const intl = useIntl();
@@ -575,33 +565,31 @@ export function PerpAccountBoard() {
 
         <span className="font-nunito text-white">{mmr}</span>
       </div>
-
-      {/* free collateral */}
+      {/* total colleteral  */}
       <div className="frcb">
-        <FormattedMessage
-          id="free_collateral"
-          defaultMessage={`Free Collateral`}
-        />
-
-        <span className="font-nunito text-white">
-          {!positions ? '-' : numberWithCommas(freeCollateral)}
-        </span>
-      </div>
-
-      {/* total collateral */}
-      <div className="frcb">
-        <FormattedMessage
-          id="total_collateral"
-          defaultMessage={`Total Collateral`}
-        ></FormattedMessage>
-
+        <TotalCollateralText />
         <span className="font-nunito text-white">
           {!positions || totalCollateral === '-'
             ? '-'
             : numberWithCommas(totalCollateral)}
         </span>
       </div>
-
+      {/* Usdc Available Balance */}
+      <div className="frcb">
+        <UsdcAvailableBalanceText />
+        <span className="font-nunito text-white">
+          {collateralTokenAvailableBalance === '-'
+            ? '-'
+            : numberWithCommas(collateralTokenAvailableBalance)}
+        </span>
+      </div>
+      {/* free collateral */}
+      <div className="frcb">
+        <FreeCollateralText />
+        <span className="font-nunito text-white">
+          {!positions ? '-' : numberWithCommas(freeCollateral)}
+        </span>
+      </div>
       {/* total upnl */}
       <div className="frcb">
         <TotaluPNLText></TotaluPNLText>
@@ -610,7 +598,6 @@ export function PerpAccountBoard() {
       </div>
 
       {/* unsettle unpnl */}
-
       <div className="frcb">
         <UnsettlePnl></UnsettlePnl>
 

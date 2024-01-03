@@ -1,9 +1,9 @@
 import { keyStores, Near } from 'near-api-js';
 import db, { FarmDexie, TokenPrice } from './store/RefDatabase';
 import getConfig from './services/config';
-import { TokenMetadata } from '~services/ft-contract';
-import { Farm, Seed, FarmBoost } from '~services/farm';
-import { PoolRPCView } from '~services/api';
+import { TokenMetadata } from 'src/services/ft-contract';
+import { Farm, Seed, FarmBoost } from 'src/services/farm';
+import { PoolRPCView } from 'src/services/api';
 import { BigNumber } from 'bignumber.js';
 import { STABLE_POOL_ID, STABLE_POOL_USN_ID } from './services/near';
 import { PoolInfo } from './services/swapV3';
@@ -15,6 +15,7 @@ const {
   REF_FARM_BOOST_CONTRACT_ID,
   REF_UNI_V3_SWAP_CONTRACT_ID,
   DCL_POOL_BLACK_LIST,
+  REF_FI_CONTRACT_ID,
 } = getConfig();
 
 const MAX_PER_PAGE = 100;
@@ -201,6 +202,14 @@ async function getXrefPrice(tokenPriceList: Record<string, any>) {
 const cacheBoost_Seed_Farms_Pools = async () => {
   // get all seeds
   let list_seeds = await get_list_seeds_info();
+  // not the classic and dcl seeds would be filtered
+  list_seeds = list_seeds.filter((seed: Seed) => {
+    const contract_id = seed.seed_id.split('@')?.[0];
+    return (
+      contract_id == REF_UNI_V3_SWAP_CONTRACT_ID ||
+      contract_id == REF_FI_CONTRACT_ID
+    );
+  });
   // get all farms
   const farmsPromiseList: Promise<any>[] = [];
   // get all dcl pools
@@ -208,16 +217,6 @@ const cacheBoost_Seed_Farms_Pools = async () => {
   const poolIds = new Set<string>();
   const dcl_poolIds = new Set<string>();
   let pools: any[] = [];
-  // ////// for test test test start todo
-  // const no_dcl_seeds:Seed[] = [];
-  // list_seeds.forEach((seed:Seed) => {
-  // const { seed_id } = seed;
-  // const contractId = seed_id.split('@')[0];
-  // if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) return;
-  // no_dcl_seeds.push(seed);
-  // })
-  // list_seeds = no_dcl_seeds;
-  // ////// for test test test end todo
   list_seeds.forEach((seed: Seed) => {
     const { seed_id } = seed;
     // seed type: [commonSeed, loveSeed, dclSeed]

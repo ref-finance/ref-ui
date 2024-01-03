@@ -3,140 +3,122 @@ import React, {
   useEffect,
   useRef,
   useCallback,
-  useMemo,
   useContext,
   createContext,
 } from 'react';
-import { FaRegQuestionCircle, FaSearch } from 'react-icons/fa';
-
-import db from '../../store/RefDatabase';
-
-import ReactTooltip from 'react-tooltip';
-import InfiniteScroll from 'react-infinite-scroll-component';
-import { ShareInFarm } from '../../components/layout/ShareInFarm';
+import { ShareInFarm } from '../../../components/layout/ShareInFarm';
 import {
   classificationOfCoins_key,
   classificationOfCoins,
   Seed,
-} from '../../services/farm';
-import { ArrowDown, ArrowDownLarge } from '../../components/icon';
+} from '../../../services/farm';
+import { ArrowDownLarge } from '../../../components/icon';
 import { useHistory } from 'react-router';
-import { Card } from '../../components/card/Card';
-import { find, isNumber, runInContext, values } from 'lodash';
-import { SelectModal } from '../../components/layout/SelectModal';
+import { Card } from '../../../components/card/Card';
+import { find } from 'lodash';
+import { SelectModal } from '../../../components/layout/SelectModal';
 import {
   useAllPools,
   usePools,
-  useMorePoolIds,
-  useAllWatchList,
   useWatchPools,
   useV3VolumesPools,
+  useDCLTopBinFee,
   useIndexerStatus,
-} from '../../state/pool';
-import Loading from '../../components/layout/Loading';
+} from '../../../state/pool';
+import Loading from '../../../components/layout/Loading';
 
 import {
   useTokens,
   usePoolTokens,
   useRainbowWhitelistTokens,
   useTokenBalances,
-} from '../../state/token';
+} from '../../../state/token';
 import { Link } from 'react-router-dom';
-import { canFarm, Pool, isNotStablePool, canFarms } from '../../services/pool';
+import { canFarm, Pool, canFarms } from '../../../services/pool';
 import {
   calculateFeePercent,
   toPrecision,
-  toReadableNumber,
   toInternationalCurrencySystem,
-} from '../../utils/numbers';
-import { CheckedTick, CheckedEmpty } from '../../components/icon/CheckBox';
-import { toRealSymbol } from '../../utils/token';
+} from '../../../utils/numbers';
+import { CheckedTick, CheckedEmpty } from '../../../components/icon/CheckBox';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
   DownArrowLight,
   DownArrowLightMobile,
   UpArrowDeep,
   UpArrowLight,
-} from '../../components/icon';
-import { FarmStamp } from '../../components/icon/FarmStamp';
-import {
-  SolidButton,
-  FarmButton,
-  GradientButton,
-} from '../../components/button/Button';
+} from '../../../components/icon';
+import { SolidButton } from '../../../components/button/Button';
 import {
   NEAR_CLASS_STABLE_POOL_IDS,
-  wallet,
   REF_UNI_V3_SWAP_CONTRACT_ID,
-} from '../../services/near';
-import { WatchListStartFull } from '../../components/icon/WatchListStar';
-import { PolygonGrayDown } from '../../components/icon/Polygon';
+  USDTT_USDCC_USDT_USDC_POOL_ID,
+} from '../../../services/near';
+import { WatchListStartFull } from '../../../components/icon/WatchListStar';
 import _, { orderBy, sortBy, filter } from 'lodash';
-import QuestionMark from '../../components/farm/QuestionMark';
 import { useInView } from 'react-intersection-observer';
-import { QuestionTip } from '../../components/layout/TipWrapper';
-import { FilterIcon } from '../../components/icon/PoolFilter';
-import {
-  TokenMetadata,
-  REF_META_DATA,
-  ftGetTokenMetadata,
-} from '../../services/ft-contract';
+import { QuestionTip } from '../../../components/layout/TipWrapper';
+import { TokenMetadata, REF_META_DATA } from '../../../services/ft-contract';
 import {
   scientificNotationToString,
   percent,
   checkAllocations,
-} from '../../utils/numbers';
-import { useMobile, useClientMobile, isClientMobie } from '../../utils/device';
+} from '../../../utils/numbers';
+import {
+  useMobile,
+  useClientMobile,
+  isClientMobie,
+} from '../../../utils/device';
 import {
   usePoolsMorePoolIds,
   useDayVolumesPools,
   useYourliquidity,
-} from '../../state/pool';
-import { PoolTabV3 } from '../../components/pool/PoolTabV3';
-import { SearchIcon } from '../../components/icon/FarmBoost';
+} from '../../../state/pool';
+import { PoolTabV3 } from '../../../components/pool/PoolTabV3';
+import { SearchIcon } from '../../../components/icon/FarmBoost';
 import {
   WalletContext,
   getCurrentWallet,
-} from '../../utils/wallets-integration';
-import { unwrapedNear, wnearMetadata } from '../../services/wrap-near';
-import { Images, Symbols } from '../../components/stableswap/CommonComp';
-import { getVEPoolId } from '../ReferendumPage';
-import { StartPoolIcon } from '../../components/icon/WatchListStar';
+} from '../../../utils/wallets-integration';
+import { unwrapedNear, wnearMetadata } from '../../../services/wrap-near';
+import { Images, Symbols } from '../../../components/stableswap/CommonComp';
+import { getVEPoolId } from '../../ReferendumPage';
+import { StartPoolIcon } from '../../../components/icon/WatchListStar';
 import {
   PoolDaoBanner,
-  PoolDaoBannerMobile,
   NEAR_TEXT,
   USD_TEXT,
-} from '../../components/icon/Logo';
-import { VEARROW } from '../../components/icon/Referendum';
-import getConfig from '../../services/config';
-import { AddPoolModal } from './AddPoolPage';
-import { useWalletSelector } from '../../context/WalletSelectorContext';
+} from '../../../components/icon/Logo';
+import { VEARROW } from '../../../components/icon/Referendum';
+import getConfig from '../../../services/config';
+import { AddPoolModal } from '../AddPoolPage';
+import { useWalletSelector } from '../../../context/WalletSelectorContext';
+import { getURLInfo } from '../../../components/layout/transactionTipPopUp';
+import { checkTransactionStatus } from '../../../services/swap';
+import { useCanFarmV2 } from '../../../state/farm';
 import {
-  checkAccountTip,
-  getURLInfo,
-} from '../../components/layout/transactionTipPopUp';
-import { checkTransactionStatus } from '../../services/swap';
-import { useCanFarmV2 } from '../../state/farm';
-import { PoolData, useAllStablePoolData } from '../../state/sauce';
-import { formatePoolData } from '../stable/StableSwapEntry';
+  PoolData,
+  useAllStablePoolData,
+  useAllStablePools,
+} from '../../../state/sauce';
+import { formatePoolData } from '../../stable/StableSwapEntry';
 import {
   USD_CLASS_STABLE_POOL_IDS,
   BTC_CLASS_STABLE_POOL_IDS,
-} from '../../services/near';
+} from '../../../services/near';
 import BigNumber from 'bignumber.js';
 import Big from 'big.js';
 import { Cell, Pie, PieChart, Sector } from 'recharts';
-import { OutlineButton } from '../../components/button/Button';
-import { BTC_TEXT } from '../../components/icon/Logo';
-import { useAllPoolsV2 } from '../../state/swapV3';
-import { PoolInfo } from '~services/swapV3';
-import { SelectModalV2 } from '../../components/layout/SelectModal';
-import { FarmStampNew } from '../../components/icon/FarmStamp';
-import { ALL_STABLE_POOL_IDS } from '../../services/near';
-import { BoostSeeds, WatchList } from '../../store/RefDatabase';
-import { REF_FI_CONTRACT_ID } from '../../services/near';
-import { AiOutlineStar } from 'react-icons/ai';
+import { OutlineButton } from '../../../components/button/Button';
+import { BTC_TEXT } from '../../../components/icon/Logo';
+import { useAllPoolsV2 } from '../../../state/swapV3';
+import { PoolInfo } from 'src/services/swapV3';
+import { FarmStampNew } from '../../../components/icon/FarmStamp';
+import { ALL_STABLE_POOL_IDS } from '../../../services/near';
+import { WatchList } from '../../../store/RefDatabase';
+import { REF_FI_CONTRACT_ID } from '../../../services/near';
+import { FarmBoost } from '../../../services/farm';
+
 import {
   get_all_seeds,
   getLatestStartTime,
@@ -144,46 +126,33 @@ import {
   sort_tokens_by_base,
   get_pool_name,
   openUrl,
-} from '../../services/commonV3';
+} from '../../../services/commonV3';
 
-import { AiFillStar } from 'react-icons/ai';
-import { useTokenPriceList } from '../../state/token';
-import { useSeedFarmsByPools } from '../../state/pool';
+import { formatPercentage } from '../../../components/d3Chart/utils';
+import { AiFillStar, RiArrowRightSLine } from '../../../components/reactIcons';
+import { useSeedFarmsByPools } from '../../../state/pool';
 
-import { RiArrowRightSLine } from 'react-icons/ri';
-import { PoolRefreshModal } from './PoolRefreshModal';
+import { PoolRefreshModal } from '../PoolRefreshModal';
+import { useTokenPriceList } from '../../../state/token';
+import {
+  REF_FI_POOL_ACTIVE_TAB,
+  getPoolFeeApr,
+  getPoolListFarmAprTip,
+} from '../utils';
+
+import { PoolsTip } from 'src/pages/pools/poolsComponents/poolsTip';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
+import MobileLiquidityPage from './MobileLiquidityPage/MobileLiquidityPage';
+import { PoolIdNotExist, SelectUi } from '../poolsComponents/poolsComponents';
+import {
+  REF_FI_POOL_SEARCH_BY,
+  REF_POOL_ID_SEARCHING_KEY,
+  TokenPriceListContext,
+} from './constLiquidityPage';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
 const REF_FI_FARM_ONLY = 'REF_FI_FARM_ONLY';
-
-const REF_POOL_ID_SEARCHING_KEY = 'REF_POOL_ID_SEARCHING_KEY';
-const { switch_on_dcl_farms } = getConfig();
-const TokenPriceListContext = createContext(null);
-
-export function getPoolFeeApr(
-  dayVolume: string,
-  pool: Pool,
-  tvlInput?: number
-) {
-  let result = '0';
-  if (dayVolume) {
-    const { fee, tvl } = pool;
-
-    const newTvl = tvlInput || tvl;
-
-    const revenu24h = (fee / 10000) * 0.8 * Number(dayVolume);
-    if (newTvl > 0 && revenu24h > 0) {
-      const annualisedFeesPrct = ((revenu24h * 365) / newTvl) * 100;
-      result = toPrecision(
-        scientificNotationToString(annualisedFeesPrct.toString()),
-        2
-      );
-    }
-  }
-  return Number(result);
-}
-
 export function getPoolFeeAprTitle(
   dayVolume: string,
   pool: Pool,
@@ -203,1342 +172,13 @@ export function getPoolFeeAprTitle(
   return Number(result);
 }
 
-function SelectUi({
-  onChange,
-  list,
-  curvalue,
-  shrink,
-  className,
-}: {
-  onChange: (e: any) => void;
-  list: any;
-  curvalue: string;
-  shrink?: string;
-  className?: string;
-}) {
-  const [showSelectBox, setShowSelectBox] = useState(false);
-  const switchSelectBoxStatus = () => {
-    setShowSelectBox(!showSelectBox);
-  };
-  const hideSelectBox = () => {
-    setShowSelectBox(false);
-  };
-  return (
-    <div
-      className={`relative flex ${
-        shrink ? 'items-end' : 'items-center '
-      } lg:mr-5 outline-none`}
-    >
-      <span className="lg:hidden mr-2">
-        <FilterIcon onShow={showSelectBox} />
-      </span>
-      <span className="text-white text-sm mr-2.5 xs:hidden md:hidden">
-        <FormattedMessage id="filter_by" defaultMessage="Filter by" />
-      </span>
-
-      <span
-        onClick={switchSelectBoxStatus}
-        tabIndex={-1}
-        onBlur={hideSelectBox}
-        className={`flex items-center justify-between min-w-24 h-5 rounded-full px-2 box-border border cursor-pointer text-xs outline-none ${
-          shrink ? 'xs:w-8 md:w-8' : ''
-        } ${
-          showSelectBox
-            ? 'border-greenColor text-white'
-            : 'border-farmText text-farmText'
-        }`}
-      >
-        <label
-          className={`whitespace-nowrap lg:text-white ${
-            shrink ? 'xs:hidden md:hidden' : ''
-          }`}
-        >
-          {curvalue ? list[curvalue] : null}
-        </label>
-        <ArrowDownLarge />
-      </span>
-      <div
-        className={`absolute z-50 top-8 right-0 border border-farmText bg-cardBg rounded-md min-w-24 ${
-          showSelectBox ? '' : 'hidden'
-        }`}
-      >
-        {Object.entries(list).map((item: any, index) => (
-          <p
-            key={item[0] + item[1]}
-            onMouseDown={() => {
-              onChange(item[0]);
-            }}
-            className={`flex items-center p-4 text-xs h-5 text-white text-opacity-40 my-2 cursor-pointer hover:bg-white hover:bg-opacity-10 hover:text-opacity-100
-            ${
-              item[0] == curvalue
-                ? 'bg-white bg-opacity-10 text-opacity-100'
-                : ''
-            }
-            `}
-          >
-            {item[1]}
-          </p>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function MobilePoolRow({
-  pool,
-  sortBy,
-  watched,
-  selectCoinClass,
-  tokens,
-  morePoolIds,
-  supportFarm,
-  h24volume,
-  watchPool,
-  mark,
-  farmApr,
-  farmCount,
-}: {
-  pool: Pool;
-  sortBy: string;
-  watched: Boolean;
-  selectCoinClass?: string;
-  tokens?: TokenMetadata[];
-  morePoolIds: string[];
-  supportFarm: Boolean;
-  h24volume: string;
-  watchPool?: boolean;
-  mark?: boolean;
-  farmApr?: number;
-  farmCount?: number;
-}) {
-  const { ref } = useInView();
-
-  const curRowTokens = useTokens(pool.tokenIds, tokens);
-  const { indexFail } = useContext(TokenPriceListContext);
-
-  const history = useHistory();
-
-  if (!curRowTokens) return <></>;
-
-  tokens = sort_tokens_by_base(tokens);
-
-  const showSortedValue = ({
-    sortBy,
-    value,
-  }: {
-    sortBy: string;
-    value?: number;
-  }) => {
-    if (sortBy === 'tvl')
-      return indexFail ? '-' : toInternationalCurrencySystem(value.toString());
-    else if (sortBy === 'fee') return `${calculateFeePercent(value)}%`;
-    else if (sortBy === 'volume_24h')
-      return !h24volume
-        ? '-'
-        : Number(h24volume) == 0
-        ? '$0'
-        : Number(h24volume) < 0.01
-        ? '$ <0.01'
-        : `$${toInternationalCurrencySystem(h24volume)}`;
-    else if (sortBy === 'apr') return `${getPoolFeeApr(h24volume, pool)}%`;
-  };
-
-  const morePoolButton = !(
-    morePoolIds?.length &&
-    morePoolIds?.length > 1 &&
-    !watchPool
-  ) ? null : (
-    <button
-      className={
-        morePoolIds?.length && morePoolIds?.length > 1 && !watchPool
-          ? ' text-farmText bg-black flex items-center bg-opacity-20 rounded-lg text-xs max-w-min  whitespace-nowrap px-2 justify-between ml-2 py-0.5'
-          : ''
-      }
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        history.push(`/more_pools/${pool.tokenIds}`, {
-          morePoolIds: morePoolIds,
-          tokens,
-        });
-      }}
-    >
-      <span>
-        {morePoolIds.length}
-        &nbsp;
-        <FormattedMessage
-          id="pools"
-          defaultMessage={'Pools'}
-        ></FormattedMessage>
-      </span>
-      <span>
-        <RiArrowRightSLine className="w-4 h-4 ml-1" />
-      </span>
-    </button>
-  );
-
-  return (
-    <div className="w-full hover:bg-poolRowHover overflow-x-hidden">
-      <Link
-        ref={ref}
-        className="flex flex-col border-b border-gray-700 border-opacity-70 bg-cardBg w-full px-2.5 py-5 text-white"
-        onClick={() => localStorage.setItem('fromMorePools', 'n')}
-        to={{
-          pathname: `/pool/${pool.id}`,
-          state: { tvl: pool?.tvl, backToFarms: supportFarm },
-        }}
-      >
-        <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center">
-            <div
-              className={`flex items-center ${
-                !!morePoolButton ? 'relative bottom-1' : ''
-              }`}
-            >
-              <div
-                className="h-6 w-6  border-2 border-watchMarkBackgroundColor rounded-full"
-                style={{
-                  height: '26px',
-                  width: '26px',
-                }}
-              >
-                <img
-                  key={curRowTokens?.[0]?.id.substring(0, 12).substring(0, 12)}
-                  className="rounded-full w-full"
-                  src={curRowTokens?.[0]?.icon}
-                />
-              </div>
-
-              <div
-                className="h-6 w-6   border-watchMarkBackgroundColor border-2 rounded-full -ml-1.5"
-                style={{
-                  height: '26px',
-                  width: '26px',
-                }}
-              >
-                <img
-                  key={curRowTokens?.[1].id}
-                  className="w-full rounded-full"
-                  src={curRowTokens?.[1].icon}
-                />
-              </div>
-              {curRowTokens?.[2] ? (
-                <div
-                  className="h-6 w-6 z-30 border border-watchMarkBackgroundColor rounded-full -ml-1.5 "
-                  style={{
-                    height: '26px',
-                    width: '26px',
-                  }}
-                >
-                  <img
-                    key={curRowTokens[2].id}
-                    className="w-full rounded-full"
-                    src={curRowTokens[2].icon}
-                  />
-                </div>
-              ) : null}
-            </div>
-            <div className="flex flex-col">
-              <div className="flex items-center justify-start">
-                <div className="flex items-center flex-wrap">
-                  <div className="text-sm ml-2 font-semibold whitespace-nowrap mb-0.5">
-                    {curRowTokens[0].symbol +
-                      '-' +
-                      curRowTokens[1].symbol +
-                      `${curRowTokens[2] ? '-' + curRowTokens[2].symbol : ''}`}
-                  </div>
-                </div>
-                {watched && !watchPool && (
-                  <div className="ml-2">
-                    <WatchListStartFull />
-                  </div>
-                )}
-              </div>
-
-              <div className="flex items-center relative top-0.5">
-                {mark ? (
-                  <span className="max-w-min  whitespace-nowrap text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2 mb-0.5">
-                    {ALL_STABLE_POOL_IDS.indexOf(pool.id.toString()) > -1
-                      ? 'Stable'
-                      : 'Classic'}
-                  </span>
-                ) : null}
-                {morePoolButton}
-                <div
-                  className="mr-2 relative bottom-0 px"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    openUrl(`/v2farms/${pool.id}-r`);
-                  }}
-                >
-                  {supportFarm && <FarmStampNew multi={farmCount > 1} />}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col items-end">
-            {showSortedValue({ sortBy, value: pool[sortBy] })}
-            {sortBy === 'apr' &&
-              farmApr !== null &&
-              farmApr !== undefined &&
-              farmApr > 0 && (
-                <div>
-                  <span className="text-xs text-gradientFrom">
-                    {`+${toPrecision((farmApr * 100).toString(), 2)}%`}
-                  </span>
-                </div>
-              )}
-          </div>
-        </div>
-      </Link>
-    </div>
-  );
-}
-
-function MobilePoolRowV2({
-  pool,
-  sortBy,
-  tokens,
-  mark,
-  watched,
-  h24volume,
-  relatedSeed,
-}: {
-  pool: PoolInfo;
-  sortBy: string;
-  tokens?: TokenMetadata[];
-  mark?: boolean;
-  watched?: boolean;
-  h24volume?: string;
-  relatedSeed?: Seed;
-}) {
-  const { ref } = useInView();
-
-  const curRowTokens = useTokens([pool.token_x, pool.token_y], tokens);
-
-  const history = useHistory();
-
-  if (!curRowTokens) return <></>;
-  tokens = sort_tokens_by_base(tokens);
-
-  const showSortedValue = ({
-    sortBy,
-    value,
-  }: {
-    sortBy: string;
-    value?: number;
-  }) => {
-    if (sortBy === 'tvl')
-      return pool.tvlUnreal
-        ? '-'
-        : toInternationalCurrencySystem(value.toString());
-    else if (sortBy === 'fee') return `${calculateFeePercent(value / 100)}%`;
-    else if (sortBy === 'volume_24h') {
-      return geth24volume();
-    } else return '/';
-  };
-  function goDetailV2() {
-    const url_pool_id = get_pool_name(pool.pool_id);
-    history.push(`/poolV2/${url_pool_id}`);
-  }
-  function geth24volume() {
-    const v = +(h24volume || '0');
-    if (v == 0) {
-      return '$0';
-    } else if (v < 0.01) {
-      return '<$0.01';
-    } else {
-      return '$' + toInternationalCurrencySystem(v.toString(), 2);
-    }
-  }
-  return (
-    <div className="w-full hover:bg-poolRowHover" onClick={goDetailV2}>
-      <div
-        ref={ref}
-        className="flex flex-col border-b border-gray-700 border-opacity-70 bg-cardBg w-full px-2.5 py-6 text-white"
-      >
-        <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center justify-start">
-            <div className="flex items-center">
-              <div className="h-6 w-6 border border-gradientFromHover rounded-full">
-                <img
-                  key={tokens[0].id.substring(0, 12).substring(0, 12)}
-                  className="rounded-full w-full"
-                  src={tokens[0].icon}
-                />
-              </div>
-
-              <div className="h-6 w-6 border border-gradientFromHover rounded-full -ml-1.5">
-                <img
-                  key={tokens[1].id}
-                  className="w-full rounded-full"
-                  src={tokens[1].icon}
-                />
-              </div>
-              {tokens[2] ? (
-                <div className="h-6 w-6 border border-gradientFromHover rounded-full -ml-1.5">
-                  <img
-                    key={tokens[2].id}
-                    className="w-full rounded-full"
-                    src={tokens[2].icon}
-                  />
-                </div>
-              ) : null}
-            </div>
-            <div className="flex flex-col flex-wrap">
-              <div className="flex items-center">
-                <div className="text-sm ml-2 font-semibold whitespace-nowrap mb-0.5">
-                  {tokens[0].symbol +
-                    '-' +
-                    tokens[1].symbol +
-                    `${tokens[2] ? '-' + tokens[2].symbol : ''}`}
-                </div>
-                {watched && (
-                  <div className="ml-2">
-                    <WatchListStartFull />
-                  </div>
-                )}
-              </div>
-              <div className="flex items-center">
-                {mark ? (
-                  <span className="max-w-min  whitespace-nowrap text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2 mb-0.5">
-                    DCL
-                  </span>
-                ) : null}
-                {relatedSeed && (
-                  <div className="mr-2">
-                    <FarmStampNew multi={relatedSeed.farmList?.length > 1} />
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-          <div>{showSortedValue({ sortBy, value: pool[sortBy] })}</div>
-        </div>
-      </div>
-    </div>
-  );
-}
-function MobileWatchListCard({
-  watchPools,
-  poolTokenMetas,
-  farmCounts,
-  volumes,
-  watchV2Pools,
-  poolsMorePoolsIds,
-  watchList,
-  do_farms_v2_poos,
-  farmAprById,
-}: {
-  watchPools: Pool[];
-  poolTokenMetas: any;
-  farmCounts: Record<string, number>;
-  volumes: Record<string, string>;
-  watchV2Pools: PoolInfo[];
-  poolsMorePoolsIds: Record<string, string[]>;
-  watchList: WatchList[];
-  do_farms_v2_poos: Record<string, Seed>;
-  farmAprById: Record<string, number>;
-}) {
-  const intl = useIntl();
-  const [showSelectModal, setShowSelectModal] = useState<Boolean>(false);
-  const [sortBy, onSortChange] = useState<string>('tvl');
-  const totalWatchList_length = watchPools?.length + watchV2Pools?.length;
-  function getAllWatchPools() {
-    const watchAllPools: any = [];
-    watchList.forEach((d: WatchList) => {
-      const { pool_id } = d;
-      const targetV1 = watchPools.find((p: Pool) => {
-        if (p.id.toString() == pool_id) return true;
-      });
-      const targetV2 = watchV2Pools.find((p: PoolInfo) => {
-        if (p.pool_id == pool_id) return true;
-      });
-      const target = targetV1 || targetV2;
-      if (target) {
-        watchAllPools.push(target);
-      }
-    });
-    return watchAllPools;
-  }
-  const watchAllPools = getAllWatchPools();
-  return (
-    <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4 mb-4 mt-2">
-      <div className="mx-4 flex items-center justify-between mt-4">
-        <div className="flex items-center">
-          <div
-            className={`text-${
-              watchPools?.length > 0 ? 'white' : 'gray-400'
-            }  text-base`}
-          >
-            <FormattedMessage id="my_watchlist" defaultMessage="My Watchlist" />
-            {/* {watchPools.length > 0 ? ` (${watchPools.length})` : ''} */}
-            &nbsp;
-            {totalWatchList_length > 0 ? <>({totalWatchList_length})</> : ''}
-          </div>
-          {/* my_watchlist_copy */}
-          <QuestionTip id="my_watchlist_copy" />
-        </div>
-      </div>
-      <section className="w-full">
-        <header className="p-4 text-gray-400 flex items-center justify-between text-sm">
-          <div>
-            <FormattedMessage id="pair" defaultMessage="Pair" />
-          </div>
-          <div className="flex items-center">
-            <div
-              className={`relative rounded-full flex items-center border    ${
-                showSelectModal
-                  ? 'border-greenColor text-white'
-                  : 'border-farmText text-farmText'
-              } w-36`}
-            >
-              <span
-                className={`px-2 w-full text-xs h-5
-                    flex items-center justify-between
-                  `}
-                onClick={() => {
-                  setShowSelectModal(true);
-                }}
-              >
-                <label>
-                  <FormattedMessage id={sortBy} defaultMessage={sortBy} />
-                </label>
-                <ArrowDownLarge />
-              </span>
-
-              {showSelectModal && (
-                <SelectModal
-                  onSortChange={onSortChange}
-                  setShowModal={setShowSelectModal}
-                  className="top-8"
-                  sortMode={sortBy}
-                />
-              )}
-            </div>
-          </div>
-        </header>
-        {sortBy === 'apr' && (
-          <div className="text-right text-farmText text-xs mr-3 mb-0.5">
-            *Pool Fee APY + Farm Rewards APR
-          </div>
-        )}
-        <div className="border-b border-gray-700 border-opacity-70" />
-        <div className="max-h-96 overflow-y-auto">
-          {watchAllPools.map((pool: any, i: number) => {
-            if (pool.id?.toString()) {
-              return (
-                <div className="w-full hover:bg-poolRowHover" key={i}>
-                  <MobilePoolRow
-                    tokens={poolTokenMetas[pool.id]}
-                    sortBy={sortBy}
-                    pool={pool}
-                    watched={!!find(watchPools, { id: pool.id })}
-                    morePoolIds={poolsMorePoolsIds[pool.id]}
-                    supportFarm={!!farmCounts[pool.id]}
-                    h24volume={volumes[pool.id]}
-                    watchPool
-                    mark={true}
-                    farmApr={farmAprById[pool.id]}
-                    farmCount={farmCounts[pool.id]}
-                  />
-                </div>
-              );
-            } else if (pool.pool_id) {
-              return (
-                <MobilePoolRowV2
-                  tokens={[pool.token_x_metadata, pool.token_y_metadata]}
-                  pool={pool}
-                  sortBy={sortBy}
-                  mark={true}
-                  key={i + '-mobile-pool-row-v2'}
-                  h24volume={volumes[pool.pool_id]}
-                  relatedSeed={do_farms_v2_poos[pool.pool_id]}
-                />
-              );
-            }
-          })}
-        </div>
-      </section>
-    </Card>
-  );
-}
-
-const REF_MOBILE_POOL_ID_INPUT = 'REF_MOBILE_POOL_ID_INPUT';
-
-function MobileLiquidityPage({
-  pools,
-  tokenName,
-  order,
-  watchPools,
-  hasMore,
-  onSearch,
-  onSortChange,
-  onOrderChange,
-  nextPage,
-  sortBy,
-  onHide,
-  hideLowTVL,
-  allPools,
-  poolTokenMetas,
-  poolsMorePoolsIds,
-  farmCounts,
-  farmOnly,
-  setFarmOnly,
-  volumes,
-  activeTab,
-  switchActiveTab,
-  watchV2Pools,
-  watchList,
-  do_farms_v2_poos,
-  farmAprById,
-}: {
-  pools: Pool[];
-  poolTokenMetas: any;
-  farmOnly: boolean;
-  setFarmOnly: (farmOnly: boolean) => void;
-  onSortChange: (modeSort: string) => void;
-  tokenName: string;
-  order: string;
-  watchPools: Pool[];
-  sortBy: string;
-  hideLowTVL: Boolean;
-  hasMore: boolean;
-  allPools: number;
-  onHide: (mode: Boolean) => void;
-  onSearch: (name: string) => void;
-  onOrderChange: (by: string) => void;
-  nextPage: (...args: []) => void;
-  poolsMorePoolsIds: Record<string, string[]>;
-  farmCounts: Record<string, number>;
-  volumes: Record<string, string>;
-  switchActiveTab: (tab: string) => void;
-  activeTab: string;
-  watchV2Pools: PoolInfo[];
-  watchList: WatchList[];
-  do_farms_v2_poos: Record<string, Seed>;
-  farmAprById: Record<string, number>;
-}) {
-  const { globalState } = useContext(WalletContext);
-  const isSignedIn = globalState.isSignedIn;
-  const history = useHistory();
-  const intl = useIntl();
-  const [showSelectModal, setShowSelectModal] = useState<Boolean>();
-  const [showSelectModalV2, setShowSelectModalV2] = useState<Boolean>();
-
-  const inputRef = useRef(null);
-
-  const search_id_ref = useRef(null);
-
-  const selectTokens = useRainbowWhitelistTokens();
-
-  const selectBalances = useTokenBalances();
-
-  const allPoolsV2 = useAllPoolsV2();
-  const [v2SortBy, setV2SortBy] = useState<string>('tvl');
-
-  const [v2Order, setV2Order] = useState<string>('desc');
-
-  const poolv2ReSortingFunc = (p1: PoolInfo, p2: PoolInfo) => {
-    const f1 = p1.fee;
-
-    const f2 = p2.fee;
-
-    const tvl1 = p1.tvl;
-
-    const tvl2 = p2.tvl;
-
-    const v1 = volumes[p1.pool_id] ? parseFloat(volumes[p1.pool_id]) : 0;
-
-    const v2 = volumes[p2.pool_id] ? parseFloat(volumes[p2.pool_id]) : 0;
-
-    if (v2Order === 'desc') {
-      if (v2SortBy === 'tvl') {
-        return tvl2 - tvl1;
-      } else if (v2SortBy === 'fee') {
-        return f2 - f1;
-      } else if (v2SortBy === 'volume_24h') {
-        return v2 - v1;
-      }
-    } else if (v2Order === 'asc') {
-      if (v2SortBy === 'tvl') {
-        return tvl1 - tvl2;
-      } else if (v2SortBy === 'fee') {
-        return f1 - f2;
-      } else if (v2SortBy === 'volume_24h') {
-        return v1 - v2;
-      }
-    }
-  };
-
-  const poolv2FilterFunc = (p: PoolInfo) => {
-    return (
-      _.includes(
-        p.token_x_metadata.symbol.toLowerCase(),
-        tokenName.toLowerCase()
-      ) ||
-      _.includes(
-        p.token_y_metadata.symbol.toLowerCase(),
-        tokenName.toLowerCase()
-      )
-    );
-  };
-  const tokensStar = [REF_META_DATA, unwrapedNear];
-
-  const filterList = { all: intl.formatMessage({ id: 'allOption' }) };
-  classificationOfCoins_key.forEach((key) => {
-    filterList[key] = intl.formatMessage({ id: key });
-  });
-  const [selectCoinClass, setSelectCoinClass] = useState<string>('all');
-  const [showAddPoolModal, setShowAddPoolModal] = useState<boolean>(false);
-
-  const poolFilterFunc = (p: Pool) => {
-    if (selectCoinClass === 'all') return true;
-
-    return poolTokenMetas[p.id].some((tk: TokenMetadata) =>
-      classificationOfCoins[selectCoinClass].includes(tk.symbol)
-    );
-  };
-  const outOfText = intl.formatMessage({ id: 'out_of' });
-  const [symbolsArr] = useState(['e', 'E', '+', '-', '.']);
-
-  const [enableIdSearch, setEnableIdSearch] = useState<boolean>(
-    !!sessionStorage.getItem(REF_POOL_ID_SEARCHING_KEY) || false
-  );
-
-  const handleEnableIdSearching = () => {
-    if (enableIdSearch) {
-      sessionStorage.removeItem(REF_POOL_ID_SEARCHING_KEY);
-    } else {
-      sessionStorage.setItem(REF_POOL_ID_SEARCHING_KEY, '1');
-    }
-
-    setEnableIdSearch(!enableIdSearch);
-    inputRef.current.value = '';
-    onSearch('');
-    setShowPoolIDTip(false);
-  };
-
-  // useEffect(() => {
-  //   if (inputRef.current?.value) inputRef.current.value = tokenName;
-  // }, [activeTab]);
-
-  const [showPoolIDTip, setShowPoolIDTip] = useState<boolean>(false);
-
-  const handleIdSearching = (id: string) => {
-    if (Number(id) >= allPools) {
-      setShowPoolIDTip(true);
-    } else if (id && id.length > 0 && !id.includes('.')) {
-      openUrl(`/pool/${id}`);
-    }
-  };
-
-  const poolSortingFunc = (p1: Pool, p2: Pool) => {
-    if (order === 'asc') {
-      if (sortBy === 'apr') {
-        return (
-          getPoolFeeApr(volumes[p1.id], p1) +
-          (farmAprById?.[p1.id] || 0) * 100 -
-          (getPoolFeeApr(volumes[p2.id], p2) +
-            (farmAprById?.[p2.id] || 0) * 100)
-        );
-      } else if (sortBy === 'volume_24h') {
-        return parseFloat(volumes[p1.id]) - parseFloat(volumes[p2.id]);
-      }
-    } else if (order === 'desc') {
-      if (sortBy === 'apr') {
-        return (
-          getPoolFeeApr(volumes[p2.id], p2) +
-          (farmAprById?.[p2.id] || 0) * 100 -
-          (getPoolFeeApr(volumes[p1.id], p1) +
-            (farmAprById?.[p1.id] || 0) * 100)
-        );
-      } else if (sortBy === 'volume_24h') {
-        return parseFloat(volumes[p2.id]) - parseFloat(volumes[p1.id]);
-      }
-    }
-  };
-  if (activeTab === 'v2' && !allPoolsV2) return <Loading />;
-
-  return (
-    <>
-      <PoolTabV3></PoolTabV3>
-      <div className="flex flex-col w-3/6 md:w-11/12 lg:w-5/6 xs:w-11/12 m-auto md:flex lg:hidden xl:hidden xs:flex">
-        <MobileWatchListCard
-          poolTokenMetas={poolTokenMetas}
-          watchPools={watchPools}
-          watchV2Pools={watchV2Pools}
-          farmCounts={farmCounts}
-          volumes={volumes}
-          poolsMorePoolsIds={poolsMorePoolsIds}
-          watchList={watchList}
-          do_farms_v2_poos={do_farms_v2_poos}
-          farmAprById={farmAprById}
-        />
-
-        {/* start pool card */}
-        {!!getConfig().REF_VE_CONTRACT_ID ? (
-          <div className="mt-1 mb-5">
-            <div className="flex items-center">
-              <span className="text-white text-lg ml-4 mr-2">
-                <FormattedMessage
-                  id="start_pool"
-                  defaultMessage={'Star Pool'}
-                />
-              </span>
-              <StartPoolIcon />
-            </div>
-            <Card
-              className="mt-2 bg-cardBg flex flex-col  "
-              width="w-full"
-              padding="px-0 py-3"
-            >
-              <div className="flex items-center ml-5">
-                <button
-                  className="flex items-center"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    openUrl(`/pool/${getVEPoolId()}`);
-                  }}
-                >
-                  <Images tokens={tokensStar} size="6" className="mr-2.5" />
-                  <Symbols
-                    tokens={tokensStar}
-                    separator="-"
-                    fontSize="text-sm"
-                  ></Symbols>
-                </button>
-              </div>
-
-              <PoolDaoBannerMobile />
-
-              {/* {supportFarmStar && <FarmButton farmCount={farmCountStar} />} */}
-            </Card>
-          </div>
-        ) : null}
-
-        <div className="flex flex-col items-center justify-between mb-4">
-          <div className="bg-cardBg flex items-center rounded-xl w-full p-1">
-            <button
-              className={`w-1/3 h-10 flex items-center justify-center ${
-                activeTab === 'v2' ? 'text-white' : 'text-primaryText'
-              } `}
-              style={{
-                background:
-                  activeTab === 'v2'
-                    ? 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)'
-                    : null,
-                borderRadius: '10px',
-              }}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                switchActiveTab('v2');
-              }}
-            >
-              <FormattedMessage id="v2_pools" />
-            </button>
-
-            <button
-              className={`w-1/3 h-10 flex items-center justify-center ${
-                activeTab === 'v1' ? 'text-white' : 'text-primaryText'
-              } `}
-              style={{
-                background:
-                  activeTab === 'v1'
-                    ? 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)'
-                    : null,
-                borderRadius: '10px',
-              }}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                switchActiveTab('v1');
-              }}
-            >
-              <FormattedMessage id="classic_pools"></FormattedMessage>
-            </button>
-
-            <button
-              className={`w-1/3 h-10 flex items-center justify-center ${
-                activeTab === 'stable' ? 'text-white' : 'text-primaryText'
-              } `}
-              style={{
-                background:
-                  activeTab === 'stable'
-                    ? 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)'
-                    : null,
-                borderRadius: '10px',
-              }}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                switchActiveTab('stable');
-              }}
-            >
-              <FormattedMessage
-                id="stable_pools"
-                defaultMessage={'Stable Pools'}
-              ></FormattedMessage>
-            </button>
-          </div>
-
-          {activeTab === 'stable' && (
-            <div className="flex items-center justify-end relative w-full">
-              <div className="relative rounded-xl w-full my-2 text-primaryText flex items-center pr-2 bg-cardBg">
-                <button
-                  type="button"
-                  className={` flex items-center justify-center px-2 py-0.5 rounded-lg ml-1 ${
-                    enableIdSearch
-                      ? 'bg-gradientFrom text-white'
-                      : 'bg-cardBg text-white text-opacity-30'
-                  } `}
-                  onClick={() => {
-                    handleEnableIdSearching();
-                  }}
-                >
-                  #
-                </button>
-                <input
-                  ref={inputRef}
-                  className={`text-sm outline-none rounded-xl w-full py-1.5 pl-3 pr-6`}
-                  placeholder={
-                    enableIdSearch
-                      ? intl.formatMessage({
-                          id: 'input_pool_id',
-                          defaultMessage: 'Input pool Id',
-                        })
-                      : intl.formatMessage({
-                          id: 'search_by_token',
-                        })
-                  }
-                  defaultValue={
-                    enableIdSearch
-                      ? sessionStorage.getItem(REF_MOBILE_POOL_ID_INPUT)
-                      : tokenName
-                  }
-                  inputMode={enableIdSearch ? 'decimal' : 'text'}
-                  type={enableIdSearch ? 'number' : 'text'}
-                  onKeyDown={(evt) => {
-                    if (enableIdSearch) {
-                      symbolsArr.includes(evt.key) && evt.preventDefault();
-                    }
-
-                    if (evt.key === 'Enter' && enableIdSearch) {
-                      handleIdSearching(inputRef.current.value);
-                    }
-                  }}
-                  onFocus={() => {
-                    setShowPoolIDTip(false);
-                  }}
-                  onChange={(evt) => {
-                    inputRef.current.value = evt.target.value;
-
-                    if (
-                      enableIdSearch &&
-                      Number(evt.target.value) >= allPools
-                    ) {
-                      setShowPoolIDTip(true);
-                    } else {
-                      setShowPoolIDTip(false);
-                    }
-
-                    !enableIdSearch
-                      ? onSearch(evt.target.value)
-                      : sessionStorage.setItem(
-                          REF_MOBILE_POOL_ID_INPUT,
-                          evt.target.value
-                        );
-                  }}
-                />
-                {showPoolIDTip && <PoolIdNotExist />}
-                <SearchIcon
-                  onClick={() => {
-                    if (enableIdSearch && !!inputRef.current.value) {
-                      handleIdSearching(inputRef.current.value);
-                    }
-                  }}
-                  className={`absolute right-2 ${
-                    enableIdSearch ? 'cursor-pointer' : ''
-                  }`}
-                ></SearchIcon>
-              </div>
-            </div>
-          )}
-        </div>
-        {activeTab === 'v1' && (
-          <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4">
-            <div className="mx-4 flex items-center justify-between my-4">
-              <div className="flex items-center">
-                <div className="text-white text-base">Top Pools</div>
-                <QuestionTip id="topPoolsCopy" />
-              </div>
-
-              <div className="text-gray-400 text-xs">
-                {(pools?.length ? pools?.filter(poolFilterFunc).length : '-') +
-                  ' out of ' +
-                  (allPools ? allPools : '-')}
-              </div>
-            </div>
-
-            <div className="rounded my-2 text-gray-400 flex items-center pr-2 mx-4 mb-5">
-              <div className="relative flex items-center flex-grow bg-inputDarkBg rounded-md">
-                <button
-                  type="button"
-                  className={` flex items-center justify-center px-2 py-0.5 rounded-lg ml-1 ${
-                    enableIdSearch
-                      ? 'bg-gradientFrom text-white'
-                      : 'bg-cardBg text-white text-opacity-30'
-                  } `}
-                  onClick={() => {
-                    handleEnableIdSearching();
-                  }}
-                >
-                  #
-                </button>
-                <input
-                  ref={inputRef}
-                  className={`text-sm outline-none rounded py-2 pl-3 pr-7 flex-grow `}
-                  placeholder={
-                    enableIdSearch
-                      ? intl.formatMessage({
-                          id: 'input_pool_id',
-                          defaultMessage: 'Input pool Id',
-                        })
-                      : intl.formatMessage({
-                          id: 'search_by_token',
-                        })
-                  }
-                  inputMode={enableIdSearch ? 'decimal' : 'text'}
-                  type={enableIdSearch ? 'number' : 'text'}
-                  onChange={(evt) => {
-                    inputRef.current.value = evt.target.value;
-                    if (
-                      enableIdSearch &&
-                      Number(evt.target.value) >= allPools
-                    ) {
-                      setShowPoolIDTip(true);
-                    } else {
-                      setShowPoolIDTip(false);
-                    }
-                    !enableIdSearch
-                      ? onSearch(evt.target.value)
-                      : sessionStorage.setItem(
-                          REF_MOBILE_POOL_ID_INPUT,
-                          evt.target.value
-                        );
-                  }}
-                  onKeyDown={(evt) => {
-                    if (enableIdSearch) {
-                      symbolsArr.includes(evt.key) && evt.preventDefault();
-                    }
-
-                    if (evt.key === 'Enter' && enableIdSearch) {
-                      handleIdSearching(inputRef.current.value);
-                    }
-                  }}
-                  defaultValue={
-                    enableIdSearch
-                      ? sessionStorage.getItem(REF_MOBILE_POOL_ID_INPUT)
-                      : tokenName
-                  }
-                  onFocus={() => {
-                    setShowPoolIDTip(false);
-                  }}
-                />
-
-                {showPoolIDTip && <PoolIdNotExist />}
-                <SearchIcon
-                  onClick={() => {
-                    if (enableIdSearch && !!inputRef.current.value) {
-                      handleIdSearching(inputRef.current.value);
-                    }
-                  }}
-                  className={`absolute right-1.5 ${
-                    enableIdSearch ? 'cursor-pointer' : ''
-                  }`}
-                ></SearchIcon>
-              </div>
-              {isSignedIn ? (
-                <div
-                  className="ml-1 text-xs"
-                  data-type="info"
-                  data-place="top"
-                  data-multiline={true}
-                  data-class="reactTip"
-                  data-html={true}
-                  data-tip={`
-              <div className="text-xs">
-                <div 
-                  style="max-width: 250px;font-weight:400",
-                >
-                ${intl.formatMessage({ id: 'create_new_pool' })}
-                </div>
-              </div>
-            `}
-                  data-for="add_pool_tip"
-                >
-                  <button
-                    className={`text-base ml-2 px-3 text-primaryText w-8 h-8 bg-black bg-opacity-20 hover:bg-opacity-40 hover:text-gradientFrom rounded-md flex items-center justify-center`}
-                    onClick={() => {
-                      setShowAddPoolModal(true);
-                    }}
-                  >
-                    +
-                  </button>
-                </div>
-              ) : null}
-            </div>
-
-            <div className="flex items-start justify-between mx-4 mb-2">
-              <SelectUi
-                list={filterList}
-                onChange={setSelectCoinClass}
-                curvalue={selectCoinClass}
-              />
-
-              <div className="flex flex-col">
-                <div
-                  className=" inline-flex items-center cursor-pointer"
-                  onClick={() => {
-                    farmOnly && setFarmOnly(false);
-                    !farmOnly && setFarmOnly(true);
-                  }}
-                >
-                  <div className="mr-2">
-                    {farmOnly ? <CheckedTick /> : <CheckedEmpty />}
-                  </div>
-                  <div className="text-primaryText text-sm">
-                    <FormattedMessage
-                      id="farm_only"
-                      defaultMessage="Farm only"
-                    />
-                  </div>
-                </div>
-                <div
-                  className=" inline-flex items-center cursor-pointer mt-2"
-                  onClick={() => {
-                    hideLowTVL && onHide(false);
-                    !hideLowTVL && onHide(true);
-                  }}
-                >
-                  <div className="mr-2">
-                    {hideLowTVL ? <CheckedTick /> : <CheckedEmpty />}
-                  </div>
-                  <div className="text-primaryText text-sm">
-                    <FormattedMessage
-                      id="hide_low_tvl_pools_mobile"
-                      defaultMessage="Hide low TVL pools"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <section className="w-full">
-              <header className="p-4 text-gray-400 flex items-center justify-between text-sm">
-                <div>
-                  <FormattedMessage id="pair" defaultMessage="Pair" />
-                </div>
-                <div className="flex items-center">
-                  <div
-                    className="mr-2"
-                    onClick={() => {
-                      onOrderChange(order === 'desc' ? 'asc' : 'desc');
-                    }}
-                  >
-                    {order === 'desc' ? (
-                      <DownArrowLightMobile />
-                    ) : (
-                      <UpArrowDeep />
-                    )}
-                  </div>
-                  <div
-                    className={`relative rounded-full flex items-center border    ${
-                      showSelectModal
-                        ? 'border-greenColor text-white'
-                        : 'border-farmText text-farmText'
-                    } w-36`}
-                  >
-                    <span
-                      className={`px-2 w-full text-xs h-5
-                      flex items-center justify-between
-                    `}
-                      onClick={() => {
-                        setShowSelectModal(true);
-                      }}
-                    >
-                      <label>
-                        <FormattedMessage id={sortBy} defaultMessage={sortBy} />
-                      </label>
-                      <ArrowDownLarge />
-                    </span>
-
-                    {showSelectModal && (
-                      <SelectModal
-                        sortMode={sortBy}
-                        onSortChange={onSortChange}
-                        setShowModal={setShowSelectModal}
-                        className="top-8"
-                      />
-                    )}
-                  </div>
-                </div>
-              </header>
-              {sortBy === 'apr' && (
-                <div className="text-right text-farmText text-xs mr-3 mb-0.5">
-                  *Pool Fee APY + Farm Rewards APR
-                </div>
-              )}
-              <div className="border-b border-gray-700 border-opacity-70" />
-              <div className="max-h-96 overflow-y-auto overflow-x-visible pool-list-container-mobile">
-                {pools
-                  ?.filter(poolFilterFunc)
-                  .sort(poolSortingFunc)
-                  .map((pool, i) => (
-                    <MobilePoolRow
-                      selectCoinClass={selectCoinClass}
-                      tokens={poolTokenMetas[pool.id]}
-                      pool={pool}
-                      sortBy={sortBy}
-                      watched={!!find(watchPools, { id: pool.id })}
-                      key={i}
-                      morePoolIds={poolsMorePoolsIds[pool.id]}
-                      supportFarm={!!farmCounts[pool.id]}
-                      h24volume={volumes[pool.id]}
-                      farmApr={farmAprById[pool.id]}
-                      farmCount={farmCounts[pool.id]}
-                    />
-                  ))}
-              </div>
-            </section>
-          </Card>
-        )}
-
-        {activeTab === 'v2' && (
-          <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4">
-            <div className="rounded my-4 text-gray-400 flex items-center pr-2 mx-4 mb-5">
-              <div className="relative flex items-center flex-grow">
-                <input
-                  ref={inputRef}
-                  className={`text-sm outline-none rounded py-2 pl-3 pr-7 flex-grow bg-inputDarkBg`}
-                  placeholder={intl.formatMessage({
-                    id: 'search_by_token',
-                  })}
-                  value={tokenName}
-                  onChange={(evt) => {
-                    onSearch(evt.target.value);
-                  }}
-                />
-                <SearchIcon className="absolute right-1.5"></SearchIcon>
-              </div>
-            </div>
-            <section className="w-full">
-              <header className="p-4 text-gray-400 flex items-center justify-between text-sm">
-                <div>
-                  <FormattedMessage id="pair" defaultMessage="Pair" />
-                </div>
-                <div className="flex items-center">
-                  <div
-                    className="mr-2"
-                    onClick={() => {
-                      setV2Order(v2Order === 'desc' ? 'asc' : 'desc');
-                    }}
-                  >
-                    {v2Order === 'desc' ? (
-                      <DownArrowLightMobile />
-                    ) : (
-                      <UpArrowDeep />
-                    )}
-                  </div>
-                  <div
-                    className={`relative rounded-full flex items-center border    ${
-                      showSelectModalV2
-                        ? 'border-greenColor text-white'
-                        : 'border-farmText text-farmText'
-                    } w-36`}
-                  >
-                    <span
-                      className={`px-2 w-full text-xs h-5
-                      flex items-center justify-between
-                    `}
-                      onClick={() => {
-                        setShowSelectModalV2(true);
-                      }}
-                    >
-                      <label>
-                        <FormattedMessage
-                          id={v2SortBy}
-                          defaultMessage={v2SortBy}
-                        />
-                      </label>
-                      <ArrowDownLarge />
-                    </span>
-
-                    {showSelectModalV2 && (
-                      <SelectModalV2
-                        sortMode={v2SortBy}
-                        onSortChange={setV2SortBy}
-                        setShowModal={setShowSelectModalV2}
-                        className="top-8"
-                      />
-                    )}
-                  </div>
-                </div>
-              </header>
-              <div className="border-b border-gray-700 border-opacity-70" />
-              <div className="max-h-96 overflow-y-auto pool-list-container-mobile">
-                {allPoolsV2
-                  ?.filter(poolv2FilterFunc)
-                  .sort(poolv2ReSortingFunc)
-                  .map((pool, i) => (
-                    <MobilePoolRowV2
-                      tokens={[pool.token_x_metadata, pool.token_y_metadata]}
-                      pool={pool}
-                      sortBy={v2SortBy}
-                      watched={!!find(watchV2Pools, { pool_id: pool.pool_id })}
-                      key={i + '-mobile-pool-row-v2'}
-                      h24volume={volumes[pool.pool_id]}
-                      relatedSeed={do_farms_v2_poos[pool.pool_id]}
-                    />
-                  ))}
-              </div>
-            </section>
-          </Card>
-        )}
-
-        {activeTab === 'stable' && (
-          <StablePoolList
-            searchBy={tokenName}
-            volumes={volumes}
-            watchPools={watchPools}
-          />
-        )}
-      </div>
-      {isSignedIn && (
-        <AddPoolModal
-          isOpen={showAddPoolModal}
-          onRequestClose={(e) => {
-            setShowAddPoolModal(false);
-          }}
-          tokens={selectTokens}
-          balances={selectBalances}
-        />
-      )}
-    </>
-  );
-}
-
-export const getPoolListFarmAprTip = () => {
+export const getPoolListV2FarmAprTip = () => {
   return `
     <div 
       class="flex flex-col text-xs min-w-36 text-farmText z-50"
     >
       <div>
-      Pool Fee APY
+      Top Bin APR
       </div>
 
       <div>
@@ -1550,18 +190,6 @@ export const getPoolListFarmAprTip = () => {
 
     </div>
 `;
-};
-
-const PoolIdNotExist = () => {
-  const intl = useIntl();
-  return (
-    <span className="relative right-6  bottom-px whitespace-nowrap text-redwarningColor">
-      {intl.formatMessage({
-        id: 'poolIdNotExist',
-        defaultMessage: 'does not exist!',
-      })}
-    </span>
-  );
 };
 
 function PoolRow({
@@ -1603,7 +231,7 @@ function PoolRow({
     <div className="w-full hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20">
       <Link
         className={`grid grid-cols-${
-          mark ? 7 : 8
+          mark ? 7 : 7
         } py-3.5 text-white content-center text-sm text-left mx-8 border-b border-gray-700 border-opacity-70 hover:opacity-80`}
         onClick={() => localStorage.setItem('fromMorePools', 'n')}
         to={{
@@ -1618,11 +246,11 @@ function PoolRow({
           <div className="flex items-center">
             <Images tokens={tokens} size="8" />
             <div className="flex items-center">
-              <div className="text-sm ml-3">
-                {tokens[0].symbol +
-                  '-' +
-                  tokens[1].symbol +
-                  `${tokens[2] ? '-' + tokens[2]?.symbol : ''}`}
+              <div className="flex flex-wrap max-w-48 text-sm ml-3">
+                <label>{tokens[0].symbol}</label>-
+                <label>{tokens[1].symbol}</label>
+                {tokens[2] ? <label>-{tokens[2]?.symbol}</label> : null}
+                {tokens[3] ? <label>-{tokens[3]?.symbol}</label> : null}
               </div>
               {mark ? (
                 <span className="text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2">
@@ -1643,16 +271,14 @@ function PoolRow({
         <div className="col-span-1 flex items-center justify-center justify-self-center py-1 md:hidden ">
           {calculateFeePercent(pool.fee)}%
         </div>
-
         <div
-          className="col-span-1 flex flex-col items-center justify-self-center py-1"
+          className="col-span-1 flex flex-col items-center justify-self-center text-sm py-1"
           data-type="info"
           data-place="right"
           data-multiline={true}
           data-class={'reactTip'}
-          data-html={true}
-          data-tip={getPoolListFarmAprTip()}
-          data-for={'pool_list_pc_apr' + pool.id}
+          data-tooltip-html={getPoolListFarmAprTip()}
+          data-tooltip-id={'pool_list_pc_apr' + pool.id}
         >
           {!h24volume ? '-' : `${getPoolFeeApr(h24volume, pool)}%`}
           {supportFarm &&
@@ -1666,15 +292,10 @@ function PoolRow({
               </span>
             )}
           {supportFarm && farmApr > 0 && (
-            <ReactTooltip
+            <CustomTooltip
               className="w-20"
               id={'pool_list_pc_apr' + pool.id}
-              backgroundColor="#1D2932"
               place="right"
-              border
-              borderColor="#7e8a93"
-              textColor="#C6D1DA"
-              effect="solid"
             />
           )}
         </div>
@@ -1704,25 +325,25 @@ function PoolRow({
             : `${toInternationalCurrencySystem(pool.tvl.toString())}`}
         </div>
 
-        <div
-          className={`col-span-1 justify-self-center flex items-center justify-center py-1 hover:text-green-500 hover:cursor-pointer ${
-            mark ? 'hidden' : ''
-          }`}
-          onMouseEnter={() => setShowLinkArrow(true)}
-          onMouseLeave={() => setShowLinkArrow(false)}
-          onClick={(e) => {
-            e.preventDefault();
-            history.push(`/more_pools/${pool.tokenIds}`, {
-              morePoolIds: morePoolIds,
-              tokens,
-            });
-          }}
-        >
-          <span className="relative left-8">
-            {morePoolIds?.length ? `${morePoolIds?.length}` : '-'}
-            {showLinkArrow && ' >'}
-          </span>
-        </div>
+        {/*<div*/}
+        {/*  className={`col-span-1 justify-self-center flex items-center justify-center py-1 hover:text-green-500 hover:cursor-pointer ${*/}
+        {/*    mark ? 'hidden' : ''*/}
+        {/*  }`}*/}
+        {/*  onMouseEnter={() => setShowLinkArrow(true)}*/}
+        {/*  onMouseLeave={() => setShowLinkArrow(false)}*/}
+        {/*  onClick={(e) => {*/}
+        {/*    e.preventDefault();*/}
+        {/*    history.push(`/more_pools/${pool.tokenIds}`, {*/}
+        {/*      morePoolIds: morePoolIds,*/}
+        {/*      tokens,*/}
+        {/*    });*/}
+        {/*  }}*/}
+        {/*>*/}
+        {/*  <span className="relative left-8">*/}
+        {/*    {morePoolIds?.length ? `${morePoolIds?.length}` : '-'}*/}
+        {/*    {showLinkArrow && ' >'}*/}
+        {/*  </span>*/}
+        {/*</div>*/}
       </Link>
     </div>
   );
@@ -1749,6 +370,13 @@ function PoolRowV2({
 }) {
   const curRowTokens = useTokens([pool.token_x, pool.token_y], tokens);
   const history = useHistory();
+  const topBinApr = useDCLTopBinFee({
+    pool,
+    way: 'value',
+  });
+  const displayOfTopBinApr =
+    topBinApr == '-' ? '-' : formatPercentage(topBinApr);
+  pool.top_bin_apr = topBinApr;
 
   if (!curRowTokens) return <></>;
   tokens = sort_tokens_by_base(tokens);
@@ -1766,6 +394,27 @@ function PoolRowV2({
       return '$' + toInternationalCurrencySystem(v.toString(), 2);
     }
   }
+  function getFarmApr() {
+    if (relatedSeed) {
+      const farms = relatedSeed.farmList;
+      let apr = 0;
+      const allPendingFarms = isPending(relatedSeed);
+      farms.forEach(function (item: FarmBoost) {
+        const pendingFarm =
+          item.status == 'Created' || item.status == 'Pending';
+        if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
+          apr = +new BigNumber(apr).plus(item.apr).toFixed();
+        }
+      });
+      apr = apr * 100;
+      if (+apr == 0) {
+        return '-';
+      } else {
+        return '+' + toPrecision(apr.toString(), 2) + '%';
+      }
+    }
+    return '';
+  }
   return (
     <div
       className="w-full hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20 cursor-pointer"
@@ -1773,7 +422,7 @@ function PoolRowV2({
     >
       <div
         className={`grid ${
-          showCol ? 'grid-cols-7' : 'grid-cols-8'
+          mark ? 'grid-cols-7' : 'grid-cols-9'
         } py-3.5 text-white content-center text-sm text-left mx-8 border-b border-gray-700 border-opacity-70 hover:opacity-80`}
       >
         <div
@@ -1806,32 +455,51 @@ function PoolRowV2({
         </div>
 
         <div
-          className={`justify-self-center py-1 md:hidden ${
+          className={` py-1 md:hidden ${mark ? 'justify-self-center' : ''} ${
             showCol ? 'col-span-1' : 'col-span-2'
           }`}
         >
           {calculateFeePercent(pool.fee / 100)}%
         </div>
-
-        {mark && (
+        <div
+          className={`${
+            mark ? 'col-span-1 justify-self-center' : 'col-span-2'
+          }`}
+        >
           <div
-            className={`col-span-1 justify-self-center py-1 md:hidden ${
-              showCol ? '' : 'hidden'
-            }`}
+            className={`inline-flex flex-col py-1`}
+            data-type="info"
+            data-place="right"
+            data-multiline={true}
+            data-class={'reactTip'}
+            data-tooltip-html={getPoolListV2FarmAprTip()}
+            data-tooltip-id={'pool_list_v2_pc_apr' + pool.pool_id}
           >
-            /
+            {displayOfTopBinApr}
+            {relatedSeed && (
+              <span className="text-xs text-gradientFrom">{getFarmApr()}</span>
+            )}
+            {relatedSeed && (
+              <CustomTooltip
+                className="w-20"
+                id={'pool_list_v2_pc_apr' + pool.pool_id}
+                place="right"
+              />
+            )}
           </div>
-        )}
+        </div>
 
         <div
-          className={`col-span-1 justify-self-center py-1 md:hidden ${
-            showCol ? '' : 'hidden'
-          }`}
+          className={`col-span-1 ${
+            mark ? 'justify-self-center' : ''
+          }  py-1 md:hidden ${showCol ? '' : 'hidden'}`}
         >
           {geth24volume()}
         </div>
         <div
-          className="col-span-1 py-1 justify-self-center relative left-4"
+          className={`col-span-1 py-1  ${
+            mark ? 'justify-self-center' : ''
+          } relative left-4`}
           title={toPrecision(
             scientificNotationToString(pool.tvl.toString()),
             0
@@ -1992,8 +660,7 @@ function WatchListCard({
     </>
   );
 }
-
-function LiquidityPage_({
+function PcLiquidityPage({
   pools,
   sortBy,
   tokenName,
@@ -2051,7 +718,7 @@ function LiquidityPage_({
   const intl = useIntl();
   const inputRef = useRef(null);
 
-  const allPoolsV2 = useAllPoolsV2();
+  const allPoolsV2 = useAllPoolsV2(true);
 
   const [tvlV2, setTvlV2] = useState<string>();
 
@@ -2136,7 +803,6 @@ function LiquidityPage_({
       setFarmCountStar(count);
     });
   }, []);
-
   const tokensStar = [REF_META_DATA, unwrapedNear];
   const poolReSortingFunc = (p1: Pool, p2: Pool) => {
     const v1 = volumes[p1.id] ? parseFloat(volumes[p1.id]) : 0;
@@ -2177,6 +843,8 @@ function LiquidityPage_({
 
     const v2 = volumes[p2.pool_id] ? parseFloat(volumes[p2.pool_id]) : 0;
 
+    const top_bin_apr1 = p1.top_bin_apr;
+    const top_bin_apr2 = p2.top_bin_apr;
     if (v2Order === 'desc') {
       if (v2SortBy === 'tvl') {
         return tvl2 - tvl1;
@@ -2184,6 +852,8 @@ function LiquidityPage_({
         return f2 - f1;
       } else if (v2SortBy === 'volume_24h') {
         return v2 - v1;
+      } else if (v2SortBy === 'top_bin_apr') {
+        return Number(top_bin_apr2) - Number(top_bin_apr1);
       }
     } else if (v2Order === 'asc') {
       if (v2SortBy === 'tvl') {
@@ -2192,6 +862,8 @@ function LiquidityPage_({
         return f1 - f2;
       } else if (v2SortBy === 'volume_24h') {
         return v1 - v2;
+      } else if (v2SortBy === 'top_bin_apr') {
+        return Number(top_bin_apr1) - Number(top_bin_apr2);
       }
     }
   };
@@ -2258,7 +930,7 @@ function LiquidityPage_({
               </div>
               <div className="absolute flex items-center right-0 bottom-0">
                 <button
-                  className="text-white hover:text-gradientFrom text-lg z-30 relative top-6 right-0 flex items-center"
+                  className="text-white hover:text-gradientFrom text-sm z-30 relative top-6 right-0 flex items-center"
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
@@ -2493,8 +1165,7 @@ function LiquidityPage_({
                 data-place="top"
                 data-multiline={true}
                 data-class="reactTip"
-                data-html={true}
-                data-tip={`
+                data-tooltip-html={`
               <div class="text-xs opacity-50">
                 <div 
                   style="font-weight:400",
@@ -2508,7 +1179,7 @@ function LiquidityPage_({
                 </div>
               </div>
             `}
-                data-for="add_pool_tip"
+                data-tooltip-id="add_pool_tip"
               >
                 <SolidButton
                   className={`text-sm ml-2 px-3 text-white rounded-lg flex items-center justify-center`}
@@ -2528,20 +1199,13 @@ function LiquidityPage_({
                 </SolidButton>
 
                 {activeTab === 'v2' && (
-                  <ReactTooltip
-                    className="w-20"
-                    id="add_pool_tip"
-                    backgroundColor="#1D2932"
-                    border
-                    borderColor="#7e8a93"
-                    textColor="#C6D1DA"
-                    effect="solid"
-                  />
+                  <CustomTooltip className="w-20" id="add_pool_tip" />
                 )}
               </div>
             ) : null}
           </div>
         </div>
+        <PoolsTip activeTab={activeTab} />
         {activeTab === 'watchlist' && (
           <WatchListCard
             poolTokenMetas={poolTokenMetas}
@@ -2565,21 +1229,7 @@ function LiquidityPage_({
               }}
             >
               <div className="flex items-center">
-                <div className="text-white text-lg font-bold">Top Pools</div>
-
-                <div className="flex items-center">
-                  <span className="mr-1">
-                    <QuestionTip id="topPoolsCopy" />
-                  </span>
-
-                  <div className="text-white text-sm">
-                    {(pools?.length
-                      ? pools?.filter(poolFilterFunc).length
-                      : '-') +
-                      ' out of ' +
-                      (allPools ? allPools : '-')}
-                  </div>
-                </div>
+                <div className="text-white text-lg font-bold">Pools</div>
               </div>
 
               <div className="ml-8 justify-between  flex">
@@ -2627,7 +1277,7 @@ function LiquidityPage_({
             </div>
 
             <section className="">
-              <header className="grid grid-cols-8 py-2 pb-4 text-left text-sm text-primaryText mx-8 border-b border-gray-700 border-opacity-70">
+              <header className="grid grid-cols-7 py-2 pb-4 text-left text-sm text-primaryText mx-8 border-b border-gray-700 border-opacity-70">
                 <div className="col-span-3 md:col-span-4 flex">
                   <FormattedMessage id="pair" defaultMessage="Pair" />
                 </div>
@@ -2789,9 +1439,9 @@ function LiquidityPage_({
                     )}
                   </span>
                 </div>
-                <p className="col-span-1 justify-self-end relative xs:right-8 lg:right-5">
-                  <FormattedMessage id="pools" defaultMessage="Pools" />
-                </p>
+                {/*<p className="col-span-1 justify-self-end relative xs:right-8 lg:right-5">*/}
+                {/*  <FormattedMessage id="pools" defaultMessage="Pools" />*/}
+                {/*</p>*/}
               </header>
 
               <div className="max-h-96 overflow-y-auto  pool-list-container-pc">
@@ -2821,11 +1471,11 @@ function LiquidityPage_({
         {activeTab === 'v2' && (
           <Card width="w-full" className="bg-cardBg" padding="py-7 px-0">
             <section className="">
-              <header className="grid grid-cols-7 py-2 pb-4 text-left text-sm text-primaryText mx-8 border-b border-gray-700 border-opacity-70">
+              <header className="grid grid-cols-9 py-2 pb-4 text-left text-sm text-primaryText mx-8 border-b border-gray-700 border-opacity-70">
                 <div className="col-span-4 flex">
                   <FormattedMessage id="pair" defaultMessage="Pair" />
                 </div>
-                <div className="col-span-1 justify-self-center md:hidden flex items-center">
+                <div className="col-span-1  md:hidden flex items-center">
                   <span
                     className={`pr-1  cursor-pointer ${
                       v2SortBy !== 'fee' ? 'hover:text-white' : ''
@@ -2863,7 +1513,54 @@ function LiquidityPage_({
                   </span>
                 </div>
 
-                <div className="col-span-1 justify-self-center md:hidden flex items-center">
+                <div className="col-span-2  md:hidden flex items-center">
+                  <span
+                    className={`mr-1 flex items-center ${
+                      v2SortBy !== 'top_bin_apr' ? 'hover:text-white' : ''
+                    } ${v2SortBy === 'top_bin_apr' ? 'text-gradientFrom' : ''}`}
+                    onClick={() => {
+                      setV2SortBy('top_bin_apr');
+                      v2SortBy !== 'top_bin_apr' && setV2Order('desc');
+                      v2SortBy === 'top_bin_apr' &&
+                        setV2Order(v2Order === 'desc' ? 'asc' : 'desc');
+                    }}
+                  >
+                    <FormattedMessage
+                      id="top_bin_apr"
+                      defaultMessage="Top Bin APR (24h)"
+                    />
+                  </span>
+                  <QuestionTip
+                    id="top-bin-apr"
+                    defaultMessage="This is the trailing 24hr APR of the top performing bin in this pool."
+                    uniquenessId="topbinapr"
+                    className={'pr-1'}
+                    maxWidth="210px"
+                  />
+                  <span
+                    className={`cursor-pointer ${
+                      v2SortBy !== 'top_bin_apr' ? 'hidden' : ''
+                    }`}
+                    onClick={() => {
+                      setV2SortBy('top_bin_apr');
+                      v2SortBy !== 'top_bin_apr' && setV2Order('desc');
+                      v2SortBy === 'top_bin_apr' &&
+                        setV2Order(v2Order === 'desc' ? 'asc' : 'desc');
+                    }}
+                  >
+                    {v2SortBy === 'top_bin_apr' ? (
+                      v2Order === 'desc' ? (
+                        <DownArrowLight />
+                      ) : (
+                        <UpArrowLight />
+                      )
+                    ) : (
+                      <UpArrowDeep />
+                    )}
+                  </span>
+                </div>
+
+                <div className="col-span-1  md:hidden flex items-center">
                   <span
                     className={`pr-1  cursor-pointer ${
                       v2SortBy !== 'volume_24h' ? 'hover:text-white' : ''
@@ -2904,7 +1601,7 @@ function LiquidityPage_({
                   </span>
                 </div>
 
-                <div className="col-span-1 justify-self-center relative left-4 flex items-center">
+                <div className="col-span-1  relative left-4 flex items-center">
                   <span
                     className={`pr-1  cursor-pointer ${
                       v2SortBy !== 'tvl' ? 'hover:text-white' : ''
@@ -2942,7 +1639,6 @@ function LiquidityPage_({
                   </span>
                 </div>
               </header>
-
               <div className="max-h-96 overflow-y-auto  pool-list-container-pc">
                 {allPoolsV2
                   .sort(poolv2ReSortingFunc)
@@ -2950,7 +1646,7 @@ function LiquidityPage_({
                   .map((pool, i) => (
                     <PoolRowV2
                       tokens={[pool.token_x_metadata, pool.token_y_metadata]}
-                      key={i}
+                      key={pool.pool_id}
                       pool={pool}
                       watched={!!find(watchV2Pools, { pool_id: pool.pool_id })}
                       index={i + 1}
@@ -2969,6 +1665,8 @@ function LiquidityPage_({
             searchBy={tokenName}
             volumes={volumes}
             watchPools={watchPools}
+            farmCounts={farmCounts}
+            farmAprById={farmAprById}
           />
         )}
       </div>
@@ -2986,11 +1684,7 @@ function LiquidityPage_({
   );
 }
 
-export const REF_FI_POOL_ACTIVE_TAB = 'REF_FI_POOL_ACTIVE_TAB_VALUE';
-
-export const REF_FI_POOL_SEARCH_BY = 'REF_FI_POOL_SEARCH_BY_VALUE';
-
-export function LiquidityPage() {
+export default function LiquidityPage() {
   window.onunload = () => {
     sessionStorage.removeItem(REF_FI_POOL_SEARCH_BY);
   };
@@ -3005,7 +1699,7 @@ export function LiquidityPage() {
     watchV2PoolsFinal: watchV2Pools,
     watchList,
   } = useWatchPools();
-  const [hideLowTVL, setHideLowTVL] = useState<Boolean>(false);
+  const [hideLowTVL, setHideLowTVL] = useState<boolean>(false);
   const [displayPools, setDisplayPools] = useState<Pool[]>();
   const { pools, hasMore, nextPage, loading, volumes } = usePools({
     tokenName,
@@ -3028,17 +1722,7 @@ export function LiquidityPage() {
 
     localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, curTab);
   };
-
   const [farmCounts, setFarmCounts] = useState<Record<string, number>>({});
-  useEffect(() => {
-    const pool_ids_v1 = pools.map((p) => p.id);
-    const pool_ids_watchPools = watchPools.map((p: Pool) => p.id);
-    const pool_ids = pool_ids_v1.concat(pool_ids_watchPools);
-    canFarms({
-      pool_ids,
-    }).then(setFarmCounts);
-  }, [pools, watchPools?.map((p) => p.id).join('|')]);
-
   const clientMobileDevice = useClientMobile();
   const [do_farms_v2_poos, set_do_farms_v2_poos] = useState<
     Record<string, Seed>
@@ -3155,11 +1839,25 @@ export function LiquidityPage() {
 
   const watchPoolVolumes = useDayVolumesPools(watchPools.map((p) => p.id));
   const v3PoolVolumes = useV3VolumesPools();
+  const stablePools = useAllStablePools();
   const [h24VolumeV2, setH24VolumeV2] = useState<string>();
-
   const { fail: indexerFail } = useIndexerStatus();
-
-  const { farmAprById } = useSeedFarmsByPools([...pools, ...watchPools]);
+  const { farmAprById } = useSeedFarmsByPools([
+    ...pools,
+    ...watchPools,
+    ...stablePools,
+  ]);
+  useEffect(() => {
+    const pool_ids_v1 = pools.map((p) => p.id);
+    const pool_ids_watchPools = watchPools.map((p: Pool) => p.id);
+    const pool_ids_stablePools = stablePools.map((p: Pool) => p.id);
+    const pool_ids = pool_ids_v1
+      .concat(pool_ids_watchPools)
+      .concat(pool_ids_stablePools);
+    canFarms({
+      pool_ids,
+    }).then(setFarmCounts);
+  }, [pools, watchPools?.map((p) => p.id).join('|'), stablePools]);
 
   useEffect(() => {
     if (Object.keys(v3PoolVolumes).length > 0) {
@@ -3190,7 +1888,7 @@ export function LiquidityPage() {
       }}
     >
       {!clientMobileDevice && (
-        <LiquidityPage_
+        <PcLiquidityPage
           farmAprById={farmAprById}
           poolTokenMetas={poolTokenMetas}
           activeTab={activeTab}
@@ -3374,10 +2072,7 @@ function TokenChart({
   });
   const color = {
     DAI: 'rgba(255, 199, 0, 0.45)',
-    'USDT.e': '#167356',
     USDT: '#167356',
-    'USDC.e': 'rgba(0, 163, 255, 0.45)',
-    USDC: 'rgba(0, 163, 255, 0.45)',
     USN: 'rgba(255, 255, 255, 0.45)',
     cUSD: 'rgba(69, 205, 133, 0.6)',
     HBTC: '#4D85F8',
@@ -3388,7 +2083,10 @@ function TokenChart({
     NEARXC: '#4d5971',
     NearXC: '#4d5971',
     NearX: '#00676D',
-    USDt: '#0E8585',
+    'USDT.e': '#19936D',
+    'USDC.e': '#2B6EB7',
+    USDC: '#2FA7DB',
+    USDt: '#45D0C0',
   };
 
   const colorLight = {
@@ -3502,7 +2200,7 @@ const RenderDisplayTokensAmounts = ({
   setChartActiveToken?: (token: string) => void;
 }) => {
   return (
-    <div className="flex items-center  flex-shrink-0 xs:-mr-1.5 md:-mr-1.5">
+    <div className="flex items-center  flex-shrink-0 xs:-mr-1.5 md:-mr-1.5 flex-wrap xsm:justify-end lg:w-60">
       {tokens.map((token, i) => {
         return (
           <span
@@ -3570,12 +2268,18 @@ function StablePoolCard({
   poolData,
   h24volume,
   watched,
+  supportFarm,
+  farmApr,
 }: {
   poolData: PoolData;
   h24volume: string;
   watched?: boolean;
+  supportFarm: boolean;
+  farmApr: number;
 }) {
   const formattedPool = formatePoolData(poolData);
+  const standPool = poolData.pool;
+  standPool.tvl = poolData.poolTVL;
 
   const [hover, setHover] = useState<boolean>(false);
 
@@ -3599,7 +2303,7 @@ function StablePoolCard({
   const history = useHistory();
 
   const isMobile = useClientMobile();
-
+  const is_new_pool = poolData.pool.id == USDTT_USDCC_USDT_USDC_POOL_ID;
   return (
     <div
       className="mb-4 xs:mb-2 md:mb-2"
@@ -3611,37 +2315,45 @@ function StablePoolCard({
         to={`/sauce/${poolData.pool.id}`}
         className={`${
           hover || isMobile ? 'bg-v3HoverDarkBgColor' : 'bg-cardBg'
-        } relative z-20 rounded-xl xs:rounded-t-xl md:rounded-t-xl xs:rounded-b-none md:rounded-b-none px-8 xs:px-5 md:px-5 w-full h-28 xs:h-20 md:h-20 flex items-center justify-between`}
+        } relative z-20 rounded-xl  xsm:rounded-t-xl xsm:rounded-b-none w-full h-28 xsm:h-20 lg:grid lg:grid-cols-6 overflow-hidden xsm:flex xsm:items-center xsm:justify-between xsm:pr-3`}
         onMouseEnter={() => {
           setHover(true);
         }}
       >
+        {is_new_pool ? <NewTag /> : null}
         <StablePoolClassIcon id={poolData.pool.id.toString()} />
         <div
-          className={`w-5/12 xs:w-full md:w-full ${
+          className={`col-span-2 pl-8 xsm:pl-4 xs:w-full md:w-full ${
             haveFarm
               ? 'xs:relative xs:top-1 xs:items-start md:relative md:top-1 md:items-start'
               : ''
           }  flex items-center   xs:justify-between md:justify-between`}
         >
-          <Images tokens={poolData.tokens} size="8" className="mr-4" />
+          <Images
+            tokens={poolData.tokens}
+            size="8"
+            className={`mr-4 ${is_new_pool ? 'xsm:ml-4 xsm:mr-0' : ''}`}
+            layout="vertical"
+            layoutSize="16"
+          />
 
           <div className="flex xs:flex-col xs:items-end items-center">
             <div className="flex items-center">
               <Symbols
-                fontSize="xs:text-sm md:text-sm lg:text-lg lg:font-bold "
+                fontSize="text-sm"
                 tokens={poolData.tokens}
                 separator="-"
+                className="lg:min-w-48 lg:flex-wrap"
               />
               {watched && (
-                <div className="ml-2">
+                <div className="xsm:ml-1">
                   <WatchListStartFull />
                 </div>
               )}
             </div>
 
             <span
-              className="ml-1 xs:relative md:relative xs:top-1 md:top-1 cursor-pointer"
+              className="xs:relative md:relative xs:top-1 md:top-1 cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -3657,9 +2369,30 @@ function StablePoolCard({
           </div>
         </div>
 
-        <div className="w-7/12 flex  xs:hidden md:hidden items-center">
+        <div className="col-span-4 grid grid-cols-5 items-center xs:hidden md:hidden">
           <div
-            className="col-span-1 w-32 py-1 text-lg relative right-3"
+            className="col-span-1 flex flex-col items-center justify-self-center text-sm"
+            data-type="info"
+            data-place="right"
+            data-multiline={true}
+            data-class={'reactTip'}
+            data-tooltip-html={getPoolListFarmAprTip()}
+            data-tooltip-id={'pool_list_pc_apr' + poolData.pool.id}
+          >
+            {!h24volume ? '-' : `${getPoolFeeApr(h24volume, standPool)}%`}
+            {supportFarm &&
+              !Number.isNaN(farmApr) &&
+              farmApr !== null &&
+              farmApr !== undefined &&
+              farmApr > 0 &&
+              h24volume && (
+                <span className="text-xs text-gradientFrom">
+                  {`+${toPrecision((farmApr * 100).toString(), 2)}%`}
+                </span>
+              )}
+          </div>
+          <div
+            className="col-span-1 justify-self-center text-sm"
             title={h24volume}
           >
             {!h24volume
@@ -3671,9 +2404,9 @@ function StablePoolCard({
               : `$${toInternationalCurrencySystem(h24volume)}`}
           </div>
 
-          <div className="flex flex-col   flex-shrink-0 relative lg:right-12 lg2:right-8   2xl:-right-4">
+          <div className="col-span-2 flex flex-col flex-shrink-0 relative lg:pl-4">
             <div
-              className="col-span-1 py-1 text-lg "
+              className="col-span-1 py-1 text-sm "
               title={toPrecision(
                 poolData.poolTVL === undefined
                   ? '-'
@@ -3715,6 +2448,26 @@ function StablePoolCard({
         }`}
       >
         <div className="lg:hidden w-full flex  justify-between text-sm text-white">
+          <div className="text-xs text-v3SwapGray">
+            <FormattedMessage id="apr" defaultMessage={'APR'} />
+          </div>
+
+          <div className="flex flex-col items-end ">
+            {!h24volume ? '-' : `${getPoolFeeApr(h24volume, standPool)}%`}{' '}
+            {supportFarm}
+            {supportFarm &&
+              !Number.isNaN(farmApr) &&
+              farmApr !== null &&
+              farmApr !== undefined &&
+              farmApr > 0 &&
+              h24volume && (
+                <span className="text-xs text-gradientFrom">
+                  {`+${toPrecision((farmApr * 100).toString(), 2)}%`}
+                </span>
+              )}
+          </div>
+        </div>
+        <div className="lg:hidden w-full mt-2 flex  justify-between text-sm text-white">
           <div className="text-xs text-v3SwapGray">
             <FormattedMessage id="tvl" defaultMessage={'TVL'} />
           </div>
@@ -3764,7 +2517,7 @@ function StablePoolCard({
             <FormattedMessage id="your_shares" defaultMessage="Your Shares" />
           </div>
 
-          <div className="text-lg ml-5 mr-2.5 text-white">
+          <div className="text-sm ml-5 mr-2.5 text-white">
             {formattedPool.displayMyShareAmount}
           </div>
           <div className="text-primaryText mr-4">
@@ -3829,21 +2582,45 @@ function StablePoolCard({
     </div>
   );
 }
+function NewTag() {
+  return (
+    <svg
+      className="absolute left-0 top-0"
+      width="50"
+      height="50"
+      viewBox="0 0 50 50"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M0 12C0 5.37258 5.37258 0 12 0H50L0 50V12Z" fill="#00FFD1" />
+      <path
+        d="M12.9744 28.9164L6.36159 22.3036L7.45053 21.2146L16.1027 22.8975L10.9352 17.73L11.935 16.7302L18.5479 23.343L17.449 24.4419L8.78696 22.749L13.9644 27.9265L12.9744 28.9164ZM22.3763 19.7126C21.9077 20.1812 21.3929 20.5112 20.8319 20.7026C20.271 20.8807 19.7034 20.9005 19.1292 20.762C18.5485 20.6168 17.9974 20.2835 17.476 19.7621C16.981 19.2671 16.6544 18.7359 16.496 18.1683C16.3442 17.5941 16.3442 17.0331 16.496 16.4854C16.6544 15.931 16.9513 15.436 17.3869 15.0004C17.8489 14.5385 18.334 14.2316 18.8421 14.0798C19.3503 13.9148 19.8486 13.8917 20.337 14.0105C20.8253 14.1293 21.2609 14.3801 21.6437 14.7629C21.7559 14.8751 21.8615 15.0136 21.9605 15.1786C22.0661 15.337 22.1321 15.4822 22.1585 15.6142L18.6936 19.079C19.017 19.3364 19.3503 19.4981 19.6935 19.5641C20.0367 19.6301 20.3766 19.6004 20.7131 19.475C21.0431 19.343 21.3599 19.1252 21.6635 18.8217C21.9671 18.5181 22.1882 18.2046 22.3268 17.8812C22.472 17.5512 22.5677 17.1915 22.6138 16.8022L23.6434 17.1585C23.5972 17.6271 23.4685 18.0792 23.2573 18.5148C23.0461 18.9371 22.7524 19.3364 22.3763 19.7126ZM17.971 18.3564L20.634 15.6934C20.6274 15.6736 20.6175 15.6571 20.6043 15.6439C20.5845 15.6241 20.5647 15.6043 20.5449 15.5845C20.3271 15.3667 20.0928 15.2248 19.842 15.1588C19.5846 15.0862 19.3173 15.0961 19.0401 15.1885C18.7629 15.2809 18.4825 15.469 18.1987 15.7528C17.9743 15.9772 17.8126 16.2379 17.7136 16.5349C17.6146 16.8187 17.5849 17.1189 17.6245 17.4357C17.6641 17.7393 17.7796 18.0462 17.971 18.3564ZM26.322 15.5689L20.0358 12.5496L21.0357 11.5497L25.629 13.9256L23.3125 9.27282L24.1837 8.40166L28.8266 10.728L26.4606 6.12478L27.4703 5.11503L30.4798 11.4111L29.5591 12.3318L24.9361 10.0252L27.2426 14.6482L26.322 15.5689Z"
+        fill="#181A27"
+      />
+    </svg>
+  );
+}
 
 function StablePoolList({
   searchBy,
   volumes,
   watchPools,
+  farmCounts,
+  farmAprById,
 }: {
   searchBy: string;
   volumes: Record<string, string>;
   watchPools: Pool[];
+  farmCounts: Record<string, number>;
+  farmAprById: Record<string, number>;
 }) {
   const [option, setOption] = useState<string>('ALL');
 
   const [orderStable, setorderStable] = useState<string>('desc');
 
   const [sortBy, setSortBy] = useState<string>('tvl');
+
+  const [clicked, setClicked] = useState<boolean>(false);
 
   const allStablePoolData = useAllStablePoolData();
 
@@ -3873,15 +2650,41 @@ function StablePoolList({
     const vol1 = Number(volumes[p1.pool.id.toString()] || '0');
     const vol2 = Number(volumes[p2.pool.id.toString()] || '0');
 
+    const standPool1 = p1.pool;
+    standPool1.tvl = p1.poolTVL;
+
+    const standPool2 = p2.pool;
+    standPool2.tvl = p2.poolTVL;
+
+    const apr1 =
+      getPoolFeeAprTitle(vol1.toString(), standPool1) +
+      (farmAprById?.[p1.pool.id] || 0) * 100;
+
+    const apr2 =
+      getPoolFeeAprTitle(vol2.toString(), standPool2) +
+      (farmAprById?.[p2.pool.id] || 0) * 100;
+
+    const is_p1_sort_top =
+      p1.pool.id == USDTT_USDCC_USDT_USDC_POOL_ID && !clicked;
+    const is_p2_sort_top =
+      p2.pool.id == USDTT_USDCC_USDT_USDC_POOL_ID && !clicked;
+
+    if (is_p1_sort_top) return 1;
+    if (is_p2_sort_top) return 1;
+
     if (orderStable === 'desc') {
       if (sortBy === 'tvl') {
         return v2 - v1;
+      } else if (sortBy == 'apr') {
+        return apr2 - apr1;
       } else {
         return vol2 - vol1;
       }
     } else {
       if (sortBy === 'tvl') {
         return v1 - v2;
+      } else if (sortBy == 'apr') {
+        return apr1 - apr2;
       } else {
         return vol1 - vol2;
       }
@@ -3890,8 +2693,8 @@ function StablePoolList({
 
   return (
     <>
-      <div className="flex relative mb-4 xs:mb-2 md:mb-2 items-center">
-        <div className="flex items-center w-5/12 xs:w-full md:w-full xs:justify-between md:justify-between">
+      <div className=" grid grid-cols-6 relative mb-4 xs:mb-2 md:mb-2 items-center">
+        <div className="flex items-center col-span-2 xsm:w-full">
           {['ALL', 'USD', 'BTC', 'NEAR'].map((o) => {
             return (
               <button
@@ -3911,8 +2714,43 @@ function StablePoolList({
           })}
         </div>
 
-        <div className="w-7/12 xs:hidden md:hidden flex items-center text-primaryText ">
-          <div className="w-32 relative xl:right-8 lg:right-12 flex items-center">
+        <div className="col-span-4 grid grid-cols-5 items-center xsm:hidden text-primaryText ">
+          <div className="col-span-1 relative flex items-center justify-self-center text-sm">
+            <span
+              className={`pr-1 cursor-pointer
+              
+              ${sortBy !== 'apr' ? 'hover:text-white' : 'text-gradientFrom'}
+    
+              `}
+              onClick={() => {
+                setClicked(true);
+                setSortBy('apr');
+
+                setorderStable(
+                  orderStable === 'desc' && sortBy === 'apr' ? 'asc' : 'desc'
+                );
+              }}
+            >
+              <FormattedMessage id="apr" defaultMessage="APR" />
+            </span>
+            <span
+              className={`cursor-pointer ${sortBy !== 'apr' ? 'hidden' : ''} `}
+              onClick={() => {
+                setClicked(true);
+                setSortBy('apr');
+                setorderStable(
+                  orderStable === 'desc' && sortBy === 'apr' ? 'asc' : 'desc'
+                );
+              }}
+            >
+              {orderStable === 'desc' && sortBy === 'apr' ? (
+                <DownArrowLight />
+              ) : (
+                <UpArrowLight />
+              )}
+            </span>
+          </div>
+          <div className="col-span-1 relative flex items-center justify-self-center text-sm">
             <span
               className={`pr-1 cursor-pointer
               
@@ -3924,6 +2762,7 @@ function StablePoolList({
     
               `}
               onClick={() => {
+                setClicked(true);
                 setSortBy('volume_24h');
 
                 setorderStable(
@@ -3940,6 +2779,7 @@ function StablePoolList({
                 sortBy !== 'volume_24h' ? 'hidden' : ''
               } `}
               onClick={() => {
+                setClicked(true);
                 setSortBy('volume_24h');
                 setorderStable(
                   orderStable === 'desc' && sortBy === 'volume_24h'
@@ -3956,14 +2796,13 @@ function StablePoolList({
             </span>
           </div>
 
-          <div
-            className={`relative lg:right-12 lg2:right-8   2xl:-right-4    inline-flex items-center`}
-          >
+          <div className={`col-span-3 pl-4 relative inline-flex items-center`}>
             <span
               className={`pr-1 cursor-pointer
               ${sortBy !== 'tvl' ? 'hover:text-white' : 'text-gradientFrom'}
               `}
               onClick={() => {
+                setClicked(true);
                 setSortBy('tvl');
 
                 setorderStable(
@@ -3976,6 +2815,7 @@ function StablePoolList({
             <span
               className={`cursor-pointer ${sortBy !== 'tvl' ? 'hidden' : ''}`}
               onClick={() => {
+                setClicked(true);
                 setSortBy('tvl');
 
                 setorderStable(
@@ -4004,6 +2844,8 @@ function StablePoolList({
                 poolData={pd}
                 h24volume={volumes[pd.pool.id.toString()]}
                 watched={!!find(watchPools, { id: pd.pool.id })}
+                supportFarm={farmCounts && !!farmCounts[pd.pool.id]}
+                farmApr={farmAprById ? farmAprById[pd.pool.id] : null}
               />
             );
           })}

@@ -10,7 +10,7 @@ import { useCanFarm, useCanFarmV1, useCanFarmV2 } from '../../state/farm';
 import { useFarmStake } from '../../state/farm';
 import { Pool, canFarmV1, canFarmV2 } from '../../services/pool';
 import { Link, useHistory } from 'react-router-dom';
-import { FarmDot } from '~components/icon';
+import { FarmDot } from 'src/components/icon';
 import { ShareInFarmV2 } from '../layout/ShareInFarm';
 import { useYourliquidity } from '../../state/pool';
 import {
@@ -25,8 +25,9 @@ import {
   getWatchListFromDb,
 } from '../../services/pool';
 import { isClientMobie } from '../../utils/device';
-import ReactTooltip from 'react-tooltip';
-import { REF_FI_POOL_ACTIVE_TAB } from '../../pages/pools/LiquidityPage';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
+import { REF_FI_POOL_ACTIVE_TAB } from '../../pages/pools/utils';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 export function BackToStablePoolList() {
   const history = useHistory();
@@ -60,6 +61,8 @@ export const Images = ({
   border,
   uId,
   allowSameToken,
+  layout,
+  layoutSize,
 }: {
   tokens: TokenMetadata[];
   size?: string;
@@ -70,15 +73,21 @@ export const Images = ({
   border?: boolean;
   uId?: string;
   allowSameToken?: boolean;
+  layout?: 'vertical' | 'horizontal';
+  layoutSize?: string;
 }) => {
   const displayTokens = allowSameToken
     ? tokens
     : [...new Set<string>(tokens?.map((t) => t?.id))].map((id) =>
         tokens.find((t) => t?.id === id)
       );
-
+  const is_vertical = layout == 'vertical' && displayTokens?.length == 4;
   return (
-    <div className={`${className} flex items-center flex-shrink-0`}>
+    <div
+      className={`${className} flex items-center flex-shrink-0 ${
+        is_vertical ? `w-${+layoutSize} flex-wrap` : ''
+      }`}
+    >
       {tokens &&
         displayTokens
           ?.slice(0, isRewardDisplay ? 5 : displayTokens.length)
@@ -98,9 +107,9 @@ export const Images = ({
                     uId +
                     Date.now()
                   }
-                  className={`inline-block flex-shrink-0 h-${size || 10} w-${
-                    size || 10
-                  } rounded-full border ${
+                  className={`inline-block flex-shrink-0 ${
+                    is_vertical && index > 1 ? '-mt-3' : 'relative z-10'
+                  }  h-${size || 10} w-${size || 10} rounded-full border ${
                     border ? 'border' : ''
                   } border-gradientFromHover ${
                     tokens?.length > 1 ? (noverlap ? 'ml-0' : '-ml-1') : ''
@@ -123,6 +132,7 @@ export const Images = ({
               ></div>
             );
           })}
+
       {displayTokens.length > 5 && (
         <div
           key={5 + '-more-extra-tokens'}
@@ -156,9 +166,9 @@ export const Symbols = ({
 }) => {
   return (
     <div
-      className={`${className} text-white ${fontSize || 'font-bold'}  ${
-        withArrow ? 'cursor-pointer' : null
-      } ${size}`}
+      className={`${className} flex items-center  text-white ${
+        fontSize || 'font-bold'
+      }  ${withArrow ? 'cursor-pointer' : null} ${size}`}
     >
       {tokens?.map((token, index) => (
         <span key={token?.id + '-' + index}>
@@ -282,7 +292,11 @@ export const StableTokens = ({
       <div className="flex items-center">
         <Images tokens={tokens} />
         <span className="ml-4">
-          <Symbols tokens={tokens} size="text-2xl xsm:text-xl" />
+          <Symbols
+            tokens={tokens}
+            size="text-2xl xsm:text-xl"
+            className="xsm:w-48 xsm:flex-wrap"
+          />
         </span>
       </div>
       <div
@@ -305,19 +319,12 @@ export const StableTokens = ({
             data-place="right"
             data-multiline={true}
             data-class="reactTip"
-            data-html={true}
-            data-tip={isMobile ? '' : remove_from_watchlist_tip()}
-            data-for="fullstar-tip"
+            data-tooltip-html={isMobile ? '' : remove_from_watchlist_tip()}
+            data-tooltip-id="fullstar-tip"
           >
             <WatchListStartFull />
 
-            <ReactTooltip
-              id="fullstar-tip"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            <CustomTooltip id="fullstar-tip" />
           </div>
         ) : (
           <div
@@ -326,18 +333,11 @@ export const StableTokens = ({
             data-place="right"
             data-multiline={true}
             data-class="reactTip"
-            data-html={true}
-            data-tip={isMobile ? '' : add_to_watchlist_tip()}
-            data-for="emptystar-tip"
+            data-tooltip-html={isMobile ? '' : add_to_watchlist_tip()}
+            data-tooltip-id="emptystar-tip"
           >
             <WatchListStartEmpty />
-            <ReactTooltip
-              id="emptystar-tip"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            <CustomTooltip id="emptystar-tip" />
           </div>
         )}
       </div>

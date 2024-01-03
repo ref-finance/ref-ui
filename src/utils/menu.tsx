@@ -1,87 +1,80 @@
-import React, { ReactNode, useContext, useState, useEffect } from 'react';
-import { AiOutlineMedium } from 'react-icons/ai';
-import { FaDiscord, FaTelegramPlane, FaTwitter } from 'react-icons/fa';
-import { HiOutlineExternalLink } from 'react-icons/hi';
+import React, { ReactNode, useContext, useEffect, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { useHistory } from 'react-router';
 import { useLocation } from 'react-router-dom';
 import {
-  Rainbow,
-  Ethereum,
-  Celo,
-  Allbridge,
-  Aurora,
-  Terra,
-  Solana,
-  ElectronLabs,
-  BridgeIconMenu,
-} from '../components/icon/Menu';
-
-import {
+  AuroraIconSwapNav,
+  BorrowIcon,
+  BridgeIcon,
+  EsIcon,
+  FarmsIcon,
   IconAirDrop,
+  IconAurora,
+  IconBridge,
+  IconCelo,
   IconCommunity,
   IconCreateNew,
   IconDocs,
   IconEn,
+  IconEthereum,
   IconForum,
   IconLanguage,
   IconPools,
   IconRainbow,
-  IconZh,
-  IconVi,
-  IconBridge,
-  IconEthereum,
-  IconAurora,
+  IconRisk,
   IconSolana,
   IconTerra,
-  IconCelo,
-  UkIcon,
-  RuIcon,
+  IconVi,
+  IconZh,
+  InquiriesIcon,
   JaIcon,
   KoIcon,
-  IconRisk,
-  AuroraIconSwapNav,
-  MobileYourLiqudityIcon,
-  MobilePoolsIcon,
-  BridgeIcon,
-  RisksIcon,
-  EsIcon,
-  WrapNearIcon,
-  MobileBridgeIcon,
-  InquiriesIcon,
-  SwapIcon,
-  XswapIcon,
   LimitOrderIcon,
+  MobileBridgeIcon,
+  MobilePoolsIcon,
+  MobileYourLiqudityIcon,
   OrderBookIcon,
+  OrderlyIcon,
+  OverviewIcon,
   PoolsIcon,
-  YourliquidityIcon,
-  FarmsIcon,
+  PortfolioIcon,
+  PurpleCircleIcon,
+  REFSmallIcon,
+  RisksIcon,
+  RuIcon,
+  SwapIcon,
+  UkIcon,
+  WrapNearIcon,
   XrefEarnIcon,
   XrefIcon,
-  REFSmallIcon,
-  PurpleCircleIcon,
-  PortfolioIcon,
-  OrderlyIcon,
-  BorrowIcon,
-  OverviewIcon,
-} from '~components/icon/Nav';
-// import { XrefIcon } from '~components/icon/Xref';
-import getConfig from '../services/config';
-import { MobileNavLimitOrder, IconMyLiquidity } from '../components/icon/Nav';
+  XswapIcon,
+  YourliquidityIcon,
+} from 'src/components/icon/Nav';
+import { openUrl } from 'src/services/commonV3';
+
 import {
-  SWAP_MODE_KEY,
-  SWAP_MODE,
-  REF_FI_SWAP_SWAPPAGE_TAB_KEY,
-  SWAP_TYPE_KEY,
-} from '../pages/SwapPage';
+  Allbridge,
+  Aurora,
+  BridgeIconMenu,
+  Celo,
+  ElectronLabs,
+  Ethereum,
+  Rainbow,
+  Solana,
+  Terra,
+} from '../components/icon/Menu';
+import { IconMyLiquidity, MobileNavLimitOrder } from '../components/icon/Nav';
 import {
-  MobileNavSwap,
   MobileNavStable,
+  MobileNavSwap,
   MobileNavSwapPro,
 } from '../components/icon/Nav';
+import { HiOutlineExternalLink } from '../components/reactIcons';
+import { SWAP_TYPE_KEY } from '../pages/SwapPage';
+// import { XrefIcon } from 'src/components/icon/Xref';
+import getConfig from '../services/config';
+import { isNewHostName } from '../services/config';
 import { WalletContext } from '../utils/wallets-integration';
-import { useHistory } from 'react-router';
-import { jsx } from '@emotion/react';
-import { openUrl } from '~services/commonV3';
 
 export type MenuItem = {
   id: number;
@@ -246,7 +239,7 @@ export const useMenus = (cb?: () => void) => {
           <FormattedMessage id="trade" />
         </>
       ),
-      links: ['/', '/orderbook', '/myOrder', '/swap'],
+      links: ['/', '/spot', '/orderbook', '/myOrder', '/swap'],
       children: [
         {
           id: '1-1',
@@ -258,10 +251,13 @@ export const useMenus = (cb?: () => void) => {
           clickEvent: () => {
             sessionStorage.setItem(SWAP_TYPE_KEY, 'Lite');
             localStorage.setItem('SWAP_MODE_VALUE', 'normal');
-
-            history.push('/');
+            if (isNewHostName) {
+              history.push('/swap');
+            } else {
+              history.push('/');
+            }
           },
-          links: ['/', '/swap'],
+          links: isNewHostName ? ['/swap'] : ['/', '/swap'],
         },
         {
           id: '1-2',
@@ -276,11 +272,14 @@ export const useMenus = (cb?: () => void) => {
           swap_mode: 'limit',
           clickEvent: () => {
             sessionStorage.setItem(SWAP_TYPE_KEY, 'Pro');
-
-            history.push('/');
+            if (isNewHostName) {
+              history.push('/swap');
+            } else {
+              history.push('/');
+            }
             localStorage.setItem('SWAP_MODE_VALUE', 'limit');
           },
-          links: ['/', '/myOrder', '/swap'],
+          links: isNewHostName ? ['/swap'] : ['/', '/myOrder', '/swap'],
         },
         {
           id: '1-3',
@@ -304,7 +303,11 @@ export const useMenus = (cb?: () => void) => {
                     width: '120px',
                   }}
                   className={`frcc  hover:bg-v3SwapGray  border-v3SwapGray border-opacity-10 hover:bg-opacity-10 w-1/2 rounded-xl py-2 ${
-                    pathName.startsWith('/orderbook/spot')
+                    (
+                      isNewHostName
+                        ? pathName.includes('/spot')
+                        : pathName.startsWith('/orderbook/spot')
+                    )
                       ? ' bg-hoverSubBridge bg-opacity-50'
                       : 'border'
                   }`}
@@ -329,7 +332,12 @@ export const useMenus = (cb?: () => void) => {
                     width: '120px',
                   }}
                   className={`frcc  hover:bg-v3SwapGray hover:bg-opacity-10  border-v3SwapGray border-opacity-10 w-1/2 rounded-xl py-2  ${
-                    pathName.startsWith('/orderbook/perps')
+                    (
+                      isNewHostName
+                        ? pathName === '/' ||
+                          pathName.startsWith('/orderbook/perps')
+                        : pathName.startsWith('/orderbook/perps')
+                    )
                       ? ' bg-hoverSubBridge bg-opacity-50'
                       : 'border'
                   }`}
@@ -368,7 +376,7 @@ export const useMenus = (cb?: () => void) => {
         '/poolV2',
         '/sauce',
         '/more_pools',
-        '/yourliquidity',
+        // '/yourliquidity',
         '/farms',
         '/xref',
         '/v2farms',
@@ -385,24 +393,31 @@ export const useMenus = (cb?: () => void) => {
           logo: <PoolsIcon />,
           url: '/pools',
           isExternal: false,
-          links: ['/pools', '/pool', '/poolV2', '/sauce', '/more_pools'],
+          links: [
+            '/pools',
+            '/pool',
+            '/poolV2',
+            '/sauce',
+            '/more_pools',
+            '/yourliquidity',
+          ],
         },
-        {
-          id: '2-2',
-          label: (
-            <>
-              <FormattedMessage id="your_liquidity" />
-            </>
-          ),
-          logo: <YourliquidityIcon />,
-          url: '/yourliquidity',
-          isExternal: false,
-          clickEvent: () => {
-            sessionStorage.setItem('REF_POOL_NAV_TAB_VALUE', '/yourliquidity');
-            history.push('/yourliquidity');
-          },
-          links: ['/yourliquidity', '/yoursLiquidityDetailV2'],
-        },
+        // {
+        //   id: '2-2',
+        //   label: (
+        //     <>
+        //       <FormattedMessage id="your_liquidity" />
+        //     </>
+        //   ),
+        //   logo: <YourliquidityIcon />,
+        //   url: '/yourliquidity',
+        //   isExternal: false,
+        //   clickEvent: () => {
+        //     sessionStorage.setItem('REF_POOL_NAV_TAB_VALUE', '/yourliquidity');
+        //     history.push('/yourliquidity');
+        //   },
+        //   links: ['/yourliquidity', '/yoursLiquidityDetailV2'],
+        // },
         {
           id: '2-3',
           label: (
@@ -438,7 +453,7 @@ export const useMenus = (cb?: () => void) => {
       ),
       url: '',
       isExternal: false,
-      links: ['/portfolio', '/burrow', '/overview', '/orderly'],
+      links: ['/portfolio', '/overview', '/orderly'],
       children: [
         {
           id: '3-1',
@@ -477,18 +492,6 @@ export const useMenus = (cb?: () => void) => {
           url: '/orderly',
           isExternal: false,
           links: ['/orderly'],
-        },
-        {
-          id: '3-4',
-          label: (
-            <>
-              <FormattedMessage id="Burrow" />
-            </>
-          ),
-          logo: <BorrowIcon />,
-          url: '/burrow',
-          isExternal: false,
-          links: ['/burrow'],
         },
       ],
     },
@@ -613,7 +616,7 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
           <FormattedMessage id="trade" />
         </>
       ),
-      links: ['/', '/orderbook', '/myOrder', '/swap'],
+      links: ['/', '/spot', '/orderbook', '/myOrder', '/swap'],
       children: [
         {
           id: '1-1',
@@ -623,12 +626,16 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
           isExternal: false,
           swap_mode: 'normal',
           clickEvent: () => {
-            history.push('/');
+            if (isNewHostName) {
+              history.push('/swap');
+            } else {
+              history.push('/');
+            }
 
             sessionStorage.setItem(SWAP_TYPE_KEY, 'Lite');
             localStorage.setItem('SWAP_MODE_VALUE', 'normal');
           },
-          links: ['/', '/swap'],
+          links: isNewHostName ? ['/swap'] : ['/', '/swap'],
         },
 
         {
@@ -643,11 +650,15 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
           isExternal: false,
           swap_mode: 'limit',
           clickEvent: () => {
-            history.push('/');
+            if (isNewHostName) {
+              history.push('/swap');
+            } else {
+              history.push('/');
+            }
             localStorage.setItem('SWAP_MODE_VALUE', 'limit');
             sessionStorage.setItem(SWAP_TYPE_KEY, 'Pro');
           },
-          links: ['/', '/myOrder', '/swap'],
+          links: isNewHostName ? ['/swap'] : ['/', '/myOrder', '/swap'],
         },
         {
           id: '1-3',
@@ -661,7 +672,11 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
               <div
                 className={`w-full font-gotham frcs border ${
                   window.location.pathname === '/orderbook/spot' ||
-                  window.location.pathname === '/orderbook/perps'
+                  window.location.pathname === '/orderbook/perps' ||
+                  (isNewHostName
+                    ? window.location.pathname === '/spot' ||
+                      window.location.pathname === '/'
+                    : '')
                     ? 'bg-cardBg'
                     : ''
                 } border-v3SwapGray border-opacity-30 gap-3 text-primaryText text-base rounded-xl p-1`}
@@ -675,13 +690,17 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
                     setShow(false);
                   }}
                   className={`frcc bg-symbolHover2 ${
-                    window.location.pathname === '/orderbook/spot'
+                    window.location.pathname === '/orderbook/spot' ||
+                    (isNewHostName ? window.location.pathname === '/spot' : '')
                       ? 'text-white'
                       : ''
                   }    w-1/2 rounded-lg py-1`}
                   style={{
                     background:
-                      window.location.pathname === '/orderbook/spot'
+                      window.location.pathname === '/orderbook/spot' ||
+                      (isNewHostName
+                        ? window.location.pathname === '/spot'
+                        : '')
                         ? '#324451'
                         : '',
                     width: '95px',
@@ -700,13 +719,15 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
                   }}
                   style={{
                     background:
-                      window.location.pathname === '/orderbook/perps'
+                      window.location.pathname === '/orderbook/perps' ||
+                      (isNewHostName ? window.location.pathname === '/' : '')
                         ? '#324451'
                         : '',
                     width: '95px',
                   }}
                   className={`frcc bg-symbolHover2 ${
-                    window.location.pathname === '/orderbook/perps'
+                    window.location.pathname === '/orderbook/perps' ||
+                    (isNewHostName ? window.location.pathname === '/' : '')
                       ? 'text-white'
                       : ''
                   }   w-1/2 rounded-lg py-1`}
@@ -718,7 +739,7 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
           ),
 
           isExternal: false,
-          links: ['/orderbook'],
+          links: ['/', '/spot', '/orderbook'],
         },
       ],
     },
@@ -735,7 +756,7 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
         '/poolV2',
         '/sauce',
         '/more_pools',
-        '/yourliquidity',
+        // '/yourliquidity',
         '/farms',
         '/xref',
         '/v2farms',
@@ -752,24 +773,31 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
           logo: <PoolsIcon />,
           url: '/pools',
           isExternal: false,
-          links: ['/pools', '/pool', '/poolV2', '/sauce', '/more_pools'],
+          links: [
+            '/pools',
+            '/pool',
+            '/poolV2',
+            '/sauce',
+            '/more_pools',
+            '/yourliquidity',
+          ],
         },
-        {
-          id: '2-2',
-          label: (
-            <>
-              <FormattedMessage id="your_liquidity" />
-            </>
-          ),
-          logo: <YourliquidityIcon />,
-          url: '/yourliquidity',
-          isExternal: false,
-          clickEvent: () => {
-            sessionStorage.setItem('REF_POOL_NAV_TAB_VALUE', '/yourliquidity');
-            history.push('/yourliquidity');
-          },
-          links: ['/yourliquidity', '/yoursLiquidityDetailV2'],
-        },
+        // {
+        //   id: '2-2',
+        //   label: (
+        //     <>
+        //       <FormattedMessage id="your_liquidity" />
+        //     </>
+        //   ),
+        //   logo: <YourliquidityIcon />,
+        //   url: '/yourliquidity',
+        //   isExternal: false,
+        //   clickEvent: () => {
+        //     sessionStorage.setItem('REF_POOL_NAV_TAB_VALUE', '/yourliquidity');
+        //     history.push('/yourliquidity');
+        //   },
+        //   links: ['/yourliquidity', '/yoursLiquidityDetailV2'],
+        // },
         {
           id: '2-3',
           label: (
@@ -805,7 +833,7 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
       ),
       url: '',
       isExternal: false,
-      links: ['/portfolio', '/burrow', '/overview', '/orderly'],
+      links: ['/portfolio', '/overview', '/orderly'],
       children: [
         {
           id: '3-1',
@@ -832,14 +860,6 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
           url: '/orderly',
           isExternal: false,
           links: ['/orderly'],
-        },
-        {
-          id: '3-4',
-          label: <FormattedMessage id="Burrow" />,
-          logo: <BorrowIcon />,
-          url: '/burrow',
-          isExternal: false,
-          links: ['/burrow'],
         },
       ],
     },

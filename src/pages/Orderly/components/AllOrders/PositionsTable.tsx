@@ -1,7 +1,4 @@
 import React, { createContext, useEffect, useContext, useState } from 'react';
-import Big from 'big.js';
-import ReactTooltip from 'react-tooltip';
-import _ from 'lodash';
 import { useIntl } from 'react-intl';
 import { isMobile } from '../../../../utils/device';
 
@@ -242,7 +239,7 @@ function PositionsTable({
         status: 'INCOMPLETE',
       },
     });
-    const filterOrders: MyOrder[] = data.rows.filter((order: MyOrder) =>
+    const filterOrders: MyOrder[] = data?.rows?.filter((order: MyOrder) =>
       order.symbol.includes('PERP')
     );
 

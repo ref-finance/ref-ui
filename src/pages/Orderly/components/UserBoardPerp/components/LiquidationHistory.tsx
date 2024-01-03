@@ -4,9 +4,8 @@ import { FormattedMessage } from 'react-intl';
 import Modal from 'react-modal';
 
 import { useClientMobile } from '../../../../../utils/device';
-import { IoClose } from 'react-icons/io5';
 import { TextWrapper } from '../../UserBoard';
-import { MdArrowDropDown } from 'react-icons/md';
+import { MdArrowDropDown, IoClose } from '../../../../../components/reactIcons';
 import { useLiquidationHistoryAll } from '../../../../../pages/Orderly/orderly/state';
 import { useBatchTokenMetaFromSymbols } from '../../ChartHeader/state';
 import { parseSymbol } from '../../RecentTrade';
@@ -170,7 +169,7 @@ function LiquidationHistoryModal(
 
                   <TextWrapper
                     className="text-10px px-1"
-                    value="USDC"
+                    value="USDC.e"
                     textC="text-primaryText"
                   ></TextWrapper>
                 </div>
@@ -192,7 +191,7 @@ function LiquidationHistoryModal(
 
                   <TextWrapper
                     className="text-10px px-1"
-                    value="USDC"
+                    value="USDC.e"
                     textC="text-primaryText"
                   ></TextWrapper>
                 </div>
@@ -216,7 +215,7 @@ function LiquidationHistoryModal(
 
                   <TextWrapper
                     className="text-10px px-1"
-                    value="USDC"
+                    value="USDC.e"
                     textC="text-primaryText"
                   ></TextWrapper>
 
@@ -527,7 +526,7 @@ export function MobileliquidationList({
 
                     <TextWrapper
                       className="text-10px px-1"
-                      value="USDC"
+                      value="USDC.e"
                       textC="text-primaryText"
                     ></TextWrapper>
                   </div>
@@ -556,7 +555,7 @@ export function MobileliquidationList({
 
                     <TextWrapper
                       className="text-10px px-1"
-                      value="USDC"
+                      value="USDC.e"
                       textC="text-primaryText"
                     ></TextWrapper>
                   </div>
@@ -574,7 +573,7 @@ export function MobileliquidationList({
 
                     <TextWrapper
                       className="text-10px px-1"
-                      value="USDC"
+                      value="USDC.e"
                       textC="text-primaryText"
                     ></TextWrapper>
                   </div>

@@ -1,57 +1,56 @@
+import Big from 'big.js';
+import { orderBy as lodashOrderBy } from 'lodash';
 import React, { useEffect, useState } from 'react';
-
-import Modal from 'react-modal';
-
-import { IoClose } from 'react-icons/io5';
-import { useTokenInfo } from '../../orderly/state';
-import {
-  NearIcon,
-  NearWalletIcon,
-  FirstPage,
-  PrePage,
-  NextPage,
-  LastPage,
-  OrderlyLoading,
-  OrderlyIconBalance,
-  InOrderIcon,
-  OutLinkIcon,
-} from '../Common/Icons';
-
+import CopyToClipboard from 'react-copy-to-clipboard';
 import InfiniteScroll from 'react-infinite-scroll-component';
-
-import { MdArrowDropDown, MdArrowDropUp } from 'react-icons/md';
-import { OrderAsset, useOrderAssets } from './state';
-import {
-  FlexRow,
-  DepositButton,
-  WithdrawButton,
-  WithdrawButtonMobile,
-  DepositButtonMobile,
-} from '../Common/index';
-import { digitWrapper, digitWrapperAsset } from '../../utiles';
-import { AssetManagerModal } from '../UserBoard';
+import { FormattedMessage, useIntl } from 'react-intl';
+import Modal from 'react-modal';
+import { IoClose } from '../../../../components/reactIcons';
+import { MdArrowDropDown } from '../../../../components/reactIcons';
+import { BiCopy } from '../../../../components/reactIcons';
+import { NearTip } from '../../../../pages/AccountPage';
+import getConfigV2 from '../../../../services/configV2';
+import { isClientMobie, useClientMobile } from '../../../../utils/device';
+import getConfig from '../../config';
 import { depositOrderly } from '../../orderly/api';
 import { withdrawOrderly } from '../../orderly/api';
-import { TokenInfo } from '../../orderly/type';
-import Big from 'big.js';
-
-import { UserRecord } from '../../orderly/type';
-
-import { orderBy as lodashOrderBy } from 'lodash';
-import { getAccountName } from '../../orderly/utils';
-import { useTokenMetaFromSymbol } from '../ChartHeader/state';
-import { formatTimeDate } from '../OrderBoard/index';
 import { getAssetHistory } from '../../orderly/off-chain-api';
-import getConfig from '../../config';
-
-import { TbCopy } from 'react-icons/tb';
-import CopyToClipboard from 'react-copy-to-clipboard';
-import { NearTip } from '../../../../pages/AccountPage';
-import { isClientMobie, useClientMobile } from '../../../../utils/device';
+import { useTokenInfo } from '../../orderly/state';
+import { TokenInfo } from '../../orderly/type';
+import { UserRecord } from '../../orderly/type';
+import { getAccountName } from '../../orderly/utils';
+import { digitWrapper, digitWrapperAsset } from '../../utiles';
+import { useTokenMetaFromSymbol } from '../ChartHeader/state';
+import {
+  FirstPage,
+  InOrderIcon,
+  LastPage,
+  NearIcon,
+  NearWalletIcon,
+  NextPage,
+  OrderlyIconBalance,
+  OrderlyLoading,
+  OutLinkIcon,
+  PrePage,
+} from '../Common/Icons';
 import { TipIconAsset } from '../Common/Icons';
-import ReactTooltip from 'react-tooltip';
-import { FormattedMessage, useIntl } from 'react-intl';
+import {
+  DepositButton,
+  DepositButtonMobile,
+  FlexRow,
+  WithdrawButton,
+  WithdrawButtonMobile,
+} from '../Common/index';
+import { formatTimeDate } from '../OrderBoard/index';
+import { AssetManagerModal } from '../UserBoard';
+import {
+  CollatteralToken,
+  CollatteralTokenAvailableCell,
+} from '../UserBoardPerp/components/HoverText';
 import { usePerpData } from '../UserBoardPerp/state';
+import { OrderAsset, useOrderAssets } from './state';
+const configV2 = getConfigV2();
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 function getTipAsset() {
   const intl = useIntl();
@@ -102,13 +101,31 @@ function AssetLine(
   props: OrderAsset & {
     tokenInfo: TokenInfo[] | undefined;
     freeCollateral: string;
+    curHoldingOut;
   }
 ) {
   const [showManagerModal, setShowManagerModal] = useState<boolean>(false);
-
   const [type, setType] = useState<'deposit' | 'withdraw'>();
-  const { freeCollateral } = props;
+  const { freeCollateral, curHoldingOut } = props;
+  const is_usdc = props.tokenMeta.id == configV2.ORDRRBOOK_COLLATTERAL_TOKEN;
+  let usdcBalance = '-';
+  let finalBalance = '-';
+  if (is_usdc) {
+    usdcBalance = curHoldingOut
+      ? new Big(curHoldingOut.holding + curHoldingOut.pending_short).toFixed(2)
+      : '-';
 
+    if (curHoldingOut && freeCollateral !== '-') {
+      const balance = new Big(
+        curHoldingOut.holding + curHoldingOut.pending_short
+      );
+      if (balance.lt(freeCollateral)) {
+        finalBalance = balance.toFixed(3);
+      } else {
+        finalBalance = Big(freeCollateral).toFixed(3);
+      }
+    }
+  }
   return (
     <div
       className="grid grid-cols-8 xs:grid-cols-3 text-white py-4 pl-5 pr-1 first-letter:first-line:
@@ -121,10 +138,11 @@ function AssetLine(
           className="rounded-full flex-shrink-0 mr-2 w-7 h-7 border border-green-400"
           alt=""
         />
-        <div className="flex flex-col  ">
+        <div className="flex flex-col">
           <div className="text-white flex items-center font-bold">
             {props.tokenMeta.symbol}
             {props?.tokenMeta?.id?.toLowerCase() === 'near' && <NearTip />}
+            {is_usdc && <CollatteralToken d="right" />}
           </div>
 
           <div className="text-primaryOrderly xs:hidden text-xs">
@@ -148,7 +166,15 @@ function AssetLine(
         className="relative justify-self-end right-8 xs:right-0"
         title={props.available}
       >
-        {digitWrapperAsset(props.available, 3)}
+        {is_usdc ? (
+          <CollatteralTokenAvailableCell
+            finalBalance={finalBalance}
+            usdcBalance={usdcBalance}
+            freeCollateral={freeCollateral}
+          />
+        ) : (
+          digitWrapperAsset(props.available, 3)
+        )}
       </FlexRow>
 
       <FlexRow className="justify-center xs:hidden justify-self-center col-span-2">
@@ -193,6 +219,7 @@ function AssetLine(
           accountBalance={Number(props.available)}
           tokenInfo={props.tokenInfo}
           freeCollateral={freeCollateral}
+          curHoldingOut={curHoldingOut}
         ></AssetManagerModal>
       )}
     </div>
@@ -243,7 +270,7 @@ function RecordLine(
             {parseTxDisplay(props.tx_id)}
           </a>
           <CopyToClipboard text={props.tx_id}>
-            <TbCopy className="ml-1 transform hover:opacity-80 cursor-pointer text-txBlue rotate-270" />
+            <BiCopy className="ml-1 transform hover:opacity-80 cursor-pointer text-txBlue rotate-270" />
           </CopyToClipboard>
         </div>
 
@@ -327,8 +354,8 @@ function RecordLine(
   );
 }
 
-export function AssetModal(props: Modal.Props) {
-  const { onRequestClose } = props;
+export function AssetModal(props: Modal.Props & { curHoldingOut }) {
+  const { onRequestClose, curHoldingOut } = props;
 
   const [tag, setTag] = useState<'asset' | 'records'>('asset');
 
@@ -342,7 +369,11 @@ export function AssetModal(props: Modal.Props) {
 
   const { freeCollateral } = usePerpData();
 
-  const displayBalances = useOrderAssets(tokenInfo, freeCollateral);
+  const displayBalances = useOrderAssets(
+    tokenInfo,
+    freeCollateral,
+    curHoldingOut
+  );
 
   const sortedBalances = lodashOrderBy(
     displayBalances,
@@ -515,10 +546,9 @@ export function AssetModal(props: Modal.Props) {
 
               <div
                 data-class="reactTip"
-                data-for={'mobile_tip_asset_orderly'}
-                data-html={true}
+                data-tooltip-id={'mobile_tip_asset_orderly'}
                 data-place={'bottom'}
-                data-tip={`<div class=" rounded-md w-60 text-primaryOrderly  text-xs  text-left">
+                data-tooltip-html={`<div class=" rounded-md w-60 text-primaryOrderly  text-xs  text-left">
                 ${intl.formatMessage({
                   id: 'the_all_data_orderly_tip',
                   defaultMessage:
@@ -529,15 +559,7 @@ export function AssetModal(props: Modal.Props) {
               >
                 <TipIconAsset></TipIconAsset>
 
-                <ReactTooltip
-                  id={'mobile_tip_asset_orderly'}
-                  backgroundColor="#1D2932"
-                  place="bottom"
-                  border
-                  borderColor="#7e8a93"
-                  textColor="#C6D1DA"
-                  effect="solid"
-                />
+                <CustomTooltip id={'mobile_tip_asset_orderly'} place="bottom" />
               </div>
             </div>
 
@@ -740,6 +762,7 @@ export function AssetModal(props: Modal.Props) {
                     tokenInfo={tokenInfo}
                     {...b}
                     freeCollateral={freeCollateral}
+                    curHoldingOut={curHoldingOut}
                   />
                 );
               })}
@@ -876,6 +899,7 @@ export function AssetModal(props: Modal.Props) {
                 )}
                 tokenInfo={tokenInfo}
                 freeCollateral={freeCollateral}
+                curHoldingOut={curHoldingOut}
               />
 
               <AssetManagerModal
@@ -896,6 +920,7 @@ export function AssetModal(props: Modal.Props) {
                 )}
                 tokenInfo={tokenInfo}
                 freeCollateral={freeCollateral}
+                curHoldingOut={curHoldingOut}
               />
             </div>
           )}

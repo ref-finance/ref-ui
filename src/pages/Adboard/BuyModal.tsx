@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { FaCheck } from 'react-icons/fa';
-import { AiOutlineClose } from 'react-icons/ai';
+import { FaCheck, AiOutlineClose } from '../../components/reactIcons';
 import { useSwap } from '../../state/swap';
 import SelectToken from '../../components/forms/SelectToken';
 import Icon from '../../components/tokens/Icon';
@@ -15,7 +14,7 @@ import { REF_ADBOARD_CONTRACT_ID } from '../../services/near';
 import Alert from '../../components/alert/Alert';
 import { toNonDivisibleNumber, toReadableNumber } from '../../utils/numbers';
 import db from '../../store/RefDatabase';
-import { toRealSymbol } from '~utils/token';
+import { toRealSymbol } from 'src/utils/token';
 
 interface BuyModalProps {
   metadata: AdboardMetadata;

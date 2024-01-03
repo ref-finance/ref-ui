@@ -1,89 +1,85 @@
 import React, {
+  useCallback,
   useContext,
-  useState,
   useEffect,
   useMemo,
   useRef,
-  useCallback,
+  useState,
 } from 'react';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { FormattedMessage, FormattedRelativeTime, useIntl } from 'react-intl';
 import { matchPath } from 'react-router';
-import { Context } from '~components/wrapper';
-import getConfig from '~services/config';
-import ReactTooltip from 'react-tooltip';
-import { Logo, Near, IconAirDropGreenTip, NavLogoIcon } from '~components/icon';
+import { Link, useHistory, useLocation } from 'react-router-dom';
+import { Card } from 'src/components/card/Card';
+import {
+  IconAirDropGreenTip,
+  Logo,
+  NavLogoIcon,
+  Near,
+} from 'src/components/icon';
 import {
   AccountIcon,
   ActivityIcon,
-  WalletIcon,
   SignoutIcon,
+  WalletIcon,
   WNEARExchngeIcon,
-} from '~components/icon/Common';
-import { Link, useLocation, useHistory } from 'react-router-dom';
-import { NEARXIDS, wallet } from '~services/near';
-import { Card } from '~components/card/Card';
-
-import { FormattedMessage, useIntl, FormattedRelativeTime } from 'react-intl';
-import { HiOutlineExternalLink } from 'react-icons/hi';
-import { IoChevronBack, IoClose } from 'react-icons/io5';
-
-import { FiChevronDown, FiChevronRight } from 'react-icons/fi';
+} from 'src/components/icon/Common';
+import { XrefIcon } from 'src/components/icon/Xref';
+import { Context } from 'src/components/wrapper';
+import getConfig from 'src/services/config';
+import { NEARXIDS, wallet } from 'src/services/near';
 import {
-  useMenuItems,
-  useLanguageItems,
-  useMenus,
-  menuItemType,
   BridgeButton,
-} from '~utils/menu';
-import { MobileNavBar } from './MobileNav';
-import WrapNear from '~components/forms/WrapNear';
-import { WrapNearIcon } from './WrapNear';
-import { XrefIcon } from '~components/icon/Xref';
+  menuItemType,
+  useLanguageItems,
+  useMenuItems,
+  useMenus,
+} from 'src/utils/menu';
 import { getAccount } from '../../services/airdrop';
 import {
-  senderWallet,
+  auroraAddr,
+  batchCallWithdraw,
+  useAuroraTokens,
+} from '../../services/aurora/aurora';
+import { ETH_DECIMAL } from '../../services/aurora/aurora';
+import { useAuroraBalances } from '../../services/aurora/aurora';
+import { getAuroraConfig } from '../../services/aurora/config';
+import { ftGetTokensMetadata } from '../../services/ft-contract';
+import { useTokenBalances } from '../../state/token';
+import { isMobile, useClientMobile, useMobile } from '../../utils/device';
+import { toReadableNumber } from '../../utils/numbers';
+import {
   getCurrentWallet,
+  senderWallet,
 } from '../../utils/wallets-integration';
-import { WalletSelectorModal } from './WalletSelector';
 import { WalletContext } from '../../utils/wallets-integration';
 import {
   getAccountName,
   saveSenderLoginRes,
 } from '../../utils/wallets-integration';
-import { ftGetTokensMetadata } from '../../services/ft-contract';
-import { useTokenBalances } from '../../state/token';
-import { toReadableNumber } from '../../utils/numbers';
+import {
+  AuroraIcon,
+  ConnectDot,
+  CopyIcon,
+  HasBalance,
+} from '../icon/CrossSwapIcons';
 import { FarmDot } from '../icon/FarmStamp';
 import {
-  ConnectDot,
-  AuroraIcon,
-  HasBalance,
-  CopyIcon,
-} from '../icon/CrossSwapIcons';
+  FiChevronRight,
+  HiOutlineExternalLink,
+  IoChevronBack,
+} from '../reactIcons';
+import { MobileNavBar } from './MobileNav';
 import { QuestionTip } from './TipWrapper';
-import {
-  auroraAddr,
-  useAuroraTokens,
-  batchCallWithdraw,
-} from '../../services/aurora/aurora';
-
-import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { isMobile, useMobile, useClientMobile } from '../../utils/device';
-import { getAuroraConfig } from '../../services/aurora/config';
-import { ETH_DECIMAL } from '../../services/aurora/aurora';
-import { useAuroraBalances } from '../../services/aurora/aurora';
 import { getURLInfo } from './transactionTipPopUp';
-import USNBuyComponent from '~components/forms/USNBuyComponent';
-import USNPage, { BorrowLinkCard } from '~components/usn/USNPage';
-import {
-  REF_FI_SWAP_SWAPPAGE_TAB_KEY,
-  SWAP_MODE_KEY,
-} from '../../pages/SwapPage';
-import Marquee from '~components/layout/Marquee';
+import USNBuyComponent from 'src/components/forms/USNBuyComponent';
+import { SWAP_MODE_KEY } from '../../pages/SwapPage';
+import Marquee from 'src/components/layout/Marquee';
 
 import {
   useWalletSelector,
   ACCOUNT_ID_KEY,
-} from '~context/WalletSelectorContext';
+} from 'src/context/WalletSelectorContext';
 
 import { SWAP_MODE } from '../../pages/SwapPage';
 import { useDCLAccountBalance } from '../../services/aurora/aurora';
@@ -102,8 +98,14 @@ import {
   MoreIcon,
   ArrowDownIcon,
   DownTriangleIcon,
-} from '~components/icon/Nav';
+} from 'src/components/icon/Nav';
 import { openUrl } from '../../services/commonV3';
+import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from 'src/constants';
+import { WalletRiskCheckBoxModal } from 'src/context/modal-ui/components/WalletOptions/WalletRiskCheckBox';
+import { CONST_ACKNOWLEDGE_WALLET_RISK } from 'src/constants/constLocalStorage';
+import { WalletSelectorModal } from './WalletSelector';
+import { isNewHostName } from '../../services/config';
+import { WrapNearIcon } from './WrapNear';
 
 const config = getConfig();
 
@@ -123,176 +125,6 @@ export function AccountTipDownByAccountID({ show }: { show: boolean }) {
         defaultMessage="You have token(s) in your REF Account"
       />
     </div>
-  );
-}
-
-function Anchor({
-  to,
-  pattern,
-  name,
-  className,
-  newFuntion,
-  subMenu,
-}: {
-  to?: string;
-  pattern: string;
-  name: string;
-  className?: string;
-  newFuntion?: boolean;
-  subMenu?: {
-    name: string;
-    display?: string | JSX.Element;
-    path?: string;
-    click: (e?: any) => void;
-    chosen?: boolean;
-  }[];
-}) {
-  const location = useLocation();
-  let isSelected;
-
-  const [hover, setHover] = useState<boolean>(false);
-
-  const defaultChosed = subMenu?.find((m) => !!m.chosen)?.name;
-
-  const { pathname } = useLocation();
-
-  const isSwap =
-    pathname === '/' || pathname === '/swap' || pathname === '/myOrder';
-
-  const [chosenSub, setChosenSub] = useState<string>(
-    isSwap ? defaultChosed : null
-  );
-
-  useEffect(() => {
-    if (!isSwap) {
-      setChosenSub(null);
-    }
-  }, [isSwap, pathname]);
-
-  useEffect(() => {
-    if (!isSwap) return;
-
-    if (pathname === '/myOrder') {
-      setChosenSub('limit');
-    }
-
-    window.addEventListener('setItemEvent', (e: any) => {
-      const storageSwapTab = localStorage
-        .getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY)
-        ?.toString();
-
-      const storageSwapMode = localStorage.getItem(SWAP_MODE_KEY)?.toString();
-      if (typeof e?.[SWAP_MODE_KEY] === 'string') {
-        const curMode = e?.[SWAP_MODE_KEY];
-
-        if (curMode == SWAP_MODE.NORMAL && storageSwapTab === 'normal') {
-          setChosenSub('swap');
-        } else if (
-          e[SWAP_MODE_KEY] == SWAP_MODE.LIMIT &&
-          storageSwapTab === 'normal'
-        ) {
-          setChosenSub('limit');
-        }
-      }
-      if (typeof e?.[REF_FI_SWAP_SWAPPAGE_TAB_KEY] === 'string') {
-        const curTab = e?.[REF_FI_SWAP_SWAPPAGE_TAB_KEY];
-
-        if (curTab === 'normal') {
-          setChosenSub(storageSwapMode);
-        } else {
-          setChosenSub('pro');
-        }
-      }
-    });
-  }, [isSwap]);
-
-  if (pattern == '/pools') {
-    isSelected =
-      location.pathname.startsWith('/pools') ||
-      location.pathname.startsWith('/pool') ||
-      location.pathname.startsWith('/more_pools') ||
-      location.pathname.startsWith('/yourliquidity') ||
-      location.pathname.startsWith('/addLiquidityV2') ||
-      location.pathname.startsWith('/yoursLiquidityDetailV2');
-  } else if (pattern == '/') {
-    isSelected = location.pathname === '/' || location.pathname === '/swap';
-  } else if (pattern === '/sauce' || pattern === '/v2farms') {
-    isSelected = matchPath(location.pathname, {
-      path: pattern,
-      exact: false,
-      strict: false,
-    });
-  } else {
-    isSelected = matchPath(location.pathname, {
-      path: pattern,
-      exact: true,
-      strict: false,
-    });
-  }
-
-  return (
-    <>
-      <Link
-        to={to}
-        className={`relative flex items-center justify-center h-full  mx-4 `}
-        onMouseLeave={() => setHover(false)}
-        onMouseEnter={() => setHover(true)}
-      >
-        <span
-          className={`link hover:text-white text-base font-bold py-4 cursor-pointer relative z-10 ${className} ${
-            isSelected ? 'text-white' : 'text-gray-400'
-          }`}
-        >
-          <FormattedMessage id={name} defaultMessage={name} />
-          {newFuntion ? (
-            <span className="absolute top-5 right-2">
-              <IconAirDropGreenTip />
-            </span>
-          ) : null}
-        </span>
-
-        {!!subMenu && hover && (
-          <span
-            className="top-10 pt-2 absolute"
-            style={{
-              zIndex: 9999,
-            }}
-          >
-            <div
-              className="py-2  px-1.5 rounded-xl min-w-28 flex flex-col"
-              style={{
-                background: 'rgba(23,32,38)',
-                border: '1px solid #415462',
-              }}
-            >
-              {subMenu.map((m) => {
-                return (
-                  <span
-                    className={`${
-                      (chosenSub === m.name && isSwap) ||
-                      pathname.toLocaleLowerCase().indexOf(m.path) > -1
-                        ? 'bg-primaryText bg-opacity-30 text-white'
-                        : 'text-primaryText'
-                    } hover:bg-primaryText hover:bg-opacity-30 items-center
-                    flex justify-center py-0.5 h-11 mb-0.5 hover:text-white rounded-lg 
-                   text-center text-base cursor-pointer my-auto whitespace-nowrap px-2`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      m.click();
-                      setChosenSub(m.name);
-                      setHover(false);
-                    }}
-                  >
-                    {m.display || <FormattedMessage id={m.name} />}
-                  </span>
-                );
-              })}
-            </div>
-          </span>
-        )}
-      </Link>
-    </>
   );
 }
 
@@ -321,6 +153,28 @@ function AccountEntry({
 
   const { selector, modal, accounts, accountId, setAccountId } =
     useWalletSelector();
+
+  const [showTip, setShowTip] = useState<boolean>(false);
+  const [copyButtonDisabled, setCopyButtonDisabled] = useState<boolean>(false);
+
+  const [showWalletRisk, setShowWalletRisk] = useState<boolean>(false);
+  const handleWalletModalOpen = () => {
+    const isAcknowledgeWalletRisk = localStorage.getItem(
+      CONST_ACKNOWLEDGE_WALLET_RISK
+    );
+    if (!isAcknowledgeWalletRisk) {
+      setShowWalletRisk(true);
+    } else {
+      modal.show();
+    }
+  };
+  const handleAcknowledgeClick = (status) => {
+    if (status === true) {
+      setShowWalletRisk(false);
+      localStorage.setItem(CONST_ACKNOWLEDGE_WALLET_RISK, '1');
+      modal.show();
+    }
+  };
 
   const isSignedIn = globalState.isSignedIn;
 
@@ -393,37 +247,42 @@ function AccountEntry({
     {
       icon: <AccountIcon />,
       textId: 'your_assets',
-      selected: location.pathname == '/account',
+      selected: location.pathname == '/overview',
       click: () => {
-        if (location.pathname == '/account') {
-          localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
-          window.location.href = '/account?tab=ref';
-        } else {
-          history.push('/account?tab=ref');
-        }
+        history.push('/overview');
       },
     },
-    {
-      icon: <ActivityIcon />,
-      textId: 'recent_activity',
-      selected: location.pathname == '/recent',
-      click: () => {
-        history.push('/recent');
-      },
-    },
-    {
-      icon: <WalletIcon />,
-      textId: 'go_to_near_wallet',
-      // subIcon: <HiOutlineExternalLink />,
-      click: () => {
-        openUrl(
-          selector.store.getState().selectedWalletId === 'my-near-wallet'
-            ? config.myNearWalletUrl
-            : config.walletUrl
-        );
-      },
-    },
+    // {
+    //   icon: <ActivityIcon />,
+    //   textId: 'recent_activity',
+    //   selected: location.pathname == '/recent',
+    //   click: () => {
+    //     history.push('/recent');
+    //   },
+    // },
+    // {
+    //   icon: <WalletIcon />,
+    //   textId: 'go_to_near_wallet',
+    //   // subIcon: <HiOutlineExternalLink />,
+    //   click: () => {
+    //     openUrl(
+    //       selector.store.getState().selectedWalletId === 'my-near-wallet'
+    //         ? config.myNearWalletUrl
+    //         : config.walletUrl
+    //     );
+    //   },
+    // },
   ];
+
+  function showToast() {
+    if (copyButtonDisabled) return;
+    setCopyButtonDisabled(true);
+    setShowTip(true);
+    setTimeout(() => {
+      setShowTip(false);
+      setCopyButtonDisabled(false);
+    }, 1000);
+  }
 
   const isMobile = useClientMobile();
 
@@ -495,8 +354,8 @@ function AccountEntry({
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  modal.show();
-
+                  //modal.show();
+                  handleWalletModalOpen();
                   setHover(false);
                 }}
                 type="button"
@@ -513,6 +372,12 @@ function AccountEntry({
                 </span>
               </button>
             )}
+
+            <WalletRiskCheckBoxModal
+              isOpen={showWalletRisk}
+              setCheckedStatus={handleAcknowledgeClick}
+              onClose={() => setShowWalletRisk(false)}
+            />
           </div>
         </div>
         {isSignedIn && hover ? (
@@ -548,30 +413,40 @@ function AccountEntry({
                 </div>
 
                 <div className="flex items-center">
-                  <CopyToClipboard text={wallet.getAccountId()}>
-                    <div
-                      className={` bg-opacity-20 rounded-lg flex items-center justify-center p-1.5 cursor-pointer`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                      }}
-                      onMouseEnter={() => {
-                        !isMobile && setCopyIconHover(true);
-                      }}
-                      onMouseLeave={() => {
-                        !isMobile && setCopyIconHover(false);
-                      }}
-                      onTouchStart={() => {
-                        setCopyIconHover(true);
-                      }}
-                      onTouchEnd={() => {
-                        setCopyIconHover(false);
-                      }}
+                  <div className="flex items-center justify-center relative">
+                    <CopyToClipboard
+                      text={wallet.getAccountId()}
+                      onCopy={showToast}
                     >
-                      <CopyIcon
-                        fillColor={copyIconHover ? '#4075FF' : '#7E8A93'}
-                      />
-                    </div>
-                  </CopyToClipboard>
+                      <div
+                        className={` bg-opacity-20 rounded-lg flex items-center justify-center p-1.5 cursor-pointer`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                        onMouseEnter={() => {
+                          !isMobile && setCopyIconHover(true);
+                        }}
+                        onMouseLeave={() => {
+                          !isMobile && setCopyIconHover(false);
+                        }}
+                        onTouchStart={() => {
+                          setCopyIconHover(true);
+                        }}
+                        onTouchEnd={() => {
+                          setCopyIconHover(false);
+                        }}
+                      >
+                        <CopyIcon
+                          fillColor={copyIconHover ? '#4075FF' : '#7E8A93'}
+                        />
+                      </div>
+                    </CopyToClipboard>
+                    {showTip ? (
+                      <span className="text-xs text-white rounded-lg px-2.5 py-1.5 absolute bottom-8 bg-mobileOrderBg z-50">
+                        Copied!
+                      </span>
+                    ) : null}
+                  </div>
 
                   <button
                     className="hover:text-gradientFrom text-primaryText ml-2"
@@ -620,7 +495,7 @@ function AccountEntry({
 
               {accountList.map((item, index) => {
                 return (
-                  <>
+                  <React.Fragment key={item.textId + index}>
                     <div
                       onClick={item.click}
                       key={item.textId + index}
@@ -660,7 +535,7 @@ function AccountEntry({
                         />
                       </div>
                     ) : null}
-                  </>
+                  </React.Fragment>
                 );
               })}
             </Card>
@@ -846,6 +721,7 @@ function NavigationBar() {
   const [hasAuroraBalance, setHasAuroraBalance] = useState(false);
 
   const { txHash } = getURLInfo();
+  const isMobile = useMobile();
 
   useEffect(() => {
     if (!auroraBalances || !isSignedIn) return;
@@ -1051,7 +927,7 @@ function NavigationBar() {
               <BridgeButton></BridgeButton>
             </div>
 
-            {isMobile() ? null : <BuyNearButton />}
+            {isMobile ? null : <BuyNearButton />}
 
             <div className="flex items-center mx-3">
               <AccountEntry
@@ -1059,24 +935,28 @@ function NavigationBar() {
                 setShowWalletSelector={setShowWalletSelector}
                 showWalletSelector={showWalletSelector}
               />
-              <div className={isSignedIn ? 'flex items-center' : 'hidden'}>
-                <ConnectDot />
-                <ConnectDot />
-                <AuroraEntry hasBalanceOnAurora={hasAuroraBalance} />
-              </div>
+              {/*<div className={isSignedIn ? 'flex items-center' : 'hidden'}>*/}
+              {/*  <ConnectDot />*/}
+              {/*  <ConnectDot />*/}
+              {/*  <AuroraEntry hasBalanceOnAurora={hasAuroraBalance} />*/}
+              {/*</div>*/}
             </div>
             <Language></Language>
           </div>
         </nav>
-        {isMobile ? null : <Marquee></Marquee>}
+        {/* {isMobile ? null : <Marquee></Marquee>} */}
       </div>
-      <MobileNavBar
-        hasBalanceOnRefAccount={hasBalanceOnRefAccount}
-        isSignedIn={isSignedIn}
-        setShowWalletSelector={setShowWalletSelector}
-        showWalletSelector={showWalletSelector}
-        hasAuroraBalance={hasAuroraBalance}
-      />
+
+      {isMobile && (
+        <MobileNavBar
+          hasBalanceOnRefAccount={hasBalanceOnRefAccount}
+          isSignedIn={isSignedIn}
+          setShowWalletSelector={setShowWalletSelector}
+          showWalletSelector={showWalletSelector}
+          hasAuroraBalance={hasAuroraBalance}
+        />
+      )}
+
       <WalletSelectorModal
         setShowWalletSelector={setShowWalletSelector}
         isOpen={showWalletSelector}
@@ -1088,7 +968,9 @@ function NavigationBar() {
     </>
   );
 }
+
 export const commonLangKey = ['en', 'zh-CN', 'vi', 'ko', 'es'];
+
 export function formatItem(local: string) {
   if (commonLangKey.indexOf(local) > -1) {
     return local;
@@ -1096,6 +978,7 @@ export function formatItem(local: string) {
     return 'en';
   }
 }
+
 function Language() {
   const context = useContext(Context);
   const [hover, setHover] = useState(false);
@@ -1172,67 +1055,9 @@ function Language() {
     </div>
   );
 }
+
 export default NavigationBar;
 
-export function USNCard({
-  showUSN,
-  setShowUSN,
-  showeBorrowCard,
-  setShowBorrowCard,
-}: {
-  showUSN: boolean;
-  setShowUSN: (e: boolean) => void;
-  showeBorrowCard: boolean;
-  setShowBorrowCard: (e: boolean) => void;
-}) {
-  return (
-    <>
-      <USNPage
-        isOpen={showUSN}
-        onRequestClose={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          setShowUSN(false);
-          setShowBorrowCard(false);
-        }}
-        style={{
-          overlay: {
-            backdropFilter: 'blur(15px)',
-            WebkitBackdropFilter: 'blur(15px)',
-          },
-          content: {
-            outline: 'none',
-            position: 'fixed',
-            width: isMobile() ? '98%' : 550,
-            bottom: '50%',
-            left: '1%',
-            transform: null,
-          },
-        }}
-      ></USNPage>
-
-      <BorrowLinkCard
-        isOpen={showeBorrowCard}
-        onRequestClose={(e) => {
-          setShowBorrowCard(false);
-        }}
-        style={{
-          overlay: {
-            backdropFilter: 'blur(15px)',
-            WebkitBackdropFilter: 'blur(15px)',
-          },
-          content: {
-            outline: 'none',
-            position: 'fixed',
-            width: isMobile() ? '98%' : 550,
-
-            bottom: '50%',
-          },
-        }}
-      />
-    </>
-  );
-}
 function MenuBar() {
   const history = useHistory();
   const [hover_two_level_items, set_hover_two_level_items] = useState<
@@ -1254,12 +1079,14 @@ function MenuBar() {
     }
     set_hover_one_level_id(id);
   }
+
   function hover_off_one_level_item() {
     set_hover_two_level_items([]);
     set_back_one_level_item(null);
     set_hover_two_level_id(undefined);
     set_hover_one_level_id('');
   }
+
   function click_one_level_item(item: menuItemType) {
     const { clickEvent, url, isExternal } = item;
     if (clickEvent) {
@@ -1275,6 +1102,7 @@ function MenuBar() {
       hover_off_one_level_item();
     }
   }
+
   function click_two_level_item(item: menuItemType) {
     const { children, label, clickEvent, url, isExternal } = item;
     if (children) {
@@ -1296,6 +1124,7 @@ function MenuBar() {
       }
     }
   }
+
   function click_three_level_title_to_back(menuItem: menuItemType) {
     const { children } = menuItem;
     set_hover_two_level_items(children);
@@ -1320,6 +1149,7 @@ function MenuBar() {
     let two_level_selected_id = '';
     const swap_mode_in_localstorage =
       localStorage.getItem('SWAP_MODE_VALUE') || 'normal';
+
     if (menus) {
       const one_level_menu = menus.find((item: menuItemType) => {
         const { links } = item;
@@ -1328,11 +1158,14 @@ function MenuBar() {
       if (one_level_menu) {
         const { id, children } = one_level_menu;
         one_level_selected_id = id;
-        let second_children: any = children;
+        const second_children: any = children;
         if (second_children) {
           const two_level_menu = second_children.find((item: menuItemType) => {
             const { links, swap_mode } = item;
-            if (pathname == '/' || pathname == '/swap') {
+            const condition = isNewHostName
+              ? pathname == '/swap'
+              : pathname == '/' || pathname == '/swap';
+            if (condition) {
               return swap_mode_in_localstorage == swap_mode;
             } else {
               return links?.indexOf(pathname) > -1;
@@ -1342,6 +1175,21 @@ function MenuBar() {
             two_level_selected_id = two_level_menu.id;
           }
         }
+      } else {
+        menus.find((d) => {
+          const match = d.links.includes(pathname);
+          if (!match && Array.isArray(d.children)) {
+            const level2Match = d.children.find((c) =>
+              c.links?.includes(pathname)
+            );
+
+            if (level2Match) {
+              two_level_selected_id = level2Match.id;
+              one_level_selected_id = d.id;
+            }
+          }
+          return match;
+        });
       }
 
       set_one_level_selected(one_level_selected_id);

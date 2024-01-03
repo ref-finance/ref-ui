@@ -20,6 +20,7 @@ import {
   getAvailable,
   getTotalEst,
   getLqPriceFloat,
+  getCollateralTokenAvailableBalance,
 } from './math';
 import { parseSymbol } from '../RecentTrade';
 import {
@@ -185,7 +186,7 @@ export function usePerpData(deps?: {
 
   const noPosition = newPositions?.rows?.length === 0;
 
-  const { symbolFrom, symbolTo } = parseSymbol(symbol);
+  const { symbolTo } = parseSymbol(symbol);
 
   const { userInfo, curLeverage, error, setCurLeverage, setCurLeverageRaw } =
     useLeverage();
@@ -225,6 +226,21 @@ export function usePerpData(deps?: {
       if (!curHoldingOut) return '0';
 
       return getFreeCollateral(
+        newPositions,
+        markPrices,
+        userInfo,
+        curHoldingOut
+      ).toFixed(2);
+    } catch (error) {
+      return '-';
+    }
+  }, [newPositions, markPrices, userInfo, curHoldingOut]);
+
+  const collateralTokenAvailableBalance = useMemo(() => {
+    try {
+      if (!curHoldingOut) return '0';
+
+      return getCollateralTokenAvailableBalance(
         newPositions,
         markPrices,
         userInfo,
@@ -369,7 +385,6 @@ export function usePerpData(deps?: {
   }, [newPositions, markPrices, displayBalances]);
 
   newPositions?.rows?.forEach((r) => {
-    // update lq price
     const cur_lq_price = r.est_liq_price;
 
     const cur_mark_price =
@@ -422,5 +437,6 @@ export function usePerpData(deps?: {
     totalEst,
     holdings,
     accountCurLeverage,
+    collateralTokenAvailableBalance,
   };
 }

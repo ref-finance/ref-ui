@@ -1,0 +1,8 @@
+dist
+build
+node_modules
+.env.*.local
+.git
+.gitignore
+.github
+.vscode

@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState, useContext } from 'react';
 import Modal from 'react-modal';
-import { Card } from '~components/card/Card';
-import Alert from '~components/alert/Alert';
-import TipsBox from '~components/farm/TipsBox';
-import CalcModel, { CalcEle, LinkPool } from '~components/farm/CalcModel';
-import UnClaim from '~components/farm/UnClaim';
-import QuestionMark from '~components/farm/QuestionMark';
-import SelectUi from '~components/farm/SelectUi';
+import { Card } from 'src/components/card/Card';
+import Alert from 'src/components/alert/Alert';
+import TipsBox from 'src/components/farm/TipsBox';
+import CalcModel, { CalcEle, LinkPool } from 'src/components/farm/CalcModel';
+import UnClaim from 'src/components/farm/UnClaim';
+import QuestionMark from 'src/components/farm/QuestionMark';
+import SelectUi from 'src/components/farm/SelectUi';
 import {
   FarmMiningIcon,
   ModalClose,
@@ -20,14 +20,14 @@ import {
   SortIcon,
   NoDataIcon,
   LightSmall,
-} from '~components/icon';
+} from 'src/components/icon';
 import {
   GreenLButton,
   BorderButton,
   GradientButton,
   ButtonTextWrapper,
   BlacklightConnectToNearBtn,
-} from '~components/button/Button';
+} from 'src/components/button/Button';
 import {
   getFarms,
   claimRewardByFarm,
@@ -46,14 +46,14 @@ import {
   frontConfig,
   get_seed_info,
   useMigrate_user_data,
-} from '~services/farm';
+} from 'src/services/farm';
 import {
   stake,
   unstake,
   LP_TOKEN_DECIMALS,
   withdrawAllReward,
   LP_STABLE_TOKEN_DECIMALS,
-} from '~services/m-token';
+} from 'src/services/m-token';
 import {
   formatWithCommas,
   toPrecision,
@@ -63,37 +63,36 @@ import {
   calculateFairShare,
   toNonDivisibleNumber,
   percent,
-} from '~utils/numbers';
-import { mftGetBalance } from '~services/mft-contract';
-import { wallet } from '~services/near';
-import Loading, { BeatLoading } from '~components/layout/Loading';
-import { ConnectToNearBtn } from '~components/button/Button';
-import { useTokens } from '~state/token';
-import { Info } from '~components/icon/Info';
-import ReactTooltip from 'react-tooltip';
-import { getMftTokenId, toRealSymbol } from '~utils/token';
+} from 'src/utils/numbers';
+import { mftGetBalance } from 'src/services/mft-contract';
+import { wallet } from 'src/services/near';
+import Loading, { BeatLoading } from 'src/components/layout/Loading';
+import { ConnectToNearBtn } from 'src/components/button/Button';
+import { useTokens } from 'src/state/token';
+import { Info } from 'src/components/icon/Info';
+
+import { getMftTokenId, toRealSymbol } from 'src/utils/token';
 import ReactModal from 'react-modal';
-import { isMobile } from '~utils/device';
+import { isMobile } from 'src/utils/device';
 import ClipLoader from 'react-spinners/ClipLoader';
-import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
-import { getTokenPriceList } from '~services/indexer';
+import { ftGetTokenMetadata, TokenMetadata } from 'src/services/ft-contract';
+import { getTokenPriceList } from 'src/services/indexer';
 import Countdown, { zeroPad } from 'react-countdown';
 import moment from 'moment';
 import { Link, useHistory, useLocation } from 'react-router-dom';
 import _ from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { FaArrowCircleRight, FaRegQuestionCircle } from 'react-icons/fa';
-import OldInputAmount from '~components/forms/OldInputAmount';
+import OldInputAmount from 'src/components/forms/OldInputAmount';
 import { BigNumber } from 'bignumber.js';
-import getConfig from '~services/config';
+import getConfig from 'src/services/config';
 import {
   getCurrentWallet,
   WalletContext,
 } from '../../utils/wallets-integration';
 import { scientificNotationToString } from '../../utils/numbers';
-import { getPrice } from '~services/xref';
-import { get24hVolume } from '~services/indexer';
-import { PoolRPCView } from '~services/api';
+import { getPrice } from 'src/services/xref';
+import { get24hVolume } from 'src/services/indexer';
+import { PoolRPCView } from 'src/services/api';
 import { checkTransaction } from '../../services/swap';
 import {
   getURLInfo,
@@ -101,6 +100,8 @@ import {
   swapToast,
 } from '../../components/layout/transactionTipPopUp';
 import { MigrateIconSmall } from '../../components/icon/FarmBoost';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
+
 const { STABLE_POOL_IDS, REF_VE_CONTRACT_ID, XREF_TOKEN_ID, REF_TOKEN_ID } =
   getConfig();
 const DECIMALS_XREF_REF_TRANSTER = 8;
@@ -111,7 +112,7 @@ interface SearchData {
   coin: string;
 }
 
-export function FarmsPage() {
+export default function FarmsPage() {
   const intl = useIntl();
   const location = useLocation();
   const sortList = {
@@ -790,19 +791,11 @@ export function FarmsPage() {
                     data-place="right"
                     data-multiline={true}
                     data-class="reactTip"
-                    data-html={true}
-                    data-tip={valueOfRewardsTip()}
-                    data-for="yourRewardsId"
+                    data-tooltip-html={valueOfRewardsTip()}
+                    data-tooltip-id="yourRewardsId"
                   >
                     <QuestionMark />
-                    <ReactTooltip
-                      className="w-20"
-                      id="yourRewardsId"
-                      backgroundColor="#1D2932"
-                      border
-                      borderColor="#7e8a93"
-                      effect="solid"
-                    />
+                    <CustomTooltip className="w-20" id="yourRewardsId" />
                   </div>
                 </div>
                 <label className="text-white text-2xl text-center font-semibold">
@@ -853,19 +846,12 @@ export function FarmsPage() {
                         <div
                           className="text-white text-right ml-1"
                           data-class="reactTip"
-                          data-for="selectAllId"
+                          data-tooltip-id="selectAllId"
                           data-place="top"
-                          data-html={true}
-                          data-tip={valueOfWithDrawLimitTip()}
+                          data-tooltip-html={valueOfWithDrawLimitTip()}
                         >
                           <QuestionMark></QuestionMark>
-                          <ReactTooltip
-                            id="selectAllId"
-                            backgroundColor="#1D2932"
-                            border
-                            borderColor="#7e8a93"
-                            effect="solid"
-                          />
+                          <CustomTooltip id="selectAllId" />
                         </div>
                       </div>
                     ) : (
@@ -1832,7 +1818,6 @@ function FarmView({
                     pathname: `/pool/${PoolId}`,
                     state: { backToFarms: true },
                   }}
-                  target="_blank"
                   rel="noopener noreferrer nofollow"
                   className="text-lg xs:text-sm text-white"
                 >
@@ -1917,19 +1902,12 @@ function FarmView({
                 className="text-xl text-white"
                 data-type="info"
                 data-multiline={true}
-                data-tip={getAprList()}
-                data-html={true}
-                data-for={'aprId' + data.farm_id}
+                data-tooltip-html={getAprList()}
+                data-tooltip-id={'aprId' + data.farm_id}
                 data-class="reactTip"
               >
                 {`${getTotalApr() === '0' ? '-' : `${getTotalApr()}%`}`}
-                <ReactTooltip
-                  id={'aprId' + data.farm_id}
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                />
+                <CustomTooltip id={'aprId' + data.farm_id} />
               </div>
             </div>
           </div>
@@ -1944,20 +1922,13 @@ function FarmView({
             <div
               className="flex flex-wrap justify-end"
               data-class="reactTip"
-              data-for={'rewardTokens' + data.farm_id}
+              data-tooltip-id={'rewardTokens' + data.farm_id}
               data-place="top"
-              data-html={true}
-              data-tip={getRewardTokensSymbol()}
+              data-tooltip-html={getRewardTokensSymbol()}
             >
               {getRewardTokensIcon()}
             </div>
-            <ReactTooltip
-              id={'rewardTokens' + data.farm_id}
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            <CustomTooltip id={'rewardTokens' + data.farm_id} />
           </div>
           <div className="flex items-center justify-between text-sm py-2 text-farmText">
             <div className="flex items-center pr-1">
@@ -1968,38 +1939,24 @@ function FarmView({
               <div
                 className="text-white text-right ml-1"
                 data-class="reactTip"
-                data-for={'rewardPerWeekQId' + data.farm_id}
+                data-tooltip-id={'rewardPerWeekQId' + data.farm_id}
                 data-place="top"
-                data-html={true}
-                data-tip={valueOfRewardsTip()}
+                data-tooltip-html={valueOfRewardsTip()}
               >
                 <QuestionMark></QuestionMark>
-                <ReactTooltip
-                  id={'rewardPerWeekQId' + data.farm_id}
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                />
+                <CustomTooltip id={'rewardPerWeekQId' + data.farm_id} />
               </div>
             </div>
             <div
               className="text-white text-right"
               data-class="reactTip"
-              data-for={'rewardPerWeekId' + data.farm_id}
+              data-tooltip-id={'rewardPerWeekId' + data.farm_id}
               data-place="top"
-              data-html={true}
-              data-tip={rewardsPerWeek.tip}
+              data-tooltip-html={rewardsPerWeek.tip}
             >
               {rewardsPerWeek.totalPrice}
             </div>
-            <ReactTooltip
-              id={'rewardPerWeekId' + data.farm_id}
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            <CustomTooltip id={'rewardPerWeekId' + data.farm_id} />
           </div>
           {data.userStaked !== '0' ? (
             <div className="flex items-center justify-between text-sm py-2 text-farmText">
@@ -2012,20 +1969,13 @@ function FarmView({
               <div
                 className="text-white"
                 data-class="reactTip"
-                data-for={'yourShareId' + data.farm_id}
+                data-tooltip-id={'yourShareId' + data.farm_id}
                 data-place="top"
-                data-html={true}
-                data-tip={yourShare.tip}
+                data-tooltip-html={yourShare.tip}
               >
                 {toPrecision(data.userStaked, 6)} {yourShare.percentage}
               </div>
-              <ReactTooltip
-                id={'yourShareId' + data.farm_id}
-                backgroundColor="#1D2932"
-                border
-                borderColor="#7e8a93"
-                effect="solid"
-              />
+              <CustomTooltip id={'yourShareId' + data.farm_id} />
             </div>
           ) : null}
           <div className="flex items-center justify-between text-sm py-2 text-farmText">
@@ -2037,38 +1987,24 @@ function FarmView({
               <div
                 className="text-white text-right ml-1"
                 data-class="reactTip"
-                data-for={'unclaimedRewardQId' + data.farm_id}
+                data-tooltip-id={'unclaimedRewardQId' + data.farm_id}
                 data-place="top"
-                data-html={true}
-                data-tip={valueOfRewardsTip()}
+                data-tooltip-html={valueOfRewardsTip()}
               >
                 <QuestionMark></QuestionMark>
-                <ReactTooltip
-                  id={'unclaimedRewardQId' + data.farm_id}
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                />
+                <CustomTooltip id={'unclaimedRewardQId' + data.farm_id} />
               </div>
             </div>
             <div
               className="text-white text-right"
               data-class="reactTip"
-              data-for={'unclaimedRewardId' + data.farm_id}
+              data-tooltip-id={'unclaimedRewardId' + data.farm_id}
               data-place="top"
-              data-html={true}
-              data-tip={unclaimed.tip}
+              data-tooltip-html={unclaimed.tip}
             >
               {unclaimed.totalPrice}
             </div>
-            <ReactTooltip
-              id={'unclaimedRewardId' + data.farm_id}
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            <CustomTooltip id={'unclaimedRewardId' + data.farm_id} />
           </div>
         </div>
         <div className="absolute inset-x-6 bottom-12">

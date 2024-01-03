@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { TokenMetadata, ftGetTokenMetadata } from '../../services/ft-contract';
 
-import { FaAngleRight } from 'react-icons/fa';
+import { FaAngleRight } from '../reactIcons';
 
 import {
   calculateFeePercent,
@@ -13,11 +13,11 @@ import {
 } from '../../utils/numbers';
 import { toRealSymbol } from '../../utils/token';
 
-import { EstimateSwapView } from '~services/swap';
+import { EstimateSwapView } from 'src/services/swap';
 
 import { getPoolAllocationPercents, percent } from '../../utils/numbers';
 import { Pool } from '../../services/pool';
-import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
+import { FaAngleUp, FaAngleDown } from '../reactIcons';
 import { Card } from '../card/Card';
 import {
   FlashAction,
@@ -49,7 +49,7 @@ import { useTokenPriceList } from '../../state/token';
 import { PopUpContainer, PopUpContainerMulti } from '../icon/Info';
 import { percentLess, multiply, divide } from '../../utils/numbers';
 import { QuestionTip } from './TipWrapper';
-import { HiOutlineExternalLink } from 'react-icons/hi';
+import { HiOutlineExternalLink } from '../reactIcons';
 import { Images } from '../stableswap/CommonComp';
 import { getAuroraConfig } from '../../services/aurora/config';
 import { isMobile, useClientMobile } from '../../utils/device';
@@ -71,9 +71,10 @@ import { ModalWrapper } from '../../pages/ReferendumPage';
 import { displayNumberToAppropriateDecimals } from '../../services/commonV3';
 import { numberWithCommas } from '../../pages/Orderly/utiles';
 import { get_pool_name, openUrl } from '../../services/commonV3';
+import getConfigV2 from '../../services/configV2';
 import { REF_FI_BEST_MARKET_ROUTE } from '../../state/swap';
 import { PolygonRight } from '../../pages/Orderly/components/Common/Icons';
-
+const configV2 = getConfigV2();
 export const GetPriceImpact = (
   value: string,
   tokenIn?: TokenMetadata,
@@ -1681,7 +1682,6 @@ export const TradeRouteHub = ({
     if (contract.toLowerCase().includes('orderly')) return 'orderly';
     if (contract.toLowerCase().includes('trisolaris')) return 'tri';
   };
-
   return (
     <div
       className="flex flex-col justify-center  relative z-10 text-primaryText text-xs rounded-md px-2.5 py-1 border border-swapCardBorder bg-swapCardGradient"
@@ -1708,9 +1708,14 @@ export const TradeRouteHub = ({
         </div>
 
         <span className="ml-1 mr-1">{contract}</span>
-
         <span
-          className="cursor-pointer block mr-1.5"
+          className={`cursor-pointer block mr-1.5 ${
+            configV2.BLACK_LIST_DCL_POOL_IDS_IN_POOLS.includes(
+              poolId?.toString()
+            )
+              ? 'hidden'
+              : ''
+          }`}
           onClick={() => {
             if (typeof poolId === 'undefined' || poolId === null) return;
 
@@ -1858,7 +1863,8 @@ export const TradeRoute = ({
                           token={t}
                           contract={route[i].contract}
                         />
-                        {t.id !== route[0].tokens.at(-1)?.id && (
+                        {t.id !==
+                          route[0].tokens[route[0].tokens.length - 1]?.id && (
                           <div className="mx-3">
                             <PolygonArrow />
                           </div>

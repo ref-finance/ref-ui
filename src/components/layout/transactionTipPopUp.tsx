@@ -9,7 +9,7 @@ import { getCurrentWallet } from '../../utils/wallets-integration';
 import { ErrorTriangle } from '../icon/SwapRefresh';
 import { ONLY_ZEROS } from '../../utils/numbers';
 
-import { BsArrowUpRight } from 'react-icons/bs';
+import { BsArrowUpRight } from '../reactIcons';
 
 export enum TRANSACTION_WALLET_TYPE {
   NEAR_WALLET = 'transactionHashes',

@@ -7,13 +7,12 @@ import {
 } from './near';
 import {
   ftGetTokenMetadata,
-  TokenMetadata,
   ftGetStorageBalance,
+  native_usdc_has_upgrated,
 } from './ft-contract';
 import getConfig from './config';
 const { BURROW_CONTRACT_ID, WRAP_NEAR_CONTRACT_ID } = getConfig();
 import { getCurrentWallet, WalletContext } from '../utils/wallets-integration';
-import { useWalletSelector } from 'context/WalletSelectorContext';
 import {
   shrinkToken,
   expandToken,
@@ -30,6 +29,8 @@ import {
   IRepayWay,
 } from './burrow-interfaces';
 import { getNetLiquidityAPY } from './burrow-business';
+import getConfigV2 from '../services/configV2';
+const { NO_REQUIRED_REGISTRATION_TOKEN_IDS } = getConfigV2();
 const NO_STORAGE_DEPOSIT_CONTRACTS = ['aurora'];
 
 export async function getAssets() {
@@ -572,20 +573,53 @@ export async function submitWithdraw({
     !(storageToken && storageToken.total != '0') &&
     !NO_STORAGE_DEPOSIT_CONTRACTS.includes(token_id)
   ) {
-    transactions.unshift({
-      receiverId: token_id,
-      functionCalls: [
-        {
-          methodName: 'storage_deposit',
-          args: {
-            registration_only: true,
-            account_id: getCurrentWallet()?.wallet?.getAccountId(),
+    if (NO_REQUIRED_REGISTRATION_TOKEN_IDS.includes(token_id)) {
+      const r = await native_usdc_has_upgrated(token_id);
+      if (r) {
+        transactions.unshift({
+          receiverId: token_id,
+          functionCalls: [
+            {
+              methodName: 'storage_deposit',
+              args: {
+                registration_only: true,
+                account_id: getCurrentWallet()?.wallet?.getAccountId(),
+              },
+              gas: expandToken(100, 12),
+              amount: '0.1',
+            },
+          ],
+        });
+      } else {
+        transactions.unshift({
+          receiverId: token_id,
+          functionCalls: [
+            {
+              methodName: 'register_account',
+              args: {
+                account_id: getCurrentWallet()?.wallet?.getAccountId(),
+              },
+              gas: '10000000000000',
+            },
+          ],
+        });
+      }
+    } else {
+      transactions.unshift({
+        receiverId: token_id,
+        functionCalls: [
+          {
+            methodName: 'storage_deposit',
+            args: {
+              registration_only: true,
+              account_id: getCurrentWallet()?.wallet?.getAccountId(),
+            },
+            gas: expandToken(100, 12),
+            amount: '0.1',
           },
-          gas: expandToken(100, 12),
-          amount: '0.1',
-        },
-      ],
-    });
+        ],
+      });
+    }
   }
   return executeBurrowMultipleTransactions(transactions);
 }
@@ -855,20 +889,53 @@ export async function submitBorrow({
     !(storageToken && storageToken.total != '0') &&
     !NO_STORAGE_DEPOSIT_CONTRACTS.includes(token_id)
   ) {
-    transactions.unshift({
-      receiverId: token_id,
-      functionCalls: [
-        {
-          methodName: 'storage_deposit',
-          args: {
-            registration_only: true,
-            account_id: getCurrentWallet()?.wallet?.getAccountId(),
+    if (NO_REQUIRED_REGISTRATION_TOKEN_IDS.includes(token_id)) {
+      const r = await native_usdc_has_upgrated(token_id);
+      if (r) {
+        transactions.unshift({
+          receiverId: token_id,
+          functionCalls: [
+            {
+              methodName: 'storage_deposit',
+              args: {
+                registration_only: true,
+                account_id: getCurrentWallet()?.wallet?.getAccountId(),
+              },
+              gas: expandToken(100, 12),
+              amount: '0.1',
+            },
+          ],
+        });
+      } else {
+        transactions.unshift({
+          receiverId: token_id,
+          functionCalls: [
+            {
+              methodName: 'register_account',
+              args: {
+                account_id: getCurrentWallet()?.wallet?.getAccountId(),
+              },
+              gas: '10000000000000',
+            },
+          ],
+        });
+      }
+    } else {
+      transactions.unshift({
+        receiverId: token_id,
+        functionCalls: [
+          {
+            methodName: 'storage_deposit',
+            args: {
+              registration_only: true,
+              account_id: getCurrentWallet()?.wallet?.getAccountId(),
+            },
+            gas: expandToken(100, 12),
+            amount: '0.1',
           },
-          gas: expandToken(100, 12),
-          amount: '0.1',
-        },
-      ],
-    });
+        ],
+      });
+    }
   }
 
   if (storageBurrow?.available === '0' || !storageBurrow?.available) {

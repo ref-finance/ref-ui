@@ -14,9 +14,9 @@ import { useHistory } from 'react-router-dom';
 import { OrderIcon } from '../icon/V3';
 import { EstimateSwapView } from '../../services/swap';
 import { get_pool_name, openUrl } from '../../services/commonV3';
-import { PoolInfo } from '~services/swapV3';
+import { PoolInfo } from 'src/services/swapV3';
 import { OutLinkIcon } from '../../components/icon/Common';
-import { REF_FI_POOL_ACTIVE_TAB } from '../../pages/pools/LiquidityPage';
+import { REF_FI_POOL_ACTIVE_TAB } from '../../pages/pools/utils';
 
 interface SwapFormWrapProps {
   title?: string;
@@ -224,7 +224,6 @@ export default function SwapFormWrap({
           ) : (
             <InsufficientButton divClassName="h-12 mt-2 w-full"></InsufficientButton>
           )}
-          {viewPool}
         </div>
       )}
     </form>

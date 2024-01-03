@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import QuestionMark from '~components/farm/QuestionMark';
-import ReactTooltip from 'react-tooltip';
 import {
   RiskLogo,
   ExternalLinkIcon,
   ShapeTitleIcon,
-} from '~components/icon/Risk';
+} from 'src/components/icon/Risk';
 import { openUrl } from '../services/commonV3';
 
 export default function RiskPage() {

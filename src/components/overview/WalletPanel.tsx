@@ -9,7 +9,7 @@ import React, {
 import BigNumber from 'bignumber.js';
 import { useUserRegisteredTokensAllAndNearBalance } from '../../state/token';
 import { TokenMetadata } from '../../services/ft-contract';
-import { toReadableNumber } from '~utils/numbers';
+import { toReadableNumber } from 'src/utils/numbers';
 import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import ReactECharts from 'echarts-for-react';
 import Big from 'big.js';
@@ -17,9 +17,9 @@ import {
   auroraAddr,
   useAuroraBalancesNearMapping,
   useDCLAccountBalance,
-} from '~services/aurora/aurora';
-import { useTokenBalances } from '~state/token';
-import { NEARXIDS } from '~services/near';
+} from 'src/services/aurora/aurora';
+import { useTokenBalances } from 'src/state/token';
+import { NEARXIDS } from 'src/services/near';
 import {
   display_percentage_2,
   display_value,
@@ -38,7 +38,10 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { OverviewData } from '../../pages/Overview';
 import { TriangleIcon, EmptyCircle, EmptyLeftBg, EmptyRightBg } from './Icons';
-import { ConnectToNearBtn } from '~components/button/Button';
+import { ConnectToNearBtn } from 'src/components/button/Button';
+import { WalletTokenList } from './WalletTokenList';
+import { RefAndDCLWithdrawButton } from 'src/components/overview/ActionButtons';
+
 const WalletData = createContext(null);
 export default function WalletPanel() {
   const {
@@ -48,6 +51,7 @@ export default function WalletPanel() {
     is_mobile,
     set_wallet_assets_value_done,
     set_wallet_assets_value,
+    setUserTokens,
   } = useContext(OverviewData);
   const [pieOption, setPieOption] = useState(null);
   const [activeTab, setActiveTab] = useState('near'); // near,ref,dcl,aurora
@@ -275,6 +279,11 @@ export default function WalletPanel() {
       setPieOption(pieOption);
     }
   }, [activeTab, tokenRef, ref_tokens, near_tokens, dcl_tokens, aurora_tokens]);
+  useEffect(() => {
+    if (userTokens) {
+      setUserTokens(userTokens);
+    }
+  }, [userTokens]);
   useMemo(() => {
     // for fixing mobile issue (may be have a better way)
     if (pieOption) {
@@ -578,7 +587,7 @@ function WalletPanelPc() {
         </div>
         {/* tokens */}
         <div className="flex-grow p-4">
-          <div className="grid grid-cols-6 pb-4 px-3 mr-1.5">
+          <div className="grid grid-cols-7 pb-4 px-3 mr-1.5">
             <span className="col-span-3 text-sm text-primaryText">
               <FormattedMessage id="token" />
             </span>
@@ -591,6 +600,7 @@ function WalletPanelPc() {
             <span className="col-span-1 text-sm text-primaryText">
               <FormattedMessage id="value" />
             </span>
+            <span className="col-span-1 text-sm text-primaryText"></span>
           </div>
           {accountId ? (
             <div
@@ -602,93 +612,38 @@ function WalletPanelPc() {
               <div className={`${activeTab == 'near' ? '' : 'hidden'}`}>
                 {near_tokens.map((token: TokenMetadata) => {
                   return (
-                    <div
+                    <WalletTokenList
                       key={token.id + 'near'}
-                      className="grid grid-cols-6 px-3 hover:bg-symbolHover rounded-md py-3 col-span-3 text-sm"
-                    >
-                      <div className="flex items-center col-span-3">
-                        <img
-                          className="w-4 h-4 border border-gradientFrom rounded-full mr-2.5"
-                          src={token.icon}
-                        />
-                        <span className="text-sm text-primaryText">
-                          {token.symbol}
-                        </span>
-                      </div>
-                      <div className="col-span-1 text-white">
-                        {display_number_internationalCurrencySystemLongString(
-                          Big(token.near || 0).toFixed()
-                        )}
-                      </div>
-                      <div className="col-span-1 text-white">
-                        {showTokenPrice(token)}
-                      </div>
-                      <span className="text-sm text-white col-span-1">
-                        {display_value(token.t_value)}
-                      </span>
-                    </div>
+                      token={token}
+                      tokenBalance={token?.near}
+                      showTokenPrice={showTokenPrice}
+                    />
                   );
                 })}
               </div>
               <div className={`${activeTab == 'ref' ? '' : 'hidden'}`}>
                 {ref_tokens.map((token: TokenMetadata) => {
                   return (
-                    <div
+                    <WalletTokenList
                       key={token.id + 'ref'}
-                      className="grid grid-cols-6 px-3 hover:bg-symbolHover rounded-md  py-3 text-sm"
-                    >
-                      <div className="flex items-center col-span-3">
-                        <img
-                          className="w-4 h-4 border border-gradientFrom rounded-full mr-2.5"
-                          src={token.icon}
-                        />
-                        <span className="text-sm text-primaryText">
-                          {token.symbol}
-                        </span>
-                      </div>
-                      <div className="col-span-1 text-white">
-                        {display_number_internationalCurrencySystemLongString(
-                          Big(token.ref || 0).toFixed()
-                        )}
-                      </div>
-                      <div className="col-span-1 text-white">
-                        {showTokenPrice(token)}
-                      </div>
-                      <span className="text-sm text-white">
-                        {display_value(token.t_value)}
-                      </span>
-                    </div>
+                      token={token}
+                      tokenBalance={token?.ref}
+                      showWithdraw={true}
+                      showTokenPrice={showTokenPrice}
+                    />
                   );
                 })}
               </div>
               <div className={`${activeTab == 'dcl' ? '' : 'hidden'}`}>
                 {dcl_tokens.map((token: TokenMetadata) => {
                   return (
-                    <div
+                    <WalletTokenList
                       key={token.id + 'dcl'}
-                      className="grid grid-cols-6 px-3 hover:bg-symbolHover rounded-md py-3 text-sm"
-                    >
-                      <div className="flex items-center col-span-3">
-                        <img
-                          className="w-4 h-4 border border-gradientFrom rounded-full mr-2.5"
-                          src={token.icon}
-                        />
-                        <span className="text-sm text-primaryText">
-                          {token.symbol}
-                        </span>
-                      </div>
-                      <div className="col-span-1 text-white">
-                        {display_number_internationalCurrencySystemLongString(
-                          Big(token.dcl || 0).toFixed()
-                        )}
-                      </div>
-                      <div className="col-span-1 text-white">
-                        {showTokenPrice(token)}
-                      </div>
-                      <span className="text-sm text-white">
-                        {display_value(token.t_value)}
-                      </span>
-                    </div>
+                      token={token}
+                      tokenBalance={token?.dcl}
+                      showWithdraw={true}
+                      showTokenPrice={showTokenPrice}
+                    />
                   );
                 })}
               </div>
@@ -697,7 +652,7 @@ function WalletPanelPc() {
                   return (
                     <div
                       key={token.id + 'aurora'}
-                      className="grid grid-cols-6 px-3 hover:bg-symbolHover rounded-md py-3 text-sm"
+                      className="grid grid-cols-7 px-3 hover:bg-symbolHover rounded-md py-3 text-sm items-center"
                     >
                       <div className="flex items-center col-span-3">
                         <img
@@ -719,6 +674,9 @@ function WalletPanelPc() {
                       <span className="text-sm text-white">
                         {display_value(token.t_value)}
                       </span>
+                      <div className="col-span-1 cursor-pointer relative z-10">
+                        <RefAndDCLWithdrawButton token={token} isAurora />
+                      </div>
                     </div>
                   );
                 })}
@@ -931,12 +889,13 @@ function WalletPanelMobile() {
               <span className="col-span-2 text-sm text-primaryText">
                 <FormattedMessage id="token" />
               </span>
-              <span className="col-span-1 text-sm text-primaryText">
-                <FormattedMessage id="balance" />
-              </span>
-              <span className="col-span-1 text-sm text-primaryText">
+              <span className="col-span-2 text-sm text-primaryText">
+                <FormattedMessage id="balance" /> &{' '}
                 <FormattedMessage id="value" />
               </span>
+              {/*<span className="col-span-1 text-sm text-primaryText">*/}
+              {/*  <FormattedMessage id="value" />*/}
+              {/*</span>*/}
             </div>
             <div
               className="overflow-auto"
@@ -969,10 +928,10 @@ function WalletPanelMobile() {
                         {display_number_internationalCurrencySystemLongString(
                           Big(token.near || 0).toFixed()
                         )}
+                        <div className="text-sm text-primaryText">
+                          {display_value(token.t_value)}
+                        </div>
                       </div>
-                      <span className="text-sm text-white col-span-1">
-                        {display_value(token.t_value)}
-                      </span>
                     </div>
                   );
                 })}
@@ -1002,10 +961,15 @@ function WalletPanelMobile() {
                         {display_number_internationalCurrencySystemLongString(
                           Big(token.ref || 0).toFixed()
                         )}
+
+                        <div className="text-sm text-primaryText">
+                          {display_value(token.t_value)}
+                        </div>
                       </div>
-                      <span className="text-sm text-white">
-                        {display_value(token.t_value)}
-                      </span>
+
+                      <div>
+                        <RefAndDCLWithdrawButton token={token} />
+                      </div>
                     </div>
                   );
                 })}
@@ -1035,10 +999,14 @@ function WalletPanelMobile() {
                         {display_number_internationalCurrencySystemLongString(
                           Big(token.dcl || 0).toFixed()
                         )}
+
+                        <div className="text-sm text-primaryText">
+                          {display_value(token.t_value)}
+                        </div>
                       </div>
-                      <span className="text-sm text-white">
-                        {display_value(token.t_value)}
-                      </span>
+                      <div>
+                        <RefAndDCLWithdrawButton token={token} />
+                      </div>
                     </div>
                   );
                 })}
@@ -1068,10 +1036,16 @@ function WalletPanelMobile() {
                         {display_number_internationalCurrencySystemLongString(
                           Big(token.aurora || 0).toFixed()
                         )}
+                        <div className="text-sm text-primaryText">
+                          {display_value(token.t_value)}
+                        </div>
                       </div>
-                      <span className="text-sm text-white">
-                        {display_value(token.t_value)}
-                      </span>
+                      <div>
+                        <RefAndDCLWithdrawButton
+                          token={token}
+                          isAurora={true}
+                        />
+                      </div>
                     </div>
                   );
                 })}

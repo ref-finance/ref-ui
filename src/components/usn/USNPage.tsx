@@ -1,17 +1,14 @@
 import React, { useEffect, useState, useContext } from 'react';
 import Loading from '../layout/Loading';
 import getConfig from '../../services/config';
-import { useTokens } from '~state/token';
+import { useTokens } from 'src/state/token';
 import Modal from 'react-modal';
-import { IoClose } from 'react-icons/io5';
 import { isMobile } from '../../utils/device';
 import { SolidButton, ConnectToNearBtn } from '../button/Button';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { HiOutlineExternalLink } from 'react-icons/hi';
-import QuestionMark from '~components/farm/QuestionMark';
-import ReactTooltip from 'react-tooltip';
-import { Burrow } from '~components/icon';
-import Alert from '../alert/Alert';
+import { HiOutlineExternalLink, IoClose } from '../reactIcons';
+import QuestionMark from 'src/components/farm/QuestionMark';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { TokenAmountV2 } from '../forms/TokenAmount';
 import { SwapExchange } from '../icon/Arrows';
 import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';
@@ -28,8 +25,13 @@ import {
 } from '../../services/buy-sell-usn';
 import { getTokenPriceList } from '../../services/indexer';
 import BigNumber from 'bignumber.js';
-import { GradientButton, ButtonTextWrapper } from '~components/button/Button';
+import {
+  GradientButton,
+  ButtonTextWrapper,
+} from 'src/components/button/Button';
 import { openUrl } from '../../services/commonV3';
+import Burrow from '../icon/logos/Burrow';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 function USNPage(props: ReactModal.Props) {
   const intl = useIntl();
@@ -131,19 +133,11 @@ function USNPage(props: ReactModal.Props) {
                   data-place="right"
                   data-multiline={true}
                   data-class="reactTip"
-                  data-html={true}
-                  data-tip={buy_nsn_tip()}
-                  data-for="buyUSNTip"
+                  data-tooltip-html={buy_nsn_tip()}
+                  data-tooltip-id="buyUSNTip"
                 >
                   <QuestionMark />
-                  <ReactTooltip
-                    className="w-20"
-                    id="buyUSNTip"
-                    backgroundColor="#1D2932"
-                    border
-                    borderColor="#7e8a93"
-                    effect="solid"
-                  />
+                  <CustomTooltip className="w-20" id="buyUSNTip" />
                 </div>
               </div>
               <IoClose

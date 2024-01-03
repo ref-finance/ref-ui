@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Slider } from '../icon/Info';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { isMobile } from '../../utils/device';
-import { IoCloseOutline, IoWarning } from 'react-icons/io5';
+import { IoWarning } from '../reactIcons';
 import { QuestionTip } from '../../components/layout/TipWrapper';
 import { SUPPORT_LEDGER_KEY } from '../swap/SwapCard';
 import { SWAP_MODE, SWAP_TYPE, SwapProContext } from '../../pages/SwapPage';
@@ -473,9 +473,11 @@ export function PoolSlippageSelector({
 export function PoolSlippageSelectorV3({
   slippageTolerance,
   onChange,
+  textColor,
 }: {
   slippageTolerance: number;
   onChange: (slippage: number) => void;
+  textColor?: string;
 }) {
   const validSlippages = [0.1, 0.5, 1.0];
   const intl = useIntl();
@@ -485,7 +487,9 @@ export function PoolSlippageSelectorV3({
     <>
       <fieldset className="flex lg:items-center flex-wrap justify-between mb-4 pt-2">
         <div className="flex items-center md:mb-4 xs:mb-4">
-          <label className="text-sm text-center text-primaryText">
+          <label
+            className={`text-sm text-center ${textColor || 'text-primaryText'}`}
+          >
             <FormattedMessage
               id="slippage"
               defaultMessage="Slippage tolerance"

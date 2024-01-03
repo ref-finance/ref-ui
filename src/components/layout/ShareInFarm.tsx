@@ -13,9 +13,9 @@ import {
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FarmDot } from '../../components/icon';
 import BigNumber from 'bignumber.js';
-import { HiOutlineExternalLink } from 'react-icons/hi';
+import { HiOutlineExternalLink } from '../reactIcons';
 import { Link } from 'react-router-dom';
-import { isMobile } from '~utils/device';
+import { isMobile } from 'src/utils/device';
 
 export const ShareInFarm = ({
   farmStake,

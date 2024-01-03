@@ -7,9 +7,9 @@ import React, {
 } from 'react';
 import BigNumber from 'bignumber.js';
 import { UserLiquidityInfo, openUrl } from '../../services/commonV3';
-import { toReadableNumber } from '~utils/numbers';
+import { toReadableNumber } from 'src/utils/numbers';
 import QuestionMark from '../../components/farm/QuestionMark';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { PortfolioData } from '../../pages/Portfolio';
 import { REF_POOL_NAV_TAB_KEY } from '../../components/pool/PoolTabV3';
 import { ArrowJump, display_value, getAccountId } from './Tool';
@@ -19,6 +19,7 @@ import {
 } from '../../utils/wallets-integration';
 import { isMobile } from '../../utils/device';
 import { FormattedMessage, useIntl } from 'react-intl';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 const is_mobile = isMobile();
 const AssetProfitData = createContext(null);
 export default function AssetProfit() {
@@ -180,19 +181,12 @@ function AssetProfitPc() {
           <div
             className="text-white text-right ml-1"
             data-class="reactTip"
-            data-for="selectAllId"
+            data-tooltip-id="selectAllId"
             data-place="top"
-            data-html={true}
-            data-tip={getTip()}
+            data-tooltip-html={getTip()}
           >
             <QuestionMark></QuestionMark>
-            <ReactTooltip
-              id="selectAllId"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            <CustomTooltip id="selectAllId" />
           </div>
         </div>
         <span className="text-2xl gotham_bold text-white mt-1">
@@ -249,19 +243,12 @@ function AssetProfitMobile() {
           <div
             className="text-white text-right ml-1"
             data-class="reactTip"
-            data-for="selectAllId"
+            data-tooltip-id="selectAllId"
             data-place="top"
-            data-html={true}
-            data-tip={getTip()}
+            data-tooltip-html={getTip()}
           >
             <QuestionMark></QuestionMark>
-            <ReactTooltip
-              id="selectAllId"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            <CustomTooltip id="selectAllId" />
           </div>
         </div>
         <span className="text-2xl gotham_bold text-white">

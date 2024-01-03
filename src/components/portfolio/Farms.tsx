@@ -31,12 +31,11 @@ import { ftGetTokenMetadata } from '../../services/ft-contract';
 import { BigNumber } from 'bignumber.js';
 
 import { TokenMetadata } from '../../services/ft-contract';
-import { useTokens } from '~state/token';
-import { toRealSymbol } from '~utils/token';
+import { useTokens } from 'src/state/token';
+import { toRealSymbol } from 'src/utils/token';
 import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import { LinkIcon, FarmMiningIcon } from '../../components/icon/Portfolio';
 import QuestionMark from '../../components/farm/QuestionMark';
-import ReactTooltip from 'react-tooltip';
 import { list_liquidities } from '../../services/swapV3';
 import {
   getPriceByPoint,
@@ -52,8 +51,8 @@ import {
   get_all_seeds,
   get_pool_name,
   openUrl,
-} from '~services/commonV3';
-import { NFTIdIcon } from '~components/icon/FarmBoost';
+} from 'src/services/commonV3';
+import { NFTIdIcon } from 'src/components/icon/FarmBoost';
 import { PortfolioData } from '../../pages/Portfolio';
 import { BlueCircleLoading } from '../../components/layout/Loading';
 const { REF_VE_CONTRACT_ID, REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
@@ -65,7 +64,9 @@ import {
   useTotalFarmData,
   getAccountId,
 } from './Tool';
-import { isMobile } from '~utils/device';
+import { isMobile } from 'src/utils/device';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
+
 const is_mobile = isMobile();
 const FarmCommonDatas = createContext(null);
 export default function Farms(props: any) {
@@ -708,7 +709,8 @@ function DclFarmRowMobile() {
           switch_off ? 'hidden' : ''
         }`}
       >
-        <div className="border-b border-limitOrderFeeTiersBorderColor pb-5 px-2.5">
+        {/* border-b border-limitOrderFeeTiersBorderColor  */}
+        <div className="pb-5 px-2.5">
           <div className="flex items-center justify-between">
             <span className="text-sm text-primaryText">
               <FormattedMessage id="farm_reward_range" />
@@ -762,23 +764,6 @@ function DclFarmRowMobile() {
               )}
             </div>
           </div>
-        </div>
-        <div className="mt-5 px-2.5">
-          {listLiquidities_inFarimg.length > 0 ? (
-            <>
-              {listLiquidities_inFarimg.map((liquidity: UserLiquidityInfo) => {
-                return (
-                  <LiquidityLine
-                    liquidity={liquidity}
-                    seed={seed}
-                    key={liquidity.lpt_id}
-                    tokens={tokens}
-                    rate_need_to_reverse_display={rate_need_to_reverse_display}
-                  ></LiquidityLine>
-                );
-              })}
-            </>
-          ) : null}
         </div>
       </div>
     </div>
@@ -845,7 +830,8 @@ function DclFarmRowPc() {
         </div>
       </div>
       <div className={`${switch_off ? 'hidden' : ''}`}>
-        <div className="border-b border-gray1 pb-5">
+        {/* border-b border-gray1  */}
+        <div className="pb-5">
           <div className="flex items-center justify-between">
             <span className="text-sm text-primaryText">
               <FormattedMessage id="farm_reward_range" />
@@ -896,26 +882,6 @@ function DclFarmRowPc() {
               </span>
             </div>
           </div>
-        </div>
-        <div className="mt-5">
-          <p className="text-sm text-primaryText mb-5">
-            <FormattedMessage id="your_positions" />
-          </p>
-          {listLiquidities_inFarimg.length > 0 ? (
-            <>
-              {listLiquidities_inFarimg.map((liquidity: UserLiquidityInfo) => {
-                return (
-                  <LiquidityLine
-                    liquidity={liquidity}
-                    seed={seed}
-                    key={liquidity.lpt_id}
-                    tokens={tokens}
-                    rate_need_to_reverse_display={rate_need_to_reverse_display}
-                  ></LiquidityLine>
-                );
-              })}
-            </>
-          ) : null}
         </div>
       </div>
     </div>
@@ -1008,22 +974,15 @@ function LiquidityLine(props: {
         <div
           className="text-white text-right"
           data-class="reactTip"
-          data-for={'rewardPerWeekQId'}
+          data-tooltip-id={'rewardPerWeekQId'}
           data-place="top"
-          data-html={true}
-          data-tip={rangeTip()}
+          data-tooltip-html={rangeTip()}
         >
           <span className="flex items-center text-xs text-primaryText">
             {icon}
             <label className="ml-1 xsm:hidden">{displayP(p)}</label>
           </span>
-          <ReactTooltip
-            id={'rewardPerWeekQId'}
-            backgroundColor="#1D2932"
-            border
-            borderColor="#7e8a93"
-            effect="solid"
-          />
+          <CustomTooltip id={'rewardPerWeekQId'} />
         </div>
       </div>
     );
@@ -1566,19 +1525,12 @@ function ClassicFarmRowMobile() {
             <div
               className="text-white text-right ml-1"
               data-class="reactTip"
-              data-for="powerTipId"
+              data-tooltip-id="powerTipId"
               data-place="top"
-              data-html={true}
-              data-tip={getPowerTip()}
+              data-tooltip-html={getPowerTip()}
             >
               <QuestionMark></QuestionMark>
-              <ReactTooltip
-                id="powerTipId"
-                backgroundColor="#1D2932"
-                border
-                borderColor="#7e8a93"
-                effect="solid"
-              />
+              <CustomTooltip id="powerTipId" />
             </div>
           </div>
           <div className="flex flex-col items-end">
@@ -1715,19 +1667,12 @@ function ClassicFarmRowPc() {
               <div
                 className="text-white text-right ml-1"
                 data-class="reactTip"
-                data-for="powerTipId"
+                data-tooltip-id="powerTipId"
                 data-place="top"
-                data-html={true}
-                data-tip={getPowerTip()}
+                data-tooltip-html={getPowerTip()}
               >
                 <QuestionMark></QuestionMark>
-                <ReactTooltip
-                  id="powerTipId"
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                />
+                <CustomTooltip id="powerTipId" />
               </div>
             </div>
             <div className="flex flex-col items-end">

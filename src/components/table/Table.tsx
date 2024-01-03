@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { TiArrowSortedUp } from 'react-icons/ti';
+import { TiArrowSortedUp } from '../reactIcons';
 import { TokenMetadata } from '../../services/ft-contract';
-import { TokenBalancesView } from '~services/token';
+import { TokenBalancesView } from 'src/services/token';
 import { toReadableNumber } from '../../utils/numbers';
 import Token from '../../components/tokens/Token';
 import { FormattedMessage } from 'react-intl';

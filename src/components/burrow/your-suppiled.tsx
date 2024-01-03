@@ -5,8 +5,8 @@ import {
   IAccount,
   IAsset,
   IAssetRewardDetail,
-} from '~services/burrow-interfaces';
-import { getPortfolioRewards } from '~services/burrow-business';
+} from 'src/services/burrow-interfaces';
+import { getPortfolioRewards } from 'src/services/burrow-business';
 import Big from 'big.js';
 import {
   shrinkToken,
@@ -14,13 +14,13 @@ import {
   formatNumber,
   formatWithCommas_usd,
   toUsd,
-} from '~services/burrow-utils';
-import { IModalProps } from '~services/burrow-interfaces';
+} from 'src/services/burrow-utils';
+import { IModalProps } from 'src/services/burrow-interfaces';
 import ModalBox from './ModalBox';
 import './burrow.css';
-import { ConnectToNearBtn } from '~components/button/Button';
+import { ConnectToNearBtn } from 'src/components/button/Button';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
-import { isMobile } from '~utils/device';
+import { isMobile } from 'src/utils/device';
 import { FormattedMessage, useIntl } from 'react-intl';
 const is_mobile = isMobile();
 export default function YourSupplied() {

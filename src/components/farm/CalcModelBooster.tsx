@@ -46,7 +46,6 @@ import {
 import { getLoveAmount } from '../../services/referendum';
 import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import { VEARROW } from '../icon/Referendum';
-import ReactTooltip from 'react-tooltip';
 import { openUrl } from '../../services/commonV3';
 
 const config = getConfig();
@@ -208,13 +207,12 @@ export default function CalcModelBooster(
           <div className="mt-7 xs:mt-4 md:mt-4">
             <div className="flex  items-center xs:items-end md:items-end justify-between text-sm text-farmText">
               <div className="flex items-center xs:flex-col md:flex-col xs:items-start md:items-start">
-                <span>{symbols}</span>
-                <span>
-                  <FormattedMessage id="lp_staked"></FormattedMessage>
+                <span className="flex items-center gap-2 w-48">
+                  {symbols} <FormattedMessage id="lp_staked"></FormattedMessage>{' '}
                 </span>
               </div>
               <span
-                className="flex items-center text-greenColor cursor-pointer hover:text-senderHot"
+                className="flex items-center text-greenColor cursor-pointer hover:text-senderHot whitespace-nowrap"
                 onClick={goPool}
               >
                 <FormattedMessage id="get_lp_token"></FormattedMessage>

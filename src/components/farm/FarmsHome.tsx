@@ -38,7 +38,6 @@ import {
   SortIcon,
 } from '../../components/icon';
 import QuestionMark from '../../components/farm/QuestionMark';
-import ReactTooltip from 'react-tooltip';
 import CalcModelBooster from '../../components/farm/CalcModelBooster';
 import CalcModelDcl from '../../components/farm/CalcModelDcl';
 import {
@@ -84,7 +83,7 @@ import { useHistory, useLocation } from 'react-router-dom';
 import Alert from '../../components/alert/Alert';
 import Loading, { BeatLoading } from '../../components/layout/Loading';
 import { TokenMetadata, REF_META_DATA } from '../../services/ft-contract';
-import { get24hVolume, getPoolsByIds } from '../../services/indexer';
+import { get24hVolumes, getPoolsByIds } from '../../services/indexer';
 import Modal from 'react-modal';
 import { ModalClose } from '../../components/icon';
 import { LockPopUp, getVEPoolId } from '../../pages/ReferendumPage';
@@ -96,7 +95,7 @@ import Countdown, { zeroPad } from 'react-countdown';
 import { MoreButtonIcon } from '../../components/icon/Common';
 
 import _ from 'lodash';
-import { PoolInfo } from '~services/swapV3';
+import { PoolInfo } from 'src/services/swapV3';
 import {
   getPriceByPoint,
   get_total_value_by_liquidity_amount_dcl,
@@ -109,6 +108,7 @@ import {
   get_pool_name,
   openUrl,
 } from '../../services/commonV3';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 const {
   REF_VE_CONTRACT_ID,
@@ -557,11 +557,8 @@ export default function FarmsHome(props: any) {
       }
     });
     // get24hVolume
-    const promisePoolIds = poolIds.map((poolId: string) => {
-      return get24hVolume(poolId);
-    });
     try {
-      const resolvedResult = await Promise.all(promisePoolIds);
+      const resolvedResult = await get24hVolumes(poolIds);
       poolIds.forEach((poolId: string, index: number) => {
         tempMap[poolId] = resolvedResult[index];
       });
@@ -655,7 +652,7 @@ export default function FarmsHome(props: any) {
           const pool_id = get_pool_id(layer2[0]);
           const point_str = layer2[1].substring(0, layer2[1].length - 3);
           const status = layer2[1].substring(layer2[1].length - 1);
-          const p_arr = point_str.split('-');
+          const p_arr = split_point_string(point_str);
           const [lp, rp] = p_arr;
           return `${pool_id}&${lp}&${rp}-${status}`;
         } else {
@@ -668,6 +665,17 @@ export default function FarmsHome(props: any) {
     }
 
     return '';
+  }
+  function split_point_string(str: string) {
+    const arr = Array.from(str);
+    let index;
+    for (let i = 0; i < arr.length; i++) {
+      if (str[i] == '-' && i !== 0) {
+        index = i;
+        break;
+      }
+    }
+    return [str.slice(0, index), str.slice(index + 1)];
   }
   async function get_user_unWithDraw_rewards() {
     if (isSignedIn) {
@@ -991,8 +999,8 @@ export default function FarmsHome(props: any) {
     const sort_v = s || sort;
     if (sort_v == 'apr') {
       farm_display_List.sort((item1: Seed, item2: Seed) => {
-        const item1PoolId = item1.pool.id;
-        const item2PoolId = item2.pool.id;
+        const item1PoolId = item1.pool.id || item1.pool.pool_id;
+        const item2PoolId = item2.pool.id || item2.pool.pool_id;
         const item1Front = frontConfigBoost[item1PoolId];
         const item2Front = frontConfigBoost[item2PoolId];
         if (item1Front || item2Front) {
@@ -1003,8 +1011,8 @@ export default function FarmsHome(props: any) {
         return Number(item2Apr) - Number(item1Apr);
       });
       farm_display_ended_List.sort((item1: Seed, item2: Seed) => {
-        const item1PoolId = item1.pool.id;
-        const item2PoolId = item2.pool.id;
+        const item1PoolId = item1.pool.id || item1.pool.pool_id;
+        const item2PoolId = item2.pool.id || item2.pool.pool_id;
         const item1Front = frontConfigBoost[item1PoolId];
         const item2Front = frontConfigBoost[item2PoolId];
         if (item1Front || item2Front) {
@@ -2804,22 +2812,15 @@ function FarmView(props: {
           <div
             className="text-white text-right"
             data-class="reactTip"
-            data-for="boostFarmTipId"
+            data-tooltip-id="boostFarmTipId"
             data-place="top"
-            data-html={true}
-            data-tip={result}
+            data-tooltip-html={result}
           >
             <div className="flex items-center justify-center">
               <BoostOptIcon></BoostOptIcon>
               <FormattedMessage id="boost"></FormattedMessage>
             </div>
-            <ReactTooltip
-              id="boostFarmTipId"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            <CustomTooltip id="boostFarmTipId" />
           </div>
         </div>
       );
@@ -2999,7 +3000,7 @@ function FarmView(props: {
 
     return (
       <div className="flex items-center">
-        <span className="text-sm text-white gotham_bold">
+        <span className="text-base text-white">
           {display_left_price} ~ {display_right_price}
         </span>
         <span className="text-sm text-farmText ml-2">
@@ -3069,10 +3070,9 @@ function FarmView(props: {
             <div
               className={`text-white text-right my-4`}
               data-class="reactTip"
-              data-for={'rewardPerWeekId' + seed?.farmList[0]?.farm_id}
+              data-tooltip-id={'rewardPerWeekId' + seed?.farmList[0]?.farm_id}
               data-place="top"
-              data-html={true}
-              data-tip={getRewardsPerWeekTip()}
+              data-tooltip-html={getRewardsPerWeekTip()}
             >
               <div className="flex items-center bg-black bg-opacity-20 rounded-full p-0.5">
                 <span className="flex hover:bg-black hover:bg-opacity-20 rounded-full">
@@ -3094,14 +3094,8 @@ function FarmView(props: {
                   {totalTvlPerWeekDisplay()}/<FormattedMessage id="week" />
                 </span>
               </div>
-              <ReactTooltip
-                id={'rewardPerWeekId' + seed?.farmList[0]?.farm_id}
-                backgroundColor="#1D2932"
-                border
-                borderColor="#7e8a93"
-                effect="solid"
-              />
             </div>
+
             <div className="flex items-center justify-between">
               {error ? <Alert level="warn" message={error.message} /> : null}
             </div>
@@ -3131,16 +3125,12 @@ function FarmView(props: {
                   data-multiline={true}
                   data-tip={getForbiddenTip()}
                   data-html={true}
-                  data-for={'forbiddenTip' + seed.farmList[0].farm_id}
+                  data-tooltip-id={'forbiddenTip' + seed.farmList[0].farm_id}
                   data-class="reactTip"
                 >
                   <ForbiddonIcon></ForbiddonIcon>
-                  <ReactTooltip
+                  <CustomTooltip
                     id={'forbiddenTip' + seed.farmList[0].farm_id}
-                    backgroundColor="#1D2932"
-                    border
-                    borderColor="#7e8a93"
-                    effect="solid"
                   />
                 </div>
               </div>
@@ -3165,7 +3155,7 @@ function FarmView(props: {
                     data-multiline={true}
                     data-tip={getAprTip()}
                     data-html={true}
-                    data-for={'aprId_dcl' + seed.farmList[0].farm_id}
+                    data-tooltip-id={'aprId_dcl' + seed.farmList[0].farm_id}
                     data-class="reactTip"
                   >
                     <div
@@ -3177,12 +3167,8 @@ function FarmView(props: {
                     >
                       {getTotalApr()}
                     </div>
-                    <ReactTooltip
+                    <CustomTooltip
                       id={'aprId_dcl' + seed.farmList[0].farm_id}
-                      backgroundColor="#1D2932"
-                      border
-                      borderColor="#7e8a93"
-                      effect="solid"
                     />
                   </div>
                   <CalcIcon
@@ -3207,11 +3193,11 @@ function FarmView(props: {
                       data-multiline={true}
                       data-tip={getUnClaimTip()}
                       data-html={true}
-                      data-for={'unclaimedId' + seed.farmList[0].farm_id}
+                      data-tooltip-id={'unclaimedId' + seed.farmList[0].farm_id}
                       data-class="reactTip"
                     >
                       <div
-                        className="flex items-center justify-center bg-deepBlue hover:bg-deepBlueHover rounded-lg text-sm text-white h-7 cursor-pointer gotham_bold"
+                        className="flex items-center justify-center bg-deepBlue hover:bg-deepBlueHover rounded-lg text-sm text-white h-7 cursor-pointer"
                         style={{ minWidth: '4.6rem' }}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -3223,12 +3209,8 @@ function FarmView(props: {
                           Text={() => <>{getTotalUnclaimedRewards()}</>}
                         />
                       </div>
-                      <ReactTooltip
+                      <CustomTooltip
                         id={'unclaimedId' + seed.farmList[0].farm_id}
-                        backgroundColor="#1D2932"
-                        border
-                        borderColor="#7e8a93"
-                        effect="solid"
                       />
                     </div>
                   </div>
@@ -3260,7 +3242,7 @@ function FarmView(props: {
                       // data-tip={isMobile() ? '': getRangeAprTip()}
                       data-tip={''}
                       data-html={true}
-                      data-for={'aprRangeId' + seed.farmList[0].farm_id}
+                      data-tooltip-id={'aprRangeId' + seed.farmList[0].farm_id}
                       data-class="reactTip"
                     >
                       <label
@@ -3280,12 +3262,8 @@ function FarmView(props: {
                       >
                         <FormattedMessage id="max_apr" />
                       </label>
-                      <ReactTooltip
+                      <CustomTooltip
                         id={'aprRangeId' + seed.farmList[0].farm_id}
-                        backgroundColor="#1D2932"
-                        border
-                        borderColor="#7e8a93"
-                        effect="solid"
                       />
                     </div>
                   ) : (
@@ -3302,7 +3280,7 @@ function FarmView(props: {
                     data-multiline={true}
                     data-tip={getAprTip()}
                     data-html={true}
-                    data-for={'aprId' + seed.farmList[0].farm_id}
+                    data-tooltip-id={'aprId' + seed.farmList[0].farm_id}
                     data-class="reactTip"
                   >
                     <span
@@ -3323,13 +3301,7 @@ function FarmView(props: {
                         </>
                       )}
                     </span>
-                    <ReactTooltip
-                      id={'aprId' + seed.farmList[0].farm_id}
-                      backgroundColor="#1D2932"
-                      border
-                      borderColor="#7e8a93"
-                      effect="solid"
-                    />
+                    <CustomTooltip id={'aprId' + seed.farmList[0].farm_id} />
                   </div>
                   <CalcIcon
                     onClick={(e: any) => {
@@ -3353,7 +3325,7 @@ function FarmView(props: {
                       data-multiline={true}
                       data-tip={getUnClaimTip()}
                       data-html={true}
-                      data-for={'unclaimedId' + seed.farmList[0].farm_id}
+                      data-tooltip-id={'unclaimedId' + seed.farmList[0].farm_id}
                       data-class="reactTip"
                     >
                       <div
@@ -3369,12 +3341,8 @@ function FarmView(props: {
                           Text={() => <>{getTotalUnclaimedRewards()}</>}
                         />
                       </div>
-                      <ReactTooltip
+                      <CustomTooltip
                         id={'unclaimedId' + seed.farmList[0].farm_id}
-                        backgroundColor="#1D2932"
-                        border
-                        borderColor="#7e8a93"
-                        effect="solid"
                       />
                     </div>
                   </div>
@@ -3385,6 +3353,7 @@ function FarmView(props: {
             </div>
           ) : null}
         </div>
+        <CustomTooltip id={'rewardPerWeekId' + seed?.farmList[0]?.farm_id} />
       </div>
       {calcVisible ? (
         <CalcModelBooster
@@ -3496,12 +3465,14 @@ function WithDrawBox(props: {
       const [key, v] = arr;
       const singlePrice = tokenPriceList[key]?.price;
       const token = rewardTokenList[key];
-      const number: any = toReadableNumber(token.decimals, v);
-      if (singlePrice && singlePrice != 'N/A') {
-        totalUnWithDraw = BigNumber.sum(
-          singlePrice * number,
-          totalUnWithDraw
-        ).toNumber();
+      if (token) {
+        const number: any = toReadableNumber(token.decimals, v);
+        if (singlePrice && singlePrice != 'N/A') {
+          totalUnWithDraw = BigNumber.sum(
+            singlePrice * number,
+            totalUnWithDraw
+          ).toNumber();
+        }
       }
     });
     if (totalUnWithDraw > 0) {
@@ -3751,12 +3722,14 @@ function WithDrawb(props: {
       const [key, v] = arr;
       const singlePrice = tokenPriceList[key]?.price;
       const token = rewardTokenList[key];
-      const number: any = toReadableNumber(token.decimals, v);
-      if (singlePrice && singlePrice != 'N/A') {
-        totalUnWithDraw = BigNumber.sum(
-          singlePrice * number,
-          totalUnWithDraw
-        ).toNumber();
+      if (token) {
+        const number: any = toReadableNumber(token.decimals, v);
+        if (singlePrice && singlePrice != 'N/A') {
+          totalUnWithDraw = BigNumber.sum(
+            singlePrice * number,
+            totalUnWithDraw
+          ).toNumber();
+        }
       }
     });
     if (totalUnWithDraw > 0) {
@@ -3864,19 +3837,12 @@ function WithDrawb(props: {
               <div
                 className="text-white text-right ml-1"
                 data-class="reactTip"
-                data-for="selectAllId"
+                data-tooltip-id="selectAllId"
                 data-place="top"
-                data-html={true}
-                data-tip={valueOfWithDrawLimitTip()}
+                data-tooltip-html={valueOfWithDrawLimitTip()}
               >
                 <QuestionMark></QuestionMark>
-                <ReactTooltip
-                  id="selectAllId"
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                />
+                <CustomTooltip id="selectAllId" />
               </div>
             </div>
           ) : (
@@ -4087,12 +4053,14 @@ function WithDrawModal(props: {
       const [key, v] = arr;
       const singlePrice = tokenPriceList[key]?.price;
       const token = rewardTokenList[key];
-      const number: any = toReadableNumber(token.decimals, v);
-      if (singlePrice && singlePrice != 'N/A') {
-        totalUnWithDraw = BigNumber.sum(
-          singlePrice * number,
-          totalUnWithDraw
-        ).toNumber();
+      if (token) {
+        const number: any = toReadableNumber(token.decimals, v);
+        if (singlePrice && singlePrice != 'N/A') {
+          totalUnWithDraw = BigNumber.sum(
+            singlePrice * number,
+            totalUnWithDraw
+          ).toNumber();
+        }
       }
     });
     if (totalUnWithDraw > 0) {
@@ -4242,19 +4210,13 @@ function WithDrawModal(props: {
                       <div
                         className="text-white text-right ml-1"
                         data-class="reactTip"
-                        data-for="selectAllId"
+                        data-tooltip-id="selectAllId"
                         data-place="top"
                         data-html={true}
                         data-tip={valueOfWithDrawLimitTip()}
                       >
                         <QuestionMark></QuestionMark>
-                        <ReactTooltip
-                          id="selectAllId"
-                          backgroundColor="#1D2932"
-                          border
-                          borderColor="#7e8a93"
-                          effect="solid"
-                        />
+                        <CustomTooltip id="selectAllId" />
                       </div>
                     </div>
                   ) : (
@@ -4350,19 +4312,12 @@ function LoveMask() {
     <div
       className="ml-2"
       data-class="reactTip"
-      data-for="loveTipId"
+      data-tooltip-id="loveTipId"
       data-place="top"
-      data-html={true}
-      data-tip={loveTip()}
+      data-tooltip-html={loveTip()}
     >
       <QuestionMark></QuestionMark>
-      <ReactTooltip
-        id="loveTipId"
-        backgroundColor="#1D2932"
-        border
-        borderColor="#7e8a93"
-        effect="solid"
-      />
+      <CustomTooltip id="loveTipId" />
     </div>
   );
 }

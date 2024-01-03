@@ -4,7 +4,10 @@ const defaultTheme = require('tailwindcss/defaultTheme');
 const plugin = require('tailwindcss/plugin');
 
 module.exports = {
-  purge: false,
+  purge: [
+    './src/**/*.{js,jsx,ts,tsx}',
+    './public/index.html'
+  ],
   darkMode: false, // or 'media' or 'class'
   plugins: [
     plugin(function ({ addUtilities }) {
@@ -46,6 +49,7 @@ module.exports = {
   theme: {
     screens: {
       xs: { min: '300px', max: '600px' },
+      sm: '769px',
       xsm: { min: '300px', max: '1023px' },
       md: { min: '600px', max: '1023px' },
       lg: { min: '1024px' },
@@ -83,9 +87,12 @@ module.exports = {
           'linear-gradient(180deg, rgba(0,198,162,0.8) 0%, rgba(0,139,114,0.8) 100%)',
         limitOrderButtonHover:
           'linear-gradient(180deg, #2F404D 0%, #233039 100%)',
+        DCLIconGradient: 'linear-gradient(90deg, #4E4AFF 0%, #00C6A2 100%)',
         darkGradientBg: 'linear-gradient(180deg, #1D2932 0%, #001320 100%)',
         orderGradient: 'linear-gradient(180deg, #455765 0%, #223746 100%)',
         orderGraidentHover: 'linear-gradient(180deg, #62798A 0%, #334B5E 100%)',
+        dclAddLiquidityFeeGradient:
+          'linear-gradient(180deg, #26343E 0%, #1D2932 100%)',
         grayBoderGradient:
           'linear-gradient(180deg, rgba(126, 138, 147, 0.2) 0%, rgba(3, 5, 5, 0.2) 100%)',
         grayBoderGradientReverse:
@@ -112,6 +119,7 @@ module.exports = {
         dclBannerColor:
           'linear-gradient(90deg, #00C6A2 2.54%, rgba(91, 64, 255, 0.5) 70%, rgba(91, 64, 255, 0) 100%)',
         dclIconBgColor: 'linear-gradient(180deg, #00C6A2 0%, #5B40FF 100%)',
+        dclFarmTipColor: 'linear-gradient(270deg, #00C6A2 0%, rgba(91, 64, 255, 0) 68.86%)',
         sellGradientRed: 'linear-gradient(180deg, #944A8C 0%, #D26060 100%)',
         swapCardGradient: 'linear-gradient(180deg, #213441 0%, #15242F 100%)',
         sellGradientRedReverse:
@@ -333,6 +341,7 @@ module.exports = {
         textRed: '#FF7575',
         baseGreen: '#00C6A2',
         orderLineHover: '#14222D',
+        poolRecentHover: 'rgba(37,51,61,0.5)',
         dark2: '#071C2B',
         dark3: '#39454E',
         assetsBorder: '#415767',
@@ -350,7 +359,7 @@ module.exports = {
         positionLineHoverBgColor: '#0B1922',
         chartTabBgColor: '#172534',
         toolTipBoxBorderColor: '#293844',
-        toolTipBoxBgColor: 'rgba(29, 41, 50, 0.8)',
+        toolTipBoxBgColor: 'rgba(29, 41, 50, 1)',
         dclFarmGreenColor: '#4DCB70',
         dclFarmBlueColor: '#4D9FFF',
         dclFarmYellowColor: '#FFC56D',
@@ -394,6 +403,11 @@ module.exports = {
         burrowTitleGreenColor: '#78FF9E',
         burrowPurpleColor: '#BCAB8F',
         burrowDarkColor: '#04121F',
+        burrowTabColor: '#22333E',
+        burrowTableBorderColor: 'rgba(48, 67, 82, 0.5)',
+        burrowTitleGreenColor: '#78FF9E',
+        burrowPurpleColor: '#BCAB8F',
+        burrowDarkColor: '#04121F',
         overviewBurrowColor: '#93806E',
         overviewBurrowRedColor: '#F083BE',
         overviewBorderColor: '#263540',
@@ -401,12 +415,18 @@ module.exports = {
         overviewMaskColor: 'rgba(13, 29, 39, 0.5)',
         overviewPurpleColor: '#816CFF',
         overviewGreyColor: '#314758',
+        chartHoverBoxBg: 'rgba(26, 39, 48, 1)',
+        chartBorderColor: '#344451',
+        proTabBgColor: '#324451',
+        dclTabBorderColor:'#3F4A52',
+        dclYourLiquidityColor:'#283945',
+        bottomBoxBorderColor:'#2F3A39',
         liquidationBorder: '#5B2E39',
         mobileOrderBg: '#324451',
         orderbookBase: '#4F6574',
         marginRedBg:'#904247',
-        marginGrayBg:'#334049'
-        
+        marginGrayBg:'#334049',
+        warnYellowColor: '#DB8946',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
@@ -440,6 +460,7 @@ module.exports = {
         '1000px': '1000px',
         '1024px': '1024px',
         '1050px': '1050px',
+        '1200px': '1200px',
         54: '13.5rem',
         34: '8.5rem',
       },
@@ -451,6 +472,7 @@ module.exports = {
         p212: '212px',
         '1000px': '1000px',
         '1280px': '1280px',
+        44: '11rem',
       },
       height: {
         vh90: '90vh',
@@ -461,6 +483,7 @@ module.exports = {
       },
       minHeight: {
         8: '2rem',
+        '60': '280px',
         '80': '350px',
         'screen': '100vh',
         'max': 'max-content'
@@ -473,6 +496,7 @@ module.exports = {
         36: '9rem',
         24: '6rem',
         40: '10rem',
+        48: '150px',
         32: '8rem',
         '420px': '420px',
         p240: '240px',
@@ -483,6 +507,7 @@ module.exports = {
       fontSize: {
         '13px': '13px',
         '10px': '10px',
+        '14px':'14px',
       },
 
       maxHeight: {

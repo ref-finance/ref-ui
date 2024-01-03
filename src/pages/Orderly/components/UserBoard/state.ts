@@ -1,13 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { nearMetadata, getFTmetadata, ftGetBalance } from '../../near';
-import { toReadableNumber } from '../../orderly/utils';
-import { Holding, TokenInfo, TokenMetadata } from '../../orderly/type';
-import { getCurrentHolding } from '../../orderly/off-chain-api';
-import { useWalletSelector } from '../../../../context/WalletSelectorContext';
-import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import Big from 'big.js';
-import { usePerpData } from '../UserBoardPerp/state';
+import React, { useEffect, useMemo, useState } from 'react';
 
+import { useWalletSelector } from '../../../../context/WalletSelectorContext';
+import getConfig from '../../../../services/configV2';
+import { ftGetBalance, getFTmetadata, nearMetadata } from '../../near';
+import { useOrderlyContext } from '../../orderly/OrderlyContext';
+import { Holding, TokenInfo, TokenMetadata } from '../../orderly/type';
+import { toReadableNumber } from '../../orderly/utils';
+import { usePerpData } from '../UserBoardPerp/state';
+import { useOrderlyBalancesStore } from '../../../../stores/orderlyBalances';
+
+const configV2 = getConfig();
 export function useTokenBalance(tokenId: string | undefined, deps?: any) {
   const [tokenMeta, setTokenMeta] = useState<TokenMetadata>();
   const [walletBalance, setWalletBalance] = useState<string>('');
@@ -57,12 +60,13 @@ export function useTokensBalances(
   tokens: TokenWithDecimals[] | undefined,
   tokenInfo: TokenInfo[] | undefined,
   trigger: any,
-  freeCollateral: string
+  freeCollateral: string,
+  curHoldingOut
 ) {
   const [showbalances, setShowBalances] = useState<BalanceType[]>([]);
 
   const { accountId } = useWalletSelector();
-
+  const orderlyBalanceStore: any = useOrderlyBalancesStore();
   const { myPendingOrdersRefreshing, validAccountSig, holdings } =
     useOrderlyContext();
 
@@ -133,7 +137,6 @@ export function useTokensBalances(
             [key: string]: BalanceType;
           }
         );
-
         setShowBalances(Object.values(resMap));
       });
   }, [
@@ -145,14 +148,17 @@ export function useTokensBalances(
     validAccountSig,
     holdings,
   ]);
-
-  if (showbalances.length > 0 && freeCollateral !== '-') {
+  if (showbalances.length > 0 && freeCollateral !== '-' && curHoldingOut) {
     showbalances.forEach((sb) => {
-      if (sb.name === 'USDC') {
-        sb.holding = Number(freeCollateral);
+      if (sb.id == configV2.ORDRRBOOK_COLLATTERAL_TOKEN) {
+        const usdcBalance = curHoldingOut.holding + curHoldingOut.pending_short;
+        sb.holding = Math.min(Number(freeCollateral), Number(usdcBalance));
       }
     });
   }
+  useMemo(() => {
+    orderlyBalanceStore.setBalances(showbalances);
+  }, [JSON.stringify(showbalances)]);
 
   return showbalances;
 }
@@ -171,7 +177,8 @@ export function useTokensOrderlyBalances(
   const { freeCollateral, triggerBalanceBasedData, holdings } = usePerpData();
 
   const { myPendingOrdersRefreshing, validAccountSig } = useOrderlyContext();
-
+  const orderlyBalanceStore: any = useOrderlyBalancesStore();
+  const orderlyBalances = orderlyBalanceStore.getBalances();
   const getBalanceAndMeta = async (token: TokenWithDecimals) => {
     const balance = await ftGetBalance(token.id).then((balance) => {
       return toReadableNumber(token.decimals, balance);
@@ -184,11 +191,9 @@ export function useTokensOrderlyBalances(
       meta,
     };
   };
-
   useEffect(() => {
     if (!tokens || !tokenInfo || !accountId || !validAccountSig || !holdings)
       return;
-
     Promise.all(
       tokenInfo.map((t) =>
         getBalanceAndMeta({
@@ -253,11 +258,12 @@ export function useTokensOrderlyBalances(
     validAccountSig,
     triggerBalanceBasedData,
     !!holdings,
+    JSON.stringify(orderlyBalances),
   ]);
 
   if (showbalances.length > 0 && freeCollateral !== '-') {
     showbalances.forEach((sb) => {
-      if (sb.name === 'USDC') {
+      if (sb.id == configV2.ORDRRBOOK_COLLATTERAL_TOKEN) {
         sb.holding = Number(freeCollateral);
       }
     });
@@ -267,7 +273,7 @@ export function useTokensOrderlyBalances(
     showbalances.forEach((sb) => {
       const curBalance = balances[sb.name];
 
-      if (curBalance && sb.name !== 'USDC') {
+      if (curBalance && sb.id !== configV2.ORDRRBOOK_COLLATTERAL_TOKEN) {
         sb.holding = Number(
           new Big(curBalance.holding + curBalance.pendingShortQty).toFixed(
             Math.min(8, sb.meta.decimals || 9),

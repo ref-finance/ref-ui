@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useContext, useMemo } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import Modal from 'react-modal';
-import { Card } from '~components/card/Card';
-import { ActionModel } from '~pages/AccountPage';
+import { Card } from 'src/components/card/Card';
+import { ActionModel } from 'src/pages/AccountPage';
 import {
   useMonthTVL,
   useMonthVolume,
@@ -13,8 +13,9 @@ import {
   TVLDataType,
   TVLType,
   useDayVolume,
+  useClassicPoolTransaction,
   useIndexerStatus,
-} from '~state/pool';
+} from 'src/state/pool';
 import {
   addLiquidityToPool,
   addPoolToWatchList,
@@ -22,25 +23,25 @@ import {
   Pool,
   PoolDetails,
   removePoolFromWatchList,
-} from '~services/pool';
+} from 'src/services/pool';
 import {
   useTokenBalances,
   useTokens,
   getDepositableBalance,
-} from '~state/token';
-import Loading from '~components/layout/Loading';
-import { FarmMiningIcon } from '~components/icon/FarmMining';
-import { FarmStamp, FarmStampNew } from '~components/icon/FarmStamp';
-import { ChartLoading } from '~components/icon/Loading';
+} from 'src/state/token';
+import Loading from 'src/components/layout/Loading';
+import { FarmMiningIcon } from 'src/components/icon/FarmMining';
+import { FarmStamp, FarmStampNew } from 'src/components/icon/FarmStamp';
+import { ChartLoading } from 'src/components/icon/Loading';
 import {
   REF_FARM_CONTRACT_ID,
   REF_FI_CONTRACT_ID,
   STABLE_POOL_ID,
   REF_FARM_BOOST_CONTRACT_ID,
-} from '~services/near';
-import { PoolSlippageSelector } from '~components/forms/SlippageSelector';
+} from 'src/services/near';
+import { PoolSlippageSelector } from 'src/components/forms/SlippageSelector';
 import { Link } from 'react-router-dom';
-import { canFarm } from '~services/pool';
+import { canFarm } from 'src/services/pool';
 import {
   calculateFairShare,
   calculateFeePercent,
@@ -52,36 +53,36 @@ import {
   toRoundedReadableNumber,
   percentOf,
 } from '../../utils/numbers';
-import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
-import Alert from '~components/alert/Alert';
-import InputAmount from '~components/forms/InputAmount';
-import { isMobile } from '~utils/device';
+import { ftGetTokenMetadata, TokenMetadata } from 'src/services/ft-contract';
+import Alert from 'src/components/alert/Alert';
+import InputAmount from 'src/components/forms/InputAmount';
+import { isMobile } from 'src/utils/device';
 import ReactModal from 'react-modal';
-import { toRealSymbol } from '~utils/token';
+import { toRealSymbol } from 'src/utils/token';
 
 import {
   BackArrowWhite,
   BackArrowGray,
   ModalClose,
   Near,
-} from '~components/icon';
+} from 'src/components/icon';
 import { useHistory } from 'react-router';
-import { getPool } from '~services/indexer';
+import { getPool } from 'src/services/indexer';
 import { BigNumber } from 'bignumber.js';
 import { FormattedMessage, useIntl, FormattedRelativeTime } from 'react-intl';
 import {
   WatchListStartFull,
   WatchListStartFullMobile,
-} from '~components/icon/WatchListStar';
+} from 'src/components/icon/WatchListStar';
 import {
   OutlineButton,
   SolidButton,
   FarmButton,
   ButtonTextWrapper,
   ConnectToNearBtn,
-} from '~components/button/Button';
-import { wallet } from '~services/near';
-import { BreadCrumb } from '~components/layout/BreadCrumb';
+} from 'src/components/button/Button';
+import { wallet } from 'src/services/near';
+import { BreadCrumb } from 'src/components/layout/BreadCrumb';
 import { LP_TOKEN_DECIMALS } from '../../services/m-token';
 import {
   ResponsiveContainer,
@@ -101,7 +102,7 @@ import {
 
 import _ from 'lodash';
 import moment from 'moment';
-import { ChartNoData } from '~components/icon/ChartNoData';
+import { ChartNoData } from 'src/components/icon/ChartNoData';
 import {
   getCurrentWallet,
   WalletContext,
@@ -111,41 +112,30 @@ import {
   useWalletTokenBalances,
   useDepositableBalance,
 } from '../../state/token';
-import { SmallWallet } from '../../components/icon/SmallWallet';
 import {
   scientificNotationToString,
   toInternationalCurrencySystemLongString,
 } from '../../utils/numbers';
 import { isNotStablePool, canFarmV2, canFarmV1 } from '../../services/pool';
 import { isStablePool, BLACKLIST_POOL_IDS } from '../../services/near';
-import {
-  getURLInfo,
-  checkAccountTip,
-} from '../../components/layout/transactionTipPopUp';
 
 export const REF_FI_PRE_LIQUIDITY_ID_KEY = 'REF_FI_PRE_LIQUIDITY_ID_VALUE';
 
-import ReactTooltip from 'react-tooltip';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
-import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
+import { WRAP_NEAR_CONTRACT_ID } from 'src/services/wrap-near';
 import { useAccountInfo, LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import { getVEPoolId } from '../ReferendumPage';
 import getConfig from '../../services/config';
 import { BoostInputAmount } from '../../components/forms/InputAmount';
-import { ExternalLinkIcon } from '~components/icon/Risk';
-import { FaAngleDown, FaAngleUp } from 'react-icons/fa';
+import { ExternalLinkIcon } from 'src/components/icon/Risk';
+import { FaAngleDown, FaAngleUp } from '../../components/reactIcons';
 import { useClientMobile, isClientMobie } from '../../utils/device';
-import {
-  getPoolFeeApr,
-  getPoolFeeAprTitle,
-  getPoolListFarmAprTip,
-} from './LiquidityPage';
+import { getPoolFeeApr, getPoolListFarmAprTip } from './utils';
 import { Images, Symbols } from '../../components/stableswap/CommonComp';
 import { useTokenPriceList } from '../../state/token';
 import { ExchangeArrow } from '../../components/icon/Arrows';
 import { multiply, divide, calculateFeeCharge } from '../../utils/numbers';
 
-import { BsArrowUpRight } from 'react-icons/bs';
 import {
   useSeedFarms,
   useSeedDetail,
@@ -162,15 +152,21 @@ import {
   QuestionTip,
 } from '../../components/layout/TipWrapper';
 
-import { FiArrowUpRight } from 'react-icons/fi';
 import { NoLiquidityDetailPageIcon } from '../../components/icon/Pool';
 import { useFarmStake } from '../../state/farm';
 import { VEARROW } from '../../components/icon/Referendum';
+import BLACKTip from '../../components/pool/BLACKTip';
 import Big from 'big.js';
-import { getEffectiveFarmList, sort_tokens_by_base } from '~services/commonV3';
+import {
+  getEffectiveFarmList,
+  sort_tokens_by_base,
+} from 'src/services/commonV3';
 import { openUrl } from '../../services/commonV3';
 import { numberWithCommas } from '../Orderly/utiles';
+import { HiOutlineExternalLink, HiOutlineLink } from 'react-icons/hi';
+const { BLACK_TOKEN_LIST } = getConfig();
 import { PoolRefreshModal } from './PoolRefreshModal';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 interface ParamTypes {
   id: string;
@@ -183,13 +179,8 @@ interface LocationTypes {
 export type ChartType = 'volume' | 'tvl' | 'liquidity';
 const ONLY_ZEROS = /^0*\.?0*$/;
 
-const getMax = function (id: string, max: string) {
-  return id !== WRAP_NEAR_CONTRACT_ID
-    ? max
-    : Number(max) <= 0.5
-    ? '0'
-    : String(Number(max) - 0.5);
-};
+const REF_FI_RECENT_TRANSACTION_TAB_KEY = 'REF_FI_RECENT_TRANSACTION_TAB_KEY';
+
 const formatDate = (rawDate: string) => {
   const date = rawDate
     .split('-')
@@ -1394,6 +1385,327 @@ function MyShares({
   );
 }
 
+type RencentTabKey = 'swap' | 'liquidity';
+
+export function RecentTransactions({
+  tokens,
+  pool_id,
+}: {
+  tokens: TokenMetadata[];
+  pool_id: string | number;
+}) {
+  const { swapTransaction, liquidityTransactions } = useClassicPoolTransaction({
+    pool_id,
+  });
+
+  const storedTab = sessionStorage.getItem(
+    REF_FI_RECENT_TRANSACTION_TAB_KEY
+  ) as RencentTabKey;
+
+  const [tab, setTab] = useState<RencentTabKey>(storedTab || 'swap');
+
+  const onChangeTab = (tab: RencentTabKey) => {
+    sessionStorage.setItem(REF_FI_RECENT_TRANSACTION_TAB_KEY, tab);
+    setTab(tab);
+  };
+
+  const renderSwapTransactions = swapTransaction.map((tx) => {
+    const swapIn = tokens.find((t) => t.id === tx.token_in);
+
+    const swapOut = tokens.find((t) => t.id === tx.token_out);
+
+    if (!swapIn || !swapOut) return null;
+
+    const swapInAmount = toReadableNumber(swapIn.decimals, tx.swap_in);
+    const displayInAmount =
+      Number(swapInAmount) < 0.01
+        ? '<0.01'
+        : numberWithCommas(toPrecision(swapInAmount, 6));
+
+    const swapOutAmount = toReadableNumber(swapOut.decimals, tx.swap_out);
+
+    const displayOutAmount =
+      Number(swapOutAmount) < 0.01
+        ? '<0.01'
+        : numberWithCommas(toPrecision(swapOutAmount, 6));
+
+    const txLink = (
+      <a
+        rel="noopener  noreferrer nofollow "
+        className=" hover:underline ml-2"
+        target="_blank"
+      >
+        <HiOutlineExternalLink className=""></HiOutlineExternalLink>
+      </a>
+    );
+
+    return (
+      <tr
+        className={`text-sm lg:grid lg:grid-cols-3 text-primaryText hover:text-white hover:bg-poolRecentHover`}
+      >
+        <td className="gap-1 p-4 lg:flex items-center">
+          <span className="col-span-1 text-white" title={swapInAmount}>
+            {displayInAmount}
+          </span>
+
+          <span className="ml-1 text-primaryText">
+            {toRealSymbol(swapIn.symbol)}
+          </span>
+        </td>
+
+        <td className="col-span-1 gap-1 lg:flex items-center">
+          <span className="text-white" title={swapOutAmount}>
+            {displayOutAmount}
+          </span>
+
+          <span className="ml-1 text-primaryText">
+            {toRealSymbol(swapOut.symbol)}
+          </span>
+        </td>
+
+        <td className="col-span-1 relative flex items-center justify-end py-4 pr-4">
+          <span
+            className="inline-flex items-center cursor-pointer"
+            onClick={() => {
+              openUrl(`${getConfig().explorerUrl}/txns/${tx.tx_id}`);
+            }}
+          >
+            <span className="hover:underline cursor-pointer xsm:whitespace-nowrap">
+              {tx.timestamp}
+            </span>
+            {txLink}
+          </span>
+        </td>
+      </tr>
+    );
+  });
+
+  const renderLiquidityTransactions = liquidityTransactions.map((tx) => {
+    const { amounts } = tx;
+    const renderTokens: any[] = [];
+    const amountsObj: any[] = JSON.parse(amounts.replace(/\'/g, '"'));
+    amountsObj.forEach((amount: string, index) => {
+      if (Big(amount || 0).gt(0)) {
+        renderTokens.push({
+          token: tokens[index],
+          amount: toReadableNumber(tokens[index].decimals, amountsObj[index]),
+        });
+      }
+    });
+    const txLink = (
+      <a
+        rel="noopener  noreferrer nofollow "
+        className=" hover:underline ml-2 "
+      >
+        <HiOutlineExternalLink className="relative"></HiOutlineExternalLink>
+      </a>
+    );
+
+    return (
+      <tr
+        className={`text-sm lg:grid  overflow-hidden py-3 lg:grid-cols-${
+          tab == 'swap' ? 3 : 5
+        } text-primaryText hover:text-white hover:bg-poolRecentHover`}
+      >
+        <td className="col-span-1 gap-1 px-4">
+          <span className="text-white">
+            {tx.method_name.toLowerCase().indexOf('add') > -1 && 'Add'}
+
+            {tx.method_name.toLowerCase().indexOf('remove') > -1 && 'Remove'}
+          </span>
+        </td>
+
+        <td
+          className={`col-span-${
+            tab == 'swap' ? 1 : 2
+          } text-white lg:flex items-center flex-wrap`}
+        >
+          {renderTokens.map((renderToken, index) => {
+            return (
+              <>
+                <span className="text-white" title={renderToken.amount}>
+                  {formatNumber(renderToken.amount)}
+                </span>
+
+                <span className="ml-1 text-primaryText">
+                  {toRealSymbol(renderToken.token.symbol)}
+                </span>
+                {index !== renderTokens.length - 1 ? (
+                  <span className="mx-1">+</span>
+                ) : null}
+              </>
+            );
+          })}
+        </td>
+
+        <td
+          className={`col-span-${
+            tab == 'swap' ? 1 : 2
+          } relative pr-4 lg:flex justify-end`}
+        >
+          <span
+            className="inline-flex cursor-pointer"
+            onClick={() => {
+              openUrl(`${getConfig().explorerUrl}/txns/${tx.tx_id}`);
+            }}
+          >
+            <span className="hover:underline cursor-pointer xsm:whitespace-nowrap">
+              {tx.timestamp}
+            </span>
+            {txLink}
+          </span>
+        </td>
+      </tr>
+    );
+  });
+
+  const renderTx =
+    tab === 'swap' ? renderSwapTransactions : renderLiquidityTransactions;
+
+  return (
+    <>
+      <div className="flex lg:items-center lg:justify-between xsm:flex-col xsm:items-start  w-full mb-3 mt-7">
+        <div className="text-white font-gothamBold text-base">
+          <FormattedMessage
+            id="recent_transactions"
+            defaultMessage={'Recent Transactions'}
+          />
+        </div>
+
+        <div className="frcs gap-2 h-8 text-sm text-primaryText xsm:mt-4">
+          <div
+            className={`rounded-lg frcc cursor-pointer h-full w-28 text-center align-middle ${
+              tab === 'swap'
+                ? 'text-white bg-inputV3BorderColor '
+                : 'bg-detailCardBg'
+            }`}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onChangeTab('swap');
+            }}
+          >
+            <FormattedMessage
+              id="swap"
+              defaultMessage={'Swap'}
+            ></FormattedMessage>
+          </div>
+
+          <div
+            className={`rounded-lg frcc cursor-pointer h-full w-28 text-center align-middle ${
+              tab === 'liquidity'
+                ? 'text-white bg-inputV3BorderColor '
+                : 'bg-detailCardBg'
+            }`}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onChangeTab('liquidity');
+            }}
+          >
+            <FormattedMessage
+              id="liquidity"
+              defaultMessage={'Liquidity'}
+            ></FormattedMessage>
+          </div>
+        </div>
+      </div>
+
+      <div className="text-sm overflow-hidden rounded-lg w-full text-primaryText bg-detailCardBg">
+        <div
+          className={`text-left grid grid-cols-5 w-full border-b border-gray1 xsm:hidden`}
+        >
+          <div className={`p-4 pb-3 col-span-${tab == 'swap' ? 2 : 1}`}>
+            {tab === 'liquidity' && (
+              <FormattedMessage
+                id="action"
+                defaultMessage={'Action'}
+              ></FormattedMessage>
+            )}
+            {tab === 'swap' && (
+              <FormattedMessage
+                id="from"
+                defaultMessage={'From'}
+              ></FormattedMessage>
+            )}
+          </div>
+
+          <div className={`py-4 pb-3 col-span-${tab == 'swap' ? 1 : 2}`}>
+            {tab === 'liquidity' && (
+              <FormattedMessage
+                id="amount"
+                defaultMessage={'Amount'}
+              ></FormattedMessage>
+            )}
+            {tab === 'swap' && (
+              <FormattedMessage
+                id="to"
+                defaultMessage={'To'}
+              ></FormattedMessage>
+            )}
+          </div>
+
+          <div className="pr-6 text-right col-span-2 py-4 pb-3">
+            <FormattedMessage
+              id="time"
+              defaultMessage={'Time'}
+            ></FormattedMessage>
+          </div>
+        </div>
+
+        <div
+          className="overflow-auto "
+          style={{
+            maxHeight: '700px',
+          }}
+        >
+          <table className="w-full">
+            <tr className={`text-left w-full border-b border-gray1 lg:hidden`}>
+              <th className={`p-4 pb-3 col-span-${tab == 'swap' ? 2 : 1}`}>
+                {tab === 'liquidity' && (
+                  <FormattedMessage
+                    id="action"
+                    defaultMessage={'Action'}
+                  ></FormattedMessage>
+                )}
+                {tab === 'swap' && (
+                  <FormattedMessage
+                    id="from"
+                    defaultMessage={'From'}
+                  ></FormattedMessage>
+                )}
+              </th>
+
+              <th className={`py-4 pb-3 col-span-${tab == 'swap' ? 1 : 2}`}>
+                {tab === 'liquidity' && (
+                  <FormattedMessage
+                    id="amount"
+                    defaultMessage={'Amount'}
+                  ></FormattedMessage>
+                )}
+                {tab === 'swap' && (
+                  <FormattedMessage
+                    id="to"
+                    defaultMessage={'To'}
+                  ></FormattedMessage>
+                )}
+              </th>
+
+              <th className="pr-6 col-span-2 py-4 pb-3">
+                <FormattedMessage
+                  id="time"
+                  defaultMessage={'Time'}
+                ></FormattedMessage>
+              </th>
+            </tr>
+            {renderTx}
+          </table>
+        </div>
+      </div>
+    </>
+  );
+}
+
 export const ChartChangeButton = ({
   chartDisplay,
   setChartDisplay,
@@ -1409,10 +1721,25 @@ export const ChartChangeButton = ({
 }) => {
   return (
     <div
-      className={`text-white text-xs rounded-md p-0.5 flex items-center xs:bg-transparent md:bg-transparent bg-navHighLightBg ${className} ${
+      className={`text-white text-xs rounded-md p-0.5 flex items-center xs:bg-transparent md:bg-transparent bg-cardBg lg:bg-opacity-50 ${className} ${
         noData ? 'z-20 opacity-70' : ''
       }`}
     >
+      {showLiqudityButton ? (
+        <button
+          className={`py-1 xs:py-2 md:py-2 px-2 ${
+            chartDisplay === 'liquidity'
+              ? 'rounded-md bg-gradient-to-b from-gradientFrom to-gradientTo'
+              : 'text-primaryText'
+          }`}
+          onClick={() => setChartDisplay('liquidity')}
+          style={{
+            minWidth: '80px',
+          }}
+        >
+          <FormattedMessage id="liquidity" defaultMessage="Liquidity" />
+        </button>
+      ) : null}
       <button
         className={`py-1 xs:py-2 md:py-2 px-2 ${
           chartDisplay === 'tvl'
@@ -1439,21 +1766,6 @@ export const ChartChangeButton = ({
       >
         <FormattedMessage id="volume" defaultMessage="Volume" />
       </button>
-      {showLiqudityButton ? (
-        <button
-          className={`py-1 xs:py-2 md:py-2 px-2 ${
-            chartDisplay === 'liquidity'
-              ? 'rounded-md bg-gradient-to-b from-gradientFrom to-gradientTo'
-              : 'text-primaryText'
-          }`}
-          onClick={() => setChartDisplay('liquidity')}
-          style={{
-            minWidth: '80px',
-          }}
-        >
-          <FormattedMessage id="liquidity" defaultMessage="Liquidity" />
-        </button>
-      ) : null}
     </div>
   );
 };
@@ -1472,28 +1784,10 @@ export const MobileChartChangeButton = ({
   return (
     <div className="relative mb-4">
       <div className="flex items-center relative z-10">
-        <span
-          onClick={() => setChartDisplay('tvl')}
-          className={`text-sm text-white text-opacity-60 pb-2.5 border-b-4 pr-2.5 ${
-            chartDisplay === 'tvl' ? 'border-senderHot' : 'border-transparent'
-          }`}
-        >
-          <FormattedMessage id="tvl" defaultMessage="TVL" />
-        </span>
-        <span
-          onClick={() => setChartDisplay('volume')}
-          className={`text-sm text-white text-opacity-60 pb-2.5 border-b-4 px-2.5 ml-3 ${
-            chartDisplay === 'volume'
-              ? 'border-senderHot'
-              : 'border-transparent'
-          }`}
-        >
-          <FormattedMessage id="volume" defaultMessage="Volume" />
-        </span>
         {showLiqudityButton ? (
           <span
             onClick={() => setChartDisplay('liquidity')}
-            className={`text-sm text-white text-opacity-60 pb-2.5 border-b-4 border-transparent px-2.5 ml-3 ${
+            className={`text-sm text-white text-opacity-60 pb-2.5 border-b-4 border-transparent px-2.5 ${
               chartDisplay === 'liquidity'
                 ? 'border-senderHot'
                 : 'border-transparent'
@@ -1502,6 +1796,24 @@ export const MobileChartChangeButton = ({
             <FormattedMessage id="liquidity" defaultMessage="Liquidity" />
           </span>
         ) : null}
+        <span
+          onClick={() => setChartDisplay('tvl')}
+          className={`text-sm text-white text-opacity-60 pb-2.5 border-b-4 px-2.5 mx-3 ${
+            chartDisplay === 'tvl' ? 'border-senderHot' : 'border-transparent'
+          }`}
+        >
+          <FormattedMessage id="tvl" defaultMessage="TVL" />
+        </span>
+        <span
+          onClick={() => setChartDisplay('volume')}
+          className={`text-sm text-white text-opacity-60 pb-2.5 border-b-4 px-2.5 ${
+            chartDisplay === 'volume'
+              ? 'border-senderHot'
+              : 'border-transparent'
+          }`}
+        >
+          <FormattedMessage id="volume" defaultMessage="Volume" />
+        </span>
         <div className="border-b border-menuMoreBoxBorderColor"></div>
       </div>
       <div className="h-px w-full absolute bottom-px left-0 bg-menuMoreBoxBorderColor"></div>
@@ -1831,7 +2143,7 @@ export function TVLChart({
   );
 }
 
-export function PoolDetailsPage() {
+export default function PoolDetailsPage() {
   const { id } = useParams<ParamTypes>();
   const { state } = useLocation<LocationTypes>();
   const { pool, shares, finalStakeList: stakeList } = usePool(id);
@@ -2085,6 +2397,10 @@ export function PoolDetailsPage() {
     }
   }, [poolTVL, userTotalShareToString, pool]);
 
+  const disable_add: boolean = useMemo(() => {
+    const tokenIds = tokens?.map((t) => t.id) || [];
+    return !!tokenIds.find((tokenId) => BLACK_TOKEN_LIST.includes(tokenId));
+  }, [tokens]);
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
   if (BLACKLIST_POOL_IDS.includes(pool.id.toString())) history.push('/');
   if (isStablePool(pool.id)) {
@@ -2117,7 +2433,7 @@ export function PoolDetailsPage() {
       <div className="md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-1050px m-auto">
         <BreadCrumb
           routes={[
-            { id: 'top_pools', msg: 'Top Pools', pathname: '/pools' },
+            { id: 'pools', msg: 'Pools', pathname: '/pools' },
             {
               id: 'more_pools',
               msg: 'More Pools',
@@ -2183,9 +2499,10 @@ export function PoolDetailsPage() {
                     data-place="right"
                     data-multiline={true}
                     data-class="reactTip"
-                    data-html={true}
-                    data-tip={remove_from_watchlist_tip()}
-                    data-for="fullstar-tip"
+                    data-tooltip-html={
+                      !!isClientMobie() ? '' : remove_from_watchlist_tip()
+                    }
+                    data-tooltip-id="fullstar-tip"
                   >
                     {isClientMobie() ? (
                       <WatchListStartFullMobile />
@@ -2193,14 +2510,7 @@ export function PoolDetailsPage() {
                       <WatchListStartFull />
                     )}
 
-                    <ReactTooltip
-                      id="fullstar-tip"
-                      backgroundColor="#1D2932"
-                      border
-                      borderColor="#7e8a93"
-                      effect="solid"
-                      disable={!!isClientMobie()}
-                    />
+                    <CustomTooltip id="fullstar-tip" />
                   </div>
                 ) : (
                   <div
@@ -2209,9 +2519,10 @@ export function PoolDetailsPage() {
                     data-place="right"
                     data-multiline={true}
                     data-class="reactTip"
-                    data-html={true}
-                    data-tip={add_to_watchlist_tip()}
-                    data-for="emptystar-tip"
+                    data-tooltip-html={
+                      !!isClientMobie() ? '' : add_to_watchlist_tip()
+                    }
+                    data-tooltip-id="emptystar-tip"
                   >
                     {isClientMobie() ? (
                       <WatchListStartEmptyMobile />
@@ -2219,14 +2530,7 @@ export function PoolDetailsPage() {
                       <WatchListStartEmpty />
                     )}
 
-                    <ReactTooltip
-                      disable={!!isClientMobie()}
-                      id="emptystar-tip"
-                      backgroundColor="#1D2932"
-                      border
-                      borderColor="#7e8a93"
-                      effect="solid"
-                    />
+                    <CustomTooltip id="emptystar-tip" />
                   </div>
                 )}
               </div>
@@ -2293,7 +2597,7 @@ export function PoolDetailsPage() {
               width="w-full"
               className="relative rounded-2xl mr-4 mb-4 h-full flex flex-col justify-center  items-center"
               padding="px-7 py-5"
-              bgcolor={isClientMobie() ? 'bg-transparent' : 'bg-cardBg'}
+              bgcolor={'bg-transparent'}
               style={{
                 height: isClientMobie() ? '370px' : '470px',
               }}
@@ -2370,7 +2674,6 @@ export function PoolDetailsPage() {
                   dayVolume ? `$${getPoolFee24h(dayVolume, pool)}` : '-'
                 }
               />
-
               <InfoCard
                 title={
                   <>
@@ -2392,9 +2695,8 @@ export function PoolDetailsPage() {
                     data-place="left"
                     data-multiline={true}
                     data-class={'reactTip'}
-                    data-html={true}
-                    data-tip={getPoolListFarmAprTip()}
-                    data-for={'pool_list_pc_apr' + pool.id}
+                    data-tooltip-html={getPoolListFarmAprTip()}
+                    data-tooltip-id={'pool_list_pc_apr' + pool.id}
                   >
                     {!poolTVL
                       ? '-'
@@ -2402,27 +2704,22 @@ export function PoolDetailsPage() {
                       ? `${getPoolFeeApr(dayVolume, pool, poolTVL)}%`
                       : '-'}
                     {poolTVL &&
-                      dayVolume &&
-                      seedFarms &&
-                      BaseApr().rawApr > 0 && (
-                        <span className="text-xs text-gradientFrom">
-                          {` +` + BaseApr().displayApr}
-                        </span>
-                      )}
+                    dayVolume &&
+                    seedFarms &&
+                    BaseApr().rawApr > 0 ? (
+                      <span className="text-xs text-gradientFrom">
+                        {` +` + BaseApr().displayApr}
+                      </span>
+                    ) : null}
 
                     {!!seedFarms &&
                       !isMobile() &&
                       seedFarms &&
                       BaseApr().rawApr > 0 && (
-                        <ReactTooltip
+                        <CustomTooltip
                           className="w-20"
                           id={'pool_list_pc_apr' + pool.id}
-                          backgroundColor="#1D2932"
                           place="right"
-                          border
-                          borderColor="#7e8a93"
-                          textColor="#C6D1DA"
-                          effect="solid"
                         />
                       )}
                   </div>
@@ -2430,7 +2727,7 @@ export function PoolDetailsPage() {
               />
             </div>
 
-            <div className="text-white text-base mb-3 w-full">
+            <div className="text-white text-base mb-3 font-gothamBold w-full">
               <FormattedMessage
                 id="pool_composition"
                 defaultMessage={'Pool Composition'}
@@ -2536,6 +2833,11 @@ export function PoolDetailsPage() {
                 );
               })}
             </div>
+
+            <RecentTransactions
+              tokens={tokens}
+              pool_id={pool.id}
+            ></RecentTransactions>
           </div>
 
           <div
@@ -2545,7 +2847,7 @@ export function PoolDetailsPage() {
             }}
           >
             <Card
-              className="rounded-2xl  w-full text-base text-white"
+              className="rounded-2xl  w-full text-base text-white mb-4"
               bgcolor="bg-cardBg"
             >
               {haveShare && (
@@ -2672,6 +2974,7 @@ export function PoolDetailsPage() {
                     onClick={() => {
                       setShowFunding(true);
                     }}
+                    disabled={disable_add}
                   >
                     {!haveShare ? (
                       <FormattedMessage
@@ -2704,7 +3007,7 @@ export function PoolDetailsPage() {
                 )}
               </div>
             </Card>
-
+            <BLACKTip tokenIds={tokens?.map((t) => t.id) || []} />
             {!seedFarms ? null : (
               <div className="flex flex-col mt-4 relative z-30">
                 <FarmBoardInDetailPool
@@ -2813,3 +3116,14 @@ export function PoolDetailsPage() {
     </>
   );
 }
+
+export const formatNumber = (v: string | number) => {
+  const big = Big(v || 0);
+  if (big.eq(0)) {
+    return '0';
+  } else if (big.lt(0.001)) {
+    return '<0.001';
+  } else {
+    return big.toFixed(3, 1);
+  }
+};

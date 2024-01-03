@@ -96,7 +96,7 @@ import {
   UnLockExpiredIcon,
 } from '../components/icon/Referendum';
 import { toRealSymbol } from '../utils/token';
-import { FaAngleUp, FaAngleDown } from 'react-icons/fa';
+import { FaAngleUp, FaAngleDown } from '../components/reactIcons';
 import {
   ConnectToNearBtnGradient,
   ConnectToNearBtnVotingMobile,
@@ -110,12 +110,13 @@ import {
 } from '../state/referendum';
 import { QuestionTip, ExclamationTip } from '../components/layout/TipWrapper';
 import QuestionMark from '../components/farm/QuestionMark';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { createContext } from 'react';
 import { VETip } from '../components/icon/Referendum';
 import { durationFomatter } from '../components/layout/Proposal';
 import BigNumber from 'bignumber.js';
 import { openUrl } from '../services/commonV3';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 export interface AccountInfo {
   duration_sec: number;
@@ -388,7 +389,7 @@ const timeStampToDate = (ts: number) => {
   return moment(ts * 1000).format('YYYY-MM-DD');
 };
 
-export const getVEPoolId = (env: string = process.env.NEAR_ENV) => {
+export const getVEPoolId = (env: string = process.env.REACT_APP_NEAR_ENV) => {
   switch (env) {
     case 'pub-testnet':
       return 17;
@@ -727,8 +728,7 @@ export const LockPopUp = ({
                   data-place="right"
                   data-multiline={true}
                   data-class="reactTip"
-                  data-html={true}
-                  data-tip={`
+                  data-tooltip-html={`
               <div class="text-xs">
                 <div 
                   style="max-width: 250px;font-weight:400",
@@ -737,18 +737,10 @@ export const LockPopUp = ({
                 </div>
               </div>
             `}
-                  data-for="tipId_lock_ve"
+                  data-tooltip-id="tipId_lock_ve"
                 >
                   <QuestionMark color="dark" />
-                  <ReactTooltip
-                    className="w-20"
-                    id="tipId_lock_ve"
-                    backgroundColor="#1D2932"
-                    border
-                    borderColor="#7e8a93"
-                    textColor="#C6D1DA"
-                    effect="solid"
-                  />
+                  <CustomTooltip className="w-20" id="tipId_lock_ve" />
                 </div>
               </span>
             </span>
@@ -802,8 +794,7 @@ export const LockPopUp = ({
                   data-place="left"
                   data-multiline={true}
                   data-class="reactTip"
-                  data-html={true}
-                  data-tip={`
+                  data-tooltip-html={`
               <div class="text-xs">
                 <div 
                   style="max-width: 250px;font-weight:400",
@@ -812,19 +803,11 @@ export const LockPopUp = ({
                 </div>
               </div>
             `}
-                  data-for="tipId_lock_love"
+                  data-tooltip-id="tipId_lock_love"
                 >
                   <QuestionMark color="dark" />
 
-                  <ReactTooltip
-                    className="w-20"
-                    id="tipId_lock_love"
-                    backgroundColor="#1D2932"
-                    border
-                    borderColor="#7e8a93"
-                    textColor="#C6D1DA"
-                    effect="solid"
-                  />
+                  <CustomTooltip className="w-20" id="tipId_lock_love" />
                 </div>
               </span>
             </span>
@@ -1177,8 +1160,7 @@ const UnLockPopUp = ({
                   data-place="right"
                   data-multiline={true}
                   data-class="reactTip"
-                  data-html={true}
-                  data-tip={`
+                  data-tooltip-html={`
               <div class="text-xs">
  
                 <div 
@@ -1188,19 +1170,11 @@ const UnLockPopUp = ({
                  </div>
               </div>
             `}
-                  data-for="tipId_unlock_ve"
+                  data-tooltip-id="tipId_unlock_ve"
                 >
                   <QuestionMark color="dark" />
 
-                  <ReactTooltip
-                    className="w-20"
-                    id="tipId_unlock_ve"
-                    backgroundColor="#1D2932"
-                    border
-                    borderColor="#7e8a93"
-                    textColor="#C6D1DA"
-                    effect="solid"
-                  />
+                  <CustomTooltip className="w-20" id="tipId_unlock_ve" />
                 </div>
               </span>
             </span>
@@ -1259,8 +1233,7 @@ const UnLockPopUp = ({
                   data-place="left"
                   data-multiline={true}
                   data-class="reactTip"
-                  data-html={true}
-                  data-tip={`
+                  data-tooltip-html={`
               <div class="text-xs">
 
                 <div 
@@ -1269,19 +1242,11 @@ const UnLockPopUp = ({
                 ${intl.formatMessage({ id: 'loveTip' })}
 </div>
             `}
-                  data-for="tipId_unlock_love"
+                  data-tooltip-id="tipId_unlock_love"
                 >
                   <QuestionMark color="dark" />
 
-                  <ReactTooltip
-                    className="w-20"
-                    id="tipId_unlock_love"
-                    backgroundColor="#1D2932"
-                    border
-                    borderColor="#7e8a93"
-                    textColor="#C6D1DA"
-                    effect="solid"
-                  />
+                  <CustomTooltip className="w-20" id="tipId_unlock_love" />
                 </div>
               </span>
             </span>
@@ -1490,8 +1455,7 @@ const VotingPowerCard = ({
                   data-place={isClientMobile ? 'top' : 'right'}
                   data-multiline={true}
                   data-class="reactTip"
-                  data-html={true}
-                  data-tip={`
+                  data-tooltip-html={`
               <div class="text-xs">
 
                 <div 
@@ -1501,18 +1465,10 @@ const VotingPowerCard = ({
                                 </div>
               </div>
             `}
-                  data-for="tipId_ve_post_card"
+                  data-tooltip-id="tipId_ve_post_card"
                 >
                   <QuestionMark color="dark" colorhex="#000000" />
-                  <ReactTooltip
-                    className="w-20"
-                    id="tipId_ve_post_card"
-                    backgroundColor="#1D2932"
-                    border
-                    borderColor="#7e8a93"
-                    textColor="#C6D1DA"
-                    effect="solid"
-                  />
+                  <CustomTooltip className="w-20" id="tipId_ve_post_card" />
                 </div>
               </>
             </div>
@@ -1600,8 +1556,7 @@ const FarmBoosterCard = ({
                   data-place={isClientMobile ? 'left' : 'right'}
                   data-multiline={true}
                   data-class="reactTip"
-                  data-html={true}
-                  data-tip={`
+                  data-tooltip-html={`
               <div class="text-xs">
   
                 <div 
@@ -1612,18 +1567,10 @@ const FarmBoosterCard = ({
                 ${intl.formatMessage({ id: 'loveTip' })}
                              </div>
             `}
-                  data-for="tipId_love_post_card"
+                  data-tooltip-id="tipId_love_post_card"
                 >
                   <QuestionMark color="bright" />
-                  <ReactTooltip
-                    className="w-20"
-                    id="tipId_love_post_card"
-                    backgroundColor="#1D2932"
-                    border
-                    borderColor="#7e8a93"
-                    textColor="#C6D1DA"
-                    effect="solid"
-                  />
+                  <CustomTooltip className="w-20" id="tipId_love_post_card" />
                 </div>
               </>
             </div>
@@ -2032,22 +1979,15 @@ const UserReferendumCard = ({
                 data-place="bottom"
                 data-multiline={true}
                 data-class="reactTip"
-                data-html={true}
-                data-tip={`${intl.formatMessage({ id: 'unlock_tip_top' })}`}
-                data-for="mobile_unlock_tip_lptoken"
+                data-tooltip-html={`${intl.formatMessage({
+                  id: 'unlock_tip_top',
+                })}`}
+                data-tooltip-id="mobile_unlock_tip_lptoken"
               >
                 <div className="text-gradientFrom ml-2">
                   <VETip />
                 </div>
-                <ReactTooltip
-                  id="mobile_unlock_tip_lptoken"
-                  backgroundColor="#1D2932"
-                  border
-                  place="bottom"
-                  borderColor="#7e8a93"
-                  textColor="#C6D1DA"
-                  effect="solid"
-                />
+                <CustomTooltip id="mobile_unlock_tip_lptoken" place="bottom" />
               </div>
             </span>
           )}
@@ -2424,7 +2364,7 @@ export const ProposalThumbnail = ({ proposal }: { proposal: Proposal }) => {
   );
 };
 
-export const ReferendumPage = () => {
+export default function ReferendumPage() {
   const id = getVEPoolId();
   const lpShare = usePoolShare(id, LOVE_TOKEN_DECIMAL);
 
@@ -2490,7 +2430,7 @@ export const ReferendumPage = () => {
       </div>
     </ReferendumPageContext.Provider>
   );
-};
+}
 
 export const CalenderIcon = () => {
   return (

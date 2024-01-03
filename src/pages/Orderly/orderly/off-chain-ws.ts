@@ -1,45 +1,33 @@
+import { useEffect, useState } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
-import React, {
-  useState,
-  useCallback,
-  useEffect,
-  useRef,
-  useMemo,
-  StrictMode,
-} from 'react';
+
+import { useWalletSelector } from '../../../context/WalletSelectorContext';
+import { useMobile } from '../../../utils/device';
+import { REF_ORDERLY_ACCOUNT_VALID } from '../components/UserBoardPerp';
+import { getOrderlyConfig } from '../config';
+import { getOrderlyWss } from './constant';
+import { getFundingRateSymbol } from './perp-off-chain-api';
 import {
+  Balance,
+  EstFundingrate,
+  IndexPrice,
+  LiquidationPushType,
+  MarketTrade,
+  MarkPrice,
+  OpenInterest,
   OrderlyWSConnection,
   Orders,
-  MarketTrade,
-  Ticker,
-  MarkPrice,
-  Balance,
-  IndexPrice,
-  EstFundingrate,
-  OpenInterest,
   PositionPushType,
-  LiquidationPushType,
+  Ticker,
 } from './type';
-import { getOrderlyConfig } from '../config';
-import {
-  getPublicKey,
-  generateRequestSignatureHeader,
-  toNonDivisibleNumber,
-} from './utils';
-import { NotSignInError } from './error';
-import { getOrderlyWss } from './constant';
-import { parseSymbol } from '../components/RecentTrade/index';
-import { useTokenInfo } from './state';
-import { getFTmetadata } from '../near';
-import { useWalletSelector } from '../../../context/WalletSelectorContext';
-import useInterval from 'react-useinterval';
-import { getFundingRateSymbol } from './perp-off-chain-api';
-import { REF_ORDERLY_ACCOUNT_VALID } from '../components/UserBoardPerp';
+import { generateRequestSignatureHeader, getPublicKey } from './utils';
 
 export const REF_ORDERLY_WS_ID_PREFIX = 'orderly_ws_';
 
 export const useOrderlyWS = () => {
-  const [socketUrl, setSocketUrl] = useState(getOrderlyWss(false));
+  const orderlySocketUrl = getOrderlyWss(false);
+
+  const [socketUrl, setSocketUrl] = useState(orderlySocketUrl);
 
   const [messageHistory, setMessageHistory] = useState<any>([]);
 
@@ -50,9 +38,8 @@ export const useOrderlyWS = () => {
       shouldReconnect: (closeEvent) => true,
       reconnectAttempts: 15,
       reconnectInterval: 10000,
-      share: true,
+      share: false,
     });
-
   useEffect(() => {
     if (lastMessage !== null) {
       setMessageHistory((prev: any) => prev.concat(lastMessage));
@@ -78,32 +65,30 @@ export const useOrderlyWS = () => {
   return {
     connectionStatus,
     messageHistory,
-    lastMessage,
+    lastMessage: lastMessage as any,
     sendMessage,
-    lastJsonMessage,
+    lastJsonMessage: lastJsonMessage as any,
     needRefreshPublic,
   };
 };
 export const usePrivateOrderlyWS = () => {
   const { accountId } = useWalletSelector();
-  const [socketUrl, setSocketUrl] = useState(
-    getOrderlyConfig().ORDERLY_WS_ENDPOINT_PRIVATE + `/${accountId}`
-  );
-  const [needRefresh, setNeedRefresh] = useState(false);
 
-  const [refreshTrigger, setRefreshTrigger] = useState<boolean>(false);
+  const orderlySocketUrl =
+    getOrderlyConfig().ORDERLY_WS_ENDPOINT_PRIVATE + `/${accountId}`;
+
+  const [socketUrl, setSocketUrl] = useState(orderlySocketUrl);
+  const [needRefresh, setNeedRefresh] = useState(false);
 
   useEffect(() => {
     if (!accountId) {
       return;
     } else {
-      setSocketUrl(
-        getOrderlyConfig().ORDERLY_WS_ENDPOINT_PRIVATE + `/${accountId}`
-      );
+      setSocketUrl(orderlySocketUrl);
     }
   }, [accountId]);
 
-  const [messageHistory, setMessageHistory] = useState<any>([]);
+  const [messageHistory, setMessageHistory] = useState<any[]>([]);
 
   const {
     lastMessage,
@@ -115,7 +100,7 @@ export const usePrivateOrderlyWS = () => {
     shouldReconnect: (closeEvent) => true,
     reconnectAttempts: 15,
     reconnectInterval: 10000,
-    share: true,
+    share: false,
     onReconnectStop: (numAttempts) => {
       const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
       storedValid && setNeedRefresh(true);
@@ -124,22 +109,42 @@ export const usePrivateOrderlyWS = () => {
     onError: (e) => {},
   });
 
+  const isMobile = useMobile();
+
+  const checePongMsg = () => {
+    //  find pong event in history messages
+
+    const pongEvent = messageHistory
+      .filter((msg) => msg?.event == 'pong' && msg?.id === 'ping-server')
+      .at(-1);
+
+    const lastPongTs = pongEvent?.ts;
+
+    if (Date.now() - Number(lastPongTs) > 1000 * 20) {
+      const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
+      storedValid && setNeedRefresh(true);
+    }
+  };
+
+  useEffect(() => {
+    if (isMobile) {
+      document.addEventListener('visibilitychange', () => checePongMsg());
+    } else {
+      document.removeEventListener('visibilitychange', () => null);
+    }
+
+    return () => document.removeEventListener('visibilitychange', () => null);
+  }, [isMobile]);
+
   useEffect(() => {
     const id = setInterval(() => {
-      sendMessage(JSON.stringify({ event: 'ping', ts: Date.now(), id: '' }));
+      sendMessage(
+        JSON.stringify({ event: 'ping', ts: Date.now(), id: 'ping-server' })
+      );
     }, 5000);
 
     return () => clearInterval(id);
   }, []);
-
-  useEffect(() => {
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-
-      sessionStorage.removeItem('targetTime');
-    };
-  }, [readyState]);
 
   const connectionStatus = {
     [ReadyState.CONNECTING]: 'Connecting',
@@ -149,43 +154,18 @@ export const usePrivateOrderlyWS = () => {
     [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
   }[readyState];
 
-  const handleVisibilityChange = () => {
-    if (document.visibilityState === 'visible') {
-      const savedTime = sessionStorage.getItem('targetTime');
-
-      if (savedTime && Date.now() - Number(savedTime) > 5 * 60 * 1000) {
-        const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
-
-        connectionStatus !== 'Open' &&
-          connectionStatus !== 'Connecting' &&
-          storedValid &&
-          setNeedRefresh(true);
-      }
-      sessionStorage.setItem('targetTime', Date.now().toString());
-    } else {
-      sessionStorage.setItem('targetTime', Date.now().toString());
-    }
-  };
-
   useEffect(() => {
-    if (lastMessage !== null) {
-      setMessageHistory((prev: any) => prev.concat(lastMessage));
+    if (lastJsonMessage !== null) {
+      setMessageHistory((prev: any) => prev.concat(lastJsonMessage));
     }
-  }, [lastMessage, setMessageHistory]);
-
-  useEffect(() => {
-    if (refreshTrigger === true && readyState === ReadyState.CLOSED) {
-      const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
-      storedValid && setNeedRefresh(true);
-    }
-  }, [readyState, refreshTrigger]);
+  }, [lastJsonMessage, setMessageHistory]);
 
   return {
     connectionStatus,
     messageHistory,
-    lastMessage,
+    lastMessage: lastMessage as any,
     sendMessage,
-    lastJsonMessage,
+    lastJsonMessage: lastJsonMessage as any,
     needRefresh,
   };
 };
@@ -254,7 +234,7 @@ export const generateMarketDataFlow = ({ symbol }: { symbol: string }) => {
   return data;
 };
 export const initDataFlow = ({ symbol }: { symbol: string }) => {
-  let data: OrderlyWSConnection[] = [
+  const data: OrderlyWSConnection[] = [
     {
       id: `request-order-${symbol}`,
       event: 'request',
@@ -339,30 +319,27 @@ export const useOrderlyMarketData = ({
 
     if (connectionStatus !== 'Open') return;
 
-    if (lastJsonMessage?.['event'] === 'ping') {
-      const ts = lastJsonMessage?.['ts'];
+    if (lastJsonMessage?.event === 'ping') {
+      const ts = lastJsonMessage?.ts;
 
       sendMessage(JSON.stringify({ event: 'pong', ts: Number(ts) }));
     }
 
     if (
-      lastJsonMessage?.['id'] === `request-order-${symbol}` &&
-      lastJsonMessage?.['event'] === 'request'
+      lastJsonMessage?.id === `request-order-${symbol}` &&
+      lastJsonMessage?.event === 'request'
     ) {
-      setOrders(lastJsonMessage?.['data']);
+      setOrders(lastJsonMessage?.data);
 
-      setOrdersUpdate(lastJsonMessage?.['data']);
+      setOrdersUpdate(lastJsonMessage?.data);
     }
 
-    if (
-      lastJsonMessage?.['topic'] === `${symbol}@orderbookupdate` &&
-      !!orders
-    ) {
-      setOrdersUpdate(lastJsonMessage?.['data']);
+    if (lastJsonMessage?.topic === `${symbol}@orderbookupdate` && !!orders) {
+      setOrdersUpdate(lastJsonMessage?.data);
 
-      let asks = orders.asks;
+      const asks = orders.asks;
 
-      lastJsonMessage?.['data'].asks.forEach((ask: number[]) => {
+      lastJsonMessage?.data.asks.forEach((ask: number[]) => {
         const price = ask[0];
         const quantity = ask[1];
         const index = asks.findIndex((a) => a[0] === price);
@@ -378,9 +355,9 @@ export const useOrderlyMarketData = ({
         }
       });
 
-      let bids = orders.bids;
+      const bids = orders.bids;
 
-      lastJsonMessage?.['data'].bids.forEach((bid: number[]) => {
+      lastJsonMessage?.data.bids.forEach((bid: number[]) => {
         const price = bid[0];
         const quantity = bid[1];
         const index = bids.findIndex((a) => a[0] === price);
@@ -400,41 +377,41 @@ export const useOrderlyMarketData = ({
         ...orders,
         asks: asks.sort((a1, a2) => a1[0] - a2[0]),
         bids: bids.sort((b1, b2) => b2[0] - b1[0]),
-        ts: lastJsonMessage?.['ts'],
+        ts: lastJsonMessage?.ts,
       });
     }
 
-    if (lastJsonMessage?.['topic'] === `${symbol}@estfundingrate`) {
-      setEstFundingRate(lastJsonMessage?.['data']);
+    if (lastJsonMessage?.topic === `${symbol}@estfundingrate`) {
+      setEstFundingRate(lastJsonMessage?.data);
     }
 
-    if (lastJsonMessage?.['topic'] === `openinterests`) {
-      setOpeninterests(lastJsonMessage?.['data']);
+    if (lastJsonMessage?.topic === `openinterests`) {
+      setOpeninterests(lastJsonMessage?.data);
     }
 
     //  process trade
     if (
-      (lastJsonMessage?.['id'] &&
-        lastJsonMessage?.['id'].includes(`${symbol}@trade-req`)) ||
-      lastJsonMessage?.['topic'] === `${symbol}@trade`
+      (lastJsonMessage?.id &&
+        lastJsonMessage?.id.includes(`${symbol}@trade-req`)) ||
+      lastJsonMessage?.topic === `${symbol}@trade`
     ) {
-      if (lastJsonMessage?.['event'] === 'request') {
+      if (lastJsonMessage?.event === 'request') {
         setMarketTrade(
-          lastJsonMessage?.['data'].map((t: MarketTrade) => ({ ...t, symbol }))
+          lastJsonMessage?.data.map((t: MarketTrade) => ({ ...t, symbol }))
         );
       } else
         setMarketTrade([
           {
-            ...lastJsonMessage?.['data'],
+            ...lastJsonMessage?.data,
             symbol,
-            ts: lastJsonMessage?.['ts'],
+            ts: lastJsonMessage?.ts,
           },
           ...(marketTrade || []),
         ]);
     }
 
-    if (lastJsonMessage?.['topic'] === 'tickers') {
-      const tickers = lastJsonMessage?.['data'];
+    if (lastJsonMessage?.topic === 'tickers') {
+      const tickers = lastJsonMessage?.data;
 
       setAllTickers(tickers);
 
@@ -443,14 +420,14 @@ export const useOrderlyMarketData = ({
       if (ticker) setTicker(ticker);
     }
 
-    if (lastJsonMessage?.['topic'] === 'indexprices') {
-      const indexPrices = lastJsonMessage?.['data'];
+    if (lastJsonMessage?.topic === 'indexprices') {
+      const indexPrices = lastJsonMessage?.data;
 
       setIndexprices(indexPrices);
     }
 
-    if (lastJsonMessage?.['topic'] === 'markprices') {
-      const markPrices = lastJsonMessage?.['data'];
+    if (lastJsonMessage?.topic === 'markprices') {
+      const markPrices = lastJsonMessage?.data;
 
       setMarkPrices(markPrices);
     }
@@ -491,10 +468,10 @@ export const useOrderlyMarketData = ({
     const mySymbol = requestSymbol.split('|')[0];
 
     if (
-      lastJsonMessage?.['id'] === `request-order-${mySymbol}` &&
-      lastJsonMessage?.['event'] === 'request'
+      lastJsonMessage?.id === `request-order-${mySymbol}` &&
+      lastJsonMessage?.event === 'request'
     ) {
-      setRequestOrders(lastJsonMessage?.['data']);
+      setRequestOrders(lastJsonMessage?.data);
     }
   }, [lastJsonMessage, requestSymbol, connectionStatus]);
 
@@ -590,38 +567,38 @@ export const useOrderlyPrivateData = ({
 
     if (
       lastJsonMessage &&
-      lastJsonMessage?.['event'] === 'auth' &&
-      lastJsonMessage?.['success'] === true
+      lastJsonMessage?.event === 'auth' &&
+      lastJsonMessage?.success === true
     ) {
       setAuthPass(true);
     }
 
-    if (lastJsonMessage?.['event'] === 'ping') {
-      const ts = lastJsonMessage?.['ts'];
+    if (lastJsonMessage?.event === 'ping') {
+      const ts = lastJsonMessage?.ts;
       sendMessage(JSON.stringify({ event: 'pong', ts: Number(ts) }));
     }
 
-    if (lastJsonMessage?.['topic'] === 'balance') {
-      setBalanceTimeStamp(lastJsonMessage?.['ts']);
-      setBalances(lastJsonMessage?.['data'].balances);
+    if (lastJsonMessage?.topic === 'balance') {
+      setBalanceTimeStamp(lastJsonMessage?.ts);
+      setBalances(lastJsonMessage?.data.balances);
     }
 
-    if (lastJsonMessage?.['topic'] === 'position') {
-      setPositionTimeStamp(lastJsonMessage?.['ts']);
-      setPositionPush(lastJsonMessage?.['data'].positions);
+    if (lastJsonMessage?.topic === 'position') {
+      setPositionTimeStamp(lastJsonMessage?.ts);
+      setPositionPush(lastJsonMessage?.data.positions);
       setPositionPushReceiver((b) => !b);
     }
 
-    if (lastJsonMessage?.['topic'] === 'liquidatorliquidations') {
+    if (lastJsonMessage?.topic === 'liquidatorliquidations') {
       setLiquidations((liquidations) => [
-        lastJsonMessage?.['data'],
+        lastJsonMessage?.data,
         ...liquidations,
       ]);
     }
 
-    if (lastJsonMessage?.['topic'] === 'account') {
+    if (lastJsonMessage?.topic === 'account') {
       setFutureLeverage(
-        lastJsonMessage?.['data']?.accountDetail?.futuresLeverage || undefined
+        lastJsonMessage?.data?.accountDetail?.futuresLeverage || undefined
       );
     }
   }, [lastJsonMessage, connectionStatus]);

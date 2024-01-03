@@ -18,7 +18,8 @@ import {
 } from '../../orderly/type';
 import { OrderAsset } from '../AssetModal/state';
 import Decimal from 'decimal.js';
-import { parseSymbol } from '../RecentTrade';
+import getConfigV2 from '../../../../services/configV2';
+const configV2 = getConfigV2();
 
 const getTotaluPnl = (positions: PositionsType, markprices: MarkPrice[]) => {
   if (!positions) return '0';
@@ -96,11 +97,11 @@ const getAvailable = (
   const available = displayBalances.reduce((acc, cur, index) => {
     const markPrice =
       markPrices?.find(
-        (item) => item.symbol === `SPOT_${cur.tokenMeta.symbol}_USDC`
+        (item) => item.symbol === `SPOT_${cur.tokenMeta.symbol}_USDC.e`
       )?.price || 1;
 
     const value =
-      cur.tokenMeta.symbol === 'USDC' || cur.tokenMeta.symbol.includes('USDC')
+      cur.tokenMeta.id == configV2.ORDRRBOOK_COLLATTERAL_TOKEN
         ? parseFloat(cur.available)
         : parseFloat(cur.available) * markPrice;
 
@@ -123,15 +124,15 @@ const getTotalEst = (
   const availables = displayBalances.reduce((acc, cur, index) => {
     const markPrice =
       markPrices?.find(
-        (item) => item.symbol === `SPOT_${cur.tokenMeta.symbol}_USDC`
+        (item) => item.symbol === `SPOT_${cur.tokenMeta.symbol}_USDC.e`
       )?.price || 1;
 
     const value =
-      cur.tokenMeta.symbol === 'USDC' || cur.tokenMeta.symbol.includes('USDC')
+      cur.tokenMeta.id == configV2.ORDRRBOOK_COLLATTERAL_TOKEN
         ? parseFloat(cur.available)
         : parseFloat(cur.available) * markPrice;
     const inOrder =
-      cur.tokenMeta.symbol === 'USDC' || cur.tokenMeta.symbol.includes('USDC')
+      cur.tokenMeta.id == configV2.ORDRRBOOK_COLLATTERAL_TOKEN
         ? parseFloat(cur['in-order'])
         : parseFloat(cur['in-order']) * markPrice;
 
@@ -319,6 +320,25 @@ const getFreeCollateral = (
 
   return freeCollateral;
 };
+function getCollateralTokenAvailableBalance(
+  positions: PositionsType,
+  markprices: MarkPrice[],
+  userInfo: ClientInfo,
+  curHoldingOut: Holding
+) {
+  const freeCollateral = getFreeCollateral(
+    positions,
+    markprices,
+    userInfo,
+    curHoldingOut
+  );
+  const balance = new Big(curHoldingOut.holding + curHoldingOut.pending_short);
+  if (balance.lt(freeCollateral)) {
+    return balance;
+  } else {
+    return freeCollateral;
+  }
+}
 
 const getTotalnotional = (
   markPrices: MarkPrice[],
@@ -374,7 +394,8 @@ const getMMR = (
   userInfo: ClientInfo,
   position_notional: number
 ) => {
-  const { symbolFrom } = parseSymbol(symbol.symbol);
+  // const { symbolFrom } = parseSymbol(symbol.symbol);
+  const symbolFrom = symbol.symbol;
   const base_mmr = symbol.base_mmr;
 
   const base_imr = symbol.base_imr;
@@ -750,4 +771,5 @@ export {
   getAvailable,
   getTotalEst,
   getLqPriceFloat,
+  getCollateralTokenAvailableBalance,
 };

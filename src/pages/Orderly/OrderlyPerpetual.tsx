@@ -32,7 +32,6 @@ import MobileInfoBoard, {
 } from './components/MobileInfoBoard';
 
 import { OrderlyUnderMaintainIcon } from './components/Common/Icons';
-import { getOrderlySystemInfo } from './orderly/off-chain-api';
 import { PerpOrderlyTip, PerpOrderlyTipMobile } from './components/PerpHeader';
 import { useOrderlyContext } from './orderly/OrderlyContext';
 import { PerpOrSpot } from './utiles';
@@ -42,15 +41,15 @@ import {
   MobileliquidationList,
   REF_FI_ORDERLY_LIQUIDATION_UNREAD,
 } from './components/UserBoardPerp/components/LiquidationHistory';
-import { BsArrowRight } from 'react-icons/bs';
-import { openUrl } from '~services/commonV3';
+import { BsArrowRight } from '../../components/reactIcons';
+import { openUrl } from 'src/services/commonV3';
 import { usePerpData } from './components/UserBoardPerp/state';
 import PositionsTable from './components/AllOrders/PositionsTable';
 import { CheckBox } from './components/Common';
 import { parseSymbol } from './components/RecentTrade';
 import { NewUserTip } from './components/Common/NewUserTip';
 
-export const REF_ORDERLY_PERP_TIP_SIG = 'REF_ORDERLY_PERP_TIP_SIG';
+export const REF_ORDERLY_PERP_TIP_SIG = 'REF_ORDERLY_PERP_TIP_SIGN3';
 
 function TradingBoard() {
   const isLarge = useLargeScreen();
@@ -386,7 +385,7 @@ function OrderlyUnderMaintain() {
   );
 }
 
-export function OrderlyPerpetual() {
+export default function OrderlyPerpetual() {
   const priKeyPath = get_orderly_private_key_path();
 
   const pubKeyPath = get_orderly_public_key_path();

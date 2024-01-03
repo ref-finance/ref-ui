@@ -3,12 +3,12 @@ import React, { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useClientMobile, isMobile } from '../../../../utils/device';
 
-import { IoMdClose } from 'react-icons/io';
-import { REF_ORDERLY_PERP_TIP_SIG } from '~pages/Orderly/OrderlyPerpetual';
+import { IoMdClose } from '../../../../components/reactIcons';
+import { REF_ORDERLY_PERP_TIP_SIG } from 'src/pages/Orderly/OrderlyPerpetual';
 
 export function PerpOrderlyTip() {
   const [show, setShow] = useState<boolean>(
-    !!localStorage.getItem(REF_ORDERLY_PERP_TIP_SIG) ? false : true
+    !localStorage.getItem(REF_ORDERLY_PERP_TIP_SIG)
   );
 
   const isMobile = useClientMobile();
@@ -17,7 +17,7 @@ export function PerpOrderlyTip() {
 
   return (
     <div
-      className="w-screen px-4  xs:pb-7 h-9 xs:rounded-2xl lg:relative    xs:bottom-0 bg-gradientFromHover  frcc "
+      className="w-screen px-10  xs:pb-7 h-12 xs:rounded-2xl lg:relative    xs:bottom-0 bg-gradientFromHover  frcc "
       style={{
         fontSize: '13px',
         color: '#111F29',
@@ -25,33 +25,36 @@ export function PerpOrderlyTip() {
       }}
     >
       <FormattedMessage
-        id="perpTip"
+        // id="perpTip"
+        id="perpTipDown"
+        // defaultMessage={
+        //   'Welcome to Perpetual Futures trading!{br} Please  read {perpTipLink} docs to get start!'
+        // }
         defaultMessage={
-          'Welcome to Perpetual Futures trading! Please  read {perpTipLink} docs to get start!'
+          'Order book system update will be conducted from 2024/1/4 07:00 AM to 2024/1/4 09:00 AM (UTC), during which time Spot and Perps will be temporarily unavailable.'
         }
-        values={{
-          perpTipLink: (
-            <a
-              className="font-gothamBold mx-1 underline"
-              rel="noopener noreferrer nofollow"
-              target="_blank"
-              href="https://docs.orderly.network/perpetual-futures/introduction"
-            >
-              {isMobile && <br />}
-              <FormattedMessage
-                id="perpTipLink"
-                defaultMessage="[Perpetual-futures Introduction]"
-              />
-            </a>
-          ),
-        }}
+        // values={{
+        //   perpTipLink: (
+        //     <a
+        //       className="font-gothamBold mx-1 underline"
+        //       rel="noopener noreferrer nofollow"
+        //       target="_blank"
+        //       href="https://docs.orderly.network/perpetual-futures/introduction"
+        //     >
+        //       {isMobile && <br />}
+        //       <FormattedMessage
+        //         id="perpTipLink"
+        //         defaultMessage="[Perpetual-futures Introduction]"
+        //       />
+        //     </a>
+        //   ),
+        // }}
       />
 
       <div
         className="absolute right-3 cursor-pointer top-1 "
         onClick={() => {
           setShow(false);
-
           localStorage.setItem(REF_ORDERLY_PERP_TIP_SIG, '1');
         }}
         style={{
@@ -66,7 +69,7 @@ export function PerpOrderlyTip() {
 
 export function PerpOrderlyTipMobile() {
   const [show, setShow] = useState<boolean>(
-    !!localStorage.getItem(REF_ORDERLY_PERP_TIP_SIG) ? false : true
+    !localStorage.getItem(REF_ORDERLY_PERP_TIP_SIG)
   );
 
   const isMobile = useClientMobile();
@@ -75,9 +78,9 @@ export function PerpOrderlyTipMobile() {
 
   return (
     <div
-      className="w-screen px-4 xs:pr-8 xs:pb-20 xs:pt-2 h-9 xs:rounded-2xl   xs:bottom-0 bg-gradientFromHover  lg:frcc "
+      className="w-screen px-4 xs:pr-8 xs:pb-9 xs:pt-2  xs:rounded-2xl   xs:bottom-0 bg-gradientFromHover  lg:frcc "
       style={{
-        fontSize: '13px',
+        fontSize: '14px',
         color: '#111F29',
         top: isMobile ? 'none' : '-48px',
         zIndex: isMobile ? 51 : '',
@@ -85,26 +88,31 @@ export function PerpOrderlyTipMobile() {
       }}
     >
       <FormattedMessage
-        id="perpTip"
+        // id="perpTip"
+        id="perpTipDown"
+        // defaultMessage={
+        //   'Welcome to Perpetual Futures trading! Please  read {perpTipLink} docs to get start!'
+        // }
         defaultMessage={
-          'Welcome to Perpetual Futures trading! Please  read {perpTipLink} docs to get start!'
+          'Order book system update will be conducted from 2024/1/4 07:00 AM to 2024/1/4 09:00 AM (UTC), during which time Spot and Perps will be temporarily unavailable.'
         }
-        values={{
-          perpTipLink: (
-            <a
-              className="font-gothamBold mx-1 underline"
-              rel="noopener noreferrer nofollow"
-              target="_blank"
-              href="https://docs.orderly.network/perpetual-futures/introduction"
-            >
-              {/* {isMobile && <br />} */}
-              <FormattedMessage
-                id="perpTipLink"
-                defaultMessage="[Perpetual-futures Introduction]"
-              />
-            </a>
-          ),
-        }}
+        // values={{
+        //   perpTipLink: (
+        //     <a
+        //       className="font-gothamBold mx-1 underline"
+        //       rel="noopener noreferrer nofollow"
+        //       target="_blank"
+        //       href="https://docs.orderly.network/perpetual-futures/introduction"
+        //     >
+        //       {/* {isMobile && <br />} */}
+        //       <FormattedMessage
+        //         id="perpTipLink"
+        //         defaultMessage="[Perpetual-futures Introduction]"
+        //       />
+        //     </a>
+        //   ),
+        //   br: <br />,
+        // }}
       />
 
       <div

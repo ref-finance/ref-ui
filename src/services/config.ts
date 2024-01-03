@@ -1,4 +1,4 @@
-export function getExtendConfig(env: string = process.env.NEAR_ENV) {
+export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
   switch (env) {
     case 'production':
     case 'mainnet':
@@ -90,10 +90,12 @@ export function getCustomConfig() {
   }
   return customRpcMap;
 }
-export default function getConfig(env: string = process.env.NEAR_ENV) {
+export default function getConfig(
+  env: string = process.env.REACT_APP_NEAR_ENV
+) {
   const RPC_LIST_system = getExtendConfig().RPC_LIST;
   const RPC_LIST_custom = getCustomConfig();
-  const RPC_LIST = Object.assign(RPC_LIST_system, RPC_LIST_custom);
+  const RPC_LIST = Object.assign(RPC_LIST_system, RPC_LIST_custom) as any;
   let endPoint = 'defaultRpc';
   try {
     endPoint = window.localStorage.getItem('endPoint') || endPoint;
@@ -158,9 +160,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         },
         USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '1972847.31',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2137295.25',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '2621724.09',
+          process.env.CUMULATIVE_REF_BUYBACK || '2840988.03',
         BLACKLIST_POOL_IDS: [
           '3699',
           '3734',
@@ -168,7 +170,48 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           '3613',
           '3620',
           '3625',
-          '4179',
+          '1923',
+          '2451',
+          '1559',
+          '3015',
+          '3398',
+          '2089',
+          '2121',
+          '4149',
+          '3383',
+          '3805',
+          '3907',
+          '4161',
+          '3021',
+          '3385',
+          '3046',
+          '3384',
+          '1820',
+          '4150',
+          '3466',
+          '3386',
+          '3087',
+          '2558',
+          '3587',
+          '3759',
+          '1904',
+          '1903',
+          '3850',
+          '1821',
+          '2975',
+          '3529',
+          '3676',
+          '1908',
+          '2450',
+          '1955',
+          '2781',
+          '3822',
+          '2161',
+          '2560',
+          '3091',
+          '2497',
+          '2194',
+          '2320',
         ],
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['10%', '10%'],
@@ -187,6 +230,15 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.REF_UNI_SWAP_CONTRACT_ID || 'dcl.ref-labs.near',
         switch_on_dcl_farms: 'off',
         BURROW_CONTRACT_ID: 'contract.main.burrow.near',
+        USDTT_USDCC_USDT_USDC_POOL_ID:
+          process.env.USDTT_USDCC_USDT_USDC_POOL_ID || 4179,
+        USDTT_USDCC_USDT_USDC_TOKEN_IDS: [
+          'usdt.tether-token.near',
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
+          'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near',
+          'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near',
+        ],
+        BLACK_TOKEN_LIST: ['token.pembrock.near'],
       };
     case 'pub-testnet':
       return {
@@ -240,9 +292,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'dai.fakes.testnet': 2,
         },
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '1972847.31',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2137295.25',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '2621724.09',
+          process.env.CUMULATIVE_REF_BUYBACK || '2840988.03',
         BLACKLIST_POOL_IDS: ['1752', '1760'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID ||
@@ -261,7 +313,16 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           '1760#1',
         ],
         switch_on_dcl_farms: 'on',
-        BURROW_CONTRACT_ID: 'contract.1638481328.burrow.testnet',
+        BURROW_CONTRACT_ID: 'contract.1689937928.burrow.testnet',
+        USDTT_USDCC_USDT_USDC_POOL_ID:
+          process.env.USDTT_USDCC_USDT_USDC_POOL_ID || 1843,
+        USDTT_USDCC_USDT_USDC_TOKEN_IDS: [
+          'usdtt.fakes.testnet',
+          '3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af',
+          'usdt.fakes.testnet',
+          'usdc.fakes.testnet',
+        ],
+        BLACK_TOKEN_LIST: [],
       };
     case 'testnet':
       return {
@@ -302,6 +363,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'usdc.fakes.testnet',
           'dai.fakes.testnet',
         ],
+
         STABLE_TOKEN_USN_IDS: ['usdn.testnet', 'usdt.fakes.testnet'],
         STABLE_TOKEN_USN_INDEX: {
           'usdn.testnet': 0,
@@ -315,9 +377,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         DCL_POOL_BLACK_LIST: ['usdt.fakes.testnet|wrap.testnet|100'],
 
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '1972847.31',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2137295.25',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '2621724.09',
+          process.env.CUMULATIVE_REF_BUYBACK || '2840988.03',
         BLACKLIST_POOL_IDS: ['686'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID ||
@@ -326,14 +388,23 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         VotingGauge: ['5%', '10%'],
         REF_UNI_V3_SWAP_CONTRACT_ID:
           process.env.REF_UNI_V3_SWAP_CONTRACT_ID ||
-          'dclv2-dev.ref-dev.testnet',
+          'refv2-dev.ref-dev.testnet',
         REF_UNI_SWAP_CONTRACT_ID:
-          process.env.REF_UNI_SWAP_CONTRACT_ID || 'dclv1-dev.ref-dev.testnet',
+          process.env.REF_UNI_SWAP_CONTRACT_ID || 'refv2-dev.ref-dev.testnet',
         kitWalletOn: true,
         FARM_BLACK_LIST_V2: process.env.FARM_BLACK_LIST_V2 || ['666'],
         boostBlackList: process.env.FARM__BOOST_BLACK_LIST || [''],
         switch_on_dcl_farms: 'on',
         BURROW_CONTRACT_ID: 'contract.1638481328.burrow.testnet',
+        USDTT_USDCC_USDT_USDC_POOL_ID:
+          process.env.USDTT_USDCC_USDT_USDC_POOL_ID || 711,
+        USDTT_USDCC_USDT_USDC_TOKEN_IDS: [
+          'usdtt.fakes.testnet',
+          'usdcc.fakes.testnet',
+          'usdt.fakes.testnet',
+          'usdc.fakes.testnet',
+        ],
+        BLACK_TOKEN_LIST: [],
       };
     default:
       return {
@@ -397,9 +468,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         },
         USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '1972847.31',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2137295.25',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '2621724.09',
+          process.env.CUMULATIVE_REF_BUYBACK || '2840988.03',
 
         BLACKLIST_POOL_IDS: [
           '3699',
@@ -408,7 +479,48 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           '3613',
           '3620',
           '3625',
-          '4179',
+          '1923',
+          '2451',
+          '1559',
+          '3015',
+          '3398',
+          '2089',
+          '2121',
+          '4149',
+          '3383',
+          '3805',
+          '3907',
+          '4161',
+          '3021',
+          '3385',
+          '3046',
+          '3384',
+          '1820',
+          '4150',
+          '3466',
+          '3386',
+          '3087',
+          '2558',
+          '3587',
+          '3759',
+          '1904',
+          '1903',
+          '3850',
+          '1821',
+          '2975',
+          '3529',
+          '3676',
+          '1908',
+          '2450',
+          '1955',
+          '2781',
+          '3822',
+          '2161',
+          '2560',
+          '3091',
+          '2497',
+          '2194',
+          '2320',
         ],
 
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
@@ -428,11 +540,22 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         switch_on_dcl_farms: 'off',
         DCL_POOL_BLACK_LIST: ['usdt.tether-token.near|wrap.near|2000'],
         BURROW_CONTRACT_ID: 'contract.main.burrow.near',
+        USDTT_USDCC_USDT_USDC_POOL_ID:
+          process.env.USDTT_USDCC_USDT_USDC_POOL_ID || 4179,
+        USDTT_USDCC_USDT_USDC_TOKEN_IDS: [
+          'usdt.tether-token.near',
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
+          'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near',
+          'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near',
+        ],
+        BLACK_TOKEN_LIST: ['token.pembrock.near'],
       };
   }
 }
 
-export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
+export function getExtraStablePoolConfig(
+  env: string = process.env.REACT_APP_NEAR_ENV
+) {
   switch (env) {
     case 'production':
     case 'mainnet':
@@ -486,7 +609,13 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'usdt.tether-token.near': 1,
         },
 
-        RATED_POOLS_IDS: ['3514', '3515', '3612', '3688', '3689'],
+        RATED_POOLS_IDS: ['3514', '3515', '3612', '3688', '3689', '4179'],
+        USDTT_USDCC_USDT_USDC_POOL_INDEX: {
+          'usdt.tether-token.near': 0,
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
+          'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near': 2,
+          'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near': 3,
+        },
       };
     case 'development':
     case 'pub-testnet':
@@ -534,8 +663,13 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'usdt.fakes.testnet': 0,
           'usdtt.fakes.testnet': 1,
         },
-
-        RATED_POOLS_IDS: ['568', '571', '1044', '1751', '1752'],
+        RATED_POOLS_IDS: ['568', '571', '1044', '1751', '1752', '1843'],
+        USDTT_USDCC_USDT_USDC_POOL_INDEX: {
+          'usdtt.fakes.testnet': 0,
+          '3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af': 1,
+          'usdt.fakes.testnet': 2,
+          'usdc.fakes.testnet': 3,
+        },
       };
     case 'testnet':
       return {
@@ -582,7 +716,13 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'usdtt.fakes.testnet': 1,
         },
 
-        RATED_POOLS_IDS: ['621', '622', '666', '685', '686'],
+        RATED_POOLS_IDS: ['621', '622', '666', '685', '686', '711'],
+        USDTT_USDCC_USDT_USDC_POOL_INDEX: {
+          'usdtt.fakes.testnet': 0,
+          'usdcc.fakes.testnet': 1,
+          'usdt.fakes.testnet': 2,
+          'usdc.fakes.testnet': 3,
+        },
       };
     default:
       return {
@@ -635,13 +775,19 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'usdt.tether-token.near': 1,
         },
 
-        RATED_POOLS_IDS: ['3514', '3515', '3612', '3688', '3689'],
+        RATED_POOLS_IDS: ['3514', '3515', '3612', '3688', '3689', '4179'],
+        USDTT_USDCC_USDT_USDC_POOL_INDEX: {
+          'usdt.tether-token.near': 0,
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
+          'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near': 2,
+          'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near': 3,
+        },
       };
   }
 }
 export function getTransakConfig(
   accountId: string,
-  env: string = process.env.NEAR_ENV
+  env: string = process.env.REACT_APP_NEAR_ENV
 ) {
   switch (env) {
     case 'production':
@@ -696,3 +842,19 @@ export function getTransakConfig(
       };
   }
 }
+
+function getIsNewHostName() {
+  const env = process.env.REACT_APP_NEAR_ENV;
+  switch (env) {
+    case 'production':
+    case 'mainnet':
+      return location.hostname.includes('orderbook');
+    case 'testnet':
+    case 'pub-testnet':
+      return location.hostname.includes('bookdev'); // https://bookdev.ref-finance.com/
+    default:
+      return location.hostname.includes('orderbook'); //  https://orderbook.ref.finance/
+    // return location.hostname.includes('localhost'); //  https://orderbook.ref.finance/
+  }
+}
+export const isNewHostName = getIsNewHostName();

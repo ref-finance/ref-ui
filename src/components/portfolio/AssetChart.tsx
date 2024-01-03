@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useContext } from 'react';
-import { getAssets } from '~services/indexer';
+import { getAssets } from 'src/services/indexer';
 import { useClientMobile, isClientMobie, isMobile } from '../../utils/device';
 import {
   ResponsiveContainer,
@@ -17,10 +17,10 @@ import {
   ComposedChart,
 } from 'recharts';
 import BigNumber from 'bignumber.js';
-import { toPrecision, formatWithCommas } from '~utils/numbers';
+import { toPrecision, formatWithCommas } from 'src/utils/numbers';
 import { DotTopArea, DotBottomArea } from '../../components/icon/Portfolio';
 import { ChartNoData } from '../../components/icon/ChartNoData';
-import { ConnectToNearBtn } from '~components/button/Button';
+import { ConnectToNearBtn } from 'src/components/button/Button';
 import {
   WalletContext,
   getCurrentWallet,
@@ -64,7 +64,7 @@ export default function AssetChart() {
   function switchDimension(key: 'M' | 'W' | 'H') {
     setActiveDimension(key);
   }
-  const CustomTooltip = (params: any) => {
+  const CustomTooltipNode = (params: any) => {
     const { active, payload } = params;
     if (active && payload && payload.length) {
       const { assets, date_itme } = payload[0].payload;
@@ -175,7 +175,7 @@ export default function AssetChart() {
                 //   border:'10px solid orange'
                 // }}
                 // contentStyle={{border:'10px solid orange', backgroundColor:'red'}}
-                content={<CustomTooltip />}
+                content={<CustomTooltipNode />}
                 cursor={{ opacity: '0.3' }}
               />
               <Area

@@ -19,19 +19,19 @@ import {
   remove_liquidity,
   list_liquidities,
 } from '../../services/swapV3';
-import { ReturnIcon, SwitchButton, TipIon } from '~components/icon/V3';
+import { ReturnIcon, SwitchButton, TipIon } from 'src/components/icon/V3';
 import {
   GradientButton,
   ButtonTextWrapper,
   OprationButton,
-} from '~components/button/Button';
-import { RemovePoolV3 } from '~components/pool/RemovePoolV3';
-import { AddPoolV3 } from '~components/pool/AddPoolV3';
+} from 'src/components/button/Button';
+import { RemovePoolV3 } from 'src/components/pool/RemovePoolV3';
+import { AddPoolV3 } from 'src/components/pool/AddPoolV3';
 import {
   formatWithCommas,
   toPrecision,
   toReadableNumber,
-} from '~utils/numbers';
+} from 'src/utils/numbers';
 import { ftGetTokenMetadata } from '../../services/ft-contract';
 import { TokenMetadata } from '../../services/ft-contract';
 import { useTokens } from '../../state/token';
@@ -39,7 +39,6 @@ import {
   getPriceByPoint,
   CONSTANT_D,
   UserLiquidityInfo,
-  useAddAndRemoveUrlHandle,
   getXAmount_per_point_by_Lx,
   getYAmount_per_point_by_Ly,
   drawChartData,
@@ -66,12 +65,13 @@ import getConfig from '../../services/config';
 import {
   allocation_rule_liquidities,
   sort_tokens_by_base,
-} from '~services/commonV3';
-import { LinkArrowIcon } from '~components/icon/FarmBoost';
+} from 'src/services/commonV3';
+import { LinkArrowIcon } from 'src/components/icon/FarmBoost';
 import { get_detail_the_liquidity_refer_to_seed } from './YourLiquidityPageV3';
 const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
-import ReactTooltip from 'react-tooltip';
-import { isMobile } from '~utils/device';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
+import { isMobile } from 'src/utils/device';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 export default function YourLiquidityDetail(props: any) {
   const [poolDetail, setPoolDetail] = useState<PoolInfo>();
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>();
@@ -93,8 +93,6 @@ export default function YourLiquidityDetail(props: any) {
   const [is_in_farming_done, set_is_in_farming_done] = useState<boolean>(false);
   const [related_farms, set_related_farms] = useState<FarmBoost[]>([]);
   const history = useHistory();
-  // callBack handle
-  useAddAndRemoveUrlHandle();
   const { id, status } = props.match.params || {};
   let is_old_dcl: boolean;
   let tokenXId, tokenYId, feeV, lId;
@@ -840,22 +838,17 @@ export default function YourLiquidityDetail(props: any) {
             }`}
             onClick={claimRewards}
             data-class="reactTip"
-            data-for="pause_v2_tip_3"
+            data-tooltip-id="pause_v2_tip_3"
             data-place="top"
-            data-html={true}
-            data-tip={is_old_dcl && !is_mobile ? pause_old_dcl_claim_tip() : ''}
+            data-tooltip-html={
+              is_old_dcl && !is_mobile ? pause_old_dcl_claim_tip() : ''
+            }
           >
             <ButtonTextWrapper
               loading={claimLoading}
               Text={() => <FormattedMessage id="claim" />}
             />
-            <ReactTooltip
-              id="pause_v2_tip_3"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            <CustomTooltip id="pause_v2_tip_3" />
           </div>
         </div>
       </div>
@@ -950,6 +943,7 @@ export default function YourLiquidityDetail(props: any) {
           onRequestClose={() => {
             setShowRemoveBox(false);
           }}
+          listLiquidities={listLiquidities}
           tokenMetadata_x_y={tokenMetadata_x_y}
           poolDetail={poolDetail}
           tokenPriceList={tokenPriceList}

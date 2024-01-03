@@ -1,23 +1,18 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Pool } from '~services/pool';
+import { Pool } from 'src/services/pool';
 import { Icon } from './StableTokenList';
 import { FormattedMessage } from 'react-intl';
-import { TokenMetadata } from '~services/ft-contract';
-import { UnCheckedRadio, CheckedRadio, Radio } from '~components/icon';
+import { TokenMetadata } from 'src/services/ft-contract';
+import { UnCheckedRadio, CheckedRadio, Radio } from 'src/components/icon';
 import { useIntl } from 'react-intl';
-import {
-  FaAngleUp,
-  FaAngleDown,
-  FaExchangeAlt,
-  FaServicestack,
-} from 'react-icons/fa';
+import { FaAngleUp, FaAngleDown } from '../reactIcons';
 import {
   PriceImpactWarning,
   SwapDetail,
   SwapRateDetail,
-} from '~components/swap/SwapCard';
-import { toRealSymbol } from '~utils/token';
-import { WarnTriangle, ErrorTriangle } from '~components/icon/SwapRefresh';
+} from 'src/components/swap/SwapCard';
+import { toRealSymbol } from 'src/utils/token';
+import { WarnTriangle, ErrorTriangle } from 'src/components/icon/SwapRefresh';
 import { StableSwapExchangePC, SwapExchange } from '../icon/Arrows';
 import { isMobile, useMobile } from '../../utils/device';
 
@@ -27,7 +22,7 @@ import {
   scientificNotationToString,
   divide,
   multiply,
-} from '~utils/numbers';
+} from 'src/utils/numbers';
 
 const GetPriceImpact = (
   value: string,

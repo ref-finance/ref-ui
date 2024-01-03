@@ -7,9 +7,13 @@ import {
   V3_POOL_SPLITER,
   pointToPrice,
 } from '../../services/swapV3';
-import { calculateFeePercent, ONLY_ZEROS, toPrecision } from '~utils/numbers';
+import {
+  calculateFeePercent,
+  ONLY_ZEROS,
+  toPrecision,
+} from 'src/utils/numbers';
 
-import { BsCheckCircle } from 'react-icons/bs';
+import { BsCheckCircle } from '../reactIcons';
 
 import {
   toReadableNumber,
@@ -21,7 +25,7 @@ import Big from 'big.js';
 import { TIMESTAMP_DIVISOR } from '../../components/layout/Proposal';
 import moment from 'moment';
 import QuestionMark from '../../components/farm/QuestionMark';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { toRealSymbol } from '../../utils/token';
 import { ExclamationTip } from '../../components/layout/TipWrapper';
 import { MyOrderInstantSwapArrowRight } from '../../components/icon/swapV3';
@@ -42,12 +46,11 @@ import {
   useTotalOrderData,
   getAccountId,
 } from './Tool';
-import {
-  WalletContext,
-  getCurrentWallet,
-} from '../../utils/wallets-integration';
-import getConfig from '~services/config';
-import { isMobile } from '~utils/device';
+import { WalletContext } from '../../utils/wallets-integration';
+import getConfig from 'src/services/config';
+import { isMobile } from 'src/utils/device';
+import { SWAP_MODE_KEY, SWAP_MODE } from '../../pages/SwapPage';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 const is_mobile = isMobile();
 const { explorerUrl } = getConfig();
 
@@ -201,15 +204,20 @@ function OrderCard({
       .div(p)
       .toFixed(tokensMap[order.buy_token].decimals);
 
-    return scientificNotationToString(sell_amount);
+    // return scientificNotationToString(sell_amount);
+    return display_amount(sell_amount);
   };
   function display_amount(amount: string) {
-    if (new Big(amount).eq(0)) {
-      return '0';
-    } else if (Number(amount) > 0 && Number(amount) < 0.01) {
-      return '< 0.01';
-    } else {
-      return toPrecision(amount, 2);
+    try {
+      if (new Big(amount).eq(0)) {
+        return '0';
+      } else if (Number(amount) > 0 && Number(amount) < 0.01) {
+        return '< 0.01';
+      } else {
+        return toPrecision(amount, 2);
+      }
+    } catch (error) {
+      return amount;
     }
   }
   function display_amount_3_decimal(amount: string) {
@@ -433,7 +441,6 @@ function OrderCard({
       displayPercents[1] == '100'
         ? display_amount(orderIn)
         : buyAmountToSellAmount(order.unclaimed_amount || '0', order, price);
-
     const sellTokenAmount = (
       <div className="flex items-center whitespace-nowrap w-28 justify-between xsm:w-1 xsm:flex-grow">
         <span className="flex flex-shrink-0 items-center">
@@ -525,9 +532,8 @@ function OrderCard({
         data-place="bottom"
         data-multiline={true}
         data-class="reactTip"
-        data-html={true}
-        data-tip={getUnclaimAmountTip()}
-        data-for={'unclaim_tip_' + order.order_id}
+        data-tooltip-html={getUnclaimAmountTip()}
+        data-tooltip-id={'unclaim_tip_' + order.order_id}
       >
         <span className="mr-1 xsm:ml-2.5 xsm:mr-3.5">
           <QuestionMark color="dark" />
@@ -545,6 +551,7 @@ function OrderCard({
 
             return (
               <div
+                key={i}
                 className={`mx-px h-1 xs:h-2 rounded-lg ${bgColor}`}
                 style={{
                   width: p + '%',
@@ -553,15 +560,10 @@ function OrderCard({
             );
           })}
         </div>
-        <ReactTooltip
+        <CustomTooltip
           className="w-20"
           id={'unclaim_tip_' + order.order_id}
-          backgroundColor="#1D2932"
           place="bottom"
-          border
-          borderColor="#7e8a93"
-          textColor="#C6D1DA"
-          effect="solid"
         />
       </div>
     );
@@ -1051,7 +1053,8 @@ function OrderCard({
             </span>
             <span
               onClick={() => {
-                openUrl('/myOrder');
+                localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.LIMIT);
+                openUrl('/');
               }}
               className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md px-1.5 cursor-pointer hover:text-white py-0.5"
             >
@@ -1105,7 +1108,8 @@ function OrderCard({
         >
           <span
             onClick={() => {
-              openUrl('/myOrder');
+              localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.LIMIT);
+              openUrl('/');
             }}
             className="flex items-center justify-center text-xs text-v3SwapGray relative -top-3 "
           >

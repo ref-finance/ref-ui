@@ -7,21 +7,23 @@ import type {
 
 import { InjectedWallet } from '@near-wallet-selector/core';
 
-import type { ModalOptions } from '../modal.types';
+import type { ModalOptions } from '../../modal.types';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { useClientMobile } from '../../../utils/device';
-import { ACCOUNT_ID_KEY } from '../../WalletSelectorContext';
-import { walletIcons } from '../../walletIcons';
-import { walletsRejectError } from '../../../utils/wallets-integration';
+import { useClientMobile } from '../../../../utils/device';
+import { ACCOUNT_ID_KEY } from '../../../WalletSelectorContext';
+import { walletIcons } from '../../../walletIcons';
+import { walletsRejectError } from '../../../../utils/wallets-integration';
 import {
   Checkbox,
   CheckboxSelected,
   AuthenticationIcon,
-} from '../../../components/icon';
-import ReactTooltip from 'react-tooltip';
-import { REF_FI_SENDER_WALLET_ACCESS_KEY } from '../../../pages/Orderly/orderly/utils';
-import { ORDERLY_ASSET_MANAGER } from '../../../pages/Orderly/near';
-import { openUrl } from '../../../services/commonV3';
+} from '../../../../components/icon';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
+import { REF_FI_SENDER_WALLET_ACCESS_KEY } from '../../../../pages/Orderly/orderly/utils';
+import { ORDERLY_ASSET_MANAGER } from '../../../../pages/Orderly/near';
+import { openUrl } from '../../../../services/commonV3';
+import { WalletRiskCheckBox } from 'src/context/modal-ui/components/WalletOptions/WalletRiskCheckBox';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 const walletOfficialUrl = {
   'NEAR Wallet': 'wallet.near.org',
@@ -280,6 +282,7 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
       <div
         className={`wallet-options-wrapper ${!checkedStatus ? 'hidden' : ''}`}
       >
+        asjhdkasldkjaskldjsakld jkl
         <ul className={'options-list'}>
           {modules.reduce<Array<JSX.Element>>(
             (result, module, currentIndex) => {
@@ -345,10 +348,9 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
                           <div
                             className="text-white text-right ml-1"
                             data-class="reactTip"
-                            data-for={`walletOptionId_${module.id}`}
+                            data-tooltip-id={`walletOptionId_${module.id}`}
                             data-place="top"
-                            data-html={true}
-                            data-tip={
+                            data-tooltip-html={
                               walletOfficialMark[name]?.link ? getTip() : ''
                             }
                           >
@@ -363,13 +365,7 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
                                 }
                               }}
                             ></AuthenticationIcon>
-                            <ReactTooltip
-                              id={`walletOptionId_${module.id}`}
-                              backgroundColor="#1D2932"
-                              border
-                              borderColor="#7e8a93"
-                              effect="solid"
-                            />
+                            <CustomTooltip id={`walletOptionId_${module.id}`} />
                           </div>
                         ) : null}
                       </div>
@@ -410,44 +406,10 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
         </div>
       )}
       {selectedWalletId ? null : (
-        <CheckBoxForRisk setCheckedStatus={setCheckedStatus} />
+        <WalletRiskCheckBox setCheckedStatus={setCheckedStatus} />
       )}
 
       <WalletSelectorFooter />
     </Fragment>
-  );
-};
-
-export const CheckBoxForRisk = (props: any) => {
-  const { setCheckedStatus } = props;
-  // <FormattedMessage id="login_risk_tip"></FormattedMessage>
-  const intl = useIntl();
-  const login_tip = intl.formatMessage({ id: 'login_risk_tip' });
-  const [checkBoxStatus, setCheckBoxStatus] = useState(false);
-  function switchCheckBox() {
-    const newStatus = !checkBoxStatus;
-    setCheckBoxStatus(newStatus);
-    setCheckedStatus(newStatus);
-  }
-  return (
-    <div
-      className={`flex items-start ${checkBoxStatus ? 'my-4' : 'mb-4 mt-1'}`}
-    >
-      {checkBoxStatus ? (
-        <CheckboxSelected
-          className="relative flex-shrink-0 mr-3 top-1 cursor-pointer"
-          onClick={switchCheckBox}
-        ></CheckboxSelected>
-      ) : (
-        <Checkbox
-          className="relative flex-shrink-0 mr-3 top-1 cursor-pointer"
-          onClick={switchCheckBox}
-        ></Checkbox>
-      )}
-      <span
-        className="text-sm text-v3SwapGray"
-        dangerouslySetInnerHTML={{ __html: login_tip }}
-      ></span>
-    </div>
   );
 };

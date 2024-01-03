@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Card } from '../../components/card/Card';
 import { FormattedMessage } from 'react-intl';
-import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
+import { FaAngleUp, FaAngleDown } from '../reactIcons';
 import { TokenMetadata } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
 import { useIntl } from 'react-intl';
@@ -18,7 +18,7 @@ import {
 import { InfoLine } from './LiquidityComponents';
 import _ from 'lodash';
 import BigNumber from 'bignumber.js';
-import { useDayVolume } from '~state/pool';
+import { useDayVolume } from 'src/state/pool';
 import {
   scientificNotationToString,
   checkAllocations,
@@ -70,9 +70,7 @@ function TokenChart({
   });
   const color = {
     DAI: 'rgba(255, 199, 0, 0.45)',
-    'USDT.e': '#167356',
     USDT: '#167356',
-    'USDC.e': 'rgba(0, 163, 255, 0.45)',
     USN: 'rgba(255, 255, 255, 0.45)',
     cUSD: 'rgba(69, 205, 133, 0.6)',
     HBTC: '#4D85F8',
@@ -83,7 +81,10 @@ function TokenChart({
     NEARXC: '#4d5971',
     NearXC: '#4d5971',
     NearX: '#00676D',
-    USDt: '#0E8585',
+    'USDT.e': '#19936D',
+    'USDC.e': '#2B6EB7',
+    USDC: '#2FA7DB',
+    USDt: '#45D0C0',
   };
 
   const noBorderTokens = ['LINEAR', 'USDt'];

@@ -1,4 +1,4 @@
-import { TokenMetadata } from '~services/ft-contract';
+import { TokenMetadata } from 'src/services/ft-contract';
 interface IPool {
   shares: string;
   balance: string;

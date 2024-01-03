@@ -1,28 +1,28 @@
 import React, { useEffect, useRef, useState, useContext } from 'react';
-import QuestionMark from '~components/farm/QuestionMark';
-import { Checkbox, CheckboxSelected } from '~components/icon';
+import QuestionMark from 'src/components/farm/QuestionMark';
+import { Checkbox, CheckboxSelected } from 'src/components/icon';
 import {
   GradientButton,
   ButtonTextWrapper,
   GreenConnectToNearBtn,
-} from '~components/button/Button';
+} from 'src/components/button/Button';
 import {
   getBoostTokenPrices,
   migrate_user_seed,
   MigrateSeed,
   useMigrate_user_data,
-} from '~services/farm';
-import { withdrawAllReward } from '~services/m-token';
+} from 'src/services/farm';
+import { withdrawAllReward } from 'src/services/m-token';
 import {
   formatWithCommas,
   toReadableNumber,
   toInternationalCurrencySystem,
-} from '~utils/numbers';
-import { ArrowLeftIcon, MigrateIcon } from '~components/icon/FarmBoost';
-import { useTokens } from '~state/token';
-import ReactTooltip from 'react-tooltip';
-import { toRealSymbol } from '~utils/token';
-import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
+} from 'src/utils/numbers';
+import { ArrowLeftIcon, MigrateIcon } from 'src/components/icon/FarmBoost';
+import { useTokens } from 'src/state/token';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
+import { toRealSymbol } from 'src/utils/token';
+import { ftGetTokenMetadata, TokenMetadata } from 'src/services/ft-contract';
 import { Link, useHistory, useLocation } from 'react-router-dom';
 import _ from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -32,7 +32,8 @@ import {
   getCurrentWallet,
   WalletContext,
 } from '../../utils/wallets-integration';
-import Loading from '~components/layout/Loading';
+import Loading from 'src/components/layout/Loading';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 const { STABLE_POOL_IDS, REF_VE_CONTRACT_ID } = getConfig();
 export default function FarmsMigrate() {
   const [all_token_price_list, set_all_token_price_list] = useState({});
@@ -409,19 +410,12 @@ function WithDrawBox(props: { userRewardList: any; tokenPriceList: any }) {
               <div
                 className="text-white text-right ml-1"
                 data-class="reactTip"
-                data-for="selectAllId"
+                data-tooltip-id="selectAllId"
                 data-place="top"
-                data-html={true}
-                data-tip={valueOfWithDrawLimitTip()}
+                data-tooltip-html={valueOfWithDrawLimitTip()}
               >
                 <QuestionMark></QuestionMark>
-                <ReactTooltip
-                  id="selectAllId"
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                />
+                <CustomTooltip id="selectAllId" />
               </div>
             </div>
           ) : (

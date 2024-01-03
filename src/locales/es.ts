@@ -938,6 +938,8 @@ const es = {
   state: 'Estado',
   partially: 'Parcialmente',
   near_validation_error: 'Must have 0.5N or more left in wallet for gas fee.',
+  near_min_validation_error:
+    'Must have 0.2N or more left in wallet for gas fee.',
   no_positons_in_this_pool_yet: 'No positons in this pool yet',
   no_claimed_rewards_yet: 'Recompensas por reclamar',
   out_of: 'de',
@@ -1408,6 +1410,7 @@ const es = {
     'Hubo un problema con el servidor, por favor intenta de nuevo más tarde.',
   netWorthTip:
     'Valor total de inversiones en Ref (incluyendo recompensas reclamables) + Valor total de activos en Orderly + Valor total de activos en Burrow + Activos totales en la billetera',
+  top_bin_apr: 'Top Bin APR (24h)',
   mark_price: 'Precio de Marca',
   last_price: 'Último Precio',
   mark_price_tip:

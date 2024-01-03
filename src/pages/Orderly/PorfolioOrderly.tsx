@@ -1,11 +1,16 @@
-import React, { createContext, useEffect, useContext, useState } from 'react';
+import React, {
+  createContext,
+  useEffect,
+  useContext,
+  useState,
+  useMemo,
+} from 'react';
 import Big from 'big.js';
-import ReactTooltip from 'react-tooltip';
 import _ from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
-import { isMobile } from '~utils/device';
-import { executeMultipleTransactions } from '~services/near';
+import { isMobile } from 'src/utils/device';
+import { executeMultipleTransactions } from 'src/services/near';
 import { numberWithCommas } from './utiles';
 import { toPrecision } from './near';
 import TableWithTabs from './components/TableWithTabs';
@@ -17,7 +22,6 @@ import { MobileHistoryOrderDetail } from './components/AllOrders';
 import { formatTimeDate } from './components/OrderBoard';
 import { usePortableOrderlyTable, useMarketlist } from './orderly/constantWjsx';
 import {
-  getOrderlySystemInfo,
   createOrder,
   getOrderByOrderId,
   getOrderTrades,
@@ -49,6 +53,9 @@ import { useOrderlyContext } from './orderly/OrderlyContext';
 import { Holding, MyOrder, OrderTrade } from './orderly/type';
 import { WalletContext } from '../../utils/wallets-integration';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
+import getConfigV2 from '../../services/configV2';
+const configV2 = getConfigV2();
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 export const PortfolioOrderlyData = createContext(null);
 const is_mobile = isMobile();
 
@@ -68,6 +75,8 @@ function PortfolioOrderly() {
     needRefresh,
     maintenance,
   } = useOrderlyContext();
+  const { symbolFrom, symbolTo } = parseSymbol(symbol);
+  const curHoldingOut = holdings?.find((h) => h.token === symbolTo);
   const isSignedIn = globalState.isSignedIn;
   // for connect wallet
   const [tradingKeySet, setTradingKeySet] = useState<boolean>(false);
@@ -104,7 +113,6 @@ function PortfolioOrderly() {
 
   // const [holdings, setHoldings] = useState<Holding[]>();
   const [operationType, setOperationType] = useState<'deposit' | 'withdraw'>();
-  const { symbolFrom } = parseSymbol(symbol);
 
   const tokenIn = useTokenMetaFromSymbol(symbolFrom, tokenInfo);
   const [operationId, setOperationId] = useState<string>(tokenIn?.id || '');
@@ -273,7 +281,7 @@ function PortfolioOrderly() {
         status: 'INCOMPLETE',
       },
     });
-    const filterOrders: MyOrder[] = data.rows.filter((order: MyOrder) =>
+    const filterOrders: MyOrder[] = data?.rows?.filter((order: MyOrder) =>
       order.symbol.includes('PERP')
     );
 
@@ -334,10 +342,9 @@ function PortfolioOrderly() {
                     <div
                       className="text-white text-right ml-1"
                       data-class="reactTip"
-                      data-for="selectAllId"
+                      data-tooltip-id="selectAllId"
                       data-place="top"
-                      data-html={true}
-                      data-tip={`
+                      data-tooltip-html={`
                         <div class="text-navHighLightText text-xs text-left w-64 xsm:w-52">
                           ${intl.formatMessage({
                             id: 'portfolio_total_est_tip',
@@ -347,14 +354,7 @@ function PortfolioOrderly() {
                       `}
                     >
                       <QuestionMark />
-                      <ReactTooltip
-                        id="selectAllId"
-                        backgroundColor="#1D2932"
-                        border
-                        borderColor="#7e8a93"
-                        effect="solid"
-                        place="top"
-                      />
+                      <CustomTooltip id="selectAllId" place="top" />
                     </div>
                   </span>
                 </div>
@@ -366,7 +366,8 @@ function PortfolioOrderly() {
                         (parseFloat(row.available) > 0 ||
                           parseFloat(row['in-order']) > 0 ||
                           (newPositions?.rows?.length > 0 &&
-                            row.tokenMeta.symbol.includes('USDC'))) && (
+                            row.tokenMeta.id ==
+                              configV2.ORDRRBOOK_COLLATTERAL_TOKEN)) && (
                           <div
                             key={row.tokenMeta.id}
                             className="flex items-center text-white text-sm -ml-1"
@@ -603,6 +604,7 @@ function PortfolioOrderly() {
         accountBalance={tokenInHolding || 0}
         tokenInfo={tokenInfo}
         freeCollateral={freeCollateral}
+        curHoldingOut={curHoldingOut}
       />
 
       <AssetManagerModal
@@ -619,6 +621,7 @@ function PortfolioOrderly() {
         accountBalance={tokenInHolding || 0}
         tokenInfo={tokenInfo}
         freeCollateral={freeCollateral}
+        curHoldingOut={curHoldingOut}
       />
 
       <MobileFilterModal

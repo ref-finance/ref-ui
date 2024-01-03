@@ -42,7 +42,7 @@ import {
 } from '../services/aurora/aurora';
 import { AllStableTokenIds, getAccountNearBalance } from '../services/near';
 import { defaultTokenList, getAuroraConfig } from '../services/aurora/config';
-import { wallet as webWallet } from '~services/near';
+import { wallet as webWallet } from 'src/services/near';
 import { getTokenPriceList } from '../services/indexer';
 import { useWalletSelector } from '../context/WalletSelectorContext';
 import {

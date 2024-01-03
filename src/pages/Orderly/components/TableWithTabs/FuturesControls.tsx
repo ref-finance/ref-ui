@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Big from 'big.js';
-import { MdArrowDropDown } from 'react-icons/md';
-import { IoClose } from 'react-icons/io5';
+import { IoClose, MdArrowDropDown } from '../../../../components/reactIcons';
 import { useIntl, IntlShape } from 'react-intl';
 import Modal from 'react-modal';
 import { debounce } from 'lodash';
@@ -624,7 +623,7 @@ export const FutureTableFormCells: React.FC<{
   const { availableSymbols, everyTickers } = useOrderlyContext();
   const [orders, setOrders] = useState<MyOrder[]>([]);
   const symbolInfo = availableSymbols?.find((s) => s.symbol === row.symbol);
-  const referenceMark = markPrices.find((m) => m.symbol === row.symbol);
+  const referenceMark = markPrices?.find((m) => m.symbol === row.symbol);
   const portfolioFailure = usePortfolioFailure();
 
   // get close price from everyTickers for this symbol

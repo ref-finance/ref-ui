@@ -2,7 +2,7 @@ import React from 'react';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
 
-import { HiOutlineExternalLink } from 'react-icons/hi';
+import { HiOutlineExternalLink } from '../reactIcons';
 import { useMobile } from '../../utils/device';
 export default function QuestionMark(props: {
   color?: 'bright' | 'dark';

@@ -1,18 +1,13 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { map, distinctUntilChanged, windowWhen } from 'rxjs';
+import { map, distinctUntilChanged } from 'rxjs';
 
-import {
-  NetworkId,
-  setupWalletSelector,
-  waitFor,
-} from '@near-wallet-selector/core';
+import { NetworkId, setupWalletSelector } from '@near-wallet-selector/core';
 import type { WalletSelector, AccountState } from '@near-wallet-selector/core';
-import { setupModal } from './modal-ui';
-import type { WalletSelectorModal } from './modal-ui';
+import { setupModal } from '@near-wallet-selector/modal-ui';
+import type { WalletSelectorModal } from '@near-wallet-selector/modal-ui';
 import { setupNearWallet } from '@near-wallet-selector/near-wallet';
 import { setupMyNearWallet } from '@near-wallet-selector/my-near-wallet';
 import { setupSender } from '@near-wallet-selector/sender';
-import { setupMathWallet } from '@near-wallet-selector/math-wallet';
 import { setupLedger } from '@near-wallet-selector/ledger';
 
 import { setupHereWallet } from '@near-wallet-selector/here-wallet';
@@ -24,28 +19,20 @@ import { setupNightly } from '@near-wallet-selector/nightly';
 
 import getConfig from '../services/config';
 
-import './modal-ui/components/styles.css';
-import {
-  REF_FARM_CONTRACT_ID,
-  wallet,
-  REF_FARM_BOOST_CONTRACT_ID,
-  near,
-} from '../services/near';
+import '@near-wallet-selector/modal-ui/styles.css';
+import { near } from '../services/near';
 import { walletIcons } from './walletIcons';
 import { getOrderlyConfig } from '../pages/Orderly/config';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../pages/Orderly/components/UserBoard/index';
 import {
   REF_FI_SENDER_WALLET_ACCESS_KEY,
   REF_ORDERLY_NORMALIZED_KEY,
-  generateTradingKeyPair,
 } from '../pages/Orderly/orderly/utils';
 import {
   get_orderly_private_key_path,
   get_orderly_public_key_path,
 } from '../pages/Orderly/orderly/utils';
 import { isMobile } from '../utils/device';
-import { AccountView } from 'near-api-js/lib/providers/provider';
-import { Account, providers } from 'near-api-js';
 
 const CONTRACT_ID = getOrderlyConfig().ORDERLY_ASSET_MANAGER;
 
@@ -110,55 +97,33 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
       network: getConfig().networkId as NetworkId,
       debug: false,
       modules: [
-        setupNearWallet({
-          iconUrl: walletIcons['near-wallet'],
-        }),
         setupMyNearWallet({
-          iconUrl: walletIcons['my-near-wallet'],
-        }),
-        setupSender({
-          iconUrl: walletIcons['sender'],
-        }),
-        // @ts-ignore
-        setupMeteorWallet({
-          iconUrl: walletIcons['meteor-wallet'],
-        }),
-        setupNeth({
-          iconUrl: walletIcons['neth'],
-          gas: '300000000000000',
-          bundle: false,
-        }),
-        // @ts-ignore
-        setupNightly({
-          iconUrl: walletIcons['nightly'],
-        }),
-        setupLedger({
-          iconUrl: walletIcons['ledger'],
+          // iconUrl: walletIcons['my-near-wallet'],
         }),
         // @ts-ignore
         setupHereWallet(),
-        // setupNightlyConnect({
-        //   url: 'wss://ncproxy.nightly.app/app',
-        //   appMetadata: {
-        //     additionalInfo: '',
-        //     application: 'ref fiannce',
-        //     description: 'Example dApp used by NEAR Wallet Selector',
-        //     icon: 'https://near.org/wp-content/uploads/2020/09/cropped-favicon-192x192.png',
-        //   },
-        //   iconUrl: walletIcons['nightly-connect'],
-        // }),
-        // setupWalletConnect({
-        //   projectId: '423baa464ffaeca9d7165ab4222d534f',
-        //   relayUrl: 'wss://relay.walletconnect.com',
-        //   metadata: {
-        //     name: 'ref_finance',
-        //     description: 'Example dApp used by NEAR Wallet Selector',
-        //     url: 'https://github.com/near/wallet-selector',
-        //     icons: walletIcons['wallet-connect'],
-        //   },
-        //   chainId: `near:${getConfig().networkId}}`,
-        //   iconUrl: walletIcons['wallet-connect'],
-        // }),
+        setupNearWallet({
+          // iconUrl: walletIcons['near-wallet'],
+        }),
+        setupSender({
+          // iconUrl: walletIcons['sender'],
+        }),
+        // @ts-ignore
+        setupMeteorWallet({
+          // iconUrl: walletIcons['meteor-wallet'],
+        }),
+        setupNeth({
+          // iconUrl: walletIcons['neth'],
+          gas: '300000000000000',
+          bundle: false,
+        }) as any,
+        // @ts-ignore
+        setupNightly({
+          // iconUrl: walletIcons['nightly'],
+        }),
+        setupLedger({
+          // iconUrl: walletIcons['ledger'],
+        }),
       ],
     });
     const _modal = setupModal(_selector, {
@@ -234,36 +199,6 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
     getAllKeys(accountId);
   }, [accountId, selector]);
 
-  // const getAccount = useCallback(async (): Promise<Account | null> => {
-  //   if (!accountId) {
-  //     return null;
-  //   }
-
-  //   const provider = new providers.JsonRpcProvider({
-  //     url: getConfig().nodeUrl,
-  //   });
-
-  //   return provider
-  //     .query<AccountView>({
-  //       request_type: 'view_account',
-  //       finality: 'final',
-  //       account_id: accountId,
-  //     })
-  //     .then((data: any) => ({
-  //       ...data,
-  //       account_id: accountId,
-  //     }));
-  // }, [accountId]);
-
-  // useEffect(() => {
-  //   if (!selector || !accountId) return;
-
-  //   getAccount().catch((e) => {
-  //     alert(e?.message);
-  //     selector.wallet().then((wallet) => wallet.signOut());
-  //   });
-  // }, [selector, accountId]);
-
   if (!selector || !modal || (!!accountId && isLedger === undefined)) {
     return null;
   }
@@ -293,8 +228,8 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
 
       if (
         keyStoreSender &&
-        !!keyStoreSender?.['accountId'] &&
-        !!keyStoreSender?.['accessKey']
+        !!keyStoreSender?.accountId &&
+        !!keyStoreSender?.accessKey
       ) {
         localStorage.setItem(
           REF_FI_SENDER_WALLET_ACCESS_KEY,

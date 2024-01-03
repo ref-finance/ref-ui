@@ -2,17 +2,17 @@ import React, { useEffect, useMemo, useState, useContext, useRef } from 'react';
 import BigNumber from 'bignumber.js';
 import { useUserRegisteredTokensAllAndNearBalance } from '../../state/token';
 import { TokenMetadata } from '../../services/ft-contract';
-import { toReadableNumber } from '~utils/numbers';
+import { toReadableNumber } from 'src/utils/numbers';
 import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import ReactECharts from 'echarts-for-react';
-import { useWalletSelector } from '~context/WalletSelectorContext';
+import { useWalletSelector } from 'src/context/WalletSelectorContext';
 import {
   auroraAddr,
   useAuroraBalancesNearMapping,
   useDCLAccountBalance,
-} from '~services/aurora/aurora';
-import { useTokenBalances } from '~state/token';
-import { NEARXIDS } from '~services/near';
+} from 'src/services/aurora/aurora';
+import { useTokenBalances } from 'src/state/token';
+import { NEARXIDS } from 'src/services/near';
 import { PortfolioData } from '../../pages/Portfolio';
 import {
   ArrowJumpLarge,
@@ -34,7 +34,7 @@ import {
   CopyIcon,
 } from '../../components/icon/Portfolio';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { isMobile } from '~utils/device';
+import { isMobile } from 'src/utils/device';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { openUrl } from '../../services/commonV3';
 

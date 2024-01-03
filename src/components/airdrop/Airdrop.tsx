@@ -1,27 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { FaExclamationCircle, FaRegQuestionCircle } from 'react-icons/fa';
-import { wallet } from '~services/near';
-import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
-import Loading from '~components/layout/Loading';
+import { FaExclamationCircle, FaRegQuestionCircle } from '../reactIcons';
+import { wallet } from 'src/services/near';
+import { ftGetTokenMetadata, TokenMetadata } from 'src/services/ft-contract';
+import Loading from 'src/components/layout/Loading';
 import Countdown, { zeroPad } from 'react-countdown';
-import { Item } from '~components/airdrop/Item';
+import { Item } from 'src/components/airdrop/Item';
 import {
   AccountOptions,
   claim,
   getAccount,
   getStats,
   StatsOptions,
-} from '~services/airdrop';
-import { toReadableNumber } from '~utils/numbers';
+} from 'src/services/airdrop';
+import { toReadableNumber } from 'src/utils/numbers';
 import moment from 'moment';
-import { SmallConnectToNearBtn } from '~components/button/Button';
-import ReactTooltip from 'react-tooltip';
-import copy from '~utils/copy';
-import { getCurrentUnixTime } from '~services/api';
+import { SmallConnectToNearBtn } from 'src/components/button/Button';
+import copy from 'src/utils/copy';
+import { getCurrentUnixTime } from 'src/services/api';
 import { useHistory, useLocation } from 'react-router';
-import { checkTransaction } from '~services/swap';
+import { checkTransaction } from 'src/services/swap';
 import { toast } from 'react-toastify';
-import getConfig from '~services/config';
+import getConfig from 'src/services/config';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { getCurrentWallet } from '../../utils/wallets-integration';
 
@@ -197,7 +196,6 @@ function participateAirdropView(
         >
           <FormattedMessage id="claim" defaultMessage="Claim" />
         </button>
-        <ReactTooltip className="text-xs font-light" />
       </div>
     </div>
   );
@@ -240,7 +238,6 @@ export default function AirdropView() {
             data-tip={intl.formatMessage({ id: 'airdropCopy' })}
             className="inline-block	ml-2 text-xs font-semibold text-secondaryScale-500"
           />
-          <ReactTooltip className="text-xs font-light" />
         </div>
       );
     }

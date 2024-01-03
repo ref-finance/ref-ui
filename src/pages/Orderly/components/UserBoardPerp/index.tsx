@@ -5,11 +5,9 @@ import React, {
   useDebugValue,
   useMemo,
 } from 'react';
-import { BsArrowRight, BsWrenchAdjustableCircleFill } from 'react-icons/bs';
 
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import { parseSymbol } from '../RecentTrade/index';
-import { useInView } from 'react-intersection-observer';
 
 import {
   nearMetadata,
@@ -45,11 +43,8 @@ import {
 } from '../../orderly/type';
 import { BuyButton, BuyButtonPerp, SellButton, SellButtonPerp } from './Button';
 import './index.css';
-import { FaMinus, FaPlus } from 'react-icons/fa';
 import Modal from 'react-modal';
 import Big from 'big.js';
-import { IoClose } from 'react-icons/io5';
-import { MdArrowDropDown } from 'react-icons/md';
 
 import {
   CheckBox,
@@ -73,7 +68,12 @@ import {
   numberWithCommas,
 } from '../../utiles';
 
-import { FiSearch } from 'react-icons/fi';
+import {
+  FiSearch,
+  BsArrowRight,
+  MdArrowDropDown,
+  IoClose,
+} from '../../../../components/reactIcons';
 import {
   NearIConSelectModal,
   OutLinkIcon,
@@ -85,7 +85,7 @@ import {
   OrderlyNetworkIconGray,
 } from '../Common/Icons';
 
-import { MdKeyboardArrowDown } from 'react-icons/md';
+import { MdKeyboardArrowDown } from '../../../../components/reactIcons';
 import {
   is_orderly_key_announced,
   is_trading_key_set,
@@ -93,7 +93,7 @@ import {
 import getConfig from '../../config';
 import { useTokenMetaFromSymbol } from '../ChartHeader/state';
 import { AssetModal } from '../AssetModal';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { ButtonTextWrapper } from '../../../../components/button/Button';
 import { FlexRow, orderEditPopUpFailure } from '../Common/index';
 import { ONLY_ZEROS } from '../../../../utils/numbers';
@@ -111,6 +111,11 @@ import {
   MarginRatioText,
   TotaluPNLText,
   UnsettlePnl,
+  TotalCollateralText,
+  FreeCollateralText,
+  UsdcAvailableBalanceText,
+  CollatteralToken,
+  CollatteralTokenAvailableCell,
 } from './components/HoverText';
 import {
   getLqPrice,
@@ -131,6 +136,8 @@ import { useTokensBalances } from '../UserBoard/state';
 import { SetLeverageButton } from './components/SetLeverageButton';
 import { DepositTip } from './components/DepositTip';
 import { NewUserTip } from '../Common/NewUserTip';
+import { useOrderlyBalancesStore } from '../../../../stores/orderlyBalances';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 const REF_ORDERLY_LIMIT_ORDER_ADVANCE = 'REF_ORDERLY_LIMIT_ORDER_ADVANCE';
 
 function getTipFOK() {
@@ -534,6 +541,8 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
   const [confirmModalOpen, setConfirmModalOpen] = useState<boolean>(false);
 
   const [agreeCheck, setAgreeCheck] = useState<boolean>(false);
+  const [collateralTokenTip, setCollateralTokenTip] = useState<boolean>(false);
+
   const {
     totalCollateral,
     mmr,
@@ -547,6 +556,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     userInfo,
     newPositions,
     accountCurLeverage,
+    collateralTokenAvailableBalance,
   } = usePerpData();
 
   const [registerModalOpen, setRegisterModalOpen] = useState<boolean>(false);
@@ -640,7 +650,8 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     curSymbolMarkPrice,
     availableSymbols,
   ]);
-
+  const orderlyBalancesStore: any = useOrderlyBalancesStore();
+  const orderlyBalances = orderlyBalancesStore.getBalances();
   const storedLimitOrderAdvance =
     sessionStorage.getItem(REF_ORDERLY_LIMIT_ORDER_ADVANCE) || '{}';
 
@@ -673,26 +684,16 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
   const tokenFromBalance = useTokenBalance(
     tokenIn?.id,
-    JSON.stringify(balances)
+    JSON.stringify(orderlyBalances)
   );
 
   const tokenToBalance = useTokenBalance(
     tokenOut?.id,
-    JSON.stringify(balances)
+    JSON.stringify(orderlyBalances)
   );
-
-  const tokenOutHolding =
-    tokenOut?.symbol?.toLowerCase()?.includes('usdc') && freeCollateral !== '-'
-      ? freeCollateral
-      : curHoldingOut
-      ? toPrecision(
-          new Big(
-            curHoldingOut.holding + curHoldingOut.pending_short
-          ).toString(),
-          Math.min(8, tokenOut?.decimals || 8),
-          false
-        )
-      : balances && balances[symbolTo]?.holding;
+  const usdcAvailableBalance = curHoldingOut
+    ? new Big(curHoldingOut.holding + curHoldingOut.pending_short).toFixed(2)
+    : '-';
 
   const marketPrice = !orders
     ? 0
@@ -1317,38 +1318,35 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
         <span className="font-nunito text-white">{mmr}</span>
       </div>
-
-      {/* free collateral */}
-
-      <div className="frcb">
-        <FormattedMessage
-          id="free_collateral"
-          defaultMessage={`Free Collateral`}
-        />
-
-        <span className="font-nunito text-white">
-          {freeCollateral === '-' ? '-' : numberWithCommas(freeCollateral)}
-        </span>
-      </div>
-
       {/* total colleteral  */}
       <div className="frcb">
-        <FormattedMessage
-          id="total_collateral"
-          defaultMessage={`Total Collateral`}
-        ></FormattedMessage>
-
+        <TotalCollateralText />
         <span className="font-nunito text-white">
           {!newPositions || totalCollateral === '-'
             ? '-'
             : numberWithCommas(totalCollateral)}
         </span>
       </div>
+      {/* Usdc Available Balance */}
+      <div className="frcb">
+        <UsdcAvailableBalanceText />
+        <span className="font-nunito text-white">
+          {collateralTokenAvailableBalance === '-'
+            ? '-'
+            : numberWithCommas(collateralTokenAvailableBalance)}
+        </span>
+      </div>
+      {/* free collateral */}
+      <div className="frcb">
+        <FreeCollateralText />
+        <span className="font-nunito text-white">
+          {freeCollateral === '-' ? '-' : numberWithCommas(freeCollateral)}
+        </span>
+      </div>
 
       {/* Total uPnL */}
       <div className="frcb">
         <TotaluPNLText></TotaluPNLText>
-
         <span className="font-nunito text-white">{totaluPnl}</span>
       </div>
 
@@ -1558,9 +1556,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       </div>
 
       {/* account  */}
-
       {perpBoardTab === 'account' && PerpAccountInfo}
-
       {/* balance */}
       {perpBoardTab == 'balance' && (
         <div className="flex bg-perpCardBg flex-col p-6 pb-3">
@@ -1659,6 +1655,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                 alt=""
               />
               <span>{symbolTo}</span>
+              <CollatteralToken />
             </div>
 
             <div
@@ -1667,21 +1664,11 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
             >
               {!!tokenToBalance ? digitWrapperAsset(tokenToBalance, 2) : ''}
             </div>
-
-            <div
-              className="flex items-center justify-self-end"
-              title={
-                tokenOutHolding !== undefined || tokenOutHolding !== null
-                  ? scientificNotationToString(
-                      tokenOutHolding?.toString() || ''
-                    )
-                  : ''
-              }
-            >
-              {tokenOutHolding
-                ? digitWrapperAsset(tokenOutHolding.toString(), 2)
-                : 0}
-            </div>
+            <CollatteralTokenAvailableCell
+              finalBalance={collateralTokenAvailableBalance}
+              usdcBalance={usdcAvailableBalance}
+              freeCollateral={freeCollateral}
+            />
           </div>
 
           <div className="inline-flex text-primaryOrderly justify-end  border-white border-opacity-10 mt-3">
@@ -2097,7 +2084,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                       setOnTotalFocus(false);
                     }}
                   />
-                  <span className="text-primaryText">USDC</span>
+                  <span className="text-primaryText">USDC.e</span>
                 </div>
               </div>
 
@@ -2110,7 +2097,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                 <div className="frcs gap-2">
                   <span className="text-white">{lqPrice}</span>
 
-                  <span className="text-primaryText">USDC</span>
+                  <span className="text-primaryText">USDC.e</span>
                 </div>
               </div>
               <div className="frcb">
@@ -2135,7 +2122,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
                         )}{' '}
                   </span>
 
-                  <span className="text-primaryText">USDC</span>
+                  <span className="text-primaryText">USDC.e</span>
                 </div>
               </div>
 
@@ -2213,22 +2200,13 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
                   <div
                     data-class="reactTip"
-                    data-for={'user_board_ioc'}
-                    data-html={true}
+                    data-tooltip-id={'user_board_ioc'}
                     data-place={'top'}
-                    data-tip={getTipIoc()}
+                    data-tooltip-html={getTipIoc()}
                   >
                     <QuestionMark></QuestionMark>
 
-                    <ReactTooltip
-                      id={'user_board_ioc'}
-                      backgroundColor="#1D2932"
-                      place="right"
-                      border
-                      borderColor="#7e8a93"
-                      textColor="#C6D1DA"
-                      effect="solid"
-                    />
+                    <CustomTooltip id={'user_board_ioc'} place="right" />
                   </div>
                 </div>
                 <div className="flex items-center">
@@ -2257,22 +2235,13 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
                   <div
                     data-class="reactTip"
-                    data-for={'user_board_folk'}
-                    data-html={true}
+                    data-tooltip-id={'user_board_folk'}
                     data-place={'top'}
-                    data-tip={getTipFOK()}
+                    data-tooltip-html={getTipFOK()}
                   >
                     <QuestionMark></QuestionMark>
 
-                    <ReactTooltip
-                      id={'user_board_folk'}
-                      backgroundColor="#1D2932"
-                      place="right"
-                      border
-                      borderColor="#7e8a93"
-                      textColor="#C6D1DA"
-                      effect="solid"
-                    />
+                    <CustomTooltip id={'user_board_folk'} place="right" />
                   </div>
                 </div>
                 <div className="flex items-center">
@@ -2301,22 +2270,13 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
                   <div
                     data-class="reactTip"
-                    data-for={'user_board_post_only'}
-                    data-html={true}
+                    data-tooltip-id={'user_board_post_only'}
                     data-place={'top'}
-                    data-tip={getTipPostOnly()}
+                    data-tooltip-html={getTipPostOnly()}
                   >
                     <QuestionMark></QuestionMark>
 
-                    <ReactTooltip
-                      id={'user_board_post_only'}
-                      backgroundColor="#1D2932"
-                      place="right"
-                      border
-                      borderColor="#7e8a93"
-                      textColor="#C6D1DA"
-                      effect="solid"
-                    />
+                    <CustomTooltip id={'user_board_post_only'} place="right" />
                   </div>
                 </div>
               </div>
@@ -2376,6 +2336,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       {showAllAssets && (
         <AssetModal
           isOpen={showAllAssets}
+          curHoldingOut={curHoldingOut}
           onRequestClose={() => {
             setShowAllAssets(false);
           }}
@@ -2396,6 +2357,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         accountBalance={tokenInHolding || 0}
         tokenInfo={tokenInfo}
         freeCollateral={freeCollateral}
+        curHoldingOut={curHoldingOut}
       />
 
       <AssetManagerModal
@@ -2412,6 +2374,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         accountBalance={tokenInHolding || 0}
         tokenInfo={tokenInfo}
         freeCollateral={freeCollateral}
+        curHoldingOut={curHoldingOut}
       />
 
       <ConfirmOrderModal
@@ -2423,6 +2386,7 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
         symbolTo={symbolTo}
         side={side}
         quantity={inputValue}
+        orderType={orderType}
         price={
           orderType === 'Limit' ? limitPrice : marketPrice?.toString() || '0'
         }
@@ -2466,6 +2430,7 @@ export function AssetManagerModal(
     standAlone?: boolean;
     tokenInfo: TokenInfo[] | undefined;
     freeCollateral: string;
+    curHoldingOut;
   }
 ) {
   const {
@@ -2479,6 +2444,7 @@ export function AssetManagerModal(
     tokenInfo,
     isOpen,
     freeCollateral,
+    curHoldingOut,
   } = props;
 
   const [tokenId, setTokenId] = useState<string | undefined>(tokenIdProp);
@@ -2508,9 +2474,9 @@ export function AssetManagerModal(
     }) || [],
     tokenInfo,
     isOpen,
-    freeCollateral
+    freeCollateral,
+    curHoldingOut
   );
-
   const walletBalance =
     balances?.find((b: any) => b.id.toLowerCase() === tokenId.toLowerCase())
       ?.wallet_balance ||
@@ -2828,9 +2794,7 @@ export function AssetManagerModal(
                   }}
                   value={percentage}
                   type="range"
-                  className={`w-full cursor-pointer ${
-                    type + '-bar'
-                  } remove-by-share-bar`}
+                  className={`w-full cursor-pointer deposit-bar remove-by-share-bar`}
                   min="0"
                   max="100"
                   step="any"
@@ -2841,11 +2805,9 @@ export function AssetManagerModal(
                 />
 
                 <div
-                  className={`rangeText rounded-lg absolute py-0.5 text-xs ${
-                    type === 'withdraw' ? 'text-white' : 'text-black'
-                  }  font-bold text-center w-10`}
+                  className={`rangeText rounded-lg absolute py-0.5 text-xs text-black font-bold text-center w-10`}
                   style={{
-                    background: type === 'withdraw' ? '#4627FF' : '#00C6A2',
+                    background: '#00C6A2',
                     left: `calc(${percentage}% - 40px * ${percentage} / 100)`,
                     position: 'absolute',
                     top: '20px',
@@ -2861,7 +2823,7 @@ export function AssetManagerModal(
               </div>
             </div>
             {type === 'deposit' &&
-              !validation() &&
+              (!validation() || +percentage == 100) &&
               tokenId.toLowerCase() === 'near' && (
                 <div className="text-warn text-center mb-2 text-xs xs:-mt-2 lg:whitespace-nowrap">
                   <FormattedMessage
@@ -2878,9 +2840,7 @@ export function AssetManagerModal(
                 buttonLoading
                   ? 'opacity-70 cursor-not-allowed'
                   : ''
-              } items-center justify-center  font-bold text-base text-white py-2.5 rounded-lg ${
-                type === 'deposit' ? 'bg-primaryGradient' : 'bg-withdrawPurple'
-              }`}
+              } items-center justify-center  font-bold text-base text-white py-2.5 rounded-lg bg-primaryGradient`}
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -2904,10 +2864,15 @@ export function AssetManagerModal(
                           defaultMessage: 'Deposit',
                         })
                       : type === 'withdraw'
-                      ? intl.formatMessage({
-                          id: 'withdraw',
-                          defaultMessage: 'Withdraw',
-                        })
+                      ? !validation()
+                        ? intl.formatMessage({
+                            id: 'insufficient_balance',
+                            defaultMessage: 'Insufficient Balance',
+                          })
+                        : intl.formatMessage({
+                            id: 'withdraw',
+                            defaultMessage: 'Withdraw',
+                          })
                       : ''}
                   </span>
                 )}
@@ -3216,6 +3181,7 @@ function ConfirmOrderModal(
     totalCost: number | '-';
     onClick: () => Promise<any>;
     userInfo: ClientInfo;
+    orderType: string;
   }
 ) {
   const {
@@ -3228,6 +3194,7 @@ function ConfirmOrderModal(
     totalCost,
     onClick,
     userInfo,
+    orderType,
   } = props;
 
   const [loading, setLoading] = useState<boolean>(false);
@@ -3269,10 +3236,12 @@ function ConfirmOrderModal(
 
           <div className="flex items-center mb-5 justify-between">
             <span>
-              {intl.formatMessage({
-                id: 'limit_order',
-                defaultMessage: 'Limit Order',
-              })}
+              {orderType == 'Limit'
+                ? intl.formatMessage({
+                    id: 'limit_order',
+                    defaultMessage: 'Limit Order',
+                  })
+                : 'Market Order'}
             </span>
 
             <span className="flex">
@@ -4521,7 +4490,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
 
               <TextWrapper
                 className="text-10px py-0 px-1"
-                value={'USDC'}
+                value={'USDC.e'}
                 textC="text-primaryText"
               />
             </div>
@@ -4603,7 +4572,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
                 <div className="frcs gap-2">
                   <span className="text-white">{lqPrice}</span>
 
-                  <span className="text-primaryText">USDC</span>
+                  <span className="text-primaryText">USDC.e</span>
                 </div>
               </div>
               <div className="frcb text-xs">
@@ -4628,7 +4597,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
                         )}{' '}
                   </span>
 
-                  <span className="text-primaryText">USDC</span>
+                  <span className="text-primaryText">USDC.e</span>
                 </div>
               </div>
 
@@ -4706,22 +4675,13 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
 
                   <div
                     data-class="reactTip"
-                    data-for={'user_board_ioc'}
-                    data-html={true}
+                    data-tooltip-id={'user_board_ioc'}
                     data-place={'top'}
-                    data-tip={getTipIoc()}
+                    data-tooltip-html={getTipIoc()}
                   >
                     <QuestionMark></QuestionMark>
 
-                    <ReactTooltip
-                      id={'user_board_ioc'}
-                      backgroundColor="#1D2932"
-                      place="right"
-                      border
-                      borderColor="#7e8a93"
-                      textColor="#C6D1DA"
-                      effect="solid"
-                    />
+                    <CustomTooltip id={'user_board_ioc'} place="right" />
                   </div>
                 </div>
                 <div className="flex items-center">
@@ -4750,22 +4710,13 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
 
                   <div
                     data-class="reactTip"
-                    data-for={'user_board_folk'}
-                    data-html={true}
+                    data-tooltip-id={'user_board_folk'}
                     data-place={'top'}
-                    data-tip={getTipFOK()}
+                    data-tooltip-html={getTipFOK()}
                   >
                     <QuestionMark></QuestionMark>
 
-                    <ReactTooltip
-                      id={'user_board_folk'}
-                      backgroundColor="#1D2932"
-                      place="right"
-                      border
-                      borderColor="#7e8a93"
-                      textColor="#C6D1DA"
-                      effect="solid"
-                    />
+                    <CustomTooltip id={'user_board_folk'} place="right" />
                   </div>
                 </div>
                 <div className="flex items-center">
@@ -4794,22 +4745,13 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
 
                   <div
                     data-class="reactTip"
-                    data-for={'user_board_post_only'}
-                    data-html={true}
+                    data-tooltip-id={'user_board_post_only'}
                     data-place={'top'}
-                    data-tip={getTipPostOnly()}
+                    data-tooltip-html={getTipPostOnly()}
                   >
                     <QuestionMark></QuestionMark>
 
-                    <ReactTooltip
-                      id={'user_board_post_only'}
-                      backgroundColor="#1D2932"
-                      place="right"
-                      border
-                      borderColor="#7e8a93"
-                      textColor="#C6D1DA"
-                      effect="solid"
-                    />
+                    <CustomTooltip id={'user_board_post_only'} place="right" />
                   </div>
                 </div>
               </div>
@@ -4876,6 +4818,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
           tokenId={operationId}
           tokenInfo={tokenInfo}
           freeCollateral={freeCollateral}
+          curHoldingOut={curHoldingOut}
         />
       </div>
 
@@ -4887,6 +4830,7 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
         symbolFrom={symbolFrom}
         symbolTo={symbolTo}
         side={side}
+        orderType={orderType}
         quantity={inputValue}
         price={
           orderType === 'Limit' ? limitPrice : marketPrice?.toString() || '0'

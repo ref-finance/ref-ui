@@ -12,12 +12,12 @@ import { ArrowDownGreen, ArrowDownWhite } from '../icon';
 import { isMobile, getExplorer } from '../../utils/device';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { TokenBalancesView, getGlobalWhitelist } from '../../services/token';
-import { IoCloseOutline } from 'react-icons/io5';
+import { IoCloseOutline } from '../reactIcons';
 import CommonBasses from '../../components/tokens/CommonBasses';
 import Table from '../../components/table/Table';
 import { useTokensData, useGlobalWhitelistTokens } from '../../state/token';
 import { toRealSymbol } from '../../utils/token';
-import { FaSearch } from 'react-icons/fa';
+import { FaSearch } from '../reactIcons';
 import AddToken from './AddToken';
 import { getTokenPriceList } from '../../services/indexer';
 import {
@@ -62,6 +62,8 @@ import { Images, Symbols } from '../../components/stableswap/CommonComp';
 import { IconLeftV3 } from '../tokens/Icon';
 import { PoolInfo } from '../../services/swapV3';
 import { sort_tokens_by_base, openUrl } from '../../services/commonV3';
+import getConfigV2 from '../../services/configV2';
+const configV2 = getConfigV2();
 
 export const USER_COMMON_TOKEN_LIST = 'USER_COMMON_TOKEN_LIST';
 
@@ -93,6 +95,7 @@ export function SingleToken({
   token: TokenMetadata;
   price: string;
 }) {
+  const is_native_token = configV2.NATIVE_TOKENS.includes(token?.id);
   return (
     <>
       {token.icon ? (
@@ -110,6 +113,11 @@ export function SingleToken({
           <span className="text-sm text-white">
             {toRealSymbol(token.symbol)}
           </span>
+          {is_native_token ? (
+            <span className="text-gradientFromHover bg-gradientFromHover bg-opacity-30 text-sm px-1 rounded-md ml-2 border border-gradientFromHover">
+              Native
+            </span>
+          ) : null}
         </div>
         <span className="text-xs text-primaryText">
           {price ? tokenPrice(price) : null}
@@ -759,6 +767,8 @@ export function SelectTokenDCL({
   onSelect,
   selected,
   className,
+  notNeedSortToken,
+  limitOrder = false,
 }: {
   selectTokenIn?: (token: TokenMetadata) => void;
   selectTokenOut?: (token: TokenMetadata) => void;
@@ -766,8 +776,10 @@ export function SelectTokenDCL({
   selectedToken?: TokenMetadata;
   selected?: JSX.Element;
   className?: string;
+  notNeedSortToken?: boolean;
+  limitOrder?: boolean;
 }) {
-  const allPools = useAllPoolsV2();
+  const allPools = useAllPoolsV2(!limitOrder);
 
   const [hoverSelectToken, setHoverSelectToken] = useState<boolean>(false);
 
@@ -788,7 +800,9 @@ export function SelectTokenDCL({
   const handleSelect = (p: PoolInfo) => {
     // select token in
     const { token_x_metadata, token_y_metadata } = p;
-    const tokens = sort_tokens_by_base([token_x_metadata, token_y_metadata]);
+    const tokens = notNeedSortToken
+      ? [token_x_metadata, token_y_metadata]
+      : sort_tokens_by_base([token_x_metadata, token_y_metadata]);
 
     if (!selectedToken) {
       selectTokenIn(tokens[0]);
@@ -923,7 +937,7 @@ export function SelectTokenDCL({
             }
           }}
           style={{
-            zIndex: mobileDevice ? 80 : !!selectTokenOut ? 80 : 70,
+            zIndex: mobileDevice ? 80 : !!selectTokenOut ? 80 : 75,
           }}
         >
           {mobileDevice && (

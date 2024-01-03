@@ -1,8 +1,8 @@
 import React from 'react';
 import { TokenMetadata } from '../../services/ft-contract';
 import Token from './Token';
-import { TokenBalancesView } from '~services/token';
-import { toReadableNumber } from '~utils/numbers';
+import { TokenBalancesView } from 'src/services/token';
+import { toReadableNumber } from 'src/utils/numbers';
 
 interface TokenListProps {
   tokens: TokenMetadata[];

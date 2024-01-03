@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState, useContext } from 'react';
-import FarmsHome from '~components/farm/FarmsHome';
-import FarmsDetail from '~components/farm/FarmsDetail';
-import FarmsDclDetail from '~components/farm/FarmsDclDetail';
-import Loading, { BeatLoading } from '~components/layout/Loading';
-import { Seed, BoostConfig, UserSeedInfo } from '~services/farm';
+import FarmsHome from 'src/components/farm/FarmsHome';
+import FarmsDetail from 'src/components/farm/FarmsDetail';
+import FarmsDclDetail from 'src/components/farm/FarmsDclDetail';
+import Loading, { BeatLoading } from 'src/components/layout/Loading';
+import { Seed, BoostConfig, UserSeedInfo } from 'src/services/farm';
 export default function FarmsBoosterPage(props: any) {
   const [detailData, setDetailData] = useState(null);
   const [tokenPriceList, setTokenPriceList] = useState(null);

@@ -1,4 +1,11 @@
-import React, { useContext, useEffect, useMemo, useState, useRef } from 'react';
+import React, {
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+  createRef,
+} from 'react';
 import { wallet } from '../../services/near';
 import {
   toRoundedReadableNumber,
@@ -46,6 +53,7 @@ import {
 } from '../icon/swapV3';
 import BigNumber from 'bignumber.js';
 import { WalletContext } from '../../utils/wallets-integration';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 interface TokenAmountProps {
   amount?: string;
@@ -71,7 +79,7 @@ interface TokenAmountProps {
   onSelectPost?: (token: TokenMetadata) => void;
   onSelectPre?: (token: TokenMetadata) => void;
   forWrap?: boolean;
-  showQuickButton?: Boolean;
+  showQuickButton?: boolean;
   ExtraElement?: JSX.Element;
   forLimitOrder?: boolean;
   marketPriceLimitOrder?: string;
@@ -92,7 +100,7 @@ interface TokenAmountProps {
 export function getTextWidth(str: string, fontSize: string) {
   let result = 10;
   const mobile = isMobile();
-  let ele = document.createElement('span');
+  const ele = document.createElement('span');
 
   ele.innerText = str;
   ele.style.fontSize = fontSize;
@@ -539,11 +547,11 @@ export function TokenAmountV3({
     selectedToken?.id === WRAP_NEAR_CONTRACT_ID &&
     selectedToken?.symbol === 'NEAR' &&
     !forWrap
-      ? Number(max) <= 0.5
+      ? Number(max) <= 0.2
         ? '0'
         : toPrecision(
             scientificNotationToString(
-              new BigNumber(max).minus(0.5).toString()
+              new BigNumber(max).minus(0.2).toString()
             ),
             12
           )
@@ -624,6 +632,7 @@ export function TokenAmountV3({
     !ONLY_ZEROS.test(curRate) &&
     marketPriceLimitOrder &&
     swapMode === SWAP_MODE.LIMIT;
+
   function RateDiffDOM_newline(props: any) {
     const { over } = props;
     return (
@@ -652,6 +661,7 @@ export function TokenAmountV3({
       </div>
     );
   }
+
   function RateDiffDOM(props: any) {
     const [left, setLeft] = useState(0);
     const { over, setOver } = props;
@@ -699,6 +709,7 @@ export function TokenAmountV3({
       </div>
     );
   }
+
   return (
     <div
       className={`flex flex-col text-xs bg-opacity-20 ${
@@ -755,6 +766,7 @@ export function TokenAmountV3({
             selectedToken={selectedToken}
             selectTokenIn={onSelectPre}
             selectTokenOut={onSelectPost}
+            limitOrder={true}
           />
         ) : (
           showSelectToken && (
@@ -909,7 +921,6 @@ export function TokenCardIn({
         step="any"
         inputMode="decimal"
       />
-
       <fieldset className="relative flex  align-center items-center my-2">
         <InputAmountV3
           className="border border-transparent rounded w-full mr-2"
@@ -919,9 +930,9 @@ export function TokenCardIn({
           onChangeAmount={onChangeAmount}
           openClear
         />
+
         {ExtraElement}
       </fieldset>
-
       <div className="flex items-center justify-between">
         {tokenPrice(
           price && !ONLY_ZEROS.test(amount) ? multiply(price, amount) : null
@@ -1053,6 +1064,7 @@ export function CrossSwapTokens({
     </div>
   );
 }
+
 export function TokenAmountV2({
   amount,
   max,
@@ -1119,6 +1131,7 @@ export function TokenAmountV2({
     </>
   );
 }
+
 export function LimitOrderRateSetBox({
   tokenIn,
   tokenOut,
@@ -1153,17 +1166,21 @@ export function LimitOrderRateSetBox({
     toPrecision(regularizedPrice(curRate, tokenIn, tokenOut, limitFee, -1), 8);
 
   const [symbolsArr] = useState(['e', 'E', '+', '-']);
+
   function switchLockStatus() {
     setHasLockedRate(!hasLockedRate);
   }
+
   function getTokenASymbol() {
     if (rateSort) return tokenIn?.symbol;
     else return tokenOut?.symbol;
   }
+
   function getTokenBSymbol() {
     if (rateSort) return tokenOut?.symbol;
     else return tokenIn?.symbol;
   }
+
   const displayInputValue = useMemo(() => {
     if (!curPrice) {
       return '-';
@@ -1203,7 +1220,7 @@ export function LimitOrderRateSetBox({
           </div>
           <div className="flex items-center text-xs text-greenColor hover:text-senderHot">
             <span
-              className="cursor-pointer"
+              className="cursor-pointer select-none"
               onClick={() => {
                 setRate(curPrice);
                 if (triggerFetch) triggerFetch();
@@ -1290,16 +1307,20 @@ export function LimitOrderRateSetBox({
               className={`flex items-center justify-center w-5 h-5 rounded-md ml-0.5 cursor-pointer ${
                 isMobile ? '' : 'hover:bg-selectTokenV3BgColor'
               }`}
+              data-tooltip-id="lockratehint"
             >
-              {hasLockedRate ? (
-                <LockInIcon></LockInIcon>
-              ) : (
-                <LockIcon></LockIcon>
-              )}
+              <span>{hasLockedRate ? <LockInIcon /> : <LockIcon />}</span>
             </div>
           </div>
         </div>
       </div>
+
+      <CustomTooltip id={'lockratehint'}>
+        <div style={{ maxWidth: 240 }}>
+          Lock the rate field to get your buy amount automatically adjusted when
+          changing your sell amount.
+        </div>
+      </CustomTooltip>
     </>
   );
 }

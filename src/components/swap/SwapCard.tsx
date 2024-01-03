@@ -1,49 +1,79 @@
+import Big from 'big.js';
+import BigNumber from 'bignumber.js';
+import * as math from 'mathjs';
 import React, {
+  createContext,
   useCallback,
+  useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
-  useContext,
-  createContext,
 } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { useHistory, useLocation } from 'react-router-dom';
 
+import { CountdownTimer } from '../../components/icon';
+import { RateExchangeMobile } from '../../components/icon/Common';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
-
-import { useLocation, useHistory } from 'react-router-dom';
+import { TextWrapper } from '../../pages/Orderly/components/UserBoard';
+import { numberWithCommas } from '../../pages/Orderly/utiles';
+import {
+  ExchangeEstimate,
+  SWAP_MODE,
+  SWAP_TYPE,
+  SwapProContext,
+} from '../../pages/SwapPage';
+import getConfig, { getExtraStablePoolConfig } from '../../services/config';
 import {
   ftGetBalance,
-  TokenMetadata,
   REF_META_DATA,
+  TokenMetadata,
 } from '../../services/ft-contract';
-import { useDepositableBalance, useTokenPriceList } from '../../state/token';
+import { USD_CLASS_STABLE_TOKEN_IDS } from '../../services/near';
 import {
-  useSwapPopUp,
-  useRefSwapPro,
+  BTC_CLASS_STABLE_TOKEN_IDS,
+  NEAR_CLASS_STABLE_TOKEN_IDS,
+} from '../../services/near';
+import {
+  nearDeposit,
+  nearWithdraw,
+  unwrapedNear,
+  wnearMetadata,
+  WRAP_NEAR_CONTRACT_ID,
+} from '../../services/wrap-near';
+import {
   useCrossSwapPopUp,
+  useRefSwapPro,
+  useSwapPopUp,
 } from '../../state/swap';
+import { useDepositableBalance, useTokenPriceList } from '../../state/token';
+import { isMobile } from '../../utils/device';
 import {
   calculateExchangeRate,
   calculateFeeCharge,
   calculateFeePercent,
-  toPrecision,
-  toReadableNumber,
-  ONLY_ZEROS,
-  multiply,
   divide,
+  multiply,
+  ONLY_ZEROS,
   scientificNotationToString,
   separateRoutes,
+  toPrecision,
+  toReadableNumber,
 } from '../../utils/numbers';
-import SubmitButton, { InsufficientButton } from '../forms/SubmitButton';
-import Alert from '../alert/Alert';
+import { getPoolAllocationPercents } from '../../utils/numbers';
+import { toInternationalCurrencySystemLongString } from '../../utils/numbers';
+import { getMaxMin } from '../../utils/numbers';
 import { toRealSymbol } from '../../utils/token';
-import { FormattedMessage, useIntl } from 'react-intl';
-import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
+import Alert from '../alert/Alert';
 import { ConnectToNearBtnSwap } from '../button/Button';
-
+import SubmitButton, { InsufficientButton } from '../forms/SubmitButton';
 import SwapFormWrap from '../forms/SwapFormWrap';
-
-import BigNumber from 'bignumber.js';
+import { TokenAmountV3 } from '../forms/TokenAmount';
+import { NEAR_WITHDRAW_KEY } from '../forms/WrapNear';
+import { SwapExchange } from '../icon/Arrows';
+import { RedTipIcon, YellowTipIcon } from '../icon/swapV3';
+import { DoubleCheckModal } from '../layout/SwapDoubleCheck';
+import { SkyWardModal } from '../layout/SwapDoubleCheck';
 import {
   AutoRouterText,
   RouterIcon,
@@ -51,47 +81,13 @@ import {
   SwapRouteMoreThan2,
   TradeRouteModal,
 } from '../layout/SwapRoutes';
-
 import { QuestionTip } from '../layout/TipWrapper';
-import { SwapExchange } from '../icon/Arrows';
-import { getPoolAllocationPercents } from '../../utils/numbers';
-import { DoubleCheckModal } from '../layout/SwapDoubleCheck';
 import {
-  ExchangeEstimate,
-  SWAP_MODE,
-  SWAP_TYPE,
-  SwapProContext,
-} from '../../pages/SwapPage';
-import { USD_CLASS_STABLE_TOKEN_IDS } from '../../services/near';
-import {
-  WRAP_NEAR_CONTRACT_ID,
-  unwrapedNear,
-  nearDeposit,
-  nearWithdraw,
-  wnearMetadata,
-} from '../../services/wrap-near';
-import getConfig, { getExtraStablePoolConfig } from '../../services/config';
-import { TokenAmountV3 } from '../forms/TokenAmount';
-import Big from 'big.js';
-
-import { toInternationalCurrencySystemLongString } from '../../utils/numbers';
-
-import { SkyWardModal } from '../layout/SwapDoubleCheck';
-import {
-  NEAR_CLASS_STABLE_TOKEN_IDS,
-  BTC_CLASS_STABLE_TOKEN_IDS,
-} from '../../services/near';
-
-import { getMax } from '../../utils/numbers';
-
-import { YellowTipIcon, RedTipIcon, SelectedIcon } from '../icon/swapV3';
-import * as math from 'mathjs';
-import { NEAR_WITHDRAW_KEY } from '../forms/WrapNear';
-import { CountdownTimer } from '../../components/icon';
-import { TextWrapper } from '../../pages/Orderly/components/UserBoard';
-import { numberWithCommas } from '../../pages/Orderly/utiles';
-import { isMobile } from '../../utils/device';
-import { RateExchangeMobile } from '../../components/icon/Common';
+  FaAngleDown,
+  FaAngleUp,
+  FaExchangeAlt,
+  MdOutlineRefresh,
+} from '../reactIcons';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -511,6 +507,7 @@ export function DetailView_near_wnear({
     </div>
   );
 }
+
 function DetailView({
   trade,
   show,
@@ -677,6 +674,8 @@ export default function SwapCard(props: {
   swapMode: SWAP_MODE;
   tokenInAmount: string;
   setTokenInAmount: (value: string) => void;
+  tokenInAmountInput: string;
+  setTokenInAmountInput: (value: string) => void;
   swapTab?: JSX.Element;
   globalWhiteListTokens: TokenMetadata[];
   setTokenIn: (value: TokenMetadata) => void;
@@ -696,6 +695,8 @@ export default function SwapCard(props: {
     swapMode,
     tokenInAmount,
     setTokenInAmount,
+    tokenInAmountInput,
+    setTokenInAmountInput,
     swapTab,
     globalWhiteListTokens,
   } = props;
@@ -909,6 +910,7 @@ export default function SwapCard(props: {
       setWrapOperation(false);
     }
   }, [tokenIn, tokenOut, useNearBalance, isSignedIn, nearBalance]);
+
   function getStorageTokenId() {
     const in_key = localStorage.getItem(SWAP_IN_KEY);
     const in_key_symbol = localStorage.getItem(SWAP_IN_KEY_SYMBOL);
@@ -935,6 +937,7 @@ export default function SwapCard(props: {
     }
     return result;
   }
+
   const getSlippageTolerance = () => {
     return {
       slippageValue: slippageToleranceNormal,
@@ -965,6 +968,7 @@ export default function SwapCard(props: {
     setLoadingData,
     loadingTrigger,
     setLoadingTrigger,
+    setShowSwapLoading,
     loadingPause,
     reEstimateTrigger,
     supportLedger,
@@ -980,6 +984,13 @@ export default function SwapCard(props: {
       setLoadingTrigger(true);
     }
   }, [swapMode]);
+
+  useEffect(() => {
+    const delayInput = setTimeout(() => {
+      setTokenInAmount(tokenInAmountInput);
+    }, 300);
+    return () => clearTimeout(delayInput);
+  }, [tokenInAmountInput]);
 
   const throwNoPoolError = () => {
     return new Error(
@@ -1004,7 +1015,7 @@ export default function SwapCard(props: {
       return false;
     if (tokenIn?.symbol == 'NEAR') {
       if (
-        !new BigNumber(tokenInAmount).plus(0.5).isLessThanOrEqualTo(tokenInMax)
+        !new BigNumber(tokenInAmount).plus(0.2).isLessThanOrEqualTo(tokenInMax)
       )
         return false;
     }
@@ -1024,6 +1035,7 @@ export default function SwapCard(props: {
       !quoting
     );
   }
+
   function satisfyCondition2() {
     return (
       new Big(tokenInAmount || '0').gt('0') &&
@@ -1091,13 +1103,53 @@ export default function SwapCard(props: {
     const condition1 = tokenIn && balanceInDone && balanceOutDone;
     return (
       condition1 &&
-      (Number(getMax(tokenIn.id, tokenInMax || '0', tokenIn)) -
+      (Number(getMaxMin(tokenIn.id, tokenInMax || '0', tokenIn)) -
         Number(tokenInAmount || '0') <
         0 ||
         ONLY_ZEROS.test(tokenInMax))
     );
   }
+
+  const handleInputAmountChange = (v: string) => {
+    if (Number(v) > 0) {
+      setShowSwapLoading(true);
+    }
+    setTokenInAmountInput(v);
+  };
+
   const isInsufficientBalance = judgeBalance();
+  const isQuoteLoading =
+    quoting || (!canSubmit && !isInsufficientBalance && isSignedIn);
+
+  const [tokenExchanging, setTokenExchanging] = useState(false);
+  const toggleTokenExchanging = () => {
+    setTokenExchanging(true);
+    setTimeout(() => setTokenExchanging(false), 500);
+  };
+
+  const isShowNearErrorTip = useMemo(() => {
+    return (
+      !tokenExchanging &&
+      balanceInDone &&
+      balanceOutDone &&
+      tokenIn &&
+      Number(getMaxMin(tokenIn.id, tokenInMax || '0', tokenIn)) -
+        Number(tokenInAmount || '0') <
+        0 &&
+      !ONLY_ZEROS.test(tokenInMax || '0') &&
+      !ONLY_ZEROS.test(tokenInAmountInput || '0') &&
+      tokenIn.id === WRAP_NEAR_CONTRACT_ID &&
+      tokenIn.symbol === 'NEAR'
+    );
+  }, [
+    tokenExchanging,
+    balanceInDone,
+    balanceOutDone,
+    tokenIn,
+    tokenInMax,
+    tokenInAmount,
+    tokenInAmountInput,
+  ]);
 
   return (
     <>
@@ -1150,7 +1202,7 @@ export default function SwapCard(props: {
           forSwap
           forCross={enableTri}
           swapMode={swapMode}
-          amount={tokenInAmount}
+          amount={tokenInAmountInput}
           total={tokenInMax}
           max={tokenInMax}
           tokens={allTokens}
@@ -1167,7 +1219,7 @@ export default function SwapCard(props: {
           }}
           useNearBalance={useNearBalance}
           onChangeAmount={(v) => {
-            setTokenInAmount(v);
+            handleInputAmountChange(v);
           }}
           tokenPriceList={tokenPriceList}
           isError={tokenIn?.id === tokenOut?.id}
@@ -1177,22 +1229,13 @@ export default function SwapCard(props: {
           }}
           allowWNEAR={true}
           nearErrorTip={
-            balanceInDone &&
-            balanceOutDone &&
-            tokenIn &&
-            Number(getMax(tokenIn.id, tokenInMax || '0', tokenIn)) -
-              Number(tokenInAmount || '0') <
-              0 &&
-            !ONLY_ZEROS.test(tokenInMax || '0') &&
-            !ONLY_ZEROS.test(tokenInAmount || '0') &&
-            tokenIn.id === WRAP_NEAR_CONTRACT_ID &&
-            tokenIn.symbol === 'NEAR' && (
+            isShowNearErrorTip && (
               <Alert
                 level="warn"
                 message={`${intl.formatMessage({
-                  id: 'near_validation_error',
+                  id: 'near_min_validation_error',
                 })} `}
-                extraClass="px-0 pb-3"
+                extraClass="px-0 pb-3 trans"
               />
             )
           }
@@ -1203,9 +1246,10 @@ export default function SwapCard(props: {
             localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
             setTokenOut(tokenIn);
             localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
-            setTokenInAmount(toPrecision('1', 6));
+            setTokenInAmountInput(toPrecision('1', 6));
             localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
             localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
+            toggleTokenExchanging();
           }}
         />
 
@@ -1247,22 +1291,32 @@ export default function SwapCard(props: {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
+                  setLoadingTrigger(true);
+                  // setReEstimateTrigger(!reEstimateTrigger);
 
-                  if (loadingPause) {
-                    setLoadingPause(false);
-                    setLoadingTrigger(true);
-                    setLoadingData(true);
-                  } else {
-                    setLoadingPause(true);
-                    setLoadingTrigger(false);
-                  }
+                  // if (loadingPause) {
+                  //   setLoadingPause(false);
+                  //   setLoadingTrigger(true);
+                  //   setLoadingData(true);
+                  // } else {
+                  //   setLoadingPause(true);
+                  //   setLoadingTrigger(false);
+                  // }
                 }}
                 className="mr-2 cursor-pointer"
               >
-                <CountdownTimer
-                  loadingTrigger={loadingTrigger}
-                  loadingPause={loadingPause}
+                <MdOutlineRefresh
+                  size={18}
+                  className={`text-primaryText cursor-pointer  ${
+                    isQuoteLoading ? 'rotateInfinite' : ''
+                  } `}
+                  style={isQuoteLoading && { fill: '#00FFD1' }}
                 />
+
+                {/*<CountdownTimer*/}
+                {/*  loadingTrigger={loadingTrigger}*/}
+                {/*  loadingPause={loadingPause}*/}
+                {/*/>*/}
               </div>
               <SwapRate
                 from={tokenInAmount}

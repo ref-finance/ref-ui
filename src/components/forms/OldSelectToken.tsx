@@ -3,19 +3,19 @@ import MicroModal from 'react-micro-modal';
 import TokenList from '../tokens/TokenList';
 import { TokenMetadata } from '../../services/ft-contract';
 import { ArrowDownGreen } from '../icon';
-import { isMobile } from '~utils/device';
+import { isMobile } from 'src/utils/device';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { TokenBalancesView } from '~services/token';
-import { IoCloseOutline } from 'react-icons/io5';
-import CommonBasses from '~components/tokens/CommonBasses';
-import Table from '~components/table/Table';
+import { TokenBalancesView } from 'src/services/token';
+import { IoCloseOutline } from '../reactIcons';
+import CommonBasses from 'src/components/tokens/CommonBasses';
+import Table from 'src/components/table/Table';
 import {
   toPrecision,
   toReadableNumber,
   toRoundedReadableNumber,
-} from '~utils/numbers';
-import { useDepositableBalance } from '~state/token';
-import { toRealSymbol } from '~utils/token';
+} from 'src/utils/numbers';
+import { useDepositableBalance } from 'src/state/token';
+import { toRealSymbol } from 'src/utils/token';
 
 export default function OldSelectToken({
   tokens,

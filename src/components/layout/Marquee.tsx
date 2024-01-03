@@ -4,17 +4,17 @@ import {
   PriceBoardIcon,
   PriceFloatUpIcon,
   CloseRadiusIcon,
-} from '~components/icon/Common';
-import { getListHistoryTokenPriceByIds } from '~services/indexer';
+} from 'src/components/icon/Common';
+import { getListHistoryTokenPriceByIds } from 'src/services/indexer';
 import {
   useWhitelistTokens,
   useGlobalWhitelistTokens,
 } from '../../state/token';
 import anime from 'animejs';
-import { TokenMetadata } from '~services/ft-contract';
+import { TokenMetadata } from 'src/services/ft-contract';
 import { useHistory, useLocation } from 'react-router-dom';
-import { toRealSymbol } from '~utils/token';
-import { toPrecision, formatWithCommas } from '~utils/numbers';
+import { toRealSymbol } from 'src/utils/token';
+import { toPrecision, formatWithCommas } from 'src/utils/numbers';
 export default function Marquee() {
   const [showMarquee, setShowMarquee] = useState(
     localStorage.getItem('marquee') == '0' ? false : true

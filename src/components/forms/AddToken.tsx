@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import MicroModal from 'react-micro-modal';
 import { registerTokenAndExchange } from '../../services/token';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { IoCloseOutline } from 'react-icons/io5';
-import { wallet } from '~services/near';
+import { IoCloseOutline } from '../reactIcons';
+import { wallet } from 'src/services/near';
 import { ConnectToNearBtn } from '../../components/button/Button';
 import { getCurrentWallet } from '../../utils/wallets-integration';
 

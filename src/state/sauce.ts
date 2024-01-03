@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Pool, getStablePoolFromCache } from '../services/pool';
+import { Pool, getStablePoolFromCache, parsePool } from '../services/pool';
 import { usePool } from './pool';
 import { useCanFarm, useFarmStake } from './farm';
 import BigNumber from 'bignumber.js';
-import { formatePoolData } from '../pages/stable/StableSwapEntry';
 import { TokenMetadata, ftGetTokenMetadata } from '../services/ft-contract';
 
-import { getPool } from '../services/indexer';
 import { ALL_STABLE_POOL_IDS, NEARX_POOL_ID } from '../services/near';
+import { getPoolsByIds, getPool } from '../services/indexer';
+import { ftGetTokensMetadata } from '../services/ft-contract';
 
 export interface PoolData {
   pool: Pool;
@@ -80,4 +80,30 @@ export const useAllStablePoolData = () => {
   );
 
   return allData?.map((d) => d.poolData);
+};
+
+export const useAllStablePools = () => {
+  const ids = ALL_STABLE_POOL_IDS.filter((id) => id !== NEARX_POOL_ID);
+  const [stablePools, setStablePools] = useState<Pool[]>([]);
+  useEffect(() => {
+    getPoolsByIds({ pool_ids: ids })
+      .then((res) => {
+        const resPools = res.map((pool) => parsePool(pool));
+        return resPools;
+      })
+      .then((resPools) => {
+        return Promise.all(
+          resPools.map(async (p) => {
+            return {
+              ...p,
+              metas: await ftGetTokensMetadata(p.tokenIds),
+            };
+          })
+        );
+      })
+      .then((res) => {
+        setStablePools(res);
+      });
+  }, []);
+  return stablePools;
 };

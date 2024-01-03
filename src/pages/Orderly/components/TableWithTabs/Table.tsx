@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Big from 'big.js';
-import { MdArrowDropDown } from 'react-icons/md';
+import { MdArrowDropDown } from '../../../../components/reactIcons';
 import 'react-circular-progressbar/dist/styles.css';
 import { validContract } from '../UserBoard';
 import TableHeader from './TableHeader';
