@@ -332,20 +332,18 @@ export default function getConfig(
         myNearWalletUrl: 'https://testnet.mynearwallet.com/',
         helperUrl: 'https://testnet-api.kitwallet.app',
         explorerUrl: 'https://testnet.nearblocks.io',
-        nearExplorerUrl: 'https://explorer.testnet.near.org/',
-        indexerUrl: 'https://dev-indexer.ref-finance.com',
+        indexerUrl: 'https://testnet-indexer.ref-finance.com/',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
         REF_FI_CONTRACT_ID:
-          process.env.REF_FI_CONTRACT_ID || 'exchange.ref-dev.testnet',
+          process.env.REF_FI_CONTRACT_ID || 'ref-finance-101.testnet',
         WRAP_NEAR_CONTRACT_ID:
           process.env.WRAP_NEAR_CONTRACT_ID || 'wrap.testnet',
         REF_ADBOARD_CONTRACT_ID: 'ref-adboard.near',
         REF_FARM_CONTRACT_ID:
-          process.env.REF_FARM_CONTRACT_ID || 'farm-dev.ref-dev.testnet',
-        // REF_VE_CONTRACT_ID: 'dev-20220623151446-29039416013661',
+          process.env.REF_FARM_CONTRACT_ID || 'v2.ref-farming.testnet',
         REF_TOKEN_ID: 'ref.fakes.testnet',
-        XREF_TOKEN_ID: 'xref.ref-dev.testnet',
+        XREF_TOKEN_ID: 'xref.ref-finance.testnet',
         REF_AIRDROP_CONTRACT_ID: 'locker002.ref-dev.testnet',
         TOP_POOLS_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 60,
@@ -359,7 +357,7 @@ export default function getConfig(
           '608',
         ],
         USN_ID: 'usdn.testnet',
-        STABLE_POOL_USN_ID: process.env.STABLE_POOL_USN_ID || 603,
+        STABLE_POOL_USN_ID: process.env.STABLE_POOL_USN_ID || 356,
         STABLE_TOKEN_IDS: [
           'usdt.fakes.testnet',
           'usdc.fakes.testnet',

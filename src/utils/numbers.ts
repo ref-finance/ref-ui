@@ -590,6 +590,8 @@ export function calculateSmartRoutesV2PriceImpact(
     }
   });
 
+  console.log(priceImpactForRoutes);
+
   const rawRes = priceImpactForRoutes.reduce(
     (pre, cur, i) => {
       return pre.plus(

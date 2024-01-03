@@ -162,6 +162,8 @@ const getStablePoolEstimate = ({
     stablePoolInfo
   );
 
+  console.log(stablePool);
+
   const amountOut =
     amount_swapped < 0
       ? '0'
@@ -1023,6 +1025,8 @@ export async function getHybridStableSmart(
       outputToken: tokenOut.id,
       totalInputAmount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
     };
+
+    console.log('series estimates are...', [estimate1, estimate2]);
 
     return { actions: [estimate1, estimate2], estimate: estimate2.estimate };
   }
