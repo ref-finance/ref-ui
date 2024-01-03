@@ -788,7 +788,7 @@ const zh_CN = {
   state: '状态',
   partially: '部分',
   near_validation_error: '需要预留至少0.5NEAR来支付gas费用',
-  near_min_validation_error: '需要预留至少0.1NEAR来支付gas费用',
+  near_min_validation_error: '需要预留至少0.2NEAR来支付gas费用',
   no_positons_in_this_pool_yet: '目前在该流动池没有份额',
   no_claimed_rewards_yet: '还没有领取的奖励',
   out_of: 'out of',

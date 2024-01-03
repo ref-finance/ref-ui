@@ -771,10 +771,10 @@ export const getMaxMin = function (
   }
   return !condition
     ? max
-    : Number(max) <= 0.1
+    : Number(max) <= 0.2
     ? '0'
     : toPrecision(
-        scientificNotationToString(new Big(max).minus(0.1).toString()),
+        scientificNotationToString(new Big(max).minus(0.2).toString()),
         24
       );
 };
