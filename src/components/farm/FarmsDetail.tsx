@@ -1009,7 +1009,9 @@ function StakeContainer(props: {
                       </>
                     )}
                   </span>
-                  <CustomTooltip id={'aprId' + detailData.farmList[0].farm_id} />
+                  <CustomTooltip
+                    id={'aprId' + detailData.farmList[0].farm_id}
+                  />
                 </div>
                 {is_support_lp ? <LPTip poolId={pool.id} /> : null}
               </div>
@@ -2572,45 +2574,66 @@ function UserStakeBlock(props: {
       >
         <div className="pt-5 mt-5  border-t  border-borderGreyColor border-opacity-20">
           {min_locking_duration_sec == 0 || FARM_LOCK_SWITCH == 0 ? (
-            <div className="flex justify-between items-center xs:flex-col md:flex-col">
-              {isEnded ? null : (
-                <div className="flex justify-start flex-wrap text-farmText text-sm xs:mb-3 md:mb-3">
-                  <label className="text-white mx-1">
-                    {displayLpBalance()}
-                  </label>{' '}
-                  <FormattedMessage id="available_to_stake" />
+            <>
+              <div className="flex justify-between items-center xs:flex-col md:flex-col">
+                {isEnded ? null : (
+                  <div className="flex justify-start flex-wrap text-farmText text-sm xs:mb-3 md:mb-3">
+                    <label className="text-white mx-1">
+                      {displayLpBalance()}
+                    </label>{' '}
+                    <FormattedMessage id="available_to_stake" />
+                  </div>
+                )}
+                <div className="flex justify-end flex-grow xsm:w-full">
+                  <GradientButton
+                    onClick={() => {
+                      openStakeModalVisible('free');
+                    }}
+                    color="#fff"
+                    disabled={needForbidden ? true : false}
+                    btnClassName={needForbidden ? 'cursor-not-allowed' : ''}
+                    className={`xsm:w-32 lg:w-36 xsm:flex-grow h-8 text-center text-sm text-white focus:outline-none mr-3 ${
+                      needForbidden ? 'opacity-40' : ''
+                    } ${isEnded ? 'hidden' : ''}`}
+                  >
+                    <FormattedMessage id="stake"></FormattedMessage>
+                  </GradientButton>
+                  <OprationButton
+                    onClick={() => {
+                      openUnStakeModalVisible('free');
+                    }}
+                    color="#fff"
+                    // minWidth="9rem"
+                    className={`flex items-center justify-center xsm:w-32 lg:w-36 xsm:flex-grow h-8 px-0.5 text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
+                      Number(freeAmount) > 0 || Number(shadow_amount) > 0
+                        ? ''
+                        : 'hidden'
+                    }`}
+                  >
+                    <FormattedMessage id="unstake" defaultMessage="Unstake" />
+                  </OprationButton>
                 </div>
-              )}
-              <div className="flex justify-end flex-grow">
-                <GradientButton
-                  onClick={() => {
-                    openStakeModalVisible('free');
-                  }}
-                  color="#fff"
-                  disabled={needForbidden ? true : false}
-                  btnClassName={needForbidden ? 'cursor-not-allowed' : ''}
-                  className={`w-36 h-8 text-center text-sm text-white focus:outline-none mr-3 ${
-                    needForbidden ? 'opacity-40' : ''
-                  } ${isEnded ? 'hidden' : ''}`}
-                >
-                  <FormattedMessage id="stake"></FormattedMessage>
-                </GradientButton>
-                <OprationButton
-                  onClick={() => {
-                    openUnStakeModalVisible('free');
-                  }}
-                  color="#fff"
-                  minWidth="9rem"
-                  className={`flex items-center justify-center min-w-36 h-8 px-0.5 text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
-                    Number(freeAmount) > 0 || Number(shadow_amount) > 0
-                      ? ''
-                      : 'hidden'
-                  }`}
-                >
-                  <FormattedMessage id="unstake" defaultMessage="Unstake" />
-                </OprationButton>
               </div>
-            </div>
+              {+freeAmount > 0 ? (
+                <div className="flex flex-col bg-farmDarkTipColor rounded-lg px-3.5 py-2 text-xs text-farmText mt-2.5">
+                  <span>How to get Ref’s farm APR + Burrow lending APR?</span>
+                  <span>Step 1. Unstake and re-stake the LP</span>
+                  <span>
+                    Step 2. Go to supply LP on{' '}
+                    <a
+                      className="text-burrowYellowColor text-xs underline cursor-pointer"
+                      onClick={() => {
+                        const shadow_id = `shadow_ref_v1-${pool?.id}`;
+                        const url = `https://app.burrow.finance/tokenDetail/${shadow_id}`;
+                        window.open(url);
+                      }}
+                    >
+                      Burrow
+                    </a>
+                  </span>
+                </div>
+              ) : null}
+            </>
           ) : (
             <>
               {isEnded ? null : (

@@ -428,6 +428,7 @@ module.exports = {
         marginGrayBg: '#334049',
         warnYellowColor: '#DB8946',
         burrowYellowColor: '#D2FF39',
+        farmDarkTipColor: '#0F1E29',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
