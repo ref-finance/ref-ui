@@ -17,7 +17,7 @@ export function PerpOrderlyTip() {
 
   return (
     <div
-      className="w-screen px-10  xs:pb-7 h-12 xs:rounded-2xl lg:relative    xs:bottom-0 bg-gradientFromHover  frcc "
+      className="w-screen px-10  xs:pb-7 h-10 xs:rounded-2xl lg:relative    xs:bottom-0 bg-gradientFromHover  frcc "
       style={{
         fontSize: '13px',
         color: '#111F29',
@@ -52,7 +52,7 @@ export function PerpOrderlyTip() {
       />
 
       <div
-        className="absolute right-3 cursor-pointer top-3 "
+        className="absolute right-3 cursor-pointer top-2 "
         onClick={() => {
           setShow(false);
           localStorage.setItem(REF_ORDERLY_PERP_TIP_SIG, '1');
