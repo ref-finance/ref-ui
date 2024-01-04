@@ -40,7 +40,7 @@ export default function LPTip({ poolId }: { poolId: string | number }) {
         <BurrowIcon />
       </span>
       <div
-        className={`absolute bottom-0 pb-6 xsm:-right-8 ${
+        className={`absolute bottom-0 pb-6 xsm:-right-8 z-10 ${
           hover ? '' : 'hidden'
         }`}
       >
