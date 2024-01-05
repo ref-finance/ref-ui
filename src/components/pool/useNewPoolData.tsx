@@ -31,6 +31,7 @@ export const useNewPoolData = ({ pool, shares }) => {
     updatePool();
   }, [pool]);
 
+  // todo: pool mutated key and value update here
   const updatePool = () => {
     const pool2 = JSON.parse(JSON.stringify(pool));
     const poolSeed = farmerSeeds[pool2.id];
@@ -42,7 +43,6 @@ export const useNewPoolData = ({ pool, shares }) => {
           .plus(poolSeed.shadow_amount)
           .toFixed()
       : shares;
-    // console.log('shares', pool2.id, shares, pool2.farmShare);
     const { availableShare, availableShareNonDivisible } =
       getPoolAvailableShare({
         pool: pool2,

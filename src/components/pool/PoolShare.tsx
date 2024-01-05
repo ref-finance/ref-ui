@@ -49,8 +49,13 @@ export const PoolFarmAmount = ({
   textClassName?: string;
   styleType?: 'portfolio';
 }) => {
+  // todo: not to use context
   const { stakeList, v2StakeList, finalStakeList } =
-    useContext(StakeListContext);
+    useContext(StakeListContext)||{};
+  if(!stakeList ||!v2StakeList){
+    return null
+  }
+
   const isShadowPool = configV2.SUPPORT_SHADOW_POOL_IDS.includes(
     poolId?.toString()
   );
@@ -369,15 +374,6 @@ export const PoolAvailableAmount = ({ pool, shares, className = '' }) => {
       {toPrecision(newPool?.availableShare, 2)}
     </span>
   );
-  //
-  //
-  // const shadowRecords = useShadowRecordStore((state) => state.shadowRecords);
-  // const { availableShare } = getPoolAvailableShare({
-  //   pool,
-  //   shadowRecords,
-  //   shares,
-  // });
-  // return <span>{toPrecision(availableShare, 2)}</span>;
 };
 
 export const PoolAvailablePercent = ({ pool, shares, denominator }) => {
