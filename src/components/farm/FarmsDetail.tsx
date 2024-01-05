@@ -1127,6 +1127,7 @@ function StakeContainer(props: {
         user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
         user_data_loading={user_data_loading}
         radio={radio}
+        is_support_lp={is_support_lp}
       ></UserStakeBlock>
       <UserTotalUnClaimBlock
         detailData={detailData}
@@ -2192,6 +2193,7 @@ function UserStakeBlock(props: {
   user_unclaimed_map: Record<string, any>;
   user_data_loading: Boolean;
   radio: string | number;
+  is_support_lp: boolean;
 }) {
   const {
     detailData,
@@ -2204,6 +2206,7 @@ function UserStakeBlock(props: {
     user_unclaimed_map,
     user_data_loading,
     radio,
+    is_support_lp,
   } = props;
   const [stakeModalVisible, setStakeModalVisible] = useState(false);
   const [unStakeModalVisible, setUnStakeModalVisible] = useState(false);
@@ -2614,7 +2617,7 @@ function UserStakeBlock(props: {
                   </OprationButton>
                 </div>
               </div>
-              {+freeAmount > 0 ? (
+              {+freeAmount > 0 && is_support_lp ? (
                 <div className="flex flex-col bg-farmDarkTipColor rounded-lg px-3.5 py-2 text-xs text-farmText mt-2.5">
                   <span>How to get Ref’s farm APR + Burrow lending APR?</span>
                   <span>Step 1. Unstake and re-stake the LP</span>
