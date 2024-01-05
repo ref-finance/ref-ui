@@ -168,9 +168,16 @@ const { BLACK_TOKEN_LIST } = getConfig();
 import { PoolRefreshModal } from './PoolRefreshModal';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import {
-  ClassicFarmAmount,
-  ShadowRecordLockedAmount,
-} from 'src/pages/pools/poolsComponents/poolsComponents';
+  PoolAvailableAmount,
+  PoolFarmAmount,
+  ShadowInBurrowAmount,
+  PoolAvailablePercent,
+} from 'src/components/pool/PoolShare';
+import { useShadowRecordStore } from 'src/stores/liquidityStores';
+import {
+  getPoolAvailableShare,
+  useNewPoolData,
+} from 'src/components/pool/useNewPoolData';
 
 interface ParamTypes {
   id: string;
@@ -996,6 +1003,8 @@ export function RemoveLiquidityModal(
   });
 
   const { stakeList, v2StakeList, finalStakeList } = useYourliquidity(poolId);
+  const { shadowRecords, newPool } = useNewPoolData({ pool, shares });
+  const { availableShare } = newPool || {};
 
   const farmStakeV1 = useFarmStake({ poolId, stakeList });
   const farmStakeV2 = useFarmStake({ poolId, stakeList: v2StakeList });
@@ -1011,7 +1020,7 @@ export function RemoveLiquidityModal(
 
   function submit() {
     const amountBN = new BigNumber(amount?.toString());
-    const shareBN = new BigNumber(toReadableNumber(24, shares));
+    const shareBN = new BigNumber(toReadableNumber(24, availableShare));
     if (Number(amount) === 0) {
       throw new Error(
         intl.formatMessage({ id: 'must_input_a_value_greater_than_zero' })
@@ -1034,7 +1043,7 @@ export function RemoveLiquidityModal(
     setError(null);
 
     const amountBN = new BigNumber(value.toString());
-    const shareBN = new BigNumber(toReadableNumber(24, shares));
+    const shareBN = new BigNumber(toReadableNumber(24, availableShare));
     if (amountBN.isGreaterThan(shareBN)) {
       setCanSubmit(false);
       throw new Error(
@@ -1057,7 +1066,7 @@ export function RemoveLiquidityModal(
       <Card
         padding="p-8"
         bgcolor="bg-cardBg"
-        className="text-white border border-gradientFromHover outline-none "
+        className="text-white border border-gradientFromHover outline-none"
         style={{
           width: cardWidth,
           border: '1px solid rgba(0, 198, 162, 0.5)',
@@ -1082,7 +1091,7 @@ export function RemoveLiquidityModal(
           className={`flex items-center flex-wrap mb-4 text-xs text-primaryText`}
         >
           {Number(farmStakeV1) > 0 && (
-            <ClassicFarmAmount
+            <PoolFarmAmount
               poolId={pool.id}
               farmVersion={'v1'}
               onlyEndedFarmV2={endedFarmCountV2 === farmCountV2}
@@ -1094,18 +1103,16 @@ export function RemoveLiquidityModal(
             />
           )}
 
-          {Number(farmStakeV2) > 0 && (
-            <ClassicFarmAmount
-              poolId={pool.id}
-              farmVersion={'v2'}
-              onlyEndedFarmV2={endedFarmCountV2 === farmCountV2}
-              linkClass={
-                'hover:text-gradientFrom mb-1.5 mr-2 flex rounded-lg py-1.5 px-2 bg-black bg-opacity-20'
-              }
-              textContainerClassName={'flex items-center  flex-shrink-0'}
-              textClassName={''}
-            />
-          )}
+          <PoolFarmAmount
+            poolId={pool.id}
+            farmVersion={'v2'}
+            onlyEndedFarmV2={endedFarmCountV2 === farmCountV2}
+            linkClass={
+              'hover:text-gradientFrom mb-1.5 mr-2 flex rounded-lg py-1.5 px-2 bg-black bg-opacity-20'
+            }
+            textContainerClassName={'flex items-center  flex-shrink-0'}
+            textClassName={''}
+          />
 
           {Number(getVEPoolId()) === Number(pool.id) &&
           fetchDoneVOTEAccountInfo &&
@@ -1147,15 +1154,27 @@ export function RemoveLiquidityModal(
               </div>
             </div>
           ) : null}
-
-          <ShadowRecordLockedAmount
-            poolId={poolId}
-            linkClass={
-              'cursor-pointer hover:text-gradientFrom rounded-lg py-1.5 px-2 bg-black bg-opacity-20 mb-1.5 flex mr-2'
-            }
-            textClassName={''}
-            textContainerClassName={'flex items-center  flex-shrink-0'}
-          />
+          <div className={'flex gap-1'}>
+            {/*<ShadowInBurrowAmount*/}
+            {/*  poolId={poolId}*/}
+            {/*  linkClass={*/}
+            {/*    'cursor-pointer hover:text-gradientFrom rounded-lg py-1.5 px-2 bg-black bg-opacity-20 mb-1.5 flex mr-2'*/}
+            {/*  }*/}
+            {/*  textClassName={''}*/}
+            {/*  textContainerClassName={'flex items-center  flex-shrink-0'}*/}
+            {/*  shadowRecordsKey={'shadow_in_farm'}*/}
+            {/*  onlyEndedFarmV2={endedFarmCountV2 === farmCountV2}*/}
+            {/*/>*/}
+            <ShadowInBurrowAmount
+              poolId={poolId}
+              linkClass={
+                'cursor-pointer hover:text-gradientFrom rounded-lg py-1.5 px-2 bg-black bg-opacity-20 mb-1.5 flex mr-2'
+              }
+              textClassName={''}
+              textContainerClassName={'flex items-center  flex-shrink-0'}
+              shadowRecordsKey={'shadow_in_burrow'}
+            />
+          </div>
         </div>
 
         <div>
@@ -1165,18 +1184,21 @@ export function RemoveLiquidityModal(
               defaultMessage="Available LP Tokens"
             />
             <span className="text-white whitespace-nowrap">
-              {`${toPrecision(toReadableNumber(24, shares), 2)} (${
-                Number(sharePercent) > 0 && Number(sharePercent) < 0.01
-                  ? '<0.01'
-                  : toPrecision(sharePercent?.toString() || '0', 2)
-              }%)`}
+              <PoolAvailableAmount pool={pool} shares={shares} />
+              &nbsp; (
+              <PoolAvailablePercent
+                pool={pool}
+                shares={shares}
+                denominator={pool.shareSupply}
+              />
+              %)
             </span>
           </div>
           <div className=" overflow-hidden ">
             <InputAmount
               maxBorder={false}
               value={amount}
-              max={toReadableNumber(24, shares)}
+              max={availableShare}
               onChangeAmount={(value) => {
                 try {
                   handleChangeAmount(value);

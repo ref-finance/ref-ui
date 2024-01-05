@@ -35,7 +35,7 @@ import { isMobile } from 'src/utils/device';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { openUrl } from '../../services/commonV3';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
-import { useShadowRecord } from 'src/stores/liquidityStores';
+import { useShadowRecordStore } from 'src/stores/liquidityStores';
 import { isStablePool } from 'src/services/near';
 import { getStablePoolDecimal } from 'src/pages/stable/StableSwapEntry';
 const is_mobile = isMobile();
@@ -484,8 +484,8 @@ const ShadowRecordPercentage = () => {
     history_total_asset_done,
     your_classic_lp_all_in_farms,
   } = useContext(PortfolioData);
-  console.log('YourLpValueV2', YourLpValueV2);
-  const shadowRecords = useShadowRecord((state) => state.shadowRecords);
+
+  const shadowRecords = useShadowRecordStore((state) => state.shadowRecords);
   let totalShadowValue = 0;
   if (shadowRecords) {
     Object.entries(shadowRecords).forEach(([shadowId, value]) => {
@@ -500,7 +500,6 @@ const ShadowRecordPercentage = () => {
       totalShadowValue += Number(amount);
     });
   }
-  console.log('YourLpValueV1YourLpValueV1', shadowRecords, totalShadowValue);
 
   if (totalShadowValue === 0) return null;
   let percent = new BigNumber(totalShadowValue || 0).dividedBy(YourLpValueV1);

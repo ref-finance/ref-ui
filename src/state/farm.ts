@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import BigNumber from 'bignumber.js';
 import { canFarm, canFarmV1, canFarmV2 } from '../services/pool';
 import db from '../store/RefDatabase';
+import { get_shadow_records } from 'src/services/farm';
+import { useShadowRecordStore } from 'src/stores/liquidityStores';
 
 export const checkFarmStake = ({
   poolId,
@@ -117,4 +119,19 @@ export const useAllFarms = () => {
     v1Farm,
     v2Farm,
   };
+};
+
+export const useShadowRecord = (poolId) => {
+  const setShadowRecords = useShadowRecordStore(
+    (state) => state.setShadowRecords
+  );
+  const shadowRecords = useShadowRecordStore((state) => state.shadowRecords);
+
+  useEffect(() => {
+    get_shadow_records().then((res) => {
+      setShadowRecords(res);
+    });
+  }, []);
+
+  return { shadowRecords, poolShadowRecord: shadowRecords[poolId] };
 };

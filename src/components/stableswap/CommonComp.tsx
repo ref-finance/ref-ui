@@ -192,9 +192,8 @@ export function SharesCard({ shares, pool }: { shares: string; pool: Pool }) {
     true
   );
 
-  const { farmStakeV1, farmStakeV2, userTotalShare } = useYourliquidity(
-    pool.id
-  );
+  const { farmStakeV1, farmStakeV2, userTotalShare, shadowBurrowShare } =
+    useYourliquidity(pool.id);
 
   return (
     <Card
@@ -219,6 +218,7 @@ export function SharesCard({ shares, pool }: { shares: string; pool: Pool }) {
             <ShareInFarmV2
               farmStake={farmStakeV1}
               userTotalShare={userTotalShare}
+              shadowBurrowShare={shadowBurrowShare}
               version={'Legacy'}
             />
           ) : null}
@@ -227,6 +227,7 @@ export function SharesCard({ shares, pool }: { shares: string; pool: Pool }) {
             <ShareInFarmV2
               farmStake={farmStakeV2}
               userTotalShare={userTotalShare}
+              shadowBurrowShare={shadowBurrowShare}
               version={'Classic'}
               poolId={pool.id}
               onlyEndedFarm={endedFarmCountV2 === countV2}

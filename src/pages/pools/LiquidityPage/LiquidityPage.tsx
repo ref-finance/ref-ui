@@ -11,6 +11,7 @@ import {
   classificationOfCoins_key,
   classificationOfCoins,
   Seed,
+  get_shadow_records,
 } from '../../../services/farm';
 import { ArrowDownLarge } from '../../../components/icon';
 import { useHistory } from 'react-router';
@@ -149,8 +150,7 @@ import {
   REF_POOL_ID_SEARCHING_KEY,
   TokenPriceListContext,
 } from './constLiquidityPage';
-import { getShadowRecords } from 'src/services/shadowRecord';
-import { useShadowRecord } from 'src/stores/liquidityStores';
+import { useShadowRecordStore } from 'src/stores/liquidityStores';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -1718,7 +1718,9 @@ export default function LiquidityPage() {
   const [activeTab, setActiveTab] = useState<string>(
     localStorage.getItem(REF_FI_POOL_ACTIVE_TAB) || 'v1'
   );
-  const setShadowRecords = useShadowRecord((state) => state.setShadowRecords);
+  const setShadowRecords = useShadowRecordStore(
+    (state) => state.setShadowRecords
+  );
 
   const switchActiveTab = (curTab: string) => {
     setActiveTab(curTab);
@@ -1732,7 +1734,7 @@ export default function LiquidityPage() {
   >({});
 
   useEffect(() => {
-    getShadowRecords().then((res) => {
+    get_shadow_records().then((res) => {
       setShadowRecords(res);
     });
     get_all_seeds().then((seeds: Seed[]) => {

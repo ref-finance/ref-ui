@@ -98,7 +98,6 @@ import { GoodIcon } from '../../components/icon/Common';
 import { AddPoolModal } from '../../pages/pools/AddPoolPage';
 import { getStableSwapTabKey } from 'src/pages/stable/StableSwapPageUSN';
 import { LinkIcon } from '../../components/icon/Portfolio';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { checkFarmStake } from '../../state/farm';
 import {
   display_number_withCommas,
@@ -110,10 +109,12 @@ import { openUrl } from '../../services/commonV3';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import BLACKTip from '../../components/pool/BLACKTip';
 import {
-  ClassicFarmAmount,
-  ClassicFarmAmountMobile,
-  ShadowRecordLockedAmount,
-} from 'src/pages/pools/poolsComponents/poolsComponents';
+  PoolAvailableAmount,
+  PoolFarmAmount,
+  PoolShareYourLiquidityV1,
+  ShadowInBurrowAmount,
+} from 'src/components/pool/PoolShare';
+
 const is_mobile = isMobile();
 const { BLACK_TOKEN_LIST } = getConfig();
 export const StakeListContext = createContext(null);
@@ -141,6 +142,7 @@ export function YourLiquidityV1(props: any) {
   const { selector, modal, accounts, accountId, setAccountId } =
     useWalletSelector();
   const isSignedIn = !!accountId;
+
   useEffect(() => {
     // get all stable pools;
     const ids = ALL_STABLE_POOL_IDS;
@@ -148,6 +150,7 @@ export function YourLiquidityV1(props: any) {
       setStablePools(res.filter((p) => p.id.toString() !== NEARX_POOL_ID));
     });
   }, []);
+
   useEffect(() => {
     if (!isSignedIn) return;
     // get all simple pools;
@@ -155,6 +158,7 @@ export function YourLiquidityV1(props: any) {
       setPools(res.filter((p) => !isStablePool(p.id.toString())));
     });
   }, [isSignedIn]);
+
   useEffect(() => {
     if (!pools) return;
     // get all tokens meta data both from simple pools and stable pools
@@ -179,6 +183,7 @@ export function YourLiquidityV1(props: any) {
       }
     );
   }, [pools]);
+
   // get ve pool
   const vePool = pools?.find((p) => Number(p.id) === Number(getVEPoolId()));
   // get stake list in v1 farm and v2 farm
@@ -1384,85 +1389,20 @@ function PoolRow(props: {
           </div>
 
           <div className="col-span-2 flex flex-col text-xs  -ml-12 text-farmText">
-            {(supportFarmV1 > endedFarmV1 || Number(farmStakeV1) > 0) && (
-              <ClassicFarmAmount poolId={pool.id} farmVersion={'v1'} />
-            )}
-            {(supportFarmV2 > endedFarmV2 || Number(farmStakeV2) > 0) && (
-              <ClassicFarmAmount
-                poolId={pool.id}
-                onlyEndedFarmV2={props.onlyEndedFarmV2}
-                farmVersion={'v2'}
-              />
-            )}
-            {Number(getVEPoolId()) === Number(pool.id) &&
-            !!getConfig().REF_VE_CONTRACT_ID ? (
-              <div
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  openUrl('/referendum');
-                }}
-                className="text-primaryText mb-1.5 flex whitespace-nowrap items-center"
-              >
-                <span>
-                  {toPrecision(
-                    ONLY_ZEROS.test(
-                      toNonDivisibleNumber(
-                        LOVE_TOKEN_DECIMAL,
-                        toReadableNumber(24, lptAmount || '0')
-                      )
-                    )
-                      ? '0'
-                      : toReadableNumber(24, lptAmount || '0'),
-                    2
-                  )}
-                </span>
-                <span className="mx-1">
-                  <FormattedMessage id="locked" defaultMessage={'locked'} />
-                </span>
-                <span className="mr-1">
-                  <FormattedMessage id="in" defaultMessage={'in'} />
-                </span>
-                <div className="text-primaryText flex items-center hover:text-gradientFrom flex-shrink-0">
-                  <span className="underline">
-                    <FormattedMessage
-                      id="vote_capital"
-                      defaultMessage={'VOTE'}
-                    />
-                  </span>
-                  <span className="ml-0.5">
-                    <VEARROW />
-                  </span>
-                </div>
-              </div>
-            ) : null}
-            <ShadowRecordLockedAmount poolId={poolId} />
-            {ONLY_ZEROS.test(shares) ||
-            (supportFarmV1 === 0 && supportFarmV2 === 0) ? null : (
-              <div>
-                <span
-                  className={'text-gradientFrom'}
-                  title={toReadableNumber(
-                    isStablePool(pool.id) ? getStablePoolDecimal(pool.id) : 24,
-                    shares
-                  )}
-                >
-                  {toPrecision(
-                    toReadableNumber(
-                      isStablePool(pool.id)
-                        ? getStablePoolDecimal(pool.id)
-                        : 24,
-                      shares
-                    ),
-                    2
-                  )}
-                </span>
-
-                <span className="ml-1">
-                  <FormattedMessage id="available" />
-                </span>
-              </div>
-            )}
+            <PoolShareYourLiquidityV1
+              {...{
+                supportFarmV1,
+                endedFarmV1,
+                farmStakeV1,
+                supportFarmV2,
+                endedFarmV2,
+                farmStakeV2,
+                onlyEndedFarmV2: props.onlyEndedFarmV2,
+                pool,
+                lptAmount,
+                shares,
+              }}
+            />
           </div>
 
           <div className="col-span-2 text-left ml-4 xl:ml-8">{usdValue}</div>
@@ -1605,7 +1545,6 @@ function PoolRow(props: {
                   onlyEndedFarmV2={props.onlyEndedFarmV2}
                 />
               </div>
-
               {(supportFarmV1 > endedFarmV1 || Number(farmStakeV1) > 0) && (
                 <Link
                   to={{
@@ -1639,19 +1578,15 @@ function PoolRow(props: {
                   </span>
                 </Link>
               )}
-
-              {(supportFarmV2 > endedFarmV2 || Number(farmStakeV2) > 0) && (
-                <ClassicFarmAmount
-                  poolId={pool.id}
-                  onlyEndedFarmV2={props.onlyEndedFarmV2}
-                  farmVersion={'v2'}
-                  linkClass={
-                    'text-primaryText mb-1.5 flex items-center text-xs'
-                  }
-                />
-              )}
-              <ShadowRecordLockedAmount
+              <PoolFarmAmount
+                poolId={pool.id}
+                onlyEndedFarmV2={props.onlyEndedFarmV2}
+                farmVersion={'v2'}
+                linkClass={'text-primaryText mb-1.5 flex items-center text-xs'}
+              />
+              <ShadowInBurrowAmount
                 poolId={poolId}
+                shadowRecordsKey={'shadow_in_burrow'}
                 linkClass={'text-primaryText mb-1.5 flex items-center text-xs'}
               />
               {Number(getVEPoolId()) === Number(pool.id) &&
@@ -1684,29 +1619,14 @@ function PoolRow(props: {
                   </span>
                 </div>
               ) : null}
-
               {ONLY_ZEROS.test(shares) ||
               (supportFarmV1 === 0 && supportFarmV2 === 0) ? null : (
                 <div className="text-xs">
-                  <span
+                  <PoolAvailableAmount
+                    shares={shares}
+                    pool={pool}
                     className={'text-gradientFrom'}
-                    title={toReadableNumber(
-                      isStablePool(pool.id)
-                        ? getStablePoolDecimal(pool.id)
-                        : 24,
-                      shares
-                    )}
-                  >
-                    {toPrecision(
-                      toReadableNumber(
-                        isStablePool(pool.id)
-                          ? getStablePoolDecimal(pool.id)
-                          : 24,
-                        shares
-                      ),
-                      2
-                    )}
-                  </span>
+                  />
 
                   <span className="ml-1 text-primaryText">
                     <FormattedMessage id="available" />

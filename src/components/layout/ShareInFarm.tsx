@@ -93,6 +93,7 @@ export const ShareInFarm = ({
 export const ShareInFarmV2 = ({
   farmStake,
   userTotalShare,
+  shadowBurrowShare,
   forStable,
   version,
   poolId,
@@ -100,6 +101,7 @@ export const ShareInFarmV2 = ({
 }: {
   farmStake: string | number;
   userTotalShare: BigNumber;
+  shadowBurrowShare?: any;
   forStable?: boolean;
   version?: string;
   poolId?: number;
@@ -117,16 +119,44 @@ export const ShareInFarmV2 = ({
           .toLocaleString('fullwide', { useGrouping: false })
       ).toString()
     : '0';
+  return (
+    <div>
+      <SharePercentNode
+        share={farmShare}
+        sharePercent={farmSharePercent}
+        link={
+          poolId ? `/v2farms/${poolId}-${onlyEndedFarm ? 'e' : 'r'}` : '/farms'
+        }
+        version={version}
+      />
 
+      <SharePercentNode
+        share={shadowBurrowShare?.stakeAmount}
+        sharePercent={shadowBurrowShare?.sharePercent}
+        link={'https://app.burrow.finance/'}
+        version={''}
+        isInBurrow={true}
+      />
+    </div>
+  );
+};
+
+const SharePercentNode = ({
+  share,
+  sharePercent,
+  link,
+  version,
+  isInBurrow = false,
+}) => {
   return (
     <div className={`flex items-center  text-xs ml-4 xs:ml-2`}>
-      <FarmDot inFarm={Number(farmShare) > 0} className="mr-1" />
+      <FarmDot inFarm={Number(share) > 0} className="mr-1" />
       <div className="self-start whitespace-nowrap flex items-center">
         <span className="text-farmText w-10 text-right">
           {`${
-            Number(farmSharePercent) < 0.1 && Number(farmSharePercent) > 0
+            Number(sharePercent) < 0.1 && Number(sharePercent) > 0
               ? '< 0.1'
-              : toPrecision(farmSharePercent, 2, false, false)
+              : toPrecision(sharePercent, 2, false, false)
           }% `}{' '}
         </span>
         &nbsp;
@@ -134,11 +164,7 @@ export const ShareInFarmV2 = ({
           <FormattedMessage id="in" defaultMessage="in" />
         </span>
         <Link
-          to={
-            poolId
-              ? `/v2farms/${poolId}-${onlyEndedFarm ? 'e' : 'r'}`
-              : '/farms'
-          }
+          to={link}
           target="_blank"
           rel="noopener noreferrer nofollow"
           className="flex items-center cursor-pointer justify-end"
@@ -147,7 +173,11 @@ export const ShareInFarmV2 = ({
             <span className="mr-1 text-gradientFrom  text-left">{version}</span>
           )}
           <span className="text-gradientFrom mr-1">
-            <FormattedMessage id="farms" defaultMessage="Farms" />
+            {isInBurrow ? (
+              'Burrow'
+            ) : (
+              <FormattedMessage id="farms" defaultMessage="Farms" />
+            )}
           </span>
 
           <span className="text-right">

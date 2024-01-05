@@ -5,11 +5,14 @@ import {
   toPrecision,
   toNonDivisibleNumber,
   toReadableNumber,
+  percent,
 } from '../utils/numbers';
 import {
   getStakedListByAccountId,
   get_seed,
   list_seed_farms,
+  list_farmer_seeds,
+  get_shadow_records,
 } from '../services/farm';
 import {
   DEFAULT_PAGE_LIMIT,
@@ -83,7 +86,7 @@ import {
 } from '../services/near';
 import { getCurrentWallet, WalletContext } from '../utils/wallets-integration';
 import getConfig from '../services/config';
-import { useFarmStake } from './farm';
+import { useFarmStake, useShadowRecord } from './farm';
 import { ONLY_ZEROS, scientificNotationToString } from '../utils/numbers';
 import {
   getPoolsByTokensIndexer,
@@ -109,6 +112,11 @@ import {
 } from '../components/d3Chart/interfaces';
 import { getPointByPrice, getPriceByPoint } from '../services/commonV3';
 import { formatPercentage } from '../components/d3Chart/utils';
+import {
+  useFarmerSeedsStore,
+  useShadowRecordStore,
+} from 'src/stores/liquidityStores';
+import { useNewPoolData } from 'src/components/pool/useNewPoolData';
 
 const REF_FI_STABLE_POOL_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
   getConfig().STABLE_POOL_ID
@@ -230,6 +238,8 @@ export const useStakeListByAccountId = () => {
 
 export const usePool = (id: number | string) => {
   const { globalState } = useContext(WalletContext);
+  const shadowRecords = useShadowRecordStore((state) => state.shadowRecords);
+  const farmerSeeds = useFarmerSeedsStore((state) => state.farmerSeeds);
 
   const isSignedIn = globalState.isSignedIn;
 
@@ -237,7 +247,6 @@ export const usePool = (id: number | string) => {
   const [shares, setShares] = useState<string>('0');
   const [stakeList, setStakeList] = useState<Record<string, string>>({});
   const [v2StakeList, setV2StakeList] = useState<Record<string, string>>({});
-
   const [finalStakeList, setFinalStakeList] = useState<Record<string, string>>(
     {}
   );
@@ -245,7 +254,10 @@ export const usePool = (id: number | string) => {
   useEffect(() => {
     getPoolDetails(Number(id)).then(setPool);
     getSharesInPool(Number(id))
-      .then(setShares)
+      .then((res) => {
+        console.info('resres', res);
+        setShares(res);
+      })
       .catch(() => setShares);
 
     getStakedListByAccountId({})
@@ -1265,13 +1277,37 @@ export const useYourliquidity = (poolId: number) => {
   const farmStakeV1 = useFarmStake({ poolId, stakeList });
   const farmStakeV2 = useFarmStake({ poolId, stakeList: v2StakeList });
   const farmStakeTotal = useFarmStake({ poolId, stakeList: finalStakeList });
-
+  const { poolShadowRecord } = useShadowRecord(poolId);
+  const { shadow_in_farm, shadow_in_burrow } = poolShadowRecord || {};
   const userTotalShare = BigNumber.sum(shares, farmStakeTotal);
-
   const userTotalShareToString = userTotalShare
     .toNumber()
     .toLocaleString('fullwide', { useGrouping: false });
 
+  const processShare = (share, stakeAmount = '0') => {
+    const totalShare = share
+      ? BigNumber.sum(share, farmStakeTotal)
+      : BigNumber('0');
+    const totalShareString = totalShare
+      .toNumber()
+      .toLocaleString('fullwide', { useGrouping: false });
+    const sharePercent = totalShare.isGreaterThan(0)
+      ? percent(
+          stakeAmount,
+          totalShare
+            .toNumber()
+            .toLocaleString('fullwide', { useGrouping: false })
+        ).toString()
+      : '0';
+
+    // poolId===711 &&  console.log(`stakeAmount:${stakeAmount} totalShare:${totalShare} totalShareString:${totalShareString} sharePercent:${sharePercent}`)
+    return { totalShare, totalShareString, sharePercent, stakeAmount };
+  };
+  const shadowBurrowShare = processShare(shares, shadow_in_burrow);
+
+  // poolId===711 && console.log(`shares:${shares} farmStakeV2:${farmStakeV2} farmV2Share:${farmV2Share} userTotalShare:${userTotalShare} userTotalShareToString:${userTotalShareToString} farmV2SharePercent:${farmV2SharePercent}`)
+  // poolId===711 && console.log(`farmStakeV2Share:`,farmStakeV2Share)
+  // poolId===711 && console.log(`shadowBurrowShare:`,shadowBurrowShare)
   return {
     pool,
     shares,
@@ -1283,6 +1319,7 @@ export const useYourliquidity = (poolId: number) => {
     farmStakeV2,
     userTotalShare,
     userTotalShareToString,
+    shadowBurrowShare,
   };
 };
 

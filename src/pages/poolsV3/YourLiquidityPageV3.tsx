@@ -47,7 +47,13 @@ import {
   get_pool_name,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
-import { FarmBoost, getBoostTokenPrices, Seed } from '../../services/farm';
+import {
+  FarmBoost,
+  get_shadow_records,
+  getBoostTokenPrices,
+  list_farmer_seeds,
+  Seed,
+} from '../../services/farm';
 import { RemoveOldPoolV3 } from 'src/components/pool/RemoveOldPoolV3';
 import { AddPoolV3 } from 'src/components/pool/AddPoolV3';
 import { PoolTabV3 } from 'src/components/pool/PoolTabV3';
@@ -69,8 +75,6 @@ import { PoolRPCView } from '../../services/api';
 import { ALL_STABLE_POOL_IDS, REF_FI_CONTRACT_ID } from '../../services/near';
 import { getPoolsByIds } from '../../services/indexer';
 import { BlueCircleLoading } from '../../components/layout/Loading';
-import QuestionMark from 'src/components/farm/QuestionMark';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
 import Big from 'big.js';
 import { ConnectToNearBtnSwap } from '../../components/button/Button';
 import { getURLInfo } from '../../components/layout/transactionTipPopUp';
@@ -81,8 +85,11 @@ import { NFTIdIcon } from 'src/components/icon/FarmBoost';
 import { YourLiquidityV2 } from 'src/components/pool/YourLiquidityV2';
 import { isMobile } from 'src/utils/device';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
-import { getShadowRecords } from 'src/services/shadowRecord';
-import { useShadowRecord } from 'src/stores/liquidityStores';
+import {
+  useFarmerSeedsStore,
+  useShadowRecordStore,
+} from 'src/stores/liquidityStores';
+import { useNewPoolData } from 'src/components/pool/useNewPoolData';
 
 export default function YourLiquidityPageV3() {
   const clearState = () => {
@@ -137,6 +144,7 @@ export default function YourLiquidityPageV3() {
   const [checkedStatus, setCheckedStatus] = useState('all');
   const [addLiqudityHover, setAddLiqudityHover] = useState(false);
   const [all_seeds, set_all_seeds] = useState<Seed[]>([]);
+
   const history = useHistory();
   const pool_link = sessionStorage.getItem(REF_POOL_NAV_TAB_KEY);
 
@@ -150,11 +158,18 @@ export default function YourLiquidityPageV3() {
 
     return null;
   }
-  const setShadowRecords = useShadowRecord((state) => state.setShadowRecords);
+  const setShadowRecords = useShadowRecordStore(
+    (state) => state.setShadowRecords
+  );
+  const setFarmerSeeds = useFarmerSeedsStore((state) => state.setFarmerSeeds);
+
   useEffect(() => {
     const ids = ALL_STABLE_POOL_IDS;
-    getShadowRecords().then((res) => {
+    get_shadow_records().then((res) => {
       setShadowRecords(res);
+    });
+    list_farmer_seeds().then((res) => {
+      setFarmerSeeds(res);
     });
     getPoolsByIds({ pool_ids: ids }).then((res) => {
       setStablePools(res);
@@ -163,11 +178,13 @@ export default function YourLiquidityPageV3() {
       set_all_seeds(seeds);
     });
   }, []);
+
   useEffect(() => {
     if (isSignedIn) {
       get_list_liquidities_old_version();
     }
   }, [isSignedIn]);
+
   async function get_list_liquidities_old_version() {
     const list: UserLiquidityInfo[] = await list_liquidities_old_version();
     if (list.length > 0) {
@@ -183,6 +200,7 @@ export default function YourLiquidityPageV3() {
     }
     return list.length;
   }
+
   function goAddLiquidityPage(url: string) {
     history.push(url);
   }
