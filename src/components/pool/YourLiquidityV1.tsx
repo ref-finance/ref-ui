@@ -908,25 +908,12 @@ function YourClassicLiquidityLineMobile() {
             <FormattedMessage id="usage" />
           </span>
           <div className="flex flex-col items-end text-sm text-white">
-            <div
-              className={`flex items-center ${
-                +lp_in_farm > 0 ? '' : 'hidden'
-              } ${+lp_in_vote > 0 || +lp_in_pool > 0 ? 'mb-4' : ''}`}
-            >
-              {display_number_withCommas(lp_in_farm)}{' '}
-              <FormattedMessage id="in" />{' '}
-              <span
-                className="flex items-center"
-                onClick={() => {
-                  openUrl(`/v2farms/${pool.id}-${seed_status}`);
-                }}
-              >
-                <label className="underline cursor-pointer mx-1">
-                  <FormattedMessage id="farm" />
-                </label>{' '}
-                <LinkIcon className="cursor-pointer text-primaryText hover:text-white"></LinkIcon>
-              </span>
-            </div>
+            <PoolFarmAmount
+              poolId={pool.id}
+              farmVersion={'v2'}
+              styleType={'portfolio'}
+            />
+            <ShadowInBurrowAmount poolId={pool.id} styleType={'portfolio'} />
             <div
               className={`flex items-center  ${
                 +lp_in_vote > 0 ? '' : 'hidden'
@@ -1034,12 +1021,18 @@ function YourClassicLiquidityLinePc() {
               <FormattedMessage id="usage" />
             </span>
             <div className="flex items-center text-sm text-white">
-
-              <div className={"flex gap-2"}>
-                <PoolFarmAmount poolId={pool.id} farmVersion={"v1"} styleType={"portfolio"}/>
-                <PoolFarmAmount poolId={pool.id} farmVersion={"v2"} styleType={"portfolio"}/>
+              <div className={'flex gap-2'}>
+                <PoolFarmAmount
+                  poolId={pool.id}
+                  farmVersion={'v2'}
+                  styleType={'portfolio'}
+                />
+                <ShadowInBurrowAmount
+                  poolId={pool.id}
+                  styleType={'portfolio'}
+                />
               </div>
-              
+
               <div
                 className={`flex items-center pl-3.5 ${
                   +lp_in_pool > 0 ? 'pr-3.5 border-r border-orderTypeBg' : ''

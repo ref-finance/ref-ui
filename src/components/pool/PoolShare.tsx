@@ -29,7 +29,7 @@ import {
   INewPool,
   useNewPoolData,
 } from 'src/components/pool/useNewPoolData';
-import { LinkIcon } from "src/components/icon/Portfolio";
+import { LinkIcon } from 'src/components/icon/Portfolio';
 const configV2 = getConfigV2();
 
 export const PoolFarmAmount = ({
@@ -39,7 +39,7 @@ export const PoolFarmAmount = ({
   textContainerClassName = '',
   textClassName,
   farmVersion,
-  styleType
+  styleType,
 }: {
   poolId: number;
   farmVersion?: 'v1' | 'v2';
@@ -47,7 +47,7 @@ export const PoolFarmAmount = ({
   linkClass?: string;
   textContainerClassName?: string;
   textClassName?: string;
-  styleType?: 'portfolio'
+  styleType?: 'portfolio';
 }) => {
   const { stakeList, v2StakeList, finalStakeList } =
     useContext(StakeListContext);
@@ -66,7 +66,7 @@ export const PoolFarmAmount = ({
 
   let farmStakeAmount: string | number = 0;
   let link = '';
-  if (isShadowPool && farmVersion!=="v1") {
+  if (isShadowPool && farmVersion !== 'v1') {
     farmStakeAmount = poolSeed
       ? new BigNumber(poolSeed.free_amount)
           .plus(poolSeed.shadow_amount)
@@ -97,12 +97,15 @@ export const PoolFarmAmount = ({
     );
   const decimal = isStablePool(poolId) ? getStablePoolDecimal(poolId) : 24;
 
-  let containerStyle, linkIconNode = <VEARROW />
-  if(styleType==="portfolio"){
-    containerStyle={
-      color:"#fff"
-    }
-    linkIconNode = <LinkIcon className="cursor-pointer text-primaryText hover:text-white"></LinkIcon>
+  let containerStyle,
+    linkIconNode = <VEARROW />;
+  if (styleType === 'portfolio') {
+    containerStyle = {
+      color: '#fff',
+    };
+    linkIconNode = (
+      <LinkIcon className="cursor-pointer text-primaryText hover:text-white"></LinkIcon>
+    );
   }
 
   return (
@@ -141,9 +144,7 @@ export const PoolFarmAmount = ({
           {farmStakeText}
         </span>
 
-        <span className="ml-1">
-         {linkIconNode}
-        </span>
+        <span className="ml-1">{linkIconNode}</span>
       </div>
     </Link>
   );
@@ -251,7 +252,9 @@ export const PoolShareYourLiquidityV1 = ({
             className={'text-gradientFrom'}
             title={availableShareNonDivisible}
           >
-            {Number(availableShare) < 0.01 ? "<0.01":toPrecision(availableShare, 2)}
+            {Number(availableShare) < 0.01
+              ? '<0.01'
+              : toPrecision(availableShare, 2)}
           </span>
 
           <span className="ml-1">
@@ -268,15 +271,17 @@ export const ShadowInBurrowAmount = ({
   textClassName,
   linkClass,
   textContainerClassName,
-  shadowRecordsKey,
+  shadowRecordsKey = 'shadow_in_burrow',
   onlyEndedFarmV2,
+  styleType,
 }: {
   poolId: number;
   linkClass?: string;
   textClassName?: string;
   textContainerClassName?: string;
   onlyEndedFarmV2?: boolean;
-  shadowRecordsKey: 'shadow_in_burrow' | 'shadow_in_farm';
+  shadowRecordsKey?: 'shadow_in_burrow' | 'shadow_in_farm';
+  styleType?: 'portfolio';
 }) => {
   const shadowRecords = useShadowRecordStore((state) => state.shadowRecords);
   const inBurrow = shadowRecords?.[Number(poolId)]?.[shadowRecordsKey];
@@ -300,6 +305,17 @@ export const ShadowInBurrowAmount = ({
     suffixNode = <FormattedMessage id="classic_farms" />;
   }
 
+  let containerStyle,
+    linkIconNode = <VEARROW />;
+  if (styleType === 'portfolio') {
+    containerStyle = {
+      color: '#fff',
+    };
+    linkIconNode = (
+      <LinkIcon className="cursor-pointer text-primaryText hover:text-white"></LinkIcon>
+    );
+  }
+
   return (
     <div
       onClick={(e) => {
@@ -312,6 +328,7 @@ export const ShadowInBurrowAmount = ({
           ? linkClass
           : 'text-primaryText flex whitespace-nowrap  mb-1.5 items-center'
       }
+      style={containerStyle}
     >
       <span>
         {toPrecision(
@@ -331,7 +348,7 @@ export const ShadowInBurrowAmount = ({
         className={
           textContainerClassName
             ? textContainerClassName
-            : 'text-primaryText flex items-center hover:text-gradientFrom flex-shrink-0'
+            : 'flex items-center hover:text-gradientFrom flex-shrink-0'
         }
       >
         <span
@@ -339,9 +356,7 @@ export const ShadowInBurrowAmount = ({
         >
           {suffixNode}
         </span>
-        <span className="ml-0.5">
-          <VEARROW />
-        </span>
+        <span className="ml-0.5">{linkIconNode}</span>
       </div>
     </div>
   );
