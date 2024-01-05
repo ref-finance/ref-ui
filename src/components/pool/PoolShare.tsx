@@ -29,6 +29,7 @@ import {
   INewPool,
   useNewPoolData,
 } from 'src/components/pool/useNewPoolData';
+import { LinkIcon } from "src/components/icon/Portfolio";
 const configV2 = getConfigV2();
 
 export const PoolFarmAmount = ({
@@ -38,6 +39,7 @@ export const PoolFarmAmount = ({
   textContainerClassName = '',
   textClassName,
   farmVersion,
+  styleType
 }: {
   poolId: number;
   farmVersion?: 'v1' | 'v2';
@@ -45,6 +47,7 @@ export const PoolFarmAmount = ({
   linkClass?: string;
   textContainerClassName?: string;
   textClassName?: string;
+  styleType?: 'portfolio'
 }) => {
   const { stakeList, v2StakeList, finalStakeList } =
     useContext(StakeListContext);
@@ -63,7 +66,7 @@ export const PoolFarmAmount = ({
 
   let farmStakeAmount: string | number = 0;
   let link = '';
-  if (isShadowPool) {
+  if (isShadowPool && farmVersion!=="v1") {
     farmStakeAmount = poolSeed
       ? new BigNumber(poolSeed.free_amount)
           .plus(poolSeed.shadow_amount)
@@ -94,6 +97,14 @@ export const PoolFarmAmount = ({
     );
   const decimal = isStablePool(poolId) ? getStablePoolDecimal(poolId) : 24;
 
+  let containerStyle, linkIconNode = <VEARROW />
+  if(styleType==="portfolio"){
+    containerStyle={
+      color:"#fff"
+    }
+    linkIconNode = <LinkIcon className="cursor-pointer text-primaryText hover:text-white"></LinkIcon>
+  }
+
   return (
     <Link
       to={link}
@@ -102,6 +113,7 @@ export const PoolFarmAmount = ({
       onClick={(e) => {
         e.stopPropagation();
       }}
+      style={containerStyle}
       className={linkClass ? linkClass : 'text-primaryText mb-1.5 flex'}
     >
       <span>
@@ -120,7 +132,7 @@ export const PoolFarmAmount = ({
         className={
           textContainerClassName
             ? textContainerClassName
-            : 'text-primaryText flex items-center hover:text-gradientFrom flex-shrink-0'
+            : 'flex items-center hover:text-gradientFrom flex-shrink-0'
         }
       >
         <span
@@ -129,8 +141,8 @@ export const PoolFarmAmount = ({
           {farmStakeText}
         </span>
 
-        <span className="ml-0.5">
-          <VEARROW />
+        <span className="ml-1">
+         {linkIconNode}
         </span>
       </div>
     </Link>
