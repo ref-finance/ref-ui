@@ -79,28 +79,20 @@ export const getPoolAvailableShare = ({ pool, shadowRecords, shares }) => {
       ? toReadableNumber(decimal, scientificNotationToString(shadow_in_burrow))
       : '0';
 
-    const highestUsed = Math.max(
-      new BigNumber(shadowFarm).toNumber(),
-      new BigNumber(shadowBorrow).toNumber()
-    );
+    const highestUsed = BigNumber.maximum(shadow_in_farm, shadow_in_burrow);
     // const share1 = new BigNumber(sharesToken).minus(shadowFarm).toNumber();
     // const share2 = new BigNumber(sharesToken).minus(shadowBorrow).toNumber();
-    availableShare = new BigNumber(sharesToken).minus(highestUsed).toFixed();
-    // console.log(
-    //   `availableShare id:${pool.id} f:${shadowFarm}  b:${shadowBorrow} availableShare:${availableShare} shadowBorrow:${shadowBorrow} shadowFarm:${shadowFarm}`,
-    // );
-    const nonDivisibleShare1 = new BigNumber(shares)
-      .minus(shadow_in_farm)
-      .toNumber();
-    const nonDivisibleShare2 = new BigNumber(shares)
-      .minus(shadow_in_burrow)
-      .toNumber();
-    availableShareNonDivisible = new BigNumber(
-      Math.min(nonDivisibleShare1, nonDivisibleShare2)
-    ).toFixed();
+    availableShareNonDivisible = new BigNumber(shares)
+      .minus(highestUsed)
+      .toFixed();
+    availableShare = toReadableNumber(
+      decimal,
+      scientificNotationToString(availableShareNonDivisible)
+    );
   } else {
     availableShare = sharesToken;
     availableShareNonDivisible = shares;
   }
+
   return { availableShare, availableShareNonDivisible };
 };

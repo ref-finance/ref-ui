@@ -51,9 +51,9 @@ export const PoolFarmAmount = ({
 }) => {
   // todo: not to use context
   const { stakeList, v2StakeList, finalStakeList } =
-    useContext(StakeListContext)||{};
-  if(!stakeList ||!v2StakeList){
-    return null
+    useContext(StakeListContext) || {};
+  if (!stakeList || !v2StakeList) {
+    return null;
   }
 
   const isShadowPool = configV2.SUPPORT_SHADOW_POOL_IDS.includes(
@@ -172,7 +172,6 @@ export const PoolShareYourLiquidityV1 = ({
     pool.id?.toString()
   );
   const { newPool } = useNewPoolData({ pool, shares });
-  console.log('newPool', isShadowPool, newPool);
 
   const { availableShare, availableShareNonDivisible, farmShare } =
     newPool || {};

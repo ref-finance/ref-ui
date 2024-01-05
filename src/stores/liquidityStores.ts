@@ -55,12 +55,4 @@ export const useFarmStore = create<IFarmStore>((set, get: any) => ({
     }
     set(toUpdate);
   },
-  setStakeListV1: (d: any) => {
-    const seeds = {};
-    Object.entries(d).forEach(([key, value]) => {
-      const poolId = key.split('@')?.[1];
-      seeds[poolId] = value;
-    });
-    set({ rawFarmerSeeds: d, farmerSeeds: seeds });
-  },
 }));

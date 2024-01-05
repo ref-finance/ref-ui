@@ -1020,13 +1020,13 @@ export function RemoveLiquidityModal(
 
   function submit() {
     const amountBN = new BigNumber(amount?.toString());
-    const shareBN = new BigNumber(toReadableNumber(24, availableShare));
+
     if (Number(amount) === 0) {
       throw new Error(
         intl.formatMessage({ id: 'must_input_a_value_greater_than_zero' })
       );
     }
-    if (amountBN.isGreaterThan(shareBN)) {
+    if (amountBN.isGreaterThan(availableShare)) {
       throw new Error(
         intl.formatMessage({
           id: 'input_greater_than_available_shares',
@@ -1041,10 +1041,9 @@ export function RemoveLiquidityModal(
   function handleChangeAmount(value: string) {
     setAmount(value);
     setError(null);
-
     const amountBN = new BigNumber(value.toString());
-    const shareBN = new BigNumber(toReadableNumber(24, availableShare));
-    if (amountBN.isGreaterThan(shareBN)) {
+
+    if (amountBN.isGreaterThan(availableShare)) {
       setCanSubmit(false);
       throw new Error(
         intl.formatMessage({
