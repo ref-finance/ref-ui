@@ -31,16 +31,16 @@ export const useFarmerSeedsStore = create<IFarmerSeedsStore>(
   })
 );
 
-type IFarmStore = {
-  stakeListV1: any[];
-  stakeListV2: any[];
-  stakeListAll: any[];
+type IStakeListStore = {
+  stakeListV1: Record<string, string>;
+  stakeListV2: Record<string, string>;
+  stakeListAll: Record<string, string>;
   setStakeListTogether: (p: any) => void;
 };
-export const useFarmStore = create<IFarmStore>((set, get: any) => ({
-  stakeListV1: [],
-  stakeListV2: [],
-  stakeListAll: [],
+export const useStakeListStore = create<IStakeListStore>((set, get: any) => ({
+  stakeListV1: null,
+  stakeListV2: null,
+  stakeListAll: null,
   setStakeListTogether: (d: any) => {
     const { stakeListV1, stakeListV2, stakeListAll } = d || {};
     const toUpdate: any = {};

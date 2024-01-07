@@ -18,9 +18,9 @@ import React, { useContext } from 'react';
 import {
   useFarmerSeedsStore,
   useShadowRecordStore,
+  useStakeListStore,
 } from 'src/stores/liquidityStores';
 import { BigNumber } from 'bignumber.js';
-import { StakeListContext } from 'src/components/pool/YourLiquidityV1';
 import { useFarmStake } from 'src/state/farm';
 import { Link } from 'react-router-dom';
 import getConfigV2 from 'src/services/configV2';
@@ -49,9 +49,8 @@ export const PoolFarmAmount = ({
   textClassName?: string;
   styleType?: 'portfolio';
 }) => {
-  // todo: not to use context
-  const { stakeList, v2StakeList, finalStakeList } =
-    useContext(StakeListContext) || {};
+  const v2StakeList = useStakeListStore((state) => state.stakeListV2);
+  const stakeList = useStakeListStore((state) => state.stakeListV1);
   if (!stakeList || !v2StakeList) {
     return null;
   }
@@ -76,7 +75,7 @@ export const PoolFarmAmount = ({
       ? new BigNumber(poolSeed.free_amount)
           .plus(poolSeed.shadow_amount)
           .toFixed()
-      : shadow_in_farm || 0;
+      : shadow_in_farm || '0';
     link = `/v2farms/${poolId}-${onlyEndedFarmV2 ? 'e' : 'r'}`;
   } else {
     switch (farmVersion) {
@@ -85,7 +84,13 @@ export const PoolFarmAmount = ({
         link = '/farms';
         break;
       case 'v2':
-        farmStakeAmount = farmStakeV2;
+        farmStakeAmount =
+          (poolSeed &&
+            new BigNumber(poolSeed.free_amount)
+              .plus(poolSeed.shadow_amount)
+              .toFixed()) ||
+          farmStakeV2 ||
+          '0';
         link = `/v2farms/${poolId}-${onlyEndedFarmV2 ? 'e' : 'r'}`;
         break;
     }

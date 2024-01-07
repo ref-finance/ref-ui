@@ -71,17 +71,7 @@ export const getPoolAvailableShare = ({ pool, shadowRecords, shares }) => {
   if (isShadowPool) {
     const { shadow_in_farm, shadow_in_burrow } =
       shadowRecords?.[Number(pool.id)] || {};
-
-    const shadowFarm = shadow_in_farm
-      ? toReadableNumber(decimal, scientificNotationToString(shadow_in_farm))
-      : '0';
-    const shadowBorrow = shadow_in_burrow
-      ? toReadableNumber(decimal, scientificNotationToString(shadow_in_burrow))
-      : '0';
-
     const highestUsed = BigNumber.maximum(shadow_in_farm, shadow_in_burrow);
-    // const share1 = new BigNumber(sharesToken).minus(shadowFarm).toNumber();
-    // const share2 = new BigNumber(sharesToken).minus(shadowBorrow).toNumber();
     availableShareNonDivisible = new BigNumber(shares)
       .minus(highestUsed)
       .toFixed();

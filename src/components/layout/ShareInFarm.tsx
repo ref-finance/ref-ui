@@ -22,16 +22,18 @@ export const ShareInFarm = ({
   userTotalShare,
   forStable,
   version,
+  inStr,
 }: {
   farmStake: string | number;
   userTotalShare: BigNumber;
   forStable?: boolean;
   version?: string;
+  inStr?: string;
 }) => {
+  if (Number(farmStake) === 0) return null;
   const farmShare = Number(farmStake).toLocaleString('fullwide', {
     useGrouping: false,
   });
-
   const [hover, setHovet] = useState<boolean>(false);
 
   const farmSharePercent = userTotalShare.isGreaterThan(0)
@@ -74,8 +76,11 @@ export const ShareInFarm = ({
           }% `}{' '}
         </span>
         <span>
-          &nbsp;
-          <FormattedMessage id="in_farm" defaultMessage="in Farm" />
+          {inStr ? (
+            inStr
+          ) : (
+            <FormattedMessage id="in_farm" defaultMessage="in Farm" />
+          )}
         </span>
 
         {version && <span className={`ml-1 w-4`}>{version}</span>}
@@ -98,6 +103,7 @@ export const ShareInFarmV2 = ({
   version,
   poolId,
   onlyEndedFarm,
+  className,
 }: {
   farmStake: string | number;
   userTotalShare: BigNumber;
@@ -106,6 +112,7 @@ export const ShareInFarmV2 = ({
   version?: string;
   poolId?: number;
   onlyEndedFarm?: boolean;
+  className?: string;
 }) => {
   const farmShare = Number(farmStake).toLocaleString('fullwide', {
     useGrouping: false,
@@ -120,7 +127,7 @@ export const ShareInFarmV2 = ({
       ).toString()
     : '0';
   return (
-    <div>
+    <div className={className}>
       <SharePercentNode
         share={farmShare}
         sharePercent={farmSharePercent}
@@ -130,13 +137,15 @@ export const ShareInFarmV2 = ({
         version={version}
       />
 
-      <SharePercentNode
-        share={shadowBurrowShare?.stakeAmount}
-        sharePercent={shadowBurrowShare?.sharePercent}
-        link={'https://app.burrow.finance/'}
-        version={''}
-        isInBurrow={true}
-      />
+      {Number(shadowBurrowShare?.stakeAmount) !== 0 && (
+        <SharePercentNode
+          share={shadowBurrowShare?.stakeAmount}
+          sharePercent={shadowBurrowShare?.sharePercent}
+          link={'https://app.burrow.finance/'}
+          version={''}
+          isInBurrow={true}
+        />
+      )}
     </div>
   );
 };

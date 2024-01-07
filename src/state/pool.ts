@@ -254,10 +254,7 @@ export const usePool = (id: number | string) => {
   useEffect(() => {
     getPoolDetails(Number(id)).then(setPool);
     getSharesInPool(Number(id))
-      .then((res) => {
-        console.info('resres', res);
-        setShares(res);
-      })
+      .then(setShares)
       .catch(() => setShares);
 
     getStakedListByAccountId({})
@@ -1274,8 +1271,16 @@ export const useYourliquidity = (poolId: number) => {
   const { pool, shares, stakeList, v2StakeList, finalStakeList } =
     usePool(poolId);
 
+  // todo: check if can remove useFarmStake, use farmerSeeds only
   const farmStakeV1 = useFarmStake({ poolId, stakeList });
-  const farmStakeV2 = useFarmStake({ poolId, stakeList: v2StakeList });
+  const farmStakeV2Ori = useFarmStake({ poolId, stakeList: v2StakeList });
+  const farmerSeeds = useFarmerSeedsStore((state) => state.farmerSeeds);
+  const poolSeed = farmerSeeds[poolId];
+
+  const farmStakeV2 = poolSeed
+    ? new BigNumber(poolSeed.free_amount).plus(poolSeed.shadow_amount).toFixed()
+    : farmStakeV2Ori || '0';
+
   const farmStakeTotal = useFarmStake({ poolId, stakeList: finalStakeList });
   const { poolShadowRecord } = useShadowRecord(poolId);
   const { shadow_in_farm, shadow_in_burrow } = poolShadowRecord || {};
@@ -1300,14 +1305,10 @@ export const useYourliquidity = (poolId: number) => {
         ).toString()
       : '0';
 
-    // poolId===711 &&  console.log(`stakeAmount:${stakeAmount} totalShare:${totalShare} totalShareString:${totalShareString} sharePercent:${sharePercent}`)
     return { totalShare, totalShareString, sharePercent, stakeAmount };
   };
   const shadowBurrowShare = processShare(shares, shadow_in_burrow);
 
-  // poolId===711 && console.log(`shares:${shares} farmStakeV2:${farmStakeV2} farmV2Share:${farmV2Share} userTotalShare:${userTotalShare} userTotalShareToString:${userTotalShareToString} farmV2SharePercent:${farmV2SharePercent}`)
-  // poolId===711 && console.log(`farmStakeV2Share:`,farmStakeV2Share)
-  // poolId===711 && console.log(`shadowBurrowShare:`,shadowBurrowShare)
   return {
     pool,
     shares,
