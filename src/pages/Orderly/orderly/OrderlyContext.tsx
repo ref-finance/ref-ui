@@ -161,11 +161,11 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
   const availableSymbols = useAllSymbolInfo();
 
   const allOrders = useAllOrders({
-    refreshingTag: myPendingOrdersRefreshing,
+    refreshingTag:
+      privateValue.balanceTimeStamp + privateValue.positionTimeStamp,
     type: symbolType,
     validAccountSig,
   });
-
   const isPerp = isNewHostName
     ? pathname.includes('perp') || pathname == '/'
     : pathname.includes('perp');

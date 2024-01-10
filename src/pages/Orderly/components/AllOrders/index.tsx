@@ -4435,6 +4435,7 @@ function AllOrderBoard({
     tokenInfo,
     availableSymbols: AllAvailableSymbols,
     allOrders,
+    storageEnough,
   } = useOrderlyContext();
   const symbolType = PerpOrSpot(symbol);
 
@@ -4458,7 +4459,7 @@ function AllOrderBoard({
     ),
   ];
 
-  const { storageEnough } = useOrderlyContext();
+  // const { storageEnough } = useOrderlyContext();
 
   const allTokens = useBatchTokenMetaFromSymbols(
     allTokenSymbols.length > 0 ? allTokenSymbols : null,
@@ -4801,6 +4802,7 @@ function AllOrderBoard({
         <PositionsTable
           hidden={tab !== 'positions' || !!isMobile}
           showCurSymbol={showCurSymbol}
+          futureOrders={openOrders}
         />
       </div>
     </>
