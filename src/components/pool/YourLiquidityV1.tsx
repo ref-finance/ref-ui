@@ -1163,7 +1163,7 @@ function PoolRow(props: {
     return !!tokenIds.find((id) => BLACK_TOKEN_LIST.includes(id));
   }, [tokens]);
   const history = useHistory();
-
+  const intl = useIntl();
   const { stakeList, v2StakeList, finalStakeList } =
     useContext(StakeListContext);
 
@@ -1308,8 +1308,6 @@ function PoolRow(props: {
   };
 
   const lpDecimal = isStablePool(pool.id) ? getStablePoolDecimal(pool.id) : 24;
-
-  const intl = useIntl();
 
   function getForbiddenTip() {
     const tip = intl.formatMessage({

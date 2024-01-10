@@ -43,6 +43,7 @@ export const useNewPoolData = ({ pool, shares }) => {
           .plus(poolSeed.shadow_amount)
           .toFixed()
       : shares;
+
     const { availableShare, availableShareNonDivisible } =
       getPoolAvailableShare({
         pool: pool2,

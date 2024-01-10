@@ -6,6 +6,7 @@ import StableSwapPage from './StableSwapPage';
 import StableSwapPageUSN from './StableSwapPageUSN';
 import FourTokenStablePage from './FourTokenStablePage';
 import { NEARX_POOL_ID } from 'src/services/near';
+import { useZustandSetPoolData } from 'src/state/sauce';
 
 interface ParamTypes {
   id: string;
@@ -13,8 +14,9 @@ interface ParamTypes {
 export default function StableSwapRouter() {
   const { id } = useParams<ParamTypes>();
   const { pool } = usePool(id);
-
   const history = useHistory();
+
+  useZustandSetPoolData();
 
   if (id === NEARX_POOL_ID) {
     history.push('/');

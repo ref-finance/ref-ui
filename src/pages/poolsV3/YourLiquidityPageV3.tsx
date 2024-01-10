@@ -51,6 +51,7 @@ import {
   FarmBoost,
   get_shadow_records,
   getBoostTokenPrices,
+  getStakedListByAccountId,
   list_farmer_seeds,
   Seed,
 } from '../../services/farm';
@@ -85,11 +86,7 @@ import { NFTIdIcon } from 'src/components/icon/FarmBoost';
 import { YourLiquidityV2 } from 'src/components/pool/YourLiquidityV2';
 import { isMobile } from 'src/utils/device';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
-import {
-  useFarmerSeedsStore,
-  useShadowRecordStore,
-} from 'src/stores/liquidityStores';
-import { useNewPoolData } from 'src/components/pool/useNewPoolData';
+import { useZustandSetPoolData } from 'src/state/sauce';
 
 export default function YourLiquidityPageV3() {
   const clearState = () => {
@@ -158,19 +155,10 @@ export default function YourLiquidityPageV3() {
 
     return null;
   }
-  const setShadowRecords = useShadowRecordStore(
-    (state) => state.setShadowRecords
-  );
-  const setFarmerSeeds = useFarmerSeedsStore((state) => state.setFarmerSeeds);
+  useZustandSetPoolData();
 
   useEffect(() => {
     const ids = ALL_STABLE_POOL_IDS;
-    get_shadow_records().then((res) => {
-      setShadowRecords(res);
-    });
-    list_farmer_seeds().then((res) => {
-      setFarmerSeeds(res);
-    });
     getPoolsByIds({ pool_ids: ids }).then((res) => {
       setStablePools(res);
     });

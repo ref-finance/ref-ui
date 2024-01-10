@@ -51,7 +51,8 @@ export const PoolFarmAmount = ({
 }) => {
   const v2StakeList = useStakeListStore((state) => state.stakeListV2);
   const stakeList = useStakeListStore((state) => state.stakeListV1);
-  if (!stakeList || !v2StakeList) {
+  if (!v2StakeList) {
+    console.error(`${poolId} without v2StakeL`);
     return null;
   }
 
@@ -59,8 +60,9 @@ export const PoolFarmAmount = ({
     poolId?.toString()
   );
 
-  const farmStakeV1 = useFarmStake({ poolId, stakeList });
-  const farmStakeV2 = useFarmStake({ poolId, stakeList: v2StakeList });
+  const farmStakeV1 = stakeList && useFarmStake({ poolId, stakeList });
+  const farmStakeV2 =
+    v2StakeList && useFarmStake({ poolId, stakeList: v2StakeList });
   const shadowRecords = useShadowRecordStore((state) => state.shadowRecords);
   const farmerSeeds = useFarmerSeedsStore((state) => state.farmerSeeds);
   const poolSeed = farmerSeeds[poolId];
@@ -95,6 +97,7 @@ export const PoolFarmAmount = ({
         break;
     }
   }
+
   if (!Number(farmStakeAmount)) {
     return null;
   }
@@ -307,8 +310,9 @@ export const ShadowInBurrowAmount = ({
         &nbsp;
       </span>
     );
+
     suffixNode = 'Burrow';
-    link = 'https://app.burrow.finance';
+    link = `https://app.burrow.finance/tokenDetail/shadow_ref_v1-${poolId}`;
   } else {
     link = `/v2farms/${poolId}-${onlyEndedFarmV2 ? 'e' : 'r'}`;
     suffixNode = <FormattedMessage id="classic_farms" />;
