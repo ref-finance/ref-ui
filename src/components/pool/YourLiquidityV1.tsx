@@ -1020,21 +1020,16 @@ function YourClassicLiquidityLinePc() {
             <span className="text-sm text-v3SwapGray">
               <FormattedMessage id="usage" />
             </span>
-            <div className="flex items-center text-sm text-white">
-              <div className={'flex gap-2'}>
-                <PoolFarmAmount
-                  poolId={pool.id}
-                  farmVersion={'v2'}
-                  styleType={'portfolio'}
-                />
-                <ShadowInBurrowAmount
-                  poolId={pool.id}
-                  styleType={'portfolio'}
-                />
-              </div>
+            <div className="flex items-center text-sm text-white gap-2">
+              <PoolFarmAmount
+                poolId={pool.id}
+                farmVersion={'v2'}
+                styleType={'portfolio'}
+              />
+              <ShadowInBurrowAmount poolId={pool.id} styleType={'portfolio'} />
 
               <div
-                className={`flex items-center pl-3.5 ${
+                className={`flex items-center ${
                   +lp_in_pool > 0 ? 'pr-3.5 border-r border-orderTypeBg' : ''
                 } ${+lp_in_vote > 0 ? '' : 'hidden'}`}
               >
@@ -1053,7 +1048,7 @@ function YourClassicLiquidityLinePc() {
                 </span>
               </div>
               <div
-                className={`flex items-center pl-3.5 ${
+                className={`flex items-center ${
                   +lp_in_pool > 0 ? '' : 'hidden'
                 }`}
               >

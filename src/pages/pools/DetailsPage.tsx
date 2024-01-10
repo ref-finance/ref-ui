@@ -1154,7 +1154,6 @@ export function RemoveLiquidityModal(
             </div>
           ) : null}
           <div className={'flex gap-1'}>
-            {/*<ShadowInBurrowAmount*/}
             {/*  poolId={poolId}*/}
             {/*  linkClass={*/}
             {/*    'cursor-pointer hover:text-gradientFrom rounded-lg py-1.5 px-2 bg-black bg-opacity-20 mb-1.5 flex mr-2'*/}

@@ -130,7 +130,7 @@ export const PoolFarmAmount = ({
         e.stopPropagation();
       }}
       style={containerStyle}
-      className={linkClass ? linkClass : 'text-primaryText mb-1.5 flex'}
+      className={linkClass ? linkClass : 'text-primaryText flex'}
     >
       <span>
         {toPrecision(
@@ -212,7 +212,8 @@ export const PoolShareYourLiquidityV1 = ({
 
   return (
     <>
-      {classicFarmNode}
+      <div className={'mb-1.5'}>{classicFarmNode}</div>
+
       {Number(getVEPoolId()) === Number(pool.id) &&
       !!getConfig().REF_VE_CONTRACT_ID ? (
         <div
@@ -255,8 +256,12 @@ export const PoolShareYourLiquidityV1 = ({
 
       <ShadowInBurrowAmount
         poolId={pool.id}
+        linkClass={
+          'text-primaryText flex whitespace-nowrap items-center mb-1.5'
+        }
         shadowRecordsKey={'shadow_in_burrow'}
       />
+
       {ONLY_ZEROS.test(availableShare) ||
       (supportFarmV1 === 0 && supportFarmV2 === 0) ? null : (
         <div>
@@ -339,7 +344,7 @@ export const ShadowInBurrowAmount = ({
       className={
         linkClass
           ? linkClass
-          : 'text-primaryText flex whitespace-nowrap  mb-1.5 items-center'
+          : 'text-primaryText flex whitespace-nowrap items-center'
       }
       style={containerStyle}
     >

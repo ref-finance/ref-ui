@@ -73,8 +73,9 @@ export const ShareInFarm = ({
             Number(farmSharePercent) < 0.1 && Number(farmSharePercent) > 0
               ? '< 0.1'
               : toPrecision(farmSharePercent, 2, false, false)
-          }% `}{' '}
+          }% `}
         </span>
+        &nbsp;
         <span>
           {inStr ? (
             inStr
@@ -82,9 +83,7 @@ export const ShareInFarm = ({
             <FormattedMessage id="in_farm" defaultMessage="in Farm" />
           )}
         </span>
-
         {version && <span className={`ml-1 w-4`}>{version}</span>}
-
         {hover && forStable && (
           <span className="ml-0.5">
             <HiOutlineExternalLink />
