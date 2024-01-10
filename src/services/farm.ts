@@ -1729,6 +1729,7 @@ export function getFarmClassification(): any {
         '3804',
         '3815',
         'phoenix-bonds.near|wrap.near|2000',
+        '4276',
       ],
       eth: [
         '605',
