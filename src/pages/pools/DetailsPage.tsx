@@ -2679,13 +2679,13 @@ export default function PoolDetailsPage() {
                   <>
                     <FormattedMessage id="apr" defaultMessage="APR" />
                     &nbsp;
-                    {dayVolume && seedFarms && BaseApr().rawApr > 0 && (
+                    {/* {dayVolume && seedFarms && BaseApr().rawApr > 0 && (
                       <>
                         (
                         <FormattedMessage id="pool" defaultMessage={'Pool'} /> +
                         <FormattedMessage id="farm" defaultMessage={'Farm'} />)
                       </>
-                    )}
+                    )} */}
                   </>
                 }
                 id="apr"
