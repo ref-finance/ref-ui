@@ -178,6 +178,7 @@ import {
   getPoolAvailableShare,
   useNewPoolData,
 } from 'src/components/pool/useNewPoolData';
+import { useZustandSetPoolData } from 'src/state/sauce';
 
 interface ParamTypes {
   id: string;
@@ -1101,7 +1102,6 @@ export function RemoveLiquidityModal(
               textClassName={''}
             />
           )}
-
           <PoolFarmAmount
             poolId={pool.id}
             farmVersion={'v2'}
@@ -2190,6 +2190,7 @@ export default function PoolDetailsPage() {
     });
   };
 
+  useZustandSetPoolData();
   useEffect(() => {
     if (state?.tvl > 0) {
       setPoolTVL(state?.tvl);

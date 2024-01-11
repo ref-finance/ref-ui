@@ -27,6 +27,7 @@ import getConfigV2 from 'src/services/configV2';
 import {
   getPoolAvailableShare,
   INewPool,
+  useFarmStakeAmount,
   useNewPoolData,
 } from 'src/components/pool/useNewPoolData';
 import { LinkIcon } from 'src/components/icon/Portfolio';
@@ -35,8 +36,8 @@ const configV2 = getConfigV2();
 export const PoolFarmAmount = ({
   poolId,
   onlyEndedFarmV2,
-  linkClass = '',
-  textContainerClassName = '',
+  linkClass,
+  textContainerClassName,
   textClassName,
   farmVersion,
   styleType,
@@ -49,50 +50,20 @@ export const PoolFarmAmount = ({
   textClassName?: string;
   styleType?: 'portfolio';
 }) => {
-  const v2StakeList = useStakeListStore((state) => state.stakeListV2);
-  const stakeList = useStakeListStore((state) => state.stakeListV1);
-  if (!v2StakeList) {
-    console.error(`${poolId} without v2StakeL`);
-    return null;
-  }
-
+  const farmStakeAmount = useFarmStakeAmount({ poolId, farmVersion });
   const isShadowPool = configV2.SUPPORT_SHADOW_POOL_IDS.includes(
     poolId?.toString()
   );
 
-  const farmStakeV1 = stakeList && useFarmStake({ poolId, stakeList });
-  const farmStakeV2 =
-    v2StakeList && useFarmStake({ poolId, stakeList: v2StakeList });
-  const shadowRecords = useShadowRecordStore((state) => state.shadowRecords);
-  const farmerSeeds = useFarmerSeedsStore((state) => state.farmerSeeds);
-  const poolSeed = farmerSeeds[poolId];
-
-  const { shadow_in_farm, shadow_in_burrow } =
-    shadowRecords?.[Number(poolId)] || {};
-
-  let farmStakeAmount: string | number = 0;
   let link = '';
   if (isShadowPool && farmVersion !== 'v1') {
-    farmStakeAmount = poolSeed
-      ? new BigNumber(poolSeed.free_amount)
-          .plus(poolSeed.shadow_amount)
-          .toFixed()
-      : shadow_in_farm || '0';
     link = `/v2farms/${poolId}-${onlyEndedFarmV2 ? 'e' : 'r'}`;
   } else {
     switch (farmVersion) {
       case 'v1':
-        farmStakeAmount = farmStakeV1;
         link = '/farms';
         break;
       case 'v2':
-        farmStakeAmount =
-          (poolSeed &&
-            new BigNumber(poolSeed.free_amount)
-              .plus(poolSeed.shadow_amount)
-              .toFixed()) ||
-          farmStakeV2 ||
-          '0';
         link = `/v2farms/${poolId}-${onlyEndedFarmV2 ? 'e' : 'r'}`;
         break;
     }
@@ -130,7 +101,7 @@ export const PoolFarmAmount = ({
         e.stopPropagation();
       }}
       style={containerStyle}
-      className={linkClass ? linkClass : 'text-primaryText flex'}
+      className={linkClass !== undefined ? linkClass : 'text-primaryText flex'}
     >
       <span>
         {toPrecision(
@@ -146,7 +117,7 @@ export const PoolFarmAmount = ({
       </span>
       <div
         className={
-          textContainerClassName
+          textContainerClassName !== undefined
             ? textContainerClassName
             : 'flex items-center hover:text-gradientFrom flex-shrink-0'
         }
@@ -364,13 +335,17 @@ export const ShadowInBurrowAmount = ({
       </span>
       <div
         className={
-          textContainerClassName
+          textContainerClassName !== undefined
             ? textContainerClassName
             : 'flex items-center hover:text-gradientFrom flex-shrink-0'
         }
       >
         <span
-          className={textClassName !== undefined ? textClassName : 'underline'}
+          className={
+            textClassName !== undefined
+              ? textClassName
+              : 'underline cursor-pointer'
+          }
         >
           {suffixNode}
         </span>

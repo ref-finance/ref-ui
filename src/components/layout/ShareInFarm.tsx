@@ -140,7 +140,7 @@ export const ShareInFarmV2 = ({
         <SharePercentNode
           share={shadowBurrowShare?.stakeAmount}
           sharePercent={shadowBurrowShare?.sharePercent}
-          link={'https://app.burrow.finance/'}
+          exLink={`https://app.burrow.finance/tokenDetail/shadow_ref_v1-${poolId}`}
           version={''}
           isInBurrow={true}
         />
@@ -153,9 +153,29 @@ const SharePercentNode = ({
   share,
   sharePercent,
   link,
+  exLink,
   version,
   isInBurrow = false,
 }) => {
+  const linkNode = (
+    <>
+      {version && (
+        <span className="mr-1 text-gradientFrom  text-left">{version}</span>
+      )}
+      <span className="text-gradientFrom mr-1">
+        {isInBurrow ? (
+          'Burrow'
+        ) : (
+          <FormattedMessage id="farms" defaultMessage="Farms" />
+        )}
+      </span>
+
+      <span className="text-right">
+        <HiOutlineExternalLink color="#00c6a2" />
+      </span>
+    </>
+  );
+
   return (
     <div className={`flex items-center  text-xs ml-4 xs:ml-2`}>
       <FarmDot inFarm={Number(share) > 0} className="mr-1" />
@@ -171,27 +191,26 @@ const SharePercentNode = ({
         <span className="mx-1 text-farmText text-left">
           <FormattedMessage id="in" defaultMessage="in" />
         </span>
-        <Link
-          to={link}
-          target="_blank"
-          rel="noopener noreferrer nofollow"
-          className="flex items-center cursor-pointer justify-end"
-        >
-          {version && (
-            <span className="mr-1 text-gradientFrom  text-left">{version}</span>
-          )}
-          <span className="text-gradientFrom mr-1">
-            {isInBurrow ? (
-              'Burrow'
-            ) : (
-              <FormattedMessage id="farms" defaultMessage="Farms" />
-            )}
-          </span>
-
-          <span className="text-right">
-            <HiOutlineExternalLink color="#00c6a2" />
-          </span>
-        </Link>
+        {exLink && (
+          <a
+            href={exLink}
+            target="_blank"
+            rel="noopener noreferrer nofollow"
+            className="flex items-center cursor-pointer justify-end"
+          >
+            {linkNode}
+          </a>
+        )}
+        {link && (
+          <Link
+            to={link}
+            target="_blank"
+            rel="noopener noreferrer nofollow"
+            className="flex items-center cursor-pointer justify-end"
+          >
+            {linkNode}
+          </Link>
+        )}
       </div>
     </div>
   );

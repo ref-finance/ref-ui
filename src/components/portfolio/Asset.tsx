@@ -110,11 +110,6 @@ export default function Asset() {
   }, [total_user_invest_value_original, total_user_invest_value_done]);
 
   const percent_in_classic_farms = useMemo(() => {
-    console.log(
-      'YourLpValueV1YourLpValueV1YourLpValueV1',
-      YourLpValueV1,
-      classic_farms_value
-    );
     let percent = new BigNumber(0);
     let percent_done = false;
     if (lpValueV1Done && classic_farms_value_done) {

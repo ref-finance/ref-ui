@@ -720,44 +720,51 @@ function YourClassicLiquidityLine(props: any) {
     return new BigNumber(lpInVote).shiftedBy(-24).toFixed();
   }, [lptAmount]);
   // get lp amount in pool && total lp (pool + farm) && user lp percent
-  const [lp_in_pool, lp_total, user_lp_percent] = useMemo(() => {
-    const { id, shares_total_supply } = pool;
-    const is_stable_pool = isStablePool(id);
-    let amount_in_pool = '0';
-    let total_amount = '0';
-    if (is_stable_pool) {
-      const i = stablePools.findIndex((p: PoolRPCView) => p.id === pool.id);
-      amount_in_pool = batchStableShares?.[i];
-      total_amount = batchTotalShares?.[i];
-    } else {
-      const i = pools.findIndex((p: PoolRPCView) => p.id === pool.id);
-      amount_in_pool = batchShares?.[i];
-      total_amount = batchTotalSharesSimplePools?.[i];
-    }
-    const read_amount_in_pool = new BigNumber(amount_in_pool)
-      .shiftedBy(-decimals)
-      .toFixed();
-    const read_total_amount = new BigNumber(total_amount)
-      .shiftedBy(-decimals)
-      .plus(lp_in_vote);
-    const read_shareSupply = new BigNumber(
-      shares_total_supply || '0'
-    ).shiftedBy(-decimals);
-    let percent = '0';
-    if (
-      read_shareSupply.isGreaterThan(0) &&
-      read_total_amount.isGreaterThan(0)
-    ) {
-      percent = read_total_amount.dividedBy(read_shareSupply).toFixed();
-    }
-    return [read_amount_in_pool, read_total_amount.toFixed(), percent];
-  }, [
-    batchShares,
-    batchStableShares,
-    batchTotalSharesSimplePools,
-    batchTotalShares,
-    lp_in_vote,
-  ]);
+  const [lp_in_pool, lp_total, user_lp_percent, lp_in_pool_non_divisible] =
+    useMemo(() => {
+      const { id, shares_total_supply } = pool;
+      const is_stable_pool = isStablePool(id);
+      let amount_in_pool = '0';
+      let total_amount = '0';
+      if (is_stable_pool) {
+        const i = stablePools.findIndex((p: PoolRPCView) => p.id === pool.id);
+        amount_in_pool = batchStableShares?.[i];
+        total_amount = batchTotalShares?.[i];
+      } else {
+        const i = pools.findIndex((p: PoolRPCView) => p.id === pool.id);
+        amount_in_pool = batchShares?.[i];
+        total_amount = batchTotalSharesSimplePools?.[i];
+      }
+      const read_amount_in_pool = new BigNumber(amount_in_pool)
+        .shiftedBy(-decimals)
+        .toFixed();
+      const read_total_amount = new BigNumber(total_amount)
+        .shiftedBy(-decimals)
+        .plus(lp_in_vote);
+      const read_shareSupply = new BigNumber(
+        shares_total_supply || '0'
+      ).shiftedBy(-decimals);
+      let percent = '0';
+      if (
+        read_shareSupply.isGreaterThan(0) &&
+        read_total_amount.isGreaterThan(0)
+      ) {
+        percent = read_total_amount.dividedBy(read_shareSupply).toFixed();
+      }
+      return [
+        read_amount_in_pool,
+        read_total_amount.toFixed(),
+        percent,
+        amount_in_pool,
+      ];
+    }, [
+      batchShares,
+      batchStableShares,
+      batchTotalSharesSimplePools,
+      batchTotalShares,
+      lp_in_vote,
+    ]);
+
   // get total lp value
   const lp_total_value = useMemo(() => {
     const { id, tvl, shares_total_supply } = pool;
@@ -775,6 +782,7 @@ function YourClassicLiquidityLine(props: any) {
     }
     return '0';
   }, [lp_total, tvls]);
+
   // get seed status
   const seed_status = useMemo(() => {
     const allFarmV2_count = getFarmsCount(poolId.toString(), v2Farm);
@@ -810,6 +818,7 @@ function YourClassicLiquidityLine(props: any) {
         lp_total_value,
         set_switch_off,
         lp_total,
+        lp_in_pool_non_divisible,
         display_percent,
         user_lp_percent,
         lp_in_vote,
@@ -954,6 +963,7 @@ function YourClassicLiquidityLinePc() {
     lp_total_value,
     set_switch_off,
     lp_total,
+    lp_in_pool_non_divisible,
     display_percent,
     user_lp_percent,
     lp_in_vote,
@@ -961,6 +971,7 @@ function YourClassicLiquidityLinePc() {
     lp_in_farm,
     seed_status,
   } = useContext(LiquidityContextData);
+
   return (
     <div
       className={`rounded-xl mt-3 bg-portfolioBgColor px-5 ${
@@ -1025,8 +1036,20 @@ function YourClassicLiquidityLinePc() {
                 poolId={pool.id}
                 farmVersion={'v2'}
                 styleType={'portfolio'}
+                textContainerClassName={'flex items-center flex-shrink-0'}
+                linkClass={`text-primaryText flex ${
+                  +lp_in_pool > 0 ? 'pr-3.5 border-r border-orderTypeBg' : ''
+                }`}
               />
-              <ShadowInBurrowAmount poolId={pool.id} styleType={'portfolio'} />
+
+              <ShadowInBurrowAmount
+                poolId={pool.id}
+                styleType={'portfolio'}
+                textContainerClassName={'flex items-center flex-shrink-0'}
+                linkClass={`text-primaryText flex whitespace-nowrap items-center ${
+                  +lp_in_pool > 0 ? 'pr-3.5 border-r border-orderTypeBg' : ''
+                }`}
+              />
 
               <div
                 className={`flex items-center ${
@@ -1052,7 +1075,12 @@ function YourClassicLiquidityLinePc() {
                   +lp_in_pool > 0 ? '' : 'hidden'
                 }`}
               >
-                {display_number_withCommas(lp_in_pool)}{' '}
+                {/*{display_number_withCommas(lp_in_pool)}{' '}*/}
+                <PoolAvailableAmount
+                  pool={pool}
+                  shares={lp_in_pool_non_divisible}
+                />
+                &nbsp;
                 <FormattedMessage id="holding" />
               </div>
             </div>
