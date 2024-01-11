@@ -151,40 +151,26 @@ function groupOrdersByPrecision({
   );
 
   const groupMyPendingOrders = pendingOrders.reduce((acc, cur) => {
-    try {
-      const groupKey = Number(
-        decimalPlaces === 0
-          ? new Big(
-              new Big(cur.price)
-                .div(precision)
-                .toFixed(0, cur.side === 'BUY' ? 0 : 3)
-            )
-              .times(precision)
+    const groupKey = Number(
+      decimalPlaces === 0
+        ? new Big(
+            new Big(cur.price)
+              .div(precision)
               .toFixed(0, cur.side === 'BUY' ? 0 : 3)
-          : new Big(cur.price).toFixed(
-              decimalPlaces,
-              cur.side === 'BUY' ? 0 : 3
-            )
-      );
+          )
+            .times(precision)
+            .toFixed(0, cur.side === 'BUY' ? 0 : 3)
+        : new Big(cur.price).toFixed(decimalPlaces, cur.side === 'BUY' ? 0 : 3)
+    );
 
-      const keyStr = groupKey.toString();
+    const keyStr = groupKey.toString();
 
-      return {
-        ...acc,
-        [groupKey]: acc[keyStr]
-          ? acc[keyStr] + (cur.quantity - cur.executed || 0)
-          : cur.quantity - cur.executed || 0,
-      };
-    } catch (error) {
-      console.log(
-        '0000000000000000-pendingOrders, decimalPlaces',
-        pendingOrders,
-        decimalPlaces
-      );
-      return {
-        ...acc,
-      };
-    }
+    return {
+      ...acc,
+      [groupKey]: acc[keyStr]
+        ? acc[keyStr] + (cur.quantity - cur.executed || 0)
+        : cur.quantity - cur.executed || 0,
+    };
   }, {} as Record<string, number>);
 
   return {

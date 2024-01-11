@@ -165,6 +165,11 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
       privateValue.balanceTimeStamp + privateValue.positionTimeStamp,
     type: symbolType,
     validAccountSig,
+  })?.map((order) => {
+    if (order.status == 'NEW' && !order.price) {
+      order.price = 0;
+    }
+    return order;
   });
   const isPerp = isNewHostName
     ? pathname.includes('perp') || pathname == '/'
