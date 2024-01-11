@@ -38,7 +38,6 @@ import {
 } from '../pages/Orderly/orderly/utils';
 import { isMobile } from '../utils/device';
 
-
 const CONTRACT_ID = getOrderlyConfig().ORDERLY_ASSET_MANAGER;
 
 export const ACCOUNT_ID_KEY = 'REF_FI_STATE_SYNC_ACCOUNT_ID';
