@@ -2768,9 +2768,12 @@ export default function PoolDetailsPage() {
                     className="grid grid-cols-10 px-5 py-3 items-center hover:bg-chartBg hover:bg-opacity-30 justify-items-start text-base text-white"
                   >
                     <div className="flex items-center col-span-5 xs:col-span-4 md:col-span-4">
-                      <Icon icon={token.icon} className="h-7 w-7 mr-2" />
+                      <Icon
+                        icon={token.icon}
+                        className="h-7 w-7 xsm:h-6 xsm:w-6 mr-2"
+                      />
                       <div className="flex items-start flex-col">
-                        <div className="flex items-center text-white text-base">
+                        <div className="flex items-center text-white text-base xsm:text-sm break-all">
                           {toRealSymbol(token.symbol)}
 
                           {
@@ -2804,7 +2807,7 @@ export default function PoolDetailsPage() {
                     </div>
 
                     <div
-                      className="col-span-3 xs:justify-self-center md:justify-self-center"
+                      className="col-span-3 xs:justify-self-center md:justify-self-center xsm:text-sm"
                       title={
                         Number(tokenAmount) > 0 && Number(tokenAmount) < 0.01
                           ? '< 0.01'
@@ -2817,7 +2820,7 @@ export default function PoolDetailsPage() {
                     </div>
 
                     <div
-                      className="col-span-3 lg:col-span-2 xs:justify-self-center md:justify-self-center"
+                      className="col-span-3 lg:col-span-2 xs:justify-self-center md:justify-self-center xsm:text-sm"
                       title={
                         !!price ? `$${multiply(price, tokenAmount)}` : null
                       }
