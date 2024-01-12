@@ -157,7 +157,9 @@ function MobileTradingBoard() {
   const [subOrderTab, setSubOrderTab] = useState<'open' | 'history'>('open');
 
   const intl = useIntl();
-
+  const openOrders = allOrders?.filter((o) => {
+    return o.status === 'NEW' || o.status === 'PARTIAL_FILLED';
+  });
   if (maintenance === undefined) return null;
 
   return (
@@ -316,7 +318,11 @@ function MobileTradingBoard() {
 
           {displayTab === 'positions' && (
             <div className="text-primaryText">
-              <PositionsTable hidden={false} showCurSymbol={false} />
+              <PositionsTable
+                hidden={false}
+                showCurSymbol={false}
+                futureOrders={openOrders}
+              />
             </div>
           )}
 
