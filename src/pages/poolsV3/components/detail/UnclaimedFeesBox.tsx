@@ -18,7 +18,16 @@ export function UnclaimedFeesBox(props: any) {
   const [user_liquidities_total, set_user_liquidities_total] =
     useState<Record<string, any>>();
   const [cliam_loading, set_cliam_loading] = useState(false);
-  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+
+  const processTransactionPending = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionPending
+  );
+  const processTransactionSuccess = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionSuccess
+  );
+  const processTransactionError = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionError
+  );
 
   useEffect(() => {
     if (liquidities) {
@@ -71,7 +80,9 @@ export function UnclaimedFeesBox(props: any) {
   }
   const { display_amount_x, display_amount_y, total_amount_x_y } =
     getTotalFeeAmount();
+
   async function claimRewards() {
+    const transactionId = String(Date.now());
     try {
       if (total_amount_x_y == 0) return;
       set_cliam_loading(true);
@@ -83,9 +94,8 @@ export function UnclaimedFeesBox(props: any) {
         }
       });
 
-      transtionsExcuteDataStore.setActionStatus('pending');
-      transtionsExcuteDataStore.setActionData({
-        status: 'pending',
+      processTransactionPending({
+        transactionId,
         page: constTransactionPage.pool,
         data: {
           prefix: 'Claiming',
@@ -102,25 +112,22 @@ export function UnclaimedFeesBox(props: any) {
         },
       });
 
+      set_cliam_loading(false);
       const { response } = await claim_all_liquidity_fee({
         token_x: token_x_metadata,
         token_y: token_y_metadata,
         lpt_ids,
       });
-      set_cliam_loading(false);
 
-      transtionsExcuteDataStore.setActionData({
-        status: 'success',
+      processTransactionSuccess({
+        transactionId,
         transactionResponse: response,
       });
-      transtionsExcuteDataStore.setActionStatus('resolved');
     } catch (e) {
-      set_cliam_loading(false);
-      transtionsExcuteDataStore.setActionData({
-        status: 'error',
-        transactionError: e,
+      processTransactionError({
+        error: e,
+        transactionId,
       });
-      transtionsExcuteDataStore.setActionStatus('rejected');
     }
   }
 
@@ -155,7 +162,7 @@ export function UnclaimedFeesBox(props: any) {
           </div>
 
           <div
-            className={`flex items-center font-gothamBold justify-center h-10 rounded-lg text-sm px-6 py-1  ${
+            className={`btn-UnclaimedFeesBox flex items-center font-gothamBold justify-center h-10 rounded-lg text-sm px-6 py-1  ${
               total_amount_x_y == 0
                 ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
                 : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
@@ -201,7 +208,7 @@ export function UnclaimedFeesBox(props: any) {
           <span className="text-white text-sm">{display_amount_y}</span>
         </div>
         <div
-          className={`flex items-center font-gothamBold justify-center h-10 rounded-lg text-sm px-6 py-1 w-full mt-6 ${
+          className={`btn-UnclaimedFeesBox-m flex items-center font-gothamBold justify-center h-10 rounded-lg text-sm px-6 py-1 w-full mt-6 ${
             total_amount_x_y == 0
               ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
               : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'

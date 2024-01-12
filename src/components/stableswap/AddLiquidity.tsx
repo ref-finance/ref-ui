@@ -115,8 +115,16 @@ export default function AddLiquidityComponent(props: {
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
-  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
 
+  const processTransactionPending = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionPending
+  );
+  const processTransactionSuccess = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionSuccess
+  );
+  const processTransactionError = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionError
+  );
   useEffect(() => {
     const firstAmount = toReadableNumber(
       tokens[0].decimals,
@@ -396,7 +404,7 @@ export default function AddLiquidityComponent(props: {
       history.push('/deposit');
       return;
     }
-
+    const transactionId = String(Date.now());
     const min_shares = toPrecision(
       percentLess(slippageTolerance, predicedShares),
       0
@@ -413,30 +421,32 @@ export default function AddLiquidityComponent(props: {
         amount: toPrecision(toReadableNumber(d.decimals, amounts[i]), 3),
       });
       tokensNode.push({
-        node: <HiOutlinePlusSm />,
+        symbol: '+',
       });
     });
     tokensNode.pop();
-    transtionsExcuteDataStore.setActionData({
-      status: 'pending',
+    processTransactionPending({
+      transactionId,
       page: constTransactionPage.pool,
       data: {
         prefix: 'Supplying',
         tokens: tokensNode,
       },
     });
-
     return addLiquidityToStablePool({
       tokens,
       id: Number(STABLE_POOL_ID),
       amounts,
       min_shares,
     })
-      .then(() => {
-        transtionsExcuteDataStore.setActionStatus('resolved');
+      .then(({ response }) => {
+        processTransactionSuccess({
+          transactionResponse: response,
+          transactionId,
+        });
       })
-      .catch(() => {
-        transtionsExcuteDataStore.setActionStatus('rejected');
+      .catch((e) => {
+        processTransactionError({ error: e, transactionId });
       });
   }
 

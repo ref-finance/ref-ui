@@ -26,3 +26,14 @@ export const useLoginAccountDataStore = create<ILoginAccountDataStore>(
     setIsLedger: (isLedger) => set({ isLedger }),
   })
 );
+
+type IWalletStore = {
+  wallet: any;
+  setWallet: (p: any) => any;
+  removeWallet: (p: any) => any;
+};
+export const useWalletStore = create<IWalletStore>((set) => ({
+  wallet: null,
+  setWallet: (data) => set({ wallet: data }),
+  removeWallet: () => set({ wallet: null }),
+}));

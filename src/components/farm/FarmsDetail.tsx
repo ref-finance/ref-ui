@@ -1909,12 +1909,21 @@ function UserTotalUnClaimBlock(props: {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const intl = useIntl();
-  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+
+  const processTransactionPending = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionPending
+  );
+  const processTransactionSuccess = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionSuccess
+  );
+  const processTransactionError = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionError
+  );
 
   function claimReward() {
     if (claimLoading) return;
     setClaimLoading(true);
-
+    const transactionId = String(Date.now());
     let tokensNode = unclaimedRewardsData.list.map(
       ({ token, amount, preAmount }, i) => ({
         token: token,
@@ -1922,33 +1931,29 @@ function UserTotalUnClaimBlock(props: {
       })
     );
     tokensNode = genTokensSymbolArr(tokensNode);
-    transtionsExcuteDataStore.setActionData({
-      status: 'pending',
+
+    processTransactionPending({
+      transactionId,
       page: constTransactionPage.farm,
       data: {
         transactionType: 'claimFee',
         tokens: tokensNode,
+        headerText: 'Claim Farm Rewards',
       },
     });
+    setClaimLoading(false);
     claimRewardBySeed_boost(detailData.seed_id)
       .then(({ response }) => {
-        transtionsExcuteDataStore.setActionData({
-          status: 'success',
+        processTransactionSuccess({
+          transactionId,
           transactionResponse: response,
-          data: {
-            transactionType: 'claimFee',
-          },
         });
-        transtionsExcuteDataStore.setActionStatus('resolved');
-        setClaimLoading(false);
       })
       .catch((e) => {
-        transtionsExcuteDataStore.setActionData({
-          status: 'error',
-          transactionError: e,
+        processTransactionError({
+          error: e,
+          transactionId,
         });
-        transtionsExcuteDataStore.setActionStatus('rejected');
-        setClaimLoading(false);
       });
   }
 
@@ -2903,7 +2908,17 @@ export function StakeModal(props: {
   const [ROI, setROI] = useState('');
   const [estimatedRewards, setEstimatedRewards] = useState<any[]>();
   const intl = useIntl();
-  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+
+  const processTransactionPending = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionPending
+  );
+  const processTransactionSuccess = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionSuccess
+  );
+  const processTransactionError = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionError
+  );
+
   useEffect(() => {
     if (stakeType !== 'free') {
       const goldList = [
@@ -3114,7 +3129,7 @@ export function StakeModal(props: {
     }
   }
   function operationStake() {
-    setStakeLoading(true);
+    const transactionId = String(Date.now());
     const tokensNode = [];
     // @ts-ignore
     pool?.tokens_meta_data?.forEach((d, i) => {
@@ -3122,15 +3137,16 @@ export function StakeModal(props: {
         token: d,
       });
     });
-    transtionsExcuteDataStore.setActionStatus('pending');
-    transtionsExcuteDataStore.setActionData({
-      status: 'pending',
+
+    processTransactionPending({
+      transactionId,
       page: constTransactionPage.farm,
       data: {
         prefix: `Supplying ${toPrecision(amount, 3)}`,
         tokens: tokensNode,
       },
     });
+    setStakeLoading(false);
     if (stakeType == 'freeToLock') {
       lock_free_seed({
         seed_id: detailData.seed_id,
@@ -3159,20 +3175,15 @@ export function StakeModal(props: {
       })
         .then(({ response }) => {
           setStakeLoading(false);
-          transtionsExcuteDataStore.setActionData({
-            status: 'success',
+          processTransactionSuccess({
             transactionResponse: response,
+            transactionId,
           });
-          transtionsExcuteDataStore.setActionStatus('resolved');
           onRequestClose();
         })
         .catch((e) => {
           setStakeLoading(false);
-          transtionsExcuteDataStore.setActionData({
-            status: 'error',
-            transactionError: e,
-          });
-          transtionsExcuteDataStore.setActionStatus('rejected');
+          processTransactionError({ error: e, transactionId });
           onRequestClose();
         });
     }
@@ -3525,7 +3536,7 @@ export function StakeModal(props: {
           disabled={stakeLoading || isDisabled}
           loading={stakeLoading || isDisabled}
           btnClassName={`${isDisabled ? 'cursor-not-allowed' : ''}`}
-          className={`w-full h-14 text-center text-lg text-white focus:outline-none font-semibold`}
+          className={`btn-o-stake w-full h-14 text-center text-lg text-white focus:outline-none font-semibold`}
         >
           <ButtonTextWrapper
             loading={stakeLoading}
@@ -3647,7 +3658,16 @@ export function UnStakeModal(props: {
   const lockStatus = new BigNumber(unlock_timestamp).isLessThan(serverTime);
   const slashRate = slash_rate / 10000;
   const intl = useIntl();
-  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+
+  const processTransactionPending = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionPending
+  );
+  const processTransactionSuccess = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionSuccess
+  );
+  const processTransactionError = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionError
+  );
 
   function changeAmount(value: string) {
     setAmount(value);
@@ -3655,10 +3675,11 @@ export function UnStakeModal(props: {
 
   function operationUnStake() {
     setUnStakeLoading(true);
+    const transactionId = String(Date.now());
     const tokensName = pool?.token_symbols?.toString();
     if (unStakeType == 'free') {
-      transtionsExcuteDataStore.setActionData({
-        status: 'pending',
+      processTransactionPending({
+        transactionId,
         page: constTransactionPage.farm,
         data: {
           prefix: 'Removing',
@@ -3676,28 +3697,26 @@ export function UnStakeModal(props: {
           )} ${tokensName} LP tokens`,
         },
       });
+      setUnStakeLoading(false);
+
       unStake_boost({
         seed_id,
         unlock_amount: '0',
         withdraw_amount: toNonDivisibleNumber(DECIMALS, amount),
       })
         .then(({ response }) => {
-          transtionsExcuteDataStore.setActionData({
-            status: 'success',
+          processTransactionSuccess({
+            transactionId,
             transactionResponse: response,
           });
 
-          transtionsExcuteDataStore.setActionStatus('resolved');
-          setUnStakeLoading(false);
           onRequestClose();
         })
         .catch((e) => {
-          transtionsExcuteDataStore.setActionData({
-            status: 'error',
-            transactionError: e,
+          processTransactionError({
+            error: e,
+            transactionId,
           });
-          transtionsExcuteDataStore.setActionStatus('rejected');
-          setUnStakeLoading(false);
           onRequestClose();
         });
     } else if (lockStatus) {
@@ -3707,20 +3726,17 @@ export function UnStakeModal(props: {
         withdraw_amount: '0',
       })
         .then(({ response }) => {
-          transtionsExcuteDataStore.setActionData({
-            status: 'success',
+          processTransactionSuccess({
+            transactionId,
             transactionResponse: response,
           });
-
-          transtionsExcuteDataStore.setActionStatus('resolved');
           onRequestClose();
         })
         .catch((e) => {
-          transtionsExcuteDataStore.setActionData({
-            status: 'error',
-            transactionError: e,
+          processTransactionError({
+            error: e,
+            transactionId,
           });
-          transtionsExcuteDataStore.setActionStatus('rejected');
           onRequestClose();
         });
     } else {

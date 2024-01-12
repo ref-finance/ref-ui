@@ -368,7 +368,7 @@ export function DoubleCheckModalLimit(
       >
         <div className="w-full flex items-center justify-between">
           <span className="text-lg text-white gotham_bold">
-            <FormattedMessage id="confirm_order"></FormattedMessage>2
+            <FormattedMessage id="confirm_order"></FormattedMessage>
           </span>
           <ModalClose
             onClick={props.onRequestClose}
@@ -462,10 +462,10 @@ export function DoubleCheckModalLimit(
 
               if (buttonLoading) return;
 
-              setButtonLoading(true);
+              // setButtonLoading(true);
               onSwap();
             }}
-            className="text-base text-center rounded-lg h-10 gotham_bold w-full"
+            className="btn-DoubleCheckModalLimit text-base text-center rounded-lg h-10 gotham_bold w-full"
             loading={buttonLoading}
             disabled={buttonLoading}
           >

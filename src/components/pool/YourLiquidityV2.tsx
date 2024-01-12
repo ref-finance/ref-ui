@@ -732,7 +732,15 @@ function UserLiquidityLineStyleGroup({
   const tokens = sort_tokens_by_base(tokenMetadata_x_y);
   const { accountId } = useWalletSelector();
   const history = useHistory();
-  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+  const processTransactionPending = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionPending
+  );
+  const processTransactionSuccess = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionSuccess
+  );
+  const processTransactionError = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionError
+  );
 
   useEffect(() => {
     if (
@@ -1068,7 +1076,7 @@ function UserLiquidityLineStyleGroup({
   }
   function claimRewards() {
     if (!canClaim) return;
-
+    const transactionId = String(Date.now());
     set_claim_loading(true);
     const lpt_ids: string[] = [];
     groupYourLiquidityList
@@ -1080,8 +1088,8 @@ function UserLiquidityLineStyleGroup({
         }
       });
 
-    transtionsExcuteDataStore.setActionData({
-      status: 'pending',
+    processTransactionPending({
+      transactionId,
       page: constTransactionPage.pool,
       data: {
         transactionType: 'claimFee',
@@ -1100,35 +1108,23 @@ function UserLiquidityLineStyleGroup({
         ],
       },
     });
-
+    set_claim_loading(false);
     claim_all_liquidity_fee({
       token_x: tokenMetadata_x_y[0],
       token_y: tokenMetadata_x_y[1],
       lpt_ids,
     })
       .then(({ response }) => {
-        set_claim_loading(false);
-        transtionsExcuteDataStore.setActionData({
-          status: 'success',
-          page: constTransactionPage.pool,
+        processTransactionSuccess({
+          transactionId,
           transactionResponse: response,
-          data: {
-            transactionType: 'claimFee',
-          },
         });
-        transtionsExcuteDataStore.setActionStatus('resolved');
       })
       .catch((e) => {
-        set_claim_loading(false);
-        transtionsExcuteDataStore.setActionData({
-          status: 'error',
-          page: constTransactionPage.pool,
-          transactionError: e,
-          data: {
-            transactionType: 'claimFee',
-          },
+        processTransactionError({
+          error: e,
+          transactionId,
         });
-        transtionsExcuteDataStore.setActionStatus('rejected');
       });
   }
 
@@ -1946,7 +1942,7 @@ function UserLiquidityLineStyleGroupStyle1Pc() {
 
               <div className="flex items-center justify-center">
                 <div
-                  className={`flex mr-2.5 w-24 h-8 items-center justify-center  rounded-lg text-sm px-3 py-1 ml-5  ${
+                  className={`btn-yourliq-claim flex mr-2.5 w-24 h-8 items-center justify-center  rounded-lg text-sm px-3 py-1 ml-5  ${
                     !canClaim
                       ? 'bg-deepBlue text-white opacity-30 cursor-not-allowed'
                       : 'bg-deepBlue text-white hover:bg-lightBlue cursor-pointer'
@@ -1967,7 +1963,7 @@ function UserLiquidityLineStyleGroupStyle1Pc() {
                   color="#fff"
                   minWidth="5rem"
                   borderRadius="8px"
-                  className={`px-3 w-24 h-8 text-center text-sm text-white  focus:outline-none mr-2.5`}
+                  className={`btn-yourliq-add px-3 w-24 h-8 text-center text-sm text-white  focus:outline-none mr-2.5`}
                 >
                   <FormattedMessage id="add" />
                 </GradientButton>

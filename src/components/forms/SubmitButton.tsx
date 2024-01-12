@@ -43,7 +43,7 @@ function SubmitButton({
           type={onClick ? 'button' : 'submit'}
           disabled={disabled || loading}
           onClick={onClick}
-          className={`flex flex-row w-full items-center justify-center px-5 py-2  text-white mx-auto ${
+          className={`btn-submitbutton flex flex-row w-full items-center justify-center px-5 py-2  text-white mx-auto ${
             disabled ? 'disabled:cursor-not-allowed opacity-40' : ''
           } ${loading ? 'opacity-40' : ''} ${
             label === 'insufficient_balance' ? 'font-bold' : ''

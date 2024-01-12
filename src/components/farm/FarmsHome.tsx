@@ -1979,7 +1979,6 @@ function LoveStakeModal(props: {
             </div>
           );
         })}
-      wwwwwww
       {isSignedIn ? (
         <GradientButton
           onClick={loveStake}
@@ -2199,7 +2198,6 @@ function LoveUnStakeModal(props: {
           })}
         </>
       ) : null}
-      qqqqqqq
       <GradientButton
         onClick={loveUnstake}
         color="#fff"
@@ -2308,7 +2306,16 @@ function FarmView(props: {
   const unClaimedTokens = useTokens(
     Object.keys(user_unclaimed_map[seed_id] || {})
   );
-  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+  const processTransactionPending = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionPending
+  );
+  const processTransactionSuccess = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionSuccess
+  );
+  const processTransactionError = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionError
+  );
+
   const history = useHistory();
   const intl = useIntl();
   const rate_need_to_reverse_display = useMemo(() => {
@@ -2755,10 +2762,11 @@ function FarmView(props: {
   }
   function claimReward(tokens, unclaimAmount, poolType) {
     if (claimLoading) return;
-    setClaimLoading(true);
+    const transactionId = String(Date.now());
     const tokensNode = genTokensSymbolArr(tokens);
-    transtionsExcuteDataStore.setActionData({
-      status: 'pending',
+
+    processTransactionPending({
+      transactionId,
       page: constTransactionPage.farm,
       data: {
         transactionType: 'claimFee',
@@ -2768,25 +2776,14 @@ function FarmView(props: {
     });
     claimRewardBySeed_boost(seed.seed_id)
       .then(({ response }) => {
-        transtionsExcuteDataStore.setActionData({
-          status: 'success',
+        processTransactionSuccess({
           transactionResponse: response,
-          data: {
-            transactionType: 'claimFee',
-          },
+          transactionId,
         });
-        transtionsExcuteDataStore.setActionStatus('resolved');
         setClaimLoading(false);
       })
       .catch((e) => {
-        transtionsExcuteDataStore.setActionData({
-          status: 'error',
-          transactionError: e,
-          data: {
-            transactionType: 'claimFee',
-          },
-        });
-        transtionsExcuteDataStore.setActionStatus('rejected');
+        processTransactionError({ error: e, transactionId });
         setClaimLoading(false);
       });
   }
@@ -3356,7 +3353,7 @@ function FarmView(props: {
                       data-class="reactTip"
                     >
                       <div
-                        className="flex items-center justify-center bg-deepBlue hover:bg-deepBlueHover rounded-lg text-sm text-white h-7 cursor-pointer"
+                        className="btn-farm-view-claim flex items-center justify-center bg-deepBlue hover:bg-deepBlueHover rounded-lg text-sm text-white h-7 cursor-pointer"
                         style={{ width: '4.6rem' }}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -3642,6 +3639,15 @@ function WithDrawb(props: {
   const withdrawNumber = 4;
   const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
   const transactionActionStatus = transtionsExcuteDataStore.getActionStatus();
+  const processTransactionPending = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionPending
+  );
+  const processTransactionSuccess = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionSuccess
+  );
+  const processTransactionError = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionError
+  );
 
   useEffect(() => {
     const tempList = Object.keys(actualRewardList).map(async (key: string) => {
@@ -3754,8 +3760,8 @@ function WithDrawb(props: {
     rewardRef.current.scrollTop = 0;
   }
   async function doWithDraw() {
+    const transactionId = String(Date.now());
     try {
-      setWithdrawLoading(true);
       const tokens = Object.entries(checkedList)?.map(([key, value]) => {
         const tokenMeta = rewardList?.[key]?.rewardToken;
         return {
@@ -3766,9 +3772,8 @@ function WithDrawb(props: {
           ),
         };
       });
-      transtionsExcuteDataStore.setActionStatus('pending');
-      transtionsExcuteDataStore.setActionData({
-        status: 'pending',
+      processTransactionPending({
+        transactionId,
         page: constTransactionPage.farm,
         data: {
           tokens: tokens,
@@ -3777,24 +3782,14 @@ function WithDrawb(props: {
       });
       const { response } = await withdrawAllReward_boost(checkedList);
       setWithdrawLoading(false);
-      transtionsExcuteDataStore.setActionStatus('resolved');
-      transtionsExcuteDataStore.setActionData({
-        status: 'success',
-        page: constTransactionPage.farm,
+      processTransactionSuccess({
         transactionResponse: response,
-        data: {
-          headerText: 'Withdraw Farm Rewards',
-          tokens: tokens,
-          transactionType: 'withdraw',
-        },
+        transactionId,
+        headerText: 'Withdraw Farm Rewards',
       });
     } catch (e) {
       setWithdrawLoading(false);
-      transtionsExcuteDataStore.setActionStatus('rejected');
-      transtionsExcuteDataStore.setActionData({
-        status: 'error',
-        transactionError: e,
-      });
+      processTransactionError({ error: e, transactionId });
     }
   }
   function getTotalUnWithdrawRewardsPrice() {

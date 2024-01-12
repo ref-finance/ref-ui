@@ -144,7 +144,17 @@ export function RemoveFourLiquidityComponent(props: {
     setThirdTokenAmount,
     setFourTokenAmount,
   ];
-  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+
+  const processTransactionPending = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionPending
+  );
+  const processTransactionSuccess = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionSuccess
+  );
+  const processTransactionError = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionError
+  );
+
   const { predictedRemoveShares, canSubmitByToken } = usePredictRemoveShares({
     amounts: [
       firstTokenAmount,
@@ -158,6 +168,7 @@ export function RemoveFourLiquidityComponent(props: {
   });
 
   function submit() {
+    const transactionId = String(Date.now());
     if (isPercentage) {
       const removeShares = toNonDivisibleNumber(
         RATED_POOL_LP_TOKEN_DECIMALS,
@@ -174,10 +185,13 @@ export function RemoveFourLiquidityComponent(props: {
           )
         )
       );
-      transtionsExcuteDataStore.setActionData({
-        status: 'pending',
+
+      setButtonLoading(false);
+      processTransactionPending({
+        transactionId,
         page: constTransactionPage.pool,
       });
+
       return removeLiquidityFromStablePool({
         tokens,
         id: pool.id,
@@ -186,19 +200,14 @@ export function RemoveFourLiquidityComponent(props: {
       })
         .then(({ response }) => {
           setButtonLoading(false);
-          transtionsExcuteDataStore.setActionData({
-            status: 'success',
+          processTransactionSuccess({
             transactionResponse: response,
+            transactionId,
           });
-          transtionsExcuteDataStore.setActionStatus('resolved');
         })
         .catch((e) => {
           setButtonLoading(false);
-          transtionsExcuteDataStore.setActionData({
-            status: 'error',
-            transactionError: e,
-          });
-          transtionsExcuteDataStore.setActionStatus('rejected');
+          processTransactionError({ error: e, transactionId });
         });
     } else {
       const amounts = [
@@ -218,10 +227,12 @@ export function RemoveFourLiquidityComponent(props: {
       const max_burn_shares = new BigNumber(predict_burn).isGreaterThan(shares)
         ? shares
         : predict_burn;
-      transtionsExcuteDataStore.setActionData({
-        status: 'pending',
+
+      processTransactionPending({
+        transactionId,
         page: constTransactionPage.pool,
       });
+      setButtonLoading(false);
       return removeLiquidityByTokensFromStablePool({
         tokens,
         id: pool.id,
@@ -230,19 +241,14 @@ export function RemoveFourLiquidityComponent(props: {
       })
         .then(({ response }) => {
           setButtonLoading(false);
-          transtionsExcuteDataStore.setActionData({
-            status: 'success',
+          processTransactionSuccess({
             transactionResponse: response,
+            transactionId,
           });
-          transtionsExcuteDataStore.setActionStatus('resolved');
         })
         .catch((e) => {
           setButtonLoading(false);
-          transtionsExcuteDataStore.setActionData({
-            status: 'error',
-            transactionError: e,
-          });
-          transtionsExcuteDataStore.setActionStatus('rejected');
+          processTransactionError({ error: e, transactionId });
         });
     }
   }

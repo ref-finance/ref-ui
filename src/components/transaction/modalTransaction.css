@@ -1,5 +1,7 @@
 .modal-transaction-submitting .modal-dialog {
   text-align: center;
+  top: 50%;
+  transform: translateY(-50%);
 }
 .modal-transaction-submitting .modal-content {
   min-width: 350px;
@@ -33,7 +35,7 @@
 
 @media (max-width: 767px) {
   .modal-transaction-submitting .modal-content {
-    width: 100%;
+    width: 96%;
     word-break: break-word;
   }
 }

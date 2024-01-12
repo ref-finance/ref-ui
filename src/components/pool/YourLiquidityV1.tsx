@@ -1554,7 +1554,7 @@ function PoolRow(props: {
                       });
                     }
                   }}
-                  className={`text-sm col-span-2 ${
+                  className={`btn-classic-add text-sm col-span-2 ${
                     needForbidden ? 'text-opacity-20' : ''
                   } px-1.5 py-1.5 text-center whitespace-nowrap mb-3 gotham_bold rounded-lg`}
                   style={{
@@ -1588,7 +1588,7 @@ function PoolRow(props: {
 
                   setShowWithdraw(true);
                 }}
-                className="text-sm w-full px-4 col-span-2 text-center h-8 mb-1 gotham_bold rounded-lg"
+                className="btn-classic-remove text-sm w-full px-4 col-span-2 text-center h-8 mb-1 gotham_bold rounded-lg"
                 style={{
                   minWidth: '104px',
                 }}

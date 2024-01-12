@@ -1194,6 +1194,17 @@ function ActiveLine({
   const transtionsSetActionData = useTranstionsExcuteDataStore(
     (state) => state.setActionData
   );
+
+  const processTransactionPending = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionPending
+  );
+  const processTransactionSuccess = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionSuccess
+  );
+  const processTransactionError = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionError
+  );
+
   const transtionsSetActionStatus = useTranstionsExcuteDataStore(
     (state) => state.setActionStatus
   );
@@ -1554,12 +1565,14 @@ function ActiveLine({
   );
 
   const handleClaimClick = async (e) => {
+    const transactionId = String(Date.now());
+
     try {
       e.preventDefault();
       e.stopPropagation();
       setClaimLoading(true);
-      transtionsSetActionData({
-        status: 'pending',
+      processTransactionPending({
+        transactionId,
         page: constTransactionPage.limitOrder,
         data: {
           prefix: 'Claiminig',
@@ -1571,61 +1584,49 @@ function ActiveLine({
           ],
         },
       });
+      setClaimLoading(false);
       const { response } = await cancel_order({
         order_id: order.order_id,
         undecimal_amount: '0',
       });
-      setClaimLoading(false);
-      transtionsSetActionData({
-        status: 'success',
+      processTransactionSuccess({
         transactionResponse: response,
+        transactionId,
       });
-      transtionsSetActionStatus('resolved');
     } catch (e) {
-      setClaimLoading(false);
-      transtionsSetActionData({
-        status: 'error',
-        transactionError: e,
-      });
-      transtionsSetActionStatus('rejected');
+      processTransactionError({ error: e, transactionId });
     }
   };
 
   const handleCancelClick = async (e) => {
+    const transactionId = String(Date.now());
     try {
       e.preventDefault();
       e.stopPropagation();
       setCancelLoading(true);
-
-      transtionsSetActionData({
-        status: 'pending',
+      processTransactionPending({
+        transactionId,
         page: constTransactionPage.limitOrder,
         data: {
           prefix: 'Cancel buy',
           tokens: [
             {
               token: buyToken,
-              amount: toPrecision(unClaimedAmount, 2),
+              amount: toPrecision(buyAmount, 2, undefined, undefined, true),
             },
           ],
         },
       });
+      setCancelLoading(false);
       const { response } = await cancel_order({
         order_id: order.order_id,
       });
-      setCancelLoading(false);
-      transtionsSetActionData({
-        status: 'success',
+      processTransactionSuccess({
         transactionResponse: response,
+        transactionId,
       });
-      transtionsSetActionStatus('resolved');
     } catch (e) {
-      setCancelLoading(false);
-      transtionsSetActionData({
-        status: 'error',
-        transactionError: e,
-      });
-      transtionsSetActionStatus('rejected');
+      processTransactionError({ error: e, transactionId });
     }
   };
 

@@ -105,7 +105,7 @@
   margin-right: auto;
   outline: 0;
 
-  border-radius: 6px;
+  border-radius: 16px;
   border: 1px solid rgb(151 151 151 / 20%);
   background: #213441;
   background: linear-gradient(180deg, #213441 100%, #15242f 100%, #979797 20%);
@@ -136,7 +136,7 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 25px 0;
+  padding: 20px 20px 0;
   /*border-bottom: 1px solid #dee2e6;*/
   /*border-top-left-radius: calc(0.3rem - 1px);*/
   /*border-top-right-radius: calc(0.3rem - 1px);*/

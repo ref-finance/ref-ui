@@ -459,7 +459,15 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
   const isSignedIn = globalState.isSignedIn;
 
   balances && (balances[WRAP_NEAR_CONTRACT_ID] = nearBalance);
-  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+  const processTransactionPending = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionPending
+  );
+  const processTransactionSuccess = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionSuccess
+  );
+  const processTransactionError = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionError
+  );
 
   const changeFirstTokenAmount = (amount: string) => {
     setError(null);
@@ -679,9 +687,11 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
   }
 
   async function submit() {
+    const transactionId = String(Date.now());
     try {
-      transtionsExcuteDataStore.setActionData({
-        status: 'pending',
+      processTransactionPending({
+        transactionId,
+        page: constTransactionPage.pool,
         data: {
           prefix: 'Supplying',
           tokens: [
@@ -690,7 +700,7 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
               amount: firstTokenAmount,
             },
             {
-              node: <HiOutlinePlusSm />,
+              symbol: '+',
             },
             {
               token: tokens[1],
@@ -699,6 +709,7 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
           ],
         },
       });
+      setButtonLoading(false);
       const { response } = await addLiquidityToPool({
         id: pool.id,
         tokenAmounts: [
@@ -706,18 +717,16 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
           { token: tokens[1], amount: secondTokenAmount },
         ],
       });
-      transtionsExcuteDataStore.setActionData({
-        status: 'success',
+      processTransactionSuccess({
         transactionResponse: response,
+        transactionId,
       });
-      transtionsExcuteDataStore.setActionStatus('resolved');
       setButtonLoading(false);
     } catch (e) {
-      transtionsExcuteDataStore.setActionData({
-        status: 'error',
-        transactionError: e,
+      processTransactionError({
+        error: e,
+        transactionId,
       });
-      transtionsExcuteDataStore.setActionStatus('rejected');
       setButtonLoading(false);
     }
   }
@@ -1022,7 +1031,16 @@ export function RemoveLiquidityModal(
   });
 
   const { stakeList, v2StakeList, finalStakeList } = useYourliquidity(poolId);
-  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+  const processTransactionPending = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionPending
+  );
+  const processTransactionSuccess = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionSuccess
+  );
+  const processTransactionError = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionError
+  );
+
   const farmStakeV1 = useFarmStake({ poolId, stakeList });
   const farmStakeV2 = useFarmStake({ poolId, stakeList: v2StakeList });
   const farmStakeTotal = useFarmStake({ poolId, stakeList: finalStakeList });
@@ -1037,6 +1055,7 @@ export function RemoveLiquidityModal(
   const sharePercent = percent(shares || '0', pool.shareSupply || '1');
 
   function submit() {
+    const transactionId = String(Date.now());
     const amountBN = new BigNumber(amount?.toString());
     const shareBN = new BigNumber(toReadableNumber(24, shares));
     if (Number(amount) === 0) {
@@ -1065,36 +1084,38 @@ export function RemoveLiquidityModal(
         tokenGroup: tokens,
       },
     ];
-    transtionsExcuteDataStore.setActionData({
-      status: 'pending',
+    console.log('amountamount', amount);
+    processTransactionPending({
+      transactionId,
       page: constTransactionPage.pool,
       data: {
         prefix: 'Removing',
         tokens: tokensNode,
         suffix: `${toPrecision(
-          toReadableNumber(24, shares),
-          2
+          amount,
+          3,
+          false,
+          false,
+          true
         )} ${tokensName} LP tokens`,
       },
     });
-
+    setButtonLoading(false);
     localStorage.setItem(REF_FI_PRE_LIQUIDITY_ID_KEY, pool.id.toString());
     return removeLiquidity()
       .then(({ response }) => {
         setButtonLoading(false);
-        transtionsExcuteDataStore.setActionData({
-          status: 'success',
+        processTransactionSuccess({
+          transactionId,
           transactionResponse: response,
         });
-        transtionsExcuteDataStore.setActionStatus('resolved');
       })
       .catch((e) => {
         setButtonLoading(false);
-        transtionsExcuteDataStore.setActionData({
-          status: 'error',
-          transactionError: e,
+        processTransactionError({
+          error: e,
+          transactionId,
         });
-        transtionsExcuteDataStore.setActionStatus('rejected');
       });
   }
 

@@ -2397,6 +2397,7 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
   const [errorTipMsg, setErrorTipMsg] = useState<string>('');
 
   const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
+  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
 
   useEffect(() => {
     if (!accountId || !storageEnough) return;

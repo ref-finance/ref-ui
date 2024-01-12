@@ -124,7 +124,16 @@ export default function AddFourLiquidityComponent(props: {
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
-  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+
+  const processTransactionPending = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionPending
+  );
+  const processTransactionSuccess = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionSuccess
+  );
+  const processTransactionError = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionError
+  );
 
   useEffect(() => {
     const firstAmount = toReadableNumber(
@@ -508,19 +517,21 @@ export default function AddFourLiquidityComponent(props: {
         amount: toReadableNumber(d.decimals, amounts[i]),
       });
       tokensNode.push({
-        node: <HiOutlinePlusSm />,
+        symbol: '+',
       });
     });
+
     tokensNode.pop();
-    transtionsExcuteDataStore.setActionData({
-      status: 'pending',
+    const transactionId = String(Date.now());
+    processTransactionPending({
+      transactionId,
       page: constTransactionPage.pool,
       data: {
         prefix: 'Supplying',
         tokens: tokensNode,
       },
     });
-
+    setButtonLoading(false);
     return addLiquidityToStablePool({
       tokens,
       id: Number(USDTT_USDCC_USDT_USDC_POOL_ID),
@@ -529,19 +540,14 @@ export default function AddFourLiquidityComponent(props: {
     })
       .then(({ response }) => {
         setButtonLoading(false);
-        transtionsExcuteDataStore.setActionData({
-          status: 'success',
+        processTransactionSuccess({
           transactionResponse: response,
+          transactionId,
         });
-        transtionsExcuteDataStore.setActionStatus('resolved');
       })
       .catch((e) => {
         setButtonLoading(false);
-        transtionsExcuteDataStore.setActionData({
-          status: 'error',
-          transactionError: e,
-        });
-        transtionsExcuteDataStore.setActionStatus('rejected');
+        processTransactionError({ error: e, transactionId });
       });
   }
 
@@ -631,7 +637,7 @@ export default function AddFourLiquidityComponent(props: {
           {isSignedIn ? (
             <SolidButton
               disabled={!canSubmit || buttonLoading}
-              className="focus:outline-none px-4 w-full text-lg"
+              className="btn-AddFourLiquidityComponent focus:outline-none px-4 w-full text-lg"
               loading={buttonLoading}
               onClick={() => {
                 try {

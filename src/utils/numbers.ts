@@ -65,7 +65,8 @@ export const toPrecision = (
   if (typeof number === 'undefined') return '0';
   const [whole, decimal = ''] = number.split('.');
   const str1 = `${withCommas ? formatWithCommas(whole) : whole}`;
-  if (showFullIfLessPrecision && precision < decimal?.length) {
+  const lastNum = decimal.charAt(precision - 1);
+  if (showFullIfLessPrecision && String(lastNum) === '0') {
     return `${str1}.${decimal}`;
   }
 

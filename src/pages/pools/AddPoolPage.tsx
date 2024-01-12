@@ -28,7 +28,10 @@ import { useClientMobile } from '../../utils/device';
 import { TokenBalancesView } from '../../services/token';
 import { ModalClose } from '../../components/icon/ModalClose';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
-import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
+import {
+  constTransactionPage,
+  useTranstionsExcuteDataStore,
+} from '../../stores/transtionsExcuteData';
 import { checkTransactionStatus } from '../../services/swap';
 import { REF_FI_CONTRACT_ID } from '../../services/near';
 
@@ -58,7 +61,17 @@ export function AddPoolModal(
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
-  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+
+  const processTransactionPending = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionPending
+  );
+  const processTransactionSuccess = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionSuccess
+  );
+  const processTransactionError = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionError
+  );
+
   useEffect(() => {
     getTokenPriceList().then(setTokenPriceList);
   }, []);
@@ -288,7 +301,7 @@ export function AddPoolModal(
             {isSignedIn ? (
               <button
                 disabled={!canSubmit}
-                className={`rounded-full w-full text-lg text-white px-5 py-2.5 focus:outline-none font-semibold ${
+                className={`btn-addSimpleLiqPool rounded-full w-full text-lg text-white px-5 py-2.5 focus:outline-none font-semibold ${
                   canSubmit ? '' : 'opacity-40 disabled:cursor-not-allowed'
                 } ${buttonLoading ? 'opacity-40' : ''}`}
                 style={{
@@ -297,13 +310,18 @@ export function AddPoolModal(
                   borderRadius: '5px',
                 }}
                 onClick={() => {
+                  const transactionId = String(Date.now());
                   if (canSubmit) {
                     const v = new BigNumber(fee)
                       .multipliedBy(100)
                       .toFixed(0, 1);
                     setButtonLoading(true);
+                    processTransactionPending({
+                      transactionId,
+                      page: constTransactionPage.pool,
+                    });
                     addSimpleLiquidityPool([token1.id, token2.id], Number(v))
-                      .then(({ txHash }) => {
+                      .then(({ txHash, response }) => {
                         // todo
                         checkTransactionStatus(txHash).then((res) => {
                           let status: any = res.status;
@@ -320,6 +338,10 @@ export function AddPoolModal(
                             }
                           }
                           const data: string | undefined = status.SuccessValue;
+                          processTransactionSuccess({
+                            transactionResponse: response,
+                            transactionId,
+                          });
                           if (data) {
                             const buff = Buffer.from(data, 'base64');
                             const pool_id = buff.toString('ascii');
@@ -328,7 +350,7 @@ export function AddPoolModal(
                         });
                       })
                       .catch((e) => {
-                        transtionsExcuteDataStore.setActionStatus('rejected');
+                        processTransactionError({ error: e, transactionId });
                       });
                   }
                 }}

@@ -31,7 +31,10 @@ import {
   get_orderly_private_key_path,
   get_orderly_public_key_path,
 } from '../pages/Orderly/orderly/utils';
-import { useLoginAccountDataStore } from '../stores/loginAccountData';
+import {
+  useLoginAccountDataStore,
+  useWalletStore,
+} from '../stores/loginAccountData';
 
 const CONTRACT_ID = getOrderlyConfig().ORDERLY_ASSET_MANAGER;
 
@@ -64,6 +67,8 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
   const [accountId, setAccountId] = useState<string | null>(null);
   const [accounts, setAccounts] = useState<Array<AccountState>>([]);
   const [isLedger, setIsLedger] = useState<boolean>(undefined);
+  const walletStoreSetWallet = useWalletStore((state) => state.setWallet);
+
   // get Account Id
   const syncAccountState = (
     currentAccountId: string | null,
@@ -130,6 +135,9 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
 
     window.selector = _selector;
     window.modal = _modal;
+    _selector.wallet().then((d) => {
+      walletStoreSetWallet(d);
+    });
 
     setSelector(_selector);
     setModal(_modal);

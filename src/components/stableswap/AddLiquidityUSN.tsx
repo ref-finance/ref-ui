@@ -127,7 +127,15 @@ export default function AddLiquidityComponentUSN(props: {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
 
-  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+  const processTransactionPending = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionPending
+  );
+  const processTransactionSuccess = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionSuccess
+  );
+  const processTransactionError = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionError
+  );
 
   useEffect(() => {
     const firstAmount = getMax(
@@ -342,6 +350,7 @@ export default function AddLiquidityComponentUSN(props: {
       history.push('/deposit');
       return;
     }
+    const transactionId = String(Date.now());
     try {
       const min_shares = toPrecision(
         percentLess(slippageTolerance, predicedShares),
@@ -359,12 +368,13 @@ export default function AddLiquidityComponentUSN(props: {
           amount: toPrecision(toReadableNumber(d.decimals, amounts[i]), 3),
         });
         tokensNode.push({
-          node: <HiOutlinePlusSm />,
+          symbol: '+',
         });
       });
       tokensNode.pop();
-      transtionsExcuteDataStore.setActionData({
-        status: 'pending',
+      setButtonLoading(false);
+      processTransactionPending({
+        transactionId,
         page: constTransactionPage.pool,
         data: {
           prefix: 'Supplying',
@@ -380,19 +390,14 @@ export default function AddLiquidityComponentUSN(props: {
       });
       setButtonLoading(false);
       if (res) {
-        transtionsExcuteDataStore.setActionStatus('resolved');
-        transtionsExcuteDataStore.setActionData({
-          status: 'success',
+        processTransactionSuccess({
           transactionResponse: res?.response,
+          transactionId,
         });
       }
     } catch (e) {
       setButtonLoading(false);
-      transtionsExcuteDataStore.setActionData({
-        status: 'error',
-        transactionError: e,
-      });
-      transtionsExcuteDataStore.setActionStatus('rejected');
+      processTransactionError({ error: e, transactionId });
     }
   }
 

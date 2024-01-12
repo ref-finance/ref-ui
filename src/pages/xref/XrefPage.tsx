@@ -437,29 +437,30 @@ function InputView(props: any) {
   const [loading, setLoading] = useState(false);
   const { tab, max, hidden, isM, rate, refToken, xrefToken } = props;
   const [forward, setForward] = useState(true);
-  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
-  const actionStatus = transtionsExcuteDataStore.getActionStatus();
+
+  const processTransactionPending = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionPending
+  );
+  const processTransactionSuccess = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionSuccess
+  );
+  const processTransactionError = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionError
+  );
+
   useEffect(() => {
     setForward(true);
   }, [tab]);
-  useEffect(() => {
-    if (actionStatus !== 'pending') {
-      setLoading(false);
-    }
-    if (actionStatus == 'resolved' || actionStatus == 'rejected') {
-      setAmount('');
-    }
-  }, [actionStatus]);
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
 
   const onSubmit = () => {
     setLoading(true);
-    transtionsExcuteDataStore.setActionStatus('pending');
+    const transactionId = String(Date.now());
     if (tab == 0) {
-      transtionsExcuteDataStore.setActionData({
-        status: 'pending',
+      processTransactionPending({
+        transactionId,
         page: constTransactionPage.xref,
         data: {
           prefix: 'Stake',
@@ -471,25 +472,21 @@ function InputView(props: any) {
           ],
         },
       });
+      setLoading(false);
       // stake
       stake({ amount })
         .then(({ response }) => {
-          transtionsExcuteDataStore.setActionData({
-            status: 'success',
+          processTransactionSuccess({
             transactionResponse: response,
+            transactionId,
           });
-          transtionsExcuteDataStore.setActionStatus('resolved');
         })
         .catch((e) => {
-          transtionsExcuteDataStore.setActionData({
-            status: 'error',
-            transactionError: e,
-          });
-          transtionsExcuteDataStore.setActionStatus('rejected');
+          processTransactionError({ error: e, transactionId });
         });
     } else if (tab == 1) {
-      transtionsExcuteDataStore.setActionData({
-        status: 'pending',
+      processTransactionPending({
+        transactionId,
         page: constTransactionPage.xref,
         data: {
           prefix: 'Unstake',
@@ -501,24 +498,20 @@ function InputView(props: any) {
           ],
         },
       });
-
+      setLoading(false);
       // unstake
       unstake({ amount })
         .then(({ response }) => {
-          transtionsExcuteDataStore.setActionData({
-            status: 'success',
+          processTransactionSuccess({
             transactionResponse: response,
+            transactionId,
           });
-          transtionsExcuteDataStore.setActionStatus('resolved');
         })
         .catch((e) => {
-          transtionsExcuteDataStore.setActionData({
-            status: 'error',
-            transactionError: e,
-          });
-          transtionsExcuteDataStore.setActionStatus('rejected');
+          processTransactionError({ error: e, transactionId });
         });
     }
+    setAmount('');
   };
 
   const buttonStatus =
@@ -665,7 +658,7 @@ function InputView(props: any) {
       {isSignedIn ? (
         <GradientButton
           color="#fff"
-          className={`w-full h-11 text-center text-base text-white focus:outline-none font-semibold ${
+          className={`btn-xref-stake  w-full h-11 text-center text-base text-white focus:outline-none font-semibold ${
             buttonStatus || loading ? 'opacity-40' : ''
           }`}
           onClick={onSubmit}

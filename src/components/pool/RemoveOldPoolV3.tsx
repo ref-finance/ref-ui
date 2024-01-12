@@ -4,7 +4,6 @@ import { FormattedMessage } from 'react-intl';
 import { WalletContext } from '../../utils/wallets-integration';
 import { useHistory } from 'react-router-dom';
 import { Card } from 'src/components/card/Card';
-import { isMobile } from '~utils/device';
 import { ModalClose } from 'src/components/icon';
 import { TokenMetadata } from '../../services/ft-contract';
 import { SwitchButton, Slider } from 'src/components/icon/V3';
@@ -33,6 +32,10 @@ import {
 import { PoolInfo, remove_liquidity } from '../../services/swapV3';
 import _ from 'lodash';
 import { REF_POOL_NAV_TAB_KEY } from './PoolTabV3';
+import {
+  constTransactionPage,
+  useTranstionsExcuteDataStore,
+} from 'src/stores/transtionsExcuteData';
 export const RemoveOldPoolV3 = (props: any) => {
   const {
     tokenMetadata_x_y,
@@ -65,6 +68,16 @@ export const RemoveOldPoolV3 = (props: any) => {
   const v3PoolRemoveRef = useRef(null);
   const sliderRef = useRef(null);
   const isSignedIn = globalState.isSignedIn;
+  const processTransactionPending = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionPending
+  );
+  const processTransactionSuccess = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionSuccess
+  );
+  const processTransactionError = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionError
+  );
+
   useEffect(() => {
     if (tokenMetadata_x_y && userLiquidity && poolDetail) {
       const { current_point } = poolDetail;
@@ -289,23 +302,50 @@ export const RemoveOldPoolV3 = (props: any) => {
     }
     return result;
   }
-  function remove() {
+  async function remove() {
+    const transactionId = String(Date.now());
     setRemoveLoading(true);
-    const [tokenX, tokenY] = tokenMetadata_x_y;
-    const { lpt_id, mft_id } = userLiquidity;
-
-    sessionStorage.setItem(REF_POOL_NAV_TAB_KEY, '/yourliquidity');
-
-    remove_liquidity({
-      token_x: tokenX,
-      token_y: tokenY,
-      lpt_id,
-      mft_id,
-      amount: removeAmount,
-      min_amount_x: toNonDivisibleNumber(tokenX.decimals, MINDATA.minX),
-      min_amount_y: toNonDivisibleNumber(tokenY.decimals, MINDATA.minY),
-      isLegacy,
-    });
+    try {
+      const [tokenX, tokenY] = tokenMetadata_x_y;
+      const { lpt_id, mft_id } = userLiquidity;
+      processTransactionPending({
+        transactionId,
+        page: constTransactionPage.pool,
+        data: {
+          prefix: 'Removing',
+          tokens: [
+            {
+              token: tokenX,
+              amount: toPrecision(MINDATA.minX, 3),
+            },
+            {
+              token: tokenY,
+              amount: toPrecision(MINDATA.minY, 3),
+            },
+          ],
+        },
+      });
+      sessionStorage.setItem(REF_POOL_NAV_TAB_KEY, '/yourliquidity');
+      const { response } = await remove_liquidity({
+        token_x: tokenX,
+        token_y: tokenY,
+        lpt_id,
+        mft_id,
+        amount: removeAmount,
+        min_amount_x: toNonDivisibleNumber(tokenX.decimals, MINDATA.minX),
+        min_amount_y: toNonDivisibleNumber(tokenY.decimals, MINDATA.minY),
+        isLegacy,
+      });
+      processTransactionSuccess({
+        transactionId,
+        transactionResponse: response,
+      });
+    } catch (e) {
+      processTransactionError({
+        error: e,
+        transactionId,
+      });
+    }
   }
   function switchRate() {
     setRateDirection(!rateDirection);
@@ -495,7 +535,6 @@ export const RemoveOldPoolV3 = (props: any) => {
             </div>
           </div>
         </div>
-        ccccc
         {isSignedIn ? (
           <GradientButton
             onClick={remove}
@@ -505,7 +544,7 @@ export const RemoveOldPoolV3 = (props: any) => {
             btnClassName={`${
               isRemoveLiquidityDisabled ? 'cursor-not-allowed' : ''
             }`}
-            className={`mt-8 w-full h-14 text-center text-lg text-white focus:outline-none font-semibold`}
+            className={`btn-dcl-remove mt-8 w-full h-14 text-center text-lg text-white focus:outline-none font-semibold`}
             backgroundImage="linear-gradient(270deg, #7F43FF 0%, #00C6A2 97.06%)"
           >
             <ButtonTextWrapper

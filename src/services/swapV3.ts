@@ -1269,7 +1269,7 @@ export const remove_liquidity = async ({
       ],
     });
   }
-  return executeMultipleTransactions(transactions);
+  return executeMultipleTransactionsV2(transactions);
 };
 export const batch_remove_liquidity_contract = async ({
   token_x,
