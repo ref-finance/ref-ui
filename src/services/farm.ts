@@ -622,7 +622,7 @@ export const stake_boost_shadow = async ({
           msg: '',
         },
         amount: shadowRecords[pool_id] ? ONE_YOCTO_NEAR : '0.01',
-        gas: '200000000000000',
+        gas: '300000000000000',
       },
     ],
   });
@@ -677,7 +677,7 @@ export const unStake_boost_shadow = async ({
             msg: '',
           },
           amount: ONE_YOCTO_NEAR,
-          gas: '200000000000000',
+          gas: '300000000000000',
         },
       ],
     });
@@ -697,7 +697,7 @@ export const unStake_boost_shadow = async ({
             msg: '',
           },
           amount: shadowRecords[pool_id] ? ONE_YOCTO_NEAR : '0.003',
-          gas: '200000000000000',
+          gas: '300000000000000',
         },
       ],
     });
