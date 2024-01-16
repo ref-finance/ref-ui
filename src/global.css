@@ -1660,3 +1660,33 @@ options-list::-webkit-scrollbar {
 #top-bin-apr-mobile {
   width: 230px;
 }
+.dragIcon {
+  width: 10px;
+  height: 41px;
+  margin: 0 -33px 0 -18px;
+  background: url('https://ipfs.near.social/ipfs/bafkreihhispnrk7dhvl2swpwk7cgafsss7e26c3oib3cb26u75y7symf4y')
+    100% 100% no-repeat;
+  position: relative;
+  z-index: 50;
+}
+.LonkIcon {
+  width: 10px;
+  height: 41px;
+  margin: 0 -5px 0 -2px;
+  background: url('https://ipfs.near.social/ipfs/bafkreiejicp4sv2veuftj3fapcsgrzwxrvc2lemvna4dhhl3bgzlb3clom')
+    100% 100% no-repeat;
+  position: relative;
+  z-index: 50;
+}
+.NekoIcon {
+  width: 100px;
+  height: 41px;
+  margin: 0 -5px 0 -2px;
+  background-image: url('https://ipfs.near.social/ipfs/bafkreif4kt622lhddgljdqdmwvxy7t46jcdyf2bkvb4x2wizquiw7uda4y');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+
+  /* background: url('https://ipfs.near.social/ipfs/bafkreiae6fjenta2vyfjjwnimn2c7wm7antlyvk6akhwkw2hi6g7fataba') center 30px 20px no-repeat; */
+  /* position: relative; */
+  /* z-index: 50; */
+}

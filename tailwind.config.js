@@ -427,6 +427,9 @@ module.exports = {
         marginRedBg:'#904247',
         marginGrayBg:'#334049',
         warnYellowColor: '#DB8946',
+        memeBorderColor: 'rgba(151, 151, 151, 0.2)',
+        memePoolBoxBorderColor: '#3F5361',
+        memeDarkColor:'#182833',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

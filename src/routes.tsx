@@ -229,6 +229,13 @@ const routes: Route[] = [
     wrapper: 'AutoHeight',
   },
   {
+    path: '/meme',
+    element: lazy(() => {
+      return import(/* webpackChunkName: "swap" */ 'src/pages/MemePage');
+    }),
+    wrapper: 'AutoHeight',
+  },
+  {
     path: '/',
     element: lazy(() => {
       if (isNewHostName) {
