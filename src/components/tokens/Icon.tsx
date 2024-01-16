@@ -148,13 +148,16 @@ export function DisplayIcon({
   height,
   width,
   className = '',
+  style={}
 }: {
   height: string;
   width: string;
   token: TokenMetadata;
   className?: string;
+  style?:any;
 }) {
-  const style = {
+  const styles = {
+    ...style,
     height: height,
     width: width,
   };
@@ -163,7 +166,7 @@ export function DisplayIcon({
     return (
       <div
         className={`rounded-full border border-gradientFromHover ${className}`}
-        style={style}
+        style={styles}
       ></div>
     );
   } else {
@@ -171,7 +174,7 @@ export function DisplayIcon({
       <img
         src={token.icon}
         className={`rounded-full border border-gradientFromHover ${className}`}
-        style={style}
+        style={styles}
         alt=""
       />
     );

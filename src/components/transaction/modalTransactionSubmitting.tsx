@@ -323,11 +323,11 @@ export const ModalTransactionContent = ({
     <CustomModal
       isOpen={isOpen}
       onClose={canClose && handleClose}
-      className={'modal-transaction-submitting'}
+      className={'modal-transaction-submitting gantari_font'}
     >
       <div className={'-loading-info'}>
         <div className={'mb-8'}>{loadingNode}</div>
-        <div>{headerNode}</div>
+        <div className={"gantari_font"} style={{fontSize:20}}>{headerNode}</div>
       </div>
 
       <div className={'flex flex-col justify-between flex-1 w-full'}>
@@ -448,7 +448,7 @@ const CommonLayout = ({ tokensData }) => {
     }
     return (
       <div className="flex gap-1 items-center" key={token?.symbol + amount}>
-        <DisplayIcon token={token} height={'20px'} width={'20px'} /> {amount}{' '}
+        <DisplayIcon token={token} height={'20px'} width={'20px'} style={{marginTop:-3}}/> {amount}{' '}
         {token?.symbol}
       </div>
     );

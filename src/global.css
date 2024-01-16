@@ -13,6 +13,11 @@
   src: url('./assets/Arial.ttf');
 }
 
+@font-face {
+  font-family: 'gantari';
+  src: url('./assets/Gantari-VariableFont_wght.ttf');
+}
+
 * {
   box-sizing: border-box;
 }
@@ -40,6 +45,10 @@ html {
 
 .gotham_bold {
   font-family: 'gothamBoldRef';
+}
+
+.gantari_font {
+  font-family: 'gantari';
 }
 
 body .font-gotham {
