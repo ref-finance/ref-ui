@@ -380,7 +380,6 @@ export const executeMultipleTransactionsV2 = async (
   transactions: Transaction[],
   callbackUrl?: string
 ) => {
-  let walletId, firstMethod;
   const { wallet } = getCurrentWallet();
   const wstransactions: WSTransaction[] = [];
   transactions.forEach((transaction) => {
@@ -407,10 +406,10 @@ export const executeMultipleTransactionsV2 = async (
     console.error('ledgerErr', e);
   }
 
+  const walletRes = await wallet.wallet();
+  const walletId = walletRes?.id;
+
   try {
-    const walletRes = await wallet.wallet();
-    walletId = walletRes?.id;
-    firstMethod = transactions?.[0]?.functionCalls?.[0]?.methodName;
     const res = await walletRes.signAndSendTransactions({
       transactions: wstransactions,
       callbackUrl,

@@ -177,11 +177,13 @@ export const useBatchTotalShares = (
     sharesDone,
     shares: batchShares,
     batchTotalShares:
-      ids?.map((id, index) => {
-        return new Big(batchShares?.[index] || '0')
-          .plus(new Big(batchFarmStake?.[index] || '0'))
-          .toNumber();
-      }) || undefined,
+      (isSignedIn &&
+        ids?.map((id, index) => {
+          return new Big(batchShares?.[index] || '0')
+            .plus(new Big(batchFarmStake?.[index] || '0'))
+            .toNumber();
+        })) ||
+      undefined,
   };
 };
 

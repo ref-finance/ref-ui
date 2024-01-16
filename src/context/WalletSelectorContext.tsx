@@ -35,6 +35,8 @@ import {
   useLoginAccountDataStore,
   useWalletStore,
 } from '../stores/loginAccountData';
+import { WalletContext } from 'src/utils/wallets-integration';
+import { useTranstionsExcuteDataStore } from 'src/stores/transtionsExcuteData';
 
 const CONTRACT_ID = getOrderlyConfig().ORDERLY_ASSET_MANAGER;
 
@@ -222,3 +224,27 @@ export function useWalletSelector() {
   }
   return context;
 }
+
+export const useWallet = () => {
+  const walletStoreSetWallet = useWalletStore((state) => state.setWallet);
+  const setActionStatus = useTranstionsExcuteDataStore(
+    (state) => state.setActionStatus
+  );
+  const { globalStatedispatch } = useContext(WalletContext) || {};
+
+  const signOutWallet = async () => {
+    try {
+      const wallet = await window.selector.wallet();
+      await wallet.signOut();
+      globalStatedispatch({ type: 'signOut' });
+      walletStoreSetWallet(null);
+      localStorage.removeItem(ACCOUNT_ID_KEY);
+      setActionStatus('resolved');
+    } catch (e) {
+      console.error('signOutE', e);
+      setActionStatus('rejected');
+    }
+  };
+
+  return { signOutWallet };
+};

@@ -40,6 +40,7 @@ import { useLanguageItems } from 'src/utils/menu';
 
 import {
   ACCOUNT_ID_KEY,
+  useWallet,
   useWalletSelector,
 } from '../../context/WalletSelectorContext';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../../pages/Orderly/components/UserBoard/index';
@@ -107,7 +108,7 @@ export function AccountModel(props: any) {
   const accountWrapRef = useRef(null);
   const [showTip, setShowTip] = useState<boolean>(false);
   const [copyButtonDisabled, setCopyButtonDisabled] = useState<boolean>(false);
-
+  const { signOutWallet } = useWallet();
   const { wallet } = getCurrentWallet();
 
   const { hasBalanceOnRefAccount } = props;
@@ -148,16 +149,14 @@ export function AccountModel(props: any) {
 
   const [currentWalletIcon, setCurrentWalletIcon] = useState<string>();
   const signOut = async () => {
-    const curWallet = await wallet.wallet();
-
-    await curWallet.signOut();
-
-    localStorage.removeItem(ACCOUNT_ID_KEY);
-    if (window.location.pathname === '/orderbook') {
-      window.location.assign('/orderbook');
-    } else {
-      window.location.assign('/');
-    }
+    await signOutWallet();
+    props.closeAccount();
+    // localStorage.removeItem(ACCOUNT_ID_KEY);
+    // if (window.location.pathname === '/orderbook') {
+    //   window.location.assign('/orderbook');
+    // } else {
+    //   window.location.assign('/');
+    // }
   };
 
   useEffect(() => {

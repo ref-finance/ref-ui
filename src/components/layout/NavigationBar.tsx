@@ -79,6 +79,7 @@ import Marquee from 'src/components/layout/Marquee';
 import {
   useWalletSelector,
   ACCOUNT_ID_KEY,
+  useWallet,
 } from 'src/context/WalletSelectorContext';
 
 import { SWAP_MODE } from '../../pages/SwapPage';
@@ -151,8 +152,9 @@ function AccountEntry({
 
   const [currentWalletIcon, setCurrentWalletIcon] = useState<string>();
 
-  const { selector, modal, accounts, accountId, setAccountId } =
-    useWalletSelector();
+  const { selector, modal, accounts, accountId } = useWalletSelector();
+
+  const { signOutWallet } = useWallet();
 
   const [showTip, setShowTip] = useState<boolean>(false);
   const [copyButtonDisabled, setCopyButtonDisabled] = useState<boolean>(false);
@@ -221,7 +223,8 @@ function AccountEntry({
         await window.near.signOut();
       }
     } else {
-      await curWallet.signOut();
+      // await curWallet.signOut();
+      await signOutWallet();
     }
 
     localStorage.removeItem(ACCOUNT_ID_KEY);
@@ -236,11 +239,11 @@ function AccountEntry({
 
     localStorage.removeItem(REF_ORDERLY_ACCOUNT_VALID);
 
-    if (window.location.pathname === '/orderbook') {
-      window.location.assign('/orderbook');
-    } else {
-      window.location.assign('/');
-    }
+    // if (window.location.pathname === '/orderbook') {
+    //   window.location.assign('/orderbook');
+    // } else {
+    //   window.location.assign('/');
+    // }
   };
 
   const accountList = [

@@ -148,13 +148,13 @@ export function DisplayIcon({
   height,
   width,
   className = '',
-  style={}
+  style = {},
 }: {
   height: string;
   width: string;
   token: TokenMetadata;
   className?: string;
-  style?:any;
+  style?: any;
 }) {
   const styles = {
     ...style,
