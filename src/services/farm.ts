@@ -997,6 +997,7 @@ export interface Seed {
   hidden?: boolean;
   endedFarmsIsSplit?: boolean;
   base?: number;
+  token_meta_data?: TokenMetadata;
 }
 export interface FarmBoostTerm {
   daily_reward: string;

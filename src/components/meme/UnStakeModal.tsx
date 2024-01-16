@@ -6,12 +6,12 @@ import {
   ButtonTextWrapper,
 } from 'src/components/button/Button';
 import { isMobile } from '../../utils/device';
-import { ModalCloseIcon, ArrowRightIcon } from './icons';
+import { ModalCloseIcon, ArrowRightIcon, TipIcon } from './icons';
 import { InputAmount } from './InputBox';
 import Modal from 'react-modal';
 import { MemeContext } from './context';
 import { toNonDivisibleNumber, toReadableNumber } from '../../utils/numbers';
-import { stake } from '../../services/meme';
+import { unStake } from '../../services/meme';
 import { Seed, FarmBoost } from '~src/services/farm';
 import {
   toInternationalCurrencySystem_usd,
@@ -19,58 +19,50 @@ import {
   formatPercentage,
 } from '../../utils/uiNumber';
 
-function StakeModal(props: any) {
-  const { seeds, user_balances, tokenPriceList, user_seeds } =
+import { Template } from './StakeModal';
+
+function UnStakeModal(props: any) {
+  const { seeds, tokenPriceList, user_seeds, memeConfig, withdraw_list } =
     useContext(MemeContext);
   const { isOpen, onRequestClose, seed_id } = props;
   const [amount, setAmount] = useState('');
-  const [stakeLoading, setStakeLoading] = useState(false);
+  const [unStakeLoading, setUnStakeLoading] = useState(false);
   const seed = seeds[seed_id];
-  const balance = toReadableNumber(
+  const stakedBalance = toReadableNumber(
     seed.seed_decimal || 0,
-    user_balances[seed_id] || '0'
+    user_seeds[seed_id]?.free_amount || '0'
   );
   const cardWidth = isMobile() ? '90vw' : '28vw';
   const cardHeight = isMobile() ? '90vh' : '80vh';
-  const disabled = Big(amount || 0).lte(0) || Big(amount || 0).gt(balance);
-  const [feedFrom, feedTo] = useMemo(() => {
-    const from = toReadableNumber(
-      seed.seed_decimal,
-      user_seeds[seed_id]?.free_amount || '0'
-    );
-    const to = Big(amount || 0).plus(from);
-    return [from, to];
+  const disabled =
+    Big(amount || 0).lte(0) || Big(amount || 0).gt(stakedBalance);
+  const feedTo = useMemo(() => {
+    const to = Big(stakedBalance || 0).minus(amount || 0);
+    return to;
   }, [amount, seed, user_seeds]);
-  function stakeToken() {
-    setStakeLoading(true);
-    stake({
+  function unStakeToken() {
+    setUnStakeLoading(true);
+    unStake({
       seed_id,
       amount: Big(toNonDivisibleNumber(seed.seed_decimal, amount)).toFixed(0),
     });
   }
-  function getSeedApr(seed_id: string) {
-    const seed = seeds[seed_id];
-    const farms = seed.farmList;
-    let apr = new Big(0);
-    const allPendingFarms = isPending(seed);
-    farms.forEach(function (item: FarmBoost) {
-      const pendingFarm = item.status == 'Created' || item.status == 'Pending';
-      if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
-        apr = apr.plus(item.apr);
-      }
-    });
-    return formatPercentage(apr.mul(100).toFixed());
-  }
-  function isPending(seed: Seed) {
-    let pending: boolean = true;
-    const farms = seed.farmList;
-    for (let i = 0; i < farms.length; i++) {
-      if (farms[i].status != 'Created' && farms[i].status != 'Pending') {
-        pending = false;
-        break;
-      }
+  const { delay_withdraw_sec } = memeConfig;
+  function formatSeconds(seconds) {
+    const days = Math.floor(seconds / (60 * 60 * 24));
+    const hours = Math.floor((seconds % (60 * 60 * 24)) / (60 * 60));
+    const minutes = Math.floor((seconds % (60 * 60)) / 60);
+    let result = '';
+    if (days > 0) {
+      result += days + 'days' + ' ';
     }
-    return pending;
+    if (hours > 0) {
+      result += hours + 'hour' + ' ';
+    }
+    if (minutes > 0) {
+      result += minutes + 'min';
+    }
+    return result.trim();
   }
   return (
     <Modal
@@ -111,38 +103,57 @@ function StakeModal(props: any) {
                 className="rounded-full"
               />
               <span className="text-2xl text-white gotham_bold">
-                Feed {seed?.token_meta_data.symbol}
+                Unstake {seed?.token_meta_data.symbol}
               </span>
             </div>
             <InputAmount
               token={seed.token_meta_data}
               tokenPriceList={tokenPriceList}
-              balance={balance}
+              balance={stakedBalance}
               changeAmount={setAmount}
               amount={amount}
+              title="Staked"
             />
             <div className="mt-4 px-2">
               <Template
                 title="You feed"
-                from={toInternationalCurrencySystem_number(feedFrom)}
+                from={toInternationalCurrencySystem_number(stakedBalance)}
                 to={toInternationalCurrencySystem_number(feedTo)}
               />
               <Template title="Gauge Weight" from="64.2%" to="67.8%" />
-              <Template title="Staking APR" value={getSeedApr(seed_id)} />
+              <Template title="Est. Receive" value={'-'} />
             </div>
+            {/* deep delay tip */}
+            {withdraw_list[seed_id] ? (
+              <div className="bg-memeyellowColor rounded-lg px-3 py-1.5 my-4 text-sm text-memeyellowColor bg-opacity-10">
+                You have a record in the process of unstaking. If you unstake
+                again, the two records will be merged and the pending time will
+                be reset.
+              </div>
+            ) : null}
+
             <OprationButton
               minWidth="7rem"
               disabled={disabled}
-              onClick={stakeToken}
+              onClick={unStakeToken}
               className={`flex flex-grow items-center justify-center bg-greenLight text-boxBorder mt-6 rounded-xl h-12 text-base gotham_bold focus:outline-none ${
-                disabled || stakeLoading ? 'opacity-40' : ''
+                disabled || unStakeLoading ? 'opacity-40' : ''
               }`}
             >
               <ButtonTextWrapper
-                loading={stakeLoading}
-                Text={() => <>Feed</>}
+                loading={unStakeLoading}
+                Text={() => <>Unstake</>}
               />
             </OprationButton>
+            {/* delay tip */}
+            <div className="flex items-start gap-2 mt-4">
+              <TipIcon className="flex-shrink-0 transform translate-y-1" />
+              <p className="text-sm text-greenLight">
+                Your vote for this period is valid and the unstaked assets will
+                available to be withdrawal in{' '}
+                {formatSeconds(delay_withdraw_sec)}.
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -150,30 +161,4 @@ function StakeModal(props: any) {
   );
 }
 
-export function Template({
-  title,
-  from,
-  to,
-  value,
-}: {
-  title: string;
-  from?: string;
-  to?: string;
-  value?: string;
-}) {
-  return (
-    <div className="flex items-center justify-between py-2.5">
-      <span className="text-sm text-primaryText">{title}</span>
-      {from ? (
-        <div className="flex items-center text-sm text-white gap-2">
-          <span className="line-through">{from}</span>
-          <ArrowRightIcon />
-          <span>{to}</span>
-        </div>
-      ) : (
-        <span className="text-sm text-white">{value}</span>
-      )}
-    </div>
-  );
-}
-export default StakeModal;
+export default UnStakeModal;
