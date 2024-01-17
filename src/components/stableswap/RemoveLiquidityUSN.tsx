@@ -104,11 +104,14 @@ export function RemoveLiquidityComponentUSN(props: {
   const [receiveAmounts, setReceiveAmounts] = useState<string[]>(['', '', '']);
   const intl = useIntl();
 
-  const transactionSetActionData = useTranstionsExcuteDataStore(
-    (state) => state.setActionData
+  const processTransactionPending = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionPending
   );
-  const transactionSetActionStatus = useTranstionsExcuteDataStore(
-    (state) => state.setActionStatus
+  const processTransactionSuccess = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionSuccess
+  );
+  const processTransactionError = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionError
   );
 
   const { globalState } = useContext(WalletContext);
@@ -126,6 +129,8 @@ export function RemoveLiquidityComponentUSN(props: {
   });
 
   async function submit() {
+    setButtonLoading(true);
+    const transactionId = String(Date.now());
     if (isPercentage) {
       try {
         const removeShares = toNonDivisibleNumber(
@@ -154,18 +159,20 @@ export function RemoveLiquidityComponentUSN(props: {
             ),
           });
           tokensNode.push({
-            node: <HiOutlinePlusSm />,
+            symbol: "+",
           });
         });
         tokensNode.pop();
-        transactionSetActionData({
-          status: 'pending',
+
+        processTransactionPending({
+          transactionId,
           page: constTransactionPage.pool,
           data: {
             prefix: 'Removing',
             tokens: tokensNode,
           },
         });
+        setButtonLoading(false);
 
         const { response } = await removeLiquidityFromStablePool({
           tokens,
@@ -173,19 +180,12 @@ export function RemoveLiquidityComponentUSN(props: {
           min_amounts: min_amounts,
           shares: removeShares,
         });
-        setButtonLoading(false);
-        transactionSetActionData({
-          status: 'success',
+        processTransactionSuccess({
           transactionResponse: response,
+          transactionId,
         });
-        transactionSetActionStatus('resolved');
       } catch (e) {
-        setButtonLoading(false);
-        transactionSetActionData({
-          status: 'error',
-          transactionError: e,
-        });
-        transactionSetActionStatus('rejected');
+        processTransactionError({ error: e, transactionId });
       }
     } else {
       try {
@@ -213,38 +213,31 @@ export function RemoveLiquidityComponentUSN(props: {
             amount: toPrecision(toReadableNumber(d.decimals, amounts[i]), 3),
           });
           tokensNode.push({
-            node: <HiOutlinePlusSm />,
+            symbol: "+",
           });
         });
         tokensNode.pop();
-        transactionSetActionData({
-          status: 'pending',
+        processTransactionPending({
+          transactionId,
           page: constTransactionPage.pool,
           data: {
             prefix: 'Removing',
             tokens: tokensNode,
           },
         });
-
+        setButtonLoading(false);
         const { response } = await removeLiquidityByTokensFromStablePool({
           tokens,
           id: pool.id,
           amounts,
           max_burn_shares,
         });
-        setButtonLoading(false);
-        transactionSetActionData({
-          status: 'success',
+        processTransactionSuccess({
           transactionResponse: response,
+          transactionId,
         });
-        transactionSetActionStatus('resolved');
       } catch (e) {
-        setButtonLoading(false);
-        transactionSetActionData({
-          status: 'error',
-          transactionError: e,
-        });
-        transactionSetActionStatus('rejected');
+        processTransactionError({ error: e, transactionId });
       }
     }
   }
@@ -504,7 +497,6 @@ export function RemoveLiquidityComponentUSN(props: {
             className={`RemoveLiquidityComponentUSN focus:outline-none px-4 w-full text-lg`}
             onClick={async () => {
               if (canSubmit) {
-                setButtonLoading(true);
                 submit();
               }
             }}
