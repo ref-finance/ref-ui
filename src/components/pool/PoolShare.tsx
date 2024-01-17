@@ -69,7 +69,7 @@ export const PoolFarmAmount = ({
     }
   }
 
-  if (!Number(farmStakeAmount)) {
+  if (farmVersion==='v1' && !Number(farmStakeAmount)) {
     return null;
   }
 
