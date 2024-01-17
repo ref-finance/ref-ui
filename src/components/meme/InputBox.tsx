@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import Big from 'big.js';
 import { TokenMetadata } from '~src/services/ft-contract';
-import { FormattedMessage, useIntl } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 import { formatWithCommas, toPrecision } from '../../utils/numbers';
 import { WalletContext } from '../../utils/wallets-integration';
 export function InputAmount({

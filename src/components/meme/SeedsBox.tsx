@@ -1,6 +1,7 @@
-import React, { useState, useContext, useMemo } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import Big from 'big.js';
 import { ArrowRightIcon } from './icons';
+import { useHistory } from 'react-router';
 import {
   OprationButton,
   ButtonTextWrapper,
@@ -20,7 +21,19 @@ import { TokenMetadata } from '~src/services/ft-contract';
 import { WalletContext } from '../../utils/wallets-integration';
 import StakeModal from './StakeModal';
 import UnStakeModal from './UnStakeModal';
+import CallBackModal from './CallBackModal';
+import {
+  getURLInfo,
+  parsedArgs,
+} from '../../components/layout/transactionTipPopUp';
+import { checkTransaction } from '../../services/swap';
 
+export interface ITxParams {
+  action: 'stake' | 'unstake';
+  params: any;
+  txHash: string;
+  receiver_id: string;
+}
 const SeedsBox = () => {
   const {
     seeds,
@@ -35,9 +48,51 @@ const SeedsBox = () => {
   const isSignedIn = globalState.isSignedIn;
   const [isStakeOpen, setIsStakeOpen] = useState(false);
   const [isUnStakeOpen, setIsUnStakeOpen] = useState(false);
+  const [isTxHashOpen, setIsTxHashOpen] = useState(false);
+  const [txParams, setTxParams] = useState<ITxParams>();
   const [modal_action_seed_id, set_modal_action_seed_id] = useState('');
   const [claim_seed_id, set_claim_seed_id] = useState('');
   const memeConfig = getMemeConfig();
+  const history = useHistory();
+  const { txHash } = getURLInfo();
+  useEffect(() => {
+    if (txHash && isSignedIn) {
+      checkTransaction(txHash).then((res: any) => {
+        debugger;
+        const { transaction, receipts } = res;
+        const isNeth =
+          transaction?.actions?.[0]?.FunctionCall?.method_name === 'execute';
+        const methodNameNeth =
+          receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall
+            ?.method_name;
+        const methodNameNormal =
+          transaction?.actions[0]?.FunctionCall?.method_name;
+        const args = parsedArgs(
+          isNeth
+            ? res?.receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall
+                ?.args
+            : res?.transaction?.actions?.[0]?.FunctionCall?.args || ''
+        );
+        const receiver_id = transaction?.receiver_id;
+        const parsedInputArgs = JSON.parse(args || '');
+        const methodName = isNeth ? methodNameNeth : methodNameNormal;
+        if (
+          methodName == 'unlock_and_unstake_seed' ||
+          methodName == 'ft_transfer_call'
+        ) {
+          setIsTxHashOpen(true);
+          setTxParams({
+            action:
+              methodName == 'unlock_and_unstake_seed' ? 'unstake' : 'stake',
+            params: parsedInputArgs,
+            txHash,
+            receiver_id,
+          });
+        }
+      });
+    }
+  }, [txHash, isSignedIn]);
+
   function getSeedStaked(seed_id: string) {
     const seed = seeds[seed_id];
     const { seed_decimal, total_seed_amount, seedTvl } = seed;
@@ -277,6 +332,16 @@ const SeedsBox = () => {
             setIsUnStakeOpen(false);
           }}
           seed_id={modal_action_seed_id}
+        />
+      ) : null}
+      {isTxHashOpen && txParams ? (
+        <CallBackModal
+          isOpen={isTxHashOpen}
+          onRequestClose={() => {
+            setIsTxHashOpen(false);
+            history.replace('/meme');
+          }}
+          txParams={txParams}
         />
       ) : null}
     </div>

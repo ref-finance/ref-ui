@@ -11,9 +11,7 @@ import Modal from 'react-modal';
 import { MemeContext } from './context';
 import { toNonDivisibleNumber, toReadableNumber } from '../../utils/numbers';
 import { stake, getSeedApr } from '../../services/meme';
-import { Seed, FarmBoost } from '~src/services/farm';
 import {
-  toInternationalCurrencySystem_usd,
   toInternationalCurrencySystem_number,
   formatPercentage,
 } from '../../utils/uiNumber';
@@ -67,8 +65,8 @@ function StakeModal(props: any) {
       onRequestClose={onRequestClose}
       style={{
         overlay: {
-          backdropFilter: 'blur(15px)',
-          WebkitBackdropFilter: 'blur(15px)',
+          // backdropFilter: 'blur(15px)',
+          // WebkitBackdropFilter: 'blur(15px)',
           overflow: 'auto',
         },
         content: {

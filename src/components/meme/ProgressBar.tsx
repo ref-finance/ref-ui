@@ -1,4 +1,4 @@
-import React, { useState, useContext, useMemo } from 'react';
+import React, { useContext, useMemo } from 'react';
 import Big from 'big.js';
 import {
   DragonHead,
@@ -15,7 +15,6 @@ import {
   ShitzuBody,
 } from './icons';
 import { MemeContext } from './context';
-import { toReadableNumber } from '../../utils/numbers';
 import { formatPercentage } from '../../utils/uiNumber';
 
 const ProgressBar = () => {

@@ -6,6 +6,7 @@ import SeedsBox from '../components/meme/SeedsBox';
 import WithdrawList from '../components/meme/WithdrawList';
 import Banner from '../components/meme/Banner';
 import { MemeContext } from '../components/meme/context';
+import { ChartLoading } from 'src/components/icon/Loading';
 import {
   list_seeds_info,
   list_seed_farms,
@@ -37,6 +38,7 @@ export default function MemePage() {
   const [memeConfig, setMemeConfig] = useState<IMemefarmConfig>();
   const [seeds, setSeeds] = useState<Record<string, Seed>>({});
   const [lpSeeds, setLpSeeds] = useState<Record<string, Seed>>({});
+  const [loading, setLoading] = useState(true);
   const [allTokenMetadatas, setAllTokenMetadatas] = useState<
     Record<string, TokenMetadata>
   >({});
@@ -166,6 +168,7 @@ export default function MemePage() {
     setAllTokenMetadatas(tokenMetadataMap);
     setMemeConfig(memeConfig);
     setLpSeeds(lp_seeds);
+    setLoading(false);
   }
   async function init_user() {
     const user_seeds = await list_farmer_seeds();
@@ -225,6 +228,11 @@ export default function MemePage() {
           <ProgressBar />
           <SeedsBox />
           <WithdrawList />
+          {loading ? (
+            <div className="flex justify-center">
+              <ChartLoading />
+            </div>
+          ) : null}
         </div>
       </div>
     </MemeContext.Provider>
