@@ -1,18 +1,13 @@
 import React, { useState, useContext, useMemo } from 'react';
 import Big from 'big.js';
-import {
-  ArrowRightIcon,
-  BlackDragonIcon,
-  LonkIcon,
-  NekoIcon,
-  Shitzu,
-} from './icons';
+import { ArrowRightIcon } from './icons';
 import {
   OprationButton,
   ButtonTextWrapper,
+  ConnectToNearBtn,
 } from 'src/components/button/Button';
 import { MemeContext } from './context';
-import { getMemeConfig, claim } from '../../services/meme';
+import { getMemeConfig, claim, getSeedApr } from '../../services/meme';
 import { toReadableNumber } from '../../utils/numbers';
 import {
   toInternationalCurrencySystem_usd,
@@ -20,8 +15,9 @@ import {
   formatPercentage,
 } from '../../utils/uiNumber';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
-import { Seed, UserSeedInfo, FarmBoost } from '~src/services/farm';
+import { UserSeedInfo } from '~src/services/farm';
 import { TokenMetadata } from '~src/services/ft-contract';
+import { WalletContext } from '../../utils/wallets-integration';
 import StakeModal from './StakeModal';
 import UnStakeModal from './UnStakeModal';
 
@@ -33,7 +29,10 @@ const SeedsBox = () => {
     user_balances,
     unclaimed_rewards,
     allTokenMetadatas,
+    lpSeeds,
   } = useContext(MemeContext);
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   const [isStakeOpen, setIsStakeOpen] = useState(false);
   const [isUnStakeOpen, setIsUnStakeOpen] = useState(false);
   const [modal_action_seed_id, set_modal_action_seed_id] = useState('');
@@ -116,29 +115,17 @@ const SeedsBox = () => {
       };
     }
   }
-  function getSeedApr(seed_id: string) {
+  function getFeeder(seed_id: string) {
     const seed = seeds[seed_id];
-    const farms = seed.farmList;
-    let apr = new Big(0);
-    const allPendingFarms = isPending(seed);
-    farms.forEach(function (item: FarmBoost) {
-      const pendingFarm = item.status == 'Created' || item.status == 'Pending';
-      if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
-        apr = apr.plus(item.apr);
-      }
-    });
-    return formatPercentage(apr.mul(100).toFixed());
+    return seed.farmer_count;
   }
-  function isPending(seed: Seed) {
-    let pending: boolean = true;
-    const farms = seed.farmList;
-    for (let i = 0; i < farms.length; i++) {
-      if (farms[i].status != 'Created' && farms[i].status != 'Pending') {
-        pending = false;
-        break;
-      }
+  function goFarmDetail(seed_id: string) {
+    const lpSeed = lpSeeds[seed_id];
+    if (lpSeed.farmList[0].status == 'Ended') {
+      window.open(`/v2farms/${lpSeed.pool.id}-e`);
+    } else {
+      window.open(`/v2farms/${lpSeed.pool.id}-r`);
     }
-    return pending;
   }
   function seedClaim(seed_id: string) {
     set_claim_seed_id(seed_id);
@@ -147,7 +134,8 @@ const SeedsBox = () => {
   return (
     <div className="grid grid-cols-2 grid-rows-2 gap-4 mt-14">
       {Object.entries(seeds).map(([seed_id, seed]) => {
-        const stakeButtonDisabled = +user_balances[seed_id] == 0;
+        const stakeButtonDisabled =
+          !user_balances[seed_id] || +user_balances[seed_id] == 0;
         const unStakeButtonDisabled =
           +(user_seeds[seed_id]?.free_amount || 0) == 0;
         const claimButtonDisabled =
@@ -163,13 +151,20 @@ const SeedsBox = () => {
                 style={{ width: '86px', height: '86px' }}
                 className=" rounded-full"
               />
-              <div className="flex flex-col justify-between">
+              <div className="flex flex-col justify-between gap-1.5">
                 <div className="flex items-center justify-between">
                   <span className="text-xl gotham_bold text-white">
                     {seed.token_meta_data.symbol}
                   </span>
-                  <div className="flex items-center border border-memePoolBoxBorderColor cursor-pointer gap-2 rounded-lg h-8 px-2">
-                    <span className="text-xs text-white">BLACKDRAGON/NEAR</span>
+                  <div
+                    onClick={() => {
+                      goFarmDetail(seed_id);
+                    }}
+                    className="flex items-center border border-memePoolBoxBorderColor cursor-pointer gap-2 rounded-lg h-8 px-2"
+                  >
+                    <span className="text-xs text-white">
+                      {seed.token_meta_data.symbol}/NEAR
+                    </span>
                     <ArrowRightIcon />
                   </div>
                 </div>
@@ -187,11 +182,11 @@ const SeedsBox = () => {
               />
               <Template
                 title="APY"
-                value={getSeedApr(seed_id)}
-                subValue="-"
+                value={formatPercentage(getSeedApr(seeds[seed_id]))}
+                subValue={formatPercentage(getSeedApr(lpSeeds[seed_id]))}
                 isAPY={true}
               />
-              <Template title="Feeder" value="-" />
+              <Template title="Feeder" value={getFeeder(seed_id)} />
               <Template
                 title="You Feed"
                 value={getSeedUserStaked(seed_id).amount}
@@ -209,14 +204,21 @@ const SeedsBox = () => {
               />
             </div>
             {/* operation */}
-            <div className="flex items-center justify-between gap-3">
+            <div className={`flex-grow mt-6 ${isSignedIn ? 'hidden' : ''}`}>
+              <ConnectToNearBtn></ConnectToNearBtn>
+            </div>
+            <div
+              className={`flex items-center justify-between mt-6 gap-3 ${
+                isSignedIn ? '' : 'hidden'
+              }`}
+            >
               <OprationButton
                 minWidth="7rem"
                 disabled={claimButtonDisabled || claim_seed_id == seed_id}
                 onClick={() => {
                   seedClaim(seed_id);
                 }}
-                className={`flex items-center justify-center border border-greenLight mt-6 rounded-xl h-12 text-greenLight text-base gotham_bold focus:outline-none ${
+                className={`flex items-center justify-center border border-greenLight rounded-xl h-12 text-greenLight text-base gotham_bold focus:outline-none ${
                   claimButtonDisabled || claim_seed_id == seed_id
                     ? 'opacity-40'
                     : ''
@@ -234,7 +236,7 @@ const SeedsBox = () => {
                   set_modal_action_seed_id(seed.seed_id);
                   setIsUnStakeOpen(true);
                 }}
-                className={`flex items-center justify-center border border-greenLight mt-6 rounded-xl h-12 text-greenLight text-base gotham_bold focus:outline-none ${
+                className={`flex items-center justify-center border border-greenLight rounded-xl h-12 text-greenLight text-base gotham_bold focus:outline-none ${
                   unStakeButtonDisabled ? 'opacity-30' : ''
                 }`}
               >
@@ -247,7 +249,7 @@ const SeedsBox = () => {
                   set_modal_action_seed_id(seed.seed_id);
                   setIsStakeOpen(true);
                 }}
-                className={`flex flex-grow items-center justify-center text-boxBorder mt-6 rounded-xl h-12 text-base gotham_bold focus:outline-none ${
+                className={`flex flex-grow items-center justify-center text-boxBorder rounded-xl h-12 text-base gotham_bold focus:outline-none ${
                   stakeButtonDisabled
                     ? 'bg-memePoolBoxBorderColor'
                     : 'bg-greenLight'
@@ -288,7 +290,7 @@ function Template({
   isAPY,
 }: {
   title: string;
-  value: string;
+  value: string | number;
   subValue?: string;
   isAPY?: boolean;
 }) {

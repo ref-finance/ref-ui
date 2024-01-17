@@ -1,6 +1,5 @@
 import React, { useState, useContext, useMemo } from 'react';
 import Big from 'big.js';
-import { BlackDragonIcon, LonkIcon, NekoIcon, Shitzu } from './icons';
 import {
   OprationButton,
   ButtonTextWrapper,
@@ -11,7 +10,7 @@ import { InputAmount } from './InputBox';
 import Modal from 'react-modal';
 import { MemeContext } from './context';
 import { toNonDivisibleNumber, toReadableNumber } from '../../utils/numbers';
-import { stake } from '../../services/meme';
+import { stake, getSeedApr } from '../../services/meme';
 import { Seed, FarmBoost } from '~src/services/farm';
 import {
   toInternationalCurrencySystem_usd,
@@ -41,36 +40,26 @@ function StakeModal(props: any) {
     const to = Big(amount || 0).plus(from);
     return [from, to];
   }, [amount, seed, user_seeds]);
+  const [weightFrom, weightTo] = useMemo(() => {
+    const totalTvl = Object.entries(seeds).reduce((acc, [, seed]) => {
+      return acc.plus(seed.seedTvl || 0);
+    }, Big(0));
+    const seedTvl = seed.seedTvl;
+    const addTvl = Big(amount || 0).mul(
+      tokenPriceList[seed.seed_id]?.price || 0
+    );
+    const from = totalTvl.gt(0) ? Big(seedTvl).div(totalTvl).mul(100) : Big(0);
+    const to = totalTvl.plus(addTvl).gt(0)
+      ? Big(seedTvl).plus(addTvl).div(totalTvl.plus(addTvl)).mul(100)
+      : Big(0);
+    return [from.toFixed(), to.toFixed()];
+  }, [amount, seeds]);
   function stakeToken() {
     setStakeLoading(true);
     stake({
       seed_id,
       amount: Big(toNonDivisibleNumber(seed.seed_decimal, amount)).toFixed(0),
     });
-  }
-  function getSeedApr(seed_id: string) {
-    const seed = seeds[seed_id];
-    const farms = seed.farmList;
-    let apr = new Big(0);
-    const allPendingFarms = isPending(seed);
-    farms.forEach(function (item: FarmBoost) {
-      const pendingFarm = item.status == 'Created' || item.status == 'Pending';
-      if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
-        apr = apr.plus(item.apr);
-      }
-    });
-    return formatPercentage(apr.mul(100).toFixed());
-  }
-  function isPending(seed: Seed) {
-    let pending: boolean = true;
-    const farms = seed.farmList;
-    for (let i = 0; i < farms.length; i++) {
-      if (farms[i].status != 'Created' && farms[i].status != 'Pending') {
-        pending = false;
-        break;
-      }
-    }
-    return pending;
   }
   return (
     <Modal
@@ -127,8 +116,15 @@ function StakeModal(props: any) {
                 from={toInternationalCurrencySystem_number(feedFrom)}
                 to={toInternationalCurrencySystem_number(feedTo)}
               />
-              <Template title="Gauge Weight" from="64.2%" to="67.8%" />
-              <Template title="Staking APR" value={getSeedApr(seed_id)} />
+              <Template
+                title="Gauge Weight"
+                from={formatPercentage(weightFrom)}
+                to={formatPercentage(weightTo)}
+              />
+              <Template
+                title="Staking APR"
+                value={formatPercentage(getSeedApr(seed))}
+              />
             </div>
             <OprationButton
               minWidth="7rem"

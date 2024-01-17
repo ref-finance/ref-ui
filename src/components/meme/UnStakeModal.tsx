@@ -1,6 +1,5 @@
 import React, { useState, useContext, useMemo } from 'react';
 import Big from 'big.js';
-import { BlackDragonIcon, LonkIcon, NekoIcon, Shitzu } from './icons';
 import {
   OprationButton,
   ButtonTextWrapper,
@@ -40,6 +39,20 @@ function UnStakeModal(props: any) {
     const to = Big(stakedBalance || 0).minus(amount || 0);
     return to;
   }, [amount, seed, user_seeds]);
+  const [weightFrom, weightTo] = useMemo(() => {
+    const totalTvl = Object.entries(seeds).reduce((acc, [, seed]) => {
+      return acc.plus(seed.seedTvl || 0);
+    }, Big(0));
+    const seedTvl = seed.seedTvl;
+    const deleteTvl = Big(amount || 0).mul(
+      tokenPriceList[seed.seed_id]?.price || 0
+    );
+    const from = totalTvl.gt(0) ? Big(seedTvl).div(totalTvl).mul(100) : Big(0);
+    const to = totalTvl.minus(deleteTvl).gt(0)
+      ? Big(seedTvl).minus(deleteTvl).div(totalTvl.minus(deleteTvl)).mul(100)
+      : Big(0);
+    return [from.toFixed(), to.toFixed()];
+  }, [amount, seeds]);
   function unStakeToken() {
     setUnStakeLoading(true);
     unStake({
@@ -120,8 +133,11 @@ function UnStakeModal(props: any) {
                 from={toInternationalCurrencySystem_number(stakedBalance)}
                 to={toInternationalCurrencySystem_number(feedTo)}
               />
-              <Template title="Gauge Weight" from="64.2%" to="67.8%" />
-              <Template title="Est. Receive" value={'-'} />
+              <Template
+                title="Gauge Weight"
+                from={formatPercentage(weightFrom)}
+                to={formatPercentage(weightTo)}
+              />
             </div>
             {/* deep delay tip */}
             {withdraw_list[seed_id] ? (

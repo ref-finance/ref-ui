@@ -326,7 +326,7 @@ export default function getConfig(
         BLACK_TOKEN_LIST: [],
         REF_MEME_FARM_CONTRACT_ID:
           process.env.REF_MEME_FARM_CONTRACT_ID ||
-          'memefarm-dev1.ref-dev.testnet',
+          'memefarm-dev2.ref-dev.testnet',
       };
     case 'testnet':
       return {
@@ -413,7 +413,7 @@ export default function getConfig(
         BLACK_TOKEN_LIST: [],
         REF_MEME_FARM_CONTRACT_ID:
           process.env.REF_MEME_FARM_CONTRACT_ID ||
-          'memefarm-dev1.ref-dev.testnet',
+          'memefarm-dev2.ref-dev.testnet',
       };
     default:
       return {

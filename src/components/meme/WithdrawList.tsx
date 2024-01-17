@@ -1,6 +1,5 @@
 import React, { useState, useContext } from 'react';
 import Big from 'big.js';
-import { BlackDragonIcon, LonkIcon, NekoIcon, Shitzu } from './icons';
 import {
   OprationButton,
   ButtonTextWrapper,

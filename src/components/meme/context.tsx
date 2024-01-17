@@ -11,6 +11,7 @@ interface IMemeContext {
   user_seeds: Record<string, UserSeedInfo>;
   withdraw_list: Record<string, IFarmerWithdraw>;
   memeConfig: IMemefarmConfig;
+  lpSeeds: Record<string, Seed>;
 }
 const MemeContext = createContext<IMemeContext>(null);
 

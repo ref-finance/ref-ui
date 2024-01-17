@@ -11,6 +11,7 @@ import {
 import { storageDepositAction } from '../services/creators/storage';
 import { getCurrentWallet } from '../utils/wallets-integration';
 import { currentStorageBalanceOfMeme_farm } from './account';
+import { Seed, FarmBoost } from '~src/services/farm';
 interface StakeOptions {
   seed_id: string;
   amount: string;
@@ -198,6 +199,12 @@ export function getMemeConfig(): any {
         'shitzu.fakes.testnet':
           'Shitzu is entirely community-run and no longer controlled by Bastion',
       },
+      lp_farm: {
+        'lonk.fakes.testnet': '',
+        'neko.fakes.testnet': '',
+        'blackdragon.fakes.testnet': '',
+        'shitzu.fakes.testnet': '',
+      },
     };
   } else if (env == 'testnet') {
     return {
@@ -211,10 +218,42 @@ export function getMemeConfig(): any {
         'shitzu.fakes.testnet':
           'Shitzu is entirely community-run and no longer controlled by Bastion',
       },
+      lp_farm: {
+        'lonk.fakes.testnet': '716',
+        'neko.fakes.testnet': '717',
+        'blackdragon.fakes.testnet': '718',
+        'shitzu.fakes.testnet': '719',
+      },
     };
   } else {
     return {
       description: {},
+      lp_farm: {},
     };
   }
+}
+// getMemeSeedApr
+export function getSeedApr(seed: Seed) {
+  if (!seed) return '0';
+  const farms = seed.farmList;
+  let apr = new Big(0);
+  const allPendingFarms = isPending(seed);
+  farms.forEach(function (item: FarmBoost) {
+    const pendingFarm = item.status == 'Created' || item.status == 'Pending';
+    if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
+      apr = apr.plus(item.apr);
+    }
+  });
+  return apr.mul(100).toFixed();
+}
+function isPending(seed: Seed) {
+  let pending: boolean = true;
+  const farms = seed.farmList;
+  for (let i = 0; i < farms.length; i++) {
+    if (farms[i].status != 'Created' && farms[i].status != 'Pending') {
+      pending = false;
+      break;
+    }
+  }
+  return pending;
 }

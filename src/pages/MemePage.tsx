@@ -15,6 +15,7 @@ import {
   get_config,
   IFarmerWithdraw,
   IMemefarmConfig,
+  getMemeConfig,
 } from '../services/meme';
 import {
   getBoostTokenPrices,
@@ -29,11 +30,13 @@ import {
 } from '../services/ft-contract';
 import { toReadableNumber } from 'src/utils/numbers';
 import { WalletContext } from '../utils/wallets-integration';
+import { get_all_seeds } from '../services/commonV3';
 
 export default function MemePage() {
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
   const [memeConfig, setMemeConfig] = useState<IMemefarmConfig>();
   const [seeds, setSeeds] = useState<Record<string, Seed>>({});
+  const [lpSeeds, setLpSeeds] = useState<Record<string, Seed>>({});
   const [allTokenMetadatas, setAllTokenMetadatas] = useState<
     Record<string, TokenMetadata>
   >({});
@@ -61,6 +64,7 @@ export default function MemePage() {
   }, [isSignedIn, seeds]);
   async function init() {
     const tokenPriceList = await getBoostTokenPrices();
+    const all_lp_seeds = await get_all_seeds();
     const memeConfig = await get_config();
     const seeds: Seed[] = await list_seeds_info();
     const farmList = await Promise.all(
@@ -135,10 +139,33 @@ export default function MemePage() {
         },
       };
     }, {});
+    // get lp seeds
+    const lp_seeds = Object.entries(getMemeConfig().lp_farm).reduce(
+      (acc, cur) => {
+        const [tokenId, poolId] = cur;
+        const lp_seeds = all_lp_seeds.filter(
+          (seed: Seed) => seed.pool.id == poolId
+        );
+        const temp = {};
+        if (lp_seeds.length > 1) {
+          temp[tokenId] = lp_seeds.filter(
+            (seed: Seed) => seed.farmList[0].status !== 'Ended'
+          )[0];
+        } else {
+          temp[tokenId] = lp_seeds[0];
+        }
+        return {
+          ...acc,
+          ...temp,
+        };
+      },
+      {}
+    );
     setTokenPriceList(tokenPriceList);
     setSeeds(seed_process);
     setAllTokenMetadatas(tokenMetadataMap);
     setMemeConfig(memeConfig);
+    setLpSeeds(lp_seeds);
   }
   async function init_user() {
     const user_seeds = await list_farmer_seeds();
@@ -185,6 +212,7 @@ export default function MemePage() {
         user_seeds,
         withdraw_list,
         memeConfig,
+        lpSeeds,
       }}
     >
       <div className="-mt-12">
