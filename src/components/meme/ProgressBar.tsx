@@ -193,6 +193,7 @@ export function getProgressConfig(): any {
           translateY: '110px',
           initW: '40',
           feedIcon: LONK_CONFIG.feedIcon,
+          stakeTip: 'LONK you welth!',
         },
         'neko.fakes.testnet': {
           head: NEKO_CONFIG.head,
@@ -233,6 +234,7 @@ export function getProgressConfig(): any {
           translateY: '110px',
           initW: '40',
           feedIcon: LONK_CONFIG.feedIcon,
+          stakeTip: 'LONK you welth!',
         },
         'neko.fakes.testnet': {
           head: NEKO_CONFIG.head,
@@ -273,6 +275,7 @@ export function getProgressConfig(): any {
           translateY: '110px',
           initW: '40',
           feedIcon: LONK_CONFIG.feedIcon,
+          stakeTip: 'LONK you welth!',
         },
         'ftv2.nekotoken.near': {
           head: NEKO_CONFIG.head,
