@@ -6,7 +6,6 @@ import { ModalCloseIcon, ArrowRightIcon } from './icons';
 import Modal from 'react-modal';
 import { MemeContext } from './context';
 import { ITxParams } from './SeedsBox';
-import { Seed } from '../../services/farm';
 import { toReadableNumber } from '../../utils/numbers';
 import {
   formatWithCommas_number,
@@ -15,7 +14,8 @@ import {
 import { openUrl } from '../../services/commonV3';
 import getConfig from '../../services/config';
 import { useHistory } from 'react-router';
-
+import { getProgressConfig } from './ProgressBar';
+const progressConfig = getProgressConfig();
 function CallBackModal(props: any) {
   const { seeds, tokenPriceList } = useContext(MemeContext);
   const {
@@ -26,7 +26,6 @@ function CallBackModal(props: any) {
   const history = useHistory();
   const cardWidth = isMobile() ? '90vw' : '28vw';
   const cardHeight = isMobile() ? '90vh' : '80vh';
-  let b: ITxParams;
   const [seed, amount] = useMemo(() => {
     const { action, receiver_id, params } = txParams;
     if (action == 'stake') {
@@ -114,12 +113,15 @@ function CallBackModal(props: any) {
                 className="rounded-full"
               />
               <div className="flex flex-col items-center">
-                <span className="text-2xl text-white gotham_bold">
-                  Youda best!
-                </span>
-                <span className="text-2xl text-white gotham_bold">
-                  {seed?.token_meta_data.symbol} you welth!
-                </span>
+                {txParams?.action == 'stake' ? (
+                  <span className="text-2xl text-white gotham_bold">
+                    {progressConfig.progress[seed?.seed_id]?.stakeTip}
+                  </span>
+                ) : (
+                  <span className="text-2xl text-white gotham_bold">
+                    {seed?.token_meta_data.symbol} Unstaked
+                  </span>
+                )}
               </div>
             </div>
             <div className="flex justify-center text-sm text-white mt-6">

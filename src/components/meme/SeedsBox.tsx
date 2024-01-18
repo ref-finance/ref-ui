@@ -266,7 +266,7 @@ const SeedsBox = () => {
                 title="APY"
                 value={getSeedApr(seeds[seed_id])}
                 subValue={getSeedApr(lpSeeds[seed_id])}
-                subTargetValue = { hasLpSeed ? '': '-'}
+                subTargetValue={hasLpSeed ? '' : '-'}
                 isAPY={true}
               />
               <Template title="Feeder" value={getFeeder(seed_id)} />

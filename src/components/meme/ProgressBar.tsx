@@ -186,10 +186,41 @@ export function getProgressConfig(): any {
   if (env == 'pub-testnet') {
     return {
       progress: {
-        'lonk.fakes.testnet': '',
-        'neko.fakes.testnet': '',
-        'blackdragon.fakes.testnet': '',
-        'shitzu.fakes.testnet': '',
+        'lonk.fakes.testnet': {
+          head: LONK_CONFIG.head,
+          tail: LONK_CONFIG.tail,
+          body: LONK_CONFIG.body,
+          translateY: '110px',
+          initW: '40',
+          feedIcon: LONK_CONFIG.feedIcon,
+        },
+        'neko.fakes.testnet': {
+          head: NEKO_CONFIG.head,
+          tail: NEKO_CONFIG.tail,
+          body: NEKO_CONFIG.body,
+          translateY: '100px',
+          initW: '90',
+          feedIcon: NEKO_CONFIG.feedIcon,
+          stakeTip: 'Kung Hei Fat Choy!',
+        },
+        'blackdragon.fakes.testnet': {
+          head: DRAGON_CONFIG.head,
+          tail: DRAGON_CONFIG.tail,
+          body: DRAGON_CONFIG.body,
+          translateY: '110px',
+          initW: '0',
+          feedIcon: DRAGON_CONFIG.feedIcon,
+          stakeTip: 'Let’s fire!',
+        },
+        'shitzu.fakes.testnet': {
+          head: SHITZU_CONFIG.head,
+          tail: SHITZU_CONFIG.tail,
+          body: SHITZU_CONFIG.body,
+          translateY: '90px',
+          initW: '60',
+          feedIcon: SHITZU_CONFIG.feedIcon,
+          stakeTip: 'Woof-woof!',
+        },
       },
     };
   } else if (env == 'testnet') {
@@ -210,6 +241,7 @@ export function getProgressConfig(): any {
           translateY: '100px',
           initW: '90',
           feedIcon: NEKO_CONFIG.feedIcon,
+          stakeTip: 'Kung Hei Fat Choy!',
         },
         'blackdragon.fakes.testnet': {
           head: DRAGON_CONFIG.head,
@@ -218,6 +250,7 @@ export function getProgressConfig(): any {
           translateY: '110px',
           initW: '0',
           feedIcon: DRAGON_CONFIG.feedIcon,
+          stakeTip: 'Let’s fire!',
         },
         'shitzu.fakes.testnet': {
           head: SHITZU_CONFIG.head,
@@ -226,16 +259,48 @@ export function getProgressConfig(): any {
           translateY: '90px',
           initW: '60',
           feedIcon: SHITZU_CONFIG.feedIcon,
+          stakeTip: 'Woof-woof!',
         },
       },
     };
   } else {
     return {
       progress: {
-        'lonk.fakes.testnet': '',
-        'neko.fakes.testnet': '',
-        'blackdragon.fakes.testnet': '',
-        'shitzu.fakes.testnet': '',
+        'token.lonkingnearbackto2024.near': {
+          head: LONK_CONFIG.head,
+          tail: LONK_CONFIG.tail,
+          body: LONK_CONFIG.body,
+          translateY: '110px',
+          initW: '40',
+          feedIcon: LONK_CONFIG.feedIcon,
+        },
+        'ftv2.nekotoken.near': {
+          head: NEKO_CONFIG.head,
+          tail: NEKO_CONFIG.tail,
+          body: NEKO_CONFIG.body,
+          translateY: '100px',
+          initW: '90',
+          feedIcon: NEKO_CONFIG.feedIcon,
+          stakeTip: 'Kung Hei Fat Choy!',
+        },
+        'blackdragon.tkn.near': {
+          head: DRAGON_CONFIG.head,
+          tail: DRAGON_CONFIG.tail,
+          body: DRAGON_CONFIG.body,
+          translateY: '110px',
+          initW: '0',
+          feedIcon: DRAGON_CONFIG.feedIcon,
+          stakeTip: 'Let’s fire!',
+        },
+        'token.0xshitzu.near': {
+          head: SHITZU_CONFIG.head,
+          tail: SHITZU_CONFIG.tail,
+          body: SHITZU_CONFIG.body,
+          translateY: '90px',
+          initW: '60',
+          feedIcon: SHITZU_CONFIG.feedIcon,
+          stakeTip: 'Woof-woof!',
+        },
       },
     };
   }
