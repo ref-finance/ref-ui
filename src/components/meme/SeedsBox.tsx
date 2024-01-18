@@ -187,6 +187,12 @@ const SeedsBox = () => {
     set_claim_seed_id(seed.seed_id);
     claim(seed);
   }
+  function comeSoonTip() {
+    const result = `<div class="px-2 text-xs textfarmText">
+    Coming soon
+    </div>`;
+    return result;
+  }
   return (
     <div className="grid grid-cols-2 grid-rows-2 gap-4 mt-14">
       {Object.entries(seeds).map(([seed_id, seed]) => {
@@ -196,6 +202,9 @@ const SeedsBox = () => {
           +(user_seeds[seed_id]?.free_amount || 0) == 0;
         const claimButtonDisabled =
           Object.keys(unclaimed_rewards[seed_id] || {}).length == 0;
+        const hasLpSeed =
+          lpSeeds[seed_id]?.farmList[0]?.status &&
+          lpSeeds[seed_id]?.farmList[0]?.status !== 'Ended';
         return (
           <div
             key={seed_id}
@@ -212,17 +221,34 @@ const SeedsBox = () => {
                   <span className="text-xl gotham_bold text-white">
                     {seed.token_meta_data.symbol}
                   </span>
-                  <div
-                    onClick={() => {
-                      goFarmDetail(seed_id);
-                    }}
-                    className="flex items-center border border-memePoolBoxBorderColor cursor-pointer gap-2 rounded-lg h-8 px-2"
-                  >
-                    <span className="text-xs text-white">
-                      {seed.token_meta_data.symbol}/NEAR
-                    </span>
-                    <ArrowRightIcon />
-                  </div>
+                  {hasLpSeed ? (
+                    <div
+                      onClick={() => {
+                        goFarmDetail(seed_id);
+                      }}
+                      className="flex items-center border border-memePoolBoxBorderColor gap-2 rounded-lg h-8 px-2 cursor-pointer"
+                    >
+                      <span className="text-xs text-white">
+                        {seed.token_meta_data.symbol}/NEAR
+                      </span>
+                      <ArrowRightIcon />
+                    </div>
+                  ) : (
+                    <div
+                      data-class="reactTip"
+                      data-tooltip-id={`lp_farm_${seed_id}`}
+                      data-place="top"
+                      data-tooltip-html={comeSoonTip()}
+                    >
+                      <div className="flex items-center border border-memePoolBoxBorderColor gap-2 rounded-lg h-8 px-2 opacity-30 cursor-not-allowed">
+                        <span className="text-xs text-white">
+                          {seed.token_meta_data.symbol}/NEAR
+                        </span>
+                        <ArrowRightIcon />
+                      </div>
+                      <CustomTooltip id={`lp_farm_${seed_id}`} />
+                    </div>
+                  )}
                 </div>
                 <p className="text-sm text-primaryText">
                   {memeConfig.description[seed_id]}
@@ -240,6 +266,7 @@ const SeedsBox = () => {
                 title="APY"
                 value={getSeedApr(seeds[seed_id])}
                 subValue={getSeedApr(lpSeeds[seed_id])}
+                subTargetValue = { hasLpSeed ? '': '-'}
                 isAPY={true}
               />
               <Template title="Feeder" value={getFeeder(seed_id)} />
@@ -354,11 +381,13 @@ function Template({
   value,
   subValue,
   isAPY,
+  subTargetValue,
 }: {
   title: string;
   value: string | number;
   subValue?: string;
   isAPY?: boolean;
+  subTargetValue?: string;
 }) {
   function getApyTip() {
     const result = `<div class="px-2">
@@ -368,7 +397,7 @@ function Template({
         </div>
         <div class="flex items-center justify-between text-xs textfarmText gap-3.5 mt-2">
           <span>Farm APR</span>
-          <span>${formatPercentage(subValue)}</span>
+          <span>${subTargetValue || formatPercentage(subValue)}</span>
       </div>
     </div>`;
     return result;
@@ -398,7 +427,9 @@ function Template({
         </span>
         {subValue ? (
           <span className="text-xs text-white relative -top-1">
-            {isAPY ? '+' + formatPercentageUi(subValue) : subValue}
+            {isAPY
+              ? subTargetValue || '+' + formatPercentageUi(subValue)
+              : subValue}
           </span>
         ) : null}
       </div>
