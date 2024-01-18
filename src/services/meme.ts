@@ -8,10 +8,14 @@ import {
   refMeMeFarmViewFunction,
   refMeMeFarmFunctionCall,
 } from './near';
-import { storageDepositAction } from '../services/creators/storage';
+import {
+  storageDepositAction,
+  STORAGE_TO_REGISTER_WITH_MFT,
+} from '../services/creators/storage';
 import { getCurrentWallet } from '../utils/wallets-integration';
 import { currentStorageBalanceOfMeme_farm } from './account';
 import { Seed, FarmBoost } from '~src/services/farm';
+import { ftGetStorageBalance } from '../services/ft-contract';
 interface StakeOptions {
   seed_id: string;
   amount: string;
@@ -178,11 +182,52 @@ export const withdraw = async ({
   }
   return executeFarmMultipleTransactions(transactions);
 };
-export const claim = async (seed_id: string): Promise<any> => {
-  return refMeMeFarmFunctionCall({
-    methodName: 'claim_reward_by_seed',
-    args: { seed_id },
+export const claim = async (seed: Seed): Promise<any> => {
+  const transactions: Transaction[] = [];
+  const { seed_id, farmList } = seed;
+  const rewardIds = farmList.map((farm: FarmBoost) => farm.terms.reward_token);
+  const functionCalls: any[] = [];
+  const ftBalancePromiseList: any[] = [];
+  rewardIds.forEach((token_id) => {
+    const ftBalance = ftGetStorageBalance(token_id);
+    ftBalancePromiseList.push(ftBalance);
+    functionCalls.push({
+      methodName: 'withdraw_reward',
+      args: {
+        token_id,
+      },
+      gas: '50000000000000',
+    });
   });
+  const resolvedBalanceList = await Promise.all(ftBalancePromiseList);
+  resolvedBalanceList.forEach((ftBalance, index) => {
+    if (!ftBalance) {
+      transactions.unshift({
+        receiverId: rewardIds[index],
+        functionCalls: [
+          storageDepositAction({
+            registrationOnly: true,
+            amount: STORAGE_TO_REGISTER_WITH_MFT,
+          }),
+        ],
+      });
+    }
+  });
+  transactions.push({
+    receiverId: REF_MEME_FARM_CONTRACT_ID,
+    functionCalls: [
+      {
+        methodName: 'claim_reward_by_seed',
+        args: { seed_id },
+        gas: '200000000000000',
+      },
+    ],
+  });
+  transactions.push({
+    receiverId: REF_MEME_FARM_CONTRACT_ID,
+    functionCalls,
+  });
+  return executeFarmMultipleTransactions(transactions);
 };
 // config
 export function getMemeConfig(): any {

@@ -100,7 +100,7 @@ function CallBackModal(props: any) {
               onClick={goNearblocks}
               className={`flex flex-grow items-center justify-center border border-purple border-opacity-20  text-white mt-6 rounded-xl h-12 text-base gotham_bold focus:outline-none`}
             >
-              Check on Nearblock
+              Check on Nearblocks
             </OprationButton>
           </div>
         </div>

@@ -89,6 +89,19 @@ export const formatPercentage = (v: string | number) => {
     return big.toFixed(2) + '%';
   }
 };
+export const formatPercentageUi = (v: string | number) => {
+  if (isInvalid(v)) return '-%';
+  const big = Big(v);
+  if (big.lte(0)) {
+    return '0%';
+  } else if (big.lt(0.01)) {
+    return '<0.01%';
+  } else if (big.gt(999)) {
+    return '999%+';
+  } else {
+    return big.toFixed(2) + '%';
+  }
+};
 
 export const isInvalid = (v) => {
   if (v === '' || v === undefined || v == null) return true;

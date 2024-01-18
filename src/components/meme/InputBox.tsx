@@ -59,11 +59,18 @@ export function InputAmount({
               changeAmount(target.value);
             }}
           />
-          <span
-            className={`text-base gotham_bold ml-5 whitespace-nowrap text-white`}
-          >
-            {token.symbol}
-          </span>
+          <div className="flex items-center gap-1.5 ml-5 flex-shrink-0">
+            <img
+              className="rounded-full"
+              style={{ width: '26px', height: '26px' }}
+              src={token.icon}
+            />
+            <span
+              className={`text-base gotham_bold whitespace-nowrap text-white`}
+            >
+              {token.symbol}
+            </span>
+          </div>
         </div>
         <div className={`flex items-center justify-between mt-2.5 visible`}>
           <span className="text-xs text-limitOrderInputColor">

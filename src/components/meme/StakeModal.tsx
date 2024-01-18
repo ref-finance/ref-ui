@@ -15,6 +15,7 @@ import {
   toInternationalCurrencySystem_number,
   formatPercentage,
 } from '../../utils/uiNumber';
+import { Seed, FarmBoost } from '../../services/farm';
 
 function StakeModal(props: any) {
   const { seeds, user_balances, tokenPriceList, user_seeds } =
@@ -52,6 +53,32 @@ function StakeModal(props: any) {
       : Big(0);
     return [from.toFixed(), to.toFixed()];
   }, [amount, seeds]);
+  const seed_new = useMemo(() => {
+    const seed = seeds[seed_id];
+    if (+amount > 0 && seed) {
+      const seedCopy: Seed = JSON.parse(JSON.stringify(seed));
+      const addTvl = Big(tokenPriceList[seed_id]?.price || 0).mul(amount);
+      seedCopy.seedTvl = addTvl.add(seedCopy.seedTvl).toFixed();
+      // set farm apr;
+      seedCopy.farmList.forEach((farm: FarmBoost) => {
+        const { reward_token, daily_reward } = farm.terms;
+        const daily_reward_amount = toReadableNumber(
+          farm.token_meta_data.decimals,
+          daily_reward
+        );
+        const reward_token_price = Number(
+          tokenPriceList[reward_token]?.price || 0
+        );
+        farm.apr = new Big(daily_reward_amount)
+          .mul(reward_token_price)
+          .mul(365)
+          .div(seedCopy.seedTvl)
+          .toFixed();
+      });
+      return seedCopy;
+    }
+    return seed;
+  }, [amount, seeds, tokenPriceList]);
   function stakeToken() {
     setStakeLoading(true);
     stake({
@@ -121,7 +148,7 @@ function StakeModal(props: any) {
               />
               <Template
                 title="Staking APR"
-                value={formatPercentage(getSeedApr(seed))}
+                value={formatPercentage(getSeedApr(seed_new))}
               />
             </div>
             <OprationButton

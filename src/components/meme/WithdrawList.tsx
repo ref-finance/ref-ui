@@ -4,12 +4,8 @@ import {
   OprationButton,
   ButtonTextWrapper,
 } from 'src/components/button/Button';
-import {
-  toInternationalCurrencySystem_usd,
-  toInternationalCurrencySystem_number,
-  formatPercentage,
-} from '../../utils/uiNumber';
-import { toNonDivisibleNumber, toReadableNumber } from '../../utils/numbers';
+import { toInternationalCurrencySystem_number } from '../../utils/uiNumber';
+import { toReadableNumber } from '../../utils/numbers';
 import { MemeContext } from './context';
 import { withdraw } from '../../services/meme';
 
@@ -57,12 +53,11 @@ const WithdrawList = () => {
           const remainingTime_sec = Big(unLockDate)
             .minus(currentDate)
             .toFixed(0);
-          remainingTimeStr = `in ${formatSeconds(remainingTime_sec)}.`;
+          remainingTimeStr = `in ${formatSeconds(remainingTime_sec) || '1m'}.`;
         } else {
           withdraw_status = 'free';
           remainingTimeStr = 'now!';
         }
-
         const seed = seeds[seed_id];
         const { seed_decimal, token_meta_data } = seed;
         const withdrawButtonDisabled = withdraw_status == 'locked';

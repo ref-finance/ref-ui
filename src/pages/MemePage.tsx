@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import Big from 'big.js';
+import { useHistory } from 'react-router';
 import Overview from '../components/meme/Overview';
 import ProgressBar from '../components/meme/ProgressBar';
 import SeedsBox from '../components/meme/SeedsBox';
@@ -32,6 +33,7 @@ import {
 import { toReadableNumber } from 'src/utils/numbers';
 import { WalletContext } from '../utils/wallets-integration';
 import { get_all_seeds } from '../services/commonV3';
+import { isMobile } from '../utils/device';
 
 export default function MemePage() {
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
@@ -56,6 +58,7 @@ export default function MemePage() {
   >({});
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+  const history = useHistory();
   useEffect(() => {
     init();
   }, []);
@@ -203,6 +206,9 @@ export default function MemePage() {
     set_unclaimed_rewards(user_unclaimed_rewards_map);
     set_user_balances(user_balances_map);
     set_withdraw_list(user_withdraw_list);
+  }
+  if (isMobile()) {
+    history.push('/');
   }
   return (
     <MemeContext.Provider

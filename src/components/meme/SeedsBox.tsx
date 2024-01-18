@@ -14,9 +14,10 @@ import {
   toInternationalCurrencySystem_usd,
   toInternationalCurrencySystem_number,
   formatPercentage,
+  formatPercentageUi,
 } from '../../utils/uiNumber';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
-import { UserSeedInfo } from '~src/services/farm';
+import { UserSeedInfo, Seed } from '~src/services/farm';
 import { TokenMetadata } from '~src/services/ft-contract';
 import { WalletContext } from '../../utils/wallets-integration';
 import StakeModal from './StakeModal';
@@ -182,9 +183,9 @@ const SeedsBox = () => {
       window.open(`/v2farms/${lpSeed.pool.id}-r`);
     }
   }
-  function seedClaim(seed_id: string) {
-    set_claim_seed_id(seed_id);
-    claim(seed_id);
+  function seedClaim(seed: Seed) {
+    set_claim_seed_id(seed.seed_id);
+    claim(seed);
   }
   return (
     <div className="grid grid-cols-2 grid-rows-2 gap-4 mt-14">
@@ -237,8 +238,8 @@ const SeedsBox = () => {
               />
               <Template
                 title="APY"
-                value={formatPercentage(getSeedApr(seeds[seed_id]))}
-                subValue={formatPercentage(getSeedApr(lpSeeds[seed_id]))}
+                value={getSeedApr(seeds[seed_id])}
+                subValue={getSeedApr(lpSeeds[seed_id])}
                 isAPY={true}
               />
               <Template title="Feeder" value={getFeeder(seed_id)} />
@@ -271,7 +272,7 @@ const SeedsBox = () => {
                 minWidth="7rem"
                 disabled={claimButtonDisabled || claim_seed_id == seed_id}
                 onClick={() => {
-                  seedClaim(seed_id);
+                  seedClaim(seed);
                 }}
                 className={`flex items-center justify-center border border-greenLight rounded-xl h-12 text-greenLight text-base gotham_bold focus:outline-none ${
                   claimButtonDisabled || claim_seed_id == seed_id
@@ -363,11 +364,11 @@ function Template({
     const result = `<div class="px-2">
         <div class="flex items-center justify-between text-xs textfarmText gap-3.5">
           <span>Staking APR</span>
-          <span>${value}</span>
+          <span>${formatPercentage(value)}</span>
         </div>
         <div class="flex items-center justify-between text-xs textfarmText gap-3.5 mt-2">
           <span>Farm APR</span>
-          <span>${subValue}</span>
+          <span>${formatPercentage(subValue)}</span>
       </div>
     </div>`;
     return result;
@@ -392,9 +393,13 @@ function Template({
         <span className="text-sm text-white">{title}</span>
       )}
       <div className="flex items-end gap-1">
-        <span className="text-xl text-white gotham_bold">{value}</span>
+        <span className="text-xl text-white gotham_bold">
+          {isAPY ? formatPercentageUi(value) : value}
+        </span>
         {subValue ? (
-          <span className="text-xs text-white relative -top-1">{subValue}</span>
+          <span className="text-xs text-white relative -top-1">
+            {isAPY ? '+' + formatPercentageUi(subValue) : subValue}
+          </span>
         ) : null}
       </div>
     </div>

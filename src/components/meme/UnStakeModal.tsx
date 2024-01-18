@@ -65,13 +65,13 @@ function UnStakeModal(props: any) {
     const minutes = Math.floor((seconds % (60 * 60)) / 60);
     let result = '';
     if (days > 0) {
-      result += days + 'days' + ' ';
+      result += days + ' ' + 'days' + ' ';
     }
     if (hours > 0) {
-      result += hours + 'hour' + ' ';
+      result += hours + ' ' + 'hour' + ' ';
     }
     if (minutes > 0) {
-      result += minutes + 'min';
+      result += minutes + ' ' + 'min';
     }
     return result.trim();
   }
