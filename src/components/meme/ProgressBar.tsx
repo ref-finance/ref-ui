@@ -59,13 +59,15 @@ const ProgressBar = () => {
                 transform: `translateY(${config.progress[seed_id].translateY})`,
               }}
             >
-              {config.progress[seed_id].tail}
-              {config.progress[seed_id].body(
-                config.progress[seed_id].initW,
-                addW,
-                percent
-              )}
-              {config.progress[seed_id].head}
+              <div>{config.progress[seed_id].tail}</div>
+              <div className="relative z-10" style={{ marginLeft: '-1px' }}>
+                {config.progress[seed_id].body(
+                  config.progress[seed_id].initW,
+                  addW,
+                  percent
+                )}
+              </div>
+              <div style={{ marginLeft: '-1px' }}>{config.progress[seed_id].head}</div>
               <div className="relative transform -translate-y-10 ml-1.5">
                 <FeedIcon className="w-8 h-8 absolute -top-4 left-4" />
                 <FeedMe />
@@ -211,7 +213,11 @@ export function getProgressConfig(): any {
           translateY: '110px',
           initW: '0',
           feedIcon: DRAGON_CONFIG.feedIcon,
-          stakeTip: 'Let’s fire!',
+          stakeTip: (
+            <div className="flex items-center gap-1">
+              Let’s fire! <FireIcon className="w-6 h-6" />{' '}
+            </div>
+          ),
         },
         'shitzu.fakes.testnet': {
           head: SHITZU_CONFIG.head,
@@ -252,7 +258,11 @@ export function getProgressConfig(): any {
           translateY: '110px',
           initW: '0',
           feedIcon: DRAGON_CONFIG.feedIcon,
-          stakeTip: 'Let’s fire!',
+          stakeTip: (
+            <div className="flex items-center gap-1">
+              Let’s fire! <FireIcon className="w-6 h-6" />{' '}
+            </div>
+          ),
         },
         'shitzu.fakes.testnet': {
           head: SHITZU_CONFIG.head,
@@ -293,7 +303,11 @@ export function getProgressConfig(): any {
           translateY: '110px',
           initW: '0',
           feedIcon: DRAGON_CONFIG.feedIcon,
-          stakeTip: 'Let’s fire!',
+          stakeTip: (
+            <div className="flex items-center gap-1">
+              Let’s fire! <FireIcon className="w-6 h-6" />{' '}
+            </div>
+          ),
         },
         'token.0xshitzu.near': {
           head: SHITZU_CONFIG.head,

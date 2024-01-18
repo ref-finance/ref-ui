@@ -156,7 +156,10 @@ export default function MemePage() {
           temp[tokenId] = lp_seeds.filter(
             (seed: Seed) => seed.farmList[0].status !== 'Ended'
           )[0];
-        } else {
+        } else if (
+          lp_seeds[0]?.farmList[0]?.status &&
+          lp_seeds[0]?.farmList[0]?.status !== 'Ended'
+        ) {
           temp[tokenId] = lp_seeds[0];
         }
         return {

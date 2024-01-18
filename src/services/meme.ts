@@ -17,12 +17,12 @@ import { currentStorageBalanceOfMeme_farm } from './account';
 import { Seed, FarmBoost } from '~src/services/farm';
 import { ftGetStorageBalance } from '../services/ft-contract';
 interface StakeOptions {
-  seed_id: string;
+  seed: Seed;
   amount: string;
   msg?: string;
 }
 interface UnStakeOptions {
-  seed_id: string;
+  seed: Seed;
   amount: string;
   withdrawAmount?: string;
 }
@@ -97,8 +97,9 @@ export const get_unclaimed_rewards = async (seed_id: string) => {
     args: { farmer_id: accountId, seed_id },
   });
 };
-export const stake = async ({ seed_id, amount = '' }: StakeOptions) => {
-  const transactions: Transaction[] = [];
+export const stake = async ({ seed, amount = '' }: StakeOptions) => {
+  const { seed_id } = seed;
+  let transactions: Transaction[] = [];
   const functionCalls = [];
   functionCalls.push({
     methodName: 'ft_transfer_call',
@@ -121,15 +122,16 @@ export const stake = async ({ seed_id, amount = '' }: StakeOptions) => {
       functionCalls: [storageDepositAction({ amount: neededStorage })],
     });
   }
-
+  transactions = await withdrawReards(seed, transactions);
   return executeFarmMultipleTransactions(transactions);
 };
 export const unStake = async ({
-  seed_id,
+  seed,
   amount,
   withdrawAmount,
 }: UnStakeOptions) => {
-  const transactions: Transaction[] = [];
+  const { seed_id } = seed;
+  let transactions: Transaction[] = [];
   if (withdrawAmount) {
     transactions.push({
       receiverId: REF_MEME_FARM_CONTRACT_ID,
@@ -167,6 +169,7 @@ export const unStake = async ({
       functionCalls: [storageDepositAction({ amount: neededStorage })],
     });
   }
+  transactions = await withdrawReards(seed, transactions);
 
   return executeFarmMultipleTransactions(transactions);
 };
@@ -203,8 +206,23 @@ export const withdraw = async ({
   return executeFarmMultipleTransactions(transactions);
 };
 export const claim = async (seed: Seed): Promise<any> => {
-  const transactions: Transaction[] = [];
-  const { seed_id, farmList } = seed;
+  const { seed_id } = seed;
+  let transactions: Transaction[] = [];
+  transactions.push({
+    receiverId: REF_MEME_FARM_CONTRACT_ID,
+    functionCalls: [
+      {
+        methodName: 'claim_reward_by_seed',
+        args: { seed_id },
+        gas: '200000000000000',
+      },
+    ],
+  });
+  transactions = await withdrawReards(seed, transactions);
+  return executeFarmMultipleTransactions(transactions);
+};
+async function withdrawReards(seed: Seed, transactions: Transaction[]) {
+  const { farmList } = seed;
   const rewardIds = farmList.map((farm: FarmBoost) => farm.terms.reward_token);
   const functionCalls: any[] = [];
   const ftBalancePromiseList: any[] = [];
@@ -235,20 +253,10 @@ export const claim = async (seed: Seed): Promise<any> => {
   });
   transactions.push({
     receiverId: REF_MEME_FARM_CONTRACT_ID,
-    functionCalls: [
-      {
-        methodName: 'claim_reward_by_seed',
-        args: { seed_id },
-        gas: '200000000000000',
-      },
-    ],
-  });
-  transactions.push({
-    receiverId: REF_MEME_FARM_CONTRACT_ID,
     functionCalls,
   });
-  return executeFarmMultipleTransactions(transactions);
-};
+  return transactions;
+}
 // config
 export function getMemeConfig(): any {
   const env: string = process.env.REACT_APP_NEAR_ENV;

@@ -3,7 +3,7 @@ import Big from 'big.js';
 import { MemeContext } from './context';
 import { toInternationalCurrencySystem_usd } from '../../utils/uiNumber';
 import { getSeedApr } from '../../services/meme';
-import { formatPercentage } from '../d3Chart/utils';
+import { formatPercentage } from '../../utils/uiNumber';
 import { Seed } from '~src/services/farm';
 import { TokenMetadata } from '~src/services/ft-contract';
 const Overview = () => {

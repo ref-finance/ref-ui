@@ -70,7 +70,7 @@ function UnStakeModal(props: any) {
   function unStakeToken() {
     setUnStakeLoading(true);
     unStake({
-      seed_id,
+      seed,
       amount: Big(toNonDivisibleNumber(seed.seed_decimal, amount)).toFixed(0),
       ...(withdraw_part_status == 'free'
         ? {

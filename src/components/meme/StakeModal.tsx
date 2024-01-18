@@ -83,7 +83,7 @@ function StakeModal(props: any) {
   function stakeToken() {
     setStakeLoading(true);
     stake({
-      seed_id,
+      seed,
       amount: Big(toNonDivisibleNumber(seed.seed_decimal, amount)).toFixed(0),
     });
   }

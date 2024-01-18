@@ -24,7 +24,7 @@ import StakeModal from './StakeModal';
 import UnStakeModal from './UnStakeModal';
 import CallBackModal from './CallBackModal';
 import {
-  getURLInfo,
+  TRANSACTION_WALLET_TYPE,
   parsedArgs,
 } from '../../components/layout/transactionTipPopUp';
 import { checkTransaction } from '../../services/swap';
@@ -55,6 +55,27 @@ const SeedsBox = () => {
   const [claim_seed_id, set_claim_seed_id] = useState('');
   const memeConfig = getMemeConfig();
   const history = useHistory();
+  const getURLInfo = () => {
+    const search = window.location.search;
+    const pathname = window.location.pathname;
+    const errorType = new URLSearchParams(search).get('errorType');
+    const errorCode = new URLSearchParams(search).get('errorCode');
+    const signInErrorType = new URLSearchParams(search).get('signInErrorType');
+    const txHashes = (
+      new URLSearchParams(search).get(TRANSACTION_WALLET_TYPE.NEAR_WALLET) ||
+      new URLSearchParams(search).get(TRANSACTION_WALLET_TYPE.SENDER_WALLET) ||
+      new URLSearchParams(search).get(TRANSACTION_WALLET_TYPE.WalletSelector)
+    )?.split(',');
+    return {
+      txHash:
+        txHashes && txHashes.length > 0 ? txHashes[txHashes.length - 2] : '',
+      pathname,
+      errorType,
+      signInErrorType,
+      errorCode,
+      txHashes,
+    };
+  };
   const { txHash } = getURLInfo();
   useEffect(() => {
     if (txHash && isSignedIn) {
@@ -93,7 +114,6 @@ const SeedsBox = () => {
       });
     }
   }, [txHash, isSignedIn]);
-
   function getSeedStaked(seed_id: string) {
     const seed = seeds[seed_id];
     const { seed_decimal, total_seed_amount, seedTvl } = seed;
