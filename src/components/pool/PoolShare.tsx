@@ -20,8 +20,6 @@ import {
   useShadowRecordStore,
   useStakeListStore,
 } from 'src/stores/liquidityStores';
-import { BigNumber } from 'bignumber.js';
-import { useFarmStake } from 'src/state/farm';
 import { Link } from 'react-router-dom';
 import getConfigV2 from 'src/services/configV2';
 import {
@@ -271,10 +269,13 @@ export const ShadowInBurrowAmount = ({
   shadowRecordsKey?: 'shadow_in_burrow' | 'shadow_in_farm';
   styleType?: 'portfolio';
 }) => {
+  const isShadowPool = configV2.SUPPORT_SHADOW_POOL_IDS.includes(
+    poolId?.toString()
+  );
   const shadowRecords = useShadowRecordStore((state) => state.shadowRecords);
-  const inBurrow = shadowRecords?.[Number(poolId)]?.[shadowRecordsKey];
+  const inBurrowAmount = shadowRecords?.[Number(poolId)]?.[shadowRecordsKey] || 0;
   const decimal = isStablePool(poolId) ? getStablePoolDecimal(poolId) : 24;
-  if (!inBurrow) return null;
+  if (!isShadowPool) return null;
 
   let prefixNode;
   let suffixNode;
@@ -323,7 +324,7 @@ export const ShadowInBurrowAmount = ({
         {toPrecision(
           toReadableNumber(
             decimal,
-            scientificNotationToString(inBurrow.toString())
+            scientificNotationToString(inBurrowAmount.toString())
           ),
           2
         )}
