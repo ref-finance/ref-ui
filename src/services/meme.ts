@@ -265,10 +265,10 @@ export function getMemeConfig(): any {
           'Shitzu is entirely community-run and no longer controlled by Bastion',
       },
       lp_farm: {
-        'lonk.fakes.testnet': '',
-        'neko.fakes.testnet': '',
-        'blackdragon.fakes.testnet': '',
-        'shitzu.fakes.testnet': '',
+        'lonk.fakes.testnet': '716',
+        'neko.fakes.testnet': '717',
+        'blackdragon.fakes.testnet': '718',
+        'shitzu.fakes.testnet': '719',
       },
     };
   } else if (env == 'testnet') {
@@ -292,8 +292,22 @@ export function getMemeConfig(): any {
     };
   } else {
     return {
-      description: {},
-      lp_farm: {},
+      description: {
+        'token.lonkingnearbackto2024.near':
+          'LONK reads as “Long”, LONK is long, LONK IS 龍, LONK is dragon (insert Illia), LONK is fren with BONK, LONK is love, LONK is not your average meme coin...',
+        'ftv2.nekotoken.near':
+          'NEKO is the first community token on NEAR with a focus on creator empowerment. NEKO is on a mission to bring mass adoption to NEAR protocol.',
+        'blackdragon.tkn.near':
+          'Dawn of BLACKDRAGON | the next gen, fully open-source & community-driven, memecoin native to NEAR',
+        'token.0xshitzu.near':
+          'Shitzu is entirely community-run and no longer controlled by Bastion',
+      },
+      lp_farm: {
+        'token.lonkingnearbackto2024.near': '4314',
+        'ftv2.nekotoken.near': '3807',
+        'blackdragon.tkn.near': '4276',
+        'token.0xshitzu.near': '4369',
+      },
     };
   }
 }

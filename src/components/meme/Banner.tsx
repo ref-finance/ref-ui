@@ -1,5 +1,6 @@
 import React from 'react';
 import { BannerCoreBg } from './icons';
+import { translate } from '@near-wallet-selector/core';
 
 const Banner = () => {
   return (
@@ -8564,6 +8565,23 @@ nR/Cw8fBZ7/l41gMrDw7x6NDdB382uXBuXnwWGM/NJ5gv4Ee5EGc0p95YYhZtx3qDzi9/gr/50e8
 XsgCdgAAAABJRU5ErkJggg=="
       />
       <BannerCoreBg className="absolute" />
+      {/* for custom */}
+      <div
+        className="absolute hidden"
+        style={{ transform: 'translate(50px, 130px)' }}
+      >
+        <div className="text-black italic gotham_bold text-center">
+          <span className="mr-4" style={{ fontSize: '52px' }}>
+            125k
+          </span>
+          <span style={{ fontSize: '32px' }}>Ref / month</span>
+        </div>
+        <div className="text-cardBg gotham_bold text-xl text-center">
+          <p>When you stake your Meme tokens you can earn staking</p>
+          <p>APR and compete $REF reward for your Meme farm.</p>
+          <p>80% goes to farm, 20% as single token reward.</p>
+        </div>
+      </div>
     </div>
   );
 };
