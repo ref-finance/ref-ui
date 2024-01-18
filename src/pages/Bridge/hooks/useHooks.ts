@@ -127,14 +127,11 @@ export function useStorageState<T>(
 ): [T, (value: T) => void] {
   const [state, setState] = useState<T>(() => {
     const value = localStorage.getItem(key);
-    if (value) {
-      return safeJSONParse(value);
-    }
-    return defaultValue;
+    return (value ? safeJSONParse(value) : defaultValue) as T;
   });
   const setStorage = (value: T) => {
     setState(value);
-    localStorage.setItem(key, safeJSONStringify(value));
+    localStorage.setItem(key, safeJSONStringify(value) ?? '');
   };
   return [state, setStorage];
 }

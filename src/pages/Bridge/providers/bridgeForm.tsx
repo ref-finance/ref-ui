@@ -13,7 +13,11 @@ export function useBridgeFormContext() {
   return useContext(BridgeFormContext);
 }
 
-export default function BridgeFormProvider({ children }: any) {
+export default function BridgeFormProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { bridgeFromValue, bridgeToValue, ...restHooks } = useBridgeForm();
 
   const [previewModalOpen, setPreviewModalOpen] = useState(false);

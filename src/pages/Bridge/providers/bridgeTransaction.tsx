@@ -20,7 +20,11 @@ export function useBridgeTransactionContext() {
   return useContext(BridgeTransactionContext);
 }
 
-export default function BridgeTransactionProvider({ children }: any) {
+export default function BridgeTransactionProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { setupRainbowBridge, unclaimedTransactions } = useRainbowBridge({
     enableSubscribeUnclaimed: true,
   });
