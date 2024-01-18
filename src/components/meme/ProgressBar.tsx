@@ -13,6 +13,11 @@ import {
   ShitzuHead,
   ShitzuTail,
   ShitzuBody,
+  BoneIcon,
+  FireIcon,
+  MoneyIcon,
+  DrumstickIcon,
+  FeedMe,
 } from './icons';
 import { MemeContext } from './context';
 import { formatPercentage } from '../../utils/uiNumber';
@@ -45,6 +50,7 @@ const ProgressBar = () => {
           addW = p.mul(800).toFixed();
           percent = formatPercentage(p.mul(100).toFixed());
         }
+        const FeedIcon = config.progress[seed_id].feedIcon;
         return (
           <RaceTemplate key={seed_id}>
             <div
@@ -60,6 +66,10 @@ const ProgressBar = () => {
                 percent
               )}
               {config.progress[seed_id].head}
+              <div className="relative transform -translate-y-10 ml-1.5">
+                <FeedIcon className="w-8 h-8 absolute -top-4 left-4" />
+                <FeedMe />
+              </div>
             </div>
           </RaceTemplate>
         );
@@ -100,6 +110,7 @@ const LONK_CONFIG = {
       </div>
     );
   },
+  feedIcon: DrumstickIcon,
 };
 const NEKO_CONFIG = {
   head: <NekoHead className="relative" style={{ top: '-16px' }} />,
@@ -122,6 +133,7 @@ const NEKO_CONFIG = {
       </div>
     );
   },
+  feedIcon: MoneyIcon,
 };
 const DRAGON_CONFIG = {
   head: <DragonHead className="relative" style={{ top: '-51px' }} />,
@@ -144,6 +156,7 @@ const DRAGON_CONFIG = {
       </div>
     );
   },
+  feedIcon: FireIcon,
 };
 const SHITZU_CONFIG = {
   head: <ShitzuHead className="relative" style={{ top: '-16px' }} />,
@@ -166,6 +179,7 @@ const SHITZU_CONFIG = {
       </div>
     );
   },
+  feedIcon: BoneIcon,
 };
 export function getProgressConfig(): any {
   const env: string = process.env.REACT_APP_NEAR_ENV;
@@ -187,6 +201,7 @@ export function getProgressConfig(): any {
           body: LONK_CONFIG.body,
           translateY: '110px',
           initW: '40',
+          feedIcon: LONK_CONFIG.feedIcon,
         },
         'neko.fakes.testnet': {
           head: NEKO_CONFIG.head,
@@ -194,6 +209,7 @@ export function getProgressConfig(): any {
           body: NEKO_CONFIG.body,
           translateY: '100px',
           initW: '90',
+          feedIcon: NEKO_CONFIG.feedIcon,
         },
         'blackdragon.fakes.testnet': {
           head: DRAGON_CONFIG.head,
@@ -201,6 +217,7 @@ export function getProgressConfig(): any {
           body: DRAGON_CONFIG.body,
           translateY: '110px',
           initW: '0',
+          feedIcon: DRAGON_CONFIG.feedIcon,
         },
         'shitzu.fakes.testnet': {
           head: SHITZU_CONFIG.head,
@@ -208,6 +225,7 @@ export function getProgressConfig(): any {
           body: SHITZU_CONFIG.body,
           translateY: '90px',
           initW: '60',
+          feedIcon: SHITZU_CONFIG.feedIcon,
         },
       },
     };

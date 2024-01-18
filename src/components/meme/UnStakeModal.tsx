@@ -21,6 +21,7 @@ import { Template } from './StakeModal';
 function UnStakeModal(props: any) {
   const { seeds, tokenPriceList, user_seeds, memeConfig, withdraw_list } =
     useContext(MemeContext);
+  const { delay_withdraw_sec } = memeConfig;
   const { isOpen, onRequestClose, seed_id } = props;
   const [amount, setAmount] = useState('');
   const [unStakeLoading, setUnStakeLoading] = useState(false);
@@ -51,14 +52,33 @@ function UnStakeModal(props: any) {
       : Big(0);
     return [from.toFixed(), to.toFixed()];
   }, [amount, seeds]);
+  const withdraw_part_status = useMemo(() => {
+    if (withdraw_list[seed_id] && delay_withdraw_sec && seed_id) {
+      const { apply_timestamp } = withdraw_list[seed_id];
+      const unLockDate = Big(apply_timestamp)
+        .div(1000000000)
+        .plus(delay_withdraw_sec);
+      const currentDate = Big(new Date().getTime()).div(1000);
+      if (Big(unLockDate).gt(currentDate)) {
+        return 'locked';
+      } else {
+        return 'free';
+      }
+    }
+    return null;
+  }, [withdraw_list, seed_id, delay_withdraw_sec]);
   function unStakeToken() {
     setUnStakeLoading(true);
     unStake({
       seed_id,
       amount: Big(toNonDivisibleNumber(seed.seed_decimal, amount)).toFixed(0),
+      ...(withdraw_part_status == 'free'
+        ? {
+            withdrawAmount: withdraw_list[seed_id].amount,
+          }
+        : {}),
     });
   }
-  const { delay_withdraw_sec } = memeConfig;
   function formatSeconds(seconds) {
     const days = Math.floor(seconds / (60 * 60 * 24));
     const hours = Math.floor((seconds % (60 * 60 * 24)) / (60 * 60));
@@ -138,11 +158,16 @@ function UnStakeModal(props: any) {
               />
             </div>
             {/* deep delay tip */}
-            {withdraw_list[seed_id] ? (
+            {withdraw_part_status == 'locked' ? (
               <div className="bg-memeyellowColor rounded-lg px-3 py-1.5 my-4 text-sm text-memeyellowColor bg-opacity-10">
                 You have a record in the process of unstaking. If you unstake
                 again, the two records will be merged and the pending time will
                 be reset.
+              </div>
+            ) : withdraw_part_status == 'free' ? (
+              <div className="bg-greenLight rounded-lg px-3 py-1.5 my-4 text-sm text-greenLight bg-opacity-10">
+                You have withdrawable MemeTokens,  unstake will help you
+                withdraw them simultaneously.
               </div>
             ) : null}
 

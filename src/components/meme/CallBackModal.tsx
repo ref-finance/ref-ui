@@ -87,7 +87,7 @@ function CallBackModal(props: any) {
                   Youda best!
                 </span>
                 <span className="text-2xl text-white gotham_bold">
-                  {seed?.token_meta_data.symbol} you welth
+                  {seed?.token_meta_data.symbol} you welth!
                 </span>
               </div>
             </div>

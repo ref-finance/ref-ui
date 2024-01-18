@@ -96,8 +96,8 @@ export const formatPercentageUi = (v: string | number) => {
     return '0%';
   } else if (big.lt(0.01)) {
     return '<0.01%';
-  } else if (big.gt(999)) {
-    return '999%+';
+  } else if (big.gte(999)) {
+    return '999%';
   } else {
     return big.toFixed(2) + '%';
   }

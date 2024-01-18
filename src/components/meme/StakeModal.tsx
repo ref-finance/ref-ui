@@ -16,7 +16,8 @@ import {
   formatPercentage,
 } from '../../utils/uiNumber';
 import { Seed, FarmBoost } from '../../services/farm';
-
+import { getProgressConfig } from './ProgressBar';
+const progressConfig = getProgressConfig();
 function StakeModal(props: any) {
   const { seeds, user_balances, tokenPriceList, user_seeds } =
     useContext(MemeContext);
@@ -86,6 +87,7 @@ function StakeModal(props: any) {
       amount: Big(toNonDivisibleNumber(seed.seed_decimal, amount)).toFixed(0),
     });
   }
+  const FeedIcon = progressConfig.progress[seed_id].feedIcon;
   return (
     <Modal
       isOpen={isOpen}
@@ -161,7 +163,11 @@ function StakeModal(props: any) {
             >
               <ButtonTextWrapper
                 loading={stakeLoading}
-                Text={() => <>Feed</>}
+                Text={() => (
+                  <div className="flex items-center gap-2">
+                    Feed <FeedIcon className="w-5 h-5 relative -top-0.5" />
+                  </div>
+                )}
               />
             </OprationButton>
           </div>

@@ -24,6 +24,7 @@ interface StakeOptions {
 interface UnStakeOptions {
   seed_id: string;
   amount: string;
+  withdrawAmount?: string;
 }
 export interface IMemefarmConfig {
   delay_withdraw_sec: number;
@@ -123,8 +124,27 @@ export const stake = async ({ seed_id, amount = '' }: StakeOptions) => {
 
   return executeFarmMultipleTransactions(transactions);
 };
-export const unStake = async ({ seed_id, amount }: UnStakeOptions) => {
+export const unStake = async ({
+  seed_id,
+  amount,
+  withdrawAmount,
+}: UnStakeOptions) => {
   const transactions: Transaction[] = [];
+  if (withdrawAmount) {
+    transactions.push({
+      receiverId: REF_MEME_FARM_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'withdraw_seed',
+          args: {
+            seed_id,
+            amount: withdrawAmount,
+          },
+          gas: '200000000000000',
+        },
+      ],
+    });
+  }
   transactions.push({
     receiverId: REF_MEME_FARM_CONTRACT_ID,
     functionCalls: [
