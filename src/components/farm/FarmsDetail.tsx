@@ -1349,7 +1349,7 @@ function DetailSymbol({
   id: string | number;
 }) {
   return (
-    <div className="text-sm text-white flex items-center">
+    <div className="text-xs text-white flex items-center flex-wrap whitespace-nowrap">
       <span className="pl-2">
         {tokens.map((token) => toRealSymbol(token.symbol)).join('-')}
       </span>
@@ -1410,7 +1410,7 @@ function PoolDetailCard({
   };
 
   return (
-    <div className="bg-cardBg rounded-2xl p-6 text-xs w-full right-0">
+    <div className="bg-cardBg rounded-2xl p-6 xsm:p-3 text-xs w-full right-0">
       <div className="detail-header flex items-center justify-between">
         <div className="flex items-center">
           <DetailIcons tokens={tokens} />

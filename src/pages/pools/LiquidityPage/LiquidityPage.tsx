@@ -249,7 +249,7 @@ function PoolRow({
         onClick={() => localStorage.setItem('fromMorePools', 'n')}
         to={{
           pathname: `/pool/${pool.id}`,
-          state: { tvl: pool.tvl, backToFarms: supportFarm },
+          // state: { tvl: pool.tvl, backToFarms: supportFarm },
         }}
         style={{
           height: '70px',

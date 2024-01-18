@@ -1020,86 +1020,100 @@ function OrderLine({
           </div>
         </td>
         <td>
-          <div
-            className={`flex font-nunito mb-1 flex-col overflow-hidden  rounded-lg  ${
-              openEditPrice ? 'border bg-dark2 ' : ''
-            } border-border2 text-sm   max-w-max text-white`}
-            style={{
-              width: `${order.price.toString().length * 12.5}px`,
-              minWidth: '48px',
-            }}
-          >
-            <input
-              ref={inputRefPrice}
-              inputMode="decimal"
-              type={'number'}
-              value={price}
-              onChange={(e) => {
-                setPrice(e.target.value);
-              }}
-              onFocus={() => {
-                setOpenEditPrice(true);
-                setOpenEditQuantity(false);
-                setQuantity(order.quantity.toString());
-                setOtherLineOpenTrigger(order.order_id);
-              }}
-              className={`px-2 py-1 pt-1.5   ${
-                !openEditPrice ? 'hidden' : 'text-center'
-              }`}
-            />
-
+          {+price == 0 ? (
             <div
-              className={`px-2 py-1 pt-1.5   ${
-                !openEditPrice ? 'text-left' : 'hidden'
-              }`}
-              onClick={() => {
-                setOpenEditPrice(true);
-                setOpenEditQuantity(false);
-                setQuantity(order.quantity.toString());
-                setOtherLineOpenTrigger(order.order_id);
+              className={`flex font-nunito mb-1 flex-col overflow-hidden  rounded-lg  ${
+                openEditPrice ? 'border bg-dark2 ' : ''
+              } border-border2 text-sm   max-w-max text-white`}
+              style={{
+                width: `${order.price.toString().length * 12.5}px`,
+                minWidth: '48px',
               }}
             >
-              {numberWithCommas(price)}
+              /
             </div>
-
+          ) : (
             <div
-              className={` w-full flex items-center border-t border-border2 text-primaryOrderly ${
-                openEditPrice ? '' : 'hidden'
-              } `}
+              className={`flex font-nunito mb-1 flex-col overflow-hidden  rounded-lg  ${
+                openEditPrice ? 'border bg-dark2 ' : ''
+              } border-border2 text-sm   max-w-max text-white`}
+              style={{
+                width: `${order.price.toString().length * 12.5}px`,
+                minWidth: '48px',
+              }}
             >
+              <input
+                ref={inputRefPrice}
+                inputMode="decimal"
+                type={'number'}
+                value={price}
+                onChange={(e) => {
+                  setPrice(e.target.value);
+                }}
+                onFocus={() => {
+                  setOpenEditPrice(true);
+                  setOpenEditQuantity(false);
+                  setQuantity(order.quantity.toString());
+                  setOtherLineOpenTrigger(order.order_id);
+                }}
+                className={`px-2 py-1 pt-1.5   ${
+                  !openEditPrice ? 'hidden' : 'text-center'
+                }`}
+              />
+
               <div
-                className="w-1/2 border-r border-border2 flex items-center py-1 justify-center cursor-pointer"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setOpenEditPrice(false);
-                  setPrice(order.price.toString());
+                className={`px-2 py-1 pt-1.5   ${
+                  !openEditPrice ? 'text-left' : 'hidden'
+                }`}
+                onClick={() => {
+                  setOpenEditPrice(true);
+                  setOpenEditQuantity(false);
+                  setQuantity(order.quantity.toString());
+                  setOtherLineOpenTrigger(order.order_id);
                 }}
               >
-                <AiOutlineClose></AiOutlineClose>
+                {numberWithCommas(price)}
               </div>
 
               <div
-                className="w-1/2 relative z-50 flex items-center justify-center cursor-pointer py-1"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  //   handleEditOrder();
-                  if (validateChange) {
+                className={` w-full flex items-center border-t border-border2 text-primaryOrderly ${
+                  openEditPrice ? '' : 'hidden'
+                } `}
+              >
+                <div
+                  className="w-1/2 border-r border-border2 flex items-center py-1 justify-center cursor-pointer"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     setOpenEditPrice(false);
-                    return;
-                  }
+                    setPrice(order.price.toString());
+                  }}
+                >
+                  <AiOutlineClose></AiOutlineClose>
+                </div>
 
-                  if (editValidator(price, quantity)) return;
+                <div
+                  className="w-1/2 relative z-50 flex items-center justify-center cursor-pointer py-1"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    //   handleEditOrder();
+                    if (validateChange) {
+                      setOpenEditPrice(false);
+                      return;
+                    }
 
-                  setShowEditModal(true);
-                  setEditType('price');
-                }}
-              >
-                <AiOutlineCheck></AiOutlineCheck>
+                    if (editValidator(price, quantity)) return;
+
+                    setShowEditModal(true);
+                    setEditType('price');
+                  }}
+                >
+                  <AiOutlineCheck></AiOutlineCheck>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </td>
 
         <td
@@ -2465,7 +2479,6 @@ function InfoLineOpenOrder({
   return (
     <div className="flex items-center justify-between mt-4 text-base">
       <div className="text-primaryText">{title}</div>
-
       <div
         className={`text-white flex items-center ${
           title === 'Instrument' ? 'relative left-2' : ''
@@ -4435,6 +4448,7 @@ function AllOrderBoard({
     tokenInfo,
     availableSymbols: AllAvailableSymbols,
     allOrders,
+    storageEnough,
   } = useOrderlyContext();
   const symbolType = PerpOrSpot(symbol);
 
@@ -4458,7 +4472,7 @@ function AllOrderBoard({
     ),
   ];
 
-  const { storageEnough } = useOrderlyContext();
+  // const { storageEnough } = useOrderlyContext();
 
   const allTokens = useBatchTokenMetaFromSymbols(
     allTokenSymbols.length > 0 ? allTokenSymbols : null,
@@ -4801,6 +4815,7 @@ function AllOrderBoard({
         <PositionsTable
           hidden={tab !== 'positions' || !!isMobile}
           showCurSymbol={showCurSymbol}
+          futureOrders={openOrders}
         />
       </div>
     </>
