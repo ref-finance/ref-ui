@@ -159,7 +159,7 @@ function Footer() {
             })}
           </div>
         </footer>
-        <RpcList></RpcList>
+        {/*<RpcList></RpcList>*/}
       </div>
     </>
   );
