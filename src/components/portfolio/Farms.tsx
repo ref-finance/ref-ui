@@ -386,10 +386,10 @@ function DclFarms() {
     return all_liquidities_value.toFixed();
   }
   function get_inFarming_list_liquidities(seed: Seed) {
-    const { free_amount = '0', locked_amount = '0' } =
+    const { free_amount = '0', locked_amount = '0', shadow_amount = '0' } =
       user_seeds_map[seed.seed_id] || {};
     const user_seed_amount = new BigNumber(free_amount)
-      .plus(locked_amount)
+      .plus(locked_amount).plus(shadow_amount)
       .toFixed();
     const [temp_farming] = allocation_rule_liquidities({
       list: your_list_liquidities,
@@ -443,10 +443,10 @@ function DclFarmRow({ seed }: { seed: Seed }) {
   function get_inFarming_list_liquidities() {
     if (your_list_liquidities.length > 0) {
       // get farming liquidites of seed;
-      const { free_amount = '0', locked_amount = '0' } =
+      const { free_amount = '0', locked_amount = '0', shadow_amount = '0' } =
         user_seeds_map[seed.seed_id] || {};
       const user_seed_amount = new BigNumber(free_amount)
-        .plus(locked_amount)
+        .plus(locked_amount).plus(shadow_amount)
         .toFixed();
       const [temp_farming] = allocation_rule_liquidities({
         list: your_list_liquidities,
@@ -1184,11 +1184,11 @@ function ClassicFarms() {
   }
   function getYourTvl(seed: Seed) {
     const { pool, seed_id, seed_decimal } = seed;
-    const { free_amount = '0', locked_amount = '0' } =
+    const { free_amount = '0', locked_amount = '0', shadow_amount = '0' } =
       user_seeds_map[seed_id] || {};
     const { tvl, shares_total_supply } = pool;
     const amount = new BigNumber(free_amount || 0)
-      .plus(locked_amount || 0)
+      .plus(locked_amount || 0).plus(shadow_amount)
       .toFixed();
     const poolShares = toReadableNumber(seed_decimal, shares_total_supply);
     const yourLpAmount = toReadableNumber(seed_decimal, amount);
@@ -1223,6 +1223,7 @@ function ClassicFarmRow({ seed }: { seed: Seed }) {
     free_amount = '0',
     x_locked_amount = '0',
     locked_amount = '0',
+    shadow_amount,
   } = user_seeds_map[seed_id] || {};
   const { token_account_ids } = pool;
   const tokens = sortTokens(useTokens(token_account_ids) || []);
@@ -1351,10 +1352,10 @@ function ClassicFarmRow({ seed }: { seed: Seed }) {
     const love_user_seed = user_seeds_map[REF_VE_CONTRACT_ID];
     const base = affected_seeds[seed_id];
     if (base) {
-      const { free_amount = 0, locked_amount = 0 } = love_user_seed || {};
+      const { free_amount = 0, locked_amount = 0, shadow_amount = 0 } = love_user_seed || {};
       const totalStakeLoveAmount = toReadableNumber(
         LOVE_TOKEN_DECIMAL,
-        new BigNumber(free_amount).plus(locked_amount).toFixed()
+        new BigNumber(free_amount).plus(locked_amount).plus(shadow_amount).toFixed()
       );
       if (+totalStakeLoveAmount > 0) {
         if (+totalStakeLoveAmount < 1) {
@@ -1367,7 +1368,7 @@ function ClassicFarmRow({ seed }: { seed: Seed }) {
       }
     }
     const powerBig = new BigNumber(+(realRadio || 1))
-      .multipliedBy(free_amount)
+      .multipliedBy(new BigNumber(free_amount).plus(shadow_amount))
       .plus(x_locked_amount);
     const power = toReadableNumber(
       seed_decimal,
@@ -1405,7 +1406,7 @@ function ClassicFarmRow({ seed }: { seed: Seed }) {
   }
   function getYourTvl() {
     const { tvl, shares_total_supply } = pool;
-    const amount = new BigNumber(free_amount || 0)
+    const amount = new BigNumber(free_amount || 0).plus(shadow_amount || 0)
       .plus(locked_amount || 0)
       .toFixed();
     const poolShares = toReadableNumber(seed_decimal, shares_total_supply);
