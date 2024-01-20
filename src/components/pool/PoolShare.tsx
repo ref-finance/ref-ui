@@ -67,7 +67,7 @@ export const PoolFarmAmount = ({
     }
   }
 
-  if (farmVersion==='v1' && !Number(farmStakeAmount)) {
+  if (farmVersion === 'v1' && !Number(farmStakeAmount)) {
     return null;
   }
 
@@ -273,7 +273,8 @@ export const ShadowInBurrowAmount = ({
     poolId?.toString()
   );
   const shadowRecords = useShadowRecordStore((state) => state.shadowRecords);
-  const inBurrowAmount = shadowRecords?.[Number(poolId)]?.[shadowRecordsKey] || 0;
+  const inBurrowAmount =
+    shadowRecords?.[Number(poolId)]?.[shadowRecordsKey] || 0;
   const decimal = isStablePool(poolId) ? getStablePoolDecimal(poolId) : 24;
   if (!isShadowPool) return null;
 

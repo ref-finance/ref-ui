@@ -73,7 +73,10 @@ export const getPoolAvailableShare = ({ pool, shadowRecords, shares }) => {
   if (isShadowPool) {
     const { shadow_in_farm, shadow_in_burrow } =
       shadowRecords?.[Number(pool.id)] || {};
-    const highestUsed = BigNumber.maximum((shadow_in_farm||0), (shadow_in_burrow||0));
+    const highestUsed = BigNumber.maximum(
+      shadow_in_farm || 0,
+      shadow_in_burrow || 0
+    );
 
     availableShareNonDivisible = new BigNumber(shares)
       .minus(highestUsed)
