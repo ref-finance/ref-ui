@@ -67,7 +67,9 @@ const ProgressBar = () => {
                   percent
                 )}
               </div>
-              <div style={{ marginLeft: '-1px' }}>{config.progress[seed_id].head}</div>
+              <div style={{ marginLeft: '-1px' }}>
+                {config.progress[seed_id].head}
+              </div>
               <div className="relative transform -translate-y-10 ml-1.5">
                 <FeedIcon className="w-8 h-8 absolute -top-4 left-4" />
                 <FeedMe />
