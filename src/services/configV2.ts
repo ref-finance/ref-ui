@@ -48,7 +48,7 @@ export default function getConfig(
         ORDRRBOOK_COLLATTERAL_TOKEN: 'usdc.orderly.testnet',
         BLACK_LIST_DCL_POOL_IDS_IN_POOLS: [],
         WHITE_LIST_DCL_POOL_IDS_IN_LIMIT_ORDERS: [],
-        SUPPORT_SHADOW_POOL_IDS: [],
+        SUPPORT_SHADOW_POOL_IDS: ['1843'],
       };
     case 'testnet':
       return {
