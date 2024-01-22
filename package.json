@@ -92,6 +92,7 @@
     "@ledgerhq/devices": "^7.0.0",
     "@metamask/detect-provider": "^2.0.0",
     "@near-js/transactions": "^0.2.1",
+    "@near-wallet-selector/bitget-wallet": "^8.9.2",
     "@near-wallet-selector/core": "^8.9.1",
     "@near-wallet-selector/here-wallet": "^8.5.4",
     "@near-wallet-selector/ledger": "^8.9.1",

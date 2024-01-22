@@ -20,6 +20,7 @@ import { setupWalletConnect } from '@near-wallet-selector/wallet-connect';
 import { setupWelldoneWallet } from '@near-wallet-selector/welldone-wallet';
 import { setupNearSnap } from '@near-wallet-selector/near-snap';
 import { setupNearMobileWallet } from '@near-wallet-selector/near-mobile-wallet';
+import { setupBitgetWallet } from "@near-wallet-selector/bitget-wallet";
 
 import getConfig from '../services/config';
 
@@ -149,6 +150,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
             name: 'NEAR Wallet Selector',
           },
         }),
+        setupBitgetWallet({}),
       ],
     });
     const _modal = setupModal(_selector, {

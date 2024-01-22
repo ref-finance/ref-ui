@@ -2703,6 +2703,14 @@
   dependencies:
     "@near-wallet-selector/core" "^8.2.0"
 
+"@near-wallet-selector/bitget-wallet@^8.9.2":
+  version "8.9.2"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/bitget-wallet/-/bitget-wallet-8.9.2.tgz#dd44dcc4e1dfa87dadfd761f2462ee832bea7b49"
+  integrity sha512-RhoG0n0A/7R3GH9FxSwlmCC/YLfPRbHJcYPfXZioD2aF2WBGUqeI+OExr7g+MiNyRSQOfyWHqnE2JVmiYuhPPQ==
+  dependencies:
+    "@near-wallet-selector/core" "8.9.2"
+    is-mobile "4.0.0"
+
 "@near-wallet-selector/core@7.9.3":
   version "7.9.3"
   resolved "https://registry.npmjs.org/@near-wallet-selector/core/-/core-7.9.3.tgz#5a51b72064c9e018c0f0eb97db06b70cd58b8358"
@@ -2724,6 +2732,16 @@
   version "8.9.1"
   resolved "https://registry.npmjs.org/@near-wallet-selector/core/-/core-8.9.1.tgz#7d4de41ff18cde6530d0153e8335d5e366c07452"
   integrity sha512-EY8PmKyNoW/pWsZFZM9V2sluSMn1DPQ8PDj+veiOCbuMP2USJ5j9qxJd1iJy07JbmI/40EuCA6IAZ6SbukzaUQ==
+  dependencies:
+    borsh "0.7.0"
+    events "3.3.0"
+    js-sha256 "0.9.0"
+    rxjs "7.8.1"
+
+"@near-wallet-selector/core@8.9.2":
+  version "8.9.2"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/core/-/core-8.9.2.tgz#738583255f2a7a57a9731de503e187f6a651abfb"
+  integrity sha512-vCUoVOezCn5+5etHT0ejzgJ7DpnkUjLasYLYjjUh+E2BlUzrI63qMWfvdL8eoUoELXY7vtJVMEy/Td1kgrt10w==
   dependencies:
     borsh "0.7.0"
     events "3.3.0"
