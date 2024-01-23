@@ -99,68 +99,41 @@ export function usePendingOrders({
   return liveOrders;
 }
 
-export function useAllOrdersSymbol({
-  symbol,
-  refreshingTag,
-  validAccountSig,
-}: {
-  symbol: string;
-  refreshingTag: boolean;
-  validAccountSig: boolean;
-}) {
-  const [liveOrders, setLiveOrders] = useState<MyOrder[]>();
-
-  const { accountId } = useWalletSelector();
-
-  const setFunc = useCallback(async () => {
-    if (accountId === null || !validAccountSig) return;
-    try {
-      const allOrders = await getAllOrders({
-        accountId,
-        OrderProps: {
-          size: 200,
-          symbol,
-        },
-      });
-
-      setLiveOrders(allOrders);
-    } catch (error) {}
-  }, [refreshingTag, symbol, validAccountSig]);
-
-  useEffect(() => {
-    setFunc();
-  }, [refreshingTag, symbol, setFunc]);
-
-  return liveOrders;
-}
-
 export function useAllOrders({
   refreshingTag,
   type,
   validAccountSig,
+  orderPageNum,
+  setOrderTotalPage,
 }: {
   refreshingTag: number;
   type?: 'SPOT' | 'PERP';
   validAccountSig?: boolean;
+  orderPageNum: number;
+  setOrderTotalPage: (num: number) => void;
 }) {
   const [liveOrders, setLiveOrders] = useState<MyOrder[]>();
   const { accountId } = useWalletSelector();
-  const setFunc = useCallback(async () => {
-    if (accountId === null || !validAccountSig) return;
-    try {
-      const allOrders = await getAllOrders({
-        accountId,
-        OrderProps: {
-          size: 200,
-        },
-      });
-
-      setLiveOrders(allOrders);
-    } catch (error) {}
-  }, [refreshingTag, validAccountSig]);
+  const setFunc = useCallback(
+    _.throttle(async (orderPageNum) => {
+      if (accountId === null || !validAccountSig) return;
+      try {
+        const { data: allOrders, total } = await getAllOrders({
+          accountId,
+          OrderProps: {
+            page: orderPageNum,
+            size: 500,
+          },
+        });
+        setLiveOrders(allOrders);
+        setOrderTotalPage(Math.ceil(total / 500));
+      } catch (error) {}
+    }, 3000),
+    [accountId, validAccountSig]
+  );
   useEffect(() => {
-    setFunc();
-  }, [refreshingTag, accountId, validAccountSig]);
+    setFunc(orderPageNum);
+  }, [refreshingTag, accountId, validAccountSig, orderPageNum]);
 
   return liveOrders?.filter((o) => o.symbol.indexOf(type || 'SPOT') > -1);
 }

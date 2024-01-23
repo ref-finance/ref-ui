@@ -427,6 +427,7 @@ module.exports = {
         marginRedBg:'#904247',
         marginGrayBg:'#334049',
         warnYellowColor: '#DB8946',
+        lightPurpleColorOrder: '#979ABE',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

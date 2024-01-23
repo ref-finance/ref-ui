@@ -91,6 +91,7 @@ import { tickToPrecision } from '../UserBoardPerp/math';
 import PositionsTable from './PositionsTable';
 import { usePerpData } from '../UserBoardPerp/state';
 import { QuestionTip } from '../../../../components/layout/TipWrapper';
+import TurnPage from './TurnPage';
 
 export function getTranslateList(
   key: 'type' | 'side' | 'status' | 'instrument'
@@ -2277,7 +2278,7 @@ function MobileFilterModal(
       </div>
     );
   }
-
+  // TODOX
   function SelectListDex({ listKey }: { listKey: string }) {
     return (
       <div className="mb-5 flex items-start w-full justify-between">
@@ -2320,6 +2321,7 @@ function MobileFilterModal(
                 defaultMessage: 'All',
               })}
             </span>
+            <TurnPage />
           </div>
         </div>
       </div>
@@ -4471,9 +4473,6 @@ function AllOrderBoard({
           })
     ),
   ];
-
-  // const { storageEnough } = useOrderlyContext();
-
   const allTokens = useBatchTokenMetaFromSymbols(
     allTokenSymbols.length > 0 ? allTokenSymbols : null,
     tokenInfo
@@ -4738,7 +4737,7 @@ function AllOrderBoard({
               ></CheckBox>
 
               <span
-                className="ml-2 frcs cursor-pointer"
+                className="ml-2 frcs cursor-pointer gap-1"
                 onClick={() => {
                   setShowRefOnly(false);
                 }}
@@ -4754,6 +4753,7 @@ function AllOrderBoard({
                   uniquenessId="display_all_orders_dexes"
                 ></QuestionTip>
               </span>
+              <TurnPage />
             </div>
           </FlexRow>
 

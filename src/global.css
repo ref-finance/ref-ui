@@ -1660,3 +1660,9 @@ options-list::-webkit-scrollbar {
 #top-bin-apr-mobile {
   width: 230px;
 }
+table {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}

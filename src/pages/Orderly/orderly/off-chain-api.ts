@@ -310,6 +310,7 @@ export const getOrders = async (props: {
   return res;
 };
 
+// TODOX pageOne.data.rows
 export const getAllOrders = async (props: {
   accountId: string;
   OrderProps?: {
@@ -325,41 +326,42 @@ export const getAllOrders = async (props: {
     broker_id?: string;
   };
 }) => {
-  const pageOne = await getOrders({
+  const curPage = await getOrders({
     accountId: props.accountId,
     OrderProps: {
       ...props.OrderProps,
-      page: 1,
-      size: 500,
+      page: props?.OrderProps?.page || 1,
+      size: props?.OrderProps?.size || 500,
     },
   });
 
-  const total = pageOne.data.meta.total;
+  const total = curPage.data.meta.total;
 
-  const pageSize = Math.ceil(total / 500);
+  // const pageSize = Math.ceil(total / 500);
 
-  const pages = Array.from({ length: pageSize }, (v, k) => k + 1);
+  // const pages = Array.from({ length: pageSize }, (v, k) => k + 1);
 
-  pages.shift();
+  // pages.shift();
 
-  const leftOrders = await Promise.all(
-    pages.map(async (page) => {
-      const res = await getOrders({
-        accountId: props.accountId,
-        OrderProps: {
-          ...props.OrderProps,
-          page,
-          size: 500,
-        },
-      });
+  // const leftOrders = await Promise.all(
+  //   pages.map(async (page) => {
+  //     const res = await getOrders({
+  //       accountId: props.accountId,
+  //       OrderProps: {
+  //         ...props.OrderProps,
+  //         page,
+  //         size: 500,
+  //       },
+  //     });
 
-      return res.data.rows;
-    })
-  );
+  //     return res.data.rows;
+  //   })
+  // );
 
-  const allOrders = pageOne.data.rows.concat(...leftOrders);
+  // const allOrders = pageOne.data.rows.concat(...leftOrders);
 
-  return allOrders;
+  // return allOrders;
+  return { data: curPage.data.rows, total };
 };
 
 export const getOrderByClientId = async (props: {
