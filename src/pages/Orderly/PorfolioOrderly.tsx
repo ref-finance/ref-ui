@@ -273,7 +273,7 @@ function PortfolioOrderly() {
   const [futureOrders, setFutureOrders] = useState<MyOrder[]>();
 
   const getFutureOrders = async () => {
-    // TODOXX
+    // TODOXX ?
     const { data } = await getPortfolioAllOrders({
       accountId,
       OrderProps: {
@@ -327,8 +327,8 @@ function PortfolioOrderly() {
         {/* content */}
         <div className="flex-grow border-l border-r border-boxBorder md:pt-9 lg:pt-9">
           <div className="md:px-2.5 lg:px-5 md:max-w-1000px lg:max-w-1000px 3xl:max-w-1280px m-auto">
+            {/* Total Est. Value */}
             <div className="w-full grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 md:bg-portfolioCardBg lg:bg-portfolioCardBg px-5 py-4 rounded-xl">
-              {/* getCurrentHolding */}
               <div className="col-span-2 mb-3">
                 <div className="flex items-center">
                   <span className="text-sm text-primaryText flex items-center">
@@ -411,8 +411,9 @@ function PortfolioOrderly() {
                 </span>
               </div>
             </div>
-
+            {/* PC */}
             <div className="hidden md:block lg:block">
+              {/* Orders */}
               <TableWithTabs
                 table={ordersTable}
                 maintenance={maintenance}
@@ -433,6 +434,7 @@ function PortfolioOrderly() {
                 keyAnnounced={keyAnnounced}
                 setKeyAnnounced={setKeyAnnounced}
               />
+              {/* Assets */}
               <TableWithTabs
                 table={assetsTables}
                 maintenance={maintenance}
@@ -449,6 +451,7 @@ function PortfolioOrderly() {
                 keyAnnounced={keyAnnounced}
                 setKeyAnnounced={setKeyAnnounced}
               />
+              {/* Records */}
               <TableWithTabs
                 table={recordsTable}
                 maintenance={maintenance}
@@ -472,7 +475,7 @@ function PortfolioOrderly() {
                 })}
               </span>
             </div>
-
+            {/* Mobile */}
             <div className="md:hidden lg:hidden">
               <div className="w-full frcs border-b gotham_bold text-primaryText border-white border-opacity-20">
                 {mobileTables.map((table, index) => (

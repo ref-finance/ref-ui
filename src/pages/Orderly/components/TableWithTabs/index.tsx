@@ -64,16 +64,11 @@ function TableWithTabs({
   triggerPositionBasedData,
   setMobileFilterOpen,
   handleOpenClosing,
-  // validAccountSig,
   futureOrders,
   markPrices,
   lastPrices,
   unrealMode,
-}: // tradingKeySet,
-// setTradingKeySet,
-// keyAnnounced,
-// setKeyAnnounced,
-{
+}: {
   table: PortfolioTable;
   maintenance: boolean;
   refOnly?: boolean;
@@ -120,7 +115,6 @@ function TableWithTabs({
 
   const [tradingKeySet, setTradingKeySet] = useState<boolean>(false);
   const [keyAnnounced, setKeyAnnounced] = useState<boolean>(false);
-  // const [agreeCheck, setAgreeCheck] = useState<boolean>(false);
   const [showWalletRisk, setShowWalletRisk] = useState<boolean>(false);
   const handleWalletModalOpen = () => {
     const isAcknowledgeWalletRisk = localStorage.getItem(
@@ -354,6 +348,7 @@ function TableWithTabs({
         <span className="text-white gotham_bold text-lg px-5 hidden md:block lg:block">
           {table.title}
         </span>
+        {/* PC Tab */}
         <FlexRowBetween className="pb-3 py-3 rounded-t-2xl px-5 mt-0 border-white border-opacity-10 hidden md:flex lg:flex">
           <FlexRowBetween className={`w-full min-h-8 `}>
             <FlexRow>
@@ -405,7 +400,7 @@ function TableWithTabs({
             </div>
           </FlexRowBetween>
         </FlexRowBetween>
-
+        {/* Mobile Tab */}
         <div className="md:hidden lg:hidden px-3 flex">
           <div
             className={`relative border flex items-center bg-acccountTab p-1 rounded-lg ${
@@ -487,7 +482,7 @@ function TableWithTabs({
               </FlexRow>
             )}
         </div>
-
+        {/* Content */}
         <div
           className={`w-full rounded-2xl md:bg-portfolioCardBg lg:bg-portfolioCardBg py-5 md:py-0 lg:py-0`}
         >
@@ -599,11 +594,6 @@ function TableWithTabs({
                   zIndex: 50,
                 }}
               >
-                {/*
-                  <div className="hidden md:block lg:block">
-                    <RefToOrderly />
-                  </div>
-                */}
                 {!accountId && (
                   <div className="w-half md:w-full lg:w-full flex justify-center flex-col items-center">
                     <div className="md:hidden lg:hidden text-center mb-6">
@@ -628,7 +618,6 @@ function TableWithTabs({
                     </div>
                     <ConfirmButton
                       onClick={async () => {
-                        // window.modal.show();
                         const wallet = await window.selector.wallet();
 
                         await wallet.signOut();

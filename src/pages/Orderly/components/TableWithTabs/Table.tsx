@@ -423,6 +423,7 @@ function Table({
 
   return (
     <>
+      {/* PC */}
       <div className="w-full hidden md:block lg:block">
         {tableTopComponent}
         <table className="table-fixed w-full">
@@ -525,6 +526,7 @@ function Table({
           </tbody>
         </table>
       </div>
+      {/* Mobile */}
       <div className="w-full md:hidden lg:hidden">
         {accountId && validContract() && loading ? (
           <div className="w-full relative mt-10 mb-4 px-5 gap-4">
