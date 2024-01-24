@@ -15,7 +15,6 @@ import {
   createOrder,
   getOrderByOrderId,
   getOrderTrades,
-  getPortfolioAllOrders,
 } from '../../orderly/off-chain-api';
 import { FlexRow, orderEditPopUpFailure } from '../../components/Common';
 import { orderPopUp } from '../../components/Common/index';
@@ -221,7 +220,7 @@ function PositionsTable({
         symbolName: closeOrderRow.symbol,
         side: closeOrderRow.position_qty < 0 ? 'Buy' : 'Sell',
         size: closeOrderQuantity.toString(),
-        tokenIn: tokenIn,
+        tokenIn,
         price: parseFloat(
           order.data.price || order.data.average_executed_price
         ).toString(),
@@ -231,28 +230,6 @@ function PositionsTable({
       });
     });
   };
-
-  // const getFutureOrders = async () => {
-  //   const { data } = await getPortfolioAllOrders({
-  //     accountId,
-  //     OrderProps: {
-  //       page: 1,
-  //       size: 500,
-  //       status: 'INCOMPLETE',
-  //     },
-  //   });
-  //   const filterOrders: MyOrder[] = data?.rows?.filter((order: MyOrder) =>
-  //     order.symbol.includes('PERP')
-  //   );
-
-  //   setFutureOrders(filterOrders);
-  // };
-
-  // useEffect(() => {
-  //   getFutureOrders();
-  // }, [myPendingOrdersRefreshing, triggerPositionBasedData]);
-
-  // const [futureOrders, setFutureOrders] = useState<MyOrder[]>([]);
 
   if (hidden) return null;
 

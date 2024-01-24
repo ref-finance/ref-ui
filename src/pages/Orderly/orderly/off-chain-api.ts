@@ -315,12 +315,6 @@ export const getAllOrders = async (props: {
   accountId: string;
   OrderProps?: {
     symbol?: string;
-    // side?: 'BUY' | 'SELL';
-    // order_type?: 'LIMIT' | 'MARKET';
-    // order_tag?: string;
-    // status?: 'NEW' | 'CANCELLED' | 'REJECTED' | 'COMPLETED' | 'FILLED' | 'PARTIAL_FILLED' | 'INCOMPLETE';
-    // start_t?: number;
-    // end_t?: number;
     page?: number;
     size?: number;
     broker_id?: string;
@@ -736,6 +730,7 @@ export const getPortfolioAllOrders = async (props: {
     side?: 'BUY' | 'SELL';
   };
 }) => {
+  // TODOXX
   const res = await getOrders({
     accountId: props.accountId,
     OrderProps: {

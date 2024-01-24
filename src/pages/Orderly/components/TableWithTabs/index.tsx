@@ -312,6 +312,7 @@ function TableWithTabs({
   }, [triggerBalanceBasedData]);
 
   useEffect(() => {
+    // TODOXX
     if (getData && (id === 'open_orders' || id === 'history')) {
       callGetData();
     }

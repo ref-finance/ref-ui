@@ -16,7 +16,6 @@ import { useOrderlyContext } from '../orderly/OrderlyContext';
 import { formatTimeDate, shortenAddress, getAccountName } from './utils';
 import { useLeverage } from './state';
 import { digitWrapperAsset } from '../utiles';
-import { useAllSymbolInfo } from '../components/TableWithTabs/state';
 import { useBatchTokenMetaFromSymbols } from '../components/ChartHeader/state';
 import { parseSymbol } from '../components/RecentTrade';
 import ProgressBar from '../components/TableWithTabs/ProgressBar';

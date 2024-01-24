@@ -258,7 +258,7 @@ function PortfolioOrderly() {
         symbolName: closeOrderRow.symbol,
         side: closeOrderRow.position_qty < 0 ? 'Buy' : 'Sell',
         size: closeOrderQuantity.toString(),
-        tokenIn: tokenIn,
+        tokenIn,
         price: parseFloat(
           order.data.price || order.data.average_executed_price
         ).toString(),
@@ -273,6 +273,7 @@ function PortfolioOrderly() {
   const [futureOrders, setFutureOrders] = useState<MyOrder[]>();
 
   const getFutureOrders = async () => {
+    // TODOXX
     const { data } = await getPortfolioAllOrders({
       accountId,
       OrderProps: {
@@ -293,10 +294,6 @@ function PortfolioOrderly() {
 
     setTotalEstFinal(numberWithCommas(totalEstimate.toFixed(2)));
   };
-
-  /* useEffect(() => {
-    getFutureOrders();
-  }, [myPendingOrdersRefreshing]); */
 
   useEffect(() => {
     getFutureOrders();
