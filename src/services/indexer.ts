@@ -80,6 +80,7 @@ export const getPoolMonthTVL = async (pool_id: string): Promise<TVLType[]> => {
 export interface OrderTxType {
   order_id: string;
   tx_id: string | null;
+  receipt_id: string | null;
 }
 
 export const getHistoryOrder = async (
@@ -878,6 +879,17 @@ export const getDclUserPoints = async (
     config.indexerUrl +
       `/get-dcl-points-by-account?pool_id=${pool_id}&slot_number=${bin}&account_id=${account_id}`
   )
+    .then(async (res) => {
+      const data = await res.json();
+      return data;
+    })
+    .catch(() => {
+      return [];
+    });
+};
+
+export const getTxId = async (receipt_id: string) => {
+  return await fetch(config.txIdApiUrl + `/v1/search/?keyword=${receipt_id}`)
     .then(async (res) => {
       const data = await res.json();
       return data;
