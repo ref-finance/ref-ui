@@ -6,7 +6,6 @@ import {
   REF_MEME_FARM_CONTRACT_ID,
   ONE_YOCTO_NEAR,
   refMeMeFarmViewFunction,
-  refMeMeFarmFunctionCall,
 } from './near';
 import {
   storageDepositAction,
@@ -16,6 +15,7 @@ import { getCurrentWallet } from '../utils/wallets-integration';
 import { currentStorageBalanceOfMeme_farm } from './account';
 import { Seed, FarmBoost } from '~src/services/farm';
 import { ftGetStorageBalance } from '../services/ft-contract';
+import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
 interface StakeOptions {
   seed: Seed;
   amount: string;
@@ -222,7 +222,7 @@ export const claim = async (seed: Seed): Promise<any> => {
   return executeFarmMultipleTransactions(transactions);
 };
 async function withdrawReards(seed: Seed, transactions: Transaction[]) {
-  const { farmList } = seed;
+  const { farmList, seed_id } = seed;
   const rewardIds = farmList.map((farm: FarmBoost) => farm.terms.reward_token);
   const functionCalls: any[] = [];
   const ftBalancePromiseList: any[] = [];
@@ -255,6 +255,22 @@ async function withdrawReards(seed: Seed, transactions: Transaction[]) {
     receiverId: REF_MEME_FARM_CONTRACT_ID,
     functionCalls,
   });
+  const unclaimed_rewards = await get_unclaimed_rewards(seed_id);
+  const wnear_rewards_amount = unclaimed_rewards[WRAP_NEAR_CONTRACT_ID];
+  if (Big(wnear_rewards_amount || 0).gt(0)) {
+    transactions.push({
+      receiverId: WRAP_NEAR_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'near_withdraw',
+          args: {
+            amount: wnear_rewards_amount,
+          },
+          amount: ONE_YOCTO_NEAR,
+        },
+      ],
+    });
+  }
   return transactions;
 }
 // config
@@ -333,7 +349,7 @@ export function getSeedApr(seed: Seed) {
   });
   return apr.mul(100).toFixed();
 }
-function isPending(seed: Seed) {
+export function isPending(seed: Seed) {
   let pending: boolean = true;
   const farms = seed.farmList;
   for (let i = 0; i < farms.length; i++) {

@@ -8,7 +8,12 @@ import {
   ConnectToNearBtn,
 } from 'src/components/button/Button';
 import { MemeContext } from './context';
-import { getMemeConfig, claim, getSeedApr } from '../../services/meme';
+import {
+  getMemeConfig,
+  claim,
+  getSeedApr,
+  isPending,
+} from '../../services/meme';
 import { toReadableNumber } from '../../utils/numbers';
 import {
   toInternationalCurrencySystem_usd,
@@ -17,7 +22,7 @@ import {
   formatPercentageUi,
 } from '../../utils/uiNumber';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
-import { UserSeedInfo, Seed } from '~src/services/farm';
+import { UserSeedInfo, Seed, FarmBoost } from '~src/services/farm';
 import { TokenMetadata } from '~src/services/ft-contract';
 import { WalletContext } from '../../utils/wallets-integration';
 import StakeModal from './StakeModal';
@@ -80,7 +85,6 @@ const SeedsBox = () => {
   useEffect(() => {
     if (txHash && isSignedIn) {
       checkTransaction(txHash).then((res: any) => {
-        debugger;
         const { transaction, receipts } = res;
         const isNeth =
           transaction?.actions?.[0]?.FunctionCall?.method_name === 'execute';
@@ -208,7 +212,7 @@ const SeedsBox = () => {
     claim(seed);
   }
   function comeSoonTip() {
-    const result = `<div class="px-2 text-xs textfarmText">
+    const result = `<div class="px-2 text-xs text-farmText">
     Coming soon
     </div>`;
     return result;
@@ -217,7 +221,9 @@ const SeedsBox = () => {
     <div className="grid grid-cols-2 grid-rows-2 gap-4 mt-14">
       {Object.entries(seeds).map(([seed_id, seed]) => {
         const stakeButtonDisabled =
-          !user_balances[seed_id] || +user_balances[seed_id] == 0;
+          !user_balances[seed_id] ||
+          +user_balances[seed_id] == 0 ||
+          isPending(seed);
         const unStakeButtonDisabled =
           +(user_seeds[seed_id]?.free_amount || 0) == 0;
         const claimButtonDisabled =
@@ -285,6 +291,7 @@ const SeedsBox = () => {
               <Template
                 title="APY"
                 value={getSeedApr(seeds[seed_id])}
+                seed={seeds[seed_id]}
                 subValue={getSeedApr(lpSeeds[seed_id])}
                 subTargetValue={hasLpSeed ? '' : '-'}
                 isAPY={true}
@@ -402,22 +409,40 @@ function Template({
   subValue,
   isAPY,
   subTargetValue,
+  seed,
 }: {
   title: string;
   value: string | number;
   subValue?: string;
   isAPY?: boolean;
   subTargetValue?: string;
+  seed?: Seed;
 }) {
   function getApyTip() {
-    const result = `<div class="px-2">
-        <div class="flex items-center justify-between text-xs textfarmText gap-3.5">
+    const farmList = seed.farmList || [];
+    let farmStr = '';
+    farmList.forEach((farm: FarmBoost) => {
+      farmStr += `<div class="flex items-center justify-between text-xs text-farmText mt-1">
+          <img src="${
+            farm?.token_meta_data?.icon
+          }" class="w-5 h-5 rounded-full" />
+          <span class="text-xs">${formatPercentage(farm.apr || 0)}</span>
+      </div>`;
+    });
+    const result =
+      `<div class="px-2">
+       <div>
+        <div class="flex items-center justify-between text-xs text-farmText gap-3.5">
           <span>Staking APR</span>
-          <span>${formatPercentage(value)}</span>
-        </div>
-        <div class="flex items-center justify-between text-xs textfarmText gap-3.5 mt-2">
+          <span class="text-white text-sm">${formatPercentage(value)}</span>
+        </div>` +
+      farmStr +
+      `</div>
+        <div class="flex items-center justify-between text-xs text-farmText gap-3.5 mt-2">
           <span>Farm APR</span>
-          <span>${subTargetValue || formatPercentage(subValue)}</span>
+          <span class="text-white text-sm">${
+            subTargetValue || formatPercentage(subValue)
+          }</span>
       </div>
     </div>`;
     return result;
