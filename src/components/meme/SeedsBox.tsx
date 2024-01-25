@@ -289,7 +289,7 @@ const SeedsBox = () => {
                 subTargetValue={hasLpSeed ? '' : '-'}
                 isAPY={true}
               />
-              <Template title="Feeder" value={getFeeder(seed_id)} />
+              <Template title="Feeders" value={getFeeder(seed_id)} />
               <Template
                 title="You Feed"
                 value={getSeedUserStaked(seed_id).amount}
