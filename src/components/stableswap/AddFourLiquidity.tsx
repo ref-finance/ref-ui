@@ -531,7 +531,7 @@ export default function AddFourLiquidityComponent(props: {
         tokens: tokensNode,
       },
     });
-    setButtonLoading(false);
+
     return addLiquidityToStablePool({
       tokens,
       id: Number(USDTT_USDCC_USDT_USDC_POOL_ID),

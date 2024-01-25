@@ -23,70 +23,15 @@ import { useWalletStore } from 'src/stores/loginAccountData';
 
 const { explorerUrl } = getConfig();
 
-export const ToastTransaction = () => {
-  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
-  const actionData = transtionsExcuteDataStore.getActionData();
-
-  const { transactionResponse, transactionError, status, transactionId } =
-    actionData || {};
-
-  let errorObj = transactionError;
-  if (typeof transactionError === 'string') {
-    errorObj = {
-      message: transactionError,
-    };
-  }
-  const { walletsTXError, message } = errorObj || {};
-
-  useEffect(() => {
-    if (status === 'success') {
-      showToast({
-        title: 'Transaction Success',
-      });
-    } else if (status === 'error') {
-      let errorMsg = walletsTXError || message;
-      if (typeof errorMsg === 'string') {
-        const isUserRejected =
-          errorMsg.toLowerCase().startsWith('user reject') ||
-          walletsRejectError.includes(errorMsg);
-        if (isUserRejected && errorMsg.length > 50) {
-          errorMsg = 'User rejected the request';
-        }
-        let toast = {
-          title: 'Error',
-          desc: errorMsg,
-          isError: true,
-          isWarning: false,
-        };
-
-        if (isUserRejected) {
-          toast.isError = false;
-          toast.isWarning = true;
-          // toast.desc =
-          //   'User rejected the request. Details: \n' +
-          //   'NearWallet Tx Signature: User denied transaction signature. ';
-        }
-
-        showToast(toast);
-        sessionStorage.removeItem('WALLETS_TX_ERROR');
-      }
-    }
-  }, [status]);
-
-  return null;
-};
-
 export const ModalTransactionSubmitting = () => {
   const [transactionModals, setTransactionModals] = useState<any>({});
   const wallet = useWalletStore((state) => state.wallet);
   const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
   const actionData = transtionsExcuteDataStore.getActionData();
-  const { setActionData, removeActionData } = transtionsExcuteDataStore || {};
   const { transactionId, status, transactionError, transactionResponse } =
     actionData || {};
   const isRedirectWalletPage =
     actionData?.status === 'success' && !transactionResponse; // myNearWallet submitting
-  const isComplete = actionData?.status === 'success';
 
   if (wallet?.id === 'my-near-wallet' && isRedirectWalletPage) {
     console.info('mynear submitting');
@@ -163,10 +108,9 @@ export const ModalTransactionContent = ({
   // setIsOpen
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [useCloseModal, setIsUserCloseModal] = useState(false);
   const [tokensData, setTokensData] =
     useState<{ token: any; amount?: string | number; symbol?: string }[]>();
-
+  const [transactionData, setTransactionData] = useState();
   const { setActionData, removeActionData } = transtionsExcuteDataStore || {};
 
   const {
@@ -187,12 +131,8 @@ export const ModalTransactionContent = ({
   const isComplete = actionData?.status === 'success';
   const canClose =
     true || (actionData?.status === 'success' && transactionResponse);
-  const isOpenModal =
-    ['pending', 'success'].includes(actionData?.status) || isRedirectWalletPage;
-  const isCloseModal = ['error', undefined, null].includes(actionData?.status);
+
   const isSkipModal = callbackUrl?.includes('orderbook');
-  const transactionTypesToSaveTokens = ['claimFee'];
-  const pageToSaveTokens = [constTransactionPage.swap];
   const isHereSubmitting = wallet?.id === 'here-wallet' && !transactionResponse;
 
   useEffect(() => {
@@ -204,36 +144,24 @@ export const ModalTransactionContent = ({
       transactionResponse?.transactionId,
       actionData
     );
-    const id =
-      wallet?.id === 'my-near-wallet'
-        ? 'redirectId'
-        : transactionId || transactionResponse?.transactionId;
+
     if (status) {
       if (status === 'pending' || isRedirectWalletPage) {
-        console.info('ModalTransactionSubmitting', status, actionData);
         !isHereSubmitting && setIsOpen(true);
-        setIsUserCloseModal(false);
-        // if (
-        //   (transactionTypesToSaveTokens.includes(transactionType) ||
-        //     pageToSaveTokens.includes(page)) &&
-        //   tokens !== undefined
-        // ) {
+        // setIsUserCloseModal(false);
         setTokensData(tokens);
-        // }
+        setTransactionData(actionData);
       }
 
       if (['error'].includes(status)) {
         isOpen && setIsOpen(false);
-        showTransactionToast(actionData);
+        showTransactionToast(actionData, transactionData);
         onModalClose();
       }
-      // else if(isUserClose && ["error","success"].includes(status)){
-      //   showTransactionToast(actionData)
-      // }
 
       if (status === 'success') {
         if (isUserClose) {
-          showTransactionToast(actionData);
+          showTransactionToast(actionData, transactionData);
         } else if (!isSkipModal) {
           setIsOpen(true);
         }
@@ -248,7 +176,7 @@ export const ModalTransactionContent = ({
   const handleClose = () => {
     removeActionData();
     setIsOpen(false);
-    setIsUserCloseModal(true);
+    // setIsUserCloseModal(true);
     onUserCloseModal();
     if (status === 'success') {
       onResetModalTransactions();
@@ -311,7 +239,7 @@ export const ModalTransactionContent = ({
             href={`${explorerUrl}/txns/${hash}`}
             target="_blank"
           >
-            Nearblock
+            Nearblocks
             <TbExternalLink style={{ fontSize: 16 }} />
           </a>
         </div>
@@ -464,8 +392,10 @@ const CommonLayout = ({ tokensData }) => {
   return <div className="flex items-center gap-1">{node}</div>;
 };
 
-const showTransactionToast = (actionData) => {
-  const { transactionError, status } = actionData;
+const showTransactionToast = (actionData, transactionData) => {
+  const { transactionError, status, data } = actionData;
+  const { transactionType } = transactionData?.data || {};
+
   let errorObj = transactionError;
   if (typeof transactionError === 'string') {
     errorObj = {
@@ -475,8 +405,15 @@ const showTransactionToast = (actionData) => {
   const { walletsTXError, message } = errorObj || {};
 
   if (status === 'success') {
+    let title = 'Transaction Success';
+    if (transactionType === 'claimFee') {
+      title = 'Claim Successfully!';
+    }
+    if (transactionType === 'withdraw') {
+      title = 'Withdrawal Successfully!';
+    }
     showToast({
-      title: 'Transaction Success',
+      title,
     });
   } else if (status === 'error') {
     let errorMsg = walletsTXError || message;

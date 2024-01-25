@@ -730,7 +730,7 @@ export default function SwapCard(props: {
   const [loadingTrigger, setLoadingTrigger] = useState<boolean>(true);
   const [loadingPause, setLoadingPause] = useState<boolean>(false);
   const [showSwapLoading, setShowSwapLoading] = useState<boolean>(false);
-
+  const [submitLoading, setSubmitLoading] = useState<boolean>(false);
   const [showSkywardTip, setShowSkywardTip] = useState<boolean>(false);
   const [wrapOperation, setWrapOperation] = useState<boolean>(false);
   const [wrapLoading, setWrapLoading] = useState<boolean>(false);
@@ -1128,6 +1128,7 @@ export default function SwapCard(props: {
   };
 
   const handleSwapSubmit = async () => {
+    setSubmitLoading(true);
     const transactionId = String(Date.now());
     if (selectTrade) {
       processTransactionPending({
@@ -1153,14 +1154,14 @@ export default function SwapCard(props: {
       try {
         const { response } = await selectTrade.makeSwap();
         doubleCheckOpen && setDoubleCheckOpen(false);
-        setShowSwapLoading(false);
+        setSubmitLoading(false);
         processTransactionSuccess({
           transactionResponse: response,
           transactionId,
         });
       } catch (e) {
         doubleCheckOpen && setDoubleCheckOpen(false);
-        setShowSwapLoading(false);
+        setSubmitLoading(false);
         processTransactionError({ error: e, transactionId });
       }
     }
@@ -1276,6 +1277,7 @@ export default function SwapCard(props: {
           setLoadingPause,
           showSwapLoading,
           setShowSwapLoading,
+          submitLoading,
         }}
         isInsufficient={isInsufficientBalance && selectMarket !== 'orderly'}
       >

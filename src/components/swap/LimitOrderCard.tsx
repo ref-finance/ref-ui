@@ -960,7 +960,7 @@ export default function LimitOrderCard(props: {
       });
     } catch (e) {
       setShowSwapLoading(false);
-      // setDoubleCheckOpenLimit(false);
+      setDoubleCheckOpenLimit(false);
       processTransactionError({
         error: e,
         transactionId,

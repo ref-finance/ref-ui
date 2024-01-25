@@ -1575,16 +1575,15 @@ function ActiveLine({
         transactionId,
         page: constTransactionPage.limitOrder,
         data: {
-          prefix: 'Claiminig',
+          prefix: 'Claiming',
           tokens: [
             {
               token: buyToken,
-              amount: toPrecision(unClaimedAmount, 2),
+              amount: toPrecision(unClaimedAmount, 2,undefined,undefined,true),
             },
           ],
         },
       });
-      setClaimLoading(false);
       const { response } = await cancel_order({
         order_id: order.order_id,
         undecimal_amount: '0',
@@ -1593,8 +1592,10 @@ function ActiveLine({
         transactionResponse: response,
         transactionId,
       });
+      setClaimLoading(false);
     } catch (e) {
       processTransactionError({ error: e, transactionId });
+      setClaimLoading(false);
     }
   };
 
@@ -1617,7 +1618,6 @@ function ActiveLine({
           ],
         },
       });
-      setCancelLoading(false);
       const { response } = await cancel_order({
         order_id: order.order_id,
       });
@@ -1625,8 +1625,10 @@ function ActiveLine({
         transactionResponse: response,
         transactionId,
       });
+      setCancelLoading(false);
     } catch (e) {
       processTransactionError({ error: e, transactionId });
+      setCancelLoading(false);
     }
   };
 

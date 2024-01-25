@@ -170,7 +170,7 @@ export function AddLiquidityButton() {
         ],
       },
     });
-    setAddLiquidityButtonLoading(false);
+
     batch_add_liquidity({
       liquidityInfos: nftList,
       token_x: tokenX,

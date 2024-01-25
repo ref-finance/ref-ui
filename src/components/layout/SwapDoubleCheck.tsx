@@ -62,11 +62,11 @@ export function DoubleCheckModal(
 
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
 
-  useEffect(() => {
-    if (!isOpen) {
-      buttonLoading && setButtonLoading(false);
-    }
-  }, [isOpen]);
+  // useEffect(() => {
+  //   if (!isOpen) {
+  //     buttonLoading && setButtonLoading(false);
+  //   }
+  // }, [isOpen]);
 
   if (!from || !tokenIn || !tokenOut) return null;
 
@@ -322,11 +322,11 @@ export function DoubleCheckModalLimit(
     });
   }, [selectedPool]);
 
-  useEffect(() => {
-    if (!isOpen) {
-      setButtonLoading(false);
-    }
-  }, [isOpen]);
+  // useEffect(() => {
+  //   if (!isOpen) {
+  //     setButtonLoading(false);
+  //   }
+  // }, [isOpen]);
 
   if (!from || !tokenIn || !tokenOut || !poolDetail) return null;
 
@@ -461,8 +461,7 @@ export function DoubleCheckModalLimit(
               e.stopPropagation();
 
               if (buttonLoading) return;
-
-              // setButtonLoading(true);
+              setButtonLoading(true);
               onSwap();
             }}
             className="btn-DoubleCheckModalLimit text-base text-center rounded-lg h-10 gotham_bold w-full"

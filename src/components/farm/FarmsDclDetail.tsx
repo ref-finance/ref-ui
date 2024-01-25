@@ -1028,6 +1028,7 @@ export default function FarmsDclDetail(props: {
         suffix: ` ${tokensName} tokens (${yp_unFarm_value})`,
       },
     });
+    set_nft_stake_loading(false);
     batch_stake_boost_nft({
       liquidities,
       total_v_liquidity,
@@ -1039,14 +1040,12 @@ export default function FarmsDclDetail(props: {
           transactionResponse: response,
           transactionId,
         });
-        set_nft_stake_loading(false);
       })
       .catch((e) => {
         processTransactionError({
           error: e,
           transactionId,
         });
-        set_nft_stake_loading(false);
       });
   }
 
@@ -1064,20 +1063,19 @@ export default function FarmsDclDetail(props: {
       },
       transactionId,
     });
+    set_nft_unStake_loading(false);
     batch_unStake_boost_nft(unStake_info)
       .then(({ response }) => {
         processTransactionSuccess({
           transactionResponse: response,
           transactionId,
         });
-        set_nft_unStake_loading(false);
       })
       .catch((e) => {
         processTransactionError({
           error: e,
           transactionId,
         });
-        set_nft_unStake_loading(false);
       });
   }
 
@@ -1616,12 +1614,22 @@ function UserTotalUnClaimBlock(props: {
   const [showDetail, setShowDetail] = useState(false);
   const { seed_id } = detailData;
   const { globalState } = useContext(WalletContext);
-  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+  const processTransactionPending = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionPending
+  );
+  const processTransactionSuccess = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionSuccess
+  );
+  const processTransactionError = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionError
+  );
+
   const isSignedIn = globalState.isSignedIn;
   const intl = useIntl();
 
   function claimReward() {
     if (claimLoading) return;
+    const transactionId = String(Date.now());
     setClaimLoading(true);
     const tokensNode = unclaimedRewardsData.list.map(
       ({ token, amount, preAmount }, i) => ({
@@ -1630,36 +1638,29 @@ function UserTotalUnClaimBlock(props: {
       })
     );
 
-    transtionsExcuteDataStore.setActionData({
-      status: 'pending',
-      transactionId: String(Date.now()),
+    processTransactionPending({
+      transactionId,
       page: constTransactionPage.farm,
       data: {
+        headerText: 'Claim Farm Rewards',
         transactionType: 'claimFee',
         tokens: tokensNode,
       },
     });
+
     claimRewardBySeed_boost(detailData.seed_id)
       .then(({ response }) => {
-        transtionsExcuteDataStore.setActionData({
-          status: 'success',
+        processTransactionSuccess({
           transactionResponse: response,
-          data: {
-            transactionType: 'claimFee',
-          },
+          transactionId,
         });
-        transtionsExcuteDataStore.setActionStatus('resolved');
         setClaimLoading(false);
       })
       .catch((e) => {
-        transtionsExcuteDataStore.setActionData({
-          status: 'error',
-          transactionError: {
-            message: e.message,
-            transactionId: e.transactionId,
-          },
+        processTransactionError({
+          error: e,
+          transactionId,
         });
-        transtionsExcuteDataStore.setActionStatus('rejected');
         setClaimLoading(false);
       });
   }

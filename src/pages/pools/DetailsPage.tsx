@@ -709,7 +709,6 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
           ],
         },
       });
-      setButtonLoading(false);
       const { response } = await addLiquidityToPool({
         id: pool.id,
         tokenAmounts: [
@@ -1055,6 +1054,7 @@ export function RemoveLiquidityModal(
   const sharePercent = percent(shares || '0', pool.shareSupply || '1');
 
   function submit() {
+    setButtonLoading(true);
     const transactionId = String(Date.now());
     const amountBN = new BigNumber(amount?.toString());
     const shareBN = new BigNumber(toReadableNumber(24, shares));
@@ -1070,7 +1070,6 @@ export function RemoveLiquidityModal(
         })
       );
     }
-    setButtonLoading(true);
     let tokensNode = [];
 
     let tokensName = '';
@@ -1084,7 +1083,6 @@ export function RemoveLiquidityModal(
         tokenGroup: tokens,
       },
     ];
-    console.log('amountamount', amount);
     processTransactionPending({
       transactionId,
       page: constTransactionPage.pool,
@@ -1100,7 +1098,7 @@ export function RemoveLiquidityModal(
         )} ${tokensName} LP tokens`,
       },
     });
-    setButtonLoading(false);
+
     localStorage.setItem(REF_FI_PRE_LIQUIDITY_ID_KEY, pool.id.toString());
     return removeLiquidity()
       .then(({ response }) => {

@@ -835,7 +835,7 @@ input[type='range']::-webkit-slider-runnable-track {
   align-self: center;
 }
 
-@media (max-width: 768) {
+@media (max-width: 768px) {
   .Toastify__toast-container--bottom-left,
   .Toastify__toast-container--bottom-center,
   .Toastify__toast-container--bottom-right {

@@ -1458,7 +1458,15 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
-
+  const processTransactionPending = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionPending
+  );
+  const processTransactionSuccess = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionSuccess
+  );
+  const processTransactionError = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionError
+  );
   // if (!balances) return null;
 
   balances && (balances[WRAP_NEAR_CONTRACT_ID] = nearBalance);
@@ -1675,14 +1683,43 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
     setDefaultMessage('Add Liquidity');
   }
 
-  function submit() {
-    return addLiquidityToPool({
-      id: pool.id,
-      tokenAmounts: [
-        { token: tokens[0], amount: firstTokenAmount },
-        { token: tokens[1], amount: secondTokenAmount },
-      ],
-    });
+  async function submit() {
+    const transactionId = String(Date.now());
+    try {
+      processTransactionPending({
+        transactionId,
+        page: constTransactionPage.farm,
+        data: {
+          prefix: 'Supplying',
+          tokens: [
+            {
+              token: tokens[0],
+              amount: firstTokenAmount,
+            },
+            {
+              symbol: '+',
+            },
+            {
+              token: tokens[1],
+              amount: secondTokenAmount,
+            },
+          ],
+        },
+      });
+      const { response } = await addLiquidityToPool({
+        id: pool.id,
+        tokenAmounts: [
+          { token: tokens[0], amount: firstTokenAmount },
+          { token: tokens[1], amount: secondTokenAmount },
+        ],
+      });
+      processTransactionSuccess({
+        transactionResponse: response,
+        transactionId,
+      });
+    } catch (e) {
+      processTransactionError({ error: e, transactionId });
+    }
   }
 
   const ButtonRender = () => {
@@ -1699,7 +1736,7 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
     return (
       <SolidButton
         disabled={!canSubmit || canDeposit}
-        className="focus:outline-none  w-full text-lg"
+        className="btn-stake-AddLiquidity focus:outline-none  w-full text-lg"
         onClick={handleClick}
         loading={buttonLoading}
         padding={'p-4'}
@@ -1941,19 +1978,21 @@ function UserTotalUnClaimBlock(props: {
         headerText: 'Claim Farm Rewards',
       },
     });
-    setClaimLoading(false);
+
     claimRewardBySeed_boost(detailData.seed_id)
       .then(({ response }) => {
         processTransactionSuccess({
           transactionId,
           transactionResponse: response,
         });
+        setClaimLoading(false);
       })
       .catch((e) => {
         processTransactionError({
           error: e,
           transactionId,
         });
+        setClaimLoading(false);
       });
   }
 
@@ -3129,6 +3168,7 @@ export function StakeModal(props: {
     }
   }
   function operationStake() {
+    setStakeLoading(true);
     const transactionId = String(Date.now());
     const tokensNode = [];
     // @ts-ignore
@@ -3142,11 +3182,18 @@ export function StakeModal(props: {
       transactionId,
       page: constTransactionPage.farm,
       data: {
-        prefix: `Supplying ${toPrecision(amount, 3)}`,
+        prefix: `Supplying ${toPrecision(
+          amount,
+          3,
+          undefined,
+          undefined,
+          true
+        )}`,
         tokens: tokensNode,
       },
+      // onClose:onRequestClose
     });
-    setStakeLoading(false);
+
     if (stakeType == 'freeToLock') {
       lock_free_seed({
         seed_id: detailData.seed_id,
@@ -3174,16 +3221,16 @@ export function StakeModal(props: {
         msg,
       })
         .then(({ response }) => {
-          setStakeLoading(false);
           processTransactionSuccess({
             transactionResponse: response,
             transactionId,
           });
+          setStakeLoading(false);
           onRequestClose();
         })
         .catch((e) => {
-          setStakeLoading(false);
           processTransactionError({ error: e, transactionId });
+          setStakeLoading(false);
           onRequestClose();
         });
     }

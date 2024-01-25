@@ -32,6 +32,7 @@ type ITranstionsExcuteDataStore = {
     data?: any;
     page?: string;
     transactionId: string;
+    onClose?: Function;
   }) => void;
   processTransactionSuccess: (p: {
     transactionResponse: any;
@@ -56,9 +57,10 @@ export const useTranstionsExcuteDataStore = create<ITranstionsExcuteDataStore>(
     setActionStatus: (status: IExcuteStatus) => set({ actionStatus: status }),
     setActionData: (data) =>
       set((state) => ({ actionData: { ...state.actionData, ...data } })),
-    processTransactionPending: ({ data, page, transactionId }) =>
+    processTransactionPending: ({ data, page, transactionId, onClose }) =>
       set({
         actionData: {
+          onClose,
           status: 'pending',
           transactionId,
           page,

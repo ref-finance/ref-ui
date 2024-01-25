@@ -186,7 +186,6 @@ export function RemoveFourLiquidityComponent(props: {
         )
       );
 
-      setButtonLoading(false);
       processTransactionPending({
         transactionId,
         page: constTransactionPage.pool,
@@ -232,7 +231,6 @@ export function RemoveFourLiquidityComponent(props: {
         transactionId,
         page: constTransactionPage.pool,
       });
-      setButtonLoading(false);
       return removeLiquidityByTokensFromStablePool({
         tokens,
         id: pool.id,

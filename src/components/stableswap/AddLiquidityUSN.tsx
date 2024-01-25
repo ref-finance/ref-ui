@@ -372,7 +372,7 @@ export default function AddLiquidityComponentUSN(props: {
         });
       });
       tokensNode.pop();
-      setButtonLoading(false);
+
       processTransactionPending({
         transactionId,
         page: constTransactionPage.pool,

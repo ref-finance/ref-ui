@@ -98,7 +98,7 @@ export function UnclaimedFeesBox(props: any) {
         transactionId,
         page: constTransactionPage.pool,
         data: {
-          prefix: 'Claiming',
+          transactionType: 'claimFee',
           tokens: [
             {
               token: token_x_metadata,

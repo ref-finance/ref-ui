@@ -44,6 +44,7 @@ interface SwapFormWrapProps {
     setLoadingPause: (pause: boolean) => void;
     showSwapLoading: boolean;
     setShowSwapLoading: (swapLoading: boolean) => void;
+    submitLoading?: boolean;
   };
   useNearBalance: string;
   swapMode?: SWAP_MODE;
@@ -115,6 +116,7 @@ export default function SwapFormWrap({
     setLoadingPause,
     showSwapLoading,
     setShowSwapLoading,
+    submitLoading,
   } = loading || {};
 
   useEffect(() => {
@@ -158,6 +160,11 @@ export default function SwapFormWrap({
     }
   }
 
+  const isButtonLoading =
+    submitLoading ||
+    (swapMode !== SWAP_MODE.LIMIT
+      ? showSwapLoading
+      : !quoteDoneLimit || (showSwapLoading && !loadingTrigger));
   return (
     <form
       className={`overflow-y-visible  relative bg-swapCardGradient shadow-2xl rounded-2xl px-4 pt-4 pb-7 xsm:py-4 xsm:px-2.5  overflow-x-visible`}
@@ -215,11 +222,7 @@ export default function SwapFormWrap({
                   className={`h-12 ${
                     swapMode == SWAP_MODE.NORMAL ? '-mt-0' : ''
                   }`}
-                  loading={
-                    swapMode !== SWAP_MODE.LIMIT
-                      ? showSwapLoading
-                      : !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
-                  }
+                  loading={isButtonLoading}
                 />
               )}
             </div>

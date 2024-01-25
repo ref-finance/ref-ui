@@ -2769,6 +2769,7 @@ function FarmView(props: {
       transactionId,
       page: constTransactionPage.farm,
       data: {
+        headerText: 'Claim Farm Rewards',
         transactionType: 'claimFee',
         tokens: tokensNode,
         suffix: `(${unclaimAmount})`,
@@ -3760,6 +3761,7 @@ function WithDrawb(props: {
     rewardRef.current.scrollTop = 0;
   }
   async function doWithDraw() {
+    setWithdrawLoading(true);
     const transactionId = String(Date.now());
     try {
       const tokens = Object.entries(checkedList)?.map(([key, value]) => {
@@ -3941,7 +3943,7 @@ function WithDrawb(props: {
               Object.keys(checkedList).length == 0 ? 'opacity-40' : ''
             }`}
             onClick={doWithDraw}
-            disabled={Object.keys(checkedList).length == 0}
+            disabled={Object.keys(checkedList).length == 0 || withdrawLoading}
             btnClassName={
               Object.keys(checkedList).length == 0 ? 'cursor-not-allowed' : ''
             }

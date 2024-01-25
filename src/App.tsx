@@ -12,10 +12,7 @@ import { WalletSelectorContextProvider } from './context/WalletSelectorContext';
 
 import Content from 'src/Content';
 import { LedgerTransactionModal } from './context/modal-ui/modal';
-import {
-  ModalTransactionSubmitting,
-  ToastTransaction,
-} from 'src/components/transaction/modalTransactionSubmitting';
+import { ModalTransactionSubmitting } from 'src/components/transaction/modalTransactionSubmitting';
 
 import { ModalGAPrivacy } from 'src/context/modal-ui/modalGAPrivacy/modalGAPrivacy';
 

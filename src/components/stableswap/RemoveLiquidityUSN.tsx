@@ -159,7 +159,7 @@ export function RemoveLiquidityComponentUSN(props: {
             ),
           });
           tokensNode.push({
-            symbol: "+",
+            symbol: '+',
           });
         });
         tokensNode.pop();
@@ -172,7 +172,6 @@ export function RemoveLiquidityComponentUSN(props: {
             tokens: tokensNode,
           },
         });
-        setButtonLoading(false);
 
         const { response } = await removeLiquidityFromStablePool({
           tokens,
@@ -184,8 +183,10 @@ export function RemoveLiquidityComponentUSN(props: {
           transactionResponse: response,
           transactionId,
         });
+        setButtonLoading(false);
       } catch (e) {
         processTransactionError({ error: e, transactionId });
+        setButtonLoading(false);
       }
     } else {
       try {
@@ -213,7 +214,7 @@ export function RemoveLiquidityComponentUSN(props: {
             amount: toPrecision(toReadableNumber(d.decimals, amounts[i]), 3),
           });
           tokensNode.push({
-            symbol: "+",
+            symbol: '+',
           });
         });
         tokensNode.pop();
@@ -225,7 +226,7 @@ export function RemoveLiquidityComponentUSN(props: {
             tokens: tokensNode,
           },
         });
-        setButtonLoading(false);
+
         const { response } = await removeLiquidityByTokensFromStablePool({
           tokens,
           id: pool.id,
@@ -236,8 +237,10 @@ export function RemoveLiquidityComponentUSN(props: {
           transactionResponse: response,
           transactionId,
         });
+        setButtonLoading(false);
       } catch (e) {
         processTransactionError({ error: e, transactionId });
+        setButtonLoading(false);
       }
     }
   }

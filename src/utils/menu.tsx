@@ -1011,7 +1011,7 @@ export function BridgeButton() {
       {hover && (
         <div className="absolute pt-4 top-6 right-1/2 transform translate-x-1/2">
           <div className="bg-priceBoardColor p-2 rounded-2xl border border-menuMoreBoxBorderColor flex ">
-            {bridgeData.map((item) => {
+            {bridgeData.map((item, index) => {
               return (
                 <div
                   className={`flex flex-col font-gothamBold py-2 rounded-xl px-2 ${
@@ -1028,6 +1028,7 @@ export function BridgeButton() {
                   onMouseLeave={() => {
                     setHoverBridgeType(undefined);
                   }}
+                  key={index}
                 >
                   <div className="frcs gap-2 mb-2  ">
                     <item.icon
@@ -1040,7 +1041,7 @@ export function BridgeButton() {
                     {item.name}
                   </div>
 
-                  {item.children.map((sub) => {
+                  {item.children.map((sub, i) => {
                     return (
                       <div
                         className={`font-gotham  py-2  rounded-md frcs gap-2 cursor-pointer
@@ -1060,6 +1061,7 @@ export function BridgeButton() {
                         onMouseLeave={() => {
                           setHoverSubBridge('');
                         }}
+                        key={i}
                       >
                         <sub.icon
                           className={
