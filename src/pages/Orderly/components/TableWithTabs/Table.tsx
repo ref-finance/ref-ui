@@ -458,7 +458,11 @@ function Table({
               )}
             </tr>
           </thead>
-          <tbody className=" block flex-col" id="all-orders-body-open">
+          <tbody
+            className=" block flex-col"
+            id="all-orders-body-open"
+            style={{ maxHeight: '500px', overflow: 'auto' }}
+          >
             {accountId && validContract() && loading ? (
               <tr
                 className={`w-full relative mt-10 mb-4 px-5 table-fixed grid grid-cols-${gridCol} gap-4`}

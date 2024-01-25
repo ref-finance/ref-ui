@@ -109,10 +109,7 @@ function TableWithTabs({
   setKeyAnnounced: (item: boolean) => void;
 }) {
   const intl = useIntl();
-  const { marketList } = useMarketlist();
-
   const [agreeCheck, setAgreeCheck] = useState<boolean>(false);
-
   const [tradingKeySet, setTradingKeySet] = useState<boolean>(false);
   const [keyAnnounced, setKeyAnnounced] = useState<boolean>(false);
   const [showWalletRisk, setShowWalletRisk] = useState<boolean>(false);
@@ -731,23 +728,5 @@ export function TableWithOutTabs({
     />
   );
 }
-
-const OffFilterIcon = () => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 16 16"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <circle cx="8" cy="8" r="8" fill="#182935" />
-    <path
-      fillRule="evenodd"
-      clipRule="evenodd"
-      d="M5.14765 6.32208C4.85476 6.02918 4.85476 5.55431 5.14765 5.26142C5.44054 4.96852 5.91542 4.96852 6.20831 5.26142L7.99289 7.046L9.77748 5.26142C10.0704 4.96852 10.5452 4.96852 10.8381 5.26142C11.131 5.55431 11.131 6.02918 10.8381 6.32208L9.05355 8.10666L10.7037 9.7568C10.9966 10.0497 10.9966 10.5246 10.7037 10.8175C10.4108 11.1104 9.93593 11.1104 9.64303 10.8175L7.99289 9.16732L6.34276 10.8175C6.04986 11.1104 5.57499 11.1104 5.2821 10.8175C4.9892 10.5246 4.9892 10.0497 5.2821 9.7568L6.93223 8.10666L5.14765 6.32208Z"
-      fill="#7E8A93"
-    />
-  </svg>
-);
 
 export default TableWithTabs;

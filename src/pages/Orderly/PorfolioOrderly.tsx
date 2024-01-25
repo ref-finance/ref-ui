@@ -81,7 +81,6 @@ function PortfolioOrderly() {
   // for connect wallet
   const [tradingKeySet, setTradingKeySet] = useState<boolean>(false);
   const [keyAnnounced, setKeyAnnounced] = useState<boolean>(false);
-  const [agreeCheck, setAgreeCheck] = useState<boolean>(false);
   // ^for connect wallet
   const [tab, setTab] = useState<number>(0);
   const [refOnly, setRefOnly] = useState<boolean>(false);
@@ -111,7 +110,6 @@ function PortfolioOrderly() {
     useState<boolean>(false);
   const [orderTradesHistory, setOrderTradesHistory] = useState<OrderTrade[]>();
 
-  // const [holdings, setHoldings] = useState<Holding[]>();
   const [operationType, setOperationType] = useState<'deposit' | 'withdraw'>();
 
   const tokenIn = useTokenMetaFromSymbol(symbolFrom, tokenInfo);

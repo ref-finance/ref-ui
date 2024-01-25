@@ -83,7 +83,7 @@ const CopyToClipboard = ({ tx_id }: { tx_id: string }) => (
   </a>
 );
 
-// Portfolio Table
+// Portfolio Table TODOXX
 export const usePortableOrderlyTable = ({
   unrealMode,
   setUnrealMode,
@@ -146,7 +146,6 @@ export const usePortableOrderlyTable = ({
 }) => {
   const intl = useIntl();
   const { accountId } = useWalletSelector();
-  const { renderLogo } = useDEXLogoRender();
   const { wallet } = getCurrentWallet();
   const [showMarketSelector, setShowMarketSelector] = useState<boolean>(false);
   const [showSideSelector, setShowSideSelector] = useState<boolean>(false);
@@ -402,6 +401,7 @@ export const usePortableOrderlyTable = ({
           });
         },
         defaultSort: 'created_time',
+        pagination: false,
         columns: [
           {
             key: 'instrument',
@@ -698,6 +698,7 @@ export const usePortableOrderlyTable = ({
           });
         },
         defaultSort: 'created_time',
+        pagination: false,
         columns: [
           {
             key: 'instrument',
