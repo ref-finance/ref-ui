@@ -220,10 +220,10 @@ const SeedsBox = () => {
   return (
     <div className="grid grid-cols-2 grid-rows-2 gap-4 mt-14">
       {Object.entries(seeds).map(([seed_id, seed]) => {
+        const is_pending = isPending(seed);
         const stakeButtonDisabled =
-          !user_balances[seed_id] ||
-          +user_balances[seed_id] == 0 ||
-          isPending(seed);
+          !user_balances[seed_id] || +user_balances[seed_id] == 0 || is_pending;
+
         const unStakeButtonDisabled =
           +(user_seeds[seed_id]?.free_amount || 0) == 0;
         const claimButtonDisabled =
@@ -352,21 +352,49 @@ const SeedsBox = () => {
               >
                 <ButtonTextWrapper loading={false} Text={() => <>Unstake</>} />
               </OprationButton>
-              <OprationButton
-                minWidth="7rem"
-                disabled={stakeButtonDisabled}
-                onClick={() => {
-                  set_modal_action_seed_id(seed.seed_id);
-                  setIsStakeOpen(true);
-                }}
-                className={`flex flex-grow items-center justify-center text-boxBorder rounded-xl h-12 text-base gotham_bold focus:outline-none ${
-                  stakeButtonDisabled
-                    ? 'bg-memePoolBoxBorderColor'
-                    : 'bg-greenLight'
-                }`}
-              >
-                Feed {seed.token_meta_data.symbol}
-              </OprationButton>
+              {stakeButtonDisabled && is_pending ? (
+                <div className="flex-grow">
+                  <div
+                    data-class="reactTip"
+                    data-tooltip-id={`lp_farm_button_${seed_id}`}
+                    data-place="top"
+                    data-tooltip-html={comeSoonTip()}
+                  >
+                    <OprationButton
+                      minWidth="7rem"
+                      disabled={stakeButtonDisabled}
+                      onClick={() => {
+                        set_modal_action_seed_id(seed.seed_id);
+                        setIsStakeOpen(true);
+                      }}
+                      className={`flex flex-grow items-center justify-center text-boxBorder rounded-xl h-12 text-base gotham_bold focus:outline-none ${
+                        stakeButtonDisabled
+                          ? 'bg-memePoolBoxBorderColor'
+                          : 'bg-greenLight'
+                      }`}
+                    >
+                      Feed {seed.token_meta_data.symbol}
+                    </OprationButton>
+                    <CustomTooltip id={`lp_farm_button_${seed_id}`} />
+                  </div>
+                </div>
+              ) : (
+                <OprationButton
+                  minWidth="7rem"
+                  disabled={stakeButtonDisabled}
+                  onClick={() => {
+                    set_modal_action_seed_id(seed.seed_id);
+                    setIsStakeOpen(true);
+                  }}
+                  className={`flex flex-grow items-center justify-center text-boxBorder rounded-xl h-12 text-base gotham_bold focus:outline-none ${
+                    stakeButtonDisabled
+                      ? 'bg-memePoolBoxBorderColor'
+                      : 'bg-greenLight'
+                  }`}
+                >
+                  Feed {seed.token_meta_data.symbol}
+                </OprationButton>
+              )}
             </div>
           </div>
         );
