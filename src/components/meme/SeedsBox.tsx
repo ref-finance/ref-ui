@@ -292,6 +292,7 @@ const SeedsBox = () => {
                 title="APY"
                 value={getSeedApr(seeds[seed_id])}
                 seed={seeds[seed_id]}
+                pending={is_pending}
                 subValue={getSeedApr(lpSeeds[seed_id])}
                 subTargetValue={hasLpSeed ? '' : '-'}
                 isAPY={true}
@@ -438,6 +439,7 @@ function Template({
   isAPY,
   subTargetValue,
   seed,
+  pending,
 }: {
   title: string;
   value: string | number;
@@ -445,6 +447,7 @@ function Template({
   isAPY?: boolean;
   subTargetValue?: string;
   seed?: Seed;
+  pending?: boolean;
 }) {
   function getApyTip() {
     const farmList = seed.farmList || [];
@@ -454,11 +457,15 @@ function Template({
           <img src="${
             farm?.token_meta_data?.icon
           }" class="w-5 h-5 rounded-full" />
-          <span class="text-xs">${formatPercentage(
-            Big(farm.apr || 0)
-              .mul(100)
-              .toFixed()
-          )}</span>
+          <span class="text-xs">${
+            pending
+              ? '-'
+              : formatPercentage(
+                  Big(farm.apr || 0)
+                    .mul(100)
+                    .toFixed()
+                )
+          }</span>
       </div>`;
     });
     const result =
@@ -466,7 +473,9 @@ function Template({
        <div>
         <div class="flex items-center justify-between text-xs text-farmText gap-3.5">
           <span>Staking APR</span>
-          <span class="text-white text-sm">${formatPercentage(value)}</span>
+          <span class="text-white text-sm">${
+            pending ? '-' : formatPercentage(value)
+          }</span>
         </div>` +
       farmStr +
       `</div>
@@ -500,7 +509,7 @@ function Template({
       )}
       <div className="flex items-end gap-1">
         <span className="text-xl text-white gotham_bold">
-          {isAPY ? formatPercentageUi(value) : value}
+          {isAPY ? (pending ? '-' : formatPercentageUi(value)) : value}
         </span>
         {subValue ? (
           <span className="text-xs text-white relative -top-1">
