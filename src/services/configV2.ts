@@ -34,7 +34,7 @@ export default function getConfig(
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near|token.v2.ref-finance.near|400',
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near|token.v2.ref-finance.near|400',
         ],
-        SUPPORT_SHADOW_POOL_IDS: [],
+        SUPPORT_SHADOW_POOL_IDS: ['4179'],
       };
     case 'pub-testnet':
       return {
@@ -101,7 +101,7 @@ export default function getConfig(
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near|token.v2.ref-finance.near|400',
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near|token.v2.ref-finance.near|400',
         ],
-        SUPPORT_SHADOW_POOL_IDS: [],
+        SUPPORT_SHADOW_POOL_IDS: ['4179'],
       };
   }
 }
