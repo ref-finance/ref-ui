@@ -67,7 +67,7 @@ import {
   Near,
 } from 'src/components/icon';
 import { useHistory } from 'react-router';
-import { getPool } from 'src/services/indexer';
+import { getPool, getTxId } from 'src/services/indexer';
 import { BigNumber } from 'bignumber.js';
 import { FormattedMessage, useIntl, FormattedRelativeTime } from 'react-intl';
 import {
@@ -1401,13 +1401,35 @@ export function RecentTransactions({
   const storedTab = sessionStorage.getItem(
     REF_FI_RECENT_TRANSACTION_TAB_KEY
   ) as RencentTabKey;
-
   const [tab, setTab] = useState<RencentTabKey>(storedTab || 'swap');
 
   const onChangeTab = (tab: RencentTabKey) => {
     sessionStorage.setItem(REF_FI_RECENT_TRANSACTION_TAB_KEY, tab);
     setTab(tab);
   };
+
+  const [isLoading, setIsLoading] = useState(false);
+  async function handleTxClick(receipt_id) {
+    setIsLoading(true);
+    try {
+      const data = await getTxId(receipt_id);
+      if (data && data.receipts && data.receipts.length > 0) {
+        const txHash = data.receipts[0].originated_from_transaction_hash;
+        window.open(
+          `${getConfig().explorerUrl}/txns/${txHash}`,
+          '_blank',
+          'noopener,noreferrer'
+        );
+      }
+    } catch (error) {
+      console.error(
+        'An error occurred while fetching transaction data:',
+        error
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   const renderSwapTransactions = swapTransaction.map((tx) => {
     const swapIn = tokens.find((t) => t.id === tx.token_in);
@@ -1438,7 +1460,6 @@ export function RecentTransactions({
         <HiOutlineExternalLink className=""></HiOutlineExternalLink>
       </a>
     );
-
     return (
       <tr
         className={`text-sm lg:grid lg:grid-cols-3 text-primaryText hover:text-white hover:bg-poolRecentHover`}
@@ -1466,10 +1487,9 @@ export function RecentTransactions({
         <td className="col-span-1 relative flex items-center justify-end py-4 pr-4">
           <span
             className="inline-flex items-center cursor-pointer"
-            onClick={() => {
-              openUrl(`${getConfig().explorerUrl}/txns/${tx.tx_id}`);
-            }}
+            onClick={() => !isLoading && handleTxClick(tx.receipt_id)}
           >
+            {isLoading && <Loading />}
             <span className="hover:underline cursor-pointer xsm:whitespace-nowrap">
               {tx.timestamp}
             </span>
@@ -1545,10 +1565,9 @@ export function RecentTransactions({
         >
           <span
             className="inline-flex cursor-pointer"
-            onClick={() => {
-              openUrl(`${getConfig().explorerUrl}/txns/${tx.tx_id}`);
-            }}
+            onClick={() => !isLoading && handleTxClick(tx.receipt_id)}
           >
+            {isLoading && <Loading />}
             <span className="hover:underline cursor-pointer xsm:whitespace-nowrap">
               {tx.timestamp}
             </span>
@@ -3130,3 +3149,6 @@ export const formatNumber = (v: string | number) => {
     return big.toFixed(3, 1);
   }
 };
+function setIsLoading(arg0: boolean) {
+  throw new Error('Function not implemented.');
+}

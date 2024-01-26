@@ -925,6 +925,27 @@ function HistorySwapInfoLine({
   hoverOn: number;
   setHoverOn: React.Dispatch<React.SetStateAction<number>>;
 }) {
+  const [isLoading, setIsLoading] = useState(false);
+  const handleTxClick = async () => {
+    if (orderTx) {
+      setIsLoading(true);
+      try {
+        const data = await getTxId(orderTx);
+        if (data && data.receipts && data.receipts.length > 0) {
+          const txHash = data.receipts[0].originated_from_transaction_hash;
+          window.open(
+            `${getConfig().explorerUrl}/txns/${txHash}`,
+            '_blank',
+            'noopener,noreferrer'
+          );
+        }
+      } catch (error) {
+        console.error('Error fetching txId:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
   const intl = useIntl();
 
   const buyToken = tokensMap[token_out];
@@ -1080,15 +1101,21 @@ function HistorySwapInfoLine({
       </span>
       {!!orderTx && (
         <a
-          className="flex items-center text-v3SwapGray"
-          href={`${getConfig().explorerUrl}/txns/${orderTx}`}
+          className="flex items-center text-v3SwapGray cursor-pointer"
+          onClick={handleTxClick}
           target="_blank"
           rel="noopener noreferrer nofollow"
         >
-          Tx
-          <span className="ml-1.5">
-            <HiOutlineExternalLink></HiOutlineExternalLink>
-          </span>
+          {isLoading ? (
+            <Loading />
+          ) : (
+            <>
+              Tx
+              <span className="ml-1.5">
+                <HiOutlineExternalLink></HiOutlineExternalLink>
+              </span>
+            </>
+          )}
         </a>
       )}
     </div>
@@ -1154,15 +1181,21 @@ function HistorySwapInfoLine({
           <div className="absolute right-4 bottom-2.5 z-50  text-xs">
             {!!orderTx && (
               <a
-                className="flex items-center bg-black text-primaryText px-1.5  bg-opacity-20 rounded "
-                href={`${getConfig().explorerUrl}/txns/${orderTx}`}
+                className="flex items-center bg-black text-primaryText px-1.5  bg-opacity-20 rounded cursor-pointer"
+                onClick={handleTxClick}
                 target="_blank"
                 rel="noopener noreferrer nofollow"
               >
-                <span className="mr-1.5">
-                  <HiOutlineExternalLink></HiOutlineExternalLink>
-                </span>
-                Tx
+                {isLoading ? (
+                  <Loading />
+                ) : (
+                  <>
+                    <span className="mr-1.5">
+                      <HiOutlineExternalLink></HiOutlineExternalLink>
+                    </span>
+                    Tx
+                  </>
+                )}
               </a>
             )}
           </div>
@@ -2814,12 +2847,12 @@ function OrderCard({
                 <HistorySwapInfoLine
                   index={i}
                   tokensMap={tokensMap}
-                  key={sf.tx_id}
+                  key={sf.receipt_id}
                   token_in={sf.token_in}
                   token_out={sf.token_out}
                   amount_in={sf.amount_in}
                   amount_out={sf.amount_out}
-                  orderTx={sf.tx_id}
+                  orderTx={sf.receipt_id}
                   timestamp={sf.timestamp}
                   point={sf.point}
                   pool_id={sf.pool_id}

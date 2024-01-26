@@ -102,6 +102,7 @@ export interface HistoryOrderSwapInfo {
   amount_in: string;
   amount_out: string;
   timestamp: string;
+  receipt_id: string;
 }
 
 interface TokenFlow {
@@ -365,6 +366,7 @@ export interface ClassicPoolSwapTransaction {
   swap_out: string;
   timestamp: string;
   tx_id: string;
+  receipt_id: string;
 }
 
 export const getClassicPoolSwapRecentTransaction = async (props: {
@@ -397,6 +399,7 @@ export interface DCLPoolSwapTransaction {
   amount_out: string;
   timestamp: string;
   tx_id: string;
+  receipt_id: string;
 }
 
 export const getDCLPoolSwapRecentTransaction = async (props: {
@@ -431,6 +434,7 @@ export interface ClassicPoolLiquidtyRecentTransaction {
   shares?: string;
   pool_id?: string;
   amounts?: string;
+  receipt_id: string;
 }
 
 export const getClassicPoolLiquidtyRecentTransaction = async (props: {
@@ -460,6 +464,7 @@ export interface DCLPoolLiquidtyRecentTransaction {
   amount_y: string;
   timestamp: string;
   tx_id: string;
+  receipt_id: string;
 }
 
 export const getDCLPoolLiquidtyRecentTransaction = async (props: {
@@ -490,6 +495,7 @@ export interface LimitOrderRecentTransaction {
   tx_id: string;
   point: string;
   sell_token: string;
+  receipt_id: string;
 }
 
 export const getLimitOrderRecentTransaction = async (props: {
