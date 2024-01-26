@@ -170,31 +170,6 @@ const SeedsBox = () => {
       };
     }
   }
-  function getUnClaimedRewards(seed_id: string) {
-    const rewards = unclaimed_rewards[seed_id];
-    if (rewards) {
-      const [rewardsAmount, rewardsValue] = Object.keys(rewards).reduce(
-        (acc, tokenId) => {
-          const amount = rewards[tokenId];
-          const metadata: TokenMetadata = allTokenMetadatas[tokenId];
-          const price = tokenPriceList[tokenId]?.price || 0;
-          const num = toReadableNumber(metadata.decimals, amount);
-          const value = new Big(num).mul(price).toFixed();
-          return [acc[0].plus(num), acc[1].plus(value)];
-        },
-        [Big(0), Big(0)]
-      );
-      return {
-        amount: toInternationalCurrencySystem_number(rewardsAmount.toFixed()),
-        value: toInternationalCurrencySystem_usd(rewardsValue.toFixed()),
-      };
-    } else {
-      return {
-        amount: '-',
-        value: '',
-      };
-    }
-  }
   function getFeeder(seed_id: string) {
     const seed = seeds[seed_id];
     return seed.farmer_count;
@@ -305,8 +280,9 @@ const SeedsBox = () => {
               />
               <Template
                 title="You Reward"
-                value={getUnClaimedRewards(seed_id).amount}
-                subValue={getUnClaimedRewards(seed_id).value}
+                rewards={unclaimed_rewards[seed_id]}
+                isRewards={true}
+                seed={seeds[seed_id]}
               />
               <Template
                 title="Balance"
@@ -440,15 +416,20 @@ function Template({
   subTargetValue,
   seed,
   pending,
+  rewards,
+  isRewards,
 }: {
   title: string;
-  value: string | number;
+  value?: string | number;
   subValue?: string;
   isAPY?: boolean;
   subTargetValue?: string;
   seed?: Seed;
   pending?: boolean;
+  rewards?: Record<string, string>;
+  isRewards?: boolean;
 }) {
+  const { tokenPriceList, allTokenMetadatas } = useContext(MemeContext);
   function getApyTip() {
     const farmList = seed.farmList || [];
     let farmStr = '';
@@ -488,29 +469,90 @@ function Template({
     </div>`;
     return result;
   }
-
+  function getRewardsTip() {
+    let result = '';
+    Object.entries(rewards || {}).forEach(([tokenId, amount]) => {
+      const metadata: TokenMetadata = allTokenMetadatas[tokenId];
+      const num = toReadableNumber(metadata.decimals, amount);
+      result += `<div class="flex items-center justify-between text-xs text-farmText mt-1 gap-5">
+          <img src="${metadata?.icon}" class="w-5 h-5 rounded-full" />
+          <span class="text-xs">${toInternationalCurrencySystem_number(
+            num
+          )}</span>
+      </div>`;
+    });
+    return result;
+  }
+  function getUnClaimedRewards() {
+    if (Object.keys(rewards || {}).length) {
+      const rewardsValue = Object.keys(rewards).reduce((acc, tokenId) => {
+        const amount = rewards[tokenId];
+        const metadata: TokenMetadata = allTokenMetadatas[tokenId];
+        const price = tokenPriceList[tokenId]?.price || 0;
+        const num = toReadableNumber(metadata.decimals, amount);
+        const value = new Big(num).mul(price).toFixed();
+        return acc.plus(value);
+      }, Big(0));
+      return toInternationalCurrencySystem_usd(rewardsValue.toFixed());
+    } else {
+      return '-';
+    }
+  }
   return (
     <div className="flex flex-col justify-between gap-0.5">
+      {/* title */}
       {isAPY ? (
         <div
           style={{ width: '40px' }}
           data-class="reactTip"
-          data-tooltip-id="apyId"
+          data-tooltip-id={`apyId_${seed?.seed_id}`}
           data-place="top"
           data-tooltip-html={getApyTip()}
         >
           <span className="text-sm text-white border-b border-dashed border-white relative -top-0.5">
             {title}
           </span>
-          <CustomTooltip id="apyId" />
+          <CustomTooltip id={`apyId_${seed?.seed_id}`} />
         </div>
-      ) : (
+      ) : null}
+      {isRewards ? (
+        <div
+          style={{ width: '90px' }}
+          data-class="reactTip"
+          data-tooltip-id={`rewards_${seed?.seed_id}`}
+          data-place="top"
+          data-tooltip-html={getRewardsTip()}
+        >
+          <span
+            className={`text-sm text-white relative -top-0.5 ${
+              Object.keys(rewards || {}).length
+                ? 'border-b border-dashed border-white'
+                : ''
+            }`}
+          >
+            {title}
+          </span>
+          <CustomTooltip id={`rewards_${seed?.seed_id}`} />
+        </div>
+      ) : null}
+      {!isAPY && !isRewards ? (
         <span className="text-sm text-white">{title}</span>
-      )}
+      ) : null}
+      {/* content */}
       <div className="flex items-end gap-1">
-        <span className="text-xl text-white gotham_bold">
-          {isAPY ? (pending ? '-' : formatPercentageUi(value)) : value}
-        </span>
+        {isAPY ? (
+          <span className="text-xl text-white gotham_bold">
+            {pending ? '-' : formatPercentageUi(value)}
+          </span>
+        ) : null}
+        {isRewards ? (
+          <span className="text-xl text-white gotham_bold">
+            {getUnClaimedRewards()}
+          </span>
+        ) : null}
+        {!isAPY && !isRewards ? (
+          <span className="text-xl text-white gotham_bold">{value}</span>
+        ) : null}
         {subValue ? (
           <span className="text-xs text-white relative -top-1">
             {isAPY
