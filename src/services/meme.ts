@@ -363,3 +363,14 @@ export function isPending(seed: Seed) {
   }
   return pending;
 }
+export function isEnded(seed: Seed) {
+  let isEnded: boolean = true;
+  const farms = seed.farmList;
+  for (let i = 0; i < farms.length; i++) {
+    if (farms[i].status != 'Ended') {
+      isEnded = false;
+      break;
+    }
+  }
+  return isEnded;
+}

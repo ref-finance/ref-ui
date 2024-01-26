@@ -13,6 +13,7 @@ import {
   claim,
   getSeedApr,
   isPending,
+  isEnded,
 } from '../../services/meme';
 import { toReadableNumber } from '../../utils/numbers';
 import {
@@ -196,6 +197,7 @@ const SeedsBox = () => {
     <div className="grid grid-cols-2 grid-rows-2 gap-4 mt-14">
       {Object.entries(seeds).map(([seed_id, seed]) => {
         const is_pending = isPending(seed);
+        const is_ended = isEnded(seed);
         const stakeButtonDisabled =
           !user_balances[seed_id] || +user_balances[seed_id] == 0 || is_pending;
 
@@ -268,6 +270,7 @@ const SeedsBox = () => {
                 value={getSeedApr(seeds[seed_id])}
                 seed={seeds[seed_id]}
                 pending={is_pending}
+                ended={is_ended}
                 subValue={getSeedApr(lpSeeds[seed_id])}
                 subTargetValue={hasLpSeed ? '' : '-'}
                 isAPY={true}
@@ -418,6 +421,7 @@ function Template({
   pending,
   rewards,
   isRewards,
+  ended,
 }: {
   title: string;
   value?: string | number;
@@ -428,6 +432,7 @@ function Template({
   pending?: boolean;
   rewards?: Record<string, string>;
   isRewards?: boolean;
+  ended?: boolean;
 }) {
   const { tokenPriceList, allTokenMetadatas } = useContext(MemeContext);
   function getApyTip() {
@@ -439,7 +444,7 @@ function Template({
             farm?.token_meta_data?.icon
           }" class="w-5 h-5 rounded-full" />
           <span class="text-xs">${
-            pending
+            pending || ended
               ? '-'
               : formatPercentage(
                   Big(farm.apr || 0)
@@ -455,7 +460,7 @@ function Template({
         <div class="flex items-center justify-between text-xs text-farmText gap-3.5">
           <span>Staking APR</span>
           <span class="text-white text-sm">${
-            pending ? '-' : formatPercentage(value)
+            pending || ended ? '-' : formatPercentage(value)
           }</span>
         </div>` +
       farmStr +
@@ -542,7 +547,7 @@ function Template({
       <div className="flex items-end gap-1">
         {isAPY ? (
           <span className="text-xl text-white gotham_bold">
-            {pending ? '-' : formatPercentageUi(value)}
+            {pending || ended ? '-' : formatPercentageUi(value)}
           </span>
         ) : null}
         {isRewards ? (
