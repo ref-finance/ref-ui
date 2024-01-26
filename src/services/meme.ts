@@ -340,7 +340,7 @@ export function getMemeConfig(): any {
 }
 // getMemeSeedApr
 export function getSeedApr(seed: Seed) {
-  if (!seed) return '0';
+  if (!seed || isEnded(seed)) return '0';
   const farms = seed.farmList;
   let apr = new Big(0);
   const allPendingFarms = isPending(seed);
