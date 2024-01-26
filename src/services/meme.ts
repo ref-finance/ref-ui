@@ -255,7 +255,10 @@ async function withdrawReards(seed: Seed, transactions: Transaction[]) {
     receiverId: REF_MEME_FARM_CONTRACT_ID,
     functionCalls,
   });
-  const unclaimed_rewards = await get_unclaimed_rewards(seed_id);
+  let unclaimed_rewards = {};
+  try {
+    unclaimed_rewards = await get_unclaimed_rewards(seed_id);
+  } catch (error) {}
   const wnear_rewards_amount = unclaimed_rewards[WRAP_NEAR_CONTRACT_ID];
   if (Big(wnear_rewards_amount || 0).gt(0)) {
     transactions.push({
