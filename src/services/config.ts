@@ -240,7 +240,7 @@ export default function getConfig(
         ],
         BLACK_TOKEN_LIST: ['token.pembrock.near'],
         REF_MEME_FARM_CONTRACT_ID:
-          process.env.REF_MEME_FARM_CONTRACT_ID || 'memefarm.ref-labs.near',
+          process.env.REF_MEME_FARM_CONTRACT_ID || 'meme-farming.ref-labs.near',
       };
     case 'pub-testnet':
       return {
@@ -560,7 +560,7 @@ export default function getConfig(
         ],
         BLACK_TOKEN_LIST: ['token.pembrock.near'],
         REF_MEME_FARM_CONTRACT_ID:
-          process.env.REF_MEME_FARM_CONTRACT_ID || 'memefarm.ref-labs.near',
+          process.env.REF_MEME_FARM_CONTRACT_ID || 'meme-farming.ref-labs.near',
       };
   }
 }
