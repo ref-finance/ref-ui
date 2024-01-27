@@ -997,6 +997,8 @@ export interface Seed {
   hidden?: boolean;
   endedFarmsIsSplit?: boolean;
   base?: number;
+  token_meta_data?: TokenMetadata;
+  farmer_count: number;
 }
 export interface FarmBoostTerm {
   daily_reward: string;
@@ -1730,6 +1732,10 @@ export function getFarmClassification(): any {
         '3815',
         'phoenix-bonds.near|wrap.near|2000',
         '4276',
+        '4314',
+        '3807',
+        '4276',
+        '4369',
       ],
       eth: [
         '605',

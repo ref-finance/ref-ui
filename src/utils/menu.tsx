@@ -495,7 +495,13 @@ export const useMenus = (cb?: () => void) => {
         },
       ],
     },
-
+    {
+      id: '4',
+      label: <>Meme Season</>,
+      url: '/meme',
+      isExternal: false,
+      links: ['/meme'],
+    },
     {
       id: '6',
       label: (
