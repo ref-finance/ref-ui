@@ -287,6 +287,7 @@ function Table({
   markPrices,
   lastPrices,
   unrealMode,
+  module,
 }: {
   data: MyOrder[];
   loading: boolean;
@@ -316,6 +317,7 @@ function Table({
     close: number;
   }[];
   unrealMode: 'mark_price' | 'last_price';
+  module?: 'order' | 'asset' | 'records';
 }) {
   const { accountId } = useWalletSelector();
 
@@ -458,11 +460,7 @@ function Table({
               )}
             </tr>
           </thead>
-          <tbody
-            className=" block flex-col"
-            id="all-orders-body-open"
-            style={{ maxHeight: '500px', overflow: 'auto' }}
-          >
+          <tbody className=" block flex-col" id="all-orders-body-open">
             {accountId && validContract() && loading ? (
               <tr
                 className={`w-full relative mt-10 mb-4 px-5 table-fixed grid grid-cols-${gridCol} gap-4`}

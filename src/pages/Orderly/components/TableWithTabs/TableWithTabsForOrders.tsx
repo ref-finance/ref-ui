@@ -8,11 +8,7 @@ import {
   REF_ORDERLY_AGREE_CHECK,
 } from '../UserBoard';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
-import {
-  ConnectWallet,
-  ConnectWalletPorfolio,
-  RegisterButton,
-} from '../Common';
+import { ConnectWalletPorfolio, RegisterButton } from '../Common';
 import { useWalletSelector } from '../../../../context/WalletSelectorContext';
 import { ConfirmButton } from '../Common/index';
 
@@ -22,29 +18,18 @@ import {
 } from '../../orderly/on-chain-api';
 import { announceKey, setTradingKey, storageDeposit } from '../../orderly/api';
 
-import Table from './Table';
 import TableForOrders from './TableForOrders';
 import { FlexRow, FlexRowBetween } from '../Common';
 import { MobileFilter } from '../Common/Icons';
 import { OrderAsset } from '../AssetModal/state';
-import { useMarketlist } from '../../orderly/constantWjsx';
 
 import { MarkPrice, MyOrder, PortfolioTable } from '../../orderly/type';
-import { useClientMobile } from '../../../../utils/device';
 
 import 'react-circular-progressbar/dist/styles.css';
 import { CONST_ACKNOWLEDGE_WALLET_RISK } from 'src/constants/constLocalStorage';
 import { WalletRiskCheckBoxModal } from 'src/context/modal-ui/components/WalletOptions/WalletRiskCheckBox';
 
-export function SymbolWrapper({ symbol }: { symbol: string }) {
-  return (
-    <span className="text-v3SwapGray bg-menuMoreBgColor rounded px-2 text-10px">
-      {symbol}
-    </span>
-  );
-}
-
-function TableWithTabs({
+export default function TableWithTabsForOrders({
   table,
   maintenance,
   refOnly,
@@ -71,7 +56,6 @@ function TableWithTabs({
   unrealMode,
   orderPageNum,
   setOrderTotalPage,
-  module,
 }: {
   table: PortfolioTable;
   maintenance: boolean;
@@ -113,7 +97,6 @@ function TableWithTabs({
   setKeyAnnounced: (item: boolean) => void;
   orderPageNum?: number;
   setOrderTotalPage?: (total: number) => void;
-  module?: 'order' | 'asset' | 'records';
 }) {
   const intl = useIntl();
   const [agreeCheck, setAgreeCheck] = useState<boolean>(false);
@@ -228,13 +211,10 @@ function TableWithTabs({
   }, [tradingKeySet, keyAnnounced]);
 
   const [data, setData] = useState<any>([]);
-  const [total, setTotal] = useState(0);
   const [tab, setTab] = useState<number>(0);
   const [page, setPage] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
-
   const { getData, id } = table.tabs[tab];
-
   const validator =
     !accountId ||
     !storageEnough ||
@@ -242,7 +222,9 @@ function TableWithTabs({
     !keyAnnounced ||
     !validContract() ||
     maintenance;
-
+  useEffect(() => {
+    callGetData();
+  }, []);
   useEffect(() => {
     if (!(validator && !maintenance && !validAccountSig)) {
       setPage(1);
@@ -261,7 +243,7 @@ function TableWithTabs({
   }, [page, validAccountSig, orderPageNum]);
 
   useEffect(() => {
-    if (orderType === 0 && (id === 'open_orders' || id === 'history')) {
+    if (orderType === 0) {
       if (!(validator && !maintenance && !validAccountSig)) {
         setLoading(true);
         setData([]);
@@ -272,46 +254,8 @@ function TableWithTabs({
   }, [orderType]);
 
   useEffect(() => {
-    if (getData && (id === 'open_orders' || id === 'history')) {
-      callGetData(1);
-    }
-    setPage(1);
-  }, [
-    refOnly,
-    orderType,
-    chooseMarketSymbol,
-    chooseOrderSide,
-    chooseOrderStatus,
-    chooseOrderType,
-  ]);
-
-  useEffect(() => {
-    if (getData && id === 'spot') {
-      callGetData();
-    }
-  }, [JSON.stringify(displayBalances)]);
-
-  useEffect(() => {
-    if (id === 'futures') {
-      setData(newPositions?.rows);
-    }
-  }, [JSON.stringify(newPositions)]);
-
-  useEffect(() => {
-    if (
-      getData &&
-      (id === 'deposit' || id === 'withdraw' || id === 'settlements')
-    ) {
-      callGetData();
-    }
-  }, [triggerBalanceBasedData]);
-
-  useEffect(() => {
-    // TODOXX
-    if (getData && (id === 'open_orders' || id === 'history')) {
-      callGetData();
-    }
-  }, [triggerPositionBasedData, triggerBalanceBasedData]);
+    getData && callGetData(1);
+  }, [refOnly, orderType, chooseMarketSymbol, chooseOrderSide]);
 
   useEffect(() => {
     if (data.length > 1 && data.length < 10 && id === 'open_orders') {
@@ -330,16 +274,9 @@ function TableWithTabs({
     if (!(validator && !maintenance && !validAccountSig)) {
       const res = await getData({ page: forcePage || page });
       forcePage && setPage(forcePage);
-
-      if (!res && id === 'spot') {
-        setData(displayBalances);
-        setLoading(false);
-        return;
-      }
       setData(res.data?.rows || []);
       const total = res.data?.meta?.total || 0;
-      setTotal(total);
-      setOrderTotalPage && setOrderTotalPage(Math.ceil(total / 500));
+      setOrderTotalPage && setOrderTotalPage(Math.ceil(total / 10));
       if (id === 'open_orders' && tab === 0)
         setOpenOrderCount(res.data?.meta?.total || 0);
       setLoading(false);
@@ -568,7 +505,7 @@ function TableWithTabs({
                 )}
               </div>
             )}
-            <Table
+            <TableForOrders
               data={data || []}
               loading={loading}
               tab={tab}
@@ -580,19 +517,13 @@ function TableWithTabs({
               tableTopComponent={table.tabs[tab].tableTopComponent}
               mobileRender={table.tabs[tab].mobileRender}
               mobileRenderCustom={table.tabs[tab].mobileRenderCustom}
-              total={total}
               page={page}
-              setPage={setPage}
-              pagination={
-                !table.tabs[tab].pagination ? table.tabs[tab].pagination : true
-              }
               orderType={orderType}
               handleOpenClosing={handleOpenClosing}
               futureOrders={futureOrders}
               markPrices={markPrices}
               lastPrices={lastPrices}
               unrealMode={unrealMode}
-              module={module}
             />
 
             <RegisterModal
@@ -612,131 +543,3 @@ function TableWithTabs({
     </>
   );
 }
-
-export function TableWithOutTabs({
-  table,
-  maintenance,
-  refOnly,
-  setRefOnly,
-  orderType,
-  setOrderType,
-  chooseMarketSymbol,
-  setChooseMarketSymbol,
-  chooseOrderSide,
-  setChooseOrderSide,
-  chooseOrderStatus,
-  setChooseOrderStatus,
-  chooseOrderType,
-  setChooseOrderType,
-  displayBalances,
-  newPositions,
-  triggerBalanceBasedData,
-  triggerPositionBasedData,
-  setMobileFilterOpen,
-  handleOpenClosing,
-  // validAccountSig,
-  futureOrders,
-  markPrices,
-  lastPrices,
-  unrealMode,
-  showCurSymbol,
-}: // tradingKeySet,
-// setTradingKeySet,
-// keyAnnounced,
-// setKeyAnnounced,
-{
-  table: PortfolioTable;
-  maintenance: boolean;
-  refOnly?: boolean;
-  showCurSymbol: boolean;
-  setRefOnly?: (item: boolean) => void;
-  orderType?: number;
-  setOrderType?: (item: number) => void;
-  chooseMarketSymbol?: string;
-  setChooseMarketSymbol?: (item: string) => void;
-  chooseOrderSide?: 'both_side' | 'BUY' | 'SELL';
-  setChooseOrderSide?: (item: 'both_side' | 'BUY' | 'SELL') => void;
-  chooseOrderStatus?: 'all' | 'Cancelled' | 'filled' | 'Rejected';
-  setChooseOrderStatus?: (
-    item: 'all' | 'Cancelled' | 'filled' | 'Rejected'
-  ) => void;
-  chooseOrderType?: 'all' | 'limit' | 'market';
-  setChooseOrderType?: (item: 'all' | 'limit' | 'market') => void;
-  newPositions?: any;
-  displayBalances: OrderAsset[];
-  triggerBalanceBasedData?: number;
-  triggerPositionBasedData?: number;
-  setMobileFilterOpen?: (item: number) => void;
-  handleOpenClosing?: (
-    closingQuantity: number,
-    closingPrice: number | 'Market',
-    row: any
-  ) => void;
-  validAccountSig?: boolean;
-  futureOrders?: MyOrder[];
-  markPrices: MarkPrice[];
-  lastPrices?: {
-    symbol: string;
-    close: number;
-  }[];
-  unrealMode?: 'mark_price' | 'last_price';
-  tradingKeySet: boolean;
-  setTradingKeySet: (item: boolean) => void;
-  keyAnnounced: boolean;
-  setKeyAnnounced: (item: boolean) => void;
-}) {
-  const {
-    storageEnough,
-    setValidAccountSig,
-    handlePendingOrderRefreshing,
-    validAccountSig,
-    userExist,
-    symbol,
-  } = useOrderlyContext();
-  const [total, setTotal] = useState(0);
-  const isMobile = useClientMobile();
-  const [tab, setTab] = useState<number>(0);
-  const [page, setPage] = useState<number>(1);
-  const [loading, setLoading] = useState<boolean>(false);
-  const filterFunc = useCallback(
-    (row: any) => {
-      if (!showCurSymbol) return true;
-      else {
-        return row.symbol === symbol;
-      }
-    },
-    [showCurSymbol, symbol]
-  );
-
-  const data = (newPositions?.rows || []).filter(filterFunc);
-
-  return (
-    <Table
-      data={data || []}
-      loading={loading}
-      tab={tab}
-      tableKey={table.tabs[tab].id}
-      defaultSort={table.tabs[tab].defaultSort}
-      columns={table.tabs[tab].columns}
-      tableRowType={table.tabs[tab].tableRowType}
-      tableRowEmpty={table.tabs[tab].tableRowEmpty}
-      tableTopComponent={table.tabs[tab].tableTopComponent}
-      mobileRender={table.tabs[tab].mobileRender}
-      mobileRenderCustom={table.tabs[tab].mobileRenderCustom}
-      total={total}
-      page={page}
-      setPage={setPage}
-      pagination={
-        !table.tabs[tab].pagination ? table.tabs[tab].pagination : true
-      }
-      orderType={orderType}
-      handleOpenClosing={handleOpenClosing}
-      futureOrders={futureOrders}
-      markPrices={markPrices}
-      lastPrices={lastPrices}
-      unrealMode={unrealMode}
-    />
-  );
-}
-
-export default TableWithTabs;

@@ -715,9 +715,9 @@ export const getPortfolioPosition = async ({
 export const getPortfolioAllOrders = async (props: {
   accountId: string;
   OrderProps?: {
-    symbol?: string;
     page?: number;
     size?: number;
+    symbol?: string;
     status?:
       | 'NEW'
       | 'CANCELLED'
@@ -728,6 +728,7 @@ export const getPortfolioAllOrders = async (props: {
       | 'COMPLETED';
     broker_id?: string;
     side?: 'BUY' | 'SELL';
+    order_type?: any; // Limit、 Market
   };
 }) => {
   // TODOXX

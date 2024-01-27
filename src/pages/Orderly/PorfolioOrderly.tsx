@@ -14,6 +14,7 @@ import { executeMultipleTransactions } from 'src/services/near';
 import { numberWithCommas } from './utiles';
 import { toPrecision } from './near';
 import TableWithTabs from './components/TableWithTabs';
+import TableWithTabsForOrders from './components/TableWithTabs/TableWithTabsForOrders';
 import SettlePnlModal from './components/TableWithTabs/SettlePnlModal';
 import { MobileFilterModal } from './components/TableWithTabs/OrdersFilters';
 import { ClosingModal } from './components/TableWithTabs/FuturesControls';
@@ -97,6 +98,8 @@ function PortfolioOrderly() {
   const [chooseOrderType, setChooseOrderType] = useState<
     'all' | 'limit' | 'market'
   >('all');
+  const [orderPageNum, setOrderPageNum] = useState<number>(1);
+  const [orderTotalPage, setOrderTotalPage] = useState<number>(1);
   React.useEffect(() => {
     if (maintenance && isMobile()) {
       document.body.style.overflow = 'hidden';
@@ -177,6 +180,8 @@ function PortfolioOrderly() {
   );
   const [closeOrderQuantity, setCloseOrderQuantity] = useState<number>(0);
   const [closeOrderRow, setCloseOrderRow] = useState<any>({});
+  const [totalEstFinal, setTotalEstFinal] = useState<string>('0');
+  const [futureOrders, setFutureOrders] = useState<MyOrder[]>();
 
   const handleOpenClosing = (
     closingQuantity: number,
@@ -218,6 +223,9 @@ function PortfolioOrderly() {
     totalDailyReal,
     totalNotional,
     newPositions,
+    orderPageNum,
+    orderTotalPage,
+    setOrderPageNum,
   });
 
   const handleSettlePnl = async () => {
@@ -266,9 +274,6 @@ function PortfolioOrderly() {
       });
     });
   };
-
-  const [totalEstFinal, setTotalEstFinal] = useState<string>('0');
-  const [futureOrders, setFutureOrders] = useState<MyOrder[]>();
 
   const getFutureOrders = async () => {
     // TODOXX ?
@@ -412,7 +417,7 @@ function PortfolioOrderly() {
             {/* PC */}
             <div className="hidden md:block lg:block">
               {/* Orders */}
-              <TableWithTabs
+              <TableWithTabsForOrders
                 table={ordersTable}
                 maintenance={maintenance}
                 refOnly={refOnly}
@@ -423,14 +428,14 @@ function PortfolioOrderly() {
                 chooseOrderSide={chooseOrderSide}
                 setChooseOrderSide={setChooseOrderSide}
                 displayBalances={displayBalances}
-                triggerBalanceBasedData={triggerBalanceBasedData}
-                triggerPositionBasedData={triggerPositionBasedData}
                 validAccountSig={validAccountSig}
                 markPrices={markPrices}
                 tradingKeySet={tradingKeySet}
                 setTradingKeySet={setTradingKeySet}
                 keyAnnounced={keyAnnounced}
                 setKeyAnnounced={setKeyAnnounced}
+                orderPageNum={orderPageNum}
+                setOrderTotalPage={setOrderTotalPage}
               />
               {/* Assets */}
               <TableWithTabs
@@ -514,7 +519,7 @@ function PortfolioOrderly() {
                 />
               )}
               {tab === 1 && (
-                <TableWithTabs
+                <TableWithTabsForOrders
                   table={ordersTable}
                   maintenance={maintenance}
                   refOnly={refOnly}
@@ -698,6 +703,7 @@ function PortfolioOrderly() {
             marketList.find((m) => m.textId === selectedOrder.symbol)?.text,
             <TextWrapper
               className="px-2 text-sm"
+              key="m_0"
               value={intl.formatMessage({
                 id: selectedOrder.side.toLowerCase(),
                 defaultMessage: selectedOrder.side,
@@ -709,7 +715,7 @@ function PortfolioOrderly() {
                   : 'text-sellColorNew'
               }
             />,
-            <FlexRow className="">
+            <FlexRow key="m_1" className="">
               <span className={`text-white capitalize `}>
                 {selectedOrder.type === 'LIMIT'
                   ? intl.formatMessage({
@@ -760,7 +766,7 @@ function PortfolioOrderly() {
                 </div>
               </div>
             </FlexRow>,
-            <FlexRow className="col-span-1  ">
+            <FlexRow key="m_2" className="col-span-1  ">
               <span className="font-nunito">
                 {numberWithCommas(selectedOrder.executed)}
               </span>
@@ -773,14 +779,14 @@ function PortfolioOrderly() {
                 )}
               </span>
             </FlexRow>,
-            <span className="font-nunito">
+            <span key="m_3" className="font-nunito">
               {selectedOrder.price || selectedOrder.average_executed_price
                 ? numberWithCommas(
                     selectedOrder.price || selectedOrder.average_executed_price
                   )
                 : '-'}
             </span>,
-            <span className="font-nunito">
+            <span key="m_4" className="font-nunito">
               {numberWithCommas(
                 new Big(selectedOrder.quantity || selectedOrder.executed || '0')
                   .times(
@@ -793,11 +799,11 @@ function PortfolioOrderly() {
                   .toNumber()
               )}
             </span>,
-            <span className="font-nunito">
+            <span key="m_5" className="font-nunito">
               {formatTimeDate(selectedOrder.created_time)}
             </span>,
 
-            <span className="capitalize">
+            <span key="m_6" className="capitalize">
               {intl.formatMessage({
                 id: _.upperFirst(selectedOrder.status.toLowerCase()),
                 defaultMessage: _.upperFirst(

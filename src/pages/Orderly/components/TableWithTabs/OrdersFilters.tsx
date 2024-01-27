@@ -20,6 +20,7 @@ import {
   Checkbox as TickCheckbox,
   CheckboxSelected,
 } from '../../../../components/icon';
+import { TurnPortfolioPage } from '../AllOrders/TurnPage';
 
 const OrdersFilters = ({
   orderType,
@@ -33,6 +34,9 @@ const OrdersFilters = ({
   showSideSelector,
   setShowSideSelector,
   marketList,
+  orderPageNum,
+  orderTotalPage,
+  setOrderPageNum,
 }: {
   orderType: number;
   setOrderType: (item: number) => void;
@@ -49,6 +53,9 @@ const OrdersFilters = ({
     withSymbol: JSX.Element;
     textId: string;
   }[];
+  orderPageNum: number;
+  orderTotalPage: number;
+  setOrderPageNum: (page: number) => void;
 }) => {
   const intl = useIntl();
   const [displayList, setDisplayList] = useState<
@@ -166,7 +173,7 @@ const OrdersFilters = ({
             />
           )}
         </FlexRow>
-        <FlexRow className="relative">
+        <FlexRow className="relative mr-2">
           <div
             className="cursor-pointer flex items-center border rounded-lg py-1 px-2"
             style={{ borderColor: 'rgba(145, 162, 174, 0.20)' }}
@@ -231,6 +238,13 @@ const OrdersFilters = ({
               top={8}
             />
           )}
+        </FlexRow>
+        <FlexRow className="relative">
+          <TurnPortfolioPage
+            orderPageNum={orderPageNum}
+            setOrderPageNum={setOrderPageNum}
+            orderTotalPage={orderTotalPage}
+          />
         </FlexRow>
       </div>
     </div>
