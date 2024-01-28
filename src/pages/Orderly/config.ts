@@ -10,17 +10,17 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
             url: 'https://rpc.mainnet.near.org',
             simpleName: 'official rpc',
           },
-          // publicRpc: {
-          //   url: 'https://public-rpc.blockpi.io/http/near',
-          //   simpleName: 'blockpi rpc',
-          // },
-          // infuraRpc: {
-          //   url: 'https://near-mainnet.infura.io/v3/391d915322284599936f0ee962399dc1',
-          //   simpleName: 'infura rpc',
-          // },
           ankrRpc: {
             url: 'https://rpc.ankr.com/near',
             simpleName: 'ankr rpc',
+          },
+          oneRpc: {
+            url: 'https://1rpc.io/near',
+            simpleName: '1rpc',
+          },
+          fastNearRpc: {
+            url: 'https://rpc.web4.near.page',
+            simpleName: 'fast-near',
           },
         },
         pool_protocol: 'indexer',
