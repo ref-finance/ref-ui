@@ -553,8 +553,10 @@ function Template({
       {/* content */}
       <div
         className={`${
-          space ? 'flex flex-col items-start justify-between' : 'flex items-end'
-        } gap-1`}
+          space
+            ? 'flex flex-col items-start justify-between gap-0'
+            : 'flex items-end gap-1'
+        }`}
       >
         {isAPY ? (
           <span className="text-xl text-white gotham_bold">
@@ -570,7 +572,9 @@ function Template({
           <span className="text-xl text-white gotham_bold">{value}</span>
         ) : null}
         {subValue ? (
-          <span className="text-xs text-white relative -top-1">
+          <span
+            className={`text-xs text-white relative ${space ? '' : '-top-1'}`}
+          >
             {isAPY
               ? subTargetValue || '+' + formatPercentageUi(subValue)
               : subValue}
