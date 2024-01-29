@@ -60,7 +60,7 @@ const Overview = () => {
               {totalStaked}
             </span>
           </TemplateMobile>
-          <TemplateMobile title="Total Staker">
+          <TemplateMobile title="Total Stakers">
             <span className="text-xl gotham_bold text-white">
               {totalStaker}
             </span>
@@ -155,7 +155,7 @@ const Overview = () => {
               <span className="text-3xl gotham_bold text-white">-</span>
             )}
           </Template>
-          <Template title="Total Staker">
+          <Template title="Total Stakers">
             <span className="text-3xl gotham_bold text-white">
               {totalStaker}
             </span>
