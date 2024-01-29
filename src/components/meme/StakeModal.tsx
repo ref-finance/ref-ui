@@ -20,8 +20,9 @@ import { getProgressConfig } from './ProgressBar';
 import { TipIcon } from './icons';
 const progressConfig = getProgressConfig();
 function StakeModal(props: any) {
-  const { seeds, user_balances, tokenPriceList, user_seeds } =
+  const { seeds, user_balances, tokenPriceList, user_seeds, memeConfig } =
     useContext(MemeContext);
+  const { delay_withdraw_sec } = memeConfig;
   const { isOpen, onRequestClose, seed_id } = props;
   const [amount, setAmount] = useState('');
   const [stakeLoading, setStakeLoading] = useState(false);
@@ -87,6 +88,22 @@ function StakeModal(props: any) {
       seed,
       amount: Big(toNonDivisibleNumber(seed.seed_decimal, amount)).toFixed(0),
     });
+  }
+  function formatSeconds(seconds) {
+    const days = Math.floor(seconds / (60 * 60 * 24));
+    const hours = Math.floor((seconds % (60 * 60 * 24)) / (60 * 60));
+    const minutes = Math.floor((seconds % (60 * 60)) / 60);
+    let result = '';
+    if (days > 0) {
+      result += days + ' ' + 'days' + ' ';
+    }
+    if (hours > 0) {
+      result += hours + ' ' + 'hour' + ' ';
+    }
+    if (minutes > 0) {
+      result += minutes + ' ' + 'min';
+    }
+    return result.trim();
   }
   const FeedIcon = progressConfig.progress[seed_id].feedIcon;
   return (
@@ -178,7 +195,8 @@ function StakeModal(props: any) {
             <div className="flex items-start gap-2 mt-4">
               <TipIcon className="flex-shrink-0 transform translate-y-1" />
               <p className="text-sm text-greenLight">
-                the unstaked assets will available to be withdrawal in 5 days.
+                the unstaked assets will available to be withdrawal in{' '}
+                {formatSeconds(delay_withdraw_sec)}.
               </p>
             </div>
           </div>
