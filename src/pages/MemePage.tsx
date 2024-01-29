@@ -226,17 +226,17 @@ export default function MemePage() {
         lpSeeds,
       }}
     >
-      <div className="-mt-12 xsm:mt-3">
+      <div className="-mt-12 xsm:mt-0">
         {is_mobile ? (
           <div className="flex items-center justify-center">
-            <MobileBanner className="w-full transform scale-110" />
+            <MobileBanner className="w-full transform scale-105" />
           </div>
         ) : (
           <Banner />
         )}
         <div
           className="m-auto lg:w-5/6"
-          style={{ maxWidth: '1100px', marginTop: '-55px' }}
+          style={{ maxWidth: '1100px', marginTop: is_mobile ? '0px' : '-55px' }}
         >
           <Overview />
           {is_mobile ? null : <ProgressBar />}
