@@ -8,6 +8,10 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
             url: 'https://rpc.mainnet.near.org',
             simpleName: 'official rpc',
           },
+          lavaRpc: {
+            url: 'https://g.w.lavanet.xyz/gateway/near/rpc-http/a6e88c7710da77f09430aacd6328efd6',
+            simpleName: 'lava rpc',
+          },
           // publicRpc: {
           //   url: 'https://public-rpc.blockpi.io/http/near',
           //   simpleName: 'blockpi rpc',
@@ -66,6 +70,10 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
           defaultRpc: {
             url: 'https://rpc.mainnet.near.org',
             simpleName: 'official rpc',
+          },
+          lavaRpc: {
+            url: 'https://g.w.lavanet.xyz/gateway/near/rpc-http/a6e88c7710da77f09430aacd6328efd6',
+            simpleName: 'lava rpc',
           },
           // publicRpc: {
           //   url: 'https://public-rpc.blockpi.io/http/near',
