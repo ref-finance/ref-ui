@@ -279,18 +279,18 @@ const SeedsBox = () => {
               />
               <Template title="Feeders" value={getFeeder(seed_id)} />
               <Template
-                title="You Feed"
+                title="Your Feed"
                 value={getSeedUserStaked(seed_id).amount}
                 subValue={getSeedUserStaked(seed_id).value}
               />
               <Template
-                title="You Reward"
+                title="Your Reward"
                 rewards={unclaimed_rewards[seed_id]}
                 isRewards={true}
                 seed={seeds[seed_id]}
               />
               <Template
-                title="Balance"
+                title="Wallet Balance"
                 value={getUserBalance(seed_id).amount}
                 subValue={getUserBalance(seed_id).value}
               />

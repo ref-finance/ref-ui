@@ -283,11 +283,11 @@ export function getMemeConfig(): any {
     return {
       description: {
         'lonk.fakes.testnet':
-          'LONK reads as “Long”, LONK is long, LONK IS 龍, LONK is dragon (insert Illia), LONK is fren with BONK, LONK is love, LONK is not your average meme coin...',
+          'Born from collective frenship, home of NEAR degens. 龙 $LONK is not your average memecoin.Join Lonk in the mission to lonk NEAR back to $20.24.',
         'neko.fakes.testnet':
           'NEKO is the first community token on NEAR with a focus on creator empowerment. NEKO is on a mission to bring mass adoption to NEAR protocol.',
         'blackdragon.fakes.testnet':
-          'Dawn of BLACKDRAGON | the next gen, fully open-source & community-driven, memecoin native to NEAR',
+          'Black Dragon is a second generation memecoin that has emerged from the NEAR stack...',
         'shitzu.fakes.testnet':
           'Shitzu is entirely community-run and no longer controlled by Bastion',
       },
@@ -302,11 +302,11 @@ export function getMemeConfig(): any {
     return {
       description: {
         'lonk.fakes.testnet':
-          'LONK reads as “Long”, LONK is long, LONK IS 龍, LONK is dragon (insert Illia), LONK is fren with BONK, LONK is love, LONK is not your average meme coin...',
+          'Born from collective frenship, home of NEAR degens. 龙 $LONK is not your average memecoin.Join Lonk in the mission to lonk NEAR back to $20.24.',
         'neko.fakes.testnet':
           'NEKO is the first community token on NEAR with a focus on creator empowerment. NEKO is on a mission to bring mass adoption to NEAR protocol.',
         'blackdragon.fakes.testnet':
-          'Dawn of BLACKDRAGON | the next gen, fully open-source & community-driven, memecoin native to NEAR',
+          'Black Dragon is a second generation memecoin that has emerged from the NEAR stack...',
         'shitzu.fakes.testnet':
           'Shitzu is entirely community-run and no longer controlled by Bastion',
       },
@@ -321,11 +321,11 @@ export function getMemeConfig(): any {
     return {
       description: {
         'token.lonkingnearbackto2024.near':
-          'LONK reads as “Long”, LONK is long, LONK IS 龍, LONK is dragon (insert Illia), LONK is fren with BONK, LONK is love, LONK is not your average meme coin...',
+          'Born from collective frenship, home of NEAR degens. 龙 $LONK is not your average memecoin.Join Lonk in the mission to lonk NEAR back to $20.24.',
         'ftv2.nekotoken.near':
           'NEKO is the first community token on NEAR with a focus on creator empowerment. NEKO is on a mission to bring mass adoption to NEAR protocol.',
         'blackdragon.tkn.near':
-          'Dawn of BLACKDRAGON | the next gen, fully open-source & community-driven, memecoin native to NEAR',
+          'Black Dragon is a second generation memecoin that has emerged from the NEAR stack...',
         'token.0xshitzu.near':
           'Shitzu is entirely community-run and no longer controlled by Bastion',
       },
