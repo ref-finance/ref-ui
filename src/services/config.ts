@@ -239,6 +239,8 @@ export default function getConfig(
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near',
         ],
         BLACK_TOKEN_LIST: ['token.pembrock.near'],
+        REF_MEME_FARM_CONTRACT_ID:
+          process.env.REF_MEME_FARM_CONTRACT_ID || 'meme-farming.ref-labs.near',
       };
     case 'pub-testnet':
       return {
@@ -323,6 +325,9 @@ export default function getConfig(
           'usdc.fakes.testnet',
         ],
         BLACK_TOKEN_LIST: [],
+        REF_MEME_FARM_CONTRACT_ID:
+          process.env.REF_MEME_FARM_CONTRACT_ID ||
+          'memefarm-dev2.ref-dev.testnet',
       };
     case 'testnet':
       return {
@@ -406,6 +411,9 @@ export default function getConfig(
           'usdc.fakes.testnet',
         ],
         BLACK_TOKEN_LIST: [],
+        REF_MEME_FARM_CONTRACT_ID:
+          process.env.REF_MEME_FARM_CONTRACT_ID ||
+          'memefarm-dev2.ref-dev.testnet',
       };
     default:
       return {
@@ -550,6 +558,8 @@ export default function getConfig(
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near',
         ],
         BLACK_TOKEN_LIST: ['token.pembrock.near'],
+        REF_MEME_FARM_CONTRACT_ID:
+          process.env.REF_MEME_FARM_CONTRACT_ID || 'meme-farming.ref-labs.near',
       };
   }
 }

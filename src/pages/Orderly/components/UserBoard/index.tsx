@@ -2380,7 +2380,10 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
 
   useEffect(() => {
     if (!accountId || !storageEnough) return;
-
+    console.log(
+      'storedValidstoredValidstoredValidstoredValidstoredValid---spot',
+      storedValid
+    );
     if (!!storedValid) {
       setValidAccountSig(true);
       setKeyAnnounced(true);
@@ -2391,18 +2394,22 @@ export function UserBoardMobileSpot({ maintenance }: { maintenance: boolean }) {
 
     is_orderly_key_announced(accountId, true)
       .then(async (key_announce) => {
+        console.log('search result key_announce_spot', key_announce);
         setKeyAnnounced(key_announce);
         if (!key_announce) {
           const res = await announceKey(accountId).then((res) => {
+            console.log('set key_announce_spot as true');
             setKeyAnnounced(true);
           });
         } else return;
       })
       .then(() => {
         is_trading_key_set(accountId).then(async (trading_key_set) => {
+          console.log('search result trading_announce_spot', trading_key_set);
           setTradingKeySet(trading_key_set);
           if (!trading_key_set) {
             await setTradingKey(accountId).then(() => {
+              console.log('set trading_key_spot as true');
               setTradingKeySet(true);
             });
           }

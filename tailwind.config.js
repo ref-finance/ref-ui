@@ -429,6 +429,10 @@ module.exports = {
         warnYellowColor: '#DB8946',
         burrowYellowColor: '#D2FF39',
         farmDarkTipColor: '#0F1E29',
+        memeBorderColor: 'rgba(151, 151, 151, 0.2)',
+        memePoolBoxBorderColor: '#3F5361',
+        memeDarkColor: '#182833',
+        memeyellowColor: '#F9A43F',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
