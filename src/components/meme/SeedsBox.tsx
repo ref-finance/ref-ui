@@ -213,7 +213,7 @@ const SeedsBox = () => {
         return (
           <div
             key={seed_id}
-            className="border border-memeBorderColor bg-swapCardGradient rounded-2xl px-4 py-6"
+            className="flex flex-col justify-between border border-memeBorderColor bg-swapCardGradient rounded-2xl px-4 py-6"
           >
             <div className="flex items-stretch gap-4">
               <img
