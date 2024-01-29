@@ -32,7 +32,7 @@ const Overview = () => {
       .toFixed();
     return [
       toInternationalCurrencySystem_usd(t_staked),
-      [maxSeed, formatPercentage(maxApr.toFixed())],
+      [maxSeed, maxApr.gt(0) ? formatPercentage(maxApr.toFixed()) : '-'],
       totalStaker,
     ];
   }, [seeds]) as any;
@@ -68,11 +68,11 @@ const Overview = () => {
           <TemplateMobile title="Top StakingAPY">
             {maxAprSeed[0] ? (
               <div className="flex items-center gap-2">
-                <img
+                {/* <img
                   src={maxAprSeed[0]?.token_meta_data?.icon}
                   className="rounded-full"
                   style={{ height: '26px', width: '26px' }}
-                />
+                /> */}
                 <span className="text-xl gotham_bold text-white">
                   {maxAprSeed[1]}
                 </span>
@@ -117,11 +117,11 @@ const Overview = () => {
           <Template title="Top StakingAPY">
             {maxAprSeed[0] ? (
               <div className="flex items-center gap-2">
-                <img
+                {/* <img
                   src={maxAprSeed[0]?.token_meta_data?.icon}
                   className="rounded-full"
                   style={{ height: '26px', width: '26px' }}
-                />
+                /> */}
                 <span className="text-3xl gotham_bold text-white">
                   {maxAprSeed[1]}
                 </span>
