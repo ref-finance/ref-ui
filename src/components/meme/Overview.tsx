@@ -169,7 +169,7 @@ const Overview = () => {
 function Template({ title, children }: any) {
   return (
     <div
-      className="flex flex-grow flex-col items-center justify-center border border-memeBorderColor bg-swapCardGradient"
+      className="flex flex-grow flex-col items-center justify-center border border-memeBorderColor bg-swapCardGradient rounded-2xl"
       style={{ height: '110px' }}
     >
       <span className="text-base text-white">{title}</span>
