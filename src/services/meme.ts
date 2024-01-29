@@ -287,9 +287,9 @@ export function getMemeConfig(): any {
         'neko.fakes.testnet':
           'NEKO is the first community token on NEAR with a focus on creator empowerment. NEKO is on a mission to bring mass adoption to NEAR protocol.',
         'blackdragon.fakes.testnet':
-          'Black Dragon is a second generation memecoin that has emerged from the NEAR stack',
+          'Black Dragon is a second generation memecoin that has emerged from the NEAR stack.',
         'shitzu.fakes.testnet':
-          'Shitzu is entirely community-run and no longer controlled by Bastion',
+          'Shitzu is entirely community-run and no longer controlled by Bastion.',
       },
       lp_farm: {
         'lonk.fakes.testnet': '716',
@@ -306,9 +306,9 @@ export function getMemeConfig(): any {
         'neko.fakes.testnet':
           'NEKO is the first community token on NEAR with a focus on creator empowerment. NEKO is on a mission to bring mass adoption to NEAR protocol.',
         'blackdragon.fakes.testnet':
-          'Black Dragon is a second generation memecoin that has emerged from the NEAR stack',
+          'Black Dragon is a second generation memecoin that has emerged from the NEAR stack.',
         'shitzu.fakes.testnet':
-          'Shitzu is entirely community-run and no longer controlled by Bastion',
+          'Shitzu is entirely community-run and no longer controlled by Bastion.',
       },
       lp_farm: {
         'lonk.fakes.testnet': '716',
@@ -325,9 +325,9 @@ export function getMemeConfig(): any {
         'ftv2.nekotoken.near':
           'NEKO is the first community token on NEAR with a focus on creator empowerment. NEKO is on a mission to bring mass adoption to NEAR protocol.',
         'blackdragon.tkn.near':
-          'Black Dragon is a second generation memecoin that has emerged from the NEAR stack',
+          'Black Dragon is a second generation memecoin that has emerged from the NEAR stack.',
         'token.0xshitzu.near':
-          'Shitzu is entirely community-run and no longer controlled by Bastion',
+          'Shitzu is entirely community-run and no longer controlled by Bastion.',
       },
       lp_farm: {
         'token.lonkingnearbackto2024.near': '4314',
