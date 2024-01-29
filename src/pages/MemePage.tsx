@@ -34,6 +34,7 @@ import { toReadableNumber } from 'src/utils/numbers';
 import { WalletContext } from '../utils/wallets-integration';
 import { get_all_seeds } from '../services/commonV3';
 import { isMobile } from '../utils/device';
+import { MobileBanner } from '../components/meme/icons';
 
 export default function MemePage() {
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
@@ -210,9 +211,7 @@ export default function MemePage() {
     set_user_balances(user_balances_map);
     set_withdraw_list(user_withdraw_list);
   }
-  if (isMobile()) {
-    history.push('/');
-  }
+  const is_mobile = isMobile();
   return (
     <MemeContext.Provider
       value={{
@@ -227,14 +226,20 @@ export default function MemePage() {
         lpSeeds,
       }}
     >
-      <div className="-mt-12">
-        <Banner />
+      <div className="-mt-12 xsm:mt-3">
+        {is_mobile ? (
+          <div className="flex items-center justify-center">
+            <MobileBanner className="w-full transform scale-110" />
+          </div>
+        ) : (
+          <Banner />
+        )}
         <div
           className="m-auto lg:w-5/6"
           style={{ maxWidth: '1100px', marginTop: '-55px' }}
         >
           <Overview />
-          <ProgressBar />
+          {is_mobile ? null : <ProgressBar />}
           <SeedsBox />
           <WithdrawList />
           {loading ? (

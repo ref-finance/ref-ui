@@ -50,7 +50,7 @@ const Overview = () => {
     }, []);
   }, [lpSeeds]);
   return (
-    <div className="relative z-50 flex items-center justify-between gap-8">
+    <div className="relative z-50 flex items-center justify-between gap-8 xsm:flex-col xsm:mx-4 xsm:gap-4">
       <Template title="Total Staked">
         <span className="text-3xl gotham_bold text-white">{totalStaked}</span>
       </Template>
@@ -105,7 +105,7 @@ const Overview = () => {
 function Template({ title, children }: any) {
   return (
     <div
-      className="flex flex-grow flex-col items-center justify-center border border-memeBorderColor bg-swapCardGradient rounded-2xl"
+      className="flex flex-grow flex-col items-center justify-center border border-memeBorderColor bg-swapCardGradient rounded-2xl xsm:w-full"
       style={{ height: '110px' }}
     >
       <span className="text-base text-white">{title}</span>
