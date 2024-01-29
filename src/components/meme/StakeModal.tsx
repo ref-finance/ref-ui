@@ -17,6 +17,7 @@ import {
 } from '../../utils/uiNumber';
 import { Seed, FarmBoost } from '../../services/farm';
 import { getProgressConfig } from './ProgressBar';
+import { TipIcon } from './icons';
 const progressConfig = getProgressConfig();
 function StakeModal(props: any) {
   const { seeds, user_balances, tokenPriceList, user_seeds } =
@@ -174,6 +175,12 @@ function StakeModal(props: any) {
                 )}
               />
             </OprationButton>
+            <div className="flex items-start gap-2 mt-4">
+              <TipIcon className="flex-shrink-0 transform translate-y-1" />
+              <p className="text-sm text-greenLight">
+                the unstaked assets will available to be withdrawal in 5 days.
+              </p>
+            </div>
           </div>
         </div>
       </div>
