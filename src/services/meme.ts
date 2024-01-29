@@ -283,7 +283,7 @@ export function getMemeConfig(): any {
     return {
       description: {
         'lonk.fakes.testnet':
-          'Born from collective frenship, home of NEAR degens. 龙 $LONK is not your average memecoin.Join Lonk in the mission to lonk NEAR back to $20.24.',
+          'Lonking, not shorting. Home of NEAR degens.Born from collective frenship, firmly grounded in the realms of memetics and humor. 龙 Lonk is not your average memecoin.',
         'neko.fakes.testnet':
           'NEKO is the first community token on NEAR with a focus on creator empowerment. NEKO is on a mission to bring mass adoption to NEAR protocol.',
         'blackdragon.fakes.testnet':
@@ -302,7 +302,7 @@ export function getMemeConfig(): any {
     return {
       description: {
         'lonk.fakes.testnet':
-          'Born from collective frenship, home of NEAR degens. 龙 $LONK is not your average memecoin.Join Lonk in the mission to lonk NEAR back to $20.24.',
+          'Lonking, not shorting. Home of NEAR degens.Born from collective frenship, firmly grounded in the realms of memetics and humor. 龙 Lonk is not your average memecoin.',
         'neko.fakes.testnet':
           'NEKO is the first community token on NEAR with a focus on creator empowerment. NEKO is on a mission to bring mass adoption to NEAR protocol.',
         'blackdragon.fakes.testnet':
@@ -321,7 +321,7 @@ export function getMemeConfig(): any {
     return {
       description: {
         'token.lonkingnearbackto2024.near':
-          'Born from collective frenship, home of NEAR degens. 龙 $LONK is not your average memecoin.Join Lonk in the mission to lonk NEAR back to $20.24.',
+          'Lonking, not shorting. Home of NEAR degens.Born from collective frenship, firmly grounded in the realms of memetics and humor. 龙 Lonk is not your average memecoin.',
         'ftv2.nekotoken.near':
           'NEKO is the first community token on NEAR with a focus on creator empowerment. NEKO is on a mission to bring mass adoption to NEAR protocol.',
         'blackdragon.tkn.near':
