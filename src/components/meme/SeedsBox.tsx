@@ -266,6 +266,7 @@ const SeedsBox = () => {
                 title="Total Feed"
                 value={getSeedStaked(seed_id).amount}
                 subValue={getSeedStaked(seed_id).value}
+                space={true}
               />
               <Template
                 title="APY"
@@ -282,6 +283,7 @@ const SeedsBox = () => {
                 title="Your Feed"
                 value={getSeedUserStaked(seed_id).amount}
                 subValue={getSeedUserStaked(seed_id).value}
+                space={true}
               />
               <Template
                 title="Your Reward"
@@ -424,6 +426,7 @@ function Template({
   rewards,
   isRewards,
   ended,
+  space,
 }: {
   title: string;
   value?: string | number;
@@ -435,6 +438,7 @@ function Template({
   rewards?: Record<string, string>;
   isRewards?: boolean;
   ended?: boolean;
+  space?: boolean;
 }) {
   const { tokenPriceList, allTokenMetadatas } = useContext(MemeContext);
   function getApyTip() {
@@ -546,7 +550,11 @@ function Template({
         <span className="text-sm text-white">{title}</span>
       ) : null}
       {/* content */}
-      <div className="flex items-end gap-1">
+      <div
+        className={`${
+          space ? 'flex flex-col items-start justify-between' : 'flex items-end'
+        } gap-1`}
+      >
         {isAPY ? (
           <span className="text-xl text-white gotham_bold">
             {pending || ended ? '-' : formatPercentageUi(value)}
