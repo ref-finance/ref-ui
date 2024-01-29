@@ -870,6 +870,13 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
       ],
     },
     {
+      id: '9',
+      label: <>Meme Season</>,
+      url: '/meme',
+      isExternal: false,
+      links: ['/meme'],
+    },
+    {
       id: '6',
       label: (
         <>

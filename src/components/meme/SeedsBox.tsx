@@ -34,6 +34,7 @@ import {
   parsedArgs,
 } from '../../components/layout/transactionTipPopUp';
 import { checkTransaction } from '../../services/swap';
+import { isMobile } from '../../utils/device';
 
 export interface ITxParams {
   action: 'stake' | 'unstake';
@@ -193,8 +194,9 @@ const SeedsBox = () => {
     </div>`;
     return result;
   }
+  const is_mobile = isMobile();
   return (
-    <div className="grid grid-cols-2 grid-rows-2 gap-4 mt-14">
+    <div className="grid gap-4 mt-14 xsm:grid-cols-1 xsm:grid-rows-1 lg:grid-cols-2 lg:grid-rows-2 xsm:mx-3">
       {Object.entries(seeds).map(([seed_id, seed]) => {
         const is_pending = isPending(seed);
         const is_ended = isEnded(seed);
@@ -211,7 +213,7 @@ const SeedsBox = () => {
         return (
           <div
             key={seed_id}
-            className="border border-memeBorderColor bg-swapCardGradient rounded-2xl px-4 py-6"
+            className="flex flex-col justify-between border border-memeBorderColor bg-swapCardGradient rounded-2xl px-4 py-6"
           >
             <div className="flex items-stretch gap-4">
               <img
@@ -220,7 +222,7 @@ const SeedsBox = () => {
                 className=" rounded-full"
               />
               <div className="flex flex-col justify-between gap-1.5">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap gap-1">
                   <span className="text-xl gotham_bold text-white">
                     {seed.token_meta_data.symbol}
                   </span>
@@ -259,7 +261,7 @@ const SeedsBox = () => {
               </div>
             </div>
             {/* base data */}
-            <div className="grid grid-cols-3 grid-rows-2 gap-y-6 mt-5">
+            <div className="grid lg:grid-cols-3 lg:grid-rows-2 xsm:grid-cols-2 gap-y-6 mt-5">
               <Template
                 title="Total Feed"
                 value={getSeedStaked(seed_id).amount}
@@ -277,18 +279,18 @@ const SeedsBox = () => {
               />
               <Template title="Feeders" value={getFeeder(seed_id)} />
               <Template
-                title="You Feed"
+                title="Your Feed"
                 value={getSeedUserStaked(seed_id).amount}
                 subValue={getSeedUserStaked(seed_id).value}
               />
               <Template
-                title="You Reward"
+                title="Your Reward"
                 rewards={unclaimed_rewards[seed_id]}
                 isRewards={true}
                 seed={seeds[seed_id]}
               />
               <Template
-                title="Balance"
+                title="Wallet Balance"
                 value={getUserBalance(seed_id).amount}
                 subValue={getUserBalance(seed_id).value}
               />
@@ -303,12 +305,12 @@ const SeedsBox = () => {
               }`}
             >
               <OprationButton
-                minWidth="7rem"
+                // minWidth="7rem"
                 disabled={claimButtonDisabled || claim_seed_id == seed_id}
                 onClick={() => {
                   seedClaim(seed);
                 }}
-                className={`flex items-center justify-center border border-greenLight rounded-xl h-12 text-greenLight text-base gotham_bold focus:outline-none ${
+                className={`flex flex-grow items-center justify-center border border-greenLight rounded-xl h-12 text-greenLight text-base gotham_bold focus:outline-none ${
                   claimButtonDisabled || claim_seed_id == seed_id
                     ? 'opacity-40'
                     : ''
@@ -320,13 +322,13 @@ const SeedsBox = () => {
                 />
               </OprationButton>
               <OprationButton
-                minWidth="7rem"
+                // minWidth="7rem"
                 disabled={unStakeButtonDisabled}
                 onClick={() => {
                   set_modal_action_seed_id(seed.seed_id);
                   setIsUnStakeOpen(true);
                 }}
-                className={`flex items-center justify-center border border-greenLight rounded-xl h-12 text-greenLight text-base gotham_bold focus:outline-none ${
+                className={`flex flex-grow items-center justify-center border border-greenLight rounded-xl h-12 text-greenLight text-base gotham_bold focus:outline-none ${
                   unStakeButtonDisabled ? 'opacity-30' : ''
                 }`}
               >
@@ -341,7 +343,7 @@ const SeedsBox = () => {
                     data-tooltip-html={comeSoonTip()}
                   >
                     <OprationButton
-                      minWidth="7rem"
+                      // minWidth="7rem"
                       disabled={stakeButtonDisabled}
                       onClick={() => {
                         set_modal_action_seed_id(seed.seed_id);
@@ -360,7 +362,7 @@ const SeedsBox = () => {
                 </div>
               ) : (
                 <OprationButton
-                  minWidth="7rem"
+                  // minWidth="7rem"
                   disabled={stakeButtonDisabled}
                   onClick={() => {
                     set_modal_action_seed_id(seed.seed_id);
@@ -372,7 +374,7 @@ const SeedsBox = () => {
                       : 'bg-greenLight'
                   }`}
                 >
-                  Feed {seed.token_meta_data.symbol}
+                  Feed {is_mobile ? '' : seed.token_meta_data.symbol}
                 </OprationButton>
               )}
             </div>

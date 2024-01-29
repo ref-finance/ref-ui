@@ -8,6 +8,10 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
             url: 'https://rpc.mainnet.near.org',
             simpleName: 'official rpc',
           },
+          lavaRpc: {
+            url: 'https://g.w.lavanet.xyz/gateway/near/rpc-http/a6e88c7710da77f09430aacd6328efd6',
+            simpleName: 'lava rpc',
+          },
           // publicRpc: {
           //   url: 'https://public-rpc.blockpi.io/http/near',
           //   simpleName: 'blockpi rpc',
@@ -31,6 +35,10 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
             url: 'https://rpc.testnet.near.org',
             simpleName: 'official rpc',
           },
+          lavaRpc: {
+            url: 'https://g.w.lavanet.xyz/gateway/neart/rpc-http/a6e88c7710da77f09430aacd6328efd6',
+            simpleName: 'lava rpc',
+          },
           // publicRpc: {
           //   url: 'https://public-rpc.blockpi.io/http/near-testnet',
           //   simpleName: 'blockpi rpc',
@@ -45,6 +53,10 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
             url: 'https://rpc.testnet.near.org',
             simpleName: 'official rpc',
           },
+          lavaRpc: {
+            url: 'https://g.w.lavanet.xyz/gateway/neart/rpc-http/a6e88c7710da77f09430aacd6328efd6',
+            simpleName: 'lava rpc',
+          },
           // publicRpc: {
           //   url: 'https://public-rpc.blockpi.io/http/near-testnet',
           //   simpleName: 'blockpi rpc',
@@ -58,6 +70,10 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
           defaultRpc: {
             url: 'https://rpc.mainnet.near.org',
             simpleName: 'official rpc',
+          },
+          lavaRpc: {
+            url: 'https://g.w.lavanet.xyz/gateway/near/rpc-http/a6e88c7710da77f09430aacd6328efd6',
+            simpleName: 'lava rpc',
           },
           // publicRpc: {
           //   url: 'https://public-rpc.blockpi.io/http/near',
@@ -240,7 +256,8 @@ export default function getConfig(
         ],
         BLACK_TOKEN_LIST: ['token.pembrock.near'],
         REF_MEME_FARM_CONTRACT_ID:
-          process.env.REF_MEME_FARM_CONTRACT_ID || 'meme-farming.ref-labs.near',
+          process.env.REF_MEME_FARM_CONTRACT_ID ||
+          'meme-farming_011.ref-labs.near',
       };
     case 'pub-testnet':
       return {
@@ -559,7 +576,8 @@ export default function getConfig(
         ],
         BLACK_TOKEN_LIST: ['token.pembrock.near'],
         REF_MEME_FARM_CONTRACT_ID:
-          process.env.REF_MEME_FARM_CONTRACT_ID || 'meme-farming.ref-labs.near',
+          process.env.REF_MEME_FARM_CONTRACT_ID ||
+          'meme-farming_011.ref-labs.near',
       };
   }
 }
