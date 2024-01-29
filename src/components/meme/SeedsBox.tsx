@@ -295,6 +295,7 @@ const SeedsBox = () => {
                 title="Wallet Balance"
                 value={getUserBalance(seed_id).amount}
                 subValue={getUserBalance(seed_id).value}
+                space={true}
               />
             </div>
             {/* operation */}
