@@ -299,7 +299,7 @@ const SeedsBox = () => {
               />
             </div>
             {/* operation */}
-            <div className={`flex-grow mt-6 ${isSignedIn ? 'hidden' : ''}`}>
+            <div className={`mt-6 ${isSignedIn ? 'hidden' : ''}`}>
               <ConnectToNearBtn></ConnectToNearBtn>
             </div>
             <div
