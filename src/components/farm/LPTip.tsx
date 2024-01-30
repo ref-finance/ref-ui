@@ -13,7 +13,7 @@ export default function LPTip({ poolId }: { poolId: string | number }) {
   const url = `https://app.burrow.finance/tokenDetail/${shadow_id}`;
   useEffect(() => {
     get_shadow_records().then((res) => {
-      set_has_shadow_in_farm(!!Number(res[poolId]?.shadow_in_farm || 0));
+      set_has_shadow_in_farm(!!Number(res[poolId]?.shadow_in_burrow || 0));
     });
   }, []);
   return (
@@ -45,8 +45,8 @@ export default function LPTip({ poolId }: { poolId: string | number }) {
         }`}
       >
         {has_shadow_in_farm ? (
-          <div className="text-xs text-farmText w-52 border border-primaryText rounded-md px-2 py-1 bg-cardBg">
-            You’ve got double rewards from Ref’s farm and Burrow’s LP Supplying.
+          <div className="text-xs text-farmText w-56 border border-primaryText rounded-md px-2 py-1 bg-cardBg">
+            You‘ve supplied this LP on Borrow
           </div>
         ) : (
           <div className="text-xs text-farmText w-52 border border-primaryText rounded-md px-2 py-1 bg-cardBg">
