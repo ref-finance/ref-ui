@@ -34,7 +34,6 @@ import {
   parsedArgs,
 } from '../../components/layout/transactionTipPopUp';
 import { checkTransaction } from '../../services/swap';
-import { isMobile } from '../../utils/device';
 
 export interface ITxParams {
   action: 'stake' | 'unstake';
@@ -49,7 +48,6 @@ const SeedsBox = () => {
     user_seeds,
     user_balances,
     unclaimed_rewards,
-    allTokenMetadatas,
     lpSeeds,
   } = useContext(MemeContext);
   const { globalState } = useContext(WalletContext);
@@ -194,7 +192,6 @@ const SeedsBox = () => {
     </div>`;
     return result;
   }
-  const is_mobile = isMobile();
   return (
     <div className="grid gap-4 mt-14 xsm:grid-cols-1 xsm:grid-rows-1 lg:grid-cols-2 lg:grid-rows-2 xsm:mx-3">
       {Object.entries(seeds).map(([seed_id, seed]) => {
@@ -303,40 +300,45 @@ const SeedsBox = () => {
               <ConnectToNearBtn></ConnectToNearBtn>
             </div>
             <div
-              className={`flex items-center justify-between mt-6 gap-3 ${
+              className={`flex items-center justify-between mt-6 gap-3 xsm:flex-col-reverse ${
                 isSignedIn ? '' : 'hidden'
               }`}
             >
-              <OprationButton
-                // minWidth="7rem"
-                disabled={claimButtonDisabled || claim_seed_id == seed_id}
-                onClick={() => {
-                  seedClaim(seed);
-                }}
-                className={`flex flex-grow items-center justify-center border border-greenLight rounded-xl h-12 text-greenLight text-base gotham_bold focus:outline-none ${
-                  claimButtonDisabled || claim_seed_id == seed_id
-                    ? 'opacity-40'
-                    : ''
-                }`}
-              >
-                <ButtonTextWrapper
-                  loading={claim_seed_id == seed_id}
-                  Text={() => <>Claim</>}
-                />
-              </OprationButton>
-              <OprationButton
-                // minWidth="7rem"
-                disabled={unStakeButtonDisabled}
-                onClick={() => {
-                  set_modal_action_seed_id(seed.seed_id);
-                  setIsUnStakeOpen(true);
-                }}
-                className={`flex flex-grow items-center justify-center border border-greenLight rounded-xl h-12 text-greenLight text-base gotham_bold focus:outline-none ${
-                  unStakeButtonDisabled ? 'opacity-30' : ''
-                }`}
-              >
-                <ButtonTextWrapper loading={false} Text={() => <>Unstake</>} />
-              </OprationButton>
+              <div className="flex items-center flex-grow gap-3 xsm:w-full">
+                <OprationButton
+                  // minWidth="7rem"
+                  disabled={claimButtonDisabled || claim_seed_id == seed_id}
+                  onClick={() => {
+                    seedClaim(seed);
+                  }}
+                  className={`flex flex-grow items-center justify-center border border-greenLight rounded-xl h-12 text-greenLight text-base gotham_bold focus:outline-none ${
+                    claimButtonDisabled || claim_seed_id == seed_id
+                      ? 'opacity-40'
+                      : ''
+                  }`}
+                >
+                  <ButtonTextWrapper
+                    loading={claim_seed_id == seed_id}
+                    Text={() => <>Claim</>}
+                  />
+                </OprationButton>
+                <OprationButton
+                  // minWidth="7rem"
+                  disabled={unStakeButtonDisabled}
+                  onClick={() => {
+                    set_modal_action_seed_id(seed.seed_id);
+                    setIsUnStakeOpen(true);
+                  }}
+                  className={`flex flex-grow items-center justify-center border border-greenLight rounded-xl h-12 text-greenLight text-base gotham_bold focus:outline-none ${
+                    unStakeButtonDisabled ? 'opacity-30' : ''
+                  }`}
+                >
+                  <ButtonTextWrapper
+                    loading={false}
+                    Text={() => <>Unstake</>}
+                  />
+                </OprationButton>
+              </div>
               {stakeButtonDisabled && is_pending ? (
                 <div className="flex-grow">
                   <div
@@ -352,7 +354,7 @@ const SeedsBox = () => {
                         set_modal_action_seed_id(seed.seed_id);
                         setIsStakeOpen(true);
                       }}
-                      className={`flex flex-grow items-center justify-center text-boxBorder rounded-xl h-12 text-base gotham_bold focus:outline-none ${
+                      className={`flex flex-grow items-center justify-center text-boxBorder rounded-xl h-12 text-base gotham_bold focus:outline-none xsm:w-full ${
                         stakeButtonDisabled
                           ? 'bg-memePoolBoxBorderColor'
                           : 'bg-greenLight'
@@ -371,13 +373,13 @@ const SeedsBox = () => {
                     set_modal_action_seed_id(seed.seed_id);
                     setIsStakeOpen(true);
                   }}
-                  className={`flex flex-grow items-center justify-center text-boxBorder rounded-xl h-12 text-base gotham_bold focus:outline-none ${
+                  className={`flex flex-grow items-center justify-center text-boxBorder rounded-xl h-12 text-base gotham_bold focus:outline-none xsm:w-full ${
                     stakeButtonDisabled
                       ? 'bg-memePoolBoxBorderColor'
                       : 'bg-greenLight'
                   }`}
                 >
-                  Feed {is_mobile ? '' : seed.token_meta_data.symbol}
+                  Feed {seed.token_meta_data.symbol}
                 </OprationButton>
               )}
             </div>

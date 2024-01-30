@@ -16,7 +16,7 @@ import {
   formatPercentage,
 } from '../../utils/uiNumber';
 import { Seed, FarmBoost } from '../../services/farm';
-import { getProgressConfig } from './ProgressBar';
+import { getProgressConfig } from './ProgressConfig';
 import { TipIcon } from './icons';
 const progressConfig = getProgressConfig();
 function StakeModal(props: any) {
