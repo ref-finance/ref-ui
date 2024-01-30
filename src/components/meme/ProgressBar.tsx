@@ -1,5 +1,6 @@
 import React, { useContext, useMemo } from 'react';
 import Big from 'big.js';
+import { BoneIcon, FireIcon, MoneyIcon, DrumstickIcon } from './icons';
 import {
   DragonHead,
   DragonTail,
@@ -13,15 +14,27 @@ import {
   ShitzuHead,
   ShitzuTail,
   ShitzuBody,
-  BoneIcon,
-  FireIcon,
-  MoneyIcon,
-  DrumstickIcon,
   FeedMe,
-} from './icons';
+} from './ani_pc';
+import {
+  DragonHeadMobile,
+  DragonTailMobile,
+  DragonBodyMobile,
+  LonkHeadMobile,
+  LonkTailMobile,
+  LonkBodyMobile,
+  NekoTailMobile,
+  NekoHeadMobile,
+  NekoBodyMobile,
+  ShitzuHeadMobile,
+  ShitzuTailMobile,
+  ShitzuBodyMobile,
+  FeedMeMobile,
+} from './ani_mobile';
 import { MemeContext } from './context';
 import { formatPercentage } from '../../utils/uiNumber';
-
+import { isMobile } from '../../utils/device';
+const is_mobile = isMobile();
 const ProgressBar = () => {
   const config = getProgressConfig();
   const { seeds } = useContext(MemeContext);
@@ -36,7 +49,7 @@ const ProgressBar = () => {
   return (
     <div className="text-white" style={{ marginTop: '80px' }}>
       <div className="flex items-center justify-center">
-        <span className="text-3xl gotham_bold text-white">
+        <span className="gotham_bold text-white lg:text-3xl xsm:text-xl">
           MEME Gauge Weight
         </span>
       </div>
@@ -47,7 +60,8 @@ const ProgressBar = () => {
         const seedTvl = seed.seedTvl;
         if (Big(seedTvl).gt(0) && Big(totalTvl).gt(0)) {
           const p = Big(seedTvl).div(totalTvl);
-          addW = p.mul(800).toFixed();
+          const length = is_mobile ? window.innerWidth - 185 : 800;
+          addW = p.mul(length).toFixed();
           percent = formatPercentage(p.mul(100).toFixed());
         }
         const FeedIcon = config.progress[seed_id].feedIcon;
@@ -70,10 +84,17 @@ const ProgressBar = () => {
               <div style={{ marginLeft: '-1px' }}>
                 {config.progress[seed_id].head}
               </div>
-              <div className="relative transform -translate-y-10 ml-1.5">
-                <FeedIcon className="w-8 h-8 absolute -top-4 left-4" />
-                <FeedMe />
-              </div>
+              {is_mobile ? (
+                <div className="flex items-center justify-center relative transform -translate-y-10 ml-1.5 lg:hidden">
+                  <FeedIcon className="w-8 h-8 absolute" />
+                  <FeedMeMobile />
+                </div>
+              ) : (
+                <div className="relative transform -translate-y-10 ml-1.5 xsm:hidden">
+                  <FeedIcon className="w-8 h-8 absolute -top-4 left-4" />
+                  <FeedMe />
+                </div>
+              )}
             </div>
           </RaceTemplate>
         );
@@ -86,7 +107,7 @@ function RaceTemplate({ children }: any) {
   return (
     <div
       className="border-b border-greenLight border-opacity-10"
-      style={{ height: '166px' }}
+      style={{ height: is_mobile ? '130px' : '166px' }}
     >
       {children}
     </div>
@@ -94,8 +115,16 @@ function RaceTemplate({ children }: any) {
 }
 
 const LONK_CONFIG = {
-  head: <LonkHead className="relative" style={{ top: '-21px' }} />,
-  tail: <LonkTail className="relative" />,
+  head: is_mobile ? (
+    <LonkHeadMobile className="relative" style={{ top: '-14px' }} />
+  ) : (
+    <LonkHead className="relative" style={{ top: '-21px' }} />
+  ),
+  tail: is_mobile ? (
+    <LonkTailMobile className="relative" />
+  ) : (
+    <LonkTail className="relative" />
+  ),
   body: (initWidth, addWidth, percent) => {
     const w = Big(initWidth || 0)
       .plus(addWidth || 0)
@@ -106,9 +135,9 @@ const LONK_CONFIG = {
           style={{ width: `${w + 'px'}`, top: '-1px' }}
           className="relative overflow-hidden"
         >
-          <LonkBody />
+          {is_mobile ? <LonkBodyMobile /> : <LonkBody />}
         </div>
-        <span className="absolute top-2 text-xl text-white gotham_bold z-10">
+        <span className="absolute lg:top-2 xsm:top-1.5 lg:text-xl xsm:text-sm text-white gotham_bold z-10">
           {percent || ''}
         </span>
       </div>
@@ -117,8 +146,12 @@ const LONK_CONFIG = {
   feedIcon: DrumstickIcon,
 };
 const NEKO_CONFIG = {
-  head: <NekoHead className="relative" style={{ top: '-16px' }} />,
-  tail: <NekoTail />,
+  head: is_mobile ? (
+    <NekoHeadMobile className="relative" style={{ top: '-14px' }} />
+  ) : (
+    <NekoHead className="relative" style={{ top: '-16px' }} />
+  ),
+  tail: is_mobile ? <NekoTailMobile /> : <NekoTail />,
   body: (initWidth, addWidth, percent) => {
     const w = Big(initWidth || 0)
       .plus(addWidth || 0)
@@ -126,12 +159,12 @@ const NEKO_CONFIG = {
     return (
       <div className="flex justify-center relative">
         <div
-          style={{ width: `${w + 'px'}`, top: '12px' }}
+          style={{ width: `${w + 'px'}`, top: is_mobile ? '7px' : '12px' }}
           className="relative overflow-hidden"
         >
-          <NekoBody />
+          {is_mobile ? <NekoBodyMobile /> : <NekoBody />}
         </div>
-        <span className="absolute top-4 text-xl text-black gotham_bold z-10">
+        <span className="absolute lg:top-4 xsm:top-3 lg:text-xl xsm:text-sm text-black gotham_bold z-10">
           {percent || ''}
         </span>
       </div>
@@ -140,8 +173,12 @@ const NEKO_CONFIG = {
   feedIcon: MoneyIcon,
 };
 const DRAGON_CONFIG = {
-  head: <DragonHead className="relative" style={{ top: '-51px' }} />,
-  tail: <DragonTail />,
+  head: is_mobile ? (
+    <DragonHeadMobile className="relative" style={{ top: '-26px' }} />
+  ) : (
+    <DragonHead className="relative" style={{ top: '-51px' }} />
+  ),
+  tail: is_mobile ? <DragonTailMobile /> : <DragonTail />,
   body: (initWidth, addWidth, percent) => {
     const w = Big(initWidth || 0)
       .plus(addWidth || 0)
@@ -149,12 +186,12 @@ const DRAGON_CONFIG = {
     return (
       <div className="flex justify-center relative">
         <div
-          style={{ width: `${w + 'px'}`, top: '0px' }}
+          style={{ width: `${w + 'px'}`, top: is_mobile ? '1px' : '0px' }}
           className="relative overflow-hidden"
         >
-          <DragonBody />
+          {is_mobile ? <DragonBodyMobile /> : <DragonBody />}
         </div>
-        <span className="absolute top-2 text-xl text-white gotham_bold z-10">
+        <span className="absolute lg:top-2 xsm:top-0.5 lg:text-xl xsm:text-sm text-white gotham_bold z-10">
           {percent || ''}
         </span>
       </div>
@@ -163,8 +200,12 @@ const DRAGON_CONFIG = {
   feedIcon: FireIcon,
 };
 const SHITZU_CONFIG = {
-  head: <ShitzuHead className="relative" style={{ top: '-16px' }} />,
-  tail: <ShitzuTail />,
+  head: is_mobile ? (
+    <ShitzuHeadMobile className="relative" style={{ top: '-7px' }} />
+  ) : (
+    <ShitzuHead className="relative" style={{ top: '-16px' }} />
+  ),
+  tail: is_mobile ? <ShitzuTailMobile /> : <ShitzuTail />,
   body: (initWidth, addWidth, percent) => {
     const w = Big(initWidth || 0)
       .plus(addWidth || 0)
@@ -172,12 +213,12 @@ const SHITZU_CONFIG = {
     return (
       <div className="flex justify-center relative">
         <div
-          style={{ width: `${w + 'px'}`, top: '19px' }}
+          style={{ width: `${w + 'px'}`, top: is_mobile ? '13px' : '19px' }}
           className="relative overflow-hidden"
         >
-          <ShitzuBody />
+          {is_mobile ? <ShitzuBodyMobile /> : <ShitzuBody />}
         </div>
-        <span className="absolute top-6 text-xl text-black gotham_bold z-10 transform translate-x-4">
+        <span className="absolute lg:top-6 xsm:top-4 lg:text-xl xsm:text-sm text-black gotham_bold z-10 transform translate-x-4">
           {percent || ''}
         </span>
       </div>
@@ -194,8 +235,8 @@ export function getProgressConfig(): any {
           head: LONK_CONFIG.head,
           tail: LONK_CONFIG.tail,
           body: LONK_CONFIG.body,
-          translateY: '110px',
-          initW: '40',
+          translateY: is_mobile ? '90px' : '110px',
+          initW: is_mobile ? '7' : '40',
           feedIcon: LONK_CONFIG.feedIcon,
           stakeTip: 'LONK you welth!',
         },
@@ -203,8 +244,8 @@ export function getProgressConfig(): any {
           head: NEKO_CONFIG.head,
           tail: NEKO_CONFIG.tail,
           body: NEKO_CONFIG.body,
-          translateY: '100px',
-          initW: '90',
+          translateY: is_mobile ? '82px' : '100px',
+          nitW: is_mobile ? '33' : '90',
           feedIcon: NEKO_CONFIG.feedIcon,
           stakeTip: 'Kung Hei Fat Choy!',
         },
@@ -212,8 +253,8 @@ export function getProgressConfig(): any {
           head: DRAGON_CONFIG.head,
           tail: DRAGON_CONFIG.tail,
           body: DRAGON_CONFIG.body,
-          translateY: '110px',
-          initW: '0',
+          translateY: is_mobile ? '95px' : '110px',
+          initW: is_mobile ? '0' : '0',
           feedIcon: DRAGON_CONFIG.feedIcon,
           stakeTip: (
             <div className="flex items-center gap-1">
@@ -225,8 +266,8 @@ export function getProgressConfig(): any {
           head: SHITZU_CONFIG.head,
           tail: SHITZU_CONFIG.tail,
           body: SHITZU_CONFIG.body,
-          translateY: '90px',
-          initW: '60',
+          translateY: is_mobile ? '75px' : '90px',
+          initW: is_mobile ? '35' : '60',
           feedIcon: SHITZU_CONFIG.feedIcon,
           stakeTip: 'Woof-woof!',
         },
@@ -239,8 +280,8 @@ export function getProgressConfig(): any {
           head: LONK_CONFIG.head,
           tail: LONK_CONFIG.tail,
           body: LONK_CONFIG.body,
-          translateY: '110px',
-          initW: '40',
+          translateY: is_mobile ? '90px' : '110px',
+          initW: is_mobile ? '7' : '40',
           feedIcon: LONK_CONFIG.feedIcon,
           stakeTip: 'LONK you welth!',
         },
@@ -248,8 +289,8 @@ export function getProgressConfig(): any {
           head: NEKO_CONFIG.head,
           tail: NEKO_CONFIG.tail,
           body: NEKO_CONFIG.body,
-          translateY: '100px',
-          initW: '90',
+          translateY: is_mobile ? '82px' : '100px',
+          initW: is_mobile ? '33' : '90',
           feedIcon: NEKO_CONFIG.feedIcon,
           stakeTip: 'Kung Hei Fat Choy!',
         },
@@ -257,8 +298,8 @@ export function getProgressConfig(): any {
           head: DRAGON_CONFIG.head,
           tail: DRAGON_CONFIG.tail,
           body: DRAGON_CONFIG.body,
-          translateY: '110px',
-          initW: '0',
+          translateY: is_mobile ? '95px' : '110px',
+          initW: is_mobile ? '0' : '0',
           feedIcon: DRAGON_CONFIG.feedIcon,
           stakeTip: (
             <div className="flex items-center gap-1">
@@ -270,8 +311,8 @@ export function getProgressConfig(): any {
           head: SHITZU_CONFIG.head,
           tail: SHITZU_CONFIG.tail,
           body: SHITZU_CONFIG.body,
-          translateY: '90px',
-          initW: '60',
+          translateY: is_mobile ? '75px' : '90px',
+          initW: is_mobile ? '35' : '60',
           feedIcon: SHITZU_CONFIG.feedIcon,
           stakeTip: 'Woof-woof!',
         },
@@ -284,8 +325,8 @@ export function getProgressConfig(): any {
           head: LONK_CONFIG.head,
           tail: LONK_CONFIG.tail,
           body: LONK_CONFIG.body,
-          translateY: '110px',
-          initW: '40',
+          translateY: is_mobile ? '90px' : '110px',
+          initW: is_mobile ? '7' : '40',
           feedIcon: LONK_CONFIG.feedIcon,
           stakeTip: 'LONK you welth!',
         },
@@ -293,8 +334,8 @@ export function getProgressConfig(): any {
           head: NEKO_CONFIG.head,
           tail: NEKO_CONFIG.tail,
           body: NEKO_CONFIG.body,
-          translateY: '100px',
-          initW: '90',
+          translateY: is_mobile ? '82px' : '100px',
+          initW: is_mobile ? '33' : '90',
           feedIcon: NEKO_CONFIG.feedIcon,
           stakeTip: 'Kung Hei Fat Choy!',
         },
@@ -302,8 +343,8 @@ export function getProgressConfig(): any {
           head: DRAGON_CONFIG.head,
           tail: DRAGON_CONFIG.tail,
           body: DRAGON_CONFIG.body,
-          translateY: '110px',
-          initW: '0',
+          translateY: is_mobile ? '95px' : '110px',
+          initW: is_mobile ? '0' : '0',
           feedIcon: DRAGON_CONFIG.feedIcon,
           stakeTip: (
             <div className="flex items-center gap-1">
@@ -315,8 +356,8 @@ export function getProgressConfig(): any {
           head: SHITZU_CONFIG.head,
           tail: SHITZU_CONFIG.tail,
           body: SHITZU_CONFIG.body,
-          translateY: '90px',
-          initW: '60',
+          translateY: is_mobile ? '75px' : '90px',
+          initW: is_mobile ? '35' : '60',
           feedIcon: SHITZU_CONFIG.feedIcon,
           stakeTip: 'Woof-woof!',
         },

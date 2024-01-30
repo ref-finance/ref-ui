@@ -32,7 +32,7 @@ const Overview = () => {
       .toFixed();
     return [
       toInternationalCurrencySystem_usd(t_staked),
-      [maxSeed, maxApr.gt(0) ? formatPercentage(maxApr.toFixed()) : '-'],
+      [maxSeed, maxApr.toFixed()],
       totalStaker,
     ];
   }, [seeds]) as any;
@@ -65,16 +65,16 @@ const Overview = () => {
               {totalStaker}
             </span>
           </TemplateMobile>
-          <TemplateMobile title="Top StakingAPY">
-            {maxAprSeed[0] ? (
+          <TemplateMobile title="Top Staking APY">
+            {+maxAprSeed[1] > 0 ? (
               <div className="flex items-center gap-2">
-                {/* <img
+                <img
                   src={maxAprSeed[0]?.token_meta_data?.icon}
                   className="rounded-full"
                   style={{ height: '26px', width: '26px' }}
-                /> */}
+                />
                 <span className="text-xl gotham_bold text-white">
-                  {maxAprSeed[1]}
+                  {formatPercentage(maxAprSeed[1])}
                 </span>
               </div>
             ) : (
@@ -114,16 +114,16 @@ const Overview = () => {
               {totalStaked}
             </span>
           </Template>
-          <Template title="Top StakingAPY">
-            {maxAprSeed[0] ? (
+          <Template title="Top Staking APY">
+            {+maxAprSeed[1] > 0 ? (
               <div className="flex items-center gap-2">
-                {/* <img
+                <img
                   src={maxAprSeed[0]?.token_meta_data?.icon}
                   className="rounded-full"
                   style={{ height: '26px', width: '26px' }}
-                /> */}
+                />
                 <span className="text-3xl gotham_bold text-white">
-                  {maxAprSeed[1]}
+                  {formatPercentage(maxAprSeed[1])}
                 </span>
               </div>
             ) : (
