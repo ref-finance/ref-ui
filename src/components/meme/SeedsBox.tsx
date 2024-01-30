@@ -217,7 +217,10 @@ const SeedsBox = () => {
           >
             <div className="flex items-stretch gap-4">
               <img
-                src={seed.token_meta_data.icon}
+                src={
+                  memeConfig?.token_icon?.[seed.token_meta_data.id] ||
+                  seed.token_meta_data.icon
+                }
                 style={{ width: '86px', height: '86px' }}
                 className=" rounded-full"
               />
