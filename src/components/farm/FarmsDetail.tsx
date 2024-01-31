@@ -104,6 +104,7 @@ import {
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import getConfigV2 from 'src/services/configV2';
 import LPTip from './LPTip';
+import ShadowTip from './ShadowTip';
 const configV2 = getConfigV2();
 
 const ONLY_ZEROS = /^0*\.?0*$/;
@@ -1013,7 +1014,8 @@ function StakeContainer(props: {
                     id={'aprId' + detailData.farmList[0].farm_id}
                   />
                 </div>
-                {is_support_lp ? <LPTip poolId={pool.id} /> : null}
+                {/* todo */}
+                {is_support_lp ? <LPTip seed_id={detailData.seed_id} /> : null}
               </div>
             )}
           </div>
@@ -2214,7 +2216,9 @@ function UserStakeBlock(props: {
   const [unStakeType, setUnStakeType] = useState('');
   const [serverTime, setServerTime] = useState<number>();
   const [yourTvl, setYourTvl] = useState('');
+  const [showActivateBox, setShowActivateBox] = useState<boolean>(false);
   const { globalState } = useContext(WalletContext);
+  const { sharesInfo } = useContext(FarmsDetailContext);
   const isSignedIn = globalState.isSignedIn;
   const { pool, min_locking_duration_sec, slash_rate, seed_id, seed_decimal } =
     detailData;
@@ -2620,7 +2624,23 @@ function UserStakeBlock(props: {
               {+freeAmount > 0 && is_support_lp ? (
                 <div className="flex flex-col bg-farmDarkTipColor rounded-lg px-3.5 py-2 text-xs text-farmText mt-2.5">
                   <span>How to get Ref’s farm APR + Burrow lending APR?</span>
-                  <span>Step 1. Unstake and re-stake the LP</span>
+                  <span>
+                    Step 1.{' '}
+                    <a
+                      className="text-burrowYellowColor underline cursor-pointer relative"
+                      tabIndex={99}
+                      onBlur={() => {
+                        setShowActivateBox(false);
+                      }}
+                      onClick={() => {
+                        setShowActivateBox(!showActivateBox);
+                      }}
+                    >
+                      Activate
+                      <ShadowTip show={showActivateBox} seed_id={seed_id} />
+                    </a>{' '}
+                    the {`Burrow's`} extra rewards
+                  </span>
                   <span>
                     Step 2. Go to supply LP on{' '}
                     <a

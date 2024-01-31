@@ -3309,7 +3309,7 @@ function FarmView(props: {
                     </span>
                     <CustomTooltip id={'aprId' + seed.farmList[0].farm_id} />
                   </div>
-                  {is_support_lp ? <LPTip poolId={pool.id} /> : null}
+                  {is_support_lp ? <LPTip seed_id={seed.seed_id} /> : null}
 
                   <CalcIcon
                     onClick={(e: any) => {
