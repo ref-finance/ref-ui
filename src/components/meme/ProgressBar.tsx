@@ -23,7 +23,7 @@ const ProgressBar = () => {
     return totalTvl;
   }, [seeds]);
   return (
-    <div className="text-white" style={{ marginTop: '80px' }}>
+    <div className="text-white px-2.5" style={{ marginTop: '80px' }}>
       <div className="flex items-center justify-center">
         <span className="gotham_bold text-white lg:text-3xl xsm:text-xl">
           MEME Gauge Weight

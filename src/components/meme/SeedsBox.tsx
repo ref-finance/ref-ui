@@ -34,7 +34,8 @@ import {
   parsedArgs,
 } from '../../components/layout/transactionTipPopUp';
 import { checkTransaction } from '../../services/swap';
-
+import { isMobile } from '../../utils/device';
+const is_mobile = isMobile();
 export interface ITxParams {
   action: 'stake' | 'unstake';
   params: any;
@@ -215,11 +216,14 @@ const SeedsBox = () => {
             <div className="flex items-stretch gap-4">
               <img
                 src={seed.token_meta_data.icon}
-                style={{ width: '86px', height: '86px' }}
+                style={{
+                  width: is_mobile ? '62px' : '86px',
+                  height: is_mobile ? '62px' : '86px',
+                }}
                 className=" rounded-full"
               />
-              <div className="flex flex-col justify-between gap-1.5">
-                <div className="flex items-center justify-between flex-wrap gap-1">
+              <div className="flex flex-col justify-between gap-1.5 xsm:gap-0">
+                <div className="flex items-center justify-between gap-1 xsm:flex-col xsm:items-start xsm:flex-grow">
                   <span className="text-xl gotham_bold text-white">
                     {seed.token_meta_data.symbol}
                   </span>
@@ -252,11 +256,14 @@ const SeedsBox = () => {
                     </div>
                   )}
                 </div>
-                <p className="text-sm text-primaryText">
+                <p className="text-sm text-primaryText xsm:hidden">
                   {memeConfig.description[seed_id]}
                 </p>
               </div>
             </div>
+            <p className="text-sm text-primaryText lg:hidden mt-2">
+              {memeConfig.description[seed_id]}
+            </p>
             {/* base data */}
             <div className="grid lg:grid-cols-3 lg:grid-rows-2 xsm:grid-cols-2 gap-y-6 mt-5">
               <Template
