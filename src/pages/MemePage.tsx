@@ -34,7 +34,7 @@ import { toReadableNumber } from 'src/utils/numbers';
 import { WalletContext } from '../utils/wallets-integration';
 import { get_all_seeds } from '../services/commonV3';
 import { isMobile } from '../utils/device';
-import { MobileBanner } from '../components/meme/icons';
+import { MobileBanner } from '../components/meme/ani_mobile';
 
 export default function MemePage() {
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
@@ -104,6 +104,8 @@ export default function MemePage() {
     // get all token metadata
     const tokenMetadataMap = tokenMetadatas.reduce(
       (acc, metadata: TokenMetadata) => {
+        metadata.icon =
+          getMemeConfig().token_icon?.[metadata.id] || metadata.icon;
         return {
           ...acc,
           [metadata.id]: metadata,
@@ -239,7 +241,7 @@ export default function MemePage() {
           style={{ maxWidth: '1100px', marginTop: is_mobile ? '0px' : '-55px' }}
         >
           <Overview />
-          {is_mobile ? null : <ProgressBar />}
+          <ProgressBar />
           <SeedsBox />
           <WithdrawList />
           {loading ? (

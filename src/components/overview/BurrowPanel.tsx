@@ -5,11 +5,12 @@ import React, {
   useContext,
   createContext,
 } from 'react';
-import { getAssets, getAccount } from 'src/services/burrow';
+import { getAssets, getAccount_all_positions } from 'src/services/burrow';
 import {
   IAsset,
-  IAccount,
+  IAccountAllPositionsDetailed,
   IUnclaimedReward,
+  IPortfolioAssetOrigin,
 } from 'src/services/burrow-interfaces';
 import Big from 'big.js';
 import { OverviewData } from '../../pages/Overview';
@@ -19,11 +20,9 @@ import {
   sumReducer,
 } from '../../services/overview/utils';
 import { BurrowBgIcon, ArrowRightIcon } from './Icons';
-import { useHistory } from 'react-router-dom';
 import { FormattedMessage, useIntl } from 'react-intl';
 export default function BurrowPanel() {
   const {
-    tokenPriceList,
     isSignedIn,
     accountId,
     set_burrow_supplied_value,
@@ -32,8 +31,7 @@ export default function BurrowPanel() {
     set_burrow_done,
     is_mobile,
   } = useContext(OverviewData);
-  const history = useHistory();
-  const [account, setAccount] = useState<IAccount>();
+  const [account, setAccount] = useState<IAccountAllPositionsDetailed>();
   const [assets, setAssets] = useState<IAsset[]>();
   const [accountDone, setAccountDone] = useState<boolean>(false);
   const [supplied, setSupplied] = useState<string | number>('0');
@@ -45,10 +43,12 @@ export default function BurrowPanel() {
 
   useEffect(() => {
     if (isSignedIn) {
-      getAccount().then((account: IAccount) => {
-        setAccount(account);
-        setAccountDone(true);
-      });
+      getAccount_all_positions().then(
+        (account: IAccountAllPositionsDetailed) => {
+          setAccount(account);
+          setAccountDone(true);
+        }
+      );
     }
     getAssets().then((assets: IAsset[]) => {
       setAssets(assets);
@@ -56,44 +56,70 @@ export default function BurrowPanel() {
   }, [isSignedIn]);
   useEffect(() => {
     if (account && assets) {
-      // supplied
-      const depositedIds = new Set([
-        ...account?.collateral?.map((item) => item.token_id),
-        ...account?.supplied?.map((item) => item.token_id),
-      ]);
-      const supplied_temp = [...depositedIds]
-        .map((depositedTokenId: string) => {
-          const asset = assets.find((a) => a.token_id === depositedTokenId);
-          const supplied = account.supplied.find(
-            (s) => s.token_id === depositedTokenId
-          );
-          const collateral = account.collateral.find(
-            (c) => c.token_id === depositedTokenId
-          );
-          const decimals =
-            asset.metadata.decimals + asset.config.extra_decimals;
-          const balance = Big(supplied?.balance || 0)
-            .plus(collateral?.balance || 0)
+      const assetsMap = assets.reduce((acc, cur) => {
+        return {
+          ...acc,
+          [cur.token_id]: cur,
+        };
+      }, {});
+      let total_deposit_usd = Big(0);
+      let total_borrowed_usd = Big(0);
+      const collateralTokens = new Set();
+      const suppliedMap =
+        account.supplied?.reduce(
+          (acc, cur) => ({
+            ...acc,
+            [cur.token_id]: cur,
+          }),
+          {}
+        ) || {};
+
+      Object.values(account.positions || {}).forEach((positionDetail) => {
+        const {
+          borrowed,
+          collateral,
+        }: {
+          borrowed: IPortfolioAssetOrigin[];
+          collateral: IPortfolioAssetOrigin[];
+        } = positionDetail;
+        collateral.forEach((item: IPortfolioAssetOrigin) => {
+          const { token_id, balance: collateralBalance } = item;
+          const asset = assetsMap[token_id];
+          const balance = Big(suppliedMap[token_id]?.balance || 0)
+            .plus(collateralBalance || 0)
             .toFixed();
-          return Big(shrinkToken(balance, decimals) || 0)
-            .mul(asset.price.usd || 0)
-            .toNumber();
-        })
-        .reduce(sumReducer, 0);
-      setSupplied(supplied_temp);
-      // borrowed
-      const borrowed_temp = account?.borrowed
-        ?.map((item) => {
-          const { balance, token_id } = item;
-          const asset = assets.find((a) => a.token_id === token_id);
           const decimals =
             asset.metadata.decimals + asset.config.extra_decimals;
-          return Big(shrinkToken(balance, decimals) || 0)
-            .mul(asset.price.usd || 0)
-            .toNumber();
-        })
-        .reduce(sumReducer, 0);
-      setBorrowed(borrowed_temp);
+          total_deposit_usd = total_deposit_usd.plus(
+            Big(shrinkToken(balance, decimals) || 0).mul(asset.price.usd || 0)
+          );
+          collateralTokens.add(token_id);
+        });
+        borrowed.forEach((item: IPortfolioAssetOrigin) => {
+          const { token_id, balance: borrowBalance } = item;
+          const asset = assetsMap[token_id];
+          const decimals =
+            asset.metadata.decimals + asset.config.extra_decimals;
+          total_borrowed_usd = total_borrowed_usd.plus(
+            Big(shrinkToken(borrowBalance, decimals) || 0).mul(
+              asset.price.usd || 0
+            )
+          );
+        });
+      });
+      Object.keys(suppliedMap).forEach((token_id: string) => {
+        if (!collateralTokens.has(token_id)) {
+          const asset = assetsMap[token_id];
+          const balance = Big(suppliedMap[token_id]?.balance || 0).toFixed();
+          const decimals =
+            asset.metadata.decimals + asset.config.extra_decimals;
+          total_deposit_usd = total_deposit_usd.plus(
+            Big(shrinkToken(balance, decimals) || 0).mul(asset.price.usd || 0)
+          );
+        }
+      });
+      setSupplied(total_deposit_usd.toFixed());
+      setBorrowed(total_borrowed_usd.toFixed());
       // unClaimed rewards
       const unclaimedRewards = getUnclaimedRewards();
       setUnclaimedRewards(unclaimedRewards);
@@ -106,7 +132,7 @@ export default function BurrowPanel() {
 
   function getUnclaimedRewards() {
     const unclaimedRewardsMap = account
-      ? account.farms?.reduce((prev, curr) => {
+      ? account.farms?.reduce((prev, curr: any) => {
           for (const reward of curr.rewards) {
             const t = prev[reward.reward_token_id];
             if (t) {
@@ -142,7 +168,13 @@ export default function BurrowPanel() {
       }, 0) || 0;
     const icons =
       unclaimedRewards?.map((i: IUnclaimedReward) => {
-        return <img className="w-4 h-4 -ml-1 rounded-full" src={i.icon}></img>;
+        return (
+          <img
+            key={i.id}
+            className="w-4 h-4 -ml-1 rounded-full"
+            src={i.icon}
+          ></img>
+        );
       }) || [];
     return [$, icons];
   }, [unclaimedRewards]);

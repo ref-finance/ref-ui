@@ -9,6 +9,7 @@ import {
   ftGetTokenMetadata,
   ftGetStorageBalance,
   native_usdc_has_upgrated,
+  TokenMetadata,
 } from './ft-contract';
 import getConfig from './config';
 const { BURROW_CONTRACT_ID, WRAP_NEAR_CONTRACT_ID } = getConfig();
@@ -30,12 +31,19 @@ import {
 } from './burrow-interfaces';
 import { getNetLiquidityAPY } from './burrow-business';
 import getConfigV2 from '../services/configV2';
+import { refFiViewFunction } from '../services/near';
 const { NO_REQUIRED_REGISTRATION_TOKEN_IDS } = getConfigV2();
 const NO_STORAGE_DEPOSIT_CONTRACTS = ['aurora'];
-
+const lpTokenPrefix = 'shadow_ref_v1';
 export async function getAssets() {
   const assets = await burrowViewFunction({ methodName: 'get_assets_paged' });
   const tokenIds = assets?.map(([id]: [string, any]) => id);
+  const tokenIds_lp = tokenIds?.filter((token_id: string) =>
+    token_id.includes(lpTokenPrefix)
+  );
+  const tokenIds_normal = tokenIds?.filter(
+    (token_id: string) => !token_id.includes(lpTokenPrefix)
+  );
   const assetsDetailedRequest = tokenIds.map(async (token_id: string) =>
     burrowViewFunction({
       methodName: 'get_asset',
@@ -45,61 +53,114 @@ export async function getAssets() {
     })
   );
   const assetsDetailed = await Promise.all(assetsDetailedRequest);
-  const tokensMetadataRequest = tokenIds.map(async (id: string) =>
+  const tokensMetadataRequest = tokenIds_normal.map(async (id: string) =>
     ftGetTokenMetadata(id)
   );
   const tokensMetadata = await Promise.all(tokensMetadataRequest);
+  const tokensMetadataMap = tokensMetadata.reduce(
+    (acc, cur) => ({ ...acc, [cur.id]: cur }),
+    {}
+  );
   const config = await burrowViewFunction({ methodName: 'get_config' });
   const prices = await wallet
     .account()
-    .viewFunction(config?.['oracle_account_id'], 'get_price_data');
+    .viewFunction(config?.oracle_account_id, 'get_price_data');
   const refPrices = await fetch(
     'https://raw.githubusercontent.com/NearDeFi/token-prices/main/ref-prices.json'
   ).then((r) => r.json());
   const accountId = getCurrentWallet()?.wallet?.getAccountId();
   const balances = accountId
     ? await Promise.all(
-        tokenIds.map((token_id: string) =>
+        tokenIds_normal.map((token_id: string) =>
           wallet
             .account()
             .viewFunction(token_id, 'ft_balance_of', { account_id: accountId })
         )
       )
     : undefined;
+  const pool_ids = tokenIds_lp.map((id) => +id.split('-')[1]);
+  // get lp asset meta
+  const lptAssets = await getUnitLptAssets(pool_ids);
+  const priceMap = tokenIds_normal.reduce(
+    (acc, cur) => ({
+      ...acc,
+      [cur]: getPrice(cur, prices, tokensMetadataMap[cur], refPrices),
+    }),
+    {}
+  );
   return assetsDetailed?.map((asset, i) => {
-    const price = prices?.prices?.find(
-      (p: any) => p.asset_id === asset?.token_id
-    );
-    const usd = price
-      ? Number(price?.price?.multiplier || 0) /
-        10 ** ((price?.price?.decimals || 0) - tokensMetadata?.[i].decimals)
-      : 0;
+    const token_id = asset.token_id;
+    const is_lp_asset = token_id.indexOf(lpTokenPrefix) > -1;
     const temp_temp = Big(asset.supplied.balance)
       .plus(Big(asset.reserved))
       .minus(Big(asset.borrowed.balance));
     const temp = temp_temp.minus(temp_temp.mul(0.001));
-    const decimals = tokensMetadata?.[i].decimals + asset.config.extra_decimals;
+    const decimals = is_lp_asset
+      ? lptAssets[token_id].decimals + asset.config.extra_decimals
+      : tokensMetadataMap[token_id].decimals + asset.config.extra_decimals;
     const availableLiquidity = Number(shrinkToken(temp.toFixed(0), decimals));
-    const extraPrice = price?.price || {
-      decimals: Number(refPrices?.[asset.token_id]?.decimal || 0),
-      multiplier: '1',
-    };
     return {
       ...asset,
-      metadata: tokensMetadata?.[i],
+      metadata: is_lp_asset ? lptAssets[token_id] : tokensMetadataMap[token_id],
       accountBalance: accountId ? balances?.[i] : undefined,
       availableLiquidity,
-      price: {
-        ...extraPrice,
-        usd: usd || parseFloat(refPrices?.[asset.token_id]?.price) || 0,
-      },
+      price: is_lp_asset
+        ? getUnitLptPrice(
+            lptAssets[token_id].tokens,
+            priceMap,
+            tokensMetadataMap
+          )
+        : getPrice(token_id, prices, tokensMetadataMap[token_id], refPrices),
     };
   });
 }
+const getPrice = (tokenId, priceResponse, metadata, refPrices) => {
+  const price =
+    priceResponse.prices.find((p) => p.asset_id === tokenId)?.price ||
+    undefined;
+  if (!price) {
+    return {
+      decimals: Number(refPrices[tokenId]?.decimal || 0),
+      multiplier: '1',
+      usd: parseFloat(refPrices[tokenId]?.price) || 0,
+    };
+  }
+  const usd =
+    Number(price.multiplier) / 10 ** (price.decimals - metadata.decimals);
+  return { ...price, usd };
+};
+const getUnitLptPrice = (tokens: IToken[], priceMap, tokensMetadataMap) => {
+  const lpPrice = tokens.reduce((acc, cur) => {
+    const { token_id, amount } = cur;
+    const metadata = tokensMetadataMap[token_id];
+    const price = priceMap[token_id].usd || '0';
+    const p = new Big(shrinkToken(amount, metadata.decimals))
+      .mul(price)
+      .plus(acc);
+    return p.toFixed(8);
+  }, '0');
+  return { multiplier: null, decimals: null, usd: lpPrice };
+};
+export interface IToken {
+  token_id: string;
+  amount: string;
+  usd?: string;
+  metadata?: TokenMetadata;
+}
+
 export async function getAccount() {
   const accountId = getCurrentWallet()?.wallet?.getAccountId();
   return await burrowViewFunction({
     methodName: 'get_account',
+    args: {
+      account_id: accountId,
+    },
+  });
+}
+export async function getAccount_all_positions() {
+  const accountId = getCurrentWallet()?.wallet?.getAccountId();
+  return await burrowViewFunction({
+    methodName: 'get_account_all_positions',
     args: {
       account_id: accountId,
     },
@@ -113,8 +174,8 @@ export async function getRewards(account: IAccount, assets: IAsset[]) {
     assets
   ) as [number, string[]];
   const rewards = assets.map((asset: IAsset) => {
-    const apyBase = Number(asset['supply_apr']) * 100;
-    const apyBaseBorrow = Number(asset['borrow_apr']) * 100;
+    const apyBase = Number(asset.supply_apr) * 100;
+    const apyBaseBorrow = Number(asset.borrow_apr) * 100;
     const tokenId = asset.token_id;
     const totalSupplyUsd = toUsd(asset.supplied.balance, asset);
     const totalBorrowUsd = toUsd(asset.borrowed.balance, asset);
@@ -684,7 +745,7 @@ async function repay_from_wallet({
         {
           Repay: {
             max_amount: !isMax ? expandedAmount.toFixed(0, 0) : undefined,
-            token_id: token_id,
+            token_id,
           },
         },
       ],
@@ -969,3 +1030,9 @@ export async function submitBorrow({
 
   return executeBurrowMultipleTransactions(transactions);
 }
+export const getUnitLptAssets = async (pool_ids: number[]): Promise<any> => {
+  return refFiViewFunction({
+    methodName: 'get_unit_lpt_assets',
+    args: { pool_ids },
+  });
+};
