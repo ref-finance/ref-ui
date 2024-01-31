@@ -189,8 +189,8 @@ function UnStakeModal(props: any) {
               <TipIcon className="flex-shrink-0 transform translate-y-1" />
               <p className="text-sm text-greenLight">
                 Your vote for this period is valid and the unstaked assets will
-                available to be withdrawal in{' '}
-                {formatSeconds(delay_withdraw_sec)}.
+                available to be withdrawn in {formatSeconds(delay_withdraw_sec)}
+                .
               </p>
             </div>
           </div>

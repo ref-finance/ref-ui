@@ -419,7 +419,7 @@ export default function getConfig(
         FARM_BLACK_LIST_V2: process.env.FARM_BLACK_LIST_V2 || ['666'],
         boostBlackList: process.env.FARM__BOOST_BLACK_LIST || [''],
         switch_on_dcl_farms: 'on',
-        BURROW_CONTRACT_ID: 'contract.1638481328.burrow.testnet',
+        BURROW_CONTRACT_ID: 'contract.1689937928.burrow.testnet',
         USDTT_USDCC_USDT_USDC_POOL_ID:
           process.env.USDTT_USDCC_USDT_USDC_POOL_ID || 711,
         USDTT_USDCC_USDT_USDC_TOKEN_IDS: [

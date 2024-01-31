@@ -297,6 +297,10 @@ export function getMemeConfig(): any {
         'blackdragon.fakes.testnet': '718',
         'shitzu.fakes.testnet': '719',
       },
+      token_icon: {
+        'neko.fakes.testnet':
+          'https://assets-global.website-files.com/627f75127980b632e08938a5/628668bb571921a4c96a08e3_niko.png',
+      },
     };
   } else if (env == 'testnet') {
     return {
@@ -316,6 +320,10 @@ export function getMemeConfig(): any {
         'blackdragon.fakes.testnet': '718',
         'shitzu.fakes.testnet': '719',
       },
+      token_icon: {
+        'neko.fakes.testnet':
+          'https://assets-global.website-files.com/627f75127980b632e08938a5/628668bb571921a4c96a08e3_niko.png',
+      },
     };
   } else {
     return {
@@ -334,6 +342,10 @@ export function getMemeConfig(): any {
         'ftv2.nekotoken.near': '3807',
         'blackdragon.tkn.near': '4276',
         'token.0xshitzu.near': '4369',
+      },
+      token_icon: {
+        'ftv2.nekotoken.near':
+          'https://assets-global.website-files.com/627f75127980b632e08938a5/628668bb571921a4c96a08e3_niko.png',
       },
     };
   }

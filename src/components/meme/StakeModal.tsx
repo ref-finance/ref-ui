@@ -16,7 +16,7 @@ import {
   formatPercentage,
 } from '../../utils/uiNumber';
 import { Seed, FarmBoost } from '../../services/farm';
-import { getProgressConfig } from './ProgressBar';
+import { getProgressConfig } from './ProgressConfig';
 import { TipIcon } from './icons';
 const progressConfig = getProgressConfig();
 function StakeModal(props: any) {
@@ -195,7 +195,7 @@ function StakeModal(props: any) {
             <div className="flex items-start gap-2 mt-4">
               <TipIcon className="flex-shrink-0 transform translate-y-1" />
               <p className="text-sm text-greenLight">
-                the unstaked assets will available to be withdrawal in{' '}
+                the unstaked assets will available to be withdrawn in{' '}
                 {formatSeconds(delay_withdraw_sec)}.
               </p>
             </div>
