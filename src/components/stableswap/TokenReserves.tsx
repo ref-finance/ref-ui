@@ -163,30 +163,28 @@ function TokenChart({
     }
   };
   return (
-    <div style={{ outline: 'none' }}>
-      <PieChart width={width} height={280}>
-        <Pie
-          data={data}
-          fill="#8884d8"
-          innerRadius={innerRadius}
-          outerRadius={outerRadius}
-          dataKey="value"
-          labelLine={false}
-          label={customLabel}
-          onClick={handleCellClick}
-        >
-          {data.map((entry, index) => {
-            return (
-              <Cell
-                key={`cell-${index}`}
-                fill={color[tokens[index].symbol]}
-                stroke=""
-              />
-            );
-          })}
-        </Pie>
-      </PieChart>
-    </div>
+    <PieChart width={width} height={280}>
+      <Pie
+        data={data}
+        fill="#8884d8"
+        innerRadius={innerRadius}
+        outerRadius={outerRadius}
+        dataKey="value"
+        labelLine={false}
+        label={customLabel}
+        onClick={handleCellClick}
+      >
+        {data.map((entry, index) => {
+          return (
+            <Cell
+              key={`cell-${index}`}
+              fill={color[tokens[index].symbol]}
+              stroke=""
+            />
+          );
+        })}
+      </Pie>
+    </PieChart>
   );
 }
 
