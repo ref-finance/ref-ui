@@ -64,6 +64,7 @@ export default function BurrowPanel() {
       }, {});
       let total_deposit_usd = Big(0);
       let total_borrowed_usd = Big(0);
+      const collateralTokens = new Set();
       const suppliedMap =
         account.supplied?.reduce(
           (acc, cur) => ({
@@ -92,6 +93,7 @@ export default function BurrowPanel() {
           total_deposit_usd = total_deposit_usd.plus(
             Big(shrinkToken(balance, decimals) || 0).mul(asset.price.usd || 0)
           );
+          collateralTokens.add(token_id);
         });
         borrowed.forEach((item: IPortfolioAssetOrigin) => {
           const { token_id, balance: borrowBalance } = item;
@@ -104,6 +106,17 @@ export default function BurrowPanel() {
             )
           );
         });
+      });
+      Object.keys(suppliedMap).forEach((token_id: string) => {
+        if (!collateralTokens.has(token_id)) {
+          const asset = assetsMap[token_id];
+          const balance = Big(suppliedMap[token_id]?.balance || 0).toFixed();
+          const decimals =
+            asset.metadata.decimals + asset.config.extra_decimals;
+          total_deposit_usd = total_deposit_usd.plus(
+            Big(shrinkToken(balance, decimals) || 0).mul(asset.price.usd || 0)
+          );
+        }
       });
       setSupplied(total_deposit_usd.toFixed());
       setBorrowed(total_borrowed_usd.toFixed());
