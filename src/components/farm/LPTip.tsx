@@ -109,7 +109,7 @@ export default function LPTip({ seed_id }: { seed_id: string }) {
             >
               Burrow
             </a>{' '}
-            a Supply action and secure rewards.
+            to perform a Supply action and secure extra rewards.
           </div>
         ) : null}
       </div>
