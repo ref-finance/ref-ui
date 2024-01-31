@@ -2793,10 +2793,10 @@ export const MemeOptIcon = () => {
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
     >
-      <rect x="1" y="1" width="18" height="18" fill="url(#pattern0)" />
+      <rect x="1" y="1" width="18" height="18" fill="url(#pattern00)" />
       <defs>
         <pattern
-          id="pattern0"
+          id="pattern00"
           patternContentUnits="objectBoundingBox"
           width="1"
           height="1"
