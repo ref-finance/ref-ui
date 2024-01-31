@@ -36,7 +36,7 @@ const ProgressBar = () => {
         const seedTvl = seed.seedTvl;
         if (Big(seedTvl).gt(0) && Big(totalTvl).gt(0)) {
           const p = Big(seedTvl).div(totalTvl);
-          const length = is_mobile ? window.innerWidth - 185 : 800;
+          const length = is_mobile ? window.innerWidth - 190 : 800;
           addW = p.mul(length).toFixed();
           percent = formatPercentage(p.mul(100).toFixed());
         }

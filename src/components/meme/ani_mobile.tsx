@@ -1392,19 +1392,19 @@ export function DragonBodyMobile(props) {
   return (
     <svg
       {...props}
-      width="215"
+      width="400"
       height="21"
-      viewBox="0 0 215 21"
+      viewBox="0 0 400 21"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
       <g clipPath="url(#clip0_830_506)">
-        <path d="M0 0H215V21H0V0Z" fill="#12131D" />
-        <path d="M0 0.5H215M215 20.5H0" stroke="#3D3D4F" />
+        <path d="M0 0H400V21H0V0Z" fill="#12131D" />
+        <path d="M0 0.5H400M400 20.5H0" stroke="#3D3D4F" />
       </g>
       <defs>
         <clipPath id="clip0_830_506">
-          <rect width="215" height="21" fill="white" />
+          <rect width="400" height="21" fill="white" />
         </clipPath>
       </defs>
     </svg>
@@ -1661,19 +1661,19 @@ export function NekoBodyMobile(props) {
   return (
     <svg
       {...props}
-      width="215"
+      width="400"
       height="28"
-      viewBox="0 0 215 28"
+      viewBox="0 0 400 28"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
       <g clipPath="url(#clip0_830_541)">
-        <path d="M0 1H215V27H0V1Z" fill="white" />
-        <path d="M0 1H215M215 27H0" stroke="black" />
+        <path d="M0 1H400V27H0V1Z" fill="white" />
+        <path d="M0 1H400M400 27H0" stroke="black" />
       </g>
       <defs>
         <clipPath id="clip0_830_541">
-          <rect width="215" height="28" fill="white" />
+          <rect width="400" height="28" fill="white" />
         </clipPath>
       </defs>
     </svg>
@@ -1889,15 +1889,15 @@ export function LonkBodyMobile(props) {
   return (
     <svg
       {...props}
-      width="215"
+      width="400"
       height="28"
-      viewBox="0 0 215 28"
+      viewBox="0 0 400 28"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
       <g clipPath="url(#clip0_830_510)">
-        <path d="M0 7H215V27H0V7Z" fill="#009400" />
-        <path d="M0 7H215M215 27.5H0" stroke="black" />
+        <path d="M0 7H400V27H0V7Z" fill="#009400" />
+        <path d="M0 7H400M400 27.5H0" stroke="black" />
         <path
           d="M178.5 7L178.5 1C180.366 1.37482 183.469 4.41169 185.5 6.33801V7H178.5Z"
           fill="#009400"
@@ -1919,7 +1919,127 @@ export function LonkBodyMobile(props) {
           stroke="black"
         />
         <path
-          d="M207.5 7L207.5 1C209.366 1.37482 212.469 4.41169 214.5 6.33801V7H207.5Z"
+          d="M209.5 7L209.5 1C211.366 1.37482 214.469 4.41169 216.5 6.33801V7H209.5Z"
+          fill="#009400"
+          stroke="black"
+        />
+        <path
+          d="M263 7L263 1C264.866 1.37482 267.969 4.41169 270 6.33801V7H263Z"
+          fill="#009400"
+          stroke="black"
+        />
+        <path
+          d="M316 7L316 1C317.866 1.37482 320.969 4.41169 323 6.33801V7H316Z"
+          fill="#009400"
+          stroke="black"
+        />
+        <path
+          d="M217 7L217 1C218.866 1.37482 221.969 4.41169 224 6.33801V7H217Z"
+          fill="#009400"
+          stroke="black"
+        />
+        <path
+          d="M270.5 7L270.5 1C272.366 1.37482 275.469 4.41169 277.5 6.33801V7H270.5Z"
+          fill="#009400"
+          stroke="black"
+        />
+        <path
+          d="M323.5 7L323.5 1C325.366 1.37482 328.469 4.41169 330.5 6.33801V7H323.5Z"
+          fill="#009400"
+          stroke="black"
+        />
+        <path
+          d="M225 7L225 1C226.866 1.37482 229.969 4.41169 232 6.33801V7H225Z"
+          fill="#009400"
+          stroke="black"
+        />
+        <path
+          d="M278.5 7L278.5 1C280.366 1.37482 283.469 4.41169 285.5 6.33801V7H278.5Z"
+          fill="#009400"
+          stroke="black"
+        />
+        <path
+          d="M331.5 7L331.5 1C333.366 1.37482 336.469 4.41169 338.5 6.33801V7H331.5Z"
+          fill="#009400"
+          stroke="black"
+        />
+        <path
+          d="M369 7L369 1C370.866 1.37482 373.969 4.41169 376 6.33801V7H369Z"
+          fill="#009400"
+          stroke="black"
+        />
+        <path
+          d="M232 7L232 1C233.866 1.37482 236.969 4.41169 239 6.33801V7H232Z"
+          fill="#009400"
+          stroke="black"
+        />
+        <path
+          d="M285.5 7L285.5 1C287.366 1.37482 290.469 4.41169 292.5 6.33801V7H285.5Z"
+          fill="#009400"
+          stroke="black"
+        />
+        <path
+          d="M338.5 7L338.5 1C340.366 1.37482 343.469 4.41169 345.5 6.33801V7H338.5Z"
+          fill="#009400"
+          stroke="black"
+        />
+        <path
+          d="M377 7L377 1C378.866 1.37482 381.969 4.41169 384 6.33801V7H377Z"
+          fill="#009400"
+          stroke="black"
+        />
+        <path
+          d="M240 7L240 1C241.866 1.37482 244.969 4.41169 247 6.33801V7H240Z"
+          fill="#009400"
+          stroke="black"
+        />
+        <path
+          d="M293.5 7L293.5 1C295.366 1.37482 298.469 4.41169 300.5 6.33801V7H293.5Z"
+          fill="#009400"
+          stroke="black"
+        />
+        <path
+          d="M346.5 7L346.5 1C348.366 1.37482 351.469 4.41169 353.5 6.33801V7H346.5Z"
+          fill="#009400"
+          stroke="black"
+        />
+        <path
+          d="M385 7L385 1C386.866 1.37482 389.969 4.41169 392 6.33801V7H385Z"
+          fill="#009400"
+          stroke="black"
+        />
+        <path
+          d="M247 7L247 1C248.866 1.37482 251.969 4.41169 254 6.33801V7H247Z"
+          fill="#009400"
+          stroke="black"
+        />
+        <path
+          d="M300.5 7L300.5 1C302.366 1.37482 305.469 4.41169 307.5 6.33801V7H300.5Z"
+          fill="#009400"
+          stroke="black"
+        />
+        <path
+          d="M353.5 7L353.5 1C355.366 1.37482 358.469 4.41169 360.5 6.33801V7H353.5Z"
+          fill="#009400"
+          stroke="black"
+        />
+        <path
+          d="M393 7L393 1C394.866 1.37482 397.969 4.41169 400 6.33801V7H393Z"
+          fill="#009400"
+          stroke="black"
+        />
+        <path
+          d="M255 7L255 1C256.866 1.37482 259.969 4.41169 262 6.33801V7H255Z"
+          fill="#009400"
+          stroke="black"
+        />
+        <path
+          d="M308.5 7L308.5 1C310.366 1.37482 313.469 4.41169 315.5 6.33801V7H308.5Z"
+          fill="#009400"
+          stroke="black"
+        />
+        <path
+          d="M361.5 7L361.5 1C363.366 1.37482 366.469 4.41169 368.5 6.33801V7H361.5Z"
           fill="#009400"
           stroke="black"
         />
@@ -2036,7 +2156,7 @@ export function LonkBodyMobile(props) {
       </g>
       <defs>
         <clipPath id="clip0_830_510">
-          <rect width="215" height="28" fill="white" />
+          <rect width="400" height="28" fill="white" />
         </clipPath>
       </defs>
     </svg>
@@ -2132,19 +2252,19 @@ export function ShitzuBodyMobile(props) {
   return (
     <svg
       {...props}
-      width="215"
+      width="400"
       height="25"
-      viewBox="0 0 215 25"
+      viewBox="0 0 400 25"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
       <g clipPath="url(#clip0_830_545)">
-        <path d="M0 1H215V24H0V1Z" fill="#50ED99" />
-        <path d="M0 1H215M215 24H0" stroke="black" />
+        <path d="M0 1H400V24H0V1Z" fill="#50ED99" />
+        <path d="M0 1H400M400 24H0" stroke="black" />
       </g>
       <defs>
         <clipPath id="clip0_830_545">
-          <rect width="215" height="25" fill="white" />
+          <rect width="400" height="25" fill="white" />
         </clipPath>
       </defs>
     </svg>
