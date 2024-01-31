@@ -75,6 +75,8 @@ export default function LPTip({ seed_id }: { seed_id: string }) {
             if (hover) {
               setShowShadowTip(false);
             }
+          } else {
+            window.open(url);
           }
         }}
       >
