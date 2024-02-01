@@ -59,7 +59,7 @@ import { useHistoryOrderTx, useHistoryOrderSwapInfo } from '../state/myOrder';
 import { HiOutlineExternalLink } from '../components/reactIcons';
 import getConfig from 'src/services/config';
 import _ from 'lodash';
-import { HistoryOrderSwapInfo, getTxId } from '../services/indexer';
+import { HistoryOrderSwapInfo } from '../services/indexer';
 import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from 'src/constants';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
@@ -147,27 +147,6 @@ function HistoryLine({
   sellAmountToBuyAmount: any;
   orderTx: string;
 }) {
-  const [isLoading, setIsLoading] = useState(false);
-  const handleTxClick = async () => {
-    if (orderTx) {
-      setIsLoading(true);
-      try {
-        const data = await getTxId(orderTx);
-        if (data && data.receipts && data.receipts.length > 0) {
-          const txHash = data.receipts[0].originated_from_transaction_hash;
-          window.open(
-            `${getConfig().explorerUrl}/txns/${txHash}`,
-            '_blank',
-            'noopener,noreferrer'
-          );
-        }
-      } catch (error) {
-        console.error('Error fetching txId:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-  };
   const [hover, setHover] = useState<boolean>(false);
 
   const intl = useIntl();
@@ -510,21 +489,15 @@ function HistoryLine({
 
       {!!orderTx && (
         <a
-          className="flex items-center hover:text-white cursor-pointer"
-          onClick={handleTxClick}
+          className="flex items-center hover:text-white"
+          href={`${getConfig().explorerUrl}/txns/${orderTx}`}
           target="_blank"
           rel="noopener noreferrer nofollow"
         >
-          {isLoading ? (
-            <Loading />
-          ) : (
-            <>
-              Tx
-              <span className="ml-1.5">
-                <HiOutlineExternalLink></HiOutlineExternalLink>
-              </span>
-            </>
-          )}
+          Tx
+          <span className="ml-1.5">
+            <HiOutlineExternalLink></HiOutlineExternalLink>
+          </span>
         </a>
       )}
     </div>
@@ -708,21 +681,15 @@ function HistoryLine({
           <div className="absolute right-4 bottom-0.5 z-50  text-xs">
             {!!orderTx && (
               <a
-                className="flex items-center bg-black text-primaryText px-1.5  bg-opacity-20 rounded cursor-pointer"
-                onClick={handleTxClick}
+                className="flex items-center bg-black text-primaryText px-1.5  bg-opacity-20 rounded "
+                href={`${getConfig().explorerUrl}/txns/${orderTx}`}
                 target="_blank"
                 rel="noopener noreferrer nofollow"
               >
-                {isLoading ? (
-                  <Loading />
-                ) : (
-                  <>
-                    <span className="mr-1.5">
-                      <HiOutlineExternalLink></HiOutlineExternalLink>
-                    </span>
-                    Tx
-                  </>
-                )}
+                <span className="mr-1.5">
+                  <HiOutlineExternalLink></HiOutlineExternalLink>
+                </span>
+                Tx
               </a>
             )}
           </div>
@@ -791,27 +758,6 @@ function HistorySwapInfoLine({
   amount_out: string;
   timestamp: string;
 }) {
-  const [isLoading, setIsLoading] = useState(false);
-  const handleTxClick = async () => {
-    if (orderTx) {
-      setIsLoading(true);
-      try {
-        const data = await getTxId(orderTx);
-        if (data && data.receipts && data.receipts.length > 0) {
-          const txHash = data.receipts[0].originated_from_transaction_hash;
-          window.open(
-            `${getConfig().explorerUrl}/txns/${txHash}`,
-            '_blank',
-            'noopener,noreferrer'
-          );
-        }
-      } catch (error) {
-        console.error('Error fetching txId:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-  };
   const [hover, setHover] = useState<boolean>(false);
 
   const intl = useIntl();
@@ -966,21 +912,15 @@ function HistorySwapInfoLine({
 
       {!!orderTx && (
         <a
-          className="flex items-center text-v3SwapGray cursor-pointer"
-          onClick={handleTxClick}
+          className="flex items-center hover:text-white"
+          href={`${getConfig().explorerUrl}/txns/${orderTx}`}
           target="_blank"
           rel="noopener noreferrer nofollow"
         >
-          {isLoading ? (
-            <Loading />
-          ) : (
-            <>
-              Tx
-              <span className="ml-1.5">
-                <HiOutlineExternalLink></HiOutlineExternalLink>
-              </span>
-            </>
-          )}
+          Tx
+          <span className="ml-1.5">
+            <HiOutlineExternalLink></HiOutlineExternalLink>
+          </span>
         </a>
       )}
     </div>
@@ -1057,21 +997,15 @@ function HistorySwapInfoLine({
           <div className="absolute right-4 bottom-0.5 z-50  text-xs">
             {!!orderTx && (
               <a
-                className="flex items-center bg-black text-primaryText px-1.5  bg-opacity-20 rounded cursor-pointer"
-                onClick={handleTxClick}
+                className="flex items-center bg-black text-primaryText px-1.5  bg-opacity-20 rounded "
+                href={`${getConfig().explorerUrl}/txns/${orderTx}`}
                 target="_blank"
                 rel="noopener noreferrer nofollow"
               >
-                {isLoading ? (
-                  <Loading />
-                ) : (
-                  <>
-                    <span className="mr-1.5">
-                      <HiOutlineExternalLink></HiOutlineExternalLink>
-                    </span>
-                    Tx
-                  </>
-                )}
+                <span className="mr-1.5">
+                  <HiOutlineExternalLink></HiOutlineExternalLink>
+                </span>
+                Tx
               </a>
             )}
           </div>
@@ -2247,8 +2181,8 @@ function OrderCard({
               tokensMap={tokensMap}
               sellAmountToBuyAmount={sellAmountToBuyAmount}
               orderTx={
-                orderTxs?.find((t) => t.order_id === order.order_id)
-                  ?.receipt_id || ''
+                orderTxs?.find((t) => t.order_id === order.order_id)?.tx_id ||
+                ''
               }
             />
           );
@@ -2301,12 +2235,12 @@ function OrderCard({
               <HistorySwapInfoLine
                 index={i}
                 tokensMap={tokensMap}
-                key={sf.receipt_id}
+                key={sf.tx_id}
                 token_in={sf.token_in}
                 token_out={sf.token_out}
                 amount_in={sf.amount_in}
                 amount_out={sf.amount_out}
-                orderTx={sf.receipt_id}
+                orderTx={sf.tx_id}
                 timestamp={sf.timestamp}
                 point={sf.point}
                 pool_id={sf.pool_id}
