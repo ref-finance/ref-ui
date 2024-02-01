@@ -213,9 +213,9 @@ function RecentTransactions({
     sessionStorage.setItem(REF_FI_RECENT_TRANSACTION_TAB_KEY_DCL, tab);
     setTab(tab);
   };
-  const [isLoading, setIsLoading] = useState(false);
+  const [loadingStates, setLoadingStates] = useState({});
   async function handleTxClick(receipt_id) {
-    setIsLoading(true);
+    setLoadingStates((prevStates) => ({ ...prevStates, [receipt_id]: true }));
     try {
       const data = await getTxId(receipt_id);
       if (data && data.receipts && data.receipts.length > 0) {
@@ -232,7 +232,10 @@ function RecentTransactions({
         error
       );
     } finally {
-      setIsLoading(false);
+      setLoadingStates((prevStates) => ({
+        ...prevStates,
+        [receipt_id]: false,
+      }));
     }
   }
 
@@ -287,14 +290,27 @@ function RecentTransactions({
 
         <td className=" relative  py-4 pr-4 lg:flex items-center justify-end col-span-1">
           <span
+            key={tx.receipt_id}
             className="inline-flex items-center cursor-pointer xsm:whitespace-nowrap"
-            onClick={() => !isLoading && handleTxClick(tx.receipt_id)}
+            onClick={() =>
+              !loadingStates[tx.receipt_id] && handleTxClick(tx.receipt_id)
+            }
           >
-            {isLoading && <Loading />}
-            <span className="hover:underline cursor-pointer">
-              {tx.timestamp}
-            </span>
-            {txLink}
+            {loadingStates[tx.receipt_id] ? (
+              <>
+                <span className="hover:underline cursor-pointer">
+                  {tx.timestamp}
+                </span>
+                <span className="loading-dots"></span>
+              </>
+            ) : (
+              <>
+                <span className="hover:underline cursor-pointer">
+                  {tx.timestamp}
+                </span>
+                {txLink}
+              </>
+            )}
           </span>
         </td>
       </tr>
@@ -373,14 +389,27 @@ function RecentTransactions({
 
         <td className="relative py-4 pr-4 lg:flex items-center justify-end col-span-2">
           <span
+            key={tx.receipt_id}
             className="inline-flex items-center cursor-pointer xsm:whitespace-nowrap"
-            onClick={() => !isLoading && handleTxClick(tx.receipt_id)}
+            onClick={() =>
+              !loadingStates[tx.receipt_id] && handleTxClick(tx.receipt_id)
+            }
           >
-            {isLoading && <Loading />}
-            <span className="hover:underline cursor-pointer">
-              {tx.timestamp}
-            </span>
-            {txLink}
+            {loadingStates[tx.receipt_id] ? (
+              <>
+                <span className="hover:underline cursor-pointer">
+                  {tx.timestamp}
+                </span>
+                <span className="loading-dots"></span>
+              </>
+            ) : (
+              <>
+                <span className="hover:underline cursor-pointer">
+                  {tx.timestamp}
+                </span>
+                {txLink}
+              </>
+            )}
           </span>
         </td>
       </tr>
@@ -477,14 +506,27 @@ function RecentTransactions({
 
         <td className="relative py-4 lg:flex items-center justify-end pr-2">
           <span
-            className="inline-flex items-center cursor-pointer xsm:whitespace-nowrap xsm:pl-3"
-            onClick={() => !isLoading && handleTxClick(tx.receipt_id)}
+            key={tx.receipt_id}
+            className="inline-flex items-center cursor-pointer xsm:whitespace-nowrap"
+            onClick={() =>
+              !loadingStates[tx.receipt_id] && handleTxClick(tx.receipt_id)
+            }
           >
-            {isLoading && <Loading />}
-            <span className="hover:underline cursor-pointer text-right">
-              {tx.timestamp}
-            </span>
-            {txLink}
+            {loadingStates[tx.receipt_id] ? (
+              <>
+                <span className="hover:underline cursor-pointer text-right">
+                  {tx.timestamp}
+                </span>
+                <span className="loading-dots"></span>
+              </>
+            ) : (
+              <>
+                <span className="hover:underline cursor-pointer text-right">
+                  {tx.timestamp}
+                </span>
+                {txLink}
+              </>
+            )}
           </span>
         </td>
       </tr>

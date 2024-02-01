@@ -1408,9 +1408,9 @@ export function RecentTransactions({
     setTab(tab);
   };
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [loadingStates, setLoadingStates] = useState({});
   async function handleTxClick(receipt_id) {
-    setIsLoading(true);
+    setLoadingStates((prevStates) => ({ ...prevStates, [receipt_id]: true }));
     try {
       const data = await getTxId(receipt_id);
       if (data && data.receipts && data.receipts.length > 0) {
@@ -1427,7 +1427,10 @@ export function RecentTransactions({
         error
       );
     } finally {
-      setIsLoading(false);
+      setLoadingStates((prevStates) => ({
+        ...prevStates,
+        [receipt_id]: false,
+      }));
     }
   }
 
@@ -1486,14 +1489,27 @@ export function RecentTransactions({
 
         <td className="col-span-1 relative flex items-center justify-end py-4 pr-4">
           <span
+            key={tx.receipt_id}
             className="inline-flex items-center cursor-pointer"
-            onClick={() => !isLoading && handleTxClick(tx.receipt_id)}
+            onClick={() =>
+              !loadingStates[tx.receipt_id] && handleTxClick(tx.receipt_id)
+            }
           >
-            {isLoading && <Loading />}
-            <span className="hover:underline cursor-pointer xsm:whitespace-nowrap">
-              {tx.timestamp}
-            </span>
-            {txLink}
+            {loadingStates[tx.receipt_id] ? (
+              <>
+                <span className="hover:underline cursor-pointer xsm:whitespace-nowrap">
+                  {tx.timestamp}
+                </span>
+                <span className="loading-dots"></span>
+              </>
+            ) : (
+              <>
+                <span className="hover:underline cursor-pointer xsm:whitespace-nowrap">
+                  {tx.timestamp}
+                </span>
+                {txLink}
+              </>
+            )}
           </span>
         </td>
       </tr>
@@ -1564,14 +1580,27 @@ export function RecentTransactions({
           } relative pr-4 lg:flex justify-end`}
         >
           <span
+            key={tx.receipt_id}
             className="inline-flex cursor-pointer"
-            onClick={() => !isLoading && handleTxClick(tx.receipt_id)}
+            onClick={() =>
+              !loadingStates[tx.receipt_id] && handleTxClick(tx.receipt_id)
+            }
           >
-            {isLoading && <Loading />}
-            <span className="hover:underline cursor-pointer xsm:whitespace-nowrap">
-              {tx.timestamp}
-            </span>
-            {txLink}
+            {loadingStates[tx.receipt_id] ? (
+              <>
+                <span className="hover:underline cursor-pointer xsm:whitespace-nowrap">
+                  {tx.timestamp}
+                </span>
+                <span className="loading-dots"></span>
+              </>
+            ) : (
+              <>
+                <span className="hover:underline cursor-pointer xsm:whitespace-nowrap">
+                  {tx.timestamp}
+                </span>
+                {txLink}
+              </>
+            )}
           </span>
         </td>
       </tr>

@@ -535,7 +535,10 @@ function HistoryLine({
           rel="noopener noreferrer nofollow"
         >
           {isLoading ? (
-            <Loading />
+            <>
+              Tx
+              <span className="loading-dots"></span>
+            </>
           ) : (
             <>
               Tx
@@ -846,7 +849,10 @@ function HistoryLine({
                 rel="noopener noreferrer nofollow"
               >
                 {isLoading ? (
-                  <Loading />
+                  <>
+                    Tx
+                    <span className="loading-dots"></span>
+                  </>
                 ) : (
                   <>
                     <span className="mr-1.5">
@@ -1107,7 +1113,10 @@ function HistorySwapInfoLine({
           rel="noopener noreferrer nofollow"
         >
           {isLoading ? (
-            <Loading />
+            <>
+              Tx
+              <span className="loading-dots"></span>
+            </>
           ) : (
             <>
               Tx
@@ -1187,7 +1196,10 @@ function HistorySwapInfoLine({
                 rel="noopener noreferrer nofollow"
               >
                 {isLoading ? (
-                  <Loading />
+                  <>
+                    Tx
+                    <span className="loading-dots"></span>
+                  </>
                 ) : (
                   <>
                     <span className="mr-1.5">
@@ -2096,7 +2108,10 @@ function ActiveLine({
                       rel="noopener noreferrer nofollow"
                     >
                       {isLoading ? (
-                        <Loading />
+                        <>
+                          Tx
+                          <span className="loading-dots"></span>
+                        </>
                       ) : (
                         <>
                           Tx
