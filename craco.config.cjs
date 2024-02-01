@@ -83,20 +83,20 @@ module.exports = {
             reuseExistingChunk: true,
           },
 
-          icons: {
-            test: /[\\/]src[\\/]components[\\/]icon[\\/].+\.tsx$/,
-            chunks: 'all',
-            priority: 20,
-            name(module) {
-              const moduleFileName = module
-                .identifier()
-                .split('/')
-                .reduceRight((item) => item);
-              const chunkName = moduleFileName.replace(/\.tsx$/, '');
-              // console.log('chunkName', chunkName);
-              return `icon-${chunkName}`;
-            },
-          },
+          // icons: {
+          //   test: /[\\/]src[\\/]components[\\/]icon[\\/].+\.tsx$/,
+          //   chunks: 'all',
+          //   priority: 20,
+          //   name(module) {
+          //     const moduleFileName = module
+          //       .identifier()
+          //       .split('/')
+          //       .reduceRight((item) => item);
+          //     const chunkName = moduleFileName.replace(/\.tsx$/, '');
+          //     // console.log('chunkName', chunkName);
+          //     return `icon-${chunkName}`;
+          //   },
+          // },
         },
       };
 

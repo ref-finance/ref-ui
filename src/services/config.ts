@@ -8,6 +8,10 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
             url: 'https://rpc.mainnet.near.org',
             simpleName: 'official rpc',
           },
+          lavaRpc: {
+            url: 'https://g.w.lavanet.xyz/gateway/near/rpc-http/a6e88c7710da77f09430aacd6328efd6',
+            simpleName: 'lava rpc',
+          },
           // publicRpc: {
           //   url: 'https://public-rpc.blockpi.io/http/near',
           //   simpleName: 'blockpi rpc',
@@ -31,6 +35,10 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
             url: 'https://rpc.testnet.near.org',
             simpleName: 'official rpc',
           },
+          lavaRpc: {
+            url: 'https://g.w.lavanet.xyz/gateway/neart/rpc-http/a6e88c7710da77f09430aacd6328efd6',
+            simpleName: 'lava rpc',
+          },
           // publicRpc: {
           //   url: 'https://public-rpc.blockpi.io/http/near-testnet',
           //   simpleName: 'blockpi rpc',
@@ -45,6 +53,10 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
             url: 'https://rpc.testnet.near.org',
             simpleName: 'official rpc',
           },
+          lavaRpc: {
+            url: 'https://g.w.lavanet.xyz/gateway/neart/rpc-http/a6e88c7710da77f09430aacd6328efd6',
+            simpleName: 'lava rpc',
+          },
           // publicRpc: {
           //   url: 'https://public-rpc.blockpi.io/http/near-testnet',
           //   simpleName: 'blockpi rpc',
@@ -58,6 +70,10 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
           defaultRpc: {
             url: 'https://rpc.mainnet.near.org',
             simpleName: 'official rpc',
+          },
+          lavaRpc: {
+            url: 'https://g.w.lavanet.xyz/gateway/near/rpc-http/a6e88c7710da77f09430aacd6328efd6',
+            simpleName: 'lava rpc',
           },
           // publicRpc: {
           //   url: 'https://public-rpc.blockpi.io/http/near',
@@ -239,6 +255,8 @@ export default function getConfig(
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near',
         ],
         BLACK_TOKEN_LIST: ['token.pembrock.near'],
+        REF_MEME_FARM_CONTRACT_ID:
+          process.env.REF_MEME_FARM_CONTRACT_ID || 'meme-farming.ref-labs.near',
       };
     case 'pub-testnet':
       return {
@@ -323,6 +341,9 @@ export default function getConfig(
           'usdc.fakes.testnet',
         ],
         BLACK_TOKEN_LIST: [],
+        REF_MEME_FARM_CONTRACT_ID:
+          process.env.REF_MEME_FARM_CONTRACT_ID ||
+          'memefarm-dev2.ref-dev.testnet',
       };
     case 'testnet':
       return {
@@ -397,7 +418,7 @@ export default function getConfig(
         FARM_BLACK_LIST_V2: process.env.FARM_BLACK_LIST_V2 || ['666'],
         boostBlackList: process.env.FARM__BOOST_BLACK_LIST || [''],
         switch_on_dcl_farms: 'on',
-        BURROW_CONTRACT_ID: 'contract.1638481328.burrow.testnet',
+        BURROW_CONTRACT_ID: 'contract.1689937928.burrow.testnet',
         USDTT_USDCC_USDT_USDC_POOL_ID:
           process.env.USDTT_USDCC_USDT_USDC_POOL_ID || 711,
         USDTT_USDCC_USDT_USDC_TOKEN_IDS: [
@@ -407,6 +428,9 @@ export default function getConfig(
           'usdc.fakes.testnet',
         ],
         BLACK_TOKEN_LIST: [],
+        REF_MEME_FARM_CONTRACT_ID:
+          process.env.REF_MEME_FARM_CONTRACT_ID ||
+          'memefarm-dev2.ref-dev.testnet',
       };
     default:
       return {
@@ -551,6 +575,8 @@ export default function getConfig(
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near',
         ],
         BLACK_TOKEN_LIST: ['token.pembrock.near'],
+        REF_MEME_FARM_CONTRACT_ID:
+          process.env.REF_MEME_FARM_CONTRACT_ID || 'meme-farming.ref-labs.near',
       };
   }
 }

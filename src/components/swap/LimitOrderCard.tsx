@@ -84,7 +84,7 @@ import {
 import { SkyWardModal } from '../layout/SwapDoubleCheck';
 
 import { MdOutlineRefresh } from '../reactIcons';
-import { getMax } from '../../utils/numbers';
+import { getMaxMin } from '../../utils/numbers';
 
 import { SelectedIcon } from '../icon/swapV3';
 
@@ -949,7 +949,7 @@ export default function LimitOrderCard(props: {
     const condition1 = tokenIn && balanceInDone && balanceOutDone;
     return (
       condition1 &&
-      (Number(getMax(tokenIn.id, tokenInMax || '0', tokenIn)) -
+      (Number(getMaxMin(tokenIn.id, tokenInMax || '0', tokenIn)) -
         Number(tokenInAmount || '0') <
         0 ||
         ONLY_ZEROS.test(tokenInMax))
@@ -1036,7 +1036,7 @@ export default function LimitOrderCard(props: {
             balanceInDone &&
             balanceOutDone &&
             tokenIn &&
-            Number(getMax(tokenIn.id, tokenInMax || '0', tokenIn)) -
+            Number(getMaxMin(tokenIn.id, tokenInMax || '0', tokenIn)) -
               Number(tokenInAmount || '0') <
               0 &&
             !ONLY_ZEROS.test(tokenInMax || '0') &&
@@ -1046,7 +1046,7 @@ export default function LimitOrderCard(props: {
               <Alert
                 level="warn"
                 message={`${intl.formatMessage({
-                  id: 'near_validation_error',
+                  id: 'near_min_validation_error',
                 })} `}
                 extraClass="px-0 pb-3"
               />

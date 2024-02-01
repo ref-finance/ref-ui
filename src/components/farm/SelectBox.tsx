@@ -92,38 +92,36 @@ export default function SelectBox(props: any) {
           ></DownArrowIcon>
         </div>
       </div>
-      <div
-        className={`rounded-lg bg-farmSelectBoxBgColor border border-menuMoreBoxBorderColor absolute top-11 px-1.5 py-2 w-full ${
-          show ? '' : 'hidden'
-        }`}
-      >
-        {selectList.map((item: any) => {
-          const { id, label, name, icon } = item;
-          return (
-            <div
-              onClick={() => {
-                switchOption(id);
-              }}
-              key={id}
-              className={`flex items-center justify-between rounded-md h-8 pl-3 pr-1 my-2 cursor-pointer hover:bg-dclSelectTokenHover`}
-            >
-              <div className="flex items-center">
-                {icon ? (
-                  <span className="flex items-center justify-center w-4 mr-2">
-                    {icon}
+      {show ? (
+        <div className="rounded-lg bg-farmSelectBoxBgColor border border-menuMoreBoxBorderColor absolute top-11 px-1.5 py-2 w-full">
+          {selectList.map((item: any) => {
+            const { id, label, name, icon } = item;
+            return (
+              <div
+                onClick={() => {
+                  switchOption(id);
+                }}
+                key={id}
+                className={`flex items-center justify-between rounded-md h-8 pl-3 pr-1 my-2 cursor-pointer hover:bg-dclSelectTokenHover`}
+              >
+                <div className="flex items-center">
+                  {icon ? (
+                    <span className="flex items-center justify-center w-4 mr-2">
+                      {icon}
+                    </span>
+                  ) : null}
+                  <span className="text-sm text-white">
+                    {name || <FormattedMessage id={label} />}
                   </span>
-                ) : null}
-                <span className="text-sm text-white">
-                  {name || <FormattedMessage id={label} />}
-                </span>
+                </div>
+                <GreenCorrectIcon
+                  className={`${id == selectedId ? '' : 'hidden'}`}
+                ></GreenCorrectIcon>
               </div>
-              <GreenCorrectIcon
-                className={`${id == selectedId ? '' : 'hidden'}`}
-              ></GreenCorrectIcon>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      ) : null}
     </div>
   );
 }

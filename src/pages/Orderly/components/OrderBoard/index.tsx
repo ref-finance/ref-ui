@@ -1109,7 +1109,6 @@ function OrderBoard() {
   const { accountId } = useWalletSelector();
 
   const history = useHistory();
-  //   const allOrders = useAllOrders({ symbol, refreshingTag: false });
 
   const [tab, setTab] = useState<'open' | 'history'>('open');
 

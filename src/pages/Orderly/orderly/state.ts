@@ -139,15 +139,12 @@ export function useAllOrders({
   type,
   validAccountSig,
 }: {
-  refreshingTag: boolean;
+  refreshingTag: number;
   type?: 'SPOT' | 'PERP';
   validAccountSig?: boolean;
 }) {
   const [liveOrders, setLiveOrders] = useState<MyOrder[]>();
-
   const { accountId } = useWalletSelector();
-  // const { validAccountSig } = useOrderlyContext();
-
   const setFunc = useCallback(async () => {
     if (accountId === null || !validAccountSig) return;
     try {
@@ -161,10 +158,9 @@ export function useAllOrders({
       setLiveOrders(allOrders);
     } catch (error) {}
   }, [refreshingTag, validAccountSig]);
-
   useEffect(() => {
     setFunc();
-  }, [refreshingTag]);
+  }, [refreshingTag, accountId, validAccountSig]);
 
   return liveOrders?.filter((o) => o.symbol.indexOf(type || 'SPOT') > -1);
 }
