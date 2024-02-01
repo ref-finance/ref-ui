@@ -895,7 +895,9 @@ export const getDclUserPoints = async (
 };
 
 export const getTxId = async (receipt_id: string) => {
-  return await fetch(config.txIdApiUrl + `/v1/search/?keyword=${receipt_id}`)
+  return await fetch(
+    `https://api2.nearblocks.io/v1/search/?keyword=${receipt_id}`
+  )
     .then(async (res) => {
       const data = await res.json();
       return data;
