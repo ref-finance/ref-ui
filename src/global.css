@@ -1661,3 +1661,8 @@ options-list::-webkit-scrollbar {
 #top-bin-apr-mobile {
   width: 230px;
 }
+
+svg *:focus {
+  outline: none;
+  border: none;
+}

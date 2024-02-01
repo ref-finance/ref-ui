@@ -156,12 +156,6 @@ function TokenChart({
     outerRadius = 55;
     width = 380;
   }
-  const handleCellClick = (event) => {
-    event.preventDefault();
-    if (event.currentTarget) {
-      event.currentTarget.blur();
-    }
-  };
   return (
     <PieChart width={width} height={280}>
       <Pie
@@ -172,7 +166,6 @@ function TokenChart({
         dataKey="value"
         labelLine={false}
         label={customLabel}
-        onClick={handleCellClick}
       >
         {data.map((entry, index) => {
           return (
