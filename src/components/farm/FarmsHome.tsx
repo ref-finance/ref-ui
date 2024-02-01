@@ -25,6 +25,7 @@ import {
   NewIcon,
   ForbiddonIcon,
   StableOption,
+  MemeOptIcon,
 } from '../../components/icon/FarmBoost';
 import {
   GradientButton,
@@ -196,6 +197,7 @@ export default function FarmsHome(props: any) {
     { id: 'near', name: 'NEAR', icon: <NearOptIcon></NearOptIcon> },
     { id: 'stable', name: 'Stable', icon: <StableOption></StableOption> },
     { id: 'eth', name: 'ETH', icon: <EthOptIcon></EthOptIcon> },
+    { id: 'meme', name: 'Meme', icon: <MemeOptIcon></MemeOptIcon> },
     { id: 'new', name: 'New', icon: <NewIcon></NewIcon> },
     { id: 'others', name: 'Others', icon: <OthersOptIcon></OthersOptIcon> },
   ]);
@@ -776,25 +778,27 @@ export default function FarmsHome(props: any) {
           condition1 = false;
         }
       } else if (filter_type_selectedId == 'near') {
-        if (
-          farmClassification['near'].indexOf(getPoolIdBySeedId(seed_id)) > -1
-        ) {
+        if (farmClassification.near.indexOf(getPoolIdBySeedId(seed_id)) > -1) {
           condition1 = true;
         } else {
           condition1 = false;
         }
       } else if (filter_type_selectedId == 'eth') {
-        if (
-          farmClassification['eth'].indexOf(getPoolIdBySeedId(seed_id)) > -1
-        ) {
+        if (farmClassification.eth.indexOf(getPoolIdBySeedId(seed_id)) > -1) {
           condition1 = true;
         } else {
           condition3 = false;
         }
       } else if (filter_type_selectedId == 'stable') {
         if (
-          farmClassification['stable'].indexOf(getPoolIdBySeedId(seed_id)) > -1
+          farmClassification.stable.indexOf(getPoolIdBySeedId(seed_id)) > -1
         ) {
+          condition1 = true;
+        } else {
+          condition3 = false;
+        }
+      } else if (filter_type_selectedId == 'meme') {
+        if (farmClassification.meme.indexOf(getPoolIdBySeedId(seed_id)) > -1) {
           condition1 = true;
         } else {
           condition3 = false;
@@ -802,13 +806,14 @@ export default function FarmsHome(props: any) {
       } else if (filter_type_selectedId == 'others') {
         // others
         const isNotNear =
-          farmClassification['near'].indexOf(getPoolIdBySeedId(seed_id)) == -1;
+          farmClassification.near.indexOf(getPoolIdBySeedId(seed_id)) == -1;
         const isNotEth =
-          farmClassification['eth'].indexOf(getPoolIdBySeedId(seed_id)) == -1;
+          farmClassification.eth.indexOf(getPoolIdBySeedId(seed_id)) == -1;
         const isNotStable =
-          farmClassification['stable'].indexOf(getPoolIdBySeedId(seed_id)) ==
-          -1;
-        if (isNotNear && isNotEth && isNotStable) {
+          farmClassification.stable.indexOf(getPoolIdBySeedId(seed_id)) == -1;
+        const isNotMeme =
+          farmClassification.meme.indexOf(getPoolIdBySeedId(seed_id)) == -1;
+        if (isNotNear && isNotEth && isNotStable && isNotMeme) {
           condition1 = true;
         } else {
           condition1 = false;
@@ -906,38 +911,41 @@ export default function FarmsHome(props: any) {
           condition1 = false;
         }
       } else if (filter_type_selectedId == 'near') {
-        if (
-          farmClassification['near'].indexOf(getPoolIdBySeedId(seed_id)) > -1
-        ) {
+        if (farmClassification.near.indexOf(getPoolIdBySeedId(seed_id)) > -1) {
           condition1 = true;
         } else {
           condition1 = false;
         }
       } else if (filter_type_selectedId == 'eth') {
-        if (
-          farmClassification['eth'].indexOf(getPoolIdBySeedId(seed_id)) > -1
-        ) {
+        if (farmClassification.eth.indexOf(getPoolIdBySeedId(seed_id)) > -1) {
           condition1 = true;
         } else {
           condition1 = false;
         }
       } else if (filter_type_selectedId == 'stable') {
         if (
-          farmClassification['stable'].indexOf(getPoolIdBySeedId(seed_id)) > -1
+          farmClassification.stable.indexOf(getPoolIdBySeedId(seed_id)) > -1
         ) {
+          condition1 = true;
+        } else {
+          condition1 = false;
+        }
+      } else if (filter_type_selectedId == 'meme') {
+        if (farmClassification.meme.indexOf(getPoolIdBySeedId(seed_id)) > -1) {
           condition1 = true;
         } else {
           condition1 = false;
         }
       } else if (filter_type_selectedId == 'others') {
         const isNotNear =
-          farmClassification['near'].indexOf(getPoolIdBySeedId(seed_id)) == -1;
+          farmClassification.near.indexOf(getPoolIdBySeedId(seed_id)) == -1;
         const isNotEth =
-          farmClassification['eth'].indexOf(getPoolIdBySeedId(seed_id)) == -1;
+          farmClassification.eth.indexOf(getPoolIdBySeedId(seed_id)) == -1;
         const isNotStable =
-          farmClassification['stable'].indexOf(getPoolIdBySeedId(seed_id)) ==
-          -1;
-        if (isNotNear && isNotEth && isNotStable) {
+          farmClassification.stable.indexOf(getPoolIdBySeedId(seed_id)) == -1;
+        const isNotMeme =
+          farmClassification.stable.indexOf(getPoolIdBySeedId(seed_id)) == -1;
+        if (isNotNear && isNotEth && isNotStable && isNotMeme) {
           condition1 = true;
         } else {
           condition1 = false;
