@@ -1448,6 +1448,7 @@ input[type='range']::-webkit-slider-runnable-track {
   --wallet-selector-mobile-bottom-section: #42525c;
   --sidebar-border-color: #42525c;
   --rt-opacity: 1 !important;
+  --wcm-z-index: 10000 !important;
 }
 .nws-modal-wrapper
   .nws-modal
