@@ -1543,7 +1543,7 @@ export function RecentTransactions({
           tab == 'swap' ? 3 : 5
         } text-primaryText hover:text-white hover:bg-poolRecentHover`}
       >
-        <td className="col-span-1 gap-1 px-4">
+        <td className="col-span-1 gap-1 p-4">
           <span className="text-white">
             {tx.method_name.toLowerCase().indexOf('add') > -1 && 'Add'}
 

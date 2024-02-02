@@ -2144,7 +2144,7 @@ function ActiveLine({
         }}
       >
         {/* title */}
-        <div className="rounded-t-xl bg-orderMobileTop px-3 pt-3">
+        <div className="rounded-t-xl relative bg-orderMobileTop px-3 pt-3">
           <div className="flex items-center relative justify-between">
             {sellTokenAmount}
             <MyOrderMobileArrow />
@@ -2152,6 +2152,31 @@ function ActiveLine({
           </div>
 
           {created}
+
+          <div className="absolute right-4 bottom-2.5 z-50  text-xs">
+            {!!orderTx && (
+              <a
+                className="flex items-center bg-black text-primaryText px-1.5  bg-opacity-20 rounded cursor-pointer"
+                onClick={handleTxClick}
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+              >
+                {isLoading ? (
+                  <>
+                    Tx
+                    <span className="loading-dots"></span>
+                  </>
+                ) : (
+                  <>
+                    <span className="mr-1.5">
+                      <HiOutlineExternalLink></HiOutlineExternalLink>
+                    </span>
+                    Tx
+                  </>
+                )}
+              </a>
+            )}
+          </div>
         </div>
         {/*  content */}
         <div className="rounded-b-xl p-3 bg-cardBg">
