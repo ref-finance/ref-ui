@@ -1567,7 +1567,14 @@ export const useRefSwap = ({
     !swapErrorV2
       ? 'v2'
       : 'v1';
-
+  // TODOXX
+  console.log(
+    '0000000000000-v1--tokenOutAmount-routeV2;v2---tokenOutAmountV2--routeV2',
+    tokenOutAmount,
+    swapsToDo,
+    tokenOutAmountV2,
+    swapsToDoV2
+  );
   if (bestSwap === 'v1') {
     return {
       quoteDone: true,
