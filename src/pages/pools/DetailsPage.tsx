@@ -1577,7 +1577,7 @@ export function RecentTransactions({
         <td
           className={`col-span-${
             tab == 'swap' ? 1 : 2
-          } relative pr-4 lg:flex justify-end`}
+          } relative py-4 pr-4 lg:flex justify-end`}
         >
           <span
             key={tx.receipt_id}
