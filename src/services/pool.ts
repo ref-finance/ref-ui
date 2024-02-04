@@ -435,11 +435,6 @@ export const getPoolsByTokens = async ({
         isNotStablePool(pool)
       );
     });
-  // TODOXX
-  console.log(
-    '8888888888888888888888-79-pool',
-    pools.find((pool) => pool.id == 79)
-  );
   return { filteredPools, pool_protocol };
 };
 
