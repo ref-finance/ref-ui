@@ -1539,7 +1539,7 @@ export function RecentTransactions({
 
     return (
       <tr
-        className={`text-sm lg:grid  overflow-hidden py-3 lg:grid-cols-${
+        className={`text-sm lg:grid  overflow-hidden lg:grid-cols-${
           tab == 'swap' ? 3 : 5
         } text-primaryText hover:text-white hover:bg-poolRecentHover`}
       >
