@@ -67,7 +67,7 @@ import {
   Near,
 } from 'src/components/icon';
 import { useHistory } from 'react-router';
-import { getPool } from 'src/services/indexer';
+import { getPool, getTxId } from 'src/services/indexer';
 import { BigNumber } from 'bignumber.js';
 import { FormattedMessage, useIntl, FormattedRelativeTime } from 'react-intl';
 import {
@@ -1401,13 +1401,38 @@ export function RecentTransactions({
   const storedTab = sessionStorage.getItem(
     REF_FI_RECENT_TRANSACTION_TAB_KEY
   ) as RencentTabKey;
-
   const [tab, setTab] = useState<RencentTabKey>(storedTab || 'swap');
 
   const onChangeTab = (tab: RencentTabKey) => {
     sessionStorage.setItem(REF_FI_RECENT_TRANSACTION_TAB_KEY, tab);
     setTab(tab);
   };
+
+  const [loadingStates, setLoadingStates] = useState({});
+  async function handleTxClick(receipt_id) {
+    setLoadingStates((prevStates) => ({ ...prevStates, [receipt_id]: true }));
+    try {
+      const data = await getTxId(receipt_id);
+      if (data && data.receipts && data.receipts.length > 0) {
+        const txHash = data.receipts[0].originated_from_transaction_hash;
+        window.open(
+          `${getConfig().explorerUrl}/txns/${txHash}`,
+          '_blank',
+          'noopener,noreferrer'
+        );
+      }
+    } catch (error) {
+      console.error(
+        'An error occurred while fetching transaction data:',
+        error
+      );
+    } finally {
+      setLoadingStates((prevStates) => ({
+        ...prevStates,
+        [receipt_id]: false,
+      }));
+    }
+  }
 
   const renderSwapTransactions = swapTransaction.map((tx) => {
     const swapIn = tokens.find((t) => t.id === tx.token_in);
@@ -1438,7 +1463,6 @@ export function RecentTransactions({
         <HiOutlineExternalLink className=""></HiOutlineExternalLink>
       </a>
     );
-
     return (
       <tr
         className={`text-sm lg:grid lg:grid-cols-3 text-primaryText hover:text-white hover:bg-poolRecentHover`}
@@ -1465,15 +1489,27 @@ export function RecentTransactions({
 
         <td className="col-span-1 relative flex items-center justify-end py-4 pr-4">
           <span
+            key={tx.receipt_id}
             className="inline-flex items-center cursor-pointer"
-            onClick={() => {
-              openUrl(`${getConfig().explorerUrl}/txns/${tx.tx_id}`);
-            }}
+            onClick={() =>
+              !loadingStates[tx.receipt_id] && handleTxClick(tx.receipt_id)
+            }
           >
-            <span className="hover:underline cursor-pointer xsm:whitespace-nowrap">
-              {tx.timestamp}
-            </span>
-            {txLink}
+            {loadingStates[tx.receipt_id] ? (
+              <>
+                <span className="hover:underline cursor-pointer xsm:whitespace-nowrap">
+                  {tx.timestamp}
+                </span>
+                <span className="loading-dots"></span>
+              </>
+            ) : (
+              <>
+                <span className="hover:underline cursor-pointer xsm:whitespace-nowrap">
+                  {tx.timestamp}
+                </span>
+                {txLink}
+              </>
+            )}
           </span>
         </td>
       </tr>
@@ -1503,11 +1539,11 @@ export function RecentTransactions({
 
     return (
       <tr
-        className={`text-sm lg:grid  overflow-hidden py-3 lg:grid-cols-${
+        className={`text-sm lg:grid  overflow-hidden lg:grid-cols-${
           tab == 'swap' ? 3 : 5
         } text-primaryText hover:text-white hover:bg-poolRecentHover`}
       >
-        <td className="col-span-1 gap-1 px-4">
+        <td className="col-span-1 gap-1 p-4">
           <span className="text-white">
             {tx.method_name.toLowerCase().indexOf('add') > -1 && 'Add'}
 
@@ -1541,18 +1577,30 @@ export function RecentTransactions({
         <td
           className={`col-span-${
             tab == 'swap' ? 1 : 2
-          } relative pr-4 lg:flex justify-end`}
+          } relative py-4 pr-4 lg:flex justify-end`}
         >
           <span
+            key={tx.receipt_id}
             className="inline-flex cursor-pointer"
-            onClick={() => {
-              openUrl(`${getConfig().explorerUrl}/txns/${tx.tx_id}`);
-            }}
+            onClick={() =>
+              !loadingStates[tx.receipt_id] && handleTxClick(tx.receipt_id)
+            }
           >
-            <span className="hover:underline cursor-pointer xsm:whitespace-nowrap">
-              {tx.timestamp}
-            </span>
-            {txLink}
+            {loadingStates[tx.receipt_id] ? (
+              <>
+                <span className="hover:underline cursor-pointer xsm:whitespace-nowrap">
+                  {tx.timestamp}
+                </span>
+                <span className="loading-dots"></span>
+              </>
+            ) : (
+              <>
+                <span className="hover:underline cursor-pointer xsm:whitespace-nowrap">
+                  {tx.timestamp}
+                </span>
+                {txLink}
+              </>
+            )}
           </span>
         </td>
       </tr>
@@ -3130,3 +3178,6 @@ export const formatNumber = (v: string | number) => {
     return big.toFixed(3, 1);
   }
 };
+function setIsLoading(arg0: boolean) {
+  throw new Error('Function not implemented.');
+}

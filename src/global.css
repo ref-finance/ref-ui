@@ -1449,6 +1449,8 @@ input[type='range']::-webkit-slider-runnable-track {
   --sidebar-border-color: #42525c;
   --wcm-z-index: 10000 !important;
   --rt-opacity: 1 !important;
+  --wcm-z-index: 10000 !important;
+  --w3m-z-index: 10000 !important;
 }
 .nws-modal-wrapper
   .nws-modal
@@ -1661,4 +1663,30 @@ options-list::-webkit-scrollbar {
 
 #top-bin-apr-mobile {
   width: 230px;
+}
+
+svg *:focus {
+  outline: none;
+  border: none;
+}
+
+@keyframes fadeInOut {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.loading-dots {
+  display: inline-block;
+  margin-left: 0.5rem;
+  font-size: 1rem;
+}
+
+.loading-dots::after {
+  content: '...';
+  animation: fadeInOut 1s infinite;
 }

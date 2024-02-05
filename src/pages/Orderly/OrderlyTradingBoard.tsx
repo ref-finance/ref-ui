@@ -265,13 +265,13 @@ function OrderlyTradingBoard() {
     <>
       <div className="mx-auto relative xs:bottom-6 bottom-9">
         {/* todo  */}
-        {!isMobile && <PerpOrderlyTip />}
+        {/* {!isMobile && <PerpOrderlyTip />} */}
         {!isMobile && <TradingBoard></TradingBoard>}
 
         {isMobile && <MobileTradingBoard></MobileTradingBoard>}
       </div>
       {/* todo  */}
-      {isMobile && <PerpOrderlyTipMobile></PerpOrderlyTipMobile>}
+      {/* {isMobile && <PerpOrderlyTipMobile></PerpOrderlyTipMobile>} */}
     </>
   );
 }

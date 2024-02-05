@@ -1567,7 +1567,6 @@ export const useRefSwap = ({
     !swapErrorV2
       ? 'v2'
       : 'v1';
-
   if (bestSwap === 'v1') {
     return {
       quoteDone: true,
