@@ -1555,7 +1555,6 @@ export const useRefSwap = ({
     quoteDoneV2 &&
     quoteDone &&
     Big(estimateTokenInAmount || 0).eq(tokenInAmount || 0);
-
   if (!quoteDoneRef)
     return {
       quoteDone: false,
@@ -1566,7 +1565,25 @@ export const useRefSwap = ({
       market: 'ref',
       tokenOutAmount: '0',
     };
-
+  if (new Big(tokenOutAmountV2 || '0').gt(tokenOutAmount || '0')) {
+    console.log(
+      '22222222222222-tokenInAmount-v1-tokenOutAmount1-swapsToDo1--v2-tokenOutAmountV2-swapsToDoV2',
+      tokenInAmount,
+      tokenOutAmount,
+      swapsToDo,
+      tokenOutAmountV2,
+      swapsToDoV2
+    );
+  } else {
+    console.log(
+      '000000000000000-tokenInAmount-v1-tokenOutAmount1-swapsToDo1--v2-tokenOutAmountV2-swapsToDoV2',
+      tokenInAmount,
+      tokenOutAmount,
+      swapsToDo,
+      tokenOutAmountV2,
+      swapsToDoV2
+    );
+  }
   const bestSwap =
     new Big(tokenOutAmountV2 || '0').gte(tokenOutAmount || '0') &&
     canSwapV2 &&
