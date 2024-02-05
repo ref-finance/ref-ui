@@ -80,7 +80,7 @@ import {
 import { HiOutlineExternalLink } from '../../../../components/reactIcons';
 import getConfig from '../../../../services/config';
 import _ from 'lodash';
-import { HistoryOrderSwapInfo } from '../../../../services/indexer';
+import { HistoryOrderSwapInfo, getTxId } from '../../../../services/indexer';
 import { useDclPoolIdByCondition } from '../../../../state/swapV3';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
@@ -140,12 +140,30 @@ function HistoryLine({
   hoverOn: number;
   setHoverOn: React.Dispatch<React.SetStateAction<number>>;
 }) {
+  const [isLoading, setIsLoading] = useState(false);
+  const handleTxClick = async () => {
+    if (orderTx) {
+      setIsLoading(true);
+      try {
+        const data = await getTxId(orderTx);
+        if (data && data.receipts && data.receipts.length > 0) {
+          const txHash = data.receipts[0].originated_from_transaction_hash;
+          window.open(
+            `${getConfig().explorerUrl}/txns/${txHash}`,
+            '_blank',
+            'noopener,noreferrer'
+          );
+        }
+      } catch (error) {
+        console.error('Error fetching txId:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
   const intl = useIntl();
-
   const buyToken = tokensMap[order.buy_token];
-
   const sellToken = tokensMap[order.sell_token];
-
   if (!buyToken || !sellToken) return null;
 
   const swapIn = toReadableNumber(
@@ -511,15 +529,24 @@ function HistoryLine({
 
       {!!orderTx && (
         <a
-          className="flex items-center text-v3SwapGray"
-          href={`${getConfig().explorerUrl}/txns/${orderTx}`}
+          className="flex items-center text-v3SwapGray cursor-pointer"
+          onClick={handleTxClick}
           target="_blank"
           rel="noopener noreferrer nofollow"
         >
-          Tx
-          <span className="ml-1.5">
-            <HiOutlineExternalLink></HiOutlineExternalLink>
-          </span>
+          {isLoading ? (
+            <>
+              Tx
+              <span className="loading-dots"></span>
+            </>
+          ) : (
+            <>
+              Tx
+              <span className="ml-1.5">
+                <HiOutlineExternalLink />
+              </span>
+            </>
+          )}
         </a>
       )}
     </div>
@@ -816,15 +843,24 @@ function HistoryLine({
           <div className="absolute right-4 bottom-2.5 z-50  text-xs">
             {!!orderTx && (
               <a
-                className="flex items-center bg-black text-primaryText px-1.5  bg-opacity-20 rounded "
-                href={`${getConfig().explorerUrl}/txns/${orderTx}`}
+                className="flex items-center bg-black text-primaryText px-1.5  bg-opacity-20 rounded cursor-pointer"
+                onClick={handleTxClick}
                 target="_blank"
                 rel="noopener noreferrer nofollow"
               >
-                <span className="mr-1.5">
-                  <HiOutlineExternalLink></HiOutlineExternalLink>
-                </span>
-                Tx
+                {isLoading ? (
+                  <>
+                    Tx
+                    <span className="loading-dots"></span>
+                  </>
+                ) : (
+                  <>
+                    <span className="mr-1.5">
+                      <HiOutlineExternalLink></HiOutlineExternalLink>
+                    </span>
+                    Tx
+                  </>
+                )}
               </a>
             )}
           </div>
@@ -895,6 +931,27 @@ function HistorySwapInfoLine({
   hoverOn: number;
   setHoverOn: React.Dispatch<React.SetStateAction<number>>;
 }) {
+  const [isLoading, setIsLoading] = useState(false);
+  const handleTxClick = async () => {
+    if (orderTx) {
+      setIsLoading(true);
+      try {
+        const data = await getTxId(orderTx);
+        if (data && data.receipts && data.receipts.length > 0) {
+          const txHash = data.receipts[0].originated_from_transaction_hash;
+          window.open(
+            `${getConfig().explorerUrl}/txns/${txHash}`,
+            '_blank',
+            'noopener,noreferrer'
+          );
+        }
+      } catch (error) {
+        console.error('Error fetching txId:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
   const intl = useIntl();
 
   const buyToken = tokensMap[token_out];
@@ -1050,15 +1107,24 @@ function HistorySwapInfoLine({
       </span>
       {!!orderTx && (
         <a
-          className="flex items-center text-v3SwapGray"
-          href={`${getConfig().explorerUrl}/txns/${orderTx}`}
+          className="flex items-center text-v3SwapGray cursor-pointer"
+          onClick={handleTxClick}
           target="_blank"
           rel="noopener noreferrer nofollow"
         >
-          Tx
-          <span className="ml-1.5">
-            <HiOutlineExternalLink></HiOutlineExternalLink>
-          </span>
+          {isLoading ? (
+            <>
+              Tx
+              <span className="loading-dots"></span>
+            </>
+          ) : (
+            <>
+              Tx
+              <span className="ml-1.5">
+                <HiOutlineExternalLink></HiOutlineExternalLink>
+              </span>
+            </>
+          )}
         </a>
       )}
     </div>
@@ -1124,15 +1190,24 @@ function HistorySwapInfoLine({
           <div className="absolute right-4 bottom-2.5 z-50  text-xs">
             {!!orderTx && (
               <a
-                className="flex items-center bg-black text-primaryText px-1.5  bg-opacity-20 rounded "
-                href={`${getConfig().explorerUrl}/txns/${orderTx}`}
+                className="flex items-center bg-black text-primaryText px-1.5  bg-opacity-20 rounded cursor-pointer"
+                onClick={handleTxClick}
                 target="_blank"
                 rel="noopener noreferrer nofollow"
               >
-                <span className="mr-1.5">
-                  <HiOutlineExternalLink></HiOutlineExternalLink>
-                </span>
-                Tx
+                {isLoading ? (
+                  <>
+                    Tx
+                    <span className="loading-dots"></span>
+                  </>
+                ) : (
+                  <>
+                    <span className="mr-1.5">
+                      <HiOutlineExternalLink></HiOutlineExternalLink>
+                    </span>
+                    Tx
+                  </>
+                )}
               </a>
             )}
           </div>
@@ -1182,6 +1257,27 @@ function ActiveLine({
   hoverOn: number;
   setHoverOn: React.Dispatch<React.SetStateAction<number>>;
 }) {
+  const [isLoading, setIsLoading] = useState(false);
+  const handleTxClick = async () => {
+    if (orderTx) {
+      setIsLoading(true);
+      try {
+        const data = await getTxId(orderTx);
+        if (data && data.receipts && data.receipts.length > 0) {
+          const txHash = data.receipts[0].originated_from_transaction_hash;
+          window.open(
+            `${getConfig().explorerUrl}/txns/${txHash}`,
+            '_blank',
+            'noopener,noreferrer'
+          );
+        }
+      } catch (error) {
+        console.error('Error fetching txId:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
   const [claimLoading, setClaimLoading] = useState<boolean>(false);
   const intl = useIntl();
 
@@ -1945,7 +2041,6 @@ function ActiveLine({
       </div>
     </td>
   );
-
   return (
     <Fragment>
       <tr>
@@ -2007,15 +2102,24 @@ function ActiveLine({
                 <div className="frcs">
                   {!!orderTx && (
                     <a
-                      className="flex items-center text-v3SwapGray"
-                      href={`${getConfig().explorerUrl}/txns/${orderTx}`}
+                      className="flex items-center text-v3SwapGray cursor-pointer"
+                      onClick={handleTxClick}
                       target="_blank"
                       rel="noopener noreferrer nofollow"
                     >
-                      Tx
-                      <span className="ml-1.5">
-                        <HiOutlineExternalLink></HiOutlineExternalLink>
-                      </span>
+                      {isLoading ? (
+                        <>
+                          Tx
+                          <span className="loading-dots"></span>
+                        </>
+                      ) : (
+                        <>
+                          Tx
+                          <span className="ml-1.5">
+                            <HiOutlineExternalLink />
+                          </span>
+                        </>
+                      )}
                     </a>
                   )}
                 </div>
@@ -2040,7 +2144,7 @@ function ActiveLine({
         }}
       >
         {/* title */}
-        <div className="rounded-t-xl bg-orderMobileTop px-3 pt-3">
+        <div className="rounded-t-xl relative bg-orderMobileTop px-3 pt-3">
           <div className="flex items-center relative justify-between">
             {sellTokenAmount}
             <MyOrderMobileArrow />
@@ -2048,6 +2152,31 @@ function ActiveLine({
           </div>
 
           {created}
+
+          <div className="absolute right-4 bottom-2.5 z-50  text-xs">
+            {!!orderTx && (
+              <a
+                className="flex items-center bg-black text-primaryText px-1.5  bg-opacity-20 rounded cursor-pointer"
+                onClick={handleTxClick}
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+              >
+                {isLoading ? (
+                  <>
+                    Tx
+                    <span className="loading-dots"></span>
+                  </>
+                ) : (
+                  <>
+                    <span className="mr-1.5">
+                      <HiOutlineExternalLink></HiOutlineExternalLink>
+                    </span>
+                    Tx
+                  </>
+                )}
+              </a>
+            )}
+          </div>
         </div>
         {/*  content */}
         <div className="rounded-b-xl p-3 bg-cardBg">
@@ -2677,8 +2806,8 @@ function OrderCard({
                 key={order.order_id}
                 order={order}
                 orderTx={
-                  orderTxs?.find((t) => t.order_id === order.order_id)?.tx_id ||
-                  ''
+                  orderTxs?.find((t) => t.order_id === order.order_id)
+                    ?.receipt_id || ''
                 }
               />
             );
@@ -2694,8 +2823,8 @@ function OrderCard({
                 tokensMap={tokensMap}
                 sellAmountToBuyAmount={sellAmountToBuyAmount}
                 orderTx={
-                  orderTxs?.find((t) => t.order_id === order.order_id)?.tx_id ||
-                  ''
+                  orderTxs?.find((t) => t.order_id === order.order_id)
+                    ?.receipt_id || ''
                 }
                 setHoverOn={setHistoryOrderHoverOn}
                 hoverOn={historyOrderHoverOn}
@@ -2758,12 +2887,12 @@ function OrderCard({
                 <HistorySwapInfoLine
                   index={i}
                   tokensMap={tokensMap}
-                  key={sf.tx_id}
+                  key={sf.receipt_id}
                   token_in={sf.token_in}
                   token_out={sf.token_out}
                   amount_in={sf.amount_in}
                   amount_out={sf.amount_out}
-                  orderTx={sf.tx_id}
+                  orderTx={sf.receipt_id}
                   timestamp={sf.timestamp}
                   point={sf.point}
                   pool_id={sf.pool_id}
