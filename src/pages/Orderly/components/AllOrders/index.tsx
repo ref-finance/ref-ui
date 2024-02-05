@@ -4389,6 +4389,7 @@ function HistoryOrders({
               hasMore={hasMore}
               dataLength={records}
               loader={null}
+              style={{ overflow: 'static' }}
               scrollableTarget={isMobile() ? null : 'all-orders-body-history'}
             >
               {data.slice(0, records)}
