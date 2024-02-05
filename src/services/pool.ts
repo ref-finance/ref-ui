@@ -435,7 +435,6 @@ export const getPoolsByTokens = async ({
         isNotStablePool(pool)
       );
     });
-
   return { filteredPools, pool_protocol };
 };
 

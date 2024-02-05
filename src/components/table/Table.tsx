@@ -39,7 +39,7 @@ export default function Table({
         >
           <tr className="font-normal border-b border-gray-500 border-opacity-30">
             <th
-              className={`font-normal w-2/5 pb-2 pl-8 xsm:pl-5  ${
+              className={`font-normal w-3/5 pb-2 pl-8 xsm:pl-5  ${
                 sortBy === 'asset' ? 'text-greenLight' : ''
               }`}
             >
