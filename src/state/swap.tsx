@@ -400,7 +400,7 @@ export const useSwap = ({
 }: SwapOptions) => {
   const [pool, setPool] = useState<Pool>();
   const [canSwap, setCanSwap] = useState<boolean>();
-  const [estimateTokenInAmount, setEstimateTokenInAmount] = useState('');
+  const [estimateInOut, setEstimateInOut] = useState<string[]>([]);
   const [tokenOutAmount, setTokenOutAmount] = useState<string>('');
   const [swapError, setSwapError] = useState<Error>();
   const [swapsToDo, setSwapsToDo] = useState<EstimateSwapView[]>();
@@ -504,7 +504,6 @@ export const useSwap = ({
                 ),
               new Big(0)
             );
-
             const tokenPriceListForCal = !!tokenPriceList?.NEAR
               ? tokenPriceList
               : (await getTokenPriceListFromCache()).reduce(
@@ -531,8 +530,8 @@ export const useSwap = ({
             setTokenOutAmount(
               scientificNotationToString(expectedOut.toString())
             );
-            setEstimateTokenInAmount(tokenInAmount);
             setSwapsToDo(estimates);
+            setEstimateInOut([tokenInAmount, expectedOut.toString()]);
             setCanSwap(true);
             setQuoteDone(true);
           }
@@ -687,7 +686,7 @@ export const useSwap = ({
     priceImpactValue: scientificNotationToString(
       new Big(priceImpactValue).minus(new Big((avgFee || 0) / 100)).toString()
     ),
-    estimateTokenInAmount,
+    estimateInOut,
   };
 };
 export const useSwapV3 = ({
@@ -1501,7 +1500,7 @@ export const useRefSwap = ({
 }: SwapOptions): ExchangeEstimate => {
   const {
     canSwap,
-    tokenOutAmount,
+    // tokenOutAmount,
     minAmountOut,
     swapError,
     makeSwap: makeSwapV1,
@@ -1510,7 +1509,7 @@ export const useRefSwap = ({
     quoteDone,
     priceImpactValue,
     tokenInAmount: tokenInAmountV1,
-    estimateTokenInAmount,
+    estimateInOut,
   } = useSwap({
     tokenIn,
     tokenInAmount,
@@ -1526,6 +1525,7 @@ export const useRefSwap = ({
     reEstimateTrigger,
     supportLedger,
   });
+  const [estimateInAmount, tokenOutAmount] = estimateInOut;
 
   const {
     makeSwap: makeSwapV2,
@@ -1554,7 +1554,13 @@ export const useRefSwap = ({
   const quoteDoneRef =
     quoteDoneV2 &&
     quoteDone &&
-    Big(estimateTokenInAmount || 0).eq(tokenInAmount || 0);
+    Big(estimateInAmount || 0).eq(tokenInAmount || 0);
+  // console.log(
+  //   '77777777777777-tokenInAmount, estimateInAmount-tokenOutAmount',
+  //   tokenInAmount,
+  //   estimateInAmount,
+  //   tokenOutAmount
+  // );
   if (!quoteDoneRef)
     return {
       quoteDone: false,
@@ -1565,25 +1571,26 @@ export const useRefSwap = ({
       market: 'ref',
       tokenOutAmount: '0',
     };
-  if (new Big(tokenOutAmountV2 || '0').gt(tokenOutAmount || '0')) {
-    console.log(
-      '22222222222222-tokenInAmount-v1-tokenOutAmount1-swapsToDo1--v2-tokenOutAmountV2-swapsToDoV2',
-      tokenInAmount,
-      tokenOutAmount,
-      swapsToDo,
-      tokenOutAmountV2,
-      swapsToDoV2
-    );
-  } else {
-    console.log(
-      '000000000000000-tokenInAmount-v1-tokenOutAmount1-swapsToDo1--v2-tokenOutAmountV2-swapsToDoV2',
-      tokenInAmount,
-      tokenOutAmount,
-      swapsToDo,
-      tokenOutAmountV2,
-      swapsToDoV2
-    );
-  }
+  // if (new Big(tokenOutAmountV2 || '0').gt(tokenOutAmount || '0')) {
+  //   console.log(
+  //     '22222222222222-estimateTokenInAmount, tokenInAmount-v1-tokenOutAmount1-swapsToDo1--v2-tokenOutAmountV2-swapsToDoV2',
+  //     estimateTokenInAmount,
+  //     tokenInAmount,
+  //     tokenOutAmount,
+  //     swapsToDo,
+  //     tokenOutAmountV2,
+  //     swapsToDoV2
+  //   );
+  // } else {
+  //   console.log(
+  //     '000000000000000-tokenInAmount-v1-tokenOutAmount1-swapsToDo1--v2-tokenOutAmountV2-swapsToDoV2',
+  //     tokenInAmount,
+  //     tokenOutAmount,
+  //     swapsToDo,
+  //     tokenOutAmountV2,
+  //     swapsToDoV2
+  //   );
+  // }
   const bestSwap =
     new Big(tokenOutAmountV2 || '0').gte(tokenOutAmount || '0') &&
     canSwapV2 &&
