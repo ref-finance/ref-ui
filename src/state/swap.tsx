@@ -400,7 +400,7 @@ export const useSwap = ({
 }: SwapOptions) => {
   const [pool, setPool] = useState<Pool>();
   const [canSwap, setCanSwap] = useState<boolean>();
-
+  const [estimateTokenInAmount, setEstimateTokenInAmount] = useState('');
   const [tokenOutAmount, setTokenOutAmount] = useState<string>('');
   const [swapError, setSwapError] = useState<Error>();
   const [swapsToDo, setSwapsToDo] = useState<EstimateSwapView[]>();
@@ -531,6 +531,7 @@ export const useSwap = ({
             setTokenOutAmount(
               scientificNotationToString(expectedOut.toString())
             );
+            setEstimateTokenInAmount(tokenInAmount);
             setSwapsToDo(estimates);
             setCanSwap(true);
             setQuoteDone(true);
@@ -686,6 +687,7 @@ export const useSwap = ({
     priceImpactValue: scientificNotationToString(
       new Big(priceImpactValue).minus(new Big((avgFee || 0) / 100)).toString()
     ),
+    estimateTokenInAmount,
   };
 };
 export const useSwapV3 = ({
@@ -1508,6 +1510,7 @@ export const useRefSwap = ({
     quoteDone,
     priceImpactValue,
     tokenInAmount: tokenInAmountV1,
+    estimateTokenInAmount,
   } = useSwap({
     tokenIn,
     tokenInAmount,
@@ -1548,7 +1551,10 @@ export const useRefSwap = ({
     reEstimateTrigger,
   });
 
-  const quoteDoneRef = quoteDoneV2 && quoteDone;
+  const quoteDoneRef =
+    quoteDoneV2 &&
+    quoteDone &&
+    Big(estimateTokenInAmount || 0).eq(tokenInAmount || 0);
 
   if (!quoteDoneRef)
     return {
