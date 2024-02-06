@@ -237,45 +237,25 @@ const SeedsBox = () => {
                   <span className="text-xl gotham_bold text-white">
                     {seed.token_meta_data.symbol}
                   </span>
-                  {/* {hasLpSeed ? (
-                    <div
-                      onClick={() => {
-                        goFarmDetail(seed_id);
-                      }}
-                      className="flex items-center border border-memePoolBoxBorderColor gap-2 rounded-lg h-8 px-2 cursor-pointer"
-                    >
-                      <span className="text-xs text-white">
-                        {seed.token_meta_data.symbol}/NEAR
-                      </span>
-                      <ArrowRightIcon />
-                    </div>
-                  ) : (
-                    <div
-                      data-class="reactTip"
-                      data-tooltip-id={`lp_farm_${seed_id}`}
-                      data-place="top"
-                      data-tooltip-html={comeSoonTip()}
-                    >
-                      <div className="flex items-center border border-memePoolBoxBorderColor gap-2 rounded-lg h-8 px-2 opacity-30 cursor-not-allowed">
-                        <span className="text-xs text-white">
-                          {seed.token_meta_data.symbol}/NEAR
-                        </span>
-                        <ArrowRightIcon />
-                      </div>
-                      <CustomTooltip id={`lp_farm_${seed_id}`} />
-                    </div>
-                  )} */}
                   <div
                     data-class="reactTip"
                     data-tooltip-id={`lp_farm_${seed_id}`}
                     data-place="top"
-                    data-tooltip-html={getFarmAPYTip(seed_id)}
+                    data-tooltip-html={
+                      hasLpSeed ? getFarmAPYTip(seed_id) : comeSoonTip()
+                    }
                   >
                     <div
                       onClick={() => {
-                        goFarmDetail(seed_id);
+                        if (hasLpSeed) {
+                          goFarmDetail(seed_id);
+                        }
                       }}
-                      className="flex items-center border border-memePoolBoxBorderColor gap-2 rounded-lg h-8 px-2 cursor-pointer"
+                      className={`flex items-center border border-memePoolBoxBorderColor gap-2 rounded-lg h-8 px-2 ${
+                        hasLpSeed
+                          ? 'cursor-pointer'
+                          : 'opacity-30 cursor-not-allowed'
+                      }`}
                     >
                       <span className="text-xs text-white">
                         {seed.token_meta_data.symbol}/NEAR

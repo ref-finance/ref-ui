@@ -51,6 +51,7 @@ import { usePerpData } from '../UserBoardPerp/state';
 import { OrderAsset, useOrderAssets } from './state';
 const configV2 = getConfigV2();
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
+import { index } from 'mathjs';
 
 function getTipAsset() {
   const intl = useIntl();
@@ -756,9 +757,10 @@ export function AssetModal(props: Modal.Props & { curHoldingOut }) {
                 maxHeight: '50vh',
               }}
             >
-              {sortedBalances.map((b: OrderAsset) => {
+              {sortedBalances.map((b: OrderAsset, index) => {
                 return (
                   <AssetLine
+                    key={index}
                     tokenInfo={tokenInfo}
                     {...b}
                     freeCollateral={freeCollateral}
@@ -780,7 +782,13 @@ export function AssetModal(props: Modal.Props & { curHoldingOut }) {
                   scrollableTarget="mobile-asset-body"
                 >
                   {records.map((r) => {
-                    return <RecordLine {...r} tokenInfo={tokenInfo} />;
+                    return (
+                      <RecordLine
+                        key={r.id + index}
+                        {...r}
+                        tokenInfo={tokenInfo}
+                      />
+                    );
                   })}
                 </InfiniteScroll>
               </section>
@@ -794,7 +802,13 @@ export function AssetModal(props: Modal.Props & { curHoldingOut }) {
                   curPage * DEFAULT_PAGE_SIZE
                 )
                 .map((r) => {
-                  return <RecordLine tokenInfo={tokenInfo} {...r} />;
+                  return (
+                    <RecordLine
+                      key={r.id + index + 1}
+                      tokenInfo={tokenInfo}
+                      {...r}
+                    />
+                  );
                 })
             ))}
 
