@@ -993,7 +993,7 @@ function MobileBridgeModal(props: Modal.Props) {
                     }}
                   >
                     <div className="frcs pl-3 gap-2">
-                      <sub.icon></sub.icon>
+                      <sub.icon className="w-5 h-5"></sub.icon>
                       {sub.name}
                     </div>
                   </div>

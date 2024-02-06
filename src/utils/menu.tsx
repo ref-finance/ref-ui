@@ -62,6 +62,7 @@ import {
   Rainbow,
   Solana,
   Terra,
+  WalletCedeBridge,
 } from '../components/icon/Menu';
 import { IconMyLiquidity, MobileNavLimitOrder } from '../components/icon/Nav';
 import {
@@ -985,6 +986,12 @@ export const bridgeData = [
         link: 'https://mainnet.electronlabs.org/bridge',
         id: '2-0',
       },
+      {
+        name: <>Cede.store</>,
+        icon: WalletCedeBridge,
+        link: 'https://send.cede.store/',
+        id: '2-1',
+      },
     ],
   },
 ];
@@ -1024,9 +1031,10 @@ export function BridgeButton() {
       {hover && (
         <div className="absolute pt-4 top-6 right-1/2 transform translate-x-1/2">
           <div className="bg-priceBoardColor p-2 rounded-2xl border border-menuMoreBoxBorderColor flex ">
-            {bridgeData.map((item) => {
+            {bridgeData.map((item, index) => {
               return (
                 <div
+                  key={item.id}
                   className={`flex flex-col font-gothamBold py-2 rounded-xl px-2 ${
                     hoverBridgeType === item.label
                       ? 'bg-primaryText bg-opacity-20 text-white'
@@ -1056,6 +1064,7 @@ export function BridgeButton() {
                   {item.children.map((sub) => {
                     return (
                       <div
+                        key={sub.id}
                         className={`font-gotham  py-2  rounded-md frcs gap-2 cursor-pointer
                       
                         ${
@@ -1075,9 +1084,9 @@ export function BridgeButton() {
                         }}
                       >
                         <sub.icon
-                          className={
+                          className={`w-5 h-5 ${
                             hoverBridgeType === item.label ? '' : 'opacity-50'
-                          }
+                          }`}
                         ></sub.icon>
 
                         {sub.name}
