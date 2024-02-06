@@ -40,16 +40,24 @@ const Overview = () => {
     const list = Object.entries(lpSeeds);
     if (!list.length) return [];
     return list.reduce((acc, cur) => {
-      const [, seed] = cur;
+      const [seedId, seed] = cur;
       const apr = getSeedApr(seed);
-      if (!acc[0]) return [seed, apr];
+      if (!acc[0]) return [seed, apr, seedId];
       if (Big(acc[1]).gt(apr)) {
         return acc;
       } else {
-        return [seed, apr];
+        return [seed, apr, seedId];
       }
     }, []);
   }, [lpSeeds]);
+  function goFarmDetail(seed_id: string) {
+    const lpSeed = lpSeeds[seed_id];
+    if (lpSeed.farmList[0].status == 'Ended') {
+      window.open(`/v2farms/${lpSeed.pool.id}-e`);
+    } else {
+      window.open(`/v2farms/${lpSeed.pool.id}-r`);
+    }
+  }
   const is_mobile = isMobile();
   return (
     <>
@@ -81,7 +89,14 @@ const Overview = () => {
               <span className="text-xl gotham_bold text-white">-</span>
             )}
           </TemplateMobile>
-          <TemplateMobile title="Top Farm APY">
+          <TemplateMobile
+            title="Top Farm APY"
+            onClick={() => {
+              if (topApyFarm[0]) {
+                goFarmDetail(topApyFarm[2]);
+              }
+            }}
+          >
             {topApyFarm[0] ? (
               <div className="flex items-center gap-2">
                 <div className="flex items-center">
@@ -130,7 +145,15 @@ const Overview = () => {
               <span className="text-3xl gotham_bold text-white">-</span>
             )}
           </Template>
-          <Template title="Top Farm APY">
+          <Template
+            title="Top Farm APY"
+            className="cursor-pointer"
+            onClick={() => {
+              if (topApyFarm[0]) {
+                goFarmDetail(topApyFarm[2]);
+              }
+            }}
+          >
             {topApyFarm[0] ? (
               <div className="flex items-center gap-2">
                 <div className="flex items-center">
@@ -166,10 +189,13 @@ const Overview = () => {
   );
 };
 
-function Template({ title, children }: any) {
+function Template({ title, children, className, ...props }: any) {
   return (
     <div
-      className="flex flex-grow flex-col items-center justify-center border border-memeBorderColor bg-swapCardGradient rounded-2xl"
+      {...props}
+      className={`flex flex-grow flex-col items-center justify-center border border-memeBorderColor bg-swapCardGradient rounded-2xl ${
+        className ? className : ''
+      }`}
       style={{ height: '110px' }}
     >
       <span className="text-base text-white">{title}</span>
@@ -177,9 +203,10 @@ function Template({ title, children }: any) {
     </div>
   );
 }
-function TemplateMobile({ title, children }: any) {
+function TemplateMobile({ title, children, ...props }: any) {
   return (
     <div
+      {...props}
       className="flex flex-grow flex-col justify-center w-full gap-1.5"
       style={{ height: '80px' }}
     >
