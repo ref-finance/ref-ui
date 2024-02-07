@@ -406,13 +406,13 @@ function Table({
     return a;
   };
 
-  useEffect(() => {
-    if (orderType > 0) {
-      setCustomTotal(data.filter(filterFunc).length);
-    } else {
-      setCustomTotal(null);
-    }
-  }, [data]);
+  // useEffect(() => {
+  //   if (orderType > 0) {
+  //     setCustomTotal(data.filter(filterFunc).length);
+  //   } else {
+  //     setCustomTotal(null);
+  //   }
+  // }, [data]);
 
   const intl = useIntl();
 
@@ -467,7 +467,7 @@ function Table({
                   <OrderlyLoading />
                 </td>
               </tr>
-            ) : data.filter(filterFunc).filter(pagingFunc).length === 0 ? (
+            ) : data.filter(filterFunc).length === 0 ? (
               <tr
                 className={`w-full mt-20 mb-4 px-5 table-fixed grid grid-cols-${gridCol} gap-4`}
               >
@@ -505,7 +505,6 @@ function Table({
             ) : (
               data
                 .filter(filterFunc)
-                .filter(pagingFunc)
                 .sort(sortingFunc)
                 .map((order, i) => {
                   return (
@@ -532,7 +531,7 @@ function Table({
               <OrderlyLoading />
             </div>
           </div>
-        ) : data.filter(filterFunc).filter(pagingFunc).length === 0 ? (
+        ) : data.filter(filterFunc).length === 0 ? (
           <div className="w-full mb-4 px-5 gap-4">
             <div className="text-center mt-20 flex flex-col justify-center items-center">
               <svg
@@ -568,7 +567,6 @@ function Table({
             {!mobileRenderCustom &&
               data
                 .filter(filterFunc)
-                .filter(pagingFunc)
                 .sort(sortingFunc)
                 .map((order) => mobileRender && mobileRender(order, null))}
             {mobileRenderCustom &&

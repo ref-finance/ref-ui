@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import { TokenMetadata } from 'src/services/ft-contract';
@@ -44,6 +44,10 @@ import {
   ArrowGrey,
 } from '../../../components/icon';
 import Big from 'big.js';
+import { constOrderlyPageSize } from 'src/pages/Orderly/orderly/constant';
+import OrderlyPortfolioPaginate, {
+  OrderlyPortfolioPaginateWrapper
+} from 'src/pages/Orderly/OrderlyPortfolio/OrderlyPortfolioPaginate';
 
 const OrderlyIcon = () => (
   <svg
@@ -153,6 +157,12 @@ export const usePortableOrderlyTable = ({
   const [showSideSelector, setShowSideSelector] = useState<boolean>(false);
   const { marketList, allTokens } = useMarketlist();
   const { curLeverage } = useLeverage();
+  const [filteredData, setFilteredData] = useState<any>();
+  const [filteredPaginateData, setFilteredPaginateData] = useState({
+    current_page: 1,
+    records_per_page: constOrderlyPageSize,
+    total: 0,
+  });
 
   const OpenbookBtn = ({ usable }: { usable: boolean }) => (
     <div className="flex items-center">
@@ -221,6 +231,81 @@ export const usePortableOrderlyTable = ({
     </button>
   );
 
+  // const handleOrderTypeChange = (t) => {
+  //   let orderRows = [];
+  //   if (t === 0) {
+  //     setFilteredPaginateData(filteredData?.data?.meta);
+  //   } else {
+  //     if (filteredData?.data?.rows?.length) {
+  //       if (t === 1) {
+  //         orderRows = filteredData?.data?.rows?.filter(
+  //           (d) => !d.symbol.includes('PERP')
+  //         );
+  //       } else if (t === 2) {
+  //         orderRows = filteredData?.data?.rows?.filter((d) =>
+  //           d.symbol.includes('PERP')
+  //         );
+  //       }
+  //     }
+  //
+  //     setFilteredPaginateData((d) => ({
+  //       ...d,
+  //       total: orderRows.length,
+  //     }));
+  //   }
+  //
+  //   setOrderType(t);
+  // };
+
+  const ordersTableFilterNode = (
+    <div className={'flex gap-2 items-center px-5 pb-5'}>
+      <OrdersFilters
+        orderType={orderType}
+        setOrderType={setOrderType}
+        chooseMarketSymbol={chooseMarketSymbol}
+        setChooseMarketSymbol={setChooseMarketSymbol}
+        chooseOrderSide={chooseOrderSide}
+        setChooseOrderSide={setChooseOrderSide}
+        showMarketSelector={showMarketSelector}
+        setShowMarketSelector={setShowMarketSelector}
+        showSideSelector={showSideSelector}
+        setShowSideSelector={setShowSideSelector}
+        marketList={marketList}
+      />
+      <OrderlyPortfolioPaginate
+        total={filteredPaginateData?.total}
+        pageSize={filteredPaginateData?.records_per_page}
+        page={filteredPaginateData?.current_page}
+      />
+    </div>
+  );
+
+  const ordersTableGetData = async ({ page, status }) => {
+    const result = await getPortfolioAllOrders({
+      accountId,
+      OrderProps: {
+        // page: orderType > 0 ? Math.ceil(page / 50) : page,
+        // size: orderType > 0 ? 500 : 10,
+        page,
+        size: constOrderlyPageSize,
+        status,
+        broker_id: refOnly ? 'ref_dex' : '',
+        symbol: chooseMarketSymbol === 'all_markets' ? '' : chooseMarketSymbol,
+        // @ts-ignore
+        side:
+          chooseOrderSide === 'both_side' ? '' : chooseOrderSide.toUpperCase(),
+        order_type:
+          chooseOrderType === 'all' ? '' : chooseOrderType.toUpperCase(),
+      },
+    });
+    // setFilteredData(result);
+    // if (!filteredData) {
+    //   setFilteredPaginateData(result?.data?.meta);
+    // }
+
+    return result;
+  };
+
   const ordersTable: PortfolioTable = {
     title: intl.formatMessage({
       id: 'orders',
@@ -231,6 +316,7 @@ export const usePortableOrderlyTable = ({
       {
         id: 'open_orders',
         default: 'Open Orders',
+        pagination: false,
         rightComp: (usable: boolean) => <OpenbookBtn usable={usable} />,
         tableRowType: 'card',
         tableRowEmpty: 'no_orders_found',
@@ -362,46 +448,21 @@ export const usePortableOrderlyTable = ({
             </div>
           );
         },
-        tableTopComponent: (
-          <OrdersFilters
-            orderType={orderType}
-            setOrderType={setOrderType}
-            chooseMarketSymbol={chooseMarketSymbol}
-            setChooseMarketSymbol={setChooseMarketSymbol}
-            chooseOrderSide={chooseOrderSide}
-            setChooseOrderSide={setChooseOrderSide}
-            showMarketSelector={showMarketSelector}
-            setShowMarketSelector={setShowMarketSelector}
-            showSideSelector={showSideSelector}
-            setShowSideSelector={setShowSideSelector}
-            marketList={marketList}
-          />
-        ),
+        tableTopComponent: ordersTableFilterNode,
         filter: true,
-        getData: ({ page }: { page: number }) => {
-          return getPortfolioAllOrders({
-            accountId,
-            OrderProps: {
-              page: orderType > 0 ? Math.ceil(page / 50) : page,
-              size: orderType > 0 ? 500 : 10,
-              // @ts-ignore
-              status:
-                chooseOrderStatus === 'all'
-                  ? 'INCOMPLETE'
-                  : chooseOrderStatus.toUpperCase(),
-              broker_id: refOnly ? 'ref_dex' : '',
-              symbol:
-                chooseMarketSymbol === 'all_markets' ? '' : chooseMarketSymbol,
-              // @ts-ignore
-              side:
-                chooseOrderSide === 'both_side'
-                  ? ''
-                  : chooseOrderSide.toUpperCase(),
-              order_type:
-                chooseOrderType === 'all' ? '' : chooseOrderType.toUpperCase(),
-            },
+        getData: async ({ page }: { page: number }) => {
+          return ordersTableGetData({
+            page,
+            status:
+              chooseOrderStatus === 'all'
+                ? 'INCOMPLETE'
+                : chooseOrderStatus.toUpperCase(),
           });
         },
+        setFilteredPaginateData,
+        setFilteredData,
+        filteredData,
+        // pagination2: (data)=> <OrderlyPortfolioPaginateWrapper data={data}/>,
         defaultSort: 'created_time',
         columns: [
           {
@@ -513,6 +574,7 @@ export const usePortableOrderlyTable = ({
       {
         id: 'history',
         default: 'History',
+        pagination: false,
         rightComp: (usable: boolean) => <OpenbookBtn usable={usable} />,
         tableRowType: 'card',
         tableRowEmpty: 'no_orders_found',
@@ -658,46 +720,20 @@ export const usePortableOrderlyTable = ({
             </div>
           );
         },
-        tableTopComponent: (
-          <OrdersFilters
-            orderType={orderType}
-            setOrderType={setOrderType}
-            chooseMarketSymbol={chooseMarketSymbol}
-            setChooseMarketSymbol={setChooseMarketSymbol}
-            chooseOrderSide={chooseOrderSide}
-            setChooseOrderSide={setChooseOrderSide}
-            showMarketSelector={showMarketSelector}
-            setShowMarketSelector={setShowMarketSelector}
-            showSideSelector={showSideSelector}
-            setShowSideSelector={setShowSideSelector}
-            marketList={marketList}
-          />
-        ),
+        tableTopComponent: ordersTableFilterNode,
         filter: true,
         getData: ({ page }: { page: number }) => {
-          return getPortfolioAllOrders({
-            accountId,
-            OrderProps: {
-              page: orderType > 0 ? Math.ceil(page / 50) : page,
-              size: orderType > 0 ? 500 : 10,
-              // @ts-ignore
-              status:
-                chooseOrderStatus === 'all'
-                  ? 'COMPLETED'
-                  : chooseOrderStatus.toUpperCase(),
-              broker_id: refOnly ? 'ref_dex' : '',
-              symbol:
-                chooseMarketSymbol === 'all_markets' ? '' : chooseMarketSymbol,
-              // @ts-ignore
-              side:
-                chooseOrderSide === 'both_side'
-                  ? ''
-                  : chooseOrderSide.toUpperCase(),
-              order_type:
-                chooseOrderType === 'all' ? '' : chooseOrderType.toUpperCase(),
-            },
+          return ordersTableGetData({
+            page,
+            status:
+              chooseOrderStatus === 'all'
+                ? 'COMPLETED'
+                : chooseOrderStatus.toUpperCase(),
           });
         },
+        setFilteredPaginateData,
+        setFilteredData,
+        filteredData,
         defaultSort: 'created_time',
         columns: [
           {

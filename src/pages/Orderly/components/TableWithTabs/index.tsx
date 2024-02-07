@@ -69,6 +69,8 @@ function TableWithTabs({
   markPrices,
   lastPrices,
   unrealMode,
+  orderPageNum,
+  setOrderPageNum,
 }: // tradingKeySet,
 // setTradingKeySet,
 // keyAnnounced,
@@ -112,6 +114,8 @@ function TableWithTabs({
   setTradingKeySet: (item: boolean) => void;
   keyAnnounced: boolean;
   setKeyAnnounced: (item: boolean) => void;
+  orderPageNum?: number;
+  setOrderPageNum?: any;
 }) {
   const intl = useIntl();
   const { marketList } = useMarketlist();
@@ -238,7 +242,7 @@ function TableWithTabs({
   const [page, setPage] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const { getData, id } = table.tabs[tab];
+  const { getData, id, setFilteredData,filteredData,setFilteredPaginateData } = table.tabs[tab];
 
   const validator =
     !accountId ||
@@ -248,9 +252,35 @@ function TableWithTabs({
     !validContract() ||
     maintenance;
 
+  const handleOrderTypeChange = (t) => {
+    if(!setFilteredPaginateData) return
+    let orderRows = [];
+    if (t === 0) {
+      setFilteredPaginateData(filteredData?.data?.meta);
+    } else {
+      // if (filteredData?.data?.rows?.length) {
+      //   if (t === 1) {
+      //     orderRows = filteredData?.data?.rows?.filter(
+      //       (d) => !d.symbol.includes('PERP')
+      //     );
+      //   } else if (t === 2) {
+      //     orderRows = filteredData?.data?.rows?.filter((d) =>
+      //       d.symbol.includes('PERP')
+      //     );
+      //   }
+      // }
+      //
+      // setFilteredPaginateData((d) => ({
+      //   ...d,
+      //   total: orderRows.length,
+      // }));
+    }
+  };
+
   useEffect(() => {
     if (!(validator && !maintenance && !validAccountSig)) {
       setPage(1);
+      setOrderPageNum && setOrderPageNum(1);
       setRefOnly && setRefOnly(false);
       setOrderType && setOrderType(0);
       setChooseMarketSymbol && setChooseMarketSymbol('all_markets');
@@ -262,18 +292,20 @@ function TableWithTabs({
   }, [tab]);
 
   useEffect(() => {
-    getData && callGetData();
-  }, [page, validAccountSig]);
+    getData && callGetData(orderPageNum);
+  }, [orderPageNum, validAccountSig]);
 
   useEffect(() => {
     if (orderType === 0 && (id === 'open_orders' || id === 'history')) {
       if (!(validator && !maintenance && !validAccountSig)) {
-        setLoading(true);
-        setData([]);
-        callGetData();
+        // setLoading(true);
+        // setData([]);
+        // callGetData();
       }
     }
     setPage(1);
+    setOrderPageNum && setOrderPageNum(1);
+
   }, [orderType]);
 
   useEffect(() => {
@@ -281,6 +313,7 @@ function TableWithTabs({
       callGetData(1);
     }
     setPage(1);
+    setOrderPageNum && setOrderPageNum(1);
   }, [
     refOnly,
     orderType,
@@ -291,8 +324,8 @@ function TableWithTabs({
   ]);
 
   useEffect(() => {
-    if (getData && id === 'spot') {
-      callGetData();
+    if (id === 'spot' && !data?.length) {
+      setData(displayBalances);
     }
   }, [JSON.stringify(displayBalances)]);
 
@@ -302,20 +335,22 @@ function TableWithTabs({
     }
   }, [JSON.stringify(newPositions)]);
 
-  useEffect(() => {
-    if (
-      getData &&
-      (id === 'deposit' || id === 'withdraw' || id === 'settlements')
-    ) {
-      callGetData();
-    }
-  }, [triggerBalanceBasedData]);
-
-  useEffect(() => {
-    if (getData && (id === 'open_orders' || id === 'history')) {
-      callGetData();
-    }
-  }, [triggerPositionBasedData, triggerBalanceBasedData]);
+  // useEffect(() => {
+  //   if (
+  //     getData &&
+  //     (id === 'deposit' || id === 'withdraw' || id === 'settlements')
+  //   ) {
+  //     console.log("gigu",id)
+  //     callGetData();
+  //   }
+  // }, [triggerBalanceBasedData]);
+  //
+  // useEffect(() => {
+  //   if (getData && (id === 'open_orders' || id === 'history')) {
+  //     console.log("gigu",id)
+  //     callGetData();
+  //   }
+  // }, [triggerPositionBasedData, triggerBalanceBasedData]);
 
   useEffect(() => {
     if (data.length > 1 && data.length < 10 && id === 'open_orders') {
@@ -328,10 +363,12 @@ function TableWithTabs({
         behavior: 'auto',
       });
     }
+    handleOrderTypeChange(orderType)
   }, [data]);
 
   const callGetData = async (forcePage?: number) => {
     if (!(validator && !maintenance && !validAccountSig)) {
+      setLoading(true)
       const res = await getData({ page: forcePage || page });
       forcePage && setPage(forcePage);
 
@@ -340,6 +377,9 @@ function TableWithTabs({
         setLoading(false);
         return;
       }
+
+      setFilteredData && setFilteredData(res);
+
       setData(res.data?.rows || []);
       setTotal(res.data?.meta?.total || 0);
       if (id === 'open_orders' && tab === 0)

@@ -56,6 +56,7 @@ import { useWalletSelector } from '../../context/WalletSelectorContext';
 import getConfigV2 from '../../services/configV2';
 const configV2 = getConfigV2();
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
+import { constOrderlyPageSize } from 'src/pages/Orderly/orderly/constant';
 export const PortfolioOrderlyData = createContext(null);
 const is_mobile = isMobile();
 
@@ -74,6 +75,9 @@ function PortfolioOrderly() {
     myPendingOrdersRefreshing,
     needRefresh,
     maintenance,
+    orderPageNum,
+    setOrderTotalPage,
+    setOrderPageNum,
   } = useOrderlyContext();
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
   const curHoldingOut = holdings?.find((h) => h.token === symbolTo);
@@ -277,7 +281,7 @@ function PortfolioOrderly() {
       accountId,
       OrderProps: {
         page: 1,
-        size: 500,
+        size: constOrderlyPageSize,
         status: 'INCOMPLETE',
       },
     });
@@ -298,9 +302,10 @@ function PortfolioOrderly() {
     getFutureOrders();
   }, [myPendingOrdersRefreshing]); */
 
-  useEffect(() => {
-    getFutureOrders();
-  }, [myPendingOrdersRefreshing, triggerPositionBasedData]);
+  // useEffect(() => {
+  //   console.log("triiger")
+  //   getFutureOrders();
+  // }, [myPendingOrdersRefreshing, triggerPositionBasedData]);
 
   useEffect(() => {
     getTotalEst();
@@ -435,6 +440,8 @@ function PortfolioOrderly() {
                 setTradingKeySet={setTradingKeySet}
                 keyAnnounced={keyAnnounced}
                 setKeyAnnounced={setKeyAnnounced}
+                orderPageNum={orderPageNum}
+                setOrderPageNum={setOrderPageNum}
               />
               <TableWithTabs
                 table={assetsTables}
