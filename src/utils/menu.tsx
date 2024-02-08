@@ -75,7 +75,7 @@ import { SWAP_TYPE_KEY } from '../pages/SwapPage';
 // import { XrefIcon } from 'src/components/icon/Xref';
 import getConfig from '../services/config';
 import { isNewHostName } from '../services/config';
-import { WalletContext } from '../utils/wallets-integration';
+import { getCurrentWallet } from '../utils/wallets-integration';
 
 export type MenuItem = {
   id: number;
@@ -989,21 +989,21 @@ export const bridgeData = [
       {
         name: <>Cede.store</>,
         icon: WalletCedeBridge,
-        link: 'https://send.cede.store/',
+        link: `https://send.cede.store/?tokenSymbol=NEAR&network=near`,
         id: '2-1',
+        needAccountId: true,
       },
     ],
   },
 ];
-
 export function BridgeButton() {
   const [hover, setHover] = useState<boolean>(false);
 
   const [hoverBridgeType, setHoverBridgeType] = useState<
     'rainbow' | 'allbridge' | 'electron_labs'
   >();
-
   const [hoverSubBridge, setHoverSubBridge] = useState<string>();
+  const accountId = getCurrentWallet()?.wallet?.getAccountId();
 
   return (
     <div
@@ -1031,7 +1031,7 @@ export function BridgeButton() {
       {hover && (
         <div className="absolute pt-4 top-6 right-1/2 transform translate-x-1/2">
           <div className="bg-priceBoardColor p-2 rounded-2xl border border-menuMoreBoxBorderColor flex ">
-            {bridgeData.map((item, index) => {
+            {bridgeData.map((item: any, index) => {
               return (
                 <div
                   key={item.id}
@@ -1074,6 +1074,9 @@ export function BridgeButton() {
                         }
                       `}
                         onClick={() => {
+                          if (sub.needAccountId && accountId) {
+                            sub.link = `${sub.link}&address=${accountId}`;
+                          }
                           openUrl(sub.link);
                         }}
                         onMouseEnter={() => {
