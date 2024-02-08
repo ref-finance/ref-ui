@@ -340,14 +340,12 @@ function TableWithTabs({
   //     getData &&
   //     (id === 'deposit' || id === 'withdraw' || id === 'settlements')
   //   ) {
-  //     console.log("gigu",id)
   //     callGetData();
   //   }
   // }, [triggerBalanceBasedData]);
   //
   // useEffect(() => {
   //   if (getData && (id === 'open_orders' || id === 'history')) {
-  //     console.log("gigu",id)
   //     callGetData();
   //   }
   // }, [triggerPositionBasedData, triggerBalanceBasedData]);
@@ -723,6 +721,7 @@ function TableWithTabs({
               tableRowType={table.tabs[tab].tableRowType}
               tableRowEmpty={table.tabs[tab].tableRowEmpty}
               tableTopComponent={table.tabs[tab].tableTopComponent}
+              mobileHeader={table.tabs[tab].mobileHeader}
               mobileRender={table.tabs[tab].mobileRender}
               mobileRenderCustom={table.tabs[tab].mobileRenderCustom}
               total={total}
@@ -865,6 +864,7 @@ export function TableWithOutTabs({
       tableRowType={table.tabs[tab].tableRowType}
       tableRowEmpty={table.tabs[tab].tableRowEmpty}
       tableTopComponent={table.tabs[tab].tableTopComponent}
+      mobileHeader={table.tabs[tab].mobileHeader}
       mobileRender={table.tabs[tab].mobileRender}
       mobileRenderCustom={table.tabs[tab].mobileRenderCustom}
       total={total}

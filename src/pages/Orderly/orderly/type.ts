@@ -392,6 +392,7 @@ export interface PortfolioTable {
     filteredData?:any;
     filter?: boolean;
     getData?: (params: any) => any;
+    mobileHeader?: JSX.Element;
     mobileRender?: (row: any, secondData?: any) => any;
     mobileRenderCustom?: boolean;
     mobileFooter?: JSX.Element;

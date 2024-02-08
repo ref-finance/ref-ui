@@ -279,6 +279,7 @@ function Table({
   tableRowEmpty,
   tableTopComponent,
   pagination = true,
+  mobileHeader,
   mobileRender,
   mobileRenderCustom,
   orderType,
@@ -302,6 +303,7 @@ function Table({
   tableTopComponent: JSX.Element;
   pagination: boolean;
   orderType?: number;
+  mobileHeader: any;
   mobileRender: (row: any, secondData: any) => any;
   mobileRenderCustom?: boolean;
   handleOpenClosing?: (
@@ -423,6 +425,7 @@ function Table({
 
   return (
     <>
+      {/*pc view*/}
       <div className="w-full hidden md:block lg:block">
         {tableTopComponent}
         <table className="table-fixed w-full">
@@ -524,7 +527,9 @@ function Table({
           </tbody>
         </table>
       </div>
+      {/*mobile view*/}
       <div className="w-full md:hidden lg:hidden">
+        {mobileHeader}
         {accountId && validContract() && loading ? (
           <div className="w-full relative mt-10 mb-4 px-5 gap-4">
             <div className="text-center">
