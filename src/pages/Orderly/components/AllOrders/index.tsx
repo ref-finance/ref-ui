@@ -91,6 +91,7 @@ import { tickToPrecision } from '../UserBoardPerp/math';
 import PositionsTable from './PositionsTable';
 import { usePerpData } from '../UserBoardPerp/state';
 import { QuestionTip } from '../../../../components/layout/TipWrapper';
+import TurnPage from './TurnPage';
 
 export function getTranslateList(
   key: 'type' | 'side' | 'status' | 'instrument'
@@ -1020,100 +1021,86 @@ function OrderLine({
           </div>
         </td>
         <td>
-          {+price == 0 ? (
-            <div
-              className={`flex font-nunito mb-1 flex-col overflow-hidden  rounded-lg  ${
-                openEditPrice ? 'border bg-dark2 ' : ''
-              } border-border2 text-sm   max-w-max text-white`}
-              style={{
-                width: `${order.price.toString().length * 12.5}px`,
-                minWidth: '48px',
+          <div
+            className={`flex font-nunito mb-1 flex-col overflow-hidden  rounded-lg  ${
+              openEditPrice ? 'border bg-dark2 ' : ''
+            } border-border2 text-sm   max-w-max text-white`}
+            style={{
+              width: `${order.price.toString().length * 12.5}px`,
+              minWidth: '48px',
+            }}
+          >
+            <input
+              ref={inputRefPrice}
+              inputMode="decimal"
+              type={'number'}
+              value={price}
+              onChange={(e) => {
+                setPrice(e.target.value);
               }}
-            >
-              /
-            </div>
-          ) : (
-            <div
-              className={`flex font-nunito mb-1 flex-col overflow-hidden  rounded-lg  ${
-                openEditPrice ? 'border bg-dark2 ' : ''
-              } border-border2 text-sm   max-w-max text-white`}
-              style={{
-                width: `${order.price.toString().length * 12.5}px`,
-                minWidth: '48px',
+              onFocus={() => {
+                setOpenEditPrice(true);
+                setOpenEditQuantity(false);
+                setQuantity(order.quantity.toString());
+                setOtherLineOpenTrigger(order.order_id);
               }}
-            >
-              <input
-                ref={inputRefPrice}
-                inputMode="decimal"
-                type={'number'}
-                value={price}
-                onChange={(e) => {
-                  setPrice(e.target.value);
-                }}
-                onFocus={() => {
-                  setOpenEditPrice(true);
-                  setOpenEditQuantity(false);
-                  setQuantity(order.quantity.toString());
-                  setOtherLineOpenTrigger(order.order_id);
-                }}
-                className={`px-2 py-1 pt-1.5   ${
-                  !openEditPrice ? 'hidden' : 'text-center'
-                }`}
-              />
+              className={`px-2 py-1 pt-1.5   ${
+                !openEditPrice ? 'hidden' : 'text-center'
+              }`}
+            />
 
+            <div
+              className={`px-2 py-1 pt-1.5   ${
+                !openEditPrice ? 'text-left' : 'hidden'
+              }`}
+              onClick={() => {
+                setOpenEditPrice(true);
+                setOpenEditQuantity(false);
+                setQuantity(order.quantity.toString());
+                setOtherLineOpenTrigger(order.order_id);
+              }}
+            >
+              {numberWithCommas(price)}
+            </div>
+
+            <div
+              className={` w-full flex items-center border-t border-border2 text-primaryOrderly ${
+                openEditPrice ? '' : 'hidden'
+              } `}
+            >
               <div
-                className={`px-2 py-1 pt-1.5   ${
-                  !openEditPrice ? 'text-left' : 'hidden'
-                }`}
-                onClick={() => {
-                  setOpenEditPrice(true);
-                  setOpenEditQuantity(false);
-                  setQuantity(order.quantity.toString());
-                  setOtherLineOpenTrigger(order.order_id);
+                className="w-1/2 border-r border-border2 flex items-center py-1 justify-center cursor-pointer"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setOpenEditPrice(false);
+                  setPrice(order.price.toString());
                 }}
               >
-                {numberWithCommas(price)}
+                <AiOutlineClose></AiOutlineClose>
               </div>
 
               <div
-                className={` w-full flex items-center border-t border-border2 text-primaryOrderly ${
-                  openEditPrice ? '' : 'hidden'
-                } `}
-              >
-                <div
-                  className="w-1/2 border-r border-border2 flex items-center py-1 justify-center cursor-pointer"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
+                className="w-1/2 relative z-50 flex items-center justify-center cursor-pointer py-1"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  //   handleEditOrder();
+                  if (validateChange) {
                     setOpenEditPrice(false);
-                    setPrice(order.price.toString());
-                  }}
-                >
-                  <AiOutlineClose></AiOutlineClose>
-                </div>
+                    return;
+                  }
 
-                <div
-                  className="w-1/2 relative z-50 flex items-center justify-center cursor-pointer py-1"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    //   handleEditOrder();
-                    if (validateChange) {
-                      setOpenEditPrice(false);
-                      return;
-                    }
+                  if (editValidator(price, quantity)) return;
 
-                    if (editValidator(price, quantity)) return;
-
-                    setShowEditModal(true);
-                    setEditType('price');
-                  }}
-                >
-                  <AiOutlineCheck></AiOutlineCheck>
-                </div>
+                  setShowEditModal(true);
+                  setEditType('price');
+                }}
+              >
+                <AiOutlineCheck></AiOutlineCheck>
               </div>
             </div>
-          )}
+          </div>
         </td>
 
         <td
@@ -2277,7 +2264,7 @@ function MobileFilterModal(
       </div>
     );
   }
-
+  // TODOX
   function SelectListDex({ listKey }: { listKey: string }) {
     return (
       <div className="mb-5 flex items-start w-full justify-between">
@@ -2320,6 +2307,7 @@ function MobileFilterModal(
                 defaultMessage: 'All',
               })}
             </span>
+            <TurnPage />
           </div>
         </div>
       </div>
@@ -4472,9 +4460,6 @@ function AllOrderBoard({
           })
     ),
   ];
-
-  // const { storageEnough } = useOrderlyContext();
-
   const allTokens = useBatchTokenMetaFromSymbols(
     allTokenSymbols.length > 0 ? allTokenSymbols : null,
     tokenInfo
@@ -4739,7 +4724,7 @@ function AllOrderBoard({
               ></CheckBox>
 
               <span
-                className="ml-2 frcs cursor-pointer"
+                className="ml-2 frcs cursor-pointer gap-1"
                 onClick={() => {
                   setShowRefOnly(false);
                 }}
@@ -4755,6 +4740,7 @@ function AllOrderBoard({
                   uniquenessId="display_all_orders_dexes"
                 ></QuestionTip>
               </span>
+              <TurnPage />
             </div>
           </FlexRow>
 
