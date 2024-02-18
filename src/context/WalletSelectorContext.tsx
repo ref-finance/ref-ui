@@ -145,8 +145,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         setupNearSnap({}),
         setupNearMobileWallet({
           dAppMetadata: {
-            logoUrl:
-              'https://ref-finance-images.s3.amazonaws.com/images/REFIcon.png',
+            logoUrl: 'https://assets.ref.finance/images/REF-black-logo.png',
             name: 'NEAR Wallet Selector',
           },
         }),
