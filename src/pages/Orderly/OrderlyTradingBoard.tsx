@@ -264,11 +264,13 @@ export default function OrderlyTradingBoard() {
   return (
     <>
       <div className="mx-auto relative xs:bottom-6 bottom-9">
+        {/* todo  */}
         {/* {!isMobile && <PerpOrderlyTip />} */}
         {!isMobile && <TradingBoard></TradingBoard>}
 
         {isMobile && <MobileTradingBoard></MobileTradingBoard>}
       </div>
+      {/* todo  */}
       {/* {isMobile && <PerpOrderlyTipMobile></PerpOrderlyTipMobile>} */}
     </>
   );

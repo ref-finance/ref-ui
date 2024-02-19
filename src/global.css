@@ -1596,6 +1596,10 @@ input[type='range']::-webkit-slider-runnable-track {
   --toastify-color-progress-success: #32ca82;
   --toastify-color-progress-warning: #e7b24b;
   --toastify-color-progress-error: #ff6a8e;
+
+  --rt-opacity: 1 !important;
+  --wcm-z-index: 10000 !important;
+  --w3m-z-index: 10000 !important;
 }
 
 .nws-modal-wrapper
@@ -1825,4 +1829,35 @@ options-list::-webkit-scrollbar {
 
 #top-bin-apr-mobile {
   width: 230px;
+}
+table {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+svg *:focus {
+  outline: none;
+  border: none;
+}
+
+@keyframes fadeInOut {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.loading-dots {
+  display: inline-block;
+  margin-left: 0.5rem;
+  font-size: 1rem;
+}
+
+.loading-dots::after {
+  content: '...';
+  animation: fadeInOut 1s infinite;
 }

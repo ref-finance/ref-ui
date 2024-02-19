@@ -15,6 +15,7 @@ import { LedgerTransactionModal } from './context/modal-ui/modal';
 import { ModalTransactionSubmitting } from 'src/components/transaction/modalTransactionSubmitting';
 
 import { ModalGAPrivacy } from 'src/context/modal-ui/modalGAPrivacy/modalGAPrivacy';
+import RpcList from 'src/components/rpc';
 
 function App() {
   return (
@@ -27,7 +28,7 @@ function App() {
           <Guider></Guider>
         </div>
       </WalletSelectorContextProvider>
-
+      <RpcList></RpcList>
       <LedgerTransactionModal />
 
       <ModalTransactionSubmitting />

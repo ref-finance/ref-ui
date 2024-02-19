@@ -61,7 +61,6 @@ export const useOrderlyWS = () => {
     [ReadyState.CLOSED]: 'Closed',
     [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
   }[readyState];
-
   return {
     connectionStatus,
     messageHistory,

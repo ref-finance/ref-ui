@@ -46,7 +46,7 @@ import { usePerpData } from './components/UserBoardPerp/state';
 import PositionsTable from './components/AllOrders/PositionsTable';
 import { NewUserTip } from './components/Common/NewUserTip';
 
-export const REF_ORDERLY_PERP_TIP_SIG = 'REF_ORDERLY_PERP_TIP_SIGN2';
+export const REF_ORDERLY_PERP_TIP_SIG = 'REF_ORDERLY_PERP_TIP_SIGN6';
 
 function TradingBoard() {
   const isLarge = useLargeScreen();
@@ -154,7 +154,9 @@ function MobileTradingBoard() {
   const [subOrderTab, setSubOrderTab] = useState<'open' | 'history'>('open');
 
   const intl = useIntl();
-
+  const openOrders = allOrders?.filter((o) => {
+    return o.status === 'NEW' || o.status === 'PARTIAL_FILLED';
+  });
   if (maintenance === undefined) return null;
 
   return (
@@ -313,7 +315,11 @@ function MobileTradingBoard() {
 
           {displayTab === 'positions' && (
             <div className="text-primaryText">
-              <PositionsTable hidden={false} showCurSymbol={false} />
+              <PositionsTable
+                hidden={false}
+                showCurSymbol={false}
+                futureOrders={openOrders}
+              />
             </div>
           )}
 

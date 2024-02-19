@@ -91,6 +91,7 @@ import { tickToPrecision } from '../UserBoardPerp/math';
 import PositionsTable from './PositionsTable';
 import { usePerpData } from '../UserBoardPerp/state';
 import { QuestionTip } from '../../../../components/layout/TipWrapper';
+import TurnPage from './TurnPage';
 
 export function getTranslateList(
   key: 'type' | 'side' | 'status' | 'instrument'
@@ -2263,7 +2264,7 @@ function MobileFilterModal(
       </div>
     );
   }
-
+  // TODOX
   function SelectListDex({ listKey }: { listKey: string }) {
     return (
       <div className="mb-5 flex items-start w-full justify-between">
@@ -2306,6 +2307,7 @@ function MobileFilterModal(
                 defaultMessage: 'All',
               })}
             </span>
+            <TurnPage />
           </div>
         </div>
       </div>
@@ -2465,7 +2467,6 @@ function InfoLineOpenOrder({
   return (
     <div className="flex items-center justify-between mt-4 text-base">
       <div className="text-primaryText">{title}</div>
-
       <div
         className={`text-white flex items-center ${
           title === 'Instrument' ? 'relative left-2' : ''
@@ -4376,6 +4377,7 @@ function HistoryOrders({
               hasMore={hasMore}
               dataLength={records}
               loader={null}
+              style={{ overflow: 'static' }}
               scrollableTarget={isMobile() ? null : 'all-orders-body-history'}
             >
               {data.slice(0, records)}
@@ -4435,6 +4437,7 @@ function AllOrderBoard({
     tokenInfo,
     availableSymbols: AllAvailableSymbols,
     allOrders,
+    storageEnough,
   } = useOrderlyContext();
   const symbolType = PerpOrSpot(symbol);
 
@@ -4457,9 +4460,6 @@ function AllOrderBoard({
           })
     ),
   ];
-
-  const { storageEnough } = useOrderlyContext();
-
   const allTokens = useBatchTokenMetaFromSymbols(
     allTokenSymbols.length > 0 ? allTokenSymbols : null,
     tokenInfo
@@ -4724,7 +4724,7 @@ function AllOrderBoard({
               ></CheckBox>
 
               <span
-                className="ml-2 frcs cursor-pointer"
+                className="ml-2 frcs cursor-pointer gap-1"
                 onClick={() => {
                   setShowRefOnly(false);
                 }}
@@ -4740,6 +4740,7 @@ function AllOrderBoard({
                   uniquenessId="display_all_orders_dexes"
                 ></QuestionTip>
               </span>
+              <TurnPage />
             </div>
           </FlexRow>
 
@@ -4801,6 +4802,7 @@ function AllOrderBoard({
         <PositionsTable
           hidden={tab !== 'positions' || !!isMobile}
           showCurSymbol={showCurSymbol}
+          futureOrders={openOrders}
         />
       </div>
     </>

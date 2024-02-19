@@ -827,11 +827,16 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
   const [errorTipMsg, setErrorTipMsg] = useState<string>('');
 
   const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
+
   const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
 
+  // TODO connect entry
   useEffect(() => {
     if (!accountId || !storageEnough) return;
-
+    console.log(
+      'storedValidstoredValidstoredValidstoredValidstoredValid',
+      storedValid
+    );
     if (!!storedValid) {
       setValidAccountSig(true);
       setKeyAnnounced(true);
@@ -842,10 +847,12 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
     is_orderly_key_announced(accountId, true)
       .then(async (key_announce) => {
+        console.log('search result key_announce', key_announce);
         setKeyAnnounced(key_announce);
         if (!key_announce) {
           const res = await announceKey(accountId)
             .then((res) => {
+              console.log('set key_announce as true');
               setKeyAnnounced(true);
             })
             .catch((e) => {
@@ -856,10 +863,12 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       })
       .then(() => {
         is_trading_key_set(accountId).then(async (trading_key_set) => {
+          console.log('search result trading_announce', trading_key_set);
           setTradingKeySet(trading_key_set);
           if (!trading_key_set) {
             await setTradingKey(accountId)
               .then(() => {
+                console.log('set trading_key as true');
                 setTradingKeySet(true);
               })
               .catch((e) => {

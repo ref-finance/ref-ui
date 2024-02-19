@@ -495,7 +495,13 @@ export const useMenus = (cb?: () => void) => {
         },
       ],
     },
-
+    {
+      id: '4',
+      label: <>Meme Season</>,
+      url: '/meme',
+      isExternal: false,
+      links: ['/meme'],
+    },
     {
       id: '6',
       label: (
@@ -862,6 +868,13 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
           links: ['/orderly'],
         },
       ],
+    },
+    {
+      id: '9',
+      label: <>Meme Season</>,
+      url: '/meme',
+      isExternal: false,
+      links: ['/meme'],
     },
     {
       id: '6',

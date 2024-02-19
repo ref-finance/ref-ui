@@ -27,6 +27,8 @@ import { pointToPrice } from 'src/services/swapV3';
 import { RelatedFarmsBox } from './RelatedFarmsBox';
 import { isClientMobie } from '../../../../utils/device';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
+import { getTxId } from 'src/services/indexer';
+import { Loading } from 'src/components/icon/Loading';
 
 export function TablePool(props: any) {
   const { poolDetail, tokenPriceList, sole_seed } = props;
@@ -211,14 +213,36 @@ function RecentTransactions({
     sessionStorage.setItem(REF_FI_RECENT_TRANSACTION_TAB_KEY_DCL, tab);
     setTab(tab);
   };
+  const [loadingStates, setLoadingStates] = useState({});
+  async function handleTxClick(receipt_id) {
+    setLoadingStates((prevStates) => ({ ...prevStates, [receipt_id]: true }));
+    try {
+      const data = await getTxId(receipt_id);
+      if (data && data.receipts && data.receipts.length > 0) {
+        const txHash = data.receipts[0].originated_from_transaction_hash;
+        window.open(
+          `${getConfig().explorerUrl}/txns/${txHash}`,
+          '_blank',
+          'noopener,noreferrer'
+        );
+      }
+    } catch (error) {
+      console.error(
+        'An error occurred while fetching transaction data:',
+        error
+      );
+    } finally {
+      setLoadingStates((prevStates) => ({
+        ...prevStates,
+        [receipt_id]: false,
+      }));
+    }
+  }
 
   const renderSwapTransactions = swapTransactions.map((tx) => {
     const swapIn = tokens.find((t) => t.id === tx.token_in);
-
     const swapOut = tokens.find((t) => t.id === tx.token_out);
-
     if (!swapIn || !swapOut) return null;
-
     const swapInAmount = toReadableNumber(swapIn.decimals, tx.amount_in);
     const displayInAmount =
       Number(swapInAmount) < 0.01
@@ -266,15 +290,27 @@ function RecentTransactions({
 
         <td className=" relative  py-4 pr-4 lg:flex items-center justify-end col-span-1">
           <span
+            key={tx.receipt_id}
             className="inline-flex items-center cursor-pointer xsm:whitespace-nowrap"
-            onClick={() => {
-              openUrl(`${getConfig().explorerUrl}/txns/${tx.tx_id}`);
-            }}
+            onClick={() =>
+              !loadingStates[tx.receipt_id] && handleTxClick(tx.receipt_id)
+            }
           >
-            <span className="hover:underline cursor-pointer">
-              {tx.timestamp}
-            </span>
-            {txLink}
+            {loadingStates[tx.receipt_id] ? (
+              <>
+                <span className="hover:underline cursor-pointer">
+                  {tx.timestamp}
+                </span>
+                <span className="loading-dots"></span>
+              </>
+            ) : (
+              <>
+                <span className="hover:underline cursor-pointer">
+                  {tx.timestamp}
+                </span>
+                {txLink}
+              </>
+            )}
           </span>
         </td>
       </tr>
@@ -353,15 +389,27 @@ function RecentTransactions({
 
         <td className="relative py-4 pr-4 lg:flex items-center justify-end col-span-2">
           <span
+            key={tx.receipt_id}
             className="inline-flex items-center cursor-pointer xsm:whitespace-nowrap"
-            onClick={() => {
-              openUrl(`${getConfig().explorerUrl}/txns/${tx.tx_id}`);
-            }}
+            onClick={() =>
+              !loadingStates[tx.receipt_id] && handleTxClick(tx.receipt_id)
+            }
           >
-            <span className="hover:underline cursor-pointer">
-              {tx.timestamp}
-            </span>
-            {txLink}
+            {loadingStates[tx.receipt_id] ? (
+              <>
+                <span className="hover:underline cursor-pointer">
+                  {tx.timestamp}
+                </span>
+                <span className="loading-dots"></span>
+              </>
+            ) : (
+              <>
+                <span className="hover:underline cursor-pointer">
+                  {tx.timestamp}
+                </span>
+                {txLink}
+              </>
+            )}
           </span>
         </td>
       </tr>
@@ -458,15 +506,27 @@ function RecentTransactions({
 
         <td className="relative py-4 lg:flex items-center justify-end pr-2">
           <span
-            className="inline-flex items-center cursor-pointer xsm:whitespace-nowrap xsm:pl-3"
-            onClick={() => {
-              openUrl(`${getConfig().explorerUrl}/txns/${tx.tx_id}`);
-            }}
+            key={tx.receipt_id}
+            className="inline-flex items-center cursor-pointer xsm:whitespace-nowrap"
+            onClick={() =>
+              !loadingStates[tx.receipt_id] && handleTxClick(tx.receipt_id)
+            }
           >
-            <span className="hover:underline cursor-pointer text-right">
-              {tx.timestamp}
-            </span>
-            {txLink}
+            {loadingStates[tx.receipt_id] ? (
+              <>
+                <span className="hover:underline cursor-pointer text-right">
+                  {tx.timestamp}
+                </span>
+                <span className="loading-dots"></span>
+              </>
+            ) : (
+              <>
+                <span className="hover:underline cursor-pointer text-right">
+                  {tx.timestamp}
+                </span>
+                {txLink}
+              </>
+            )}
           </span>
         </td>
       </tr>
