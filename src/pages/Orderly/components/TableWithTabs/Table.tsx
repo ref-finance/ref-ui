@@ -529,7 +529,7 @@ function Table({
       </div>
       {/*mobile view*/}
       <div className="w-full md:hidden lg:hidden">
-        {mobileHeader}
+        {!loading && <div className={'flex justify-end mb-2'}>{mobileHeader}</div>}
         {accountId && validContract() && loading ? (
           <div className="w-full relative mt-10 mb-4 px-5 gap-4">
             <div className="text-center">
