@@ -1074,10 +1074,11 @@ export function BridgeButton() {
                         }
                       `}
                         onClick={() => {
+                          let targetLink = sub.link;
                           if (sub.needAccountId && accountId) {
-                            sub.link = `${sub.link}&address=${accountId}`;
+                            targetLink = `${sub.link}&address=${accountId}`;
                           }
-                          openUrl(sub.link);
+                          openUrl(targetLink);
                         }}
                         onMouseEnter={() => {
                           setHoverSubBridge(sub.id);
