@@ -51,6 +51,7 @@ export const STABLE_POOL_USN_ID = config.STABLE_POOL_USN_ID;
 export const STABLE_TOKEN_USN_IDS = config.STABLE_TOKEN_USN_IDS;
 
 export const REF_FARM_BOOST_CONTRACT_ID = config.REF_FARM_BOOST_CONTRACT_ID;
+export const REF_MEME_FARM_CONTRACT_ID = config.REF_MEME_FARM_CONTRACT_ID;
 
 export const {
   BTCIDS,
@@ -581,4 +582,34 @@ export const ftGetNearBalance = async () => {
     .catch((e) => {
       return '0';
     });
+};
+
+export const refMeMeFarmViewFunction = ({
+  methodName,
+  args,
+}: RefFiViewFunctionOptions) => {
+  return wallet
+    .account()
+    .viewFunction(REF_MEME_FARM_CONTRACT_ID, methodName, args);
+};
+
+export const refMeMeFarmFunctionCall = async ({
+  methodName,
+  args,
+  gas,
+  amount,
+}: RefFiFunctionCallOptions) => {
+  const transaction: Transaction = {
+    receiverId: REF_MEME_FARM_CONTRACT_ID,
+    functionCalls: [
+      {
+        methodName,
+        args,
+        amount,
+        gas,
+      },
+    ],
+  };
+
+  return await executeMultipleTransactions([transaction]);
 };

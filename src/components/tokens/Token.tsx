@@ -108,7 +108,7 @@ export default function Token({
       <div
         className={!forCross ? 'hidden' : 'w-12 flex justify-start  absolute '}
         style={{
-          left: '43%',
+          left: '52%',
         }}
       >
         {onRef || onTri ? <RefIcon lightTrigger={hover} /> : null}
