@@ -91,9 +91,6 @@ export const useTranstionsExcuteDataStore = create<ITranstionsExcuteDataStore>(
       }),
     processTransactionError: ({ error, transactionId }) =>
       set((state) => {
-        const isUserRejected = error?.message
-          .toLowerCase()
-          .startsWith('user reject');
         const toUpdate: any = {
           actionData: {
             status: 'error',
@@ -103,11 +100,15 @@ export const useTranstionsExcuteDataStore = create<ITranstionsExcuteDataStore>(
               transactionId,
             },
           },
+          actionStatus: 'rejected',
         };
         // prevent to show loading spinner when user rejected
-        if (!isUserRejected) {
-          toUpdate.actionStatus = 'rejected';
-        }
+        // const isUserRejected = error?.message
+        //   .toLowerCase()
+        //   .startsWith('user reject');
+        // if (!isUserRejected) {
+        //   toUpdate.actionStatus = 'rejected';
+        // }
         return toUpdate;
       }),
     removeActionData: () => set({ actionData: null }),

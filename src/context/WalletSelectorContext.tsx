@@ -72,6 +72,14 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
   const [isLedger, setIsLedger] = useState<boolean>(undefined);
   const walletStoreSetWallet = useWalletStore((state) => state.setWallet);
 
+  useEffect(() => {
+    if (accounts?.length && selector) {
+      selector.wallet().then((d) => {
+        walletStoreSetWallet(d);
+      });
+    }
+  }, [accounts]);
+
   // get Account Id
   const syncAccountState = (
     currentAccountId: string | null,

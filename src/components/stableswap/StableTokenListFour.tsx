@@ -262,23 +262,27 @@ export function FlexibleStableTokenList(props: {
   );
 }
 
+export const calcStableTokenReceived = (
+  receiveAmount: string,
+  token: TokenMetadata,
+  slippageTolerance: number
+) => {
+  const nonPrecisionAmount = percentLess(
+    slippageTolerance,
+    toReadableNumber(token.decimals, receiveAmount)
+  );
+
+  return Number(nonPrecisionAmount) < 0.001 && Number(nonPrecisionAmount) > 0
+    ? '< 0.001'
+    : toPrecision(nonPrecisionAmount, 3);
+};
+
 export function StableTokensSymbol(props: {
   tokens: TokenMetadata[];
   receiveAmounts: string[];
   slippageTolerance: number;
 }) {
   const { tokens, receiveAmounts, slippageTolerance } = props;
-
-  const calcTokenReceived = (receiveAmount: string, token: TokenMetadata) => {
-    const nonPrecisionAmount = percentLess(
-      slippageTolerance,
-      toReadableNumber(token.decimals, receiveAmount)
-    );
-
-    return Number(nonPrecisionAmount) < 0.001 && Number(nonPrecisionAmount) > 0
-      ? '< 0.001'
-      : toPrecision(nonPrecisionAmount, 3);
-  };
 
   return (
     <div className="flex mb-6 items-center justify-between xs:items-start md:items-start">
@@ -292,7 +296,11 @@ export function StableTokensSymbol(props: {
             {toRealSymbol(tokens[0].symbol)}
           </p>
           <div className="text-xs xs:text-center md:text-center">
-            {calcTokenReceived(receiveAmounts[0], tokens[0])}
+            {calcStableTokenReceived(
+              receiveAmounts[0],
+              tokens[0],
+              slippageTolerance
+            )}
           </div>
         </div>
       </div>
@@ -307,7 +315,11 @@ export function StableTokensSymbol(props: {
             {toRealSymbol(tokens[1].symbol)}
           </p>
           <div className="text-xs xs:text-center md:text-center">
-            {calcTokenReceived(receiveAmounts[1], tokens[1])}
+            {calcStableTokenReceived(
+              receiveAmounts[1],
+              tokens[1],
+              slippageTolerance
+            )}
           </div>
         </div>
       </div>
@@ -322,7 +334,11 @@ export function StableTokensSymbol(props: {
             {toRealSymbol(tokens[2].symbol)}
           </p>
           <div className="text-xs xs:text-center md:text-center">
-            {calcTokenReceived(receiveAmounts[2], tokens[2])}
+            {calcStableTokenReceived(
+              receiveAmounts[2],
+              tokens[2],
+              slippageTolerance
+            )}
           </div>
         </div>
       </div>
@@ -337,7 +353,11 @@ export function StableTokensSymbol(props: {
             {toRealSymbol(tokens[3].symbol)}
           </p>
           <div className="text-xs xs:text-center md:text-center">
-            {calcTokenReceived(receiveAmounts[3], tokens[3])}
+            {calcStableTokenReceived(
+              receiveAmounts[3],
+              tokens[3],
+              slippageTolerance
+            )}
           </div>
         </div>
       </div>

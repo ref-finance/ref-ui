@@ -1675,7 +1675,13 @@ function ActiveLine({
           tokens: [
             {
               token: buyToken,
-              amount: toPrecision(unClaimedAmount, 2,undefined,undefined,true),
+              amount: toPrecision(
+                unClaimedAmount,
+                2,
+                undefined,
+                undefined,
+                true
+              ),
             },
           ],
         },

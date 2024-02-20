@@ -17,7 +17,10 @@ import {
   useTranstionsExcuteDataStore,
 } from 'src/stores/transtionsExcuteData';
 import showToast from '../toast/showToast';
-import { walletsRejectError } from 'src/utils/wallets-integration';
+import {
+  getCurrentWallet,
+  walletsRejectError,
+} from 'src/utils/wallets-integration';
 import IconWithdrawWallet from '../../assets/svg/icon-withdraw-wallet.svg';
 import { useWalletStore } from 'src/stores/loginAccountData';
 
@@ -28,6 +31,7 @@ export const ModalTransactionSubmitting = () => {
   const wallet = useWalletStore((state) => state.wallet);
   const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
   const actionData = transtionsExcuteDataStore.getActionData();
+
   const { transactionId, status, transactionError, transactionResponse } =
     actionData || {};
   const isRedirectWalletPage =
@@ -38,8 +42,12 @@ export const ModalTransactionSubmitting = () => {
     actionData.status = 'pending';
   }
 
+  const isShowingHereModal =
+    wallet?.id === 'here-wallet' && status === 'pending';
+  const disableTransactionModal = isShowingHereModal;
+
   useEffect(() => {
-    if (transactionId) {
+    if (transactionId && !disableTransactionModal) {
       setTransactionModals((d) => {
         return {
           ...d,
@@ -75,25 +83,29 @@ export const ModalTransactionSubmitting = () => {
     setTransactionModals({});
   };
 
-  return Object.entries(transactionModals).map(([key, value]: [any, any]) => {
-    const { transtionsExcuteDataStore, actionData, isUserClose } = value || {};
-    return (
-      <ModalTransactionContent
-        {...{
-          transtionsExcuteDataStore: value?.transtionsExcuteDataStore,
-          actionData: value?.actionData,
-          isUserClose: value?.isUserClose,
-          currentTransaction: transactionModals,
-          wallet,
-          isOpen: !isUserClose,
-          setIsOpen: () => {},
-        }}
-        onModalClose={() => handleModalClose(key)}
-        onUserCloseModal={() => handleUserCloseModal(key)}
-        onResetModalTransactions={resetModalTransactions}
-      />
-    );
-  });
+  return Object.entries(transactionModals).map(
+    ([key, value]: [any, any], i) => {
+      const { transtionsExcuteDataStore, actionData, isUserClose } =
+        value || {};
+      return (
+        <ModalTransactionContent
+          {...{
+            transtionsExcuteDataStore: value?.transtionsExcuteDataStore,
+            actionData: value?.actionData,
+            isUserClose: value?.isUserClose,
+            currentTransaction: transactionModals,
+            wallet,
+            isOpen: !isUserClose,
+            setIsOpen: () => {},
+          }}
+          key={i}
+          onModalClose={() => handleModalClose(key)}
+          onUserCloseModal={() => handleUserCloseModal(key)}
+          onResetModalTransactions={resetModalTransactions}
+        />
+      );
+    }
+  );
 };
 
 export const ModalTransactionContent = ({
@@ -104,9 +116,7 @@ export const ModalTransactionContent = ({
   onResetModalTransactions,
   isUserClose,
   wallet,
-  // isOpen,
-  // setIsOpen
-}) => {
+}: any) => {
   const [isOpen, setIsOpen] = useState(false);
   const [tokensData, setTokensData] =
     useState<{ token: any; amount?: string | number; symbol?: string }[]>();
@@ -187,7 +197,7 @@ export const ModalTransactionContent = ({
   };
 
   let node = null;
-  let headerNode = headerText || getHeaderText(transactionType, status);
+  const headerNode = headerText || getHeaderText(transactionType, status);
   let footerNode = <div>Confirm the transaction in your wallet.</div>;
   let loadingNode = <BlueCircleLoading />;
 
@@ -238,6 +248,7 @@ export const ModalTransactionContent = ({
             className={'ml-2 text-baseGreen flex items-center gap-1'}
             href={`${explorerUrl}/txns/${hash}`}
             target="_blank"
+            rel="noreferrer"
           >
             Nearblocks
             <TbExternalLink style={{ fontSize: 16 }} />
@@ -280,11 +291,11 @@ export const ModalTransactionContent = ({
   );
 };
 
-const WithdrawLayout = ({ tokens }) => {
-  const node = tokens?.map((d) => {
+const WithdrawLayout = ({ tokens }: any) => {
+  const node = tokens?.map((d, i) => {
     const { token, amount } = d || {};
     return (
-      <div className="flex gap-1">
+      <div className="flex gap-1" key={i}>
         <DisplayIcon token={token} height={'20px'} width={'20px'} /> {amount}{' '}
         {token?.symbol}
       </div>
@@ -328,17 +339,17 @@ const getHeaderText = (transactionType, status) => {
   return node;
 };
 
-const ClaimFeeLayout = ({ tokensData }) => {
-  const node = tokensData?.map((d) => {
+const ClaimFeeLayout = ({ tokensData }: any) => {
+  const node = tokensData?.map((d, i) => {
     const { token, amount, symbol } = d || {};
     if (symbol === '+') {
-      return <HiOutlinePlusSm />;
+      return <HiOutlinePlusSm key={i} />;
     }
     if (symbol === '>') {
-      return <BsArrowRight />;
+      return <BsArrowRight key={i} />;
     }
     return (
-      <div className="flex gap-1 items-center">
+      <div className="flex gap-1 items-center" key={i}>
         <DisplayIcon token={token} height={'20px'} width={'20px'} /> {amount}{' '}
         {token?.symbol}
       </div>
@@ -352,14 +363,15 @@ const ClaimFeeLayout = ({ tokensData }) => {
   );
 };
 
-const CommonLayout = ({ tokensData }) => {
-  const node = tokensData?.map((d) => {
+const CommonLayout = ({ tokensData }: any) => {
+  const node = tokensData?.map((d, i) => {
     const { token, amount, symbol, tokenGroup } = d || {};
     if (Array.isArray(tokenGroup)) {
       return (
-        <div className="flex items-center">
-          {tokenGroup.map((d) => (
+        <div className="flex items-center" key={i}>
+          {tokenGroup.map((d, i2) => (
             <DisplayIcon
+              key={i2}
               token={d}
               height={'20px'}
               width={'20px'}
@@ -371,10 +383,10 @@ const CommonLayout = ({ tokensData }) => {
     }
 
     if (symbol === '+') {
-      return <HiOutlinePlusSm />;
+      return <HiOutlinePlusSm key={i} />;
     }
     if (symbol === '>') {
-      return <BsArrowRight />;
+      return <BsArrowRight key={i} />;
     }
     return (
       <div className="flex gap-1 items-center" key={token?.symbol + amount}>
@@ -424,7 +436,7 @@ const showTransactionToast = (actionData, transactionData) => {
       if (isUserRejected && errorMsg.length > 50) {
         errorMsg = 'User rejected the request';
       }
-      let toast = {
+      const toast = {
         title: 'Error',
         desc: errorMsg,
         isError: true,

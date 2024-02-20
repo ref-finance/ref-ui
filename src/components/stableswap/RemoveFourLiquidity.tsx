@@ -36,6 +36,7 @@ import { toRealSymbol } from 'src/utils/token';
 import { RATED_POOL_LP_TOKEN_DECIMALS } from './AddFourLiquidity';
 import { InfoLine } from './LiquidityComponents';
 import StableTokenList, {
+  calcStableTokenReceived,
   FlexibleStableTokenList,
   StableTokensSymbol,
 } from './StableTokenListFour';
@@ -185,10 +186,25 @@ export function RemoveFourLiquidityComponent(props: {
           )
         )
       );
-
+      const tokensName = tokens.map((d) => d.symbol);
       processTransactionPending({
         transactionId,
         page: constTransactionPage.pool,
+        data: {
+          prefix: 'Removing',
+          tokens: [
+            {
+              tokenGroup: tokens,
+            },
+          ],
+          suffix: `${toPrecision(
+            toReadableNumber(RATED_POOL_LP_TOKEN_DECIMALS, removeShares),
+            3,
+            false,
+            false,
+            true
+          )} ${tokensName} LP tokens`,
+        },
       });
 
       return removeLiquidityFromStablePool({
@@ -227,9 +243,25 @@ export function RemoveFourLiquidityComponent(props: {
         ? shares
         : predict_burn;
 
+      const tokensName = tokens.map((d) => d.symbol);
       processTransactionPending({
         transactionId,
         page: constTransactionPage.pool,
+        data: {
+          prefix: 'Removing',
+          tokens: [
+            {
+              tokenGroup: tokens,
+            },
+          ],
+          suffix: `${toPrecision(
+            toReadableNumber(RATED_POOL_LP_TOKEN_DECIMALS, max_burn_shares),
+            3,
+            false,
+            false,
+            true
+          )} ${tokensName} LP tokens`,
+        },
       });
       return removeLiquidityByTokensFromStablePool({
         tokens,
