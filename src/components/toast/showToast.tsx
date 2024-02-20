@@ -11,6 +11,7 @@ type Props = {
   descNode?: any;
   isError?: boolean;
   isWarning?: boolean;
+  className?: string;
   options?: any;
 };
 
@@ -21,13 +22,14 @@ const showToast = ({
   descNode,
   isError,
   isWarning,
+  className,
   options = {},
 }: Props) => {
   const toastOptions: ToastOptions = {
     theme: 'light',
     position: 'bottom-right',
-    autoClose: 5000,
-    className: 'custom-toast',
+    autoClose: 50000,
+    className: `custom-toast ${className || ''}`,
     icon: false,
     ...options,
   };

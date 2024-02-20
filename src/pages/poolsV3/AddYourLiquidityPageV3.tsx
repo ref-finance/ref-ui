@@ -67,9 +67,10 @@ import { NoDataComponent } from './components/add/NoDataComponent';
 import { InputAmount } from './components/add/InputAmount';
 import { PairComponent } from './components/add/PairComponent';
 import { SelectFeeTiers } from './components/add/SelectFeeTiers';
+import { PageContainer } from 'src/components/layout/PageContainer';
 
 export const LiquidityProviderData = createContext(null);
-export default function AddYourLiquidityPageV3() {
+function AddYourLiquidityPageV3() {
   const [tokenX, setTokenX] = useState<TokenMetadata>(null);
   const [tokenY, setTokenY] = useState<TokenMetadata>(null);
   const [tokenXAmount, setTokenXAmount] = useState('');
@@ -2139,5 +2140,13 @@ export default function AddYourLiquidityPageV3() {
         </div>
       </div>
     </LiquidityProviderData.Provider>
+  );
+}
+
+export default function Container(props: any) {
+  return (
+    <PageContainer>
+      <AddYourLiquidityPageV3 {...props} />
+    </PageContainer>
   );
 }

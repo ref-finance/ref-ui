@@ -470,8 +470,9 @@ export const RemovePoolV3 = (props: any) => {
     return { amountx: amountX_read, amounty: amountY_read };
   }
   function batch_remove_nfts() {
-    const transactionId = String(Date.now());
     setRemoveLoading(true);
+    const transactionId = String(Date.now());
+
     const [tokenX, tokenY] = tokenMetadata_x_y;
     sessionStorage.setItem(REF_POOL_NAV_TAB_KEY, '/yourliquidity');
     let batch_remove_liquidity: IRemoveLiquidityInfo[];
@@ -580,7 +581,6 @@ export const RemovePoolV3 = (props: any) => {
       },
     });
 
-    setRemoveLoading(false);
     batch_remove_liquidity_contract({
       token_x: tokenX,
       token_y: tokenY,
@@ -594,6 +594,7 @@ export const RemovePoolV3 = (props: any) => {
           transactionId,
           transactionResponse: response,
         });
+        setRemoveLoading(false);
         sessionStorage.setItem('REMOVE_POOL_ID', pool_id);
       })
       .catch((e) => {
@@ -601,6 +602,7 @@ export const RemovePoolV3 = (props: any) => {
           error: e,
           transactionId,
         });
+        setRemoveLoading(false);
       });
   }
   function get_minimum_received_data() {

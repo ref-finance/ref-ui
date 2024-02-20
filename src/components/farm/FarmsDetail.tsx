@@ -1219,7 +1219,7 @@ function AddLiquidityModal(props: any) {
   );
 }
 function CommonModal(props: any) {
-  const { isOpen, onRequestClose, title, titleIcon } = props;
+  const { isOpen, onRequestClose, title, titleIcon, hideClose } = props;
   const cardWidth = isMobile() ? '90vw' : '30vw';
   const cardHeight = isMobile() ? '90vh' : '80vh';
 
@@ -1227,6 +1227,7 @@ function CommonModal(props: any) {
     <Modal
       isOpen={isOpen}
       onRequestClose={onRequestClose}
+      shouldCloseOnOverlayClick={!hideClose}
       style={{
         overlay: {
           backdropFilter: 'blur(15px)',
@@ -1255,7 +1256,9 @@ function CommonModal(props: any) {
                 <FormattedMessage id={title}></FormattedMessage>
               </label>
             </div>
-            <ModalClose className="cursor-pointer" onClick={onRequestClose} />
+            {!hideClose && (
+              <ModalClose className="cursor-pointer" onClick={onRequestClose} />
+            )}
           </div>
           {props.children}
         </div>
@@ -3306,7 +3309,12 @@ export function StakeModal(props: {
       FARM_LOCK_SWITCH != 0 &&
       !acceptSlashPolicy);
   return (
-    <CommonModal title={title} isOpen={isOpen} onRequestClose={onRequestClose}>
+    <CommonModal
+      title={title}
+      isOpen={isOpen}
+      onRequestClose={onRequestClose}
+      hideClose={stakeLoading}
+    >
       <div className="flex justify-between items-center mt-6">
         <div className="flex items-center">
           <span className="flex">{displayImgs()}</span>
@@ -3744,7 +3752,6 @@ export function UnStakeModal(props: {
           )} ${tokensName} LP tokens`,
         },
       });
-      setUnStakeLoading(false);
 
       unStake_boost({
         seed_id,
@@ -3756,7 +3763,7 @@ export function UnStakeModal(props: {
             transactionId,
             transactionResponse: response,
           });
-
+          setUnStakeLoading(false);
           onRequestClose();
         })
         .catch((e) => {
@@ -3764,6 +3771,7 @@ export function UnStakeModal(props: {
             error: e,
             transactionId,
           });
+          setUnStakeLoading(false);
           onRequestClose();
         });
     } else if (lockStatus) {
@@ -3777,6 +3785,7 @@ export function UnStakeModal(props: {
             transactionId,
             transactionResponse: response,
           });
+          setUnStakeLoading(false);
           onRequestClose();
         })
         .catch((e) => {
@@ -3784,12 +3793,15 @@ export function UnStakeModal(props: {
             error: e,
             transactionId,
           });
+          setUnStakeLoading(false);
           onRequestClose();
         });
     } else {
       force_unlock({
         seed_id,
         unlock_amount: toNonDivisibleNumber(DECIMALS, amount),
+      }).then(() => {
+        setUnStakeLoading(false);
       });
     }
   }
@@ -3859,6 +3871,7 @@ export function UnStakeModal(props: {
       isOpen={isOpen}
       onRequestClose={onRequestClose}
       subChildren={getSubChildren()}
+      hideClose={unStakeLoading}
     >
       <div className="flex flex-col mt-4 bg-black bg-opacity-20 rounded-lg p-4">
         <div className="flex justify-end items-center mb-3">

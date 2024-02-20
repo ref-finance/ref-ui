@@ -112,7 +112,6 @@ export function UnclaimedFeesBox(props: any) {
         },
       });
 
-      set_cliam_loading(false);
       const { response } = await claim_all_liquidity_fee({
         token_x: token_x_metadata,
         token_y: token_y_metadata,
@@ -123,11 +122,13 @@ export function UnclaimedFeesBox(props: any) {
         transactionId,
         transactionResponse: response,
       });
+      set_cliam_loading(false);
     } catch (e) {
       processTransactionError({
         error: e,
         transactionId,
       });
+      set_cliam_loading(false);
     }
   }
 

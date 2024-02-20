@@ -2770,6 +2770,7 @@ function FarmView(props: {
   }
   function claimReward(tokens, unclaimAmount, poolType) {
     if (claimLoading) return;
+    setClaimLoading(true);
     const transactionId = String(Date.now());
     const tokensNode = genTokensSymbolArr(tokens);
 

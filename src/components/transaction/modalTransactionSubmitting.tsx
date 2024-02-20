@@ -441,6 +441,7 @@ const showTransactionToast = (actionData, transactionData) => {
         desc: errorMsg,
         isError: true,
         isWarning: false,
+        className: 'toast-with-desc',
       };
 
       if (isUserRejected) {
