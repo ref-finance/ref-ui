@@ -1001,10 +1001,10 @@ export const bridgeData: any[] = [
     link: 'https://rainbowbridge.app/transfer',
   },
   {
-    name: <>Cede.store</>,
+    name: <>CEX Bridge</>,
     icon: WalletCedeBridge,
     link: `https://send.cede.store/?tokenSymbol=NEAR&network=near&source=ref_finance`,
-    label: 'Cede.store',
+    label: ' CEX Bridge',
     id: '2',
     needAccountId: true,
   },
