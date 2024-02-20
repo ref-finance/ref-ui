@@ -940,7 +940,7 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
   return menuData;
 };
 
-export const bridgeData = [
+export const bridgeData: any[] = [
   // {
   //   name: (
   //     <FormattedMessage
@@ -1003,7 +1003,7 @@ export const bridgeData = [
   {
     name: <>Cede.store</>,
     icon: WalletCedeBridge,
-    link: `https://send.cede.store/?tokenSymbol=NEAR&network=near`,
+    link: `https://send.cede.store/?tokenSymbol=NEAR&network=near&source=ref_finance`,
     label: 'Cede.store',
     id: '2',
     needAccountId: true,
@@ -1048,6 +1048,7 @@ export function BridgeButton() {
               if (!item.children) {
                 return (
                   <div
+                    key={item.id}
                     className={`flex flex-col py-2 rounded-md px-3.5 cursor-pointer ${
                       hoverBridgeType === item.label
                         ? 'bg-primaryText bg-opacity-20 text-white'
@@ -1063,7 +1064,11 @@ export function BridgeButton() {
                       setHoverBridgeType(undefined);
                     }}
                     onClick={() => {
-                      openUrl(item.link);
+                      let targetUrl = item.link;
+                      if (item.needAccountId && accountId) {
+                        targetUrl = `${targetUrl}&address=${accountId}`;
+                      }
+                      openUrl(targetUrl);
                     }}
                   >
                     <div className="frcs gap-2">
@@ -1081,6 +1086,7 @@ export function BridgeButton() {
               } else {
                 return (
                   <div
+                    key={item.id}
                     className={`flex flex-col font-gothamBold py-2 rounded-xl px-2 ${
                       hoverBridgeType === item.label
                         ? 'bg-primaryText bg-opacity-20 text-white'
@@ -1110,6 +1116,7 @@ export function BridgeButton() {
                     {item.children.map((sub) => {
                       return (
                         <div
+                          key={sub.id}
                           className={`font-gotham  py-2  rounded-md frcs gap-2 cursor-pointer${
                             hoverSubBridge === sub.id
                               ? 'px-2 bg-hoverSubBridge'

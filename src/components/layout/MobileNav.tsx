@@ -931,6 +931,7 @@ export function MobileNavBar(props: any) {
 }
 
 function MobileBridgeModal(props: Modal.Props) {
+  const { accountId } = useWalletSelector();
   return (
     <Modal
       {...props}
@@ -978,7 +979,11 @@ function MobileBridgeModal(props: Modal.Props) {
                 key={item.id}
                 className="flex flex-col gap-2 pl-1 text-white cursor-pointer frcs hover:bg-opacity-20 hover:rounded-xl"
                 onClick={() => {
-                  openUrl(item.link);
+                  let targetUrl = item.link;
+                  if (item.needAccountId && accountId) {
+                    targetUrl = `${targetUrl}&address=${accountId}`;
+                  }
+                  openUrl(targetUrl);
                 }}
               >
                 <div className="frcs gap-2 pl-3">
