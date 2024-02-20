@@ -586,27 +586,27 @@ export const useMenus = (cb?: () => void) => {
           logo: <RisksIcon />,
           links: ['/risks'],
         },
-        {
-          id: '5-4',
-          label: (
-            <>{<FormattedMessage id="airdrop" defaultMessage="Airdrop" />}</>
-          ),
-          url: '/airdrop',
-          isExternal: false,
-          logo: <IconAirDrop />,
-          links: ['/airdrop'],
-        },
-        {
-          id: '5-5',
-          label: (
-            <>
-              <FormattedMessage id="business_inquiries" />
-            </>
-          ),
-          url: 'https://form.typeform.com/to/onOPhJ6Y',
-          isExternal: true,
-          logo: <InquiriesIcon />,
-        },
+        // {
+        //   id: '5-4',
+        //   label: (
+        //     <>{<FormattedMessage id="airdrop" defaultMessage="Airdrop" />}</>
+        //   ),
+        //   url: '/airdrop',
+        //   isExternal: false,
+        //   logo: <IconAirDrop />,
+        //   links: ['/airdrop'],
+        // },
+        // {
+        //   id: '5-5',
+        //   label: (
+        //     <>
+        //       <FormattedMessage id="business_inquiries" />
+        //     </>
+        //   ),
+        //   url: 'https://form.typeform.com/to/onOPhJ6Y',
+        //   isExternal: true,
+        //   logo: <InquiriesIcon />,
+        // },
       ],
     },
   ];
@@ -941,6 +941,53 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
 };
 
 export const bridgeData = [
+  // {
+  //   name: (
+  //     <FormattedMessage
+  //       id="rainbow"
+  //       defaultMessage={'Rainbow'}
+  //     ></FormattedMessage>
+  //   ),
+  //   icon: Rainbow,
+  //   id: '0',
+  //   label: 'rainbow',
+
+  //   children: [
+  //     {
+  //       name: <FormattedMessage id="from_ethereum"></FormattedMessage>,
+  //       icon: Ethereum,
+  //       link: 'https://rainbowbridge.app/transfer',
+  //       id: '0-0',
+  //     },
+  //     {
+  //       name: <FormattedMessage id="from_aurora"></FormattedMessage>,
+  //       icon: Aurora,
+  //       link: 'https://rainbowbridge.app/transfer',
+  //       id: '0-1',
+  //     },
+  //   ],
+  // },
+
+  // {
+  //   name: (
+  //     <FormattedMessage
+  //       id="electron_labs"
+  //       defaultMessage={'Electron Labs'}
+  //     ></FormattedMessage>
+  //   ),
+  //   icon: ElectronLabs,
+  //   id: '2',
+  //   label: 'electron_labs',
+
+  //   children: [
+  //     {
+  //       name: <FormattedMessage id="from_ethereum"></FormattedMessage>,
+  //       icon: Ethereum,
+  //       link: 'https://mainnet.electronlabs.org/bridge',
+  //       id: '2-0',
+  //     },
+  //   ],
+  // },
   {
     name: (
       <FormattedMessage
@@ -951,49 +998,15 @@ export const bridgeData = [
     icon: Rainbow,
     id: '0',
     label: 'rainbow',
-
-    children: [
-      {
-        name: <FormattedMessage id="from_ethereum"></FormattedMessage>,
-        icon: Ethereum,
-        link: 'https://rainbowbridge.app/transfer',
-        id: '0-0',
-      },
-      {
-        name: <FormattedMessage id="from_aurora"></FormattedMessage>,
-        icon: Aurora,
-        link: 'https://rainbowbridge.app/transfer',
-        id: '0-1',
-      },
-    ],
+    link: 'https://rainbowbridge.app/transfer',
   },
-
   {
-    name: (
-      <FormattedMessage
-        id="electron_labs"
-        defaultMessage={'Electron Labs'}
-      ></FormattedMessage>
-    ),
-    icon: ElectronLabs,
+    name: <>Cede.store</>,
+    icon: WalletCedeBridge,
+    link: `https://send.cede.store/?tokenSymbol=NEAR&network=near`,
+    label: 'Cede.store',
     id: '2',
-    label: 'electron_labs',
-
-    children: [
-      {
-        name: <FormattedMessage id="from_ethereum"></FormattedMessage>,
-        icon: Ethereum,
-        link: 'https://mainnet.electronlabs.org/bridge',
-        id: '2-0',
-      },
-      {
-        name: <>Cede.store</>,
-        icon: WalletCedeBridge,
-        link: `https://send.cede.store/?tokenSymbol=NEAR&network=near`,
-        id: '2-1',
-        needAccountId: true,
-      },
-    ],
+    needAccountId: true,
   },
 ];
 export function BridgeButton() {
@@ -1030,75 +1043,101 @@ export function BridgeButton() {
 
       {hover && (
         <div className="absolute pt-4 top-6 right-1/2 transform translate-x-1/2">
-          <div className="bg-priceBoardColor p-2 rounded-2xl border border-menuMoreBoxBorderColor flex ">
-            {bridgeData.map((item: any, index) => {
-              return (
-                <div
-                  key={item.id}
-                  className={`flex flex-col font-gothamBold py-2 rounded-xl px-2 ${
-                    hoverBridgeType === item.label
-                      ? 'bg-primaryText bg-opacity-20 text-white'
-                      : ''
-                  } `}
-                  style={{
-                    width: '146px',
-                  }}
-                  onMouseEnter={() => {
-                    setHoverBridgeType(item.label as any);
-                  }}
-                  onMouseLeave={() => {
-                    setHoverBridgeType(undefined);
-                  }}
-                >
-                  <div className="frcs gap-2 mb-2  ">
-                    <item.icon
-                      className={
-                        hoverBridgeType === item.label
-                          ? 'text-white'
-                          : 'text-primaryText'
-                      }
-                    ></item.icon>
-                    {item.name}
-                  </div>
-
-                  {item.children.map((sub) => {
-                    return (
-                      <div
-                        key={sub.id}
-                        className={`font-gotham  py-2  rounded-md frcs gap-2 cursor-pointer
-                      
-                        ${
-                          hoverSubBridge === sub.id
-                            ? 'px-2 bg-hoverSubBridge'
-                            : ''
+          <div className="bg-priceBoardColor p-2 rounded-2xl border border-menuMoreBoxBorderColor ">
+            {bridgeData.map((item) => {
+              if (!item.children) {
+                return (
+                  <div
+                    className={`flex flex-col py-2 rounded-md px-3.5 cursor-pointer ${
+                      hoverBridgeType === item.label
+                        ? 'bg-primaryText bg-opacity-20 text-white'
+                        : ''
+                    } `}
+                    style={{
+                      width: '146px',
+                    }}
+                    onMouseEnter={() => {
+                      setHoverBridgeType(item.label as any);
+                    }}
+                    onMouseLeave={() => {
+                      setHoverBridgeType(undefined);
+                    }}
+                    onClick={() => {
+                      openUrl(item.link);
+                    }}
+                  >
+                    <div className="frcs gap-2">
+                      <item.icon
+                        className={
+                          hoverBridgeType === item.label
+                            ? 'text-white'
+                            : 'text-primaryText'
                         }
-                      `}
-                        onClick={() => {
-                          let targetLink = sub.link;
-                          if (sub.needAccountId && accountId) {
-                            targetLink = `${sub.link}&address=${accountId}`;
-                          }
-                          openUrl(targetLink);
-                        }}
-                        onMouseEnter={() => {
-                          setHoverSubBridge(sub.id);
-                        }}
-                        onMouseLeave={() => {
-                          setHoverSubBridge('');
-                        }}
-                      >
-                        <sub.icon
-                          className={`w-5 h-5 ${
-                            hoverBridgeType === item.label ? '' : 'opacity-50'
-                          }`}
-                        ></sub.icon>
+                      ></item.icon>
+                      {item.name}
+                    </div>
+                  </div>
+                );
+              } else {
+                return (
+                  <div
+                    className={`flex flex-col font-gothamBold py-2 rounded-xl px-2 ${
+                      hoverBridgeType === item.label
+                        ? 'bg-primaryText bg-opacity-20 text-white'
+                        : ''
+                    } `}
+                    style={{
+                      width: '146px',
+                    }}
+                    onMouseEnter={() => {
+                      setHoverBridgeType(item.label as any);
+                    }}
+                    onMouseLeave={() => {
+                      setHoverBridgeType(undefined);
+                    }}
+                  >
+                    <div className="frcs gap-2 mb-2  ">
+                      <item.icon
+                        className={
+                          hoverBridgeType === item.label
+                            ? 'text-white'
+                            : 'text-primaryText'
+                        }
+                      ></item.icon>
+                      {item.name}
+                    </div>
 
-                        {sub.name}
-                      </div>
-                    );
-                  })}
-                </div>
-              );
+                    {item.children.map((sub) => {
+                      return (
+                        <div
+                          className={`font-gotham  py-2  rounded-md frcs gap-2 cursor-pointer${
+                            hoverSubBridge === sub.id
+                              ? 'px-2 bg-hoverSubBridge'
+                              : ''
+                          }`}
+                          onClick={() => {
+                            openUrl(sub.link);
+                          }}
+                          onMouseEnter={() => {
+                            setHoverSubBridge(sub.id);
+                          }}
+                          onMouseLeave={() => {
+                            setHoverSubBridge('');
+                          }}
+                        >
+                          <sub.icon
+                            className={
+                              hoverBridgeType === item.label ? '' : 'opacity-50'
+                            }
+                          ></sub.icon>
+
+                          {sub.name}
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              }
             })}
           </div>
         </div>
