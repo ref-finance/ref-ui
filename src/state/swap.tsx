@@ -1034,7 +1034,7 @@ export const useLimitOrder = ({
 
   useEffect(() => {
     if (notLimitMode || !tokenIn || !tokenOut) {
-      return null;
+      return;
     }
     Promise.all(
       V3_POOL_FEE_LIST.map((fee) =>
@@ -1136,7 +1136,7 @@ export const useLimitOrder = ({
   }, [tokenIn?.id, tokenOut?.id, tokenPriceList, swapMode, indexerFail]);
 
   useEffect(() => {
-    if (!poolToOrderCounts) return null;
+    if (!poolToOrderCounts) return;
 
     const countValues = Object.values(poolToOrderCounts);
 

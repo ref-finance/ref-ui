@@ -73,7 +73,7 @@ export function Content() {
 
   const getAccount = useCallback(async (): Promise<Account | null> => {
     if (!accountId) {
-      return null;
+      return;
     }
 
     const provider = new providers.JsonRpcProvider({
@@ -94,7 +94,7 @@ export function Content() {
 
   useEffect(() => {
     if (!accountId) {
-      return null;
+      return;
     }
 
     getAccount()
