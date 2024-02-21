@@ -157,18 +157,18 @@ export const useMenuItems = () => {
       isExternal: false,
       logo: <RisksIcon />,
     },
-    {
-      label: <FormattedMessage id="airdrop" defaultMessage="Airdrop" />,
-      url: '/airdrop',
-      isExternal: false,
-      logo: <IconAirDrop />,
-    },
-    {
-      label: 'Business Inquiries',
-      url: 'https://form.typeform.com/to/onOPhJ6Y',
-      isExternal: true,
-      logo: <InquiriesIcon />,
-    },
+    // {
+    //   label: <FormattedMessage id="airdrop" defaultMessage="Airdrop" />,
+    //   url: '/airdrop',
+    //   isExternal: false,
+    //   logo: <IconAirDrop />,
+    // },
+    // {
+    //   label: 'Business Inquiries',
+    //   url: 'https://form.typeform.com/to/onOPhJ6Y',
+    //   isExternal: true,
+    //   logo: <InquiriesIcon />,
+    // },
   ];
   return { menuData };
 };
@@ -913,27 +913,27 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
           logo: <RisksIcon />,
           links: ['/risks'],
         },
-        {
-          id: '5-4',
-          label: (
-            <>{<FormattedMessage id="airdrop" defaultMessage="Airdrop" />}</>
-          ),
-          url: '/airdrop',
-          isExternal: false,
-          logo: <IconAirDrop />,
-          links: ['/airdrop'],
-        },
-        {
-          id: '5-5',
-          label: (
-            <>
-              <FormattedMessage id="business_inquiries" />
-            </>
-          ),
-          url: 'https://form.typeform.com/to/onOPhJ6Y',
-          isExternal: true,
-          logo: <InquiriesIcon />,
-        },
+        // {
+        //   id: '5-4',
+        //   label: (
+        //     <>{<FormattedMessage id="airdrop" defaultMessage="Airdrop" />}</>
+        //   ),
+        //   url: '/airdrop',
+        //   isExternal: false,
+        //   logo: <IconAirDrop />,
+        //   links: ['/airdrop'],
+        // },
+        // {
+        //   id: '5-5',
+        //   label: (
+        //     <>
+        //       <FormattedMessage id="business_inquiries" />
+        //     </>
+        //   ),
+        //   url: 'https://form.typeform.com/to/onOPhJ6Y',
+        //   isExternal: true,
+        //   logo: <InquiriesIcon />,
+        // },
       ],
     },
   ];
