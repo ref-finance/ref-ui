@@ -34,6 +34,7 @@ import {
   get_orderly_public_key_path,
 } from '../pages/Orderly/orderly/utils';
 import { isMobile } from '../utils/device';
+import { setupKeypom } from '@keypom/selector';
 
 const CONTRACT_ID = getOrderlyConfig().ORDERLY_ASSET_MANAGER;
 
@@ -60,6 +61,7 @@ interface WalletSelectorContextValue {
 
 const WalletSelectorContext =
   React.createContext<WalletSelectorContextValue | null>(null);
+
 
 export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
   const [selector, setSelector] = useState<WalletSelector | null>(null);
@@ -91,6 +93,22 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
     localStorage.setItem(ACCOUNT_ID_KEY, newAccountId);
     setAccountId(newAccountId);
     setAccounts(newAccounts);
+  };
+
+  const KEYPOM_OPTIONS = {
+    beginTrial: {
+      landing: {
+        title: "Welcome!",
+      },
+    },
+    wallets: [
+      {
+        name: "MyNEARWallet",
+        description: "Secure your account with a Seed Phrase",
+        redirectUrl: `https://${getConfig().networkId}.mynearwallet.com/linkdrop/ACCOUNT_ID/SECRET_KEY`,
+        iconUrl: "INSERT_ICON_URL_HERE",
+      },
+    ],
   };
 
   const init = useCallback(async () => {
@@ -137,6 +155,17 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
           chainId: `near:${getConfig().networkId}`,
           // iconUrl: walletIcons['wallet-connect'],
         }),
+        setupKeypom({
+          networkId:  getConfig().networkId as NetworkId,
+          signInContractId: CONTRACT_ID,
+          trialAccountSpecs: {
+            url: '/trial-accounts/ACCOUNT_ID#SECRET_KEY',
+            modalOptions: KEYPOM_OPTIONS,
+          },
+          instantSignInSpecs: {
+            url: '/#instant-url/ACCOUNT_ID#SECRET_KEY/MODULE_ID',
+          },
+        })
       ],
     });
     const _modal = setupModal(_selector, {
