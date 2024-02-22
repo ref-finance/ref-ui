@@ -560,9 +560,9 @@ function Template({
     let farmStr = '';
     farmList.forEach((farm: FarmBoost) => {
       farmStr += `<div class='flex items-center justify-between text-xs text-farmText mt-1'>
-          <img src='${
+          <img src="${
             farm?.token_meta_data?.icon
-          }' class='w-5 h-5 rounded-full' />
+          }" class='w-5 h-5 rounded-full' />
           <span class='text-xs'>${
             pending || ended
               ? '-'
