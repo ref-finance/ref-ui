@@ -33,6 +33,10 @@
   font-size: 14px;
 }
 
+.modal-transaction-submitting.tokens-compact .display-token {
+  margin: 0 -4px;
+}
+
 @media (max-width: 767px) {
   .modal-transaction-submitting .modal-content {
     width: 96%;

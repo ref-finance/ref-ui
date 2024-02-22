@@ -133,8 +133,15 @@ export const ModalTransactionContent = ({
     onClose,
   } = actionData || {};
   const { callbackUrl } = transactionResponse || {};
-  const { selectTrade, prefix, suffix, tokens, transactionType, headerText } =
-    data || {};
+  const {
+    selectTrade,
+    prefix,
+    suffix,
+    tokens,
+    transactionType,
+    headerText,
+    className,
+  } = data || {};
 
   const isRedirectWalletPage =
     actionData?.status === 'success' && !transactionResponse; // myNearWallet
@@ -203,11 +210,17 @@ export const ModalTransactionContent = ({
   let loadingNode = <BlueCircleLoading />;
 
   if (transactionType === 'claimFee') {
-    node = <ClaimFeeLayout tokensData={tokensData?.length ? tokensData : tokens} />;
+    node = (
+      <ClaimFeeLayout tokensData={tokensData?.length ? tokensData : tokens} />
+    );
   } else if (transactionType === 'withdraw') {
-    node = <WithdrawLayout tokensData={tokensData?.length ? tokensData : tokens} />;
+    node = (
+      <WithdrawLayout tokensData={tokensData?.length ? tokensData : tokens} />
+    );
   } else {
-    node = <CommonLayout tokensData={tokensData?.length ? tokensData : tokens} />;
+    node = (
+      <CommonLayout tokensData={tokensData?.length ? tokensData : tokens} />
+    );
   }
 
   if (isComplete) {
@@ -263,7 +276,7 @@ export const ModalTransactionContent = ({
     <CustomModal
       isOpen={isOpen}
       onClose={canClose && handleClose}
-      className={'modal-transaction-submitting gantari_font'}
+      className={`modal-transaction-submitting gantari_font ${className || ''}`}
     >
       <div className={'-loading-info'}>
         <div className={'mb-8'}>{loadingNode}</div>
@@ -296,7 +309,7 @@ const WithdrawLayout = ({ tokensData }: any) => {
   const node = tokensData?.map((d, i) => {
     const { token, amount } = d || {};
     return (
-      <div className="flex gap-1" key={i}>
+      <div className="flex gap-1 display-token" key={i}>
         <DisplayIcon token={token} height={'20px'} width={'20px'} /> {amount}{' '}
         {token?.symbol}
       </div>
@@ -350,7 +363,7 @@ const ClaimFeeLayout = ({ tokensData }: any) => {
       return <BsArrowRight key={i} />;
     }
     return (
-      <div className="flex gap-1 items-center" key={i}>
+      <div className="flex gap-1 items-center display-token" key={i}>
         <DisplayIcon token={token} height={'20px'} width={'20px'} /> {amount}{' '}
         {token?.symbol}
       </div>
@@ -390,7 +403,10 @@ const CommonLayout = ({ tokensData }: any) => {
       return <BsArrowRight key={i} />;
     }
     return (
-      <div className="flex gap-1 items-center" key={token?.symbol + amount}>
+      <div
+        className="flex gap-1 items-center display-token"
+        key={token?.symbol + amount}
+      >
         <DisplayIcon
           token={token}
           height={'20px'}

@@ -2772,14 +2772,21 @@ function FarmView(props: {
     if (claimLoading) return;
     setClaimLoading(true);
     const transactionId = String(Date.now());
-    const tokensNode = genTokensSymbolArr(tokens);
-
+    const rewardSymbols = getAllRewardsSymbols();
+    const tokensNode = rewardSymbols.map(([id, icon]) => ({
+      token: {
+        id,
+        icon,
+      },
+    }));
+  
     processTransactionPending({
       transactionId,
       page: constTransactionPage.farm,
       data: {
         headerText: 'Claim Farm Rewards',
         transactionType: 'claimFee',
+        className: 'tokens-compact',
         tokens: tokensNode,
         suffix: `(${unclaimAmount})`,
       },
