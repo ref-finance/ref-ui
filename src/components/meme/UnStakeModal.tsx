@@ -113,10 +113,12 @@ function UnStakeModal(props: any) {
           transactionId,
         });
         setUnStakeLoading(false);
+        onRequestClose();
       })
       .catch((e) => {
         processTransactionError({ error: e, transactionId });
         setUnStakeLoading(false);
+        onRequestClose();
       });
   }
   function formatSeconds(seconds) {

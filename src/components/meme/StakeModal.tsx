@@ -108,7 +108,7 @@ function StakeModal(props: any) {
         tokens: [
           {
             token: seed?.token_meta_data,
-            amount: toInternationalCurrencySystem_number(feedTo),
+            amount: amount,
           },
         ],
       },
@@ -123,10 +123,12 @@ function StakeModal(props: any) {
           transactionId,
         });
         setStakeLoading(false);
+        onRequestClose();
       })
       .catch((e) => {
         processTransactionError({ error: e, transactionId });
         setStakeLoading(false);
+        onRequestClose();
       });
   }
   function formatSeconds(seconds) {

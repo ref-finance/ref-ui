@@ -39,13 +39,16 @@ import {
   constTransactionPage,
   useTranstionsExcuteDataStore,
 } from 'src/stores/transtionsExcuteData';
+
 const is_mobile = isMobile();
+
 export interface ITxParams {
   action: 'stake' | 'unstake';
   params: any;
   txHash: string;
   receiver_id: string;
 }
+
 const SeedsBox = () => {
   const {
     seeds,
@@ -134,6 +137,7 @@ const SeedsBox = () => {
       });
     }
   }, [txHash, isSignedIn]);
+
   function getSeedStaked(seed_id: string) {
     const seed = seeds[seed_id];
     const { seed_decimal, total_seed_amount, seedTvl } = seed;
@@ -146,6 +150,7 @@ const SeedsBox = () => {
       value: toInternationalCurrencySystem_usd(seedTvl),
     };
   }
+
   function getSeedUserStaked(seed_id: string) {
     const userSeed: UserSeedInfo = user_seeds[seed_id];
     if (userSeed) {
@@ -168,6 +173,7 @@ const SeedsBox = () => {
       };
     }
   }
+
   function getUserBalance(seed_id: string) {
     const seed = seeds[seed_id];
     const { seed_decimal } = seed;
@@ -186,10 +192,12 @@ const SeedsBox = () => {
       };
     }
   }
+
   function getFeeder(seed_id: string) {
     const seed = seeds[seed_id];
     return seed.farmer_count;
   }
+
   function goFarmDetail(seed_id: string) {
     const lpSeed = lpSeeds[seed_id];
     if (lpSeed.farmList[0].status == 'Ended') {
@@ -198,8 +206,13 @@ const SeedsBox = () => {
       window.open(`/v2farms/${lpSeed.pool.id}-r`);
     }
   }
+
   function getUnClaimedRewards(rewards) {
+    console.log('rewards', rewards);
+    let unclaimedAmount = '-',
+      tokens = [];
     if (Object.keys(rewards || {}).length) {
+      tokens = Object.keys(rewards).map((d) => allTokenMetadatas[d]);
       const rewardsValue = Object.keys(rewards).reduce((acc, tokenId) => {
         const amount = rewards[tokenId];
         const metadata: TokenMetadata = allTokenMetadatas[tokenId];
@@ -208,30 +221,37 @@ const SeedsBox = () => {
         const value = new Big(num).mul(price).toFixed();
         return acc.plus(value);
       }, Big(0));
-      return toInternationalCurrencySystem_usd(rewardsValue.toFixed());
-    } else {
-      return '-';
+      unclaimedAmount = toInternationalCurrencySystem_usd(
+        rewardsValue.toFixed()
+      );
     }
+    return {
+      unclaimedAmount,
+      tokens,
+    };
   }
 
   function seedClaim(seed: Seed) {
     set_claim_seed_id(seed.seed_id);
     const transactionId = String(Date.now());
-    const unclaimedReward = getUnClaimedRewards(
+    const { unclaimedAmount, tokens } = getUnClaimedRewards(
       unclaimed_rewards[seed.seed_id]
     );
+
     processTransactionPending({
       transactionId,
       page: constTransactionPage.meme,
       data: {
         headerText: 'Claim Rewards',
         transactionType: 'claimFee',
-        tokens: [
-          {
-            token: seeds[seed.seed_id]?.token_meta_data,
-            amount: unclaimedReward,
-          },
-        ],
+        className: 'tokens-compact',
+        tokens: tokens.map((d) => {
+          delete d.symbol;
+          return {
+            token: d,
+          };
+        }),
+        suffix: `(${unclaimedAmount})`,
       },
     });
     claim(seed)
@@ -239,30 +259,42 @@ const SeedsBox = () => {
         processTransactionSuccess({
           transactionResponse: response,
           transactionId,
+          data: {
+            className: 'tokens-compact',
+          },
         });
         set_claim_seed_id('');
       })
       .catch((e) => {
-        processTransactionError({ error: e, transactionId });
+        processTransactionError({
+          error: e,
+          transactionId,
+          data: {
+            className: 'tokens-compact',
+          },
+        });
         set_claim_seed_id('');
       });
   }
+
   function comeSoonTip() {
-    const result = `<div class="px-2 text-xs text-farmText">
+    const result = `<div class='px-2 text-xs text-farmText'>
     Coming soon
     </div>`;
     return result;
   }
+
   function getFarmAPYTip(seed_id) {
     const b = getSeedApr(lpSeeds[seed_id]);
-    const result = `<div class="px-2 text-xs text-farmText">
-          <div class="flex items-center justify-between text-xs text-farmText gap-3.5">
+    const result = `<div class='px-2 text-xs text-farmText'>
+          <div class='flex items-center justify-between text-xs text-farmText gap-3.5'>
               <span>Farm APR</span>
-              <span class="text-white text-sm">${formatPercentage(b)}</span>
+              <span class='text-white text-sm'>${formatPercentage(b)}</span>
           </div>
     </div>`;
     return result;
   }
+
   return (
     <div className="grid gap-4 mt-14 xsm:grid-cols-1 xsm:grid-rows-1 lg:grid-cols-2 lg:grid-rows-2 xsm:mx-3">
       {Object.entries(seeds).map(([seed_id, seed]) => {
@@ -520,15 +552,16 @@ function Template({
   space?: boolean;
 }) {
   const { tokenPriceList, allTokenMetadatas } = useContext(MemeContext);
+
   function getApyTip() {
     const farmList = seed.farmList || [];
     let farmStr = '';
     farmList.forEach((farm: FarmBoost) => {
-      farmStr += `<div class="flex items-center justify-between text-xs text-farmText mt-1">
-          <img src="${
+      farmStr += `<div class='flex items-center justify-between text-xs text-farmText mt-1'>
+          <img src='${
             farm?.token_meta_data?.icon
-          }" class="w-5 h-5 rounded-full" />
-          <span class="text-xs">${
+          }' class='w-5 h-5 rounded-full' />
+          <span class='text-xs'>${
             pending || ended
               ? '-'
               : formatPercentage(
@@ -540,39 +573,41 @@ function Template({
       </div>`;
     });
     const result =
-      `<div class="px-2">
+      `<div class='px-2'>
        <div>
-        <div class="flex items-center justify-between text-xs text-farmText gap-3.5">
+        <div class='flex items-center justify-between text-xs text-farmText gap-3.5'>
           <span>Staking APR</span>
-          <span class="text-white text-sm">${
+          <span class='text-white text-sm'>${
             pending || ended ? '-' : formatPercentage(value)
           }</span>
         </div>` +
       farmStr +
       `</div>
-        <div class="hidden items-center justify-between text-xs text-farmText gap-3.5 mt-2">
+        <div class='hidden items-center justify-between text-xs text-farmText gap-3.5 mt-2'>
           <span>Farm APR</span>
-          <span class="text-white text-sm">${
+          <span class='text-white text-sm'>${
             subTargetValue || formatPercentage(subValue)
           }</span>
       </div>
     </div>`;
     return result;
   }
+
   function getRewardsTip() {
     let result = '';
     Object.entries(rewards || {}).forEach(([tokenId, amount]) => {
       const metadata: TokenMetadata = allTokenMetadatas[tokenId];
       const num = toReadableNumber(metadata.decimals, amount);
-      result += `<div class="flex items-center justify-between text-xs text-farmText mt-1 gap-5">
-          <img src="${metadata?.icon}" class="w-5 h-5 rounded-full" />
-          <span class="text-xs">${toInternationalCurrencySystem_number(
+      result += `<div class='flex items-center justify-between text-xs text-farmText mt-1 gap-5'>
+          <img src='${metadata?.icon}' class='w-5 h-5 rounded-full' />
+          <span class='text-xs'>${toInternationalCurrencySystem_number(
             num
           )}</span>
       </div>`;
     });
     return result;
   }
+
   function getUnClaimedRewards() {
     if (Object.keys(rewards || {}).length) {
       const rewardsValue = Object.keys(rewards).reduce((acc, tokenId) => {
@@ -588,6 +623,7 @@ function Template({
       return '-';
     }
   }
+
   return (
     <div className="flex flex-col justify-between gap-0.5">
       {/* title */}
@@ -662,4 +698,5 @@ function Template({
     </div>
   );
 }
+
 export default SeedsBox;

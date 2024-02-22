@@ -28,7 +28,7 @@ const showToast = ({
   const toastOptions: ToastOptions = {
     theme: 'light',
     position: 'bottom-right',
-    autoClose: 50000,
+    autoClose: 5000,
     className: `custom-toast ${className || ''}`,
     icon: false,
     ...options,

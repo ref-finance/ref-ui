@@ -35,8 +35,9 @@ import { WalletContext } from '../utils/wallets-integration';
 import { get_all_seeds } from '../services/commonV3';
 import { isMobile } from '../utils/device';
 import { MobileBanner } from '../components/meme/ani_mobile';
+import { PageContainer } from 'src/components/layout/PageContainer';
 
-export default function MemePage() {
+function MemePage() {
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
   const [memeConfig, setMemeConfig] = useState<IMemefarmConfig>();
   const [seeds, setSeeds] = useState<Record<string, Seed>>({});
@@ -252,5 +253,13 @@ export default function MemePage() {
         </div>
       </div>
     </MemeContext.Provider>
+  );
+}
+
+export default function Container(props: any) {
+  return (
+    <PageContainer>
+      <MemePage {...props} />
+    </PageContainer>
   );
 }

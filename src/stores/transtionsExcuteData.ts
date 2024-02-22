@@ -41,7 +41,11 @@ type ITranstionsExcuteDataStore = {
     onClose?: () => any;
     headerText?: string;
   }) => void;
-  processTransactionError: (p: { error: any; transactionId: string }) => void;
+  processTransactionError: (p: {
+    error: any;
+    transactionId: string;
+    data?: any;
+  }) => void;
   removeActionData: () => void;
   getActionPage: () => any;
   getActionStatus: () => any;
@@ -90,7 +94,7 @@ export const useTranstionsExcuteDataStore = create<ITranstionsExcuteDataStore>(
           actionStatus: 'resolved',
         };
       }),
-    processTransactionError: ({ error, transactionId }) =>
+    processTransactionError: ({ error, transactionId, data }) =>
       set((state) => {
         const toUpdate: any = {
           actionData: {
@@ -100,6 +104,7 @@ export const useTranstionsExcuteDataStore = create<ITranstionsExcuteDataStore>(
               message: error?.message,
               transactionId,
             },
+            data,
           },
           actionStatus: 'rejected',
         };
