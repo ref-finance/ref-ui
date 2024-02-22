@@ -17,6 +17,7 @@ import {
 } from '../../utils/uiNumber';
 
 import { Template } from './StakeModal';
+import { constTransactionPage, useTranstionsExcuteDataStore } from 'src/stores/transtionsExcuteData';
 
 function UnStakeModal(props: any) {
   const { seeds, tokenPriceList, user_seeds, memeConfig, withdraw_list } =
@@ -25,6 +26,16 @@ function UnStakeModal(props: any) {
   const { isOpen, onRequestClose, seed_id } = props;
   const [amount, setAmount] = useState('');
   const [unStakeLoading, setUnStakeLoading] = useState(false);
+  const processTransactionPending = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionPending
+  );
+  const processTransactionSuccess = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionSuccess
+  );
+  const processTransactionError = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionError
+  );
+
   const seed = seeds[seed_id];
   const stakedBalance = toReadableNumber(
     seed.seed_decimal || 0,
@@ -67,8 +78,23 @@ function UnStakeModal(props: any) {
     }
     return null;
   }, [withdraw_list, seed_id, delay_withdraw_sec]);
+
   function unStakeToken() {
     setUnStakeLoading(true);
+    const transactionId = String(Date.now());
+    processTransactionPending({
+      transactionId,
+      page: constTransactionPage.meme,
+      data: {
+        prefix: 'Removing',
+        tokens: [
+          {
+            token: seed?.token_meta_data,
+            amount,
+          },
+        ],
+      },
+    })
     unStake({
       seed,
       amount: Big(toNonDivisibleNumber(seed.seed_decimal, amount)).toFixed(0),
@@ -77,6 +103,15 @@ function UnStakeModal(props: any) {
             withdrawAmount: withdraw_list[seed_id].amount,
           }
         : {}),
+    }).then(({response})=>{
+      processTransactionSuccess({
+        transactionResponse: response,
+        transactionId,
+      });
+      setUnStakeLoading(false);
+    }).catch(e=> {
+      processTransactionError({ error: e, transactionId });
+      setUnStakeLoading(false);
     });
   }
   function formatSeconds(seconds) {

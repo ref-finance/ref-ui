@@ -18,10 +18,21 @@ import {
 import { Seed, FarmBoost } from '../../services/farm';
 import { getProgressConfig } from './ProgressConfig';
 import { TipIcon } from './icons';
+import { constTransactionPage, useTranstionsExcuteDataStore } from 'src/stores/transtionsExcuteData';
 const progressConfig = getProgressConfig();
 function StakeModal(props: any) {
   const { seeds, user_balances, tokenPriceList, user_seeds, memeConfig } =
     useContext(MemeContext);
+  const processTransactionPending = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionPending
+  );
+  const processTransactionSuccess = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionSuccess
+  );
+  const processTransactionError = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionError
+  );
+
   const { delay_withdraw_sec } = memeConfig;
   const { isOpen, onRequestClose, seed_id } = props;
   const [amount, setAmount] = useState('');
@@ -82,11 +93,36 @@ function StakeModal(props: any) {
     }
     return seed;
   }, [amount, seeds, tokenPriceList]);
+
   function stakeToken() {
     setStakeLoading(true);
+    const transactionId = String(Date.now());
+    processTransactionPending({
+      transactionId,
+      page: constTransactionPage.meme,
+      data: {
+        prefix: 'Supplying',
+        tokens: [
+          {
+            token: seed?.token_meta_data,
+            amount: toInternationalCurrencySystem_number(feedTo),
+          },
+        ],
+      },
+    })
     stake({
       seed,
       amount: Big(toNonDivisibleNumber(seed.seed_decimal, amount)).toFixed(0),
+    })
+      .then(({response})=>{
+      processTransactionSuccess({
+        transactionResponse: response,
+        transactionId,
+      });
+        setStakeLoading(false);
+    }).catch((e) => {
+      processTransactionError({ error: e, transactionId });
+      setStakeLoading(false);
     });
   }
   function formatSeconds(seconds) {

@@ -23,8 +23,8 @@ import {
   formatPercentageUi,
 } from '../../utils/uiNumber';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
-import { UserSeedInfo, Seed, FarmBoost } from '~src/services/farm';
-import { TokenMetadata } from '~src/services/ft-contract';
+import { UserSeedInfo, Seed, FarmBoost } from 'src/services/farm';
+import { TokenMetadata } from 'src/services/ft-contract';
 import { WalletContext } from '../../utils/wallets-integration';
 import StakeModal from './StakeModal';
 import UnStakeModal from './UnStakeModal';
@@ -35,6 +35,10 @@ import {
 } from '../../components/layout/transactionTipPopUp';
 import { checkTransaction } from '../../services/swap';
 import { isMobile } from '../../utils/device';
+import {
+  constTransactionPage,
+  useTranstionsExcuteDataStore,
+} from 'src/stores/transtionsExcuteData';
 const is_mobile = isMobile();
 export interface ITxParams {
   action: 'stake' | 'unstake';
@@ -46,6 +50,7 @@ const SeedsBox = () => {
   const {
     seeds,
     tokenPriceList,
+    allTokenMetadatas,
     user_seeds,
     user_balances,
     unclaimed_rewards,
@@ -59,6 +64,16 @@ const SeedsBox = () => {
   const [txParams, setTxParams] = useState<ITxParams>();
   const [modal_action_seed_id, set_modal_action_seed_id] = useState('');
   const [claim_seed_id, set_claim_seed_id] = useState('');
+  const processTransactionPending = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionPending
+  );
+  const processTransactionSuccess = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionSuccess
+  );
+  const processTransactionError = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionError
+  );
+
   const memeConfig = getMemeConfig();
   const history = useHistory();
   const getURLInfo = () => {
@@ -183,9 +198,54 @@ const SeedsBox = () => {
       window.open(`/v2farms/${lpSeed.pool.id}-r`);
     }
   }
+  function getUnClaimedRewards(rewards) {
+    if (Object.keys(rewards || {}).length) {
+      const rewardsValue = Object.keys(rewards).reduce((acc, tokenId) => {
+        const amount = rewards[tokenId];
+        const metadata: TokenMetadata = allTokenMetadatas[tokenId];
+        const price = tokenPriceList[tokenId]?.price || 0;
+        const num = toReadableNumber(metadata.decimals, amount);
+        const value = new Big(num).mul(price).toFixed();
+        return acc.plus(value);
+      }, Big(0));
+      return toInternationalCurrencySystem_usd(rewardsValue.toFixed());
+    } else {
+      return '-';
+    }
+  }
+
   function seedClaim(seed: Seed) {
     set_claim_seed_id(seed.seed_id);
-    claim(seed);
+    const transactionId = String(Date.now());
+    const unclaimedReward = getUnClaimedRewards(
+      unclaimed_rewards[seed.seed_id]
+    );
+    processTransactionPending({
+      transactionId,
+      page: constTransactionPage.meme,
+      data: {
+        headerText: 'Claim Rewards',
+        transactionType: 'claimFee',
+        tokens: [
+          {
+            token: seeds[seed.seed_id]?.token_meta_data,
+            amount: unclaimedReward,
+          },
+        ],
+      },
+    });
+    claim(seed)
+      .then(({ response }) => {
+        processTransactionSuccess({
+          transactionResponse: response,
+          transactionId,
+        });
+        set_claim_seed_id('');
+      })
+      .catch((e) => {
+        processTransactionError({ error: e, transactionId });
+        set_claim_seed_id('');
+      });
   }
   function comeSoonTip() {
     const result = `<div class="px-2 text-xs text-farmText">

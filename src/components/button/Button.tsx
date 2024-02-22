@@ -559,7 +559,7 @@ export function OprationButton(props: any) {
       <button
         onClick={onClick}
         disabled={disabled}
-        className={`flex items-center justify-center  w-full h-full ${
+        className={`OprationButton flex items-center justify-center  w-full h-full ${
           disabled ? 'cursor-not-allowed' : ''
         } ${btnClassName ? btnClassName : ''}`}
       >

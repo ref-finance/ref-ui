@@ -6,6 +6,7 @@ export const constTransactionPage = {
   pool: 'pool',
   farm: 'farm',
   xref: 'xref',
+  meme: 'meme',
 };
 
 export type IExcuteStatus = 'pending' | 'resolved' | 'rejected' | 'none';

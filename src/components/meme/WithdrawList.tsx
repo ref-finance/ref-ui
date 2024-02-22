@@ -9,12 +9,24 @@ import { toReadableNumber } from '../../utils/numbers';
 import { MemeContext } from './context';
 import { withdraw } from '../../services/meme';
 import { isMobile } from '../../utils/device';
+import { constTransactionPage, useTranstionsExcuteDataStore } from 'src/stores/transtionsExcuteData';
 
 const WithdrawList = () => {
   const [actionSeedId, setActionSeedId] = useState('');
   const { withdraw_list, seeds, memeConfig } = useContext(MemeContext);
+  const processTransactionPending = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionPending
+  );
+  const processTransactionSuccess = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionSuccess
+  );
+  const processTransactionError = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionError
+  );
+  
   if (!memeConfig) return null;
   const { delay_withdraw_sec } = memeConfig;
+
   function formatSeconds(seconds) {
     const days = Math.floor(seconds / (60 * 60 * 24));
     const hours = Math.floor((seconds % (60 * 60 * 24)) / (60 * 60));
@@ -33,10 +45,24 @@ const WithdrawList = () => {
   }
   function seedWithdraw(seed_id) {
     setActionSeedId(seed_id);
+    const transactionId = String(Date.now());
+    processTransactionPending({
+      transactionId,
+      page: constTransactionPage.meme,
+    });
     withdraw({
       seed_id,
       amount: withdraw_list[seed_id].amount,
+    }).then(({response})=>{
+      processTransactionSuccess({
+        transactionResponse: response,
+        transactionId,
+      });
+    }).catch(e=>{
+      processTransactionError({ error: e, transactionId });
     });
+
+
   }
   if (Object.keys(withdraw_list).length == 0) return null;
   const is_mobile = isMobile();
