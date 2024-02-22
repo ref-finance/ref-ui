@@ -2139,8 +2139,8 @@ function UserTotalUnClaimBlock(props: {
           data-place="top"
           data-tooltip-html={unclaimedRewardsData.tip}
         >
-          <span className="unclaim-rewards-worth text-xl text-white">
-            {unclaimedRewardsData.worth} wwwwwwwwww
+          <span className="text-xl text-white">
+            {unclaimedRewardsData.worth}
           </span>
           <CustomTooltip id={'unclaimedRewardId' + detailData.seed_id} />
         </div>
