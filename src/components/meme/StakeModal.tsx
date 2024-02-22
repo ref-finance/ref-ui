@@ -18,7 +18,10 @@ import {
 import { Seed, FarmBoost } from '../../services/farm';
 import { getProgressConfig } from './ProgressConfig';
 import { TipIcon } from './icons';
-import { constTransactionPage, useTranstionsExcuteDataStore } from 'src/stores/transtionsExcuteData';
+import {
+  constTransactionPage,
+  useTranstionsExcuteDataStore,
+} from 'src/stores/transtionsExcuteData';
 const progressConfig = getProgressConfig();
 function StakeModal(props: any) {
   const { seeds, user_balances, tokenPriceList, user_seeds, memeConfig } =
@@ -109,21 +112,22 @@ function StakeModal(props: any) {
           },
         ],
       },
-    })
+    });
     stake({
       seed,
       amount: Big(toNonDivisibleNumber(seed.seed_decimal, amount)).toFixed(0),
     })
-      .then(({response})=>{
-      processTransactionSuccess({
-        transactionResponse: response,
-        transactionId,
-      });
+      .then(({ response }) => {
+        processTransactionSuccess({
+          transactionResponse: response,
+          transactionId,
+        });
         setStakeLoading(false);
-    }).catch((e) => {
-      processTransactionError({ error: e, transactionId });
-      setStakeLoading(false);
-    });
+      })
+      .catch((e) => {
+        processTransactionError({ error: e, transactionId });
+        setStakeLoading(false);
+      });
   }
   function formatSeconds(seconds) {
     const days = Math.floor(seconds / (60 * 60 * 24));

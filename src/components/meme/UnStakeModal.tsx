@@ -17,7 +17,10 @@ import {
 } from '../../utils/uiNumber';
 
 import { Template } from './StakeModal';
-import { constTransactionPage, useTranstionsExcuteDataStore } from 'src/stores/transtionsExcuteData';
+import {
+  constTransactionPage,
+  useTranstionsExcuteDataStore,
+} from 'src/stores/transtionsExcuteData';
 
 function UnStakeModal(props: any) {
   const { seeds, tokenPriceList, user_seeds, memeConfig, withdraw_list } =
@@ -94,7 +97,7 @@ function UnStakeModal(props: any) {
           },
         ],
       },
-    })
+    });
     unStake({
       seed,
       amount: Big(toNonDivisibleNumber(seed.seed_decimal, amount)).toFixed(0),
@@ -103,16 +106,18 @@ function UnStakeModal(props: any) {
             withdrawAmount: withdraw_list[seed_id].amount,
           }
         : {}),
-    }).then(({response})=>{
-      processTransactionSuccess({
-        transactionResponse: response,
-        transactionId,
+    })
+      .then(({ response }) => {
+        processTransactionSuccess({
+          transactionResponse: response,
+          transactionId,
+        });
+        setUnStakeLoading(false);
+      })
+      .catch((e) => {
+        processTransactionError({ error: e, transactionId });
+        setUnStakeLoading(false);
       });
-      setUnStakeLoading(false);
-    }).catch(e=> {
-      processTransactionError({ error: e, transactionId });
-      setUnStakeLoading(false);
-    });
   }
   function formatSeconds(seconds) {
     const days = Math.floor(seconds / (60 * 60 * 24));

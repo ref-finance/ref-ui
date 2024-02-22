@@ -9,7 +9,10 @@ import { toReadableNumber } from '../../utils/numbers';
 import { MemeContext } from './context';
 import { withdraw } from '../../services/meme';
 import { isMobile } from '../../utils/device';
-import { constTransactionPage, useTranstionsExcuteDataStore } from 'src/stores/transtionsExcuteData';
+import {
+  constTransactionPage,
+  useTranstionsExcuteDataStore,
+} from 'src/stores/transtionsExcuteData';
 
 const WithdrawList = () => {
   const [actionSeedId, setActionSeedId] = useState('');
@@ -23,7 +26,7 @@ const WithdrawList = () => {
   const processTransactionError = useTranstionsExcuteDataStore(
     (state) => state.processTransactionError
   );
-  
+
   if (!memeConfig) return null;
   const { delay_withdraw_sec } = memeConfig;
 
@@ -46,23 +49,39 @@ const WithdrawList = () => {
   function seedWithdraw(seed_id) {
     setActionSeedId(seed_id);
     const transactionId = String(Date.now());
+    const seed = seeds[seed_id];
+    const { seed_decimal, token_meta_data } = seed;
     processTransactionPending({
       transactionId,
       page: constTransactionPage.meme,
+      data: {
+        headerText: 'Withdraw',
+        tokens: [
+          {
+            token: token_meta_data,
+            amount: toInternationalCurrencySystem_number(
+              toReadableNumber(seed_decimal, withdraw_list[seed_id].amount)
+            ),
+          },
+        ],
+        transactionType: 'withdraw',
+      },
     });
     withdraw({
       seed_id,
       amount: withdraw_list[seed_id].amount,
-    }).then(({response})=>{
-      processTransactionSuccess({
-        transactionResponse: response,
-        transactionId,
+    })
+      .then(({ response }) => {
+        processTransactionSuccess({
+          transactionResponse: response,
+          transactionId,
+        });
+        setActionSeedId('');
+      })
+      .catch((e) => {
+        processTransactionError({ error: e, transactionId });
+        setActionSeedId('');
       });
-    }).catch(e=>{
-      processTransactionError({ error: e, transactionId });
-    });
-
-
   }
   if (Object.keys(withdraw_list).length == 0) return null;
   const is_mobile = isMobile();
