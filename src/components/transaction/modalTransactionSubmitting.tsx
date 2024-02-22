@@ -152,7 +152,8 @@ export const ModalTransactionContent = ({
       isComplete,
       transactionId,
       transactionResponse?.transactionId,
-      actionData
+      actionData,
+      tokens
     );
 
     if (status) {
@@ -202,11 +203,11 @@ export const ModalTransactionContent = ({
   let loadingNode = <BlueCircleLoading />;
 
   if (transactionType === 'claimFee') {
-    node = <ClaimFeeLayout tokensData={tokensData} />;
+    node = <ClaimFeeLayout tokensData={tokensData?.length ? tokensData : tokens} />;
   } else if (transactionType === 'withdraw') {
-    node = <WithdrawLayout tokens={tokens} />;
+    node = <WithdrawLayout tokensData={tokensData?.length ? tokensData : tokens} />;
   } else {
-    node = <CommonLayout tokensData={tokensData} />;
+    node = <CommonLayout tokensData={tokensData?.length ? tokensData : tokens} />;
   }
 
   if (isComplete) {
@@ -291,8 +292,8 @@ export const ModalTransactionContent = ({
   );
 };
 
-const WithdrawLayout = ({ tokens }: any) => {
-  const node = tokens?.map((d, i) => {
+const WithdrawLayout = ({ tokensData }: any) => {
+  const node = tokensData?.map((d, i) => {
     const { token, amount } = d || {};
     return (
       <div className="flex gap-1" key={i}>
@@ -305,7 +306,7 @@ const WithdrawLayout = ({ tokens }: any) => {
   return (
     <div
       className={`grid ${
-        tokens?.length === 1 ? 'grid-cols-1' : 'grid-cols-2'
+        tokensData?.length === 1 ? 'grid-cols-1' : 'grid-cols-2'
       } gap-2`}
     >
       {node}
