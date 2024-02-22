@@ -930,6 +930,7 @@ export function MobileNavBar(props: any) {
 }
 
 function MobileBridgeModal(props: Modal.Props) {
+  const { accountId } = useWalletSelector();
   return (
     <Modal
       {...props}
@@ -971,35 +972,56 @@ function MobileBridgeModal(props: Modal.Props) {
           ></FormattedMessage>
         </div>
         {bridgeData.map((item) => {
-          return (
-            <div
-              key={item.id}
-              className="flex flex-col gap-2 pl-1 text-primaryText "
-            >
-              <div className="frcs gap-2 pl-3">
-                <item.icon></item.icon>
-
-                {item.name}
+          if (!item.children) {
+            return (
+              <div
+                key={item.id}
+                className="flex flex-col gap-2 pl-1 text-white cursor-pointer frcs hover:bg-opacity-20 hover:rounded-xl"
+                onClick={() => {
+                  let targetUrl = item.link;
+                  if (item.needAccountId && accountId) {
+                    targetUrl = `${targetUrl}&address=${accountId}`;
+                  }
+                  openUrl(targetUrl);
+                }}
+              >
+                <div className="frcs gap-2 pl-3">
+                  <item.icon></item.icon>
+                  {item.name}
+                </div>
               </div>
+            );
+          } else {
+            return (
+              <div
+                key={item.id}
+                className="flex flex-col gap-2 pl-1 text-primaryText "
+              >
+                <div className="frcs gap-2 pl-3">
+                  <item.icon></item.icon>
 
-              {item.children.map((sub) => {
-                return (
-                  <div
-                    key={sub.id}
-                    className="rounded-xl  py-1.5 pl-1 text-white bg-primaryText bg-opacity-20 cursor-pointer frcs"
-                    onClick={() => {
-                      openUrl(sub.link);
-                    }}
-                  >
-                    <div className="frcs pl-3 gap-2">
-                      <sub.icon></sub.icon>
-                      {sub.name}
+                  {item.name}
+                </div>
+
+                {item.children.map((sub) => {
+                  return (
+                    <div
+                      key={sub.id}
+                      className="rounded-xl  py-1.5 pl-1 text-white bg-primaryText bg-opacity-20 cursor-pointer frcs"
+                      onClick={() => {
+                        openUrl(sub.link);
+                      }}
+                    >
+                      <div className="frcs pl-3 gap-2">
+                        <sub.icon></sub.icon>
+                        {sub.name}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          );
+                  );
+                })}
+              </div>
+            );
+          }
         })}
       </div>
     </Modal>
