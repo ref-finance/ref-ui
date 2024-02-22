@@ -601,7 +601,7 @@ function Template({
       const metadata: TokenMetadata = allTokenMetadatas[tokenId];
       const num = toReadableNumber(metadata.decimals, amount);
       result += `<div class='flex items-center justify-between text-xs text-farmText mt-1 gap-5'>
-          <img src='${metadata?.icon}' class='w-5 h-5 rounded-full' />
+          <img src="${metadata?.icon}" class='w-5 h-5 rounded-full' />
           <span class='text-xs'>${toInternationalCurrencySystem_number(
             num
           )}</span>
