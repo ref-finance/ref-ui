@@ -1964,21 +1964,28 @@ function UserTotalUnClaimBlock(props: {
     if (claimLoading) return;
     setClaimLoading(true);
     const transactionId = String(Date.now());
-    let tokensNode = unclaimedRewardsData.list.map(
-      ({ token, amount, preAmount }, i) => ({
-        token: token,
-        amount: preAmount || amount,
-      })
+    const tokensNode = unclaimedRewardsData.list.map(
+      ({ token, amount, preAmount }, i) => {
+        return {
+          token: {
+            id: token.id,
+            icon: token.icon,
+          },
+          // amount: preAmount || amount,
+        };
+      }
     );
-    tokensNode = genTokensSymbolArr(tokensNode);
+    // tokensNode = genTokensSymbolArr(tokensNode);
 
     processTransactionPending({
       transactionId,
       page: constTransactionPage.farm,
       data: {
         transactionType: 'claimFee',
-        tokens: tokensNode,
         headerText: 'Claim Farm Rewards',
+        className: 'tokens-compact',
+        tokens: tokensNode,
+        suffix: `(${unclaimedRewardsData?.worth})`,
       },
     });
 
@@ -1987,6 +1994,11 @@ function UserTotalUnClaimBlock(props: {
         processTransactionSuccess({
           transactionId,
           transactionResponse: response,
+          data: {
+            className: 'tokens-compact',
+            tokens: tokensNode,
+            suffix: `(${unclaimedRewardsData?.worth})`,
+          },
         });
         setClaimLoading(false);
       })
@@ -1994,6 +2006,11 @@ function UserTotalUnClaimBlock(props: {
         processTransactionError({
           error: e,
           transactionId,
+          data: {
+            className: 'tokens-compact',
+            tokens: tokensNode,
+            suffix: `(${unclaimedRewardsData?.worth})`,
+          },
         });
         setClaimLoading(false);
       });
@@ -2122,8 +2139,8 @@ function UserTotalUnClaimBlock(props: {
           data-place="top"
           data-tooltip-html={unclaimedRewardsData.tip}
         >
-          <span className="text-xl text-white">
-            {unclaimedRewardsData.worth}
+          <span className="unclaim-rewards-worth text-xl text-white">
+            {unclaimedRewardsData.worth} wwwwwwwwww
           </span>
           <CustomTooltip id={'unclaimedRewardId' + detailData.seed_id} />
         </div>

@@ -1633,8 +1633,11 @@ function UserTotalUnClaimBlock(props: {
     setClaimLoading(true);
     const tokensNode = unclaimedRewardsData.list.map(
       ({ token, amount, preAmount }, i) => ({
-        token: token,
-        amount: preAmount || amount,
+        token: {
+          id: token.id,
+          icon: token.icon,
+        },
+        // amount: preAmount || amount,
       })
     );
 
@@ -1644,7 +1647,9 @@ function UserTotalUnClaimBlock(props: {
       data: {
         headerText: 'Claim Farm Rewards',
         transactionType: 'claimFee',
+        className: 'tokens-compact',
         tokens: tokensNode,
+        suffix: `(${unclaimedRewardsData?.worth})`,
       },
     });
 
@@ -1653,6 +1658,10 @@ function UserTotalUnClaimBlock(props: {
         processTransactionSuccess({
           transactionResponse: response,
           transactionId,
+          data: {
+            className: 'tokens-compact',
+            suffix: `(${unclaimedRewardsData?.worth})`,
+          },
         });
         setClaimLoading(false);
       })
@@ -1660,6 +1669,10 @@ function UserTotalUnClaimBlock(props: {
         processTransactionError({
           error: e,
           transactionId,
+          data: {
+            className: 'tokens-compact',
+            suffix: `(${unclaimedRewardsData?.worth})`,
+          },
         });
         setClaimLoading(false);
       });

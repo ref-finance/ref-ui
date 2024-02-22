@@ -246,9 +246,11 @@ const SeedsBox = () => {
         transactionType: 'claimFee',
         className: 'tokens-compact',
         tokens: tokens.map((d) => {
-          delete d.symbol;
           return {
-            token: d,
+            token: {
+              id: d.id,
+              icon: d.icon,
+            },
           };
         }),
         suffix: `(${unclaimedAmount})`,
