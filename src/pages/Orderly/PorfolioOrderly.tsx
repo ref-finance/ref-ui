@@ -299,6 +299,10 @@ function PortfolioOrderly() {
     setTotalEstFinal(numberWithCommas(totalEstimate.toFixed(2)));
   };
 
+  useEffect(()=>{
+    getFutureOrders()
+  },[])
+
   /* useEffect(() => {
     getFutureOrders();
   }, [myPendingOrdersRefreshing]); */

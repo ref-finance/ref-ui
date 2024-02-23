@@ -1618,10 +1618,6 @@ const FutureMobileRow: React.FC<{
 
   useEffect(() => {
     getPendingOrders();
-  }, []);
-
-  useEffect(() => {
-    getPendingOrders();
   }, [futureOrders]);
 
   useEffect(() => {
