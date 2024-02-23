@@ -154,6 +154,7 @@ import { PageContainer } from '../../../components/layout/PageContainer';
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
 const REF_FI_FARM_ONLY = 'REF_FI_FARM_ONLY';
+export const BLACK_TOKEN_IDS_IN_POOL = ['usn', 'v2-nearx.stader-labs.near'];
 export function getPoolFeeAprTitle(
   dayVolume: string,
   pool: Pool,
@@ -1795,6 +1796,11 @@ function LiquidityPage() {
     if (farmOnly) {
       tempPools = _.filter(tempPools, (pool) => !!farmCounts[pool.id]);
     }
+    tempPools = _.filter(tempPools, (pool) =>
+      pool?.tokenIds?.every(
+        (tokenId) => !BLACK_TOKEN_IDS_IN_POOL.includes(tokenId)
+      )
+    );
     setDisplayPools(tempPools);
   }, [pools, hideLowTVL, farmOnly, farmCounts]);
   const poolTokenMetas = usePoolTokens(pools);
@@ -2631,11 +2637,12 @@ function StablePoolList({
 
   const [clicked, setClicked] = useState<boolean>(false);
 
-  const allStablePoolData = useAllStablePoolData();
-
+  let allStablePoolData = useAllStablePoolData();
   if (!allStablePoolData || allStablePoolData.some((pd) => !pd))
     return <Loading />;
-
+  allStablePoolData = _.filter(allStablePoolData, (pool) =>
+    pool?.tokens?.every((token) => !BLACK_TOKEN_IDS_IN_POOL.includes(token.id))
+  );
   const filterFunc = (p: PoolData) => {
     const b1 =
       option === 'ALL'
