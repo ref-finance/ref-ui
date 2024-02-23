@@ -395,17 +395,16 @@ function AccountEntry({
                   <span>{getAccountName(wallet.getAccountId())}</span>
 
                   <span className="flex items-center ">
-                    <span className="mr-1">
-                      {!currentWalletIcon ? (
-                        <div className="w-3 h-3"></div>
-                      ) : (
+                    {
+                      currentWalletIcon &&
+                      <span className="mr-1">
                         <img
                           src={currentWalletIcon}
-                          className="w-3 h-3"
+                          className="w-3 h-3 mr-1"
                           alt=""
                         />
-                      )}
-                    </span>
+                      </span>
+                    }
                     <span className="text-xs text-primaryText">
                       {currentWalletName || '-'}
                     </span>
