@@ -98,15 +98,17 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
   const KEYPOM_OPTIONS = {
     beginTrial: {
       landing: {
-        title: "Welcome!",
+        title: 'Welcome!',
       },
     },
     wallets: [
       {
-        name: "MyNEARWallet",
-        description: "Secure your account with a Seed Phrase",
-        redirectUrl: `https://${getConfig().networkId}.mynearwallet.com/linkdrop/ACCOUNT_ID/SECRET_KEY`,
-        iconUrl: "INSERT_ICON_URL_HERE",
+        name: 'MyNEARWallet',
+        description: 'Secure your account with a Seed Phrase',
+        redirectUrl: `https://${
+          getConfig().networkId
+        }.mynearwallet.com/linkdrop/ACCOUNT_ID/SECRET_KEY`,
+        iconUrl: 'INSERT_ICON_URL_HERE',
       },
     ],
   };
@@ -156,7 +158,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
           // iconUrl: walletIcons['wallet-connect'],
         }),
         setupKeypom({
-          networkId:  getConfig().networkId as NetworkId,
+          networkId: getConfig().networkId as NetworkId,
           signInContractId: CONTRACT_ID,
           trialAccountSpecs: {
             url: '/trial-accounts/ACCOUNT_ID#SECRET_KEY',
@@ -165,7 +167,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
           instantSignInSpecs: {
             url: '/#instant-url/ACCOUNT_ID#SECRET_KEY/MODULE_ID',
           },
-        })
+        }),
       ],
     });
     const _modal = setupModal(_selector, {
