@@ -538,7 +538,6 @@ const PendingOrderRow: React.FC<{
               });
 
               if (res.success === true) {
-                handlePendingOrderRefreshing();
                 setLoading(false);
                 return orderEditPopUpSuccess({
                   side: side == 'BUY' ? 'Buy' : 'Sell',
@@ -556,6 +555,7 @@ const PendingOrderRow: React.FC<{
             } finally {
               // Orderly API does not instantly update with the latest result
               setTimeout(() => {
+                handlePendingOrderRefreshing();
                 onUpdateData();
               }, 500);
             }
@@ -1272,7 +1272,6 @@ const PendingOrderMobileRow: React.FC<{
               });
 
               if (res.success === true) {
-                // handlePendingOrderRefreshing();
                 setLoading(false);
 
                 return orderEditPopUpSuccess({
@@ -1291,6 +1290,7 @@ const PendingOrderMobileRow: React.FC<{
             } finally {
               // Orderly API does not instantly update with the latest result
               setTimeout(() => {
+                handlePendingOrderRefreshing();
                 onUpdateData();
               }, 500);
             }

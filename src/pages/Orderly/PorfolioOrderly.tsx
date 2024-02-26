@@ -301,11 +301,7 @@ function PortfolioOrderly() {
 
   useEffect(() => {
     getFutureOrders();
-  }, []);
-
-  /* useEffect(() => {
-    getFutureOrders();
-  }, [myPendingOrdersRefreshing]); */
+  }, [myPendingOrdersRefreshing]);
 
   // useEffect(() => {
   //   getFutureOrders();

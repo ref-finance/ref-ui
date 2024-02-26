@@ -389,7 +389,7 @@ export interface PortfolioTable {
     pagination?: boolean;
     setFilteredPaginateData?: (params: any) => void;
     setFilteredData?: (params: any) => void;
-    filteredData?:any;
+    filteredData?: any;
     filter?: boolean;
     getData?: (params: any) => any;
     mobileHeader?: JSX.Element;

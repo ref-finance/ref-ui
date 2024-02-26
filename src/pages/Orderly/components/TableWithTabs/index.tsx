@@ -162,6 +162,7 @@ function TableWithTabs({
   const {
     storageEnough,
     setValidAccountSig,
+    myPendingOrdersRefreshing,
     handlePendingOrderRefreshing,
     validAccountSig,
     userExist,
@@ -242,7 +243,13 @@ function TableWithTabs({
   const [page, setPage] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const { getData, id, setFilteredData,filteredData,setFilteredPaginateData } = table.tabs[tab];
+  const {
+    getData,
+    id,
+    setFilteredData,
+    filteredData,
+    setFilteredPaginateData,
+  } = table.tabs[tab];
 
   const validator =
     !accountId ||
@@ -253,7 +260,7 @@ function TableWithTabs({
     maintenance;
 
   const handleOrderTypeChange = (t) => {
-    if(!setFilteredPaginateData) return
+    if (!setFilteredPaginateData) return;
     let orderRows = [];
     if (t === 0) {
       setFilteredPaginateData(filteredData?.data?.meta);
@@ -293,7 +300,7 @@ function TableWithTabs({
 
   useEffect(() => {
     getData && callGetData(orderPageNum);
-  }, [orderPageNum, validAccountSig]);
+  }, [orderPageNum, validAccountSig, myPendingOrdersRefreshing]);
 
   useEffect(() => {
     if (orderType === 0 && (id === 'open_orders' || id === 'history')) {
@@ -305,7 +312,6 @@ function TableWithTabs({
     }
     setPage(1);
     setOrderPageNum && setOrderPageNum(1);
-
   }, [orderType]);
 
   useEffect(() => {
@@ -333,7 +339,7 @@ function TableWithTabs({
     if (id === 'futures') {
       setData(newPositions?.rows);
     }
-  }, [JSON.stringify(newPositions)]);
+  }, [newPositions?.length]);
 
   // useEffect(() => {
   //   if (
@@ -361,12 +367,12 @@ function TableWithTabs({
         behavior: 'auto',
       });
     }
-    handleOrderTypeChange(orderType)
+    handleOrderTypeChange(orderType);
   }, [data]);
 
   const callGetData = async (forcePage?: number) => {
     if (!(validator && !maintenance && !validAccountSig)) {
-      setLoading(true)
+      setLoading(true);
       const res = await getData({ page: forcePage || page });
       forcePage && setPage(forcePage);
 
