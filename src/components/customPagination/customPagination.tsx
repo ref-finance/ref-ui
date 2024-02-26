@@ -15,7 +15,7 @@ interface Props {
 }
 
 const CustomPagination = ({
-  className='',
+  className = '',
   firstClick,
   prevClick,
   prevDisabled,

@@ -4,6 +4,5 @@
   "semi": true,
   "singleQuote": true,
   "printWidth": 80,
-  "linebreak-style": 0,
   "endOfLine": "auto"
 }
