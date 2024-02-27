@@ -236,7 +236,7 @@ export const usePortableOrderlyTable = ({
       pageSize={filteredPaginateData?.records_per_page}
       page={filteredPaginateData?.current_page}
     />
-  )
+  );
 
   const ordersTableFilterNode = (
     <div className={'flex gap-2 items-center px-5 pb-5'}>
@@ -301,7 +301,7 @@ export const usePortableOrderlyTable = ({
               marketList={marketList}
               openTrades={openTrades}
             >
-              <div className="" style={{ height: '9px', width: '9px', }}>
+              <div className="" style={{ height: '9px', width: '9px' }}>
                 <CircularProgressbar
                   styles={buildStyles({
                     pathColor: order?.side === 'BUY' ? '#62C340' : '#FF6A8E',
@@ -454,7 +454,15 @@ export const usePortableOrderlyTable = ({
               marketList={marketList}
               openTrades={openTrades}
             >
-              <div style={{ height: '8px', width: '8px', position: 'absolute', right: '2px', top: '2px', }}>
+              <div
+                style={{
+                  height: '8px',
+                  width: '8px',
+                  position: 'absolute',
+                  right: '2px',
+                  top: '2px',
+                }}
+              >
                 <CircularProgressbar
                   styles={buildStyles({
                     pathColor: order?.side === 'BUY' ? '#62C340' : '#FF6A8E',
@@ -650,7 +658,10 @@ export const usePortableOrderlyTable = ({
               </thead>
               <tbody className=" block overflow-auto flex-col px-3">
                 {rows.map(({ tokenMeta, near, available }: any) => (
-                  <tr className="table-fixed grid grid-cols-6 gap-4 lg:border-t border-white border-opacity-10 text-white" key={tokenMeta?.id}>
+                  <tr
+                    className="table-fixed grid grid-cols-6 gap-4 lg:border-t border-white border-opacity-10 text-white"
+                    key={tokenMeta?.id}
+                  >
                     <td className="col-span-2 flex py-2 relative">
                       <div className="flex items-center">
                         <img
