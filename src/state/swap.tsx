@@ -770,8 +770,6 @@ export const useSwapV3 = ({
 
     if (foundPool && foundPool.state === 'Paused') return null;
 
-    // return null;
-
     if (getConfig().DCL_POOL_BLACK_LIST.includes(pool_id)) return null;
 
     return quote({
@@ -809,7 +807,7 @@ export const useSwapV3 = ({
 
     if (!storedPools) {
       setQuoteDone(true);
-      return null;
+      return;
     }
 
     const allDCLPools = JSON.parse(
@@ -1020,7 +1018,7 @@ export const useLimitOrder = ({
       .then((res) => {
         if (res.state === 'Paused') {
           setMostPoolDetail(null);
-          return null;
+          return;
         }
         setMostPoolDetail(res);
       })
