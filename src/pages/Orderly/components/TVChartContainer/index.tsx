@@ -8,8 +8,9 @@ import {
   ResolutionString,
   Timezone,
 } from '../../../../charting_library';
+import Big from 'big.js';
 
-import datafeed from '../../datafeed';
+import getDatafeed from '../../datafeed';
 import {
   REF_ORDERLY_SYMBOL_KEY,
   useOrderlyContext,
@@ -45,93 +46,25 @@ function getLanguageFromURL(): LanguageCode | null {
     : (decodeURIComponent(results[1].replace(/\+/g, ' ')) as LanguageCode);
 }
 
-export class TVChartContainer extends React.PureComponent<
-  Partial<ChartContainerProps>,
-  ChartContainerState
-> {
-  public static defaultProps: Omit<ChartContainerProps, 'container'> = {
-    symbol: 'SPOT_NEAR_USDC.e',
-    theme: 'Dark',
-    interval: 'D' as ResolutionString,
-    datafeedUrl: 'https://demo_feed.tradingview.com',
-    libraryPath: '/charting_library/',
-    chartsStorageUrl: 'https://saveload.tradingview.com',
-    chartsStorageApiVersion: '1.1',
-    clientId: 'tradingview.com',
-    userId: 'public_user_id',
-    fullscreen: false,
-    autosize: true,
-    studiesOverrides: {},
-  };
-
-  private tvWidget: IChartingLibraryWidget | null = null;
-  private ref: React.RefObject<HTMLDivElement> = React.createRef();
-
-  public componentDidMount(): void {
-    if (!this.ref.current) {
-    }
-    const widgetOptions: ChartingLibraryWidgetOptions = {
-      symbol: this.props.symbol as string,
-      // BEWARE: no trailing slash is expected in feed URL
-      // tslint:disable-next-line:no-any
-      theme: this.props.theme,
-      datafeed: datafeed,
-      interval: this.props.interval as ChartingLibraryWidgetOptions['interval'],
-      container: this.ref.current,
-      library_path: this.props.libraryPath as string,
-      locale: getLanguageFromURL() || 'en',
-      disabled_features: ['use_localstorage_for_settings'],
-      enabled_features: isMobile()
-        ? ['hide_left_toolbar_by_default', 'study_templates']
-        : ['study_templates'],
-      charts_storage_url: this.props.chartsStorageUrl,
-      charts_storage_api_version: this.props.chartsStorageApiVersion,
-      client_id: this.props.clientId,
-      user_id: ' this.props.userId',
-      fullscreen: this.props.fullscreen,
-      autosize: this.props.autosize,
-      studies_overrides: this.props.studiesOverrides,
-    };
-
-    const tvWidget = new widget(widgetOptions);
-
-    this.tvWidget = tvWidget;
-
-    // on ready callbacks
-    tvWidget.onChartReady(() => {
-      // tvWidget.activeChart().executeActionById('drawingToolbarAction');
-    });
-  }
-
-  public componentWillUnmount(): void {
-    if (this.tvWidget !== null) {
-      this.tvWidget.remove();
-      this.tvWidget = null;
-    }
-  }
-
-  public render(): JSX.Element {
-    return <div ref={this.ref} className={'TVChartContainer'} />;
-  }
-}
-
 export function ChartContainer({ maintenance }: { maintenance: boolean }) {
-  const { symbol } = useOrderlyContext();
-
+  const { symbol, availableSymbols } = useOrderlyContext();
+  const curSymbol = availableSymbols?.find((s) => s.symbol === symbol);
   const [tvWidget, setTvWidget] = React.useState<IChartingLibraryWidget>();
-
   const ref = React.useRef<HTMLDivElement>(null);
-
   const storedInterval = localStorage.getItem(
     'tradingview.chart.lastUsedTimeBasedResolution'
   );
 
   const widgetOptions: ChartingLibraryWidgetOptions = {
-    symbol: symbol,
+    symbol,
     // BEWARE: no trailing slash is expected in feed URL
     // tslint:disable-next-line:no-any
     theme: 'Dark',
-    datafeed: datafeed,
+    datafeed: getDatafeed(
+      Big(1)
+        .div(curSymbol?.quote_tick || 0.01)
+        .toNumber()
+    ),
     interval: (storedInterval || 'D') as ResolutionString,
     container: 'TVChartContainer',
     library_path: '/charting_library/',
@@ -163,8 +96,7 @@ export function ChartContainer({ maintenance }: { maintenance: boolean }) {
   const [reloadTrigger, setReloadTrigger] = React.useState<boolean>(false);
 
   React.useEffect(() => {
-    if (maintenance) return;
-
+    if (maintenance && !curSymbol) return;
     const tvWidget = new widget(widgetOptions);
 
     const volumeParam = {
@@ -198,7 +130,7 @@ export function ChartContainer({ maintenance }: { maintenance: boolean }) {
     });
 
     setTvWidget(tvWidget);
-  }, [maintenance, reloadTrigger]);
+  }, [maintenance, reloadTrigger, curSymbol]);
 
   const [newLocale, setNewLocale] = React.useState(null);
 
@@ -226,19 +158,17 @@ export function ChartContainer({ maintenance }: { maintenance: boolean }) {
   }, [newLocale]);
 
   React.useEffect(() => {
-    if (!tvWidget) return;
-
-    tvWidget.onChartReady(() => {
-      const storedInterval = localStorage.getItem(
-        'tradingview.chart.lastUsedTimeBasedResolution'
-      );
-
-      tvWidget.setSymbol(
-        symbol,
-        (storedInterval || 'D') as ResolutionString,
-        () => {}
-      );
-    });
+    // if (!tvWidget) return;
+    // tvWidget.onChartReady(() => {
+    //   const storedInterval = localStorage.getItem(
+    //     'tradingview.chart.lastUsedTimeBasedResolution'·
+    //   );
+    //   tvWidget.setSymbol(
+    //     symbol,
+    //     (storedInterval || 'D') as ResolutionString,
+    //     () => {}
+    //   );
+    // });
   }, [symbol]);
 
   return (

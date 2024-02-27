@@ -11,3 +11,5 @@ export const getOrderlyWss = (accountValid: boolean) =>
       ? window.selectorAccountId
       : 'OqdphuyCtYWxwzhxyLLjOWNdFP7sQt8RPWzmb5xY'
   }`;
+
+export const constOrderlyPageSize = 10;
