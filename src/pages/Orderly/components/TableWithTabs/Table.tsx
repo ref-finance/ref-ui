@@ -279,6 +279,7 @@ function Table({
   tableRowEmpty,
   tableTopComponent,
   pagination = true,
+  mobileHeader,
   mobileRender,
   mobileRenderCustom,
   orderType,
@@ -302,6 +303,7 @@ function Table({
   tableTopComponent: JSX.Element;
   pagination: boolean;
   orderType?: number;
+  mobileHeader: any;
   mobileRender: (row: any, secondData: any) => any;
   mobileRenderCustom?: boolean;
   handleOpenClosing?: (
@@ -406,13 +408,13 @@ function Table({
     return a;
   };
 
-  useEffect(() => {
-    if (orderType > 0) {
-      setCustomTotal(data.filter(filterFunc).length);
-    } else {
-      setCustomTotal(null);
-    }
-  }, [data]);
+  // useEffect(() => {
+  //   if (orderType > 0) {
+  //     setCustomTotal(data.filter(filterFunc).length);
+  //   } else {
+  //     setCustomTotal(null);
+  //   }
+  // }, [data]);
 
   const intl = useIntl();
 
@@ -423,6 +425,7 @@ function Table({
 
   return (
     <>
+      {/*pc view*/}
       <div className="w-full hidden md:block lg:block">
         {tableTopComponent}
         <table className="table-fixed w-full">
@@ -467,7 +470,7 @@ function Table({
                   <OrderlyLoading />
                 </td>
               </tr>
-            ) : data.filter(filterFunc).filter(pagingFunc).length === 0 ? (
+            ) : data.filter(filterFunc).length === 0 ? (
               <tr
                 className={`w-full mt-20 mb-4 px-5 table-fixed grid grid-cols-${gridCol} gap-4`}
               >
@@ -505,7 +508,6 @@ function Table({
             ) : (
               data
                 .filter(filterFunc)
-                .filter(pagingFunc)
                 .sort(sortingFunc)
                 .map((order, i) => {
                   return (
@@ -525,14 +527,16 @@ function Table({
           </tbody>
         </table>
       </div>
+      {/*mobile view*/}
       <div className="w-full md:hidden lg:hidden">
+        {!loading && <div className={'flex justify-end mb-2'}>{mobileHeader}</div>}
         {accountId && validContract() && loading ? (
           <div className="w-full relative mt-10 mb-4 px-5 gap-4">
             <div className="text-center">
               <OrderlyLoading />
             </div>
           </div>
-        ) : data.filter(filterFunc).filter(pagingFunc).length === 0 ? (
+        ) : data.filter(filterFunc).length === 0 ? (
           <div className="w-full mb-4 px-5 gap-4">
             <div className="text-center mt-20 flex flex-col justify-center items-center">
               <svg
@@ -568,7 +572,6 @@ function Table({
             {!mobileRenderCustom &&
               data
                 .filter(filterFunc)
-                .filter(pagingFunc)
                 .sort(sortingFunc)
                 .map((order) => mobileRender && mobileRender(order, null))}
             {mobileRenderCustom &&

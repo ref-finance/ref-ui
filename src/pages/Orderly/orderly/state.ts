@@ -46,6 +46,7 @@ import {
 import { useBatchTokenMetaFromSymbols } from '../components/ChartHeader/state';
 import { parseSymbol } from '../components/RecentTrade';
 import { useIntl } from 'react-intl';
+import { constOrderlyPageSize } from 'src/pages/Orderly/orderly/constant';
 
 export function useMarketTrades({
   symbol,
@@ -114,7 +115,7 @@ export function useAllOrders({
 }) {
   const [liveOrders, setLiveOrders] = useState<MyOrder[]>();
   const { accountId } = useWalletSelector();
-  const setFunc = useCallback(
+  const getAllOrdersCB = useCallback(
     _.throttle(async (orderPageNum) => {
       if (accountId === null || !validAccountSig) return;
       try {
@@ -122,17 +123,17 @@ export function useAllOrders({
           accountId,
           OrderProps: {
             page: orderPageNum,
-            size: 500,
+            size: constOrderlyPageSize,
           },
         });
         setLiveOrders(allOrders);
-        setOrderTotalPage(Math.ceil(total / 500));
+        setOrderTotalPage(Math.ceil(total / constOrderlyPageSize));
       } catch (error) {}
     }, 3000),
     [accountId, validAccountSig]
   );
   useEffect(() => {
-    setFunc(orderPageNum);
+    getAllOrdersCB(orderPageNum);
   }, [refreshingTag, accountId, validAccountSig, orderPageNum]);
 
   return liveOrders?.filter((o) => o.symbol.indexOf(type || 'SPOT') > -1);

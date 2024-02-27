@@ -1854,6 +1854,7 @@ table {
   -ms-user-select: none;
   user-select: none;
 }
+
 svg *:focus {
   outline: none;
   border: none;
