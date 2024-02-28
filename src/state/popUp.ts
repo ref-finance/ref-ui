@@ -134,7 +134,7 @@ export const useGlobalPopUp = (globalState: any) => {
 
   useEffect(() => {
     let txError = walletsTXError;
-    if (errorCode) {
+    if (errorCode && !txHashes) {
       txError =
         (errorMessage && decodeURI(errorMessage)) || errorCode || errorType;
     }
