@@ -927,7 +927,7 @@ function OrderLine({
         </td>
         <td>
           <div
-            className={`flex  relative  justify-self-end  ${
+            className={`flex  relative  justify-self-end flex-wrap  ${
               openEditQuantity ? 'items-start' : 'items-center'
             }`}
           >
@@ -1051,7 +1051,7 @@ function OrderLine({
 
             <div
               className={`px-2 py-1 pt-1.5   ${
-                !openEditPrice ? 'text-left' : 'hidden'
+                !openEditPrice ? 'text-left break-all' : 'hidden'
               }`}
               onClick={() => {
                 setOpenEditPrice(true);
@@ -1278,7 +1278,7 @@ function OrderLine({
 
             <div>
               <span
-                className={'pr-1 font-nunito'}
+                className={'pr-1 font-nunito break-all'}
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -1661,7 +1661,7 @@ function HistoryOrderLine({
           </td>
 
           <td>
-            <FlexRow className="col-span-1  ">
+            <FlexRow className="col-span-1 flex-wrap">
               <span className="font-nunito">
                 {numberWithCommas(order.executed.toString())}
               </span>
@@ -1675,7 +1675,7 @@ function HistoryOrderLine({
           </td>
 
           <td
-            className={`col-span-1 font-nunito text-white  justify-self-end relative `}
+            className={`col-span-1 font-nunito text-white justify-self-end relative break-all`}
           >
             <span>
               {order.price || order.average_executed_price
@@ -1685,7 +1685,7 @@ function HistoryOrderLine({
           </td>
 
           <td
-            className={`col-span-1 font-nunito relative justify-self-end  text-white`}
+            className={`col-span-1 font-nunito relative justify-self-end text-white break-all`}
           >
             <span>
               {order.average_executed_price === null
@@ -1956,7 +1956,7 @@ function HistoryOrderLine({
 
             <div className="mr-1 ">
               {order.price || order.average_executed_price ? (
-                <span className="font-nunito">
+                <span className="font-nunito break-all">
                   {numberWithCommas(
                     order.price || order.average_executed_price
                   )}
