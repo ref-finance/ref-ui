@@ -2779,7 +2779,7 @@ function FarmView(props: {
         icon,
       },
     }));
-  
+
     processTransactionPending({
       transactionId,
       page: constTransactionPage.farm,
