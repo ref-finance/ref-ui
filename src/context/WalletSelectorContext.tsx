@@ -34,6 +34,7 @@ import {
   get_orderly_public_key_path,
 } from '../pages/Orderly/orderly/utils';
 import { isMobile } from '../utils/device';
+import { setupNearMobileWallet } from '@near-wallet-selector/near-mobile-wallet';
 
 const CONTRACT_ID = getOrderlyConfig().ORDERLY_ASSET_MANAGER;
 
@@ -137,6 +138,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
           chainId: `near:${getConfig().networkId}`,
           // iconUrl: walletIcons['wallet-connect'],
         }),
+        setupNearMobileWallet(),
       ],
     });
     const _modal = setupModal(_selector, {
