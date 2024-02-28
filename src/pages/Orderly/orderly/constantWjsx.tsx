@@ -395,19 +395,14 @@ export const usePortableOrderlyTable = ({
             key: '@price',
             colSpan: 2,
             header: '@Price',
-            render: ({ price, symbol }) =>
-              price?.toFixed(
-                symbol.includes('BTC') || symbol.includes('ETH') ? 2 : 4
-              ) || '-',
+            render: ({ price, symbol }) => processPrice(price, symbol),
           },
           {
             key: 'avg_price',
             colSpan: 2,
             header: 'Avg.Price',
             render: ({ average_executed_price, symbol }) =>
-              average_executed_price?.toFixed(
-                symbol.includes('BTC') || symbol.includes('ETH') ? 2 : 4
-              ) || '-',
+              processPrice(average_executed_price, symbol),
           },
           {
             key: 'est_total',
@@ -561,21 +556,14 @@ export const usePortableOrderlyTable = ({
             colSpan: 3,
             header: '@Price',
             render: ({ price, average_executed_price, symbol }) =>
-              (price || average_executed_price)?.toPrecision(
-                (price || average_executed_price).toString().split('.')[0]
-                  .length +
-                  (symbol.includes('ETH') || symbol.includes('BTC') ? 2 : 4)
-              ) || '-',
+              processPrice(price || average_executed_price, symbol),
           },
           {
             key: 'avg_price',
             colSpan: 3,
             header: 'Avg.Price',
             render: ({ average_executed_price, symbol }) =>
-              average_executed_price?.toPrecision(
-                average_executed_price.toString().split('.')[0].length +
-                  (symbol.includes('ETH') || symbol.includes('BTC') ? 2 : 4)
-              ) || '-',
+              processPrice(average_executed_price, symbol),
           },
           {
             key: 'est_total',
@@ -1492,7 +1480,15 @@ export const usePortableOrderlyTable = ({
       },
     ],
   };
-
+  function processPrice(price, symbol) {
+    if (price) {
+      return symbol.includes('BTC') || symbol.includes('ETH')
+        ? price.toFixed(2)
+        : price;
+    } else {
+      return '-';
+    }
+  }
   return {
     ordersTable,
     assetsTables,
