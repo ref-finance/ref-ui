@@ -23,6 +23,7 @@ import {
 } from 'src/utils/wallets-integration';
 import IconWithdrawWallet from '../../assets/svg/icon-withdraw-wallet.svg';
 import { useWalletStore } from 'src/stores/loginAccountData';
+import { CONST_MYNEAR_TRANSACTIONS } from 'src/constants/constLocalStorage';
 
 const { explorerUrl } = getConfig();
 
@@ -39,6 +40,10 @@ export const ModalTransactionSubmitting = () => {
 
   if (wallet?.id === 'my-near-wallet' && isRedirectWalletPage) {
     console.info('mynear submitting');
+    localStorage.setItem(
+      CONST_MYNEAR_TRANSACTIONS,
+      JSON.stringify(actionData?.data)
+    );
     actionData.status = 'pending';
   }
 
@@ -169,6 +174,19 @@ export const ModalTransactionContent = ({
         // setIsUserCloseModal(false);
         setTokensData(tokens);
         setTransactionData(actionData);
+      }
+
+      if (['error', 'success'].includes(status)) {
+        if (wallet?.id === 'my-near-wallet') {
+          const transactionsData = localStorage.getItem(
+            CONST_MYNEAR_TRANSACTIONS
+          );
+          const parsedData = JSON.parse(transactionsData);
+          if (parsedData?.tokens) {
+            setTokensData(parsedData?.tokens);
+            localStorage.removeItem(CONST_MYNEAR_TRANSACTIONS);
+          }
+        }
       }
 
       if (['error'].includes(status)) {

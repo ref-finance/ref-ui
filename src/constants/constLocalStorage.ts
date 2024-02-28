@@ -4,3 +4,5 @@ export const CONST_GA_ACTION = {
   ACCEPT: '1',
   REJECT: '2',
 };
+
+export const CONST_MYNEAR_TRANSACTIONS = 'MYNEAR_TRANSACTIONS';

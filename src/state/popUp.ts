@@ -110,7 +110,7 @@ export const useGlobalPopUp = (globalState: any) => {
                 txHash,
                 callbackUrl: window.location.origin + pathname,
               },
-              transactionId: transactionId,
+              transactionId,
             });
             window.history.replaceState(
               {},
@@ -148,7 +148,7 @@ export const useGlobalPopUp = (globalState: any) => {
         error: {
           message: txError,
         },
-        transactionId: transactionId,
+        transactionId,
       });
       sessionStorage.removeItem('WALLETS_TX_ERROR');
     }
