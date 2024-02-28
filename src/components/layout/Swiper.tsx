@@ -64,7 +64,9 @@ export default function AdSwiper() {
               <div
                 className="relative cursor-pointer"
                 onClick={() => {
-                  window.open('');
+                  window.open(
+                    'https://twitter.com/finance_ref/status/1762500901238182007'
+                  );
                 }}
               >
                 {is_mobile ? <GalxeGiveawayMobile /> : <GalxeGiveaway />}
@@ -80,7 +82,9 @@ export default function AdSwiper() {
               <div
                 className="relative cursor-pointer"
                 onClick={() => {
-                  window.open('');
+                  window.open(
+                    'https://x.com/finance_ref/status/1762132293194330253?s=20'
+                  );
                 }}
               >
                 {is_mobile ? <WhalesCampaignMobile /> : <WhalesCampaign />}
