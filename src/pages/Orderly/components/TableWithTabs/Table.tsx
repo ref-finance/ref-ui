@@ -115,6 +115,11 @@ function OrderLine({
                       ? ' w-full text-center justify-center'
                       : ''
                   }
+                  ${
+                    column.key === '@price' || column.key === 'avg_price'
+                      ? 'break-all'
+                      : ''
+                  }
                 `}
               >
                 {column.render({ ...order })}
