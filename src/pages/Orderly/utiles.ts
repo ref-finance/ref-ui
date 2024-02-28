@@ -3,6 +3,7 @@ import Big from 'big.js';
 import {
   scientificNotationToString,
   formatWithCommas,
+  toInternationalCurrencySystemLongString,
 } from '../../utils/numbers';
 import { spawn } from 'child_process';
 export function digitWrapper(
@@ -21,16 +22,17 @@ export function digitWrapper(
       true
     );
 }
-
 export function digitWrapperAsset(
   digit: string | number,
-  precision: number,
+  precision?: number,
   fromList?: boolean
 ) {
   const minStr = '0.' + '0'.repeat(2) + '1';
 
   if (Number(digit) < Number(minStr) && Number(digit) > 0) {
     return '<' + minStr;
+  } else if (Number(digit) > 999999) {
+    return toInternationalCurrencySystemLongString(Big(digit || 0).toFixed());
   } else return toPrecision(digit.toString(), 3, true, false);
 }
 

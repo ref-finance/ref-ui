@@ -701,7 +701,12 @@ export const getV3PoolVolumeById = async (pool_id: string): Promise<any[]> => {
   )
     .then((res) => res.json())
     .then((list) => {
-      return list.slice(0, 60);
+      (list || []).sort((v1, v2) => {
+        const b =
+          new Date(v1.dateString).getTime() - new Date(v2.dateString).getTime();
+        return b;
+      });
+      return list.slice(-60);
     })
     .catch(() => {
       return [];
