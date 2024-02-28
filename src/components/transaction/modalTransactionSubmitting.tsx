@@ -32,19 +32,16 @@ export const ModalTransactionSubmitting = () => {
   const wallet = useWalletStore((state) => state.wallet);
   const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
   const actionData = transtionsExcuteDataStore.getActionData();
-  let actionData2 = actionData && JSON.parse(JSON.stringify(actionData))
+  let actionData2 = actionData && JSON.parse(JSON.stringify(actionData));
 
   const { transactionId, status, transactionError, transactionResponse } =
     actionData || {};
   const isRedirectWalletPage =
-    actionData?.status === 'success' && !transactionResponse; // myNearWallet submitting
+    ['success', 'pending'].includes(actionData?.status) && !transactionResponse; // myNearWallet submitting
 
   if (wallet?.id === 'my-near-wallet' && isRedirectWalletPage) {
     actionData.status = 'pending';
-    localStorage.setItem(
-      CONST_MYNEAR_TRANSACTIONS,
-      JSON.stringify(actionData)
-    );
+    localStorage.setItem(CONST_MYNEAR_TRANSACTIONS, JSON.stringify(actionData));
   }
 
   const isShowingHereModal =
@@ -60,12 +57,8 @@ export const ModalTransactionSubmitting = () => {
           );
           const parsedData = JSON.parse(transactionsData);
           if (parsedData) {
-            // setActionData(parsedData?.actionData)
-            // parsedData.status = actionData?.statusa
-            actionData2 = actionData ||{}
-            actionData2.data = parsedData.data
-            // setTransactionData(parsedData?.actionData);
-            // setTokensData(parsedData?.actionData.tokens);
+            actionData2 = actionData || {};
+            actionData2.data = parsedData.data;
             localStorage.removeItem(CONST_MYNEAR_TRANSACTIONS);
           }
         }
@@ -76,7 +69,7 @@ export const ModalTransactionSubmitting = () => {
           ...d,
           [transactionId]: {
             transtionsExcuteDataStore,
-            actionData:actionData2,
+            actionData: actionData2,
             isUserClose: !!d[transactionId]?.isUserClose,
           },
         };
@@ -95,7 +88,7 @@ export const ModalTransactionSubmitting = () => {
     setTransactionModals((d) => {
       d[transactionId] = {
         transtionsExcuteDataStore,
-        actionData:actionData2,
+        actionData: actionData2,
         isUserClose: true,
       };
       return { ...d };
