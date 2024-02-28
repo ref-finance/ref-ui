@@ -68,26 +68,30 @@ const OrderlyPortfolioOrdersMobile = ({
       </div>
       <div className="w-8/12 inline-block">
         <div className={`p-0.5 text-xs my-1 text-white`}>
-          <span>
-            {quantity || executed}
-            <span
-              className="text-10px p-1 text-gray2 mx-1"
-              style={{
-                borderRadius: '4px',
-                backgroundColor: 'rgba(126, 138, 147, 0.15)',
-              }}
-            >
-              {parseSymbol(symbol).symbolFrom}
+          <span className="flex flex-wrap gap-1">
+            <span>
+              {quantity || executed}
+              <span
+                className="text-10px p-1 text-gray2 mx-1"
+                style={{
+                  borderRadius: '4px',
+                  backgroundColor: 'rgba(126, 138, 147, 0.15)',
+                }}
+              >
+                {parseSymbol(symbol).symbolFrom}
+              </span>
             </span>
-            * {price?.toFixed(2) || average_executed_price?.toFixed(2)}
-            <span
-              className="text-10px p-1 text-gray2 mx-1"
-              style={{
-                borderRadius: '4px',
-                backgroundColor: 'rgba(126, 138, 147, 0.15)',
-              }}
-            >
-              USDC.e
+            <span>
+              <span>* {price || average_executed_price}</span>
+              <span
+                className="text-10px p-1 text-gray2 mx-1"
+                style={{
+                  borderRadius: '4px',
+                  backgroundColor: 'rgba(126, 138, 147, 0.15)',
+                }}
+              >
+                USDC.e
+              </span>
             </span>
           </span>
         </div>
